@@ -230,35 +230,35 @@ sub1-add1-id {pos n'} = refl
 sub1-add1-id {neg zero} = refl
 sub1-add1-id {neg (suc n')} = refl
 
-add1-+-extract : {m n : Int} -> add1 m + n == add1 (m + n)
-sub1-+-extract : {m n : Int} -> sub1 m + n == sub1 (m + n)
-add1-+-extract {zero-int} = refl
-add1-+-extract {pos m'} = refl
-add1-+-extract {neg zero} {n} rewrite add1-sub1-id {n} = refl
-add1-+-extract {neg (suc m')} {n} = 
+add1-extract-left : {m n : Int} -> add1 m + n == add1 (m + n)
+sub1-extract-left : {m n : Int} -> sub1 m + n == sub1 (m + n)
+add1-extract-left {zero-int} = refl
+add1-extract-left {pos m'} = refl
+add1-extract-left {neg zero} {n} rewrite add1-sub1-id {n} = refl
+add1-extract-left {neg (suc m')} {n} = 
   begin
    add1 (neg (suc m')) + n
   ==<>
    neg m' + n
   ==< sym (add1-sub1-id {neg m' + n}) >
    add1 (sub1 (neg m' + n))
-  ==< cong add1 (sym (sub1-+-extract {neg m'})) >
+  ==< cong add1 (sym (sub1-extract-left {neg m'})) >
    add1 (sub1 (neg m') + n)
   ==<>
    add1 ((neg (suc m')) + n)
   end
 
-sub1-+-extract {zero-int} = refl
-sub1-+-extract {neg m'} = refl
-sub1-+-extract {pos zero} {n} rewrite sub1-add1-id {n} = refl
-sub1-+-extract {pos (suc m')} {n} =
+sub1-extract-left {zero-int} = refl
+sub1-extract-left {neg m'} = refl
+sub1-extract-left {pos zero} {n} rewrite sub1-add1-id {n} = refl
+sub1-extract-left {pos (suc m')} {n} =
   begin
    sub1 (pos (suc m')) + n
   ==<>
    pos m' + n
   ==< sym (sub1-add1-id {pos m' + n}) >
    sub1 (add1 (pos m' + n))
-  ==< cong sub1 (sym (add1-+-extract {pos m'})) >
+  ==< cong sub1 (sym (add1-extract-left {pos m'})) >
    sub1 (add1 (pos m') + n)
   ==<>
    sub1 ((pos (suc m')) + n)
@@ -272,16 +272,16 @@ sub1-+-extract {pos (suc m')} {n} =
 
 +-assoc : {m n o : Int} -> (m + n) + o == m + (n + o)
 +-assoc {zero-int} = refl
-+-assoc {pos zero} {n} {o} = add1-+-extract {n} {o}
-+-assoc {neg zero} {n} {o} = sub1-+-extract {n} {o}
++-assoc {pos zero} {n} {o} = add1-extract-left {n} {o}
++-assoc {neg zero} {n} {o} = sub1-extract-left {n} {o}
 +-assoc {pos (suc m')} {n} {o} = 
   begin
     (pos (suc m') + n) + o
   ==<>
     (add1 (pos m') + n) + o
-  ==< +-left (add1-+-extract {pos m'}) >
+  ==< +-left (add1-extract-left {pos m'}) >
     (add1 (pos m' + n)) + o
-  ==< add1-+-extract {pos m' + n} >
+  ==< add1-extract-left {pos m' + n} >
     add1 ((pos m' + n) + o)
   ==< cong add1 (+-assoc {pos m'}) >
     add1 (pos m' + (n + o))
@@ -293,14 +293,142 @@ sub1-+-extract {pos (suc m')} {n} =
     (neg (suc m') + n) + o
   ==<>
     (sub1 (neg m') + n) + o
-  ==< +-left (sub1-+-extract {neg m'}) >
+  ==< +-left (sub1-extract-left {neg m'}) >
     (sub1 (neg m' + n)) + o
-  ==< sub1-+-extract {neg m' + n} >
+  ==< sub1-extract-left {neg m' + n} >
     sub1 ((neg m' + n) + o)
   ==< cong sub1 (+-assoc {neg m'}) >
     sub1 (neg m' + (n + o))
   ==<>
     neg (suc m') + (n + o)
+  end
+
++-right-zero : {m : Int} -> (m + zero-int) == m
++-right-zero {zero-int} = refl 
++-right-zero {pos zero} = refl
++-right-zero {neg zero} = refl
++-right-zero {pos (suc m)} = 
+  begin
+    (pos (suc m) + zero-int)
+  ==<>
+    add1 (pos m + zero-int)
+  ==< cong add1 (+-right-zero {pos m}) >
+    add1 (pos m)
+  ==<>
+    pos (suc m)
+  end
++-right-zero {neg (suc m)} =
+  begin
+    (neg (suc m) + zero-int)
+  ==<>
+    sub1 (neg m + zero-int)
+  ==< cong sub1 (+-right-zero {neg m}) >
+    sub1 (neg m)
+  ==<>
+    neg (suc m)
+  end
+
+add1-extract-right : {m n : Int} -> m + add1 n == add1 (m + n)
+add1-extract-right {zero-int} = refl
+add1-extract-right {pos zero} {n} = refl
+add1-extract-right {pos (suc m')} {n} = cong add1 (add1-extract-right {pos m'})
+add1-extract-right {neg zero} {n}
+  rewrite add1-sub1-id {n} | sub1-add1-id {n} =
+  refl
+add1-extract-right {neg (suc m')} {n} =
+  begin
+    neg (suc m') + add1 n
+  ==<>
+    sub1 (neg m') + add1 n
+  ==< sub1-extract-left {neg m'}  >
+    sub1 (neg m' + add1 n)
+  ==< cong sub1 (add1-extract-right {neg m'}) >
+    sub1 (add1 (neg m' + n))
+  ==< sub1-add1-id >
+    neg m' + n
+  ==< sym add1-sub1-id >
+    add1 (sub1 (neg m' + n))
+  ==< cong add1 (sym (sub1-extract-left {neg m'})) >
+    add1 (sub1 (neg m') + n)
+  ==<>
+    (add1 (neg (suc m') + n))
+  end
+
+sub1-extract-right : {m n : Int} -> m + sub1 n == sub1 (m + n)
+sub1-extract-right {zero-int} = refl
+sub1-extract-right {neg zero} {n} = refl
+sub1-extract-right {neg (suc m')} {n} = cong sub1 (sub1-extract-right {neg m'})
+sub1-extract-right {pos zero} {n}
+  rewrite sub1-add1-id {n} | add1-sub1-id {n} =
+  refl
+sub1-extract-right {pos (suc m')} {n} =
+  begin
+    pos (suc m') + sub1 n
+  ==<>
+    add1 (pos m') + sub1 n
+  ==< add1-extract-left {pos m'}  >
+    add1 (pos m' + sub1 n)
+  ==< cong add1 (sub1-extract-right {pos m'}) >
+    add1 (sub1 (pos m' + n))
+  ==< add1-sub1-id >
+    pos m' + n
+  ==< sym sub1-add1-id >
+    sub1 (add1 (pos m' + n))
+  ==< cong sub1 (sym (add1-extract-left {pos m'})) >
+    sub1 (add1 (pos m') + n)
+  ==<>
+    (sub1 (pos (suc m') + n))
+  end
+
++-commute : {m n : Int} -> (m + n) == (n + m)
++-commute {zero-int} = sym +-right-zero
++-commute {pos zero} {n} =
+ begin
+   pos zero + n
+ ==<>
+   add1 n
+ ==< cong add1 (sym +-right-zero) >
+   add1 (n + zero-int)
+ ==< sym (add1-extract-right {n}) >
+   n + add1 zero-int
+ ==<>
+   n + pos zero
+ end 
++-commute {neg zero} {n} =
+ begin
+   neg zero + n
+ ==<>
+   sub1 n
+ ==< cong sub1 (sym +-right-zero) >
+   sub1 (n + zero-int)
+ ==< sym (sub1-extract-right {n}) >
+   n + sub1 zero-int
+ ==<>
+   n + neg zero
+ end 
++-commute {pos (suc m')} {n} = 
+  begin
+    pos (suc m') + n
+  ==<>
+    add1 (pos m' + n)
+  ==< cong add1 (+-commute {pos m'}) >
+    add1 (n + pos m')
+  ==< sym (add1-extract-right {n})>
+    n + add1 (pos m')
+  ==<>
+    n + pos (suc m')
+  end
++-commute {neg (suc m')} {n} = 
+  begin
+    neg (suc m') + n
+  ==<>
+    sub1 (neg m' + n)
+  ==< cong sub1 (+-commute {neg m'}) >
+    sub1 (n + neg m')
+  ==< sym (sub1-extract-right {n})>
+    n + sub1 (neg m')
+  ==<>
+    n + neg (suc m')
   end
 
 
