@@ -183,6 +183,91 @@ zero-one-absurd ()
 *'-only-one-right {zero} {_} ()
 *'-only-one-right {m} {zero} p = zero-one-absurd (sym (*'-right-zero {m}) >=> p)
 *'-only-one-right {suc zero} {suc zero} _ = refl
+
+data Fin : Nat -> Set where
+ zero-fin : {n : Nat} -> Fin (suc n)
+ suc-fin : {n : Nat} -> Fin n -> Fin (suc n)
+
+fin->nat : {n : Nat} -> Fin n -> Nat
+fin->nat zero-fin = zero
+fin->nat (suc-fin f) = suc (fin->nat f)
+
+nat->fin : (n : Nat) -> Fin (suc n)
+nat->fin zero = zero-fin
+nat->fin (suc n) = suc-fin (nat->fin n)
+
+
+data _≤'_ : Nat -> Nat -> Set where
+ zero-≤' : {n : Nat} -> zero ≤' n
+ suc-≤' : {m n : Nat} -> m ≤' n -> suc m ≤' suc n
+
+data _≤_ : Nat -> Nat -> Set where
+ id-≤ : {n : Nat} -> n ≤ n
+ suc-≤ : {m n : Nat} -> m ≤ n -> m ≤ suc n
+
+inc-≤ : {m n : Nat} -> m ≤ n -> suc m ≤ suc n
+inc-≤ id-≤ = id-≤
+inc-≤ (suc-≤ ≤) = suc-≤ (inc-≤ ≤)
+
+zero-≤ : (n : Nat) -> zero ≤ n
+zero-≤ zero = id-≤
+zero-≤ (suc n) = suc-≤ (zero-≤ n)
+
+same-≤' : (n : Nat) -> n ≤' n
+same-≤' zero = zero-≤'
+same-≤' (suc n) = suc-≤' (same-≤' n)
+
+inc-≤' : {m n : Nat} -> m ≤' n -> m ≤' (suc n)
+inc-≤' zero-≤' = zero-≤'
+inc-≤' (suc-≤' p) = suc-≤' (inc-≤' p)
+
+≤->≤' : {m n : Nat} -> m ≤ n -> m ≤' n
+≤->≤' {m} id-≤ = same-≤' m
+≤->≤' (suc-≤ p) = inc-≤' (≤->≤' p)
+ 
+ 
+≤'->≤ : {m n : Nat} -> m ≤' n -> m ≤ n
+≤'->≤ {_} {n} zero-≤' = zero-≤ n
+≤'->≤ (suc-≤' p) = inc-≤ (≤'->≤ p)
+
+
+trans-≤' : {m n o : Nat} -> m ≤' n -> n ≤' o -> m ≤' o
+trans-≤' zero-≤' p = zero-≤'
+trans-≤' (suc-≤' l) (suc-≤' r) = suc-≤' (trans-≤' l r)
+
+trans-≤ : {m n o : Nat} -> m ≤ n -> n ≤ o -> m ≤ o
+trans-≤ a b = ≤'->≤ (trans-≤' (≤->≤' a) (≤->≤' b))
+
+dec-≤' : {m n : Nat} -> suc m ≤' suc n -> m ≤' n
+dec-≤' (suc-≤' ≤) = ≤
+
+dec-≤ : {m n : Nat} -> suc m ≤ suc n -> m ≤ n
+dec-≤ p = ≤'->≤ (dec-≤' (≤->≤' p))
+
+induction : 
+  {P : Nat -> Set} ->
+  P zero ->
+  ({m : Nat} -> P m -> P (suc m)) ->
+  (m : Nat) -> P m
+induction {P} z f zero = z
+induction {P} z f (suc m) = f (induction {P} z f m)
+
+strong-induction' : 
+  {P : Nat -> Set} ->
+  P zero ->
+  ({m : Nat} -> ({n : Nat} -> (n ≤ m) -> P n) -> P (suc m)) ->
+  (m : Nat) -> {n : Nat} -> (n ≤ m) -> P n
+strong-induction' z f zero id-≤ = z
+strong-induction' z f (suc m) (suc-≤ rec-≤) = strong-induction' z f m rec-≤
+strong-induction' z f (suc m) id-≤ = f {m} (strong-induction' z f m)
+
+strong-induction : 
+  {P : Nat -> Set} ->
+  P zero ->
+  ({m : Nat} -> ({n : Nat} -> (n ≤ m) -> P n) -> P (suc m)) ->
+  (m : Nat) -> P m
+strong-induction z f m = strong-induction' z f m id-≤
+
   
 data Int : Set where
  zero-int : Int
@@ -190,6 +275,10 @@ data Int : Set where
  pos : Nat -> Int
  -- neg n Corresponds to -(n+1)
  neg : Nat -> Int
+
+int : Nat -> Int
+int zero = zero-int
+int (suc n) = pos n
 
 infix 9 -_
 -_ : Int -> Int
@@ -939,98 +1028,234 @@ sub1-extract-*-right {neg (suc m')} {n} =
     n * neg (suc m')
   end
 
-data _div_ : Nat -> Nat -> Set where
- div-exist : (a : Nat) -> (b : Nat) -> {c : Nat} -> {c *' a == b} -> a div b
+-- infix 20 _div_
+data _div_ : Int -> Int -> Set where
+ div-exist : (a : Int) -> (b : Int) -> (c : Int) -> (c * a == b) -> a div b
 
-div-refl : {n : Nat} -> n div n
-div-refl {n} = (div-exist n n {suc zero} {*'-left-one})
 
-div-trans : {d m n : Nat} -> d div m -> m div n -> d div n
-div-trans (div-exist d m {a} {refl}) (div-exist m n {b} {refl}) = 
-  div-exist d n {b *' a} {(*'-assoc {b})}
+==-div-right : {d a b : Int} -> a == b -> d div a -> d div b
+==-div-right refl div = div
 
-div-mult : {d n a : Nat} -> d div n -> (a *' d) div (a *' n)
-div-mult {d} {n} {a} (div-exist d n {c} {refl}) =
-  div-exist (a *' d) (a *' n) {c} 
-  {begin
-     c *' (a *' d)
-   ==< sym (*'-assoc {c}) >
-     (c *' a) *' d
-   ==< *'-left (*'-commute {c} {a}) >
-     (a *' c) *' d
-   ==< *'-assoc {a}  >
-     a *' (c *' d)
+div-refl : {n : Int} -> n div n
+div-refl {n} = (div-exist n n (pos zero) (+-right-zero {n}))
+
+div-trans : {d m n : Int} -> d div m -> m div n -> d div n
+div-trans (div-exist d m a refl) (div-exist m n b refl) = 
+  div-exist d n (b * a) (*-assoc {b})
+
+div-mult : {d n a : Int} -> d div n -> (a * d) div (a * n)
+div-mult {d} {n} {a} (div-exist d n c refl) =
+  div-exist (a * d) (a * n) c 
+  (begin
+     c * (a * d)
+   ==< sym (*-assoc {c}) >
+     (c * a) * d
+   ==< *-left (*-commute {c} {a}) >
+     (a * c) * d
+   ==< *-assoc {a}  >
+     a * (c * d)
    ==<>
-     a *' n
-   end}
+     a * n
+   end)
 
-div-one : {n : Nat} -> (1 div n)
-div-one {n} = div-exist 1 n {n} {*'-right-one {n}}
-
-div-only-one : {n : Nat} -> (n div 1) -> n == 1
-div-only-one {n} (div-exist n 1 {c} {p}) = *'-only-one-right {c} {n} p
+div-negate : {d a : Int} -> d div a -> d div (- a)
+div-negate (div-exist d a d-div-a refl) =
+  (div-exist d (- a) (- d-div-a) (minus-extract-left {d-div-a}))
 
 
-data GCD : Nat -> Nat -> Nat -> Set where
- gcd : (a : Nat) -> (b : Nat) -> (d : Nat) -> (d div a) -> (d div b)
-       -> ((x : Nat) -> x div a -> x div b -> x div d) -> GCD a b d
+div-sum : {d a b : Int} -> d div a -> d div b -> d div (a + b)
+div-sum (div-exist d a d-div-a refl) (div-exist d b d-div-b refl) =
+  div-exist d (a + b) (d-div-a + d-div-b) (*-distrib-+ {d-div-a}) 
 
-data LinearCombination : Nat -> Nat -> Nat -> Set where
- gcd-sum : (a : Nat) -> (b : Nat) -> {d : Nat} -> {x : Nat} -> {y : Nat} 
-   -> {a *' x +' d == b *' y}
+div-linear : {d a b : Int} -> d div a -> d div b -> {m n : Int} -> d div (m * a + n * b)
+div-linear (div-exist d a d-div-a refl) (div-exist d b d-div-b refl) {m} {n} =
+  div-exist d (m * a + n * b) (m * d-div-a + n * d-div-b)
+  (begin
+     (m * d-div-a + n * d-div-b) * d
+   ==< *-distrib-+ {m * d-div-a} >
+     (m * d-div-a) * d + (n * d-div-b) * d
+   ==< +-left (*-assoc {m}) >
+     m * a + (n * d-div-b) * d
+   ==< +-right {m * a} (*-assoc {n}) >
+     m * a + n * b 
+   end)
+ 
+div-one : {n : Int} -> ((int 1) div n)
+div-one {n} = div-exist (int 1) n n (*-right-one {n})
+
+div-zero : {n : Int} -> (n div zero-int)
+div-zero {n} = div-exist n zero-int zero-int refl 
+
+data GCD : Int -> Int -> Int -> Set where
+ gcd : (a : Int) -> (b : Int) -> (d : Int) -> (d div a) -> (d div b)
+       -> ((x : Int) -> x div a -> x div b -> x div d) -> GCD a b d
+
+gcd-refl : {n : Int} -> GCD n n n
+gcd-refl {n} = gcd n n n div-refl div-refl (\ _ _ d -> d)
+
+gcd-sym : {a b d : Int} -> GCD a b d -> GCD b a d
+gcd-sym (gcd a b d div-a div-b f) = (gcd b a d div-b div-a (\ x xb xa -> f x xa xb))
+
+gcd-zero : {a : Int} -> GCD a zero-int a
+gcd-zero {a} = (gcd a zero-int a div-refl div-zero (\ x xa xz -> xa))
+
+gcd-pos->neg : {a : Nat} {b d : Int} -> GCD (pos a) b d -> GCD (neg a) b d
+gcd-pos->neg (gcd (pos a) b d d-div-a d-div-b f) =
+  (gcd (neg a) b d (div-negate d-div-a) d-div-b (\ x xa xb -> f x (div-negate xa) xb))
+
+gcd-negate : {a b d : Int} -> GCD a b d -> GCD (- a) b d
+gcd-negate (gcd a b d d-div-a d-div-b f) =
+  (gcd (- a) b d (div-negate d-div-a) d-div-b g)
+  where 
+  g : (x : Int) -> x div (- a) -> x div b -> x div d
+  g x xa xb = f x rewritten-xa xb
+    where
+    xa2 : x div (- (- a))
+    xa2 = (div-negate xa)
+    rewritten-xa : x div a
+    rewritten-xa rewrite sym (minus-double-inverse {a}) = xa2
+
+
+data LinearCombination : Int -> Int -> Int -> Set where
+ linear-combo : (a : Int) -> (b : Int) -> (d : Int) -> (x : Int) -> (y : Int)
+   -> {x * a + y * b == d}
    -> LinearCombination a b d
 
-ex1-1 : {a b c d : Nat} -> GCD a b 1 -> c div a -> d div b -> GCD c d 1 
-ex1-1 {a} {b} {c} {d} (gcd a b 1 _ _ gcd-f) c-div-a d-div-b = 
-  gcd c d 1 div-one div-one 
+linear-combo->gcd : {a b d : Int} -> LinearCombination a b d -> d div a -> d div b -> GCD a b d
+linear-combo->gcd (linear-combo a b d x y {refl}) da db = 
+  (gcd a b d da db (\ z za zb -> div-linear za zb {x} {y}))
+
+data exists : {A : Set} -> (B : A -> Set) -> Set where
+ existence : {A : Set} -> {B : A -> Set} -> (x : A) -> (y : B x) -> exists B
+
+data CompareNat3 : Nat -> Nat -> Set where
+  compare3-= : {m n : Nat} -> m == n -> CompareNat3 m n
+  compare3-< : {a m n : Nat} 
+    -> (pos a) + (pos m) == (pos n) 
+    -> suc (a +' m) ≤ (m +' n)
+    -> CompareNat3 m n
+  compare3-> : {a m n : Nat} 
+    -> (pos a) + (pos n) == (pos m) 
+    -> suc (a +' n) ≤ (m +' n)
+    -> CompareNat3 m n
+decide-compare3 : (m : Nat) -> (n : Nat) -> CompareNat3 m n
+decide-compare3 zero zero = compare3-= refl
+decide-compare3 zero (suc n) = compare3-< {n} (+-commute {pos n}) ≤-proof
+  where 
+  ≤-proof : (suc n +' zero) ≤ suc n
+  ≤-proof rewrite (+'-right-zero {suc n}) = id-≤
+decide-compare3 (suc m) zero = compare3-> {m} (+-commute {pos m}) id-≤
+decide-compare3 (suc m) (suc n) = fix (decide-compare3 m n)
+  where fix : CompareNat3 m n -> CompareNat3 (suc m) (suc n)
+        fix (compare3-= refl) = (compare3-= refl) 
+        fix (compare3-< {a} pr rec-≤) =
+          compare3-< {a} (add1-extract-right {pos a} >=> cong add1 pr) ≤-proof
+          where 
+          ≤-proof : (suc a +' suc m) ≤ (suc m +' suc n)
+          ≤-proof rewrite (+'-right-suc {a} {m}) | (+'-right-suc {m} {n}) = 
+            inc-≤ (suc-≤ rec-≤)
+        fix (compare3-> {a} pr rec-≤) = 
+          compare3-> {a} (add1-extract-right {pos a} >=> cong add1 pr) ≤-proof
+          where 
+          ≤-proof : (suc a +' suc n) ≤ (suc m +' suc n)
+          ≤-proof rewrite (+'-right-suc {a} {n}) | (+'-right-suc {m} {n}) = 
+            inc-≤ (suc-≤ rec-≤)
+
+
+
+eulers-helper : (m : Nat) -> (n : Nat) -> 
+                {a : Nat} -> (pos a + pos m == pos n) -> {d : Int} -> 
+                GCD (pos a) (pos m) d 
+                -> GCD (pos m) (pos n) d
+eulers-helper m n {a} pr (gcd _ (pos m) d d-div-a' d-div-m' f) =
+  gcd (pos m) (pos n) d d-div-m' div-proof rec-proof
+  where
+  div-proof : d div (pos n)
+  div-proof = ==-div-right pr (div-sum d-div-a' d-div-m') 
+  rec-proof : (x : Int) -> x div (pos m) -> x div (pos n) -> x div d
+  rec-proof x x-div-m' x-div-n' = f x x-div-a' x-div-m'
+    where
+    x-div-mn : x div (neg m + pos n)
+    x-div-mn = div-sum (div-negate x-div-m') x-div-n'
+    mn==a : neg m + pos n == pos a
+    mn==a = 
+      begin
+        neg m + pos n
+      ==< +-right {neg m} (sym pr) >
+        neg m + (pos a + pos m)
+      ==< +-right {neg m} (+-commute {pos a}) >
+        neg m + (pos m + pos a)
+      ==< sym (+-assoc {neg m}) >
+        (neg m + pos m) + pos a
+      ==< +-left (add-minus-zero {neg m}) >
+        pos a
+      end 
+    x-div-a' : x div (pos a)
+    x-div-a' = ==-div-right mn==a x-div-mn
+      
+pos-eulers-algo' : (b : Nat) -> (m : Nat) -> (n : Nat)
+  -> (suc (m +' n)) ≤ b
+  -> exists (GCD (pos m) (pos n))
+pos-eulers-algo' (suc b) m n (suc-≤ ≤) = pos-eulers-algo' b m n ≤
+pos-eulers-algo' (suc b) m n size-pr = split (decide-compare3 m n)
+  where
+  split : CompareNat3 m n -> exists (GCD (pos m) (pos n))
+  split (compare3-= refl) = existence (pos m) gcd-refl
+  split (compare3-< {a} pr rec-size-pr) = handle (pos-eulers-algo' b a m new-size-pr)
+    where
+    handle : (exists (GCD (pos a) (pos m))) -> (exists (GCD (pos m) (pos n)))
+    handle (existence d gc) = (existence d (eulers-helper m n {a} pr {d} gc))
+    new-size-pr : (suc (a +' m)) ≤ b
+    new-size-pr = trans-≤ rec-size-pr (dec-≤ size-pr)
+  split (compare3-> {a} pr rec-size-pr) = handle (pos-eulers-algo' b a n new-size-pr)
+    where
+    handle : (exists (GCD (pos a) (pos n))) -> (exists (GCD (pos m) (pos n)))
+    handle (existence d gc) = (existence d (gcd-sym (eulers-helper n m {a} pr {d} gc)))
+    new-size-pr : (suc (a +' n)) ≤ b
+    new-size-pr = trans-≤ rec-size-pr (dec-≤ size-pr)
+pos-eulers-algo' zero m n ()
+
+pos-eulers-algo : (m : Nat) -> (n : Nat) -> exists (GCD (pos m) (pos n))
+pos-eulers-algo m n = pos-eulers-algo' (suc (m +' n)) m n id-≤ 
+
+eulers-algo : (m : Int) -> (n : Int) -> exists (GCD m n)
+eulers-algo zero-int zero-int = existence zero-int gcd-refl
+eulers-algo zero-int n = existence n (gcd-sym gcd-zero)
+eulers-algo m zero-int = existence m gcd-zero
+eulers-algo (pos m) (pos n) = pos-eulers-algo m n
+eulers-algo (neg m) (pos n) = handle (pos-eulers-algo m n) 
+  where
+  handle : exists (GCD (pos m) (pos n)) -> exists (GCD (neg m) (pos n))
+  handle (existence d pr) = existence d (gcd-negate pr)
+eulers-algo (pos m) (neg n) = handle (pos-eulers-algo m n) 
+  where
+  handle : exists (GCD (pos m) (pos n)) -> exists (GCD (pos m) (neg n))
+  handle (existence d pr) = existence d (gcd-sym (gcd-negate (gcd-sym pr)))
+eulers-algo (neg m) (neg n) = handle (pos-eulers-algo m n) 
+  where
+  handle : exists (GCD (pos m) (pos n)) -> exists (GCD (neg m) (neg n))
+  handle (existence d pr) = existence d (gcd-sym (gcd-negate (gcd-sym (gcd-negate pr))))
+
+
+
+ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)
+ex1-1 {a} {b} {c} {d} (gcd a b _ _ _ gcd-f) c-div-a d-div-b = 
+  gcd c d (int 1) div-one div-one 
   (\x x-div-c x-div-d -> 
     (gcd-f x (div-trans x-div-c c-div-a) (div-trans x-div-d d-div-b)))
 
--- ex1-2 : {a b c : Nat} -> GCD a b 1 -> GCD a c 1 -> GCD a (b *' c) 1
--- ex1-2 {a} {b} {c} (gcd a b 1 _ _ _) (gcd a c 1 _ _ _)  =
---   gcd a (b *' c) 1 div-one div-one
---   (\x x-div-a x-div-bc -> 
---     ?)
+ex1-2 : {a b c : Int} -> GCD a b (int 1) -> GCD a c (int 1) -> GCD a (b * c) (int 1)
+ex1-2 (gcd a b _ _ _ _) (gcd a c _ _ _ _)  =
+  linear-combo->gcd lc div-one div-one
+  where
+  lc : LinearCombination a (b * c) (int 1)
+  lc = ?
 
 
 
-data PropEquiv : (A B : Set) -> Set where
- prop-equiv : {A B : Set} -> (A -> B) -> (B -> A) -> PropEquiv A B
-
-data _≤'_ : Nat -> Nat -> Set where
- leq'-zero : {n : Nat} -> zero ≤' n
- leq'-suc : {m n : Nat} -> m ≤' n -> suc m ≤' suc n
-
-data _≤_ : Nat -> Nat -> Set where
- leq-id : {n : Nat} -> n ≤ n
- leq-suc : {m n : Nat} -> m ≤ n -> m ≤ suc n
-
-zero-≤ : (n : Nat) -> zero ≤ n
-zero-≤ zero = leq-id
-zero-≤ (suc n) = leq-suc (zero-≤ n)
-
-inc-≤ : {m n : Nat} -> m ≤ n -> (suc m) ≤ (suc n)
-inc-≤ leq-id = leq-id
-inc-≤ (leq-suc p) = leq-suc (inc-≤ p)
-
-
-same-≤' : (n : Nat) -> n ≤' n
-same-≤' zero = leq'-zero
-same-≤' (suc n) = leq'-suc (same-≤' n)
-
-inc-≤' : {m n : Nat} -> m ≤' n -> m ≤' (suc n)
-inc-≤' leq'-zero = leq'-zero
-inc-≤' (leq'-suc p) = leq'-suc (inc-≤' p)
-
-
-≤->≤' : {m n : Nat} -> m ≤ n -> m ≤' n
-≤->≤' {m} leq-id = same-≤' m
-≤->≤' (leq-suc p) = inc-≤' (≤->≤' p)
-
-
-≤'->≤ : {m n : Nat} -> m ≤' n -> m ≤ n
-≤'->≤ {_} {n} leq'-zero = zero-≤ n
-≤'->≤ (leq'-suc p) = inc-≤ (≤'->≤ p)
-
-≤'<->≤ : {m n : Nat} -> PropEquiv (m ≤' n) (m ≤ n)
-≤'<->≤  = prop-equiv ≤'->≤ ≤->≤'
+-- 
+-- data PropEquiv : (A B : Set) -> Set where
+--  prop-equiv : {A B : Set} -> (A -> B) -> (B -> A) -> PropEquiv A B
+-- 
+-- ≤'<->≤ : {m n : Nat} -> PropEquiv (m ≤' n) (m ≤ n)
+-- ≤'<->≤  = prop-equiv ≤'->≤ ≤->≤'
