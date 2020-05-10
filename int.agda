@@ -950,3 +950,5 @@ sub1-disjoint {pos (suc _)} ()
 
 *-right-id : {m n : Int} -> (NonZero m) -> m * n == m -> n == (int 1)
 *-right-id {m} {n} nz pr = *-left-id nz (sym (*-commute {m} {n}) >=> pr)
+
+

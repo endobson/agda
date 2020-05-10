@@ -8,8 +8,7 @@ open import int
 -- infix 20 _div_
 data _div_ : Int -> Int -> Set where
  div-exist : (a : Int) -> (b : Int) -> (c : Int) -> (c * a == b) -> a div b
-
-
+ 
 ==-div-right : {d a b : Int} -> a == b -> d div a -> d div b
 ==-div-right refl div = div
 
@@ -164,6 +163,7 @@ div-one {n} = div-exist (int 1) n n (*-right-one {n})
 
 div-zero : {n : Int} -> (n div zero-int)
 div-zero {n} = div-exist n zero-int zero-int refl 
+
 
 data GCD : Int -> Int -> Int -> Set where
  gcd : (a : Int) -> (b : Int) -> (d : Int) -> 

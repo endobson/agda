@@ -55,3 +55,13 @@ x != y = ¬ (x == y)
 infixl 20 _>=>_
 _>=>_ : {A : Set} -> {x y z : A} -> x == y -> y == z -> x == z
 refl >=> refl = refl
+
+infixr 1 _⊎_
+
+data _⊎_ (A : Set) (B : Set) : Set where
+  inj-l : (a : A) → A ⊎ B
+  inj-r : (b : B) → A ⊎ B
+
+data Dec (A : Set) : Set where
+  yes : A -> Dec A
+  no : ¬ A -> Dec A
