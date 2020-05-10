@@ -1,6 +1,8 @@
 module abs where
 
-open import base
+open import equality
+open import nat
+open import int
 
 
 data NonNegIntRec : Int -> Set where

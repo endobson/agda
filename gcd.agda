@@ -1,7 +1,9 @@
 module gcd where
 
-open import base
+open import equality
 open import abs
+open import nat
+open import int
 
 -- infix 20 _div_
 data _div_ : Int -> Int -> Set where
