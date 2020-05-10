@@ -470,21 +470,43 @@ gcd-exists : (m : Int) -> (n : Int) -> exists (GCD m n)
 gcd-exists m n with (eulers-algo m n)
 ...               | (existence d (linear-gcd _ gc)) = existence d gc
 
--- gcd-unique : {m n d1 d2 : Int} -> GCD m n d1 -> GCD m n d2 -> d1 == d2
--- gcd-unique = ?
 
--- gcd->linear-combo : {a b c : Int} -> GCD a b c -> LinearCombination a b c
--- gcd->linear-combo (gcd a b c _ c-div-a c-div-b _) =
---   linear-combo a b c ? ?
---   where c-div
+abs'-int-id : {m : Nat} -> abs' (int m) == m
+abs'-int-id {zero} = refl
+abs'-int-id {suc m} = refl
 
--- x * c == a
--- y * c == b
+int-abs'-id : {m : Int} -> (NonNeg m) -> int (abs' m) == m
+int-abs'-id {zero-int} _ = refl
+int-abs'-id {pos m} _ = refl
 
--- x * y * c == x * b
--- x * y * c == y * a
+non-neg-same-abs : {m n : Int} -> NonNeg m -> NonNeg n -> abs m == abs n -> m == n
+non-neg-same-abs {m} {n} mp np eq =
+  begin
+    m
+  ==< sym (int-abs'-id mp)  >
+    int (abs' m)
+  ==< (cong int (abs->abs' eq)) >
+    int (abs' n)
+  ==< int-abs'-id np  >
+    n
+  end
 
+gcd-unique : {m n d1 d2 : Int} -> GCD m n d1 -> GCD m n d2 -> d1 == d2
+gcd-unique (gcd m n d1 d1-nn d1-div-m d1-div-n d1-f)
+           (gcd m n d2 d2-nn d2-div-m d2-div-n d2-f) =
+  non-neg-same-abs d1-nn d2-nn (div-same-abs d1-div-d2 d2-div-d1)
+  where
+  d1-div-d2 : d1 div d2
+  d1-div-d2 = (d2-f d1 d1-div-m d1-div-n)
+  d2-div-d1 : d2 div d1
+  d2-div-d1 = (d1-f d2 d2-div-m d2-div-n)
 
+gcd->linear-combo : {a b d : Int} -> GCD a b d -> LinearCombination a b d
+gcd->linear-combo {a} {b} {d} gcd-d = handle (eulers-algo a b)
+  where
+  handle : exists (LinearGCD a b) -> LinearCombination a b d
+  handle (existence d' (linear-gcd lc gcd-d')) rewrite (gcd-unique gcd-d gcd-d') = lc
+  
 ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)
 ex1-1 {a} {b} {c} {d} (gcd a b _ _ _ _ gcd-f) c-div-a d-div-b = 
   gcd c d (int 1) tt div-one div-one 
