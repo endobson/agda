@@ -242,6 +242,14 @@ abs'-inject-* {neg m} {zero-int} =
     abs' (neg m) *' abs' zero-int
   end
 
+abs'-int-id : {m : Nat} -> abs' (int m) == m
+abs'-int-id {zero} = refl
+abs'-int-id {suc m} = refl
+
+int-abs'-id : {m : Int} -> (NonNeg m) -> int (abs' m) == m
+int-abs'-id {zero-int} _ = refl
+int-abs'-id {pos m} _ = refl
+
 
 -- 
 -- abs'->abs : {m n : Int} -> abs' m == abs' n -> abs m == abs n

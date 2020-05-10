@@ -207,6 +207,10 @@ dec-≤' (suc-≤' ≤) = ≤
 dec-≤ : {m n : Nat} -> suc m ≤ suc n -> m ≤ n
 dec-≤ p = ≤'->≤ (dec-≤' (≤->≤' p))
 
+≤-a+'b==c : {a b c : Nat} -> a +' b == c -> b ≤ c
+≤-a+'b==c {zero} {b} {c} refl = id-≤
+≤-a+'b==c {suc a} {b} {suc c} refl = suc-≤ (≤-a+'b==c {a} {b} {c} refl)
+
 induction : 
   {P : Nat -> Set} ->
   P zero ->

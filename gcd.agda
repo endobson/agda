@@ -64,6 +64,29 @@ div-abs-left {zero-int} div-a = div-a
 div-abs-left {pos _} div-a = div-a
 div-abs-left {neg _} div-a = div-negate-left div-a
 
+div-abs-≤ : {d a : Int} -> {Pos d} -> {Pos a} -> d div a -> abs' d ≤ abs' a
+div-abs-≤ {d} {a} {pos-d} (div-exist d a (pos x) refl) = ≤-a+'b==c (sym proof)
+  where
+  lemma : (z : Nat) -> NonNeg (z *nz d)
+  lemma zero = tt
+  lemma (suc z) = (Pos->NonNeg (+-Pos-NonNeg pos-d (lemma z)))
+  proof : abs' a == abs' (x *nz d) +' abs' d
+  proof = 
+    begin
+      abs' a
+    ==<>
+      abs' (d + x *nz d)
+    ==< cong abs' (+-commute {d}) >
+      abs' (x *nz d + d)
+    ==< abs'-inject-+ {x *nz d} (lemma x) (Pos->NonNeg pos-d) >
+      abs' (x *nz d) +' abs' d
+    end
+div-abs-≤ {d} {a} {pos-d} {pos-a} (div-exist d a (zero-int) refl) =
+  bot-elim pos-a
+div-abs-≤ {pos d'} {pos a'} (div-exist _ _ (neg x) pr) =
+  bot-elim (subst Neg pr (*-Neg-Pos {neg x} {pos d'} tt tt))
+
+
 
 div-zero->zero : {n : Int} -> (int 0) div n -> n == (int 0)
 div-zero->zero (div-exist zero-int n d refl) = (*-commute {d} {zero-int})
@@ -472,14 +495,6 @@ gcd-exists : (m : Int) -> (n : Int) -> exists (GCD m n)
 gcd-exists m n with (eulers-algo m n)
 ...               | (existence d (linear-gcd _ gc)) = existence d gc
 
-
-abs'-int-id : {m : Nat} -> abs' (int m) == m
-abs'-int-id {zero} = refl
-abs'-int-id {suc m} = refl
-
-int-abs'-id : {m : Int} -> (NonNeg m) -> int (abs' m) == m
-int-abs'-id {zero-int} _ = refl
-int-abs'-id {pos m} _ = refl
 
 non-neg-same-abs : {m n : Int} -> NonNeg m -> NonNeg n -> abs m == abs n -> m == n
 non-neg-same-abs {m} {n} mp np eq =

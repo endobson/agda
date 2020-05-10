@@ -62,14 +62,12 @@ minus-double-inverse {neg x'} = refl
 add1 : Int -> Int
 add1 zero-int = pos zero
 add1 (pos n) = (pos (suc n))
-add1 (neg zero) = zero-int
-add1 (neg (suc n)) = neg n
+add1 (neg x) = - (int x)
 
 sub1 : Int -> Int
 sub1 zero-int = neg zero
 sub1 (neg n) = (neg (suc n))
-sub1 (pos zero) = zero-int
-sub1 (pos (suc n)) = pos n
+sub1 (pos n) = int n
 
 infixl 6 _+_
 _+_ : Int -> Int -> Int
@@ -252,7 +250,7 @@ sub1-extract-right {pos (suc m')} {n} =
    pos zero + n
  ==<>
    add1 n
- ==< cong add1 (sym +-right-zero) >
+ ==< sym (cong add1 (+-right-zero {n})) >
    add1 (n + zero-int)
  ==< sym (add1-extract-right {n}) >
    n + add1 zero-int
@@ -264,7 +262,7 @@ sub1-extract-right {pos (suc m')} {n} =
    neg zero + n
  ==<>
    sub1 n
- ==< cong sub1 (sym +-right-zero) >
+ ==< cong sub1 (sym (+-right-zero {n})) >
    sub1 (n + zero-int)
  ==< sym (sub1-extract-right {n}) >
    n + sub1 zero-int
@@ -407,14 +405,14 @@ add-minus-zero {neg (suc n')} =
 
 minus-distrib-+ : {m n : Int} -> - (m + n) == - m + - n
 minus-distrib-+ {zero-int} = refl
-minus-distrib-+ {pos zero} = sym sub1-minus->minus-add1
-minus-distrib-+ {neg zero} = sym add1-minus->minus-sub1
+minus-distrib-+ {pos zero} {n} = sym (sub1-minus->minus-add1 {n})
+minus-distrib-+ {neg zero} {n} = sym (add1-minus->minus-sub1 {n})
 minus-distrib-+ {pos (suc m')} {n} =
   begin
     - (pos (suc m') + n)
   ==<>
     - (add1 (pos m' + n))
-  ==< sym sub1-minus->minus-add1 >
+  ==< sym (sub1-minus->minus-add1 {pos m' + n}) >
     sub1 (- (pos m' + n))
   ==< cong sub1 (minus-distrib-+ {pos m'}) >
     sub1 (- pos m' + - n)
@@ -430,7 +428,7 @@ minus-distrib-+ {neg (suc m')} {n} =
     - (neg (suc m') + n)
   ==<>
     - (sub1 (neg m' + n))
-  ==< sym add1-minus->minus-sub1 >
+  ==< sym (add1-minus->minus-sub1 {neg m' + n}) >
     add1 (- (neg m' + n))
   ==< cong add1 (minus-distrib-+ {neg m'}) >
     add1 (- neg m' + - n)
@@ -531,7 +529,7 @@ add1-extract-*-right {neg zero} {n} =
     - (add1 n + zero-int)
   ==< cong minus (add1-extract-left {n}) >
     - add1 (n + zero-int)
-  ==< sym sub1-minus->minus-add1 >
+  ==< sym (sub1-minus->minus-add1 {n + zero-int}) >
     sub1 (- (n + zero-int))
   ==<>
     neg zero + neg zero * n
@@ -637,7 +635,7 @@ sub1-extract-*-right {pos zero} {n} =
     (pos zero) * (sub1 n)
   ==< +-right-zero {sub1 n} >
     (sub1 n)
-  ==< cong sub1 (sym (+-right-zero)) >
+  ==< cong sub1 (sym (+-right-zero {n})) >
     (sub1 (n + zero-int))
   ==<>
     - (pos zero) + (pos zero) * n
@@ -649,7 +647,7 @@ sub1-extract-*-right {neg zero} {n} =
     - (sub1 n)
   ==< sym (add1-minus->minus-sub1 {n}) >
     add1 (- n)
-  ==< cong add1 (cong minus (sym (+-right-zero))) >
+  ==< cong add1 (cong minus (sym (+-right-zero {n}))) >
     add1 (- (n + zero-int))
   ==<>
     - (neg zero) + (neg zero) * n
