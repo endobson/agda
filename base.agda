@@ -48,6 +48,9 @@ bot-elim ()
 ¬ : Set -> Set
 ¬ A = A -> Bot
 
+_!=_ : {A : Set} -> A -> A -> Set
+x != y = ¬ (x == y)
+
 
 infixl 20 _>=>_
 _>=>_ : {A : Set} -> {x y z : A} -> x == y -> y == z -> x == z
@@ -1156,6 +1159,83 @@ minus-extract-right {m} {n} =
 *-NonNeg-NonNeg {pos zero} _ pr = +-NonNeg-NonNeg pr tt
 *-NonNeg-NonNeg {pos (suc m)} _ pr = +-NonNeg-NonNeg pr (*-Pos-NonNeg {pos m} tt pr)
 
+*-Pos-Neg : {m n : Int} -> .(Pos m) -> .(Neg n) -> Neg (m * n)
+*-Pos-Neg {pos zero} _ pr = +-Neg-NonPos pr tt
+*-Pos-Neg {pos (suc m)} _ pr = +-Neg-Neg pr (*-Pos-Neg {pos m} tt pr)
+
+*-Neg-Pos : {m n : Int} -> .(Neg m) -> .(Pos n) -> Neg (m * n)
+*-Neg-Pos {m} {n} p1 p2 = subst Neg (*-commute {n} {m}) (*-Pos-Neg p2 p1)
+
+*-Neg-Neg : {m n : Int} -> .(Neg m) -> .(Neg n) -> Pos (m * n)
+*-Neg-Neg {neg m} {neg n} p1 p2 = subst Pos proof (*-Pos-Pos {pos m} {pos n} tt tt)
+  where
+  proof : (pos m) * (pos n) == (neg m) * (neg n)
+  proof = (minus-extract-left {neg m} {pos n})
+          >=> (cong minus (minus-extract-right {neg m} {neg n}))
+          >=> (minus-double-inverse {neg m * neg n})
+
+
+
+add1-disjoint : {m : Int} -> add1 m != m
+add1-disjoint {zero-int} ()
+add1-disjoint {pos _} ()
+add1-disjoint {neg zero} ()
+add1-disjoint {neg (suc _)} ()
+
+sub1-disjoint : {m : Int} -> sub1 m != m
+sub1-disjoint {zero-int} ()
+sub1-disjoint {neg _} ()
+sub1-disjoint {pos zero} ()
+sub1-disjoint {pos (suc _)} ()
+
+
++-right-id : {m n : Int} -> m + n == m -> n == (int 0)
++-right-id {zero-int} {_} pr = pr
++-right-id {pos zero} {n} pr = +-right-id {zero-int} {n} (sym sub1-add1-id >=> (cong sub1 pr))
++-right-id {pos (suc m)} {n} pr = +-right-id {pos m} {n} (sym sub1-add1-id >=> (cong sub1 pr))
++-right-id {neg zero} {n} pr = +-right-id {zero-int} {n} (sym add1-sub1-id >=> (cong add1 pr))
++-right-id {neg (suc m)} {n} pr = +-right-id {neg m} {n} (sym add1-sub1-id >=> (cong add1 pr))
+
++-left-id : {m n : Int} -> m + n == n -> m == (int 0)
++-left-id {m} {n} pr = +-right-id (sym (+-commute {m} {n}) >=> pr)
+
+*-left-zero-eq : {m n : Int} -> (NonZero n) -> m * n == (int 0) -> m == (int 0)
+*-left-zero-eq {zero-int} {_} _ _ = refl
+*-left-zero-eq {pos m} {pos n} _ pr =
+  bot-elim (subst Pos pr (*-Pos-Pos {pos m} {pos n} tt tt))
+*-left-zero-eq {pos m} {neg n} _ pr =
+  bot-elim (subst Neg pr (*-Pos-Neg {pos m} {neg n} tt tt))
+*-left-zero-eq {neg m} {pos n} _ pr =
+  bot-elim (subst Neg pr (*-Neg-Pos {neg m} {pos n} tt tt))
+*-left-zero-eq {neg m} {neg n} _ pr =
+  bot-elim (subst Pos pr (*-Neg-Neg {neg m} {neg n} tt tt))
+
+*-right-zero-eq : {m n : Int} -> (NonZero m) -> m * n == (int 0) -> n == (int 0)
+*-right-zero-eq {_} {zero-int} _ _ = refl
+*-right-zero-eq {pos m} {pos n} _ pr =
+  bot-elim (subst Pos pr (*-Pos-Pos {pos m} {pos n} tt tt))
+*-right-zero-eq {pos m} {neg n} _ pr =
+  bot-elim (subst Neg pr (*-Pos-Neg {pos m} {neg n} tt tt))
+*-right-zero-eq {neg m} {pos n} _ pr =
+  bot-elim (subst Neg pr (*-Neg-Pos {neg m} {pos n} tt tt))
+*-right-zero-eq {neg m} {neg n} _ pr =
+  bot-elim (subst Pos pr (*-Neg-Neg {neg m} {neg n} tt tt))
+
+*-left-id : {m n : Int} -> (NonZero n) -> m * n == n -> m == (int 1)
+*-left-id {zero-int} {pos _} tt ()
+*-left-id {zero-int} {neg _} tt ()
+*-left-id {pos zero} {_} _ _ = refl
+*-left-id {pos (suc m)} {pos n} nz pr =
+  bot-elim (subst Pos (+-right-id pr) (*-Pos-Pos {pos m} {pos n} tt tt))
+*-left-id {pos (suc m)} {neg n} _ pr =
+  bot-elim (subst Neg (+-right-id pr) (*-Pos-Neg {pos m} {neg n} tt tt))
+*-left-id {neg m} {pos n} _ pr = 
+  bot-elim (subst Neg pr (*-Neg-Pos {neg m} {pos n} tt tt))
+*-left-id {neg m} {neg n} _ pr = 
+  bot-elim (subst Pos pr (*-Neg-Neg {neg m} {neg n} tt tt))
+
+*-right-id : {m n : Int} -> (NonZero m) -> m * n == m -> n == (int 1)
+*-right-id {m} {n} nz pr = *-left-id nz (sym (*-commute {m} {n}) >=> pr)
 
 -- 
 -- data PropEquiv : (A B : Set) -> Set where

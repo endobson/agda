@@ -63,17 +63,82 @@ div-abs-left {zero-int} div-a = div-a
 div-abs-left {pos _} div-a = div-a
 div-abs-left {neg _} div-a = div-negate-left div-a
 
--- *-non-zero : {m n : Int} -> {NonZero m} -> {NonZero n} -> NonZero (m * n)
--- *-non-zero {pos m} {pos n} = ?
--- *-non-zero {pos m} {neg n} = ?
--- *-non-zero {neg m} {pos n} = ?
--- *-non-zero {neg m} {neg n} = ?
--- 
--- div-same-abs : {d1 d2 : Int} -> d1 div d2 -> d2 div d1 -> (abs d1) == (abs d2)
--- div-same-abs {zero-int} {zero-int} (div-exist _ _ forward f-pr) (div-exist _ _ backward b-pr) =
---   refl
--- div-same-abs {_} {_} (div-exist _ _ forward f-pr) (div-exist _ _ backward b-pr) =
---   ?
+
+div-zero->zero : {n : Int} -> (int 0) div n -> n == (int 0)
+div-zero->zero (div-exist zero-int n d refl) = (*-commute {d} {zero-int})
+
+Unit : (x : Int) -> Set
+Unit zero-int = Bot
+Unit (pos zero) = Top
+Unit (pos (suc _)) = Bot
+Unit (neg zero) = Top
+Unit (neg (suc _)) = Bot
+
+*-unit-abs : {m n : Int} -> (Unit m) -> abs (m * n) == abs n
+*-unit-abs {pos zero} {n} _ = (cong abs (+-right-zero {n}))
+*-unit-abs {neg zero} {n} _ = (cong abs (cong minus (+-right-zero {n}))) >=> (abs-cancel-minus {n})
+
+abs-one-implies-unit : {m : Int} -> abs' m == 1 -> Unit m
+abs-one-implies-unit {zero-int} ()
+abs-one-implies-unit {pos zero} _ = tt
+abs-one-implies-unit {pos (suc _)} ()
+abs-one-implies-unit {neg zero} _ = tt
+abs-one-implies-unit {neg (suc _)} ()
+
+
+*'-one-implies-one : {m n : Nat} -> m *' n == 1 -> n == 1
+*'-one-implies-one {suc zero} {suc zero} _ = refl
+*'-one-implies-one {zero} {_} ()
+*'-one-implies-one {suc m} {zero} pr = *'-one-implies-one {m} {zero} pr
+*'-one-implies-one {suc zero} {suc (suc n)} ()
+*'-one-implies-one {suc (suc m)} {suc (suc n)} ()
+
+
+*-one-implies-unit : {m n : Int} -> m * n == (int 1) -> Unit n
+*-one-implies-unit {m} {n} pr = (abs-one-implies-unit abs-pr)
+  where
+  pr1 : abs' m *' abs' n == 1
+  pr1 = (sym (abs'-inject-* {m} {n})) >=> (cong abs' pr)
+  abs-pr : (abs' n) == 1
+  abs-pr = *'-one-implies-one {abs' m} {abs' n} pr1
+
+
+
+div-same-abs : {d1 d2 : Int} -> d1 div d2 -> d2 div d1 -> (abs d1) == (abs d2)
+div-same-abs {zero-int} {_} div1 _ rewrite (div-zero->zero div1) = refl
+div-same-abs {_} {zero-int} _ div2 rewrite (div-zero->zero div2) = refl
+div-same-abs {pos _} {pos _} (div-exist _ _  x pr1) (div-exist d2 d1 y pr2) = proof
+ where
+ rewritten : x * (y * d2) == d2
+ rewritten rewrite pr2 = pr1
+ unit : Unit y
+ unit = *-one-implies-unit {x} {y} (*-left-id tt (*-assoc {x} {y} {d2} >=> rewritten))
+ proof : abs d1 == abs d2
+ proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
+div-same-abs {pos _} {neg _} (div-exist _ _  x pr1) (div-exist d2 d1 y pr2) = proof
+ where
+ rewritten : x * (y * d2) == d2
+ rewritten rewrite pr2 = pr1
+ unit : Unit y
+ unit = *-one-implies-unit {x} {y} (*-left-id tt (*-assoc {x} {y} {d2} >=> rewritten))
+ proof : abs d1 == abs d2
+ proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
+div-same-abs {neg _} {pos _} (div-exist _ _  x pr1) (div-exist d2 d1 y pr2) = proof
+ where
+ rewritten : x * (y * d2) == d2
+ rewritten rewrite pr2 = pr1
+ unit : Unit y
+ unit = *-one-implies-unit {x} {y} (*-left-id tt (*-assoc {x} {y} {d2} >=> rewritten))
+ proof : abs d1 == abs d2
+ proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
+div-same-abs {neg _} {neg _} (div-exist _ _  x pr1) (div-exist d2 d1 y pr2) = proof
+ where
+ rewritten : x * (y * d2) == d2
+ rewritten rewrite pr2 = pr1
+ unit : Unit y
+ unit = *-one-implies-unit {x} {y} (*-left-id tt (*-assoc {x} {y} {d2} >=> rewritten))
+ proof : abs d1 == abs d2
+ proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
 
 div-sum : {d a b : Int} -> d div a -> d div b -> d div (a + b)
 div-sum (div-exist d a d-div-a refl) (div-exist d b d-div-b refl) =
