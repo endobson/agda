@@ -579,40 +579,64 @@ sub1-extract-right {pos (suc m')} {n} =
     n + neg (suc m')
   end
 
-add1-NonNeg : {n : Int} -> NonNeg n -> (Pos (add1 n))
+add1-NonNeg : {n : Int} -> .(NonNeg n) -> (Pos (add1 n))
 add1-NonNeg {zero-int} _ = tt
-add1-NonNeg {pos zero} _ = tt
-add1-NonNeg {pos (suc _)} _ = tt
+add1-NonNeg {pos _} _ = tt
 
-sub1-NonPos : {n : Int} -> (NonPos n) -> (Neg (sub1 n))
+add1-Pos : {n : Int} -> .(Pos n) -> (Pos (add1 n))
+add1-Pos {pos _} _ = tt
+
+sub1-NonPos : {n : Int} -> .(NonPos n) -> (Neg (sub1 n))
 sub1-NonPos {zero-int} _ = tt
-sub1-NonPos {neg x} _ = tt
+sub1-NonPos {neg _} _ = tt
 
-Pos->NonNeg : {n : Int} -> Pos n -> NonNeg n
+sub1-Neg : {n : Int} -> .(Neg n) -> (Neg (sub1 n))
+sub1-Neg {neg _} _ = tt
+
+Pos->NonNeg : {n : Int} -> .(Pos n) -> NonNeg n
 Pos->NonNeg {pos n} _ = tt
-Neg->NonPos : {n : Int} -> Neg n -> NonPos n
+
+Neg->NonPos : {n : Int} -> .(Neg n) -> NonPos n
 Neg->NonPos {neg n} _ = tt
 
-
-+-Pos-NonNeg : {m n : Int} -> Pos m -> (NonNeg n) -> Pos (m + n)
++-Pos-NonNeg : {m n : Int} -> .(Pos m) -> .(NonNeg n) -> Pos (m + n)
 +-Pos-NonNeg {pos zero} _ p = add1-NonNeg p
-+-Pos-NonNeg {pos (suc m)} {n} _ p =
-  add1-NonNeg (Pos->NonNeg (+-Pos-NonNeg {pos m} tt p))
++-Pos-NonNeg {pos (suc m)} _ p = add1-Pos (+-Pos-NonNeg {pos m} tt p)
 
-+-NonNeg-Pos : {m n : Int} -> NonNeg m -> Pos n -> Pos (m + n)
-+-NonNeg-Pos {m} {n} p1 p2 = subst Pos (+-commute {n} {m}) (+-Pos-NonNeg {n} {m} p2 p1)
--- +-Pos-Pos : {m n : Int} -> {Pos m} -> {Pos n} -> Pos (m + n)
--- +-Pos-Pos {m} {n} = +-Pos-NonNeg {m} {n}
--- 
--- +-Neg-NonPos : {m n : Int} -> {Neg m} -> {NonPos n} -> Neg (m + n)
--- +-Neg-NonPos {neg zero} {n} {_} {p} = sub1-NonPos {n} {p}
--- +-Neg-NonPos {neg (suc m)} {n} =
---   sub1-NonPos {neg m + n} {Neg->NonPos (+-Neg-NonPos {neg m} {n})}
++-NonNeg-Pos : {m n : Int} -> .(NonNeg m) -> .(Pos n) -> Pos (m + n)
++-NonNeg-Pos {m} {n} p1 p2 = subst Pos (+-commute {n} {m}) (+-Pos-NonNeg p2 p1)
 
--- +-NonPos-Neg {neg zero} {n} {_} {p} = sub1-NonPos {n} {p}
--- +-Neg-Neg : ?
--- +-NonNeg-NonNeg : ?
--- +-NonPos-NonPos : ?
++-Pos-Pos : {m n : Int} -> .(Pos m) -> .(Pos n) -> Pos (m + n)
++-Pos-Pos p1 p2 = +-Pos-NonNeg p1 (Pos->NonNeg p2)
+ 
++-Neg-NonPos : {m n : Int} -> .(Neg m) -> .(NonPos n) -> Neg (m + n)
++-Neg-NonPos {neg zero} _ p = sub1-NonPos p
++-Neg-NonPos {neg (suc m)} _ p = sub1-Neg (+-Neg-NonPos {neg m} tt p)
+
++-NonPos-Neg : {m n : Int} -> .(NonPos m) -> .(Neg n) -> Neg (m + n)
++-NonPos-Neg {m} {n} p1 p2 = subst Neg (+-commute {n} {m}) (+-Neg-NonPos p2 p1)
+
++-Neg-Neg : {m n : Int} -> .(Neg m) -> .(Neg n) -> Neg (m + n)
++-Neg-Neg p1 p2 = +-Neg-NonPos p1 (Neg->NonPos p2)
+
++-NonNeg-NonNeg : {m n : Int} -> .(NonNeg m) -> .(NonNeg n) -> NonNeg (m + n)
++-NonNeg-NonNeg {zero-int} {zero-int} p1 p2 = tt
++-NonNeg-NonNeg {zero-int} {pos n} p1 p2 =
+  Pos->NonNeg {zero-int + pos n} (+-NonNeg-Pos {zero-int} {pos n} tt tt)
++-NonNeg-NonNeg {pos m} {zero-int} p1 p2 =
+  Pos->NonNeg {pos m + zero-int} (+-Pos-NonNeg {pos m} {zero-int} tt tt)
++-NonNeg-NonNeg {pos m} {pos n} p1 p2 =
+  Pos->NonNeg {pos m + pos n} (+-Pos-Pos {pos m} {pos n} tt tt)
+
++-NonPos-NonPos : {m n : Int} -> .(NonPos m) -> .(NonPos n) -> NonPos (m + n)
++-NonPos-NonPos {zero-int} {zero-int} p1 p2 = tt
++-NonPos-NonPos {zero-int} {neg n} p1 p2 =
+  Neg->NonPos {zero-int + neg n} (+-NonPos-Neg {zero-int} {neg n} tt tt)
++-NonPos-NonPos {neg m} {zero-int} p1 p2 =
+  Neg->NonPos {neg m + zero-int} (+-Neg-NonPos {neg m} {zero-int} tt tt)
++-NonPos-NonPos {neg m} {neg n} p1 p2 =
+  Neg->NonPos {neg m + neg n} (+-Neg-Neg {neg m} {neg n} tt tt)
+
 
 add1-minus->minus-sub1 : {n : Int} -> add1 (- n) == - (sub1 n)
 add1-minus->minus-sub1 {zero-int} = refl
@@ -1119,6 +1143,18 @@ minus-extract-right : {m n : Int} -> m * - n == - (m * n)
 minus-extract-right {m} {n} =
   (*-commute {m}) >=> (minus-extract-left {n}) >=> (cong minus (*-commute {n}))
 
+*-Pos-Pos : {m n : Int} -> .(Pos m) -> .(Pos n) -> Pos (m * n)
+*-Pos-Pos {pos zero} _ pr = +-Pos-NonNeg pr tt
+*-Pos-Pos {pos (suc m)} _ pr = +-Pos-Pos pr (*-Pos-Pos {pos m} tt pr)
+
+*-Pos-NonNeg : {m n : Int} -> .(Pos m) -> .(NonNeg n) -> NonNeg (m * n)
+*-Pos-NonNeg {pos zero} _ pr = +-NonNeg-NonNeg pr tt
+*-Pos-NonNeg {pos (suc m)} _ pr = +-NonNeg-NonNeg pr (*-Pos-NonNeg {pos m} tt pr)
+
+*-NonNeg-NonNeg : {m n : Int} -> .(NonNeg m) -> .(NonNeg n) -> NonNeg (m * n)
+*-NonNeg-NonNeg {zero-int} _ pr = tt
+*-NonNeg-NonNeg {pos zero} _ pr = +-NonNeg-NonNeg pr tt
+*-NonNeg-NonNeg {pos (suc m)} _ pr = +-NonNeg-NonNeg pr (*-Pos-NonNeg {pos m} tt pr)
 
 
 -- 
