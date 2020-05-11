@@ -103,6 +103,9 @@ div-abs-≤ {pos d'} {pos a'} (div-exist _ _ (neg x) pr) =
 div-zero->zero : {n : Int} -> (int 0) div n -> n == (int 0)
 div-zero->zero (div-exist zero-int n d refl) = (*-commute {d} {zero-int})
 
+div'-zero->zero : {n : Nat} -> 0 div' n -> n == 0
+div'-zero->zero (div'-exist zero n d refl) = (*'-commute {d} {zero})
+
 Unit : (x : Int) -> Set
 Unit zero-int = Bot
 Unit (pos zero) = Top
@@ -198,4 +201,33 @@ div-one {n} = div-exist (int 1) n n (*-right-one {n})
 
 div-zero : {n : Int} -> (n div zero-int)
 div-zero {n} = div-exist n zero-int zero-int refl 
+
+div'-zero : {n : Nat} -> (n div' zero)
+div'-zero {n} = div'-exist n zero zero refl 
+
+-- no-small-dividends : {d n : Nat} -> n < d -> n != 0 -> d != 0 -> ¬ (d div' n)
+-- no-small-dividends n<d n!=0 d!=0 (div'-exist d n x pr) with x 
+-- ... | zero = n!=0 (sym pr)
+-- ... | (suc y) = ?
+--   where 
+--   pr2 : d ≤ n
+--   pr2 = ≤-a+'b==c ((+'-commute {y *' d} {d}) >=> pr)
+
+
+-- postulate chunked-nat-rec : (m : Nat) -> (n : Nat) -> ChunkedNatRec (suc m) n
+-- chunked-nat-rec m n = helper m n 0
+--   where 
+--   helper : (i : Nat) (j : Nat) (k : Nat) (i + k == m) (j + k < m)
+--   helepr 
+
+-- decide-div : (d n : Nat) -> Dec (d div' n)
+-- decide-div _ zero = yes div'-zero
+-- decide-div zero (suc d) = no f
+--   where 
+--   f : (x : zero div' (suc d)) -> Bot
+--   f z-div with (div'-zero->zero z-div)
+--   ...        | ()
+-- decide-div (suc d') n = ?
+
+
 

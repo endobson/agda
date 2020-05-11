@@ -168,6 +168,11 @@ data _≤_ : Nat -> Nat -> Set where
  id-≤ : {n : Nat} -> n ≤ n
  suc-≤ : {m n : Nat} -> m ≤ n -> m ≤ suc n
 
+data _<_ : Nat -> Nat -> Set where
+ id-< : {n : Nat} -> n < (suc n)
+ suc-< : {m n : Nat} -> m < n -> m < suc n
+
+
 inc-≤ : {m n : Nat} -> m ≤ n -> suc m ≤ suc n
 inc-≤ id-≤ = id-≤
 inc-≤ (suc-≤ ≤) = suc-≤ (inc-≤ ≤)
