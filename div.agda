@@ -8,6 +8,18 @@ open import int
 -- infix 20 _div_
 data _div_ : Int -> Int -> Set where
  div-exist : (a : Int) -> (b : Int) -> (c : Int) -> (c * a == b) -> a div b
+
+data _div'_ : Nat -> Nat -> Set where
+ div'-exist : (a : Nat) -> (b : Nat) -> (c : Nat) -> (c *' a == b) -> a div' b
+
+div->div' : {d n : Int} -> d div n -> (abs' d) div' (abs' n)
+div->div' (div-exist d n x pr) =
+  (div'-exist (abs' d) (abs' n) (abs' x) (sym (abs'-inject-* {x} {d}) >=> (cong abs' pr)))
+
+div'->div : {d n : Nat} -> d div' n -> (int d) div (int n)
+div'->div (div'-exist d n x pr) =
+  (div-exist (int d) (int n) (int x) (sym (int-inject-*' {x} {d}) >=> (cong int pr)))
+
  
 ==-div-right : {d a b : Int} -> a == b -> d div a -> d div b
 ==-div-right refl div = div

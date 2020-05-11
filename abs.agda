@@ -242,6 +242,45 @@ abs'-inject-* {neg m} {zero-int} =
     abs' (neg m) *' abs' zero-int
   end
 
+add1-inject-int : {m : Nat} -> add1 (int m) == int (suc m)
+add1-inject-int {zero} = refl
+add1-inject-int {suc m} = refl
+
+int-inject-+' : {m n : Nat} -> int (m +' n) == int m + int n
+int-inject-+' {zero} {n} = refl
+int-inject-+' {suc m} {n} =
+  begin
+    int (suc m +' n)
+  ==<>
+    int (suc (m +' n))
+  ==< sym (add1-inject-int {m +' n}) >
+    add1 (int (m +' n))
+  ==< cong add1 (int-inject-+' {m}) >
+    add1 (int m + int n)
+  ==< sym (add1-extract-left {int m}) >
+    add1 (int m) + int n
+  ==< +-left (add1-inject-int {m}) >
+    int (suc m) + int n
+  end
+
+int-inject-*' : {m n : Nat} -> int (m *' n) == int m * int n
+int-inject-*' {zero} {n} = refl
+int-inject-*' {suc m} {n} =
+  begin
+    int (suc m *' n)
+  ==<>
+    int (n +' (m *' n))
+  ==< int-inject-+' {n} >
+    int n + int (m *' n)
+  ==< +-right {int n} (int-inject-*' {m} {n}) >
+    int n + int m * int n
+  ==< sym (add1-extract-* {int m} {int n}) >
+    add1 (int m) * int n
+  ==< *-left (add1-inject-int {m}) >
+    int (suc m) * int n
+  end
+
+
 abs'-int-id : {m : Nat} -> abs' (int m) == m
 abs'-int-id {zero} = refl
 abs'-int-id {suc m} = refl

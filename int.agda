@@ -969,3 +969,4 @@ decide-int (neg m) (pos n) = no (\ () )
 decide-int (neg m) (neg n) with decide-nat m n
 ... | (yes refl) = yes refl
 ... | (no f) = no (\ pr -> f (neg-injective pr))
+
