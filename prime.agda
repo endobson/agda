@@ -4,7 +4,7 @@ open import equality
 open import int
 open import abs
 open import nat
-open import gcd
+open import div
 
 data PrimeUpTo : Nat -> Nat -> Set where
   prime-up-to : (p : Nat) -> (bound : Nat)
