@@ -162,7 +162,7 @@ nat->fin (suc n) = suc-fin (nat->fin n)
 
 data _≤'_ : Nat -> Nat -> Set where
  zero-≤' : {n : Nat} -> zero ≤' n
- suc-≤' : {m n : Nat} -> m ≤' n -> suc m ≤' suc n
+ inc-≤' : {m n : Nat} -> m ≤' n -> suc m ≤' suc n
 
 data _≤_ : Nat -> Nat -> Set where
  id-≤ : {n : Nat} -> n ≤ n
@@ -183,31 +183,31 @@ zero-≤ (suc n) = suc-≤ (zero-≤ n)
 
 same-≤' : (n : Nat) -> n ≤' n
 same-≤' zero = zero-≤'
-same-≤' (suc n) = suc-≤' (same-≤' n)
+same-≤' (suc n) = inc-≤' (same-≤' n)
 
-inc-≤' : {m n : Nat} -> m ≤' n -> m ≤' (suc n)
-inc-≤' zero-≤' = zero-≤'
-inc-≤' (suc-≤' p) = suc-≤' (inc-≤' p)
+suc-≤' : {m n : Nat} -> m ≤' n -> m ≤' (suc n)
+suc-≤' zero-≤' = zero-≤'
+suc-≤' (inc-≤' p) = inc-≤' (suc-≤' p)
 
 ≤->≤' : {m n : Nat} -> m ≤ n -> m ≤' n
 ≤->≤' {m} id-≤ = same-≤' m
-≤->≤' (suc-≤ p) = inc-≤' (≤->≤' p)
+≤->≤' (suc-≤ p) = suc-≤' (≤->≤' p)
  
  
 ≤'->≤ : {m n : Nat} -> m ≤' n -> m ≤ n
 ≤'->≤ {_} {n} zero-≤' = zero-≤ n
-≤'->≤ (suc-≤' p) = inc-≤ (≤'->≤ p)
+≤'->≤ (inc-≤' p) = inc-≤ (≤'->≤ p)
 
 
 trans-≤' : {m n o : Nat} -> m ≤' n -> n ≤' o -> m ≤' o
 trans-≤' zero-≤' p = zero-≤'
-trans-≤' (suc-≤' l) (suc-≤' r) = suc-≤' (trans-≤' l r)
+trans-≤' (inc-≤' l) (inc-≤' r) = inc-≤' (trans-≤' l r)
 
 trans-≤ : {m n o : Nat} -> m ≤ n -> n ≤ o -> m ≤ o
 trans-≤ a b = ≤'->≤ (trans-≤' (≤->≤' a) (≤->≤' b))
 
 dec-≤' : {m n : Nat} -> suc m ≤' suc n -> m ≤' n
-dec-≤' (suc-≤' ≤) = ≤
+dec-≤' (inc-≤' ≤) = ≤
 
 dec-≤ : {m n : Nat} -> suc m ≤ suc n -> m ≤ n
 dec-≤ p = ≤'->≤ (dec-≤' (≤->≤' p))
