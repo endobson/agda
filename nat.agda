@@ -164,39 +164,67 @@ data _≤'_ : Nat -> Nat -> Set where
  zero-≤' : {n : Nat} -> zero ≤' n
  inc-≤' : {m n : Nat} -> m ≤' n -> suc m ≤' suc n
 
+data _<'_ : Nat -> Nat -> Set where
+ zero-<' : {n : Nat} -> zero <' (suc n)
+ inc-<' : {m n : Nat} -> m <' n -> suc m <' suc n
+
 data _≤_ : Nat -> Nat -> Set where
  id-≤ : {n : Nat} -> n ≤ n
  suc-≤ : {m n : Nat} -> m ≤ n -> m ≤ suc n
 
 data _<_ : Nat -> Nat -> Set where
- id-< : {n : Nat} -> n < (suc n)
+ add1-< : {n : Nat} -> n < (suc n)
  suc-< : {m n : Nat} -> m < n -> m < suc n
-
 
 inc-≤ : {m n : Nat} -> m ≤ n -> suc m ≤ suc n
 inc-≤ id-≤ = id-≤
 inc-≤ (suc-≤ ≤) = suc-≤ (inc-≤ ≤)
 
+inc-< : {m n : Nat} -> m < n -> suc m < suc n
+inc-< add1-< = add1-< 
+inc-< (suc-< <) = suc-< (inc-< <)
+
 zero-≤ : (n : Nat) -> zero ≤ n
 zero-≤ zero = id-≤
 zero-≤ (suc n) = suc-≤ (zero-≤ n)
+
+zero-< : (n : Nat) -> zero < (suc n)
+zero-< zero = add1-<
+zero-< (suc n) = suc-< (zero-< n)
 
 same-≤' : (n : Nat) -> n ≤' n
 same-≤' zero = zero-≤'
 same-≤' (suc n) = inc-≤' (same-≤' n)
 
+add1-<' : (n : Nat) -> n <' (suc n)
+add1-<' zero = zero-<'
+add1-<' (suc n) = inc-<' (add1-<' n)
+
 suc-≤' : {m n : Nat} -> m ≤' n -> m ≤' (suc n)
 suc-≤' zero-≤' = zero-≤'
 suc-≤' (inc-≤' p) = inc-≤' (suc-≤' p)
+
+suc-<' : {m n : Nat} -> m <' n -> m <' (suc n)
+suc-<' zero-<' = zero-<'
+suc-<' (inc-<' p) = inc-<' (suc-<' p)
+
 
 ≤->≤' : {m n : Nat} -> m ≤ n -> m ≤' n
 ≤->≤' {m} id-≤ = same-≤' m
 ≤->≤' (suc-≤ p) = suc-≤' (≤->≤' p)
  
- 
+<-><' : {m n : Nat} -> m < n -> m <' n
+<-><' {m} add1-< = add1-<' m
+<-><' (suc-< p) = suc-<' (<-><' p)
+
 ≤'->≤ : {m n : Nat} -> m ≤' n -> m ≤ n
 ≤'->≤ {_} {n} zero-≤' = zero-≤ n
 ≤'->≤ (inc-≤' p) = inc-≤ (≤'->≤ p)
+
+<'->< : {m n : Nat} -> m <' n -> m < n
+<'->< {_} {suc n} zero-<' = zero-< n
+<'->< (inc-<' p) = inc-< (<'->< p)
+
 
 
 trans-≤' : {m n o : Nat} -> m ≤' n -> n ≤' o -> m ≤' o
@@ -205,6 +233,21 @@ trans-≤' (inc-≤' l) (inc-≤' r) = inc-≤' (trans-≤' l r)
 
 trans-≤ : {m n o : Nat} -> m ≤ n -> n ≤ o -> m ≤ o
 trans-≤ a b = ≤'->≤ (trans-≤' (≤->≤' a) (≤->≤' b))
+
+trans-<'-≤' : {m n o : Nat} -> m <' n -> n ≤' o -> m <' o
+trans-<'-≤' {zero} zero-<' (inc-≤' _) = zero-<'
+trans-<'-≤' (inc-<' l) (inc-≤' r) = inc-<' (trans-<'-≤' l r)
+
+trans-<-≤ : {m n o : Nat} -> m < n -> n ≤ o -> m < o
+trans-<-≤ a b = <'->< (trans-<'-≤' (<-><' a) (≤->≤' b))
+
+
+absurd-same-<' : {n : Nat} -> ¬ (n <' n)
+absurd-same-<' (inc-<' pr) = absurd-same-<' pr
+
+absurd-same-< : {n : Nat} -> ¬ (n < n)
+absurd-same-< pr = absurd-same-<' (<-><' pr)
+
 
 dec-≤' : {m n : Nat} -> suc m ≤' suc n -> m ≤' n
 dec-≤' (inc-≤' ≤) = ≤

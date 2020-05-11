@@ -205,13 +205,15 @@ div-zero {n} = div-exist n zero-int zero-int refl
 div'-zero : {n : Nat} -> (n div' zero)
 div'-zero {n} = div'-exist n zero zero refl 
 
--- no-small-dividends : {d n : Nat} -> n < d -> n != 0 -> d != 0 -> ¬ (d div' n)
--- no-small-dividends n<d n!=0 d!=0 (div'-exist d n x pr) with x 
--- ... | zero = n!=0 (sym pr)
--- ... | (suc y) = ?
---   where 
---   pr2 : d ≤ n
---   pr2 = ≤-a+'b==c ((+'-commute {y *' d} {d}) >=> pr)
+no-small-dividends : {d n : Nat} -> n < d -> n != 0 -> d != 0 -> ¬ (d div' n)
+no-small-dividends n<d n!=0 d!=0 (div'-exist d n x pr) with x 
+... | zero = n!=0 (sym pr)
+... | (suc y) = absurd-same-< n<n
+  where 
+  d≤n : d ≤ n
+  d≤n = ≤-a+'b==c ((+'-commute {y *' d} {d}) >=> pr)
+  n<n : n < n
+  n<n = trans-<-≤ n<d d≤n
 
 
 -- postulate chunked-nat-rec : (m : Nat) -> (n : Nat) -> ChunkedNatRec (suc m) n
