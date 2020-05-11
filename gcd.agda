@@ -188,6 +188,9 @@ div-zero : {n : Int} -> (n div zero-int)
 div-zero {n} = div-exist n zero-int zero-int refl 
 
 
+
+
+
 data GCD : Int -> Int -> Int -> Set where
  gcd : (a : Int) -> (b : Int) -> (d : Int) -> 
        (NonNeg d) ->
@@ -494,6 +497,7 @@ eulers-algo (neg m) (neg n) = handle (pos-eulers-algo m n)
 gcd-exists : (m : Int) -> (n : Int) -> exists (GCD m n)
 gcd-exists m n with (eulers-algo m n)
 ...               | (existence d (linear-gcd _ gc)) = existence d gc
+
 
 
 non-neg-same-abs : {m n : Int} -> NonNeg m -> NonNeg n -> abs m == abs n -> m == n

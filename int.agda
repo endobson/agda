@@ -949,4 +949,23 @@ sub1-disjoint {pos (suc _)} ()
 *-right-id : {m n : Int} -> (NonZero m) -> m * n == m -> n == (int 1)
 *-right-id {m} {n} nz pr = *-left-id nz (sym (*-commute {m} {n}) >=> pr)
 
+pos-injective : {m n : Nat} -> pos m == pos n -> m == n
+pos-injective refl = refl
+neg-injective : {m n : Nat} -> neg m == neg n -> m == n
+neg-injective refl = refl
 
+
+decide-int : (x : Int) -> (y : Int) -> Dec (x == y)
+decide-int zero-int zero-int = yes refl
+decide-int zero-int (pos n) = no (\ () )
+decide-int zero-int (neg n) = no (\ () )
+decide-int (pos m) zero-int = no (\ () )
+decide-int (pos m) (pos n) with decide-nat m n
+... | (yes refl) = yes refl
+... | (no f) = no (\ pr -> f (pos-injective pr))
+decide-int (pos m) (neg n) = no (\ () )
+decide-int (neg m) zero-int = no (\ () )
+decide-int (neg m) (pos n) = no (\ () )
+decide-int (neg m) (neg n) with decide-nat m n
+... | (yes refl) = yes refl
+... | (no f) = no (\ pr -> f (neg-injective pr))

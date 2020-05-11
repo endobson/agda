@@ -235,4 +235,13 @@ strong-induction :
   (m : Nat) -> P m
 strong-induction z f m = strong-induction' z f m id-≤
 
-  
+suc-injective :  {m n : Nat} -> suc m == suc n -> m == n
+suc-injective refl = refl
+
+decide-nat : (x : Nat) -> (y : Nat) -> Dec (x == y)
+decide-nat zero zero = yes refl
+decide-nat zero (suc n) = no (\ () )
+decide-nat (suc m) zero = no (\ () )
+decide-nat (suc m) (suc n) with (decide-nat m n) 
+...  | (yes refl) = yes refl
+...  | (no f) = no (\ pr -> f (suc-injective pr) )
