@@ -119,9 +119,6 @@ linear-gcd-sym (linear-gcd lc gc) = (linear-gcd (linear-combo-sym lc) (gcd-sym g
 linear-gcd-negate : {a b d : Int} -> LinearGCD a b d -> LinearGCD (- a) b d
 linear-gcd-negate (linear-gcd lc gc) = (linear-gcd (linear-combo-negate lc) (gcd-negate gc))
 
-data exists : {A : Set} -> (B : A -> Set) -> Set where
- existence : {A : Set} -> {B : A -> Set} -> (x : A) -> (y : B x) -> exists B
-
 data CompareNat3 : Nat -> Nat -> Set where
   compare3-= : {m n : Nat} -> m == n -> CompareNat3 m n
   compare3-< : {a m n : Nat} 

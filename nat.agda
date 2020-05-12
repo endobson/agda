@@ -225,6 +225,9 @@ suc-<' (inc-<' p) = inc-<' (suc-<' p)
 <'->< {_} {suc n} zero-<' = zero-< n
 <'->< (inc-<' p) = inc-< (<'->< p)
 
+≤->< : {m n : Nat} -> m ≤ n -> m < suc n
+≤->< {m} id-≤ = add1-< {m}
+≤->< (suc-≤ p) = suc-< (≤->< p)
 
 
 trans-≤' : {m n o : Nat} -> m ≤' n -> n ≤' o -> m ≤' o
@@ -252,12 +255,27 @@ absurd-same-< pr = absurd-same-<' (<-><' pr)
 dec-≤' : {m n : Nat} -> suc m ≤' suc n -> m ≤' n
 dec-≤' (inc-≤' ≤) = ≤
 
+dec-<' : {m n : Nat} -> suc m <' suc n -> m <' n
+dec-<' (inc-<' <) = <
+
 dec-≤ : {m n : Nat} -> suc m ≤ suc n -> m ≤ n
 dec-≤ p = ≤'->≤ (dec-≤' (≤->≤' p))
+
+dec-< : {m n : Nat} -> suc m < suc n -> m < n
+dec-< p = <'->< (dec-<' (<-><' p))
+
 
 ≤-a+'b==c : {a b c : Nat} -> a +' b == c -> b ≤ c
 ≤-a+'b==c {zero} {b} {c} refl = id-≤
 ≤-a+'b==c {suc a} {b} {suc c} refl = suc-≤ (≤-a+'b==c {a} {b} {c} refl)
+
+<'-a+'b<c : {a b c : Nat} -> (a +' b) <' c -> b <' c
+<'-a+'b<c {zero} {b} {c} pr = pr
+<'-a+'b<c {suc a} {b} {suc c} (inc-<' pr) = suc-<' (<'-a+'b<c pr)
+
+
+<-a+'b<c : {a b c : Nat} -> (a +' b) < c -> b < c
+<-a+'b<c p = <'->< (<'-a+'b<c (<-><' p))
 
 induction : 
   {P : Nat -> Set} ->

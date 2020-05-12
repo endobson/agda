@@ -65,3 +65,6 @@ data _⊎_ (A : Set) (B : Set) : Set where
 data Dec (A : Set) : Set where
   yes : A -> Dec A
   no : ¬ A -> Dec A
+
+data exists : {A : Set} -> (B : A -> Set) -> Set where
+ existence : {A : Set} -> {B : A -> Set} -> (x : A) -> (y : B x) -> exists B
