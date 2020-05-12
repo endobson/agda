@@ -76,8 +76,8 @@ div-abs-left {zero-int} div-a = div-a
 div-abs-left {pos _} div-a = div-a
 div-abs-left {neg _} div-a = div-negate-left div-a
 
-div-abs-≤ : {d a : Int} -> {Pos d} -> {Pos a} -> d div a -> abs' d ≤' abs' a
-div-abs-≤ {d} {a} {pos-d} (div-exist d a (pos x) refl) = ≤'-a+'b==c (sym proof)
+div-abs-≤ : {d a : Int} -> {Pos d} -> {Pos a} -> d div a -> abs' d ≤ abs' a
+div-abs-≤ {d} {a} {pos-d} (div-exist d a (pos x) refl) = ≤-a+'b==c (sym proof)
   where
   lemma : (z : Nat) -> NonNeg (z *nz d)
   lemma zero = tt
@@ -205,27 +205,27 @@ div-zero {n} = div-exist n zero-int zero-int refl
 div'-zero : {n : Nat} -> (n div' zero)
 div'-zero {n} = div'-exist n zero zero refl 
 
-no-small-dividends : {d n : Nat} -> n <' d -> n != 0 -> d != 0 -> ¬ (d div' n)
+no-small-dividends : {d n : Nat} -> n < d -> n != 0 -> d != 0 -> ¬ (d div' n)
 no-small-dividends n<d n!=0 d!=0 (div'-exist d n x pr) with x 
 ... | zero = n!=0 (sym pr)
-... | (suc y) = absurd-same-<' n<n
+... | (suc y) = absurd-same-< n<n
   where 
-  d≤n : d ≤' n
-  d≤n = ≤'-a+'b==c ((+'-commute {y *' d} {d}) >=> pr)
-  n<n : n <' n
-  n<n = trans-<'-≤' n<d d≤n
+  d≤n : d ≤ n
+  d≤n = ≤-a+'b==c ((+'-commute {y *' d} {d}) >=> pr)
+  n<n : n < n
+  n<n = trans-<-≤ n<d d≤n
 
 -- remainder d n a = exists x => a + x * d == n
 data Remainder : Nat -> Nat -> Nat -> Set where
-  remainder : (d n a x : Nat) -> a <' d -> (a +' x *' d == n) -> Remainder d n a
+  remainder : (d n a x : Nat) -> a < d -> (a +' x *' d == n) -> Remainder d n a
 
 data Remainder' : Nat -> Nat -> Nat -> Set where
-  remainder'-base : {d a : Nat} -> a <' d -> Remainder' d a a
+  remainder'-base : {d a : Nat} -> a < d -> Remainder' d a a
   remainder'-recur : {d n a : Nat} -> Remainder' d n a -> Remainder' d (d +' n) a
 
 data Remainder2 : Nat -> Nat -> Nat -> Set where
   remainder2-base  : {d : Nat} -> d != 0 -> Remainder2 d 0 0
-  remainder2-inc   : {d n a : Nat} -> Remainder2 d n a -> suc a <' d
+  remainder2-inc   : {d n a : Nat} -> Remainder2 d n a -> suc a < d
                                    -> Remainder2 d (suc n) (suc a)
   remainder2-reset : {d n a : Nat} -> Remainder2 d n a -> suc a == d 
                                    -> Remainder2 d (suc n) 0
@@ -237,7 +237,7 @@ remainder->div (remainder d n zero x _ pr) = (div'-exist d n x pr)
 div->remainder : {d n : Nat} -> d div' n -> d != 0 -> Remainder d n 0
 div->remainder (div'-exist zero n x pr) d!=0 = bot-elim (d!=0 refl)
 div->remainder (div'-exist d@(suc d') n x pr) d!=0 =
-  (remainder d n 0 x (zero-<' {d'}) pr)
+  (remainder d n 0 x (zero-< {d'}) pr)
 
 remainder'->remainder : {d n a : Nat} -> Remainder' d n a -> Remainder d n a
 remainder'->remainder (remainder'-base {d} {a} pr) = (remainder d a a 0 pr +'-right-zero)
@@ -262,7 +262,7 @@ remainder'->remainder (remainder'-recur {d} {n} {a} rec) = handle (remainder'->r
         d +' n
       end
 
-remainder'-x-deep : (d a x : Nat) -> (a <' d) -> Remainder' d (a +' x *' d) a
+remainder'-x-deep : (d a x : Nat) -> (a < d) -> Remainder' d (a +' x *' d) a
 remainder'-x-deep d a zero a<d rewrite (+'-right-zero {a}) = remainder'-base a<d
 remainder'-x-deep d a (suc x) a<d = 
   (subst (\z -> Remainder' d z a) proof (remainder'-recur (remainder'-x-deep d a x a<d)))
@@ -292,19 +292,19 @@ remainder2-unique (remainder2-inc rec1 pr1) (remainder2-inc rec2 pr2) =
 remainder2-unique (remainder2-reset rec1 pr1) (remainder2-reset rec2 pr2) = refl
 remainder2-unique (remainder2-inc rec1 pr1) (remainder2-reset rec2 refl)
   rewrite (remainder2-unique rec1 rec2) =
-  bot-elim (absurd-same-<' pr1)
+  bot-elim (absurd-same-< pr1)
 remainder2-unique (remainder2-reset rec1 refl) (remainder2-inc rec2 pr2)
   rewrite (remainder2-unique rec1 rec2) = 
-  bot-elim (absurd-same-<' pr2)
+  bot-elim (absurd-same-< pr2)
 
 remainder2->remainder : {d n a : Nat} -> Remainder2 d n a -> Remainder d n a
 remainder2->remainder (remainder2-base {zero} d!=0) = bot-elim (d!=0 refl)
 remainder2->remainder (remainder2-base {d@(suc d')} d!=0) =
-  (remainder d 0 0 0 (zero-<' {d'}) refl)
+  (remainder d 0 0 0 (zero-< {d'}) refl)
 remainder2->remainder (remainder2-inc rec a<d) with (remainder2->remainder rec)
 ... | (remainder d n a x _ pr) = (remainder d (suc n) (suc a) x a<d (cong suc pr))
 remainder2->remainder (remainder2-reset rec refl) with (remainder2->remainder rec)
-... | (remainder d n a x _ refl) = (remainder d (suc n) 0 (suc x) (zero-<' {a}) refl)
+... | (remainder d n a x _ refl) = (remainder d (suc n) 0 (suc x) (zero-< {a}) refl)
 
 
 
@@ -335,8 +335,8 @@ private
     ba=d' (mod-small-step {d} {n} {b} {x} {a} step) = (+'-right-suc {b} {a}) >=> ba=d' step
     ba=d' (mod-large-step {d} {n} {b} step) = (+'-right-zero {b}) >=> ba=d' step
   
-    a<d : a <' d
-    a<d = (inc-≤' (≤'-a+'b==c (ba=d' step)))
+    a<d : a < d
+    a<d = (inc-≤ (≤-a+'b==c (ba=d' step)))
   
     eq-step : {n b x a : Nat} -> ModStep d n b x a -> a +' x *' d == n
     eq-step (mod-base d') = refl

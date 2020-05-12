@@ -160,74 +160,74 @@ nat->fin zero = zero-fin
 nat->fin (suc n) = suc-fin (nat->fin n)
 
 
-data _≤'_ : Nat -> Nat -> Set where
- zero-≤' : {n : Nat} -> zero ≤' n
- inc-≤' : {m n : Nat} -> m ≤' n -> suc m ≤' suc n
+data _≤_ : Nat -> Nat -> Set where
+ zero-≤ : {n : Nat} -> zero ≤ n
+ inc-≤ : {m n : Nat} -> m ≤ n -> suc m ≤ suc n
 
-_<'_ : Nat -> Nat -> Set
-m <' n = (suc m) ≤' n
+_<_ : Nat -> Nat -> Set
+m < n = (suc m) ≤ n
 
-zero-<' : {n : Nat} -> zero <' (suc n)
-zero-<' {n} = inc-≤' (zero-≤' {n})
+zero-< : {n : Nat} -> zero < (suc n)
+zero-< {n} = inc-≤ (zero-≤ {n})
 
-inc-<' : {m n : Nat} -> m <' n -> suc m <' suc n
-inc-<' = inc-≤'
-
-
-same-≤' : (n : Nat) -> n ≤' n
-same-≤' zero = zero-≤'
-same-≤' (suc n) = inc-≤' (same-≤' n)
-
-add1-<' : (n : Nat) -> n <' (suc n)
-add1-<' zero = zero-<'
-add1-<' (suc n) = inc-<' (add1-<' n)
-
-suc-≤' : {m n : Nat} -> m ≤' n -> m ≤' (suc n)
-suc-≤' zero-≤' = zero-≤'
-suc-≤' (inc-≤' p) = inc-≤' (suc-≤' p)
-
-suc-<' : {m n : Nat} -> m <' n -> m <' (suc n)
-suc-<' = suc-≤'
+inc-< : {m n : Nat} -> m < n -> suc m < suc n
+inc-< = inc-≤
 
 
-trans-≤' : {m n o : Nat} -> m ≤' n -> n ≤' o -> m ≤' o
-trans-≤' zero-≤' p = zero-≤'
-trans-≤' (inc-≤' l) (inc-≤' r) = inc-≤' (trans-≤' l r)
+same-≤ : (n : Nat) -> n ≤ n
+same-≤ zero = zero-≤
+same-≤ (suc n) = inc-≤ (same-≤ n)
 
-trans-<' : {m n o : Nat} -> (m <' n) -> (n <' o) -> (m <' o)
-trans-<' (inc-≤' zero-≤') (inc-≤' r) = zero-<'
-trans-<' (inc-≤' l@(inc-≤' _)) (inc-≤' r) = inc-<' (trans-<' l r)
+add1-< : (n : Nat) -> n < (suc n)
+add1-< zero = zero-<
+add1-< (suc n) = inc-< (add1-< n)
 
-trans-<'-≤' : {m n o : Nat} -> (m <' n) -> (n ≤' o) -> (m <' o)
-trans-<'-≤' (inc-≤' zero-≤') (inc-≤' r) = zero-<'
-trans-<'-≤' (inc-≤' l@(inc-≤' _)) (inc-≤' r) = inc-<' (trans-<'-≤' l r)
+suc-≤ : {m n : Nat} -> m ≤ n -> m ≤ (suc n)
+suc-≤ zero-≤ = zero-≤
+suc-≤ (inc-≤ p) = inc-≤ (suc-≤ p)
 
-trans-≤'-<' : {m n o : Nat} -> m ≤' n -> n <' o -> m <' o
-trans-≤'-<' zero-≤' (inc-≤' _) = zero-<'
-trans-≤'-<' (inc-≤' l) (inc-≤' r) = inc-<' (trans-≤'-<' l r)
-
-
-absurd-same-<' : {n : Nat} -> ¬ (n <' n)
-absurd-same-<' (inc-≤' pr) = absurd-same-<' pr
+suc-< : {m n : Nat} -> m < n -> m < (suc n)
+suc-< = suc-≤
 
 
-dec-≤' : {m n : Nat} -> suc m ≤' suc n -> m ≤' n
-dec-≤' (inc-≤' ≤) = ≤
+trans-≤ : {m n o : Nat} -> m ≤ n -> n ≤ o -> m ≤ o
+trans-≤ zero-≤ p = zero-≤
+trans-≤ (inc-≤ l) (inc-≤ r) = inc-≤ (trans-≤ l r)
 
-dec-<' : {m n : Nat} -> suc m <' suc n -> m <' n
-dec-<' (inc-≤' <) = <
+trans-< : {m n o : Nat} -> (m < n) -> (n < o) -> (m < o)
+trans-< (inc-≤ zero-≤) (inc-≤ r) = zero-<
+trans-< (inc-≤ l@(inc-≤ _)) (inc-≤ r) = inc-< (trans-< l r)
 
-≤'-><' : {m n : Nat} -> m ≤' n -> m <' suc n
-≤'-><' p = inc-≤' p 
+trans-<-≤ : {m n o : Nat} -> (m < n) -> (n ≤ o) -> (m < o)
+trans-<-≤ (inc-≤ zero-≤) (inc-≤ r) = zero-<
+trans-<-≤ (inc-≤ l@(inc-≤ _)) (inc-≤ r) = inc-< (trans-<-≤ l r)
+
+trans-≤-< : {m n o : Nat} -> m ≤ n -> n < o -> m < o
+trans-≤-< zero-≤ (inc-≤ _) = zero-<
+trans-≤-< (inc-≤ l) (inc-≤ r) = inc-< (trans-≤-< l r)
 
 
-≤'-a+'b==c : {a b c : Nat} -> a +' b == c -> b ≤' c
-≤'-a+'b==c {zero} {b} refl = same-≤' b
-≤'-a+'b==c {suc a} {b} {suc c} refl = suc-≤' (≤'-a+'b==c {a} {b} {c} refl)
+absurd-same-< : {n : Nat} -> ¬ (n < n)
+absurd-same-< (inc-≤ pr) = absurd-same-< pr
 
-<'-a+'b<c : {a b c : Nat} -> (a +' b) <' c -> b <' c
-<'-a+'b<c {zero} {b} {c} pr = pr
-<'-a+'b<c {suc a} {b} {suc c} (inc-≤' pr) = suc-<' (<'-a+'b<c pr)
+
+dec-≤ : {m n : Nat} -> suc m ≤ suc n -> m ≤ n
+dec-≤ (inc-≤ ≤) = ≤
+
+dec-< : {m n : Nat} -> suc m < suc n -> m < n
+dec-< (inc-≤ <) = <
+
+≤->< : {m n : Nat} -> m ≤ n -> m < suc n
+≤->< p = inc-≤ p 
+
+
+≤-a+'b==c : {a b c : Nat} -> a +' b == c -> b ≤ c
+≤-a+'b==c {zero} {b} refl = same-≤ b
+≤-a+'b==c {suc a} {b} {suc c} refl = suc-≤ (≤-a+'b==c {a} {b} {c} refl)
+
+<-a+'b<c : {a b c : Nat} -> (a +' b) < c -> b < c
+<-a+'b<c {zero} {b} {c} pr = pr
+<-a+'b<c {suc a} {b} {suc c} (inc-≤ pr) = suc-< (<-a+'b<c pr)
 
 induction : 
   {P : Nat -> Set} ->
@@ -240,8 +240,8 @@ induction {P} z f (suc m) = f (induction {P} z f m)
 -- strong-induction' : 
 --   {P : Nat -> Set} ->
 --   P zero ->
---   ({m : Nat} -> ({n : Nat} -> (n ≤' m) -> P n) -> P (suc m)) ->
---   (m : Nat) -> {n : Nat} -> (n ≤' m) -> P n
+--   ({m : Nat} -> ({n : Nat} -> (n ≤ m) -> P n) -> P (suc m)) ->
+--   (m : Nat) -> {n : Nat} -> (n ≤ m) -> P n
 -- strong-induction' z f zero id-≤ = z
 -- strong-induction' z f (suc m) (inc-≤ rec-≤) = strong-induction' z f m rec-≤
 -- strong-induction' z f (suc m) id-≤ = f {m} (strong-induction' z f m)
