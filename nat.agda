@@ -192,9 +192,18 @@ trans-≤' : {m n o : Nat} -> m ≤' n -> n ≤' o -> m ≤' o
 trans-≤' zero-≤' p = zero-≤'
 trans-≤' (inc-≤' l) (inc-≤' r) = inc-≤' (trans-≤' l r)
 
+trans-<' : {m n o : Nat} -> m <' n -> n <' o -> m <' o
+trans-<' zero-<' (inc-<' _) = zero-<'
+trans-<' (inc-<' l) (inc-<' r) = inc-<' (trans-<' l r)
+
 trans-<'-≤' : {m n o : Nat} -> m <' n -> n ≤' o -> m <' o
-trans-<'-≤' {zero} zero-<' (inc-≤' _) = zero-<'
+trans-<'-≤' zero-<' (inc-≤' _) = zero-<'
 trans-<'-≤' (inc-<' l) (inc-≤' r) = inc-<' (trans-<'-≤' l r)
+
+trans-≤'-<' : {m n o : Nat} -> m ≤' n -> n <' o -> m <' o
+trans-≤'-<' zero-≤' zero-<' = zero-<'
+trans-≤'-<' zero-≤' (inc-<' _) = zero-<'
+trans-≤'-<' (inc-≤' l) (inc-<' r) = inc-<' (trans-≤'-<' l r)
 
 
 absurd-same-<' : {n : Nat} -> ¬ (n <' n)
