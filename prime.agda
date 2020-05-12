@@ -59,7 +59,7 @@ data PrimeRec : Int -> Set where
 
 data StrongRec : Nat -> Set where
   strong-rec-zero : StrongRec zero
-  strong-rec-suc : {m : Nat} -> ({n : Nat} -> n ≤ m -> StrongRec m) -> StrongRec (suc m)
+  strong-rec-suc : {m : Nat} -> ({n : Nat} -> n ≤' m -> StrongRec m) -> StrongRec (suc m)
 
 
 

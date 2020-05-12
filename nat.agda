@@ -168,11 +168,11 @@ data _<'_ : Nat -> Nat -> Set where
  zero-<' : {n : Nat} -> zero <' (suc n)
  inc-<' : {m n : Nat} -> m <' n -> suc m <' suc n
 
-data _≤_ : Nat -> Nat -> Set where
- id-≤ : {n : Nat} -> n ≤ n
- suc-≤ : {m n : Nat} -> m ≤ n -> m ≤ suc n
-
 private
+  data _≤_ : Nat -> Nat -> Set where
+   id-≤ : {n : Nat} -> n ≤ n
+   suc-≤ : {m n : Nat} -> m ≤ n -> m ≤ suc n
+
   data _<_ : Nat -> Nat -> Set where
     add1-< : {n : Nat} -> n < (suc n)
     suc-< : {m n : Nat} -> m < n -> m < suc n
