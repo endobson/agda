@@ -172,9 +172,10 @@ data _≤_ : Nat -> Nat -> Set where
  id-≤ : {n : Nat} -> n ≤ n
  suc-≤ : {m n : Nat} -> m ≤ n -> m ≤ suc n
 
-data _<_ : Nat -> Nat -> Set where
- add1-< : {n : Nat} -> n < (suc n)
- suc-< : {m n : Nat} -> m < n -> m < suc n
+private
+  data _<_ : Nat -> Nat -> Set where
+    add1-< : {n : Nat} -> n < (suc n)
+    suc-< : {m n : Nat} -> m < n -> m < suc n
 
 inc-≤ : {m n : Nat} -> m ≤ n -> suc m ≤ suc n
 inc-≤ id-≤ = id-≤
@@ -229,6 +230,10 @@ suc-<' (inc-<' p) = inc-<' (suc-<' p)
 ≤->< {m} id-≤ = add1-< {m}
 ≤->< (suc-≤ p) = suc-< (≤->< p)
 
+≤'-><' : {m n : Nat} -> m ≤' n -> m <' suc n
+≤'-><' {m} {n} zero-≤' = zero-<' {n}
+≤'-><' (inc-≤' p) = inc-<' (≤'-><' p)
+
 
 trans-≤' : {m n o : Nat} -> m ≤' n -> n ≤' o -> m ≤' o
 trans-≤' zero-≤' p = zero-≤'
@@ -268,6 +273,10 @@ dec-< p = <'->< (dec-<' (<-><' p))
 ≤-a+'b==c : {a b c : Nat} -> a +' b == c -> b ≤ c
 ≤-a+'b==c {zero} {b} {c} refl = id-≤
 ≤-a+'b==c {suc a} {b} {suc c} refl = suc-≤ (≤-a+'b==c {a} {b} {c} refl)
+
+≤'-a+'b==c : {a b c : Nat} -> a +' b == c -> b ≤' c
+≤'-a+'b==c pr = ≤->≤' (≤-a+'b==c pr)
+
 
 <'-a+'b<c : {a b c : Nat} -> (a +' b) <' c -> b <' c
 <'-a+'b<c {zero} {b} {c} pr = pr

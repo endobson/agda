@@ -123,34 +123,34 @@ data CompareNat3 : Nat -> Nat -> Set where
   compare3-= : {m n : Nat} -> m == n -> CompareNat3 m n
   compare3-< : {a m n : Nat} 
     -> (pos a) + (pos m) == (pos n) 
-    -> suc (a +' m) ≤ (m +' n)
+    -> suc (a +' m) ≤' (m +' n)
     -> CompareNat3 m n
   compare3-> : {a m n : Nat} 
     -> (pos a) + (pos n) == (pos m) 
-    -> suc (a +' n) ≤ (m +' n)
+    -> suc (a +' n) ≤' (m +' n)
     -> CompareNat3 m n
 decide-compare3 : (m : Nat) -> (n : Nat) -> CompareNat3 m n
 decide-compare3 zero zero = compare3-= refl
 decide-compare3 zero (suc n) = compare3-< {n} (+-commute {pos n}) ≤-proof
   where 
-  ≤-proof : (suc n +' zero) ≤ suc n
-  ≤-proof rewrite (+'-right-zero {suc n}) = id-≤
-decide-compare3 (suc m) zero = compare3-> {m} (+-commute {pos m}) id-≤
+  ≤-proof : (suc n +' zero) ≤' suc n
+  ≤-proof rewrite (+'-right-zero {suc n}) = same-≤' (suc n)
+decide-compare3 (suc m) zero = compare3-> {m} (+-commute {pos m}) (same-≤' (suc (m +' zero)))
 decide-compare3 (suc m) (suc n) = fix (decide-compare3 m n)
   where fix : CompareNat3 m n -> CompareNat3 (suc m) (suc n)
         fix (compare3-= refl) = (compare3-= refl) 
         fix (compare3-< {a} pr rec-≤) =
           compare3-< {a} (add1-extract-right {pos a} >=> cong add1 pr) ≤-proof
           where 
-          ≤-proof : (suc a +' suc m) ≤ (suc m +' suc n)
+          ≤-proof : (suc a +' suc m) ≤' (suc m +' suc n)
           ≤-proof rewrite (+'-right-suc {a} {m}) | (+'-right-suc {m} {n}) = 
-            inc-≤ (suc-≤ rec-≤)
+            inc-≤' (suc-≤' rec-≤)
         fix (compare3-> {a} pr rec-≤) = 
           compare3-> {a} (add1-extract-right {pos a} >=> cong add1 pr) ≤-proof
           where 
-          ≤-proof : (suc a +' suc n) ≤ (suc m +' suc n)
+          ≤-proof : (suc a +' suc n) ≤' (suc m +' suc n)
           ≤-proof rewrite (+'-right-suc {a} {n}) | (+'-right-suc {m} {n}) = 
-            inc-≤ (suc-≤ rec-≤)
+            inc-≤' (suc-≤' rec-≤)
 
 
 eulers-helper-gcd : (m : Nat) -> (n : Nat) -> 
@@ -245,13 +245,13 @@ pos-eulers-algo' (suc b) m n size-pr = split (decide-compare3 m n)
     handle : (exists (GCD (pos a) (pos m))) -> (exists (GCD (pos m) (pos n)))
     handle (existence d gc) = (existence d (eulers-helper-gcd m n {a} pr {d} gc))
     new-size-pr : (suc (a +' m)) ≤ b
-    new-size-pr = trans-≤ rec-size-pr (dec-≤ size-pr)
+    new-size-pr = trans-≤ (≤'->≤ rec-size-pr) (dec-≤ size-pr)
   split (compare3-> {a} pr rec-size-pr) = handle (pos-eulers-algo' b a n new-size-pr)
     where
     handle : (exists (GCD (pos a) (pos n))) -> (exists (GCD (pos m) (pos n)))
     handle (existence d gc) = (existence d (gcd-sym (eulers-helper-gcd n m {a} pr {d} gc)))
     new-size-pr : (suc (a +' n)) ≤ b
-    new-size-pr = trans-≤ rec-size-pr (dec-≤ size-pr)
+    new-size-pr = trans-≤ (≤'->≤ rec-size-pr) (dec-≤ size-pr)
 pos-eulers-algo' zero m n ()
 
 
@@ -268,13 +268,13 @@ pos-eulers-algo'' (suc b) m n size-pr = split (decide-compare3 m n)
     handle : (exists (LinearGCD (pos a) (pos m))) -> (exists (LinearGCD (pos m) (pos n)))
     handle (existence d gc) = (existence d (eulers-helper m n {a} pr {d} gc))
     new-size-pr : (suc (a +' m)) ≤ b
-    new-size-pr = trans-≤ rec-size-pr (dec-≤ size-pr)
+    new-size-pr = trans-≤ (≤'->≤ rec-size-pr) (dec-≤ size-pr)
   split (compare3-> {a} pr rec-size-pr) = handle (pos-eulers-algo'' b a n new-size-pr)
     where
     handle : (exists (LinearGCD (pos a) (pos n))) -> (exists (LinearGCD (pos m) (pos n)))
     handle (existence d gc) = (existence d (linear-gcd-sym (eulers-helper n m {a} pr {d} gc)))
     new-size-pr : (suc (a +' n)) ≤ b
-    new-size-pr = trans-≤ rec-size-pr (dec-≤ size-pr)
+    new-size-pr = trans-≤ (≤'->≤ rec-size-pr) (dec-≤ size-pr)
 pos-eulers-algo'' zero m n ()
 
 
