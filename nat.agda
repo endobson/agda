@@ -164,9 +164,15 @@ data _≤'_ : Nat -> Nat -> Set where
  zero-≤' : {n : Nat} -> zero ≤' n
  inc-≤' : {m n : Nat} -> m ≤' n -> suc m ≤' suc n
 
-data _<'_ : Nat -> Nat -> Set where
- zero-<' : {n : Nat} -> zero <' (suc n)
- inc-<' : {m n : Nat} -> m <' n -> suc m <' suc n
+_<'_ : Nat -> Nat -> Set
+m <' n = (suc m) ≤' n
+
+zero-<' : {n : Nat} -> zero <' (suc n)
+zero-<' {n} = inc-≤' (zero-≤' {n})
+
+inc-<' : {m n : Nat} -> m <' n -> suc m <' suc n
+inc-<' = inc-≤'
+
 
 same-≤' : (n : Nat) -> n ≤' n
 same-≤' zero = zero-≤'
@@ -181,40 +187,39 @@ suc-≤' zero-≤' = zero-≤'
 suc-≤' (inc-≤' p) = inc-≤' (suc-≤' p)
 
 suc-<' : {m n : Nat} -> m <' n -> m <' (suc n)
-suc-<' zero-<' = zero-<'
-suc-<' (inc-<' p) = inc-<' (suc-<' p)
+suc-<' = suc-≤'
 
-≤'-><' : {m n : Nat} -> m ≤' n -> m <' suc n
-≤'-><' {m} {n} zero-≤' = zero-<' {n}
-≤'-><' (inc-≤' p) = inc-<' (≤'-><' p)
 
 trans-≤' : {m n o : Nat} -> m ≤' n -> n ≤' o -> m ≤' o
 trans-≤' zero-≤' p = zero-≤'
 trans-≤' (inc-≤' l) (inc-≤' r) = inc-≤' (trans-≤' l r)
 
-trans-<' : {m n o : Nat} -> m <' n -> n <' o -> m <' o
-trans-<' zero-<' (inc-<' _) = zero-<'
-trans-<' (inc-<' l) (inc-<' r) = inc-<' (trans-<' l r)
+trans-<' : {m n o : Nat} -> (m <' n) -> (n <' o) -> (m <' o)
+trans-<' (inc-≤' zero-≤') (inc-≤' r) = zero-<'
+trans-<' (inc-≤' l@(inc-≤' _)) (inc-≤' r) = inc-<' (trans-<' l r)
 
-trans-<'-≤' : {m n o : Nat} -> m <' n -> n ≤' o -> m <' o
-trans-<'-≤' zero-<' (inc-≤' _) = zero-<'
-trans-<'-≤' (inc-<' l) (inc-≤' r) = inc-<' (trans-<'-≤' l r)
+trans-<'-≤' : {m n o : Nat} -> (m <' n) -> (n ≤' o) -> (m <' o)
+trans-<'-≤' (inc-≤' zero-≤') (inc-≤' r) = zero-<'
+trans-<'-≤' (inc-≤' l@(inc-≤' _)) (inc-≤' r) = inc-<' (trans-<'-≤' l r)
 
 trans-≤'-<' : {m n o : Nat} -> m ≤' n -> n <' o -> m <' o
-trans-≤'-<' zero-≤' zero-<' = zero-<'
-trans-≤'-<' zero-≤' (inc-<' _) = zero-<'
-trans-≤'-<' (inc-≤' l) (inc-<' r) = inc-<' (trans-≤'-<' l r)
+trans-≤'-<' zero-≤' (inc-≤' _) = zero-<'
+trans-≤'-<' (inc-≤' l) (inc-≤' r) = inc-<' (trans-≤'-<' l r)
 
 
 absurd-same-<' : {n : Nat} -> ¬ (n <' n)
-absurd-same-<' (inc-<' pr) = absurd-same-<' pr
+absurd-same-<' (inc-≤' pr) = absurd-same-<' pr
 
 
 dec-≤' : {m n : Nat} -> suc m ≤' suc n -> m ≤' n
 dec-≤' (inc-≤' ≤) = ≤
 
 dec-<' : {m n : Nat} -> suc m <' suc n -> m <' n
-dec-<' (inc-<' <) = <
+dec-<' (inc-≤' <) = <
+
+≤'-><' : {m n : Nat} -> m ≤' n -> m <' suc n
+≤'-><' p = inc-≤' p 
+
 
 ≤'-a+'b==c : {a b c : Nat} -> a +' b == c -> b ≤' c
 ≤'-a+'b==c {zero} {b} refl = same-≤' b
@@ -222,7 +227,7 @@ dec-<' (inc-<' <) = <
 
 <'-a+'b<c : {a b c : Nat} -> (a +' b) <' c -> b <' c
 <'-a+'b<c {zero} {b} {c} pr = pr
-<'-a+'b<c {suc a} {b} {suc c} (inc-<' pr) = suc-<' (<'-a+'b<c pr)
+<'-a+'b<c {suc a} {b} {suc c} (inc-≤' pr) = suc-<' (<'-a+'b<c pr)
 
 induction : 
   {P : Nat -> Set} ->

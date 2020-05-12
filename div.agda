@@ -336,7 +336,7 @@ private
     ba=d' (mod-large-step {d} {n} {b} step) = (+'-right-zero {b}) >=> ba=d' step
   
     a<d : a <' d
-    a<d = ≤'-><' (≤'-a+'b==c (ba=d' step)) 
+    a<d = (inc-≤' (≤'-a+'b==c (ba=d' step)))
   
     eq-step : {n b x a : Nat} -> ModStep d n b x a -> a +' x *' d == n
     eq-step (mod-base d') = refl
