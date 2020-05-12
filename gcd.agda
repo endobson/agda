@@ -234,56 +234,29 @@ eulers-helper m n {a} pr {d} (linear-gcd lc gc) =
 
 pos-eulers-algo' : (b : Nat) -> (m : Nat) -> (n : Nat)
   -> (suc (m +' n)) ≤ b
-  -> exists (GCD (pos m) (pos n))
+  -> exists (LinearGCD (pos m) (pos n))
 pos-eulers-algo' (suc b) m n (suc-≤ ≤) = pos-eulers-algo' b m n ≤
 pos-eulers-algo' (suc b) m n size-pr = split (decide-compare3 m n)
   where
-  split : CompareNat3 m n -> exists (GCD (pos m) (pos n))
-  split (compare3-= refl) = existence (pos m) gcd-refl
-  split (compare3-< {a} pr rec-size-pr) = handle (pos-eulers-algo' b a m new-size-pr)
-    where
-    handle : (exists (GCD (pos a) (pos m))) -> (exists (GCD (pos m) (pos n)))
-    handle (existence d gc) = (existence d (eulers-helper-gcd m n {a} pr {d} gc))
-    new-size-pr : (suc (a +' m)) ≤ b
-    new-size-pr = trans-≤ (≤'->≤ rec-size-pr) (dec-≤ size-pr)
-  split (compare3-> {a} pr rec-size-pr) = handle (pos-eulers-algo' b a n new-size-pr)
-    where
-    handle : (exists (GCD (pos a) (pos n))) -> (exists (GCD (pos m) (pos n)))
-    handle (existence d gc) = (existence d (gcd-sym (eulers-helper-gcd n m {a} pr {d} gc)))
-    new-size-pr : (suc (a +' n)) ≤ b
-    new-size-pr = trans-≤ (≤'->≤ rec-size-pr) (dec-≤ size-pr)
-pos-eulers-algo' zero m n ()
-
-
-pos-eulers-algo'' : (b : Nat) -> (m : Nat) -> (n : Nat)
-  -> (suc (m +' n)) ≤ b
-  -> exists (LinearGCD (pos m) (pos n))
-pos-eulers-algo'' (suc b) m n (suc-≤ ≤) = pos-eulers-algo'' b m n ≤
-pos-eulers-algo'' (suc b) m n size-pr = split (decide-compare3 m n)
-  where
   split : CompareNat3 m n -> exists (LinearGCD (pos m) (pos n))
   split (compare3-= refl) = existence (pos m) (linear-gcd linear-combo-refl gcd-refl)
-  split (compare3-< {a} pr rec-size-pr) = handle (pos-eulers-algo'' b a m new-size-pr)
+  split (compare3-< {a} pr rec-size-pr) = handle (pos-eulers-algo' b a m new-size-pr)
     where
     handle : (exists (LinearGCD (pos a) (pos m))) -> (exists (LinearGCD (pos m) (pos n)))
     handle (existence d gc) = (existence d (eulers-helper m n {a} pr {d} gc))
     new-size-pr : (suc (a +' m)) ≤ b
     new-size-pr = trans-≤ (≤'->≤ rec-size-pr) (dec-≤ size-pr)
-  split (compare3-> {a} pr rec-size-pr) = handle (pos-eulers-algo'' b a n new-size-pr)
+  split (compare3-> {a} pr rec-size-pr) = handle (pos-eulers-algo' b a n new-size-pr)
     where
     handle : (exists (LinearGCD (pos a) (pos n))) -> (exists (LinearGCD (pos m) (pos n)))
     handle (existence d gc) = (existence d (linear-gcd-sym (eulers-helper n m {a} pr {d} gc)))
     new-size-pr : (suc (a +' n)) ≤ b
     new-size-pr = trans-≤ (≤'->≤ rec-size-pr) (dec-≤ size-pr)
-pos-eulers-algo'' zero m n ()
+pos-eulers-algo' zero m n ()
 
 
 pos-eulers-algo : (m : Nat) -> (n : Nat) -> exists (LinearGCD (pos m) (pos n))
-pos-eulers-algo m n = pos-eulers-algo'' (suc (m +' n)) m n id-≤ 
-
-
-pos-eulers-algo-gcd : (m : Nat) -> (n : Nat) -> exists (GCD (pos m) (pos n))
-pos-eulers-algo-gcd m n = pos-eulers-algo' (suc (m +' n)) m n id-≤ 
+pos-eulers-algo m n = pos-eulers-algo' (suc (m +' n)) m n id-≤
 
 
 eulers-algo : (m : Int) -> (n : Int) -> exists (LinearGCD m n)
