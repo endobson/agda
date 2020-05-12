@@ -308,85 +308,74 @@ remainder2->remainder (remainder2-reset rec refl) with (remainder2->remainder re
 
 
 
--- ModStep d n a b x
--- d == (suc d')
--- a + b == d'
--- n + d' == a + x * d
--- =>
--- n == b + x * d
-data ModStep : Nat -> Nat -> Nat -> Nat -> Nat -> Set where
-  mod-base : (d' : Nat) -> ModStep (suc d') 0 d' 0 0
-  mod-small-step : {d : Nat} -> {n : Nat} -> {a : Nat} -> {b : Nat} -> {x : Nat}
-                   -> ModStep d n (suc a) b x
-                   -> ModStep d (suc n) a (suc b) x
-  mod-large-step : {d : Nat} -> {n : Nat} -> {b : Nat} -> {x : Nat}
-                   -> ModStep d n zero b x
-                   -> ModStep d (suc n) b zero (suc x)
+private
+  -- ModStep d n a b x
+  -- d == (suc d')
+  -- a + b == d'
+  -- n == a + x * d
+  data ModStep : Nat -> Nat -> Nat -> Nat -> Nat -> Set where
+    mod-base : (d' : Nat) -> ModStep (suc d') 0 d' 0 0
+    mod-small-step : {d n b x a : Nat} 
+                     -> ModStep d n (suc b) x a
+                     -> ModStep d (suc n) b x (suc a)
+    mod-large-step : {d n b x : Nat} 
+                     -> ModStep d n zero x b
+                     -> ModStep d (suc n) b (suc x) zero 
+  
+  ¬mod-step-zero : {n b x a : Nat} -> ¬ (ModStep zero n b x a)
+  ¬mod-step-zero (mod-small-step step) = ¬mod-step-zero step
+  ¬mod-step-zero (mod-large-step step) = ¬mod-step-zero step
+  
+  mod-step->remainder : {d n b x a : Nat} -> ModStep d n b x a -> Remainder d n a
+  mod-step->remainder {d@(suc d')} {n} {b} {x} {a} step = 
+    remainder d n a x a<d (eq-step step)
+    where
+    ba=d' : {n b x a : Nat} -> ModStep d n b x a -> (b +' a) == d'
+    ba=d' (mod-base d') = +'-right-zero
+    ba=d' (mod-small-step {d} {n} {b} {x} {a} step) = (+'-right-suc {b} {a}) >=> ba=d' step
+    ba=d' (mod-large-step {d} {n} {b} step) = (+'-right-zero {b}) >=> ba=d' step
+  
+    a<d : a < d
+    a<d = ≤->< (≤-a+'b==c (ba=d' step)) 
+  
+    eq-step : {n b x a : Nat} -> ModStep d n b x a -> a +' x *' d == n
+    eq-step (mod-base d') = refl
+    eq-step (mod-small-step {d} {n} {b} {x} {a} step) = cong suc (eq-step step)
+    eq-step (mod-large-step {d} {n} {a} {x} step) = 
+      begin
+        (suc x) *' d
+      ==<>
+        suc (d' +' x *' d)
+      ==< cong suc (+'-left (sym (ba=d' step))) >
+        suc (a +' x *' d)
+      ==< cong suc (eq-step step) >
+        (suc n)
+      end
+  mod-step->remainder {zero} step = bot-elim (¬mod-step-zero step)
 
-¬mod-step-zero : {n a b x : Nat} -> ¬ (ModStep zero n a b x)
-¬mod-step-zero (mod-small-step step) = ¬mod-step-zero step
-¬mod-step-zero (mod-large-step step) = ¬mod-step-zero step
+  -- Existential for indices in mod
+  data ModOutput : Nat -> Nat -> Set where
+    mod-output : {d n b x : Nat} (a : Nat) -> (step : ModStep d n b x a) -> ModOutput d n
 
-mod-step->remainder : {d n a b x : Nat} -> ModStep d n a b x -> Remainder d n b
-mod-step->remainder {d@(suc d')} {n} {a} {b} {x} step = 
-  remainder d n b x b<d (eq-step step)
-  where
-  ab=d' : {n a b x : Nat} -> ModStep d n a b x -> (a +' b) == d'
-  ab=d' (mod-base d') = +'-right-zero
-  ab=d' (mod-small-step {d} {n} {a} {b} step) = (+'-right-suc {a} {b}) >=> ab=d' step
-  ab=d' (mod-large-step {d} {n} {b} step) = (+'-right-zero {b}) >=> ab=d' step
+  mod : (d : Nat) -> d != 0 -> (n : Nat) -> ModOutput d n
+  mod zero d!=0 = bot-elim (d!=0 refl)
+  mod d@(suc d') d!=0 n = 
+    (rec n 0 d' 0 0 (mod-base d') (+'-right-zero {n}))
+    where
+    rec : (i : Nat) (j : Nat) (b : Nat) (x : Nat) (a : Nat)
+          -> ModStep d j b x a
+          -> (i +' j == n)
+          -> ModOutput d n
+    rec zero j b x a step refl = (mod-output a step)
+    rec (suc i) j zero x acc step refl =
+      rec i (suc j) acc (suc x) zero (mod-large-step step) (+'-right-suc {i})
+    rec (suc i) j (suc acc2) x acc1 step refl =
+      rec i (suc j)  acc2 x (suc acc1) (mod-small-step step) (+'-right-suc {i})
 
-  ba=d' : {n a b x : Nat} -> ModStep d n a b x -> (b +' a) == d'
-  ba=d' (mod-base d') = refl
-  ba=d' (mod-small-step {d} {n} {a} {b} step) = (sym (+'-right-suc {b} {a})) >=> ba=d' step
-  ba=d' (mod-large-step {d} {n} {b} step) = (sym (+'-right-zero {b})) >=> ba=d' step
-
-  a<d : a < d
-  a<d = ≤->< (≤-a+'b==c (ba=d' step)) 
-  b<d : b < d
-  b<d = ≤->< (≤-a+'b==c (ab=d' step)) 
-
-  eq-step : {n a b x : Nat} -> ModStep d n a b x -> b +' x *' d == n
-  eq-step (mod-base d') = refl
-  eq-step (mod-small-step {d} {n} {a} {b} {x} step) = cong suc (eq-step step)
-  eq-step (mod-large-step {d} {n} {b} {x} step) = 
-    begin
-      (suc x) *' d
-    ==<>
-      suc (d' +' x *' d)
-    ==< cong suc (+'-left (sym (ab=d' step))) >
-      suc (b +' x *' d)
-    ==< cong suc (eq-step step) >
-      (suc n)
-    end
-mod-step->remainder {zero} step = bot-elim (¬mod-step-zero step)
-
-
-data ModOutput : Nat -> Nat -> Set where
-  mod-output : 
-    (d : Nat) ->
-    (n : Nat) ->
-    (a : Nat) ->
-    (b : Nat) ->
-    (x : Nat) ->
-    (step : ModStep d n a b x) ->
-    ModOutput d n
-
-mod : (d : Nat) -> d != 0 -> (n : Nat) -> ModOutput d n
-mod zero d!=0 = bot-elim (d!=0 refl)
-mod d@(suc d') d!=0 n = 
-  (rec n 0 d' 0 0 (mod-base d') (+'-right-zero {n}))
-  where
-  rec : (i : Nat) (j : Nat) (a : Nat) (b : Nat) (x : Nat)
-        -> ModStep d j a b x
-        -> (i +' j == n)
-        -> ModOutput d n
-  rec zero j a b x step refl = (mod-output d j a b x step)
-  rec (suc i) j zero acc2 x step refl =
-    rec i (suc j) acc2 zero (suc x) (mod-large-step step) (+'-right-suc {i})
-  rec (suc i) j (suc acc1) acc2 x step refl =
-    rec i (suc j) acc1 (suc acc2) x (mod-small-step step) (+'-right-suc {i})
-
+exists-remainder : (d : Nat) -> d != 0 -> (n : Nat) -> exists (Remainder d n)
+exists-remainder d pr n with (mod d pr n)
+... | (mod-output a step) = existence a (mod-step->remainder step)
+  
 
 
 
