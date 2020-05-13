@@ -222,6 +222,7 @@ data Remainder : Nat -> Nat -> Nat -> Set where
 remainder->div : {d n : Nat} -> Remainder d n 0 -> d div' n
 remainder->div (remainder d n zero x _ pr) = (div'-exist d n x pr)
 
+
 div->remainder : {d n : Nat} -> d div' n -> d != 0 -> Remainder d n 0
 div->remainder (div'-exist zero n x pr) d!=0 = bot-elim (d!=0 refl)
 div->remainder (div'-exist d@(suc d') n x pr) d!=0 =
@@ -375,25 +376,22 @@ unique-remainder {suc _} rem1 rem2
  with (unique-mod-step step1 step2)
 ... | (mod-eq-proof _ _ pr) = pr
 
+remainder->¬div : {d n a : Nat} -> Remainder d n (suc a) -> ¬(d div' n)
+remainder->¬div {zero} (remainder _ _ _ _ () _)
+remainder->¬div {suc _} rem dn with (unique-remainder rem (div->remainder dn (\())))
+...                                | ()
 
--- decide-div' : {d n a : Nat} -> Remainder d n a ->  Dec (d div' n)
--- decide-div' {_} {_} {zero} rem = yes (remainder->div rem)
--- decide-div' (remainder d n a@(suc _) x a<d pr) = no handler
---   where
---   handler : d div' n -> Bot
---   handler dn = ?
--- 
--- decide-div : (d n : Nat) -> Dec (d div' n)
--- decide-div _ zero = yes div'-zero
--- decide-div zero (suc d) = no f
---   where 
---   f : (x : zero div' (suc d)) -> Bot
---   f z-div with (div'-zero->zero z-div)
---   ...        | ()
--- decide-div (suc d') (suc n') = ?
---   where
---   small-case : (suc n') < (suc d') -> ¬ ((suc d') div' (suc n'))
---   small-case pr = no-small-dividends pr (\()) (\()) 
+
+decide-div : (d n : Nat) -> Dec (d div' n)
+decide-div _ zero = yes div'-zero
+decide-div zero (suc d) = no f
+  where 
+  f : (x : zero div' (suc d)) -> Bot
+  f z-div with (div'-zero->zero z-div)
+  ...        | ()
+decide-div d@(suc d') n with (exists-remainder d (\()) n)
+... | (existence zero rem) = yes (remainder->div rem)
+... | (existence (suc a) rem) = no (remainder->¬div rem)
 
 
 
