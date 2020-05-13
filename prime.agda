@@ -20,6 +20,9 @@ data PrimeFactorization : Nat -> Set where
     -> (f : PrimeFactorization n)
     -> PrimeFactorization (m *' n)
 
+data Primality : Nat -> Set where
+  primality-prime : {p : Nat} -> Prime' p -> Primality p
+  primality-composite : (a' b' : Nat) -> Primality ((suc (suc a')) *' (suc (suc b')))
 
 private
   data PrimeUpTo : Nat -> Nat -> Set where
@@ -39,6 +42,34 @@ private
     g : (d : Nat) -> d <s (suc b) -> (d div' (suc p')) -> d == 1
     g d refl-≤s dp = bot-elim (¬bp dp)
     g d (step-≤s d≤b) dp = f d d≤b dp
+
+  prime-up-to-one : (p' : Nat) -> PrimeUpTo (suc p') 1
+  prime-up-to-one p' = prime-up-to-suc (prime-up-to-zero p') pr
+    where
+    pr : ¬(0 div' (suc p'))
+    pr 0p with (div'-zero->zero 0p)
+    ...      | ()
+
+  prime-up-to-two : (p' : Nat) -> PrimeUpTo (suc p') 2
+  prime-up-to-two p' = prime-up-to p' 2 g
+    where
+    g : (d : Nat) -> d <s 2 -> (d div' (suc p')) -> d == 1
+    g d refl-≤s dp = refl
+    g d (step-≤s d≤b) dp with (prime-up-to-one p') 
+    ... | (prime-up-to _ _ f) = f d d≤b dp
+
+  2-is-prime : Prime' 2
+  2-is-prime = prime-up-to->prime' (prime-up-to-two 1)
+
+
+
+  div->composite : {d n : Nat} -> d != 0 -> d != 1 -> d != n -> n != 0 -> d div' n -> Primality n
+  div->composite d0 d1 dn n0 (div'-exists 0 n x refl) = bot-elim (d0 refl)
+  div->composite d0 d1 dn n0 (div'-exists 1 n x refl) = bot-elim (d1 refl)
+  div->composite d0 d1 dn n0 (div'-exists d n 0 refl) = bot-elim (n0 refl)
+  div->composite d0 d1 dn n0 (div'-exists d n 1 refl) = bot-elim (dn (sym (+'-right-zero {d})))
+  div->composite d0 d1 dn n0 (div'-exists (suc (suc d')) n (suc (suc x')) refl) = 
+    primality-composite x' d'
 
 -- data Prime : Int -> Set where
 --   prime : (p : Int) -> Pos p
