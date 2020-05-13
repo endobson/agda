@@ -309,7 +309,7 @@ remainder2->remainder (remainder2-reset rec refl) with (remainder2->remainder re
 
 
 private
-  -- ModStep d n a b x
+  -- ModStep d n b x a
   -- d == (suc d')
   -- a + b == d'
   -- n == a + x * d
@@ -321,11 +321,11 @@ private
     mod-large-step : {d n b x : Nat} 
                      -> ModStep d n zero x b
                      -> ModStep d (suc n) b (suc x) zero 
-  
+
   ¬mod-step-zero : {n b x a : Nat} -> ¬ (ModStep zero n b x a)
   ¬mod-step-zero (mod-small-step step) = ¬mod-step-zero step
   ¬mod-step-zero (mod-large-step step) = ¬mod-step-zero step
-  
+
   mod-step->remainder : {d n b x a : Nat} -> ModStep d n b x a -> Remainder d n a
   mod-step->remainder {d@(suc d')} {n} {b} {x} {a} step = 
     remainder d n a x a<d (eq-step step)
@@ -334,10 +334,10 @@ private
     ba=d' (mod-base d') = +'-right-zero
     ba=d' (mod-small-step {d} {n} {b} {x} {a} step) = (+'-right-suc {b} {a}) >=> ba=d' step
     ba=d' (mod-large-step {d} {n} {b} step) = (+'-right-zero {b}) >=> ba=d' step
-  
+
     a<d : a < d
     a<d = (inc-≤ (≤-a+'b==c (ba=d' step)))
-  
+
     eq-step : {n b x a : Nat} -> ModStep d n b x a -> a +' x *' d == n
     eq-step (mod-base d') = refl
     eq-step (mod-small-step {d} {n} {b} {x} {a} step) = cong suc (eq-step step)
@@ -352,6 +352,32 @@ private
         (suc n)
       end
   mod-step->remainder {zero} step = bot-elim (¬mod-step-zero step)
+
+  private
+    data ModEqProof : Nat -> Nat -> Nat -> Nat -> Nat -> Nat -> Set where
+      mod-eq-proof : {b1 b2 x1 x2 a1 a2 : Nat}
+                     -> b1 == b2
+                     -> x1 == x2
+                     -> a1 == a2
+                     -> ModEqProof b1 b2 x1 x2 a1 a2
+
+  unique-mod-step : {d' n b1 b2 x1 x2 a1 a2 : Nat}
+                    -> ModStep (suc d') n b1 x1 a1
+                    -> ModStep (suc d') n b2 x2 a2 -> ModEqProof b1 b2 x1 x2 a1 a2
+  unique-mod-step (mod-base _) (mod-base _) = mod-eq-proof refl refl refl
+  unique-mod-step (mod-small-step step1) (mod-small-step step2) 
+    with (unique-mod-step step1 step2)
+  ...  | (mod-eq-proof refl refl refl) = (mod-eq-proof refl refl refl)
+  unique-mod-step (mod-large-step step1) (mod-large-step step2)
+    with (unique-mod-step step1 step2)
+  ...  | (mod-eq-proof refl refl refl) = (mod-eq-proof refl refl refl)
+  unique-mod-step (mod-small-step step1) (mod-large-step step2) 
+    with (unique-mod-step step1 step2)
+  ...  | (mod-eq-proof () _ _)
+  unique-mod-step (mod-large-step step1) (mod-small-step step2)
+    with (unique-mod-step step1 step2)
+  ...  | (mod-eq-proof () _ _)
+
 
   -- Existential for indices in mod
   data ModOutput : Nat -> Nat -> Set where
@@ -377,6 +403,56 @@ exists-remainder d pr n with (mod d pr n)
 ... | (mod-output a step) = existence a (mod-step->remainder step)
   
 
+private
+  data ExistsModStep : Nat -> Nat -> Nat -> Set where
+    exists-mod-step : {d n b x a : Nat} (step : ModStep d n b x a) -> ExistsModStep d n a
+
+  data ModStep' : Nat -> Nat -> Nat -> Nat -> Set where
+    mod-base' : (d' : Nat) -> ModStep' (suc d') 0 0 0
+    mod-small-step' : {d' n x a : Nat} 
+                      -> ModStep' (suc d') n x a
+                      -> ModStep' (suc d') (suc n) x (suc a)
+    mod-large-step' : {d' n x : Nat} 
+                      -> ModStep' (suc d') n x d'
+                      -> ModStep' (suc d') (suc n) (suc x) zero 
+
+
+  a≤b->exists : {a b : Nat} -> a ≤ b -> exists (\ x -> x +' a == b)
+  a≤b->exists (zero-≤ {x}) = existence x +'-right-zero
+  a≤b->exists (inc-≤ ≤) with (a≤b->exists ≤)
+  ... | (existence x refl) = (existence x +'-right-suc)
+
+  mod'->mod : {d n x a : Nat} -> ModStep' d n x a -> a < d -> ExistsModStep d n a
+  mod'->mod {_} {_} {_} {a} step a<d with (a≤b->exists a<d) 
+  ... | (existence b refl) = exists-mod-step (rec step (sym (+'-commute {b} {suc a})))
+    where
+    rec : {d n b x a : Nat} -> ModStep' d n x a -> suc (a +' b) == d -> ModStep d n b x a
+    rec (mod-base' d') refl = (mod-base d')
+    rec {d} {n} {b} {x} {a} (mod-small-step' step) pr = 
+      mod-small-step (rec step ((+'-right-suc {a} {b}) >=> pr))
+    rec {d} {n} {b} {x} {a} (mod-large-step' step) refl = 
+      mod-large-step (rec step (cong suc (+'-right-zero {b})))
+
+
+  remainder->mod-step : {d n a : Nat} -> Remainder d n a -> ExistsModStep d n a
+  remainder->mod-step {zero} (remainder _ _ _ _ () _)
+  remainder->mod-step d@{suc d'} (remainder _ n a x a<d pr) =
+      (mod'->mod (rec n a x a<d pr) a<d)
+    where
+    rec : (n a x : Nat) -> a < d -> (a +' x *' d == n) -> ModStep' d n x a
+    rec zero zero zero _ refl = (mod-base' d')
+    rec (suc n) (suc a) x (inc-≤ a<d) refl =
+      (mod-small-step' (rec n a x (suc-< a<d) refl))
+    rec (suc n) zero (suc x) (inc-≤ a<d) refl =
+      (mod-large-step' (rec n d' x (add1-< d') refl))
+  
+unique-remainder : {d n a1 a2 : Nat} -> Remainder d n a1 -> Remainder d n a2 -> a1 == a2
+unique-remainder {zero} (remainder _ _ _ _ () _) 
+unique-remainder {suc _} rem1 rem2
+ with (remainder->mod-step rem1) | (remainder->mod-step rem2)
+... | (exists-mod-step {d} {n} step1) | (exists-mod-step {d} {n} step2) 
+ with (unique-mod-step step1 step2)
+... | (mod-eq-proof _ _ pr) = pr
 
 
 -- decide-div' : {d n a : Nat} -> Remainder d n a ->  Dec (d div' n)
