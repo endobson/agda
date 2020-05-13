@@ -261,7 +261,7 @@ private
 
     eq-step : {n b x a : Nat} -> ModStep d n b x a -> a +' x *' d == n
     eq-step (mod-base d') = refl
-    eq-step (mod-small-step {d} {n} {b} {x} {a} step) = cong suc (eq-step step)
+    eq-step (mod-small-step step) = cong suc (eq-step step)
     eq-step (mod-large-step {d} {n} {a} {x} step) = 
       begin
         (suc x) *' d
