@@ -229,6 +229,30 @@ dec-< (inc-≤ <) = <
 <-a+'b<c {zero} {b} {c} pr = pr
 <-a+'b<c {suc a} {b} {suc c} (inc-≤ pr) = suc-< (<-a+'b<c pr)
 
+data _≤s_ : Nat -> Nat -> Set where
+ refl-≤s : {m : Nat} -> m ≤s m
+ step-≤s : {m n : Nat} -> m ≤s n -> m ≤s suc n
+
+_<s_ : Nat -> Nat -> Set
+m <s n = (suc m) ≤s n
+
+inc-≤s : {m n : Nat} -> m ≤s n -> (suc m) ≤s (suc n)
+inc-≤s refl-≤s = refl-≤s
+inc-≤s (step-≤s rec) = step-≤s (inc-≤s rec)
+
+zero-≤s : (m : Nat) -> 0 ≤s m
+zero-≤s zero = refl-≤s
+zero-≤s (suc n) = step-≤s (zero-≤s n)
+
+≤s->≤ : {m n : Nat} -> m ≤s n -> m ≤ n
+≤s->≤ {m} refl-≤s = same-≤ m
+≤s->≤ (step-≤s rec) = suc-≤ (≤s->≤ rec)
+
+≤->≤s : {m n : Nat} -> m ≤ n -> m ≤s n
+≤->≤s (zero-≤ {n}) = zero-≤s n
+≤->≤s (inc-≤ rec) = inc-≤s (≤->≤s rec)
+
+
 induction : 
   {P : Nat -> Set} ->
   P zero ->
