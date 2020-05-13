@@ -61,7 +61,14 @@ private
   2-is-prime : Prime' 2
   2-is-prime = prime-up-to->prime' (prime-up-to-two 1)
 
-
+  data _≤u_ : Nat -> Nat -> Set where
+    refl-≤u : {m : Nat} -> m ≤u m
+    step-≤u : {m n : Nat} -> suc m ≤u n -> m ≤u n
+  
+  ≤u->≤ : {m n : Nat} -> m ≤u n -> m ≤ n
+  ≤u->≤ (refl-≤u {m}) = same-≤ m
+  ≤u->≤ (step-≤u rec) = (dec-≤ (suc-≤ (≤u->≤ rec)))
+ 
 
   div->composite : {d n : Nat} -> d != 0 -> d != 1 -> d != n -> n != 0 -> d div' n -> Primality n
   div->composite d0 d1 dn n0 (div'-exists 0 n x refl) = bot-elim (d0 refl)
@@ -70,6 +77,24 @@ private
   div->composite d0 d1 dn n0 (div'-exists d n 1 refl) = bot-elim (dn (sym (+'-right-zero {d})))
   div->composite d0 d1 dn n0 (div'-exists (suc (suc d')) n (suc (suc x')) refl) = 
     primality-composite x' d'
+
+
+  compute-primality : (p' : Nat) -> Primality (suc (suc p'))
+  compute-primality p' = rec (0≤i p' refl-≤u) (prime-up-to-two (suc p'))
+    where
+    0≤i : (i : Nat) -> i ≤u p' -> 0 ≤u p'
+    0≤i 0 pr = pr
+    0≤i (suc i) pr = 0≤i i (step-≤u pr)
+    
+    rec : {i : Nat} -> i ≤u p' -> PrimeUpTo (suc (suc p')) (suc (suc i)) -> Primality (suc (suc p'))
+    rec refl-≤u pr = primality-prime (prime-up-to->prime' pr)
+    rec {i} (step-≤u step) pr with decide-div (suc (suc i)) (suc (suc p'))
+    ... | no not-div = rec step (prime-up-to-suc pr not-div)
+    ... | yes div = div->composite {suc (suc i)} {suc (suc p')} 
+                    (\ ()) (\ ()) (<->!= (inc-≤ (inc-≤ (≤u->≤ step)))) (\ ()) div
+
+
+
 
 -- data Prime : Int -> Set where
 --   prime : (p : Int) -> Pos p

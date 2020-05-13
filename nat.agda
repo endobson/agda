@@ -229,6 +229,10 @@ dec-< (inc-≤ <) = <
 <-a+'b<c {zero} {b} {c} pr = pr
 <-a+'b<c {suc a} {b} {suc c} (inc-≤ pr) = suc-< (<-a+'b<c pr)
 
+<->!= : {m n : Nat} -> m < n -> m != n
+<->!= (inc-≤ zero-≤) ()
+<->!= (inc-≤ rec@(inc-≤ _)) refl = <->!= rec refl
+
 data _≤s_ : Nat -> Nat -> Set where
  refl-≤s : {m : Nat} -> m ≤s m
  step-≤s : {m n : Nat} -> m ≤s n -> m ≤s suc n
