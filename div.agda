@@ -219,18 +219,6 @@ no-small-dividends n<d n!=0 d!=0 (div'-exist d n x pr) with x
 data Remainder : Nat -> Nat -> Nat -> Set where
   remainder : (d n a x : Nat) -> a < d -> (a +' x *' d == n) -> Remainder d n a
 
-data Remainder' : Nat -> Nat -> Nat -> Set where
-  remainder'-base : {d a : Nat} -> a < d -> Remainder' d a a
-  remainder'-recur : {d n a : Nat} -> Remainder' d n a -> Remainder' d (d +' n) a
-
-data Remainder2 : Nat -> Nat -> Nat -> Set where
-  remainder2-base  : {d : Nat} -> d != 0 -> Remainder2 d 0 0
-  remainder2-inc   : {d n a : Nat} -> Remainder2 d n a -> suc a < d
-                                   -> Remainder2 d (suc n) (suc a)
-  remainder2-reset : {d n a : Nat} -> Remainder2 d n a -> suc a == d 
-                                   -> Remainder2 d (suc n) 0
-
-
 remainder->div : {d n : Nat} -> Remainder d n 0 -> d div' n
 remainder->div (remainder d n zero x _ pr) = (div'-exist d n x pr)
 
@@ -238,73 +226,6 @@ div->remainder : {d n : Nat} -> d div' n -> d != 0 -> Remainder d n 0
 div->remainder (div'-exist zero n x pr) d!=0 = bot-elim (d!=0 refl)
 div->remainder (div'-exist d@(suc d') n x pr) d!=0 =
   (remainder d n 0 x (zero-< {d'}) pr)
-
-remainder'->remainder : {d n a : Nat} -> Remainder' d n a -> Remainder d n a
-remainder'->remainder (remainder'-base {d} {a} pr) = (remainder d a a 0 pr +'-right-zero)
-remainder'->remainder (remainder'-recur {d} {n} {a} rec) = handle (remainder'->remainder rec)
-  where
-  handle : (Remainder d n a) -> Remainder d (d +' n) a
-  handle (remainder _ _ _ x a<d pr) = (remainder d (d +' n) a (suc x) a<d proof)
-    where
-    proof : (a +' (suc x) *' d == d +' n)
-    proof =
-      begin
-        a +' (suc x) *' d
-      ==<>
-        a +' (d +' x *' d)
-      ==< sym (+'-assoc {a}) >
-        (a +' d) +' x *' d
-      ==< +'-left (+'-commute {a}) >
-        (d +' a) +' x *' d
-      ==< +'-assoc {d} >
-        d +' (a +' x *' d)
-      ==< +'-right {d} pr >
-        d +' n
-      end
-
-remainder'-x-deep : (d a x : Nat) -> (a < d) -> Remainder' d (a +' x *' d) a
-remainder'-x-deep d a zero a<d rewrite (+'-right-zero {a}) = remainder'-base a<d
-remainder'-x-deep d a (suc x) a<d = 
-  (subst (\z -> Remainder' d z a) proof (remainder'-recur (remainder'-x-deep d a x a<d)))
-  where
-  proof : (d +' (a +' x *' d) == a +' (suc x) *' d)
-  proof = sym
-    (begin
-       a +' (suc x) *' d
-     ==<>
-       a +' (d +' x *' d)
-     ==< sym (+'-assoc {a}) >
-       (a +' d) +' x *' d
-     ==< +'-left (+'-commute {a}) >
-       (d +' a) +' x *' d
-     ==< +'-assoc {d} >
-       d +' (a +' x *' d)
-     end)
-
-remainder->remainder' : {d n a : Nat} -> Remainder d n a -> Remainder' d n a
-remainder->remainder' (remainder d n a x a<d refl) =
-  (remainder'-x-deep d a x a<d)
-
-remainder2-unique : {d n a1 a2 : Nat} -> (Remainder2 d n a1) -> (Remainder2 d n a2) -> a1 == a2
-remainder2-unique (remainder2-base _) (remainder2-base _) = refl
-remainder2-unique (remainder2-inc rec1 pr1) (remainder2-inc rec2 pr2) =
-  (cong suc (remainder2-unique rec1 rec2))
-remainder2-unique (remainder2-reset rec1 pr1) (remainder2-reset rec2 pr2) = refl
-remainder2-unique (remainder2-inc rec1 pr1) (remainder2-reset rec2 refl)
-  rewrite (remainder2-unique rec1 rec2) =
-  bot-elim (absurd-same-< pr1)
-remainder2-unique (remainder2-reset rec1 refl) (remainder2-inc rec2 pr2)
-  rewrite (remainder2-unique rec1 rec2) = 
-  bot-elim (absurd-same-< pr2)
-
-remainder2->remainder : {d n a : Nat} -> Remainder2 d n a -> Remainder d n a
-remainder2->remainder (remainder2-base {zero} d!=0) = bot-elim (d!=0 refl)
-remainder2->remainder (remainder2-base {d@(suc d')} d!=0) =
-  (remainder d 0 0 0 (zero-< {d'}) refl)
-remainder2->remainder (remainder2-inc rec a<d) with (remainder2->remainder rec)
-... | (remainder d n a x _ pr) = (remainder d (suc n) (suc a) x a<d (cong suc pr))
-remainder2->remainder (remainder2-reset rec refl) with (remainder2->remainder rec)
-... | (remainder d n a x _ refl) = (remainder d (suc n) 0 (suc x) (zero-< {a}) refl)
 
 
 
