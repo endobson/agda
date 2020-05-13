@@ -14,10 +14,10 @@ data Prime' : Nat -> Set where
           -> Prime' (suc p')
 
 data PrimeFactorization : Nat -> Set where
-  prime-factor-one : PrimeFactorization 1
-  prime-factor-prime : {m n : Nat}
-    -> (p : Prime' m)
-    -> (f : PrimeFactorization n)
+  prime-factorization-prime : {p : Nat} -> Prime' p -> PrimeFactorization p
+  prime-factorization-composite : {m n : Nat}
+    -> PrimeFactorization m
+    -> PrimeFactorization n
     -> PrimeFactorization (m *' n)
 
 data Primality : Nat -> Set where
@@ -92,6 +92,41 @@ private
     ... | no not-div = rec step (prime-up-to-suc pr not-div)
     ... | yes div = div->composite {suc (suc i)} {suc (suc p')} 
                     (\ ()) (\ ()) (<->!= (inc-≤ (inc-≤ (≤u->≤ step)))) (\ ()) div
+
+    
+  compute-prime-factorization : (p' : Nat) -> PrimeFactorization (suc (suc p'))
+  compute-prime-factorization p' = rec p' (same-≤ p')
+    where
+    rec : {i : Nat} (p' : Nat) -> (p' ≤ i)  -> PrimeFactorization (suc (suc p'))
+    rec p' zero-≤ = (prime-factorization-prime 2-is-prime)
+    rec {suc i} p' p-bound' with (compute-primality p')
+    ... | (primality-prime prime) = (prime-factorization-prime prime)
+    ... | (primality-composite m n) = (prime-factorization-composite
+                                        (rec m m-bound)
+                                        (rec n n-bound))
+          where
+          base-eq-n : (suc (suc m)) *' (suc (suc n)) == (suc (suc p'))
+          base-eq-m : (suc (suc n)) *' (suc (suc m)) == (suc (suc p'))
+          base-eq-n = refl
+          base-eq-m = (*'-commute {suc (suc n)} {suc (suc m)}) >=> base-eq-n
+          rearranged-eq-n : (suc n) +' (1 +' (n +' m *' (2 +' n))) == p'
+          rearranged-eq-m : (suc m) +' (1 +' (m +' n *' (2 +' m))) == p'
+          rearranged-eq-n = sym (+'-right-suc {n}) >=> suc-injective (suc-injective base-eq-n) 
+          rearranged-eq-m = sym (+'-right-suc {m}) >=> suc-injective (suc-injective base-eq-m) 
+          flipped-eq-n : (1 +' (n +' m *' (2 +' n))) +' (suc n) == p'
+          flipped-eq-m : (1 +' (m +' n *' (2 +' m))) +' (suc m) == p'
+          flipped-eq-n = (sym (+'-commute {suc n})) >=> rearranged-eq-n
+          flipped-eq-m = (sym (+'-commute {suc m})) >=> rearranged-eq-m
+          
+          n-bound' : (suc n ≤ p')
+          n-bound' = (≤-a+'b==c {(1 +' (n +' m *' (2 +' n)))} flipped-eq-n)
+          m-bound' : (suc m ≤ p')
+          m-bound' = (≤-a+'b==c {(1 +' (m +' n *' (2 +' m)))} flipped-eq-m)
+
+          m-bound : m ≤ i
+          m-bound = dec-≤ (trans-≤ m-bound' p-bound')
+          n-bound : n ≤ i
+          n-bound = dec-≤ (trans-≤ n-bound' p-bound')
 
 
 
