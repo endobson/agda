@@ -10,8 +10,8 @@ open import div
 
 data Prime' : Nat -> Set where
   prime' : (p' : Nat)
-          -> ((d : Nat) -> d <s (suc p') -> (d div' (suc p')) -> d == 1)
-          -> Prime' (suc p')
+          -> ((d : Nat) -> d <s (suc (suc p')) -> (d div' (suc (suc p'))) -> d == 1)
+          -> Prime' (suc (suc p'))
 
 data PrimeFactorization : Nat -> Set where
   prime-factorization-prime : {p : Nat} -> Prime' p -> PrimeFactorization p
@@ -31,43 +31,47 @@ prime-only-divisors {p} {d} (prime' _ pf) d%p with (≤->≤s (div'->≤ d%p))
 ... | refl-≤s = inj-l refl
 ... | (step-≤s pr) = inj-r (pf d (inc-≤s pr) d%p)
 
+0-is-¬prime : ¬(Prime' 0)
+0-is-¬prime ()
+1-is-¬prime : ¬(Prime' 1)
+1-is-¬prime ()
 
 private
   data PrimeUpTo : Nat -> Nat -> Set where
     prime-up-to : (p' : Nat) -> (bound : Nat)
-                  -> ((d : Nat) -> d <s bound -> (d div' (suc p')) -> d == 1)
-                  -> PrimeUpTo (suc p') bound
+                  -> ((d : Nat) -> d <s bound -> (d div' (suc (suc p'))) -> d == 1)
+                  -> PrimeUpTo (suc (suc p')) bound
 
   prime-up-to->prime' : {n : Nat} -> PrimeUpTo n n -> Prime' n
-  prime-up-to->prime' (prime-up-to p' (suc p') f) = (prime' p' f)
+  prime-up-to->prime' (prime-up-to p' (suc (suc p')) f) = (prime' p' f)
 
-  prime-up-to-zero : (p' : Nat) -> PrimeUpTo (suc p') zero
+  prime-up-to-zero : (p' : Nat) -> PrimeUpTo (suc (suc p')) zero
   prime-up-to-zero p' = prime-up-to p' zero (\ d ())
 
   prime-up-to-suc : {p b : Nat} -> PrimeUpTo p b -> ¬(b div' p) -> PrimeUpTo p (suc b)
-  prime-up-to-suc (prime-up-to p' b f) ¬bp = (prime-up-to p' (suc b) g)
+  prime-up-to-suc {p} (prime-up-to p' b f) ¬bp = (prime-up-to p' (suc b) g)
     where
-    g : (d : Nat) -> d <s (suc b) -> (d div' (suc p')) -> d == 1
+    g : (d : Nat) -> d <s (suc b) -> (d div' p) -> d == 1
     g d refl-≤s dp = bot-elim (¬bp dp)
     g d (step-≤s d≤b) dp = f d d≤b dp
 
-  prime-up-to-one : (p' : Nat) -> PrimeUpTo (suc p') 1
+  prime-up-to-one : (p' : Nat) -> PrimeUpTo (suc (suc p')) 1
   prime-up-to-one p' = prime-up-to-suc (prime-up-to-zero p') pr
     where
-    pr : ¬(0 div' (suc p'))
+    pr : ¬(0 div' (suc (suc p')))
     pr 0p with (div'-zero->zero 0p)
     ...      | ()
 
-  prime-up-to-two : (p' : Nat) -> PrimeUpTo (suc p') 2
+  prime-up-to-two : (p' : Nat) -> PrimeUpTo (suc (suc p')) 2
   prime-up-to-two p' = prime-up-to p' 2 g
     where
-    g : (d : Nat) -> d <s 2 -> (d div' (suc p')) -> d == 1
+    g : (d : Nat) -> d <s 2 -> (d div' (suc (suc p'))) -> d == 1
     g d refl-≤s dp = refl
     g d (step-≤s d≤b) dp with (prime-up-to-one p') 
     ... | (prime-up-to _ _ f) = f d d≤b dp
 
   2-is-prime : Prime' 2
-  2-is-prime = prime-up-to->prime' (prime-up-to-two 1)
+  2-is-prime = prime-up-to->prime' (prime-up-to-two 0)
 
   data _≤u_ : Nat -> Nat -> Set where
     refl-≤u : {m : Nat} -> m ≤u m
@@ -91,7 +95,7 @@ private
 
   compute-primality : {p : Nat} -> p > 1 -> Primality p
   compute-primality {suc (suc p')} (inc-≤ (inc-≤ _)) =
-      rec (0≤i p' refl-≤u) (prime-up-to-two (suc p'))
+      rec (0≤i p' refl-≤u) (prime-up-to-two p')
     where
     0≤i : (i : Nat) -> i ≤u p' -> 0 ≤u p'
     0≤i 0 pr = pr
