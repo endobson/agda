@@ -285,9 +285,15 @@ abs'-int-id : {m : Nat} -> abs' (int m) == m
 abs'-int-id {zero} = refl
 abs'-int-id {suc m} = refl
 
-int-abs'-id : {m : Int} -> (NonNeg m) -> int (abs' m) == m
-int-abs'-id {zero-int} _ = refl
-int-abs'-id {pos m} _ = refl
+int-abs'-id : {m : Int} -> int (abs' m) == abs m
+int-abs'-id {zero-int} = refl
+int-abs'-id {pos m} = refl
+int-abs'-id {neg m} = refl
+
+abs-nonneg-id : {m : Int} -> (NonNeg m) -> abs m == m
+abs-nonneg-id {zero-int} _ = refl
+abs-nonneg-id {pos _} _ = refl
+
 
 
 -- 

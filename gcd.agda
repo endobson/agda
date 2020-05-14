@@ -287,16 +287,15 @@ gcd-exists m n with (eulers-algo m n)
 ...               | (existence d (linear-gcd _ gc)) = existence d gc
 
 
-
 non-neg-same-abs : {m n : Int} -> NonNeg m -> NonNeg n -> abs m == abs n -> m == n
 non-neg-same-abs {m} {n} mp np eq =
   begin
     m
-  ==< sym (int-abs'-id mp)  >
-    int (abs' m)
-  ==< (cong int (abs->abs' eq)) >
-    int (abs' n)
-  ==< int-abs'-id np  >
+  ==< sym (abs-nonneg-id mp) >
+    abs m
+  ==< eq >
+    abs n
+  ==< (abs-nonneg-id np) >
     n
   end
 
