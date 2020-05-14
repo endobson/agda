@@ -45,6 +45,7 @@ gcd-negate (gcd a b d non-neg d-div-a d-div-b f) =
     rewritten-xa rewrite sym (minus-double-inverse {a}) = xa2
 
 
+
 data LinearCombination : Int -> Int -> Int -> Set where
  linear-combo : (a : Int) -> (b : Int) -> (d : Int) -> (x : Int) -> (y : Int)
    -> {x * a + y * b == d}
@@ -331,6 +332,19 @@ gcd'->gcd (gcd' d n a a%d a%n f') =
   f x@(pos x') x%d x%n = div'->div (f' (suc x') (fix x%d) (fix x%n)) 
   f x@(neg x') x%d x%n = div-negate-left (div'->div (f' (suc x') (fix x%d) (fix x%n)))
 
+prime-gcd' : (a b : Nat) -> {Pos' a} -> {Pos' b}
+             -> ({p : Nat} -> Prime' p -> p div' a -> p div' b -> Bot)
+             -> GCD' a b 1
+prime-gcd' a@(suc _) b@(suc _) pf = (gcd' a b 1 div'-one div'-one f)
+  where
+  f : (x : Nat) -> x div' a -> x div' b -> x div' 1
+  f zero x%a x%b with (div'-zero->zero x%a)
+  ...               | ()
+  f (suc zero) _ _ = div'-one
+  f x@(suc (suc _)) x%a x%b with (exists-prime-divisor {x} >1)
+  ... | existence _ (prime-p , p%x) =
+    bot-elim (pf prime-p (div'-trans p%x x%a) (div'-trans p%x x%b))
+
 euclids-lemma : {a b c : Int} -> a div (b * c) -> GCD a b (int 1) -> a div c
 euclids-lemma {a} {b} {c} a%bc ab-gcd with (gcd->linear-combo ab-gcd)
 ... | (linear-combo _ _ _ x y {pr}) = a%c
@@ -380,10 +394,14 @@ prime->relatively-prime {p} {a} prime-p ¬p%a =
   ... | inj-l refl = bot-elim (¬p%a x%a)
   ... | inj-r refl = div'-one
 
-prime-divides-a-factor : {p a b : Nat} -> Prime' p -> p div' (a *' b) -> (p div' a) ⊎ (p div' b)
-prime-divides-a-factor {p} {a} {b} prime-p p-div with (decide-div p a)
+prime-divides-a-factor : {p : Nat} -> Prime' p -> {a b : Nat} 
+                         -> p div' (a *' b) -> (p div' a) ⊎ (p div' b)
+prime-divides-a-factor {p} prime-p {a} {b} p-div with (decide-div p a)
 ... | yes p%a = inj-l p%a
 ... | no ¬p%a = inj-r (euclids-lemma' p-div (prime->relatively-prime prime-p ¬p%a))
+
+
+
   
 ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)
 ex1-1 {a} {b} {c} {d} (gcd a b _ _ _ _ gcd-f) c-div-a d-div-b = 
@@ -391,9 +409,22 @@ ex1-1 {a} {b} {c} {d} (gcd a b _ _ _ _ gcd-f) c-div-a d-div-b =
   (\x x-div-c x-div-d -> 
     (gcd-f x (div-trans x-div-c c-div-a) (div-trans x-div-d d-div-b)))
 
--- ex1-2 : {a b c : Int} -> GCD a b (int 1) -> GCD a c (int 1) -> GCD a (b * c) (int 1)
--- ex1-2 (gcd a b _ _ _ _ _) (gcd a c _ _ _ _ _) =
---   linear-combo->gcd lc div-one div-one
+-- ex1-2' : {a b c : Nat} -> GCD' a b 1 -> GCD' a c 1 -> GCD' a (b *' c) 1
+-- ex1-2' (gcd' a@(suc _) b@(suc _) _ _ _ f-b) (gcd' a@(suc _) c@(suc _) _ _ _ f-c) = 
+--   prime-gcd' a (b *' c) f
 --   where
---   lc : LinearCombination a (b * c) (int 1)
---   lc = ?
+--   ¬prime-div-one : {p : Nat} -> Prime' p -> ¬(p div' 1)
+--   ¬prime-div-one p p%1 with div'->≤ p%1
+--   ...                     | zero-≤ = 0-is-¬prime p
+--   ...                     | (inc-≤ zero-≤) = 1-is-¬prime p
+-- 
+--   f : {p : Nat} -> (Prime' p) -> p div' a -> p div' (b *' c) -> Bot
+--   f {p'} p p%a p%bc with (prime-divides-a-factor p {b} {c} p%bc)
+--   ... | inj-l p%b = ¬prime-div-one p (f-b p' p%a p%b)
+--   ... | inj-r p%c = ¬prime-div-one p (f-c p' p%a p%c)
+-- ex1-2' g@(gcd' a zero _ _ _ _) _ = g
+-- ex1-2' {a} {b} _ g@(gcd' a zero _ _ _ _) rewrite (*'-commute {b} {zero}) = g
+-- ex1-2' (gcd' zero b@(suc _) _ _ _ _) (gcd' zero c@(suc _)  _ _ _ _) = ?
+
+
+

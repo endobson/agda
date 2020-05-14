@@ -70,9 +70,10 @@ private
     g d (step-≤s d≤b) dp with (prime-up-to-one p') 
     ... | (prime-up-to _ _ f) = f d d≤b dp
 
-  2-is-prime : Prime' 2
-  2-is-prime = prime-up-to->prime' (prime-up-to-two 0)
+2-is-prime : Prime' 2
+2-is-prime = prime-up-to->prime' (prime-up-to-two 0)
 
+private
   data _≤u_ : Nat -> Nat -> Set where
     refl-≤u : {m : Nat} -> m ≤u m
     step-≤u : {m n : Nat} -> suc m ≤u n -> m ≤u n
@@ -90,9 +91,10 @@ private
   div->composite d0 d1 dn n0 (div'-exists d@(suc (suc d')) n x@(suc (suc x')) refl) = 
     primality-composite x d {refl} {refl}
 
-  >1 : {n' : Nat} -> 2 ≤ (suc (suc n'))
-  >1 {n'} = inc-≤ (inc-≤ zero-≤)
+>1 : {n' : Nat} -> 2 ≤ (suc (suc n'))
+>1 {n'} = inc-≤ (inc-≤ zero-≤)
 
+private
   compute-primality : {p : Nat} -> p > 1 -> Primality p
   compute-primality {suc (suc p')} (inc-≤ (inc-≤ _)) =
       rec (0≤i p' refl-≤u) (prime-up-to-two p')
@@ -140,16 +142,16 @@ private
 
 
 
-  PrimeDivisor : Nat -> Nat -> Set
-  PrimeDivisor n d = Prime' d × d div' n
+PrimeDivisor : Nat -> Nat -> Set
+PrimeDivisor n d = Prime' d × d div' n
 
-  exists-prime-divisor : {n : Nat} -> n > 1 -> exists (PrimeDivisor n)
-  exists-prime-divisor {n} n>1 = rec (compute-prime-factorization n>1) div'-refl
-    where 
-    rec : {a : Nat} -> (PrimeFactorization a) -> a div' n -> exists (PrimeDivisor n)
-    rec {a} (prime-factorization-prime prime-a) a%n = existence a (prime-a , a%n)
-    rec {a} (prime-factorization-composite {d} {e} df ef) a%n =
-      rec ef (div'-trans (div'-exists e a d refl) a%n)
+exists-prime-divisor : {n : Nat} -> n > 1 -> exists (PrimeDivisor n)
+exists-prime-divisor {n} n>1 = rec (compute-prime-factorization n>1) div'-refl
+  where 
+  rec : {a : Nat} -> (PrimeFactorization a) -> a div' n -> exists (PrimeDivisor n)
+  rec {a} (prime-factorization-prime prime-a) a%n = existence a (prime-a , a%n)
+  rec {a} (prime-factorization-composite {d} {e} df ef) a%n =
+    rec ef (div'-trans (div'-exists e a d refl) a%n)
 
 data IntFactorization : Int -> Set where
   int-factorization-zero : IntFactorization zero-int
