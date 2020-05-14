@@ -44,6 +44,10 @@ gcd-negate (gcd a b d non-neg d-div-a d-div-b f) =
     rewritten-xa : x div a
     rewritten-xa rewrite sym (minus-double-inverse {a}) = xa2
 
+gcd-remove-abs : {a b d : Int} -> GCD (abs a) b d -> GCD a b d
+gcd-remove-abs {zero-int} g = g
+gcd-remove-abs {pos _} g = g
+gcd-remove-abs {neg _} g = gcd-negate g
 
 
 data LinearCombination : Int -> Int -> Int -> Set where
@@ -324,8 +328,8 @@ gcd'-zero->id : {b d : Nat} -> GCD' 0 b d -> b == d
 gcd'-zero->id (gcd' 0 b d d%0 d%b f) = div'-antisym (f b div'-zero div'-refl) d%b 
 
 
-gcd'->gcd : {d n a : Nat} -> GCD' d n a -> GCD (int d) (int n) (int a)
-gcd'->gcd (gcd' d n a a%d a%n f') =
+gcd'->gcd/nat : {d n a : Nat} -> GCD' d n a -> GCD (int d) (int n) (int a)
+gcd'->gcd/nat (gcd' d n a a%d a%n f') =
   (gcd (int d) (int n) (int a) int-NonNeg (div'->div a%d) (div'->div a%n) f)
   where
   fix : {x : Int} -> {y : Nat} -> x div (int y) -> (abs' x) div' y
@@ -334,6 +338,42 @@ gcd'->gcd (gcd' d n a a%d a%n f') =
   f x@zero-int x%d x%n = div'->div (f' zero (fix x%d) (fix x%n)) 
   f x@(pos x') x%d x%n = div'->div (f' (suc x') (fix x%d) (fix x%n)) 
   f x@(neg x') x%d x%n = div-negate-left (div'->div (f' (suc x') (fix x%d) (fix x%n)))
+
+gcd'->gcd : {d n a : Int} -> {NonNeg a} -> GCD' (abs' d) (abs' n) (abs' a) -> GCD d n a
+gcd'->gcd {zero-int} {zero-int} {zero-int} g = gcd'->gcd/nat g
+gcd'->gcd {zero-int} {zero-int} {pos _} g = gcd'->gcd/nat g
+gcd'->gcd {zero-int} {pos _} {zero-int} g = gcd'->gcd/nat g
+gcd'->gcd {zero-int} {pos _} {pos _} g = gcd'->gcd/nat g
+gcd'->gcd {zero-int} {neg _} {zero-int} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
+gcd'->gcd {zero-int} {neg _} {pos _} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
+gcd'->gcd {pos _} {zero-int} {zero-int} g = gcd'->gcd/nat g
+gcd'->gcd {pos _} {zero-int} {pos _} g = gcd'->gcd/nat g
+gcd'->gcd {pos _} {pos _} {zero-int} g = gcd'->gcd/nat g
+gcd'->gcd {pos _} {pos _} {pos _} g = gcd'->gcd/nat g
+gcd'->gcd {pos _} {neg _} {zero-int} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
+gcd'->gcd {pos _} {neg _} {pos _} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
+gcd'->gcd {neg _} {zero-int} {zero-int} g = (gcd-negate (gcd'->gcd/nat g))
+gcd'->gcd {neg _} {zero-int} {pos _} g = (gcd-negate (gcd'->gcd/nat g))
+gcd'->gcd {neg _} {pos _} {zero-int} g = (gcd-negate (gcd'->gcd/nat g))
+gcd'->gcd {neg _} {pos _} {pos _} g = (gcd-negate (gcd'->gcd/nat g))
+gcd'->gcd {neg _} {neg _} {zero-int} g = (gcd-negate ((gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))))
+gcd'->gcd {neg _} {neg _} {pos _} g = (gcd-negate ((gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))))
+
+gcd->gcd' : {d n a : Int} -> GCD d n a -> GCD' (abs' d) (abs' n) (abs' a)
+gcd->gcd' (gcd d n a _ a%d a%n f) =
+  (gcd' (abs' d) (abs' n) (abs' a) (div->div' a%d) (div->div' a%n) f')
+  where
+  f' : (x : Nat) -> x div' (abs' d) -> x div' (abs' n) -> x div' (abs' a)
+  f' x x%d x%n = res
+    where 
+    fix : {y : Int} -> x div' (abs' y) -> (int x) div y
+    fix {zero-int} x%y = (div'->div x%y)
+    fix {pos _} x%y = (div'->div x%y)
+    fix {neg _} x%y = (div-negate (div'->div x%y))
+    res' : abs' (int x) div' (abs' a)
+    res' = (div->div' (f (int x) (fix x%d) (fix x%n)))
+    res : x div' (abs' a)
+    res rewrite sym (abs'-int-id {x}) = res'
 
 prime-gcd' : (a b : Nat) -> {Pos' a} -> {Pos' b}
              -> ({p : Nat} -> Prime' p -> p div' a -> p div' b -> Bot)
@@ -383,7 +423,7 @@ euclids-lemma' {a} {b} {c} a%bc ab-gcd = result
   int-a%bc : (int a) div (int b * int c)
   int-a%bc rewrite sym (int-inject-*' {b} {c}) = (div'->div a%bc)
   result' : (abs' (int a)) div' (abs' (int c))
-  result' = (div->div' {(int a)} {(int c)} (euclids-lemma int-a%bc (gcd'->gcd ab-gcd)))
+  result' = (div->div' {(int a)} {(int c)} (euclids-lemma int-a%bc (gcd'->gcd/nat ab-gcd)))
   result : a div' c
   result rewrite sym (abs'-int-id {a}) | sym (abs'-int-id {c}) = result'
 
@@ -428,6 +468,33 @@ ex1-2' {a} {b} _ g@(gcd' a zero _ _ _ _) rewrite (*'-commute {b} {zero}) = g
 ex1-2' {zero} b@{suc _} c@{suc _} gb gc
   with gcd'-zero->id gb | gcd'-zero->id gc
 ... | refl | refl = gb
+
+ex1-2 : {a b c : Int} -> GCD a b (int 1) -> GCD a c (int 1)
+                      -> GCD a (b * c) (int 1)
+ex1-2 {a} {b} {c} g1 g2 = g8
+  where
+  g1' : GCD' (abs' a) (abs' b) 1
+  g1' = (gcd->gcd' g1)
+  g2' : GCD' (abs' a) (abs' c) 1
+  g2' = (gcd->gcd' g2)
+  g3 : GCD' (abs' a) (abs' b *' abs' c) 1
+  g3 = (ex1-2' g1' g2')
+  g4 : GCD (int (abs' a)) (int (abs' b *' abs' c)) (int 1)
+  g4 = (gcd'->gcd/nat g3)
+  g5 : GCD (abs a) (int (abs' b) * (int (abs' c))) (int 1)
+  g5 rewrite (sym (int-abs'-id {a})) 
+           | (sym (int-inject-*' {abs' b} {abs' c}))
+    = g4
+  g6 : GCD (abs a) (abs b * abs c) (int 1)
+  g6 rewrite (sym (int-abs'-id {b}))
+           | (sym (int-abs'-id {c}))
+    = g5
+  g7 : GCD (abs a) (abs (b * c)) (int 1)
+  g7 rewrite (abs-inject-* {b} {c})
+    = g6
+  g8 : GCD a (b * c) (int 1)
+  g8 = (gcd-remove-abs (gcd-sym (gcd-remove-abs (gcd-sym g7))))
+  
 
 
 
