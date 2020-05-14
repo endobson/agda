@@ -82,16 +82,14 @@ div-abs-≤ {d} {a} {pos-d} (div-exists d a (pos x) refl) = ≤-a+'b==c (sym pro
   lemma : (z : Nat) -> NonNeg (z *nz d)
   lemma zero = tt
   lemma (suc z) = (Pos->NonNeg (+-Pos-NonNeg pos-d (lemma z)))
-  proof : abs' a == abs' (x *nz d) +' abs' d
+  proof : abs' a == abs' d +' abs' (x *nz d)
   proof =
     begin
       abs' a
     ==<>
       abs' (d + x *nz d)
-    ==< cong abs' (+-commute {d}) >
-      abs' (x *nz d + d)
-    ==< abs'-inject-+ {x *nz d} (lemma x) (Pos->NonNeg pos-d) >
-      abs' (x *nz d) +' abs' d
+    ==< abs'-inject-+ {d} (Pos->NonNeg pos-d) (lemma x) >
+      abs' d +' abs' (x *nz d) 
     end
 div-abs-≤ {d} {a} {pos-d} {pos-a} (div-exists d a (zero-int) refl) =
   bot-elim pos-a
@@ -211,7 +209,7 @@ no-small-dividends n<d n!=0 d!=0 (div'-exists d n x pr) with x
 ... | (suc y) = absurd-same-< n<n
   where
   d≤n : d ≤ n
-  d≤n = ≤-a+'b==c ((+'-commute {y *' d} {d}) >=> pr)
+  d≤n = ≤-a+'b==c pr
   n<n : n < n
   n<n = trans-<-≤ n<d d≤n
 
@@ -252,13 +250,13 @@ private
   mod-step->remainder {d@(suc d')} {n} {b} {x} {a} step =
     remainder d n a x a<d (eq-step step)
     where
-    ba=d' : {n b x a : Nat} -> ModStep d n b x a -> (b +' a) == d'
-    ba=d' (mod-base d') = +'-right-zero
-    ba=d' (mod-small-step {d} {n} {b} {x} {a} step) = (+'-right-suc {b} {a}) >=> ba=d' step
-    ba=d' (mod-large-step {d} {n} {b} step) = (+'-right-zero {b}) >=> ba=d' step
+    ab=d' : {n b x a : Nat} -> ModStep d n b x a -> (a +' b) == d'
+    ab=d' (mod-base d') = refl
+    ab=d' (mod-small-step {d} {n} {b} {x} {a} step) = (sym (+'-right-suc {a} {b})) >=> ab=d' step
+    ab=d' (mod-large-step {d} {n} {b} step) = (sym (+'-right-zero {b})) >=> ab=d' step
 
     a<d : a < d
-    a<d = (inc-≤ (≤-a+'b==c (ba=d' step)))
+    a<d = (inc-≤ (≤-a+'b==c (ab=d' step)))
 
     eq-step : {n b x a : Nat} -> ModStep d n b x a -> a +' x *' d == n
     eq-step (mod-base d') = refl
@@ -268,7 +266,9 @@ private
         (suc x) *' d
       ==<>
         suc (d' +' x *' d)
-      ==< cong suc (+'-left (sym (ba=d' step))) >
+      ==< cong suc (+'-left (sym (ab=d' step))) >
+        suc ((a +' 0) +' x *' d)
+      ==< cong suc (+'-left (+'-right-zero {a})) >
         suc (a +' x *' d)
       ==< cong suc (eq-step step) >
         (suc n)

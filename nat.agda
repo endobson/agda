@@ -225,13 +225,16 @@ dec-< (inc-≤ <) = <
 ≤->< p = inc-≤ p 
 
 
-≤-a+'b==c : {a b c : Nat} -> a +' b == c -> b ≤ c
-≤-a+'b==c {zero} {b} refl = same-≤ b
-≤-a+'b==c {suc a} {b} {suc c} refl = suc-≤ (≤-a+'b==c {a} {b} {c} refl)
+≤-a+'b==c' : {a b c : Nat} -> a +' b == c -> b ≤ c
+≤-a+'b==c' {zero} {b} refl = same-≤ b
+≤-a+'b==c' {suc a} {b} {suc c} refl = suc-≤ (≤-a+'b==c' {a} {b} {c} refl)
 
-<-a+'b<c : {a b c : Nat} -> (a +' b) < c -> b < c
-<-a+'b<c {zero} {b} {c} pr = pr
-<-a+'b<c {suc a} {b} {suc c} (inc-≤ pr) = suc-< (<-a+'b<c pr)
+≤-a+'b==c : {a b c : Nat} -> a +' b == c -> a ≤ c
+≤-a+'b==c {a} {b} pr = ≤-a+'b==c' (+'-commute {b} {a} >=> pr)
+
+<-a+'b<c' : {a b c : Nat} -> (a +' b) < c -> b < c
+<-a+'b<c' {zero} {b} {c} pr = pr
+<-a+'b<c' {suc a} {b} {suc c} (inc-≤ pr) = suc-< (<-a+'b<c' pr)
 
 <->!= : {m n : Nat} -> m < n -> m != n
 <->!= (inc-≤ zero-≤) ()

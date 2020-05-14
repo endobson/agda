@@ -121,15 +121,11 @@ private
           rearranged-eq2-n : (suc n) +' (1 +' (n' +' m' *' n)) == p
           rearranged-eq2-m = sym (+'-right-suc {m}) >=> base-eq-m
           rearranged-eq2-n = sym (+'-right-suc {n}) >=> base-eq-n
-          flipped-eq2-m : (1 +' (m' +' n' *' m)) +' (suc m) == p
-          flipped-eq2-n : (1 +' (n' +' m' *' n)) +' (suc n) == p
-          flipped-eq2-m = (sym (+'-commute {suc m})) >=> rearranged-eq2-m
-          flipped-eq2-n = (sym (+'-commute {suc n})) >=> rearranged-eq2-n
 
           m-bound : (suc m ≤ p)
           n-bound : (suc n ≤ p)
-          m-bound = (≤-a+'b==c {(1 +' (m' +' n' *' m))} flipped-eq2-m)
-          n-bound = (≤-a+'b==c {(1 +' (n' +' m' *' n))} flipped-eq2-n)
+          m-bound = (≤-a+'b==c rearranged-eq2-m)
+          n-bound = (≤-a+'b==c rearranged-eq2-n)
 
 
 
