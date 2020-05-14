@@ -37,8 +37,8 @@ x ==< x==y > y==z  = trans x==y y==z
 _end : {A : Set} (x : A) -> x == x
 x end  =  refl
 
-data Top : Set where
-  tt : Top
+record Top : Set where
+  constructor tt
 
 data Bot : Set where
 

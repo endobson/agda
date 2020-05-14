@@ -83,26 +83,12 @@ div-abs-left {zero-int} div-a = div-a
 div-abs-left {pos _} div-a = div-a
 div-abs-left {neg _} div-a = div-negate-left div-a
 
-div-abs-≤ : {d a : Int} -> {Pos d} -> {Pos a} -> d div a -> abs' d ≤ abs' a
-div-abs-≤ {d} {a} {pos-d} (div-exists d a (pos x) refl) = ≤-a+'b==c (sym proof)
-  where
-  lemma : (z : Nat) -> NonNeg (z *nz d)
-  lemma zero = tt
-  lemma (suc z) = (Pos->NonNeg (+-Pos-NonNeg pos-d (lemma z)))
-  proof : abs' a == abs' d +' abs' (x *nz d)
-  proof =
-    begin
-      abs' a
-    ==<>
-      abs' (d + x *nz d)
-    ==< abs'-inject-+ {d} (Pos->NonNeg pos-d) (lemma x) >
-      abs' d +' abs' (x *nz d) 
-    end
-div-abs-≤ {d} {a} {pos-d} {pos-a} (div-exists d a (zero-int) refl) =
-  bot-elim pos-a
-div-abs-≤ {pos d'} {pos a'} (div-exists _ _ (neg x) pr) =
-  bot-elim (subst Neg pr (*-Neg-Pos {neg x} {pos d'} tt tt))
+div'->≤ : {d a : Nat} -> d div' a -> {Pos' a} -> d ≤ a
+div'->≤ (div'-exists d a (suc x) refl) = ≤-a+'b==c refl
+div'->≤ (div'-exists d a zero refl) {}
 
+div->≤ : {d a : Int} -> d div a -> {Pos a} -> abs' d ≤ abs' a
+div->≤ {d} {pos _} da = div'->≤ (div->div' da)
 
 
 div-zero->zero : {n : Int} -> (int 0) div n -> n == (int 0)

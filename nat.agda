@@ -7,6 +7,10 @@ data Nat : Set where
  suc : Nat -> Nat
 {-# BUILTIN NATURAL Nat #-}
 
+Pos' : (n : Nat) -> Set
+Pos' zero = Bot
+Pos' (suc x) = Top
+
 infixl 6 _+'_
 _+'_ : Nat -> Nat -> Nat
 zero +' n = n

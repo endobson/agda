@@ -145,9 +145,16 @@ data IntFactorization : Int -> Set where
   int-factorization-pos-one : IntFactorization (pos zero)
   int-factorization-neg-one : IntFactorization (neg zero)
   int-factorization-pos : {n : Nat} -> PrimeFactorization n -> IntFactorization (int n)
-  int-factorization-neg : {n : Nat} -> PrimeFactorization n -> IntFactorization (int n)
+  int-factorization-neg : {n : Nat} -> PrimeFactorization n -> IntFactorization (- (int n))
 
-
+compute-int-factorization : (n : Int) -> IntFactorization n
+compute-int-factorization zero-int = int-factorization-zero
+compute-int-factorization (pos zero) = int-factorization-pos-one
+compute-int-factorization (neg zero) = int-factorization-neg-one
+compute-int-factorization (pos n@(suc _)) =
+  int-factorization-pos (compute-prime-factorization >1)
+compute-int-factorization (neg n@(suc _)) =
+  int-factorization-neg (compute-prime-factorization >1)
 
 
 -- data Prime : Int -> Set where

@@ -311,6 +311,36 @@ gcd->linear-combo {a} {b} {d} gcd-d = handle (eulers-algo a b)
   where
   handle : exists (LinearGCD a b) -> LinearCombination a b d
   handle (existence d' (linear-gcd lc gcd-d')) rewrite (gcd-unique gcd-d gcd-d') = lc
+
+
+euclids-lemma : {a b c : Int} -> a div (b * c) -> GCD a b (int 1) -> a div c
+euclids-lemma {a} {b} {c} a%bc ab-gcd with (gcd->linear-combo ab-gcd)
+... | (linear-combo _ _ _ x y {pr}) = a%c
+  where
+  c==stuff : c == x * c * a + y * (b * c)
+  c==stuff =
+    begin
+      c
+    ==< sym (+-right-zero {c})  >
+      (int 1) * c
+    ==< *-left (sym pr) >
+      (x * a + y * b) * c
+    ==< *-distrib-+ {x * a}  >
+      x * a * c + y * b * c
+    ==< +-left (*-assoc {x}) >
+      x * (a * c) + y * b * c
+    ==< +-left (*-right {x} (*-commute {a} {c})) >
+      x * (c * a) + y * b * c
+    ==< sym (+-left (*-assoc {x})) >
+      x * c * a + y * b * c
+    ==< (+-right {x * c * a} (*-assoc {y})) >
+      x * c * a + y * (b * c)
+    end 
+  a%stuff : a div (x * c * a + y * (b * c))
+  a%stuff = div-linear div-refl a%bc {x * c} {y}
+
+  a%c : a div c
+  a%c = (subst (\ x -> a div x) (sym c==stuff) a%stuff)
   
 ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)
 ex1-1 {a} {b} {c} {d} (gcd a b _ _ _ _ gcd-f) c-div-a d-div-b = 
