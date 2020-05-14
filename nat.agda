@@ -244,6 +244,10 @@ dec-< (inc-≤ <) = <
 <->!= (inc-≤ zero-≤) ()
 <->!= (inc-≤ rec@(inc-≤ _)) refl = <->!= rec refl
 
+≤-antisym : {m n : Nat} -> m ≤ n -> n ≤ m -> m == n
+≤-antisym zero-≤ zero-≤ = refl
+≤-antisym (inc-≤ l) (inc-≤ r) = cong suc (≤-antisym l r)
+
 data _≤s_ : Nat -> Nat -> Set where
  refl-≤s : {m : Nat} -> m ≤s m
  step-≤s : {m n : Nat} -> m ≤s n -> m ≤s suc n

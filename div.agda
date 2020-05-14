@@ -133,6 +133,14 @@ abs-one-implies-unit {neg (suc _)} ()
   abs-pr = *'-one-implies-one {abs' m} {abs' n} pr1
 
 
+div'-antisym : {d1 d2 : Nat} -> d1 div' d2 -> d2 div' d1 -> d1 == d2
+div'-antisym {zero} {zero} div1 div2 = refl
+div'-antisym {suc d1} {suc d2} div1 div2 = ≤-antisym (div'->≤ div1) (div'->≤ div2)
+div'-antisym {zero} {suc d2} div1 div2 with (div'-zero->zero div1)
+...                                       | ()
+div'-antisym {suc d1} {zero} div1 div2 with (div'-zero->zero div2)
+...                                       | ()
+
 
 div-same-abs : {d1 d2 : Int} -> d1 div d2 -> d2 div d1 -> (abs d1) == (abs d2)
 div-same-abs {zero-int} {_} div1 _ rewrite (div-zero->zero div1) = refl

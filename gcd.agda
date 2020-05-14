@@ -321,6 +321,10 @@ data GCD' : Nat -> Nat -> Nat -> Set where
         (d div' a) -> (d div' b)
         -> ((x : Nat) -> x div' a -> x div' b -> x div' d) -> GCD' a b d
 
+gcd'-zero->id : {b d : Nat} -> GCD' 0 b d -> b == d
+gcd'-zero->id (gcd' 0 b d d%0 d%b f) = div'-antisym (f b div'-zero div'-refl) d%b 
+
+
 gcd'->gcd : {d n a : Nat} -> GCD' d n a -> GCD (int d) (int n) (int a)
 gcd'->gcd (gcd' d n a a%d a%n f') =
   (gcd (int d) (int n) (int a) int-NonNeg (div'->div a%d) (div'->div a%n) f)
@@ -401,30 +405,30 @@ prime-divides-a-factor {p} prime-p {a} {b} p-div with (decide-div p a)
 ... | no ¬p%a = inj-r (euclids-lemma' p-div (prime->relatively-prime prime-p ¬p%a))
 
 
-
-  
 ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)
 ex1-1 {a} {b} {c} {d} (gcd a b _ _ _ _ gcd-f) c-div-a d-div-b = 
   gcd c d (int 1) tt div-one div-one 
   (\x x-div-c x-div-d -> 
     (gcd-f x (div-trans x-div-c c-div-a) (div-trans x-div-d d-div-b)))
 
--- ex1-2' : {a b c : Nat} -> GCD' a b 1 -> GCD' a c 1 -> GCD' a (b *' c) 1
--- ex1-2' (gcd' a@(suc _) b@(suc _) _ _ _ f-b) (gcd' a@(suc _) c@(suc _) _ _ _ f-c) = 
---   prime-gcd' a (b *' c) f
---   where
---   ¬prime-div-one : {p : Nat} -> Prime' p -> ¬(p div' 1)
---   ¬prime-div-one p p%1 with div'->≤ p%1
---   ...                     | zero-≤ = 0-is-¬prime p
---   ...                     | (inc-≤ zero-≤) = 1-is-¬prime p
--- 
---   f : {p : Nat} -> (Prime' p) -> p div' a -> p div' (b *' c) -> Bot
---   f {p'} p p%a p%bc with (prime-divides-a-factor p {b} {c} p%bc)
---   ... | inj-l p%b = ¬prime-div-one p (f-b p' p%a p%b)
---   ... | inj-r p%c = ¬prime-div-one p (f-c p' p%a p%c)
--- ex1-2' g@(gcd' a zero _ _ _ _) _ = g
--- ex1-2' {a} {b} _ g@(gcd' a zero _ _ _ _) rewrite (*'-commute {b} {zero}) = g
--- ex1-2' (gcd' zero b@(suc _) _ _ _ _) (gcd' zero c@(suc _)  _ _ _ _) = ?
+ex1-2' : {a b c : Nat} -> GCD' a b 1 -> GCD' a c 1 -> GCD' a (b *' c) 1
+ex1-2' (gcd' a@(suc _) b@(suc _) _ _ _ f-b) (gcd' a@(suc _) c@(suc _) _ _ _ f-c) = 
+  prime-gcd' a (b *' c) f
+  where
+  ¬prime-div-one : {p : Nat} -> Prime' p -> ¬(p div' 1)
+  ¬prime-div-one p p%1 with div'->≤ p%1
+  ...                     | zero-≤ = 0-is-¬prime p
+  ...                     | (inc-≤ zero-≤) = 1-is-¬prime p
+
+  f : {p : Nat} -> (Prime' p) -> p div' a -> p div' (b *' c) -> Bot
+  f {p'} p p%a p%bc with (prime-divides-a-factor p {b} {c} p%bc)
+  ... | inj-l p%b = ¬prime-div-one p (f-b p' p%a p%b)
+  ... | inj-r p%c = ¬prime-div-one p (f-c p' p%a p%c)
+ex1-2' g@(gcd' a zero _ _ _ _) _ = g
+ex1-2' {a} {b} _ g@(gcd' a zero _ _ _ _) rewrite (*'-commute {b} {zero}) = g
+ex1-2' {zero} b@{suc _} c@{suc _} gb gc
+  with gcd'-zero->id gb | gcd'-zero->id gc
+... | refl | refl = gb
 
 
 
