@@ -44,6 +44,9 @@ NonNeg zero-int = Top
 NonNeg (pos x) = Top
 NonNeg (neg x) = Bot
 
+int-NonNeg : {n : Nat} -> NonNeg (int n)
+int-NonNeg {zero} = tt
+int-NonNeg {suc _} = tt
 
 infix 9 -_
 -_ : Int -> Int

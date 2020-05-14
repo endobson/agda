@@ -189,10 +189,11 @@ div-linear (div-exists d a d-div-a refl) (div-exists d b d-div-b refl) {m} {n} =
 
 div-one : {n : Int} -> ((int 1) div n)
 div-one {n} = div-exists (int 1) n n (*-right-one {n})
+div'-one : {n : Nat} -> (1 div' n)
+div'-one {n} = div'-exists 1 n n (*'-right-one {n})
 
 div-zero : {n : Int} -> (n div zero-int)
 div-zero {n} = div-exists n zero-int zero-int refl
-
 div'-zero : {n : Nat} -> (n div' zero)
 div'-zero {n} = div'-exists n zero zero refl
 

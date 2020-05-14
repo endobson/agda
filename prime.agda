@@ -25,6 +25,13 @@ data Primality : Nat -> Set where
   primality-composite : {a' b' : Nat} (a b : Nat) -> {a == (suc (suc a'))} -> {b == (suc (suc b'))}
                         -> Primality ((suc (suc a')) *' (suc (suc b')))
 
+
+prime-only-divisors : {p d : Nat} -> Prime' p -> d div' p -> (d == p) ⊎ (d == 1)
+prime-only-divisors {p} {d} (prime' _ pf) d%p with (≤->≤s (div'->≤ d%p))
+... | refl-≤s = inj-l refl
+... | (step-≤s pr) = inj-r (pf d (inc-≤s pr) d%p)
+
+
 private
   data PrimeUpTo : Nat -> Nat -> Set where
     prime-up-to : (p' : Nat) -> (bound : Nat)
