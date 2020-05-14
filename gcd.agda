@@ -315,6 +315,21 @@ gcd->linear-combo {a} {b} {d} gcd-d = handle (eulers-algo a b)
   handle : exists (LinearGCD a b) -> LinearCombination a b d
   handle (existence d' (linear-gcd lc gcd-d')) rewrite (gcd-unique gcd-d gcd-d') = lc
 
+data GCD' : Nat -> Nat -> Nat -> Set where
+ gcd' : (a : Nat) -> (b : Nat) -> (d : Nat) -> 
+        (d div' a) -> (d div' b)
+        -> ((x : Nat) -> x div' a -> x div' b -> x div' d) -> GCD' a b d
+
+gcd'->gcd : {d n a : Nat} -> GCD' d n a -> GCD (int d) (int n) (int a)
+gcd'->gcd (gcd' d n a a%d a%n f') =
+  (gcd (int d) (int n) (int a) int-NonNeg (div'->div a%d) (div'->div a%n) f)
+  where
+  fix : {x : Int} -> {y : Nat} -> x div (int y) -> (abs' x) div' y
+  fix {x} {y} x%y = (subst (\ z -> (abs' x) div' z) abs'-int-id (div->div' x%y))
+  f : (x : Int) -> x div (int d) -> x div (int n) -> x div (int a)
+  f x@zero-int x%d x%n = div'->div (f' zero (fix x%d) (fix x%n)) 
+  f x@(pos x') x%d x%n = div'->div (f' (suc x') (fix x%d) (fix x%n)) 
+  f x@(neg x') x%d x%n = div-negate-left (div'->div (f' (suc x') (fix x%d) (fix x%n)))
 
 euclids-lemma : {a b c : Int} -> a div (b * c) -> GCD a b (int 1) -> a div c
 euclids-lemma {a} {b} {c} a%bc ab-gcd with (gcd->linear-combo ab-gcd)
@@ -345,21 +360,16 @@ euclids-lemma {a} {b} {c} a%bc ab-gcd with (gcd->linear-combo ab-gcd)
   a%c : a div c
   a%c = (subst (\ x -> a div x) (sym c==stuff) a%stuff)
 
-data GCD' : Nat -> Nat -> Nat -> Set where
- gcd' : (a : Nat) -> (b : Nat) -> (d : Nat) -> 
-        (d div' a) -> (d div' b)
-        -> ((x : Nat) -> x div' a -> x div' b -> x div' d) -> GCD' a b d
-
-gcd'->gcd : {d n a : Nat} -> GCD' d n a -> GCD (int d) (int n) (int a)
-gcd'->gcd (gcd' d n a a%d a%n f') =
-  (gcd (int d) (int n) (int a) int-NonNeg (div'->div a%d) (div'->div a%n) f)
+euclids-lemma' : {a b c : Nat} -> a div' (b *' c) -> GCD' a b 1 -> a div' c
+euclids-lemma' {a} {b} {c} a%bc ab-gcd = result
   where
-  fix : {x : Int} -> {y : Nat} -> x div (int y) -> (abs' x) div' y
-  fix {x} {y} x%y = (subst (\ z -> (abs' x) div' z) abs'-int-id (div->div' x%y))
-  f : (x : Int) -> x div (int d) -> x div (int n) -> x div (int a)
-  f x@zero-int x%d x%n = div'->div (f' zero (fix x%d) (fix x%n)) 
-  f x@(pos x') x%d x%n = div'->div (f' (suc x') (fix x%d) (fix x%n)) 
-  f x@(neg x') x%d x%n = div-negate-left (div'->div (f' (suc x') (fix x%d) (fix x%n)))
+  int-a%bc : (int a) div (int b * int c)
+  int-a%bc rewrite sym (int-inject-*' {b} {c}) = (div'->div a%bc)
+  result' : (abs' (int a)) div' (abs' (int c))
+  result' = (div->div' {(int a)} {(int c)} (euclids-lemma int-a%bc (gcd'->gcd ab-gcd)))
+  result : a div' c
+  result rewrite sym (abs'-int-id {a}) | sym (abs'-int-id {c}) = result'
+
 
 prime->relatively-prime : {p a : Nat} -> Prime' p -> ¬ (p div' a) -> GCD' p a 1
 prime->relatively-prime {p} {a} prime-p ¬p%a =
@@ -369,6 +379,11 @@ prime->relatively-prime {p} {a} prime-p ¬p%a =
   f x x%p x%a with (prime-only-divisors prime-p x%p)
   ... | inj-l refl = bot-elim (¬p%a x%a)
   ... | inj-r refl = div'-one
+
+prime-divides-a-factor : {p a b : Nat} -> Prime' p -> p div' (a *' b) -> (p div' a) ⊎ (p div' b)
+prime-divides-a-factor {p} {a} {b} prime-p p-div with (decide-div p a)
+... | yes p%a = inj-l p%a
+... | no ¬p%a = inj-r (euclids-lemma' p-div (prime->relatively-prime prime-p ¬p%a))
   
 ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)
 ex1-1 {a} {b} {c} {d} (gcd a b _ _ _ _ gcd-f) c-div-a d-div-b = 
