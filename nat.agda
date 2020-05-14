@@ -167,6 +167,10 @@ data _≤_ : Nat -> Nat -> Set where
 _<_ : Nat -> Nat -> Set
 m < n = (suc m) ≤ n
 
+_>_ : Nat -> Nat -> Set
+m > n = n < m
+
+
 zero-< : {n : Nat} -> zero < (suc n)
 zero-< {n} = inc-≤ (zero-≤ {n})
 

@@ -68,3 +68,9 @@ data Dec (A : Set) : Set where
 
 data exists : {A : Set} -> (B : A -> Set) -> Set where
  existence : {A : Set} -> {B : A -> Set} -> (x : A) -> (y : B x) -> exists B
+
+infixr 4 _,_
+infixr 2 _×_
+
+data _×_ (A : Set) (B : Set): Set where
+  _,_ : (a : A) -> (b : B) -> A × B
