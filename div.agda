@@ -25,11 +25,18 @@ div'->div (div'-exists d n x pr) =
 ==-div-right refl div = div
 
 div-refl : {n : Int} -> n div n
-div-refl {n} = (div-exists n n (pos zero) (+-right-zero {n}))
+div-refl {n} = (div-exists n n (int 1) (+-right-zero {n}))
+
+div'-refl : {n : Nat} -> n div' n
+div'-refl {n} = (div'-exists n n 1 (+'-right-zero {n}))
 
 div-trans : {d m n : Int} -> d div m -> m div n -> d div n
 div-trans (div-exists d m a refl) (div-exists m n b refl) =
   div-exists d n (b * a) (*-assoc {b})
+
+div'-trans : {d m n : Nat} -> d div' m -> m div' n -> d div' n
+div'-trans (div'-exists d m a refl) (div'-exists m n b refl) =
+  div'-exists d n (b *' a) (*'-assoc {b})
 
 div-mult : {d n a : Int} -> d div n -> (a * d) div (a * n)
 div-mult {d} {n} {a} (div-exists d n c refl) =

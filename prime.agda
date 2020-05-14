@@ -129,13 +129,23 @@ private
 
 
 
-    PrimeDivisor : Nat -> Nat -> Set
-    PrimeDivisor n d = Prime' d × d div' n
+  PrimeDivisor : Nat -> Nat -> Set
+  PrimeDivisor n d = Prime' d × d div' n
 
-    -- exists-prime-divisor : (n' : Nat) -> exists (PrimeDivisor (suc (suc n')))
-    -- exists-prime-divisor n' = rec1 (compute-prime-factorization n')
-    --   where 
-    --   rec1 : (n : Nat) -> (PrimeFactorization n)
+  exists-prime-divisor : {n : Nat} -> n > 1 -> exists (PrimeDivisor n)
+  exists-prime-divisor {n} n>1 = rec (compute-prime-factorization n>1) div'-refl
+    where 
+    rec : {a : Nat} -> (PrimeFactorization a) -> a div' n -> exists (PrimeDivisor n)
+    rec {a} (prime-factorization-prime prime-a) a%n = existence a (prime-a , a%n)
+    rec {a} (prime-factorization-composite {d} {e} df ef) a%n =
+      rec ef (div'-trans (div'-exists e a d refl) a%n)
+
+data IntFactorization : Int -> Set where
+  int-factorization-zero : IntFactorization zero-int
+  int-factorization-pos-one : IntFactorization (pos zero)
+  int-factorization-neg-one : IntFactorization (neg zero)
+  int-factorization-pos : {n : Nat} -> PrimeFactorization n -> IntFactorization (int n)
+  int-factorization-neg : {n : Nat} -> PrimeFactorization n -> IntFactorization (int n)
 
 
 
