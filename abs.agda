@@ -276,7 +276,7 @@ int-inject-*' {suc m} {n} =
     int n + int m * int n
   ==< sym (add1-extract-* {int m} {int n}) >
     add1 (int m) * int n
-  ==< *-left (add1-inject-int {m}) >
+  ==< *-left {int n} (add1-inject-int {m}) >
     int (suc m) * int n
   end
 

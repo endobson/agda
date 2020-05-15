@@ -330,7 +330,7 @@ gcd'-zero->id (gcd' 0 b d d%0 d%b f) = div'-antisym (f b div'-zero div'-refl) d%
 
 gcd'->gcd/nat : {d n a : Nat} -> GCD' d n a -> GCD (int d) (int n) (int a)
 gcd'->gcd/nat (gcd' d n a a%d a%n f') =
-  (gcd (int d) (int n) (int a) int-NonNeg (div'->div a%d) (div'->div a%n) f)
+  (gcd (int d) (int n) (int a) tt (div'->div a%d) (div'->div a%n) f)
   where
   fix : {x : Int} -> {y : Nat} -> x div (int y) -> (abs' x) div' y
   fix {x} {y} x%y = (subst (\ z -> (abs' x) div' z) abs'-int-id (div->div' x%y))
