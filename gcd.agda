@@ -16,7 +16,7 @@ data GCD : Int -> Int -> Int -> Set where
 
 
 gcd-refl : {n : Int} -> GCD n n (abs n)
-gcd-refl {n} = gcd n n (abs n) abs-NonNeg (div-abs-left div-refl) (div-abs-left div-refl)
+gcd-refl {n} = gcd n n (abs n) tt (div-abs-left div-refl) (div-abs-left div-refl)
  (\ _ _ d -> (div-abs-right d))
 
 gcd-sym : {a b d : Int} -> GCD a b d -> GCD b a d
@@ -25,7 +25,7 @@ gcd-sym (gcd a b d non-neg div-a div-b f) =
 
 gcd-zero : {a : Int} -> GCD a zero-int (abs a)
 gcd-zero {a} =
-  (gcd a zero-int (abs a) abs-NonNeg
+  (gcd a zero-int (abs a) tt
       (div-abs-left div-refl) div-zero (\ x xa xz -> (div-abs-right xa)))
 
 gcd-pos->neg : {a : Nat} {b d : Int} -> GCD (pos a) b d -> GCD (neg a) b d
@@ -112,7 +112,7 @@ linear-combo-abs {a} {b} {neg _} lc = (linear-combo-negate-result lc)
 
 linear-combo->gcd : {a b d : Int} -> LinearCombination a b d -> d div a -> d div b -> GCD a b (abs d)
 linear-combo->gcd (linear-combo a b d x y {refl}) da db = 
-  (gcd a b (abs d) abs-NonNeg (div-abs-left da) (div-abs-left db)
+  (gcd a b (abs d) tt (div-abs-left da) (div-abs-left db)
     (\ z za zb -> (div-abs-right (div-linear za zb {x} {y}))))
 
 data LinearGCD : Int -> Int -> Int -> Set where
@@ -292,16 +292,7 @@ gcd-exists m n with (eulers-algo m n)
 
 
 non-neg-same-abs : {m n : Int} -> NonNeg m -> NonNeg n -> abs m == abs n -> m == n
-non-neg-same-abs {m} {n} mp np eq =
-  begin
-    m
-  ==< sym (abs-nonneg-id mp) >
-    abs m
-  ==< eq >
-    abs n
-  ==< (abs-nonneg-id np) >
-    n
-  end
+non-neg-same-abs {nonneg m} {nonneg n} _ _ eq = eq
 
 gcd-unique : {m n d1 d2 : Int} -> GCD m n d1 -> GCD m n d2 -> d1 == d2
 gcd-unique (gcd m n d1 d1-nn d1-div-m d1-div-n d1-f)
@@ -333,7 +324,7 @@ gcd'->gcd/nat (gcd' d n a a%d a%n f') =
   (gcd (int d) (int n) (int a) tt (div'->div a%d) (div'->div a%n) f)
   where
   fix : {x : Int} -> {y : Nat} -> x div (int y) -> (abs' x) div' y
-  fix {x} {y} x%y = (subst (\ z -> (abs' x) div' z) abs'-int-id (div->div' x%y))
+  fix {x} {y} x%y = (subst (\ z -> (abs' x) div' z) refl (div->div' x%y))
   f : (x : Int) -> x div (int d) -> x div (int n) -> x div (int a)
   f x@zero-int x%d x%n = div'->div (f' zero (fix x%d) (fix x%n)) 
   f x@(pos x') x%d x%n = div'->div (f' (suc x') (fix x%d) (fix x%n)) 
@@ -367,13 +358,10 @@ gcd->gcd' (gcd d n a _ a%d a%n f) =
   f' x x%d x%n = res
     where 
     fix : {y : Int} -> x div' (abs' y) -> (int x) div y
-    fix {zero-int} x%y = (div'->div x%y)
-    fix {pos _} x%y = (div'->div x%y)
+    fix {nonneg _} x%y = (div'->div x%y)
     fix {neg _} x%y = (div-negate (div'->div x%y))
-    res' : abs' (int x) div' (abs' a)
-    res' = (div->div' (f (int x) (fix x%d) (fix x%n)))
     res : x div' (abs' a)
-    res rewrite sym (abs'-int-id {x}) = res'
+    res = (div->div' (f (int x) (fix x%d) (fix x%n)))
 
 prime-gcd' : (a b : Nat) -> {Pos' a} -> {Pos' b}
              -> ({p : Nat} -> Prime' p -> p div' a -> p div' b -> Bot)
@@ -422,10 +410,8 @@ euclids-lemma' {a} {b} {c} a%bc ab-gcd = result
   where
   int-a%bc : (int a) div (int b * int c)
   int-a%bc rewrite sym (int-inject-*' {b} {c}) = (div'->div a%bc)
-  result' : (abs' (int a)) div' (abs' (int c))
-  result' = (div->div' {(int a)} {(int c)} (euclids-lemma int-a%bc (gcd'->gcd/nat ab-gcd)))
   result : a div' c
-  result rewrite sym (abs'-int-id {a}) | sym (abs'-int-id {c}) = result'
+  result = (div->div' (euclids-lemma int-a%bc (gcd'->gcd/nat ab-gcd)))
 
 
 prime->relatively-prime : {p a : Nat} -> Prime' p -> ¬ (p div' a) -> GCD' p a 1
@@ -482,13 +468,10 @@ ex1-2 {a} {b} {c} g1 g2 = g8
   g4 : GCD (int (abs' a)) (int (abs' b *' abs' c)) (int 1)
   g4 = (gcd'->gcd/nat g3)
   g5 : GCD (abs a) (int (abs' b) * (int (abs' c))) (int 1)
-  g5 rewrite (sym (int-abs'-id {a})) 
-           | (sym (int-inject-*' {abs' b} {abs' c}))
+  g5 rewrite (sym (int-inject-*' {abs' b} {abs' c}))
     = g4
   g6 : GCD (abs a) (abs b * abs c) (int 1)
-  g6 rewrite (sym (int-abs'-id {b}))
-           | (sym (int-abs'-id {c}))
-    = g5
+  g6 = g5
   g7 : GCD (abs a) (abs (b * c)) (int 1)
   g7 rewrite (abs-inject-* {b} {c})
     = g6
