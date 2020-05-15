@@ -35,7 +35,7 @@ ex1-2' {zero} b@{suc _} c@{suc _} gb gc
 
 ex1-2 : {a b c : Int} -> GCD a b (int 1) -> GCD a c (int 1)
                       -> GCD a (b * c) (int 1)
-ex1-2 {a} {b} {c} g1 g2 = g8
+ex1-2 {a} {b} {c} g1 g2 = g7
   where
   g1' : GCD' (abs' a) (abs' b) 1
   g1' = (gcd->gcd' g1)
@@ -43,18 +43,16 @@ ex1-2 {a} {b} {c} g1 g2 = g8
   g2' = (gcd->gcd' g2)
   g3 : GCD' (abs' a) (abs' b *' abs' c) 1
   g3 = (ex1-2' g1' g2')
-  g4 : GCD (int (abs' a)) (int (abs' b *' abs' c)) (int 1)
+  g4 : GCD (abs a) (int (abs' b *' abs' c)) (int 1)
   g4 = (gcd'->gcd/nat g3)
-  g5 : GCD (abs a) (int (abs' b) * (int (abs' c))) (int 1)
+  g5 : GCD (abs a) (abs b * abs c) (int 1)
   g5 rewrite (sym (int-inject-*' {abs' b} {abs' c}))
     = g4
-  g6 : GCD (abs a) (abs b * abs c) (int 1)
-  g6 = g5
-  g7 : GCD (abs a) (abs (b * c)) (int 1)
-  g7 rewrite (abs-inject-* {b} {c})
-    = g6
-  g8 : GCD a (b * c) (int 1)
-  g8 = (gcd-remove-abs (gcd-sym (gcd-remove-abs (gcd-sym g7))))
+  g6 : GCD (abs a) (abs (b * c)) (int 1)
+  g6 rewrite (abs-inject-* {b} {c})
+    = g5
+  g7 : GCD a (b * c) (int 1)
+  g7 = (gcd-remove-abs (gcd-sym (gcd-remove-abs (gcd-sym g6))))
   
 
 
