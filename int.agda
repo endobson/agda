@@ -4,11 +4,14 @@ open import equality
 open import nat
 
 data Int : Set where
- zero-int : Int
- -- pos n Corresponds to (n+1)
- pos : Nat -> Int
+ -- nonneg n Corresponds to n)
+ nonneg : Nat -> Int
  -- neg n Corresponds to -(n+1)
  neg : Nat -> Int
+
+pattern zero-int = nonneg zero
+pattern pos x = nonneg (suc x)
+
 
 int : Nat -> Int
 int zero = zero-int
@@ -25,8 +28,7 @@ Pos (pos x) = Top
 Pos (neg x) = Bot
 
 Neg : (n : Int) -> Set
-Neg zero-int = Bot
-Neg (pos x) = Bot
+Neg (nonneg x) = Bot
 Neg (neg x) = Top
 
 NonZero : (n : Int) -> Set
@@ -63,8 +65,7 @@ minus-double-inverse {pos x'} = refl
 minus-double-inverse {neg x'} = refl
 
 add1 : Int -> Int
-add1 zero-int = pos zero
-add1 (pos n) = (pos (suc n))
+add1 (nonneg x) = (nonneg (suc x))
 add1 (neg x) = - (int x)
 
 sub1 : Int -> Int
@@ -74,11 +75,11 @@ sub1 (pos n) = int n
 
 infixl 6 _+_
 _+_ : Int -> Int -> Int
-zero-int + n = n
-(pos m) + n = add1 (rec m)
+(nonneg zero) + n = n
+(nonneg m) + n = add1 (rec m)
   where rec : Nat -> Int
         rec zero = n
-        rec (suc m) = (pos m) + n
+        rec (suc m) = (nonneg m) + n
 (neg m) + n = sub1 (rec m)
   where rec : Nat -> Int
         rec zero = n
@@ -400,7 +401,7 @@ add-minus-zero {neg (suc n')} =
     (neg n') + sub1 (- sub1 (neg n'))
   ==< +-right {neg n'} (sub1-minus->minus-add1 {sub1 (neg n')}) >
     (neg n') + - (add1 (sub1 (neg n')))
-  ==< +-right {neg n'} (cong minus (add1-sub1-id)) >
+  ==< +-right {neg n'} (cong minus (add1-sub1-id {neg n'})) >
     neg n' + - neg n'
   ==< add-minus-zero {neg n'}  >
     zero-int
@@ -452,8 +453,7 @@ suc n *nz m = m + n *nz m
 
 infixl 7 _*_
 _*_ : Int -> Int -> Int
-zero-int * n = zero-int
-pos m * n = suc m *nz n
+nonneg m * n = m *nz n
 neg m * n = -(suc m *nz n)
 
 *-right : {m n p : Int} -> (n == p) -> m * n == m * p
@@ -474,19 +474,24 @@ minus-extract-left {neg m'} {n} = sym (minus-double-inverse {pos m' * n})
 *-right-zero {pos (suc m')} = *-right-zero {pos m'}
 *-right-zero {neg (suc m')} = *-right-zero {neg m'}
 
-*-right-one : {m : Int} -> m * (pos zero) == m
-*-right-one {zero-int} = refl
-*-right-one {pos zero} = refl
-*-right-one {neg zero} = refl
-*-right-one {pos (suc m')} = cong add1 (*-right-one {pos m'})
-*-right-one {neg (suc m')} = cong minus (+-right {pos zero} (*-right-one {pos m'}))
+private
+  *-right-one' : (m : Nat) -> (nonneg m) * (int 1) == (nonneg m)
+  *-right-one' zero = refl
+  *-right-one' (suc m') = cong add1 (*-right-one' m')
+
+*-right-one : {m : Int} -> m * (int 1) == m
+*-right-one {nonneg m} = *-right-one' m
+*-right-one {neg m} = cong minus (*-right-one' (suc m))
+
+private
+  *-right-negative-one' : (m : Nat) -> (nonneg (suc m)) * (neg zero) == (neg m)
+  *-right-negative-one' zero = refl
+  *-right-negative-one' (suc m') = cong sub1 (*-right-negative-one' m')
 
 *-right-negative-one : {m : Int} -> m * (neg zero) == - m
 *-right-negative-one {zero-int} = refl
-*-right-negative-one {pos zero} = refl
-*-right-negative-one {neg zero} = refl
-*-right-negative-one {pos (suc m')} = cong sub1 (*-right-negative-one {pos m'})
-*-right-negative-one {neg (suc m')} = cong minus (+-right {neg zero} (*-right-negative-one {pos m'}))
+*-right-negative-one {pos m'} = (*-right-negative-one' m')
+*-right-negative-one {neg m'} = cong minus (*-right-negative-one' m')
 
 
 add1-extract-* : {m n : Int} -> add1 m * n == n + m * n
@@ -523,60 +528,40 @@ add1-extract-* {neg (suc m')} {n} =
     n + (neg (suc m')) * n
   end
 
+private
+  add1-extract-*-right' : (m : Nat) (n : Int) -> (nonneg m) * add1 n == (nonneg m) + (nonneg m) * n
+  add1-extract-*-right' zero n = refl
+  add1-extract-*-right' (suc m') n = 
+    begin
+      nonneg (suc m') * add1 n 
+    ==<>
+      add1 n + nonneg m' * add1 n
+    ==< +-right {add1 n} (add1-extract-*-right' m' n) >
+      add1 n + (nonneg m' + nonneg m' * n)
+    ==< sym (+-assoc {add1 n}) >
+      (add1 n + nonneg m') + nonneg m' * n
+    ==< +-left (add1-extract-left {n}) >
+      add1 (n + nonneg m') + nonneg m' * n
+    ==< +-left (cong add1 (+-commute {n})) >
+      add1 (nonneg m' + n) + nonneg m' * n
+    ==< +-left (sym (add1-extract-left {nonneg m'} {n})) >
+      (add1 (nonneg m') + n) + nonneg m' * n
+    ==< +-assoc {add1 (nonneg m')} >
+      nonneg (suc m') + nonneg (suc m') * n
+    end
+
+
 add1-extract-*-right : {m n : Int} -> m * add1 n == m + m * n
-add1-extract-*-right {zero-int} = refl
-add1-extract-*-right {neg zero} {n} =
+add1-extract-*-right {nonneg m} {n} = add1-extract-*-right' m n
+add1-extract-*-right {neg m'} {n} = 
   begin
-    neg zero * add1 n 
+    neg m' * add1 n
   ==<>
-    - (add1 n + zero-int)
-  ==< cong minus (add1-extract-left {n}) >
-    - add1 (n + zero-int)
-  ==< sym (sub1-minus->minus-add1 {n + zero-int}) >
-    sub1 (- (n + zero-int))
-  ==<>
-    neg zero + neg zero * n
-  end
-add1-extract-*-right {pos zero} {n} = (add1-extract-left {n})
-add1-extract-*-right {neg (suc m')} {n} =
-  begin
-    neg (suc m') * add1 n 
-  ==<>
-    - (add1 n + pos m' * add1 n)
-  ==< cong minus (+-right {add1 n} (add1-extract-*-right {pos m'} {n})) >
-    - (add1 n + (pos m' + pos m' * n))
-  ==< cong minus (sym (+-assoc {add1 n})) >
-    - ((add1 n + pos m') + pos m' * n)
-  ==< cong minus (+-left (add1-extract-left {n} {pos m'})) >
-    - (add1 (n + pos m') + pos m' * n)
-  ==< cong minus (+-left (cong add1 (+-commute {n}))) >
-    - (add1 (pos m' + n) + pos m' * n)
-  ==< cong minus (+-left (sym (add1-extract-left {pos m'}))) > 
-    - ((add1 (pos m') + n) + pos m' * n)
-  ==< cong minus (+-assoc {add1 (pos m')}) >
-    - (add1 (pos m') + (n + pos m' * n))
-  ==< minus-distrib-+ {add1 (pos m')} >
-    - add1 (pos m') + - (n + pos m' * n)
-  ==<>
-    neg (suc m') + neg (suc m') * n
-  end
-add1-extract-*-right {pos (suc m')} {n} =
-  begin
-    pos (suc m') * add1 n 
-  ==<>
-    add1 n + pos m' * add1 n
-  ==< +-right {add1 n} (add1-extract-*-right {pos m'} {n}) >
-    add1 n + (pos m' + pos m' * n)
-  ==< sym (+-assoc {add1 n}) >
-    (add1 n + pos m') + pos m' * n
-  ==< +-left (add1-extract-left {n}) >
-    add1 (n + pos m') + pos m' * n
-  ==< +-left (cong add1 (+-commute {n})) >
-    add1 (pos m' + n) + pos m' * n
-  ==< +-left (sym (add1-extract-left {pos m'} {n})) >
-    (add1 (pos m') + n) + pos m' * n
-  ==< +-assoc {add1 (pos m')} >
-    pos (suc m') + pos (suc m') * n
+    - (pos m' * add1 n)
+  ==< cong minus (add1-extract-*-right' (suc m') n) >
+    - (pos m' + pos m' * n)
+  ==< minus-distrib-+ {pos m'} >
+    neg m' + neg m' * n
   end
 
 
@@ -760,59 +745,35 @@ sub1-extract-*-right {neg (suc m')} {n} =
     (neg (suc m') * p) + (n * p)
   end 
 
+private
+  *-assoc' : (m : Nat) (n o : Int) -> ((nonneg m) * n) * o == (nonneg m) * (n * o)
+  *-assoc' zero _ _ = refl
+  *-assoc' (suc m') n o =
+    begin
+      (nonneg (suc m') * n) * o
+    ==<>
+      (n + nonneg m' * n) * o
+    ==< *-distrib-+ {n} >
+      n * o + (nonneg m' * n) * o
+    ==< +-right {n * o} (*-assoc' m' n o) >
+      n * o + nonneg m' * (n * o)
+    ==<>
+      nonneg (suc m') * (n * o)
+    end
+
 *-assoc : {m n o : Int} -> (m * n) * o == m * (n * o)
-*-assoc {zero-int} = refl
-*-assoc {pos zero} {n} {o} = 
+*-assoc {nonneg m} {n} {o} =  *-assoc' m n o
+*-assoc {neg m'} {n} {o} = 
   begin
-    ((pos zero) * n) * o
+    (neg m' * n) * o
+  ==< (*-left {o} (minus-extract-left {pos m'} {n})) >
+    - (pos m' * n) * o
+  ==< minus-extract-left {pos m' * n} >
+    - ((pos m' * n) * o)
+  ==< (cong minus (*-assoc' (suc m') n o)) >
+    - (pos m' * (n * o))
   ==<>
-    (n + zero-int) * o
-  ==< *-left (+-right-zero {n}) >
-    n * o
-  ==< sym +-right-zero  >
-    (n * o) + zero-int
-  ==<>
-    (pos zero) * (n * o)
-  end
-*-assoc {neg zero} {n} {o} =
-  begin
-    ((neg zero) * n) * o
-  ==<>
-    - (n + zero-int) * o
-  ==< *-left (cong minus (+-right-zero {n})) >
-    - n * o
-  ==< minus-extract-left {n} >
-    - (n * o)
-  ==< sym (cong minus (+-right-zero {n * o})) >
-    - ((n * o) + zero-int)
-  ==<>
-    (neg zero) * (n * o)
-  end
-*-assoc {pos (suc m')} {n} {o} =
-  begin
-    (pos (suc m') * n) * o
-  ==<>
-    (n + pos m' * n) * o
-  ==< *-distrib-+ {n} >
-    n * o + (pos m' * n) * o
-  ==< +-right {n * o} (*-assoc {pos m'} {n} {o}) >
-    n * o + pos m' * (n * o)
-  ==<>
-    pos (suc m') * (n * o)
-  end
-*-assoc {neg (suc m')} {n} {o} =
-  begin
-    (neg (suc m') * n) * o
-  ==<>
-    - (n + pos m' * n) * o
-  ==< minus-extract-left {n + pos m' * n}>
-    - ((n + pos m' * n) * o)
-  ==< cong minus (*-distrib-+ {n}) >
-    - (n * o + (pos m' * n) * o)
-  ==< cong minus (+-right {n * o} (*-assoc {pos m'} {n} {o})) >
-    - (n * o + pos m' * (n * o))
-  ==<>
-    neg (suc m') * (n * o)
+    (neg m') * (n * o)
   end
 
 
