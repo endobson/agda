@@ -884,6 +884,13 @@ sub1-disjoint {pos (suc _)} ()
 *-right-id : {m n : Int} -> (NonZero m) -> m * n == m -> n == (int 1)
 *-right-id {m} {n} nz pr = *-left-id nz (sym (*-commute {m} {n}) >=> pr)
 
+_^_ : Int -> Nat -> Int
+a ^ zero = (int 1)
+a ^ (suc b) = a * a ^ b
+
+^-right-one : {a : Int} -> a ^ 1 == a
+^-right-one = *-right-one
+
 
 nonneg-injective : {m n : Nat} -> nonneg m == nonneg n -> m == n
 nonneg-injective refl = refl

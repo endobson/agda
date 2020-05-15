@@ -53,6 +53,26 @@ ex1-2 {a} {b} {c} g1 g2 = g7
     = g5
   g7 : GCD a (b * c) (int 1)
   g7 = (gcd-remove-abs (gcd-sym (gcd-remove-abs (gcd-sym g6))))
+
+RPrime : Int -> Int -> Set
+RPrime a b = GCD a b (int 1)
+
+rp-* : {a b c : Int} -> RPrime b a -> RPrime c a -> RPrime (b * c) a
+rp-* rp1 rp2 = gcd-sym (ex1-2 (gcd-sym rp1) (gcd-sym rp2))
   
+rp-^ : {a b : Int} -> RPrime a b -> (n : Nat) -> {Pos' n} -> RPrime (a ^ n) b
+rp-^ {a} rp (suc (zero)) rewrite (^-right-one {a}) = rp
+rp-^ rp (suc (suc n)) = rp-* rp (rp-^ rp (suc n))
+
+rp-sym : {a b : Int} -> RPrime a b -> RPrime b a
+rp-sym = gcd-sym
+
+
+ex1-3 : {a b : Int} -> (RPrime a b)
+         -> (n k : Nat) -> {Pos' n} -> {Pos' k} -> RPrime (a ^ n) (b ^ k)
+ex1-3 rp n k {pos-n} {pos-k} = (rp-sym (rp-^ (rp-sym (rp-^ rp n {pos-n})) k {pos-k}))
+
+
+
 
 
