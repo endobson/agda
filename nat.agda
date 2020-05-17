@@ -22,6 +22,9 @@ suc m +' n = suc (m +' n)
 +'-left : {m n p : Nat} -> (n == p) -> n +' m == p +' m
 +'-left {m} id = cong (\x -> x +' m) id
 
++'-cong : {m n p o : Nat} -> m == p -> n == o -> m +' n == p +' o
++'-cong = cong2 _+'_
+
 +'-right-zero : {m : Nat} -> (m +' zero) == m
 +'-right-zero {zero} = refl 
 +'-right-zero {suc m} = cong suc (+'-right-zero {m})

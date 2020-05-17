@@ -1,5 +1,11 @@
 module equality where
 
+open import Level using (Level; _⊔_; suc)
+
+REL : {i j : Level} -> (Set i) -> (Set j) -> (l : Level) -> Set (i ⊔ j ⊔ (suc l))
+REL A B l = A -> B -> Set l
+
+
 infix 4 _==_
 data _==_ {a} {A : Set a} (x : A) : A -> Set a where
   refl : x == x
@@ -9,10 +15,14 @@ data _==_ {a} {A : Set a} (x : A) : A -> Set a where
 cong : {A B : Set} -> (f : A -> B) -> {x y : A} -> x == y -> f x == f y 
 cong f refl = refl
 
+cong2 : {A B C : Set} -> (f : A -> B -> C) -> {a c : A} -> {b d : B} -> a == c -> b == d -> f a b == f c d
+cong2 f refl refl = refl
+
+
 sym : {A : Set} -> {x y : A} -> x == y -> y == x 
 sym refl = refl
 
-trans : {A : Set} -> {x y z : A} -> x == y -> y == z -> x == z
+trans : {a : Level} {A : Set a} -> {x y z : A} -> x == y -> y == z -> x == z
 trans refl refl = refl
 
 -- substp : {A : Set} -> {x y : A} -> (P : A → Set) -> x == y -> P x -> P y
@@ -25,16 +35,16 @@ infix  1 begin_
 infixr 2 _==<>_ _==<_>_
 infix  3 _end
 
-begin_ : {A : Set} -> {x y : A} -> x == y -> x == y
+begin_ : {a : Level} -> {A : Set a} -> {x y : A} -> x == y -> x == y
 begin x==y  =  x==y
  
-_==<>_ : {A : Set} -> (x : A) {y : A} -> x == y -> x == y
+_==<>_ : {a : Level} {A : Set a} -> (x : A) {y : A} -> x == y -> x == y
 x ==<> x==y  =  x==y
  
-_==<_>_ : {A : Set} (x : A) {y z : A} -> x == y -> y == z -> x == z
-x ==< x==y > y==z  = trans x==y y==z
+_==<_>_ : {a : Level} {A : Set a} (x : A) {y z : A} -> x == y -> y == z -> x == z
+x ==< x==y > y==z  =  trans x==y y==z
 
-_end : {A : Set} (x : A) -> x == x
+_end : {a : Level} {A : Set a} (x : A) -> x == x
 x end  =  refl
 
 record Top : Set where
@@ -74,3 +84,9 @@ infixr 2 _×_
 
 data _×_ (A : Set) (B : Set): Set where
   _,_ : (a : A) -> (b : B) -> A × B
+
+proj₁ : {A : Set} -> {B : Set} -> A × B -> A
+proj₁ (a , b) = a
+
+proj₂ : {A : Set} -> {B : Set} -> A × B -> B
+proj₂ (a , b) = b
