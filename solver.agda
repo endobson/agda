@@ -2,8 +2,7 @@ module solver where
 
 open import equality
 open import nat
-open import int
-open import Level using (Level; _⊔_; Lift)
+open import Level using (Level; _⊔_) renaming (suc to lsuc)
 
 data Syntax (n : Nat) : Set where
   _⊕_ : Syntax n -> Syntax n -> Syntax n
@@ -12,6 +11,61 @@ data Syntax (n : Nat) : Set where
 
 infixl 6 _⊕_
 infixl 7 _⊗_
+
+record Semiring {a : Level} : Set (lsuc a) where
+  infixl 7 _*_
+  infixl 6 _+_
+
+  field
+    Domain : Set a
+    0# : Domain
+    1# : Domain
+    _+_ : Domain -> Domain -> Domain
+    _*_ : Domain -> Domain -> Domain
+    +-assoc : {m n o : Domain} -> (m + n) + o == m + (n + o)
+    +-commute : {m n : Domain} -> (m + n) == (n + m)
+    *-assoc : {m n o : Domain} -> (m * n) * o == m * (n * o)
+    *-commute : {m n : Domain} -> (m * n) == (n * m)
+    +-left-zero : {m : Domain} -> (0# + m) == m
+    *-left-zero : {m : Domain} -> (0# * m) == 0#
+    *-left-one : {m : Domain} -> (1# * m) == m
+    *-distrib-+-right : {m n o : Domain} -> (m + n) * o == (m * o) + (n * o)
+
+  +-right-zero : {m : Domain} -> (m + 0#) == m
+  +-right-zero {m} = (+-commute {m} {0#}) >=> (+-left-zero {m})
+
+  *-right-zero : {m : Domain} -> (m * 0#) == 0#
+  *-right-zero {m} = (*-commute {m} {0#}) >=> (*-left-zero {m})
+  *-right-one : {m : Domain} -> (m * 1#) == m
+  *-right-one {m} = (*-commute {m} {1#}) >=> (*-left-one {m})
+
+  *-distrib-+-left : {m n o : Domain} -> m * (n + o) == (m * n) + (m * o)
+  *-distrib-+-left {m} {n} {o} =
+    begin
+      m * (n + o) 
+    ==< (*-commute {m} {n + o}) >
+      (n + o) * m
+    ==< (*-distrib-+-right {n} {o} {m}) >
+      n * m + o * m
+    ==< (cong2 _+_ (*-commute {n} {m}) (*-commute {o} {m})) >
+      (m * n) + (m * o)
+    end
+
+NatSemiring : Semiring
+NatSemiring = record {
+  Domain = Nat;
+  0# = 0;
+  1# = 1;
+  _+_ = _+'_;
+  _*_ = _*'_;
+  +-assoc = (\ {m} {n} {o} -> (+'-assoc {m} {n} {o}));
+  +-commute = (\ {m} {n} -> (+'-commute {m} {n}));
+  *-assoc = (\ {m} {n} {o} -> (*'-assoc {m} {n} {o}));
+  *-commute = (\ {m} {n} -> (*'-commute {m} {n}));
+  +-left-zero = refl;
+  *-left-zero = refl;
+  *-left-one = +'-right-zero;
+  *-distrib-+-right = (\ {m} {n} {o} -> *'-distrib-+' {m} {n} {o}) }
 
 
 private 

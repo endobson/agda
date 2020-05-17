@@ -15,7 +15,8 @@ data _==_ {a} {A : Set a} (x : A) : A -> Set a where
 cong : {a b : Level} {A : Set a} {B : Set b} -> (f : A -> B) -> {x y : A} -> x == y -> f x == f y  
 cong f refl = refl
 
-cong2 : {A B C : Set} -> (f : A -> B -> C) -> {a c : A} -> {b d : B} -> a == c -> b == d -> f a b == f c d
+cong2 : {i1 i2 i3 : Level} -> {A : Set i1} -> {B : Set i2} -> {C : Set i3} -> 
+        (f : A -> B -> C) -> {a c : A} -> {b d : B} -> a == c -> b == d -> f a b == f c d
 cong2 f refl refl = refl
 
 
@@ -63,7 +64,7 @@ x != y = ¬ (x == y)
 
 
 infixl 20 _>=>_
-_>=>_ : {A : Set} -> {x y z : A} -> x == y -> y == z -> x == z
+_>=>_ : {a : Level} {A : Set a} -> {x y z : A} -> x == y -> y == z -> x == z
 refl >=> refl = refl
 
 infixr 1 _⊎_
