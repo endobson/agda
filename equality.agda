@@ -12,7 +12,7 @@ data _==_ {a} {A : Set a} (x : A) : A -> Set a where
 
 {-# BUILTIN EQUALITY _==_  #-}
 
-cong : {A B : Set} -> (f : A -> B) -> {x y : A} -> x == y -> f x == f y 
+cong : {a b : Level} {A : Set a} {B : Set b} -> (f : A -> B) -> {x y : A} -> x == y -> f x == f y  
 cong f refl = refl
 
 cong2 : {A B C : Set} -> (f : A -> B -> C) -> {a c : A} -> {b d : B} -> a == c -> b == d -> f a b == f c d

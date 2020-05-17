@@ -5,9 +5,9 @@ open import nat
 open import int
 open import Level using (Level; _⊔_; Lift)
 
-data Syntax : Nat -> Set where
-  _⊕_ : {n : Nat} -> Syntax n -> Syntax n -> Syntax n
-  var : {n : Nat} -> Fin n -> Syntax n
+data Syntax (n : Nat) : Set where
+  _⊕_ : Syntax n -> Syntax n -> Syntax n
+  var : Fin n -> Syntax n
 
 private 
   variable
@@ -24,7 +24,7 @@ private
   lookup (a :: _) zero-fin = a
   lookup (_ :: v) (suc-fin f) = lookup v f
   
-  data List A : Set where
+  data List (A : Set a) : Set a where
     [] : List A
     _::_  : (a : A) -> List A -> List A
   
@@ -32,6 +32,10 @@ private
   [] ++ l2 = l2
   (a :: l1) ++ l2 = a :: (l1 ++ l2)
   
+  map : (A -> B) -> List A -> List B
+  map f [] = []
+  map f (e :: l) = f e :: (map f l)
+
   sum : List Nat -> Nat
   sum [] = 0
   sum (a :: l) = a +' sum l
@@ -50,6 +54,10 @@ private
     ==<> 
       sum (e :: a) +' sum b
     end
+
+  map-inject-++ : (f : A -> B) {a1 a2 : List A} -> map f (a1 ++ a2) == (map f a1) ++ (map f a2)
+  map-inject-++ f {[]} = refl
+  map-inject-++ f {e :: a1} {a2} = cong (\x -> f e :: x) (map-inject-++ f {a1} {a2})
 
   Nary-level : (i j : Level) -> Nat -> Level
   Nary-level i j zero = j
@@ -89,26 +97,52 @@ private
   ⟦ (var i) ⟧ env = lookup env i
   ⟦ l ⊕ r ⟧ env = ⟦ l ⟧ env +' ⟦ r ⟧ env
 
-  flatten : {n : Nat} -> Syntax n -> Vec Nat n -> List Nat
-  flatten (var i) env = (lookup env i) :: []
-  flatten (l ⊕ r) env = (flatten l env) ++ (flatten r env)
+  data Term : Nat -> Set where
+    var : {n : Nat} -> Fin n -> Term n
 
-  sum-inject-flatten : {n : Nat} -> {e1 e2 : Syntax n} -> {env : Vec Nat n}
-                        -> sum (flatten (e1 ⊕ e2) env) == 
-                           sum (flatten e1 env) +' sum (flatten e2 env)
-  sum-inject-flatten {_} {e1} {e2} {env} = sum-inject-++ {flatten e1 env}
+  linearize : {n : Nat} -> Syntax n -> List (Term n)
+  linearize (var i) = (var i) :: []
+  linearize (l ⊕ r) = (linearize l) ++ (linearize r)
 
+  ⟦_⟧term_ : {n : Nat} -> Term n -> Vec Nat n -> Nat
+  ⟦ (var i) ⟧term env = lookup env i
 
+  ⟦_⟧terms_ : {n : Nat} -> (List (Term n)) -> Vec Nat n -> Nat
+  ⟦ l ⟧terms env = sum (map (⟦_⟧term env) l)
+
+  terms-eval-inject-++ : 
+    {n : Nat} -> (env : Vec Nat n) -> {a b : List (Term n)} 
+    -> ⟦ a ++ b ⟧terms env == ⟦ a ⟧terms env +' ⟦ b ⟧terms env 
+  terms-eval-inject-++ env {a} {b} = 
+    begin
+      ⟦ a ++ b ⟧terms env
+    ==<>
+      sum (map (⟦_⟧term env) (a ++ b))
+    ==< cong sum (map-inject-++ (⟦_⟧term env) {a} {b}) >
+      sum ((map (⟦_⟧term env) a) ++ (map (⟦_⟧term env) b))
+    ==< sum-inject-++ {map (⟦_⟧term env) a} >
+      ⟦ a ⟧terms env +' ⟦ b ⟧terms env 
+    end
+
+  terms-eval-inject-linearize :
+    {n : Nat} -> (env : Vec Nat n) -> {e1 e2 : Syntax n}
+    -> ⟦ linearize (e1 ⊕ e2) ⟧terms env == 
+       ⟦ linearize e1 ⟧terms env +' ⟦ linearize e2 ⟧terms env
+  terms-eval-inject-linearize env {e1} {e2} =
+    terms-eval-inject-++ env {linearize e1} {linearize e2}
 
   ⟦_⇓⟧ : {n : Nat} -> Syntax n -> Vec Nat n -> Nat
-  ⟦ e ⇓⟧ env = sum (flatten e env)
+  ⟦ e ⇓⟧ env = ⟦ (linearize e) ⟧terms env
+
 
 private
 
+
   correct : {n : Nat} -> (e : Syntax n) -> (env : Vec Nat n) -> ⟦ e ⇓⟧ env == ⟦ e ⟧ env 
   correct (var i) env = +'-right-zero
-  correct {n} (l ⊕ r) env = sum-inject-flatten {n} {l} {r}
+  correct {n} (l ⊕ r) env = terms-eval-inject-linearize env {l} {r}
                             >=> (+'-cong (correct l env) (correct r env))
+
   
   prove : {n : Nat} -> (e1 : Syntax n) -> (e2 : Syntax n) -> (env : Vec Nat n)
                     -> ⟦ e1 ⇓⟧ env == ⟦ e2 ⇓⟧ env -> ⟦ e1 ⟧ env == ⟦ e2 ⟧ env
@@ -178,3 +212,6 @@ solve n f hidden-normal-proof = full-reg-proof
   full-reg-proof : Eq n _==_ (curry n ⟦ e₁ ⟧) (curry n ⟦ e₂ ⟧)
   full-reg-proof = cong-curry n (⟦ e₁ ⟧) (⟦ e₂ ⟧) inner-reg-proof
 
+
+example : (a b c d : Nat) -> (a +' b) +' (c +' d) == a +' (b +' c) +' d
+example = solve 4 (\ a b c d -> ((a ⊕ b) ⊕ (c ⊕ d)) , (a ⊕ (b ⊕ c)) ⊕ d) refl
