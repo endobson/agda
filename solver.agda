@@ -59,6 +59,11 @@ private
   map-inject-++ f {[]} = refl
   map-inject-++ f {e :: a1} {a2} = cong (\x -> f e :: x) (map-inject-++ f {a1} {a2})
 
+  sum-map-inject-++ : (f : A -> Nat) {a1 a2 : List A} 
+                      -> (sum (map f (a1 ++ a2))) == (sum (map f a1)) +' (sum (map f a2))
+  sum-map-inject-++ f {a1} {a2} = 
+    (cong sum (map-inject-++ f {a1} {a2})) >=> (sum-inject-++ {map f a1})
+
   Nary-level : (i j : Level) -> Nat -> Level
   Nary-level i j zero = j
   Nary-level i j (suc m) = i ⊔ (Nary-level i j m)
@@ -113,16 +118,7 @@ private
   terms-eval-inject-++ : 
     {n : Nat} -> (env : Vec Nat n) -> {a b : List (Term n)} 
     -> ⟦ a ++ b ⟧terms env == ⟦ a ⟧terms env +' ⟦ b ⟧terms env 
-  terms-eval-inject-++ env {a} {b} = 
-    begin
-      ⟦ a ++ b ⟧terms env
-    ==<>
-      sum (map (⟦_⟧term env) (a ++ b))
-    ==< cong sum (map-inject-++ (⟦_⟧term env) {a} {b}) >
-      sum ((map (⟦_⟧term env) a) ++ (map (⟦_⟧term env) b))
-    ==< sum-inject-++ {map (⟦_⟧term env) a} >
-      ⟦ a ⟧terms env +' ⟦ b ⟧terms env 
-    end
+  terms-eval-inject-++ env {a} {b} = sum-map-inject-++ (⟦_⟧term env) {a} {b}
 
   terms-eval-inject-linearize :
     {n : Nat} -> (env : Vec Nat n) -> {e1 e2 : Syntax n}
