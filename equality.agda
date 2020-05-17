@@ -20,16 +20,13 @@ cong2 : {i1 i2 i3 : Level} -> {A : Set i1} -> {B : Set i2} -> {C : Set i3} ->
 cong2 f refl refl = refl
 
 
-sym : {A : Set} -> {x y : A} -> x == y -> y == x 
+sym : {a : Level} {A : Set a} -> {x y : A} -> x == y -> y == x 
 sym refl = refl
 
 trans : {a : Level} {A : Set a} -> {x y z : A} -> x == y -> y == z -> x == z
 trans refl refl = refl
 
--- substp : {A : Set} -> {x y : A} -> (P : A → Set) -> x == y -> P x -> P y
--- substp P refl px = px
-
-subst : {A : Set} -> {x y : A} -> (P : A → Set) -> x == y -> P x -> P y
+subst : {a p : Level} -> {A : Set a} -> {x y : A} -> (P : A → Set p) -> x == y -> P x -> P y
 subst P refl px = px
 
 infix  1 begin_
@@ -56,10 +53,10 @@ data Bot : Set where
 bot-elim : {A : Set} -> Bot -> A
 bot-elim ()
 
-¬ : Set -> Set
+¬ : {a : Level} -> Set a -> Set a
 ¬ A = A -> Bot
 
-_!=_ : {A : Set} -> A -> A -> Set
+_!=_ : {a : Level} -> {A : Set a} -> A -> A -> Set a
 x != y = ¬ (x == y)
 
 
@@ -73,7 +70,7 @@ data _⊎_ (A : Set) (B : Set) : Set where
   inj-l : (a : A) → A ⊎ B
   inj-r : (b : B) → A ⊎ B
 
-data Dec (A : Set) : Set where
+data Dec {a : Level} (A : Set a) : Set a where
   yes : A -> Dec A
   no : ¬ A -> Dec A
 
@@ -83,13 +80,13 @@ data exists : {A : Set} -> (B : A -> Set) -> Set where
 infixr 4 _,_
 infixr 2 _×_
 
-data _×_ (A : Set) (B : Set): Set where
+data _×_ {a b : Level} (A : Set a) (B : Set b): Set (a ⊔ b) where
   _,_ : (a : A) -> (b : B) -> A × B
 
-proj₁ : {A : Set} -> {B : Set} -> A × B -> A
+proj₁ : {a b : Level} {A : Set a} -> {B : Set b} -> A × B -> A
 proj₁ (a , b) = a
 
-proj₂ : {A : Set} -> {B : Set} -> A × B -> B
+proj₂ : {a b : Level} {A : Set a} -> {B : Set b} -> A × B -> B
 proj₂ (a , b) = b
 
 data Boolean : Set where
