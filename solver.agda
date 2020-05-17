@@ -219,6 +219,49 @@ private
   apply-curry-id zero f [] = refl
   apply-curry-id (suc m) f (e :: v) = apply-curry-id m (\ v2 -> f (e :: v2)) v
 
+  Eq : {A : Set a} -> (n : Nat) -> (REL B C i) 
+       -> (REL (Nary n A B) (Nary n A C) (Nary-level a i n))
+  Eq n r f g = ∀ⁿ n (curry n (\ vec -> r (apply n f vec) (apply n g vec)))
+  
+  Eqʰ : {A : Set a} -> (n : Nat) -> (REL B C i) 
+        -> (REL (Nary n A B) (Nary n A C) (Nary-level a i n))
+  Eqʰ n r f g = ∀ⁿʰ n (curry n (\ vec -> r (apply n f vec) (apply n g vec)))
+  
+  vec-map : {n : Nat} -> (A -> B) -> Vec A n -> Vec B n
+  vec-map f [] = []
+  vec-map f (e :: v) = (f e) :: (vec-map f v)
+  
+  all-fins : (n : Nat) -> Vec (Fin n) n
+  all-fins zero = []
+  all-fins (suc n) = zero-fin :: vec-map suc-fin (all-fins n)
+  
+  close : (n : Nat) -> Nary n (Syntax n) B -> B
+  close n f =  apply n f (vec-map var (all-fins n))
+  
+  cong-curry : (n : Nat) (f : Vec A n -> B) -> (g : Vec A n -> B) -> ((v : Vec A n) -> (f v) == (g v))
+               -> Eq n _==_ (curry n f) (curry n g)
+  cong-curry zero f g f=g = f=g []
+  cong-curry {A = A} {B = B} (suc n) f g f=g e = cong-curry n f' g' f=g'
+    where
+    f' : Vec A n -> B
+    f' v = f (e :: v)
+    g' : Vec A n -> B
+    g' v = g (e :: v)
+    f=g' : (v : Vec A n) -> (f' v) == (g' v)
+    f=g' v = f=g (e :: v)
+  
+  cong-curry⁻¹ : (n : Nat) (f : Vec A n -> B) -> (g : Vec A n -> B)
+               -> Eq n _==_ (curry n f) (curry n g)
+               -> ((v : Vec A n) -> (f v) == (g v))
+  cong-curry⁻¹ zero f g f=g [] = f=g
+  cong-curry⁻¹ {A = A} {B = B} (suc n) f g f=g (e :: v) =
+    (cong-curry⁻¹ n (\ v -> f (e :: v)) (\ v -> g (e :: v)) (f=g e)) v
+  
+  unhide-∀ⁿ : {A : Set a} -> (n : Nat) -> {f : Nary n A (Set i)}  -> ∀ⁿʰ n f -> ∀ⁿ n f
+  unhide-∀ⁿ zero v = v
+  unhide-∀ⁿ (suc n) g = (\ x -> (unhide-∀ⁿ n (g {x})))
+
+
 
 module Solver (S : Semiring {lzero}) where
   private
@@ -472,47 +515,6 @@ module Solver (S : Semiring {lzero}) where
                       -> ⟦ e1 ⇓⟧ env == ⟦ e2 ⇓⟧ env -> ⟦ e1 ⟧ env == ⟦ e2 ⟧ env
     prove {n} e1 e2 env pr = (sym (correct e1 env)) >=> pr >=> (correct e2 env)
   
-    Eq : {A : Set a} -> (n : Nat) -> (REL B C i) 
-         -> (REL (Nary n A B) (Nary n A C) (Nary-level a i n))
-    Eq n r f g = ∀ⁿ n (curry n (\ vec -> r (apply n f vec) (apply n g vec)))
-  
-    Eqʰ : {A : Set a} -> (n : Nat) -> (REL B C i) 
-          -> (REL (Nary n A B) (Nary n A C) (Nary-level a i n))
-    Eqʰ n r f g = ∀ⁿʰ n (curry n (\ vec -> r (apply n f vec) (apply n g vec)))
-  
-    vec-map : {n : Nat} -> (A -> B) -> Vec A n -> Vec B n
-    vec-map f [] = []
-    vec-map f (e :: v) = (f e) :: (vec-map f v)
-  
-    all-fins : (n : Nat) -> Vec (Fin n) n
-    all-fins zero = []
-    all-fins (suc n) = zero-fin :: vec-map suc-fin (all-fins n)
-  
-    close : (n : Nat) -> Nary n (Syntax n) B -> B
-    close n f =  apply n f (vec-map var (all-fins n))
-  
-    cong-curry : (n : Nat) (f : Vec A n -> B) -> (g : Vec A n -> B) -> ((v : Vec A n) -> (f v) == (g v))
-                 -> Eq n _==_ (curry n f) (curry n g)
-    cong-curry zero f g f=g = f=g []
-    cong-curry {A = A} {B = B} (suc n) f g f=g e = cong-curry n f' g' f=g'
-      where
-      f' : Vec A n -> B
-      f' v = f (e :: v)
-      g' : Vec A n -> B
-      g' v = g (e :: v)
-      f=g' : (v : Vec A n) -> (f' v) == (g' v)
-      f=g' v = f=g (e :: v)
-  
-    cong-curry⁻¹ : (n : Nat) (f : Vec A n -> B) -> (g : Vec A n -> B)
-                 -> Eq n _==_ (curry n f) (curry n g)
-                 -> ((v : Vec A n) -> (f v) == (g v))
-    cong-curry⁻¹ zero f g f=g [] = f=g
-    cong-curry⁻¹ {A = A} {B = B} (suc n) f g f=g (e :: v) =
-      (cong-curry⁻¹ n (\ v -> f (e :: v)) (\ v -> g (e :: v)) (f=g e)) v
-  
-    unhide-∀ⁿ : {A : Set a} -> (n : Nat) -> {f : Nary n A (Set i)}  -> ∀ⁿʰ n f -> ∀ⁿ n f
-    unhide-∀ⁿ zero v = v
-    unhide-∀ⁿ (suc n) g = (\ x -> (unhide-∀ⁿ n (g {x})))
   
   solve : (n : Nat) -> (f : Nary n (Syntax n) ((Syntax n) × (Syntax n)))
           ->  Eqʰ n _==_ (curry n ⟦ proj₁ (close n f) ⇓⟧) (curry n ⟦ proj₂ (close n f) ⇓⟧)
