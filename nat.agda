@@ -309,3 +309,12 @@ decide-nat (suc m) zero = no (\ () )
 decide-nat (suc m) (suc n) with (decide-nat m n) 
 ...  | (yes refl) = yes refl
 ...  | (no f) = no (\ pr -> f (suc-injective pr) )
+
+
+decide-nat< : (x : Nat) -> (y : Nat) -> Dec (x < y)
+decide-nat< _ zero = no \() 
+decide-nat< zero (suc n) = yes zero-<
+decide-nat< (suc m) (suc n) with (decide-nat< m n)
+... | yes pr = yes (inc-≤ pr)
+... | no f = no (\ pr -> (f (dec-≤ pr)))
+

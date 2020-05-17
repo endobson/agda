@@ -90,3 +90,7 @@ proj₁ (a , b) = a
 
 proj₂ : {A : Set} -> {B : Set} -> A × B -> B
 proj₂ (a , b) = b
+
+data Boolean : Set where
+  true : Boolean
+  false : Boolean

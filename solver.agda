@@ -64,6 +64,83 @@ private
   sum-map-inject-++ f {a1} {a2} = 
     (cong sum (map-inject-++ f {a1} {a2})) >=> (sum-inject-++ {map f a1})
 
+  data Insertion (A : Set a) : A -> (List A) -> (List A) -> Set a where
+    insertion-base : (a : A) -> (as : (List A)) -> Insertion A a as (a :: as)
+    insertion-cons : {a : A} {as1 as2 : (List A)} -> (a2 : A) 
+                     -> (Insertion A a as1 as2) -> Insertion A a (a2 :: as1) (a2 :: as2)
+
+  data Permutation (A : Set a) : (List A) -> (List A) -> Set a where
+    permutation-empty : Permutation A [] []
+    permutation-cons  : {a : A} -> {as1 as2 as3 : List A} 
+                        -> Permutation A as1 as2
+                        -> Insertion A a as2 as3 
+                        -> Permutation A (a :: as1) as3
+
+  sum-map-Insertion : {a : A} {as1 as2 : (List A)} -> (f : A -> Nat) -> (Insertion A a as1 as2)
+                       -> (sum (map f (a :: as1))) == (sum (map f as2))
+  sum-map-Insertion f (insertion-base a as) = refl
+  sum-map-Insertion f (insertion-cons {a} {as1} {as2} a2 ins) = 
+    begin
+      (sum (map f (a :: (a2 :: as1))))
+    ==<>
+      (f a) +' ((f a2) +' (sum (map f as1)))
+    ==< sym (+'-assoc {f a}) >
+      ((f a) +' (f a2)) +' (sum (map f as1))
+    ==< +'-left (+'-commute {f a} {f a2}) >
+      ((f a2) +' (f a)) +' (sum (map f as1))
+    ==< +'-assoc {f a2} >
+      (f a2) +' ((f a) +' (sum (map f as1)))
+    ==< +'-right {f a2} (sum-map-Insertion f ins) >
+      (f a2) +' (sum (map f as2))
+    ==<>
+      (sum (map f (a2 :: as2)))
+    end
+
+  sum-map-Permutation : {as1 as2 : (List A)} -> (f : A -> Nat) -> (Permutation A as1 as2)
+                       -> (sum (map f as1)) == (sum (map f as2))
+  sum-map-Permutation f (permutation-empty) = refl
+  sum-map-Permutation f (permutation-cons {a} {as1} {as2} {as3} perm ins) =
+    (+'-right {f a} (sum-map-Permutation f perm)) >=> (sum-map-Insertion f ins)
+    
+
+  insert : (A -> A -> Boolean) -> A -> List A -> List A
+  insert _ a [] = a :: []
+  insert _<_ a (a2 :: as) with a < a2
+  ... | true = a :: (a2 :: as)
+  ... | false = a2 :: (insert _<_ a as)
+
+  Insertion-insert : (_<_ : A -> A -> Boolean) -> (a : A) -> (as : (List A))
+                     -> Insertion A a as (insert _<_ a as)
+  Insertion-insert _t a [] = insertion-base a []
+  Insertion-insert _<_ a (a2 :: as) with a < a2
+  ... | true = insertion-base a (a2 :: as)
+  ... | false = insertion-cons a2 (Insertion-insert _<_ a as)
+
+  insertion-sort : (A -> A -> Boolean) -> List A -> List A 
+  insertion-sort _<_ [] = []
+  insertion-sort _<_ (a :: as) = (insert _<_ a (insertion-sort _<_ as))
+
+  Permutation-insertion-sort : (_<_ : A -> A -> Boolean) -> (as : List A)
+                               -> Permutation A as (insertion-sort _<_ as)
+  Permutation-insertion-sort _<_ [] = permutation-empty
+  Permutation-insertion-sort _<_ (a :: as) = 
+    (permutation-cons (Permutation-insertion-sort _<_ as)
+                      (Insertion-insert _<_ a (insertion-sort _<_ as)))
+
+
+  -- merge : (A -> A -> Boolean) -> List A -> List A -> List A
+  -- merge {A = A} less-than l r = rec l r
+  --   where
+  --   rec1 : A -> List A -> List A -> List A
+  --   rec1 el l [] = el :: l
+  --   rec1 el l (er :: r) with (less-than el er)
+  --   ... | true = el :: (rec1 er r l)
+  --   ... | false = er :: (rec1 el l r)
+
+  --   rec : List A -> List A -> List A
+  --   rec [] r = r
+  --   rec (e :: l) r = rec1 e l r
+
   Nary-level : (i j : Level) -> Nat -> Level
   Nary-level i j zero = j
   Nary-level i j (suc m) = i ⊔ (Nary-level i j m)
@@ -105,9 +182,15 @@ private
   data Term : Nat -> Set where
     var : {n : Nat} -> Fin n -> Term n
 
+  term< : {n : Nat} -> Term n -> Term n -> Boolean
+  term< (var i) (var j) with decide-nat< (fin->nat i) (fin->nat j)
+  ... | yes _ = true
+  ... | no _ = false
+
   linearize : {n : Nat} -> Syntax n -> List (Term n)
   linearize (var i) = (var i) :: []
   linearize (l ⊕ r) = (linearize l) ++ (linearize r)
+
 
   ⟦_⟧term_ : {n : Nat} -> Term n -> Vec Nat n -> Nat
   ⟦ (var i) ⟧term env = lookup env i
@@ -127,8 +210,16 @@ private
   terms-eval-inject-linearize env {e1} {e2} =
     terms-eval-inject-++ env {linearize e1} {linearize e2}
 
+
+  terms-eval-inject-insertion-sort :
+    {n : Nat} -> (env : Vec Nat n) -> {ts : List (Term n)}
+    -> ⟦ (insertion-sort term< ts) ⟧terms env == ⟦ ts ⟧terms env 
+  terms-eval-inject-insertion-sort env {ts} =
+    sym (sum-map-Permutation (⟦_⟧term env) (Permutation-insertion-sort term< ts))
+
   ⟦_⇓⟧ : {n : Nat} -> Syntax n -> Vec Nat n -> Nat
-  ⟦ e ⇓⟧ env = ⟦ (linearize e) ⟧terms env
+  --⟦ e ⇓⟧ env = ⟦ (linearize e) ⟧terms env
+  ⟦ e ⇓⟧ env = ⟦ (insertion-sort term< (linearize e)) ⟧terms env
 
 
 private
@@ -136,8 +227,16 @@ private
 
   correct : {n : Nat} -> (e : Syntax n) -> (env : Vec Nat n) -> ⟦ e ⇓⟧ env == ⟦ e ⟧ env 
   correct (var i) env = +'-right-zero
-  correct {n} (l ⊕ r) env = terms-eval-inject-linearize env {l} {r}
-                            >=> (+'-cong (correct l env) (correct r env))
+  correct {n} (l ⊕ r) env = terms-eval-inject-insertion-sort env {linearize (l ⊕ r)}
+                            >=> terms-eval-inject-linearize env {l} {r}
+                            >=> (+'-cong 
+                                  (trans
+                                    (sym (terms-eval-inject-insertion-sort env {linearize l}))
+                                    (correct l env))
+                                  (trans
+                                    (sym (terms-eval-inject-insertion-sort env {linearize r}))
+                                    (correct r env)))
+                            
 
   
   prove : {n : Nat} -> (e1 : Syntax n) -> (e2 : Syntax n) -> (env : Vec Nat n)
@@ -209,5 +308,5 @@ solve n f hidden-normal-proof = full-reg-proof
   full-reg-proof = cong-curry n (⟦ e₁ ⟧) (⟦ e₂ ⟧) inner-reg-proof
 
 
-example : (a b c d : Nat) -> (a +' b) +' (c +' d) == a +' (b +' c) +' d
-example = solve 4 (\ a b c d -> ((a ⊕ b) ⊕ (c ⊕ d)) , (a ⊕ (b ⊕ c)) ⊕ d) refl
+example : (a b c d : Nat) -> (a +' c) +' (b +' d) == a +' (b +' c) +' d
+example = solve 4 (\ a b c d -> ((a ⊕ c) ⊕ (b ⊕ d)) , (a ⊕ (b ⊕ c)) ⊕ d) refl
