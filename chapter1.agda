@@ -7,6 +7,7 @@ open import int
 open import div
 open import prime
 open import gcd
+open import solver
 
 ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)
 ex1-1 {a} {b} {c} {d} (gcd a b _ _ _ _ gcd-f) c-div-a d-div-b = 
@@ -73,6 +74,50 @@ ex1-3 : {a b : Int} -> (RPrime a b)
 ex1-3 rp n k {pos-n} {pos-k} = (rp-sym (rp-^ (rp-sym (rp-^ rp n {pos-n})) k {pos-k}))
 
 
+ex1-4' : {a b n : Int} -> RPrime a b -> (GCD (a + b) (a + - b)) n -> n div (int 2)
+ex1-4' rp (gcd a+b a-b n _ n%a+b n%a-b f) with (gcd->linear-combo rp) 
+... | (linear-combo a b _ x y {proof}) = res
+  where
+  lin-proof : (x + y) * (a + b) + (x + - y) * (a + - b) == (int 2)
+  lin-proof =
+    begin
+      (x + y) * (a + b) + (x + - y) * (a + - b)
+    ==< IntSolver.solve 6
+        (\ x y a b -y -b ->
+          (x ⊕ y) ⊗ (a ⊕ b) ⊕ (x ⊕ -y) ⊗ (a ⊕ -b) ,
+          (x ⊗ b ⊕ x ⊗ -b) ⊕ ((x ⊗ a ⊕ y ⊗ b) ⊕ ((x ⊗ a ⊕ -y ⊗ -b) ⊕ (y ⊗ a ⊕ -y ⊗ a))))
+        refl x y a b (- y) (- b)
+    >
+      (x * b + x * (- b)) + ((x * a + y * b) + ((x * a + (- y) * (- b)) + (y * a + (- y) * a)))
+    ==< +-left (+-right {x * b} (minus-extract-right {x} {b})) >
+      (x * b + - (x * b)) + ((x * a + y * b) + ((x * a + (- y) * (- b)) + (y * a + (- y) * a)))
+    ==< +-left (add-minus-zero {x * b}) >
+      (x * a + y * b) + ((x * a + (- y) * (- b)) + (y * a + (- y) * a))
+    ==< +-right {(x * a + y * b)} (+-left (+-right {x * a} (minus-extract-both {y} {b}))) >
+      (x * a + y * b) + ((x * a + y * b) + (y * a + (- y) * a))
+    ==< +-right {(x * a + y * b)} (+-right {(x * a + y * b)} (+-right {y * a} (minus-extract-left {y}))) >
+      (x * a + y * b) + ((x * a + y * b) + (y * a + - (y * a)))
+    ==< +-right {x * a + y * b} (+-right {x * a + y * b} (add-minus-zero {y * a})) >
+      (x * a + y * b) + ((x * a + y * b) + (int 0))
+    ==<>
+      (int 2) * (x * a + y * b)
+    ==< *-right {int 2} proof >
+      (int 2) * (int 1)
+    ==<>
+      (int 2)
+    end
+  res : n div (int 2)
+  res rewrite (sym lin-proof) = div-linear n%a+b n%a-b {x + y} {x + - y}
 
-
-
+ex1-4 : {a b : Int} -> RPrime a b -> (GCD (a + b) (a + - b) (int 1)) ⊎ (GCD (a + b) (a + - b) (int 2))
+ex1-4 {a} {b} rp with (gcd-exists (a + b) (a + - b))
+... | (existence d g@(gcd _ _ d@(nonneg d-nat) _ _ _ _)) = res
+  where
+  d-div : d div (int 2)
+  d-div = (ex1-4' rp g)
+  res : (GCD (a + b) (a + - b) (int 1)) ⊎ (GCD (a + b) (a + - b) (int 2))
+  res with (div->≤ d-div)
+  ... | (inc-≤ zero-≤) = inj-l g
+  ... | (inc-≤ (inc-≤ zero-≤)) = inj-r g
+  ... | zero-≤ with (div-zero->zero d-div)
+  ...             | ()

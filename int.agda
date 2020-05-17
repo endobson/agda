@@ -793,6 +793,12 @@ minus-extract-right : {m n : Int} -> m * - n == - (m * n)
 minus-extract-right {m} {n} =
   (*-commute {m}) >=> (minus-extract-left {n}) >=> (cong minus (*-commute {n}))
 
+minus-extract-both : {m n : Int} -> - m * - n == (m * n)
+minus-extract-both {m} {n} =
+  (minus-extract-right { - m} {n}) >=> (cong minus (minus-extract-left {m} {n}))
+  >=> (minus-double-inverse {m * n})
+
+
 *-Pos-Pos : {m n : Int} -> .(Pos m) -> .(Pos n) -> Pos (m * n)
 *-Pos-Pos {pos zero} _ pr = +-Pos-NonNeg pr tt
 *-Pos-Pos {pos (suc m)} _ pr = +-Pos-Pos pr (*-Pos-Pos {pos m} tt pr)
