@@ -7,6 +7,7 @@ open import Level using (Level; _⊔_; Lift)
 
 data Syntax (n : Nat) : Set where
   _⊕_ : Syntax n -> Syntax n -> Syntax n
+  _⊗_ : Syntax n -> Syntax n -> Syntax n
   var : Fin n -> Syntax n
 
 private 
@@ -178,22 +179,68 @@ private
   ⟦_⟧ : {n : Nat} -> Syntax n -> Vec Nat n -> Nat
   ⟦ (var i) ⟧ env = lookup env i
   ⟦ l ⊕ r ⟧ env = ⟦ l ⟧ env +' ⟦ r ⟧ env
+  ⟦ l ⊗ r ⟧ env = ⟦ l ⟧ env *' ⟦ r ⟧ env
+
 
   data Term : Nat -> Set where
     var : {n : Nat} -> Fin n -> Term n
+    _⊗_ : {n : Nat} -> Term n -> Term n -> Term n
+
+  data Order : Set where
+    less-than : Order
+    equal-to : Order
+    greater-than : Order
+
+  compare-nat : Nat -> Nat -> Order
+  compare-nat zero zero = equal-to
+  compare-nat (suc _) zero = greater-than
+  compare-nat zero (suc _) = less-than
+  compare-nat (suc m) (suc n) = compare-nat m n
+
+  compare-fin : {n : Nat} -> Fin n -> Fin n -> Order
+  compare-fin m n = compare-nat (fin->nat m) (fin->nat n)
+
+  fin< : {n : Nat} -> Fin n -> Fin n -> Boolean
+  fin< i j with compare-fin i j
+  ... | less-than = true
+  ... | _ = false
+
+
+  compare-list : (A -> A -> Order) -> List A -> List A -> Order
+  compare-list _ [] [] = equal-to
+  compare-list _ (_ :: _) [] = greater-than
+  compare-list _ [] (_ :: _) = less-than
+  compare-list compare-elem (el :: ll) (er :: lr) with compare-elem el er
+  ... | equal-to = compare-list compare-elem ll lr
+  ... | order = order
 
   term< : {n : Nat} -> Term n -> Term n -> Boolean
-  term< (var i) (var j) with decide-nat< (fin->nat i) (fin->nat j)
-  ... | yes _ = true
-  ... | no _ = false
+  term< {n} t1 t2 = res
+    where
+    flatten : Term n -> List (Fin n)
+    flatten (var i) = (i :: [])
+    flatten (l ⊗ r) = (flatten l) ++ (flatten r)
+    res : Boolean
+    res with (compare-list compare-fin (insertion-sort fin< (flatten t1))
+                                       (insertion-sort fin< (flatten t2)))
+    ... | less-than = true
+    ... | _ = false
+
+
+
+  all-pairs : {n : Nat} -> List (Term n) -> List (Term n) -> List (Term n)
+  all-pairs [] b = []
+  all-pairs (e :: a) b = (map (e ⊗_) b) ++ (all-pairs a b)
 
   linearize : {n : Nat} -> Syntax n -> List (Term n)
   linearize (var i) = (var i) :: []
   linearize (l ⊕ r) = (linearize l) ++ (linearize r)
+  linearize (l ⊗ r) = all-pairs (linearize l) (linearize r)
 
 
   ⟦_⟧term_ : {n : Nat} -> Term n -> Vec Nat n -> Nat
   ⟦ (var i) ⟧term env = lookup env i
+  ⟦ t1 ⊗ t2  ⟧term env = ⟦ t1  ⟧term env *' ⟦ t2 ⟧term env
 
   ⟦_⟧terms_ : {n : Nat} -> (List (Term n)) -> Vec Nat n -> Nat
   ⟦ l ⟧terms env = sum (map (⟦_⟧term env) l)
@@ -203,12 +250,69 @@ private
     -> ⟦ a ++ b ⟧terms env == ⟦ a ⟧terms env +' ⟦ b ⟧terms env 
   terms-eval-inject-++ env {a} {b} = sum-map-inject-++ (⟦_⟧term env) {a} {b}
 
-  terms-eval-inject-linearize :
+  terms-eval-inject-map-⊗ : 
+    {n : Nat} -> (env : Vec Nat n) -> {e : (Term n)} -> {b : List (Term n)} 
+    -> ⟦ (map (e ⊗_) b) ⟧terms env == ⟦ e ⟧term env *' ⟦ b ⟧terms env 
+  terms-eval-inject-map-⊗ env {e} {[]} = sym (*'-right-zero {⟦ e ⟧term env})
+  terms-eval-inject-map-⊗ env {e} {(e2 :: b)} =
+    begin
+      ⟦ (map (e ⊗_) (e2 :: b)) ⟧terms env 
+    ==<>
+      ⟦ (map (e ⊗_) (e2 :: [])) ++ (map (e ⊗_) b) ⟧terms env 
+    ==< terms-eval-inject-++ env {map (e ⊗_) (e2 :: [])} {map (e ⊗_) b} >
+      ⟦ map (e ⊗_) (e2 :: []) ⟧terms env +' ⟦ (map (e ⊗_) b) ⟧terms env 
+    ==<>
+      (⟦ e ⊗ e2 ⟧term env +' 0) +' ⟦ (map (e ⊗_) b) ⟧terms env 
+    ==< +'-left (+'-right-zero {⟦ e ⊗ e2 ⟧term env}) >
+      ⟦ e ⊗ e2 ⟧term env +' ⟦ (map (e ⊗_) b) ⟧terms env 
+    ==< +'-right {⟦ e ⊗ e2 ⟧term env} (terms-eval-inject-map-⊗ env {e} {b}) >
+      ⟦ e ⊗ e2 ⟧term env +' ⟦ e ⟧term env *' ⟦ b ⟧terms env 
+    ==<>
+      ⟦ e ⟧term env *' ⟦ e2 ⟧term env +' ⟦ e ⟧term env *' ⟦ b ⟧terms env 
+    ==< sym (*'-distrib-+'-left {⟦ e ⟧term env}) >
+      ⟦ e ⟧term env *' (⟦ e2 ⟧term env +' ⟦ b ⟧terms env )
+    ==<>
+      ⟦ e ⟧term env *' ⟦ (e2 :: b) ⟧terms env 
+    end
+
+
+  terms-eval-inject-all-pairs : 
+    {n : Nat} -> (env : Vec Nat n) -> {a b : List (Term n)} 
+    -> ⟦ (all-pairs a b) ⟧terms env == ⟦ a ⟧terms env *' ⟦ b ⟧terms env 
+  terms-eval-inject-all-pairs env {[]} {b} = refl
+  terms-eval-inject-all-pairs env {e :: a} {b} =
+    begin
+      ⟦ (all-pairs (e :: a) b) ⟧terms env 
+    ==<>
+      ⟦ (map (e ⊗_) b) ++ (all-pairs a b) ⟧terms env 
+    ==< terms-eval-inject-++ env {map (e ⊗_) b} {all-pairs a b} >
+      (⟦ (map (e ⊗_) b) ⟧terms env) +' (⟦ (all-pairs a b) ⟧terms env )
+    ==< +'-left (terms-eval-inject-map-⊗ env {e} {b}) > 
+      (⟦ e ⟧term env *' ⟦ b ⟧terms env) +' (⟦ (all-pairs a b) ⟧terms env )
+    ==< +'-right {(⟦ e ⟧term env *' ⟦ b ⟧terms env)} (terms-eval-inject-all-pairs env {a} {b}) > 
+      (⟦ e ⟧term env *' ⟦ b ⟧terms env) +' (⟦ a ⟧terms env *' ⟦ b ⟧terms env)
+    ==< sym (*'-distrib-+' {⟦ e ⟧term env}) > 
+      (⟦ e ⟧term env +' ⟦ a ⟧terms env) *' ⟦ b ⟧terms env 
+    ==<> 
+      ⟦ (e :: a) ⟧terms env *' ⟦ b ⟧terms env 
+    end
+
+
+
+  terms-eval-inject-linearize-⊕ :
     {n : Nat} -> (env : Vec Nat n) -> {e1 e2 : Syntax n}
     -> ⟦ linearize (e1 ⊕ e2) ⟧terms env == 
        ⟦ linearize e1 ⟧terms env +' ⟦ linearize e2 ⟧terms env
-  terms-eval-inject-linearize env {e1} {e2} =
+  terms-eval-inject-linearize-⊕ env {e1} {e2} =
     terms-eval-inject-++ env {linearize e1} {linearize e2}
+
+  terms-eval-inject-linearize-⊗ :
+    {n : Nat} -> (env : Vec Nat n) -> {e1 e2 : Syntax n}
+    -> ⟦ linearize (e1 ⊗ e2) ⟧terms env == 
+       ⟦ linearize e1 ⟧terms env *' ⟦ linearize e2 ⟧terms env
+  terms-eval-inject-linearize-⊗ env {e1} {e2} =
+    terms-eval-inject-all-pairs env {linearize e1} {linearize e2}
+
 
 
   terms-eval-inject-insertion-sort :
@@ -227,16 +331,44 @@ private
 
   correct : {n : Nat} -> (e : Syntax n) -> (env : Vec Nat n) -> ⟦ e ⇓⟧ env == ⟦ e ⟧ env 
   correct (var i) env = +'-right-zero
-  correct {n} (l ⊕ r) env = terms-eval-inject-insertion-sort env {linearize (l ⊕ r)}
-                            >=> terms-eval-inject-linearize env {l} {r}
-                            >=> (+'-cong 
-                                  (trans
-                                    (sym (terms-eval-inject-insertion-sort env {linearize l}))
-                                    (correct l env))
-                                  (trans
-                                    (sym (terms-eval-inject-insertion-sort env {linearize r}))
-                                    (correct r env)))
-                            
+  correct {n} (l ⊕ r) env = 
+    begin
+      ⟦ l ⊕ r ⇓⟧ env
+    ==<>
+      ⟦ insertion-sort term< (linearize (l ⊕ r)) ⟧terms env
+    ==< terms-eval-inject-insertion-sort env {linearize (l ⊕ r)} >
+      ⟦ linearize (l ⊕ r) ⟧terms env
+    ==< terms-eval-inject-linearize-⊕ env {l} {r} >
+      ⟦ linearize l ⟧terms env +' ⟦ linearize r ⟧terms env
+    ==< (+'-cong 
+            (sym (terms-eval-inject-insertion-sort env {linearize l}))
+            (sym (terms-eval-inject-insertion-sort env {linearize r}))) >
+      ⟦ insertion-sort term< (linearize l) ⟧terms env +' 
+      ⟦ insertion-sort term< (linearize r) ⟧terms env
+    ==< +'-cong (correct l env) (correct r env) >
+      ⟦ l ⟧ env +' ⟦ r ⟧ env 
+    ==<>
+      ⟦ l ⊕ r ⟧ env 
+    end
+  correct {n} (l ⊗ r) env = 
+    begin
+      ⟦ l ⊗ r ⇓⟧ env
+    ==<>
+      ⟦ insertion-sort term< (linearize (l ⊗ r)) ⟧terms env
+    ==< terms-eval-inject-insertion-sort env {linearize (l ⊗ r)} >
+      ⟦ linearize (l ⊗ r) ⟧terms env
+    ==< terms-eval-inject-linearize-⊗ env {l} {r} >
+      ⟦ linearize l ⟧terms env *' ⟦ linearize r ⟧terms env
+    ==< (*'-cong 
+            (sym (terms-eval-inject-insertion-sort env {linearize l}))
+            (sym (terms-eval-inject-insertion-sort env {linearize r}))) >
+      ⟦ insertion-sort term< (linearize l) ⟧terms env *' 
+      ⟦ insertion-sort term< (linearize r) ⟧terms env
+    ==< *'-cong (correct l env) (correct r env) >
+      ⟦ l ⟧ env *' ⟦ r ⟧ env 
+    ==<>
+      ⟦ l ⊗ r ⟧ env 
+    end
 
   
   prove : {n : Nat} -> (e1 : Syntax n) -> (e2 : Syntax n) -> (env : Vec Nat n)
@@ -307,6 +439,16 @@ solve n f hidden-normal-proof = full-reg-proof
   full-reg-proof : Eq n _==_ (curry n ⟦ e₁ ⟧) (curry n ⟦ e₂ ⟧)
   full-reg-proof = cong-curry n (⟦ e₁ ⟧) (⟦ e₂ ⟧) inner-reg-proof
 
+private
+  example1 : (a b c d : Nat) -> (a +' c) +' (b +' d) == a +' (b +' c) +' d
+  example1 = solve 4 (\ a b c d -> ((a ⊕ c) ⊕ (b ⊕ d)) , (a ⊕ (b ⊕ c)) ⊕ d) refl
 
-example : (a b c d : Nat) -> (a +' c) +' (b +' d) == a +' (b +' c) +' d
-example = solve 4 (\ a b c d -> ((a ⊕ c) ⊕ (b ⊕ d)) , (a ⊕ (b ⊕ c)) ⊕ d) refl
+  example2 : (a b c : Nat) -> (a +' b) *' c == (b *' c) +' (a *' c)
+  example2 = solve 3 (\ a b c -> (a ⊕ b) ⊗ c , (b ⊗ c) ⊕ (a ⊗ c)) refl
+
+  example3 : (a b c d : Nat) -> (a +' c) *' (b +' d) == (((a *' b +' c *' d) +' c *' b) +' a *' d)
+  example3 = solve 4 (\ a b c d -> ((a ⊕ c) ⊗ (b ⊕ d)) , 
+                                   ((((a ⊗ b) ⊕
+                                      (c ⊗ d)) ⊕
+                                     (c ⊗ b)) ⊕
+                                    (a ⊗ d))) refl

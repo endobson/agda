@@ -78,6 +78,9 @@ suc m *' n = n +' (m *' n)
 *'-left : {m n p : Nat} -> (n == p) -> n *' m == p *' m
 *'-left {m} id = cong (\x -> x *' m) id
 
+*'-cong : {m n p o : Nat} -> m == p -> n == o -> m *' n == p *' o
+*'-cong = cong2 _*'_
+
 *'-assoc : {m n p : Nat} -> (m *' n) *' p == m *' (n *' p)
 *'-assoc {zero} {_} {_} = refl
 *'-assoc {suc m} {n} {p} =
@@ -153,6 +156,20 @@ zero-one-absurd ()
 *'-only-one-right {zero} {_} ()
 *'-only-one-right {m} {zero} p = zero-one-absurd (sym (*'-right-zero {m}) >=> p)
 *'-only-one-right {suc zero} {suc zero} _ = refl
+
+
+*'-distrib-+'-left : {m n p : Nat} -> m *' (n +' p) == (m *' n) +' (m *' p)
+*'-distrib-+'-left {m} {n} {p} = 
+  begin
+    m *' (n +' p) 
+  ==< (*'-commute {m} {n +' p}) >
+    (n +' p) *' m
+  ==< (*'-distrib-+' {n} {p} {m}) >
+    n *' m +' p *' m
+  ==< (+'-cong (*'-commute {n} {m}) (*'-commute {p} {m})) >
+    (m *' n) +' (m *' p)
+  end
+
 
 data Fin : Nat -> Set where
  zero-fin : {n : Nat} -> Fin (suc n)
