@@ -10,6 +10,10 @@ data Syntax (n : Nat) : Set where
   _⊗_ : Syntax n -> Syntax n -> Syntax n
   var : Fin n -> Syntax n
 
+infixl 6 _⊕_
+infixl 7 _⊗_
+
+
 private 
   variable
     i a b c : Level
@@ -326,9 +330,6 @@ private
   ⟦ e ⇓⟧ env = ⟦ (insertion-sort term< (linearize e)) ⟧terms env
 
 
-private
-
-
   correct : {n : Nat} -> (e : Syntax n) -> (env : Vec Nat n) -> ⟦ e ⇓⟧ env == ⟦ e ⟧ env 
   correct (var i) env = +'-right-zero
   correct {n} (l ⊕ r) env = 
@@ -446,9 +447,6 @@ private
   example2 : (a b c : Nat) -> (a +' b) *' c == (b *' c) +' (a *' c)
   example2 = solve 3 (\ a b c -> (a ⊕ b) ⊗ c , (b ⊗ c) ⊕ (a ⊗ c)) refl
 
-  example3 : (a b c d : Nat) -> (a +' c) *' (b +' d) == (((a *' b +' c *' d) +' c *' b) +' a *' d)
+  example3 : (a b c d : Nat) -> (a +' c) *' (b +' d) == a *' b +' c *' d +' c *' b +' a *' d
   example3 = solve 4 (\ a b c d -> ((a ⊕ c) ⊗ (b ⊕ d)) , 
-                                   ((((a ⊗ b) ⊕
-                                      (c ⊗ d)) ⊕
-                                     (c ⊗ b)) ⊕
-                                    (a ⊗ d))) refl
+                                   (a ⊗ b) ⊕ (c ⊗ d) ⊕ (c ⊗ b) ⊕ (a ⊗ d)) refl
