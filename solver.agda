@@ -501,9 +501,7 @@ module RingSolver (R : Ring {lzero}) where
       with compare-term t1 t2
     ... | less-than = t1 :: (merge-terms1 t2 terms2 terms1)
     ... | greater-than = t2 :: (merge-terms1 t1 terms1 terms2)
-    ... | equal-to with (m1 int.+ m2)
-    ...   | (int.nonneg zero) = (merge-terms terms1 terms2)
-    ...   | _ = (normal-term (m1 int.+ m2) vars1) :: (merge-terms terms1 terms2)
+    ... | equal-to = (normal-term (m1 int.+ m2) vars1) :: (merge-terms terms1 terms2)
 
 
     insertion-sort-terms : List (NormalTerm n) -> List (NormalTerm n)
@@ -519,11 +517,19 @@ module RingSolver (R : Ring {lzero}) where
       (merge-terms
         (insertion-sort-terms (map (multiply-term t1) terms2))
         (all-products terms1 terms2))
+
+    filter-zero-multiplier-terms : List (NormalTerm n) -> List (NormalTerm n)
+    filter-zero-multiplier-terms [] = []
+    filter-zero-multiplier-terms ((normal-term (int.zero-int) vars) :: terms) =
+      filter-zero-multiplier-terms terms
+    filter-zero-multiplier-terms (term :: terms) =
+      term :: filter-zero-multiplier-terms terms
+
     
 
     normal-expr-+ : NormalExpr n -> NormalExpr n -> NormalExpr n
     normal-expr-+ (normal-expr terms1) (normal-expr terms2) =
-      (normal-expr (merge-terms terms1 terms2))
+      (normal-expr (filter-zero-multiplier-terms (merge-terms terms1 terms2)))
 
     normal-expr-* : NormalExpr n -> NormalExpr n -> NormalExpr n
     normal-expr-* (normal-expr terms1) (normal-expr terms2) =
@@ -627,6 +633,46 @@ module RingSolver (R : Ring {lzero}) where
          (sum (map (⟦_⟧term env) l-terms)) * (sum (map (⟦_⟧term env) r-terms))
     sorted-product-same-product = bot-elim NYI
 
+    filtered-terms-same-sum : 
+      {n : Nat} -> (env : (Vec Domain n)) 
+      -> (terms : List (NormalTerm n)) 
+      -> (sum (map (⟦_⟧term env) (filter-zero-multiplier-terms terms)))
+         ==
+         (sum (map (⟦_⟧term env) terms))
+    filtered-terms-same-sum env [] = refl
+    filtered-terms-same-sum env (term@(normal-term (int.zero-int) vars) :: terms) =
+      begin
+        (sum (map (⟦_⟧term env) (filter-zero-multiplier-terms (term :: terms))))
+      ==<>
+        (sum (map (⟦_⟧term env) (filter-zero-multiplier-terms terms)))
+      ==< (filtered-terms-same-sum env terms) >
+        (sum (map (⟦_⟧term env) terms))
+      ==< sym +-left-zero >
+        0# + (sum (map (⟦_⟧term env) terms))
+      ==< +-left (sym *-left-zero) >
+        0# * (product (map (lookup env) vars)) + (sum (map (⟦_⟧term env) terms))
+      ==<>
+        ⟦ term ⟧term env + (sum (map (⟦_⟧term env) terms))
+      ==<>
+        (sum (map (⟦_⟧term env) (term :: terms)))
+      end
+    filtered-terms-same-sum env (term@(normal-term (int.neg _) vars) :: terms) =
+      +-right (filtered-terms-same-sum env terms)
+    filtered-terms-same-sum env (term@(normal-term (int.pos _) vars) :: terms) =
+      +-right (filtered-terms-same-sum env terms)
+
+
+    filtered-merge-terms-same-sum : 
+      {n : Nat} -> (env : (Vec Domain n)) 
+      -> (l-terms : List (NormalTerm n)) -> (r-terms : List (NormalTerm n))
+      -> (sum (map (⟦_⟧term env) (filter-zero-multiplier-terms (merge-terms l-terms r-terms))))
+         ==
+         (sum (map (⟦_⟧term env) l-terms)) + (sum (map (⟦_⟧term env) r-terms))
+    filtered-merge-terms-same-sum env l-terms r-terms = 
+      filtered-terms-same-sum env (merge-terms l-terms r-terms) >=>
+      merge-terms-same-sum env l-terms r-terms
+
+
 
 
     correct : (e : RingSyntax n) -> (env : Vec Domain n)
@@ -725,7 +771,7 @@ module RingSolver (R : Ring {lzero}) where
         ⟦ normalize l ⟧norm env + ⟦ normalize r ⟧norm env
       normalize-split with (normalize l) | (normalize r)
       ... | (normal-expr l-terms) | (normal-expr r-terms) = 
-        merge-terms-same-sum env l-terms r-terms
+        filtered-merge-terms-same-sum env l-terms r-terms
     correct {n} (l ⊗ r) env = 
       begin
         ⟦ (l ⊗ r) ⇓⟧ env 
