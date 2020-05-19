@@ -796,24 +796,24 @@ module RingSolver (R : Ring {lzero}) where
 
 
 module Solver (S : Semiring {lzero}) where
-  private
-    open Semiring S
-  
-    ⟦_⟧ : {n : Nat} -> Syntax n -> Vec Domain n -> Domain
+  open Semiring S
+
+  module _ (n : Nat) where
+    ⟦_⟧ : Syntax n -> Vec Domain n -> Domain
     ⟦ (var i) ⟧ env = lookup env i
     ⟦ l ⊕ r ⟧ env = ⟦ l ⟧ env + ⟦ r ⟧ env
     ⟦ l ⊗ r ⟧ env = ⟦ l ⟧ env * ⟦ r ⟧ env
   
   
-    data Term : Nat -> Set where
-      var : {n : Nat} -> Fin n -> Term n
-      _⊗_ : {n : Nat} -> Term n -> Term n -> Term n
+    data Term : Set where
+      var : Fin n -> Term
+      _⊗_ : Term -> Term -> Term
   
   
-    term< : {n : Nat} -> Term n -> Term n -> Boolean
-    term< {n} t1 t2 = res
+    term< : Term -> Term -> Boolean
+    term< t1 t2 = res
       where
-      flatten : Term n -> List (Fin n)
+      flatten : Term -> List (Fin n)
       flatten (var i) = (i :: [])
       flatten (l ⊗ r) = (flatten l) ++ (flatten r)
       res : Boolean
@@ -877,44 +877,59 @@ module Solver (S : Semiring {lzero}) where
 
   
   
-    all-pairs : {n : Nat} -> List (Term n) -> List (Term n) -> List (Term n)
+    all-pairs : List Term -> List Term -> List Term
     all-pairs [] b = []
     all-pairs (e :: a) b = (map (e ⊗_) b) ++ (all-pairs a b)
   
-    linearize : {n : Nat} -> Syntax n -> List (Term n)
+    linearize : Syntax n -> List Term
     linearize (var i) = (var i) :: []
     linearize (l ⊕ r) = (linearize l) ++ (linearize r)
     linearize (l ⊗ r) = all-pairs (linearize l) (linearize r)
   
+    Meaning : Set
+    Meaning = Vec Domain n -> Domain
+
+    infix 4 _≈_
+    _≈_ : Meaning -> Meaning -> Set
+    m1 ≈ m2 = ∀ env -> (m1 env) == (m2 env)
+    
+    infixl 6 _+m_
+    _+m_ : Meaning -> Meaning -> Meaning
+    f +m g = \ env -> (f env) + (g env)
+
+    _*m_ : Meaning -> Meaning -> Meaning
+    f *m g = \ env -> (f env) * (g env)
+    
   
-    ⟦_⟧term_ : {n : Nat} -> Term n -> Vec Domain n -> Domain
+    ⟦_⟧term : Term -> Meaning
     ⟦ (var i) ⟧term env = lookup env i
-    ⟦ t1 ⊗ t2  ⟧term env = ⟦ t1  ⟧term env * ⟦ t2 ⟧term env
+    ⟦ t1 ⊗ t2  ⟧term = ⟦ t1  ⟧term *m ⟦ t2 ⟧term
+
+
   
-    ⟦_⟧terms_ : {n : Nat} -> (List (Term n)) -> Vec Domain n -> Domain
-    ⟦ l ⟧terms env = sum (map (⟦_⟧term env) l)
+    ⟦_⟧terms : List Term -> Meaning
+    ⟦ l ⟧terms env = sum (map (\ t -> ⟦ t ⟧term env) l)
   
     terms-eval-inject-++ : 
-      {n : Nat} -> (env : Vec Domain n) -> {a b : List (Term n)} 
-      -> ⟦ a ++ b ⟧terms env == ⟦ a ⟧terms env + ⟦ b ⟧terms env 
-    terms-eval-inject-++ env {a} {b} = sum-map-inject-++ (⟦_⟧term env) {a} {b}
+      {a b : List Term} -> ⟦ a ++ b ⟧terms ≈ ⟦ a ⟧terms +m ⟦ b ⟧terms 
+    terms-eval-inject-++ {a} {b} env = sum-map-inject-++ (\ t -> ⟦ t ⟧term env) {a} {b}
   
     terms-eval-inject-map-⊗ : 
-      {n : Nat} -> (env : Vec Domain n) -> {e : (Term n)} -> {b : List (Term n)} 
-      -> ⟦ (map (e ⊗_) b) ⟧terms env == ⟦ e ⟧term env * ⟦ b ⟧terms env 
-    terms-eval-inject-map-⊗ env {e} {[]} = sym (*-right-zero {⟦ e ⟧term env})
-    terms-eval-inject-map-⊗ env {e} {(e2 :: b)} =
+      {e : Term} -> {b : List Term} 
+      -> ⟦ (map (e ⊗_) b) ⟧terms ≈ ⟦ e ⟧term *m ⟦ b ⟧terms 
+    terms-eval-inject-map-⊗ {e} {[]} env = sym (*-right-zero {⟦ e ⟧term env})
+    terms-eval-inject-map-⊗ {e} {(e2 :: b)} env = 
       begin
         ⟦ (map (e ⊗_) (e2 :: b)) ⟧terms env 
       ==<>
         ⟦ (map (e ⊗_) (e2 :: [])) ++ (map (e ⊗_) b) ⟧terms env 
-      ==< terms-eval-inject-++ env {map (e ⊗_) (e2 :: [])} {map (e ⊗_) b} >
+      ==< terms-eval-inject-++ {map (e ⊗_) (e2 :: [])} {map (e ⊗_) b} env >
         ⟦ map (e ⊗_) (e2 :: []) ⟧terms env + ⟦ (map (e ⊗_) b) ⟧terms env 
       ==<>
         (⟦ e ⊗ e2 ⟧term env + 0#) + ⟦ (map (e ⊗_) b) ⟧terms env 
       ==< +-left (+-right-zero {⟦ e ⊗ e2 ⟧term env}) >
         ⟦ e ⊗ e2 ⟧term env + ⟦ (map (e ⊗_) b) ⟧terms env 
-      ==< +-right {⟦ e ⊗ e2 ⟧term env} (terms-eval-inject-map-⊗ env {e} {b}) >
+      ==< +-right {⟦ e ⊗ e2 ⟧term env} (terms-eval-inject-map-⊗ {e} {b} env) >
         ⟦ e ⊗ e2 ⟧term env + ⟦ e ⟧term env * ⟦ b ⟧terms env 
       ==<>
         ⟦ e ⟧term env * ⟦ e2 ⟧term env + ⟦ e ⟧term env * ⟦ b ⟧terms env 
@@ -926,7 +941,7 @@ module Solver (S : Semiring {lzero}) where
   
   
     terms-eval-inject-all-pairs : 
-      {n : Nat} -> (env : Vec Domain n) -> {a b : List (Term n)} 
+      (env : Vec Domain n) -> {a b : List Term} 
       -> ⟦ (all-pairs a b) ⟧terms env == ⟦ a ⟧terms env * ⟦ b ⟧terms env 
     terms-eval-inject-all-pairs env {[]} {b} = sym (*-left-zero {⟦ b ⟧terms env})
     terms-eval-inject-all-pairs env {e :: a} {b} =
@@ -934,9 +949,9 @@ module Solver (S : Semiring {lzero}) where
         ⟦ (all-pairs (e :: a) b) ⟧terms env 
       ==<>
         ⟦ (map (e ⊗_) b) ++ (all-pairs a b) ⟧terms env 
-      ==< terms-eval-inject-++ env {map (e ⊗_) b} {all-pairs a b} >
+      ==< terms-eval-inject-++ {map (e ⊗_) b} {all-pairs a b} env >
         (⟦ (map (e ⊗_) b) ⟧terms env) + (⟦ (all-pairs a b) ⟧terms env )
-      ==< +-left (terms-eval-inject-map-⊗ env {e} {b}) > 
+      ==< +-left (terms-eval-inject-map-⊗ {e} {b} env) > 
         (⟦ e ⟧term env * ⟦ b ⟧terms env) + (⟦ (all-pairs a b) ⟧terms env )
       ==< +-right {(⟦ e ⟧term env * ⟦ b ⟧terms env)} (terms-eval-inject-all-pairs env {a} {b}) > 
         (⟦ e ⟧term env * ⟦ b ⟧terms env) + (⟦ a ⟧terms env * ⟦ b ⟧terms env)
@@ -949,14 +964,14 @@ module Solver (S : Semiring {lzero}) where
   
   
     terms-eval-inject-linearize-⊕ :
-      {n : Nat} -> (env : Vec Domain n) -> {e1 e2 : Syntax n}
+      (env : Vec Domain n) -> {e1 e2 : Syntax n}
       -> ⟦ linearize (e1 ⊕ e2) ⟧terms env == 
          ⟦ linearize e1 ⟧terms env + ⟦ linearize e2 ⟧terms env
     terms-eval-inject-linearize-⊕ env {e1} {e2} =
-      terms-eval-inject-++ env {linearize e1} {linearize e2}
+      terms-eval-inject-++ {linearize e1} {linearize e2} env
   
     terms-eval-inject-linearize-⊗ :
-      {n : Nat} -> (env : Vec Domain n) -> {e1 e2 : Syntax n}
+      (env : Vec Domain n) -> {e1 e2 : Syntax n}
       -> ⟦ linearize (e1 ⊗ e2) ⟧terms env == 
          ⟦ linearize e1 ⟧terms env * ⟦ linearize e2 ⟧terms env
     terms-eval-inject-linearize-⊗ env {e1} {e2} =
@@ -965,18 +980,18 @@ module Solver (S : Semiring {lzero}) where
   
   
     terms-eval-inject-insertion-sort :
-      {n : Nat} -> (env : Vec Domain n) -> {ts : List (Term n)}
+      (env : Vec Domain n) -> {ts : List Term}
       -> ⟦ (insertion-sort term< ts) ⟧terms env == ⟦ ts ⟧terms env 
     terms-eval-inject-insertion-sort env {ts} =
-      sym (sum-map-Permutation (⟦_⟧term env) (Permutation-insertion-sort term< ts))
+      sym (sum-map-Permutation (\ t -> ⟦ t ⟧term env) (Permutation-insertion-sort term< ts))
   
-    ⟦_⇓⟧ : {n : Nat} -> Syntax n -> Vec Domain n -> Domain
+    ⟦_⇓⟧ : Syntax n -> Meaning
     ⟦ e ⇓⟧ env = ⟦ (insertion-sort term< (linearize e)) ⟧terms env
   
   
-    correct : {n : Nat} -> (e : Syntax n) -> (env : Vec Domain n) -> ⟦ e ⇓⟧ env == ⟦ e ⟧ env 
+    correct : (e : Syntax n) -> (env : Vec Domain n) -> ⟦ e ⇓⟧ env == ⟦ e ⟧ env 
     correct (var i) env = +-right-zero
-    correct {n} (l ⊕ r) env = 
+    correct (l ⊕ r) env = 
       begin
         ⟦ l ⊕ r ⇓⟧ env
       ==<>
@@ -995,7 +1010,7 @@ module Solver (S : Semiring {lzero}) where
       ==<>
         ⟦ l ⊕ r ⟧ env 
       end
-    correct {n} (l ⊗ r) env = 
+    correct (l ⊗ r) env = 
       begin
         ⟦ l ⊗ r ⇓⟧ env
       ==<>
@@ -1014,34 +1029,35 @@ module Solver (S : Semiring {lzero}) where
       ==<>
         ⟦ l ⊗ r ⟧ env 
       end
+
+    solve : (f : Nary n (Syntax n) ((Syntax n) × (Syntax n)))
+            ->  Eqʰ n _==_ (curry n ⟦  (proj₁ (close n f)) ⇓⟧) (curry n ⟦ proj₂ (close n f) ⇓⟧)
+            ->  Eq n _==_ (curry n ⟦ proj₁ (close n f) ⟧) (curry n ⟦ proj₂ (close n f) ⟧)
+    solve f hidden-normal-proof = full-reg-proof
+      where
+      e₁ : Syntax n
+      e₁ = proj₁ (close n f)
+      e₂ : Syntax n
+      e₂ = proj₂ (close n f)
+
+      full-normal-proof : Eq n _==_ (curry n ⟦ e₁ ⇓⟧) (curry n ⟦ e₂ ⇓⟧)
+      full-normal-proof = unhide-∀ⁿ n hidden-normal-proof
+    
+      inner-normal-proof : (ρ : (Vec Domain n)) -> (⟦ e₁ ⇓⟧ ρ) == (⟦ e₂ ⇓⟧ ρ)
+      inner-normal-proof = cong-curry⁻¹ n (⟦ e₁ ⇓⟧) (⟦ e₂ ⇓⟧) full-normal-proof
+
+      prove : (ρ : Vec Domain n) -> ⟦ e₁ ⇓⟧ ρ == ⟦ e₂ ⇓⟧ ρ -> ⟦ e₁ ⟧ ρ == ⟦ e₂ ⟧ ρ
+      prove ρ pr = (sym (correct e₁ ρ)) >=> pr >=> (correct e₂ ρ)
+    
+      inner-reg-proof : (ρ : (Vec Domain n)) -> (⟦ e₁ ⟧ ρ) == (⟦ e₂ ⟧ ρ)
+      inner-reg-proof v = (prove v (inner-normal-proof v))
+    
+      full-reg-proof : Eq n _==_ (curry n ⟦ e₁ ⟧) (curry n ⟦ e₂ ⟧)
+      full-reg-proof = cong-curry n (⟦ e₁ ⟧) (⟦ e₂ ⟧) inner-reg-proof
   
     
   
   
-  solve : (n : Nat) -> (f : Nary n (Syntax n) ((Syntax n) × (Syntax n)))
-          ->  Eqʰ n _==_ (curry n ⟦ proj₁ (close n f) ⇓⟧) (curry n ⟦ proj₂ (close n f) ⇓⟧)
-          ->  Eq n _==_ (curry n ⟦ proj₁ (close n f) ⟧) (curry n ⟦ proj₂ (close n f) ⟧)
-  solve n f hidden-normal-proof = full-reg-proof
-    where
-    e₁ : Syntax n
-    e₁ = proj₁ (close n f)
-    e₂ : Syntax n
-    e₂ = proj₂ (close n f)
-
-    full-normal-proof : Eq n _==_ (curry n ⟦ e₁ ⇓⟧) (curry n ⟦ e₂ ⇓⟧)
-    full-normal-proof = unhide-∀ⁿ n hidden-normal-proof
-  
-    inner-normal-proof : (ρ : (Vec Domain n)) -> (⟦ e₁ ⇓⟧ ρ) == (⟦ e₂ ⇓⟧ ρ)
-    inner-normal-proof = cong-curry⁻¹ n (⟦ e₁ ⇓⟧) (⟦ e₂ ⇓⟧) full-normal-proof
-
-    prove : (ρ : Vec Domain n) -> ⟦ e₁ ⇓⟧ ρ == ⟦ e₂ ⇓⟧ ρ -> ⟦ e₁ ⟧ ρ == ⟦ e₂ ⟧ ρ
-    prove ρ pr = (sym (correct e₁ ρ)) >=> pr >=> (correct e₂ ρ)
-  
-    inner-reg-proof : (ρ : (Vec Domain n)) -> (⟦ e₁ ⟧ ρ) == (⟦ e₂ ⟧ ρ)
-    inner-reg-proof v = (prove v (inner-normal-proof v))
-  
-    full-reg-proof : Eq n _==_ (curry n ⟦ e₁ ⟧) (curry n ⟦ e₂ ⟧)
-    full-reg-proof = cong-curry n (⟦ e₁ ⟧) (⟦ e₂ ⟧) inner-reg-proof
 
 module NatSolver = Solver NatSemiring
 module IntSolver = Solver IntSemiring
