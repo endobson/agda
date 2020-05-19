@@ -14,6 +14,16 @@ Pos' : (n : Nat) -> Set
 Pos' zero = Bot
 Pos' (suc x) = Top
 
+dec : (n : Nat) -> {Pos' n} -> Nat
+dec (suc n) = n
+
+dec0 : (n : Nat) -> Nat
+dec0 zero = zero
+dec0 (suc n) = n
+
+suc-injective : {m n : Nat} -> suc m == suc n -> m == n
+suc-injective p i = dec0 (p i)
+
 infixl 6 _+'_
 _+'_ : Nat -> Nat -> Nat
 zero +' n = n
@@ -147,18 +157,20 @@ suc m *' n = n +' (m *' n)
 *'-right-one {m} = *'-commute {m} >=> *'-left-one
 
 
-zero-one-absurd : {A : Set} -> 0 == 1 -> A
-zero-one-absurd ()
+
+zero-suc-absurd : {A : Set} {x : Nat} -> 0 == (suc x) -> A
+zero-suc-absurd path = bot-elim (subst Pos' (sym path) tt)
 
 *'-only-one-left : {m n : Nat} -> m *' n == 1 -> m == 1
-*'-only-one-left {zero} {_} ()
-*'-only-one-left {m} {zero} p = zero-one-absurd (sym (*'-right-zero {m}) >=> p)
 *'-only-one-left {suc zero} {suc zero} _ = refl
+*'-only-one-left {zero} {_} p = zero-suc-absurd p
+*'-only-one-left {m} {zero} p = zero-suc-absurd (sym (*'-right-zero {m}) >=> p)
+*'-only-one-left {suc (suc m)} {suc n} p =
+  zero-suc-absurd ((sym (suc-injective p)) >=> (+'-commute {n}))
+*'-only-one-left {suc m} {suc (suc n)} p = zero-suc-absurd (sym (suc-injective p))
 
 *'-only-one-right : {m n : Nat} -> m *' n == 1 -> n == 1
-*'-only-one-right {zero} {_} ()
-*'-only-one-right {m} {zero} p = zero-one-absurd (sym (*'-right-zero {m}) >=> p)
-*'-only-one-right {suc zero} {suc zero} _ = refl
+*'-only-one-right {m} {n} p = *'-only-one-left {n} {m} (*'-commute {n} {m} >=> p)
 
 
 *'-distrib-+'-left : {m n p : Nat} -> m *' (n +' p) == (m *' n) +' (m *' p)
@@ -186,6 +198,25 @@ nat->fin : (n : Nat) -> Fin (suc n)
 nat->fin zero = zero-fin
 nat->fin (suc n) = suc-fin (nat->fin n)
 
+
+private
+  data Add : Nat -> Nat -> Nat -> Set where
+    add-zero : ∀ n -> Add n zero n
+    add-suc : ∀ {a b c} -> Add a b c -> Add (suc a) (suc b) c
+
+  add : (m : Nat) -> (n : Nat) -> Add (m +' n) m n
+  add zero n = add-zero n
+  add (suc m) n = add-suc (add m n)
+
+  add-path-in : ∀ {a b c} -> a +' b == c -> Add c a b
+  add-path-in {a} {b} p = (subst (\ c -> (Add c a b)) p (add a b))
+
+  add-path-out : ∀ {a b c} -> Add c a b -> a +' b == c
+  add-path-out (add-zero b) = refl
+  add-path-out (add-suc p) = (cong suc (add-path-out p))
+
+  add-commute : ∀ {a b c} -> Add c a b -> Add c b a
+  add-commute {a} {b} pr = (add-path-in ((+'-commute {b} {a}) >=> (add-path-out pr)))
 
 data _≤_ : Nat -> Nat -> Set where
  zero-≤ : {n : Nat} -> zero ≤ n
@@ -252,20 +283,20 @@ dec-< (inc-≤ <) = <
 ≤->< p = inc-≤ p 
 
 
-≤-a+'b==c' : {a b c : Nat} -> a +' b == c -> b ≤ c
-≤-a+'b==c' {zero} {b} refl = same-≤ b
-≤-a+'b==c' {suc a} {b} {suc c} refl = suc-≤ (≤-a+'b==c' {a} {b} {c} refl)
+≤-a+'b==c' : {a b c : Nat} -> Add c a b -> b ≤ c
+≤-a+'b==c' (add-zero b) = (same-≤ b)
+≤-a+'b==c' (add-suc p) = suc-≤ (≤-a+'b==c' p)
 
-≤-a+'b==c : {a b c : Nat} -> a +' b == c -> a ≤ c
-≤-a+'b==c {a} {b} pr = ≤-a+'b==c' (+'-commute {b} {a} >=> pr)
+≤-a+'b==c : {a b c : Nat} -> Add c a b -> a ≤ c
+≤-a+'b==c pr = ≤-a+'b==c' (add-commute pr)
 
 <-a+'b<c' : {a b c : Nat} -> (a +' b) < c -> b < c
 <-a+'b<c' {zero} {b} {c} pr = pr
 <-a+'b<c' {suc a} {b} {suc c} (inc-≤ pr) = suc-< (<-a+'b<c' pr)
 
 <->!= : {m n : Nat} -> m < n -> m != n
-<->!= (inc-≤ zero-≤) ()
-<->!= (inc-≤ rec@(inc-≤ _)) refl = <->!= rec refl
+<->!= (inc-≤ zero-≤) pr = zero-suc-absurd pr
+<->!= (inc-≤ rec@(inc-≤ _)) p = (<->!= rec) (suc-injective p)
 
 ≤-antisym : {m n : Nat} -> m ≤ n -> n ≤ m -> m == n
 ≤-antisym zero-≤ zero-≤ = refl
@@ -319,15 +350,12 @@ induction {P} z f (suc m) = f (induction {P} z f m)
 --   (m : Nat) -> P m
 -- strong-induction z f m = strong-induction' z f m id-≤
 
-suc-injective :  {m n : Nat} -> suc m == suc n -> m == n
-suc-injective refl = refl
-
 decide-nat : (x : Nat) -> (y : Nat) -> Dec (x == y)
 decide-nat zero zero = yes refl
-decide-nat zero (suc n) = no (\ () )
-decide-nat (suc m) zero = no (\ () )
+decide-nat zero (suc n) = no (\ p -> zero-suc-absurd p)
+decide-nat (suc m) zero = no (\ p -> zero-suc-absurd (sym p))
 decide-nat (suc m) (suc n) with (decide-nat m n) 
-...  | (yes refl) = yes refl
+...  | (yes refl) = yes (cong suc refl)
 ...  | (no f) = no (\ pr -> f (suc-injective pr) )
 
 
