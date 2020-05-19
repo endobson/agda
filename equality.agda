@@ -1,3 +1,5 @@
+{-# OPTIONS --cubical #-}
+
 module equality where
 
 open import Level

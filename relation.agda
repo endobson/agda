@@ -1,3 +1,5 @@
+{-# OPTIONS --cubical #-}
+
 module relation where
 
 open import Level

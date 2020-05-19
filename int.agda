@@ -1,3 +1,5 @@
+{-# OPTIONS --cubical #-}
+
 module int where
 
 open import equality

@@ -1,3 +1,5 @@
+{-# OPTIONS --cubical #-}
+
 module div where
 
 open import equality

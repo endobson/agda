@@ -1,3 +1,5 @@
+{-# OPTIONS --cubical #-}
+
 module list where
 
 open import Level
@@ -38,7 +40,7 @@ non-empty-list-binary-rec : (l : List A) -> {NonEmpty l} -> NonEmptyListBinaryRe
 non-empty-list-binary-rec (e :: []) = elem e
 non-empty-list-binary-rec (e :: l@(_ :: _)) = (elem e) :++: (non-empty-list-binary-rec l)
 
-data ConcatTo {A : Set a} : List A -> List A -> List A -> Set where
+data ConcatTo {A : Set a} : List A -> List A -> List A -> Set a where
   concat-to-empty : ∀ as -> ConcatTo as [] as
   concat-to-cons : ∀ {as bs cs} a -> ConcatTo as bs cs -> ConcatTo (a :: as) (a :: bs) cs
 

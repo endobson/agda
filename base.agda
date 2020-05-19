@@ -1,6 +1,8 @@
+{-# OPTIONS --cubical #-}
+
 module base where
 
-open import Level using (Level; _⊔_; suc)
+open import Level
 
 infix 4 _==_
 data _==_ {a} {A : Set a} (x : A) : A -> Set a where
@@ -29,7 +31,7 @@ data Dec {a : Level} (A : Set a) : Set a where
   yes : A -> Dec A
   no : ¬ A -> Dec A
 
-data exists : {A : Set} -> (B : A -> Set) -> Set where
+data exists : {A : Set} -> (B : A -> Set) -> Set (suc zero) where
  existence : {A : Set} -> {B : A -> Set} -> (x : A) -> (y : B x) -> exists B
 
 infixr 4 _,_

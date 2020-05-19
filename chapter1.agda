@@ -1,3 +1,5 @@
+{-# OPTIONS --cubical #-}
+
 module chapter1 where
 
 open import equality

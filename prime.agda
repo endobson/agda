@@ -1,3 +1,5 @@
+{-# OPTIONS --cubical #-}
+
 module prime where
 
 open import base

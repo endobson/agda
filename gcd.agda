@@ -1,3 +1,5 @@
+{-# OPTIONS --cubical #-}
+
 module gcd where
 
 open import base

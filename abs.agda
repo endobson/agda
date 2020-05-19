@@ -1,3 +1,5 @@
+{-# OPTIONS --cubical #-}
+
 module abs where
 
 open import equality

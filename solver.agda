@@ -1,3 +1,5 @@
+{-# OPTIONS --cubical #-}
+
 module solver where
 
 open import base
