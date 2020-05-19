@@ -31,6 +31,13 @@ trans p1 p2 = refl ∙∙ p1 ∙∙ p2
 subst : {a p : Level} -> {A : Set a} -> {x y : A} -> (P : A → Set p) -> x == y -> P x -> P y
 subst P path = transport (\ i -> (P (path i)))
 
+path->id : ∀ {i} {A : Set i} {x y : A} -> x == y -> x === y
+path->id {x = x} {y = y} path = (subst (\ z -> x === z) path refl-===)
+
+id->path : ∀ {i} {A : Set i} {x y : A} -> x === y -> x == y
+id->path refl-=== = refl
+
+
 infix  1 begin_
 infixr 2 _==<>_ _==<_>_
 infix  3 _end
@@ -49,6 +56,9 @@ x end  =  refl
 
 _!=_ : {a : Level} -> {A : Set a} -> A -> A -> Set a
 x != y = ¬ (x == y)
+
+_!==_ : {a : Level} -> {A : Set a} -> A -> A -> Set a
+x !== y = ¬ (x === y)
 
 
 infixl 20 _>=>_

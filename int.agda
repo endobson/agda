@@ -93,7 +93,7 @@ sub1-add1-id {neg (suc n')} = refl
 add1-extract-left : {m n : Int} -> add1 m + n == add1 (m + n)
 sub1-extract-left : {m n : Int} -> sub1 m + n == sub1 (m + n)
 add1-extract-left {nonneg m'} = refl
-add1-extract-left {neg zero} {n} rewrite add1-sub1-id {n} = refl
+add1-extract-left {neg zero} {n} rewrite (path->id (add1-sub1-id {n})) = refl
 add1-extract-left {neg (suc m')} {n} = 
   begin
     add1 (neg (suc m')) + n
@@ -189,7 +189,7 @@ add1-extract-right : {m n : Int} -> m + add1 n == add1 (m + n)
 add1-extract-right {nonneg zero} {n} = refl
 add1-extract-right {nonneg (suc m')} {n} = cong add1 (add1-extract-right {nonneg m'})
 add1-extract-right {neg zero} {n}
-  rewrite add1-sub1-id {n} | sub1-add1-id {n} =
+  rewrite (path->id (add1-sub1-id {n})) | (path->id (sub1-add1-id {n})) =
   refl
 add1-extract-right {neg (suc m')} {n} =
   begin
@@ -214,7 +214,7 @@ sub1-extract-right : {m n : Int} -> m + sub1 n == sub1 (m + n)
 sub1-extract-right {neg zero} {n} = refl
 sub1-extract-right {neg (suc m')} {n} = cong sub1 (sub1-extract-right {neg m'})
 sub1-extract-right {nonneg zero} {n}
-  rewrite sub1-add1-id {n} | add1-sub1-id {n} =
+  rewrite (path->id (sub1-add1-id {n})) | (path->id (add1-sub1-id {n})) =
   refl
 sub1-extract-right {nonneg (suc m')} {n} =
   begin
@@ -833,16 +833,22 @@ minus-extract-both {m} {n} =
 
 
 add1-disjoint : {m : Int} -> add1 m != m
-add1-disjoint {zero-int} ()
-add1-disjoint {pos _} ()
-add1-disjoint {neg zero} ()
-add1-disjoint {neg (suc _)} ()
+add1-disjoint {m} p = rec m (path->id p)
+  where
+  rec : (m : Int) -> add1 m !== m
+  rec zero-int ()
+  rec (pos _) ()
+  rec (neg zero) ()
+  rec (neg (suc _)) ()
 
 sub1-disjoint : {m : Int} -> sub1 m != m
-sub1-disjoint {zero-int} ()
-sub1-disjoint {neg _} ()
-sub1-disjoint {pos zero} ()
-sub1-disjoint {pos (suc _)} ()
+sub1-disjoint {m} p = rec m (path->id p)
+  where
+  rec : (m : Int) -> sub1 m !== m
+  rec zero-int ()
+  rec (neg _) ()
+  rec (pos zero) ()
+  rec (pos (suc _)) ()
 
 
 +-right-id : {m n : Int} -> m + n == m -> n == (int 0)
@@ -878,8 +884,10 @@ sub1-disjoint {pos (suc _)} ()
   bot-elim (subst Pos pr (*-Neg-Neg {neg m} {neg n} tt tt))
 
 *-left-id : {m n : Int} -> (NonZero n) -> m * n == n -> m == (int 1)
-*-left-id {zero-int} {pos _} tt ()
-*-left-id {zero-int} {neg _} tt ()
+*-left-id {zero-int} {pos _} tt p with (path->id p)
+... | ()
+*-left-id {zero-int} {neg _} tt p with (path->id p)
+... | ()
 *-left-id {pos zero} {_} _ _ = refl
 *-left-id {pos (suc m)} {pos n} nz pr =
   bot-elim (subst Pos (+-right-id pr) (*-Pos-Pos {pos m} {pos n} tt tt))
@@ -902,17 +910,24 @@ a ^ (suc b) = a * a ^ b
 
 
 nonneg-injective : {m n : Nat} -> nonneg m == nonneg n -> m == n
-nonneg-injective refl = refl
+nonneg-injective p with (path->id p)
+...  | refl-=== = refl
+
 neg-injective : {m n : Nat} -> neg m == neg n -> m == n
-neg-injective refl = refl
+neg-injective p with (path->id p)
+...  | refl-=== = refl
+
+nonneg-neg-absurd : {m n : Nat} -> nonneg m == neg n -> Bot
+nonneg-neg-absurd p with (path->id p)
+...  | ()
 
 
 decide-int : (x : Int) -> (y : Int) -> Dec (x == y)
 decide-int (nonneg m) (nonneg n) with decide-nat m n
-... | (yes refl) = yes refl
+... | (yes p) = yes (cong nonneg p)
 ... | (no f) = no (\ pr -> f (nonneg-injective pr))
 decide-int (neg m) (neg n) with decide-nat m n
-... | (yes refl) = yes refl
+... | (yes p) = yes (cong neg p)
 ... | (no f) = no (\ pr -> f (neg-injective pr))
-decide-int (nonneg m) (neg n) = no (\ () )
-decide-int (neg m) (nonneg n) = no (\ () )
+decide-int m@(nonneg _) n@(neg _) = no nonneg-neg-absurd
+decide-int m@(neg _) n@(nonneg _) = no (\ p -> nonneg-neg-absurd (sym p))

@@ -16,11 +16,11 @@ open import Agda.Primitive.Cubical public
            ; primTransp     to transp
            ; itIsOne        to 1=1 )
 
--- infix 4 _==_
--- data _==_ {a} {A : Set a} (x : A) : A -> Set a where
---   refl : x == x
--- 
--- {-# BUILTIN EQUALITY _==_  #-}
+infix 4 _===_
+data _===_ {a} {A : Set a} (x : A) : A -> Set a where
+  refl-=== : x === x
+
+{-# BUILTIN EQUALITY _===_  #-}
 
 
 Path : ∀ {ℓ} (A : Set ℓ) → A → A → Set ℓ
