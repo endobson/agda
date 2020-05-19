@@ -3,12 +3,35 @@
 module base where
 
 open import Level
+open import Agda.Primitive.Cubical public
+open import Agda.Builtin.Cubical.Path public
+
+open import Agda.Primitive.Cubical public
+  renaming ( primIMin       to _∧_  -- I → I → I
+           ; primIMax       to _∨_  -- I → I → I
+           ; primINeg       to ~_   -- I → I
+           ; isOneEmpty     to empty
+           ; primComp       to comp
+           ; primHComp      to hcomp
+           ; primTransp     to transp
+           ; itIsOne        to 1=1 )
+
+-- infix 4 _==_
+-- data _==_ {a} {A : Set a} (x : A) : A -> Set a where
+--   refl : x == x
+-- 
+-- {-# BUILTIN EQUALITY _==_  #-}
+
+
+Path : ∀ {ℓ} (A : Set ℓ) → A → A → Set ℓ
+Path A a b = PathP (λ _ → A) a b
 
 infix 4 _==_
-data _==_ {a} {A : Set a} (x : A) : A -> Set a where
-  refl : x == x
+_==_ : {i : Level} -> {A : Set i} → A → A → Set i
+_==_ {A = A} = Path A
 
-{-# BUILTIN EQUALITY _==_  #-}
+refl : {i : Level} {A : Set i} {x : A} → Path A x x
+refl {x = x} = \ i -> x
 
 data Bot : Set where
 
