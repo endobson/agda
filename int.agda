@@ -1,6 +1,7 @@
 module int where
 
 open import equality
+open import base
 open import nat
 
 data Int : Set where

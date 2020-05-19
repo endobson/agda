@@ -1,5 +1,6 @@
 module prime where
 
+open import base
 open import equality
 open import int
 open import abs

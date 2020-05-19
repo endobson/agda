@@ -1,5 +1,6 @@
 module nat where
 
+open import base
 open import equality
 
 data Nat : Set where

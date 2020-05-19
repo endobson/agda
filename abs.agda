@@ -1,6 +1,7 @@
 module abs where
 
 open import equality
+open import base
 open import nat
 open import int
 

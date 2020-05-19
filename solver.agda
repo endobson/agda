@@ -1,6 +1,8 @@
 module solver where
 
+open import base
 open import equality
+open import relation
 open import nat
 open import Level using (Level; _⊔_) renaming (suc to lsuc; zero to lzero)
 import int

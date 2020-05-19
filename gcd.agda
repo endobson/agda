@@ -1,5 +1,6 @@
 module gcd where
 
+open import base
 open import equality
 open import abs
 open import nat

@@ -1,6 +1,7 @@
 module chapter1 where
 
 open import equality
+open import base
 open import abs
 open import nat
 open import int
