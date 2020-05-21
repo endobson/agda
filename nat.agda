@@ -283,12 +283,19 @@ dec-< (inc-≤ <) = <
 ≤->< p = inc-≤ p 
 
 
-≤-a+'b==c' : {a b c : Nat} -> Add c a b -> b ≤ c
-≤-a+'b==c' (add-zero b) = (same-≤ b)
-≤-a+'b==c' (add-suc p) = suc-≤ (≤-a+'b==c' p)
+≤-a+'b==c'-Add : {a b c : Nat} -> Add c a b -> b ≤ c
+≤-a+'b==c'-Add (add-zero b) = (same-≤ b)
+≤-a+'b==c'-Add (add-suc p) = suc-≤ (≤-a+'b==c'-Add p)
 
-≤-a+'b==c : {a b c : Nat} -> Add c a b -> a ≤ c
-≤-a+'b==c pr = ≤-a+'b==c' (add-commute pr)
+≤-a+'b==c-Add : {a b c : Nat} -> Add c a b -> a ≤ c
+≤-a+'b==c-Add pr = ≤-a+'b==c'-Add (add-commute pr)
+
+
+≤-a+'b==c' : {a b c : Nat} -> a +' b == c -> b ≤ c
+≤-a+'b==c' {a} {b} p = transport (\i -> b ≤ p i) (≤-a+'b==c'-Add (add a b))
+
+≤-a+'b==c : {a b c : Nat} -> a +' b == c -> a ≤ c
+≤-a+'b==c {a} {b} p = transport (\i -> a ≤ p i) (≤-a+'b==c-Add (add a b))
 
 <-a+'b<c' : {a b c : Nat} -> (a +' b) < c -> b < c
 <-a+'b<c' {zero} {b} {c} pr = pr

@@ -128,13 +128,7 @@ abs-inject-* {neg m} {zero-int} =
 --- abs'
 
 abs->abs' : {m n : Int} -> abs m == abs n -> abs' m == abs' n
-abs->abs' {nonneg _} {nonneg _} refl = refl
-abs->abs' {pos m} {neg n} refl = refl
-abs->abs' {neg m} {pos n} refl = refl
-abs->abs' {neg m} {neg n} refl = refl
-abs->abs' {zero-int} {neg n} ()
-abs->abs' {neg n} {zero-int} ()
-
+abs->abs' pr = cong abs' pr 
 
 abs'-inject-add1 : {m : Int} -> (NonNeg m) -> abs' (add1 m) == suc (abs' m)
 abs'-inject-add1 {nonneg _} _ = refl
