@@ -45,7 +45,7 @@ gcd-negate (gcd a b d non-neg d-div-a d-div-b f) =
     xa2 : x div (- (- a))
     xa2 = (div-negate xa)
     rewritten-xa : x div a
-    rewritten-xa rewrite sym (minus-double-inverse {a}) = xa2
+    rewritten-xa rewrite (path->id (sym (minus-double-inverse {a}))) = xa2
 
 gcd-remove-abs : {a b d : Int} -> GCD (abs a) b d -> GCD a b d
 gcd-remove-abs {zero-int} g = g
@@ -62,15 +62,15 @@ linear-combo-refl : {n : Int}  -> LinearCombination n n n
 linear-combo-refl {n} = (linear-combo n n n zero-int (pos zero) {+-right-zero {n}})
 
 linear-combo-sym : {a b d : Int} -> LinearCombination a b d -> LinearCombination b a d
-linear-combo-sym (linear-combo a b d x y {refl}) =
-  (linear-combo b a d y x {+-commute {y * b}})
+linear-combo-sym (linear-combo a b d x y {p}) =
+  (linear-combo b a d y x {+-commute {y * b} >=> p})
 
 linear-combo-zero : {n : Int}  -> LinearCombination n zero-int n
 linear-combo-zero {n} =
   (linear-combo-sym (linear-combo zero-int n n zero-int (pos zero) {+-right-zero {n}}))
 
 linear-combo-negate : {a b d : Int} -> LinearCombination a b d -> LinearCombination (- a) b d
-linear-combo-negate (linear-combo a b d x y {refl}) =
+linear-combo-negate (linear-combo a b d x y {p}) =
   (linear-combo (- a) b d (- x) y {proof})
   where
     proof : (- x * - a) + y * b ==  d
@@ -83,13 +83,13 @@ linear-combo-negate (linear-combo a b d x y {refl}) =
         - (- (x * a)) + y * b
       ==< +-left (minus-double-inverse {x * a}) >
         x * a + y * b
-      ==<>
+      ==< p >
         d
       end 
 
 
 linear-combo-negate-result : {a b d : Int} -> LinearCombination a b d -> LinearCombination a b (- d)
-linear-combo-negate-result (linear-combo a b d x y {refl}) =
+linear-combo-negate-result (linear-combo a b d x y {p}) =
   (linear-combo a b (- d) (- x) (- y) {proof})
   where
     proof : (- x * a) + (- y * b) == - d
@@ -102,7 +102,7 @@ linear-combo-negate-result (linear-combo a b d x y {refl}) =
         - (x * a) + - (y * b)
       ==< sym (minus-distrib-+ {x * a}) >
         - ((x * a) + (y * b))
-      ==<>
+      ==< cong minus p >
         - d
       end 
 
@@ -114,9 +114,9 @@ linear-combo-abs {a} {b} {neg _} lc = (linear-combo-negate-result lc)
 
 
 linear-combo->gcd : {a b d : Int} -> LinearCombination a b d -> d div a -> d div b -> GCD a b (abs d)
-linear-combo->gcd (linear-combo a b d x y {refl}) da db = 
+linear-combo->gcd (linear-combo a b d x y {p}) da db = 
   (gcd a b (abs d) tt (div-abs-left da) (div-abs-left db)
-    (\ z za zb -> (div-abs-right (div-linear za zb {x} {y}))))
+    (\ z za zb -> transport (\i -> z div abs (p i)) (div-abs-right (div-linear za zb {x} {y}))))
 
 data LinearGCD : Int -> Int -> Int -> Set where
  linear-gcd : {a : Int} -> {b : Int} -> {d : Int}
@@ -145,22 +145,22 @@ decide-compare3 zero zero = compare3-= refl
 decide-compare3 zero (suc n) = compare3-< {n} (+-commute {pos n}) ≤-proof
   where 
   ≤-proof : (suc n +' zero) ≤ suc n
-  ≤-proof rewrite (+'-right-zero {suc n}) = same-≤ (suc n)
+  ≤-proof rewrite (path->id (+'-right-zero {suc n})) = same-≤ (suc n)
 decide-compare3 (suc m) zero = compare3-> {m} (+-commute {pos m}) (same-≤ (suc (m +' zero)))
 decide-compare3 (suc m) (suc n) = fix (decide-compare3 m n)
   where fix : CompareNat3 m n -> CompareNat3 (suc m) (suc n)
-        fix (compare3-= refl) = (compare3-= refl) 
+        fix (compare3-= p) = (compare3-= (cong suc p))
         fix (compare3-< {a} pr rec-≤) =
           compare3-< {a} (add1-extract-right {pos a} >=> cong add1 pr) ≤-proof
           where 
           ≤-proof : (suc a +' suc m) ≤ (suc m +' suc n)
-          ≤-proof rewrite (+'-right-suc {a} {m}) | (+'-right-suc {m} {n}) = 
+          ≤-proof rewrite (path->id (+'-right-suc {a} {m})) | (path->id (+'-right-suc {m} {n})) = 
             inc-≤ (suc-≤ rec-≤)
         fix (compare3-> {a} pr rec-≤) = 
           compare3-> {a} (add1-extract-right {pos a} >=> cong add1 pr) ≤-proof
           where 
           ≤-proof : (suc a +' suc n) ≤ (suc m +' suc n)
-          ≤-proof rewrite (+'-right-suc {a} {n}) | (+'-right-suc {m} {n}) = 
+          ≤-proof rewrite (path->id (+'-right-suc {a} {n})) | (path->id (+'-right-suc {m} {n})) = 
             inc-≤ (suc-≤ rec-≤)
 
 
@@ -172,7 +172,7 @@ eulers-helper-gcd m n {a} pr (gcd _ (pos m) d non-neg d-div-a' d-div-m' f) =
   gcd (pos m) (pos n) d non-neg d-div-m' div-proof rec-proof
   where
   div-proof : d div (pos n)
-  div-proof = ==-div-right pr (div-sum d-div-a' d-div-m') 
+  div-proof = transport (\i -> d div (pr i)) (div-sum d-div-a' d-div-m') 
   rec-proof : (x : Int) -> x div (pos m) -> x div (pos n) -> x div d
   rec-proof x x-div-m' x-div-n' = f x x-div-a' x-div-m'
     where
@@ -192,13 +192,13 @@ eulers-helper-gcd m n {a} pr (gcd _ (pos m) d non-neg d-div-a' d-div-m' f) =
         pos a
       end 
     x-div-a' : x div (pos a)
-    x-div-a' = ==-div-right mn==a x-div-mn
+    x-div-a' = transport (\i -> x div (mn==a i)) x-div-mn
 
 eulers-helper-lc : (m : Nat) -> (n : Nat) -> 
                    {a : Nat} -> (pos a + pos m == pos n) -> {d : Int} -> 
                    LinearCombination (pos a) (pos m) d 
                    -> LinearCombination (pos m) (pos n) d
-eulers-helper-lc m' n' {a'} add-pr (linear-combo a m d x y {refl}) =
+eulers-helper-lc m' n' {a'} add-pr (linear-combo a m d x y {pr}) =
   (linear-combo m n d z x {proof})
   where
   n : Int
@@ -231,7 +231,7 @@ eulers-helper-lc m' n' {a'} add-pr (linear-combo a m d x y {refl}) =
        x * a + ((x + - x) + y) * m
     ==< +-right {x * a} (*-left (+-left (add-minus-zero {x}))) >
        x * a + y * m
-    ==<>
+    ==< pr >
       d
     end
 
@@ -249,7 +249,10 @@ pos-eulers-algo' : (b : Nat) -> (m : Nat) -> (n : Nat)
 pos-eulers-algo' (suc b) m n size-pr = split (decide-compare3 m n)
   where
   split : CompareNat3 m n -> exists (LinearGCD (pos m) (pos n))
-  split (compare3-= refl) = existence (pos m) (linear-gcd linear-combo-refl gcd-refl)
+  split (compare3-= pr) = 
+    transport
+      (\i -> exists (LinearGCD (pos m) (pos (pr i))))
+      (existence (pos m) (linear-gcd linear-combo-refl gcd-refl))
   split (compare3-< {a} pr rec-size-pr) = handle (pos-eulers-algo' b a m new-size-pr)
     where
     handle : (exists (LinearGCD (pos a) (pos m))) -> (exists (LinearGCD (pos m) (pos n)))
@@ -311,7 +314,7 @@ gcd->linear-combo : {a b d : Int} -> GCD a b d -> LinearCombination a b d
 gcd->linear-combo {a} {b} {d} gcd-d = handle (eulers-algo a b)
   where
   handle : exists (LinearGCD a b) -> LinearCombination a b d
-  handle (existence d' (linear-gcd lc gcd-d')) rewrite (gcd-unique gcd-d gcd-d') = lc
+  handle (existence d' (linear-gcd lc gcd-d')) rewrite (path->id (gcd-unique gcd-d gcd-d')) = lc
 
 data GCD' : Nat -> Nat -> Nat -> Set where
  gcd' : (a : Nat) -> (b : Nat) -> (d : Nat) -> 
@@ -372,7 +375,7 @@ prime-gcd' : (a b : Nat) -> {Pos' a} -> {Pos' b}
 prime-gcd' a@(suc _) b@(suc _) pf = (gcd' a b 1 div'-one div'-one f)
   where
   f : (x : Nat) -> x div' a -> x div' b -> x div' 1
-  f zero x%a x%b with (div'-zero->zero x%a)
+  f zero x%a x%b with (path->id (div'-zero->zero x%a))
   ...               | ()
   f (suc zero) _ _ = div'-one
   f x@(suc (suc _)) x%a x%b with (exists-prime-divisor {x} >1)
@@ -412,7 +415,7 @@ euclids-lemma' : {a b c : Nat} -> a div' (b *' c) -> GCD' a b 1 -> a div' c
 euclids-lemma' {a} {b} {c} a%bc ab-gcd = result
   where
   int-a%bc : (int a) div (int b * int c)
-  int-a%bc rewrite sym (int-inject-*' {b} {c}) = (div'->div a%bc)
+  int-a%bc rewrite (path->id (sym (int-inject-*' {b} {c}))) = (div'->div a%bc)
   result : a div' c
   result = (div->div' (euclids-lemma int-a%bc (gcd'->gcd/nat ab-gcd)))
 
@@ -423,8 +426,8 @@ prime->relatively-prime {p} {a} prime-p ¬p%a =
   where
   f : (x : Nat) -> x div' p -> x div' a -> x div' 1
   f x x%p x%a with (prime-only-divisors prime-p x%p)
-  ... | inj-l refl = bot-elim (¬p%a x%a)
-  ... | inj-r refl = div'-one
+  ... | inj-l pr = bot-elim (¬p%a (transport (\ i -> (pr i) div' a) x%a))
+  ... | inj-r pr = (transport (\i -> (pr (~ i)) div' 1) div'-one)
 
 prime-divides-a-factor : {p : Nat} -> Prime' p -> {a b : Nat} 
                          -> p div' (a *' b) -> (p div' a) ⊎ (p div' b)
