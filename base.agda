@@ -5,6 +5,10 @@ module base where
 open import Level
 open import Agda.Primitive.Cubical public
 open import Agda.Builtin.Cubical.Path public
+open import Agda.Builtin.Cubical.Glue public
+open import Agda.Builtin.Sigma public
+
+open Helpers using (isContr; fiber) public
 
 open import Agda.Primitive.Cubical public
   renaming ( primIMin       to _∧_  -- I → I → I
@@ -32,6 +36,10 @@ _==_ {A = A} = Path A
 
 refl : {i : Level} {A : Set i} {x : A} → Path A x x
 refl {x = x} = \ i -> x
+
+Type : (ℓ : Level) → Set (Level.suc ℓ)
+Type ℓ = Set ℓ 
+
 
 data Bot : Set where
 
