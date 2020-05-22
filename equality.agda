@@ -55,6 +55,7 @@ syntax Σ-syntax A (λ x → B) = Σ[ x ∈ A ] B
 idfun : ∀ {ℓ} → (A : Set ℓ) → A → A
 idfun _ x = x
 
+
 idIsEquiv : ∀ {ℓ} (A : Set ℓ) → isEquiv (idfun A)
 equiv-proof (idIsEquiv A) y =
   ((y , refl) , λ z i → z .snd (~ i) , λ j → z .snd (~ i ∨ j))
@@ -75,7 +76,7 @@ ua {A = A} {B = B} e i = Glue B (\ { (i = i0) -> (A , e)
 
 
 path->id : ∀ {i} {A : Set i} {x y : A} -> x == y -> x === y
-path->id {x = x} {y = y} path = (subst (\ z -> x === z) path refl-===)
+path->id {x = x} {y = y} path = (subst (x ===_) path refl-===)
 
 id->path : ∀ {i} {A : Set i} {x y : A} -> x === y -> x == y
 id->path refl-=== = refl
