@@ -121,6 +121,9 @@ record Semiring {ℓ : Level} : Type (ℓ-suc ℓ) where
   sum-map-Permutation f (permutation-cons {a} {as1} {as2} {as3} perm ins) =
     (+-right {f a} (sum-map-Permutation f perm)) >=> (sum-map-Insertion f ins)
 
+  product : List Domain -> Domain
+  product [] = 1#
+  product (a :: l) = a * product l
 
 
 
@@ -290,3 +293,14 @@ ReaderSemiring A S = res
     *-left-one = (\ {m} i a -> (*-left-one {m a} i));
     *-distrib-+-right = (\ {m} {n} {o} i a -> (*-distrib-+-right {m a} {n a} {o a} i)) }
 
+
+ReaderRing : {ℓ : Level} -> (Type ℓ) -> Ring {ℓ} -> Ring {ℓ}
+ReaderRing A R = res
+  where
+  open Ring R
+
+  res : Ring
+  res = record  {
+    semiring = (ReaderSemiring A semiring);
+    -_ = (\ x a -> - x a);
+    +-inverse = (\ {x} i a -> (+-inverse {x a} i)) }
