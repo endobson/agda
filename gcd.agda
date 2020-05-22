@@ -31,26 +31,45 @@ gcd-zero {a} =
   (gcd a zero-int (abs a) tt
       (div-abs-left div-refl) div-zero (\ x xa xz -> (div-abs-right xa)))
 
-gcd-pos->neg : {a : Nat} {b d : Int} -> GCD (pos a) b d -> GCD (neg a) b d
-gcd-pos->neg (gcd (pos a) b d non-neg d-div-a d-div-b f) =
-  (gcd (neg a) b d non-neg (div-negate d-div-a) d-div-b (\ x xa xb -> f x (div-negate xa) xb))
- 
-gcd-negate : {a b d : Int} -> GCD a b d -> GCD (- a) b d
+gcd-negate : ∀ {a b d : Int} -> GCD a b d -> GCD a (- b) d
 gcd-negate (gcd a b d non-neg d-div-a d-div-b f) =
-  (gcd (- a) b d non-neg (div-negate d-div-a) d-div-b g)
+  (gcd a (- b) d non-neg d-div-a (div-negate d-div-b) g)
   where 
-  g : (x : Int) -> x div (- a) -> x div b -> x div d
-  g x xa xb = f x rewritten-xa xb
-    where
-    xa2 : x div (- (- a))
-    xa2 = (div-negate xa)
-    rewritten-xa : x div a
-    rewritten-xa = transport (\i -> x div (minus-double-inverse {a} i)) xa2
+  g : (x : Int) -> x div a -> x div (- b) -> x div d
+  g x xa xb = f x xa 
+    (transport (\i -> x div (minus-double-inverse {b} i)) (div-negate xb))
 
-gcd-remove-abs : {a b d : Int} -> GCD (abs a) b d -> GCD a b d
-gcd-remove-abs {zero-int} g = g
-gcd-remove-abs {pos _} g = g
-gcd-remove-abs {neg _} g = gcd-negate g
+gcd-remove-abs : {a b d : Int} -> GCD a (abs b) d -> GCD a b d
+gcd-remove-abs {b = (nonneg _)} g = g
+gcd-remove-abs {b = (neg _)} g = gcd-negate g
+
+gcd-add-linear : ∀ {a b d : Int} -> GCD a b d -> (k : Int) -> GCD a (k * a + b) d
+gcd-add-linear (gcd a b d non-neg d-div-a d-div-b f) k =
+  (gcd a (k * a + b) d non-neg d-div-a (div-sum (div-mult d-div-a k) d-div-b) g)
+  where 
+  g : (x : Int) -> x div a -> x div (k * a + b) -> x div d
+  g x xa xkab = f x xa xb
+    where
+    proof : (k * a + b) + (- k * a) == b
+    proof =
+      begin
+        (k * a + b) + (- k * a) 
+      ==< +-commute {k * a + b} >
+        (- k * a) + (k * a + b) 
+      ==< sym (+-assoc { - k * a}) >
+        (- k * a + k * a) + b
+      ==< +-left (+-left (minus-extract-left {k})) >
+        (- (k * a) + k * a) + b
+      ==< +-left (+-commute { - (k * a) }) >
+        (k * a + - (k * a)) + b
+      ==< +-left (add-minus-zero {k * a}) >
+        b
+      end
+
+    xb : x div b
+    xb = transport
+           (\i -> x div (proof i))
+           (div-sum xkab (div-mult xa (- k)))
 
 
 data LinearCombination : Int -> Int -> Int -> Set where
@@ -69,19 +88,15 @@ linear-combo-zero : {n : Int}  -> LinearCombination n zero-int n
 linear-combo-zero {n} =
   (linear-combo-sym (linear-combo zero-int n n zero-int (pos zero) {+-right-zero {n}}))
 
-linear-combo-negate : {a b d : Int} -> LinearCombination a b d -> LinearCombination (- a) b d
+linear-combo-negate : {a b d : Int} -> LinearCombination a b d -> LinearCombination a (- b) d
 linear-combo-negate (linear-combo a b d x y {p}) =
-  (linear-combo (- a) b d (- x) y {proof})
+  (linear-combo a (- b) d x (- y) {proof})
   where
-    proof : (- x * - a) + y * b ==  d
+    proof : x * a + (- y * - b) == d
     proof =
       begin
-        - x * - a + y * b
-      ==< +-left (minus-extract-left {x}) >
-        - (x * - a) + y * b
-      ==< +-left (cong minus (minus-extract-right {x})) >
-        - (- (x * a)) + y * b
-      ==< +-left (minus-double-inverse {x * a}) >
+        x * a + (- y * - b)
+      ==< +-right {x * a} (minus-extract-both {y} {b}) >
         x * a + y * b
       ==< p >
         d
@@ -127,8 +142,10 @@ data LinearGCD : Int -> Int -> Int -> Set where
 linear-gcd-sym : {a b d : Int} -> LinearGCD a b d -> LinearGCD b a d
 linear-gcd-sym (linear-gcd lc gc) = (linear-gcd (linear-combo-sym lc) (gcd-sym gc))
 
-linear-gcd-negate : {a b d : Int} -> LinearGCD a b d -> LinearGCD (- a) b d
-linear-gcd-negate (linear-gcd lc gc) = (linear-gcd (linear-combo-negate lc) (gcd-negate gc))
+linear-gcd-negate : {a b d : Int} -> LinearGCD a b d -> LinearGCD a (- b) d
+linear-gcd-negate (linear-gcd lc gc) =
+  (linear-gcd (linear-combo-negate lc)
+              (gcd-negate gc))
 
 data CompareNat3 : Nat -> Nat -> Set where
   compare3-= : {m n : Nat} -> m == n -> CompareNat3 m n
@@ -282,11 +299,11 @@ eulers-algo (pos m) (pos n) = pos-eulers-algo m n
 eulers-algo (neg m) (pos n) = handle (pos-eulers-algo m n) 
   where
   handle : exists (LinearGCD (pos m) (pos n)) -> exists (LinearGCD (neg m) (pos n))
-  handle (existence d pr) = existence d (linear-gcd-negate pr)
+  handle (existence d pr) = existence d (linear-gcd-sym (linear-gcd-negate (linear-gcd-sym pr)))
 eulers-algo (pos m) (neg n) = handle (pos-eulers-algo m n) 
   where
   handle : exists (LinearGCD (pos m) (pos n)) -> exists (LinearGCD (pos m) (neg n))
-  handle (existence d pr) = existence d (linear-gcd-sym (linear-gcd-negate (linear-gcd-sym pr)))
+  handle (existence d pr) = existence d (linear-gcd-negate pr)
 eulers-algo (neg m) (neg n) = handle (pos-eulers-algo m n) 
   where
   handle : exists (LinearGCD (pos m) (pos n)) -> exists (LinearGCD (neg m) (neg n))
@@ -343,18 +360,18 @@ gcd'->gcd {zero-int} {zero-int} {zero-int} g = gcd'->gcd/nat g
 gcd'->gcd {zero-int} {zero-int} {pos _} g = gcd'->gcd/nat g
 gcd'->gcd {zero-int} {pos _} {zero-int} g = gcd'->gcd/nat g
 gcd'->gcd {zero-int} {pos _} {pos _} g = gcd'->gcd/nat g
-gcd'->gcd {zero-int} {neg _} {zero-int} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
-gcd'->gcd {zero-int} {neg _} {pos _} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
+gcd'->gcd {zero-int} {neg _} {zero-int} g = (gcd-negate (gcd'->gcd/nat g))
+gcd'->gcd {zero-int} {neg _} {pos _} g = (gcd-negate (gcd'->gcd/nat g))
 gcd'->gcd {pos _} {zero-int} {zero-int} g = gcd'->gcd/nat g
 gcd'->gcd {pos _} {zero-int} {pos _} g = gcd'->gcd/nat g
 gcd'->gcd {pos _} {pos _} {zero-int} g = gcd'->gcd/nat g
 gcd'->gcd {pos _} {pos _} {pos _} g = gcd'->gcd/nat g
-gcd'->gcd {pos _} {neg _} {zero-int} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
-gcd'->gcd {pos _} {neg _} {pos _} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
-gcd'->gcd {neg _} {zero-int} {zero-int} g = (gcd-negate (gcd'->gcd/nat g))
-gcd'->gcd {neg _} {zero-int} {pos _} g = (gcd-negate (gcd'->gcd/nat g))
-gcd'->gcd {neg _} {pos _} {zero-int} g = (gcd-negate (gcd'->gcd/nat g))
-gcd'->gcd {neg _} {pos _} {pos _} g = (gcd-negate (gcd'->gcd/nat g))
+gcd'->gcd {pos _} {neg _} {zero-int} g = (gcd-negate (gcd'->gcd/nat g))
+gcd'->gcd {pos _} {neg _} {pos _} g = (gcd-negate (gcd'->gcd/nat g))
+gcd'->gcd {neg _} {zero-int} {zero-int} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
+gcd'->gcd {neg _} {zero-int} {pos _} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
+gcd'->gcd {neg _} {pos _} {zero-int} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
+gcd'->gcd {neg _} {pos _} {pos _} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
 gcd'->gcd {neg _} {neg _} {zero-int} g = (gcd-negate ((gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))))
 gcd'->gcd {neg _} {neg _} {pos _} g = (gcd-negate ((gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))))
 
