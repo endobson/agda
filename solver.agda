@@ -602,13 +602,17 @@ private
 
 
 module Solver (S : Semiring {lzero}) where
-  open Semiring S
+  module S = Semiring S
 
   module _ (n : Nat) where
-    ⟦_⟧ : Syntax n -> Vec Domain n -> Domain
+
+    open module M = Semiring (ReaderSemiring (Vec S.Domain n) S)
+      renaming (Domain to Meaning)
+
+    ⟦_⟧ : Syntax n -> Meaning
     ⟦ (var i) ⟧ env = lookup env i
-    ⟦ l ⊕ r ⟧ env = ⟦ l ⟧ env + ⟦ r ⟧ env
-    ⟦ l ⊗ r ⟧ env = ⟦ l ⟧ env * ⟦ r ⟧ env
+    ⟦ l ⊕ r ⟧ = ⟦ l ⟧ + ⟦ r ⟧
+    ⟦ l ⊗ r ⟧ = ⟦ l ⟧ * ⟦ r ⟧
   
   
     data Term : Set where
@@ -630,60 +634,7 @@ module Solver (S : Semiring {lzero}) where
       ... | equal-to = false
   
 
-    sum : List Domain -> Domain
-    sum [] = 0#
-    sum (a :: l) = a + sum l
 
-    sum-inject-++ : {a b : List Domain} -> sum (a ++ b) == sum a + sum b
-    sum-inject-++ {[]} {b} = sym (+-left-zero {sum b})
-    sum-inject-++ {e :: a} {b} = 
-      begin
-        sum ((e :: a) ++ b)
-      ==<> 
-        e + (sum (a ++ b))
-      ==< +-right {e} (sum-inject-++ {a} {b}) >
-        e + (sum a + sum b)
-      ==< sym (+-assoc {e}) >
-        (e + sum a) + sum b
-      ==<> 
-        sum (e :: a) + sum b
-      end
-
-    sum-map-inject-++ : (f : A -> Domain) {a1 a2 : List A} 
-                        -> (sum (map f (a1 ++ a2))) == (sum (map f a1)) + (sum (map f a2))
-    sum-map-inject-++ f {a1} {a2} = 
-      (cong sum (map-inject-++ f {a1} {a2})) >=> (sum-inject-++ {map f a1})
-
-    sum-map-Insertion : {a : A} {as1 as2 : (List A)} -> (f : A -> Domain) -> (Insertion A a as1 as2)
-                         -> (sum (map f (a :: as1))) == (sum (map f as2))
-    sum-map-Insertion f (insertion-base a as) = refl
-    sum-map-Insertion f (insertion-cons {a} {as1} {as2} a2 ins) = 
-      begin
-        (sum (map f (a :: (a2 :: as1))))
-      ==<>
-        (f a) + ((f a2) + (sum (map f as1)))
-      ==< sym (+-assoc {f a}) >
-        ((f a) + (f a2)) + (sum (map f as1))
-      ==< +-left (+-commute {f a} {f a2}) >
-        ((f a2) + (f a)) + (sum (map f as1))
-      ==< +-assoc {f a2} >
-        (f a2) + ((f a) + (sum (map f as1)))
-      ==< +-right {f a2} (sum-map-Insertion f ins) >
-        (f a2) + (sum (map f as2))
-      ==<>
-        (sum (map f (a2 :: as2)))
-      end
-
-    sum-map-Permutation : {as1 as2 : (List A)} -> (f : A -> Domain) -> (Permutation A as1 as2)
-                         -> (sum (map f as1)) == (sum (map f as2))
-    sum-map-Permutation f (permutation-empty) = refl
-    sum-map-Permutation f (permutation-cons {a} {as1} {as2} {as3} perm ins) =
-      (+-right {f a} (sum-map-Permutation f perm)) >=> (sum-map-Insertion f ins)
-    
-
-
-  
-  
     all-pairs : List Term -> List Term -> List Term
     all-pairs [] b = []
     all-pairs (e :: a) b = (map (e ⊗_) b) ++ (all-pairs a b)
@@ -693,152 +644,139 @@ module Solver (S : Semiring {lzero}) where
     linearize (l ⊕ r) = (linearize l) ++ (linearize r)
     linearize (l ⊗ r) = all-pairs (linearize l) (linearize r)
   
-    Meaning : Set
-    Meaning = Vec Domain n -> Domain
 
-    infix 4 _≈_
-    _≈_ : Meaning -> Meaning -> Set
-    m1 ≈ m2 = ∀ env -> (m1 env) == (m2 env)
-    
-    infixl 6 _+m_
-    _+m_ : Meaning -> Meaning -> Meaning
-    f +m g = \ env -> (f env) + (g env)
-
-    _*m_ : Meaning -> Meaning -> Meaning
-    f *m g = \ env -> (f env) * (g env)
-    
-  
     ⟦_⟧term : Term -> Meaning
     ⟦ (var i) ⟧term env = lookup env i
-    ⟦ t1 ⊗ t2  ⟧term = ⟦ t1  ⟧term *m ⟦ t2 ⟧term
+    ⟦ t1 ⊗ t2  ⟧term = ⟦ t1  ⟧term * ⟦ t2 ⟧term
 
 
-  
     ⟦_⟧terms : List Term -> Meaning
-    ⟦ l ⟧terms env = sum (map (\ t -> ⟦ t ⟧term env) l)
-  
-    terms-eval-inject-++ : 
-      {a b : List Term} -> ⟦ a ++ b ⟧terms ≈ ⟦ a ⟧terms +m ⟦ b ⟧terms 
-    terms-eval-inject-++ {a} {b} env = sum-map-inject-++ (\ t -> ⟦ t ⟧term env) {a} {b}
+    ⟦ l ⟧terms = (sum (map ⟦_⟧term l))
+
+
+    terms-eval-inject-++ : (a b : List Term) -> ⟦ a ++ b ⟧terms == ⟦ a ⟧terms + ⟦ b ⟧terms
+    terms-eval-inject-++ a b = (sum-map-inject-++ ⟦_⟧term {a} {b})
+
   
     terms-eval-inject-map-⊗ : 
       {e : Term} -> {b : List Term} 
-      -> ⟦ (map (e ⊗_) b) ⟧terms ≈ ⟦ e ⟧term *m ⟦ b ⟧terms 
-    terms-eval-inject-map-⊗ {e} {[]} env = sym (*-right-zero {⟦ e ⟧term env})
-    terms-eval-inject-map-⊗ {e} {(e2 :: b)} env = 
+      -> ⟦ (map (e ⊗_) b) ⟧terms == ⟦ e ⟧term * ⟦ b ⟧terms
+    terms-eval-inject-map-⊗ {e} {[]} = sym (*-right-zero {⟦ e ⟧term})
+    terms-eval-inject-map-⊗ {e} {(e2 :: b)} =
       begin
-        ⟦ (map (e ⊗_) (e2 :: b)) ⟧terms env 
+        ⟦ (map (e ⊗_) (e2 :: b)) ⟧terms
       ==<>
-        ⟦ (map (e ⊗_) (e2 :: [])) ++ (map (e ⊗_) b) ⟧terms env 
-      ==< terms-eval-inject-++ {map (e ⊗_) (e2 :: [])} {map (e ⊗_) b} env >
-        ⟦ map (e ⊗_) (e2 :: []) ⟧terms env + ⟦ (map (e ⊗_) b) ⟧terms env 
+        ⟦ (map (e ⊗_) (e2 :: [])) ++ (map (e ⊗_) b) ⟧terms
+      ==< terms-eval-inject-++ (map (e ⊗_) (e2 :: [])) (map (e ⊗_) b) >
+        ⟦ map (e ⊗_) (e2 :: []) ⟧terms + ⟦ (map (e ⊗_) b) ⟧terms
       ==<>
-        (⟦ e ⊗ e2 ⟧term env + 0#) + ⟦ (map (e ⊗_) b) ⟧terms env 
-      ==< +-left (+-right-zero {⟦ e ⊗ e2 ⟧term env}) >
-        ⟦ e ⊗ e2 ⟧term env + ⟦ (map (e ⊗_) b) ⟧terms env 
-      ==< +-right {⟦ e ⊗ e2 ⟧term env} (terms-eval-inject-map-⊗ {e} {b} env) >
-        ⟦ e ⊗ e2 ⟧term env + ⟦ e ⟧term env * ⟦ b ⟧terms env 
+        (⟦ e ⊗ e2 ⟧term + 0#) + ⟦ (map (e ⊗_) b) ⟧terms
+      ==< +-left (+-right-zero {⟦ e ⊗ e2 ⟧term}) >
+        ⟦ e ⊗ e2 ⟧term + ⟦ (map (e ⊗_) b) ⟧terms
+      ==< +-right {⟦ e ⊗ e2 ⟧term} (terms-eval-inject-map-⊗ {e} {b}) >
+        ⟦ e ⊗ e2 ⟧term + ⟦ e ⟧term * ⟦ b ⟧terms
       ==<>
-        ⟦ e ⟧term env * ⟦ e2 ⟧term env + ⟦ e ⟧term env * ⟦ b ⟧terms env 
-      ==< sym (*-distrib-+-left {⟦ e ⟧term env}) >
-        ⟦ e ⟧term env * (⟦ e2 ⟧term env + ⟦ b ⟧terms env )
+        ⟦ e ⟧term * ⟦ e2 ⟧term + ⟦ e ⟧term * ⟦ b ⟧terms
+      ==< sym (*-distrib-+-left {⟦ e ⟧term}) >
+        ⟦ e ⟧term * (⟦ e2 ⟧term + ⟦ b ⟧terms)
       ==<>
-        ⟦ e ⟧term env * ⟦ (e2 :: b) ⟧terms env 
-      end
-  
-  
-    terms-eval-inject-all-pairs : 
-      (env : Vec Domain n) -> {a b : List Term} 
-      -> ⟦ (all-pairs a b) ⟧terms env == ⟦ a ⟧terms env * ⟦ b ⟧terms env 
-    terms-eval-inject-all-pairs env {[]} {b} = sym (*-left-zero {⟦ b ⟧terms env})
-    terms-eval-inject-all-pairs env {e :: a} {b} =
-      begin
-        ⟦ (all-pairs (e :: a) b) ⟧terms env 
-      ==<>
-        ⟦ (map (e ⊗_) b) ++ (all-pairs a b) ⟧terms env 
-      ==< terms-eval-inject-++ {map (e ⊗_) b} {all-pairs a b} env >
-        (⟦ (map (e ⊗_) b) ⟧terms env) + (⟦ (all-pairs a b) ⟧terms env )
-      ==< +-left (terms-eval-inject-map-⊗ {e} {b} env) > 
-        (⟦ e ⟧term env * ⟦ b ⟧terms env) + (⟦ (all-pairs a b) ⟧terms env )
-      ==< +-right {(⟦ e ⟧term env * ⟦ b ⟧terms env)} (terms-eval-inject-all-pairs env {a} {b}) > 
-        (⟦ e ⟧term env * ⟦ b ⟧terms env) + (⟦ a ⟧terms env * ⟦ b ⟧terms env)
-      ==< sym (*-distrib-+-right {⟦ e ⟧term env}) > 
-        (⟦ e ⟧term env + ⟦ a ⟧terms env) * ⟦ b ⟧terms env 
-      ==<> 
-        ⟦ (e :: a) ⟧terms env * ⟦ b ⟧terms env 
-      end
-  
-  
-  
-    terms-eval-inject-linearize-⊕ :
-      (env : Vec Domain n) -> {e1 e2 : Syntax n}
-      -> ⟦ linearize (e1 ⊕ e2) ⟧terms env == 
-         ⟦ linearize e1 ⟧terms env + ⟦ linearize e2 ⟧terms env
-    terms-eval-inject-linearize-⊕ env {e1} {e2} =
-      terms-eval-inject-++ {linearize e1} {linearize e2} env
-  
-    terms-eval-inject-linearize-⊗ :
-      (env : Vec Domain n) -> {e1 e2 : Syntax n}
-      -> ⟦ linearize (e1 ⊗ e2) ⟧terms env == 
-         ⟦ linearize e1 ⟧terms env * ⟦ linearize e2 ⟧terms env
-    terms-eval-inject-linearize-⊗ env {e1} {e2} =
-      terms-eval-inject-all-pairs env {linearize e1} {linearize e2}
-  
-  
-  
-    terms-eval-inject-insertion-sort :
-      (env : Vec Domain n) -> {ts : List Term}
-      -> ⟦ (insertion-sort term< ts) ⟧terms env == ⟦ ts ⟧terms env 
-    terms-eval-inject-insertion-sort env {ts} =
-      sym (sum-map-Permutation (\ t -> ⟦ t ⟧term env) (Permutation-insertion-sort term< ts))
-  
-    ⟦_⇓⟧ : Syntax n -> Meaning
-    ⟦ e ⇓⟧ env = ⟦ (insertion-sort term< (linearize e)) ⟧terms env
-  
-  
-    correct : (e : Syntax n) -> (env : Vec Domain n) -> ⟦ e ⇓⟧ env == ⟦ e ⟧ env 
-    correct (var i) env = +-right-zero
-    correct (l ⊕ r) env = 
-      begin
-        ⟦ l ⊕ r ⇓⟧ env
-      ==<>
-        ⟦ insertion-sort term< (linearize (l ⊕ r)) ⟧terms env
-      ==< terms-eval-inject-insertion-sort env {linearize (l ⊕ r)} >
-        ⟦ linearize (l ⊕ r) ⟧terms env
-      ==< terms-eval-inject-linearize-⊕ env {l} {r} >
-        ⟦ linearize l ⟧terms env + ⟦ linearize r ⟧terms env
-      ==< (+-cong 
-              (sym (terms-eval-inject-insertion-sort env {linearize l}))
-              (sym (terms-eval-inject-insertion-sort env {linearize r}))) >
-        ⟦ insertion-sort term< (linearize l) ⟧terms env + 
-        ⟦ insertion-sort term< (linearize r) ⟧terms env
-      ==< +-cong (correct l env) (correct r env) >
-        ⟦ l ⟧ env + ⟦ r ⟧ env 
-      ==<>
-        ⟦ l ⊕ r ⟧ env 
-      end
-    correct (l ⊗ r) env = 
-      begin
-        ⟦ l ⊗ r ⇓⟧ env
-      ==<>
-        ⟦ insertion-sort term< (linearize (l ⊗ r)) ⟧terms env
-      ==< terms-eval-inject-insertion-sort env {linearize (l ⊗ r)} >
-        ⟦ linearize (l ⊗ r) ⟧terms env
-      ==< terms-eval-inject-linearize-⊗ env {l} {r} >
-        ⟦ linearize l ⟧terms env * ⟦ linearize r ⟧terms env
-      ==< (*-cong 
-              (sym (terms-eval-inject-insertion-sort env {linearize l}))
-              (sym (terms-eval-inject-insertion-sort env {linearize r}))) >
-        ⟦ insertion-sort term< (linearize l) ⟧terms env * 
-        ⟦ insertion-sort term< (linearize r) ⟧terms env
-      ==< *-cong (correct l env) (correct r env) >
-        ⟦ l ⟧ env * ⟦ r ⟧ env 
-      ==<>
-        ⟦ l ⊗ r ⟧ env 
+        ⟦ e ⟧term * ⟦ (e2 :: b) ⟧terms
       end
 
+
+    terms-eval-inject-all-pairs : {a b : List Term} 
+      -> ⟦ (all-pairs a b) ⟧terms == ⟦ a ⟧terms * ⟦ b ⟧terms
+    terms-eval-inject-all-pairs {[]} {b} = sym (*-left-zero {⟦ b ⟧terms})
+    terms-eval-inject-all-pairs {e :: a} {b} =
+      begin
+        ⟦ (all-pairs (e :: a) b) ⟧terms
+      ==<>
+        ⟦ (map (e ⊗_) b) ++ (all-pairs a b) ⟧terms
+      ==< terms-eval-inject-++ (map (e ⊗_) b) (all-pairs a b) >
+        (⟦ (map (e ⊗_) b) ⟧terms) + (⟦ (all-pairs a b) ⟧terms)
+      ==< +-left (terms-eval-inject-map-⊗ {e} {b}) > 
+        (⟦ e ⟧term * ⟦ b ⟧terms) + ⟦ (all-pairs a b) ⟧terms
+      ==< +-right {(⟦ e ⟧term * ⟦ b ⟧terms)}
+                    (terms-eval-inject-all-pairs {a} {b}) > 
+        (⟦ e ⟧term * ⟦ b ⟧terms) + (⟦ a ⟧terms * ⟦ b ⟧terms)
+      ==< sym (*-distrib-+-right {⟦ e ⟧term}) > 
+        (⟦ e ⟧term + ⟦ a ⟧terms) * ⟦ b ⟧terms
+      ==<> 
+        ⟦ (e :: a) ⟧terms * ⟦ b ⟧terms
+      end
+
+  
+  
+
+    terms-eval-inject-linearize-⊕ :
+      {e1 e2 : Syntax n}
+      -> ⟦ linearize (e1 ⊕ e2) ⟧terms == 
+         ⟦ linearize e1 ⟧terms + ⟦ linearize e2 ⟧terms
+    terms-eval-inject-linearize-⊕ {e1} {e2} =
+      terms-eval-inject-++ (linearize e1) (linearize e2)
+
+    terms-eval-inject-linearize-⊗ :
+      {e1 e2 : Syntax n}
+      -> ⟦ linearize (e1 ⊗ e2) ⟧terms == 
+         ⟦ linearize e1 ⟧terms * ⟦ linearize e2 ⟧terms
+    terms-eval-inject-linearize-⊗ {e1} {e2} =
+      terms-eval-inject-all-pairs {linearize e1} {linearize e2}
+
+    terms-eval-inject-insertion-sort :
+      {ts : List Term}
+      -> ⟦ (insertion-sort term< ts) ⟧terms == ⟦ ts ⟧terms
+    terms-eval-inject-insertion-sort {ts} =
+      sym (sum-map-Permutation (\ t -> ⟦ t ⟧term) (Permutation-insertion-sort term< ts))
+
+
+    ⟦_⇓⟧2 : Syntax n -> Meaning
+    ⟦ e ⇓⟧2 = ⟦ (insertion-sort term< (linearize e)) ⟧terms
+  
+    correct2 : (e : Syntax n) -> ⟦ e ⇓⟧2 == ⟦ e ⟧
+    correct2 (var i) = +-right-zero
+    correct2 (l ⊕ r) = 
+      begin
+        ⟦ l ⊕ r ⇓⟧2
+      ==<>
+        ⟦ insertion-sort term< (linearize (l ⊕ r)) ⟧terms
+      ==< terms-eval-inject-insertion-sort {linearize (l ⊕ r)} >
+        ⟦ linearize (l ⊕ r) ⟧terms
+      ==< terms-eval-inject-linearize-⊕ {l} {r} >
+        ⟦ linearize l ⟧terms + ⟦ linearize r ⟧terms
+      ==< (+-cong 
+              (sym (terms-eval-inject-insertion-sort {linearize l}))
+              (sym (terms-eval-inject-insertion-sort {linearize r}))) >
+        ⟦ insertion-sort term< (linearize l) ⟧terms + 
+        ⟦ insertion-sort term< (linearize r) ⟧terms 
+      ==< +-cong (correct2 l) (correct2 r) >
+        ⟦ l ⟧ + ⟦ r ⟧
+      ==<>
+        ⟦ l ⊕ r ⟧
+      end
+    correct2 (l ⊗ r)= 
+      begin
+        ⟦ l ⊗ r ⇓⟧2
+      ==<>
+        ⟦ insertion-sort term< (linearize (l ⊗ r)) ⟧terms
+      ==< terms-eval-inject-insertion-sort {linearize (l ⊗ r)} >
+        ⟦ linearize (l ⊗ r) ⟧terms
+      ==< terms-eval-inject-linearize-⊗ {l} {r} >
+        ⟦ linearize l ⟧terms * ⟦ linearize r ⟧terms
+      ==< (*-cong 
+              (sym (terms-eval-inject-insertion-sort {linearize l}))
+              (sym (terms-eval-inject-insertion-sort {linearize r}))) >
+        ⟦ insertion-sort term< (linearize l) ⟧terms * 
+        ⟦ insertion-sort term< (linearize r) ⟧terms 
+      ==< *-cong (correct2 l) (correct2 r) >
+        ⟦ l ⟧ * ⟦ r ⟧
+      ==<>
+        ⟦ l ⊗ r ⟧
+      end
+
+
+
     solve : (f : Nary n (Syntax n) ((Syntax n) × (Syntax n)))
-            ->  Eqʰ n _==_ (curry n ⟦  (proj₁ (close n f)) ⇓⟧) (curry n ⟦ proj₂ (close n f) ⇓⟧)
+            ->  Eqʰ n _==_ (curry n ⟦  (proj₁ (close n f)) ⇓⟧2) (curry n ⟦ proj₂ (close n f) ⇓⟧2)
             ->  Eq n _==_ (curry n ⟦ proj₁ (close n f) ⟧) (curry n ⟦ proj₂ (close n f) ⟧)
     solve f hidden-normal-proof = full-reg-proof
       where
@@ -847,16 +785,16 @@ module Solver (S : Semiring {lzero}) where
       e₂ : Syntax n
       e₂ = proj₂ (close n f)
 
-      full-normal-proof : Eq n _==_ (curry n ⟦ e₁ ⇓⟧) (curry n ⟦ e₂ ⇓⟧)
+      full-normal-proof : Eq n _==_ (curry n ⟦ e₁ ⇓⟧2) (curry n ⟦ e₂ ⇓⟧2)
       full-normal-proof = unhide-∀ⁿ n hidden-normal-proof
     
-      inner-normal-proof : (ρ : (Vec Domain n)) -> (⟦ e₁ ⇓⟧ ρ) == (⟦ e₂ ⇓⟧ ρ)
-      inner-normal-proof = cong-curry⁻¹ n (⟦ e₁ ⇓⟧) (⟦ e₂ ⇓⟧) full-normal-proof
+      inner-normal-proof : (ρ : (Vec S.Domain n)) -> (⟦ e₁ ⇓⟧2 ρ) == (⟦ e₂ ⇓⟧2 ρ)
+      inner-normal-proof = cong-curry⁻¹ n (⟦ e₁ ⇓⟧2) (⟦ e₂ ⇓⟧2) full-normal-proof
 
-      prove : (ρ : Vec Domain n) -> ⟦ e₁ ⇓⟧ ρ == ⟦ e₂ ⇓⟧ ρ -> ⟦ e₁ ⟧ ρ == ⟦ e₂ ⟧ ρ
-      prove ρ pr = (sym (correct e₁ ρ)) >=> pr >=> (correct e₂ ρ)
+      prove : (ρ : Vec S.Domain n) -> ⟦ e₁ ⇓⟧2 ρ == ⟦ e₂ ⇓⟧2 ρ -> ⟦ e₁ ⟧ ρ == ⟦ e₂ ⟧ ρ
+      prove ρ pr = (sym (\i -> (correct2 e₁ i ρ))) >=> pr >=> (\i -> (correct2 e₂ i ρ))
     
-      inner-reg-proof : (ρ : (Vec Domain n)) -> (⟦ e₁ ⟧ ρ) == (⟦ e₂ ⟧ ρ)
+      inner-reg-proof : (ρ : (Vec S.Domain n)) -> (⟦ e₁ ⟧ ρ) == (⟦ e₂ ⟧ ρ)
       inner-reg-proof v = (prove v (inner-normal-proof v))
     
       full-reg-proof : Eq n _==_ (curry n ⟦ e₁ ⟧) (curry n ⟦ e₂ ⟧)

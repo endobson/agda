@@ -3,6 +3,7 @@
 module ring where
 
 open import base
+open import list
 open import equality
 open import nat
 import int
@@ -10,6 +11,7 @@ import int
 private
   variable
     ℓ : Level
+    A : Set ℓ
 
 record Semiring {ℓ : Level} : Type (ℓ-suc ℓ) where
   infixl 7 _*_
@@ -67,6 +69,59 @@ record Semiring {ℓ : Level} : Type (ℓ-suc ℓ) where
   
   *-cong : {m n p o : Domain} -> m == p -> n == o -> m * n == p * o
   *-cong = cong2 _*_
+
+  sum : List Domain -> Domain
+  sum [] = 0#
+  sum (a :: l) = a + sum l
+
+
+  sum-inject-++ : {a b : List Domain} -> sum (a ++ b) == sum a + sum b
+  sum-inject-++ {[]} {b} = sym (+-left-zero {sum b})
+  sum-inject-++ {e :: a} {b} = 
+    begin
+      sum ((e :: a) ++ b)
+    ==<> 
+      e + (sum (a ++ b))
+    ==< +-right {e} (sum-inject-++ {a} {b}) >
+      e + (sum a + sum b)
+    ==< sym (+-assoc {e}) >
+      (e + sum a) + sum b
+    ==<> 
+      sum (e :: a) + sum b
+    end
+
+  sum-map-inject-++ : (f : A -> Domain) {a1 a2 : List A} 
+                      -> (sum (map f (a1 ++ a2))) == (sum (map f a1)) + (sum (map f a2))
+  sum-map-inject-++ f {a1} {a2} = 
+    (cong sum (map-inject-++ f {a1} {a2})) >=> (sum-inject-++ {map f a1})
+
+  sum-map-Insertion : {a : A} {as1 as2 : (List A)} -> (f : A -> Domain) -> (Insertion A a as1 as2)
+                       -> (sum (map f (a :: as1))) == (sum (map f as2))
+  sum-map-Insertion f (insertion-base a as) = refl
+  sum-map-Insertion f (insertion-cons {a} {as1} {as2} a2 ins) = 
+    begin
+      (sum (map f (a :: (a2 :: as1))))
+    ==<>
+      (f a) + ((f a2) + (sum (map f as1)))
+    ==< sym (+-assoc {f a}) >
+      ((f a) + (f a2)) + (sum (map f as1))
+    ==< +-left (+-commute {f a} {f a2}) >
+      ((f a2) + (f a)) + (sum (map f as1))
+    ==< +-assoc {f a2} >
+      (f a2) + ((f a) + (sum (map f as1)))
+    ==< +-right {f a2} (sum-map-Insertion f ins) >
+      (f a2) + (sum (map f as2))
+    ==<>
+      (sum (map f (a2 :: as2)))
+    end
+
+  sum-map-Permutation : {as1 as2 : (List A)} -> (f : A -> Domain) -> (Permutation A as1 as2)
+                       -> (sum (map f as1)) == (sum (map f as2))
+  sum-map-Permutation f (permutation-empty) = refl
+  sum-map-Permutation f (permutation-cons {a} {as1} {as2} {as3} perm ins) =
+    (+-right {f a} (sum-map-Permutation f perm)) >=> (sum-map-Insertion f ins)
+
+
 
 
 record Ring {ℓ : Level} : Type (ℓ-suc ℓ) where
@@ -213,3 +268,25 @@ IntSemiring = record {
   *-left-zero = refl;
   *-left-one = int.+-right-zero;
   *-distrib-+-right = (\ {m} {n} {o} -> int.*-distrib-+ {m} {n} {o}) }
+
+ReaderSemiring : {ℓ : Level} -> (Type ℓ) -> Semiring {ℓ} -> Semiring {ℓ}
+ReaderSemiring A S = res
+  where
+  open Semiring S
+
+  res : Semiring
+  res = record {
+    Domain = A -> Domain;
+    0# = \a -> 0#;
+    1# = \a -> 1#;
+    _+_ = (\ x y a -> (x a + y a));
+    _*_ = (\ x y a -> (x a * y a));
+    +-assoc = (\ {m} {n} {o} i a -> (+-assoc {m a} {n a} {o a}) i);
+    +-commute = (\ {m} {n} i a -> (+-commute {m a} {n a} i));
+    *-assoc = (\ {m} {n} {o} i a -> (*-assoc {m a} {n a} {o a} i));
+    *-commute = (\ {m} {n} i a -> (*-commute {m a} {n a} i));
+    +-left-zero = (\ {m} i a -> (+-left-zero {m a} i));
+    *-left-zero = (\ {m} i a -> (*-left-zero {m a} i));
+    *-left-one = (\ {m} i a -> (*-left-one {m a} i));
+    *-distrib-+-right = (\ {m} {n} {o} i a -> (*-distrib-+-right {m a} {n a} {o a} i)) }
+
