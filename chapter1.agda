@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe --exact-split #-}
 
 module chapter1 where
 
@@ -19,6 +19,8 @@ ex1-1 {a} {b} {c} {d} (gcd a b _ _ _ _ gcd-f) c-div-a d-div-b =
     (gcd-f x (div-trans x-div-c c-div-a) (div-trans x-div-d d-div-b)))
 
 ex1-2' : {a b c : Nat} -> GCD' a b 1 -> GCD' a c 1 -> GCD' a (b *' c) 1
+ex1-2' g@(gcd' a zero _ _ _ _) (gcd' a _ _ _ _ _) = g
+ex1-2' (gcd' a b@(suc _) _ _ _ _) g@(gcd' a zero _ _ _ _) rewrite (path->id (*'-commute {b} {zero})) = g
 ex1-2' (gcd' a@(suc _) b@(suc _) _ _ _ f-b) (gcd' a@(suc _) c@(suc _) _ _ _ f-c) = 
   prime-gcd' a (b *' c) f
   where
@@ -31,8 +33,6 @@ ex1-2' (gcd' a@(suc _) b@(suc _) _ _ _ f-b) (gcd' a@(suc _) c@(suc _) _ _ _ f-c)
   f {p'} p p%a p%bc with (prime-divides-a-factor p {b} {c} p%bc)
   ... | inj-l p%b = ¬prime-div-one p (f-b p' p%a p%b)
   ... | inj-r p%c = ¬prime-div-one p (f-c p' p%a p%c)
-ex1-2' g@(gcd' a zero _ _ _ _) _ = g
-ex1-2' {a} {b} _ g@(gcd' a zero _ _ _ _) rewrite (path->id (*'-commute {b} {zero})) = g
 ex1-2' {zero} b@{suc _} c@{suc _} gb gc
   with (path->id (gcd'-zero->id gb)) | (path->id (gcd'-zero->id gc))
 ... | refl-=== | refl-=== = gb

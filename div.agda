@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe --exact-split #-}
 
 module div where
 
@@ -119,9 +119,9 @@ abs-one-implies-unit {neg (suc _)} pr = zero-suc-absurd (suc-injective (sym pr))
 
 
 *'-one-implies-one : {m n : Nat} -> m *' n == 1 -> n == 1
-*'-one-implies-one {suc zero} {suc zero} _ = refl
 *'-one-implies-one {zero} {_} pr = zero-suc-absurd pr
 *'-one-implies-one {suc m} {zero} pr = *'-one-implies-one {m} {zero} pr
+*'-one-implies-one {suc zero} {suc zero} _ = refl
 *'-one-implies-one {suc zero} {suc (suc n)} pr = zero-suc-absurd (sym (suc-injective pr))
 *'-one-implies-one {suc (suc m)} {suc (suc n)} pr = zero-suc-absurd (sym (suc-injective pr))
 *'-one-implies-one {suc (suc m)} {suc zero} pr = zero-suc-absurd (sym (suc-injective pr))
@@ -146,8 +146,9 @@ div'-antisym {suc d1} {zero} div1 div2 with (path->id (div'-zero->zero div2))
 
 
 div-same-abs : {d1 d2 : Int} -> d1 div d2 -> d2 div d1 -> (abs d1) == (abs d2)
-div-same-abs {zero-int} {_} div1 _ rewrite (path->id (div-zero->zero div1)) = refl
-div-same-abs {_} {zero-int} _ div2 rewrite (path->id (div-zero->zero div2)) = refl
+div-same-abs {zero-int} {_} div1 _ = (sym (cong abs (div-zero->zero div1)))
+div-same-abs {pos _} {zero-int} _ div2 = (cong abs (div-zero->zero div2))
+div-same-abs {neg _} {zero-int} _ div2 = (cong abs (div-zero->zero div2))
 div-same-abs {pos _} {pos _} (div-exists _ _  x pr1) (div-exists d2 d1 y pr2) = proof
  where
  rewritten : x * (y * d2) == d2
@@ -412,7 +413,7 @@ decide-div zero (suc d) = no f
   f : (x : zero div' (suc d)) -> Bot
   f z-div with (path->id (div'-zero->zero z-div))
   ...        | ()
-decide-div d@(suc d') n with (exists-remainder d (\ d=z -> zero-suc-absurd (sym d=z)) n)
+decide-div d@(suc d') n@(suc _) with (exists-remainder d (\ d=z -> zero-suc-absurd (sym d=z)) n)
 ... | (existence zero rem) = yes (remainder->div rem)
 ... | (existence (suc a) rem) = no (remainder->¬div rem)
 

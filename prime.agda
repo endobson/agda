@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe --exact-split #-}
 
 module prime where
 
@@ -89,8 +89,8 @@ private
   div->composite : {d n : Nat} -> d != 0 -> d != 1 -> d != n -> n != 0 -> d div' n -> Primality n
   div->composite d0 d1 dn n0 (div'-exists 0 n x p) = bot-elim (d0 refl)
   div->composite d0 d1 dn n0 (div'-exists 1 n x p) = bot-elim (d1 refl)
-  div->composite d0 d1 dn n0 (div'-exists d n 0 p) = bot-elim (n0 (sym p))
-  div->composite d0 d1 dn n0 (div'-exists d n 1 p) = bot-elim (dn ((sym (+'-right-zero {d})) >=> p))
+  div->composite d0 d1 dn n0 (div'-exists d@(suc (suc _)) n 0 p) = bot-elim (n0 (sym p))
+  div->composite d0 d1 dn n0 (div'-exists d@(suc (suc _)) n 1 p) = bot-elim (dn ((sym (+'-right-zero {d})) >=> p))
   div->composite d0 d1 dn n0 (div'-exists d@(suc (suc d')) n x@(suc (suc x')) pr) = 
     transport (\i -> Primality (pr i)) (primality-composite x d {refl {x = x}} {refl {x = d}})
 
@@ -122,9 +122,6 @@ private
   compute-prime-factorization {p} p>1  = rec p>1 (same-≤ p)
     where
     rec : {i : Nat} {p : Nat} -> p > 1 -> (p ≤ i) -> PrimeFactorization p
-    rec () zero-≤
-    rec (inc-≤ ()) (inc-≤ zero-≤)
-    rec _ (inc-≤ (inc-≤ zero-≤)) = (prime-factorization-prime 2-is-prime)
     rec {_} p@{suc (suc p')} p>1 (inc-≤ p-bound) with (compute-primality p>1)
     ... | (primality-prime prime) = (prime-factorization-prime prime)
     ... | (primality-composite {m'} {n'} m n {p1} {p2})
@@ -148,6 +145,7 @@ private
             n-bound : (suc n ≤ p)
             m-bound = (≤-a+'b==c rearranged-eq2-m)
             n-bound = (≤-a+'b==c rearranged-eq2-n)
+    rec (inc-≤ ()) (inc-≤ zero-≤)
 
 
 

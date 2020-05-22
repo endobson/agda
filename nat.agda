@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe --exact-split #-}
 
 module nat where
 
@@ -162,12 +162,12 @@ zero-suc-absurd : {A : Set} {x : Nat} -> 0 == (suc x) -> A
 zero-suc-absurd path = bot-elim (subst Pos' (sym path) tt)
 
 *'-only-one-left : {m n : Nat} -> m *' n == 1 -> m == 1
-*'-only-one-left {suc zero} {suc zero} _ = refl
-*'-only-one-left {zero} {_} p = zero-suc-absurd p
 *'-only-one-left {m} {zero} p = zero-suc-absurd (sym (*'-right-zero {m}) >=> p)
+*'-only-one-left {zero} {(suc _)} p = zero-suc-absurd p
+*'-only-one-left {suc zero} {suc zero} _ = refl
+*'-only-one-left {suc zero} {suc (suc n)} p = zero-suc-absurd (sym (suc-injective p))
 *'-only-one-left {suc (suc m)} {suc n} p =
   zero-suc-absurd ((sym (suc-injective p)) >=> (+'-commute {n}))
-*'-only-one-left {suc m} {suc (suc n)} p = zero-suc-absurd (sym (suc-injective p))
 
 *'-only-one-right : {m n : Nat} -> m *' n == 1 -> n == 1
 *'-only-one-right {m} {n} p = *'-only-one-left {n} {m} (*'-commute {n} {m} >=> p)

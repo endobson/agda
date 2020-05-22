@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe --exact-split #-}
 
 module solver where
 
@@ -342,7 +342,8 @@ private
   fin< : {n : Nat} -> Fin n -> Fin n -> Boolean
   fin< i j with compare-fin i j
   ... | less-than = true
-  ... | _ = false
+  ... | equal-to = false
+  ... | greater-than = false
   
   
   compare-list : (A -> A -> Order) -> List A -> List A -> Order
@@ -351,7 +352,8 @@ private
   compare-list _ [] (_ :: _) = less-than
   compare-list compare-elem (el :: ll) (er :: lr) with compare-elem el er
   ... | equal-to = compare-list compare-elem ll lr
-  ... | order = order
+  ... | less-than = less-than
+  ... | greater-than = greater-than
 
 
 -- module RingSolver (R : Ring {lzero}) where
@@ -832,7 +834,8 @@ module Solver (S : Semiring {lzero}) where
       res with (compare-list compare-fin (insertion-sort fin< (flatten t1))
                                          (insertion-sort fin< (flatten t2)))
       ... | less-than = true
-      ... | _ = false
+      ... | greater-than = false
+      ... | equal-to = false
   
 
     sum : List Domain -> Domain

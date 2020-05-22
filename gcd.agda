@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical --safe --exact-split #-}
 
 module gcd where
 
@@ -273,10 +273,11 @@ pos-eulers-algo m n = pos-eulers-algo' (suc (m +' n)) m n (add1-< (m +' n))
 
 
 eulers-algo : (m : Int) -> (n : Int) -> exists (LinearGCD m n)
-eulers-algo zero-int zero-int = existence zero-int (linear-gcd linear-combo-refl gcd-refl)
-eulers-algo zero-int n = existence (abs n) 
-  (linear-gcd-sym (linear-gcd (linear-combo-abs linear-combo-zero) gcd-zero))
 eulers-algo m zero-int = existence (abs m) (linear-gcd (linear-combo-abs linear-combo-zero) gcd-zero)
+eulers-algo zero-int n@(pos _) = existence (abs n) 
+  (linear-gcd-sym (linear-gcd (linear-combo-abs linear-combo-zero) gcd-zero))
+eulers-algo zero-int n@(neg _) = existence (abs n) 
+  (linear-gcd-sym (linear-gcd (linear-combo-abs linear-combo-zero) gcd-zero))
 eulers-algo (pos m) (pos n) = pos-eulers-algo m n
 eulers-algo (neg m) (pos n) = handle (pos-eulers-algo m n) 
   where
