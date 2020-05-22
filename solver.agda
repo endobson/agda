@@ -729,14 +729,14 @@ module Solver (S : Semiring {lzero}) where
       sym (sum-map-Permutation (\ t -> ⟦ t ⟧term) (Permutation-insertion-sort term< ts))
 
 
-    ⟦_⇓⟧2 : Syntax n -> Meaning
-    ⟦ e ⇓⟧2 = ⟦ (insertion-sort term< (linearize e)) ⟧terms
+    ⟦_⇓⟧ : Syntax n -> Meaning
+    ⟦ e ⇓⟧ = ⟦ (insertion-sort term< (linearize e)) ⟧terms
   
-    correct2 : (e : Syntax n) -> ⟦ e ⇓⟧2 == ⟦ e ⟧
-    correct2 (var i) = +-right-zero
-    correct2 (l ⊕ r) = 
+    correct : (e : Syntax n) -> ⟦ e ⇓⟧ == ⟦ e ⟧
+    correct (var i) = +-right-zero
+    correct (l ⊕ r) = 
       begin
-        ⟦ l ⊕ r ⇓⟧2
+        ⟦ l ⊕ r ⇓⟧
       ==<>
         ⟦ insertion-sort term< (linearize (l ⊕ r)) ⟧terms
       ==< terms-eval-inject-insertion-sort {linearize (l ⊕ r)} >
@@ -748,14 +748,14 @@ module Solver (S : Semiring {lzero}) where
               (sym (terms-eval-inject-insertion-sort {linearize r}))) >
         ⟦ insertion-sort term< (linearize l) ⟧terms + 
         ⟦ insertion-sort term< (linearize r) ⟧terms 
-      ==< +-cong (correct2 l) (correct2 r) >
+      ==< +-cong (correct l) (correct r) >
         ⟦ l ⟧ + ⟦ r ⟧
       ==<>
         ⟦ l ⊕ r ⟧
       end
-    correct2 (l ⊗ r)= 
+    correct (l ⊗ r)= 
       begin
-        ⟦ l ⊗ r ⇓⟧2
+        ⟦ l ⊗ r ⇓⟧
       ==<>
         ⟦ insertion-sort term< (linearize (l ⊗ r)) ⟧terms
       ==< terms-eval-inject-insertion-sort {linearize (l ⊗ r)} >
@@ -767,7 +767,7 @@ module Solver (S : Semiring {lzero}) where
               (sym (terms-eval-inject-insertion-sort {linearize r}))) >
         ⟦ insertion-sort term< (linearize l) ⟧terms * 
         ⟦ insertion-sort term< (linearize r) ⟧terms 
-      ==< *-cong (correct2 l) (correct2 r) >
+      ==< *-cong (correct l) (correct r) >
         ⟦ l ⟧ * ⟦ r ⟧
       ==<>
         ⟦ l ⊗ r ⟧
@@ -776,7 +776,7 @@ module Solver (S : Semiring {lzero}) where
 
 
     solve : (f : Nary n (Syntax n) ((Syntax n) × (Syntax n)))
-            ->  Eqʰ n _==_ (curry n ⟦  (proj₁ (close n f)) ⇓⟧2) (curry n ⟦ proj₂ (close n f) ⇓⟧2)
+            ->  Eqʰ n _==_ (curry n ⟦ (proj₁ (close n f)) ⇓⟧) (curry n ⟦ proj₂ (close n f) ⇓⟧)
             ->  Eq n _==_ (curry n ⟦ proj₁ (close n f) ⟧) (curry n ⟦ proj₂ (close n f) ⟧)
     solve f hidden-normal-proof = full-reg-proof
       where
@@ -785,14 +785,14 @@ module Solver (S : Semiring {lzero}) where
       e₂ : Syntax n
       e₂ = proj₂ (close n f)
 
-      full-normal-proof : Eq n _==_ (curry n ⟦ e₁ ⇓⟧2) (curry n ⟦ e₂ ⇓⟧2)
+      full-normal-proof : Eq n _==_ (curry n ⟦ e₁ ⇓⟧) (curry n ⟦ e₂ ⇓⟧)
       full-normal-proof = unhide-∀ⁿ n hidden-normal-proof
     
-      inner-normal-proof : (ρ : (Vec S.Domain n)) -> (⟦ e₁ ⇓⟧2 ρ) == (⟦ e₂ ⇓⟧2 ρ)
-      inner-normal-proof = cong-curry⁻¹ n (⟦ e₁ ⇓⟧2) (⟦ e₂ ⇓⟧2) full-normal-proof
+      inner-normal-proof : (ρ : (Vec S.Domain n)) -> (⟦ e₁ ⇓⟧ ρ) == (⟦ e₂ ⇓⟧ ρ)
+      inner-normal-proof = cong-curry⁻¹ n (⟦ e₁ ⇓⟧) (⟦ e₂ ⇓⟧) full-normal-proof
 
-      prove : (ρ : Vec S.Domain n) -> ⟦ e₁ ⇓⟧2 ρ == ⟦ e₂ ⇓⟧2 ρ -> ⟦ e₁ ⟧ ρ == ⟦ e₂ ⟧ ρ
-      prove ρ pr = (sym (\i -> (correct2 e₁ i ρ))) >=> pr >=> (\i -> (correct2 e₂ i ρ))
+      prove : (ρ : Vec S.Domain n) -> ⟦ e₁ ⇓⟧ ρ == ⟦ e₂ ⇓⟧ ρ -> ⟦ e₁ ⟧ ρ == ⟦ e₂ ⟧ ρ
+      prove ρ pr = (sym (\i -> (correct e₁ i ρ))) >=> pr >=> (\i -> (correct e₂ i ρ))
     
       inner-reg-proof : (ρ : (Vec S.Domain n)) -> (⟦ e₁ ⟧ ρ) == (⟦ e₂ ⟧ ρ)
       inner-reg-proof v = (prove v (inner-normal-proof v))
