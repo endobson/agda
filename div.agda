@@ -38,20 +38,9 @@ div'-trans : {d m n : Nat} -> d div' m -> m div' n -> d div' n
 div'-trans (div'-exists d m a a*d=m) (div'-exists m n b b*m=n) =
   div'-exists d n (b *' a) ((*'-assoc {b} {a} {d}) >=> (*'-right {b} a*d=m) >=> b*m=n)
 
-div-mult : {d n a : Int} -> d div n -> (a * d) div (a * n)
-div-mult {d} {n} {a} (div-exists d n c pr) =
-  div-exists (a * d) (a * n) c
-  (begin
-     c * (a * d)
-   ==< sym (*-assoc {c}) >
-     (c * a) * d
-   ==< *-left (*-commute {c} {a}) >
-     (a * c) * d
-   ==< *-assoc {a}  >
-     a * (c * d)
-   ==< *-right {a} pr >
-     a * n
-   end)
+div-mult : {d n : Int} -> d div n -> (a : Int) -> d div (a * n)
+div-mult {d} {n} (div-exists d n c pr) a =
+  div-exists d (a * n) (a * c) (*-assoc {a} >=> *-right {a} pr)
 
 div-negate : {d a : Int} -> d div a -> d div (- a)
 div-negate (div-exists d a d-div-a pr) =
