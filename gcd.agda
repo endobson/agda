@@ -45,7 +45,7 @@ gcd-negate (gcd a b d non-neg d-div-a d-div-b f) =
     xa2 : x div (- (- a))
     xa2 = (div-negate xa)
     rewritten-xa : x div a
-    rewritten-xa rewrite (path->id (sym (minus-double-inverse {a}))) = xa2
+    rewritten-xa = transport (\i -> x div (minus-double-inverse {a} i)) xa2
 
 gcd-remove-abs : {a b d : Int} -> GCD (abs a) b d -> GCD a b d
 gcd-remove-abs {zero-int} g = g
@@ -145,7 +145,7 @@ decide-compare3 zero zero = compare3-= refl
 decide-compare3 zero (suc n) = compare3-< {n} (+-commute {pos n}) ≤-proof
   where 
   ≤-proof : (suc n +' zero) ≤ suc n
-  ≤-proof rewrite (path->id (+'-right-zero {suc n})) = same-≤ (suc n)
+  ≤-proof = transport (\i -> (+'-right-zero {suc n} (~ i)) ≤ suc n) (same-≤ (suc n))
 decide-compare3 (suc m) zero = compare3-> {m} (+-commute {pos m}) (same-≤ (suc (m +' zero)))
 decide-compare3 (suc m) (suc n) = fix (decide-compare3 m n)
   where fix : CompareNat3 m n -> CompareNat3 (suc m) (suc n)
@@ -154,14 +154,14 @@ decide-compare3 (suc m) (suc n) = fix (decide-compare3 m n)
           compare3-< {a} (add1-extract-right {pos a} >=> cong add1 pr) ≤-proof
           where 
           ≤-proof : (suc a +' suc m) ≤ (suc m +' suc n)
-          ≤-proof rewrite (path->id (+'-right-suc {a} {m})) | (path->id (+'-right-suc {m} {n})) = 
-            inc-≤ (suc-≤ rec-≤)
+          ≤-proof = transport (\i -> (+'-right-suc {suc a} {m} (~ i)) ≤ (+'-right-suc {suc m} {n} (~ i)))
+                              (inc-≤ (suc-≤ rec-≤))
         fix (compare3-> {a} pr rec-≤) = 
           compare3-> {a} (add1-extract-right {pos a} >=> cong add1 pr) ≤-proof
           where 
           ≤-proof : (suc a +' suc n) ≤ (suc m +' suc n)
-          ≤-proof rewrite (path->id (+'-right-suc {a} {n})) | (path->id (+'-right-suc {m} {n})) = 
-            inc-≤ (suc-≤ rec-≤)
+          ≤-proof = transport (\i -> (+'-right-suc {suc a} {n} (~ i)) ≤ (+'-right-suc {suc m} {n} (~ i)))
+                              (inc-≤ (suc-≤ rec-≤))
 
 
 eulers-helper-gcd : (m : Nat) -> (n : Nat) -> 
@@ -315,7 +315,8 @@ gcd->linear-combo : {a b d : Int} -> GCD a b d -> LinearCombination a b d
 gcd->linear-combo {a} {b} {d} gcd-d = handle (eulers-algo a b)
   where
   handle : exists (LinearGCD a b) -> LinearCombination a b d
-  handle (existence d' (linear-gcd lc gcd-d')) rewrite (path->id (gcd-unique gcd-d gcd-d')) = lc
+  handle (existence d' (linear-gcd lc gcd-d')) = 
+    transport (\i -> LinearCombination a b ((gcd-unique gcd-d' gcd-d) i)) lc
 
 data GCD' : Nat -> Nat -> Nat -> Set where
  gcd' : (a : Nat) -> (b : Nat) -> (d : Nat) -> 
@@ -416,7 +417,7 @@ euclids-lemma' : {a b c : Nat} -> a div' (b *' c) -> GCD' a b 1 -> a div' c
 euclids-lemma' {a} {b} {c} a%bc ab-gcd = result
   where
   int-a%bc : (int a) div (int b * int c)
-  int-a%bc rewrite (path->id (sym (int-inject-*' {b} {c}))) = (div'->div a%bc)
+  int-a%bc = transport (\i -> (int a) div ((int-inject-*' {b} {c} i))) (div'->div a%bc)
   result : a div' c
   result = (div->div' (euclids-lemma int-a%bc (gcd'->gcd/nat ab-gcd)))
 

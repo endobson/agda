@@ -149,10 +149,10 @@ div-same-abs : {d1 d2 : Int} -> d1 div d2 -> d2 div d1 -> (abs d1) == (abs d2)
 div-same-abs {zero-int} {_} div1 _ = (sym (cong abs (div-zero->zero div1)))
 div-same-abs {pos _} {zero-int} _ div2 = (cong abs (div-zero->zero div2))
 div-same-abs {neg _} {zero-int} _ div2 = (cong abs (div-zero->zero div2))
-div-same-abs {pos _} {pos _} (div-exists _ _  x pr1) (div-exists d2 d1 y pr2) = proof
+div-same-abs {pos _} {pos _} (div-exists d1 d2 x pr1) (div-exists d2 d1 y pr2) = proof
  where
  rewritten : x * (y * d2) == d2
- rewritten rewrite (path->id pr2) = pr1
+ rewritten = (\i -> x * pr2 i) >=> pr1
  unit : Unit y
  unit = *-one-implies-unit {x} {y} (*-left-id tt (*-assoc {x} {y} {d2} >=> rewritten))
  proof : abs d1 == abs d2
@@ -160,7 +160,7 @@ div-same-abs {pos _} {pos _} (div-exists _ _  x pr1) (div-exists d2 d1 y pr2) = 
 div-same-abs {pos _} {neg _} (div-exists _ _  x pr1) (div-exists d2 d1 y pr2) = proof
  where
  rewritten : x * (y * d2) == d2
- rewritten rewrite (path->id pr2) = pr1
+ rewritten = (\i -> x * pr2 i) >=> pr1
  unit : Unit y
  unit = *-one-implies-unit {x} {y} (*-left-id tt (*-assoc {x} {y} {d2} >=> rewritten))
  proof : abs d1 == abs d2
@@ -168,7 +168,7 @@ div-same-abs {pos _} {neg _} (div-exists _ _  x pr1) (div-exists d2 d1 y pr2) = 
 div-same-abs {neg _} {pos _} (div-exists _ _  x pr1) (div-exists d2 d1 y pr2) = proof
  where
  rewritten : x * (y * d2) == d2
- rewritten rewrite (path->id pr2) = pr1
+ rewritten = (\i -> x * pr2 i) >=> pr1
  unit : Unit y
  unit = *-one-implies-unit {x} {y} (*-left-id tt (*-assoc {x} {y} {d2} >=> rewritten))
  proof : abs d1 == abs d2
@@ -176,7 +176,7 @@ div-same-abs {neg _} {pos _} (div-exists _ _  x pr1) (div-exists d2 d1 y pr2) = 
 div-same-abs {neg _} {neg _} (div-exists _ _  x pr1) (div-exists d2 d1 y pr2) = proof
  where
  rewritten : x * (y * d2) == d2
- rewritten rewrite (path->id pr2) = pr1
+ rewritten = (\i -> x * pr2 i) >=> pr1
  unit : Unit y
  unit = *-one-implies-unit {x} {y} (*-left-id tt (*-assoc {x} {y} {d2} >=> rewritten))
  proof : abs d1 == abs d2

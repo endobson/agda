@@ -20,7 +20,8 @@ ex1-1 {a} {b} {c} {d} (gcd a b _ _ _ _ gcd-f) c-div-a d-div-b =
 
 ex1-2' : {a b c : Nat} -> GCD' a b 1 -> GCD' a c 1 -> GCD' a (b *' c) 1
 ex1-2' g@(gcd' a zero _ _ _ _) (gcd' a _ _ _ _ _) = g
-ex1-2' (gcd' a b@(suc _) _ _ _ _) g@(gcd' a zero _ _ _ _) rewrite (path->id (*'-commute {b} {zero})) = g
+ex1-2' (gcd' a b@(suc _) _ _ _ _) g@(gcd' a zero _ _ _ _) =
+  transport (\i -> GCD' a (*'-commute {b} {zero} (~ i)) 1) g
 ex1-2' (gcd' a@(suc _) b@(suc _) _ _ _ f-b) (gcd' a@(suc _) c@(suc _) _ _ _ f-c) = 
   prime-gcd' a (b *' c) f
   where
@@ -50,11 +51,9 @@ ex1-2 {a} {b} {c} g1 g2 = g7
   g4 : GCD (abs a) (int (abs' b *' abs' c)) (int 1)
   g4 = (gcd'->gcd/nat g3)
   g5 : GCD (abs a) (abs b * abs c) (int 1)
-  g5 rewrite (path->id (sym (int-inject-*' {abs' b} {abs' c})))
-    = g4
+  g5 = transport (\i -> GCD (abs a) (int-inject-*' {abs' b} {abs' c} i) (int 1)) g4
   g6 : GCD (abs a) (abs (b * c)) (int 1)
-  g6 rewrite (path->id (abs-inject-* {b} {c}))
-    = g5
+  g6 = transport (\i -> GCD (abs a) (abs-inject-* {b} {c} (~ i)) (int 1)) g5
   g7 : GCD a (b * c) (int 1)
   g7 = (gcd-remove-abs (gcd-sym (gcd-remove-abs (gcd-sym g6))))
 
@@ -65,7 +64,7 @@ rp-* : {a b c : Int} -> RPrime b a -> RPrime c a -> RPrime (b * c) a
 rp-* rp1 rp2 = gcd-sym (ex1-2 (gcd-sym rp1) (gcd-sym rp2))
   
 rp-^ : {a b : Int} -> RPrime a b -> (n : Nat) -> {Pos' n} -> RPrime (a ^ n) b
-rp-^ {a} rp (suc (zero)) rewrite (path->id (^-right-one {a})) = rp
+rp-^ {a} {b} rp (suc (zero)) = transport (\i -> RPrime (^-right-one {a} (~ i)) b) rp
 rp-^ rp (suc (suc n)) = rp-* rp (rp-^ rp (suc n))
 
 rp-sym : {a b : Int} -> RPrime a b -> RPrime b a

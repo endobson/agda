@@ -93,7 +93,7 @@ sub1-add1-id {neg (suc n')} = refl
 add1-extract-left : {m n : Int} -> add1 m + n == add1 (m + n)
 sub1-extract-left : {m n : Int} -> sub1 m + n == sub1 (m + n)
 add1-extract-left {nonneg m'} = refl
-add1-extract-left {neg zero} {n} rewrite (path->id (add1-sub1-id {n})) = refl
+add1-extract-left {neg zero} {n} = (sym (add1-sub1-id {n}))
 add1-extract-left {neg (suc m')} {n} = 
   begin
     add1 (neg (suc m')) + n
@@ -188,9 +188,7 @@ sub1-extract-left {nonneg (suc m')} {n} =
 add1-extract-right : {m n : Int} -> m + add1 n == add1 (m + n)
 add1-extract-right {nonneg zero} {n} = refl
 add1-extract-right {nonneg (suc m')} {n} = cong add1 (add1-extract-right {nonneg m'})
-add1-extract-right {neg zero} {n}
-  rewrite (path->id (add1-sub1-id {n})) | (path->id (sub1-add1-id {n})) =
-  refl
+add1-extract-right {neg zero} {n} = (sub1-add1-id {n}) >=> (sym (add1-sub1-id {n}))
 add1-extract-right {neg (suc m')} {n} =
   begin
     neg (suc m') + add1 n
@@ -213,9 +211,7 @@ add1-extract-right {neg (suc m')} {n} =
 sub1-extract-right : {m n : Int} -> m + sub1 n == sub1 (m + n)
 sub1-extract-right {neg zero} {n} = refl
 sub1-extract-right {neg (suc m')} {n} = cong sub1 (sub1-extract-right {neg m'})
-sub1-extract-right {nonneg zero} {n}
-  rewrite (path->id (sub1-add1-id {n})) | (path->id (add1-sub1-id {n})) =
-  refl
+sub1-extract-right {nonneg zero} {n} = refl
 sub1-extract-right {nonneg (suc m')} {n} =
   begin
     nonneg (suc m') + sub1 n
