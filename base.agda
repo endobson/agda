@@ -2,7 +2,13 @@
 
 module base where
 
-open import Level
+open import Level public
+  using    ( Level )
+  renaming ( zero to ℓ-zero
+           ; suc  to ℓ-suc
+           ; _⊔_  to ℓ-max
+           ; Setω  to Typeω )
+
 open import Agda.Primitive.Cubical public
 open import Agda.Builtin.Cubical.Path public
 open import Agda.Builtin.Cubical.Glue public
@@ -34,8 +40,11 @@ _==_ {A = A} = Path A
 refl : {i : Level} {A : Set i} {x : A} → Path A x x
 refl {x = x} = \ i -> x
 
-Type : (ℓ : Level) → Set (Level.suc ℓ)
+Type : (ℓ : Level) → Set (ℓ-suc ℓ)
 Type ℓ = Set ℓ 
+
+Type₀ : Type (ℓ-suc ℓ-zero)
+Type₀ = Type ℓ-zero
 
 
 data Bot : Set where
@@ -59,13 +68,13 @@ data Dec {a : Level} (A : Set a) : Set a where
   yes : A -> Dec A
   no : ¬ A -> Dec A
 
-data exists : {A : Set} -> (B : A -> Set) -> Set (suc zero) where
- existence : {A : Set} -> {B : A -> Set} -> (x : A) -> (y : B x) -> exists B
+data exists {ℓ₁ ℓ₂ : Level} : {A : Type ℓ₁} -> (B : A -> Type ℓ₂) -> Type (ℓ-suc (ℓ-max ℓ₁  ℓ₂)) where
+ existence : {A : Type ℓ₁} -> {B : A -> Type ℓ₂} -> (x : A) -> (y : B x) -> exists B
 
 infixr 4 _,_
 infixr 2 _×_
 
-data _×_ {a b : Level} (A : Set a) (B : Set b): Set (a ⊔ b) where
+data _×_ {ℓ₁ ℓ₂ : Level} (A : Type ℓ₁) (B : Type ℓ₂) : Type (ℓ-max ℓ₁ ℓ₂) where
   _,_ : (a : A) -> (b : B) -> A × B
 
 proj₁ : {a b : Level} {A : Set a} -> {B : Set b} -> A × B -> A
