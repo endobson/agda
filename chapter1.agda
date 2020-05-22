@@ -32,10 +32,10 @@ ex1-2' (gcd' a@(suc _) b@(suc _) _ _ _ f-b) (gcd' a@(suc _) c@(suc _) _ _ _ f-c)
   ... | inj-l p%b = ¬prime-div-one p (f-b p' p%a p%b)
   ... | inj-r p%c = ¬prime-div-one p (f-c p' p%a p%c)
 ex1-2' g@(gcd' a zero _ _ _ _) _ = g
-ex1-2' {a} {b} _ g@(gcd' a zero _ _ _ _) rewrite (*'-commute {b} {zero}) = g
+ex1-2' {a} {b} _ g@(gcd' a zero _ _ _ _) rewrite (path->id (*'-commute {b} {zero})) = g
 ex1-2' {zero} b@{suc _} c@{suc _} gb gc
-  with gcd'-zero->id gb | gcd'-zero->id gc
-... | refl | refl = gb
+  with (path->id (gcd'-zero->id gb)) | (path->id (gcd'-zero->id gc))
+... | refl-=== | refl-=== = gb
 
 ex1-2 : {a b c : Int} -> GCD a b (int 1) -> GCD a c (int 1)
                       -> GCD a (b * c) (int 1)
@@ -50,10 +50,10 @@ ex1-2 {a} {b} {c} g1 g2 = g7
   g4 : GCD (abs a) (int (abs' b *' abs' c)) (int 1)
   g4 = (gcd'->gcd/nat g3)
   g5 : GCD (abs a) (abs b * abs c) (int 1)
-  g5 rewrite (sym (int-inject-*' {abs' b} {abs' c}))
+  g5 rewrite (path->id (sym (int-inject-*' {abs' b} {abs' c})))
     = g4
   g6 : GCD (abs a) (abs (b * c)) (int 1)
-  g6 rewrite (abs-inject-* {b} {c})
+  g6 rewrite (path->id (abs-inject-* {b} {c}))
     = g5
   g7 : GCD a (b * c) (int 1)
   g7 = (gcd-remove-abs (gcd-sym (gcd-remove-abs (gcd-sym g6))))
@@ -65,7 +65,7 @@ rp-* : {a b c : Int} -> RPrime b a -> RPrime c a -> RPrime (b * c) a
 rp-* rp1 rp2 = gcd-sym (ex1-2 (gcd-sym rp1) (gcd-sym rp2))
   
 rp-^ : {a b : Int} -> RPrime a b -> (n : Nat) -> {Pos' n} -> RPrime (a ^ n) b
-rp-^ {a} rp (suc (zero)) rewrite (^-right-one {a}) = rp
+rp-^ {a} rp (suc (zero)) rewrite (path->id (^-right-one {a})) = rp
 rp-^ rp (suc (suc n)) = rp-* rp (rp-^ rp (suc n))
 
 rp-sym : {a b : Int} -> RPrime a b -> RPrime b a
@@ -110,7 +110,10 @@ ex1-4' rp (gcd a+b a-b n _ n%a+b n%a-b f) with (gcd->linear-combo rp)
       (int 2)
     end
   res : n div (int 2)
-  res rewrite (sym lin-proof) = div-linear n%a+b n%a-b {x + y} {x + - y}
+  res = 
+   transport
+     (\ i -> n div (lin-proof i))
+     (div-linear n%a+b n%a-b {x + y} {x + - y})
 
 ex1-4 : {a b : Int} -> RPrime a b -> (GCD (a + b) (a + - b) (int 1)) ⊎ (GCD (a + b) (a + - b) (int 2))
 ex1-4 {a} {b} rp with (gcd-exists (a + b) (a + - b))
@@ -122,5 +125,4 @@ ex1-4 {a} {b} rp with (gcd-exists (a + b) (a + - b))
   res with (div->≤ d-div)
   ... | (inc-≤ zero-≤) = inj-l g
   ... | (inc-≤ (inc-≤ zero-≤)) = inj-r g
-  ... | zero-≤ with (div-zero->zero d-div)
-  ...             | ()
+  ... | zero-≤ = bot-elim (zero-suc-absurd (sym (nonneg-injective (div-zero->zero d-div))))
