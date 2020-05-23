@@ -74,6 +74,8 @@ record Semiring {ℓ : Level} : Type (ℓ-suc ℓ) where
   sum [] = 0#
   sum (a :: l) = a + sum l
 
+--  empty-sum : sum [] == 0#
+--  empty-sum = +-left
 
   sum-inject-++ : {a b : List Domain} -> sum (a ++ b) == sum a + sum b
   sum-inject-++ {[]} {b} = sym (+-left-zero {sum b})
@@ -225,20 +227,70 @@ record Ring {ℓ : Level} : Type (ℓ-suc ℓ) where
      end))
 
 
+  lift-nat : Nat -> Domain
+  lift-nat zero = 0#
+  lift-nat (suc n) = (1# + (lift-nat n))
 
-  private
-    lift-constant-nat-helper : Nat -> Domain
-    lift-constant-nat-helper zero = 0#
-    lift-constant-nat-helper (suc n) = (1# + (lift-constant-nat-helper n))
+  lift-int : int.Int -> Domain
+  lift-int (int.nonneg x) = lift-nat x
+  lift-int (int.neg x) = - lift-nat (suc x)
 
-  lift-constant : int.Int -> Domain
-  lift-constant (int.nonneg x) = lift-constant-nat-helper x
-  lift-constant (int.neg x) = - lift-constant-nat-helper (suc x)
-
-  minus-lift-constant : {x : int.Int} -> - (lift-constant x) == lift-constant (int.- x)
+  minus-lift-constant : {x : int.Int} -> - (lift-int x) == lift-int (int.- x)
   minus-lift-constant {int.zero-int} = minus-zero
   minus-lift-constant {int.pos x} = refl
   minus-lift-constant {int.neg x} = minus-double-inverse
+
+  +-lift-nat : {x y : Nat} -> (lift-nat x) + (lift-nat y) == (lift-nat (x +' y))
+  +-lift-nat {zero} = +-left-zero
+  +-lift-nat {suc n} =  +-assoc >=> (+-right (+-lift-nat {n}))
+
+  private
+    +-lift-add1 : ∀ x -> (lift-int (int.add1 x)) == 1# + (lift-int x)
+    +-lift-add1 (int.nonneg x) = refl
+    +-lift-add1 (int.neg zero) = sym (+-right (cong -_ +-right-zero) >=> +-inverse)
+    +-lift-add1 (int.neg (suc x)) = sym
+      (begin
+         1# + (lift-int (int.neg (suc x)))
+       ==<>
+         1# + - (1# + (lift-nat (suc x)))
+       ==< +-right minus-distrib-plus >
+         1# + (- 1# + - (lift-nat (suc x)))
+       ==< sym +-assoc >
+         (1# + - 1#) + - (lift-nat (suc x))
+       ==< +-left +-inverse >
+         0# + - (lift-nat (suc x))
+       ==< +-left-zero >
+         (lift-int (int.neg x))
+       end)
+
+    +-lift-sub1 : ∀ x -> (lift-int (int.sub1 x)) == - 1# + (lift-int x)
+    +-lift-sub1 (int.neg x) = minus-distrib-plus
+    +-lift-sub1 (int.nonneg zero) =
+      sym( +-right-zero >=> cong -_ (sym +-right-zero))
+    +-lift-sub1 (int.nonneg (suc x)) = sym
+      (begin
+         - 1# + (lift-int (int.nonneg (suc x)))
+       ==<>
+         - 1# + (1# + (lift-int (int.nonneg x)))
+       ==< sym +-assoc >
+         (- 1# + 1#) + (lift-int (int.nonneg x))
+       ==< +-left +-commute >
+         (1# + - 1#) + (lift-int (int.nonneg x))
+       ==< +-left +-inverse >
+         0# + (lift-int (int.nonneg x))
+       ==< +-left-zero >
+         (lift-int (int.nonneg x))
+       end)
+
+  +-lift-int : {x y : int.Int} -> (lift-int x) + (lift-int y) == (lift-int (x int.+ y))
+  +-lift-int {int.nonneg zero} = +-left-zero
+  +-lift-int {int.nonneg (suc x)} {y} =
+    +-assoc >=> +-right (+-lift-int {int.nonneg x} {y}) >=> sym (+-lift-add1 ((int.nonneg x) int.+ y))
+  +-lift-int {int.neg zero} {y} =
+    +-left (cong -_ +-right-zero) >=> sym (+-lift-sub1 y)
+  +-lift-int {int.neg (suc x)} {y} =
+    +-left minus-distrib-plus >=> +-assoc >=> +-right (+-lift-int {int.neg x} {y})
+    >=> sym (+-lift-sub1 ((int.neg x) int.+ y))
 
 NatSemiring : Semiring
 NatSemiring = record {

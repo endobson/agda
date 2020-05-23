@@ -50,3 +50,11 @@ P =[ f ]⇒ Q = P ⇒ (Q on f)
 
 _Preserves_⇢_ : (A -> B) -> Rel A i -> Rel B j -> Set _
 f Preserves P ⇢ Q = P =[ f ]⇒ Q
+
+data Tri (A : Set a) (B : Set b) (C : Set c) : Set (a ⊔ b ⊔ c) where
+  tri< : (a  :   A) (¬b : ¬ B) (¬c : ¬ C) -> Tri A B C
+  tri= : (¬a : ¬ A) (b  :   B) (¬c : ¬ C) -> Tri A B C
+  tri> : (¬a : ¬ A) (¬b : ¬ B) (c  :   C) -> Tri A B C
+
+Trichotomous : Rel A i -> Rel A j -> Set _
+Trichotomous _<_ _==_ = ∀ x y -> Tri (x < y) (x == y) (y < x)

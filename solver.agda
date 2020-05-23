@@ -116,36 +116,44 @@ private
   unhide-∀ⁿ zero v = v
   unhide-∀ⁿ (suc n) g = (\ x -> (unhide-∀ⁿ n (g {x})))
 
-
-  data Order : Set where
-    less-than : Order
-    equal-to : Order
-    greater-than : Order
+  data Order {A : Set a} : A -> A ->  Set a where
+    less-than : {x y : A} -> Order x y
+    equal-to : {x y : A} -> x == y -> Order x y
+    greater-than : {x y : A} -> Order x y
   
-  compare-nat : Nat -> Nat -> Order
-  compare-nat zero zero = equal-to
+  compare-nat : ∀ (x y : Nat) -> Order x y
+  compare-nat zero zero = equal-to refl
   compare-nat (suc _) zero = greater-than
   compare-nat zero (suc _) = less-than
-  compare-nat (suc m) (suc n) = compare-nat m n
+  compare-nat (suc m) (suc n) with compare-nat m n
+  ... | less-than = less-than
+  ... | equal-to p = equal-to (cong suc p)
+  ... | greater-than = greater-than
   
-  compare-fin : {n : Nat} -> Fin n -> Fin n -> Order
-  compare-fin m n = compare-nat (fin->nat m) (fin->nat n)
+  compare-fin : {n : Nat} (x y : Fin n) -> Order x y
+  compare-fin m n with compare-nat (fin->nat m) (fin->nat n)
+  ... | less-than = less-than
+  ... | equal-to p = equal-to (fin->nat-injective p)
+  ... | greater-than = greater-than
   
   fin< : {n : Nat} -> Fin n -> Fin n -> Boolean
   fin< i j with compare-fin i j
   ... | less-than = true
-  ... | equal-to = false
+  ... | equal-to _ = false
   ... | greater-than = false
   
   
-  compare-list : (A -> A -> Order) -> List A -> List A -> Order
-  compare-list _ [] [] = equal-to
+  compare-list : ((a b : A) -> Order a b) -> (x y : List A) -> Order x y
+  compare-list _ [] [] = equal-to refl
   compare-list _ (_ :: _) [] = greater-than
   compare-list _ [] (_ :: _) = less-than
   compare-list compare-elem (el :: ll) (er :: lr) with compare-elem el er
-  ... | equal-to = compare-list compare-elem ll lr
   ... | less-than = less-than
   ... | greater-than = greater-than
+  ... | equal-to elem-pr with compare-list compare-elem ll lr
+  ...    | less-than = less-than
+  ...    | greater-than = greater-than
+  ...    | equal-to list-pr = equal-to (\i -> (elem-pr i) :: (list-pr i))
 
 
 module RingSolver (R : Ring {lzero}) where
@@ -156,97 +164,112 @@ module RingSolver (R : Ring {lzero}) where
       open module M = Ring (ReaderRing (Vec R.Domain n) R)
         renaming (Domain to Meaning)
 
-      record NormalTerm : Set where
-        constructor normal-term
+      -- Names of the normal forms
+
+      Var : Set
+      Var = Fin n
+
+      Vars = List Var
+
+      record Term : Set where
+        constructor term
         field
           multiplier : int.Int
-          vars : List (Fin n)
+          vars : Vars
+
+      Terms : Set
+      Terms = List Term
   
-      record NormalExpr : Set where
-        constructor normal-expr
+      record Expr : Set where
+        constructor expr
         field
-          terms : List NormalTerm 
+          terms : Terms
 
 
+      compare-vars : (x y : Vars) -> Order x y
+      compare-vars = compare-list compare-fin
+
+ 
+      term-- : Term -> Term
+      term-- (term m vars) = (term (int.- m) vars)
   
-      compare-term : NormalTerm -> NormalTerm -> Order
-      compare-term (normal-term _ vars1) (normal-term _ vars2) =
-        compare-list compare-fin vars1 vars2
+      term-* : Term -> Term -> Term
+      term-* (term m1 vs1) (term m2 vs2) =
+        (term (m1 int.* m2) (insertion-sort fin< (vs1 ++ vs2)))
+
+      merge-equal-terms : (t1 t2 : Term) -> (Term.vars t1 == Term.vars t2) -> Term
+      merge-equal-terms (term m1 vars1) (term m2 vars2) _ = (term (m1 int.+ m2) vars1)
   
-      normal-term-- : NormalTerm -> NormalTerm
-      normal-term-- (normal-term m vars) = (normal-term (int.- m) vars)
-  
-      multiply-term : NormalTerm -> NormalTerm -> NormalTerm
-      multiply-term (normal-term m1 vs1) (normal-term m2 vs2) =
-        (normal-term (m1 int.* m2) (insertion-sort fin< (vs1 ++ vs2)))
-  
-      merge-terms : List NormalTerm -> List NormalTerm -> List NormalTerm
-      merge-terms1 : NormalTerm -> List NormalTerm -> List NormalTerm -> List NormalTerm
+      merge-terms : Terms -> Terms -> Terms
+      merge-terms1 : Term -> Terms -> Terms -> Terms
   
       merge-terms [] terms = terms
-      merge-terms (term :: terms1) terms2 = merge-terms1 term terms1 terms2
+      merge-terms (t :: ts1) ts2 = merge-terms1 t ts1 ts2
   
       merge-terms1 t1 terms1 [] = t1 :: terms1
-      merge-terms1 t1@(normal-term m1 vars1) terms1 (t2@(normal-term m2 _) :: terms2) 
-        with compare-term t1 t2
+      merge-terms1 t1 terms1 (t2 :: terms2) 
+        with compare-vars (Term.vars t1) (Term.vars t2)
       ... | less-than = t1 :: (merge-terms1 t2 terms2 terms1)
       ... | greater-than = t2 :: (merge-terms1 t1 terms1 terms2)
-      ... | equal-to = (normal-term (m1 int.+ m2) vars1) :: (merge-terms terms1 terms2)
+      ... | equal-to pr = (merge-equal-terms t1 t2 pr) :: (merge-terms terms1 terms2)
   
   
-      insertion-sort-terms : List NormalTerm -> List NormalTerm
+      insertion-sort-terms : Terms -> Terms
       insertion-sort-terms terms = rec terms []
         where
-        rec : List NormalTerm -> List NormalTerm -> List NormalTerm
+        rec : Terms -> Terms -> Terms
         rec [] acc = acc
         rec (e :: l) acc = rec l (merge-terms1 e [] acc)
   
-      all-products : List NormalTerm -> List NormalTerm -> List NormalTerm
+      all-products : Terms -> Terms -> Terms
       all-products [] _ = []
       all-products (t1 :: terms1) terms2 = 
         (merge-terms
-          (insertion-sort-terms (map (multiply-term t1) terms2))
+          (insertion-sort-terms (map (term-* t1) terms2))
           (all-products terms1 terms2))
   
-      filter-zero-multiplier-terms : List NormalTerm -> List NormalTerm
-      filter-zero-multiplier-terms [] = []
-      filter-zero-multiplier-terms ((normal-term (int.zero-int) vars) :: terms) =
-        filter-zero-multiplier-terms terms
-      filter-zero-multiplier-terms (term@(normal-term (int.pos _) vars) :: terms) =
-        term :: filter-zero-multiplier-terms terms
-      filter-zero-multiplier-terms (term@(normal-term (int.neg _) vars) :: terms) =
-        term :: filter-zero-multiplier-terms terms
+      filter-zero-terms : Terms -> Terms
+      filter-zero-terms [] = []
+      filter-zero-terms ((term (int.zero-int) vars) :: terms) =
+        filter-zero-terms terms
+      filter-zero-terms (term@(term (int.pos _) vars) :: terms) =
+        term :: filter-zero-terms terms
+      filter-zero-terms (term@(term (int.neg _) vars) :: terms) =
+        term :: filter-zero-terms terms
   
       
   
-      normal-expr-+ : NormalExpr -> NormalExpr -> NormalExpr
-      normal-expr-+ (normal-expr terms1) (normal-expr terms2) =
-        (normal-expr (filter-zero-multiplier-terms (merge-terms terms1 terms2)))
+      expr-+ : Expr -> Expr -> Expr
+      expr-+ (expr terms1) (expr terms2) =
+        (expr (filter-zero-terms (merge-terms terms1 terms2)))
   
-      normal-expr-* : NormalExpr -> NormalExpr -> NormalExpr
-      normal-expr-* (normal-expr terms1) (normal-expr terms2) =
-        (normal-expr (insertion-sort-terms (all-products terms1 terms2)))
+      expr-* : Expr -> Expr -> Expr
+      expr-* (expr terms1) (expr terms2) =
+        (expr (insertion-sort-terms (all-products terms1 terms2)))
   
-      normal-expr-- : NormalExpr -> NormalExpr
-      normal-expr-- (normal-expr terms) = (normal-expr (map normal-term-- terms))
+      expr-- : Expr -> Expr
+      expr-- (expr terms) = (expr (map term-- terms))
   
-      normalize : RingSyntax n -> NormalExpr
-      normalize (var i) = normal-expr ((normal-term (int.int 1) (i :: [])) :: [])
-      normalize (l ⊕ r) = normal-expr-+ (normalize l) (normalize r)
-      normalize (l ⊗ r) = normal-expr-* (normalize l) (normalize r)
-      normalize (⊖ e) = normal-expr-- (normalize e)
+      normalize : RingSyntax n -> Expr
+      normalize (var i) = expr ((term (int.int 1) (i :: [])) :: [])
+      normalize (l ⊕ r) = expr-+ (normalize l) (normalize r)
+      normalize (l ⊗ r) = expr-* (normalize l) (normalize r)
+      normalize (⊖ e) = expr-- (normalize e)
 
-      ⟦_⟧var : Fin n -> Meaning
+      ⟦_⟧var : Var -> Meaning
       ⟦ i ⟧var env = lookup env i
   
-      ⟦_⟧term : NormalTerm -> Meaning
-      ⟦ (normal-term m vars) ⟧term = (lift-constant m) * (product (map ⟦_⟧var vars))
+      ⟦_⟧vars : Vars -> Meaning
+      ⟦ is ⟧vars = (product (map ⟦_⟧var is))
 
-      ⟦_⟧terms : List NormalTerm -> Meaning
+      ⟦_⟧term : Term -> Meaning
+      ⟦ (term m vars) ⟧term = (lift-int m) * ⟦ vars ⟧vars
+
+      ⟦_⟧terms : Terms -> Meaning
       ⟦ terms ⟧terms = (sum (map ⟦_⟧term terms))
   
-      ⟦_⟧norm : NormalExpr -> Meaning
-      ⟦ (normal-expr terms) ⟧norm = ⟦ terms ⟧terms
+      ⟦_⟧norm : Expr -> Meaning
+      ⟦ (expr terms) ⟧norm = ⟦ terms ⟧terms
   
       ⟦_⇓⟧ : RingSyntax n -> Meaning
       ⟦ e ⇓⟧ = ⟦ (normalize e) ⟧norm
@@ -257,107 +280,112 @@ module RingSolver (R : Ring {lzero}) where
       ⟦ l ⊗ r ⟧ = ⟦ l ⟧ * ⟦ r ⟧
       ⟦ ⊖ e ⟧ = - ⟦ e ⟧
   
+
+      ++-terms≈ : 
+        ∀ ts1 ts2 -> ⟦ ts1 ++ ts2 ⟧terms == ⟦ ts1 ⟧terms + ⟦ ts2 ⟧terms 
+      ++-terms≈ ts1 ts2 = sum-map-inject-++ ⟦_⟧term {ts1} {ts2}
+
+      ++-terms-flip : 
+        ∀ ts1 ts2 -> ⟦ ts1 ++ ts2 ⟧terms == ⟦ ts2 ++ ts1 ⟧terms
+      ++-terms-flip ts1 ts2 = 
+        ++-terms≈ ts1 ts2 >=> (+-commute {⟦ ts1 ⟧terms} {⟦ ts2 ⟧terms}) >=> (sym (++-terms≈ ts2 ts1))
+
+      merge-equal-terms≈ : ∀ t1 t2 pr
+        -> ⟦ (merge-equal-terms t1 t2 pr) ⟧term == ⟦ t1 ⟧term + ⟦ t2 ⟧term
+      merge-equal-terms≈ t1@(term m1 vars1) t2@(term m2 vars2) pr = 
+        begin
+          ⟦ (merge-equal-terms t1 t2 pr) ⟧term
+        ==< ? >
+          ((lift-int m1) + (lift-int m2)) * ⟦ vars1 ⟧vars
+        ==< *-distrib-+-right >
+          (lift-int m1) * ⟦ vars1 ⟧vars +
+          (lift-int m2) * ⟦ vars1 ⟧vars
+        ==< +-right (*-right (\i -> ⟦ pr i ⟧vars)) >
+          (lift-int m1) * ⟦ vars1 ⟧vars +
+          (lift-int m2) * ⟦ vars2 ⟧vars
+        ==<>
+          ⟦ t1 ⟧term + ⟦ t2 ⟧term
+        end
+
   
-      merge-terms-same-meaning : 
-        (l-terms : List NormalTerm) -> (r-terms : List NormalTerm)
-        ->  ⟦ (merge-terms l-terms r-terms) ⟧terms 
-            ==  ⟦ l-terms ⟧terms + ⟦ r-terms ⟧terms 
-      merge-terms1-same-meaning : 
-        (el : NormalTerm)
-        -> (l-terms : List NormalTerm) -> (r-terms : List NormalTerm)
-        -> ⟦ (merge-terms1 el l-terms r-terms) ⟧terms
-           ==
-           ⟦ (el :: l-terms) ⟧terms + ⟦ r-terms ⟧terms
-  
-      merge-terms-same-meaning [] r-terms = sym +-left-zero 
-      merge-terms-same-meaning (e :: l-terms) r-terms = 
-        merge-terms1-same-meaning e l-terms r-terms
-  
-      merge-terms1-same-meaning e l-terms [] = sym +-right-zero
-      merge-terms1-same-meaning el l-terms (er :: r-terms) 
-        with (compare-term el er)
+      merge-terms≈ : 
+        ∀ ts1 ts2 -> ⟦ (merge-terms ts1 ts2) ⟧terms ==  ⟦ ts1 ++ ts2 ⟧terms 
+      merge-terms1≈ : 
+        ∀ t ts1 ts2 -> ⟦ (merge-terms1 t ts1 ts2) ⟧terms == ⟦ (t :: ts1) ++ ts2 ⟧terms
+
+      merge-terms≈ [] ts = refl
+      merge-terms≈ (e :: ts1) ts2 = merge-terms1≈ e ts1 ts2
+
+      merge-terms1≈ t1 ts1 [] = ++-terms-flip [] (t1 :: ts1)
+      merge-terms1≈ t1@(term m1 vars1) ts1 (t2@(term m2 vars2) :: ts2) 
+        with (compare-vars vars1 vars2)
       ... | less-than =
         begin
-          ⟦ el ⟧term + 
-          (sum (map ⟦_⟧term (merge-terms1 er r-terms l-terms)))
-        ==< +-right (merge-terms1-same-meaning er r-terms l-terms) >
-          ⟦ el ⟧term + 
-          ((sum (map ⟦_⟧term (er :: r-terms))) + 
-           (sum (map ⟦_⟧term l-terms)))
-        ==< +-right (+-commute) >
-          ⟦ el ⟧term + 
-          ((sum (map ⟦_⟧term l-terms)) +
-           (sum (map ⟦_⟧term (er :: r-terms))))
-        ==< sym +-assoc >
-          (sum (map ⟦_⟧term (el :: l-terms))) + 
-          (sum (map ⟦_⟧term (er :: r-terms)))
+          ⟦ t1 ⟧term + ⟦ merge-terms1 t2 ts2 ts1 ⟧terms
+        ==< +-right (merge-terms1≈ t2 ts2 ts1) >
+          ⟦ t1 ⟧term + ⟦ (t2 :: ts2) ++ ts1 ⟧terms
+        ==< +-right (++-terms-flip (t2 :: ts2) ts1) >
+          ⟦ t1 ⟧term + ⟦ ts1 ++ (t2 :: ts2) ⟧terms
+        ==<>
+          ⟦ (t1 :: ts1) ++ (t2 :: ts2) ⟧terms
         end
       ... | greater-than =
         begin
-          ⟦ er ⟧term + 
-          (sum (map ⟦_⟧term (merge-terms1 el l-terms r-terms)))
-        ==< +-right (merge-terms1-same-meaning el l-terms r-terms) >
-          ⟦ er ⟧term + 
-          ((sum (map ⟦_⟧term (el :: l-terms))) + 
-           (sum (map ⟦_⟧term r-terms)))
-        ==< +-right (+-commute) >
-          ⟦ er ⟧term + 
-          ((sum (map ⟦_⟧term r-terms)) +
-           (sum (map ⟦_⟧term (el :: l-terms))))
-        ==< sym +-assoc >
-          (⟦ er ⟧term + 
-           (sum (map ⟦_⟧term r-terms))) +
-          (sum (map ⟦_⟧term (el :: l-terms)))
+          ⟦ t2 ⟧term + ⟦ merge-terms1 t1 ts1 ts2 ⟧terms
+        ==< +-right (merge-terms1≈ t1 ts1 ts2) >
+          ⟦ t2 ⟧term + ⟦ (t1 :: ts1) ++ ts2 ⟧terms
+        ==< +-right (++-terms-flip (t1 :: ts1) ts2) >
+          ⟦ t2 ⟧term + ⟦ ts2 ++ (t1 :: ts1) ⟧terms
         ==<>
-          (sum (map ⟦_⟧term (er :: r-terms))) +
-          (sum (map ⟦_⟧term (el :: l-terms)))
-        ==< +-commute >
-          (sum (map ⟦_⟧term (el :: l-terms))) + 
-          (sum (map ⟦_⟧term (er :: r-terms)))
+          ⟦ (t2 :: ts2) ++ (t1 :: ts1) ⟧terms
+        ==< ++-terms-flip (t2 :: ts2) (t1 :: ts1) >
+          ⟦ (t1 :: ts1) ++ (t2 :: ts2) ⟧terms
         end
-      ... | equal-to = bot-elim ?
+      ... | equal-to _ = bot-elim ?
+
+      all-products≈ : 
+        ∀ ts1 ts2 -> ⟦ (all-products ts1 ts2) ⟧terms
+                     == ⟦ ts1 ⟧terms * ⟦ ts2 ⟧terms
+      all-products≈ = ?
+
+      insertion-sort≈ :
+        ∀ ts -> ⟦ (insertion-sort-terms ts) ⟧terms == ⟦ ts ⟧terms
+      insertion-sort≈ = ?
+
   
-      sorted-product-same-meaning : 
-        (l-terms : List NormalTerm) -> (r-terms : List NormalTerm)
-        -> (⟦ (insertion-sort-terms (all-products l-terms r-terms))⟧terms)
-           ==
-           ⟦ l-terms ⟧terms * ⟦ r-terms ⟧terms
-      sorted-product-same-meaning = bot-elim ?
-  
-      filtered-terms-same-meaning : 
-        ∀ ts -> ⟦ (filter-zero-multiplier-terms ts) ⟧terms == ⟦ ts ⟧terms
-      filtered-terms-same-meaning [] = refl
-      filtered-terms-same-meaning (term@(normal-term (int.zero-int) vars) :: terms) =
+      filtered-terms≈ : 
+        ∀ ts -> ⟦ (filter-zero-terms ts) ⟧terms == ⟦ ts ⟧terms
+      filtered-terms≈ [] = refl
+      filtered-terms≈ (t@(term (int.zero-int) _) :: ts) =
         begin
-          (sum (map ⟦_⟧term (filter-zero-multiplier-terms (term :: terms))))
+          ⟦ (filter-zero-terms (t :: ts)) ⟧terms
         ==<>
-          (sum (map ⟦_⟧term (filter-zero-multiplier-terms terms)))
-        ==< (filtered-terms-same-meaning terms) >
-          (sum (map ⟦_⟧term terms))
+          ⟦ (filter-zero-terms ts) ⟧terms
+        ==< (filtered-terms≈ ts) >
+          ⟦ ts ⟧terms
         ==< sym +-left-zero >
-          0# + (sum (map ⟦_⟧term terms))
-        ==< +-left (sym *-left-zero) >
-          0# * (product (map (\ i env -> lookup env i) vars)) + (sum (map ⟦_⟧term terms))
+          0# + ⟦ ts ⟧terms
+        ==< +-left (sym zero-term≈) >
+          ⟦ t ⟧term + ⟦ ts ⟧terms
         ==<>
-          ⟦ term ⟧term + (sum (map ⟦_⟧term terms))
-        ==<>
-          (sum (map ⟦_⟧term (term :: terms)))
+          ⟦ t :: ts ⟧terms
         end
-      filtered-terms-same-meaning (term@(normal-term (int.neg _) vars) :: terms) =
-        +-right (filtered-terms-same-meaning terms)
-      filtered-terms-same-meaning (term@(normal-term (int.pos _) vars) :: terms) =
-        +-right (filtered-terms-same-meaning terms)
+        where
+        zero-term≈ : ⟦ t ⟧term == 0#
+        zero-term≈ = *-left-zero
+      filtered-terms≈ (t@(term (int.neg _) vars) :: ts) =
+        +-right (filtered-terms≈ ts)
+      filtered-terms≈ (t@(term (int.pos _) vars) :: ts) =
+        +-right (filtered-terms≈ ts)
   
   
       filtered-merge-terms-same-meaning : 
-        (l-terms : List NormalTerm) -> (r-terms : List NormalTerm)
-        -> (sum (map ⟦_⟧term (filter-zero-multiplier-terms (merge-terms l-terms r-terms))))
-           ==
-           (sum (map ⟦_⟧term l-terms)) + (sum (map ⟦_⟧term r-terms))
-      filtered-merge-terms-same-meaning l-terms r-terms = 
-        filtered-terms-same-meaning (merge-terms l-terms r-terms) >=>
-        merge-terms-same-meaning l-terms r-terms
-  
+        ∀ ts1 ts2 -> ⟦ (filter-zero-terms (merge-terms ts1 ts2)) ⟧terms
+                     == ⟦ ts1 ⟧terms + ⟦ ts2 ⟧terms
+      filtered-merge-terms-same-meaning ts1 ts2 = 
+        filtered-terms≈ (merge-terms ts1 ts2) >=>
+        merge-terms≈ ts1 ts2 >=>
+        ++-terms≈ ts1 ts2
   
   
   
@@ -538,7 +566,7 @@ module Solver (S : Semiring {lzero}) where
                                          (insertion-sort fin< (flatten t2)))
       ... | less-than = true
       ... | greater-than = false
-      ... | equal-to = false
+      ... | equal-to _ = false
   
 
 
