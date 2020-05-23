@@ -342,13 +342,60 @@ record Ring {ℓ : Level} : Type (ℓ-suc ℓ) where
 
   *-lift-int : {x y : int.Int} -> (lift-int x) * (lift-int y) == (lift-int (x int.* y))
   *-lift-int {int.nonneg zero} = *-left-zero
-  *-lift-int {int.nonneg (suc x)} {y} = ?
-    -- *-assoc >=> +-right (+-lift-int {int.nonneg x} {y}) >=> sym (+-lift-add1 ((int.nonneg x) int.+ y))
-  *-lift-int {int.neg zero} {y} = ?
-    -- *-left (cong -_ +-right-zero) >=> sym (+-lift-sub1 y)
-  *-lift-int {int.neg (suc x)} {y} = ?
-    -- *-left minus-distrib-plus >=> +-assoc >=> +-right (+-lift-int {int.neg x} {y})
-    -- >=> sym (+-lift-sub1 ((int.neg x) int.+ y))
+  *-lift-int {int.nonneg (suc x)} {y} =
+    begin
+      (lift-int (int.nonneg (suc x))) * (lift-int y)
+    ==<>
+      (1# + (lift-int (int.nonneg x))) * (lift-int y)
+    ==< *-distrib-+-right >
+      1# * (lift-int y) + (lift-int (int.nonneg x)) * (lift-int y)
+    ==< +-left *-left-one >
+      (lift-int y) + (lift-int (int.nonneg x)) * (lift-int y)
+    ==< +-right (*-lift-int {int.nonneg x} {y}) >
+      (lift-int y) + (lift-int ((int.nonneg x) int.* y))
+    ==< +-lift-int {y} {(int.nonneg x) int.* y} >
+      (lift-int (y int.+ (int.nonneg x) int.* y))
+    ==<>
+      (lift-int (int.nonneg (suc x) int.* y))
+    end
+  *-lift-int {int.neg zero} {y} =
+    begin
+      (lift-int (int.neg zero)) * (lift-int y)
+    ==<>
+      - (1# + 0#) * (lift-int y)
+    ==< *-left (cong -_ +-right-zero) >
+     - 1# * (lift-int y)
+    ==< *-left-minus-one >
+      - (lift-int y) 
+    ==< (minus-lift-constant {y}) >
+      (lift-int (int.- y))
+    ==< cong lift-int (cong int.-_ (sym (int.+-right-zero {y}))) >
+      (lift-int (int.- (y int.+ int.zero-int)))
+    ==<>
+      (lift-int ((int.neg zero) int.* y))
+    end
+  *-lift-int {int.neg (suc x)} {y} =
+    begin
+      (lift-int (int.neg (suc x))) * (lift-int y)
+    ==<>
+      - (1# + (lift-nat (suc x))) * (lift-int y)
+    ==< *-left minus-distrib-plus >
+     (- 1# + (lift-int (int.neg x))) * (lift-int y)
+    ==< *-distrib-+-right >
+      - 1# * (lift-int y) + (lift-int (int.neg x)) * (lift-int y)
+    ==< +-left *-left-minus-one >
+      - (lift-int y) + (lift-int (int.neg x)) * (lift-int y)
+    ==< +-left (minus-lift-constant {y}) >
+      (lift-int (int.- y)) + (lift-int (int.neg x)) * (lift-int y)
+    ==< +-right (*-lift-int {int.neg x} {y}) >
+      (lift-int (int.- y)) + (lift-int ((int.neg x) int.* y))
+    ==< +-lift-int {int.- y} {(int.neg x) int.* y} >
+      (lift-int ((int.- y) int.+ (int.neg x) int.* y))
+    ==< cong lift-int (sym (int.minus-distrib-+ {y} {int.pos x int.* y})) >
+      (lift-int (int.- (y int.+ (int.pos x) int.* y)))
+    ==<>
+      (lift-int (int.neg (suc x) int.* y))
+    end
 
 
 NatSemiring : Semiring
@@ -382,6 +429,13 @@ IntSemiring = record {
   *-left-zero = refl;
   *-left-one = int.+-right-zero;
   *-distrib-+-right = (\ {m} {n} {o} -> int.*-distrib-+ {m} {n} {o}) }
+
+IntRing : Ring
+IntRing = record  {
+  semiring = IntSemiring;
+  -_ = int.-_;
+  +-inverse = (\ {n} -> int.add-minus-zero {n}) }
+
 
 ReaderSemiring : {ℓ : Level} -> (Type ℓ) -> Semiring {ℓ} -> Semiring {ℓ}
 ReaderSemiring A S = res

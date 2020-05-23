@@ -190,12 +190,16 @@ module RingSolver (R : Ring {lzero}) where
       compare-vars = compare-list compare-fin
 
  
-      term-- : Term -> Term
-      term-- (term m vars) = (term (int.- m) vars)
   
       term-* : Term -> Term -> Term
       term-* (term m1 vs1) (term m2 vs2) =
         (term (m1 int.* m2) (insertion-sort fin< (vs1 ++ vs2)))
+
+      minus-one-term : Term
+      minus-one-term = (term (int.- (int.int 1)) [])
+
+      term-- : Term -> Term
+      term-- = term-* minus-one-term 
 
       merge-equal-terms : (t1 t2 : Term) -> (Term.vars t1 == Term.vars t2) -> Term
       merge-equal-terms (term m1 vars1) (term m2 vars2) _ = (term (m1 int.+ m2) vars1)
@@ -410,7 +414,7 @@ module RingSolver (R : Ring {lzero}) where
           (lift-int (m1 int.* m2)) * ⟦ (vs1 ++ vs2) ⟧vars
         ==< *-right (++-vars≈ vs1 vs2) >
           (lift-int (m1 int.* m2)) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars)
-        ==< ? >
+        ==< *-left (sym (*-lift-int {m1} {m2})) >
           ((lift-int m1) * (lift-int m2)) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars)
         ==< *-assoc >
           (lift-int m1) * ((lift-int m2) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars))
@@ -503,134 +507,111 @@ module RingSolver (R : Ring {lzero}) where
         +-right (filtered-terms≈ ts)
   
   
-      filtered-merge-terms-same-meaning : 
+      filtered-merge-terms≈ : 
         ∀ ts1 ts2 -> ⟦ (filter-zero-terms (merge-terms ts1 ts2)) ⟧terms
                      == ⟦ ts1 ⟧terms + ⟦ ts2 ⟧terms
-      filtered-merge-terms-same-meaning ts1 ts2 = 
+      filtered-merge-terms≈ ts1 ts2 = 
         filtered-terms≈ (merge-terms ts1 ts2) >=>
         merge-terms≈ ts1 ts2 >=>
         ++-terms≈ ts1 ts2
-  
+
+      minus-one-term≈ : ⟦ minus-one-term ⟧term == - 1#
+      minus-one-term≈ =
+        begin
+          ⟦ minus-one-term ⟧term 
+        ==<>
+          ⟦ (term (int.- (int.int 1)) []) ⟧term
+        ==< *-right-one >
+          (lift-int (int.- (int.int 1)))
+        ==< cong -_ +-right-zero >
+          - 1#
+        end
+
+
+      expr--≈ : ∀ e -> ⟦ expr-- e ⟧norm == - ⟦ e ⟧norm
+      expr--≈ e@(expr terms) =
+        begin
+          ⟦ expr-- e ⟧norm
+        ==< map-term-*≈ minus-one-term terms >
+          ⟦ minus-one-term ⟧term * ⟦ e ⟧norm
+        ==< *-left minus-one-term≈ >
+          - 1# * ⟦ e ⟧norm
+        ==< *-left-minus-one >
+          - ⟦ e ⟧norm
+        end
   
   
       correct : (e : RingSyntax n) -> ⟦ e ⇓⟧ == ⟦ e ⟧ 
-      correct = ?
-      -- correct (var i) = 
-      --   begin
-      --     ⟦ (var i) ⇓⟧ 
-      --   ==<>
-      --     (sum (((1# + 0#) * product (map (lookup env) (i :: []))) :: []))
-      --   ==< +-right-zero >
-      --     ((1# + 0#) * product (map (lookup env) (i :: [])))
-      --   ==< *-left +-right-zero >
-      --     1# * product (map (lookup env) (i :: []))
-      --   ==< *-left-one >
-      --     product (map (lookup env) (i :: []))
-      --   ==< *-right-one >
-      --     lookup env i
-      --   ==<>
-      --     ⟦ (var i) ⟧ env 
-      --   end
-      -- correct (⊖ e) env =
-      --   begin
-      --     ⟦ (⊖ e) ⇓⟧ env 
-      --   ==<>
-      --     ⟦ (normalize (⊖ e)) ⟧norm env
-      --   ==< norm-correct e >
-      --     - (⟦ (normalize e) ⟧norm env)
-      --   ==<>
-      --     - (⟦ e ⇓⟧ env)
-      --   ==< (cong -_ (correct e env)) >
-      --     - (⟦ e ⟧ env)
-      --   ==<>
-      --     ⟦ (⊖ e) ⟧ env 
-      --   end
-      --   where
-      --   term-correct : (term : NormalTerm) ->  
-      --                  ⟦ (normal-term-- term) ⟧term env == - (⟦ term ⟧term env)
-      --   term-correct (normal-term mult vars) = 
-      --     begin
-      --       ⟦ (normal-term-- (normal-term mult vars)) ⟧term env 
-      --     ==<>
-      --       ⟦ (normal-term (int.- mult) vars) ⟧term env 
-      --     ==<>
-      --       (lift-constant (int.- mult)) * (product (map (lookup env) vars))
-      --     ==< *-left (sym (minus-lift-constant {mult})) >
-      --       (- (lift-constant mult) * (product (map (lookup env) vars)))
-      --     ==< minus-extract-left >
-      --       - ((lift-constant mult) * (product (map (lookup env) vars)))
-      --     ==<>
-      --       - (⟦ (normal-term mult vars) ⟧term env)
-      --     end
-  
-      --   terms-correct : (terms : List NormalTerm) ->  
-      --                   ⟦ (normal-expr (map normal-term-- terms)) ⟧norm env ==
-      --                   - (⟦ (normal-expr terms) ⟧norm env)
-      --   terms-correct [] =  sym minus-zero
-      --   terms-correct (e :: l) =
-      --     begin
-      --       ⟦ (normal-expr (map normal-term-- (e :: l))) ⟧norm env
-      --     ==<>
-      --       ⟦ (normal-term-- e) ⟧term env +
-      --       ⟦ (normal-expr (map normal-term-- l)) ⟧norm env
-      --     ==< +-right (terms-correct l) >
-      --       ⟦ (normal-term-- e) ⟧term env +
-      --       - ⟦ (normal-expr l) ⟧norm env
-      --     ==< +-left (term-correct e) >
-      --       - ⟦ e ⟧term env +
-      --       - ⟦ (normal-expr l) ⟧norm env
-      --     ==< sym minus-distrib-plus >
-      --       - (⟦ e ⟧term env +
-      --          ⟦ (normal-expr l) ⟧norm env)
-      --     ==<>
-      --       - (⟦ (normal-expr (e :: l)) ⟧norm env)
-      --     end
-      --   norm-correct : (e : RingSyntax n) -> 
-      --                   ⟦ (normalize (⊖ e)) ⟧norm env == - ⟦ (normalize e) ⟧norm env
-      --   norm-correct e with (normalize e)
-      --   ... | (normal-expr terms) = terms-correct terms
-      -- correct (l ⊕ r) env = 
-      --   begin
-      --     ⟦ (l ⊕ r) ⇓⟧ env 
-      --   ==<>
-      --     ⟦ normalize (l ⊕ r) ⟧norm env
-      --   ==< normalize-split >
-      --     ⟦ normalize l ⟧norm env + ⟦ normalize r ⟧norm env
-      --   ==<>
-      --     ⟦ l ⇓⟧ env + ⟦ r ⇓⟧ env 
-      --   ==< (cong2 _+_ (correct l env) (correct r env)) >
-      --     ⟦ l ⟧ env + ⟦ r ⟧ env 
-      --   ==<>
-      --     ⟦ (l ⊕ r) ⟧ env 
-      --   end
-      --   where
-      --   normalize-split : 
-      --     ⟦ normalize (l ⊕ r) ⟧norm env ==
-      --     ⟦ normalize l ⟧norm env + ⟦ normalize r ⟧norm env
-      --   normalize-split with (normalize l) | (normalize r)
-      --   ... | (normal-expr l-terms) | (normal-expr r-terms) = 
-      --     filtered-merge-terms-same-sum env l-terms r-terms
-      -- correct  (l ⊗ r) env = 
-      --   begin
-      --     ⟦ (l ⊗ r) ⇓⟧ env 
-      --   ==<>
-      --     ⟦ normalize (l ⊗ r) ⟧norm env
-      --   ==< normalize-split >
-      --     ⟦ normalize l ⟧norm env * ⟦ normalize r ⟧norm env
-      --   ==<>
-      --     ⟦ l ⇓⟧ env * ⟦ r ⇓⟧ env 
-      --   ==< (cong2 _*_ (correct l env) (correct r env)) >
-      --     ⟦ l ⟧ env * ⟦ r ⟧ env 
-      --   ==<>
-      --     ⟦ (l ⊗ r) ⟧ env 
-      --   end
-      --   where
-      --   normalize-split : 
-      --     ⟦ normalize (l ⊗ r) ⟧norm env ==
-      --     ⟦ normalize l ⟧norm env * ⟦ normalize r ⟧norm env
-      --   normalize-split with (normalize l) | (normalize r)
-      --   ... | (normal-expr l-terms) | (normal-expr r-terms) = 
-      --     sorted-product-same-meaning env l-terms r-terms
+      correct (var i) =
+        begin
+          ⟦ (var i) ⇓⟧ 
+        ==<>
+          ⟦ ((term (int.int 1) (i :: [])) :: []) ⟧terms
+        ==< +-right-zero >
+          ⟦ (term (int.int 1) (i :: [])) ⟧term
+        ==< *-left (+-right-zero) >=> *-left-one >
+          ⟦ (i :: []) ⟧vars
+        ==< *-right-one >
+          ⟦ i ⟧var
+        ==<>
+          ⟦ (var i) ⟧
+        end
+      correct (⊖ e) =
+        begin
+          ⟦ (⊖ e) ⇓⟧
+        ==<>
+          ⟦ expr-- (normalize e) ⟧norm
+        ==< expr--≈ (normalize e) >
+          - ⟦ (normalize e) ⟧norm
+        ==<>
+          - ⟦ e ⇓⟧
+        ==< cong -_ (correct e) >
+          - ⟦ e ⟧
+        ==<>
+          ⟦ (⊖ e) ⟧
+        end
+      correct (l ⊕ r) =
+        begin
+          ⟦ (l ⊕ r) ⇓⟧
+        ==<>
+          ⟦ normalize (l ⊕ r) ⟧norm
+        ==< normalize-split >
+          ⟦ normalize l ⟧norm + ⟦ normalize r ⟧norm 
+        ==<>
+          ⟦ l ⇓⟧ + ⟦ r ⇓⟧
+        ==< (cong2 _+_ (correct l) (correct r)) >
+          ⟦ l ⟧ + ⟦ r ⟧
+        ==<>
+          ⟦ (l ⊕ r) ⟧
+        end
+        where
+        normalize-split : 
+          ⟦ normalize (l ⊕ r) ⟧norm ==
+          ⟦ normalize l ⟧norm + ⟦ normalize r ⟧norm
+        normalize-split with (normalize l)  | (normalize r)
+        ...                | (expr l-terms) | (expr r-terms) = 
+          filtered-merge-terms≈ l-terms r-terms
+      correct  (l ⊗ r) =
+        begin
+          ⟦ (l ⊗ r) ⇓⟧
+        ==<>
+          ⟦ normalize (l ⊗ r) ⟧norm
+        ==< normalize-split >
+          ⟦ normalize l ⟧norm * ⟦ normalize r ⟧norm
+        ==<>
+          ⟦ l ⇓⟧ * ⟦ r ⇓⟧ 
+        ==< (cong2 _*_ (correct l) (correct r)) >
+          ⟦ l ⟧ * ⟦ r ⟧ 
+        ==<>
+          ⟦ (l ⊗ r) ⟧ 
+        end
+        where
+        normalize-split : 
+          ⟦ normalize (l ⊗ r) ⟧norm ==
+          ⟦ normalize l ⟧norm * ⟦ normalize r ⟧norm
+        normalize-split with (normalize l)  | (normalize r)
+        ...                | (expr l-terms) | (expr r-terms) = 
+          all-products≈ l-terms r-terms
 
 
     solve : (f : Nary n (RingSyntax n) ((RingSyntax n) × (RingSyntax n)))
@@ -861,34 +842,57 @@ module Solver (S : Semiring {lzero}) where
   
     
   
-  
+module examples where
+  module semi where
+    module NatSolver = Solver NatSemiring
+    module IntSolver = Solver IntSemiring
+    
+    open int
+    
+    example1 : (a b c d : Nat) -> (a +' c) +' (b +' d) == a +' (b +' c) +' d
+    example1 = NatSolver.solve 4 (\ a b c d -> ((a ⊕ c) ⊕ (b ⊕ d)) , (a ⊕ (b ⊕ c)) ⊕ d) refl
+    
+    example2 : (a b c : Nat) -> (a +' b) *' c == (b *' c) +' (a *' c)
+    example2 = NatSolver.solve 3 (\ a b c -> (a ⊕ b) ⊗ c , (b ⊗ c) ⊕ (a ⊗ c)) refl
+    
+    example3 : (a b c d : Nat) -> (a +' c) *' (b +' d) == a *' b +' c *' d +' c *' b +' a *' d
+    example3 = NatSolver.solve 4 (\ a b c d -> ((a ⊕ c) ⊗ (b ⊕ d)) , 
+                                               (a ⊗ b) ⊕ (c ⊗ d) ⊕ (c ⊗ b) ⊕ (a ⊗ d)) refl
+    
+    example4 : (a b c d : Int) -> (a + c) * (b + d) == a * b + c * d + c * b + a * d
+    example4 = IntSolver.solve 4 (\ a b c d -> ((a ⊕ c) ⊗ (b ⊕ d)) , 
+                                               (a ⊗ b) ⊕ (c ⊗ d) ⊕ (c ⊗ b) ⊕ (a ⊗ d)) refl
+    
+    example5 : (x y a b -y -b : Int) ->
+         (x + y) * (a + b) + (x + -y) * (a + -b) ==
+         (x * b + x * -b) + ((x * a + y * b) + ((x * a + -y * -b) + (y * a + -y * a)))
+    example5 =
+     IntSolver.solve 6
+       (\ x y a b -y -b ->
+         (x ⊕ y) ⊗ (a ⊕ b) ⊕ (x ⊕ -y) ⊗ (a ⊕ -b) ,
+         (x ⊗ b ⊕ x ⊗ -b) ⊕ ((x ⊗ a ⊕ y ⊗ b) ⊕ ((x ⊗ a ⊕ -y ⊗ -b) ⊕ (y ⊗ a ⊕ -y ⊗ a))))
+       refl
 
-module NatSolver = Solver NatSemiring
-module IntSolver = Solver IntSemiring
+  module full where
+    module IntSolver = RingSolver IntRing
 
-private
-  open int
+    open int
 
-  example1 : (a b c d : Nat) -> (a +' c) +' (b +' d) == a +' (b +' c) +' d
-  example1 = NatSolver.solve 4 (\ a b c d -> ((a ⊕ c) ⊕ (b ⊕ d)) , (a ⊕ (b ⊕ c)) ⊕ d) refl
+    example5 : (x y a b : Int) ->
+         (x + y) * (a + b) + (x + - y) * (a + - b) ==
+         (x * b + x * - b) + ((x * a + y * b) + ((x * a + - y * - b) + (y * a + - y * a)))
+    example5 =
+     IntSolver.solve 4
+       (\ x y a b ->
+         (x ⊕ y) ⊗ (a ⊕ b) ⊕ (x ⊕ (⊖ y)) ⊗ (a ⊕ (⊖ b)) ,
+         (x ⊗ b ⊕ x ⊗ (⊖ b)) ⊕ ((x ⊗ a ⊕ y ⊗ b) ⊕ ((x ⊗ a ⊕ (⊖ y) ⊗ (⊖ b)) ⊕ (y ⊗ a ⊕ (⊖ y) ⊗ a))))
+       refl
 
-  example2 : (a b c : Nat) -> (a +' b) *' c == (b *' c) +' (a *' c)
-  example2 = NatSolver.solve 3 (\ a b c -> (a ⊕ b) ⊗ c , (b ⊗ c) ⊕ (a ⊗ c)) refl
 
-  example3 : (a b c d : Nat) -> (a +' c) *' (b +' d) == a *' b +' c *' d +' c *' b +' a *' d
-  example3 = NatSolver.solve 4 (\ a b c d -> ((a ⊕ c) ⊗ (b ⊕ d)) , 
-                                             (a ⊗ b) ⊕ (c ⊗ d) ⊕ (c ⊗ b) ⊕ (a ⊗ d)) refl
 
-  example4 : (a b c d : Int) -> (a + c) * (b + d) == a * b + c * d + c * b + a * d
-  example4 = IntSolver.solve 4 (\ a b c d -> ((a ⊕ c) ⊗ (b ⊕ d)) , 
-                                             (a ⊗ b) ⊕ (c ⊗ d) ⊕ (c ⊗ b) ⊕ (a ⊗ d)) refl
 
-  example5 : (x y a b -y -b : Int) ->
-       (x + y) * (a + b) + (x + -y) * (a + -b) ==
-       (x * b + x * -b) + ((x * a + y * b) + ((x * a + -y * -b) + (y * a + -y * a)))
-  example5 =
-   IntSolver.solve 6
-     (\ x y a b -y -b ->
-       (x ⊕ y) ⊗ (a ⊕ b) ⊕ (x ⊕ -y) ⊗ (a ⊕ -b) ,
-       (x ⊗ b ⊕ x ⊗ -b) ⊕ ((x ⊗ a ⊕ y ⊗ b) ⊕ ((x ⊗ a ⊕ -y ⊗ -b) ⊕ (y ⊗ a ⊕ -y ⊗ a))))
-     refl
+
+
+
+
+
