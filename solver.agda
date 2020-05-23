@@ -212,14 +212,13 @@ module RingSolver (R : Ring {lzero}) where
       ... | less-than = t1 :: (merge-terms1 t2 terms2 terms1)
       ... | greater-than = t2 :: (merge-terms1 t1 terms1 terms2)
       ... | equal-to pr = (merge-equal-terms t1 t2 pr) :: (merge-terms terms1 terms2)
-  
-  
+
+      insertion-sort-terms' : Terms -> Terms -> Terms
+      insertion-sort-terms' [] acc = acc
+      insertion-sort-terms' (e :: l) acc = insertion-sort-terms' l (merge-terms1 e [] acc)
+
       insertion-sort-terms : Terms -> Terms
-      insertion-sort-terms terms = rec terms []
-        where
-        rec : Terms -> Terms -> Terms
-        rec [] acc = acc
-        rec (e :: l) acc = rec l (merge-terms1 e [] acc)
+      insertion-sort-terms terms = insertion-sort-terms' terms []
   
       all-products : Terms -> Terms -> Terms
       all-products [] _ = []
@@ -245,7 +244,7 @@ module RingSolver (R : Ring {lzero}) where
   
       expr-* : Expr -> Expr -> Expr
       expr-* (expr terms1) (expr terms2) =
-        (expr (insertion-sort-terms (all-products terms1 terms2)))
+        (expr (all-products terms1 terms2))
   
       expr-- : Expr -> Expr
       expr-- (expr terms) = (expr (map term-- terms))
@@ -281,6 +280,10 @@ module RingSolver (R : Ring {lzero}) where
       ⟦ ⊖ e ⟧ = - ⟦ e ⟧
   
 
+      ++-vars≈ : 
+        ∀ vs1 vs2 -> ⟦ vs1 ++ vs2 ⟧vars == ⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars 
+      ++-vars≈ vs1 vs2 = product-map-inject-++ ⟦_⟧var {vs1} {vs2}
+
       ++-terms≈ : 
         ∀ ts1 ts2 -> ⟦ ts1 ++ ts2 ⟧terms == ⟦ ts1 ⟧terms + ⟦ ts2 ⟧terms 
       ++-terms≈ ts1 ts2 = sum-map-inject-++ ⟦_⟧term {ts1} {ts2}
@@ -295,7 +298,9 @@ module RingSolver (R : Ring {lzero}) where
       merge-equal-terms≈ t1@(term m1 vars1) t2@(term m2 vars2) pr = 
         begin
           ⟦ (merge-equal-terms t1 t2 pr) ⟧term
-        ==< ? >
+        ==<>
+          (lift-int (m1 int.+ m2)) * ⟦ vars1 ⟧vars
+        ==< *-left (sym (+-lift-int {m1} {m2})) >
           ((lift-int m1) + (lift-int m2)) * ⟦ vars1 ⟧vars
         ==< *-distrib-+-right >
           (lift-int m1) * ⟦ vars1 ⟧vars +
@@ -341,16 +346,135 @@ module RingSolver (R : Ring {lzero}) where
         ==< ++-terms-flip (t2 :: ts2) (t1 :: ts1) >
           ⟦ (t1 :: ts1) ++ (t2 :: ts2) ⟧terms
         end
-      ... | equal-to _ = bot-elim ?
+      ... | equal-to pr = 
+        begin
+          ⟦ (merge-equal-terms t1 t2 pr) ⟧term + ⟦ merge-terms ts1 ts2 ⟧terms
+        ==< +-left (merge-equal-terms≈ t1 t2 pr) >
+          (⟦ t1 ⟧term + ⟦ t2 ⟧term) + ⟦ merge-terms ts1 ts2 ⟧terms
+        ==< +-right (merge-terms≈ ts1 ts2) >
+          (⟦ t1 ⟧term + ⟦ t2 ⟧term) + ⟦ ts1 ++ ts2 ⟧terms
+        ==< +-right (++-terms-flip ts1 ts2) >
+          (⟦ t1 ⟧term + ⟦ t2 ⟧term) + ⟦ ts2 ++ ts1 ⟧terms
+        ==< +-assoc >
+          ⟦ t1 ⟧term + ⟦ (t2 :: ts2) ++ ts1 ⟧terms
+        ==< +-right (++-terms-flip (t2 :: ts2) ts1) >
+           ⟦ (t1 :: ts1) ++ (t2 :: ts2) ⟧terms
+        end
+
+
+      insertion-sort'≈ :
+        ∀ ts1 ts2 -> ⟦ (insertion-sort-terms' ts1 ts2) ⟧terms == ⟦ ts1 ++ ts2 ⟧terms
+      insertion-sort'≈ [] ts2 = refl
+      insertion-sort'≈ (t :: ts1) ts2 =
+        begin
+          ⟦ (insertion-sort-terms' (t :: ts1) ts2) ⟧terms
+        ==<>
+          ⟦ insertion-sort-terms' ts1 (merge-terms1 t [] ts2) ⟧terms
+        ==< insertion-sort'≈ ts1 (merge-terms1 t [] ts2) >
+          ⟦ ts1 ++ (merge-terms1 t [] ts2) ⟧terms
+        ==< ++-terms≈ ts1 (merge-terms1 t [] ts2) >
+          ⟦ ts1 ⟧terms + ⟦ (merge-terms1 t [] ts2) ⟧terms
+        ==< +-right (merge-terms1≈ t [] ts2) >
+          ⟦ ts1 ⟧terms + ⟦ (t :: []) ++ ts2 ⟧terms
+        ==< +-right (++-terms≈ (t :: []) ts2) >
+          ⟦ ts1 ⟧terms + (⟦ (t :: []) ⟧terms + ⟦ ts2 ⟧terms)
+        ==< sym +-assoc >
+          (⟦ ts1 ⟧terms + ⟦ (t :: []) ⟧terms) + ⟦ ts2 ⟧terms
+        ==< +-left +-commute >
+          (⟦ (t :: []) ⟧terms + ⟦ ts1 ⟧terms) + ⟦ ts2 ⟧terms
+        ==< +-left (sym (++-terms≈ (t :: []) ts1)) >
+          ⟦ (t :: ts1) ⟧terms + ⟦ ts2 ⟧terms
+        ==< sym (++-terms≈ (t :: ts1) ts2) >
+          ⟦ (t :: ts1) ++ ts2 ⟧terms
+        end
+
+      insertion-sort≈ :
+        ∀ ts -> ⟦ (insertion-sort-terms ts) ⟧terms == ⟦ ts ⟧terms
+      insertion-sort≈ ts = insertion-sort'≈ ts [] >=> ++-terms-flip ts []
+
+      insertion-sort-vars≈ :
+        ∀ vs -> ⟦ (insertion-sort fin< vs) ⟧vars == ⟦ vs ⟧vars
+      insertion-sort-vars≈ vs =
+        sym (product-map-Permutation ⟦_⟧var (Permutation-insertion-sort fin< vs))
+
+
+      term-*≈ : ∀ t1 t2 -> ⟦ (term-* t1 t2) ⟧term == ⟦ t1  ⟧term * ⟦ t2 ⟧term
+      term-*≈ t1@(term m1 vs1) t2@(term m2 vs2) = 
+        begin
+          ⟦ (term-* t1 t2) ⟧term 
+        ==<>
+          ⟦ (term (m1 int.* m2) (insertion-sort fin< (vs1 ++ vs2))) ⟧term 
+        ==<>
+          (lift-int (m1 int.* m2)) * ⟦ (insertion-sort fin< (vs1 ++ vs2)) ⟧vars
+        ==< *-right (insertion-sort-vars≈ (vs1 ++ vs2)) >
+          (lift-int (m1 int.* m2)) * ⟦ (vs1 ++ vs2) ⟧vars
+        ==< *-right (++-vars≈ vs1 vs2) >
+          (lift-int (m1 int.* m2)) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars)
+        ==< ? >
+          ((lift-int m1) * (lift-int m2)) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars)
+        ==< *-assoc >
+          (lift-int m1) * ((lift-int m2) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars))
+        ==< *-right (sym *-assoc) >
+          (lift-int m1) * (((lift-int m2) * ⟦ vs1 ⟧vars) * ⟦ vs2 ⟧vars)
+        ==< *-right (*-left *-commute) >
+          (lift-int m1) * ((⟦ vs1 ⟧vars * (lift-int m2)) * ⟦ vs2 ⟧vars)
+        ==< *-right *-assoc >
+          (lift-int m1) * (⟦ vs1 ⟧vars * ((lift-int m2) * ⟦ vs2 ⟧vars))
+        ==< sym *-assoc >
+          ((lift-int m1) * ⟦ vs1 ⟧vars) * ((lift-int m2) * ⟦ vs2 ⟧vars)
+        ==<>
+          ⟦ t1  ⟧term * ⟦ t2 ⟧term
+        end
+        
+
+      map-term-*≈ : ∀ t ts -> ⟦ (map (term-* t) ts) ⟧terms == ⟦ t  ⟧term * ⟦ ts ⟧terms
+      map-term-*≈ t [] = sym *-right-zero
+      map-term-*≈ t (t2 :: ts) =
+        begin
+          ⟦ (map (term-* t) (t2 :: ts)) ⟧terms
+        ==<>
+          ⟦ term-* t t2 ⟧term + ⟦ (map (term-* t) ts) ⟧terms
+        ==< +-right (map-term-*≈ t ts) >
+          ⟦ term-* t t2 ⟧term + ⟦ t ⟧term * ⟦ ts ⟧terms
+        ==< +-left (term-*≈ t t2) >
+          ⟦ t ⟧term * ⟦ t2 ⟧term + ⟦ t ⟧term * ⟦ ts ⟧terms
+        ==< sym *-distrib-+-left >
+          ⟦ t ⟧term * (⟦ t2 ⟧term + ⟦ ts ⟧terms)
+        ==<>
+          ⟦ t  ⟧term * ⟦ (t2 :: ts) ⟧terms
+        end
 
       all-products≈ : 
         ∀ ts1 ts2 -> ⟦ (all-products ts1 ts2) ⟧terms
                      == ⟦ ts1 ⟧terms * ⟦ ts2 ⟧terms
-      all-products≈ = ?
-
-      insertion-sort≈ :
-        ∀ ts -> ⟦ (insertion-sort-terms ts) ⟧terms == ⟦ ts ⟧terms
-      insertion-sort≈ = ?
+      all-products≈ [] ts2 = sym *-left-zero
+      all-products≈ (t :: ts1) ts2 =
+        begin
+          ⟦ (all-products (t :: ts1) ts2) ⟧terms
+        ==<>
+          ⟦ merge-terms
+             (insertion-sort-terms (map (term-* t) ts2))
+             (all-products ts1 ts2) ⟧terms
+        ==< merge-terms≈
+             (insertion-sort-terms (map (term-* t) ts2))
+             (all-products ts1 ts2) >
+          ⟦ (insertion-sort-terms (map (term-* t) ts2))
+            ++ (all-products ts1 ts2) ⟧terms
+        ==< ++-terms≈ (insertion-sort-terms (map (term-* t) ts2))
+                      (all-products ts1 ts2) >
+          ⟦ (insertion-sort-terms (map (term-* t) ts2)) ⟧terms
+          + ⟦ (all-products ts1 ts2) ⟧terms
+        ==< +-left (insertion-sort≈ (map (term-* t) ts2)) >
+          ⟦ (map (term-* t) ts2) ⟧terms + ⟦ (all-products ts1 ts2) ⟧terms
+        ==< +-right (all-products≈ ts1 ts2) >
+          ⟦ (map (term-* t) ts2) ⟧terms + ⟦ ts1 ⟧terms * ⟦ ts2 ⟧terms
+        ==< +-left (map-term-*≈ t ts2) >
+          ⟦ t  ⟧term * ⟦ ts2 ⟧terms + ⟦ ts1 ⟧terms * ⟦ ts2 ⟧terms
+        ==< sym *-distrib-+-right >
+          (⟦ t  ⟧term + ⟦ ts1 ⟧terms) * ⟦ ts2 ⟧terms
+        ==<>
+          ⟦ (t :: ts1) ⟧terms * ⟦ ts2 ⟧terms
+        end
 
   
       filtered-terms≈ : 

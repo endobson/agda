@@ -127,6 +127,54 @@ record Semiring {ℓ : Level} : Type (ℓ-suc ℓ) where
   product [] = 1#
   product (a :: l) = a * product l
 
+  product-inject-++ : {a b : List Domain} -> product (a ++ b) == product a * product b
+  product-inject-++ {[]} {b} = sym (*-left-one {product b})
+  product-inject-++ {e :: a} {b} = 
+    begin
+      product ((e :: a) ++ b)
+    ==<> 
+      e * (product (a ++ b))
+    ==< *-right {e} (product-inject-++ {a} {b}) >
+      e * (product a * product b)
+    ==< sym (*-assoc {e}) >
+      (e * product a) * product b
+    ==<> 
+      product (e :: a) * product b
+    end
+
+  product-map-inject-++ : (f : A -> Domain) {a1 a2 : List A} 
+                          -> (product (map f (a1 ++ a2))) == (product (map f a1)) * (product (map f a2))
+  product-map-inject-++ f {a1} {a2} = 
+    (cong product (map-inject-++ f {a1} {a2})) >=> (product-inject-++ {map f a1})
+
+
+  product-map-Insertion : {a : A} {as1 as2 : (List A)} -> (f : A -> Domain) -> (Insertion A a as1 as2)
+                          -> (product (map f (a :: as1))) == (product (map f as2))
+  product-map-Insertion f (insertion-base a as) = refl
+  product-map-Insertion f (insertion-cons {a} {as1} {as2} a2 ins) = 
+    begin
+      (product (map f (a :: (a2 :: as1))))
+    ==<>
+      (f a) * ((f a2) * (product (map f as1)))
+    ==< sym (*-assoc {f a}) >
+      ((f a) * (f a2)) * (product (map f as1))
+    ==< *-left (*-commute {f a} {f a2}) >
+      ((f a2) * (f a)) * (product (map f as1))
+    ==< *-assoc {f a2} >
+      (f a2) * ((f a) * (product (map f as1)))
+    ==< *-right {f a2} (product-map-Insertion f ins) >
+      (f a2) * (product (map f as2))
+    ==<>
+      (product (map f (a2 :: as2)))
+    end
+
+
+  product-map-Permutation : {as1 as2 : (List A)} -> (f : A -> Domain) -> (Permutation A as1 as2)
+                            -> (product (map f as1)) == (product (map f as2))
+  product-map-Permutation f (permutation-empty) = refl
+  product-map-Permutation f (permutation-cons {a} {as1} {as2} {as3} perm ins) =
+    (*-right {f a} (product-map-Permutation f perm)) >=> (product-map-Insertion f ins)
+
 
 
 record Ring {ℓ : Level} : Type (ℓ-suc ℓ) where
@@ -291,6 +339,17 @@ record Ring {ℓ : Level} : Type (ℓ-suc ℓ) where
   +-lift-int {int.neg (suc x)} {y} =
     +-left minus-distrib-plus >=> +-assoc >=> +-right (+-lift-int {int.neg x} {y})
     >=> sym (+-lift-sub1 ((int.neg x) int.+ y))
+
+  *-lift-int : {x y : int.Int} -> (lift-int x) * (lift-int y) == (lift-int (x int.* y))
+  *-lift-int {int.nonneg zero} = *-left-zero
+  *-lift-int {int.nonneg (suc x)} {y} = ?
+    -- *-assoc >=> +-right (+-lift-int {int.nonneg x} {y}) >=> sym (+-lift-add1 ((int.nonneg x) int.+ y))
+  *-lift-int {int.neg zero} {y} = ?
+    -- *-left (cong -_ +-right-zero) >=> sym (+-lift-sub1 y)
+  *-lift-int {int.neg (suc x)} {y} = ?
+    -- *-left minus-distrib-plus >=> +-assoc >=> +-right (+-lift-int {int.neg x} {y})
+    -- >=> sym (+-lift-sub1 ((int.neg x) int.+ y))
+
 
 NatSemiring : Semiring
 NatSemiring = record {
