@@ -20,7 +20,9 @@ data RingSyntax (n : Nat) : Set where
   _⊕_ : RingSyntax n -> RingSyntax n -> RingSyntax n
   _⊗_ : RingSyntax n -> RingSyntax n -> RingSyntax n
   ⊖_ : RingSyntax n -> RingSyntax n
+  ©_ : int.Int -> RingSyntax n
   var : Fin n -> RingSyntax n
+  
 
 
 infixl 6 _⊕_
@@ -255,6 +257,7 @@ module RingSolver (R : Ring {lzero}) where
   
       normalize : RingSyntax n -> Expr
       normalize (var i) = expr ((term (int.int 1) (i :: [])) :: [])
+      normalize (© x) = expr ((term x []) :: [])
       normalize (l ⊕ r) = expr-+ (normalize l) (normalize r)
       normalize (l ⊗ r) = expr-* (normalize l) (normalize r)
       normalize (⊖ e) = expr-- (normalize e)
@@ -279,6 +282,7 @@ module RingSolver (R : Ring {lzero}) where
   
       ⟦_⟧ : RingSyntax n -> Meaning
       ⟦ (var i) ⟧ env = lookup env i
+      ⟦ (© x) ⟧ = (lift-int x)
       ⟦ l ⊕ r ⟧ = ⟦ l ⟧ + ⟦ r ⟧
       ⟦ l ⊗ r ⟧ = ⟦ l ⟧ * ⟦ r ⟧
       ⟦ ⊖ e ⟧ = - ⟦ e ⟧
@@ -555,6 +559,18 @@ module RingSolver (R : Ring {lzero}) where
           ⟦ i ⟧var
         ==<>
           ⟦ (var i) ⟧
+        end
+      correct (© x) =
+        begin
+          ⟦ (© x) ⇓⟧ 
+        ==<>
+          ⟦ ((term x []) :: []) ⟧terms
+        ==< +-right-zero >
+          ⟦ (term x []) ⟧term
+        ==< *-right-one >
+          (lift-int x)
+        ==<>
+          ⟦ (© x) ⟧
         end
       correct (⊖ e) =
         begin
@@ -841,14 +857,11 @@ module Solver (S : Semiring {lzero}) where
       full-reg-proof = cong-curry n (⟦ e₁ ⟧) (⟦ e₂ ⟧) inner-reg-proof
   
     
+module NatSolver = Solver NatSemiring
+module IntSolver = RingSolver IntRing
   
 module examples where
   module semi where
-    module NatSolver = Solver NatSemiring
-    module IntSolver = Solver IntSemiring
-    
-    open int
-    
     example1 : (a b c d : Nat) -> (a +' c) +' (b +' d) == a +' (b +' c) +' d
     example1 = NatSolver.solve 4 (\ a b c d -> ((a ⊕ c) ⊕ (b ⊕ d)) , (a ⊕ (b ⊕ c)) ⊕ d) refl
     
@@ -859,39 +872,33 @@ module examples where
     example3 = NatSolver.solve 4 (\ a b c d -> ((a ⊕ c) ⊗ (b ⊕ d)) , 
                                                (a ⊗ b) ⊕ (c ⊗ d) ⊕ (c ⊗ b) ⊕ (a ⊗ d)) refl
     
-    example4 : (a b c d : Int) -> (a + c) * (b + d) == a * b + c * d + c * b + a * d
-    example4 = IntSolver.solve 4 (\ a b c d -> ((a ⊕ c) ⊗ (b ⊕ d)) , 
-                                               (a ⊗ b) ⊕ (c ⊗ d) ⊕ (c ⊗ b) ⊕ (a ⊗ d)) refl
-    
-    example5 : (x y a b -y -b : Int) ->
-         (x + y) * (a + b) + (x + -y) * (a + -b) ==
-         (x * b + x * -b) + ((x * a + y * b) + ((x * a + -y * -b) + (y * a + -y * a)))
-    example5 =
-     IntSolver.solve 6
-       (\ x y a b -y -b ->
-         (x ⊕ y) ⊗ (a ⊕ b) ⊕ (x ⊕ -y) ⊗ (a ⊕ -b) ,
-         (x ⊗ b ⊕ x ⊗ -b) ⊕ ((x ⊗ a ⊕ y ⊗ b) ⊕ ((x ⊗ a ⊕ -y ⊗ -b) ⊕ (y ⊗ a ⊕ -y ⊗ a))))
-       refl
-
   module full where
-    module IntSolver = RingSolver IntRing
-
     open int
 
-    example5 : (x y a b : Int) ->
+    example1 : (a b c d : Int) -> (a + c) * (b + d) == a * b + c * d + c * b + a * d
+    example1 = IntSolver.solve 4 (\ a b c d -> ((a ⊕ c) ⊗ (b ⊕ d)) , 
+                                               (a ⊗ b) ⊕ (c ⊗ d) ⊕ (c ⊗ b) ⊕ (a ⊗ d)) refl
+
+
+    example2 : (x y a b : Int) ->
          (x + y) * (a + b) + (x + - y) * (a + - b) ==
          (x * b + x * - b) + ((x * a + y * b) + ((x * a + - y * - b) + (y * a + - y * a)))
-    example5 =
+    example2 =
      IntSolver.solve 4
        (\ x y a b ->
          (x ⊕ y) ⊗ (a ⊕ b) ⊕ (x ⊕ (⊖ y)) ⊗ (a ⊕ (⊖ b)) ,
          (x ⊗ b ⊕ x ⊗ (⊖ b)) ⊕ ((x ⊗ a ⊕ y ⊗ b) ⊕ ((x ⊗ a ⊕ (⊖ y) ⊗ (⊖ b)) ⊕ (y ⊗ a ⊕ (⊖ y) ⊗ a))))
        refl
 
-
-
-
-
+    example3 : (x y a b : Int) ->
+        (x + y) * (a + b) + (x + - y) * (a + - b) ==
+        (int 2) * (x * a + y * b)
+    example3 =
+      IntSolver.solve 4
+        (\ x y a b  ->
+          (x ⊕ y) ⊗ (a ⊕ b) ⊕ (x ⊕ (⊖ y)) ⊗ (a ⊕ (⊖ b)) ,
+          (© (int 2)) ⊗ (x ⊗ a ⊕ y ⊗ b))
+        refl
 
 
 

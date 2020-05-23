@@ -84,24 +84,11 @@ ex1-4' rp (gcd a+b a-b n _ n%a+b n%a-b f) with (gcd->linear-combo rp)
   lin-proof =
     begin
       (x + y) * (a + b) + (x + - y) * (a + - b)
-    ==< IntSolver.solve 6
-        (\ x y a b -y -b ->
-          (x ⊕ y) ⊗ (a ⊕ b) ⊕ (x ⊕ -y) ⊗ (a ⊕ -b) ,
-          (x ⊗ b ⊕ x ⊗ -b) ⊕ ((x ⊗ a ⊕ y ⊗ b) ⊕ ((x ⊗ a ⊕ -y ⊗ -b) ⊕ (y ⊗ a ⊕ -y ⊗ a))))
-        refl x y a b (- y) (- b)
-    >
-      (x * b + x * (- b)) + ((x * a + y * b) + ((x * a + (- y) * (- b)) + (y * a + (- y) * a)))
-    ==< +-left (+-right {x * b} (minus-extract-right {x} {b})) >
-      (x * b + - (x * b)) + ((x * a + y * b) + ((x * a + (- y) * (- b)) + (y * a + (- y) * a)))
-    ==< +-left (add-minus-zero {x * b}) >
-      (x * a + y * b) + ((x * a + (- y) * (- b)) + (y * a + (- y) * a))
-    ==< +-right {(x * a + y * b)} (+-left (+-right {x * a} (minus-extract-both {y} {b}))) >
-      (x * a + y * b) + ((x * a + y * b) + (y * a + (- y) * a))
-    ==< +-right {(x * a + y * b)} (+-right {(x * a + y * b)} (+-right {y * a} (minus-extract-left {y}))) >
-      (x * a + y * b) + ((x * a + y * b) + (y * a + - (y * a)))
-    ==< +-right {x * a + y * b} (+-right {x * a + y * b} (add-minus-zero {y * a})) >
-      (x * a + y * b) + ((x * a + y * b) + (int 0))
-    ==<>
+    ==< IntSolver.solve 4
+        (\ x y a b  ->
+          (x ⊕ y) ⊗ (a ⊕ b) ⊕ (x ⊕ (⊖ y)) ⊗ (a ⊕ (⊖ b)) ,
+          (© (int 2)) ⊗ (x ⊗ a ⊕ y ⊗ b))
+        refl x y a b >
       (int 2) * (x * a + y * b)
     ==< *-right {int 2} proof >
       (int 2) * (int 1)
