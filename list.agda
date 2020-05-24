@@ -115,3 +115,18 @@ map-MonoidHomomorphism f = record {
   preserves-ε = refl ;
   preserves-∙ = (\ x y -> map-inject-++ f {x} {y})
   }
+
+concat : {{M : Monoid A}} -> List A -> A
+concat {{M = M}} [] = Monoid.ε M
+concat {{M = M}} (a :: l) = (Monoid._∙_ M) a (concat l)
+
+concat-MonoidHomomorphism : {{M : Monoid A}} -> MonoidHomomorphism (ListMonoid A) M (concat {{M}})
+concat-MonoidHomomorphism {A = A} {{M = M}} = record
+  { preserves-ε = refl
+  ; preserves-∙ = preserves-∙
+  }
+  where
+  open Monoid M
+  preserves-∙ : (x y : List A) -> concat (x ++ y) == (concat x) ∙ (concat y)
+  preserves-∙ [] y = sym ∙-left-ε
+  preserves-∙ (a :: l) y = cong (a ∙_) (preserves-∙ l y) >=> sym ∙-assoc
