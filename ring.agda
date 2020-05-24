@@ -3,7 +3,8 @@
 module ring where
 
 open import base
-open import list
+import list
+import unordered-list
 open import equality
 open import nat
 import int
@@ -70,110 +71,141 @@ record Semiring {ℓ : Level} : Type (ℓ-suc ℓ) where
   *-cong : {m n p o : Domain} -> m == p -> n == o -> m * n == p * o
   *-cong = cong2 _*_
 
-  sum : List Domain -> Domain
-  sum [] = 0#
-  sum (a :: l) = a + sum l
+  module _ where
+    open list
 
---  empty-sum : sum [] == 0#
---  empty-sum = +-left
+    sum : List Domain -> Domain
+    sum [] = 0#
+    sum (a :: l) = a + sum l
 
-  sum-inject-++ : {a b : List Domain} -> sum (a ++ b) == sum a + sum b
-  sum-inject-++ {[]} {b} = sym (+-left-zero {sum b})
-  sum-inject-++ {e :: a} {b} = 
-    begin
-      sum ((e :: a) ++ b)
-    ==<> 
-      e + (sum (a ++ b))
-    ==< +-right {e} (sum-inject-++ {a} {b}) >
-      e + (sum a + sum b)
-    ==< sym (+-assoc {e}) >
-      (e + sum a) + sum b
-    ==<> 
-      sum (e :: a) + sum b
-    end
+    sum-inject-++ : {a b : List Domain} -> sum (a ++ b) == sum a + sum b
+    sum-inject-++ {[]} {b} = sym (+-left-zero {sum b})
+    sum-inject-++ {e :: a} {b} = 
+      begin
+        sum ((e :: a) ++ b)
+      ==<> 
+        e + (sum (a ++ b))
+      ==< +-right {e} (sum-inject-++ {a} {b}) >
+        e + (sum a + sum b)
+      ==< sym (+-assoc {e}) >
+        (e + sum a) + sum b
+      ==<> 
+        sum (e :: a) + sum b
+      end
 
-  sum-map-inject-++ : (f : A -> Domain) {a1 a2 : List A} 
-                      -> (sum (map f (a1 ++ a2))) == (sum (map f a1)) + (sum (map f a2))
-  sum-map-inject-++ f {a1} {a2} = 
-    (cong sum (map-inject-++ f {a1} {a2})) >=> (sum-inject-++ {map f a1})
+    sum-map-inject-++ : (f : A -> Domain) {a1 a2 : List A} 
+                        -> (sum (map f (a1 ++ a2))) == (sum (map f a1)) + (sum (map f a2))
+    sum-map-inject-++ f {a1} {a2} = 
+      (cong sum (map-inject-++ f {a1} {a2})) >=> (sum-inject-++ {map f a1})
 
-  sum-map-Insertion : {a : A} {as1 as2 : (List A)} -> (f : A -> Domain) -> (Insertion A a as1 as2)
-                       -> (sum (map f (a :: as1))) == (sum (map f as2))
-  sum-map-Insertion f (insertion-base a as) = refl
-  sum-map-Insertion f (insertion-cons {a} {as1} {as2} a2 ins) = 
-    begin
-      (sum (map f (a :: (a2 :: as1))))
-    ==<>
-      (f a) + ((f a2) + (sum (map f as1)))
-    ==< sym (+-assoc {f a}) >
-      ((f a) + (f a2)) + (sum (map f as1))
-    ==< +-left (+-commute {f a} {f a2}) >
-      ((f a2) + (f a)) + (sum (map f as1))
-    ==< +-assoc {f a2} >
-      (f a2) + ((f a) + (sum (map f as1)))
-    ==< +-right {f a2} (sum-map-Insertion f ins) >
-      (f a2) + (sum (map f as2))
-    ==<>
-      (sum (map f (a2 :: as2)))
-    end
+    sum-map-Insertion : {a : A} {as1 as2 : (List A)} -> (f : A -> Domain) -> (Insertion A a as1 as2)
+                         -> (sum (map f (a :: as1))) == (sum (map f as2))
+    sum-map-Insertion f (insertion-base a as) = refl
+    sum-map-Insertion f (insertion-cons {a} {as1} {as2} a2 ins) = 
+      begin
+        (sum (map f (a :: (a2 :: as1))))
+      ==<>
+        (f a) + ((f a2) + (sum (map f as1)))
+      ==< sym (+-assoc {f a}) >
+        ((f a) + (f a2)) + (sum (map f as1))
+      ==< +-left (+-commute {f a} {f a2}) >
+        ((f a2) + (f a)) + (sum (map f as1))
+      ==< +-assoc {f a2} >
+        (f a2) + ((f a) + (sum (map f as1)))
+      ==< +-right {f a2} (sum-map-Insertion f ins) >
+        (f a2) + (sum (map f as2))
+      ==<>
+        (sum (map f (a2 :: as2)))
+      end
 
-  sum-map-Permutation : {as1 as2 : (List A)} -> (f : A -> Domain) -> (Permutation A as1 as2)
-                       -> (sum (map f as1)) == (sum (map f as2))
-  sum-map-Permutation f (permutation-empty) = refl
-  sum-map-Permutation f (permutation-cons {a} {as1} {as2} {as3} perm ins) =
-    (+-right {f a} (sum-map-Permutation f perm)) >=> (sum-map-Insertion f ins)
+    sum-map-Permutation : {as1 as2 : (List A)} -> (f : A -> Domain) -> (Permutation A as1 as2)
+                         -> (sum (map f as1)) == (sum (map f as2))
+    sum-map-Permutation f (permutation-empty) = refl
+    sum-map-Permutation f (permutation-cons {a} {as1} {as2} {as3} perm ins) =
+      (+-right {f a} (sum-map-Permutation f perm)) >=> (sum-map-Insertion f ins)
 
-  product : List Domain -> Domain
-  product [] = 1#
-  product (a :: l) = a * product l
+    product : List Domain -> Domain
+    product [] = 1#
+    product (a :: l) = a * product l
 
-  product-inject-++ : {a b : List Domain} -> product (a ++ b) == product a * product b
-  product-inject-++ {[]} {b} = sym (*-left-one {product b})
-  product-inject-++ {e :: a} {b} = 
-    begin
-      product ((e :: a) ++ b)
-    ==<> 
-      e * (product (a ++ b))
-    ==< *-right {e} (product-inject-++ {a} {b}) >
-      e * (product a * product b)
-    ==< sym (*-assoc {e}) >
-      (e * product a) * product b
-    ==<> 
-      product (e :: a) * product b
-    end
+    product-inject-++ : {a b : List Domain} -> product (a ++ b) == product a * product b
+    product-inject-++ {[]} {b} = sym (*-left-one {product b})
+    product-inject-++ {e :: a} {b} = 
+      begin
+        product ((e :: a) ++ b)
+      ==<> 
+        e * (product (a ++ b))
+      ==< *-right {e} (product-inject-++ {a} {b}) >
+        e * (product a * product b)
+      ==< sym (*-assoc {e}) >
+        (e * product a) * product b
+      ==<> 
+        product (e :: a) * product b
+      end
 
-  product-map-inject-++ : (f : A -> Domain) {a1 a2 : List A} 
-                          -> (product (map f (a1 ++ a2))) == (product (map f a1)) * (product (map f a2))
-  product-map-inject-++ f {a1} {a2} = 
-    (cong product (map-inject-++ f {a1} {a2})) >=> (product-inject-++ {map f a1})
-
-
-  product-map-Insertion : {a : A} {as1 as2 : (List A)} -> (f : A -> Domain) -> (Insertion A a as1 as2)
-                          -> (product (map f (a :: as1))) == (product (map f as2))
-  product-map-Insertion f (insertion-base a as) = refl
-  product-map-Insertion f (insertion-cons {a} {as1} {as2} a2 ins) = 
-    begin
-      (product (map f (a :: (a2 :: as1))))
-    ==<>
-      (f a) * ((f a2) * (product (map f as1)))
-    ==< sym (*-assoc {f a}) >
-      ((f a) * (f a2)) * (product (map f as1))
-    ==< *-left (*-commute {f a} {f a2}) >
-      ((f a2) * (f a)) * (product (map f as1))
-    ==< *-assoc {f a2} >
-      (f a2) * ((f a) * (product (map f as1)))
-    ==< *-right {f a2} (product-map-Insertion f ins) >
-      (f a2) * (product (map f as2))
-    ==<>
-      (product (map f (a2 :: as2)))
-    end
+    product-map-inject-++ : (f : A -> Domain) {a1 a2 : List A} 
+                            -> (product (map f (a1 ++ a2))) == (product (map f a1)) * (product (map f a2))
+    product-map-inject-++ f {a1} {a2} = 
+      (cong product (map-inject-++ f {a1} {a2})) >=> (product-inject-++ {map f a1})
 
 
-  product-map-Permutation : {as1 as2 : (List A)} -> (f : A -> Domain) -> (Permutation A as1 as2)
-                            -> (product (map f as1)) == (product (map f as2))
-  product-map-Permutation f (permutation-empty) = refl
-  product-map-Permutation f (permutation-cons {a} {as1} {as2} {as3} perm ins) =
-    (*-right {f a} (product-map-Permutation f perm)) >=> (product-map-Insertion f ins)
+    product-map-Insertion : {a : A} {as1 as2 : (List A)} -> (f : A -> Domain) -> (Insertion A a as1 as2)
+                            -> (product (map f (a :: as1))) == (product (map f as2))
+    product-map-Insertion f (insertion-base a as) = refl
+    product-map-Insertion f (insertion-cons {a} {as1} {as2} a2 ins) = 
+      begin
+        (product (map f (a :: (a2 :: as1))))
+      ==<>
+        (f a) * ((f a2) * (product (map f as1)))
+      ==< sym (*-assoc {f a}) >
+        ((f a) * (f a2)) * (product (map f as1))
+      ==< *-left (*-commute {f a} {f a2}) >
+        ((f a2) * (f a)) * (product (map f as1))
+      ==< *-assoc {f a2} >
+        (f a2) * ((f a) * (product (map f as1)))
+      ==< *-right {f a2} (product-map-Insertion f ins) >
+        (f a2) * (product (map f as2))
+      ==<>
+        (product (map f (a2 :: as2)))
+      end
+
+
+    product-map-Permutation : {as1 as2 : (List A)} -> (f : A -> Domain) -> (Permutation A as1 as2)
+                              -> (product (map f as1)) == (product (map f as2))
+    product-map-Permutation f (permutation-empty) = refl
+    product-map-Permutation f (permutation-cons {a} {as1} {as2} {as3} perm ins) =
+      (*-right {f a} (product-map-Permutation f perm)) >=> (product-map-Insertion f ins)
+
+  module _ where
+    open unordered-list
+
+    unordered-sum : UnorderedList Domain -> Domain
+    unordered-sum [] = 0#
+    unordered-sum (a :: l) = a + unordered-sum l
+    unordered-sum (swap a b l i) = 
+      (begin
+         a + (b + unordered-sum l)
+       ==< sym +-assoc  >
+         (a + b) + unordered-sum l
+       ==< +-left +-commute >
+         (b + a) + unordered-sum l
+       ==< +-assoc >
+         b + (a + unordered-sum l)
+       end) i
+
+    unordered-product : UnorderedList Domain -> Domain
+    unordered-product [] = 1#
+    unordered-product (a :: l) = a * unordered-product l
+    unordered-product (swap a b l i) = 
+      (begin
+         a * (b * unordered-product l)
+       ==< sym *-assoc  >
+         (a * b) * unordered-product l
+       ==< *-left *-commute >
+         (b * a) * unordered-product l
+       ==< *-assoc >
+         b * (a * unordered-product l)
+       end) i
 
 
 
