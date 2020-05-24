@@ -97,16 +97,18 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     sum : List Domain -> Domain
     sum = concat {{+-Monoid}}
 
-    sum-MonoidHomomorphism : MonoidHomomorphism (ListMonoid Domain) +-Monoid sum
-    sum-MonoidHomomorphism = concat-MonoidHomomorphism
+    sumʰ : MonoidHomomorphism (ListMonoid Domain) +-Monoid sum
+    sumʰ = concatʰ
+    module sumʰ where
+      open MonoidHomomorphism sumʰ public
+      preserves-+ = preserves-∙
 
     sum-inject-++ : {a b : List Domain} -> sum (a ++ b) == sum a + sum b
-    sum-inject-++ {a} {b} = MonoidHomomorphism.preserves-∙ sum-MonoidHomomorphism a b
+    sum-inject-++ {a} {b} = sumʰ.preserves-+ a b
 
     sum-map-inject-++ : (f : A -> Domain) {a1 a2 : List A} 
                         -> (sum (map f (a1 ++ a2))) == (sum (map f a1)) + (sum (map f a2))
-    sum-map-inject-++ f {a1} {a2} = 
-      (cong sum (map-inject-++ f {a1} {a2})) >=> (sum-inject-++ {map f a1})
+    sum-map-inject-++ f {a1} {a2} = MonoidHomomorphism.preserves-∙ (sumʰ ∘ʰ (mapʰ f)) a1 a2
 
     sum-map-Insertion : {a : A} {as1 as2 : (List A)} -> (f : A -> Domain) -> (Insertion A a as1 as2)
                          -> (sum (map f (a :: as1))) == (sum (map f as2))
@@ -137,26 +139,19 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     product : List Domain -> Domain
     product = concat {{*-Monoid}}
 
+
+    productʰ : MonoidHomomorphism (ListMonoid Domain) *-Monoid product
+    productʰ = concatʰ
+    module productʰ where
+      open MonoidHomomorphism productʰ public
+      preserves-* = preserves-∙
+
     product-inject-++ : {a b : List Domain} -> product (a ++ b) == product a * product b
-    product-inject-++ {[]} {b} = sym (*-left-one {product b})
-    product-inject-++ {e :: a} {b} = 
-      begin
-        product ((e :: a) ++ b)
-      ==<> 
-        e * (product (a ++ b))
-      ==< *-right {e} (product-inject-++ {a} {b}) >
-        e * (product a * product b)
-      ==< sym (*-assoc {e}) >
-        (e * product a) * product b
-      ==<> 
-        product (e :: a) * product b
-      end
+    product-inject-++ {a} {b} = productʰ.preserves-* a b
 
     product-map-inject-++ : (f : A -> Domain) {a1 a2 : List A} 
-                            -> (product (map f (a1 ++ a2))) == (product (map f a1)) * (product (map f a2))
-    product-map-inject-++ f {a1} {a2} = 
-      (cong product (map-inject-++ f {a1} {a2})) >=> (product-inject-++ {map f a1})
-
+      -> (product (map f (a1 ++ a2))) == (product (map f a1)) * (product (map f a2))
+    product-map-inject-++ f {a1} {a2} = MonoidHomomorphism.preserves-∙ (productʰ ∘ʰ (mapʰ f)) a1 a2
 
     product-map-Insertion : {a : A} {as1 as2 : (List A)} -> (f : A -> Domain) -> (Insertion A a as1 as2)
                             -> (product (map f (a :: as1))) == (product (map f as2))
@@ -476,7 +471,7 @@ IntRing = record  {
   +-inverse = (\ {n} -> int.add-minus-zero {n}) }
 
 
-ReaderSemiring : {ℓ : Level} {Domain : Type ℓ} -> (A : Type ℓ) 
+ReaderSemiring : {ℓ₁ ℓ₂ : Level} {Domain : Type ℓ₁} -> (A : Type ℓ₂) 
                  -> Semiring Domain -> Semiring (A -> Domain)
 ReaderSemiring {Domain = Domain} A S = res
   where

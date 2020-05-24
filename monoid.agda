@@ -17,8 +17,12 @@ record Monoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     ∙-right-ε : {m : Domain} -> (m ∙ ε) == m
 
 
-record MonoidHomomorphism {ℓ : Level} {D₁ D₂ : Type ℓ} (M₁ : Monoid D₁) (M₂ : Monoid D₂)
-                          (f : D₁ -> D₂) : Type ℓ where
+record MonoidHomomorphism
+    {ℓ₁ ℓ₂ : Level} 
+    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+    (M₁ : Monoid D₁) (M₂ : Monoid D₂)
+    (f : D₁ -> D₂)
+    : Type (ℓ-max ℓ₁ ℓ₂) where
   module M₁ = Monoid M₁
   module M₂ = Monoid M₂
 
@@ -27,13 +31,14 @@ record MonoidHomomorphism {ℓ : Level} {D₁ D₂ : Type ℓ} (M₁ : Monoid D�
     preserves-∙ : ∀ x y -> f (x M₁.∙ y) == (f x) M₂.∙ (f y)
 
 
-
-compose-MonoidHomomorphism :
-  {ℓ : Level} {D₁ D₂ D₃ : Type ℓ} {M₁ : Monoid D₁} {M₂ : Monoid D₂} {M₃ : Monoid D₃}
+_∘ʰ_ :
+  {ℓ₁ ℓ₂ ℓ₃ : Level}
+  {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} {D₃ : Type ℓ₃} 
+  {M₁ : Monoid D₁} {M₂ : Monoid D₂} {M₃ : Monoid D₃}
   {f : D₂ -> D₃} {g : D₁ -> D₂} 
   -> (MonoidHomomorphism M₂ M₃ f) -> (MonoidHomomorphism M₁ M₂ g)
   -> (MonoidHomomorphism M₁ M₃ (f ∘ g))
-compose-MonoidHomomorphism {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res
+_∘ʰ_ {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res
   where
   module M₁ = Monoid M₁
   module M₃ = Monoid M₃
