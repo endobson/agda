@@ -10,33 +10,32 @@ open import nat
 open import div
 
 
-
-data Prime' : Nat -> Set where
-  prime' : (p' : Nat)
-          -> ((d : Nat) -> d <s (suc (suc p')) -> (d div' (suc (suc p'))) -> d == 1)
-          -> Prime' (suc (suc p'))
+data IsPrime' : Nat -> Set where
+  is-prime' : (p' : Nat)
+              -> ((d : Nat) -> d <s (suc (suc p')) -> (d div' (suc (suc p'))) -> d == 1)
+              -> IsPrime' (suc (suc p'))
 
 data PrimeFactorization : Nat -> Set where
-  prime-factorization-prime : {p : Nat} -> Prime' p -> PrimeFactorization p
+  prime-factorization-prime : {p : Nat} -> IsPrime' p -> PrimeFactorization p
   prime-factorization-composite : {m n : Nat}
     -> PrimeFactorization m
     -> PrimeFactorization n
     -> PrimeFactorization (m *' n)
 
 data Primality : Nat -> Set where
-  primality-prime : {p : Nat} -> Prime' p -> Primality p
+  primality-prime : {p : Nat} -> IsPrime' p -> Primality p
   primality-composite : {a' b' : Nat} (a b : Nat) -> {a == (suc (suc a'))} -> {b == (suc (suc b'))}
                         -> Primality ((suc (suc a')) *' (suc (suc b')))
 
 
-prime-only-divisors : {p d : Nat} -> Prime' p -> d div' p -> (d == p) ⊎ (d == 1)
-prime-only-divisors {p} {d} (prime' _ pf) d%p with (≤->≤s (div'->≤ d%p))
+prime-only-divisors : {p d : Nat} -> IsPrime' p -> d div' p -> (d == p) ⊎ (d == 1)
+prime-only-divisors {p} {d} (is-prime' _ pf) d%p with (≤->≤s (div'->≤ d%p))
 ... | refl-≤s = inj-l refl
 ... | (step-≤s pr) = inj-r (pf d (inc-≤s pr) d%p)
 
-0-is-¬prime : ¬(Prime' 0)
+0-is-¬prime : ¬(IsPrime' 0)
 0-is-¬prime ()
-1-is-¬prime : ¬(Prime' 1)
+1-is-¬prime : ¬(IsPrime' 1)
 1-is-¬prime ()
 
 private
@@ -45,8 +44,8 @@ private
                   -> ((d : Nat) -> d <s bound -> (d div' (suc (suc p'))) -> d == 1)
                   -> PrimeUpTo (suc (suc p')) bound
 
-  prime-up-to->prime' : {n : Nat} -> PrimeUpTo n n -> Prime' n
-  prime-up-to->prime' (prime-up-to p' (suc (suc p')) f) = (prime' p' f)
+  prime-up-to->is-prime' : {n : Nat} -> PrimeUpTo n n -> IsPrime' n
+  prime-up-to->is-prime' (prime-up-to p' (suc (suc p')) f) = (is-prime' p' f)
 
   prime-up-to-zero : (p' : Nat) -> PrimeUpTo (suc (suc p')) zero
   prime-up-to-zero p' = prime-up-to p' zero (\ d ())
@@ -73,8 +72,8 @@ private
     g d (step-≤s d≤b) dp with (prime-up-to-one p') 
     ... | (prime-up-to _ _ f) = f d d≤b dp
 
-2-is-prime : Prime' 2
-2-is-prime = prime-up-to->prime' (prime-up-to-two 0)
+2-is-prime : IsPrime' 2
+2-is-prime = prime-up-to->is-prime' (prime-up-to-two 0)
 
 private
   data _≤u_ : Nat -> Nat -> Set where
@@ -107,7 +106,7 @@ private
     0≤i (suc i) pr = 0≤i i (step-≤u pr)
     
     rec : {i : Nat} -> i ≤u p' -> PrimeUpTo (suc (suc p')) (suc (suc i)) -> Primality (suc (suc p'))
-    rec refl-≤u pr = primality-prime (prime-up-to->prime' pr)
+    rec refl-≤u pr = primality-prime (prime-up-to->is-prime' pr)
     rec {i} (step-≤u step) pr with decide-div (suc (suc i)) (suc (suc p'))
     ... | no not-div = rec step (prime-up-to-suc pr not-div)
     ... | yes div = div->composite {suc (suc i)} {suc (suc p')} 
@@ -150,7 +149,7 @@ private
 
 
 PrimeDivisor : Nat -> Nat -> Set
-PrimeDivisor n d = Prime' d × d div' n
+PrimeDivisor n d = IsPrime' d × d div' n
 
 exists-prime-divisor : {n : Nat} -> n > 1 -> exists (PrimeDivisor n)
 exists-prime-divisor {n} n>1 = rec (compute-prime-factorization n>1) div'-refl

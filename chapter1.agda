@@ -25,12 +25,12 @@ ex1-2' (gcd' a b@(suc _) _ _ _ _) g@(gcd' a zero _ _ _ _) =
 ex1-2' (gcd' a@(suc _) b@(suc _) _ _ _ f-b) (gcd' a@(suc _) c@(suc _) _ _ _ f-c) = 
   prime-gcd' a (b *' c) f
   where
-  ¬prime-div-one : {p : Nat} -> Prime' p -> ¬(p div' 1)
+  ¬prime-div-one : {p : Nat} -> IsPrime' p -> ¬(p div' 1)
   ¬prime-div-one p p%1 with div'->≤ p%1
   ...                     | zero-≤ = 0-is-¬prime p
   ...                     | (inc-≤ zero-≤) = 1-is-¬prime p
 
-  f : {p : Nat} -> (Prime' p) -> p div' a -> p div' (b *' c) -> Bot
+  f : {p : Nat} -> (IsPrime' p) -> p div' a -> p div' (b *' c) -> Bot
   f {p'} p p%a p%bc with (prime-divides-a-factor p {b} {c} p%bc)
   ... | inj-l p%b = ¬prime-div-one p (f-b p' p%a p%b)
   ... | inj-r p%c = ¬prime-div-one p (f-c p' p%a p%c)
