@@ -4,6 +4,7 @@ module nat where
 
 open import base
 open import equality
+open import monoid
 
 data Nat : Set where
  zero : Nat
@@ -41,6 +42,9 @@ suc m +' n = suc (m +' n)
 +'-right-zero : {m : Nat} -> (m +' zero) == m
 +'-right-zero {zero} = refl 
 +'-right-zero {suc m} = cong suc (+'-right-zero {m})
+
++'-left-zero : {m : Nat} -> (zero +' m) == m
++'-left-zero {m} = refl 
 
 +'-right-suc : {m n : Nat} -> (m +' (suc n)) == suc (m +' n)
 +'-right-suc {zero} {n} = refl 
@@ -380,3 +384,19 @@ decide-nat< (suc m) (suc n) with (decide-nat< m n)
 ... | yes pr = yes (inc-≤ pr)
 ... | no f = no (\ pr -> (f (dec-≤ pr)))
 
+
+NatMonoid+ : Monoid Nat
+NatMonoid+ = record {
+  ε = 0;
+  _∙_ = _+'_;
+  ∙-assoc = \ {m} {n} {o} -> +'-assoc {m} {n} {o};
+  ∙-left-ε = +'-left-zero;
+  ∙-right-ε = +'-right-zero }
+
+NatMonoid* : Monoid Nat
+NatMonoid* = record {
+  ε = 1;
+  _∙_ = _*'_;
+  ∙-assoc = \ {m} {n} {o} -> *'-assoc {m} {n} {o};
+  ∙-left-ε = *'-left-one;
+  ∙-right-ε = *'-right-one }

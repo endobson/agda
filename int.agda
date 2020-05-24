@@ -5,6 +5,7 @@ module int where
 open import equality
 open import base
 open import nat
+open import monoid
 
 data Int : Set where
  -- nonneg n Corresponds to n
@@ -184,6 +185,10 @@ sub1-extract-left {nonneg (suc m')} {n} =
   ==<>
     neg (suc m)
   end
+
++-left-zero : {m : Int} -> (zero-int + m) == m
++-left-zero = refl
+
 
 add1-extract-right : {m n : Int} -> m + add1 n == add1 (m + n)
 add1-extract-right {nonneg zero} {n} = refl
@@ -452,6 +457,9 @@ private
 *-right-one : {m : Int} -> m * (int 1) == m
 *-right-one {nonneg m} = *-right-one' m
 *-right-one {neg m} = cong minus (*-right-one' (suc m))
+
+*-left-one : {m : Int} -> (int 1) * m == m
+*-left-one = +-right-zero
 
 private
   *-right-negative-one' : (m : Nat) -> (nonneg (suc m)) * (neg zero) == (neg m)
@@ -927,3 +935,20 @@ decide-int (neg m) (neg n) with decide-nat m n
 ... | (no f) = no (\ pr -> f (neg-injective pr))
 decide-int m@(nonneg _) n@(neg _) = no nonneg-neg-absurd
 decide-int m@(neg _) n@(nonneg _) = no (\ p -> nonneg-neg-absurd (sym p))
+
+
+IntMonoid+ : Monoid Int
+IntMonoid+ = record {
+  ε = (int 0);
+  _∙_ = _+_;
+  ∙-assoc = \ {m} {n} {o} -> +-assoc {m} {n} {o};
+  ∙-left-ε = +-left-zero;
+  ∙-right-ε = +-right-zero }
+
+IntMonoid* : Monoid Int
+IntMonoid* = record {
+  ε = (int 1);
+  _∙_ = _*_;
+  ∙-assoc = \ {m} {n} {o} -> *-assoc {m} {n} {o};
+  ∙-left-ε = *-left-one;
+  ∙-right-ε = *-right-one }
