@@ -15,17 +15,7 @@ data IsPrime' : Nat -> Set where
               -> ((d : Nat) -> d <s (suc (suc p')) -> (d div' (suc (suc p'))) -> d == 1)
               -> IsPrime' (suc (suc p'))
 
-data PrimeFactorization : Nat -> Set where
-  prime-factorization-prime : {p : Nat} -> IsPrime' p -> PrimeFactorization p
-  prime-factorization-composite : {m n : Nat}
-    -> PrimeFactorization m
-    -> PrimeFactorization n
-    -> PrimeFactorization (m *' n)
 
-data Primality : Nat -> Set where
-  primality-prime : {p : Nat} -> IsPrime' p -> Primality p
-  primality-composite : {a' b' : Nat} (a b : Nat) -> {a == (suc (suc a'))} -> {b == (suc (suc b'))}
-                        -> Primality ((suc (suc a')) *' (suc (suc b')))
 
 
 prime-only-divisors : {p d : Nat} -> IsPrime' p -> d div' p -> (d == p) ⊎ (d == 1)
@@ -38,7 +28,21 @@ prime-only-divisors {p} {d} (is-prime' _ pf) d%p with (≤->≤s (div'->≤ d%p)
 1-is-¬prime : ¬(IsPrime' 1)
 1-is-¬prime ()
 
+-- Build up machinery for decidable prime factorization
 private
+
+  data PrimeFactorizationTree : Nat -> Set where
+    prime-factorization-tree-prime : {p : Nat} -> IsPrime' p -> PrimeFactorizationTree p
+    prime-factorization-tree-composite : {m n : Nat}
+      -> PrimeFactorizationTree m
+      -> PrimeFactorizationTree n
+      -> PrimeFactorizationTree (m *' n)
+
+  data Primality : Nat -> Set where
+    primality-prime : {p : Nat} -> IsPrime' p -> Primality p
+    primality-composite : {a' b' : Nat} (a b : Nat) -> {a == (suc (suc a'))} -> {b == (suc (suc b'))}
+                          -> Primality ((suc (suc a')) *' (suc (suc b')))
+
   data PrimeUpTo : Nat -> Nat -> Set where
     prime-up-to : (p' : Nat) -> (bound : Nat)
                   -> ((d : Nat) -> d <s bound -> (d div' (suc (suc p'))) -> d == 1)
@@ -117,16 +121,16 @@ private
                     div
 
     
-  compute-prime-factorization : {n : Nat} -> n > 1 -> PrimeFactorization n
-  compute-prime-factorization {p} p>1  = rec p>1 (same-≤ p)
+  compute-prime-factorization-tree : {n : Nat} -> n > 1 -> PrimeFactorizationTree n
+  compute-prime-factorization-tree {p} p>1  = rec p>1 (same-≤ p)
     where
-    rec : {i : Nat} {p : Nat} -> p > 1 -> (p ≤ i) -> PrimeFactorization p
+    rec : {i : Nat} {p : Nat} -> p > 1 -> (p ≤ i) -> PrimeFactorizationTree p
     rec {_} p@{suc (suc p')} p>1 (inc-≤ p-bound) with (compute-primality p>1)
-    ... | (primality-prime prime) = (prime-factorization-prime prime)
+    ... | (primality-prime prime) = (prime-factorization-tree-prime prime)
     ... | (primality-composite {m'} {n'} m n {p1} {p2})
           with (path->id p1) | (path->id p2)
     ... | refl-===     | refl-=== = 
-            (prime-factorization-composite 
+            (prime-factorization-tree-composite 
               (rec (>1) (trans-≤ (dec-≤ m-bound) p-bound))
               (rec (>1) (trans-≤ (dec-≤ n-bound) p-bound)))
             where
@@ -152,25 +156,9 @@ PrimeDivisor : Nat -> Nat -> Set
 PrimeDivisor n d = IsPrime' d × d div' n
 
 exists-prime-divisor : {n : Nat} -> n > 1 -> exists (PrimeDivisor n)
-exists-prime-divisor {n} n>1 = rec (compute-prime-factorization n>1) div'-refl
+exists-prime-divisor {n} n>1 = rec (compute-prime-factorization-tree n>1) div'-refl
   where 
-  rec : {a : Nat} -> (PrimeFactorization a) -> a div' n -> exists (PrimeDivisor n)
-  rec {a} (prime-factorization-prime prime-a) a%n = existence a (prime-a , a%n)
-  rec {a} (prime-factorization-composite {d} {e} df ef) a%n =
+  rec : {a : Nat} -> (PrimeFactorizationTree a) -> a div' n -> exists (PrimeDivisor n)
+  rec {a} (prime-factorization-tree-prime prime-a) a%n = existence a (prime-a , a%n)
+  rec {a} (prime-factorization-tree-composite {d} {e} df ef) a%n =
     rec ef (div'-trans (div'-exists e a d refl) a%n)
-
-data IntFactorization : Int -> Set where
-  int-factorization-zero : IntFactorization zero-int
-  int-factorization-pos-one : IntFactorization (pos zero)
-  int-factorization-neg-one : IntFactorization (neg zero)
-  int-factorization-pos : {n : Nat} -> PrimeFactorization n -> IntFactorization (int n)
-  int-factorization-neg : {n : Nat} -> PrimeFactorization n -> IntFactorization (- (int n))
-
-compute-int-factorization : (n : Int) -> IntFactorization n
-compute-int-factorization zero-int = int-factorization-zero
-compute-int-factorization (pos zero) = int-factorization-pos-one
-compute-int-factorization (neg zero) = int-factorization-neg-one
-compute-int-factorization (pos n@(suc _)) =
-  int-factorization-pos (compute-prime-factorization >1)
-compute-int-factorization (neg n@(suc _)) =
-  int-factorization-neg (compute-prime-factorization >1)
