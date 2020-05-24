@@ -112,3 +112,72 @@ ex1-4 {a} {b} rp with (gcd-exists (a + b) (a + - b))
   ... | (inc-≤ zero-≤) = inj-l g
   ... | (inc-≤ (inc-≤ zero-≤)) = inj-r g
   ... | zero-≤ = bot-elim (zero-suc-absurd (sym (nonneg-injective (div-zero->zero d-div))))
+
+
+ex1-6 : {a b d : Int} -> RPrime a b -> d div (a + b) -> RPrime a d × RPrime b d
+ex1-6 {d = d} (gcd a b _ _ _ _ f) d%a+b = 
+    (gcd a d (int 1) tt div-one div-one f-a) , (gcd b d (int 1) tt div-one div-one f-b)
+  where
+  f-a : (x : Int) -> x div a -> x div d -> x div (int 1)
+  f-a x x%a x%d = (f x x%a x%b)
+    where
+    p : - a + ( a + b) == b
+    p = (sym (+-assoc { - a})) >=> (+-left (+-commute { - a} {a})) >=> (+-left (add-minus-zero {a}))
+    x%b : x div b
+    x%b = transport (\i -> x div (p i)) (div-sum (div-negate x%a) (div-trans x%d d%a+b))
+
+  f-b : (x : Int) -> x div b -> x div d -> x div (int 1)
+  f-b x x%b x%d = (f x x%a x%b)
+    where
+    p : - b + ( a + b) == a
+    p = (+-right { - b} (+-commute {a} {b})) >=>
+        (sym (+-assoc { - b})) >=> (+-left (+-commute { - b} {b})) >=> (+-left (add-minus-zero {b}))
+    x%a : x div a
+    x%a = transport (\i -> x div (p i)) (div-sum (div-negate x%b) (div-trans x%d d%a+b))
+
+ex1-5-arith-type : Set
+ex1-5-arith-type = ∀ a b -> ((a + b) * (a + b) +  - (a * a + - (a * b) + b * b))
+                            == ((a * b) * (int 3))
+
+ex1-5-arith : ex1-5-arith-type
+ex1-5-arith a b =
+  IntSolver.solve 2
+    (\ a b ->
+      ((a ⊕ b) ⊗ (a ⊕ b) ⊕  ⊖ (a ⊗ a ⊕ ⊖ (a ⊗ b) ⊕ b ⊗ b)) ,
+      ((a ⊗ b) ⊗ (© (int 3))))
+    refl a b
+
+ex1-5' : {a b : Int} -> ex1-5-arith-type -> RPrime a b ->
+   (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎
+   (GCD (a + b) (a * a + - (a * b) + b * b) (int 3))
+ex1-5' {a} {b} arith-proof rp with (gcd-exists (a + b) (a * a + - (a * b) + b * b))
+... | (existence d g@(gcd _ _ d@(nonneg d-nat) _ d%a+b d%term _)) = res
+  where
+  ¬2%3 : ¬ (2 div' 3)
+  ¬2%3 (div'-exists _ _ zero pr) = zero-suc-absurd pr
+  ¬2%3 (div'-exists _ _ (suc zero) pr) = zero-suc-absurd (suc-injective (suc-injective pr))
+  ¬2%3 (div'-exists _ _ (suc (suc _)) pr) = 
+    (zero-suc-absurd (sym (suc-injective (suc-injective (suc-injective pr)))))
+
+  reordered-gcd : (GCD (a + b) ((a * b) * (int 3)) d)
+  reordered-gcd = transport (\i -> GCD (a + b) (arith-proof a b i) d)
+                            (gcd-add-linear (gcd-negate g) (a + b))
+
+  d-div : d div (int 3)
+  d-div with reordered-gcd
+  ... | (gcd _ ab3 d _ d%a+b d%ab3 _) with (ex1-6 rp d%a+b)
+  ... | rp-ad , rp-bd  with (ex1-2 (gcd-sym rp-ad) (gcd-sym rp-bd))
+  ... | rp-d-ab = (euclids-lemma d%ab3 rp-d-ab)
+
+  res : (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎
+        (GCD (a + b) (a * a + - (a * b) + b * b) (int 3))
+  res with (div->≤ d-div)
+  ... | (inc-≤ zero-≤) = inj-l g
+  ... | (inc-≤ (inc-≤ zero-≤)) = bot-elim (¬2%3 (div->div' d-div))
+  ... | (inc-≤ (inc-≤ (inc-≤ zero-≤))) = inj-r g
+  ... | zero-≤ = bot-elim (zero-suc-absurd (sym (nonneg-injective (div-zero->zero d-div))))
+  
+ex1-5 : {a b : Int} -> RPrime a b ->
+   (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎
+   (GCD (a + b) (a * a + - (a * b) + b * b) (int 3))
+ex1-5 = ex1-5' ex1-5-arith 
