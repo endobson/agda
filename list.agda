@@ -6,6 +6,7 @@ open import Level
 open import base
 open import relation
 open import equality
+open import monoid
 
 private
   variable
@@ -86,3 +87,31 @@ Permutation-insertion-sort _<_ [] = permutation-empty
 Permutation-insertion-sort _<_ (a :: as) = 
   (permutation-cons (Permutation-insertion-sort _<_ as)
                     (Insertion-insert _<_ a (insertion-sort _<_ as)))
+
+++-assoc : {a : List A} {b : List A} {c : List A} -> (a ++ b) ++ c == a ++ (b ++ c)
+++-assoc {a = []} {b} {c} = refl
+++-assoc {a = a :: as} {b} {c} = cong (a ::_) (++-assoc {a = as} {b} {c})
+
+++-left-[] : {a : List A} -> ([] ++ a) == a
+++-left-[] = refl
+
+++-right-[] : {a : List A} -> (a ++ []) == a
+++-right-[] {a = []} = refl
+++-right-[] {a = a :: as} = cong (a ::_) (++-right-[] {a = as})
+
+
+ListMonoid : (A : Set a) -> Monoid (List A)
+ListMonoid A = record {
+  ε = [];
+  _∙_ = _++_;
+  ∙-assoc = \ {m} {n} {o} -> ++-assoc {a = m} {n} {o};
+  ∙-left-ε = ++-left-[];
+  ∙-right-ε = ++-right-[]
+  }
+
+
+map-MonoidHomomorphism : (f : A -> B) -> MonoidHomomorphism (ListMonoid A) (ListMonoid B) (map f)
+map-MonoidHomomorphism f = record {
+  preserves-ε = refl ;
+  preserves-∙ = (\ x y -> map-inject-++ f {x} {y})
+  }
