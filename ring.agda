@@ -14,12 +14,11 @@ private
     ℓ : Level
     A : Set ℓ
 
-record Semiring {ℓ : Level} : Type (ℓ-suc ℓ) where
+record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   infixl 7 _*_
   infixl 6 _+_
 
   field
-    Domain : Set ℓ
     0# : Domain
     1# : Domain
     _+_ : Domain -> Domain -> Domain
@@ -209,9 +208,9 @@ record Semiring {ℓ : Level} : Type (ℓ-suc ℓ) where
 
 
 
-record Ring {ℓ : Level} : Type (ℓ-suc ℓ) where
+record Ring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   field
-    {{semiring}} : Semiring {ℓ}
+    {{semiring}} : Semiring Domain
   open Semiring semiring public
 
   field
@@ -430,9 +429,8 @@ record Ring {ℓ : Level} : Type (ℓ-suc ℓ) where
     end
 
 
-NatSemiring : Semiring
+NatSemiring : Semiring Nat
 NatSemiring = record {
-  Domain = Nat;
   0# = 0;
   1# = 1;
   _+_ = _+'_;
@@ -446,9 +444,8 @@ NatSemiring = record {
   *-left-one = +'-right-zero;
   *-distrib-+-right = (\ {m} {n} {o} -> *'-distrib-+' {m} {n} {o}) }
 
-IntSemiring : Semiring
+IntSemiring : Semiring int.Int
 IntSemiring = record {
-  Domain = int.Int;
   0# = (int.int 0);
   1# = (int.int 1);
   _+_ = int._+_;
@@ -462,21 +459,21 @@ IntSemiring = record {
   *-left-one = int.+-right-zero;
   *-distrib-+-right = (\ {m} {n} {o} -> int.*-distrib-+ {m} {n} {o}) }
 
-IntRing : Ring
+IntRing : Ring int.Int
 IntRing = record  {
   semiring = IntSemiring;
   -_ = int.-_;
   +-inverse = (\ {n} -> int.add-minus-zero {n}) }
 
 
-ReaderSemiring : {ℓ : Level} -> (Type ℓ) -> Semiring {ℓ} -> Semiring {ℓ}
-ReaderSemiring A S = res
+ReaderSemiring : {ℓ : Level} {Domain : Type ℓ} -> (A : Type ℓ) 
+                 -> Semiring Domain -> Semiring (A -> Domain)
+ReaderSemiring {Domain = Domain} A S = res
   where
   open Semiring S
 
-  res : Semiring
+  res : Semiring (A -> Domain)
   res = record {
-    Domain = A -> Domain;
     0# = \a -> 0#;
     1# = \a -> 1#;
     _+_ = (\ x y a -> (x a + y a));
@@ -491,12 +488,12 @@ ReaderSemiring A S = res
     *-distrib-+-right = (\ {m} {n} {o} i a -> (*-distrib-+-right {m a} {n a} {o a} i)) }
 
 
-ReaderRing : {ℓ : Level} -> (Type ℓ) -> Ring {ℓ} -> Ring {ℓ}
-ReaderRing A R = res
+ReaderRing : {ℓ : Level} {Domain : Type ℓ} -> (A : Type ℓ) -> Ring Domain -> Ring (A -> Domain)
+ReaderRing {Domain = Domain} A R = res
   where
   open Ring R
 
-  res : Ring
+  res : Ring (A -> Domain)
   res = record  {
     semiring = (ReaderSemiring A semiring);
     -_ = (\ x a -> - x a);

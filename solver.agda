@@ -30,10 +30,8 @@ infixl 7 _⊗_
 
 private 
   variable
-    i a b c : Level
-    A : Set a
-    B : Set b
-    C : Set c
+    ℓ a b c : Level
+    A B C : Set ℓ
 
   data Vec (A : Set a) : Nat -> Set a where
     [] : Vec A zero
@@ -51,11 +49,11 @@ private
   Nary zero _ B = B
   Nary (suc m) A B = A -> Nary m A B
 
-  ∀ⁿ : {A : Set a} -> (n : Nat) -> Nary n A (Set i) -> Set (Nary-level a i n)
+  ∀ⁿ : {A : Set a} -> (n : Nat) -> Nary n A (Set ℓ) -> Set (Nary-level a ℓ n)
   ∀ⁿ zero P = P
   ∀ⁿ (suc m) P = ∀ x -> ∀ⁿ m (P x)
 
-  ∀ⁿʰ : {A : Set a} -> (n : Nat) -> Nary n A (Set i) -> Set (Nary-level a i n)
+  ∀ⁿʰ : {A : Set a} -> (n : Nat) -> Nary n A (Set ℓ) -> Set (Nary-level a ℓ n)
   ∀ⁿʰ zero P = P
   ∀ⁿʰ (suc m) P = ∀ {x} -> ∀ⁿʰ m (P x)
 
@@ -73,12 +71,12 @@ private
   apply-curry-id zero f [] = refl
   apply-curry-id (suc m) f (e :: v) = apply-curry-id m (\ v2 -> f (e :: v2)) v
 
-  Eq : {A : Set a} -> (n : Nat) -> (REL B C i) 
-       -> (REL (Nary n A B) (Nary n A C) (Nary-level a i n))
+  Eq : {A : Set a} -> (n : Nat) -> (REL B C ℓ) 
+       -> (REL (Nary n A B) (Nary n A C) (Nary-level a ℓ n))
   Eq n r f g = ∀ⁿ n (curry n (\ vec -> r (apply n f vec) (apply n g vec)))
   
-  Eqʰ : {A : Set a} -> (n : Nat) -> (REL B C i) 
-        -> (REL (Nary n A B) (Nary n A C) (Nary-level a i n))
+  Eqʰ : {A : Set a} -> (n : Nat) -> (REL B C ℓ) 
+        -> (REL (Nary n A B) (Nary n A C) (Nary-level a ℓ n))
   Eqʰ n r f g = ∀ⁿʰ n (curry n (\ vec -> r (apply n f vec) (apply n g vec)))
   
   vec-map : {n : Nat} -> (A -> B) -> Vec A n -> Vec B n
@@ -114,7 +112,7 @@ private
   cong-curry⁻¹ {A = A} {B = B} (suc n) f g f=g (e :: v) =
     (cong-curry⁻¹ n (\ v -> f (e :: v)) (\ v -> g (e :: v)) (f=g e)) v
   
-  unhide-∀ⁿ : {A : Set a} -> (n : Nat) -> {f : Nary n A (Set i)}  -> ∀ⁿʰ n f -> ∀ⁿ n f
+  unhide-∀ⁿ : {A : Set a} -> (n : Nat) -> {f : Nary n A (Set ℓ)}  -> ∀ⁿʰ n f -> ∀ⁿ n f
   unhide-∀ⁿ zero v = v
   unhide-∀ⁿ (suc n) g = (\ x -> (unhide-∀ⁿ n (g {x})))
 
@@ -158,13 +156,14 @@ private
   ...    | equal-to list-pr = equal-to (\i -> (elem-pr i) :: (list-pr i))
 
 
-module RingSolver (R : Ring {lzero}) where
+module RingSolver {Domain : Set ℓ} (R : Ring Domain) where
 
   module _ (n : Nat) where
     private
       module R = Ring R
-      open module M = Ring (ReaderRing (Vec R.Domain n) R)
-        renaming (Domain to Meaning)
+      open module M = Ring (ReaderRing (Vec Domain n) R)
+
+      Meaning = (Vec Domain n) -> Domain
 
       -- Names of the normal forms
 
@@ -643,13 +642,13 @@ module RingSolver (R : Ring {lzero}) where
       full-normal-proof : Eq n _==_ (curry n ⟦ e₁ ⇓⟧) (curry n ⟦ e₂ ⇓⟧)
       full-normal-proof = unhide-∀ⁿ n hidden-normal-proof
     
-      inner-normal-proof : (ρ : (Vec R.Domain n)) -> (⟦ e₁ ⇓⟧ ρ) == (⟦ e₂ ⇓⟧ ρ)
+      inner-normal-proof : (ρ : (Vec Domain n)) -> (⟦ e₁ ⇓⟧ ρ) == (⟦ e₂ ⇓⟧ ρ)
       inner-normal-proof = cong-curry⁻¹ n (⟦ e₁ ⇓⟧) (⟦ e₂ ⇓⟧) full-normal-proof
 
-      prove : (ρ : Vec R.Domain n) -> ⟦ e₁ ⇓⟧ ρ == ⟦ e₂ ⇓⟧ ρ -> ⟦ e₁ ⟧ ρ == ⟦ e₂ ⟧ ρ
+      prove : (ρ : Vec Domain n) -> ⟦ e₁ ⇓⟧ ρ == ⟦ e₂ ⇓⟧ ρ -> ⟦ e₁ ⟧ ρ == ⟦ e₂ ⟧ ρ
       prove ρ pr = (sym (\i -> (correct e₁ i ρ))) >=> pr >=> (\i -> (correct e₂ i ρ))
     
-      inner-reg-proof : (ρ : (Vec R.Domain n)) -> (⟦ e₁ ⟧ ρ) == (⟦ e₂ ⟧ ρ)
+      inner-reg-proof : (ρ : (Vec Domain n)) -> (⟦ e₁ ⟧ ρ) == (⟦ e₂ ⟧ ρ)
       inner-reg-proof v = (prove v (inner-normal-proof v))
     
       full-reg-proof : Eq n _==_ (curry n ⟦ e₁ ⟧) (curry n ⟦ e₂ ⟧)
@@ -657,13 +656,13 @@ module RingSolver (R : Ring {lzero}) where
 
 
 
-module Solver (S : Semiring {lzero}) where
+module Solver {Domain : Set ℓ} (S : Semiring Domain) where
   module S = Semiring S
 
   module _ (n : Nat) where
 
-    open module M = Semiring (ReaderSemiring (Vec S.Domain n) S)
-      renaming (Domain to Meaning)
+    open module M = Semiring (ReaderSemiring (Vec Domain n) S)
+    Meaning = Vec Domain n -> Domain
 
     ⟦_⟧ : Syntax n -> Meaning
     ⟦ (var i) ⟧ env = lookup env i
@@ -844,13 +843,13 @@ module Solver (S : Semiring {lzero}) where
       full-normal-proof : Eq n _==_ (curry n ⟦ e₁ ⇓⟧) (curry n ⟦ e₂ ⇓⟧)
       full-normal-proof = unhide-∀ⁿ n hidden-normal-proof
     
-      inner-normal-proof : (ρ : (Vec S.Domain n)) -> (⟦ e₁ ⇓⟧ ρ) == (⟦ e₂ ⇓⟧ ρ)
+      inner-normal-proof : (ρ : (Vec Domain n)) -> (⟦ e₁ ⇓⟧ ρ) == (⟦ e₂ ⇓⟧ ρ)
       inner-normal-proof = cong-curry⁻¹ n (⟦ e₁ ⇓⟧) (⟦ e₂ ⇓⟧) full-normal-proof
 
-      prove : (ρ : Vec S.Domain n) -> ⟦ e₁ ⇓⟧ ρ == ⟦ e₂ ⇓⟧ ρ -> ⟦ e₁ ⟧ ρ == ⟦ e₂ ⟧ ρ
+      prove : (ρ : Vec Domain n) -> ⟦ e₁ ⇓⟧ ρ == ⟦ e₂ ⇓⟧ ρ -> ⟦ e₁ ⟧ ρ == ⟦ e₂ ⟧ ρ
       prove ρ pr = (sym (\i -> (correct e₁ i ρ))) >=> pr >=> (\i -> (correct e₂ i ρ))
     
-      inner-reg-proof : (ρ : (Vec S.Domain n)) -> (⟦ e₁ ⟧ ρ) == (⟦ e₂ ⟧ ρ)
+      inner-reg-proof : (ρ : (Vec Domain n)) -> (⟦ e₁ ⟧ ρ) == (⟦ e₂ ⟧ ρ)
       inner-reg-proof v = (prove v (inner-normal-proof v))
     
       full-reg-proof : Eq n _==_ (curry n ⟦ e₁ ⟧) (curry n ⟦ e₂ ⟧)
