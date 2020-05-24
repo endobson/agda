@@ -6,6 +6,7 @@ open import base
 import list
 import unordered-list
 open import equality
+open import monoid
 open import nat
 import int
 
@@ -39,6 +40,26 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   *-right-zero {m} = (*-commute {m} {0#}) >=> (*-left-zero {m})
   *-right-one : {m : Domain} -> (m * 1#) == m
   *-right-one {m} = (*-commute {m} {1#}) >=> (*-left-one {m})
+
+  instance
+    +-Monoid : Monoid Domain
+    +-Monoid = record
+      { ε = 0#
+      ; _∙_ = _+_
+      ; ∙-assoc = (\ {m} {n} {o} -> +-assoc {m} {n} {o})
+      ; ∙-left-ε = (\ {m} -> +-left-zero {m})
+      ; ∙-right-ε = (\ {m} -> +-right-zero {m})
+      }
+  
+    *-Monoid : Monoid Domain
+    *-Monoid = record
+      { ε = 1#
+      ; _∙_ = _*_
+      ; ∙-assoc = (\ {m} {n} {o} -> *-assoc {m} {n} {o})
+      ; ∙-left-ε = (\ {m} -> *-left-one {m})
+      ; ∙-right-ε = (\ {m} -> *-right-one {m})
+      }
+
 
   *-distrib-+-left : {m n o : Domain} -> m * (n + o) == (m * n) + (m * o)
   *-distrib-+-left {m} {n} {o} =
@@ -74,23 +95,13 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     open list
 
     sum : List Domain -> Domain
-    sum [] = 0#
-    sum (a :: l) = a + sum l
+    sum = concat {{+-Monoid}}
+
+    sum-MonoidHomomorphism : MonoidHomomorphism (ListMonoid Domain) +-Monoid sum
+    sum-MonoidHomomorphism = concat-MonoidHomomorphism
 
     sum-inject-++ : {a b : List Domain} -> sum (a ++ b) == sum a + sum b
-    sum-inject-++ {[]} {b} = sym (+-left-zero {sum b})
-    sum-inject-++ {e :: a} {b} = 
-      begin
-        sum ((e :: a) ++ b)
-      ==<> 
-        e + (sum (a ++ b))
-      ==< +-right {e} (sum-inject-++ {a} {b}) >
-        e + (sum a + sum b)
-      ==< sym (+-assoc {e}) >
-        (e + sum a) + sum b
-      ==<> 
-        sum (e :: a) + sum b
-      end
+    sum-inject-++ {a} {b} = MonoidHomomorphism.preserves-∙ sum-MonoidHomomorphism a b
 
     sum-map-inject-++ : (f : A -> Domain) {a1 a2 : List A} 
                         -> (sum (map f (a1 ++ a2))) == (sum (map f a1)) + (sum (map f a2))
@@ -124,8 +135,7 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
       (+-right {f a} (sum-map-Permutation f perm)) >=> (sum-map-Insertion f ins)
 
     product : List Domain -> Domain
-    product [] = 1#
-    product (a :: l) = a * product l
+    product = concat {{*-Monoid}}
 
     product-inject-++ : {a b : List Domain} -> product (a ++ b) == product a * product b
     product-inject-++ {[]} {b} = sym (*-left-one {product b})
