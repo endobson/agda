@@ -16,10 +16,12 @@ private
     C : Set c
 
 
+infixr 5 _[]_
 data List (A : Set a) : Set a where
   [] : List A
   _::_  : (a : A) -> List A -> List A
 
+infixr 5 _++_
 _++_ : List A -> List A -> List A
 [] ++ l2 = l2
 (a :: l1) ++ l2 = a :: (l1 ++ l2)
