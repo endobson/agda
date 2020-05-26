@@ -16,7 +16,7 @@ private
     C : Set c
 
 
-infixr 5 _[]_
+infixr 5 _::_
 data List (A : Set a) : Set a where
   [] : List A
   _::_  : (a : A) -> List A -> List A
