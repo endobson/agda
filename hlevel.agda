@@ -4,7 +4,6 @@ module hlevel where
 
 open import base
 open import equality
-open import nat
 open import relation
 
 private

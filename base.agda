@@ -46,6 +46,10 @@ Type ℓ = Set ℓ
 Type₀ : Type (ℓ-suc ℓ-zero)
 Type₀ = Type ℓ-zero
 
+levelOf : {ℓ : Level} -> Type ℓ -> Level
+levelOf {ℓ} _ = ℓ
+
+-- Common datatypes
 
 data Bot : Set where
 
@@ -81,9 +85,11 @@ proj₂ : {a b : Level} {A : Set a} -> {B : Set b} -> A × B -> B
 proj₂ (a , b) = b
 
 
+data Nat : Type₀ where
+ zero : Nat
+ suc : Nat -> Nat
+{-# BUILTIN NATURAL Nat #-}
+
 data Boolean : Set where
   true : Boolean
   false : Boolean
-
-levelOf : {ℓ : Level} -> Type ℓ -> Level
-levelOf {ℓ} _ = ℓ

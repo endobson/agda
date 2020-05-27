@@ -7,10 +7,7 @@ open import equality
 open import monoid
 open import relation
 
-data Nat : Set where
- zero : Nat
- suc : Nat -> Nat
-{-# BUILTIN NATURAL Nat #-}
+open import base using (Nat; zero; suc) public
 
 Pos' : (n : Nat) -> Set
 Pos' zero = Bot
