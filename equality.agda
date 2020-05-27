@@ -5,7 +5,8 @@ module equality where
 open import Level
 open import base
 
-cong : {a b : Level} {A : Set a} {B : Set b} -> (f : A -> B) -> {x y : A} -> x == y -> f x == f y  
+cong : {a b : Level} {A : Set a} {B : A -> Set b} -> (f : (a : A) -> (B a)) -> {x y : A}
+       -> (p : x == y) -> PathP (\i -> (B (p i))) (f x) (f y)
 cong f p i = f (p i)
 
 cong2 : {i1 i2 i3 : Level} -> {A : Set i1} -> {B : Set i2} -> {C : Set i3} -> 
@@ -25,7 +26,7 @@ sym p i = p (~ i)
 transport : ∀ {i} {A B : Set i} -> A == B -> A -> B
 transport p a = transp (\ i -> p i) i0 a
 
-J : ∀ {i} {A : Set i} {x : A} (P : ∀ y → x == y → Set i)
+J : ∀ {i j} {A : Set i} {x : A} (P : ∀ y → x == y → Set j)
       (d : P x refl) {y : A} (p : x ≡ y)
     → P y p
 J P d p = transport (\ i -> P (p i) (\ j -> p (i ∧ j))) d

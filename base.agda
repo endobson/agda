@@ -87,3 +87,6 @@ proj₂ (a , b) = b
 data Boolean : Set where
   true : Boolean
   false : Boolean
+
+levelOf : {ℓ : Level} -> Type ℓ -> Level
+levelOf {ℓ} _ = ℓ
