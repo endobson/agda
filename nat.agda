@@ -5,6 +5,7 @@ module nat where
 open import base
 open import equality
 open import monoid
+open import hlevel
 open import relation
 
 open import base using (Nat; zero; suc) public
@@ -375,12 +376,20 @@ decide-nat (suc m) (suc n) with (decide-nat m n)
 ...  | (no f) = no (\ pr -> f (suc-injective pr) )
 
 
+
 decide-nat< : (x : Nat) -> (y : Nat) -> Dec (x < y)
 decide-nat< _ zero = no \() 
 decide-nat< zero (suc n) = yes zero-<
 decide-nat< (suc m) (suc n) with (decide-nat< m n)
 ... | yes pr = yes (inc-≤ pr)
 ... | no f = no (\ pr -> (f (dec-≤ pr)))
+
+
+discreteNat : Discrete Nat
+discreteNat = decide-nat
+
+isSetNat : isSet Nat
+isSetNat = Discrete->isSet discreteNat
 
 
 NatMonoid+ : Monoid Nat

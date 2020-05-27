@@ -6,6 +6,7 @@ open import equality
 open import base
 open import nat
 open import monoid
+open import hlevel
 open import relation
 
 data Int : Set where
@@ -936,6 +937,13 @@ decide-int (neg m) (neg n) with decide-nat m n
 ... | (no f) = no (\ pr -> f (neg-injective pr))
 decide-int m@(nonneg _) n@(neg _) = no nonneg-neg-absurd
 decide-int m@(neg _) n@(nonneg _) = no (\ p -> nonneg-neg-absurd (sym p))
+
+
+discreteInt : Discrete Int
+discreteInt = decide-int
+
+isSetInt : isSet Int
+isSetInt = Discrete->isSet discreteInt
 
 
 IntMonoid+ : Monoid Int
