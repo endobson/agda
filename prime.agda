@@ -8,6 +8,7 @@ open import int
 open import abs
 open import nat
 open import div
+open import relation
 
 
 data IsPrime' : Nat -> Set where

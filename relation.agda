@@ -2,7 +2,6 @@
 
 module relation where
 
-open import Level
 open import base
 
 private
@@ -48,10 +47,23 @@ P =[ f ]⇒ Q = P ⇒ (Q on f)
 _Preserves_⇢_ : (A -> B) -> Rel A ℓ₁ -> Rel B ℓ₂ -> Type _
 f Preserves P ⇢ Q = P =[ f ]⇒ Q
 
-data Tri (A : Type ℓ₁) (B : Type ℓ₂) (C : Type ℓ₃) : Type (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃) where
+data Tri (A : Type ℓ₁) (B : Type ℓ₂) (C : Type ℓ₃) : Type (ℓ-max ℓ₁ (ℓ-max ℓ₂ ℓ₃)) where
   tri< : (a  :   A) (¬b : ¬ B) (¬c : ¬ C) -> Tri A B C
   tri= : (¬a : ¬ A) (b  :   B) (¬c : ¬ C) -> Tri A B C
   tri> : (¬a : ¬ A) (¬b : ¬ B) (c  :   C) -> Tri A B C
 
 Trichotomous : Rel A ℓ₁ -> Rel A ℓ₂ -> Type _
 Trichotomous _<_ _==_ = ∀ x y -> Tri (x < y) (x == y) (y < x)
+
+-- Nullary Relations
+
+data Dec (A : Type ℓ) : Type ℓ where
+  yes :   A -> Dec A
+  no  : ¬ A -> Dec A
+
+Stable : Type ℓ -> Type ℓ
+Stable A = (¬ (¬ A)) -> A
+
+Discrete : Type ℓ -> Type ℓ
+Discrete A = (x y : A) -> Dec (x == y)
+

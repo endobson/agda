@@ -49,7 +49,7 @@ Type₀ = Type ℓ-zero
 
 data Bot : Set where
 
-bot-elim : {A : Set} -> Bot -> A
+bot-elim : {ℓ : Level} {A : Type ℓ} -> Bot -> A
 bot-elim ()
 
 ¬ : {a : Level} -> Set a -> Set a
@@ -64,9 +64,6 @@ data _⊎_ (A : Set) (B : Set) : Set where
   inj-l : (a : A) → A ⊎ B
   inj-r : (b : B) → A ⊎ B
 
-data Dec {a : Level} (A : Set a) : Set a where
-  yes : A -> Dec A
-  no : ¬ A -> Dec A
 
 data exists {ℓ₁ ℓ₂ : Level} : {A : Type ℓ₁} -> (B : A -> Type ℓ₂) -> Type (ℓ-suc (ℓ-max ℓ₁  ℓ₂)) where
  existence : {A : Type ℓ₁} -> {B : A -> Type ℓ₂} -> (x : A) -> (y : B x) -> exists B

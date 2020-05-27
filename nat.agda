@@ -5,6 +5,7 @@ module nat where
 open import base
 open import equality
 open import monoid
+open import relation
 
 data Nat : Set where
  zero : Nat

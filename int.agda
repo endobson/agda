@@ -6,6 +6,7 @@ open import equality
 open import base
 open import nat
 open import monoid
+open import relation
 
 data Int : Set where
  -- nonneg n Corresponds to n

@@ -9,6 +9,7 @@ open import nat
 open import int
 open import div
 open import prime
+open import relation
 
 data GCD : Int -> Int -> Int -> Set where
  gcd : (a : Int) -> (b : Int) -> (d : Int) -> 
