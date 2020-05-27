@@ -5,56 +5,53 @@ module relation where
 open import Level
 open import base
 
-
 private
   variable
-    i j a b c : Level
-    A : Set a
-    B : Set b
-    C : Set c
+    ℓ ℓ₁ ℓ₂ ℓ₃ : Level
+    A B C : Type ℓ
 
-REL : {i j : Level} -> (Set i) -> (Set j) -> (l : Level) -> Set _
-REL A B l = A -> B -> Set l
+REL : (Type ℓ₁) -> (Type ℓ₂) -> (ℓ : Level) -> Type _
+REL A B ℓ = A -> B -> Type ℓ
 
-Rel : (Set i) -> (l : Level) -> Set (i ⊔ (suc l))
-Rel A l = REL A A l
+Rel : (Type ℓ₁) -> (ℓ : Level) -> Type _
+Rel A ℓ = REL A A ℓ
 
 
-Reflexive : {A : Set a} -> Rel A i -> Set _
+Reflexive : Rel A ℓ -> Type _
 Reflexive _~_ = ∀ {a} -> a ~ a
 
-Irreflexive : {A : Set a} -> Rel A i -> Set _
+Irreflexive : Rel A ℓ -> Type _
 Irreflexive _~_ = ∀ {a} -> ¬(a ~ a)
 
-Symmetric : {A : Set a} -> Rel A i -> Set _ 
+Symmetric : Rel A ℓ -> Type _ 
 Symmetric _~_ = ∀ {a b} -> (a ~ b) -> (b ~ a)
 
-Asymmetric : {A : Set a} -> Rel A i -> Set _ 
+Asymmetric : Rel A ℓ -> Type _ 
 Asymmetric _~_ = ∀ {a b} -> (a ~ b) -> ¬ (b ~ a)
 
-Antisymmetric : {A : Set a} -> Rel A i -> Set _ 
+Antisymmetric : Rel A ℓ -> Type _ 
 Antisymmetric _~_ = ∀ {a b} -> (a ~ b) -> (b ~ a) -> a == b
 
-Transitive : {A : Set a} -> Rel A i -> Set _
+Transitive : Rel A ℓ -> Type _
 Transitive _~_ = ∀ {a b c} -> (a ~ b) -> (b ~ c) -> (a ~ c)
 
-_⇒_ : REL A B i -> REL A B j -> Set _
+_⇒_ : REL A B ℓ₁ -> REL A B ℓ₂ -> Type _
 P ⇒ Q = ∀ x y -> P x y -> Q x y
 
 private
   _on_ : (B -> B -> C) -> (A -> B) -> A -> A -> C
   _*_ on f = (\ a b -> (f a) * (f b))
 
-_=[_]⇒_ : Rel A i -> (A -> B)-> Rel B j -> Set _
+_=[_]⇒_ : Rel A ℓ₁ -> (A -> B) -> Rel B ℓ₂ -> Type _
 P =[ f ]⇒ Q = P ⇒ (Q on f)
 
-_Preserves_⇢_ : (A -> B) -> Rel A i -> Rel B j -> Set _
+_Preserves_⇢_ : (A -> B) -> Rel A ℓ₁ -> Rel B ℓ₂ -> Type _
 f Preserves P ⇢ Q = P =[ f ]⇒ Q
 
-data Tri (A : Set a) (B : Set b) (C : Set c) : Set (a ⊔ b ⊔ c) where
+data Tri (A : Type ℓ₁) (B : Type ℓ₂) (C : Type ℓ₃) : Type (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃) where
   tri< : (a  :   A) (¬b : ¬ B) (¬c : ¬ C) -> Tri A B C
   tri= : (¬a : ¬ A) (b  :   B) (¬c : ¬ C) -> Tri A B C
   tri> : (¬a : ¬ A) (¬b : ¬ B) (c  :   C) -> Tri A B C
 
-Trichotomous : Rel A i -> Rel A j -> Set _
+Trichotomous : Rel A ℓ₁ -> Rel A ℓ₂ -> Type _
 Trichotomous _<_ _==_ = ∀ x y -> Tri (x < y) (x == y) (y < x)
