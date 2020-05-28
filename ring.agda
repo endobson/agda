@@ -8,12 +8,14 @@ import unordered-list
 open import equality
 open import monoid
 open import nat
+open import hlevel
 import int
 
 private
   variable
     ℓ : Level
     A : Set ℓ
+
 
 record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   infixl 7 _*_
@@ -32,6 +34,7 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     *-left-zero : {m : Domain} -> (0# * m) == 0#
     *-left-one : {m : Domain} -> (1# * m) == m
     *-distrib-+-right : {m n o : Domain} -> (m + n) * o == (m * o) + (n * o)
+    isSetDomain : isSet Domain
 
   +-right-zero : {m : Domain} -> (m + 0#) == m
   +-right-zero {m} = (+-commute {m} {0#}) >=> (+-left-zero {m})
@@ -435,34 +438,38 @@ record Ring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
 
 
 NatSemiring : Semiring Nat
-NatSemiring = record {
-  0# = 0;
-  1# = 1;
-  _+_ = _+'_;
-  _*_ = _*'_;
-  +-assoc = (\ {m} {n} {o} -> (+'-assoc {m} {n} {o}));
-  +-commute = (\ {m} {n} -> (+'-commute {m} {n}));
-  *-assoc = (\ {m} {n} {o} -> (*'-assoc {m} {n} {o}));
-  *-commute = (\ {m} {n} -> (*'-commute {m} {n}));
-  +-left-zero = refl;
-  *-left-zero = refl;
-  *-left-one = +'-right-zero;
-  *-distrib-+-right = (\ {m} {n} {o} -> *'-distrib-+' {m} {n} {o}) }
+NatSemiring = record
+  { 0# = 0
+  ; 1# = 1
+  ; _+_ = _+'_
+  ; _*_ = _*'_
+  ; +-assoc = (\ {m} {n} {o} -> (+'-assoc {m} {n} {o}))
+  ; +-commute = (\ {m} {n} -> (+'-commute {m} {n}))
+  ; *-assoc = (\ {m} {n} {o} -> (*'-assoc {m} {n} {o}))
+  ; *-commute = (\ {m} {n} -> (*'-commute {m} {n}))
+  ; +-left-zero = refl
+  ; *-left-zero = refl
+  ; *-left-one = +'-right-zero
+  ; *-distrib-+-right = (\ {m} {n} {o} -> *'-distrib-+' {m} {n} {o})
+  ; isSetDomain = isSetNat
+  }
 
 IntSemiring : Semiring int.Int
-IntSemiring = record {
-  0# = (int.int 0);
-  1# = (int.int 1);
-  _+_ = int._+_;
-  _*_ = int._*_;
-  +-assoc = (\ {m} {n} {o} -> (int.+-assoc {m} {n} {o}));
-  +-commute = (\ {m} {n} -> (int.+-commute {m} {n}));
-  *-assoc = (\ {m} {n} {o} -> (int.*-assoc {m} {n} {o}));
-  *-commute = (\ {m} {n} -> (int.*-commute {m} {n}));
-  +-left-zero = refl;
-  *-left-zero = refl;
-  *-left-one = int.+-right-zero;
-  *-distrib-+-right = (\ {m} {n} {o} -> int.*-distrib-+ {m} {n} {o}) }
+IntSemiring = record
+  { 0# = (int.int 0)
+  ; 1# = (int.int 1)
+  ; _+_ = int._+_
+  ; _*_ = int._*_
+  ; +-assoc = (\ {m} {n} {o} -> (int.+-assoc {m} {n} {o}))
+  ; +-commute = (\ {m} {n} -> (int.+-commute {m} {n}))
+  ; *-assoc = (\ {m} {n} {o} -> (int.*-assoc {m} {n} {o}))
+  ; *-commute = (\ {m} {n} -> (int.*-commute {m} {n}))
+  ; +-left-zero = refl
+  ; *-left-zero = refl
+  ; *-left-one = int.+-right-zero
+  ; *-distrib-+-right = (\ {m} {n} {o} -> int.*-distrib-+ {m} {n} {o}) 
+  ; isSetDomain = int.isSetInt
+  }
 
 IntRing : Ring int.Int
 IntRing = record  {
@@ -478,19 +485,21 @@ ReaderSemiring {Domain = Domain} A S = res
   open Semiring S
 
   res : Semiring (A -> Domain)
-  res = record {
-    0# = \a -> 0#;
-    1# = \a -> 1#;
-    _+_ = (\ x y a -> (x a + y a));
-    _*_ = (\ x y a -> (x a * y a));
-    +-assoc = (\ {m} {n} {o} i a -> (+-assoc {m a} {n a} {o a}) i);
-    +-commute = (\ {m} {n} i a -> (+-commute {m a} {n a} i));
-    *-assoc = (\ {m} {n} {o} i a -> (*-assoc {m a} {n a} {o a} i));
-    *-commute = (\ {m} {n} i a -> (*-commute {m a} {n a} i));
-    +-left-zero = (\ {m} i a -> (+-left-zero {m a} i));
-    *-left-zero = (\ {m} i a -> (*-left-zero {m a} i));
-    *-left-one = (\ {m} i a -> (*-left-one {m a} i));
-    *-distrib-+-right = (\ {m} {n} {o} i a -> (*-distrib-+-right {m a} {n a} {o a} i)) }
+  res = record
+    { 0# = \a -> 0#
+    ; 1# = \a -> 1#
+    ; _+_ = (\ x y a -> (x a + y a))
+    ; _*_ = (\ x y a -> (x a * y a))
+    ; +-assoc = (\ {m} {n} {o} i a -> (+-assoc {m a} {n a} {o a}) i)
+    ; +-commute = (\ {m} {n} i a -> (+-commute {m a} {n a} i))
+    ; *-assoc = (\ {m} {n} {o} i a -> (*-assoc {m a} {n a} {o a} i))
+    ; *-commute = (\ {m} {n} i a -> (*-commute {m a} {n a} i))
+    ; +-left-zero = (\ {m} i a -> (+-left-zero {m a} i))
+    ; *-left-zero = (\ {m} i a -> (*-left-zero {m a} i))
+    ; *-left-one = (\ {m} i a -> (*-left-one {m a} i))
+    ; *-distrib-+-right = (\ {m} {n} {o} i a -> (*-distrib-+-right {m a} {n a} {o a} i))
+    ; isSetDomain = isSetΠ (\ _ -> isSetDomain)
+    }
 
 
 ReaderRing : {ℓ : Level} {Domain : Type ℓ} -> (A : Type ℓ) -> Ring Domain -> Ring (A -> Domain)
