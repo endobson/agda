@@ -9,11 +9,13 @@ open import abs
 open import nat
 open import div
 open import relation
+open import functions
 open import unordered-list
 open import ring
+open import commutative-monoid
 
 module NatSemiring = Semiring NatSemiring
-open NatSemiring using (unordered-product)
+open NatSemiring using (unordered-product; unordered-productʰ)
 
 data IsPrime' : Nat -> Set where
   is-prime' : (p' : Nat)
@@ -25,10 +27,14 @@ record Prime' : Set where
     value : Nat
     proof : IsPrime' value
 
+prime-product : UList Prime' -> Nat
+prime-product = unordered-product ∘ (map Prime'.value)
+
+prime-productʰ : CommMonoidʰ prime-product
+prime-productʰ = unordered-productʰ ∘ʰ mapʰ 
+
 data PrimeFactorization' : Nat -> Set where
-  prime-factorization :
-    (ps : UList Prime')
-    -> PrimeFactorization' (unordered-product (map Prime'.value ps))
+  prime-factorization : (ps : UList Prime') -> PrimeFactorization' (prime-product ps)
 
 
 prime-only-divisors : {p d : Nat} -> IsPrime' p -> d div' p -> (d == p) ⊎ (d == 1)
@@ -163,6 +169,15 @@ private
             n-bound = (≤-a+'b==c rearranged-eq2-n)
     rec (inc-≤ ()) (inc-≤ zero-≤)
 
+  
+  prime-factorization-* : {m n : Nat} 
+    -> PrimeFactorization' m 
+    -> PrimeFactorization' n
+    -> PrimeFactorization' (m *' n)
+  prime-factorization-* (prime-factorization p1s) (prime-factorization p2s) =
+    transport (\i -> PrimeFactorization' (p i)) (prime-factorization (p1s ++ p2s))
+    where
+    p = CommMonoidʰ.preserves-∙ prime-productʰ p1s p2s
 
 
 PrimeDivisor : Nat -> Nat -> Set

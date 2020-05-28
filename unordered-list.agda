@@ -167,3 +167,17 @@ concatʰ {A = A} {{M = M}} {h} = record
              -> (concat h (xs ++ ys)) == (concat h xs) ∙ (concat h ys)
              -> (concat h (x :: (xs ++ ys))) == (concat h (x :: xs)) ∙ (concat h ys)
     x ::* p = (\i -> x ∙ p i) >=> sym ∙-assoc
+
+mapʰ : {f : A -> B} -> CommMonoidʰ (map f)
+mapʰ {A = A} {f = f} = record
+  { preserves-ε = refl
+  ; preserves-∙ = preserves-∙
+  }
+  where
+  preserves-∙ : (xs ys : UList A) -> map f (xs ++ ys) == (map f xs) ++ (map f ys)
+  preserves-∙ xs ys = PropElim.f (trunc _ _) refl _::*_ xs
+    where
+    _::*_ : ∀ (x : A) {xs : UList A} 
+             -> (map f (xs ++ ys)) == (map f xs) ++ (map f ys)
+             -> (map f (x :: (xs ++ ys))) == (map f (x :: xs)) ++ (map f ys)
+    (x ::* p) i = (f x) :: p i
