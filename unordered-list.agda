@@ -5,6 +5,8 @@ module unordered-list where
 open import base
 open import equality
 open import hlevel
+open import monoid
+open import commutative-monoid
 
 private
   variable
@@ -108,3 +110,33 @@ _++_ as bs = Rec.f trunc bs _::_ swap as
            -> (as ++ (b :: bs)) == b :: (bs ++ as)
   _::*_ b {bs} p =  (++-extract-right as b bs) >=> (cong (b ::_) p)
 
+++-assoc : ∀ (as : UnorderedList A) (bs : UnorderedList A) (cs : UnorderedList A)
+             -> (as ++ bs) ++ cs == as ++ (bs ++ cs)
+++-assoc {A = A} as bs cs = 
+  PropElim.f
+    (trunc _ _)
+    refl
+    _::*_
+    as
+  where
+  _::*_ : ∀ (a : A) {as : UnorderedList A} 
+           -> (as ++ bs) ++ cs == as ++ (bs ++ cs)
+           -> (a :: as ++ bs) ++ cs == a :: as ++ (bs ++ cs)
+  _::*_ a p i = a :: p i
+
+
+
+instance
+  MonoidUnorderedList : Monoid (UnorderedList A)
+  MonoidUnorderedList = record
+    { ε = []
+    ; _∙_ = _++_
+    ; ∙-assoc = (\ {as} {bs} {cs} -> ++-assoc as bs cs)
+    ; ∙-left-ε = refl
+    ; ∙-right-ε = (\ {l} -> ++-right-[] l)
+    }
+
+  CommutativeMonoidUnorderedList : CommutativeMonoid (UnorderedList A)
+  CommutativeMonoidUnorderedList = record
+    { ∙-commute = (\ {as} {bs} -> ++-commute as bs )
+    }
