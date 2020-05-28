@@ -77,6 +77,17 @@ isOfHLevel->isOfHLevelDep (suc (suc n)) {A = A} {B = B} h {a0} {a1} b0 b1 =
   helper a1 p b1 = J (\ a1 p -> ∀ b1 -> isOfHLevel (suc n) (PathP (\i -> (B (p i))) b0 b1))
                      (\ _ -> h _ _ _) p b1
   
+isOfHLevelΠ : {A : Type ℓ₁} {B : A -> Type ℓ₂} (n : Nat) -> ((x : A) -> (isOfHLevel n (B x)))
+              -> isOfHLevel n ((x : A) -> B x)
+isOfHLevelΠ {A = A} {B = B} 0 h = (\x -> fst (h x)) , (\ f i y -> (snd (h y)) (f y) i)
+isOfHLevelΠ {A = A} {B = B} 1 h f g i a = h a (f a) (g a) i
+isOfHLevelΠ {A = A} {B = B} (suc (suc n)) h f g =
+   subst (isOfHLevel (suc n)) funExtPath (isOfHLevelΠ (suc n) (\a -> h a (f a) (g a)))
+
+
+isSetΠ : {A : Type ℓ₁} {B : A -> Type ℓ₂} -> ((x : A) -> isSet (B x)) -> isSet ((x : A) -> (B x))
+isSetΠ = isOfHLevelΠ 2
+
 
 private
   Dec->Stable : Dec A -> Stable A

@@ -83,6 +83,32 @@ id->path : ∀ {i} {A : Set i} {x y : A} -> x === y -> x == y
 id->path refl-=== = refl
 
 
+module _ {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : A -> Type ℓ₂} {f g : (a : A) -> B a} where
+
+  funExt : ((x : A) -> f x == g x) -> f == g
+  funExt p i x = p x i
+  funExt⁻ : f == g -> ((x : A) -> f x == g x)
+  funExt⁻ eq a i = eq i a
+
+  private
+    fib : (p : f == g) -> fiber funExt p
+    fib p = ((\x i -> (p i) x) , refl)
+    funExt-fiber-isContr : (p : f == g) -> (fi : fiber funExt p) -> fib p == fi
+    funExt-fiber-isContr p (h , eq) i = (funExt⁻ (eq (~ i)) , \j -> eq (~ i ∨ j))
+
+
+  funExt-isEquiv : isEquiv funExt
+  equiv-proof funExt-isEquiv p = (fib p , funExt-fiber-isContr p)
+
+  funExtEquiv : ((x : A) -> f x == g x) ≃ (f == g)
+  funExtEquiv = (funExt , funExt-isEquiv)
+
+  funExtPath : ((x : A) -> f x == g x) == (f == g)
+  funExtPath = ua funExtEquiv
+
+
+
+
 infix  1 begin_
 infixr 2 _==<>_ _==<_>_
 infix  3 _end
