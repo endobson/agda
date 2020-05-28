@@ -187,32 +187,16 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     open unordered-list
 
     unordered-sum : UnorderedList Domain -> Domain
-    unordered-sum [] = 0#
-    unordered-sum (a :: l) = a + unordered-sum l
-    unordered-sum (swap a b l i) = 
-      (begin
-         a + (b + unordered-sum l)
-       ==< sym +-assoc  >
-         (a + b) + unordered-sum l
-       ==< +-left +-commute >
-         (b + a) + unordered-sum l
-       ==< +-assoc >
-         b + (a + unordered-sum l)
-       end) i
+    unordered-sum = unordered-list.Rec.f isSetDomain
+      0#
+      _+_
+      (\ _ _ _ -> (sym +-assoc >=> +-left +-commute >=> +-assoc))
 
     unordered-product : UnorderedList Domain -> Domain
-    unordered-product [] = 1#
-    unordered-product (a :: l) = a * unordered-product l
-    unordered-product (swap a b l i) = 
-      (begin
-         a * (b * unordered-product l)
-       ==< sym *-assoc  >
-         (a * b) * unordered-product l
-       ==< *-left *-commute >
-         (b * a) * unordered-product l
-       ==< *-assoc >
-         b * (a * unordered-product l)
-       end) i
+    unordered-product = unordered-list.Rec.f isSetDomain
+      1#
+      _*_
+      (\ _ _ _ -> (sym *-assoc >=> *-left *-commute >=> *-assoc))
 
 
 
