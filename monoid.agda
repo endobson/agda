@@ -23,7 +23,7 @@ record Monoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   ∙-left {m} p i = p i ∙ m
 
 
-record MonoidHomomorphism
+record Monoidʰ
     {ℓ₁ ℓ₂ : Level} 
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
     (M₁ : Monoid D₁) (M₂ : Monoid D₂)
@@ -42,14 +42,14 @@ _∘ʰ_ :
   {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} {D₃ : Type ℓ₃} 
   {M₁ : Monoid D₁} {M₂ : Monoid D₂} {M₃ : Monoid D₃}
   {f : D₂ -> D₃} {g : D₁ -> D₂} 
-  -> (MonoidHomomorphism M₂ M₃ f) -> (MonoidHomomorphism M₁ M₂ g)
-  -> (MonoidHomomorphism M₁ M₃ (f ∘ g))
+  -> (Monoidʰ M₂ M₃ f) -> (Monoidʰ M₁ M₂ g)
+  -> (Monoidʰ M₁ M₃ (f ∘ g))
 _∘ʰ_ {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res
   where
   module M₁ = Monoid M₁
   module M₃ = Monoid M₃
-  module f' = MonoidHomomorphism f'
-  module g' = MonoidHomomorphism g'
+  module f' = Monoidʰ f'
+  module g' = Monoidʰ g'
 
   preserves-ε : (f ∘ g) M₁.ε == M₃.ε
   preserves-ε = (cong f g'.preserves-ε) >=> f'.preserves-ε
@@ -57,7 +57,7 @@ _∘ʰ_ {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res
   preserves-∙ : ∀ x y -> (f ∘ g) (x M₁.∙ y) == ((f ∘ g) x) M₃.∙ ((f ∘ g) y)
   preserves-∙ x y = (cong f (g'.preserves-∙ x y)) >=> f'.preserves-∙ (g x) (g y)
 
-  res : (MonoidHomomorphism M₁ M₃ (f ∘ g))
+  res : (Monoidʰ M₁ M₃ (f ∘ g))
   res = record {
     preserves-ε = preserves-ε ;
     preserves-∙ = preserves-∙

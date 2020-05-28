@@ -402,8 +402,8 @@ instance
     ∙-left-ε = +'-left-zero;
     ∙-right-ε = +'-right-zero }
 
-  NatCommutativeMonoid+ : CommutativeMonoid Nat
-  NatCommutativeMonoid+ = record
+  NatCommMonoid+ : CommMonoid Nat
+  NatCommMonoid+ = record
     { ∙-commute = (\ {m} {n} -> +'-commute {m} {n})
     }
   
@@ -415,7 +415,7 @@ instance
     ∙-left-ε = *'-left-one;
     ∙-right-ε = *'-right-one }
 
-  NatCommutativeMonoid* : CommutativeMonoid Nat
-  NatCommutativeMonoid* = record
+  NatCommMonoid* : CommMonoid Nat
+  NatCommMonoid* = record
     { ∙-commute = (\ {m} {n} -> *'-commute {m} {n})
     }

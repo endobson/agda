@@ -112,7 +112,7 @@ ListMonoid A = record {
   }
 
 
-mapʰ : (f : A -> B) -> MonoidHomomorphism (ListMonoid A) (ListMonoid B) (map f)
+mapʰ : (f : A -> B) -> Monoidʰ (ListMonoid A) (ListMonoid B) (map f)
 mapʰ f = record {
   preserves-ε = refl ;
   preserves-∙ = (\ x y -> map-inject-++ f {x} {y})
@@ -122,7 +122,7 @@ concat : {{M : Monoid A}} -> List A -> A
 concat {{M = M}} [] = Monoid.ε M
 concat {{M = M}} (a :: l) = (Monoid._∙_ M) a (concat l)
 
-concatʰ : {{M : Monoid A}} -> MonoidHomomorphism (ListMonoid A) M (concat {{M}})
+concatʰ : {{M : Monoid A}} -> Monoidʰ (ListMonoid A) M (concat {{M}})
 concatʰ {A = A} {{M = M}} = record
   { preserves-ε = refl
   ; preserves-∙ = preserves-∙

@@ -55,8 +55,8 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
       ; ∙-right-ε = (\ {m} -> +-right-zero {m})
       }
 
-    +-CommutativeMonoid : CommutativeMonoid Domain
-    +-CommutativeMonoid = record
+    +-CommMonoid : CommMonoid Domain
+    +-CommMonoid = record
       { ∙-commute = +-commute
       }
   
@@ -69,8 +69,8 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
       ; ∙-right-ε = (\ {m} -> *-right-one {m})
       }
 
-    *-CommutativeMonoid : CommutativeMonoid Domain
-    *-CommutativeMonoid = record
+    *-CommMonoid : CommMonoid Domain
+    *-CommMonoid = record
       { ∙-commute = *-commute
       }
 
@@ -112,10 +112,10 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     sum : List Domain -> Domain
     sum = concat {{+-Monoid}}
 
-    sumʰ : MonoidHomomorphism (ListMonoid Domain) +-Monoid sum
+    sumʰ : Monoidʰ (ListMonoid Domain) +-Monoid sum
     sumʰ = concatʰ
     module sumʰ where
-      open MonoidHomomorphism sumʰ public
+      open Monoidʰ sumʰ public
       preserves-+ = preserves-∙
 
     sum-inject-++ : {a b : List Domain} -> sum (a ++ b) == sum a + sum b
@@ -123,7 +123,7 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
 
     sum-map-inject-++ : (f : A -> Domain) {a1 a2 : List A} 
                         -> (sum (map f (a1 ++ a2))) == (sum (map f a1)) + (sum (map f a2))
-    sum-map-inject-++ f {a1} {a2} = MonoidHomomorphism.preserves-∙ (sumʰ ∘ʰ (mapʰ f)) a1 a2
+    sum-map-inject-++ f {a1} {a2} = Monoidʰ.preserves-∙ (sumʰ ∘ʰ (mapʰ f)) a1 a2
 
     sum-map-Insertion : {a : A} {as1 as2 : (List A)} -> (f : A -> Domain) -> (Insertion A a as1 as2)
                          -> (sum (map f (a :: as1))) == (sum (map f as2))
@@ -155,10 +155,10 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     product = concat {{*-Monoid}}
 
 
-    productʰ : MonoidHomomorphism (ListMonoid Domain) *-Monoid product
+    productʰ : Monoidʰ (ListMonoid Domain) *-Monoid product
     productʰ = concatʰ
     module productʰ where
-      open MonoidHomomorphism productʰ public
+      open Monoidʰ productʰ public
       preserves-* = preserves-∙
 
     product-inject-++ : {a b : List Domain} -> product (a ++ b) == product a * product b
@@ -166,7 +166,7 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
 
     product-map-inject-++ : (f : A -> Domain) {a1 a2 : List A} 
       -> (product (map f (a1 ++ a2))) == (product (map f a1)) * (product (map f a2))
-    product-map-inject-++ f {a1} {a2} = MonoidHomomorphism.preserves-∙ (productʰ ∘ʰ (mapʰ f)) a1 a2
+    product-map-inject-++ f {a1} {a2} = Monoidʰ.preserves-∙ (productʰ ∘ʰ (mapʰ f)) a1 a2
 
     product-map-Insertion : {a : A} {as1 as2 : (List A)} -> (f : A -> Domain) -> (Insertion A a as1 as2)
                             -> (product (map f (a :: as1))) == (product (map f as2))
@@ -198,19 +198,17 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   module _ where
     open unordered-list
 
-    unordered-sum : UnorderedList Domain -> Domain
-    unordered-sum = concat {{+-CommutativeMonoid}} isSetDomain
+    unordered-sum : UList Domain -> Domain
+    unordered-sum = concat {{+-CommMonoid}} isSetDomain
 
-    unordered-sumʰ : CommutativeMonoidHomomorphism UnorderedListCommutativeMonoid 
-                           +-CommutativeMonoid unordered-sum
+    unordered-sumʰ : CommMonoidʰ UListCommMonoid +-CommMonoid unordered-sum
     unordered-sumʰ = concatʰ 
 
 
-    unordered-product : UnorderedList Domain -> Domain
-    unordered-product = concat {{*-CommutativeMonoid}} isSetDomain
+    unordered-product : UList Domain -> Domain
+    unordered-product = concat {{*-CommMonoid}} isSetDomain
 
-    unordered-productʰ : CommutativeMonoidHomomorphism UnorderedListCommutativeMonoid 
-                           *-CommutativeMonoid unordered-product
+    unordered-productʰ : CommMonoidʰ UListCommMonoid *-CommMonoid unordered-product
     unordered-productʰ = concatʰ 
 
 

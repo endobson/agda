@@ -27,7 +27,7 @@ record Prime' : Set where
 
 data PrimeFactorization' : Nat -> Set where
   prime-factorization :
-    (ps : UnorderedList Prime')
+    (ps : UList Prime')
     -> PrimeFactorization' (unordered-product (map Prime'.value ps))
 
 

@@ -7,7 +7,7 @@ open import equality
 open import functions
 import monoid
 
-record CommutativeMonoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
+record CommMonoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   field
     {{monoid}} : monoid.Monoid Domain
   open monoid.Monoid monoid public
@@ -16,14 +16,14 @@ record CommutativeMonoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     ∙-commute : {m n : Domain} -> (m ∙ n) == (n ∙ m)
 
 
-record CommutativeMonoidHomomorphism
+record CommMonoidʰ
     {ℓ₁ ℓ₂ : Level} 
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    (M₁ : CommutativeMonoid D₁) (M₂ : CommutativeMonoid D₂)
+    (M₁ : CommMonoid D₁) (M₂ : CommMonoid D₂)
     (f : D₁ -> D₂)
     : Type (ℓ-max ℓ₁ ℓ₂) where
-  module M₁ = CommutativeMonoid M₁
-  module M₂ = CommutativeMonoid M₂
+  module M₁ = CommMonoid M₁
+  module M₂ = CommMonoid M₂
 
   field
     preserves-ε : f M₁.ε == M₂.ε
@@ -32,17 +32,17 @@ record CommutativeMonoidHomomorphism
 _∘ʰ_ :
   {ℓ₁ ℓ₂ ℓ₃ : Level}
   {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} {D₃ : Type ℓ₃} 
-  {M₁ : CommutativeMonoid D₁} {M₂ : CommutativeMonoid D₂} {M₃ : CommutativeMonoid D₃}
+  {M₁ : CommMonoid D₁} {M₂ : CommMonoid D₂} {M₃ : CommMonoid D₃}
   {f : D₂ -> D₃} {g : D₁ -> D₂} 
-  -> (CommutativeMonoidHomomorphism M₂ M₃ f) 
-  -> (CommutativeMonoidHomomorphism M₁ M₂ g)
-  -> (CommutativeMonoidHomomorphism M₁ M₃ (f ∘ g))
+  -> (CommMonoidʰ M₂ M₃ f) 
+  -> (CommMonoidʰ M₁ M₂ g)
+  -> (CommMonoidʰ M₁ M₃ (f ∘ g))
 _∘ʰ_ {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res
   where
-  module M₁ = CommutativeMonoid M₁
-  module M₃ = CommutativeMonoid M₃
-  module f' = CommutativeMonoidHomomorphism f'
-  module g' = CommutativeMonoidHomomorphism g'
+  module M₁ = CommMonoid M₁
+  module M₃ = CommMonoid M₃
+  module f' = CommMonoidʰ f'
+  module g' = CommMonoidʰ g'
 
   preserves-ε : (f ∘ g) M₁.ε == M₃.ε
   preserves-ε = (cong f g'.preserves-ε) >=> f'.preserves-ε
@@ -50,7 +50,7 @@ _∘ʰ_ {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res
   preserves-∙ : ∀ x y -> (f ∘ g) (x M₁.∙ y) == ((f ∘ g) x) M₃.∙ ((f ∘ g) y)
   preserves-∙ x y = (cong f (g'.preserves-∙ x y)) >=> f'.preserves-∙ (g x) (g y)
 
-  res : (CommutativeMonoidHomomorphism M₁ M₃ (f ∘ g))
+  res : (CommMonoidʰ M₁ M₃ (f ∘ g))
   res = record {
     preserves-ε = preserves-ε ;
     preserves-∙ = preserves-∙
