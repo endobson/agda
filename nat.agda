@@ -7,6 +7,7 @@ open import equality
 open import monoid
 open import hlevel
 open import relation
+open import commutative-monoid
 
 open import base using (Nat; zero; suc) public
 
@@ -392,18 +393,29 @@ isSetNat : isSet Nat
 isSetNat = Discrete->isSet discreteNat
 
 
-NatMonoid+ : Monoid Nat
-NatMonoid+ = record {
-  ε = 0;
-  _∙_ = _+'_;
-  ∙-assoc = \ {m} {n} {o} -> +'-assoc {m} {n} {o};
-  ∙-left-ε = +'-left-zero;
-  ∙-right-ε = +'-right-zero }
+instance
+  NatMonoid+ : Monoid Nat
+  NatMonoid+ = record {
+    ε = 0;
+    _∙_ = _+'_;
+    ∙-assoc = \ {m} {n} {o} -> +'-assoc {m} {n} {o};
+    ∙-left-ε = +'-left-zero;
+    ∙-right-ε = +'-right-zero }
 
-NatMonoid* : Monoid Nat
-NatMonoid* = record {
-  ε = 1;
-  _∙_ = _*'_;
-  ∙-assoc = \ {m} {n} {o} -> *'-assoc {m} {n} {o};
-  ∙-left-ε = *'-left-one;
-  ∙-right-ε = *'-right-one }
+  NatCommutativeMonoid+ : CommutativeMonoid Nat
+  NatCommutativeMonoid+ = record
+    { ∙-commute = (\ {m} {n} -> +'-commute {m} {n})
+    }
+  
+  NatMonoid* : Monoid Nat
+  NatMonoid* = record {
+    ε = 1;
+    _∙_ = _*'_;
+    ∙-assoc = \ {m} {n} {o} -> *'-assoc {m} {n} {o};
+    ∙-left-ε = *'-left-one;
+    ∙-right-ε = *'-right-one }
+
+  NatCommutativeMonoid* : CommutativeMonoid Nat
+  NatCommutativeMonoid* = record
+    { ∙-commute = (\ {m} {n} -> *'-commute {m} {n})
+    }
