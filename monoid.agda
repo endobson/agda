@@ -15,6 +15,12 @@ record Monoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     ∙-assoc : {m n o : Domain} -> (m ∙ n) ∙ o == m ∙ (n ∙ o)
     ∙-left-ε : {m : Domain} -> (ε ∙ m) == m
     ∙-right-ε : {m : Domain} -> (m ∙ ε) == m
+  
+  ∙-right : {m n o : Domain} -> (n == o) -> m ∙ n == m ∙ o
+  ∙-right {m} p i = m ∙ p i
+  
+  ∙-left : {m n o : Domain} -> (n == o) -> n ∙ m == o ∙ m
+  ∙-left {m} p i = p i ∙ m
 
 
 record MonoidHomomorphism

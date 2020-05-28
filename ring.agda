@@ -6,7 +6,8 @@ open import base
 import list
 import unordered-list
 open import equality
-open import monoid
+open import monoid hiding (_∘ʰ_)
+open import commutative-monoid hiding (_∘ʰ_)
 open import nat
 open import hlevel
 import int
@@ -53,6 +54,11 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
       ; ∙-left-ε = (\ {m} -> +-left-zero {m})
       ; ∙-right-ε = (\ {m} -> +-right-zero {m})
       }
+
+    +-CommutativeMonoid : CommutativeMonoid Domain
+    +-CommutativeMonoid = record
+      { ∙-commute = +-commute
+      }
   
     *-Monoid : Monoid Domain
     *-Monoid = record
@@ -61,6 +67,11 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
       ; ∙-assoc = (\ {m} {n} {o} -> *-assoc {m} {n} {o})
       ; ∙-left-ε = (\ {m} -> *-left-one {m})
       ; ∙-right-ε = (\ {m} -> *-right-one {m})
+      }
+
+    *-CommutativeMonoid : CommutativeMonoid Domain
+    *-CommutativeMonoid = record
+      { ∙-commute = *-commute
       }
 
 
@@ -96,6 +107,7 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
 
   module _ where
     open list
+    open monoid
 
     sum : List Domain -> Domain
     sum = concat {{+-Monoid}}
@@ -187,16 +199,19 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     open unordered-list
 
     unordered-sum : UnorderedList Domain -> Domain
-    unordered-sum = unordered-list.Rec.f isSetDomain
-      0#
-      _+_
-      (\ _ _ _ -> (sym +-assoc >=> +-left +-commute >=> +-assoc))
+    unordered-sum = concat {{+-CommutativeMonoid}} isSetDomain
+
+    unordered-sumʰ : CommutativeMonoidHomomorphism UnorderedListCommutativeMonoid 
+                           +-CommutativeMonoid unordered-sum
+    unordered-sumʰ = concatʰ 
+
 
     unordered-product : UnorderedList Domain -> Domain
-    unordered-product = unordered-list.Rec.f isSetDomain
-      1#
-      _*_
-      (\ _ _ _ -> (sym *-assoc >=> *-left *-commute >=> *-assoc))
+    unordered-product = concat {{*-CommutativeMonoid}} isSetDomain
+
+    unordered-productʰ : CommutativeMonoidHomomorphism UnorderedListCommutativeMonoid 
+                           *-CommutativeMonoid unordered-product
+    unordered-productʰ = concatʰ 
 
 
 

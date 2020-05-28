@@ -127,8 +127,8 @@ _++_ as bs = Rec.f trunc bs _::_ swap as
 
 
 instance
-  MonoidUnorderedList : Monoid (UnorderedList A)
-  MonoidUnorderedList = record
+  UnorderedListMonoid : Monoid (UnorderedList A)
+  UnorderedListMonoid = record
     { ε = []
     ; _∙_ = _++_
     ; ∙-assoc = (\ {as} {bs} {cs} -> ++-assoc as bs cs)
@@ -136,7 +136,34 @@ instance
     ; ∙-right-ε = (\ {l} -> ++-right-[] l)
     }
 
-  CommutativeMonoidUnorderedList : CommutativeMonoid (UnorderedList A)
-  CommutativeMonoidUnorderedList = record
+  UnorderedListCommutativeMonoid : CommutativeMonoid (UnorderedList A)
+  UnorderedListCommutativeMonoid = record
     { ∙-commute = (\ {as} {bs} -> ++-commute as bs )
     }
+
+concat : {{M : CommutativeMonoid A}} -> isSet A -> UnorderedList A -> A
+concat {A = A} {{M = M}} h =
+  Rec.f h ε _∙_ swap*
+  where 
+  open CommutativeMonoid M
+  swap* : (a0 a1 : A) (a : A) -> (a0 ∙ (a1 ∙ a)) == (a1 ∙ (a0 ∙ a))
+  swap* a0 a1 a = (sym (∙-assoc {a0})) >=> ∙-left (∙-commute {a0} {a1}) >=> ∙-assoc {a1}
+
+
+concatʰ : {{M : CommutativeMonoid A}} -> {h : isSet A}
+  -> CommutativeMonoidHomomorphism (UnorderedListCommutativeMonoid {A = A}) M (concat {{M}} h)
+concatʰ {A = A} {{M = M}} {h} = record
+  { preserves-ε = refl
+  ; preserves-∙ = preserves-∙
+  }
+  where
+  open CommutativeMonoid M
+
+
+  preserves-∙ : (xs ys : UnorderedList A) -> concat h (xs ++ ys) == (concat h xs) ∙ (concat h ys)
+  preserves-∙ xs ys = PropElim.f (h _ _) (sym ∙-left-ε) _::*_ xs
+    where
+    _::*_ : ∀ (x : A) {xs : UnorderedList A} 
+             -> (concat h (xs ++ ys)) == (concat h xs) ∙ (concat h ys)
+             -> (concat h (x :: (xs ++ ys))) == (concat h (x :: xs)) ∙ (concat h ys)
+    x ::* p = (\i -> x ∙ p i) >=> sym ∙-assoc
