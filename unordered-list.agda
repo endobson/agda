@@ -151,7 +151,7 @@ concat {A = A} {{M = M}} h =
 
 
 concatʰ : {{M : CommMonoid A}} -> {h : isSet A}
-  -> CommMonoidʰ (UListCommMonoid {A = A}) M (concat {{M}} h)
+  -> CommMonoidʰ (concat {{M}} h)
 concatʰ {A = A} {{M = M}} {h} = record
   { preserves-ε = refl
   ; preserves-∙ = preserves-∙

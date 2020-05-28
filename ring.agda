@@ -112,7 +112,7 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     sum : List Domain -> Domain
     sum = concat {{+-Monoid}}
 
-    sumʰ : Monoidʰ (ListMonoid Domain) +-Monoid sum
+    sumʰ : Monoidʰ {{M₂ = +-Monoid}} sum
     sumʰ = concatʰ
     module sumʰ where
       open Monoidʰ sumʰ public
@@ -155,7 +155,7 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     product = concat {{*-Monoid}}
 
 
-    productʰ : Monoidʰ (ListMonoid Domain) *-Monoid product
+    productʰ : Monoidʰ {{M₂ = *-Monoid}} product
     productʰ = concatʰ
     module productʰ where
       open Monoidʰ productʰ public
@@ -201,14 +201,13 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     unordered-sum : UList Domain -> Domain
     unordered-sum = concat {{+-CommMonoid}} isSetDomain
 
-    unordered-sumʰ : CommMonoidʰ UListCommMonoid +-CommMonoid unordered-sum
+    unordered-sumʰ : CommMonoidʰ unordered-sum
     unordered-sumʰ = concatʰ 
-
 
     unordered-product : UList Domain -> Domain
     unordered-product = concat {{*-CommMonoid}} isSetDomain
 
-    unordered-productʰ : CommMonoidʰ UListCommMonoid *-CommMonoid unordered-product
+    unordered-productʰ : CommMonoidʰ unordered-product
     unordered-productʰ = concatʰ 
 
 

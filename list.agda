@@ -102,17 +102,18 @@ Permutation-insertion-sort _<_ (a :: as) =
 ++-right-[] {a = a :: as} = cong (a ::_) (++-right-[] {a = as})
 
 
-ListMonoid : (A : Set a) -> Monoid (List A)
-ListMonoid A = record {
-  ε = [];
-  _∙_ = _++_;
-  ∙-assoc = \ {m} {n} {o} -> ++-assoc {a = m} {n} {o};
-  ∙-left-ε = ++-left-[];
-  ∙-right-ε = ++-right-[]
-  }
+instance
+  ListMonoid : Monoid (List A)
+  ListMonoid {A} = record {
+    ε = [];
+    _∙_ = _++_;
+    ∙-assoc = \ {m} {n} {o} -> ++-assoc {a = m} {n} {o};
+    ∙-left-ε = ++-left-[];
+    ∙-right-ε = ++-right-[]
+    }
 
 
-mapʰ : (f : A -> B) -> Monoidʰ (ListMonoid A) (ListMonoid B) (map f)
+mapʰ : (f : A -> B) -> Monoidʰ (map f)
 mapʰ f = record {
   preserves-ε = refl ;
   preserves-∙ = (\ x y -> map-inject-++ f {x} {y})
@@ -122,7 +123,7 @@ concat : {{M : Monoid A}} -> List A -> A
 concat {{M = M}} [] = Monoid.ε M
 concat {{M = M}} (a :: l) = (Monoid._∙_ M) a (concat l)
 
-concatʰ : {{M : Monoid A}} -> Monoidʰ (ListMonoid A) M (concat {{M}})
+concatʰ : {{M : Monoid A}} -> Monoidʰ (concat {{M}})
 concatʰ {A = A} {{M = M}} = record
   { preserves-ε = refl
   ; preserves-∙ = preserves-∙
