@@ -9,14 +9,26 @@ open import abs
 open import nat
 open import div
 open import relation
+open import unordered-list
+open import ring
 
+module NatSemiring = Semiring NatSemiring
+open NatSemiring using (unordered-product)
 
 data IsPrime' : Nat -> Set where
   is-prime' : (p' : Nat)
               -> ((d : Nat) -> d <s (suc (suc p')) -> (d div' (suc (suc p'))) -> d == 1)
               -> IsPrime' (suc (suc p'))
 
+record Prime' : Set where
+  field
+    value : Nat
+    proof : IsPrime' value
 
+data PrimeFactorization' : Nat -> Set where
+  prime-factorization :
+    (ps : UnorderedList Prime')
+    -> PrimeFactorization' (unordered-product (map Prime'.value ps))
 
 
 prime-only-divisors : {p d : Nat} -> IsPrime' p -> d div' p -> (d == p) ⊎ (d == 1)
