@@ -3,7 +3,6 @@
 module equivalence where
 
 open import base
-open import sigma
 
 private
   variable

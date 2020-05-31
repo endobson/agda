@@ -79,6 +79,13 @@ data _⊎_ (A : Set) (B : Set) : Set where
   inj-l : (a : A) → A ⊎ B
   inj-r : (b : B) → A ⊎ B
 
+-- Σ-types
+infix 2 Σ-syntax
+
+Σ-syntax : ∀ {ℓ₁ ℓ₂} (A : Type ℓ₁) (B : A → Type ℓ₂) → Type (ℓ-max ℓ₁ ℓ₂)
+Σ-syntax = Σ
+
+syntax Σ-syntax A (\x -> B) = Σ[ x ∈ A ] B
 
 data exists {ℓ₁ ℓ₂ : Level} : {A : Type ℓ₁} -> (B : A -> Type ℓ₂) -> Type (ℓ-suc (ℓ-max ℓ₁  ℓ₂)) where
  existence : {A : Type ℓ₁} -> {B : A -> Type ℓ₂} -> (x : A) -> (y : B x) -> exists B
