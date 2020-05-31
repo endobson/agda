@@ -14,7 +14,7 @@ private
 cong : (f : (a : A) -> (B a)) -> {x y : A} -> (p : x == y) -> PathP (\i -> (B (p i))) (f x) (f y)
 cong f p i = f (p i)
 
-cong2 : {A : Type ℓ₁} -> {B : Type ℓ₂} -> {C : Type ℓ₃} -> 
+cong2 : {A : Type ℓ₁} -> {B : Type ℓ₂} -> {C : Type ℓ₃} ->
         (f : A -> B -> C) -> {a c : A} -> {b d : B} -> a == c -> b == d -> f a b == f c d
 cong2 f p1 p2 i = f (p1 i) (p2 i)
 
@@ -24,7 +24,7 @@ cong2-dep : (f : (a : A) -> (b : B a) -> C a b)
             -> PathP (\i -> C (p i) (q i)) (f x u) (f y v)
 cong2-dep f p q i = f (p i) (q i)
 
-sym : {x y : A} -> x == y -> y == x 
+sym : {x y : A} -> x == y -> y == x
 sym p i = p (~ i)
 
 transport : {A B : Type ℓ} -> A == B -> A -> B
@@ -68,10 +68,10 @@ infix  3 _end
 
 begin_ : {x y : A} -> x == y -> x == y
 begin x==y  =  x==y
- 
+
 _==<>_ : (x : A) {y : A} -> x == y -> x == y
 x ==<> x==y  =  x==y
- 
+
 _==<_>_ : (x : A) {y z : A} -> x == y -> y == z -> x == z
 x ==< x==y > y==z  =  trans x==y y==z
 

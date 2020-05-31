@@ -13,7 +13,7 @@ data NonNegIntRec : Int -> Set where
   non-neg-suc : {m : Int} -> NonNegIntRec m -> NonNeg m ->  NonNegIntRec (add1 m)
 
 non-neg-int-rec : {m : Int} -> (NonNeg m) -> NonNegIntRec m
-non-neg-int-rec {zero-int} _ = non-neg-zero 
+non-neg-int-rec {zero-int} _ = non-neg-zero
 non-neg-int-rec {pos zero} _ = non-neg-suc {zero-int} (non-neg-int-rec tt) tt
 non-neg-int-rec {pos (suc m)} _ = non-neg-suc {pos m} (non-neg-int-rec tt) tt
 
@@ -50,7 +50,7 @@ abs-inject-+ {_} {n} mp np = rec (non-neg-int-rec mp)
       add1 (abs m) + abs n
     ==< sym (+-left (abs-inject-add1 mp)) >
       abs (add1 m) + abs n
-    end 
+    end
 
 
 abs-inject-*/non-neg : {m n : Int} -> NonNeg m -> NonNeg n -> abs (m * n) == abs m * abs n
@@ -58,7 +58,7 @@ abs-inject-*/non-neg {_} {n} mp np = rec (non-neg-int-rec mp)
   where
   rec : {m : Int} -> NonNegIntRec m -> abs (m * n) == abs m * abs n
   rec non-neg-zero = refl
-  rec (non-neg-suc {m} m-rec mp) = 
+  rec (non-neg-suc {m} m-rec mp) =
     begin
       abs (add1 m * n)
     ==< cong abs (add1-extract-* {m}) >
@@ -84,7 +84,7 @@ abs-inject-* {zero-int} {pos n} = refl
 abs-inject-* {zero-int} {neg n} = refl
 abs-inject-* {pos m} {zero-int} = abs-inject-*/non-neg {pos m} {zero-int} tt tt
 abs-inject-* {pos m} {pos n} = abs-inject-*/non-neg {pos m} {pos n} tt tt
-abs-inject-* {pos m} {neg n} = 
+abs-inject-* {pos m} {neg n} =
   begin
     abs (pos m * neg n)
   ==< cong abs (minus-extract-right {pos m} {pos n}) >
@@ -116,19 +116,19 @@ abs-inject-* {neg m} {neg n} =
   ==< abs-inject-*/non-neg {pos m} {pos n} tt tt >
     abs (neg m) * abs (pos n)
   end
-abs-inject-* {neg m} {zero-int} = 
+abs-inject-* {neg m} {zero-int} =
   begin
     abs (neg m * zero-int)
-  ==< cong abs (*-commute {neg m} {zero-int}) > 
+  ==< cong abs (*-commute {neg m} {zero-int}) >
     zero-int
-  ==< *-commute {abs zero-int} {abs (neg m)} > 
+  ==< *-commute {abs zero-int} {abs (neg m)} >
     abs (neg m) * abs zero-int
   end
 
 --- abs'
 
 abs->abs' : {m n : Int} -> abs m == abs n -> abs' m == abs' n
-abs->abs' pr = cong abs' pr 
+abs->abs' pr = cong abs' pr
 
 abs'-inject-add1 : {m : Int} -> (NonNeg m) -> abs' (add1 m) == suc (abs' m)
 abs'-inject-add1 {nonneg _} _ = refl
@@ -151,7 +151,7 @@ abs'-inject-+ {_} {n} mp np = rec (non-neg-int-rec mp)
       suc (abs' m) +' abs' n
     ==< sym (+'-left (abs'-inject-add1 mp)) >
       abs' (add1 m) +' abs' n
-    end 
+    end
 
 
 abs'-inject-*/non-neg : {m n : Int} -> NonNeg m -> NonNeg n -> abs' (m * n) == abs' m *' abs' n
@@ -159,7 +159,7 @@ abs'-inject-*/non-neg {_} {n} mp np = rec (non-neg-int-rec mp)
   where
   rec : {m : Int} -> NonNegIntRec m -> abs' (m * n) == abs' m *' abs' n
   rec non-neg-zero = refl
-  rec (non-neg-suc {m} m-rec mp) = 
+  rec (non-neg-suc {m} m-rec mp) =
     begin
       abs' (add1 m * n)
     ==< cong abs' (add1-extract-* {m}) >
@@ -185,7 +185,7 @@ abs'-inject-* {zero-int} {pos n} = refl
 abs'-inject-* {zero-int} {neg n} = refl
 abs'-inject-* {pos m} {zero-int} = abs'-inject-*/non-neg {pos m} {zero-int} tt tt
 abs'-inject-* {pos m} {pos n} = abs'-inject-*/non-neg {pos m} {pos n} tt tt
-abs'-inject-* {pos m} {neg n} = 
+abs'-inject-* {pos m} {neg n} =
   begin
     abs' (pos m * neg n)
   ==< cong abs' (minus-extract-right {pos m} {pos n}) >
@@ -217,12 +217,12 @@ abs'-inject-* {neg m} {neg n} =
   ==< abs'-inject-*/non-neg {pos m} {pos n} tt tt >
     abs' (neg m) *' abs' (pos n)
   end
-abs'-inject-* {neg m} {zero-int} = 
+abs'-inject-* {neg m} {zero-int} =
   begin
     abs' (neg m * zero-int)
-  ==< cong abs' (*-commute {neg m} {zero-int}) > 
+  ==< cong abs' (*-commute {neg m} {zero-int}) >
     zero
-  ==< *'-commute {abs' zero-int} {abs' (neg m)} > 
+  ==< *'-commute {abs' zero-int} {abs' (neg m)} >
     abs' (neg m) *' abs' zero-int
   end
 

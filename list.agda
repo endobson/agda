@@ -35,7 +35,7 @@ NonEmpty (_ :: _) = Top
 
 data NonEmptyListBinaryRec (A : Set a) : List A -> Set a where
   elem  : (a : A) -> NonEmptyListBinaryRec A (a :: [])
-  _:++:_ : ∀ {as bs} -> NonEmptyListBinaryRec A as -> NonEmptyListBinaryRec A bs 
+  _:++:_ : ∀ {as bs} -> NonEmptyListBinaryRec A as -> NonEmptyListBinaryRec A bs
            -> NonEmptyListBinaryRec A (as ++ bs)
 
 non-empty-list-binary-rec : (l : List A) -> {NonEmpty l} -> NonEmptyListBinaryRec A l
@@ -54,14 +54,14 @@ map-inject-++ f {e :: a1} {a2} = cong (\x -> f e :: x) (map-inject-++ f {a1} {a2
 
 data Insertion (A : Set a) : A -> (List A) -> (List A) -> Set a where
   insertion-base : (a : A) -> (as : (List A)) -> Insertion A a as (a :: as)
-  insertion-cons : {a : A} {as1 as2 : (List A)} -> (a2 : A) 
+  insertion-cons : {a : A} {as1 as2 : (List A)} -> (a2 : A)
                    -> (Insertion A a as1 as2) -> Insertion A a (a2 :: as1) (a2 :: as2)
 
 data Permutation (A : Set a) : (List A) -> (List A) -> Set a where
   permutation-empty : Permutation A [] []
-  permutation-cons  : {a : A} -> {as1 as2 as3 : List A} 
+  permutation-cons  : {a : A} -> {as1 as2 as3 : List A}
                       -> Permutation A as1 as2
-                      -> Insertion A a as2 as3 
+                      -> Insertion A a as2 as3
                       -> Permutation A (a :: as1) as3
 
 
@@ -78,14 +78,14 @@ Insertion-insert _<_ a (a2 :: as) with a < a2
 ... | true = insertion-base a (a2 :: as)
 ... | false = insertion-cons a2 (Insertion-insert _<_ a as)
 
-insertion-sort : (A -> A -> Boolean) -> List A -> List A 
+insertion-sort : (A -> A -> Boolean) -> List A -> List A
 insertion-sort _<_ [] = []
 insertion-sort _<_ (a :: as) = (insert _<_ a (insertion-sort _<_ as))
 
 Permutation-insertion-sort : (_<_ : A -> A -> Boolean) -> (as : List A)
                              -> Permutation A as (insertion-sort _<_ as)
 Permutation-insertion-sort _<_ [] = permutation-empty
-Permutation-insertion-sort _<_ (a :: as) = 
+Permutation-insertion-sort _<_ (a :: as) =
   (permutation-cons (Permutation-insertion-sort _<_ as)
                     (Insertion-insert _<_ a (insertion-sort _<_ as)))
 

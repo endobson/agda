@@ -12,7 +12,7 @@ open import prime
 open import relation
 
 data GCD : Int -> Int -> Int -> Set where
- gcd : (a : Int) -> (b : Int) -> (d : Int) -> 
+ gcd : (a : Int) -> (b : Int) -> (d : Int) ->
        (NonNeg d) ->
        (d div a) -> (d div b)
        -> ((x : Int) -> x div a -> x div b -> x div d) -> GCD a b d
@@ -35,9 +35,9 @@ gcd-zero {a} =
 gcd-negate : ∀ {a b d : Int} -> GCD a b d -> GCD a (- b) d
 gcd-negate (gcd a b d non-neg d-div-a d-div-b f) =
   (gcd a (- b) d non-neg d-div-a (div-negate d-div-b) g)
-  where 
+  where
   g : (x : Int) -> x div a -> x div (- b) -> x div d
-  g x xa xb = f x xa 
+  g x xa xb = f x xa
     (transport (\i -> x div (minus-double-inverse {b} i)) (div-negate xb))
 
 gcd-remove-abs : {a b d : Int} -> GCD a (abs b) d -> GCD a b d
@@ -47,16 +47,16 @@ gcd-remove-abs {b = (neg _)} g = gcd-negate g
 gcd-add-linear : ∀ {a b d : Int} -> GCD a b d -> (k : Int) -> GCD a (k * a + b) d
 gcd-add-linear (gcd a b d non-neg d-div-a d-div-b f) k =
   (gcd a (k * a + b) d non-neg d-div-a (div-sum (div-mult d-div-a k) d-div-b) g)
-  where 
+  where
   g : (x : Int) -> x div a -> x div (k * a + b) -> x div d
   g x xa xkab = f x xa xb
     where
     proof : (k * a + b) + (- k * a) == b
     proof =
       begin
-        (k * a + b) + (- k * a) 
+        (k * a + b) + (- k * a)
       ==< +-commute {k * a + b} >
-        (- k * a) + (k * a + b) 
+        (- k * a) + (k * a + b)
       ==< sym (+-assoc { - k * a}) >
         (- k * a + k * a) + b
       ==< +-left (+-left (minus-extract-left {k})) >
@@ -101,7 +101,7 @@ linear-combo-negate (linear-combo a b d x y {p}) =
         x * a + y * b
       ==< p >
         d
-      end 
+      end
 
 
 linear-combo-negate-result : {a b d : Int} -> LinearCombination a b d -> LinearCombination a b (- d)
@@ -120,7 +120,7 @@ linear-combo-negate-result (linear-combo a b d x y {p}) =
         - ((x * a) + (y * b))
       ==< cong minus p >
         - d
-      end 
+      end
 
 
 linear-combo-abs : {a b d : Int} -> LinearCombination a b d -> LinearCombination a b (abs d)
@@ -130,7 +130,7 @@ linear-combo-abs {a} {b} {neg _} lc = (linear-combo-negate-result lc)
 
 
 linear-combo->gcd : {a b d : Int} -> LinearCombination a b d -> d div a -> d div b -> GCD a b (abs d)
-linear-combo->gcd (linear-combo a b d x y {p}) da db = 
+linear-combo->gcd (linear-combo a b d x y {p}) da db =
   (gcd a b (abs d) tt (div-abs-left da) (div-abs-left db)
     (\ z za zb -> transport (\i -> z div abs (p i)) (div-abs-right (div-linear za zb {x} {y}))))
 
@@ -150,18 +150,18 @@ linear-gcd-negate (linear-gcd lc gc) =
 
 data CompareNat3 : Nat -> Nat -> Set where
   compare3-= : {m n : Nat} -> m == n -> CompareNat3 m n
-  compare3-< : {a m n : Nat} 
-    -> (pos a) + (pos m) == (pos n) 
+  compare3-< : {a m n : Nat}
+    -> (pos a) + (pos m) == (pos n)
     -> suc (a +' m) ≤ (m +' n)
     -> CompareNat3 m n
-  compare3-> : {a m n : Nat} 
-    -> (pos a) + (pos n) == (pos m) 
+  compare3-> : {a m n : Nat}
+    -> (pos a) + (pos n) == (pos m)
     -> suc (a +' n) ≤ (m +' n)
     -> CompareNat3 m n
 decide-compare3 : (m : Nat) -> (n : Nat) -> CompareNat3 m n
 decide-compare3 zero zero = compare3-= refl
 decide-compare3 zero (suc n) = compare3-< {n} (+-commute {pos n}) ≤-proof
-  where 
+  where
   ≤-proof : (suc n +' zero) ≤ suc n
   ≤-proof = transport (\i -> (+'-right-zero {suc n} (~ i)) ≤ suc n) (same-≤ (suc n))
 decide-compare3 (suc m) zero = compare3-> {m} (+-commute {pos m}) (same-≤ (suc (m +' zero)))
@@ -170,34 +170,34 @@ decide-compare3 (suc m) (suc n) = fix (decide-compare3 m n)
         fix (compare3-= p) = (compare3-= (cong suc p))
         fix (compare3-< {a} pr rec-≤) =
           compare3-< {a} (add1-extract-right {pos a} >=> cong add1 pr) ≤-proof
-          where 
+          where
           ≤-proof : (suc a +' suc m) ≤ (suc m +' suc n)
           ≤-proof = transport (\i -> (+'-right-suc {suc a} {m} (~ i)) ≤ (+'-right-suc {suc m} {n} (~ i)))
                               (inc-≤ (suc-≤ rec-≤))
-        fix (compare3-> {a} pr rec-≤) = 
+        fix (compare3-> {a} pr rec-≤) =
           compare3-> {a} (add1-extract-right {pos a} >=> cong add1 pr) ≤-proof
-          where 
+          where
           ≤-proof : (suc a +' suc n) ≤ (suc m +' suc n)
           ≤-proof = transport (\i -> (+'-right-suc {suc a} {n} (~ i)) ≤ (+'-right-suc {suc m} {n} (~ i)))
                               (inc-≤ (suc-≤ rec-≤))
 
 
-eulers-helper-gcd : (m : Nat) -> (n : Nat) -> 
-                    {a : Nat} -> (pos a + pos m == pos n) -> {d : Int} -> 
-                    GCD (pos a) (pos m) d 
+eulers-helper-gcd : (m : Nat) -> (n : Nat) ->
+                    {a : Nat} -> (pos a + pos m == pos n) -> {d : Int} ->
+                    GCD (pos a) (pos m) d
                     -> GCD (pos m) (pos n) d
 eulers-helper-gcd m n {a} pr (gcd _ (pos m) d non-neg d-div-a' d-div-m' f) =
   gcd (pos m) (pos n) d non-neg d-div-m' div-proof rec-proof
   where
   div-proof : d div (pos n)
-  div-proof = transport (\i -> d div (pr i)) (div-sum d-div-a' d-div-m') 
+  div-proof = transport (\i -> d div (pr i)) (div-sum d-div-a' d-div-m')
   rec-proof : (x : Int) -> x div (pos m) -> x div (pos n) -> x div d
   rec-proof x x-div-m' x-div-n' = f x x-div-a' x-div-m'
     where
     x-div-mn : x div (neg m + pos n)
     x-div-mn = div-sum (div-negate x-div-m') x-div-n'
     mn==a : neg m + pos n == pos a
-    mn==a = 
+    mn==a =
       begin
         neg m + pos n
       ==< +-right {neg m} (sym pr) >
@@ -208,13 +208,13 @@ eulers-helper-gcd m n {a} pr (gcd _ (pos m) d non-neg d-div-a' d-div-m' f) =
         (neg m + pos m) + pos a
       ==< +-left (add-minus-zero {neg m}) >
         pos a
-      end 
+      end
     x-div-a' : x div (pos a)
     x-div-a' = transport (\i -> x div (mn==a i)) x-div-mn
 
-eulers-helper-lc : (m : Nat) -> (n : Nat) -> 
-                   {a : Nat} -> (pos a + pos m == pos n) -> {d : Int} -> 
-                   LinearCombination (pos a) (pos m) d 
+eulers-helper-lc : (m : Nat) -> (n : Nat) ->
+                   {a : Nat} -> (pos a + pos m == pos n) -> {d : Int} ->
+                   LinearCombination (pos a) (pos m) d
                    -> LinearCombination (pos m) (pos n) d
 eulers-helper-lc m' n' {a'} add-pr (linear-combo a m d x y {pr}) =
   (linear-combo m n d z x {proof})
@@ -228,17 +228,17 @@ eulers-helper-lc m' n' {a'} add-pr (linear-combo a m d x y {pr}) =
     begin
        z * m + x * n
     ==< +-commute {z * m} >
-       x * n + z * m 
+       x * n + z * m
     ==< +-left (*-right {x} (sym add-pr)) >
-       x * (a + m) + z * m 
+       x * (a + m) + z * m
     ==< +-left (*-commute {x}) >
        (a + m) * x + z * m
     ==< +-left (*-distrib-+ {a}) >
-       (a * x + m * x) + z * m 
-    ==< +-left (+-left (*-commute {a} {x})) > 
-       (x * a + m * x) + z * m 
+       (a * x + m * x) + z * m
+    ==< +-left (+-left (*-commute {a} {x})) >
+       (x * a + m * x) + z * m
     ==< +-left (+-right {x * a} (*-commute {m} {x})) >
-       (x * a + x * m) + z * m 
+       (x * a + x * m) + z * m
     ==< +-assoc {x * a} >
        x * a + (x * m + z * m)
     ==< +-right {x * a} (sym (*-distrib-+ {x})) >
@@ -253,9 +253,9 @@ eulers-helper-lc m' n' {a'} add-pr (linear-combo a m d x y {pr}) =
       d
     end
 
-eulers-helper : (m : Nat) -> (n : Nat) -> 
-                {a : Nat} -> (pos a + pos m == pos n) -> {d : Int} -> 
-                LinearGCD (pos a) (pos m) d 
+eulers-helper : (m : Nat) -> (n : Nat) ->
+                {a : Nat} -> (pos a + pos m == pos n) -> {d : Int} ->
+                LinearGCD (pos a) (pos m) d
                 -> LinearGCD (pos m) (pos n) d
 eulers-helper m n {a} pr {d} (linear-gcd lc gc) =
   (linear-gcd (eulers-helper-lc m n {a} pr {d} lc)
@@ -267,7 +267,7 @@ pos-eulers-algo' : (b : Nat) -> (m : Nat) -> (n : Nat)
 pos-eulers-algo' (suc b) m n size-pr = split (decide-compare3 m n)
   where
   split : CompareNat3 m n -> exists (LinearGCD (pos m) (pos n))
-  split (compare3-= pr) = 
+  split (compare3-= pr) =
     transport
       (\i -> exists (LinearGCD (pos m) (pos (pr i))))
       (existence (pos m) (linear-gcd linear-combo-refl gcd-refl))
@@ -292,23 +292,23 @@ pos-eulers-algo m n = pos-eulers-algo' (suc (m +' n)) m n (add1-< (m +' n))
 
 eulers-algo : (m : Int) -> (n : Int) -> exists (LinearGCD m n)
 eulers-algo m zero-int = existence (abs m) (linear-gcd (linear-combo-abs linear-combo-zero) gcd-zero)
-eulers-algo zero-int n@(pos _) = existence (abs n) 
+eulers-algo zero-int n@(pos _) = existence (abs n)
   (linear-gcd-sym (linear-gcd (linear-combo-abs linear-combo-zero) gcd-zero))
-eulers-algo zero-int n@(neg _) = existence (abs n) 
+eulers-algo zero-int n@(neg _) = existence (abs n)
   (linear-gcd-sym (linear-gcd (linear-combo-abs linear-combo-zero) gcd-zero))
 eulers-algo (pos m) (pos n) = pos-eulers-algo m n
-eulers-algo (neg m) (pos n) = handle (pos-eulers-algo m n) 
+eulers-algo (neg m) (pos n) = handle (pos-eulers-algo m n)
   where
   handle : exists (LinearGCD (pos m) (pos n)) -> exists (LinearGCD (neg m) (pos n))
   handle (existence d pr) = existence d (linear-gcd-sym (linear-gcd-negate (linear-gcd-sym pr)))
-eulers-algo (pos m) (neg n) = handle (pos-eulers-algo m n) 
+eulers-algo (pos m) (neg n) = handle (pos-eulers-algo m n)
   where
   handle : exists (LinearGCD (pos m) (pos n)) -> exists (LinearGCD (pos m) (neg n))
   handle (existence d pr) = existence d (linear-gcd-negate pr)
-eulers-algo (neg m) (neg n) = handle (pos-eulers-algo m n) 
+eulers-algo (neg m) (neg n) = handle (pos-eulers-algo m n)
   where
   handle : exists (LinearGCD (pos m) (pos n)) -> exists (LinearGCD (neg m) (neg n))
-  handle (existence d pr) = 
+  handle (existence d pr) =
     existence d (linear-gcd-sym (linear-gcd-negate (linear-gcd-sym (linear-gcd-negate pr))))
 
 gcd-exists : (m : Int) -> (n : Int) -> exists (GCD m n)
@@ -333,16 +333,16 @@ gcd->linear-combo : {a b d : Int} -> GCD a b d -> LinearCombination a b d
 gcd->linear-combo {a} {b} {d} gcd-d = handle (eulers-algo a b)
   where
   handle : exists (LinearGCD a b) -> LinearCombination a b d
-  handle (existence d' (linear-gcd lc gcd-d')) = 
+  handle (existence d' (linear-gcd lc gcd-d')) =
     transport (\i -> LinearCombination a b ((gcd-unique gcd-d' gcd-d) i)) lc
 
 data GCD' : Nat -> Nat -> Nat -> Set where
- gcd' : (a : Nat) -> (b : Nat) -> (d : Nat) -> 
+ gcd' : (a : Nat) -> (b : Nat) -> (d : Nat) ->
         (d div' a) -> (d div' b)
         -> ((x : Nat) -> x div' a -> x div' b -> x div' d) -> GCD' a b d
 
 gcd'-zero->id : {b d : Nat} -> GCD' 0 b d -> b == d
-gcd'-zero->id (gcd' 0 b d d%0 d%b f) = div'-antisym (f b div'-zero div'-refl) d%b 
+gcd'-zero->id (gcd' 0 b d d%0 d%b f) = div'-antisym (f b div'-zero div'-refl) d%b
 
 
 gcd'->gcd/nat : {d n a : Nat} -> GCD' d n a -> GCD (int d) (int n) (int a)
@@ -352,8 +352,8 @@ gcd'->gcd/nat (gcd' d n a a%d a%n f') =
   fix : {x : Int} -> {y : Nat} -> x div (int y) -> (abs' x) div' y
   fix {x} {y} x%y = (subst (\ z -> (abs' x) div' z) refl (div->div' x%y))
   f : (x : Int) -> x div (int d) -> x div (int n) -> x div (int a)
-  f x@zero-int x%d x%n = div'->div (f' zero (fix x%d) (fix x%n)) 
-  f x@(pos x') x%d x%n = div'->div (f' (suc x') (fix x%d) (fix x%n)) 
+  f x@zero-int x%d x%n = div'->div (f' zero (fix x%d) (fix x%n))
+  f x@(pos x') x%d x%n = div'->div (f' (suc x') (fix x%d) (fix x%n))
   f x@(neg x') x%d x%n = div-negate-left (div'->div (f' (suc x') (fix x%d) (fix x%n)))
 
 gcd'->gcd : {d n a : Int} -> {NonNeg a} -> GCD' (abs' d) (abs' n) (abs' a) -> GCD d n a
@@ -382,7 +382,7 @@ gcd->gcd' (gcd d n a _ a%d a%n f) =
   where
   f' : (x : Nat) -> x div' (abs' d) -> x div' (abs' n) -> x div' (abs' a)
   f' x x%d x%n = res
-    where 
+    where
     fix : {y : Int} -> x div' (abs' y) -> (int x) div y
     fix {nonneg _} x%y = (div'->div x%y)
     fix {neg _} x%y = (div-negate (div'->div x%y))
@@ -424,7 +424,7 @@ euclids-lemma {a} {b} {c} a%bc ab-gcd with (gcd->linear-combo ab-gcd)
       x * c * a + y * b * c
     ==< (+-right {x * c * a} (*-assoc {y})) >
       x * c * a + y * (b * c)
-    end 
+    end
   a%stuff : a div (x * c * a + y * (b * c))
   a%stuff = div-linear div-refl a%bc {x * c} {y}
 
@@ -449,7 +449,7 @@ prime->relatively-prime {p} {a} prime-p ¬p%a =
   ... | inj-l pr = bot-elim (¬p%a (transport (\ i -> (pr i) div' a) x%a))
   ... | inj-r pr = (transport (\i -> (pr (~ i)) div' 1) div'-one)
 
-prime-divides-a-factor : {p : Nat} -> IsPrime' p -> {a b : Nat} 
+prime-divides-a-factor : {p : Nat} -> IsPrime' p -> {a b : Nat}
                          -> p div' (a *' b) -> (p div' a) ⊎ (p div' b)
 prime-divides-a-factor {p} prime-p {a} {b} p-div with (decide-div p a)
 ... | yes p%a = inj-l p%a

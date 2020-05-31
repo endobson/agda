@@ -41,11 +41,11 @@ isContr->isProp (x , p) a b i =
 
 
 isProp->isSet : isProp A -> isSet A
-isProp->isSet h a0 a1 p1 p2 j i = 
+isProp->isSet h a0 a1 p1 p2 j i =
   hcomp (\k -> (\ { (i = i0) -> h a0 a0 k
                   ; (i = i1) -> h a0 a1 k
                   ; (j = i0) -> h a0 (p1 i) k
-                  ; (j = i1) -> h a0 (p2 i) k })) a0 
+                  ; (j = i1) -> h a0 (p2 i) k })) a0
 
 
 
@@ -57,7 +57,7 @@ isOfHLevel (suc (suc n)) A = ∀ (x y : A) -> isOfHLevel (suc n) (x == y)
 
 
 isOfHLevelDep : Nat -> {A : Type ℓ₁} -> (B : A -> Type ℓ₂) -> Type (ℓ-max ℓ₁ ℓ₂)
-isOfHLevelDep 0 {A = A} B =  
+isOfHLevelDep 0 {A = A} B =
   {a : A} -> Σ[ b ∈ B a ] ({a' : A} (b' : B a') (p : a == a') -> PathP (\i -> (B (p i))) b b')
 isOfHLevelDep 1 {A = A} B =
   {a0 a1 : A} (b0 : B a0) (b1 : B a1) (p : a0 == a1) -> PathP (\i -> B (p i)) b0 b1
@@ -68,7 +68,7 @@ isOfHLevelDep (suc (suc n)) {A = A} B =
 
 isOfHLevel->isOfHLevelDep : (n : Nat) {A : Type ℓ₁} {B : A -> Type ℓ₂}
   -> (h : (a : A) -> isOfHLevel n (B a)) -> isOfHLevelDep n {A = A} B
-isOfHLevel->isOfHLevelDep 0 h {a} = 
+isOfHLevel->isOfHLevelDep 0 h {a} =
   (h a .fst , (\ b p -> isProp->PathP (\i -> isContr->isProp (h (p i))) (h a .fst) b))
 isOfHLevel->isOfHLevelDep 1 h = (\ b0 b1 p -> isProp->PathP (\i -> (h (p i))) b0 b1)
 isOfHLevel->isOfHLevelDep (suc (suc n)) {A = A} {B = B} h {a0} {a1} b0 b1 =
@@ -78,7 +78,7 @@ isOfHLevel->isOfHLevelDep (suc (suc n)) {A = A} {B = B} h {a0} {a1} b0 b1 =
     isOfHLevel (suc n) (PathP (\i -> (B (p i))) b0 b1)
   helper a1 p b1 = J (\ a1 p -> ∀ b1 -> isOfHLevel (suc n) (PathP (\i -> (B (p i))) b0 b1))
                      (\ _ -> h _ _ _) p b1
-  
+
 isOfHLevelΠ : {A : Type ℓ₁} {B : A -> Type ℓ₂} (n : Nat) -> ((x : A) -> (isOfHLevel n (B x)))
               -> isOfHLevel n ((x : A) -> B x)
 isOfHLevelΠ {A = A} {B = B} 0 h = (\x -> fst (h x)) , (\ f i y -> (snd (h y)) (f y) i)
@@ -120,7 +120,7 @@ private
                         ; (i = i1) -> fIsConst a1 p1 p2 j k
                         ; (j = i0) -> rem p1 i k
                         ; (j = i1) -> rem p2 i k})) a0
-          
+
 
 Discrete->isSet : Discrete A -> isSet A
 Discrete->isSet d = Stable==->isSet (\ x y -> Dec->Stable (d x y))

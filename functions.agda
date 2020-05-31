@@ -11,6 +11,6 @@ private
 
 infixr 9 _∘_
 
-_∘_ : {A : Type ℓ₁} {B : Type ℓ₂} {C : (b : B) -> Type ℓ₃} (f : (b : B) -> (C b))  
+_∘_ : {A : Type ℓ₁} {B : Type ℓ₂} {C : (b : B) -> Type ℓ₃} (f : (b : B) -> (C b))
       (g : A -> B) -> (a : A) -> C (g a)
 (f ∘ g) a = f (g a)

@@ -351,8 +351,8 @@ private
   ... | (existence b pr) = exists-mod-step (rec step (sym (+'-commute {b} {suc a}) >=> pr))
     where
     rec : {d n b x a : Nat} -> ModStep' d n x a -> suc (a +' b) == d -> ModStep d n b x a
-    rec {d} (mod-base' d') p = 
-      transport (\i -> ModStep d 0 ((suc-injective p) (~ i)) 0 0) 
+    rec {d} (mod-base' d') p =
+      transport (\i -> ModStep d 0 ((suc-injective p) (~ i)) 0 0)
                 (mod-base d')
     rec {d} {n} {b} {x} {a} (mod-small-step' step) pr =
       mod-small-step (rec step ((+'-right-suc {a} {b}) >=> pr))
@@ -391,7 +391,7 @@ unique-remainder {suc _} rem1 rem2
 
 remainder->¬div : {d n a : Nat} -> Remainder d n (suc a) -> ¬(d div' n)
 remainder->¬div {zero} (remainder _ _ _ _ () _)
-remainder->¬div {suc _} rem dn with 
+remainder->¬div {suc _} rem dn with
   (path->id (unique-remainder rem (div->remainder dn (\p -> bot-elim (zero-suc-absurd (sym p))))))
 ... | ()
 

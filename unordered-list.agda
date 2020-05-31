@@ -15,7 +15,7 @@ private
 
 infixr 5 _::_
 data UList (A : Type ℓ) : Type ℓ
-  where 
+  where
   [] : UList A
   _::_  : (a : A) -> UList A -> UList A
   swap : (a b : A) -> (l : UList A) -> (a :: (b :: l)) == (b :: (a :: l))
@@ -61,13 +61,13 @@ module Rec {ℓ} {B : Type ℓ}
   (_::*_ : A -> B -> B)
   (swap* : (a0 a1 : A) (b : B) -> (a0 ::* (a1 ::* b)) == (a1 ::* (a0 ::* b)))
   where
-  
+
   f : (as : UList A) -> B
   f [] = []*
   f (a :: as) = a ::* (f as)
   f (swap a1 a2 as i) = (swap* a1 a2 (f as) i)
   f (trunc as1 as2 p q i j) = (BSet* (f as1) (f as2) (cong f p) (cong f q) i j)
-  
+
 map : (A -> B) -> UList A -> UList B
 map f = Rec.f trunc [] (\ a -> f a ::_) (\ a0 a1 -> (swap (f a0) (f a1)))
 
@@ -83,14 +83,14 @@ _++_ as bs = Rec.f trunc bs _::_ swap as
 
 ++-extract-right : ∀ (as : UList A) (b : A) (bs : UList A)
                      -> as ++ (b :: bs) == b :: (as ++ bs)
-++-extract-right {A = A} as b bs = 
+++-extract-right {A = A} as b bs =
   PropElim.f
     (trunc _ _)
     refl
     _::*_
     as
   where
-  _::*_ : ∀ (a : A) {as : UList A} 
+  _::*_ : ∀ (a : A) {as : UList A}
            -> (as ++ (b :: bs)) == b :: (as ++ bs)
            -> a :: (as ++ (b :: bs)) == b :: (a :: as ++ bs)
   _::*_ a p = (\i -> a :: p i) >=> (swap a b _)
@@ -98,28 +98,28 @@ _++_ as bs = Rec.f trunc bs _::_ swap as
 
 ++-commute : ∀ (as : UList A) (bs : UList A)
                -> as ++ bs == bs ++ as
-++-commute {A = A} as bs = 
+++-commute {A = A} as bs =
   PropElim.f
     (trunc _ _)
     (++-right-[] as)
     _::*_
     bs
   where
-  _::*_ : ∀ (b : A) {bs : UList A} 
+  _::*_ : ∀ (b : A) {bs : UList A}
            -> (as ++ bs) == (bs ++ as)
            -> (as ++ (b :: bs)) == b :: (bs ++ as)
   _::*_ b {bs} p =  (++-extract-right as b bs) >=> (cong (b ::_) p)
 
 ++-assoc : ∀ (as : UList A) (bs : UList A) (cs : UList A)
              -> (as ++ bs) ++ cs == as ++ (bs ++ cs)
-++-assoc {A = A} as bs cs = 
+++-assoc {A = A} as bs cs =
   PropElim.f
     (trunc _ _)
     refl
     _::*_
     as
   where
-  _::*_ : ∀ (a : A) {as : UList A} 
+  _::*_ : ∀ (a : A) {as : UList A}
            -> (as ++ bs) ++ cs == as ++ (bs ++ cs)
            -> (a :: as ++ bs) ++ cs == a :: as ++ (bs ++ cs)
   _::*_ a p i = a :: p i
@@ -144,7 +144,7 @@ instance
 concat : {{M : CommMonoid A}} -> isSet A -> UList A -> A
 concat {A = A} {{M = M}} h =
   Rec.f h ε _∙_ swap*
-  where 
+  where
   open CommMonoid M
   swap* : (a0 a1 : A) (a : A) -> (a0 ∙ (a1 ∙ a)) == (a1 ∙ (a0 ∙ a))
   swap* a0 a1 a = (sym (∙-assoc {a0})) >=> ∙-left (∙-commute {a0} {a1}) >=> ∙-assoc {a1}
@@ -163,7 +163,7 @@ concatʰ {A = A} {{M = M}} {h} = record
   preserves-∙ : (xs ys : UList A) -> concat h (xs ++ ys) == (concat h xs) ∙ (concat h ys)
   preserves-∙ xs ys = PropElim.f (h _ _) (sym ∙-left-ε) _::*_ xs
     where
-    _::*_ : ∀ (x : A) {xs : UList A} 
+    _::*_ : ∀ (x : A) {xs : UList A}
              -> (concat h (xs ++ ys)) == (concat h xs) ∙ (concat h ys)
              -> (concat h (x :: (xs ++ ys))) == (concat h (x :: xs)) ∙ (concat h ys)
     x ::* p = (\i -> x ∙ p i) >=> sym ∙-assoc
@@ -177,7 +177,7 @@ mapʰ {A = A} {f = f} = record
   preserves-∙ : (xs ys : UList A) -> map f (xs ++ ys) == (map f xs) ++ (map f ys)
   preserves-∙ xs ys = PropElim.f (trunc _ _) refl _::*_ xs
     where
-    _::*_ : ∀ (x : A) {xs : UList A} 
+    _::*_ : ∀ (x : A) {xs : UList A}
              -> (map f (xs ++ ys)) == (map f xs) ++ (map f ys)
              -> (map f (x :: (xs ++ ys))) == (map f (x :: xs)) ++ (map f ys)
     (x ::* p) i = (f x) :: p i

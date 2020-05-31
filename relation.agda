@@ -22,13 +22,13 @@ Reflexive _~_ = ∀ {a} -> a ~ a
 Irreflexive : Rel A ℓ -> Type _
 Irreflexive _~_ = ∀ {a} -> ¬(a ~ a)
 
-Symmetric : Rel A ℓ -> Type _ 
+Symmetric : Rel A ℓ -> Type _
 Symmetric _~_ = ∀ {a b} -> (a ~ b) -> (b ~ a)
 
-Asymmetric : Rel A ℓ -> Type _ 
+Asymmetric : Rel A ℓ -> Type _
 Asymmetric _~_ = ∀ {a b} -> (a ~ b) -> ¬ (b ~ a)
 
-Antisymmetric : Rel A ℓ -> Type _ 
+Antisymmetric : Rel A ℓ -> Type _
 Antisymmetric _~_ = ∀ {a b} -> (a ~ b) -> (b ~ a) -> a == b
 
 Transitive : Rel A ℓ -> Type _

@@ -59,7 +59,7 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     +-CommMonoid = record
       { ∙-commute = +-commute
       }
-  
+
     *-Monoid : Monoid Domain
     *-Monoid = record
       { ε = 1#
@@ -78,7 +78,7 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   *-distrib-+-left : {m n o : Domain} -> m * (n + o) == (m * n) + (m * o)
   *-distrib-+-left {m} {n} {o} =
     begin
-      m * (n + o) 
+      m * (n + o)
     ==< (*-commute {m} {n + o}) >
       (n + o) * m
     ==< (*-distrib-+-right {n} {o} {m}) >
@@ -89,19 +89,19 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
 
   +-right : {m n p : Domain} -> (n == p) -> m + n == m + p
   +-right {m} id = cong (\x -> m + x) id
-  
+
   +-left : {m n p : Domain} -> (n == p) -> n + m == p + m
   +-left {m} id = cong (\x -> x + m) id
-  
+
   +-cong : {m n p o : Domain} -> m == p -> n == o -> m + n == p + o
   +-cong = cong2 _+_
 
   *-right : {m n p : Domain} -> (n == p) -> m * n == m * p
   *-right {m} id = cong (\x -> m * x) id
-  
+
   *-left : {m n p : Domain} -> (n == p) -> n * m == p * m
   *-left {m} id = cong (\x -> x * m) id
-  
+
   *-cong : {m n p o : Domain} -> m == p -> n == o -> m * n == p * o
   *-cong = cong2 _*_
 
@@ -121,14 +121,14 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     sum-inject-++ : {a b : List Domain} -> sum (a ++ b) == sum a + sum b
     sum-inject-++ {a} {b} = sumʰ.preserves-+ a b
 
-    sum-map-inject-++ : (f : A -> Domain) {a1 a2 : List A} 
+    sum-map-inject-++ : (f : A -> Domain) {a1 a2 : List A}
                         -> (sum (map f (a1 ++ a2))) == (sum (map f a1)) + (sum (map f a2))
     sum-map-inject-++ f {a1} {a2} = Monoidʰ.preserves-∙ (sumʰ ∘ʰ (mapʰ f)) a1 a2
 
     sum-map-Insertion : {a : A} {as1 as2 : (List A)} -> (f : A -> Domain) -> (Insertion A a as1 as2)
                          -> (sum (map f (a :: as1))) == (sum (map f as2))
     sum-map-Insertion f (insertion-base a as) = refl
-    sum-map-Insertion f (insertion-cons {a} {as1} {as2} a2 ins) = 
+    sum-map-Insertion f (insertion-cons {a} {as1} {as2} a2 ins) =
       begin
         (sum (map f (a :: (a2 :: as1))))
       ==<>
@@ -164,14 +164,14 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     product-inject-++ : {a b : List Domain} -> product (a ++ b) == product a * product b
     product-inject-++ {a} {b} = productʰ.preserves-* a b
 
-    product-map-inject-++ : (f : A -> Domain) {a1 a2 : List A} 
+    product-map-inject-++ : (f : A -> Domain) {a1 a2 : List A}
       -> (product (map f (a1 ++ a2))) == (product (map f a1)) * (product (map f a2))
     product-map-inject-++ f {a1} {a2} = Monoidʰ.preserves-∙ (productʰ ∘ʰ (mapʰ f)) a1 a2
 
     product-map-Insertion : {a : A} {as1 as2 : (List A)} -> (f : A -> Domain) -> (Insertion A a as1 as2)
                             -> (product (map f (a :: as1))) == (product (map f as2))
     product-map-Insertion f (insertion-base a as) = refl
-    product-map-Insertion f (insertion-cons {a} {as1} {as2} a2 ins) = 
+    product-map-Insertion f (insertion-cons {a} {as1} {as2} a2 ins) =
       begin
         (product (map f (a :: (a2 :: as1))))
       ==<>
@@ -202,13 +202,13 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     unordered-sum = concat {{+-CommMonoid}} isSetDomain
 
     unordered-sumʰ : CommMonoidʰ unordered-sum
-    unordered-sumʰ = concatʰ 
+    unordered-sumʰ = concatʰ
 
     unordered-product : UList Domain -> Domain
     unordered-product = concat {{*-CommMonoid}} isSetDomain
 
     unordered-productʰ : CommMonoidʰ unordered-product
-    unordered-productʰ = concatʰ 
+    unordered-productʰ = concatʰ
 
 
 
@@ -250,7 +250,7 @@ record Ring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     end
 
   *-left-minus-one : {a : Domain} -> (- 1#) * a == - a
-  *-left-minus-one {a} = 
+  *-left-minus-one {a} =
     begin
       - 1# * a
     ==< sym +-left-zero >
@@ -300,7 +300,7 @@ record Ring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     end
 
   minus-double-inverse : {a : Domain} -> - - a == a
-  minus-double-inverse {a} = sym (minus-unique 
+  minus-double-inverse {a} = sym (minus-unique
     (begin
        - a + a
      ==< +-commute >
@@ -401,7 +401,7 @@ record Ring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     ==< *-left (cong -_ +-right-zero) >
      - 1# * (lift-int y)
     ==< *-left-minus-one >
-      - (lift-int y) 
+      - (lift-int y)
     ==< (minus-lift-constant {y}) >
       (lift-int (int.- y))
     ==< cong lift-int (cong int.-_ (sym (int.+-right-zero {y}))) >
@@ -463,7 +463,7 @@ IntSemiring = record
   ; +-left-zero = refl
   ; *-left-zero = refl
   ; *-left-one = int.+-right-zero
-  ; *-distrib-+-right = (\ {m} {n} {o} -> int.*-distrib-+ {m} {n} {o}) 
+  ; *-distrib-+-right = (\ {m} {n} {o} -> int.*-distrib-+ {m} {n} {o})
   ; isSetDomain = int.isSetInt
   }
 
@@ -474,7 +474,7 @@ IntRing = record  {
   +-inverse = (\ {n} -> int.add-minus-zero {n}) }
 
 
-ReaderSemiring : {ℓ₁ ℓ₂ : Level} {Domain : Type ℓ₁} -> (A : Type ℓ₂) 
+ReaderSemiring : {ℓ₁ ℓ₂ : Level} {Domain : Type ℓ₁} -> (A : Type ℓ₂)
                  -> Semiring Domain -> Semiring (A -> Domain)
 ReaderSemiring {Domain = Domain} A S = res
   where

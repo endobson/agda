@@ -17,7 +17,7 @@ record CommMonoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
 
 
 record CommMonoidʰ
-    {ℓ₁ ℓ₂ : Level} 
+    {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
     {{M₁ : CommMonoid D₁}} {{M₂ : CommMonoid D₂}}
     (f : D₁ -> D₂)
@@ -31,10 +31,10 @@ record CommMonoidʰ
 
 _∘ʰ_ :
   {ℓ₁ ℓ₂ ℓ₃ : Level}
-  {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} {D₃ : Type ℓ₃} 
+  {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} {D₃ : Type ℓ₃}
   {M₁ : CommMonoid D₁} {M₂ : CommMonoid D₂} {M₃ : CommMonoid D₃}
-  {f : D₂ -> D₃} {g : D₁ -> D₂} 
-  -> (CommMonoidʰ {{M₂}} {{M₃}} f) 
+  {f : D₂ -> D₃} {g : D₁ -> D₂}
+  -> (CommMonoidʰ {{M₂}} {{M₃}} f)
   -> (CommMonoidʰ {{M₁}} {{M₂}} g)
   -> (CommMonoidʰ {{M₁}} {{M₃}} (f ∘ g))
 _∘ʰ_ {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res

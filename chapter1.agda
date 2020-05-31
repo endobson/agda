@@ -13,16 +13,16 @@ open import gcd
 open import solver
 
 ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)
-ex1-1 {a} {b} {c} {d} (gcd a b _ _ _ _ gcd-f) c-div-a d-div-b = 
-  gcd c d (int 1) tt div-one div-one 
-  (\x x-div-c x-div-d -> 
+ex1-1 {a} {b} {c} {d} (gcd a b _ _ _ _ gcd-f) c-div-a d-div-b =
+  gcd c d (int 1) tt div-one div-one
+  (\x x-div-c x-div-d ->
     (gcd-f x (div-trans x-div-c c-div-a) (div-trans x-div-d d-div-b)))
 
 ex1-2' : {a b c : Nat} -> GCD' a b 1 -> GCD' a c 1 -> GCD' a (b *' c) 1
 ex1-2' g@(gcd' a zero _ _ _ _) (gcd' a _ _ _ _ _) = g
 ex1-2' (gcd' a b@(suc _) _ _ _ _) g@(gcd' a zero _ _ _ _) =
   transport (\i -> GCD' a (*'-commute {b} {zero} (~ i)) 1) g
-ex1-2' (gcd' a@(suc _) b@(suc _) _ _ _ f-b) (gcd' a@(suc _) c@(suc _) _ _ _ f-c) = 
+ex1-2' (gcd' a@(suc _) b@(suc _) _ _ _ f-b) (gcd' a@(suc _) c@(suc _) _ _ _ f-c) =
   prime-gcd' a (b *' c) f
   where
   ¬prime-div-one : {p : Nat} -> IsPrime' p -> ¬(p div' 1)
@@ -62,7 +62,7 @@ RPrime a b = GCD a b (int 1)
 
 rp-* : {a b c : Int} -> RPrime b a -> RPrime c a -> RPrime (b * c) a
 rp-* rp1 rp2 = gcd-sym (ex1-2 (gcd-sym rp1) (gcd-sym rp2))
-  
+
 rp-^ : {a b : Int} -> RPrime a b -> (n : Nat) -> {Pos' n} -> RPrime (a ^ n) b
 rp-^ {a} {b} rp (suc (zero)) = transport (\i -> RPrime (^-right-one {a} (~ i)) b) rp
 rp-^ rp (suc (suc n)) = rp-* rp (rp-^ rp (suc n))
@@ -77,7 +77,7 @@ ex1-3 rp n k {pos-n} {pos-k} = (rp-sym (rp-^ (rp-sym (rp-^ rp n {pos-n})) k {pos
 
 
 ex1-4' : {a b n : Int} -> RPrime a b -> (GCD (a + b) (a + - b)) n -> n div (int 2)
-ex1-4' rp (gcd a+b a-b n _ n%a+b n%a-b f) with (gcd->linear-combo rp) 
+ex1-4' rp (gcd a+b a-b n _ n%a+b n%a-b f) with (gcd->linear-combo rp)
 ... | (linear-combo a b _ x y {proof}) = res
   where
   lin-proof : (x + y) * (a + b) + (x + - y) * (a + - b) == (int 2)
@@ -96,7 +96,7 @@ ex1-4' rp (gcd a+b a-b n _ n%a+b n%a-b f) with (gcd->linear-combo rp)
       (int 2)
     end
   res : n div (int 2)
-  res = 
+  res =
    transport
      (\ i -> n div (lin-proof i))
      (div-linear n%a+b n%a-b {x + y} {x + - y})
@@ -115,7 +115,7 @@ ex1-4 {a} {b} rp with (gcd-exists (a + b) (a + - b))
 
 
 ex1-6 : {a b d : Int} -> RPrime a b -> d div (a + b) -> RPrime a d × RPrime b d
-ex1-6 {d = d} (gcd a b _ _ _ _ f) d%a+b = 
+ex1-6 {d = d} (gcd a b _ _ _ _ f) d%a+b =
     (gcd a d (int 1) tt div-one div-one f-a) , (gcd b d (int 1) tt div-one div-one f-b)
   where
   f-a : (x : Int) -> x div a -> x div d -> x div (int 1)
@@ -156,7 +156,7 @@ ex1-5' {a} {b} arith-proof rp with (gcd-exists (a + b) (a * a + - (a * b) + b * 
   ¬2%3 : ¬ (2 div' 3)
   ¬2%3 (div'-exists _ _ zero pr) = zero-suc-absurd pr
   ¬2%3 (div'-exists _ _ (suc zero) pr) = zero-suc-absurd (suc-injective (suc-injective pr))
-  ¬2%3 (div'-exists _ _ (suc (suc _)) pr) = 
+  ¬2%3 (div'-exists _ _ (suc (suc _)) pr) =
     (zero-suc-absurd (sym (suc-injective (suc-injective (suc-injective pr)))))
 
   reordered-gcd : (GCD (a + b) ((a * b) * (int 3)) d)
@@ -176,8 +176,8 @@ ex1-5' {a} {b} arith-proof rp with (gcd-exists (a + b) (a * a + - (a * b) + b * 
   ... | (inc-≤ (inc-≤ zero-≤)) = bot-elim (¬2%3 (div->div' d-div))
   ... | (inc-≤ (inc-≤ (inc-≤ zero-≤))) = inj-r g
   ... | zero-≤ = bot-elim (zero-suc-absurd (sym (nonneg-injective (div-zero->zero d-div))))
-  
+
 ex1-5 : {a b : Int} -> RPrime a b ->
    (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎
    (GCD (a + b) (a * a + - (a * b) + b * b) (int 3))
-ex1-5 = ex1-5' ex1-5-arith 
+ex1-5 = ex1-5' ex1-5-arith

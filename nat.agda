@@ -40,20 +40,20 @@ suc m +' n = suc (m +' n)
 +'-cong = cong2 _+'_
 
 +'-right-zero : {m : Nat} -> (m +' zero) == m
-+'-right-zero {zero} = refl 
++'-right-zero {zero} = refl
 +'-right-zero {suc m} = cong suc (+'-right-zero {m})
 
 +'-left-zero : {m : Nat} -> (zero +' m) == m
-+'-left-zero {m} = refl 
++'-left-zero {m} = refl
 
 +'-right-suc : {m n : Nat} -> (m +' (suc n)) == suc (m +' n)
-+'-right-suc {zero} {n} = refl 
++'-right-suc {zero} {n} = refl
 +'-right-suc {suc m} {n} = cong suc (+'-right-suc {m} {n})
 
 +'-commute : {m n : Nat} -> (m +' n) == (n +' m)
 +'-commute {_} {zero} = +'-right-zero
-+'-commute {m} {suc n} = 
-  begin 
++'-commute {m} {suc n} =
+  begin
     m +' (suc n)
   ==< +'-right-suc >
     suc (m +' n)
@@ -79,7 +79,7 @@ suc m *' n = n +' (m *' n)
 *'-distrib-+' : {m n p : Nat} -> (m +' n) *' p == (m *' p) +' (n *' p)
 *'-distrib-+' {zero} = refl
 *'-distrib-+' {suc m} {n} {p} =
-  begin 
+  begin
     (suc m +' n) *' p
   ==<>
     p +' ((m +' n) *' p)
@@ -101,7 +101,7 @@ suc m *' n = n +' (m *' n)
 *'-assoc : {m n p : Nat} -> (m *' n) *' p == m *' (n *' p)
 *'-assoc {zero} {_} {_} = refl
 *'-assoc {suc m} {n} {p} =
-  begin 
+  begin
     (suc m *' n) *' p
   ==< (*'-distrib-+' {n} {m *' n} {p}) >
     (n *' p) +' (m *' n) *' p
@@ -119,10 +119,10 @@ suc m *' n = n +' (m *' n)
 *'-right-suc : {m n : Nat} -> (m *' (suc n)) == m +' (m *' n)
 *'-right-suc {zero} {n} = refl
 *'-right-suc {suc m} {n} =
-  begin 
-    (suc m *' suc n) 
+  begin
+    (suc m *' suc n)
   ==<>
-    suc n +' (m *' suc n) 
+    suc n +' (m *' suc n)
   ==< +'-right (*'-right-suc {m} {n}) >
     suc n +' (m +' (m *' n))
   ==< sym (+'-assoc {suc n})>
@@ -143,7 +143,7 @@ suc m *' n = n +' (m *' n)
 *'-commute : {m n : Nat} -> (m *' n) == (n *' m)
 *'-commute {zero} {n} = sym (*'-right-zero {n})
 *'-commute {suc m} {n} =
-  begin 
+  begin
     suc m *' n
   ==<>
     n +' m *' n
@@ -178,9 +178,9 @@ zero-suc-absurd path = bot-elim (subst Pos' (sym path) tt)
 
 
 *'-distrib-+'-left : {m n p : Nat} -> m *' (n +' p) == (m *' n) +' (m *' p)
-*'-distrib-+'-left {m} {n} {p} = 
+*'-distrib-+'-left {m} {n} {p} =
   begin
-    m *' (n +' p) 
+    m *' (n +' p)
   ==< (*'-commute {m} {n +' p}) >
     (n +' p) *' m
   ==< (*'-distrib-+' {n} {p} {m}) >
@@ -291,7 +291,7 @@ dec-< : {m n : Nat} -> suc m < suc n -> m < n
 dec-< (inc-≤ <) = <
 
 ≤->< : {m n : Nat} -> m ≤ n -> m < suc n
-≤->< p = inc-≤ p 
+≤->< p = inc-≤ p
 
 
 ≤-a+'b==c'-Add : {a b c : Nat} -> Add c a b -> b ≤ c
@@ -344,7 +344,7 @@ zero-≤s (suc n) = step-≤s (zero-≤s n)
 ≤->≤s (inc-≤ rec) = inc-≤s (≤->≤s rec)
 
 
-induction : 
+induction :
   {P : Nat -> Set} ->
   P zero ->
   ({m : Nat} -> P m -> P (suc m)) ->
@@ -352,7 +352,7 @@ induction :
 induction {P} z f zero = z
 induction {P} z f (suc m) = f (induction {P} z f m)
 
--- strong-induction' : 
+-- strong-induction' :
 --   {P : Nat -> Set} ->
 --   P zero ->
 --   ({m : Nat} -> ({n : Nat} -> (n ≤ m) -> P n) -> P (suc m)) ->
@@ -360,8 +360,8 @@ induction {P} z f (suc m) = f (induction {P} z f m)
 -- strong-induction' z f zero id-≤ = z
 -- strong-induction' z f (suc m) (inc-≤ rec-≤) = strong-induction' z f m rec-≤
 -- strong-induction' z f (suc m) id-≤ = f {m} (strong-induction' z f m)
--- 
--- strong-induction : 
+--
+-- strong-induction :
 --   {P : Nat -> Set} ->
 --   P zero ->
 --   ({m : Nat} -> ({n : Nat} -> (n ≤ m) -> P n) -> P (suc m)) ->
@@ -372,14 +372,14 @@ decide-nat : (x : Nat) -> (y : Nat) -> Dec (x == y)
 decide-nat zero zero = yes refl
 decide-nat zero (suc n) = no (\ p -> zero-suc-absurd p)
 decide-nat (suc m) zero = no (\ p -> zero-suc-absurd (sym p))
-decide-nat (suc m) (suc n) with (decide-nat m n) 
+decide-nat (suc m) (suc n) with (decide-nat m n)
 ...  | (yes refl) = yes (cong suc refl)
 ...  | (no f) = no (\ pr -> f (suc-injective pr) )
 
 
 
 decide-nat< : (x : Nat) -> (y : Nat) -> Dec (x < y)
-decide-nat< _ zero = no \() 
+decide-nat< _ zero = no \()
 decide-nat< zero (suc n) = yes zero-<
 decide-nat< (suc m) (suc n) with (decide-nat< m n)
 ... | yes pr = yes (inc-≤ pr)
@@ -406,7 +406,7 @@ instance
   NatCommMonoid+ = record
     { ∙-commute = (\ {m} {n} -> +'-commute {m} {n})
     }
-  
+
   NatMonoid* : Monoid Nat
   NatMonoid* = record {
     ε = 1;

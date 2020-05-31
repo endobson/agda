@@ -41,7 +41,7 @@ refl : {i : Level} {A : Set i} {x : A} → Path A x x
 refl {x = x} = \ i -> x
 
 Type : (ℓ : Level) → Set (ℓ-suc ℓ)
-Type ℓ = Set ℓ 
+Type ℓ = Set ℓ
 
 Type₀ : Type (ℓ-suc ℓ-zero)
 Type₀ = Type ℓ-zero

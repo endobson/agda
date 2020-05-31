@@ -15,16 +15,16 @@ record Monoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     ∙-assoc : {m n o : Domain} -> (m ∙ n) ∙ o == m ∙ (n ∙ o)
     ∙-left-ε : {m : Domain} -> (ε ∙ m) == m
     ∙-right-ε : {m : Domain} -> (m ∙ ε) == m
-  
+
   ∙-right : {m n o : Domain} -> (n == o) -> m ∙ n == m ∙ o
   ∙-right {m} p i = m ∙ p i
-  
+
   ∙-left : {m n o : Domain} -> (n == o) -> n ∙ m == o ∙ m
   ∙-left {m} p i = p i ∙ m
 
 
 record Monoidʰ
-    {ℓ₁ ℓ₂ : Level} 
+    {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
     {{M₁ : Monoid D₁}} {{M₂ : Monoid D₂}}
     (f : D₁ -> D₂)
@@ -39,9 +39,9 @@ record Monoidʰ
 
 _∘ʰ_ :
   {ℓ₁ ℓ₂ ℓ₃ : Level}
-  {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} {D₃ : Type ℓ₃} 
+  {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} {D₃ : Type ℓ₃}
   {M₁ : Monoid D₁} {M₂ : Monoid D₂} {M₃ : Monoid D₃}
-  {f : D₂ -> D₃} {g : D₁ -> D₂} 
+  {f : D₂ -> D₃} {g : D₁ -> D₂}
   -> (Monoidʰ {{M₂}} {{M₃}} f) -> (Monoidʰ {{M₁}} {{M₂}} g)
   -> (Monoidʰ {{M₁}} {{M₃}} (f ∘ g))
 _∘ʰ_ {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res
