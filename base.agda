@@ -2,19 +2,9 @@
 
 module base where
 
-open import Level public
-  using    ( Level )
-  renaming ( zero to ℓ-zero
-           ; suc  to ℓ-suc
-           ; _⊔_  to ℓ-max
-           ; Setω  to Typeω )
-
-open import Agda.Primitive.Cubical public
-open import Agda.Builtin.Cubical.Path public
 open import Agda.Builtin.Cubical.Glue public
+open import Agda.Builtin.Cubical.Path public
 open import Agda.Builtin.Sigma public
-
-open Helpers using (isContr; fiber) public
 
 open import Agda.Primitive.Cubical public
   renaming ( primIMin       to _∧_  -- I → I → I
@@ -24,7 +14,28 @@ open import Agda.Primitive.Cubical public
            ; primComp       to comp
            ; primHComp      to hcomp
            ; primTransp     to transp
-           ; itIsOne        to 1=1 )
+           ; itIsOne        to 1=1
+           )
+
+open import Agda.Builtin.Cubical.Sub public
+  renaming ( inc        to inS
+           ; primSubOut to outS
+           )
+
+open Helpers public
+  using ( isContr
+        ; fiber
+        ; hfill
+        ; fill
+        )
+
+open import Level public
+  using    ( Level )
+  renaming ( zero to ℓ-zero
+           ; suc  to ℓ-suc
+           ; _⊔_  to ℓ-max
+           ; Setω  to Typeω
+           )
 
 infix 4 _===_
 data _===_ {a} {A : Set a} (x : A) : A -> Set a where

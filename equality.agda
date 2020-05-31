@@ -30,6 +30,10 @@ sym p i = p (~ i)
 transport : {A B : Type ℓ} -> A == B -> A -> B
 transport p a = transp (\i -> p i) i0 a
 
+transport-filler : ∀ {ℓ} {A B : Type ℓ} (p : A == B) (x : A)
+                   -> PathP (\ i -> p i) x (transport p x)
+transport-filler p x i = transp (\j -> p (i ∧ j)) (~ i) x
+
 J : {x : A} (P : ∀ y -> x == y -> Type ℓ)
     (d : P x refl) {y : A} (p : x == y)
     -> P y p
@@ -42,12 +46,36 @@ _∙∙_∙∙_ : {w x y z : A} -> w == x -> x == y -> y == z -> w == z
                   ; (i = i1) -> r j})
         (q i)
 
+doubleCompPath-filler :
+  {ℓ : Level} {A : Type ℓ} {w x y z : A}
+  (p : w == x) (q : x == y) (r : y == z)
+  -> PathP (\i -> p (~ i) == r i) q (p ∙∙ q ∙∙ r)
+doubleCompPath-filler p q r j i =
+  hfill (\ j -> (\ { (i = i0) -> (p (~ j))
+                   ; (i = i1) -> r j }))
+        (inS (q i)) j
+
 trans : {x y z : A} -> x == y -> y == z -> x == z
 trans p1 p2 = refl ∙∙ p1 ∙∙ p2
 
 infixl 20 _>=>_
 _>=>_ : {x y z : A} -> x == y -> y == z -> x == z
 p1 >=> p2 = trans p1 p2
+
+private
+  _∙_ = trans
+
+compPath-filler : {x y z : A} (p : x == y) (q : y == z) -> PathP (\i -> x == (q i)) p (p ∙ q)
+compPath-filler p q = doubleCompPath-filler refl p q
+
+transP : {A : I -> Type ℓ} {a0 : A i0} {a1 : A i1} {B_i1 : Type ℓ} {B : A i1 == B_i1}
+         {b1 : B_i1} (p : PathP A a0 a1) (q : PathP (\i -> B i) a1 b1)
+         -> PathP (\j -> ((\k -> A k) ∙ B) j) a0 b1
+transP {A = A} {a0 = a0} {B = B} p q i =
+  comp (\j -> compPath-filler (\k -> A k) B j i)
+       (\j -> (\ { (i = i0) -> a0
+                 ; (i = i1) -> q j}))
+       (p i)
 
 subst : {x y : A} -> (P : A → Type ℓ) -> x == y -> P x -> P y
 subst P path = transport (\ i -> (P (path i)))
@@ -60,8 +88,49 @@ path->id {x = x} {y = y} path = (subst (x ===_) path refl-===)
 id->path : {x y : A} -> x === y -> x == y
 id->path refl-=== = refl
 
+-- Squares
+
+SquareP : {ℓ : Level} {A : I -> I -> Type ℓ}
+          {a₀₀ : A i0 i0} {a₀₁ : A i0 i1} (a₀₋ : PathP (\i -> A i0 i) a₀₀ a₀₁)
+          {a₁₀ : A i1 i0} {a₁₁ : A i1 i1} (a₁₋ : PathP (\i -> A i1 i) a₁₀ a₁₁)
+          (a₋₀ : PathP (\i -> A i i0) a₀₀ a₁₀)
+          (a₋₁ : PathP (\i -> A i i1) a₀₁ a₁₁) -> Type ℓ
+SquareP {A = A} a₀₋ a₁₋ a₋₀ a₋₁ = PathP (\i -> PathP (\j -> A i j) (a₋₀ i) (a₋₁ i)) a₀₋ a₁₋
+
+
+Square : {ℓ : Level} {A : Type ℓ}
+          {a₀₀ : A} {a₀₁ : A} (a₀₋ : Path A a₀₀ a₀₁)
+          {a₁₀ : A} {a₁₁ : A} (a₁₋ : Path A a₁₀ a₁₁)
+          (a₋₀ : Path A a₀₀ a₁₀)
+          (a₋₁ : Path A a₀₁ a₁₁) -> Type ℓ
+Square {A = A} a₀₋ a₁₋ a₋₀ a₋₁ = SquareP {A = (\ _ _ -> A)} a₀₋ a₁₋ a₋₀ a₋₁
+
+ConstantSquare : {ℓ : Level} {A : Type ℓ} (a : A) -> Type ℓ
+ConstantSquare a = Square {a₀₀ = a} refl refl refl refl
+
+flip-square : {ℓ : Level} {A : Type ℓ}
+              {a₀₀ : A} {a₀₁ : A} {a₀₋ : Path A a₀₀ a₀₁}
+              {a₁₀ : A} {a₁₁ : A} {a₁₋ : Path A a₁₀ a₁₁}
+              {a₋₀ : Path A a₀₀ a₁₀} {a₋₁ : Path A a₀₁ a₁₁}
+              -> Square a₀₋ a₁₋ a₋₀ a₋₁ -> Square a₋₀ a₋₁ a₀₋ a₁₋
+flip-square s i j = s j i
+
+square-filler :
+  {ℓ : Level} {A : Type ℓ} {w x y z : A}
+  (p : x == w) (q : y == z) (r : x == y)
+  -> Square p q r ((sym p) ∙∙ r ∙∙ q)
+square-filler p q r = flip-square (doubleCompPath-filler (sym p) r q)
+
+-- Extract out the final side of a square.
+-- Useful if the square was constructed using the filler.
+square-final-side :
+  {ℓ : Level} {A : Type ℓ} {w x y z : A}
+  {p : x == w} {q : y == z} {r : x == y} {s : w == z}
+  -> Square p q r s -> w == z
+square-final-side {s = s} _ = s
 
 -- Equational reasoning
+
 infix  1 begin_
 infixr 2 _==<>_ _==<_>_
 infix  3 _end
@@ -83,6 +152,3 @@ x != y = ¬ (x == y)
 
 _!==_ : A -> A -> Type _
 x !== y = ¬ (x === y)
-
-
-
