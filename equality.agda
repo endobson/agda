@@ -45,40 +45,14 @@ _∙∙_∙∙_ : {w x y z : A} -> w == x -> x == y -> y == z -> w == z
 trans : {x y z : A} -> x == y -> y == z -> x == z
 trans p1 p2 = refl ∙∙ p1 ∙∙ p2
 
+infixl 20 _>=>_
+_>=>_ : {x y z : A} -> x == y -> y == z -> x == z
+p1 >=> p2 = trans p1 p2
 
 subst : {x y : A} -> (P : A → Type ℓ) -> x == y -> P x -> P y
 subst P path = transport (\ i -> (P (path i)))
 
--- Σ-types
-infix 2 Σ-syntax
-
-Σ-syntax : ∀ (A : Type ℓ₁) (B : A → Type ℓ₂) → Type (ℓ-max ℓ₁ ℓ₂)
-Σ-syntax = Σ
-
-syntax Σ-syntax A (\x -> B) = Σ[ x ∈ A ] B
-
-idfun : (A : Type ℓ) → A → A
-idfun _ x = x
-
-
-idIsEquiv : (A : Type ℓ) → isEquiv (idfun A)
-equiv-proof (idIsEquiv A) y =
-  ((y , refl) , \ z i -> z .snd (~ i) , \ j -> z .snd (~ i ∨ j))
-
-idEquiv : (A : Type ℓ) → A ≃ A
-idEquiv A .fst = idfun A
-idEquiv A .snd = idIsEquiv A
-
-Glue : ∀ (A : Type ℓ₁) {φ : I}
-       → (Te : Partial φ (Σ[ T ∈ Type ℓ₂ ] T ≃ A))
-       → Type ℓ₂
-Glue A Te = primGlue A (λ x → Te x .fst) (λ x → Te x .snd)
-
-ua : ∀ {A B : Type ℓ} -> A ≃ B -> A == B
-ua {A = A} {B = B} e i = Glue B (\ { (i = i0) -> (A , e)
-                                   ; (i = i1) -> (B , idEquiv B) })
-
-
+-- True identity
 
 path->id : {x y : A} -> x == y -> x === y
 path->id {x = x} {y = y} path = (subst (x ===_) path refl-===)
@@ -87,32 +61,7 @@ id->path : {x y : A} -> x === y -> x == y
 id->path refl-=== = refl
 
 
-module _ {f g : (a : A) -> B a} where
-
-  funExt : ((x : A) -> f x == g x) -> f == g
-  funExt p i x = p x i
-  funExt⁻ : f == g -> ((x : A) -> f x == g x)
-  funExt⁻ eq a i = eq i a
-
-  private
-    fib : (p : f == g) -> fiber funExt p
-    fib p = ((\x i -> (p i) x) , refl)
-    funExt-fiber-isContr : (p : f == g) -> (fi : fiber funExt p) -> fib p == fi
-    funExt-fiber-isContr p (h , eq) i = (funExt⁻ (eq (~ i)) , \j -> eq (~ i ∨ j))
-
-
-  funExt-isEquiv : isEquiv funExt
-  equiv-proof funExt-isEquiv p = (fib p , funExt-fiber-isContr p)
-
-  funExtEquiv : ((x : A) -> f x == g x) ≃ (f == g)
-  funExtEquiv = (funExt , funExt-isEquiv)
-
-  funExtPath : ((x : A) -> f x == g x) == (f == g)
-  funExtPath = ua funExtEquiv
-
-
-
-
+-- Equational reasoning
 infix  1 begin_
 infixr 2 _==<>_ _==<_>_
 infix  3 _end
@@ -136,7 +85,4 @@ _!==_ : A -> A -> Type _
 x !== y = ¬ (x === y)
 
 
-infixl 20 _>=>_
-_>=>_ : {x y z : A} -> x == y -> y == z -> x == z
-p1 >=> p2 = trans p1 p2
 

@@ -5,6 +5,8 @@ module hlevel where
 open import base
 open import equality
 open import relation
+open import equivalence
+open import sigma
 
 private
   variable
