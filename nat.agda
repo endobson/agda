@@ -25,6 +25,9 @@ dec0 (suc n) = n
 suc-injective : {m n : Nat} -> suc m == suc n -> m == n
 suc-injective p i = dec0 (p i)
 
+zero-suc-absurd : {A : Set} {x : Nat} -> 0 == (suc x) -> A
+zero-suc-absurd path = bot-elim (subst Pos' (sym path) tt)
+
 infixl 6 _+'_
 _+'_ : Nat -> Nat -> Nat
 zero +' n = n
@@ -66,6 +69,17 @@ suc m +' n = suc (m +' n)
 +'-assoc : {m n o : Nat} -> (m +' n) +' o == m +' (n +' o)
 +'-assoc {zero} {_} {_} = refl
 +'-assoc {suc m} {_} {_} = cong suc (+'-assoc {m})
+
+m+'n==m->n==0 : {m n : Nat} -> m +' n == m -> n == 0
+m+'n==m->n==0 {0} {n} p = p
+m+'n==m->n==0 {(suc m)} {n} p = m+'n==m->n==0 (suc-injective p)
+
+m+'n==n->m==0 : {m n : Nat} -> m +' n == n -> m == 0
+m+'n==n->m==0 {m} {n} p = m+'n==m->n==0 (+'-commute {n} {m} >=> p)
+
+m+'n==0->m==0 : {m n : Nat} -> m +' n == 0 -> m == 0
+m+'n==0->m==0 {0} p = refl
+m+'n==0->m==0 {(suc _)} p = bot-elim (zero-suc-absurd (sym p))
 
 iter : {A : Set} (n : Nat) (f : A -> A) -> A -> A
 iter zero _ a = a
@@ -162,8 +176,6 @@ suc m *' n = n +' (m *' n)
 
 
 
-zero-suc-absurd : {A : Set} {x : Nat} -> 0 == (suc x) -> A
-zero-suc-absurd path = bot-elim (subst Pos' (sym path) tt)
 
 *'-only-one-left : {m n : Nat} -> m *' n == 1 -> m == 1
 *'-only-one-left {m} {zero} p = zero-suc-absurd (sym (*'-right-zero {m}) >=> p)
