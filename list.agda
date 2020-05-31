@@ -2,7 +2,6 @@
 
 module list where
 
-open import Level
 open import base
 open import relation
 open import equality

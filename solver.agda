@@ -8,15 +8,14 @@ open import ring
 open import equality
 open import relation
 open import nat
-open import Level using (Level; _⊔_) renaming (suc to lsuc; zero to lzero)
 import int
 
-data Syntax (n : Nat) : Set where
+data Syntax (n : Nat) : Type₀ where
   _⊕_ : Syntax n -> Syntax n -> Syntax n
   _⊗_ : Syntax n -> Syntax n -> Syntax n
   var : Fin n -> Syntax n
 
-data RingSyntax (n : Nat) : Set where
+data RingSyntax (n : Nat) : Type₀ where
   _⊕_ : RingSyntax n -> RingSyntax n -> RingSyntax n
   _⊗_ : RingSyntax n -> RingSyntax n -> RingSyntax n
   ⊖_ : RingSyntax n -> RingSyntax n
@@ -30,10 +29,10 @@ infixl 7 _⊗_
 
 private 
   variable
-    ℓ a b c : Level
-    A B C : Set ℓ
+    ℓ ℓ₁ ℓ₂ : Level
+    A B C : Type ℓ
 
-  data Vec (A : Set a) : Nat -> Set a where
+  data Vec (A : Type ℓ) : Nat -> Type ℓ where
     [] : Vec A zero
     _::_  : {n : Nat} -> (a : A) -> Vec A n -> Vec A (suc n)
   
@@ -43,17 +42,17 @@ private
   
   Nary-level : (i j : Level) -> Nat -> Level
   Nary-level i j zero = j
-  Nary-level i j (suc m) = i ⊔ (Nary-level i j m)
+  Nary-level i j (suc m) = (ℓ-max i (Nary-level i j m))
 
-  Nary : (n : Nat) -> Set a -> Set b -> Set (Nary-level a b n)
+  Nary : (n : Nat) -> Type ℓ₁ -> Type ℓ₂ -> Type (Nary-level ℓ₁ ℓ₂ n)
   Nary zero _ B = B
   Nary (suc m) A B = A -> Nary m A B
 
-  ∀ⁿ : {A : Set a} -> (n : Nat) -> Nary n A (Set ℓ) -> Set (Nary-level a ℓ n)
+  ∀ⁿ : {A : Type ℓ₁} -> (n : Nat) -> Nary n A (Type ℓ₂) -> Type (Nary-level ℓ₁ ℓ₂ n)
   ∀ⁿ zero P = P
   ∀ⁿ (suc m) P = ∀ x -> ∀ⁿ m (P x)
 
-  ∀ⁿʰ : {A : Set a} -> (n : Nat) -> Nary n A (Set ℓ) -> Set (Nary-level a ℓ n)
+  ∀ⁿʰ : {A : Type ℓ₁} -> (n : Nat) -> Nary n A (Type ℓ₂) -> Type (Nary-level ℓ₁ ℓ₂ n)
   ∀ⁿʰ zero P = P
   ∀ⁿʰ (suc m) P = ∀ {x} -> ∀ⁿʰ m (P x)
 
@@ -71,12 +70,12 @@ private
   apply-curry-id zero f [] = refl
   apply-curry-id (suc m) f (e :: v) = apply-curry-id m (\ v2 -> f (e :: v2)) v
 
-  Eq : {A : Set a} -> (n : Nat) -> (REL B C ℓ) 
-       -> (REL (Nary n A B) (Nary n A C) (Nary-level a ℓ n))
+  Eq : {A : Type ℓ₁} -> (n : Nat) -> (REL B C ℓ₂) 
+       -> (REL (Nary n A B) (Nary n A C) (Nary-level ℓ₁ ℓ₂ n))
   Eq n r f g = ∀ⁿ n (curry n (\ vec -> r (apply n f vec) (apply n g vec)))
   
-  Eqʰ : {A : Set a} -> (n : Nat) -> (REL B C ℓ) 
-        -> (REL (Nary n A B) (Nary n A C) (Nary-level a ℓ n))
+  Eqʰ : {A : Type ℓ₁} -> (n : Nat) -> (REL B C ℓ₂) 
+        -> (REL (Nary n A B) (Nary n A C) (Nary-level ℓ₁ ℓ₂ n))
   Eqʰ n r f g = ∀ⁿʰ n (curry n (\ vec -> r (apply n f vec) (apply n g vec)))
   
   vec-map : {n : Nat} -> (A -> B) -> Vec A n -> Vec B n
@@ -112,16 +111,16 @@ private
   cong-curry⁻¹ {A = A} {B = B} (suc n) f g f=g (e :: v) =
     (cong-curry⁻¹ n (\ v -> f (e :: v)) (\ v -> g (e :: v)) (f=g e)) v
   
-  unhide-∀ⁿ : {A : Set a} -> (n : Nat) -> {f : Nary n A (Set ℓ)}  -> ∀ⁿʰ n f -> ∀ⁿ n f
+  unhide-∀ⁿ : (n : Nat) -> {f : Nary n A (Type ℓ)}  -> ∀ⁿʰ n f -> ∀ⁿ n f
   unhide-∀ⁿ zero v = v
   unhide-∀ⁿ (suc n) g = (\ x -> (unhide-∀ⁿ n (g {x})))
 
-  data Order {A : Set a} : A -> A ->  Set a where
+  data Order {A : Type ℓ} : A -> A -> Type ℓ where
     less-than : {x y : A} -> Order x y
     equal-to : {x y : A} -> x == y -> Order x y
     greater-than : {x y : A} -> Order x y
   
-  compare-nat : ∀ (x y : Nat) -> Order x y
+  compare-nat : (x y : Nat) -> Order x y
   compare-nat zero zero = equal-to refl
   compare-nat (suc _) zero = greater-than
   compare-nat zero (suc _) = less-than
@@ -156,7 +155,7 @@ private
   ...    | equal-to list-pr = equal-to (\i -> (elem-pr i) :: (list-pr i))
 
 
-module RingSolver {Domain : Set ℓ} (R : Ring Domain) where
+module RingSolver {Domain : Type ℓ} (R : Ring Domain) where
 
   module _ (n : Nat) where
     private
@@ -167,21 +166,21 @@ module RingSolver {Domain : Set ℓ} (R : Ring Domain) where
 
       -- Names of the normal forms
 
-      Var : Set
+      Var : Type₀
       Var = Fin n
 
       Vars = List Var
 
-      record Term : Set where
+      record Term : Type₀ where
         constructor term
         field
           multiplier : int.Int
           vars : Vars
 
-      Terms : Set
+      Terms : Type₀
       Terms = List Term
   
-      record Expr : Set where
+      record Expr : Type₀ where
         constructor expr
         field
           terms : Terms
@@ -656,7 +655,7 @@ module RingSolver {Domain : Set ℓ} (R : Ring Domain) where
 
 
 
-module Solver {Domain : Set ℓ} (S : Semiring Domain) where
+module Solver {Domain : Type ℓ} (S : Semiring Domain) where
   module S = Semiring S
 
   module _ (n : Nat) where
@@ -670,7 +669,7 @@ module Solver {Domain : Set ℓ} (S : Semiring Domain) where
     ⟦ l ⊗ r ⟧ = ⟦ l ⟧ * ⟦ r ⟧
   
   
-    data Term : Set where
+    data Term : Type₀ where
       var : Fin n -> Term
       _⊗_ : Term -> Term -> Term
   

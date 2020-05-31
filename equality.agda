@@ -2,7 +2,6 @@
 
 module equality where
 
-open import Level
 open import base
 
 private
