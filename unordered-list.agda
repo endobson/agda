@@ -3,10 +3,13 @@
 module unordered-list where
 
 open import base
+open import commutative-monoid
 open import equality
 open import hlevel
 open import monoid
-open import commutative-monoid
+open import nat
+open import relation
+open import sigma
 
 private
   variable
@@ -22,6 +25,7 @@ data UList (A : Type ℓ) : Type ℓ
   trunc : isSet (UList A)
 
 -- Elimination functions
+
 module Elim {ℓ} {B : UList A -> Type ℓ}
   (trunc* : (as : UList A) -> isSet (B as))
   ([]* : B [])
@@ -68,11 +72,16 @@ module Rec {ℓ} {B : Type ℓ}
   f (swap a1 a2 as i) = (swap* a1 a2 (f as) i)
   f (trunc as1 as2 p q i j) = (BSet* (f as1) (f as2) (cong f p) (cong f q) i j)
 
+-- Basic manipulation functions
+
 map : (A -> B) -> UList A -> UList B
 map f = Rec.f trunc [] (\ a -> f a ::_) (\ a0 a1 -> (swap (f a0) (f a1)))
 
 _++_ : (UList A) -> (UList A) -> (UList A)
 _++_ as bs = Rec.f trunc bs _::_ swap as
+
+length : (l : UList A) -> Nat
+length = Rec.f isSetNat 0 (\ _ -> 1 +'_) (\ _ _ _ -> refl)
 
 ++-right-[] : ∀ (as : UList A) -> as ++ [] == as
 ++-right-[] =
@@ -93,11 +102,9 @@ _++_ as bs = Rec.f trunc bs _::_ swap as
   _::*_ : ∀ (a : A) {as : UList A}
            -> (as ++ (b :: bs)) == b :: (as ++ bs)
            -> a :: (as ++ (b :: bs)) == b :: (a :: as ++ bs)
-  _::*_ a p = (\i -> a :: p i) >=> (swap a b _)
+  _::*_ a p = (cong (a ::_) p) >=> (swap a b _)
 
-
-++-commute : ∀ (as : UList A) (bs : UList A)
-               -> as ++ bs == bs ++ as
+++-commute : ∀ (as : UList A) (bs : UList A) -> as ++ bs == bs ++ as
 ++-commute {A = A} as bs =
   PropElim.f
     (trunc _ _)
@@ -124,7 +131,7 @@ _++_ as bs = Rec.f trunc bs _::_ swap as
            -> (a :: as ++ bs) ++ cs == a :: as ++ (bs ++ cs)
   _::*_ a p i = a :: p i
 
-
+-- Monoid instances
 
 instance
   UListMonoid : Monoid (UList A)
@@ -149,7 +156,6 @@ concat {A = A} {{M = M}} h =
   swap* : (a0 a1 : A) (a : A) -> (a0 ∙ (a1 ∙ a)) == (a1 ∙ (a0 ∙ a))
   swap* a0 a1 a = (sym (∙-assoc {a0})) >=> ∙-left (∙-commute {a0} {a1}) >=> ∙-assoc {a1}
 
-
 concatʰ : {{M : CommMonoid A}} -> {h : isSet A}
   -> CommMonoidʰ (concat {{M}} h)
 concatʰ {A = A} {{M = M}} {h} = record
@@ -158,7 +164,6 @@ concatʰ {A = A} {{M = M}} {h} = record
   }
   where
   open CommMonoid M
-
 
   preserves-∙ : (xs ys : UList A) -> concat h (xs ++ ys) == (concat h xs) ∙ (concat h ys)
   preserves-∙ xs ys = PropElim.f (h _ _) (sym ∙-left-ε) _::*_ xs
@@ -181,3 +186,17 @@ mapʰ {A = A} {f = f} = record
              -> (map f (xs ++ ys)) == (map f xs) ++ (map f ys)
              -> (map f (x :: (xs ++ ys))) == (map f (x :: xs)) ++ (map f ys)
     (x ::* p) i = (f x) :: p i
+
+lengthʰ : CommMonoidʰ {D₁ = UList A} length
+lengthʰ = record
+  { preserves-ε = refl
+  ; preserves-∙ = preserves-∙
+  }
+  where
+  preserves-∙ : (xs ys : UList A) -> length (xs ++ ys) == (length xs) +' (length ys)
+  preserves-∙ {A = A} xs ys = PropElim.f (isSetNat _ _) refl _::*_ xs
+    where
+    _::*_ : ∀ (x : A) {xs : UList A}
+             -> (length (xs ++ ys)) == (length xs) +' (length ys)
+             -> (length ((x :: xs) ++ ys)) == (length (x :: xs)) +' (length ys)
+    (_::*_) _ = cong suc
