@@ -11,29 +11,26 @@ open import sigma
 private
   variable
     ℓ ℓ₁ ℓ₂ : Level
-    A B C : Type ℓ
+    A : Type ℓ
+    B : A -> Type ℓ
 
+-- Basic isOfHLevel
 -- Deifined in core
 -- isContr : Type ℓ -> Type ℓ
 -- isContr A = Σ[ x ∈ A ] ((y : A) -> x == y)
 
 isProp : Type ℓ -> Type ℓ
-isProp A = ∀ (x y : A) -> x == y
+isProp A = (x y : A) -> x == y
 
 isSet : Type ℓ -> Type ℓ
-isSet A = ∀ (x y : A) -> isProp (x == y)
+isSet A = (x y : A) -> isProp (x == y)
 
+isOfHLevel : Nat -> Type ℓ -> Type ℓ
+isOfHLevel 0 A = isContr A
+isOfHLevel 1 A = isProp A
+isOfHLevel (suc (suc n)) A = ∀ (x y : A) -> isOfHLevel (suc n) (x == y)
 
-module _ {A : I -> Type ℓ} {x : A i0} {y : A i1} where
-  toPathP : transp A i0 x == y -> PathP A x y
-  toPathP p i = hcomp (\ j -> (\ { (i = i0) -> x
-                                 ; (i = i1) -> p j}))
-                      (transp (\ j -> A (i ∧ j)) (~ i) x)
-
-isProp->PathP : {B : I -> Type ℓ} -> ((i : I) -> isProp (B i)) -> (b0 : (B i0)) (b1 : (B i1))
-                -> PathP (\i -> B i) b0 b1
-isProp->PathP hB b0 b1 = toPathP (hB _ _ _)
-
+-- Increasing HLevel
 isContr->isProp : isContr A -> isProp A
 isContr->isProp (x , p) a b i =
   hcomp (\j -> (\ { (i = i0) -> p a j
@@ -48,13 +45,16 @@ isProp->isSet h a0 a1 p1 p2 j i =
                   ; (j = i1) -> h a0 (p2 i) k })) a0
 
 
+-- Dependent HLevel
+module _ {A : I -> Type ℓ} {x : A i0} {y : A i1} where
+  toPathP : transp A i0 x == y -> PathP A x y
+  toPathP p i = hcomp (\ j -> (\ { (i = i0) -> x
+                                 ; (i = i1) -> p j}))
+                      (transp (\ j -> A (i ∧ j)) (~ i) x)
 
-
-isOfHLevel : Nat -> Type ℓ -> Type ℓ
-isOfHLevel 0 A = isContr A
-isOfHLevel 1 A = isProp A
-isOfHLevel (suc (suc n)) A = ∀ (x y : A) -> isOfHLevel (suc n) (x == y)
-
+isProp->PathP : {B : I -> Type ℓ} -> ((i : I) -> isProp (B i)) -> (b0 : (B i0)) (b1 : (B i1))
+                -> PathP (\i -> B i) b0 b1
+isProp->PathP hB b0 b1 = toPathP (hB _ _ _)
 
 isOfHLevelDep : Nat -> {A : Type ℓ₁} -> (B : A -> Type ℓ₂) -> Type (ℓ-max ℓ₁ ℓ₂)
 isOfHLevelDep 0 {A = A} B =
@@ -66,12 +66,12 @@ isOfHLevelDep (suc (suc n)) {A = A} B =
   -> isOfHLevelDep (suc n) {A = a0 == a1} (\p -> PathP (\i -> B (p i)) b0 b1)
 
 
-isOfHLevel->isOfHLevelDep : (n : Nat) {A : Type ℓ₁} {B : A -> Type ℓ₂}
-  -> (h : (a : A) -> isOfHLevel n (B a)) -> isOfHLevelDep n {A = A} B
+isOfHLevel->isOfHLevelDep :
+  (n : Nat) -> (h : (a : A) -> isOfHLevel n (B a)) -> isOfHLevelDep n {A = A} B
 isOfHLevel->isOfHLevelDep 0 h {a} =
   (h a .fst , (\ b p -> isProp->PathP (\i -> isContr->isProp (h (p i))) (h a .fst) b))
 isOfHLevel->isOfHLevelDep 1 h = (\ b0 b1 p -> isProp->PathP (\i -> (h (p i))) b0 b1)
-isOfHLevel->isOfHLevelDep (suc (suc n)) {A = A} {B = B} h {a0} {a1} b0 b1 =
+isOfHLevel->isOfHLevelDep {A = A} {B = B} (suc (suc n)) h {a0} {a1} b0 b1 =
   isOfHLevel->isOfHLevelDep (suc n) (\ p -> helper a1 p b1)
   where
   helper : (a1 : A) (p : a0 == a1) (b1 : B a1) ->
@@ -79,17 +79,20 @@ isOfHLevel->isOfHLevelDep (suc (suc n)) {A = A} {B = B} h {a0} {a1} b0 b1 =
   helper a1 p b1 = J (\ a1 p -> ∀ b1 -> isOfHLevel (suc n) (PathP (\i -> (B (p i))) b0 b1))
                      (\ _ -> h _ _ _) p b1
 
-isOfHLevelΠ : {A : Type ℓ₁} {B : A -> Type ℓ₂} (n : Nat) -> ((x : A) -> (isOfHLevel n (B x)))
-              -> isOfHLevel n ((x : A) -> B x)
+-- HLevel for Π Types
+
+isOfHLevelΠ :
+  (n : Nat) -> ((x : A) -> (isOfHLevel n (B x))) -> isOfHLevel n ((x : A) -> B x)
 isOfHLevelΠ {A = A} {B = B} 0 h = (\x -> fst (h x)) , (\ f i y -> (snd (h y)) (f y) i)
 isOfHLevelΠ {A = A} {B = B} 1 h f g i a = h a (f a) (g a) i
 isOfHLevelΠ {A = A} {B = B} (suc (suc n)) h f g =
    subst (isOfHLevel (suc n)) funExtPath (isOfHLevelΠ (suc n) (\a -> h a (f a) (g a)))
 
 
-isSetΠ : {A : Type ℓ₁} {B : A -> Type ℓ₂} -> ((x : A) -> isSet (B x)) -> isSet ((x : A) -> (B x))
+isSetΠ : ((x : A) -> isSet (B x)) -> isSet ((x : A) -> (B x))
 isSetΠ = isOfHLevelΠ 2
 
+-- Hedbergs Theorem
 
 private
   Dec->Stable : Dec A -> Stable A
@@ -124,4 +127,3 @@ private
 
 Discrete->isSet : Discrete A -> isSet A
 Discrete->isSet d = Stable==->isSet (\ x y -> Dec->Stable (d x y))
-
