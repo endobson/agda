@@ -15,23 +15,25 @@ Pos' : (n : Nat) -> Set
 Pos' zero = Bot
 Pos' (suc x) = Top
 
-dec : (n : Nat) -> {Pos' n} -> Nat
-dec (suc n) = n
-
-dec0 : (n : Nat) -> Nat
-dec0 zero = zero
-dec0 (suc n) = n
-
-suc-injective : {m n : Nat} -> suc m == suc n -> m == n
-suc-injective p i = dec0 (p i)
-
-zero-suc-absurd : {A : Set} {x : Nat} -> 0 == (suc x) -> A
-zero-suc-absurd path = bot-elim (subst Pos' (sym path) tt)
-
 infixl 6 _+'_
 _+'_ : Nat -> Nat -> Nat
 zero +' n = n
 suc m +' n = suc (m +' n)
+
+infixl 6 _-'_
+_-'_ : Nat -> Nat -> Nat
+m -' zero = m
+zero -' (suc n) = zero
+(suc m) -' (suc n) = m -' n
+
+pred : (n : Nat) -> Nat
+pred n = n -' (suc zero)
+
+zero-suc-absurd : {A : Set} {x : Nat} -> 0 == (suc x) -> A
+zero-suc-absurd path = bot-elim (subst Pos' (sym path) tt)
+
+suc-injective : {m n : Nat} -> suc m == suc n -> m == n
+suc-injective p i = pred (p i)
 
 +'-right : {m n p : Nat} -> (n == p) -> m +' n == m +' p
 +'-right {m} id = cong (\x -> m +' x) id
@@ -296,8 +298,9 @@ absurd-same-< : {n : Nat} -> ¬ (n < n)
 absurd-same-< (inc-≤ pr) = absurd-same-< pr
 
 
-dec-≤ : {m n : Nat} -> suc m ≤ suc n -> m ≤ n
-dec-≤ (inc-≤ ≤) = ≤
+pred-≤ : {m n : Nat} -> m ≤ n -> pred m ≤ pred n
+pred-≤ zero-≤ = zero-≤
+pred-≤ (inc-≤ ≤) = ≤
 
 dec-< : {m n : Nat} -> suc m < suc n -> m < n
 dec-< (inc-≤ <) = <
@@ -331,6 +334,16 @@ dec-< (inc-≤ <) = <
 ≤-antisym : {m n : Nat} -> m ≤ n -> n ≤ m -> m == n
 ≤-antisym zero-≤ zero-≤ = refl
 ≤-antisym (inc-≤ l) (inc-≤ r) = cong suc (≤-antisym l r)
+
+
+≤->Σ' : {m n : Nat} -> m ≤ n -> Σ[ x ∈ Nat ] m +' x == n
+≤->Σ' {m} {n} zero-≤ = (n , refl)
+≤->Σ' (inc-≤ ≤) with (≤->Σ' ≤)
+...                | (x , p) = (x , cong suc p)
+
+≤->Σ : {m n : Nat} -> m ≤ n -> Σ[ x ∈ Nat ] x +' m == n
+≤->Σ ≤ with (≤->Σ' ≤)
+...       | (x , p) = (x , (+'-commute {x}) >=> p)
 
 data _≤s_ : Nat -> Nat -> Set where
  refl-≤s : {m : Nat} -> m ≤s m
@@ -395,7 +408,7 @@ decide-nat< _ zero = no \()
 decide-nat< zero (suc n) = yes zero-<
 decide-nat< (suc m) (suc n) with (decide-nat< m n)
 ... | yes pr = yes (inc-≤ pr)
-... | no f = no (\ pr -> (f (dec-≤ pr)))
+... | no f = no (\ pr -> (f (pred-≤ pr)))
 
 
 discreteNat : Discrete Nat

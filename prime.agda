@@ -105,7 +105,7 @@ private
 
   ≤u->≤ : {m n : Nat} -> m ≤u n -> m ≤ n
   ≤u->≤ (refl-≤u {m}) = same-≤ m
-  ≤u->≤ (step-≤u rec) = (dec-≤ (suc-≤ (≤u->≤ rec)))
+  ≤u->≤ (step-≤u rec) = (pred-≤ (suc-≤ (≤u->≤ rec)))
 
 
   div->composite : {d n : Nat} -> d != 0 -> d != 1 -> d != n -> n != 0 -> d div' n -> Primality n
@@ -150,8 +150,8 @@ private
           with (path->id p1) | (path->id p2)
     ... | refl-===     | refl-=== =
             (prime-factorization-tree-composite
-              (rec (>1) (trans-≤ (dec-≤ m-bound) p-bound))
-              (rec (>1) (trans-≤ (dec-≤ n-bound) p-bound)))
+              (rec (>1) (trans-≤ (pred-≤ m-bound) p-bound))
+              (rec (>1) (trans-≤ (pred-≤ n-bound) p-bound)))
             where
             base-eq-m : n *' m == p
             base-eq-n : m *' n == p
