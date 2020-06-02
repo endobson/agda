@@ -6,6 +6,7 @@ open import relation
 module unordered-list.discrete {ℓ : Level} {A : Type ℓ} (discA : Discrete A) where
 
 open import equality
+open import hlevel
 open import nat
 open import unordered-list.base
 open import unordered-list.operations
@@ -24,12 +25,12 @@ count x = UListElim.rec isSetNat 0 _::*_ swap*
   ...              | (no  _)      | (yes _)      = refl
   ...              | (no  _)      | (no  _)      = refl
 
-count-== : {x : A} {a : A} (as : UList A) -> (x == a) -> count x (a :: as) == suc (count x as)
+count-== : {x : A} {a : A} (as : UList A) -> x == a -> count x (a :: as) == suc (count x as)
 count-== {x} {a} as x==a with (discA x a)
 ...                         | (yes _)     = refl
 ...                         | (no x!=a)   = bot-elim (x!=a x==a)
 
-count-!= : {x : A} {a : A} (as : UList A) -> (x != a) -> count x (a :: as) == (count x as)
+count-!= : {x : A} {a : A} (as : UList A) -> x != a -> count x (a :: as) == (count x as)
 count-!= {x} {a} as x!=a with (discA x a)
 ...                         | (yes x==a)  = bot-elim (x!=a x==a)
 ...                         | (no _)   = refl
@@ -78,3 +79,85 @@ remove1-!= : {x : A} {a : A} (as : UList A) -> (x != a) -> remove1 x (a :: as) =
 remove1-!= {x} {a} as x!=a with (discA x a)
 ...                         | (yes x==a)  = bot-elim (x!=a x==a)
 ...                         | (no _)   = refl
+
+remove1-count-pred-refl : (x : A) (as : UList A) -> count x (remove1 x as) == pred (count x as)
+remove1-count-pred-refl x = UListElim.prop (isSetNat _ _) []* _::*_
+  where
+  P : UList A -> Type _
+  P as = count x (remove1 x as) == pred (count x as)
+
+  []* : P []
+  []* = refl
+
+  _::*_ : (a : A) -> {as : UList A} -> P as -> P (a :: as)
+  _::*_ a {as} p with (discA x a)
+  ...               | (yes x==a)  = refl
+  ...               | (no x!=a)   = count-!= (remove1 x as) x!=a >=> p
+
+
+remove1-count-pred : {x : A} {y : A} (as : UList A) -> (x == y)
+                     -> count x (remove1 y as) == pred (count x as)
+remove1-count-pred {x} {y} as x==y =
+  transport (\ i -> (count x (remove1 (x==y i) as) == (pred (count x as))))
+            (remove1-count-pred-refl x as)
+
+remove1-count-ignore : {x : A} {y : A} (as : UList A) -> (x != y)
+                       -> count x (remove1 y as) == (count x as)
+remove1-count-ignore {x} {y} as x!=y = UListElim.prop (isSetNat _ _) []* _::*_ as
+  where
+  P : UList A -> Type _
+  P as = count x (remove1 y as) == (count x as)
+
+  []* : P []
+  []* = refl
+
+  _::*_ : (a : A) -> {as : UList A} -> P as -> P (a :: as)
+  _::*_ a {as} p with (discA y a)
+  ...               | (yes y==a)  = (sym (count-!= as x!=a))
+    where
+    x!=a : x != a
+    x!=a x==a = x!=y (x==a >=> (sym y==a))
+  ...               | (no y!=a)   =  proof
+    where
+    proof : (count x (a :: (remove1 y as))) == (count x (a :: as))
+    proof with (discA x a)
+    ...      | (yes _) = (cong suc p)
+    ...      | (no _)  = p
+
+
+remove1-count-zero : {x : A} {as : UList A} -> (count x as) == 0 -> (remove1 x as) == as
+remove1-count-zero {x} {as} = UListElim.prop PisProp []* _::*_ as
+  where
+  P : UList A -> Type _
+  P as = (count x as) == 0 -> (remove1 x as) == as
+
+  PisProp : {as : UList A} -> isProp (P as)
+  PisProp = isPropΠ (\ _ -> (trunc _ _))
+
+  []* : P []
+  []* p = refl
+
+  _::*_ : (a : A) -> {as : UList A} -> P as -> P (a :: as)
+  _::*_ a {as} p with (discA x a)
+  ...               | (yes _)     = (\ c -> bot-elim (zero-suc-absurd (sym c)))
+  ...               | (no x!=a)   = (\ c i -> a :: p c i)
+
+remove1-count-suc : {x : A} {as : UList A} {n : Nat} -> count x as == (suc n) -> x :: (remove1 x as) == as
+remove1-count-suc {x} {as} {n} = UListElim.prop PisProp []* _::*_ as
+  where
+  P : UList A -> Type _
+  P as = (count x as) == (suc n) -> x :: (remove1 x as) == as
+
+  PisProp : {as : UList A} -> isProp (P as)
+  PisProp = isPropΠ (\ _ -> (trunc _ _))
+
+  []* : P []
+  []* count-p = bot-elim (zero-suc-absurd count-p)
+
+  _::*_ : (a : A) -> {as : UList A} -> P as -> P (a :: as)
+  _::*_ a {as} f with (discA x a)
+  ...               | (yes x==a)  = (\ _ i -> (x==a i) :: as)
+  ...               | (no x!=a)   = proof
+    where
+    proof : (count x as == suc n) -> x :: a :: (remove1 x as) == a :: as
+    proof p = (swap x a (remove1 x as)) >=> (\i -> a :: f p i)
