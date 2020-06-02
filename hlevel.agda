@@ -14,6 +14,7 @@ private
     ℓ ℓ₁ ℓ₂ : Level
     A : Type ℓ
     B : A -> Type ℓ
+    C : (a : A) -> B a -> Type ℓ
 
 -- Basic isOfHLevel
 
@@ -112,6 +113,9 @@ isOfHLevelΠ {A = A} {B = B} (suc (suc n)) h f g =
 
 isPropΠ : ((x : A) -> isProp (B x)) -> isProp ((x : A) -> (B x))
 isPropΠ = isOfHLevelΠ 1
+
+isPropΠ2 : ((x : A) -> (y : B x) -> isProp (C x y)) -> isProp ((x : A) -> (y : B x) -> C x y)
+isPropΠ2 h = isPropΠ (\ a -> isPropΠ (h a))
 
 isSetΠ : ((x : A) -> isSet (B x)) -> isSet ((x : A) -> (B x))
 isSetΠ = isOfHLevelΠ 2
