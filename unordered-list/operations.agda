@@ -141,3 +141,41 @@ lengthʰ = record
              -> (length (xs ++ ys)) == (length xs) +' (length ys)
              -> (length ((x :: xs) ++ ys)) == (length (x :: xs)) +' (length ys)
     (_::*_) _ = cong suc
+
+-- More properties, now using the CommMonoid structure
+
+length0->[] : {as : UList A} -> (length as) == 0 -> as == []
+length0->[] {as = as} = UListElim.prop PProp []* _::*_ as
+  where
+  P : (as : UList A) -> Type _
+  P as = (length as) == 0 -> as == []
+
+  PProp : {as : UList A} -> isProp (P as)
+  PProp {as} = isPropΠ (\ _ -> (trunc _ _))
+
+  []* : P []
+  []* _ = refl
+
+  _::*_ : (a : A) -> {as : UList A} -> P as -> P (a :: as)
+  (a ::* _) p = bot-elim (zero-suc-absurd (sym p))
+
+++-left-id->[] : {as bs : UList A} -> as ++ bs == bs -> as == []
+++-left-id->[] {as = as} {bs = bs} p =
+  length0->[] (m+'n==n->m==0 (sym (preserves-∙ as bs) >=> (cong length p)))
+  where
+  open CommMonoidʰ lengthʰ
+
+++-right-id->[] : {as bs : UList A} -> as ++ bs == as -> bs == []
+++-right-id->[] {as = as} {bs = bs} p =
+  length0->[] (m+'n==m->n==0 (sym (preserves-∙ as bs) >=> (cong length p)))
+  where
+  open CommMonoidʰ lengthʰ
+
+as++bs==[]->as==[] : {as bs : UList A} -> as ++ bs == [] -> as == []
+as++bs==[]->as==[] {as = as} {bs = bs} p =
+    (length0->[] (m+'n==0->m==0 (sym (preserves-∙ as bs) >=> (cong length p))))
+  where
+  open CommMonoidʰ lengthʰ
+
+as++bs==[]->bs==[] : {as bs : UList A} -> as ++ bs == [] -> bs == []
+as++bs==[]->bs==[] {as = as} {bs = bs} p = as++bs==[]->as==[] (++-commute bs as >=> p)
