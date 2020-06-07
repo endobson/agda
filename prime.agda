@@ -2,27 +2,28 @@
 
 module prime where
 
-open import base
-open import equality
-open import int
 open import abs
-open import nat
-open import div
-open import relation
-open import functions
-open import unordered-list
-open import ring
+open import base
 open import commutative-monoid
+open import div
+open import equality
+open import functions
+open import int
+open import nat
+open import relation
+open import ring
+open import unordered-list
+
 
 module NatSemiring = Semiring NatSemiring
 open NatSemiring using (unordered-product; unordered-productʰ)
 
-data IsPrime' : Nat -> Set where
+data IsPrime' : Nat -> Type₀ where
   is-prime' : (p' : Nat)
               -> ((d : Nat) -> d <s (suc (suc p')) -> (d div' (suc (suc p'))) -> d == 1)
               -> IsPrime' (suc (suc p'))
 
-record Prime' : Set where
+record Prime' : Type₀ where
   field
     value : Nat
     proof : IsPrime' value
@@ -33,7 +34,7 @@ prime-product = unordered-product ∘ (map Prime'.value)
 prime-productʰ : CommMonoidʰ prime-product
 prime-productʰ = unordered-productʰ ∘ʰ mapʰ
 
-data PrimeFactorization' : Nat -> Set where
+data PrimeFactorization' : Nat -> Type₀ where
   prime-factorization : (ps : UList Prime') -> PrimeFactorization' (prime-product ps)
 
 
@@ -50,19 +51,19 @@ prime-only-divisors {p} {d} (is-prime' _ pf) d%p with (≤->≤s (div'->≤ d%p)
 -- Build up machinery for decidable prime factorization
 private
 
-  data PrimeFactorizationTree : Nat -> Set where
+  data PrimeFactorizationTree : Nat -> Type₀ where
     prime-factorization-tree-prime : {p : Nat} -> IsPrime' p -> PrimeFactorizationTree p
     prime-factorization-tree-composite : {m n : Nat}
       -> PrimeFactorizationTree m
       -> PrimeFactorizationTree n
       -> PrimeFactorizationTree (m *' n)
 
-  data Primality : Nat -> Set where
+  data Primality : Nat -> Type₀ where
     primality-prime : {p : Nat} -> IsPrime' p -> Primality p
     primality-composite : {a' b' : Nat} (a b : Nat) -> {a == (suc (suc a'))} -> {b == (suc (suc b'))}
                           -> Primality ((suc (suc a')) *' (suc (suc b')))
 
-  data PrimeUpTo : Nat -> Nat -> Set where
+  data PrimeUpTo : Nat -> Nat -> Type₀ where
     prime-up-to : (p' : Nat) -> (bound : Nat)
                   -> ((d : Nat) -> d <s bound -> (d div' (suc (suc p'))) -> d == 1)
                   -> PrimeUpTo (suc (suc p')) bound
@@ -99,7 +100,7 @@ private
 2-is-prime = prime-up-to->is-prime' (prime-up-to-two 0)
 
 private
-  data _≤u_ : Nat -> Nat -> Set where
+  data _≤u_ : Nat -> Nat -> Type₀ where
     refl-≤u : {m : Nat} -> m ≤u m
     step-≤u : {m n : Nat} -> suc m ≤u n -> m ≤u n
 
@@ -180,7 +181,7 @@ private
     p = CommMonoidʰ.preserves-∙ prime-productʰ p1s p2s
 
 
-PrimeDivisor : Nat -> Nat -> Set
+PrimeDivisor : Nat -> Nat -> Type₀
 PrimeDivisor n d = IsPrime' d × d div' n
 
 exists-prime-divisor : {n : Nat} -> n > 1 -> exists (PrimeDivisor n)
