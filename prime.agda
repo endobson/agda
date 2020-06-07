@@ -180,6 +180,21 @@ private
     where
     p = CommMonoidʰ.preserves-∙ prime-productʰ p1s p2s
 
+  prime-factorization-base : {p : Nat} -> IsPrime' p
+    -> PrimeFactorization' p
+  prime-factorization-base {p} is-prime =
+    transport (\i -> PrimeFactorization' (path i))
+              (prime-factorization (record { value = p ; proof = is-prime } :: []))
+    where
+    path = *'-right-one {p}
+
+
+  convert-prime-factorization : {n : Nat} -> PrimeFactorizationTree n -> PrimeFactorization' n
+  convert-prime-factorization (prime-factorization-tree-prime is-prime) =
+    prime-factorization-base is-prime
+  convert-prime-factorization (prime-factorization-tree-composite t1 t2) =
+    prime-factorization-* (convert-prime-factorization t1) (convert-prime-factorization t2)
+
 
 PrimeDivisor : Nat -> Nat -> Type₀
 PrimeDivisor n d = IsPrime' d × d div' n
@@ -191,3 +206,9 @@ exists-prime-divisor {n} n>1 = rec (compute-prime-factorization-tree n>1) div'-r
   rec {a} (prime-factorization-tree-prime prime-a) a%n = existence a (prime-a , a%n)
   rec {a} (prime-factorization-tree-composite {d} {e} df ef) a%n =
     rec ef (div'-trans (div'-exists e a d refl) a%n)
+
+compute-prime-factorization : {n : Nat} -> n > 0 -> (PrimeFactorization' n)
+compute-prime-factorization {suc zero}    _ =
+  (prime-factorization [])
+compute-prime-factorization {suc (suc n)} _ =
+  (convert-prime-factorization (compute-prime-factorization-tree (inc-≤ (zero-< {n}))))
