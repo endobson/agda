@@ -25,7 +25,7 @@ data UList (A : Type ℓ) : Type ℓ
 module UListElim where
 
   module _ {ℓ} {B : UList A -> Type ℓ}
-    (trunc* : (as : UList A) -> isSet (B as))
+    (trunc* : {as : UList A} -> isSet (B as))
     ([]* : B [])
     (_::*_ : (a : A) -> {as : UList A} -> B as -> B (a :: as))
     (swap* : (a1 a2 : A) -> {as : UList A} -> (bs : B as)
@@ -37,7 +37,7 @@ module UListElim where
     full (a :: as) = a ::* (full as)
     full (swap a1 a2 as i) = (swap* a1 a2 (full as) i)
     full (trunc as1 as2 p q i j) =
-      isOfHLevel->isOfHLevelDep 2 trunc* (full as1) (full as2) (cong full p) (cong full q)
+      isOfHLevel->isOfHLevelDep 2 (\_ -> trunc*) (full as1) (full as2) (cong full p) (cong full q)
                                 (trunc as1 as2 p q) i j
 
   module _ {ℓ} {B : UList A -> Type ℓ}
@@ -52,8 +52,8 @@ module UListElim where
         toPathP (BProp
                   (transp (\ i -> B (swap a1 a2 as i)) i0 (a1 ::* (a2 ::* bs)))
                   (a2 ::* (a1 ::* bs)))
-      trunc* : (as : UList A) -> isSet (B as)
-      trunc* as = isProp->isSet (BProp {as})
+      trunc* : {as : UList A} -> isSet (B as)
+      trunc* = isProp->isSet BProp
 
     prop : (as : UList A) -> (B as)
     prop = full {B = B} trunc* []* _::*_ swap*
