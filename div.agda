@@ -2,11 +2,12 @@
 
 module div where
 
-open import equality
-open import base
 open import abs
-open import nat
+open import base
+open import equality
+open import hlevel
 open import int
+open import nat
 open import relation
 
 -- infix 20 _div_
@@ -88,6 +89,11 @@ div-zero->zero (div-exists zero-int n d pr) = (sym pr) >=> (*-commute {d} {zero-
 
 div'-zero->zero : {n : Nat} -> 0 div' n -> n == 0
 div'-zero->zero (div'-exists zero n d pr) = (sym pr) >=> (*'-commute {d} {zero})
+
+div'-pos->pos : {d n : Nat} -> d div' n -> Pos' n -> Pos' d
+div'-pos->pos div1@(div'-exists zero n x pr) n-pos =
+  (transport (\i -> (Pos' (div'-zero->zero div1 i))) n-pos)
+div'-pos->pos (div'-exists (suc _) n x pr) n-pos = tt
 
 Unit : (x : Int) -> Set
 Unit zero-int = Bot
@@ -407,5 +413,15 @@ decide-div d@(suc d') n@(suc _) with (exists-remainder d (\ d=z -> zero-suc-absu
 ... | (existence zero rem) = yes (remainder->div rem)
 ... | (existence (suc a) rem) = no (remainder->¬div rem)
 
+isPropDiv' : {d n : Nat} -> {pos : Pos' n} -> isProp (d div' n)
+isPropDiv' {pos = n-pos} div1@(div'-exists d n x1 p1) (div'-exists d n x2 p2) i =
+  (div'-exists d n (x-p i) (p-p i))
+  where
+  d-pos : Pos' d
+  d-pos = (div'-pos->pos div1 n-pos)
 
+  x-p : x1 == x2
+  x-p = (*'-right-injective d-pos (p1 >=> (sym p2)))
 
+  p-p : PathP (\i -> (x-p i) *' d == n) p1 p2
+  p-p = isProp->PathP (\i -> (isSetNat _ _)) p1 p2

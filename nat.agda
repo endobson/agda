@@ -83,6 +83,14 @@ m+'n==0->m==0 : {m n : Nat} -> m +' n == 0 -> m == 0
 m+'n==0->m==0 {0} p = refl
 m+'n==0->m==0 {(suc _)} p = bot-elim (zero-suc-absurd (sym p))
 
++'-left-injective : {m n p : Nat} -> (m +' n) == (m +' p) -> n == p
++'-left-injective {zero} path = path
++'-left-injective {(suc m)} path = +'-left-injective (suc-injective path)
+
++'-right-injective : {m n p : Nat} -> (m +' n) == (p +' n) -> m == p
++'-right-injective {m} {n} {p} path =
+  +'-left-injective (+'-commute {n} {m} ∙∙  path ∙∙ +'-commute {p} {n})
+
 iter : {A : Set} (n : Nat) (f : A -> A) -> A -> A
 iter zero _ a = a
 iter (suc n) f a = f (iter n f a)
@@ -191,6 +199,18 @@ suc m *' n = n +' (m *' n)
 *'-only-one-right {m} {n} p = *'-only-one-left {n} {m} (*'-commute {n} {m} >=> p)
 
 
+*'-right-injective : {m n p : Nat} (pos : (Pos' n)) -> (m *' n) == (p *' n) -> m == p
+*'-right-injective {zero} {suc n} {zero} pos path = refl
+*'-right-injective {zero} {suc n} {suc p} pos path = bot-elim (zero-suc-absurd path)
+*'-right-injective {suc m} {suc n} {zero} pos path = bot-elim (zero-suc-absurd (sym path))
+*'-right-injective {suc m} {suc n} {suc p} pos path =
+  (cong suc (*'-right-injective pos (+'-left-injective path)))
+
+*'-left-injective : {m n p : Nat} (pos : (Pos' m)) -> (m *' n) == (m *' p) -> n == p
+*'-left-injective {m} {n} {p} pos path =
+  *'-right-injective pos (*'-commute {n} {m} ∙∙ path ∙∙ *'-commute {m} {p})
+
+
 *'-distrib-+'-left : {m n p : Nat} -> m *' (n +' p) == (m *' n) +' (m *' p)
 *'-distrib-+'-left {m} {n} {p} =
   begin
@@ -202,6 +222,14 @@ suc m *' n = n +' (m *' n)
   ==< (+'-cong (*'-commute {n} {m}) (*'-commute {p} {m})) >
     (m *' n) +' (m *' p)
   end
+
+
+_^'_ : Nat -> Nat -> Nat
+a ^' zero = 1
+a ^' (suc b) = a *' a ^' b
+
+^'-right-one : {a : Nat} -> a ^' 1 == a
+^'-right-one = *'-right-one
 
 
 data Fin : Nat -> Set where
