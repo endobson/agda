@@ -9,6 +9,7 @@ open import nat
 open import int
 open import div
 open import prime
+open import prime-factorization
 open import relation
 
 data GCD : Int -> Int -> Int -> Set where
@@ -398,7 +399,7 @@ prime-gcd' a@(suc _) b@(suc _) pf = (gcd' a b 1 div'-one div'-one f)
   f zero x%a x%b with (path->id (div'-zero->zero x%a))
   ...               | ()
   f (suc zero) _ _ = div'-one
-  f x@(suc (suc _)) x%a x%b with (exists-prime-divisor {x} >1)
+  f x@(suc (suc _)) x%a x%b with (exists-prime-divisor {x} (inc-≤ (inc-≤ zero-≤)))
   ... | existence _ (prime-p , p%x) =
     bot-elim (pf prime-p (div'-trans p%x x%a) (div'-trans p%x x%b))
 
