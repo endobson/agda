@@ -15,6 +15,7 @@ private
     A : Type ℓ
     B : A -> Type ℓ
     C : (a : A) -> B a -> Type ℓ
+    D : (a : A) -> (b : B a) -> C a b -> Type ℓ
 
 -- Basic isOfHLevel
 
@@ -117,6 +118,10 @@ isPropΠ = isOfHLevelΠ 1
 isPropΠ2 : ((x : A) -> (y : B x) -> isProp (C x y)) -> isProp ((x : A) -> (y : B x) -> C x y)
 isPropΠ2 h = isPropΠ (\ a -> isPropΠ (h a))
 
+isPropΠ3 : ((x : A) -> (y : B x) -> (z : (C x y)) -> isProp (D x y z))
+           -> isProp ((x : A) -> (y : B x) -> (z : C x y) -> D x y z)
+isPropΠ3 h = isPropΠ (\ a -> isPropΠ (\ b -> isPropΠ (h a b)))
+
 isSetΠ : ((x : A) -> isSet (B x)) -> isSet ((x : A) -> (B x))
 isSetΠ = isOfHLevelΠ 2
 
@@ -160,18 +165,20 @@ isOfHLevelΣ {B = B} (suc (suc n)) hA hB x0 x1 =
                        (\ p -> (hB (p i1)) (subst B p (snd x0)) (snd x1))
   in transport (\i -> isOfHLevel (suc n) (pathSigma==sigmaPath x0 x1 (~ i))) hΣ
 
+-- h-level for Bot and ¬
+
+Bot-isProp : isProp Bot
+Bot-isProp x _ = bot-elim x
+
+isProp¬ : (A : Type ℓ) -> isProp (¬ A)
+isProp¬ _ ¬x ¬y i x = Bot-isProp (¬x x) (¬y x) i
+
 -- Hedbergs Theorem
 
 private
   Dec->Stable : Dec A -> Stable A
   Dec->Stable (yes a) ¬¬a = a
   Dec->Stable (no ¬a) ¬¬a = bot-elim (¬¬a ¬a)
-
-  Bot-isProp : isProp Bot
-  Bot-isProp x _ = bot-elim x
-
-  isProp¬ : (A : Type ℓ) -> isProp (¬ A)
-  isProp¬ _ ¬x ¬y i x = Bot-isProp (¬x x) (¬y x) i
 
   Stable==->isSet : ((x y : A) -> Stable (x == y)) -> isSet A
   Stable==->isSet {A = A} st a0 a1 p1 p2 j i =
