@@ -28,7 +28,7 @@ ex1-2' (gcd' a@(suc _) b@(suc _) _ _ _ f-b) (gcd' a@(suc _) c@(suc _) _ _ _ f-c)
   ¬prime-div-one : {p : Nat} -> IsPrime' p -> ¬(p div' 1)
   ¬prime-div-one p p%1 with div'->≤ p%1
   ...                     | zero-≤ = 0-is-¬prime p
-  ...                     | (inc-≤ zero-≤) = 1-is-¬prime p
+  ...                     | (suc-≤ zero-≤) = 1-is-¬prime p
 
   f : {p : Nat} -> (IsPrime' p) -> p div' a -> p div' (b *' c) -> Bot
   f {p'} p p%a p%bc with (prime-divides-a-factor p {b} {c} p%bc)
@@ -109,8 +109,8 @@ ex1-4 {a} {b} rp with (gcd-exists (a + b) (a + - b))
   d-div = (ex1-4' rp g)
   res : (GCD (a + b) (a + - b) (int 1)) ⊎ (GCD (a + b) (a + - b) (int 2))
   res with (div->≤ d-div)
-  ... | (inc-≤ zero-≤) = inj-l g
-  ... | (inc-≤ (inc-≤ zero-≤)) = inj-r g
+  ... | (suc-≤ zero-≤) = inj-l g
+  ... | (suc-≤ (suc-≤ zero-≤)) = inj-r g
   ... | zero-≤ = bot-elim (zero-suc-absurd (sym (nonneg-injective (div-zero->zero d-div))))
 
 
@@ -172,9 +172,9 @@ ex1-5' {a} {b} arith-proof rp with (gcd-exists (a + b) (a * a + - (a * b) + b * 
   res : (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎
         (GCD (a + b) (a * a + - (a * b) + b * b) (int 3))
   res with (div->≤ d-div)
-  ... | (inc-≤ zero-≤) = inj-l g
-  ... | (inc-≤ (inc-≤ zero-≤)) = bot-elim (¬2%3 (div->div' d-div))
-  ... | (inc-≤ (inc-≤ (inc-≤ zero-≤))) = inj-r g
+  ... | (suc-≤ zero-≤) = inj-l g
+  ... | (suc-≤ (suc-≤ zero-≤)) = bot-elim (¬2%3 (div->div' d-div))
+  ... | (suc-≤ (suc-≤ (suc-≤ zero-≤))) = inj-r g
   ... | zero-≤ = bot-elim (zero-suc-absurd (sym (nonneg-injective (div-zero->zero d-div))))
 
 ex1-5 : {a b : Int} -> RPrime a b ->

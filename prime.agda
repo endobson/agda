@@ -21,7 +21,7 @@ record Prime' : Type₀ where
 prime-only-divisors : {p d : Nat} -> IsPrime' p -> d div' p -> (d == p) ⊎ (d == 1)
 prime-only-divisors {p} {d} (is-prime' _ pf) d%p with (≤->≤s (div'->≤ d%p))
 ... | refl-≤s = inj-l refl
-... | (step-≤s pr) = inj-r (pf d (inc-≤s pr) d%p)
+... | (step-≤s pr) = inj-r (pf d (suc-≤s pr) d%p)
 
 -- Machinery for proving that a number is Prime
 module PrimeUpTo where

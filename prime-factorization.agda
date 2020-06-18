@@ -47,7 +47,7 @@ private
 
   ≤u->≤ : {m n : Nat} -> m ≤u n -> m ≤ n
   ≤u->≤ (refl-≤u {m}) = same-≤ m
-  ≤u->≤ (step-≤u rec) = (pred-≤ (suc-≤ (≤u->≤ rec)))
+  ≤u->≤ (step-≤u rec) = (pred-≤ (right-suc-≤ (≤u->≤ rec)))
 
   div->composite : {d n : Nat} -> d != 0 -> d != 1 -> d != n -> n != 0 -> d div' n -> Primality n
   div->composite d0 d1 dn n0 (div'-exists 0 n x p) = bot-elim (d0 refl)
@@ -60,7 +60,7 @@ private
 
 
   compute-primality : {p : Nat} -> p > 1 -> Primality p
-  compute-primality {suc (suc p')} (inc-≤ (inc-≤ _)) =
+  compute-primality {suc (suc p')} (suc-≤ (suc-≤ _)) =
       rec (0≤i p' refl-≤u) (prime-up-to-two p')
     where
     0≤i : (i : Nat) -> i ≤u p' -> 0 ≤u p'
@@ -74,7 +74,7 @@ private
     ... | yes div = div->composite {suc (suc i)} {suc (suc p')}
                     (\ p -> bot-elim (zero-suc-absurd (sym p)))
                     (\ p -> bot-elim (zero-suc-absurd (sym (suc-injective p))))
-                    (<->!= (inc-≤ (inc-≤ (≤u->≤ step))))
+                    (<->!= (suc-≤ (suc-≤ (≤u->≤ step))))
                     (\ p -> bot-elim (zero-suc-absurd (sym p)))
                     div
 
@@ -83,10 +83,10 @@ private
   compute-prime-factorization-tree {p} p>1  = rec p>1 (same-≤ p)
     where
     >1 : {n' : Nat} -> 2 ≤ (suc (suc n'))
-    >1 {n'} = inc-≤ (inc-≤ zero-≤)
+    >1 {n'} = suc-≤ (suc-≤ zero-≤)
 
     rec : {i : Nat} {p : Nat} -> p > 1 -> (p ≤ i) -> PrimeFactorizationTree p
-    rec {_} p@{suc (suc p')} p>1 (inc-≤ p-bound) with (compute-primality p>1)
+    rec {_} p@{suc (suc p')} p>1 (suc-≤ p-bound) with (compute-primality p>1)
     ... | (primality-prime prime) = (prime-factorization-tree-prime prime)
     ... | (primality-composite {m'} {n'} m n {p1} {p2})
           with (path->id p1) | (path->id p2)
@@ -109,7 +109,7 @@ private
             n-bound : (suc n ≤ p)
             m-bound = (≤-a+'b==c rearranged-eq2-m)
             n-bound = (≤-a+'b==c rearranged-eq2-n)
-    rec (inc-≤ ()) (inc-≤ zero-≤)
+    rec (suc-≤ ()) (suc-≤ zero-≤)
 
 
   prime-factorization-* : {m n : Nat}
@@ -152,4 +152,4 @@ compute-prime-factorization : {n : Nat} -> n > 0 -> (PrimeFactorization' n)
 compute-prime-factorization {suc zero}    _ =
   (prime-factorization [])
 compute-prime-factorization {suc (suc n)} _ =
-  (convert-prime-factorization (compute-prime-factorization-tree (inc-≤ (zero-< {n}))))
+  (convert-prime-factorization (compute-prime-factorization-tree (suc-≤ (zero-< {n}))))

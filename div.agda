@@ -262,7 +262,7 @@ private
     ab=d' (mod-large-step {d} {n} {b} step) = (sym (+'-right-zero {b})) >=> ab=d' step
 
     a<d : a < d
-    a<d = (inc-≤ (≤-a+'b==c (ab=d' step)))
+    a<d = (suc-≤ (≤-a+'b==c (ab=d' step)))
 
     eq-step : {n b x a : Nat} -> ModStep d n b x a -> a +' x *' d == n
     eq-step (mod-base d') = refl
@@ -349,7 +349,7 @@ private
 
   a≤b->exists : {a b : Nat} -> a ≤ b -> exists (\ x -> x +' a == b)
   a≤b->exists (zero-≤ {x}) = existence x +'-right-zero
-  a≤b->exists (inc-≤ ≤) with (a≤b->exists ≤)
+  a≤b->exists (suc-≤ ≤) with (a≤b->exists ≤)
   ... | (existence x p) = (existence x (+'-right-suc >=> (cong suc p)))
 
   mod'->mod : {d n x a : Nat} -> ModStep' d n x a -> a < d -> ExistsModStep d n a
@@ -373,18 +373,18 @@ private
     where
     rec : (n a x : Nat) -> a < d -> (a +' x *' d == n) -> ModStep' d n x a
     rec zero zero zero _ refl = (mod-base' d')
-    rec (suc n) (suc a) x (inc-≤ a<d) pr =
-      (mod-small-step' (rec n a x (suc-< a<d) (suc-injective pr)))
-    rec (suc n) zero (suc x) (inc-≤ a<d) pr =
+    rec (suc n) (suc a) x (suc-≤ a<d) pr =
+      (mod-small-step' (rec n a x (right-suc-< a<d) (suc-injective pr)))
+    rec (suc n) zero (suc x) (suc-≤ a<d) pr =
       (mod-large-step' (rec n d' x (add1-< d') (suc-injective pr)))
 
-    rec zero zero (suc x) (inc-≤ a<d) pr with (path->id pr)
+    rec zero zero (suc x) (suc-≤ a<d) pr with (path->id pr)
     ...                                     | ()
-    rec zero (suc a) (suc x) (inc-≤ a<d) pr with (path->id pr)
+    rec zero (suc a) (suc x) (suc-≤ a<d) pr with (path->id pr)
     ...                                        | ()
-    rec zero (suc a) zero (inc-≤ a<d) pr with (path->id pr)
+    rec zero (suc a) zero (suc-≤ a<d) pr with (path->id pr)
     ...                                     | ()
-    rec (suc n) zero zero (inc-≤ a<d) pr with (path->id pr)
+    rec (suc n) zero zero (suc-≤ a<d) pr with (path->id pr)
     ...                                     | ()
 
 unique-remainder : {d n a1 a2 : Nat} -> Remainder d n a1 -> Remainder d n a2 -> a1 == a2

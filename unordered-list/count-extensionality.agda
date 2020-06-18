@@ -57,7 +57,7 @@ private
 
   ::-≼ : {as bs : UList A} -> (a : A) -> as ≼ bs -> (a :: as) ≼ (a :: bs)
   ::-≼ {as} {bs} a lt x with (discA x a)
-  ... | (yes x==a) = (inc-≤ (lt x))
+  ... | (yes x==a) = (suc-≤ (lt x))
   ... | (no x!=a)  = (lt x)
 
 
