@@ -3,11 +3,13 @@
 module solver where
 
 open import base
-open import list
-open import ring
 open import equality
-open import relation
+open import fin
+open import list
 open import nat
+open import ring
+open import relation
+
 import int
 
 data Syntax (n : Nat) : Type₀ where
