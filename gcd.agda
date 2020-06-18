@@ -277,13 +277,13 @@ pos-eulers-algo' (suc b) m n size-pr = split (decide-compare3 m n)
     handle : (exists (LinearGCD (pos a) (pos m))) -> (exists (LinearGCD (pos m) (pos n)))
     handle (existence d gc) = (existence d (eulers-helper m n {a} pr {d} gc))
     new-size-pr : (a +' m) < b
-    new-size-pr = dec-< (trans-≤-< rec-size-pr size-pr)
+    new-size-pr = pred-≤ (trans-≤-< rec-size-pr size-pr)
   split (compare3-> {a} pr rec-size-pr) = handle (pos-eulers-algo' b a n new-size-pr)
     where
     handle : (exists (LinearGCD (pos a) (pos n))) -> (exists (LinearGCD (pos m) (pos n)))
     handle (existence d gc) = (existence d (linear-gcd-sym (eulers-helper n m {a} pr {d} gc)))
     new-size-pr : (a +' n) < b
-    new-size-pr = dec-< (trans-≤-< rec-size-pr size-pr)
+    new-size-pr = pred-≤ (trans-≤-< rec-size-pr size-pr)
 pos-eulers-algo' zero m n ()
 
 

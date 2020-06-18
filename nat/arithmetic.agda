@@ -87,10 +87,6 @@ m+'n==0->m==0 {(suc _)} p = bot-elim (zero-suc-absurd (sym p))
 +'-right-injective {m} {n} {p} path =
   +'-left-injective (+'-commute {n} {m} ∙∙  path ∙∙ +'-commute {p} {n})
 
-iter : {A : Set} (n : Nat) (f : A -> A) -> A -> A
-iter zero _ a = a
-iter (suc n) f a = f (iter n f a)
-
 infixl 7 _*'_
 _*'_ : Nat -> Nat -> Nat
 zero *' n = zero
@@ -253,3 +249,16 @@ instance
   NatCommMonoid* = record
     { ∙-commute = (\ {m} {n} -> *'-commute {m} {n})
     }
+
+iter : {A : Set} (n : Nat) (f : A -> A) -> A -> A
+iter zero _ a = a
+iter (suc n) f a = f (iter n f a)
+
+induction :
+  {ℓ : Level}
+  {P : Nat -> Type ℓ} ->
+  P zero ->
+  ({m : Nat} -> P m -> P (suc m)) ->
+  (m : Nat) -> P m
+induction {P = P} z f zero = z
+induction {P = P} z f (suc m) = f (induction {P = P} z f m)

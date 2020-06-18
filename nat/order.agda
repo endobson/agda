@@ -4,6 +4,8 @@ module nat.order where
 
 open import base
 open import equality
+open import equivalence
+open import isomorphism
 open import nat.arithmetic
 open import relation
 
@@ -66,8 +68,25 @@ pred-≤ : {m n : Nat} -> m ≤ n -> pred m ≤ pred n
 pred-≤ zero-≤ = zero-≤
 pred-≤ (suc-≤ ≤) = ≤
 
-dec-< : {m n : Nat} -> suc m < suc n -> m < n
-dec-< (suc-≤ <) = <
+-- suc-≤ introduces a path
+
+suc-≤-iso : {m n : Nat} -> Iso (m ≤ n) (suc m ≤ suc n)
+Iso.fun suc-≤-iso = suc-≤
+Iso.inv suc-≤-iso = pred-≤
+Iso.rightInv suc-≤-iso (suc-≤ _) = refl
+Iso.leftInv  suc-≤-iso _         = refl
+
+suc-≤-== : {m n : Nat} -> (m ≤ n) == (suc m ≤ suc n)
+suc-≤-== = ua (isoToEquiv suc-≤-iso)
+
++-left-≤ : {m n : Nat} -> (x : Nat) -> m ≤ n == (x +' m) ≤ (x +' n)
++-left-≤ {m} {n} x =
+  induction {P = (\x -> m ≤ n == (x +' m) ≤ (x +' n))}
+            refl (_>=> suc-≤-==) x
+
++-right-≤ : {m n : Nat} -> (x : Nat) -> m ≤ n == (m +' x) ≤ (n +' x)
++-right-≤ {m} {n} x =
+  transport (\i -> m ≤ n == (+'-commute {x} {m} i) ≤ (+'-commute {x} {n} i)) (+-left-≤ x)
 
 <->!= : {m n : Nat} -> m < n -> m != n
 <->!= (suc-≤ zero-≤) pr = zero-suc-absurd pr
