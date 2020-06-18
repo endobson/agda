@@ -7,25 +7,6 @@ open import equality
 open import nat.arithmetic
 open import relation
 
-private
-  data Add : Nat -> Nat -> Nat -> Set where
-    add-zero : ∀ n -> Add n zero n
-    add-suc : ∀ {a b c} -> Add a b c -> Add (suc a) (suc b) c
-
-  add : (m : Nat) -> (n : Nat) -> Add (m +' n) m n
-  add zero n = add-zero n
-  add (suc m) n = add-suc (add m n)
-
-  add-path-in : ∀ {a b c} -> a +' b == c -> Add c a b
-  add-path-in {a} {b} p = (subst (\ c -> (Add c a b)) p (add a b))
-
-  add-path-out : ∀ {a b c} -> Add c a b -> a +' b == c
-  add-path-out (add-zero b) = refl
-  add-path-out (add-suc p) = (cong suc (add-path-out p))
-
-  add-commute : ∀ {a b c} -> Add c a b -> Add c b a
-  add-commute {a} {b} pr = (add-path-in ((+'-commute {b} {a}) >=> (add-path-out pr)))
-
 data _≤_ : Nat -> Nat -> Set where
  zero-≤ : {n : Nat} -> zero ≤ n
  suc-≤ : {m n : Nat} -> m ≤ n -> suc m ≤ suc n
@@ -78,10 +59,8 @@ trans-≤-< : {m n o : Nat} -> m ≤ n -> n < o -> m < o
 trans-≤-< zero-≤ (suc-≤ _) = zero-<
 trans-≤-< (suc-≤ l) (suc-≤ r) = suc-< (trans-≤-< l r)
 
-
 absurd-same-< : {n : Nat} -> ¬ (n < n)
 absurd-same-< (suc-≤ pr) = absurd-same-< pr
-
 
 pred-≤ : {m n : Nat} -> m ≤ n -> pred m ≤ pred n
 pred-≤ zero-≤ = zero-≤
@@ -90,16 +69,40 @@ pred-≤ (suc-≤ ≤) = ≤
 dec-< : {m n : Nat} -> suc m < suc n -> m < n
 dec-< (suc-≤ <) = <
 
-≤->< : {m n : Nat} -> m ≤ n -> m < suc n
-≤->< p = suc-≤ p
+<->!= : {m n : Nat} -> m < n -> m != n
+<->!= (suc-≤ zero-≤) pr = zero-suc-absurd pr
+<->!= (suc-≤ rec@(suc-≤ _)) p = (<->!= rec) (suc-injective p)
 
+≤-antisym : {m n : Nat} -> m ≤ n -> n ≤ m -> m == n
+≤-antisym zero-≤ zero-≤ = refl
+≤-antisym (suc-≤ l) (suc-≤ r) = cong suc (≤-antisym l r)
 
-≤-a+'b==c'-Add : {a b c : Nat} -> Add c a b -> b ≤ c
-≤-a+'b==c'-Add (add-zero b) = (same-≤ b)
-≤-a+'b==c'-Add (add-suc p) = right-suc-≤ (≤-a+'b==c'-Add p)
+-- Existential ≤
+private
+  data Add : Nat -> Nat -> Nat -> Set where
+    add-zero : ∀ n -> Add n zero n
+    add-suc : ∀ {a b c} -> Add a b c -> Add (suc a) (suc b) c
 
-≤-a+'b==c-Add : {a b c : Nat} -> Add c a b -> a ≤ c
-≤-a+'b==c-Add pr = ≤-a+'b==c'-Add (add-commute pr)
+  add : (m : Nat) -> (n : Nat) -> Add (m +' n) m n
+  add zero n = add-zero n
+  add (suc m) n = add-suc (add m n)
+
+  add-path-in : ∀ {a b c} -> a +' b == c -> Add c a b
+  add-path-in {a} {b} p = (subst (\ c -> (Add c a b)) p (add a b))
+
+  add-path-out : ∀ {a b c} -> Add c a b -> a +' b == c
+  add-path-out (add-zero b) = refl
+  add-path-out (add-suc p) = (cong suc (add-path-out p))
+
+  add-commute : ∀ {a b c} -> Add c a b -> Add c b a
+  add-commute {a} {b} pr = (add-path-in ((+'-commute {b} {a}) >=> (add-path-out pr)))
+
+  ≤-a+'b==c'-Add : {a b c : Nat} -> Add c a b -> b ≤ c
+  ≤-a+'b==c'-Add (add-zero b) = (same-≤ b)
+  ≤-a+'b==c'-Add (add-suc p) = right-suc-≤ (≤-a+'b==c'-Add p)
+
+  ≤-a+'b==c-Add : {a b c : Nat} -> Add c a b -> a ≤ c
+  ≤-a+'b==c-Add pr = ≤-a+'b==c'-Add (add-commute pr)
 
 
 ≤-a+'b==c' : {a b c : Nat} -> a +' b == c -> b ≤ c
@@ -112,14 +115,6 @@ dec-< (suc-≤ <) = <
 <-a+'b<c' {zero} {b} {c} pr = pr
 <-a+'b<c' {suc a} {b} {suc c} (suc-≤ pr) = right-suc-< (<-a+'b<c' pr)
 
-<->!= : {m n : Nat} -> m < n -> m != n
-<->!= (suc-≤ zero-≤) pr = zero-suc-absurd pr
-<->!= (suc-≤ rec@(suc-≤ _)) p = (<->!= rec) (suc-injective p)
-
-≤-antisym : {m n : Nat} -> m ≤ n -> n ≤ m -> m == n
-≤-antisym zero-≤ zero-≤ = refl
-≤-antisym (suc-≤ l) (suc-≤ r) = cong suc (≤-antisym l r)
-
 
 ≤->Σ' : {m n : Nat} -> m ≤ n -> Σ[ x ∈ Nat ] m +' x == n
 ≤->Σ' {m} {n} zero-≤ = (n , refl)
@@ -130,6 +125,7 @@ dec-< (suc-≤ <) = <
 ≤->Σ ≤ with (≤->Σ' ≤)
 ...       | (x , p) = (x , (+'-commute {x}) >=> p)
 
+-- Step based ≤
 data _≤s_ : Nat -> Nat -> Set where
  refl-≤s : {m : Nat} -> m ≤s m
  step-≤s : {m n : Nat} -> m ≤s n -> m ≤s suc n
@@ -153,6 +149,14 @@ zero-≤s (suc n) = step-≤s (zero-≤s n)
 ≤->≤s (zero-≤ {n}) = zero-≤s n
 ≤->≤s (suc-≤ rec) = suc-≤s (≤->≤s rec)
 
+-- Decidable <
+decide-nat< : (x : Nat) -> (y : Nat) -> Dec (x < y)
+decide-nat< _ zero = no \()
+decide-nat< zero (suc n) = yes zero-<
+decide-nat< (suc m) (suc n) with (decide-nat< m n)
+... | yes pr = yes (suc-≤ pr)
+... | no f = no (\ pr -> (f (pred-≤ pr)))
+
 
 -- strong-induction' :
 --   {P : Nat -> Set} ->
@@ -169,11 +173,3 @@ zero-≤s (suc n) = step-≤s (zero-≤s n)
 --   ({m : Nat} -> ({n : Nat} -> (n ≤ m) -> P n) -> P (suc m)) ->
 --   (m : Nat) -> P m
 -- strong-induction z f m = strong-induction' z f m id-≤
-
-
-decide-nat< : (x : Nat) -> (y : Nat) -> Dec (x < y)
-decide-nat< _ zero = no \()
-decide-nat< zero (suc n) = yes zero-<
-decide-nat< (suc m) (suc n) with (decide-nat< m n)
-... | yes pr = yes (suc-≤ pr)
-... | no f = no (\ pr -> (f (pred-≤ pr)))
