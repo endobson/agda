@@ -200,3 +200,19 @@ private
 
 Discrete->isSet : Discrete A -> isSet A
 Discrete->isSet d = Stable==->isSet (\ x y -> Dec->Stable (d x y))
+
+-- Sets make any square
+
+isSet->Square : {ℓ : Level} {A : Type ℓ}
+                {a₀₀ : A} {a₀₁ : A} {a₀₋ : Path A a₀₀ a₀₁}
+                {a₁₀ : A} {a₁₁ : A} {a₁₋ : Path A a₁₀ a₁₁}
+                {a₋₀ : Path A a₀₀ a₁₀}
+                {a₋₁ : Path A a₀₁ a₁₁} -> isSet A -> Square a₀₋ a₁₋ a₋₀ a₋₁
+isSet->Square h = isProp->PathP (\ k -> (h _ _)) _ _
+
+isProp->Square : {ℓ : Level} {A : Type ℓ}
+                {a₀₀ : A} {a₀₁ : A} {a₀₋ : Path A a₀₀ a₀₁}
+                {a₁₀ : A} {a₁₁ : A} {a₁₋ : Path A a₁₀ a₁₁}
+                {a₋₀ : Path A a₀₀ a₁₀}
+                {a₋₁ : Path A a₀₁ a₁₁} -> isProp A -> Square a₀₋ a₁₋ a₋₀ a₋₁
+isProp->Square h = isProp->PathP (\ _ -> (isProp->isSet h _ _)) _ _
