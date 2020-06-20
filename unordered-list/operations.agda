@@ -161,13 +161,14 @@ length0->[] {as = as} = UListElim.prop PProp []* _::*_ as
 
 ++-left-id->[] : {as bs : UList A} -> as ++ bs == bs -> as == []
 ++-left-id->[] {as = as} {bs = bs} p =
-  length0->[] (m+'n==n->m==0 (sym (preserves-∙ as bs) >=> (cong length p)))
+  length0->[] (transport (sym (+'-right-path _)) (sym (preserves-∙ as bs) >=> (cong length p)))
   where
   open CommMonoidʰ lengthʰ
 
 ++-right-id->[] : {as bs : UList A} -> as ++ bs == as -> bs == []
 ++-right-id->[] {as = as} {bs = bs} p =
-  length0->[] (m+'n==m->n==0 (sym (preserves-∙ as bs) >=> (cong length p)))
+  length0->[] (transport (sym (+'-right-path _))
+                         (+'-commute {length bs} >=> sym (preserves-∙ as bs) >=> (cong length p)))
   where
   open CommMonoidʰ lengthʰ
 

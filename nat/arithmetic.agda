@@ -61,13 +61,6 @@ pred n = n -' (suc zero)
 +'-assoc {zero} {_} {_} = refl
 +'-assoc {suc m} {_} {_} = cong suc (+'-assoc {m})
 
-m+'n==m->n==0 : {m n : Nat} -> m +' n == m -> n == 0
-m+'n==m->n==0 {0} {n} p = p
-m+'n==m->n==0 {(suc m)} {n} p = m+'n==m->n==0 (suc-injective p)
-
-m+'n==n->m==0 : {m n : Nat} -> m +' n == n -> m == 0
-m+'n==n->m==0 {m} {n} p = m+'n==m->n==0 (+'-commute {n} {m} >=> p)
-
 m+'n==0->m==0 : {m n : Nat} -> m +' n == 0 -> m == 0
 m+'n==0->m==0 {0} p = refl
 m+'n==0->m==0 {(suc _)} p = bot-elim (zero-suc-absurd (sym p))
