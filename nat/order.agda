@@ -7,6 +7,7 @@ open import equality
 open import equivalence
 open import isomorphism
 open import nat.arithmetic
+open import nat.properties
 open import relation
 
 data _≤_ : Nat -> Nat -> Set where

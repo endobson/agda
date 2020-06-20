@@ -3,13 +3,14 @@
 module nat.arithmetic where
 
 open import base
-open import equality
-open import monoid
 open import commutative-monoid
-
-Pos' : (n : Nat) -> Set
-Pos' zero = Bot
-Pos' (suc x) = Top
+open import equality
+open import equivalence
+open import hlevel
+open import isomorphism
+open import monoid
+open import nat.properties
+open import relation
 
 infixl 6 _+'_
 _+'_ : Nat -> Nat -> Nat
@@ -24,12 +25,6 @@ zero -' (suc n) = zero
 
 pred : (n : Nat) -> Nat
 pred n = n -' (suc zero)
-
-zero-suc-absurd : {A : Set} {x : Nat} -> 0 == (suc x) -> A
-zero-suc-absurd path = bot-elim (subst Pos' (sym path) tt)
-
-suc-injective : {m n : Nat} -> suc m == suc n -> m == n
-suc-injective p i = pred (p i)
 
 +'-right : {m n p : Nat} -> (n == p) -> m +' n == m +' p
 +'-right {m} id = cong (\x -> m +' x) id
@@ -52,17 +47,15 @@ suc-injective p i = pred (p i)
 +'-right-suc {suc m} {n} = cong suc (+'-right-suc {m} {n})
 
 +'-commute : {m n : Nat} -> (m +' n) == (n +' m)
-+'-commute {_} {zero} = +'-right-zero
-+'-commute {m} {suc n} =
-  begin
-    m +' (suc n)
-  ==< +'-right-suc >
-    suc (m +' n)
-  ==< cong suc (+'-commute {m}) >
-    suc (n +' m)
-  ==<>
-    suc n +' m
-  end
++'-commute {m} {zero} = +'-right-zero
++'-commute {m} {suc n} = +'-right-suc >=> cong suc (+'-commute {m})
+
++'-left-path : (m : Nat) {n p : Nat} -> (n == p) == (m +' n == m +' p)
++'-left-path zero    = refl
++'-left-path (suc m) = (+'-left-path m) >=> suc-path
+
++'-right-path : (m : Nat) {n p : Nat} -> (n == p) == (n +' m == p +' m)
++'-right-path m {n} {p} = +'-left-path m >=> (\j -> +'-commute {m} {n} j == +'-commute {m} {p} j)
 
 +'-assoc : {m n o : Nat} -> (m +' n) +' o == m +' (n +' o)
 +'-assoc {zero} {_} {_} = refl
