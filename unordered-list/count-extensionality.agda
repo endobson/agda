@@ -194,10 +194,11 @@ private
         bs' : UList A
         bs' = remove1 a bs
 
-        bs-count : Σ[ x ∈ Nat ] suc ((count a as) +' x) == count a bs
-        bs-count = ≤->Σ' (transport (\i -> (count-== as (refl {x = a})) i ≤ count a bs)
-                                    (a::as≼bs a))
-
+        bs-count : suc (count a as) ≤Σ' count a bs
+        bs-count = (transport (path >=> ≤==≤Σ') (a::as≼bs a))
+          where
+          path : (count a (a :: as) ≤ count a bs) == (suc (count a as) ≤ (count a bs))
+          path i = (count-== {x = a} as refl i) ≤ count a bs
 
         bs-path : a :: bs' == bs
         bs-path = remove1-count-suc (sym (bs-count .snd))

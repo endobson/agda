@@ -5,6 +5,7 @@ module nat.order where
 open import base
 open import equality
 open import equivalence
+open import hlevel
 open import isomorphism
 open import nat.arithmetic
 open import nat.properties
@@ -22,6 +23,10 @@ m < n = (suc m) ≤ n
 
 _>_ : Nat -> Nat -> Set
 m > n = n < m
+
+isProp≤ : {m n : Nat} -> isProp (m ≤ n)
+isProp≤ zero-≤ zero-≤ = refl
+isProp≤ (suc-≤ p1) (suc-≤ p2) = cong suc-≤ (isProp≤ p1 p2)
 
 zero-< : {n : Nat} -> zero < (suc n)
 zero-< {n} = suc-≤ (zero-≤ {n})
@@ -136,14 +141,55 @@ private
 <-a+'b<c' {suc a} {b} {suc c} (suc-≤ pr) = right-suc-< (<-a+'b<c' pr)
 
 
-≤->Σ' : {m n : Nat} -> m ≤ n -> Σ[ x ∈ Nat ] m +' x == n
-≤->Σ' {m} {n} zero-≤ = (n , refl)
-≤->Σ' (suc-≤ ≤) with (≤->Σ' ≤)
-...                | (x , p) = (x , cong suc p)
+_≤Σ_ : Nat -> Nat -> Type₀
+m ≤Σ n = Σ[ x ∈ Nat ] x +' m == n
 
-≤->Σ : {m n : Nat} -> m ≤ n -> Σ[ x ∈ Nat ] x +' m == n
-≤->Σ ≤ with (≤->Σ' ≤)
-...       | (x , p) = (x , (+'-commute {x}) >=> p)
+_≤Σ'_ : Nat -> Nat -> Type₀
+m ≤Σ' n = Σ[ x ∈ Nat ] m +' x == n
+
+≤Σ==≤Σ' : {m n : Nat} -> m ≤Σ n == m ≤Σ' n
+≤Σ==≤Σ' {m} {n} i = Σ[ x ∈ Nat ] ((+'-commute {x} {m} i) == n)
+
+module _ {m n : Nat} (lt1@(x1 , p1) lt2@(x2 , p2) : m ≤Σ n) where
+  private
+    p-x : x1 == x2
+    p-x = (transport (sym (+'-right-path m)) (p1 >=> (sym p2)))
+
+    p-p : PathP (\i -> p-x i +' m == n) p1 p2
+    p-p = isSet->Square isSetNat
+
+  isProp≤Σ : lt1 == lt2
+  isProp≤Σ  i .fst = p-x i
+  isProp≤Σ  i .snd = p-p i
+
+isProp≤Σ' : {m n : Nat} -> isProp (m ≤Σ' n)
+isProp≤Σ' = subst isProp ≤Σ==≤Σ' isProp≤Σ
+
+≤->≤Σ' : {m n : Nat} -> m ≤ n -> m ≤Σ' n
+≤->≤Σ' {n = n} zero-≤     .fst = n
+≤->≤Σ'         zero-≤     .snd = refl
+≤->≤Σ'         (suc-≤ lt) .fst = ≤->≤Σ' lt .fst
+≤->≤Σ'         (suc-≤ lt) .snd = cong suc (≤->≤Σ' lt .snd)
+
+≤Σ'->≤ : {m n : Nat} -> m ≤Σ' n -> m ≤ n
+≤Σ'->≤ {m = zero}  {n = _}     (_ , p) = zero-≤
+≤Σ'->≤ {m = suc m} {n = zero}  (_ , p) = bot-elim (zero-suc-absurd (sym p))
+≤Σ'->≤ {m = suc m} {n = suc n} (x , p) = suc-≤ (≤Σ'->≤ (x , suc-injective p))
+
+≤-≤Σ'-iso : {m n : Nat} -> Iso (m ≤ n) (m ≤Σ' n)
+Iso.fun ≤-≤Σ'-iso = ≤->≤Σ'
+Iso.inv ≤-≤Σ'-iso = ≤Σ'->≤
+Iso.rightInv ≤-≤Σ'-iso _ = isProp≤Σ' _ _
+Iso.leftInv  ≤-≤Σ'-iso _ = isProp≤ _ _
+
+
+≤==≤Σ' : {m n : Nat} -> (m ≤ n) == (m ≤Σ' n)
+≤==≤Σ' = ua (isoToEquiv ≤-≤Σ'-iso)
+
+≤==≤Σ : {m n : Nat} -> (m ≤ n) == (m ≤Σ n)
+≤==≤Σ = ≤==≤Σ' >=> (sym ≤Σ==≤Σ')
+
+
 
 -- Step based ≤
 data _≤s_ : Nat -> Nat -> Set where
