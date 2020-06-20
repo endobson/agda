@@ -65,14 +65,6 @@ m+'n==0->m==0 : {m n : Nat} -> m +' n == 0 -> m == 0
 m+'n==0->m==0 {0} p = refl
 m+'n==0->m==0 {(suc _)} p = bot-elim (zero-suc-absurd (sym p))
 
-+'-left-injective : {m n p : Nat} -> (m +' n) == (m +' p) -> n == p
-+'-left-injective {zero} path = path
-+'-left-injective {(suc m)} path = +'-left-injective (suc-injective path)
-
-+'-right-injective : {m n p : Nat} -> (m +' n) == (p +' n) -> m == p
-+'-right-injective {m} {n} {p} path =
-  +'-left-injective (+'-commute {n} {m} ∙∙  path ∙∙ +'-commute {p} {n})
-
 infixl 7 _*'_
 _*'_ : Nat -> Nat -> Nat
 zero *' n = zero
@@ -182,7 +174,7 @@ suc m *' n = n +' (m *' n)
 *'-right-injective {zero} {suc n} {suc p} pos path = bot-elim (zero-suc-absurd path)
 *'-right-injective {suc m} {suc n} {zero} pos path = bot-elim (zero-suc-absurd (sym path))
 *'-right-injective {suc m} {suc n} {suc p} pos path =
-  (cong suc (*'-right-injective pos (+'-left-injective path)))
+  (cong suc (*'-right-injective pos (transport (sym (+'-left-path _)) path)))
 
 *'-left-injective : {m n p : Nat} (pos : (Pos' m)) -> (m *' n) == (m *' p) -> n == p
 *'-left-injective {m} {n} {p} pos path =
