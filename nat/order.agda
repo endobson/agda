@@ -35,6 +35,9 @@ isProp≤ : {m n : Nat} -> isProp (m ≤ n)
 isProp≤ zero-≤ zero-≤ = refl
 isProp≤ (suc-≤ p1) (suc-≤ p2) = cong suc-≤ (isProp≤ p1 p2)
 
+isProp≮ : {m n : Nat} -> isProp (m ≮ n)
+isProp≮ = isProp¬ _
+
 zero-< : {n : Nat} -> zero < (suc n)
 zero-< {n} = suc-≤ (zero-≤ {n})
 
@@ -108,6 +111,21 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
 ≤-antisym : {m n : Nat} -> m ≤ n -> n ≤ m -> m == n
 ≤-antisym zero-≤ zero-≤ = refl
 ≤-antisym (suc-≤ l) (suc-≤ r) = cong suc (≤-antisym l r)
+
+private
+  ≮->≥ : {m n : Nat} -> m ≮ n -> m ≥ n
+  ≮->≥             {n = zero}  m≮n = zero-≤
+  ≮->≥ {m = zero}  {n = suc n} m≮n = bot-elim (m≮n zero-<)
+  ≮->≥ {m = suc m} {n = suc n} m≮n = suc-≤ (≮->≥ (m≮n ∘ suc-≤))
+
+  ≮-≥-iso : {m n : Nat} -> Iso (m ≮ n) (m ≥ n)
+  Iso.fun ≮-≥-iso = ≮->≥
+  Iso.inv ≮-≥-iso n≤m m<n = same-≮ (trans-≤-< n≤m m<n)
+  Iso.rightInv ≮-≥-iso _ = isProp≤ _ _
+  Iso.leftInv  ≮-≥-iso _ = isProp≮ _ _
+
+≮==≥ : {m n : Nat} -> m ≮ n == m ≥ n
+≮==≥ = ua (isoToEquiv ≮-≥-iso)
 
 -- Existential ≤
 private
