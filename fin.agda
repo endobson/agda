@@ -94,3 +94,38 @@ private
 
 fin->nat-path : {n : Nat} {x y : Fin n} -> (x == y) == (fin->nat x == fin->nat y)
 fin->nat-path = ua (isoToEquiv fin->nat-iso)
+
+-- Fin type based on ≤ instead of straight inductive structure
+Fin' : Nat -> Type₀
+Fin' n = Σ[ i ∈ Nat ] (i < n)
+
+private
+  fin'->fin : {n : Nat} -> Fin' n -> Fin n
+  fin'->fin (zero    , (suc-≤ p)) = zero-fin
+  fin'->fin ((suc i) , (suc-≤ p)) = suc-fin (fin'->fin (i , p))
+
+  fin->fin' : {n : Nat} -> Fin n -> Fin' n
+  fin->fin' zero-fin    .fst = zero
+  fin->fin' zero-fin    .snd = suc-≤ zero-≤
+  fin->fin' (suc-fin i) .fst = suc   (fin->fin' i .fst)
+  fin->fin' (suc-fin i) .snd = suc-≤ (fin->fin' i .snd)
+
+  fin'->fin->fin' : {n : Nat} (i : Fin' n) -> (fin->fin' (fin'->fin i)) == i
+  fin'->fin->fin' (zero    , (suc-≤ zero-≤))   = refl
+  fin'->fin->fin' ((suc i) , (suc-≤ p))      j = record
+    { fst = suc   (fin'->fin->fin' (i , p) j .fst)
+    ; snd = suc-≤ (fin'->fin->fin' (i , p) j .snd)
+    }
+
+  fin->fin'->fin : {n : Nat} (i : Fin n) -> (fin'->fin (fin->fin' i)) == i
+  fin->fin'->fin zero-fin    = refl
+  fin->fin'->fin (suc-fin i) = cong suc-fin (fin->fin'->fin i)
+
+  iso-fin-fin' : {n : Nat} -> Iso (Fin n) (Fin' n)
+  Iso.fun      iso-fin-fin' = fin->fin'
+  Iso.inv      iso-fin-fin' = fin'->fin
+  Iso.rightInv iso-fin-fin' = fin'->fin->fin'
+  Iso.leftInv  iso-fin-fin' = fin->fin'->fin
+
+Fin==Fin' : {n : Nat} -> Fin n == Fin' n
+Fin==Fin' = isoToPath iso-fin-fin'

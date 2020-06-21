@@ -165,6 +165,9 @@ isOfHLevelΣ {B = B} (suc (suc n)) hA hB x0 x1 =
                        (\ p -> (hB (p i1)) (subst B p (snd x0)) (snd x1))
   in transport (\i -> isOfHLevel (suc n) (pathSigma==sigmaPath x0 x1 (~ i))) hΣ
 
+isSetΣ : isSet A -> ((a : A) -> isSet (B a)) -> isSet (Σ A B)
+isSetΣ = isOfHLevelΣ 2
+
 -- h-level for Bot and ¬
 
 Bot-isProp : isProp Bot
