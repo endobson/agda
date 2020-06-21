@@ -212,7 +212,7 @@ div'-zero {n} = div'-exists n zero zero refl
 no-small-dividends : {d n : Nat} -> n < d -> n != 0 -> d != 0 -> ¬ (d div' n)
 no-small-dividends n<d n!=0 d!=0 (div'-exists d n x pr) with x
 ... | zero = n!=0 (sym pr)
-... | (suc y) = absurd-same-< n<n
+... | (suc y) = same-≮ n<n
   where
   d≤n : d ≤ n
   d≤n = ≤-a+'b==c pr

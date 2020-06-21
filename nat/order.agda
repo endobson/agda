@@ -5,6 +5,7 @@ module nat.order where
 open import base
 open import equality
 open import equivalence
+open import functions
 open import hlevel
 open import isomorphism
 open import nat.arithmetic
@@ -16,13 +17,19 @@ data _≤_ : Nat -> Nat -> Set where
  suc-≤ : {m n : Nat} -> m ≤ n -> suc m ≤ suc n
 
 _≥_ : Nat -> Nat -> Set
-m ≥ n = m ≤ n
+m ≥ n = n ≤ m
 
 _<_ : Nat -> Nat -> Set
 m < n = (suc m) ≤ n
 
 _>_ : Nat -> Nat -> Set
 m > n = n < m
+
+_≮_ : Nat -> Nat -> Set
+m ≮ n = ¬ (m < n)
+
+_≯_ : Nat -> Nat -> Set
+m ≯ n = ¬ (m > n)
 
 isProp≤ : {m n : Nat} -> isProp (m ≤ n)
 isProp≤ zero-≤ zero-≤ = refl
@@ -67,8 +74,8 @@ trans-≤-< : {m n o : Nat} -> m ≤ n -> n < o -> m < o
 trans-≤-< zero-≤ (suc-≤ _) = zero-<
 trans-≤-< (suc-≤ l) (suc-≤ r) = suc-< (trans-≤-< l r)
 
-absurd-same-< : {n : Nat} -> ¬ (n < n)
-absurd-same-< (suc-≤ pr) = absurd-same-< pr
+same-≮ : {n : Nat} -> (n ≮ n)
+same-≮ (suc-≤ pr) = same-≮ pr
 
 pred-≤ : {m n : Nat} -> m ≤ n -> pred m ≤ pred n
 pred-≤ zero-≤ = zero-≤
