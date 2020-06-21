@@ -5,6 +5,7 @@ module isomorphism where
 open import base
 open import equality
 open import equivalence
+open import hlevel.base
 
 private
   variable
@@ -24,6 +25,10 @@ record Iso {ℓ₁ ℓ₂} (A : Type ℓ₁) (B : Type ℓ₂) : Type (ℓ-max �
     inv : B -> A
     rightInv : section fun inv
     leftInv : retract fun inv
+
+-- An automorphism is an isomorphism between a type and its self.
+Auto : Type ℓ -> Type ℓ
+Auto A = Iso A A
 
 module _ (iso : Iso A B) where
   open Iso iso renaming
@@ -178,3 +183,29 @@ isoToPath : Iso A B -> A == B
 isoToPath {A = A} {B = B} f i =
   Glue B (\ { (i = i0) -> (A , isoToEquiv f)
             ; (i = i1) -> (B , idEquiv B) })
+
+-- In sets isomorphisms with equal foward functions are equal
+module _ (hA : isSet A) (hB : isSet B) {iso₁ iso₂ : Iso A B}
+         (p-fun : (Iso.fun iso₁) == (Iso.fun iso₂)) where
+
+  p-inv : (Iso.inv iso₁) == (Iso.inv iso₂)
+  p-inv i b =
+    (cong (Iso.inv iso₁) (sym (Iso.rightInv iso₂ b))
+     >=> (\ j -> (Iso.inv iso₁ (p-fun (~ j) (Iso.inv iso₂ b))))
+     >=> (Iso.leftInv iso₁ (Iso.inv iso₂ b))) i
+
+  p-rightInv : (b : B) -> PathP (\i -> (p-fun i (p-inv i b)) == b)
+                                (Iso.rightInv iso₁ b)
+                                (Iso.rightInv iso₂ b)
+  p-rightInv b = isProp->PathP (\_ -> hB _ _) _ _
+
+  p-leftInv : (a : A) -> PathP (\i -> (p-inv i (p-fun i a)) == a)
+                               (Iso.leftInv iso₁ a)
+                               (Iso.leftInv iso₂ a)
+  p-leftInv a = isProp->PathP (\_ -> hA _ _) _ _
+
+  isSet-iso-path : iso₁ == iso₂
+  Iso.fun (isSet-iso-path i) = p-fun i
+  Iso.inv (isSet-iso-path i) = p-inv i
+  Iso.rightInv (isSet-iso-path i) b = p-rightInv b i
+  Iso.leftInv  (isSet-iso-path i) a = p-leftInv a i
