@@ -5,12 +5,13 @@ module isomorphism where
 open import base
 open import equality
 open import equivalence
+open import functions
 open import hlevel.base
 
 private
   variable
     ℓ : Level
-    A B : Type ℓ
+    A B C : Type ℓ
 
 section : (f : A -> B) (g : B -> A) -> Type _
 section f g = ∀ b -> f (g b) == b
@@ -29,6 +30,52 @@ record Iso {ℓ₁ ℓ₂} (A : Type ℓ₁) (B : Type ℓ₂) : Type (ℓ-max �
 -- An automorphism is an isomorphism between a type and its self.
 Auto : Type ℓ -> Type ℓ
 Auto A = Iso A A
+
+-- Common isomorphism operations
+module _ where
+  open Iso
+
+  _∘ⁱ_ : Iso B C -> Iso A B -> Iso A C
+  fun (f ∘ⁱ g) = fun f ∘ fun g
+  inv (f ∘ⁱ g) = inv g ∘ inv f
+  rightInv (f ∘ⁱ g) c = (\i -> (fun f (rightInv g (inv f c) i))) >=> rightInv f c
+  leftInv (f ∘ⁱ g) a = (\i -> (inv g (leftInv f (fun g a) i))) >=> leftInv g a
+
+  iso⁻¹ : Iso A B -> Iso B A
+  fun (iso⁻¹ f) = inv f
+  inv (iso⁻¹ f) = fun f
+  rightInv (iso⁻¹ f) = leftInv f
+  leftInv  (iso⁻¹ f) = rightInv f
+
+  id-iso : Iso A A
+  fun id-iso a = a
+  inv id-iso a = a
+  rightInv id-iso _ = refl
+  leftInv  id-iso _ = refl
+
+  path->iso : A == B -> Iso A B
+  fun (path->iso p) = transport p
+  inv (path->iso p) = transport (sym p)
+  rightInv (path->iso p) b = fixed-path
+    where
+    initial-path : PathP (\i -> (sym p >=> p) i) b (transport p (transport (sym p) b))
+    initial-path = transP (transport-filler (sym p) b) (transport-filler p (transport (sym p) b))
+
+    fixed-path : (transport p (transport (sym p) b)) == b
+    fixed-path = sym (transport (\j -> PathP (\i -> (compPath-sym (sym p)) j i)
+                                     b
+                                     (transport p (transport (sym p) b)))
+                                initial-path)
+  leftInv (path->iso p) a = fixed-path
+    where
+    initial-path : PathP (\i -> (p >=> sym p) i) a (transport (sym p) (transport p a))
+    initial-path = transP (transport-filler p a) (transport-filler (sym p) (transport p a))
+
+    fixed-path : (transport (sym p) (transport p a)) == a
+    fixed-path = sym (transport (\j -> PathP (\i -> (compPath-sym p) j i)
+                                       a
+                                       (transport (sym p) (transport p a)))
+                                initial-path)
 
 module _ (iso : Iso A B) where
   open Iso iso renaming

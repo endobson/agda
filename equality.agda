@@ -77,6 +77,17 @@ transP {A = A} {a0 = a0} {B = B} p q i =
                  ; (i = i1) -> q j}))
        (p i)
 
+-- Path identies with refl
+compPath-refl-right : {x y : A} (p : x == y) -> (p >=> refl) == p
+compPath-refl-right p = sym (compPath-filler p refl)
+
+compPath-sym : {x y : A} (p : x == y) -> (p >=> sym p) == refl
+compPath-sym p = contract >=> compPath-refl-right refl
+  where
+  contract : (p >=> sym p) == (refl >=> refl)
+  contract j = (\i -> p (i ∧ (~ j))) >=> (\i -> p (~ i ∧ (~ j)))
+
+-- Substitution
 subst : {x y : A} -> (P : A → Type ℓ) -> x == y -> P x -> P y
 subst P path = transport (\ i -> (P (path i)))
 
