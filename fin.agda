@@ -11,7 +11,7 @@ open import isomorphism
 open import nat
 open import relation
 
-data Fin : Nat -> Set where
+data Fin : Nat -> Type₀ where
  zero-fin : {n : Nat} -> Fin (suc n)
  suc-fin : {n : Nat} -> Fin n -> Fin (suc n)
 
