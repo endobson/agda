@@ -134,7 +134,7 @@ private
   compare-fin : {n : Nat} (x y : Fin n) -> Order x y
   compare-fin m n with compare-nat (fin->nat m) (fin->nat n)
   ... | less-than = less-than
-  ... | equal-to p = equal-to (fin->nat-injective p)
+  ... | equal-to p = equal-to (transport (sym fin->nat-path) p)
   ... | greater-than = greater-than
 
   fin< : {n : Nat} -> Fin n -> Fin n -> Boolean
