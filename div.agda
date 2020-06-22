@@ -328,9 +328,9 @@ private
     rec (suc i) j (suc acc2) x acc1 step p =
       rec i (suc j)  acc2 x (suc acc1) (mod-small-step step) (+'-right-suc {i} >=> p)
 
-exists-remainder : (d : Nat) -> d != 0 -> (n : Nat) -> exists (Remainder d n)
+exists-remainder : (d : Nat) -> d != 0 -> (n : Nat) -> Σ[ r ∈ Nat ] (Remainder d n r)
 exists-remainder d pr n with (mod d pr n)
-... | (mod-output a step) = existence a (mod-step->remainder step)
+... | (mod-output a step) = a , (mod-step->remainder step)
 
 
 private
@@ -347,14 +347,9 @@ private
                       -> ModStep' (suc d') (suc n) (suc x) zero
 
 
-  a≤b->exists : {a b : Nat} -> a ≤ b -> exists (\ x -> x +' a == b)
-  a≤b->exists (zero-≤ {x}) = existence x +'-right-zero
-  a≤b->exists (suc-≤ ≤) with (a≤b->exists ≤)
-  ... | (existence x p) = (existence x (+'-right-suc >=> (cong suc p)))
-
   mod'->mod : {d n x a : Nat} -> ModStep' d n x a -> a < d -> ExistsModStep d n a
-  mod'->mod {_} {_} {_} {a} step a<d with (a≤b->exists a<d)
-  ... | (existence b pr) = exists-mod-step (rec step (sym (+'-commute {b} {suc a}) >=> pr))
+  mod'->mod {_} {_} {_} {a} step a<d with (transport ≤==≤Σ a<d)
+  ... | (b , pr) = exists-mod-step (rec step (sym (+'-commute {b} {suc a}) >=> pr))
     where
     rec : {d n b x a : Nat} -> ModStep' d n x a -> suc (a +' b) == d -> ModStep d n b x a
     rec {d} (mod-base' d') p =
@@ -410,8 +405,8 @@ decide-div zero (suc d) = no f
   f z-div with (path->id (div'-zero->zero z-div))
   ...        | ()
 decide-div d@(suc d') n@(suc _) with (exists-remainder d (\ d=z -> zero-suc-absurd (sym d=z)) n)
-... | (existence zero rem) = yes (remainder->div rem)
-... | (existence (suc a) rem) = no (remainder->¬div rem)
+... | (zero , rem) = yes (remainder->div rem)
+... | ((suc a) , rem) = no (remainder->¬div rem)
 
 isPropDiv' : {d n : Nat} -> {pos : Pos' n} -> isProp (d div' n)
 isPropDiv' {pos = n-pos} div1@(div'-exists d n x1 p1) (div'-exists d n x2 p2) i =

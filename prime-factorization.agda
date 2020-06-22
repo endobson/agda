@@ -140,11 +140,11 @@ private
 PrimeDivisor : Nat -> Nat -> Type₀
 PrimeDivisor n d = IsPrime' d × d div' n
 
-exists-prime-divisor : {n : Nat} -> n > 1 -> exists (PrimeDivisor n)
+exists-prime-divisor : {n : Nat} -> n > 1 -> Σ[ d ∈ Nat ] (PrimeDivisor n d)
 exists-prime-divisor {n} n>1 = rec (compute-prime-factorization-tree n>1) div'-refl
   where
-  rec : {a : Nat} -> (PrimeFactorizationTree a) -> a div' n -> exists (PrimeDivisor n)
-  rec {a} (prime-factorization-tree-prime prime-a) a%n = existence a (prime-a , a%n)
+  rec : {a : Nat} -> (PrimeFactorizationTree a) -> a div' n -> Σ[ d ∈ Nat ] (PrimeDivisor n d)
+  rec {a} (prime-factorization-tree-prime prime-a) a%n = a , (prime-a , a%n)
   rec {a} (prime-factorization-tree-composite {d} {e} df ef) a%n =
     rec ef (div'-trans (div'-exists e a d refl) a%n)
 

@@ -264,57 +264,61 @@ eulers-helper m n {a} pr {d} (linear-gcd lc gc) =
 
 pos-eulers-algo' : (b : Nat) -> (m : Nat) -> (n : Nat)
   -> (m +' n) < b
-  -> exists (LinearGCD (pos m) (pos n))
+  -> Σ[ d ∈ Int ] (LinearGCD (pos m) (pos n) d)
 pos-eulers-algo' (suc b) m n size-pr = split (decide-compare3 m n)
   where
-  split : CompareNat3 m n -> exists (LinearGCD (pos m) (pos n))
+  split : CompareNat3 m n -> Σ[ d ∈ Int ] (LinearGCD (pos m) (pos n) d)
   split (compare3-= pr) =
     transport
-      (\i -> exists (LinearGCD (pos m) (pos (pr i))))
-      (existence (pos m) (linear-gcd linear-combo-refl gcd-refl))
+      (\i -> Σ[ d ∈ Int ] (LinearGCD (pos m) (pos (pr i)) d))
+      ((pos m) , (linear-gcd linear-combo-refl gcd-refl))
   split (compare3-< {a} pr rec-size-pr) = handle (pos-eulers-algo' b a m new-size-pr)
     where
-    handle : (exists (LinearGCD (pos a) (pos m))) -> (exists (LinearGCD (pos m) (pos n)))
-    handle (existence d gc) = (existence d (eulers-helper m n {a} pr {d} gc))
+    handle : Σ[ d ∈ Int ] (LinearGCD (pos a) (pos m) d) -> Σ[ d ∈ Int ] (LinearGCD (pos m) (pos n) d)
+    handle (d , gc) = (d , (eulers-helper m n {a} pr {d} gc))
     new-size-pr : (a +' m) < b
     new-size-pr = pred-≤ (trans-≤-< rec-size-pr size-pr)
   split (compare3-> {a} pr rec-size-pr) = handle (pos-eulers-algo' b a n new-size-pr)
     where
-    handle : (exists (LinearGCD (pos a) (pos n))) -> (exists (LinearGCD (pos m) (pos n)))
-    handle (existence d gc) = (existence d (linear-gcd-sym (eulers-helper n m {a} pr {d} gc)))
+    handle : Σ[ d ∈ Int ] (LinearGCD (pos a) (pos n) d) -> Σ[ d ∈ Int ](LinearGCD (pos m) (pos n) d)
+    handle (d , gc) = (d , (linear-gcd-sym (eulers-helper n m {a} pr {d} gc)))
     new-size-pr : (a +' n) < b
     new-size-pr = pred-≤ (trans-≤-< rec-size-pr size-pr)
 pos-eulers-algo' zero m n ()
 
 
-pos-eulers-algo : (m : Nat) -> (n : Nat) -> exists (LinearGCD (pos m) (pos n))
+pos-eulers-algo : (m : Nat) -> (n : Nat) -> Σ[ d ∈ Int ] (LinearGCD (pos m) (pos n) d)
 pos-eulers-algo m n = pos-eulers-algo' (suc (m +' n)) m n (add1-< (m +' n))
 
 
-eulers-algo : (m : Int) -> (n : Int) -> exists (LinearGCD m n)
-eulers-algo m zero-int = existence (abs m) (linear-gcd (linear-combo-abs linear-combo-zero) gcd-zero)
-eulers-algo zero-int n@(pos _) = existence (abs n)
+eulers-algo : (m : Int) -> (n : Int) -> Σ[ d ∈ Int ] (LinearGCD m n d)
+eulers-algo m zero-int =
+  (abs m) ,
+  (linear-gcd (linear-combo-abs linear-combo-zero) gcd-zero)
+eulers-algo zero-int n@(pos _) =
+  (abs n) ,
   (linear-gcd-sym (linear-gcd (linear-combo-abs linear-combo-zero) gcd-zero))
-eulers-algo zero-int n@(neg _) = existence (abs n)
+eulers-algo zero-int n@(neg _) =
+  (abs n) ,
   (linear-gcd-sym (linear-gcd (linear-combo-abs linear-combo-zero) gcd-zero))
 eulers-algo (pos m) (pos n) = pos-eulers-algo m n
 eulers-algo (neg m) (pos n) = handle (pos-eulers-algo m n)
   where
-  handle : exists (LinearGCD (pos m) (pos n)) -> exists (LinearGCD (neg m) (pos n))
-  handle (existence d pr) = existence d (linear-gcd-sym (linear-gcd-negate (linear-gcd-sym pr)))
+  handle : Σ[ d ∈ Int ] (LinearGCD (pos m) (pos n) d) -> Σ[ d ∈ Int ] (LinearGCD (neg m) (pos n) d)
+  handle (d , pr) = d , (linear-gcd-sym (linear-gcd-negate (linear-gcd-sym pr)))
 eulers-algo (pos m) (neg n) = handle (pos-eulers-algo m n)
   where
-  handle : exists (LinearGCD (pos m) (pos n)) -> exists (LinearGCD (pos m) (neg n))
-  handle (existence d pr) = existence d (linear-gcd-negate pr)
+  handle : Σ[ d ∈ Int ] (LinearGCD (pos m) (pos n) d) -> Σ[ d ∈ Int ] (LinearGCD (pos m) (neg n) d)
+  handle (d , pr) = d , (linear-gcd-negate pr)
 eulers-algo (neg m) (neg n) = handle (pos-eulers-algo m n)
   where
-  handle : exists (LinearGCD (pos m) (pos n)) -> exists (LinearGCD (neg m) (neg n))
-  handle (existence d pr) =
-    existence d (linear-gcd-sym (linear-gcd-negate (linear-gcd-sym (linear-gcd-negate pr))))
+  handle : Σ[ d ∈ Int ] (LinearGCD (pos m) (pos n) d) -> Σ[ d ∈ Int ] (LinearGCD (neg m) (neg n) d)
+  handle (d , pr) =
+    d , (linear-gcd-sym (linear-gcd-negate (linear-gcd-sym (linear-gcd-negate pr))))
 
-gcd-exists : (m : Int) -> (n : Int) -> exists (GCD m n)
+gcd-exists : (m : Int) -> (n : Int) -> Σ[ d ∈ Int ] (GCD m n d)
 gcd-exists m n with (eulers-algo m n)
-...               | (existence d (linear-gcd _ gc)) = existence d gc
+...               | (d , (linear-gcd _ gc)) = d , gc
 
 
 non-neg-same-abs : {m n : Int} -> NonNeg m -> NonNeg n -> abs m == abs n -> m == n
@@ -333,8 +337,8 @@ gcd-unique (gcd m n d1 d1-nn d1-div-m d1-div-n d1-f)
 gcd->linear-combo : {a b d : Int} -> GCD a b d -> LinearCombination a b d
 gcd->linear-combo {a} {b} {d} gcd-d = handle (eulers-algo a b)
   where
-  handle : exists (LinearGCD a b) -> LinearCombination a b d
-  handle (existence d' (linear-gcd lc gcd-d')) =
+  handle : Σ[ d ∈ Int ] (LinearGCD a b d) -> LinearCombination a b d
+  handle (d' , (linear-gcd lc gcd-d')) =
     transport (\i -> LinearCombination a b ((gcd-unique gcd-d' gcd-d) i)) lc
 
 data GCD' : Nat -> Nat -> Nat -> Set where
@@ -400,7 +404,7 @@ prime-gcd' a@(suc _) b@(suc _) pf = (gcd' a b 1 div'-one div'-one f)
   ...               | ()
   f (suc zero) _ _ = div'-one
   f x@(suc (suc _)) x%a x%b with (exists-prime-divisor {x} (suc-≤ (suc-≤ zero-≤)))
-  ... | existence _ (prime-p , p%x) =
+  ... | _ , (prime-p , p%x) =
     bot-elim (pf prime-p (div'-trans p%x x%a) (div'-trans p%x x%b))
 
 euclids-lemma : {a b c : Int} -> a div (b * c) -> GCD a b (int 1) -> a div c

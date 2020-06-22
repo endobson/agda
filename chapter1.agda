@@ -103,7 +103,7 @@ ex1-4' rp (gcd a+b a-b n _ n%a+b n%a-b f) with (gcd->linear-combo rp)
 
 ex1-4 : {a b : Int} -> RPrime a b -> (GCD (a + b) (a + - b) (int 1)) ⊎ (GCD (a + b) (a + - b) (int 2))
 ex1-4 {a} {b} rp with (gcd-exists (a + b) (a + - b))
-... | (existence d g@(gcd _ _ d@(nonneg d-nat) _ _ _ _)) = res
+... | (d , g@(gcd _ _ d@(nonneg d-nat) _ _ _ _)) = res
   where
   d-div : d div (int 2)
   d-div = (ex1-4' rp g)
@@ -151,7 +151,7 @@ ex1-5' : {a b : Int} -> ex1-5-arith-type -> RPrime a b ->
    (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎
    (GCD (a + b) (a * a + - (a * b) + b * b) (int 3))
 ex1-5' {a} {b} arith-proof rp with (gcd-exists (a + b) (a * a + - (a * b) + b * b))
-... | (existence d g@(gcd _ _ d@(nonneg d-nat) _ d%a+b d%term _)) = res
+... | (d , g@(gcd _ _ d@(nonneg d-nat) _ d%a+b d%term _)) = res
   where
   ¬2%3 : ¬ (2 div' 3)
   ¬2%3 (div'-exists _ _ zero pr) = zero-suc-absurd pr

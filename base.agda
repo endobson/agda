@@ -87,9 +87,6 @@ infix 2 Σ-syntax
 
 syntax Σ-syntax A (\x -> B) = Σ[ x ∈ A ] B
 
-data exists {ℓ₁ ℓ₂ : Level} : {A : Type ℓ₁} -> (B : A -> Type ℓ₂) -> Type (ℓ-suc (ℓ-max ℓ₁  ℓ₂)) where
- existence : {A : Type ℓ₁} -> {B : A -> Type ℓ₂} -> (x : A) -> (y : B x) -> exists B
-
 infixr 4 _,_
 infixr 2 _×_
 
