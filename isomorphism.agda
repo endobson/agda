@@ -31,10 +31,10 @@ record Iso {ℓ₁ ℓ₂} (A : Type ℓ₁) (B : Type ℓ₂) : Type (ℓ-max �
 Auto : Type ℓ -> Type ℓ
 Auto A = Iso A A
 
--- Common isomorphism operations
 module _ where
   open Iso
 
+  -- Common isomorphism operations
   _∘ⁱ_ : Iso B C -> Iso A B -> Iso A C
   fun (f ∘ⁱ g) = fun f ∘ fun g
   inv (f ∘ⁱ g) = inv g ∘ inv f
@@ -53,6 +53,14 @@ module _ where
   rightInv id-iso _ = refl
   leftInv  id-iso _ = refl
 
+  -- Properties of the common isomorphisms
+  ∘ⁱ-id-left : {f : Iso A B} -> id-iso ∘ⁱ f == f
+  fun (∘ⁱ-id-left {f = f} i) = fun f
+  inv (∘ⁱ-id-left {f = f} i) = inv f
+  rightInv (∘ⁱ-id-left {f = f} i) b = compPath-refl-right (rightInv f b) i
+  leftInv (∘ⁱ-id-left {f = f} i) a = compPath-refl-left (leftInv f a) i
+
+  -- Convert a path to an isomorphism
   path->iso : A == B -> Iso A B
   fun (path->iso p) = transport p
   inv (path->iso p) = transport (sym p)

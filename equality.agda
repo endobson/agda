@@ -81,6 +81,12 @@ transP {A = A} {a0 = a0} {B = B} p q i =
 compPath-refl-right : {x y : A} (p : x == y) -> (p >=> refl) == p
 compPath-refl-right p = sym (compPath-filler p refl)
 
+compPath-refl-left : {x y : A} (p : x == y) -> (refl >=> p) == p
+compPath-refl-left p = swap-sides >=> compPath-refl-right p
+  where
+  swap-sides : (refl >=> p) == (p >=> refl)
+  swap-sides j = (\i -> p (i ∧ j)) >=> (\i -> p (i ∨ j))
+
 compPath-sym : {x y : A} (p : x == y) -> (p >=> sym p) == refl
 compPath-sym p = contract >=> compPath-refl-right refl
   where
