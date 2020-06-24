@@ -45,6 +45,9 @@ private
 fin-zero-bot-path : Fin 0 == Bot
 fin-zero-bot-path = ua (isoToEquiv fin-zero-bot-iso)
 
+¬fin-zero : ¬ (Fin 0)
+¬fin-zero = transport fin-zero-bot-path
+
 fin-one-top-path : Fin 1 == Top
 fin-one-top-path = ua (isoToEquiv fin-one-top-iso)
 
@@ -91,3 +94,44 @@ private
 
   suc-fin-path : {n : Nat} {x y : Fin n} -> (x == y) == (suc-fin x == suc-fin y)
   suc-fin-path = ua (isoToEquiv suc-fin-iso)
+
+-- Naturals in a range
+
+isInRange : Nat -> Nat -> Nat -> Type₀
+isInRange m n i = (m ≤ i × i < n)
+
+isPropIsInRange : {m n i : Nat} -> isProp (isInRange m n i)
+isPropIsInRange = isProp× isProp≤ isProp≤
+
+
+InRange : Nat -> Nat -> Type₀
+InRange m n = Σ Nat (isInRange m n)
+
+private
+  inRange->fin : {m n : Nat} -> InRange m n -> Fin (n -' m)
+  inRange->fin {m} {n} (i , ((j , j+m==i) , i<n)) = j , <-minus j+'m<n
+    where
+    j+'m<n : (j +' m) < n
+    j+'m<n = transport (\k -> j+m==i (~ k) < n) i<n
+
+  fin->inRange : {m n : Nat} -> Fin (n -' m) -> InRange m n
+  fin->inRange {m} {n} (j , j<n-m) = (j +' m , ((j , refl) , <-minus-rev j<n-m))
+
+
+  fin->inRange->fin : {m n : Nat} (i : Fin (n -' m))
+                      -> (inRange->fin {m} (fin->inRange i)) == i
+  fin->inRange->fin _ = ΣProp-path isProp≤ refl
+
+  inRange->fin->inRange : {m n : Nat} (i : InRange m n)
+                      -> (fin->inRange (inRange->fin i)) == i
+  inRange->fin->inRange (_ , ((_ , path) , _)) = ΣProp-path isPropIsInRange path
+
+  fin-inRange-iso : {m n : Nat} -> Iso (Fin (n -' m)) (InRange m n)
+  Iso.fun fin-inRange-iso = fin->inRange
+  Iso.inv fin-inRange-iso = inRange->fin
+  Iso.rightInv fin-inRange-iso = inRange->fin->inRange
+  Iso.leftInv  (fin-inRange-iso {m} {n}) = fin->inRange->fin {m} {n}
+
+
+fin-inRange-path : {m n : Nat} -> (Fin (n -' m)) == (InRange m n)
+fin-inRange-path = ua (isoToEquiv fin-inRange-iso)

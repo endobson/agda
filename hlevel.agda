@@ -14,7 +14,7 @@ open import hlevel.base public
 private
   variable
     ℓ ℓ₁ ℓ₂ : Level
-    A : Type ℓ
+    A A₁ A₂ : Type ℓ
     B : A -> Type ℓ
     C : (a : A) -> B a -> Type ℓ
     D : (a : A) -> (b : B a) -> C a b -> Type ℓ
@@ -99,6 +99,10 @@ isOfHLevelΣ {B = B} (suc (suc n)) hA hB x0 x1 =
 
 isSetΣ : isSet A -> ((a : A) -> isSet (B a)) -> isSet (Σ A B)
 isSetΣ = isOfHLevelΣ 2
+
+
+isProp× : isProp A₁ -> isProp A₂ -> isProp (A₁ × A₂)
+isProp× pA₁ pA₂ = isPropΣ pA₁ (\_ -> pA₂)
 
 -- h-level for Bot and ¬
 

@@ -65,6 +65,23 @@ m+'n==0->m==0 : {m n : Nat} -> m +' n == 0 -> m == 0
 m+'n==0->m==0 {0} p = refl
 m+'n==0->m==0 {(suc _)} p = bot-elim (zero-suc-absurd (sym p))
 
+-- Properties of -
+
++'-minus-left : (m : Nat) {n : Nat} -> (m +' n) -' m == n
++'-minus-left zero = refl
++'-minus-left (suc m) = +'-minus-left m
+
++'-minus-right : {m : Nat} (n : Nat) -> (m +' n) -' n == m
++'-minus-right {m} n = (\i -> +'-commute {m} {n} i -' n) >=> +'-minus-left n
+
++'-minus-rev : {m : Nat} (n : Nat) -> Pos' (m -' n) -> (m -' n) +' n == m
++'-minus-rev {zero} zero    ()
++'-minus-rev {zero} (suc n) ()
++'-minus-rev {suc m} zero _ = +'-right-zero
++'-minus-rev {suc m} (suc n) p = +'-right-suc >=> cong suc (+'-minus-rev n p)
+
+
+
 infixl 7 _*'_
 _*'_ : Nat -> Nat -> Nat
 zero *' n = zero

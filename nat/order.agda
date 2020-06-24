@@ -11,6 +11,7 @@ open import isomorphism
 open import nat.arithmetic
 open import nat.properties
 open import relation
+open import sigma
 
 
 _≤_ : Nat -> Nat -> Type₀
@@ -151,6 +152,44 @@ private
 
 ≮==≥ : {m n : Nat} -> m ≮ n == m ≥ n
 ≮==≥ = ua (isoToEquiv ≮-≥-iso)
+
+-- Properties of ≤/< and -'
+
+≤-minus : {m n p : Nat} -> (m +' n) ≤ p -> m ≤ (p -' n)
+≤-minus {m} {n} {p} (i , path) = (i , path')
+  where
+  path' : i +' m == p -' n
+  path' =
+    sym (+'-minus-right n)
+    >=> (cong (_-' n) (+'-assoc {i} >=> path))
+
+<-minus : {m n p : Nat} -> (m +' n) < p -> m < (p -' n)
+<-minus {m} {n} {p} (i , path) = (i , path')
+  where
+  path' : i +' (suc m) == p -' n
+  path' =
+    sym (+'-minus-right n)
+    >=> (cong (_-' n) (+'-assoc {i} >=> path))
+
+<-minus-rev : {m n p : Nat} -> m < (p -' n) -> (m +' n) < p
+<-minus-rev {m} {n} {p} m<p-n@(i , path) = (i , path')
+  where
+  check-path : i +' suc m == p -' n
+  check-path = path
+  path' : i +' (suc (m +' n)) == p
+  path' =
+    sym (+'-assoc {i} {suc m} {n})
+    >=> (cong (_+' n) path)
+    >=> (+'-minus-rev n (<->Pos' m<p-n))
+
+<-minus-iso : {m n p : Nat} -> Iso ((m +' n) < p) (m < (p -' n))
+Iso.fun <-minus-iso = <-minus
+Iso.inv <-minus-iso = <-minus-rev
+Iso.rightInv <-minus-iso _ = ΣProp-path (isSetNat _ _) refl
+Iso.leftInv  <-minus-iso _ = ΣProp-path (isSetNat _ _) refl
+
+<-minus-path : {m n p : Nat} -> ((m +' n) < p) == (m < (p -' n))
+<-minus-path = ua (isoToEquiv <-minus-iso)
 
 -- Flipped ≤
 _≤'_ : Nat -> Nat -> Type₀
