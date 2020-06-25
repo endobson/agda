@@ -39,8 +39,8 @@ private
     _::_  : {n : Nat} -> (a : A) -> Vec A n -> Vec A (suc n)
 
   lookup : {n : Nat} -> Vec A n -> Fin n -> A
-  lookup (a :: _) zero-fin = a
-  lookup (_ :: v) (suc-fin f) = lookup v f
+  lookup (a :: _) (zero , _) = a
+  lookup (_ :: v) (suc n , p) = lookup v (n , pred-≤ p)
 
   Nary-level : (i j : Level) -> Nat -> Level
   Nary-level i j zero = j
