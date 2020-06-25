@@ -37,8 +37,7 @@ private
 
   data Primality : Nat -> Type₀ where
     primality-prime : {p : Nat} -> IsPrime' p -> Primality p
-    primality-composite : {a' b' : Nat} (a b : Nat) -> {a == (suc (suc a'))} -> {b == (suc (suc b'))}
-                          -> Primality ((suc (suc a')) *' (suc (suc b')))
+    primality-composite : (a' b' : Nat) -> Primality ((suc (suc a')) *' (suc (suc b')))
 
   -- ≤ recursion scheme that supports counting up
   data _≤u_ : Nat -> Nat -> Type₀ where
@@ -55,28 +54,30 @@ private
   div->composite d0 d1 dn n0 (div'-exists d@(suc (suc _)) n 0 p) = bot-elim (n0 (sym p))
   div->composite d0 d1 dn n0 (div'-exists d@(suc (suc _)) n 1 p) =
     bot-elim (dn ((sym (+'-right-zero {d})) >=> p))
-  div->composite d0 d1 dn n0 (div'-exists d@(suc (suc d')) n x@(suc (suc x')) pr) =
-    transport (\i -> Primality (pr i)) (primality-composite x d {refl {x = x}} {refl {x = d}})
+  div->composite d0 d1 dn n0 (div'-exists (suc (suc d')) n (suc (suc x')) pr) =
+    transport (\i -> Primality (pr i)) (primality-composite x' d')
 
 
   compute-primality : {p : Nat} -> p > 1 -> Primality p
-  compute-primality {suc (suc p')} (suc-≤ (suc-≤ _)) =
-      rec (0≤i p' refl-≤u) (prime-up-to-two p')
+  compute-primality p@{suc (suc p')} p>1  =
+      rec (0≤i p' refl-≤u) (prime-up-to-two p p>1)
     where
     0≤i : (i : Nat) -> i ≤u p' -> 0 ≤u p'
     0≤i 0 pr = pr
     0≤i (suc i) pr = 0≤i i (step-≤u pr)
 
-    rec : {i : Nat} -> i ≤u p' -> PrimeUpTo (suc (suc p')) (suc (suc i)) -> Primality (suc (suc p'))
+    rec : {i : Nat} -> i ≤u p' -> PrimeUpTo p (suc (suc i)) -> Primality p
     rec refl-≤u pr = primality-prime (prime-up-to->is-prime' pr)
-    rec {i} (step-≤u step) pr with decide-div (suc (suc i)) (suc (suc p'))
+    rec {i} (step-≤u step) pr with decide-div (suc (suc i)) p
     ... | no not-div = rec step (prime-up-to-suc pr not-div)
-    ... | yes div = div->composite {suc (suc i)} {suc (suc p')}
+    ... | yes div = div->composite {suc (suc i)} {p}
                     (\ p -> bot-elim (zero-suc-absurd (sym p)))
                     (\ p -> bot-elim (zero-suc-absurd (sym (suc-injective p))))
                     (<->!= (suc-≤ (suc-≤ (≤u->≤ step))))
                     (\ p -> bot-elim (zero-suc-absurd (sym p)))
                     div
+  compute-primality {suc zero} p>1 = bot-elim (same-≮ p>1)
+  compute-primality {zero}     p>1 = bot-elim (zero-≮ p>1)
 
 
   compute-prime-factorization-tree : {n : Nat} -> n > 1 -> PrimeFactorizationTree n
@@ -86,30 +87,27 @@ private
     >1 {n'} = suc-≤ (suc-≤ zero-≤)
 
     rec : {i : Nat} {p : Nat} -> p > 1 -> (p ≤ i) -> PrimeFactorizationTree p
-    rec {_} p@{suc (suc p')} p>1 (suc-≤ p-bound) with (compute-primality p>1)
+    rec {_} {p} p>1 (suc-≤ p-bound) with (compute-primality p>1)
     ... | (primality-prime prime) = (prime-factorization-tree-prime prime)
-    ... | (primality-composite {m'} {n'} m n {p1} {p2})
-          with (path->id p1) | (path->id p2)
-    ... | refl-===     | refl-=== =
-            (prime-factorization-tree-composite
-              (rec (>1) (trans-≤ (pred-≤ m-bound) p-bound))
-              (rec (>1) (trans-≤ (pred-≤ n-bound) p-bound)))
-            where
-            base-eq-m : n *' m == p
-            base-eq-n : m *' n == p
-            base-eq-m = *'-commute {n} {m} >=> base-eq-n
-            base-eq-n = (\i -> p1 i *' p2 i)
+    ... | (primality-composite m' n') =
+      (prime-factorization-tree-composite
+        (rec (>1) (trans-≤ (pred-≤ m-bound) p-bound))
+        (rec (>1) (trans-≤ (pred-≤ n-bound) p-bound)))
+      where
 
-            rearranged-eq2-m : (suc m) +' (1 +' (m' +' n' *' m)) == p
-            rearranged-eq2-n : (suc n) +' (1 +' (n' +' m' *' n)) == p
-            rearranged-eq2-m = sym (+'-right-suc {m}) >=> base-eq-m
-            rearranged-eq2-n = sym (+'-right-suc {n}) >=> base-eq-n
+      rearranged-n : (suc (suc (suc n'))) +' ((suc n') +' m' *' (suc (suc n'))) == p
+      rearranged-n =
+        sym (+'-right-suc {suc (suc n')})
 
-            m-bound : (suc m ≤ p)
-            n-bound : (suc n ≤ p)
-            m-bound = (≤-a+'b==c rearranged-eq2-m)
-            n-bound = (≤-a+'b==c rearranged-eq2-n)
-    rec (suc-≤ ()) (suc-≤ zero-≤)
+      rearranged-m : (suc (suc (suc m'))) +' ((suc m') +' n' *' (suc (suc m'))) == p
+      rearranged-m =
+        sym (+'-right-suc {suc (suc m')})
+        >=> (*'-commute {suc (suc n')} {suc (suc m')})
+
+      m-bound : (suc (suc (suc m')) ≤ p)
+      n-bound : (suc (suc (suc n')) ≤ p)
+      m-bound = (≤-a+'b==c rearranged-m)
+      n-bound = (≤-a+'b==c rearranged-n)
 
 
   prime-factorization-* : {m n : Nat}
