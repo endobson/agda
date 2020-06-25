@@ -4,6 +4,7 @@ module sigma where
 
 open import base
 open import equality
+open import hlevel.base
 open import isomorphism
 
 private
@@ -80,3 +81,10 @@ pathSigma==sigmaPath a b =
                  (sigmaPath->pathSigma a b)
                  (sigmaPath->pathSigma->sigmaPath {a = a})
                  pathSigma->sigmaPath->pathSigma)
+
+ΣProp-path : ∀ {x y : Σ A B}
+             -> ({a : A} -> isProp (B a))
+             -> (x .fst) == (y .fst)
+             -> x == y
+ΣProp-path h p i .fst = p i
+ΣProp-path {x = x} {y = y} h p i .snd = isProp->PathP (\i -> h {(p i)}) (x .snd) (y .snd) i

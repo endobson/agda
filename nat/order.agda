@@ -44,6 +44,8 @@ zero-< {n} = suc-≤ (zero-≤ {n})
 suc-< : {m n : Nat} -> m < n -> suc m < suc n
 suc-< = suc-≤
 
+zero-≮ : {n : Nat} -> n ≮ zero
+zero-≮ ()
 
 same-≤ : (n : Nat) -> n ≤ n
 same-≤ zero = zero-≤
