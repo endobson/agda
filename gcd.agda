@@ -400,8 +400,7 @@ prime-gcd' : (a b : Nat) -> {Pos' a} -> {Pos' b}
 prime-gcd' a@(suc _) b@(suc _) pf = (gcd' a b 1 div'-one div'-one f)
   where
   f : (x : Nat) -> x div' a -> x div' b -> x div' 1
-  f zero x%a x%b with (path->id (div'-zero->zero x%a))
-  ...               | ()
+  f zero x%a x%b = zero-suc-absurd (sym (div'-zero->zero x%a))
   f (suc zero) _ _ = div'-one
   f x@(suc (suc _)) x%a x%b with (exists-prime-divisor {x} (suc-≤ (suc-≤ zero-≤)))
   ... | _ , (prime-p , p%x) =

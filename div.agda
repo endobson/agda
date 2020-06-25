@@ -133,12 +133,10 @@ abs-one-implies-unit {neg (suc _)} pr = zero-suc-absurd (suc-injective (sym pr))
 
 
 div'-antisym : {d1 d2 : Nat} -> d1 div' d2 -> d2 div' d1 -> d1 == d2
-div'-antisym {zero} {zero} div1 div2 = refl
+div'-antisym {zero}   {zero}   div1 div2 = refl
 div'-antisym {suc d1} {suc d2} div1 div2 = ≤-antisym (div'->≤ div1) (div'->≤ div2)
-div'-antisym {zero} {suc d2} div1 div2 with (path->id (div'-zero->zero div1))
-...                                       | ()
-div'-antisym {suc d1} {zero} div1 div2 with (path->id (div'-zero->zero div2))
-...                                       | ()
+div'-antisym {zero}   {suc d2} div1 div2 = zero-suc-absurd (sym (div'-zero->zero div1))
+div'-antisym {suc d1} {zero}   div1 div2 = zero-suc-absurd (sym (div'-zero->zero div2))
 
 
 div-same-abs : {d1 d2 : Int} -> d1 div d2 -> d2 div d1 -> (abs d1) == (abs d2)
@@ -301,12 +299,10 @@ private
   ...  | (mod-eq-proof pb px pa) = (mod-eq-proof pa (cong suc px) pb)
   unique-mod-step (mod-small-step step1) (mod-large-step step2)
     with (unique-mod-step step1 step2)
-  ...  | (mod-eq-proof p _ _) with (path->id p)
-  ...                            | ()
+  ...  | (mod-eq-proof p _ _) = zero-suc-absurd (sym p)
   unique-mod-step (mod-large-step step1) (mod-small-step step2)
     with (unique-mod-step step1 step2)
-  ...  | (mod-eq-proof p _ _) with (path->id p)
-  ...                            | ()
+  ...  | (mod-eq-proof p _ _) = zero-suc-absurd p
 
 
   -- Existential for indices in mod
@@ -348,17 +344,24 @@ private
 
 
   mod'->mod : {d n x a : Nat} -> ModStep' d n x a -> a < d -> ExistsModStep d n a
-  mod'->mod {_} {_} {_} {a} step a<d with (transport ≤==≤Σ a<d)
-  ... | (b , pr) = exists-mod-step (rec step (sym (+'-commute {b} {suc a}) >=> pr))
+  mod'->mod step a<d with (transport ≤==≤Σ a<d)
+  ... | (b , pr) = exists-mod-step (rec step (sym (+'-commute {b}) >=> pr))
     where
     rec : {d n b x a : Nat} -> ModStep' d n x a -> suc (a +' b) == d -> ModStep d n b x a
     rec {d} (mod-base' d') p =
-      transport (\i -> ModStep d 0 ((suc-injective p) (~ i)) 0 0)
+      transport (\i -> ModStep d 0 (cong pred p (~ i)) 0 0)
                 (mod-base d')
     rec {d} {n} {b} {x} {a} (mod-small-step' step) pr =
       mod-small-step (rec step ((+'-right-suc {a} {b}) >=> pr))
-    rec {d} {n} {b} {x} {a} (mod-large-step' step) p with (path->id p)
-    ... | refl-=== = mod-large-step (rec step (cong suc (+'-right-zero {b})))
+    rec {suc d'} {suc n} {b} {suc x} {a} (mod-large-step' step) p =
+      mod-large-step (rec tstep path)
+      where
+      path : (suc b +' 0) == suc d'
+      path = cong suc (+'-right-zero {b}) >=> p
+
+      tstep : ModStep' (suc d') n x b
+      tstep = transport (\i -> ModStep' (suc d' ) n x (cong pred p (~ i))) step
+
 
 
   remainder->mod-step : {d n a : Nat} -> Remainder d n a -> ExistsModStep d n a
@@ -373,14 +376,10 @@ private
     rec (suc n) zero (suc x) (suc-≤ a<d) pr =
       (mod-large-step' (rec n d' x (add1-< d') (suc-injective pr)))
 
-    rec zero zero (suc x) (suc-≤ a<d) pr with (path->id pr)
-    ...                                     | ()
-    rec zero (suc a) (suc x) (suc-≤ a<d) pr with (path->id pr)
-    ...                                        | ()
-    rec zero (suc a) zero (suc-≤ a<d) pr with (path->id pr)
-    ...                                     | ()
-    rec (suc n) zero zero (suc-≤ a<d) pr with (path->id pr)
-    ...                                     | ()
+    rec zero    zero    (suc x) (suc-≤ a<d) pr = zero-suc-absurd (sym pr)
+    rec zero    (suc a) (suc x) (suc-≤ a<d) pr = zero-suc-absurd (sym pr)
+    rec zero    (suc a) zero    (suc-≤ a<d) pr = zero-suc-absurd (sym pr)
+    rec (suc n) zero    zero    (suc-≤ a<d) pr = zero-suc-absurd pr
 
 unique-remainder : {d n a1 a2 : Nat} -> Remainder d n a1 -> Remainder d n a2 -> a1 == a2
 unique-remainder {zero} (remainder _ _ _ _ () _)
@@ -391,10 +390,9 @@ unique-remainder {suc _} rem1 rem2
 ... | (mod-eq-proof _ _ pr) = pr
 
 remainder->¬div : {d n a : Nat} -> Remainder d n (suc a) -> ¬(d div' n)
-remainder->¬div {zero} (remainder _ _ _ _ () _)
-remainder->¬div {suc _} rem dn with
-  (path->id (unique-remainder rem (div->remainder dn (\p -> bot-elim (zero-suc-absurd (sym p))))))
-... | ()
+remainder->¬div {zero} (remainder _ _ _ _ lt _) = bot-elim (zero-≮ lt)
+remainder->¬div {suc _} rem dn =
+  (zero-suc-absurd (sym (unique-remainder rem (div->remainder dn (\p -> bot-elim (zero-suc-absurd (sym p)))))))
 
 
 decide-div : (d n : Nat) -> Dec (d div' n)
@@ -402,8 +400,7 @@ decide-div _ zero = yes div'-zero
 decide-div zero (suc d) = no f
   where
   f : (x : zero div' (suc d)) -> Bot
-  f z-div with (path->id (div'-zero->zero z-div))
-  ...        | ()
+  f z-div = zero-suc-absurd (sym (div'-zero->zero z-div))
 decide-div d@(suc d') n@(suc _) with (exists-remainder d (\ d=z -> zero-suc-absurd (sym d=z)) n)
 ... | (zero , rem) = yes (remainder->div rem)
 ... | ((suc a) , rem) = no (remainder->¬div rem)

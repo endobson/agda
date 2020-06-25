@@ -35,8 +35,11 @@ ex1-2' (gcd' a@(suc _) b@(suc _) _ _ _ f-b) (gcd' a@(suc _) c@(suc _) _ _ _ f-c)
   ... | inj-l p%b = ¬prime-div-one p (f-b p' p%a p%b)
   ... | inj-r p%c = ¬prime-div-one p (f-c p' p%a p%c)
 ex1-2' {zero} b@{suc _} c@{suc _} gb gc
-  with (path->id (gcd'-zero->id gb)) | (path->id (gcd'-zero->id gc))
-... | refl-=== | refl-=== = gb
+  with (gcd'-zero->id gb) | (gcd'-zero->id gc)
+... | b==1 | c==1 = transport (\ i -> GCD' 0 (path i) 1) gb
+  where
+  path : b == b *' c
+  path = b==1 >=> (\i -> (sym b==1 i) *' (sym c==1 i))
 
 ex1-2 : {a b c : Int} -> GCD a b (int 1) -> GCD a c (int 1)
                       -> GCD a (b * c) (int 1)

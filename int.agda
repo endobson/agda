@@ -836,25 +836,24 @@ minus-extract-both {m} {n} =
           >=> (cong minus (minus-extract-right {neg m} {neg n}))
           >=> (minus-double-inverse {neg m * neg n})
 
+add1-disjoint : (m : Int) -> add1 m != m
+add1-disjoint zero-int      p = transport (\i -> Pos (p i)) tt
+add1-disjoint (neg zero)    p = transport (\i -> Zero (p i)) tt
+add1-disjoint (pos zero)    p = add1-disjoint zero-int (cong sub1 p)
+add1-disjoint (pos (suc x)) p = add1-disjoint (pos x)  (cong sub1 p)
+add1-disjoint (neg (suc x)) p = add1-disjoint (neg x)  (cong add1 p)
 
+sub1-disjoint : (m : Int) -> sub1 m != m
+sub1-disjoint zero-int      p = transport (\i -> Neg (p i)) tt
+sub1-disjoint (pos zero)    p = transport (\i -> Zero (p i)) tt
+sub1-disjoint (neg zero)    p = sub1-disjoint zero-int (cong add1 p)
+sub1-disjoint (neg (suc x)) p = sub1-disjoint (neg x)  (cong add1 p)
+sub1-disjoint (pos (suc x)) p = sub1-disjoint (pos x)  (cong sub1 p)
 
-add1-disjoint : {m : Int} -> add1 m != m
-add1-disjoint {m} p = rec m (path->id p)
-  where
-  rec : (m : Int) -> add1 m !== m
-  rec zero-int ()
-  rec (pos _) ()
-  rec (neg zero) ()
-  rec (neg (suc _)) ()
-
-sub1-disjoint : {m : Int} -> sub1 m != m
-sub1-disjoint {m} p = rec m (path->id p)
-  where
-  rec : (m : Int) -> sub1 m !== m
-  rec zero-int ()
-  rec (neg _) ()
-  rec (pos zero) ()
-  rec (pos (suc _)) ()
+zero!=non-zero : {x y : Int} {z-x : Zero x} {nz-y : NonZero y} -> x == y -> Bot
+zero!=non-zero {zero-int} {nz-y = nz} p = transport (\i -> NonZero (p (~ i))) nz
+zero!=non-zero {pos _}    {z-x = z}   _ = z
+zero!=non-zero {neg _}    {z-x = z}   _ = z
 
 
 +-right-id : {m n : Int} -> m + n == m -> n == (int 0)
@@ -890,10 +889,8 @@ sub1-disjoint {m} p = rec m (path->id p)
   bot-elim (subst Pos pr (*-Neg-Neg {neg m} {neg n} tt tt))
 
 *-left-id : {m n : Int} -> (NonZero n) -> m * n == n -> m == (int 1)
-*-left-id {zero-int} {pos _} tt p with (path->id p)
-... | ()
-*-left-id {zero-int} {neg _} tt p with (path->id p)
-... | ()
+*-left-id {zero-int} {pos _} tt p = bot-elim (zero!=non-zero p)
+*-left-id {zero-int} {neg _} tt p = bot-elim (zero!=non-zero p)
 *-left-id {pos zero} {_} _ _ = refl
 *-left-id {pos (suc m)} {pos n} nz pr =
   bot-elim (subst Pos (+-right-id pr) (*-Pos-Pos {pos m} {pos n} tt tt))
@@ -914,18 +911,20 @@ a ^ (suc b) = a * a ^ b
 ^-right-one : {a : Int} -> a ^ 1 == a
 ^-right-one = *-right-one
 
-
 nonneg-injective : {m n : Nat} -> nonneg m == nonneg n -> m == n
-nonneg-injective p with (path->id p)
-...  | refl-=== = refl
+nonneg-injective {zero}  {zero}  p = refl
+nonneg-injective {suc _} {zero}  p = bot-elim (zero!=non-zero (sym p))
+nonneg-injective {zero}  {suc _} p = bot-elim (zero!=non-zero p)
+nonneg-injective {suc _} {suc _} p = cong suc (nonneg-injective (cong sub1 p))
 
 neg-injective : {m n : Nat} -> neg m == neg n -> m == n
-neg-injective p with (path->id p)
-...  | refl-=== = refl
+neg-injective {zero}  {zero}  p = refl
+neg-injective {suc _} {zero}  p = bot-elim (zero!=non-zero (sym (cong add1 p)))
+neg-injective {zero}  {suc _} p = bot-elim (zero!=non-zero (cong add1 p))
+neg-injective {suc _} {suc _} p = cong suc (neg-injective (cong add1 p))
 
 nonneg-neg-absurd : {m n : Nat} -> nonneg m == neg n -> Bot
-nonneg-neg-absurd p with (path->id p)
-...  | ()
+nonneg-neg-absurd p = transport (\i -> NonNeg (p i)) tt
 
 
 decide-int : (x : Int) -> (y : Int) -> Dec (x == y)
