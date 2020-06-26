@@ -152,49 +152,15 @@ private
 ≮==≥ : {m n : Nat} -> m ≮ n == m ≥ n
 ≮==≥ = ua (isoToEquiv ≮-≥-iso)
 
--- Existential ≤
-private
-  data Add : Nat -> Nat -> Nat -> Set where
-    add-zero : ∀ n -> Add n zero n
-    add-suc : ∀ {a b c} -> Add a b c -> Add (suc a) (suc b) c
-
-  add : (m : Nat) -> (n : Nat) -> Add (m +' n) m n
-  add zero n = add-zero n
-  add (suc m) n = add-suc (add m n)
-
-  add-path-in : ∀ {a b c} -> a +' b == c -> Add c a b
-  add-path-in {a} {b} p = (subst (\ c -> (Add c a b)) p (add a b))
-
-  add-path-out : ∀ {a b c} -> Add c a b -> a +' b == c
-  add-path-out (add-zero b) = refl
-  add-path-out (add-suc p) = (cong suc (add-path-out p))
-
-  add-commute : ∀ {a b c} -> Add c a b -> Add c b a
-  add-commute {a} {b} pr = (add-path-in ((+'-commute {b} {a}) >=> (add-path-out pr)))
-
-  ≤-a+'b==c'-Add : {a b c : Nat} -> Add c a b -> b ≤ c
-  ≤-a+'b==c'-Add (add-zero b) = (same-≤ b)
-  ≤-a+'b==c'-Add (add-suc p) = right-suc-≤ (≤-a+'b==c'-Add p)
-
-  ≤-a+'b==c-Add : {a b c : Nat} -> Add c a b -> a ≤ c
-  ≤-a+'b==c-Add pr = ≤-a+'b==c'-Add (add-commute pr)
-
-
-≤-a+'b==c' : {a b c : Nat} -> a +' b == c -> b ≤ c
-≤-a+'b==c' {a} {b} p = transport (\i -> b ≤ p i) (≤-a+'b==c'-Add (add a b))
-
-≤-a+'b==c : {a b c : Nat} -> a +' b == c -> a ≤ c
-≤-a+'b==c {a} {b} p = transport (\i -> a ≤ p i) (≤-a+'b==c-Add (add a b))
-
-<-a+'b<c' : {a b c : Nat} -> (a +' b) < c -> b < c
-<-a+'b<c' {a} {b} {c} (x , pr) = x +' a , +'-assoc {x} >=> +'-right {x} +'-right-suc >=> pr
-
-
+-- Flipped ≤
 _≤'_ : Nat -> Nat -> Type₀
 m ≤' n = Σ[ x ∈ Nat ] m +' x == n
 
 ≤==≤' : {m n : Nat} -> m ≤ n == m ≤' n
 ≤==≤' {m} {n} i = Σ[ x ∈ Nat ] ((+'-commute {x} {m} i) == n)
+
+≤'->≤ : {m n : Nat} -> m ≤' n -> m ≤ n
+≤'->≤ = transport (sym ≤==≤')
 
 -- Step based ≤
 data _≤s_ : Nat -> Nat -> Set where

@@ -77,7 +77,7 @@ div-abs-left {pos _} div-a = div-a
 div-abs-left {neg _} div-a = div-negate-left div-a
 
 div'->≤ : {d a : Nat} -> d div' a -> {Pos' a} -> d ≤ a
-div'->≤ (div'-exists d a (suc x) sx*d=a) = ≤-a+'b==c sx*d=a
+div'->≤ (div'-exists d a (suc x) sx*d=a) = ≤'->≤ (x *' d , sx*d=a)
 div'->≤ (div'-exists d (suc _) zero pr) = zero-suc-absurd pr
 
 div->≤ : {d a : Int} -> d div a -> {Pos a} -> abs' d ≤ abs' a
@@ -213,7 +213,7 @@ no-small-dividends n<d n!=0 d!=0 (div'-exists d n x pr) with x
 ... | (suc y) = same-≮ n<n
   where
   d≤n : d ≤ n
-  d≤n = ≤-a+'b==c pr
+  d≤n = ≤'->≤ (y *' d , pr)
   n<n : n < n
   n<n = trans-<-≤ n<d d≤n
 
@@ -260,7 +260,7 @@ private
     ab=d' (mod-large-step {d} {n} {b} step) = (sym (+'-right-zero {b})) >=> ab=d' step
 
     a<d : a < d
-    a<d = (suc-≤ (≤-a+'b==c (ab=d' step)))
+    a<d = suc-≤ (≤'->≤ (b , (ab=d' step)))
 
     eq-step : {n b x a : Nat} -> ModStep d n b x a -> a +' x *' d == n
     eq-step (mod-base d') = refl
