@@ -87,11 +87,10 @@ infix 2 Σ-syntax
 
 syntax Σ-syntax A (\x -> B) = Σ[ x ∈ A ] B
 
-infixr 4 _,_
 infixr 2 _×_
 
-data _×_ {ℓ₁ ℓ₂ : Level} (A : Type ℓ₁) (B : Type ℓ₂) : Type (ℓ-max ℓ₁ ℓ₂) where
-  _,_ : (a : A) -> (b : B) -> A × B
+_×_ : {ℓ₁ ℓ₂ : Level} (A : Type ℓ₁) (B : Type ℓ₂) -> Type (ℓ-max ℓ₁ ℓ₂)
+A × B = Σ A (\_ -> B)
 
 proj₁ : {a b : Level} {A : Set a} -> {B : Set b} -> A × B -> A
 proj₁ (a , b) = a
