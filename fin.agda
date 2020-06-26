@@ -38,9 +38,9 @@ private
   fin-one-top-iso : Iso (Fin 1) Top
   Iso.fun fin-one-top-iso _ = tt
   Iso.inv fin-one-top-iso _ = zero-fin
-  Iso.rightInv fin-one-top-iso tt                       = refl
-  Iso.leftInv  fin-one-top-iso (zero  , suc-≤ (zero-≤)) = refl
-  Iso.leftInv  fin-one-top-iso (suc i , lt)             = bot-elim (zero-≮ (pred-≤ lt))
+  Iso.rightInv fin-one-top-iso tt           = refl
+  Iso.leftInv  fin-one-top-iso (zero  , _)  = ΣProp-path isProp≤ refl
+  Iso.leftInv  fin-one-top-iso (suc i , lt) = bot-elim (zero-≮ (pred-≤ lt))
 
 fin-zero-bot-path : Fin 0 == Bot
 fin-zero-bot-path = ua (isoToEquiv fin-zero-bot-iso)
@@ -81,7 +81,7 @@ private
 
   suc-fin-iso' : {n : Nat} {x y : Fin (suc n)} -> Iso (x == y) (suc-fin x == suc-fin y)
   Iso.fun suc-fin-iso' p = cong suc-fin p
-  Iso.inv suc-fin-iso' p = cong pred-fin p
+  Iso.inv suc-fin-iso' p = ΣProp-path isProp≤ (cong (fst ∘ pred-fin) p)
   Iso.rightInv suc-fin-iso' p = isSet->Square isSetFin
   Iso.leftInv  suc-fin-iso' p = isSet->Square isSetFin
 

@@ -91,7 +91,7 @@ private
     where
 
     >1-*'->both< : {a b m : Nat} -> a > 1 -> b > 1 -> a *' b == m -> (a < m × b < m)
-    >1-*'->both< {a} {b} {m} a>1 b>1 a*b==m with (transport ≤==≤Σ' a>1) | (transport ≤==≤Σ' b>1)
+    >1-*'->both< {a} {b} {m} a>1 b>1 a*b==m with (transport ≤==≤' a>1) | (transport ≤==≤' b>1)
     ... | (a' , ssa'==a) | (b' , ssb'==b) = a<m , b<m
       where
       ssa'*ssb'==m : (suc (suc a')) *' (suc (suc b')) == m
@@ -108,15 +108,15 @@ private
         >=> (*'-commute {suc (suc b')} {suc (suc a')})
         >=> ssa'*ssb'==m
 
-      sssa'≤Σ'm : (suc (suc (suc a'))) ≤Σ' m
-      sssb'≤Σ'm : (suc (suc (suc b'))) ≤Σ' m
+      sssa'≤Σ'm : (suc (suc (suc a'))) ≤' m
+      sssb'≤Σ'm : (suc (suc (suc b'))) ≤' m
       sssa'≤Σ'm = (_ , rearranged-a)
       sssb'≤Σ'm = (_ , rearranged-b)
 
       a<m : a < m
       b<m : b < m
-      a<m = transport (\i -> (≤==≤Σ' {suc (ssa'==a i)} {m} (~ i))) sssa'≤Σ'm
-      b<m = transport (\i -> (≤==≤Σ' {suc (ssb'==b i)} {m} (~ i))) sssb'≤Σ'm
+      a<m = transport (\i -> (≤==≤' {suc (ssa'==a i)} {m} (~ i))) sssa'≤Σ'm
+      b<m = transport (\i -> (≤==≤' {suc (ssb'==b i)} {m} (~ i))) sssb'≤Σ'm
 
     cases : {m : Nat}
            -> ({n : Nat} -> n < m -> n > 1 -> PrimeFactorizationTree n)
@@ -125,8 +125,6 @@ private
     ... | (primality-prime prime) = (prime-factorization-tree-prime prime)
     ... | (primality-composite a b a>1 b>1) with (>1-*'->both< a>1 b>1 refl)
     ...   | (a<m , b<m) = prime-factorization-tree-composite (f a<m a>1) (f b<m b>1)
-
-
 
 
   prime-factorization-* : {m n : Nat}
@@ -166,7 +164,7 @@ exists-prime-divisor {n} n>1 = rec (compute-prime-factorization-tree n>1) div'-r
     rec ef (div'-trans (div'-exists e a d refl) a%n)
 
 compute-prime-factorization : {n : Nat} -> n > 0 -> (PrimeFactorization' n)
-compute-prime-factorization {suc zero}    _ =
-  (prime-factorization [])
+compute-prime-factorization {zero}        p = bot-elim (same-≮ p)
+compute-prime-factorization {suc zero}    _ = (prime-factorization [])
 compute-prime-factorization {suc (suc n)} _ =
-  (convert-prime-factorization (compute-prime-factorization-tree (suc-≤ (zero-< {n}))))
+  convert-prime-factorization (compute-prime-factorization-tree (suc-≤ (zero-<)))

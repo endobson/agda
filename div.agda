@@ -344,8 +344,7 @@ private
 
 
   mod'->mod : {d n x a : Nat} -> ModStep' d n x a -> a < d -> ExistsModStep d n a
-  mod'->mod step a<d with (transport ≤==≤Σ a<d)
-  ... | (b , pr) = exists-mod-step (rec step (sym (+'-commute {b}) >=> pr))
+  mod'->mod step (b , pr) = exists-mod-step (rec step (sym (+'-commute {b}) >=> pr))
     where
     rec : {d n b x a : Nat} -> ModStep' d n x a -> suc (a +' b) == d -> ModStep d n b x a
     rec {d} (mod-base' d') p =
@@ -365,24 +364,24 @@ private
 
 
   remainder->mod-step : {d n a : Nat} -> Remainder d n a -> ExistsModStep d n a
-  remainder->mod-step {zero} (remainder _ _ _ _ () _)
+  remainder->mod-step {zero} (remainder _ _ _ _ a<d _) = bot-elim (zero-≮ a<d)
   remainder->mod-step d@{suc d'} (remainder _ n a x a<d pr) =
       (mod'->mod (rec n a x a<d pr) a<d)
     where
     rec : (n a x : Nat) -> a < d -> (a +' x *' d == n) -> ModStep' d n x a
     rec zero zero zero _ refl = (mod-base' d')
-    rec (suc n) (suc a) x (suc-≤ a<d) pr =
-      (mod-small-step' (rec n a x (right-suc-< a<d) (suc-injective pr)))
-    rec (suc n) zero (suc x) (suc-≤ a<d) pr =
+    rec (suc n) (suc a) x a<d pr =
+      (mod-small-step' (rec n a x (right-suc-< (pred-≤ a<d)) (suc-injective pr)))
+    rec (suc n) zero (suc x) _ pr =
       (mod-large-step' (rec n d' x (add1-< d') (suc-injective pr)))
 
-    rec zero    zero    (suc x) (suc-≤ a<d) pr = zero-suc-absurd (sym pr)
-    rec zero    (suc a) (suc x) (suc-≤ a<d) pr = zero-suc-absurd (sym pr)
-    rec zero    (suc a) zero    (suc-≤ a<d) pr = zero-suc-absurd (sym pr)
-    rec (suc n) zero    zero    (suc-≤ a<d) pr = zero-suc-absurd pr
+    rec zero    zero    (suc x) a<d pr = zero-suc-absurd (sym pr)
+    rec zero    (suc a) (suc x) a<d pr = zero-suc-absurd (sym pr)
+    rec zero    (suc a) zero    a<d pr = zero-suc-absurd (sym pr)
+    rec (suc n) zero    zero    a<d pr = zero-suc-absurd pr
 
 unique-remainder : {d n a1 a2 : Nat} -> Remainder d n a1 -> Remainder d n a2 -> a1 == a2
-unique-remainder {zero} (remainder _ _ _ _ () _)
+unique-remainder {zero} (remainder _ _ _ _ a<d _) = bot-elim (zero-≮ a<d)
 unique-remainder {suc _} rem1 rem2
  with (remainder->mod-step rem1) | (remainder->mod-step rem2)
 ... | (exists-mod-step {d} {n} step1) | (exists-mod-step {d} {n} step2)

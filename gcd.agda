@@ -284,7 +284,7 @@ pos-eulers-algo' (suc b) m n size-pr = split (decide-compare3 m n)
     handle (d , gc) = (d , (linear-gcd-sym (eulers-helper n m {a} pr {d} gc)))
     new-size-pr : (a +' n) < b
     new-size-pr = pred-≤ (trans-≤-< rec-size-pr size-pr)
-pos-eulers-algo' zero m n ()
+pos-eulers-algo' zero m n <b = bot-elim (zero-≮ <b)
 
 
 pos-eulers-algo : (m : Nat) -> (n : Nat) -> Σ[ d ∈ Int ] (LinearGCD (pos m) (pos n) d)

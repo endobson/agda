@@ -194,8 +194,8 @@ private
         bs' : UList A
         bs' = remove1 a bs
 
-        bs-count : suc (count a as) ≤Σ' count a bs
-        bs-count = (transport (path >=> ≤==≤Σ') (a::as≼bs a))
+        bs-count : suc (count a as) ≤' count a bs
+        bs-count = (transport (path >=> ≤==≤') (a::as≼bs a))
           where
           path : (count a (a :: as) ≤ count a bs) == (suc (count a as) ≤ (count a bs))
           path i = (count-== {x = a} as refl i) ≤ count a bs

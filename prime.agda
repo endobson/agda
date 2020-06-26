@@ -20,7 +20,7 @@ record Prime' : Type₀ where
 
 
 prime-only-divisors : {p d : Nat} -> IsPrime' p -> d div' p -> (d == p) ⊎ (d == 1)
-prime-only-divisors {d = d} (is-prime' p (suc-≤ _) pf) d%p with (≤->≤s (div'->≤ d%p))
+prime-only-divisors {d = d} (is-prime' p p>1 pf) d%p with (≤->≤s (div'->≤ d%p {<->Pos' p>1}))
 ... | refl-≤s = inj-l refl
 ... | (step-≤s pr) = inj-r (pf d (suc-≤s pr) d%p)
 
@@ -46,10 +46,10 @@ module PrimeUpTo where
     g d (step-≤s d≤b) dp = f d d≤b dp
 
   prime-up-to-one : (p : Nat) -> (p > 1) -> PrimeUpTo p 1
-  prime-up-to-one p p>1@(suc-≤ _) = prime-up-to-suc (prime-up-to-zero p p>1) pr
+  prime-up-to-one p p>1 = prime-up-to-suc (prime-up-to-zero p p>1) pr
     where
     pr : ¬(0 div' p)
-    pr 0p = zero-suc-absurd (sym (div'-zero->zero 0p))
+    pr 0p = zero-≮ (transport (\i -> (div'-zero->zero 0p i) > 1) p>1)
 
   prime-up-to-two : (p : Nat) -> (p > 1) -> PrimeUpTo p 2
   prime-up-to-two p p>1 = prime-up-to p 2 p>1 g

@@ -12,9 +12,9 @@ open import nat.arithmetic
 open import nat.properties
 open import relation
 
-data _≤_ : Nat -> Nat -> Set where
- zero-≤ : {n : Nat} -> zero ≤ n
- suc-≤ : {m n : Nat} -> m ≤ n -> suc m ≤ suc n
+
+_≤_ : Nat -> Nat -> Type₀
+m ≤ n = Σ[ x ∈ Nat ] x +' m == n
 
 _≥_ : Nat -> Nat -> Set
 m ≥ n = n ≤ m
@@ -31,68 +31,91 @@ m ≮ n = ¬ (m < n)
 _≯_ : Nat -> Nat -> Set
 m ≯ n = ¬ (m > n)
 
-isProp≤ : {m n : Nat} -> isProp (m ≤ n)
-isProp≤ zero-≤ zero-≤ = refl
-isProp≤ (suc-≤ p1) (suc-≤ p2) = cong suc-≤ (isProp≤ p1 p2)
+module _ {m n : Nat} (lt1@(x1 , p1) lt2@(x2 , p2) : m ≤ n) where
+  private
+    p-x : x1 == x2
+    p-x = (transport (sym (+'-right-path m)) (p1 >=> (sym p2)))
+
+    p-p : PathP (\i -> p-x i +' m == n) p1 p2
+    p-p = isSet->Square isSetNat
+
+  isProp≤ : lt1 == lt2
+  isProp≤  i .fst = p-x i
+  isProp≤  i .snd = p-p i
 
 isProp≮ : {m n : Nat} -> isProp (m ≮ n)
 isProp≮ = isProp¬ _
 
+zero-≤ : {n : Nat} -> zero ≤ n
+zero-≤ {n} = (n , +'-right-zero)
+
+suc-≤ : {m n : Nat} -> m ≤ n -> suc m ≤ suc n
+suc-≤ (x , p) = (x , +'-right-suc >=> cong suc p)
+
 zero-< : {n : Nat} -> zero < (suc n)
-zero-< {n} = suc-≤ (zero-≤ {n})
+zero-< = suc-≤ zero-≤
 
 suc-< : {m n : Nat} -> m < n -> suc m < suc n
 suc-< = suc-≤
 
 zero-≮ : {n : Nat} -> n ≮ zero
-zero-≮ ()
+zero-≮ (zero  , p) = zero-suc-absurd (sym p)
+zero-≮ (suc _ , p) = zero-suc-absurd (sym p)
 
 same-≤ : (n : Nat) -> n ≤ n
 same-≤ zero = zero-≤
 same-≤ (suc n) = suc-≤ (same-≤ n)
+
+pred-≤ : {m n : Nat} -> m ≤ n -> pred m ≤ pred n
+pred-≤ {m = zero}              _       = zero-≤
+pred-≤ {m = suc _} {n = zero}  lt      = bot-elim (zero-≮ lt)
+pred-≤ {m = suc _} {n = suc _} (x , p) = (x , cong pred (sym +'-right-suc >=> p))
 
 add1-< : (n : Nat) -> n < (suc n)
 add1-< zero = zero-<
 add1-< (suc n) = suc-< (add1-< n)
 
 right-suc-≤ : {m n : Nat} -> m ≤ n -> m ≤ (suc n)
-right-suc-≤ zero-≤ = zero-≤
-right-suc-≤ (suc-≤ p) = suc-≤ (right-suc-≤ p)
+right-suc-≤ (x , p) = suc x , cong suc p
 
 right-suc-< : {m n : Nat} -> m < n -> m < (suc n)
 right-suc-< = right-suc-≤
 
-
 trans-≤ : {m n o : Nat} -> m ≤ n -> n ≤ o -> m ≤ o
-trans-≤ zero-≤ p = zero-≤
-trans-≤ (suc-≤ l) (suc-≤ r) = suc-≤ (trans-≤ l r)
-
-trans-< : {m n o : Nat} -> (m < n) -> (n < o) -> (m < o)
-trans-< (suc-≤ zero-≤) (suc-≤ r) = zero-<
-trans-< (suc-≤ l@(suc-≤ _)) (suc-≤ r) = suc-< (trans-< l r)
+trans-≤ (x1 , p1) (x2 , p2) = x2 +' x1 , +'-assoc {x2} >=> cong (x2 +'_) p1 >=> p2
 
 trans-<-≤ : {m n o : Nat} -> (m < n) -> (n ≤ o) -> (m < o)
-trans-<-≤ (suc-≤ zero-≤) (suc-≤ r) = zero-<
-trans-<-≤ (suc-≤ l@(suc-≤ _)) (suc-≤ r) = suc-< (trans-<-≤ l r)
+trans-<-≤ = trans-≤
 
 trans-≤-< : {m n o : Nat} -> m ≤ n -> n < o -> m < o
-trans-≤-< zero-≤ (suc-≤ _) = zero-<
-trans-≤-< (suc-≤ l) (suc-≤ r) = suc-< (trans-≤-< l r)
+trans-≤-< {m} {n} {o} (x1 , p1) (x2 , p2) = x2 +' x1 , path
+  where
+  path : (x2 +' x1) +' suc m == o
+  path = +'-assoc {x2}
+         >=> cong (x2 +'_) (+'-right-suc >=> cong suc p1)
+         >=> p2
+
+trans-< : {m n o : Nat} -> (m < n) -> (n < o) -> (m < o)
+trans-< lt1 lt2 = trans-≤-< (pred-≤ (right-suc-≤ lt1)) lt2
+
+<->!= : {m n : Nat} -> m < n -> m != n
+<->!= {m} {n} (x , p) m==n =
+  zero-suc-absurd (transport (sym (+'-right-path m)) (m==n >=> sym p >=> +'-right-suc))
 
 same-≮ : {n : Nat} -> (n ≮ n)
-same-≮ (suc-≤ pr) = same-≮ pr
+same-≮ {n} lt = <->!= lt refl
 
-pred-≤ : {m n : Nat} -> m ≤ n -> pred m ≤ pred n
-pred-≤ zero-≤ = zero-≤
-pred-≤ (suc-≤ ≤) = ≤
+<->Pos' : {x y : Nat} -> x < y -> Pos' y
+<->Pos' (zero  , p) = transport (\i -> Pos' (p i)) tt
+<->Pos' (suc _ , p) = transport (\i -> Pos' (p i)) tt
 
 -- suc-≤ introduces a path
 
 suc-≤-iso : {m n : Nat} -> Iso (m ≤ n) (suc m ≤ suc n)
 Iso.fun suc-≤-iso = suc-≤
 Iso.inv suc-≤-iso = pred-≤
-Iso.rightInv suc-≤-iso (suc-≤ _) = refl
-Iso.leftInv  suc-≤-iso _         = refl
+Iso.rightInv suc-≤-iso _ = isProp≤ _ _
+Iso.leftInv  suc-≤-iso _ = isProp≤ _ _
 
 suc-≤-== : {m n : Nat} -> (m ≤ n) == (suc m ≤ suc n)
 suc-≤-== = ua (isoToEquiv suc-≤-iso)
@@ -106,13 +129,13 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
 +-right-≤ {m} {n} x =
   transport (\i -> m ≤ n == (+'-commute {x} {m} i) ≤ (+'-commute {x} {n} i)) (+-left-≤ x)
 
-<->!= : {m n : Nat} -> m < n -> m != n
-<->!= (suc-≤ zero-≤) pr = zero-suc-absurd pr
-<->!= (suc-≤ rec@(suc-≤ _)) p = (<->!= rec) (suc-injective p)
-
 ≤-antisym : {m n : Nat} -> m ≤ n -> n ≤ m -> m == n
-≤-antisym zero-≤ zero-≤ = refl
-≤-antisym (suc-≤ l) (suc-≤ r) = cong suc (≤-antisym l r)
+≤-antisym (zero  , p1) _ = p1
+≤-antisym {m} {n} (suc i , p1) (j , p2) = bot-elim (zero-suc-absurd (sym path))
+  where
+  path : (suc i +' j) == 0
+  path = transport (sym (+'-right-path n))
+                   (+'-assoc {suc i} >=> cong (suc i +'_) p2 >=> p1)
 
 private
   ≮->≥ : {m n : Nat} -> m ≮ n -> m ≥ n
@@ -164,59 +187,14 @@ private
 ≤-a+'b==c {a} {b} p = transport (\i -> a ≤ p i) (≤-a+'b==c-Add (add a b))
 
 <-a+'b<c' : {a b c : Nat} -> (a +' b) < c -> b < c
-<-a+'b<c' {zero} {b} {c} pr = pr
-<-a+'b<c' {suc a} {b} {suc c} (suc-≤ pr) = right-suc-< (<-a+'b<c' pr)
+<-a+'b<c' {a} {b} {c} (x , pr) = x +' a , +'-assoc {x} >=> +'-right {x} +'-right-suc >=> pr
 
 
-_≤Σ_ : Nat -> Nat -> Type₀
-m ≤Σ n = Σ[ x ∈ Nat ] x +' m == n
+_≤'_ : Nat -> Nat -> Type₀
+m ≤' n = Σ[ x ∈ Nat ] m +' x == n
 
-_≤Σ'_ : Nat -> Nat -> Type₀
-m ≤Σ' n = Σ[ x ∈ Nat ] m +' x == n
-
-≤Σ==≤Σ' : {m n : Nat} -> m ≤Σ n == m ≤Σ' n
-≤Σ==≤Σ' {m} {n} i = Σ[ x ∈ Nat ] ((+'-commute {x} {m} i) == n)
-
-module _ {m n : Nat} (lt1@(x1 , p1) lt2@(x2 , p2) : m ≤Σ n) where
-  private
-    p-x : x1 == x2
-    p-x = (transport (sym (+'-right-path m)) (p1 >=> (sym p2)))
-
-    p-p : PathP (\i -> p-x i +' m == n) p1 p2
-    p-p = isSet->Square isSetNat
-
-  isProp≤Σ : lt1 == lt2
-  isProp≤Σ  i .fst = p-x i
-  isProp≤Σ  i .snd = p-p i
-
-isProp≤Σ' : {m n : Nat} -> isProp (m ≤Σ' n)
-isProp≤Σ' = subst isProp ≤Σ==≤Σ' isProp≤Σ
-
-≤->≤Σ' : {m n : Nat} -> m ≤ n -> m ≤Σ' n
-≤->≤Σ' {n = n} zero-≤     .fst = n
-≤->≤Σ'         zero-≤     .snd = refl
-≤->≤Σ'         (suc-≤ lt) .fst = ≤->≤Σ' lt .fst
-≤->≤Σ'         (suc-≤ lt) .snd = cong suc (≤->≤Σ' lt .snd)
-
-≤Σ'->≤ : {m n : Nat} -> m ≤Σ' n -> m ≤ n
-≤Σ'->≤ {m = zero}  {n = _}     (_ , p) = zero-≤
-≤Σ'->≤ {m = suc m} {n = zero}  (_ , p) = bot-elim (zero-suc-absurd (sym p))
-≤Σ'->≤ {m = suc m} {n = suc n} (x , p) = suc-≤ (≤Σ'->≤ (x , suc-injective p))
-
-≤-≤Σ'-iso : {m n : Nat} -> Iso (m ≤ n) (m ≤Σ' n)
-Iso.fun ≤-≤Σ'-iso = ≤->≤Σ'
-Iso.inv ≤-≤Σ'-iso = ≤Σ'->≤
-Iso.rightInv ≤-≤Σ'-iso _ = isProp≤Σ' _ _
-Iso.leftInv  ≤-≤Σ'-iso _ = isProp≤ _ _
-
-
-≤==≤Σ' : {m n : Nat} -> (m ≤ n) == (m ≤Σ' n)
-≤==≤Σ' = ua (isoToEquiv ≤-≤Σ'-iso)
-
-≤==≤Σ : {m n : Nat} -> (m ≤ n) == (m ≤Σ n)
-≤==≤Σ = ≤==≤Σ' >=> (sym ≤Σ==≤Σ')
-
-
+≤==≤' : {m n : Nat} -> m ≤ n == m ≤' n
+≤==≤' {m} {n} i = Σ[ x ∈ Nat ] ((+'-commute {x} {m} i) == n)
 
 -- Step based ≤
 data _≤s_ : Nat -> Nat -> Set where
@@ -239,16 +217,17 @@ zero-≤s (suc n) = step-≤s (zero-≤s n)
 ≤s->≤ (step-≤s rec) = right-suc-≤ (≤s->≤ rec)
 
 ≤->≤s : {m n : Nat} -> m ≤ n -> m ≤s n
-≤->≤s (zero-≤ {n}) = zero-≤s n
-≤->≤s (suc-≤ rec) = suc-≤s (≤->≤s rec)
+≤->≤s {m} {n}     (zero , p) = transport (\i -> m ≤s (p i)) refl-≤s
+≤->≤s {n = zero}  (suc i , p) = zero-suc-absurd (sym p)
+≤->≤s {n = suc _} (suc i , p) = step-≤s (≤->≤s (i , cong pred p))
 
 -- Decidable <
 decide-nat< : (x : Nat) -> (y : Nat) -> Dec (x < y)
-decide-nat< _ zero = no \()
-decide-nat< zero (suc n) = yes zero-<
+decide-nat< _       zero    = no zero-≮
+decide-nat< zero    (suc n) = yes zero-<
 decide-nat< (suc m) (suc n) with (decide-nat< m n)
 ... | yes pr = yes (suc-≤ pr)
-... | no f = no (\ pr -> (f (pred-≤ pr)))
+... | no f = no (f ∘ pred-≤)
 
 
 module _ where
@@ -289,18 +268,23 @@ module _ where
     p0 = p (bot-elim ∘ zero-≮)
 
 
--- strong-induction' :
---   {P : Nat -> Set} ->
---   P zero ->
---   ({m : Nat} -> ({n : Nat} -> (n ≤ m) -> P n) -> P (suc m)) ->
---   (m : Nat) -> {n : Nat} -> (n ≤ m) -> P n
--- strong-induction' z f zero id-≤ = z
--- strong-induction' z f (suc m) (suc-≤ rec-≤) = strong-induction' z f m rec-≤
--- strong-induction' z f (suc m) id-≤ = f {m} (strong-induction' z f m)
---
--- strong-induction :
---   {P : Nat -> Set} ->
---   P zero ->
---   ({m : Nat} -> ({n : Nat} -> (n ≤ m) -> P n) -> P (suc m)) ->
---   (m : Nat) -> P m
--- strong-induction z f m = strong-induction' z f m id-≤
+-- Induction based ≤
+data _≤i_ : Nat -> Nat -> Set where
+ zero-≤i : {n : Nat} -> zero ≤i n
+ suc-≤i : {m n : Nat} -> m ≤i n -> suc m ≤i suc n
+
+_<i_ : Nat -> Nat -> Set
+m <i n = (suc m) ≤i n
+
+same-≤i : (n : Nat) -> n ≤i n
+same-≤i zero    = zero-≤i
+same-≤i (suc n) = suc-≤i (same-≤i n)
+
+right-suc-≤i : {m n : Nat} -> m ≤i n -> m ≤i (suc n)
+right-suc-≤i zero-≤i = zero-≤i
+right-suc-≤i (suc-≤i lt) = suc-≤i (right-suc-≤i lt)
+
+≤->≤i : {m n : Nat} -> m ≤ n -> m ≤i n
+≤->≤i {m = m}     (0     , p) = transport (\i -> m ≤i p i) (same-≤i m)
+≤->≤i {n = zero}  (suc i , p) = bot-elim (zero-suc-absurd (sym p))
+≤->≤i {n = suc n} (suc i , p) = right-suc-≤i (≤->≤i (i , cong pred p))
