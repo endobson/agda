@@ -251,6 +251,44 @@ decide-nat< (suc m) (suc n) with (decide-nat< m n)
 ... | no f = no (\ pr -> (f (pred-≤ pr)))
 
 
+module _ where
+  private
+    module _ {P : Nat -> Set}
+             (p0 : P zero)
+             (psuc : {m : Nat} -> ({n : Nat} -> (n ≤s m) -> P n) -> P (suc m))
+             where
+      InnerP : Nat -> Type₀
+      InnerP m = ({n : Nat} -> (n ≤s m) -> P n)
+
+      inner-zero : InnerP 0
+      inner-zero refl-≤s = p0
+
+      inner-suc : {n : Nat} -> InnerP n -> InnerP (suc n)
+      inner-suc f refl-≤s      = psuc f
+      inner-suc f (step-≤s lt) = f lt
+
+      inner : (m : Nat) -> InnerP m
+      inner zero    = inner-zero
+      inner (suc m) = inner-suc (inner m)
+
+      strong-induction-≤s : (m : Nat) -> P m
+      strong-induction-≤s m = inner m refl-≤s
+
+  strong-induction : {P : Nat -> Set}
+                     (p0 : P zero)
+                     (psuc : {m : Nat} -> ({n : Nat} -> (n ≤ m) -> P n) -> P (suc m))
+                     -> (m : Nat) -> P m
+  strong-induction p0 psuc m = strong-induction-≤s p0 (\f -> psuc (f ∘ ≤->≤s)) m
+
+  strong-induction' : {P : Nat -> Set}
+                     (p : {m : Nat} -> ({n : Nat} -> (n < m) -> P n) -> P m)
+                     -> (m : Nat) -> P m
+  strong-induction' {P} p m = strong-induction-≤s p0 (\f -> p (f ∘ ≤->≤s ∘ pred-≤)) m
+    where
+    p0 : P 0
+    p0 = p (bot-elim ∘ zero-≮)
+
+
 -- strong-induction' :
 --   {P : Nat -> Set} ->
 --   P zero ->
