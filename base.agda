@@ -37,65 +37,71 @@ open import Level public
            ; Setω  to Typeω
            )
 
-infix 4 _===_
-data _===_ {a} {A : Set a} (x : A) : A -> Set a where
-  refl-=== : x === x
-
-Path : ∀ {ℓ} (A : Set ℓ) → A → A → Set ℓ
-Path A a b = PathP (λ _ → A) a b
-
-infix 4 _==_
-_==_ : {i : Level} -> {A : Set i} → A → A → Set i
-_==_ {A = A} = Path A
-
-refl : {i : Level} {A : Set i} {x : A} → Path A x x
-refl {x = x} = \ i -> x
-
 Type : (ℓ : Level) → Set (ℓ-suc ℓ)
 Type ℓ = Set ℓ
 
 Type₀ : Type (ℓ-suc ℓ-zero)
 Type₀ = Type ℓ-zero
 
+private
+  variable
+    ℓ ℓ₁ ℓ₂ : Level
+    A B : Type ℓ
+
+
+infix 4 _===_
+data _===_ {A : Type ℓ} (x : A) : A -> Type ℓ where
+  refl-=== : x === x
+
+Path : (A : Type ℓ) -> A -> A -> Type ℓ
+Path A a b = PathP (λ _ → A) a b
+
+infix 4 _==_
+_==_ : A -> A -> Type _
+_==_ {A = A} = Path A
+
+refl : {x : A} → Path A x x
+refl {x = x} = \ i -> x
+
 levelOf : {ℓ : Level} -> Type ℓ -> Level
 levelOf {ℓ} _ = ℓ
 
 -- Common datatypes
 
-data Bot : Set where
+data Bot : Type₀ where
 
-bot-elim : {ℓ : Level} {A : Type ℓ} -> Bot -> A
+bot-elim : Bot -> A
 bot-elim ()
 
-¬ : {a : Level} -> Set a -> Set a
+¬ : Type ℓ -> Type ℓ
 ¬ A = A -> Bot
 
-record Top : Set where
+record Top : Type₀ where
   constructor tt
 
 infixr 1 _⊎_
 
-data _⊎_ (A : Set) (B : Set) : Set where
+data _⊎_ (A : Type ℓ₁) (B : Type ℓ₂) : Type (ℓ-max ℓ₁ ℓ₂) where
   inj-l : (a : A) → A ⊎ B
   inj-r : (b : B) → A ⊎ B
 
 -- Σ-types
 infix 2 Σ-syntax
 
-Σ-syntax : ∀ {ℓ₁ ℓ₂} (A : Type ℓ₁) (B : A → Type ℓ₂) → Type (ℓ-max ℓ₁ ℓ₂)
+Σ-syntax : (A : Type ℓ₁) (B : A → Type ℓ₂) → Type (ℓ-max ℓ₁ ℓ₂)
 Σ-syntax = Σ
 
 syntax Σ-syntax A (\x -> B) = Σ[ x ∈ A ] B
 
 infixr 2 _×_
 
-_×_ : {ℓ₁ ℓ₂ : Level} (A : Type ℓ₁) (B : Type ℓ₂) -> Type (ℓ-max ℓ₁ ℓ₂)
+_×_ : (A : Type ℓ₁) (B : Type ℓ₂) -> Type (ℓ-max ℓ₁ ℓ₂)
 A × B = Σ A (\_ -> B)
 
-proj₁ : {a b : Level} {A : Set a} -> {B : Set b} -> A × B -> A
+proj₁ : A × B -> A
 proj₁ (a , b) = a
 
-proj₂ : {a b : Level} {A : Set a} -> {B : Set b} -> A × B -> B
+proj₂ : A × B -> B
 proj₂ (a , b) = b
 
 
@@ -104,6 +110,6 @@ data Nat : Type₀ where
  suc : Nat -> Nat
 {-# BUILTIN NATURAL Nat #-}
 
-data Boolean : Set where
+data Boolean : Type₀ where
   true : Boolean
   false : Boolean
