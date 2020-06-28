@@ -281,6 +281,13 @@ data _≤i_ : Nat -> Nat -> Set where
 _<i_ : Nat -> Nat -> Set
 m <i n = (suc m) ≤i n
 
+isProp≤i : {m n : Nat} -> isProp (m ≤i n)
+isProp≤i zero-≤i      zero-≤i      = refl
+isProp≤i (suc-≤i lt1) (suc-≤i lt2) = cong suc-≤i (isProp≤i lt1 lt2)
+
+zero-<i : {n : Nat} -> zero <i (suc n)
+zero-<i = suc-≤i zero-≤i
+
 same-≤i : (n : Nat) -> n ≤i n
 same-≤i zero    = zero-≤i
 same-≤i (suc n) = suc-≤i (same-≤i n)

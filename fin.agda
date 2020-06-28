@@ -135,3 +135,14 @@ private
 
 fin-inRange-path : {m n : Nat} -> (Fin (n -' m)) == (InRange m n)
 fin-inRange-path = ua (isoToEquiv fin-inRange-iso)
+
+-- Fins based on inductive ≤
+
+FinInd : Nat -> Type₀
+FinInd n = Σ[ i ∈ Nat ] (i <i n)
+
+zero-fin-ind : {n : Nat} -> FinInd (suc n)
+zero-fin-ind = zero , zero-<i
+
+suc-fin-ind : {n : Nat} -> FinInd n -> FinInd (suc n)
+suc-fin-ind (i , p) = suc i , suc-≤i p
