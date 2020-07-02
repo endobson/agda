@@ -68,14 +68,6 @@ private
 compPath-filler : {x y z : A} (p : x == y) (q : y == z) -> PathP (\i -> x == (q i)) p (p ∙ q)
 compPath-filler p q = doubleCompPath-filler refl p q
 
-transP : {A : I -> Type ℓ} {a0 : A i0} {a1 : A i1} {B_i1 : Type ℓ} {B : A i1 == B_i1}
-         {b1 : B_i1} (p : PathP A a0 a1) (q : PathP (\i -> B i) a1 b1)
-         -> PathP (\j -> ((\k -> A k) ∙ B) j) a0 b1
-transP {A = A} {a0 = a0} {B = B} p q i =
-  comp (\j -> compPath-filler (\k -> A k) B j i)
-       (\j -> (\ { (i = i0) -> a0
-                 ; (i = i1) -> q j}))
-       (p i)
 
 -- Path identies with refl
 compPath-refl-right : {x y : A} (p : x == y) -> (p >=> refl) == p
@@ -92,6 +84,25 @@ compPath-sym p = contract >=> compPath-refl-right refl
   where
   contract : (p >=> sym p) == (refl >=> refl)
   contract j = (\i -> p (i ∧ (~ j))) >=> (\i -> p (~ i ∧ (~ j)))
+
+-- Path composition on PathP
+
+transP : {A : I -> Type ℓ} {a0 : A i0} {a1 : A i1} {B_i1 : Type ℓ} {B : A i1 == B_i1}
+         {b1 : B_i1} (p : PathP A a0 a1) (q : PathP (\i -> B i) a1 b1)
+         -> PathP (\j -> ((\k -> A k) ∙ B) j) a0 b1
+transP {A = A} {a0 = a0} {B = B} p q i =
+  comp (\j -> compPath-filler (\k -> A k) B j i)
+       (\j -> (\ { (i = i0) -> a0
+                 ; (i = i1) -> q j}))
+       (p i)
+
+transP-left : {A : I -> Type ℓ} {a0 : A i0} {a1 : A i1} {b1 : A i1}
+              (p : PathP A a0 a1) (q : Path (A i1) a1 b1)
+              -> PathP A a0 b1
+transP-left {A = A} {a0} {a1} {b1} p q =
+  transport (\k -> PathP (\j -> (compPath-refl-right (\k -> A k) k) j) a0 b1)
+            (transP p q)
+
 
 -- Substitution
 subst : {x y : A} -> (P : A → Type ℓ) -> x == y -> P x -> P y
