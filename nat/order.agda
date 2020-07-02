@@ -126,9 +126,17 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
   induction {P = (\x -> m ≤ n == (x +' m) ≤ (x +' n))}
             refl (_>=> suc-≤-==) x
 
++-left-< : {m n : Nat} -> (x : Nat) -> m < n == (x +' m) < (x +' n)
++-left-< {m} {n} x =
+  induction {P = (\x -> m < n == (x +' m) < (x +' n))}
+              refl (_>=> suc-≤-==) x
+
 +-right-≤ : {m n : Nat} -> (x : Nat) -> m ≤ n == (m +' x) ≤ (n +' x)
 +-right-≤ {m} {n} x =
   transport (\i -> m ≤ n == (+'-commute {x} {m} i) ≤ (+'-commute {x} {n} i)) (+-left-≤ x)
+
++-right-< : {m n : Nat} -> (x : Nat) -> m < n == (m +' x) < (n +' x)
++-right-< = +-right-≤
 
 ≤-antisym : {m n : Nat} -> m ≤ n -> n ≤ m -> m == n
 ≤-antisym (zero  , p1) _ = p1
@@ -234,6 +242,11 @@ decide-nat< (suc m) (suc n) with (decide-nat< m n)
 ... | yes pr = yes (suc-≤ pr)
 ... | no f = no (f ∘ pred-≤)
 
+split-nat< : (x : Nat) -> (y : Nat) -> (x < y) ⊎ (x ≥ y)
+split-nat< x y with decide-nat< x y
+... | (yes x<y) = inj-l x<y
+... | (no x≮y)  = inj-r (transport ≮==≥ x≮y)
+
 
 module _ where
   private
@@ -321,3 +334,6 @@ Iso.leftInv  ≤-≤i-iso _ = isProp≤ _ _
 
 decide-nat<i : (x : Nat) -> (y : Nat) -> Dec (x <i y)
 decide-nat<i x y = transport (\k -> Dec (≤==≤i {suc x} {y} k)) (decide-nat< x y)
+
+split-nat<i : (x : Nat) -> (y : Nat) -> (x <i y) ⊎ (y ≤i x)
+split-nat<i x y = transport (\k ->  (≤==≤i {suc x} {y} k) ⊎ (≤==≤i {y} {x} k) ) (split-nat< x y)
