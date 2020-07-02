@@ -318,3 +318,6 @@ Iso.leftInv  ≤-≤i-iso _ = isProp≤ _ _
 
 ≤==≤i : {m n : Nat} -> (m ≤ n) == (m ≤i n)
 ≤==≤i = ua (isoToEquiv ≤-≤i-iso)
+
+decide-nat<i : (x : Nat) -> (y : Nat) -> Dec (x <i y)
+decide-nat<i x y = transport (\k -> Dec (≤==≤i {suc x} {y} k)) (decide-nat< x y)

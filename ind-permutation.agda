@@ -34,3 +34,55 @@ sucPerm φ .rightInv (zero  , (suc-≤i zero-≤i))   = refl
 sucPerm φ .rightInv (suc i , (suc-≤i lt     )) j = suc-fin-ind (φ .rightInv (i , lt) j)
 sucPerm φ .leftInv  (zero  , (suc-≤i zero-≤i))   = refl
 sucPerm φ .leftInv  (suc i , (suc-≤i lt     )) j = suc-fin-ind (φ .leftInv (i , lt) j)
+
+
+-- Rotation permutations
+
+private
+  -- 0 -> (n - 1) ; (suc i) -> i
+  rotate-fin-f : {n : Nat} -> FinInd n -> FinInd n
+  rotate-fin-f {suc n} (0       , _         ) .fst = n
+  rotate-fin-f {suc n} (0       , _         ) .snd = (same-≤i (suc n))
+  rotate-fin-f         ((suc i) , (suc-≤i _)) .fst = i
+  rotate-fin-f         ((suc i) , (suc-≤i p)) .snd = (right-suc-≤i p)
+
+  -- (n - 1) -> 0 ; otherwise i -> (suc i)
+  rotate-fin-rev : {n : Nat} -> FinInd n -> FinInd n
+  rotate-fin-rev {n@(suc _)} (i , _) = rec (decide-nat<i (suc i) n)
+    where
+    rec : (Dec (suc i <i n)) -> FinInd n
+    rec (yes p) = (suc i) , p
+    rec (no _)   = 0 , zero-<i
+
+  rotate-fin-rightInv : {n : Nat} (i : FinInd n) -> rotate-fin-f (rotate-fin-rev i) == i
+  rotate-fin-rightInv i = ΣProp-path isProp≤i (inner i)
+    where
+    inner : {n : Nat} (i : FinInd n) -> rotate-fin-f (rotate-fin-rev i) .fst == i .fst
+    inner {n@(suc n')} (i , p) with (decide-nat<i (suc i) n)
+    ... | (yes (suc-≤i _)) = refl
+    ... | (no ¬p) = answer
+      where
+      si≮n : (suc i) ≮ n
+      si≮n = transport (\k -> ¬ (≤==≤i {suc (suc i)} {n} (~ k))) ¬p
+      i<n : i < n
+      i<n = transport (sym ≤==≤i) p
+
+      answer : n' == i
+      answer = suc-injective (≤-antisym (transport ≮==≥ si≮n) i<n)
+
+  rotate-fin-leftInv : {n : Nat} (i : FinInd n) -> rotate-fin-rev (rotate-fin-f i) == i
+  rotate-fin-leftInv i = ΣProp-path isProp≤i (inner i)
+    where
+    inner : {n : Nat} (i : FinInd n) -> rotate-fin-rev (rotate-fin-f i) .fst == i .fst
+    inner {suc n} (0 , _) with (decide-nat<i (suc n) (suc n))
+    ... | (yes p)  = bot-elim (same-≮ (transport (sym ≤==≤i) p))
+    ... | (no  _)  = refl
+    inner {suc n} ((suc i) , (suc-≤i p)) with (decide-nat<i (suc i) (suc n))
+    ... | (yes _)  = refl
+    ... | (no ¬p)  = bot-elim (¬p (suc-≤i p))
+
+rotatePerm : {n : Nat} -> Perm n
+rotatePerm .fun = rotate-fin-f
+rotatePerm .inv = rotate-fin-rev
+rotatePerm .rightInv = rotate-fin-rightInv
+rotatePerm .leftInv  = rotate-fin-leftInv
