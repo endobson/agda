@@ -146,3 +146,12 @@ zero-fin-ind = zero , zero-<i
 
 suc-fin-ind : {n : Nat} -> FinInd n -> FinInd (suc n)
 suc-fin-ind (i , p) = suc i , suc-≤i p
+
+fin-fin-ind-iso : {n : Nat} -> Iso (Fin n) (FinInd n)
+Iso.fun fin-fin-ind-iso (i , p) = (i , (Iso.fun ≤-≤i-iso p))
+Iso.inv fin-fin-ind-iso (i , p) = (i , (Iso.inv ≤-≤i-iso p))
+Iso.rightInv fin-fin-ind-iso (i , p) = ΣProp-path isProp≤i refl
+Iso.leftInv  fin-fin-ind-iso (i , p) = ΣProp-path isProp≤ refl
+
+Fin==FinInd : {n : Nat} -> Fin n == FinInd n
+Fin==FinInd {n} k = Σ[ i ∈ Nat ] (≤==≤i {suc i} {n} k)

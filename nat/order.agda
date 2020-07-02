@@ -296,7 +296,25 @@ right-suc-≤i : {m n : Nat} -> m ≤i n -> m ≤i (suc n)
 right-suc-≤i zero-≤i = zero-≤i
 right-suc-≤i (suc-≤i lt) = suc-≤i (right-suc-≤i lt)
 
+pred-≤i : {m n : Nat} -> m ≤i n -> pred m ≤i pred n
+pred-≤i zero-≤i     = zero-≤i
+pred-≤i (suc-≤i lt) = lt
+
 ≤->≤i : {m n : Nat} -> m ≤ n -> m ≤i n
 ≤->≤i {m = m}     (0     , p) = transport (\i -> m ≤i p i) (same-≤i m)
 ≤->≤i {n = zero}  (suc i , p) = bot-elim (zero-suc-absurd (sym p))
 ≤->≤i {n = suc n} (suc i , p) = right-suc-≤i (≤->≤i (i , cong pred p))
+
+≤i->≤ : {m n : Nat} -> m ≤i n -> m ≤ n
+≤i->≤ zero-≤i = zero-≤
+≤i->≤ (suc-≤i lt) = suc-≤ (≤i->≤ lt)
+
+
+≤-≤i-iso : {m n : Nat} -> Iso (m ≤ n) (m ≤i n)
+Iso.fun ≤-≤i-iso = ≤->≤i
+Iso.inv ≤-≤i-iso = ≤i->≤
+Iso.rightInv ≤-≤i-iso _ = isProp≤i _ _
+Iso.leftInv  ≤-≤i-iso _ = isProp≤ _ _
+
+≤==≤i : {m n : Nat} -> (m ≤ n) == (m ≤i n)
+≤==≤i = ua (isoToEquiv ≤-≤i-iso)
