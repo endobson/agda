@@ -57,6 +57,14 @@ pred n = n -' (suc zero)
 +'-right-path : (m : Nat) {n p : Nat} -> (n == p) == (n +' m == p +' m)
 +'-right-path m {n} {p} = +'-left-path m >=> (\j -> +'-commute {m} {n} j == +'-commute {m} {p} j)
 
++'-left-injective : {m n p : Nat} -> (m +' n) == (m +' p) -> n == p
++'-left-injective {zero}  path = path
++'-left-injective {suc m} path = +'-left-injective (suc-injective path)
+
++'-right-injective : {m n p : Nat} -> (n +' m) == (p +' m) -> n == p
++'-right-injective {m} {n} {p} path =
+  +'-left-injective (+'-commute {m} {n} ∙∙ path ∙∙ +'-commute {p} {m})
+
 +'-assoc : {m n o : Nat} -> (m +' n) +' o == m +' (n +' o)
 +'-assoc {zero} {_} {_} = refl
 +'-assoc {suc m} {_} {_} = cong suc (+'-assoc {m})
