@@ -121,22 +121,54 @@ Iso.leftInv  suc-≤-iso _ = isProp≤ _ _
 suc-≤-== : {m n : Nat} -> (m ≤ n) == (suc m ≤ suc n)
 suc-≤-== = ua (isoToEquiv suc-≤-iso)
 
+-- Helpers for addition and ≤
+
 +-left-≤ : {m n : Nat} -> (x : Nat) -> m ≤ n == (x +' m) ≤ (x +' n)
 +-left-≤ {m} {n} x =
   induction {P = (\x -> m ≤ n == (x +' m) ≤ (x +' n))}
             refl (_>=> suc-≤-==) x
+
++-left-≤⁻ : {m n : Nat} -> (x : Nat) -> (x +' m) ≤ (x +' n) -> m ≤ n
++-left-≤⁻ zero    lt = lt
++-left-≤⁻ (suc x) lt = +-left-≤⁻ x (pred-≤ lt)
+
++-left-≤⁺ : {m n : Nat} -> (x : Nat) -> m ≤ n -> (x +' m) ≤ (x +' n)
++-left-≤⁺ zero    lt = lt
++-left-≤⁺ (suc x) lt = suc-≤ (+-left-≤⁺ x lt)
 
 +-left-< : {m n : Nat} -> (x : Nat) -> m < n == (x +' m) < (x +' n)
 +-left-< {m} {n} x =
   induction {P = (\x -> m < n == (x +' m) < (x +' n))}
               refl (_>=> suc-≤-==) x
 
++-left-<⁻ : {m n : Nat} -> (x : Nat) -> (x +' m) < (x +' n) -> m < n
++-left-<⁻ zero    lt = lt
++-left-<⁻ (suc x) lt = +-left-<⁻ x (pred-≤ lt)
+
++-left-<⁺ : {m n : Nat} -> (x : Nat) -> m < n -> (x +' m) < (x +' n)
++-left-<⁺ zero    lt = lt
++-left-<⁺ (suc x) lt = suc-≤ (+-left-<⁺ x lt)
+
 +-right-≤ : {m n : Nat} -> (x : Nat) -> m ≤ n == (m +' x) ≤ (n +' x)
 +-right-≤ {m} {n} x =
   transport (\i -> m ≤ n == (+'-commute {x} {m} i) ≤ (+'-commute {x} {n} i)) (+-left-≤ x)
 
++-right-≤⁺ : {m n : Nat} -> (x : Nat) -> m ≤ n -> (m +' x) ≤ (n +' x)
++-right-≤⁺ {m} {n} x lt =
+  transport (\k -> (+'-commute {x} {m} k) ≤ (+'-commute {x} {n} k)) (+-left-≤⁺ x lt)
+
++-right-≤⁻ : {m n : Nat} -> (x : Nat) -> (m +' x) ≤ (n +' x) -> m ≤ n
++-right-≤⁻ {m} {n} x lt =
+  +-left-≤⁻ x (transport (\k -> (+'-commute {m} {x} k) ≤ (+'-commute {n} {x} k)) lt)
+
 +-right-< : {m n : Nat} -> (x : Nat) -> m < n == (m +' x) < (n +' x)
 +-right-< = +-right-≤
+
++-right-<⁺ : {m n : Nat} -> (x : Nat) -> m < n -> (m +' x) < (n +' x)
++-right-<⁺ = +-right-≤⁺
+
++-right-<⁻ : {m n : Nat} -> (x : Nat) -> (m +' x) < (n +' x) -> m < n
++-right-<⁻ = +-right-≤⁻
 
 ≤-antisym : {m n : Nat} -> m ≤ n -> n ≤ m -> m == n
 ≤-antisym (zero  , p1) _ = p1
@@ -243,9 +275,11 @@ decide-nat< (suc m) (suc n) with (decide-nat< m n)
 ... | no f = no (f ∘ pred-≤)
 
 split-nat< : (x : Nat) -> (y : Nat) -> (x < y) ⊎ (x ≥ y)
-split-nat< x y with decide-nat< x y
-... | (yes x<y) = inj-l x<y
-... | (no x≮y)  = inj-r (transport ≮==≥ x≮y)
+split-nat< _       zero    = inj-r zero-≤
+split-nat< zero    (suc n) = inj-l zero-<
+split-nat< (suc m) (suc n) with (split-nat< m n)
+... | inj-l lt = inj-l (suc-≤ lt)
+... | inj-r lt = inj-r (suc-≤ lt)
 
 
 module _ where
