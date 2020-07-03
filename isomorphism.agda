@@ -27,7 +27,7 @@ record Iso {ℓ₁ ℓ₂} (A : Type ℓ₁) (B : Type ℓ₂) : Type (ℓ-max �
     rightInv : section fun inv
     leftInv : retract fun inv
 
--- An automorphism is an isomorphism between a type and its self.
+-- An automorphism is an isomorphism between a type and itself.
 Auto : Type ℓ -> Type ℓ
 Auto A = Iso A A
 

@@ -335,6 +335,9 @@ isProp≤i (suc-≤i lt1) (suc-≤i lt2) = cong suc-≤i (isProp≤i lt1 lt2)
 zero-<i : {n : Nat} -> zero <i (suc n)
 zero-<i = suc-≤i zero-≤i
 
+zero-≮i : {n : Nat} -> ¬ (n <i zero)
+zero-≮i ()
+
 same-≤i : (n : Nat) -> n ≤i n
 same-≤i zero    = zero-≤i
 same-≤i (suc n) = suc-≤i (same-≤i n)
@@ -366,8 +369,63 @@ Iso.leftInv  ≤-≤i-iso _ = isProp≤ _ _
 ≤==≤i : {m n : Nat} -> (m ≤ n) == (m ≤i n)
 ≤==≤i = ua (isoToEquiv ≤-≤i-iso)
 
+-- Decision procedures
 decide-nat<i : (x : Nat) -> (y : Nat) -> Dec (x <i y)
-decide-nat<i x y = transport (\k -> Dec (≤==≤i {suc x} {y} k)) (decide-nat< x y)
+decide-nat<i _       zero    = no zero-≮i
+decide-nat<i zero    (suc n) = yes zero-<i
+decide-nat<i (suc m) (suc n) with (decide-nat<i m n)
+... | yes pr = yes (suc-≤i pr)
+... | no f = no (f ∘ pred-≤i)
 
 split-nat<i : (x : Nat) -> (y : Nat) -> (x <i y) ⊎ (y ≤i x)
-split-nat<i x y = transport (\k ->  (≤==≤i {suc x} {y} k) ⊎ (≤==≤i {y} {x} k) ) (split-nat< x y)
+split-nat<i _       zero    = inj-r zero-≤i
+split-nat<i zero    (suc n) = inj-l zero-<i
+split-nat<i (suc m) (suc n) with (split-nat<i m n)
+... | inj-l lt = inj-l (suc-≤i lt)
+... | inj-r lt = inj-r (suc-≤i lt)
+
+-- + helpers
++-left-≤i⁻ : {m n : Nat} -> (x : Nat) -> (x +' m) ≤i (x +' n) -> m ≤i n
++-left-≤i⁻ zero    lt = lt
++-left-≤i⁻ (suc x) lt = +-left-≤i⁻ x (pred-≤i lt)
+
++-left-≤i⁺ : {m n : Nat} -> (x : Nat) -> m ≤i n -> (x +' m) ≤i (x +' n)
++-left-≤i⁺ zero    lt = lt
++-left-≤i⁺ (suc x) lt = suc-≤i (+-left-≤i⁺ x lt)
+
++-left-<i⁻ : {m n : Nat} -> (x : Nat) -> (x +' m) <i (x +' n) -> m <i n
++-left-<i⁻ zero    lt = lt
++-left-<i⁻ (suc x) lt = +-left-<i⁻ x (pred-≤i lt)
+
++-left-<i⁺ : {m n : Nat} -> (x : Nat) -> m <i n -> (x +' m) <i (x +' n)
++-left-<i⁺ zero    lt = lt
++-left-<i⁺ (suc x) lt = suc-≤i (+-left-<i⁺ x lt)
+
++-right-≤i⁺ : {m n : Nat} -> (x : Nat) -> m ≤i n -> (m +' x) ≤i (n +' x)
++-right-≤i⁺ {m} {n} x lt =
+  transport (\k -> (+'-commute {x} {m} k) ≤i (+'-commute {x} {n} k)) (+-left-≤i⁺ x lt)
+
++-right-≤i⁻ : {m n : Nat} -> (x : Nat) -> (m +' x) ≤i (n +' x) -> m ≤i n
++-right-≤i⁻ {m} {n} x lt =
+  +-left-≤i⁻ x (transport (\k -> (+'-commute {m} {x} k) ≤i (+'-commute {n} {x} k)) lt)
+
++-right-<i⁺ : {m n : Nat} -> (x : Nat) -> m <i n -> (m +' x) <i (n +' x)
++-right-<i⁺ = +-right-≤i⁺
+
++-right-<i⁻ : {m n : Nat} -> (x : Nat) -> (m +' x) <i (n +' x) -> m <i n
++-right-<i⁻ = +-right-≤i⁻
+
+-- Transitive helpers
+trans-≤i : {m n o : Nat} -> m ≤i n -> n ≤i o -> m ≤i o
+trans-≤i zero-≤i      _           = zero-≤i
+trans-≤i (suc-≤i lt1) (suc-≤i lt2) = suc-≤i (trans-≤i lt1 lt2)
+
+trans-<i-≤i : {m n o : Nat} -> (m <i n) -> (n ≤i o) -> (m <i o)
+trans-<i-≤i = trans-≤i
+
+trans-≤i-<i : {m n o : Nat} -> m ≤i n -> n <i o -> m <i o
+trans-≤i-<i zero-≤i      (suc-≤i _  ) = suc-≤i zero-≤i
+trans-≤i-<i (suc-≤i lt1) (suc-≤i lt2) = suc-≤i (trans-≤i-<i lt1 lt2)
+
+trans-<i : {m n o : Nat} -> (m <i n) -> (n <i o) -> (m <i o)
+trans-<i lt1 lt2 = trans-≤i-<i (pred-≤i (right-suc-≤i lt1)) lt2
