@@ -11,15 +11,16 @@ open import nat
 open import relation
 open import sigma
 
-data IsPrime' : Nat -> Type₀ where
-  is-prime' : (p : Nat)
-              -> p > 1
-              -> ((d : Nat) -> d <s p -> (d div' p) -> d == 1)
-              -> IsPrime' p
+record IsPrime' (p : Nat) : Type₀ where
+  constructor is-prime'
+
+  field
+    >1 : p > 1
+    only-one-divides : (d : Nat) -> d <s p -> (d div' p) -> d == 1
 
 isPropIsPrime' : {n : Nat} -> isProp (IsPrime' n)
-isPropIsPrime' (is-prime' p gt1 f1) (is-prime' p gt2 f2) i =
-  (is-prime' p (isProp≤ gt1 gt2 i) (isPropΠ3 (\ _ _ _ -> (isSetNat _ _)) f1 f2 i))
+isPropIsPrime' (is-prime' gt1 f1) (is-prime' gt2 f2) i =
+  (is-prime' (isProp≤ gt1 gt2 i) (isPropΠ3 (\ _ _ _ -> (isSetNat _ _)) f1 f2 i))
 
 Prime' : Type₀
 Prime' = Σ Nat IsPrime'
@@ -34,7 +35,7 @@ instance
   discrete'Prime' = record { f = discretePrime' }
 
 prime-only-divisors : {p d : Nat} -> IsPrime' p -> d div' p -> (d == p) ⊎ (d == 1)
-prime-only-divisors {d = d} (is-prime' p p>1 pf) d%p with (≤->≤s (div'->≤ d%p {<->Pos' p>1}))
+prime-only-divisors {d = d} (is-prime' p>1 pf) d%p with (≤->≤s (div'->≤ d%p {<->Pos' p>1}))
 ... | refl-≤s = inj-l refl
 ... | (step-≤s pr) = inj-r (pf d (suc-≤s pr) d%p)
 
@@ -47,7 +48,7 @@ module PrimeUpTo where
                   -> PrimeUpTo p bound
 
   prime-up-to->is-prime' : {n : Nat} -> PrimeUpTo n n -> IsPrime' n
-  prime-up-to->is-prime' (prime-up-to p p p>1 f) = (is-prime' p p>1 f)
+  prime-up-to->is-prime' (prime-up-to p p p>1 f) = (is-prime' p>1 f)
 
   prime-up-to-zero : (p : Nat) -> (p > 1) -> PrimeUpTo p zero
   prime-up-to-zero p p>1 = prime-up-to p zero p>1 (\ d ())
@@ -76,8 +77,8 @@ module PrimeUpTo where
 open PrimeUpTo
 
 0-is-¬prime : ¬(IsPrime' 0)
-0-is-¬prime (is-prime' _ lt _) = zero-≮ lt
+0-is-¬prime (is-prime' lt _) = zero-≮ lt
 1-is-¬prime : ¬(IsPrime' 1)
-1-is-¬prime (is-prime' _ lt _) = zero-≮ (pred-≤ lt)
+1-is-¬prime (is-prime' lt _) = zero-≮ (pred-≤ lt)
 2-is-prime : IsPrime' 2
 2-is-prime = prime-up-to->is-prime' (prime-up-to-two 2 (same-≤ 2))
