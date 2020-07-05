@@ -5,7 +5,11 @@ module prime where
 open import base
 open import div
 open import equality
+open import functions
+open import hlevel
 open import nat
+open import relation
+open import sigma
 
 data IsPrime' : Nat -> Type₀ where
   is-prime' : (p : Nat)
@@ -13,8 +17,17 @@ data IsPrime' : Nat -> Type₀ where
               -> ((d : Nat) -> d <s p -> (d div' p) -> d == 1)
               -> IsPrime' p
 
+isPropIsPrime' : {n : Nat} -> isProp (IsPrime' n)
+isPropIsPrime' (is-prime' p gt1 f1) (is-prime' p gt2 f2) i =
+  (is-prime' p (isProp≤ gt1 gt2 i) (isPropΠ3 (\ _ _ _ -> (isSetNat _ _)) f1 f2 i))
+
 Prime' : Type₀
 Prime' = Σ Nat IsPrime'
+
+discretePrime' : Discrete Prime'
+discretePrime' p1 p2 with (decide-nat ⟨ p1 ⟩ ⟨ p2 ⟩)
+... | (yes pr) = yes (ΣProp-path isPropIsPrime' pr)
+... | (no f) = no (f ∘ cong fst)
 
 prime-only-divisors : {p d : Nat} -> IsPrime' p -> d div' p -> (d == p) ⊎ (d == 1)
 prime-only-divisors {d = d} (is-prime' p p>1 pf) d%p with (≤->≤s (div'->≤ d%p {<->Pos' p>1}))
