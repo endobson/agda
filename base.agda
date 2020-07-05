@@ -93,6 +93,10 @@ infix 2 Σ-syntax
 
 syntax Σ-syntax A (\x -> B) = Σ[ x ∈ A ] B
 
+-- Altrnative spelling of fst. For use with structured data.
+⟨_⟩ : {ℓ₁ ℓ₂ : Level} -> {A : Type ℓ₁} -> {B : A -> Type ℓ₂} -> Σ A B -> A
+⟨ (a , _) ⟩ = a
+
 infixr 2 _×_
 
 _×_ : (A : Type ℓ₁) (B : Type ℓ₂) -> Type (ℓ-max ℓ₁ ℓ₂)

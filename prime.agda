@@ -13,11 +13,8 @@ data IsPrime' : Nat -> Type₀ where
               -> ((d : Nat) -> d <s p -> (d div' p) -> d == 1)
               -> IsPrime' p
 
-record Prime' : Type₀ where
-  field
-    value : Nat
-    proof : IsPrime' value
-
+Prime' : Type₀
+Prime' = Σ Nat IsPrime'
 
 prime-only-divisors : {p d : Nat} -> IsPrime' p -> d div' p -> (d == p) ⊎ (d == 1)
 prime-only-divisors {d = d} (is-prime' p p>1 pf) d%p with (≤->≤s (div'->≤ d%p {<->Pos' p>1}))

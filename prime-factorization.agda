@@ -19,7 +19,7 @@ module NatSemiring = Semiring NatSemiring
 open NatSemiring using (unordered-product; unordered-productʰ)
 
 prime-product : UList Prime' -> Nat
-prime-product = unordered-product ∘ (map Prime'.value)
+prime-product = unordered-product ∘ (map fst)
 
 prime-productʰ : CommMonoidʰ prime-product
 prime-productʰ = unordered-productʰ ∘ʰ mapʰ
@@ -140,7 +140,7 @@ private
     -> PrimeFactorization' p
   prime-factorization-base {p} is-prime =
     transport (\i -> PrimeFactorization' (path i))
-              (prime-factorization (record { value = p ; proof = is-prime } :: []))
+              (prime-factorization ((p ,  is-prime) :: []))
     where
     path = *'-right-one {p}
 
