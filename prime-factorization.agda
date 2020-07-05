@@ -29,14 +29,14 @@ data PrimeFactorization' : Nat -> Type₀ where
 
 private
   data PrimeFactorizationTree : Nat -> Type₀ where
-    prime-factorization-tree-prime : {p : Nat} -> IsPrime' p -> PrimeFactorizationTree p
+    prime-factorization-tree-prime : (p : Prime') -> PrimeFactorizationTree ⟨ p ⟩
     prime-factorization-tree-composite : {m n : Nat}
       -> PrimeFactorizationTree m
       -> PrimeFactorizationTree n
       -> PrimeFactorizationTree (m *' n)
 
   data Primality : Nat -> Type₀ where
-    primality-prime : {p : Nat} -> IsPrime' p -> Primality p
+    primality-prime : (p : Prime') -> Primality ⟨ p ⟩
     primality-composite : (a b : Nat) -> a > 1 -> b > 1 -> Primality (a *' b)
 
   -- ≤ recursion scheme that supports counting up
@@ -73,7 +73,7 @@ private
     0≤i (suc i) pr = 0≤i i (step-≤u pr)
 
     rec : {i : Nat} -> i ≤u p' -> PrimeUpTo p (suc (suc i)) -> Primality p
-    rec refl-≤u pr = primality-prime (prime-up-to->is-prime' pr)
+    rec refl-≤u pr = primality-prime (_ , (prime-up-to->is-prime' pr))
     rec {i} (step-≤u step) pr with decide-div (suc (suc i)) p
     ... | no not-div = rec step (prime-up-to-suc pr not-div)
     ... | yes div = div->composite {suc (suc i)} {p}
@@ -136,18 +136,17 @@ private
     where
     p = CommMonoidʰ.preserves-∙ prime-productʰ p1s p2s
 
-  prime-factorization-base : {p : Nat} -> IsPrime' p
-    -> PrimeFactorization' p
-  prime-factorization-base {p} is-prime =
+  prime-factorization-base : (p : Prime') -> PrimeFactorization' ⟨ p ⟩
+  prime-factorization-base p =
     transport (\i -> PrimeFactorization' (path i))
-              (prime-factorization ((p ,  is-prime) :: []))
+              (prime-factorization (p :: []))
     where
-    path = *'-right-one {p}
+    path = *'-right-one {⟨ p ⟩}
 
 
   convert-prime-factorization : {n : Nat} -> PrimeFactorizationTree n -> PrimeFactorization' n
-  convert-prime-factorization (prime-factorization-tree-prime is-prime) =
-    prime-factorization-base is-prime
+  convert-prime-factorization (prime-factorization-tree-prime p) =
+    prime-factorization-base p
   convert-prime-factorization (prime-factorization-tree-composite t1 t2) =
     prime-factorization-* (convert-prime-factorization t1) (convert-prime-factorization t2)
 
@@ -159,7 +158,7 @@ exists-prime-divisor : {n : Nat} -> n > 1 -> Σ[ d ∈ Nat ] (PrimeDivisor n d)
 exists-prime-divisor {n} n>1 = rec (compute-prime-factorization-tree n>1) div'-refl
   where
   rec : {a : Nat} -> (PrimeFactorizationTree a) -> a div' n -> Σ[ d ∈ Nat ] (PrimeDivisor n d)
-  rec {a} (prime-factorization-tree-prime prime-a) a%n = a , (prime-a , a%n)
+  rec (prime-factorization-tree-prime (a , prime-a)) a%n = a , (prime-a , a%n)
   rec {a} (prime-factorization-tree-composite {d} {e} df ef) a%n =
     rec ef (div'-trans (div'-exists e a d refl) a%n)
 
