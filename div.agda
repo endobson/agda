@@ -9,93 +9,93 @@ open import hlevel
 open import int
 open import nat
 open import relation
+open import sigma
 
--- infix 20 _div_
-data _div_ : Int -> Int -> Set where
- div-exists : (a : Int) -> (b : Int) -> (c : Int) -> (c * a == b) -> a div b
+_div_ : Int -> Int -> Type₀
+a div b = Σ[ c ∈ Int ] (c * a == b)
 
-data _div'_ : Nat -> Nat -> Set where
- div'-exists : (a : Nat) -> (b : Nat) -> (c : Nat) -> (c *' a == b) -> a div' b
+_div'_ : Nat -> Nat -> Type₀
+a div' b = Σ[ c ∈ Nat ] (c *' a == b)
 
 div->div' : {d n : Int} -> d div n -> (abs' d) div' (abs' n)
-div->div' (div-exists d n x pr) =
-  (div'-exists (abs' d) (abs' n) (abs' x) (sym (abs'-inject-* {x} {d}) >=> (cong abs' pr)))
+div->div' {d} (x , pr) =
+  (abs' x) , (sym (abs'-inject-* {x} {d}) >=> (cong abs' pr))
 
 div'->div : {d n : Nat} -> d div' n -> (int d) div (int n)
-div'->div (div'-exists d n x pr) =
-  (div-exists (int d) (int n) (int x) (sym (int-inject-*' {x} {d}) >=> (cong int pr)))
+div'->div {d} (x , pr) =
+  (int x) , (sym (int-inject-*' {x} {d}) >=> (cong int pr))
 
 
 div-refl : {n : Int} -> n div n
-div-refl {n} = (div-exists n n (int 1) (+-right-zero {n}))
+div-refl  = (int 1) , *-left-one
 
 div'-refl : {n : Nat} -> n div' n
-div'-refl {n} = (div'-exists n n 1 (+'-right-zero {n}))
+div'-refl = 1 , *'-left-one
 
 div-trans : {d m n : Int} -> d div m -> m div n -> d div n
-div-trans (div-exists d m a a*d=m) (div-exists m n b b*m=n) =
-  div-exists d n (b * a) ((*-assoc {b} {a} {d}) >=> (*-right {b} a*d=m) >=> b*m=n)
+div-trans {d} (a , a*d=m) (b , b*m=n) =
+  (b * a) , ((*-assoc {b} {a} {d}) >=> (*-right {b} a*d=m) >=> b*m=n)
 
 div'-trans : {d m n : Nat} -> d div' m -> m div' n -> d div' n
-div'-trans (div'-exists d m a a*d=m) (div'-exists m n b b*m=n) =
-  div'-exists d n (b *' a) ((*'-assoc {b} {a} {d}) >=> (*'-right {b} a*d=m) >=> b*m=n)
+div'-trans {d} (a , a*d=m) (b , b*m=n) =
+  (b *' a) , ((*'-assoc {b} {a} {d}) >=> (*'-right {b} a*d=m) >=> b*m=n)
 
 div-mult : {d n : Int} -> d div n -> (a : Int) -> d div (a * n)
-div-mult {d} {n} (div-exists d n c pr) a =
-  div-exists d (a * n) (a * c) (*-assoc {a} >=> *-right {a} pr)
+div-mult (c , pr) a =
+  (a * c) , (*-assoc {a} >=> *-right {a} pr)
 
 div-negate : {d a : Int} -> d div a -> d div (- a)
-div-negate (div-exists d a d-div-a pr) =
-  (div-exists d (- a) (- d-div-a) ((minus-extract-left {d-div-a}) >=> (cong minus pr)))
+div-negate (d-div-a , pr) =
+  (- d-div-a) , ((minus-extract-left {d-div-a}) >=> (cong minus pr))
 div-negate-left : {d a : Int} -> d div a -> (- d) div a
-div-negate-left (div-exists d a d-div-a pr) =
-  (div-exists (- d) a (- d-div-a)
-   (begin
-      (- d-div-a) * (- d)
-    ==< minus-extract-left {d-div-a} >
-      - (d-div-a * (- d))
-    ==< cong minus (*-commute {d-div-a}) >
-      - (- d * d-div-a )
-    ==< cong minus (minus-extract-left {d}) >
-      - - (d * d-div-a)
-    ==< minus-double-inverse {d * d-div-a} >
-      (d * d-div-a)
-    ==< *-commute {d} >
-      d-div-a * d
-    ==< pr >
-      a
-    end))
+div-negate-left         (d-div-a , _ ) .fst = - d-div-a
+div-negate-left {d} {a} (d-div-a , pr) .snd =
+  begin
+    (- d-div-a) * (- d)
+  ==< minus-extract-left {d-div-a} >
+    - (d-div-a * (- d))
+  ==< cong minus (*-commute {d-div-a}) >
+    - (- d * d-div-a )
+  ==< cong minus (minus-extract-left {d}) >
+    - - (d * d-div-a)
+  ==< minus-double-inverse {d * d-div-a} >
+    (d * d-div-a)
+  ==< *-commute {d} >
+    d-div-a * d
+  ==< pr >
+    a
+  end
 
 div-abs-right : {d a : Int} -> d div a -> d div (abs a)
 div-abs-right {d} {zero-int} div-a = div-a
-div-abs-right {d} {pos _} div-a = div-a
-div-abs-right {d} {neg _} div-a = div-negate div-a
+div-abs-right {d} {pos _}    div-a = div-a
+div-abs-right {d} {neg _}    div-a = div-negate div-a
 
 div-abs-left : {d a : Int} -> d div a -> (abs d) div a
 div-abs-left {zero-int} div-a = div-a
-div-abs-left {pos _} div-a = div-a
-div-abs-left {neg _} div-a = div-negate-left div-a
+div-abs-left {pos _}    div-a = div-a
+div-abs-left {neg _}    div-a = div-negate-left div-a
 
 div'->≤ : {d a : Nat} -> d div' a -> {Pos' a} -> d ≤ a
-div'->≤ (div'-exists d a (suc x) sx*d=a) = ≤'->≤ (x *' d , sx*d=a)
-div'->≤ (div'-exists d (suc _) zero pr) = zero-suc-absurd pr
+div'->≤ {d} {a}     ((suc x) , sx*d=a) = ≤'->≤ (x *' d , sx*d=a)
+div'->≤ {d} {suc _} (zero    , pr    ) = zero-suc-absurd pr
 
 div->≤ : {d a : Int} -> d div a -> {Pos a} -> abs' d ≤ abs' a
-div->≤ {d} {pos _} da = div'->≤ (div->div' da)
+div->≤ {a = pos _} da = div'->≤ (div->div' da)
 
 
 div-zero->zero : {n : Int} -> (int 0) div n -> n == (int 0)
-div-zero->zero (div-exists zero-int n d pr) = (sym pr) >=> (*-commute {d} {zero-int})
+div-zero->zero (d , pr) = (sym pr) >=> (*-commute {d} {zero-int})
 
 div'-zero->zero : {n : Nat} -> 0 div' n -> n == 0
-div'-zero->zero (div'-exists zero n d pr) = (sym pr) >=> (*'-commute {d} {zero})
+div'-zero->zero (d , pr) = (sym pr) >=> (*'-commute {d} {zero})
 
 div'-pos->pos : {d n : Nat} -> d div' n -> Pos' n -> Pos' d
-div'-pos->pos div1@(div'-exists zero n x pr) n-pos =
+div'-pos->pos {zero} div1 n-pos =
   (transport (\i -> (Pos' (div'-zero->zero div1 i))) n-pos)
-div'-pos->pos (div'-exists (suc _) n x pr) n-pos = tt
+div'-pos->pos {suc _} _ _ = tt
 
-Unit : (x : Int) -> Set
+Unit : (x : Int) -> Type₀
 Unit zero-int = Bot
 Unit (pos zero) = Top
 Unit (pos (suc _)) = Bot
@@ -143,7 +143,7 @@ div-same-abs : {d1 d2 : Int} -> d1 div d2 -> d2 div d1 -> (abs d1) == (abs d2)
 div-same-abs {zero-int} {_} div1 _ = (sym (cong abs (div-zero->zero div1)))
 div-same-abs {pos _} {zero-int} _ div2 = (cong abs (div-zero->zero div2))
 div-same-abs {neg _} {zero-int} _ div2 = (cong abs (div-zero->zero div2))
-div-same-abs {pos _} {pos _} (div-exists d1 d2 x pr1) (div-exists d2 d1 y pr2) = proof
+div-same-abs d1@{pos _} d2@{pos _} (x , pr1) (y , pr2) = proof
  where
  rewritten : x * (y * d2) == d2
  rewritten = (\i -> x * pr2 i) >=> pr1
@@ -151,7 +151,7 @@ div-same-abs {pos _} {pos _} (div-exists d1 d2 x pr1) (div-exists d2 d1 y pr2) =
  unit = *-one-implies-unit {x} {y} (*-left-id tt (*-assoc {x} {y} {d2} >=> rewritten))
  proof : abs d1 == abs d2
  proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
-div-same-abs {pos _} {neg _} (div-exists _ _  x pr1) (div-exists d2 d1 y pr2) = proof
+div-same-abs d1@{pos _} d2@{neg _} (x , pr1) (y , pr2) = proof
  where
  rewritten : x * (y * d2) == d2
  rewritten = (\i -> x * pr2 i) >=> pr1
@@ -159,7 +159,7 @@ div-same-abs {pos _} {neg _} (div-exists _ _  x pr1) (div-exists d2 d1 y pr2) = 
  unit = *-one-implies-unit {x} {y} (*-left-id tt (*-assoc {x} {y} {d2} >=> rewritten))
  proof : abs d1 == abs d2
  proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
-div-same-abs {neg _} {pos _} (div-exists _ _  x pr1) (div-exists d2 d1 y pr2) = proof
+div-same-abs d1@{neg _} d2@{pos _} (x , pr1) (y , pr2) = proof
  where
  rewritten : x * (y * d2) == d2
  rewritten = (\i -> x * pr2 i) >=> pr1
@@ -167,7 +167,7 @@ div-same-abs {neg _} {pos _} (div-exists _ _  x pr1) (div-exists d2 d1 y pr2) = 
  unit = *-one-implies-unit {x} {y} (*-left-id tt (*-assoc {x} {y} {d2} >=> rewritten))
  proof : abs d1 == abs d2
  proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
-div-same-abs {neg _} {neg _} (div-exists _ _  x pr1) (div-exists d2 d1 y pr2) = proof
+div-same-abs d1@{neg _} d2@{neg _} (x , pr1) (y , pr2) = proof
  where
  rewritten : x * (y * d2) == d2
  rewritten = (\i -> x * pr2 i) >=> pr1
@@ -177,38 +177,41 @@ div-same-abs {neg _} {neg _} (div-exists _ _  x pr1) (div-exists d2 d1 y pr2) = 
  proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
 
 div-sum : {d a b : Int} -> d div a -> d div b -> d div (a + b)
-div-sum (div-exists d a d-div-a pa) (div-exists d b d-div-b pb) =
-  div-exists d (a + b) (d-div-a + d-div-b) ((*-distrib-+ {d-div-a}) >=> (+-left pa) >=> (+-right {a} pb))
+div-sum             (d-div-a , _ ) (d-div-b , _ ) .fst = (d-div-a + d-div-b)
+div-sum {d} {a} {b} (d-div-a , pa) (d-div-b , pb) .snd =
+  (*-distrib-+ {d-div-a})
+  >=> (+-left pa)
+  >=> (+-right {a} pb)
 
 div-linear : {d a b : Int} -> d div a -> d div b -> {m n : Int} -> d div (m * a + n * b)
-div-linear (div-exists d a d-div-a pa) (div-exists d b d-div-b pb) {m} {n} =
-  div-exists d (m * a + n * b) (m * d-div-a + n * d-div-b)
-  (begin
-     (m * d-div-a + n * d-div-b) * d
-   ==< *-distrib-+ {m * d-div-a} >
-     (m * d-div-a) * d + (n * d-div-b) * d
-   ==< +-left (*-assoc {m}) >
-     m * (d-div-a * d) + (n * d-div-b) * d
-   ==< +-left (*-right {m} pa) >
-     m * a + (n * d-div-b) * d
-   ==< +-right {m * a} (*-assoc {n}) >
-     m * a + n * (d-div-b * d)
-   ==< +-right {m * a} (*-right {n} pb) >
-     m * a + n * b
-   end)
+div-linear {d} {a} {b} (d-div-a , pa) (d-div-b , pb) {m} {n} .fst = (m * d-div-a + n * d-div-b)
+div-linear {d} {a} {b} (d-div-a , pa) (d-div-b , pb) {m} {n} .snd =
+  begin
+    (m * d-div-a + n * d-div-b) * d
+  ==< *-distrib-+ {m * d-div-a} >
+    (m * d-div-a) * d + (n * d-div-b) * d
+  ==< +-left (*-assoc {m}) >
+    m * (d-div-a * d) + (n * d-div-b) * d
+  ==< +-left (*-right {m} pa) >
+    m * a + (n * d-div-b) * d
+  ==< +-right {m * a} (*-assoc {n}) >
+    m * a + n * (d-div-b * d)
+  ==< +-right {m * a} (*-right {n} pb) >
+    m * a + n * b
+  end
 
 div-one : {n : Int} -> ((int 1) div n)
-div-one {n} = div-exists (int 1) n n (*-right-one {n})
+div-one {n} = n , *-right-one
 div'-one : {n : Nat} -> (1 div' n)
-div'-one {n} = div'-exists 1 n n (*'-right-one {n})
+div'-one {n} = n , *'-right-one
 
 div-zero : {n : Int} -> (n div zero-int)
-div-zero {n} = div-exists n zero-int zero-int refl
+div-zero = zero-int , refl
 div'-zero : {n : Nat} -> (n div' zero)
-div'-zero {n} = div'-exists n zero zero refl
+div'-zero = zero , refl
 
 no-small-dividends : {d n : Nat} -> n < d -> n != 0 -> d != 0 -> ¬ (d div' n)
-no-small-dividends n<d n!=0 d!=0 (div'-exists d n x pr) with x
+no-small-dividends {d} {n} n<d n!=0 d!=0 (x , pr) with x
 ... | zero = n!=0 (sym pr)
 ... | (suc y) = same-≮ n<n
   where
@@ -218,17 +221,16 @@ no-small-dividends n<d n!=0 d!=0 (div'-exists d n x pr) with x
   n<n = trans-<-≤ n<d d≤n
 
 -- remainder d n a = exists x => a + x * d == n
-data Remainder : Nat -> Nat -> Nat -> Set where
+data Remainder : Nat -> Nat -> Nat -> Type₀ where
   remainder : (d n a x : Nat) -> a < d -> (a +' x *' d == n) -> Remainder d n a
 
 remainder->div : {d n : Nat} -> Remainder d n 0 -> d div' n
-remainder->div (remainder d n zero x _ pr) = (div'-exists d n x pr)
+remainder->div (remainder d n zero x _ pr) = x , pr
 
 
 div->remainder : {d n : Nat} -> d div' n -> d != 0 -> Remainder d n 0
-div->remainder (div'-exists zero n x pr) d!=0 = bot-elim (d!=0 refl)
-div->remainder (div'-exists d@(suc d') n x pr) d!=0 =
-  (remainder d n 0 x (zero-< {d'}) pr)
+div->remainder {zero}        _        d!=0 = bot-elim (d!=0 refl)
+div->remainder d@{suc _} {n} (x , pr) d!=0 = (remainder d n 0 x zero-< pr)
 
 
 
@@ -237,7 +239,7 @@ private
   -- d == (suc d')
   -- a + b == d'
   -- n == a + x * d
-  data ModStep : Nat -> Nat -> Nat -> Nat -> Nat -> Set where
+  data ModStep : Nat -> Nat -> Nat -> Nat -> Nat -> Type₀ where
     mod-base : (d' : Nat) -> ModStep (suc d') 0 d' 0 0
     mod-small-step : {d n b x a : Nat}
                      -> ModStep d n (suc b) x a
@@ -280,7 +282,7 @@ private
   mod-step->remainder {zero} step = bot-elim (¬mod-step-zero step)
 
   private
-    data ModEqProof : Nat -> Nat -> Nat -> Nat -> Nat -> Nat -> Set where
+    data ModEqProof : Nat -> Nat -> Nat -> Nat -> Nat -> Nat -> Type₀ where
       mod-eq-proof : {b1 b2 x1 x2 a1 a2 : Nat}
                      -> b1 == b2
                      -> x1 == x2
@@ -306,7 +308,7 @@ private
 
 
   -- Existential for indices in mod
-  data ModOutput : Nat -> Nat -> Set where
+  data ModOutput : Nat -> Nat -> Type₀ where
     mod-output : {d n b x : Nat} (a : Nat) -> (step : ModStep d n b x a) -> ModOutput d n
 
   mod : (d : Nat) -> d != 0 -> (n : Nat) -> ModOutput d n
@@ -330,10 +332,10 @@ exists-remainder d pr n with (mod d pr n)
 
 
 private
-  data ExistsModStep : Nat -> Nat -> Nat -> Set where
+  data ExistsModStep : Nat -> Nat -> Nat -> Type₀ where
     exists-mod-step : {d n b x a : Nat} (step : ModStep d n b x a) -> ExistsModStep d n a
 
-  data ModStep' : Nat -> Nat -> Nat -> Nat -> Set where
+  data ModStep' : Nat -> Nat -> Nat -> Nat -> Type₀ where
     mod-base' : (d' : Nat) -> ModStep' (suc d') 0 0 0
     mod-small-step' : {d' n x a : Nat}
                       -> ModStep' (suc d') n x a
@@ -405,14 +407,10 @@ decide-div d@(suc d') n@(suc _) with (exists-remainder d (\ d=z -> zero-suc-absu
 ... | ((suc a) , rem) = no (remainder->¬div rem)
 
 isPropDiv' : {d n : Nat} -> {pos : Pos' n} -> isProp (d div' n)
-isPropDiv' {pos = n-pos} div1@(div'-exists d n x1 p1) (div'-exists d n x2 p2) i =
-  (div'-exists d n (x-p i) (p-p i))
+isPropDiv' {d} {n} {n-pos} div1@(x1 , p1) (x2 , p2) = ΣProp-path (isSetNat _ _) x-p
   where
   d-pos : Pos' d
   d-pos = (div'-pos->pos div1 n-pos)
 
   x-p : x1 == x2
   x-p = (*'-right-injective d-pos (p1 >=> (sym p2)))
-
-  p-p : PathP (\i -> (x-p i) *' d == n) p1 p2
-  p-p = isProp->PathP (\i -> (isSetNat _ _)) p1 p2

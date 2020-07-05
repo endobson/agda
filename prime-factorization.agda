@@ -56,7 +56,7 @@ private
   ≤u->≤ (step-≤u rec) = (pred-≤ (right-suc-≤ (≤u->≤ rec)))
 
   div->composite : {d n : Nat} -> d != 0 -> d != 1 -> d != n -> n != 0 -> d div' n -> Primality n
-  div->composite d0 d1 dn n0 (div'-exists d _ x p) =
+  div->composite {d} d0 d1 dn n0 (x , p) =
     transport (\i -> Primality (p i))
               (primality-composite x d (≠->>1 x0 x1) (≠->>1 d0 d1))
     where
@@ -68,7 +68,7 @@ private
     x0 : x != 0
     x0 x==0 = n0 (sym p >=> (\i -> x==0 i *' d))
     x1 : x != 1
-    x1 x==1 = dn (sym (+'-right-zero {d}) >=> (\i -> x==1 (~ i) *' d) >=> p)
+    x1 x==1 = dn (sym *'-left-one >=> (\i -> x==1 (~ i) *' d) >=> p)
 
 
 
@@ -167,7 +167,7 @@ exists-prime-divisor {n} n>1 = rec (compute-prime-factorization-tree n>1) div'-r
   rec : {a : Nat} -> (PrimeFactorizationTree a) -> a div' n -> Σ[ d ∈ Nat ] (PrimeDivisor n d)
   rec (prime-factorization-tree-prime (a , prime-a)) a%n = a , (prime-a , a%n)
   rec {a} (prime-factorization-tree-composite {d} {e} df ef) a%n =
-    rec ef (div'-trans (div'-exists e a d refl) a%n)
+    rec ef (div'-trans (d , refl) a%n)
 
 compute-prime-factorization : {n : Nat} -> n > 0 -> (PrimeFactorization n)
 compute-prime-factorization {zero}        p = bot-elim (same-≮ p)

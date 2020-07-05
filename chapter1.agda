@@ -157,9 +157,9 @@ ex1-5' {a} {b} arith-proof rp with (gcd-exists (a + b) (a * a + - (a * b) + b * 
 ... | (d , g@(gcd _ _ d@(nonneg d-nat) _ d%a+b d%term _)) = res
   where
   ¬2%3 : ¬ (2 div' 3)
-  ¬2%3 (div'-exists _ _ zero pr) = zero-suc-absurd pr
-  ¬2%3 (div'-exists _ _ (suc zero) pr) = zero-suc-absurd (suc-injective (suc-injective pr))
-  ¬2%3 (div'-exists _ _ (suc (suc _)) pr) =
+  ¬2%3 (zero          , pr) = zero-suc-absurd pr
+  ¬2%3 ((suc zero)    , pr) = zero-suc-absurd (suc-injective (suc-injective pr))
+  ¬2%3 ((suc (suc _)) , pr) =
     (zero-suc-absurd (sym (suc-injective (suc-injective (suc-injective pr)))))
 
   reordered-gcd : (GCD (a + b) ((a * b) * (int 3)) d)
