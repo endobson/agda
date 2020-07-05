@@ -3,7 +3,7 @@
 open import base
 open import relation
 
-module unordered-list.count-extensionality {ℓ : Level} {A : Type ℓ} (discA : Discrete A) where
+module unordered-list.count-extensionality {ℓ : Level} {A : Type ℓ} {{disc'A : Discrete' A}} where
 
 open import commutative-monoid
 open import equality
@@ -14,9 +14,12 @@ open import nat
 open import truncation
 open import unordered-list.base
 open import unordered-list.operations
-open import unordered-list.discrete (discA)
+open import unordered-list.discrete
+
 
 private
+  discA = Discrete'.f disc'A
+
   _≼_ : UList A -> UList A -> Type _
   as ≼ bs = (x : A) -> (count x as) ≤ (count x bs)
 

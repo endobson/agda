@@ -67,3 +67,6 @@ Stable A = (¬ (¬ A)) -> A
 Discrete : Type ℓ -> Type ℓ
 Discrete A = (x y : A) -> Dec (x == y)
 
+record Discrete' (A : Type ℓ) : Type ℓ where
+  field
+    f : Discrete A

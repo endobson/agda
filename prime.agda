@@ -29,6 +29,10 @@ discretePrime' p1 p2 with (decide-nat ⟨ p1 ⟩ ⟨ p2 ⟩)
 ... | (yes pr) = yes (ΣProp-path isPropIsPrime' pr)
 ... | (no f) = no (f ∘ cong fst)
 
+instance
+  discrete'Prime' : Discrete' Prime'
+  discrete'Prime' = record { f = discretePrime' }
+
 prime-only-divisors : {p d : Nat} -> IsPrime' p -> d div' p -> (d == p) ⊎ (d == 1)
 prime-only-divisors {d = d} (is-prime' p p>1 pf) d%p with (≤->≤s (div'->≤ d%p {<->Pos' p>1}))
 ... | refl-≤s = inj-l refl

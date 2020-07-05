@@ -3,13 +3,16 @@
 open import base
 open import relation
 
-module unordered-list.discrete {ℓ : Level} {A : Type ℓ} (discA : Discrete A) where
+module unordered-list.discrete {ℓ : Level} {A : Type ℓ} {{disc'A : Discrete' A}} where
 
 open import equality
 open import hlevel
 open import nat
 open import unordered-list.base
 open import unordered-list.operations
+
+private
+  discA = Discrete'.f disc'A
 
 count : (x : A) -> UList A -> Nat
 count x = UListElim.rec isSetNat 0 _::*_ swap*
