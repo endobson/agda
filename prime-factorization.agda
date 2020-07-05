@@ -55,20 +55,21 @@ private
   ≤u->≤ (refl-≤u {m}) = same-≤ m
   ≤u->≤ (step-≤u rec) = (pred-≤ (right-suc-≤ (≤u->≤ rec)))
 
-  -- Helper function for turning explicitly indexed > 1 to propositionally > 1
-  >1 : {n' : Nat} -> (suc (suc n')) > 1
-  >1 {n'} = suc-≤ (suc-≤ zero-≤)
-
-
   div->composite : {d n : Nat} -> d != 0 -> d != 1 -> d != n -> n != 0 -> d div' n -> Primality n
-  div->composite d0 d1 dn n0 (div'-exists 0 n x p) = bot-elim (d0 refl)
-  div->composite d0 d1 dn n0 (div'-exists 1 n x p) = bot-elim (d1 refl)
-  div->composite d0 d1 dn n0 (div'-exists d@(suc (suc _)) n 0 p) = bot-elim (n0 (sym p))
-  div->composite d0 d1 dn n0 (div'-exists d@(suc (suc _)) n 1 p) =
-    bot-elim (dn ((sym (+'-right-zero {d})) >=> p))
-  div->composite d0 d1 dn n0 (div'-exists (suc (suc d')) n (suc (suc x')) pr) =
-    transport (\i -> Primality (pr i))
-              (primality-composite (suc (suc x')) (suc (suc d')) >1 >1)
+  div->composite d0 d1 dn n0 (div'-exists d _ x p) =
+    transport (\i -> Primality (p i))
+              (primality-composite x d (≠->>1 x0 x1) (≠->>1 d0 d1))
+    where
+    ≠->>1 : {n : Nat} -> n != 0 -> n != 1 -> n > 1
+    ≠->>1 {n = 0}             n0 n1 = bot-elim (n0 refl)
+    ≠->>1 {n = 1}             n0 n1 = bot-elim (n1 refl)
+    ≠->>1 {n = (suc (suc _))} n0 n1 = suc-≤ (suc-≤ zero-≤)
+
+    x0 : x != 0
+    x0 x==0 = n0 (sym p >=> (\i -> x==0 i *' d))
+    x1 : x != 1
+    x1 x==1 = dn (sym (+'-right-zero {d}) >=> (\i -> x==1 (~ i) *' d) >=> p)
+
 
 
   compute-primality : {p : Nat} -> p > 1 -> Primality p
