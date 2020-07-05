@@ -24,8 +24,15 @@ prime-product = unordered-product ∘ (map fst)
 prime-productʰ : CommMonoidʰ prime-product
 prime-productʰ = unordered-productʰ ∘ʰ mapʰ
 
-data PrimeFactorization' : Nat -> Type₀ where
-  prime-factorization : (ps : UList Prime') -> PrimeFactorization' (prime-product ps)
+isPrimeFactorization : UList Prime' -> Nat -> Type₀
+isPrimeFactorization primes n = prime-product primes == n
+
+record PrimeFactorization (n : Nat) : Type₀ where
+  constructor prime-factorization
+
+  field
+    primes : UList Prime'
+    product : isPrimeFactorization primes n
 
 private
   data PrimeFactorizationTree : Nat -> Type₀ where
@@ -128,28 +135,27 @@ private
 
 
   prime-factorization-* : {m n : Nat}
-    -> PrimeFactorization' m
-    -> PrimeFactorization' n
-    -> PrimeFactorization' (m *' n)
-  prime-factorization-* (prime-factorization p1s) (prime-factorization p2s) =
-    transport (\i -> PrimeFactorization' (p i)) (prime-factorization (p1s ++ p2s))
+    -> PrimeFactorization m
+    -> PrimeFactorization n
+    -> PrimeFactorization (m *' n)
+  prime-factorization-* (prime-factorization p1s pr1) (prime-factorization p2s pr2) =
+    (prime-factorization
+      (p1s ++ p2s)
+      (p >=> (\i -> (pr1 i) *' (pr2 i))))
     where
     p = CommMonoidʰ.preserves-∙ prime-productʰ p1s p2s
 
-  prime-factorization-base : (p : Prime') -> PrimeFactorization' ⟨ p ⟩
+  prime-factorization-base : (p : Prime') -> PrimeFactorization ⟨ p ⟩
   prime-factorization-base p =
-    transport (\i -> PrimeFactorization' (path i))
-              (prime-factorization (p :: []))
-    where
-    path = *'-right-one {⟨ p ⟩}
+    (prime-factorization
+      (p :: [])
+      (*'-right-one {⟨ p ⟩}))
 
-
-  convert-prime-factorization : {n : Nat} -> PrimeFactorizationTree n -> PrimeFactorization' n
+  convert-prime-factorization : {n : Nat} -> PrimeFactorizationTree n -> PrimeFactorization n
   convert-prime-factorization (prime-factorization-tree-prime p) =
     prime-factorization-base p
   convert-prime-factorization (prime-factorization-tree-composite t1 t2) =
     prime-factorization-* (convert-prime-factorization t1) (convert-prime-factorization t2)
-
 
 PrimeDivisor : Nat -> Nat -> Type₀
 PrimeDivisor n d = IsPrime' d × d div' n
@@ -162,8 +168,9 @@ exists-prime-divisor {n} n>1 = rec (compute-prime-factorization-tree n>1) div'-r
   rec {a} (prime-factorization-tree-composite {d} {e} df ef) a%n =
     rec ef (div'-trans (div'-exists e a d refl) a%n)
 
-compute-prime-factorization : {n : Nat} -> n > 0 -> (PrimeFactorization' n)
+compute-prime-factorization : {n : Nat} -> n > 0 -> (PrimeFactorization n)
 compute-prime-factorization {zero}        p = bot-elim (same-≮ p)
-compute-prime-factorization {suc zero}    _ = (prime-factorization [])
+compute-prime-factorization {suc zero}    _ =
+  (prime-factorization [] refl)
 compute-prime-factorization {suc (suc n)} _ =
   convert-prime-factorization (compute-prime-factorization-tree (suc-≤ (zero-<)))
