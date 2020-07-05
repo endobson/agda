@@ -34,8 +34,8 @@ instance
   discrete'Prime' : Discrete' Prime'
   discrete'Prime' = record { f = discretePrime' }
 
-prime-only-divisors : {p d : Nat} -> IsPrime' p -> d div' p -> (d == p) ⊎ (d == 1)
-prime-only-divisors {d = d} (is-prime' p>1 pf) d%p with (≤->≤s (div'->≤ d%p {<->Pos' p>1}))
+prime-only-divisors : {d : Nat} -> (p : Prime') -> d div' ⟨ p ⟩ -> (d == ⟨ p ⟩) ⊎ (d == 1)
+prime-only-divisors {d = d} (_ , (is-prime' p>1 pf)) d%p with (≤->≤s (div'->≤ d%p {<->Pos' p>1}))
 ... | refl-≤s = inj-l refl
 ... | (step-≤s pr) = inj-r (pf d (suc-≤s pr) d%p)
 

@@ -395,7 +395,7 @@ gcd->gcd' (gcd d n a _ a%d a%n f) =
     res = (div->div' (f (int x) (fix x%d) (fix x%n)))
 
 prime-gcd' : (a b : Nat) -> {Pos' a} -> {Pos' b}
-             -> ({p : Nat} -> IsPrime' p -> p div' a -> p div' b -> Bot)
+             -> ((p : Prime') -> ⟨ p ⟩ div' a -> ⟨ p ⟩ div' b -> Bot)
              -> GCD' a b 1
 prime-gcd' a@(suc _) b@(suc _) pf = (gcd' a b 1 div'-one div'-one f)
   where
@@ -403,8 +403,8 @@ prime-gcd' a@(suc _) b@(suc _) pf = (gcd' a b 1 div'-one div'-one f)
   f zero x%a x%b = zero-suc-absurd (sym (div'-zero->zero x%a))
   f (suc zero) _ _ = div'-one
   f x@(suc (suc _)) x%a x%b with (exists-prime-divisor {x} (suc-≤ (suc-≤ zero-≤)))
-  ... | _ , (prime-p , p%x) =
-    bot-elim (pf prime-p (div'-trans p%x x%a) (div'-trans p%x x%b))
+  ... | p , (prime-p , p%x) =
+    bot-elim (pf (p , prime-p) (div'-trans p%x x%a) (div'-trans p%x x%b))
 
 euclids-lemma : {a b c : Int} -> a div (b * c) -> GCD a b (int 1) -> a div c
 euclids-lemma {a} {b} {c} a%bc ab-gcd with (gcd->linear-combo ab-gcd)
@@ -443,18 +443,17 @@ euclids-lemma' {a} {b} {c} a%bc ab-gcd = result
   result : a div' c
   result = (div->div' (euclids-lemma int-a%bc (gcd'->gcd/nat ab-gcd)))
 
-
-prime->relatively-prime : {p a : Nat} -> IsPrime' p -> ¬ (p div' a) -> GCD' p a 1
-prime->relatively-prime {p} {a} prime-p ¬p%a =
-  (gcd' p a 1 div'-one div'-one f)
+prime->relatively-prime : {a : Nat} -> (p : Prime') -> ¬ (⟨ p ⟩ div' a) -> GCD' ⟨ p ⟩ a 1
+prime->relatively-prime {a} p ¬p%a =
+  (gcd' ⟨ p ⟩ a 1 div'-one div'-one f)
   where
-  f : (x : Nat) -> x div' p -> x div' a -> x div' 1
-  f x x%p x%a with (prime-only-divisors prime-p x%p)
+  f : (x : Nat) -> x div' ⟨ p ⟩ -> x div' a -> x div' 1
+  f x x%p x%a with (prime-only-divisors p x%p)
   ... | inj-l pr = bot-elim (¬p%a (transport (\ i -> (pr i) div' a) x%a))
   ... | inj-r pr = (transport (\i -> (pr (~ i)) div' 1) div'-one)
 
-prime-divides-a-factor : {p : Nat} -> IsPrime' p -> {a b : Nat}
-                         -> p div' (a *' b) -> (p div' a) ⊎ (p div' b)
-prime-divides-a-factor {p} prime-p {a} {b} p-div with (decide-div p a)
+prime-divides-a-factor : (p : Prime') -> {a b : Nat}
+                         -> ⟨ p ⟩ div' (a *' b) -> (⟨ p ⟩ div' a) ⊎ (⟨ p ⟩ div' b)
+prime-divides-a-factor p@(pv , _) {a} {b} p-div with (decide-div pv a)
 ... | yes p%a = inj-l p%a
-... | no ¬p%a = inj-r (euclids-lemma' p-div (prime->relatively-prime prime-p ¬p%a))
+... | no ¬p%a = inj-r (euclids-lemma' p-div (prime->relatively-prime p ¬p%a))
