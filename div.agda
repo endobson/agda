@@ -44,6 +44,10 @@ div-mult : {d n : Int} -> d div n -> (a : Int) -> d div (a * n)
 div-mult (c , pr) a =
   (a * c) , (*-assoc {a} >=> *-right {a} pr)
 
+div'-mult : {d n : Nat} -> d div' n -> (a : Nat) -> d div' (a *' n)
+div'-mult (c , pr) a =
+  (a *' c) , (*'-assoc {a} >=> *'-right {a} pr)
+
 div-negate : {d a : Int} -> d div a -> d div (- a)
 div-negate (d-div-a , pr) =
   (- d-div-a) , ((minus-extract-left {d-div-a}) >=> (cong minus pr))

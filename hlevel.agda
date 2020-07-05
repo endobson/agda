@@ -104,13 +104,21 @@ isSetΣ = isOfHLevelΣ 2
 isProp× : isProp A₁ -> isProp A₂ -> isProp (A₁ × A₂)
 isProp× pA₁ pA₂ = isPropΣ pA₁ (\_ -> pA₂)
 
+-- h-level for Top
+
+isContrTop : isContr Top
+isContrTop = (tt , \_ -> refl)
+
+isPropTop : isProp Top
+isPropTop tt tt = refl
+
 -- h-level for Bot and ¬
 
-Bot-isProp : isProp Bot
-Bot-isProp x _ = bot-elim x
+isPropBot : isProp Bot
+isPropBot x _ = bot-elim x
 
 isProp¬ : (A : Type ℓ) -> isProp (¬ A)
-isProp¬ _ ¬x ¬y i x = Bot-isProp (¬x x) (¬y x) i
+isProp¬ _ ¬x ¬y i x = isPropBot (¬x x) (¬y x) i
 
 -- Hedbergs Theorem
 

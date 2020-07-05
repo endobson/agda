@@ -194,14 +194,14 @@ suc m *' n = n +' (m *' n)
 *'-only-one-right {m} {n} p = *'-only-one-left {n} {m} (*'-commute {n} {m} >=> p)
 
 
-*'-right-injective : {m n p : Nat} (pos : (Pos' n)) -> (m *' n) == (p *' n) -> m == p
+*'-right-injective : {m n p : Nat} .(pos : (Pos' n)) -> (m *' n) == (p *' n) -> m == p
 *'-right-injective {zero} {suc n} {zero} pos path = refl
 *'-right-injective {zero} {suc n} {suc p} pos path = bot-elim (zero-suc-absurd path)
 *'-right-injective {suc m} {suc n} {zero} pos path = bot-elim (zero-suc-absurd (sym path))
 *'-right-injective {suc m} {suc n} {suc p} pos path =
   (cong suc (*'-right-injective pos (transport (sym (+'-left-path _)) path)))
 
-*'-left-injective : {m n p : Nat} (pos : (Pos' m)) -> (m *' n) == (m *' p) -> n == p
+*'-left-injective : {m n p : Nat} .(pos : (Pos' m)) -> (m *' n) == (m *' p) -> n == p
 *'-left-injective {m} {n} {p} pos path =
   *'-right-injective pos (*'-commute {n} {m} ∙∙ path ∙∙ *'-commute {m} {p})
 
@@ -217,6 +217,10 @@ suc m *' n = n +' (m *' n)
   ==< (+'-cong (*'-commute {n} {m}) (*'-commute {p} {m})) >
     (m *' n) +' (m *' p)
   end
+
+
+*'-Pos'-Pos' : {m n : Nat} -> .(Pos' m) -> .(Pos' n) -> Pos' (m *' n)
+*'-Pos'-Pos' {(suc m)} {(suc n)} _ _ = tt
 
 
 _^'_ : Nat -> Nat -> Nat
@@ -253,9 +257,24 @@ instance
     { ∙-commute = (\ {m} {n} -> *'-commute {m} {n})
     }
 
-iter : {A : Set} (n : Nat) (f : A -> A) -> A -> A
+iter : {ℓ : Level} {A : Type ℓ} (n : Nat) (f : A -> A) -> A -> A
 iter zero _ a = a
 iter (suc n) f a = f (iter n f a)
+
+iter' : {ℓ : Level} {A : Type ℓ} (n : Nat) (f : A -> A) -> A -> A
+iter' zero _ a = a
+iter' (suc n) f a = (iter' n f (f a))
+
+iter==iter' : {ℓ : Level} {A : Type ℓ} -> Path (Nat -> (A -> A) -> A -> A) iter iter'
+iter==iter' {ℓ} {A} i n f a = path-f n f a i
+  where
+  iter-suc : (n : Nat) (f : A -> A) -> (a : A) -> iter (suc n) f a == iter n f (f a)
+  iter-suc zero f a = refl
+  iter-suc (suc n) f a i = f (iter-suc n f a i)
+
+  path-f : (n : Nat) -> (f : (A -> A)) -> (a : A) -> iter n f a == iter' n f a
+  path-f zero f a i = a
+  path-f (suc n) f a = iter-suc n f a >=> (path-f n f (f a))
 
 induction :
   {ℓ : Level}

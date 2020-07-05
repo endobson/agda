@@ -13,6 +13,10 @@ Pos' : (n : Nat) -> Set
 Pos' zero = Bot
 Pos' (suc x) = Top
 
+isPropPos' : {n : Nat} -> isProp (Pos' n)
+isPropPos' {zero}  = isPropBot
+isPropPos' {suc _} = isPropTop
+
 zero-suc-absurd : {A : Set} {x : Nat} -> 0 == (suc x) -> A
 zero-suc-absurd path = bot-elim (subst Pos' (sym path) tt)
 

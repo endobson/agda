@@ -39,6 +39,12 @@ prime-only-divisors {d = d} (_ , (is-prime' p>1 pf)) d%p with (≤->≤s (div'->
 ... | refl-≤s = inj-l refl
 ... | (step-≤s pr) = inj-r (pf d (suc-≤s pr) d%p)
 
+distinct-primes->¬div : {p1 p2 : Prime'} -> p1 != p2 -> ¬ (⟨ p1 ⟩ div' ⟨ p2 ⟩)
+distinct-primes->¬div {p1@(_ , (is-prime' p1>1 _))} {p2} ¬path p1%p2
+  with (prime-only-divisors p2 p1%p2)
+... | inj-l p1==p2 = ¬path (ΣProp-path isPropIsPrime' p1==p2)
+... | inj-r p1==1 = <->!= p1>1 (sym p1==1)
+
 -- Machinery for proving that a number is Prime
 module PrimeUpTo where
   data PrimeUpTo : Nat -> Nat -> Type₀ where
