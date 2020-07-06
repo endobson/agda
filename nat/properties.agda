@@ -17,6 +17,9 @@ isPropPos' : {n : Nat} -> isProp (Pos' n)
 isPropPos' {zero}  = isPropBot
 isPropPos' {suc _} = isPropTop
 
+Nat⁺ : Type₀
+Nat⁺ = Σ[ n ∈ Nat ] (Pos' n)
+
 zero-suc-absurd : {A : Set} {x : Nat} -> 0 == (suc x) -> A
 zero-suc-absurd path = bot-elim (subst Pos' (sym path) tt)
 

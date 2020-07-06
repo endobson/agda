@@ -164,3 +164,65 @@ remove1-count-suc {x} {as} {n} = UListElim.prop PisProp []* _::*_ as
     where
     proof : (count x as == suc n) -> x :: a :: (remove1 x as) == a :: as
     proof p = (swap x a (remove1 x as)) >=> (\i -> a :: f p i)
+
+-- No duplicates
+
+NoDuplicates : UList A -> Type ℓ
+NoDuplicates ul = ∀ (a : A) -> count a ul ≤ 1
+
+isPropNoDuplicates : {ul : UList A} -> isProp (NoDuplicates ul)
+isPropNoDuplicates = isPropΠ (\_ -> isProp≤)
+
+decide-no-duplicates : (ul : UList A) -> Dec (NoDuplicates ul)
+decide-no-duplicates = UListElim.prop {B = P} (\{ul} -> isPropP {ul}) []* ::*
+  where
+  P : UList A -> Type ℓ
+  P ul = Dec (NoDuplicates ul)
+
+  isPropP : {ul : UList A} -> isProp (P ul)
+  isPropP {ul} = isPropDec (isPropNoDuplicates {ul})
+
+  []* : Dec (NoDuplicates [])
+  []* = yes (\ a -> zero-≤)
+
+  ::* : (a : A) {as : UList A} -> Dec (NoDuplicates as) -> Dec (NoDuplicates (a :: as))
+  ::* a {as} (yes f) with (f a)
+  ... | (0 , p) = no ¬f
+    where
+    ¬f : ¬ ((a2 : A) -> count a2 (a :: as) ≤ 1)
+    ¬f f' = zero-≮ (pred-≤ (transport (\i -> count-path i ≤ 1) (f' a)))
+      where
+      count-path : count a (a :: as) == 2
+      count-path = count-== as refl >=> cong suc p
+  ... | (1 , p) = yes g
+    where
+    g : ((a2 : A) -> count a2 (a :: as) ≤ 1)
+    g a2 = handle (discA a2 a)
+      where
+      handle : Dec (a2 == a) -> count a2 (a :: as) ≤ 1
+      handle (yes a-path) = (0 , count-path >=> count-path2)
+        where
+        count-path : count a2 (a :: as) == suc (count a2 as)
+        count-path = count-== as a-path
+        count-path2 : (suc (count a2 as)) == 1
+        count-path2 = transport (\i -> suc (count (a-path (~ i)) as) == 1) p
+      handle (no ¬a-path) = (transport (\i -> (count-path (~ i)) ≤ 1) (f a2))
+        where
+        count-path : count a2 (a :: as) == count a2 as
+        count-path = count-!= as ¬a-path
+  ... | (suc (suc x) , p) = bot-elim (zero-suc-absurd (\i -> (pred (p (~ i)))))
+  ::* a {as} (no ¬f) = (no ¬g)
+    where
+    ¬g : ¬ ((a2 : A) -> count a2 (a :: as) ≤ 1)
+    ¬g g = ¬f f
+      where
+      f : (a2 : A) -> count a2 as ≤ 1
+      f a2 with (discA a2 a)
+      ... | yes a-path = right-suc-≤ (pred-≤ (transport (\i -> count-path i ≤ 1) (g a2)))
+        where
+        count-path : count a2 (a :: as) == suc (count a2 as)
+        count-path = count-== as a-path
+      ... | no ¬a-path = transport (\i -> count-path i ≤ 1) (g a2)
+        where
+        count-path : count a2 (a :: as) == count a2 as
+        count-path = count-!= as ¬a-path
