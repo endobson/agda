@@ -38,6 +38,13 @@ count-!= {x} {a} as x!=a with (discA x a)
 ...                         | (yes x==a)  = bot-elim (x!=a x==a)
 ...                         | (no _)   = refl
 
+count-≤ : (x : A) {a : A} (as : UList A) -> count x as ≤ count x (a :: as)
+count-≤ x {a} as = handle (discA x a)
+  where
+  handle : (Dec (x == a)) -> count x as ≤ count x (a :: as)
+  handle (yes x==a) = 1 , sym (count-== as x==a)
+  handle (no  x!=a) = 0 , sym (count-!= as x!=a)
+
 remove1 : (x : A) -> UList A -> UList A
 remove1 x [] = []
 remove1 x (a :: as) with (discA x a)
@@ -226,3 +233,53 @@ decide-no-duplicates = UListElim.prop {B = P} (\{ul} -> isPropP {ul}) []* ::*
         where
         count-path : count a2 (a :: as) == count a2 as
         count-path = count-!= as ¬a-path
+
+-- Count and contains
+count-zero->¬contains : {a : A} {as : UList A} -> count a as == 0 -> ¬ (contains a as)
+count-zero->¬contains {a} count-p (as' , p) =
+  zero-suc-absurd (sym (sym (count-== as' refl) >=> cong (count a) p >=> count-p))
+
+count-suc->contains : {a : A} {as : UList A} {c : Nat} -> count a as == (suc c) -> (contains a as)
+count-suc->contains {a} {as} count-p = (remove1 a as) , remove1-count-suc  count-p
+
+decide-contains : (x : A) (as : UList A) -> Dec (contains x as)
+decide-contains x as = handle (count x as) refl
+  where
+  handle : (n : Nat) -> count x as == n -> Dec (contains x as)
+  handle zero    p = no (count-zero->¬contains p)
+  handle (suc _) p = yes (count-suc->contains p)
+
+-- Filter
+module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
+
+  filter-count≤ : {a : A} {as : UList A} -> count a (filter f as) ≤ count a as
+  filter-count≤ {a} {as} = UListElim.prop isProp≤ zero-≤ ::* as
+    where
+    ::* : (a2 : A) {as : UList A}
+          -> count a (filter f as) ≤ count a as
+          -> count a (filter f (a2 :: as)) ≤ count a (a2 :: as)
+    ::* a2 {as} lt = handle (f a2) (discA a a2)
+      where
+      handle : Dec (P a2) -> Dec (a == a2)
+               -> count a (filter f (a2 :: as)) ≤ count a (a2 :: as)
+      handle (yes pa2) (yes a==a2) = transport (\i -> (l-path (~ i)) ≤ (r-path (~ i))) (suc-≤ lt)
+        where
+        l-path : count a (filter f (a2 :: as)) == suc (count a (filter f as))
+        l-path = cong (count a) (filter-keeps f as pa2)
+                 >=> count-== (filter f as) a==a2
+
+        r-path : count a (a2 :: as) == suc (count a as)
+        r-path = count-== as a==a2
+
+      handle (yes pa2) (no a!=a2)  = transport (\i -> (l-path (~ i)) ≤ (r-path (~ i))) lt
+        where
+        l-path : count a (filter f (a2 :: as)) == count a (filter f as)
+        l-path = cong (count a) (filter-keeps f as pa2)
+                 >=> count-!= (filter f as) a!=a2
+
+        r-path : count a (a2 :: as) == (count a as)
+        r-path = count-!= as a!=a2
+
+      handle (no ¬pa2) _  =
+        transport (\i -> count a ((filter-drops f as ¬pa2) (~ i)) ≤ count a (a2 :: as))
+                  (trans-≤ lt (count-≤ a as))
