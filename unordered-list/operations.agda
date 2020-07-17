@@ -206,3 +206,86 @@ ContainsOnly P as = (ulist∈ as) ⊆ P
 
 ContainsAll : (Pred A ℓ) -> Pred (UList A) _
 ContainsAll P as = P ⊆ (ulist∈ as)
+
+module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
+  private
+    filter-::* : A -> UList A -> UList A
+    filter-::* a as with f a
+    ... | yes _ = a :: as
+    ... | no _ = as
+
+    filter-swap* : (a : A) (b : A) (as : UList A) -> (filter-::* a (filter-::* b as)) ==
+                                                     (filter-::* b (filter-::* a as))
+    filter-swap* a b as with (f a) | (f b)
+    ... | yes _ | yes _ = swap a b as
+    ... | yes _ | no _  = refl
+    ... | no _  | yes _ = refl
+    ... | no _  | no _  = refl
+
+  filter : UList A -> UList A
+  filter = UListElim.rec trunc [] filter-::* filter-swap*
+
+  filter-keeps : {a : A} (as : UList A) (p : P a) -> filter (a :: as) == a :: filter as
+  filter-keeps {a} as p with (f a)
+  ... | yes _ = refl
+  ... | no ¬p = bot-elim (¬p p)
+
+  filter-drops : {a : A} (as : UList A) (p : ¬(P a)) -> filter (a :: as) == filter as
+  filter-drops {a} as ¬p with (f a)
+  ... | yes p = bot-elim (¬p p)
+  ... | no  _ = refl
+
+
+  filter-idempotent : (as : UList A) -> filter (filter as) == filter as
+  filter-idempotent = UListElim.prop (trunc _ _) []* ::*
+    where
+    []* : filter (filter []) == filter []
+    []* = refl
+
+    ::* : (a : A) {as : UList A}
+          -> filter (filter as) == filter as
+          -> filter (filter (a :: as)) == filter (a :: as)
+    ::* a {as} = handle (f a)
+      where
+      handle : (Dec (P a))
+               -> filter (filter as) == filter as
+               -> filter (filter (a :: as)) == filter (a :: as)
+      handle (yes p) path =
+        cong filter (filter-keeps as p)
+        >=> filter-keeps (filter as) p
+        >=> cong (a ::_) path
+        >=> sym (filter-keeps as p)
+      handle (no ¬p) path =
+        cong filter (filter-drops as ¬p)
+        >=> path
+        >=> sym (filter-drops as ¬p)
+
+  filter-length≤ : (as : UList A) -> length (filter as) ≤ length as
+  filter-length≤ = UListElim.prop isProp≤ []* ::*
+    where
+    []* : length (filter []) ≤ length {A = A} []
+    []* = zero-≤
+
+    ::* : (a : A) {as : UList A} -> length (filter as) ≤ length as
+          -> length (filter (a :: as)) ≤ length (a :: as)
+    ::* a {as} lt with (f a)
+    ... | yes _ = suc-≤ lt
+    ... | no _  = right-suc-≤ lt
+
+
+  filter-contains-only : {as : UList A} -> ContainsOnly P (filter as)
+  filter-contains-only {as = as} {a = x} (as' , as'-path) = handle (f x)
+    where
+    handle : (Dec (P x)) -> P x
+    handle (yes px) = px
+    handle (no ¬px) = bot-elim (same-≮ bad-length)
+      where
+      filter-extends : filter as' == x :: as'
+      filter-extends =
+        sym (filter-drops as' ¬px)
+        >=> (cong filter as'-path)
+        >=> filter-idempotent as
+        >=> (sym as'-path)
+
+      bad-length : suc (length as') ≤ length as'
+      bad-length = transport (\i -> length (filter-extends i) ≤ length as') (filter-length≤ as')
