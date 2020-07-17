@@ -5,6 +5,7 @@ module unordered-list.operations where
 open import base
 open import commutative-monoid
 open import equality
+open import functions
 open import hlevel
 open import monoid
 open import nat
@@ -13,10 +14,19 @@ open import unordered-list.base
 private
   variable
     ℓ : Level
-    A B : Type ℓ
+    A B C : Type ℓ
 
 map : (A -> B) -> UList A -> UList B
 map f = UListElim.rec trunc [] (\ a -> f a ::_) (\ a0 a1 -> (swap (f a0) (f a1)))
+
+double-map : (f : B -> C) (g : A -> B) (as : UList A)
+             -> map f (map g as) == map (f ∘ g) as
+double-map {A = A} f g as = UListElim.prop (trunc _ _) refl ::* as
+  where
+  ::* : (a : A) {as : UList A}
+        -> map f (map g as) == map (f ∘ g) as
+        -> map f (map g (a :: as)) == map (f ∘ g) (a :: as)
+  ::* a p = cong (f (g a) ::_) p
 
 _++_ : (UList A) -> (UList A) -> (UList A)
 _++_ as bs = UListElim.rec trunc bs _::_ swap as
