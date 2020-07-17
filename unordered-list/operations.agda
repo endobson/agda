@@ -9,6 +9,7 @@ open import functions
 open import hlevel
 open import monoid
 open import nat
+open import relation
 open import unordered-list.base
 
 private
@@ -190,3 +191,18 @@ as++bs==[]->as==[] {as = as} {bs = bs} p =
 
 as++bs==[]->bs==[] : {as bs : UList A} -> as ++ bs == [] -> bs == []
 as++bs==[]->bs==[] {as = as} {bs = bs} p = as++bs==[]->as==[] (++-commute bs as >=> p)
+
+contains : A -> Pred (UList A) _
+contains {A = A} a as = Σ[ as' ∈ UList A ] a :: as' == as
+
+ulist∈ : UList A -> Pred A _
+ulist∈ as a = contains a as
+
+contains-[] : (x : A) -> ¬ (contains x [])
+contains-[] x (as , p) = zero-suc-absurd (cong length (sym p))
+
+ContainsOnly : (Pred A ℓ) -> Pred (UList A) _
+ContainsOnly P as = (ulist∈ as) ⊆ P
+
+ContainsAll : (Pred A ℓ) -> Pred (UList A) _
+ContainsAll P as = P ⊆ (ulist∈ as)

@@ -34,18 +34,18 @@ Antisymmetric _~_ = ∀ {a b} -> (a ~ b) -> (b ~ a) -> a == b
 Transitive : Rel A ℓ -> Type _
 Transitive _~_ = ∀ {a b c} -> (a ~ b) -> (b ~ c) -> (a ~ c)
 
-_⇒_ : REL A B ℓ₁ -> REL A B ℓ₂ -> Type _
-P ⇒ Q = ∀ x y -> P x y -> Q x y
-
-private
-  _on_ : (B -> B -> C) -> (A -> B) -> A -> A -> C
-  _*_ on f = (\ a b -> (f a) * (f b))
-
-_=[_]⇒_ : Rel A ℓ₁ -> (A -> B) -> Rel B ℓ₂ -> Type _
-P =[ f ]⇒ Q = P ⇒ (Q on f)
-
-_Preserves_⇢_ : (A -> B) -> Rel A ℓ₁ -> Rel B ℓ₂ -> Type _
-f Preserves P ⇢ Q = P =[ f ]⇒ Q
+-- _⇒_ : REL A B ℓ₁ -> REL A B ℓ₂ -> Type _
+-- P ⇒ Q = ∀ x y -> P x y -> Q x y
+--
+-- private
+--   _on_ : (B -> B -> C) -> (A -> B) -> A -> A -> C
+--   _*_ on f = (\ a b -> (f a) * (f b))
+--
+-- _=[_]⇒_ : Rel A ℓ₁ -> (A -> B) -> Rel B ℓ₂ -> Type _
+-- P =[ f ]⇒ Q = P ⇒ (Q on f)
+--
+-- _Preserves_⇢_ : (A -> B) -> Rel A ℓ₁ -> Rel B ℓ₂ -> Type _
+-- f Preserves P ⇢ Q = P =[ f ]⇒ Q
 
 data Tri (A : Type ℓ₁) (B : Type ℓ₂) (C : Type ℓ₃) : Type (ℓ-max ℓ₁ (ℓ-max ℓ₂ ℓ₃)) where
   tri< : (a  :   A) (¬b : ¬ B) (¬c : ¬ C) -> Tri A B C
@@ -70,3 +70,23 @@ Discrete A = (x y : A) -> Dec (x == y)
 record Discrete' (A : Type ℓ) : Type ℓ where
   field
     f : Discrete A
+
+-- Unary Relations
+
+Pred :  Type ℓ₁ -> (ℓ₂ : Level) -> Type (ℓ-max ℓ₁ (ℓ-suc ℓ₂))
+Pred A ℓ = A -> Type ℓ
+
+∅ : Pred A _
+∅ _ = Bot
+
+U : Pred A _
+U _ = Top
+
+_⊆_ : Pred A ℓ₁ -> Pred A ℓ₂ -> Type _
+P ⊆ Q = ∀ {a} -> P a -> Q a
+
+_⊆'_ : Pred A ℓ₁ -> Pred A ℓ₂ -> Type _
+P ⊆' Q = ∀ a -> P a -> Q a
+
+_⇒_ : Pred A ℓ₁ -> Pred A ℓ₂ -> Pred A (ℓ-max ℓ₁ ℓ₂)
+(P ⇒ Q) a = P a -> Q a
