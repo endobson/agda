@@ -4,8 +4,10 @@ module sum where
 
 open import base
 open import equality
+open import functions
 open import hlevel.base
 open import isomorphism
+open import relation
 
 private
   variable
@@ -45,3 +47,25 @@ proj-r (inj-l _) ()
 inj-l!=inj-r : ∀ {ℓ₁ ℓ₂} {A : Type ℓ₁} {B : Type ℓ₂} {a : A} {b : B}
                -> ¬(Path (A ⊎ B) (inj-l a) (inj-r b))
 inj-l!=inj-r p = transport (\i -> Left (p i)) tt
+
+Discrete⊎ : Discrete A -> Discrete B -> Discrete (A ⊎ B)
+Discrete⊎ da db (inj-l a1) (inj-l a2) with (da a1 a2)
+... | yes a-path = yes (cong inj-l a-path)
+... | no ¬a-path = no (¬a-path ∘ f)
+  where
+  f : (inj-l a1) == (inj-l a2) -> a1 == a2
+  f p i = proj-l (p i) (Left-path i)
+    where
+    Left-path : PathP (\i -> Left (p i)) tt tt
+    Left-path i = transport-filler (\i -> Left (p i)) tt i
+Discrete⊎ da db (inj-l a1) (inj-r b2) = no inj-l!=inj-r
+Discrete⊎ da db (inj-r b1) (inj-l a2) = no (inj-l!=inj-r ∘ sym)
+Discrete⊎ da db (inj-r b1) (inj-r b2) with (db b1 b2)
+... | yes b-path = yes (cong inj-r b-path)
+... | no ¬b-path = no (¬b-path ∘ f)
+  where
+  f : (inj-r b1) == (inj-r b2) -> b1 == b2
+  f p i = proj-r (p i) (Right-path i)
+    where
+    Right-path : PathP (\i -> Right (p i)) tt tt
+    Right-path i = transport-filler (\i -> Right (p i)) tt i

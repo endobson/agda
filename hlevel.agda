@@ -8,6 +8,7 @@ open import equivalence
 open import isomorphism
 open import relation
 open import sigma
+open import sum
 
 open import hlevel.base public
 
@@ -147,6 +148,19 @@ private
 
 Discrete->isSet : Discrete A -> isSet A
 Discrete->isSet d = Stable==->isSet (\ x y -> Dec->Stable (d x y))
+
+-- h-level for ⊎ types
+
+isSet⊎ : Discrete A₁ -> Discrete A₂ -> isSet (A₁ ⊎ A₂)
+isSet⊎ da db = Discrete->isSet (Discrete⊎ da db)
+
+-- h-level for Dec types
+
+isPropDec : isProp A -> isProp (Dec A)
+isPropDec ha (yes a1) (yes a2) = cong yes (ha a1 a2)
+isPropDec ha (yes a)  (no ¬a)  = bot-elim (¬a a)
+isPropDec ha (no ¬a)  (yes a)  = bot-elim (¬a a)
+isPropDec ha (no ¬a1) (no ¬a2) = cong no (isProp¬ _ ¬a1 ¬a2)
 
 -- Sets make any square
 
