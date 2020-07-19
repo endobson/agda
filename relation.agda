@@ -90,3 +90,6 @@ P ⊆' Q = ∀ a -> P a -> Q a
 
 _⇒_ : Pred A ℓ₁ -> Pred A ℓ₂ -> Pred A (ℓ-max ℓ₁ ℓ₂)
 (P ⇒ Q) a = P a -> Q a
+
+Comp : Pred A ℓ -> Pred A ℓ
+Comp P x = ¬ (P x)
