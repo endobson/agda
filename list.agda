@@ -388,52 +388,39 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
     handle (yes p) (i , path) = (suc i , (\k -> suc i +' length (filter'-drops as p k))
                                          >=> cong suc path)
 
-  private
-    p-count : List A -> Nat
-    p-count as = length (filter as)
-
-    p-count-¬P : {a : A} (as : List A) (¬p : ¬(P a)) -> p-count (a :: as) == p-count as
-    p-count-¬P as ¬p = cong length (filter-drops as ¬p)
-
-    p-countʰ : Monoidʰ {D₁ = List A} p-count
-    p-countʰ = lengthʰ ∘ʰ filterʰ
-
-    p-count-++ : (l r : List A) -> p-count (l ++ r) == p-count l +' p-count r
-    p-count-++ = Monoidʰ.preserves-∙ p-countʰ
-
-    filter-contains-only : (as : List A) -> ContainsOnly P (filter as)
-    filter-contains-only [] c = bot-elim ([]-¬contains _ c)
-    filter-contains-only (a :: as) {a = x} (l1 :: ls , r , p) = handle (f a)
+  filter-contains-only : (as : List A) -> ContainsOnly P (filter as)
+  filter-contains-only [] c = bot-elim ([]-¬contains _ c)
+  filter-contains-only (a :: as) {a = x} (l1 :: ls , r , p) = handle (f a)
+    where
+    handle : (Dec (P a)) -> P x
+    handle (yes pa) = filter-contains-only as (ls       , r , ::-injective (p >=> filter-keeps as pa))
+    handle (no ¬pa) = filter-contains-only as (l1 :: ls , r , (p >=> filter-drops as ¬pa))
+  filter-contains-only (a :: as) {a = x} ([] , r , p) = handle (f a)
+    where
+    handle : (Dec (P a)) -> P x
+    handle (yes pa) = transport (\i -> P (x==a (~ i))) pa
       where
-      handle : (Dec (P a)) -> P x
-      handle (yes pa) = filter-contains-only as (ls       , r , ::-injective (p >=> filter-keeps as pa))
-      handle (no ¬pa) = filter-contains-only as (l1 :: ls , r , (p >=> filter-drops as ¬pa))
-    filter-contains-only (a :: as) {a = x} ([] , r , p) = handle (f a)
-      where
-      handle : (Dec (P a)) -> P x
-      handle (yes pa) = transport (\i -> P (x==a (~ i))) pa
-        where
-        x==a : x == a
-        x==a = ::-injective' (p >=> filter-keeps as pa)
-      handle (no ¬pa) = filter-contains-only as ([] , r , (p >=> filter-drops as ¬pa))
+      x==a : x == a
+      x==a = ::-injective' (p >=> filter-keeps as pa)
+    handle (no ¬pa) = filter-contains-only as ([] , r , (p >=> filter-drops as ¬pa))
 
-    filter'-contains-only : (as : List A) -> ContainsOnly (Comp P) (filter' as)
-    filter'-contains-only [] c = bot-elim ([]-¬contains _ c)
-    filter'-contains-only (a :: as) {a = x} (l1 :: ls , r , p) = handle (f a)
+  filter'-contains-only : (as : List A) -> ContainsOnly (Comp P) (filter' as)
+  filter'-contains-only [] c = bot-elim ([]-¬contains _ c)
+  filter'-contains-only (a :: as) {a = x} (l1 :: ls , r , p) = handle (f a)
+    where
+    handle : (Dec (P a)) -> ¬ (P x)
+    handle (yes pa) =
+      filter'-contains-only as (l1 :: ls , r , (p >=> filter'-drops as pa))
+    handle (no ¬pa) =
+      filter'-contains-only as (ls       , r , ::-injective (p >=> filter'-keeps as ¬pa))
+  filter'-contains-only (a :: as) {a = x} ([] , r , p) = handle (f a)
+    where
+    handle : (Dec (P a)) -> ¬ (P x)
+    handle (no ¬pa) = transport (\i -> ¬ (P (x==a (~ i)))) ¬pa
       where
-      handle : (Dec (P a)) -> ¬ (P x)
-      handle (yes pa) =
-        filter'-contains-only as (l1 :: ls , r , (p >=> filter'-drops as pa))
-      handle (no ¬pa) =
-        filter'-contains-only as (ls       , r , ::-injective (p >=> filter'-keeps as ¬pa))
-    filter'-contains-only (a :: as) {a = x} ([] , r , p) = handle (f a)
-      where
-      handle : (Dec (P a)) -> ¬ (P x)
-      handle (no ¬pa) = transport (\i -> ¬ (P (x==a (~ i)))) ¬pa
-        where
-        x==a : x == a
-        x==a = ::-injective' (p >=> filter'-keeps as ¬pa)
-      handle (yes pa) = filter'-contains-only as ([] , r , (p >=> filter'-drops as pa))
+      x==a : x == a
+      x==a = ::-injective' (p >=> filter'-keeps as ¬pa)
+    handle (yes pa) = filter'-contains-only as ([] , r , (p >=> filter'-drops as pa))
 
   filter-contains-all : {as : List A}
                         -> ContainsAll P as

@@ -43,6 +43,10 @@ decide-nat (suc m) (suc n) with (decide-nat m n)
 discreteNat : Discrete Nat
 discreteNat = decide-nat
 
+instance
+  discrete'Nat : Discrete' Nat
+  discrete'Nat = record {f = discreteNat}
+
 isSetNat : isSet Nat
 isSetNat = Discrete->isSet discreteNat
 

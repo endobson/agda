@@ -429,3 +429,7 @@ trans-≤i-<i (suc-≤i lt1) (suc-≤i lt2) = suc-≤i (trans-≤i-<i lt1 lt2)
 
 trans-<i : {m n o : Nat} -> (m <i n) -> (n <i o) -> (m <i o)
 trans-<i lt1 lt2 = trans-≤i-<i (pred-≤i (right-suc-≤i lt1)) lt2
+
+-- Bounded predicates
+isBounded : {ℓ : Level} -> (Pred Nat ℓ) -> Type ℓ
+isBounded P = Σ[ n ∈ Nat ] (P ⊆ (_< n))
