@@ -252,8 +252,8 @@ decide-contains x as = handle (count x as) refl
 -- Filter
 module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
 
-  filter-count≤ : {a : A} {as : UList A} -> count a (filter f as) ≤ count a as
-  filter-count≤ {a} {as} = UListElim.prop isProp≤ zero-≤ ::* as
+  filter-count≤ : (a : A) (as : UList A) -> count a (filter f as) ≤ count a as
+  filter-count≤ a as = UListElim.prop isProp≤ zero-≤ ::* as
     where
     ::* : (a2 : A) {as : UList A}
           -> count a (filter f as) ≤ count a as

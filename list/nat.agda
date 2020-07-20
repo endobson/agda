@@ -66,3 +66,18 @@ all-nats-no-duplicates n a = handle (split-nat< a n)
 
 allBounded : {P : Pred Nat ℓ} -> (b : isBounded P) -> ContainsAll P (allNatsUnder ⟨ b ⟩)
 allBounded {P} (_ , f) p = allNatsUnder< (f p)
+
+private
+  exactBoundedDecidable : {P : Pred Nat ℓ} (b : isBounded P) (dec : Decidable P)
+                          -> ContainsExactlyOnce P (filter dec (allNatsUnder ⟨ b ⟩))
+  exactBoundedDecidable b dec =
+    (filter-contains-only dec (allNatsUnder ⟨ b ⟩) ,
+     filter-contains-all dec (allBounded b)) ,
+    filter-no-duplicates dec {as = allNatsUnder ⟨ b ⟩} (all-nats-no-duplicates ⟨ b ⟩)
+
+list-reify : {P : Pred Nat ℓ} (b : isBounded P) (dec : Decidable P)
+              -> Σ (List Nat) (ContainsExactlyOnce P)
+list-reify b dec = l , proof
+  where
+  l = (filter dec (allNatsUnder ⟨ b ⟩))
+  proof = exactBoundedDecidable b dec

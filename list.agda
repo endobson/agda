@@ -187,6 +187,8 @@ ContainsOnly P as = (list∈ as) ⊆ P
 ContainsAll : (Pred A ℓ) -> Pred (List A) _
 ContainsAll P as = P ⊆ (list∈ as)
 
+ContainsExactly : (Pred A ℓ) -> Pred (List A) _
+ContainsExactly P as = (ContainsOnly P as) × (ContainsAll P as)
 
 module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
 

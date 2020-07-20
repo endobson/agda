@@ -168,6 +168,11 @@ decide-no-duplicates (a :: as) = ::* a {as} (decide-no-duplicates as)
         count-path : count a2 (a :: as) == count a2 as
         count-path = count-!= as ¬a-path
 
+-- NoDuplicates and contains
+ContainsExactlyOnce : ∀ {ℓ} -> Pred A ℓ -> Pred (List A) _
+ContainsExactlyOnce P = ContainsExactly P ∩ NoDuplicates
+
+
 --
 ---- Count and contains
 --count-zero->¬contains : {a : A} {as : UList A} -> count a as == 0 -> ¬ (contains a as)
@@ -183,38 +188,42 @@ decide-no-duplicates (a :: as) = ::* a {as} (decide-no-duplicates as)
 --  handle : (n : Nat) -> count x as == n -> Dec (contains x as)
 --  handle zero    p = no (count-zero->¬contains p)
 --  handle (suc _) p = yes (count-suc->contains p)
---
----- Filter
---module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
---
---  filter-count≤ : {a : A} {as : UList A} -> count a (filter f as) ≤ count a as
---  filter-count≤ {a} {as} = UListElim.prop isProp≤ zero-≤ ::* as
---    where
---    ::* : (a2 : A) {as : UList A}
---          -> count a (filter f as) ≤ count a as
---          -> count a (filter f (a2 :: as)) ≤ count a (a2 :: as)
---    ::* a2 {as} lt = handle (f a2) (discA a a2)
---      where
---      handle : Dec (P a2) -> Dec (a == a2)
---               -> count a (filter f (a2 :: as)) ≤ count a (a2 :: as)
---      handle (yes pa2) (yes a==a2) = transport (\i -> (l-path (~ i)) ≤ (r-path (~ i))) (suc-≤ lt)
---        where
---        l-path : count a (filter f (a2 :: as)) == suc (count a (filter f as))
---        l-path = cong (count a) (filter-keeps f as pa2)
---                 >=> count-== (filter f as) a==a2
---
---        r-path : count a (a2 :: as) == suc (count a as)
---        r-path = count-== as a==a2
---
---      handle (yes pa2) (no a!=a2)  = transport (\i -> (l-path (~ i)) ≤ (r-path (~ i))) lt
---        where
---        l-path : count a (filter f (a2 :: as)) == count a (filter f as)
---        l-path = cong (count a) (filter-keeps f as pa2)
---                 >=> count-!= (filter f as) a!=a2
---
---        r-path : count a (a2 :: as) == (count a as)
---        r-path = count-!= as a!=a2
---
---      handle (no ¬pa2) _  =
---        transport (\i -> count a ((filter-drops f as ¬pa2) (~ i)) ≤ count a (a2 :: as))
---                  (trans-≤ lt (count-≤ a as))
+
+-- Filter
+module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
+
+  filter-count≤ : (a : A) (as : List A) -> count a (filter f as) ≤ count a as
+  filter-count≤ a [] = zero-≤
+  filter-count≤ a (a2 :: as) = ::* a2 {as} (filter-count≤ a as)
+    where
+    ::* : (a2 : A) {as : List A}
+          -> count a (filter f as) ≤ count a as
+          -> count a (filter f (a2 :: as)) ≤ count a (a2 :: as)
+    ::* a2 {as} lt = handle (f a2) (discA a a2)
+      where
+      handle : Dec (P a2) -> Dec (a == a2)
+               -> count a (filter f (a2 :: as)) ≤ count a (a2 :: as)
+      handle (yes pa2) (yes a==a2) = transport (\i -> (l-path (~ i)) ≤ (r-path (~ i))) (suc-≤ lt)
+        where
+        l-path : count a (filter f (a2 :: as)) == suc (count a (filter f as))
+        l-path = cong (count a) (filter-keeps f as pa2)
+                 >=> count-== (filter f as) a==a2
+
+        r-path : count a (a2 :: as) == suc (count a as)
+        r-path = count-== as a==a2
+
+      handle (yes pa2) (no a!=a2)  = transport (\i -> (l-path (~ i)) ≤ (r-path (~ i))) lt
+        where
+        l-path : count a (filter f (a2 :: as)) == count a (filter f as)
+        l-path = cong (count a) (filter-keeps f as pa2)
+                 >=> count-!= (filter f as) a!=a2
+
+        r-path : count a (a2 :: as) == (count a as)
+        r-path = count-!= as a!=a2
+
+      handle (no ¬pa2) _  =
+        transport (\i -> count a ((filter-drops f as ¬pa2) (~ i)) ≤ count a (a2 :: as))
+                  (trans-≤ lt (count-≤ a as))
+
+  filter-no-duplicates : {as : List A} -> NoDuplicates as -> NoDuplicates (filter f as)
+  filter-no-duplicates {as} no-dupes a = trans-≤ (filter-count≤ a as) (no-dupes a)
