@@ -11,6 +11,7 @@ open import nat
 open import prime
 open import prime-factorization
 open import relation
+open import ring
 open import unique-prime-factorization
 open import list
 open import list.discrete
@@ -67,5 +68,11 @@ private
   divisors-full : (n : Nat⁺) -> Σ (List Nat) (ContainsExactlyOnce (_div' ⟨ n ⟩))
   divisors-full n = list-reify (isBoundedDiv' n) (\d -> decide-div d ⟨ n ⟩)
 
-divisors : (n : Nat⁺) -> List Nat
-divisors n = fst (divisors-full n)
+  divisors : (n : Nat⁺) -> List Nat
+  divisors n = fst (divisors-full n)
+
+  divisors-contains-only : (n : Nat⁺) -> (ContainsOnly (_div' ⟨ n ⟩) (divisors n))
+  divisors-contains-only n = fst (fst (snd (divisors-full n)))
+
+divisor-sum : (n : Nat⁺) -> (Σ[ d ∈ Nat ] (d div' ⟨ n ⟩) -> Int) -> Int
+divisor-sum n f = Ring.sum IntRing (map f (contains-only->list (divisors-contains-only n)))

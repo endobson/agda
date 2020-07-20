@@ -5,13 +5,14 @@ module list where
 open import base
 open import relation
 open import equality
+open import functions
 open import monoid
 open import nat
 
 private
   variable
     ℓ : Level
-    A B : Type ℓ
+    A B C : Type ℓ
 
 
 infixr 5 _::_
@@ -30,6 +31,12 @@ _++_ : List A -> List A -> List A
 map : (A -> B) -> List A -> List B
 map f [] = []
 map f (e :: l) = f e :: (map f l)
+
+double-map : (f : B -> C) (g : A -> B) (as : List A)
+             -> map f (map g as) == map (f ∘ g) as
+double-map {A = A} f g [] = refl
+double-map {A = A} f g (a :: as) = cong ((f (g a)) ::_) (double-map f g as)
+
 
 length : (l : List A) -> Nat
 length []        = 0
@@ -181,6 +188,20 @@ contains {A = A} a as = Σ[ l ∈ List A ] (Σ[ r ∈ List A ] (l ++ [ a ] ++ r 
 list∈ : List A -> Pred A _
 list∈ as a = contains a as
 
+module _ where
+  private
+    lift-:: : (a : A) {as : List A} -> (Σ A (list∈ as)) -> (Σ A (list∈ (a :: as)))
+    lift-:: a (a2 , l , r , p) = (a2 , a :: l , r , cong (a ::_) p)
+
+  contains-map : (as : List A) -> List (Σ A (list∈ as))
+  contains-map [] = []
+  contains-map {A = A} (a :: as) = (a , [] , as , refl) :: (map (lift-:: a) (contains-map as))
+
+  contains-map-fst : (as : List A) -> map fst (contains-map as) == as
+  contains-map-fst []        = refl
+  contains-map-fst (a :: as) =
+    cong (a ::_) (double-map fst (lift-:: a) (contains-map as) >=> (contains-map-fst as))
+
 ContainsOnly : (Pred A ℓ) -> Pred (List A) _
 ContainsOnly P as = (list∈ as) ⊆ P
 
@@ -189,6 +210,9 @@ ContainsAll P as = P ⊆ (list∈ as)
 
 ContainsExactly : (Pred A ℓ) -> Pred (List A) _
 ContainsExactly P as = (ContainsOnly P as) × (ContainsAll P as)
+
+contains-only->list : {P : Pred A ℓ} {as : List A} -> ContainsOnly P as -> List (Σ A P)
+contains-only->list {as = as} c->p = map (\(a , c) -> a , (c->p c)) (contains-map as)
 
 module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
 
