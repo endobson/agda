@@ -48,6 +48,11 @@ private
     ℓ ℓ₁ ℓ₂ : Level
     A B : Type ℓ
 
+record Lift {ℓA} ℓ (A : Type ℓA) : Type (ℓ-max ℓA ℓ) where
+  constructor lift
+  field
+    lower : A
+
 
 infix 4 _===_
 data _===_ {A : Type ℓ} (x : A) : A -> Type ℓ where
