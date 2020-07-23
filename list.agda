@@ -65,18 +65,19 @@ map-inject-++ f {[]} = refl
 map-inject-++ f {e :: a1} {a2} = cong (\x -> f e :: x) (map-inject-++ f {a1} {a2})
 
 
-data Insertion (A : Type ℓ) : A -> (List A) -> (List A) -> Type ℓ where
-  insertion-base : (a : A) -> (as : (List A)) -> Insertion A a as (a :: as)
-  insertion-cons : {a : A} {as1 as2 : (List A)} -> (a2 : A)
-                   -> (Insertion A a as1 as2) -> Insertion A a (a2 :: as1) (a2 :: as2)
-
 data Permutation (A : Type ℓ) : (List A) -> (List A) -> Type ℓ where
   permutation-empty : Permutation A [] []
-  permutation-cons  : {a : A} -> {as1 as2 as3 : List A}
-                      -> Permutation A as1 as2
-                      -> Insertion A a as2 as3
-                      -> Permutation A (a :: as1) as3
+  permutation-cons : (a : A) -> {as1 as2 : List A} -> Permutation A as1 as2
+                     -> Permutation A (a :: as1) (a :: as2)
+  permutation-swap : (a1 a2 : A) -> (as : List A)
+                     -> Permutation A (a1 :: a2 :: as) (a2 :: a1 :: as)
+  permutation-compose : {as1 as2 as3 : List A}
+                        -> Permutation A as1 as2 -> Permutation A as2 as3
+                        -> Permutation A as1 as3
 
+permutation-same : (as : List A) -> Permutation A as as
+permutation-same []        = permutation-empty
+permutation-same (a :: as) = permutation-cons a (permutation-same as)
 
 insert : (A -> A -> Boolean) -> A -> List A -> List A
 insert _ a [] = a :: []
@@ -84,12 +85,16 @@ insert _<_ a (a2 :: as) with a < a2
 ... | true = a :: (a2 :: as)
 ... | false = a2 :: (insert _<_ a as)
 
-Insertion-insert : (_<_ : A -> A -> Boolean) -> (a : A) -> (as : (List A))
-                   -> Insertion A a as (insert _<_ a as)
-Insertion-insert _t a [] = insertion-base a []
-Insertion-insert _<_ a (a2 :: as) with a < a2
-... | true = insertion-base a (a2 :: as)
-... | false = insertion-cons a2 (Insertion-insert _<_ a as)
+
+Permutation-insert : (_<_ : A -> A -> Boolean) -> (a : A) -> (as : (List A))
+                      -> Permutation A (a :: as) (insert _<_ a as)
+Permutation-insert _t a [] = permutation-same [ a ]
+Permutation-insert _<_ a (a2 :: as) with a < a2
+... | true = permutation-same (a :: a2 :: as)
+... | false =
+  permutation-compose
+    (permutation-swap a a2 _)
+    (permutation-cons a2 (Permutation-insert _<_ a as))
 
 insertion-sort : (A -> A -> Boolean) -> List A -> List A
 insertion-sort _<_ [] = []
@@ -99,8 +104,11 @@ Permutation-insertion-sort : (_<_ : A -> A -> Boolean) -> (as : List A)
                              -> Permutation A as (insertion-sort _<_ as)
 Permutation-insertion-sort _<_ [] = permutation-empty
 Permutation-insertion-sort _<_ (a :: as) =
-  (permutation-cons (Permutation-insertion-sort _<_ as)
-                    (Insertion-insert _<_ a (insertion-sort _<_ as)))
+  (permutation-compose
+    (permutation-cons a (Permutation-insertion-sort _<_ as))
+    (Permutation-insert _<_ a _))
+
+
 
 ++-assoc : {a : List A} {b : List A} {c : List A} -> (a ++ b) ++ c == a ++ (b ++ c)
 ++-assoc {a = []} {b} {c} = refl

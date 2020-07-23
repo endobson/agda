@@ -125,31 +125,18 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
                         -> (sum (map f (a1 ++ a2))) == (sum (map f a1)) + (sum (map f a2))
     sum-map-inject-++ f {a1} {a2} = Monoidʰ.preserves-∙ (sumʰ ∘ʰ (mapʰ f)) a1 a2
 
-    sum-map-Insertion : {a : A} {as1 as2 : (List A)} -> (f : A -> Domain) -> (Insertion A a as1 as2)
-                         -> (sum (map f (a :: as1))) == (sum (map f as2))
-    sum-map-Insertion f (insertion-base a as) = refl
-    sum-map-Insertion f (insertion-cons {a} {as1} {as2} a2 ins) =
-      begin
-        (sum (map f (a :: (a2 :: as1))))
-      ==<>
-        (f a) + ((f a2) + (sum (map f as1)))
-      ==< sym (+-assoc {f a}) >
-        ((f a) + (f a2)) + (sum (map f as1))
-      ==< +-left (+-commute {f a} {f a2}) >
-        ((f a2) + (f a)) + (sum (map f as1))
-      ==< +-assoc {f a2} >
-        (f a2) + ((f a) + (sum (map f as1)))
-      ==< +-right {f a2} (sum-map-Insertion f ins) >
-        (f a2) + (sum (map f as2))
-      ==<>
-        (sum (map f (a2 :: as2)))
-      end
-
     sum-map-Permutation : {as1 as2 : (List A)} -> (f : A -> Domain) -> (Permutation A as1 as2)
                          -> (sum (map f as1)) == (sum (map f as2))
     sum-map-Permutation f (permutation-empty) = refl
-    sum-map-Permutation f (permutation-cons {a} {as1} {as2} {as3} perm ins) =
-      (+-right {f a} (sum-map-Permutation f perm)) >=> (sum-map-Insertion f ins)
+    sum-map-Permutation f (permutation-cons a p) =
+      cong (f a +_) (sum-map-Permutation f p)
+    sum-map-Permutation f (permutation-swap a b p) =
+      sym (+-assoc {f a} {f b})
+      >=> (+-left (+-commute {f a} {f b}))
+      >=> (+-assoc {f b} {f a})
+    sum-map-Permutation f (permutation-compose p1 p2) =
+      sum-map-Permutation f p1 >=> sum-map-Permutation f p2
+
 
     product : List Domain -> Domain
     product = concat {{*-Monoid}}
@@ -168,32 +155,18 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
       -> (product (map f (a1 ++ a2))) == (product (map f a1)) * (product (map f a2))
     product-map-inject-++ f {a1} {a2} = Monoidʰ.preserves-∙ (productʰ ∘ʰ (mapʰ f)) a1 a2
 
-    product-map-Insertion : {a : A} {as1 as2 : (List A)} -> (f : A -> Domain) -> (Insertion A a as1 as2)
-                            -> (product (map f (a :: as1))) == (product (map f as2))
-    product-map-Insertion f (insertion-base a as) = refl
-    product-map-Insertion f (insertion-cons {a} {as1} {as2} a2 ins) =
-      begin
-        (product (map f (a :: (a2 :: as1))))
-      ==<>
-        (f a) * ((f a2) * (product (map f as1)))
-      ==< sym (*-assoc {f a}) >
-        ((f a) * (f a2)) * (product (map f as1))
-      ==< *-left (*-commute {f a} {f a2}) >
-        ((f a2) * (f a)) * (product (map f as1))
-      ==< *-assoc {f a2} >
-        (f a2) * ((f a) * (product (map f as1)))
-      ==< *-right {f a2} (product-map-Insertion f ins) >
-        (f a2) * (product (map f as2))
-      ==<>
-        (product (map f (a2 :: as2)))
-      end
-
-
     product-map-Permutation : {as1 as2 : (List A)} -> (f : A -> Domain) -> (Permutation A as1 as2)
                               -> (product (map f as1)) == (product (map f as2))
     product-map-Permutation f (permutation-empty) = refl
-    product-map-Permutation f (permutation-cons {a} {as1} {as2} {as3} perm ins) =
-      (*-right {f a} (product-map-Permutation f perm)) >=> (product-map-Insertion f ins)
+    product-map-Permutation f (permutation-cons a p) =
+      cong (f a *_) (product-map-Permutation f p)
+    product-map-Permutation f (permutation-swap a b p) =
+      sym (*-assoc {f a} {f b})
+      >=> (*-left (*-commute {f a} {f b}))
+      >=> (*-assoc {f b} {f a})
+    product-map-Permutation f (permutation-compose p1 p2) =
+      product-map-Permutation f p1 >=> product-map-Permutation f p2
+
 
   module _ where
     open unordered-list
