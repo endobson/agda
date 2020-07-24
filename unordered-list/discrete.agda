@@ -242,6 +242,12 @@ count-zero->¬contains {a} count-p (as' , p) =
 count-suc->contains : {a : A} {as : UList A} {c : Nat} -> count a as == (suc c) -> (contains a as)
 count-suc->contains {a} {as} count-p = (remove1 a as) , remove1-count-suc  count-p
 
+contains->count>0 : {a : A} {as : UList A} -> contains a as -> (count a as) > 0
+contains->count>0 {a} {as} (as' , path) =
+  count a as' ,
+  +'-commute {count a as'} {1} >=> (sym (count-== as' refl)) >=> cong (count a) path
+
+
 decide-contains : (x : A) (as : UList A) -> Dec (contains x as)
 decide-contains x as = handle (count x as) refl
   where

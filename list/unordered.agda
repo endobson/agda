@@ -7,6 +7,7 @@ open import equality
 open import relation
 open import list
 open import list.discrete
+open import nat
 
 import unordered-list as ul
 import unordered-list.discrete as ul
@@ -37,7 +38,7 @@ unorder-contains {a = a} {a2 :: as} (_ :: l , r , p) =
   handle : (ul.contains a (unorder as)) -> (ul.contains a (unorder (a2 :: as)))
   handle (bs , p) = (a2 ul.:: bs , (ul.swap a a2 bs) >=> (cong (a2 ul.::_) p))
 
-module _ {ℓ : Level} {A : Type ℓ} {{disc'A : Discrete' A}} where
+module _ {ℓA : Level} {A : Type ℓA} {{disc'A : Discrete' A}} where
 
   private
     discA = Discrete'.f disc'A
@@ -55,3 +56,9 @@ module _ {ℓ : Level} {A : Type ℓ} {{disc'A : Discrete' A}} where
       count-!= as p
       >=> (unorder-count a as)
       >=> (sym (ul.count-!= (unorder as) p))
+
+  unorder-contains' : {a : A} {l : List A} -> ul.contains a (unorder l) -> contains a l
+  unorder-contains' {a} {l} c = count-suc->contains (sym (snd pos-count) >=> +'-right-suc)
+    where
+    pos-count : (count a l) > 0
+    pos-count = transport (\i -> unorder-count a l (~ i) > 0) (ul.contains->count>0 c)
