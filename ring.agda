@@ -3,13 +3,15 @@
 module ring where
 
 open import base
-import list
-import unordered-list
+open import list.unordered
 open import equality
 open import monoid hiding (_∘ʰ_)
 open import commutative-monoid hiding (_∘ʰ_)
 open import nat
 open import hlevel
+
+import list
+import unordered-list
 import int
 
 private
@@ -182,6 +184,17 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
 
     unordered-productʰ : CommMonoidʰ unordered-product
     unordered-productʰ = concatʰ
+
+  module _ where
+    open list
+
+    sum==unordered-sum : (l : List Domain) -> sum l == unordered-sum (unorder l)
+    sum==unordered-sum []        = refl
+    sum==unordered-sum (a :: as) = cong (a +_) (sum==unordered-sum as)
+
+    product==unordered-product : (l : List Domain) -> product l == unordered-product (unorder l)
+    product==unordered-product []        = refl
+    product==unordered-product (a :: as) = cong (a *_) (product==unordered-product as)
 
 
 
