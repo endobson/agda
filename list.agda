@@ -108,6 +108,13 @@ Permutation-insertion-sort _<_ (a :: as) =
     (permutation-cons a (Permutation-insertion-sort _<_ as))
     (Permutation-insert _<_ a _))
 
+permutation-flip : {as bs : List A} -> Permutation A as bs -> Permutation A bs as
+permutation-flip permutation-empty = permutation-empty
+permutation-flip (permutation-cons a p) =
+  permutation-cons a (permutation-flip p)
+permutation-flip (permutation-swap a b p) = permutation-swap b a p
+permutation-flip (permutation-compose p1 p2) =
+  permutation-compose (permutation-flip p2) (permutation-flip p1)
 
 
 ++-assoc : {a : List A} {b : List A} {c : List A} -> (a ++ b) ++ c == a ++ (b ++ c)
@@ -188,13 +195,32 @@ safe-head x (a :: as) = a
 contains : A -> Pred (List A) _
 contains {A = A} a as = Σ[ l ∈ List A ] (Σ[ r ∈ List A ] (l ++ [ a ] ++ r == as))
 
-[]-¬contains : (x : A) -> ¬ (contains x [])
-[]-¬contains x ([]     , r , p) = zero-suc-absurd (cong length (sym p))
-[]-¬contains x (_ :: _ , r , p) = zero-suc-absurd (cong length (sym p))
+[]-¬contains : {x : A} -> ¬ (contains x [])
+[]-¬contains ([]     , r , p) = zero-suc-absurd (cong length (sym p))
+[]-¬contains (_ :: _ , r , p) = zero-suc-absurd (cong length (sym p))
 
+cons-contains : (a : A) {x : A} {as : List A} -> contains x as -> contains x (a :: as)
+cons-contains a (l , r , path) = (a :: l , r , cong (a ::_) path)
 
 list∈ : List A -> Pred A _
 list∈ as a = contains a as
+
+permutation-contains : {as bs : List A} -> Permutation A as bs -> (list∈ as ⊆ list∈ bs)
+permutation-contains (permutation-empty) c-as = bot-elim ([]-¬contains c-as)
+permutation-contains (permutation-cons a p) (_ :: l , r , path) =
+  cons-contains a (permutation-contains p (l , r , ::-injective path))
+permutation-contains (permutation-cons a {as1} {as2} p) ([] , r , path) =
+  ([] , as2 , (\i -> (::-injective' path i) :: as2))
+permutation-contains (permutation-swap a b p) ([] , r , path) =
+  transport (\i -> contains (::-injective' path (~ i)) (b :: a :: p))
+            ([ b ] , p , refl)
+permutation-contains (permutation-swap a b p) {x} (x2 :: [] , r , path) =
+  transport (\i -> contains (::-injective' (::-injective path) (~ i)) (b :: a :: p))
+            ([] , a :: p , refl)
+permutation-contains (permutation-swap a b p) {x} (_ :: _ :: l , r , path) =
+  cons-contains b (cons-contains a (l , r , (::-injective (::-injective path))))
+permutation-contains (permutation-compose p1 p2) c =
+  (permutation-contains p2 (permutation-contains p1 c))
 
 module _ where
   private
@@ -423,7 +449,7 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
                                          >=> cong suc path)
 
   filter-contains-only : (as : List A) -> ContainsOnly P (filter as)
-  filter-contains-only [] c = bot-elim ([]-¬contains _ c)
+  filter-contains-only [] c = bot-elim ([]-¬contains c)
   filter-contains-only (a :: as) {a = x} (l1 :: ls , r , p) = handle (f a)
     where
     handle : (Dec (P a)) -> P x
@@ -439,7 +465,7 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
     handle (no ¬pa) = filter-contains-only as ([] , r , (p >=> filter-drops as ¬pa))
 
   filter'-contains-only : (as : List A) -> ContainsOnly (Comp P) (filter' as)
-  filter'-contains-only [] c = bot-elim ([]-¬contains _ c)
+  filter'-contains-only [] c = bot-elim ([]-¬contains c)
   filter'-contains-only (a :: as) {a = x} (l1 :: ls , r , p) = handle (f a)
     where
     handle : (Dec (P a)) -> ¬ (P x)
