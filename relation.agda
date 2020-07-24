@@ -9,6 +9,24 @@ private
     ℓ ℓ₁ ℓ₂ ℓ₃ : Level
     A B C : Type ℓ
 
+-- Nullary Relations
+
+data Dec (A : Type ℓ) : Type ℓ where
+  yes :   A -> Dec A
+  no  : ¬ A -> Dec A
+
+Stable : Type ℓ -> Type ℓ
+Stable A = (¬ (¬ A)) -> A
+
+Discrete : Type ℓ -> Type ℓ
+Discrete A = (x y : A) -> Dec (x == y)
+
+record Discrete' (A : Type ℓ) : Type ℓ where
+  field
+    f : Discrete A
+
+-- Binary Relations
+
 REL : (Type ℓ₁) -> (Type ℓ₂) -> (ℓ : Level) -> Type _
 REL A B ℓ = A -> B -> Type ℓ
 
@@ -34,6 +52,12 @@ Antisymmetric _~_ = ∀ {a b} -> (a ~ b) -> (b ~ a) -> a == b
 Transitive : Rel A ℓ -> Type _
 Transitive _~_ = ∀ {a b c} -> (a ~ b) -> (b ~ c) -> (a ~ c)
 
+HeteroConnex : REL A B ℓ₁ -> REL B A ℓ₂ -> Type _
+HeteroConnex P Q = ∀ a b -> P a b ⊎ Q b a
+
+Connex : Rel A ℓ -> Type _
+Connex _~_ = HeteroConnex _~_ _~_
+
 -- _⇒_ : REL A B ℓ₁ -> REL A B ℓ₂ -> Type _
 -- P ⇒ Q = ∀ x y -> P x y -> Q x y
 --
@@ -55,21 +79,6 @@ data Tri (A : Type ℓ₁) (B : Type ℓ₂) (C : Type ℓ₃) : Type (ℓ-max �
 Trichotomous : Rel A ℓ₁ -> Rel A ℓ₂ -> Type _
 Trichotomous _<_ _==_ = ∀ x y -> Tri (x < y) (x == y) (y < x)
 
--- Nullary Relations
-
-data Dec (A : Type ℓ) : Type ℓ where
-  yes :   A -> Dec A
-  no  : ¬ A -> Dec A
-
-Stable : Type ℓ -> Type ℓ
-Stable A = (¬ (¬ A)) -> A
-
-Discrete : Type ℓ -> Type ℓ
-Discrete A = (x y : A) -> Dec (x == y)
-
-record Discrete' (A : Type ℓ) : Type ℓ where
-  field
-    f : Discrete A
 
 -- Unary Relations
 
