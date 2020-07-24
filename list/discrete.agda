@@ -13,23 +13,29 @@ open import nat
 private
   discA = Discrete'.f disc'A
 
+isSetA : isSet A
+isSetA = Discrete->isSet discA
+
+private
+  indicator : {x a : A} -> (Dec (x == a)) -> Nat
+  indicator (yes _) = 1
+  indicator (no _) = 0
+
+  indicator==1 : {x a : A} -> x == a -> indicator (discA x a) == 1
+  indicator==1 {x} {a} p = cong indicator (isPropDec (isSetA x a) (discA x a) (yes p))
+
+  indicator==0 : {x a : A} -> x != a -> indicator (discA x a) == 0
+  indicator==0 {x} {a} p = cong indicator (isPropDec (isSetA x a) (discA x a) (no p))
+
 count : (x : A) -> List A -> Nat
 count x [] = 0
-count x (a :: as) = handle (discA x a) (count x as)
-  where
-  handle : {a : A} -> (Dec (x == a)) -> Nat -> Nat
-  handle (yes _) n = suc n
-  handle (no _)  n = n
+count x (a :: as) = (indicator (discA x a)) +' (count x as)
 
 count-== : {x : A} {a : A} (as : List A) -> x == a -> count x (a :: as) == suc (count x as)
-count-== {x} {a} as x==a with (discA x a)
-...                         | (yes _)     = refl
-...                         | (no x!=a)   = bot-elim (x!=a x==a)
+count-== as x==a = +'-left (indicator==1 x==a)
 
 count-!= : {x : A} {a : A} (as : List A) -> x != a -> count x (a :: as) == (count x as)
-count-!= {x} {a} as x!=a with (discA x a)
-...                         | (yes x==a)  = bot-elim (x!=a x==a)
-...                         | (no _)   = refl
+count-!= as x!=a = +'-left (indicator==0 x!=a)
 
 count-≤ : (x : A) {a : A} (as : List A) -> count x as ≤ count x (a :: as)
 count-≤ x {a} as = handle (discA x a)
@@ -37,6 +43,21 @@ count-≤ x {a} as = handle (discA x a)
   handle : (Dec (x == a)) -> count x as ≤ count x (a :: as)
   handle (yes x==a) = 1 , sym (count-== as x==a)
   handle (no  x!=a) = 0 , sym (count-!= as x!=a)
+
+count-++ : (a : A) (as bs : List A) -> count a (as ++ bs) == count a as +' count a bs
+count-++ a []         bs = refl
+count-++ a (a2 :: as) bs = handle (discA a a2)
+  where
+  handle : (Dec (a == a2)) -> count a (a2 :: as ++ bs) == count a (a2 :: as) +' count a bs
+  handle (yes p) =
+    count-== (as ++ bs) p
+    >=> cong suc (count-++ a as bs)
+    >=> +'-left (sym (count-== as p))
+  handle (no p) =
+    count-!= (as ++ bs) p
+    >=> (count-++ a as bs)
+    >=> +'-left (sym (count-!= as p))
+
 
 remove1 : (x : A) -> List A -> List A
 remove1 x [] = []
@@ -173,21 +194,38 @@ ContainsExactlyOnce : ∀ {ℓ} -> Pred A ℓ -> Pred (List A) _
 ContainsExactlyOnce P = ContainsExactly P ∩ NoDuplicates
 
 
---
 ---- Count and contains
---count-zero->¬contains : {a : A} {as : UList A} -> count a as == 0 -> ¬ (contains a as)
---count-zero->¬contains {a} count-p (as' , p) =
---  zero-suc-absurd (sym (sym (count-== as' refl) >=> cong (count a) p >=> count-p))
---
---count-suc->contains : {a : A} {as : UList A} {c : Nat} -> count a as == (suc c) -> (contains a as)
---count-suc->contains {a} {as} count-p = (remove1 a as) , remove1-count-suc  count-p
---
---decide-contains : (x : A) (as : UList A) -> Dec (contains x as)
---decide-contains x as = handle (count x as) refl
---  where
---  handle : (n : Nat) -> count x as == n -> Dec (contains x as)
---  handle zero    p = no (count-zero->¬contains p)
---  handle (suc _) p = yes (count-suc->contains p)
+
+
+contains->count>0 : {a : A} {as : List A} -> contains a as -> (count a as) > 0
+contains->count>0 {a} {[]} c                      = bot-elim ([]-¬contains c)
+contains->count>0 {a} {a2 :: as} ([]     , r , p) = (count a r , path)
+  where
+  path : (count a r) +' 1 == count a (a2 :: as)
+  path = +'-commute {count a r} {1} >=> sym (count-== r refl) >=> cong (count a) p
+contains->count>0 {a} {a2 :: as} (_ :: l , r , p) = trans-≤ count-as (count-≤ a as)
+  where
+  count-as : (count a as) > 0
+  count-as = contains->count>0 (l , r , ::-injective p)
+
+count-zero->¬contains : {a : A} {as : List A} -> count a as == 0 -> ¬ (contains a as)
+count-zero->¬contains count-a contain-a =
+  zero-≮ (transport (\i -> 0 < count-a i) (contains->count>0 contain-a))
+
+count-suc->contains : {a : A} {as : List A} {c : Nat} -> count a as == (suc c) -> (contains a as)
+count-suc->contains {a} {[]}      count-a = bot-elim (zero-suc-absurd count-a)
+count-suc->contains {a} {a2 :: as} count-a = handle (discA a a2)
+  where
+  handle : Dec (a == a2) -> contains a (a2 :: as)
+  handle (yes p) = ([] , as , (\i -> p i :: as))
+  handle (no  p) = cons-contains a2 (count-suc->contains (sym (count-!= as p) >=> count-a))
+
+decide-contains : (x : A) (as : List A) -> Dec (contains x as)
+decide-contains x as = handle (count x as) refl
+  where
+  handle : (n : Nat) -> count x as == n -> Dec (contains x as)
+  handle zero    p = no (count-zero->¬contains p)
+  handle (suc _) p = yes (count-suc->contains p)
 
 -- Filter
 module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
@@ -227,3 +265,16 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
 
   filter-no-duplicates : {as : List A} -> NoDuplicates as -> NoDuplicates (filter f as)
   filter-no-duplicates {as} no-dupes a = trans-≤ (filter-count≤ a as) (no-dupes a)
+
+-- Decidable properties of the list
+
+discreteList : Discrete (List A)
+discreteList []        []        = yes refl
+discreteList (a :: as) []        = no (\ p -> zero-suc-absurd (cong length (sym p)))
+discreteList []        (b :: bs) = no (\ p -> zero-suc-absurd (cong length p))
+discreteList (a :: as) (b :: bs) = handle (discA a b) (discreteList as bs)
+  where
+  handle : (Dec (a == b)) -> (Dec (as == bs)) -> Dec ((a :: as) == (b :: bs))
+  handle (yes p1) (yes p2) = yes (\i -> (p1 i) :: (p2 i))
+  handle (yes p1) (no f)   = no (\p -> f (::-injective p))
+  handle (no f)   _        = no (\p -> f (::-injective' p))
