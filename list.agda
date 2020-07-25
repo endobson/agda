@@ -490,3 +490,40 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
     handle : (contains x (filter as)) ⊎ (contains x (filter' as)) -> contains x (filter as)
     handle (inj-l in-f ) = in-f
     handle (inj-r in-f') = bot-elim (filter'-contains-only as in-f' px)
+
+-- Subsequences
+data Subsequence (A : Type ℓ) : (as bs : List A) -> Type ℓ where
+  subsequence-empty : Subsequence A [] []
+  subsequence-keep : {as bs : List A} (a : A) -> Subsequence A as bs -> Subsequence A (a :: as) (a :: bs)
+  subsequence-drop : {as bs : List A} (a : A) -> Subsequence A as bs -> Subsequence A as (a :: bs)
+
+subsequence-same : (as : List A) -> Subsequence A as as
+subsequence-same []        = subsequence-empty
+subsequence-same (a :: as) = subsequence-keep a (subsequence-same as)
+
+subsequence-empty' : (as : List A) -> Subsequence A [] as
+subsequence-empty' []        = subsequence-empty
+subsequence-empty' (a :: as) = subsequence-drop a (subsequence-empty' as)
+
+trans-subsequence : Transitive (Subsequence A)
+trans-subsequence as (subsequence-drop a bs) =
+  subsequence-drop a (trans-subsequence as bs)
+trans-subsequence subsequence-empty subsequence-empty = subsequence-empty
+trans-subsequence (subsequence-keep a as) (subsequence-keep a bs) =
+  subsequence-keep a (trans-subsequence as bs)
+trans-subsequence (subsequence-drop a as) (subsequence-keep a bs) =
+  subsequence-drop a (trans-subsequence as bs)
+
+subsequence-length≤ : {as bs : List A} -> Subsequence A as bs -> length as ≤ length bs
+subsequence-length≤ subsequence-empty = zero-≤
+subsequence-length≤ (subsequence-keep a s) = suc-≤ (subsequence-length≤ s)
+subsequence-length≤ (subsequence-drop a s) = right-suc-≤ (subsequence-length≤ s)
+
+subsequence-length≥ : {as bs : List A} -> Subsequence A as bs -> length as ≥ length bs -> as == bs
+subsequence-length≥ subsequence-empty      lt = refl
+subsequence-length≥ (subsequence-keep a s) lt = cong (a ::_) (subsequence-length≥ s (pred-≤ lt))
+subsequence-length≥ (subsequence-drop a s) lt =
+  bot-elim (transport (sym ≮==≥) (subsequence-length≤ s) lt)
+
+antisym-subsequence : Antisymmetric (Subsequence A)
+antisym-subsequence s1 s2 = subsequence-length≥ s1 (subsequence-length≤ s2)
