@@ -483,3 +483,10 @@ contains->subset {A = A} {a :: as} {bs} f (¬c-a-as , nd) =
     handle : (x == a ⊎ contains x bs') -> contains x bs'
     handle (inj-r c') = c'
     handle (inj-l p) = bot-elim (¬c-a-as (transport (\i -> contains (p i) as) c))
+
+contains-exactly-once->permutation :
+  {P : Pred A ℓ} {as bs : List A}
+  -> ContainsExactlyOnce P as -> ContainsExactlyOnce P bs -> Permutation A as bs
+contains-exactly-once->permutation ((co-a , ca-a) , nd-a) ((co-b , ca-b) , nd-b) =
+  subsets->perm (contains->subset (ca-b ∘ co-a) nd-a)
+                (contains->subset (ca-a ∘ co-b) nd-b)
