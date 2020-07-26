@@ -239,6 +239,11 @@ contains {A = A} a as = Σ[ l ∈ List A ] (Σ[ r ∈ List A ] (l ++ [ a ] ++ r 
 cons-contains : (a : A) {x : A} {as : List A} -> contains x as -> contains x (a :: as)
 cons-contains a (l , r , path) = (a :: l , r , cong (a ::_) path)
 
+contains-!= : {x a : A} -> {as : List A} -> x != a -> contains x (a :: as) -> contains x as
+contains-!= ¬p ([] , r , path) = bot-elim (¬p (::-injective' path))
+contains-!= ¬p ((_ :: l) , r , path) = l , r , ::-injective path
+
+
 list∈ : List A -> Pred A _
 list∈ as a = contains a as
 

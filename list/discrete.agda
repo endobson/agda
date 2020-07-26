@@ -122,6 +122,14 @@ remove1-count-ignore {x} {y} (a :: as) x!=y = handle a (remove1-count-ignore as 
     ...      | (yes _) = (cong suc p)
     ...      | (no _)  = p
 
+remove1-count≤ : {x : A} {y : A} (as : List A)
+                  -> count x (remove1 y as) ≤ (count x as)
+remove1-count≤ {x} {y} as = handle (discA x y)
+  where
+  handle : Dec (x == y) -> count x (remove1 y as) ≤ (count x as)
+  handle (yes p) = pred-==-≤ (remove1-count-pred as p)
+  handle (no p) = (0 , remove1-count-ignore as p)
+
 
 remove1-count-zero : {x : A} {as : List A} -> (count x as) == 0 -> (remove1 x as) == as
 remove1-count-zero {x} {[]} p = refl
@@ -180,6 +188,36 @@ decide-no-duplicates (a :: as) = ::* (decide-contains a as) (decide-no-duplicate
   ::* (yes c) (no ¬nd) = no (\ (¬c , nd) -> bot-elim (¬c c))
   ::* (no ¬c) (yes nd) = yes (¬c , nd)
   ::* (no ¬c) (no ¬nd) = no (\ (¬c , nd) -> bot-elim (¬nd nd))
+
+-- Subset with discrete properties
+
+contains-remove1 : {x a : A} {as : List A} -> contains x as -> x != a -> contains x (remove1 a as)
+contains-remove1 {x} {a} {as} c p =
+  count-suc->contains (sym (sym +'-right-suc
+                            >=> (snd (contains->count>0 c))
+                            >=> (sym (remove1-count-ignore as p))))
+
+remove1-permutation : {a : A} {as : List A} -> contains a as -> Permutation A as (a :: (remove1 a as))
+remove1-permutation {a} {as = []} c = bot-elim ([]-¬contains c)
+remove1-permutation {a} {as = b :: as} c = handle (discA a b)
+  where
+  handle : Dec (a == b) -> Permutation A (b :: as) (a :: (remove1 a (b :: as)))
+  handle (yes a==b) =
+    transport (\i -> Permutation A (b :: as) ((a==b (~ i)) :: (remove1-== as a==b (~ i))))
+              (permutation-same (b :: as))
+  handle (no a!=b) =
+    transport (\i -> Permutation A (b :: as) (a :: path i)) rec-perm'
+    where
+    rec-perm : Permutation A as (a :: (remove1 a as))
+    rec-perm = remove1-permutation (contains-!= a!=b c)
+
+    rec-perm' : Permutation A (b :: as) (a :: b :: remove1 a as)
+    rec-perm' = permutation-compose (permutation-cons b rec-perm)
+                                    (permutation-swap b a (remove1 a as))
+
+    path : b :: (remove1 a as) == (remove1 a (b :: as))
+    path = sym (remove1-!= as a!=b)
+
 
 
 -- Filter

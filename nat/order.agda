@@ -72,6 +72,10 @@ pred-≤ {m = zero}              _       = zero-≤
 pred-≤ {m = suc _} {n = zero}  lt      = bot-elim (zero-≮ lt)
 pred-≤ {m = suc _} {n = suc _} (x , p) = (x , cong pred (sym +'-right-suc >=> p))
 
+pred-==-≤ : {m n : Nat} -> m == pred n -> m ≤ n
+pred-==-≤ {n = zero}    p = (0 , p)
+pred-==-≤ {n = (suc n)} p = (1 , cong suc p)
+
 add1-< : (n : Nat) -> n < (suc n)
 add1-< zero = zero-<
 add1-< (suc n) = suc-< (add1-< n)
