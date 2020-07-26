@@ -116,6 +116,11 @@ permutation-flip (permutation-swap a b p) = permutation-swap b a p
 permutation-flip (permutation-compose p1 p2) =
   permutation-compose (permutation-flip p2) (permutation-flip p1)
 
+permutation-length== : {as bs : List A} -> Permutation A as bs -> length as == length bs
+permutation-length== (permutation-empty) = refl
+permutation-length== (permutation-cons _ p) = cong suc (permutation-length== p)
+permutation-length== (permutation-swap a b l) = refl
+permutation-length== (permutation-compose p1 p2) = permutation-length== p1 >=> permutation-length== p2
 
 ++-assoc : {a : List A} {b : List A} {c : List A} -> (a ++ b) ++ c == a ++ (b ++ c)
 ++-assoc {a = []} {b} {c} = refl
@@ -501,9 +506,9 @@ subsequence-same : (as : List A) -> Subsequence A as as
 subsequence-same []        = subsequence-empty
 subsequence-same (a :: as) = subsequence-keep a (subsequence-same as)
 
-subsequence-empty' : (as : List A) -> Subsequence A [] as
-subsequence-empty' []        = subsequence-empty
-subsequence-empty' (a :: as) = subsequence-drop a (subsequence-empty' as)
+subsequence-[] : (as : List A) -> Subsequence A [] as
+subsequence-[] []        = subsequence-empty
+subsequence-[] (a :: as) = subsequence-drop a (subsequence-[] as)
 
 trans-subsequence : Transitive (Subsequence A)
 trans-subsequence as (subsequence-drop a bs) =
@@ -527,3 +532,85 @@ subsequence-length≥ (subsequence-drop a s) lt =
 
 antisym-subsequence : Antisymmetric (Subsequence A)
 antisym-subsequence s1 s2 = subsequence-length≥ s1 (subsequence-length≤ s2)
+
+-- Subset
+Subset : (A : Type ℓ) (as bs : List A) -> Type ℓ
+Subset A as bs = Σ[ cs ∈ List A ] (Permutation A as cs × Subsequence A cs bs)
+
+subset-[] : (as : List A) -> Subset A [] as
+subset-[] as = ([] , permutation-empty , subsequence-[] as)
+
+
+module _ {A : Type ℓ} where
+  private
+    Subset' : (A : Type ℓ) (as bs : List A) -> Type ℓ
+    Subset' A as bs = Σ[ cs ∈ List A ] (Subsequence A as cs × Permutation A cs bs)
+    subset'-[] : (as : List A) -> Subset' A [] as
+    subset'-[] as = (as , subsequence-[] as , permutation-same as)
+
+    perm-subset : {as bs cs : List A} -> Permutation A as bs -> Subset A bs cs -> Subset A as cs
+    perm-subset p1 (l , p2 , ss) = (l , (permutation-compose p1 p2) , ss)
+
+    subset-subsequence : {as bs cs : List A} -> Subset A as bs -> Subsequence A bs cs -> Subset A as cs
+    subset-subsequence (l , p , ss1) ss2 = (l , p , trans-subsequence ss1 ss2)
+
+    subsequence->subset : {as bs : List A} -> Subsequence A as bs -> Subset A as bs
+    subsequence->subset ss = (_ , permutation-same _ , ss)
+
+    subset-keep : {as bs : List A} -> (a : A) -> Subset A as bs -> Subset A (a :: as) (a :: bs)
+    subset-keep a (cs , p , ss) = (a :: cs , (permutation-cons a p) , (subsequence-keep a ss))
+    subset-drop : {as bs : List A} -> (a : A) -> Subset A as bs -> Subset A as (a :: bs)
+    subset-drop a (cs , p , ss) = (cs , p , (subsequence-drop a ss))
+
+    rec : {as bs cs : List A} -> Subsequence A as bs -> Permutation A bs cs
+          -> Subset A as cs
+    rec {as} {bs} {cs} ss (permutation-compose {as2 = as2} p1 p2) = perm-subset p1' res2
+      where
+      res1 : Subset A as as2
+      res1 = rec ss p1
+      ds : List A
+      ds = fst res1
+      p1' : Permutation A as ds
+      p1' = fst (snd res1)
+      ss1 : Subsequence A ds as2
+      ss1 = snd (snd res1)
+
+      res2 : Subset A ds cs
+      res2 = rec ss1 p2
+
+    rec (subsequence-keep a ss) (permutation-cons a p) = subset-keep a (rec ss p)
+    rec (subsequence-drop a ss) (permutation-cons a p) = subset-drop a (rec ss p)
+    rec (subsequence-keep a (subsequence-keep b ss)) (permutation-swap a b _) =
+      perm-subset
+        (permutation-swap a b _)
+        (subset-keep b (subset-keep a (subsequence->subset ss)))
+    rec (subsequence-keep a (subsequence-drop b ss)) (permutation-swap a b _) =
+      (subset-drop b (subset-keep a (subsequence->subset ss)))
+    rec (subsequence-drop a (subsequence-keep b ss)) (permutation-swap a b _) =
+      (subset-keep b (subset-drop a (subsequence->subset ss)))
+    rec (subsequence-drop a (subsequence-drop b ss)) (permutation-swap a b _) =
+      (subset-drop b (subset-drop a (subsequence->subset ss)))
+    rec subsequence-empty permutation-empty = subset-[] _
+
+  subset'->subset : {as bs : List A} -> Subset' A as bs -> Subset A as bs
+  subset'->subset (_ , ss , p) = rec ss p
+
+
+  trans-subset : Transitive (Subset A)
+  trans-subset {as} {bs} {cs} (ds1 , p1 , ss1) (ds2 , p2 , ss2) =
+    perm-subset p1 (subset-subsequence (subset'->subset (_ , ss1 , p2)) ss2)
+
+subset-length≤ : {as bs : List A} -> Subset A as bs -> length as ≤ length bs
+subset-length≤ {as = as} {bs = bs} (cs , p , ss) =
+  transport (\i -> (permutation-length== p (~ i)) ≤ length bs) (subsequence-length≤ ss)
+
+subset-length≥ : {as bs : List A} -> Subset A as bs -> length as ≥ length bs
+                 -> Permutation A as bs
+subset-length≥ {A = A} {as = as} {bs = bs} (cs , p , ss) lt =
+  transport (\i -> Permutation A as (cs==bs i)) p
+  where
+  cs==bs : cs == bs
+  cs==bs = subsequence-length≥ ss (transport (\i -> (permutation-length== p i) ≥ length bs) lt)
+
+subsets->perm : {as bs : List A} -> Subset A as bs -> Subset A bs as -> Permutation A as bs
+subsets->perm s1 s2 = subset-length≥ s1 (subset-length≤ s2)
