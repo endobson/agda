@@ -79,6 +79,9 @@ permutation-same : (as : List A) -> Permutation A as as
 permutation-same []        = permutation-empty
 permutation-same (a :: as) = permutation-cons a (permutation-same as)
 
+permutation-== : {as bs : List A} -> as == bs -> Permutation A as bs
+permutation-== {A = A} {as = as} p = transport (\i -> Permutation A as (p i)) (permutation-same as)
+
 insert : (A -> A -> Boolean) -> A -> List A -> List A
 insert _ a [] = a :: []
 insert _<_ a (a2 :: as) with a < a2
@@ -132,6 +135,35 @@ permutation-length== (permutation-compose p1 p2) = permutation-length== p1 >=> p
 ++-right-[] : {a : List A} -> (a ++ []) == a
 ++-right-[] {a = []} = refl
 ++-right-[] {a = a :: as} = cong (a ::_) (++-right-[] {a = as})
+
+
+permutation-snoc : (a : A) (bs : List A) -> Permutation A ([ a ] ++ bs) (bs ++ [ a ])
+permutation-snoc a []        = permutation-same [ a ]
+permutation-snoc a (b :: bs) =
+  permutation-compose (permutation-swap a b bs) (permutation-cons b (permutation-snoc a bs))
+
+permutation-++-left : {as bs : List A} -> Permutation A as bs -> (cs : List A)
+                      -> Permutation A (as ++ cs) (bs ++ cs)
+permutation-++-left permutation-empty cs = permutation-same cs
+permutation-++-left (permutation-cons a p) cs =
+  permutation-cons a (permutation-++-left p cs)
+permutation-++-left (permutation-swap a b l) cs =
+  permutation-swap a b (l ++ cs)
+permutation-++-left (permutation-compose p1 p2) cs =
+  permutation-compose
+    (permutation-++-left p1 cs)
+    (permutation-++-left p2 cs)
+
+
+--permutation-++-flip : (as bs : List A) -> Permutation A (as ++ bs) (bs ++ as)
+--permutation-++-flip []        bs = permutation-== (sym ++-right-[] )
+--permutation-++-flip (a :: as) bs = ?
+--  where
+--  p1 : Permutation A (a :: (as ++ bs)) (a :: (bs ++ as))
+--  p1 = permutation-cons a (permutation-++-flip as bs)
+--
+--  p2 : Permutation A (a :: (bs ++ as)) ((bs ++ [a]) ++ as)
+--  p2 = permutation-cons a (permutation-++-flip as bs)
 
 
 instance
@@ -209,6 +241,12 @@ cons-contains a (l , r , path) = (a :: l , r , cong (a ::_) path)
 
 list∈ : List A -> Pred A _
 list∈ as a = contains a as
+
+split-contains-cons : {x : A} {a : A} {as : List A} -> contains x (a :: as)
+                      -> (x == a) ⊎ contains x as
+split-contains-cons ([]     , r , path) = inj-l (::-injective' path)
+split-contains-cons (_ :: l , r , path) = inj-r (l , r , ::-injective path)
+
 
 permutation-contains : {as bs : List A} -> Permutation A as bs -> (list∈ as ⊆ list∈ bs)
 permutation-contains (permutation-empty) c-as = bot-elim ([]-¬contains c-as)
@@ -413,3 +451,35 @@ subsequence-contains (subsequence-drop a s) c =
 
 subset-contains : {as bs : List A} -> Subset A as bs -> (list∈ as ⊆ list∈ bs)
 subset-contains (_ , p , ss) = subsequence-contains ss ∘ permutation-contains p
+
+contains->subset : {as bs : List A} -> (list∈ as ⊆ list∈ bs) -> NoDuplicates as -> Subset A as bs
+contains->subset {as = []} f nd = subset-[] _
+contains->subset {A = A} {a :: as} {bs} f (¬c-a-as , nd) =
+  subset-perm-right (subset-keep a (contains->subset g nd)) p-bs'
+  where
+  c-a-bs : contains a bs
+  c-a-bs = f ([] , as , refl)
+
+  l = fst c-a-bs
+  r = fst (snd c-a-bs)
+  bs' = l ++ r
+
+  pre-p-bs' : Permutation A ([ a ] ++ (l ++ r)) (l ++ ([ a ] ++ r))
+  pre-p-bs' =
+    permutation-compose
+      (permutation-== (sym (++-assoc {a = [ a ]} {l} {r})))
+      (permutation-compose
+        (permutation-++-left (permutation-snoc a l) r)
+        (permutation-== (++-assoc {a = l} {[ a ]} {r})))
+
+  p-bs' : Permutation A (a :: bs') bs
+  p-bs' = permutation-compose pre-p-bs' (permutation-== (snd (snd c-a-bs)))
+
+  g : (list∈ as ⊆ list∈ bs')
+  g {a = x} c = handle (split-contains-cons
+                         (permutation-contains (permutation-flip p-bs')
+                                               (f (cons-contains a c))))
+    where
+    handle : (x == a ⊎ contains x bs') -> contains x bs'
+    handle (inj-r c') = c'
+    handle (inj-l p) = bot-elim (¬c-a-as (transport (\i -> contains (p i) as) c))
