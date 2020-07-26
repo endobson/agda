@@ -7,6 +7,7 @@ open import equality
 open import fin
 open import list
 open import list.discrete
+open import list.filter
 open import nat
 open import relation
 

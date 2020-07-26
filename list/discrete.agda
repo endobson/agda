@@ -8,6 +8,7 @@ module list.discrete {ℓ : Level} {A : Type ℓ} {{disc'A : Discrete' A}} where
 open import equality
 open import hlevel
 open import list
+open import list.filter
 open import nat
 
 private
