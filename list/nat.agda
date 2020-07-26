@@ -43,26 +43,11 @@ onlyNatsUnder< {n} = transport (\i -> ContainsOnly (_< n) (path (same-≤ n) i))
     helper = path {m} (pred-≤ (right-suc-≤ lt))
 
 all-nats-no-duplicates : (n : Nat) -> NoDuplicates (allNatsUnder n)
-all-nats-no-duplicates n a = handle (split-nat< a n)
+all-nats-no-duplicates zero = lift tt
+all-nats-no-duplicates (suc n) = (¬c , all-nats-no-duplicates n)
   where
-  all-nats-≥->count0 : {m : Nat} (n : Nat) -> (m ≥ n) -> count m (allNatsUnder n) == 0
-  all-nats-≥->count0 zero    _  = refl
-  all-nats-≥->count0 (suc n) gt =
-    count-!= (allNatsUnder n) (\p -> (<->!= gt (sym p)))
-    >=> (all-nats-≥->count0 n (pred-≤ (right-suc-≤ gt)))
-
-  all-nats-<->count1 : (m n : Nat) -> (m < n) -> count m (allNatsUnder n) == 1
-  all-nats-<->count1 m zero    lt = bot-elim (zero-≮ lt)
-  all-nats-<->count1 m (suc n) (zero  , path) =
-    count-== (allNatsUnder n) (cong pred path)
-    >=> cong suc (all-nats-≥->count0 n (zero , (sym (cong pred path))))
-  all-nats-<->count1 m (suc n) lt@(suc i , path) =
-    count-!= (allNatsUnder n) (<->!= (i , cong pred path))
-    >=> all-nats-<->count1 m n (i , cong pred path)
-
-  handle : (a < n ⊎ n ≤ a) -> count a (allNatsUnder n) ≤ 1
-  handle (inj-l a<n) = (0 , all-nats-<->count1 a n a<n)
-  handle (inj-r n≤a) = (1 , cong suc (all-nats-≥->count0 n n≤a))
+  ¬c : ¬ (contains n (allNatsUnder n))
+  ¬c c = same-≮ (onlyNatsUnder< c)
 
 allBounded : {P : Pred Nat ℓ} -> (b : isBounded P) -> ContainsAll P (allNatsUnder ⟨ b ⟩)
 allBounded {P} (_ , f) p = allNatsUnder< (f p)

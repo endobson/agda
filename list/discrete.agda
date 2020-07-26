@@ -135,65 +135,6 @@ remove1-count-zero {x} {a :: as} = a ::* (remove1-count-zero {as = as})
   ...               | (no x!=a)   = (\ c i -> a :: p c i)
 
 
--- No duplicates
-
-NoDuplicates : List A -> Type ℓ
-NoDuplicates l = ∀ (a : A) -> count a l ≤ 1
-
-isPropNoDuplicates : {l : List A} -> isProp (NoDuplicates l)
-isPropNoDuplicates = isPropΠ (\_ -> isProp≤)
-
-decide-no-duplicates : (l : List A) -> Dec (NoDuplicates l)
-decide-no-duplicates []        = yes (\ a -> zero-≤)
-decide-no-duplicates (a :: as) = ::* a {as} (decide-no-duplicates as)
-  where
-  ::* : (a : A) {as : List A} -> Dec (NoDuplicates as) -> Dec (NoDuplicates (a :: as))
-  ::* a {as} (yes f) with (f a)
-  ... | (0 , p) = no ¬f
-    where
-    ¬f : ¬ ((a2 : A) -> count a2 (a :: as) ≤ 1)
-    ¬f f' = zero-≮ (pred-≤ (transport (\i -> count-path i ≤ 1) (f' a)))
-      where
-      count-path : count a (a :: as) == 2
-      count-path = count-== as refl >=> cong suc p
-  ... | (1 , p) = yes g
-    where
-    g : ((a2 : A) -> count a2 (a :: as) ≤ 1)
-    g a2 = handle (discA a2 a)
-      where
-      handle : Dec (a2 == a) -> count a2 (a :: as) ≤ 1
-      handle (yes a-path) = (0 , count-path >=> count-path2)
-        where
-        count-path : count a2 (a :: as) == suc (count a2 as)
-        count-path = count-== as a-path
-        count-path2 : (suc (count a2 as)) == 1
-        count-path2 = transport (\i -> suc (count (a-path (~ i)) as) == 1) p
-      handle (no ¬a-path) = (transport (\i -> (count-path (~ i)) ≤ 1) (f a2))
-        where
-        count-path : count a2 (a :: as) == count a2 as
-        count-path = count-!= as ¬a-path
-  ... | (suc (suc x) , p) = bot-elim (zero-suc-absurd (\i -> (pred (p (~ i)))))
-  ::* a {as} (no ¬f) = (no ¬g)
-    where
-    ¬g : ¬ ((a2 : A) -> count a2 (a :: as) ≤ 1)
-    ¬g g = ¬f f
-      where
-      f : (a2 : A) -> count a2 as ≤ 1
-      f a2 with (discA a2 a)
-      ... | yes a-path = right-suc-≤ (pred-≤ (transport (\i -> count-path i ≤ 1) (g a2)))
-        where
-        count-path : count a2 (a :: as) == suc (count a2 as)
-        count-path = count-== as a-path
-      ... | no ¬a-path = transport (\i -> count-path i ≤ 1) (g a2)
-        where
-        count-path : count a2 (a :: as) == count a2 as
-        count-path = count-!= as ¬a-path
-
--- NoDuplicates and contains
-ContainsExactlyOnce : ∀ {ℓ} -> Pred A ℓ -> Pred (List A) _
-ContainsExactlyOnce P = ContainsExactly P ∩ NoDuplicates
-
-
 ---- Count and contains
 
 
@@ -226,6 +167,19 @@ decide-contains x as = handle (count x as) refl
   handle : (n : Nat) -> count x as == n -> Dec (contains x as)
   handle zero    p = no (count-zero->¬contains p)
   handle (suc _) p = yes (count-suc->contains p)
+
+-- No duplicates
+
+decide-no-duplicates : (l : List A) -> Dec (NoDuplicates l)
+decide-no-duplicates []        = yes (lift tt)
+decide-no-duplicates (a :: as) = ::* (decide-contains a as) (decide-no-duplicates as)
+  where
+  ::* : Dec (contains a as) -> Dec (NoDuplicates as) -> Dec (NoDuplicates (a :: as))
+  ::* (yes c) (yes nd) = no (\ (¬c , nd) -> bot-elim (¬c c))
+  ::* (yes c) (no ¬nd) = no (\ (¬c , nd) -> bot-elim (¬c c))
+  ::* (no ¬c) (yes nd) = yes (¬c , nd)
+  ::* (no ¬c) (no ¬nd) = no (\ (¬c , nd) -> bot-elim (¬nd nd))
+
 
 -- Filter
 module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
@@ -262,9 +216,6 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
       handle (no ¬pa2) _  =
         transport (\i -> count a ((filter-drops f as ¬pa2) (~ i)) ≤ count a (a2 :: as))
                   (trans-≤ lt (count-≤ a as))
-
-  filter-no-duplicates : {as : List A} -> NoDuplicates as -> NoDuplicates (filter f as)
-  filter-no-duplicates {as} no-dupes a = trans-≤ (filter-count≤ a as) (no-dupes a)
 
 -- Decidable properties of the list
 

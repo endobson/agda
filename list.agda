@@ -253,6 +253,31 @@ ContainsExactly P as = (ContainsOnly P as) × (ContainsAll P as)
 contains-only->list : {P : Pred A ℓ} {as : List A} -> ContainsOnly P as -> List (Σ A P)
 contains-only->list {as = as} c->p = map (\(a , c) -> a , (c->p c)) (contains-map as)
 
+NoDuplicates : (Pred (List A) _)
+NoDuplicates {A = A} [] = Lift (levelOf A) Top
+NoDuplicates (a :: as) = (¬ (contains a as) × NoDuplicates as)
+
+no-duplicates-permutation :
+  {as bs : List A} -> NoDuplicates as -> Permutation A as bs -> NoDuplicates bs
+no-duplicates-permutation nd (permutation-empty) = nd
+no-duplicates-permutation (¬c , nd) (permutation-cons a p) =
+  (\c -> ¬c (permutation-contains (permutation-flip p) c)) ,
+  no-duplicates-permutation nd p
+no-duplicates-permutation (¬ca , ¬cb , nd) (permutation-swap a b l) = (¬cb' , ¬ca' , nd)
+  where
+  ¬cb' : ¬ (contains b (a :: l))
+  ¬cb' ([] , r , p) = ¬ca ([] , l , (\i -> ::-injective' p (~ i) :: l))
+  ¬cb' (_ :: l2 , r , p) = ¬cb (l2 , r , ::-injective p)
+
+  ¬ca' : ¬ (contains a l)
+  ¬ca' c = ¬ca (cons-contains b c)
+no-duplicates-permutation nd (permutation-compose p1 p2) =
+  no-duplicates-permutation (no-duplicates-permutation nd p1) p2
+
+ContainsExactlyOnce : ∀ {ℓ} -> Pred A ℓ -> Pred (List A) _
+ContainsExactlyOnce P = ContainsExactly P ∩ NoDuplicates
+
+
 module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
 
   private
@@ -393,6 +418,21 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
        >=> (\i -> (filter'-++ l ([ a ] ++ r) (~ i)))
        >=> (cong filter' path)
 
+  filter-contains : {x : A} (as : List A) -> (contains x (filter as)) -> contains x as
+  filter-contains [] c = bot-elim ([]-¬contains c)
+  filter-contains {x = x} (a :: as) c = handle (f a)
+    where
+    handle : Dec (P a) -> contains x (a :: as)
+    handle (no ¬p) =
+      cons-contains a (filter-contains as (transport (\i -> contains x (filter-drops as ¬p i)) c))
+    handle (yes p) = handle2 (transport (\i -> contains x (filter-keeps as p i)) c)
+      where
+      handle2 : contains x (a :: (filter as)) -> contains x (a :: as)
+      handle2 ([]     , r , path) = ([] , as , (\i -> ::-injective' path i :: as))
+      handle2 (_ :: l , r , path) =
+        cons-contains a (filter-contains as (l , r , ::-injective path))
+
+
   filter-idempotent : (as : List A) -> filter (filter as) == filter as
   filter-idempotent [] = refl
   filter-idempotent (a :: as) = handle (f a) (filter-idempotent as)
@@ -495,6 +535,20 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
     handle : (contains x (filter as)) ⊎ (contains x (filter' as)) -> contains x (filter as)
     handle (inj-l in-f ) = in-f
     handle (inj-r in-f') = bot-elim (filter'-contains-only as in-f' px)
+
+  filter-no-duplicates : {as : List A} -> NoDuplicates as -> NoDuplicates (filter as)
+  filter-no-duplicates {[]} nd = nd
+  filter-no-duplicates {(a :: as)} (¬c , nd) = handle (f a)
+    where
+    handle : Dec (P a) -> NoDuplicates (filter (a :: as))
+    handle (yes p) = transport (\i -> NoDuplicates (filter-keeps as p (~ i)))
+                               (¬c' , (filter-no-duplicates nd))
+      where
+      ¬c' : ¬ (contains a (filter as))
+      ¬c' c = ¬c (filter-contains as c)
+
+    handle (no ¬p) = transport (\i -> NoDuplicates (filter-drops as ¬p (~ i)))
+                               (filter-no-duplicates nd)
 
 -- Subsequences
 data Subsequence (A : Type ℓ) : (as bs : List A) -> Type ℓ where
