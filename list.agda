@@ -256,6 +256,18 @@ split-contains-cons : {x : A} {a : A} {as : List A} -> contains x (a :: as)
 split-contains-cons ([]     , r , path) = inj-l (::-injective' path)
 split-contains-cons (_ :: l , r , path) = inj-r (l , r , ::-injective path)
 
+split-contains-++ : {x : A} {as bs : List A} -> contains x (as ++ bs)
+                     -> contains x as ⊎ contains x bs
+split-contains-++ {x = x} {[]}      {bs} c            = inj-r c
+split-contains-++ {x = x} {a :: as} {bs} ([] , r , p) =
+  (inj-l ([] , as , (\i -> ::-injective' p i :: as)))
+split-contains-++ {x = x} {a :: as} {bs} (_ :: l , r , p) =
+  handle (split-contains-++ (l , r , ::-injective p))
+  where
+  handle : (contains x as ⊎ contains x bs) -> (contains x (a :: as) ⊎ contains x bs)
+  handle (inj-l c) = inj-l (cons-contains a c)
+  handle (inj-r c) = inj-r c
+
 
 at-index->contains : {n : Nat} {as : List A} {x : A} -> AtIndex n as x -> contains x as
 at-index->contains {n = zero} {as = a :: as} p = ([] , as , (\i -> p i :: as))
@@ -378,7 +390,23 @@ map-no-duplicates {A = A} {f = f} {as = a :: as} inj-f (¬c , nd) = (¬c' , map-
     c-x : contains x as
     c-x = at-index->contains (fst (snd res2))
 
+++-no-duplicates :
+  {as bs : List A} -> NoDuplicates as -> NoDuplicates bs
+  -> (list∈ as ⊆ Comp (list∈ bs))
+  -> NoDuplicates (as ++ bs)
+++-no-duplicates {as = []}      nd-a nd-b f = nd-b
+++-no-duplicates {as = a :: as} {bs = bs} (¬c , nd-a) nd-b f =
+  (¬c' , ++-no-duplicates nd-a nd-b f')
+  where
+  ¬c' : ¬ (contains a (as ++ bs))
+  ¬c' c = handle (split-contains-++ c)
+    where
+    handle : contains a as ⊎ contains a bs -> Bot
+    handle (inj-l ca) = ¬c ca
+    handle (inj-r cb) = (f ([] , as , refl) cb)
 
+  f' : (list∈ as ⊆ Comp (list∈ bs))
+  f' ca cb = f (cons-contains a ca) cb
 
 
 ContainsExactlyOnce : ∀ {ℓ} -> Pred A ℓ -> Pred (List A) _
@@ -559,3 +587,12 @@ contains-exactly-once->permutation :
 contains-exactly-once->permutation ((co-a , ca-a) , nd-a) ((co-b , ca-b) , nd-b) =
   subsets->perm (contains->subset (ca-b ∘ co-a) nd-a)
                 (contains->subset (ca-a ∘ co-b) nd-b)
+
+-- Cartesian Product
+
+cartesian-product : List A -> List B -> List (A × B)
+cartesian-product [] bs = []
+cartesian-product (a :: as) bs = map (a ,_) bs ++ cartesian-product as bs
+
+cartesian-product' : (A -> B -> C) -> List A -> List B -> List C
+cartesian-product' f as bs = map (\ (a , b) -> f a b) (cartesian-product as bs)
