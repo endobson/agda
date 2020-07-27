@@ -227,7 +227,12 @@ safe-head x (a :: as) = a
 ++-injective-left {as = []}        p = p
 ++-injective-left {as = (a :: as)} p = (++-injective-left (::-injective p))
 
--- Contains
+-- AtIndex and Contains
+
+AtIndex : Nat -> List A -> A -> Type _
+AtIndex n       []        x = Lift _ Bot
+AtIndex zero    (a :: as) x = x == a
+AtIndex (suc n) (_ :: as) x = AtIndex n as x
 
 contains : A -> Pred (List A) _
 contains {A = A} a as = Σ[ l ∈ List A ] (Σ[ r ∈ List A ] (l ++ [ a ] ++ r == as))
@@ -243,7 +248,6 @@ contains-!= : {x a : A} -> {as : List A} -> x != a -> contains x (a :: as) -> co
 contains-!= ¬p ([] , r , path) = bot-elim (¬p (::-injective' path))
 contains-!= ¬p ((_ :: l) , r , path) = l , r , ::-injective path
 
-
 list∈ : List A -> Pred A _
 list∈ as a = contains a as
 
@@ -251,6 +255,41 @@ split-contains-cons : {x : A} {a : A} {as : List A} -> contains x (a :: as)
                       -> (x == a) ⊎ contains x as
 split-contains-cons ([]     , r , path) = inj-l (::-injective' path)
 split-contains-cons (_ :: l , r , path) = inj-r (l , r , ::-injective path)
+
+
+at-index->contains : {n : Nat} {as : List A} {x : A} -> AtIndex n as x -> contains x as
+at-index->contains {n = zero} {as = a :: as} p = ([] , as , (\i -> p i :: as))
+at-index->contains {n = (suc n)} {as = a :: as} p = cons-contains a (at-index->contains p)
+
+contains->at-index : {as : List A} {x : A} -> contains x as -> Σ[ n ∈ Nat ] (AtIndex n as x)
+contains->at-index {as = []}              c                =
+  bot-elim ([]-¬contains c)
+contains->at-index {as = a :: as} {x = x} ([]     , r , p) =
+  transport (\i -> (Σ[ n ∈ Nat ] (AtIndex n (p i) x))) (0 , refl)
+contains->at-index {as = a :: as} {x = x} (_ :: l , r , p) =
+  handle (contains->at-index (l , r , ::-injective p))
+  where
+  handle : Σ[ n ∈ Nat ] (AtIndex n as x) -> Σ[ n ∈ Nat ] (AtIndex n (a :: as) x)
+  handle (n , p) = (suc n , p)
+
+map-at-index : (f : A -> B) {n : Nat} {as : List A} {x : A}
+               -> AtIndex n as x -> AtIndex n (map f as) (f x)
+map-at-index f {n = zero}  {as = a :: as} p = cong f p
+map-at-index f {n = suc n} {as = a :: as} {x = x} p = answer
+  where
+  answer : AtIndex (suc n) (f a :: map f as) (f x)
+  answer = map-at-index f {n = n} {as = as} p
+
+map-at-index' : (f : A -> B) {n : Nat} {as : List A} {y : B}
+               -> AtIndex n (map f as) y
+               -> Σ[ x ∈ A ] (AtIndex n as x × (f x == y))
+map-at-index' f {n = zero}  {as = a :: as} p = (a , refl , sym p)
+map-at-index' {A = A} f {n = suc n} {as = a :: as} {y = y} p = answer
+  where
+  answer : Σ[ x ∈ A ] (AtIndex (suc n) (a :: as) x × (f x == y))
+  answer = map-at-index' f {n = n} {as = as} p
+
+
 
 
 permutation-contains : {as bs : List A} -> Permutation A as bs -> (list∈ as ⊆ list∈ bs)
@@ -316,6 +355,31 @@ no-duplicates-permutation (¬ca , ¬cb , nd) (permutation-swap a b l) = (¬cb' ,
   ¬ca' c = ¬ca (cons-contains b c)
 no-duplicates-permutation nd (permutation-compose p1 p2) =
   no-duplicates-permutation (no-duplicates-permutation nd p1) p2
+
+map-no-duplicates : {f : A -> B} {as : List A} -> Injective f
+                    -> NoDuplicates as -> NoDuplicates (map f as)
+map-no-duplicates {as = []} inj-f nd = lift tt
+map-no-duplicates {A = A} {f = f} {as = a :: as} inj-f (¬c , nd) = (¬c' , map-no-duplicates inj-f nd)
+  where
+  ¬c' : ¬ (contains (f a) (map f as))
+  ¬c' c = ¬c (transport (\i -> (contains (inj-f path i) as)) c-x)
+    where
+    res1 : Σ[ n ∈ Nat ] (AtIndex n (map f as) (f a))
+    res1 = (contains->at-index c)
+
+    n = fst res1
+
+    res2 : Σ[ x ∈ A ] (AtIndex n as x × (f x == f a))
+    res2 = map-at-index' f {as = as} (snd res1)
+
+    x = fst res2
+    path = snd (snd res2)
+
+    c-x : contains x as
+    c-x = at-index->contains (fst (snd res2))
+
+
+
 
 ContainsExactlyOnce : ∀ {ℓ} -> Pred A ℓ -> Pred (List A) _
 ContainsExactlyOnce P = ContainsExactly P ∩ NoDuplicates
