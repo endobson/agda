@@ -75,4 +75,4 @@ private
   divisors-contains-only n = fst (fst (snd (divisors-full n)))
 
 divisor-sum : (n : Nat⁺) -> (Σ[ d ∈ Nat ] (d div' ⟨ n ⟩) -> Int) -> Int
-divisor-sum n f = Ring.sum IntRing (map f (contains-only->list (divisors-contains-only n)))
+divisor-sum n f = Ring.sum IntRing (map f (contains-only->list (divisors n) (divisors-contains-only n)))

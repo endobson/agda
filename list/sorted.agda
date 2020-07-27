@@ -17,10 +17,7 @@ sorted-[] : Sorted []
 sorted-[] = lift tt
 
 sorted-singleton : (a : A) -> Sorted [ a ]
-sorted-singleton a = ≤all , sorted-[]
-  where
-  ≤all : {a2 : A} -> contains a2 [] -> a ≤ a2
-  ≤all c = bot-elim ([]-¬contains c)
+sorted-singleton a = (\()) , sorted-[]
 
 module algo (trans≤ : Transitive _≤_) (connex≤ : Connex _≤_) where
 
@@ -30,8 +27,8 @@ module algo (trans≤ : Transitive _≤_) (connex≤ : Connex _≤_) where
     sorted-cons a1 a2 as lt (co-a2 , s-as) = co-a1 , co-a2 , s-as
       where
       co-a1 : ContainsOnly (a1 ≤_) (a2 :: as)
-      co-a1 {b} ([]      , r , path) = transport (\i -> a1 ≤ (::-injective' path (~ i))) lt
-      co-a1 {b} (_ :: l , r , path) = trans≤ lt (co-a2 (l , r , ::-injective path))
+      co-a1 {b} (zero  , path) = transport (\i -> a1 ≤ ( path (~ i))) lt
+      co-a1 {b} (suc n , path) = trans≤ lt (co-a2 (n , path))
 
   insert : (a : A) -> List A -> List A
   insert a [] = [ a ]
@@ -58,8 +55,8 @@ module algo (trans≤ : Transitive _≤_) (connex≤ : Connex _≤_) where
   ... | (inj-r a2≤a) = (co-a2 , (insert-sorted a s-as))
     where
     co-a2' : ContainsOnly (a2 ≤_) (a :: as)
-    co-a2' ([]     , r , path) = transport (\i -> a2 ≤ (::-injective' path (~ i))) a2≤a
-    co-a2' (_ :: l , r , path) = co-a2-as (l , r , ::-injective path)
+    co-a2' (zero  , path) = transport (\i -> a2 ≤ (path (~ i))) a2≤a
+    co-a2' (suc n , path) = co-a2-as (n , path)
 
     co-a2 : ContainsOnly (a2 ≤_) (insert a as)
     co-a2 = co-a2' ∘ (permutation-contains (insert-permutation a as))

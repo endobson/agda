@@ -147,35 +147,34 @@ remove1-count-zero {x} {a :: as} = a ::* (remove1-count-zero {as = as})
 ---- Count and contains
 
 
-contains->count>0 : {a : A} {as : List A} -> contains a as -> (count a as) > 0
-contains->count>0 {a} {[]} c                      = bot-elim ([]-¬contains c)
-contains->count>0 {a} {a2 :: as} ([]     , r , p) = (count a r , path)
+contains->count>0 : {a : A} (as : List A) -> contains a as -> (count a as) > 0
+contains->count>0 {a} (a2 :: as) (0 , p) = (count a as , path)
   where
-  path : (count a r) +' 1 == count a (a2 :: as)
-  path = +'-commute {count a r} {1} >=> sym (count-== r refl) >=> cong (count a) p
-contains->count>0 {a} {a2 :: as} (_ :: l , r , p) = trans-≤ count-as (count-≤ a as)
+  path : (count a as) +' 1 == count a (a2 :: as)
+  path = +'-commute {count a as} {1} >=> sym (count-== as p)
+contains->count>0 {a} (a2 :: as) (suc n , p) = trans-≤ count-as (count-≤ a as)
   where
   count-as : (count a as) > 0
-  count-as = contains->count>0 (l , r , ::-injective p)
+  count-as = contains->count>0 as (n , p)
 
-count-zero->¬contains : {a : A} {as : List A} -> count a as == 0 -> ¬ (contains a as)
-count-zero->¬contains count-a contain-a =
-  zero-≮ (transport (\i -> 0 < count-a i) (contains->count>0 contain-a))
+count-zero->¬contains : {a : A} (as : List A) -> count a as == 0 -> ¬ (contains a as)
+count-zero->¬contains as count-a contain-a =
+  zero-≮ (transport (\i -> 0 < count-a i) (contains->count>0 as contain-a))
 
-count-suc->contains : {a : A} {as : List A} {c : Nat} -> count a as == (suc c) -> (contains a as)
-count-suc->contains {a} {[]}      count-a = bot-elim (zero-suc-absurd count-a)
-count-suc->contains {a} {a2 :: as} count-a = handle (discA a a2)
+count-suc->contains : {a : A} (as : List A) {c : Nat} -> count a as == (suc c) -> (contains a as)
+count-suc->contains {a} []         count-a = bot-elim (zero-suc-absurd count-a)
+count-suc->contains {a} (a2 :: as) count-a = handle (discA a a2)
   where
   handle : Dec (a == a2) -> contains a (a2 :: as)
-  handle (yes p) = ([] , as , (\i -> p i :: as))
-  handle (no  p) = cons-contains a2 (count-suc->contains (sym (count-!= as p) >=> count-a))
+  handle (yes p) = (0 , p)
+  handle (no  p) = cons-contains a2 (count-suc->contains as (sym (count-!= as p) >=> count-a))
 
 decide-contains : (x : A) (as : List A) -> Dec (contains x as)
 decide-contains x as = handle (count x as) refl
   where
   handle : (n : Nat) -> count x as == n -> Dec (contains x as)
-  handle zero    p = no (count-zero->¬contains p)
-  handle (suc _) p = yes (count-suc->contains p)
+  handle zero    p = no (count-zero->¬contains as p)
+  handle (suc _) p = yes (count-suc->contains as p)
 
 -- No duplicates
 
@@ -193,12 +192,12 @@ decide-no-duplicates (a :: as) = ::* (decide-contains a as) (decide-no-duplicate
 
 contains-remove1 : {x a : A} {as : List A} -> contains x as -> x != a -> contains x (remove1 a as)
 contains-remove1 {x} {a} {as} c p =
-  count-suc->contains (sym (sym +'-right-suc
-                            >=> (snd (contains->count>0 c))
-                            >=> (sym (remove1-count-ignore as p))))
+  count-suc->contains (remove1 a as)
+    (sym (sym +'-right-suc
+          >=> (snd (contains->count>0 as c))
+          >=> (sym (remove1-count-ignore as p))))
 
 remove1-permutation : {a : A} {as : List A} -> contains a as -> Permutation A as (a :: (remove1 a as))
-remove1-permutation {a} {as = []} c = bot-elim ([]-¬contains c)
 remove1-permutation {a} {as = b :: as} c = handle (discA a b)
   where
   handle : Dec (a == b) -> Permutation A (b :: as) (a :: (remove1 a (b :: as)))

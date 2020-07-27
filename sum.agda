@@ -20,6 +20,12 @@ open Iso
 ⊎-map f g (inj-l a) = inj-l (f a)
 ⊎-map f g (inj-r b) = inj-r (g b)
 
+⊎-map-left : (f : A -> C) -> (A ⊎ B) -> (C ⊎ B)
+⊎-map-left f = ⊎-map f (\x -> x)
+
+⊎-map-right : (g : B -> D) -> (A ⊎ B) -> (A ⊎ D)
+⊎-map-right g = ⊎-map (\x -> x) g
+
 ⊎-iso : ∀ {ℓ} {A B C D : Type ℓ} -> Iso A C -> Iso B D -> Iso (A ⊎ B) (C ⊎ D)
 (⊎-iso f g) .fun = ⊎-map (f .fun) (g .fun)
 (⊎-iso f g) .inv = ⊎-map (f .inv) (g .inv)

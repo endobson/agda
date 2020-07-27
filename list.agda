@@ -8,6 +8,7 @@ open import equality
 open import functions
 open import monoid
 open import nat
+open import sum
 
 private
   variable
@@ -235,54 +236,35 @@ AtIndex zero    (a :: as) x = x == a
 AtIndex (suc n) (_ :: as) x = AtIndex n as x
 
 contains : A -> Pred (List A) _
-contains {A = A} a as = Σ[ l ∈ List A ] (Σ[ r ∈ List A ] (l ++ [ a ] ++ r == as))
+contains {A = A} x as = Σ[ n ∈ Nat ] (AtIndex n as x)
+-- contains {A = A} a s = Σ[ l ∈ List A ] (Σ[ r ∈ List A ] (l ++ [ a ] ++ r == as))
 
 []-¬contains : {x : A} -> ¬ (contains x [])
-[]-¬contains ([]     , r , p) = zero-suc-absurd (cong length (sym p))
-[]-¬contains (_ :: _ , r , p) = zero-suc-absurd (cong length (sym p))
+[]-¬contains ()
 
 cons-contains : (a : A) {x : A} {as : List A} -> contains x as -> contains x (a :: as)
-cons-contains a (l , r , path) = (a :: l , r , cong (a ::_) path)
+cons-contains a (n , p) = (suc n , p)
 
 contains-!= : {x a : A} -> {as : List A} -> x != a -> contains x (a :: as) -> contains x as
-contains-!= ¬p ([] , r , path) = bot-elim (¬p (::-injective' path))
-contains-!= ¬p ((_ :: l) , r , path) = l , r , ::-injective path
+contains-!= ¬p (0     , p)  = bot-elim (¬p p)
+contains-!= ¬p (suc n , ai) = (n , ai)
+
 
 list∈ : List A -> Pred A _
 list∈ as a = contains a as
 
 split-contains-cons : {x : A} {a : A} {as : List A} -> contains x (a :: as)
                       -> (x == a) ⊎ contains x as
-split-contains-cons ([]     , r , path) = inj-l (::-injective' path)
-split-contains-cons (_ :: l , r , path) = inj-r (l , r , ::-injective path)
+split-contains-cons (0     , p)  = (inj-l p)
+split-contains-cons (suc n , ai) = (inj-r (n , ai))
 
-split-contains-++ : {x : A} {as bs : List A} -> contains x (as ++ bs)
+split-contains-++ : {x : A} (as bs : List A) -> contains x (as ++ bs)
                      -> contains x as ⊎ contains x bs
-split-contains-++ {x = x} {[]}      {bs} c            = inj-r c
-split-contains-++ {x = x} {a :: as} {bs} ([] , r , p) =
-  (inj-l ([] , as , (\i -> ::-injective' p i :: as)))
-split-contains-++ {x = x} {a :: as} {bs} (_ :: l , r , p) =
-  handle (split-contains-++ (l , r , ::-injective p))
-  where
-  handle : (contains x as ⊎ contains x bs) -> (contains x (a :: as) ⊎ contains x bs)
-  handle (inj-l c) = inj-l (cons-contains a c)
-  handle (inj-r c) = inj-r c
+split-contains-++ []        bs c            = inj-r c
+split-contains-++ (a :: as) bs (0 , p)      = inj-l (0 , p)
+split-contains-++ (a :: as) bs (suc n , ai) =
+  ⊎-map-left (cons-contains a) (split-contains-++ as bs (n , ai))
 
-
-at-index->contains : {n : Nat} {as : List A} {x : A} -> AtIndex n as x -> contains x as
-at-index->contains {n = zero} {as = a :: as} p = ([] , as , (\i -> p i :: as))
-at-index->contains {n = (suc n)} {as = a :: as} p = cons-contains a (at-index->contains p)
-
-contains->at-index : {as : List A} {x : A} -> contains x as -> Σ[ n ∈ Nat ] (AtIndex n as x)
-contains->at-index {as = []}              c                =
-  bot-elim ([]-¬contains c)
-contains->at-index {as = a :: as} {x = x} ([]     , r , p) =
-  transport (\i -> (Σ[ n ∈ Nat ] (AtIndex n (p i) x))) (0 , refl)
-contains->at-index {as = a :: as} {x = x} (_ :: l , r , p) =
-  handle (contains->at-index (l , r , ::-injective p))
-  where
-  handle : Σ[ n ∈ Nat ] (AtIndex n as x) -> Σ[ n ∈ Nat ] (AtIndex n (a :: as) x)
-  handle (n , p) = (suc n , p)
 
 map-at-index : (f : A -> B) {n : Nat} (as : List A) {x : A}
                -> AtIndex n as x -> AtIndex n (map f as) (f x)
@@ -296,33 +278,26 @@ map-at-index' f {n = zero}  (a :: as) p = (a , refl , sym p)
 map-at-index' f {n = suc n} (a :: as) p = map-at-index' f as p
 
 
-
-
 permutation-contains : {as bs : List A} -> Permutation A as bs -> (list∈ as ⊆ list∈ bs)
-permutation-contains (permutation-empty) c-as = bot-elim ([]-¬contains c-as)
-permutation-contains (permutation-cons a p) (_ :: l , r , path) =
-  cons-contains a (permutation-contains p (l , r , ::-injective path))
-permutation-contains (permutation-cons a {as1} {as2} p) ([] , r , path) =
-  ([] , as2 , (\i -> (::-injective' path i) :: as2))
-permutation-contains (permutation-swap a b p) ([] , r , path) =
-  transport (\i -> contains (::-injective' path (~ i)) (b :: a :: p))
-            ([ b ] , p , refl)
-permutation-contains (permutation-swap a b p) {x} (x2 :: [] , r , path) =
-  transport (\i -> contains (::-injective' (::-injective path) (~ i)) (b :: a :: p))
-            ([] , a :: p , refl)
-permutation-contains (permutation-swap a b p) {x} (_ :: _ :: l , r , path) =
-  cons-contains b (cons-contains a (l , r , (::-injective (::-injective path))))
+permutation-contains (permutation-empty)      ()
+permutation-contains (permutation-cons a p)   (suc n , ai) =
+  cons-contains a (permutation-contains p (n , ai))
+permutation-contains (permutation-cons a _)   (zero        , p) = (zero , p)
+permutation-contains (permutation-swap a b l) (zero        , p) = (suc zero , p)
+permutation-contains (permutation-swap a b l) (suc zero    , p) = (zero , p)
+permutation-contains (permutation-swap a b l) (suc (suc n) , p) = (suc (suc n) , p)
 permutation-contains (permutation-compose p1 p2) c =
   (permutation-contains p2 (permutation-contains p1 c))
+
 
 module _ where
   private
     lift-:: : (a : A) {as : List A} -> (Σ A (list∈ as)) -> (Σ A (list∈ (a :: as)))
-    lift-:: a (a2 , l , r , p) = (a2 , a :: l , r , cong (a ::_) p)
+    lift-:: a (a2 , c) = a2 , cons-contains a c
 
   contains-map : (as : List A) -> List (Σ A (list∈ as))
   contains-map [] = []
-  contains-map {A = A} (a :: as) = (a , [] , as , refl) :: (map (lift-:: a) (contains-map as))
+  contains-map (a :: as) = (a , zero , refl) :: (map (lift-:: a) (contains-map as))
 
   contains-map-fst : (as : List A) -> map fst (contains-map as) == as
   contains-map-fst []        = refl
@@ -338,8 +313,8 @@ ContainsAll P as = P ⊆ (list∈ as)
 ContainsExactly : (Pred A ℓ) -> Pred (List A) _
 ContainsExactly P as = (ContainsOnly P as) × (ContainsAll P as)
 
-contains-only->list : {P : Pred A ℓ} {as : List A} -> ContainsOnly P as -> List (Σ A P)
-contains-only->list {as = as} c->p = map (\(a , c) -> a , (c->p c)) (contains-map as)
+contains-only->list : {P : Pred A ℓ} (as : List A) -> ContainsOnly P as -> List (Σ A P)
+contains-only->list as c->p = map (\(a , c) -> a , (c->p c)) (contains-map as)
 
 NoDuplicates : (Pred (List A) _)
 NoDuplicates {A = A} [] = Lift (levelOf A) Top
@@ -354,8 +329,8 @@ no-duplicates-permutation (¬c , nd) (permutation-cons a p) =
 no-duplicates-permutation (¬ca , ¬cb , nd) (permutation-swap a b l) = (¬cb' , ¬ca' , nd)
   where
   ¬cb' : ¬ (contains b (a :: l))
-  ¬cb' ([] , r , p) = ¬ca ([] , l , (\i -> ::-injective' p (~ i) :: l))
-  ¬cb' (_ :: l2 , r , p) = ¬cb (l2 , r , ::-injective p)
+  ¬cb' (zero  , p) = ¬ca (zero , (sym p))
+  ¬cb' (suc n , p) = ¬cb (n , p)
 
   ¬ca' : ¬ (contains a l)
   ¬ca' c = ¬ca (cons-contains b c)
@@ -368,21 +343,20 @@ map-no-duplicates {as = []} inj-f nd = lift tt
 map-no-duplicates {A = A} {f = f} {as = a :: as} inj-f (¬c , nd) = (¬c' , map-no-duplicates inj-f nd)
   where
   ¬c' : ¬ (contains (f a) (map f as))
-  ¬c' c = ¬c (transport (\i -> (contains (inj-f path i) as)) c-x)
+  ¬c' (n , ai-f-as) = ¬c c-a
     where
-    res1 : Σ[ n ∈ Nat ] (AtIndex n (map f as) (f a))
-    res1 = (contains->at-index c)
-
-    n = fst res1
-
     res2 : Σ[ x ∈ A ] (AtIndex n as x × (f x == f a))
-    res2 = map-at-index' f as (snd res1)
+    res2 = map-at-index' f as ai-f-as
 
     x = fst res2
-    path = snd (snd res2)
+    path : x == a
+    path = inj-f (snd (snd res2))
 
     c-x : contains x as
-    c-x = at-index->contains (fst (snd res2))
+    c-x = n , (fst (snd res2))
+
+    c-a : contains a as
+    c-a = (transport (\i -> (contains (path i) as)) c-x)
 
 ++-no-duplicates :
   {as bs : List A} -> NoDuplicates as -> NoDuplicates bs
@@ -393,11 +367,11 @@ map-no-duplicates {A = A} {f = f} {as = a :: as} inj-f (¬c , nd) = (¬c' , map-
   (¬c' , ++-no-duplicates nd-a nd-b f')
   where
   ¬c' : ¬ (contains a (as ++ bs))
-  ¬c' c = handle (split-contains-++ c)
+  ¬c' c = handle (split-contains-++ as bs c)
     where
     handle : contains a as ⊎ contains a bs -> Bot
     handle (inj-l ca) = ¬c ca
-    handle (inj-r cb) = (f ([] , as , refl) cb)
+    handle (inj-r cb) = (f (0 , refl) cb)
 
   f' : (list∈ as ⊆ Comp (list∈ bs))
   f' ca cb = f (cons-contains a ca) cb
@@ -532,16 +506,40 @@ subsets->perm s1 s2 = subset-length≥ s1 (subset-length≤ s2)
 -- Subsequences and Subsets and contains
 
 subsequence-contains : {as bs : List A} -> Subsequence A as bs -> (list∈ as ⊆ list∈ bs)
-subsequence-contains subsequence-empty    c = bot-elim ([]-¬contains c)
-subsequence-contains {bs = a :: bs} (subsequence-keep a s) ([] , r , p) =
-  ([] , bs , (\i -> ::-injective' p i :: bs))
-subsequence-contains (subsequence-keep a s) (_ :: l , r , p) =
-  cons-contains a (subsequence-contains s (l , r , ::-injective p))
+subsequence-contains subsequence-empty      ()
+subsequence-contains (subsequence-keep a s) (0     , p) = (0 , p)
+subsequence-contains (subsequence-keep a s) (suc n , p) =
+  cons-contains a (subsequence-contains s (n , p))
 subsequence-contains (subsequence-drop a s) c =
   cons-contains a (subsequence-contains s c)
 
 subset-contains : {as bs : List A} -> Subset A as bs -> (list∈ as ⊆ list∈ bs)
 subset-contains (_ , p , ss) = subsequence-contains ss ∘ permutation-contains p
+
+take : Nat -> List A -> List A
+take zero    _         = []
+take (suc n) []        = []
+take (suc n) (a :: as) = a :: (take n as)
+
+drop : Nat -> List A -> List A
+drop zero    as        = as
+drop (suc n) []        = []
+drop (suc n) (a :: as) = drop n as
+
+remove-at-index : Nat -> List A -> List A
+remove-at-index n       [] = []
+remove-at-index zero    (a :: as) = as
+remove-at-index (suc n) (a :: as) = a :: (remove-at-index n as)
+
+at-index->path : {n : Nat} {as : List A} {x : A} -> AtIndex n as x
+                       -> take n as ++ [ x ] ++ drop (suc n) as == as
+at-index->path {n = zero}  {a :: as} {x} p = \i -> p i :: as
+at-index->path {n = suc n} {a :: as} {x} p =
+  cong (a ::_) (at-index->path p)
+
+contains->path : {x : A} {as : List A} -> (c : contains x as)
+                 -> take ⟨ c ⟩ as ++ [ x ] ++ drop (suc ⟨ c ⟩) as == as
+contains->path (n , p) = at-index->path p
 
 contains->subset : {as bs : List A} -> (list∈ as ⊆ list∈ bs) -> NoDuplicates as -> Subset A as bs
 contains->subset {as = []} f nd = subset-[] _
@@ -549,10 +547,16 @@ contains->subset {A = A} {a :: as} {bs} f (¬c-a-as , nd) =
   subset-perm-right (subset-keep a (contains->subset g nd)) p-bs'
   where
   c-a-bs : contains a bs
-  c-a-bs = f ([] , as , refl)
+  c-a-bs = f (0 , refl)
 
-  l = fst c-a-bs
-  r = fst (snd c-a-bs)
+  index : Nat
+  index = fst c-a-bs
+
+  --bs' : List A
+  --bs' = remove-at-index index bs
+
+  l = take index bs
+  r = drop (suc index) bs
   bs' = l ++ r
 
   pre-p-bs' : Permutation A ([ a ] ++ (l ++ r)) (l ++ ([ a ] ++ r))
@@ -564,7 +568,7 @@ contains->subset {A = A} {a :: as} {bs} f (¬c-a-as , nd) =
         (permutation-== (++-assoc {a = l} {[ a ]} {r})))
 
   p-bs' : Permutation A (a :: bs') bs
-  p-bs' = permutation-compose pre-p-bs' (permutation-== (snd (snd c-a-bs)))
+  p-bs' = permutation-compose pre-p-bs' (permutation-== (contains->path c-a-bs))
 
   g : (list∈ as ⊆ list∈ bs')
   g {a = x} c = handle (split-contains-cons

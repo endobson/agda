@@ -20,17 +20,15 @@ allNatsUnder zero    = []
 allNatsUnder (suc n) = n :: allNatsUnder n
 
 
-allNatsUnder< : {n : Nat} -> ContainsAll (_< n) (allNatsUnder n)
-allNatsUnder< {zero}          lt          = bot-elim (zero-≮ lt)
-allNatsUnder< {suc n}         (zero  , p) = [] , allNatsUnder n , (\i -> pred (p i) :: allNatsUnder n)
-allNatsUnder< {suc n} {a = a} (suc i , p) = handle (allNatsUnder< {n} (i , cong pred p))
-  where
-  handle : contains a (allNatsUnder n) -> contains a (allNatsUnder (suc n))
-  handle (l , r , path) = (n :: l) , r , cong (n ::_) path
+allNatsUnder< : (n : Nat) -> ContainsAll (_< n) (allNatsUnder n)
+allNatsUnder< zero    lt          = bot-elim (zero-≮ lt)
+allNatsUnder< (suc n) (zero  , p) = zero , cong pred p
+allNatsUnder< (suc n) (suc i , p) =
+  cons-contains n (allNatsUnder< n (i , cong pred p))
 
-onlyNatsUnder< : {n : Nat} -> ContainsOnly (_< n) (allNatsUnder n)
-onlyNatsUnder< {n} = transport (\i -> ContainsOnly (_< n) (path (same-≤ n) i))
-                               (filter-contains-only decide-P (allNatsUnder n))
+onlyNatsUnder< : (n : Nat) -> ContainsOnly (_< n) (allNatsUnder n)
+onlyNatsUnder< n = transport (\i -> ContainsOnly (_< n) (path (same-≤ n) i))
+                             (filter-contains-only decide-P (allNatsUnder n))
   where
 
   decide-P : (a : Nat) -> Dec (a < n)
@@ -48,18 +46,18 @@ all-nats-no-duplicates zero = lift tt
 all-nats-no-duplicates (suc n) = (¬c , all-nats-no-duplicates n)
   where
   ¬c : ¬ (contains n (allNatsUnder n))
-  ¬c c = same-≮ (onlyNatsUnder< c)
+  ¬c c = same-≮ (onlyNatsUnder< n c)
 
 allBounded : {P : Pred Nat ℓ} -> (b : isBounded P) -> ContainsAll P (allNatsUnder ⟨ b ⟩)
-allBounded {P} (_ , f) p = allNatsUnder< (f p)
+allBounded {P} (_ , f) p = allNatsUnder< _ (f p)
 
 private
   exactBoundedDecidable : {P : Pred Nat ℓ} (b : isBounded P) (dec : Decidable P)
                           -> ContainsExactlyOnce P (filter dec (allNatsUnder ⟨ b ⟩))
   exactBoundedDecidable b dec =
     (filter-contains-only dec (allNatsUnder ⟨ b ⟩) ,
-     filter-contains-all dec (allBounded b)) ,
-    filter-no-duplicates dec {as = allNatsUnder ⟨ b ⟩} (all-nats-no-duplicates ⟨ b ⟩)
+     filter-contains-all dec (allNatsUnder ⟨ b ⟩) (allBounded b)) ,
+    filter-no-duplicates dec (allNatsUnder ⟨ b ⟩) (all-nats-no-duplicates ⟨ b ⟩)
 
 list-reify : {P : Pred Nat ℓ} (b : isBounded P) (dec : Decidable P)
               -> Σ (List Nat) (ContainsExactlyOnce P)

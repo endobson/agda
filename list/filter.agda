@@ -132,42 +132,92 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
     ; preserves-∙ = filter'-++
     }
 
+  private
 
-  split-contains : {a : A} (as : List A) -> contains a as
-                   -> (contains a (filter as)) ⊎ (contains a (filter' as))
-  split-contains {a} as (l , r , path) = handle (f a)
+    filter-contains-keep : {x : A} {a : A} (as : List A) -> P a ->
+                            contains x (filter (a :: as)) -> contains x (a :: (filter as))
+    filter-contains-keep {x} {a} as pa c =
+      transport (\i -> contains x (filter-keeps as pa i)) c
+    filter'-contains-keep : {x : A} {a : A} (as : List A) -> ¬(P a) ->
+                            contains x (filter' (a :: as)) -> contains x (a :: (filter' as))
+    filter'-contains-keep {x} {a} as pa c =
+      transport (\i -> contains x (filter'-keeps as pa i)) c
+    filter-contains-drop : {x : A} {a : A} (as : List A) -> ¬(P a) ->
+                            contains x (filter (a :: as)) -> contains x (filter as)
+    filter-contains-drop {x} {a} as pa c =
+      transport (\i -> contains x (filter-drops as pa i)) c
+    filter'-contains-drop : {x : A} {a : A} (as : List A) -> P a ->
+                            contains x (filter' (a :: as)) -> contains x (filter'  as)
+    filter'-contains-drop {x} {a} as pa c =
+      transport (\i -> contains x (filter'-drops as pa i)) c
+
+    filter-contains-cons : {x : A} {a : A} (as : List A) ->
+                           contains x (filter (a :: as)) -> contains x (a :: (filter as))
+    filter-contains-cons {x = x} {a = a} as c = handle (f a)
+      where
+      handle : Dec (P a) -> contains x (a :: filter as)
+      handle (yes p) = filter-contains-keep as p c
+      handle (no p) = cons-contains a (filter-contains-drop as p c)
+
+    filter'-contains-cons : {x : A} {a : A} (as : List A) ->
+                            contains x (filter' (a :: as)) -> contains x (a :: (filter' as))
+    filter'-contains-cons {x = x} {a = a} as c = handle (f a)
+      where
+      handle : Dec (P a) -> contains x (a :: filter' as)
+      handle (yes p) = cons-contains a (filter'-contains-drop as p c)
+      handle (no p) = filter'-contains-keep as p c
+
+
+
+
+  split-contains : {x : A} (as : List A) -> contains x as
+                   -> (contains x (filter as)) ⊎ (contains x (filter' as))
+  split-contains {x} (a :: as) (zero , path) = handle (f a)
     where
-    handle : (Dec (P a)) -> (contains a (filter as)) ⊎ (contains a (filter' as))
-    handle (yes p) = inj-l (filter l , filter r , path')
-      where
-      path' : filter l ++ [ a ] ++ filter r == (filter as)
-      path' =
-       (\i -> (filter l ++ (filter-keeps [] p (~ i)) ++ filter r))
-       >=> (\i -> (filter l ++ (filter-++ [ a ] r (~ i))))
-       >=> (\i -> (filter-++ l ([ a ] ++ r) (~ i)))
-       >=> (cong filter path)
-    handle (no ¬p) = inj-r (filter' l , filter' r , path')
-      where
-      path' : filter' l ++ [ a ] ++ filter' r == (filter' as)
-      path' =
-       (\i -> (filter' l ++ (filter'-keeps [] ¬p (~ i)) ++ filter' r))
-       >=> (\i -> (filter' l ++ (filter'-++ [ a ] r (~ i))))
-       >=> (\i -> (filter'-++ l ([ a ] ++ r) (~ i)))
-       >=> (cong filter' path)
+    handle : (Dec (P a)) -> (contains x (filter  (a :: as))) ⊎
+                            (contains x (filter' (a :: as)))
+    handle (yes p) = inj-l (transport (\i -> contains x (filter-keeps as p (~ i)))
+                                      (0 , path))
+    handle (no  p) = inj-r (transport (\i -> contains x (filter'-keeps as p (~ i)))
+                                      (0 , path))
+  split-contains {x} (a :: as) (suc n , path) = handle (f a) (split-contains as (n , path))
+    where
+    filter-contains-keep' : {x : A} {a : A} (as : List A) -> P a ->
+                            contains x (filter as) -> contains x (filter (a :: as))
+    filter-contains-keep' {x} {a} as pa c =
+      transport (\i -> contains x (filter-keeps as pa (~ i))) (cons-contains a c)
+    filter'-contains-keep' : {x : A} {a : A} (as : List A) -> ¬ (P a) ->
+                            contains x (filter' as) -> contains x (filter' (a :: as))
+    filter'-contains-keep' {x} {a} as pa c =
+      transport (\i -> contains x (filter'-keeps as pa (~ i))) (cons-contains a c)
+    filter-contains-drop' : {x : A} {a : A} (as : List A) -> ¬ (P a) ->
+                            contains x (filter as) -> contains x (filter (a :: as))
+    filter-contains-drop' {x} {a} as pa c =
+      transport (\i -> contains x (filter-drops as pa (~ i))) c
+    filter'-contains-drop' : {x : A} {a : A} (as : List A) -> P a ->
+                            contains x (filter' as) -> contains x (filter' (a :: as))
+    filter'-contains-drop' {x} {a} as pa c =
+      transport (\i -> contains x (filter'-drops as pa (~ i))) c
+
+    handle : Dec (P a)
+             -> (contains x (filter as)) ⊎ (contains x (filter' as))
+             -> (contains x (filter  (a :: as))) ⊎ (contains x (filter' (a :: as)))
+    handle (yes p) (inj-l c) = inj-l (filter-contains-keep'  as p c)
+    handle (yes p) (inj-r c) = inj-r (filter'-contains-drop' as p c)
+    handle (no  p) (inj-l c) = inj-l (filter-contains-drop'  as p c)
+    handle (no  p) (inj-r c) = inj-r (filter'-contains-keep' as p c)
 
   filter-contains : {x : A} (as : List A) -> (contains x (filter as)) -> contains x as
-  filter-contains [] c = bot-elim ([]-¬contains c)
   filter-contains {x = x} (a :: as) c = handle (f a)
     where
     handle : Dec (P a) -> contains x (a :: as)
     handle (no ¬p) =
-      cons-contains a (filter-contains as (transport (\i -> contains x (filter-drops as ¬p i)) c))
-    handle (yes p) = handle2 (transport (\i -> contains x (filter-keeps as p i)) c)
+      cons-contains a (filter-contains as (filter-contains-drop as ¬p c))
+    handle (yes p) = handle2 (filter-contains-keep as p c)
       where
       handle2 : contains x (a :: (filter as)) -> contains x (a :: as)
-      handle2 ([]     , r , path) = ([] , as , (\i -> ::-injective' path i :: as))
-      handle2 (_ :: l , r , path) =
-        cons-contains a (filter-contains as (l , r , ::-injective path))
+      handle2 (zero  , p) = (zero , p)
+      handle2 (suc n , p) = cons-contains a (filter-contains as (n , p))
 
 
   filter-idempotent : (as : List A) -> filter (filter as) == filter as
@@ -231,58 +281,41 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
                                          >=> cong suc path)
 
   filter-contains-only : (as : List A) -> ContainsOnly P (filter as)
-  filter-contains-only [] c = bot-elim ([]-¬contains c)
-  filter-contains-only (a :: as) {a = x} (l1 :: ls , r , p) = handle (f a)
+  filter-contains-only (a :: as) {a = x} c = handle (f a) (filter-contains-cons as c)
     where
-    handle : (Dec (P a)) -> P x
-    handle (yes pa) = filter-contains-only as (ls       , r , ::-injective (p >=> filter-keeps as pa))
-    handle (no ¬pa) = filter-contains-only as (l1 :: ls , r , (p >=> filter-drops as ¬pa))
-  filter-contains-only (a :: as) {a = x} ([] , r , p) = handle (f a)
-    where
-    handle : (Dec (P a)) -> P x
-    handle (yes pa) = transport (\i -> P (x==a (~ i))) pa
-      where
-      x==a : x == a
-      x==a = ::-injective' (p >=> filter-keeps as pa)
-    handle (no ¬pa) = filter-contains-only as ([] , r , (p >=> filter-drops as ¬pa))
+    handle : (Dec (P a)) -> contains x (a :: (filter as)) -> P x
+    handle (yes pa) (suc n , p) = filter-contains-only as (n , p)
+    handle (yes pa) (zero , p) = transport (\i -> P (p (~ i))) pa
+    handle (no ¬pa) _ = filter-contains-only as (filter-contains-drop as ¬pa c)
+
 
   filter'-contains-only : (as : List A) -> ContainsOnly (Comp P) (filter' as)
-  filter'-contains-only [] c = bot-elim ([]-¬contains c)
-  filter'-contains-only (a :: as) {a = x} (l1 :: ls , r , p) = handle (f a)
+  filter'-contains-only (a :: as) {a = x} c = handle (f a) (filter'-contains-cons as c)
     where
-    handle : (Dec (P a)) -> ¬ (P x)
-    handle (yes pa) =
-      filter'-contains-only as (l1 :: ls , r , (p >=> filter'-drops as pa))
-    handle (no ¬pa) =
-      filter'-contains-only as (ls       , r , ::-injective (p >=> filter'-keeps as ¬pa))
-  filter'-contains-only (a :: as) {a = x} ([] , r , p) = handle (f a)
-    where
-    handle : (Dec (P a)) -> ¬ (P x)
-    handle (no ¬pa) = transport (\i -> ¬ (P (x==a (~ i)))) ¬pa
-      where
-      x==a : x == a
-      x==a = ::-injective' (p >=> filter'-keeps as ¬pa)
-    handle (yes pa) = filter'-contains-only as ([] , r , (p >=> filter'-drops as pa))
+    handle : (Dec (P a)) -> contains x (a :: (filter' as)) -> ¬ (P x)
+    handle (no ¬pa) (suc n , p) = filter'-contains-only as (n , p)
+    handle (no ¬pa) (zero , p) px = ¬pa (transport (\i -> P (p i)) px)
+    handle (yes pa) _ = filter'-contains-only as (filter'-contains-drop as pa c)
 
-  filter-contains-all : {as : List A}
+  filter-contains-all : (as : List A)
                         -> ContainsAll P as
                         -> ContainsAll P (filter as)
-  filter-contains-all {as = as} g {a = x} px = handle (split-contains as (g px))
+  filter-contains-all as g {a = x} px = handle (split-contains as (g px))
     where
     handle : (contains x (filter as)) ⊎ (contains x (filter' as)) -> contains x (filter as)
     handle (inj-l in-f ) = in-f
     handle (inj-r in-f') = bot-elim (filter'-contains-only as in-f' px)
 
-  filter-no-duplicates : {as : List A} -> NoDuplicates as -> NoDuplicates (filter as)
-  filter-no-duplicates {[]} nd = nd
-  filter-no-duplicates {(a :: as)} (¬c , nd) = handle (f a)
+  filter-no-duplicates : (as : List A) -> NoDuplicates as -> NoDuplicates (filter as)
+  filter-no-duplicates [] nd = nd
+  filter-no-duplicates (a :: as) (¬c , nd) = handle (f a)
     where
     handle : Dec (P a) -> NoDuplicates (filter (a :: as))
     handle (yes p) = transport (\i -> NoDuplicates (filter-keeps as p (~ i)))
-                               (¬c' , (filter-no-duplicates nd))
+                               (¬c' , (filter-no-duplicates as nd))
       where
       ¬c' : ¬ (contains a (filter as))
       ¬c' c = ¬c (filter-contains as c)
 
     handle (no ¬p) = transport (\i -> NoDuplicates (filter-drops as ¬p (~ i)))
-                               (filter-no-duplicates nd)
+                               (filter-no-duplicates as nd)
