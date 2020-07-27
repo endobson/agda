@@ -284,22 +284,16 @@ contains->at-index {as = a :: as} {x = x} (_ :: l , r , p) =
   handle : Σ[ n ∈ Nat ] (AtIndex n as x) -> Σ[ n ∈ Nat ] (AtIndex n (a :: as) x)
   handle (n , p) = (suc n , p)
 
-map-at-index : (f : A -> B) {n : Nat} {as : List A} {x : A}
+map-at-index : (f : A -> B) {n : Nat} (as : List A) {x : A}
                -> AtIndex n as x -> AtIndex n (map f as) (f x)
-map-at-index f {n = zero}  {as = a :: as} p = cong f p
-map-at-index f {n = suc n} {as = a :: as} {x = x} p = answer
-  where
-  answer : AtIndex (suc n) (f a :: map f as) (f x)
-  answer = map-at-index f {n = n} {as = as} p
+map-at-index f {n = zero}  (a :: as) p = cong f p
+map-at-index f {n = suc n} (a :: as) p = map-at-index f as p
 
-map-at-index' : (f : A -> B) {n : Nat} {as : List A} {y : B}
+map-at-index' : (f : A -> B) {n : Nat} (as : List A) {y : B}
                -> AtIndex n (map f as) y
                -> Σ[ x ∈ A ] (AtIndex n as x × (f x == y))
-map-at-index' f {n = zero}  {as = a :: as} p = (a , refl , sym p)
-map-at-index' {A = A} f {n = suc n} {as = a :: as} {y = y} p = answer
-  where
-  answer : Σ[ x ∈ A ] (AtIndex (suc n) (a :: as) x × (f x == y))
-  answer = map-at-index' f {n = n} {as = as} p
+map-at-index' f {n = zero}  (a :: as) p = (a , refl , sym p)
+map-at-index' f {n = suc n} (a :: as) p = map-at-index' f as p
 
 
 
@@ -382,7 +376,7 @@ map-no-duplicates {A = A} {f = f} {as = a :: as} inj-f (¬c , nd) = (¬c' , map-
     n = fst res1
 
     res2 : Σ[ x ∈ A ] (AtIndex n as x × (f x == f a))
-    res2 = map-at-index' f {as = as} (snd res1)
+    res2 = map-at-index' f as (snd res1)
 
     x = fst res2
     path = snd (snd res2)
@@ -596,3 +590,23 @@ cartesian-product (a :: as) bs = map (a ,_) bs ++ cartesian-product as bs
 
 cartesian-product' : (A -> B -> C) -> List A -> List B -> List C
 cartesian-product' f as bs = map (\ (a , b) -> f a b) (cartesian-product as bs)
+
+
+--cartesian-product-no-duplicates :
+--  {as : List A} {bs : List B} -> NoDuplicates as -> NoDuplicates bs
+--  -> NoDuplicates (cartesian-product as bs)
+--cartesian-product-no-duplicates {as = []} nd-a nd-b = lift tt
+--cartesian-product-no-duplicates {A = A} {B = B} {as = a :: as} {bs} (¬ca , nd-a) nd-b =
+--  ++-no-duplicates nd-a' (cartesian-product-no-duplicates nd-a nd-b) ¬c-both
+--  where
+--  nd-a' : NoDuplicates (map (a ,_) bs)
+--  nd-a' = ?
+--
+--  ¬c-both : {x : A × B} -> contains x (map (a ,_) bs) -> contains x (cartesian-product as bs) -> Bot
+--  ¬c-both {x = x} c-map c-prod = ?
+--    where
+--    ai-map : Σ[ n ∈ Nat ] (AtIndex n (map (a ,_) bs) x)
+--    ai-map = contains->at-index c-map
+--    xn-map = fst ai-map
+--
+--    ai-map' : Σ[ b ∈ B ]
