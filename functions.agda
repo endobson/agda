@@ -19,3 +19,6 @@ _∘_ : {A : Type ℓ₁} {B : Type ℓ₂} {C : (b : B) -> Type ℓ₃} (f : (b
 
 Injective : Pred (A -> B) _
 Injective f = ∀ {a1 a2} -> (f a1) == (f a2) -> a1 == a2
+
+Injective2 : Pred (A -> B -> C) _
+Injective2 f = ∀ {a1 b1 a2 b2} -> (f a1 b1) == (f a2 b2) -> (a1 == a2) × (b1 == b2)

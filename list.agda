@@ -690,3 +690,13 @@ cartesian-product-no-duplicates {A = A} {B = B} {as = a :: as} {bs} (¬c-a , nd-
 
     c-a : (contains a as)
     c-a = transport (\i -> contains (xa==a i) as) c-xa
+
+cartesian-product'-no-duplicates :
+   {f : A -> B -> C} (as : List A) (bs : List B)
+   -> Injective2 f -> NoDuplicates as -> NoDuplicates bs
+   -> NoDuplicates (cartesian-product' f as bs)
+cartesian-product'-no-duplicates {f = f} as bs inj-f nd-a nd-b =
+  map-no-duplicates inj-f' (cartesian-product-no-duplicates nd-a nd-b)
+  where
+  inj-f' : Injective (\ (a , b) -> f a b)
+  inj-f' {x1 , y1} {x2 , y2} p i = fst (inj-f p) i , snd (inj-f p) i
