@@ -300,6 +300,14 @@ map-at-index-inj f {n} as ai inj-f =
   where
   res = map-at-index' f as ai
 
+map-contains' : (f : A -> B) (as : List A) {y : B}
+                -> contains y (map f as)
+                -> Σ[ x ∈ A ] (contains x as × (f x == y))
+map-contains' {A = A} f as {y} (n , ai) = handle (map-at-index' f as ai)
+  where
+  handle : Σ[ x ∈ A ] (AtIndex n as x × (f x == y))
+           -> Σ[ x ∈ A ] (contains x as × (f x == y))
+  handle  (x , ai' , p) =  x , (n , ai') , p
 
 
 permutation-contains : {as bs : List A} -> Permutation A as bs -> (list∈ as ⊆ list∈ bs)
