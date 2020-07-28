@@ -265,17 +265,41 @@ split-contains-++ (a :: as) bs (0 , p)      = inj-l (0 , p)
 split-contains-++ (a :: as) bs (suc n , ai) =
   ⊎-map-left (cons-contains a) (split-contains-++ as bs (n , ai))
 
+++-contains-left : {x : A} (as bs : List A) -> contains x as -> contains x (as ++ bs)
+++-contains-left (a :: as) bs (0     , p) = (0 , p)
+++-contains-left (a :: as) bs (suc n , p) =
+  cons-contains a (++-contains-left as bs (n , p))
+
+++-contains-right : {x : A} (as bs : List A) -> contains x bs -> contains x (as ++ bs)
+++-contains-right []        bs c = c
+++-contains-right (a :: as) bs c =
+  cons-contains a (++-contains-right as bs c)
+
+
 
 map-at-index : (f : A -> B) {n : Nat} (as : List A) {x : A}
                -> AtIndex n as x -> AtIndex n (map f as) (f x)
 map-at-index f {n = zero}  (a :: as) p = cong f p
 map-at-index f {n = suc n} (a :: as) p = map-at-index f as p
 
+map-contains : (f : A -> B) (as : List A) {x : A} -> contains x as -> contains (f x) (map f as)
+map-contains f as (n , ai) = (n , map-at-index f as ai)
+
 map-at-index' : (f : A -> B) {n : Nat} (as : List A) {y : B}
                -> AtIndex n (map f as) y
                -> Σ[ x ∈ A ] (AtIndex n as x × (f x == y))
 map-at-index' f {n = zero}  (a :: as) p = (a , refl , sym p)
 map-at-index' f {n = suc n} (a :: as) p = map-at-index' f as p
+
+map-at-index-inj : (f : A -> B) {n : Nat} (as : List A) {x : A}
+                   -> AtIndex n (map f as) (f x)
+                   -> Injective f
+                   -> AtIndex n as x
+map-at-index-inj f {n} as ai inj-f =
+  transport (\i -> AtIndex n as (inj-f (snd (snd res)) i)) (fst (snd res))
+  where
+  res = map-at-index' f as ai
+
 
 
 permutation-contains : {as bs : List A} -> Permutation A as bs -> (list∈ as ⊆ list∈ bs)
@@ -595,22 +619,74 @@ cartesian-product (a :: as) bs = map (a ,_) bs ++ cartesian-product as bs
 cartesian-product' : (A -> B -> C) -> List A -> List B -> List C
 cartesian-product' f as bs = map (\ (a , b) -> f a b) (cartesian-product as bs)
 
+cartesian-product-contains : {x : A} {y : B} (as : List A) (bs : List B)
+                             -> contains x as -> contains y bs
+                             -> contains (x , y) (cartesian-product as bs)
+cartesian-product-contains {A = A} {B = B} {x} {y} (a :: as) bs (0     , p) cb =
+  transport (\i -> contains (p (~ i) , y) ((map (a ,_) bs) ++ cartesian-product as bs)) c
+  where
 
---cartesian-product-no-duplicates :
---  {as : List A} {bs : List B} -> NoDuplicates as -> NoDuplicates bs
---  -> NoDuplicates (cartesian-product as bs)
---cartesian-product-no-duplicates {as = []} nd-a nd-b = lift tt
---cartesian-product-no-duplicates {A = A} {B = B} {as = a :: as} {bs} (¬ca , nd-a) nd-b =
---  ++-no-duplicates nd-a' (cartesian-product-no-duplicates nd-a nd-b) ¬c-both
---  where
---  nd-a' : NoDuplicates (map (a ,_) bs)
---  nd-a' = ?
---
---  ¬c-both : {x : A × B} -> contains x (map (a ,_) bs) -> contains x (cartesian-product as bs) -> Bot
---  ¬c-both {x = x} c-map c-prod = ?
---    where
---    ai-map : Σ[ n ∈ Nat ] (AtIndex n (map (a ,_) bs) x)
---    ai-map = contains->at-index c-map
---    xn-map = fst ai-map
---
---    ai-map' : Σ[ b ∈ B ]
+  c : contains (a , y) ((map (a ,_) bs) ++ cartesian-product as bs)
+  c = ++-contains-left (map (a ,_) bs) (cartesian-product as bs)
+                       (map-contains (a ,_) bs cb)
+cartesian-product-contains (a :: as) bs (suc n , p) cb =
+  ++-contains-right (map (a ,_) bs) (cartesian-product as bs)
+                    (cartesian-product-contains as bs (n , p) cb)
+
+private
+  pair-injective-left : (a : A) -> Injective (\ (b : B) -> (a , b))
+  pair-injective-left a p = cong snd p
+
+cartesian-product-contains' : {x : A} {y : B} (as : List A) (bs : List B)
+                              -> contains (x , y) (cartesian-product as bs)
+                              -> (contains x as × contains y bs)
+cartesian-product-contains' {B = B} {x = x} {y = y} (a :: as) bs c =
+  handle (split-contains-++ (map (a ,_) bs) (cartesian-product as bs) c)
+  where
+  handle : (contains (x , y) (map (a ,_) bs) ⊎ contains (x , y) (cartesian-product as bs))
+           -> (contains x (a :: as) × contains y bs)
+  handle (inj-l (n , ai)) = handle2 n bs ai
+    where
+    handle2 : (n : Nat) -> (bs : List B)
+              -> AtIndex n (map (a ,_) bs) (x , y)
+              -> (contains x (a :: as) × contains y bs)
+    handle2 0       (b :: bs) p = (0 , cong fst p) , (0 , cong snd p)
+    handle2 (suc n) (b :: bs) p = handle3 (handle2 n bs p)
+      where
+      handle3 : (contains x (a :: as) × contains y bs)
+                -> (contains x (a :: as) × contains y (b :: bs))
+      handle3 (c1 , c2) = c1 , cons-contains b c2
+
+  handle (inj-r c) = handle2 (cartesian-product-contains' as bs c)
+    where
+    handle2 : (contains x as × contains y bs)
+              -> (contains x (a :: as) × contains y bs)
+    handle2 (c1 , c2) = cons-contains a c1 , c2
+
+cartesian-product-no-duplicates :
+  {as : List A} {bs : List B} -> NoDuplicates as -> NoDuplicates bs
+  -> NoDuplicates (cartesian-product as bs)
+cartesian-product-no-duplicates {as = []} nd-a nd-b = lift tt
+cartesian-product-no-duplicates {A = A} {B = B} {as = a :: as} {bs} (¬c-a , nd-a) nd-b =
+  ++-no-duplicates nd-a' (cartesian-product-no-duplicates nd-a nd-b) ¬c-both
+  where
+
+  nd-a' : NoDuplicates (map (a ,_) bs)
+  nd-a' = map-no-duplicates (pair-injective-left a) nd-b
+
+  a-path : {x : A} {y : B} (bs : List B) -> contains (x , y) (map (a ,_) bs) -> x == a
+  a-path (b :: bs) (0 , p)     = cong fst p
+  a-path (b :: bs) (suc n , p) = a-path bs (n , p)
+
+
+  ¬c-both : {x : A × B} -> contains x (map (a ,_) bs) -> contains x (cartesian-product as bs) -> Bot
+  ¬c-both {x = (xa , xb)} cb c-prod = ¬c-a c-a
+    where
+    xa==a : xa == a
+    xa==a = a-path bs cb
+
+    c-xa : (contains xa as)
+    c-xa = fst (cartesian-product-contains' as bs c-prod)
+
+    c-a : (contains a as)
+    c-a = transport (\i -> contains (xa==a i) as) c-xa
