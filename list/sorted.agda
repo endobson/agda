@@ -8,6 +8,7 @@ module list.sorted {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} (_≤_ : Rel A ℓ�
 open import equality
 open import functions
 open import list hiding (insert)
+open import sum
 
 Sorted : Pred (List A) (ℓ-max ℓ₁ ℓ₂)
 Sorted [] = Lift (ℓ-max ℓ₁ ℓ₂) Top
@@ -31,12 +32,34 @@ module algo (trans≤ : Transitive _≤_) (connex≤ : Connex _≤_) where
       co-a1 {b} (suc n , path) = trans≤ lt (co-a2 (n , path))
 
   insert : (a : A) -> List A -> List A
+  insert-⊎ : {a a2 : A} -> (a ≤ a2 ⊎ a2 ≤ a) -> List A -> List A
   insert a [] = [ a ]
-  insert a (a2 :: as) = handle (connex≤ a a2)
-    where
-    handle : (a ≤ a2 ⊎ a2 ≤ a) -> List A
-    handle (inj-l a≤a2) = a :: a2 :: as
-    handle (inj-r a2≤a) = a2 :: (insert a as)
+  insert a (a2 :: as) = insert-⊎ (connex≤ a a2) as
+  insert-⊎ {a} {a2} (inj-l a≤a2) as = a :: a2 :: as
+  insert-⊎ {a} {a2} (inj-r a2≤a) as = a2 :: (insert a as)
+
+  insert-⊎-left : {a a2 : A} {s : (a ≤ a2 ⊎ a2 ≤ a)}
+                  -> Left s
+                  -> (as : List A)
+                  -> insert-⊎ s as == a :: a2 :: as
+  insert-⊎-left {s = inj-l _} _ as = refl
+
+  insert-⊎-right : {a a2 : A} {s : (a ≤ a2 ⊎ a2 ≤ a)}
+                   -> Right s
+                   -> (as : List A)
+                   -> insert-⊎ s as == a2 :: (insert a as)
+  insert-⊎-right {s = inj-r _} _ as = refl
+
+
+  insert-connex-left : (a a2 : A) (as : List A) -> (Left (connex≤ a a2))
+                       -> insert a (a2 :: as) == a :: a2 :: as
+  insert-connex-left a1 a2 as l = insert-⊎-left l as
+
+  insert-connex-right : (a a2 : A) (as : List A) -> (Right (connex≤ a a2))
+                        -> insert a (a2 :: as) == a2 :: (insert a as)
+  insert-connex-right a1 a2 as l = insert-⊎-right l as
+
+
 
   insert-permutation : (a : A) -> (as : List A) -> Permutation A (insert a as) (a :: as)
   insert-permutation a [] = permutation-same [ a ]
@@ -75,3 +98,38 @@ module algo (trans≤ : Transitive _≤_) (connex≤ : Connex _≤_) where
   sort-sorted : (as : List A) -> (Sorted (sort as))
   sort-sorted [] = sorted-[]
   sort-sorted (a :: as) = (insert-sorted a (sort-sorted as))
+
+  module order (antisym≤ : Antisymmetric _≤_) where
+    _≤list_ : A -> List A -> Type (ℓ-max ℓ₁ ℓ₂)
+    a ≤list as = ∀ {x} -> contains x as -> a ≤ x
+
+    sorted-≤list-:: : {a1 a2 : A} {as : List A}
+                      -> a1 ≤ a2
+                      -> Sorted (a2 :: as)
+                      -> a1 ≤list (a2 :: as)
+    sorted-≤list-:: {a1 = a1} lt _       (0     , p) = transport (\i -> a1 ≤ (p (~ i))) lt
+    sorted-≤list-::           lt (f , s) (suc n , p) = trans≤ lt (f (n , p))
+
+
+    insert-list≤->== : {a : A} {as : List A} -> a ≤list as -> insert a as == a :: as
+    insert-list≤->== {a} {[]} f = refl
+    insert-list≤->== {a} {a2 :: as} f = handle (connex≤ a a2) refl
+      where
+      handle : (x : (a ≤ a2 ⊎ a2 ≤ a)) -> x == (connex≤ a a2)
+               -> insert a (a2 :: as) == a :: a2 :: as
+      handle (inj-l _) p = insert-connex-left a a2 as (transport (\i -> Left (p i)) tt)
+      handle (inj-r a2≤a) p =
+        insert-connex-right a a2 as (transport (\i -> Right (p i)) tt)
+        >=> rec-path >=> flip-as
+        where
+        a==a2 : a == a2
+        a==a2 = antisym≤ (f (0 , refl)) a2≤a
+
+        f' : a ≤list as
+        f' = f ∘ (cons-contains a2)
+
+        rec-path : a2 :: (insert a as) == a2 :: a :: as
+        rec-path = cong (a2 ::_) (insert-list≤->== f')
+
+        flip-as : a2 :: a :: as == a :: a2 :: as
+        flip-as i = (a==a2 (~ i)) :: (a==a2 i) :: as
