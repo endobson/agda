@@ -58,6 +58,9 @@ HeteroConnex P Q = ∀ a b -> P a b ⊎ Q b a
 Connex : Rel A ℓ -> Type _
 Connex _~_ = HeteroConnex _~_ _~_
 
+TotalOrder : Rel A ℓ -> Type _
+TotalOrder _≤_ = (Transitive _≤_ × Connex _≤_ × Antisymmetric _≤_)
+
 -- _⇒_ : REL A B ℓ₁ -> REL A B ℓ₂ -> Type _
 -- P ⇒ Q = ∀ x y -> P x y -> Q x y
 --
@@ -78,6 +81,10 @@ data Tri (A : Type ℓ₁) (B : Type ℓ₂) (C : Type ℓ₃) : Type (ℓ-max �
 
 Trichotomous : Rel A ℓ₁ -> Rel A ℓ₂ -> Type _
 Trichotomous _<_ _==_ = ∀ x y -> Tri (x < y) (x == y) (y < x)
+
+
+Decidable2 : Rel A ℓ -> Type _
+Decidable2 _~_ = ∀ x y -> Dec (x ~ y)
 
 
 -- Unary Relations
