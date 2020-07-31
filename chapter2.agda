@@ -65,38 +65,51 @@ isBoundedDiv' : (n : Nat⁺) -> isBounded (_div' ⟨ n ⟩)
 isBoundedDiv' (n , pos-n) = (suc n) , (\p -> suc-≤ (div'->≤ p {pos-n}))
 
 private
-  divisors-full : (n : Nat⁺) -> Σ (List Nat) (ContainsExactlyOnce (_div' ⟨ n ⟩))
+  divisors-full : (n : Nat⁺) -> Σ (List Nat) (CannonicalList≥ (_div' ⟨ n ⟩))
   divisors-full n = list-reify (isBoundedDiv' n) (\d -> decide-div d ⟨ n ⟩)
 
   divisors : (n : Nat⁺) -> List Nat
   divisors n = fst (divisors-full n)
 
+  divisors-cannonical : (n : Nat⁺) -> (CannonicalList≥ (_div' ⟨ n ⟩) (divisors n))
+  divisors-cannonical n = (snd (divisors-full n))
+
   divisors-contains-only : (n : Nat⁺) -> (ContainsOnly (_div' ⟨ n ⟩) (divisors n))
-  divisors-contains-only n = fst (fst (snd (divisors-full n)))
-
-divisors-of-prime : (p : Prime') -> List Nat
-divisors-of-prime (p , _) = p :: 1 :: []
-
-divisors-of-prime-contains-exactly-once :
-  (p : Prime') -> ContainsExactlyOnce (_div' ⟨ p ⟩) (divisors-of-prime p)
-divisors-of-prime-contains-exactly-once p@(p' , is-prime)  = (c-o , c-a) , nd
-  where
-  c-o : ContainsOnly (_div' ⟨ p ⟩) (divisors-of-prime p)
-  c-o (0 , path) = transport (cong (_div' p') (sym path)) div'-refl
-  c-o (1 , path) = transport (cong (_div' p') (sym path)) div'-one
-  c-a : ContainsAll (_div' ⟨ p ⟩) (divisors-of-prime p)
-  c-a {d} dp = handle (prime-only-divisors p dp)
-    where
-    handle : (d == p' ⊎ d == 1) -> contains d (divisors-of-prime p)
-    handle (inj-l path) = (0 , path)
-    handle (inj-r path) = (1 , path)
-  nd : NoDuplicates (divisors-of-prime p)
-  nd = ((\{(0 , path) -> p!=1 path}) , (\()) , lift tt)
-    where
-    p!=1 : p' != 1
-    p!=1 p==1 = <->!= (IsPrime'.>1 is-prime) (sym p==1)
+  divisors-contains-only n = fst (fst (fst (snd (divisors-full n))))
 
 
+module _ where
+  private
+    divisors-of-prime : (p : Prime') -> List Nat
+    divisors-of-prime (p , _) = p :: 1 :: []
+
+    divisors-of-prime-cannonical :
+      (p : Prime') -> CannonicalList≥ (_div' ⟨ p ⟩) (divisors-of-prime p)
+    divisors-of-prime-cannonical p@(p' , is-prime) = ((c-o , c-a) , nd) , sorted
+      where
+      c-o : ContainsOnly (_div' ⟨ p ⟩) (divisors-of-prime p)
+      c-o (0 , path) = transport (cong (_div' p') (sym path)) div'-refl
+      c-o (1 , path) = transport (cong (_div' p') (sym path)) div'-one
+      c-a : ContainsAll (_div' ⟨ p ⟩) (divisors-of-prime p)
+      c-a {d} dp = handle (prime-only-divisors p dp)
+        where
+        handle : (d == p' ⊎ d == 1) -> contains d (divisors-of-prime p)
+        handle (inj-l path) = (0 , path)
+        handle (inj-r path) = (1 , path)
+      nd : NoDuplicates (divisors-of-prime p)
+      nd = ((\{(0 , path) -> p!=1 path}) , (\()) , lift tt)
+        where
+        p!=1 : p' != 1
+        p!=1 p==1 = <->!= (IsPrime'.>1 is-prime) (sym p==1)
+      sorted : Sorted _≥_ (divisors-of-prime p)
+      sorted = ((\{(0 , path) -> p≥a path}) , (\()) , lift tt)
+        where
+        p≥a : {a : Nat} -> (a == 1) -> p' ≥ a
+        p≥a a==1 = transport (\i -> p' ≥ (a==1 (~ i))) (weaken-< (IsPrime'.>1 is-prime))
+
+  prime-divisors-path : (p : Prime') -> divisors (Prime->Nat⁺ p) == (⟨ p ⟩ :: 1 :: [])
+  prime-divisors-path p =
+    cannonical-list-== (divisors-cannonical (Prime->Nat⁺ p)) (divisors-of-prime-cannonical p)
 
 
 

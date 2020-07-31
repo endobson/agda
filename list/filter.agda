@@ -319,3 +319,19 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
 
     handle (no ¬p) = transport (\i -> NoDuplicates (filter-drops as ¬p (~ i)))
                                (filter-no-duplicates as nd)
+
+  module _ {ℓr : Level} {_≤_ : Rel A ℓr} where
+    filter-sorted : {as : List A} -> Sorted _≤_ as -> Sorted _≤_ (filter as)
+    filter-sorted {[]}      s         = s
+    filter-sorted {a :: as} (co , s) = handle (f a)
+      where
+      handle : Dec (P a) -> Sorted _≤_ (filter (a :: as))
+      handle (yes p) =
+        transport (\i -> Sorted _≤_ (filter-keeps as p (~ i)))
+                  (co' , (filter-sorted s))
+        where
+        co' : ContainsOnly (a ≤_) (filter as)
+        co' c = co (filter-contains as c)
+      handle (no ¬p) =
+        transport (\i -> Sorted _≤_ (filter-drops as ¬p (~ i)))
+                  (filter-sorted s)

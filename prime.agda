@@ -18,6 +18,12 @@ record IsPrime' (p : Nat) : Type₀ where
     >1 : p > 1
     only-one-divides : (d : Nat) -> d <s p -> (d div' p) -> d == 1
 
+  pos : Pos' p
+  pos = handle >1
+    where
+    handle : p > 1 -> Pos' p
+    handle (n , path) = transport (cong Pos' (sym +'-right-suc >=> path)) tt
+
 isPropIsPrime' : {n : Nat} -> isProp (IsPrime' n)
 isPropIsPrime' (is-prime' gt1 f1) (is-prime' gt2 f2) i =
   (is-prime' (isProp≤ gt1 gt2 i) (isPropΠ3 (\ _ _ _ -> (isSetNat _ _)) f1 f2 i))
@@ -33,6 +39,9 @@ discretePrime' p1 p2 with (decide-nat ⟨ p1 ⟩ ⟨ p2 ⟩)
 instance
   discrete'Prime' : Discrete' Prime'
   discrete'Prime' = record { f = discretePrime' }
+
+Prime->Nat⁺ : Prime' -> Nat⁺
+Prime->Nat⁺ (n , p) = (n , IsPrime'.pos p)
 
 prime-only-divisors : {d : Nat} -> (p : Prime') -> d div' ⟨ p ⟩ -> (d == ⟨ p ⟩) ⊎ (d == 1)
 prime-only-divisors {d = d} (_ , (is-prime' p>1 pf)) d%p with (≤->≤s (div'->≤ d%p {<->Pos' p>1}))

@@ -61,6 +61,20 @@ Connex _~_ = HeteroConnex _~_ _~_
 TotalOrder : Rel A ℓ -> Type _
 TotalOrder _≤_ = (Transitive _≤_ × Connex _≤_ × Antisymmetric _≤_)
 
+module _ {_≤_ : Rel A ℓ} where
+  private
+    _≥_ : Rel A ℓ
+    x ≥ y = y ≤ x
+  flip-total-order : TotalOrder _≤_ -> TotalOrder _≥_
+  flip-total-order (trans , connex , antisym) = (trans' , connex' , antisym')
+    where
+    trans' : Transitive _≥_
+    trans' x y   = trans y x
+    connex' : Connex _≥_
+    connex' x y  = connex y x
+    antisym' : Antisymmetric _≥_
+    antisym' x y = antisym y x
+
 -- _⇒_ : REL A B ℓ₁ -> REL A B ℓ₂ -> Type _
 -- P ⇒ Q = ∀ x y -> P x y -> Q x y
 --

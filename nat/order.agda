@@ -86,6 +86,9 @@ right-suc-≤ (x , p) = suc x , cong suc p
 right-suc-< : {m n : Nat} -> m < n -> m < (suc n)
 right-suc-< = right-suc-≤
 
+weaken-< : {m n : Nat} -> m < n -> m ≤ n
+weaken-< lt = pred-≤ (right-suc-≤ lt)
+
 trans-≤ : {m n o : Nat} -> m ≤ n -> n ≤ o -> m ≤ o
 trans-≤ (x1 , p1) (x2 , p2) = x2 +' x1 , +'-assoc {x2} >=> cong (x2 +'_) p1 >=> p2
 
@@ -285,6 +288,25 @@ split-nat< (suc m) (suc n) with (split-nat< m n)
 ... | inj-l lt = inj-l (suc-≤ lt)
 ... | inj-r lt = inj-r (suc-≤ lt)
 
+
+decide-nat≤ : (x : Nat) -> (y : Nat) -> Dec (x ≤ y)
+decide-nat≤ zero    _       = yes zero-≤
+decide-nat≤ (suc m) zero    = no zero-≮
+decide-nat≤ (suc m) (suc n) with (decide-nat≤ m n)
+... | yes pr = yes (suc-≤ pr)
+... | no f = no (f ∘ pred-≤)
+
+connex-≤ : Connex _≤_
+connex-≤ zero    _    = inj-l zero-≤
+connex-≤ (suc m) zero = inj-r zero-≤
+connex-≤ (suc m) (suc n) with (connex-≤ m n)
+... | inj-l lt = inj-l (suc-≤ lt)
+... | inj-r lt = inj-r (suc-≤ lt)
+
+total-order-≤ : TotalOrder _≤_
+total-order-≤ = (trans-≤ , connex-≤ , ≤-antisym)
+total-order-≥ : TotalOrder _≥_
+total-order-≥ = flip-total-order total-order-≤
 
 module _ where
   private

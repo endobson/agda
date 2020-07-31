@@ -8,17 +8,13 @@ module list.sorted {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} (_≤_ : Rel A ℓ�
 open import equality
 open import functions
 open import hlevel
-open import list hiding (insert)
+open import list hiding (insert) renaming (Sorted to Sorted' ; SemiSorted to SemiSorted')
 open import list.unordered
 open import sum
 
-Sorted : Pred (List A) (ℓ-max ℓ₁ ℓ₂)
-Sorted [] = Lift (ℓ-max ℓ₁ ℓ₂) Top
-Sorted (a :: as) = ContainsOnly (a ≤_) as × Sorted as
-
-SemiSorted : Pred (List A) (ℓ-max ℓ₁ ℓ₂)
-SemiSorted [] = Lift (ℓ-max ℓ₁ ℓ₂) Top
-SemiSorted (a :: as) = ContainsOnly ((a ≤_) ∪ (a ==_)) as × SemiSorted as
+private
+  Sorted = Sorted' _≤_
+  SemiSorted = SemiSorted' _≤_
 
 
 sorted-[] : Sorted []
@@ -447,12 +443,12 @@ module total (dec≤ : Decidable2 _≤_) (ord≤ : TotalOrder _≤_) where
 
   private
     module algo' = dec-algo trans≤ dec≤
-  open algo'
+  open algo' public
 
   private
     module connex' = connex connex≤
-  open connex'
+  open connex' public
 
   private
     module antisym' = antisym antisym≤
-  open antisym'
+  open antisym' public

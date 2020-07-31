@@ -708,3 +708,13 @@ cartesian-product'-no-duplicates {f = f} as bs inj-f nd-a nd-b =
   where
   inj-f' : Injective (\ (a , b) -> f a b)
   inj-f' {x1 , y1} {x2 , y2} p i = fst (inj-f p) i , snd (inj-f p) i
+
+
+module _ {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} (_≤_ : Rel A ℓ₂)  where
+  Sorted : Pred (List A) (ℓ-max ℓ₁ ℓ₂)
+  Sorted [] = Lift (ℓ-max ℓ₁ ℓ₂) Top
+  Sorted (a :: as) = ContainsOnly (a ≤_) as × Sorted as
+
+  SemiSorted : Pred (List A) (ℓ-max ℓ₁ ℓ₂)
+  SemiSorted [] = Lift (ℓ-max ℓ₁ ℓ₂) Top
+  SemiSorted (a :: as) = ContainsOnly ((a ≤_) ∪ (a ==_)) as × SemiSorted as
