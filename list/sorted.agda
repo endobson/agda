@@ -16,11 +16,22 @@ Sorted : Pred (List A) (ℓ-max ℓ₁ ℓ₂)
 Sorted [] = Lift (ℓ-max ℓ₁ ℓ₂) Top
 Sorted (a :: as) = ContainsOnly (a ≤_) as × Sorted as
 
+SemiSorted : Pred (List A) (ℓ-max ℓ₁ ℓ₂)
+SemiSorted [] = Lift (ℓ-max ℓ₁ ℓ₂) Top
+SemiSorted (a :: as) = ContainsOnly ((a ≤_) ∪ (a ==_)) as × SemiSorted as
+
+
 sorted-[] : Sorted []
 sorted-[] = lift tt
 
 sorted-singleton : (a : A) -> Sorted [ a ]
 sorted-singleton a = (\()) , sorted-[]
+
+semi-sorted-[] : SemiSorted []
+semi-sorted-[] = lift tt
+
+semi-sorted-singleton : (a : A) -> SemiSorted [ a ]
+semi-sorted-singleton a = (\()) , semi-sorted-[]
 
 module dec-algo (trans≤ : Transitive _≤_) (dec≤ : Decidable2 _≤_) where
 
@@ -32,6 +43,28 @@ module dec-algo (trans≤ : Transitive _≤_) (dec≤ : Decidable2 _≤_) where
       co-a1 : ContainsOnly (a1 ≤_) (a2 :: as)
       co-a1 {b} (zero  , path) = transport (\i -> a1 ≤ ( path (~ i))) lt
       co-a1 {b} (suc n , path) = trans≤ lt (co-a2 (n , path))
+
+    semi-sorted-cons≤ : (a1 a2 : A) -> (as : List A) -> (a1 ≤ a2) -> (SemiSorted (a2 :: as))
+                       -> SemiSorted (a1 :: a2 :: as)
+    semi-sorted-cons≤ a1 a2 as lt (co-a2 , s-as) = co-a1 , co-a2 , s-as
+      where
+      co-a1 : ContainsOnly ((a1 ≤_) ∪ (a1 ==_)) (a2 :: as)
+      co-a1 {b} (zero  , path) = inj-l (transport (\i -> a1 ≤ ( path (~ i))) lt)
+      co-a1 {b} (suc n , path) = handle (co-a2 (n , path))
+        where
+        handle : (a2 ≤ b) ⊎ (a2 == b) -> (a1 ≤ b) ⊎ (a1 == b)
+        handle (inj-l a2≤b)  = inj-l (trans≤ lt a2≤b)
+        handle (inj-r a2==b) = inj-l (transport (\i -> a1 ≤ (a2==b i)) lt)
+
+    semi-sorted-cons== : (a1 a2 : A) -> (as : List A) -> (a1 == a2) -> (SemiSorted (a2 :: as))
+                       -> SemiSorted (a1 :: a2 :: as)
+    semi-sorted-cons== a1 a2 as a1==a2 (co-a2 , s-as) = co-a1 , co-a2 , s-as
+      where
+      co-a1 : ContainsOnly ((a1 ≤_) ∪ (a1 ==_)) (a2 :: as)
+      co-a1 {b} (zero  , path) = inj-r (a1==a2 >=> sym path)
+      co-a1 {b} (suc n , path) =
+        transport (\i -> ((a1==a2 (~ i)) ≤ b) ⊎ ((a1==a2 (~ i)) == b)) (co-a2 (n , path))
+
 
   insert : (a : A) -> List A -> List A
   insert-dec : {a a2 : A} -> (Dec (a ≤ a2)) -> List A -> List A
@@ -57,6 +90,7 @@ module dec-algo (trans≤ : Transitive _≤_) (dec≤ : Decidable2 _≤_) where
   insert-¬≤ a a2 as ¬lt = insert-dec-¬≤ (dec≤ a a2) ¬lt
 
 
+
   insert-permutation : (a : A) -> (as : List A) -> Permutation A (insert a as) (a :: as)
   insert-permutation a [] = permutation-same [ a ]
   insert-permutation a (a2 :: as) with (dec≤ a a2)
@@ -76,6 +110,75 @@ module dec-algo (trans≤ : Transitive _≤_) (dec≤ : Decidable2 _≤_) where
     permutation-compose
       (insert-permutation a (sort as))
       (permutation-cons a (sort-permutation as))
+
+  module weak-tri (weak-tri≤ : WeakTrichotomous _≤_) where
+    insert-semi-sorted' :
+      (a : A) -> {as : List A} ->
+      (SemiSorted (a :: as)) ->
+      insert a as == a :: as
+    insert-semi-sorted' a {[]} _ = refl
+    insert-semi-sorted' a {a2 :: as} (f , ss) = handle (f (0 , refl))
+      where
+      handle : (a ≤ a2 ⊎ a == a2) -> insert a (a2 :: as) == a :: a2 :: as
+      handle (inj-l a≤a2) = insert-≤ a a2 as a≤a2
+      handle (inj-r a==a2) = insert-==
+        where
+        rec : insert a as == a2 :: as
+        rec = (\i -> insert (a==a2 i) as) >=> (insert-semi-sorted' a2 ss)
+
+        insert-== : insert a (a2 :: as) == a :: a2 :: as
+        insert-== = handle2 (dec≤ a a2)
+          where
+          handle2 : Dec (a ≤ a2) -> insert a (a2 :: as) == a :: a2 :: as
+          handle2 (yes a≤a2) = insert-≤ a a2 as a≤a2
+          handle2 (no ¬a≤a2) =
+            insert-¬≤ a a2 as ¬a≤a2
+            >=> (\i -> (a==a2 (~ i)) :: (rec i))
+
+
+    insert-semi-sorted : (a : A) -> {as : List A} -> (SemiSorted as) -> (SemiSorted (insert a as))
+    insert-semi-sorted a {[]}       _    = semi-sorted-singleton a
+    insert-semi-sorted a {a2 :: as} ss@(co-a2-as , s-as) with (weak-tri≤ a a2)
+    ... | (weak-tri< a≤a2 _ _)  =
+      transport (\i -> SemiSorted (insert-≤ a a2 as a≤a2 (~ i)))
+                (semi-sorted-cons≤ a a2 as a≤a2 ss)
+    ... | (weak-tri= a==a2)     =
+      transport (\i -> SemiSorted (insert-== (~ i)))
+                (semi-sorted-cons== a a2 as a==a2 ss)
+      where
+
+      insert-==' : insert a2 as == a2 :: as
+      insert-==' = insert-semi-sorted' a2 ss
+
+      insert-=='' : insert a as == a2 :: as
+      insert-=='' = (\i -> insert (a==a2 i) as) >=> insert-=='
+
+      insert-== : insert a (a2 :: as) == a :: a2 :: as
+      insert-== = handle (dec≤ a a2)
+        where
+        handle : Dec (a ≤ a2) -> insert a (a2 :: as) == a :: a2 :: as
+        handle (yes a≤a2) = insert-≤ a a2 as a≤a2
+        handle (no ¬a≤a2) =
+          insert-¬≤ a a2 as ¬a≤a2
+          >=> (\i -> (a==a2 (~ i)) :: (insert-=='' i))
+
+
+    ... | (weak-tri> ¬a≤a2 _ a2≤a) =
+      transport (\i -> SemiSorted (insert-¬≤ a a2 as ¬a≤a2 (~ i)))
+                (co-a2 , (insert-semi-sorted a s-as))
+      where
+      co-a2' : ContainsOnly ((a2 ≤_) ∪ (a2 ==_)) (a :: as)
+      co-a2' (zero  , path) = (inj-l (transport (\i -> a2 ≤ (path (~ i))) a2≤a))
+      co-a2' (suc n , path) = co-a2-as (n , path)
+
+      co-a2 : ContainsOnly ((a2 ≤_) ∪ (a2 ==_)) (insert a as)
+      co-a2 = co-a2' ∘ (permutation-contains (insert-permutation a as))
+
+
+    sort-semi-sorted : (as : List A) -> (SemiSorted (sort as))
+    sort-semi-sorted [] = semi-sorted-[]
+    sort-semi-sorted (a :: as) = (insert-semi-sorted a (sort-semi-sorted as))
+
 
   module connex (connex≤ : Connex _≤_) where
 
@@ -312,6 +415,35 @@ module total (dec≤ : Decidable2 _≤_) (ord≤ : TotalOrder _≤_) where
     trans≤ = fst ord≤
     connex≤ = fst (snd ord≤)
     antisym≤ = snd (snd ord≤)
+
+  private
+    flip : {a a2 : A} -> ¬ (a ≤ a2) -> (a2 ≤ a)
+    flip {a} {a2} ¬a≤a2 = handle (connex≤ a a2)
+      where
+      handle : (a ≤ a2 ⊎ a2 ≤ a) -> a2 ≤ a
+      handle (inj-l a≤a2) = bot-elim (¬a≤a2 a≤a2)
+      handle (inj-r a2≤a) = a2≤a
+
+
+  tri≤ : WeakTrichotomous _≤_
+  tri≤ x y = handle (dec≤ x y) (dec≤ y x)
+    where
+    handle : Dec (x ≤ y) -> Dec (y ≤ x) -> WeakTri (x ≤ y) (x == y) (y ≤ x)
+    handle (yes x≤y) (yes y≤x) = weak-tri= (antisym≤ x≤y y≤x)
+    handle (yes x≤y) (no ¬y≤x) = weak-tri< x≤y x!=y ¬y≤x
+      where
+      x!=y : x != y
+      x!=y x==y = ¬y≤x (transport (\i -> (x==y i) ≤ (x==y (~ i))) x≤y)
+    handle (no ¬x≤y) (yes y≤x) = weak-tri> ¬x≤y x!=y y≤x
+      where
+      x!=y : x != y
+      x!=y x==y = ¬x≤y (transport (\i -> (x==y (~ i)) ≤ (x==y i)) y≤x)
+    handle (no ¬x≤y) (no ¬y≤x) = bot-elim (handle2 (connex≤ x y))
+      where
+      handle2 : ¬ (x ≤ y ⊎ y ≤ x)
+      handle2 (inj-l x≤y) = ¬x≤y x≤y
+      handle2 (inj-r y≤x) = ¬y≤x y≤x
+
 
   private
     module algo' = dec-algo trans≤ dec≤

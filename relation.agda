@@ -79,8 +79,18 @@ data Tri (A : Type ℓ₁) (B : Type ℓ₂) (C : Type ℓ₃) : Type (ℓ-max �
   tri= : (¬a : ¬ A) (b  :   B) (¬c : ¬ C) -> Tri A B C
   tri> : (¬a : ¬ A) (¬b : ¬ B) (c  :   C) -> Tri A B C
 
-Trichotomous : Rel A ℓ₁ -> Rel A ℓ₂ -> Type _
-Trichotomous _<_ _==_ = ∀ x y -> Tri (x < y) (x == y) (y < x)
+Trichotomous : Rel A ℓ₁ -> Type _
+Trichotomous _<_ = ∀ x y -> Tri (x < y) (x == y) (y < x)
+
+
+data WeakTri (A : Type ℓ₁) (B : Type ℓ₂) (C : Type ℓ₃) : Type (ℓ-max ℓ₁ (ℓ-max ℓ₂ ℓ₃)) where
+  weak-tri< : (a  :   A) (¬b : ¬ B) (¬c : ¬ C) -> WeakTri A B C
+  weak-tri= :            (b  :   B)            -> WeakTri A B C
+  weak-tri> : (¬a : ¬ A) (¬b : ¬ B) (c  :   C) -> WeakTri A B C
+
+WeakTrichotomous : Rel A ℓ₁ -> Type _
+WeakTrichotomous _<_ = ∀ x y -> WeakTri (x < y) (x == y) (y < x)
+
 
 
 Decidable2 : Rel A ℓ -> Type _
@@ -109,6 +119,9 @@ _⇒_ : Pred A ℓ₁ -> Pred A ℓ₂ -> Pred A (ℓ-max ℓ₁ ℓ₂)
 
 _∩_ : Pred A ℓ₁ -> Pred A ℓ₂ -> Pred A (ℓ-max ℓ₁ ℓ₂)
 (P ∩ Q) a = P a × Q a
+
+_∪_ : Pred A ℓ₁ -> Pred A ℓ₂ -> Pred A (ℓ-max ℓ₁ ℓ₂)
+(P ∪ Q) a = P a ⊎ Q a
 
 
 Comp : Pred A ℓ -> Pred A ℓ
