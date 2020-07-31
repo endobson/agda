@@ -74,5 +74,31 @@ private
   divisors-contains-only : (n : Nat⁺) -> (ContainsOnly (_div' ⟨ n ⟩) (divisors n))
   divisors-contains-only n = fst (fst (snd (divisors-full n)))
 
+divisors-of-prime : (p : Prime') -> List Nat
+divisors-of-prime (p , _) = p :: 1 :: []
+
+divisors-of-prime-contains-exactly-once :
+  (p : Prime') -> ContainsExactlyOnce (_div' ⟨ p ⟩) (divisors-of-prime p)
+divisors-of-prime-contains-exactly-once p@(p' , is-prime)  = (c-o , c-a) , nd
+  where
+  c-o : ContainsOnly (_div' ⟨ p ⟩) (divisors-of-prime p)
+  c-o (0 , path) = transport (cong (_div' p') (sym path)) div'-refl
+  c-o (1 , path) = transport (cong (_div' p') (sym path)) div'-one
+  c-a : ContainsAll (_div' ⟨ p ⟩) (divisors-of-prime p)
+  c-a {d} dp = handle (prime-only-divisors p dp)
+    where
+    handle : (d == p' ⊎ d == 1) -> contains d (divisors-of-prime p)
+    handle (inj-l path) = (0 , path)
+    handle (inj-r path) = (1 , path)
+  nd : NoDuplicates (divisors-of-prime p)
+  nd = ((\{(0 , path) -> p!=1 path}) , (\()) , lift tt)
+    where
+    p!=1 : p' != 1
+    p!=1 p==1 = <->!= (IsPrime'.>1 is-prime) (sym p==1)
+
+
+
+
+
 divisor-sum : (n : Nat⁺) -> (Σ[ d ∈ Nat ] (d div' ⟨ n ⟩) -> Int) -> Int
 divisor-sum n f = Ring.sum IntRing (map f (contains-only->list (divisors n) (divisors-contains-only n)))
