@@ -62,13 +62,26 @@ sorted>->sorted≥ : {as : List Nat} -> Sorted _>_ as -> Sorted _≥_ as
 sorted>->sorted≥ {[]}      s = s
 sorted>->sorted≥ {a :: as} (co , s) = (\ c -> pred-≤ (right-suc-≤ (co c))) , sorted>->sorted≥ s
 
-CannonicalList≥ : (P : Pred Nat ℓ) -> List Nat -> Type ℓ
-CannonicalList≥ P as = ContainsExactlyOnce P as × Sorted _≥_ as
+sorted>->no-duplicates : {as : List Nat} -> Sorted _>_ as -> NoDuplicates as
+sorted>->no-duplicates {[]}      s = s
+sorted>->no-duplicates {a :: as} (co , s) = (\ c -> <->!= (co c) refl) , sorted>->no-duplicates s
 
-cannonical-list-== : {P : Pred Nat ℓ} {as bs : List Nat}
-                     -> CannonicalList≥ P as -> CannonicalList≥ P bs
+CanonicalList≥ : (P : Pred Nat ℓ) -> List Nat -> Type ℓ
+CanonicalList≥ P as = ContainsExactlyOnce P as × Sorted _≥_ as
+
+canonical-contains-only : {P : Pred Nat ℓ} {as : List Nat} -> CanonicalList≥ P as -> ContainsOnly P as
+canonical-contains-all : {P : Pred Nat ℓ} {as : List Nat} -> CanonicalList≥ P as -> ContainsAll P as
+canonical-no-duplicates : {P : Pred Nat ℓ} {as : List Nat} -> CanonicalList≥ P as -> NoDuplicates as
+canonical-sorted : {P : Pred Nat ℓ} {as : List Nat} -> CanonicalList≥ P as -> Sorted _≥_ as
+canonical-contains-only  (((co , ca) , nd) , s) = co
+canonical-contains-all   (((co , ca) , nd) , s) = ca
+canonical-no-duplicates  (((co , ca) , nd) , s) = nd
+canonical-sorted         (((co , ca) , nd) , s) = s
+
+canonical-list-== : {P : Pred Nat ℓ} {as bs : List Nat}
+                     -> CanonicalList≥ P as -> CanonicalList≥ P bs
                      -> as == bs
-cannonical-list-== {P = P} {as} {bs} (ce1-a , sa) (ce1-b , sb) =
+canonical-list-== {P = P} {as} {bs} (ce1-a , sa) (ce1-b , sb) =
   begin
     as
   ==< sym (sorted-== sa) >
@@ -99,18 +112,18 @@ private
      filter-contains-all dec (allNatsUnder ⟨ b ⟩) (allBounded b)) ,
     filter-no-duplicates dec (allNatsUnder ⟨ b ⟩) (all-nats-no-duplicates ⟨ b ⟩)
 
-  cannonicalBoundedDecidable :
+  canonicalBoundedDecidable :
     {P : Pred Nat ℓ} (b : isBounded P) (dec : Decidable P)
-    -> CannonicalList≥ P (filter dec (allNatsUnder ⟨ b ⟩))
-  cannonicalBoundedDecidable b dec =
+    -> CanonicalList≥ P (filter dec (allNatsUnder ⟨ b ⟩))
+  canonicalBoundedDecidable b dec =
     (((filter-contains-only dec (allNatsUnder ⟨ b ⟩) ,
        filter-contains-all dec (allNatsUnder ⟨ b ⟩) (allBounded b)) ,
       filter-no-duplicates dec (allNatsUnder ⟨ b ⟩) (all-nats-no-duplicates ⟨ b ⟩)) ,
      (filter-sorted dec (sorted>->sorted≥ (all-nats-sorted ⟨ b ⟩))))
 
 list-reify : {P : Pred Nat ℓ} (b : isBounded P) (dec : Decidable P)
-              -> Σ (List Nat) (CannonicalList≥ P)
+              -> Σ (List Nat) (CanonicalList≥ P)
 list-reify b dec = l , proof
   where
   l = (filter dec (allNatsUnder ⟨ b ⟩))
-  proof = cannonicalBoundedDecidable b dec
+  proof = canonicalBoundedDecidable b dec
