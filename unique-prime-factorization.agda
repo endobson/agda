@@ -11,6 +11,7 @@ open import hlevel
 open import nat
 open import prime
 open import prime-factorization
+open import prime-gcd
 open import relation
 open import unordered-list
 
