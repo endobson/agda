@@ -230,6 +230,10 @@ a ^' (suc b) = a *' a ^' b
 ^'-right-one : {a : Nat} -> a ^' 1 == a
 ^'-right-one = *'-right-one
 
+^'-Pos' : {a : Nat} -> .(Pos' a) -> (b : Nat) -> Pos' (a ^' b)
+^'-Pos' _ zero = tt
+^'-Pos' p (suc n) = *'-Pos'-Pos' p (^'-Pos' p n)
+
 instance
   NatMonoid+ : Monoid Nat
   NatMonoid+ = record {

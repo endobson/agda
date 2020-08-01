@@ -177,6 +177,34 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
 +-right-<⁻ : {m n : Nat} -> (x : Nat) -> (m +' x) < (n +' x) -> m < n
 +-right-<⁻ = +-right-≤⁻
 
++-both-≤⁺ : {a b c d : Nat} -> a ≤ b -> c ≤ d -> (a +' c) ≤ (b +' d)
++-both-≤⁺ {a} {b} {c} {d} (e , e+a=b) (f , f+c=d) = (e +' f , path)
+  where
+  path : (e +' f) +' (a +' c) == (b +' d)
+  path =
+    begin
+      (e +' f) +' (a +' c)
+    ==< +'-assoc {e} {f} {a +' c} >
+      e +' (f +' (a +' c))
+    ==< +'-right {e} (sym (+'-assoc {f} {a} {c})) >
+      e +' ((f +' a) +' c)
+    ==< +'-right {e} (+'-left (+'-commute {f} {a})) >
+      e +' ((a +' f) +' c)
+    ==< +'-right {e} (+'-assoc {a} {f} {c}) >
+      e +' (a +' (f +' c))
+    ==< sym (+'-assoc {e} {a} {f +' c}) >
+      (e +' a) +' (f +' c)
+    ==< (\i -> (e+a=b i) +' (f+c=d i)) >
+      b +' d
+    end
+
++-both-<⁺ : {a b c d : Nat} -> a < b -> c < d -> (a +' c) < (b +' d)
++-both-<⁺ {a} {b} {c} {d} a<b c<d = trans-<-≤ desuc (+-both-≤⁺ a<b c<d)
+  where
+  desuc : (a +' c) < (suc a +' suc c)
+  desuc = 1 , cong suc (sym +'-right-suc)
+
+
 ≤-antisym : {m n : Nat} -> m ≤ n -> n ≤ m -> m == n
 ≤-antisym (zero  , p1) _ = p1
 ≤-antisym {m} {n} (suc i , p1) (j , p2) = bot-elim (zero-suc-absurd (sym path))
