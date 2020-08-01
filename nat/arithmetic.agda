@@ -82,7 +82,7 @@ m+'n==0->m==0 {(suc _)} p = bot-elim (zero-suc-absurd (sym p))
 +'-minus-right : {m : Nat} (n : Nat) -> (m +' n) -' n == m
 +'-minus-right {m} n = (\i -> +'-commute {m} {n} i -' n) >=> +'-minus-left n
 
-+'-minus-rev : {m : Nat} (n : Nat) -> Pos' (m -' n) -> (m -' n) +' n == m
++'-minus-rev : {m : Nat} (n : Nat) -> .(Pos' (m -' n)) -> (m -' n) +' n == m
 +'-minus-rev {zero} zero    ()
 +'-minus-rev {zero} (suc n) ()
 +'-minus-rev {suc m} zero _ = +'-right-zero
