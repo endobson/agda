@@ -204,6 +204,39 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
   desuc : (a +' c) < (suc a +' suc c)
   desuc = 1 , cong suc (sym +'-right-suc)
 
+-- Helpers for multiplication and ≤
+
+*-left-≤⁺ : {m n : Nat} -> (x : Nat) -> m ≤ n -> (x *' m) ≤ (x *' n)
+*-left-≤⁺ zero    lt = zero-≤
+*-left-≤⁺ (suc x) lt = +-both-≤⁺ lt (*-left-≤⁺ x lt)
+
+*-left-<⁺ : {x m n : Nat} -> x > 0 -> m < n -> (x *' m) < (x *' n)
+*-left-<⁺ {zero}             x-gt lt = bot-elim (zero-≮ x-gt)
+*-left-<⁺ {suc zero} {m} {n} x-gt lt =
+  transport (\i -> *'-left-one {m} (~ i) < *'-left-one {n} (~ i)) lt
+*-left-<⁺ {suc (suc x)} x-gt lt = +-both-<⁺ lt (*-left-<⁺ (zero-< {x}) lt)
+
+*-right-≤⁺ : {m n : Nat} -> (x : Nat) -> m ≤ n -> (m *' x) ≤ (n *' x)
+*-right-≤⁺ {m} {n} x lt =
+  transport (\i -> (*'-commute {x} {m} i) ≤ (*'-commute {x} {n} i))
+            (*-left-≤⁺ x lt)
+
+*-right-<⁺ : {x m n : Nat} -> x > 0 -> m < n -> (m *' x) < (n *' x)
+*-right-<⁺ {x} {m} {n} x>0 lt =
+  transport (\i -> (*'-commute {x} {m} i) < (*'-commute {x} {n} i))
+            (*-left-<⁺ x>0 lt)
+
+-- Helpers for exponentiation and ≤
+
+^-suc-≤ : {m : Nat} -> m ≥ 1 -> (n : Nat) ->  (m ^' n) ≤ (m ^' (suc n))
+^-suc-≤     (x , path) zero    = (x , path >=> (sym ^'-right-one))
+^-suc-≤ {m} m≥1        (suc n) = *-left-≤⁺ m (^-suc-≤ m≥1 n)
+
+^-suc-< : {m : Nat} -> m > 1 -> (n : Nat) ->  (m ^' n) < (m ^' (suc n))
+^-suc-<     (x , path) zero    = (x , path >=> (sym ^'-right-one))
+^-suc-< {m} m>1        (suc n) = *-left-<⁺ (weaken-< m>1) (^-suc-< m>1 n)
+
+
 
 ≤-antisym : {m n : Nat} -> m ≤ n -> n ≤ m -> m == n
 ≤-antisym (zero  , p1) _ = p1
