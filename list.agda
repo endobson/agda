@@ -130,12 +130,12 @@ permutation-length== (permutation-compose p1 p2) = permutation-length== p1 >=> p
 ++-assoc {a = []} {b} {c} = refl
 ++-assoc {a = a :: as} {b} {c} = cong (a ::_) (++-assoc {a = as} {b} {c})
 
-++-left-[] : {a : List A} -> ([] ++ a) == a
+++-left-[] : {as : List A} -> ([] ++ as) == as
 ++-left-[] = refl
 
-++-right-[] : {a : List A} -> (a ++ []) == a
-++-right-[] {a = []} = refl
-++-right-[] {a = a :: as} = cong (a ::_) (++-right-[] {a = as})
+++-right-[] : {as : List A} -> (as ++ []) == as
+++-right-[] {as = []} = refl
+++-right-[] {as = a :: as} = cong (a ::_) (++-right-[] {as = as})
 
 
 permutation-snoc : (a : A) (bs : List A) -> Permutation A ([ a ] ++ bs) (bs ++ [ a ])
@@ -155,6 +155,13 @@ permutation-++-left (permutation-compose p1 p2) cs =
     (permutation-++-left p1 cs)
     (permutation-++-left p2 cs)
 
+permutation-++-swap :
+  (a : A) (as bs : List A) -> Permutation A ((a :: as) ++ bs) (as ++ (a :: bs))
+permutation-++-swap {A = A} a [] bs         = permutation-same (a :: bs)
+permutation-++-swap {A = A} a (a2 :: as) bs =
+  permutation-compose
+    (permutation-swap a a2 (as ++ bs))
+    (permutation-cons a2 (permutation-++-swap a as bs))
 
 --permutation-++-flip : (as bs : List A) -> Permutation A (as ++ bs) (bs ++ as)
 --permutation-++-flip []        bs = permutation-== (sym ++-right-[] )
@@ -718,3 +725,23 @@ module _ {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} (_≤_ : Rel A ℓ₂)  where
   SemiSorted : Pred (List A) (ℓ-max ℓ₁ ℓ₂)
   SemiSorted [] = Lift (ℓ-max ℓ₁ ℓ₂) Top
   SemiSorted (a :: as) = ContainsOnly ((a ≤_) ∪ (a ==_)) as × SemiSorted as
+
+reverse-acc : List A -> List A -> List A
+reverse-acc []        acc = acc
+reverse-acc (a :: as) acc = reverse-acc as (a :: acc)
+
+reverse-acc-permutation : (as bs : List A) -> Permutation A (as ++ bs) (reverse-acc as bs)
+reverse-acc-permutation [] bs = permutation-same bs
+reverse-acc-permutation (a :: as) bs =
+  permutation-compose
+    (permutation-++-swap a as bs)
+    (reverse-acc-permutation as (a :: bs))
+
+reverse : List A -> List A
+reverse as = reverse-acc as []
+
+reverse-permutation : (as : List A) -> Permutation A as (reverse as)
+reverse-permutation as =
+  permutation-compose
+    (permutation-== (sym ++-right-[]))
+    (reverse-acc-permutation as [])
