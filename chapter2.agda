@@ -18,6 +18,8 @@ open import unique-prime-factorization
 open import list
 open import list.discrete
 open import list.nat
+open import list.sorted
+
 
 import unordered-list as ul
 
@@ -79,6 +81,29 @@ private
   divisors-contains-only : (n : Nat⁺) -> (ContainsOnly (_div' ⟨ n ⟩) (divisors n))
   divisors-contains-only n = fst (fst (fst (snd (divisors-full n))))
 
+module _ where
+  divisors-of-one : List Nat
+  divisors-of-one = 1 :: []
+
+  divisors-of-one-canonical : CanonicalList≥ (_div' 1) divisors-of-one
+  divisors-of-one-canonical = ((c-o , c-a) , nd) , sorted
+    where
+    c-o : ContainsOnly (_div' 1) divisors-of-one
+    c-o (0 , path) = transport (cong (_div' 1) (sym path)) div'-one
+    c-a : ContainsAll (_div' 1) divisors-of-one
+    c-a {d} (x , path) = (0 , (*'-only-one-right {x} {d} path))
+    nd : NoDuplicates divisors-of-one
+    nd = (\()) , lift tt
+    sorted : Sorted _≥_ divisors-of-one
+    sorted = (\()) , lift tt
+
+
+  1⁺ : Nat⁺
+  1⁺ = (1 , tt)
+
+  one-divisors-path : divisors 1⁺ == 1 :: []
+  one-divisors-path = canonical-list-== (divisors-canonical 1⁺) divisors-of-one-canonical
+
 
 module _ where
   private
@@ -119,6 +144,7 @@ prime-power : Prime' -> Nat -> Nat
 prime-power (p , _) n = p ^' n
 
 module _ (p : Prime') where
+
   private
     p' = fst p
     is-prime = snd p
@@ -160,6 +186,60 @@ module _ (p : Prime') where
       handle : (Dec (p' div' x)) -> (d == (prime-power p (suc n)) ⊎ (d div' (prime-power p n)))
       handle (yes p%x) = inj-r (p-divides->%pn n x d x-path p%x)
       handle (no ¬p%x) = inj-l (¬p-divides->pn (suc n) x d x-path ¬p%x)
+
+  divisors-of-prime-power : Nat -> List Nat
+  divisors-of-prime-power zero       = 1 :: []
+  divisors-of-prime-power n@(suc n') = (p' ^' n) :: (divisors-of-prime-power n')
+
+  private
+    contains-only-divisors-of-prime-power : (n : Nat) ->
+      ContainsOnly (_div' (p' ^' n)) (divisors-of-prime-power n)
+    contains-only-divisors-of-prime-power zero    (0 , path) =
+      (1 , *'-left-one >=> path)
+    contains-only-divisors-of-prime-power (suc n) (0 , path) =
+      (1 , *'-left-one >=> path)
+    contains-only-divisors-of-prime-power (suc n) (suc i , path) =
+      div'-mult (contains-only-divisors-of-prime-power n (i , path)) p'
+
+    sorted>-divisors-of-prime-power : (n : Nat) -> Sorted _>_ (divisors-of-prime-power n)
+    sorted>-divisors-of-prime-power zero = sorted-singleton _>_ 1
+    sorted>-divisors-of-prime-power (suc n) =
+      (>all , sorted>-divisors-of-prime-power n)
+      where
+      >all : ContainsOnly (_< (p' *' (p' ^' n))) (divisors-of-prime-power n)
+      >all {x} c = trans-≤-< x-lt p-lt
+        where
+        x-div : x div' (p' ^' n)
+        x-div = contains-only-divisors-of-prime-power n c
+        x-lt : x ≤ (p' ^' n)
+        x-lt = div'->≤ x-div {^'-Pos' (IsPrime'.pos is-prime) n}
+        p-lt : (p' ^' n) < (p' ^' (suc n))
+        p-lt = ^-suc-< (IsPrime'.>1 is-prime) n
+
+
+  divisors-of-prime-power-canonical :
+    (n : Nat) -> CanonicalList≥ (_div' (p' ^' n)) (divisors-of-prime-power n)
+  divisors-of-prime-power-canonical zero = divisors-of-one-canonical
+  divisors-of-prime-power-canonical (suc n) = ((c-o , c-a) , nd) , sorted
+    where
+    c-o = contains-only-divisors-of-prime-power (suc n)
+    c-a : ContainsAll (_div' (p' *' (p' ^' n))) (divisors-of-prime-power (suc n))
+    c-a {d} dp = handle (split-prime-power-divisor {n} {d} dp)
+      where
+      handle : (d == (⟨ p ⟩ *' (⟨ p ⟩ ^' n)) ⊎ d div' (⟨ p ⟩ ^' n))
+               -> contains d (divisors-of-prime-power (suc n))
+      handle (inj-l path) = (0 , path)
+      handle (inj-r rec) =
+        cons-contains (⟨ p ⟩ *' (⟨ p ⟩ ^' n))
+                      (canonical-contains-all (divisors-of-prime-power-canonical n) rec)
+
+    nd : NoDuplicates (divisors-of-prime-power (suc n))
+    nd = sorted>->no-duplicates (sorted>-divisors-of-prime-power (suc n))
+    sorted : Sorted _≥_ (divisors-of-prime-power (suc n))
+    sorted = sorted>->sorted≥ (sorted>-divisors-of-prime-power (suc n))
+
+
+
 
 
 
