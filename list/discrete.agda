@@ -6,6 +6,7 @@ open import relation
 module list.discrete {ℓ : Level} {A : Type ℓ} {{disc'A : Discrete' A}} where
 
 open import equality
+open import functions
 open import hlevel
 open import list
 open import list.filter
@@ -267,3 +268,35 @@ discreteList (a :: as) (b :: bs) = handle (discA a b) (discreteList as bs)
   handle (yes p1) (yes p2) = yes (\i -> (p1 i) :: (p2 i))
   handle (yes p1) (no f)   = no (\p -> f (::-injective p))
   handle (no f)   _        = no (\p -> f (::-injective' p))
+
+
+-- Catagorize lists based on count
+count0->[] : (as : List A) -> (∀ (x : A) -> count x as == 0) -> as == []
+count0->[] []        f = refl
+count0->[] (a :: as) f = bot-elim (zero-suc-absurd (sym (f a) >=> (count-== as refl)))
+
+
+same-count->permutation : {as bs : List A} -> (∀ (x : A) -> count x as == count x bs) ->
+  Permutation A as bs
+same-count->permutation {as = []} {bs} f =
+  permutation-== (sym (count0->[] bs (\ x -> sym (f x))))
+same-count->permutation {as = a :: as} {bs} f =
+  permutation-compose
+    (permutation-cons a (same-count->permutation g))
+    (permutation-flip (remove1-permutation c-bs))
+  where
+  c-bs : contains a bs
+  c-bs = count-suc->contains bs (sym (f a) >=> count-== as refl)
+
+  g : (∀ (x : A) -> count x as == count x (remove1 a bs))
+  g x = handle (discA x a)
+    where
+    handle : Dec (x == a) -> count x as == count x (remove1 a bs)
+    handle (yes x==a) =
+      sym (remove1-count-pred bs x==a
+           >=> cong pred (sym (f x))
+           >=> cong pred (count-== as x==a))
+    handle (no x!=a)  =
+      sym (remove1-count-ignore bs x!=a
+           >=> (sym (f x))
+           >=> (count-!= as x!=a))
