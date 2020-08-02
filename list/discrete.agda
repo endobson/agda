@@ -158,6 +158,15 @@ contains->count>0 {a} (a2 :: as) (suc n , p) = trans-≤ count-as (count-≤ a a
   count-as : (count a as) > 0
   count-as = contains->count>0 as (n , p)
 
+¬contains->count==0 : {a : A} (as : List A) -> ¬(contains a as) -> count a as == 0
+¬contains->count==0 {a = a} []        _ = refl
+¬contains->count==0 {a = x} (a :: as) f = count-!= as x!=a >=> ¬contains->count==0 as g
+  where
+  x!=a : x != a
+  x!=a x==a = f (0 , x==a)
+  g : ¬(contains x as)
+  g = f ∘ cons-contains a
+
 count-zero->¬contains : {a : A} (as : List A) -> count a as == 0 -> ¬ (contains a as)
 count-zero->¬contains as count-a contain-a =
   zero-≮ (transport (\i -> 0 < count-a i) (contains->count>0 as contain-a))
@@ -188,6 +197,15 @@ decide-no-duplicates (a :: as) = ::* (decide-contains a as) (decide-no-duplicate
   ::* (yes c) (no ¬nd) = no (\ (¬c , nd) -> bot-elim (¬c c))
   ::* (no ¬c) (yes nd) = yes (¬c , nd)
   ::* (no ¬c) (no ¬nd) = no (\ (¬c , nd) -> bot-elim (¬nd nd))
+
+no-duplicates->count : {l : List A} -> NoDuplicates l -> (x : A) -> count x l ≤ 1
+no-duplicates->count {l = []}        _        x = zero-≤
+no-duplicates->count {l = (a :: as)} (¬c , nd) x = handle (discA x a)
+  where
+  handle : Dec (x == a) -> count x (a :: as) ≤ 1
+  handle (yes x==a) =
+    (0 , count-== as x==a >=> (\i -> suc (count (x==a i) as)) >=> cong suc (¬contains->count==0 as ¬c))
+  handle (no x!=a) = transport (\i -> (count-!= as x!=a (~ i)) ≤ 1) (no-duplicates->count nd x)
 
 -- Subset with discrete properties
 
