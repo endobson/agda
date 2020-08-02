@@ -5,11 +5,13 @@ module chapter2 where
 open import base
 open import div
 open import equality
+open import gcd
 open import hlevel
 open import int
 open import nat
 open import prime
 open import prime-factorization
+open import prime-gcd
 open import relation
 open import ring
 open import unique-prime-factorization
@@ -110,6 +112,54 @@ module _ where
   prime-divisors-path : (p : Prime') -> divisors (Prime->Nat⁺ p) == (⟨ p ⟩ :: 1 :: [])
   prime-divisors-path p =
     canonical-list-== (divisors-canonical (Prime->Nat⁺ p)) (divisors-of-prime-canonical p)
+
+-- Divisors of prime powers
+
+prime-power : Prime' -> Nat -> Nat
+prime-power (p , _) n = p ^' n
+
+module _ (p : Prime') where
+  private
+    p' = fst p
+    is-prime = snd p
+    p-pos = IsPrime'.pos is-prime
+
+    ¬p-divides->1 : (n : Nat) {d : Nat} -> d div' (prime-power p n)
+                    -> ¬ (p' div' d) -> d == 1
+    ¬p-divides->1 zero    {d} d%pn  _    = div'-one->one d%pn
+    ¬p-divides->1 (suc n) {d} d%psn ¬d%p = ¬p-divides->1 n d%pn ¬d%p
+      where
+      d%pn : d div' (prime-power p n)
+      d%pn = euclids-lemma' d%psn (gcd'-sym (prime->relatively-prime p ¬d%p))
+
+    ¬p-divides->pn : (n x d : Nat) -> (x *' d == (prime-power p n))
+                     -> ¬(p' div' x) -> d == (prime-power p n)
+    ¬p-divides->pn n x d x-path ¬p%x =
+      sym (*'-left-one {d}) >=> *'-left (sym x==1) >=> x-path
+      where
+      x==1 : x == 1
+      x==1 = (¬p-divides->1 n (d , *'-commute {d} {x} >=> x-path) ¬p%x)
+
+
+    p-divides->%pn : (n x d : Nat) -> (x *' d == (prime-power p (suc n)))
+                     -> p' div' x -> d div' (prime-power p n)
+    p-divides->%pn n x d x-path (z , z-path) =
+      (z , *'-left-injective p-pos path)
+      where
+      path : p' *' (z *' d) == (prime-power p (suc n))
+      path = sym (*'-assoc {p'} {z} {d})
+             >=> *'-left (*'-commute {p'} {z} >=> z-path)
+             >=> x-path
+
+    split-prime-power-divisor :
+      {n : Nat} {d : Nat} -> d div' (prime-power p (suc n))
+      -> (d == (prime-power p (suc n)) ⊎ (d div' (prime-power p n)))
+    split-prime-power-divisor {n} {d} (x , x-path) =
+      handle (decide-div p' x)
+      where
+      handle : (Dec (p' div' x)) -> (d == (prime-power p (suc n)) ⊎ (d div' (prime-power p n)))
+      handle (yes p%x) = inj-r (p-divides->%pn n x d x-path p%x)
+      handle (no ¬p%x) = inj-l (¬p-divides->pn (suc n) x d x-path ¬p%x)
 
 
 

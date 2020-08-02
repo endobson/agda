@@ -11,10 +11,16 @@ open import prime
 open import prime-factorization
 open import relation
 
+RelativelyPrime' : Nat -> Nat -> Type ℓ-zero
+RelativelyPrime' a b = GCD' a b 1
+
+private
+  RP = RelativelyPrime'
+
 
 prime-gcd' : (a b : Nat) -> {Pos' a} -> {Pos' b}
              -> ((p : Prime') -> ⟨ p ⟩ div' a -> ⟨ p ⟩ div' b -> Bot)
-             -> GCD' a b 1
+             -> RP a b
 prime-gcd' a@(suc _) b@(suc _) pf = (gcd' a b 1 div'-one div'-one f)
   where
   f : (x : Nat) -> x div' a -> x div' b -> x div' 1
@@ -24,7 +30,7 @@ prime-gcd' a@(suc _) b@(suc _) pf = (gcd' a b 1 div'-one div'-one f)
   ... | p , (prime-p , p%x) =
     bot-elim (pf (p , prime-p) (div'-trans p%x x%a) (div'-trans p%x x%b))
 
-prime->relatively-prime : {a : Nat} -> (p : Prime') -> ¬ (⟨ p ⟩ div' a) -> GCD' ⟨ p ⟩ a 1
+prime->relatively-prime : {a : Nat} -> (p : Prime') -> ¬ (⟨ p ⟩ div' a) -> RP ⟨ p ⟩ a
 prime->relatively-prime {a} p ¬p%a =
   (gcd' ⟨ p ⟩ a 1 div'-one div'-one f)
   where
@@ -33,7 +39,7 @@ prime->relatively-prime {a} p ¬p%a =
   ... | inj-l pr = bot-elim (¬p%a (transport (\ i -> (pr i) div' a) x%a))
   ... | inj-r pr = (transport (\i -> (pr (~ i)) div' 1) div'-one)
 
-distinct-primes->relatively-prime : {p1 p2 : Prime'} -> p1 != p2 -> GCD' ⟨ p1 ⟩ ⟨ p2 ⟩ 1
+distinct-primes->relatively-prime : {p1 p2 : Prime'} -> p1 != p2 -> RP ⟨ p1 ⟩ ⟨ p2 ⟩
 distinct-primes->relatively-prime {p1} {p2} path =
   prime->relatively-prime p1 (distinct-primes->¬div path)
 
@@ -43,10 +49,10 @@ prime-divides-a-factor p@(pv , _) {a} {b} p-div with (decide-div pv a)
 ... | yes p%a = inj-l p%a
 ... | no ¬p%a = inj-r (euclids-lemma' p-div (prime->relatively-prime p ¬p%a))
 
-relatively-prime-*' : {a b c : Nat} -> GCD' a b 1 -> GCD' a c 1 -> GCD' a (b *' c) 1
+relatively-prime-*' : {a b c : Nat} -> RP a b -> RP a c -> RP a (b *' c)
 relatively-prime-*' g@(gcd' a zero _ _ _ _) (gcd' a _ _ _ _ _) = g
 relatively-prime-*' (gcd' a b@(suc _) _ _ _ _) g@(gcd' a zero _ _ _ _) =
-  transport (\i -> GCD' a (*'-commute {b} {zero} (~ i)) 1) g
+  transport (\i -> RP a (*'-commute {b} {zero} (~ i))) g
 relatively-prime-*' (gcd' a@(suc _) b@(suc _) _ _ _ f-b) (gcd' a@(suc _) c@(suc _) _ _ _ f-c) =
   prime-gcd' a (b *' c) f
   where
@@ -61,12 +67,12 @@ relatively-prime-*' (gcd' a@(suc _) b@(suc _) _ _ _ f-b) (gcd' a@(suc _) c@(suc 
   ... | inj-r p%c = ¬prime-div-one p (f-c p' p%a p%c)
 relatively-prime-*' {zero} b@{suc _} c@{suc _} gb gc
   with (gcd'-zero->id gb) | (gcd'-zero->id gc)
-... | b==1 | c==1 = transport (\ i -> GCD' 0 (path i) 1) gb
+... | b==1 | c==1 = transport (\ i -> RP 0 (path i)) gb
   where
   path : b == b *' c
   path = b==1 >=> (\i -> (sym b==1 i) *' (sym c==1 i))
 
-relatively-prime-^' : {a b : Nat} -> GCD' a b 1 -> (k : Nat) -> GCD' a (b ^' k) 1
+relatively-prime-^' : {a b : Nat} -> RP a b -> (k : Nat) -> RP a (b ^' k)
 relatively-prime-^' {a} {b} g zero    = gcd'-one
 relatively-prime-^'     {b} g (suc k) =
   relatively-prime-*' g (relatively-prime-^' g k)

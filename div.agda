@@ -94,6 +94,9 @@ div-zero->zero (d , pr) = (sym pr) >=> (*-commute {d} {zero-int})
 div'-zero->zero : {n : Nat} -> 0 div' n -> n == 0
 div'-zero->zero (d , pr) = (sym pr) >=> (*'-commute {d} {zero})
 
+div'-one->one : {d : Nat} -> d div' 1 -> d == 1
+div'-one->one (x , x*d==1) = *'-only-one-right {x} x*d==1
+
 div'-pos->pos : {d n : Nat} -> d div' n -> Pos' n -> Pos' d
 div'-pos->pos {zero} div1 n-pos =
   (transport (\i -> (Pos' (div'-zero->zero div1 i))) n-pos)
