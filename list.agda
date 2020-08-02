@@ -745,3 +745,22 @@ reverse-permutation as =
   permutation-compose
     (permutation-== (sym ++-right-[]))
     (reverse-acc-permutation as [])
+
+
+-- Propositional Count
+
+data Count (A : Type ℓ) : A -> List A -> Nat -> Type ℓ where
+  count'-[] : {x : A} -> Count A x [] 0
+  count'-== : {x a : A} {as : List A} {n : Nat} -> x == a
+              -> Count A x as n
+              -> Count A x (a :: as) (suc n)
+  count'-!= : {x a : A} {as : List A} {n : Nat} -> x != a
+              -> Count A x as n
+              -> Count A x (a :: as) n
+
+count-uniqueness : {x : A} {as : List A} {m n : Nat} -> Count A x as m -> Count A x as n -> m == n
+count-uniqueness count'-[] count'-[] = refl
+count-uniqueness (count'-== _ cm) (count'-== _ cn) = cong suc (count-uniqueness cm cn)
+count-uniqueness (count'-!= _ cm) (count'-!= _ cn) = (count-uniqueness cm cn)
+count-uniqueness (count'-!= ¬p _) (count'-== p  _) = bot-elim (¬p p)
+count-uniqueness (count'-== p  _) (count'-!= ¬p _) = bot-elim (¬p p)

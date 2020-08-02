@@ -39,6 +39,14 @@ count-== as x==a = +'-left (indicator==1 x==a)
 count-!= : {x : A} {a : A} (as : List A) -> x != a -> count x (a :: as) == (count x as)
 count-!= as x!=a = +'-left (indicator==0 x!=a)
 
+Count-count : (x : A) -> (as : List A) -> Count A x as (count x as)
+Count-count x []        = count'-[]
+Count-count x (a :: as) = handle (discA x a) (Count-count x as)
+  where
+  handle : Dec (x == a) -> Count A x as (count x as) -> Count A x (a :: as) (count x (a :: as))
+  handle (yes p) c = transport (\i -> Count A x (a :: as) (count-== as p (~ i))) (count'-== p c)
+  handle (no ¬p) c = transport (\i -> Count A x (a :: as) (count-!= as ¬p (~ i))) (count'-!= ¬p c)
+
 count-≤ : (x : A) {a : A} (as : List A) -> count x as ≤ count x (a :: as)
 count-≤ x {a} as = handle (discA x a)
   where
