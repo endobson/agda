@@ -10,6 +10,7 @@ open import list.discrete
 open import list.filter
 open import list.sorted
 open import list.unordered
+open import list.discrete
 open import nat
 open import relation
 
@@ -127,3 +128,86 @@ list-reify b dec = l , proof
   where
   l = (filter dec (allNatsUnder ⟨ b ⟩))
   proof = canonicalBoundedDecidable b dec
+
+
+module _ {ℓp ℓq : Level} {P : Pred Nat ℓp} {Q : Pred Nat ℓq} where
+
+  canonical-join : {as bs cs ds : List Nat}
+    -> CanonicalList≥ P as
+    -> CanonicalList≥ Q bs
+    -> CanonicalList≥ (P ∪ Q) cs
+    -> CanonicalList≥ (P ∩ Q) ds
+    -> Permutation Nat (as ++ bs) (cs ++ ds)
+  canonical-join {as} {bs} {cs} {ds} c-as c-bs c-cs c-ds = same-count->permutation f
+    where
+    count1 : {P : Pred Nat ℓ} {x : Nat} {xs : List Nat}
+             -> CanonicalList≥ P xs -> contains x xs -> count x xs == 1
+    count1 {x = x} {xs = xs} canonical contains-x =
+      ≤-antisym (no-duplicates->count (canonical-no-duplicates canonical) x)
+                (contains->count>0 xs contains-x)
+    count0 : {P : Pred Nat ℓ} {x : Nat} {xs : List Nat}
+             -> CanonicalList≥ P xs -> ¬(contains x xs) -> count x xs == 0
+    count0 {xs = xs} _ = ¬contains->count==0 xs
+
+    co-as = canonical-contains-only c-as
+    co-bs = canonical-contains-only c-bs
+    co-cs = canonical-contains-only c-cs
+    co-ds = canonical-contains-only c-ds
+    ca-as = canonical-contains-all c-as
+    ca-bs = canonical-contains-all c-bs
+    ca-cs = canonical-contains-all c-cs
+    ca-ds = canonical-contains-all c-ds
+
+
+
+    f : (x : Nat) -> count x (as ++ bs) == count x (cs ++ ds)
+    f x = handle (decide-contains x as) (decide-contains x bs)
+      where
+      handle : Dec (contains x as) -> Dec (contains x bs) -> count x (as ++ bs) == count x (cs ++ ds)
+      handle (yes x-as) (yes x-bs) =
+        count-++ x as bs
+        >=> (\i -> (count1 c-as x-as i)     +' (count1 c-bs x-bs i))
+        >=> (\i -> (count1 c-cs x-cs (~ i)) +' (count1 c-ds x-ds (~ i)))
+        >=> sym (count-++ x cs ds)
+        where
+        x-cs : contains x cs
+        x-cs = ca-cs (inj-l (co-as x-as))
+        x-ds : contains x ds
+        x-ds = ca-ds (co-as x-as , co-bs x-bs)
+
+      handle (yes x-as) (no ¬x-bs) =
+        count-++ x as bs
+        >=> (\i -> (count1 c-as x-as i)     +' (count0 c-bs ¬x-bs i))
+        >=> (\i -> (count1 c-cs x-cs (~ i)) +' (count0 c-ds ¬x-ds (~ i)))
+        >=> sym (count-++ x cs ds)
+        where
+        x-cs : contains x cs
+        x-cs = ca-cs (inj-l (co-as x-as))
+        ¬x-ds : ¬ (contains x ds)
+        ¬x-ds x-ds = ¬x-bs (ca-bs (proj₂ (co-ds x-ds)))
+
+      handle (no ¬x-as) (yes x-bs) =
+        count-++ x as bs
+        >=> (\i -> (count0 c-as ¬x-as i)    +' (count1 c-bs x-bs i))
+        >=> (\i -> (count1 c-cs x-cs (~ i)) +' (count0 c-ds ¬x-ds (~ i)))
+        >=> sym (count-++ x cs ds)
+        where
+        x-cs : contains x cs
+        x-cs = ca-cs (inj-r (co-bs x-bs))
+        ¬x-ds : ¬ (contains x ds)
+        ¬x-ds x-ds = ¬x-as (ca-as (proj₁ (co-ds x-ds)))
+      handle (no ¬x-as) (no ¬x-bs) =
+        count-++ x as bs
+        >=> (\i -> (count0 c-as ¬x-as i)     +' (count0 c-bs ¬x-bs i))
+        >=> (\i -> (count0 c-cs ¬x-cs (~ i)) +' (count0 c-ds ¬x-ds (~ i)))
+        >=> sym (count-++ x cs ds)
+        where
+        ¬x-cs : ¬(contains x cs)
+        ¬x-cs x-cs = handle2 (co-cs x-cs)
+          where
+          handle2 : (P x ⊎ Q x) -> Bot
+          handle2 (inj-l p-x) = ¬x-as (ca-as p-x)
+          handle2 (inj-r q-x) = ¬x-bs (ca-bs q-x)
+
+        ¬x-ds : ¬ (contains x ds)
+        ¬x-ds x-ds = ¬x-as (ca-as (proj₁ (co-ds x-ds)))
