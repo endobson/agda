@@ -30,15 +30,20 @@ sym p i = p (~ i)
 transport : {A B : Type ℓ} -> A == B -> A -> B
 transport p a = transp (\i -> p i) i0 a
 
+transportRefl : (x : A) -> transport refl x == x
+transportRefl {A = A} x i = transp (λ _ -> A) i x
+
 transport-filler : ∀ {ℓ} {A B : Type ℓ} (p : A == B) (x : A)
                    -> PathP (\ i -> p i) x (transport p x)
 transport-filler p x i = transp (\j -> p (i ∧ j)) (~ i) x
 
-J : {x : A} (P : ∀ y -> x == y -> Type ℓ)
-    (d : P x refl) {y : A} (p : x == y)
-    -> P y p
-J P d p = transport (\ i -> P (p i) (\ j -> p (i ∧ j))) d
+module _ {x : A} (P : ∀ y -> x == y -> Type ℓ) (d : P x refl) where
 
+  J : {y : A} -> (p : x == y) -> P y p
+  J p = transport (\i -> P (p i) (\j -> p (i ∧ j))) d
+
+  JRefl : J refl == d
+  JRefl = transportRefl d
 
 _∙∙_∙∙_ : {w x y z : A} -> w == x -> x == y -> y == z -> w == z
 (p ∙∙ q ∙∙ r) i =

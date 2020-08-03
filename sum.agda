@@ -4,6 +4,7 @@ module sum where
 
 open import base
 open import equality
+open import equivalence
 open import functions
 open import hlevel.base
 open import isomorphism
@@ -53,6 +54,62 @@ proj-r (inj-l _) ()
 inj-l!=inj-r : ∀ {ℓ₁ ℓ₂} {A : Type ℓ₁} {B : Type ℓ₂} {a : A} {b : B}
                -> ¬(Path (A ⊎ B) (inj-l a) (inj-r b))
 inj-l!=inj-r p = transport (\i -> Left (p i)) tt
+
+module _ {A : Type ℓ₁} {B : Type ℓ₂} where
+  ⊎Cover : (A ⊎ B) -> (A ⊎ B) -> Type (ℓ-max ℓ₁ ℓ₂)
+  ⊎Cover (inj-l a1) (inj-l a2) = Lift (ℓ-max ℓ₁ ℓ₂) (a1 == a2)
+  ⊎Cover (inj-l _)  (inj-r _) = Lift (ℓ-max ℓ₁ ℓ₂) Bot
+  ⊎Cover (inj-r _)  (inj-l _) = Lift (ℓ-max ℓ₁ ℓ₂) Bot
+  ⊎Cover (inj-r b1) (inj-r b2) = Lift (ℓ-max ℓ₁ ℓ₂) (b1 == b2)
+
+  private
+    reflCode : (s : (A ⊎ B)) -> ⊎Cover s s
+    reflCode (inj-l s) = lift refl
+    reflCode (inj-r s) = lift refl
+
+    encode : (s1 s2 : (A ⊎ B)) -> s1 == s2 -> ⊎Cover s1 s2
+    encode s1 _ = J (\ s2 _ -> ⊎Cover s1 s2) (reflCode s1)
+
+    encodeRefl : (s : (A ⊎ B)) -> encode s s refl == reflCode s
+    encodeRefl s = JRefl (\ s2 _ -> ⊎Cover s s2) (reflCode s)
+
+    decode : (s1 s2 : (A ⊎ B)) -> ⊎Cover s1 s2 -> s1 == s2
+    decode (inj-l _) (inj-l _) (lift p) = cong inj-l p
+    decode (inj-r _) (inj-r _) (lift p) = cong inj-r p
+
+    decodeRefl : (s : (A ⊎ B)) -> decode s s (reflCode s) == refl
+    decodeRefl (inj-l _) = refl
+    decodeRefl (inj-r _) = refl
+
+    decodeEncode : (s1 s2 : (A ⊎ B)) -> (p : s1 == s2) -> decode s1 s2 (encode s1 s2 p) == p
+    decodeEncode s1 _ =
+      J (\ s2 p -> decode s1 s2 (encode s1 s2 p) ≡ p)
+        (cong (decode s1 s1) (encodeRefl s1) >=> decodeRefl s1)
+
+    encodeDecode : (s1 s2 : (A ⊎ B)) -> (c : ⊎Cover s1 s2) → encode s1 s2 (decode s1 s2 c) ≡ c
+    encodeDecode (inj-l a1) (inj-l _) (lift a-p) =
+      J (\ a2 p -> encode (inj-l a1) (inj-l a2) (cong inj-l p) == lift p) (encodeRefl (inj-l a1)) a-p
+    encodeDecode (inj-r b1) (inj-r _) (lift b-p) =
+      J (\ b2 p -> encode (inj-r b1) (inj-r b2) (cong inj-r p) == lift p) (encodeRefl (inj-r b1)) b-p
+
+  ⊎-cover==path : (s1 s2 : (A ⊎ B)) -> ⊎Cover s1 s2 == (s1 == s2)
+  ⊎-cover==path s1 s2 = ua (isoToEquiv (record
+    { fun = decode s1 s2
+    ; inv = encode s1 s2
+    ; rightInv = decodeEncode s1 s2
+    ; leftInv = encodeDecode s1 s2
+    }))
+
+inj-l-injective : {a1 a2 : A} -> Path (A ⊎ B) (inj-l a1) (inj-l a2) -> a1 == a2
+inj-l-injective {a1 = a1} {a2 = a2} p =
+  Lift.lower (transport (sym (⊎-cover==path (inj-l a1) (inj-l a2))) p)
+inj-r-injective : {b1 b2 : B} -> Path (A ⊎ B) (inj-r b1) (inj-r b2) -> b1 == b2
+inj-r-injective {b1 = b1} {b2 = b2} p =
+  Lift.lower (transport (sym (⊎-cover==path (inj-r b1) (inj-r b2))) p)
+
+
+
+
 
 Discrete⊎ : Discrete A -> Discrete B -> Discrete (A ⊎ B)
 Discrete⊎ da db (inj-l a1) (inj-l a2) with (da a1 a2)
