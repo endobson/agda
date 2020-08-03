@@ -90,6 +90,14 @@ compPath-sym p = contract >=> compPath-refl-right refl
   contract : (p >=> sym p) == (refl >=> refl)
   contract j = (\i -> p (i ∧ (~ j))) >=> (\i -> p (~ i ∧ (~ j)))
 
+-- Path composition with transport
+transport-twice : ∀ {A B C : Type ℓ} (p : B == C) (q : A == B) (x : A)
+                  -> transport p (transport q x) == (transport (q >=> p) x)
+transport-twice p q x =
+  (\i -> transport p (transport (compPath-refl-right q (~ i)) x))
+  >=> (\i -> transport (\j -> p (i ∨ j)) (transport (q >=> (\j -> p (i ∧ j))) x))
+  >=> transportRefl (transport (q >=> p) x)
+
 -- Path composition on PathP
 
 transP : {A : I -> Type ℓ} {a0 : A i0} {a1 : A i1} {B_i1 : Type ℓ} {B : A i1 == B_i1}
