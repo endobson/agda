@@ -157,3 +157,205 @@ Discrete⊎ da db (inj-r b1) (inj-r b2) with (db b1 b2)
   i .rightInv (inj-r _) = refl
   i .leftInv  (inj-l _) = refl
   i .leftInv  (inj-r _) = refl
+
+
+⊎-Top : {A B : Type ℓ} -> (Top ⊎ A) == (Top ⊎ B) -> A == B
+⊎-Top {A = A} {B = B} ⊎path = ua (isoToEquiv new-iso)
+  where
+  iso' : Iso (Top ⊎ A) (Top ⊎ B)
+  iso' = pathToIso ⊎path
+
+  f : (Top ⊎ A) -> (Top ⊎ B)
+  g : (Top ⊎ B) -> (Top ⊎ A)
+  f = iso' .fun
+  g = iso' .inv
+
+  module both-left
+           (f-Left : (f (inj-l tt)) == (inj-l tt))
+           (g-Left : (g (inj-l tt)) == (inj-l tt))  where
+    f-Right' : (a : A) -> Σ[ b ∈ B ] (inj-r b) == f (inj-r a)
+    f-Right' a = handle (f (inj-r a)) refl
+      where
+      handle : (s2 : Top ⊎ B) -> s2 == (f (inj-r a)) -> Σ[ b ∈ B ] (inj-r b) == (f (inj-r a))
+      handle (inj-r b) p = b , p
+      handle (inj-l _) p = bot-elim (inj-l!=inj-r path)
+        where
+        path : (inj-l tt) == (inj-r a)
+        path = sym g-Left >=> cong g p >=> (iso' .leftInv (inj-r a))
+
+    g-Right' : (b : B) -> Σ[ a ∈ A ] (inj-r a) == g (inj-r b)
+    g-Right' b = handle (g (inj-r b)) refl
+      where
+      handle : (s2 : Top ⊎ A) -> s2 == (g (inj-r b)) -> Σ[ a ∈ A ] (inj-r a) == (g (inj-r b))
+      handle (inj-r a) p = a , p
+      handle (inj-l _) p = bot-elim (inj-l!=inj-r path)
+        where
+        path : (inj-l tt) == (inj-r b)
+        path = sym f-Left >=> cong f p >=> (iso' .rightInv (inj-r b))
+
+    f' : A -> B
+    f' a = fst (f-Right' a)
+    f'-path : (a : A) -> inj-r (f' a) == f (inj-r a)
+    f'-path a = snd (f-Right' a)
+
+    g' : B -> A
+    g' b = fst (g-Right' b)
+    g'-path : (b : B) -> inj-r (g' b) == g (inj-r b)
+    g'-path b = snd (g-Right' b)
+
+    fg' : (b : B) -> Path B (f' (g' b)) b
+    fg' b = inj-r-injective
+      (f'-path (g' b)
+       >=> cong f (g'-path b)
+       >=> iso' .rightInv (inj-r b))
+
+    gf' : (a : A) -> Path A (g' (f' a)) a
+    gf' a = inj-r-injective
+      (g'-path (f' a)
+       >=> cong g (f'-path a)
+       >=> iso' .leftInv (inj-r a))
+
+    new-iso : Iso A B
+    new-iso .fun = f'
+    new-iso .inv = g'
+    new-iso .rightInv = fg'
+    new-iso .leftInv = gf'
+
+  module f-left-g-right
+           (f-Left : (f (inj-l tt)) == (inj-l tt))
+           {a : A}
+           (g-Left : (g (inj-l tt)) == (inj-r a))  where
+
+    absurd : Bot
+    absurd = inj-l!=inj-r (sym (iso' .leftInv (inj-l tt)) >=> cong g f-Left >=> g-Left)
+
+  module f-right-g-left
+           {b : B}
+           (f-Left : (f (inj-l tt)) == (inj-r b))
+           (g-Left : (g (inj-l tt)) == (inj-l tt))  where
+
+    absurd : Bot
+    absurd = inj-l!=inj-r (sym (iso' .rightInv (inj-l tt)) >=> cong f g-Left >=> f-Left)
+
+  module both-right
+           {b-base : B}
+           (f-Left : (f (inj-l tt)) == (inj-r b-base))
+           {a-base : A}
+           (g-Left : (g (inj-l tt)) == (inj-r a-base)) where
+
+    f'-base : (Top ⊎ B) -> B
+    f'-base (inj-l _) = b-base
+    f'-base (inj-r b) = b
+
+    f' : A -> B
+    f' a = (f'-base (f (inj-r a)))
+
+
+    g'-base : (Top ⊎ A) -> A
+    g'-base (inj-l _) = a-base
+    g'-base (inj-r a) = a
+
+    g' : B -> A
+    g' b = (g'-base (g (inj-r b)))
+
+    fg' : (b : B) -> (f' (g' b)) == b
+    fg' b = handle (g (inj-r b)) refl
+      where
+      handle : (a : (Top ⊎ A)) -> a == g (inj-r b) -> (f' (g' b)) == b
+      handle (inj-l _) p =
+        begin
+          f' (g' b)
+        ==<>
+          f' (g'-base (g (inj-r b)))
+        ==< cong f' (cong g'-base (sym p)) >
+          f' a-base
+        ==<>
+          f'-base (f (inj-r a-base))
+        ==< cong f'-base (cong f (sym g-Left)) >
+          f'-base (f (g (inj-l tt)))
+        ==< cong f'-base (iso' .rightInv (inj-l tt)) >
+          b-base
+        ==< b-path >
+          b
+        end
+        where
+        b-path : b-base == b
+        b-path = inj-r-injective
+          (sym f-Left
+           >=> cong f p
+           >=> iso' .rightInv (inj-r b))
+      handle (inj-r a) p =
+        begin
+          f' (g' b)
+        ==<>
+          f' (g'-base (g (inj-r b)))
+        ==< cong f' (cong g'-base (sym p)) >
+          f' a
+        ==<>
+          f'-base (f (inj-r a))
+        ==< cong f'-base (cong f p) >
+          f'-base (f (g (inj-r b)))
+        ==< cong f'-base (iso' .rightInv (inj-r b)) >
+          f'-base (inj-r b)
+        ==<>
+          b
+        end
+
+    gf' : (a : A) -> (g' (f' a)) == a
+    gf' a = handle (f (inj-r a)) refl
+      where
+      handle : (b : (Top ⊎ B)) -> b == f (inj-r a) -> (g' (f' a)) == a
+      handle (inj-l _) p =
+        begin
+          g' (f' a)
+        ==<>
+          g' (f'-base (f (inj-r a)))
+        ==< cong g' (cong f'-base (sym p)) >
+          g' b-base
+        ==<>
+          g'-base (g (inj-r b-base))
+        ==< cong g'-base (cong g (sym f-Left)) >
+          g'-base (g (f (inj-l tt)))
+        ==< cong g'-base (iso' .leftInv (inj-l tt)) >
+          a-base
+        ==< a-path >
+          a
+        end
+        where
+        a-path : a-base == a
+        a-path = inj-r-injective
+          (sym g-Left
+           >=> cong g p
+           >=> iso' .leftInv (inj-r a))
+      handle (inj-r b) p =
+        begin
+          g' (f' a)
+        ==<>
+          g' (f'-base (f (inj-r a)))
+        ==< cong g' (cong f'-base (sym p)) >
+          g' b
+        ==<>
+          g'-base (g (inj-r b))
+        ==< cong g'-base (cong g p) >
+          g'-base (g (f (inj-r a)))
+        ==< cong g'-base (iso' .leftInv (inj-r a)) >
+          g'-base (inj-r a)
+        ==<>
+          a
+        end
+
+    new-iso : Iso A B
+    new-iso .fun = f'
+    new-iso .inv = g'
+    new-iso .rightInv = fg'
+    new-iso .leftInv = gf'
+
+
+  new-iso : Iso A B
+  new-iso = handle (f (inj-l tt)) refl (g (inj-l tt)) refl
+    where
+    handle : (b : Top ⊎ B) -> (f (inj-l tt)) == b -> (a : Top ⊎ A) -> (g (inj-l tt)) == a -> Iso A B
+    handle (inj-l _) f-p (inj-l _) g-p = both-left.new-iso f-p g-p
+    handle (inj-l _) f-p (inj-r _) g-p = bot-elim (f-left-g-right.absurd f-p g-p)
+    handle (inj-r _) f-p (inj-l _) g-p = bot-elim (f-right-g-left.absurd f-p g-p)
+    handle (inj-r _) f-p (inj-r _) g-p = both-right.new-iso f-p g-p

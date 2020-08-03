@@ -11,6 +11,7 @@ open import isomorphism
 open import nat
 open import relation
 open import sigma
+open import sum
 
 -- Fin type is based on ≤ instead of straight inductive structure
 -- This is so that things compute better when using transport.
@@ -94,6 +95,36 @@ private
 
   suc-fin-path : {n : Nat} {x y : Fin n} -> (x == y) == (suc-fin x == suc-fin y)
   suc-fin-path = ua (isoToEquiv suc-fin-iso)
+
+-- Fin is injective
+
+private
+  Fin-suc-⊎ : (n : Nat) -> Fin (suc n) == (Top ⊎ Fin n)
+  Fin-suc-⊎ n = ua (isoToEquiv i)
+    where
+    open Iso
+
+    i : Iso (Fin (suc n)) (Top ⊎ Fin n)
+    i .fun (zero  , p) = inj-l tt
+    i .fun (suc i , p) = inj-r (i , pred-≤ p)
+    i .inv (inj-l _)   = zero-fin
+    i .inv (inj-r j)   = suc-fin j
+    i .rightInv (inj-l _)  = refl
+    i .rightInv (inj-r j)  = cong inj-r (ΣProp-path isProp≤ refl)
+    i .leftInv (zero  , p) = (ΣProp-path isProp≤ refl)
+    i .leftInv (suc i , p) = (ΣProp-path isProp≤ refl)
+
+Fin-injective : Injective Fin
+Fin-injective {zero}  {zero}  path = refl
+Fin-injective {zero}  {suc n} path =
+  bot-elim (transport (sym path >=> fin-zero-bot-path) zero-fin)
+Fin-injective {suc m} {zero}  path =
+  bot-elim (transport (path >=> fin-zero-bot-path) zero-fin)
+Fin-injective {suc m} {suc n} path = cong suc (Fin-injective path')
+  where
+  path' : Fin m == Fin n
+  path' = ⊎-Top (sym (Fin-suc-⊎ m) >=> path >=> Fin-suc-⊎ n)
+
 
 -- Naturals in a range
 
