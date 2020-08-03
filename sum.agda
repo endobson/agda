@@ -132,3 +132,28 @@ Discrete⊎ da db (inj-r b1) (inj-r b2) with (db b1 b2)
     where
     Right-path : PathP (\i -> Right (p i)) tt tt
     Right-path i = transport-filler (\i -> Right (p i)) tt i
+
+-- Properties about the type
+⊎-Bot : (A : Type ℓ) -> (Bot ⊎ A) == A
+⊎-Bot A = ua (isoToEquiv i)
+  where
+  i : Iso (Bot ⊎ A) A
+  i .fun (inj-r a) = a
+  i .fun (inj-l ())
+  i .inv a = (inj-r a)
+  i .rightInv a = refl
+  i .leftInv (inj-r a) = refl
+  i .leftInv (inj-l ())
+
+⊎-flip : {A : Type ℓ₁} {B : Type ℓ₂} -> (A ⊎ B) == (B ⊎ A)
+⊎-flip {A = A} {B} = ua (isoToEquiv i)
+  where
+  i : Iso (A ⊎ B) (B ⊎ A)
+  i .fun (inj-l a) = inj-r a
+  i .fun (inj-r b) = inj-l b
+  i .inv (inj-l b) = inj-r b
+  i .inv (inj-r a) = inj-l a
+  i .rightInv (inj-l _) = refl
+  i .rightInv (inj-r _) = refl
+  i .leftInv  (inj-l _) = refl
+  i .leftInv  (inj-r _) = refl
