@@ -239,6 +239,18 @@ isoToPath {A = A} {B = B} f i =
   Glue B (\ { (i = i0) -> (A , isoToEquiv f)
             ; (i = i1) -> (B , idEquiv B) })
 
+pathToIso : A == B -> Iso A B
+pathToIso p .Iso.fun = transport p
+pathToIso p .Iso.inv = transport (sym p)
+pathToIso p .Iso.rightInv b =
+  transport-twice p (sym p) b
+  >=> (\i -> transport (compPath-sym (sym p) i) b)
+  >=> transportRefl b
+pathToIso p .Iso.leftInv a =
+  transport-twice (sym p) p a
+  >=> (\i -> transport (compPath-sym p i) a)
+  >=> transportRefl a
+
 -- In sets isomorphisms with equal foward functions are equal
 module _ (hA : isSet A) (hB : isSet B) {iso₁ iso₂ : Iso A B}
          (p-fun : (Iso.fun iso₁) == (Iso.fun iso₂)) where
