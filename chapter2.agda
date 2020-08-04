@@ -40,7 +40,7 @@ private
   decide-SquareFree n⁺@(n@(suc _) , n-pos) = answer
     where
     pf : PrimeFactorization n
-    pf = compute-prime-factorization zero-<
+    pf = compute-prime-factorization n⁺
 
     no-dupes : Dec (ul.NoDuplicates (PrimeFactorization.primes pf))
     no-dupes = (ul.decide-no-duplicates (PrimeFactorization.primes pf))
@@ -61,8 +61,8 @@ private
 
 
 μ : Nat⁺ -> Int
-μ n⁺@(n@(suc _) , n-pos) with (decide-SquareFree n⁺)
-... | (yes _) = (neg zero) ^ (ul.length (PrimeFactorization.primes (compute-prime-factorization {n} zero-<)))
+μ n⁺ with (decide-SquareFree n⁺)
+... | (yes _) = (neg zero) ^ (ul.length (PrimeFactorization.primes (compute-prime-factorization n⁺)))
 ... | (no _)  = zero-int
 
 isBoundedDiv' : (n : Nat⁺) -> isBounded (_div' ⟨ n ⟩)

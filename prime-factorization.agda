@@ -169,9 +169,8 @@ exists-prime-divisor {n} n>1 = rec (compute-prime-factorization-tree n>1) div'-r
   rec {a} (prime-factorization-tree-composite {d} {e} df ef) a%n =
     rec ef (div'-trans (d , refl) a%n)
 
-compute-prime-factorization : {n : Nat} -> n > 0 -> (PrimeFactorization n)
-compute-prime-factorization {zero}        p = bot-elim (same-≮ p)
-compute-prime-factorization {suc zero}    _ =
+compute-prime-factorization : (n : Nat⁺) -> (PrimeFactorization ⟨ n ⟩)
+compute-prime-factorization (suc zero , _)    =
   (prime-factorization [] refl)
-compute-prime-factorization {suc (suc n)} _ =
+compute-prime-factorization (suc (suc n) , _) =
   convert-prime-factorization (compute-prime-factorization-tree (suc-≤ (zero-<)))
