@@ -6,9 +6,14 @@ open import base
 open import chapter2.square-free
 open import div
 open import equality
+open import functions
 open import gcd
 open import hlevel
 open import int
+open import list
+open import list.discrete
+open import list.nat
+open import list.sorted
 open import nat
 open import prime
 open import prime-factorization
@@ -17,11 +22,8 @@ open import relation
 open import ring
 open import ring.lists
 open import ring.implementations
+open import sigma
 open import unique-prime-factorization
-open import list
-open import list.discrete
-open import list.nat
-open import list.sorted
 
 
 import unordered-list as ul
@@ -37,6 +39,27 @@ private
 μ n⁺ with (decide-square-free n⁺)
 ... | (yes _) = (neg zero) ^ (ul.length (PrimeFactorization.primes (compute-prime-factorization n⁺)))
 ... | (no _)  = zero-int
+
+μ⁰ : Nat -> Int
+μ⁰ zero    = zero-int
+μ⁰ (suc n) = μ ((suc n) , tt)
+
+square-free-μ : {n : Nat⁺} -> SquareFree n -> (pf : PrimeFactorization ⟨ n ⟩)
+               -> μ n == (neg zero) ^ (ul.length (PrimeFactorization.primes pf))
+square-free-μ {n⁺} sf pf with (decide-square-free n⁺)
+... | (yes _) = (\i -> (neg zero) ^ (ul.length (PrimeFactorization.primes (pf-path i))))
+  where
+  pf-path : (compute-prime-factorization n⁺) == pf
+  pf-path = isPropPrimeFactorization _ _
+... | (no ¬sf) = bot-elim (¬sf sf)
+
+
+¬square-free-μ : {n : Nat⁺} -> ¬(SquareFree n) -> μ n == zero-int
+¬square-free-μ {n⁺@(n@(suc _) , _)} ¬sf with (decide-square-free n⁺)
+... | (yes sf) = bot-elim (¬sf sf)
+... | (no _) = refl
+
+
 
 isBoundedDiv' : (n : Nat⁺) -> isBounded (_div' ⟨ n ⟩)
 isBoundedDiv' (n , pos-n) = (suc n) , (\p -> suc-≤ (div'->≤ p {pos-n}))
@@ -209,8 +232,11 @@ module _ (p : Prime') where
     sorted = sorted>->sorted≥ (sorted>-divisors-of-prime-power (suc n))
 
 
+μ1==1 : μ⁰ 1 == (int 1)
+μ1==1 = refl
 
-
+μp==-1 : (p : Prime') -> μ (Prime'.nat⁺ p) == (- (int 1))
+μp==-1 p = square-free-μ (prime-square-free p) (prime-prime-factorization p)
 
 
 divisor-sum : (n : Nat⁺) -> (Σ[ d ∈ Nat ] (d div' ⟨ n ⟩) -> Int) -> Int
