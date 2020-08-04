@@ -18,10 +18,10 @@ private
   RP = RelativelyPrime'
 
 
-prime-gcd' : (a b : Nat) -> {Pos' a} -> {Pos' b}
-             -> ((p : Prime') -> ⟨ p ⟩ div' a -> ⟨ p ⟩ div' b -> Bot)
-             -> RP a b
-prime-gcd' a@(suc _) b@(suc _) pf = (gcd' a b 1 div'-one div'-one f)
+prime-gcd' : (a b : Nat⁺)
+             -> ((p : Prime') -> ⟨ p ⟩ div' ⟨ a ⟩ -> ⟨ p ⟩ div' ⟨ b ⟩ -> Bot)
+             -> RP ⟨ a ⟩ ⟨ b ⟩
+prime-gcd' (a@(suc _) , a-pos) (b , b-pos) pf = (gcd' a b 1 div'-one div'-one f)
   where
   f : (x : Nat) -> x div' a -> x div' b -> x div' 1
   f zero x%a x%b = zero-suc-absurd (sym (div'-zero->zero x%a))
@@ -54,7 +54,7 @@ relatively-prime-*' g@(gcd' a zero _ _ _ _) (gcd' a _ _ _ _ _) = g
 relatively-prime-*' (gcd' a b@(suc _) _ _ _ _) g@(gcd' a zero _ _ _ _) =
   transport (\i -> RP a (*'-commute {b} {zero} (~ i))) g
 relatively-prime-*' (gcd' a@(suc _) b@(suc _) _ _ _ f-b) (gcd' a@(suc _) c@(suc _) _ _ _ f-c) =
-  prime-gcd' a (b *' c) f
+  prime-gcd' (a , _) ((b *' c) , _) f
   where
   ¬prime-div-one : (p : Prime') -> ¬(⟨ p ⟩ div' 1)
   ¬prime-div-one (_ , p) p%1 with ≤->≤i (div'->≤ p%1)
