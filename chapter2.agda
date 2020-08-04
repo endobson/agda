@@ -127,12 +127,12 @@ module _ where
       nd = ((\{(0 , path) -> p!=1 path}) , (\()) , lift tt)
         where
         p!=1 : p' != 1
-        p!=1 p==1 = <->!= (IsPrime'.>1 is-prime) (sym p==1)
+        p!=1 p==1 = <->!= (Prime'.>1 p) (sym p==1)
       sorted : Sorted _≥_ (divisors-of-prime p)
       sorted = ((\{(0 , path) -> p≥a path}) , (\()) , lift tt)
         where
         p≥a : {a : Nat} -> (a == 1) -> p' ≥ a
-        p≥a a==1 = transport (\i -> p' ≥ (a==1 (~ i))) (weaken-< (IsPrime'.>1 is-prime))
+        p≥a a==1 = transport (\i -> p' ≥ (a==1 (~ i))) (weaken-< (Prime'.>1 p))
 
   prime-divisors-path : (p : Prime') -> divisors (Prime->Nat⁺ p) == (⟨ p ⟩ :: 1 :: [])
   prime-divisors-path p =
@@ -140,15 +140,12 @@ module _ where
 
 -- Divisors of prime powers
 
-prime-power : Prime' -> Nat -> Nat
-prime-power (p , _) n = p ^' n
-
 module _ (p : Prime') where
 
   private
     p' = fst p
     is-prime = snd p
-    p-pos = IsPrime'.pos is-prime
+    p-pos = Prime'.pos p
 
     ¬p-divides->1 : (n : Nat) {d : Nat} -> d div' (prime-power p n)
                     -> ¬ (p' div' d) -> d == 1
@@ -212,9 +209,9 @@ module _ (p : Prime') where
         x-div : x div' (p' ^' n)
         x-div = contains-only-divisors-of-prime-power n c
         x-lt : x ≤ (p' ^' n)
-        x-lt = div'->≤ x-div {^'-Pos' (IsPrime'.pos is-prime) n}
+        x-lt = div'->≤ x-div {^'-Pos' (Prime'.pos p) n}
         p-lt : (p' ^' n) < (p' ^' (suc n))
-        p-lt = ^-suc-< (IsPrime'.>1 is-prime) n
+        p-lt = ^-suc-< (Prime'.>1 p) n
 
 
   divisors-of-prime-power-canonical :

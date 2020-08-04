@@ -27,8 +27,8 @@ prime-gcd' a@(suc _) b@(suc _) pf = (gcd' a b 1 div'-one div'-one f)
   f zero x%a x%b = zero-suc-absurd (sym (div'-zero->zero x%a))
   f (suc zero) _ _ = div'-one
   f x@(suc (suc _)) x%a x%b with (exists-prime-divisor {x} (suc-≤ (suc-≤ zero-≤)))
-  ... | p , (prime-p , p%x) =
-    bot-elim (pf (p , prime-p) (div'-trans p%x x%a) (div'-trans p%x x%b))
+  ... | p , p%x =
+    bot-elim (pf p (div'-trans p%x x%a) (div'-trans p%x x%b))
 
 prime->relatively-prime : {a : Nat} -> (p : Prime') -> ¬ (⟨ p ⟩ div' a) -> RP ⟨ p ⟩ a
 prime->relatively-prime {a} p ¬p%a =

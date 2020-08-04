@@ -158,14 +158,11 @@ private
   convert-prime-factorization (prime-factorization-tree-composite t1 t2) =
     prime-factorization-* (convert-prime-factorization t1) (convert-prime-factorization t2)
 
-PrimeDivisor : Nat -> Nat -> Type₀
-PrimeDivisor n d = IsPrime' d × d div' n
-
-exists-prime-divisor : {n : Nat} -> n > 1 -> Σ[ d ∈ Nat ] (PrimeDivisor n d)
+exists-prime-divisor : {n : Nat} -> n > 1 -> Σ[ p ∈ Prime' ] (⟨ p ⟩ div' n)
 exists-prime-divisor {n} n>1 = rec (compute-prime-factorization-tree n>1) div'-refl
   where
-  rec : {a : Nat} -> (PrimeFactorizationTree a) -> a div' n -> Σ[ d ∈ Nat ] (PrimeDivisor n d)
-  rec (prime-factorization-tree-prime (a , prime-a)) a%n = a , (prime-a , a%n)
+  rec : {a : Nat} -> (PrimeFactorizationTree a) -> a div' n -> Σ[ p ∈ Prime' ] (⟨ p ⟩ div' n)
+  rec (prime-factorization-tree-prime (a , prime-a)) a%n = (a , prime-a) , a%n
   rec {a} (prime-factorization-tree-composite {d} {e} df ef) a%n =
     rec ef (div'-trans (d , refl) a%n)
 
@@ -174,3 +171,15 @@ compute-prime-factorization (suc zero , _)    =
   (prime-factorization [] refl)
 compute-prime-factorization (suc (suc n) , _) =
   convert-prime-factorization (compute-prime-factorization-tree (suc-≤ (zero-<)))
+
+prime-prime-factorization : (p : Prime') -> PrimeFactorization ⟨ p ⟩
+prime-prime-factorization p =
+  (prime-factorization (p :: []) *'-right-one)
+
+prime-power-prime-factorization : (p : Prime') -> (n : Nat) -> PrimeFactorization (prime-power p n)
+prime-power-prime-factorization p zero    = (prime-factorization [] refl)
+prime-power-prime-factorization p (suc n) = handle (prime-power-prime-factorization p n)
+  where
+  handle : (PrimeFactorization (prime-power p n)) -> (PrimeFactorization (prime-power p (suc n)))
+  handle (prime-factorization factors path) =
+    (prime-factorization (p :: factors) (cong (⟨ p ⟩ *'_) path))

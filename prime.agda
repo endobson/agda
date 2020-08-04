@@ -31,6 +31,18 @@ isPropIsPrime' (is-prime' gt1 f1) (is-prime' gt2 f2) i =
 Prime' : Type₀
 Prime' = Σ Nat IsPrime'
 
+module Prime' (p : Prime') where
+  private
+    p' = ⟨ p ⟩
+    is-prime = snd p
+
+  pos : Pos' p'
+  pos = IsPrime'.pos is-prime
+
+  >1 : p' > 1
+  >1 = IsPrime'.>1 is-prime
+
+
 discretePrime' : Discrete Prime'
 discretePrime' p1 p2 with (decide-nat ⟨ p1 ⟩ ⟨ p2 ⟩)
 ... | (yes pr) = yes (ΣProp-path isPropIsPrime' pr)
@@ -97,3 +109,12 @@ open PrimeUpTo
 1-is-¬prime (is-prime' lt _) = zero-≮ (pred-≤ lt)
 2-is-prime : IsPrime' 2
 2-is-prime = prime-up-to->is-prime' (prime-up-to-two 2 (same-≤ 2))
+
+
+-- Prime powers
+
+prime-power : Prime' -> Nat -> Nat
+prime-power (p , _) n = p ^' n
+
+prime-power⁺ : Prime' -> Nat -> Nat⁺
+prime-power⁺ p n = (prime-power p n , ^'-Pos' (Prime'.pos p) n)
