@@ -34,6 +34,16 @@ record PrimeFactorization (n : Nat) : Type₀ where
     primes : UList Prime'
     product : isPrimeFactorization primes n
 
+  pos : Pos' n
+  pos = transport (cong Pos' product) (pos-product primes)
+    where
+    pos-product : (ps : UList Prime') -> Pos' (prime-product ps)
+    pos-product ps = UListElim.prop isPropPos' tt ::* ps
+      where
+      ::* : (p : Prime') {ps : UList Prime'} -> Pos' (prime-product ps)
+            -> Pos' (prime-product (p :: ps))
+      ::* p {ps} pos-ps = *'-Pos'-Pos' (Prime'.pos p) pos-ps
+
 private
   data PrimeFactorizationTree : Nat -> Type₀ where
     prime-factorization-tree-prime : (p : Prime') -> PrimeFactorizationTree ⟨ p ⟩
@@ -166,11 +176,16 @@ exists-prime-divisor {n} n>1 = rec (compute-prime-factorization-tree n>1) div'-r
   rec {a} (prime-factorization-tree-composite {d} {e} df ef) a%n =
     rec ef (div'-trans (d , refl) a%n)
 
+-- Prime factorizations exist and are computable
+
 compute-prime-factorization : (n : Nat⁺) -> (PrimeFactorization ⟨ n ⟩)
 compute-prime-factorization (suc zero , _)    =
   (prime-factorization [] refl)
 compute-prime-factorization (suc (suc n) , _) =
   convert-prime-factorization (compute-prime-factorization-tree (suc-≤ (zero-<)))
+
+¬prime-factorization-zero : ¬ (PrimeFactorization 0)
+¬prime-factorization-zero pf0 = (PrimeFactorization.pos pf0)
 
 prime-prime-factorization : (p : Prime') -> PrimeFactorization ⟨ p ⟩
 prime-prime-factorization p =
