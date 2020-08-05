@@ -42,6 +42,9 @@ module Prime' (p : Prime') where
   >1 : p' > 1
   >1 = IsPrime'.>1 is-prime
 
+  nat⁺ : Nat⁺
+  nat⁺ = p' , pos
+
 
 discretePrime' : Discrete Prime'
 discretePrime' p1 p2 with (decide-nat ⟨ p1 ⟩ ⟨ p2 ⟩)
@@ -51,9 +54,6 @@ discretePrime' p1 p2 with (decide-nat ⟨ p1 ⟩ ⟨ p2 ⟩)
 instance
   discrete'Prime' : Discrete' Prime'
   discrete'Prime' = record { f = discretePrime' }
-
-Prime->Nat⁺ : Prime' -> Nat⁺
-Prime->Nat⁺ (n , p) = (n , IsPrime'.pos p)
 
 prime-only-divisors : {d : Nat} -> (p : Prime') -> d div' ⟨ p ⟩ -> (d == ⟨ p ⟩) ⊎ (d == 1)
 prime-only-divisors {d = d} (_ , (is-prime' p>1 pf)) d%p with (≤->≤s (div'->≤ d%p {<->Pos' p>1}))

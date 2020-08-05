@@ -105,9 +105,9 @@ module _ where
         p≥a : {a : Nat} -> (a == 1) -> p' ≥ a
         p≥a a==1 = transport (\i -> p' ≥ (a==1 (~ i))) (weaken-< (Prime'.>1 p))
 
-  prime-divisors-path : (p : Prime') -> divisors (Prime->Nat⁺ p) == (⟨ p ⟩ :: 1 :: [])
+  prime-divisors-path : (p : Prime') -> divisors (Prime'.nat⁺ p) == (⟨ p ⟩ :: 1 :: [])
   prime-divisors-path p =
-    canonical-list-== (divisors-canonical (Prime->Nat⁺ p)) (divisors-of-prime-canonical p)
+    canonical-list-== (divisors-canonical (Prime'.nat⁺ p)) (divisors-of-prime-canonical p)
 
 -- Divisors of prime powers
 
