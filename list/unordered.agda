@@ -8,9 +8,10 @@ open import relation
 open import list
 open import list.discrete
 open import nat
+open import ring
 
+import ring.lists
 import unordered-list as ul
-import unordered-list.discrete as ul
 
 private
   variable
@@ -61,3 +62,16 @@ module _ {ℓA : Level} {A : Type ℓA} {{disc'A : Discrete' A}} where
     where
     pos-count : (count a l) > 0
     pos-count = transport (\i -> unorder-count a l (~ i) > 0) (ul.contains->count>0 c)
+
+module _ {Domain : Type ℓ} (s : Semiring Domain) where
+  open Semiring s
+  open ring.lists s
+
+
+  sum==unordered-sum : (l : List Domain) -> sum l == unordered-sum (unorder l)
+  sum==unordered-sum []        = refl
+  sum==unordered-sum (a :: as) = cong (a +_) (sum==unordered-sum as)
+
+  product==unordered-product : (l : List Domain) -> product l == unordered-product (unorder l)
+  product==unordered-product []        = refl
+  product==unordered-product (a :: as) = cong (a *_) (product==unordered-product as)

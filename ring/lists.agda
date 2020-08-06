@@ -6,12 +6,12 @@ open import ring
 module ring.lists {ℓD : Level} {Domain : Type ℓD} (S : Semiring Domain) where
 
 open import equality
-open import list.unordered
 
 import commutative-monoid
 import list
 import monoid
-import unordered-list
+import unordered-list.base
+import unordered-list.operations
 
 open Semiring S
 
@@ -86,7 +86,8 @@ module _ where
 
 -- Unordered sums/products
 module _ where
-  open unordered-list
+  open unordered-list.base
+  open unordered-list.operations
   open commutative-monoid
 
   unordered-sum : UList Domain -> Domain
@@ -100,16 +101,3 @@ module _ where
 
   unordered-productʰ : CommMonoidʰ unordered-product
   unordered-productʰ = concatʰ
-
-
--- Proofs that sums/products are onder indepdendent
-module _ where
-  open list
-
-  sum==unordered-sum : (l : List Domain) -> sum l == unordered-sum (unorder l)
-  sum==unordered-sum []        = refl
-  sum==unordered-sum (a :: as) = cong (a +_) (sum==unordered-sum as)
-
-  product==unordered-product : (l : List Domain) -> product l == unordered-product (unorder l)
-  product==unordered-product []        = refl
-  product==unordered-product (a :: as) = cong (a *_) (product==unordered-product as)

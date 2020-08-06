@@ -5,28 +5,29 @@ open import relation
 
 module unordered-list.discrete {ℓ : Level} {A : Type ℓ} {{disc'A : Discrete' A}} where
 
+open import commutative-monoid
 open import equality
+open import functions
 open import hlevel
 open import nat
+open import ring
+open import ring.implementations
 open import unordered-list.base
 open import unordered-list.operations
+
+
+open import ring.lists NatSemiring
 
 private
   discA = Discrete'.f disc'A
 
+  indicator : A -> A -> Nat
+  indicator x a with (discA x a)
+  ...              | (yes _)     = 1
+  ...              | (no  _)     = 0
+
 count : (x : A) -> UList A -> Nat
-count x = UListElim.rec isSetNat 0 _::*_ swap*
-  where
-  _::*_ : (a : A) -> Nat -> Nat
-  (a ::* n) with (discA x a)
-  ...          | (yes _)     = suc n
-  ...          | (no  _)     = n
-  swap* : (a1 : A) (a2 : A) -> (n : Nat) -> (a1 ::* (a2 ::* n)) == (a2 ::* (a1 ::* n))
-  swap* a1 a2 n with (discA x a1) | (discA x a2)
-  ...              | (yes _)      | (yes _)      = refl
-  ...              | (yes _)      | (no  _)      = refl
-  ...              | (no  _)      | (yes _)      = refl
-  ...              | (no  _)      | (no  _)      = refl
+count x = unordered-sum ∘ (map (indicator x))
 
 count-== : {x : A} {a : A} (as : UList A) -> x == a -> count x (a :: as) == suc (count x as)
 count-== {x} {a} as x==a with (discA x a)
@@ -289,3 +290,8 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
       handle (no ¬pa2) _  =
         transport (\i -> count a ((filter-drops f as ¬pa2) (~ i)) ≤ count a (a2 :: as))
                   (trans-≤ lt (count-≤ a as))
+
+-- Monoid homomorphism for count
+
+countʰ : (x : A) -> CommMonoidʰ (count x)
+countʰ x = unordered-sumʰ ∘ʰ mapʰ
