@@ -288,3 +288,10 @@ induction :
   (m : Nat) -> P m
 induction {P = P} z f zero = z
 induction {P = P} z f (suc m) = f (induction {P = P} z f m)
+
+
+-- Arithmetic on Nat⁺ for simpler signatures
+
+infixl 7 _*⁺_
+_*⁺_ : Nat⁺ -> Nat⁺ -> Nat⁺
+(a , ap) *⁺ (b , bp) = (a *' b , *'-Pos'-Pos' ap bp)

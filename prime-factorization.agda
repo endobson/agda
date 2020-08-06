@@ -198,3 +198,14 @@ prime-power-prime-factorization p (suc n) = handle (prime-power-prime-factorizat
   handle : (PrimeFactorization (prime-power p n)) -> (PrimeFactorization (prime-power p (suc n)))
   handle (prime-factorization factors path) =
     (prime-factorization (p :: factors) (cong (⟨ p ⟩ *'_) path))
+
+*'-prime-factorization : {a b : Nat}
+                         -> PrimeFactorization a -> PrimeFactorization b
+                         -> PrimeFactorization (a *' b)
+*'-prime-factorization {a} {b} (prime-factorization ps-a path-a)
+                               (prime-factorization ps-b path-b) = record
+  { primes = ps-a ++ ps-b
+  ; product =
+      CommMonoidʰ.preserves-∙ prime-productʰ ps-a ps-b
+      >=> (\i -> (path-a i) *' (path-b i))
+  }
