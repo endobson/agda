@@ -5,15 +5,18 @@ module unique-prime-factorization where
 open import base
 open import div
 open import equality
+open import equivalence
 open import functions
 open import gcd
 open import hlevel
+open import isomorphism
 open import nat
 open import prime
 open import prime-factorization
 open import prime-gcd
 open import relation
 open import unordered-list
+open import unordered-list.discrete
 
 private
   record DivisionCount (d : Nat) (n : Nat) : Type₀ where
@@ -366,3 +369,55 @@ isPropPrimeFactorization p1@(prime-factorization ps1 product1)
       PathP (\i -> (prime-product (primes-path i)) == _) product1 product2
     product-path =
       isProp->PathP (\i -> isSetNat _ _) product1 product2
+
+
+
+module _ (p : Prime') {a : Nat} (pf : PrimeFactorization a) where
+  private
+    p' = fst p
+
+    div->∈-primes : (⟨ p ⟩ div' a) -> (contains p (PrimeFactorization.primes pf))
+    div->∈-primes (x , div-path) =
+      primes-x , full-path
+      where
+      pos-a : Pos' a
+      pos-a = (PrimeFactorization.pos pf)
+
+      pos-x : Pos' x
+      pos-x = div'-pos->pos (p' , *'-commute {p'} {x} >=> div-path) pos-a
+
+      pf-x : PrimeFactorization x
+      pf-x = compute-prime-factorization (x , pos-x)
+
+      primes-x = PrimeFactorization.primes pf-x
+      product-x = PrimeFactorization.product pf-x
+
+      pf' : PrimeFactorization a
+      pf' = prime-factorization
+        (p :: primes-x)
+        (*'-right {p'} product-x
+         >=> *'-commute {p'} {x}
+         >=> div-path)
+
+      full-path : p :: primes-x == PrimeFactorization.primes pf
+      full-path = cong PrimeFactorization.primes (isPropPrimeFactorization pf' pf)
+
+
+    ∈-primes->div : (contains p (PrimeFactorization.primes pf)) -> (⟨ p ⟩ div' a)
+    ∈-primes->div (ps' , ul-path) =
+      (prime-product ps' ,
+       *'-commute {prime-product ps'} {p'}
+       >=> cong prime-product ul-path
+       >=> PrimeFactorization.product pf)
+
+
+  prime-div-prime-factorization-∈-iso : Iso (p' div' a) (contains p (PrimeFactorization.primes pf))
+  prime-div-prime-factorization-∈-iso = record
+    { fun = div->∈-primes
+    ; inv = ∈-primes->div
+    ; rightInv = \c -> isPropContainsDiscrete (div->∈-primes (∈-primes->div c)) c
+    ; leftInv = \d -> isPropDiv' (PrimeFactorization.pos pf) (∈-primes->div (div->∈-primes d)) d
+    }
+
+  prime-div==prime-factorization-∈ : (⟨ p ⟩ div' a) == contains p (PrimeFactorization.primes pf)
+  prime-div==prime-factorization-∈ = ua (isoToEquiv prime-div-prime-factorization-∈-iso)
