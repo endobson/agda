@@ -15,6 +15,7 @@ open import prime-factorization
 open import prime-gcd
 open import relation
 open import ring
+open import ring.implementations
 open import unique-prime-factorization
 open import list
 open import list.discrete

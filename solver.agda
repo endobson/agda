@@ -8,6 +8,7 @@ open import fin
 open import list
 open import nat
 open import ring
+open import ring.implementations
 open import relation
 
 import int
