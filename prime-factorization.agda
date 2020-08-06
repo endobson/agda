@@ -17,7 +17,8 @@ open import unordered-list
 open PrimeUpTo
 
 module NatSemiring = Semiring NatSemiring
-open NatSemiring using (unordered-product; unordered-productʰ)
+open import ring.lists NatSemiring
+  hiding (product)
 
 prime-product : UList Prime' -> Nat
 prime-product = unordered-product ∘ (map fst)

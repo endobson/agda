@@ -15,6 +15,7 @@ open import prime-factorization
 open import prime-gcd
 open import relation
 open import ring
+open import ring.lists
 open import ring.implementations
 open import unique-prime-factorization
 open import list
@@ -213,4 +214,4 @@ module _ (p : Prime') where
 
 
 divisor-sum : (n : Nat⁺) -> (Σ[ d ∈ Nat ] (d div' ⟨ n ⟩) -> Int) -> Int
-divisor-sum n f = Ring.sum IntRing (map f (contains-only->list (divisors n) (divisors-contains-only n)))
+divisor-sum n f = sum IntSemiring (map f (contains-only->list (divisors n) (divisors-contains-only n)))

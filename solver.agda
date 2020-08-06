@@ -12,6 +12,7 @@ open import ring.implementations
 open import relation
 
 import int
+import ring.lists
 
 data Syntax (n : Nat) : Type₀ where
   _⊕_ : Syntax n -> Syntax n -> Syntax n
@@ -163,8 +164,9 @@ module RingSolver {Domain : Type ℓ} (R : Ring Domain) where
 
   module _ (n : Nat) where
     private
-      module R = Ring R
-      open module M = Ring (ReaderRing (Vec Domain n) R)
+      R' = (ReaderRing (Vec Domain n) R)
+      open module M = Ring R'
+      open ring.lists (Ring.semiring R')
 
       Meaning = (Vec Domain n) -> Domain
 
@@ -663,8 +665,9 @@ module Solver {Domain : Type ℓ} (S : Semiring Domain) where
   module S = Semiring S
 
   module _ (n : Nat) where
-
-    open module M = Semiring (ReaderSemiring (Vec Domain n) S)
+    S' = (ReaderSemiring (Vec Domain n) S)
+    open module M = Semiring S'
+    open ring.lists S'
     Meaning = Vec Domain n -> Domain
 
     ⟦_⟧ : Syntax n -> Meaning
