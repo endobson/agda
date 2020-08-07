@@ -114,14 +114,14 @@ private
 
 
   isPropDivisionCount : {d n : Nat} -> isProp (DivisionCount d n)
-  isPropDivisionCount {d} {n@(suc _)}
-                      (division-count d-pos1 _ k1 div-k1 ¬div-sk1)
-                      (division-count d-pos2 _ k2 div-k2 ¬div-sk2) i =
+  isPropDivisionCount {d} {n}
+                      (division-count d-pos1 n-pos1 k1 div-k1 ¬div-sk1)
+                      (division-count d-pos2 n-pos2 k2 div-k2 ¬div-sk2) i =
       (division-count
         (isProp->PathP (\i -> isPropPos') d-pos1 d-pos2 i)
-        _
+        (isProp->PathP (\i -> isPropPos') n-pos1 n-pos2 i)
         (p-k i)
-        (isProp->PathP (\i -> isPropDiv' {d ^' (p-k i)}) div-k1 div-k2 i)
+        (isProp->PathP (\i -> isPropDiv' {d ^' (p-k i)} n-pos1) div-k1 div-k2 i)
         (isProp->PathP (\i -> isProp¬ ((d ^' (suc (p-k i))) div' n)) ¬div-sk1 ¬div-sk2 i))
     where
       lesser-power : ∀ {k1 k2 n} -> ¬ ((d ^' suc k1) div' n) -> (d ^' k2) div' n -> k2 ≤ k1

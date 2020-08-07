@@ -413,8 +413,8 @@ decide-div d@(suc d') n@(suc _) with (exists-remainder d (\ d=z -> zero-suc-absu
 ... | (zero , rem) = yes (remainder->div rem)
 ... | ((suc a) , rem) = no (remainder->¬div rem)
 
-isPropDiv' : {d n : Nat} -> {pos : Pos' n} -> isProp (d div' n)
-isPropDiv' {d} {n} {n-pos} div1@(x1 , p1) (x2 , p2) = ΣProp-path (isSetNat _ _) x-p
+isPropDiv' : {d n : Nat} -> (Pos' n) -> isProp (d div' n)
+isPropDiv' {d} {n} n-pos div1@(x1 , p1) (x2 , p2) = ΣProp-path (isSetNat _ _) x-p
   where
   d-pos : Pos' d
   d-pos = (div'-pos->pos div1 n-pos)
