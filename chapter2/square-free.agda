@@ -27,7 +27,6 @@ SquareFree⁰ : Nat -> Type₀
 SquareFree⁰ zero = Bot
 SquareFree⁰ (suc n) = SquareFree ((suc n) , tt)
 
-
 isPropSquareFree : {n : Nat⁺} -> isProp (SquareFree n)
 isPropSquareFree = isPropΠ2 (\_ _ -> isProp≤)
 
@@ -103,9 +102,9 @@ prime-power-¬square-free {suc (suc n)} p n≥2 sf =
     >=> cong suc (sym (count-== primes-base refl))
     >=> sym (count-== (p :: primes-base) refl)
 
-relatively-prime-square-free : {a b : Nat⁺} -> RelativelyPrime' ⟨ a ⟩ ⟨ b ⟩
+relatively-prime-square-free : (a b : Nat⁺) -> RelativelyPrime' ⟨ a ⟩ ⟨ b ⟩
                                -> SquareFree a -> SquareFree b -> SquareFree (a *⁺ b)
-relatively-prime-square-free {a⁺@(a , _)} {b⁺@(b , _)} (gcd' _ _ _ _ _ rp-f)
+relatively-prime-square-free a⁺@(a , _) b⁺@(b , _) (gcd' _ _ _ _ _ rp-f)
                              sf-a sf-b p@(p' , _) pf-ab =
   handle (decide-div p' a)
   where
@@ -157,3 +156,47 @@ relatively-prime-square-free {a⁺@(a , _)} {b⁺@(b , _)} (gcd' _ _ _ _ _ rp-f)
       cong (count p ∘ PrimeFactorization.primes) path-pf
       >=> CommMonoidʰ.preserves-∙ (countʰ p) primes-a primes-b
       >=> (\i -> count-a i +' count p primes-b)
+
+
+¬square-free-*-left : {a : Nat⁺} -> ¬(SquareFree a) -> (b : Nat⁺) -> ¬ (SquareFree (a *⁺ b))
+¬square-free-*-left {a} ¬sf-a b@(b' , _) sf-ab = ¬sf-a sf-a
+  where
+  sf-a : SquareFree a
+  sf-a p pf-a = count-a
+    where
+    pf-b : PrimeFactorization b'
+    pf-b = compute-prime-factorization b
+
+    primes-a = (PrimeFactorization.primes pf-a)
+    primes-b = (PrimeFactorization.primes pf-b)
+
+    count-ab : (count p primes-a +' count p primes-b) ≤ 1
+    count-ab = transport
+      (\i -> CommMonoidʰ.preserves-∙ (countʰ p) primes-a primes-b i ≤ 1)
+      (sf-ab p (*'-prime-factorization pf-a pf-b) )
+
+    count-a : count p primes-a ≤ 1
+    count-a = transport
+      (\i -> (+'-commute {count p primes-a} {0} i) ≤ 1)
+      (trans-≤ (+-both-≤⁺ (same-≤ (count p primes-a)) zero-≤) count-ab)
+
+
+¬square-free-*-right : (a : Nat⁺) {b : Nat⁺} -> ¬(SquareFree b) -> ¬ (SquareFree (a *⁺ b))
+¬square-free-*-right a@(a' , _) {b} ¬sf-b sf-ab = ¬sf-b sf-b
+  where
+  sf-b : SquareFree b
+  sf-b p pf-b = count-b
+    where
+    pf-a : PrimeFactorization a'
+    pf-a = compute-prime-factorization a
+
+    primes-a = (PrimeFactorization.primes pf-a)
+    primes-b = (PrimeFactorization.primes pf-b)
+
+    count-ab : (count p primes-a +' count p primes-b) ≤ 1
+    count-ab = transport
+      (\i -> CommMonoidʰ.preserves-∙ (countʰ p) primes-a primes-b i ≤ 1)
+      (sf-ab p (*'-prime-factorization pf-a pf-b) )
+
+    count-b : count p primes-b ≤ 1
+    count-b = (trans-≤ (+-both-≤⁺ zero-≤ (same-≤ (count p primes-b))) count-ab)
