@@ -16,7 +16,6 @@ open import unordered-list
 
 open PrimeUpTo
 
-module NatSemiring = Semiring NatSemiring
 open import ring.lists NatSemiring
   hiding (product)
 

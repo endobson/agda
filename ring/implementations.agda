@@ -26,6 +26,7 @@ NatSemiring = record
   ; *-distrib-+-right = (\ {m} {n} {o} -> *'-distrib-+' {m} {n} {o})
   ; isSetDomain = isSetNat
   }
+module NatSemiring = Semiring NatSemiring
 
 IntSemiring : Semiring int.Int
 IntSemiring = record
@@ -43,6 +44,7 @@ IntSemiring = record
   ; *-distrib-+-right = (\ {m} {n} {o} -> int.*-distrib-+ {m} {n} {o})
   ; isSetDomain = int.isSetInt
   }
+module IntSemiring = Semiring IntSemiring
 
 IntRing : Ring int.Int
 IntRing = record  {
