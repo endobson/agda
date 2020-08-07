@@ -3,6 +3,8 @@
 module ring.implementations where
 
 open import base
+open import commutative-monoid
+open import equality
 open import hlevel
 open import nat
 open import ring
@@ -51,6 +53,32 @@ IntRing = record  {
   semiring = IntSemiring;
   -_ = int.-_;
   +-inverse = (\ {n} -> int.add-minus-zero {n}) }
+
+^'ʰ : (x : Nat) -> CommMonoidʰᵉ NatSemiring.+-CommMonoid NatSemiring.*-CommMonoid (x ^'_)
+^'ʰ x = record
+  { preserves-ε = refl
+  ; preserves-∙ = preserves-∙
+  }
+  where
+  preserves-∙ : (a b : Nat) -> (x ^' (a +' b)) == (x ^' a) *' (x ^' b)
+  preserves-∙ zero    b = sym *'-left-one
+  preserves-∙ (suc a) b =
+    cong (x *'_) (preserves-∙ a b)
+    >=> sym (*'-assoc {x} {x ^' a} {x ^' b})
+
+module _ where
+  open int
+  ^ʰ : (x : Int) -> CommMonoidʰᵉ NatSemiring.+-CommMonoid IntSemiring.*-CommMonoid (x ^_)
+  ^ʰ x = record
+    { preserves-ε = refl
+    ; preserves-∙ = preserves-∙
+    }
+    where
+    preserves-∙ : (a b : Nat) -> (x ^ (a +' b)) == (x ^ a) * (x ^ b)
+    preserves-∙ zero    b = sym *-left-one
+    preserves-∙ (suc a) b =
+      cong (x *_) (preserves-∙ a b)
+      >=> sym (*-assoc {x} {x ^ a} {x ^ b})
 
 
 ReaderSemiring : {ℓ₁ ℓ₂ : Level} {Domain : Type ℓ₁} -> (A : Type ℓ₂)
