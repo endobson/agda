@@ -10,6 +10,7 @@ open import hlevel
 open import monoid
 open import nat
 open import relation
+open import ring.implementations
 open import unordered-list.base
 
 private

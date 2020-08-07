@@ -8,6 +8,7 @@ open import equality
 open import functions
 open import monoid
 open import nat
+open import ring.implementations
 open import sum
 
 private

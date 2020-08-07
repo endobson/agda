@@ -234,33 +234,6 @@ a ^' (suc b) = a *' a ^' b
 ^'-Pos' _ zero = tt
 ^'-Pos' p (suc n) = *'-Pos'-Pos' p (^'-Pos' p n)
 
-instance
-  NatMonoid+ : Monoid Nat
-  NatMonoid+ = record {
-    ε = 0;
-    _∙_ = _+'_;
-    ∙-assoc = \ {m} {n} {o} -> +'-assoc {m} {n} {o};
-    ∙-left-ε = +'-left-zero;
-    ∙-right-ε = +'-right-zero }
-
-  NatCommMonoid+ : CommMonoid Nat
-  NatCommMonoid+ = record
-    { ∙-commute = (\ {m} {n} -> +'-commute {m} {n})
-    }
-
-  NatMonoid* : Monoid Nat
-  NatMonoid* = record {
-    ε = 1;
-    _∙_ = _*'_;
-    ∙-assoc = \ {m} {n} {o} -> *'-assoc {m} {n} {o};
-    ∙-left-ε = *'-left-one;
-    ∙-right-ε = *'-right-one }
-
-  NatCommMonoid* : CommMonoid Nat
-  NatCommMonoid* = record
-    { ∙-commute = (\ {m} {n} -> *'-commute {m} {n})
-    }
-
 iter : {ℓ : Level} {A : Type ℓ} (n : Nat) (f : A -> A) -> A -> A
 iter zero _ a = a
 iter (suc n) f a = f (iter n f a)
