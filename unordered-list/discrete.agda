@@ -12,6 +12,7 @@ open import hlevel
 open import nat
 open import ring
 open import ring.implementations
+open import sigma
 open import unordered-list.base
 open import unordered-list.operations
 
@@ -295,3 +296,16 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
 
 countʰ : (x : A) -> CommMonoidʰ (count x)
 countʰ x = unordered-sumʰ ∘ʰ mapʰ
+
+
+-- If A is Discrete then (contains a as) is a proposition
+
+isPropContainsDiscrete : {x : A} {as : UList A} -> isProp (contains x as)
+isPropContainsDiscrete {x} {as} (as1 , p1) (as2 , p2) =
+  ΣProp-path (trunc _ _) path
+  where
+  path' : x :: as1 == x :: as2
+  path' = p1 >=> sym p2
+
+  path : as1 == as2
+  path = sym (remove1-== as1 refl) >=> cong (remove1 x) path' >=> (remove1-== as2 refl)
