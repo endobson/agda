@@ -249,6 +249,27 @@ contains->count>0 {a} {as} (as' , path) =
   count a as' ,
   +'-commute {count a as'} {1} >=> (sym (count-== as' refl)) >=> cong (count a) path
 
+¬contains->count==0 : {a : A} (as : UList A) -> ¬(contains a as) -> count a as == 0
+¬contains->count==0 {a = x} as = UListElim.prop PisProp []* ::* as
+  where
+  P : UList A -> Type _
+  P as = ¬(contains x as) -> count x as == 0
+
+  PisProp : {as : UList A} -> isProp (P as)
+  PisProp {as} = isPropΠ (\_ -> (isSetNat _ _))
+
+  []* : P []
+  []* _ = refl
+
+  ::* : (a : A) {as : UList A} -> P as -> P (a :: as)
+  ::* a {as} f g = count-!= as x!=a >=> f ¬c-x
+    where
+    x!=a : x != a
+    x!=a x==a = g (as , (\i -> x==a i :: as))
+
+    ¬c-x : ¬ (contains x as)
+    ¬c-x (as' , path) = g ((a :: as') , (swap x a as' >=> cong (a ::_) path))
+
 
 decide-contains : (x : A) (as : UList A) -> Dec (contains x as)
 decide-contains x as = handle (count x as) refl
