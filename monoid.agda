@@ -23,12 +23,12 @@ record Monoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   ∙-left {m} p i = p i ∙ m
 
 
-record Monoidʰ
+record Monoidʰᵉ
     {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {{M₁ : Monoid D₁}} {{M₂ : Monoid D₂}}
-    (f : D₁ -> D₂)
-    : Type (ℓ-max ℓ₁ ℓ₂) where
+    (M₁ : Monoid D₁) (M₂ : Monoid D₂)
+    (f : D₁ -> D₂) : Type (ℓ-max ℓ₁ ℓ₂)
+    where
   module M₁ = Monoid M₁
   module M₂ = Monoid M₂
 
@@ -36,20 +36,36 @@ record Monoidʰ
     preserves-ε : f M₁.ε == M₂.ε
     preserves-∙ : ∀ x y -> f (x M₁.∙ y) == (f x) M₂.∙ (f y)
 
+Monoidʰ :
+    {ℓ₁ ℓ₂ : Level}
+    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+    {{M₁ : Monoid D₁}} {{M₂ : Monoid D₂}}
+    (f : D₁ -> D₂)
+    -> Type (ℓ-max ℓ₁ ℓ₂)
+Monoidʰ {{M₁ = M₁}} {{M₂ = M₂}} f = Monoidʰᵉ M₁ M₂ f
+
+module Monoidʰ {ℓ₁ ℓ₂ : Level}
+    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+    {M₁ : Monoid D₁} {M₂ : Monoid D₂}
+    {f : D₁ -> D₂}
+    (cm : Monoidʰᵉ M₁ M₂ f) where
+  open Monoidʰᵉ cm public
+
 
 _∘ʰ_ :
   {ℓ₁ ℓ₂ ℓ₃ : Level}
   {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} {D₃ : Type ℓ₃}
   {M₁ : Monoid D₁} {M₂ : Monoid D₂} {M₃ : Monoid D₃}
   {f : D₂ -> D₃} {g : D₁ -> D₂}
-  -> (Monoidʰ {{M₂}} {{M₃}} f) -> (Monoidʰ {{M₁}} {{M₂}} g)
-  -> (Monoidʰ {{M₁}} {{M₃}} (f ∘ g))
+  -> (Monoidʰᵉ M₂ M₃ f)
+  -> (Monoidʰᵉ M₁ M₂ g)
+  -> (Monoidʰᵉ M₁ M₃ (f ∘ g))
 _∘ʰ_ {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res
   where
   module M₁ = Monoid M₁
   module M₃ = Monoid M₃
-  module f' = Monoidʰ {{_}} {{_}} f'
-  module g' = Monoidʰ {{_}} {{_}} g'
+  module f' = Monoidʰ f'
+  module g' = Monoidʰ g'
 
   preserves-ε : (f ∘ g) M₁.ε == M₃.ε
   preserves-ε = (cong f g'.preserves-ε) >=> f'.preserves-ε
@@ -57,7 +73,7 @@ _∘ʰ_ {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res
   preserves-∙ : ∀ x y -> (f ∘ g) (x M₁.∙ y) == ((f ∘ g) x) M₃.∙ ((f ∘ g) y)
   preserves-∙ x y = (cong f (g'.preserves-∙ x y)) >=> f'.preserves-∙ (g x) (g y)
 
-  res : (Monoidʰ {{M₁}} {{M₃}} (f ∘ g))
+  res : (Monoidʰᵉ M₁ M₃ (f ∘ g))
   res = record {
     preserves-ε = preserves-ε ;
     preserves-∙ = preserves-∙
