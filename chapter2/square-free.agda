@@ -104,8 +104,7 @@ prime-power-¬square-free {suc (suc n)} p n≥2 sf =
 
 relatively-prime-square-free : (a b : Nat⁺) -> RelativelyPrime' ⟨ a ⟩ ⟨ b ⟩
                                -> SquareFree a -> SquareFree b -> SquareFree (a *⁺ b)
-relatively-prime-square-free a⁺@(a , _) b⁺@(b , _) (gcd' _ _ _ _ _ rp-f)
-                             sf-a sf-b p@(p' , _) pf-ab =
+relatively-prime-square-free a⁺@(a , _) b⁺@(b , _) rp sf-a sf-b p@(p' , _) pf-ab =
   handle (decide-div p' a)
   where
   pf-a = compute-prime-factorization a⁺
@@ -128,7 +127,7 @@ relatively-prime-square-free a⁺@(a , _) b⁺@(b , _) (gcd' _ _ _ _ _ rp-f)
     count-a = ≤-antisym (sf-a p pf-a) count-a'
 
     ¬p%b : ¬ (p' div' b)
-    ¬p%b p%b = <->!= (Prime'.>1 p) (sym (div'-one->one (rp-f p' p%a p%b)))
+    ¬p%b p%b = <->!= (Prime'.>1 p) (sym (div'-one->one (GCD'.f rp p' p%a p%b)))
 
     count-b : count p primes-b == 0
     count-b = ¬contains->count==0 primes-b

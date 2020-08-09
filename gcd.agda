@@ -336,30 +336,30 @@ gcd->linear-combo {a} {b} {d} gcd-d = handle (eulers-algo a b)
   handle (d' , (linear-gcd lc gcd-d')) =
     transport (\i -> LinearCombination a b ((gcd-unique gcd-d' gcd-d) i)) lc
 
-data GCD' : Nat -> Nat -> Nat -> Set where
- gcd' : (a : Nat) -> (b : Nat) -> (d : Nat) ->
-        (d div' a) -> (d div' b)
-        -> ((x : Nat) -> x div' a -> x div' b -> x div' d) -> GCD' a b d
-
+record GCD' (a : Nat) (b : Nat) (d : Nat) : Type₀ where
+  constructor gcd'
+  field
+    %a : d div' a
+    %b : d div' b
+    f : (x : Nat) -> x div' a -> x div' b -> x div' d
 
 gcd'-zero : {a : Nat} -> GCD' a 0 a
-gcd'-zero {a} = (gcd' a zero a div'-refl div'-zero (\ x xa xz -> xa))
+gcd'-zero = (gcd' div'-refl div'-zero (\ x xa xz -> xa))
 
 gcd'-one : {a : Nat} -> GCD' a 1 1
-gcd'-one {a} = (gcd' a 1 1 div'-one div'-refl (\ x xa x1 -> x1))
+gcd'-one = (gcd' div'-one div'-refl (\ x xa x1 -> x1))
 
 gcd'-sym : {a b d : Nat} -> GCD' a b d -> GCD' b a d
-gcd'-sym (gcd' a b d div-a div-b f) =
-  (gcd' b a d div-b div-a (\ x xb xa -> f x xa xb))
-
+gcd'-sym (gcd' div-a div-b f) =
+  (gcd' div-b div-a (\ x xb xa -> f x xa xb))
 
 
 gcd'-zero->id : {b d : Nat} -> GCD' 0 b d -> b == d
-gcd'-zero->id (gcd' 0 b d d%0 d%b f) = div'-antisym (f b div'-zero div'-refl) d%b
+gcd'-zero->id {b} (gcd' d%0 d%b f) = div'-antisym (f b div'-zero div'-refl) d%b
 
 
 gcd'->gcd/nat : {d n a : Nat} -> GCD' d n a -> GCD (int d) (int n) (int a)
-gcd'->gcd/nat (gcd' d n a a%d a%n f') =
+gcd'->gcd/nat {d} {n} {a} (gcd' a%d a%n f') =
   (gcd (int d) (int n) (int a) tt (div'->div a%d) (div'->div a%n) f)
   where
   fix : {x : Int} -> {y : Nat} -> x div (int y) -> (abs' x) div' y
@@ -391,7 +391,7 @@ gcd'->gcd {neg _} {neg _} {pos _} g = (gcd-negate ((gcd-sym (gcd-negate (gcd-sym
 
 gcd->gcd' : {d n a : Int} -> GCD d n a -> GCD' (abs' d) (abs' n) (abs' a)
 gcd->gcd' (gcd d n a _ a%d a%n f) =
-  (gcd' (abs' d) (abs' n) (abs' a) (div->div' a%d) (div->div' a%n) f')
+  (gcd' (div->div' a%d) (div->div' a%n) f')
   where
   f' : (x : Nat) -> x div' (abs' d) -> x div' (abs' n) -> x div' (abs' a)
   f' x x%d x%n = res

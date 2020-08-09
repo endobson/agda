@@ -21,7 +21,7 @@ private
 prime-gcd' : (a b : Nat⁺)
              -> ((p : Prime') -> ⟨ p ⟩ div' ⟨ a ⟩ -> ⟨ p ⟩ div' ⟨ b ⟩ -> Bot)
              -> RP ⟨ a ⟩ ⟨ b ⟩
-prime-gcd' (a@(suc _) , a-pos) (b , b-pos) pf = (gcd' a b 1 div'-one div'-one f)
+prime-gcd' (a@(suc _) , a-pos) (b , b-pos) pf = (gcd' div'-one div'-one f)
   where
   f : (x : Nat) -> x div' a -> x div' b -> x div' 1
   f zero x%a x%b = zero-suc-absurd (sym (div'-zero->zero x%a))
@@ -32,7 +32,7 @@ prime-gcd' (a@(suc _) , a-pos) (b , b-pos) pf = (gcd' a b 1 div'-one div'-one f)
 
 prime->relatively-prime : {a : Nat} -> (p : Prime') -> ¬ (⟨ p ⟩ div' a) -> RP ⟨ p ⟩ a
 prime->relatively-prime {a} p ¬p%a =
-  (gcd' ⟨ p ⟩ a 1 div'-one div'-one f)
+  (gcd' div'-one div'-one f)
   where
   f : (x : Nat) -> x div' ⟨ p ⟩ -> x div' a -> x div' 1
   f x x%p x%a with (prime-only-divisors p x%p)
@@ -50,10 +50,10 @@ prime-divides-a-factor p@(pv , _) {a} {b} p-div with (decide-div pv a)
 ... | no ¬p%a = inj-r (euclids-lemma' p-div (prime->relatively-prime p ¬p%a))
 
 relatively-prime-*' : {a b c : Nat} -> RP a b -> RP a c -> RP a (b *' c)
-relatively-prime-*' g@(gcd' a zero _ _ _ _) (gcd' a _ _ _ _ _) = g
-relatively-prime-*' (gcd' a b@(suc _) _ _ _ _) g@(gcd' a zero _ _ _ _) =
+relatively-prime-*'     {b = zero}                 g _ = g
+relatively-prime-*' {a} {b = b@(suc _)} {c = zero} _ g =
   transport (\i -> RP a (*'-commute {b} {zero} (~ i))) g
-relatively-prime-*' (gcd' a@(suc _) b@(suc _) _ _ _ f-b) (gcd' a@(suc _) c@(suc _) _ _ _ f-c) =
+relatively-prime-*' {a@(suc _)} {b = b@(suc _)} {c = c@(suc _)} (gcd' _ _ f-b) (gcd' _ _ f-c) =
   prime-gcd' (a , _) ((b *' c) , _) f
   where
   ¬prime-div-one : (p : Prime') -> ¬(⟨ p ⟩ div' 1)
