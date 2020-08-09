@@ -91,6 +91,13 @@ div->≤ {a = pos _} da = div'->≤ (div->div' da)
 div-zero->zero : {n : Int} -> (int 0) div n -> n == (int 0)
 div-zero->zero (d , pr) = (sym pr) >=> (*-commute {d} {zero-int})
 
+div-non-zero->non-zero : {d n : Int} -> d div n -> NonZero n -> NonZero d
+div-non-zero->non-zero {d = pos _} _ _ = tt
+div-non-zero->non-zero {d = neg _} _ _ = tt
+div-non-zero->non-zero {d = zero-int} d%n n-nz =
+  bot-elim (transport (cong NonZero (div-zero->zero d%n)) n-nz)
+
+
 div'-zero->zero : {n : Nat} -> 0 div' n -> n == 0
 div'-zero->zero (d , pr) = (sym pr) >=> (*'-commute {d} {zero})
 
@@ -412,6 +419,17 @@ decide-div zero (suc d) = no f
 decide-div d@(suc d') n@(suc _) with (exists-remainder d (\ d=z -> zero-suc-absurd (sym d=z)) n)
 ... | (zero , rem) = yes (remainder->div rem)
 ... | ((suc a) , rem) = no (remainder->¬div rem)
+
+
+isPropDiv : {d n : Int} -> (NonZero n) -> isProp (d div n)
+isPropDiv {d} {n} n-nz div1@(x1 , p1) (x2 , p2) = ΣProp-path (isSetInt _ _) x-p
+  where
+  d-pos : NonZero d
+  d-pos = div-non-zero->non-zero div1 n-nz
+
+  x-p : x1 == x2
+  x-p = (*-right-injective d-pos (p1 >=> (sym p2)))
+
 
 isPropDiv' : {d n : Nat} -> (Pos' n) -> isProp (d div' n)
 isPropDiv' {d} {n} n-pos div1@(x1 , p1) (x2 , p2) = ΣProp-path (isSetNat _ _) x-p
