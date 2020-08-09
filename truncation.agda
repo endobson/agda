@@ -12,15 +12,19 @@ private
     A B C : Type ℓ
 
 data Squash (A : Type ℓ) : Type ℓ where
-  squash-inj : A -> Squash A
+  ∣_∣ : A -> Squash A
   squash : (a b : Squash A) -> a == b
 
 ∥_∥ : Type ℓ -> Type ℓ
 ∥_∥ = Squash
 
 unsquash : isProp A -> ∥ A ∥ -> A
-unsquash h (squash-inj a) = a
+unsquash h ∣ a ∣ = a
 unsquash h (squash a b i) = h (unsquash h a) (unsquash h b) i
+
+∥-map : (A -> B) -> ∥ A ∥ -> ∥ B ∥
+∥-map f ∣ a ∣ = ∣ f a ∣
+∥-map f (squash a1 a2 i) = (squash (∥-map f a1) (∥-map f a2) i)
 
 -- Mere existence
 
