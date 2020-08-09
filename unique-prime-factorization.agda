@@ -74,9 +74,10 @@ private
       d^sk%n : (d ^' (suc k)) div' n
       d^sk%n = x , adjusted-proof
 
-  compute-division-count' : (d n bound : Nat) -> {Pos' n} -> 1 < d -> n < bound -> DivisionCount d n
-  compute-division-count' _ _ zero                _                  n<bound = bot-elim (zero-≮ n<bound)
-  compute-division-count' d n (suc bound) {n-pos} 1<d@(d' , d'+2==d) sn≤sbound
+  compute-division-count' : (d : Nat) (n : Nat⁺) (bound : Nat) -> 1 < d -> ⟨ n ⟩ < bound
+                             -> DivisionCount d ⟨ n ⟩
+  compute-division-count' _ _           zero        _                  n<bound = bot-elim (zero-≮ n<bound)
+  compute-division-count' d (n , n-pos) (suc bound) 1<d@(d' , d'+2==d) sn≤sbound
     with (decide-div d n)
   ... | (no ¬d%n) = record
     { d-pos        = transport (\i -> Pos' (ssd'==d i)) tt
@@ -112,16 +113,16 @@ private
     x<bound = trans-<-≤ x<n (pred-≤ sn≤sbound)
 
     rec-div-count : DivisionCount d x
-    rec-div-count = (compute-division-count' d x bound 1<d x<bound)
+    rec-div-count = (compute-division-count' d (x , tt) bound 1<d x<bound)
 
-  compute-division-count : (d n : Nat) -> {Pos' n} -> 1 < d -> DivisionCount d n
-  compute-division-count d n {pos-n} 1<d =
-    compute-division-count' d n (suc n) {pos-n} 1<d (same-≤ (suc n))
+  compute-division-count : (d : Nat) -> (n : Nat⁺) -> 1 < d -> DivisionCount d ⟨ n ⟩
+  compute-division-count d n@(n' , _) 1<d =
+    compute-division-count' d n (suc n') 1<d (same-≤ (suc n'))
 
 
-  compute-prime-division-count : (p : Prime')  (n : Nat) -> {Pos' n} -> DivisionCount ⟨ p ⟩ n
-  compute-prime-division-count (p , (is-prime' p>1 _)) n@(suc _) =
-    compute-division-count p n p>1
+  compute-prime-division-count : (p : Prime')  (n : Nat⁺) -> DivisionCount ⟨ p ⟩ ⟨ n ⟩
+  compute-prime-division-count p@(p' , _) n =
+    compute-division-count p' n (Prime'.>1 p)
 
 
   isPropDivisionCount : {d n : Nat} -> isProp (DivisionCount d n)
@@ -214,11 +215,14 @@ private
             -> Pos' (prime-product ps) -> Pos' (prime-product (p :: ps))
       ::* p ps-pos = *'-Pos'-Pos' (prime->Pos' p) ps-pos
 
+    prime-product⁺ : UList Prime' -> Nat⁺
+    prime-product⁺ ps = prime-product ps , prime-product-pos ps
+
 
     primes-division-count : (p : Prime') -> (ps : UList Prime')
                             -> DivisionCount ⟨ p ⟩ (prime-product ps)
     primes-division-count p ps =
-      compute-prime-division-count p (prime-product ps) {prime-product-pos ps}
+      compute-prime-division-count p (prime-product⁺ ps)
 
     product-division-count : Prime' -> UList Prime' -> Nat
     product-division-count p ps = DivisionCount.k (primes-division-count p ps)
@@ -329,40 +333,31 @@ private
       where
       n-pos : Pos' n
       n-pos = transport (\i -> Pos' (path1 i)) (prime-product-pos primes1)
-
-
-      check-count-path1 :
-        count p primes1 ==
-        DivisionCount.k (compute-prime-division-count p (prime-product primes1) {prime-product-pos primes1})
-      check-count-path1 = count-path primes1
-
-      check-count-path2 :
-        count p primes2 ==
-        DivisionCount.k (compute-prime-division-count p (prime-product primes2) {prime-product-pos primes2})
-      check-count-path2 = count-path primes2
+      n⁺ : Nat⁺
+      n⁺ = n , n-pos
 
       middle-path1 :
         PathP (\i -> DivisionCount ⟨ p ⟩ (path1 i) )
-        (compute-prime-division-count p (prime-product primes1) {prime-product-pos primes1})
-        (compute-prime-division-count p n {n-pos})
+        (compute-prime-division-count p (prime-product⁺ primes1))
+        (compute-prime-division-count p n⁺)
       middle-path1 = isProp->PathP (\_ -> isPropDivisionCount) _ _
 
       middle-path2 :
         PathP (\i -> DivisionCount ⟨ p ⟩ (path2 i) )
-        (compute-prime-division-count p (prime-product primes2) {prime-product-pos primes2})
-        (compute-prime-division-count p n {n-pos})
+        (compute-prime-division-count p (prime-product⁺ primes2))
+        (compute-prime-division-count p n⁺)
       middle-path2 = isProp->PathP (\_ -> isPropDivisionCount) _ _
 
       middle-path1' :
-        DivisionCount.k (compute-prime-division-count p (prime-product primes1) {prime-product-pos primes1})
+        DivisionCount.k (compute-prime-division-count p (prime-product⁺ primes1))
         ==
-        DivisionCount.k (compute-prime-division-count p n {n-pos})
+        DivisionCount.k (compute-prime-division-count p n⁺)
       middle-path1' i = DivisionCount.k (middle-path1 i)
 
       middle-path2' :
-        DivisionCount.k (compute-prime-division-count p (prime-product primes2) {prime-product-pos primes2})
+        DivisionCount.k (compute-prime-division-count p (prime-product⁺ primes2))
         ==
-        DivisionCount.k (compute-prime-division-count p n {n-pos})
+        DivisionCount.k (compute-prime-division-count p n⁺)
       middle-path2' i = DivisionCount.k (middle-path2 i)
 
 isPropPrimeFactorization : {n : Nat} -> isProp (PrimeFactorization n)
