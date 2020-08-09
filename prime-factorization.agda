@@ -45,6 +45,9 @@ record PrimeFactorization (n : Nat) : Type₀ where
             -> Pos' (prime-product (p :: ps))
       ::* p {ps} pos-ps = *'-Pos'-Pos' (Prime'.pos p) pos-ps
 
+  nat⁺ : Nat⁺
+  nat⁺ = n , pos
+
 private
   data PrimeFactorizationTree : Nat -> Type₀ where
     prime-factorization-tree-prime : (p : Prime') -> PrimeFactorizationTree ⟨ p ⟩

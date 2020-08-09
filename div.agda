@@ -431,11 +431,11 @@ isPropDiv {d} {n} n-nz div1@(x1 , p1) (x2 , p2) = ΣProp-path (isSetInt _ _) x-p
   x-p = (*-right-injective d-pos (p1 >=> (sym p2)))
 
 
-isPropDiv' : {d n : Nat} -> (Pos' n) -> isProp (d div' n)
-isPropDiv' {d} {n} n-pos div1@(x1 , p1) (x2 , p2) = ΣProp-path (isSetNat _ _) x-p
+isPropDiv' : {d : Nat} -> (n : Nat⁺) -> isProp (d div' ⟨ n ⟩)
+isPropDiv' {d} (_ , n-pos) div1@(x1 , p1) (x2 , p2) = ΣProp-path (isSetNat _ _) x-p
   where
   d-pos : Pos' d
   d-pos = (div'-pos->pos div1 n-pos)
 
   x-p : x1 == x2
-  x-p = (*'-right-injective d-pos (p1 >=> (sym p2)))
+  x-p = (*'-right-injective (d , d-pos) (p1 >=> (sym p2)))

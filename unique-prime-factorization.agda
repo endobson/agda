@@ -29,8 +29,14 @@ private
       d^k%n : (d ^' k) div' n
       ¬d^[suc-k]%n : ¬ ((d ^' (suc k)) div' n)
 
+    n⁺ : Nat⁺
+    n⁺ = n , n-pos
+
+    d⁺ : Nat⁺
+    d⁺ = d , d-pos
+
   division-count-suc : {d n : Nat} -> DivisionCount d n -> DivisionCount d (d *' n)
-  division-count-suc {d} {n} (division-count d-pos n-pos k (x , pr) f) = record
+  division-count-suc {d} {n} dc@(division-count d-pos n-pos k (x , pr) f) = record
     { d-pos        = d-pos
     ; n-pos        = *'-Pos'-Pos' {d} {n} d-pos n-pos
     ; k            = (suc k)
@@ -39,6 +45,8 @@ private
     }
     where
     d^k = d ^' k
+
+    d⁺ = DivisionCount.d⁺ dc
 
     positive : (d ^' (suc k)) div' (d *' n)
     positive = (x , adjusted-proof)
@@ -50,7 +58,7 @@ private
     negative (x , pr) = f d^sk%n
       where
       adjusted-proof : x *' d ^' (suc k) == n
-      adjusted-proof = *'-left-injective {d} d-pos
+      adjusted-proof = *'-left-injective d⁺
         (begin
            d *' (x *' (d ^' (suc k)))
          ==< (sym (*'-assoc {d} {x})) >
@@ -118,15 +126,17 @@ private
 
   isPropDivisionCount : {d n : Nat} -> isProp (DivisionCount d n)
   isPropDivisionCount {d} {n}
-                      (division-count d-pos1 n-pos1 k1 div-k1 ¬div-sk1)
-                      (division-count d-pos2 n-pos2 k2 div-k2 ¬div-sk2) i =
+                      dc1@(division-count d-pos1 n-pos1 k1 div-k1 ¬div-sk1)
+                      dc2@(division-count d-pos2 n-pos2 k2 div-k2 ¬div-sk2) i =
       (division-count
         (isProp->PathP (\i -> isPropPos') d-pos1 d-pos2 i)
         (isProp->PathP (\i -> isPropPos') n-pos1 n-pos2 i)
         (p-k i)
-        (isProp->PathP (\i -> isPropDiv' {d ^' (p-k i)} n-pos1) div-k1 div-k2 i)
+        (isProp->PathP (\i -> isPropDiv' {d ^' (p-k i)} n1⁺) div-k1 div-k2 i)
         (isProp->PathP (\i -> isProp¬ ((d ^' (suc (p-k i))) div' n)) ¬div-sk1 ¬div-sk2 i))
     where
+      n1⁺ = DivisionCount.n⁺ dc1
+
       lesser-power : ∀ {k1 k2 n} -> ¬ ((d ^' suc k1) div' n) -> (d ^' k2) div' n -> k2 ≤ k1
       lesser-power {k1}     {zero}   {n} _    _ = zero-≤
       lesser-power {suc k1} {suc k2} {n} ¬div (x , pr) =
@@ -416,7 +426,7 @@ module _ (p : Prime') {a : Nat} (pf : PrimeFactorization a) where
     { fun = div->∈-primes
     ; inv = ∈-primes->div
     ; rightInv = \c -> isPropContainsDiscrete (div->∈-primes (∈-primes->div c)) c
-    ; leftInv = \d -> isPropDiv' (PrimeFactorization.pos pf) (∈-primes->div (div->∈-primes d)) d
+    ; leftInv = \d -> isPropDiv' (PrimeFactorization.nat⁺ pf) (∈-primes->div (div->∈-primes d)) d
     }
 
   prime-div==prime-factorization-∈ : (⟨ p ⟩ div' a) == contains p (PrimeFactorization.primes pf)

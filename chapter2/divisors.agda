@@ -103,6 +103,7 @@ module _ (p : Prime') where
     p' = fst p
     is-prime = snd p
     p-pos = Prime'.pos p
+    p⁺ = Prime'.nat⁺ p
 
     ¬p-divides->1 : (n : Nat) {d : Nat} -> d div' (prime-power p n)
                     -> ¬ (p' div' d) -> d == 1
@@ -124,7 +125,7 @@ module _ (p : Prime') where
     p-divides->%pn : (n x d : Nat) -> (x *' d == (prime-power p (suc n)))
                      -> p' div' x -> d div' (prime-power p n)
     p-divides->%pn n x d x-path (z , z-path) =
-      (z , *'-left-injective p-pos path)
+      (z , *'-left-injective p⁺ path)
       where
       path : p' *' (z *' d) == (prime-power p (suc n))
       path = sym (*'-assoc {p'} {z} {d})

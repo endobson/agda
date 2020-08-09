@@ -193,17 +193,21 @@ suc m *' n = n +' (m *' n)
 *'-only-one-right : {m n : Nat} -> m *' n == 1 -> n == 1
 *'-only-one-right {m} {n} p = *'-only-one-left {n} {m} (*'-commute {n} {m} >=> p)
 
+*'-Pos'-Pos' : {m n : Nat} -> .(Pos' m) -> .(Pos' n) -> Pos' (m *' n)
+*'-Pos'-Pos' {(suc m)} {(suc n)} _ _ = tt
 
-*'-right-injective : {m n p : Nat} .(pos : (Pos' n)) -> (m *' n) == (p *' n) -> m == p
-*'-right-injective {zero} {suc n} {zero} pos path = refl
-*'-right-injective {zero} {suc n} {suc p} pos path = bot-elim (zero-suc-absurd path)
-*'-right-injective {suc m} {suc n} {zero} pos path = bot-elim (zero-suc-absurd (sym path))
-*'-right-injective {suc m} {suc n} {suc p} pos path =
-  (cong suc (*'-right-injective pos (transport (sym (+'-left-path _)) path)))
+*'-right-injective : {m : Nat} (n : Nat⁺) {p : Nat} -> (m *' ⟨ n ⟩) == (p *' ⟨ n ⟩) -> m == p
+*'-right-injective {zero}    _           {zero}  path = refl
+*'-right-injective {zero}    (_ , n-pos) {suc p} path =
+  bot-elim (transport (cong Pos' (sym path)) (*'-Pos'-Pos' {suc p} tt n-pos))
+*'-right-injective {suc m}   (_ , n-pos) {zero}  path =
+  bot-elim (transport (cong Pos' path) (*'-Pos'-Pos' {suc m} tt n-pos))
+*'-right-injective {suc m} n@(_ , _) {suc p} path =
+  (cong suc (*'-right-injective n (transport (sym (+'-left-path _)) path)))
 
-*'-left-injective : {m n p : Nat} .(pos : (Pos' m)) -> (m *' n) == (m *' p) -> n == p
-*'-left-injective {m} {n} {p} pos path =
-  *'-right-injective pos (*'-commute {n} {m} ∙∙ path ∙∙ *'-commute {m} {p})
+*'-left-injective : (m : Nat⁺) {n p : Nat} -> (⟨ m ⟩ *' n) == (⟨ m ⟩ *' p) -> n == p
+*'-left-injective m@(m' , _) {n} {p} path =
+  *'-right-injective m (*'-commute {n} {m'} ∙∙ path ∙∙ *'-commute {m'} {p})
 
 
 *'-distrib-+'-left : {m n p : Nat} -> m *' (n +' p) == (m *' n) +' (m *' p)
@@ -219,8 +223,6 @@ suc m *' n = n +' (m *' n)
   end
 
 
-*'-Pos'-Pos' : {m n : Nat} -> .(Pos' m) -> .(Pos' n) -> Pos' (m *' n)
-*'-Pos'-Pos' {(suc m)} {(suc n)} _ _ = tt
 
 
 _^'_ : Nat -> Nat -> Nat
