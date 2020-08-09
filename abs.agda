@@ -257,3 +257,6 @@ int-inject-*' {suc m} {n} =
   ==<>
     int (suc m) * int n
   end
+
+non-neg-same-abs : {m n : Int} -> NonNeg m -> NonNeg n -> abs m == abs n -> m == n
+non-neg-same-abs {nonneg m} {nonneg n} _ _ eq = eq

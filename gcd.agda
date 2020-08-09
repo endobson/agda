@@ -319,9 +319,6 @@ gcd-exists m n with (eulers-algo m n)
 ...               | (d , (linear-gcd _ gc)) = d , gc
 
 
-non-neg-same-abs : {m n : Int} -> NonNeg m -> NonNeg n -> abs m == abs n -> m == n
-non-neg-same-abs {nonneg m} {nonneg n} _ _ eq = eq
-
 gcd-unique : {m n d1 d2 : Int} -> GCD m n d1 -> GCD m n d2 -> d1 == d2
 gcd-unique (gcd m n d1 d1-nn d1-div-m d1-div-n d1-f)
            (gcd m n d2 d2-nn d2-div-m d2-div-n d2-f) =
