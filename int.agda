@@ -21,6 +21,8 @@ pattern pos x = nonneg (suc x)
 int : Nat -> Int
 int = nonneg
 
+-- Sign based predicates
+
 Zero : (n : Int) -> Set
 Zero zero-int = Top
 Zero (pos x) = Bot
@@ -49,6 +51,64 @@ NonNeg : (n : Int) -> Set
 NonNeg (nonneg x) = Top
 NonNeg (neg x) = Bot
 
+-- The sign based predicates are propositions
+
+isPropZero : {n : Int} -> isProp (Zero n)
+isPropZero {zero-int} _ _ = refl
+isPropZero {pos _} ()
+isPropZero {neg _} ()
+
+isPropPos : {n : Int} -> isProp (Pos n)
+isPropPos {zero-int} ()
+isPropPos {pos _} _ _ = refl
+isPropPos {neg _} ()
+
+isPropNeg : {n : Int} -> isProp (Neg n)
+isPropNeg {zero-int} ()
+isPropNeg {pos _} ()
+isPropNeg {neg _} _ _ = refl
+
+isPropNonZero : {n : Int} -> isProp (NonZero n)
+isPropNonZero {zero-int} ()
+isPropNonZero {pos _} _ _ = refl
+isPropNonZero {neg _} _ _ = refl
+
+isPropNonPos : {n : Int} -> isProp (NonPos n)
+isPropNonPos {zero-int} _ _ = refl
+isPropNonPos {pos _} ()
+isPropNonPos {neg _} _ _ = refl
+
+isPropNonNeg : {n : Int} -> isProp (NonNeg n)
+isPropNonNeg {zero-int} _ _ = refl
+isPropNonNeg {pos _} _ _ = refl
+isPropNonNeg {neg _} ()
+
+-- Weakening of the predicates
+
+Pos->NonNeg : {n : Int} -> .(Pos n) -> NonNeg n
+Pos->NonNeg {pos n} _ = tt
+
+Pos->NonZero : {n : Int} -> .(Pos n) -> NonZero n
+Pos->NonZero {pos x} _ = tt
+
+Neg->NonPos : {n : Int} -> .(Neg n) -> NonPos n
+Neg->NonPos {neg n} _ = tt
+
+Neg->NonZero : {n : Int} -> .(Neg n) -> NonZero n
+Neg->NonZero {neg x} _ = tt
+
+-- The predicates are negations of others
+
+NonNeg->¬Neg : {n : Int} -> .(NonNeg n) -> ¬(Neg n)
+NonNeg->¬Neg {nonneg _} _ ()
+NonNeg->¬Neg {neg _} ()
+
+NonPos->¬Pos : {n : Int} -> .(NonPos n) -> ¬(Pos n)
+NonPos->¬Pos {zero-int} _ ()
+NonPos->¬Pos {neg _} _ ()
+NonPos->¬Pos {pos _} ()
+
+
 infix 9 -_
 -_ : Int -> Int
 - zero-int = zero-int
@@ -62,6 +122,9 @@ minus-double-inverse : {x : Int} -> - - x == x
 minus-double-inverse {zero-int} = refl
 minus-double-inverse {pos x'} = refl
 minus-double-inverse {neg x'} = refl
+
+minus-injective : {x y : Int} -> - x == - y -> x == y
+minus-injective p = sym minus-double-inverse >=> cong (-_) p >=> minus-double-inverse
 
 add1 : Int -> Int
 add1 (nonneg x) = (nonneg (suc x))
@@ -277,6 +340,19 @@ sub1-extract-right {nonneg (suc m')} {n} =
     n + neg (suc m')
   end
 
++-left-injective : (m : Int) {n p : Int} -> (m + n) == (m + p) -> n == p
++-left-injective zero-int      path = path
++-left-injective (pos zero)    path = sym sub1-add1-id >=> cong sub1 path >=> sub1-add1-id
++-left-injective (pos (suc n)) path =
+  +-left-injective (pos n) (sym sub1-add1-id >=> cong sub1 path >=> sub1-add1-id)
++-left-injective (neg zero)    path = sym add1-sub1-id >=> cong add1 path >=> add1-sub1-id
++-left-injective (neg (suc n)) path =
+  +-left-injective (neg n) (sym add1-sub1-id >=> cong add1 path >=> add1-sub1-id)
+
++-right-injective : {m : Int} (n : Int) {p : Int} -> (m + n) == (p + n) -> m == p
++-right-injective {m} n {p} path =
+  +-left-injective n (+-commute {n} {m} >=> path >=> +-commute {p} {n})
+
 add1-NonNeg : {n : Int} -> .(NonNeg n) -> (Pos (add1 n))
 add1-NonNeg {nonneg _} _ = tt
 
@@ -290,11 +366,6 @@ sub1-NonPos {neg _} _ = tt
 sub1-Neg : {n : Int} -> .(Neg n) -> (Neg (sub1 n))
 sub1-Neg {neg _} _ = tt
 
-Pos->NonNeg : {n : Int} -> .(Pos n) -> NonNeg n
-Pos->NonNeg {pos n} _ = tt
-
-Neg->NonPos : {n : Int} -> .(Neg n) -> NonPos n
-Neg->NonPos {neg n} _ = tt
 
 +-Pos-NonNeg : {m n : Int} -> .(Pos m) -> .(NonNeg n) -> Pos (m + n)
 +-Pos-NonNeg {pos zero} _ p = add1-NonNeg p
@@ -333,6 +404,20 @@ Neg->NonPos {neg n} _ = tt
   Neg->NonPos {neg m + zero-int} (+-Neg-NonPos {neg m} {zero-int} tt tt)
 +-NonPos-NonPos {neg m} {neg n} p1 p2 =
   Neg->NonPos {neg m + neg n} (+-Neg-Neg {neg m} {neg n} tt tt)
+
+minus-Pos : {n : Int} -> .(Pos n) -> Neg (- n)
+minus-Pos {pos _} _ = tt
+
+minus-Neg : {n : Int} -> .(Neg n) -> Pos (- n)
+minus-Neg {neg _} _ = tt
+
+minus-NonPos : {n : Int} -> .(NonPos n) -> NonNeg (- n)
+minus-NonPos {zero-int} _ = tt
+minus-NonPos {neg _}    _ = tt
+
+minus-NonNeg : {n : Int} -> .(NonNeg n) -> NonPos (- n)
+minus-NonNeg {zero-int} _ = tt
+minus-NonNeg {pos _}    _ = tt
 
 
 add1-minus->minus-sub1 : {n : Int} -> add1 (- n) == - (sub1 n)
@@ -816,10 +901,27 @@ minus-extract-both {m} {n} =
 *-Pos-NonNeg {pos zero} _ pr = +-NonNeg-NonNeg pr tt
 *-Pos-NonNeg {pos (suc m)} _ pr = +-NonNeg-NonNeg pr (*-Pos-NonNeg {pos m} tt pr)
 
-*-NonNeg-NonNeg : {m n : Int} -> .(NonNeg m) -> .(NonNeg n) -> NonNeg (m * n)
-*-NonNeg-NonNeg {zero-int} _ pr = tt
-*-NonNeg-NonNeg {pos zero} _ pr = +-NonNeg-NonNeg pr tt
-*-NonNeg-NonNeg {pos (suc m)} _ pr = +-NonNeg-NonNeg pr (*-Pos-NonNeg {pos m} tt pr)
+*-NonNeg-Pos : {m n : Int} -> .(NonNeg m) -> .(Pos n) -> NonNeg (m * n)
+*-NonNeg-Pos {m} {n} nn p = transport (cong NonNeg (*-commute {n} {m})) (*-Pos-NonNeg p nn)
+
+*-Neg-NonNeg : {m n : Int} -> .(Neg m) -> .(NonNeg n) -> NonPos (m * n)
+*-Neg-NonNeg {neg m} {n} _ pn = minus-NonNeg (*-Pos-NonNeg {pos m} _ pn)
+
+*-NonNeg-Neg : {m n : Int} -> .(NonNeg m) -> .(Neg n) -> NonPos (m * n)
+*-NonNeg-Neg {m} {n} nn neg-n = transport (cong NonPos (*-commute {n} {m})) (*-Neg-NonNeg neg-n nn)
+
+*-Pos-NonPos : {m n : Int} -> .(Pos m) -> .(NonPos n) -> NonPos (m * n)
+*-Pos-NonPos {pos zero} _ pr = +-NonPos-NonPos pr tt
+*-Pos-NonPos {pos (suc m)} _ pr = +-NonPos-NonPos pr (*-Pos-NonPos {pos m} tt pr)
+
+*-NonPos-Pos : {m n : Int} -> .(NonPos m) -> .(Pos n) -> NonPos (m * n)
+*-NonPos-Pos {m} {n} np p = transport (cong NonPos (*-commute {n} {m})) (*-Pos-NonPos p np)
+
+*-Neg-NonPos : {m n : Int} -> .(Neg m) -> .(NonPos n) -> NonNeg (m * n)
+*-Neg-NonPos {neg m} {n} neg-m np = minus-NonPos (*-Pos-NonPos {pos m} _ np)
+
+*-NonPos-Neg : {m n : Int} -> .(NonPos m) -> .(Neg n) -> NonNeg (m * n)
+*-NonPos-Neg {m} {n} np neg-n = transport (cong NonNeg (*-commute {n} {m})) (*-Neg-NonPos neg-n np)
 
 *-Pos-Neg : {m n : Int} -> .(Pos m) -> .(Neg n) -> Neg (m * n)
 *-Pos-Neg {pos zero} _ pr = +-Neg-NonPos pr tt
@@ -828,6 +930,11 @@ minus-extract-both {m} {n} =
 *-Neg-Pos : {m n : Int} -> .(Neg m) -> .(Pos n) -> Neg (m * n)
 *-Neg-Pos {m} {n} p1 p2 = subst Neg (*-commute {n} {m}) (*-Pos-Neg p2 p1)
 
+*-NonNeg-NonNeg : {m n : Int} -> .(NonNeg m) -> .(NonNeg n) -> NonNeg (m * n)
+*-NonNeg-NonNeg {zero-int} _ pr = tt
+*-NonNeg-NonNeg {pos zero} _ pr = +-NonNeg-NonNeg pr tt
+*-NonNeg-NonNeg {pos (suc m)} _ pr = +-NonNeg-NonNeg pr (*-Pos-NonNeg {pos m} tt pr)
+
 *-Neg-Neg : {m n : Int} -> .(Neg m) -> .(Neg n) -> Pos (m * n)
 *-Neg-Neg {neg m} {neg n} p1 p2 = subst Pos proof (*-Pos-Pos {pos m} {pos n} tt tt)
   where
@@ -835,6 +942,13 @@ minus-extract-both {m} {n} =
   proof = (minus-extract-left {neg m} {pos n})
           >=> (cong minus (minus-extract-right {neg m} {neg n}))
           >=> (minus-double-inverse {neg m * neg n})
+
+*-NonZero-NonZero : {m n : Int} -> .(NonZero m) -> .(NonZero n) -> NonZero (m * n)
+*-NonZero-NonZero m@{pos _} n@{pos _} p1 p2 = Pos->NonZero (*-Pos-Pos {m} {n} p1 p2)
+*-NonZero-NonZero m@{pos _} n@{neg _} p1 p2 = Neg->NonZero (*-Pos-Neg {m} {n} p1 p2)
+*-NonZero-NonZero m@{neg _} n@{pos _} p1 p2 = Neg->NonZero (*-Neg-Pos {m} {n} p1 p2)
+*-NonZero-NonZero m@{neg _} n@{neg _} p1 p2 = Pos->NonZero (*-Neg-Neg {m} {n} p1 p2)
+
 
 add1-disjoint : (m : Int) -> add1 m != m
 add1-disjoint zero-int      p = transport (\i -> Pos (p i)) tt
@@ -903,6 +1017,59 @@ zero!=non-zero {neg _}    {z-x = z}   _ = z
 
 *-right-id : {m n : Int} -> (NonZero m) -> m * n == m -> n == (int 1)
 *-right-id {m} {n} nz pr = *-left-id nz (sym (*-commute {m} {n}) >=> pr)
+
+private
+  *nz-right-injective : {m n : Nat} {p : Int} -> .(NonZero p) -> (m *nz p) == (n *nz p) -> m == n
+  *nz-right-injective {m = zero}  {n = zero}         p-nz path = refl
+  *nz-right-injective {m = suc m} {n = zero}  {p = p} p-nz path =
+    bot-elim (transport (cong NonZero path) (*-NonZero-NonZero {pos m} {p} tt p-nz))
+  *nz-right-injective {m = zero}  {n = suc n} {p = p} p-nz path =
+    bot-elim (transport (cong NonZero (sym path)) (*-NonZero-NonZero {pos n} {p} tt p-nz))
+  *nz-right-injective {m = suc m} {n = suc n} {p = p} p-nz path =
+    cong suc (*nz-right-injective p-nz (+-left-injective p path))
+
+
+*-right-injective : {m n p : Int} .(nz : (NonZero n)) -> (m * n) == (p * n) -> m == p
+*-right-injective {nonneg m} {n} {nonneg p} nz path = cong nonneg (*nz-right-injective nz path)
+*-right-injective {neg m}    {n} {neg p}    nz path =
+ cong (\x -> (- (int x))) (*nz-right-injective nz (minus-injective path))
+*-right-injective m@{nonneg _} n@{pos _} p@{neg _} nz path =
+  bot-elim (NonNeg->¬Neg pn-nonneg pn-neg)
+  where
+  pn-nonneg : NonNeg (p * n)
+  pn-nonneg = transport (cong NonNeg path) (*-NonNeg-Pos {m} {n} _ _)
+
+  pn-neg : Neg (p * n)
+  pn-neg = *-Neg-Pos {p} {n} _ _
+*-right-injective m@{nonneg _} n@{neg _} p@{neg _}    nz path =
+  bot-elim (NonPos->¬Pos pn-nonpos pn-pos)
+  where
+  pn-nonpos : NonPos (p * n)
+  pn-nonpos = transport (cong NonPos path) (*-NonNeg-Neg {m} {n} _ _)
+
+  pn-pos : Pos (p * n)
+  pn-pos = *-Neg-Neg {p} {n} _ _
+*-right-injective m@{neg _} n@{pos _} p@{nonneg _} nz path =
+  bot-elim (NonNeg->¬Neg pn-nonneg pn-neg)
+  where
+  pn-neg : Neg (p * n)
+  pn-neg = transport (cong Neg path) (*-Neg-Pos {m} {n} _ _)
+
+  pn-nonneg : NonNeg (p * n)
+  pn-nonneg = *-NonNeg-Pos {p} {n} _ _
+*-right-injective m@{neg _} n@{neg _} p@{nonneg _} nz path =
+  bot-elim (NonPos->¬Pos pn-nonpos pn-pos)
+  where
+  pn-pos : Pos (p * n)
+  pn-pos = transport (cong Pos path) (*-Neg-Neg {m} {n} _ _)
+
+  pn-nonpos : NonPos (p * n)
+  pn-nonpos = *-NonNeg-Neg {p} {n} _ _
+
+*-left-injective : {m n p : Int} .(nz : (NonZero m)) -> (m * n) == (m * p) -> n == p
+*-left-injective {m} {n} {p} nz path =
+  *-right-injective nz (*-commute {n} {m} >=> path >=> *-commute {m} {p})
+
 
 _^_ : Int -> Nat -> Int
 a ^ zero = (int 1)
