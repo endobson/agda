@@ -10,30 +10,30 @@ open import int
 open import nat
 open import relation
 
-data GCD : Int -> Int -> Int -> Set where
- gcd : (a : Int) -> (b : Int) -> (d : Int) ->
-       (NonNeg d) ->
-       (d div a) -> (d div b)
-       -> ((x : Int) -> x div a -> x div b -> x div d) -> GCD a b d
-
+record GCD (a : Int) (b : Int) (d : Int) : Type₀ where
+  constructor gcd
+  field
+    non-neg : (NonNeg d)
+    %a : d div a
+    %b : d div b
+    f : (x : Int) -> x div a -> x div b -> x div d
 
 
 gcd-refl : {n : Int} -> GCD n n (abs n)
-gcd-refl {n} = gcd n n (abs n) tt (div-abs-left div-refl) (div-abs-left div-refl)
+gcd-refl {n} = gcd tt (div-abs-left div-refl) (div-abs-left div-refl)
  (\ _ _ d -> (div-abs-right d))
 
 gcd-sym : {a b d : Int} -> GCD a b d -> GCD b a d
-gcd-sym (gcd a b d non-neg div-a div-b f) =
-  (gcd b a d non-neg div-b div-a (\ x xb xa -> f x xa xb))
+gcd-sym (gcd non-neg div-a div-b f) =
+  (gcd non-neg div-b div-a (\ x xb xa -> f x xa xb))
 
 gcd-zero : {a : Int} -> GCD a zero-int (abs a)
 gcd-zero {a} =
-  (gcd a zero-int (abs a) tt
-      (div-abs-left div-refl) div-zero (\ x xa xz -> (div-abs-right xa)))
+  (gcd tt (div-abs-left div-refl) div-zero (\ x xa xz -> (div-abs-right xa)))
 
 gcd-negate : ∀ {a b d : Int} -> GCD a b d -> GCD a (- b) d
-gcd-negate (gcd a b d non-neg d-div-a d-div-b f) =
-  (gcd a (- b) d non-neg d-div-a (div-negate d-div-b) g)
+gcd-negate {a} {b} {d} (gcd non-neg d-div-a d-div-b f) =
+  (gcd non-neg d-div-a (div-negate d-div-b) g)
   where
   g : (x : Int) -> x div a -> x div (- b) -> x div d
   g x xa xb = f x xa
@@ -44,8 +44,8 @@ gcd-remove-abs {b = (nonneg _)} g = g
 gcd-remove-abs {b = (neg _)} g = gcd-negate g
 
 gcd-add-linear : ∀ {a b d : Int} -> GCD a b d -> (k : Int) -> GCD a (k * a + b) d
-gcd-add-linear (gcd a b d non-neg d-div-a d-div-b f) k =
-  (gcd a (k * a + b) d non-neg d-div-a (div-sum (div-mult d-div-a k) d-div-b) g)
+gcd-add-linear {a} {b} {d} (gcd non-neg d-div-a d-div-b f) k =
+  (gcd non-neg d-div-a (div-sum (div-mult d-div-a k) d-div-b) g)
   where
   g : (x : Int) -> x div a -> x div (k * a + b) -> x div d
   g x xa xkab = f x xa xb
@@ -129,8 +129,8 @@ linear-combo-abs {a} {b} {neg _} lc = (linear-combo-negate-result lc)
 
 
 linear-combo->gcd : {a b d : Int} -> LinearCombination a b d -> d div a -> d div b -> GCD a b (abs d)
-linear-combo->gcd (linear-combo a b d x y {p}) da db =
-  (gcd a b (abs d) tt (div-abs-left da) (div-abs-left db)
+linear-combo->gcd (linear-combo _ _ _ x y {p}) da db =
+  (gcd tt (div-abs-left da) (div-abs-left db)
     (\ z za zb -> transport (\i -> z div abs (p i)) (div-abs-right (div-linear za zb {x} {y}))))
 
 data LinearGCD : Int -> Int -> Int -> Set where
@@ -185,8 +185,8 @@ eulers-helper-gcd : (m : Nat) -> (n : Nat) ->
                     {a : Nat} -> (pos a + pos m == pos n) -> {d : Int} ->
                     GCD (pos a) (pos m) d
                     -> GCD (pos m) (pos n) d
-eulers-helper-gcd m n {a} pr (gcd _ (pos m) d non-neg d-div-a' d-div-m' f) =
-  gcd (pos m) (pos n) d non-neg d-div-m' div-proof rec-proof
+eulers-helper-gcd m n {a} pr {d} (gcd non-neg d-div-a' d-div-m' f) =
+  gcd non-neg d-div-m' div-proof rec-proof
   where
   div-proof : d div (pos n)
   div-proof = transport (\i -> d div (pr i)) (div-sum d-div-a' d-div-m')
@@ -315,13 +315,16 @@ eulers-algo (neg m) (neg n) = handle (pos-eulers-algo m n)
     d , (linear-gcd-sym (linear-gcd-negate (linear-gcd-sym (linear-gcd-negate pr))))
 
 gcd-exists : (m : Int) -> (n : Int) -> Σ[ d ∈ Int ] (GCD m n d)
-gcd-exists m n with (eulers-algo m n)
-...               | (d , (linear-gcd _ gc)) = d , gc
+gcd-exists m n = handle (eulers-algo m n)
+  where
+  handle : Σ[ d ∈ Int ] (LinearGCD m n d) -> Σ[ d ∈ Int ] (GCD m n d)
+  handle (d , (linear-gcd _ gc)) = d , gc
 
 
 gcd-unique : {m n d1 d2 : Int} -> GCD m n d1 -> GCD m n d2 -> d1 == d2
-gcd-unique (gcd m n d1 d1-nn d1-div-m d1-div-n d1-f)
-           (gcd m n d2 d2-nn d2-div-m d2-div-n d2-f) =
+gcd-unique {d1 = d1} {d2 = d2}
+           (gcd d1-nn d1-div-m d1-div-n d1-f)
+           (gcd d2-nn d2-div-m d2-div-n d2-f) =
   non-neg-same-abs d1-nn d2-nn (div-same-abs d1-div-d2 d2-div-d1)
   where
   d1-div-d2 : d1 div d2
@@ -360,7 +363,7 @@ gcd'-zero->id {b} (gcd' d%0 d%b f) = div'-antisym (f b div'-zero div'-refl) d%b
 
 gcd'->gcd/nat : {d n a : Nat} -> GCD' d n a -> GCD (int d) (int n) (int a)
 gcd'->gcd/nat {d} {n} {a} (gcd' a%d a%n f') =
-  (gcd (int d) (int n) (int a) tt (div'->div a%d) (div'->div a%n) f)
+  (gcd tt (div'->div a%d) (div'->div a%n) f)
   where
   fix : {x : Int} -> {y : Nat} -> x div (int y) -> (abs' x) div' y
   fix {x} {y} x%y = (subst (\ z -> (abs' x) div' z) refl (div->div' x%y))
@@ -390,7 +393,7 @@ gcd'->gcd {neg _} {neg _} {zero-int} g = (gcd-negate ((gcd-sym (gcd-negate (gcd-
 gcd'->gcd {neg _} {neg _} {pos _} g = (gcd-negate ((gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))))
 
 gcd->gcd' : {d n a : Int} -> GCD d n a -> GCD' (abs' d) (abs' n) (abs' a)
-gcd->gcd' (gcd d n a _ a%d a%n f) =
+gcd->gcd' {d} {n} {a} (gcd _ a%d a%n f) =
   (gcd' (div->div' a%d) (div->div' a%n) f')
   where
   f' : (x : Nat) -> x div' (abs' d) -> x div' (abs' n) -> x div' (abs' a)
@@ -403,33 +406,35 @@ gcd->gcd' (gcd d n a _ a%d a%n f) =
     res = (div->div' (f (int x) (fix x%d) (fix x%n)))
 
 euclids-lemma : {a b c : Int} -> a div (b * c) -> GCD a b (int 1) -> a div c
-euclids-lemma {a} {b} {c} a%bc ab-gcd with (gcd->linear-combo ab-gcd)
-... | (linear-combo _ _ _ x y {pr}) = a%c
+euclids-lemma {a} {b} {c} a%bc ab-gcd = handle (gcd->linear-combo ab-gcd)
   where
-  c==stuff : c == x * c * a + y * (b * c)
-  c==stuff =
-    begin
-      c
-    ==< sym (+-right-zero {c})  >
-      (int 1) * c
-    ==< *-left (sym pr) >
-      (x * a + y * b) * c
-    ==< *-distrib-+ {x * a}  >
-      x * a * c + y * b * c
-    ==< +-left (*-assoc {x}) >
-      x * (a * c) + y * b * c
-    ==< +-left (*-right {x} (*-commute {a} {c})) >
-      x * (c * a) + y * b * c
-    ==< sym (+-left (*-assoc {x})) >
-      x * c * a + y * b * c
-    ==< (+-right {x * c * a} (*-assoc {y})) >
-      x * c * a + y * (b * c)
-    end
-  a%stuff : a div (x * c * a + y * (b * c))
-  a%stuff = div-linear div-refl a%bc {x * c} {y}
+  handle : (LinearCombination a b (int 1)) -> a div c
+  handle (linear-combo _ _ _ x y {pr}) = a%c
+    where
+    c==stuff : c == x * c * a + y * (b * c)
+    c==stuff =
+      begin
+        c
+      ==< sym (+-right-zero {c})  >
+        (int 1) * c
+      ==< *-left (sym pr) >
+        (x * a + y * b) * c
+      ==< *-distrib-+ {x * a}  >
+        x * a * c + y * b * c
+      ==< +-left (*-assoc {x}) >
+        x * (a * c) + y * b * c
+      ==< +-left (*-right {x} (*-commute {a} {c})) >
+        x * (c * a) + y * b * c
+      ==< sym (+-left (*-assoc {x})) >
+        x * c * a + y * b * c
+      ==< (+-right {x * c * a} (*-assoc {y})) >
+        x * c * a + y * (b * c)
+      end
+    a%stuff : a div (x * c * a + y * (b * c))
+    a%stuff = div-linear div-refl a%bc {x * c} {y}
 
-  a%c : a div c
-  a%c = (subst (\ x -> a div x) (sym c==stuff) a%stuff)
+    a%c : a div c
+    a%c = (subst (\ x -> a div x) (sym c==stuff) a%stuff)
 
 euclids-lemma' : {a b c : Nat} -> a div' (b *' c) -> GCD' a b 1 -> a div' c
 euclids-lemma' {a} {b} {c} a%bc ab-gcd = result

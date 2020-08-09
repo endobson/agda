@@ -14,8 +14,8 @@ open import prime-gcd
 open import solver
 
 ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)
-ex1-1 {a} {b} {c} {d} (gcd a b _ _ _ _ gcd-f) c-div-a d-div-b =
-  gcd c d (int 1) tt div-one div-one
+ex1-1 {a} {b} {c} {d} (gcd _ _ _ gcd-f) c-div-a d-div-b =
+  gcd tt div-one div-one
   (\x x-div-c x-div-d ->
     (gcd-f x (div-trans x-div-c c-div-a) (div-trans x-div-d d-div-b)))
 
@@ -61,7 +61,7 @@ ex1-3 rp n k {pos-n} {pos-k} = (rp-sym (rp-^ (rp-sym (rp-^ rp n {pos-n})) k {pos
 
 
 ex1-4' : {a b n : Int} -> RPrime a b -> (GCD (a + b) (a + - b)) n -> n div (int 2)
-ex1-4' rp (gcd a+b a-b n _ n%a+b n%a-b f) with (gcd->linear-combo rp)
+ex1-4' {a} {b} {n} rp (gcd _ n%a+b n%a-b f) with (gcd->linear-combo rp)
 ... | (linear-combo a b _ x y {proof}) = res
   where
   lin-proof : (x + y) * (a + b) + (x + - y) * (a + - b) == (int 2)
@@ -87,7 +87,7 @@ ex1-4' rp (gcd a+b a-b n _ n%a+b n%a-b f) with (gcd->linear-combo rp)
 
 ex1-4 : {a b : Int} -> RPrime a b -> (GCD (a + b) (a + - b) (int 1)) ⊎ (GCD (a + b) (a + - b) (int 2))
 ex1-4 {a} {b} rp with (gcd-exists (a + b) (a + - b))
-... | (d , g@(gcd _ _ d@(nonneg d-nat) _ _ _ _)) = res
+... | (d@(nonneg _) , g@(gcd _ _ _ _)) = res
   where
   d-div : d div (int 2)
   d-div = (ex1-4' rp g)
@@ -99,8 +99,8 @@ ex1-4 {a} {b} rp with (gcd-exists (a + b) (a + - b))
 
 
 ex1-6 : {a b d : Int} -> RPrime a b -> d div (a + b) -> RPrime a d × RPrime b d
-ex1-6 {d = d} (gcd a b _ _ _ _ f) d%a+b =
-    (gcd a d (int 1) tt div-one div-one f-a) , (gcd b d (int 1) tt div-one div-one f-b)
+ex1-6 {a} {b} {d} (gcd _ _ _ f) d%a+b =
+    (gcd tt div-one div-one f-a) , (gcd tt div-one div-one f-b)
   where
   f-a : (x : Int) -> x div a -> x div d -> x div (int 1)
   f-a x x%a x%d = (f x x%a x%b)
@@ -135,7 +135,7 @@ ex1-5' : {a b : Int} -> ex1-5-arith-type -> RPrime a b ->
    (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎
    (GCD (a + b) (a * a + - (a * b) + b * b) (int 3))
 ex1-5' {a} {b} arith-proof rp with (gcd-exists (a + b) (a * a + - (a * b) + b * b))
-... | (d , g@(gcd _ _ d@(nonneg d-nat) _ d%a+b d%term _)) = res
+... | (d@(nonneg d-nat) , g@(gcd _ d%a+b d%term _)) = res
   where
   ¬2%3 : ¬ (2 div' 3)
   ¬2%3 (zero          , pr) = zero-suc-absurd pr
@@ -148,20 +148,36 @@ ex1-5' {a} {b} arith-proof rp with (gcd-exists (a + b) (a * a + - (a * b) + b * 
                             (gcd-add-linear (gcd-negate g) (a + b))
 
   d-div : d div (int 3)
-  d-div with reordered-gcd
-  ... | (gcd _ ab3 d _ d%a+b d%ab3 _) with (ex1-6 rp d%a+b)
-  ... | rp-ad , rp-bd  with (ex1-2 (gcd-sym rp-ad) (gcd-sym rp-bd))
-  ... | rp-d-ab = (euclids-lemma d%ab3 rp-d-ab)
+  d-div = (euclids-lemma {a = d} {b = (a * b)} {c = (int 3)} d%ab3 rp-d-ab)
+    where
+    d%ab3 : d div ((a * b) * (int 3))
+    d%ab3 = (GCD.%b reordered-gcd)
+
+    rp-ad-bd : (RPrime a d) × (RPrime b d)
+    rp-ad-bd = (ex1-6 rp d%a+b)
+
+    rp-d-ab : (RPrime d (a * b))
+    rp-d-ab = (ex1-2 (gcd-sym (proj₁ rp-ad-bd)) (gcd-sym (proj₂ rp-ad-bd)))
 
   res : (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎
         (GCD (a + b) (a * a + - (a * b) + b * b) (int 3))
-  res with (≤->≤i (div->≤ d-div))
-  ... | (suc-≤i zero-≤i) = inj-l g
-  ... | (suc-≤i (suc-≤i zero-≤i)) = bot-elim (¬2%3 (div->div' d-div))
-  ... | (suc-≤i (suc-≤i (suc-≤i zero-≤i))) = inj-r g
-  ... | zero-≤i = bot-elim (zero-suc-absurd (sym (nonneg-injective (div-zero->zero d-div))))
+  res = handle (abs' d) d-div refl
+    where
+    handle : (x : Nat) -> (int x) div (int 3) -> (int x) == d
+             -> (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎
+                (GCD (a + b) (a * a + - (a * b) + b * b) (int 3))
+    handle 0 x%3 _ =
+      bot-elim (zero-suc-absurd (sym (nonneg-injective (div-zero->zero x%3))))
+    handle 1 _ path_ =
+      inj-l (transport (\i -> GCD (a + b) (a * a + - (a * b) + b * b) (path (~ i))) g)
+    handle 2 _ path =
+      bot-elim (¬2%3 (div->div' (transport (\i -> (path (~ i)) div (int 3)) d-div)))
+    handle 3 _ path =
+      inj-r (transport (\i -> GCD (a + b) (a * a + - (a * b) + b * b) (path (~ i))) g)
+    handle (suc (suc (suc (suc x)))) x%3 _ =
+      bot-elim (zero-≮ (pred-≤ (pred-≤ (pred-≤ (div->≤ x%3)))))
 
-ex1-5 : {a b : Int} -> RPrime a b ->
-   (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎
-   (GCD (a + b) (a * a + - (a * b) + b * b) (int 3))
-ex1-5 = ex1-5' ex1-5-arith
+--ex1-5 : {a b : Int} -> RPrime a b ->
+--   (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎
+--   (GCD (a + b) (a * a + - (a * b) + b * b) (int 3))
+--ex1-5 = ex1-5' ex1-5-arith
