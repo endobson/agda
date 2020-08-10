@@ -435,11 +435,3 @@ euclids-lemma {a} {b} {c} a%bc ab-gcd = handle (gcd->linear-combo ab-gcd)
 
     a%c : a div c
     a%c = (subst (\ x -> a div x) (sym c==stuff) a%stuff)
-
-euclids-lemma' : {a b c : Nat} -> a div' (b *' c) -> GCD' a b 1 -> a div' c
-euclids-lemma' {a} {b} {c} a%bc ab-gcd = result
-  where
-  int-a%bc : (int a) div (int b * int c)
-  int-a%bc = transport (\i -> (int a) div ((int-inject-*' {b} {c} i))) (div'->div a%bc)
-  result : a div' c
-  result = (div->div' (euclids-lemma int-a%bc (gcd'->gcd/nat ab-gcd)))

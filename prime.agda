@@ -42,6 +42,9 @@ module Prime' (p : Prime') where
   >1 : p' > 1
   >1 = IsPrime'.>1 is-prime
 
+  !=1 : p' != 1
+  !=1 = (<->!= >1) ∘ sym
+
   nat⁺ : Nat⁺
   nat⁺ = p' , pos
 

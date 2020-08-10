@@ -127,7 +127,7 @@ relatively-prime-square-free a⁺@(a , _) b⁺@(b , _) rp sf-a sf-b p@(p' , _) p
     count-a = ≤-antisym (sf-a p pf-a) count-a'
 
     ¬p%b : ¬ (p' div' b)
-    ¬p%b p%b = <->!= (Prime'.>1 p) (sym (div'-one->one (GCD'.f rp p' p%a p%b)))
+    ¬p%b p%b = <->!= (Prime'.>1 p) (sym (rp p' p%a p%b))
 
     count-b : count p primes-b == 0
     count-b = ¬contains->count==0 primes-b

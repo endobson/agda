@@ -271,14 +271,14 @@ private
       pv = ⟨ p ⟩
       p2v = ⟨ p2 ⟩
 
-      gcd1' : GCD' pv p2v 1
-      gcd1' = distinct-primes->relatively-prime ¬path
+      rp' : RelativelyPrime' pv p2v
+      rp' = distinct-primes->relatively-prime ¬path
 
-      gcd1 : GCD' (pv ^' (suc k)) p2v 1
-      gcd1 = gcd'-sym (relatively-prime-^' (gcd'-sym gcd1') (suc k))
+      rp : RelativelyPrime' (pv ^' (suc k)) p2v
+      rp = (rp-sym (relatively-prime-^' (rp-sym rp') (suc k)))
 
       no-divides : ¬ ((pv ^' (suc k)) div' (p2v *' n))
-      no-divides p^sk%p2*n = ¬d^sk%n (euclids-lemma' p^sk%p2*n gcd1)
+      no-divides p^sk%p2*n = ¬d^sk%n (euclids-lemma' p^sk%p2*n rp)
 
 
     product-division-count-different :

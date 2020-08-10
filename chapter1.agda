@@ -10,7 +10,7 @@ open import int
 open import div
 open import prime
 open import gcd
-open import prime-gcd
+open import prime-gcd hiding (rp-sym)
 open import solver
 
 ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)
@@ -20,7 +20,9 @@ ex1-1 {a} {b} {c} {d} (gcd _ _ _ gcd-f) c-div-a d-div-b =
     (gcd-f x (div-trans x-div-c c-div-a) (div-trans x-div-d d-div-b)))
 
 ex1-2' : {a b c : Nat} -> GCD' a b 1 -> GCD' a c 1 -> GCD' a (b *' c) 1
-ex1-2' = relatively-prime-*'
+ex1-2' g1 g2 =
+  (relatively-prime->gcd
+    (relatively-prime-*' (gcd->relatively-prime g1) (gcd->relatively-prime g2)))
 
 ex1-2 : {a b c : Int} -> GCD a b (int 1) -> GCD a c (int 1)
                       -> GCD a (b * c) (int 1)
