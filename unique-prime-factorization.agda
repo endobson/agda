@@ -375,6 +375,10 @@ isPropPrimeFactorization p1@(prime-factorization ps1 product1)
     product-path =
       isProp->PathP (\i -> isSetNat _ _) product1 product2
 
+isContrPrimeFactorization⁺ : {n : Nat⁺} -> isContr (PrimeFactorization⁺ n)
+isContrPrimeFactorization⁺ {n} = pf , isPropPrimeFactorization pf
+  where
+  pf = compute-prime-factorization n
 
 
 module _ (p : Prime') {a : Nat} (pf : PrimeFactorization a) where
