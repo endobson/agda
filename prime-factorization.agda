@@ -48,6 +48,9 @@ record PrimeFactorization (n : Nat) : Type₀ where
   nat⁺ : Nat⁺
   nat⁺ = n , pos
 
+PrimeFactorization⁺ : Nat⁺ -> Type₀
+PrimeFactorization⁺ (n , _) = PrimeFactorization n
+
 private
   data PrimeFactorizationTree : Nat -> Type₀ where
     prime-factorization-tree-prime : (p : Prime') -> PrimeFactorizationTree ⟨ p ⟩
@@ -182,7 +185,7 @@ exists-prime-divisor {n} n>1 = rec (compute-prime-factorization-tree n>1) div'-r
 
 -- Prime factorizations exist and are computable
 
-compute-prime-factorization : (n : Nat⁺) -> (PrimeFactorization ⟨ n ⟩)
+compute-prime-factorization : (n : Nat⁺) -> PrimeFactorization⁺ n
 compute-prime-factorization (suc zero , _)    =
   (prime-factorization [] refl)
 compute-prime-factorization (suc (suc n) , _) =
