@@ -19,7 +19,6 @@ data UList (A : Type ℓ) : Type ℓ
   swap : (a b : A) -> (l : UList A) -> (a :: (b :: l)) == (b :: (a :: l))
   trunc : isSet (UList A)
 
-
 -- Elimination functions
 
 module UListElim where

@@ -18,6 +18,9 @@ private
     ℓ : Level
     A B C : Type ℓ
 
+[_] : A -> UList A
+[ a ] = a :: []
+
 map : (A -> B) -> UList A -> UList B
 map f = UListElim.rec trunc [] (\ a -> f a ::_) (\ a0 a1 -> (swap (f a0) (f a1)))
 
