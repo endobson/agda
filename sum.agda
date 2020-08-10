@@ -8,6 +8,8 @@ open import equivalence
 open import functions
 open import hlevel.base
 open import isomorphism
+open import monoid
+open import commutative-monoid
 open import relation
 
 private
@@ -359,3 +361,35 @@ Discrete⊎ da db (inj-r b1) (inj-r b2) with (db b1 b2)
     handle (inj-l _) f-p (inj-r _) g-p = bot-elim (f-left-g-right.absurd f-p g-p)
     handle (inj-r _) f-p (inj-l _) g-p = bot-elim (f-right-g-left.absurd f-p g-p)
     handle (inj-r _) f-p (inj-r _) g-p = both-right.new-iso f-p g-p
+
+⊎-assoc : (A B C : Type ℓ) -> ((A ⊎ B) ⊎ C) == (A ⊎ (B ⊎ C))
+⊎-assoc A B C = ua (isoToEquiv i)
+  where
+  i : Iso ((A ⊎ B) ⊎ C) (A ⊎ (B ⊎ C))
+  i .fun (inj-l (inj-l a)) = inj-l a
+  i .fun (inj-l (inj-r b)) = inj-r (inj-l b)
+  i .fun (inj-r c)         = inj-r (inj-r c)
+  i .inv (inj-l a)         = inj-l (inj-l a)
+  i .inv (inj-r (inj-l b)) = inj-l (inj-r b)
+  i .inv (inj-r (inj-r c)) = inj-r c
+  i .rightInv (inj-l a)         = refl
+  i .rightInv (inj-r (inj-l b)) = refl
+  i .rightInv (inj-r (inj-r c)) = refl
+  i .leftInv (inj-l (inj-l a)) = refl
+  i .leftInv (inj-l (inj-r b)) = refl
+  i .leftInv (inj-r c)         = refl
+
+instance
+  ⊎-Monoid : Monoid (Type ℓ-zero)
+  ⊎-Monoid = record
+    { ε = Bot
+    ; _∙_ = _⊎_
+    ; ∙-assoc = \{A B C} -> ⊎-assoc A B C
+    ; ∙-left-ε = \{A} -> ⊎-Bot A
+    ; ∙-right-ε = \{A} -> ⊎-flip >=> ⊎-Bot A
+    }
+
+  ⊎-CommMonoid : CommMonoid (Type ℓ-zero)
+  ⊎-CommMonoid = record
+    { ∙-commute = ⊎-flip
+    }
