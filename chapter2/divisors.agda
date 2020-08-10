@@ -55,9 +55,6 @@ module _ where
     sorted = (\()) , lift tt
 
 
-  1⁺ : Nat⁺
-  1⁺ = (1 , tt)
-
   one-divisors-path : divisors 1⁺ == 1 :: []
   one-divisors-path = canonical-list-== (divisors-canonical 1⁺) divisors-of-one-canonical
 

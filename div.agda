@@ -439,3 +439,16 @@ isPropDiv' {d} (_ , n-pos) div1@(x1 , p1) (x2 , p2) = ΣProp-path (isSetNat _ _)
 
   x-p : x1 == x2
   x-p = (*'-right-injective (d , d-pos) (p1 >=> (sym p2)))
+
+
+-- Lemmas for Nat⁺
+
+_div⁺_ : Nat⁺ -> Nat⁺ -> Type₀
+d div⁺ n = ⟨ d ⟩ div' ⟨ n ⟩
+
+isPropDiv⁺ : {d n : Nat⁺} -> isProp (d div⁺ n)
+isPropDiv⁺ {d} {n} = isPropDiv' n
+
+div⁺->multiple⁺ : {d n : Nat⁺} -> d div⁺ n -> Nat⁺
+div⁺->multiple⁺ {d' , _} {_ , n-pos} (x , pr) =
+  x , div'-pos->pos (d' , *'-commute {d'} {x} >=> pr) n-pos

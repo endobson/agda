@@ -270,3 +270,9 @@ induction {P = P} z f (suc m) = f (induction {P = P} z f m)
 infixl 7 _*⁺_
 _*⁺_ : Nat⁺ -> Nat⁺ -> Nat⁺
 (a , ap) *⁺ (b , bp) = (a *' b , *'-Pos'-Pos' ap bp)
+
+_^⁺_ : Nat⁺ -> Nat -> Nat⁺
+(a , pos-a) ^⁺ b = a ^' b , ^'-Pos' pos-a b
+
+1⁺ : Nat⁺
+1⁺ = 1 , tt
