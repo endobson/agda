@@ -124,10 +124,6 @@ isProp¬ _ ¬x ¬y i x = isPropBot (¬x x) (¬y x) i
 -- Hedbergs Theorem
 
 private
-  Dec->Stable : Dec A -> Stable A
-  Dec->Stable (yes a) ¬¬a = a
-  Dec->Stable (no ¬a) ¬¬a = bot-elim (¬¬a ¬a)
-
   Stable==->isSet : ((x y : A) -> Stable (x == y)) -> isSet A
   Stable==->isSet {A = A} st a0 a1 p1 p2 j i =
     let

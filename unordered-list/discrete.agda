@@ -330,3 +330,70 @@ isPropContainsDiscrete {x} {as} (as1 , p1) (as2 , p2) =
 
   path : as1 == as2
   path = sym (remove1-== as1 refl) >=> cong (remove1 x) path' >=> (remove1-== as2 refl)
+
+stable-contains : {x : A} {as : UList A} -> Stable (contains x as)
+stable-contains {x} {as} = Dec->Stable (decide-contains x as)
+
+contains-:: : (a : A) {x : A} {as : UList A} -> (contains x as) -> (contains x (a :: as))
+contains-:: a {x} {as} (as' , path) = (a :: as' , (swap x a as') >=> cong (a ::_) path)
+
+
+private
+  ¬contains-++' : (x : A) (as1 as2 : UList A)
+                 -> ¬(contains x as1)
+                 -> (contains x (as1 ++ as2))
+                 -> (contains x as2)
+  ¬contains-++' x as1 as2 = UListElim.prop PisProp []* ::* as1
+    where
+    P : UList A -> Type _
+    P as = ¬ (contains x as) -> (contains x (as ++ as2)) -> (contains x as2)
+
+    PisProp : {as : UList A} -> isProp (P as)
+    PisProp = isPropΠ2 (\_ _ -> isPropContainsDiscrete)
+
+    []* : P []
+    []* _ c = c
+
+    ::* : (a : A) -> {as : UList A} -> P as -> P (a :: as)
+    ::* a {as} f ¬c-a-as (as' , path) = handle (discA x a)
+      where
+      ¬c-as : ¬ (contains x as)
+      ¬c-as c-as = ¬c-a-as (contains-:: a c-as)
+
+      check-f : (contains x (as ++ as2)) -> (contains x as2)
+      check-f = f ¬c-as
+
+      check-path : x :: as' == a :: as ++ as2
+      check-path = path
+
+      handle : Dec (x == a) -> (contains x as2)
+      handle (yes p) = bot-elim (¬c-a-as (as , (cong (_:: as) p)))
+      handle (no ¬p) = check-f (remove1 a as' , path')
+        where
+        path' : x :: (remove1 a as') == as ++ as2
+        path' =
+          begin
+            x :: (remove1 a as')
+          ==< sym (remove1-!= as' (¬p ∘ sym)) >
+            remove1 a (x :: as')
+          ==< cong (remove1 a) path >
+            remove1 a (a :: as ++ as2)
+          ==< remove1-== (as ++ as2) refl >
+            as ++ as2
+          end
+
+¬contains-++ : (x : A) (as1 as2 : UList A)
+               -> ¬(contains x as1)
+               -> ¬(contains x as2)
+               -> ¬(contains x (as1 ++ as2))
+¬contains-++ x as1 as2 ¬c1 ¬c2 c12 = ¬c2 (¬contains-++' x as1 as2 ¬c1 c12)
+
+split-contains-++ : (x : A) (as1 as2 : UList A)
+                    -> contains x (as1 ++ as2)
+                    -> (contains x as1) ⊎ (contains x as2)
+split-contains-++ x as1 as2 c-as1-as2 = handle (decide-contains x as1) (decide-contains x as2)
+  where
+  handle : Dec (contains x as1) -> Dec (contains x as2) -> (contains x as1) ⊎ (contains x as2)
+  handle (yes c-as1) _           = (inj-l c-as1)
+  handle (no ¬c-as1) (yes c-as2) = (inj-r c-as2)
+  handle (no ¬c-as1) (no ¬c-as2) = bot-elim (¬contains-++ x as1 as2 ¬c-as1 ¬c-as2 c-as1-as2)

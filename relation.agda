@@ -18,6 +18,10 @@ data Dec (A : Type ℓ) : Type ℓ where
 Stable : Type ℓ -> Type ℓ
 Stable A = (¬ (¬ A)) -> A
 
+Dec->Stable : Dec A -> Stable A
+Dec->Stable (yes a) ¬¬a = a
+Dec->Stable (no ¬a) ¬¬a = bot-elim (¬¬a ¬a)
+
 Discrete : Type ℓ -> Type ℓ
 Discrete A = (x y : A) -> Dec (x == y)
 
