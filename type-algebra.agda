@@ -329,3 +329,16 @@ instance
   ⊎-CommMonoid = record
     { ∙-commute = ⊎-flip
     }
+
+×-distrib-⊎ : {A B C : Type ℓ} -> ((A ⊎ B) × C) == ((A × C) ⊎ (B × C))
+×-distrib-⊎ {A = A} {B} {C} = ua (isoToEquiv i)
+  where
+  i : Iso ((A ⊎ B) × C) ((A × C) ⊎ (B × C))
+  i .fun (inj-l a , c) = inj-l (a , c)
+  i .fun (inj-r b , c) = inj-r (b , c)
+  i .inv (inj-l (a , c)) = (inj-l a , c)
+  i .inv (inj-r (b , c)) = (inj-r b , c)
+  i .leftInv ((inj-l _) , _) = refl
+  i .leftInv ((inj-r _) , _) = refl
+  i .rightInv (inj-l _) = refl
+  i .rightInv (inj-r _) = refl
