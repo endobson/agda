@@ -28,6 +28,16 @@ private
   i .rightInv (lift b) = bot-elim b
   i .leftInv (b , _)   = bot-elim b
 
+×-Bot₀ : (A : Type₀) -> (Bot × A) == Bot
+×-Bot₀ A = ua (isoToEquiv i)
+  where
+  i : Iso (Bot × A) Bot
+  i .fun (b , _) = bot-elim b
+  i .inv b       = bot-elim b
+  i .rightInv b      = bot-elim b
+  i .leftInv (b , _) = bot-elim b
+
+
 ×-Top : (A : Type ℓ) -> (Top × A) == A
 ×-Top A = ua (isoToEquiv i)
   where
