@@ -9,6 +9,7 @@ open import equivalence
 open import isomorphism
 open import monoid
 open import sum
+open import vec
 
 open Iso
 
@@ -352,3 +353,32 @@ instance
   i .leftInv ((inj-r _) , _) = refl
   i .rightInv (inj-l _) = refl
   i .rightInv (inj-r _) = refl
+
+
+Vec-Top : (A : Type₀) -> Vec A 0 == Top
+Vec-Top A = ua (isoToEquiv i)
+  where
+  i : Iso (Vec A 0) Top
+  i .fun _ = tt
+  i .inv _ = []
+  i .rightInv tt = refl
+  i .leftInv [] = refl
+
+
+Vec-Id : (A : Type₀) -> Vec A 1 == A
+Vec-Id A = ua (isoToEquiv i)
+  where
+  i : Iso (Vec A 1) A
+  i .fun (a :: []) = a
+  i .inv a = (a :: [])
+  i .rightInv _ = refl
+  i .leftInv (a :: []) = refl
+
+Vec-× : {n : Nat} -> (A : Type₀) -> (Vec A (suc n)) == (A × Vec A n)
+Vec-× {n} A = ua (isoToEquiv i)
+  where
+  i : Iso (Vec A (suc n)) (A × (Vec A n))
+  i .fun (a :: as) = (a , as)
+  i .inv (a , as) = (a :: as)
+  i .rightInv (_ , _) = refl
+  i .leftInv (_ :: _) = refl
