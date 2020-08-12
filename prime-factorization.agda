@@ -52,12 +52,6 @@ PrimeFactorization⁺ : Nat⁺ -> Type₀
 PrimeFactorization⁺ (n , _) = PrimeFactorization n
 
 private
-  data PrimeFactorizationTree : Nat -> Type₀ where
-    prime-factorization-tree-prime : (p : Prime') -> PrimeFactorizationTree ⟨ p ⟩
-    prime-factorization-tree-composite : {m n : Nat}
-      -> PrimeFactorizationTree m
-      -> PrimeFactorizationTree n
-      -> PrimeFactorizationTree (m *' n)
 
   data Primality : Nat -> Type₀ where
     primality-prime : (p : Prime') -> Primality ⟨ p ⟩
@@ -111,47 +105,54 @@ private
   compute-primality {zero}     p>1 = bot-elim (zero-≮ p>1)
 
 
-  compute-prime-factorization-tree : {n : Nat} -> n > 1 -> PrimeFactorizationTree n
-  compute-prime-factorization-tree {n} = strong-induction' cases n
+data PrimeFactorizationTree : Nat -> Type₀ where
+  prime-factorization-tree-prime : (p : Prime') -> PrimeFactorizationTree ⟨ p ⟩
+  prime-factorization-tree-composite : {m n : Nat}
+    -> PrimeFactorizationTree m
+    -> PrimeFactorizationTree n
+    -> PrimeFactorizationTree (m *' n)
+
+compute-prime-factorization-tree : {n : Nat} -> n > 1 -> PrimeFactorizationTree n
+compute-prime-factorization-tree {n} = strong-induction' cases n
+  where
+
+  >1-*'->both< : {a b m : Nat} -> a > 1 -> b > 1 -> a *' b == m -> (a < m × b < m)
+  >1-*'->both< {a} {b} {m} a>1 b>1 a*b==m with (transport ≤==≤' a>1) | (transport ≤==≤' b>1)
+  ... | (a' , ssa'==a) | (b' , ssb'==b) = a<m , b<m
     where
+    ssa'*ssb'==m : (suc (suc a')) *' (suc (suc b')) == m
+    ssa'*ssb'==m = transport (\i -> (ssa'==a (~ i)) *' (ssb'==b (~ i)) == m) a*b==m
 
-    >1-*'->both< : {a b m : Nat} -> a > 1 -> b > 1 -> a *' b == m -> (a < m × b < m)
-    >1-*'->both< {a} {b} {m} a>1 b>1 a*b==m with (transport ≤==≤' a>1) | (transport ≤==≤' b>1)
-    ... | (a' , ssa'==a) | (b' , ssb'==b) = a<m , b<m
-      where
-      ssa'*ssb'==m : (suc (suc a')) *' (suc (suc b')) == m
-      ssa'*ssb'==m = transport (\i -> (ssa'==a (~ i)) *' (ssb'==b (~ i)) == m) a*b==m
+    rearranged-b : (suc (suc (suc b'))) +' ((suc b') +' a' *' (suc (suc b'))) == m
+    rearranged-b =
+      sym (+'-right-suc {suc (suc b')})
+      >=> ssa'*ssb'==m
 
-      rearranged-b : (suc (suc (suc b'))) +' ((suc b') +' a' *' (suc (suc b'))) == m
-      rearranged-b =
-        sym (+'-right-suc {suc (suc b')})
-        >=> ssa'*ssb'==m
+    rearranged-a : (suc (suc (suc a'))) +' ((suc a') +' b' *' (suc (suc a'))) == m
+    rearranged-a =
+      sym (+'-right-suc {suc (suc a')})
+      >=> (*'-commute {suc (suc b')} {suc (suc a')})
+      >=> ssa'*ssb'==m
 
-      rearranged-a : (suc (suc (suc a'))) +' ((suc a') +' b' *' (suc (suc a'))) == m
-      rearranged-a =
-        sym (+'-right-suc {suc (suc a')})
-        >=> (*'-commute {suc (suc b')} {suc (suc a')})
-        >=> ssa'*ssb'==m
+    sssa'≤Σ'm : (suc (suc (suc a'))) ≤' m
+    sssb'≤Σ'm : (suc (suc (suc b'))) ≤' m
+    sssa'≤Σ'm = (_ , rearranged-a)
+    sssb'≤Σ'm = (_ , rearranged-b)
 
-      sssa'≤Σ'm : (suc (suc (suc a'))) ≤' m
-      sssb'≤Σ'm : (suc (suc (suc b'))) ≤' m
-      sssa'≤Σ'm = (_ , rearranged-a)
-      sssb'≤Σ'm = (_ , rearranged-b)
+    a<m : a < m
+    b<m : b < m
+    a<m = transport (\i -> (≤==≤' {suc (ssa'==a i)} {m} (~ i))) sssa'≤Σ'm
+    b<m = transport (\i -> (≤==≤' {suc (ssb'==b i)} {m} (~ i))) sssb'≤Σ'm
 
-      a<m : a < m
-      b<m : b < m
-      a<m = transport (\i -> (≤==≤' {suc (ssa'==a i)} {m} (~ i))) sssa'≤Σ'm
-      b<m = transport (\i -> (≤==≤' {suc (ssb'==b i)} {m} (~ i))) sssb'≤Σ'm
+  cases : {m : Nat}
+         -> ({n : Nat} -> n < m -> n > 1 -> PrimeFactorizationTree n)
+         -> m > 1 -> PrimeFactorizationTree m
+  cases f m>1 with (compute-primality m>1)
+  ... | (primality-prime prime) = (prime-factorization-tree-prime prime)
+  ... | (primality-composite a b a>1 b>1) with (>1-*'->both< a>1 b>1 refl)
+  ...   | (a<m , b<m) = prime-factorization-tree-composite (f a<m a>1) (f b<m b>1)
 
-    cases : {m : Nat}
-           -> ({n : Nat} -> n < m -> n > 1 -> PrimeFactorizationTree n)
-           -> m > 1 -> PrimeFactorizationTree m
-    cases f m>1 with (compute-primality m>1)
-    ... | (primality-prime prime) = (prime-factorization-tree-prime prime)
-    ... | (primality-composite a b a>1 b>1) with (>1-*'->both< a>1 b>1 refl)
-    ...   | (a<m , b<m) = prime-factorization-tree-composite (f a<m a>1) (f b<m b>1)
-
-
+private
   prime-factorization-* : {m n : Nat}
     -> PrimeFactorization m
     -> PrimeFactorization n
