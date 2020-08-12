@@ -6,6 +6,7 @@ open import base
 open import commutative-monoid
 open import equality
 open import equivalence
+open import functions
 open import isomorphism
 open import monoid
 open import sum
@@ -382,3 +383,32 @@ Vec-× {n} A = ua (isoToEquiv i)
   i .inv (a , as) = (a :: as)
   i .rightInv (_ , _) = refl
   i .leftInv (_ :: _) = refl
+
+Bot-Fun : (A : Type₀) -> ((Bot -> A) == Top)
+Bot-Fun A = ua (isoToEquiv i)
+  where
+  i : Iso (Bot -> A) Top
+  i .fun f = tt
+  i .inv tt = \()
+  i .rightInv _ = refl
+  i .leftInv f i ()
+
+Top-Fun : (A : Type₀) -> ((Top -> A) == A)
+Top-Fun A = ua (isoToEquiv i)
+  where
+  i : Iso (Top -> A) A
+  i .fun f = f tt
+  i .inv a _ = a
+  i .rightInv _ = refl
+  i .leftInv _ = refl
+
+⊎-Fun : (A B C : Type₀) -> ((A ⊎ B) -> C) == ((A -> C) × (B -> C))
+⊎-Fun A B C = ua (isoToEquiv i)
+  where
+  i : Iso ((A ⊎ B) -> C) ((A -> C) × (B -> C))
+  i .fun f = (f ∘ inj-l , f ∘ inj-r)
+  i .inv (f , g) (inj-l a) = f a
+  i .inv (f , g) (inj-r b) = g b
+  i .rightInv (f , g) = refl
+  i .leftInv f i (inj-l a) = f (inj-l a)
+  i .leftInv f i (inj-r b) = f (inj-r b)

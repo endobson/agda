@@ -11,6 +11,7 @@ open import isomorphism
 open import nat
 open import functions
 open import sigma
+open import vec
 
 open Iso
 
@@ -101,3 +102,15 @@ Fin-* (suc m) n =
   Fin-+ n (m *' n)
   >=> (cong (Fin n ⊎_) (Fin-* m n))
   >=> sym (Fin-suc-× m)
+
+
+Fin-Fun : {n : Nat} (A : Type₀) -> (Fin n -> A) == Vec A n
+Fin-Fun {zero} A =
+  (\i -> Fin-Bot i -> A)
+  >=> Bot-Fun A
+  >=> sym (Vec-Top A)
+Fin-Fun {suc n} A =
+  (\i -> Fin-suc-⊎ n i -> A)
+  >=> (⊎-Fun Top (Fin n) A)
+  >=> (\i -> Top-Fun A i × Fin-Fun {n} A i)
+  >=> sym (Vec-× A)
