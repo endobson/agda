@@ -4,6 +4,7 @@ module lcm where
 
 open import base
 open import div
+open import gcd
 open import nat
 
 record LCM' (a : Nat) (b : Nat) (m : Nat) : Type₀ where
@@ -22,3 +23,24 @@ lcm-unique {a} {b} {m1} {m2} lcm1 lcm2 = div'-antisym m1%m2 m2%m1
   m1%m2 = m1.f m2 m2.a%m m2.b%m
   m2%m1 : m2 div' m1
   m2%m1 = m2.f m1 m1.a%m m1.b%m
+
+lcm-idempotent : {a b m : Nat} -> LCM' a b m -> LCM' a m m
+lcm-idempotent l = record
+  { a%m = LCM'.a%m l
+  ; b%m = div'-refl
+  ; f = \ x a%x m%x -> m%x
+  }
+
+lcm-absorbs-gcd : {a b d : Nat} -> GCD' a b d -> LCM' a d a
+lcm-absorbs-gcd g = record
+  { a%m = div'-refl
+  ; b%m = GCD'.%a g
+  ; f = \ x a%x d%x -> a%x
+  }
+
+gcd-absorbs-lcm : {a b m : Nat} -> LCM' a b m -> GCD' a m a
+gcd-absorbs-lcm l = record
+  { %a = div'-refl
+  ; %b = LCM'.a%m l
+  ; f = \x x%a x%m -> x%a
+  }
