@@ -236,6 +236,28 @@ a ^' (suc b) = a *' a ^' b
 ^'-Pos' _ zero = tt
 ^'-Pos' p (suc n) = *'-Pos'-Pos' p (^'-Pos' p n)
 
+
+-- Maximum and Minimum
+
+max : Nat -> Nat -> Nat
+max 0       n       = n
+max (suc m) 0       = (suc m)
+max (suc m) (suc n) = suc (max m n)
+
+min : Nat -> Nat -> Nat
+min 0       n       = 0
+min (suc m) 0       = 0
+min (suc m) (suc n) = suc (min m n)
+
+min-max==sum : (a b : Nat) -> (a +' b) == (min a b) +' (max a b)
+min-max==sum zero    n       = refl
+min-max==sum (suc m) 0       = +'-right-zero
+min-max==sum (suc m) (suc n) =
+  cong suc (+'-right-suc
+            >=> cong suc (min-max==sum m n)
+            >=> sym +'-right-suc)
+
+
 iter : {ℓ : Level} {A : Type ℓ} (n : Nat) (f : A -> A) -> A -> A
 iter zero _ a = a
 iter (suc n) f a = f (iter n f a)
