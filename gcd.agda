@@ -435,3 +435,9 @@ euclids-lemma {a} {b} {c} a%bc ab-gcd = handle (gcd->linear-combo ab-gcd)
 
     a%c : a div c
     a%c = (subst (\ x -> a div x) (sym c==stuff) a%stuff)
+
+gcd'-exists : (m : Nat) -> (n : Nat) -> Σ[ d ∈ Nat ] (GCD' m n d)
+gcd'-exists m n = handle (gcd-exists (int m) (int n))
+  where
+  handle : Σ[ d ∈ Int ] (GCD (int m) (int n) d) -> Σ[ d ∈ Nat ] (GCD' m n d)
+  handle (d , g) = (abs' d , (gcd->gcd' g))
