@@ -120,11 +120,6 @@ private
     compute-division-count' d n (suc n') 1<d (same-≤ (suc n'))
 
 
-  compute-prime-division-count : (p : Prime')  (n : Nat⁺) -> DivisionCount ⟨ p ⟩ ⟨ n ⟩
-  compute-prime-division-count p@(p' , _) n =
-    compute-division-count p' n (Prime'.>1 p)
-
-
   isPropDivisionCount : {d n : Nat} -> isProp (DivisionCount d n)
   isPropDivisionCount {d} {n}
                       dc1@(division-count d-pos1 n-pos1 k1 div-k1 ¬div-sk1)
@@ -204,28 +199,35 @@ private
   prime->Pos' (zero  , (is-prime' p>1 _)) = bot-elim (zero-≮ p>1)
   prime->Pos' (suc _ , _                ) = tt
 
+
+compute-prime-division-count : (p : Prime')  (n : Nat⁺) -> DivisionCount ⟨ p ⟩ ⟨ n ⟩
+compute-prime-division-count p@(p' , _) n =
+  compute-division-count p' n (Prime'.>1 p)
+
+private
+
+  prime-product-pos : ∀ (ps : UList Prime') -> Pos' (prime-product ps)
+  prime-product-pos = UListElim.prop isPropPos' []* ::*
+    where
+    []* : Pos' (prime-product [])
+    []* = tt
+    ::* : ∀ (p : Prime') {ps : UList Prime'}
+          -> Pos' (prime-product ps) -> Pos' (prime-product (p :: ps))
+    ::* p ps-pos = *'-Pos'-Pos' (prime->Pos' p) ps-pos
+
+  prime-product⁺ : UList Prime' -> Nat⁺
+  prime-product⁺ ps = prime-product ps , prime-product-pos ps
+
+
+  primes-division-count : (p : Prime') -> (ps : UList Prime')
+                          -> DivisionCount ⟨ p ⟩ (prime-product ps)
+  primes-division-count p ps =
+    compute-prime-division-count p (prime-product⁺ ps)
+
+  product-division-count : Prime' -> UList Prime' -> Nat
+  product-division-count p ps = DivisionCount.k (primes-division-count p ps)
+
   module _ (p : Prime') where
-
-    prime-product-pos : ∀ (ps : UList Prime') -> Pos' (prime-product ps)
-    prime-product-pos = UListElim.prop isPropPos' []* ::*
-      where
-      []* : Pos' (prime-product [])
-      []* = tt
-      ::* : ∀ (p : Prime') {ps : UList Prime'}
-            -> Pos' (prime-product ps) -> Pos' (prime-product (p :: ps))
-      ::* p ps-pos = *'-Pos'-Pos' (prime->Pos' p) ps-pos
-
-    prime-product⁺ : UList Prime' -> Nat⁺
-    prime-product⁺ ps = prime-product ps , prime-product-pos ps
-
-
-    primes-division-count : (p : Prime') -> (ps : UList Prime')
-                            -> DivisionCount ⟨ p ⟩ (prime-product ps)
-    primes-division-count p ps =
-      compute-prime-division-count p (prime-product⁺ ps)
-
-    product-division-count : Prime' -> UList Prime' -> Nat
-    product-division-count p ps = DivisionCount.k (primes-division-count p ps)
 
     prime-doesn't-divide-1 : ∀ (p : Prime') -> DivisionCount ⟨ p ⟩ 1
     prime-doesn't-divide-1 p@(pv , (is-prime' p>1 _)) = record
@@ -430,3 +432,34 @@ module _ (p : Prime') {a : Nat} (pf : PrimeFactorization a) where
 
   prime-div==prime-factorization-∈ : (⟨ p ⟩ div' a) == contains p (PrimeFactorization.primes pf)
   prime-div==prime-factorization-∈ = ua (isoToEquiv prime-div-prime-factorization-∈-iso)
+
+same-division-count : {a b : Nat⁺} ->
+  ((p : Prime')
+   -> (d1 : DivisionCount ⟨ p ⟩ ⟨ a ⟩)
+   -> (d2 : DivisionCount ⟨ p ⟩ ⟨ b ⟩)
+   -> (DivisionCount.k d1) == (DivisionCount.k d2))
+  -> ⟨ a ⟩ == ⟨ b ⟩
+same-division-count {a} {b} f =
+  sym pf-a.product
+  >=> cong prime-product (countExtUList pf-a.primes pf-b.primes g)
+  >=> pf-b.product
+  where
+  pf-a = compute-prime-factorization a
+  pf-b = compute-prime-factorization b
+  module pf-a = PrimeFactorization pf-a
+  module pf-b = PrimeFactorization pf-b
+
+  g : (p : Prime') -> count p pf-a.primes == count p pf-b.primes
+  g p = count-path p pf-a.primes
+        >=> (f' p (primes-division-count p pf-a.primes)
+                  (primes-division-count p pf-b.primes))
+        >=> sym (count-path p pf-b.primes)
+    where
+    f' : ((p : Prime')
+          -> (d1 : DivisionCount ⟨ p ⟩ (prime-product pf-a.primes))
+          -> (d2 : DivisionCount ⟨ p ⟩ (prime-product pf-b.primes))
+          -> (DivisionCount.k d1) == (DivisionCount.k d2))
+    f' = transport (\i -> ((p : Prime')
+                            -> (d1 : DivisionCount ⟨ p ⟩ (pf-a.product (~ i)))
+                            -> (d2 : DivisionCount ⟨ p ⟩ (pf-b.product (~ i)))
+                            -> (DivisionCount.k d1) == (DivisionCount.k d2))) f
