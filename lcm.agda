@@ -13,6 +13,14 @@ record LCM' (a : Nat) (b : Nat) (m : Nat) : Type₀ where
     b%m : b div' m
     f : (x : Nat) -> (a div' x) -> (b div' x) -> (m div' x)
 
+  m-pos : (Pos' a) -> (Pos' b) -> Pos' m
+  m-pos a-pos b-pos = div'-pos->pos (f (a *' b) a%ab b%ab) (*'-Pos'-Pos' a-pos b-pos)
+    where
+    a%ab : a div' (a *' b)
+    a%ab = b , *'-commute {b} {a}
+    b%ab : b div' (a *' b)
+    b%ab = a , refl
+
 lcm-unique : {a b m1 m2 : Nat} -> LCM' a b m1 -> LCM' a b m2 -> m1 == m2
 lcm-unique {a} {b} {m1} {m2} lcm1 lcm2 = div'-antisym m1%m2 m2%m1
   where

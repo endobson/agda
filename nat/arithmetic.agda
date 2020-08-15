@@ -283,6 +283,12 @@ max-commute {zero} {suc n} = refl
 max-commute {suc m} {zero} = refl
 max-commute {suc m} {suc n} = cong suc (max-commute {m} {n})
 
+max->min-path : {a b : Nat} -> max a b == a +' (b -' (min a b))
+max->min-path {zero}  {b} = refl
+max->min-path {suc a} {zero} = sym (+'-right-zero)
+max->min-path {suc a} {suc b} = cong suc (max->min-path {a} {b})
+
+
 split-min : (a b : Nat) -> (min a b == a) ⊎ (min a b == b)
 split-min zero    n       = inj-l refl
 split-min (suc m) zero    = inj-r refl

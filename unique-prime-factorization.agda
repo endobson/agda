@@ -12,6 +12,7 @@ open import hlevel
 open import isomorphism
 open import nat
 open import prime
+open import prime-div-count
 open import prime-factorization
 open import prime-gcd
 open import relation
@@ -433,13 +434,46 @@ module _ (p : Prime') {a : Nat} (pf : PrimeFactorization a) where
   prime-div==prime-factorization-∈ : (⟨ p ⟩ div' a) == contains p (PrimeFactorization.primes pf)
   prime-div==prime-factorization-∈ = ua (isoToEquiv prime-div-prime-factorization-∈-iso)
 
-same-division-count : {a b : Nat⁺} ->
+
+private
+  prime-div-count->division-count :
+    {p : Prime'} {a n : Nat} -> PrimeDivCount p a n -> DivisionCount ⟨ p ⟩ a
+  prime-div-count->division-count {p} {a} {n} dc = record
+    { d-pos = (Prime'.pos p)
+    ; n-pos = (PrimeDivCount.a-pos dc)
+    ; k = n
+    ; d^k%n        = (PrimeDivCount.%a dc)
+    ; ¬d^[suc-k]%n = (PrimeDivCount.¬p^sn%a dc)
+    }
+
+  division-count->prime-div-count :
+    {p : Prime'} {a : Nat} -> (dc : DivisionCount ⟨ p ⟩ a) -> PrimeDivCount p a (DivisionCount.k dc)
+  division-count->prime-div-count {p} {a} dc = record
+    { %a = dc.d^k%n
+    ; ¬p%r = ¬p%r
+    }
+    where
+    module dc = DivisionCount dc
+    p' = ⟨ p ⟩
+
+    r = fst dc.d^k%n
+    r-path : r *' (prime-power p dc.k) == a
+    r-path = snd dc.d^k%n
+
+    ¬p%r : ¬ (p' div' r)
+    ¬p%r (x , x-path) = dc.¬d^[suc-k]%n p^sk%a
+      where
+      p^sk%a : (prime-power p (suc dc.k)) div' a
+      p^sk%a = x , sym (*'-assoc {x} {p'}) >=> *'-left x-path >=> r-path
+
+
+same-division-count : (a b : Nat⁺) ->
   ((p : Prime')
    -> (d1 : DivisionCount ⟨ p ⟩ ⟨ a ⟩)
    -> (d2 : DivisionCount ⟨ p ⟩ ⟨ b ⟩)
    -> (DivisionCount.k d1) == (DivisionCount.k d2))
   -> ⟨ a ⟩ == ⟨ b ⟩
-same-division-count {a} {b} f =
+same-division-count a b f =
   sym pf-a.product
   >=> cong prime-product (countExtUList pf-a.primes pf-b.primes g)
   >=> pf-b.product
@@ -463,3 +497,17 @@ same-division-count {a} {b} f =
                             -> (d1 : DivisionCount ⟨ p ⟩ (pf-a.product (~ i)))
                             -> (d2 : DivisionCount ⟨ p ⟩ (pf-b.product (~ i)))
                             -> (DivisionCount.k d1) == (DivisionCount.k d2))) f
+
+prime-same-division-count : (a b : Nat⁺) ->
+  ((p : Prime') {d1 d2 : Nat}
+   -> PrimeDivCount p ⟨ a ⟩ d1
+   -> PrimeDivCount p ⟨ b ⟩ d2
+   -> d1 == d2)
+  -> ⟨ a ⟩ == ⟨ b ⟩
+prime-same-division-count a b f = same-division-count a b g
+  where
+  g : (p : Prime')
+      -> (d1 : DivisionCount ⟨ p ⟩ ⟨ a ⟩)
+      -> (d2 : DivisionCount ⟨ p ⟩ ⟨ b ⟩)
+      -> (DivisionCount.k d1) == (DivisionCount.k d2)
+  g p d1 d2 = f p (division-count->prime-div-count d1) (division-count->prime-div-count d2)
