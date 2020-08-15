@@ -299,6 +299,29 @@ Iso.leftInv  <-minus-iso _ = ΣProp-path (isSetNat _ _) refl
 <-minus-path : {m n p : Nat} -> ((m +' n) < p) == (m < (p -' n))
 <-minus-path = ua (isoToEquiv <-minus-iso)
 
+-- ≤ and max/min
+
+≤-min-left : {m n : Nat} -> (min m n) ≤ m
+≤-min-left {zero}  {n}     = zero-≤
+≤-min-left {suc _} {zero}  = zero-≤
+≤-min-left {suc m} {suc n} = suc-≤ ≤-min-left
+
+≤-min-right : {m n : Nat} -> (min m n) ≤ n
+≤-min-right {zero}  {n}     = zero-≤
+≤-min-right {suc _} {zero}  = zero-≤
+≤-min-right {suc m} {suc n} = suc-≤ ≤-min-right
+
+≤-max-left : {m n : Nat} -> m ≤ (max m n)
+≤-max-left {zero}  {n}     = zero-≤
+≤-max-left {suc m} {zero}  = same-≤ (suc m)
+≤-max-left {suc m} {suc n} = suc-≤ ≤-max-left
+
+≤-max-right : {m n : Nat} -> n ≤ (max m n)
+≤-max-right {zero}  {n}     = same-≤ n
+≤-max-right {suc _} {zero}  = zero-≤
+≤-max-right {suc m} {suc n} = suc-≤ ≤-max-right
+
+
 -- Flipped ≤
 _≤'_ : Nat -> Nat -> Type₀
 m ≤' n = Σ[ x ∈ Nat ] m +' x == n

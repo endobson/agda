@@ -48,6 +48,13 @@ div'-mult : {d n : Nat} -> d div' n -> (a : Nat) -> d div' (a *' n)
 div'-mult (c , pr) a =
   (a *' c) , (*'-assoc {a} >=> *'-right {a} pr)
 
+div'-^' : {k1 k2 d : Nat} -> k1 ≤ k2 -> (d ^' k1) div' (d ^' k2)
+div'-^' {k1} {k2} {d} (i , path) = (d ^' i , path')
+  where
+  path' : (d ^' i) *' (d ^' k1) == (d ^' k2)
+  path' = sym (^'-distrib-power {d} {i} {k1}) >=> (cong (d ^'_) path)
+
+
 div-negate : {d a : Int} -> d div a -> d div (- a)
 div-negate (d-div-a , pr) =
   (- d-div-a) , ((minus-extract-left {d-div-a}) >=> (cong minus pr))
