@@ -226,6 +226,21 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
   transport (\i -> (*'-commute {x} {m} i) < (*'-commute {x} {n} i))
             (*-left-<⁺ x>0 lt)
 
+*-prod-right-< : {m n : Nat} -> (m > 1) -> (p : Nat⁺) -> m *' n == ⟨ p ⟩ -> n < ⟨ p ⟩
+*-prod-right-< {zero} {n} m>1 _ path = bot-elim (zero-≮ m>1)
+*-prod-right-< {suc zero} {n} m>1 _ path = bot-elim (same-≮ m>1)
+*-prod-right-< {m@(suc (suc m'))} {zero} m>1 (p , p-pos) path =
+  bot-elim (transport (cong Pos' (sym path >=> *'-right-zero {m})) p-pos)
+*-prod-right-< {m@(suc (suc m'))} {n@(suc n')} m>1 (p , _) path =
+  (n' +' (m' *' n)) , path'
+  where
+  path' : (n' +' (m' *' n)) +' (suc n) == p
+  path' = +'-right-suc >=> +'-commute {_} {n} >=> path
+
+*-prod-left-< : {m n : Nat} -> (n > 1) -> (p : Nat⁺) -> m *' n == ⟨ p ⟩ -> m < ⟨ p ⟩
+*-prod-left-< {m} {n} n>1 p path = *-prod-right-< n>1 p (*'-commute {n} {m} >=> path)
+
+
 -- Helpers for exponentiation and ≤
 
 ^-suc-≤ : {m : Nat} -> m ≥ 1 -> (n : Nat) ->  (m ^' n) ≤ (m ^' (suc n))

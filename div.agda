@@ -116,6 +116,9 @@ div'-pos->pos {zero} div1 n-pos =
   (transport (\i -> (Pos' (div'-zero->zero div1 i))) n-pos)
 div'-pos->pos {suc _} _ _ = tt
 
+div'-pos->pos' : {d n : Nat} -> (d%n : d div' n) -> Pos' n -> Pos' ⟨ d%n ⟩
+div'-pos->pos' {d} (x , path) n-pos = div'-pos->pos (d , *'-commute {d} {x} >=> path) n-pos
+
 Unit : (x : Int) -> Type₀
 Unit zero-int = Bot
 Unit (pos zero) = Top
