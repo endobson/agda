@@ -11,6 +11,7 @@ open import isomorphism
 open import monoid
 open import nat.properties
 open import relation
+open import sum
 
 infixl 6 _+'_
 _+'_ : Nat -> Nat -> Nat
@@ -72,6 +73,13 @@ pred n = n -' (suc zero)
 m+'n==0->m==0 : {m n : Nat} -> m +' n == 0 -> m == 0
 m+'n==0->m==0 {0} p = refl
 m+'n==0->m==0 {(suc _)} p = bot-elim (zero-suc-absurd (sym p))
+
++'-Pos-left : {m n : Nat} -> Pos' m -> Pos' (m +' n)
++'-Pos-left {suc _} tt = tt
+
++'-Pos-right : {m n : Nat} -> Pos' n -> Pos' (m +' n)
++'-Pos-right {zero}  p = p
++'-Pos-right {suc _} _ = tt
 
 -- Properties of -
 
@@ -236,6 +244,12 @@ a ^' (suc b) = a *' a ^' b
 ^'-Pos' _ zero = tt
 ^'-Pos' p (suc n) = *'-Pos'-Pos' p (^'-Pos' p n)
 
+^'-distrib-power : {x a b : Nat} -> x ^' (a +' b) == (x ^' a) *' (x ^' b)
+^'-distrib-power {x} {zero} {b} = sym *'-left-one
+^'-distrib-power {x} {suc a} {b} =
+  *'-right {x} (^'-distrib-power {x} {a} {b})
+  >=> sym (*'-assoc {x} {x ^' a})
+
 
 -- Maximum and Minimum
 
@@ -257,6 +271,33 @@ min-max==sum (suc m) (suc n) =
             >=> cong suc (min-max==sum m n)
             >=> sym +'-right-suc)
 
+min-commute : {a b : Nat} -> min a b == min b a
+min-commute {zero} {zero} = refl
+min-commute {zero} {suc n} = refl
+min-commute {suc m} {zero} = refl
+min-commute {suc m} {suc n} = cong suc min-commute
+
+max-commute : {a b : Nat} -> max a b == max b a
+max-commute {zero} {zero} = refl
+max-commute {zero} {suc n} = refl
+max-commute {suc m} {zero} = refl
+max-commute {suc m} {suc n} = cong suc (max-commute {m} {n})
+
+split-min : (a b : Nat) -> (min a b == a) ⊎ (min a b == b)
+split-min zero    n       = inj-l refl
+split-min (suc m) zero    = inj-r refl
+split-min (suc m) (suc n) = ⊎-map (cong suc) (cong suc) (split-min m n)
+
+split-max : (a b : Nat) -> (max a b == a) ⊎ (max a b == b)
+split-max zero    n       = inj-r refl
+split-max (suc m) zero    = inj-l refl
+split-max (suc m) (suc n) = ⊎-map (cong suc) (cong suc) (split-max m n)
+
+split-min-max : (a b : Nat) -> (min a b == a × max a b == b) ⊎ (min a b == b × max a b == a)
+split-min-max zero    n       = inj-l (refl , refl)
+split-min-max (suc m) zero    = inj-r (refl , refl)
+split-min-max (suc m) (suc n) = ⊎-map (\{(x , y) -> cong suc x , cong suc y})
+                                      (\{(x , y) -> cong suc x , cong suc y}) (split-min-max m n)
 
 iter : {ℓ : Level} {A : Type ℓ} (n : Nat) (f : A -> A) -> A -> A
 iter zero _ a = a
