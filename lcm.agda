@@ -32,6 +32,20 @@ lcm-unique {a} {b} {m1} {m2} lcm1 lcm2 = div'-antisym m1%m2 m2%m1
   m2%m1 : m2 div' m1
   m2%m1 = m2.f m1 m1.a%m m1.b%m
 
+lcm-zero : {b : Nat} -> LCM' 0 b 0
+lcm-zero {b} = record
+  { a%m = div'-zero
+  ; b%m = div'-zero
+  ; f = (\ _ 0%x _ -> 0%x)
+  }
+
+lcm-sym : {a b m : Nat} -> LCM' a b m -> LCM' b a m
+lcm-sym l = record
+  { a%m = LCM'.b%m l
+  ; b%m = LCM'.a%m l
+  ; f = (\ x b% a% -> LCM'.f l x a% b%)
+  }
+
 lcm-idempotent : {a b m : Nat} -> LCM' a b m -> LCM' a m m
 lcm-idempotent l = record
   { a%m = LCM'.a%m l

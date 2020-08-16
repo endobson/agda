@@ -263,12 +263,12 @@ min 0       n       = 0
 min (suc m) 0       = 0
 min (suc m) (suc n) = suc (min m n)
 
-min-max==sum : (a b : Nat) -> (a +' b) == (min a b) +' (max a b)
-min-max==sum zero    n       = refl
-min-max==sum (suc m) 0       = +'-right-zero
-min-max==sum (suc m) (suc n) =
+sum==min-max : (a b : Nat) -> (a +' b) == (min a b) +' (max a b)
+sum==min-max zero    n       = refl
+sum==min-max (suc m) 0       = +'-right-zero
+sum==min-max (suc m) (suc n) =
   cong suc (+'-right-suc
-            >=> cong suc (min-max==sum m n)
+            >=> cong suc (sum==min-max m n)
             >=> sym +'-right-suc)
 
 min-commute : {a b : Nat} -> min a b == min b a
