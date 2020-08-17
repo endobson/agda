@@ -187,3 +187,6 @@ lcm-relatively-prime {a} {b} {m} pos-m l = no-shared-primes c d f
       *'-left-injective
         n⁺
         (n-path >=> div'-antisym m%n n%m >=> (sym *'-right-one))
+
+divisors-relatively-prime : {d1 d2 a b : Nat} -> RP a b -> d1 div' a -> d2 div' b -> RP d1 d2
+divisors-relatively-prime rp d1%a d2%b p p%d1 p%d2 = rp p (div'-trans p%d1 d1%a) (div'-trans p%d2 d2%b)

@@ -6,6 +6,7 @@ open import base
 open import div
 open import equality
 open import gcd
+open import lcm
 open import list
 open import list.nat
 open import list.sorted
@@ -13,6 +14,7 @@ open import nat
 open import prime
 open import prime-gcd
 open import relation
+open import unique-prime-factorization
 
 
 import unordered-list as ul
@@ -189,3 +191,12 @@ module _ (p : Prime') where
     nd = sorted>->no-duplicates (sorted>-divisors-of-prime-power (suc n))
     sorted : Sorted _≥_ (divisors-of-prime-power (suc n))
     sorted = sorted>->sorted≥ (sorted>-divisors-of-prime-power (suc n))
+
+-- Divisors of product
+private
+  lcm-divides-product : {d1 d2 a b m : Nat} -> d1 div' a -> d2 div' b -> LCM' d1 d2 m -> m div' (a *' b)
+  lcm-divides-product {d1} {d2} {a} {b} {m} d1%a d2%b l =
+    LCM'.f l (a *' b) (div'-mult' d1%a b) (div'-mult d2%b a)
+    
+  
+  
