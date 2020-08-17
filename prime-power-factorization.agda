@@ -89,3 +89,46 @@ private
 
 compute-ppf : {n : Nat} -> n > 1 -> PPF n
 compute-ppf n>1 = pft->ppf (compute-prime-factorization-tree n>1)
+
+data OrderedPrimePowerFactorization : Nat -> Type₀ where
+  oppf-[] : OrderedPrimePowerFactorization 1
+  oppf-cons : {a : Nat}
+    -> (p : Prime')
+    -> (n : Nat⁺)
+    -> (¬ (⟨ p ⟩ div' a))
+    -> OrderedPrimePowerFactorization a
+    -> OrderedPrimePowerFactorization ((prime-power p ⟨ n ⟩) *' a)
+
+private
+  OPPF = OrderedPrimePowerFactorization
+
+  merge-ppf-oppf : {a b : Nat} -> PPF a -> RP a b -> OPPF b -> OPPF (a *' b)
+  merge-ppf-oppf {a} {b} (ppf-base p n@(suc n' , _)) rp oppf = oppf-cons p n ¬p%b oppf
+    where
+    ¬p%b : ¬ (⟨ p ⟩ div'  b)
+    ¬p%b p%b = Prime'.!=1 p (rp ⟨ p ⟩ (prime-power-div p n) p%b)
+  merge-ppf-oppf {a} {b} (ppf-combine {a1} {a2} ta1 ta2 rp-as) rp-ab oppf =
+    transport (cong OPPF index-path) (merge-ppf-oppf ta1 rp-a1-a2b (merge-ppf-oppf ta2 rp-a2-b oppf))
+    where
+    index-path : a1 *' (a2 *' b) == a *' b
+    index-path = sym (*'-assoc {a1} {a2} {b})
+
+    rp-a1-a2b : RP a1 (a2 *' b)
+    rp-a1-a2b = no-shared-primes a1 (a2 *' b) f
+      where
+      f : (p : Prime') -> ⟨ p ⟩ div' a1 -> ⟨ p ⟩ div' (a2 *' b) -> Bot
+      f p@(p' , _) p%a1 p%a2b = handle (prime-divides-a-factor p p%a2b)
+        where
+        handle : (p' div' a2 ⊎ p' div' b) -> Bot
+        handle (inj-l p%a2) = Prime'.!=1 p (rp-as p' p%a1 p%a2)
+        handle (inj-r p%b) = Prime'.!=1 p (rp-ab p' (div'-mult' p%a1 a2) p%b)
+
+    rp-a2-b : RP a2 b
+    rp-a2-b d d%a2 d%b = rp-ab d (div'-mult d%a2 a1) d%b
+
+  ppf->oppf : {a : Nat} -> PPF a -> OPPF a
+  ppf->oppf ppf = transport (cong OPPF *'-right-one) (merge-ppf-oppf ppf rp-one oppf-[])
+
+compute-oppf : (n : Nat⁺) -> OPPF ⟨ n ⟩
+compute-oppf (suc zero    , _) = oppf-[]
+compute-oppf (suc (suc _) , _) = ppf->oppf (compute-ppf (suc-≤ (suc-≤ zero-≤)))

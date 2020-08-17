@@ -48,6 +48,10 @@ div'-mult : {d n : Nat} -> d div' n -> (a : Nat) -> d div' (a *' n)
 div'-mult (c , pr) a =
   (a *' c) , (*'-assoc {a} >=> *'-right {a} pr)
 
+div'-mult' : {d n : Nat} -> d div' n -> (b : Nat) -> d div' (n *' b)
+div'-mult' {d} {n} (c , pr) b =
+  (b *' c) , (*'-assoc {b} >=> *'-right {b} pr >=> *'-commute {b} {n})
+
 div'-^' : {k1 k2 d : Nat} -> k1 ≤ k2 -> (d ^' k1) div' (d ^' k2)
 div'-^' {k1} {k2} {d} (i , path) = (d ^' i , path')
   where

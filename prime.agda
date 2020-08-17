@@ -121,3 +121,6 @@ prime-power (p , _) n = p ^' n
 
 prime-power⁺ : Prime' -> Nat -> Nat⁺
 prime-power⁺ p n = (prime-power p n , ^'-Pos' (Prime'.pos p) n)
+
+prime-power-div : (p : Prime') -> (n : Nat⁺) -> ⟨ p ⟩ div' (prime-power p ⟨ n ⟩)
+prime-power-div p@(p' , _) (suc n' , _) = (prime-power p n') , *'-commute {prime-power p n'} {p'}
