@@ -157,6 +157,11 @@ prime-div-count-unique {p} {a} {suc n1} {suc n2} dc1 dc2 = cong suc path
   path : n1 == n2
   path = prime-div-count-unique {p} {a'} dc1' dc2'
 
+prime-power-div-count : (p : Prime') (n : Nat) -> PrimeDivCount p (prime-power p n) n
+prime-power-div-count p n = record
+  { %a = div'-refl
+  ; ¬p%r = Prime'.¬%1 p
+  }
 
 *'-prime-div-count : {a b : Nat}
   -> {p : Prime'}

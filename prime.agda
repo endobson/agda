@@ -48,6 +48,9 @@ module Prime' (p : Prime') where
   nat⁺ : Nat⁺
   nat⁺ = p' , pos
 
+  ¬%1 : ¬ (p' div' 1)
+  ¬%1 p%1 = !=1 (div'-one->one p%1)
+
 
 discretePrime' : Discrete Prime'
 discretePrime' p1 p2 with (decide-nat ⟨ p1 ⟩ ⟨ p2 ⟩)

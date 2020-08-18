@@ -52,6 +52,27 @@ div'-mult' : {d n : Nat} -> d div' n -> (b : Nat) -> d div' (n *' b)
 div'-mult' {d} {n} (c , pr) b =
   (b *' c) , (*'-assoc {b} >=> *'-right {b} pr >=> *'-commute {b} {n})
 
+div'-mult-both : {d1 n1 d2 n2 : Nat} -> d1 div' n1 -> d2 div' n2 -> (d1 *' d2) div' (n1 *' n2)
+div'-mult-both {d1} {n1} {d2} {n2} (x1 , x1-path) (x2 , x2-path) = x1 *' x2 , path
+  where
+  path : (x1 *' x2) *' (d1 *' d2) == (n1 *' n2)
+  path =
+    begin
+      (x1 *' x2) *' (d1 *' d2)
+    ==< *'-assoc {x1} {x2} >
+      x1 *' (x2 *' (d1 *' d2))
+    ==< *'-right {x1} (sym (*'-assoc {x2} {d1} {d2})) >
+      x1 *' ((x2 *' d1) *' d2)
+    ==< *'-right {x1} (*'-left (*'-commute {x2} {d1})) >
+      x1 *' ((d1 *' x2) *' d2)
+    ==< *'-right {x1} (*'-assoc {d1} {x2} {d2}) >
+      x1 *' (d1 *' (x2 *' d2))
+    ==< sym (*'-assoc {x1} {d1}) >
+      (x1 *' d1) *' (x2 *' d2)
+    ==< (\i -> x1-path i *' x2-path i) >
+      n1 *' n2
+    end
+
 div'-^' : {k1 k2 d : Nat} -> k1 ≤ k2 -> (d ^' k1) div' (d ^' k2)
 div'-^' {k1} {k2} {d} (i , path) = (d ^' i , path')
   where
