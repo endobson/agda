@@ -129,6 +129,11 @@ private
   ppf->oppf : {a : Nat} -> PPF a -> OPPF a
   ppf->oppf ppf = transport (cong OPPF *'-right-one) (merge-ppf-oppf ppf rp-one oppf-[])
 
+
 compute-oppf : (n : Nat⁺) -> OPPF ⟨ n ⟩
 compute-oppf (suc zero    , _) = oppf-[]
 compute-oppf (suc (suc _) , _) = ppf->oppf (compute-ppf (suc-≤ (suc-≤ zero-≤)))
+
+oppf->pos : {a : Nat} -> OPPF a -> Pos' a
+oppf->pos oppf-[] = tt
+oppf->pos (oppf-cons p n _ oppf) = *'-Pos'-Pos' (snd (prime-power⁺ p ⟨ n ⟩)) (oppf->pos oppf)
