@@ -7,6 +7,7 @@ open import div
 open import equality
 open import gcd
 open import lcm
+open import lcm.exists
 open import list
 open import list.nat
 open import list.sorted
@@ -197,6 +198,48 @@ private
   lcm-divides-product : {d1 d2 a b m : Nat} -> d1 div' a -> d2 div' b -> LCM' d1 d2 m -> m div' (a *' b)
   lcm-divides-product {d1} {d2} {a} {b} {m} d1%a d2%b l =
     LCM'.f l (a *' b) (div'-mult' d1%a b) (div'-mult d2%b a)
-    
-  
-  
+
+  relatively-prime-lcm : {a b : Nat} -> RelativelyPrime' a b -> LCM' a b (a *' b)
+  relatively-prime-lcm {a} {b} rp = transport (\ i -> LCM' a b (path (~ i))) l
+    where
+    Σlcm : Σ[ m ∈ Nat ] (LCM' a b m)
+    Σlcm = lcm-exists a b
+    m = fst Σlcm
+    l = snd Σlcm
+
+    path : (a *' b) == m
+    path = lcm-gcd-prod-path l (relatively-prime->gcd rp) >=> *'-right-one
+
+  module _ (a b : Nat⁺) where
+    private
+      a' = ⟨ a ⟩
+      b' = ⟨ b ⟩
+
+    *'-divisors : List Nat
+    *'-divisors = cartesian-product' _*'_ (divisors a) (divisors b)
+
+    *'-divisors-co : ContainsOnly (_div' (a' *' b')) *'-divisors
+    *'-divisors-co {x} c = transport (\i -> (x-path i) div' (a' *' b')) xab%ab
+      where
+      c-info : Σ[ p ∈ (Nat × Nat) ]
+                 ((contains p (cartesian-product (divisors a) (divisors b)))
+                  × (proj₁ p *' proj₂ p == x))
+      c-info = map-contains' (\ (a , b) -> a *' b) (cartesian-product (divisors a) (divisors b)) c
+
+      xa : Nat
+      xa = proj₁ (fst c-info)
+      xb : Nat
+      xb = proj₂ (fst c-info)
+
+      c-xs : (contains xa (divisors a)) × (contains xb (divisors b))
+      c-xs = cartesian-product-contains' (divisors a) (divisors b) (fst (snd c-info))
+      x-path : (xa *' xb == x)
+      x-path = (snd (snd c-info))
+
+      xa%a : xa div' a'
+      xa%a = divisors-contains-only a (proj₁ c-xs)
+      xb%b : xb div' b'
+      xb%b = divisors-contains-only b (proj₂ c-xs)
+
+      xab%ab : (xa *' xb) div' (a' *' b')
+      xab%ab = div'-mult-both xa%a xb%b
