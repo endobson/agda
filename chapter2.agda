@@ -65,7 +65,7 @@ square-free-μ {n⁺} sf pf with (decide-square-free n⁺)
 μp==-1 : (p : Prime') -> μ (Prime'.nat⁺ p) == (- (int 1))
 μp==-1 p = square-free-μ (prime-square-free p) (prime-prime-factorization p)
 
-relatively-prime-μ : {a b : Nat⁺} -> RelativelyPrime' ⟨ a ⟩ ⟨ b ⟩
+relatively-prime-μ : {a b : Nat⁺} -> RelativelyPrime⁺ a b
                      -> μ (a *⁺ b) == μ a * μ b
 relatively-prime-μ {a} {b} rp = handle (decide-square-free a) (decide-square-free b)
   where

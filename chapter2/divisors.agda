@@ -199,7 +199,7 @@ private
   lcm-divides-product {d1} {d2} {a} {b} {m} d1%a d2%b l =
     LCM'.f l (a *' b) (div'-mult' d1%a b) (div'-mult d2%b a)
 
-  relatively-prime-lcm : {a b : Nat} -> RelativelyPrime' a b -> LCM' a b (a *' b)
+  relatively-prime-lcm : {a b : Nat} -> RelativelyPrime⁰ a b -> LCM' a b (a *' b)
   relatively-prime-lcm {a} {b} rp = transport (\ i -> LCM' a b (path (~ i))) l
     where
     m = lcm a b

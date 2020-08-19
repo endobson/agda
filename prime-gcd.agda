@@ -14,13 +14,16 @@ open import prime
 open import prime-factorization
 open import relation
 
-RelativelyPrime' : Nat -> Nat -> Type₀
-RelativelyPrime' a b = (d : Nat) -> d div' a -> d div' b -> d == 1
+RelativelyPrime⁰ : Nat -> Nat -> Type₀
+RelativelyPrime⁰ a b = (d : Nat) -> d div' a -> d div' b -> d == 1
+
+RelativelyPrime⁺ : Nat⁺ -> Nat⁺ -> Type₀
+RelativelyPrime⁺ a b = RelativelyPrime⁰ ⟨ a ⟩ ⟨ b ⟩
 
 private
-  RP = RelativelyPrime'
+  RP = RelativelyPrime⁰
 
-relatively-prime->gcd : {a b : Nat} -> RelativelyPrime' a b -> GCD' a b 1
+relatively-prime->gcd : {a b : Nat} -> RP a b -> GCD' a b 1
 relatively-prime->gcd {a} {b} rp = record
   { %a = div'-one
   ; %b = div'-one
@@ -30,7 +33,7 @@ relatively-prime->gcd {a} {b} rp = record
   f : (x : Nat) -> x div' a -> x div' b -> x div' 1
   f x xa xb = transport (cong (x div'_) (rp x xa xb)) div'-refl
 
-gcd->relatively-prime : {a b : Nat} -> GCD' a b 1 -> RelativelyPrime' a b
+gcd->relatively-prime : {a b : Nat} -> GCD' a b 1 -> RP a b
 gcd->relatively-prime g d da db = div'-antisym (GCD'.f g d da db) div'-one
 
 no-shared-primes : (a b : Nat)

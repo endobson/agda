@@ -102,7 +102,7 @@ prime-power-¬square-free {suc (suc n)} p n≥2 sf =
     >=> cong suc (sym (count-== primes-base refl))
     >=> sym (count-== (p :: primes-base) refl)
 
-relatively-prime-square-free : (a b : Nat⁺) -> RelativelyPrime' ⟨ a ⟩ ⟨ b ⟩
+relatively-prime-square-free : (a b : Nat⁺) -> RelativelyPrime⁺ a b
                                -> SquareFree a -> SquareFree b -> SquareFree (a *⁺ b)
 relatively-prime-square-free a⁺@(a , _) b⁺@(b , _) rp sf-a sf-b p@(p' , _) pf-ab =
   handle (decide-div p' a)

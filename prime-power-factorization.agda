@@ -13,7 +13,7 @@ open import prime-factorization
 open import relation
 
 private
-  RP = RelativelyPrime'
+  RP = RelativelyPrime⁰
 
 data PrimePowerFactorization : Nat -> Type₀ where
   ppf-base : (p : Prime') -> (n : Nat⁺) -> PrimePowerFactorization (prime-power p ⟨ n ⟩)

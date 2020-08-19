@@ -275,10 +275,10 @@ private
       pv = ⟨ p ⟩
       p2v = ⟨ p2 ⟩
 
-      rp' : RelativelyPrime' pv p2v
+      rp' : RelativelyPrime⁰ pv p2v
       rp' = distinct-primes->relatively-prime ¬path
 
-      rp : RelativelyPrime' (pv ^' (suc k)) p2v
+      rp : RelativelyPrime⁰ (pv ^' (suc k)) p2v
       rp = (rp-sym (relatively-prime-^' (rp-sym rp') (suc k)))
 
       no-divides : ¬ ((pv ^' (suc k)) div' (p2v *' n))
