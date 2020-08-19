@@ -263,6 +263,13 @@ gcd-prime-div-count {a} {b} {d} g p {na} da {nb} db = record
       PrimeDivCount.¬p^sn%a db (transport (\i -> (prime-power p (suc (path i))) div' b)
                                           (div'-trans p^sk%d (GCD'.%b g)))
 
+gcd-prime-div-count⁺ : (p : Prime') (a b : Nat⁺)
+  -> prime-div-count p (gcd⁺ a b) == min (prime-div-count p a) (prime-div-count p b)
+gcd-prime-div-count⁺ p a b =
+  prime-div-count-unique
+    (prime-div-count-proof p (gcd⁺ a b))
+    (gcd-prime-div-count (gcd⁺-proof a b) p (prime-div-count-proof p a) (prime-div-count-proof p b))
+
 lcm-prime-div-count : {a b m : Nat}
   -> LCM' a b m
   -> (p : Prime')

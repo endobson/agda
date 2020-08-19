@@ -345,6 +345,9 @@ record GCD' (a : Nat) (b : Nat) (d : Nat) : Type₀ where
     %b : d div' b
     f : (x : Nat) -> x div' a -> x div' b -> x div' d
 
+GCD⁺ : Nat⁺ -> Nat⁺ -> Nat⁺ -> Type₀
+GCD⁺ (a , _) (b , _) (d , _) = GCD' a b d
+
 gcd'-zero : {a : Nat} -> GCD' a 0 a
 gcd'-zero = record
   { %a = div'-refl
@@ -464,3 +467,9 @@ gcd' a b = fst (gcd'-exists a b)
 
 gcd'-proof : (a b : Nat) -> GCD' a b (gcd' a b)
 gcd'-proof a b = snd (gcd'-exists a b)
+
+gcd⁺ : Nat⁺ -> Nat⁺ -> Nat⁺
+gcd⁺ (a , a-pos) (b , _) = gcd' a b , div'-pos->pos (GCD'.%a (gcd'-proof a b)) a-pos
+
+gcd⁺-proof : (a b : Nat⁺) -> GCD⁺ a b (gcd⁺ a b)
+gcd⁺-proof (a , _) (b , _) = gcd'-proof a b
