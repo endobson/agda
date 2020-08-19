@@ -45,6 +45,8 @@ record PrimeDivCount (p : Prime') (a : Nat) (n : Nat)  : Type₀ where
     handle (suc x) path = transport (cong Pos' r-path)
                                     (*'-Pos'-Pos' (transport (cong Pos' path) tt)
                                                              (snd (prime-power⁺ p n)))
+PrimeDivCount⁺ : Prime' -> Nat⁺ -> Nat -> Type₀
+PrimeDivCount⁺ p (a , _) n = PrimeDivCount p a n
 
 private
 
@@ -208,6 +210,14 @@ prime-power-div-count p n = record
     handle : ((⟨ p ⟩ div' da.r) ⊎ (⟨ p ⟩ div' db.r)) -> Bot
     handle (inj-l p%ar) = da.¬p%r p%ar
     handle (inj-r p%br) = db.¬p%r p%br
+
+
+*'-prime-div-count⁺ : (p : Prime') (a b : Nat⁺)
+  -> prime-div-count p (a *⁺ b) == prime-div-count p a +' prime-div-count p b
+*'-prime-div-count⁺ p a b =
+  prime-div-count-unique
+    (prime-div-count-proof p (a *⁺ b))
+    (*'-prime-div-count (prime-div-count-proof p a) (prime-div-count-proof p b))
 
 
 gcd-prime-div-count : {a b d : Nat}
