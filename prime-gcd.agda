@@ -21,7 +21,11 @@ private
   RP = RelativelyPrime'
 
 relatively-prime->gcd : {a b : Nat} -> RelativelyPrime' a b -> GCD' a b 1
-relatively-prime->gcd {a} {b} rp = (gcd' div'-one div'-one f)
+relatively-prime->gcd {a} {b} rp = record
+  { %a = div'-one
+  ; %b = div'-one
+  ; f = f
+  }
   where
   f : (x : Nat) -> x div' a -> x div' b -> x div' 1
   f x xa xb = transport (cong (x div'_) (rp x xa xb)) div'-refl

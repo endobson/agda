@@ -256,3 +256,9 @@ lcm-exists : (a b : Nat) -> Σ[ m ∈ Nat ] (LCM' a b m)
 lcm-exists a           zero    = 0 , lcm-sym lcm-zero
 lcm-exists zero      b@(suc _) = 0 , lcm-zero
 lcm-exists a@(suc _) b@(suc _) = lcm-exists⁺ (compute-oppf (a , tt)) (b , tt)
+
+lcm : Nat -> Nat -> Nat
+lcm a b = fst (lcm-exists a b)
+
+lcm-proof : (a b : Nat) -> LCM' a b (lcm a b)
+lcm-proof a b = snd (lcm-exists a b)

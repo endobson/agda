@@ -202,10 +202,8 @@ private
   relatively-prime-lcm : {a b : Nat} -> RelativelyPrime' a b -> LCM' a b (a *' b)
   relatively-prime-lcm {a} {b} rp = transport (\ i -> LCM' a b (path (~ i))) l
     where
-    Σlcm : Σ[ m ∈ Nat ] (LCM' a b m)
-    Σlcm = lcm-exists a b
-    m = fst Σlcm
-    l = snd Σlcm
+    m = lcm a b
+    l = lcm-proof a b
 
     path : (a *' b) == m
     path = lcm-gcd-prod-path l (relatively-prime->gcd rp) >=> *'-right-one

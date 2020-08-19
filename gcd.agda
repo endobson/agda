@@ -340,37 +340,51 @@ gcd->linear-combo {a} {b} {d} gcd-d = handle (eulers-algo a b)
     transport (\i -> LinearCombination a b ((gcd-unique gcd-d' gcd-d) i)) lc
 
 record GCD' (a : Nat) (b : Nat) (d : Nat) : Type₀ where
-  constructor gcd'
   field
     %a : d div' a
     %b : d div' b
     f : (x : Nat) -> x div' a -> x div' b -> x div' d
 
 gcd'-zero : {a : Nat} -> GCD' a 0 a
-gcd'-zero = (gcd' div'-refl div'-zero (\ x xa xz -> xa))
+gcd'-zero = record
+  { %a = div'-refl
+  ; %b = div'-zero
+  ; f = (\ x xa xz -> xa)
+  }
 
 gcd'-one : {a : Nat} -> GCD' a 1 1
-gcd'-one = (gcd' div'-one div'-refl (\ x xa x1 -> x1))
+gcd'-one = record
+  { %a = div'-one
+  ; %b = div'-refl
+  ; f = (\ x xa x1 -> x1)
+  }
 
 gcd'-sym : {a b d : Nat} -> GCD' a b d -> GCD' b a d
-gcd'-sym (gcd' div-a div-b f) =
-  (gcd' div-b div-a (\ x xb xa -> f x xa xb))
-
+gcd'-sym g = record
+  { %a = g.%b
+  ; %b = g.%a
+  ; f = \ x xb xa -> g.f x xa xb
+  }
+  where
+  module g = GCD' g
 
 gcd'-zero->id : {b d : Nat} -> GCD' 0 b d -> b == d
-gcd'-zero->id {b} (gcd' d%0 d%b f) = div'-antisym (f b div'-zero div'-refl) d%b
+gcd'-zero->id {b} g = div'-antisym (g.f b div'-zero div'-refl) g.%b
+  where
+  module g = GCD' g
 
 
 gcd'->gcd/nat : {d n a : Nat} -> GCD' d n a -> GCD (int d) (int n) (int a)
-gcd'->gcd/nat {d} {n} {a} (gcd' a%d a%n f') =
-  (gcd tt (div'->div a%d) (div'->div a%n) f)
+gcd'->gcd/nat {d} {n} {a} g =
+  (gcd tt (div'->div g.%a) (div'->div g.%b) f)
   where
+  module g = GCD' g
   fix : {x : Int} -> {y : Nat} -> x div (int y) -> (abs' x) div' y
   fix {x} {y} x%y = (subst (\ z -> (abs' x) div' z) refl (div->div' x%y))
   f : (x : Int) -> x div (int d) -> x div (int n) -> x div (int a)
-  f x@zero-int x%d x%n = div'->div (f' zero (fix x%d) (fix x%n))
-  f x@(pos x') x%d x%n = div'->div (f' (suc x') (fix x%d) (fix x%n))
-  f x@(neg x') x%d x%n = div-negate-left (div'->div (f' (suc x') (fix x%d) (fix x%n)))
+  f x@zero-int x%d x%n = div'->div (g.f zero (fix x%d) (fix x%n))
+  f x@(pos x') x%d x%n = div'->div (g.f (suc x') (fix x%d) (fix x%n))
+  f x@(neg x') x%d x%n = div-negate-left (div'->div (g.f (suc x') (fix x%d) (fix x%n)))
 
 gcd'->gcd : {d n a : Int} -> {NonNeg a} -> GCD' (abs' d) (abs' n) (abs' a) -> GCD d n a
 gcd'->gcd {zero-int} {zero-int} {zero-int} g = gcd'->gcd/nat g
@@ -393,8 +407,11 @@ gcd'->gcd {neg _} {neg _} {zero-int} g = (gcd-negate ((gcd-sym (gcd-negate (gcd-
 gcd'->gcd {neg _} {neg _} {pos _} g = (gcd-negate ((gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))))
 
 gcd->gcd' : {d n a : Int} -> GCD d n a -> GCD' (abs' d) (abs' n) (abs' a)
-gcd->gcd' {d} {n} {a} (gcd _ a%d a%n f) =
-  (gcd' (div->div' a%d) (div->div' a%n) f')
+gcd->gcd' {d} {n} {a} (gcd _ a%d a%n f) = record
+  { %a = (div->div' a%d)
+  ; %b = (div->div' a%n)
+  ; f = f'
+  }
   where
   f' : (x : Nat) -> x div' (abs' d) -> x div' (abs' n) -> x div' (abs' a)
   f' x x%d x%n = res
@@ -441,3 +458,9 @@ gcd'-exists m n = handle (gcd-exists (int m) (int n))
   where
   handle : Σ[ d ∈ Int ] (GCD (int m) (int n) d) -> Σ[ d ∈ Nat ] (GCD' m n d)
   handle (d , g) = (abs' d , (gcd->gcd' g))
+
+gcd' : Nat -> Nat -> Nat
+gcd' a b = fst (gcd'-exists a b)
+
+gcd'-proof : (a b : Nat) -> GCD' a b (gcd' a b)
+gcd'-proof a b = snd (gcd'-exists a b)
