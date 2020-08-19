@@ -10,7 +10,7 @@ open import int
 open import div
 open import prime
 open import gcd
-open import prime-gcd hiding (rp-sym)
+open import prime-gcd
 open import solver
 
 ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)

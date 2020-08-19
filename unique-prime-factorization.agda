@@ -17,6 +17,7 @@ open import prime-div-count
 open import prime-factorization
 open import prime-gcd
 open import relation
+open import relatively-prime
 open import unordered-list
 open import unordered-list.discrete
 

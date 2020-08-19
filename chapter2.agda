@@ -18,6 +18,7 @@ open import prime
 open import prime-factorization
 open import prime-gcd
 open import relation
+open import relatively-prime
 open import ring
 open import ring.lists
 open import ring.implementations

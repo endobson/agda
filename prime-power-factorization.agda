@@ -11,6 +11,7 @@ open import prime
 open import prime-gcd
 open import prime-factorization
 open import relation
+open import relatively-prime
 
 private
   RP = RelativelyPrime⁰

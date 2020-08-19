@@ -15,6 +15,7 @@ open import prime
 open import prime-factorization
 open import prime-gcd
 open import relation
+open import relatively-prime
 open import sigma
 open import unique-prime-factorization
 open import unordered-list

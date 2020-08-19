@@ -11,6 +11,7 @@ open import nat
 open import prime
 open import prime-gcd
 open import relation
+open import relatively-prime
 open import sigma
 
 
