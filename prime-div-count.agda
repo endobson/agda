@@ -15,8 +15,6 @@ open import sigma
 
 
 record PrimeDivCount (p : Prime') (a : Nat) (n : Nat)  : Type₀ where
-  constructor prime-div-count
-
   private
     p' = ⟨ p ⟩
 
@@ -71,7 +69,7 @@ private
   compute-prime-div-count' p@(p' , _) a@(a' , a-pos) (suc bound) a<sbound = handle (decide-div p' a')
     where
     handle : Dec (p' div' a') -> Σ[ n ∈ Nat ] (PrimeDivCount p a' n)
-    handle (no ¬p%a) = 0 , prime-div-count (a' , *'-right-one) ¬p%a
+    handle (no ¬p%a) = 0 , record { %a = (a' , *'-right-one) ; ¬p%r = ¬p%a}
     handle (yes p%a) = (suc n) , dc'
       where
       b = fst p%a
@@ -97,6 +95,12 @@ private
 
 compute-prime-div-count : (p : Prime') (a : Nat⁺) -> Σ[ n ∈ Nat ] (PrimeDivCount p ⟨ a ⟩ n)
 compute-prime-div-count p a = compute-prime-div-count' p a (suc (fst a)) (same-≤ (suc (fst a)))
+
+prime-div-count : Prime' -> Nat⁺ -> Nat
+prime-div-count p a = fst (compute-prime-div-count p a)
+prime-div-count-proof : (p : Prime') -> (a : Nat⁺) -> PrimeDivCount p ⟨ a ⟩ (prime-div-count p a)
+prime-div-count-proof p a = snd (compute-prime-div-count p a)
+
 
 prime-div-count-unique : {p : Prime'} {a n1 n2 : Nat}
                          -> PrimeDivCount p a n1 -> PrimeDivCount p a n2
@@ -344,3 +348,16 @@ lcm-prime-div-count {a} {b} {m} l p {na} da {nb} db = record
                >=> *'-commute {prime-power p (na -' (min nb na))} {x *' ⟨ p ⟩}
                >=> *'-right-injective (prime-power⁺ p nb) path
                >=> *'-commute {yb} {xb}
+
+div-prime-div-count : {a b : Nat⁺} -> a div⁺ b -> (p : Prime')
+                      -> prime-div-count p a ≤ prime-div-count p b
+div-prime-div-count {a} {b} a%b p = handle (split-nat< nb na)
+  where
+  na = prime-div-count p a
+  nb = prime-div-count p b
+  handle : (nb < na ⊎ na ≤ nb) -> na ≤ nb
+  handle (inj-r lt) = lt
+  handle (inj-l lt) =
+    bot-elim (PrimeDivCount.¬p^sn%a (prime-div-count-proof p b)
+               (div'-trans (div'-trans (div'-^' lt) (PrimeDivCount.%a (prime-div-count-proof p a)))
+                            a%b))
