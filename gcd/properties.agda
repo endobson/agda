@@ -24,6 +24,13 @@ gcd-prime-div-count⁺ p a b =
     (prime-div-count-proof p (gcd⁺ a b))
     (gcd-prime-div-count (gcd⁺-proof a b) p (prime-div-count-proof p a) (prime-div-count-proof p b))
 
+lcm-prime-div-count⁺ : (p : Prime') (a b : Nat⁺)
+  -> prime-div-count p (lcm⁺ a b) == max (prime-div-count p a) (prime-div-count p b)
+lcm-prime-div-count⁺ p a b =
+  (prime-div-count-unique
+    (prime-div-count-proof p (lcm⁺ a b))
+    (lcm-prime-div-count (lcm⁺-proof a b) p (prime-div-count-proof p a) (prime-div-count-proof p b)))
+
 
 private
   lcm-gcd-prod-path'⁺ : {a b : Nat⁺} -> {m d : Nat}
