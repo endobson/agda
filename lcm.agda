@@ -21,6 +21,9 @@ record LCM' (a : Nat) (b : Nat) (m : Nat) : Type₀ where
     b%ab : b div' (a *' b)
     b%ab = a , refl
 
+LCM⁺ : Nat⁺ -> Nat⁺ -> Nat⁺ -> Type₀
+LCM⁺ (a , _) (b , _) (m , _) = LCM' a b m
+
 lcm-unique : {a b m1 m2 : Nat} -> LCM' a b m1 -> LCM' a b m2 -> m1 == m2
 lcm-unique {a} {b} {m1} {m2} lcm1 lcm2 = div'-antisym m1%m2 m2%m1
   where

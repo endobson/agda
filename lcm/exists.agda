@@ -262,3 +262,9 @@ lcm a b = fst (lcm-exists a b)
 
 lcm-proof : (a b : Nat) -> LCM' a b (lcm a b)
 lcm-proof a b = snd (lcm-exists a b)
+
+lcm⁺ : Nat⁺ -> Nat⁺ -> Nat⁺
+lcm⁺ (a , a-pos) (b , b-pos) = fst (lcm-exists a b) , LCM'.m-pos (snd (lcm-exists a b)) a-pos b-pos
+
+lcm⁺-proof : (a b : Nat⁺) -> LCM⁺ a b (lcm⁺ a b)
+lcm⁺-proof (a , _) (b , _) = snd (lcm-exists a b)

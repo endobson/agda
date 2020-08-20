@@ -208,7 +208,9 @@ private
     l = lcm-proof a b
 
     path : (a *' b) == m
-    path = lcm-gcd-prod-path l (relatively-prime->gcd rp) >=> *'-right-one
+    path = lcm-gcd-prod-path a b
+           >=> *'-right {lcm a b} (relatively-prime-gcd-path rp)
+           >=> *'-right-one
 
   module _ (a b : Nat⁺) where
     private

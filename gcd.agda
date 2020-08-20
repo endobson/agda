@@ -376,6 +376,13 @@ gcd'-zero->id {b} g = div'-antisym (g.f b div'-zero div'-refl) g.%b
   where
   module g = GCD' g
 
+gcd'-unique : {m n d1 d2 : Nat} -> GCD' m n d1 -> GCD' m n d2 -> d1 == d2
+gcd'-unique {m} {n} {d1} {d2} g1 g2 =
+  div'-antisym (g2.f _ g1.%a g1.%b) (g1.f _ g2.%a g2.%b)
+  where
+  module g1 = GCD' g1
+  module g2 = GCD' g2
+
 
 gcd'->gcd/nat : {d n a : Nat} -> GCD' d n a -> GCD (int d) (int n) (int a)
 gcd'->gcd/nat {d} {n} {a} g =
