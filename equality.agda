@@ -3,6 +3,9 @@
 module equality where
 
 open import base
+open import cubical
+
+open cubical public using (PathP; ~_)
 
 private
   variable

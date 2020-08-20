@@ -3,6 +3,7 @@
 module hlevel where
 
 open import base
+open import cubical
 open import equality
 open import equivalence
 open import isomorphism

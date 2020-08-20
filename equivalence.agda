@@ -3,6 +3,7 @@
 module equivalence where
 
 open import base
+open import cubical
 
 private
   variable

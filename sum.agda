@@ -83,10 +83,10 @@ module _ {A : Type ℓ₁} {B : Type ℓ₂} where
 
     decodeEncode : (s1 s2 : (A ⊎ B)) -> (p : s1 == s2) -> decode s1 s2 (encode s1 s2 p) == p
     decodeEncode s1 _ =
-      J (\ s2 p -> decode s1 s2 (encode s1 s2 p) ≡ p)
+      J (\ s2 p -> decode s1 s2 (encode s1 s2 p) == p)
         (cong (decode s1 s1) (encodeRefl s1) >=> decodeRefl s1)
 
-    encodeDecode : (s1 s2 : (A ⊎ B)) -> (c : ⊎Cover s1 s2) → encode s1 s2 (decode s1 s2 c) ≡ c
+    encodeDecode : (s1 s2 : (A ⊎ B)) -> (c : ⊎Cover s1 s2) → encode s1 s2 (decode s1 s2 c) == c
     encodeDecode (inj-l a1) (inj-l _) (lift a-p) =
       J (\ a2 p -> encode (inj-l a1) (inj-l a2) (cong inj-l p) == lift p) (encodeRefl (inj-l a1)) a-p
     encodeDecode (inj-r b1) (inj-r _) (lift b-p) =

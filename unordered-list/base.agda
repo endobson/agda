@@ -3,6 +3,7 @@
 module unordered-list.base where
 
 open import base
+open import cubical
 open import equality
 open import hlevel
 
