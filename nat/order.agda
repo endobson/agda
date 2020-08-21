@@ -336,6 +336,19 @@ Iso.leftInv  <-minus-iso _ = ΣProp-path (isSetNat _ _) refl
 ≤-max-right {suc _} {zero}  = zero-≤
 ≤-max-right {suc m} {suc n} = suc-≤ ≤-max-right
 
+≤-min-greatest : {m n x : Nat} -> x ≤ m -> x ≤ n -> x ≤ (min m n)
+≤-min-greatest {m}     {n}     {zero} x≤m x≤n = zero-≤
+≤-min-greatest {zero}  {n}     {suc x} x≤m x≤n = x≤m
+≤-min-greatest {suc _} {zero}  {suc x} x≤m x≤n = x≤n
+≤-min-greatest {suc m} {suc n} {suc x} x≤m x≤n =
+  suc-≤ (≤-min-greatest {m} {n} {x} (pred-≤ x≤m) (pred-≤ x≤n))
+
+≤-max-least : {m n x : Nat} -> m ≤ x -> n ≤ x -> (max m n) ≤ x
+≤-max-least {zero}  {n}     {x} m≤x n≤x = n≤x
+≤-max-least {suc _} {zero}  {x} m≤x n≤x = m≤x
+≤-max-least {suc m} {suc n} {zero}  m≤x n≤x = bot-elim (zero-≮ m≤x)
+≤-max-least {suc m} {suc n} {suc x} m≤x n≤x =
+  suc-≤ (≤-max-least {m} {n} {x} (pred-≤ m≤x) (pred-≤ n≤x))
 
 -- Flipped ≤
 _≤'_ : Nat -> Nat -> Type₀
