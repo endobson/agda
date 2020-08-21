@@ -62,6 +62,9 @@ HeteroConnex P Q = ∀ a b -> P a b ⊎ Q b a
 Connex : Rel A ℓ -> Type _
 Connex _~_ = HeteroConnex _~_ _~_
 
+PartialOrder : Rel A ℓ -> Type _
+PartialOrder _≤_ = (Transitive _≤_ × Reflexive _≤_ × Antisymmetric _≤_)
+
 TotalOrder : Rel A ℓ -> Type _
 TotalOrder _≤_ = (Transitive _≤_ × Connex _≤_ × Antisymmetric _≤_)
 
