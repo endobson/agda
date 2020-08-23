@@ -62,9 +62,8 @@ relatively-prime-*' {a@(suc _)} {b = b@(suc _)} {c = c@(suc _)} f-b f-c =
   ... | inj-l p%b = Prime'.!=1 p (f-b p' p%a p%b)
   ... | inj-r p%c = Prime'.!=1 p (f-c p' p%a p%c)
 relatively-prime-*' {zero} b@{suc _} c@{suc _} rp-b rp-c
-  with (gcd'-zero->id (relatively-prime->gcd rp-b))
-     | (gcd'-zero->id (relatively-prime->gcd rp-c))
-... | b==1 | c==1 = transport (\ i -> RP 0 (path i)) rp-b
+  with (rp-zero rp-b) | (rp-zero rp-c)
+...  | b==1            | c==1            = transport (\ i -> RP 0 (path i)) rp-b
   where
   path : b == b *' c
   path = b==1 >=> (\i -> (sym b==1 i) *' (sym c==1 i))

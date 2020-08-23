@@ -43,11 +43,6 @@ gcd-add-linear {a} {b} {d} (gcd non-neg d-div-a d-div-b f) k =
            (\i -> x div (proof i))
            (div-sum xkab (div-mult xa (- k)))
 
-gcd'-zero->id : {b d : Nat} -> GCD' 0 b d -> b == d
-gcd'-zero->id {b} g = div'-antisym (g.f b div'-zero div'-refl) g.%b
-  where
-  module g = GCD' g
-
 gcd'->gcd/nat : {d n a : Nat} -> GCD' d n a -> GCD (int d) (int n) (int a)
 gcd'->gcd/nat {d} {n} {a} g =
   (gcd tt (div'->div g.%a) (div'->div g.%b) f)

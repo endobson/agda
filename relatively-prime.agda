@@ -48,6 +48,10 @@ no-shared-primes a b pf = f
 rp-one : {a : Nat} -> RP a 1
 rp-one x xa x1 = div'-antisym x1 div'-one
 
+
+rp-zero : {a : Nat} -> RP 0 a -> a == 1
+rp-zero {a} rp = rp a div'-zero div'-refl
+
 rp-sym : {a b : Nat} -> RP a b -> RP b a
 rp-sym rp x xa xb = rp x xb xa
 
