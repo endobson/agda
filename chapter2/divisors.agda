@@ -5,8 +5,8 @@ module chapter2.divisors where
 open import base
 open import div
 open import equality
-open import gcd
 open import gcd.properties
+open import gcd.propositional
 open import lcm
 open import lcm.exists
 open import list

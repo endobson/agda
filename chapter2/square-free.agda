@@ -7,7 +7,6 @@ open import commutative-monoid
 open import div
 open import equality
 open import functions
-open import gcd
 open import hlevel
 open import isomorphism
 open import nat

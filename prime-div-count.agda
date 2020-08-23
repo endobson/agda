@@ -5,7 +5,7 @@ module prime-div-count where
 open import base
 open import div
 open import equality
-open import gcd
+open import gcd.propositional
 open import lcm
 open import nat
 open import prime

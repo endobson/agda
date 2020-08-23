@@ -7,7 +7,6 @@ open import div
 open import equality
 open import equivalence
 open import functions
-open import gcd
 open import hlevel
 open import isomorphism
 open import lcm

@@ -4,7 +4,7 @@ module lcm where
 
 open import base
 open import div
-open import gcd
+open import gcd.propositional
 open import nat
 
 record LCM' (a : Nat) (b : Nat) (m : Nat) : Type₀ where

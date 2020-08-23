@@ -5,7 +5,7 @@ module gcd.properties where
 open import base
 open import div
 open import equality
-open import gcd
+open import gcd.propositional using (GCD' ; GCD⁺)
 open import gcd.computational
 open import lcm
 open import lcm.exists
