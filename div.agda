@@ -8,6 +8,7 @@ open import equality
 open import hlevel
 open import int
 open import nat
+open import quotient
 open import relation
 open import sigma
 
@@ -487,3 +488,8 @@ isPropDiv⁺ {d} {n} = isPropDiv' n
 div⁺->multiple⁺ : {d n : Nat⁺} -> d div⁺ n -> Nat⁺
 div⁺->multiple⁺ {d' , _} {_ , n-pos} (x , pr) =
   x , div'-pos->pos (d' , *'-commute {d'} {x} >=> pr) n-pos
+
+-- Relate div to quotient
+div->quotient : {d : Nat⁺} -> {n : Nat} -> (d%n : ⟨ d ⟩ div' n) -> ⟨ d%n ⟩ == quotient n d
+div->quotient {d@(d' , _)} (x , path) =
+  (sym quotient-*') >=> (\i -> quotient (path i) d)
