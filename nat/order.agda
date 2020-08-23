@@ -261,6 +261,9 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
   path = transport (sym (+'-right-path n))
                    (+'-assoc {suc i} >=> cong (suc i +'_) p2 >=> p1)
 
+<-asym : Asymmetric _<_
+<-asym {x} {y} x<y y<x = same-≮ (trans-< x<y y<x)
+
 private
   ≮->≥ : {m n : Nat} -> m ≮ n -> m ≥ n
   ≮->≥             {n = zero}  m≮n = zero-≤
@@ -399,6 +402,17 @@ split-nat< zero    (suc n) = inj-l zero-<
 split-nat< (suc m) (suc n) with (split-nat< m n)
 ... | inj-l lt = inj-l (suc-≤ lt)
 ... | inj-r lt = inj-r (suc-≤ lt)
+
+
+trichotomous-nat< : Trichotomous _<_
+trichotomous-nat< x y = handle (decide-nat x y) (decide-nat< x y) (decide-nat< y x)
+  where
+  handle : Dec (x == y) -> Dec (x < y) -> Dec (y < x) -> Tri (x < y) (x == y) (y < x)
+  handle (yes x==y) _         _         = tri= (\ lt -> <->!= lt x==y) x==y (\ lt -> <->!= lt (sym x==y))
+  handle (no  x!=y) (yes x<y) (no y≮x)  = tri< x<y x!=y y≮x
+  handle (no  x!=y) (no x≮y)  (yes y<x) = tri> x≮y x!=y y<x
+  handle (no  x!=y) (yes x<y) (yes y<x) = bot-elim (<-asym x<y y<x)
+  handle (no  x!=y) (no x<y)  (no y<x)  = bot-elim (x!=y (≤-antisym (≮->≥ y<x) (≮->≥ x<y)))
 
 
 decide-nat≤ : (x : Nat) -> (y : Nat) -> Dec (x ≤ y)
