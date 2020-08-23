@@ -203,9 +203,47 @@ gcd-exists m n = handle (eulers-algo m n)
   handle : Σ[ d ∈ Int ] (LinearGCD m n d) -> Σ[ d ∈ Int ] (GCD m n d)
   handle (d , (linear-gcd _ gc)) = d , gc
 
+gcd'-exists : (m : Nat) -> (n : Nat) -> Σ[ d ∈ Nat ] (GCD' m n d)
+gcd'-exists m n = handle (gcd-exists (int m) (int n))
+  where
+  handle : Σ[ d ∈ Int ] (GCD (int m) (int n) d) -> Σ[ d ∈ Nat ] (GCD' m n d)
+  handle (d , g) = (abs' d , (gcd->gcd' g))
+
+-- Euclids lemma
 gcd->linear-combo : {a b d : Int} -> GCD a b d -> LinearCombination a b d
 gcd->linear-combo {a} {b} {d} gcd-d = handle (eulers-algo a b)
   where
   handle : Σ[ d ∈ Int ] (LinearGCD a b d) -> LinearCombination a b d
   handle (d' , (linear-gcd lc gcd-d')) =
     transport (\i -> LinearCombination a b ((gcd-unique gcd-d' gcd-d) i)) lc
+
+euclids-lemma : {a b c : Int} -> a div (b * c) -> GCD a b (int 1) -> a div c
+euclids-lemma {a} {b} {c} a%bc ab-gcd = handle (gcd->linear-combo ab-gcd)
+  where
+  handle : (LinearCombination a b (int 1)) -> a div c
+  handle (linear-combo _ _ _ x y {pr}) = a%c
+    where
+    c==stuff : c == x * c * a + y * (b * c)
+    c==stuff =
+      begin
+        c
+      ==< sym (+-right-zero {c})  >
+        (int 1) * c
+      ==< *-left (sym pr) >
+        (x * a + y * b) * c
+      ==< *-distrib-+ {x * a}  >
+        x * a * c + y * b * c
+      ==< +-left (*-assoc {x}) >
+        x * (a * c) + y * b * c
+      ==< +-left (*-right {x} (*-commute {a} {c})) >
+        x * (c * a) + y * b * c
+      ==< sym (+-left (*-assoc {x})) >
+        x * c * a + y * b * c
+      ==< (+-right {x * c * a} (*-assoc {y})) >
+        x * c * a + y * (b * c)
+      end
+    a%stuff : a div (x * c * a + y * (b * c))
+    a%stuff = div-linear div-refl a%bc {x * c} {y}
+
+    a%c : a div c
+    a%c = (subst (\ x -> a div x) (sym c==stuff) a%stuff)

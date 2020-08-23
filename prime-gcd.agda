@@ -7,6 +7,8 @@ open import base
 open import div
 open import equality
 open import gcd
+open import gcd.propositional
+open import gcd.eulers-algorithm
 open import int
 open import lcm
 open import nat

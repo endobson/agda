@@ -136,6 +136,35 @@ ex1-5-arith a b =
       ((a ⊗ b) ⊗ (© (int 3))))
     refl a b
 
+private
+  gcd-add-linear : ∀ {a b d : Int} -> GCD a b d -> (k : Int) -> GCD a (k * a + b) d
+  gcd-add-linear {a} {b} {d} (gcd non-neg d-div-a d-div-b f) k =
+    (gcd non-neg d-div-a (div-sum (div-mult d-div-a k) d-div-b) g)
+    where
+    g : (x : Int) -> x div a -> x div (k * a + b) -> x div d
+    g x xa xkab = f x xa xb
+      where
+      proof : (k * a + b) + (- k * a) == b
+      proof =
+        begin
+          (k * a + b) + (- k * a)
+        ==< +-commute {k * a + b} >
+          (- k * a) + (k * a + b)
+        ==< sym (+-assoc { - k * a}) >
+          (- k * a + k * a) + b
+        ==< +-left (+-left (minus-extract-left {k})) >
+          (- (k * a) + k * a) + b
+        ==< +-left (+-commute { - (k * a) }) >
+          (k * a + - (k * a)) + b
+        ==< +-left (add-minus-zero {k * a}) >
+          b
+        end
+
+      xb : x div b
+      xb = transport
+             (\i -> x div (proof i))
+             (div-sum xkab (div-mult xa (- k)))
+
 ex1-5' : {a b : Int} -> ex1-5-arith-type -> RPrime a b ->
    (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎
    (GCD (a + b) (a * a + - (a * b) + b * b) (int 3))

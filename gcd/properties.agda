@@ -6,7 +6,7 @@ open import base
 open import div
 open import equality
 open import gcd
-open import gcd.propositional
+open import gcd.computational
 open import lcm
 open import lcm.exists
 open import nat
@@ -88,7 +88,7 @@ lcm-gcd-prod-path⁺ : (a b : Nat⁺) -> a *⁺ b == (lcm⁺ a b) *⁺ (gcd⁺ a
 lcm-gcd-prod-path⁺ a b = ΣProp-path isPropPos' (lcm-gcd-prod-path' (lcm⁺-proof a b) (gcd⁺-proof a b))
 
 relatively-prime-gcd-path : {a b : Nat} -> RelativelyPrime⁰ a b -> gcd' a b == 1
-relatively-prime-gcd-path {a} {b} rp = gcd'-unique (gcd'-proof a b) (relatively-prime->gcd rp)
+relatively-prime-gcd-path {a} {b} rp = gcd'-unique (relatively-prime->gcd rp)
 
 relatively-prime-gcd-path⁺ : {a b : Nat⁺} -> RelativelyPrime⁺ a b -> gcd⁺ a b == 1⁺
 relatively-prime-gcd-path⁺ rp = ΣProp-path isPropPos' (relatively-prime-gcd-path rp)

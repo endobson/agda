@@ -96,3 +96,53 @@ gcd'-unique {m} {n} {d1} {d2} g1 g2 =
   where
   module g1 = GCD' g1
   module g2 = GCD' g2
+
+-- Conversion between GCD and GCD'
+
+gcd'->gcd/nat : {d n a : Nat} -> GCD' d n a -> GCD (int d) (int n) (int a)
+gcd'->gcd/nat {d} {n} {a} g =
+  (gcd tt (div'->div g.%a) (div'->div g.%b) f)
+  where
+  module g = GCD' g
+  fix : {x : Int} -> {y : Nat} -> x div (int y) -> (abs' x) div' y
+  fix {x} {y} x%y = (subst (\ z -> (abs' x) div' z) refl (div->div' x%y))
+  f : (x : Int) -> x div (int d) -> x div (int n) -> x div (int a)
+  f x@zero-int x%d x%n = div'->div (g.f zero (fix x%d) (fix x%n))
+  f x@(pos x') x%d x%n = div'->div (g.f (suc x') (fix x%d) (fix x%n))
+  f x@(neg x') x%d x%n = div-negate-left (div'->div (g.f (suc x') (fix x%d) (fix x%n)))
+
+gcd'->gcd : {d n a : Int} -> {NonNeg a} -> GCD' (abs' d) (abs' n) (abs' a) -> GCD d n a
+gcd'->gcd {zero-int} {zero-int} {zero-int} g = gcd'->gcd/nat g
+gcd'->gcd {zero-int} {zero-int} {pos _} g = gcd'->gcd/nat g
+gcd'->gcd {zero-int} {pos _} {zero-int} g = gcd'->gcd/nat g
+gcd'->gcd {zero-int} {pos _} {pos _} g = gcd'->gcd/nat g
+gcd'->gcd {zero-int} {neg _} {zero-int} g = (gcd-negate (gcd'->gcd/nat g))
+gcd'->gcd {zero-int} {neg _} {pos _} g = (gcd-negate (gcd'->gcd/nat g))
+gcd'->gcd {pos _} {zero-int} {zero-int} g = gcd'->gcd/nat g
+gcd'->gcd {pos _} {zero-int} {pos _} g = gcd'->gcd/nat g
+gcd'->gcd {pos _} {pos _} {zero-int} g = gcd'->gcd/nat g
+gcd'->gcd {pos _} {pos _} {pos _} g = gcd'->gcd/nat g
+gcd'->gcd {pos _} {neg _} {zero-int} g = (gcd-negate (gcd'->gcd/nat g))
+gcd'->gcd {pos _} {neg _} {pos _} g = (gcd-negate (gcd'->gcd/nat g))
+gcd'->gcd {neg _} {zero-int} {zero-int} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
+gcd'->gcd {neg _} {zero-int} {pos _} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
+gcd'->gcd {neg _} {pos _} {zero-int} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
+gcd'->gcd {neg _} {pos _} {pos _} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
+gcd'->gcd {neg _} {neg _} {zero-int} g = (gcd-negate ((gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))))
+gcd'->gcd {neg _} {neg _} {pos _} g = (gcd-negate ((gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))))
+
+gcd->gcd' : {d n a : Int} -> GCD d n a -> GCD' (abs' d) (abs' n) (abs' a)
+gcd->gcd' {d} {n} {a} (gcd _ a%d a%n f) = record
+  { %a = (div->div' a%d)
+  ; %b = (div->div' a%n)
+  ; f = f'
+  }
+  where
+  f' : (x : Nat) -> x div' (abs' d) -> x div' (abs' n) -> x div' (abs' a)
+  f' x x%d x%n = res
+    where
+    fix : {y : Int} -> x div' (abs' y) -> (int x) div y
+    fix {nonneg _} x%y = (div'->div x%y)
+    fix {neg _} x%y = (div-negate (div'->div x%y))
+    res : x div' (abs' a)
+    res = (div->div' (f (int x) (fix x%d) (fix x%n)))
