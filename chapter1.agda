@@ -2,14 +2,17 @@
 
 module chapter1 where
 
-open import equality
-open import base
 open import abs
-open import nat
-open import int
+open import base
 open import div
-open import prime
+open import equality
 open import gcd
+open import gcd.propositional
+open import gcd.eulers-algorithm
+open import int
+open import linear-combo
+open import nat
+open import prime
 open import prime-gcd
 open import solver
 
