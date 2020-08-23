@@ -4,20 +4,14 @@ module gcd where
 
 open import abs
 open import base
+open import gcd.propisitional
 open import div
 open import equality
 open import int
 open import nat
 open import relation
 
-record GCD (a : Int) (b : Int) (d : Int) : Type₀ where
-  constructor gcd
-  field
-    non-neg : (NonNeg d)
-    %a : d div a
-    %b : d div b
-    f : (x : Int) -> x div a -> x div b -> x div d
-
+open gcd.propisitional using (GCD ; GCD' ; GCD⁺) public
 
 gcd-refl : {n : Int} -> GCD n n (abs n)
 gcd-refl {n} = gcd tt (div-abs-left div-refl) (div-abs-left div-refl)
@@ -339,14 +333,7 @@ gcd->linear-combo {a} {b} {d} gcd-d = handle (eulers-algo a b)
   handle (d' , (linear-gcd lc gcd-d')) =
     transport (\i -> LinearCombination a b ((gcd-unique gcd-d' gcd-d) i)) lc
 
-record GCD' (a : Nat) (b : Nat) (d : Nat) : Type₀ where
-  field
-    %a : d div' a
-    %b : d div' b
-    f : (x : Nat) -> x div' a -> x div' b -> x div' d
 
-GCD⁺ : Nat⁺ -> Nat⁺ -> Nat⁺ -> Type₀
-GCD⁺ (a , _) (b , _) (d , _) = GCD' a b d
 
 gcd'-zero : {a : Nat} -> GCD' a 0 a
 gcd'-zero = record
