@@ -99,12 +99,6 @@ private
 compute-prime-div-count : (p : Prime') (a : Nat⁺) -> Σ[ n ∈ Nat ] (PrimeDivCount p ⟨ a ⟩ n)
 compute-prime-div-count p a = compute-prime-div-count' p a (suc (fst a)) (same-≤ (suc (fst a)))
 
-prime-div-count : Prime' -> Nat⁺ -> Nat
-prime-div-count p a = fst (compute-prime-div-count p a)
-prime-div-count-proof : (p : Prime') -> (a : Nat⁺) -> PrimeDivCount p ⟨ a ⟩ (prime-div-count p a)
-prime-div-count-proof p a = snd (compute-prime-div-count p a)
-
-
 prime-div-count-unique : {p : Prime'} {a n1 n2 : Nat}
                          -> PrimeDivCount p a n1 -> PrimeDivCount p a n2
                          -> n1 == n2
@@ -212,13 +206,8 @@ prime-power-div-count p n = record
     handle (inj-r p%br) = db.¬p%r p%br
 
 
-*'-prime-div-count⁺ : (p : Prime') (a b : Nat⁺)
-  -> prime-div-count p (a *⁺ b) == prime-div-count p a +' prime-div-count p b
-*'-prime-div-count⁺ p a b =
-  prime-div-count-unique
-    (prime-div-count-proof p (a *⁺ b))
-    (*'-prime-div-count (prime-div-count-proof p a) (prime-div-count-proof p b))
-
+-- GCD/LCM prime div count at the propositional level
+-- These are used to prove that the LCM exists
 
 gcd-prime-div-count : {a b d : Nat}
   -> GCD' a b d
@@ -359,16 +348,3 @@ lcm-prime-div-count {a} {b} {m} l p {na} da {nb} db = record
                >=> *'-commute {prime-power p (na -' (min nb na))} {x *' ⟨ p ⟩}
                >=> *'-right-injective (prime-power⁺ p nb) path
                >=> *'-commute {yb} {xb}
-
-div-prime-div-count : {a b : Nat⁺} -> a div⁺ b -> (p : Prime')
-                      -> prime-div-count p a ≤ prime-div-count p b
-div-prime-div-count {a} {b} a%b p = handle (split-nat< nb na)
-  where
-  na = prime-div-count p a
-  nb = prime-div-count p b
-  handle : (nb < na ⊎ na ≤ nb) -> na ≤ nb
-  handle (inj-r lt) = lt
-  handle (inj-l lt) =
-    bot-elim (PrimeDivCount.¬p^sn%a (prime-div-count-proof p b)
-               (div'-trans (div'-trans (div'-^' lt) (PrimeDivCount.%a (prime-div-count-proof p a)))
-                            a%b))
