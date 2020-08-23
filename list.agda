@@ -11,24 +11,19 @@ open import nat
 open import ring.implementations
 open import sum
 
+open import list.base public
+
 private
   variable
     ℓ : Level
     A B C : Type ℓ
 
 
-infixr 5 _::_
-data List (A : Type ℓ) : Type ℓ where
-  [] : List A
-  _::_  : (a : A) -> List A -> List A
 
 infixr 5 _++_
 _++_ : List A -> List A -> List A
 [] ++ l2 = l2
 (a :: l1) ++ l2 = a :: (l1 ++ l2)
-
-[_] : A -> List A
-[ a ] = a :: []
 
 map : (A -> B) -> List A -> List B
 map f [] = []
