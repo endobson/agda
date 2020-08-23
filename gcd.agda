@@ -11,7 +11,7 @@ open import int
 open import nat
 open import relation
 
-open gcd.propisitional using (GCD ; GCD' ; GCD⁺) public
+open gcd.propisitional using (gcd ; GCD ; GCD' ; GCD⁺) public
 
 gcd-refl : {n : Int} -> GCD n n (abs n)
 gcd-refl {n} = gcd tt (div-abs-left div-refl) (div-abs-left div-refl)
