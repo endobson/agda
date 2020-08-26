@@ -81,6 +81,19 @@ module _ where
       >=> sym (*-assoc {x} {x ^ a} {x ^ b})
 
 
+  int-+ʰ : CommMonoidʰᵉ NatSemiring.+-CommMonoid IntSemiring.+-CommMonoid  int
+  int-+ʰ = record
+    { preserves-ε = refl
+    ; preserves-∙ = preserves-∙
+    }
+    where
+    preserves-∙ : (a b : Nat) -> (int (a +' b)) == (int a) + (int b)
+    preserves-∙ zero    b = refl
+    preserves-∙ (suc a) b =
+      cong add1 (preserves-∙ a b)
+
+
+
 ReaderSemiring : {ℓ₁ ℓ₂ : Level} {Domain : Type ℓ₁} -> (A : Type ℓ₂)
                  -> Semiring Domain -> Semiring (A -> Domain)
 ReaderSemiring {Domain = Domain} A S = res

@@ -810,6 +810,7 @@ sub1-extract-*-right {neg (suc m')} {n} =
     (neg (suc m') * p) + (n * p)
   end
 
+
 private
   *-assoc' : (m : Nat) (n o : Int) -> ((nonneg m) * n) * o == (nonneg m) * (n * o)
   *-assoc' zero _ _ = refl
@@ -882,6 +883,12 @@ private
   ==< sym (sub1-extract-*-right {n}) >
     n * neg (suc m')
   end
+
+*-distrib-+-left : {m n p : Int} -> m * (n + p) == (m * n) + (m * p)
+*-distrib-+-left {m} {n} {p} =
+  *-commute {m} {n + p}
+  >=> (*-distrib-+ {n} {p} {m})
+  >=> (\i -> (*-commute {n} {m} i) + (*-commute {p} {m} i))
 
 minus-extract-right : {m n : Int} -> m * - n == - (m * n)
 minus-extract-right {m} {n} =

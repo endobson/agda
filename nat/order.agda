@@ -32,6 +32,12 @@ m ≮ n = ¬ (m < n)
 _≯_ : Nat -> Nat -> Set
 m ≯ n = ¬ (m > n)
 
+_<⁺_ : Nat⁺ -> Nat⁺ -> Set
+m <⁺ n = ⟨ m ⟩ < ⟨ n ⟩
+
+_≤⁺_ : Nat⁺ -> Nat⁺ -> Set
+m ≤⁺ n = ⟨ m ⟩ ≤ ⟨ n ⟩
+
 module _ {m n : Nat} (lt1@(x1 , p1) lt2@(x2 , p2) : m ≤ n) where
   private
     p-x : x1 == x2
@@ -464,12 +470,13 @@ module _ where
   strong-induction p0 psuc m = strong-induction-≤s p0 (\f -> psuc (f ∘ ≤->≤s)) m
 
   strong-induction' : {P : Nat -> Set}
-                     (p : {m : Nat} -> ({n : Nat} -> (n < m) -> P n) -> P m)
-                     -> (m : Nat) -> P m
+                      (p : {m : Nat} -> ({n : Nat} -> (n < m) -> P n) -> P m)
+                      -> (m : Nat) -> P m
   strong-induction' {P} p m = strong-induction-≤s p0 (\f -> p (f ∘ ≤->≤s ∘ pred-≤)) m
     where
     p0 : P 0
     p0 = p (bot-elim ∘ zero-≮)
+
 
 
 -- Induction based ≤

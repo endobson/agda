@@ -6,10 +6,12 @@ open import abs
 open import base
 open import equality
 open import div
+open import gcd.propositional
 open import int
 open import linear-combo
 open import nat
-open import gcd.propositional
+open import nat.binary-strong-induction
+open import relation
 
 linear-combo->gcd : {a b d : Int} -> LinearCombination a b d -> d div a -> d div b -> GCD a b (abs d)
 linear-combo->gcd (linear-combo _ _ _ x y {p}) da db =
@@ -247,3 +249,78 @@ euclids-lemma {a} {b} {c} a%bc ab-gcd = handle (gcd->linear-combo ab-gcd)
 
     a%c : a div c
     a%c = (subst (\ x -> a div x) (sym c==stuff) a%stuff)
+
+private
+  data EulerTree : Nat -> Nat -> Type₀ where
+    euler-tree-same : (a : Nat) -> EulerTree a a
+    euler-tree-left : {a b : Nat} -> EulerTree a b -> EulerTree (b +' a) b
+    euler-tree-right : {a b : Nat} -> EulerTree a b -> EulerTree a (a +' b)
+
+  EulerTree⁺ : Nat⁺ -> Nat⁺ -> Type₀
+  EulerTree⁺ a b = EulerTree ⟨ a ⟩ ⟨ b ⟩
+
+  euler-tree-root : {a b : Nat} -> EulerTree a b -> Nat
+  euler-tree-root (euler-tree-same d) = d
+  euler-tree-root (euler-tree-left t) = (euler-tree-root t)
+  euler-tree-root (euler-tree-right t) = (euler-tree-root t)
+
+  root-div-both : {a b : Nat} -> (t : EulerTree a b)
+                  -> ((euler-tree-root t) div' a × (euler-tree-root t) div' b)
+  root-div-both (euler-tree-same a) = div'-refl , div'-refl
+  root-div-both (euler-tree-left t) = div'-+' (proj₂ rec) (proj₁ rec) , proj₂ rec
+    where
+    rec = (root-div-both t)
+  root-div-both (euler-tree-right t) = proj₁ rec , div'-+' (proj₁ rec) (proj₂ rec)
+    where
+    rec = (root-div-both t)
+
+  root-linear-combo : {a b : Nat} -> (t : EulerTree a b) -> LinearCombination' a b (euler-tree-root t)
+  root-linear-combo (euler-tree-same a) = linear-combo-refl
+  root-linear-combo (euler-tree-left {a} {b} t) = handle (root-linear-combo t)
+    where
+    handle : LinearCombination' a b (euler-tree-root t)
+             -> LinearCombination' (b +' a) b (euler-tree-root t)
+    handle (linear-combo _ _ d x y {p}) =
+      linear-combo-sym (linear-combo-+' (linear-combo-sym (root-linear-combo t)))
+  root-linear-combo (euler-tree-right t) = linear-combo-+' (root-linear-combo t)
+
+  euler-tree->gcd : {a b : Nat} -> (t : EulerTree a b) -> GCD' a b (euler-tree-root t)
+  euler-tree->gcd t = (gcd->gcd' (linear-combo->gcd lc (div'->div (proj₁ div-both))
+                                                       (div'->div (proj₂ div-both))))
+    where
+    div-both = root-div-both t
+    lc = root-linear-combo t
+
+  euler-tree-sym : Symmetric EulerTree
+  euler-tree-sym (euler-tree-same a)  = euler-tree-same a
+  euler-tree-sym (euler-tree-left t)  = euler-tree-right (euler-tree-sym t)
+  euler-tree-sym (euler-tree-right t) = euler-tree-left (euler-tree-sym t)
+
+eulers-algorithm2 : (a b : Nat⁺) -> EulerTree⁺ a b
+eulers-algorithm2 a b = binary-strong-induction⁺ f a b
+  where
+  f : (x y : Nat⁺)
+      -> ({a b : Nat⁺} -> a <⁺ x -> b ≤⁺ y -> EulerTree⁺ a b)
+      -> ({a b : Nat⁺} -> a ≤⁺ x -> b <⁺ y -> EulerTree⁺ a b)
+      -> EulerTree⁺ x y
+  f (x@(suc x') , px) (y@(suc y') , py) up left = handle (trichotomous-nat< x y)
+    where
+    handle : Tri (x < y) (x == y) (y < x) -> EulerTree x y
+    handle (tri= _   x==y _) = transport (\i -> EulerTree x (x==y i))
+                                         (euler-tree-same x)
+    handle (tri< x<y _    _) = transport (\i -> EulerTree x (path i))
+                                         (euler-tree-right (left (same-≤ x) k<y))
+      where
+      k = suc (fst x<y)
+      path : (x +' k) == y
+      path = +'-commute {x} {k} >=> sym +'-right-suc >=> snd x<y
+      k<y : k < y
+      k<y = x' , +'-right-suc >=> path
+    handle (tri> _ _    y<x) = transport (\i -> EulerTree (path i) y)
+                                         (euler-tree-left (up k<x (same-≤ y)))
+      where
+      k = suc (fst y<x)
+      path : (y +' k) == x
+      path = +'-commute {y} {k} >=> sym +'-right-suc >=> snd y<x
+      k<x : k < x
+      k<x = y' , +'-right-suc >=> path

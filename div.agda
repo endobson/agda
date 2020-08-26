@@ -74,6 +74,12 @@ div'-mult-both {d1} {n1} {d2} {n2} (x1 , x1-path) (x2 , x2-path) = x1 *' x2 , pa
       n1 *' n2
     end
 
+div'-+' : {d n1 n2 : Nat} -> d div' n1 -> d div' n2 -> d div' (n1 +' n2)
+div'-+' {d} {n1} {n2} (x1 , path1) (x2 , path2) = (x1 +' x2 , path')
+  where
+  path' : (x1 +' x2) *' d == n1 +' n2
+  path' = *'-distrib-+' {x1} {x2} {d} >=> (\i -> (path1 i) +' (path2 i))
+
 div'-^' : {k1 k2 d : Nat} -> k1 ≤ k2 -> (d ^' k1) div' (d ^' k2)
 div'-^' {k1} {k2} {d} (i , path) = (d ^' i , path')
   where
