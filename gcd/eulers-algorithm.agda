@@ -296,6 +296,9 @@ private
   euler-tree-sym (euler-tree-left t)  = euler-tree-right (euler-tree-sym t)
   euler-tree-sym (euler-tree-right t) = euler-tree-left (euler-tree-sym t)
 
+  euler-tree-same' : {x y : Nat} -> x == y -> EulerTree x y
+  euler-tree-same' {x} {y} p = transport (\i -> EulerTree x (p i)) (euler-tree-same x)
+
 eulers-algorithm2 : (a b : Nat⁺) -> EulerTree⁺ a b
 eulers-algorithm2 a b = binary-strong-induction⁺ f a b
   where
@@ -324,3 +327,25 @@ eulers-algorithm2 a b = binary-strong-induction⁺ f a b
       path = +'-commute {y} {k} >=> sym +'-right-suc >=> snd y<x
       k<x : k < x
       k<x = y' , +'-right-suc >=> path
+
+eulers-algorithm3 : (a b : Nat⁺) -> EulerTree⁺ a b
+eulers-algorithm3 a b = sym-binary-strong-induction⁺ euler-tree-sym f a b
+  where
+  f : (x y : Nat⁺)
+      -> (x ≤⁺ y)
+      -> ({a b : Nat⁺} -> a <⁺ y -> b <⁺ y -> EulerTree⁺ a b)
+      -> EulerTree⁺ x y
+  f x@(x'@(suc x'') , _) y@(y' , _) x≤y rec = handle (decide-nat x' y')
+    where
+    handle : Dec (x' == y') -> EulerTree⁺ x y
+    handle (yes x==y) = (euler-tree-same' x==y)
+    handle (no  x!=y) = transport (\i -> EulerTree x' (path i))
+                                  (euler-tree-right (rec x<y k<y))
+      where
+      x<y = strengthen-≤ x≤y x!=y
+
+      k = suc (fst x<y)
+      path : (x' +' k) == y'
+      path = +'-commute {x'} {k} >=> sym +'-right-suc >=> snd x<y
+      k<y : k < y'
+      k<y = x'' , +'-right-suc >=> path

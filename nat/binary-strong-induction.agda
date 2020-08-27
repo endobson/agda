@@ -152,3 +152,58 @@ module _ {P : Nat⁺ -> Nat⁺ -> Type ℓ} where
       up' lt1 lt2 = up lt1 lt2 _ _
       left' : {a b : Nat⁺} -> a ≤⁺ x⁺ -> b <⁺ y⁺ -> P a b
       left' lt1 lt2 = left lt1 lt2 _ _
+
+module _ {P : Nat -> Nat -> Type ℓ}
+         (symP : Symmetric P)
+         (f : (x y : Nat)
+              -> x ≤ y
+              -> (rec   : ({a b : Nat} -> a < y -> b < y -> P a b))
+              -> P x y) where
+  private
+
+    sym-induction≤ : (y : Nat) {a b : Nat} -> a ≤ y -> b ≤ y -> P a b
+    sym-induction≤' : {y a b : Nat} -> a ≤ b -> a ≤ y -> b ≤ y -> P a b
+
+    sym-induction≤ y {a} {b} a≤y b≤y = handle (split-nat< a b)
+      where
+      handle : (a < b) ⊎ (b ≤ a) -> P a b
+      handle (inj-l a<b) = sym-induction≤' (weaken-< a<b) a≤y b≤y
+      handle (inj-r b≤a) = symP (sym-induction≤' b≤a b≤y a≤y)
+
+    sym-induction≤' {zero}       {a} {b} a≤b a≤y b≤y =
+      f a b a≤b (\ a2<b b2<b -> bot-elim (zero-≮ (trans-<-≤ a2<b b≤y)))
+    sym-induction≤' {y@(suc y')} {a} {b} a≤b a≤y b≤y = f a b a≤b rec
+      where
+      rec : {a2 b2 : Nat} -> a2 < b -> b2 < b -> P a2 b2
+      rec a2<b b2<b = sym-induction≤ y' (pred-≤ (trans-<-≤ a2<b b≤y)) (pred-≤ (trans-<-≤ b2<b b≤y))
+
+  sym-binary-strong-induction : (x y : Nat) -> P x y
+  sym-binary-strong-induction x y = sym-induction≤ (max x y) ≤-max-left ≤-max-right
+
+
+module _ {P : Nat⁺ -> Nat⁺ -> Type ℓ}
+         (symP : Symmetric P)
+         (f : (x y : Nat⁺)
+              -> x ≤⁺ y
+              -> (rec   : ({a b : Nat⁺} -> a <⁺ y -> b <⁺ y -> P a b))
+              -> P x y) where
+  sym-binary-strong-induction⁺ : (x y : Nat⁺) -> P x y
+  sym-binary-strong-induction⁺ (x , px) (y , py) = sym-binary-strong-induction symP' f' x y px py
+    where
+    P' : (a b : Nat) -> Type ℓ
+    P' a b = (pa : Pos' a) -> (pb : Pos' b) -> P (a , pa) (b , pb)
+    symP' : Symmetric P'
+    symP' p' pb pa = symP (p' pa pb)
+
+    f' : (x y : Nat)
+         -> x ≤ y
+         -> (rec : ({a b : Nat} -> a < y -> b < y -> P' a b))
+         -> P' x y
+    f' x y x≤y rec px py = f x⁺ y⁺ x≤y rec'
+      where
+      x⁺ : Nat⁺
+      x⁺ = x , px
+      y⁺ : Nat⁺
+      y⁺ = y , py
+      rec' : {a b : Nat⁺} -> a <⁺ y⁺ -> b <⁺ y⁺ -> P a b
+      rec' {a , pos-a} {b , pos-b} a<y b<y = rec a<y b<y pos-a pos-b

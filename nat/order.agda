@@ -95,6 +95,10 @@ right-suc-< = right-suc-≤
 weaken-< : {m n : Nat} -> m < n -> m ≤ n
 weaken-< lt = pred-≤ (right-suc-≤ lt)
 
+strengthen-≤ : {m n : Nat} -> m ≤ n -> m != n -> m < n
+strengthen-≤ (0     , path) ¬path = bot-elim (¬path path)
+strengthen-≤ (suc x , path) ¬path = (x , +'-right-suc >=> path)
+
 trans-≤ : {m n o : Nat} -> m ≤ n -> n ≤ o -> m ≤ o
 trans-≤ (x1 , p1) (x2 , p2) = x2 +' x1 , +'-assoc {x2} >=> cong (x2 +'_) p1 >=> p2
 
