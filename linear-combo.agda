@@ -5,35 +5,38 @@ module linear-combo where
 open import abs
 open import base
 open import equality
+open import functions
 open import int
 open import nat
 open import commutative-monoid
 open import ring.implementations
 
 
-data LinearCombination : Int -> Int -> Int -> Set where
- linear-combo : (a : Int) -> (b : Int) -> (d : Int) -> (x : Int) -> (y : Int)
-   -> {x * a + y * b == d}
-   -> LinearCombination a b d
+record LinearCombination (a : Int) (b : Int) (d : Int) : Set where
+  constructor linear-combo
+  field
+    x : Int
+    y : Int
+    path : x * a + y * b == d
 
 LinearCombination' : Nat -> Nat -> Nat -> Set
 LinearCombination' a b d = LinearCombination (int a) (int b) (int d)
 
 
 linear-combo-refl : {n : Int}  -> LinearCombination n n n
-linear-combo-refl {n} = (linear-combo n n n zero-int (pos zero) {+-right-zero {n}})
+linear-combo-refl {n} = (linear-combo zero-int (pos zero) (+-right-zero {n}))
 
 linear-combo-sym : {a b d : Int} -> LinearCombination a b d -> LinearCombination b a d
-linear-combo-sym (linear-combo a b d x y {p}) =
-  (linear-combo b a d y x {+-commute {y * b} >=> p})
+linear-combo-sym {a} {b} {d} (linear-combo x y p) =
+  (linear-combo y x (+-commute {y * b} >=> p))
 
 linear-combo-zero : {n : Int}  -> LinearCombination n zero-int n
 linear-combo-zero {n} =
-  (linear-combo-sym (linear-combo zero-int n n zero-int (pos zero) {+-right-zero {n}}))
+  (linear-combo-sym (linear-combo zero-int (pos zero) (+-right-zero {n})))
 
 linear-combo-negate : {a b d : Int} -> LinearCombination a b d -> LinearCombination a (- b) d
-linear-combo-negate (linear-combo a b d x y {p}) =
-  (linear-combo a (- b) d x (- y) {proof})
+linear-combo-negate {a} {b} {d} (linear-combo x y p) =
+  (linear-combo x (- y) proof)
   where
     proof : x * a + (- y * - b) == d
     proof =
@@ -47,8 +50,8 @@ linear-combo-negate (linear-combo a b d x y {p}) =
 
 
 linear-combo-negate-result : {a b d : Int} -> LinearCombination a b d -> LinearCombination a b (- d)
-linear-combo-negate-result (linear-combo a b d x y {p}) =
-  (linear-combo a b (- d) (- x) (- y) {proof})
+linear-combo-negate-result {a} {b} {d} (linear-combo x y p) =
+  (linear-combo (- x) (- y) proof)
   where
     proof : (- x * a) + (- y * b) == - d
     proof =
@@ -69,11 +72,30 @@ linear-combo-abs {a} {b} {zero-int} lc = lc
 linear-combo-abs {a} {b} {pos _} lc = lc
 linear-combo-abs {a} {b} {neg _} lc = (linear-combo-negate-result lc)
 
+module _ where
+  private
+    lc-na : {a b d : Int} -> LinearCombination a b d -> LinearCombination (- a) b d
+    lc-na = linear-combo-sym ∘ linear-combo-negate ∘ linear-combo-sym
+    lc-nb = linear-combo-negate
+    lc-nd = linear-combo-negate-result
+
+  linear-combo-unabs : (a b d : Int)
+                       -> LinearCombination (abs a) (abs b) (abs d)
+                       -> LinearCombination a b d
+  linear-combo-unabs (nonneg a) (nonneg b) (nonneg d) l = l
+  linear-combo-unabs (nonneg a) (nonneg b) (neg d)    l = (lc-nd l)
+  linear-combo-unabs (nonneg a) (neg b)    (nonneg d) l = (lc-nb l)
+  linear-combo-unabs (nonneg a) (neg b)    (neg d)    l = (lc-nb (lc-nd l))
+  linear-combo-unabs (neg a)    (nonneg b) (nonneg d) l = (lc-na l)
+  linear-combo-unabs (neg a)    (nonneg b) (neg d)    l = (lc-na (lc-nd l))
+  linear-combo-unabs (neg a)    (neg b)    (nonneg d) l = (lc-na (lc-nb l))
+  linear-combo-unabs (neg a)    (neg b)    (neg d)    l = (lc-na (lc-nb (lc-nd l)))
+
 linear-combo-+' : {a b d : Nat}
                   -> LinearCombination' a b d
                   -> LinearCombination' a (a +' b) d
-linear-combo-+' {a} {b} {d} (linear-combo _ _ _ x y {p}) =
-    (linear-combo (int a) (int (a +' b)) (int d) (x + (- y)) y {path})
+linear-combo-+' {a} {b} {d} (linear-combo x y p) =
+    (linear-combo (x + (- y)) y path)
     where
     path : (x + (- y)) * (int a) + y * (int (a +' b)) == (int d)
     path =

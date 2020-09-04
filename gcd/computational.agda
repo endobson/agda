@@ -5,7 +5,7 @@ module gcd.computational where
 open import base
 open import div
 open import gcd.propositional using (GCD' ; GCD⁺)
-open import gcd.eulers-algorithm
+open import gcd.euclidean-algorithm
 open import nat
 open import int
 

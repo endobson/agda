@@ -7,7 +7,7 @@ open import base
 open import div
 open import equality
 open import gcd.propositional
-open import gcd.eulers-algorithm
+open import gcd.euclidean-algorithm
 open import int
 open import linear-combo
 open import nat
@@ -65,41 +65,45 @@ ex1-3 rp n k {pos-n} {pos-k} = (rp-sym (rp-^ (rp-sym (rp-^ rp n {pos-n})) k {pos
 
 
 ex1-4' : {a b n : Int} -> RPrime a b -> (GCD (a + b) (a + - b)) n -> n div (int 2)
-ex1-4' {a} {b} {n} rp (gcd _ n%a+b n%a-b f) with (gcd->linear-combo rp)
-... | (linear-combo a b _ x y {proof}) = res
+ex1-4' {a} {b} {n} rp (gcd _ n%a+b n%a-b f) = handle (gcd->linear-combo rp)
   where
-  lin-proof : (x + y) * (a + b) + (x + - y) * (a + - b) == (int 2)
-  lin-proof =
-    begin
-      (x + y) * (a + b) + (x + - y) * (a + - b)
-    ==< IntSolver.solve 4
-        (\ x y a b  ->
-          (x ⊕ y) ⊗ (a ⊕ b) ⊕ (x ⊕ (⊖ y)) ⊗ (a ⊕ (⊖ b)) ,
-          (© (int 2)) ⊗ (x ⊗ a ⊕ y ⊗ b))
-        refl x y a b >
-      (int 2) * (x * a + y * b)
-    ==< *-right {int 2} proof >
-      (int 2) * (int 1)
-    ==<>
-      (int 2)
-    end
-  res : n div (int 2)
-  res =
-   transport
-     (\ i -> n div (lin-proof i))
-     (div-linear n%a+b n%a-b {x + y} {x + - y})
+  handle : LinearCombination a b (int 1) -> n div (int 2)
+  handle (linear-combo x y proof) = res
+    where
+    lin-proof : (x + y) * (a + b) + (x + - y) * (a + - b) == (int 2)
+    lin-proof =
+      begin
+        (x + y) * (a + b) + (x + - y) * (a + - b)
+      ==< IntSolver.solve 4
+          (\ x y a b  ->
+            (x ⊕ y) ⊗ (a ⊕ b) ⊕ (x ⊕ (⊖ y)) ⊗ (a ⊕ (⊖ b)) ,
+            (© (int 2)) ⊗ (x ⊗ a ⊕ y ⊗ b))
+          refl x y a b >
+        (int 2) * (x * a + y * b)
+      ==< *-right {int 2} proof >
+        (int 2) * (int 1)
+      ==<>
+        (int 2)
+      end
+    res : n div (int 2)
+    res =
+     transport
+       (\ i -> n div (lin-proof i))
+       (div-linear n%a+b n%a-b {x + y} {x + - y})
 
 ex1-4 : {a b : Int} -> RPrime a b -> (GCD (a + b) (a + - b) (int 1)) ⊎ (GCD (a + b) (a + - b) (int 2))
-ex1-4 {a} {b} rp with (gcd-exists (a + b) (a + - b))
-... | (d@(nonneg _) , g@(gcd _ _ _ _)) = res
+ex1-4 {a} {b} rp = handle (gcd-exists (a + b) (a + - b))
   where
-  d-div : d div (int 2)
-  d-div = (ex1-4' rp g)
-  res : (GCD (a + b) (a + - b) (int 1)) ⊎ (GCD (a + b) (a + - b) (int 2))
-  res with (≤->≤i (div->≤ d-div))
-  ... | (suc-≤i zero-≤i) = inj-l g
-  ... | (suc-≤i (suc-≤i zero-≤i)) = inj-r g
-  ... | zero-≤i = bot-elim (zero-suc-absurd (sym (nonneg-injective (div-zero->zero d-div))))
+  handle : Σ[ d ∈ Int ] (GCD (a + b) (a + - b) d)
+           -> (GCD (a + b) (a + - b) (int 1)) ⊎ (GCD (a + b) (a + - b) (int 2))
+  handle (d@(nonneg _) , g@(gcd _ _ _ _)) = handle2 (≤->≤i (div->≤ d-div))
+    where
+    d-div : d div (int 2)
+    d-div = (ex1-4' rp g)
+    handle2 : ((abs' d) ≤i 2) -> (GCD (a + b) (a + - b) (int 1)) ⊎ (GCD (a + b) (a + - b) (int 2))
+    handle2 (suc-≤i zero-≤i) = inj-l g
+    handle2 (suc-≤i (suc-≤i zero-≤i)) = inj-r g
+    handle2 zero-≤i = bot-elim (zero-suc-absurd (sym (nonneg-injective (div-zero->zero d-div))))
 
 
 ex1-6 : {a b d : Int} -> RPrime a b -> d div (a + b) -> RPrime a d × RPrime b d
