@@ -12,6 +12,7 @@ open import lcm.exists
 open import nat
 open import prime
 open import prime-div-count
+open import prime-div-count.computational
 open import prime-gcd
 open import relatively-prime
 open import sigma
@@ -77,3 +78,60 @@ relatively-prime-gcd-path {a} {b} rp = gcd'-unique (relatively-prime->gcd rp)
 
 relatively-prime-gcd-path⁺ : {a b : Nat⁺} -> RelativelyPrime⁺ a b -> gcd⁺ a b == 1⁺
 relatively-prime-gcd-path⁺ rp = ΣProp-path isPropPos' (relatively-prime-gcd-path rp)
+
+relatively-prime-lcm-path : {a b : Nat} -> RelativelyPrime⁰ a b -> lcm a b == a *' b
+relatively-prime-lcm-path {a} {b} rp =
+  sym *'-right-one
+  >=> *'-right {lcm a b} (sym (relatively-prime-gcd-path rp))
+  >=> sym (lcm-gcd-prod-path a b)
+
+relatively-prime-lcm-path⁺ : {a b : Nat⁺} -> RelativelyPrime⁺ a b -> lcm⁺ a b == a *⁺ b
+relatively-prime-lcm-path⁺ {a} {b} rp = ΣProp-path isPropPos' (relatively-prime-lcm-path rp)
+
+lcm-distrib-gcd⁺ : (a b c : Nat⁺) -> lcm⁺ a (gcd⁺ b c) == gcd⁺ (lcm⁺ a b) (lcm⁺ a c)
+lcm-distrib-gcd⁺ a b c = prime-same-division-count⁺ x y f
+  where
+  x = (lcm⁺ a (gcd⁺ b c))
+  y = gcd⁺ (lcm⁺ a b) (lcm⁺ a c)
+
+  f : (p : Prime') -> prime-div-count p x == prime-div-count p y
+  f p =
+    begin
+      ρ (lcm⁺ a (gcd⁺ b c))
+    ==< lcm-prime-div-count⁺ p a (gcd⁺ b c) >
+      max (ρ a) (ρ (gcd⁺ b c))
+    ==< cong (max (ρ a)) (gcd-prime-div-count⁺ p b c) >
+      max (ρ a) (min (ρ b) (ρ c))
+    ==< max-distrib-min (ρ a) (ρ b) (ρ c) >
+      min (max (ρ a) (ρ b)) (max (ρ a) (ρ c))
+    ==< (\i -> (min (lcm-prime-div-count⁺ p a b (~ i)) (lcm-prime-div-count⁺ p a c (~ i)))) >
+      min (ρ (lcm⁺ a b)) (ρ (lcm⁺ a c))
+    ==< sym (gcd-prime-div-count⁺ p (lcm⁺ a b) (lcm⁺ a c)) >
+      ρ (gcd⁺ (lcm⁺ a b) (lcm⁺ a c))
+    end
+    where
+    ρ = prime-div-count p
+
+gcd-distrib-lcm⁺ : (a b c : Nat⁺) -> gcd⁺ a (lcm⁺ b c) == lcm⁺ (gcd⁺ a b) (gcd⁺ a c)
+gcd-distrib-lcm⁺ a b c = prime-same-division-count⁺ x y f
+  where
+  x = (gcd⁺ a (lcm⁺ b c))
+  y = lcm⁺ (gcd⁺ a b) (gcd⁺ a c)
+
+  f : (p : Prime') -> prime-div-count p x == prime-div-count p y
+  f p =
+    begin
+      ρ (gcd⁺ a (lcm⁺ b c))
+    ==< gcd-prime-div-count⁺ p a (lcm⁺ b c) >
+      min (ρ a) (ρ (lcm⁺ b c))
+    ==< cong (min (ρ a)) (lcm-prime-div-count⁺ p b c) >
+      min (ρ a) (max (ρ b) (ρ c))
+    ==< min-distrib-max (ρ a) (ρ b) (ρ c) >
+      max (min (ρ a) (ρ b)) (min (ρ a) (ρ c))
+    ==< (\i -> (max (gcd-prime-div-count⁺ p a b (~ i)) (gcd-prime-div-count⁺ p a c (~ i)))) >
+      max (ρ (gcd⁺ a b)) (ρ (gcd⁺ a c))
+    ==< sym (lcm-prime-div-count⁺ p (gcd⁺ a b) (gcd⁺ a c)) >
+      ρ (lcm⁺ (gcd⁺ a b) (gcd⁺ a c))
+    end
+    where
+    ρ = prime-div-count p

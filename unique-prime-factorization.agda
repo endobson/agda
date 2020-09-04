@@ -13,10 +13,12 @@ open import lcm
 open import nat
 open import prime
 open import prime-div-count
+open import prime-div-count.computational
 open import prime-factorization
 open import prime-gcd
 open import relation
 open import relatively-prime
+open import sigma
 open import unordered-list
 open import unordered-list.discrete
 
@@ -512,3 +514,17 @@ prime-same-division-count a b f = same-division-count a b g
       -> (d2 : DivisionCount ⟨ p ⟩ ⟨ b ⟩)
       -> (DivisionCount.k d1) == (DivisionCount.k d2)
   g p d1 d2 = f p (division-count->prime-div-count d1) (division-count->prime-div-count d2)
+
+prime-same-division-count⁺ : (a b : Nat⁺) ->
+  ((p : Prime') -> prime-div-count p a == prime-div-count p b)
+  -> a == b
+prime-same-division-count⁺ a b f = ΣProp-path isPropPos' (prime-same-division-count a b g)
+  where
+  g : ((p : Prime') {d1 d2 : Nat}
+      -> PrimeDivCount p ⟨ a ⟩ d1
+      -> PrimeDivCount p ⟨ b ⟩ d2
+      -> d1 == d2)
+  g p {d1} {d2} dc1 dc2 =
+    prime-div-count-unique dc1 (prime-div-count-proof p a)
+    >=> (f p)
+    >=> prime-div-count-unique (prime-div-count-proof p b) dc2

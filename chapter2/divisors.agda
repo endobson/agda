@@ -6,7 +6,8 @@ open import base
 open import div
 open import equality
 open import gcd.properties
-open import gcd.propositional
+open import gcd.propositional using (GCD'; GCD⁺)
+open import gcd.computational
 open import lcm
 open import lcm.exists
 open import list
@@ -14,9 +15,12 @@ open import list.nat
 open import list.sorted
 open import nat
 open import prime
+open import prime-div-count
+open import prime-div-count.computational
 open import prime-gcd
 open import relation
 open import relatively-prime
+open import sigma
 open import unique-prime-factorization
 
 
@@ -42,6 +46,10 @@ divisors-canonical n = (snd (divisors-full n))
 
 divisors-contains-only : (n : Nat⁺) -> (ContainsOnly (_div' ⟨ n ⟩) (divisors n))
 divisors-contains-only n = fst (fst (fst (snd (divisors-full n))))
+
+divisors-contains-all : (n : Nat⁺) -> (ContainsAll (_div' ⟨ n ⟩) (divisors n))
+divisors-contains-all n = snd (fst (fst (snd (divisors-full n))))
+
 
 module _ where
   divisors-of-one : List Nat
@@ -212,6 +220,10 @@ private
            >=> *'-right {lcm a b} (relatively-prime-gcd-path rp)
            >=> *'-right-one
 
+  curry-*' : (Nat × Nat) -> Nat
+  curry-*' (x , y) = x *' y
+
+
   module _ (a b : Nat⁺) where
     private
       a' = ⟨ a ⟩
@@ -226,7 +238,7 @@ private
       c-info : Σ[ p ∈ (Nat × Nat) ]
                  ((contains p (cartesian-product (divisors a) (divisors b)))
                   × (proj₁ p *' proj₂ p == x))
-      c-info = map-contains' (\ (a , b) -> a *' b) (cartesian-product (divisors a) (divisors b)) c
+      c-info = map-contains' curry-*' (cartesian-product (divisors a) (divisors b)) c
 
       xa : Nat
       xa = proj₁ (fst c-info)
@@ -245,3 +257,61 @@ private
 
       xab%ab : (xa *' xb) div' (a' *' b')
       xab%ab = div'-mult-both xa%a xb%b
+
+    module _ (rp : RelativelyPrime⁺ a b) where
+      *'-divisors-ca : ContainsAll (_div' (a' *' b')) *'-divisors
+      *'-divisors-ca {x'} x%ab = transport (\i -> contains (path i) *'-divisors) c-dab
+        where
+        x : Nat⁺
+        x = x' , div'-pos->pos x%ab (snd (a *⁺ b))
+
+        da = gcd⁺ x a
+        ga = gcd⁺-proof x a
+        db = gcd⁺ x b
+        gb = gcd⁺-proof x b
+        da' = ⟨ da ⟩
+        db' = ⟨ db ⟩
+
+        gcd-xab : GCD⁺ x (a *⁺ b) x
+        gcd-xab = record
+          { %a = div'-refl
+          ; %b = x%ab
+          ; f = \z z%x _ -> z%x
+          }
+
+        rp2 : RelativelyPrime⁺ da db
+        rp2 z z%da z%db = rp z (div'-trans z%da (GCD'.%b ga)) (div'-trans z%db (GCD'.%b gb))
+
+        c-dab : contains ⟨ da *⁺ db ⟩ *'-divisors
+        c-dab = map-contains curry-*' (cartesian-product (divisors a) (divisors b))
+                  (cartesian-product-contains (divisors a) (divisors b)
+                    (divisors-contains-all a (GCD'.%b ga))
+                    (divisors-contains-all b (GCD'.%b gb)))
+
+        path : (da' *' db') == x'
+        path = prime-same-division-count (da *⁺ db) x f
+          where
+          f : (p : Prime') -> {n1 n2 : Nat}
+              -> PrimeDivCount⁺ p (da *⁺ db) n1 -> PrimeDivCount⁺ p x n2
+              -> n1 == n2
+          f p {n1} {n2} dc1 dc2 =
+            begin
+              n1
+            ==< prime-div-count-unique dc1 (prime-div-count-proof p (da *⁺ db)) >
+               ρ (da *⁺ db)
+            ==< cong ρ (sym (relatively-prime-lcm-path⁺ {da} {db} rp2)) >
+              ρ (lcm⁺ da db)
+            ==<>
+              ρ (lcm⁺ (gcd⁺ x a) (gcd⁺ x b))
+            ==< cong ρ (sym (gcd-distrib-lcm⁺ x a b)) >
+              ρ (gcd⁺ x (lcm⁺ a b))
+            ==< (\i -> (ρ (gcd⁺ x (relatively-prime-lcm-path⁺ {a} {b} rp i)))) >
+              ρ (gcd⁺ x (a *⁺ b))
+            ==< cong ρ (ΣProp-path isPropPos' (gcd'-unique gcd-xab)) >
+              ρ x
+            ==< prime-div-count-unique (prime-div-count-proof p x) dc2 >
+              n2
+            end
+            where
+            ρ : Nat⁺ -> Nat
+            ρ = prime-div-count p

@@ -305,6 +305,27 @@ split-min-max (suc m) zero    = inj-r (refl , refl)
 split-min-max (suc m) (suc n) = ⊎-map (\{(x , y) -> cong suc x , cong suc y})
                                       (\{(x , y) -> cong suc x , cong suc y}) (split-min-max m n)
 
+min-idempotent : (a : Nat) -> min a a == a
+min-idempotent zero    = refl
+min-idempotent (suc a) = cong suc (min-idempotent a)
+
+min-max-absorb : (a b : Nat) -> min a (max a b) == a
+min-max-absorb zero      b       = refl
+min-max-absorb a@(suc _) zero    = min-idempotent a
+min-max-absorb (suc a)   (suc b) = cong suc (min-max-absorb a b)
+
+min-distrib-max : (a b c : Nat) -> min a (max b c) == max (min a b) (min a c)
+min-distrib-max zero    b       c       = refl
+min-distrib-max (suc _) zero    c       = refl
+min-distrib-max (suc _) (suc _) zero    = refl
+min-distrib-max (suc a) (suc b) (suc c) = cong suc (min-distrib-max a b c)
+
+max-distrib-min : (a b c : Nat) -> max a (min b c) == min (max a b) (max a c)
+max-distrib-min zero      b         c       = refl
+max-distrib-min a@(suc _) zero      c       = sym (min-max-absorb a c)
+max-distrib-min a@(suc _) b@(suc _) zero    = sym (min-max-absorb a b) >=> min-commute
+max-distrib-min (suc a) (suc b) (suc c)     = cong suc (max-distrib-min a b c)
+
 iter : {ℓ : Level} {A : Type ℓ} (n : Nat) (f : A -> A) -> A -> A
 iter zero _ a = a
 iter (suc n) f a = f (iter n f a)
