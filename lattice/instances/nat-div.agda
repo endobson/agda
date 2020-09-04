@@ -4,7 +4,8 @@ module lattice.instances.nat-div where
 
 open import base
 open import div
-open import gcd
+open import gcd.computational
+open import gcd.propositional
 open import lattice
 open import lcm
 open import lcm.exists
