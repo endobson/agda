@@ -6,6 +6,7 @@ open import base
 open import div
 open import equality
 open import gcd.propositional
+open import gcd.euclidean-algorithm
 open import lcm
 open import nat
 open import prime
@@ -299,7 +300,7 @@ lcm-prime-div-count {a} {b} {m} l p {na} da {nb} db = record
     x-path = snd p%r
 
     p%ya : ⟨ p ⟩ div' ya
-    p%ya = euclids-lemma' p%prod (prime->relatively-prime p (PrimeDivCount.¬p%r da))
+    p%ya = euclids-lemma/rp p%prod (prime->relatively-prime p (PrimeDivCount.¬p%r da))
       where
       path : ((x *' ⟨ p ⟩) *' (prime-power p (nb -' (min na nb)))) *' (prime-power p na)
               == (ya *' xa) *' (prime-power p na)
@@ -324,7 +325,7 @@ lcm-prime-div-count {a} {b} {m} l p {na} da {nb} db = record
 
 
     p%yb : ⟨ p ⟩ div' yb
-    p%yb = euclids-lemma' p%prod (prime->relatively-prime p (PrimeDivCount.¬p%r db))
+    p%yb = euclids-lemma/rp p%prod (prime->relatively-prime p (PrimeDivCount.¬p%r db))
       where
       path : ((x *' ⟨ p ⟩) *' (prime-power p (na -' (min nb na)))) *' (prime-power p nb)
               == (yb *' xb) *' (prime-power p nb)

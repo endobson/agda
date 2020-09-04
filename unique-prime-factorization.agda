@@ -282,7 +282,7 @@ private
       rp = (rp-sym (relatively-prime-^' (rp-sym rp') (suc k)))
 
       no-divides : ¬ ((pv ^' (suc k)) div' (p2v *' n))
-      no-divides p^sk%p2*n = ¬d^sk%n (euclids-lemma' p^sk%p2*n rp)
+      no-divides p^sk%p2*n = ¬d^sk%n (euclids-lemma/rp p^sk%p2*n rp)
 
 
     product-division-count-different :

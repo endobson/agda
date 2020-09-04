@@ -113,7 +113,7 @@ module _ (p : Prime') where
     ¬p-divides->1 (suc n) {d} d%psn ¬d%p = ¬p-divides->1 n d%pn ¬d%p
       where
       d%pn : d div' (prime-power p n)
-      d%pn = euclids-lemma' d%psn (rp-sym (prime->relatively-prime p ¬d%p))
+      d%pn = euclids-lemma/rp d%psn (rp-sym (prime->relatively-prime p ¬d%p))
 
     ¬p-divides->pn : (n x d : Nat) -> (x *' d == (prime-power p n))
                      -> ¬(p' div' x) -> d == (prime-power p n)

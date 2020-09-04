@@ -31,20 +31,15 @@ relatively-prime->gcd {a} {b} rp = record
 gcd->relatively-prime : {a b : Nat} -> GCD' a b 1 -> RP a b
 gcd->relatively-prime g d da db = div'-antisym (GCD'.f g d da db) div'-one
 
+euclids-lemma/rp : {a b c : Nat} -> a div' (b *' c) -> RP a b -> a div' c
+euclids-lemma/rp a%bc rp = euclids-lemma' a%bc (relatively-prime->gcd rp)
 
-euclids-lemma' : {a b c : Nat} -> a div' (b *' c) -> RP a b -> a div' c
-euclids-lemma' {a} {b} {c} a%bc rp = result
-  where
-  int-a%bc : (int a) div (int b * int c)
-  int-a%bc = transport (\i -> (int a) div ((int-inject-*' {b} {c} i))) (div'->div a%bc)
-  result : a div' c
-  result = (div->div' (euclids-lemma int-a%bc (gcd'->gcd/nat (relatively-prime->gcd rp))))
 
 prime-divides-a-factor : (p : Prime') -> {a b : Nat}
                          -> ⟨ p ⟩ div' (a *' b) -> (⟨ p ⟩ div' a) ⊎ (⟨ p ⟩ div' b)
 prime-divides-a-factor p@(p' , _) {a} {b} p-div with (decide-div p' a)
 ... | yes p%a = inj-l p%a
-... | no ¬p%a = inj-r (euclids-lemma' p-div (prime->relatively-prime p ¬p%a))
+... | no ¬p%a = inj-r (euclids-lemma/rp p-div (prime->relatively-prime p ¬p%a))
 
 relatively-prime-*' : {a b c : Nat} -> RP a b -> RP a c -> RP a (b *' c)
 relatively-prime-*'     {b = zero}                 g _ = g
