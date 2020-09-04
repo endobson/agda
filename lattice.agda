@@ -65,3 +65,9 @@ module _ {Domain : Type ℓ} where
 
     ∨-idempotent : (a : D) -> a ∨ a == a
     ∨-idempotent a = antisym-≼ (∨-least a a a refl-≼ refl-≼) (x≼x∨y a a)
+
+    ∧-∨-absorb : (a b : D) -> a ∧ (a ∨ b) == a
+    ∧-∨-absorb a b = antisym-≼ (x∧y≼x a (a ∨ b)) (∧-greatest a (a ∨ b) a refl-≼ (x≼x∨y a b))
+
+    ∨-∧-absorb : (a b : D) -> a ∨ (a ∧ b) == a
+    ∨-∧-absorb a b = antisym-≼ (∨-least a (a ∧ b) a refl-≼ (x∧y≼x a b)) (x≼x∨y a (a ∧ b))
