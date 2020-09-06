@@ -128,15 +128,20 @@ split-contains-++ (a :: as) bs (0 , p)      = inj-l (0 , p)
 split-contains-++ (a :: as) bs (suc n , ai) =
   ⊎-map-left (cons-contains a) (split-contains-++ as bs (n , ai))
 
+++-at-index-left : {i : Nat} {x : A} (as bs : List A) -> AtIndex i as x -> AtIndex i (as ++ bs) x
+++-at-index-left {i = 0}     (a :: as) bs p = p
+++-at-index-left {i = suc i} (a :: as) bs ai = ++-at-index-left as bs ai
+
+++-at-index-right : {i : Nat} {x : A} (as bs : List A) -> AtIndex i bs x
+                    -> AtIndex (length as +' i) (as ++ bs) x
+++-at-index-right []        bs ai = ai
+++-at-index-right (a :: as) bs ai = (++-at-index-right as bs ai)
+
 ++-contains-left : {x : A} (as bs : List A) -> contains x as -> contains x (as ++ bs)
-++-contains-left (a :: as) bs (0     , p) = (0 , p)
-++-contains-left (a :: as) bs (suc n , p) =
-  cons-contains a (++-contains-left as bs (n , p))
+++-contains-left as bs (n , ai) = (n , ++-at-index-left as bs ai)
 
 ++-contains-right : {x : A} (as bs : List A) -> contains x bs -> contains x (as ++ bs)
-++-contains-right []        bs c = c
-++-contains-right (a :: as) bs c =
-  cons-contains a (++-contains-right as bs c)
+++-contains-right as bs (i , ai) = (length as +' i , ++-at-index-right as bs ai)
 
 
 
