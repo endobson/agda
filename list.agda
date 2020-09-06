@@ -30,6 +30,9 @@ map-inject-++ : (f : A -> B) {a1 a2 : List A} -> map f (a1 ++ a2) == (map f a1) 
 map-inject-++ f {[]} = refl
 map-inject-++ f {e :: a1} {a2} = cong (\x -> f e :: x) (map-inject-++ f {a1} {a2})
 
+map-preserves-length : {f : A -> B} (as : List A) -> length (map f as) == length as
+map-preserves-length [] = refl
+map-preserves-length (a :: as) = cong suc (map-preserves-length as)
 
 instance
   ListMonoid : Monoid (List A)
@@ -538,6 +541,39 @@ cartesian-product-contains' {B = B} {x = x} {y = y} (a :: as) bs c =
     handle2 : (contains x as × contains y bs)
               -> (contains x (a :: as) × contains y bs)
     handle2 (c1 , c2) = cons-contains a c1 , c2
+
+
+cartesian-product-at-index : {ix iy : Nat} {x : A} {y : B} (as : List A) (bs : List B)
+                             -> AtIndex ix as x -> AtIndex iy bs y
+                             -> AtIndex (ix *' length bs +' iy) (cartesian-product as bs) (x , y)
+cartesian-product-at-index {A = A} {B = B} {zero}   {iy} {x} {y} (a :: as) bs aix aiy =
+  transport (\i -> AtIndex iy (cartesian-product (a :: as) bs) (aix (~ i) , y)) answer
+  where
+
+  answer : AtIndex iy (cartesian-product (a :: as) bs) (a , y)
+  answer =
+    ++-at-index-left (map (a ,_) bs) (cartesian-product as bs) (map-at-index (a ,_) bs aiy)
+
+cartesian-product-at-index {A = A} {B = B} {suc ix} {iy} {x} {y} (a :: as) bs aix aiy =
+  transport (\i -> AtIndex (index-path i) (cartesian-product (a :: as) bs) (x , y)) answer
+  where
+  index-path : ((length (map (a ,_) bs)) +' (ix *' length bs +' iy)) == (suc ix *' length bs +' iy)
+  index-path =
+    begin
+      ((length (map (a ,_) bs)) +' (ix *' length bs +' iy))
+    ==< +'-left (map-preserves-length bs) >
+      (length bs +' (ix *' length bs +' iy))
+    ==< sym (+'-assoc {length bs} {_} {iy}) >
+      (suc ix *' length bs +' iy)
+    end
+
+  answer : AtIndex ((length (map (a ,_) bs)) +' (ix *' length bs +' iy))
+                   (cartesian-product (a :: as) bs)
+                   (x , y)
+  answer =
+    ++-at-index-right (map (a ,_) bs) (cartesian-product as bs)
+                      (cartesian-product-at-index as bs aix aiy)
+
 
 cartesian-product-no-duplicates :
   {as : List A} {bs : List B} -> NoDuplicates as -> NoDuplicates bs
