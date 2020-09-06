@@ -19,25 +19,11 @@ private
     A B C : Type ℓ
 
 
-
-infixr 5 _++_
-_++_ : List A -> List A -> List A
-[] ++ l2 = l2
-(a :: l1) ++ l2 = a :: (l1 ++ l2)
-
-map : (A -> B) -> List A -> List B
-map f [] = []
-map f (e :: l) = f e :: (map f l)
-
 double-map : (f : B -> C) (g : A -> B) (as : List A)
              -> map f (map g as) == map (f ∘ g) as
 double-map {A = A} f g [] = refl
 double-map {A = A} f g (a :: as) = cong ((f (g a)) ::_) (double-map f g as)
 
-
-length : (l : List A) -> Nat
-length []        = 0
-length (_ :: as) = suc (length as)
 
 NonEmpty : List A -> Set
 NonEmpty [] = Bot
@@ -711,6 +697,7 @@ cartesian-product'-no-duplicates {f = f} as bs inj-f nd-a nd-b =
   where
   inj-f' : Injective (\ (a , b) -> f a b)
   inj-f' {x1 , y1} {x2 , y2} p i = fst (inj-f p) i , snd (inj-f p) i
+
 
 
 module _ {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} (_≤_ : Rel A ℓ₂)  where
