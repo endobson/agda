@@ -116,6 +116,15 @@ contains-!= : {x a : A} -> {as : List A} -> x != a -> contains x (a :: as) -> co
 contains-!= ¬p (0     , p)  = bot-elim (¬p p)
 contains-!= ¬p (suc n , ai) = (n , ai)
 
+same-at-index : {i : Nat} {as : List A} {a1 a2 : A} -> AtIndex i as a1 -> AtIndex i as a2 -> a1 == a2
+same-at-index {i = zero}  {as = a :: as} p1 p2 = p1 >=> (sym p2)
+same-at-index {i = suc i} {as = a :: as} p1 p2 = same-at-index {i = i} {as} p1 p2
+
+same-at-index' : {i j : Nat} {as : List A} {a1 a2 : A}
+                 -> AtIndex i as a1 -> AtIndex j as a2
+                 -> i == j -> a1 == a2
+same-at-index' {as = as} {a1 = a1} p1 p2 path =
+  same-at-index {as = as} (transport (\j -> AtIndex (path j) as a1) p1) p2
 
 list∈ : List A -> Pred A _
 list∈ as a = contains a as
