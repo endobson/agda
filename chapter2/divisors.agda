@@ -3,7 +3,7 @@
 module chapter2.divisors where
 
 open import base
-open import div
+open import div hiding (remainder)
 open import equality
 open import gcd.properties
 open import gcd.propositional using (GCD'; GCD⁺)
@@ -18,6 +18,7 @@ open import prime
 open import prime-div-count
 open import prime-div-count.computational
 open import prime-gcd
+open import quotient
 open import relation
 open import relatively-prime
 open import sigma
@@ -49,6 +50,22 @@ divisors-contains-only n = fst (fst (fst (snd (divisors-full n))))
 
 divisors-contains-all : (n : Nat⁺) -> (ContainsAll (_div' ⟨ n ⟩) (divisors n))
 divisors-contains-all n = snd (fst (fst (snd (divisors-full n))))
+
+divisors-no-duplicates : (n : Nat⁺) -> (NoDuplicates (divisors n))
+divisors-no-duplicates n = snd (fst (snd (divisors-full n)))
+
+num-divisors : (n : Nat⁺) -> Nat
+num-divisors n = length (divisors n)
+
+num-divisors⁺ : (n : Nat⁺) -> Nat⁺
+num-divisors⁺ n = length (divisors n) , pos-n (divisors n) refl
+  where
+  pos-n : (divs : List Nat) -> (divs == divisors n) -> Pos' (length (divisors n))
+  pos-n (_ :: _) p = transport (\i -> (Pos' (length (p i)))) tt
+  pos-n [] p = bot-elim ([]-¬contains {x = 1} (transport (\i -> contains 1 (p (~ i))) div1))
+    where
+    div1 : contains 1 (divisors n)
+    div1 = divisors-contains-all n div'-one
 
 
 module _ where
@@ -229,6 +246,8 @@ private
       a' = ⟨ a ⟩
       b' = ⟨ b ⟩
 
+      cp = cartesian-product (divisors a) (divisors b)
+
     *'-divisors : List Nat
     *'-divisors = cartesian-product' _*'_ (divisors a) (divisors b)
 
@@ -236,9 +255,8 @@ private
     *'-divisors-co {x} c = transport (\i -> (x-path i) div' (a' *' b')) xab%ab
       where
       c-info : Σ[ p ∈ (Nat × Nat) ]
-                 ((contains p (cartesian-product (divisors a) (divisors b)))
-                  × (proj₁ p *' proj₂ p == x))
-      c-info = map-contains' curry-*' (cartesian-product (divisors a) (divisors b)) c
+                 ((contains p cp) × (proj₁ p *' proj₂ p == x))
+      c-info = map-contains' curry-*' cp c
 
       xa : Nat
       xa = proj₁ (fst c-info)
@@ -283,7 +301,7 @@ private
         rp2 z z%da z%db = rp z (div'-trans z%da (GCD'.%b ga)) (div'-trans z%db (GCD'.%b gb))
 
         c-dab : contains ⟨ da *⁺ db ⟩ *'-divisors
-        c-dab = map-contains curry-*' (cartesian-product (divisors a) (divisors b))
+        c-dab = map-contains curry-*' cp
                   (cartesian-product-contains (divisors a) (divisors b)
                     (divisors-contains-all a (GCD'.%b ga))
                     (divisors-contains-all b (GCD'.%b gb)))
@@ -315,3 +333,118 @@ private
             where
             ρ : Nat⁺ -> Nat
             ρ = prime-div-count p
+
+      module _ (different-div : {a1 a2 b1 b2 : Nat}
+                                -> a1 div' a' -> a2 div' a' -> b1 div' b' -> b2 div' b'
+                                -> a1 *' b1 == a2 *' b2
+                                -> a1 != a2 -> b1 != b2 -> Bot) where
+
+        *'-divisors-nd : NoDuplicatesIndex *'-divisors
+        *'-divisors-nd {x'} c1@(i1 , at-i1) c2@(i2 , at-i2) =
+            handle (decide-nat q1 q2) (decide-nat r1 r2)
+          where
+          #d = (num-divisors⁺ b)
+          q1 = quotient  i1 #d
+          r1 = remainder i1 #d
+          q2 = quotient  i2 #d
+          r2 = remainder i2 #d
+
+          d-as = (divisors a)
+          d-bs = (divisors b)
+
+          at-i1' : Σ[ ab ∈ (Nat × Nat) ] ((AtIndex i1 cp ab) ×
+                                          (proj₁ ab *' proj₂ ab == x'))
+          at-i1' = map-at-index' curry-*' cp at-i1
+
+          at-i2' : Σ[ ab ∈ (Nat × Nat) ] ((AtIndex i2 cp ab) ×
+                                          (proj₁ ab *' proj₂ ab == x'))
+          at-i2' = map-at-index' curry-*' cp at-i2
+
+          a1 = fst (fst at-i1')
+          b1 = snd (fst at-i1')
+          a2 = fst (fst at-i2')
+          b2 = snd (fst at-i2')
+
+          ab-path : a1 *' b1 == a2 *' b2
+          ab-path = snd (snd at-i1') >=> sym (snd (snd at-i2'))
+
+          at-q1 : AtIndex q1 d-as a1
+          at-q1 = fst (cartesian-product-at-index' d-as d-bs (fst (snd at-i1')) (snd #d))
+          at-q2 : AtIndex q2 d-as a2
+          at-q2 = fst (cartesian-product-at-index' d-as d-bs (fst (snd at-i2')) (snd #d))
+          at-r1 : AtIndex r1 d-bs b1
+          at-r1 = snd (cartesian-product-at-index' d-as d-bs (fst (snd at-i1')) (snd #d))
+          at-r2 : AtIndex r2 d-bs b2
+          at-r2 = snd (cartesian-product-at-index' d-as d-bs (fst (snd at-i2')) (snd #d))
+
+          a1%a : a1 div' a'
+          a1%a = divisors-contains-only a (q1 , at-q1)
+          a2%a : a2 div' a'
+          a2%a = divisors-contains-only a (q2 , at-q2)
+          b1%b : b1 div' b'
+          b1%b = divisors-contains-only b (r1 , at-r1)
+          b2%b : b2 div' b'
+          b2%b = divisors-contains-only b (r2 , at-r2)
+
+
+          handle : Dec (q1 == q2) -> Dec (r1 == r2) -> i1 == i2
+          handle (yes qp) (yes rp) =
+            begin
+              i1
+            ==< quotient-remainder-path #d >
+              q1 *' ⟨ #d ⟩ +' r1
+            ==< (\j -> (qp j) *' ⟨ #d ⟩ +' (rp j)) >
+              q2 *' ⟨ #d ⟩ +' r2
+            ==< sym (quotient-remainder-path #d) >
+              i2
+            end
+          handle (yes qp) (no ¬rp) =
+            bot-elim (¬rp (no-duplicates->no-duplicates-index (divisors-no-duplicates b)
+                                                              (r1 , at-r1) (r2 , at-r2')))
+            where
+            ap : a1 == a2
+            ap = same-at-index' d-as at-q1 at-q2 qp
+            ab-path' : a1 *' b1 == a1 *' b2
+            ab-path' = ab-path >=> (cong (_*' b2) (sym ap))
+            a1-pos : Pos' a1
+            a1-pos = div'-pos->pos a1%a (snd a)
+            bp : b1 == b2
+            bp = *'-left-injective (a1 , a1-pos) ab-path'
+
+            at-r2' : AtIndex r2 d-bs b1
+            at-r2' = transport (\j -> AtIndex r2 d-bs (bp (~ j))) at-r2
+
+          handle (no ¬qp) (yes rp) =
+            bot-elim (¬qp (no-duplicates->no-duplicates-index (divisors-no-duplicates a)
+                                                              (q1 , at-q1) (q2 , at-q2')))
+            where
+            bp : b1 == b2
+            bp = same-at-index' d-bs at-r1 at-r2 rp
+            ab-path' : a1 *' b1 == a2 *' b1
+            ab-path' = ab-path >=> (cong (a2 *'_) (sym bp))
+            b1-pos : Pos' b1
+            b1-pos = div'-pos->pos b1%b (snd b)
+            ap : a1 == a2
+            ap = *'-right-injective (b1 , b1-pos) ab-path'
+
+            at-q2' : AtIndex q2 d-as a1
+            at-q2' = transport (\j -> AtIndex q2 d-as (ap (~ j))) at-q2
+
+          handle (no ¬qp) (no ¬rp) =
+            bot-elim (different-div a1%a a2%a b1%b b2%b ab-path ¬ap ¬bp)
+            where
+            ¬ap : a1 != a2
+            ¬ap ap =
+                ¬qp (no-duplicates->no-duplicates-index (divisors-no-duplicates a)
+                                                        (q1 , at-q1) (q2 , at-q2'))
+              where
+              at-q2' : AtIndex q2 d-as a1
+              at-q2' = transport (\j -> AtIndex q2 d-as (ap (~ j))) at-q2
+
+            ¬bp : b1 != b2
+            ¬bp bp =
+                ¬rp (no-duplicates->no-duplicates-index (divisors-no-duplicates b)
+                                                        (r1 , at-r1) (r2 , at-r2'))
+              where
+              at-r2' : AtIndex r2 d-bs b1
+              at-r2' = transport (\j -> AtIndex r2 d-bs (bp (~ j))) at-r2

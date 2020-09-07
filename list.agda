@@ -116,15 +116,15 @@ contains-!= : {x a : A} -> {as : List A} -> x != a -> contains x (a :: as) -> co
 contains-!= ¬p (0     , p)  = bot-elim (¬p p)
 contains-!= ¬p (suc n , ai) = (n , ai)
 
-same-at-index : {i : Nat} {as : List A} {a1 a2 : A} -> AtIndex i as a1 -> AtIndex i as a2 -> a1 == a2
-same-at-index {i = zero}  {as = a :: as} p1 p2 = p1 >=> (sym p2)
-same-at-index {i = suc i} {as = a :: as} p1 p2 = same-at-index {i = i} {as} p1 p2
+same-at-index : {i : Nat} {a1 a2 : A} -> (as : List A) -> AtIndex i as a1 -> AtIndex i as a2 -> a1 == a2
+same-at-index {i = zero}  (a :: as) p1 p2 = p1 >=> (sym p2)
+same-at-index {i = suc i} (a :: as) p1 p2 = same-at-index as p1 p2
 
-same-at-index' : {i j : Nat} {as : List A} {a1 a2 : A}
+same-at-index' : {i j : Nat} {a1 a2 : A} -> (as : List A)
                  -> AtIndex i as a1 -> AtIndex j as a2
                  -> i == j -> a1 == a2
-same-at-index' {as = as} {a1 = a1} p1 p2 path =
-  same-at-index {as = as} (transport (\j -> AtIndex (path j) as a1) p1) p2
+same-at-index' {a1 = a1} as p1 p2 path =
+  same-at-index {a1 = a1} as (transport (\j -> AtIndex (path j) as a1) p1) p2
 
 list∈ : List A -> Pred A _
 list∈ as a = contains a as
@@ -314,6 +314,34 @@ map-no-duplicates {A = A} {f = f} {as = a :: as} inj-f (¬c , nd) = (¬c' , map-
 
 ContainsExactlyOnce : ∀ {ℓ} -> Pred A ℓ -> Pred (List A) _
 ContainsExactlyOnce P = ContainsExactly P ∩ NoDuplicates
+
+-- NoDuplicates based on uniqueness of indices
+NoDuplicatesIndex : Pred (List A) _
+NoDuplicatesIndex as = ∀ {a} -> (c1 c2 : contains a as) -> ⟨ c1 ⟩ == ⟨ c2 ⟩
+
+no-duplicates-index->no-duplicates : {as : List A} -> NoDuplicatesIndex as -> NoDuplicates as
+no-duplicates-index->no-duplicates {as = []}      _ = lift tt
+no-duplicates-index->no-duplicates {as = a :: as} f = ¬ca , nd-rec
+  where
+  ¬ca : ¬(contains a as)
+  ¬ca (n , at-n) = zero-suc-absurd (f (0 , refl) (suc n , at-n))
+
+  nd-rec : NoDuplicates as
+  nd-rec = no-duplicates-index->no-duplicates g
+    where
+    g : ∀ {a} -> (c1 c2 : contains a as) -> ⟨ c1 ⟩ == ⟨ c2 ⟩
+    g (n , at-n) (m , at-m) = cong pred (f (suc n , at-n) (suc m , at-m))
+
+no-duplicates->no-duplicates-index : {as : List A} -> NoDuplicates as -> NoDuplicatesIndex as
+no-duplicates->no-duplicates-index {as = []}      _ {a} c1 c2 = bot-elim ([]-¬contains {x = a} c1)
+no-duplicates->no-duplicates-index {as = a :: as} (¬c-a , nd-as) (zero , _) (zero , _) = refl
+no-duplicates->no-duplicates-index {as = a :: as} (¬c-a , nd-as) (zero , a-path) (suc m , at-m) =
+  bot-elim (¬c-a (transport (\i -> (contains (a-path i) as))  (m , at-m)))
+no-duplicates->no-duplicates-index {as = a :: as} (¬c-a , nd-as) (suc n , at-n) (zero , a-path) =
+  bot-elim (¬c-a (transport (\i -> (contains (a-path i) as))  (n , at-n)))
+no-duplicates->no-duplicates-index {as = a :: as} (¬c-a , nd-as) (suc n , at-n) (suc m , at-m) =
+  cong suc (no-duplicates->no-duplicates-index nd-as (n , at-n) (m , at-m))
+
 
 -- Subsequences
 data Subsequence (A : Type ℓ) : (as bs : List A) -> Type ℓ where
