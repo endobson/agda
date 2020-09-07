@@ -8,6 +8,7 @@ open import equality
 open import functions
 open import monoid
 open import nat
+open import quotient
 open import ring.implementations
 open import sum
 
@@ -140,11 +141,33 @@ split-contains-++ (a :: as) bs (suc n , ai) =
 ++-at-index-right []        bs ai = ai
 ++-at-index-right (a :: as) bs ai = (++-at-index-right as bs ai)
 
+
 ++-contains-left : {x : A} (as bs : List A) -> contains x as -> contains x (as ++ bs)
 ++-contains-left as bs (n , ai) = (n , ++-at-index-left as bs ai)
 
 ++-contains-right : {x : A} (as bs : List A) -> contains x bs -> contains x (as ++ bs)
 ++-contains-right as bs (i , ai) = (length as +' i , ++-at-index-right as bs ai)
+
+
+++-at-index-left⁻ : {i : Nat} {x : A} (as bs : List A) -> i < (length as)
+                     -> AtIndex i (as ++ bs) x
+                     -> AtIndex i as x
+++-at-index-left⁻             []        bs lt ai = bot-elim (zero-≮ lt)
+++-at-index-left⁻ {i = zero}  (a :: as) bs lt ai = ai
+++-at-index-left⁻ {i = suc i} (a :: as) bs lt ai = ++-at-index-left⁻ as bs (pred-≤ lt) ai
+
+++-at-index-right⁻ : {i : Nat} {x : A} (as bs : List A) -> (lt : (length as) ≤ i)
+                     -> AtIndex i (as ++ bs) x
+                     -> AtIndex ⟨ lt ⟩ bs x
+++-at-index-right⁻ {i = i} {x = x} [] bs (k , path) ai =
+  transport (\j -> AtIndex (full-path j) bs x) ai
+  where
+  full-path : i == k
+  full-path = sym path >=> +'-right-zero
+++-at-index-right⁻ {i = zero}  (a :: as) bs lt ai = bot-elim (zero-≮ lt)
+++-at-index-right⁻ {i = suc i} (a :: as) bs lt ai =
+  ++-at-index-right⁻ as bs (pred-≤ lt) ai
+
 
 
 
@@ -498,6 +521,11 @@ cartesian-product (a :: as) bs = map (a ,_) bs ++ cartesian-product as bs
 cartesian-product' : (A -> B -> C) -> List A -> List B -> List C
 cartesian-product' f as bs = map (\ (a , b) -> f a b) (cartesian-product as bs)
 
+cartesian-product-right-[] : (as : List A) -> cartesian-product {B = B} as [] == []
+cartesian-product-right-[] []        = refl
+cartesian-product-right-[] (a :: as) = cartesian-product-right-[] as
+
+
 cartesian-product-contains : {x : A} {y : B} (as : List A) (bs : List B)
                              -> contains x as -> contains y bs
                              -> contains (x , y) (cartesian-product as bs)
@@ -573,6 +601,67 @@ cartesian-product-at-index {A = A} {B = B} {suc ix} {iy} {x} {y} (a :: as) bs ai
   answer =
     ++-at-index-right (map (a ,_) bs) (cartesian-product as bs)
                       (cartesian-product-at-index as bs aix aiy)
+
+cartesian-product-at-index' : {i : Nat} {x : A} {y : B} (as : List A) (bs : List B)
+                              -> AtIndex i (cartesian-product as bs) (x , y)
+                              -> (pos-lb : Pos' (length bs))
+                              -> (AtIndex (quotient  i ((length bs) , pos-lb)) as x ×
+                                  AtIndex (remainder i ((length bs) , pos-lb)) bs y)
+cartesian-product-at-index' {i = i} {x} {y} [] bs ai _ =
+  bot-elim (Lift.lower (transport (\j -> AtIndex i [] (x , y)) ai))
+
+
+cartesian-product-at-index' {i = i} {x} {y} (a :: as) bs ai pos-lb = handle (split-nat< i (length bs))
+  where
+  lb = ((length bs) , pos-lb)
+  l = (map (a ,_) bs)
+  r = (cartesian-product as bs)
+  handle : ((i < length bs) ⊎ (i ≥ (length bs))) ->
+           (AtIndex (quotient i lb) (a :: as) x ×
+            AtIndex (remainder i lb) bs y)
+  handle (inj-l i<lb) =
+    transport (\j -> AtIndex (0==q j) (a :: as) x × AtIndex (i==r j) bs y)
+              (ai-as' , ai-bs')
+    where
+    i<ll : i < (length l)
+    i<ll = transport (\j -> i < (map-preserves-length {f = a ,_} bs (~ j))) i<lb
+
+    ai2 : AtIndex i l (x , y)
+    ai2 = ++-at-index-left⁻ l r i<ll ai
+
+    ai-as' : AtIndex 0 (a :: as) x
+    ai-as' = sym (cong fst (snd (snd (map-at-index' (a ,_) bs ai2))))
+
+    ai-bs' : AtIndex i bs y
+    ai-bs' = transport (\j -> AtIndex i bs (cong snd (snd p) j)) (fst p)
+      where
+      p = (snd (map-at-index' (a ,_) bs ai2))
+
+    0==q : 0 == quotient i lb
+    0==q = sym (small-quotient lb i<lb)
+
+    i==r : i == remainder i lb
+    i==r = sym (small-remainder lb i<lb)
+
+  handle (inj-r i≥lb) =
+    transport (\j -> AtIndex (q'==q j) (a :: as) x × AtIndex (r'==r j) bs y)
+              rec
+    where
+    k = ⟨ i≥lb ⟩
+
+    i≥ll : i ≥ (length l)
+    i≥ll = transport (\j -> i ≥ (map-preserves-length {f = a ,_} bs (~ j))) i≥lb
+
+    rec : (AtIndex (quotient  k lb) as x ×
+           AtIndex (remainder k lb) bs y)
+    rec = cartesian-product-at-index' as bs (++-at-index-right⁻ l r i≥ll ai) pos-lb
+
+    q'==q : (suc (quotient k lb)) == (quotient i lb)
+    q'==q = sym (large-quotient lb i≥lb)
+
+    r'==r : (remainder k lb) == (remainder i lb)
+    r'==r = sym (large-remainder lb i≥lb)
+
 
 
 cartesian-product-no-duplicates :

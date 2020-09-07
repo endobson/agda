@@ -25,6 +25,13 @@ private
 quotient-+' : (a : Nat) (b : Nat⁺) -> quotient (⟨ b ⟩ +' a) b == suc (quotient a b)
 quotient-+' a ((suc b') , _) = (quotient-helper-+' b')
 
+large-quotient : {a : Nat} (b : Nat⁺) (a≥b : a ≥ ⟨ b ⟩ ) -> quotient a b == suc (quotient ⟨ a≥b ⟩ b)
+large-quotient {a} b@(b' , _) (k , p) = (\i -> quotient (path i) b) >=> (quotient-+' k b)
+  where
+  path : a == (b' +' k)
+  path = sym p >=> (+'-commute {k} {b'})
+
+
 quotient-*' : {a : Nat} {b : Nat⁺} -> quotient (a *' ⟨ b ⟩) b == a
 quotient-*' {a = zero}        = refl
 quotient-*' {a = (suc a)} {b} = (quotient-+' (a *' ⟨ b ⟩) b >=> cong suc (quotient-*'))
@@ -47,19 +54,23 @@ private
   small-remainder-helper zero    (suc x) o b a<x = refl
   small-remainder-helper (suc a) (suc x) o b a<x = small-remainder-helper a x o b (pred-≤ a<x)
 
-  small-remainder : {a : Nat} (b : Nat⁺) (a<b : a < ⟨ b ⟩ ) -> remainder a b == a
-  small-remainder {zero} b a<b = refl
-  small-remainder {suc a} b@(suc b' , _)  a<b = small-remainder-helper a b' (suc a) b (pred-≤ a<b)
+small-remainder : {a : Nat} (b : Nat⁺) (a<b : a < ⟨ b ⟩ ) -> remainder a b == a
+small-remainder {zero} b a<b = refl
+small-remainder {suc a} b@(suc b' , _)  a<b = small-remainder-helper a b' (suc a) b (pred-≤ a<b)
 
+
+private
   small-quotient-helper : (a x : Nat) (b : Nat⁺)
                            -> (a < x) -> quotient-helper a x b == zero
   small-quotient-helper a       zero    b a<x = bot-elim (zero-≮ a<x)
   small-quotient-helper zero    (suc x) b a<x = refl
   small-quotient-helper (suc a) (suc x) b a<x = small-quotient-helper a x b (pred-≤ a<x)
 
-  small-quotient : {a : Nat} (b : Nat⁺) (a<b : a < ⟨ b ⟩ ) -> quotient a b == 0
-  small-quotient {zero} b a<b = refl
-  small-quotient {suc a} b@(suc b' , _)  a<b = small-quotient-helper a b' b (pred-≤ a<b)
+small-quotient : {a : Nat} (b : Nat⁺) (a<b : a < ⟨ b ⟩ ) -> quotient a b == 0
+small-quotient {zero} b a<b = refl
+small-quotient {suc a} b@(suc b' , _)  a<b = small-quotient-helper a b' b (pred-≤ a<b)
+
+private
 
   large-remainder-helper : (a x o : Nat) (b : Nat⁺)
                            -> remainder-helper (x +' a) x o b == remainder a b
@@ -68,6 +79,13 @@ private
 
   remainder-+' : (a : Nat) (b : Nat⁺) -> remainder (⟨ b ⟩ +' a) b == remainder a b
   remainder-+' a b@(suc b' , _) = large-remainder-helper a b' (suc b' +' a) b
+
+large-remainder : {a : Nat} (b : Nat⁺) (a≥b : a ≥ ⟨ b ⟩ ) -> remainder a b == remainder ⟨ a≥b ⟩ b
+large-remainder {a} b@(b' , _) (k , p) = (\i -> remainder (path i) b) >=> (remainder-+' k b)
+  where
+  path : a == (b' +' k)
+  path = sym p >=> (+'-commute {k} {b'})
+
 
 data AddRec (a : Nat) (b : Nat⁺) : Type₀ where
   add-rec-base : (lt : a < ⟨ b ⟩)   -> AddRec a b
