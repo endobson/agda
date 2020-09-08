@@ -10,6 +10,8 @@ open import functions
 open import hlevel
 open import isomorphism
 open import lcm
+open import gcd.propositional
+open import gcd.computational
 open import nat
 open import prime
 open import prime-div-count
@@ -528,3 +530,99 @@ prime-same-division-count⁺ a b f = ΣProp-path isPropPos' (prime-same-division
     prime-div-count-unique dc1 (prime-div-count-proof p a)
     >=> (f p)
     >=> prime-div-count-unique (prime-div-count-proof p b) dc2
+
+prime-different-division-count : (a b : Nat⁺) -> a <⁺ b
+                                 -> Σ[ p ∈ Prime' ] (prime-div-count p a < prime-div-count p b)
+prime-different-division-count a@(a' , a-pos) b@(b' , b-pos) a<b =
+  p , (prime-div-count p db2⁺ , dc-full-path)
+  where
+  g = gcd⁺ a b
+  g' = ⟨ g ⟩
+
+  g%a : g div⁺ a
+  g%a = GCD'.%a (gcd⁺-proof a b)
+
+  g%b : g div⁺ b
+  g%b = GCD'.%b (gcd⁺-proof a b)
+
+  da = fst g%a
+  db = fst g%b
+  da⁺ = div⁺->multiple⁺ {g} {a} g%a
+  db⁺ = div⁺->multiple⁺ {g} {b} g%b
+
+  da-path : da *' g' == a'
+  da-path = snd g%a
+  da⁺-path : da⁺ *⁺ g == a
+  da⁺-path = ΣProp-path isPropPos' da-path
+
+  db-path : db *' g' == b'
+  db-path = snd g%b
+  db⁺-path : db⁺ *⁺ g == b
+  db⁺-path = ΣProp-path isPropPos' db-path
+
+  db>1 : db > 1
+  db>1 = handle db refl
+    where
+    handle : (x : Nat) -> (x == db) -> db > 1
+    handle zero path = bot-elim (transport (cong Pos' (sym path)) (snd db⁺))
+    handle (suc (suc x)) path = x , +'-commute {x} {2} >=> path
+    handle (suc zero) path = bot-elim (same-≮ (trans-<-≤ a<b b≤a))
+      where
+      g=b : g' == b'
+      g=b = sym *'-left-one >=> *'-left path >=> db-path
+
+      b%a : b div⁺ a
+      b%a = transport (\i -> (g=b i) div' a') g%a
+
+      b≤a : b ≤⁺ a
+      b≤a = div'->≤ b%a {a-pos}
+
+  Σp : Σ[ p ∈ Prime' ] (⟨ p ⟩ div' db)
+  Σp = exists-prime-divisor db>1
+
+  p = fst Σp
+  p%db = snd Σp
+  p' = ⟨ p ⟩
+
+  db2 : Nat
+  db2 = ⟨ p%db ⟩
+  db2⁺ : Nat⁺
+  db2⁺ = div⁺->multiple⁺ {Prime'.nat⁺ p} {db⁺} p%db
+
+  ¬p%da : ¬( p' div' da)
+  ¬p%da p%da = Prime'.!=1 p p'=1
+    where
+    pg%a : (p' *' g') div' a'
+    pg%a = transport (\i -> (p' *' g') div' (da-path i)) (div'-mult-both p%da div'-refl)
+    pg%b : (p' *' g') div' b'
+    pg%b = transport (\i -> (p' *' g') div' (db-path i)) (div'-mult-both p%db div'-refl)
+
+    pg%g : (p' *' g') div' g'
+    pg%g = GCD'.f (gcd⁺-proof a b) (p' *' g') pg%a pg%b
+
+    g%pg : g' div' (p' *' g')
+    g%pg = p' , refl
+
+    g=pg : g' == p' *' g'
+    g=pg = div'-antisym g%pg pg%g
+
+    p'=1 : p' == 1
+    p'=1 = sym (*'-right-injective g (*'-left-one >=> g=pg))
+
+  dc-a-path : prime-div-count p a == prime-div-count p g
+  dc-a-path =
+    cong (prime-div-count p) (sym da⁺-path)
+    >=> *'-prime-div-count⁺ p da⁺ g
+    >=> +'-left (zero-prime-div-count p ¬p%da)
+
+  dc-b-path : prime-div-count p b == suc (prime-div-count p db2⁺) +' (prime-div-count p g)
+  dc-b-path =
+    cong (prime-div-count p) (sym db⁺-path)
+    >=> *'-prime-div-count⁺ p db⁺ g
+    >=> +'-left (suc-prime-div-count p p%db)
+
+  dc-full-path : (prime-div-count p db2⁺) +' (suc (prime-div-count p a)) == prime-div-count p b
+  dc-full-path =
+    +'-right-suc
+    >=> +'-right {suc (prime-div-count p db2⁺)} dc-a-path
+    >=> sym dc-b-path

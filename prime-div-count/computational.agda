@@ -4,6 +4,7 @@ module prime-div-count.computational where
 
 open import base
 open import div
+open import equality
 open import nat
 open import prime
 open import prime-div-count
@@ -34,6 +35,36 @@ div-prime-div-count {a} {b} a%b p = handle (split-nat< nb na)
     bot-elim (PrimeDivCount.¬p^sn%a (prime-div-count-proof p b)
                (div'-trans (div'-trans (div'-^' lt) (PrimeDivCount.%a (prime-div-count-proof p a)))
                             a%b))
+
+zero-prime-div-count : {a : Nat⁺} -> (p : Prime') -> ¬ (⟨ p ⟩ div' ⟨ a ⟩) -> prime-div-count p a == 0
+zero-prime-div-count {a} p d = prime-div-count-unique (prime-div-count-proof p a) zp
+  where
+  zp : PrimeDivCount⁺ p a 0
+  zp = record
+    { %a = div'-one
+    ; ¬p%r = d
+    }
+
+suc-prime-div-count : {a : Nat⁺} -> (p : Prime') -> (d : ⟨ p ⟩ div' ⟨ a ⟩)
+                      -> prime-div-count p a ==
+                         suc (prime-div-count p (div⁺->multiple⁺ {Prime'.nat⁺ p} {a} d))
+suc-prime-div-count {a} p d = prime-div-count-unique (prime-div-count-proof p a) pa
+  where
+  r = (div⁺->multiple⁺ {Prime'.nat⁺ p} {a} d)
+  r' = ⟨ r ⟩
+  pr : PrimeDivCount p r' (prime-div-count p r)
+  pr = prime-div-count-proof p r
+
+  pr' : PrimeDivCount p (⟨ p ⟩ *' r') (suc (prime-div-count p r))
+  pr' = prime-div-count-suc pr
+
+  path : ⟨ p ⟩ *' r' == ⟨ a ⟩
+  path = *'-commute {⟨ p ⟩} {r'} >=> snd d
+
+  pa : PrimeDivCount p ⟨ a ⟩ (suc (prime-div-count p r))
+  pa = transport (\i -> PrimeDivCount p (path i) (suc (prime-div-count p r))) pr'
+
+
 
 gcd-prime-div-count⁺ : (p : Prime') (a b : Nat⁺)
   -> prime-div-count p (gcd⁺ a b) == min (prime-div-count p a) (prime-div-count p b)

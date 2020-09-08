@@ -49,23 +49,23 @@ record PrimeDivCount (p : Prime') (a : Nat) (n : Nat)  : Type₀ where
 PrimeDivCount⁺ : Prime' -> Nat⁺ -> Nat -> Type₀
 PrimeDivCount⁺ p (a , _) n = PrimeDivCount p a n
 
+
+prime-div-count-suc : {p : Prime'} {n : Nat} {a : Nat}
+  -> PrimeDivCount p a n -> PrimeDivCount p (⟨ p ⟩ *' a) (suc n)
+prime-div-count-suc {p@(p' , _)} {n} {a} dc = record
+  { %a = dc.r , path
+  ; ¬p%r = dc.¬p%r
+  }
+  where
+  module dc = PrimeDivCount dc
+
+  path : dc.r *' (prime-power p (suc n)) == p' *' a
+  path = sym (*'-assoc {dc.r} {p'})
+         >=> *'-left (*'-commute {dc.r} {p'})
+         >=> (*'-assoc {p'} {dc.r})
+         >=> (*'-right {p'} dc.r-path)
+
 private
-
-  prime-div-count-suc : {p : Prime'} {n : Nat} {a : Nat}
-    -> PrimeDivCount p a n -> PrimeDivCount p (⟨ p ⟩ *' a) (suc n)
-  prime-div-count-suc {p@(p' , _)} {n} {a} dc = record
-    { %a = dc.r , path
-    ; ¬p%r = dc.¬p%r
-    }
-    where
-    module dc = PrimeDivCount dc
-
-    path : dc.r *' (prime-power p (suc n)) == p' *' a
-    path = sym (*'-assoc {dc.r} {p'})
-           >=> *'-left (*'-commute {dc.r} {p'})
-           >=> (*'-assoc {p'} {dc.r})
-           >=> (*'-right {p'} dc.r-path)
-
   compute-prime-div-count' : (p : Prime') (a : Nat⁺) (bound : Nat)
                              -> (⟨ a ⟩ < bound)
                              -> Σ[ n ∈ Nat ] (PrimeDivCount p ⟨ a ⟩ n)
