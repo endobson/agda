@@ -69,6 +69,10 @@ zero-≮ : {n : Nat} -> n ≮ zero
 zero-≮ (zero  , p) = zero-suc-absurd (sym p)
 zero-≮ (suc _ , p) = zero-suc-absurd (sym p)
 
+zero-≤->zero : {n : Nat} -> n ≤ zero -> n == zero
+zero-≤->zero (0     , path) = path
+zero-≤->zero (suc _ , path) = bot-elim (zero-suc-absurd (sym path))
+
 same-≤ : (n : Nat) -> n ≤ n
 same-≤ zero = zero-≤
 same-≤ (suc n) = suc-≤ (same-≤ n)

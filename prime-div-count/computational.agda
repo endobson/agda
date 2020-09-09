@@ -65,6 +65,20 @@ suc-prime-div-count {a} p d = prime-div-count-unique (prime-div-count-proof p a)
   pa = transport (\i -> PrimeDivCount p (path i) (suc (prime-div-count p r))) pr'
 
 
+prime-div-count->prime-power-div : (p : Prime') -> (a : Nat⁺)
+                                   -> (prime-power p (prime-div-count p a)) div' ⟨ a ⟩
+prime-div-count->prime-power-div p a = PrimeDivCount.%a (prime-div-count-proof p a)
+
+prime-div-count->prime-div : (p : Prime') (a : Nat⁺)
+                             -> prime-div-count p a > 0
+                             -> ⟨ p ⟩ div' ⟨ a ⟩
+prime-div-count->prime-div p a (x , path) =
+  div'-trans (prime-power-div p dc⁺) (prime-div-count->prime-power-div p a)
+  where
+  full-path : suc x == prime-div-count p a
+  full-path = cong suc (sym +'-right-zero) >=> sym +'-right-suc >=> path
+  dc⁺ : Nat⁺
+  dc⁺ = prime-div-count p a , transport (cong Pos' full-path) tt
 
 gcd-prime-div-count⁺ : (p : Prime') (a b : Nat⁺)
   -> prime-div-count p (gcd⁺ a b) == min (prime-div-count p a) (prime-div-count p b)
