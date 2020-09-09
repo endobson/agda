@@ -413,8 +413,8 @@ private
         handle (inj-r a2≤a1) = different-div< a2%a a1%a b2%b b1%b (sym ab-path)
                                              (strengthen-≤ a2≤a1 (¬ap ∘ sym))
 
-      *'-divisors-nd : NoDuplicatesIndex *'-divisors
-      *'-divisors-nd {x'} c1@(i1 , at-i1) c2@(i2 , at-i2) =
+      *'-divisors-ndi : NoDuplicatesIndex *'-divisors
+      *'-divisors-ndi {x'} c1@(i1 , at-i1) c2@(i2 , at-i2) =
           handle (decide-nat q1 q2) (decide-nat r1 r2)
         where
         #d = (num-divisors⁺ b)
@@ -522,3 +522,12 @@ private
             where
             at-r2' : AtIndex r2 d-bs b1
             at-r2' = transport (\j -> AtIndex r2 d-bs (bp (~ j))) at-r2
+
+      *'-divisors-nd : NoDuplicates *'-divisors
+      *'-divisors-nd = no-duplicates-index->no-duplicates *'-divisors-ndi
+
+      *'-divisors-permutation : Permutation Nat *'-divisors (divisors (a *⁺ b))
+      *'-divisors-permutation =
+        contains-exactly-once->permutation
+          ((*'-divisors-co , *'-divisors-ca) , *'-divisors-nd)
+          (fst (divisors-canonical (a *⁺ b)))
