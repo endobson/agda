@@ -115,5 +115,26 @@ relatively-prime-μ {a} {b} rp = handle (decide-square-free a) (decide-square-fr
     end
 
 
-divisor-sum : (n : Nat⁺) -> (Σ[ d ∈ Nat ] (d div' ⟨ n ⟩) -> Int) -> Int
-divisor-sum n f = sum IntSemiring (map f (contains-only->list (divisors n) (divisors-contains-only n)))
+divisor-sum : (n : Nat⁺) -> (d : Nat -> Int) -> Int
+divisor-sum n f = sum IntSemiring (map f (divisors n))
+
+divisor-sum-μ : (n : Nat⁺) -> Int
+divisor-sum-μ n = divisor-sum n μ⁰
+
+divisor-sum-μ-one : divisor-sum-μ 1⁺ == (int 1)
+divisor-sum-μ-one =
+  begin
+    divisor-sum-μ 1⁺
+  ==<>
+    sum' (map μ⁰ (divisors 1⁺))
+  ==< cong (sum' ∘ map μ⁰) one-divisors-path  >
+    sum' (map μ⁰ (1 :: []))
+  ==<>
+    (μ⁰ 1) + (int 0)
+  ==< +-right-zero >
+    (μ⁰ 1)
+  ==< μ1==1 >
+    int 1
+  end
+  where
+  sum' = sum IntSemiring
