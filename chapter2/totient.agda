@@ -3,12 +3,15 @@
 module chapter2.totient where
 
 open import base
+open import div
 open import equality
+open import functions
 open import gcd.computational
 open import gcd.propositional hiding (gcd'-unique)
 open import list
 open import list.nat
 open import nat
+open import prime
 open import prime-gcd
 open import relatively-prime
 open import relation
@@ -19,6 +22,12 @@ private
       pos-k : Pos' k
       k≤n : k ≤ n
       rp : RelativelyPrime⁰ k n
+
+    k<n : n > 1 -> k < n
+    k<n n>1 = strengthen-≤ k≤n k!=n
+      where
+      k!=n : k != n
+      k!=n k==n = <->!= n>1 (sym (rp n (transport (\i -> (k==n i) div' k) div'-refl) div'-refl))
 
 
   isBoundedTotient : {n : Nat} -> isBounded (Totient n)
@@ -90,3 +99,82 @@ private
 
   φ-one : φ⁰ 1 == 1
   φ-one = cong length (canonical-list-== (totients-canonical 1) totients-one-canonical)
+
+
+module _ (p : Prime') where
+  p' = ⟨ p ⟩
+  private
+
+    small-positives : (n : Nat) -> List Nat
+    small-positives zero = []
+    small-positives n@(suc n') = n :: small-positives n'
+
+    small-positives-contains-only-≤ : (n : Nat) -> ContainsOnly (_≤ n) (small-positives n)
+    small-positives-contains-only-≤ zero {x} c = bot-elim ([]-¬contains {x = x} c)
+    small-positives-contains-only-≤ (suc n) (0     , path) = 0 , path
+    small-positives-contains-only-≤ (suc n) (suc i , ai)   =
+      right-suc-≤ (small-positives-contains-only-≤ n (i , ai))
+
+    small-positives-contains-only-< : (n : Nat) -> ContainsOnly (_< n) (small-positives (pred n))
+    small-positives-contains-only-< zero {x} c = bot-elim ([]-¬contains {x = x} c)
+    small-positives-contains-only-< (suc n) c = suc-≤ (small-positives-contains-only-≤ n c)
+
+    small-positives-contains-only-pos : (n : Nat) -> ContainsOnly Pos' (small-positives n)
+    small-positives-contains-only-pos zero {x} c = bot-elim ([]-¬contains {x = x} c)
+    small-positives-contains-only-pos (suc n) (0     , path) = transport (cong Pos' (sym path)) tt
+    small-positives-contains-only-pos (suc n) (suc i , ai)   =
+      small-positives-contains-only-pos n (i , ai)
+
+    small-positives-contains-all : (n : Nat) -> ContainsAll (Pos' ∩ (_≤ n)) (small-positives n)
+    small-positives-contains-all n {a = zero}  (() , _)
+    small-positives-contains-all zero    {a = suc a} (_ , lt) = bot-elim (zero-≮ lt)
+    small-positives-contains-all (suc n) {a = suc a} (_ , (0 , p))     = (0 , p)
+    small-positives-contains-all (suc n) {a = suc a} (pos-a , (suc i , p)) =
+      cons-contains (suc n) (small-positives-contains-all n {a = suc a} (pos-a , (i , cong pred p)))
+
+    small-positives-sorted : (n : Nat) -> Sorted _>_ (small-positives n)
+    small-positives-sorted 0       = lift tt
+    small-positives-sorted (suc n) =
+      (small-positives-contains-only-< (suc n) , small-positives-sorted n)
+
+    small-positives-length : (n : Nat) -> length (small-positives n) == n
+    small-positives-length 0 = refl
+    small-positives-length (suc n) = cong suc (small-positives-length n)
+
+    totient-prime : {k : Nat} -> Pos' k -> k < p' -> Totient p' k
+    totient-prime {k} pos-k k<p = record
+      { k≤n = weaken-< k<p
+      ; pos-k = pos-k
+      ; rp = rp
+      }
+      where
+      ¬p%k : ¬(p' div' k)
+      ¬p%k p%k = same-≮ (trans-<-≤ k<p (div'->≤ p%k {pos-k}))
+
+      rp : RelativelyPrime⁰ k p'
+      rp = rp-sym (prime->relatively-prime p ¬p%k)
+
+
+    totients-prime : List Nat
+    totients-prime = small-positives (pred p')
+
+    totients-prime-canonical : CanonicalList≥ (Totient p') totients-prime
+    totients-prime-canonical = ((co , ca) , nd) , sorted
+      where
+
+      co : ContainsOnly (Totient p') totients-prime
+      co {k} c = totient-prime (small-positives-contains-only-pos (pred p') c)
+                               (small-positives-contains-only-< p' c)
+
+      ca : ContainsAll (Totient p') totients-prime
+      ca t = small-positives-contains-all (pred p')
+               (Totient.pos-k t , pred-≤ (Totient.k<n t (Prime'.>1 p)))
+
+      nd : NoDuplicates totients-prime
+      nd = sorted>->no-duplicates (small-positives-sorted (pred p'))
+      sorted : Sorted _≥_ totients-prime
+      sorted = sorted>->sorted≥ (small-positives-sorted (pred p'))
+
+  φ-prime : φ⁰ p' == (pred p')
+  φ-prime = cong length (canonical-list-== (totients-canonical p') totients-prime-canonical)
+            >=> small-positives-length (pred p')
