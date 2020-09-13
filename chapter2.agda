@@ -35,13 +35,13 @@ private
     A : Type ℓ
 
 
+μ-inner : (n : Nat⁺) -> Dec (SquareFree n) -> Int
+μ-inner n (yes _) =
+  (neg zero) ^ (ul.length (PrimeFactorization.primes (compute-prime-factorization n)))
+μ-inner _ (no _) = zero-int
 
 μ : Nat⁺ -> Int
-μ n⁺ = handle (decide-square-free n⁺)
-  where
-  handle : Dec (SquareFree n⁺) -> Int
-  handle (yes _) = (neg zero) ^ (ul.length (PrimeFactorization.primes (compute-prime-factorization n⁺)))
-  handle (no _)  = zero-int
+μ n = μ-inner n (decide-square-free n)
 
 μ⁰ : Nat -> Int
 μ⁰ zero    = zero-int
@@ -58,9 +58,11 @@ square-free-μ {n⁺} sf pf with (decide-square-free n⁺)
 
 
 ¬square-free-μ : {n : Nat⁺} -> ¬(SquareFree n) -> μ n == zero-int
-¬square-free-μ {n⁺@(n@(suc _) , _)} ¬sf with (decide-square-free n⁺)
-... | (yes sf) = bot-elim (¬sf sf)
-... | (no _) = refl
+¬square-free-μ {n} ¬sf = handle (decide-square-free n)
+  where
+  handle : (s : Dec (SquareFree n)) -> μ-inner n s == zero-int
+  handle (yes sf) = bot-elim (¬sf sf)
+  handle (no _) = refl
 
 
 μ1==1 : μ⁰ 1 == (int 1)
