@@ -89,3 +89,7 @@ pathSigma==sigmaPath a b =
              -> x == y
 ΣProp-path h p i .fst = p i
 ΣProp-path {x = x} {y = y} h p i .snd = isProp->PathP (\i -> h {(p i)}) (x .snd) (y .snd) i
+
+×-map : {ℓA ℓB ℓC ℓD : Level} {A : Type ℓA} {B : Type ℓB} {C : Type ℓC} {D : Type ℓD}
+        -> (A -> C) -> (B -> D) -> (A × B) -> (C × D)
+×-map f g (a , b) = (f a , g b)

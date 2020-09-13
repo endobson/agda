@@ -242,292 +242,292 @@ private
   curry-*' (x , y) = x *' y
 
 
-  module _ (a b : Nat⁺) where
-    private
-      a' = ⟨ a ⟩
-      b' = ⟨ b ⟩
+module _ (a b : Nat⁺) where
+  private
+    a' = ⟨ a ⟩
+    b' = ⟨ b ⟩
 
-      cp = cartesian-product (divisors a) (divisors b)
+    cp = cartesian-product (divisors a) (divisors b)
 
-    *'-divisors : List Nat
-    *'-divisors = cartesian-product' _*'_ (divisors a) (divisors b)
+  *'-divisors : List Nat
+  *'-divisors = cartesian-product' _*'_ (divisors a) (divisors b)
 
-    *'-divisors-co : ContainsOnly (_div' (a' *' b')) *'-divisors
-    *'-divisors-co {x} c = transport (\i -> (x-path i) div' (a' *' b')) xab%ab
+  *'-divisors-co : ContainsOnly (_div' (a' *' b')) *'-divisors
+  *'-divisors-co {x} c = transport (\i -> (x-path i) div' (a' *' b')) xab%ab
+    where
+    c-info : Σ[ p ∈ (Nat × Nat) ]
+               ((contains p cp) × (proj₁ p *' proj₂ p == x))
+    c-info = map-contains' curry-*' cp c
+
+    xa : Nat
+    xa = proj₁ (fst c-info)
+    xb : Nat
+    xb = proj₂ (fst c-info)
+
+    c-xs : (contains xa (divisors a)) × (contains xb (divisors b))
+    c-xs = cartesian-product-contains' (divisors a) (divisors b) (fst (snd c-info))
+    x-path : (xa *' xb == x)
+    x-path = (snd (snd c-info))
+
+    xa%a : xa div' a'
+    xa%a = divisors-contains-only a (proj₁ c-xs)
+    xb%b : xb div' b'
+    xb%b = divisors-contains-only b (proj₂ c-xs)
+
+    xab%ab : (xa *' xb) div' (a' *' b')
+    xab%ab = div'-mult-both xa%a xb%b
+
+  module _ (rp : RelativelyPrime⁺ a b) where
+    *'-divisors-ca : ContainsAll (_div' (a' *' b')) *'-divisors
+    *'-divisors-ca {x'} x%ab = transport (\i -> contains (path i) *'-divisors) c-dab
       where
-      c-info : Σ[ p ∈ (Nat × Nat) ]
-                 ((contains p cp) × (proj₁ p *' proj₂ p == x))
-      c-info = map-contains' curry-*' cp c
+      x : Nat⁺
+      x = x' , div'-pos->pos x%ab (snd (a *⁺ b))
 
-      xa : Nat
-      xa = proj₁ (fst c-info)
-      xb : Nat
-      xb = proj₂ (fst c-info)
+      da = gcd⁺ x a
+      ga = gcd⁺-proof x a
+      db = gcd⁺ x b
+      gb = gcd⁺-proof x b
+      da' = ⟨ da ⟩
+      db' = ⟨ db ⟩
 
-      c-xs : (contains xa (divisors a)) × (contains xb (divisors b))
-      c-xs = cartesian-product-contains' (divisors a) (divisors b) (fst (snd c-info))
-      x-path : (xa *' xb == x)
-      x-path = (snd (snd c-info))
+      gcd-xab : GCD⁺ x (a *⁺ b) x
+      gcd-xab = record
+        { %a = div'-refl
+        ; %b = x%ab
+        ; f = \z z%x _ -> z%x
+        }
 
-      xa%a : xa div' a'
-      xa%a = divisors-contains-only a (proj₁ c-xs)
-      xb%b : xb div' b'
-      xb%b = divisors-contains-only b (proj₂ c-xs)
+      rp2 : RelativelyPrime⁺ da db
+      rp2 z z%da z%db = rp z (div'-trans z%da (GCD'.%b ga)) (div'-trans z%db (GCD'.%b gb))
 
-      xab%ab : (xa *' xb) div' (a' *' b')
-      xab%ab = div'-mult-both xa%a xb%b
+      c-dab : contains ⟨ da *⁺ db ⟩ *'-divisors
+      c-dab = map-contains curry-*' cp
+                (cartesian-product-contains (divisors a) (divisors b)
+                  (divisors-contains-all a (GCD'.%b ga))
+                  (divisors-contains-all b (GCD'.%b gb)))
 
-    module _ (rp : RelativelyPrime⁺ a b) where
-      *'-divisors-ca : ContainsAll (_div' (a' *' b')) *'-divisors
-      *'-divisors-ca {x'} x%ab = transport (\i -> contains (path i) *'-divisors) c-dab
+      path : (da' *' db') == x'
+      path = prime-same-division-count (da *⁺ db) x f
         where
-        x : Nat⁺
-        x = x' , div'-pos->pos x%ab (snd (a *⁺ b))
-
-        da = gcd⁺ x a
-        ga = gcd⁺-proof x a
-        db = gcd⁺ x b
-        gb = gcd⁺-proof x b
-        da' = ⟨ da ⟩
-        db' = ⟨ db ⟩
-
-        gcd-xab : GCD⁺ x (a *⁺ b) x
-        gcd-xab = record
-          { %a = div'-refl
-          ; %b = x%ab
-          ; f = \z z%x _ -> z%x
-          }
-
-        rp2 : RelativelyPrime⁺ da db
-        rp2 z z%da z%db = rp z (div'-trans z%da (GCD'.%b ga)) (div'-trans z%db (GCD'.%b gb))
-
-        c-dab : contains ⟨ da *⁺ db ⟩ *'-divisors
-        c-dab = map-contains curry-*' cp
-                  (cartesian-product-contains (divisors a) (divisors b)
-                    (divisors-contains-all a (GCD'.%b ga))
-                    (divisors-contains-all b (GCD'.%b gb)))
-
-        path : (da' *' db') == x'
-        path = prime-same-division-count (da *⁺ db) x f
-          where
-          f : (p : Prime') -> {n1 n2 : Nat}
-              -> PrimeDivCount⁺ p (da *⁺ db) n1 -> PrimeDivCount⁺ p x n2
-              -> n1 == n2
-          f p {n1} {n2} dc1 dc2 =
-            begin
-              n1
-            ==< prime-div-count-unique dc1 (prime-div-count-proof p (da *⁺ db)) >
-               ρ (da *⁺ db)
-            ==< cong ρ (sym (relatively-prime-lcm-path⁺ {da} {db} rp2)) >
-              ρ (lcm⁺ da db)
-            ==<>
-              ρ (lcm⁺ (gcd⁺ x a) (gcd⁺ x b))
-            ==< cong ρ (sym (gcd-distrib-lcm⁺ x a b)) >
-              ρ (gcd⁺ x (lcm⁺ a b))
-            ==< (\i -> (ρ (gcd⁺ x (relatively-prime-lcm-path⁺ {a} {b} rp i)))) >
-              ρ (gcd⁺ x (a *⁺ b))
-            ==< cong ρ (ΣProp-path isPropPos' (gcd'-unique gcd-xab)) >
-              ρ x
-            ==< prime-div-count-unique (prime-div-count-proof p x) dc2 >
-              n2
-            end
-            where
-            ρ : Nat⁺ -> Nat
-            ρ = prime-div-count p
-
-      different-div<  : {a1 a2 b1 b2 : Nat}
-                        -> a1 div' a' -> a2 div' a' -> b1 div' b' -> b2 div' b'
-                        -> a1 *' b1 == a2 *' b2
-                        -> a1 < a2 -> Bot
-      different-div< {a1} {a2} {b1} {b2} a1%a a2%a b1%b b2%b ab-path a1<a2 = <->!= dc-< dc-=
-        where
-        a1⁺ : Nat⁺
-        a2⁺ : Nat⁺
-        b1⁺ : Nat⁺
-        b2⁺ : Nat⁺
-        a1⁺ = a1 , div'-pos->pos a1%a (snd a)
-        a2⁺ = a2 , div'-pos->pos a2%a (snd a)
-        b1⁺ = b1 , div'-pos->pos b1%b (snd b)
-        b2⁺ = b2 , div'-pos->pos b2%b (snd b)
-
-        ab-path⁺ : (a1⁺ *⁺ b1⁺) == (a2⁺ *⁺ b2⁺)
-        ab-path⁺ = ΣProp-path isPropPos' ab-path
-
-        Σp : Σ[ p ∈ Prime' ] (prime-div-count p a1⁺ < prime-div-count p a2⁺)
-        Σp = prime-different-division-count a1⁺ a2⁺ a1<a2
-
-        p = fst Σp
-        p' = ⟨ p ⟩
-        dc-< = snd Σp
-
-        p%a2 : p' div' a2
-        p%a2 = prime-div-count->prime-div p a2⁺ (trans-≤-< zero-≤ dc-<)
-
-        p%a : p' div' a'
-        p%a = div'-trans p%a2 a2%a
-
-        ¬p%b : ¬ (p' div' b')
-        ¬p%b p%b = Prime'.!=1 p (rp p' p%a p%b)
-
-        b-dc : prime-div-count p b == 0
-        b-dc = zero-prime-div-count p ¬p%b
-
-        b1-dc : prime-div-count p b1⁺ == 0
-        b1-dc = zero-≤->zero (trans-≤ (div-prime-div-count b1%b p) (0 , b-dc))
-        b2-dc : prime-div-count p b2⁺ == 0
-        b2-dc = zero-≤->zero (trans-≤ (div-prime-div-count b2%b p) (0 , b-dc))
-
-        dc-= : prime-div-count p a1⁺ == prime-div-count p a2⁺
-        dc-= =
+        f : (p : Prime') -> {n1 n2 : Nat}
+            -> PrimeDivCount⁺ p (da *⁺ db) n1 -> PrimeDivCount⁺ p x n2
+            -> n1 == n2
+        f p {n1} {n2} dc1 dc2 =
           begin
-            ρ a1⁺
-          ==< sym +'-right-zero >
-            ρ a1⁺ +' 0
-          ==< +'-right {ρ a1⁺} (sym b1-dc) >
-            ρ a1⁺ +' ρ b1⁺
-          ==< sym (*'-prime-div-count⁺ p a1⁺ b1⁺) >
-            ρ (a1⁺ *⁺ b1⁺)
-          ==< cong ρ ab-path⁺ >
-            ρ (a2⁺ *⁺ b2⁺)
-          ==< (*'-prime-div-count⁺ p a2⁺ b2⁺) >
-            ρ a2⁺ +' ρ b2⁺
-          ==< +'-right {ρ a2⁺} b2-dc >
-            ρ a2⁺ +' 0
-          ==< +'-right-zero >
-            ρ a2⁺
+            n1
+          ==< prime-div-count-unique dc1 (prime-div-count-proof p (da *⁺ db)) >
+             ρ (da *⁺ db)
+          ==< cong ρ (sym (relatively-prime-lcm-path⁺ {da} {db} rp2)) >
+            ρ (lcm⁺ da db)
+          ==<>
+            ρ (lcm⁺ (gcd⁺ x a) (gcd⁺ x b))
+          ==< cong ρ (sym (gcd-distrib-lcm⁺ x a b)) >
+            ρ (gcd⁺ x (lcm⁺ a b))
+          ==< (\i -> (ρ (gcd⁺ x (relatively-prime-lcm-path⁺ {a} {b} rp i)))) >
+            ρ (gcd⁺ x (a *⁺ b))
+          ==< cong ρ (ΣProp-path isPropPos' (gcd'-unique gcd-xab)) >
+            ρ x
+          ==< prime-div-count-unique (prime-div-count-proof p x) dc2 >
+            n2
           end
           where
+          ρ : Nat⁺ -> Nat
           ρ = prime-div-count p
 
+    different-div<  : {a1 a2 b1 b2 : Nat}
+                      -> a1 div' a' -> a2 div' a' -> b1 div' b' -> b2 div' b'
+                      -> a1 *' b1 == a2 *' b2
+                      -> a1 < a2 -> Bot
+    different-div< {a1} {a2} {b1} {b2} a1%a a2%a b1%b b2%b ab-path a1<a2 = <->!= dc-< dc-=
+      where
+      a1⁺ : Nat⁺
+      a2⁺ : Nat⁺
+      b1⁺ : Nat⁺
+      b2⁺ : Nat⁺
+      a1⁺ = a1 , div'-pos->pos a1%a (snd a)
+      a2⁺ = a2 , div'-pos->pos a2%a (snd a)
+      b1⁺ = b1 , div'-pos->pos b1%b (snd b)
+      b2⁺ = b2 , div'-pos->pos b2%b (snd b)
 
+      ab-path⁺ : (a1⁺ *⁺ b1⁺) == (a2⁺ *⁺ b2⁺)
+      ab-path⁺ = ΣProp-path isPropPos' ab-path
 
+      Σp : Σ[ p ∈ Prime' ] (prime-div-count p a1⁺ < prime-div-count p a2⁺)
+      Σp = prime-different-division-count a1⁺ a2⁺ a1<a2
 
-      different-div  : {a1 a2 b1 b2 : Nat}
-                       -> a1 div' a' -> a2 div' a' -> b1 div' b' -> b2 div' b'
-                       -> a1 *' b1 == a2 *' b2
-                       -> a1 != a2 -> Bot
-      different-div {a1} {a2} {b1} {b2} a1%a a2%a b1%b b2%b ab-path ¬ap = handle (split-nat< a1 a2)
+      p = fst Σp
+      p' = ⟨ p ⟩
+      dc-< = snd Σp
+
+      p%a2 : p' div' a2
+      p%a2 = prime-div-count->prime-div p a2⁺ (trans-≤-< zero-≤ dc-<)
+
+      p%a : p' div' a'
+      p%a = div'-trans p%a2 a2%a
+
+      ¬p%b : ¬ (p' div' b')
+      ¬p%b p%b = Prime'.!=1 p (rp p' p%a p%b)
+
+      b-dc : prime-div-count p b == 0
+      b-dc = zero-prime-div-count p ¬p%b
+
+      b1-dc : prime-div-count p b1⁺ == 0
+      b1-dc = zero-≤->zero (trans-≤ (div-prime-div-count b1%b p) (0 , b-dc))
+      b2-dc : prime-div-count p b2⁺ == 0
+      b2-dc = zero-≤->zero (trans-≤ (div-prime-div-count b2%b p) (0 , b-dc))
+
+      dc-= : prime-div-count p a1⁺ == prime-div-count p a2⁺
+      dc-= =
+        begin
+          ρ a1⁺
+        ==< sym +'-right-zero >
+          ρ a1⁺ +' 0
+        ==< +'-right {ρ a1⁺} (sym b1-dc) >
+          ρ a1⁺ +' ρ b1⁺
+        ==< sym (*'-prime-div-count⁺ p a1⁺ b1⁺) >
+          ρ (a1⁺ *⁺ b1⁺)
+        ==< cong ρ ab-path⁺ >
+          ρ (a2⁺ *⁺ b2⁺)
+        ==< (*'-prime-div-count⁺ p a2⁺ b2⁺) >
+          ρ a2⁺ +' ρ b2⁺
+        ==< +'-right {ρ a2⁺} b2-dc >
+          ρ a2⁺ +' 0
+        ==< +'-right-zero >
+          ρ a2⁺
+        end
         where
-        handle : (a1 < a2 ⊎ a2 ≤ a1) -> Bot
-        handle (inj-l a1<a2) = different-div< a1%a a2%a b1%b b2%b ab-path a1<a2
-        handle (inj-r a2≤a1) = different-div< a2%a a1%a b2%b b1%b (sym ab-path)
-                                             (strengthen-≤ a2≤a1 (¬ap ∘ sym))
+        ρ = prime-div-count p
 
-      *'-divisors-ndi : NoDuplicatesIndex *'-divisors
-      *'-divisors-ndi {x'} c1@(i1 , at-i1) c2@(i2 , at-i2) =
-          handle (decide-nat q1 q2) (decide-nat r1 r2)
+
+
+
+    different-div  : {a1 a2 b1 b2 : Nat}
+                     -> a1 div' a' -> a2 div' a' -> b1 div' b' -> b2 div' b'
+                     -> a1 *' b1 == a2 *' b2
+                     -> a1 != a2 -> Bot
+    different-div {a1} {a2} {b1} {b2} a1%a a2%a b1%b b2%b ab-path ¬ap = handle (split-nat< a1 a2)
+      where
+      handle : (a1 < a2 ⊎ a2 ≤ a1) -> Bot
+      handle (inj-l a1<a2) = different-div< a1%a a2%a b1%b b2%b ab-path a1<a2
+      handle (inj-r a2≤a1) = different-div< a2%a a1%a b2%b b1%b (sym ab-path)
+                                           (strengthen-≤ a2≤a1 (¬ap ∘ sym))
+
+    *'-divisors-ndi : NoDuplicatesIndex *'-divisors
+    *'-divisors-ndi {x'} c1@(i1 , at-i1) c2@(i2 , at-i2) =
+        handle (decide-nat q1 q2) (decide-nat r1 r2)
+      where
+      #d = (num-divisors⁺ b)
+      q1 = quotient  i1 #d
+      r1 = remainder i1 #d
+      q2 = quotient  i2 #d
+      r2 = remainder i2 #d
+
+      d-as = (divisors a)
+      d-bs = (divisors b)
+
+      at-i1' : Σ[ ab ∈ (Nat × Nat) ] ((AtIndex i1 cp ab) ×
+                                      (proj₁ ab *' proj₂ ab == x'))
+      at-i1' = map-at-index' curry-*' cp at-i1
+
+      at-i2' : Σ[ ab ∈ (Nat × Nat) ] ((AtIndex i2 cp ab) ×
+                                      (proj₁ ab *' proj₂ ab == x'))
+      at-i2' = map-at-index' curry-*' cp at-i2
+
+      a1 = fst (fst at-i1')
+      b1 = snd (fst at-i1')
+      a2 = fst (fst at-i2')
+      b2 = snd (fst at-i2')
+
+      ab-path : a1 *' b1 == a2 *' b2
+      ab-path = snd (snd at-i1') >=> sym (snd (snd at-i2'))
+
+      at-q1 : AtIndex q1 d-as a1
+      at-q1 = fst (cartesian-product-at-index' d-as d-bs (fst (snd at-i1')) (snd #d))
+      at-q2 : AtIndex q2 d-as a2
+      at-q2 = fst (cartesian-product-at-index' d-as d-bs (fst (snd at-i2')) (snd #d))
+      at-r1 : AtIndex r1 d-bs b1
+      at-r1 = snd (cartesian-product-at-index' d-as d-bs (fst (snd at-i1')) (snd #d))
+      at-r2 : AtIndex r2 d-bs b2
+      at-r2 = snd (cartesian-product-at-index' d-as d-bs (fst (snd at-i2')) (snd #d))
+
+      a1%a : a1 div' a'
+      a1%a = divisors-contains-only a (q1 , at-q1)
+      a2%a : a2 div' a'
+      a2%a = divisors-contains-only a (q2 , at-q2)
+      b1%b : b1 div' b'
+      b1%b = divisors-contains-only b (r1 , at-r1)
+      b2%b : b2 div' b'
+      b2%b = divisors-contains-only b (r2 , at-r2)
+
+
+      handle : Dec (q1 == q2) -> Dec (r1 == r2) -> i1 == i2
+      handle (yes qp) (yes rp) =
+        begin
+          i1
+        ==< quotient-remainder-path #d >
+          q1 *' ⟨ #d ⟩ +' r1
+        ==< (\j -> (qp j) *' ⟨ #d ⟩ +' (rp j)) >
+          q2 *' ⟨ #d ⟩ +' r2
+        ==< sym (quotient-remainder-path #d) >
+          i2
+        end
+      handle (yes qp) (no ¬rp) =
+        bot-elim (¬rp (no-duplicates->no-duplicates-index (divisors-no-duplicates b)
+                                                          (r1 , at-r1) (r2 , at-r2')))
         where
-        #d = (num-divisors⁺ b)
-        q1 = quotient  i1 #d
-        r1 = remainder i1 #d
-        q2 = quotient  i2 #d
-        r2 = remainder i2 #d
+        ap : a1 == a2
+        ap = same-at-index' d-as at-q1 at-q2 qp
+        ab-path' : a1 *' b1 == a1 *' b2
+        ab-path' = ab-path >=> (cong (_*' b2) (sym ap))
+        a1-pos : Pos' a1
+        a1-pos = div'-pos->pos a1%a (snd a)
+        bp : b1 == b2
+        bp = *'-left-injective (a1 , a1-pos) ab-path'
 
-        d-as = (divisors a)
-        d-bs = (divisors b)
+        at-r2' : AtIndex r2 d-bs b1
+        at-r2' = transport (\j -> AtIndex r2 d-bs (bp (~ j))) at-r2
 
-        at-i1' : Σ[ ab ∈ (Nat × Nat) ] ((AtIndex i1 cp ab) ×
-                                        (proj₁ ab *' proj₂ ab == x'))
-        at-i1' = map-at-index' curry-*' cp at-i1
+      handle (no ¬qp) (yes rp) =
+        bot-elim (¬qp (no-duplicates->no-duplicates-index (divisors-no-duplicates a)
+                                                          (q1 , at-q1) (q2 , at-q2')))
+        where
+        bp : b1 == b2
+        bp = same-at-index' d-bs at-r1 at-r2 rp
+        ab-path' : a1 *' b1 == a2 *' b1
+        ab-path' = ab-path >=> (cong (a2 *'_) (sym bp))
+        b1-pos : Pos' b1
+        b1-pos = div'-pos->pos b1%b (snd b)
+        ap : a1 == a2
+        ap = *'-right-injective (b1 , b1-pos) ab-path'
 
-        at-i2' : Σ[ ab ∈ (Nat × Nat) ] ((AtIndex i2 cp ab) ×
-                                        (proj₁ ab *' proj₂ ab == x'))
-        at-i2' = map-at-index' curry-*' cp at-i2
+        at-q2' : AtIndex q2 d-as a1
+        at-q2' = transport (\j -> AtIndex q2 d-as (ap (~ j))) at-q2
 
-        a1 = fst (fst at-i1')
-        b1 = snd (fst at-i1')
-        a2 = fst (fst at-i2')
-        b2 = snd (fst at-i2')
-
-        ab-path : a1 *' b1 == a2 *' b2
-        ab-path = snd (snd at-i1') >=> sym (snd (snd at-i2'))
-
-        at-q1 : AtIndex q1 d-as a1
-        at-q1 = fst (cartesian-product-at-index' d-as d-bs (fst (snd at-i1')) (snd #d))
-        at-q2 : AtIndex q2 d-as a2
-        at-q2 = fst (cartesian-product-at-index' d-as d-bs (fst (snd at-i2')) (snd #d))
-        at-r1 : AtIndex r1 d-bs b1
-        at-r1 = snd (cartesian-product-at-index' d-as d-bs (fst (snd at-i1')) (snd #d))
-        at-r2 : AtIndex r2 d-bs b2
-        at-r2 = snd (cartesian-product-at-index' d-as d-bs (fst (snd at-i2')) (snd #d))
-
-        a1%a : a1 div' a'
-        a1%a = divisors-contains-only a (q1 , at-q1)
-        a2%a : a2 div' a'
-        a2%a = divisors-contains-only a (q2 , at-q2)
-        b1%b : b1 div' b'
-        b1%b = divisors-contains-only b (r1 , at-r1)
-        b2%b : b2 div' b'
-        b2%b = divisors-contains-only b (r2 , at-r2)
-
-
-        handle : Dec (q1 == q2) -> Dec (r1 == r2) -> i1 == i2
-        handle (yes qp) (yes rp) =
-          begin
-            i1
-          ==< quotient-remainder-path #d >
-            q1 *' ⟨ #d ⟩ +' r1
-          ==< (\j -> (qp j) *' ⟨ #d ⟩ +' (rp j)) >
-            q2 *' ⟨ #d ⟩ +' r2
-          ==< sym (quotient-remainder-path #d) >
-            i2
-          end
-        handle (yes qp) (no ¬rp) =
-          bot-elim (¬rp (no-duplicates->no-duplicates-index (divisors-no-duplicates b)
-                                                            (r1 , at-r1) (r2 , at-r2')))
+      handle (no ¬qp) (no ¬rp) =
+        bot-elim (different-div a1%a a2%a b1%b b2%b ab-path ¬ap)
+        where
+        ¬ap : a1 != a2
+        ¬ap ap =
+            ¬qp (no-duplicates->no-duplicates-index (divisors-no-duplicates a)
+                                                    (q1 , at-q1) (q2 , at-q2'))
           where
-          ap : a1 == a2
-          ap = same-at-index' d-as at-q1 at-q2 qp
-          ab-path' : a1 *' b1 == a1 *' b2
-          ab-path' = ab-path >=> (cong (_*' b2) (sym ap))
-          a1-pos : Pos' a1
-          a1-pos = div'-pos->pos a1%a (snd a)
-          bp : b1 == b2
-          bp = *'-left-injective (a1 , a1-pos) ab-path'
-
-          at-r2' : AtIndex r2 d-bs b1
-          at-r2' = transport (\j -> AtIndex r2 d-bs (bp (~ j))) at-r2
-
-        handle (no ¬qp) (yes rp) =
-          bot-elim (¬qp (no-duplicates->no-duplicates-index (divisors-no-duplicates a)
-                                                            (q1 , at-q1) (q2 , at-q2')))
-          where
-          bp : b1 == b2
-          bp = same-at-index' d-bs at-r1 at-r2 rp
-          ab-path' : a1 *' b1 == a2 *' b1
-          ab-path' = ab-path >=> (cong (a2 *'_) (sym bp))
-          b1-pos : Pos' b1
-          b1-pos = div'-pos->pos b1%b (snd b)
-          ap : a1 == a2
-          ap = *'-right-injective (b1 , b1-pos) ab-path'
-
           at-q2' : AtIndex q2 d-as a1
           at-q2' = transport (\j -> AtIndex q2 d-as (ap (~ j))) at-q2
 
-        handle (no ¬qp) (no ¬rp) =
-          bot-elim (different-div a1%a a2%a b1%b b2%b ab-path ¬ap)
+        ¬bp : b1 != b2
+        ¬bp bp =
+            ¬rp (no-duplicates->no-duplicates-index (divisors-no-duplicates b)
+                                                    (r1 , at-r1) (r2 , at-r2'))
           where
-          ¬ap : a1 != a2
-          ¬ap ap =
-              ¬qp (no-duplicates->no-duplicates-index (divisors-no-duplicates a)
-                                                      (q1 , at-q1) (q2 , at-q2'))
-            where
-            at-q2' : AtIndex q2 d-as a1
-            at-q2' = transport (\j -> AtIndex q2 d-as (ap (~ j))) at-q2
+          at-r2' : AtIndex r2 d-bs b1
+          at-r2' = transport (\j -> AtIndex r2 d-bs (bp (~ j))) at-r2
 
-          ¬bp : b1 != b2
-          ¬bp bp =
-              ¬rp (no-duplicates->no-duplicates-index (divisors-no-duplicates b)
-                                                      (r1 , at-r1) (r2 , at-r2'))
-            where
-            at-r2' : AtIndex r2 d-bs b1
-            at-r2' = transport (\j -> AtIndex r2 d-bs (bp (~ j))) at-r2
+    *'-divisors-nd : NoDuplicates *'-divisors
+    *'-divisors-nd = no-duplicates-index->no-duplicates *'-divisors-ndi
 
-      *'-divisors-nd : NoDuplicates *'-divisors
-      *'-divisors-nd = no-duplicates-index->no-duplicates *'-divisors-ndi
-
-      *'-divisors-permutation : Permutation Nat *'-divisors (divisors (a *⁺ b))
-      *'-divisors-permutation =
-        contains-exactly-once->permutation
-          ((*'-divisors-co , *'-divisors-ca) , *'-divisors-nd)
-          (fst (divisors-canonical (a *⁺ b)))
+    *'-divisors-permutation : Permutation Nat *'-divisors (divisors (a *⁺ b))
+    *'-divisors-permutation =
+      contains-exactly-once->permutation
+        ((*'-divisors-co , *'-divisors-ca) , *'-divisors-nd)
+        (fst (divisors-canonical (a *⁺ b)))

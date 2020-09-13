@@ -54,6 +54,44 @@ module _ where
   sum-map-Permutation f (permutation-compose p1 p2) =
     sum-map-Permutation f p1 >=> sum-map-Permutation f p2
 
+  sum-map-* : (k : Domain) (as : List Domain)
+              -> sum (map (k *_) as) == k * (sum as)
+  sum-map-* k []        = sym *-right-zero
+  sum-map-* k (a :: as) =
+    begin
+      sum (map (k *_) (a :: as))
+    ==<>
+      (k * a) + (sum (map (k *_) as))
+    ==< +-right (sum-map-* k as) >
+      (k * a) + (k * (sum as))
+    ==< sym *-distrib-+-left >
+      k * (sum (a :: as))
+    end
+
+
+  sum-cartesian-product : (a1 a2 : List Domain)
+                          -> sum (cartesian-product' _*_ a1 a2)
+                             == (sum a1) * (sum a2)
+  sum-cartesian-product [] a2 = sym *-left-zero
+  sum-cartesian-product (a :: a1) a2 =
+    begin
+      sum (cartesian-product' _*_ (a :: a1) a2)
+    ==<>
+      sum (map curry-* ((map (a ,_) a2) ++ (cartesian-product a1 a2)))
+    ==< sum-map-inject-++ curry-* {map (a ,_) a2} >
+      sum (map curry-* (map (a ,_) a2)) + (sum (cartesian-product' _*_ a1 a2))
+    ==< +-right (sum-cartesian-product a1 a2) >
+      sum (map curry-* (map (a ,_) a2)) + (sum a1) * (sum a2)
+    ==< +-left (cong sum (double-map curry-* (a ,_) a2)) >
+      sum (map (a *_) a2) + (sum a1) * (sum a2)
+    ==< +-left (sum-map-* a a2) >
+      a * (sum a2) + (sum a1) * (sum a2)
+    ==< sym *-distrib-+-right >
+      (sum (a :: a1)) * (sum a2)
+    end
+    where
+    curry-* = \ (x , y) -> x * y
+
 
   product : List Domain -> Domain
   product = concat {{*-Monoid}}

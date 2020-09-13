@@ -115,6 +115,15 @@ relatively-prime-μ {a} {b} rp = handle (decide-square-free a) (decide-square-fr
     end
 
 
+relatively-prime-μ⁰ : {a b : Nat} -> RelativelyPrime⁰ a b
+                     -> μ⁰ (a *' b) == μ⁰ a * μ⁰ b
+relatively-prime-μ⁰ {a = 0} rp = refl
+relatively-prime-μ⁰ {a = a@(suc _)} {b = b@zero} rp =
+  cong μ⁰ (*'-commute {a} {b}) >=> (*-commute {μ⁰ b} {μ⁰ a})
+relatively-prime-μ⁰ {a = a@(suc _)} {b = b@(suc _)} rp =
+  relatively-prime-μ {a = (a , tt)} {b = (b , tt)} rp
+
+
 divisor-sum : (n : Nat⁺) -> (d : Nat -> Int) -> Int
 divisor-sum n f = sum IntSemiring (map f (divisors n))
 
@@ -138,3 +147,53 @@ divisor-sum-μ-one =
   end
   where
   sum' = sum IntSemiring
+
+divisor-sum-μ-rp : {a b : Nat⁺} -> RelativelyPrime⁺ a b
+                   -> divisor-sum-μ (a *⁺ b) == divisor-sum-μ a * divisor-sum-μ b
+divisor-sum-μ-rp {a} {b} rp =
+  begin
+    divisor-sum-μ (a *⁺ b)
+  ==<>
+    sum' (map μ⁰ (divisors (a *⁺ b)))
+  ==< sym (sum-map-Permutation IntSemiring μ⁰ (*'-divisors-permutation a b rp)) >
+    sum' (map μ⁰ (*'-divisors a b))
+  ==<>
+    sum' (map μ⁰ (map (\ (x , y) -> x *' y) cp))
+  ==< cong sum' (double-map μ⁰ (\ (x , y) -> x *' y) cp) >
+    sum' (map (\ (x , y) -> μ⁰ (x *' y)) cp)
+  ==<>
+    sum' (cartesian-product' (\ x y -> μ⁰ (x *' y)) da db)
+  ==< cong sum' (sym (cartesian-product-ind'-path {f = (\ x y -> μ⁰ (x *' y))} {da} {db})) >
+    sum' (cartesian-product-ind' (\ x y -> μ⁰ (x *' y)) da db)
+  ==<>
+    sum' (cartesian-product-ind da db (\ x y _ _ -> μ⁰ (x *' y)))
+  ==< (\i -> sum' (cartesian-product-ind da db (\ x y cx cy -> f-path x y cx cy i))) >
+    sum' (cartesian-product-ind da db (\ x y _ _ -> μ⁰ x * μ⁰ y))
+  ==< cong sum' (cartesian-product-ind'-path {f = (\ x y -> μ⁰ x * μ⁰ y)} {da} {db}) >
+    sum' (cartesian-product' (\ x y -> μ⁰ x * μ⁰ y) da db)
+  ==<>
+    sum' (map (\ (x , y) -> μ⁰ x * μ⁰ y) cp)
+  ==< cong sum' (sym (double-map curry-* (×-map μ⁰ μ⁰) cp)) >
+    sum' (map curry-* (map (×-map μ⁰ μ⁰) cp))
+  ==< cong (\ x -> sum' (map curry-* x)) (cartesian-product-map μ⁰ μ⁰ (divisors a) (divisors b)) >
+    sum' (cartesian-product' _*_ (map μ⁰ (divisors a)) (map μ⁰ (divisors b)))
+  ==< sum-cartesian-product IntSemiring (map μ⁰ (divisors a)) (map μ⁰ (divisors b)) >
+    (sum' (map μ⁰ (divisors a))) * (sum' (map μ⁰ (divisors b)))
+  ==<>
+    divisor-sum-μ a * divisor-sum-μ b
+  end
+  where
+  sum' = sum IntSemiring
+  curry-* = (\ (x , y) -> x * y)
+  da = (divisors a)
+  db = (divisors b)
+  cp = (cartesian-product da db)
+
+  f-path : (x : Nat) (y : Nat) -> (contains x da) -> (contains y db)
+           ->  μ⁰ (x *' y) == μ⁰ x * μ⁰ y
+  f-path x y cx cy = relatively-prime-μ⁰ (divisors-relatively-prime rp x%a y%b)
+    where
+    x%a : x div' ⟨ a ⟩
+    x%a = divisors-contains-only a cx
+    y%b : y div' ⟨ b ⟩
+    y%b = divisors-contains-only b cy

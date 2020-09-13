@@ -10,6 +10,7 @@ open import monoid
 open import nat
 open import quotient
 open import ring.implementations
+open import sigma
 open import sum
 
 open import list.append public
@@ -19,7 +20,7 @@ open import list.permutation public
 private
   variable
     ℓ : Level
-    A B C : Type ℓ
+    A B C D : Type ℓ
 
 
 double-map : (f : B -> C) (g : A -> B) (as : List A)
@@ -739,6 +740,61 @@ cartesian-product'-no-duplicates {f = f} as bs inj-f nd-a nd-b =
   inj-f' : Injective (\ (a , b) -> f a b)
   inj-f' {x1 , y1} {x2 , y2} p i = fst (inj-f p) i , snd (inj-f p) i
 
+cartesian-product-map : (f : (A -> C)) (g : (B -> D)) (as : List A) (bs : List B)
+                        -> map (×-map f g) (cartesian-product as bs)
+                           == cartesian-product (map f as) (map g bs)
+cartesian-product-map f g []        bs = refl
+cartesian-product-map f g (a :: as) bs =
+  begin
+    map h (cartesian-product (a :: as) bs)
+  ==< map-inject-++ h {map (a ,_) bs} {cartesian-product as bs} >
+    map h (map (a ,_) bs) ++ (map h (cartesian-product as bs))
+  ==< cong (_++ (map h (cartesian-product as bs))) (double-map h (a ,_) bs) >
+    map (\ b -> (f a , g b)) bs ++ (map h (cartesian-product as bs))
+  ==< cong (_++ (map h (cartesian-product as bs))) (sym (double-map (f a ,_) g bs)) >
+    map (f a ,_) (map g bs) ++ (map h (cartesian-product as bs))
+  ==< cong (map (f a ,_) (map g bs) ++_) (cartesian-product-map f g as bs) >
+    map (f a ,_) (map g bs) ++ (cartesian-product (map f as) (map g bs))
+  ==<>
+    cartesian-product (map f (a :: as)) (map g bs)
+  end
+  where
+  h = (×-map f g)
+
+cartesian-product-ind : (as : List A) -> (bs : List B)
+                        -> ((a : A) -> (b : B) -> contains a as -> contains b bs -> C)
+                        -> List C
+cartesian-product-ind {A = A} {B = B} {C = C} as bs f = map g (contains-map cprod)
+  where
+  cprod = (cartesian-product as bs)
+
+  g : (Σ[ p ∈ (A × B) ] (contains p cprod)) -> C
+  g ((a , b) , c-p) = f a b (proj₁ pair-contains) (proj₂ pair-contains)
+    where
+    pair-contains = cartesian-product-contains' as bs c-p
+
+cartesian-product-ind' : (A -> B -> C) -> (List A) -> (List B) -> List C
+cartesian-product-ind' f as bs = cartesian-product-ind as bs (\ a b _ _ -> f a b)
+
+cartesian-product-ind'-path : {f : A -> B -> C} {as : List A} {bs : List B}
+                              -> cartesian-product-ind' f as bs == cartesian-product' f as bs
+cartesian-product-ind'-path {A = A} {B = B} {C = C} {f = f} {as} {bs} =
+  begin
+    cartesian-product-ind' f as bs
+  ==<>
+    map (\ ((a , b) , _) -> f a b) (contains-map (cartesian-product as bs))
+  ==<>
+    map (cf ∘ fst) (contains-map (cartesian-product as bs))
+  ==< sym (double-map cf fst _) >
+    map cf (map fst (contains-map (cartesian-product as bs)))
+  ==< cong (map cf) (contains-map-fst _) >
+    map cf (cartesian-product as bs)
+  ==<>
+    cartesian-product' f as bs
+  end
+  where
+  cf : (A × B) -> C
+  cf (a , b) = f a b
 
 
 module _ {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} (_≤_ : Rel A ℓ₂)  where
