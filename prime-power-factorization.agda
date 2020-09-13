@@ -91,6 +91,11 @@ private
 compute-ppf : {n : Nat} -> n > 1 -> PPF n
 compute-ppf n>1 = pft->ppf (compute-prime-factorization-tree n>1)
 
+ppf->pos : {a : Nat} -> PPF a -> Pos' a
+ppf->pos (ppf-base p n) = (snd (prime-power⁺ p ⟨ n ⟩))
+ppf->pos (ppf-combine ppf-a ppf-b _) = *'-Pos'-Pos' (ppf->pos ppf-a) (ppf->pos ppf-b)
+
+
 data OrderedPrimePowerFactorization : Nat -> Type₀ where
   oppf-[] : OrderedPrimePowerFactorization 1
   oppf-cons : {a : Nat}

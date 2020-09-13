@@ -221,6 +221,11 @@ module _ (p : Prime') where
     sorted : Sorted _≥_ (divisors-of-prime-power (suc n))
     sorted = sorted>->sorted≥ (sorted>-divisors-of-prime-power (suc n))
 
+  prime-power-divisors-path : (n : Nat) -> divisors (prime-power⁺ p n)
+                                           == divisors-of-prime-power n
+  prime-power-divisors-path n =
+    canonical-list-== (divisors-canonical (prime-power⁺ p n)) (divisors-of-prime-power-canonical n)
+
 -- Divisors of product
 private
   lcm-divides-product : {d1 d2 a b m : Nat} -> d1 div' a -> d2 div' b -> LCM' d1 d2 m -> m div' (a *' b)

@@ -16,6 +16,7 @@ open import list.discrete
 open import nat
 open import prime
 open import prime-factorization
+open import prime-power-factorization
 open import prime-gcd
 open import relation
 open import relatively-prime
@@ -36,9 +37,11 @@ private
 
 
 μ : Nat⁺ -> Int
-μ n⁺ with (decide-square-free n⁺)
-... | (yes _) = (neg zero) ^ (ul.length (PrimeFactorization.primes (compute-prime-factorization n⁺)))
-... | (no _)  = zero-int
+μ n⁺ = handle (decide-square-free n⁺)
+  where
+  handle : Dec (SquareFree n⁺) -> Int
+  handle (yes _) = (neg zero) ^ (ul.length (PrimeFactorization.primes (compute-prime-factorization n⁺)))
+  handle (no _)  = zero-int
 
 μ⁰ : Nat -> Int
 μ⁰ zero    = zero-int
@@ -65,6 +68,10 @@ square-free-μ {n⁺} sf pf with (decide-square-free n⁺)
 
 μp==-1 : (p : Prime') -> μ (Prime'.nat⁺ p) == (- (int 1))
 μp==-1 p = square-free-μ (prime-square-free p) (prime-prime-factorization p)
+
+μ⁰-path : (n : Nat⁺) -> μ⁰ ⟨ n ⟩ == μ n
+μ⁰-path (suc n , tt) = refl
+
 
 relatively-prime-μ : {a b : Nat⁺} -> RelativelyPrime⁺ a b
                      -> μ (a *⁺ b) == μ a * μ b
@@ -130,24 +137,6 @@ divisor-sum n f = sum IntSemiring (map f (divisors n))
 divisor-sum-μ : (n : Nat⁺) -> Int
 divisor-sum-μ n = divisor-sum n μ⁰
 
-divisor-sum-μ-one : divisor-sum-μ 1⁺ == (int 1)
-divisor-sum-μ-one =
-  begin
-    divisor-sum-μ 1⁺
-  ==<>
-    sum' (map μ⁰ (divisors 1⁺))
-  ==< cong (sum' ∘ map μ⁰) one-divisors-path  >
-    sum' (map μ⁰ (1 :: []))
-  ==<>
-    (μ⁰ 1) + (int 0)
-  ==< +-right-zero >
-    (μ⁰ 1)
-  ==< μ1==1 >
-    int 1
-  end
-  where
-  sum' = sum IntSemiring
-
 divisor-sum-μ-rp : {a b : Nat⁺} -> RelativelyPrime⁺ a b
                    -> divisor-sum-μ (a *⁺ b) == divisor-sum-μ a * divisor-sum-μ b
 divisor-sum-μ-rp {a} {b} rp =
@@ -197,3 +186,93 @@ divisor-sum-μ-rp {a} {b} rp =
     x%a = divisors-contains-only a cx
     y%b : y div' ⟨ b ⟩
     y%b = divisors-contains-only b cy
+
+divisor-sum-μ-prime : (p : Prime') -> divisor-sum-μ (Prime'.nat⁺ p) == (int 0)
+divisor-sum-μ-prime p =
+  begin
+    divisor-sum-μ p⁺
+  ==<>
+    sum' (map μ⁰ (divisors p⁺))
+  ==< (\i -> (sum' (map μ⁰ (prime-divisors-path p i)))) >
+    μ⁰ p' + (μ⁰ 1 + μ⁰ 0)
+  ==< +-left (μ⁰-path p⁺) >
+    μ p⁺ + (μ⁰ 1 + μ⁰ 0)
+  ==< (\i -> (μp==-1 p i) + ((μ1==1 i) + (int 0))) >
+    (- (int 1)) + ((int 1) + (int 0))
+  ==<>
+    (int 0)
+  end
+  where
+  sum' = sum IntSemiring
+  p' = ⟨ p ⟩
+  p⁺ = (Prime'.nat⁺ p)
+
+divisor-sum-μ-prime-power : (p : Prime') (n : Nat) -> (n > 0)
+                            -> divisor-sum-μ (prime-power⁺ p n) == (int 0)
+divisor-sum-μ-prime-power p zero n>0 = bot-elim (zero-≮ n>0)
+divisor-sum-μ-prime-power p (suc zero) n>0 =
+  transport (\i -> divisor-sum-μ (path (~ i)) == (int 0)) (divisor-sum-μ-prime p)
+  where
+  path : (prime-power⁺ p 1) == (Prime'.nat⁺ p)
+  path = ΣProp-path isPropPos' ^'-right-one
+divisor-sum-μ-prime-power p (suc n@(suc n')) _ =
+  begin
+    (divisor-sum-μ (prime-power⁺ p (suc n)))
+  ==<>
+    (sum' (map μ⁰ (divisors (prime-power⁺ p (suc n)))))
+  ==< cong (\ x -> (sum' (map μ⁰ x))) (prime-power-divisors-path p (suc n)) >
+    (sum' (map μ⁰ (divisors-of-prime-power p (suc n))))
+  ==<>
+    (μ⁰ (prime-power p (suc n))) + (sum' (map μ⁰ (divisors-of-prime-power p n)))
+  ==< +-left (μ⁰-path (prime-power⁺ p (suc n))) >
+    (μ (prime-power⁺ p (suc n))) + (sum' (map μ⁰ (divisors-of-prime-power p n)))
+  ==< +-left (¬square-free-μ (prime-power-¬square-free p sn≥2)) >
+    (sum' (map μ⁰ (divisors-of-prime-power p n)))
+  ==< cong (\ x -> (sum' (map μ⁰ x))) (sym (prime-power-divisors-path p n)) >
+    (divisor-sum-μ (prime-power⁺ p n))
+  ==< (divisor-sum-μ-prime-power p n n>0) >
+    (int 0)
+  end
+  where
+  sum' = sum IntSemiring
+  n>0 : n > 0
+  n>0 = n' , +'-commute {n'} {1}
+  sn≥2 : suc n ≥ 2
+  sn≥2 = suc-≤ n>0
+
+divisor-sum-μ-one : divisor-sum-μ 1⁺ == (int 1)
+divisor-sum-μ-one =
+  begin
+    divisor-sum-μ 1⁺
+  ==<>
+    sum' (map μ⁰ (divisors 1⁺))
+  ==< cong (sum' ∘ map μ⁰) one-divisors-path  >
+    sum' (map μ⁰ (1 :: []))
+  ==<>
+    (μ⁰ 1) + (int 0)
+  ==< +-right-zero >
+    (μ⁰ 1)
+  ==< μ1==1 >
+    int 1
+  end
+  where
+  sum' = sum IntSemiring
+
+divisor-sum-μ->1 : {n : Nat⁺} -> ⟨ n ⟩ > 1 -> divisor-sum-μ n == (int 0)
+divisor-sum-μ->1 {n} n>1 = handle {n} (compute-ppf n>1)
+  where
+  handle : {n : Nat⁺} -> (PrimePowerFactorization ⟨ n ⟩) -> divisor-sum-μ n == (int 0)
+  handle (ppf-base p n@(suc n' , _)) = divisor-sum-μ-prime-power p (suc n') (suc-≤ zero-≤)
+  handle (ppf-combine {a'} {b'} ppf-a ppf-b rp) =
+    begin
+      divisor-sum-μ (a *⁺ b)
+    ==< divisor-sum-μ-rp {a = a} {b} rp >
+      divisor-sum-μ a * divisor-sum-μ b
+    ==< *-left (handle {a} ppf-a) >
+      (int 0)
+    end
+    where
+    a : Nat⁺
+    a = a' , ppf->pos ppf-a
+    b : Nat⁺
+    b = b' , ppf->pos ppf-b
