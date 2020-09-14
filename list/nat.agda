@@ -216,112 +216,73 @@ module _ {ℓp ℓq : Level} {P : Pred Nat ℓp} {Q : Pred Nat ℓq} where
 
 -- Range of numbers. Uses clopen semantics.
 
-clopen-range0 : Nat -> List Nat
-clopen-range0 n = allNatsUnder n
-
 clopen-range : Nat -> Nat -> List Nat
-clopen-range m n = map (m +'_) (clopen-range0 (n -' m))
-
-clopen-range' : Nat -> Nat -> List Nat
-clopen-range' zero    n       = allNatsUnder n
-clopen-range' (suc m) zero    = []
-clopen-range' (suc m) (suc n) = map suc (clopen-range' m n)
-
-clopen-range0-path : {n : Nat} -> clopen-range 0 n == clopen-range0 n
-clopen-range0-path {n} = map-identity (clopen-range0 n)
-
+clopen-range zero    n       = allNatsUnder n
+clopen-range (suc m) zero    = []
+clopen-range (suc m) (suc n) = map suc (clopen-range m n)
 
 clopen-range-≥ : {m n : Nat} -> (m ≥ n) -> clopen-range m n == []
-clopen-range-≥ {m} {n} gt = cong (map (m +'_) ∘ clopen-range0) n-m==0
-  where
-  n-m==0 : (n -' m) == 0
-  n-m==0 = ≤-minus->zero gt
+clopen-range-≥ {zero}  {zero}  gt = refl
+clopen-range-≥ {zero}  {suc n} gt = bot-elim (zero-≮ gt)
+clopen-range-≥ {suc m} {zero}  gt = refl
+clopen-range-≥ {suc m} {suc n} gt =
+  cong (map suc) (clopen-range-≥ {m} {n} (pred-≤ gt))
 
-
-
-clopen-range'-path : {m n : Nat} -> clopen-range' m n == clopen-range m n
-clopen-range'-path {zero} {n} = sym clopen-range0-path
-clopen-range'-path {suc m} {zero}  = sym (clopen-range-≥ (zero-≤ {suc m}))
-clopen-range'-path {suc m} {suc n} =
-  begin
-    map suc (clopen-range' m n)
-  ==< cong (map suc) (clopen-range'-path {m} {n}) >
-    map suc (clopen-range m n)
-  ==<>
-    map suc (map (m +'_) (clopen-range0 (n -' m)))
-  ==< double-map suc (m +'_) (clopen-range0 (n -' m)) >
-    map (suc m +'_) (clopen-range0 (n -' m))
-  end
-
-clopen-range'-≥ : {m n : Nat} -> (m ≥ n) -> clopen-range' m n == []
-clopen-range'-≥ gt = clopen-range'-path >=> clopen-range-≥ gt
-
-
-clopen-range-+-path : (m n p : Nat) -> clopen-range (m +' n) (m +' p) == map (m +'_) (clopen-range n p)
-clopen-range-+-path m n p =
-  begin
-    clopen-range (m +' n) (m +' p)
-  ==<>
-    map ((m +' n) +'_) (clopen-range0 ((m +' p) -' (m +' n)))
-  ==< cong (map ((m +' n) +'_) ∘ clopen-range0) (+'-minus-both-left m) >
-    map ((m +' n) +'_) (clopen-range0 (p -' n))
-  ==< (\i -> (map (\x -> (+'-assoc {m} {n} {x} i)) (clopen-range0 (p -' n)))) >
-    map (\x -> (m +' (n +' x))) (clopen-range0 (p -' n))
-  ==< sym (double-map (m +'_) (n +'_) (clopen-range0 (p -' n))) >
-    map (m +'_) (map (n +'_) (clopen-range0 (p -' n)))
-  ==<>
-    map (m +'_) (clopen-range n p)
-  end
-
-clopen-range'-suc : {m n : Nat} -> m ≤ n -> clopen-range' m (suc n) == n :: (clopen-range' m n)
-clopen-range'-suc {zero} {n} lt = refl
-clopen-range'-suc {suc m} {zero} lt = bot-elim (zero-≮ lt)
-clopen-range'-suc {suc m} {suc n} lt =
-  begin
-    clopen-range' (suc m) (suc (suc n))
-  ==<>
-    map suc (clopen-range' m (suc n))
-  ==< cong (map suc) (clopen-range'-suc {m} {n} (pred-≤ lt)) >
-    map suc (n :: (clopen-range' m n))
-  ==<>
-    (suc n) :: (clopen-range' (suc m) (suc n))
-  end
 
 clopen-range-suc : {m n : Nat} -> m ≤ n -> clopen-range m (suc n) == n :: (clopen-range m n)
-clopen-range-suc {m} {n} lt =
-  sym clopen-range'-path >=> clopen-range'-suc lt >=> cong (n ::_) clopen-range'-path
-
-clopen-range'0-++ : {m n : Nat} -> m ≤ n -> clopen-range' 0 n == (clopen-range' m n) ++ clopen-range' 0 m
-clopen-range'0-++ {m} {n} (zero , path) =
+clopen-range-suc {zero} {n} lt = refl
+clopen-range-suc {suc m} {zero} lt = bot-elim (zero-≮ lt)
+clopen-range-suc {suc m} {suc n} lt =
   begin
-    clopen-range' 0 n
-  ==< cong (clopen-range' 0) (sym path) >
-    clopen-range' 0 m
+    clopen-range (suc m) (suc (suc n))
   ==<>
-    [] ++ clopen-range' 0 m
-  ==< cong (_++ clopen-range' 0 m) (sym (clopen-range'-≥ (0 , sym path))) >
-    (clopen-range' m n) ++ clopen-range' 0 m
+    map suc (clopen-range m (suc n))
+  ==< cong (map suc) (clopen-range-suc {m} {n} (pred-≤ lt)) >
+    map suc (n :: (clopen-range m n))
+  ==<>
+    (suc n) :: (clopen-range (suc m) (suc n))
   end
-clopen-range'0-++ {m} {zero} (suc i , path) = bot-elim (zero-suc-absurd (sym path))
-clopen-range'0-++ {m} {(suc n)} (suc i , path) =
-  begin
-    clopen-range' 0 (suc n)
-  ==< clopen-range'-suc zero-≤ >
-    n :: (clopen-range' 0 n)
-  ==< cong (n ::_) (clopen-range'0-++ lt) >
-    n :: ((clopen-range' m n) ++ clopen-range' 0 m)
-  ==< cong (_++ (clopen-range' 0 m)) (sym (clopen-range'-suc lt)) >
-    (clopen-range' m (suc n)) ++ clopen-range' 0 m
-  end
-  where
-  lt : m ≤ n
-  lt = i , cong pred path
 
-clopen-range0-++ : {m n : Nat} -> m ≤ n -> clopen-range 0 n == (clopen-range m n) ++ clopen-range 0 m
-clopen-range0-++ {m} {n} lt =
-  sym clopen-range'-path
-  >=> clopen-range'0-++ lt
-  >=> (\i -> (clopen-range'-path {m} {n} i) ++ (clopen-range'-path {0} {m} i))
+private
+  clopen-range0-++ : {m n : Nat} -> m ≤ n
+                      -> clopen-range 0 n == (clopen-range m n) ++ clopen-range 0 m
+  clopen-range0-++ {m} {n} (zero , path) =
+    begin
+      clopen-range 0 n
+    ==< cong (clopen-range 0) (sym path) >
+      clopen-range 0 m
+    ==<>
+      [] ++ clopen-range 0 m
+    ==< cong (_++ clopen-range 0 m) (sym (clopen-range-≥ (0 , sym path))) >
+      (clopen-range m n) ++ clopen-range 0 m
+    end
+  clopen-range0-++ {m} {zero} (suc i , path) = bot-elim (zero-suc-absurd (sym path))
+  clopen-range0-++ {m} {(suc n)} (suc i , path) =
+    begin
+      clopen-range 0 (suc n)
+    ==< clopen-range-suc zero-≤ >
+      n :: (clopen-range 0 n)
+    ==< cong (n ::_) (clopen-range0-++ lt) >
+      n :: ((clopen-range m n) ++ clopen-range 0 m)
+    ==< cong (_++ (clopen-range 0 m)) (sym (clopen-range-suc lt)) >
+      (clopen-range m (suc n)) ++ clopen-range 0 m
+    end
+    where
+    lt : m ≤ n
+    lt = i , cong pred path
+
+clopen-range-+-left : (m n p : Nat) -> clopen-range (m +' n) (m +' p) == map (m +'_) (clopen-range n p)
+clopen-range-+-left 0       n p = sym (map-identity (clopen-range n p))
+clopen-range-+-left (suc m) n p =
+  begin
+    clopen-range (suc m +' n) (suc m +' p)
+  ==<>
+    map suc (clopen-range (m +' n) (m +' p))
+  ==< cong (map suc) (clopen-range-+-left m n p) >
+    map suc (map (m +'_) (clopen-range n p))
+  ==< double-map suc (m +'_) (clopen-range n p) >
+    map ((suc m) +'_) (clopen-range n p)
+  end
 
 
 clopen-range-++ : {m n p : Nat} -> m ≤ n -> n ≤ p
@@ -335,24 +296,19 @@ clopen-range-++ {m} {n} {p} m≤n@(k1 , k1-path) n≤p@(k2 , k2-path) = full-pat
   full-path : clopen-range m p == clopen-range n p ++ clopen-range m n
   full-path =
     begin
+    begin
       clopen-range m p
-    ==< cong (clopen-range m) (sym k3-path) >
-      clopen-range m (k3 +' m)
-    ==<>
-      map (m +'_) (clopen-range' 0 ((k3 +' m) -' m))
-    ==< (\i -> (map (m +'_) (clopen-range' 0 (+'-minus-right {k3} m i)))) >
-      map (m +'_) (clopen-range' 0 k3)
-    ==< cong (map (m +'_)) (clopen-range'0-++ {k1} {k3} (k2 , +'-commute {k2} {k1})) >
-      map (m +'_) (clopen-range' k1 k3 ++ clopen-range' 0 k1)
-    ==< Monoidʰ.preserves-∙ (mapʰ (m +'_)) (clopen-range' k1 k3) (clopen-range' 0 k1) >
-      map (m +'_) (clopen-range' k1 k3) ++
-      map (m +'_) (clopen-range' 0 k1)
-    ==< (\i -> map (m +'_) (clopen-range'-path {k1} {k3} i) ++
-               map (m +'_) (clopen-range'-path {0} {k1} i)) >
+    ==< (\i -> clopen-range (+'-right-zero {m} (~ i)) ((sym k3-path >=> +'-commute {k3} {m}) i)) >
+      clopen-range (m +' 0) (m +' k3)
+    ==< clopen-range-+-left m 0 k3 >
+      map (m +'_) (clopen-range 0 k3)
+    ==< cong (map (m +'_)) (clopen-range0-++ (k2 , +'-commute {k2} {k1})) >
+      map (m +'_) ((clopen-range k1 k3) ++ clopen-range 0 k1)
+    ==< Monoidʰ.preserves-∙ (mapʰ (m +'_)) (clopen-range k1 k3) (clopen-range 0 k1) >
       map (m +'_) (clopen-range k1 k3) ++
       map (m +'_) (clopen-range 0 k1)
-    ==< (\i -> (clopen-range-+-path m k1 k3 (~ i)) ++
-               (clopen-range-+-path m 0  k1 (~ i))) >
+    ==< (\i -> (clopen-range-+-left m k1 k3 (~ i)) ++
+               (clopen-range-+-left m 0  k1 (~ i))) >
       (clopen-range (m +' k1) (m +' k3)) ++
       (clopen-range (m +' 0) (m +' k1))
     ==< (\i -> (clopen-range (+'-commute {m} {k1} i) (+'-commute {m} {k3} i)) ++
