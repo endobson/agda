@@ -28,6 +28,10 @@ double-map : (f : B -> C) (g : A -> B) (as : List A)
 double-map {A = A} f g [] = refl
 double-map {A = A} f g (a :: as) = cong ((f (g a)) ::_) (double-map f g as)
 
+map-identity : (as : List A) -> map (\x -> x) as == as
+map-identity [] = refl
+map-identity (a :: as) = cong (a ::_) (map-identity as)
+
 map-inject-++ : (f : A -> B) {a1 a2 : List A} -> map f (a1 ++ a2) == (map f a1) ++ (map f a2)
 map-inject-++ f {[]} = refl
 map-inject-++ f {e :: a1} {a2} = cong (\x -> f e :: x) (map-inject-++ f {a1} {a2})

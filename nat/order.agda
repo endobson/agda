@@ -104,7 +104,8 @@ strengthen-≤ (0     , path) ¬path = bot-elim (¬path path)
 strengthen-≤ (suc x , path) ¬path = (x , +'-right-suc >=> path)
 
 trans-≤ : {m n o : Nat} -> m ≤ n -> n ≤ o -> m ≤ o
-trans-≤ (x1 , p1) (x2 , p2) = x2 +' x1 , +'-assoc {x2} >=> cong (x2 +'_) p1 >=> p2
+trans-≤ (x1 , p1) (x2 , p2) =
+  x1 +' x2 , +'-left (+'-commute {x1} {x2}) >=> +'-assoc {x2} {x1} >=> cong (x2 +'_) p1 >=> p2
 
 trans-<-≤ : {m n o : Nat} -> (m < n) -> (n ≤ o) -> (m < o)
 trans-<-≤ = trans-≤
@@ -321,6 +322,12 @@ private
     sym (+'-assoc {i} {suc m} {n})
     >=> (cong (_+' n) path)
     >=> (+'-minus-rev n (<->Pos' m<p-n))
+
+≤-minus->zero : {m n : Nat} -> m ≤ n -> m -' n == 0
+≤-minus->zero {zero} {zero}  lt = refl
+≤-minus->zero {zero} {suc n} lt = refl
+≤-minus->zero {suc m} {zero} lt = bot-elim (zero-≮ lt)
+≤-minus->zero {suc m} {suc n} lt = ≤-minus->zero {m} {n} (pred-≤ lt)
 
 <-minus-iso : {m n p : Nat} -> Iso ((m +' n) < p) (m < (p -' n))
 Iso.fun <-minus-iso = <-minus

@@ -96,6 +96,10 @@ m+'n==0->m==0 {(suc _)} p = bot-elim (zero-suc-absurd (sym p))
 +'-minus-rev {suc m} zero _ = +'-right-zero
 +'-minus-rev {suc m} (suc n) p = +'-right-suc >=> cong suc (+'-minus-rev n p)
 
++'-minus-both-left : (m : Nat) {n p : Nat} -> ((m +' n) -' (m +' p)) == n -' p
++'-minus-both-left zero = refl
++'-minus-both-left (suc m) = +'-minus-both-left m
+
 
 
 infixl 7 _*'_
