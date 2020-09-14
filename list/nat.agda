@@ -319,3 +319,50 @@ clopen-range-++ {m} {n} {p} m≤n@(k1 , k1-path) n≤p@(k2 , k2-path) = full-pat
                (clopen-range m (k1-path i))) >
       (clopen-range n p) ++ (clopen-range m n)
     end
+
+private
+  clopen-range-contains-only : (m n : Nat) -> ContainsOnly ((m ≤_) ∩ (_< n)) (clopen-range m n)
+  clopen-range-contains-only zero n {k} ck = zero-≤ , onlyNatsUnder< n ck
+  clopen-range-contains-only (suc m) zero ()
+  clopen-range-contains-only (suc m) (suc n) {k} ck = m≤k , k<n
+    where
+    Σj : Σ[ j ∈ Nat ] (contains j (clopen-range m n) × suc j == k)
+    Σj = map-contains' suc (clopen-range m n) ck
+    j = ⟨ Σj ⟩
+
+    rec : (m ≤ j) × (j < n)
+    rec = clopen-range-contains-only m n (fst (snd Σj))
+    m≤j = fst rec
+    j<n = snd rec
+
+    m≤k : (suc m) ≤ k
+    m≤k = fst m≤j , +'-right-suc >=> cong suc (snd m≤j) >=> (snd (snd Σj))
+    k<n : k < (suc n)
+    k<n = fst j<n , +'-right-suc >=> +'-right {suc (fst j<n)} (sym (snd (snd Σj)))
+                    >=> cong suc (snd j<n)
+
+  clopen-range-contains-all : (m n : Nat) -> ContainsAll ((m ≤_) ∩ (_< n)) (clopen-range m n)
+  clopen-range-contains-all zero    n (m≤k , k<n) = allNatsUnder< n k<n
+  clopen-range-contains-all (suc m) zero    (m≤k , k<n) = bot-elim (zero-≮ (trans-≤-< m≤k k<n))
+  clopen-range-contains-all (suc m) (suc n) {zero} (sm≤k , _) = bot-elim (zero-≮ sm≤k)
+  clopen-range-contains-all (suc m) (suc n) {suc k} (sm≤k , k<sn) =
+    map-contains suc (clopen-range m n) (clopen-range-contains-all m n ((pred-≤ sm≤k) , (pred-≤ k<sn)))
+
+  clopen-range-no-duplicates : (m n : Nat) -> NoDuplicates (clopen-range m n)
+  clopen-range-no-duplicates zero    n       = all-nats-no-duplicates n
+  clopen-range-no-duplicates (suc m) zero    = lift tt
+  clopen-range-no-duplicates (suc m) (suc n) =
+    map-no-duplicates suc-injective (clopen-range-no-duplicates m n)
+
+  clopen-range-sorted : (m n : Nat) -> Sorted _>_ (clopen-range m n)
+  clopen-range-sorted zero    n       = all-nats-sorted n
+  clopen-range-sorted (suc m) zero    = lift tt
+  clopen-range-sorted (suc m) (suc n) = map-sorted suc-monotonic-> (clopen-range-sorted m n)
+
+clopen-range-canonical : (m n : Nat) -> CanonicalList≥ ((m ≤_) ∩ (_< n)) (clopen-range m n)
+clopen-range-canonical m n = ((co , ca) , nd) , sorted
+  where
+  co = clopen-range-contains-only m n
+  ca = clopen-range-contains-all m n
+  nd = clopen-range-no-duplicates m n
+  sorted = sorted>->sorted≥ (clopen-range-sorted m n)

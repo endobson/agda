@@ -22,3 +22,6 @@ Injective f = ∀ {a1 a2} -> (f a1) == (f a2) -> a1 == a2
 
 Injective2 : Pred (A -> B -> C) _
 Injective2 f = ∀ {a1 b1 a2 b2} -> (f a1 b1) == (f a2 b2) -> (a1 == a2) × (b1 == b2)
+
+Monotonic : Rel A ℓ₁ -> Rel B ℓ₂ -> Pred (A -> B) _
+Monotonic {A = A} {B = B} _≤a_ _≤b_ f = ∀ a1 a2 -> a1 ≤a a2 -> (f a1) ≤b (f a2)

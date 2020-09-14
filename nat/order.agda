@@ -607,3 +607,12 @@ trans-<i lt1 lt2 = trans-≤i-<i (pred-≤i (right-suc-≤i lt1)) lt2
 -- Bounded predicates
 isBounded : {ℓ : Level} -> (Pred Nat ℓ) -> Type ℓ
 isBounded P = Σ[ n ∈ Nat ] (P ⊆ (_< n))
+
+suc-monotonic-≤ : Monotonic _≤_ _≤_ suc
+suc-monotonic-≤ a1 a2 a1≤a2 = suc-≤ a1≤a2
+suc-monotonic-≥ : Monotonic _≥_ _≥_ suc
+suc-monotonic-≥ a1 a2 a1≥a2 = suc-≤ a1≥a2
+suc-monotonic-< : Monotonic _<_ _<_ suc
+suc-monotonic-< a1 a2 a1<a2 = suc-≤ a1<a2
+suc-monotonic-> : Monotonic _>_ _>_ suc
+suc-monotonic-> a1 a2 a1>a2 = suc-≤ a1>a2

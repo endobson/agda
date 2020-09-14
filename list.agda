@@ -810,6 +810,24 @@ module _ {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} (_≤_ : Rel A ℓ₂)  where
   SemiSorted [] = Lift (ℓ-max ℓ₁ ℓ₂) Top
   SemiSorted (a :: as) = ContainsOnly ((a ≤_) ∪ (a ==_)) as × SemiSorted as
 
+map-sorted : {ℓa ℓb ℓ₁ ℓ₂ : Level} {A : Type ℓa} {B : Type ℓb} {f : A -> B}
+             {_≤a_ : Rel A ℓ₁} {_≤b_ : Rel B ℓ₂} {as : List A} -> Monotonic _≤a_ _≤b_ f
+             -> Sorted _≤a_ as -> Sorted _≤b_ (map f as)
+map-sorted {as = []} mono s = lift tt
+map-sorted {A = A} {B} {f} {_≤a_} {_≤b_} {(a :: as)} mono (co , s) = co' , map-sorted mono s
+  where
+  co' : ContainsOnly (f a ≤b_) (map f as)
+  co' {b} c = transport (\i -> f a ≤b (path i)) (mono a a2 a≤a2)
+    where
+    Σa2 : Σ[ a2 ∈ A ] (contains a2 as × f a2 == b)
+    Σa2 = map-contains' f as c
+    a2 = ⟨ Σa2 ⟩
+    path = (snd (snd Σa2))
+
+    a≤a2 : a ≤a a2
+    a≤a2 = co (fst (snd Σa2))
+
+
 reverse-acc : List A -> List A -> List A
 reverse-acc []        acc = acc
 reverse-acc (a :: as) acc = reverse-acc as (a :: acc)
