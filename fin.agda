@@ -128,3 +128,68 @@ Iso.leftInv  fin-fin-ind-iso (i , p) = ΣProp-path isProp≤ refl
 
 Fin==FinInd : {n : Nat} -> Fin n == FinInd n
 Fin==FinInd {n} k = Σ[ i ∈ Nat ] (≤==≤i {suc i} {n} k)
+
+-- Fins using an inductive data type
+
+data FinInd' : Nat -> Type₀ where
+  zero : {n : Nat} -> FinInd' (suc n)
+  suc  : {n : Nat} -> FinInd' n -> FinInd' (suc n)
+
+private
+  FinInd'Zero : {n : Nat} -> FinInd' n -> Set
+  FinInd'Zero zero    = Top
+  FinInd'Zero (suc _) = Bot
+
+  fin-ind'-pred : {n : Nat} -> FinInd' (suc (suc n)) -> FinInd' (suc n)
+  fin-ind'-pred zero    = zero
+  fin-ind'-pred (suc x) = x
+
+fin-ind'-suc-injective : {n : Nat} {x y : FinInd' n}
+                          -> Path (FinInd' (suc n)) (suc x) (suc y) -> x == y
+fin-ind'-suc-injective {suc n} p = cong fin-ind'-pred p
+
+fin-ind'-zero!=suc : {n : Nat} {x : FinInd' n} -> zero != suc x
+fin-ind'-zero!=suc p = bot-elim (transport (cong FinInd'Zero p) tt)
+
+decide-fin-ind' : {n : Nat} -> (x y : FinInd' n) -> Dec (x == y)
+decide-fin-ind' zero    zero    = yes refl
+decide-fin-ind' zero    (suc y) = no fin-ind'-zero!=suc
+decide-fin-ind' (suc _) zero    = no (fin-ind'-zero!=suc ∘ sym)
+decide-fin-ind' (suc x) (suc y) with decide-fin-ind' x y
+... | (yes p) = yes (cong suc p)
+... | (no f) = no (f ∘ fin-ind'-suc-injective)
+
+isSetFinInd' : {n : Nat} -> isSet (FinInd' n)
+isSetFinInd' = Discrete->isSet decide-fin-ind'
+
+private
+  fin-ind'->fin-ind : {n : Nat} -> FinInd' n -> FinInd n
+  fin-ind'->fin-ind zero    = zero-fin-ind
+  fin-ind'->fin-ind (suc f) = suc-fin-ind (fin-ind'->fin-ind f)
+
+  fin-ind->fin-ind' : {n : Nat} -> FinInd n -> FinInd' n
+  fin-ind->fin-ind' (zero  , (suc-≤i _))  = zero
+  fin-ind->fin-ind' (suc f , (suc-≤i lt)) = suc (fin-ind->fin-ind' (f , lt))
+
+  fin-ind'->fin-ind->fin-ind' : {n : Nat} (f : FinInd' n)
+                                -> (fin-ind->fin-ind' (fin-ind'->fin-ind f)) == f
+  fin-ind'->fin-ind->fin-ind' zero    = refl
+  fin-ind'->fin-ind->fin-ind' (suc f) = cong suc (fin-ind'->fin-ind->fin-ind' f)
+
+  fin-ind->fin-ind'->fin-ind : {n : Nat} (f : FinInd n)
+                                -> (fin-ind'->fin-ind (fin-ind->fin-ind' f)) == f
+  fin-ind->fin-ind'->fin-ind (zero  , (suc-≤i zero-≤i))  = refl
+  fin-ind->fin-ind'->fin-ind (suc f , (suc-≤i lt)) = cong suc-fin-ind (fin-ind->fin-ind'->fin-ind (f , lt))
+
+
+  fin-ind'-fin-ind-iso : {n : Nat} -> Iso (FinInd' n) (FinInd n)
+  Iso.fun fin-ind'-fin-ind-iso = fin-ind'->fin-ind
+  Iso.inv fin-ind'-fin-ind-iso = fin-ind->fin-ind'
+  Iso.rightInv fin-ind'-fin-ind-iso = fin-ind->fin-ind'->fin-ind
+  Iso.leftInv  fin-ind'-fin-ind-iso = fin-ind'->fin-ind->fin-ind'
+
+fin-fin-ind'-iso : {n : Nat} -> Iso (Fin n) (FinInd' n)
+fin-fin-ind'-iso = (iso⁻¹ fin-ind'-fin-ind-iso) ∘ⁱ fin-fin-ind-iso
+
+Fin==FinInd' : {n : Nat} -> Fin n == FinInd' n
+Fin==FinInd' = isoToPath fin-fin-ind'-iso
