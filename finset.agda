@@ -64,7 +64,8 @@ FinSet ℓ = Σ[ t ∈ Type ℓ ] isFinSet t
 cardnality : FinSet ℓ-zero -> Nat
 cardnality (_ , p) = fst (transport isFinSet==isFinSetΣ p)
 
-extract : {n : Nat} -> ∥ (A ≃ Fin n) ∥ ->
-          (f : (A ≃ Fin n) -> Nat) ->
-          2-Constant f -> Nat
-extract equiv f f-const = ∥->Set isSetNat f f-const equiv
+private
+  extract : (A : FinSet ℓ) ->
+            (f : Σ[ n ∈ Nat ] (⟨ A ⟩ ≃ Fin n) -> Nat) ->
+            2-Constant f -> Nat
+  extract (_ , finA) f f-const = ∥->Set isSetNat f f-const finA
