@@ -172,6 +172,25 @@ private
   insert-perm->perm []        = id-iso
   insert-perm->perm (i :: ip) = add-insert-auto i (insert-perm->perm ip)
 
+  index->insert : {n : Nat} -> FinInd' (suc n) -> Insert n
+  index->insert               zero    = insert-first
+  index->insert {n = (suc _)} (suc i) = insert-skip (index->insert i)
+
+
+  module _ where
+    open Iso
+    split-insert-auto : {n : Nat} 
+                        -> Auto (FinInd' (suc n))
+                        -> Insert n × Auto (FinInd' n)
+    split-insert-auto {n} i =
+      index->insert (fun i zero) , id-iso
+      where
+      new-iso : Auto (FinInd' n)
+      new-iso .fun = ?
+      new-iso .inv = ?
+      new-iso .rightInv = ?
+      new-iso .leftInv = ?
+
 data Swap : Nat -> Type₀ where
   swap      : {n : Nat} -> Swap (suc (suc n))
   swap-skip : {n : Nat} -> Swap n -> Swap (suc n)
