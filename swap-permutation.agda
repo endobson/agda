@@ -173,11 +173,25 @@ private
   insert-perm->perm (i :: ip) = add-insert-auto i (insert-perm->perm ip)
 
 data Swap : Nat -> Type₀ where
-  swap : {n : Nat} -> Swap (suc (suc n))
-  noswap : {n : Nat} -> Swap n -> Swap (suc n)
+  swap      : {n : Nat} -> Swap (suc (suc n))
+  swap-skip : {n : Nat} -> Swap n -> Swap (suc n)
 
 SwapPerm' : Nat -> Nat -> Type₀
 SwapPerm' n l = Fin l -> Swap n
 
 SwapPerm : Nat -> Type₀
 SwapPerm n = Σ Nat (SwapPerm' n)
+
+finSwap : {n : Nat} -> Swap n -> FinInd' n -> FinInd' n
+finSwap swap           zero          = (suc zero)
+finSwap swap           (suc zero)    = zero
+finSwap swap           (suc (suc x)) = (suc (suc x))
+finSwap (swap-skip sw) zero          = zero
+finSwap (swap-skip sw) (suc x)       = suc (finSwap sw x)
+
+finSwapPerm' : {n : Nat} -> (l : Nat) -> SwapPerm' n l -> FinInd' n -> FinInd' n
+finSwapPerm' zero    _     x = x
+finSwapPerm' (suc l) swaps = finSwap (swaps zero-fin) ∘ (finSwapPerm' l (swaps ∘ suc-fin))
+
+finSwapPerm : {n : Nat} -> SwapPerm n -> FinInd' n -> FinInd' n
+finSwapPerm (l , swaps) = finSwapPerm' l swaps
