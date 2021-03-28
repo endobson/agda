@@ -205,3 +205,143 @@ module _ {m n : Nat} where
         join-fin-f-embed-inc-inv (φ .inv) (ψ .inv) (φ .fun) (ψ .fun) (φ .leftInv) jp
       handle (inj-r (j , jp)) =
         join-fin-f-embed-suc-inv (φ .inv) (ψ .inv) (φ .fun) (ψ .fun) (ψ .leftInv) jp
+
+
+private
+  fin-injective->reverse0 : (f : Fin 0 -> Fin 0) -> Injective f
+                           -> Σ[ g ∈ (Fin 0 -> Fin 0) ] (Injective g × (∀ x -> (g (f x) == x)))
+  fin-injective->reverse0 f inj-f = f , (inj-f , \p -> bot-elim (¬fin-zero p))
+
+  adjust-index-grow : {n : Nat} -> Fin (suc n) -> Fin n -> Fin (suc n)
+  adjust-index-grow        (0     , lt ) j             = suc-fin j
+  adjust-index-grow        (suc i , lt1) (0     , lt2) = (0 , right-suc-< lt2)
+  adjust-index-grow {zero} (suc i , lt1) (suc j , lt2) = bot-elim (zero-≮ lt2)
+  adjust-index-grow {n = n@(suc m)} (suc i , lt1) (suc j , lt2) =
+    suc-fin (adjust-index-grow (i , pred-≤ lt1) (j , pred-≤ lt2))
+
+  adjust-index-grow' : {n : Nat} -> FinInd' (suc n) -> FinInd' n -> FinInd' (suc n)
+  adjust-index-grow' zero    j       = suc j
+  adjust-index-grow' (suc i) zero    = zero
+  adjust-index-grow' (suc i) (suc j) = suc (adjust-index-grow' i j)
+
+  adjust-index-shrink' : {n : Nat} -> (i j : FinInd' (suc n)) -> i != j -> FinInd' n
+  adjust-index-shrink' {n = _}       zero     zero    np = bot-elim (np refl)
+  adjust-index-shrink' {n = (suc _)} (suc i)  zero    np = zero
+  adjust-index-shrink' {n = (suc _)} zero     (suc j) np = j
+  adjust-index-shrink' {n = (suc _)} (suc i)  (suc j) np =
+    suc (adjust-index-shrink' i j (np ∘ cong suc))
+
+  adjust-index-shrink'-inj : {n : Nat} -> (i j1 j2 : FinInd' (suc n))
+                             -> (np1 : i != j1) -> (np2 : i != j2)
+                             -> adjust-index-shrink' i j1 np1 == adjust-index-shrink' i j2 np2
+                             -> j1 == j2
+  adjust-index-shrink'-inj {n = _}       zero    zero     zero     np1 np2 p = refl
+  adjust-index-shrink'-inj {n = (suc _)} zero    zero     (suc j2) np1 np2 p = bot-elim (np1 refl)
+  adjust-index-shrink'-inj {n = (suc _)} zero    (suc j1) zero     np1 np2 p = bot-elim (np2 refl)
+  adjust-index-shrink'-inj {n = (suc _)} zero    (suc j1) (suc j2) np1 np2 p = cong suc p
+  adjust-index-shrink'-inj {n = (suc _)} (suc i) zero     zero     np1 np2 p = refl
+  adjust-index-shrink'-inj {n = (suc _)} (suc i) zero     (suc j2) np1 np2 p =
+    bot-elim (fin-ind'-zero!=suc p)
+  adjust-index-shrink'-inj {n = (suc _)} (suc i) (suc j1) zero     np1 np2 p =
+    bot-elim (fin-ind'-zero!=suc (sym p))
+  adjust-index-shrink'-inj {n = (suc _)} (suc i) (suc j1) (suc j2) np1 np2 p =
+    cong suc (adjust-index-shrink'-inj i j1 j2 (np1 ∘ cong suc) (np2 ∘ cong suc)
+                                       (fin-ind'-suc-injective p))
+
+  smaller-fun : {n : Nat} -> (f : FinInd' (suc n) -> FinInd' (suc n))
+              -> Injective f -> (FinInd' n -> FinInd' n)
+  smaller-fun f inj-f x = adjust-index-shrink' (f zero) (f (suc x))
+                          (fin-ind'-zero!=suc ∘ inj-f)
+
+  smaller-fun-inj : {n : Nat} (f : FinInd' (suc n) -> FinInd' (suc n)) -> (inj-f : Injective f)
+                    -> Injective (smaller-fun f inj-f)
+  smaller-fun-inj f inj-f {a} {b} p =
+    fin-ind'-suc-injective
+      (inj-f (adjust-index-shrink'-inj (f zero) (f (suc a)) (f (suc b))
+                                       (fin-ind'-zero!=suc ∘ inj-f)
+                                       (fin-ind'-zero!=suc ∘ inj-f)
+                                       p))
+
+  adjust-index-same' : {n : Nat} -> (i j : FinInd' (suc n)) -> (p : (i != j)) ->
+                       adjust-index-grow' i (adjust-index-shrink' i j p) == j
+  adjust-index-same' {n = _}       zero     zero    np = bot-elim (np refl)
+  adjust-index-same' {n = (suc _)} (suc i)  zero    np = refl
+  adjust-index-same' {n = (suc _)} zero     (suc j) np = refl
+  adjust-index-same' {n = (suc _)} (suc i)  (suc j) np =
+    cong suc (adjust-index-same' i j (np ∘ cong suc))
+
+  smaller-fun-same : {n : Nat} (f : FinInd' (suc n) -> FinInd' (suc n)) (inj-f : Injective f)
+                     -> (x : (FinInd' n))
+                     -> f (suc x) == adjust-index-grow' (f zero) (smaller-fun f inj-f x)
+  smaller-fun-same f inj-f x =
+    sym (adjust-index-same' (f zero) (f (suc x)) (fin-ind'-zero!=suc ∘ inj-f))
+
+  -- The inverting function
+  reverse-fun-helper : {n : Nat} (f : FinInd' (suc n) -> FinInd' (suc n)) (inj-f : Injective f)
+                       -> (x : FinInd' (suc n)) -> Dec (x == (f zero))
+                       -> FinInd' (suc n)
+  reverse-fun : {n : Nat} (f : FinInd' n -> FinInd' n) (inj-f : Injective f)
+                -> FinInd' n -> FinInd' n
+  reverse-fun {n = zero}    f inj-f ()
+  reverse-fun {n = (suc n)} f inj-f x = reverse-fun-helper f inj-f x (decide-fin-ind' x (f zero))
+
+  reverse-fun-helper f inj-f x (yes p) = zero
+  reverse-fun-helper f inj-f x (no np) = suc (g' (adjust-index-shrink' x (f zero) np))
+    where
+    f' = smaller-fun f inj-f
+    f'-inj = smaller-fun-inj f inj-f
+    g' = reverse-fun f' f'-inj
+
+  reverse-fun-helper-zero : {n : Nat} (f : FinInd' (suc n) -> FinInd' (suc n))
+                            -> (inj-f : (Injective f))
+                            -> (x : FinInd' (suc n))
+                            -> (p : x == f zero)
+                            -> reverse-fun-helper f inj-f x (yes p) == zero
+  reverse-fun-helper-zero f inj-f x p = refl
+
+
+  reverse-fun-zero : {n : Nat} (f : FinInd' (suc n) -> FinInd' (suc n))
+                     -> (inj-f : (Injective f))
+                     -> reverse-fun f inj-f (f zero) == zero
+  reverse-fun-zero f inj-f x p = reverse-fun-helper-zero (f zero
+
+
+
+  -- fin-injective->reverse-suc :
+  --   {n : Nat} (f : FinInd' (suc n) -> FinInd' (suc n))
+  --   -> Injective f
+  --   -> ((f' : FinInd' n -> FinInd' n) -> Injective f'
+  --        -> Σ[ g' ∈ (FinInd' n -> FinInd' n) ] (Injective g' × (∀ x -> (g' (f' x) == x))))
+  --   -> Σ[ g ∈ (FinInd' (suc n) -> FinInd' (suc n)) ] (Injective g × (∀ x -> (g (f x) == x)))
+  -- fin-injective->reverse-suc f inj-f rec = ?
+  --   where
+  --   f' = smaller-fun f inj-f
+  --   f'-inj = smaller-fun-inj f inj-f
+  --   g'-full = rec f' f'-inj
+  --   g' = fst g'-full
+  --   g'-inj = fst (snd g'-full)
+  --   g'-path = snd (snd g'-full)
+
+  --   g : FinInd' (suc n) -> FinInd' (suc n)
+  --   g
+
+
+-- fin-injective->reverse : {n : Nat} (f : Fin n -> Fin n) -> Injective f
+--                          -> Σ[ g ∈ (Fin n -> Fin n) ] (Injective g × (∀ x -> (g (f x) == x)))
+-- fin-injective->reverse {n = zero} f inj = fin-injective->reverse0 f inj
+-- fin-injective->reverse {n = suc n} f inj = ?
+--
+-- module _ {n : Nat} (f : (Fin n) -> (Fin n)) (inj-f : (Injective f)) where
+--   open Iso
+--
+--   private
+--     Σg = fin-injective->reverse f inj-f
+--     g = fst Σg
+--     inj-g = fst (snd Σg)
+--     gf-path = snd (snd Σg)
+--
+--   fin-injective->permutation : Perm n
+--   fin-injective->permutation .fun = f
+--   fin-injective->permutation .inv = g
+--   fin-injective->permutation .rightInv x = inj-g (gf-path (g x))
+--   fin-injective->permutation .leftInv = gf-path
