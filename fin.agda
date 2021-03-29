@@ -31,6 +31,9 @@ zero-fin!=suc-fin p = zero-suc-absurd (cong fst p)
 ¬fin-zero : ¬ (Fin 0)
 ¬fin-zero (i , p) = zero-≮ p
 
+suc-fin-injective : {n : Nat} -> {x y : Fin n} -> suc-fin x == suc-fin y -> x == y
+suc-fin-injective p = ΣProp-path isProp≤ (suc-injective (cong fst p))
+
 -- Fin is a Set
 
 decide-fin : {n : Nat} (x : Fin n) -> (y : Fin n) -> Dec (x == y)
