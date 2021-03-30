@@ -10,6 +10,7 @@ open import functions
 open import isomorphism
 open import hlevel
 open import nat
+open import pigeonhole
 open import relation
 open import sigma
 
@@ -276,72 +277,36 @@ private
   smaller-fun-same f inj-f x =
     sym (adjust-index-same' (f zero) (f (suc x)) (fin-ind'-zero!=suc ∘ inj-f))
 
-  -- The inverting function
-  reverse-fun-helper : {n : Nat} (f : FinInd' (suc n) -> FinInd' (suc n)) (inj-f : Injective f)
-                       -> (x : FinInd' (suc n)) -> Dec (x == (f zero))
-                       -> FinInd' (suc n)
-  reverse-fun : {n : Nat} (f : FinInd' n -> FinInd' n) (inj-f : Injective f)
-                -> FinInd' n -> FinInd' n
-  reverse-fun {n = zero}    f inj-f ()
-  reverse-fun {n = (suc n)} f inj-f x = reverse-fun-helper f inj-f x (decide-fin-ind' x (f zero))
 
-  reverse-fun-helper f inj-f x (yes p) = zero
-  reverse-fun-helper f inj-f x (no np) = suc (g' (adjust-index-shrink' x (f zero) np))
+private
+  fin-injective->reverse : {n : Nat} (f : Fin n -> Fin n) -> Injective f
+                           -> Satisfiable (RightInverse f)
+  fin-injective->reverse {zero} f f-inj = (\i -> bot-elim (¬fin-zero i)) , (\i -> bot-elim (¬fin-zero i))
+  fin-injective->reverse {suc n} f f-inj = handle (find-right-inverse f)
     where
-    f' = smaller-fun f inj-f
-    f'-inj = smaller-fun-inj f inj-f
-    g' = reverse-fun f' f'-inj
+    handle : (Σ[ j ∈ Fin (suc n) ] (∀ i -> ¬(f i == j))) ⊎ (Satisfiable (RightInverse f))
+              -> Satisfiable (RightInverse f)
+    handle (inj-r inv) = inv
+    handle (inj-l (j , not-image)) = bot-elim (pigeonhole-large (add1-< n) f' f'-inj)
+      where
+      f' : Fin (suc n) -> Fin n
+      f' i = remove-fin j (f i) (not-image i ∘ sym)
 
-  reverse-fun-helper-zero : {n : Nat} (f : FinInd' (suc n) -> FinInd' (suc n))
-                            -> (inj-f : (Injective f))
-                            -> (x : FinInd' (suc n))
-                            -> (p : x == f zero)
-                            -> reverse-fun-helper f inj-f x (yes p) == zero
-  reverse-fun-helper-zero f inj-f x p = refl
+      f'-inj : Injective f'
+      f'-inj {i1} {i2} p =
+        f-inj (remove-fin-inj j (f i1) (f i2) (not-image i1 ∘ sym) (not-image i2 ∘ sym) p)
 
+module _ {n : Nat} (f : (Fin n) -> (Fin n)) (inj-f : (Injective f)) where
+  open Iso
 
-  reverse-fun-zero : {n : Nat} (f : FinInd' (suc n) -> FinInd' (suc n))
-                     -> (inj-f : (Injective f))
-                     -> reverse-fun f inj-f (f zero) == zero
-  reverse-fun-zero f inj-f x p = reverse-fun-helper-zero (f zero
+  private
+    Σg = fin-injective->reverse f inj-f
+    g = fst Σg
+    right-inv = snd Σg
 
-
-
-  -- fin-injective->reverse-suc :
-  --   {n : Nat} (f : FinInd' (suc n) -> FinInd' (suc n))
-  --   -> Injective f
-  --   -> ((f' : FinInd' n -> FinInd' n) -> Injective f'
-  --        -> Σ[ g' ∈ (FinInd' n -> FinInd' n) ] (Injective g' × (∀ x -> (g' (f' x) == x))))
-  --   -> Σ[ g ∈ (FinInd' (suc n) -> FinInd' (suc n)) ] (Injective g × (∀ x -> (g (f x) == x)))
-  -- fin-injective->reverse-suc f inj-f rec = ?
-  --   where
-  --   f' = smaller-fun f inj-f
-  --   f'-inj = smaller-fun-inj f inj-f
-  --   g'-full = rec f' f'-inj
-  --   g' = fst g'-full
-  --   g'-inj = fst (snd g'-full)
-  --   g'-path = snd (snd g'-full)
-
-  --   g : FinInd' (suc n) -> FinInd' (suc n)
-  --   g
-
-
--- fin-injective->reverse : {n : Nat} (f : Fin n -> Fin n) -> Injective f
---                          -> Σ[ g ∈ (Fin n -> Fin n) ] (Injective g × (∀ x -> (g (f x) == x)))
--- fin-injective->reverse {n = zero} f inj = fin-injective->reverse0 f inj
--- fin-injective->reverse {n = suc n} f inj = ?
---
--- module _ {n : Nat} (f : (Fin n) -> (Fin n)) (inj-f : (Injective f)) where
---   open Iso
---
---   private
---     Σg = fin-injective->reverse f inj-f
---     g = fst Σg
---     inj-g = fst (snd Σg)
---     gf-path = snd (snd Σg)
---
---   fin-injective->permutation : Perm n
---   fin-injective->permutation .fun = f
---   fin-injective->permutation .inv = g
---   fin-injective->permutation .rightInv x = inj-g (gf-path (g x))
---   fin-injective->permutation .leftInv = gf-path
+  abstract
+    fin-injective->permutation : Perm n
+    fin-injective->permutation .fun = f
+    fin-injective->permutation .inv = g
+    fin-injective->permutation .rightInv = right-inv
+    fin-injective->permutation .leftInv x = inj-f (right-inv (f x))
