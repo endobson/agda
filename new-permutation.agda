@@ -296,17 +296,40 @@ private
       f'-inj {i1} {i2} p =
         f-inj (remove-fin-inj j (f i1) (f i2) (not-image i1 ∘ sym) (not-image i2 ∘ sym) p)
 
-module _ {n : Nat} (f : (Fin n) -> (Fin n)) (inj-f : (Injective f)) where
+module _ {n : Nat} where
   open Iso
 
-  private
-    Σg = fin-injective->reverse f inj-f
-    g = fst Σg
-    right-inv = snd Σg
+  module _ (f : (Fin n) -> (Fin n)) (inj-f : (Injective f)) where
+    private
+      Σg = fin-injective->reverse f inj-f
+      g = fst Σg
+      right-inv = snd Σg
 
-  abstract
     fin-injective->permutation : Perm n
     fin-injective->permutation .fun = f
     fin-injective->permutation .inv = g
     fin-injective->permutation .rightInv = right-inv
     fin-injective->permutation .leftInv x = inj-f (right-inv (f x))
+
+  private
+    forward : (Σ ((Fin n) -> (Fin n)) Injective) -> Perm n
+    forward (f , inj-f) = fin-injective->permutation f inj-f
+
+    backward : Perm n -> (Σ ((Fin n) -> (Fin n)) Injective)
+    backward i = i .fun , f-inj
+      where
+      f-inj : Injective (i .fun)
+      f-inj {x} {y} p = sym (i .leftInv x) >=> cong (i .inv) p >=> (i .leftInv y)
+
+  fin-injective-permutation-iso : Iso (Σ ((Fin n) -> (Fin n)) Injective) (Perm n)
+  fin-injective-permutation-iso .fun = forward
+  fin-injective-permutation-iso .inv = backward
+  fin-injective-permutation-iso .rightInv _ = isSet-iso-path isSetFin isSetFin refl
+  fin-injective-permutation-iso .leftInv  (f , inj-f) = ΣProp-path isPropInj refl
+    where
+    isPropInj' : {f : (Fin n) -> (Fin n)} -> isProp ((a b : Fin n) -> f a == f b -> a == b)
+    isPropInj' = isPropΠ3 (\ _ _ _ -> isSetFin _ _)
+
+    isPropInj : {f : (Fin n) -> (Fin n)} -> isProp (Injective f)
+    isPropInj {f} g1 g2 i {x} {y} =
+      isPropInj' (\a b p -> g1 {a} {b} p) (\a b p -> g2 {a} {b} p) i x y
