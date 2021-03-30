@@ -93,3 +93,7 @@ pathSigma==sigmaPath a b =
 ×-map : {ℓA ℓB ℓC ℓD : Level} {A : Type ℓA} {B : Type ℓB} {C : Type ℓC} {D : Type ℓD}
         -> (A -> C) -> (B -> D) -> (A × B) -> (C × D)
 ×-map f g (a , b) = (f a , g b)
+
+
+¬exists->forall : ¬ (Σ[ a ∈ A ] (B a)) -> (a : A) -> ¬ (B a)
+¬exists->forall ne a b = ne (a , b)

@@ -105,5 +105,5 @@ data Boolean : Type₀ where
 case_of_ : {ℓ₁ ℓ₂ : Level} {A : Type ℓ} {B : Type ℓ} -> A -> (A -> B) -> B
 case x of f = f x
 
-case_return_of_ : {ℓ₁ ℓ₂ : Level} {A : Type ℓ} -> (a : A) -> (B : A -> Type ℓ) -> ((x : A) -> B x) -> B a
+case_return_of_ : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} -> (a : A) -> (B : A -> Type ℓ₂) -> ((x : A) -> B x) -> B a
 case x return B of f = f x

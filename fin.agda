@@ -112,6 +112,64 @@ private
 fin-inRange-path : {m n : Nat} -> (Fin (n -' m)) == (InRange m n)
 fin-inRange-path = ua (isoToEquiv fin-inRange-iso)
 
+-- Finite search functions
+abstract
+  finite-search : {ℓ₁ ℓ₂ : Level} {n : Nat} {P : Pred (Fin n) ℓ₁} {Q : Pred (Fin n) ℓ₂}
+                  -> (Universal (P ∪ Q))
+                  -> (Satisfiable P) ⊎ (Universal Q)
+  finite-search {n = zero}  dec = inj-r (\ i -> (bot-elim (¬fin-zero i)))
+  finite-search {n = suc _} {P} {Q} dec =
+    case (dec zero-fin) return _ of \where
+      (inj-l p) -> inj-l (zero-fin , p)
+      (inj-r q) ->
+        case (finite-search (dec ∘ suc-fin))
+             return _ of \ where
+          (inj-l (i , p)) -> inj-l (suc-fin i , p)
+          (inj-r f) -> inj-r \ where
+            (zero  , lt) -> subst Q (ΣProp-path isProp≤ refl) q
+            (suc i , lt) -> subst Q (ΣProp-path isProp≤ refl) (f (i , pred-≤ lt))
+
+  find-counterexample : {ℓ : Level} {n : Nat} {P : Pred (Fin n) ℓ} -> Decidable P
+                        -> (Satisfiable (Comp P)) ⊎ (Universal P)
+  find-counterexample dec = finite-search (\x -> ⊎-swap (dec->⊎ (dec x)))
+
+  find-example : {ℓ : Level} {n : Nat} {P : Pred (Fin n) ℓ} -> Decidable P
+                        -> (Satisfiable P) ⊎ (Universal (Comp P))
+  find-example dec = finite-search (\x -> dec->⊎ (dec x))
+
+-- Inverse functions exist
+module _ {n m : Nat} (f : Fin n -> Fin m) where
+  private
+    -- `Image j i` is the predicate that `j` is the image of `i` under `f`.
+    Image : Fin m -> Pred (Fin n) ℓ-zero
+    Image j i = (f i == j)
+
+    -- `j` is not the image of any `i`
+    neverImage : Pred (Fin m) ℓ-zero
+    neverImage j = Universal (Comp (Image j))
+
+    -- `j` is the image of some `i`
+    someImage : Pred (Fin m) ℓ-zero
+    someImage j = Satisfiable (Image j)
+
+    cases : (Satisfiable neverImage) ⊎ (Universal someImage)
+    cases = finite-search (\j -> (⊎-swap (find-example (\i -> discreteFin (f i) j))))
+
+    finite-inverse : (Universal someImage) ->
+                     Σ[ g ∈ (Fin m -> Fin n) ] (∀ j -> f (g j) == j)
+    finite-inverse images = g , g-inv
+      where
+      g : Fin m -> Fin n
+      g j = fst (images j)
+
+      g-inv : (j : Fin m) -> (f (g j)) == j
+      g-inv j = snd (images j)
+
+  abstract
+    find-right-inverse : (Satisfiable neverImage) ⊎
+                         (Satisfiable (RightInverse f))
+    find-right-inverse = ⊎-map-right finite-inverse cases
+
 -- Fins based on inductive ≤
 
 FinInd : Nat -> Type₀

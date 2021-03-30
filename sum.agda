@@ -55,6 +55,10 @@ inj-l!=inj-r : ∀ {ℓ₁ ℓ₂} {A : Type ℓ₁} {B : Type ℓ₂} {a : A} {
                -> ¬(Path (A ⊎ B) (inj-l a) (inj-r b))
 inj-l!=inj-r p = transport (\i -> Left (p i)) tt
 
+⊎-swap : ∀ {ℓ₁ ℓ₂} {A : Type ℓ₁} {B : Type ℓ₂} -> A ⊎ B -> B ⊎ A
+⊎-swap (inj-l a) = (inj-r a)
+⊎-swap (inj-r b) = (inj-l b)
+
 module _ {A : Type ℓ₁} {B : Type ℓ₂} where
   ⊎Cover : (A ⊎ B) -> (A ⊎ B) -> Type (ℓ-max ℓ₁ ℓ₂)
   ⊎Cover (inj-l a1) (inj-l a2) = Lift (ℓ-max ℓ₁ ℓ₂) (a1 == a2)

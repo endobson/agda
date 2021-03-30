@@ -82,3 +82,19 @@ module _ where
   pigeonhole-large {n = suc n} {m = zero}  gt f inj-f = bot-elim (¬fin-zero (f zero-fin))
   pigeonhole-large {n = suc n} {m = suc m} gt f inj-f =
     pigeonhole-large (pred-≤ gt) (smaller-fun f inj-f) (smaller-fun-inj f inj-f)
+
+
+module _ where
+  abstract
+    pigeonhole-small : {n m : Nat} -> (n < m) -> (f : Fin n -> Fin m)
+                       -> Σ[ j ∈ Fin m ] ((i : Fin n) -> ¬(f i == j))
+    pigeonhole-small {n} {m} lt f =
+        case (find-right-inverse f)
+          return (\_ -> Σ[ j ∈ Fin m ] ((i : Fin n) -> ¬(f i == j))) of \where
+          (inj-l sat) -> sat
+          (inj-r (g , g-inv)) -> bot-elim (pigeonhole-large lt g (g-inj g-inv))
+      where
+      g-inj : {g : Fin m -> Fin n}
+              -> (∀ j -> f (g j) == j)
+              -> Injective g
+      g-inj g-inv {j1} {j2} p = sym (g-inv j1) >=> cong f p >=> g-inv j2

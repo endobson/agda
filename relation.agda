@@ -22,6 +22,10 @@ Dec->Stable : Dec A -> Stable A
 Dec->Stable (yes a) ¬¬a = a
 Dec->Stable (no ¬a) ¬¬a = bot-elim (¬¬a ¬a)
 
+dec->⊎ : Dec A -> A ⊎ ¬ A
+dec->⊎ (yes a) = inj-l a
+dec->⊎ (no na) = inj-r na
+
 Discrete : Type ℓ -> Type ℓ
 Discrete A = (x y : A) -> Dec (x == y)
 
@@ -150,3 +154,17 @@ Comp P x = ¬ (P x)
 
 Decidable : Pred A ℓ -> Type _
 Decidable P = ∀ x -> Dec (P x)
+
+
+comp-dec : Dec A -> Dec (¬ A)
+comp-dec (yes a) = no (\ na -> na a)
+comp-dec (no na) = yes na
+
+compDecidable : {P : Pred A ℓ} -> Decidable P -> Decidable (Comp P)
+compDecidable {P = P} dec x = comp-dec (dec x)
+
+Satisfiable : {A : Type ℓ₁} -> Pred A ℓ₂ -> Type (ℓ-max ℓ₁ ℓ₂)
+Satisfiable {A = A} P = Σ A P
+
+Universal : {A : Type ℓ₁} -> Pred A ℓ₂ -> Type (ℓ-max ℓ₁ ℓ₂)
+Universal {A = A} P = (a : A) -> P a
