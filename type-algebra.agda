@@ -3,13 +3,17 @@
 module type-algebra where
 
 open import base
+open import cubical
 open import commutative-monoid
 open import equality
 open import equivalence
 open import functions
+open import hlevel
 open import isomorphism
+open import maybe
 open import monoid
 open import sum
+open import truncation
 open import univalence
 open import vec
 
@@ -17,8 +21,8 @@ open Iso
 
 private
   variable
-    ℓ ℓ₁ ℓ₂ : Level
-    A B : Type ℓ
+    ℓ ℓ₁ ℓ₂ ℓ₃ : Level
+    A B C : Type ℓ
 
 -- Product
 
@@ -40,9 +44,8 @@ private
   i .rightInv b      = bot-elim b
   i .leftInv (b , _) = bot-elim b
 
-
-×-Top : (A : Type ℓ) -> (Top × A) == A
-×-Top A = ua (isoToEquiv i)
+×-Top-eq : (A : Type ℓ) -> (Top × A) ≃ A
+×-Top-eq A = (isoToEquiv i)
   where
   i : Iso (Top × A) A
   i .fun (tt , a)  = a
@@ -50,14 +53,20 @@ private
   i .rightInv _ = refl
   i .leftInv _ = refl
 
-×-flip : {A B : Type ℓ} -> (A × B) == (B × A)
-×-flip {A = A} {B} = ua (isoToEquiv i)
+×-Top : (A : Type ℓ) -> (Top × A) == A
+×-Top A = ua (×-Top-eq A)
+
+×-flip-eq : {A B : Type ℓ} -> (A × B) ≃ (B × A)
+×-flip-eq {A = A} {B} = (isoToEquiv i)
   where
   i : Iso (A × B) (B × A)
   i .fun (a , b) = (b , a)
   i .inv (b , a) = (a , b)
   i .rightInv _ = refl
   i .leftInv _ = refl
+
+×-flip : {A B : Type ℓ} -> (A × B) == (B × A)
+×-flip {A = A} {B} = ua ×-flip-eq
 
 ×-assoc : (A B C : Type ℓ) -> ((A × B) × C) == (A × (B × C))
 ×-assoc A B C = ua (isoToEquiv i)
@@ -85,8 +94,8 @@ instance
 
 -- Disjoint Sum
 
-⊎-Bot : (A : Type ℓ) -> (Bot ⊎ A) == A
-⊎-Bot A = ua (isoToEquiv i)
+⊎-Bot-eq : (A : Type ℓ) -> (Bot ⊎ A) ≃ A
+⊎-Bot-eq A = (isoToEquiv i)
   where
   i : Iso (Bot ⊎ A) A
   i .fun (inj-r a) = a
@@ -95,6 +104,21 @@ instance
   i .rightInv a = refl
   i .leftInv (inj-r a) = refl
   i .leftInv (inj-l ())
+
+⊎-Bot : (A : Type ℓ) -> (Bot ⊎ A) == A
+⊎-Bot A = ua (⊎-Bot-eq A)
+
+⊎-LiftBot : (A : Type ℓ) -> (Lift ℓ Bot ⊎ A) == A
+⊎-LiftBot {ℓ} A = ua (isoToEquiv i)
+  where
+  i : Iso (Lift ℓ Bot ⊎ A) A
+  i .fun (inj-r a) = a
+  i .fun (inj-l (lift ()))
+  i .inv a = (inj-r a)
+  i .rightInv a = refl
+  i .leftInv (inj-r a) = refl
+  i .leftInv (inj-l (lift ()))
+
 
 ⊎-flip : {A : Type ℓ₁} {B : Type ℓ₂} -> (A ⊎ B) == (B ⊎ A)
 ⊎-flip {A = A} {B} = ua (isoToEquiv i)
@@ -108,6 +132,19 @@ instance
   i .rightInv (inj-r _) = refl
   i .leftInv  (inj-l _) = refl
   i .leftInv  (inj-r _) = refl
+
+⊎-Top-eq : (Top ⊎ A) ≃ Maybe A
+⊎-Top-eq = isoToEquiv i
+  where
+  i : Iso (Top ⊎ A) (Maybe A)
+  i .fun (inj-l tt) = nothing
+  i .fun (inj-r a) = just a
+  i .inv nothing = (inj-l tt)
+  i .inv (just a) = (inj-r a)
+  i .leftInv (inj-l tt) = refl
+  i .leftInv (inj-r a) = refl
+  i .rightInv nothing = refl
+  i .rightInv (just a) = refl
 
 
 ⊎-Top : {A B : Type ℓ} -> (Top ⊎ A) == (Top ⊎ B) -> A == B
@@ -311,8 +348,9 @@ instance
     handle (inj-r _) f-p (inj-l _) g-p = bot-elim (f-right-g-left.absurd f-p g-p)
     handle (inj-r _) f-p (inj-r _) g-p = both-right.new-iso f-p g-p
 
-⊎-assoc : (A B C : Type ℓ) -> ((A ⊎ B) ⊎ C) == (A ⊎ (B ⊎ C))
-⊎-assoc A B C = ua (isoToEquiv i)
+⊎-assoc-eq : {ℓa ℓb ℓc : Level} (A : Type ℓa) (B : Type ℓb) (C : Type ℓc) ->
+             ((A ⊎ B) ⊎ C) ≃ (A ⊎ (B ⊎ C))
+⊎-assoc-eq A B C = (isoToEquiv i)
   where
   i : Iso ((A ⊎ B) ⊎ C) (A ⊎ (B ⊎ C))
   i .fun (inj-l (inj-l a)) = inj-l a
@@ -327,6 +365,10 @@ instance
   i .leftInv (inj-l (inj-l a)) = refl
   i .leftInv (inj-l (inj-r b)) = refl
   i .leftInv (inj-r c)         = refl
+
+⊎-assoc : {ℓa ℓb ℓc : Level} (A : Type ℓa) (B : Type ℓb) (C : Type ℓc) ->
+          ((A ⊎ B) ⊎ C) == (A ⊎ (B ⊎ C))
+⊎-assoc A B C = ua (⊎-assoc-eq A B C)
 
 instance
   ⊎-Monoid : Monoid (Type ℓ-zero)
@@ -413,3 +455,131 @@ Top-Fun A = ua (isoToEquiv i)
   i .rightInv (f , g) = refl
   i .leftInv f i (inj-l a) = f (inj-l a)
   i .leftInv f i (inj-r b) = f (inj-r b)
+
+
+¬-Bot-eq : {A : Type ℓ} -> ¬ A -> A ≃ Bot
+¬-Bot-eq {A = A} ¬A = (isoToEquiv i)
+  where
+  i : Iso A Bot
+  i .fun a = ¬A a
+  i .inv ()
+  i .rightInv ()
+  i .leftInv a = bot-elim (¬A a)
+
+¬-Bot : {A : Type ℓ} -> ¬ A -> A == Lift ℓ Bot
+¬-Bot {A = A} ¬A = ua (isoToEquiv i)
+  where
+  i : Iso A (Lift ℓ Bot)
+  i .fun a = lift (¬A a)
+  i .inv (lift ())
+  i .rightInv (lift ())
+  i .leftInv a = bot-elim (¬A a)
+
+∥-Top-eq : {A : Type ℓ} -> A -> ∥ A ∥ ≃ Top
+∥-Top-eq {A = A} a = (isoToEquiv i)
+  where
+  i : Iso ∥ A ∥ Top
+  i .fun _ = tt
+  i .inv _ = ∣ a ∣
+  i .rightInv _ = isPropTop _ _
+  i .leftInv _ = squash _ _
+
+∥-Top : {A : Type ℓ} -> A -> ∥ A ∥ == Lift ℓ Top
+∥-Top {A = A} a = ua (isoToEquiv i)
+  where
+  i : Iso ∥ A ∥ (Lift ℓ Top)
+  i .fun _ = (lift tt)
+  i .inv _ = ∣ a ∣
+  i .rightInv (lift _) = cong lift (isPropTop _ _)
+  i .leftInv _ = squash _ _
+
+∥-Bot-eq : {A : Type ℓ} -> ¬ A -> ∥ A ∥ ≃ Bot
+∥-Bot-eq {A = A} ¬A = (isoToEquiv i)
+  where
+  i : Iso ∥ A ∥ Bot
+  i .fun a = unsquash isPropBot (∥-map ¬A a)
+  i .inv ()
+  i .rightInv ()
+  i .leftInv _ = squash _ _
+
+∥-Bot : {A : Type ℓ} -> ¬ A -> ∥ A ∥ == Lift ℓ Bot
+∥-Bot {A = A} ¬A = ua (isoToEquiv i)
+  where
+  i : Iso ∥ A ∥ (Lift ℓ Bot)
+  i .fun a = bot-elim (unsquash isPropBot (∥-map ¬A a))
+  i .inv (lift ())
+  i .rightInv (lift ())
+  i .leftInv _ = squash _ _
+
+∥-Prop : {A : Type ℓ} -> isProp A -> ∥ A ∥ == A
+∥-Prop {A = A} isPropA = ua (isoToEquiv i)
+  where
+  forward : ∥ A ∥ -> A
+  forward ∣ a ∣ = a
+  forward (squash x y i) = isPropA (forward x) (forward y) i
+
+  i : Iso ∥ A ∥ A
+  i .fun = forward
+  i .inv a = ∣ a ∣
+  i .rightInv _ = isPropA _ _
+  i .leftInv _ = squash _ _
+
+Σ-distrib-⊎ : {A : Type ℓ₁} {B : A -> Type ℓ₂} {C : A -> Type ℓ₃} ->
+              (Σ[ a ∈ A ] (B a ⊎ C a)) ≃ (Σ A B ⊎ Σ A C)
+Σ-distrib-⊎ {A = A} {B} {C} = isoToEquiv i
+  where
+  i : Iso (Σ[ a ∈ A ] (B a ⊎ C a)) (Σ A B ⊎ Σ A C)
+  i .fun (a , (inj-l b)) = (inj-l (a , b))
+  i .fun (a , (inj-r c)) = (inj-r (a , c))
+  i .inv (inj-l (a , b)) = (a , (inj-l b))
+  i .inv (inj-r (a , c)) = (a , (inj-r c))
+  i .rightInv (inj-l (_ , _)) = refl
+  i .rightInv (inj-r (_ , _)) = refl
+  i .leftInv (_ , (inj-l _)) = refl
+  i .leftInv (_ , (inj-r _)) = refl
+
+Maybe-eq : (A ≃ B) -> Maybe A ≃ Maybe B
+Maybe-eq {A = A} {B = B} eq = isoToEquiv i
+  where
+  i : Iso (Maybe A) (Maybe B)
+  i .fun nothing = nothing
+  i .fun (just a) = just (eqFun eq a)
+  i .inv nothing = nothing
+  i .inv (just b) = just (eqInv eq b)
+  i .rightInv nothing = refl
+  i .rightInv (just b) = cong just (eqSec eq b)
+  i .leftInv nothing = refl
+  i .leftInv (just a) = cong just (eqRet eq a)
+
+Σ-Bot-eq : {ℓ : Level} {A : Bot -> Type ℓ} ->
+           Σ Bot A ≃ Bot
+Σ-Bot-eq {A = A} = isoToEquiv i
+  where
+  i : Iso (Σ Bot A) Bot
+  i .fun (b , _)   = bot-elim b
+  i .inv b         = bot-elim b
+  i .rightInv b      = bot-elim b
+  i .leftInv (b , _) = bot-elim b
+
+Σ-Maybe-eq : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Maybe A -> Type ℓ₂} ->
+             Σ (Maybe A) B ≃ (B nothing ⊎ Σ A (B ∘ just))
+Σ-Maybe-eq {A = A} {B = B} = isoToEquiv i
+  where
+  i : Iso (Σ (Maybe A) B) (B nothing ⊎ Σ A (B ∘ just))
+  i .fun (nothing , b)   = inj-l b
+  i .fun (just a , b)    = inj-r (a , b)
+  i .inv (inj-l b)       = nothing , b
+  i .inv (inj-r (a , b)) = just a , b
+  i .rightInv (inj-l _) = refl
+  i .rightInv (inj-r _) = refl
+  i .leftInv (nothing , b) = refl
+  i .leftInv (just a , b)  = refl
+
+Contr-Top-eq : {A : Type ℓ} -> (isContr A) -> A ≃ Top
+Contr-Top-eq {A = A} isContrA = isoToEquiv i
+  where
+  i : Iso A Top
+  i .fun _ = tt
+  i .inv _ = isContrA .fst
+  i .rightInv _ = refl
+  i .leftInv y = isContrA .snd y

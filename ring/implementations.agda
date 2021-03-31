@@ -41,19 +41,20 @@ instance
     ; +-commute = (\ {m} {n} -> (int.+-commute {m} {n}))
     ; *-assoc = (\ {m} {n} {o} -> (int.*-assoc {m} {n} {o}))
     ; *-commute = (\ {m} {n} -> (int.*-commute {m} {n}))
-    ; +-left-zero = refl
-    ; *-left-zero = refl
-    ; *-left-one = int.+-right-zero
+    ; +-left-zero = int.+-left-zero
+    ; *-left-zero = int.*-left-zero
+    ; *-left-one = int.*-left-one
     ; *-distrib-+-right = (\ {m} {n} {o} -> int.*-distrib-+ {m} {n} {o})
     ; isSetDomain = int.isSetInt
     }
 module IntSemiring = Semiring IntSemiring
 
-IntRing : Ring int.Int
-IntRing = record  {
-  semiring = IntSemiring;
-  -_ = int.-_;
-  +-inverse = (\ {n} -> int.add-minus-zero {n}) }
+instance
+  IntRing : Ring int.Int
+  IntRing = record  {
+    semiring = IntSemiring;
+    -_ = int.-_;
+    +-inverse = (\ {n} -> int.add-minus-zero {n}) }
 
 ^'ʰ : (x : Nat) -> CommMonoidʰᵉ NatSemiring.+-CommMonoid NatSemiring.*-CommMonoid (x ^'_)
 ^'ʰ x = record
@@ -71,15 +72,17 @@ module _ where
   open int
   ^ʰ : (x : Int) -> CommMonoidʰᵉ NatSemiring.+-CommMonoid IntSemiring.*-CommMonoid (x ^_)
   ^ʰ x = record
-    { preserves-ε = refl
+    { preserves-ε = ^-right-zero
     ; preserves-∙ = preserves-∙
     }
     where
     preserves-∙ : (a b : Nat) -> (x ^ (a +' b)) == (x ^ a) * (x ^ b)
-    preserves-∙ zero    b = sym *-left-one
+    preserves-∙ zero    b = sym (cong (_* (x ^ b)) ^-right-zero >=> *-left-one)
     preserves-∙ (suc a) b =
-      cong (x *_) (preserves-∙ a b)
+      ^-right-suc
+      >=> cong (x *_) (preserves-∙ a b)
       >=> sym (*-assoc {x} {x ^ a} {x ^ b})
+      >=> sym (cong (_* _) ^-right-suc)
 
 
   int-+ʰ : CommMonoidʰᵉ NatSemiring.+-CommMonoid IntSemiring.+-CommMonoid  int
@@ -89,9 +92,37 @@ module _ where
     }
     where
     preserves-∙ : (a b : Nat) -> (int (a +' b)) == (int a) + (int b)
-    preserves-∙ zero    b = refl
+    preserves-∙ zero    b = sym +-left-zero
     preserves-∙ (suc a) b =
-      cong add1 (preserves-∙ a b)
+      cong add1 (preserves-∙ a b) >=> sym add1-extract-left
+
+  int-*ʰ : CommMonoidʰᵉ NatSemiring.*-CommMonoid IntSemiring.*-CommMonoid  int
+  int-*ʰ = record
+    { preserves-ε = refl
+    ; preserves-∙ = preserves-∙
+    }
+    where
+    preserves-∙ : (a b : Nat) -> (int (a *' b)) == (int a) * (int b)
+    preserves-∙ zero    b = sym *-left-zero
+    preserves-∙ (suc a) b =
+      begin
+        int ((suc a) *' b)
+      ==<>
+        int (b +' (a *' b))
+      ==< CommMonoidʰ.preserves-∙ int-+ʰ b (a *' b) >
+        int b + int (a *' b)
+      ==< cong (int b +_) (preserves-∙ a b) >
+        int b + ((int a) * (int b))
+      ==< sym (add1-extract-* {int a} {int b}) >
+        (int (suc a)) * (int b)
+      end
+
+  Semiringʰ-ℕ->ℤ : Semiringʰ ℕ->ℤ
+  Semiringʰ-ℕ->ℤ = record
+    { preserves-1# = CommMonoidʰ.preserves-ε int-*ʰ
+    ; preserves-+ = CommMonoidʰ.preserves-∙ int-+ʰ
+    ; preserves-* = CommMonoidʰ.preserves-∙ int-*ʰ
+    }
 
 
 

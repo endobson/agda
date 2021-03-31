@@ -8,6 +8,7 @@ open import equivalence
 open import hlevel
 open import isomorphism
 open import relation
+open import sigma
 open import univalence
 
 Pos' : (n : Nat) -> Set
@@ -20,6 +21,8 @@ isPropPos' {suc _} = isPropTop
 
 Nat⁺ : Type₀
 Nat⁺ = Σ[ n ∈ Nat ] (Pos' n)
+
+ℕ = Nat
 
 zero-suc-absurd : {A : Set} {x : Nat} -> 0 == (suc x) -> A
 zero-suc-absurd path = bot-elim (subst Pos' (sym path) tt)
@@ -50,6 +53,16 @@ instance
 
 isSetNat : isSet Nat
 isSetNat = Discrete->isSet discreteNat
+
+isSetNat⁺ : isSet Nat⁺
+isSetNat⁺ = Discrete->isSet discreteNat⁺
+  where
+  discreteNat⁺ : (x y : Nat⁺) -> Dec (x == y)
+  discreteNat⁺ x⁺@(x , _) y⁺@(y , _) = handle (decide-nat x y)
+    where
+    handle : Dec (x == y) -> Dec (x⁺ == y⁺)
+    handle (yes p) = yes (ΣProp-path isPropPos' p)
+    handle (no ¬p) = no (\p -> (¬p (cong fst p)))
 
 -- Lift suc up to path structure
 private

@@ -284,3 +284,7 @@ module _ (hA : isSet A) (hB : isSet B) {iso₁ iso₂ : Iso A B}
   Iso.inv (isSet-iso-path i) = p-inv i
   Iso.rightInv (isSet-iso-path i) b = p-rightInv b i
   Iso.leftInv  (isSet-iso-path i) a = p-leftInv a i
+
+
+isProp->iso : (A -> B) -> (B -> A) -> isProp A -> isProp B -> Iso A B
+isProp->iso f g ha hb = iso f g (\_ -> hb _ _) (\_ -> ha _ _)

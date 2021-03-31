@@ -3,9 +3,10 @@
 module gcd.properties where
 
 open import base
+open import chapter2.multiplicative
 open import div
 open import equality
-open import gcd.propositional using (GCD' ; GCD⁺)
+open import gcd.propositional using (GCD' ; GCD⁺ ; gcd'-sym ; gcd'-zero ; gcd'-one)
 open import gcd.computational
 open import lcm
 open import lcm.exists
@@ -135,3 +136,124 @@ gcd-distrib-lcm⁺ a b c = prime-same-division-count⁺ x y f
     end
     where
     ρ = prime-div-count p
+
+
+gcd'-sym-path : (x y : Nat) -> gcd' x y == gcd' y x
+gcd'-sym-path x y = gcd'-unique (gcd'-sym (gcd'-proof y x))
+
+gcd⁺-sym-path : (x y : Nat⁺) -> gcd⁺ x y == gcd⁺ y x
+gcd⁺-sym-path (x , _) (y , _) = ΣProp-path isPropPos' (gcd'-sym-path x y)
+
+Multiplicative-gcd⁺₁ : (a : Nat⁺) -> Multiplicative (gcd⁺ a)
+Multiplicative-gcd⁺₁ a .fst = gcd⁺-unique gcd'-one
+Multiplicative-gcd⁺₁ a .snd x y rp = path3
+  where
+  a' = fst a
+  x' = fst x
+  y' = fst y
+
+  d = gcd⁺ a (x *⁺ y)
+  gd = gcd⁺-proof a (x *⁺ y)
+  d' = fst d
+
+  gcd-dxy : GCD⁺ d (x *⁺ y) d
+  gcd-dxy = record
+    { %a = div'-refl
+    ; %b = (GCD'.%b (gcd⁺-proof a (x *⁺ y)))
+    ; f = \z z%d _ -> z%d
+    }
+
+  dx = gcd⁺ d x
+  gx = gcd⁺-proof d x
+  dy = gcd⁺ d y
+  gy = gcd⁺-proof d y
+  dx' = ⟨ dx ⟩
+  dy' = ⟨ dy ⟩
+
+  gcd-ax : GCD⁺ a x dx
+  gcd-ax = record
+    { %a = div'-trans (GCD'.%a gx) (GCD'.%a gd)
+    ; %b = (GCD'.%b gx)
+    ; f = \z z%a z%x -> (GCD'.f gx z (GCD'.f gd z z%a (div'-mult' z%x y')) z%x)
+    }
+  gcd-ay : GCD⁺ a y dy
+  gcd-ay = record
+    { %a = div'-trans (GCD'.%a gy) (GCD'.%a gd)
+    ; %b = (GCD'.%b gy)
+    ; f = \z z%a z%y -> (GCD'.f gy z (GCD'.f gd z z%a (div'-mult z%y x')) z%y)
+    }
+
+  rp2 : RelativelyPrime⁺ dx dy
+  rp2 z z%dx z%dy = rp z (div'-trans z%dx (GCD'.%b gx)) (div'-trans z%dy (GCD'.%b gy))
+
+  path1 : (gcd' d' x' *' gcd' d' y') == d'
+  path1 = prime-same-division-count (dx *⁺ dy) d f
+    where
+    f : (p : Prime') -> {n1 n2 : Nat}
+        -> PrimeDivCount⁺ p (dx *⁺ dy) n1 -> PrimeDivCount⁺ p d n2
+        -> n1 == n2
+    f p {n1} {n2} dc1 dc2 =
+      begin
+        n1
+      ==< prime-div-count-unique dc1 (prime-div-count-proof p (dx *⁺ dy)) >
+         ρ (dx *⁺ dy)
+      ==< cong ρ (sym (relatively-prime-lcm-path⁺ {dx} {dy} rp2)) >
+        ρ (lcm⁺ dx dy)
+      ==<>
+        ρ (lcm⁺ (gcd⁺ d x) (gcd⁺ d y))
+      ==< cong ρ (sym (gcd-distrib-lcm⁺ d x y)) >
+        ρ (gcd⁺ d (lcm⁺ x y))
+      ==< (\i -> (ρ (gcd⁺ d (relatively-prime-lcm-path⁺ {x} {y} rp i)))) >
+        ρ (gcd⁺ d (x *⁺ y))
+      ==< cong ρ (ΣProp-path isPropPos' (gcd'-unique gcd-dxy)) >
+        ρ d
+      ==< prime-div-count-unique (prime-div-count-proof p d) dc2 >
+        n2
+      end
+      where
+      ρ : Nat⁺ -> Nat
+      ρ = prime-div-count p
+
+  path2 : gcd' a' (x' *' y') == (gcd' a' x') *' (gcd' a' y')
+  path2 = sym path1 >=> cong2 _*'_ (sym (gcd'-unique gcd-ax)) (sym (gcd'-unique gcd-ay))
+
+  path3 : gcd⁺ a (x *⁺ y) == (gcd⁺ a x) *⁺ (gcd⁺ a y)
+  path3 = ΣProp-path isPropPos' path2
+
+Multiplicative-gcd⁺₂ : (a : Nat⁺) -> Multiplicative (\x -> gcd⁺ x a)
+Multiplicative-gcd⁺₂ a .fst = gcd⁺-unique {b = a} (gcd'-sym gcd'-one)
+Multiplicative-gcd⁺₂ a .snd x y rp =
+  gcd⁺-sym-path (x *⁺ y) a >=> Multiplicative-gcd⁺₁ a .snd x y rp
+  >=> cong2 _*⁺_ (gcd⁺-sym-path a x) (gcd⁺-sym-path a y)
+
+
+Multiplicative-gcd'₁ : (a : Nat) -> Multiplicative⁰ (gcd' a)
+Multiplicative-gcd'₁ _ .fst = gcd'-unique gcd'-one
+Multiplicative-gcd'₁ zero  .snd   x y rp =
+  p >=> (cong2 _*'_ (sym p) (sym p))
+  where
+  p : {n : Nat} -> gcd' 0 n == n
+  p = gcd'-unique (gcd'-sym gcd'-zero)
+Multiplicative-gcd'₁ a@(suc _) .snd zero y rp = sym (*'-right-one) >=> (\i -> (gcd' a 0) *' (p (~ i)))
+  where
+  y==1 : y == 1
+  y==1 = rp-zero rp
+  p : gcd' a y == 1
+  p = gcd'-unique (transport (\i -> GCD' a (y==1 (~ i)) 1) gcd'-one)
+Multiplicative-gcd'₁ a@(suc _) .snd x@(suc _) zero rp =
+  (cong (\i -> gcd' a i) (*'-right-zero {x}))
+  >=> sym (*'-left-one)
+  >=> (\i -> (p (~ i)) *' (gcd' a 0))
+  where
+  x==1 : x == 1
+  x==1 = rp-zero (rp-sym rp)
+  p : gcd' a x == 1
+  p = gcd'-unique (transport (\i -> GCD' a (x==1 (~ i)) 1) gcd'-one)
+Multiplicative-gcd'₁ a@(suc _) .snd x@(suc _) y@(suc _) rp =
+  cong fst (Multiplicative-gcd⁺₁ (a , tt) .snd (x , tt) (y , tt) rp)
+
+Multiplicative-gcd'₂ : (a : Nat) -> Multiplicative⁰ (\x -> gcd' x a)
+Multiplicative-gcd'₂ a .fst = gcd'-unique (gcd'-sym gcd'-one)
+Multiplicative-gcd'₂ a .snd x y rp =
+  gcd'-sym-path (x *' y) a >=> Multiplicative-gcd'₁ a .snd x y rp
+  >=> cong2 _*'_ (gcd'-sym-path a x) (gcd'-sym-path a y)

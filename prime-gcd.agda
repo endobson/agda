@@ -28,8 +28,27 @@ relatively-prime->gcd {a} {b} rp = record
   f : (x : Nat) -> x div' a -> x div' b -> x div' 1
   f x xa xb = transport (cong (x div'_) (rp x xa xb)) div'-refl
 
+relatively-prime->gcdⁱ : {a b : Int} -> RelativelyPrime a b -> GCD a b (int 1)
+relatively-prime->gcdⁱ {a} {b} rp = record
+  { %a = div-one
+  ; %b = div-one
+  ; non-neg = tt
+  ; f = f
+  }
+  where
+  f : (x : Int) -> x div a -> x div b -> x div (int 1)
+  f (nonneg x) x%a x%b = (int 1) , *-left-one >=> rp (nonneg x) tt x%a x%b
+  f (neg x)    x%a x%b =
+    - (int 1) , minus-extract-left >=> cong -_ *-left-one >=>
+                rp (pos x) tt (div-negate-left x%a) (div-negate-left x%b)
+
+
 gcd->relatively-prime : {a b : Nat} -> GCD' a b 1 -> RP a b
 gcd->relatively-prime g d da db = div'-antisym (GCD'.f g d da db) div'-one
+
+gcdⁱ->relatively-prime : {a b : Int} -> GCD a b (int 1) -> RelativelyPrime a b
+gcdⁱ->relatively-prime g d nonneg-d da db = div-one->one nonneg-d (GCD.f g d da db)
+
 
 euclids-lemma/rp : {a b c : Nat} -> a div' (b *' c) -> RP a b -> a div' c
 euclids-lemma/rp a%bc rp = euclids-lemma' a%bc (relatively-prime->gcd rp)

@@ -5,8 +5,12 @@ module sigma where
 open import base
 open import cubical
 open import equality
+open import equivalence
+open import haequiv
 open import hlevel.base
 open import isomorphism
+open import functions
+open import relation
 
 private
   variable
@@ -104,3 +108,65 @@ abstract
 
 ¬exists->forall : ¬ (Σ[ a ∈ A ] (B a)) -> (a : A) -> ¬ (B a)
 ¬exists->forall ne a b = ne (a , b)
+
+-- Equivalences and isomorphisms
+
+module _ where
+  open Iso
+  ×-iso : {ℓa ℓb ℓc ℓd : Level} -> {A : Type ℓa} {B : Type ℓb} {C : Type ℓc} {D : Type ℓd} ->
+          Iso A C -> Iso B D -> Iso (A × B) (C × D)
+  (×-iso f g) .fun = ×-map (f .fun) (g .fun)
+  (×-iso f g) .inv = ×-map (f .inv) (g .inv)
+  (×-iso f g) .rightInv (c , d) = cong2 _,_ (f .rightInv c) (g .rightInv d)
+  (×-iso f g) .leftInv  (a , b) = cong2 _,_ (f .leftInv a) (g .leftInv b)
+
+×-equiv : {ℓa ℓb ℓc ℓd : Level} -> {A : Type ℓa} {B : Type ℓb} {C : Type ℓc} {D : Type ℓd} ->
+          A ≃ C -> B ≃ D -> (A × B) ≃ (C × D)
+×-equiv f g = isoToEquiv (×-iso (equivToIso f) (equivToIso g))
+
+reindexΣ-iso : {ℓ₁ ℓ₂ ℓ₃ : Level} {A : Type ℓ₁} {B : Type ℓ₂}
+               (eq : B ≃ A) (C : A -> Type ℓ₃) -> Iso (Σ A C) (Σ B (\b -> (C (eqFun eq b))))
+reindexΣ-iso {A = A} {B} eq C = i
+  where
+  open Iso
+  i : Iso (Σ A C) (Σ B (\b -> (C (eqFun eq b))))
+  i .fun (a , c) = (eqInv eq a , subst C (sym (eqSec eq a)) c)
+  i .inv (b , c) = (eqFun eq b , c)
+  i .rightInv (b , c) = (\i -> path1 i , path2 i)
+    where
+    path1 : (eqInv eq (eqFun eq b)) == b
+    path1 = eqRet eq b
+    path-path' : (cong (eqFun eq) (eqRet eq b)) == (eqSec eq (eqFun eq b))
+    path-path' = isHAEquiv.comm (equiv->isHAEquiv eq) b
+    path2 : PathP (\k -> C (eqFun eq (path1 k))) (subst C (sym (eqSec eq (eqFun eq b))) c) c
+    path2 = symP (subst-filler2 C (cong (eqFun eq) (sym path1)) (sym (eqSec eq (eqFun eq b)))
+                                  (cong sym path-path') c)
+  i .leftInv (a , c) = (\i -> path1 i , path2 i)
+    where
+    path1 : (eqFun eq (eqInv eq a)) == a
+    path1 = eqSec eq a
+    path2 : PathP (\k -> C (path1 k)) (subst C (sym (eqSec eq a)) c) c
+    path2 = symP (subst-filler C (sym path1) c)
+
+reindexΣ : {ℓ₁ ℓ₂ ℓ₃ : Level} {A : Type ℓ₁} {B : Type ℓ₂}
+           (eq : B ≃ A) (C : A -> Type ℓ₃) -> (Σ A C) ≃ (Σ B (\b -> (C (eqFun eq b))))
+reindexΣ {A = A} {B} eq C = isoToEquiv (reindexΣ-iso eq C)
+
+existential-eq : {ℓ₁ ℓ₂ ℓ₃ : Level} {A : Type ℓ₁} {B : A -> Type ℓ₂} {C : A -> Type ℓ₃} ->
+                 ((a : A) -> B a ≃ C a) -> Σ A B ≃ Σ A C
+existential-eq {A = A} {B} {C} f = isoToEquiv i
+  where
+  open Iso
+  i : Iso (Σ A B) (Σ A C)
+  i .fun (a , b) = (a , eqFun (f a) b)
+  i .inv (a , c) = (a , eqInv (f a) c)
+  i .rightInv (a , c) i = (a , eqSec (f a) c i)
+  i .leftInv (a , b) i = (a , eqRet (f a) b i)
+
+Decidable-∩ : {P : Pred A ℓ₁} {Q : Pred A ℓ₁} -> Decidable P -> Decidable Q -> Decidable (P ∩ Q)
+Decidable-∩ {P = P} {Q} decP decQ a = handle (decP a) (decQ a)
+  where
+  handle : Dec (P a) -> Dec (Q a) -> Dec ((P ∩ Q) a)
+  handle (yes p) (yes q) = yes (p , q)
+  handle (yes p) (no ¬q) = no (¬q ∘ snd)
+  handle (no ¬p) _       = no (¬p ∘ fst)

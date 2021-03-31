@@ -199,7 +199,7 @@ module RingSolver {Domain : Type ℓ} (R : Ring Domain) where
 
       term-* : Term -> Term -> Term
       term-* (term m1 vs1) (term m2 vs2) =
-        (term (m1 int.* m2) (insertion-sort fin< (vs1 ++ vs2)))
+        (term (m1 int.*ᵉ m2) (insertion-sort fin< (vs1 ++ vs2)))
 
       minus-one-term : Term
       minus-one-term = (term (int.- (int.int 1)) [])
@@ -208,7 +208,7 @@ module RingSolver {Domain : Type ℓ} (R : Ring Domain) where
       term-- = term-* minus-one-term
 
       merge-equal-terms : (t1 t2 : Term) -> (Term.vars t1 == Term.vars t2) -> Term
-      merge-equal-terms (term m1 vars1) (term m2 vars2) _ = (term (m1 int.+ m2) vars1)
+      merge-equal-terms (term m1 vars1) (term m2 vars2) _ = (term (m1 int.+ᵉ m2) vars1)
 
       merge-terms : Terms -> Terms -> Terms
       merge-terms1 : Term -> Terms -> Terms -> Terms
@@ -311,6 +311,8 @@ module RingSolver {Domain : Type ℓ} (R : Ring Domain) where
         begin
           ⟦ (merge-equal-terms t1 t2 pr) ⟧term
         ==<>
+          (lift-int (m1 int.+ᵉ m2)) * ⟦ vars1 ⟧vars
+        ==< *-left (cong lift-int (sym int.+-eval)) >
           (lift-int (m1 int.+ m2)) * ⟦ vars1 ⟧vars
         ==< *-left (sym (+-lift-int {m1} {m2})) >
           ((lift-int m1) + (lift-int m2)) * ⟦ vars1 ⟧vars
@@ -415,8 +417,10 @@ module RingSolver {Domain : Type ℓ} (R : Ring Domain) where
         begin
           ⟦ (term-* t1 t2) ⟧term
         ==<>
-          ⟦ (term (m1 int.* m2) (insertion-sort fin< (vs1 ++ vs2))) ⟧term
+          ⟦ (term (m1 int.*ᵉ m2) (insertion-sort fin< (vs1 ++ vs2))) ⟧term
         ==<>
+          (lift-int (m1 int.*ᵉ m2)) * ⟦ (insertion-sort fin< (vs1 ++ vs2)) ⟧vars
+        ==< *-left (cong lift-int (sym int.*-eval)) >
           (lift-int (m1 int.* m2)) * ⟦ (insertion-sort fin< (vs1 ++ vs2)) ⟧vars
         ==< *-right (insertion-sort-vars≈ (vs1 ++ vs2)) >
           (lift-int (m1 int.* m2)) * ⟦ (vs1 ++ vs2) ⟧vars
@@ -897,7 +901,7 @@ module examples where
 
     example3 : (x y a b : Int) ->
         (x + y) * (a + b) + (x + - y) * (a + - b) ==
-        (int 2) * (x * a + y * b)
+        (Ring.lift-nat IntRing 2) * (x * a + y * b)
     example3 =
       IntSolver.solve 4
         (\ x y a b  ->

@@ -9,6 +9,7 @@ open import equivalence
 open import functions
 open import funext
 open import isomorphism
+open import univalence
 open import relation
 open import sigma
 open import sum

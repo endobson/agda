@@ -5,6 +5,7 @@ module fin where
 open import base
 open import equality
 open import equivalence
+open import univalence
 open import functions
 open import hlevel
 open import isomorphism

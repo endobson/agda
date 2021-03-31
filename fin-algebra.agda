@@ -3,11 +3,14 @@
 module fin-algebra where
 
 open import base
+open import cubical
 open import equality
 open import equivalence
+open import univalence
 open import fin
 open import type-algebra
 open import isomorphism
+open import maybe
 open import nat
 open import functions
 open import sigma
@@ -23,8 +26,8 @@ private
 
 
 --- Show that Fin 0 and Fin 1 are just Bot and Top
-Fin-Bot : Fin 0 == Bot
-Fin-Bot = ua (isoToEquiv i)
+Fin-Bot-iso : Iso (Fin 0) Bot
+Fin-Bot-iso = i
   where
   i : Iso (Fin 0) Bot
   i .fun (_ , p) = zero-≮ p
@@ -32,9 +35,15 @@ Fin-Bot = ua (isoToEquiv i)
   i .rightInv ()
   i .leftInv  (_ , p) = bot-elim (zero-≮ p)
 
+Fin-Bot-eq : Fin 0 ≃ Bot
+Fin-Bot-eq = isoToEquiv Fin-Bot-iso
 
-Fin-Top : Fin 1 == Top
-Fin-Top = ua (isoToEquiv i)
+Fin-Bot : Fin 0 == Bot
+Fin-Bot = ua Fin-Bot-eq
+
+
+Fin-Top-eq : Fin 1 ≃ Top
+Fin-Top-eq = (isoToEquiv i)
   where
   i : Iso (Fin 1) Top
   i .fun _ = tt
@@ -43,22 +52,40 @@ Fin-Top = ua (isoToEquiv i)
   i .leftInv  (zero  , _)  = ΣProp-path isProp≤ refl
   i .leftInv  (suc i , lt) = bot-elim (zero-≮ (pred-≤ lt))
 
+Fin-Top : Fin 1 == Top
+Fin-Top = ua Fin-Top-eq
+
 -- Fin is injective
 
-private
-  Fin-suc-⊎ : (n : Nat) -> Fin (suc n) == (Top ⊎ Fin n)
-  Fin-suc-⊎ n = ua (isoToEquiv i)
-    where
+Fin-suc-⊎-eq : (n : Nat) -> Fin (suc n) ≃ (Top ⊎ Fin n)
+Fin-suc-⊎-eq n = isoToEquiv i
+  where
+  i : Iso (Fin (suc n)) (Top ⊎ Fin n)
+  i .fun (zero  , p) = inj-l tt
+  i .fun (suc i , p) = inj-r (i , pred-≤ p)
+  i .inv (inj-l _)   = zero-fin
+  i .inv (inj-r j)   = suc-fin j
+  i .rightInv (inj-l _)  = refl
+  i .rightInv (inj-r j)  = cong inj-r (ΣProp-path isProp≤ refl)
+  i .leftInv (zero  , p) = (ΣProp-path isProp≤ refl)
+  i .leftInv (suc i , p) = (ΣProp-path isProp≤ refl)
 
-    i : Iso (Fin (suc n)) (Top ⊎ Fin n)
-    i .fun (zero  , p) = inj-l tt
-    i .fun (suc i , p) = inj-r (i , pred-≤ p)
-    i .inv (inj-l _)   = zero-fin
-    i .inv (inj-r j)   = suc-fin j
-    i .rightInv (inj-l _)  = refl
-    i .rightInv (inj-r j)  = cong inj-r (ΣProp-path isProp≤ refl)
-    i .leftInv (zero  , p) = (ΣProp-path isProp≤ refl)
-    i .leftInv (suc i , p) = (ΣProp-path isProp≤ refl)
+Fin-suc-⊎ : (n : Nat) -> Fin (suc n) == (Top ⊎ Fin n)
+Fin-suc-⊎ n = ua (Fin-suc-⊎-eq n)
+
+Fin-Maybe-eq : (n : Nat) -> Fin (suc n) ≃ Maybe (Fin n)
+Fin-Maybe-eq n = isoToEquiv i
+  where
+  i : Iso (Fin (suc n)) (Maybe (Fin n))
+  i .fun (zero  , p) = nothing
+  i .fun (suc i , p) = just (i , pred-≤ p)
+  i .inv nothing     = zero-fin
+  i .inv (just j)    = suc-fin j
+  i .rightInv nothing    = refl
+  i .rightInv (just j)   = cong just (ΣProp-path isProp≤ refl)
+  i .leftInv (zero  , p) = (ΣProp-path isProp≤ refl)
+  i .leftInv (suc i , p) = (ΣProp-path isProp≤ refl)
+
 
 Fin-injective : Injective Fin
 Fin-injective {zero}  {zero}  path = refl
@@ -115,3 +142,10 @@ Fin-Fun {suc n} A =
   >=> (⊎-Fun Top (Fin n) A)
   >=> (\i -> Top-Fun A i × Fin-Fun {n} A i)
   >=> sym (Vec-× A)
+
+--Fin-suc-Σ-eq : {n : Nat} -> {A : Fin (suc n) -> Type ℓ} ->
+--            Σ (Fin (suc n)) A ≃ (A zero-fin ⊎ Σ (Fin n) (A ∘ suc-fin))
+--Fin-suc-Σ-eq = isoToEquiv i
+--  where
+--  i : Iso (Σ (Fin (suc n)) A) (A zero-fin ⊎ Σ (Fin n) (A ∘ suc-fin))
+--  i .fun (

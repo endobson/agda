@@ -217,3 +217,30 @@ prime-power-prime-factorization p (suc n) = handle (prime-power-prime-factorizat
       CommMonoidʰ.preserves-∙ prime-productʰ ps-a ps-b
       >=> (\i -> (path-a i) *' (path-b i))
   }
+
+Decidable-IsPrime' : Decidable IsPrime'
+Decidable-IsPrime' zero = no (\p -> IsPrime'.pos p)
+Decidable-IsPrime' (suc zero) = no (\p -> same-≮ (IsPrime'.>1 p))
+Decidable-IsPrime' n@(suc (suc _)) = handle (compute-primality (suc-≤ (suc-≤ zero-≤)))
+  where
+  handle : {n : Nat} -> Primality n -> Dec (IsPrime' n)
+  handle (primality-prime p) = yes (snd p)
+  handle (primality-composite a b a>1 b>1) = no ¬p
+    where
+    b%ab : b div' (a *' b)
+    b%ab = a , refl
+    ¬p : ¬ (IsPrime' (a *' b))
+    ¬p isp = handle2 (prime-only-divisors p b%ab)
+      where
+      p : Prime'
+      p = a *' b , isp
+      handle2 : ¬ (b == (a *' b) ⊎ b == 1)
+      handle2 (inj-r b==1) = <->!= b>1 (sym b==1)
+      handle2 (inj-l b==a*'b) = <->!= a>1 (sym a==1)
+        where
+        b%ab2 : b div' (a *' b)
+        b%ab2 = 1 , *'-left-one >=> b==a*'b
+        ab⁺ : Nat⁺
+        ab⁺ = a *' b , *'-Pos'-Pos' (<->Pos' a>1) (<->Pos' b>1)
+        a==1 : a == 1
+        a==1 = cong fst (isPropDiv' ab⁺ b%ab b%ab2)

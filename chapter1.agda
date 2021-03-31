@@ -13,6 +13,8 @@ open import linear-combo
 open import nat
 open import prime
 open import prime-gcd
+open import ring
+open import ring.implementations
 open import solver
 
 ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)
@@ -53,7 +55,8 @@ rp-* rp1 rp2 = gcd-sym (ex1-2 (gcd-sym rp1) (gcd-sym rp2))
 
 rp-^ : {a b : Int} -> RPrime a b -> (n : Nat) -> {Pos' n} -> RPrime (a ^ n) b
 rp-^ {a} {b} rp (suc (zero)) = transport (\i -> RPrime (^-right-one {a} (~ i)) b) rp
-rp-^ rp (suc (suc n)) = rp-* rp (rp-^ rp (suc n))
+rp-^ {a} {b} rp (suc (suc n)) =
+  transport (\i -> RPrime (^-right-suc {a} {suc n} (~ i)) b) (rp-* rp (rp-^ rp (suc n)))
 
 rp-sym : {a b : Int} -> RPrime a b -> RPrime b a
 rp-sym = gcd-sym
@@ -79,10 +82,12 @@ ex1-4' {a} {b} {n} rp (gcd _ n%a+b n%a-b f) = handle (gcd->linear-combo rp)
             (x ⊕ y) ⊗ (a ⊕ b) ⊕ (x ⊕ (⊖ y)) ⊗ (a ⊕ (⊖ b)) ,
             (© (int 2)) ⊗ (x ⊗ a ⊕ y ⊗ b))
           refl x y a b >
-        (int 2) * (x * a + y * b)
-      ==< *-right {int 2} proof >
-        (int 2) * (int 1)
-      ==<>
+        (Ring.lift-nat IntRing 2) * (x * a + y * b)
+      ==< *-right {Ring.lift-nat IntRing 2} proof >
+        (Ring.lift-nat IntRing 2) * (int 1)
+      ==< *-right-one >
+        (Ring.lift-nat IntRing 2)
+      ==< +-eval >=> cong ((int 1) +ᵉ_) +-eval >
         (int 2)
       end
     res : n div (int 2)
@@ -115,6 +120,7 @@ ex1-6 {a} {b} {d} (gcd _ _ _ f) d%a+b =
     where
     p : - a + ( a + b) == b
     p = (sym (+-assoc { - a})) >=> (+-left (+-commute { - a} {a})) >=> (+-left (add-minus-zero {a}))
+        >=> +-left-zero
     x%b : x div b
     x%b = transport (\i -> x div (p i)) (div-sum (div-negate x%a) (div-trans x%d d%a+b))
 
@@ -124,12 +130,17 @@ ex1-6 {a} {b} {d} (gcd _ _ _ f) d%a+b =
     p : - b + ( a + b) == a
     p = (+-right { - b} (+-commute {a} {b})) >=>
         (sym (+-assoc { - b})) >=> (+-left (+-commute { - b} {b})) >=> (+-left (add-minus-zero {b}))
+        >=> +-left-zero
     x%a : x div a
     x%a = transport (\i -> x div (p i)) (div-sum (div-negate x%b) (div-trans x%d d%a+b))
 
 ex1-5-arith-type : Set
 ex1-5-arith-type = ∀ a b -> ((a + b) * (a + b) +  - (a * a + - (a * b) + b * b))
-                            == ((a * b) * (int 3))
+                            == ((a * b) * (Ring.lift-nat IntRing 3))
+
+ex1-5-arith-type' : Set
+ex1-5-arith-type' = ∀ a b -> ((a + b) * (a + b) +  - (a * a + - (a * b) + b * b))
+                             == ((a * b) * (int 3))
 
 ex1-5-arith : ex1-5-arith-type
 ex1-5-arith a b =
@@ -160,6 +171,8 @@ private
         ==< +-left (+-commute { - (k * a) }) >
           (k * a + - (k * a)) + b
         ==< +-left (add-minus-zero {k * a}) >
+          (int 0) + b
+        ==< +-left-zero >
           b
         end
 
@@ -168,7 +181,7 @@ private
              (\i -> x div (proof i))
              (div-sum xkab (div-mult xa (- k)))
 
-ex1-5' : {a b : Int} -> ex1-5-arith-type -> RPrime a b ->
+ex1-5' : {a b : Int} -> ex1-5-arith-type' -> RPrime a b ->
    (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎
    (GCD (a + b) (a * a + - (a * b) + b * b) (int 3))
 ex1-5' {a} {b} arith-proof rp with (gcd-exists (a + b) (a * a + - (a * b) + b * b))

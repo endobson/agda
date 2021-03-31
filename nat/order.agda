@@ -5,6 +5,7 @@ module nat.order where
 open import base
 open import equality
 open import equivalence
+open import univalence
 open import functions
 open import hlevel
 open import isomorphism
@@ -104,6 +105,9 @@ same-≤ (suc n) = suc-≤ (same-≤ n)
 same-pred-≤ : (n : Nat) -> pred n ≤ n
 same-pred-≤ zero    = same-≤ zero
 same-pred-≤ (suc n) = 1 , refl
+
+same-pred-< : (n : Nat⁺) -> pred ⟨ n ⟩ < ⟨ n ⟩
+same-pred-< (suc n , _) = 0 , refl
 
 pos-pred-≤ : {m n : Nat} -> Pos' n -> m ≤ (pred n) -> m < n
 pos-pred-≤ {m} {zero} ()
@@ -262,6 +266,8 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
   transport (\i -> *'-left-one {m} (~ i) < *'-left-one {n} (~ i)) lt
 *-left-<⁺ {suc (suc x)} x-gt lt = +-both-<⁺ lt (*-left-<⁺ (zero-< {x}) lt)
 
+
+
 *-right-≤⁺ : {m n : Nat} -> (x : Nat) -> m ≤ n -> (m *' x) ≤ (n *' x)
 *-right-≤⁺ {m} {n} x lt =
   transport (\i -> (*'-commute {x} {m} i) ≤ (*'-commute {x} {n} i))
@@ -272,12 +278,23 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
   transport (\i -> (*'-commute {x} {m} i) < (*'-commute {x} {n} i))
             (*-left-<⁺ x>0 lt)
 
+*-left-<⁻ : {m n : Nat} -> (x : Nat) -> (x *' m) < (x *' n) -> m < n
+*-left-<⁻ {m} {n} x prod-lt = handle (split-nat< m n)
+  where
+  handle : (m < n) ⊎ (n ≤ m) -> m < n
+  handle (inj-l lt) = lt
+  handle (inj-r lt) = bot-elim (same-≮ (trans-<-≤ prod-lt (*-left-≤⁺ x lt)))
+
 *-left-≤⁻ : {m n : Nat} -> (x : Nat⁺) -> (⟨ x ⟩ *' m) ≤ (⟨ x ⟩ *' n) -> m ≤ n
 *-left-≤⁻ {m} {n} x⁺@((suc x) , _) prod-lt = handle (split-nat< n m)
   where
   handle : (m > n) ⊎ (m ≤ n) -> m ≤ n
   handle (inj-r lt) = lt
   handle (inj-l gt) = bot-elim (same-≮ (trans-≤-< prod-lt (*-left-<⁺ (zero-< {x}) gt)))
+
+*-right-<⁻ : {m n : Nat} -> (x : Nat) -> (m *' x) < (n *' x) -> m < n
+*-right-<⁻ {m} {n} x lt =
+  *-left-<⁻ x (transport (\i -> (*'-commute {m} {x} i) < (*'-commute {n} {x} i)) lt)
 
 *-right-≤⁻ : {m n : Nat} -> (x : Nat⁺) -> (m *' ⟨ x ⟩) ≤ (n *' ⟨ x ⟩) -> m ≤ n
 *-right-≤⁻ {m} {n} x⁺@(x , _) lt =
@@ -630,10 +647,6 @@ trans-≤i-<i (suc-≤i lt1) (suc-≤i lt2) = suc-≤i (trans-≤i-<i lt1 lt2)
 
 trans-<i : {m n o : Nat} -> (m <i n) -> (n <i o) -> (m <i o)
 trans-<i lt1 lt2 = trans-≤i-<i (pred-≤i (right-suc-≤i lt1)) lt2
-
--- Bounded predicates
-isBounded : {ℓ : Level} -> (Pred Nat ℓ) -> Type ℓ
-isBounded P = Σ[ n ∈ Nat ] (P ⊆ (_< n))
 
 suc-monotonic-≤ : Monotonic _≤_ _≤_ suc
 suc-monotonic-≤ a1 a2 a1≤a2 = suc-≤ a1≤a2

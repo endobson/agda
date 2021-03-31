@@ -100,6 +100,9 @@ m+'n==0->m==0 {(suc _)} p = bot-elim (zero-suc-absurd (sym p))
 +'-minus-both-left zero = refl
 +'-minus-both-left (suc m) = +'-minus-both-left m
 
+minus-left-zero : {n : Nat} -> 0 -' n == 0
+minus-left-zero {zero} = refl
+minus-left-zero {suc n} = refl
 
 
 infixl 7 _*'_
@@ -205,8 +208,23 @@ suc m *' n = n +' (m *' n)
 *'-only-one-right : {m n : Nat} -> m *' n == 1 -> n == 1
 *'-only-one-right {m} {n} p = *'-only-one-left {n} {m} (*'-commute {n} {m} >=> p)
 
+
+*'-distrib-minus : {m n p : Nat} -> (m -' n) *' p == (m *' p) -' (n *' p)
+*'-distrib-minus {m} {zero} = refl
+*'-distrib-minus {zero} {suc n} {p} = sym (minus-left-zero {suc n *' p})
+*'-distrib-minus {suc m} {suc n} {p} =
+ *'-distrib-minus {m} {n} {p} >=> sym (+'-minus-both-left p)
+
+
 *'-Pos'-Pos' : {m n : Nat} -> .(Pos' m) -> .(Pos' n) -> Pos' (m *' n)
 *'-Pos'-Pos' {(suc m)} {(suc n)} _ _ = tt
+
+*'-Pos-left : {m n : Nat} -> Pos' (m *' n) -> Pos' m
+*'-Pos-left {suc _} _ = tt
+
+*'-Pos-right : {m n : Nat} -> Pos' (m *' n) -> Pos' n
+*'-Pos-right {suc m} {zero}   p = *'-Pos-right {m} p
+*'-Pos-right {suc _} {suc _}  _ = tt
 
 *'-right-injective : {m : Nat} (n : Nat⁺) {p : Nat} -> (m *' ⟨ n ⟩) == (p *' ⟨ n ⟩) -> m == p
 *'-right-injective {zero}    _           {zero}  path = refl

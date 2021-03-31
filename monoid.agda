@@ -78,3 +78,6 @@ _∘ʰ_ {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res
     preserves-ε = preserves-ε ;
     preserves-∙ = preserves-∙
     }
+
+MonoidT : (ℓ : Level) -> Type (ℓ-suc ℓ)
+MonoidT ℓ = Σ[ D ∈ Type ℓ ] (Monoid D)

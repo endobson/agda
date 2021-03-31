@@ -36,7 +36,7 @@ abs-inject-+ : {m n : Int} -> (NonNeg m) -> (NonNeg n) -> abs (m + n) == abs m +
 abs-inject-+ {_} {n} mp np = rec (non-neg-int-rec mp)
   where
   rec : {m : Int} -> NonNegIntRec m -> abs (m + n) == abs m + abs n
-  rec non-neg-zero = refl
+  rec non-neg-zero = cong abs +-left-zero >=> sym +-left-zero
   rec (non-neg-suc {m} m-rec mp) =
     begin
       abs (add1 m + n)
@@ -57,7 +57,7 @@ abs-inject-*/non-neg : {m n : Int} -> NonNeg m -> NonNeg n -> abs (m * n) == abs
 abs-inject-*/non-neg {_} {n} mp np = rec (non-neg-int-rec mp)
   where
   rec : {m : Int} -> NonNegIntRec m -> abs (m * n) == abs m * abs n
-  rec non-neg-zero = refl
+  rec non-neg-zero = cong abs (*-left-zero) >=> sym *-left-zero
   rec (non-neg-suc {m} m-rec mp) =
     begin
       abs (add1 m * n)
@@ -79,9 +79,9 @@ abs-cancel-minus {pos _} = refl
 abs-cancel-minus {neg _} = refl
 
 abs-inject-* : {m n : Int} -> abs (m * n) == abs m * abs n
-abs-inject-* {zero-int} {zero-int} = refl
-abs-inject-* {zero-int} {pos n} = refl
-abs-inject-* {zero-int} {neg n} = refl
+abs-inject-* {zero-int} {zero-int} = abs-inject-*/non-neg tt tt
+abs-inject-* {zero-int} {pos n} = abs-inject-*/non-neg tt tt
+abs-inject-* {zero-int} {neg n} = cong abs *-left-zero >=> sym *-left-zero
 abs-inject-* {pos m} {zero-int} = abs-inject-*/non-neg {pos m} {zero-int} tt tt
 abs-inject-* {pos m} {pos n} = abs-inject-*/non-neg {pos m} {pos n} tt tt
 abs-inject-* {pos m} {neg n} =
@@ -119,9 +119,9 @@ abs-inject-* {neg m} {neg n} =
 abs-inject-* {neg m} {zero-int} =
   begin
     abs (neg m * zero-int)
-  ==< cong abs (*-commute {neg m} {zero-int}) >
+  ==< cong abs *-right-zero >
     zero-int
-  ==< *-commute {abs zero-int} {abs (neg m)} >
+  ==< sym *-right-zero >
     abs (neg m) * abs zero-int
   end
 
@@ -130,6 +130,9 @@ abs-inject-* {neg m} {zero-int} =
 abs->abs' : {m n : Int} -> abs m == abs n -> abs' m == abs' n
 abs->abs' pr = cong abs' pr
 
+nonneg-abs' : (m : Int) -> (NonNeg m) -> m == int (abs' m)
+nonneg-abs' (nonneg _) _ = refl
+
 abs'-inject-add1 : {m : Int} -> (NonNeg m) -> abs' (add1 m) == suc (abs' m)
 abs'-inject-add1 {nonneg _} _ = refl
 
@@ -137,7 +140,7 @@ abs'-inject-+ : {m n : Int} -> (NonNeg m) -> (NonNeg n) -> abs' (m + n) == abs' 
 abs'-inject-+ {_} {n} mp np = rec (non-neg-int-rec mp)
   where
   rec : {m : Int} -> NonNegIntRec m -> abs' (m + n) == abs' m +' abs' n
-  rec non-neg-zero = refl
+  rec non-neg-zero = cong abs' +-left-zero
   rec (non-neg-suc {m} m-rec mp) =
     begin
       abs' (add1 m + n)
@@ -158,7 +161,7 @@ abs'-inject-*/non-neg : {m n : Int} -> NonNeg m -> NonNeg n -> abs' (m * n) == a
 abs'-inject-*/non-neg {_} {n} mp np = rec (non-neg-int-rec mp)
   where
   rec : {m : Int} -> NonNegIntRec m -> abs' (m * n) == abs' m *' abs' n
-  rec non-neg-zero = refl
+  rec non-neg-zero = cong abs' *-left-zero
   rec (non-neg-suc {m} m-rec mp) =
     begin
       abs' (add1 m * n)
@@ -180,9 +183,9 @@ abs'-cancel-minus {pos _} = refl
 abs'-cancel-minus {neg _} = refl
 
 abs'-inject-* : {m n : Int} -> abs' (m * n) == abs' m *' abs' n
-abs'-inject-* {zero-int} {zero-int} = refl
-abs'-inject-* {zero-int} {pos n} = refl
-abs'-inject-* {zero-int} {neg n} = refl
+abs'-inject-* {zero-int} {zero-int} = abs'-inject-*/non-neg tt tt
+abs'-inject-* {zero-int} {pos n} = abs'-inject-*/non-neg tt tt
+abs'-inject-* {zero-int} {neg n} = cong abs' *-left-zero
 abs'-inject-* {pos m} {zero-int} = abs'-inject-*/non-neg {pos m} {zero-int} tt tt
 abs'-inject-* {pos m} {pos n} = abs'-inject-*/non-neg {pos m} {pos n} tt tt
 abs'-inject-* {pos m} {neg n} =
@@ -220,14 +223,14 @@ abs'-inject-* {neg m} {neg n} =
 abs'-inject-* {neg m} {zero-int} =
   begin
     abs' (neg m * zero-int)
-  ==< cong abs' (*-commute {neg m} {zero-int}) >
+  ==< cong abs' (*-right-zero) >
     zero
   ==< *'-commute {abs' zero-int} {abs' (neg m)} >
     abs' (neg m) *' abs' zero-int
   end
 
 int-inject-+' : {m n : Nat} -> int (m +' n) == int m + int n
-int-inject-+' {zero} {n} = refl
+int-inject-+' {zero} {n} = sym +-left-zero
 int-inject-+' {suc m} {n} =
   begin
     int (suc m +' n)
@@ -242,7 +245,7 @@ int-inject-+' {suc m} {n} =
   end
 
 int-inject-*' : {m n : Nat} -> int (m *' n) == int m * int n
-int-inject-*' {zero} {n} = refl
+int-inject-*' {zero} {n} = sym *-left-zero
 int-inject-*' {suc m} {n} =
   begin
     int (suc m *' n)

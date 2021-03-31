@@ -14,6 +14,11 @@ open import nat.binary-strong-induction
 open import relation
 
 
+linear-combo->gcd : {a b d : Int} -> LinearCombination a b d -> d div a -> d div b -> GCD a b (abs d)
+linear-combo->gcd (linear-combo x y p) da db =
+  (gcd tt (div-abs-left da) (div-abs-left db)
+    (\ z za zb -> transport (\i -> z div abs (p i)) (div-abs-right (div-linear za zb {x} {y}))))
+
 private
   data EuclideanTree : Nat -> Nat -> Type₀ where
     euclidean-tree-base : (a : Nat) -> EuclideanTree a 0
@@ -52,11 +57,6 @@ private
   root-linear-combo (euclidean-tree-sym t) = linear-combo-sym (root-linear-combo t)
   root-linear-combo (euclidean-tree-step t) = linear-combo-+' (root-linear-combo t)
 
-  linear-combo->gcd : {a b d : Int} -> LinearCombination a b d -> d div a -> d div b -> GCD a b (abs d)
-  linear-combo->gcd (linear-combo x y p) da db =
-    (gcd tt (div-abs-left da) (div-abs-left db)
-      (\ z za zb -> transport (\i -> z div abs (p i)) (div-abs-right (div-linear za zb {x} {y}))))
-
   euclidean-tree->gcd : {a b : Nat} -> (t : EuclideanTree a b) -> GCD' a b (euclidean-tree-root t)
   euclidean-tree->gcd t = (gcd->gcd' (linear-combo->gcd lc (div'->div (proj₁ div-both))
                                                            (div'->div (proj₂ div-both))))
@@ -87,15 +87,16 @@ compute-euclidean-tree a b = sym-binary-strong-induction euclidean-tree-sym f a 
       k<y : k < y
       k<y = x' , +'-right-suc >=> path
 
-gcd'-exists : (a b : Nat) -> Σ[ d ∈ Nat ] (GCD' a b d)
-gcd'-exists a b = (euclidean-tree-root t) , (euclidean-tree->gcd t)
-  where
-  t = compute-euclidean-tree a b
+abstract
+  gcd'-exists : (a b : Nat) -> Σ[ d ∈ Nat ] (GCD' a b d)
+  gcd'-exists a b = (euclidean-tree-root t) , (euclidean-tree->gcd t)
+    where
+    t = compute-euclidean-tree a b
 
-gcd-exists : (a b : Int) -> Σ[ d ∈ Int ] (GCD a b d)
-gcd-exists a b = (int (euclidean-tree-root t)) , (gcd'->gcd (euclidean-tree->gcd t))
-  where
-  t = compute-euclidean-tree (abs' a) (abs' b)
+  gcd-exists : (a b : Int) -> Σ[ d ∈ Int ] (GCD a b d)
+  gcd-exists a b = (int (euclidean-tree-root t)) , (gcd'->gcd (euclidean-tree->gcd t))
+    where
+    t = compute-euclidean-tree (abs' a) (abs' b)
 
 
 -- GCD and linear combos convertible
@@ -111,6 +112,11 @@ gcd'->linear-combo {a} {b} {d} gcd-d =
 gcd->linear-combo : {a b d : Int} -> GCD a b d -> LinearCombination a b d
 gcd->linear-combo g = linear-combo-unabs _ _ _ (gcd'->linear-combo (gcd->gcd' g))
 
+linear-combo-one->gcd-one : {a b : Int} -> LinearCombination a b (int 1) -> GCD a b (int 1)
+linear-combo-one->gcd-one lc = linear-combo->gcd lc div-one div-one
+
+
+
 -- Euclids lemma
 euclids-lemma : {a b c : Int} -> a div (b * c) -> GCD a b (int 1) -> a div c
 euclids-lemma {a} {b} {c} a%bc ab-gcd = handle (gcd->linear-combo ab-gcd)
@@ -122,7 +128,7 @@ euclids-lemma {a} {b} {c} a%bc ab-gcd = handle (gcd->linear-combo ab-gcd)
     c==stuff =
       begin
         c
-      ==< sym (+-right-zero {c})  >
+      ==< sym (*-left-one) >
         (int 1) * c
       ==< *-left (sym pr) >
         (x * a + y * b) * c

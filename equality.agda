@@ -10,7 +10,7 @@ open cubical public using (PathP; ~_)
 private
   variable
     ℓ ℓ₁ ℓ₂ ℓ₃ : Level
-    A : Type ℓ
+    A A1 A2 : Type ℓ
     B : A -> Type ℓ
     C : (a : A) -> (B a) -> Type ℓ
 
@@ -133,6 +133,19 @@ symP p k = p (~ k)
 -- Substitution
 subst : {x y : A} -> (P : A → Type ℓ) -> x == y -> P x -> P y
 subst P path = transport (\ i -> (P (path i)))
+
+subst2 : {a11 a12 : A1} {a21 a22 : A2} -> (P : A1 -> A2 -> Type ℓ) ->
+         a11 == a12 -> a21 == a22 -> P a11 a21 -> P a12 a22
+subst2 P path1 path2 = transport (\ i -> (P (path1 i) (path2 i)))
+
+subst-filler : {x y : A} -> (Q : A -> Type ℓ) -> (p : x == y) -> (qx : (Q x))
+             -> PathP (\i -> Q (p i)) qx (subst Q p qx)
+subst-filler Q p qx = transport-filler (cong Q p) qx
+
+abstract
+  subst-filler2 :  {x y : A} -> (Q : A -> Type ℓ) (p1 p2 : x == y) (pp : p1 == p2)
+                   (qx : Q x) -> PathP (\k -> Q (p1 k)) qx (subst Q p2 qx)
+  subst-filler2 Q p1 p2 pp qx = transP-left (subst-filler Q p1 qx) (\k -> subst Q (pp k) qx)
 
 -- True identity
 

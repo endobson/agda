@@ -6,8 +6,9 @@ open import base
 open import div
 open import gcd.propositional using (GCD' ; GCD⁺)
 open import gcd.euclidean-algorithm
-open import nat
 open import int
+open import nat
+open import sigma
 
 module gprop = gcd.propositional
 
@@ -25,3 +26,6 @@ gcd⁺-proof (a , _) (b , _) = gcd'-proof a b
 
 gcd'-unique : {a b n : Nat} -> GCD' a b n -> gcd' a b == n
 gcd'-unique g = gprop.gcd'-unique (gcd'-proof _ _) g
+
+gcd⁺-unique : {a b n : Nat⁺} -> GCD⁺ a b n -> gcd⁺ a b == n
+gcd⁺-unique g = ΣProp-path isPropPos' (gcd'-unique g)

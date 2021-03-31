@@ -24,6 +24,7 @@ open import sigma
 open import univalence
 open import unordered-list
 open import unordered-list.discrete
+open import univalence
 
 private
   record DivisionCount (d : Nat) (n : Nat) : Type₀ where

@@ -70,3 +70,6 @@ _∘ʰ_ {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res
     preserves-ε = preserves-ε ;
     preserves-∙ = preserves-∙
     }
+
+CommMonoidT : (ℓ : Level) -> Type (ℓ-suc ℓ)
+CommMonoidT ℓ = Σ[ D ∈ Type ℓ ] (CommMonoid D)

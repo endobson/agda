@@ -5,11 +5,13 @@ module div where
 open import abs
 open import base
 open import equality
+open import commutative-monoid
 open import hlevel
 open import int
 open import nat
 open import quotient hiding (remainder)
 open import relation
+open import ring.implementations
 open import sigma
 
 _div_ : Int -> Int -> Type₀
@@ -44,6 +46,10 @@ div'-trans {d} (a , a*d=m) (b , b*m=n) =
 div-mult : {d n : Int} -> d div n -> (a : Int) -> d div (a * n)
 div-mult (c , pr) a =
   (a * c) , (*-assoc {a} >=> *-right {a} pr)
+
+div-mult' : {d n : Int} -> d div n -> (a : Int) -> d div (n * a)
+div-mult' (c , pr) a =
+  (a * c) , (*-assoc {a} >=> *-right {a} pr) >=> *-commute
 
 div'-mult : {d n : Nat} -> d div' n -> (a : Nat) -> d div' (a *' n)
 div'-mult (c , pr) a =
@@ -128,7 +134,7 @@ div->≤ {a = pos _} da = div'->≤ (div->div' da)
 
 
 div-zero->zero : {n : Int} -> (int 0) div n -> n == (int 0)
-div-zero->zero (d , pr) = (sym pr) >=> (*-commute {d} {zero-int})
+div-zero->zero (d , pr) = (sym pr) >=> *-right-zero
 
 div-non-zero->non-zero : {d n : Int} -> d div n -> NonZero n -> NonZero d
 div-non-zero->non-zero {d = pos _} _ _ = tt
@@ -151,16 +157,23 @@ div'-pos->pos {suc _} _ _ = tt
 div'-pos->pos' : {d n : Nat} -> (d%n : d div' n) -> Pos' n -> Pos' ⟨ d%n ⟩
 div'-pos->pos' {d} (x , path) n-pos = div'-pos->pos (d , *'-commute {d} {x} >=> path) n-pos
 
-Unit : (x : Int) -> Type₀
-Unit zero-int = Bot
-Unit (pos zero) = Top
-Unit (pos (suc _)) = Bot
-Unit (neg zero) = Top
-Unit (neg (suc _)) = Bot
+
+
+private
+  Unit : (x : Int) -> Type₀
+  Unit zero-int = Bot
+  Unit (pos zero) = Top
+  Unit (pos (suc _)) = Bot
+  Unit (neg zero) = Top
+  Unit (neg (suc _)) = Bot
 
 *-unit-abs : {m n : Int} -> (Unit m) -> abs (m * n) == abs n
-*-unit-abs {pos zero} {n} _ = (cong abs (+-right-zero {n}))
-*-unit-abs {neg zero} {n} _ = (cong abs (cong minus (+-right-zero {n}))) >=> (abs-cancel-minus {n})
+*-unit-abs {pos zero} {n} _ = (cong abs (*-left-one {n}))
+*-unit-abs {neg zero} {n} _ =
+ (cong abs sub1-extract-*)
+ >=> (cong (\x -> abs ((- n) + x)) *-left-zero)
+ >=> (cong abs (+-right-zero { - n}))
+ >=> (abs-cancel-minus {n})
 
 abs-one-implies-unit : {m : Int} -> abs' m == 1 -> Unit m
 abs-one-implies-unit {zero-int} pr = zero-suc-absurd pr
@@ -232,6 +245,14 @@ div-same-abs d1@{neg _} d2@{neg _} (x , pr1) (y , pr2) = proof
  proof : abs d1 == abs d2
  proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
 
+
+nonneg-unit->one : {n : Int} -> NonNeg n -> Unit n -> n == (int 1)
+nonneg-unit->one {n = nonneg (suc zero)} _ _ = refl
+
+div-one->one : {d : Int} -> NonNeg d -> d div (int 1) -> d == (int 1)
+div-one->one nn (m , p) = nonneg-unit->one nn (*-one-implies-unit p)
+
+
 div-sum : {d a b : Int} -> d div a -> d div b -> d div (a + b)
 div-sum             (d-div-a , _ ) (d-div-b , _ ) .fst = (d-div-a + d-div-b)
 div-sum {d} {a} {b} (d-div-a , pa) (d-div-b , pb) .snd =
@@ -256,13 +277,43 @@ div-linear {d} {a} {b} (d-div-a , pa) (d-div-b , pb) {m} {n} .snd =
     m * a + n * b
   end
 
+div-+-left : {d a b : Int} -> d div a -> d div (a + b) -> d div b
+div-+-left {d} {a} {b} d%a d%ab =
+  transport (\i -> d div (path i)) (div-sum (div-negate d%a) d%ab)
+  where
+  path : (- a + (a + b)) == b
+  path = sym (+-assoc { - a} {a} {b}) >=> (cong (_+ b) (+-commute { - a} {a} >=> add-minus-zero {a}))
+         >=> +-left-zero
+
+div-+-right : {d a b : Int} -> d div b -> d div (a + b) -> d div a
+div-+-right {d} {a} {b} d%b (x , path) = div-+-left d%b (x , path >=> +-commute {a} {b})
+
+div'-+'-right : {d a b : Nat} -> d div' b -> d div' (a +' b) -> d div' a
+div'-+'-right {d} {a} {b} d%b d%ab =
+  div->div' (div-+-right {int d} {int a} {int b} (div'->div d%b) d%ab')
+  where
+  d%ab' : (int d) div ((int a) + (int b))
+  d%ab' = (fst (div'->div d%ab)) ,
+          (snd (div'->div d%ab)) >=> (CommMonoidʰ.preserves-∙ int-+ʰ a b)
+
+div'-+'-left : {d a b : Nat} -> d div' a -> d div' (a +' b) -> d div' b
+div'-+'-left {d} {a} {b} d%a d%ab =
+  div->div' (div-+-left {int d} {int a} {int b} (div'->div d%a) d%ab')
+  where
+  d%ab' : (int d) div ((int a) + (int b))
+  d%ab' = (fst (div'->div d%ab)) ,
+          (snd (div'->div d%ab)) >=> (CommMonoidʰ.preserves-∙ int-+ʰ a b)
+
+
+
+
 div-one : {n : Int} -> ((int 1) div n)
 div-one {n} = n , *-right-one
 div'-one : {n : Nat} -> (1 div' n)
 div'-one {n} = n , *'-right-one
 
 div-zero : {n : Int} -> (n div zero-int)
-div-zero = zero-int , refl
+div-zero = zero-int , *-left-zero
 div'-zero : {n : Nat} -> (n div' zero)
 div'-zero = zero , refl
 
@@ -461,6 +512,13 @@ decide-div zero (suc d) = no f
 decide-div d@(suc d') n@(suc _) with (exists-remainder d (\ d=z -> zero-suc-absurd (sym d=z)) n)
 ... | (zero , rem) = yes (remainder->div rem)
 ... | ((suc a) , rem) = no (remainder->¬div rem)
+
+
+isPropDiv₁ : {d n : Int} -> (NonZero d) -> isProp (d div n)
+isPropDiv₁ {d} {n} nz-d div1@(x1 , p1) (x2 , p2) = ΣProp-path (isSetInt _ _) x-p
+  where
+  x-p : x1 == x2
+  x-p = (*-right-injective nz-d (p1 >=> (sym p2)))
 
 
 isPropDiv : {d n : Int} -> (NonZero n) -> isProp (d div n)

@@ -72,6 +72,14 @@ distinct-primes->¬div {p1@(_ , (is-prime' p1>1 _))} {p2} ¬path p1%p2
 ... | inj-l p1==p2 = ¬path (ΣProp-path isPropIsPrime' p1==p2)
 ... | inj-r p1==1 = <->!= p1>1 (sym p1==1)
 
+prime-self-divisor : (p1 p2 : Prime') -> (⟨ p1 ⟩ div' ⟨ p2 ⟩) -> p1 == p2
+prime-self-divisor p1 p2 p1%p2 = handle (prime-only-divisors p2 p1%p2)
+  where
+  handle : (⟨ p1 ⟩ == ⟨ p2 ⟩) ⊎ (⟨ p1 ⟩ == 1) -> p1 == p2
+  handle (inj-l path) = ΣProp-path isPropIsPrime' path
+  handle (inj-r path) = bot-elim (Prime'.!=1 p1 path)
+
+
 -- Machinery for proving that a number is Prime
 module PrimeUpTo where
   data PrimeUpTo : Nat -> Nat -> Type₀ where

@@ -24,7 +24,8 @@ LinearCombination' a b d = LinearCombination (int a) (int b) (int d)
 
 
 linear-combo-refl : {n : Int}  -> LinearCombination n n n
-linear-combo-refl {n} = (linear-combo zero-int (pos zero) (+-right-zero {n}))
+linear-combo-refl {n} =
+  (linear-combo zero-int (pos zero) (+-left *-left-zero >=> +-left-zero >=> *-left-one))
 
 linear-combo-sym : {a b d : Int} -> LinearCombination a b d -> LinearCombination b a d
 linear-combo-sym {a} {b} {d} (linear-combo x y p) =
@@ -32,7 +33,9 @@ linear-combo-sym {a} {b} {d} (linear-combo x y p) =
 
 linear-combo-zero : {n : Int}  -> LinearCombination n zero-int n
 linear-combo-zero {n} =
-  (linear-combo-sym (linear-combo zero-int (pos zero) (+-right-zero {n})))
+  (linear-combo-sym
+    (linear-combo zero-int (pos zero)
+                  (+-left *-left-zero >=> +-left-zero >=> *-left-one)))
 
 linear-combo-negate : {a b d : Int} -> LinearCombination a b d -> LinearCombination a (- b) d
 linear-combo-negate {a} {b} {d} (linear-combo x y p) =
@@ -113,7 +116,10 @@ linear-combo-+' {a} {b} {d} (linear-combo x y p) =
         (x * (int a)) + ((((- y) * (int a)) + (y * (int a))) + (y * (int b)))
       ==< +-right {x * (int a)} (+-left (sym (*-distrib-+ {(- y)} {y} {int a}))) >
         (x * (int a)) + ((((- y) + y) * (int a)) + (y * (int b)))
-      ==< +-right {x * (int a)} (+-left (*-left (+-commute {(- y)} {y} >=> add-minus-zero {y}))) >
+      ==< +-right {x * (int a)} (+-left (*-left (+-commute {(- y)} {y} >=> add-minus-zero {y})
+                                         >=> *-left-zero)) >
+        x * (int a) + (int 0 + y * (int b))
+      ==< +-right {x * (int a)} +-left-zero >
         x * (int a) + y * (int b)
       ==< p >
         (int d)

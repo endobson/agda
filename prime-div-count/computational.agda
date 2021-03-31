@@ -10,6 +10,7 @@ open import prime
 open import prime-div-count
 open import gcd.computational
 open import lcm.exists
+open import sigma
 
 prime-div-count : Prime' -> Nat⁺ -> Nat
 prime-div-count p a = fst (compute-prime-div-count p a)
@@ -79,6 +80,21 @@ prime-div-count->prime-div p a (x , path) =
   full-path = cong suc (sym +'-right-zero) >=> sym +'-right-suc >=> path
   dc⁺ : Nat⁺
   dc⁺ = prime-div-count p a , transport (cong Pos' full-path) tt
+
+
+prime-div->prime-div-count : (p : Prime') (a : Nat⁺)
+                             -> ⟨ p ⟩ div' ⟨ a ⟩
+                             -> prime-div-count p a > 0
+prime-div->prime-div-count p a d@(x , path) =
+  prime-div-count p (x , (div'-pos->pos' d (snd a))) ,
+  +'-right
+    (prime-div-count-unique
+      (subst (\x -> PrimeDivCount p x 1) ^'-right-one (prime-power-div-count p 1))
+      (prime-div-count-proof p (Prime'.nat⁺ p))) >=>
+  sym (*'-prime-div-count⁺ p (x , (div'-pos->pos' d (snd a))) (Prime'.nat⁺ p))
+  >=> cong (prime-div-count p) (ΣProp-path isPropPos' path)
+
+
 
 gcd-prime-div-count⁺ : (p : Prime') (a b : Nat⁺)
   -> prime-div-count p (gcd⁺ a b) == min (prime-div-count p a) (prime-div-count p b)

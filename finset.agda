@@ -6,6 +6,7 @@ open import base
 open import cubical
 open import equality
 open import equivalence
+open import univalence
 open import fin
 open import fin-algebra
 open import functions

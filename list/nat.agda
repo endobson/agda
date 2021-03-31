@@ -14,6 +14,7 @@ open import list.unordered
 open import list.discrete
 open import monoid
 open import nat
+open import nat.bounded
 open import relation
 
 

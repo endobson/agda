@@ -3,8 +3,13 @@
 module relatively-prime where
 
 open import base
+open import cubical
 open import div
 open import equality
+open import equivalence
+open import hlevel
+open import int
+open import isomorphism
 open import nat
 open import prime
 open import prime-factorization
@@ -15,6 +20,9 @@ RelativelyPrime⁰ a b = (d : Nat) -> d div' a -> d div' b -> d == 1
 
 RelativelyPrime⁺ : Nat⁺ -> Nat⁺ -> Type₀
 RelativelyPrime⁺ a b = RelativelyPrime⁰ ⟨ a ⟩ ⟨ b ⟩
+
+RelativelyPrime : Int -> Int -> Type₀
+RelativelyPrime a b = (d : Int) -> NonNeg d -> d div a -> d div b -> d == (int 1)
 
 private
   RP = RelativelyPrime⁰
@@ -69,3 +77,28 @@ distinct-primes->relatively-prime {p1} {p2} path =
 
 divisors-relatively-prime : {d1 d2 a b : Nat} -> RP a b -> d1 div' a -> d2 div' b -> RP d1 d2
 divisors-relatively-prime rp d1%a d2%b p p%d1 p%d2 = rp p (div'-trans p%d1 d1%a) (div'-trans p%d2 d2%b)
+
+
+relatively-primeⁱ->relatively-prime :
+  {a b : Nat} -> (RelativelyPrime (int a) (int b)) -> RelativelyPrime⁰ a b
+relatively-primeⁱ->relatively-prime rp d d%a d%b =
+  nonneg-injective (rp (int d) tt (div'->div d%a) (div'->div d%b))
+
+relatively-prime->relatively-primeⁱ :
+  {a b : Nat} -> RelativelyPrime⁰ a b -> (RelativelyPrime (int a) (int b))
+relatively-prime->relatively-primeⁱ rp (nonneg d) _ d%a d%b =
+  cong int (rp d (div->div' d%a) (div->div' d%b))
+
+isProp-RelativelyPrime⁰ : {a b : Nat} -> isProp (RelativelyPrime⁰ a b)
+isProp-RelativelyPrime⁰ = isPropΠ3 (\_ _ _ -> isSetNat _ _)
+
+isProp-RelativelyPrime : {a b : Int} -> isProp (RelativelyPrime a b)
+isProp-RelativelyPrime = isPropΠ4 (\_ _ _ _ -> isSetInt _ _)
+
+RelativelyPrime-RelativelyPrime-eq :
+  {a b : Nat} -> (RelativelyPrime⁰ a b ≃ RelativelyPrime (int a) (int b))
+RelativelyPrime-RelativelyPrime-eq =
+  isoToEquiv (iso relatively-prime->relatively-primeⁱ
+                  relatively-primeⁱ->relatively-prime
+                  (\_ -> isProp-RelativelyPrime _ _)
+                  (\_ -> isProp-RelativelyPrime⁰ _ _))
