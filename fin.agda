@@ -362,6 +362,38 @@ abstract
   avoid-fin-remove-fin-path i j np =
     avoid-fin-remove-fin'-path i j (np ∘ ΣProp-path isProp≤)
 
+  private
+    remove-fin'-avoid-fin-path :
+      {n : Nat} (i : Fin (suc n)) (j : Fin n) (p : ⟨ i ⟩ != ⟨ avoid-fin i j ⟩)
+      -> ⟨ (remove-fin' i (avoid-fin i j) p) ⟩ == ⟨ j ⟩
+    remove-fin'-avoid-fin-path {zero}  i j p = bot-elim (¬fin-zero j)
+    remove-fin'-avoid-fin-path {suc n} (0     , lt) (j     , lt2) p = refl
+    remove-fin'-avoid-fin-path {suc n} (suc i , lt) (0     , lt2) p = refl
+    remove-fin'-avoid-fin-path {suc n} fi@(suc i , lt) fj@(suc j , lt2) p = ans
+      where
+      pi : Fin (suc n)
+      pi = (i , pred-≤ lt)
+      pj : Fin n
+      pj = (j , pred-≤ lt2)
+
+      avoid-path : (pred-fin (suc-fin (avoid-fin pi pj))) == (avoid-fin pi pj)
+      avoid-path = ΣProp-path isProp≤ refl
+
+      rec : ⟨ (remove-fin' pi (avoid-fin pi pj) (p ∘ cong suc)) ⟩ == ⟨ pj ⟩
+      rec = (remove-fin'-avoid-fin-path pi pj (p ∘ cong suc))
+
+      ans : suc (fst (remove-fin' pi
+                       (pred-fin (suc-fin (avoid-fin pi pj)))
+                       (p ∘ cong suc))) == ⟨ fj ⟩
+      ans = (\k -> suc (fst (remove-fin' pi (avoid-path k) (p ∘ cong suc))))
+            >=> (cong suc rec)
+
+  remove-fin-avoid-fin-path :
+    {n : Nat} (i : Fin (suc n)) (j : Fin n) (p : i != (avoid-fin i j))
+    -> remove-fin i (avoid-fin i j) p == j
+  remove-fin-avoid-fin-path i j p =
+    ΣProp-path isProp≤ (remove-fin'-avoid-fin-path i j (p ∘ ΣProp-path isProp≤))
+
 
 -- Fins based on inductive ≤
 
