@@ -82,6 +82,30 @@ private
   Iso.rightInv suc-fin-iso' p = isSet->Square isSetFin
   Iso.leftInv  suc-fin-iso' p = isSet->Square isSetFin
 
+-- Single step recursion/induction for Fin (suc n)
+
+fin-rec : {ℓ : Level} {A : Type ℓ} {n : Nat} -> A -> (Fin n -> A) -> Fin (suc n) -> A
+fin-rec e f (0     , lt) = e
+fin-rec e f (suc i , lt) = f (i , pred-≤ lt)
+
+abstract
+  fin-rec-suc-point : {ℓ : Level} {A : Type ℓ} {n : Nat} -> (e : A) -> (f : (Fin n -> A)) -> (i : Fin n)
+                      -> (fin-rec e f (suc-fin i)) == f i
+  fin-rec-suc-point e f i = cong f (ΣProp-path isProp≤ refl)
+
+  fin-rec-suc : {ℓ : Level} {A : Type ℓ} {n : Nat} -> (e : A) -> (f : (Fin n -> A))
+                -> fin-rec e f ∘ suc-fin == f
+  fin-rec-suc e f k i = fin-rec-suc-point e f i k
+
+  fin-elim : {ℓ : Level} {n : Nat} {P : Fin (suc n) -> Type ℓ}
+             -> P zero-fin
+             -> ((i : Fin n) -> P (suc-fin i))
+             -> (i : Fin (suc n)) -> P i
+  fin-elim {P = P} z s (0     , lt) =
+    transport (cong P (ΣProp-path isProp≤ refl)) z
+  fin-elim {P = P} z s (suc i , lt) =
+    transport (cong P (ΣProp-path isProp≤ refl)) (s (i , pred-≤ lt))
+
 -- Naturals in a range
 
 isInRange : Nat -> Nat -> Nat -> Type₀
