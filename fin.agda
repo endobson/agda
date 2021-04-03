@@ -300,6 +300,69 @@ abstract
     ΣProp-path isProp≤
       (remove-fin'-inj i j1 (j1-np ∘ ΣProp-path isProp≤) j2 (j2-np ∘ ΣProp-path isProp≤) p)
 
+-- Combine avoid-fin and remove-fin
+abstract
+  private
+    avoid-fin-suc : {n : Nat} (i : Fin (suc n)) (j : Fin n)
+                          -> avoid-fin (suc-fin i) (suc-fin j) == suc-fin (avoid-fin i j)
+    avoid-fin-suc {zero}  i j = bot-elim (¬fin-zero j)
+    avoid-fin-suc {suc n} i j = (\k -> suc-fin (avoid-fin (p1 k) (p2 k)))
+      where
+      p1 : (pred-fin (suc-fin i)) == i
+      p1 = ΣProp-path isProp≤ refl
+
+      p2 : (pred-fin (suc-fin j)) == j
+      p2 = ΣProp-path isProp≤ refl
+
+    avoid-fin-remove-fin'-path :
+      {n : Nat} (i j : Fin (suc n)) (p : (fst i) != (fst j))
+      -> avoid-fin i (remove-fin' i j p) == j
+    avoid-fin-remove-fin'-path {zero} i j p = bot-elim (p (cong fst (isPropFin1 i j)))
+    avoid-fin-remove-fin'-path {suc _} (0     , lt1) (0     , lt2) p =
+      bot-elim (p refl)
+    avoid-fin-remove-fin'-path {suc _} (0     , lt1) (suc j , lt2) p =
+      (ΣProp-path isProp≤ refl)
+    avoid-fin-remove-fin'-path {suc _} (suc i , lt1) (0     , lt2) p =
+      (ΣProp-path isProp≤ refl)
+    avoid-fin-remove-fin'-path {suc n} fi@(suc i , lt1) fj@(suc j , lt2) p = ans
+      where
+      pi : Fin (suc n)
+      pi = (i , pred-≤ lt1)
+      pj : Fin (suc n)
+      pj = (j , pred-≤ lt2)
+
+      i-path : fi == suc-fin pi
+      i-path = ΣProp-path isProp≤ refl
+      j-path : fj == suc-fin pj
+      j-path = ΣProp-path isProp≤ refl
+
+      rec : avoid-fin pi (remove-fin' pi pj (p ∘ cong suc)) == pj
+      rec = avoid-fin-remove-fin'-path pi pj (p ∘ cong suc)
+
+      ans4 : suc-fin (avoid-fin pi (remove-fin' pi pj (p ∘ cong suc)))
+             == fj
+      ans4 = cong suc-fin rec >=> (sym j-path)
+
+      ans3 : avoid-fin (suc-fin pi) (suc-fin (remove-fin' pi pj (p ∘ cong suc)))
+             == fj
+      ans3 = avoid-fin-suc pi (remove-fin' pi pj (p ∘ cong suc))
+             >=> ans4
+
+      ans2 : avoid-fin fi (suc-fin (remove-fin' pi pj (p ∘ cong suc)))
+             == fj
+      ans2 = (\k -> avoid-fin (i-path k) (suc-fin (remove-fin' pi pj (p ∘ cong suc))))
+             >=> ans3
+
+      ans : avoid-fin fi (remove-fin' fi fj p) == fj
+      ans = ans2
+
+  avoid-fin-remove-fin-path :
+    {n : Nat} (i j : Fin (suc n)) (p : i != j)
+    -> avoid-fin i (remove-fin i j p) == j
+  avoid-fin-remove-fin-path i j np =
+    avoid-fin-remove-fin'-path i j (np ∘ ΣProp-path isProp≤)
+
+
 -- Fins based on inductive ≤
 
 FinInd : Nat -> Type₀
