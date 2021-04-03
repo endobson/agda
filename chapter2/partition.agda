@@ -121,8 +121,8 @@ module _ {D : Type ℓ} (S : Semiring D) where
   i<nSum : (n : Nat) -> (f : Nat -> D) -> D
   i<nSum n f = finSumDep n (\ (x , _) -> f x)
 
-  enumerationSum : {n : Nat} -> (Fin n -> A) -> (A -> D) -> D
-  enumerationSum = ?
+--  enumerationSum : {n : Nat} -> (Fin n -> A) -> (A -> D) -> D
+--  enumerationSum = ?
 
 i<nSum-zero : {n : Nat} -> i<nSum NatSemiring n (\i -> 0) == 0
 i<nSum-zero {n = zero}  = refl

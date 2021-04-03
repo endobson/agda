@@ -177,19 +177,19 @@ private
   index->insert {n = (suc _)} (suc i) = insert-skip (index->insert i)
 
 
-  module _ where
-    open Iso
-    split-insert-auto : {n : Nat} 
-                        -> Auto (FinInd' (suc n))
-                        -> Insert n × Auto (FinInd' n)
-    split-insert-auto {n} i =
-      index->insert (fun i zero) , id-iso
-      where
-      new-iso : Auto (FinInd' n)
-      new-iso .fun = ?
-      new-iso .inv = ?
-      new-iso .rightInv = ?
-      new-iso .leftInv = ?
+--  module _ where
+--    open Iso
+--    split-insert-auto : {n : Nat}
+--                        -> Auto (FinInd' (suc n))
+--                        -> Insert n × Auto (FinInd' n)
+--    split-insert-auto {n} i =
+--      index->insert (fun i zero) , id-iso
+--      where
+--      new-iso : Auto (FinInd' n)
+--      new-iso .fun = ?
+--      new-iso .inv = ?
+--      new-iso .rightInv = ?
+--      new-iso .leftInv = ?
 
 data Swap : Nat -> Type₀ where
   swap      : {n : Nat} -> Swap (suc (suc n))
