@@ -58,6 +58,9 @@ isContrFin1 = zero-fin , proof
     proof (0 , lt) = ΣProp-path isProp≤ refl
     proof (suc i , lt) = bot-elim (zero-≮ (pred-≤ lt))
 
+isPropFin1 : isProp (Fin 1)
+isPropFin1 x y = sym (snd isContrFin1 x) >=> (snd isContrFin1 y)
+
 fin->nat : {n : Nat} -> Fin n -> Nat
 fin->nat (i , p) = i
 
@@ -246,57 +249,56 @@ abstract
 -- Remove a particular number from the set
 abstract
   private
-    remove-fin' : {n : Nat} -> (i : Nat) -> i < (suc n) -> (j : Nat) -> j < (suc n)
-                  -> i != j -> Fin n
-    remove-fin'               zero    i-lt zero    j-lt np = bot-elim (np refl)
-    remove-fin'               (suc i) i-lt zero    j-lt np = zero , (trans-≤-< zero-≤ (pred-≤ i-lt))
-    remove-fin'               zero    i-lt (suc j) j-lt np = j , pred-≤ j-lt
-    remove-fin' {n = zero}    (suc i) i-lt (suc j) j-lt np = bot-elim (zero-≮ (pred-≤ i-lt))
-    remove-fin' {n = (suc n)} (suc i) i-lt (suc j) j-lt np =
-      suc-fin (remove-fin' i (pred-≤ i-lt) j (pred-≤ j-lt) (np ∘ cong suc))
+    remove-fin' : {n : Nat} -> (i j : Fin (suc n)) -> ⟨ i ⟩ != ⟨ j ⟩ -> Fin n
+    remove-fin' {n = zero}    i j np = bot-elim (np (cong fst (isPropFin1 i j)))
+    remove-fin' {n = suc _}   (zero    , i-lt) (zero    , j-lt) np =
+      bot-elim (np refl)
+    remove-fin' {n = suc _}   ((suc i) , i-lt) (zero    , j-lt) np =
+      zero , (trans-≤-< zero-≤ (pred-≤ i-lt))
+    remove-fin' {n = suc _}   (zero    , i-lt) ((suc j) , j-lt) np =
+      j , pred-≤ j-lt
+    remove-fin' {n = (suc _)} ((suc i) , i-lt) ((suc j) , j-lt) np =
+      suc-fin (remove-fin' (i , (pred-≤ i-lt)) (j , (pred-≤ j-lt)) (np ∘ cong suc))
 
     remove-fin'-inj : {n : Nat}
-                      -> (i : Nat) -> (i-lt : i < (suc n) )
-                      -> (j1 : Nat) -> (j1-lt : j1 < (suc n)) -> (j1-np : i != j1)
-                      -> (j2 : Nat) -> (j2-lt : j2 < (suc n)) -> (j2-np : i != j2)
-                      -> remove-fin' i i-lt j1 j1-lt j1-np == remove-fin' i i-lt j2 j2-lt j2-np
-                      -> j1 == j2
-    remove-fin'-inj               zero    i-lt zero     j1-lt j1-np zero     j2-lt j2-np p =
+                      -> (i : Fin (suc n))
+                      -> (j1 : Fin (suc n)) -> (j1-np : ⟨ i ⟩ != ⟨ j1 ⟩)
+                      -> (j2 : Fin (suc n)) -> (j2-np : ⟨ i ⟩ != ⟨ j2 ⟩)
+                      -> remove-fin' i j1 j1-np == remove-fin' i j2 j2-np
+                      -> ⟨ j1 ⟩ == ⟨ j2 ⟩
+    remove-fin'-inj {n = zero}   _ j1 j1-np j2 j2-np p =
+      cong fst (isPropFin1 j1 j2)
+    remove-fin'-inj {n = suc _}   (zero  , i-lt) (zero   , j1-lt) j1-np (zero   , j2-lt) j2-np p =
       refl
-    remove-fin'-inj               zero    i-lt zero     j1-lt j1-np (suc j2) j2-lt j2-np p =
+    remove-fin'-inj {n = suc _}   (zero  , i-lt) (zero   , j1-lt) j1-np (suc j2 , j2-lt) j2-np p =
       bot-elim (j1-np refl)
-    remove-fin'-inj               zero    i-lt (suc j1) j1-lt j1-np zero     j2-lt j2-np p =
+    remove-fin'-inj {n = suc _}   (zero  , i-lt) (suc j1 , j1-lt) j1-np (zero   , j2-lt) j2-np p =
       bot-elim (j2-np refl)
-    remove-fin'-inj               zero    i-lt (suc j1) j1-lt j1-np (suc j2) j2-lt j2-np p =
+    remove-fin'-inj {n = suc _}   (zero  , i-lt) (suc j1 , j1-lt) j1-np (suc j2 , j2-lt) j2-np p =
       cong (suc ∘ fst) p
-    remove-fin'-inj {n = zero}    (suc i) i-lt j1       j1-lt j1-np j2       j2-lt j2-np p =
-      bot-elim (zero-≮ (pred-≤ i-lt))
-    remove-fin'-inj {n = (suc n)} (suc i) i-lt zero     j1-lt j1-np zero     j2-lt j2-np p =
+    remove-fin'-inj {n = (suc n)} (suc i , i-lt) (zero   , j1-lt) j1-np (zero   , j2-lt) j2-np p =
       refl
-    remove-fin'-inj {n = (suc n)} (suc i) i-lt zero     j1-lt j1-np (suc j2) j2-lt j2-np p =
+    remove-fin'-inj {n = (suc n)} (suc i , i-lt) (zero   , j1-lt) j1-np (suc j2 , j2-lt) j2-np p =
       zero-suc-absurd (cong fst p)
-    remove-fin'-inj {n = (suc n)} (suc i) i-lt (suc j1) j1-lt j1-np zero     j2-lt j2-np p =
+    remove-fin'-inj {n = (suc n)} (suc i , i-lt) (suc j1 , j1-lt) j1-np (zero   , j2-lt) j2-np p =
       zero-suc-absurd (cong fst (sym p))
-    remove-fin'-inj {n = (suc n)} (suc i) i-lt (suc j1) j1-lt j1-np (suc j2) j2-lt j2-np p =
+    remove-fin'-inj {n = (suc n)} (suc i , i-lt) (suc j1 , j1-lt) j1-np (suc j2 , j2-lt) j2-np p =
       cong suc
-        (remove-fin'-inj i (pred-≤ i-lt)
-                         j1 (pred-≤ j1-lt) (j1-np ∘ cong suc)
-                         j2 (pred-≤ j2-lt) (j2-np ∘ cong suc)
+        (remove-fin'-inj (i , (pred-≤ i-lt))
+                         (j1 , (pred-≤ j1-lt)) (j1-np ∘ cong suc)
+                         (j2 , (pred-≤ j2-lt)) (j2-np ∘ cong suc)
                          (suc-fin-injective p))
 
 
   remove-fin : {n : Nat} -> (i j : Fin (suc n)) -> i != j -> Fin n
-  remove-fin (i , i-lt) (j , j-lt) np = remove-fin' i i-lt j j-lt (np ∘ ΣProp-path isProp≤)
+  remove-fin i j np = remove-fin' i j (np ∘ ΣProp-path isProp≤)
 
   remove-fin-inj : {n : Nat} -> (i j1 j2 : Fin (suc n)) -> (j1-np : i != j1) -> (j2-np : i != j2)
                    -> remove-fin i j1 j1-np == remove-fin i j2 j2-np
                    -> j1 == j2
-  remove-fin-inj (i , i-lt) (j1 , j1-lt) (j2 , j2-lt) j1-np j2-np p =
+  remove-fin-inj i j1 j2 j1-np j2-np p =
     ΣProp-path isProp≤
-      (remove-fin'-inj i i-lt
-                       j1 j1-lt (j1-np ∘ ΣProp-path isProp≤)
-                       j2 j2-lt (j2-np ∘ ΣProp-path isProp≤)
-                       p)
+      (remove-fin'-inj i j1 (j1-np ∘ ΣProp-path isProp≤) j2 (j2-np ∘ ΣProp-path isProp≤) p)
 
 -- Fins based on inductive ≤
 
