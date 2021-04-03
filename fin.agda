@@ -210,6 +210,38 @@ avoid-fin : {n : Nat} -> Fin (suc n) -> Fin n -> Fin (suc n)
 avoid-fin {zero}  _ = suc-fin
 avoid-fin {suc _}   = fin-rec (suc-fin) (\i -> fin-rec zero-fin (suc-fin ∘ avoid-fin i))
 
+abstract
+  avoid-fin-no-path : {n : Nat} {j : Fin n} (i : Fin (suc n))
+                      -> avoid-fin i j != i
+  avoid-fin-no-path {zero}  {j} = bot-elim (¬fin-zero j)
+  avoid-fin-no-path {suc n} (0     , lt2) p =
+    zero-suc-absurd (cong fst (sym p))
+  avoid-fin-no-path {suc n} {0     , lt}  (suc i , lt2) p =
+    zero-suc-absurd (cong fst p)
+  avoid-fin-no-path {suc n} {suc j , lt1} (suc i , lt2) p =
+    no-path (p >=> ΣProp-path isProp≤ refl)
+    where
+    no-path : avoid-fin (suc i , lt2) (suc j , lt1) != suc-fin (i , pred-≤ lt2)
+    no-path = avoid-fin-no-path (i , pred-≤ lt2) ∘ suc-fin-injective
+
+  avoid-fin-inj : {n : Nat} (i : Fin (suc n))
+                  -> Injective (avoid-fin i)
+  avoid-fin-inj {zero} _ {x} {y} p = bot-elim (¬fin-zero x)
+  avoid-fin-inj {suc n} (0     , lt) = suc-fin-injective
+  avoid-fin-inj {suc n} (suc i , lt) {0      , lt1} {0      , lt2} p =
+    ΣProp-path isProp≤ refl
+  avoid-fin-inj {suc n} (suc i , lt) {0      , lt1} {suc j2 , lt2} p =
+    zero-suc-absurd (cong fst p)
+  avoid-fin-inj {suc n} (suc i , lt) {suc j1 , lt1} {0      , lt2} p =
+    zero-suc-absurd (cong fst (sym p))
+  avoid-fin-inj {suc n} (suc i , lt) {suc j1 , lt1} {suc j2 , lt2} p =
+    ΣProp-path isProp≤ (cong suc path)
+    where
+    rec : Injective (avoid-fin (i , pred-≤ lt))
+    rec = avoid-fin-inj (i , pred-≤ lt)
+
+    path : j1 == j2
+    path = cong fst (rec (suc-fin-injective p))
 
 -- Remove a particular number from the set
 abstract
