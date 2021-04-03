@@ -6,6 +6,7 @@ open import base
 open import cubical
 open import equality
 open import equivalence
+open import functions
 open import isomorphism
 open import relation
 open import sigma
@@ -183,3 +184,17 @@ isProp->Square : {ℓ : Level} {A : Type ℓ}
                 {a₋₀ : Path A a₀₀ a₁₀}
                 {a₋₁ : Path A a₀₁ a₁₁} -> isProp A -> Square a₀₋ a₁₋ a₋₀ a₋₁
 isProp->Square h = isProp->PathP (\ _ -> (isProp->isSet h _ _)) _ _
+
+
+-- h-level for function property types
+
+isPropInjective : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Type ℓ₂} {f : A -> B} ->
+                  isSet A -> isProp (Injective f)
+isPropInjective {A = A} {f = f} hA = isPropInj
+  where
+  isPropInj' : isProp ((a1 a2 : A) -> f a1 == f a2 -> a1 == a2)
+  isPropInj' = isPropΠ3 (\ _ _ _ -> hA _ _)
+
+  isPropInj : isProp (Injective f)
+  isPropInj g1 g2 i {x} {y} =
+    isPropInj' (\a1 a2 p -> g1 {a1} {a2} p) (\a1 a2 p -> g2 {a1} {a2} p) i x y
