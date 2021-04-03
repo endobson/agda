@@ -205,47 +205,54 @@ module _ {n m : Nat} (f : Fin n -> Fin m) where
                          (Satisfiable (RightInverse f))
     find-right-inverse = ⊎-map-right finite-inverse cases
 
+-- Map `Fin n` into `Fin (suc n)` keeping the order but skipping a particular value.
+avoid-fin : {n : Nat} -> Fin (suc n) -> Fin n -> Fin (suc n)
+avoid-fin {zero}  _ = suc-fin
+avoid-fin {suc _}   = fin-rec (suc-fin) (\i -> fin-rec zero-fin (suc-fin ∘ avoid-fin i))
+
+
 -- Remove a particular number from the set
-private
-  remove-fin' : {n : Nat} -> (i : Nat) -> i < (suc n) -> (j : Nat) -> j < (suc n)
-                -> i != j -> Fin n
-  remove-fin'               zero    i-lt zero    j-lt np = bot-elim (np refl)
-  remove-fin'               (suc i) i-lt zero    j-lt np = zero , (trans-≤-< zero-≤ (pred-≤ i-lt))
-  remove-fin'               zero    i-lt (suc j) j-lt np = j , pred-≤ j-lt
-  remove-fin' {n = zero}    (suc i) i-lt (suc j) j-lt np = bot-elim (zero-≮ (pred-≤ i-lt))
-  remove-fin' {n = (suc n)} (suc i) i-lt (suc j) j-lt np =
-    suc-fin (remove-fin' i (pred-≤ i-lt) j (pred-≤ j-lt) (np ∘ cong suc))
-
-  remove-fin'-inj : {n : Nat}
-                    -> (i : Nat) -> (i-lt : i < (suc n) )
-                    -> (j1 : Nat) -> (j1-lt : j1 < (suc n)) -> (j1-np : i != j1)
-                    -> (j2 : Nat) -> (j2-lt : j2 < (suc n)) -> (j2-np : i != j2)
-                    -> remove-fin' i i-lt j1 j1-lt j1-np == remove-fin' i i-lt j2 j2-lt j2-np
-                    -> j1 == j2
-  remove-fin'-inj               zero    i-lt zero     j1-lt j1-np zero     j2-lt j2-np p =
-    refl
-  remove-fin'-inj               zero    i-lt zero     j1-lt j1-np (suc j2) j2-lt j2-np p =
-    bot-elim (j1-np refl)
-  remove-fin'-inj               zero    i-lt (suc j1) j1-lt j1-np zero     j2-lt j2-np p =
-    bot-elim (j2-np refl)
-  remove-fin'-inj               zero    i-lt (suc j1) j1-lt j1-np (suc j2) j2-lt j2-np p =
-    cong (suc ∘ fst) p
-  remove-fin'-inj {n = zero}    (suc i) i-lt j1       j1-lt j1-np j2       j2-lt j2-np p =
-    bot-elim (zero-≮ (pred-≤ i-lt))
-  remove-fin'-inj {n = (suc n)} (suc i) i-lt zero     j1-lt j1-np zero     j2-lt j2-np p =
-    refl
-  remove-fin'-inj {n = (suc n)} (suc i) i-lt zero     j1-lt j1-np (suc j2) j2-lt j2-np p =
-    zero-suc-absurd (cong fst p)
-  remove-fin'-inj {n = (suc n)} (suc i) i-lt (suc j1) j1-lt j1-np zero     j2-lt j2-np p =
-    zero-suc-absurd (cong fst (sym p))
-  remove-fin'-inj {n = (suc n)} (suc i) i-lt (suc j1) j1-lt j1-np (suc j2) j2-lt j2-np p =
-    cong suc
-      (remove-fin'-inj i (pred-≤ i-lt)
-                       j1 (pred-≤ j1-lt) (j1-np ∘ cong suc)
-                       j2 (pred-≤ j2-lt) (j2-np ∘ cong suc)
-                       (suc-fin-injective p))
-
 abstract
+  private
+    remove-fin' : {n : Nat} -> (i : Nat) -> i < (suc n) -> (j : Nat) -> j < (suc n)
+                  -> i != j -> Fin n
+    remove-fin'               zero    i-lt zero    j-lt np = bot-elim (np refl)
+    remove-fin'               (suc i) i-lt zero    j-lt np = zero , (trans-≤-< zero-≤ (pred-≤ i-lt))
+    remove-fin'               zero    i-lt (suc j) j-lt np = j , pred-≤ j-lt
+    remove-fin' {n = zero}    (suc i) i-lt (suc j) j-lt np = bot-elim (zero-≮ (pred-≤ i-lt))
+    remove-fin' {n = (suc n)} (suc i) i-lt (suc j) j-lt np =
+      suc-fin (remove-fin' i (pred-≤ i-lt) j (pred-≤ j-lt) (np ∘ cong suc))
+
+    remove-fin'-inj : {n : Nat}
+                      -> (i : Nat) -> (i-lt : i < (suc n) )
+                      -> (j1 : Nat) -> (j1-lt : j1 < (suc n)) -> (j1-np : i != j1)
+                      -> (j2 : Nat) -> (j2-lt : j2 < (suc n)) -> (j2-np : i != j2)
+                      -> remove-fin' i i-lt j1 j1-lt j1-np == remove-fin' i i-lt j2 j2-lt j2-np
+                      -> j1 == j2
+    remove-fin'-inj               zero    i-lt zero     j1-lt j1-np zero     j2-lt j2-np p =
+      refl
+    remove-fin'-inj               zero    i-lt zero     j1-lt j1-np (suc j2) j2-lt j2-np p =
+      bot-elim (j1-np refl)
+    remove-fin'-inj               zero    i-lt (suc j1) j1-lt j1-np zero     j2-lt j2-np p =
+      bot-elim (j2-np refl)
+    remove-fin'-inj               zero    i-lt (suc j1) j1-lt j1-np (suc j2) j2-lt j2-np p =
+      cong (suc ∘ fst) p
+    remove-fin'-inj {n = zero}    (suc i) i-lt j1       j1-lt j1-np j2       j2-lt j2-np p =
+      bot-elim (zero-≮ (pred-≤ i-lt))
+    remove-fin'-inj {n = (suc n)} (suc i) i-lt zero     j1-lt j1-np zero     j2-lt j2-np p =
+      refl
+    remove-fin'-inj {n = (suc n)} (suc i) i-lt zero     j1-lt j1-np (suc j2) j2-lt j2-np p =
+      zero-suc-absurd (cong fst p)
+    remove-fin'-inj {n = (suc n)} (suc i) i-lt (suc j1) j1-lt j1-np zero     j2-lt j2-np p =
+      zero-suc-absurd (cong fst (sym p))
+    remove-fin'-inj {n = (suc n)} (suc i) i-lt (suc j1) j1-lt j1-np (suc j2) j2-lt j2-np p =
+      cong suc
+        (remove-fin'-inj i (pred-≤ i-lt)
+                         j1 (pred-≤ j1-lt) (j1-np ∘ cong suc)
+                         j2 (pred-≤ j2-lt) (j2-np ∘ cong suc)
+                         (suc-fin-injective p))
+
+
   remove-fin : {n : Nat} -> (i j : Fin (suc n)) -> i != j -> Fin n
   remove-fin (i , i-lt) (j , j-lt) np = remove-fin' i i-lt j j-lt (np ∘ ΣProp-path isProp≤)
 
