@@ -47,6 +47,17 @@ discreteFin = decide-fin
 isSetFin : {n : Nat} -> isSet (Fin n)
 isSetFin = Discrete->isSet discreteFin
 
+isPropFin0 : isProp (Fin 0)
+isPropFin0 (x , lt) = bot-elim (zero-≮ lt)
+
+isContrFin1 : isContr (Fin 1)
+isContrFin1 = zero-fin , proof
+  where
+  abstract
+    proof : (i : Fin 1) -> zero-fin == i
+    proof (0 , lt) = ΣProp-path isProp≤ refl
+    proof (suc i , lt) = bot-elim (zero-≮ (pred-≤ lt))
+
 fin->nat : {n : Nat} -> Fin n -> Nat
 fin->nat (i , p) = i
 
