@@ -8,7 +8,7 @@ open import cubical
 private
   variable
     ℓ ℓ₁ ℓ₂ : Level
-    A : Type ℓ
+    A A1 A2 : Type ℓ
     B : A -> Type ℓ
 
 
@@ -31,6 +31,32 @@ Glue A Te = primGlue A (λ x → Te x .fst) (λ x → Te x .snd)
 ua : ∀ {A B : Type ℓ} -> A ≃ B -> A == B
 ua {A = A} {B = B} e i = Glue B (\ { (i = i0) -> (A , e)
                                    ; (i = i1) -> (B , idEquiv B) })
+
+module _ {f : A1 -> A2} (eq-f : isEquiv f) where
+  isEqFun : A1 -> A2
+  isEqFun = f
+
+  isEqInv : A2 -> A1
+  isEqInv a = eq-f .equiv-proof a .fst .fst
+
+  isEqSec : (a : A2) -> isEqFun (isEqInv a) == a
+  isEqSec a = eq-f .equiv-proof a .fst .snd
+
+  isEqRet : (a : A1) -> isEqInv (isEqFun a) == a
+  isEqRet a i = eq-f .equiv-proof (f a) .snd (a , refl) i .fst
+
+module _ (e : A1 ≃ A2) where
+  eqFun : A1 -> A2
+  eqFun = fst e
+
+  eqInv : A2 -> A1
+  eqInv = isEqInv (snd e)
+
+  eqSec : (a : A2) -> eqFun (eqInv a) == a
+  eqSec = isEqSec (snd e)
+
+  eqRet : (a : A1) -> eqInv (eqFun a) == a
+  eqRet = isEqRet (snd e)
 
 module _ {f g : (a : A) -> B a} where
 
