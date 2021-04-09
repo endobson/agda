@@ -11,41 +11,42 @@ open import ring
 
 import int
 
-
-NatSemiring : Semiring Nat
-NatSemiring = record
-  { 0# = 0
-  ; 1# = 1
-  ; _+_ = _+'_
-  ; _*_ = _*'_
-  ; +-assoc = (\ {m} {n} {o} -> (+'-assoc {m} {n} {o}))
-  ; +-commute = (\ {m} {n} -> (+'-commute {m} {n}))
-  ; *-assoc = (\ {m} {n} {o} -> (*'-assoc {m} {n} {o}))
-  ; *-commute = (\ {m} {n} -> (*'-commute {m} {n}))
-  ; +-left-zero = refl
-  ; *-left-zero = refl
-  ; *-left-one = +'-right-zero
-  ; *-distrib-+-right = (\ {m} {n} {o} -> *'-distrib-+' {m} {n} {o})
-  ; isSetDomain = isSetNat
-  }
+instance
+  NatSemiring : Semiring Nat
+  NatSemiring = record
+    { 0# = 0
+    ; 1# = 1
+    ; _+_ = _+'_
+    ; _*_ = _*'_
+    ; +-assoc = (\ {m} {n} {o} -> (+'-assoc {m} {n} {o}))
+    ; +-commute = (\ {m} {n} -> (+'-commute {m} {n}))
+    ; *-assoc = (\ {m} {n} {o} -> (*'-assoc {m} {n} {o}))
+    ; *-commute = (\ {m} {n} -> (*'-commute {m} {n}))
+    ; +-left-zero = refl
+    ; *-left-zero = refl
+    ; *-left-one = +'-right-zero
+    ; *-distrib-+-right = (\ {m} {n} {o} -> *'-distrib-+' {m} {n} {o})
+    ; isSetDomain = isSetNat
+    }
 module NatSemiring = Semiring NatSemiring
 
-IntSemiring : Semiring int.Int
-IntSemiring = record
-  { 0# = (int.int 0)
-  ; 1# = (int.int 1)
-  ; _+_ = int._+_
-  ; _*_ = int._*_
-  ; +-assoc = (\ {m} {n} {o} -> (int.+-assoc {m} {n} {o}))
-  ; +-commute = (\ {m} {n} -> (int.+-commute {m} {n}))
-  ; *-assoc = (\ {m} {n} {o} -> (int.*-assoc {m} {n} {o}))
-  ; *-commute = (\ {m} {n} -> (int.*-commute {m} {n}))
-  ; +-left-zero = refl
-  ; *-left-zero = refl
-  ; *-left-one = int.+-right-zero
-  ; *-distrib-+-right = (\ {m} {n} {o} -> int.*-distrib-+ {m} {n} {o})
-  ; isSetDomain = int.isSetInt
-  }
+instance
+  IntSemiring : Semiring int.Int
+  IntSemiring = record
+    { 0# = (int.int 0)
+    ; 1# = (int.int 1)
+    ; _+_ = int._+_
+    ; _*_ = int._*_
+    ; +-assoc = (\ {m} {n} {o} -> (int.+-assoc {m} {n} {o}))
+    ; +-commute = (\ {m} {n} -> (int.+-commute {m} {n}))
+    ; *-assoc = (\ {m} {n} {o} -> (int.*-assoc {m} {n} {o}))
+    ; *-commute = (\ {m} {n} -> (int.*-commute {m} {n}))
+    ; +-left-zero = refl
+    ; *-left-zero = refl
+    ; *-left-one = int.+-right-zero
+    ; *-distrib-+-right = (\ {m} {n} {o} -> int.*-distrib-+ {m} {n} {o})
+    ; isSetDomain = int.isSetInt
+    }
 module IntSemiring = Semiring IntSemiring
 
 IntRing : Ring int.Int
