@@ -9,7 +9,6 @@ open import Agda.Primitive.Cubical public
   renaming ( primIMin       to _∧_  -- I → I → I
            ; primIMax       to _∨_  -- I → I → I
            ; primINeg       to ~_   -- I → I
-           ; isOneEmpty     to empty
            ; primComp       to comp
            ; primHComp      to hcomp
            ; primTransp     to transp
