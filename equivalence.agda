@@ -80,3 +80,10 @@ module _ {f g : (a : A) -> B a} where
 
   funExtPath : ((x : A) -> f x == g x) == (f == g)
   funExtPath = ua funExtEquiv
+
+liftEquiv : {ℓA : Level} (ℓ : Level) (A : Type ℓA) -> Lift ℓ A ≃ A
+liftEquiv ℓ A .fst = Lift.lower
+liftEquiv ℓ A .snd .equiv-proof a = (lift a , refl) , contr a
+  where
+  contr : (a : A) -> (a2 : fiber Lift.lower a) -> (lift a , refl) == a2
+  contr a (_ , p2) i = (lift (p2 (~ i)) , (\j -> p2 (~ i ∨ j)))
