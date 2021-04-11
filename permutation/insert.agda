@@ -171,4 +171,13 @@ private
     fin-injective-insert-permutation-iso .Iso.rightInv = decode-encode
     fin-injective-insert-permutation-iso .Iso.leftInv  = encode-decode
 
-open insert-iso public using (encode-iperm ; fin-injective-insert-permutation-iso)
+open insert-iso public using
+  ( encode-iperm
+  ; encode-iperm'
+  ; decode-iperm
+  ; fin-injective-insert-permutation-iso
+  ) renaming
+  ( decode-encode to decode-encode-iperm
+  ; encode-decode to encode-decode-iperm
+  ; encode'-decode to encode'-decode-iperm
+  )

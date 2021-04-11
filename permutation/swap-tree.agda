@@ -15,11 +15,6 @@ open import permutation.insert
 open import relation
 open import sigma
 
--- More useful for of encode-iperm for proofs
-private
-  encode-iperm' : {n : Nat} -> InsertPerm n -> (Fin n -> Fin n)
-  encode-iperm' = fst ∘ encode-iperm
-
 data SwapTree : Nat -> Type₀ where
   id-swap-tree : {n : Nat} -> SwapTree n
   swap-swap-tree : {n : Nat} -> SwapTree (suc (suc n))
@@ -52,24 +47,25 @@ iperm->swap-tree [] = id-swap-tree
 iperm->swap-tree (index :: perm) =
    compose-swap-tree (insert->swap-tree index) (ignore-swap-tree (iperm->swap-tree perm))
 
+private
+  enc-st : {n : Nat} -> SwapTree n -> (Fin n -> Fin n)
+  enc-st = encode-swap-tree
+  ∘-st : {n : Nat} -> SwapTree n -> SwapTree n -> SwapTree n
+  ∘-st = compose-swap-tree
+  ign-st : {n : Nat} -> SwapTree n -> SwapTree (suc n)
+  ign-st = ignore-swap-tree
+  swap-st : {n : Nat} -> SwapTree (suc (suc n))
+  swap-st = swap-swap-tree
+  id-st : {n : Nat} -> SwapTree n
+  id-st = id-swap-tree
+
+  ins->st : {n : Nat} -> Fin n -> SwapTree n
+  ins->st = insert->swap-tree
+  ip->st : {n : Nat} -> InsertPerm n -> SwapTree n
+  ip->st = iperm->swap-tree
+
 abstract
   private
-    enc-st : {n : Nat} -> SwapTree n -> (Fin n -> Fin n)
-    enc-st = encode-swap-tree
-    ∘-st : {n : Nat} -> SwapTree n -> SwapTree n -> SwapTree n
-    ∘-st = compose-swap-tree
-    ign-st : {n : Nat} -> SwapTree n -> SwapTree (suc n)
-    ign-st = ignore-swap-tree
-    swap-st : {n : Nat} -> SwapTree (suc (suc n))
-    swap-st = swap-swap-tree
-    id-st : {n : Nat} -> SwapTree n
-    id-st = id-swap-tree
-
-    ins->st : {n : Nat} -> Fin n -> SwapTree n
-    ins->st = insert->swap-tree
-    ip->st : {n : Nat} -> InsertPerm n -> SwapTree n
-    ip->st = iperm->swap-tree
-
     insert-swap-tree-path0 :
       {n : Nat} -> (ins : (Fin (suc n)))
       -> enc-st (ins->st ins) zero-fin == ins
