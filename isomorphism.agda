@@ -240,6 +240,18 @@ isoToPath {A = A} {B = B} f i =
   Glue B (\ { (i = i0) -> (A , isoToEquiv f)
             ; (i = i1) -> (B , idEquiv B) })
 
+equivToIso : A ≃ B -> Iso A B
+equivToIso e .Iso.fun = eqFun e
+equivToIso e .Iso.inv = eqInv e
+equivToIso e .Iso.rightInv = eqSec e
+equivToIso e .Iso.leftInv = eqRet e
+
+∘-equiv : B ≃ C -> A ≃ B -> A ≃ C
+∘-equiv f g = isoToEquiv (equivToIso f ∘ⁱ equivToIso g)
+
+equiv⁻¹ : A ≃ B -> B ≃ A
+equiv⁻¹ f = isoToEquiv (iso⁻¹ (equivToIso f))
+
 pathToIso : A == B -> Iso A B
 pathToIso p .Iso.fun = transport p
 pathToIso p .Iso.inv = transport (sym p)
