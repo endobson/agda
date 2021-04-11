@@ -119,6 +119,12 @@ transP-left {A = A} {a0} {a1} {b1} p q =
   transport (\k -> PathP (\j -> (compPath-refl-right (\k -> A k) k) j) a0 b1)
             (transP p q)
 
+transP-right : {A : I -> Type ℓ} {a0 : A i0} {b0 : A i0} {b1 : A i1}
+               (p : Path (A i0) a0 b0) (q : PathP A b0 b1)
+               -> PathP A a0 b1
+transP-right {A = A} {a0} {b0} {b1} p q =
+  transport (\k -> PathP (\j -> (compPath-refl-left (\k -> A k) k) j) a0 b1)
+            (transP p q)
 
 -- Substitution
 subst : {x y : A} -> (P : A → Type ℓ) -> x == y -> P x -> P y
