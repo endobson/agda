@@ -4,6 +4,7 @@ module equivalence where
 
 open import base
 open import cubical
+open import equality
 
 private
   variable
@@ -45,6 +46,9 @@ module _ {f : A1 -> A2} (eq-f : isEquiv f) where
   isEqRet : (a : A1) -> isEqInv (isEqFun a) == a
   isEqRet a i = eq-f .equiv-proof (f a) .snd (a , refl) i .fst
 
+  isEqComm : (a : A1) -> Square (isEqSec (f a)) refl (cong f (isEqRet a)) refl
+  isEqComm a i = eq-f .equiv-proof (f a) .snd (a , refl) i .snd
+
 module _ (e : A1 ≃ A2) where
   eqFun : A1 -> A2
   eqFun = fst e
@@ -57,6 +61,9 @@ module _ (e : A1 ≃ A2) where
 
   eqRet : (a : A1) -> eqInv (eqFun a) == a
   eqRet = isEqRet (snd e)
+
+  eqComm : (a : A1) -> Square (eqSec (eqFun a)) refl (cong eqFun (eqRet a)) refl
+  eqComm = isEqComm (snd e)
 
 module _ {f g : (a : A) -> B a} where
 

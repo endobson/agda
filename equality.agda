@@ -126,6 +126,10 @@ transP-right {A = A} {a0} {b0} {b1} p q =
   transport (\k -> PathP (\j -> (compPath-refl-left (\k -> A k) k) j) a0 b1)
             (transP p q)
 
+-- Path reversal on PathP
+symP : {A : I -> Type ℓ} -> {a0 : A i0} {a1 : A i1} -> PathP A a0 a1 -> PathP (\k -> A (~ k)) a1 a0
+symP p k = p (~ k)
+
 -- Substitution
 subst : {x y : A} -> (P : A → Type ℓ) -> x == y -> P x -> P y
 subst P path = transport (\ i -> (P (path i)))
@@ -178,6 +182,20 @@ square-final-side :
   {p : x == w} {q : y == z} {r : x == y} {s : w == z}
   -> Square p q r s -> w == z
 square-final-side {s = s} _ = s
+
+module _ {ℓ : Level} {A : Type ℓ}
+         {a₀₀ : A} {a₁₁ : A} {a₋ : a₀₀ == a₁₁}
+         {a₁₀ : A} {a₁₋ : a₁₀ == a₁₁} {a₋₀ : a₀₀ == a₁₀} where
+  private
+    slideSquareFaces : (i j k : I) → Partial (i ∨ ~ i ∨ j ∨ ~ j) A
+    slideSquareFaces i j k (i = i0) = a₋ (j ∧ (~ k))
+    slideSquareFaces i j k (i = i1) = a₁₋ j
+    slideSquareFaces i j k (j = i0) = a₋₀ i
+    slideSquareFaces i j k (j = i1) = a₋ (i ∨ (~ k))
+
+  slideSquare : Square a₋ a₁₋ a₋₀ refl → Square refl a₁₋ a₋₀ a₋
+  slideSquare sq i j = hcomp (slideSquareFaces i j) (sq i j)
+
 
 -- Equational reasoning
 
