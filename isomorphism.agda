@@ -252,6 +252,10 @@ equivToIso e .Iso.leftInv = eqRet e
 equiv⁻¹ : A ≃ B -> B ≃ A
 equiv⁻¹ f = isoToEquiv (iso⁻¹ (equivToIso f))
 
+infixl 20 _>eq>_
+_>eq>_ : A ≃ B -> B ≃ C -> A ≃ C
+_>eq>_ f g = ∘-equiv g f
+
 pathToIso : A == B -> Iso A B
 pathToIso p .Iso.fun = transport p
 pathToIso p .Iso.inv = transport (sym p)

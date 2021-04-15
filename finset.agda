@@ -18,53 +18,82 @@ open import truncation
 private
   variable
     ℓ : Level
-    A : Type ℓ
+    A B : Type ℓ
 
 isFinSet : Type ℓ -> Type ℓ
 isFinSet A = ∃[ n ∈ Nat ] (A ≃ Fin n)
 
-isFinSetFin : {n : Nat} -> isFinSet (Fin n)
-isFinSetFin {n = n} = ∣ _ , pathToEquiv (\i -> Fin n) ∣
-
-isFinSetTop : isFinSet Top
-isFinSetTop = ∣ _ , pathToEquiv (\i -> Fin-Top (~ i)) ∣
-
 isFinSetΣ : Type ℓ -> Type ℓ
 isFinSetΣ A = Σ[ n ∈ Nat ] ∥ (A ≃ Fin n) ∥
 
-isFinSetΣ->isFinSet : isFinSetΣ A -> isFinSet A
-isFinSetΣ->isFinSet {A = A} (n , ∥eq∥) = ∥-map (\ eq -> (n , eq)) ∥eq∥
+isProp-isFinSet : {ℓ : Level} {A : Type ℓ} -> isProp (isFinSet A)
+isProp-isFinSet = squash
 
-isProp-isFinSetΣ : {A : Type₀} -> isProp (isFinSetΣ A)
-isProp-isFinSetΣ {A = A} (n , n-equiv) (m , m-equiv) = ΣProp-path squash n==m
+isProp-isFinSetΣ : {ℓ : Level} {A : Type ℓ} -> isProp (isFinSetΣ A)
+isProp-isFinSetΣ {ℓ} {A = A} (n , n-equiv) (m , m-equiv) = ΣProp-path squash n==m
   where
-
-  work : (A ≃ Fin n) -> (A ≃ Fin m) -> n == m
-  work neq meq = Fin-injective (sym (ua neq) >=> ua meq)
+  work : (A ≃ (Fin n)) -> (A ≃ (Fin m)) -> n == m
+  work eqn eqm = Fin-injective (isoToPath ((equivToIso eqm) ∘ⁱ iso⁻¹ (equivToIso eqn)))
 
   n==m : n == m
   n==m = unsquash (isSetNat n m)
            (unsquash squash
              (∥-map (\neq -> ∥-map (\meq -> work neq meq) m-equiv) n-equiv))
 
-isFinSet->isFinSetΣ : {A : Type₀} -> isFinSet A -> isFinSetΣ A
+-- The two notions of finite sets are the same.
+
+isFinSetΣ->isFinSet : isFinSetΣ A -> isFinSet A
+isFinSetΣ->isFinSet {A = A} (n , ∥eq∥) = ∥-map (\ eq -> (n , eq)) ∥eq∥
+
+isFinSet->isFinSetΣ : {ℓ : Level} {A : Type ℓ} -> isFinSet A -> isFinSetΣ A
 isFinSet->isFinSetΣ ∣ n , eq ∣ = n , ∣ eq ∣
 isFinSet->isFinSetΣ (squash x y i) =
   isProp-isFinSetΣ (isFinSet->isFinSetΣ x) (isFinSet->isFinSetΣ y) i
 
-isFinSet==isFinSetΣ : {A : Type₀} -> isFinSet A == isFinSetΣ A
-isFinSet==isFinSetΣ {A = A} =
-  ua (isoToEquiv (iso isFinSet->isFinSetΣ isFinSetΣ->isFinSet
-                      (\ _ -> isProp-isFinSetΣ _ _)
-                      (\ _ -> squash _ _)))
+isFinSet≃isFinSetΣ : isFinSet A ≃ isFinSetΣ A
+isFinSet≃isFinSetΣ =
+  (isoToEquiv (iso isFinSet->isFinSetΣ isFinSetΣ->isFinSet
+                   (\ _ -> isProp-isFinSetΣ _ _)
+                   (\ _ -> squash _ _)))
+
+-- Equivalence allows conversion, even across universe levels.
+
+isFinSet-equiv : A ≃ B -> isFinSet A -> isFinSet B
+isFinSet-equiv {A = A} {B = B} eq = ∥-map handle
+  where
+  handle : Σ[ n ∈ Nat ] (A ≃ Fin n) -> Σ[ n ∈ Nat ] (B ≃ Fin n)
+  handle (n , eq-a) = n , (equiv⁻¹ eq >eq> eq-a)
+
+-- Types with structure for finite sets.
 
 FinSet : (ℓ : Level) -> Type (ℓ-suc ℓ)
 FinSet ℓ = Σ[ t ∈ Type ℓ ] isFinSet t
 
-cardnality : FinSet ℓ-zero -> Nat
-cardnality (_ , p) = fst (transport isFinSet==isFinSetΣ p)
+FinSetΣ : (ℓ : Level) -> Type (ℓ-suc ℓ)
+FinSetΣ ℓ = Σ[ t ∈ Type ℓ ] isFinSetΣ t
 
+-- Cardnality of finite sets
+
+cardnalityΣ : FinSetΣ ℓ -> Nat
+cardnalityΣ (_ , (n , eq)) = n
+
+cardnality : FinSet ℓ -> Nat
+cardnality (A , fin) = cardnalityΣ (A , (isFinSet->isFinSetΣ fin))
+
+cardnality-path : (A : FinSet ℓ) -> (finΣ : isFinSetΣ ⟨ A ⟩) -> cardnality A == ⟨ finΣ ⟩
+cardnality-path (A , fin) finΣ = cong fst (isProp-isFinSetΣ (isFinSet->isFinSetΣ fin) finΣ)
+
+-- Useful examples that aren't yet used.
 private
+  FinSet-LiftedFin-path' : (A : Type ℓ) (isFinA : isFinSetΣ A) -> ∥ A == Lift ℓ (Fin ⟨ isFinA ⟩) ∥
+  FinSet-LiftedFin-path' {ℓ} A (n , eq) = ∥-map handle eq
+    where
+    handle : (A ≃ Fin n) -> A == Lift ℓ (Fin n)
+    handle eq = ua (eq >eq> (equiv⁻¹ (liftEquiv ℓ (Fin n))))
+
+  FinSet-LiftedFin-path : (A : FinSet ℓ) -> ∥ ⟨ A ⟩ == Lift ℓ (Fin (cardnality A)) ∥
+  FinSet-LiftedFin-path (A , isFinA) = FinSet-LiftedFin-path' A (isFinSet->isFinSetΣ isFinA)
+
   extract : (A : FinSet ℓ) ->
             (f : Σ[ n ∈ Nat ] (⟨ A ⟩ ≃ Fin n) -> Nat) ->
             2-Constant f -> Nat
