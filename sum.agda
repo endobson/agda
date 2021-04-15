@@ -3,6 +3,7 @@
 module sum where
 
 open import base
+open import cubical
 open import equality
 open import equivalence
 open import functions
@@ -27,13 +28,16 @@ open Iso
 ⊎-map-right : (g : B -> D) -> (A ⊎ B) -> (A ⊎ D)
 ⊎-map-right g = ⊎-map (\x -> x) g
 
-⊎-iso : ∀ {ℓ} {A B C D : Type ℓ} -> Iso A C -> Iso B D -> Iso (A ⊎ B) (C ⊎ D)
+⊎-iso : Iso A C -> Iso B D -> Iso (A ⊎ B) (C ⊎ D)
 (⊎-iso f g) .fun = ⊎-map (f .fun) (g .fun)
 (⊎-iso f g) .inv = ⊎-map (f .inv) (g .inv)
 (⊎-iso f g) .rightInv (inj-l c) = cong inj-l (f .rightInv c)
 (⊎-iso f g) .rightInv (inj-r d) = cong inj-r (g .rightInv d)
 (⊎-iso f g) .leftInv  (inj-l a) = cong inj-l (f .leftInv a)
 (⊎-iso f g) .leftInv  (inj-r b) = cong inj-r (g .leftInv b)
+
+⊎-equiv : A ≃ C -> B ≃ D -> (A ⊎ B) ≃ (C ⊎ D)
+⊎-equiv f g = isoToEquiv (⊎-iso (equivToIso f) (equivToIso g))
 
 Left : ∀ {ℓ₁ ℓ₂} {A : Type ℓ₁} {B : Type ℓ₂} -> A ⊎ B -> Type₀
 Left (inj-l _) = Top
