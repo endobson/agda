@@ -377,7 +377,7 @@ abstract
       pj = (j , pred-≤ lt2)
 
       avoid-path : (pred-fin (suc-fin (avoid-fin pi pj))) == (avoid-fin pi pj)
-      avoid-path = ΣProp-path isProp≤ refl
+      avoid-path = ΣProp-pathᵉ isProp≤ refl
 
       rec : ⟨ (remove-fin' pi (avoid-fin pi pj) (p ∘ cong suc)) ⟩ == ⟨ pj ⟩
       rec = (remove-fin'-avoid-fin-path pi pj (p ∘ cong suc))

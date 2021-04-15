@@ -83,12 +83,19 @@ pathSigma==sigmaPath a b =
                  (sigmaPath->pathSigma->sigmaPath {a = a})
                  pathSigma->sigmaPath->pathSigma)
 
-ΣProp-path : ∀ {x y : Σ A B}
-             -> ({a : A} -> isProp (B a))
-             -> (x .fst) == (y .fst)
-             -> x == y
-ΣProp-path h p i .fst = p i
-ΣProp-path {x = x} {y = y} h p i .snd = isProp->PathP (\i -> h {(p i)}) (x .snd) (y .snd) i
+ΣProp-pathᵉ : ∀ {x y : Σ A B}
+              -> ({a : A} -> isProp (B a))
+              -> (x .fst) == (y .fst)
+              -> x == y
+ΣProp-pathᵉ h p i .fst = p i
+ΣProp-pathᵉ {x = x} {y = y} h p i .snd = isProp->PathP (\i -> h {(p i)}) (x .snd) (y .snd) i
+
+abstract
+  ΣProp-path : ∀ {x y : Σ A B}
+               -> ({a : A} -> isProp (B a))
+               -> (x .fst) == (y .fst)
+               -> x == y
+  ΣProp-path = ΣProp-pathᵉ
 
 ×-map : {ℓA ℓB ℓC ℓD : Level} {A : Type ℓA} {B : Type ℓB} {C : Type ℓC} {D : Type ℓD}
         -> (A -> C) -> (B -> D) -> (A × B) -> (C × D)
