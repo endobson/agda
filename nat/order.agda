@@ -69,6 +69,29 @@ zero-≮ : {n : Nat} -> n ≮ zero
 zero-≮ (zero  , p) = zero-suc-absurd (sym p)
 zero-≮ (suc _ , p) = zero-suc-absurd (sym p)
 
+pred-≤ : {m n : Nat} -> m ≤ n -> pred m ≤ pred n
+pred-≤ {m = zero}              _       = zero-≤
+pred-≤ {m = suc _} {n = zero}  lt      = bot-elim (zero-≮ lt)
+pred-≤ {m = suc _} {n = suc _} (x , p) = (x , cong pred (sym +'-right-suc >=> p))
+
+-- Decidability of <
+
+decide-nat< : (x : Nat) -> (y : Nat) -> Dec (x < y)
+decide-nat< _       zero    = no zero-≮
+decide-nat< zero    (suc n) = yes zero-<
+decide-nat< (suc m) (suc n) with (decide-nat< m n)
+... | yes pr = yes (suc-≤ pr)
+... | no f = no (f ∘ pred-≤)
+
+split-nat< : (x : Nat) -> (y : Nat) -> (x < y) ⊎ (x ≥ y)
+split-nat< _       zero    = inj-r zero-≤
+split-nat< zero    (suc n) = inj-l zero-<
+split-nat< (suc m) (suc n) with (split-nat< m n)
+... | inj-l lt = inj-l (suc-≤ lt)
+... | inj-r lt = inj-r (suc-≤ lt)
+
+-- Helper constructors and paths
+
 zero-≤->zero : {n : Nat} -> n ≤ zero -> n == zero
 zero-≤->zero (0     , path) = path
 zero-≤->zero (suc _ , path) = bot-elim (zero-suc-absurd (sym path))
@@ -77,10 +100,13 @@ same-≤ : (n : Nat) -> n ≤ n
 same-≤ zero = zero-≤
 same-≤ (suc n) = suc-≤ (same-≤ n)
 
-pred-≤ : {m n : Nat} -> m ≤ n -> pred m ≤ pred n
-pred-≤ {m = zero}              _       = zero-≤
-pred-≤ {m = suc _} {n = zero}  lt      = bot-elim (zero-≮ lt)
-pred-≤ {m = suc _} {n = suc _} (x , p) = (x , cong pred (sym +'-right-suc >=> p))
+same-pred-≤ : (n : Nat) -> pred n ≤ n
+same-pred-≤ zero    = same-≤ zero
+same-pred-≤ (suc n) = 1 , refl
+
+pos-pred-≤ : {m n : Nat} -> Pos' n -> m ≤ (pred n) -> m < n
+pos-pred-≤ {m} {zero} ()
+pos-pred-≤ {m} {suc n} _ lt = suc-≤ lt
 
 pred-==-≤ : {m n : Nat} -> m == pred n -> m ≤ n
 pred-==-≤ {n = zero}    p = (0 , p)
@@ -131,6 +157,10 @@ same-≮ {n} lt = <->!= lt refl
 <->Pos' : {x y : Nat} -> x < y -> Pos' y
 <->Pos' (zero  , p) = transport (\i -> Pos' (p i)) tt
 <->Pos' (suc _ , p) = transport (\i -> Pos' (p i)) tt
+
+Pos'->< : {y : Nat} -> Pos' y -> 0 < y
+Pos'->< {zero} ()
+Pos'->< {suc _} _ = zero-<
 
 -- suc-≤ introduces a path
 
@@ -241,6 +271,17 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
   transport (\i -> (*'-commute {x} {m} i) < (*'-commute {x} {n} i))
             (*-left-<⁺ x>0 lt)
 
+*-left-≤⁻ : {m n : Nat} -> (x : Nat⁺) -> (⟨ x ⟩ *' m) ≤ (⟨ x ⟩ *' n) -> m ≤ n
+*-left-≤⁻ {m} {n} x⁺@((suc x) , _) prod-lt = handle (split-nat< n m)
+  where
+  handle : (m > n) ⊎ (m ≤ n) -> m ≤ n
+  handle (inj-r lt) = lt
+  handle (inj-l gt) = bot-elim (same-≮ (trans-≤-< prod-lt (*-left-<⁺ (zero-< {x}) gt)))
+
+*-right-≤⁻ : {m n : Nat} -> (x : Nat⁺) -> (m *' ⟨ x ⟩) ≤ (n *' ⟨ x ⟩) -> m ≤ n
+*-right-≤⁻ {m} {n} x⁺@(x , _) lt =
+  *-left-≤⁻ x⁺ (transport (\i -> (*'-commute {m} {x} i) ≤ (*'-commute {n} {x} i)) lt)
+
 *-prod-right-< : {m n : Nat} -> (m > 1) -> (p : Nat⁺) -> m *' n == ⟨ p ⟩ -> n < ⟨ p ⟩
 *-prod-right-< {zero} {n} m>1 _ path = bot-elim (zero-≮ m>1)
 *-prod-right-< {suc zero} {n} m>1 _ path = bot-elim (same-≮ m>1)
@@ -265,8 +306,6 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
 ^-suc-< : {m : Nat} -> m > 1 -> (n : Nat) ->  (m ^' n) < (m ^' (suc n))
 ^-suc-<     (x , path) zero    = (x , path >=> (sym ^'-right-one))
 ^-suc-< {m} m>1        (suc n) = *-left-<⁺ (weaken-< m>1) (^-suc-< m>1 n)
-
-
 
 ≤-antisym : {m n : Nat} -> m ≤ n -> n ≤ m -> m == n
 ≤-antisym (zero  , p1) _ = p1
@@ -410,19 +449,7 @@ zero-≤s (suc n) = step-≤s (zero-≤s n)
 ≤->≤s {n = suc _} (suc i , p) = step-≤s (≤->≤s (i , cong pred p))
 
 -- Decidable <
-decide-nat< : (x : Nat) -> (y : Nat) -> Dec (x < y)
-decide-nat< _       zero    = no zero-≮
-decide-nat< zero    (suc n) = yes zero-<
-decide-nat< (suc m) (suc n) with (decide-nat< m n)
-... | yes pr = yes (suc-≤ pr)
-... | no f = no (f ∘ pred-≤)
 
-split-nat< : (x : Nat) -> (y : Nat) -> (x < y) ⊎ (x ≥ y)
-split-nat< _       zero    = inj-r zero-≤
-split-nat< zero    (suc n) = inj-l zero-<
-split-nat< (suc m) (suc n) with (split-nat< m n)
-... | inj-l lt = inj-l (suc-≤ lt)
-... | inj-r lt = inj-r (suc-≤ lt)
 
 
 trichotomous-nat< : Trichotomous _<_
@@ -491,7 +518,6 @@ module _ where
     where
     p0 : P 0
     p0 = p (bot-elim ∘ zero-≮)
-
 
 
 -- Induction based ≤
