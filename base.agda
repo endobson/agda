@@ -102,7 +102,7 @@ data Boolean : Type₀ where
   false : Boolean
 
 -- Case analysis
-case_of_ : {ℓ₁ ℓ₂ : Level} {A : Type ℓ} {B : Type ℓ} -> A -> (A -> B) -> B
+case_of_ : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Type ℓ₂} -> A -> (A -> B) -> B
 case x of f = f x
 
 case_return_of_ : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} -> (a : A) -> (B : A -> Type ℓ₂) -> ((x : A) -> B x) -> B a

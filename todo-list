@@ -1,0 +1,3 @@
+Change (Comm)Monoid to (Comm)MonoidStr
+Change Group/Ring to have non commutative versions.
+Change (Comm)Monoid to include a isSetDomain requirement

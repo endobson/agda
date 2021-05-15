@@ -3,6 +3,7 @@
 module relation where
 
 open import base
+open import hlevel.base
 
 private
   variable
@@ -59,6 +60,13 @@ Antisymmetric _~_ = ∀ {a b} -> (a ~ b) -> (b ~ a) -> a == b
 
 Transitive : Rel A ℓ -> Type _
 Transitive _~_ = ∀ {a b c} -> (a ~ b) -> (b ~ c) -> (a ~ c)
+
+record isEquivRel (r : Rel A ℓ) : Type (ℓ-max ℓ (levelOf A)) where
+  constructor equivRel
+  field
+    reflexive : Reflexive r
+    symmetric : Symmetric r
+    transitive : Transitive r
 
 HeteroConnex : REL A B ℓ₁ -> REL B A ℓ₂ -> Type _
 HeteroConnex P Q = ∀ a b -> P a b ⊎ Q b a
@@ -168,3 +176,14 @@ Satisfiable {A = A} P = Σ A P
 
 Universal : {A : Type ℓ₁} -> Pred A ℓ₂ -> Type (ℓ-max ℓ₁ ℓ₂)
 Universal {A = A} P = (a : A) -> P a
+
+ClosedUnder : (A -> A -> A) -> Pred A ℓ -> Type _
+ClosedUnder {A = A} _∙_ P = {x y : A} -> P x -> P y -> P (x ∙ y)
+
+-- HLevel of relations
+
+isPropValued : Rel A ℓ -> Type _
+isPropValued R = ∀ a1 a2 -> isProp (R a1 a2)
+
+isPropValuedPred : Pred A ℓ -> Type _
+isPropValuedPred P = ∀ a -> isProp (P a)
