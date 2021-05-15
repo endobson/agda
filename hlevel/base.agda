@@ -9,8 +9,11 @@ open import equality
 private
   variable
     ℓ ℓ₁ ℓ₂ : Level
-    A : Type ℓ
+    A A₁ A₂ : Type ℓ
     B : A -> Type ℓ
+    C : (a : A) -> (B a) -> Type ℓ
+    D : (a : A) -> (b : B a) -> (C a b) -> Type ℓ
+    E : (a : A) -> (b : B a) -> (c : (C a b)) -> (D a b c) -> Type ℓ
 
 -- Basic isOfHLevel
 
@@ -48,6 +51,26 @@ isOfHLevelSuc 0 = isContr->isProp
 isOfHLevelSuc 1 = isProp->isSet
 isOfHLevelSuc (suc (suc n)) h a b = isOfHLevelSuc (suc n) (h a b)
 
+isProp->isOfHLevelSuc : (n : Nat) -> isProp A -> isOfHLevel (suc n) A
+isProp->isOfHLevelSuc 0 p = p
+isProp->isOfHLevelSuc (suc n) p = isOfHLevelSuc (suc n) (isProp->isOfHLevelSuc n p)
+
+-- h-level for Path Types
+
+isProp->isContrPath : isProp A -> (x y : A) -> isContr (x == y)
+isProp->isContrPath h x y = (h x y , isProp->isSet h x y (h x y))
+
+isContr->isContrPath : isContr A -> (x y : A) -> isContr (x == y)
+isContr->isContrPath h = isProp->isContrPath (isContr->isProp h)
+
+isOfHLevelPath' : (n : Nat) → isOfHLevel (suc n) A → (x y : A) → isOfHLevel n (x ≡ y)
+isOfHLevelPath' 0 = isProp->isContrPath
+isOfHLevelPath' (suc _) h x y = h x y
+
+isOfHLevelPath : (n : Nat) → isOfHLevel n A → (x y : A) → isOfHLevel n (x ≡ y)
+isOfHLevelPath 0 = isContr->isContrPath
+isOfHLevelPath (suc n) h x y = isOfHLevelSuc n (isOfHLevelPath' n h x y)
+
 -- Dependent h-level
 
 module _ {A : I -> Type ℓ} {x : A i0} {y : A i1} where
@@ -81,3 +104,43 @@ isOfHLevel->isOfHLevelDep {A = A} {B = B} (suc (suc n)) h {a0} {a1} b0 b1 =
     isOfHLevel (suc n) (PathP (\i -> (B (p i))) b0 b1)
   helper a1 p b1 = J (\ a1 p -> ∀ b1 -> isOfHLevel (suc n) (PathP (\i -> (B (p i))) b0 b1))
                      (\ _ -> h _ _ _) p b1
+
+-- isPropΠ/ΣProp== since they are simple and needed for some of the meta hlevel cases
+
+isPropΠ : ((x : A) -> isProp (B x)) -> isProp ((x : A) -> (B x))
+isPropΠ h f g i a = h a (f a) (g a) i
+
+isPropΠ2 : ((x : A) -> (y : B x) -> isProp (C x y)) -> isProp ((x : A) -> (y : B x) -> C x y)
+isPropΠ2 h = isPropΠ (\ a -> isPropΠ (h a))
+
+isPropΠ3 : ((x : A) -> (y : B x) -> (z : (C x y)) -> isProp (D x y z))
+           -> isProp ((x : A) -> (y : B x) -> (z : C x y) -> D x y z)
+isPropΠ3 h = isPropΠ (\ a -> isPropΠ (\ b -> isPropΠ (h a b)))
+
+isPropΠ4 : ((x : A) -> (y : B x) -> (z : (C x y)) -> (w : (D x y z)) -> isProp (E x y z w))
+           -> isProp ((x : A) -> (y : B x) -> (z : C x y) -> (w : D x y z) -> E x y z w)
+isPropΠ4 h = isPropΠ (\ a -> isPropΠ (\ b -> isPropΠ (\ c -> (isPropΠ (h a b c)))))
+
+
+ΣProp== : ((a : A) -> isProp (B a)) -> {u v : Σ A B} (p : u .fst == v .fst) -> u == v
+ΣProp== {B = B} pB {u} {v} p i = (p i , isProp->PathP (\ i -> pB (p i)) (u .snd) (v .snd) i)
+
+-- hlevel of isOfHLevel
+
+isProp-isContr : isProp (isContr A)
+isProp-isContr c1@(a1 , f1) (a2 , f2) =
+  ΣProp== (\_ -> (isPropΠ (\_ -> (isProp->isSet (isContr->isProp c1)) _ _))) (f1 a2)
+
+isProp-isOfHLevel : (n : Nat) -> isProp (isOfHLevel n A)
+isProp-isOfHLevel 0 = isProp-isContr
+isProp-isOfHLevel 1 pa1 pa2 i a1 a2 = isOfHLevelPath 1 pa1 a1 a2 (pa1 a1 a2) (pa2 a1 a2) i
+isProp-isOfHLevel (suc (suc n)) ha1 ha2 i a1 a2 = isProp-isOfHLevel (suc n) (ha1 a1 a2) (ha2 a1 a2) i
+
+isProp-isProp : isProp (isProp A)
+isProp-isProp = isProp-isOfHLevel 1
+
+-- hlevel of equivalences (Needed early for univalence)
+
+isProp-isEquiv : {f : A₁ -> A₂} -> isProp (isEquiv f)
+isProp-isEquiv e1 e2 j .equiv-proof a2 =
+  isProp-isContr (e1 .equiv-proof a2) (e2 .equiv-proof a2) j

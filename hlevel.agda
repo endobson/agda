@@ -22,21 +22,6 @@ private
     C : (a : A) -> B a -> Type ℓ
     D : (a : A) -> (b : B a) -> C a b -> Type ℓ
 
--- h-level for Path Types
-
-isProp->isContrPath : isProp A -> (x y : A) -> isContr (x == y)
-isProp->isContrPath h x y = (h x y , isProp->isSet h x y (h x y))
-
-isContr->isContrPath : isContr A -> (x y : A) -> isContr (x == y)
-isContr->isContrPath h = isProp->isContrPath (isContr->isProp h)
-
-isOfHLevelPath' : (n : Nat) → isOfHLevel (suc n) A → (x y : A) → isOfHLevel n (x ≡ y)
-isOfHLevelPath' 0 = isProp->isContrPath
-isOfHLevelPath' (suc _) h x y = h x y
-
-isOfHLevelPath : (n : Nat) → isOfHLevel n A → (x y : A) → isOfHLevel n (x ≡ y)
-isOfHLevelPath 0 = isContr->isContrPath
-isOfHLevelPath (suc n) h x y = isOfHLevelSuc n (isOfHLevelPath' n h x y)
 
 -- h-level for Π Types
 
@@ -46,16 +31,6 @@ isOfHLevelΠ {A = A} {B = B} 0 h = (\x -> fst (h x)) , (\ f i y -> (snd (h y)) (
 isOfHLevelΠ {A = A} {B = B} 1 h f g i a = h a (f a) (g a) i
 isOfHLevelΠ {A = A} {B = B} (suc (suc n)) h f g =
    subst (isOfHLevel (suc n)) funExtPath (isOfHLevelΠ (suc n) (\a -> h a (f a) (g a)))
-
-isPropΠ : ((x : A) -> isProp (B x)) -> isProp ((x : A) -> (B x))
-isPropΠ = isOfHLevelΠ 1
-
-isPropΠ2 : ((x : A) -> (y : B x) -> isProp (C x y)) -> isProp ((x : A) -> (y : B x) -> C x y)
-isPropΠ2 h = isPropΠ (\ a -> isPropΠ (h a))
-
-isPropΠ3 : ((x : A) -> (y : B x) -> (z : (C x y)) -> isProp (D x y z))
-           -> isProp ((x : A) -> (y : B x) -> (z : C x y) -> D x y z)
-isPropΠ3 h = isPropΠ (\ a -> isPropΠ (\ b -> isPropΠ (h a b)))
 
 isSetΠ : ((x : A) -> isSet (B x)) -> isSet ((x : A) -> (B x))
 isSetΠ = isOfHLevelΠ 2
@@ -75,9 +50,6 @@ isContrΣ {A = A} {B = B} (a , p) q = elem , path-f
     where
     path-b : PathP (\k -> B (p (s2 .fst) k)) (q a .fst) (s2 .snd)
     path-b i = h (p (s2 .fst) i) (transp (\ j -> B (p (s2 .fst) (i ∨ ~ j))) i (s2 .snd)) i
-
-ΣProp== : ((a : A) -> isProp (B a)) -> {u v : Σ A B} (p : u .fst == v .fst) -> u == v
-ΣProp== {B = B} pB {u} {v} p i = (p i , isProp->PathP (\ i -> pB (p i)) (u .snd) (v .snd) i)
 
 ΣProp==-equiv : (pB : (a : A) -> isProp (B a)) {u v : Σ A B} -> isEquiv (ΣProp== pB {u} {v})
 ΣProp==-equiv {A = A} pB {u} {v} = isoToIsEquiv (iso (ΣProp== pB) (cong fst) sq (\ _ -> refl))
