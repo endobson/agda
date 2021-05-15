@@ -9,24 +9,12 @@ open import equivalence
 open import functions
 open import hlevel.base
 
+open import isomorphism.base public
+
 private
   variable
     ℓ : Level
     A B C : Type ℓ
-
-section : (f : A -> B) (g : B -> A) -> Type _
-section f g = ∀ b -> f (g b) == b
-
-retract : (f : A -> B) (g : B -> A) -> Type _
-retract f g = ∀ a -> g (f a) == a
-
-record Iso {ℓ₁ ℓ₂} (A : Type ℓ₁) (B : Type ℓ₂) : Type (ℓ-max ℓ₁ ℓ₂) where
-  constructor iso
-  field
-    fun : A -> B
-    inv : B -> A
-    rightInv : section fun inv
-    leftInv : retract fun inv
 
 -- An automorphism is an isomorphism between a type and itself.
 Auto : Type ℓ -> Type ℓ
@@ -41,6 +29,9 @@ module _ where
   inv (f ∘ⁱ g) = inv g ∘ inv f
   rightInv (f ∘ⁱ g) c = (\i -> (fun f (rightInv g (inv f c) i))) >=> rightInv f c
   leftInv (f ∘ⁱ g) a = (\i -> (inv g (leftInv f (fun g a) i))) >=> leftInv g a
+
+  _>iso>_ : Iso A B -> Iso B C -> Iso A C
+  _>iso>_ f g = g ∘ⁱ f
 
   iso⁻¹ : Iso A B -> Iso B A
   fun (iso⁻¹ f) = inv f
