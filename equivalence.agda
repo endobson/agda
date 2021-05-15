@@ -5,33 +5,18 @@ module equivalence where
 open import base
 open import cubical
 open import equality
+open import hlevel.base
 
 private
   variable
     ℓ ℓ₁ ℓ₂ : Level
     A A1 A2 : Type ℓ
     B : A -> Type ℓ
+    C : (a : A) -> B a -> Type ℓ
 
+-- fiber : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (y : B) → Type (ℓ-max ℓ ℓ')
+-- fiber {A = A} f y = Σ[ x ∈ A ] f x ≡ y
 
-idfun : (A : Type ℓ) → A → A
-idfun _ x = x
-
-idIsEquiv : (A : Type ℓ) → isEquiv (idfun A)
-equiv-proof (idIsEquiv A) y =
-  ((y , refl) , \ z i -> z .snd (~ i) , \ j -> z .snd (~ i ∨ j))
-
-idEquiv : (A : Type ℓ) → A ≃ A
-idEquiv A .fst = idfun A
-idEquiv A .snd = idIsEquiv A
-
-Glue : ∀ (A : Type ℓ₁) {φ : I}
-       → (Te : Partial φ (Σ[ T ∈ Type ℓ₂ ] T ≃ A))
-       → Type ℓ₂
-Glue A Te = primGlue A (λ x → Te x .fst) (λ x → Te x .snd)
-
-ua : ∀ {A B : Type ℓ} -> A ≃ B -> A == B
-ua {A = A} {B = B} e i = Glue B (\ { (i = i0) -> (A , e)
-                                   ; (i = i1) -> (B , idEquiv B) })
 
 module _ {f : A1 -> A2} (eq-f : isEquiv f) where
   isEqFun : A1 -> A2
@@ -65,28 +50,24 @@ module _ (e : A1 ≃ A2) where
   eqComm : (a : A1) -> Square (eqSec (eqFun a)) refl (cong eqFun (eqRet a)) refl
   eqComm = isEqComm (snd e)
 
-module _ {f g : (a : A) -> B a} where
+  eqCtr : (a : A2) -> fiber eqFun a
+  eqCtr a = e .snd .equiv-proof a .fst
 
-  funExt : ((x : A) -> f x == g x) -> f == g
-  funExt p i x = p x i
-  funExt⁻ : f == g -> ((x : A) -> f x == g x)
-  funExt⁻ eq a i = eq i a
-
-  private
-    fib : (p : f == g) -> fiber funExt p
-    fib p = ((\x i -> (p i) x) , refl)
-    funExt-fiber-isContr : (p : f == g) -> (fi : fiber funExt p) -> fib p == fi
-    funExt-fiber-isContr p (h , eq) i = (funExt⁻ (eq (~ i)) , \j -> eq (~ i ∨ j))
+  eqCtrPath : (a : A2) -> (f : fiber eqFun a) -> (eqCtr a) == f
+  eqCtrPath a = e .snd .equiv-proof a .snd
 
 
-  funExt-isEquiv : isEquiv funExt
-  equiv-proof funExt-isEquiv p = (fib p , funExt-fiber-isContr p)
+idfun : (A : Type ℓ) → A → A
+idfun _ x = x
 
-  funExtEquiv : ((x : A) -> f x == g x) ≃ (f == g)
-  funExtEquiv = (funExt , funExt-isEquiv)
+idIsEquiv : (A : Type ℓ) → isEquiv (idfun A)
+equiv-proof (idIsEquiv A) y =
+  ((y , refl) , \ z i -> z .snd (~ i) , \ j -> z .snd (~ i ∨ j))
 
-  funExtPath : ((x : A) -> f x == g x) == (f == g)
-  funExtPath = ua funExtEquiv
+idEquiv : (A : Type ℓ) → A ≃ A
+idEquiv A .fst = idfun A
+idEquiv A .snd = idIsEquiv A
+
 
 liftEquiv : {ℓA : Level} (ℓ : Level) (A : Type ℓA) -> Lift ℓ A ≃ A
 liftEquiv ℓ A .fst = Lift.lower

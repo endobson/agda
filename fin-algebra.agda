@@ -11,6 +11,7 @@ open import isomorphism
 open import nat
 open import functions
 open import sigma
+open import univalence
 open import vec
 
 open Iso

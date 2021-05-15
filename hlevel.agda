@@ -7,12 +7,16 @@ open import cubical
 open import equality
 open import equivalence
 open import functions
+open import funext
 open import isomorphism
 open import relation
 open import sigma
 open import sum
+open import univalence
 
 open import hlevel.base public
+open import hlevel.pi public
+open import hlevel.sigma public
 
 private
   variable
@@ -21,63 +25,6 @@ private
     B : A -> Type ℓ
     C : (a : A) -> B a -> Type ℓ
     D : (a : A) -> (b : B a) -> C a b -> Type ℓ
-
-
--- h-level for Π Types
-
-isOfHLevelΠ :
-  (n : Nat) -> ((x : A) -> (isOfHLevel n (B x))) -> isOfHLevel n ((x : A) -> B x)
-isOfHLevelΠ {A = A} {B = B} 0 h = (\x -> fst (h x)) , (\ f i y -> (snd (h y)) (f y) i)
-isOfHLevelΠ {A = A} {B = B} 1 h f g i a = h a (f a) (g a) i
-isOfHLevelΠ {A = A} {B = B} (suc (suc n)) h f g =
-   subst (isOfHLevel (suc n)) funExtPath (isOfHLevelΠ (suc n) (\a -> h a (f a) (g a)))
-
-isSetΠ : ((x : A) -> isSet (B x)) -> isSet ((x : A) -> (B x))
-isSetΠ = isOfHLevelΠ 2
-
--- h-level for Σ types
-
-isContrΣ : isContr A -> ((x : A) -> isContr (B x)) -> isContr (Σ A B)
-isContrΣ {A = A} {B = B} (a , p) q = elem , path-f
-  where
-  elem : Σ A B
-  elem = (a , q a .fst)
-  h : (a : A) (b : B a) -> (q a) .fst == b
-  h a b = (q a) .snd b
-
-  path-f : (s2 : (Σ A B)) -> elem == s2
-  path-f s2 i = (p (s2 .fst) i) , path-b i
-    where
-    path-b : PathP (\k -> B (p (s2 .fst) k)) (q a .fst) (s2 .snd)
-    path-b i = h (p (s2 .fst) i) (transp (\ j -> B (p (s2 .fst) (i ∨ ~ j))) i (s2 .snd)) i
-
-ΣProp==-equiv : (pB : (a : A) -> isProp (B a)) {u v : Σ A B} -> isEquiv (ΣProp== pB {u} {v})
-ΣProp==-equiv {A = A} pB {u} {v} = isoToIsEquiv (iso (ΣProp== pB) (cong fst) sq (\ _ -> refl))
-  where
-  sq : (p : u == v) -> ΣProp== pB (cong fst p) == p
-  sq p j i = (p i .fst) , isProp->PathP (\ i -> isOfHLevelPath 1 (pB (fst (p i)))
-                                                  (ΣProp== pB {u} {v} (cong fst p) i .snd)
-                                                  (p i .snd))
-                                        refl refl i j
-
-isPropΣ : isProp A -> ((a : A) -> isProp (B a)) -> isProp (Σ A B)
-isPropΣ pA pB (a1 , _) (a2 , _) = ΣProp== pB (pA a1 a2)
-
-isOfHLevelΣ : (n : Nat) -> isOfHLevel n A -> ((x : A) -> isOfHLevel n (B x)) -> isOfHLevel n (Σ A B)
-isOfHLevelΣ 0 = isContrΣ
-isOfHLevelΣ 1 = isPropΣ
-isOfHLevelΣ {B = B} (suc (suc n)) hA hB x0 x1 =
-  let hΣ : isOfHLevel (suc n) (x0 Σ==T x1)
-      hΣ = isOfHLevelΣ (suc n) (hA (fst x0) (fst x1))
-                       (\ p -> (hB (p i1)) (subst B p (snd x0)) (snd x1))
-  in transport (\i -> isOfHLevel (suc n) (pathSigma==sigmaPath x0 x1 (~ i))) hΣ
-
-isSetΣ : isSet A -> ((a : A) -> isSet (B a)) -> isSet (Σ A B)
-isSetΣ = isOfHLevelΣ 2
-
-
-isProp× : isProp A₁ -> isProp A₂ -> isProp (A₁ × A₂)
-isProp× pA₁ pA₂ = isPropΣ pA₁ (\_ -> pA₂)
 
 -- h-level for Top
 
@@ -120,6 +67,12 @@ Discrete->isSet : Discrete A -> isSet A
 Discrete->isSet d = Stable==->isSet (\ x y -> Dec->Stable (d x y))
 
 -- h-level for ⊎ types
+
+isProp⊎ : isProp A₁ -> isProp A₂ -> (A₁ -> ¬ A₂) -> isProp (A₁ ⊎ A₂)
+isProp⊎ ha hb neg (inj-l a1) (inj-l a2) = cong inj-l (ha a1 a2)
+isProp⊎ ha hb neg (inj-l a1) (inj-r b2) = bot-elim (neg a1 b2)
+isProp⊎ ha hb neg (inj-r b1) (inj-l a2) = bot-elim (neg a2 b1)
+isProp⊎ ha hb neg (inj-r b1) (inj-r b2) = cong inj-r (hb b1 b2)
 
 isSet⊎ : Discrete A₁ -> Discrete A₂ -> isSet (A₁ ⊎ A₂)
 isSet⊎ da db = Discrete->isSet (Discrete⊎ da db)
@@ -170,3 +123,53 @@ isPropInjective {A = A} {f = f} hA = isPropInj
   isPropInj : isProp (Injective f)
   isPropInj g1 g2 i {x} {y} =
     isPropInj' (\a1 a2 p -> g1 {a1} {a2} p) (\a1 a2 p -> g2 {a1} {a2} p) i x y
+
+
+-- h-level for equivalences and paths
+
+isContr->Iso : (isContr A₁) -> (isContr A₂) -> Iso A₁ A₂
+isContr->Iso (a1 , f1) (a2 , f2) .Iso.fun _ = a2
+isContr->Iso (a1 , f1) (a2 , f2) .Iso.inv _ = a1
+isContr->Iso (a1 , f1) (a2 , f2) .Iso.rightInv = f2
+isContr->Iso (a1 , f1) (a2 , f2) .Iso.leftInv = f1
+
+isContr->Equiv : (isContr A₁) -> (isContr A₂) -> A₁ ≃ A₂
+isContr->Equiv c1 c2 = isoToEquiv (isContr->Iso c1 c2)
+
+isContr-≃ : (isContr A₁) -> (isContr A₂) -> (isContr (A₁ ≃ A₂))
+isContr-≃ {A₁ = A₁} {A₂ = A₂} c1@(a1 , f1) c2@(a2 , f2) = e1 , f
+  where
+  e1 : A₁ ≃ A₂
+  e1 = isContr->Equiv c1 c2
+
+  f : (e2 : A₁ ≃ A₂) -> e1 == e2
+  f e2 = ΣProp-path isProp-isEquiv (funExt (\a1' -> (f2 (e2 .fst a1'))))
+
+
+isOfHLevel-≃ : (n : Nat) -> (isOfHLevel n A₁) -> (isOfHLevel n A₂) -> (isOfHLevel n (A₁ ≃ A₂))
+isOfHLevel-≃ 0 = isContr-≃
+isOfHLevel-≃ (suc n) h1 h2 =
+  isOfHLevelΣ (suc n) (isOfHLevelΠ (suc n) (\ _ -> h2))
+              (\_ -> isProp->isOfHLevelSuc n isProp-isEquiv)
+
+isProp-≃ : (isProp A₁) -> (isProp A₂) -> (isProp (A₁ ≃ A₂))
+isProp-≃ = isOfHLevel-≃ 1
+
+-- The types of all types that are of a certain hlevel.
+
+hProp : (ℓ : Level) -> Type (ℓ-suc ℓ)
+hProp ℓ = Σ (Type ℓ) isProp
+
+isProp-Retract : (f : A₁ -> A₂) (g : A₂ -> A₁) (h : ∀ a -> g (f a) == a) -> isProp A₂ -> isProp A₁
+isProp-Retract f g h p a1 a2 = sym (h a1) >=> (cong g (p (f a1) (f a2))) >=> h a2
+
+
+isProp-== : (isProp A₁) -> (isProp A₂) -> isProp (A₁ == A₂)
+isProp-== h1 h2 = isProp-Retract (eqFun univalence) (eqInv univalence) (eqRet univalence)
+                                 (isProp-≃ h1 h2)
+
+isSet-hProp : isSet (hProp ℓ)
+isSet-hProp {ℓ} (t1 , h1) (t2 , h2) =
+  isProp-Retract (cong fst) (\p -> ΣProp== (\_ -> (isProp-isOfHLevel 1)) p)
+                 (section-ΣProp== (\_ -> (isProp-isOfHLevel 1)))
+                 (isProp-== h1 h2)

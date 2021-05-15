@@ -12,6 +12,7 @@ open import nat
 open import relation
 open import sigma
 open import sum
+open import univalence
 
 -- Fin type is based on ≤ instead of straight inductive structure
 -- This is so that things compute better when using transport.

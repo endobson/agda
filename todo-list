@@ -1,3 +1,10 @@
-Change (Comm)Monoid to (Comm)MonoidStr
 Change Group/Ring to have non commutative versions.
 Change (Comm)Monoid to include a isSetDomain requirement
+Remove iso constructor from Iso
+Remove gcd' constructor from GCD'
+Remove gcd constructor from GCD
+
+Rename:
+Monoid -> MonoidStr
+CommMonoid -> CommMonoidStr
+isProp⊎ -> isProp-⊎

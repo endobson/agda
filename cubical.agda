@@ -3,6 +3,8 @@
 module cubical where
 
 open import Agda.Builtin.Cubical.Glue public
+  renaming ( prim^glue      to glue
+           )
 open import Agda.Builtin.Cubical.Path public
 
 open import Agda.Primitive.Cubical public
@@ -26,3 +28,15 @@ open Helpers public
         ; hfill
         ; fill
         )
+
+open import Agda.Builtin.Sigma
+open import Level
+
+private
+  Type : (ℓ : Level) → Set (suc ℓ)
+  Type ℓ = Set ℓ
+
+Glue : ∀ {ℓ₁ ℓ₂ : Level} (A : Type ℓ₁) {φ : I}
+       → (Te : Partial φ (Σ (Type ℓ₂) (\T -> T ≃ A)))
+       → Type ℓ₂
+Glue A Te = primGlue A (λ x → Te x .fst) (λ x → Te x .snd)

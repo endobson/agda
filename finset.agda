@@ -14,6 +14,7 @@ open import isomorphism
 open import nat
 open import sigma
 open import truncation
+open import univalence
 
 private
   variable

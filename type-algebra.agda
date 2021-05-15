@@ -10,6 +10,7 @@ open import functions
 open import isomorphism
 open import monoid
 open import sum
+open import univalence
 open import vec
 
 open Iso

@@ -8,6 +8,7 @@ open import equivalence
 open import hlevel
 open import isomorphism
 open import relation
+open import univalence
 
 Pos' : (n : Nat) -> Set
 Pos' zero = Bot

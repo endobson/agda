@@ -12,6 +12,7 @@ open import nat.arithmetic
 open import nat.properties
 open import relation
 open import sigma
+open import univalence
 
 
 _≤_ : Nat -> Nat -> Type₀

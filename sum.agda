@@ -9,6 +9,7 @@ open import equivalence
 open import functions
 open import hlevel.base
 open import isomorphism
+open import univalence
 open import relation
 
 private

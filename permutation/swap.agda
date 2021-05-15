@@ -7,6 +7,7 @@ open import equality
 open import equivalence
 open import fin
 open import functions
+open import funext
 open import nat
 open import permutation.swap-tree
 open import permutation.insert
