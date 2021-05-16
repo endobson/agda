@@ -133,7 +133,7 @@ connected-< {i} {j} i≮j j≮i =
         })
     })
 
--- Preserved by basic operations
+-- Preserved by Addition
 
 +₁-preserves-≤ : {a b : Int} -> (c : Int) -> a ≤ b -> (c + a) ≤ (c + b)
 +₁-preserves-≤ {a} {b} c (x , p) = x , sym +-assoc >=> +-left +-commute >=> +-assoc >=> cong (c +_) p
@@ -146,3 +146,61 @@ connected-< {i} {j} i≮j j≮i =
 
 +₂-preserves-< : {a b : Int} -> (c : Int) -> a < b -> (a + c) < (b + c)
 +₂-preserves-< {a} {b} c (x , p) = x , sym +-assoc >=> (cong (_+ c) p)
+
+
+-- Positivity is preserved by by basic operations
+
+>0-preserved-by-+ : {i j : Int} -> (int 0) < i -> (int 0) < j -> (int 0) < (i + j)
+>0-preserved-by-+ {i} {j} 0<i 0<j = trans-< 0<i (subst (_< (i + j)) +-right-zero (+₁-preserves-< i 0<j))
+
+>0->Pos : {i : Int} -> (int 0) < i -> Pos i
+>0->Pos ((_ , pos-x) , path) = subst Pos path (+-Pos-NonNeg (Pos'->Pos pos-x) tt)
+
+Pos->>0 : {i : Int} -> Pos i -> (int 0) < i
+Pos->>0 {nonneg (suc i)} _ = (suc i , tt) , +-right-zero
+
+>0-preserved-by-* : {i j : Int} -> (int 0) < i -> (int 0) < j -> (int 0) < (i * j)
+>0-preserved-by-* 0<i 0<j = Pos->>0 (*-Pos-Pos (>0->Pos 0<i) (>0->Pos 0<j))
+
+
+-- Preserved/Flipped by Multiplication
+
+*₂-Pos-preserves-<⁺ : {a b c : Int} -> (a < b) -> Pos c -> (a * c) < (b * c)
+*₂-Pos-preserves-<⁺ {c = nonneg (suc c)} (x , path) _ =
+  x *⁺ (suc c , tt) , +-left int-inject-*' >=> sym *-distrib-+ >=> *-left path
+
+*₁-Pos-preserves-<⁺ : {a b c : Int} -> (a < b) -> Pos c -> (c * a) < (c * b)
+*₁-Pos-preserves-<⁺ {c = nonneg (suc c)} (x , path) _ =
+  (suc c , tt) *⁺ x , +-left int-inject-*' >=> sym *-distrib-+-left >=> *-right path
+
+*₂-NonNeg-preserves-≤⁺ : {a b c : Int} -> (a ≤ b) -> NonNeg c -> (a * c) ≤ (b * c)
+*₂-NonNeg-preserves-≤⁺ {c = nonneg c} (x , path) _ =
+  x *' c , +-left int-inject-*' >=> sym *-distrib-+ >=> *-left path
+
+*₁-NonNeg-preserves-≤⁺ : {a b c : Int} -> (a ≤ b) -> NonNeg c -> (c * a) ≤ (c * b)
+*₁-NonNeg-preserves-≤⁺ {c = nonneg c} (x , path) _ =
+  c *' x , +-left int-inject-*' >=> sym *-distrib-+-left >=> *-right path
+
+*₂-Pos-preserves-≤⁻ : {a b c : Int} -> (a * c) ≤ (b * c) -> Pos c -> (a ≤ b)
+*₂-Pos-preserves-≤⁻ {a} {b} ac≤bc pos-c = case (split-< b a) of (\
+  { (inj-r lt) -> lt
+  ; (inj-l lt) -> bot-elim (irrefl-< (trans-<-≤ (*₂-Pos-preserves-<⁺ lt pos-c) ac≤bc))
+  })
+
+*₁-Pos-preserves-≤⁻ : {a b c : Int} -> (c * a) ≤ (c * b) -> Pos c -> (a ≤ b)
+*₁-Pos-preserves-≤⁻ {a} {b} ca≤cb pos-c = case (split-< b a) of (\
+  { (inj-r lt) -> lt
+  ; (inj-l lt) -> bot-elim (irrefl-< (trans-<-≤ (*₁-Pos-preserves-<⁺ lt pos-c) ca≤cb))
+  })
+
+*₂-Pos-preserves-<⁻ : {a b c : Int} -> (a * c) < (b * c) -> Pos c -> (a < b)
+*₂-Pos-preserves-<⁻ {a} {b} ac<bc pos-c = case (split-< a b) of (\
+  { (inj-l lt) -> lt
+  ; (inj-r lt) -> bot-elim (irrefl-< (trans-≤-< (*₂-NonNeg-preserves-≤⁺ lt (Pos->NonNeg pos-c)) ac<bc))
+  })
+
+*₁-Pos-preserves-<⁻ : {a b c : Int} -> (c * a) < (c * b) -> Pos c -> (a < b)
+*₁-Pos-preserves-<⁻ {a} {b} ca<cb pos-c = case (split-< a b) of (\
+  { (inj-l lt) -> lt
+  ; (inj-r lt) -> bot-elim (irrefl-< (trans-≤-< (*₁-NonNeg-preserves-≤⁺ lt (Pos->NonNeg pos-c)) ca<cb))
+  })
