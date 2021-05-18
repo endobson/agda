@@ -8,6 +8,7 @@ open import nat
 open import monoid
 open import hlevel
 open import relation
+open import sign
 
 open import int.base public
 open import int.sign public
@@ -884,6 +885,11 @@ abstract
   *-NonZero-NonZero m@{neg _} n@{pos _} p1 p2 = Neg->NonZero (*-Neg-Pos {m} {n} p1 p2)
   *-NonZero-NonZero m@{neg _} n@{neg _} p1 p2 = Pos->NonZero (*-Neg-Neg {m} {n} p1 p2)
 
+  *-Zero₁ : {m n : Int} -> Zero m -> Zero (m * n)
+  *-Zero₁ {zero-int} {n} _ = subst Zero (sym (*-left-zero {n})) tt
+  *-Zero₂ : {m n : Int} -> Zero n -> Zero (m * n)
+  *-Zero₂ {m} {zero-int} _ = subst Zero (sym (*-right-zero {m})) tt
+
   *-NonZero₁ : {m n : Int} -> NonZero (m * n) -> NonZero m
   *-NonZero₁ m@{pos _} n@{pos _}    _  = tt
   *-NonZero₁ m@{pos _} n@{neg _}    _  = tt
@@ -891,6 +897,17 @@ abstract
   *-NonZero₁ m@{neg _} n@{pos _}       _ = tt
   *-NonZero₁ m@{neg _} n@{neg _}       _ = tt
   *-NonZero₁ m@{neg _} n@{zero-int} nz = bot-elim (subst NonZero (*-right-zero {m}) nz)
+
+  *-isSign : {s1 s2 : Sign} {m n : Int} -> isSign s1 m -> isSign s2 n -> isSign (s1 s* s2) (m * n)
+  *-isSign {pos-sign}  {pos-sign}          i1 i2 = *-Pos-Pos i1 i2
+  *-isSign {pos-sign}  {zero-sign} {m = m} i1 i2 = *-Zero₂ {m = m} i2
+  *-isSign {pos-sign}  {neg-sign}          i1 i2 = *-Pos-Neg i1 i2
+  *-isSign {zero-sign} {pos-sign}          i1 i2 = *-Zero₁ i1
+  *-isSign {zero-sign} {zero-sign}         i1 i2 = *-Zero₁ i1
+  *-isSign {zero-sign} {neg-sign}          i1 i2 = *-Zero₁ i1
+  *-isSign {neg-sign}  {pos-sign}          i1 i2 = *-Neg-Pos i1 i2
+  *-isSign {neg-sign}  {zero-sign} {m = m} i1 i2 = *-Zero₂ {m = m} i2
+  *-isSign {neg-sign}  {neg-sign}          i1 i2 = *-Neg-Neg i1 i2
 
   add1-disjoint : (m : Int) -> add1 m != m
   add1-disjoint zero-int      p = transport (\i -> Pos (p i)) tt
@@ -1010,6 +1027,14 @@ abstract
   *-left-injective : {m n p : Int} .(nz : (NonZero m)) -> (m * n) == (m * p) -> n == p
   *-left-injective {m} {n} {p} nz path =
     *-right-injective nz (*-commute {n} {m} >=> path >=> *-commute {m} {p})
+
+  int->sign-preserves-* : {m n : Int} -> int->sign (m * n) == (int->sign m) s* (int->sign n)
+  int->sign-preserves-* {m} {n} =
+    isSign-unique (isSign-self (m * n))
+      (*-isSign {int->sign m} {int->sign n} (isSign-self m) (isSign-self n))
+    where
+    handle : (s1 s2 : Sign) -> (isSign s1 m) -> (isSign s2 n) -> isSign (s1 s* s2) (m * n)
+    handle s1 s2 = *-isSign {s1} {s2} {m} {n}
 
 
   _^_ : Int -> Nat -> Int

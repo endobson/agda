@@ -76,10 +76,7 @@ trans-< {i} {j} {k} (x1⁺@(x1 , _) , p1) (x2⁺@(x2 , _) , p2) = ((x2⁺ +⁺ x
   path2 = snd (trans-≤ (x1 , p1) (x2 , p2))
 
 asym-< : Asymmetric _<_
-asym-< {i} {j} (x1⁺@(x1 , _) , p1) (x2⁺@(x2 , _) , p2) = irrefl-< ((x2⁺ +⁺ x1⁺) , path2)
-  where
-  path2 : (int (x2 +' x1)) + i == i
-  path2 = snd (trans-≤ (x1 , p1) (x2 , p2))
+asym-< lt1 lt2 = irrefl-< (trans-< lt1 lt2)
 
 
 -- Utilities for combining the orders
