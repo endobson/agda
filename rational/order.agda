@@ -11,11 +11,15 @@ open import relation
 open import sigma
 open import sign
 open import univalence
+open import ring
+open import ring.implementations.rational
 
 import int.order
 import int
+import nat
 
 open int using (Int)
+open nat using (ℕ ; Nat⁺)
 
 private
   module i where
@@ -94,16 +98,10 @@ r~-preserves-<₂ {q} {r1} {r2} q<r1 r1~r2 =
   r~-preserves-sign {r1 r+' (r-' q)} {r2 r+' (r-' q)} {s = pos-sign} q<r1
     (r+'-preserves-r~₁ (r-' q) r1 r2 r1~r2)
 
-r+'-preserves-Pos' : {q1 q2 : Rational'} -> Pos' q1 -> Pos' q2 -> Pos' (q1 r+' q2)
-r+'-preserves-Pos' {q1} {q2} p1 p2 = ans2
-  where
-  n1 = numer q1
-  n2 = numer q2
-  d1 = denom q1
-  d2 = denom q2
-
-  helper2 : (q : Rational') -> Pos' q -> Σ[ s ∈ Sign ] (i.isSign s (numer q) × i.isSign s (denom q))
-  helper2 q p = s1 , (i.isSign-self (numer q) ,
+private
+  Pos->same-sign :
+    (q : Rational') -> Pos' q -> Σ[ s ∈ Sign ] (i.isSign s (numer q) × i.isSign s (denom q))
+  Pos->same-sign q p = s1 , (i.isSign-self (numer q) ,
                       subst (\x -> i.isSign x (denom q)) (sym path) (i.isSign-self (denom q)))
     where
     s1 = i.int->sign (numer q)
@@ -117,6 +115,15 @@ r+'-preserves-Pos' {q1} {q2} p1 p2 = ans2
       handle pos-sign  zero-sign ()
       handle zero-sign zero-sign ()
       handle neg-sign  zero-sign ()
+
+
+r+'-preserves-Pos' : {q1 q2 : Rational'} -> Pos' q1 -> Pos' q2 -> Pos' (q1 r+' q2)
+r+'-preserves-Pos' {q1} {q2} p1 p2 = ans2
+  where
+  n1 = numer q1
+  n2 = numer q2
+  d1 = denom q1
+  d2 = denom q2
 
   helper : (s1 s2 : Sign) -> i.isSign s1 n1 -> i.isSign s1 d1 -> i.isSign s2 n2 -> i.isSign s2 d2 ->
            i.Pos ((n1 i.* d2 i.+ n2 i.* d1) i.* (d1 i.* d2))
@@ -135,8 +142,8 @@ r+'-preserves-Pos' {q1} {q2} p1 p2 = ans2
   ans : i.Pos ((n1 i.* d2 i.+ n2 i.* d1) i.* (d1 i.* d2))
   ans = helper s1 s2 sn1 sd1 sn2 sd2
     where
-    full-s1 = helper2 q1 p1
-    full-s2 = helper2 q2 p2
+    full-s1 = Pos->same-sign q1 p1
+    full-s2 = Pos->same-sign q2 p2
     s1 = fst full-s1
     sn1 = proj₁ (snd full-s1)
     sd1 = proj₂ (snd full-s1)
@@ -146,6 +153,44 @@ r+'-preserves-Pos' {q1} {q2} p1 p2 = ans2
 
   ans2 : Pos' (q1 r+' q2)
   ans2 = subst Pos' (sym r+'-eval) ans
+
+
+r*'-preserves-Pos' : {q1 q2 : Rational'} -> Pos' q1 -> Pos' q2 -> Pos' (q1 r*' q2)
+r*'-preserves-Pos' {q1} {q2} p1 p2 = ans
+  where
+  n1 = numer q1
+  n2 = numer q2
+  d1 = denom q1
+  d2 = denom q2
+
+  helper : (s1 s2 : Sign) -> i.isSign s1 n1 -> i.isSign s1 d1 -> i.isSign s2 n2 -> i.isSign s2 d2 ->
+           i.Pos ((n1 i.* n2) i.* (d1 i.* d2))
+  helper zero-sign s2        sn1 sd1 sn2 sd2 = bot-elim (i.NonZero->¬Zero (rNonZero q1) sd1)
+  helper pos-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (i.NonZero->¬Zero (rNonZero q2) sd2)
+  helper neg-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (i.NonZero->¬Zero (rNonZero q2) sd2)
+  helper pos-sign  pos-sign  sn1 sd1 sn2 sd2 =
+    i.*-Pos-Pos (i.*-Pos-Pos sn1 sn2) (i.*-Pos-Pos sd1 sd2)
+  helper pos-sign  neg-sign  sn1 sd1 sn2 sd2 =
+    i.*-Neg-Neg (i.*-Pos-Neg sn1 sn2) (i.*-Pos-Neg sd1 sd2)
+  helper neg-sign  pos-sign  sn1 sd1 sn2 sd2 =
+    i.*-Neg-Neg (i.*-Neg-Pos sn1 sn2) (i.*-Neg-Pos sd1 sd2)
+  helper neg-sign  neg-sign  sn1 sd1 sn2 sd2 =
+    i.*-Pos-Pos (i.*-Neg-Neg sn1 sn2) (i.*-Neg-Neg sd1 sd2)
+
+  ans : i.Pos ((n1 i.* n2) i.* (d1 i.* d2))
+  ans = helper s1 s2 sn1 sd1 sn2 sd2
+    where
+    full-s1 = Pos->same-sign q1 p1
+    full-s2 = Pos->same-sign q2 p2
+    s1 = fst full-s1
+    sn1 = proj₁ (snd full-s1)
+    sd1 = proj₂ (snd full-s1)
+    s2 = fst full-s2
+    sn2 = proj₁ (snd full-s2)
+    sd2 = proj₂ (snd full-s2)
+
+r1/'-preserves-Pos' : (q : Rational') -> (i : ℚInv' q) -> Pos' q -> Pos' (r1/' q i)
+r1/'-preserves-Pos' q i p = subst i.Pos i.*-commute p
 
 Zero'-0r' : Zero' 0r'
 Zero'-0r' = subst i.Zero (sym i.*-left-zero) tt
@@ -191,6 +236,10 @@ trans-<' {a} {b} {c} a<b b<c = a<c
   a<c : a <' c
   a<c = r~-preserves-sign {e r+' d} {f} {s = pos-sign} (r+'-preserves-Pos' b<c a<b) f-path
 
+private
+  Dense : {ℓ ℓA : Level} {A : Type ℓA} -> Rel A ℓ -> Type (ℓ-max ℓA ℓ)
+  Dense {A = A} _<_ = {x y : A} -> x < y -> Σ[ z ∈ A ] (x < z × z < y)
+
 
 private
   isSign-full : Sign -> Rational -> hProp ℓ-zero
@@ -227,6 +276,13 @@ private
   Pos : Rational -> Type₀
   Pos = isSign pos-sign
 
+r*-preserves-Pos : (q1 q2 : Rational) -> Pos q1 -> Pos q2 -> Pos (q1 r* q2)
+r*-preserves-Pos =
+  RationalElim.elimProp2
+    {C2 = \q1 q2 -> Pos q1 -> Pos q2 -> Pos (q1 r* q2)}
+    (\q1 q2 -> isPropΠ2 (\ _ _ -> isProp-isSign pos-sign {q1 r* q2}))
+    (\q1 q2 p1 p2 -> r*'-preserves-Pos' {q1} {q2} p1 p2)
+
 _<_ : Rational -> Rational -> Type₀
 q < r = Pos (r r+ (r- q))
 
@@ -252,3 +308,66 @@ trans-< {a} {b} {c} a<b b<c =
 
 asym-< : Asymmetric _<_
 asym-< {a} {b} lt1 lt2 = irrefl-< {a} (trans-< {a} {b} {a} lt1 lt2)
+
+Pos-1/ℕ : (n : Nat⁺) -> Pos (1/ℕ n)
+Pos-1/ℕ (n@(suc _) , _) = i.*-Pos-Pos tt tt
+
+
+dense-< : Dense _<_
+dense-< {x} {y} lt = z , (pos-d3 , pos-d4)
+  where
+  d1 = y r+ (r- x)
+  d2 = d1 r* 1/2r
+  z = x r+ d2
+  z' = y r+ (r- d2)
+  d3 = z r+ (r- x)
+  d4 = y r+ (r- z)
+
+  d2-path : d2 r+ d2 == d1
+  d2-path = 1/2r-path d1
+
+  z-path : z == z'
+  z-path =
+    begin
+      x r+ d2
+    ==< sym (r+-right-zero _) >
+      (x r+ d2) r+ 0r
+    ==< cong ((x r+ d2) r+_) (sym (r+-inverse d2)) >
+      (x r+ d2) r+ (d2 r+ (r- d2))
+    ==< r+-assoc x d2 (d2 r+ (r- d2)) >=>
+        cong (x r+_) (sym (r+-assoc d2 d2 (r- d2)) >=> (cong (_r+ (r- d2)) d2-path)) >
+      x r+ (d1 r+ (r- d2))
+    ==< sym (r+-assoc x d1 (r- d2)) >
+      (x r+ (y r+ (r- x))) r+ (r- d2)
+    ==< cong (_r+ (r- d2)) (sym (r+-assoc x y (r- x)) >=>
+                            cong (_r+ (r- x)) (r+-commute x y) >=>
+                            r+-assoc y x (r- x) >=>
+                            cong (y r+_) (r+-inverse x) >=>
+                            r+-right-zero y) >
+      y r+ (r- d2)
+    end
+
+  pos-d1 : Pos d1
+  pos-d1 = lt
+
+  pos-d2 : Pos d2
+  pos-d2 = r*-preserves-Pos d1 1/2r pos-d1 (Pos-1/ℕ (2 , tt))
+
+  d3-path : d2 == d3
+  d3-path =
+    sym (cong (_r+ (r- x)) (r+-commute x d2) >=>
+         r+-assoc d2 x (r- x) >=>
+         cong (d2 r+_) (r+-inverse x) >=>
+         r+-right-zero d2)
+  pos-d3 : Pos d3
+  pos-d3 = subst Pos d3-path pos-d2
+
+  d4-path : d2 == d4
+  d4-path =
+    sym (cong (\z -> y r+ (r- z)) z-path >=>
+         cong (y r+_) (RationalRing.minus-distrib-plus {y} {r- d2}) >=>
+         sym (r+-assoc y (r- y) (r- (r- d2))) >=>
+         cong2 _r+_ (r+-inverse y) (RationalRing.minus-double-inverse {d2}) >=>
+         r+-left-zero d2)
+  pos-d4 : Pos d4
+  pos-d4 = subst Pos d4-path pos-d2

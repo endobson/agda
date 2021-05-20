@@ -221,6 +221,9 @@ abstract
 r+-left-zero : (a : Rational) -> (0r r+ a) == a
 r+-left-zero = RationalElim.elimProp (\a -> isSetRational _ _) (\a -> cong [_] (r+'-left-zero a))
 
+r+-right-zero : (a : Rational) -> (a r+ 0r) == a
+r+-right-zero a = r+-commute a 0r >=> r+-left-zero a
+
 _r*'_ : Rational' -> Rational' -> Rational'
 a r*' b = record
   { numerator = (numer a) i* (numer b)
@@ -304,6 +307,9 @@ r*'-left-one a = nd-paths->path _ _ (int.*-left-one {numer a}) (int.*-left-one {
 
 r*-left-one : (a : Rational) -> (1r r* a) == a
 r*-left-one = RationalElim.elimProp (\a -> isSetRational _ _) (\a -> cong [_] (r*'-left-one a))
+
+r*-right-one : (a : Rational) -> (a r* 1r) == a
+r*-right-one a = r*-commute a 1r >=> r*-left-one a
 
 r*'-assoc : (a b c : Rational') -> ((a r*' b) r*' c) == (a r*' (b r*' c))
 r*'-assoc a b c = nd-paths->path _ _ (int.*-assoc {numer a} {numer b} {numer c})
@@ -405,6 +411,9 @@ r+-inverse = RationalElim.elimProp
              (\_ -> isSetRational _ _)
              (\a -> eq/ _ _ (r+'-inverse a))
 
+-- r--distrib-r+ : (a b : Rational) -> r- (a r+ b) == (r- a) r+ (r- b)
+-- r--distrib-r+ = ?
+
 r*-minus-extract-left : (a1 a2 : Rational) -> (r- a1) r* a2 == r- (a1 r* a2)
 r*-minus-extract-left =
   RationalElim.elimProp2
@@ -504,12 +513,18 @@ r1/-inverse = RationalElim.elimProp
                (\ a i -> eq/ _ _ (r1/'-inverse a (ℚInv->ℚInv' _ i)))
 
 
-ℤ->ℚ : Int -> Rational
-ℤ->ℚ x = [ record
+ℤ->ℚ' : Int -> Rational'
+ℤ->ℚ' x = record
   { numerator = x
   ; denominator = (int 1)
   ; NonZero-denominator = tt
-  } ]
+  }
+
+ℤ->ℚ : Int -> Rational
+ℤ->ℚ x = [ ℤ->ℚ' x ]
+
+ℕ->ℚ' : Nat -> Rational'
+ℕ->ℚ' n = ℤ->ℚ' (ℕ->ℤ n)
 
 ℕ->ℚ : Nat -> Rational
 ℕ->ℚ n = ℤ->ℚ (ℕ->ℤ n)
@@ -596,3 +611,59 @@ a r^ℤ (nonneg n) = a r^ℕ n
 a r^ℤ (neg n) = r1/ (fst rec) (isNonZeroℚ->ℚInv (snd rec)) , r1/-isNonZeroℚ (fst rec) (snd rec)
   where
   rec = (a r^ℕ (suc n))
+
+-- Standard rationals
+
+
+1/ℕ' : Nat⁺ -> Rational'
+1/ℕ' (n@(suc _) , _) = record
+  { numerator = (ℕ->ℤ 1)
+  ; denominator = (ℕ->ℤ n)
+  ; NonZero-denominator = tt
+  }
+
+1/ℕ : Nat⁺ -> ℚ
+1/ℕ n = [ 1/ℕ' n ]
+
+1/2r : ℚ
+1/2r = 1/ℕ (2 , tt)
+
+1/2r' : Rational'
+1/2r' = 1/ℕ' (2 , tt)
+
+2r' : Rational'
+2r' = record
+  { numerator = (ℕ->ℤ 2)
+  ; denominator = (ℕ->ℤ 1)
+  ; NonZero-denominator = tt
+  }
+
+2r : ℚ
+2r = [ 2r' ]
+
+2r-path-base : 1r r+ 1r == 2r
+2r-path-base = cong [_] (nd-paths->path _ _ n-path d-path)
+  where
+  2z-path : (int 1) i+ (int 1) == (int 2)
+  2z-path = int.add1-extract-right >=> sym int.add1-extract-left >=> int.+-right-zero
+
+  n-path : numer (1r' r+' 1r') == numer 2r'
+  n-path = cong numer r+'-eval >=> (cong2 _i+_ int.*-left-one int.*-left-one) >=> 2z-path
+  d-path : denom (1r' r+' 1r') == denom 2r'
+  d-path = cong denom r+'-eval >=> int.*-left-one
+
+2r-path : (q : ℚ) -> q r+ q == 2r r* q
+2r-path q =
+  cong2 _r+_ (sym (r*-left-one q)) (sym (r*-left-one q)) >=>
+  sym (r*-distrib-r+-right 1r 1r q) >=>
+  cong (_r* q) 2r-path-base
+
+2r-1/2r-path : 2r r* 1/2r == 1r
+2r-1/2r-path = eq/ (2r' r*' 1/2r') 1r' path
+  where
+  path : (((int 2) i* (int 1)) i* (int 1)) == (int 1) i* ((int 1) i* (int 2))
+  path = int.*-commute >=> cong ((int 1) i*_) int.*-commute
+
+1/2r-path : (q : ℚ) -> (q r* 1/2r) r+ (q r* 1/2r) == q
+1/2r-path q = 2r-path (q r* 1/2r) >=> r*-commute 2r (q r* 1/2r) >=>
+              r*-assoc q 1/2r 2r >=> cong (q r*_) (r*-commute 1/2r 2r >=> 2r-1/2r-path) >=> r*-right-one q
