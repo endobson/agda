@@ -4,6 +4,7 @@ module real where
 
 open import base
 open import equality
+open import hlevel
 open import rational
 open import rational.order
 open import relation hiding (U)
@@ -98,11 +99,56 @@ record Real (ℓ : Level) : Type (ℓ-suc ℓ) where
     where
     d = dense-< {q1} {q2} q1<q2
 
+_ℝ<'_ : ℝ -> ℝ -> Type₀
+x ℝ<' y = Σ[ q ∈ ℚ ] (Real.U x q × Real.L y q)
+
 _ℝ<_ : ℝ -> ℝ -> Type₀
 x ℝ< y = ∃[ q ∈ ℚ ] (Real.U x q × Real.L y q)
 
 ℚ->ℝ-preserves-< : (q1 q2 : ℚ) -> (q1 < q2) -> (ℚ->ℝ q1) ℝ< (ℚ->ℝ q2)
 ℚ->ℝ-preserves-< q1 q2 lt = ∣ dense-< {q1} {q2} lt ∣
+
+isProp-ℝ< : (x y : ℝ) -> isProp (x ℝ< y)
+isProp-ℝ< x y = squash
+
+asym-ℝ< : Asymmetric _ℝ<_
+asym-ℝ< {x} {y} x<y y<x = unsquash isPropBot (∥-map2 handle x<y y<x)
+  where
+  handle-same : (q1 q2 : Rational)
+                -> (Real.U x q1 × Real.L y q1)
+                -> (Real.U y q2 × Real.L x q2)
+                -> q1 == q2 -> Bot
+  handle-same q1 q2 (uq1 , _ ) (_ , lq2) p =
+    Real.disjoint x q2 (lq2 , (subst (Real.U x) p uq1))
+
+
+  handle-diff : (q1 q2 : Rational)
+                (x y : ℝ)
+                -> (Real.U x q1 × Real.L y q1)
+                -> (Real.U y q2 × Real.L x q2)
+                -> q1 < q2 -> Bot
+  handle-diff q1 q2 x y (uq1 , _ ) (_ , lq2) lt =
+    Real.disjoint x q2 (lq2 , Real.isUpperSet-U x q1 q2 lt uq1)
+
+  handle-tri : (q1 q2 : Rational)
+               -> (Real.U x q1 × Real.L y q1)
+               -> (Real.U y q2 × Real.L x q2)
+               -> Tri (q1 < q2) (q1 == q2) (q2 < q1)
+               -> Bot
+  handle-tri q1 q2 p1 p2 (tri< lt _ _)   = handle-diff q1 q2 x y p1 p2 lt
+  handle-tri q1 q2 p1 p2 (tri= _ path _) = handle-same q1 q2 p1 p2 path
+  handle-tri q1 q2 p1 p2 (tri> _ _ lt)   = handle-diff q2 q1 y x p2 p1 lt
+
+  handle : x ℝ<' y -> y ℝ<' x -> Bot
+  handle (q1 , p1) (q2 , p2) =
+    handle-tri q1 q2 p1 p2 (trichotomous-< q1 q2)
+
+
+_ℝ#_ : ℝ -> ℝ -> Type₀
+x ℝ# y = (x ℝ< y) ⊎ (y ℝ< x)
+
+isProp-ℝ# : (x y : ℝ) -> isProp (x ℝ# y)
+isProp-ℝ# x y = isProp⊎ (isProp-ℝ< x y) (isProp-ℝ< y x) (asym-ℝ< {x} {y})
 
 
 --sqrtℚ : ℚ -> ℝ

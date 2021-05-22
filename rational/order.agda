@@ -449,8 +449,6 @@ dense-< {x} {y} lt = z , (pos-d3 , pos-d4)
 decide-< : Decidable2 _<_
 decide-< = RationalElim.elimProp2 (\a b -> isPropDec (isProp-< {a} {b})) decide-<'
 
-
-
 private
   zero-diff->path : (x y : Rational) -> Zero (y r+ (r- x)) -> x == y
   zero-diff->path x y zyx = sym p
@@ -478,6 +476,16 @@ connected-< {x} {y} x≮y y≮x =
   handle pos-sign pz = bot-elim (x≮y pz)
   handle zero-sign zz = zero-diff->path x y zz
   handle neg-sign nz = bot-elim (y≮x (subst Pos p (r--flips-sign z neg-sign nz)))
+
+trichotomous-< : Trichotomous _<_
+trichotomous-< x y = handle (decide-< x y) (decide-< y x)
+  where
+  handle : Dec (x < y) -> Dec (y < x) -> Tri (x < y) (x == y) (y < x)
+  handle (yes x<y) (yes y<x) = bot-elim (asym-< {x} {y} x<y y<x)
+  handle (yes x<y) (no y≮x)  = tri< x<y (\p -> y≮x (transport (\i -> (p i) < (p (~ i))) x<y)) y≮x
+  handle (no x≮y)  (yes y<x) = tri> x≮y (\p -> x≮y (transport (\i -> (p (~ i)) < (p i)) y<x)) y<x
+  handle (no x≮y)  (no y≮x)  = tri= x≮y (connected-< x≮y y≮x) y≮x
+
 
 r+₁-preserves-order : (a b c : Rational) -> b < c -> (a r+ b) < (a r+ c)
 r+₁-preserves-order a b c = subst Pos (sym path)
