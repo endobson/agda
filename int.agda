@@ -828,6 +828,11 @@ abstract
     (minus-extract-right { - m} {n}) >=> (cong minus (minus-extract-left {m} {n}))
     >=> (minus-double-inverse {m * n})
 
+  minus-isSign : {m : Int} {s : Sign} -> isSign s m -> isSign (s⁻¹ s) (- m)
+  minus-isSign {zero-int} {zero-sign} _ = tt
+  minus-isSign {pos _} {pos-sign} _ = tt
+  minus-isSign {neg _} {neg-sign} _ = tt
+
 
   *-Pos-Pos : {m n : Int} -> .(Pos m) -> .(Pos n) -> Pos (m * n)
   *-Pos-Pos {pos zero} _ pr = +-Pos-NonNeg pr tt

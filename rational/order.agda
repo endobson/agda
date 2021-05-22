@@ -8,6 +8,7 @@ open import hlevel
 open import isomorphism
 open import rational
 open import relation
+open import set-quotient
 open import sigma
 open import sign
 open import univalence
@@ -43,6 +44,14 @@ private
   Zero' : Rational' -> Type₀
   Zero' = isSign' zero-sign
 
+ℚ'->sign : Rational' -> Sign
+ℚ'->sign q = i.int->sign (numer q i.* denom q)
+
+isSign'-unique : (q : Rational') (s1 s2 : Sign) -> isSign' s1 q -> isSign' s2 q -> s1 == s2
+isSign'-unique q s1 s2 = i.isSign-unique
+
+isSign'-self : (q : Rational') -> isSign' (ℚ'->sign q) q
+isSign'-self q = i.isSign-self (numer q i.* denom q)
 
 _<'_ : Rational' -> Rational' -> Type₀
 q <' r = Pos' (r r+' (r-' q))
@@ -52,6 +61,7 @@ q >' r = q <' r
 
 isProp-<' : {q r : Rational'} -> isProp (q <' r)
 isProp-<' = i.isPropPos
+
 
 r~-preserves-sign : {q1 q2 : Rational'} {s : Sign} -> isSign' s q1 -> q1 r~ q2 -> isSign' s q2
 r~-preserves-sign {q1} {q2} {s} v p = ans
@@ -192,8 +202,18 @@ r*'-preserves-Pos' {q1} {q2} p1 p2 = ans
 r1/'-preserves-Pos' : (q : Rational') -> (i : ℚInv' q) -> Pos' q -> Pos' (r1/' q i)
 r1/'-preserves-Pos' q i p = subst i.Pos i.*-commute p
 
+r-'-flips-sign : (q : Rational') (s : Sign) -> (isSign' s q) -> (isSign' (s⁻¹ s) (r-' q))
+r-'-flips-sign q s qs =
+  subst (i.isSign (s⁻¹ s)) (sym i.minus-extract-left) (i.minus-isSign {numer q i.* denom q} {s} qs)
+
 Zero'-0r' : Zero' 0r'
 Zero'-0r' = subst i.Zero (sym i.*-left-zero) tt
+
+Zero'-r~ : (q : Rational') -> Zero' q -> q r~ 0r'
+Zero'-r~ q zq = cong (i._* (denom 0r')) path >=> i.*-left-zero >=> sym i.*-left-zero
+  where
+  path : (numer q) == (i.int 0)
+  path = i.*-left-zero-eq (rNonZero q) (i.Zero-path ((numer q) i.* (denom q))  zq)
 
 irrefl-<' : Irreflexive _<'_
 irrefl-<' {a} a<a = (i.NonPos->¬Pos (i.Zero->NonPos b-zero) b-pos)
@@ -236,6 +256,20 @@ trans-<' {a} {b} {c} a<b b<c = a<c
   a<c : a <' c
   a<c = r~-preserves-sign {e r+' d} {f} {s = pos-sign} (r+'-preserves-Pos' b<c a<b) f-path
 
+
+decide-<' : Decidable2 _<'_
+decide-<' x y = handle (i.int->sign z') (i.isSign-self z')
+  where
+  z = y r+' (r-' x)
+  z' = numer z i.* denom z
+  handle : (s : Sign) -> (i.isSign s z') -> Dec (x <' y)
+  handle pos-sign pz = yes pz
+  handle zero-sign zz = no (\ pz -> i.NonPos->¬Pos (i.Zero->NonPos zz) pz)
+  handle neg-sign nz = no (\ pz -> i.NonPos->¬Pos (i.Neg->NonPos nz) pz)
+
+
+
+
 private
   Dense : {ℓ ℓA : Level} {A : Type ℓA} -> Rel A ℓ -> Type (ℓ-max ℓA ℓ)
   Dense {A = A} _<_ = {x y : A} -> x < y -> Σ[ z ∈ A ] (x < z × z < y)
@@ -271,10 +305,34 @@ isSign-unique {r} {s1} {s2} =
     (\r v1 v2 -> i.isSign-unique {_} {s1} {s2} v1 v2)
     r
 
+ℚ->sign : Rational -> Sign
+ℚ->sign = RationalElim.rec isSet-Sign ℚ'->sign preserved
+  where
+  preserved : (q1 q2 : Rational') -> (q1 r~ q2) -> (ℚ'->sign q1) == (ℚ'->sign q2)
+  preserved q1 q2 r =
+    isSign'-unique q2 _ _
+      (r~-preserves-sign {q1} {q2} {ℚ'->sign q1} (isSign'-self q1) r)
+      (isSign'-self q2)
+
+isSign-self : (q : Rational) -> isSign (ℚ->sign q) q
+isSign-self =
+  RationalElim.elimProp
+    (\q -> isProp-isSign (ℚ->sign q) {q})
+    isSign'-self
 
 private
   Pos : Rational -> Type₀
   Pos = isSign pos-sign
+  Zero : Rational -> Type₀
+  Zero = isSign zero-sign
+
+Zero-path : (q : Rational) -> Zero q -> q == 0r
+Zero-path =
+  RationalElim.elimProp
+    (\_ -> isPropΠ (\_ -> isSetRational _ _))
+    (\q zq -> eq/ _ _ (Zero'-r~ q zq))
+
+
 
 r*-preserves-Pos : (q1 q2 : Rational) -> Pos q1 -> Pos q2 -> Pos (q1 r* q2)
 r*-preserves-Pos =
@@ -282,6 +340,13 @@ r*-preserves-Pos =
     {C2 = \q1 q2 -> Pos q1 -> Pos q2 -> Pos (q1 r* q2)}
     (\q1 q2 -> isPropΠ2 (\ _ _ -> isProp-isSign pos-sign {q1 r* q2}))
     (\q1 q2 p1 p2 -> r*'-preserves-Pos' {q1} {q2} p1 p2)
+
+r--flips-sign : (q : Rational) (s : Sign) -> (isSign s q) -> (isSign (s⁻¹ s) (r- q))
+r--flips-sign =
+  RationalElim.elimProp
+    (\q -> isPropΠ2 (\ s _ -> isProp-isSign (s⁻¹ s) {r- q}))
+    r-'-flips-sign
+
 
 _<_ : Rational -> Rational -> Type₀
 q < r = Pos (r r+ (r- q))
@@ -371,3 +436,37 @@ dense-< {x} {y} lt = z , (pos-d3 , pos-d4)
          r+-left-zero d2)
   pos-d4 : Pos d4
   pos-d4 = subst Pos d4-path pos-d2
+
+
+decide-< : Decidable2 _<_
+decide-< = RationalElim.elimProp2 (\a b -> isPropDec (isProp-< {a} {b})) decide-<'
+
+
+
+private
+  zero-diff->path : (x y : Rational) -> Zero (y r+ (r- x)) -> x == y
+  zero-diff->path x y zyx = sym p
+    where
+    p : y == x
+    p = sym (r+-right-zero y) >=>
+        (cong (y r+_) (sym (r+-inverse x) >=> r+-commute x (r- x))) >=>
+        sym (r+-assoc y (r- x) x) >=>
+        cong (_r+ x) (Zero-path (y r+ (r- x)) zyx) >=>
+        r+-left-zero x
+
+connected-< : Connected _<_
+connected-< {x} {y} x≮y y≮x =
+  handle (ℚ->sign z) (isSign-self z)
+  where
+  z = (y r+ (r- x))
+  z2 = (x r+ (r- y))
+  p : (r- z) == z2
+  p =
+    (RationalRing.minus-distrib-plus {y} {r- x}) >=>
+    cong ((r- y) r+_) (RationalRing.minus-double-inverse {x}) >=>
+    r+-commute (r- y) x
+
+  handle : (s : Sign) -> isSign s z -> x == y
+  handle pos-sign pz = bot-elim (x≮y pz)
+  handle zero-sign zz = zero-diff->path x y zz
+  handle neg-sign nz = bot-elim (y≮x (subst Pos p (r--flips-sign z neg-sign nz)))

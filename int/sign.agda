@@ -112,6 +112,11 @@ NonZero->¬Zero {pos _} _ ()
 Pos'->Pos : {n : Nat} -> .(Pos' n) -> Pos (int n)
 Pos'->Pos {suc _} _ = tt
 
+-- Zero ints are zero
+Zero-path : (n : Int) -> Zero n -> n == (int 0)
+Zero-path zero-int _ = refl
+
+
 -- Sign based propositions
 
 int->sign : Int -> Sign
