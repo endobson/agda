@@ -352,7 +352,7 @@ _<_ : Rational -> Rational -> Type₀
 q < r = Pos (r r+ (r- q))
 
 _>_ : Rational -> Rational -> Type₀
-q > r = q < r
+q > r = r < q
 
 isProp-< : {a b : Rational} -> isProp (a < b)
 isProp-< {a} {b} = isProp-isSign pos-sign {b r+ (r- a)}
@@ -377,6 +377,14 @@ asym-< {a} {b} lt1 lt2 = irrefl-< {a} (trans-< {a} {b} {a} lt1 lt2)
 Pos-1/ℕ : (n : Nat⁺) -> Pos (1/ℕ n)
 Pos-1/ℕ (n@(suc _) , _) = i.*-Pos-Pos tt tt
 
+Pos-0< : (q : Rational) -> Pos q -> 0r < q
+Pos-0< q = subst Pos p
+  where
+  p : q == q r+ (r- 0r)
+  p = sym (r+-right-zero q)
+
+Pos-1r : Pos 1r
+Pos-1r = Pos-1/ℕ nat.1⁺
 
 dense-< : Dense _<_
 dense-< {x} {y} lt = z , (pos-d3 , pos-d4)
@@ -470,3 +478,19 @@ connected-< {x} {y} x≮y y≮x =
   handle pos-sign pz = bot-elim (x≮y pz)
   handle zero-sign zz = zero-diff->path x y zz
   handle neg-sign nz = bot-elim (y≮x (subst Pos p (r--flips-sign z neg-sign nz)))
+
+r+₁-preserves-order : (a b c : Rational) -> b < c -> (a r+ b) < (a r+ c)
+r+₁-preserves-order a b c = subst Pos (sym path)
+  where
+  path : (a r+ c) r+ (r- (a r+ b)) == c r+ (r- b)
+  path = cong2 _r+_ (r+-commute a c) (RationalRing.minus-distrib-plus {a} {b}) >=>
+         r+-assoc c a ((r- a) r+ (r- b)) >=>
+         cong (c r+_) (sym (r+-assoc a (r- a) (r- b)) >=>
+                       (cong (_r+ (r- b)) (r+-inverse a)) >=>
+                       (r+-left-zero (r- b)))
+
+r--flips-order : (b c : Rational) -> b < c -> (r- b) > (r- c)
+r--flips-order b c = subst Pos p
+  where
+  p : c r+ (r- b) == (r- b) r+ (r- (r- c))
+  p = r+-commute c (r- b) >=> cong ((r- b) r+_) (sym (RationalRing.minus-double-inverse {c}))

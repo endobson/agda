@@ -6,6 +6,7 @@ open import base
 open import equality
 open import functions
 open import hlevel
+open import relation
 
 private
   variable
@@ -68,3 +69,6 @@ infix 2 ∃-syntax
 ∃-syntax = ∃
 
 syntax ∃-syntax A (λ x → B) = ∃[ x ∈ A ] B
+
+Inhabited : {A : Type ℓ₀} -> Pred A ℓ₁ -> Type (ℓ-max ℓ₀ ℓ₁)
+Inhabited {A = A} P = ∃ A P
