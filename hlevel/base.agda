@@ -14,6 +14,7 @@ private
     C : (a : A) -> (B a) -> Type ℓ
     D : (a : A) -> (b : B a) -> (C a b) -> Type ℓ
     E : (a : A) -> (b : B a) -> (c : (C a b)) -> (D a b c) -> Type ℓ
+    F : (a : A) -> (b : B a) -> (c : (C a b)) -> (d : (D a b c)) -> (E a b c d) -> Type ℓ
 
 -- Basic isOfHLevel
 
@@ -120,6 +121,12 @@ isPropΠ3 h = isPropΠ (\ a -> isPropΠ (\ b -> isPropΠ (h a b)))
 isPropΠ4 : ((x : A) -> (y : B x) -> (z : (C x y)) -> (w : (D x y z)) -> isProp (E x y z w))
            -> isProp ((x : A) -> (y : B x) -> (z : C x y) -> (w : D x y z) -> E x y z w)
 isPropΠ4 h = isPropΠ (\ a -> isPropΠ (\ b -> isPropΠ (\ c -> (isPropΠ (h a b c)))))
+
+isPropΠ5 : ((x : A) -> (y : B x) -> (z : (C x y)) -> (w : (D x y z)) -> (v : (E x y z w)) ->
+            (isProp (F x y z w v)))
+           -> isProp ((x : A) -> (y : B x) -> (z : C x y) -> (w : D x y z) -> (v : E x y z w) ->
+                      (F x y z w v))
+isPropΠ5 h = isPropΠ (\a -> isPropΠ4 (h a))
 
 
 ΣProp== : ((a : A) -> isProp (B a)) -> {u v : Σ A B} (p : u .fst == v .fst) -> u == v
