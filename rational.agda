@@ -667,3 +667,6 @@ a r^ℤ (neg n) = r1/ (fst rec) (isNonZeroℚ->ℚInv (snd rec)) , r1/-isNonZero
 1/2r-path : (q : ℚ) -> (q r* 1/2r) r+ (q r* 1/2r) == q
 1/2r-path q = 2r-path (q r* 1/2r) >=> r*-commute 2r (q r* 1/2r) >=>
               r*-assoc q 1/2r 2r >=> cong (q r*_) (r*-commute 1/2r 2r >=> 2r-1/2r-path) >=> r*-right-one q
+
+1/2r-path' : (q : ℚ) -> (1/2r r* q) r+ (1/2r r* q) == q
+1/2r-path' q = cong2 _r+_ (r*-commute 1/2r q) (r*-commute 1/2r q) >=> 1/2r-path q

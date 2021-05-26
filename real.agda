@@ -19,18 +19,17 @@ private
     ℓ : Level
 
 
-private
-  isLowerSet : Pred Rational ℓ -> Type ℓ
-  isLowerSet L = (x y : Rational) -> x < y -> L y -> L x
+isLowerSet : Pred Rational ℓ -> Type ℓ
+isLowerSet L = (x y : Rational) -> x < y -> L y -> L x
 
-  isUpperSet : Pred Rational ℓ -> Type ℓ
-  isUpperSet U = (x y : Rational) -> x < y -> U x -> U y
+isUpperSet : Pred Rational ℓ -> Type ℓ
+isUpperSet U = (x y : Rational) -> x < y -> U x -> U y
 
-  isLowerOpen : Pred Rational ℓ -> Type ℓ
-  isLowerOpen U = (x : Rational) -> U x -> ∃[ y ∈ Rational ] (y < x × U y)
+isLowerOpen : Pred Rational ℓ -> Type ℓ
+isLowerOpen U = (x : Rational) -> U x -> ∃[ y ∈ Rational ] (y < x × U y)
 
-  isUpperOpen : Pred Rational ℓ -> Type ℓ
-  isUpperOpen L = (x : Rational) -> L x -> ∃[ y ∈ Rational ] (x < y × L y)
+isUpperOpen : Pred Rational ℓ -> Type ℓ
+isUpperOpen L = (x : Rational) -> L x -> ∃[ y ∈ Rational ] (x < y × L y)
 
 record Real (ℓ : Level) : Type (ℓ-suc ℓ) where
   field

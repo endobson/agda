@@ -320,11 +320,10 @@ isSign-self =
     (\q -> isProp-isSign (ℚ->sign q) {q})
     isSign'-self
 
-private
-  Pos : Rational -> Type₀
-  Pos = isSign pos-sign
-  Zero : Rational -> Type₀
-  Zero = isSign zero-sign
+Pos : Rational -> Type₀
+Pos = isSign pos-sign
+Zero : Rational -> Type₀
+Zero = isSign zero-sign
 
 Zero-path : (q : Rational) -> Zero q -> q == 0r
 Zero-path =
@@ -497,8 +496,62 @@ r+₁-preserves-order a b c = subst Pos (sym path)
                        (cong (_r+ (r- b)) (r+-inverse a)) >=>
                        (r+-left-zero (r- b)))
 
+r+₂-preserves-order : (a b c : Rational) -> a < b -> (a r+ c) < (b r+ c)
+r+₂-preserves-order a b c lt =
+  subst2 _<_ (r+-commute c a) (r+-commute c b) (r+₁-preserves-order c a b lt)
+
 r--flips-order : (b c : Rational) -> b < c -> (r- b) > (r- c)
 r--flips-order b c = subst Pos p
   where
   p : c r+ (r- b) == (r- b) r+ (r- (r- c))
   p = r+-commute c (r- b) >=> cong ((r- b) r+_) (sym (RationalRing.minus-double-inverse {c}))
+
+r+-Pos->order : (a : ℚ) (b : Σ ℚ Pos) -> a < (a r+ ⟨ b ⟩)
+r+-Pos->order a (b , pos-b) = subst Pos (sym path) pos-b
+  where
+  path : (a r+ b) r+ (r- a) == b
+  path = (cong (_r+ (r- a)) (r+-commute a b))
+         >=> r+-assoc b a (r- a)
+         >=> (cong (b r+_) (r+-inverse a))
+         >=> r+-right-zero b
+
+
+-- min and max
+
+minℚ : ℚ -> ℚ -> ℚ
+minℚ x y = case (decide-< x y) of (\
+  { (yes _) -> x
+  ; (no _) -> y
+  })
+
+private
+  maxℚ-helper : (x y : ℚ) -> Tri (x < y) (x == y) (x > y) -> ℚ
+  maxℚ-helper x y (tri< _ _ _) = y
+  maxℚ-helper x y (tri= _ _ _) = x
+  maxℚ-helper x y (tri> _ _ _) = x
+
+
+maxℚ : ℚ -> ℚ -> ℚ
+maxℚ x y = maxℚ-helper x y (trichotomous-< x y)
+
+absℚ : ℚ -> ℚ
+absℚ x = maxℚ x (r- x)
+
+
+diffℚ : ℚ -> ℚ -> ℚ
+diffℚ x y = (y r+ (r- x))
+
+abs-diffℚ : ℚ -> ℚ -> ℚ
+abs-diffℚ x y = absℚ (diffℚ x y)
+
+midℚ : ℚ -> ℚ -> ℚ
+midℚ x y = 1/2r r* (x r+ y)
+
+maxℚ-weaken-<₁ : (x y z : ℚ) -> (maxℚ x y < z) -> x < z
+maxℚ-weaken-<₁ x y z lt = handle (trichotomous-< x y) (maxℚ x y) refl lt
+  where
+  handle : (t : Tri (x < y) (x == y) (x > y)) -> (w : ℚ) -> (w == maxℚ-helper x y t) -> w < z
+           -> x < z
+  handle (tri< x<y  _ _) w p w<z = trans-< {x} {y} {z} x<y (subst (_< z) p w<z)
+  handle (tri= _ _ _) w p w<z = (subst (_< z) p w<z)
+  handle (tri> _ _ _) w p w<z = (subst (_< z) p w<z)

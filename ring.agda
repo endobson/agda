@@ -183,6 +183,8 @@ record Ring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     ==< *-left-minus-one >
       - (a * b)
     end
+  minus-extract-right : {a b : Domain} -> (a * - b) == - (a * b)
+  minus-extract-right = *-commute >=> minus-extract-left >=> cong -_ *-commute
 
   minus-distrib-plus : {a b : Domain} -> - (a + b) == - a + - b
   minus-distrib-plus {a} {b} =
