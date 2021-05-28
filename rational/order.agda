@@ -11,6 +11,7 @@ open import relation
 open import set-quotient
 open import sigma
 open import sign
+open import truncation
 open import univalence
 open import ring
 open import ring.implementations.rational
@@ -484,6 +485,19 @@ trichotomous-< x y = handle (decide-< x y) (decide-< y x)
   handle (yes x<y) (no y≮x)  = tri< x<y (\p -> y≮x (transport (\i -> (p i) < (p (~ i))) x<y)) y≮x
   handle (no x≮y)  (yes y<x) = tri> x≮y (\p -> x≮y (transport (\i -> (p (~ i)) < (p i)) y<x)) y<x
   handle (no x≮y)  (no y≮x)  = tri= x≮y (connected-< x≮y y≮x) y≮x
+
+comparison-< : Comparison _<_
+comparison-< x y z x<z = handle (trichotomous-< y w)
+  where
+  Σw = dense-< {x} {z} x<z
+  w = fst Σw
+  x<w = proj₁ (snd Σw)
+  w<z = proj₂ (snd Σw)
+  handle : Tri (y < w) (y == w) (y > w) -> ∥ (x < y) ⊎ (y < z) ∥
+  handle (tri< y<w _ _)  = ∣ inj-r (trans-< {y} {w} {z} y<w w<z) ∣
+  handle (tri= _ y==w _) = ∣ inj-l (subst (x <_) (sym y==w) x<w) ∣
+  handle (tri> _ _ w<y)  = ∣ inj-l (trans-< {x} {w} {y} x<w w<y) ∣
+
 
 
 r+₁-preserves-order : (a b c : Rational) -> b < c -> (a r+ b) < (a r+ c)

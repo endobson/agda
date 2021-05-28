@@ -77,3 +77,6 @@ syntax ∃-syntax A (λ x → B) = ∃[ x ∈ A ] B
 
 Inhabited : {A : Type ℓ₀} -> Pred A ℓ₁ -> Type (ℓ-max ℓ₀ ℓ₁)
 Inhabited {A = A} P = ∃ A P
+
+Comparison : Rel A ℓ -> Type _
+Comparison {A = A} _~_ = (a b c : A) -> a ~ c -> ∥ (a ~ b) ⊎ (b ~ c) ∥

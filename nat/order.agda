@@ -13,6 +13,7 @@ open import nat.arithmetic
 open import nat.properties
 open import relation
 open import sigma
+open import truncation
 open import univalence
 
 
@@ -151,6 +152,13 @@ trans-≤-< {m} {n} {o} (x1 , p1) (x2 , p2) = x2 +' x1 , path
 
 trans-< : {m n o : Nat} -> (m < n) -> (n < o) -> (m < o)
 trans-< lt1 lt2 = trans-≤-< (pred-≤ (right-suc-≤ lt1)) lt2
+
+comparison-nat< : Comparison _<_
+comparison-nat< x y z x<z = handle (split-nat< x y)
+  where
+  handle : (x < y) ⊎ (y ≤ x) -> ∥ (x < y) ⊎ (y < z) ∥
+  handle (inj-l x<y) = ∣ inj-l x<y ∣
+  handle (inj-r y≤x) = ∣ inj-r (trans-≤-< y≤x x<z) ∣
 
 <->!= : {m n : Nat} -> m < n -> m != n
 <->!= {m} {n} (x , p) m==n =
@@ -336,6 +344,8 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
 <-asym : Asymmetric _<_
 <-asym {x} {y} x<y y<x = same-≮ (trans-< x<y y<x)
 
+
+
 private
   ≮->≥ : {m n : Nat} -> m ≮ n -> m ≥ n
   ≮->≥             {n = zero}  m≮n = zero-≤
@@ -347,6 +357,10 @@ private
   Iso.inv ≮-≥-iso n≤m m<n = same-≮ (trans-≤-< n≤m m<n)
   Iso.rightInv ≮-≥-iso _ = isProp≤ _ _
   Iso.leftInv  ≮-≥-iso _ = isProp≮ _ _
+
+connected-nat< : Connected _<_
+connected-nat< x≮y y≮x = ≤-antisym (≮->≥ y≮x) (≮->≥ x≮y)
+
 
 ≮==≥ : {m n : Nat} -> m ≮ n == m ≥ n
 ≮==≥ = ua (isoToEquiv ≮-≥-iso)
@@ -469,7 +483,6 @@ zero-≤s (suc n) = step-≤s (zero-≤s n)
 -- Decidable <
 
 
-
 trichotomous-nat< : Trichotomous _<_
 trichotomous-nat< x y = handle (decide-nat x y) (decide-nat< x y) (decide-nat< y x)
   where
@@ -479,6 +492,7 @@ trichotomous-nat< x y = handle (decide-nat x y) (decide-nat< x y) (decide-nat< y
   handle (no  x!=y) (no x≮y)  (yes y<x) = tri> x≮y x!=y y<x
   handle (no  x!=y) (yes x<y) (yes y<x) = bot-elim (<-asym x<y y<x)
   handle (no  x!=y) (no x<y)  (no y<x)  = bot-elim (x!=y (≤-antisym (≮->≥ y<x) (≮->≥ x<y)))
+
 
 
 decide-nat≤ : (x : Nat) -> (y : Nat) -> Dec (x ≤ y)

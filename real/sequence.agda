@@ -5,13 +5,16 @@ module real.sequence where
 open import base
 open import equality
 open import hlevel
-open import nat
+open import nat hiding (_<_ ; _>_ ; trans-< )
 open import rational
-open import rational.order
+open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-< )
 open import relation hiding (U)
 open import ring.implementations.rational
 open import real
 open import truncation
+open import order
+open import order.instances.nat
+open import order.instances.rational
 
 private
   variable
@@ -22,12 +25,7 @@ private
 
 private
   Seq = ℚSequence
-  _ℕ<_ = nat._<_
-  _ℕ>_ = nat._>_
   _ℕ≥_ = nat._≥_
-  _ℚ<_ = rational.order._<_
-  _ℚ>_ : ℚ -> ℚ -> Type₀
-  x ℚ> y = y ℚ< x
   ℚPos = rational.order.Pos
 
 ℚ⁺ : Type₀
@@ -35,17 +33,17 @@ private
 
 Cauchy : Pred Seq ℓ-zero
 Cauchy s = (ε : ℚ⁺) -> ∃[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ℕ≥ n -> m₂ ℕ≥ n ->
-                                     (abs-diffℚ (s m₁) (s m₂)) ℚ< ⟨ ε ⟩)
+                                     (abs-diffℚ (s m₁) (s m₂)) < ⟨ ε ⟩)
 
 OpenEventualUpperBound : Seq -> Pred ℚ ℓ-zero
-OpenEventualUpperBound s q = ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> (s m r+ ⟨ ε ⟩) ℚ< q)
+OpenEventualUpperBound s q = ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> (s m r+ ⟨ ε ⟩) < q)
 
 OpenEventualLowerBound : Seq -> Pred ℚ ℓ-zero
-OpenEventualLowerBound s q = ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> (q r+ ⟨ ε ⟩) ℚ< s m)
+OpenEventualLowerBound s q = ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> (q r+ ⟨ ε ⟩) < s m)
 
 
 private
-  diff-swap : (a b c : ℚ) -> (a r+ (r- b)) ℚ< c -> (a r+ (r- c)) ℚ< b
+  diff-swap : (a b c : ℚ) -> (a r+ (r- b)) < c -> (a r+ (r- c)) < b
   diff-swap a b c = subst Pos path
     where
     path : c r+ (r- (a r+ (r- b))) == b r+ (r- (a r+ (r- c)))
@@ -58,11 +56,11 @@ private
       r+-assoc b (r- a) (r- (r- c)) >=>
       cong (b r+_) (sym (RationalRing.minus-distrib-plus {a} {r- c}))
 
-  ε-weaken-< : (q r : ℚ) -> (ε : ℚ⁺) -> (q r+ ⟨ ε ⟩) ℚ< r -> q ℚ< r
+  ε-weaken-< : (q r : ℚ) -> (ε : ℚ⁺) -> (q r+ ⟨ ε ⟩) < r -> q < r
   ε-weaken-< q r ε⁺@(ε , _) lt =
     rational.order.trans-< {q} {q r+ ε} {r} (r+-Pos->order q ε⁺) lt
 
-  abs-diffℚ-weaken-< : (x y z : ℚ) -> (abs-diffℚ x y) ℚ< z -> (diffℚ x y) ℚ< z
+  abs-diffℚ-weaken-< : (x y z : ℚ) -> (abs-diffℚ x y) < z -> (diffℚ x y) < z
   abs-diffℚ-weaken-< x y z lt =
     maxℚ-weaken-<₁ (diffℚ x y) (r- (diffℚ x y)) z lt
 
@@ -116,7 +114,7 @@ module _
     Inhabited-L = ∥-map handle (cauchy 1/2r⁺)
       where
       handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ℕ≥ n -> m₂ ℕ≥ n ->
-                             (abs-diffℚ (s m₁) (s m₂)) ℚ< 1/2r) ->
+                             (abs-diffℚ (s m₁) (s m₂)) < 1/2r) ->
                Σ ℚ L
       handle (n , f) = lb , ∣ n , 1/2r⁺ , g ∣
         where
@@ -134,41 +132,41 @@ module _
              cong (_r+ (r- 1/2r)) (r+-inverse 1/2r) >=>
              r+-left-zero (r- 1/2r))
 
-        g : (m : Nat) -> m ≥ n -> (lb r+ 1/2r) ℚ< s m
-        g m gt = subst (_ℚ< s m) (sym lb-path) lt3
+        g : (m : Nat) -> m ≥ n -> (lb r+ 1/2r) < s m
+        g m gt = subst (_< s m) (sym lb-path) lt3
           where
-          lt : (abs-diffℚ (s m) (s n)) ℚ< 1/2r
+          lt : (abs-diffℚ (s m) (s n)) < 1/2r
           lt = f m n gt (same-≤ n)
 
-          lt2 : ((s n) r+ (r- (s m))) ℚ< 1/2r
+          lt2 : ((s n) r+ (r- (s m))) < 1/2r
           lt2 = abs-diffℚ-weaken-< (s m) (s n) 1/2r lt
 
-          lt3 : (s n r+ (r- 1/2r)) ℚ< s m
+          lt3 : (s n r+ (r- 1/2r)) < s m
           lt3 = diff-swap (s n) (s m) 1/2r lt2
 
     Inhabited-U : Inhabited U
     Inhabited-U = ∥-map handle (cauchy 1/2r⁺)
       where
       handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ℕ≥ n -> m₂ ℕ≥ n ->
-                             (abs-diffℚ (s m₁) (s m₂)) ℚ< 1/2r) ->
+                             (abs-diffℚ (s m₁) (s m₂)) < 1/2r) ->
                Σ ℚ U
       handle (n , f) = ub , ∣ n , 1/2r⁺ , g ∣
         where
         ub = s n r+ 1r
 
-        g : (m : Nat) -> m ≥ n -> (s m r+ 1/2r) ℚ< ub
-        g m gt = subst (_ℚ< ub) path lt4
+        g : (m : Nat) -> m ≥ n -> (s m r+ 1/2r) < ub
+        g m gt = subst (_< ub) path lt4
           where
-          lt : (abs-diffℚ (s n) (s m)) ℚ< 1/2r
+          lt : (abs-diffℚ (s n) (s m)) < 1/2r
           lt = f n m (same-≤ n) gt
 
-          lt2 : diffℚ (s n) (s m) ℚ< 1/2r
+          lt2 : diffℚ (s n) (s m) < 1/2r
           lt2 = abs-diffℚ-weaken-< (s n) (s m) 1/2r lt
 
-          lt3 : (s m r+ (r- 1/2r)) ℚ< s n
+          lt3 : (s m r+ (r- 1/2r)) < s n
           lt3 = diff-swap (s m) (s n) 1/2r lt2
 
-          lt4 : ((s m r+ (r- 1/2r)) r+ 1r) ℚ< ub
+          lt4 : ((s m r+ (r- 1/2r)) r+ 1r) < ub
           lt4 = r+₂-preserves-order (s m r+ (r- 1/2r)) (s n) 1r lt3
 
           path : (s m r+ (r- 1/2r)) r+ 1r == s m r+ 1/2r
@@ -186,42 +184,42 @@ module _
     isLowerSet-L : isLowerSet L
     isLowerSet-L q r q<r lr = ∥-map handle lr
       where
-      handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (r r+ ⟨ ε ⟩) ℚ< s m) ->
-               Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (q r+ ⟨ ε ⟩) ℚ< s m)
+      handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (r r+ ⟨ ε ⟩) < s m) ->
+               Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (q r+ ⟨ ε ⟩) < s m)
       handle (n , ε⁺@(ε , _) , f) = n , ε⁺ , g
         where
-        g : (m : ℕ) -> (m ≥ n) -> (q r+ ε) ℚ< s m
+        g : (m : ℕ) -> (m ≥ n) -> (q r+ ε) < s m
         g m gt = rational.order.trans-< {q r+ ε} {r r+ ε} {s m} q<r' (f m gt)
           where
-          q<r' : (q r+ ε) ℚ< (r r+ ε)
+          q<r' : (q r+ ε) < (r r+ ε)
           q<r' = r+₂-preserves-order q r ε q<r
 
     isUpperSet-U : isUpperSet U
     isUpperSet-U q r q<r uq = ∥-map handle uq
       where
-      handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (s m r+ ⟨ ε ⟩) ℚ< q) ->
-               Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (s m r+ ⟨ ε ⟩) ℚ< r)
+      handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (s m r+ ⟨ ε ⟩) < q) ->
+               Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (s m r+ ⟨ ε ⟩) < r)
       handle (n , ε⁺@(ε , _) , f) = n , ε⁺ , g
         where
-        g : (m : ℕ) -> (m ≥ n) -> (s m r+ ε) ℚ< r
+        g : (m : ℕ) -> (m ≥ n) -> (s m r+ ε) < r
         g m gt = rational.order.trans-< {s m r+ ε} {q} {r} (f m gt) q<r
 
     isUpperOpen-L : isUpperOpen L
     isUpperOpen-L q lq = ∥-map handle lq
       where
-      handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (q r+ ⟨ ε ⟩) ℚ< s m) ->
-               Σ[ r ∈ ℚ ] (q ℚ< r ×
-                           ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (r r+ ⟨ ε ⟩) ℚ< s m))
+      handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (q r+ ⟨ ε ⟩) < s m) ->
+               Σ[ r ∈ ℚ ] (q < r ×
+                           ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (r r+ ⟨ ε ⟩) < s m))
       handle (n , ((ε , pos-ε) , f)) = (r , (q<r , ∣ n , (ε/2 , pos-ε/2) , g ∣))
         where
         ε/2 = (ε r* 1/2r)
         pos-ε/2 : Pos ε/2
         pos-ε/2 = r*-preserves-Pos ε 1/2r pos-ε (Pos-1/ℕ (2 , tt))
         r = q r+ ε/2
-        q<r : q ℚ< r
+        q<r : q < r
         q<r = r+-Pos->order q (ε/2 , pos-ε/2)
-        g : (m : ℕ) -> (m ≥ n) -> (r r+ ε/2) ℚ< s m
-        g m gt = subst (_ℚ< s m) p (f m gt)
+        g : (m : ℕ) -> (m ≥ n) -> (r r+ ε/2) < s m
+        g m gt = subst (_< s m) p (f m gt)
           where
           p : (q r+ ε) == (r r+ ε/2)
           p = cong (q r+_) (sym (1/2r-path ε)) >=>
@@ -230,9 +228,9 @@ module _
     isLowerOpen-U : isLowerOpen U
     isLowerOpen-U q uq = ∥-map handle uq
       where
-      handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (s m r+ ⟨ ε ⟩) ℚ< q) ->
-               Σ[ r ∈ ℚ ] (r ℚ< q ×
-                           ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (s m r+ ⟨ ε ⟩) ℚ< r))
+      handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (s m r+ ⟨ ε ⟩) < q) ->
+               Σ[ r ∈ ℚ ] (r < q ×
+                           ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (s m r+ ⟨ ε ⟩) < r))
       handle (n , ((ε , pos-ε) , f)) = (r , (r<q , ∣ n , (ε/2 , pos-ε/2) , g ∣))
         where
         ε/2 = (ε r* 1/2r)
@@ -244,15 +242,15 @@ module _
                  (cong (q r+_) (r+-commute (r- ε/2) ε/2 >=> r+-inverse ε/2)) >=>
                  (r+-right-zero q)
 
-        r<q : r ℚ< q
-        r<q = subst (r ℚ<_) q-path (r+-Pos->order r (ε/2 , pos-ε/2))
-        g : (m : ℕ) -> (m ≥ n) -> (s m r+ ε/2) ℚ< r
-        g m gt = subst (_ℚ< r) p lt2
+        r<q : r < q
+        r<q = subst (r <_) q-path (r+-Pos->order r (ε/2 , pos-ε/2))
+        g : (m : ℕ) -> (m ≥ n) -> (s m r+ ε/2) < r
+        g m gt = subst (_< r) p lt2
           where
-          lt1 : (s m r+ ε) ℚ< q
+          lt1 : (s m r+ ε) < q
           lt1 = (f m gt)
 
-          lt2 : ((s m r+ ε) r+ (r- ε/2)) ℚ< r
+          lt2 : ((s m r+ ε) r+ (r- ε/2)) < r
           lt2 = r+₂-preserves-order (s m r+ ε) q (r- ε/2) lt1
 
           p : (s m r+ ε) r+ (r- ε/2) == s m r+ ε/2
@@ -266,13 +264,13 @@ module _
     disjoint : Universal (Comp (L ∩ U))
     disjoint q (l , u) = unsquash isPropBot (∥-map2 handle l u)
       where
-      handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (q r+ ⟨ ε ⟩) ℚ< s m) ->
-               Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (s m r+ ⟨ ε ⟩) ℚ< q) ->
+      handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (q r+ ⟨ ε ⟩) < s m) ->
+               Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : ℕ) -> (m ≥ n) -> (s m r+ ⟨ ε ⟩) < q) ->
                Bot
       handle (nl , (εl , fl))  (nu , (εu , fu)) =
-        irrefl-< {q} (rational.order.trans-< {q} {s n} {q}
-                       (ε-weaken-< q (s n) εl (fl n ≤-max-left))
-                       (ε-weaken-< (s n) q εu (fu n ≤-max-right)))
+        irrefl-< {a = q} (trans-< {a = q} {b = s n} {c = q}
+                           (ε-weaken-< q (s n) εl (fl n ≤-max-left))
+                           (ε-weaken-< (s n) q εu (fu n ≤-max-right)))
         where
         n = max nl nu
 
@@ -281,7 +279,7 @@ module _
       Pos-1/2r = (Pos-1/ℕ (2 , tt))
       Pos-1/4r = r*-preserves-Pos 1/2r 1/2r Pos-1/2r Pos-1/2r
 
-    located : (x y : Rational) -> x ℚ< y -> ∥ L x ⊎ U y ∥
+    located : (x y : Rational) -> x < y -> ∥ L x ⊎ U y ∥
     located x y x<y = ∥-map handle (cauchy d⁺)
       where
       d = 1/2r r* (1/2r r* (diffℚ x y))
@@ -299,29 +297,29 @@ module _
       d⁺ : ℚ⁺
       d⁺ = d , pos-d
       handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ℕ≥ n -> m₂ ℕ≥ n ->
-                             (abs-diffℚ (s m₁) (s m₂)) ℚ< d) ->
+                             (abs-diffℚ (s m₁) (s m₂)) < d) ->
                L x ⊎ U y
       handle (n , f) = handle2 (trichotomous-< t mid)
         where
         t = s n
-        handle2 : Tri (t ℚ< mid) (t == mid) (t ℚ> mid) -> L x ⊎ U y
+        handle2 : Tri (t < mid) (t == mid) (t > mid) -> L x ⊎ U y
         handle2 (tri< lt _ _) = inj-r ∣ n , d⁺ ,  g ∣
           where
-          g : (m : Nat) -> m ≥ n -> (s m r+ d) ℚ< y
-          g m m≥n = subst2 _ℚ<_ path2 path1 lt5
+          g : (m : Nat) -> m ≥ n -> (s m r+ d) < y
+          g m m≥n = subst2 _<_ path2 path1 lt5
             where
-            lt1 : (abs-diffℚ (s n) (s m)) ℚ< d
+            lt1 : (abs-diffℚ (s n) (s m)) < d
             lt1 = f n m (same-≤ n) m≥n
-            lt2 : (s m r+ (r- s n)) ℚ< d
+            lt2 : (s m r+ (r- s n)) < d
             lt2 = abs-diffℚ-weaken-< (s n) (s m) d lt1
 
-            lt3 : (s m r+ (r- d)) ℚ< t
+            lt3 : (s m r+ (r- d)) < t
             lt3 = diff-swap (s m) (s n) d lt2
 
-            lt4 : (s m r+ (r- d)) ℚ< mid
+            lt4 : (s m r+ (r- d)) < mid
             lt4 = rational.order.trans-< {s m r+ (r- d)} {t} {mid} lt3 lt
 
-            lt5 : ((s m r+ (r- d)) r+ dd) ℚ< (mid r+ dd)
+            lt5 : ((s m r+ (r- d)) r+ dd) < (mid r+ dd)
             lt5 = r+₂-preserves-order (s m r+ (r- d)) mid dd lt4
 
             path1 : (mid r+ dd) == y
@@ -337,21 +335,21 @@ module _
 
         handle2 (tri= _ t==mid _) = inj-r ∣ n , d⁺ ,  g ∣
           where
-          g : (m : Nat) -> m ≥ n -> (s m r+ d) ℚ< y
-          g m m≥n = subst2 _ℚ<_ path2 path1 lt5
+          g : (m : Nat) -> m ≥ n -> (s m r+ d) < y
+          g m m≥n = subst2 _<_ path2 path1 lt5
             where
-            lt1 : (abs-diffℚ (s n) (s m)) ℚ< d
+            lt1 : (abs-diffℚ (s n) (s m)) < d
             lt1 = f n m (same-≤ n) m≥n
-            lt2 : (s m r+ (r- s n)) ℚ< d
+            lt2 : (s m r+ (r- s n)) < d
             lt2 = abs-diffℚ-weaken-< (s n) (s m) d lt1
 
-            lt3 : (s m r+ (r- d)) ℚ< t
+            lt3 : (s m r+ (r- d)) < t
             lt3 = diff-swap (s m) (s n) d lt2
 
-            lt4 : (s m r+ (r- d)) ℚ< mid
-            lt4 = subst ((s m r+ (r- d)) ℚ<_) t==mid lt3
+            lt4 : (s m r+ (r- d)) < mid
+            lt4 = subst ((s m r+ (r- d)) <_) t==mid lt3
 
-            lt5 : ((s m r+ (r- d)) r+ dd) ℚ< (mid r+ dd)
+            lt5 : ((s m r+ (r- d)) r+ dd) < (mid r+ dd)
             lt5 = r+₂-preserves-order (s m r+ (r- d)) mid dd lt4
 
             path1 : (mid r+ dd) == y
@@ -367,21 +365,21 @@ module _
 
         handle2 (tri> _ _ mid<t) = inj-l ∣ n , d⁺ ,  g ∣
           where
-          g : (m : Nat) -> m ≥ n -> (x r+ d) ℚ< s m
-          g m m≥n = subst (_ℚ< s m) path1 lt5
+          g : (m : Nat) -> m ≥ n -> (x r+ d) < s m
+          g m m≥n = subst (_< s m) path1 lt5
             where
-            lt1 : (abs-diffℚ (s m) (s n)) ℚ< d
+            lt1 : (abs-diffℚ (s m) (s n)) < d
             lt1 = f m n m≥n (same-≤ n)
-            lt2 : (s n r+ (r- s m)) ℚ< d
+            lt2 : (s n r+ (r- s m)) < d
             lt2 = abs-diffℚ-weaken-< (s m) (s n) d lt1
 
-            lt3 : (t r+ (r- d)) ℚ< s m
+            lt3 : (t r+ (r- d)) < s m
             lt3 = diff-swap (s n) (s m) d lt2
 
-            lt4 : (mid r+ (r- d)) ℚ< (t r+ (r- d))
+            lt4 : (mid r+ (r- d)) < (t r+ (r- d))
             lt4 = r+₂-preserves-order mid t (r- d) mid<t
 
-            lt5 : (mid r+ (r- d)) ℚ< s m
+            lt5 : (mid r+ (r- d)) < s m
             lt5 = rational.order.trans-< {mid r+ (r- d)} {t r+ (r- d)} {s m} lt4 lt3
 
             path1 : mid r+ (r- d) == (x r+ d)
@@ -413,7 +411,7 @@ module _
 
 
 -- OpenBallPred : ℚ⁺ -> ℚ -> Pred ℚ ℓ-zero
--- OpenBallPred (ε , _) center q = abs-diffℚ center q ℚ< ε
+-- OpenBallPred (ε , _) center q = abs-diffℚ center q < ε
 --
 -- record OpenBallℚ : Type₀ where
 --   constructor open-ballℚ
@@ -445,22 +443,22 @@ module _
 -- SeqDiff s₁ s₂ = Seq+ s₂ (Seq- s₁)
 --
 -- Increasing : Pred Seq ℓ-zero
--- Increasing s = (m n : Nat) -> (m ℕ< n) -> (s m ℚ< s n)
+-- Increasing s = (m n : Nat) -> (m ℕ< n) -> (s m < s n)
 --
 -- Decreasing : Pred Seq ℓ-zero
--- Decreasing s = (m n : Nat) -> (m ℕ< n) -> (s m ℚ> s n)
+-- Decreasing s = (m n : Nat) -> (m ℕ< n) -> (s m > s n)
 --
 -- EventualUpperBound : Seq -> Pred ℚ ℓ-zero
--- EventualUpperBound s q = ∃[ n ∈ Nat ] ((m : Nat) -> m ≥ n -> s m ℚ< q)
+-- EventualUpperBound s q = ∃[ n ∈ Nat ] ((m : Nat) -> m ≥ n -> s m < q)
 --
 -- EventualLowerBound : Seq -> Pred ℚ ℓ-zero
--- EventualLowerBound s q = ∃[ n ∈ Nat ] ((m : Nat) -> m ≥ n -> q ℚ< s m)
+-- EventualLowerBound s q = ∃[ n ∈ Nat ] ((m : Nat) -> m ≥ n -> q < s m)
 --
 -- UpperBound : Seq -> Pred ℚ ℓ-zero
--- UpperBound s q = (n : Nat) -> s n ℚ< q
+-- UpperBound s q = (n : Nat) -> s n < q
 --
 -- LowerBound : Seq -> Pred ℚ ℓ-zero
--- LowerBound s q = (n : Nat) -> q ℚ< s n
+-- LowerBound s q = (n : Nat) -> q < s n
 --
 -- BoundedAbove : Pred Seq ℓ-zero
 -- BoundedAbove s = ∃ ℚ (UpperBound s)
