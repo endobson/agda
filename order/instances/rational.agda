@@ -8,7 +8,7 @@ open import rational
 import rational.order as ro
 
 instance
-  LinearOrderStr-ℚ : LinearOrderStr ℚ
+  LinearOrderStr-ℚ : LinearOrderStr ℚ ℓ-zero
   LinearOrderStr-ℚ = record
     { _<_ = ro._<_
     ; isProp-< = \x y -> ro.isProp-< {x} {y}

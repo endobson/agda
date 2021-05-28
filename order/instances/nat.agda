@@ -7,7 +7,7 @@ open import order
 open import nat.order as no
 
 instance
-  LinearOrderStr-ℕ : LinearOrderStr Nat
+  LinearOrderStr-ℕ : LinearOrderStr Nat ℓ-zero
   LinearOrderStr-ℕ = record
     { _<_ = no._<_
     ; isProp-< = \x y -> no.isProp≤ {suc x} {y}
