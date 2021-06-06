@@ -834,6 +834,13 @@ abstract
   minus-isSign {neg _} {neg-sign} _ = tt
 
 
+  Recomputable-Pos : Recomputable Pos
+  Recomputable-Pos {pos x} _ = tt
+
+  Recomputable-NonZero : Recomputable NonZero
+  Recomputable-NonZero {pos x} _ = tt
+  Recomputable-NonZero {neg x} _ = tt
+
   *-Pos-Pos : {m n : Int} -> .(Pos m) -> .(Pos n) -> Pos (m * n)
   *-Pos-Pos {pos zero} _ pr = +-Pos-NonNeg pr tt
   *-Pos-Pos {pos (suc m)} _ pr = +-Pos-Pos pr (*-Pos-Pos {pos m} tt pr)
@@ -863,6 +870,13 @@ abstract
 
   *-NonPos-Neg : {m n : Int} -> .(NonPos m) -> .(Neg n) -> NonNeg (m * n)
   *-NonPos-Neg {m} {n} np neg-n = transport (cong NonNeg (*-commute {n} {m})) (*-Neg-NonPos neg-n np)
+
+  *-NonNeg-NonPos : {m n : Int} -> .(NonNeg m) -> .(NonPos n) -> NonPos (m * n)
+  *-NonNeg-NonPos {zero-int} {n} _ np = subst NonPos (sym (*-left-zero {n})) tt
+  *-NonNeg-NonPos {pos m} {n} nn np = *-Pos-NonPos {pos m} _ np
+
+  *-NonPos-NonNeg : {m n : Int} -> .(NonPos m) -> .(NonNeg n) -> NonPos (m * n)
+  *-NonPos-NonNeg {m} {n} np nn = subst NonPos (*-commute {n} {m}) (*-NonNeg-NonPos {n} {m} nn np)
 
   *-Pos-Neg : {m n : Int} -> .(Pos m) -> .(Neg n) -> Neg (m * n)
   *-Pos-Neg {pos zero} _ pr = +-Neg-NonPos pr tt

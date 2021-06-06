@@ -282,3 +282,32 @@ isContr-QuotientRemainder {d} {n} .snd qr2 = (\i -> record
 
 isProp-QuotientRemainder : {d : Nat⁺} {n : Int} -> isProp (QuotientRemainder d n)
 isProp-QuotientRemainder = isContr->isProp isContr-QuotientRemainder
+
+
+quotient-multiple-path :
+  (m : Nat⁺) -> (n : ℤ) -> (d : Nat⁺) ->
+  quotient n d == quotient ((int ⟨ m ⟩) * n) (m *⁺ d)
+quotient-multiple-path m⁺@(m , m-pos) n d@(d' , _) =
+  cong QuotientRemainder.q (sym (snd isContr-QuotientRemainder qr-mn))
+  where
+  qr-n : QuotientRemainder d n
+  qr-n = quotient-remainder d n
+  module qr-n = QuotientRemainder qr-n
+
+  r' : Fin (m *' d')
+  r' = m *' (fst qr-n.r) , *-left-<⁺ (Pos'->< m-pos) (snd qr-n.r)
+
+  path : qr-n.q * int (m *' d') + int ⟨ r' ⟩ == int m * n
+  path =
+    +-left (*-right (int-inject-*' {m} {d'}) >=>
+            sym *-assoc >=> *-left *-commute >=> *-assoc) >=>
+    +-right (int-inject-*' {m} {fst qr-n.r}) >=>
+    sym *-distrib-+-left >=>
+    *-right qr-n.path
+
+  qr-mn : QuotientRemainder (m⁺ *⁺ d) ((int m) * n)
+  qr-mn = record
+    { q = qr-n.q
+    ; r = r'
+    ; path = path
+    }

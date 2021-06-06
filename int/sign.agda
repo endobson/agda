@@ -156,3 +156,10 @@ NonZero->NonZeroSign {m = neg _} _ = tt
 
 Pos->PosSign : {m : Int} -> Pos m -> isPosSign (int->sign m)
 Pos->PosSign {m = pos _} _ = tt
+
+SignStr-Int : SignStr Int ℓ-zero
+SignStr-Int = record
+  { isSign = isSign
+  ; isProp-isSign = \s x -> isProp-isSign s {x}
+  ; isSign-unique = \x s1 s2 -> isSign-unique {x} {s1} {s2}
+  }

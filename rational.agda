@@ -2,14 +2,17 @@
 
 module rational where
 
+open import abs
 open import base
 open import cubical using (_∧_ ; _∨_ ; ~_)
 open import equality
 open import equivalence
+open import fin
 open import functions
 open import funext
 open import nat
 open import hlevel
+open import quotient-remainder-int
 open import relation
 open import set-quotient
 open import univalence
@@ -26,6 +29,7 @@ record Rational' : Type₀ where
     numerator : Int
     denominator : Int
     NonZero-denominator : NonZero denominator
+
 
 private
   numer : Rational' -> Int
@@ -173,6 +177,22 @@ abstract
   r+'-preserves-r~₁ : (b a1 a2 : Rational') -> a1 r~ a2 -> (a1 r+' b) r~ (a2 r+' b)
   r+'-preserves-r~₁ b a1 a2 r =
     transport (\i -> (r+'-commute b a1 i) r~ (r+'-commute b a2 i)) (r+'-preserves-r~₂ b a1 a2 r)
+
+
+same-denom-r+' : (a b : Rational') -> Rational'
+same-denom-r+' a b = record
+  { numerator = numer a int.+ numer b
+  ; denominator = denom a
+  ; NonZero-denominator = rNonZero a
+  }
+
+abstract
+  same-denom-r+'-r~ : (a b : Rational') -> denom a == denom b -> same-denom-r+' a b r~ (a r+' b)
+  same-denom-r+'-r~ a b p =
+   int.*-distrib-+ >=>
+   cong2 int._+_ (int.*-right int.*-commute >=> sym int.*-assoc)
+                 (int.*-right (int.*-right (sym p)) >=> sym int.*-assoc) >=>
+   sym int.*-distrib-+
 
 module RationalElim = SetQuotientElim Rational' _r~_
 
@@ -616,20 +636,23 @@ a r^ℤ (neg n) = r1/ (fst rec) (isNonZeroℚ->ℚInv (snd rec)) , r1/-isNonZero
 
 
 1/ℕ' : Nat⁺ -> Rational'
-1/ℕ' (n@(suc _) , _) = record
+1/ℕ' (n , pos-n) = record
   { numerator = (ℕ->ℤ 1)
   ; denominator = (ℕ->ℤ n)
-  ; NonZero-denominator = tt
+  ; NonZero-denominator = Posℕ->NonZeroℤ n pos-n
   }
+  where
+  Posℕ->NonZeroℤ : (n : Nat) -> (Pos' n) -> (int.NonZero (ℕ->ℤ n))
+  Posℕ->NonZeroℤ (suc _) _ = tt
 
 1/ℕ : Nat⁺ -> ℚ
 1/ℕ n = [ 1/ℕ' n ]
 
 1/2r : ℚ
-1/2r = 1/ℕ (2 , tt)
+1/2r = 1/ℕ 2⁺
 
 1/2r' : Rational'
-1/2r' = 1/ℕ' (2 , tt)
+1/2r' = 1/ℕ' 2⁺
 
 2r' : Rational'
 2r' = record
@@ -670,3 +693,198 @@ a r^ℤ (neg n) = r1/ (fst rec) (isNonZeroℚ->ℚInv (snd rec)) , r1/-isNonZero
 
 1/2r-path' : (q : ℚ) -> (1/2r r* q) r+ (1/2r r* q) == q
 1/2r-path' q = cong2 _r+_ (r*-commute 1/2r q) (r*-commute 1/2r q) >=> 1/2r-path q
+
+
+1/2ℕ'-r~ : (n : Nat⁺) -> (1/ℕ' (2⁺ *⁺ n)) r~ (1/2r' r*' 1/ℕ' n)
+1/2ℕ'-r~ n =
+  int.*-left-one >=> sym int-inject-*' >=>
+  sym int.*-left-one >=> int.*-left (sym int.*-left-one)
+
+
+1/2ℕ-path : (n : Nat⁺) -> (1/ℕ (2⁺ *⁺ n)) == (1/2r r* 1/ℕ n)
+1/2ℕ-path n = eq/ _ _ (1/2ℕ'-r~ n)
+
+
+-- Floor
+
+ℤ* = Σ ℤ NonZero
+
+quotientℤ : (n : ℤ) (d : ℤ*) -> ℤ
+quotientℤ n (int.pos d , _) = quotient n (suc d , tt)
+quotientℤ n (int.neg d , _) = (quotient (int.- n) (suc d , tt))
+
+remainderℤ : (n : ℤ) (d : ℤ*) -> ℤ
+remainderℤ n (int.pos d , _) = int ⟨ remainder n (suc d , tt) ⟩
+remainderℤ n (int.neg d , _) = int.- (int ⟨ (remainder (int.- n) (suc d , tt)) ⟩)
+
+
+ℤ*-* : ℤ* -> ℤ* -> ℤ*
+ℤ*-* (m , nz-m) (d , nz-d) = (m int.* d , int.*-NonZero-NonZero nz-m nz-d)
+
+private
+
+  quotientℤ-path : (a : ℤ) (d : ℤ*) -> (quotientℤ a d int.* ⟨ d ⟩) int.+ (remainderℤ a d) == a
+  quotientℤ-path a (int.pos d , _) =
+    QuotientRemainder.path (quotient-remainder (suc d , tt) a)
+  quotientℤ-path a (int.neg d , _) =
+    int.+-left (int.minus-extract-right) >=>
+    sym int.minus-distrib-+ >=>
+    cong int.-_ (QuotientRemainder.path (quotient-remainder (suc d , tt) (int.- a))) >=>
+    int.minus-double-inverse
+
+  quotientℤ-multiple-path :
+    (m : ℤ*) -> (n : ℤ) -> (d : ℤ*) ->
+    quotientℤ n d == quotientℤ (⟨ m ⟩ int.* n) (ℤ*-* m d)
+  quotientℤ-multiple-path m@(int.pos m' , _) n d@(int.pos d' , _) =
+    quotient-multiple-path (suc m' , tt) n (suc d' , tt) >=>
+    cong (quotientℤ (int.pos m' int.* n)) (ΣProp-path int.isPropNonZero int-inject-*')
+  quotientℤ-multiple-path m@(int.pos m' , _) n d@(int.neg d' , _) =
+    quotient-multiple-path (suc m' , tt) (int.- n) (suc d' , tt) >=>
+    cong (\x -> quotient x _) (int.minus-extract-right) >=>
+    cong (quotientℤ (int.pos m' int.* n)) (ΣProp-path int.isPropNonZero p1)
+    where
+    p1 : (int.neg (d' +' (m' *' suc d'))) == (int.pos m' int.* int.neg d')
+    p1 = cong int.-_ int-inject-*' >=> sym int.minus-extract-right
+  quotientℤ-multiple-path m@(int.neg m' , _) n d@(int.pos d' , _) =
+    cong (\x -> quotient x (suc d' , tt)) (sym (int.minus-double-inverse {n})) >=>
+    quotient-multiple-path (suc m' , tt) (int.- (int.- n)) (suc d' , tt) >=>
+    cong (\x -> quotient x ((suc m' , tt) *⁺ (suc d' , tt))) p2 >=>
+    cong (quotientℤ (int.neg m' int.* n)) (ΣProp-path int.isPropNonZero p1)
+    where
+    p1 : int.neg (d' +' (m' *' suc d')) == (int.neg m' int.* int.pos d')
+    p1 = cong int.-_ int-inject-*' >=> sym int.minus-extract-left
+    p2 : int.pos m' int.* (int.- (int.- n)) == int.- (int.neg m' int.* n)
+    p2 = int.minus-extract-right >=> sym int.minus-extract-left >=> int.minus-extract-right
+  quotientℤ-multiple-path m@(int.neg m' , _) n d@(int.neg d' , _) =
+    quotient-multiple-path (suc m' , tt) (int.- n) (suc d' , tt) >=>
+    cong (\x -> quotient x _) (int.minus-extract-right >=> sym int.minus-extract-left) >=>
+    cong (quotientℤ (int.neg m' int.* n)) (ΣProp-path int.isPropNonZero p1)
+    where
+    p1 : int (suc m' *' suc d') == (int.neg m' int.* int.neg d')
+    p1 = int-inject-*' >=> sym int.minus-double-inverse >=>
+         cong int.-_ (sym int.minus-extract-right) >=>
+         sym int.minus-extract-left
+
+remainderℤ-NonNeg : (n : ℤ) (d : ℤ*) -> int.Pos ⟨ d ⟩ -> int.NonNeg (remainderℤ n d)
+remainderℤ-NonNeg n (int.pos _ , _) _ = tt
+
+remainderℤ-NonPos : (n : ℤ) (d : ℤ*) -> int.Neg ⟨ d ⟩ -> int.NonPos (remainderℤ n d)
+remainderℤ-NonPos n (int.neg d' , tt) _ =
+  int.minus-NonNeg {remainderℤ (int.- n) (int.pos d' , tt)}
+                   (remainderℤ-NonNeg (int.- n) (int.pos d' , tt) tt)
+
+
+floor' : Rational' -> ℤ
+floor' r = quotientℤ (numer r) (denom r , rNonZero r)
+
+floor'-r~ : (x y : Rational') -> (x r~ y) -> floor' x == floor' y
+floor'-r~ x y r =
+  quotientℤ-multiple-path dy* nx dx* >=>
+  cong2 quotientℤ n-path (ΣProp-path int.isPropNonZero d-path)
+  >=> sym (quotientℤ-multiple-path dx* ny dy*)
+
+  where
+  nx = numer x
+  ny = numer y
+  dx = denom x
+  dy = denom y
+  dx* : ℤ*
+  dx* = denom x , rNonZero x
+  dy* : ℤ*
+  dy* = denom y , rNonZero y
+
+  n-path : dy int.* nx == dx int.* ny
+  n-path = int.*-commute >=> r >=> int.*-commute
+
+  d-path : dy int.* dx == dx int.* dy
+  d-path = int.*-commute
+
+fractional-part' : Rational' -> Rational'
+fractional-part' r = record
+  { numerator = (remainderℤ (numer r) (denom r , rNonZero r))
+  ; denominator = (denom r)
+  ; NonZero-denominator = (rNonZero r)
+  }
+
+fractional-part'-r+' : (q : Rational') -> ℤ->ℚ' (floor' q) r+' (fractional-part' q) == q
+fractional-part'-r+' q = (\i -> record
+  { numerator = np i
+  ; denominator = dp i
+  ; NonZero-denominator = isProp->PathP (\i -> int.isPropNonZero {dp i}) (rNonZero q') (rNonZero q) i
+  })
+  where
+  q' = ℤ->ℚ' (floor' q) r+' (fractional-part' q)
+
+  np : numer q' == numer q
+  np = cong numer r+'-eval >=> int.+-right int.*-right-one >=>
+       quotientℤ-path (numer q) (denom q , rNonZero q)
+  dp : denom q' == denom q
+  dp = cong denom r+'-eval >=> int.*-left-one
+
+fractional-part'-preserves-r~ : (a b : Rational') -> (a r~ b) ->
+                                (fractional-part' a r~ fractional-part' b)
+fractional-part'-preserves-r~ a b r = ans
+  where
+  na = numer a
+  nb = numer b
+  da = denom a
+  db = denom b
+  da* : ℤ*
+  da* = (da , rNonZero a)
+  db* : ℤ*
+  db* = (db , rNonZero b)
+
+  r-path-a : (remainderℤ na da*) == na int.+ (int.- ((quotientℤ na da*) int.* da))
+  r-path-a =
+    sym int.+-right-zero >=>
+    int.+-right (sym (int.add-minus-zero {((quotientℤ na da*) int.* da)})) >=>
+    sym int.+-assoc >=>
+    int.+-left (int.+-commute >=> quotientℤ-path na da*)
+
+  r-path-b : (remainderℤ nb db*) == nb int.+ (int.- ((quotientℤ nb db*) int.* db))
+  r-path-b =
+    sym int.+-right-zero >=>
+    int.+-right (sym (int.add-minus-zero {((quotientℤ nb db*) int.* db)})) >=>
+    sym int.+-assoc >=>
+    int.+-left (int.+-commute >=> quotientℤ-path nb db*)
+
+  inner-path : (((quotientℤ na da*) int.* da) int.* db) ==
+                (((quotientℤ nb db*) int.* db) int.* da)
+  inner-path = int.*-assoc >=> cong2 int._*_ (floor'-r~ a b r) int.*-commute >=> sym int.*-assoc
+
+  mid-path : (na int.+ (int.- ((quotientℤ na da*) int.* da))) int.* db ==
+             (nb int.+ (int.- ((quotientℤ nb db*) int.* db))) int.* da
+  mid-path =
+    int.*-distrib-+ >=>
+    (cong2 int._+_ r (int.minus-extract-left >=> (cong int.-_ inner-path) >=>
+                      sym int.minus-extract-left)) >=>
+    (sym int.*-distrib-+)
+
+  ans : (remainderℤ na da*) int.* db == (remainderℤ nb db*) int.* da
+  ans = int.*-left r-path-a >=> mid-path >=> int.*-left (sym r-path-b)
+
+floor : Rational -> ℤ
+floor = RationalElim.rec int.isSetInt floor' floor'-r~
+
+floorℚ : Rational -> ℚ
+floorℚ = ℤ->ℚ ∘ floor
+
+fractional-part : Rational -> Rational
+fractional-part = RationalElim.rec isSetRational
+                    (\a -> [ fractional-part' a ])
+                    (\a b r -> eq/ _ _ (fractional-part'-preserves-r~ a b r))
+
+fractional-part-r+ : (q : Rational) -> floorℚ q r+ (fractional-part q) == q
+fractional-part-r+ = RationalElim.elimProp (\_ -> (isSetRational _ _))
+                      (\q -> cong [_] (fractional-part'-r+' q))
+
+
+ℤ->ℚ-floor : (x : ℤ) -> floor (ℤ->ℚ x) == x
+ℤ->ℚ-floor x = cong QuotientRemainder.q (snd isContr-QuotientRemainder qr)
+  where
+  qr : QuotientRemainder 1⁺ x
+  qr = record
+    { q = x
+    ; r = (0 , (zero-<))
+    ; path = int.+-right-zero >=> int.*-right-one
+    }

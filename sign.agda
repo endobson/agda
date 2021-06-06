@@ -128,3 +128,21 @@ Discrete-Sign neg-sign  neg-sign  = yes refl
 
 isSet-Sign : isSet Sign
 isSet-Sign = Discrete->isSet Discrete-Sign
+
+
+-- Sign structure on a type
+
+record SignStr {ℓD : Level} (D : Type ℓD) (ℓS : Level) : Type (ℓ-max ℓD (ℓ-suc ℓS)) where
+  field
+    isSign : Sign -> Pred D ℓS
+    isProp-isSign : (s : Sign) (x : D) -> isProp (isSign s x)
+    isSign-unique : (x : D) -> (s1 s2 : Sign) -> (p1 : isSign s1 x) -> (p2 : isSign s2 x) -> s1 == s2
+
+  Pos : Pred D ℓS
+  Pos = isSign pos-sign
+
+  Neg : Pred D ℓS
+  Neg = isSign neg-sign
+
+  Zero : Pred D ℓS
+  Zero = isSign zero-sign

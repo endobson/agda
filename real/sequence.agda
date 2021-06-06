@@ -28,9 +28,6 @@ private
   _ℕ≥_ = nat._≥_
   ℚPos = rational.order.Pos
 
-ℚ⁺ : Type₀
-ℚ⁺ = Σ ℚ ℚPos
-
 Cauchy : Pred Seq ℓ-zero
 Cauchy s = (ε : ℚ⁺) -> ∃[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ℕ≥ n -> m₂ ℕ≥ n ->
                                      (abs-diffℚ (s m₁) (s m₂)) < ⟨ ε ⟩)
@@ -78,12 +75,6 @@ private
 
   midℚ-commute : (x y : ℚ) -> midℚ x y == midℚ y x
   midℚ-commute x y = cong (1/2r r*_) (r+-commute x y)
-
-  diffℚ-anticommute : (x y : ℚ) -> diffℚ x y == r- (diffℚ y x)
-  diffℚ-anticommute x y = sym (
-    RationalRing.minus-distrib-plus {x} {r- y} >=>
-    cong ((r- x) r+_) (RationalRing.minus-double-inverse {y}) >=>
-    r+-commute (r- x) y)
 
   midℚ-minus-half-diffℚ : (x y : ℚ) -> (midℚ x y r+ (r- (1/2r r* (diffℚ x y)))) == x
   midℚ-minus-half-diffℚ x y =

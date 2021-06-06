@@ -183,6 +183,9 @@ Universal {A = A} P = (a : A) -> P a
 ClosedUnder : (A -> A -> A) -> Pred A ℓ -> Type _
 ClosedUnder {A = A} _∙_ P = {x y : A} -> P x -> P y -> P (x ∙ y)
 
+Recomputable : Pred A ℓ -> Type _
+Recomputable {A = A} P = {x : A} -> .(P x) -> P x
+
 -- HLevel of relations
 
 isPropValued : Rel A ℓ -> Type _

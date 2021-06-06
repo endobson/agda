@@ -20,7 +20,7 @@ import int.order
 import int
 import nat
 
-open int using (Int)
+open int using (Int ; int)
 open nat using (ℕ ; Nat⁺)
 
 private
@@ -45,6 +45,9 @@ private
   Zero' : Rational' -> Type₀
   Zero' = isSign' zero-sign
 
+  NonNeg' : Rational' -> Type₀
+  NonNeg' q = i.NonNeg (numer q i.* denom q)
+
 ℚ'->sign : Rational' -> Sign
 ℚ'->sign q = i.int->sign (numer q i.* denom q)
 
@@ -58,10 +61,20 @@ _<'_ : Rational' -> Rational' -> Type₀
 q <' r = Pos' (r r+' (r-' q))
 
 _>'_ : Rational' -> Rational' -> Type₀
-q >' r = q <' r
+q >' r = r <' q
+
+
+_≤'_ : Rational' -> Rational' -> Type₀
+q ≤' r = NonNeg' (r r+' (r-' q))
+
+_≥'_ : Rational' -> Rational' -> Type₀
+q ≥' r = r ≤' q
 
 isProp-<' : {q r : Rational'} -> isProp (q <' r)
 isProp-<' = i.isPropPos
+
+isProp-≤' : {q r : Rational'} -> isProp (q ≤' r)
+isProp-≤' = i.isPropNonNeg
 
 
 r~-preserves-sign : {q1 q2 : Rational'} {s : Sign} -> isSign' s q1 -> q1 r~ q2 -> isSign' s q2
@@ -99,6 +112,15 @@ r~-preserves-sign {q1} {q2} {s} v p = ans
   ans : i.isSign s (n2 i.* d2)
   ans = subst (\s -> i.isSign s (n2 i.* d2)) (sym end-path) (i.isSign-self (n2 i.* d2))
 
+r~-preserves-NonNeg : {q1 q2 : Rational'} -> NonNeg' q1 -> q1 r~ q2 -> NonNeg' q2
+r~-preserves-NonNeg {q1} {q2} nn-q1 r = handle (ℚ'->sign q1) (isSign'-self q1)
+  where
+  handle : (s : Sign) -> isSign' s q1 -> NonNeg' q2
+  handle pos-sign p-q1 = i.Pos->NonNeg (r~-preserves-sign {q1} {q2} {pos-sign} p-q1 r)
+  handle zero-sign z-q1 = i.Zero->NonNeg (r~-preserves-sign {q1} {q2} {zero-sign} z-q1 r)
+  handle neg-sign n-q1  = bot-elim (i.NonNeg->¬Neg  nn-q1 n-q1)
+
+
 r~-preserves-<₁ : {q1 q2 r : Rational'} -> q1 <' r -> q1 r~ q2 -> q2 <' r
 r~-preserves-<₁ {q1} {q2} {r} q1<r q1~q2 =
   r~-preserves-sign {r r+' (r-' q1)} {r r+' (r-' q2)} {s = pos-sign} q1<r
@@ -126,6 +148,12 @@ private
       handle pos-sign  zero-sign ()
       handle zero-sign zero-sign ()
       handle neg-sign  zero-sign ()
+
+  same-sign->Pos :
+    (q : Rational') -> (s : Sign) -> i.isSign s (numer q) -> i.isSign s (denom q) -> Pos' q
+  same-sign->Pos q s@pos-sign sn sd = int.*-isSign {s} {s} {numer q} {denom q} sn sd
+  same-sign->Pos q s@neg-sign sn sd = int.*-isSign {s} {s} {numer q} {denom q} sn sd
+  same-sign->Pos q zero-sign sn sd = bot-elim (int.NonZero->¬Zero (rNonZero q) sd)
 
 
 r+'-preserves-Pos' : {q1 q2 : Rational'} -> Pos' q1 -> Pos' q2 -> Pos' (q1 r+' q2)
@@ -292,6 +320,22 @@ private
       i .rightInv p = i.isProp-isSign s _ p
       i .leftInv p = i.isProp-isSign s _ p
 
+  NonNeg-full : Rational -> hProp ℓ-zero
+  NonNeg-full = RationalElim.elim (\_ -> isSet-hProp) val preserved
+    where
+    val : Rational' -> hProp ℓ-zero
+    val r = NonNeg' r , i.isPropNonNeg
+    preserved : (a b : Rational') -> (a r~ b) -> val a == val b
+    preserved a b a~b = ΣProp-path isProp-isProp (ua (isoToEquiv i))
+      where
+      open Iso
+      i : Iso (NonNeg' a) (NonNeg' b)
+      i .fun p = r~-preserves-NonNeg {a} {b} p a~b
+      i .inv p = r~-preserves-NonNeg {b} {a} p (sym a~b)
+      i .rightInv p = i.isPropNonNeg _ p
+      i .leftInv p = i.isPropNonNeg _ p
+
+
 isSign : Sign -> Pred Rational ℓ-zero
 isSign s r = fst (isSign-full s r)
 
@@ -321,10 +365,25 @@ isSign-self =
     (\q -> isProp-isSign (ℚ->sign q) {q})
     isSign'-self
 
+NonNeg : Pred Rational ℓ-zero
+NonNeg r = fst (NonNeg-full r)
+
+isProp-NonNeg : {r : Rational} -> isProp (NonNeg r)
+isProp-NonNeg {r} = snd (NonNeg-full r)
+
+
 Pos : Rational -> Type₀
 Pos = isSign pos-sign
+Neg : Rational -> Type₀
+Neg = isSign neg-sign
 Zero : Rational -> Type₀
 Zero = isSign zero-sign
+
+isProp-Pos : {r : Rational} -> isProp (Pos r)
+isProp-Pos {r} = isProp-isSign pos-sign {r}
+
+ℚ⁺ : Type₀
+ℚ⁺ = Σ ℚ Pos
 
 Zero-path : (q : Rational) -> Zero q -> q == 0r
 Zero-path =
@@ -333,6 +392,12 @@ Zero-path =
     (\q zq -> eq/ _ _ (Zero'-r~ q zq))
 
 
+r+-preserves-Pos : (q1 q2 : Rational) -> Pos q1 -> Pos q2 -> Pos (q1 r+ q2)
+r+-preserves-Pos =
+  RationalElim.elimProp2
+    {C2 = \q1 q2 -> Pos q1 -> Pos q2 -> Pos (q1 r+ q2)}
+    (\q1 q2 -> isPropΠ2 (\ _ _ -> isProp-isSign pos-sign {q1 r+ q2}))
+    (\q1 q2 p1 p2 -> r+'-preserves-Pos' {q1} {q2} p1 p2)
 
 r*-preserves-Pos : (q1 q2 : Rational) -> Pos q1 -> Pos q2 -> Pos (q1 r* q2)
 r*-preserves-Pos =
@@ -514,6 +579,7 @@ r+₂-preserves-order : (a b c : Rational) -> a < b -> (a r+ c) < (b r+ c)
 r+₂-preserves-order a b c lt =
   subst2 _<_ (r+-commute c a) (r+-commute c b) (r+₁-preserves-order c a b lt)
 
+
 r--flips-order : (b c : Rational) -> b < c -> (r- b) > (r- c)
 r--flips-order b c = subst Pos p
   where
@@ -528,6 +594,34 @@ r+-Pos->order a (b , pos-b) = subst Pos (sym path) pos-b
          >=> r+-assoc b a (r- a)
          >=> (cong (b r+_) (r+-inverse a))
          >=> r+-right-zero b
+
+r+-Neg->order : (a : ℚ) (b : Σ ℚ Neg) -> a > (a r+ ⟨ b ⟩)
+r+-Neg->order a (b , neg-b) = subst ((a r+ b) <_) path lt
+  where
+  lt : (a r+ b) < ((a r+ b) r+ (r- b))
+  lt = r+-Pos->order (a r+ b) (r- b , r--flips-sign b neg-sign neg-b)
+  path : ((a r+ b) r+ (r- b)) == a
+  path = r+-assoc a b (r- b) >=> cong (a r+_) (r+-inverse b) >=> r+-right-zero a
+
+r*₁-preserves-order : (a : ℚ⁺) (b c : Rational) -> b < c -> (⟨ a ⟩ r* b) < (⟨ a ⟩ r* c)
+r*₁-preserves-order (a , pos-a) b c b<c = subst Pos path pos-diff
+  where
+  pos-diff : Pos (a r* (c r+ (r- b)))
+  pos-diff = r*-preserves-Pos a (c r+ (r- b)) pos-a b<c
+
+  path : (a r* (c r+ (r- b))) == (a r* c) r+ (r- (a r* b))
+  path = RationalRing.*-distrib-+-left {a} {c} {r- b} >=>
+         cong ((a r* c) r+_) (RationalRing.minus-extract-right {a} {b})
+
+
+1/2r<1r : 1/2r < 1r
+1/2r<1r = subst2 _<_ (r+-left-zero 1/2r) (2r-path 1/2r >=> 2r-1/2r-path)  0r+1/2r<1/2r+1/2r
+  where
+  0<1/2r : 0r < 1/2r
+  0<1/2r = Pos-0< 1/2r (Pos-1/ℕ (2 , tt))
+
+  0r+1/2r<1/2r+1/2r : (0r r+ 1/2r) < (1/2r r+ 1/2r)
+  0r+1/2r<1/2r+1/2r = r+₂-preserves-order 0r 1/2r 1/2r 0<1/2r
 
 
 -- min and max
@@ -555,6 +649,31 @@ absℚ x = maxℚ x (r- x)
 diffℚ : ℚ -> ℚ -> ℚ
 diffℚ x y = (y r+ (r- x))
 
+diffℚ-anticommute : (x y : ℚ) -> diffℚ x y == r- (diffℚ y x)
+diffℚ-anticommute x y = sym (
+  RationalRing.minus-distrib-plus {x} {r- y} >=>
+  cong ((r- x) r+_) (RationalRing.minus-double-inverse {y}) >=>
+  r+-commute (r- x) y)
+
+r+-swap-diffℚ : (a b c d : Rational) -> ((diffℚ a b) r+ (diffℚ c d)) == (diffℚ (a r+ c) (b r+ d))
+r+-swap-diffℚ a b c d =
+  r+-assoc b (r- a) (diffℚ c d) >=>
+  cong (b r+_) (sym (r+-assoc (r- a) d (r- c)) >=>
+                cong (_r+ (r- c)) (r+-commute (r- a) d) >=>
+                r+-assoc d (r- a) (r- c) >=>
+                cong (d r+_) (sym (RationalRing.minus-distrib-plus {a} {c}))) >=>
+  sym (r+-assoc b d (r- (a r+ c)))
+
+
+diffℚ-trans : (x y z : ℚ) -> diffℚ x y r+ diffℚ y z == (diffℚ x z)
+diffℚ-trans x y z =
+  r+-commute (diffℚ x y) (diffℚ y z) >=>
+  r+-assoc z (r- y) (diffℚ x y) >=>
+  cong (z r+_) (sym (r+-assoc (r- y) y (r- x)) >=>
+                cong (_r+ (r- x)) (r+-commute (r- y) y >=> r+-inverse y) >=>
+                r+-left-zero (r- x))
+
+
 abs-diffℚ : ℚ -> ℚ -> ℚ
 abs-diffℚ x y = absℚ (diffℚ x y)
 
@@ -569,3 +688,146 @@ maxℚ-weaken-<₁ x y z lt = handle (trichotomous-< x y) (maxℚ x y) refl lt
   handle (tri< x<y  _ _) w p w<z = trans-< {x} {y} {z} x<y (subst (_< z) p w<z)
   handle (tri= _ _ _) w p w<z = (subst (_< z) p w<z)
   handle (tri> _ _ _) w p w<z = (subst (_< z) p w<z)
+
+r+-both-preserves-order : (a b c d : Rational) -> a < b -> c < d -> (a r+ c) < (b r+ d)
+r+-both-preserves-order a b c d a<b c<d = subst Pos (r+-swap-diffℚ a b c d) Pos-sum-diff
+  where
+  Pos-sum-diff : Pos ((diffℚ a b) r+ (diffℚ c d))
+  Pos-sum-diff = r+-preserves-Pos (diffℚ a b) (diffℚ c d) a<b c<d
+
+
+-- floor and <
+
+
+_ℚ≤_ : ℚ -> ℚ -> Type₀
+x ℚ≤ y = NonNeg (diffℚ x y)
+
+ℚ' = Rational'
+
+
+isProp-ℚ≤ : {x y : ℚ} -> isProp (x ℚ≤ y)
+isProp-ℚ≤ {x} {y} = isProp-NonNeg {diffℚ x y}
+
+NonNeg'-fractional-part' : (q : ℚ') -> NonNeg' (fractional-part' q)
+NonNeg'-fractional-part' (record { numerator = n ; denominator = d@(int.pos d')}) =
+  int.*-NonNeg-Pos (remainderℤ-NonNeg n (d , tt) tt) tt
+NonNeg'-fractional-part' (record { numerator = n ; denominator = d@(int.neg d')}) =
+  int.*-NonPos-Neg (remainderℤ-NonPos n (d , tt) tt) tt
+
+NonNeg-fractional-part : (q : ℚ) -> NonNeg (fractional-part q)
+NonNeg-fractional-part =
+  RationalElim.elimProp
+    (\q -> isProp-NonNeg {fractional-part q})
+    NonNeg'-fractional-part'
+
+NonNeg->0≤ : (q : ℚ) -> NonNeg q -> 0r ℚ≤ q
+NonNeg->0≤ q nn-q = subst NonNeg (sym (r+-right-zero q)) nn-q
+
+diffℚ-fractional-part : (q : Rational) -> diffℚ (floorℚ q) q == (fractional-part q)
+diffℚ-fractional-part q =
+  cong (_r+ (r- (floorℚ q))) (sym (fractional-part-r+ q) >=>
+                              r+-commute (floorℚ q) (fractional-part q)) >=>
+  r+-assoc (fractional-part q) (floorℚ q) (r- (floorℚ q)) >=>
+  cong (fractional-part q r+_) (r+-inverse (floorℚ q)) >=>
+  r+-right-zero (fractional-part q)
+
+floor-≤ : (q : ℚ) -> (floorℚ q) ℚ≤ q
+floor-≤ q = subst NonNeg (sym (diffℚ-fractional-part q)) (NonNeg-fractional-part q)
+
+fractional-part-0≤ : (q : ℚ) -> 0r ℚ≤ (fractional-part q)
+fractional-part-0≤ q = NonNeg->0≤ (fractional-part q) (NonNeg-fractional-part q)
+
+-- trans-<-≤ : {q1 q2 q3 : Rational} -> q1 < q2 -> q2 ℚ≤ q3 -> q1 < q3
+-- trans-<-≤ {q1} {q2} {q3} q1<q2 q2≤q3 =
+--   subst Pos (diffℚ-trans q1 q2 q3) (i.+-Pos-NonNeg q1<q2 q2≤q3)
+
+-- trans-<'-≤' : {q1 q2 q3 : Rational'} -> q1 <' q2 -> q2 ≤' q3
+-- trans-<'-≤' = ?
+
+
+-- Archimedean
+
+
+private
+  nd⁺->ℚ' : (n : Nat) (d : Nat⁺) -> ℚ'
+  nd⁺->ℚ' n (d , pos-d) = record
+    { numerator = i.ℕ->ℤ n
+    ; denominator = i.ℕ->ℤ d
+    ; NonZero-denominator = i.Pos->NonZero (i.Pos'->Pos pos-d)
+    }
+
+  n⁺d⁺->ℚ' : (n d : Nat⁺) -> ℚ'
+  n⁺d⁺->ℚ' (n' , _)  d = nd⁺->ℚ' n' d
+
+  n⁺d⁺->ℚ : (n d : Nat⁺) -> ℚ
+  n⁺d⁺->ℚ n d = [ n⁺d⁺->ℚ' n d ]
+
+  n⁺d⁺->ℚ⁺ : (n d : Nat⁺) -> ℚ⁺
+  n⁺d⁺->ℚ⁺ n d = n⁺d⁺->ℚ n d , i.*-Pos-Pos (i.Pos'->Pos (snd n)) (i.Pos'->Pos (snd d))
+
+
+  ℚ⁺-elimProp :
+    {ℓ : Level} -> {P : Pred ℚ⁺ ℓ} -> ((q : ℚ⁺) -> isProp (P q)) ->
+    ((n d : Nat⁺) -> P (n⁺d⁺->ℚ⁺ n d)) ->
+    (q : ℚ⁺) -> P q
+  ℚ⁺-elimProp {P = P} isProp-P f (q , pos-q) =
+    RationalElim.elimProp (\q -> isPropΠ (\pos-q -> isProp-P (q , pos-q))) handle q pos-q
+    where
+    find-rep : (q' : ℚ') -> (Pos' q') -> Σ[ n ∈ Nat⁺ ] (Σ[ d ∈ Nat⁺ ] (n⁺d⁺->ℚ' n d r~ q'))
+    find-rep (record { numerator = (i.pos n') ; denominator = (i.pos d') }) _ =
+      ((suc n' , tt) , (suc d' , tt) , refl)
+    find-rep (record { numerator = (i.zero-int) ; denominator = (i.pos d') }) p =
+      bot-elim (i.NonPos->¬Pos (i.*-NonPos-NonNeg tt tt) p)
+    find-rep (record { numerator = (i.neg _) ; denominator = (i.pos d') }) p =
+      bot-elim (i.NonPos->¬Pos (i.*-NonPos-NonNeg tt tt) p)
+    find-rep (record { numerator = (i.pos _) ; denominator = (i.neg d') }) p =
+      bot-elim (i.NonPos->¬Pos (i.*-NonNeg-NonPos tt tt) p)
+    find-rep (record { numerator = (i.zero-int) ; denominator = (i.neg d') }) p =
+      bot-elim (i.NonPos->¬Pos (i.*-NonNeg-NonPos tt tt) p)
+    find-rep (record { numerator = (i.neg n') ; denominator = (i.neg d') }) _ =
+      ((suc n' , tt) , (suc d' , tt) , i.minus-extract-right >=> sym i.minus-extract-left )
+
+
+    handle : (q' : ℚ') -> (pos-q' : (Pos' q')) -> P ([ q' ] , pos-q')
+    handle q' pos-q' = subst P path (f n d)
+      where
+      rep = find-rep q' pos-q'
+      n = fst rep
+      d = fst (snd rep)
+      nd~ = snd (snd rep)
+
+      path : (n⁺d⁺->ℚ⁺ n d) == ([ q' ] , pos-q')
+      path = ΣProp-path (\{x} -> isProp-Pos {x}) (eq/ _ _ nd~)
+
+
+  1/ℕ-<-step1 : (n d : Nat⁺) -> (1/ℕ' d) ≤' (n⁺d⁺->ℚ' n d)
+  1/ℕ-<-step1 n@(n'@(suc n'') , _)  d@(d' , pos-d) = ans
+    where
+    x1 = same-denom-r+' (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d))
+    x2 = ((n⁺d⁺->ℚ' n d) r+' (r-' (1/ℕ' d)))
+
+    NonNeg-numer : i.NonNeg (int n' i.+ (i.- (int 1)))
+    NonNeg-numer = subst i.NonNeg (sym i.+-eval >=> i.+-commute) tt
+
+    ans2 : NonNeg' (same-denom-r+' (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d)))
+    ans2 = i.*-NonNeg-NonNeg NonNeg-numer (i.Pos->NonNeg (i.Pos'->Pos pos-d))
+
+    ans~ : same-denom-r+' (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d)) r~ ((n⁺d⁺->ℚ' n d) r+' (r-' (1/ℕ' d)))
+    ans~ = same-denom-r+'-r~ (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d)) refl
+
+    ans : NonNeg' ((n⁺d⁺->ℚ' n d) r+' (r-' (1/ℕ' d)))
+    ans = r~-preserves-NonNeg {x1} {x2} ans2 ans~
+
+
+  1/ℕ-<-step2 : (n d : Nat⁺) -> ∃[ m ∈ Nat⁺ ] ( 1/ℕ' m ≤' (n⁺d⁺->ℚ' n d))
+  1/ℕ-<-step2 n d = ∣ d , 1/ℕ-<-step1 n d ∣
+
+  -- 1/ℕ-<-step2 : (q : ℚ⁺) -> (1/ℕ' (denom q) ≤' q)
+  -- 1/ℕ-<-step2
+
+
+-- 1/ℕ-< : (q : ℚ⁺) -> Σ[ n ∈ Nat⁺ ] (1/ℕ n < ⟨ q ⟩)
+-- 1/ℕ-< q = ?
+
+-- archimedian-≤ : (q r : ℚ⁺) -> Σ[ n ∈ Nat ] (⟨ q ⟩ < (ℕ->ℚ n r* ⟨ r ⟩))
+-- archimedian-≤ = ?

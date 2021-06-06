@@ -11,6 +11,7 @@ open import hlevel
 open import monoid
 open import nat
 open import sigma
+open import sign
 open import group.int
 
 import int
@@ -108,6 +109,21 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
 
   *-cong : {m n p o : Domain} -> m == p -> n == o -> m * n == p * o
   *-cong = cong2 _*_
+
+record SignedSemiringStr {ℓD : Level} (D : Type ℓD) (ℓS : Level) : Type (ℓ-max ℓD (ℓ-suc ℓS)) where
+  field
+    {{ semiring }} : Semiring D
+    {{ sign }} : SignStr D ℓS
+
+  open Semiring semiring
+  open SignStr sign
+
+  field
+    Zero-0# : Zero 0#
+    Pos-1# : Pos 1#
+    +-Pos-Pos : {x y : D} -> Pos x -> Pos y -> Pos (x + y)
+    +-Neg-Neg : {x y : D} -> Neg x -> Neg y -> Neg (x + y)
+    *-Pos-Pos : {x y : D} -> Pos x -> Pos y -> Pos (x * y)
 
 
 
