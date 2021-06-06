@@ -35,6 +35,7 @@ open import relatively-prime
 open import ring
 open import ring.lists
 open import ring.implementations
+open import semiring
 open import sigma
 open import fin-algebra
 open import unique-prime-factorization

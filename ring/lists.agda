@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
 open import base
-open import ring
+open import semiring
 
 module ring.lists {ℓD : Level} {Domain : Type ℓD} (S : Semiring Domain) where
 

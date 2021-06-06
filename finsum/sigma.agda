@@ -16,7 +16,7 @@ open import equality
 open import finsum
 open import finset.instances
 open import fin
-open import ring
+open import semiring
 open import truncation
 
 module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where

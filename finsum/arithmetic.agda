@@ -14,6 +14,7 @@ open import finset
 open import finset.instances
 open import finsum
 open import ring
+open import semiring
 open import truncation
 
 module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} {ℓA : Level} {FA : FinSet ℓA} where

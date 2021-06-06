@@ -21,6 +21,7 @@ open import permutation.swap
 open import relation
 open import ring
 open import ring.implementations
+open import semiring
 open import sigma
 open import sum
 open import truncation

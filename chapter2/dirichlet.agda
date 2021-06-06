@@ -6,7 +6,7 @@ open import base
 open import cubical
 open import equality
 open import equivalence
-open import ring
+open import semiring
 open import fin
 open import hlevel.base
 open import finset

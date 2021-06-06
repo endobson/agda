@@ -6,6 +6,7 @@ open import base
 open import rational
 open import ring
 open import ring.implementations
+open import semiring
 
 instance
   RationalSemiring : Semiring Rational

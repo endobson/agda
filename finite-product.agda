@@ -16,7 +16,7 @@ open import finset
 open import finsum
 open import finset.instances
 open import fin
-open import ring
+open import semiring
 open import maybe
 
 private

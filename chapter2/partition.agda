@@ -25,7 +25,7 @@ open import nat
 open import nat.bounded
 open import prime-gcd
 open import relatively-prime
-open import ring
+open import semiring
 open import ring.implementations
 open import sigma
 open import truncation

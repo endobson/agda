@@ -10,6 +10,7 @@ open import nat
 open import ring
 open import ring.implementations
 open import relation
+open import semiring
 
 import int
 import ring.lists

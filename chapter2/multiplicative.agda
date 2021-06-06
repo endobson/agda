@@ -8,7 +8,7 @@ open import functions
 open import nat
 open import rational
 open import relatively-prime
-open import ring
+open import semiring
 
 private
   variable

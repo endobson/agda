@@ -27,8 +27,8 @@ open import prime-factorization
 open import hlevel
 open import relatively-prime
 open import type-algebra
-open import ring
 open import relation
+open import semiring
 
 private
   variable

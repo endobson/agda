@@ -8,6 +8,7 @@ open import equality
 open import hlevel
 open import nat
 open import ring
+open import semiring
 
 import int
 
