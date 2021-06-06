@@ -5,7 +5,8 @@ module real.sequence where
 open import base
 open import equality
 open import hlevel
-open import nat hiding (_<_ ; _>_ ; trans-< )
+open import nat.arithmetic
+open import nat.properties
 open import rational
 open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-< )
 open import relation hiding (U)
@@ -16,6 +17,8 @@ open import order
 open import order.instances.nat
 open import order.instances.rational
 
+open import nat using (≤-max-left ; ≤-max-right)
+
 private
   variable
     ℓ : Level
@@ -25,11 +28,10 @@ private
 
 private
   Seq = ℚSequence
-  _ℕ≥_ = nat._≥_
   ℚPos = rational.order.Pos
 
 Cauchy : Pred Seq ℓ-zero
-Cauchy s = (ε : ℚ⁺) -> ∃[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ℕ≥ n -> m₂ ℕ≥ n ->
+Cauchy s = (ε : ℚ⁺) -> ∃[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ≥ n -> m₂ ≥ n ->
                                      (abs-diffℚ (s m₁) (s m₂)) < ⟨ ε ⟩)
 
 OpenEventualUpperBound : Seq -> Pred ℚ ℓ-zero
@@ -104,7 +106,7 @@ module _
     Inhabited-L : Inhabited L
     Inhabited-L = ∥-map handle (cauchy 1/2r⁺)
       where
-      handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ℕ≥ n -> m₂ ℕ≥ n ->
+      handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ≥ n -> m₂ ≥ n ->
                              (abs-diffℚ (s m₁) (s m₂)) < 1/2r) ->
                Σ ℚ L
       handle (n , f) = lb , ∣ n , 1/2r⁺ , g ∣
@@ -127,7 +129,7 @@ module _
         g m gt = subst (_< s m) (sym lb-path) lt3
           where
           lt : (abs-diffℚ (s m) (s n)) < 1/2r
-          lt = f m n gt (same-≤ n)
+          lt = f m n gt refl-≤
 
           lt2 : ((s n) r+ (r- (s m))) < 1/2r
           lt2 = abs-diffℚ-weaken-< (s m) (s n) 1/2r lt
@@ -138,7 +140,7 @@ module _
     Inhabited-U : Inhabited U
     Inhabited-U = ∥-map handle (cauchy 1/2r⁺)
       where
-      handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ℕ≥ n -> m₂ ℕ≥ n ->
+      handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ≥ n -> m₂ ≥ n ->
                              (abs-diffℚ (s m₁) (s m₂)) < 1/2r) ->
                Σ ℚ U
       handle (n , f) = ub , ∣ n , 1/2r⁺ , g ∣
@@ -149,7 +151,7 @@ module _
         g m gt = subst (_< ub) path lt4
           where
           lt : (abs-diffℚ (s n) (s m)) < 1/2r
-          lt = f n m (same-≤ n) gt
+          lt = f n m refl-≤ gt
 
           lt2 : diffℚ (s n) (s m) < 1/2r
           lt2 = abs-diffℚ-weaken-< (s n) (s m) 1/2r lt
@@ -287,7 +289,7 @@ module _
           (r*-preserves-Pos 1/2r (y r+ (r- x)) Pos-1/2r x<y)
       d⁺ : ℚ⁺
       d⁺ = d , pos-d
-      handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ℕ≥ n -> m₂ ℕ≥ n ->
+      handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ≥ n -> m₂ ≥ n ->
                              (abs-diffℚ (s m₁) (s m₂)) < d) ->
                L x ⊎ U y
       handle (n , f) = handle2 (trichotomous-< t mid)
@@ -300,7 +302,7 @@ module _
           g m m≥n = subst2 _<_ path2 path1 lt5
             where
             lt1 : (abs-diffℚ (s n) (s m)) < d
-            lt1 = f n m (same-≤ n) m≥n
+            lt1 = f n m refl-≤ m≥n
             lt2 : (s m r+ (r- s n)) < d
             lt2 = abs-diffℚ-weaken-< (s n) (s m) d lt1
 
@@ -330,7 +332,7 @@ module _
           g m m≥n = subst2 _<_ path2 path1 lt5
             where
             lt1 : (abs-diffℚ (s n) (s m)) < d
-            lt1 = f n m (same-≤ n) m≥n
+            lt1 = f n m refl-≤ m≥n
             lt2 : (s m r+ (r- s n)) < d
             lt2 = abs-diffℚ-weaken-< (s n) (s m) d lt1
 
@@ -360,7 +362,7 @@ module _
           g m m≥n = subst (_< s m) path1 lt5
             where
             lt1 : (abs-diffℚ (s m) (s n)) < d
-            lt1 = f m n m≥n (same-≤ n)
+            lt1 = f m n m≥n refl-≤
             lt2 : (s n r+ (r- s m)) < d
             lt2 = abs-diffℚ-weaken-< (s m) (s n) d lt1
 
