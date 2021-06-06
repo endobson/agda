@@ -27,13 +27,10 @@ private
 
 private
   module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
-    open Semiring S
     finiteProductᵉ : {ℓ : Level} -> (s : FinSet ℓ) -> (⟨ s ⟩ -> D) -> D
     finiteProductᵉ = finiteMerge *-CommMonoid isSetDomain
 
 module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
-  open Semiring S
-
   private
     CM = *-CommMonoid
 

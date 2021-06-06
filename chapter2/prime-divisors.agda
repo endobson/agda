@@ -356,8 +356,6 @@ module _ {D : Type ℓ} {{S : Semiring D}} where
       M : Multiplication D
       M = SemiringMultiplication S
 
-    open Semiring S
-
   module _ {f : Nat⁺ -> D} (m : Multiplicative f) where
     private
       f' : {n : Nat} -> PrimePowerFactor n -> D

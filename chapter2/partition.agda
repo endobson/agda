@@ -19,7 +19,7 @@ open import gcd.euclidean-algorithm
 open import gcd.propositional
 open import hlevel
 open import isomorphism
-open import int
+open import int using (Int ; int)
 open import linear-combo
 open import nat
 open import nat.bounded
@@ -34,7 +34,6 @@ open import univalence
 
 
 module _ {ℓ₁ : Level}  {D : Type ℓ₁} {{S : Semiring D}} where
-  open Semiring S
   private
     sum = finiteSum
 
@@ -325,9 +324,9 @@ module _ (n⁺ : Nat⁺) where
       gcd-d .GCD.f s (sq' , sq-path) (snd' , snd-path) = s%d
         where
         p1 : s * sq' == (int d) * (int q)
-        p1 = *-commute {s} {sq'} >=> sq-path >=> *-commute {int q} {int d}
+        p1 = *-commute >=> sq-path >=> *-commute
         p2 : s * snd' == (int d) * (int nd)
-        p2 = *-commute {s} {snd'} >=> snd-path >=> *-commute {int nd} {int d}
+        p2 = *-commute >=> snd-path >=> *-commute
 
         lc : LinearCombination' q nd 1
         lc = gcd'->linear-combo gcd1
@@ -337,17 +336,17 @@ module _ (n⁺ : Nat⁺) where
         path =
           begin
             s * (sq' * lc.x + snd' * lc.y)
-          ==< *-distrib-+-left {s} >
+          ==< *-distrib-+-left >
             (s * (sq' * lc.x)) + (s * (snd' * lc.y))
-          ==< (\i -> *-assoc {s} {sq'} {lc.x} (~ i) + *-assoc {s} {snd'} {lc.y} (~ i)) >
+          ==< cong2 _+_ (sym *-assoc) (sym *-assoc) >
             ((s * sq') * lc.x) + ((s * snd') * lc.y)
           ==< (\i -> (p1 i) * lc.x + (p2 i) * lc.y) >
             (((int d) * (int q)) * lc.x) + (((int d) * (int nd)) * lc.y)
-          ==< (\i -> *-assoc {int d} {int q} {lc.x} i + *-assoc {int d} {int nd} {lc.y} i) >
+          ==< cong2 _+_ *-assoc *-assoc >
             ((int d) * ((int q) * lc.x)) + ((int d) * ((int nd) * lc.y))
-          ==< sym (*-distrib-+-left {int d}) >
+          ==< sym *-distrib-+-left >
             (int d) * ((int q) * lc.x + (int nd) * lc.y)
-          ==< (\i -> (int d) * (*-commute {int q} {lc.x} i + *-commute {int nd} {lc.y} i)) >
+          ==< *-right (cong2 _+_ *-commute *-commute) >
             (int d) * (lc.x * (int q) + lc.y * (int nd))
           ==< (\i -> (int d) * (lc.path i)) >
             (int d) * (int 1)
@@ -356,7 +355,7 @@ module _ (n⁺ : Nat⁺) where
           end
 
         s%d : s div (int d)
-        s%d = (sq' * lc.x + snd' * lc.y) , *-commute {_} {s} >=> path
+        s%d = (sq' * lc.x + snd' * lc.y) , *-commute >=> path
 
       gcd-d2 : GCD (int (q *' d)) (int (nd *' d)) (int d)
       gcd-d2 = transport (\i -> GCD (int-inject-*' {q} {d} (~ i))

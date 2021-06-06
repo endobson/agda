@@ -13,12 +13,15 @@ import monoid
 import unordered-list.base
 import unordered-list.operations
 
-open Semiring S
-
 private
   variable
     ℓ : Level
     A : Set ℓ
+
+  instance
+    IS = S
+
+  module S = Semiring S
 
 -- Ordered sums/products
 module _ where
@@ -29,8 +32,8 @@ module _ where
   sum : List Domain -> Domain
   sum = concat {{+-Monoid}}
 
-  sumʰ : Monoidʰ {{M₂ = +-Monoid}} sum
-  sumʰ = concatʰ
+  sumʰ : Monoidʰ {{M₁ = ListMonoid}} {{M₂ = +-Monoid}} sum
+  sumʰ = concatʰ {{+-Monoid}}
   module sumʰ where
     open Monoidʰ sumʰ public
     preserves-+ = preserves-∙
@@ -48,9 +51,9 @@ module _ where
   sum-map-Permutation f (permutation-cons a p) =
     cong (f a +_) (sum-map-Permutation f p)
   sum-map-Permutation f (permutation-swap a b p) =
-    sym (+-assoc {f a} {f b})
-    >=> (+-left (+-commute {f a} {f b}))
-    >=> (+-assoc {f b} {f a})
+    sym (S.+-assoc {f a} {f b})
+    >=> (+-left (S.+-commute {f a} {f b}))
+    >=> (S.+-assoc {f b} {f a})
   sum-map-Permutation f (permutation-compose p1 p2) =
     sum-map-Permutation f p1 >=> sum-map-Permutation f p2
 
@@ -116,9 +119,9 @@ module _ where
   product-map-Permutation f (permutation-cons a p) =
     cong (f a *_) (product-map-Permutation f p)
   product-map-Permutation f (permutation-swap a b p) =
-    sym (*-assoc {f a} {f b})
-    >=> (*-left (*-commute {f a} {f b}))
-    >=> (*-assoc {f b} {f a})
+    sym (S.*-assoc {f a} {f b})
+    >=> (*-left (S.*-commute {f a} {f b}))
+    >=> (S.*-assoc {f b} {f a})
   product-map-Permutation f (permutation-compose p1 p2) =
     product-map-Permutation f p1 >=> product-map-Permutation f p2
 
@@ -132,10 +135,10 @@ module _ where
   unordered-sum = concat {{+-CommMonoid}} isSetDomain
 
   unordered-sumʰ : CommMonoidʰ unordered-sum
-  unordered-sumʰ = concatʰ
+  unordered-sumʰ = concatʰ {{+-CommMonoid}}
 
   unordered-product : UList Domain -> Domain
   unordered-product = concat {{*-CommMonoid}} isSetDomain
 
   unordered-productʰ : CommMonoidʰ unordered-product
-  unordered-productʰ = concatʰ
+  unordered-productʰ = concatʰ {{*-CommMonoid}}

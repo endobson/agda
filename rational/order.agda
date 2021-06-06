@@ -15,6 +15,7 @@ open import truncation
 open import univalence
 open import ring
 open import ring.implementations.rational
+open import semiring
 
 import int.order
 import int
@@ -610,7 +611,7 @@ r*₁-preserves-order (a , pos-a) b c b<c = subst Pos path pos-diff
   pos-diff = r*-preserves-Pos a (c r+ (r- b)) pos-a b<c
 
   path : (a r* (c r+ (r- b))) == (a r* c) r+ (r- (a r* b))
-  path = RationalRing.*-distrib-+-left {a} {c} {r- b} >=>
+  path = *-distrib-+-left {_} {_} {a} {c} {r- b} >=>
          cong ((a r* c) r+_) (RationalRing.minus-extract-right {a} {b})
 
 

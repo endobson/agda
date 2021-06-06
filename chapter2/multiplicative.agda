@@ -3,7 +3,7 @@
 module chapter2.multiplicative where
 
 open import base
-open import int
+open import int hiding (_*_)
 open import functions
 open import nat
 open import rational
@@ -27,7 +27,7 @@ instance
   Nat⁺Multiplication = record { mult = _*⁺_; 1# = 1⁺ }
 
   IntMultiplication : Multiplication Int
-  IntMultiplication = record { mult = _*_; 1# = (int 1) }
+  IntMultiplication = record { mult = int._*_; 1# = (int 1) }
 
   RationalMultiplication : Multiplication Rational
   RationalMultiplication = record { mult = _r*_; 1# = (ℕ->ℚ 1) }

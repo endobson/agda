@@ -27,7 +27,7 @@ private
 record Ring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   field
     {{semiring}} : Semiring Domain
-  open Semiring semiring public
+  -- open Semiring semiring public
 
   field
     -_ : Domain -> Domain
@@ -527,11 +527,14 @@ record Ringʰᵉ
   module R₁ = Ring R₁
   module R₂ = Ring R₂
 
+  module S₁ = Semiring R₁.semiring
+  module S₂ = Semiring R₂.semiring
+
   field
-    preserves-0# : f R₁.0# == R₂.0#
-    preserves-1# : f R₁.1# == R₂.1#
-    preserves-+ : ∀ x y -> f (x R₁.+ y) == f x R₂.+ f y
-    preserves-* : ∀ x y -> f (x R₁.* y) == f x R₂.* f y
+    preserves-0# : f S₁.0# == S₂.0#
+    preserves-1# : f S₁.1# == S₂.1#
+    preserves-+ : ∀ x y -> f (x S₁.+ y) == f x S₂.+ f y
+    preserves-* : ∀ x y -> f (x S₁.* y) == f x S₂.* f y
     preserves-minus : ∀ x -> f (R₁.- x) == R₂.- (f x)
 
 

@@ -167,7 +167,11 @@ module RingSolver {Domain : Type ℓ} (R : Ring Domain) where
     private
       R' = (ReaderRing (Vec Domain n) R)
       open module M = Ring R'
+      module MS = Semiring M.semiring
       open ring.lists (Ring.semiring R')
+
+      instance
+        IS = M.semiring
 
       Meaning = (Vec Domain n) -> Domain
 
@@ -304,7 +308,7 @@ module RingSolver {Domain : Type ℓ} (R : Ring Domain) where
       ++-terms-flip :
         ∀ ts1 ts2 -> ⟦ ts1 ++ ts2 ⟧terms == ⟦ ts2 ++ ts1 ⟧terms
       ++-terms-flip ts1 ts2 =
-        ++-terms≈ ts1 ts2 >=> (+-commute {⟦ ts1 ⟧terms} {⟦ ts2 ⟧terms}) >=> (sym (++-terms≈ ts2 ts1))
+        ++-terms≈ ts1 ts2 >=> (MS.+-commute {⟦ ts1 ⟧terms} {⟦ ts2 ⟧terms}) >=> (sym (++-terms≈ ts2 ts1))
 
       merge-equal-terms≈ : ∀ t1 t2 pr
         -> ⟦ (merge-equal-terms t1 t2 pr) ⟧term == ⟦ t1 ⟧term + ⟦ t2 ⟧term
@@ -671,9 +675,13 @@ module Solver {Domain : Type ℓ} (S : Semiring Domain) where
 
   module _ (n : Nat) where
     S' = (ReaderSemiring (Vec Domain n) S)
-    open module M = Semiring S'
-    open ring.lists S'
+    module M = Semiring S'
+    open module L = ring.lists S'
     Meaning = Vec Domain n -> Domain
+
+    private
+      instance
+        IS = S'
 
     ⟦_⟧ : Syntax n -> Meaning
     ⟦ (var i) ⟧ env = lookup env i
@@ -727,7 +735,7 @@ module Solver {Domain : Type ℓ} (S : Semiring Domain) where
     terms-eval-inject-map-⊗ :
       {e : Term} -> {b : List Term}
       -> ⟦ (map (e ⊗_) b) ⟧terms == ⟦ e ⟧term * ⟦ b ⟧terms
-    terms-eval-inject-map-⊗ {e} {[]} = sym (*-right-zero {⟦ e ⟧term})
+    terms-eval-inject-map-⊗ {e} {[]} = sym *-right-zero
     terms-eval-inject-map-⊗ {e} {(e2 :: b)} =
       begin
         ⟦ (map (e ⊗_) (e2 :: b)) ⟧terms
@@ -737,13 +745,13 @@ module Solver {Domain : Type ℓ} (S : Semiring Domain) where
         ⟦ map (e ⊗_) (e2 :: []) ⟧terms + ⟦ (map (e ⊗_) b) ⟧terms
       ==<>
         (⟦ e ⊗ e2 ⟧term + 0#) + ⟦ (map (e ⊗_) b) ⟧terms
-      ==< +-left (+-right-zero {⟦ e ⊗ e2 ⟧term}) >
+      ==< +-left +-right-zero >
         ⟦ e ⊗ e2 ⟧term + ⟦ (map (e ⊗_) b) ⟧terms
-      ==< +-right {⟦ e ⊗ e2 ⟧term} (terms-eval-inject-map-⊗ {e} {b}) >
+      ==< +-right (terms-eval-inject-map-⊗ {e} {b}) >
         ⟦ e ⊗ e2 ⟧term + ⟦ e ⟧term * ⟦ b ⟧terms
       ==<>
         ⟦ e ⟧term * ⟦ e2 ⟧term + ⟦ e ⟧term * ⟦ b ⟧terms
-      ==< sym (*-distrib-+-left {⟦ e ⟧term}) >
+      ==< sym *-distrib-+-left >
         ⟦ e ⟧term * (⟦ e2 ⟧term + ⟦ b ⟧terms)
       ==<>
         ⟦ e ⟧term * ⟦ (e2 :: b) ⟧terms
@@ -752,7 +760,7 @@ module Solver {Domain : Type ℓ} (S : Semiring Domain) where
 
     terms-eval-inject-all-pairs : {a b : List Term}
       -> ⟦ (all-pairs a b) ⟧terms == ⟦ a ⟧terms * ⟦ b ⟧terms
-    terms-eval-inject-all-pairs {[]} {b} = sym (*-left-zero {⟦ b ⟧terms})
+    terms-eval-inject-all-pairs {[]} {b} = sym *-left-zero
     terms-eval-inject-all-pairs {e :: a} {b} =
       begin
         ⟦ (all-pairs (e :: a) b) ⟧terms
@@ -762,10 +770,9 @@ module Solver {Domain : Type ℓ} (S : Semiring Domain) where
         (⟦ (map (e ⊗_) b) ⟧terms) + (⟦ (all-pairs a b) ⟧terms)
       ==< +-left (terms-eval-inject-map-⊗ {e} {b}) >
         (⟦ e ⟧term * ⟦ b ⟧terms) + ⟦ (all-pairs a b) ⟧terms
-      ==< +-right {(⟦ e ⟧term * ⟦ b ⟧terms)}
-                    (terms-eval-inject-all-pairs {a} {b}) >
+      ==< +-right (terms-eval-inject-all-pairs {a} {b}) >
         (⟦ e ⟧term * ⟦ b ⟧terms) + (⟦ a ⟧terms * ⟦ b ⟧terms)
-      ==< sym (*-distrib-+-right {⟦ e ⟧term}) >
+      ==< sym *-distrib-+-right >
         (⟦ e ⟧term + ⟦ a ⟧terms) * ⟦ b ⟧terms
       ==<>
         ⟦ (e :: a) ⟧terms * ⟦ b ⟧terms
@@ -883,7 +890,7 @@ module examples where
                                                (a ⊗ b) ⊕ (c ⊗ d) ⊕ (c ⊗ b) ⊕ (a ⊗ d)) refl
 
   module full where
-    open int
+    open int using (Int ; int ; -_)
 
     example1 : (a b c d : Int) -> (a + c) * (b + d) == a * b + c * d + c * b + a * d
     example1 = IntSolver.solve 4 (\ a b c d -> ((a ⊕ c) ⊗ (b ⊕ d)) ,

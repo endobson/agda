@@ -35,8 +35,6 @@ private
     A : Type ℓ
 
 module _ {D : Type ℓ} {{S : Semiring D}} where
-  open Semiring S
-
   private
     CM = +-CommMonoid
 

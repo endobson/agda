@@ -101,17 +101,21 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   *-cong : {m n p o : Domain} -> m == p -> n == o -> m * n == p * o
   *-cong = cong2 _*_
 
-record SignedSemiringStr {ℓD : Level} (D : Type ℓD) (ℓS : Level) : Type (ℓ-max ℓD (ℓ-suc ℓS)) where
-  field
-    {{ semiring }} : Semiring D
-    {{ sign }} : SignStr D ℓS
+module _ {D : Type ℓ} {{S : Semiring D}} where
+  open Semiring S public
 
-  open Semiring semiring
-  open SignStr sign
 
-  field
-    Zero-0# : Zero 0#
-    Pos-1# : Pos 1#
-    +-Pos-Pos : {x y : D} -> Pos x -> Pos y -> Pos (x + y)
-    +-Neg-Neg : {x y : D} -> Neg x -> Neg y -> Neg (x + y)
-    *-Pos-Pos : {x y : D} -> Pos x -> Pos y -> Pos (x * y)
+-- record SignedSemiringStr {ℓD : Level} (D : Type ℓD) (ℓS : Level) : Type (ℓ-max ℓD (ℓ-suc ℓS)) where
+--   field
+--     {{ semiring }} : Semiring D
+--     {{ sign }} : SignStr D ℓS
+--
+--   open Semiring semiring
+--   open SignStr sign
+--
+--   field
+--     Zero-0# : Zero 0#
+--     Pos-1# : Pos 1#
+--     +-Pos-Pos : {x y : D} -> Pos x -> Pos y -> Pos (x + y)
+--     +-Neg-Neg : {x y : D} -> Neg x -> Neg y -> Neg (x + y)
+--     *-Pos-Pos : {x y : D} -> Pos x -> Pos y -> Pos (x * y)

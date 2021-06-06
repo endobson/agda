@@ -65,7 +65,9 @@ module _ {ℓA : Level} {A : Type ℓA} {{disc'A : Discrete' A}} where
     pos-count = transport (\i -> unorder-count a l (~ i) > 0) (ul.contains->count>0 c)
 
 module _ {Domain : Type ℓ} (s : Semiring Domain) where
-  open Semiring s
+  private
+    instance
+      IS = s
   open ring.lists s
 
 

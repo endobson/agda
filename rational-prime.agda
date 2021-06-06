@@ -5,9 +5,10 @@ module rational-prime where
 open import rational
 open import equality
 open import prime
-open import int
+open import int hiding (_*_)
 open import base
 open import ring.implementations.rational
+open import semiring
 
 module rr = RationalRing
 
@@ -43,4 +44,4 @@ module _ (p : Prime') where
   ℕ->ℚ-prime-power zero    = refl
   ℕ->ℚ-prime-power (suc n) =
     Semiringʰ-ℕ->ℚ.preserves-* p' (prime-power p n) >=>
-    cong (pℚ rr.*_) (ℕ->ℚ-prime-power n)
+    cong (pℚ *_) (ℕ->ℚ-prime-power n)

@@ -11,6 +11,17 @@ open import ring
 open import semiring
 
 import int
+open int using
+ ( Int
+ ; int
+ ; ℕ->ℤ
+ ; _^_
+ ; ^-right-zero
+ ; ^-right-suc
+ ; add1
+ ; add1-extract-left
+ ; add1-extract-*
+ )
 
 instance
   NatSemiring : Semiring Nat
@@ -70,7 +81,6 @@ instance
     >=> sym (*'-assoc {x} {x ^' a} {x ^' b})
 
 module _ where
-  open int
   ^ʰ : (x : Int) -> CommMonoidʰᵉ NatSemiring.+-CommMonoid IntSemiring.*-CommMonoid (x ^_)
   ^ʰ x = record
     { preserves-ε = ^-right-zero
@@ -82,7 +92,7 @@ module _ where
     preserves-∙ (suc a) b =
       ^-right-suc
       >=> cong (x *_) (preserves-∙ a b)
-      >=> sym (*-assoc {x} {x ^ a} {x ^ b})
+      >=> sym (int.*-assoc {x} {x ^ a} {x ^ b})
       >=> sym (cong (_* _) ^-right-suc)
 
 
@@ -131,23 +141,24 @@ ReaderSemiring : {ℓ₁ ℓ₂ : Level} {Domain : Type ℓ₁} -> (A : Type ℓ
                  -> Semiring Domain -> Semiring (A -> Domain)
 ReaderSemiring {Domain = Domain} A S = res
   where
-  open Semiring S
+  private
+    module S = Semiring S
 
   res : Semiring (A -> Domain)
   res = record
-    { 0# = \a -> 0#
-    ; 1# = \a -> 1#
-    ; _+_ = (\ x y a -> (x a + y a))
-    ; _*_ = (\ x y a -> (x a * y a))
-    ; +-assoc = (\ {m} {n} {o} i a -> (+-assoc {m a} {n a} {o a}) i)
-    ; +-commute = (\ {m} {n} i a -> (+-commute {m a} {n a} i))
-    ; *-assoc = (\ {m} {n} {o} i a -> (*-assoc {m a} {n a} {o a} i))
-    ; *-commute = (\ {m} {n} i a -> (*-commute {m a} {n a} i))
-    ; +-left-zero = (\ {m} i a -> (+-left-zero {m a} i))
-    ; *-left-zero = (\ {m} i a -> (*-left-zero {m a} i))
-    ; *-left-one = (\ {m} i a -> (*-left-one {m a} i))
-    ; *-distrib-+-right = (\ {m} {n} {o} i a -> (*-distrib-+-right {m a} {n a} {o a} i))
-    ; isSetDomain = isSetΠ (\ _ -> isSetDomain)
+    { 0# = \a -> Semiring.0# S
+    ; 1# = \a -> Semiring.1# S
+    ; _+_ = (\ x y a -> (x a S.+ y a))
+    ; _*_ = (\ x y a -> (x a S.* y a))
+    ; +-assoc = (\ {m} {n} {o} i a -> (S.+-assoc {m a} {n a} {o a}) i)
+    ; +-commute = (\ {m} {n} i a -> (S.+-commute {m a} {n a} i))
+    ; *-assoc = (\ {m} {n} {o} i a -> (S.*-assoc {m a} {n a} {o a} i))
+    ; *-commute = (\ {m} {n} i a -> (S.*-commute {m a} {n a} i))
+    ; +-left-zero = (\ {m} i a -> (S.+-left-zero {m a} i))
+    ; *-left-zero = (\ {m} i a -> (S.*-left-zero {m a} i))
+    ; *-left-one = (\ {m} i a -> (S.*-left-one {m a} i))
+    ; *-distrib-+-right = (\ {m} {n} {o} i a -> (S.*-distrib-+-right {m a} {n a} {o a} i))
+    ; isSetDomain = isSetΠ (\ _ -> S.isSetDomain)
     }
 
 

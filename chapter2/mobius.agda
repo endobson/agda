@@ -21,7 +21,8 @@ open import finset.instances
 open import finsubset
 open import hlevel
 open import isomorphism
-open import int
+open import int using (Int ; int ; neg ; _^_ ; zero-int ; pos ; ^-right-zero ; ^-right-one ; -_
+                      ; +-eval ; add-minus-zero)
 open import list
 open import list.discrete
 open import maybe
@@ -92,9 +93,9 @@ relatively-prime-μ {a} {b} rp = handle (decide-square-free a) (decide-square-fr
       μ (a *⁺ b)
     ==< ¬square-free-μ (¬square-free-*-right a {b} ¬sf-b) >
       (int 0)
-    ==< sym (*-right-zero {μ a}) >
+    ==< sym *-right-zero >
       μ a * (int 0)
-    ==< *-right {μ a} (sym (¬square-free-μ ¬sf-b)) >
+    ==< *-right (sym (¬square-free-μ ¬sf-b)) >
       μ a * μ b
     end
   handle (yes sf-a) (yes sf-b) =
@@ -106,7 +107,7 @@ relatively-prime-μ {a} {b} rp = handle (decide-square-free a) (decide-square-fr
       (- (int 1)) ^ (ul.length primes-a) * (- (int 1)) ^ (ul.length primes-b)
     ==< *-left (sym (square-free-μ sf-a pf-a)) >
       μ a * (- (int 1)) ^ (ul.length primes-b)
-    ==< *-right {μ a} (sym (square-free-μ sf-b pf-b)) >
+    ==< *-right (sym (square-free-μ sf-b pf-b)) >
       μ a * μ b
     end
     where
@@ -399,7 +400,7 @@ divisorSum-μ-prime p =
     μ p⁺ + μ 1⁺
   ==< cong2 _+_ (μp==-1 p) μ1==1 >
     (- (int 1)) + (int 1)
-  ==< +-commute { - (int 1)} {int 1} >
+  ==< +-commute >
     (int 1) + (- (int 1))
   ==< add-minus-zero {int 1}>
     (int 0)
