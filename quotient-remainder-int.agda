@@ -190,17 +190,19 @@ private
            +-commute >=> sym +-assoc
 
       neg1 : Neg (((int ⟨ qr2.r ⟩) + (- (int d'))) + (- ((int q') * (int d'))))
-      neg1 = +-Neg-NonPos (fin-small qr2.r) (minus-NonNeg (*-NonNeg-NonNeg tt tt))
+      neg1 = +-Neg-NonPos (fin-small qr2.r) (minus-NonNeg (*-NonNeg-NonNeg (NonNeg-nonneg q')
+                                                                           (NonNeg-nonneg d')))
   quotient-unique d (neg n) qr2 = f qr2.path
     where
     module qr2 = QuotientRemainder qr2
     d' = ⟨ d ⟩
 
     f : {q : Int} -> q * (int d') + (int ⟨ qr2.r ⟩) == (neg n) -> q == (quotient (neg n) d)
-    f {nonneg q'} p = bot-elim (subst NonNeg p nonneg1)
+    f {nonneg q'} p = bot-elim (NonNeg->¬Neg {neg n} (subst NonNeg p nonneg1) tt)
       where
       nonneg1 : NonNeg ((int q') * (int d') + (int ⟨ qr2.r ⟩))
-      nonneg1 = +-NonNeg-NonNeg (*-NonNeg-NonNeg _ _) _
+      nonneg1 = +-NonNeg-NonNeg (*-NonNeg-NonNeg (NonNeg-nonneg q') (NonNeg-nonneg d'))
+                                (NonNeg-nonneg ⟨ qr2.r ⟩)
     f {neg q'} p =
       cong (neg ∘ qr.QuotientRemainder.q) (sym (qr.isContr-QuotientRemainder .snd qr3))
       where

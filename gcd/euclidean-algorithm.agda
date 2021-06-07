@@ -15,8 +15,8 @@ open import relation
 
 
 linear-combo->gcd : {a b d : Int} -> LinearCombination a b d -> d div a -> d div b -> GCD a b (abs d)
-linear-combo->gcd (linear-combo x y p) da db =
-  (gcd tt (div-abs-left da) (div-abs-left db)
+linear-combo->gcd {d = d} (linear-combo x y p) da db =
+  (gcd (NonNeg-abs d) (div-abs-left da) (div-abs-left db)
     (\ z za zb -> transport (\i -> z div abs (p i)) (div-abs-right (div-linear za zb {x} {y}))))
 
 private
@@ -94,7 +94,7 @@ abstract
     t = compute-euclidean-tree a b
 
   gcd-exists : (a b : Int) -> Σ[ d ∈ Int ] (GCD a b d)
-  gcd-exists a b = (int (euclidean-tree-root t)) , (gcd'->gcd (euclidean-tree->gcd t))
+  gcd-exists a b = (int (euclidean-tree-root t)) , (gcd'->gcd (NonNeg-nonneg _) (euclidean-tree->gcd t))
     where
     t = compute-euclidean-tree (abs' a) (abs' b)
 

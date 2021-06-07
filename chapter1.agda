@@ -19,7 +19,7 @@ open import solver
 
 ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)
 ex1-1 {a} {b} {c} {d} (gcd _ _ _ gcd-f) c-div-a d-div-b =
-  gcd tt div-one div-one
+  gcd (inj-l tt) div-one div-one
   (\x x-div-c x-div-d ->
     (gcd-f x (div-trans x-div-c c-div-a) (div-trans x-div-d d-div-b)))
 
@@ -109,11 +109,13 @@ ex1-4 {a} {b} rp = handle (gcd-exists (a + b) (a + - b))
     handle2 (suc-≤i zero-≤i) = inj-l g
     handle2 (suc-≤i (suc-≤i zero-≤i)) = inj-r g
     handle2 zero-≤i = bot-elim (zero-suc-absurd (sym (nonneg-injective (div-zero->zero d-div))))
+  handle (d@(neg _) , g@(gcd (inj-l ()) _ _ _))
+  handle (d@(neg _) , g@(gcd (inj-r ()) _ _ _))
 
 
 ex1-6 : {a b d : Int} -> RPrime a b -> d div (a + b) -> RPrime a d × RPrime b d
 ex1-6 {a} {b} {d} (gcd _ _ _ f) d%a+b =
-    (gcd tt div-one div-one f-a) , (gcd tt div-one div-one f-b)
+    (gcd (inj-l tt) div-one div-one f-a) , (gcd (inj-l tt) div-one div-one f-b)
   where
   f-a : (x : Int) -> x div a -> x div d -> x div (int 1)
   f-a x x%a x%d = (f x x%a x%b)
@@ -185,6 +187,8 @@ ex1-5' : {a b : Int} -> ex1-5-arith-type' -> RPrime a b ->
    (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎
    (GCD (a + b) (a * a + - (a * b) + b * b) (int 3))
 ex1-5' {a} {b} arith-proof rp with (gcd-exists (a + b) (a * a + - (a * b) + b * b))
+... | (d@(neg d-nat) , g@(gcd (inj-l ()) d%a+b d%term _))
+... | (d@(neg d-nat) , g@(gcd (inj-r ()) d%a+b d%term _))
 ... | (d@(nonneg d-nat) , g@(gcd _ d%a+b d%term _)) = res
   where
   ¬2%3 : ¬ (2 div' 3)

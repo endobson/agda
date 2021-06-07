@@ -31,12 +31,12 @@ GCD⁺ (a , _) (b , _) (d , _) = GCD' a b d
 -- Common constructions for integer GCD
 
 gcd-refl : {n : Int} -> GCD n n (abs n)
-gcd-refl {n} = gcd tt (div-abs-left div-refl) (div-abs-left div-refl)
+gcd-refl {n} = gcd (NonNeg-abs n) (div-abs-left div-refl) (div-abs-left div-refl)
  (\ _ _ d -> (div-abs-right d))
 
 gcd-zero : {a : Int} -> GCD a zero-int (abs a)
 gcd-zero {a} =
-  (gcd tt (div-abs-left div-refl) div-zero (\ x xa xz -> (div-abs-right xa)))
+  (gcd (NonNeg-abs a) (div-abs-left div-refl) div-zero (\ x xa xz -> (div-abs-right xa)))
 
 gcd-sym : {a b d : Int} -> GCD a b d -> GCD b a d
 gcd-sym (gcd non-neg div-a div-b f) =
@@ -101,7 +101,7 @@ gcd'-unique {m} {n} {d1} {d2} g1 g2 =
 
 gcd'->gcd/nat : {d n a : Nat} -> GCD' d n a -> GCD (int d) (int n) (int a)
 gcd'->gcd/nat {d} {n} {a} g =
-  (gcd tt (div'->div g.%a) (div'->div g.%b) f)
+  (gcd (NonNeg-nonneg _) (div'->div g.%a) (div'->div g.%b) f)
   where
   module g = GCD' g
   fix : {x : Int} -> {y : Nat} -> x div (int y) -> (abs' x) div' y
@@ -111,25 +111,27 @@ gcd'->gcd/nat {d} {n} {a} g =
   f x@(pos x') x%d x%n = div'->div (g.f (suc x') (fix x%d) (fix x%n))
   f x@(neg x') x%d x%n = div-negate-left (div'->div (g.f (suc x') (fix x%d) (fix x%n)))
 
-gcd'->gcd : {d n a : Int} -> {NonNeg a} -> GCD' (abs' d) (abs' n) (abs' a) -> GCD d n a
-gcd'->gcd {zero-int} {zero-int} {zero-int} g = gcd'->gcd/nat g
-gcd'->gcd {zero-int} {zero-int} {pos _} g = gcd'->gcd/nat g
-gcd'->gcd {zero-int} {pos _} {zero-int} g = gcd'->gcd/nat g
-gcd'->gcd {zero-int} {pos _} {pos _} g = gcd'->gcd/nat g
-gcd'->gcd {zero-int} {neg _} {zero-int} g = (gcd-negate (gcd'->gcd/nat g))
-gcd'->gcd {zero-int} {neg _} {pos _} g = (gcd-negate (gcd'->gcd/nat g))
-gcd'->gcd {pos _} {zero-int} {zero-int} g = gcd'->gcd/nat g
-gcd'->gcd {pos _} {zero-int} {pos _} g = gcd'->gcd/nat g
-gcd'->gcd {pos _} {pos _} {zero-int} g = gcd'->gcd/nat g
-gcd'->gcd {pos _} {pos _} {pos _} g = gcd'->gcd/nat g
-gcd'->gcd {pos _} {neg _} {zero-int} g = (gcd-negate (gcd'->gcd/nat g))
-gcd'->gcd {pos _} {neg _} {pos _} g = (gcd-negate (gcd'->gcd/nat g))
-gcd'->gcd {neg _} {zero-int} {zero-int} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
-gcd'->gcd {neg _} {zero-int} {pos _} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
-gcd'->gcd {neg _} {pos _} {zero-int} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
-gcd'->gcd {neg _} {pos _} {pos _} g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
-gcd'->gcd {neg _} {neg _} {zero-int} g = (gcd-negate ((gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))))
-gcd'->gcd {neg _} {neg _} {pos _} g = (gcd-negate ((gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))))
+gcd'->gcd : {d n a : Int} -> NonNeg a -> GCD' (abs' d) (abs' n) (abs' a) -> GCD d n a
+gcd'->gcd {_} {_} {neg _} (inj-l ())
+gcd'->gcd {_} {_} {neg _} (inj-r ())
+gcd'->gcd {zero-int} {zero-int} {zero-int} _ g = gcd'->gcd/nat g
+gcd'->gcd {zero-int} {zero-int} {pos _} _ g = gcd'->gcd/nat g
+gcd'->gcd {zero-int} {pos _} {zero-int} _ g = gcd'->gcd/nat g
+gcd'->gcd {zero-int} {pos _} {pos _} _ g = gcd'->gcd/nat g
+gcd'->gcd {zero-int} {neg _} {zero-int} _ g = (gcd-negate (gcd'->gcd/nat g))
+gcd'->gcd {zero-int} {neg _} {pos _} _ g = (gcd-negate (gcd'->gcd/nat g))
+gcd'->gcd {pos _} {zero-int} {zero-int} _ g = gcd'->gcd/nat g
+gcd'->gcd {pos _} {zero-int} {pos _} _ g = gcd'->gcd/nat g
+gcd'->gcd {pos _} {pos _} {zero-int} _ g = gcd'->gcd/nat g
+gcd'->gcd {pos _} {pos _} {pos _} _ g = gcd'->gcd/nat g
+gcd'->gcd {pos _} {neg _} {zero-int} _ g = (gcd-negate (gcd'->gcd/nat g))
+gcd'->gcd {pos _} {neg _} {pos _} _ g = (gcd-negate (gcd'->gcd/nat g))
+gcd'->gcd {neg _} {zero-int} {zero-int} _ g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
+gcd'->gcd {neg _} {zero-int} {pos _} _ g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
+gcd'->gcd {neg _} {pos _} {zero-int} _ g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
+gcd'->gcd {neg _} {pos _} {pos _} _ g = (gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))
+gcd'->gcd {neg _} {neg _} {zero-int} _ g = (gcd-negate ((gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))))
+gcd'->gcd {neg _} {neg _} {pos _} _ g = (gcd-negate ((gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))))
 
 gcd->gcd' : {d n a : Int} -> GCD d n a -> GCD' (abs' d) (abs' n) (abs' a)
 gcd->gcd' {d} {n} {a} (gcd _ a%d a%n f) = record

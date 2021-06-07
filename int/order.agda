@@ -151,7 +151,7 @@ connected-< {i} {j} i≮j j≮i =
 >0-preserved-by-+ {i} {j} 0<i 0<j = trans-< 0<i (subst (_< (i + j)) +-right-zero (+₁-preserves-< i 0<j))
 
 >0->Pos : {i : Int} -> (int 0) < i -> Pos i
->0->Pos ((_ , pos-x) , path) = subst Pos path (+-Pos-NonNeg (Pos'->Pos pos-x) tt)
+>0->Pos ((_ , pos-x) , path) = subst Pos path (+-Pos-NonNeg (Pos'->Pos pos-x) (NonNeg-nonneg 0))
 
 Pos->>0 : {i : Int} -> Pos i -> (int 0) < i
 Pos->>0 {nonneg (suc i)} _ = (suc i , tt) , +-right-zero
@@ -173,10 +173,14 @@ Pos->>0 {nonneg (suc i)} _ = (suc i , tt) , +-right-zero
 *₂-NonNeg-preserves-≤⁺ : {a b c : Int} -> (a ≤ b) -> NonNeg c -> (a * c) ≤ (b * c)
 *₂-NonNeg-preserves-≤⁺ {c = nonneg c} (x , path) _ =
   x *' c , +-left int-inject-*' >=> sym *-distrib-+ >=> *-left path
+*₂-NonNeg-preserves-≤⁺ {c = neg c} (x , path) (inj-l ())
+*₂-NonNeg-preserves-≤⁺ {c = neg c} (x , path) (inj-r ())
 
 *₁-NonNeg-preserves-≤⁺ : {a b c : Int} -> (a ≤ b) -> NonNeg c -> (c * a) ≤ (c * b)
 *₁-NonNeg-preserves-≤⁺ {c = nonneg c} (x , path) _ =
   c *' x , +-left int-inject-*' >=> sym *-distrib-+-left >=> *-right path
+*₁-NonNeg-preserves-≤⁺ {c = neg c} (x , path) (inj-l ())
+*₁-NonNeg-preserves-≤⁺ {c = neg c} (x , path) (inj-r ())
 
 *₂-Pos-preserves-≤⁻ : {a b c : Int} -> (a * c) ≤ (b * c) -> Pos c -> (a ≤ b)
 *₂-Pos-preserves-≤⁻ {a} {b} ac≤bc pos-c = case (split-< b a) of (\

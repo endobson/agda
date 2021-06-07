@@ -14,8 +14,10 @@ data NonNegIntRec : Int -> Set where
 
 non-neg-int-rec : {m : Int} -> (NonNeg m) -> NonNegIntRec m
 non-neg-int-rec {zero-int} _ = non-neg-zero
-non-neg-int-rec {pos zero} _ = non-neg-suc {zero-int} (non-neg-int-rec tt) tt
-non-neg-int-rec {pos (suc m)} _ = non-neg-suc {pos m} (non-neg-int-rec tt) tt
+non-neg-int-rec {pos zero} _ = non-neg-suc {zero-int} (non-neg-int-rec (inj-r tt)) (inj-r tt)
+non-neg-int-rec {pos (suc m)} _ = non-neg-suc {pos m} (non-neg-int-rec (inj-l tt)) (inj-l tt)
+non-neg-int-rec {neg _} (inj-l ())
+non-neg-int-rec {neg _} (inj-r ())
 
 abs' : Int -> Nat
 abs' (nonneg x) = x
@@ -25,12 +27,18 @@ abs : Int -> Int
 abs x = (nonneg (abs' x))
 
 abs-NonZero : {a : Int} -> {NonZero a} -> NonZero (abs a)
-abs-NonZero {zero-int} {}
-abs-NonZero {pos _} = tt
-abs-NonZero {neg _} = tt
+abs-NonZero {zero-int} {inj-l ()}
+abs-NonZero {zero-int} {inj-r ()}
+abs-NonZero {pos _} = (inj-l tt)
+abs-NonZero {neg _} = (inj-l tt)
+
+NonNeg-abs : (a : Int) -> NonNeg (abs a)
+NonNeg-abs a = NonNeg-nonneg (abs' a)
 
 abs-inject-add1 : {m : Int} -> (NonNeg m) -> abs (add1 m) == add1 (abs m)
 abs-inject-add1 {nonneg _} _ = refl
+abs-inject-add1 {neg _} (inj-l ())
+abs-inject-add1 {neg _} (inj-r ())
 
 abs-inject-+ : {m n : Int} -> (NonNeg m) -> (NonNeg n) -> abs (m + n) == abs m + abs n
 abs-inject-+ {_} {n} mp np = rec (non-neg-int-rec mp)
@@ -79,11 +87,11 @@ abs-cancel-minus {pos _} = refl
 abs-cancel-minus {neg _} = refl
 
 abs-inject-* : {m n : Int} -> abs (m * n) == abs m * abs n
-abs-inject-* {zero-int} {zero-int} = abs-inject-*/non-neg tt tt
-abs-inject-* {zero-int} {pos n} = abs-inject-*/non-neg tt tt
+abs-inject-* {zero-int} {zero-int} = abs-inject-*/non-neg (inj-r tt) (inj-r tt)
+abs-inject-* {zero-int} {pos n} = abs-inject-*/non-neg (inj-r tt) (inj-l tt)
 abs-inject-* {zero-int} {neg n} = cong abs *-left-zero >=> sym *-left-zero
-abs-inject-* {pos m} {zero-int} = abs-inject-*/non-neg {pos m} {zero-int} tt tt
-abs-inject-* {pos m} {pos n} = abs-inject-*/non-neg {pos m} {pos n} tt tt
+abs-inject-* {pos m} {zero-int} = abs-inject-*/non-neg {pos m} {zero-int} (inj-l tt) (inj-r tt)
+abs-inject-* {pos m} {pos n} = abs-inject-*/non-neg {pos m} {pos n} (inj-l tt) (inj-l tt)
 abs-inject-* {pos m} {neg n} =
   begin
     abs (pos m * neg n)
@@ -91,7 +99,7 @@ abs-inject-* {pos m} {neg n} =
     abs (- (pos m * pos n))
   ==< abs-cancel-minus {pos m * pos n}>
     abs (pos m * pos n)
-  ==< abs-inject-*/non-neg {pos m} {pos n} tt tt >
+  ==< abs-inject-*/non-neg {pos m} {pos n} (inj-l tt) (inj-l tt) >
     abs (pos m) * abs (neg n)
   end
 abs-inject-* {neg m} {pos n} =
@@ -101,7 +109,7 @@ abs-inject-* {neg m} {pos n} =
     abs (- (pos m * pos n))
   ==< abs-cancel-minus {pos m * pos n}>
     abs (pos m * pos n)
-  ==< abs-inject-*/non-neg {pos m} {pos n} tt tt >
+  ==< abs-inject-*/non-neg {pos m} {pos n} (inj-l tt) (inj-l tt) >
     abs (neg m) * abs (pos n)
   end
 abs-inject-* {neg m} {neg n} =
@@ -113,7 +121,7 @@ abs-inject-* {neg m} {neg n} =
     abs (- (- (pos m * pos n)))
   ==< abs-cancel-minus { - (pos m * pos n)}>=> abs-cancel-minus {pos m * pos n} >
     abs (pos m * pos n)
-  ==< abs-inject-*/non-neg {pos m} {pos n} tt tt >
+  ==< abs-inject-*/non-neg {pos m} {pos n} (inj-l tt) (inj-l tt) >
     abs (neg m) * abs (pos n)
   end
 abs-inject-* {neg m} {zero-int} =
@@ -132,9 +140,13 @@ abs->abs' pr = cong abs' pr
 
 nonneg-abs' : (m : Int) -> (NonNeg m) -> m == int (abs' m)
 nonneg-abs' (nonneg _) _ = refl
+nonneg-abs' (neg _) (inj-l ())
+nonneg-abs' (neg _) (inj-r ())
 
 abs'-inject-add1 : {m : Int} -> (NonNeg m) -> abs' (add1 m) == suc (abs' m)
 abs'-inject-add1 {nonneg _} _ = refl
+abs'-inject-add1 {neg _} (inj-l ())
+abs'-inject-add1 {neg _} (inj-r ())
 
 abs'-inject-+ : {m n : Int} -> (NonNeg m) -> (NonNeg n) -> abs' (m + n) == abs' m +' abs' n
 abs'-inject-+ {_} {n} mp np = rec (non-neg-int-rec mp)
@@ -183,11 +195,11 @@ abs'-cancel-minus {pos _} = refl
 abs'-cancel-minus {neg _} = refl
 
 abs'-inject-* : {m n : Int} -> abs' (m * n) == abs' m *' abs' n
-abs'-inject-* {zero-int} {zero-int} = abs'-inject-*/non-neg tt tt
-abs'-inject-* {zero-int} {pos n} = abs'-inject-*/non-neg tt tt
+abs'-inject-* {zero-int} {zero-int} = abs'-inject-*/non-neg (inj-r tt) (inj-r tt)
+abs'-inject-* {zero-int} {pos n} = abs'-inject-*/non-neg (inj-r tt) (inj-l tt)
 abs'-inject-* {zero-int} {neg n} = cong abs' *-left-zero
-abs'-inject-* {pos m} {zero-int} = abs'-inject-*/non-neg {pos m} {zero-int} tt tt
-abs'-inject-* {pos m} {pos n} = abs'-inject-*/non-neg {pos m} {pos n} tt tt
+abs'-inject-* {pos m} {zero-int} = abs'-inject-*/non-neg {pos m} {zero-int} (inj-l tt) (inj-r tt)
+abs'-inject-* {pos m} {pos n} = abs'-inject-*/non-neg {pos m} {pos n} (inj-l tt) (inj-l tt)
 abs'-inject-* {pos m} {neg n} =
   begin
     abs' (pos m * neg n)
@@ -195,7 +207,7 @@ abs'-inject-* {pos m} {neg n} =
     abs' (- (pos m * pos n))
   ==< abs'-cancel-minus {pos m * pos n} >
     abs' (pos m * pos n)
-  ==< abs'-inject-*/non-neg {pos m} {pos n} tt tt >
+  ==< abs'-inject-*/non-neg {pos m} {pos n} (inj-l tt) (inj-l tt) >
     abs' (pos m) *' abs' (neg n)
   end
 abs'-inject-* {neg m} {pos n} =
@@ -205,7 +217,7 @@ abs'-inject-* {neg m} {pos n} =
     abs' (- (pos m * pos n))
   ==< abs'-cancel-minus {pos m * pos n} >
     abs' (pos m * pos n)
-  ==< abs'-inject-*/non-neg {pos m} {pos n} tt tt >
+  ==< abs'-inject-*/non-neg {pos m} {pos n} (inj-l tt) (inj-l tt) >
     abs' (neg m) *' abs' (pos n)
   end
 abs'-inject-* {neg m} {neg n} =
@@ -217,7 +229,7 @@ abs'-inject-* {neg m} {neg n} =
     abs' (- (- (pos m * pos n)))
   ==< abs'-cancel-minus { - (pos m * pos n)} >=> abs'-cancel-minus {pos m * pos n} >
     abs' (pos m * pos n)
-  ==< abs'-inject-*/non-neg {pos m} {pos n} tt tt >
+  ==< abs'-inject-*/non-neg {pos m} {pos n} (inj-l tt) (inj-l tt) >
     abs' (neg m) *' abs' (pos n)
   end
 abs'-inject-* {neg m} {zero-int} =
@@ -263,3 +275,7 @@ int-inject-*' {suc m} {n} =
 
 non-neg-same-abs : {m n : Int} -> NonNeg m -> NonNeg n -> abs m == abs n -> m == n
 non-neg-same-abs {nonneg m} {nonneg n} _ _ eq = eq
+non-neg-same-abs {nonneg m} {neg n} _ (inj-l ())
+non-neg-same-abs {nonneg m} {neg n} _ (inj-r ())
+non-neg-same-abs {neg m} {_} (inj-l ())
+non-neg-same-abs {neg m} {_} (inj-r ())

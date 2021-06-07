@@ -430,9 +430,11 @@ record Ring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   u^ℤ-distrib-+-NonNeg {b} {int.nonneg (suc x)} {y} _ =
     cong (b u^ℤ_) int.add1-extract-left
     >=> u^ℤ-add1 b ((int.int x) int.+ y)
-    >=> cong (b u*_) (u^ℤ-distrib-+-NonNeg {b} {int.nonneg x} {y} tt)
+    >=> cong (b u*_) (u^ℤ-distrib-+-NonNeg {b} {int.nonneg x} {y} (int.NonNeg-nonneg x))
     >=> sym (Monoid.∙-assoc Monoid-u*)
     >=> cong (_u* (b u^ℤ y)) (sym (u^ℤ-add1 b (int.int x)))
+  u^ℤ-distrib-+-NonNeg {b} {int.neg x} (inj-l ())
+  u^ℤ-distrib-+-NonNeg {b} {int.neg x} (inj-r ())
 
   u^ℤ-distrib-+ : {b : Unit} {x y : ℤ} -> b u^ℤ (x int.+ y) == (b u^ℤ x) u* (b u^ℤ y)
   u^ℤ-distrib-+ {b} {x} {y} = int.IntElim-add1sub1-elim z add1-case sub1-case x

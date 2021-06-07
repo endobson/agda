@@ -212,7 +212,7 @@ r+-commute = RationalElim.elimProp2 (\a b -> isSetRational _ _) (\a b -> cong [_
 0r' = record
   { numerator = (int 0)
   ; denominator = (int 1)
-  ; NonZero-denominator = tt
+  ; NonZero-denominator = (inj-l tt)
   }
 
 abstract
@@ -316,7 +316,7 @@ r*-left-zero = RationalElim.elimProp (\a -> isSetRational _ _) (\a -> eq/ _ _ (r
 1r' = record
   { numerator = (int 1)
   ; denominator = (int 1)
-  ; NonZero-denominator = tt
+  ; NonZero-denominator = (inj-l tt)
   }
 
 1r : Rational
@@ -475,8 +475,8 @@ r1/'-inverse a i = path
 ℚInv->ℚInv' a i = handle (numer a) refl
   where
   handle : (x : Int) -> (x == numer a) -> ℚInv' a
-  handle (int.nonneg (suc _)) p = subst NonZero p tt
-  handle (int.neg _) p = subst NonZero p tt
+  handle (int.nonneg (suc _)) p = subst NonZero p (inj-l tt)
+  handle (int.neg _) p = subst NonZero p (inj-r tt)
   handle (int.nonneg zero) p = bot-elim (i (eq/ a 0r' path))
     where
     path : a r~ 0r'
@@ -537,7 +537,7 @@ r1/-inverse = RationalElim.elimProp
 ℤ->ℚ' x = record
   { numerator = x
   ; denominator = (int 1)
-  ; NonZero-denominator = tt
+  ; NonZero-denominator = (inj-l tt)
   }
 
 ℤ->ℚ : Int -> Rational
@@ -594,16 +594,16 @@ isProp-isNonZeroℚ : (r : ℚ) -> isProp (isNonZeroℚ r)
 isProp-isNonZeroℚ r = snd (isNonZeroℚ' r)
 
 ¬isNonZeroℚ-0r : ¬ (isNonZeroℚ 0r)
-¬isNonZeroℚ-0r b = b
+¬isNonZeroℚ-0r b = int.NonZero->¬Zero b tt
 
 isNonZeroℚ-1r : (isNonZeroℚ 1r)
-isNonZeroℚ-1r = tt
+isNonZeroℚ-1r = inj-l tt
 
 isNonZeroℚ->ℚInv : {r : ℚ} -> isNonZeroℚ r -> ℚInv r
 isNonZeroℚ->ℚInv nz p = ¬isNonZeroℚ-0r (subst isNonZeroℚ p nz)
 
 Pos'->NonZeroℚ : {n : Nat} -> Pos' n -> isNonZeroℚ (ℕ->ℚ n)
-Pos'->NonZeroℚ {n = (suc _)} _ = tt
+Pos'->NonZeroℚ {n = (suc _)} _ = inj-l tt
 
 r*-isNonZeroℚ-isNonZeroℚ : (a b : ℚ) -> isNonZeroℚ a -> isNonZeroℚ b -> isNonZeroℚ (a r* b)
 r*-isNonZeroℚ-isNonZeroℚ =
@@ -643,7 +643,7 @@ a r^ℤ (neg n) = r1/ (fst rec) (isNonZeroℚ->ℚInv (snd rec)) , r1/-isNonZero
   }
   where
   Posℕ->NonZeroℤ : (n : Nat) -> (Pos' n) -> (int.NonZero (ℕ->ℤ n))
-  Posℕ->NonZeroℤ (suc _) _ = tt
+  Posℕ->NonZeroℤ (suc _) _ = (inj-l tt)
 
 1/ℕ : Nat⁺ -> ℚ
 1/ℕ n = [ 1/ℕ' n ]
@@ -658,7 +658,7 @@ a r^ℤ (neg n) = r1/ (fst rec) (isNonZeroℚ->ℚInv (snd rec)) , r1/-isNonZero
 2r' = record
   { numerator = (ℕ->ℤ 2)
   ; denominator = (ℕ->ℤ 1)
-  ; NonZero-denominator = tt
+  ; NonZero-denominator = (inj-l tt)
   }
 
 2r : ℚ
@@ -712,10 +712,14 @@ a r^ℤ (neg n) = r1/ (fst rec) (isNonZeroℚ->ℚInv (snd rec)) , r1/-isNonZero
 quotientℤ : (n : ℤ) (d : ℤ*) -> ℤ
 quotientℤ n (int.pos d , _) = quotient n (suc d , tt)
 quotientℤ n (int.neg d , _) = (quotient (int.- n) (suc d , tt))
+quotientℤ n (int.zero-int , (inj-l ()))
+quotientℤ n (int.zero-int , (inj-r ()))
 
 remainderℤ : (n : ℤ) (d : ℤ*) -> ℤ
 remainderℤ n (int.pos d , _) = int ⟨ remainder n (suc d , tt) ⟩
 remainderℤ n (int.neg d , _) = int.- (int ⟨ (remainder (int.- n) (suc d , tt)) ⟩)
+remainderℤ n (int.zero-int , (inj-l ()))
+remainderℤ n (int.zero-int , (inj-r ()))
 
 
 ℤ*-* : ℤ* -> ℤ* -> ℤ*
@@ -731,17 +735,19 @@ private
     sym int.minus-distrib-+ >=>
     cong int.-_ (QuotientRemainder.path (quotient-remainder (suc d , tt) (int.- a))) >=>
     int.minus-double-inverse
+  quotientℤ-path a (int.zero-int , inj-l ())
+  quotientℤ-path a (int.zero-int , inj-r ())
 
   quotientℤ-multiple-path :
     (m : ℤ*) -> (n : ℤ) -> (d : ℤ*) ->
     quotientℤ n d == quotientℤ (⟨ m ⟩ int.* n) (ℤ*-* m d)
   quotientℤ-multiple-path m@(int.pos m' , _) n d@(int.pos d' , _) =
     quotient-multiple-path (suc m' , tt) n (suc d' , tt) >=>
-    cong (quotientℤ (int.pos m' int.* n)) (ΣProp-path int.isPropNonZero int-inject-*')
+    cong (quotientℤ (int.pos m' int.* n)) (ΣProp-path {x = _ , (inj-l tt)} int.isPropNonZero int-inject-*')
   quotientℤ-multiple-path m@(int.pos m' , _) n d@(int.neg d' , _) =
     quotient-multiple-path (suc m' , tt) (int.- n) (suc d' , tt) >=>
     cong (\x -> quotient x _) (int.minus-extract-right) >=>
-    cong (quotientℤ (int.pos m' int.* n)) (ΣProp-path int.isPropNonZero p1)
+    cong (quotientℤ (int.pos m' int.* n)) (ΣProp-path {x = _ , (inj-r tt)} int.isPropNonZero p1)
     where
     p1 : (int.neg (d' +' (m' *' suc d'))) == (int.pos m' int.* int.neg d')
     p1 = cong int.-_ int-inject-*' >=> sym int.minus-extract-right
@@ -749,7 +755,7 @@ private
     cong (\x -> quotient x (suc d' , tt)) (sym (int.minus-double-inverse {n})) >=>
     quotient-multiple-path (suc m' , tt) (int.- (int.- n)) (suc d' , tt) >=>
     cong (\x -> quotient x ((suc m' , tt) *⁺ (suc d' , tt))) p2 >=>
-    cong (quotientℤ (int.neg m' int.* n)) (ΣProp-path int.isPropNonZero p1)
+    cong (quotientℤ (int.neg m' int.* n)) (ΣProp-path {x = _ , (inj-r tt)} int.isPropNonZero p1)
     where
     p1 : int.neg (d' +' (m' *' suc d')) == (int.neg m' int.* int.pos d')
     p1 = cong int.-_ int-inject-*' >=> sym int.minus-extract-left
@@ -758,20 +764,26 @@ private
   quotientℤ-multiple-path m@(int.neg m' , _) n d@(int.neg d' , _) =
     quotient-multiple-path (suc m' , tt) (int.- n) (suc d' , tt) >=>
     cong (\x -> quotient x _) (int.minus-extract-right >=> sym int.minus-extract-left) >=>
-    cong (quotientℤ (int.neg m' int.* n)) (ΣProp-path int.isPropNonZero p1)
+    cong (quotientℤ (int.neg m' int.* n)) (ΣProp-path {x = _ , (inj-l tt)} int.isPropNonZero p1)
     where
     p1 : int (suc m' *' suc d') == (int.neg m' int.* int.neg d')
     p1 = int-inject-*' >=> sym int.minus-double-inverse >=>
          cong int.-_ (sym int.minus-extract-right) >=>
          sym int.minus-extract-left
+  quotientℤ-multiple-path (int.zero-int , inj-l ())
+  quotientℤ-multiple-path (int.zero-int , inj-r ())
+  quotientℤ-multiple-path (int.pos _ , _) _ (int.zero-int , inj-l ())
+  quotientℤ-multiple-path (int.pos _ , _) _ (int.zero-int , inj-r ())
+  quotientℤ-multiple-path (int.neg _ , _) _ (int.zero-int , inj-l ())
+  quotientℤ-multiple-path (int.neg _ , _) _ (int.zero-int , inj-r ())
 
 remainderℤ-NonNeg : (n : ℤ) (d : ℤ*) -> int.Pos ⟨ d ⟩ -> int.NonNeg (remainderℤ n d)
-remainderℤ-NonNeg n (int.pos _ , _) _ = tt
+remainderℤ-NonNeg n (int.pos _ , _) _ = int.NonNeg-nonneg _
 
 remainderℤ-NonPos : (n : ℤ) (d : ℤ*) -> int.Neg ⟨ d ⟩ -> int.NonPos (remainderℤ n d)
-remainderℤ-NonPos n (int.neg d' , tt) _ =
-  int.minus-NonNeg {remainderℤ (int.- n) (int.pos d' , tt)}
-                   (remainderℤ-NonNeg (int.- n) (int.pos d' , tt) tt)
+remainderℤ-NonPos n (int.neg d' , _) _ =
+  int.minus-NonNeg {remainderℤ (int.- n) (int.pos d' , inj-l tt)}
+                   (remainderℤ-NonNeg (int.- n) (int.pos d' , inj-l tt) _)
 
 
 floor' : Rational' -> ℤ

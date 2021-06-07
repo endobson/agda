@@ -651,9 +651,11 @@ isProp-ℚ≤ {x} {y} = isProp-NonNegℚ {diffℚ x y}
 
 NonNegℚ'-fractional-part' : (q : ℚ') -> NonNegℚ' (fractional-part' q)
 NonNegℚ'-fractional-part' (record { numerator = n ; denominator = d@(int.pos d')}) =
-  int.*-NonNeg-Pos (remainderℤ-NonNeg n (d , tt) tt) tt
+  int.*-NonNeg-Pos (remainderℤ-NonNeg n (d , inj-l tt) tt) tt
 NonNegℚ'-fractional-part' (record { numerator = n ; denominator = d@(int.neg d')}) =
-  int.*-NonPos-Neg (remainderℤ-NonPos n (d , tt) tt) tt
+  int.*-NonPos-Neg (remainderℤ-NonPos n (d , inj-r tt) tt) tt
+NonNegℚ'-fractional-part' (record { denominator = int.zero-int ; NonZero-denominator = inj-l ()})
+NonNegℚ'-fractional-part' (record { denominator = int.zero-int ; NonZero-denominator = inj-r ()})
 
 NonNeg-fractional-part : (q : ℚ) -> NonNegℚ (fractional-part q)
 NonNeg-fractional-part =
@@ -718,16 +720,17 @@ private
     find-rep (record { numerator = (i.pos n') ; denominator = (i.pos d') }) _ =
       ((suc n' , tt) , (suc d' , tt) , refl)
     find-rep (record { numerator = (i.zero-int) ; denominator = (i.pos d') }) p =
-      bot-elim (i.NonPos->¬Pos (i.*-NonPos-NonNeg tt tt) p)
+      bot-elim (i.NonPos->¬Pos (i.*-NonPos-NonNeg (inj-r tt) (inj-l tt)) p)
     find-rep (record { numerator = (i.neg _) ; denominator = (i.pos d') }) p =
-      bot-elim (i.NonPos->¬Pos (i.*-NonPos-NonNeg tt tt) p)
+      bot-elim (i.NonPos->¬Pos (i.*-NonPos-NonNeg (inj-l tt) (inj-l tt)) p)
     find-rep (record { numerator = (i.pos _) ; denominator = (i.neg d') }) p =
-      bot-elim (i.NonPos->¬Pos (i.*-NonNeg-NonPos tt tt) p)
+      bot-elim (i.NonPos->¬Pos (i.*-NonNeg-NonPos (inj-l tt) (inj-l tt)) p)
     find-rep (record { numerator = (i.zero-int) ; denominator = (i.neg d') }) p =
-      bot-elim (i.NonPos->¬Pos (i.*-NonNeg-NonPos tt tt) p)
+      bot-elim (i.NonPos->¬Pos (i.*-NonNeg-NonPos (inj-r tt) (inj-l tt)) p)
     find-rep (record { numerator = (i.neg n') ; denominator = (i.neg d') }) _ =
       ((suc n' , tt) , (suc d' , tt) , i.minus-extract-right >=> sym i.minus-extract-left )
-
+    find-rep (record { denominator = i.zero-int ; NonZero-denominator = inj-l ()})
+    find-rep (record { denominator = i.zero-int ; NonZero-denominator = inj-r ()})
 
     handle : (q' : ℚ') -> (pos-q' : (Pos q')) -> P ([ q' ] , pos-q')
     handle q' pos-q' = subst P path (f n d)
@@ -748,7 +751,7 @@ private
     x2 = ((n⁺d⁺->ℚ' n d) r+' (r-' (1/ℕ' d)))
 
     NonNeg-numer : i.NonNeg (int n' i.+ (i.- (int 1)))
-    NonNeg-numer = subst i.NonNeg (sym i.+-eval >=> i.+-commute) tt
+    NonNeg-numer = subst i.NonNeg (sym i.+-eval >=> i.+-commute) (int.NonNeg-nonneg n'')
 
     ans2 : NonNegℚ' (same-denom-r+' (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d)))
     ans2 = i.*-NonNeg-NonNeg NonNeg-numer (i.Pos->NonNeg (i.Pos'->Pos pos-d))

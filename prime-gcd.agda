@@ -32,15 +32,15 @@ relatively-prime->gcdⁱ : {a b : Int} -> RelativelyPrime a b -> GCD a b (int 1)
 relatively-prime->gcdⁱ {a} {b} rp = record
   { %a = div-one
   ; %b = div-one
-  ; non-neg = tt
+  ; non-neg = inj-l tt
   ; f = f
   }
   where
   f : (x : Int) -> x div a -> x div b -> x div (int 1)
-  f (nonneg x) x%a x%b = (int 1) , *-left-one >=> rp (nonneg x) tt x%a x%b
+  f (nonneg x) x%a x%b = (int 1) , *-left-one >=> rp (nonneg x) (NonNeg-nonneg x) x%a x%b
   f (neg x)    x%a x%b =
     - (int 1) , minus-extract-left >=> cong -_ *-left-one >=>
-                rp (pos x) tt (div-negate-left x%a) (div-negate-left x%b)
+                rp (pos x) (inj-l tt) (div-negate-left x%a) (div-negate-left x%b)
 
 
 gcd->relatively-prime : {a b : Nat} -> GCD' a b 1 -> RP a b

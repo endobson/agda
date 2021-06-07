@@ -82,12 +82,14 @@ divisors-relatively-prime rp d1%a d2%b p p%d1 p%d2 = rp p (div'-trans p%d1 d1%a)
 relatively-primeⁱ->relatively-prime :
   {a b : Nat} -> (RelativelyPrime (int a) (int b)) -> RelativelyPrime⁰ a b
 relatively-primeⁱ->relatively-prime rp d d%a d%b =
-  nonneg-injective (rp (int d) tt (div'->div d%a) (div'->div d%b))
+  nonneg-injective (rp (int d) (NonNeg-nonneg d) (div'->div d%a) (div'->div d%b))
 
 relatively-prime->relatively-primeⁱ :
   {a b : Nat} -> RelativelyPrime⁰ a b -> (RelativelyPrime (int a) (int b))
 relatively-prime->relatively-primeⁱ rp (nonneg d) _ d%a d%b =
   cong int (rp d (div->div' d%a) (div->div' d%b))
+relatively-prime->relatively-primeⁱ rp (neg d) (inj-l ())
+relatively-prime->relatively-primeⁱ rp (neg d) (inj-r ())
 
 isProp-RelativelyPrime⁰ : {a b : Nat} -> isProp (RelativelyPrime⁰ a b)
 isProp-RelativelyPrime⁰ = isPropΠ3 (\_ _ _ -> isSetNat _ _)

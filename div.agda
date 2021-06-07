@@ -137,10 +137,10 @@ div-zero->zero : {n : Int} -> (int 0) div n -> n == (int 0)
 div-zero->zero (d , pr) = (sym pr) >=> *-right-zero
 
 div-non-zero->non-zero : {d n : Int} -> d div n -> NonZero n -> NonZero d
-div-non-zero->non-zero {d = pos _} _ _ = tt
-div-non-zero->non-zero {d = neg _} _ _ = tt
+div-non-zero->non-zero {d = pos _} _ _ = (inj-l tt)
+div-non-zero->non-zero {d = neg _} _ _ = (inj-r tt)
 div-non-zero->non-zero {d = zero-int} d%n n-nz =
-  bot-elim (transport (cong NonZero (div-zero->zero d%n)) n-nz)
+  bot-elim (NonZero->¬Zero (subst NonZero (div-zero->zero d%n) n-nz) tt)
 
 
 div'-zero->zero : {n : Nat} -> 0 div' n -> n == 0
@@ -217,7 +217,7 @@ div-same-abs d1@{pos _} d2@{pos _} (x , pr1) (y , pr2) = proof
  rewritten : x * (y * d2) == d2
  rewritten = (\i -> x * pr2 i) >=> pr1
  unit : Unit y
- unit = *-one-implies-unit {x} {y} (*-left-id tt (*-assoc {x} {y} {d2} >=> rewritten))
+ unit = *-one-implies-unit {x} {y} (*-left-id (inj-l tt) (*-assoc {x} {y} {d2} >=> rewritten))
  proof : abs d1 == abs d2
  proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
 div-same-abs d1@{pos _} d2@{neg _} (x , pr1) (y , pr2) = proof
@@ -225,7 +225,7 @@ div-same-abs d1@{pos _} d2@{neg _} (x , pr1) (y , pr2) = proof
  rewritten : x * (y * d2) == d2
  rewritten = (\i -> x * pr2 i) >=> pr1
  unit : Unit y
- unit = *-one-implies-unit {x} {y} (*-left-id tt (*-assoc {x} {y} {d2} >=> rewritten))
+ unit = *-one-implies-unit {x} {y} (*-left-id (inj-r tt) (*-assoc {x} {y} {d2} >=> rewritten))
  proof : abs d1 == abs d2
  proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
 div-same-abs d1@{neg _} d2@{pos _} (x , pr1) (y , pr2) = proof
@@ -233,7 +233,7 @@ div-same-abs d1@{neg _} d2@{pos _} (x , pr1) (y , pr2) = proof
  rewritten : x * (y * d2) == d2
  rewritten = (\i -> x * pr2 i) >=> pr1
  unit : Unit y
- unit = *-one-implies-unit {x} {y} (*-left-id tt (*-assoc {x} {y} {d2} >=> rewritten))
+ unit = *-one-implies-unit {x} {y} (*-left-id (inj-l tt) (*-assoc {x} {y} {d2} >=> rewritten))
  proof : abs d1 == abs d2
  proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
 div-same-abs d1@{neg _} d2@{neg _} (x , pr1) (y , pr2) = proof
@@ -241,13 +241,15 @@ div-same-abs d1@{neg _} d2@{neg _} (x , pr1) (y , pr2) = proof
  rewritten : x * (y * d2) == d2
  rewritten = (\i -> x * pr2 i) >=> pr1
  unit : Unit y
- unit = *-one-implies-unit {x} {y} (*-left-id tt (*-assoc {x} {y} {d2} >=> rewritten))
+ unit = *-one-implies-unit {x} {y} (*-left-id (inj-r tt) (*-assoc {x} {y} {d2} >=> rewritten))
  proof : abs d1 == abs d2
  proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
 
 
 nonneg-unit->one : {n : Int} -> NonNeg n -> Unit n -> n == (int 1)
 nonneg-unit->one {n = nonneg (suc zero)} _ _ = refl
+nonneg-unit->one {n = neg _} (inj-l ())
+nonneg-unit->one {n = neg _} (inj-r ())
 
 div-one->one : {d : Int} -> NonNeg d -> d div (int 1) -> d == (int 1)
 div-one->one nn (m , p) = nonneg-unit->one nn (*-one-implies-unit p)
