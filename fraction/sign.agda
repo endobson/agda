@@ -37,9 +37,6 @@ Posℚ' = isSignℚ' pos-sign
 Zeroℚ' : Rational' -> Type₀
 Zeroℚ' = isSignℚ' zero-sign
 
-NonNegℚ' : Rational' -> Type₀
-NonNegℚ' q = i.NonNeg (numer q i.* denom q)
-
 ℚ'->sign : Rational' -> Sign
 ℚ'->sign q = i.int->sign (numer q i.* denom q)
 

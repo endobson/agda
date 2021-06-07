@@ -22,6 +22,11 @@ isPosSign pos-sign = Top
 isPosSign zero-sign = Bot
 isPosSign neg-sign = Bot
 
+isZeroSign : Pred Sign ℓ-zero
+isZeroSign pos-sign = Bot
+isZeroSign zero-sign = Top
+isZeroSign neg-sign = Bot
+
 isNegSign : Pred Sign ℓ-zero
 isNegSign pos-sign = Bot
 isNegSign zero-sign = Bot
@@ -146,6 +151,35 @@ record SignStr {ℓD : Level} (D : Type ℓD) (ℓS : Level) : Type (ℓ-max ℓ
 
   Zero : Pred D ℓS
   Zero = isSign zero-sign
+
+  NonNeg : Pred D ℓS
+  NonNeg = Pos ∪ Zero
+
+
+  isProp-Pos : (x : D) -> isProp (Pos x)
+  isProp-Pos x = isProp-isSign pos-sign x
+  isProp-Neg : (x : D) -> isProp (Neg x)
+  isProp-Neg x = isProp-isSign neg-sign x
+  isProp-Zero : (x : D) -> isProp (Zero x)
+  isProp-Zero x = isProp-isSign zero-sign x
+
+  isProp-NonNeg : (x : D) -> isProp (NonNeg x)
+  isProp-NonNeg x =
+    isProp⊎ (isProp-isSign pos-sign x) (isProp-isSign zero-sign x)
+            (\px zx -> (subst isPosSign (isSign-unique x pos-sign zero-sign px zx) tt))
+
+  Pos->NonNeg : {x : D} -> Pos x -> NonNeg x
+  Pos->NonNeg = inj-l
+
+  Zero->NonNeg : {x : D} -> Zero x -> NonNeg x
+  Zero->NonNeg = inj-r
+
+  NonNeg->¬Neg : {x : D} -> NonNeg x -> ¬ (Neg x)
+  NonNeg->¬Neg {x} (inj-l px) nx =
+    (subst isPosSign (isSign-unique x pos-sign neg-sign px nx) tt)
+  NonNeg->¬Neg {x} (inj-r zx) nx =
+    (subst isZeroSign (isSign-unique x zero-sign neg-sign zx nx) tt)
+
 
 module _ {ℓD ℓS : Level} {D : Type ℓD} {{S : SignStr D ℓS}} where
   open SignStr S public
