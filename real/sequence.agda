@@ -17,6 +17,8 @@ open import truncation
 open import order
 open import order.instances.nat
 open import order.instances.rational
+open import sign
+open import sign.instances.rational
 
 open import nat using (≤-max-left ; ≤-max-right)
 
@@ -29,7 +31,6 @@ private
 
 private
   Seq = ℚSequence
-  ℚPos = rational.order.Pos
 
 Cauchy : Pred Seq ℓ-zero
 Cauchy s = (ε : ℚ⁺) -> ∃[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ≥ n -> m₂ ≥ n ->
@@ -283,7 +284,7 @@ module _
       dd-path : dd == (1/2r r* diffℚ x y)
       dd-path = 1/2r-path' (1/2r r* diffℚ x y)
 
-      pos-d : ℚPos d
+      pos-d : Pos d
       pos-d =
         r*-preserves-Pos 1/2r (1/2r r* (y r+ (r- x)))
           Pos-1/2r

@@ -8,7 +8,7 @@ open import nat
 open import monoid
 open import hlevel
 open import relation
-open import sign
+open import sign hiding (Pos ; Neg ; Zero ; isSign ; isSign-unique)
 
 open import int.base public
 open import int.sign public

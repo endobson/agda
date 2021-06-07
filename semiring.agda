@@ -105,11 +105,16 @@ module _ {D : Type ℓ} {{S : Semiring D}} where
   open Semiring S public
 
 
--- record SignedSemiringStr {ℓD : Level} (D : Type ℓD) (ℓS : Level) : Type (ℓ-max ℓD (ℓ-suc ℓS)) where
---   field
---     {{ semiring }} : Semiring D
---     {{ sign }} : SignStr D ℓS
+--record SignedSemiringStr {ℓD : Level} (D : Type ℓD) (ℓS : Level) : Type (ℓ-max ℓD (ℓ-suc ℓS)) where
+--  field
+--    {{ semiring }} : Semiring D
+--    {{ sign }} : SignStr D ℓS
 --
+--  field
+--    Zero-0# : Zero 0#
+--    Pos-1# : Pos 1#
+
+
 --   open Semiring semiring
 --   open SignStr sign
 --

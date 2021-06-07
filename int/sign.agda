@@ -7,7 +7,7 @@ open import hlevel
 open import int.base
 open import nat.properties using (Pos')
 open import relation
-open import sign
+open import sign hiding (Pos ; Neg ; Zero ; isSign ; isProp-isSign ; isSign-unique)
 
 -- Sign based predicates
 

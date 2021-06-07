@@ -146,3 +146,6 @@ record SignStr {ℓD : Level} (D : Type ℓD) (ℓS : Level) : Type (ℓ-max ℓ
 
   Zero : Pred D ℓS
   Zero = isSign zero-sign
+
+module _ {ℓD ℓS : Level} {D : Type ℓD} {{S : SignStr D ℓS}} where
+  open SignStr S public
