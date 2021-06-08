@@ -232,3 +232,89 @@ module _ (x y : ℝ) where
 
   ℝ+-commute : xy == yx
   ℝ+-commute = LU-paths->path xy yx L-path U-path
+
+module _ (x y z : ℝ) where
+  private
+    module x = Real x
+    module y = Real y
+    module z = Real z
+    xy = x ℝ+ y
+    xy-z = xy ℝ+ z
+    yz = y ℝ+ z
+    x-yz = x ℝ+ yz
+
+    module xy = Real xy
+    module xy-z = Real xy-z
+    module yz = Real yz
+    module x-yz = Real x-yz
+
+    L-path : (q : ℚ) -> xy-z.L q == x-yz.L q
+    L-path q = ua (isoToEquiv i)
+      where
+      open Iso
+      i : Iso (xy-z.L q) (x-yz.L q)
+      i .rightInv _ = squash _ _
+      i .leftInv _ = squash _ _
+      i .fun = ∥-bind handle
+        where
+        handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (xy.L a × z.L b × (a r+ b) == q) ->
+                 ∃[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (x.L a × yz.L b × (a r+ b) == q)
+        handle (a , b , xyl-a , zl-b , ab=q) = ∥-bind handle2 xyl-a
+          where
+          handle2 : Σ[ c ∈ ℚ ] Σ[ d ∈ ℚ ] (x.L c × y.L d × (c r+ d) == a) ->
+                    ∃[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (x.L a × yz.L b × (a r+ b) == q)
+          handle2 (c , d , xl-c , yl-d , cd=a) =
+            ∣ (c , d r+ b , xl-c , ∣ (d , b , yl-d , zl-b , refl) ∣ , path) ∣
+            where
+            path : c r+ (d r+ b) == q
+            path = sym (r+-assoc c d b) >=> cong (_r+ b) cd=a >=> ab=q
+      i .inv = ∥-bind handle
+        where
+        handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (x.L a × yz.L b × (a r+ b) == q) ->
+                 ∃[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (xy.L a × z.L b × (a r+ b) == q)
+        handle (a , b , xl-a , yzl-b , ab=q) = ∥-bind handle2 yzl-b
+          where
+          handle2 : Σ[ c ∈ ℚ ] Σ[ d ∈ ℚ ] (y.L c × z.L d × (c r+ d) == b) ->
+                    ∃[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (xy.L a × z.L b × (a r+ b) == q)
+          handle2 (c , d , yl-c , zl-d , cd=b) =
+            ∣ (a r+ c , d , ∣ (a , c , xl-a , yl-c , refl) ∣ , zl-d , path) ∣
+            where
+            path : (a r+ c) r+ d == q
+            path = (r+-assoc a c d) >=> cong (a r+_) cd=b >=> ab=q
+
+    U-path : (q : ℚ) -> xy-z.U q == x-yz.U q
+    U-path q = ua (isoToEquiv i)
+      where
+      open Iso
+      i : Iso (xy-z.U q) (x-yz.U q)
+      i .rightInv _ = squash _ _
+      i .leftInv _ = squash _ _
+      i .fun = ∥-bind handle
+        where
+        handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (xy.U a × z.U b × (a r+ b) == q) ->
+                 ∃[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (x.U a × yz.U b × (a r+ b) == q)
+        handle (a , b , xyu-a , zu-b , ab=q) = ∥-bind handle2 xyu-a
+          where
+          handle2 : Σ[ c ∈ ℚ ] Σ[ d ∈ ℚ ] (x.U c × y.U d × (c r+ d) == a) ->
+                    ∃[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (x.U a × yz.U b × (a r+ b) == q)
+          handle2 (c , d , xu-c , yu-d , cd=a) =
+            ∣ (c , d r+ b , xu-c , ∣ (d , b , yu-d , zu-b , refl) ∣ , path) ∣
+            where
+            path : c r+ (d r+ b) == q
+            path = sym (r+-assoc c d b) >=> cong (_r+ b) cd=a >=> ab=q
+      i .inv = ∥-bind handle
+        where
+        handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (x.U a × yz.U b × (a r+ b) == q) ->
+                 ∃[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (xy.U a × z.U b × (a r+ b) == q)
+        handle (a , b , xu-a , yzu-b , ab=q) = ∥-bind handle2 yzu-b
+          where
+          handle2 : Σ[ c ∈ ℚ ] Σ[ d ∈ ℚ ] (y.U c × z.U d × (c r+ d) == b) ->
+                    ∃[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (xy.U a × z.U b × (a r+ b) == q)
+          handle2 (c , d , yu-c , zu-d , cd=b) =
+            ∣ (a r+ c , d , ∣ (a , c , xu-a , yu-c , refl) ∣ , zu-d , path) ∣
+            where
+            path : (a r+ c) r+ d == q
+            path = (r+-assoc a c d) >=> cong (a r+_) cd=b >=> ab=q
+
+  ℝ+-assoc : xy-z == x-yz
+  ℝ+-assoc = LU-paths->path xy-z x-yz L-path U-path
