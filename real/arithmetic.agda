@@ -318,3 +318,71 @@ module _ (x y z : ℝ) where
 
   ℝ+-assoc : xy-z == x-yz
   ℝ+-assoc = LU-paths->path xy-z x-yz L-path U-path
+
+0ℝ : ℝ
+0ℝ = ℚ->ℝ 0r
+
+module _ (x : ℝ) where
+  private
+    module x = Real x
+    module 0ℝ = Real 0ℝ
+    0x = 0ℝ ℝ+ x
+    module 0x = Real 0x
+
+    L-path : (q : ℚ) -> 0x.L q == x.L q
+    L-path q = ua (isoToEquiv i)
+      where
+      open Iso
+      i : Iso (0x.L q) (x.L q)
+      i .rightInv _ = x.isProp-L q _ _
+      i .leftInv _ = 0x.isProp-L q _ _
+      i .inv xl-q = ∥-bind handle (x.isUpperOpen-L q xl-q)
+        where
+        handle : Σ[ r ∈ ℚ ] (q < r × x.L r) -> 0x.L q
+        handle (r , q<r , xl-r) = ∣ (diffℚ r q) , r , d<0 , xl-r , path ∣
+          where
+          path : (diffℚ r q) r+ r == q
+          path = r+-commute (diffℚ r q) r >=> diffℚ-step r q
+
+          d'>0 : (diffℚ q r) > 0r
+          d'>0 = Pos-0< _ q<r
+
+          d<0 : (diffℚ r q) < 0r
+          d<0 = subst (_< 0r) (sym (diffℚ-anticommute r q)) (r--flips-order 0r (diffℚ q r) d'>0)
+
+      i .fun 0xl-q = unsquash (x.isProp-L q) (∥-map handle 0xl-q)
+        where
+        handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (0ℝ.L a × x.L b × a r+ b == q) -> x.L q
+        handle (a , b , 0l-a , xl-b , p) = x.isLowerSet-L q b q<b xl-b
+          where
+          q<b : q < b
+          q<b = subst2 _<_ p (r+-left-zero b) (r+₂-preserves-order a 0r b 0l-a)
+
+    U-path : (q : ℚ) -> 0x.U q == x.U q
+    U-path q = ua (isoToEquiv i)
+      where
+      open Iso
+      i : Iso (0x.U q) (x.U q)
+      i .rightInv _ = x.isProp-U q _ _
+      i .leftInv _ = 0x.isProp-U q _ _
+      i .inv xu-q = ∥-bind handle (x.isLowerOpen-U q xu-q)
+        where
+        handle : Σ[ r ∈ ℚ ] (r < q × x.U r) -> 0x.U q
+        handle (r , r<q , xu-r) = ∣ (diffℚ r q) , r , 0<d , xu-r , path ∣
+          where
+          path : (diffℚ r q) r+ r == q
+          path = r+-commute (diffℚ r q) r >=> diffℚ-step r q
+
+          0<d : 0r < (diffℚ r q)
+          0<d = Pos-0< _ r<q
+      i .fun 0xu-q = unsquash (x.isProp-U q) (∥-map handle 0xu-q)
+        where
+        handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (0ℝ.U a × x.U b × a r+ b == q) -> x.U q
+        handle (a , b , 0u-a , xu-b , p) = x.isUpperSet-U b q b<q xu-b
+          where
+          b<q : b < q
+          b<q = subst2 _<_ (r+-left-zero b) p (r+₂-preserves-order 0r a b 0u-a)
+
+
+  ℝ+-left-zero : 0x == x
+  ℝ+-left-zero = LU-paths->path 0x x L-path U-path
