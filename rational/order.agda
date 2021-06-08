@@ -2,6 +2,7 @@
 
 module rational.order where
 
+open import abs
 open import base
 open import equality
 open import fraction.sign
@@ -287,6 +288,9 @@ isProp-Posℚ {r} = isProp-isSignℚ pos-sign r
 ℚ⁺ : Type₀
 ℚ⁺ = Σ ℚ Posℚ
 
+Zero-0r : Zero 0r
+Zero-0r = is-signℚ Zero-0r'
+
 Zero-path : (q : Rational) -> Zeroℚ q -> q == 0r
 Zero-path =
   RationalElim.elimProp
@@ -313,6 +317,12 @@ r--flips-sign =
   RationalElim.elimProp
     (\q -> isPropΠ2 (\ s _ -> isProp-isSignℚ (s⁻¹ s) (r- q)))
     (\q s qs -> is-signℚ (r-'-flips-sign q s (isSignℚ.v qs)))
+
+r1/-preserves-Pos : (q : Rational) -> (i : ℚInv q) -> Pos q -> Pos (r1/ q i)
+r1/-preserves-Pos =
+  RationalElim.elimProp
+    (\q -> isPropΠ2 (\ i _ -> isProp-Pos (r1/ q i)))
+    (\q i p -> is-signℚ (r1/'-preserves-Pos q (ℚInv->ℚInv' q i) (isSignℚ.v p)))
 
 
 _<_ : Rational -> Rational -> Type₀
@@ -541,6 +551,64 @@ r*₂-preserves-order a b c@(c' , _) a<b =
   subst2 _<_ (sym (1/2ℕ-path n)) (r*-left-one (1/ℕ n))
         (r*₂-preserves-order 1/2r 1r (1/ℕ n , Pos-1/ℕ n) 1/2r<1r)
 
+ℕ->ℚ'-preserves-order : (a b : Nat) -> a nat.< b -> (ℕ->ℚ' a) <' (ℕ->ℚ' b)
+ℕ->ℚ'-preserves-order a b (c , path) = ans
+  where
+
+  sd : Rational'
+  sd = (same-denom-r+' (ℕ->ℚ' b) (r-' (ℕ->ℚ' a)))
+
+  diff : Rational'
+  diff = (ℕ->ℚ' b r+' (r-' (ℕ->ℚ' a)))
+
+  sd~diff : sd r~ diff
+  sd~diff = same-denom-r+'-r~ (ℕ->ℚ' b) (r-' (ℕ->ℚ' a)) refl
+
+  path2 : int (c nat.+' suc a) i.+ (i.- (int a)) == i.pos c
+  path2 = i.+-left (cong int nat.+'-right-suc) >=>
+          i.+-left (int-inject-+' {suc c} {a}) >=>
+          i.+-assoc >=>
+          i.+-right i.add-minus-zero >=>
+          i.+-right-zero
+
+  Pos-b-a : i.Pos ((int b) i.+ (i.- (int a)))
+  Pos-b-a = subst i.Pos (sym path2 >=> cong (\x -> (int x i.+ (i.- (int a)))) path) tt
+
+  Pos-sd : Pos sd
+  Pos-sd = is-signℚ' (int.*-Pos-Pos Pos-b-a tt)
+
+  ans : Pos diff
+  ans = r~-preserves-sign Pos-sd sd~diff
+
+ℕ->ℚ-preserves-order : (a b : Nat) -> a nat.< b -> (ℕ->ℚ a) < (ℕ->ℚ b)
+ℕ->ℚ-preserves-order a b a<b = is-signℚ (ℕ->ℚ'-preserves-order a b a<b)
+
+1/ℕ-flips-order : (a b : Nat⁺) -> ⟨ a ⟩ nat.< ⟨ b ⟩ -> 1/ℕ b < 1/ℕ a
+1/ℕ-flips-order a@(a' , _) b@(b' , _) lt = subst2 _<_ b-path a-path ab*<
+  where
+  ab = 1/ℕ a r* 1/ℕ b
+  pos-ab : Pos ab
+  pos-ab = r*-preserves-Pos _ _ (Pos-1/ℕ a) (Pos-1/ℕ b)
+
+  a-path : (ab r* (ℕ->ℚ b')) == 1/ℕ a
+  a-path =
+    r*-assoc (1/ℕ a) (1/ℕ b) (ℕ->ℚ b') >=>
+    cong (1/ℕ a r*_) (1/ℕ-ℕ-path b) >=>
+    r*-right-one (1/ℕ a)
+  b-path : (ab r* (ℕ->ℚ a')) == 1/ℕ b
+  b-path =
+    cong (_r* ℕ->ℚ a') (r*-commute (1/ℕ a) (1/ℕ b)) >=>
+    r*-assoc (1/ℕ b) (1/ℕ a) (ℕ->ℚ a') >=>
+    cong (1/ℕ b r*_) (1/ℕ-ℕ-path a) >=>
+    r*-right-one (1/ℕ b)
+
+  ab*< : (ab r* (ℕ->ℚ a')) < (ab r* (ℕ->ℚ b'))
+  ab*< = r*₁-preserves-order (ab , pos-ab) (ℕ->ℚ a') (ℕ->ℚ b')
+           (ℕ->ℚ-preserves-order a' b' lt)
+
+
+-- ℕ<-1/ℕ< : (a b : Nat⁺) -> ⟨ a ⟩ nat.< ⟨ b ⟩ -> 1/ℕ b < 1/ℕ a
+-- ℕ<-1/ℕ< a b lt = ?
 
 -- min and max
 
@@ -590,6 +658,14 @@ diffℚ-trans x y z =
   cong (z r+_) (sym (r+-assoc (r- y) y (r- x)) >=>
                 cong (_r+ (r- x)) (r+-commute (r- y) y >=> r+-inverse y) >=>
                 r+-left-zero (r- x))
+
+diffℚ-step : (x y : ℚ) -> x + diffℚ x y == y
+diffℚ-step x y =
+  sym (r+-assoc x y (r- x)) >=>
+  cong (_r+ (r- x)) (r+-commute x y) >=>
+  (r+-assoc y x (r- x)) >=>
+  cong (y r+_) (r+-inverse x) >=>
+  r+-right-zero y
 
 
 abs-diffℚ : ℚ -> ℚ -> ℚ
@@ -657,12 +733,21 @@ floor-≤ q = subst NonNeg (sym (diffℚ-fractional-part q)) (NonNeg-fractional-
 fractional-part-0≤ : (q : ℚ) -> 0r ℚ≤ (fractional-part q)
 fractional-part-0≤ q = NonNeg->0≤ (fractional-part q) (NonNeg-fractional-part q)
 
--- trans-<-≤ : {q1 q2 q3 : Rational} -> q1 < q2 -> q2 ℚ≤ q3 -> q1 < q3
--- trans-<-≤ {q1} {q2} {q3} q1<q2 q2≤q3 =
---   subst Pos (diffℚ-trans q1 q2 q3) (i.+-Pos-NonNeg q1<q2 q2≤q3)
 
--- trans-<'-≤' : {q1 q2 q3 : Rational'} -> q1 <' q2 -> q2 ≤' q3
--- trans-<'-≤' = ?
+-- r+'-Pos-NonNeg : {q1 q2 : Rational'} -> Pos q1 -> NonNeg q2 -> Pos (q1 r+' q2)
+-- r+'-Pos-NonNeg {q1} {q2} p-q1 nn-q2 =
+
+
+r+-Pos-NonNeg : {q1 q2 : Rational} -> Pos q1 -> NonNeg q2 -> Pos (q1 r+ q2)
+r+-Pos-NonNeg {q1} {q2} p-q1 (inj-l p-q2) =
+  r+-preserves-Pos q1 q2 p-q1 p-q2
+r+-Pos-NonNeg {q1} {q2} p-q1 (inj-r z-q2) =
+  subst Pos (sym (r+-right-zero q1) >=> cong (q1 r+_) (sym (Zero-path q2 z-q2))) p-q1
+
+trans-<-≤ : {q1 q2 q3 : Rational} -> q1 < q2 -> q2 ℚ≤ q3 -> q1 < q3
+trans-<-≤ {q1} {q2} {q3} q1<q2 q2≤q3 =
+  subst Pos (diffℚ-trans q1 q2 q3) (r+-Pos-NonNeg q1<q2 q2≤q3)
+
 
 
 -- Archimedean
@@ -751,15 +836,75 @@ private
              Σ[ m ∈ Nat⁺ ] (1/ℕ m ℚ≤ (n⁺d⁺->ℚ n d))
     handle n d (m , p) = m , NonNeg-ℚ'->ℚ p
 
-  module _
-    (trans-<-≤ : (a b c : Rational) -> a < b -> b ℚ≤ c -> a < c)
+small-1/ℕ : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] (1/ℕ m < ⟨ q ⟩)
+small-1/ℕ q = ∥-map handle (1/ℕ-<-step3 q)
+  where
+  handle : Σ[ m ∈ Nat⁺ ] (1/ℕ m ℚ≤ ⟨ q ⟩) -> Σ[ m ∈ Nat⁺ ] (1/ℕ m < ⟨ q ⟩)
+  handle (m , m≤) = (2⁺ *⁺ m) , trans-<-≤ {1/ℕ (2⁺ *⁺ m)} {1/ℕ m} {⟨ q ⟩} (1/2ℕ<1/ℕ m) m≤
+
+private
+  small-1/2^ℕ-step1 : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] (1/ℕ (2⁺ nat.^⁺ ⟨ m ⟩) < ⟨ q ⟩)
+  small-1/2^ℕ-step1 q@(q' , _) = ∥-map handle (small-1/ℕ q)
     where
-    1/ℕ-< : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] (1/ℕ m < ⟨ q ⟩)
-    1/ℕ-< q = ∥-map handle (1/ℕ-<-step3 q)
-      where
-      handle : Σ[ m ∈ Nat⁺ ] (1/ℕ m ℚ≤ ⟨ q ⟩) -> Σ[ m ∈ Nat⁺ ] (1/ℕ m < ⟨ q ⟩)
-      handle (m , m≤) = (2⁺ *⁺ m) , trans-<-≤ (1/ℕ (2⁺ *⁺ m)) (1/ℕ m) ⟨ q ⟩ (1/2ℕ<1/ℕ m) m≤
+    handle : Σ[ m ∈ Nat⁺ ] (1/ℕ m < q') -> Σ[ m ∈ Nat⁺ ] (1/ℕ (2⁺ nat.^⁺ ⟨ m ⟩) < q')
+    handle (m@(m' , _) , lt) =
+      m , trans-< {1/ℕ (2⁺ nat.^⁺ m')} {1/ℕ m} {q'}
+            (1/ℕ-flips-order m (2⁺ nat.^⁺ m') (nat.2^n-large m')) lt
+
+small-1/2^ℕ : (q : ℚ⁺) -> ∃[ m ∈ Nat ] ((1/2r r^ℕ⁰ m) < ⟨ q ⟩)
+small-1/2^ℕ q@(q' , _) = ∥-map handle (small-1/2^ℕ-step1 q)
+  where
+  handle : Σ[ m ∈ Nat⁺ ] (1/ℕ (2⁺ nat.^⁺ ⟨ m ⟩) < q') ->
+           Σ[ m ∈ Nat ] ((1/2r r^ℕ⁰ m) < q')
+  handle ((m , _) , lt) = m , subst (_< q') (1/2^ℕ-path m) lt
 
 
--- archimedian-≤ : (q r : ℚ⁺) -> Σ[ n ∈ Nat ] (⟨ q ⟩ < (ℕ->ℚ n r* ⟨ r ⟩))
--- archimedian-≤ = ?
+ℚ-archimedian : (q1 q2 : ℚ⁺) -> ∃[ n ∈ Nat ] (((1/2r r^ℕ⁰ n) r* ⟨ q1 ⟩) < ⟨ q2 ⟩)
+ℚ-archimedian q1@(q1' , pos-q1) q2@(q2' , pos-q2) = ∥-map handle (small-1/2^ℕ q3)
+  where
+  iq1 : ℚInv q1'
+  iq1 p = (NonZero->¬Zero (Pos->NonZero pos-q1) (subst Zero (sym p) Zero-0r))
+
+  q3' = q2' r* (r1/ q1' iq1)
+  q3 : ℚ⁺
+  q3 = q3' , r*-preserves-Pos _ _ pos-q2 (r1/-preserves-Pos q1' iq1 pos-q1)
+
+  q3-path : q3' r* q1' == q2'
+  q3-path = r*-assoc q2' (r1/ q1' iq1) q1' >=>
+            cong (q2' r*_) (r1/-inverse q1' iq1) >=>
+            r*-right-one q2'
+
+  handle : Σ[ m ∈ Nat ] ((1/2r r^ℕ⁰ m) < q3') ->
+           Σ[ m ∈ Nat ] (((1/2r r^ℕ⁰ m) r* q1') < q2')
+  handle (m , lt) = m , subst (((1/2r r^ℕ⁰ m) r* q1') <_) q3-path lt2
+    where
+    lt2 : ((1/2r r^ℕ⁰ m) r* q1') < (q3' r* q1')
+    lt2 = r*₂-preserves-order (1/2r r^ℕ⁰ m) q3' q1 lt
+
+
+-- Seperate
+
+seperate-< : (a b : ℚ) -> a < b -> Σ[ ε ∈ ℚ⁺ ] (a r+ ⟨ ε ⟩) < (b r+ (r- ⟨ ε ⟩))
+seperate-< a b a<b = ε , pos-diff
+  where
+  Pos-1/2r = Pos-1/ℕ 2⁺
+  ε' = 1/2r r* (1/2r r* (diffℚ a b))
+  ε : ℚ⁺
+  ε = ε' , r*-preserves-Pos 1/2r _ Pos-1/2r (r*-preserves-Pos 1/2r (diffℚ a b) Pos-1/2r a<b)
+
+  path : (diffℚ (a r+ ε') (b r+ (r- ε'))) == 1/2r r* (diffℚ a b)
+  path =
+    sym (r+-swap-diffℚ a b ε' (r- ε')) >=>
+    cong2 _r+_
+          (sym (r*-left-one (diffℚ a b)))
+          (sym (RationalRing.minus-distrib-plus {ε'} {ε'}) >=>
+           cong r-_ (1/2r-path' (1/2r r* (diffℚ a b))) >=>
+           sym (RationalRing.minus-extract-left {1/2r} {diffℚ a b})) >=>
+    sym (*-distrib-+-right {_} {_} {1r} {r- 1/2r} {diffℚ a b}) >=>
+    cong (_r* (diffℚ a b)) (cong (_r+ (r- 1/2r)) (sym (1/2r-path 1r) >=>
+                                                  cong2 _+_ (r*-left-one 1/2r) (r*-left-one 1/2r)) >=>
+                            r+-assoc 1/2r 1/2r (r- 1/2r) >=>
+                            diffℚ-step 1/2r 1/2r)
+
+  pos-diff : Pos (diffℚ (a r+ ε') (b r+ (r- ε')))
+  pos-diff = subst Pos (sym path) (r*-preserves-Pos 1/2r (diffℚ a b) (Pos-1/ℕ 2⁺) a<b)

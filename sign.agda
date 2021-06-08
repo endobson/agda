@@ -155,6 +155,9 @@ record SignStr {ℓD : Level} (D : Type ℓD) (ℓS : Level) : Type (ℓ-max ℓ
   NonNeg : Pred D ℓS
   NonNeg = Pos ∪ Zero
 
+  NonZero : Pred D ℓS
+  NonZero = Pos ∪ Neg
+
 
   isProp-Pos : (x : D) -> isProp (Pos x)
   isProp-Pos x = isProp-isSign pos-sign x
@@ -174,11 +177,22 @@ record SignStr {ℓD : Level} (D : Type ℓD) (ℓS : Level) : Type (ℓ-max ℓ
   Zero->NonNeg : {x : D} -> Zero x -> NonNeg x
   Zero->NonNeg = inj-r
 
+  Pos->NonZero : {x : D} -> Pos x -> NonZero x
+  Pos->NonZero = inj-l
+
+
   NonNeg->¬Neg : {x : D} -> NonNeg x -> ¬ (Neg x)
   NonNeg->¬Neg {x} (inj-l px) nx =
     (subst isPosSign (isSign-unique x pos-sign neg-sign px nx) tt)
   NonNeg->¬Neg {x} (inj-r zx) nx =
     (subst isZeroSign (isSign-unique x zero-sign neg-sign zx nx) tt)
+
+  NonZero->¬Zero : {x : D} -> NonZero x -> ¬ (Zero x)
+  NonZero->¬Zero {x} (inj-l px) zx =
+    (subst isPosSign (isSign-unique x pos-sign zero-sign px zx) tt)
+  NonZero->¬Zero {x} (inj-r nx) zx =
+    (subst isNegSign (isSign-unique x neg-sign zero-sign nx zx) tt)
+
 
 
 module _ {ℓD ℓS : Level} {D : Type ℓD} {{S : SignStr D ℓS}} where

@@ -333,6 +333,23 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
 ^-suc-<     (x , path) zero    = (x , path >=> (sym ^'-right-one))
 ^-suc-< {m} m>1        (suc n) = *-left-<⁺ (weaken-< m>1) (^-suc-< m>1 n)
 
+private
+  2^n-large' : (n m : Nat) -> n == m -> n < (2 ^' n)
+  2^n-large' zero _ _ = zero-<
+  2^n-large' (suc zero) _ _ = suc-< zero-<
+  2^n-large' (suc n@(suc n')) zero p = zero-suc-absurd (sym p)
+  2^n-large' (suc n@(suc n')) (suc m) p = trans-≤-< lt1 lt2
+    where
+    lt1 : (suc n) ≤ (2 *' n)
+    lt1 = n' , +'-right-suc >=> +'-right {suc n'} (sym *'-left-one)
+    lt2 : (2 *' n) < (2 ^' (suc n))
+    lt2 = *-left-<⁺ (zero-< {1}) (2^n-large' n m (cong pred p))
+
+
+2^n-large : (n : Nat) -> n < (2 ^' n)
+2^n-large n = 2^n-large' n n refl
+
+
 ≤-antisym : {m n : Nat} -> m ≤ n -> n ≤ m -> m == n
 ≤-antisym (zero  , p1) _ = p1
 ≤-antisym {m} {n} (suc i , p1) (j , p2) = bot-elim (zero-suc-absurd (sym path))
