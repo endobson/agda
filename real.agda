@@ -141,56 +141,55 @@ trans-ℝ< {x} {y} {z} x<y y<z = (∥-map2 handle x<y y<z)
 asym-ℝ< : Asymmetric _ℝ<_
 asym-ℝ< {x} {y} x<y y<x = irrefl-ℝ< {x} (trans-ℝ< {x} {y} {x} x<y y<x)
 
-private
-  LU-paths->path : (x y : ℝ)
-                   -> (∀ q -> (Real.L x q) == (Real.L y q))
-                   -> (∀ q -> (Real.U x q) == (Real.U y q))
-                   -> x == y
-  LU-paths->path x y lp up = (\i -> record
-    { L = lp' i
-    ; U = up' i
-    ; isProp-L = isProp-L i
-    ; isProp-U = isProp-U i
-    ; Inhabited-L =
-      isProp->PathP (\i -> squash {A = Σ ℚ (lp' i)}) (Real.Inhabited-L x) (Real.Inhabited-L y) i
-    ; Inhabited-U =
-      isProp->PathP (\i -> squash {A = Σ ℚ (up' i)}) (Real.Inhabited-U x) (Real.Inhabited-U y) i
-    ; isLowerSet-L =
-      isProp->PathP isProp-isLowerSet (Real.isLowerSet-L x) (Real.isLowerSet-L y) i
-    ; isUpperSet-U =
-      isProp->PathP isProp-isUpperSet (Real.isUpperSet-U x) (Real.isUpperSet-U y) i
-    ; isUpperOpen-L =
-      isProp->PathP isProp-isUpperOpen (Real.isUpperOpen-L x) (Real.isUpperOpen-L y) i
-    ; isLowerOpen-U =
-      isProp->PathP isProp-isLowerOpen (Real.isLowerOpen-U x) (Real.isLowerOpen-U y) i
-    ; disjoint =
-      isProp->PathP {B = \i -> (q : Rational) -> (lp q i) × (up q i) -> Bot}
-        (\i -> isPropΠ2 (\ _ _ -> isPropBot)) (Real.disjoint x) (Real.disjoint y) i
-    ; located =
-      isProp->PathP {B = \i -> (q r : Rational) -> (q < r) -> ∥ lp q i ⊎ up r i ∥}
-        (\i -> isPropΠ3 (\ _ _ _ -> squash)) (Real.located x) (Real.located y) i
-    })
-    where
-    lp' : (Real.L x) == (Real.L y)
-    lp' i q = lp q i
-    up' : (Real.U x) == (Real.U y)
-    up' i q = up q i
-    isProp-L : (i : I) (q : ℚ) -> isProp (lp' i q)
-    isProp-L i q = isProp->PathP (\i -> isProp-isProp {A = lp' i q})
-                                 (Real.isProp-L x q) (Real.isProp-L y q) i
-    isProp-U : (i : I) (q : ℚ) -> isProp (up' i q)
-    isProp-U i q = isProp->PathP (\i -> isProp-isProp {A = up' i q})
-                                 (Real.isProp-U x q) (Real.isProp-U y q) i
+LU-paths->path : (x y : ℝ)
+                 -> (∀ q -> (Real.L x q) == (Real.L y q))
+                 -> (∀ q -> (Real.U x q) == (Real.U y q))
+                 -> x == y
+LU-paths->path x y lp up = (\i -> record
+  { L = lp' i
+  ; U = up' i
+  ; isProp-L = isProp-L i
+  ; isProp-U = isProp-U i
+  ; Inhabited-L =
+    isProp->PathP (\i -> squash {A = Σ ℚ (lp' i)}) (Real.Inhabited-L x) (Real.Inhabited-L y) i
+  ; Inhabited-U =
+    isProp->PathP (\i -> squash {A = Σ ℚ (up' i)}) (Real.Inhabited-U x) (Real.Inhabited-U y) i
+  ; isLowerSet-L =
+    isProp->PathP isProp-isLowerSet (Real.isLowerSet-L x) (Real.isLowerSet-L y) i
+  ; isUpperSet-U =
+    isProp->PathP isProp-isUpperSet (Real.isUpperSet-U x) (Real.isUpperSet-U y) i
+  ; isUpperOpen-L =
+    isProp->PathP isProp-isUpperOpen (Real.isUpperOpen-L x) (Real.isUpperOpen-L y) i
+  ; isLowerOpen-U =
+    isProp->PathP isProp-isLowerOpen (Real.isLowerOpen-U x) (Real.isLowerOpen-U y) i
+  ; disjoint =
+    isProp->PathP {B = \i -> (q : Rational) -> (lp q i) × (up q i) -> Bot}
+      (\i -> isPropΠ2 (\ _ _ -> isPropBot)) (Real.disjoint x) (Real.disjoint y) i
+  ; located =
+    isProp->PathP {B = \i -> (q r : Rational) -> (q < r) -> ∥ lp q i ⊎ up r i ∥}
+      (\i -> isPropΠ3 (\ _ _ _ -> squash)) (Real.located x) (Real.located y) i
+  })
+  where
+  lp' : (Real.L x) == (Real.L y)
+  lp' i q = lp q i
+  up' : (Real.U x) == (Real.U y)
+  up' i q = up q i
+  isProp-L : (i : I) (q : ℚ) -> isProp (lp' i q)
+  isProp-L i q = isProp->PathP (\i -> isProp-isProp {A = lp' i q})
+                               (Real.isProp-L x q) (Real.isProp-L y q) i
+  isProp-U : (i : I) (q : ℚ) -> isProp (up' i q)
+  isProp-U i q = isProp->PathP (\i -> isProp-isProp {A = up' i q})
+                               (Real.isProp-U x q) (Real.isProp-U y q) i
 
-    isProp-isLowerSet : (i : I) -> isProp (isLowerSet (lp' i))
-    isProp-isLowerSet i = isPropΠ4 (\q _ _ _ -> isProp-L i q)
-    isProp-isUpperSet : (i : I) -> isProp (isUpperSet (up' i))
-    isProp-isUpperSet i = isPropΠ4 (\_ q _ _ -> isProp-U i q)
+  isProp-isLowerSet : (i : I) -> isProp (isLowerSet (lp' i))
+  isProp-isLowerSet i = isPropΠ4 (\q _ _ _ -> isProp-L i q)
+  isProp-isUpperSet : (i : I) -> isProp (isUpperSet (up' i))
+  isProp-isUpperSet i = isPropΠ4 (\_ q _ _ -> isProp-U i q)
 
-    isProp-isLowerOpen : (i : I) -> isProp (isLowerOpen (up' i))
-    isProp-isLowerOpen i = isPropΠ2 (\_ _ -> squash)
-    isProp-isUpperOpen : (i : I) -> isProp (isUpperOpen (lp' i))
-    isProp-isUpperOpen i = isPropΠ2 (\_ _ -> squash)
+  isProp-isLowerOpen : (i : I) -> isProp (isLowerOpen (up' i))
+  isProp-isLowerOpen i = isPropΠ2 (\_ _ -> squash)
+  isProp-isUpperOpen : (i : I) -> isProp (isUpperOpen (lp' i))
+  isProp-isUpperOpen i = isPropΠ2 (\_ _ -> squash)
 
 connected-ℝ< : (x y : ℝ) -> ¬ (x ℝ< y) -> ¬ (y ℝ< x) -> x == y
 connected-ℝ< x y x≮y y≮x = LU-paths->path x y l-path u-path

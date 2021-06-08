@@ -5,6 +5,7 @@ module real.arithmetic where
 open import base
 open import equality
 open import hlevel
+open import isomorphism
 open import order
 open import order.instances.rational
 open import rational
@@ -16,6 +17,7 @@ open import ring.implementations.rational
 open import sign
 open import sign.instances.rational
 open import truncation
+open import univalence
 
 module _ (x y : ℝ) where
   private
@@ -182,3 +184,51 @@ module _ (x y : ℝ) where
     ; disjoint = disjoint
     ; located = located
     }
+
+module _ (x y : ℝ) where
+  private
+    module x = Real x
+    module y = Real y
+    xy = x ℝ+ y
+    yx = y ℝ+ x
+    module xy = Real xy
+    module yx = Real yx
+
+    L-path : (q : ℚ) -> xy.L q == yx.L q
+    L-path q = ua (isoToEquiv i)
+      where
+      open Iso
+      i : Iso (xy.L q) (yx.L q)
+      i .fun = ∥-map handle
+        where
+        handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (x.L a × y.L b × (a r+ b) == q) ->
+                 Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (y.L a × x.L b × (a r+ b) == q)
+        handle (a , b , la , lb , p) = b , a , lb , la , r+-commute b a >=> p
+      i .inv = ∥-map handle
+        where
+        handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (y.L a × x.L b × (a r+ b) == q) ->
+                 Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (x.L a × y.L b × (a r+ b) == q)
+        handle (a , b , la , lb , p) = b , a , lb , la , r+-commute b a >=> p
+      i .rightInv _ = squash _ _
+      i .leftInv _ = squash _ _
+
+    U-path : (q : ℚ) -> xy.U q == yx.U q
+    U-path q = ua (isoToEquiv i)
+      where
+      open Iso
+      i : Iso (xy.U q) (yx.U q)
+      i .fun = ∥-map handle
+        where
+        handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (x.U a × y.U b × (a r+ b) == q) ->
+                 Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (y.U a × x.U b × (a r+ b) == q)
+        handle (a , b , ua , ub , p) = b , a , ub , ua , r+-commute b a >=> p
+      i .inv = ∥-map handle
+        where
+        handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (y.U a × x.U b × (a r+ b) == q) ->
+                 Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (x.U a × y.U b × (a r+ b) == q)
+        handle (a , b , ua , ub , p) = b , a , ub , ua , r+-commute b a >=> p
+      i .rightInv _ = squash _ _
+      i .leftInv _ = squash _ _
+
+  ℝ+-commute : xy == yx
+  ℝ+-commute = LU-paths->path xy yx L-path U-path
