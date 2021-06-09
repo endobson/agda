@@ -18,8 +18,18 @@ open cubical public using (isContr)
 Type : (ℓ : Level) → Set (ℓ-suc ℓ)
 Type ℓ = Set ℓ
 
-Type₀ : Type (ℓ-suc ℓ-zero)
+ℓ-one : Level
+ℓ-one = ℓ-suc ℓ-zero
+
+ℓ-two : Level
+ℓ-two = ℓ-suc ℓ-one
+
+Type₀ : Type ℓ-one
 Type₀ = Type ℓ-zero
+
+Type₁ : Type ℓ-two
+Type₁ = Type ℓ-one
+
 
 private
   variable

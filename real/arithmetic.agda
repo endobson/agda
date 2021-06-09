@@ -16,6 +16,7 @@ open import relation hiding (U)
 open import ring.implementations.rational
 open import sign
 open import sign.instances.rational
+open import sum
 open import truncation
 open import univalence
 
@@ -322,6 +323,9 @@ module _ (x y z : ℝ) where
 0ℝ : ℝ
 0ℝ = ℚ->ℝ 0r
 
+1ℝ : ℝ
+1ℝ = ℚ->ℝ 1r
+
 module _ (x : ℝ) where
   private
     module x = Real x
@@ -386,3 +390,76 @@ module _ (x : ℝ) where
 
   ℝ+-left-zero : 0x == x
   ℝ+-left-zero = LU-paths->path 0x x L-path U-path
+
+module _ (x : ℝ) where
+  private
+    module x = Real x
+
+    L : Pred ℚ ℓ-zero
+    L q = x.U (r- q)
+    U : Pred ℚ ℓ-zero
+    U q = x.L (r- q)
+
+    Inhabited-L : Inhabited L
+    Inhabited-L = ∥-map handle x.Inhabited-U
+      where
+      handle : Σ[ q ∈ ℚ ] (x.U q) -> Σ ℚ L
+      handle (q , uq) = (r- q) , subst x.U (sym RationalRing.minus-double-inverse) uq
+
+    Inhabited-U : Inhabited U
+    Inhabited-U = ∥-map handle x.Inhabited-L
+      where
+      handle : Σ[ q ∈ ℚ ] (x.L q) -> Σ ℚ U
+      handle (q , lq) = (r- q) , subst x.L (sym RationalRing.minus-double-inverse) lq
+
+    isLowerSet-L : isLowerSet L
+    isLowerSet-L a b a<b = x.isUpperSet-U (r- b) (r- a) (r--flips-order a b a<b)
+    isUpperSet-U : isUpperSet U
+    isUpperSet-U a b a<b = x.isLowerSet-L (r- b) (r- a) (r--flips-order a b a<b)
+
+    isUpperOpen-L : isUpperOpen L
+    isUpperOpen-L q lq = ∥-map handle (x.isLowerOpen-U (r- q) lq)
+      where
+      handle : Σ[ r ∈ ℚ ] (r < (r- q) × x.U r) ->
+               Σ[ r ∈ ℚ ] (q < r × L r)
+      handle (r , r<-q , ur) =
+        (r- r) ,
+        subst Pos (r+-commute (r- q) (r- r)) r<-q ,
+        subst x.U (sym RationalRing.minus-double-inverse) ur
+
+    isLowerOpen-U : isLowerOpen U
+    isLowerOpen-U q uq = ∥-map handle (x.isUpperOpen-L (r- q) uq)
+      where
+      handle : Σ[ r ∈ ℚ ] ((r- q) < r × x.L r) ->
+               Σ[ r ∈ ℚ ] (r < q × U r)
+      handle (r , -q<r , lr) =
+        (r- r) ,
+        subst Pos path -q<r ,
+        subst x.L (sym RationalRing.minus-double-inverse) lr
+        where
+        path : r r+ (r- (r- q)) == q r+ (r- (r- r))
+        path = cong (r r+_) RationalRing.minus-double-inverse >=>
+               r+-commute r q >=>
+               cong (q r+_) (sym RationalRing.minus-double-inverse)
+
+    disjoint : Universal (Comp (L ∩ U))
+    disjoint q (lq , uq) = x.disjoint (r- q) (uq , lq)
+
+    located : (a b : ℚ) -> a < b -> ∥ L a ⊎ U b ∥
+    located a b a<b = ∥-map ⊎-swap (x.located (r- b) (r- a) (r--flips-order a b a<b))
+
+  ℝ-_ : ℝ
+  ℝ-_ = record
+    { L = L
+    ; U = U
+    ; isProp-L = \q -> x.isProp-U (r- q)
+    ; isProp-U = \q -> x.isProp-L (r- q)
+    ; Inhabited-L = Inhabited-L
+    ; Inhabited-U = Inhabited-U
+    ; isLowerSet-L = isLowerSet-L
+    ; isUpperSet-U = isUpperSet-U
+    ; isUpperOpen-L = isUpperOpen-L
+    ; isLowerOpen-U = isLowerOpen-U
+    ; disjoint = disjoint
+    ; located = located
+    }
