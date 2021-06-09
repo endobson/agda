@@ -191,6 +191,112 @@ LU-paths->path x y lp up = (\i -> record
   isProp-isUpperOpen : (i : I) -> isProp (isUpperOpen (lp' i))
   isProp-isUpperOpen i = isPropΠ2 (\_ _ -> squash)
 
+private
+  record RawCut (ℓ : Level) : Type (ℓ-suc ℓ) where
+    field
+      hL : ℚ -> hProp ℓ
+      hU : ℚ -> hProp ℓ
+
+    L : Pred ℚ ℓ
+    L q = fst (hL q)
+    U : Pred ℚ ℓ
+    U q = fst (hU q)
+
+    isProp-L : isPropValuedPred L
+    isProp-L q = snd (hL q)
+    isProp-U : isPropValuedPred U
+    isProp-U q = snd (hU q)
+
+  isSet-RawCut : isSet (RawCut ℓ)
+  isSet-RawCut x y p1 p2 i j = record
+    { hL = \q -> isSet-hProp (RawCut.hL x q) (RawCut.hL y q)
+                             (cong (\z -> RawCut.hL z q) p1)
+                             (cong (\z -> RawCut.hL z q) p2) i j
+    ; hU = \q -> isSet-hProp (RawCut.hU x q) (RawCut.hU y q)
+                             (cong (\z -> RawCut.hU z q) p1)
+                             (cong (\z -> RawCut.hU z q) p2) i j
+    }
+
+  record isGoodCut {ℓ : Level} (c : RawCut ℓ) : Type (ℓ-suc ℓ) where
+    private
+      module c = RawCut c
+    field
+      Inhabited-L : Inhabited c.L
+      Inhabited-U : Inhabited c.U
+      isLowerSet-L : isLowerSet c.L
+      isUpperSet-U : isUpperSet c.U
+      isUpperOpen-L : isUpperOpen c.L
+      isLowerOpen-U : isLowerOpen c.U
+      disjoint : Universal (Comp (c.L ∩ c.U))
+      located : (x y : ℚ) -> x < y -> ∥ c.L x ⊎ c.U y ∥
+
+  isProp-isGoodCut : {ℓ : Level} {c : RawCut ℓ} -> isProp (isGoodCut c)
+  isProp-isGoodCut {c = c} g1 g2 = (\i -> record
+    { Inhabited-L = squash g1.Inhabited-L g2.Inhabited-L i
+    ; Inhabited-U = squash g1.Inhabited-U g2.Inhabited-U i
+    ; isLowerSet-L = isPropΠ4 (\x _ _ _ -> c.isProp-L x) g1.isLowerSet-L g2.isLowerSet-L i
+    ; isUpperSet-U = isPropΠ4 (\_ y _ _ -> c.isProp-U y) g1.isUpperSet-U g2.isUpperSet-U i
+    ; isUpperOpen-L = isPropΠ2 (\_ _ -> squash) g1.isUpperOpen-L g2.isUpperOpen-L i
+    ; isLowerOpen-U = isPropΠ2 (\_ _ -> squash) g1.isLowerOpen-U g2.isLowerOpen-U i
+    ; disjoint = isPropΠ2 (\_ _ -> isPropBot) g1.disjoint g2.disjoint i
+    ; located = isPropΠ3 (\_ _ _ -> squash) g1.located g2.located i
+    })
+    where
+    module g1 = isGoodCut g1
+    module g2 = isGoodCut g2
+    module c = RawCut c
+
+  GoodCut : (ℓ : Level) -> Type (ℓ-suc ℓ)
+  GoodCut ℓ = Σ (RawCut ℓ) isGoodCut
+
+  isSet-GoodCut : isSet (GoodCut ℓ)
+  isSet-GoodCut = isSetΣ isSet-RawCut (\_ -> isProp->isSet isProp-isGoodCut)
+
+  GoodCut₀ = GoodCut ℓ-zero
+
+  GoodCut==ℝ : GoodCut₀ == ℝ
+  GoodCut==ℝ = ua (isoToEquiv i)
+    where
+    open Iso
+    i : Iso GoodCut₀ ℝ
+    i .fun (c , g) = record
+      { L = c.L
+      ; U = c.U
+      ; isProp-L = c.isProp-L
+      ; isProp-U = c.isProp-U
+      ; Inhabited-L = g.Inhabited-L
+      ; Inhabited-U = g.Inhabited-U
+      ; isLowerSet-L = g.isLowerSet-L
+      ; isUpperSet-U = g.isUpperSet-U
+      ; isUpperOpen-L = g.isUpperOpen-L
+      ; isLowerOpen-U = g.isLowerOpen-U
+      ; disjoint = g.disjoint
+      ; located = g.located
+      }
+      where
+      module c = RawCut c
+      module g = isGoodCut g
+    i .inv r = record
+      { hL = \q -> r.L q , r.isProp-L q
+      ; hU = \q -> r.U q , r.isProp-U q
+      } , record
+      { Inhabited-L = r.Inhabited-L
+      ; Inhabited-U = r.Inhabited-U
+      ; isLowerSet-L = r.isLowerSet-L
+      ; isUpperSet-U = r.isUpperSet-U
+      ; isUpperOpen-L = r.isUpperOpen-L
+      ; isLowerOpen-U = r.isLowerOpen-U
+      ; disjoint = r.disjoint
+      ; located = r.located
+      }
+      where
+      module r = Real r
+    i .rightInv _ = refl
+    i .leftInv _ = refl
+
+isSet-ℝ : isSet ℝ
+isSet-ℝ = subst isSet GoodCut==ℝ isSet-GoodCut
+
 connected-ℝ< : (x y : ℝ) -> ¬ (x ℝ< y) -> ¬ (y ℝ< x) -> x == y
 connected-ℝ< x y x≮y y≮x = LU-paths->path x y l-path u-path
   where
