@@ -427,6 +427,10 @@ module _
 CenteredBall : ℝ -> ℚ -> Type₀
 CenteredBall x ε = Σ[ q ∈ ℚ ] (Real.L x (q r+ (r- ε)) × Real.U x (q r+ ε))
 
+OpenBall : ℝ -> ℚ -> Type₀
+OpenBall x ε = Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (Real.L x q1 × Real.U x q2 × diffℚ q1 q2 == ε)
+
+
 centered-ball->Pos-ε : (x : ℝ) (ε : ℚ) -> CenteredBall x ε -> Pos ε
 centered-ball->Pos-ε x e (q , lq , uq) = subst Pos 1/2-2e==e Pos-1/2-2e
   where
@@ -548,6 +552,24 @@ find-centered-ball x e1⁺@(e1 , _) = ∥-bind handle (initial-centered-ball x)
       where
       handle3 : CenteredBall x ((1/2r r^ℕ⁰ n) r* e2) -> CenteredBall x e1
       handle3 b2 = weaken-centered-ball x _ _ lt b2
+
+find-open-ball : (x : ℝ) -> (ε : ℚ⁺) -> ∥ OpenBall x ⟨ ε ⟩ ∥
+find-open-ball x e@(e' , pos-e') = ∥-map handle (find-centered-ball x e2)
+  where
+  e2' = 1/2r r* e'
+  e2 : ℚ⁺
+  e2 = e2' , r*-preserves-Pos 1/2r _ (Pos-1/ℕ _) pos-e'
+
+  handle : CenteredBall x e2' -> OpenBall x e'
+  handle (q , l , u) = q r+ (r- e2') , q r+ e2' , l , u , path
+    where
+    path : (q r+ e2') r+ (r- (diffℚ e2' q)) == e'
+    path =
+      cong2 _r+_ (r+-commute q e2') (sym (diffℚ-anticommute q e2')) >=>
+      r+-assoc e2' q (diffℚ q e2') >=>
+      cong (e2' r+_) (diffℚ-step q e2') >=>
+      1/2r-path' e'
+
 
 
 -- OpenBallPred : ℚ⁺ -> ℚ -> Pred ℚ ℓ-zero

@@ -463,3 +463,77 @@ module _ (x : ℝ) where
     ; disjoint = disjoint
     ; located = located
     }
+
+module _ (x : ℝ) where
+  private
+    -x = ℝ- x
+    y = x ℝ+ -x
+    module -x = Real -x
+    module x = Real x
+    module y = Real y
+    module 0ℝ = Real 0ℝ
+
+    L-forward : (q : ℚ) -> y.L q -> 0ℝ.L q
+    L-forward q yl-q = unsquash (0ℝ.isProp-L q) (∥-map handle yl-q)
+      where
+      handle : Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (x.L q1 × x.U (r- q2) × q1 r+ q2 == q) ->
+               q < 0r
+      handle (q1 , q2 , xl-q1 , xu-mq2 , q-path) = q<0r
+        where
+        q1<mq2 : q1 < (r- q2)
+        q1<mq2 = ℝ-bounds->ℚ< x q1 (r- q2) xl-q1 xu-mq2
+
+        q<0r : q < 0r
+        q<0r = subst Pos (sym (RationalRing.minus-distrib-plus {q2} {q1}) >=>
+                          cong r-_ (r+-commute q2 q1 >=> q-path) >=>
+                          sym (r+-left-zero (r- q)) )
+                     q1<mq2
+
+    L-backward : (q : ℚ) -> 0ℝ.L q -> y.L q
+    L-backward q q<0r = ∥-map handle (find-open-ball x -q)
+      where
+      -q' = r- q
+      -q : ℚ⁺
+      -q = -q' , subst Pos (r+-left-zero -q') q<0r
+
+      handle :  Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (Real.L x q1 × Real.U x q2 × diffℚ q1 q2 == -q') ->
+                Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (x.L q1 × x.U (r- q2) × q1 r+ q2 == q)
+      handle (q1 , q2 , xl-q1 , xu-q2 , diff-path) = q1 , (r- q2) , xl-q1 , xu-mmq2 , path
+        where
+        xu-mmq2 : x.U (r- (r- q2))
+        xu-mmq2 = subst x.U (sym RationalRing.minus-double-inverse) xu-q2
+
+        path : diffℚ q2 q1 == q
+        path = diffℚ-anticommute q2 q1 >=> cong r-_ diff-path >=> RationalRing.minus-double-inverse
+
+    U-forward : (q : ℚ) -> y.U q -> 0ℝ.U q
+    U-forward q yu-q = unsquash (0ℝ.isProp-U q) (∥-map handle yu-q)
+      where
+      handle : Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (x.U q1 × x.L (r- q2) × q1 r+ q2 == q) ->
+               0r < q
+      handle (q1 , q2 , xu-q1 , xl-mq2 , q-path) = 0r<q
+        where
+        mq2<q1 : (r- q2) < q1
+        mq2<q1 = ℝ-bounds->ℚ< x (r- q2) q1 xl-mq2 xu-q1
+
+        0r<q : 0r < q
+        0r<q = Pos-0< q (subst Pos (cong (q1 r+_) RationalRing.minus-double-inverse >=> q-path) mq2<q1)
+
+    U-backward : (q : ℚ) -> 0ℝ.U q -> y.U q
+    U-backward q 0r<q = ∥-map handle (find-open-ball x q⁺)
+      where
+      q⁺ : ℚ⁺
+      q⁺ = q , subst Pos (r+-right-zero q) 0r<q
+
+      handle :  Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (Real.L x q1 × Real.U x q2 × diffℚ q1 q2 == q) ->
+                Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (x.U q1 × x.L (r- q2) × q1 r+ q2 == q)
+      handle (q1 , q2 , xl-q1 , xu-q2 , path) = q2 , (r- q1) , xu-q2 , xl-mmq1 , path
+        where
+        xl-mmq1 : x.L (r- (r- q1))
+        xl-mmq1 = subst x.L (sym RationalRing.minus-double-inverse) xl-q1
+
+  ℝ+-inverse : y == 0ℝ
+  ℝ+-inverse =
+    LU-paths->path y 0ℝ
+      (\q -> (ua (isoToEquiv (isProp->iso (L-forward q) (L-backward q) (y.isProp-L q) (0ℝ.isProp-L q)))))
+      (\q -> (ua (isoToEquiv (isProp->iso (U-forward q) (U-backward q) (y.isProp-U q) (0ℝ.isProp-U q)))))
