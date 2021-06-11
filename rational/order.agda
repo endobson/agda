@@ -287,6 +287,8 @@ isProp-Posℚ {r} = isProp-isSignℚ pos-sign r
 
 ℚ⁺ : Type₀
 ℚ⁺ = Σ ℚ Posℚ
+ℚ⁻ : Type₀
+ℚ⁻ = Σ ℚ Negℚ
 
 Zero-0r : Zero 0r
 Zero-0r = is-signℚ Zero-0r'
@@ -702,6 +704,19 @@ x ℚ≤ y = NonNeg (diffℚ x y)
 isProp-ℚ≤ : {x y : ℚ} -> isProp (x ℚ≤ y)
 isProp-ℚ≤ {x} {y} = isProp-NonNeg (diffℚ x y)
 
+split-< : (q r : ℚ) -> (q < r) ⊎ (r ℚ≤ q)
+split-< q r = handle (trichotomous-< q r)
+  where
+  handle : Tri (q < r) (q == r) (q > r) -> (q < r) ⊎ (r ℚ≤ q)
+  handle (tri< q<r _ _) = inj-l q<r
+  handle (tri= _ q=r _) =
+    inj-r (inj-r (subst Zero (sym (r+-inverse r) >=> cong (_r+ (r- r)) (sym q=r)) Zero-0r))
+  handle (tri> _ _ q>r) =
+    inj-r (inj-l q>r)
+
+
+
+
 NonNeg-fractional-part' : (q : ℚ') -> NonNeg (fractional-part' q)
 NonNeg-fractional-part' (record { numerator = n ; denominator = d@(int.pos d')}) =
   NonNeg-nd->ℚ' (int.*-NonNeg-Pos (remainderℤ-NonNeg n (d , inj-l tt) tt) tt)
@@ -734,9 +749,6 @@ fractional-part-0≤ : (q : ℚ) -> 0r ℚ≤ (fractional-part q)
 fractional-part-0≤ q = NonNeg->0≤ (fractional-part q) (NonNeg-fractional-part q)
 
 
--- r+'-Pos-NonNeg : {q1 q2 : Rational'} -> Pos q1 -> NonNeg q2 -> Pos (q1 r+' q2)
--- r+'-Pos-NonNeg {q1} {q2} p-q1 nn-q2 =
-
 
 r+-Pos-NonNeg : {q1 q2 : Rational} -> Pos q1 -> NonNeg q2 -> Pos (q1 r+ q2)
 r+-Pos-NonNeg {q1} {q2} p-q1 (inj-l p-q2) =
@@ -744,9 +756,16 @@ r+-Pos-NonNeg {q1} {q2} p-q1 (inj-l p-q2) =
 r+-Pos-NonNeg {q1} {q2} p-q1 (inj-r z-q2) =
   subst Pos (sym (r+-right-zero q1) >=> cong (q1 r+_) (sym (Zero-path q2 z-q2))) p-q1
 
+r+-NonNeg-Pos : {q1 q2 : Rational} -> NonNeg q1 -> Pos q2 -> Pos (q1 r+ q2)
+r+-NonNeg-Pos {q1} {q2} n p = subst Pos (r+-commute q2 q1) (r+-Pos-NonNeg p n)
+
 trans-<-≤ : {q1 q2 q3 : Rational} -> q1 < q2 -> q2 ℚ≤ q3 -> q1 < q3
 trans-<-≤ {q1} {q2} {q3} q1<q2 q2≤q3 =
   subst Pos (diffℚ-trans q1 q2 q3) (r+-Pos-NonNeg q1<q2 q2≤q3)
+
+trans-≤-< : {q1 q2 q3 : Rational} -> q1 ℚ≤ q2 -> q2 < q3 -> q1 < q3
+trans-≤-< {q1} {q2} {q3} q1≤q2 q2<q3 =
+  subst Pos (diffℚ-trans q1 q2 q3) (r+-NonNeg-Pos q1≤q2 q2<q3)
 
 
 

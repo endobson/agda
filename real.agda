@@ -11,6 +11,8 @@ open import isomorphism
 open import rational
 open import rational.order
 open import relation hiding (U)
+open import ring
+open import ring.implementations.rational
 open import truncation
 open import univalence
 
@@ -101,6 +103,57 @@ record Real (ℓ : Level) : Type (ℓ-suc ℓ) where
   isLowerOpen-U q2 q1<q2 = ∣ fst d , (proj₂ (snd d) , proj₁ (snd d)) ∣
     where
     d = dense-< {q1} {q2} q1<q2
+
+module _ (x : ℝ) where
+  private
+    module x = Real x
+
+  ℝ->Pos-U : ∃[ q ∈ ℚ⁺ ] (x.U ⟨ q ⟩)
+  ℝ->Pos-U = ∥-map handle x.Inhabited-U
+    where
+    handle : Σ[ q ∈ ℚ ] (x.U q) -> Σ[ q ∈ ℚ⁺ ] (x.U ⟨ q ⟩)
+    handle (q , uq) = handle2 (split-< 0r q)
+      where
+      handle2 : (0r < q) ⊎ (q ℚ≤ 0r) -> Σ[ q ∈ ℚ⁺ ] (x.U ⟨ q ⟩)
+      handle2 (inj-l 0<q) = (q , subst Posℚ (r+-right-zero q) 0<q) , uq
+      handle2 (inj-r q≤0) = (1r , Pos-1r) , x.isUpperSet-U q 1r q<1r uq
+        where
+        q<1r : q < 1r
+        q<1r = (trans-≤-< {q} {0r} {1r} q≤0 (Pos-0< 1r Pos-1r))
+
+  ℝ->Neg-L : ∃[ q ∈ ℚ⁻ ] (x.L ⟨ q ⟩)
+  ℝ->Neg-L = ∥-map handle x.Inhabited-L
+    where
+    handle : Σ[ q ∈ ℚ ] (x.L q) -> Σ[ q ∈ ℚ⁻ ] (x.L ⟨ q ⟩)
+    handle (q , lq) = handle2 (split-< q 0r)
+      where
+      handle2 : (q < 0r) ⊎ (0r ℚ≤ q) -> Σ[ q ∈ ℚ⁻ ] (x.L ⟨ q ⟩)
+      handle2 (inj-l q<0) = (q , Neg-q) , lq
+        where
+        Neg-d : Negℚ (diffℚ 0r q)
+        Neg-d = subst Negℚ (sym (diffℚ-anticommute 0r q)) (r--flips-sign _ _ q<0)
+
+        Neg-q : Negℚ q
+        Neg-q = subst Negℚ (r+-right-zero q) Neg-d
+      handle2 (inj-r 0≤q) = ((r- 1r) , (r--flips-sign _ _ Pos-1r)) ,
+                            x.isLowerSet-L (r- 1r) q -1r<q lq
+        where
+        -1r<q : (r- 1r) < q
+        -1r<q = trans-<-≤ {r- 1r} {0r} {q}
+                  (subst Posℚ (RationalRing.minus-double-inverse >=>
+                               (sym (r+-left-zero (r- (r- 1r)))))
+                              Pos-1r)
+                  0≤q
+
+
+-- subst Posℚ (r+-right-zero q) q<0
+      --handle2 (inj-r q≤0) = (1r , Pos-1r) , x.isUpperSet-U q 1r q<1r uq
+      --  where
+      --  q<1r : q < 1r
+      --  q<1r = (trans-≤-< {q} {0r} {1r} q≤0 (Pos-0< 1r Pos-1r))
+
+
+-- ℝ->Neg-L : (x : ℝ) -> ∃[ r ∈ ℚ⁺ ] (x.L ⟨ r ⟩)
 
 _ℝ<'_ : ℝ -> ℝ -> Type₀
 x ℝ<' y = Σ[ q ∈ ℚ ] (Real.U x q × Real.L y q)
