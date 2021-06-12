@@ -198,6 +198,8 @@ Zero-r~ q zq = (cong (i._* (denom 0r')) path >=> i.*-left-zero >=> sym i.*-left-
   path : (numer q) == (i.int 0)
   path = i.*-left-zero-eq (rNonZero q) (i.Zero-path ((numer q) i.* (denom q)) (isSignℚ'.v zq))
 
+
+
 irrefl-<' : Irreflexive _<'_
 irrefl-<' {a} a<a = (i.NonPos->¬Pos (i.Zero->NonPos (isSignℚ'.v b-zero)) (isSignℚ'.v b-pos))
   where
@@ -251,6 +253,41 @@ decide-<' x y = handle (i.int->sign z') (i.isSign-self z')
   handle neg-sign nz = no (\ pz -> i.NonPos->¬Pos (i.Neg->NonPos nz) (isSignℚ'.v pz))
 
 
+diffℚ : ℚ -> ℚ -> ℚ
+diffℚ x y = (y r+ (r- x))
+
+diffℚ-anticommute : (x y : ℚ) -> diffℚ x y == r- (diffℚ y x)
+diffℚ-anticommute x y = sym (
+  RationalRing.minus-distrib-plus {x} {r- y} >=>
+  cong ((r- x) r+_) (RationalRing.minus-double-inverse {y}) >=>
+  r+-commute (r- x) y)
+
+r+-swap-diffℚ : (a b c d : Rational) -> ((diffℚ a b) r+ (diffℚ c d)) == (diffℚ (a r+ c) (b r+ d))
+r+-swap-diffℚ a b c d =
+  r+-assoc b (r- a) (diffℚ c d) >=>
+  cong (b r+_) (sym (r+-assoc (r- a) d (r- c)) >=>
+                cong (_r+ (r- c)) (r+-commute (r- a) d) >=>
+                r+-assoc d (r- a) (r- c) >=>
+                cong (d r+_) (sym (RationalRing.minus-distrib-plus {a} {c}))) >=>
+  sym (r+-assoc b d (r- (a r+ c)))
+
+
+diffℚ-trans : (x y z : ℚ) -> diffℚ x y r+ diffℚ y z == (diffℚ x z)
+diffℚ-trans x y z =
+  r+-commute (diffℚ x y) (diffℚ y z) >=>
+  r+-assoc z (r- y) (diffℚ x y) >=>
+  cong (z r+_) (sym (r+-assoc (r- y) y (r- x)) >=>
+                cong (_r+ (r- x)) (r+-commute (r- y) y >=> r+-inverse y) >=>
+                r+-left-zero (r- x))
+
+diffℚ-step : (x y : ℚ) -> x + diffℚ x y == y
+diffℚ-step x y =
+  sym (r+-assoc x y (r- x)) >=>
+  cong (_r+ (r- x)) (r+-commute x y) >=>
+  (r+-assoc y x (r- x)) >=>
+  cong (y r+_) (r+-inverse x) >=>
+  r+-right-zero y
+
 
 
 private
@@ -299,7 +336,6 @@ Zero-path =
     (\_ -> isPropΠ (\_ -> isSetRational _ _))
     (\q zq -> eq/ _ _ (Zero-r~ q (isSignℚ.v zq)))
 
--- DO STUFF
 r+-preserves-Pos : (q1 q2 : Rational) -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r+ q2)
 r+-preserves-Pos =
   RationalElim.elimProp2
@@ -325,6 +361,40 @@ r1/-preserves-Pos =
   RationalElim.elimProp
     (\q -> isPropΠ2 (\ i _ -> isProp-Pos (r1/ q i)))
     (\q i p -> is-signℚ (r1/'-preserves-Pos q (ℚInv->ℚInv' q i) (isSignℚ.v p)))
+
+
+r*₁-preserves-sign : (q : ℚ⁺) (r : Rational) {s : Sign} -> isSignℚ s r ->
+                     isSignℚ s (⟨ q ⟩ r* r)
+r*₁-preserves-sign (q , pos-q) r {zero-sign} zero-r =
+  subst Zero (sym qr==0) Zero-0r
+  where
+  r==0 : r == 0r
+  r==0 = Zero-path r zero-r
+  qr==0 : q r* r == 0r
+  qr==0 = cong (q r*_) r==0 >=> r*-right-zero q
+r*₁-preserves-sign (q , pos-q) r {pos-sign} pos-r = r*-preserves-Pos q r pos-q pos-r
+r*₁-preserves-sign (q , pos-q) r {neg-sign} neg-r =
+  subst Neg RationalRing.minus-double-inverse neg-mmqr
+  where
+  pos-mr : Pos (r- r)
+  pos-mr = r--flips-sign _ _ neg-r
+  pos-qmr : Pos (q r* (r- r))
+  pos-qmr = r*-preserves-Pos _ _ pos-q pos-mr
+  pos-mqr : Pos (r- (q r* r))
+  pos-mqr = subst Pos (r*-minus-extract-right q r) pos-qmr
+  neg-mmqr : Neg (r- (r- (q r* r)))
+  neg-mmqr = r--flips-sign _ _ pos-mqr
+
+
+r*₁-flips-sign : (q : ℚ⁻) (r : Rational) {s : Sign} -> isSignℚ s r ->
+                  isSignℚ (s⁻¹ s) (⟨ q ⟩ r* r)
+r*₁-flips-sign (q , neg-q) r {s} r-sign =
+  subst (isSignℚ (s⁻¹ s)) RationalRing.minus-double-inverse s-mmqr
+  where
+  mq = r- q
+  s-mqr1 = r*₁-preserves-sign (mq , r--flips-sign _ _ neg-q) r r-sign
+  s-mqr2 = subst (isSignℚ s) (r*-minus-extract-left q r) s-mqr1
+  s-mmqr = r--flips-sign _ _ s-mqr2
 
 
 _<_ : Rational -> Rational -> Type₀
@@ -538,6 +608,22 @@ r*₂-preserves-order : (a b : Rational) (c : ℚ⁺) -> a < b -> ( a r* ⟨ c �
 r*₂-preserves-order a b c@(c' , _) a<b =
   subst2 _<_ (r*-commute c' a) (r*-commute c' b) (r*₁-preserves-order c a b a<b)
 
+r*₁-flips-order : (a : ℚ⁻) (b c : Rational) -> b < c -> (⟨ a ⟩ r* c) < (⟨ a ⟩ r* b)
+r*₁-flips-order a⁻@(a , _) b c b<c = pos-acab
+  where
+  neg-abc : Neg (a r* (diffℚ b c))
+  neg-abc = r*₁-flips-sign a⁻ (diffℚ b c) b<c
+
+  pos-acb : Pos (a r* (diffℚ c b))
+  pos-acb = subst Pos (sym (r*-minus-extract-right a (diffℚ b c)) >=>
+                       cong (a r*_) (sym (diffℚ-anticommute c b)))
+                  (r--flips-sign _ neg-sign neg-abc)
+  pos-acab : Pos (diffℚ (a r* c) (a r* b))
+  pos-acab = subst Pos (RationalSemiring.*-distrib-+-left {a} {b} {(r- c)} >=>
+                        cong ((a r* b) +_) (r*-minus-extract-right a c))
+                   pos-acb
+
+
 
 1/2r<1r : 1/2r < 1r
 1/2r<1r = subst2 _<_ (r+-left-zero 1/2r) (2r-path 1/2r >=> 2r-1/2r-path)  0r+1/2r<1/2r+1/2r
@@ -633,41 +719,6 @@ maxℚ x y = maxℚ-helper x y (trichotomous-< x y)
 absℚ : ℚ -> ℚ
 absℚ x = maxℚ x (r- x)
 
-
-diffℚ : ℚ -> ℚ -> ℚ
-diffℚ x y = (y r+ (r- x))
-
-diffℚ-anticommute : (x y : ℚ) -> diffℚ x y == r- (diffℚ y x)
-diffℚ-anticommute x y = sym (
-  RationalRing.minus-distrib-plus {x} {r- y} >=>
-  cong ((r- x) r+_) (RationalRing.minus-double-inverse {y}) >=>
-  r+-commute (r- x) y)
-
-r+-swap-diffℚ : (a b c d : Rational) -> ((diffℚ a b) r+ (diffℚ c d)) == (diffℚ (a r+ c) (b r+ d))
-r+-swap-diffℚ a b c d =
-  r+-assoc b (r- a) (diffℚ c d) >=>
-  cong (b r+_) (sym (r+-assoc (r- a) d (r- c)) >=>
-                cong (_r+ (r- c)) (r+-commute (r- a) d) >=>
-                r+-assoc d (r- a) (r- c) >=>
-                cong (d r+_) (sym (RationalRing.minus-distrib-plus {a} {c}))) >=>
-  sym (r+-assoc b d (r- (a r+ c)))
-
-
-diffℚ-trans : (x y z : ℚ) -> diffℚ x y r+ diffℚ y z == (diffℚ x z)
-diffℚ-trans x y z =
-  r+-commute (diffℚ x y) (diffℚ y z) >=>
-  r+-assoc z (r- y) (diffℚ x y) >=>
-  cong (z r+_) (sym (r+-assoc (r- y) y (r- x)) >=>
-                cong (_r+ (r- x)) (r+-commute (r- y) y >=> r+-inverse y) >=>
-                r+-left-zero (r- x))
-
-diffℚ-step : (x y : ℚ) -> x + diffℚ x y == y
-diffℚ-step x y =
-  sym (r+-assoc x y (r- x)) >=>
-  cong (_r+ (r- x)) (r+-commute x y) >=>
-  (r+-assoc y x (r- x)) >=>
-  cong (y r+_) (r+-inverse x) >=>
-  r+-right-zero y
 
 
 abs-diffℚ : ℚ -> ℚ -> ℚ

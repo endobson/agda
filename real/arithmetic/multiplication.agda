@@ -17,7 +17,6 @@ module _ (x y : ℝ)
                  ∃[ r ∈ ℚ⁻ ] (⟨ q ⟩ < ⟨ r ⟩ × Real.L z ⟨ r ⟩))
   (lowerOpenℚ⁻ : (z : ℝ) -> (q : ℚ⁻) -> (Real.U z ⟨ q ⟩) ->
                  ∃[ r ∈ ℚ⁻ ] (⟨ r ⟩ < ⟨ q ⟩ × Real.U z ⟨ r ⟩))
-  (r*₁-flips-order : (a : ℚ⁻) (b c : Rational) -> b < c -> (⟨ a ⟩ r* c) < (⟨ a ⟩ r* b))
   where
   private
     module x = Real x

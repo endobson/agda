@@ -312,6 +312,9 @@ r*'-left-zero a = int.*-right-one {numer (0r' r*' a)}
 r*-left-zero : (a : Rational) -> (0r r* a) == 0r
 r*-left-zero = RationalElim.elimProp (\a -> isSetRational _ _) (\a -> eq/ _ _ (r*'-left-zero a))
 
+r*-right-zero : (a : Rational) -> (a r* 0r) == 0r
+r*-right-zero a = r*-commute a 0r >=> r*-left-zero a
+
 1r' : Rational'
 1r' = record
   { numerator = (int 1)
@@ -440,6 +443,9 @@ r*-minus-extract-left =
     (\_ _ -> isSetRational _ _)
     (\a1 a2 -> cong [_] (nd-paths->path _ _ int.minus-extract-left refl))
 
+r*-minus-extract-right : (a1 a2 : Rational) -> a1 r* (r- a2) == r- (a1 r* a2)
+r*-minus-extract-right a1 a2 = r*-commute a1 (r- a2) >=> r*-minus-extract-left a2 a1 >=>
+                               cong r-_ (r*-commute a2 a1)
 
 ℚInv' : Pred Rational' ℓ-zero
 ℚInv' a = NonZero (numer a)
