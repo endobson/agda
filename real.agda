@@ -181,6 +181,10 @@ irrefl-ℝ< {x} x<x = unsquash isPropBot (∥-map handle x<x)
   handle (tri= _  p _ ) = bot-elim (Real.disjoint x q1 (l , (subst (Real.U x) (sym p) u)))
   handle (tri> _  _ lt) = bot-elim (Real.disjoint x q1 (l , (Real.isUpperSet-U x q2 q1 lt u)))
 
+ℝ-bounds->¬ℚ≤ : (x : ℝ) (q1 q2 : ℚ) -> (Real.L x q1) -> (Real.U x q2) -> ¬ (q2 ℚ≤ q1)
+ℝ-bounds->¬ℚ≤ x q1 q2 lq1 uq2 q2≤q1 =
+  irrefl-< {q2} (trans-≤-< {q2} {q1} {q2} q2≤q1 (ℝ-bounds->ℚ< x q1 q2 lq1 uq2))
+
 trans-ℝ< : Transitive _ℝ<_
 trans-ℝ< {x} {y} {z} x<y y<z = (∥-map2 handle x<y y<z)
   where

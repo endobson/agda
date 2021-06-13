@@ -99,11 +99,11 @@ private
                            sym (diffℚ-anticommute (midℚ a b) (1/2r r* (diffℚ a b)))) >=>
     diffℚ-step (midℚ a b) (1/2r r* diffℚ a b)
 
-  midℚ-<₁ : (a b : ℚ) -> (a < b) -> a < (midℚ a b)
-  midℚ-<₁ a b a<b = subst Pos (sym (diffℚ-midℚ' a b)) (r*-preserves-Pos 1/2r _ (Pos-1/ℕ _) a<b)
+midℚ-<₁ : (a b : ℚ) -> (a < b) -> a < (midℚ a b)
+midℚ-<₁ a b a<b = subst Pos (sym (diffℚ-midℚ' a b)) (r*-preserves-Pos 1/2r _ (Pos-1/ℕ _) a<b)
 
-  midℚ-<₂ : (a b : ℚ) -> (a < b) -> (midℚ a b) < b
-  midℚ-<₂ a b a<b = subst Pos (sym (diffℚ-midℚ a b)) (r*-preserves-Pos 1/2r _ (Pos-1/ℕ _) a<b)
+midℚ-<₂ : (a b : ℚ) -> (a < b) -> (midℚ a b) < b
+midℚ-<₂ a b a<b = subst Pos (sym (diffℚ-midℚ a b)) (r*-preserves-Pos 1/2r _ (Pos-1/ℕ _) a<b)
 
 
 module _

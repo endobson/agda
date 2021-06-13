@@ -37,6 +37,8 @@ unsquash h (squash a b i) = h (unsquash h a) (unsquash h b) i
 ∥-bind f ∣ a ∣ = f a
 ∥-bind f (squash a1 a2 i) = (squash (∥-bind f a1) (∥-bind f a2) i)
 
+∥-bind2 : (A -> B -> ∥ C ∥) -> ∥ A ∥ -> ∥ B ∥ -> ∥ C ∥
+∥-bind2 f a b = unsquash squash (∥-map2 f a b)
 
 private
   module rec (BSet : isSet B) where

@@ -4,11 +4,14 @@ module real.arithmetic.multiplication where
 
 open import base
 open import equality
+open import hlevel
 open import order
 open import order.instances.rational
 open import rational
 open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
+open import rational.factor-order
 open import real
+open import real.sequence
 open import relation hiding (U)
 open import truncation
 
@@ -17,6 +20,9 @@ module _ (x y : ℝ)
                  ∃[ r ∈ ℚ⁻ ] (⟨ q ⟩ < ⟨ r ⟩ × Real.L z ⟨ r ⟩))
   (lowerOpenℚ⁻ : (z : ℝ) -> (q : ℚ⁻) -> (Real.U z ⟨ q ⟩) ->
                  ∃[ r ∈ ℚ⁻ ] (⟨ r ⟩ < ⟨ q ⟩ × Real.U z ⟨ r ⟩))
+  (refl-ℚ≤ : (q : ℚ) -> q ℚ≤ q)
+  (weaken-ℚ< : {q r : ℚ} -> q < r -> q ℚ≤ r)
+  (sqrt-ℚ< : (q : ℚ⁺) -> ∃[ r ∈ ℚ⁺ ] ((⟨ r ⟩ r* ⟨ r ⟩) < ⟨ q ⟩))
   where
   private
     module x = Real x
@@ -32,13 +38,9 @@ module _ (x y : ℝ)
     L : Pred ℚ ℓ-zero
     L q = ∥ L' q ∥
 
-    data U' : (q : ℚ) -> Type₀ where
-      U'-pp : (q1 : ℚ⁺) (q2 : ℚ⁺) -> x.U ⟨ q1 ⟩ -> y.U ⟨ q2 ⟩ -> U' (⟨ q1 ⟩ r* ⟨ q2 ⟩)
-      U'-nn : (q1 : ℚ⁻) (q2 : ℚ⁻) -> x.L ⟨ q1 ⟩ -> y.L ⟨ q2 ⟩ -> U' (⟨ q1 ⟩ r* ⟨ q2 ⟩)
-      U'-pn : (q1 : ℚ⁺) (q2 : ℚ⁻) -> x.L ⟨ q1 ⟩ -> y.U ⟨ q2 ⟩ -> U' (⟨ q1 ⟩ r* ⟨ q2 ⟩)
-      U'-np : (q1 : ℚ⁻) (q2 : ℚ⁺) -> x.U ⟨ q1 ⟩ -> y.L ⟨ q2 ⟩ -> U' (⟨ q1 ⟩ r* ⟨ q2 ⟩)
-      U'-<  : (q1 q2 : ℚ) -> (q1 < q2) -> U' q1 -> U' q2
 
+    U' : Pred ℚ ℓ-zero
+    U' q = Σ[ r ∈ ℚ ] (r < q × (Comp L r))
     U : Pred ℚ ℓ-zero
     U q = ∥ U' q ∥
 
@@ -89,3 +91,59 @@ module _ (x y : ℝ)
         handle2 : Σ[ r3 ∈ ℚ⁻ ] (⟨ r3 ⟩ < r2 × y.U ⟨ r3 ⟩) -> Res'
         handle2 (r3⁻@(r3 , _) , r3<r2 , yu-r3) =
           _ , r*₁-flips-order r1⁻ r3 r2 r3<r2 , ∣ L'-nn r1⁻ r3⁻ xu-r1 yu-r3 ∣
+
+
+    isLowerOpen-U : isLowerOpen U
+    isLowerOpen-U q1 = ∥-map handle
+      where
+      handle : U' q1 -> Σ[ q2 ∈ ℚ ] (q2 < q1 × U q2)
+      handle (r , r<q1 , ur) = (midℚ r q1 , midℚ-<₂ r q1 r<q1 , ∣ (r , midℚ-<₁ r q1 r<q1 , ur) ∣)
+
+
+    isUpperSet-U : isUpperSet U
+    isUpperSet-U q r q<r = ∥-map handle
+      where
+      handle : U' q -> U' r
+      handle (s , s<q , ¬ls) = (s , trans-< {_} {_} {_} {s} {q} {r} s<q q<r , ¬ls)
+
+    disjoint : Universal (Comp (L ∩ U))
+    disjoint q (lq , uq) = unsquash isPropBot (∥-map handle uq)
+      where
+      handle : U' q -> Bot
+      handle (r , r<q , ¬lr) = ¬lr (isLowerSet-L r q r<q lq)
+
+--    located : (q r : ℚ) -> (q < r) -> ∥ L q ⊎ U r ∥
+--    located q r q<r = ∥-bind2 handle (find-open-ball x ε⁺) (find-open-ball y ε⁺)
+--      where
+--      ε : ℚ
+--      ε = ?
+--      ε⁺ : ℚ⁺
+--      ε⁺ = ε , ?
+--
+--      Ans = ∥ L q ⊎ U r ∥
+--      handle : OpenBall x ε -> OpenBall y ε -> Ans
+--      handle (a , b , lx-a , ux-b , ab-path) (c , d , ly-c , uy-d , cd-path) =
+--        handle2 (split-< a 0r)
+--        where
+--        handle2 : (a < 0r ⊎ 0r ≤ a) -> Ans
+--        handle2 = ?
+
+  module _
+    (Inhabited-U : Inhabited U)
+    (located : (q r : ℚ) -> (q < r) -> ∥ L q ⊎ U r ∥)
+    where
+    _ℝ*_ : ℝ
+    _ℝ*_ = record
+      { L = L
+      ; U = U
+      ; isProp-L = \q -> squash
+      ; isProp-U = \q -> squash
+      ; Inhabited-L = Inhabited-L
+      ; Inhabited-U = Inhabited-U
+      ; isLowerSet-L = isLowerSet-L
+      ; isUpperSet-U = isUpperSet-U
+      ; isUpperOpen-L = isUpperOpen-L
+      ; isLowerOpen-U = isLowerOpen-U
+      ; disjoint = disjoint
+      ; located = located
+      }

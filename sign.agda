@@ -152,6 +152,9 @@ record SignStr {ℓD : Level} (D : Type ℓD) (ℓS : Level) : Type (ℓ-max ℓ
   Zero : Pred D ℓS
   Zero = isSign zero-sign
 
+  NonPos : Pred D ℓS
+  NonPos = Neg ∪ Zero
+
   NonNeg : Pred D ℓS
   NonNeg = Pos ∪ Zero
 
@@ -168,8 +171,13 @@ record SignStr {ℓD : Level} (D : Type ℓD) (ℓS : Level) : Type (ℓ-max ℓ
 
   isProp-NonNeg : (x : D) -> isProp (NonNeg x)
   isProp-NonNeg x =
-    isProp⊎ (isProp-isSign pos-sign x) (isProp-isSign zero-sign x)
+    isProp⊎ (isProp-Pos x) (isProp-Zero x)
             (\px zx -> (subst isPosSign (isSign-unique x pos-sign zero-sign px zx) tt))
+
+  isProp-NonPos : (x : D) -> isProp (NonPos x)
+  isProp-NonPos x =
+    isProp⊎ (isProp-Neg x) (isProp-Zero x)
+            (\nx zx -> (subst isNegSign (isSign-unique x neg-sign zero-sign nx zx) tt))
 
   Pos->NonNeg : {x : D} -> Pos x -> NonNeg x
   Pos->NonNeg = inj-l
