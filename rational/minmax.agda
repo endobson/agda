@@ -98,6 +98,21 @@ minℚ-same {x} = minℚ-left _ _ (refl-ℚ≤ {x})
 maxℚ-same : {x : ℚ} -> maxℚ x x == x
 maxℚ-same {x} = maxℚ-left _ _ (refl-ℚ≤ {x})
 
+minℚ-commute : {x y : ℚ} -> minℚ x y == minℚ y x
+minℚ-commute {x} {y} = handle (split-< x y)
+  where
+  handle : (x < y) ⊎ (y ℚ≤ x) -> _
+  handle (inj-l x<y) = (minℚ-left x y (inj-l x<y)) >=> sym (minℚ-right y x (inj-l x<y))
+  handle (inj-r y≤x) = (minℚ-right x y y≤x) >=> sym (minℚ-left y x y≤x)
+
+maxℚ-commute : {x y : ℚ} -> maxℚ x y == maxℚ y x
+maxℚ-commute {x} {y} = handle (split-< x y)
+  where
+  handle : (x < y) ⊎ (y ℚ≤ x) -> _
+  handle (inj-l x<y) = (maxℚ-right x y (inj-l x<y)) >=> sym (maxℚ-left y x (inj-l x<y))
+  handle (inj-r y≤x) = (maxℚ-left x y y≤x) >=> sym (maxℚ-right y x y≤x)
+
+
 split-minℚ : (x y : ℚ) -> (minℚ x y == x) ⊎ (minℚ x y == y)
 split-minℚ x y = handle (split-< x y)
   where
