@@ -8,6 +8,7 @@ open import order
 open import order.instances.rational
 open import rational
 open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
+open import relation
 open import sign
 open import sign.instances.rational
 
@@ -29,6 +30,18 @@ module _ (q r : ℚ) (q≤r : q ℚ≤ r)
       cb<ab = r*₂-preserves-order c a (b , pb) c<a
       r<q : r < q
       r<q = subst2 _<_ cd=r ab=q (trans-< {_} {_} {_} {c r* d} {c r* b} {a r* b} cd<cb cb<ab)
+
+
+-- factor-order-flip : (a b c d : ℚ) (ab=cd : (a r* b) == (c r* d)) -> a < c -> b > d
+-- factor-order-flip a b c d p a<c = handle (trichotomous-< b d)
+--   where
+--   handle : Tri (b < d) (b == d) (d < b) -> b > d
+--   handle (tri< b<d _ _ ) = ?
+--     where
+--     cb<cd : (c r* b) < (c r* d)
+--     cb<cd = r*₁-preserves-order (c , pc) d b d<b
+--     cb<ab : (c r* b) < (a r* b)
+--     cb<ab = r*₂-preserves-order c a (b , pb) c<a
 
 -- module _ (q r : ℚ) (q≤r : q ℚ≤ r)
 --          (a b c d : ℚ) (ab=q : (a r* b) == q) (cd=r : (c r* d) == r) where

@@ -295,25 +295,32 @@ r*'-preserves-r~₁ : (b a1 a2 : Rational') -> a1 r~ a2 -> (a1 r*' b) r~ (a2 r*'
 r*'-preserves-r~₁ b a1 a2 r =
   transport (\i -> (r*'-commute b a1 i) r~ (r*'-commute b a2 i)) (r*'-preserves-r~₂ b a1 a2 r)
 
-_r*_ : Rational -> Rational -> Rational
-_r*_ = RationalElim.rec2 squash/
-        (\a b -> [ a r*' b ])
-        (\b a1 a2 r -> eq/ _ _ (r*'-preserves-r~₁ b a1 a2 r))
-        (\a b1 b2 r -> eq/ _ _ (r*'-preserves-r~₂ a b1 b2 r))
+_r*ᵉ_ : Rational -> Rational -> Rational
+_r*ᵉ_ = RationalElim.rec2 squash/
+          (\a b -> [ a r*' b ])
+          (\b a1 a2 r -> eq/ _ _ (r*'-preserves-r~₁ b a1 a2 r))
+          (\a b1 b2 r -> eq/ _ _ (r*'-preserves-r~₂ a b1 b2 r))
 
-r*-commute : (a b : Rational) -> (a r* b) == (b r* a)
-r*-commute = RationalElim.elimProp2 (\a b -> isSetRational _ _) (\a b -> cong [_] (r*'-commute a b))
+abstract
+  _r*_ : Rational -> Rational -> Rational
+  _r*_ = _r*ᵉ_
 
-r*'-left-zero : (a : Rational') -> (0r' r*' a) r~ 0r'
-r*'-left-zero a = int.*-right-one {numer (0r' r*' a)}
-                  >=> int.*-left-zero {numer a}
-                  >=> sym (int.*-left-zero {denom (0r' r*' a)})
+  r*-eval : {a b : Rational} -> a r* b == a r*ᵉ b
+  r*-eval = refl
 
-r*-left-zero : (a : Rational) -> (0r r* a) == 0r
-r*-left-zero = RationalElim.elimProp (\a -> isSetRational _ _) (\a -> eq/ _ _ (r*'-left-zero a))
+  r*-commute : (a b : Rational) -> (a r* b) == (b r* a)
+  r*-commute = RationalElim.elimProp2 (\a b -> isSetRational _ _) (\a b -> cong [_] (r*'-commute a b))
 
-r*-right-zero : (a : Rational) -> (a r* 0r) == 0r
-r*-right-zero a = r*-commute a 0r >=> r*-left-zero a
+  r*'-left-zero : (a : Rational') -> (0r' r*' a) r~ 0r'
+  r*'-left-zero a = int.*-right-one {numer (0r' r*' a)}
+                    >=> int.*-left-zero {numer a}
+                    >=> sym (int.*-left-zero {denom (0r' r*' a)})
+
+  r*-left-zero : (a : Rational) -> (0r r* a) == 0r
+  r*-left-zero = RationalElim.elimProp (\a -> isSetRational _ _) (\a -> eq/ _ _ (r*'-left-zero a))
+
+  r*-right-zero : (a : Rational) -> (a r* 0r) == 0r
+  r*-right-zero a = r*-commute a 0r >=> r*-left-zero a
 
 1r' : Rational'
 1r' = record
@@ -328,18 +335,20 @@ r*-right-zero a = r*-commute a 0r >=> r*-left-zero a
 r*'-left-one : (a : Rational') -> (1r' r*' a) == a
 r*'-left-one a = nd-paths->path _ _ (int.*-left-one {numer a}) (int.*-left-one {denom a})
 
-r*-left-one : (a : Rational) -> (1r r* a) == a
-r*-left-one = RationalElim.elimProp (\a -> isSetRational _ _) (\a -> cong [_] (r*'-left-one a))
+abstract
+  r*-left-one : (a : Rational) -> (1r r* a) == a
+  r*-left-one = RationalElim.elimProp (\a -> isSetRational _ _) (\a -> cong [_] (r*'-left-one a))
 
-r*-right-one : (a : Rational) -> (a r* 1r) == a
-r*-right-one a = r*-commute a 1r >=> r*-left-one a
+  r*-right-one : (a : Rational) -> (a r* 1r) == a
+  r*-right-one a = r*-commute a 1r >=> r*-left-one a
 
 r*'-assoc : (a b c : Rational') -> ((a r*' b) r*' c) == (a r*' (b r*' c))
 r*'-assoc a b c = nd-paths->path _ _ (int.*-assoc {numer a} {numer b} {numer c})
                                      (int.*-assoc {denom a} {denom b} {denom c})
 
-r*-assoc : (a b c : Rational) -> ((a r* b) r* c) == (a r* (b r* c))
-r*-assoc = RationalElim.elimProp3 (\a b c -> isSetRational _ _) (\a b c -> cong [_] (r*'-assoc a b c))
+abstract
+  r*-assoc : (a b c : Rational) -> ((a r* b) r* c) == (a r* (b r* c))
+  r*-assoc = RationalElim.elimProp3 (\a b c -> isSetRational _ _) (\a b c -> cong [_] (r*'-assoc a b c))
 
 abstract
   r+'-assoc : {a b c : Rational'} -> ((a r+' b) r+' c) r~ (a r+' (b r+' c))
@@ -393,9 +402,10 @@ abstract
               (((na ⊗ nc) ⊗ (db ⊗ dc)) ⊕ ((nb ⊗ nc) ⊗ (da ⊗ dc))) ⊗ ((da ⊗ db) ⊗ dc))
            refl na da nb db nc dc
 
-r*-distrib-r+-right : (a b c : Rational) -> ((a r+ b) r* c) == ((a r* c) r+ (b r* c))
-r*-distrib-r+-right =
-  RationalElim.elimProp3 (\a b c -> isSetRational _ _) (\a b c -> (eq/ _ _ (r*'-distrib-r+'-right a b c)))
+abstract
+  r*-distrib-r+-right : (a b c : Rational) -> ((a r+ b) r* c) == ((a r* c) r+ (b r* c))
+  r*-distrib-r+-right =
+    RationalElim.elimProp3 (\a b c -> isSetRational _ _) (\a b c -> (eq/ _ _ (r*'-distrib-r+'-right a b c)))
 
 r-' : Rational' -> Rational'
 r-' a = record
@@ -437,15 +447,16 @@ r+-inverse = RationalElim.elimProp
 -- r--distrib-r+ : (a b : Rational) -> r- (a r+ b) == (r- a) r+ (r- b)
 -- r--distrib-r+ = ?
 
-r*-minus-extract-left : (a1 a2 : Rational) -> (r- a1) r* a2 == r- (a1 r* a2)
-r*-minus-extract-left =
-  RationalElim.elimProp2
-    (\_ _ -> isSetRational _ _)
-    (\a1 a2 -> cong [_] (nd-paths->path _ _ int.minus-extract-left refl))
+abstract
+  r*-minus-extract-left : (a1 a2 : Rational) -> (r- a1) r* a2 == r- (a1 r* a2)
+  r*-minus-extract-left =
+    RationalElim.elimProp2
+      (\_ _ -> isSetRational _ _)
+      (\a1 a2 -> cong [_] (nd-paths->path _ _ int.minus-extract-left refl))
 
-r*-minus-extract-right : (a1 a2 : Rational) -> a1 r* (r- a2) == r- (a1 r* a2)
-r*-minus-extract-right a1 a2 = r*-commute a1 (r- a2) >=> r*-minus-extract-left a2 a1 >=>
-                               cong r-_ (r*-commute a2 a1)
+  r*-minus-extract-right : (a1 a2 : Rational) -> a1 r* (r- a2) == r- (a1 r* a2)
+  r*-minus-extract-right a1 a2 = r*-commute a1 (r- a2) >=> r*-minus-extract-left a2 a1 >=>
+                                 cong r-_ (r*-commute a2 a1)
 
 ℚInv' : Pred Rational' ℓ-zero
 ℚInv' a = NonZero (numer a)
@@ -533,10 +544,11 @@ r1/ = RationalElim.elim
     same i1 i2 = eq/ (r1/' a1 (ℚInv->ℚInv' a1 i1)) (r1/' a2 (ℚInv->ℚInv' a2 i2))
                      (r1/'-preserves-r~ a1 a2 (ℚInv->ℚInv' a1 i1) (ℚInv->ℚInv' a2 i2) r)
 
-r1/-inverse : (a : Rational) -> (i : ℚInv a) -> ((r1/ a i) r* a) == 1r
-r1/-inverse = RationalElim.elimProp
-               (\_ -> isPropΠ (\_ -> isSetRational _ _))
-               (\ a i -> eq/ _ _ (r1/'-inverse a (ℚInv->ℚInv' _ i)))
+abstract
+  r1/-inverse : (a : Rational) -> (i : ℚInv a) -> ((r1/ a i) r* a) == 1r
+  r1/-inverse = RationalElim.elimProp
+                 (\_ -> isPropΠ (\_ -> isSetRational _ _))
+                 (\ a i -> eq/ _ _ (r1/'-inverse a (ℚInv->ℚInv' _ i)))
 
 
 ℤ->ℚ' : Int -> Rational'
@@ -569,8 +581,8 @@ abstract
     r : (x i+ y) i* ((int 1) i* (int 1)) == ((x i* (int 1)) i+ (y i* (int 1))) i* (int 1)
     r = r1 >=> sym r2
 
-ℤ->ℚ-preserves-* : (x y : Int) -> ℤ->ℚ (x i* y) == ℤ->ℚ x r* ℤ->ℚ y
-ℤ->ℚ-preserves-* x y = cong [_] (nd-paths->path _ _ refl (sym int.*-left-one))
+  ℤ->ℚ-preserves-* : (x y : Int) -> ℤ->ℚ (x i* y) == ℤ->ℚ x r* ℤ->ℚ y
+  ℤ->ℚ-preserves-* x y = cong [_] (nd-paths->path _ _ refl (sym int.*-left-one))
 
 
 ℤ->ℚ-preserves-minus : (x : Int) -> ℤ->ℚ (int.- x) == r- (ℤ->ℚ x)
@@ -611,11 +623,12 @@ isNonZeroℚ->ℚInv nz p = ¬isNonZeroℚ-0r (subst isNonZeroℚ p nz)
 Pos'->NonZeroℚ : {n : Nat} -> Pos' n -> isNonZeroℚ (ℕ->ℚ n)
 Pos'->NonZeroℚ {n = (suc _)} _ = inj-l tt
 
-r*-isNonZeroℚ-isNonZeroℚ : (a b : ℚ) -> isNonZeroℚ a -> isNonZeroℚ b -> isNonZeroℚ (a r* b)
-r*-isNonZeroℚ-isNonZeroℚ =
-  RationalElim.elimProp2 {C2 = \a b -> isNonZeroℚ a -> isNonZeroℚ b -> isNonZeroℚ (a r* b)}
-    (\a b -> isPropΠ2 (\_ _ -> isProp-isNonZeroℚ (a r* b)))
-    (\a b nza nzb -> int.*-NonZero-NonZero nza nzb)
+abstract
+  r*-isNonZeroℚ-isNonZeroℚ : (a b : ℚ) -> isNonZeroℚ a -> isNonZeroℚ b -> isNonZeroℚ (a r* b)
+  r*-isNonZeroℚ-isNonZeroℚ =
+    RationalElim.elimProp2 {C2 = \a b -> isNonZeroℚ a -> isNonZeroℚ b -> isNonZeroℚ (a r* b)}
+      (\a b -> isPropΠ2 (\_ _ -> isProp-isNonZeroℚ (a r* b)))
+      (\a b nza nzb -> int.*-NonZero-NonZero nza nzb)
 
 r1/-isNonZeroℚ : (a : ℚ) -> (nz : isNonZeroℚ a) -> isNonZeroℚ (r1/ a (isNonZeroℚ->ℚInv nz))
 r1/-isNonZeroℚ =
@@ -691,18 +704,20 @@ a r^ℤ (neg n) = r1/ (fst rec) (isNonZeroℚ->ℚInv (snd rec)) , r1/-isNonZero
   sym (r*-distrib-r+-right 1r 1r q) >=>
   cong (_r* q) 2r-path-base
 
-2r-1/2r-path : 2r r* 1/2r == 1r
-2r-1/2r-path = eq/ (2r' r*' 1/2r') 1r' path
-  where
-  path : (((int 2) i* (int 1)) i* (int 1)) == (int 1) i* ((int 1) i* (int 2))
-  path = int.*-commute >=> cong ((int 1) i*_) int.*-commute
+abstract
+  2r-1/2r-path : 2r r* 1/2r == 1r
+  2r-1/2r-path = eq/ (2r' r*' 1/2r') 1r' path
+    where
+    path : (((int 2) i* (int 1)) i* (int 1)) == (int 1) i* ((int 1) i* (int 2))
+    path = int.*-commute >=> cong ((int 1) i*_) int.*-commute
 
-1/2r-path : (q : ℚ) -> (q r* 1/2r) r+ (q r* 1/2r) == q
-1/2r-path q = 2r-path (q r* 1/2r) >=> r*-commute 2r (q r* 1/2r) >=>
-              r*-assoc q 1/2r 2r >=> cong (q r*_) (r*-commute 1/2r 2r >=> 2r-1/2r-path) >=> r*-right-one q
+  1/2r-path : (q : ℚ) -> (q r* 1/2r) r+ (q r* 1/2r) == q
+  1/2r-path q = 2r-path (q r* 1/2r) >=> r*-commute 2r (q r* 1/2r) >=>
+                r*-assoc q 1/2r 2r >=> cong (q r*_) (r*-commute 1/2r 2r >=> 2r-1/2r-path) >=>
+                r*-right-one q
 
-1/2r-path' : (q : ℚ) -> (1/2r r* q) r+ (1/2r r* q) == q
-1/2r-path' q = cong2 _r+_ (r*-commute 1/2r q) (r*-commute 1/2r q) >=> 1/2r-path q
+  1/2r-path' : (q : ℚ) -> (1/2r r* q) r+ (1/2r r* q) == q
+  1/2r-path' q = cong2 _r+_ (r*-commute 1/2r q) (r*-commute 1/2r q) >=> 1/2r-path q
 
 
 1/2ℕ'-r~ : (n : Nat⁺) -> (1/ℕ' (2⁺ *⁺ n)) r~ (1/2r' r*' 1/ℕ' n)
@@ -710,16 +725,17 @@ a r^ℤ (neg n) = r1/ (fst rec) (isNonZeroℚ->ℚInv (snd rec)) , r1/-isNonZero
   int.*-left-one >=> sym int-inject-*' >=>
   sym int.*-left-one >=> int.*-left (sym int.*-left-one)
 
-
-1/2ℕ-path : (n : Nat⁺) -> (1/ℕ (2⁺ *⁺ n)) == (1/2r r* 1/ℕ n)
-1/2ℕ-path n = eq/ _ _ (1/2ℕ'-r~ n)
+abstract
+  1/2ℕ-path : (n : Nat⁺) -> (1/ℕ (2⁺ *⁺ n)) == (1/2r r* 1/ℕ n)
+  1/2ℕ-path n = eq/ _ _ (1/2ℕ'-r~ n)
 
 1/ℕ-ℕ-r~ : (n : Nat⁺) -> ((1/ℕ' n) r*' (ℕ->ℚ' ⟨ n ⟩)) r~ 1r'
 1/ℕ-ℕ-r~ n =
   int.*-right-one >=> int.*-left-one >=> sym int.*-right-one >=> sym int.*-left-one
 
-1/ℕ-ℕ-path : (n : Nat⁺) -> (1/ℕ n) r* (ℕ->ℚ ⟨ n ⟩) == 1r
-1/ℕ-ℕ-path n = eq/ _ _ (1/ℕ-ℕ-r~ n)
+abstract
+  1/ℕ-ℕ-path : (n : Nat⁺) -> (1/ℕ n) r* (ℕ->ℚ ⟨ n ⟩) == 1r
+  1/ℕ-ℕ-path n = eq/ _ _ (1/ℕ-ℕ-r~ n)
 
 1/2^ℕ-path : (n : Nat) -> 1/ℕ (2⁺ ^⁺ n) == 1/2r r^ℕ⁰ n
 1/2^ℕ-path zero = refl

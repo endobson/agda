@@ -180,6 +180,7 @@ r*'-preserves-Pos {q1} {q2} p1 p2 = is-signℚ' ans
     sn2 = proj₁ (snd full-s2)
     sd2 = proj₂ (snd full-s2)
 
+
 r1/'-preserves-Pos : (q : Rational') -> (i : ℚInv' q) -> Pos q -> Pos (r1/' q i)
 r1/'-preserves-Pos q i p = is-signℚ' (subst i.Pos i.*-commute (isSignℚ'.v p))
 
@@ -271,6 +272,11 @@ r+-swap-diffℚ a b c d =
                 cong (d r+_) (sym (RationalRing.minus-distrib-plus {a} {c}))) >=>
   sym (r+-assoc b d (r- (a r+ c)))
 
+r*-distrib-diffℚ : (a b c : Rational) -> a r* (diffℚ b c) == diffℚ (a r* b) (a r* c)
+r*-distrib-diffℚ a b c =
+  RationalSemiring.*-distrib-+-left {a} {c} {r- b} >=>
+  cong ((a r* c) r+_) (r*-minus-extract-right a b)
+
 
 diffℚ-trans : (x y z : ℚ) -> diffℚ x y r+ diffℚ y z == (diffℚ x z)
 diffℚ-trans x y z =
@@ -327,6 +333,9 @@ isProp-Posℚ {r} = isProp-isSignℚ pos-sign r
 ℚ⁻ : Type₀
 ℚ⁻ = Σ ℚ Negℚ
 
+ℚ⁰⁺ : Type₀
+ℚ⁰⁺ = Σ ℚ NonNeg
+
 Zero-0r : Zero 0r
 Zero-0r = is-signℚ Zero-0r'
 
@@ -343,12 +352,37 @@ r+-preserves-Pos =
     (\q1 q2 -> isPropΠ2 (\ _ _ -> isProp-isSignℚ pos-sign (q1 r+ q2)))
     (\q1 q2 p1 p2 -> is-signℚ (r+'-preserves-Pos (isSignℚ.v p1) (isSignℚ.v p2)))
 
+r+-preserves-NonNeg : {q1 q2 : ℚ} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r+ q2)
+r+-preserves-NonNeg {q1} {q2} (inj-r z1) nn-q2          =
+  (subst NonNeg (sym (cong (_r+ q2) (Zero-path _ z1) >=> r+-left-zero q2)) nn-q2)
+r+-preserves-NonNeg {q1} {q2} (inj-l p1) (inj-r z2) =
+  inj-l (subst Pos (sym (cong (q1 r+_) (Zero-path _ z2) >=> r+-right-zero q1)) p1)
+r+-preserves-NonNeg {q1} {q2} (inj-l p1) (inj-l p2) = inj-l (r+-preserves-Pos _ _ p1 p2)
+
+
 r*-preserves-Pos : (q1 q2 : Rational) -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r* q2)
 r*-preserves-Pos =
   RationalElim.elimProp2
     {C2 = \q1 q2 -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r* q2)}
     (\q1 q2 -> isPropΠ2 (\ _ _ -> isProp-isSignℚ pos-sign (q1 r* q2)))
-    (\q1 q2 p1 p2 -> is-signℚ (r*'-preserves-Pos (isSignℚ.v p1) (isSignℚ.v p2)))
+    (\q1 q2 p1 p2 ->
+        subst Posℚ (sym r*-eval) (is-signℚ (r*'-preserves-Pos (isSignℚ.v p1) (isSignℚ.v p2))))
+
+r*₁-preserves-Zero : (q1 : ℚ) {q2 : Rational} -> Zero q2 -> Zero (q1 r* q2)
+r*₁-preserves-Zero q1 {q2} zq2 = subst Zero (sym q1q2==0) Zero-0r
+  where
+  q2==0 : q2 == 0r
+  q2==0 = Zero-path q2 zq2
+  q1q2==0 : q1 r* q2 == 0r
+  q1q2==0 = cong (q1 r*_) q2==0 >=> r*-right-zero q1
+
+r*₂-preserves-Zero : {q1 : ℚ} -> Zero q1 -> (q2 : Rational) -> Zero (q1 r* q2)
+r*₂-preserves-Zero {q1} zq1 q2 = subst Zero (r*-commute q2 q1) (r*₁-preserves-Zero q2 zq1)
+
+r*-preserves-NonNeg : {q1 q2 : ℚ} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r* q2)
+r*-preserves-NonNeg {q1} {q2} (inj-r z1) _          = inj-r (r*₂-preserves-Zero z1 q2)
+r*-preserves-NonNeg {q1} {q2} (inj-l p1) (inj-r z2) = inj-r (r*₁-preserves-Zero q1 z2)
+r*-preserves-NonNeg {q1} {q2} (inj-l p1) (inj-l p2) = inj-l (r*-preserves-Pos _ _ p1 p2)
 
 r--flips-sign : (q : Rational) (s : Sign) -> (isSignℚ s q) -> (isSignℚ (s⁻¹ s) (r- q))
 r--flips-sign =
@@ -397,11 +431,39 @@ r*₁-flips-sign (q , neg-q) r {s} r-sign =
   s-mmqr = r--flips-sign _ _ s-mqr2
 
 
+r*-NonNeg-NonNeg : {q1 q2 : ℚ} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r* q2)
+r*-NonNeg-NonNeg = r*-preserves-NonNeg
+
+r*-NonNeg-NonPos : {q1 q2 : ℚ} -> NonNeg q1 -> NonPos q2 -> NonPos (q1 r* q2)
+r*-NonNeg-NonPos (inj-r z1) _          = inj-r (r*₂-preserves-Zero z1 _)
+r*-NonNeg-NonPos (inj-l p1) (inj-r z2) = inj-r (r*₁-preserves-Zero _ z2)
+r*-NonNeg-NonPos (inj-l p1) (inj-l n2) = inj-l (r*₁-preserves-sign (_ , p1) _ n2)
+
+r*-NonPos-NonNeg : {q1 q2 : ℚ} -> NonPos q1 -> NonNeg q2 -> NonPos (q1 r* q2)
+r*-NonPos-NonNeg np1 nn2 = subst NonPos (r*-commute _ _) (r*-NonNeg-NonPos nn2 np1)
+
+r*-NonPos-NonPos : {q1 q2 : ℚ} -> NonPos q1 -> NonPos q2 -> NonNeg (q1 r* q2)
+r*-NonPos-NonPos (inj-r z1) _          = inj-r (r*₂-preserves-Zero z1 _)
+r*-NonPos-NonPos (inj-l p1) (inj-r z2) = inj-r (r*₁-preserves-Zero _ z2)
+r*-NonPos-NonPos (inj-l n1) (inj-l n2) = inj-l (r*₁-flips-sign (_ , n1) _ n2)
+
+r--NonNeg : {q1 : ℚ} -> NonNeg q1 -> NonPos (r- q1)
+r--NonNeg (inj-l s) = (inj-l (r--flips-sign _ _ s))
+r--NonNeg (inj-r s) = (inj-r (r--flips-sign _ _ s))
+
+r--NonPos : {q1 : ℚ} -> NonPos q1 -> NonNeg (r- q1)
+r--NonPos (inj-l s) = (inj-l (r--flips-sign _ _ s))
+r--NonPos (inj-r s) = (inj-r (r--flips-sign _ _ s))
+
+
 _<_ : Rational -> Rational -> Type₀
 q < r = Posℚ (r r+ (r- q))
 
 _>_ : Rational -> Rational -> Type₀
 q > r = r < q
+
+_ℚ≤_ : ℚ -> ℚ -> Type₀
+x ℚ≤ y = NonNeg (diffℚ x y)
 
 isProp-< : {a b : Rational} -> isProp (a < b)
 isProp-< {a} {b} = isProp-isSignℚ pos-sign (b r+ (r- a))
@@ -423,6 +485,9 @@ trans-< {a} {b} {c} a<b b<c =
 asym-< : Asymmetric _<_
 asym-< {a} {b} lt1 lt2 = irrefl-< {a} (trans-< {a} {b} {a} lt1 lt2)
 
+refl-ℚ≤ : Reflexive _ℚ≤_
+refl-ℚ≤ {x} = inj-r (subst Zero (sym (r+-inverse x)) Zero-0r)
+
 Pos-1/ℕ : (n : Nat⁺) -> Posℚ (1/ℕ n)
 Pos-1/ℕ (n@(suc _) , _) = is-signℚ (is-signℚ' (i.*-Pos-Pos tt tt))
 
@@ -432,8 +497,21 @@ Pos-0< q = subst Posℚ p
   p : q == q r+ (r- 0r)
   p = sym (r+-right-zero q)
 
+NonNeg-0≤ : (q : Rational) -> NonNeg q -> 0r ℚ≤ q
+NonNeg-0≤ q nn-q = subst NonNeg (sym (r+-right-zero q)) nn-q
+
+0<-Pos : (q : Rational) -> 0r < q -> Pos q
+0<-Pos q 0<q = subst Pos (r+-right-zero q) 0<q
+
+0≤-NonNeg : (q : Rational) -> 0r ℚ≤ q -> NonNeg q
+0≤-NonNeg q 0<q = subst NonNeg (r+-right-zero q) 0<q
+
+NonPos≤NonNeg : {q r : Rational} -> NonPos q -> NonNeg r -> q ℚ≤ r
+NonPos≤NonNeg np-q nn-r = r+-preserves-NonNeg nn-r (r--NonPos np-q)
+
 Pos-1r : Posℚ 1r
 Pos-1r = Pos-1/ℕ nat.1⁺
+
 
 dense-< : Dense _<_
 dense-< {x} {y} lt = z , (pos-d3 , pos-d4)
@@ -608,6 +686,16 @@ r*₂-preserves-order : (a b : Rational) (c : ℚ⁺) -> a < b -> ( a r* ⟨ c �
 r*₂-preserves-order a b c@(c' , _) a<b =
   subst2 _<_ (r*-commute c' a) (r*-commute c' b) (r*₁-preserves-order c a b a<b)
 
+r*₁-preserves-≤ : (a : ℚ⁰⁺) (b c : ℚ) -> b ℚ≤ c -> (⟨ a ⟩ r* b) ℚ≤ (⟨ a ⟩ r* c)
+r*₁-preserves-≤ (a , nn-a) b c b≤c =
+  subst NonNeg (r*-distrib-diffℚ a b c) (r*-preserves-NonNeg nn-a b≤c)
+
+r*₂-preserves-≤ : (a b : Rational) (c : ℚ⁰⁺) -> a ℚ≤ b -> ( a r* ⟨ c ⟩) ℚ≤ (b r* ⟨ c ⟩)
+r*₂-preserves-≤ a b c@(c' , _) a≤b =
+  subst2 _ℚ≤_ (r*-commute c' a) (r*-commute c' b) (r*₁-preserves-≤ c a b a≤b)
+
+
+
 r*₁-flips-order : (a : ℚ⁻) (b c : Rational) -> b < c -> (⟨ a ⟩ r* c) < (⟨ a ⟩ r* b)
 r*₁-flips-order a⁻@(a , _) b c b<c = pos-acab
   where
@@ -623,6 +711,11 @@ r*₁-flips-order a⁻@(a , _) b c b<c = pos-acab
                         cong ((a r* b) +_) (r*-minus-extract-right a c))
                    pos-acb
 
+0<1r : 0r < 1r
+0<1r = subst Pos (sym (r+-right-zero 1r)) Pos-1r
+
+-1r<0 : (r- 1r) < 0r
+-1r<0 = r--flips-order 0r 1r 0<1r
 
 
 1/2r<1r : 1/2r < 1r
@@ -698,43 +791,10 @@ r*₁-flips-order a⁻@(a , _) b c b<c = pos-acab
 -- ℕ<-1/ℕ< : (a b : Nat⁺) -> ⟨ a ⟩ nat.< ⟨ b ⟩ -> 1/ℕ b < 1/ℕ a
 -- ℕ<-1/ℕ< a b lt = ?
 
--- min and max
-
-minℚ : ℚ -> ℚ -> ℚ
-minℚ x y = case (decide-< x y) of (\
-  { (yes _) -> x
-  ; (no _) -> y
-  })
-
-private
-  maxℚ-helper : (x y : ℚ) -> Tri (x < y) (x == y) (x > y) -> ℚ
-  maxℚ-helper x y (tri< _ _ _) = y
-  maxℚ-helper x y (tri= _ _ _) = x
-  maxℚ-helper x y (tri> _ _ _) = x
-
-
-maxℚ : ℚ -> ℚ -> ℚ
-maxℚ x y = maxℚ-helper x y (trichotomous-< x y)
-
-absℚ : ℚ -> ℚ
-absℚ x = maxℚ x (r- x)
-
-
-
-abs-diffℚ : ℚ -> ℚ -> ℚ
-abs-diffℚ x y = absℚ (diffℚ x y)
 
 midℚ : ℚ -> ℚ -> ℚ
 midℚ x y = 1/2r r* (x r+ y)
 
-maxℚ-weaken-<₁ : (x y z : ℚ) -> (maxℚ x y < z) -> x < z
-maxℚ-weaken-<₁ x y z lt = handle (trichotomous-< x y) (maxℚ x y) refl lt
-  where
-  handle : (t : Tri (x < y) (x == y) (x > y)) -> (w : ℚ) -> (w == maxℚ-helper x y t) -> w < z
-           -> x < z
-  handle (tri< x<y  _ _) w p w<z = trans-< {x} {y} {z} x<y (subst (_< z) p w<z)
-  handle (tri= _ _ _) w p w<z = (subst (_< z) p w<z)
-  handle (tri> _ _ _) w p w<z = (subst (_< z) p w<z)
 
 r+-both-preserves-order : (a b c d : Rational) -> a < b -> c < d -> (a r+ c) < (b r+ d)
 r+-both-preserves-order a b c d a<b c<d = subst Posℚ (r+-swap-diffℚ a b c d) Pos-sum-diff
@@ -746,8 +806,6 @@ r+-both-preserves-order a b c d a<b c<d = subst Posℚ (r+-swap-diffℚ a b c d)
 -- floor and <
 
 
-_ℚ≤_ : ℚ -> ℚ -> Type₀
-x ℚ≤ y = NonNeg (diffℚ x y)
 
 ℚ' = Rational'
 
