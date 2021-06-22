@@ -67,6 +67,9 @@ private
   Imul-i* : (a b : Iℚ) -> Imul a b (a i* b)
   Imul-i* a b = snd (i*-full a b)
 
+  Imul-i*-path : {a b c : Iℚ} -> Imul a b c -> (a i* b) == c
+  Imul-i*-path im = Imul-path (Imul-i* _ _) im
+
   Imul-commute : {a b c : Iℚ} -> Imul a b c -> Imul b a c
   Imul-commute {a} {b} (imul-nn-nn pa pb) = subst (Imul b a) (i∙-commute _ _) (imul-nn-nn pb pa)
   Imul-commute {a} {b} (imul-nn-np pa pb) = subst (Imul b a) (i∙-commute _ _) (imul-np-nn pb pa)
@@ -91,3 +94,49 @@ private
 
 i*-commute : {a b : Iℚ} -> (a i* b) == (b i* a)
 i*-commute = Imul-path (Imul-i* _ _) (Imul-commute (Imul-i* _ _))
+
+i*-left-zero : {b : Iℚ} -> (0i i* b) == 0i
+i*-left-zero {b} = handle (classify-Iℚ b)
+  where
+  nn-0 : NonNegI 0i
+  nn-0 = (inj-r Zero-0r , inj-r Zero-0r)
+
+  handle : Iℚ-class b -> _
+  handle (inj-l (inj-l p)) = Imul-path (Imul-i* _ _) (imul-nn-nn nn-0 p) >=> i∙-left-zero _
+  handle (inj-l (inj-r p)) = Imul-path (Imul-i* _ _) (imul-nn-np nn-0 p) >=> i∙-left-zero _
+  handle (inj-r (inj-l p)) = Imul-path (Imul-i* _ _) (imul-nn-fz nn-0 p) >=> i∙-left-zero _
+  handle (inj-r (inj-r p)) = Imul-path (Imul-i* _ _) (imul-nn-bz nn-0 p) >=> i∙-left-zero _
+
+i*-right-zero : {b : Iℚ} -> (b i* 0i) == 0i
+i*-right-zero = i*-commute >=> i*-left-zero
+
+
+private
+  i*-NonNeg-NonNeg : {a b : Iℚ} -> NonNegI a -> NonNegI b -> NonNegI (a i* b)
+  i*-NonNeg-NonNeg nn-a nn-b =
+    subst NonNegI (sym (Imul-i*-path (imul-nn-nn nn-a nn-b)))
+                  (i∙-NonNeg-NonNeg _ _ nn-a nn-b)
+
+  i*-NonNeg-NonPos : {a b : Iℚ} -> NonNegI a -> NonPosI b -> NonPosI (a i* b)
+  i*-NonNeg-NonPos nn-a np-b =
+    subst NonPosI (sym (Imul-i*-path (imul-nn-np nn-a np-b)))
+                  (i∙-NonNeg-NonPos _ _ (i-conj-NonNeg _ nn-a) np-b)
+
+  i*-NonNeg-ForwardZero : {a b : Iℚ} -> NonNegI a -> ForwardZeroI b -> ForwardZeroI (a i* b)
+  i*-NonNeg-ForwardZero nn-a@(nn-al , nn-au) fz-b =
+    subst ForwardZeroI (sym (Imul-i*-path (imul-nn-fz nn-a fz-b)))
+                       (i∙-NonNeg-ForwardZero _ _ (nn-au , nn-au) fz-b)
+
+  i*-NonNeg-BackwardZero : {a b : Iℚ} -> NonNegI a -> BackwardZeroI b -> BackwardZeroI (a i* b)
+  i*-NonNeg-BackwardZero nn-a@(nn-al , nn-au) bz-b =
+    subst BackwardZeroI (sym (Imul-i*-path (imul-nn-bz nn-a bz-b)))
+                        (i∙-NonNeg-BackwardZero _ _ (nn-al , nn-al) bz-b)
+
+  i*-NonPos-NonNeg : {a b : Iℚ} -> NonPosI a -> NonNegI b -> NonPosI (a i* b)
+  i*-NonPos-NonNeg np-a nn-b = subst NonPosI i*-commute (i*-NonNeg-NonPos nn-b np-a)
+
+
+
+
+--
+--  i*-assoc

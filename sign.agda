@@ -206,6 +206,10 @@ record SignStr {ℓD : Level} (D : Type ℓD) (ℓS : Level) : Type (ℓ-max ℓ
   NonZero->¬Zero {x} (inj-r nx) zx =
     (subst isNegSign (isSign-unique x neg-sign zero-sign nx zx) tt)
 
+  NonNeg-NonPos->Zero : {x : D} -> NonNeg x -> NonPos x -> Zero x
+  NonNeg-NonPos->Zero (inj-l p) np = bot-elim (NonPos->¬Pos np p)
+  NonNeg-NonPos->Zero (inj-r z) _ = z
+
 
 
 module _ {ℓD ℓS : Level} {D : Type ℓD} {{S : SignStr D ℓS}} where

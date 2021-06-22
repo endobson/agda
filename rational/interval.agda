@@ -10,10 +10,13 @@ open import order.instances.rational
 open import rational
 open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
 open import rational.minmax
-open import relation
+open import relation hiding (_⊆_)
 open import sign
 open import sign.instances.rational
 
+private
+  variable
+    ℓ : Level
 
 Iℚ : Type₀
 Iℚ = ℚ × ℚ
@@ -58,6 +61,12 @@ ForwardZeroI (l , u) = NonPos l × NonNeg u
 BackwardZeroI : Pred Iℚ ℓ-zero
 BackwardZeroI (l , u) = NonNeg l × NonPos u
 
+ForwardI : Pred Iℚ ℓ-zero
+ForwardI (l , u) = l ℚ≤ u
+
+BackwardI : Pred Iℚ ℓ-zero
+BackwardI (l , u) = u ℚ≤ l
+
 private
   NonNegℚ-NonPosℚ-path : {q : ℚ} -> NonNeg q -> NonPos q -> q == 0r
   NonNegℚ-NonPosℚ-path (inj-r zq) _ = (Zero-path _ zq)
@@ -95,6 +104,48 @@ ForwardZero-BackwardZero-path : {a : Iℚ} -> ForwardZeroI a -> BackwardZeroI a 
 ForwardZero-BackwardZero-path nn np =
   cong2 _,_ (ForwardZero-BackwardZero-path₁ nn np) (ForwardZero-BackwardZero-path₂ nn np)
 
+-- Inclusion
+
+_⊆_ : Iℚ -> Iℚ -> Type₀
+_⊆_ (al , au) (bl , bu) = bl ℚ≤ al × au ℚ≤ bu
+
+data ΣI (a : Iℚ) (P : Pred ℚ ℓ) : Type (ℓ-suc ℓ) where
+  ΣI-∃ : (x : ℚ) -> (Iℚ-l a) ℚ≤ x -> x ℚ≤ (Iℚ-u a) -> P x -> ΣI a P
+  ΣI-∀ : (Iℚ-u a ℚ≤ Iℚ-l a) -> (f : (x : ℚ) -> (Iℚ-u a) ℚ≤ x -> x ℚ≤ (Iℚ-l a) -> P x) -> ΣI a P
+
+data ∀I (a : Iℚ) (P : Pred ℚ ℓ) : Type (ℓ-suc ℓ) where
+  ∀I-∀ : (Iℚ-l a ℚ≤ Iℚ-u a) -> (f : (x : ℚ) -> (Iℚ-l a) ℚ≤ x -> x ℚ≤ (Iℚ-u a) -> P x) -> ∀I a P
+  ∀I-∃ : (x : ℚ) -> (Iℚ-u a) ℚ≤ x -> x ℚ≤ (Iℚ-l a) -> P x -> ∀I a P
+
+weaken-ΣI : {P : Pred ℚ ℓ} {a b : Iℚ} -> a ⊆ b -> ΣI a P -> ΣI b P
+weaken-ΣI {P = P} {al , au} {bl , bu} (bl≤al , au≤bu) (ΣI-∃ x al≤x x≤au px) =
+  (ΣI-∃ x (trans-ℚ≤ {bl} {al} {x} bl≤al al≤x) (trans-ℚ≤ {x} {au} {bu} x≤au au≤bu) px)
+weaken-ΣI {P = P} {al , au} {bl , bu} (bl≤al , au≤bu) (ΣI-∀ au≤al f) =
+  handle (split-< bl bu) (split-< bl au)
+  where
+  handle : (bl < bu) ⊎ (bu ℚ≤ bl) -> (bl < au) ⊎ (au ℚ≤ bl) -> _
+  handle (inj-l bl<bu) (inj-l bl<au) = ΣI-∃ au (inj-l bl<au) au≤bu (f au (refl-ℚ≤ {au}) au≤al)
+  handle (inj-l bl<bu) (inj-r au≤bl) = ΣI-∃ bl (refl-ℚ≤ {bl}) (inj-l bl<bu) (f bl au≤bl bl≤al)
+  handle (inj-r bu≤bl) _ =
+    ΣI-∀ bu≤bl (\ x bu≤x x≤bl -> f x (trans-ℚ≤ {au} {bu} {x} au≤bu bu≤x)
+                                     (trans-ℚ≤ {x} {bl} {al} x≤bl bl≤al))
+
+
+weaken-∀I : {P : Pred ℚ ℓ} {a b : Iℚ} -> a ⊆ b -> ∀I b P -> ∀I a P
+weaken-∀I {P = P} {al , au} {bl , bu} (bl≤al , au≤bu) (∀I-∃ x bu≤x x≤bl px) =
+ (∀I-∃ x (trans-ℚ≤ {au} {bu} {x} au≤bu bu≤x) (trans-ℚ≤ {x} {bl} {al} x≤bl bl≤al) px)
+weaken-∀I {P = P} {al , au} {bl , bu} (bl≤al , au≤bu) (∀I-∀ bl≤bu f) =
+  handle (split-< al au) (split-< bl au)
+  where
+  handle : (al < au) ⊎ (au ℚ≤ al) -> (bl < au) ⊎ (au ℚ≤ bl) -> _
+  handle (inj-r au≤al) (inj-l bl<au) = ∀I-∃ au (refl-ℚ≤ {au}) au≤al (f au (inj-l bl<au) au≤bu)
+  handle (inj-r au≤al) (inj-r au≤bl) = ∀I-∃ bl au≤bl bl≤al (f bl (refl-ℚ≤ {bl}) bl≤bu)
+  handle (inj-l al<au) _ =
+    ∀I-∀ (inj-l al<au) (\ x al≤x x≤au -> f x (trans-ℚ≤ {bl} {al} {x} bl≤al al≤x)
+                                             (trans-ℚ≤ {x} {au} {bu} x≤au au≤bu))
+
+
+
 -- Properties
 
 i+-commute : (a b : Iℚ) -> a i+ b == b i+ a
@@ -124,3 +175,45 @@ i∙-left-zero (l , u) = cong2 _,_ (r*-left-zero l) (r*-left-zero u)
 
 i-cross-commute : (a b : Iℚ) -> i-cross a b == i-cross b a
 i-cross-commute a b = cong2 _,_ minℚ-commute (cong2 maxℚ (r*-commute _ _) (r*-commute _ _))
+
+-- Interval properties
+
+i-conj-Forward : (a : Iℚ) -> ForwardI a -> BackwardI (i-conj a)
+i-conj-Forward a f = f
+i-conj-Backward : (a : Iℚ) -> BackwardI a -> ForwardI (i-conj a)
+i-conj-Backward a b = b
+i-conj-ForwardZero : (a : Iℚ) -> ForwardZeroI a -> BackwardZeroI (i-conj a)
+i-conj-ForwardZero a (np , nn) = (nn , np)
+i-conj-BackwardZero : (a : Iℚ) -> BackwardZeroI a -> ForwardZeroI (i-conj a)
+i-conj-BackwardZero a (nn , np) = (np , nn)
+i-conj-NonNeg : (a : Iℚ) -> NonNegI a -> NonNegI (i-conj a)
+i-conj-NonNeg a (nn1 , nn2) = (nn2 , nn1)
+i-conj-NonPos : (a : Iℚ) -> NonPosI a -> NonPosI (i-conj a)
+i-conj-NonPos a (np1 , np2) = (np2 , np1)
+
+i∙-NonNeg-NonNeg : (a b : Iℚ) -> NonNegI a -> NonNegI b -> NonNegI (a i∙ b)
+i∙-NonNeg-NonNeg a b (nn-al , nn-au) (nn-bl , nn-bu) =
+  r*-NonNeg-NonNeg nn-al nn-bl , r*-NonNeg-NonNeg nn-au nn-bu
+
+i∙-NonPos-NonPos : (a b : Iℚ) -> NonPosI a -> NonPosI b -> NonNegI (a i∙ b)
+i∙-NonPos-NonPos a b (np-al , np-au) (np-bl , np-bu) =
+  r*-NonPos-NonPos np-al np-bl , r*-NonPos-NonPos np-au np-bu
+
+i∙-NonNeg-NonPos : (a b : Iℚ) -> NonNegI a -> NonPosI b -> NonPosI (a i∙ b)
+i∙-NonNeg-NonPos a b (nn-al , nn-au) (np-bl , np-bu) =
+  r*-NonNeg-NonPos nn-al np-bl , r*-NonNeg-NonPos nn-au np-bu
+
+i∙-NonPos-NonNeg : (a b : Iℚ) -> NonPosI a -> NonNegI b -> NonPosI (a i∙ b)
+i∙-NonPos-NonNeg a b (np-al , np-au) (nn-bl , nn-bu) =
+  r*-NonPos-NonNeg np-al nn-bl , r*-NonPos-NonNeg np-au nn-bu
+
+i∙-NonNeg-ForwardZero : (a b : Iℚ) -> NonNegI a -> ForwardZeroI b -> ForwardZeroI (a i∙ b)
+i∙-NonNeg-ForwardZero a b (nn-al , nn-au) (np-bl , nn-bu) =
+  r*-NonNeg-NonPos nn-al np-bl , r*-NonNeg-NonNeg nn-au nn-bu
+
+i∙-NonNeg-BackwardZero : (a b : Iℚ) -> NonNegI a -> BackwardZeroI b -> BackwardZeroI (a i∙ b)
+i∙-NonNeg-BackwardZero a b (nn-al , nn-au) (nn-bl , np-bu) =
+  r*-NonNeg-NonNeg nn-al nn-bl , r*-NonNeg-NonPos nn-au np-bu
+
+
+--

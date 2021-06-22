@@ -335,6 +335,8 @@ isProp-Posℚ {r} = isProp-isSignℚ pos-sign r
 
 ℚ⁰⁺ : Type₀
 ℚ⁰⁺ = Σ ℚ NonNeg
+ℚ⁰⁻ : Type₀
+ℚ⁰⁻ = Σ ℚ NonPos
 
 Zero-0r : Zero 0r
 Zero-0r = is-signℚ Zero-0r'
@@ -447,6 +449,23 @@ r*-NonPos-NonPos (inj-r z1) _          = inj-r (r*₂-preserves-Zero z1 _)
 r*-NonPos-NonPos (inj-l p1) (inj-r z2) = inj-r (r*₁-preserves-Zero _ z2)
 r*-NonPos-NonPos (inj-l n1) (inj-l n2) = inj-l (r*₁-flips-sign (_ , n1) _ n2)
 
+r*-ZeroFactor : {q1 q2 : ℚ} -> Zero (q1 r* q2) -> Zero q1 ⊎ Zero q2
+r*-ZeroFactor {q1} {q2} zp = handle _ _ (isSign-self q1) (isSign-self q2)
+  where
+  handle : (s1 s2 : Sign) -> isSignℚ s1 q1 -> isSignℚ s2 q2 -> Zero q1 ⊎ Zero q2
+  handle zero-sign _         z1 _ = inj-l z1
+  handle pos-sign  zero-sign p1 z2 = inj-r z2
+  handle neg-sign  zero-sign n1 z2 = inj-r z2
+  handle pos-sign  pos-sign  p1 p2 =
+    bot-elim (NonZero->¬Zero (inj-l (r*₁-preserves-sign (_ , p1) _ p2)) zp)
+  handle pos-sign  neg-sign  p1 n2 =
+    bot-elim (NonZero->¬Zero (inj-r (r*₁-preserves-sign (_ , p1) _ n2)) zp)
+  handle neg-sign  pos-sign  n1 p2 =
+    bot-elim (NonZero->¬Zero (inj-r (r*₁-flips-sign (_ , n1) _ p2)) zp)
+  handle neg-sign  neg-sign  n1 n2 =
+    bot-elim (NonZero->¬Zero (inj-l (r*₁-flips-sign (_ , n1) _ n2)) zp)
+
+
 r--NonNeg : {q1 : ℚ} -> NonNeg q1 -> NonPos (r- q1)
 r--NonNeg (inj-l s) = (inj-l (r--flips-sign _ _ s))
 r--NonNeg (inj-r s) = (inj-r (r--flips-sign _ _ s))
@@ -505,6 +524,12 @@ NonNeg-0≤ q nn-q = subst NonNeg (sym (r+-right-zero q)) nn-q
 
 0≤-NonNeg : (q : Rational) -> 0r ℚ≤ q -> NonNeg q
 0≤-NonNeg q 0<q = subst NonNeg (r+-right-zero q) 0<q
+
+≤0-NonPos : (q : Rational) -> q ℚ≤ 0r -> NonPos q
+≤0-NonPos q (inj-l q<0) = inj-l (subst Negℚ (sym (diffℚ-anticommute 0r q) >=> r+-right-zero q)
+                                            (r--flips-sign _ _ q<0))
+≤0-NonPos q (inj-r q=0) = inj-r (subst Zeroℚ (sym (diffℚ-anticommute 0r q) >=> r+-right-zero q)
+                                             (r--flips-sign _ _ q=0))
 
 NonPos≤NonNeg : {q r : Rational} -> NonPos q -> NonNeg r -> q ℚ≤ r
 NonPos≤NonNeg np-q nn-r = r+-preserves-NonNeg nn-r (r--NonPos np-q)
@@ -655,6 +680,13 @@ r--flips-order b c = subst Posℚ p
   p : c r+ (r- b) == (r- b) r+ (r- (r- c))
   p = r+-commute c (r- b) >=> cong ((r- b) r+_) (sym (RationalRing.minus-double-inverse {c}))
 
+r--flips-≤ : (b c : Rational) -> b ℚ≤ c -> (r- c) ℚ≤ (r- b)
+r--flips-≤ b c = subst NonNeg p
+  where
+  p : c r+ (r- b) == (r- b) r+ (r- (r- c))
+  p = r+-commute c (r- b) >=> cong ((r- b) r+_) (sym (RationalRing.minus-double-inverse {c}))
+
+
 r+-Pos->order : (a : ℚ) (b : Σ ℚ Posℚ) -> a < (a r+ ⟨ b ⟩)
 r+-Pos->order a (b , pos-b) = subst Posℚ (sym path) pos-b
   where
@@ -710,6 +742,17 @@ r*₁-flips-order a⁻@(a , _) b c b<c = pos-acab
   pos-acab = subst Pos (RationalSemiring.*-distrib-+-left {a} {b} {(r- c)} >=>
                         cong ((a r* b) +_) (r*-minus-extract-right a c))
                    pos-acb
+
+
+r*₁-flips-≤ : (a : ℚ⁰⁻) (b c : Rational) -> b ℚ≤ c -> (⟨ a ⟩ r* c) ℚ≤ (⟨ a ⟩ r* b)
+r*₁-flips-≤ (a , _) b c (inj-r b=c) =
+  subst NonNeg (r*-distrib-diffℚ a c b)
+    (inj-r (r*₁-preserves-Zero a (subst Zero (sym (diffℚ-anticommute c b)) (r--flips-sign _ _ b=c))))
+r*₁-flips-≤ (a , (inj-r za)) b c (inj-l _) =
+  subst NonNeg (r*-distrib-diffℚ a c b) (inj-r (r*₂-preserves-Zero za _))
+r*₁-flips-≤ (a , (inj-l na)) b c (inj-l b<c) =
+  inj-l (r*₁-flips-order (a , na) b c b<c)
+
 
 0<1r : 0r < 1r
 0<1r = subst Pos (sym (r+-right-zero 1r)) Pos-1r
@@ -802,6 +845,12 @@ r+-both-preserves-order a b c d a<b c<d = subst Posℚ (r+-swap-diffℚ a b c d)
   Pos-sum-diff : Posℚ ((diffℚ a b) r+ (diffℚ c d))
   Pos-sum-diff = r+-preserves-Pos (diffℚ a b) (diffℚ c d) a<b c<d
 
+r+-both-preserves-≤ : (a b c d : Rational) -> a ℚ≤ b -> c ℚ≤ d -> (a r+ c) ℚ≤ (b r+ d)
+r+-both-preserves-≤ a b c d a<b c<d = subst NonNeg (r+-swap-diffℚ a b c d) NonNeg-sum-diff
+  where
+  NonNeg-sum-diff : NonNeg ((diffℚ a b) r+ (diffℚ c d))
+  NonNeg-sum-diff = r+-preserves-NonNeg {diffℚ a b} {diffℚ c d} a<b c<d
+
 
 -- floor and <
 
@@ -868,6 +917,12 @@ r+-Pos-NonNeg {q1} {q2} p-q1 (inj-r z-q2) =
 r+-NonNeg-Pos : {q1 q2 : Rational} -> NonNeg q1 -> Pos q2 -> Pos (q1 r+ q2)
 r+-NonNeg-Pos {q1} {q2} n p = subst Pos (r+-commute q2 q1) (r+-Pos-NonNeg p n)
 
+r+-NonNeg-NonNeg : {q1 q2 : Rational} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r+ q2)
+r+-NonNeg-NonNeg {q1} {q2} nn-q1 (inj-l p-q2) =
+  inj-l (r+-NonNeg-Pos nn-q1 p-q2)
+r+-NonNeg-NonNeg {q1} {q2} nn-q1 (inj-r z-q2) =
+  subst NonNeg (sym (r+-right-zero q1) >=> cong (q1 r+_) (sym (Zero-path q2 z-q2))) nn-q1
+
 trans-<-≤ : {q1 q2 q3 : Rational} -> q1 < q2 -> q2 ℚ≤ q3 -> q1 < q3
 trans-<-≤ {q1} {q2} {q3} q1<q2 q2≤q3 =
   subst Pos (diffℚ-trans q1 q2 q3) (r+-Pos-NonNeg q1<q2 q2≤q3)
@@ -876,6 +931,13 @@ trans-≤-< : {q1 q2 q3 : Rational} -> q1 ℚ≤ q2 -> q2 < q3 -> q1 < q3
 trans-≤-< {q1} {q2} {q3} q1≤q2 q2<q3 =
   subst Pos (diffℚ-trans q1 q2 q3) (r+-NonNeg-Pos q1≤q2 q2<q3)
 
+trans-ℚ≤ : {q1 q2 q3 : Rational} -> q1 ℚ≤ q2 -> q2 ℚ≤ q3 -> q1 ℚ≤ q3
+trans-ℚ≤ {q1} {q2} {q3} q1≤q2 q2<q3 =
+  subst NonNeg (diffℚ-trans q1 q2 q3) (r+-NonNeg-NonNeg q1≤q2 q2<q3)
+
+antisym-ℚ≤ : Antisymmetric _ℚ≤_
+antisym-ℚ≤ {a} {b} (inj-l a<b) b≤a = bot-elim (irrefl-< {a} (trans-<-≤ {a} {b} {a} a<b b≤a))
+antisym-ℚ≤ {a} {b} (inj-r a=b) _ = zero-diff->path a b a=b
 
 
 -- Archimedean
