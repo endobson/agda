@@ -11,7 +11,7 @@ open import relation
 private
   variable
     ℓ ℓ₀ ℓ₁ : Level
-    A B C : Type ℓ
+    A B C D E : Type ℓ
 
 data Squash (A : Type ℓ) : Type ℓ where
   ∣_∣ : A -> Squash A
@@ -32,6 +32,13 @@ unsquash h (squash a b i) = h (unsquash h a) (unsquash h b) i
 ∥-map2 f ∣ a ∣ = ∥-map (f a)
 ∥-map2 f (squash a1 a2 i) b = (squash (∥-map2 f a1 b) (∥-map2 f a2 b) i)
 
+∥-map3 : (A -> B -> C -> D) -> ∥ A ∥ -> ∥ B ∥ -> ∥ C ∥ -> ∥ D ∥
+∥-map3 f ∣ a ∣ = ∥-map2 (f a)
+∥-map3 f (squash a1 a2 i) b c = (squash (∥-map3 f a1 b c) (∥-map3 f a2 b c) i)
+
+∥-map4 : (A -> B -> C -> D -> E) -> ∥ A ∥ -> ∥ B ∥ -> ∥ C ∥ -> ∥ D ∥ -> ∥ E ∥
+∥-map4 f ∣ a ∣ = ∥-map3 (f a)
+∥-map4 f (squash a1 a2 i) b c d = (squash (∥-map4 f a1 b c d) (∥-map4 f a2 b c d) i)
 
 ∥-bind : (A -> ∥ B ∥) -> ∥ A ∥ -> ∥ B ∥
 ∥-bind f ∣ a ∣ = f a

@@ -58,6 +58,9 @@ CrossZeroI (Iℚ-cons l u _) = NonPos l × NonNeg u
 ConstantI : Pred Iℚ ℓ-zero
 ConstantI (Iℚ-cons l u _) = l == u
 
+ZeroEndedI : Pred Iℚ ℓ-zero
+ZeroEndedI (Iℚ-cons l u _) = Zero l ⊎ Zero u
+
 i+-commute : (a b : Iℚ) -> a i+ b == b i+ a
 i+-commute (Iℚ-cons l1 u1 _) (Iℚ-cons l2 u2 _) = Iℚ-bounds-path (r+-commute l1 l2) (r+-commute u1 u2)
 
@@ -341,3 +344,90 @@ i*₁-preserves-⊆ (Iℚ-cons al au _) b⊆c =
 
 i*₂-preserves-⊆ : {a b : Iℚ} -> a i⊆ b -> (c : Iℚ) -> (a i* c) i⊆ (b i* c)
 i*₂-preserves-⊆ {a} {b} a⊆b c = subst2 _i⊆_ (i*-commute c a) (i*-commute c b) (i*₁-preserves-⊆ c a⊆b)
+
+-- Strict Inclusion
+record _i⊂_ (a : Iℚ) (b : Iℚ) : Type₀ where
+  constructor i⊂-cons
+  field
+    l : Iℚ.l b < Iℚ.l a
+    u : Iℚ.u a < Iℚ.u b
+
+trans-i⊂ : {a b c : Iℚ} -> a i⊂ b -> b i⊂ c -> a i⊂ c
+trans-i⊂ {Iℚ-cons al au _} {Iℚ-cons bl bu _} {Iℚ-cons cl cu _} a⊂b b⊂c = record
+  { l = trans-< {_} {_} {_} {cl} {bl} {al} (_i⊂_.l b⊂c) (_i⊂_.l a⊂b)
+  ; u = trans-< {_} {_} {_} {au} {bu} {cu} (_i⊂_.u a⊂b) (_i⊂_.u b⊂c)
+  }
+
+trans-i⊂-i⊆ : {a b c : Iℚ} -> a i⊂ b -> b i⊆ c -> a i⊂ c
+trans-i⊂-i⊆ {Iℚ-cons al au _} {Iℚ-cons bl bu _} {Iℚ-cons cl cu _} a⊂b b⊆c = record
+  { l = trans-≤-< {cl} {bl} {al} (_i⊆_.l b⊆c) (_i⊂_.l a⊂b)
+  ; u = trans-<-≤ {au} {bu} {cu} (_i⊂_.u a⊂b) (_i⊆_.u b⊆c)
+  }
+
+weaken-i⊂ : {a b : Iℚ} -> a i⊂ b -> a i⊆ b
+weaken-i⊂ (i⊂-cons l u) = (i⊆-cons (inj-l l) (inj-l u))
+
+
+
+i∪-preserves-⊂ : {a b c d : Iℚ} -> a i⊂ b -> c i⊂ d -> (a i∪ c) i⊂ (b i∪ d)
+i∪-preserves-⊂ {a@(Iℚ-cons al au _)} {b@(Iℚ-cons bl bu _)} {c@(Iℚ-cons cl cu _)} {d@(Iℚ-cons dl du _)}
+               (i⊂-cons bl<al au<bu) (i⊂-cons dl<cl cu<du) =
+  i⊂-cons (minℚ-preserves-< bl al dl cl bl<al dl<cl) (maxℚ-preserves-< au bu cu du au<bu cu<du)
+
+i-scale-preserves-⊂ : {k : ℚ} {a b : Iℚ} -> NonZero k -> a i⊂ b -> (i-scale k a) i⊂ (i-scale k b)
+i-scale-preserves-⊂ {k} {(Iℚ-cons al au al≤au)} {(Iℚ-cons bl bu bl≤bu)} (inj-l pk) (i⊂-cons bl<al au<bu) =
+  i⊂-cons (subst2 _<_ (sym minb-path) (sym mina-path) (r*₁-preserves-order (k , pk) bl al bl<al))
+          (subst2 _<_ (sym maxa-path) (sym maxb-path) (r*₁-preserves-order (k , pk) au bu au<bu))
+  where
+  minb-path : minℚ (k r* bl) (k r* bu) == k r* bl
+  minb-path = minℚ-left _ _ (r*₁-preserves-≤ (k , inj-l pk) bl bu bl≤bu)
+
+  mina-path : minℚ (k r* al) (k r* au) == k r* al
+  mina-path = minℚ-left _ _ (r*₁-preserves-≤ (k , inj-l pk) al au al≤au)
+
+  maxb-path : maxℚ (k r* bl) (k r* bu) == k r* bu
+  maxb-path = maxℚ-right _ _ (r*₁-preserves-≤ (k , inj-l pk) bl bu bl≤bu)
+
+  maxa-path : maxℚ (k r* al) (k r* au) == k r* au
+  maxa-path = maxℚ-right _ _ (r*₁-preserves-≤ (k , inj-l pk) al au al≤au)
+i-scale-preserves-⊂ {k} {(Iℚ-cons al au al≤au)} {(Iℚ-cons bl bu bl≤bu)} (inj-r nk) (i⊂-cons bl<al au<bu) =
+  i⊂-cons (subst2 _<_ (sym minb-path) (sym mina-path) (r*₁-flips-order (k , nk) au bu au<bu))
+          (subst2 _<_ (sym maxa-path) (sym maxb-path) (r*₁-flips-order (k , nk) bl al bl<al))
+  where
+  minb-path : minℚ (k r* bl) (k r* bu) == k r* bu
+  minb-path = minℚ-right _ _ (r*₁-flips-≤ (k , inj-l nk) bl bu bl≤bu)
+
+  mina-path : minℚ (k r* al) (k r* au) == k r* au
+  mina-path = minℚ-right _ _ (r*₁-flips-≤ (k , inj-l nk) al au al≤au)
+
+  maxb-path : maxℚ (k r* bl) (k r* bu) == k r* bl
+  maxb-path = maxℚ-left _ _ (r*₁-flips-≤ (k , inj-l nk) bl bu bl≤bu)
+
+  maxa-path : maxℚ (k r* al) (k r* au) == k r* al
+  maxa-path = maxℚ-left _ _ (r*₁-flips-≤ (k , inj-l nk) al au al≤au)
+
+i*₁-preserves-⊂ : (a : Iℚ) -> (¬ (ZeroEndedI a)) -> {b c : Iℚ} -> b i⊂ c -> (a i* b) i⊂ (a i* c)
+i*₁-preserves-⊂ a@(Iℚ-cons al au _) ¬za {b} {c} b⊂c = handle _ _ (isSign-self al) (isSign-self au)
+  where
+  handle : (s1 s2 : Sign) -> isSign s1 al -> isSign s2 au -> (a i* b) i⊂ (a i* c)
+  handle pos-sign pos-sign pal pau =
+    i∪-preserves-⊂ (i-scale-preserves-⊂ (inj-l pal) b⊂c) (i-scale-preserves-⊂ (inj-l pau) b⊂c)
+  handle pos-sign neg-sign pal nau =
+    i∪-preserves-⊂ (i-scale-preserves-⊂ (inj-l pal) b⊂c) (i-scale-preserves-⊂ (inj-r nau) b⊂c)
+  handle neg-sign pos-sign nal pau =
+    i∪-preserves-⊂ (i-scale-preserves-⊂ (inj-r nal) b⊂c) (i-scale-preserves-⊂ (inj-l pau) b⊂c)
+  handle neg-sign neg-sign nal nau =
+    i∪-preserves-⊂ (i-scale-preserves-⊂ (inj-r nal) b⊂c) (i-scale-preserves-⊂ (inj-r nau) b⊂c)
+  handle zero-sign _         zal _   = bot-elim (¬za (inj-l zal))
+  handle pos-sign  zero-sign _   zau = bot-elim (¬za (inj-r zau))
+  handle neg-sign  zero-sign _   zau = bot-elim (¬za (inj-r zau))
+
+
+i*₂-preserves-⊂ : {a b : Iℚ} -> a i⊂ b -> (c : Iℚ) -> (¬ (ZeroEndedI c)) -> (a i* c) i⊂ (b i* c)
+i*₂-preserves-⊂ {a} {b} a⊂b c ¬zc =
+  subst2 _i⊂_ (i*-commute c a) (i*-commute c b) (i*₁-preserves-⊂ c ¬zc a⊂b)
+
+i*-preserves-⊂ : {a b c d : Iℚ} -> a i⊂ b -> c i⊂ d ->
+                 (¬ (ZeroEndedI a)) -> (a i* c) i⊂ (b i* d)
+i*-preserves-⊂ {a} {b} {c} {d} a⊂b c⊂d ¬za =
+  trans-i⊂-i⊆ (i*₁-preserves-⊂ a ¬za c⊂d) (i*₂-preserves-⊆ (weaken-i⊂ a⊂b) d)

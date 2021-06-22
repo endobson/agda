@@ -195,6 +195,24 @@ maxℚ₁-preserves-≤ a b c b≤c = handle (split-< a b)
   handle (inj-r b≤a) =
     subst (_ℚ≤ (maxℚ a c)) (sym (maxℚ-left a b b≤a)) (maxℚ-≤-left a c)
 
+minℚ-preserves-< : (a b c d : ℚ) -> (a < b) -> (c < d) -> minℚ a c < minℚ b d
+minℚ-preserves-< a b c d a<b c<d = handle (split-< a c)
+  where
+  handle : (a < c ⊎ c ℚ≤ a) -> _
+  handle (inj-l a<c) = subst (_< minℚ b d) (sym (minℚ-left a c (inj-l a<c)))
+                             (minℚ-property b d a<b (trans-< {a} {c} {d} a<c c<d))
+  handle (inj-r c≤a) = subst (_< minℚ b d) (sym (minℚ-right a c c≤a))
+                             (minℚ-property b d (trans-≤-< {c} {a} {b} c≤a a<b) c<d)
+
+maxℚ-preserves-< : (a b c d : ℚ) -> (a < b) -> (c < d) -> maxℚ a c < maxℚ b d
+maxℚ-preserves-< a b c d a<b c<d = handle (split-< b d)
+  where
+  handle : (b < d ⊎ d ℚ≤ b) -> _
+  handle (inj-l b<d) = subst (maxℚ a c <_) (sym (maxℚ-right b d (inj-l b<d)))
+                             (maxℚ-property a c (trans-< {a} {b} {d} a<b b<d) c<d)
+  handle (inj-r d≤b) = subst (maxℚ a c <_) (sym (maxℚ-left b d d≤b))
+                             (maxℚ-property a c a<b (trans-<-≤ {c} {d} {b} c<d d≤b))
+
 
 minℚ-assoc : (a b c : ℚ) -> minℚ (minℚ a b) c == minℚ a (minℚ b c)
 minℚ-assoc a b c = handle (split-< a b) (split-< a c)

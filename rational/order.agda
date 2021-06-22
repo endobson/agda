@@ -522,6 +522,10 @@ NonNeg-0≤ q nn-q = subst NonNeg (sym (r+-right-zero q)) nn-q
 0<-Pos : (q : Rational) -> 0r < q -> Pos q
 0<-Pos q 0<q = subst Pos (r+-right-zero q) 0<q
 
+<0-Neg : (q : Rational) -> q < 0r -> Neg q
+<0-Neg q q<0 = (subst Negℚ (sym (diffℚ-anticommute 0r q) >=> r+-right-zero q)
+                           (r--flips-sign _ _ q<0))
+
 0≤-NonNeg : (q : Rational) -> 0r ℚ≤ q -> NonNeg q
 0≤-NonNeg q 0<q = subst NonNeg (r+-right-zero q) 0<q
 
