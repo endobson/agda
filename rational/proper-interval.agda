@@ -183,6 +183,207 @@ i∪₁-width-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
 i∪₂-width-≤ : (a b : Iℚ) -> i-width b ℚ≤ i-width (a i∪ b)
 i∪₂-width-≤ a b = subst (\x -> i-width b ℚ≤ i-width x) (i∪-commute b a) (i∪₁-width-≤ b a)
 
+i-maxabs : Iℚ -> ℚ
+i-maxabs (Iℚ-cons l u _) = maxℚ (absℚ l) (absℚ u)
+
+i-width-bound : (a : Iℚ) -> i-width a ℚ≤ (2r r* (i-maxabs a))
+i-width-bound a@(Iℚ-cons l u l≤u) =
+  subst2 _ℚ≤_ (diffℚ-trans l 0r u) (2r-path (i-maxabs a)) lt1
+  where
+  dl≤absl : diffℚ l 0r ℚ≤ absℚ l
+  dl≤absl = subst (_ℚ≤ absℚ l) (sym (r+-left-zero (r- l))) (maxℚ-≤-right l (r- l))
+  absl≤maxabs : absℚ l ℚ≤ i-maxabs a
+  absl≤maxabs = maxℚ-≤-left _ _
+  dl≤maxabs = trans-ℚ≤ {diffℚ l 0r} {absℚ l} {i-maxabs a} dl≤absl absl≤maxabs
+
+  du≤absu : diffℚ 0r u ℚ≤ absℚ u
+  du≤absu = subst (_ℚ≤ absℚ u) (sym (r+-right-zero u)) (maxℚ-≤-left u (r- u))
+  absu≤maxabs : absℚ u ℚ≤ i-maxabs a
+  absu≤maxabs = maxℚ-≤-right _ _
+  du≤maxabs = trans-ℚ≤ {diffℚ 0r u} {absℚ u} {i-maxabs a} du≤absu absu≤maxabs
+
+  dp : diffℚ l 0r r+ diffℚ 0r u == diffℚ l u
+  dp = (diffℚ-trans l 0r u)
+
+  lt1 : (diffℚ l 0r r+ diffℚ 0r u) ℚ≤ (i-maxabs a r+ i-maxabs a)
+  lt1 = r+-both-preserves-≤ (diffℚ l 0r) (i-maxabs a) (diffℚ 0r u) (i-maxabs a)
+                            dl≤maxabs du≤maxabs
+
+
+i*-width-NNNN : (a b : Iℚ) -> NonNegI a -> NonNegI b ->
+                i-width (a i* b) ==
+                (i-width a r* (Iℚ.l b)) r+ (Iℚ.u a r* (i-width b))
+i*-width-NNNN a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al nn-bl =
+  wp2 >=> delta-p
+  where
+  nn-au : NonNeg au
+  nn-au = subst NonNeg (diffℚ-step al au) (r+-NonNeg-NonNeg nn-al al≤au)
+  nn-bu : NonNeg bu
+  nn-bu = subst NonNeg (diffℚ-step bl bu) (r+-NonNeg-NonNeg nn-bl bl≤bu)
+  wa = i-width a
+  wb = i-width b
+
+  albl≤albu : (al r* bl) ℚ≤ (al r* bu)
+  albl≤albu = r*₁-preserves-≤ (al , nn-al) bl bu bl≤bu
+  aubl≤aubu : (au r* bl) ℚ≤ (au r* bu)
+  aubl≤aubu = r*₁-preserves-≤ (au , nn-au) bl bu bl≤bu
+
+  albl≤aubl : (al r* bl) ℚ≤ (au r* bl)
+  albl≤aubl = r*₂-preserves-≤ al au (bl , nn-bl) al≤au
+  albu≤aubu : (al r* bu) ℚ≤ (au r* bu)
+  albu≤aubu = r*₂-preserves-≤ al au (bu , nn-bu) al≤au
+
+  i1 = i-scale al b
+  i1lp : Iℚ.l i1 == al r* bl
+  i1lp = minℚ-left _ _ albl≤albu
+  i1up : Iℚ.u i1 == al r* bu
+  i1up = maxℚ-right _ _ albl≤albu
+  i2 = i-scale au b
+  i2lp : Iℚ.l i2 == au r* bl
+  i2lp = minℚ-left _ _ aubl≤aubu
+  i2up : Iℚ.u i2 == au r* bu
+  i2up = maxℚ-right _ _ aubl≤aubu
+
+
+  l = Iℚ.l (a i* b)
+  lp : l == al r* bl
+  lp = cong2 minℚ i1lp i2lp >=> minℚ-left _ _ albl≤aubl
+
+  u = Iℚ.u (a i* b)
+  up : u == au r* bu
+  up = cong2 maxℚ i1up i2up >=> maxℚ-right _ _ albu≤aubu
+
+  wp : i-width (a i* b) == (au r* bu) r+ (r- (al r* bl))
+  wp = cong2 diffℚ lp up
+
+  delta = ((wa r* bl) r+ ((al r* wb) r+ (wa r* wb)))
+
+  abup : (au r* bu) == delta r+ (al r* bl)
+  abup = cong2 _r*_ (sym (diffℚ-step al au)) (sym (diffℚ-step bl bu)) >=>
+         RationalSemiring.*-distrib-+-left {al r+ wa} {bl} {wb} >=>
+         cong2 _r+_ (RationalSemiring.*-distrib-+-right {al} {wa} {bl})
+                    (RationalSemiring.*-distrib-+-right {al} {wa} {wb}) >=>
+         r+-assoc (al r* bl) (wa r* bl) ((al r* wb) r+ (wa r* wb)) >=>
+         r+-commute (al r* bl) ((wa r* bl) r+ ((al r* wb) r+ (wa r* wb)))
+
+  wp2 : i-width (a i* b) == delta
+  wp2 = wp >=> (cong (_r+ (r- (al r* bl))) abup) >=>
+        r+-assoc delta (al r* bl) (r- (al r* bl)) >=>
+        cong (delta r+_) (r+-inverse (al r* bl)) >=>
+        r+-right-zero delta
+
+  delta-p : delta == (wa r* bl) r+ (au r* wb)
+  delta-p =
+    cong ((wa r* bl) r+_) (sym (RationalSemiring.*-distrib-+-right) >=>
+                           cong (_r* wb) (diffℚ-step al au))
+
+i*-width-NNNP : (a b : Iℚ) -> NonNegI a -> NonPosI b ->
+                i-width (a i* b) ==
+                (i-width a r* (r- (Iℚ.l b))) r+ (Iℚ.l a r* (i-width b))
+i*-width-NNNP a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al np-bu =
+  wp >=> path
+  where
+  nn-au : NonNeg au
+  nn-au = subst NonNeg (diffℚ-step al au) (r+-NonNeg-NonNeg nn-al al≤au)
+  np-bl : NonPos bl
+  np-bl = subst NonPos (diffℚ-step bu bl)
+                       (r+-preserves-NonPos np-bu (subst NonPos (sym (diffℚ-anticommute bu bl))
+                                                                (r--NonNeg bl≤bu)))
+  wa = i-width a
+  wb = i-width b
+
+  albl≤albu : (al r* bl) ℚ≤ (al r* bu)
+  albl≤albu = r*₁-preserves-≤ (al , nn-al) bl bu bl≤bu
+  aubl≤aubu : (au r* bl) ℚ≤ (au r* bu)
+  aubl≤aubu = r*₁-preserves-≤ (au , nn-au) bl bu bl≤bu
+
+  aubl≤albl : (au r* bl) ℚ≤ (al r* bl)
+  aubl≤albl = r*₂-flips-≤ al au (bl , np-bl) al≤au
+  aubu≤albu : (au r* bu) ℚ≤ (al r* bu)
+  aubu≤albu = r*₂-flips-≤ al au (bu , np-bu) al≤au
+
+  i1 = i-scale al b
+  i1lp : Iℚ.l i1 == al r* bl
+  i1lp = minℚ-left _ _ albl≤albu
+  i1up : Iℚ.u i1 == al r* bu
+  i1up = maxℚ-right _ _ albl≤albu
+  i2 = i-scale au b
+  i2lp : Iℚ.l i2 == au r* bl
+  i2lp = minℚ-left _ _ aubl≤aubu
+  i2up : Iℚ.u i2 == au r* bu
+  i2up = maxℚ-right _ _ aubl≤aubu
+
+
+  l = Iℚ.l (a i* b)
+  lp : l == au r* bl
+  lp = cong2 minℚ i1lp i2lp >=> minℚ-right _ _ aubl≤albl
+
+  u = Iℚ.u (a i* b)
+  up : u == al r* bu
+  up = cong2 maxℚ i1up i2up >=> maxℚ-left _ _ aubu≤albu
+
+  wp : i-width (a i* b) == (al r* bu) r+ (r- (au r* bl))
+  wp = cong2 diffℚ lp up
+
+  path : (al r* bu) r+ (r- (au r* bl)) == (wa r* (r- bl)) r+ (al r* wb)
+  path = cong2 _r+_ (cong (al r*_) (sym (diffℚ-step bl bu)) >=>
+                     RationalSemiring.*-distrib-+-left {al} {bl} {wb} >=>
+                     r+-commute (al r* bl) (al r* wb))
+                    (sym (r*-minus-extract-right au bl) >=>
+                     cong (_r* (r- bl)) (sym (diffℚ-step al au)) >=>
+                     RationalSemiring.*-distrib-+-right {al} {wa} {r- bl}) >=>
+         r+-assoc (al r* wb) (al r* bl) ((al r* (r- bl)) r+ (wa r* (r- bl))) >=>
+         cong ((al r* wb) r+_) (sym (r+-assoc (al r* bl) (al r* (r- bl)) (wa r* (r- bl))) >=>
+                                cong (_r+ (wa r* (r- bl)))
+                                     (cong ((al r* bl) r+_) (r*-minus-extract-right al bl) >=>
+                                      r+-inverse (al r* bl)) >=>
+                                r+-left-zero (wa r* (r- bl))) >=>
+         r+-commute (al r* wb) (wa r* (r- bl))
+
+i*-width-NNCZ : (a b : Iℚ) -> NonNegI a -> CrossZeroI b ->
+                i-width (a i* b) == (Iℚ.u a r* (i-width b))
+i*-width-NNCZ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al (np-bl , nn-bu) = wp
+  where
+  nn-au : NonNeg au
+  nn-au = subst NonNeg (diffℚ-step al au) (r+-NonNeg-NonNeg nn-al al≤au)
+
+  wa = i-width a
+  wb = i-width b
+
+  albl≤albu : (al r* bl) ℚ≤ (al r* bu)
+  albl≤albu = r*₁-preserves-≤ (al , nn-al) bl bu bl≤bu
+  aubl≤aubu : (au r* bl) ℚ≤ (au r* bu)
+  aubl≤aubu = r*₁-preserves-≤ (au , nn-au) bl bu bl≤bu
+
+  aubl≤albl : (au r* bl) ℚ≤ (al r* bl)
+  aubl≤albl = r*₂-flips-≤ al au (bl , np-bl) al≤au
+  albu≤aubu : (al r* bu) ℚ≤ (au r* bu)
+  albu≤aubu = r*₂-preserves-≤ al au (bu , nn-bu) al≤au
+
+  i1 = i-scale al b
+  i1lp : Iℚ.l i1 == al r* bl
+  i1lp = minℚ-left _ _ albl≤albu
+  i1up : Iℚ.u i1 == al r* bu
+  i1up = maxℚ-right _ _ albl≤albu
+  i2 = i-scale au b
+  i2lp : Iℚ.l i2 == au r* bl
+  i2lp = minℚ-left _ _ aubl≤aubu
+  i2up : Iℚ.u i2 == au r* bu
+  i2up = maxℚ-right _ _ aubl≤aubu
+
+
+  l = Iℚ.l (a i* b)
+  lp : l == au r* bl
+  lp = cong2 minℚ i1lp i2lp >=> minℚ-right _ _ aubl≤albl
+
+  u = Iℚ.u (a i* b)
+  up : u == au r* bu
+  up = cong2 maxℚ i1up i2up >=> maxℚ-right _ _ albu≤aubu
+
+  wp : i-width (a i* b) == au r* (diffℚ bl bu)
+  wp = cong2 diffℚ lp up >=> sym (r*-distrib-diffℚ au bl bu)
+
+
 Constant->zero-width : (a : Iℚ) -> ConstantI a -> i-width a == 0r
 Constant->zero-width (Iℚ-cons l u _) p = (cong (_r+ (r- l)) (sym p)) >=> (r+-inverse l)
 

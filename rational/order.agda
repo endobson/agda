@@ -361,7 +361,6 @@ r+-preserves-NonNeg {q1} {q2} (inj-l p1) (inj-r z2) =
   inj-l (subst Pos (sym (cong (q1 r+_) (Zero-path _ z2) >=> r+-right-zero q1)) p1)
 r+-preserves-NonNeg {q1} {q2} (inj-l p1) (inj-l p2) = inj-l (r+-preserves-Pos _ _ p1 p2)
 
-
 r*-preserves-Pos : (q1 q2 : Rational) -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r* q2)
 r*-preserves-Pos =
   RationalElim.elimProp2
@@ -391,6 +390,23 @@ r--flips-sign =
   RationalElim.elimProp
     (\q -> isPropΠ2 (\ s _ -> isProp-isSignℚ (s⁻¹ s) (r- q)))
     (\q s qs -> is-signℚ (r-'-flips-sign q s (isSignℚ.v qs)))
+
+r+-preserves-Neg : (q1 q2 : ℚ) -> Neg q1 -> Neg q2 -> Neg (q1 r+ q2)
+r+-preserves-Neg q1 q2 n1 n2 =
+  subst Neg p (r--flips-sign _ _ (r+-preserves-Pos _ _ (r--flips-sign _ _ n1) (r--flips-sign _ _ n2)))
+  where
+  p : (r- ((r- q1) r+ (r- q2))) == (q1 r+ q2)
+  p = cong r-_ (sym (RationalRing.minus-distrib-plus {q1} {q2})) >=> RationalRing.minus-double-inverse
+
+
+r+-preserves-NonPos : {q1 q2 : ℚ} -> NonPos q1 -> NonPos q2 -> NonPos (q1 r+ q2)
+r+-preserves-NonPos {q1} {q2} (inj-r z1) np-q2          =
+  (subst NonPos (sym (cong (_r+ q2) (Zero-path _ z1) >=> r+-left-zero q2)) np-q2)
+r+-preserves-NonPos {q1} {q2} (inj-l n1) (inj-r z2) =
+  inj-l (subst Neg (sym (cong (q1 r+_) (Zero-path _ z2) >=> r+-right-zero q1)) n1)
+r+-preserves-NonPos {q1} {q2} (inj-l n1) (inj-l n2) = inj-l (r+-preserves-Neg _ _ n1 n2)
+
+
 
 r1/-preserves-Pos : (q : Rational) -> (i : ℚInv q) -> Pos q -> Pos (r1/ q i)
 r1/-preserves-Pos =
@@ -757,6 +773,11 @@ r*₁-flips-≤ (a , (inj-r za)) b c (inj-l _) =
 r*₁-flips-≤ (a , (inj-l na)) b c (inj-l b<c) =
   inj-l (r*₁-flips-order (a , na) b c b<c)
 
+r*₂-flips-≤ : (a b : ℚ) (c : ℚ⁰⁻) -> a ℚ≤ b -> (b r* ⟨ c ⟩) ℚ≤ (a r* ⟨ c ⟩)
+r*₂-flips-≤ a b c@(c' , _) a≤b =
+  subst2 _ℚ≤_ (r*-commute c' b) (r*-commute c' a) (r*₁-flips-≤ c a b a≤b)
+
+
 
 0<1r : 0r < 1r
 0<1r = subst Pos (sym (r+-right-zero 1r)) Pos-1r
@@ -935,9 +956,10 @@ trans-≤-< : {q1 q2 q3 : Rational} -> q1 ℚ≤ q2 -> q2 < q3 -> q1 < q3
 trans-≤-< {q1} {q2} {q3} q1≤q2 q2<q3 =
   subst Pos (diffℚ-trans q1 q2 q3) (r+-NonNeg-Pos q1≤q2 q2<q3)
 
-trans-ℚ≤ : {q1 q2 q3 : Rational} -> q1 ℚ≤ q2 -> q2 ℚ≤ q3 -> q1 ℚ≤ q3
-trans-ℚ≤ {q1} {q2} {q3} q1≤q2 q2<q3 =
-  subst NonNeg (diffℚ-trans q1 q2 q3) (r+-NonNeg-NonNeg q1≤q2 q2<q3)
+abstract
+  trans-ℚ≤ : {q1 q2 q3 : Rational} -> q1 ℚ≤ q2 -> q2 ℚ≤ q3 -> q1 ℚ≤ q3
+  trans-ℚ≤ {q1} {q2} {q3} q1≤q2 q2<q3 =
+    subst NonNeg (diffℚ-trans q1 q2 q3) (r+-NonNeg-NonNeg q1≤q2 q2<q3)
 
 antisym-ℚ≤ : Antisymmetric _ℚ≤_
 antisym-ℚ≤ {a} {b} (inj-l a<b) b≤a = bot-elim (irrefl-< {a} (trans-<-≤ {a} {b} {a} a<b b≤a))

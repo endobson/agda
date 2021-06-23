@@ -236,6 +236,48 @@ module _ (x y : ℝ)
         handle2 (inj-l cx3) = ℝ∈Iℚ->¬Constant x xi3 (ℝ∈Iℚ-intersect x xi1 xi2 exi1 exi2) cx3
         handle2 (inj-r cy3) = ℝ∈Iℚ->¬Constant y yi3 (ℝ∈Iℚ-intersect y yi1 yi2 eyi1 eyi2) cy3
 
+    located : (a b : ℚ) -> a < b -> ∥ L a ⊎ U b ∥
+    located a b a<b = ∥-bind2 handle (find-open-ball x ε₁) (find-open-ball y ε₂)
+      where
+      ε₁ : ℚ⁺
+      ε₁ = ?
+      ε₂ : ℚ⁺
+      ε₂ = ?
+      d = diffℚ a b
+
+      handle : OpenBall x ⟨ ε₁ ⟩  -> OpenBall y ⟨ ε₂ ⟩ -> ∥ L a ⊎ U b ∥
+      handle (xb1 , xb2 , xbl , xbu , xbe) (yb1 , yb2 , ybl , ybu , ybe) =
+        handle2 (split-< a l)
+        where
+        xi : Iℚ
+        xi = Iℚ-cons xb1 xb2 (inj-l (ℝ-bounds->ℚ< x _ _ xbl xbu))
+        yi : Iℚ
+        yi = Iℚ-cons yb1 yb2 (inj-l (ℝ-bounds->ℚ< y _ _ ybl ybu))
+
+        exi : ℝ∈Iℚ x xi
+        exi = xbl , xbu
+
+        eyi : ℝ∈Iℚ y yi
+        eyi = ybl , ybu
+
+        wxi : i-width xi == ⟨ ε₁ ⟩
+        wxi = xbe
+
+        p = xi i* yi
+        l = Iℚ.l p
+        u = Iℚ.u p
+        w = i-width p
+        w≤d : w ℚ≤ d
+        w≤d = ?
+
+        handle2 : (a < l ⊎ l ℚ≤ a) -> ∥ L a ⊎ U b ∥
+        handle2 (inj-l a<l) = ∣ inj-l ∣ (xi , yi , exi , eyi , (inj-l a<l)) ∣ ∣
+        handle2 (inj-r l≤a) = ∣ inj-r ∣ (xi , yi , exi , eyi , u≤b) ∣ ∣
+          where
+          u≤b : u ℚ≤ b
+          u≤b = subst2 _ℚ≤_ (diffℚ-step l u) (diffℚ-step a b) (r+-both-preserves-≤ l a w d l≤a w≤d)
+
+
   module _
     (located : (a b : ℚ) -> a < b -> ∥ L a ⊎ U b ∥)
     where
