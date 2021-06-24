@@ -346,3 +346,11 @@ absℚ-Zero {q} zaq = handle (isSign-self q)
   handle {neg-sign} nq =
     subst Zero (cong r-_ (absℚ-NonPos (inj-l nq)) >=>
                 RationalRing.minus-double-inverse) (r--flips-sign _ _ zaq)
+
+NonNeg-absℚ : (q : ℚ) -> NonNeg (absℚ q)
+NonNeg-absℚ q = handle _ (isSign-self q)
+  where
+  handle : (s : Sign) -> isSign s q -> NonNeg (absℚ q)
+  handle pos-sign pq = subst NonNeg (sym (absℚ-NonNeg (inj-l pq))) (inj-l pq)
+  handle zero-sign zq = subst NonNeg (sym (absℚ-NonNeg (inj-r zq))) (inj-r zq)
+  handle neg-sign nq = subst NonNeg (sym (absℚ-NonPos (inj-l nq))) (r--NonPos (inj-l nq))

@@ -309,6 +309,51 @@ i∪₂-width-≤ a b = subst (\x -> i-width b ℚ≤ i-width x) (i∪-commute b
 i-maxabs : Iℚ -> ℚ
 i-maxabs (Iℚ-cons l u _) = maxℚ (absℚ l) (absℚ u)
 
+private
+  NonNeg-≤ : (a b : ℚ) -> NonNeg a -> a ℚ≤ b -> NonNeg b
+  NonNeg-≤ a b nn-a a≤b = subst NonNeg (diffℚ-step a b) (r+-NonNeg-NonNeg nn-a a≤b)
+  NonPos-≤ : (a b : ℚ) -> NonPos b -> a ℚ≤ b -> NonPos a
+  NonPos-≤ a b np-b a≤b =
+    subst NonPos (diffℚ-step b a)
+                 (r+-preserves-NonPos np-b (subst NonPos (sym (diffℚ-anticommute b a))
+                                                         (r--NonNeg a≤b)))
+
+
+i-maxabs-NonNeg : (a : Iℚ) -> NonNegI a -> i-maxabs a == Iℚ.u a
+i-maxabs-NonNeg (Iℚ-cons l u l≤u) nn-l =
+  cong2 maxℚ (absℚ-NonNeg nn-l) (absℚ-NonNeg nn-u) >=>
+  maxℚ-right l u l≤u
+  where
+  nn-u = NonNeg-≤ l u nn-l l≤u
+
+i-maxabs-NonPos : (a : Iℚ) -> NonPosI a -> i-maxabs a == (r- (Iℚ.l a))
+i-maxabs-NonPos (Iℚ-cons l u l≤u) np-u =
+  cong2 maxℚ (absℚ-NonPos np-l) (absℚ-NonPos np-u) >=>
+  maxℚ-left (r- l) (r- u) (r--flips-≤ l u l≤u)
+  where
+  np-l = NonPos-≤ l u np-u l≤u
+
+i-maxabs-CrossZero : (a : Iℚ) -> CrossZeroI a -> i-maxabs a ℚ≤ i-width a
+i-maxabs-CrossZero a@(Iℚ-cons l u l≤u) (np-l , nn-u) =
+  subst (_ℚ≤ w) (sym pm) (maxℚ-property {P = (_ℚ≤ w)} (r- l) u l-lt u-lt)
+  where
+  m = i-maxabs a
+  w = i-width a
+  pm : m == maxℚ (r- l) u
+  pm = cong2 maxℚ (absℚ-NonPos np-l) (absℚ-NonNeg nn-u)
+
+  l-lt : (r- l) ℚ≤ w
+  l-lt = subst (_ℚ≤ w) (r+-left-zero (r- l)) (r+₂-preserves-≤ _ _ (r- l) (NonNeg-0≤ _ nn-u))
+
+  u-lt : u ℚ≤ w
+  u-lt = subst (_ℚ≤ w) (r+-right-zero u) (r+₁-preserves-≤ u _ _ (NonNeg-0≤ _ (r--NonPos np-l)))
+
+
+NonNeg-i-maxabs : (a : Iℚ) -> NonNeg (i-maxabs a)
+NonNeg-i-maxabs (Iℚ-cons l u _) =
+  maxℚ-property {P = NonNeg} (absℚ l) (absℚ u) (NonNeg-absℚ l) (NonNeg-absℚ u)
+
+
 i-width-bound : (a : Iℚ) -> i-width a ℚ≤ (2r r* (i-maxabs a))
 i-width-bound a@(Iℚ-cons l u l≤u) =
   subst2 _ℚ≤_ (diffℚ-trans l 0r u) (2r-path (i-maxabs a)) lt1
@@ -632,17 +677,28 @@ i*-width-NPCZ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au (np-
 
 
 i*-width-CZCZ-≤ : (a b : Iℚ) -> CrossZeroI a -> CrossZeroI b ->
-                  (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-width b)) r+ ((i-width a) r* (i-width b)))
+                  (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
 i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al , nn-au) (np-bl , nn-bu) =
-  d≤ww
+  d≤wmmw
   where
   wa = i-width a
   wb = i-width b
+  ma = i-maxabs a
+  mb = i-maxabs b
 
   nn-wa : NonNeg wa
   nn-wa = NonNeg-i-width a
   nn-wb : NonNeg wb
   nn-wb = NonNeg-i-width b
+  nn-ma : NonNeg ma
+  nn-ma = NonNeg-i-maxabs a
+  nn-mb : NonNeg mb
+  nn-mb = NonNeg-i-maxabs b
+
+  ma≤wa : ma ℚ≤ wa
+  ma≤wa = i-maxabs-CrossZero a (np-al , nn-au)
+  mb≤wb : mb ℚ≤ wb
+  mb≤wb = i-maxabs-CrossZero b (np-bl , nn-bu)
 
   albu≤albl : (al r* bu) ℚ≤ (al r* bl)
   albu≤albl = r*₁-flips-≤ (al , np-al) bl bu bl≤bu
@@ -665,84 +721,251 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
   i2up : Iℚ.u i2 == au r* bu
   i2up = maxℚ-right _ _ aubl≤aubu
 
-  w≤al : (r- wa) ℚ≤ al
-  w≤al = subst NonNeg (sym (cong (al r+_) (RationalRing.minus-double-inverse {wa}) >=>
-                            diffℚ-step al au)) nn-au
-  w≤bl : (r- wb) ℚ≤ bl
-  w≤bl = subst NonNeg (sym (cong (bl r+_) (RationalRing.minus-double-inverse {wb}) >=>
-                            diffℚ-step bl bu)) nn-bu
-  au≤w : au ℚ≤ wa
-  au≤w = subst NonNeg (cong r-_ (sym (diffℚ-step au al)) >=>
-                       RationalRing.minus-distrib-plus {au} {diffℚ au al} >=>
-                       cong ((r- au) r+_) (sym (diffℚ-anticommute al au)) >=>
-                       r+-commute (r- au) wa)
-                      (r--NonPos np-al)
+  mal≤m : (r- al) ℚ≤ ma
+  mal≤m = subst (_ℚ≤ ma) (absℚ-NonPos np-al) (maxℚ-≤-left (absℚ al) (absℚ au))
 
-  bu≤w : bu ℚ≤ wb
-  bu≤w = subst NonNeg (cong r-_ (sym (diffℚ-step bu bl)) >=>
-                       RationalRing.minus-distrib-plus {bu} {diffℚ bu bl} >=>
-                       cong ((r- bu) r+_) (sym (diffℚ-anticommute bl bu)) >=>
-                       r+-commute (r- bu) wb)
-                      (r--NonPos np-bl)
+  mbl≤m : (r- bl) ℚ≤ mb
+  mbl≤m = subst (_ℚ≤ mb) (absℚ-NonPos np-bl) (maxℚ-≤-left (absℚ bl) (absℚ bu))
 
-  ww≤albu : (r- (wa r* wb)) ℚ≤ (al r* bu)
-  ww≤albu =
-    subst (_ℚ≤ (al r* bu)) (r*-minus-extract-left wa wb)
-    (trans-ℚ≤ {(r- wa) r* wb} {al r* wb} {al r* bu}
-              (r*₂-preserves-≤ (r- wa) al (wb , nn-wb) w≤al)
-              (r*₁-flips-≤ (al , np-al) bu wb bu≤w))
+  m≤al : (r- ma) ℚ≤ al
+  m≤al = subst ((r- ma) ℚ≤_) (RationalRing.minus-double-inverse {al})
+               (r--flips-≤ (r- al) ma mal≤m)
 
-  ww≤aubl : (r- (wa r* wb)) ℚ≤ (au r* bl)
-  ww≤aubl =
-    subst (_ℚ≤ (au r* bl)) (r*-minus-extract-right wa wb)
-    (trans-ℚ≤ {wa r* (r- wb)} {wa r* bl} {au r* bl}
-              (r*₁-preserves-≤ (wa , nn-wa) (r- wb) bl w≤bl)
-              (r*₂-flips-≤ au wa (bl , np-bl) au≤w))
+  m≤bl : (r- mb) ℚ≤ bl
+  m≤bl = subst ((r- mb) ℚ≤_) (RationalRing.minus-double-inverse {bl})
+               (r--flips-≤ (r- bl) mb mbl≤m)
 
-  albl≤ww : (al r* bl) ℚ≤ (wa r* wb)
-  albl≤ww =
-    subst ((al r* bl) ℚ≤_) (r*-minus-extract-right (r- wa) wb >=>
-                            cong r-_ (r*-minus-extract-left wa wb) >=>
-                            RationalRing.minus-double-inverse {wa r* wb})
-    (trans-ℚ≤ {al r* bl} {(r- wa) r* bl} {(r- wa) r* (r- wb)}
-              (r*₂-flips-≤ (r- wa) al (bl , np-bl) w≤al)
-              (r*₁-flips-≤ ((r- wa) , (r--NonNeg nn-wa)) (r- wb) bl w≤bl))
+  au≤m : au ℚ≤ ma
+  au≤m = subst (_ℚ≤ ma) (absℚ-NonNeg nn-au) (maxℚ-≤-right (absℚ al) (absℚ au))
 
-  aubu≤ww : (au r* bu) ℚ≤ (wa r* wb)
-  aubu≤ww =
-    (trans-ℚ≤ {au r* bu} {wa r* bu} {wa r* wb}
-              (r*₂-preserves-≤ au wa (bu , nn-bu) au≤w)
-              (r*₁-preserves-≤ (wa , nn-wa) bu wb bu≤w))
+  bu≤m : bu ℚ≤ mb
+  bu≤m = subst (_ℚ≤ mb) (absℚ-NonNeg nn-bu) (maxℚ-≤-right (absℚ bl) (absℚ bu))
+
+  mm≤albu : (r- (ma r* mb)) ℚ≤ (al r* bu)
+  mm≤albu =
+    subst (_ℚ≤ (al r* bu)) (r*-minus-extract-left ma mb)
+    (trans-ℚ≤ {(r- ma) r* mb} {al r* mb} {al r* bu}
+              (r*₂-preserves-≤ (r- ma) al (mb , nn-mb) m≤al)
+              (r*₁-flips-≤ (al , np-al) bu mb bu≤m))
+
+  mm≤aubl : (r- (ma r* mb)) ℚ≤ (au r* bl)
+  mm≤aubl =
+    subst (_ℚ≤ (au r* bl)) (r*-minus-extract-right ma mb)
+    (trans-ℚ≤ {ma r* (r- mb)} {ma r* bl} {au r* bl}
+              (r*₁-preserves-≤ (ma , nn-ma) (r- mb) bl m≤bl)
+              (r*₂-flips-≤ au ma (bl , np-bl) au≤m))
+
+  albl≤mm : (al r* bl) ℚ≤ (ma r* mb)
+  albl≤mm =
+    subst ((al r* bl) ℚ≤_) (r*-minus-extract-right (r- ma) mb >=>
+                            cong r-_ (r*-minus-extract-left ma mb) >=>
+                            RationalRing.minus-double-inverse {ma r* mb})
+    (trans-ℚ≤ {al r* bl} {(r- ma) r* bl} {(r- ma) r* (r- mb)}
+              (r*₂-flips-≤ (r- ma) al (bl , np-bl) m≤al)
+              (r*₁-flips-≤ ((r- ma) , (r--NonNeg nn-ma)) (r- mb) bl m≤bl))
+
+  aubu≤mm : (au r* bu) ℚ≤ (ma r* mb)
+  aubu≤mm =
+    (trans-ℚ≤ {au r* bu} {ma r* bu} {ma r* mb}
+              (r*₂-preserves-≤ au ma (bu , nn-bu) au≤m)
+              (r*₁-preserves-≤ (ma , nn-ma) bu mb bu≤m))
+
 
   l = Iℚ.l (a i* b)
   lp : l == minℚ (al r* bu) (au r* bl)
   lp = cong2 minℚ i1lp i2lp
 
-  ww≤l : (r- (wa r* wb)) ℚ≤ l
-  ww≤l = subst ((r- (wa r* wb)) ℚ≤_) (sym lp)
-         (minℚ-property {P = ((r- (wa r* wb)) ℚ≤_)} (al r* bu) (au r* bl) ww≤albu ww≤aubl)
+  mm≤l : (r- (ma r* mb)) ℚ≤ l
+  mm≤l = subst ((r- (ma r* mb)) ℚ≤_) (sym lp)
+         (minℚ-property {P = ((r- (ma r* mb)) ℚ≤_)} (al r* bu) (au r* bl) mm≤albu mm≤aubl)
 
-  ml≤ww : (r- l) ℚ≤ (wa r* wb)
-  ml≤ww = subst ((r- l) ℚ≤_) (RationalRing.minus-double-inverse {wa r* wb})
-                (r--flips-≤ (r- (wa r* wb)) l ww≤l)
+  ml≤mm : (r- l) ℚ≤ (ma r* mb)
+  ml≤mm = subst ((r- l) ℚ≤_) (RationalRing.minus-double-inverse {ma r* mb})
+                (r--flips-≤ (r- (ma r* mb)) l mm≤l)
+
 
   u = Iℚ.u (a i* b)
   up : u == maxℚ (al r* bl) (au r* bu)
   up = cong2 maxℚ i1up i2up
 
-  u≤ww : u ℚ≤ (wa r* wb)
-  u≤ww = subst (_ℚ≤ (wa r* wb)) (sym up)
-         (maxℚ-property {P = (_ℚ≤ (wa r* wb))} (al r* bl) (au r* bu) albl≤ww aubu≤ww)
+  u≤mm : u ℚ≤ (ma r* mb)
+  u≤mm = subst (_ℚ≤ (ma r* mb)) (sym up)
+         (maxℚ-property {P = (_ℚ≤ (ma r* mb))} (al r* bl) (au r* bu) albl≤mm aubu≤mm)
 
-  d≤ww : (diffℚ l u) ℚ≤ ((wa r* wb) r+ (wa r* wb))
-  d≤ww = r+-both-preserves-≤ u (wa r* wb) (r- l) (wa r* wb) u≤ww ml≤ww
+  mm≤wm : (ma r* mb) ℚ≤ (wa r* mb)
+  mm≤wm = r*₂-preserves-≤ ma wa (mb , nn-mb) ma≤wa
+
+  mm≤mw : (ma r* mb) ℚ≤ (ma r* wb)
+  mm≤mw = r*₁-preserves-≤ (ma , nn-ma) mb wb mb≤wb
+
+  d≤wmmw : (diffℚ l u) ℚ≤ ((wa r* mb) r+ (ma r* wb))
+  d≤wmmw = r+-both-preserves-≤ u (wa r* mb) (r- l) (ma r* wb)
+                               (trans-ℚ≤ {u}    {ma r* mb} {wa r* mb} u≤mm mm≤wm)
+                               (trans-ℚ≤ {r- l} {ma r* mb} {ma r* wb} ml≤mm mm≤mw)
 
 
--- i*-width-NNNN-≤ : (a b : Iℚ) -> NonNegI a -> NonNegI b ->
---                   (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
--- i*-width-NNNN-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al nn-bl = ?
+i*-width-NNNN-≤ : (a b : Iℚ) -> NonNegI a -> NonNegI b ->
+                  (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+i*-width-NNNN-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al nn-bl =
+  subst2 _ℚ≤_ (sym (i*-width-NNNN a b nn-al nn-bl)) p lt
+
+  where
+  wa = i-width a
+  wb = i-width b
+
+  nn-wa : NonNeg wa
+  nn-wa = NonNeg-i-width a
+
+  lt : ((wa r* bl) r+ (au r* wb)) ℚ≤ ((wa r* bu) r+ (au r* wb))
+  lt = r+₂-preserves-≤ _ _ (au r* wb) (r*₁-preserves-≤ (wa , nn-wa) bl bu bl≤bu)
+
+  p : ((wa r* bu) r+ (au r* wb)) == ((wa r* (i-maxabs b)) r+ ((i-maxabs a) r* wb))
+  p i = (wa r* (i-maxabs-NonNeg b nn-bl (~ i))) r+ ((i-maxabs-NonNeg a nn-al (~ i)) r* wb)
 
 
+i*-width-NNNP-≤ : (a b : Iℚ) -> NonNegI a -> NonPosI b ->
+                  (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+i*-width-NNNP-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al np-bu =
+  subst2 _ℚ≤_ (sym (i*-width-NNNP a b nn-al np-bu)) p lt
+  where
+  wa = i-width a
+  wb = i-width b
+
+  nn-wb : NonNeg wb
+  nn-wb = NonNeg-i-width b
+
+  lt : ((wa r* (r- bl)) r+ (al r* wb)) ℚ≤ ((wa r* (r- bl)) r+ (au r* wb))
+  lt = r+₁-preserves-≤ (wa r* (r- bl)) _ _ (r*₂-preserves-≤ al au (wb , nn-wb) al≤au)
+
+  p : ((wa r* (r- bl)) r+ (au r* wb)) == ((wa r* (i-maxabs b)) r+ ((i-maxabs a) r* wb))
+  p i = (wa r* (i-maxabs-NonPos b np-bu (~ i))) r+ ((i-maxabs-NonNeg a nn-al (~ i)) r* wb)
+
+
+i*-width-NPNN-≤ : (a b : Iℚ) -> NonPosI a -> NonNegI b ->
+                  (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+i*-width-NPNN-≤ a b np-a nn-b =
+  subst2 _ℚ≤_ (cong i-width (i*-commute b a))
+              (\i -> r+-commute (r*-commute (i-width b) (i-maxabs a) i)
+                                (r*-commute (i-maxabs b) (i-width a) i) i)
+         (i*-width-NNNP-≤ b a nn-b np-a)
+
+
+i*-width-NPNP-≤ : (a b : Iℚ) -> NonPosI a -> NonPosI b ->
+                  (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+i*-width-NPNP-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au np-bu =
+  subst2 _ℚ≤_ (sym (i*-width-NPNP a b np-au np-bu)) p lt
+  where
+  wa = i-width a
+  wb = i-width b
+
+  nn-wb : NonNeg wb
+  nn-wb = NonNeg-i-width b
+
+  lt : ((wa r* (r- bl)) r+ ((r- au) r* wb)) ℚ≤ ((wa r* (r- bl)) r+ ((r- al) r* wb))
+  lt = r+₁-preserves-≤ (wa r* (r- bl)) _ _ (r*₂-preserves-≤ (r- au) (r- al) (wb , nn-wb)
+                                                            (r--flips-≤ al au al≤au))
+
+  p : ((wa r* (r- bl)) r+ ((r- al) r* wb)) == ((wa r* (i-maxabs b)) r+ ((i-maxabs a) r* wb))
+  p i = (wa r* (i-maxabs-NonPos b np-bu (~ i))) r+ ((i-maxabs-NonPos a np-au (~ i)) r* wb)
+
+
+i*-width-NNCZ-≤ : (a b : Iℚ) -> NonNegI a -> CrossZeroI b ->
+                  (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+i*-width-NNCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al (np-bl , nn-bu) =
+  subst2 _ℚ≤_ (sym (i*-width-NNCZ a b nn-al (np-bl , nn-bu))) p lt
+
+  where
+  wa = i-width a
+  wb = i-width b
+  ma = i-maxabs a
+  mb = i-maxabs b
+
+  nn-wa : NonNeg wa
+  nn-wa = NonNeg-i-width a
+  nn-mb : NonNeg mb
+  nn-mb = NonNeg-i-maxabs b
+
+  lt : (au r* wb) ℚ≤ ((wa r* mb) r+ (au r* wb))
+  lt = subst (_ℚ≤ ((wa r* mb) r+ (au r* wb)))
+             (r+-left-zero (au r* wb))
+             (r+₂-preserves-≤ _ _ (au r* wb) (NonNeg-0≤ _ (r*-NonNeg-NonNeg nn-wa nn-mb)))
+
+  p : ((wa r* mb) r+ (au r* wb)) == ((wa r* mb) r+ (ma r* wb))
+  p i = (wa r* mb) r+ ((i-maxabs-NonNeg a nn-al (~ i)) r* wb)
+
+
+i*-width-CZNN-≤ : (a b : Iℚ) -> CrossZeroI a -> NonNegI b ->
+                  (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+i*-width-CZNN-≤ a b cz-a nn-b =
+  subst2 _ℚ≤_ (cong i-width (i*-commute b a))
+              (\i -> r+-commute (r*-commute (i-width b) (i-maxabs a) i)
+                                (r*-commute (i-maxabs b) (i-width a) i) i)
+         (i*-width-NNCZ-≤ b a nn-b cz-a)
+
+i*-width-NPCZ-≤ : (a b : Iℚ) -> NonPosI a -> CrossZeroI b ->
+                  (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+i*-width-NPCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au (np-bl , nn-bu) =
+  subst2 _ℚ≤_ (sym (i*-width-NPCZ a b np-au (np-bl , nn-bu))) p lt
+
+  where
+  wa = i-width a
+  wb = i-width b
+  ma = i-maxabs a
+  mb = i-maxabs b
+
+  nn-wa : NonNeg wa
+  nn-wa = NonNeg-i-width a
+  nn-mb : NonNeg mb
+  nn-mb = NonNeg-i-maxabs b
+
+  lt : ((r- al) r* wb) ℚ≤ ((wa r* mb) r+ ((r- al) r* wb))
+  lt = subst (_ℚ≤ ((wa r* mb) r+ ((r- al) r* wb)))
+             (r+-left-zero ((r- al) r* wb))
+             (r+₂-preserves-≤ _ _ ((r- al) r* wb) (NonNeg-0≤ _ (r*-NonNeg-NonNeg nn-wa nn-mb)))
+
+  p : ((wa r* mb) r+ ((r- al) r* wb)) == ((wa r* mb) r+ (ma r* wb))
+  p i = (wa r* mb) r+ ((i-maxabs-NonPos a np-au (~ i)) r* wb)
+
+
+i*-width-CZNP-≤ : (a b : Iℚ) -> CrossZeroI a -> NonPosI b ->
+                  (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+i*-width-CZNP-≤ a b cz-a np-b =
+  subst2 _ℚ≤_ (cong i-width (i*-commute b a))
+              (\i -> r+-commute (r*-commute (i-width b) (i-maxabs a) i)
+                                (r*-commute (i-maxabs b) (i-width a) i) i)
+         (i*-width-NPCZ-≤ b a np-b cz-a)
+
+
+i*-width-≤ : (a b : Iℚ) ->
+             (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+i*-width-≤ a b = handle (classify a) (classify b)
+  where
+  data Class (i : Iℚ) : Type₀ where
+    nn-c : NonNegI i    -> Class i
+    np-c : NonPosI i    -> Class i
+    cz-c : CrossZeroI i -> Class i
+
+  classify : (i : Iℚ) -> Class i
+  classify i@(Iℚ-cons l u _) = handle _ _ (isSign-self l) (isSign-self u)
+    where
+    handle : (s1 s2 : Sign) -> (isSign s1 l) -> (isSign s2 u) -> Class i
+    handle pos-sign  _  pl _ = nn-c (inj-l pl)
+    handle zero-sign _  zl _ = nn-c (inj-r zl)
+    handle neg-sign  pos-sign  nl pu = cz-c (inj-l nl , inj-l pu)
+    handle neg-sign  zero-sign nl zu = np-c (inj-r zu)
+    handle neg-sign  neg-sign  nl nu = np-c (inj-l nu)
+
+  handle : Class a -> Class b ->
+           (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+  handle (nn-c pa) (nn-c pb) = i*-width-NNNN-≤ a b pa pb
+  handle (nn-c pa) (np-c pb) = i*-width-NNNP-≤ a b pa pb
+  handle (nn-c pa) (cz-c pb) = i*-width-NNCZ-≤ a b pa pb
+  handle (np-c pa) (nn-c pb) = i*-width-NPNN-≤ a b pa pb
+  handle (np-c pa) (np-c pb) = i*-width-NPNP-≤ a b pa pb
+  handle (np-c pa) (cz-c pb) = i*-width-NPCZ-≤ a b pa pb
+  handle (cz-c pa) (nn-c pb) = i*-width-CZNN-≤ a b pa pb
+  handle (cz-c pa) (np-c pb) = i*-width-CZNP-≤ a b pa pb
+  handle (cz-c pa) (cz-c pb) = i*-width-CZCZ-≤ a b pa pb
 
 Constant->zero-width : (a : Iℚ) -> ConstantI a -> i-width a == 0r
 Constant->zero-width (Iℚ-cons l u _) p = (cong (_r+ (r- l)) (sym p)) >=> (r+-inverse l)

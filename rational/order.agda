@@ -702,6 +702,21 @@ r+₂-preserves-order a b c lt =
   subst2 _<_ (r+-commute c a) (r+-commute c b) (r+₁-preserves-order c a b lt)
 
 
+r+₁-preserves-≤ : (a b c : Rational) -> b ℚ≤ c -> (a r+ b) ℚ≤ (a r+ c)
+r+₁-preserves-≤ a b c = subst NonNeg (sym path)
+  where
+  path : (a r+ c) r+ (r- (a r+ b)) == c r+ (r- b)
+  path = cong2 _r+_ (r+-commute a c) (RationalRing.minus-distrib-plus {a} {b}) >=>
+         r+-assoc c a ((r- a) r+ (r- b)) >=>
+         cong (c r+_) (sym (r+-assoc a (r- a) (r- b)) >=>
+                       (cong (_r+ (r- b)) (r+-inverse a)) >=>
+                       (r+-left-zero (r- b)))
+
+r+₂-preserves-≤ : (a b c : Rational) -> a ℚ≤ b -> (a r+ c) ℚ≤ (b r+ c)
+r+₂-preserves-≤ a b c lt =
+  subst2 _ℚ≤_ (r+-commute c a) (r+-commute c b) (r+₁-preserves-≤ c a b lt)
+
+
 r--flips-order : (b c : Rational) -> b < c -> (r- b) > (r- c)
 r--flips-order b c = subst Posℚ p
   where
