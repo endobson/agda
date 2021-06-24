@@ -196,17 +196,26 @@ abstract
 
 module RationalElim = SetQuotientElim Rational' _r~_
 
-_r+_ : Rational -> Rational -> Rational
-_r+_ = RationalElim.rec2 squash/
-        (\a b -> [ a r+' b ])
-        (\b a1 a2 r -> eq/ _ _ (r+'-preserves-r~₁ b a1 a2 r))
-        (\a b1 b2 r -> eq/ _ _ (r+'-preserves-r~₂ a b1 b2 r))
+_r+ᵉ_ : Rational -> Rational -> Rational
+_r+ᵉ_ = RationalElim.rec2 squash/
+          (\a b -> [ a r+' b ])
+          (\b a1 a2 r -> eq/ _ _ (r+'-preserves-r~₁ b a1 a2 r))
+          (\a b1 b2 r -> eq/ _ _ (r+'-preserves-r~₂ a b1 b2 r))
+
+
+abstract
+  _r+_ : Rational -> Rational -> Rational
+  _r+_ = _r+ᵉ_
+
+  r+-eval : {a b : Rational} -> a r+ b == a r+ᵉ b
+  r+-eval = refl
 
 isSetRational : isSet Rational
 isSetRational = squash/
 
-r+-commute : (a b : Rational) -> (a r+ b) == (b r+ a)
-r+-commute = RationalElim.elimProp2 (\a b -> isSetRational _ _) (\a b -> cong [_] (r+'-commute a b))
+abstract
+  r+-commute : (a b : Rational) -> (a r+ b) == (b r+ a)
+  r+-commute = RationalElim.elimProp2 (\a b -> isSetRational _ _) (\a b -> cong [_] (r+'-commute a b))
 
 0r' : Rational'
 0r' = record
@@ -238,11 +247,12 @@ abstract
 0r : Rational
 0r = [ 0r' ]
 
-r+-left-zero : (a : Rational) -> (0r r+ a) == a
-r+-left-zero = RationalElim.elimProp (\a -> isSetRational _ _) (\a -> cong [_] (r+'-left-zero a))
+abstract
+  r+-left-zero : (a : Rational) -> (0r r+ a) == a
+  r+-left-zero = RationalElim.elimProp (\a -> isSetRational _ _) (\a -> cong [_] (r+'-left-zero a))
 
-r+-right-zero : (a : Rational) -> (a r+ 0r) == a
-r+-right-zero a = r+-commute a 0r >=> r+-left-zero a
+  r+-right-zero : (a : Rational) -> (a r+ 0r) == a
+  r+-right-zero a = r+-commute a 0r >=> r+-left-zero a
 
 _r*'_ : Rational' -> Rational' -> Rational'
 a r*' b = record
@@ -375,8 +385,11 @@ abstract
 r+'-assoc' : {a b c : Rational'} -> ((a r+' b) r+' c) r~' (a r+' (b r+' c))
 r+'-assoc' = r~->r~' r+'-assoc
 
-r+-assoc : (a b c : Rational) -> ((a r+ b) r+ c) == (a r+ (b r+ c))
-r+-assoc = RationalElim.elimProp3 (\a b c -> isSetRational _ _) (\_ _ _ -> (eq/ _ _ r+'-assoc))
+abstract
+  r+-assoc : (a b c : Rational) -> ((a r+ b) r+ c) == (a r+ (b r+ c))
+  r+-assoc = RationalElim.elimProp3
+               (\a b c -> isSetRational ((a r+ b) r+ c) (a r+ (b r+ c)))
+               (\a b c -> (eq/ ((a r+' b) r+' c) (a r+' (b r+' c)) (r+'-assoc {a} {b} {c})))
 
 abstract
   r*'-distrib-r+'-right : (a b c : Rational') -> ((a r+' b) r*' c) r~ ((a r*' c) r+' (b r*' c))
@@ -439,15 +452,12 @@ abstract
 r-_ : Rational -> Rational
 r-_ = RationalElim.rec isSetRational (\a -> [ r-' a ]) (\a1 a2 r -> eq/ _ _ (r-'-preserves-r~ a1 a2 r))
 
-r+-inverse : (a : Rational) -> (a r+ (r- a)) == 0r
-r+-inverse = RationalElim.elimProp
-             (\_ -> isSetRational _ _)
-             (\a -> eq/ _ _ (r+'-inverse a))
-
--- r--distrib-r+ : (a b : Rational) -> r- (a r+ b) == (r- a) r+ (r- b)
--- r--distrib-r+ = ?
-
 abstract
+  r+-inverse : (a : Rational) -> (a r+ (r- a)) == 0r
+  r+-inverse = RationalElim.elimProp
+               (\_ -> isSetRational _ _)
+               (\a -> eq/ _ _ (r+'-inverse a))
+
   r*-minus-extract-left : (a1 a2 : Rational) -> (r- a1) r* a2 == r- (a1 r* a2)
   r*-minus-extract-left =
     RationalElim.elimProp2
@@ -687,24 +697,24 @@ a r^ℤ (neg n) = r1/ (fst rec) (isNonZeroℚ->ℚInv (snd rec)) , r1/-isNonZero
 2r : ℚ
 2r = [ 2r' ]
 
-2r-path-base : 1r r+ 1r == 2r
-2r-path-base = cong [_] (nd-paths->path _ _ n-path d-path)
-  where
-  2z-path : (int 1) i+ (int 1) == (int 2)
-  2z-path = int.add1-extract-right >=> sym int.add1-extract-left >=> int.+-right-zero
-
-  n-path : numer (1r' r+' 1r') == numer 2r'
-  n-path = cong numer r+'-eval >=> (cong2 _i+_ int.*-left-one int.*-left-one) >=> 2z-path
-  d-path : denom (1r' r+' 1r') == denom 2r'
-  d-path = cong denom r+'-eval >=> int.*-left-one
-
-2r-path : (q : ℚ) -> q r+ q == 2r r* q
-2r-path q =
-  cong2 _r+_ (sym (r*-left-one q)) (sym (r*-left-one q)) >=>
-  sym (r*-distrib-r+-right 1r 1r q) >=>
-  cong (_r* q) 2r-path-base
-
 abstract
+  2r-path-base : 1r r+ 1r == 2r
+  2r-path-base = cong [_] (nd-paths->path _ _ n-path d-path)
+    where
+    2z-path : (int 1) i+ (int 1) == (int 2)
+    2z-path = int.add1-extract-right >=> sym int.add1-extract-left >=> int.+-right-zero
+
+    n-path : numer (1r' r+' 1r') == numer 2r'
+    n-path = cong numer (r+'-eval {1r'} {1r'}) >=> (cong2 _i+_ int.*-left-one int.*-left-one) >=> 2z-path
+    d-path : denom (1r' r+' 1r') == denom 2r'
+    d-path = cong denom (r+'-eval {1r'} {1r'}) >=> int.*-left-one
+
+  2r-path : (q : ℚ) -> q r+ q == 2r r* q
+  2r-path q =
+    cong2 _r+_ (sym (r*-left-one q)) (sym (r*-left-one q)) >=>
+    sym (r*-distrib-r+-right 1r 1r q) >=>
+    cong (_r* q) 2r-path-base
+
   2r-1/2r-path : 2r r* 1/2r == 1r
   2r-1/2r-path = eq/ (2r' r*' 1/2r') 1r' path
     where
@@ -923,9 +933,10 @@ fractional-part = RationalElim.rec isSetRational
                     (\a -> [ fractional-part' a ])
                     (\a b r -> eq/ _ _ (fractional-part'-preserves-r~ a b r))
 
-fractional-part-r+ : (q : Rational) -> floorℚ q r+ (fractional-part q) == q
-fractional-part-r+ = RationalElim.elimProp (\_ -> (isSetRational _ _))
-                      (\q -> cong [_] (fractional-part'-r+' q))
+abstract
+  fractional-part-r+ : (q : Rational) -> floorℚ q r+ (fractional-part q) == q
+  fractional-part-r+ = RationalElim.elimProp (\_ -> (isSetRational _ _))
+                        (\q -> cong [_] (fractional-part'-r+' q))
 
 
 ℤ->ℚ-floor : (x : ℤ) -> floor (ℤ->ℚ x) == x

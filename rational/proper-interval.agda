@@ -89,6 +89,31 @@ i-scale k (Iℚ-cons l u l≤u) =
   min = minℚ (k r* l) (k r* u)
   max = maxℚ (k r* l) (k r* u)
 
+i-scale-NN : ℚ⁰⁺ -> Iℚ -> Iℚ
+i-scale-NN (k , nn-k) (Iℚ-cons l u l≤u) =
+  Iℚ-cons (k r* l) (k r* u) (r*₁-preserves-≤ (k , nn-k) l u l≤u)
+
+i-scale-NP : ℚ⁰⁻ -> Iℚ -> Iℚ
+i-scale-NP (k , np-k) (Iℚ-cons l u l≤u) =
+  Iℚ-cons (k r* u) (k r* l) (r*₁-flips-≤ (k , np-k) l u l≤u)
+
+i-scale-NN-path : (k : ℚ⁰⁺) -> (a : Iℚ) -> i-scale-NN k a == i-scale ⟨ k ⟩ a
+i-scale-NN-path (k , nn-k) (Iℚ-cons l u l≤u) = Iℚ-bounds-path (sym lp) (sym up)
+  where
+  lp : minℚ (k r* l) (k r* u) == k r* l
+  lp = minℚ-left _ _ (r*₁-preserves-≤ (k , nn-k) l u l≤u)
+  up : maxℚ (k r* l) (k r* u) == k r* u
+  up = maxℚ-right _ _ (r*₁-preserves-≤ (k , nn-k) l u l≤u)
+
+i-scale-NP-path : (k : ℚ⁰⁻) -> (a : Iℚ) -> i-scale-NP k a == i-scale ⟨ k ⟩ a
+i-scale-NP-path (k , np-k) (Iℚ-cons l u l≤u) = Iℚ-bounds-path (sym lp) (sym up)
+  where
+  lp : minℚ (k r* l) (k r* u) == k r* u
+  lp = minℚ-right _ _ (r*₁-flips-≤ (k , np-k) l u l≤u)
+  up : maxℚ (k r* l) (k r* u) == k r* l
+  up = maxℚ-left _ _ (r*₁-flips-≤ (k , np-k) l u l≤u)
+
+
 _i*_ : Iℚ -> Iℚ -> Iℚ
 _i*_ (Iℚ-cons l1 u1 _) i2 = (i-scale l1 i2) i∪ (i-scale u1 i2)
 
@@ -114,6 +139,104 @@ i*-commute (Iℚ-cons al au _) (Iℚ-cons bl bu _) = Iℚ-bounds-path l-path u-p
            sym (maxℚ-assoc _ _ _) >=>
            cong2 maxℚ (cong2 maxℚ (r*-commute _ _) (r*-commute _ _))
                       (cong2 maxℚ (r*-commute _ _) (r*-commute _ _))
+
+i--scale : (a : Iℚ) -> i- a == i-scale (r- 1r) a
+i--scale a@(Iℚ-cons l u l≤u) = Iℚ-bounds-path lp up
+  where
+  mu≤ml : ((r- 1r) r* u) ℚ≤ ((r- 1r) r* l)
+  mu≤ml = r*₁-flips-≤ ((r- 1r) , inj-l (r--flips-sign _ _ Pos-1r)) l u l≤u
+
+
+  lp : (r- u) == minℚ ((r- 1r) r* l) ((r- 1r) r* u)
+  lp = cong r-_ (sym (r*-left-one u)) >=>
+       sym (r*-minus-extract-left 1r u) >=>
+       sym (minℚ-right ((r- 1r) r* l) ((r- 1r) r* u) mu≤ml)
+  up : (r- l) == maxℚ ((r- 1r) r* l) ((r- 1r) r* u)
+  up = cong r-_ (sym (r*-left-one l)) >=>
+       sym (r*-minus-extract-left 1r l) >=>
+       sym (maxℚ-left ((r- 1r) r* l) ((r- 1r) r* u) mu≤ml)
+
+
+i-scale-distrib-∪ : (k : ℚ) (a b : Iℚ) ->
+                    i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
+i-scale-distrib-∪ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
+  handle _ (isSign-self k)
+  where
+  nn-case : NonNeg k -> i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
+  nn-case nn-k =
+    sym (i-scale-NN-path k⁺ (a i∪ b)) >=>
+    Iℚ-bounds-path lp up >=>
+    cong2 _i∪_ (i-scale-NN-path k⁺ a) (i-scale-NN-path k⁺ b)
+    where
+    k⁺ : ℚ⁰⁺
+    k⁺ = k , nn-k
+    lp : k r* (minℚ al bl) == minℚ (k r* al) (k r* bl)
+    lp = r*₁-distrib-min k⁺ al bl
+    up : k r* (maxℚ au bu) == maxℚ (k r* au) (k r* bu)
+    up = r*₁-distrib-max k⁺ au bu
+
+  np-case : NonPos k -> i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
+  np-case np-k =
+    sym (i-scale-NP-path k⁻ (a i∪ b)) >=>
+    Iℚ-bounds-path up lp >=>
+    cong2 _i∪_ (i-scale-NP-path k⁻ a) (i-scale-NP-path k⁻ b)
+    where
+    k⁻ : ℚ⁰⁻
+    k⁻ = k , np-k
+    lp : k r* (minℚ al bl) == maxℚ (k r* al) (k r* bl)
+    lp = r*₁-flip-distrib-min k⁻ al bl
+    up : k r* (maxℚ au bu) == minℚ (k r* au) (k r* bu)
+    up = r*₁-flip-distrib-max k⁻ au bu
+
+  handle : (s : Sign) -> isSign s k ->
+           i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
+  handle pos-sign pk = nn-case (inj-l pk)
+  handle zero-sign zk = nn-case (inj-r zk)
+  handle neg-sign nk = np-case (inj-l nk)
+
+i-scale-twice : (k1 k2 : ℚ) (a : Iℚ) -> i-scale k1 (i-scale k2 a) == i-scale (k1 r* k2) a
+i-scale-twice k1 k2 a = handle _ _ (isSign-self k1) (isSign-self k2)
+  where
+  Ans = i-scale k1 (i-scale k2 a) == i-scale (k1 r* k2) a
+
+  nnnn-case : NonNeg k1 -> NonNeg k2 -> Ans
+  nnnn-case nn-k1 nn-k2 =
+    cong (i-scale k1) (sym (i-scale-NN-path (k2 , nn-k2) a)) >=>
+    sym (i-scale-NN-path (k1 , nn-k1) (i-scale-NN (k2 , nn-k2) a)) >=>
+    Iℚ-bounds-path (sym (r*-assoc _ _ _)) (sym (r*-assoc _ _ _)) >=>
+    i-scale-NN-path (_ , r*-NonNeg-NonNeg nn-k1 nn-k2) a
+
+  nnnp-case : NonNeg k1 -> NonPos k2 -> Ans
+  nnnp-case nn-k1 np-k2 =
+    cong (i-scale k1) (sym (i-scale-NP-path (k2 , np-k2) a)) >=>
+    sym (i-scale-NN-path (k1 , nn-k1) (i-scale-NP (k2 , np-k2) a)) >=>
+    Iℚ-bounds-path (sym (r*-assoc _ _ _)) (sym (r*-assoc _ _ _)) >=>
+    i-scale-NP-path (_ , r*-NonNeg-NonPos nn-k1 np-k2) a
+
+  npnn-case : NonPos k1 -> NonNeg k2 -> Ans
+  npnn-case np-k1 nn-k2 =
+    cong (i-scale k1) (sym (i-scale-NN-path (k2 , nn-k2) a)) >=>
+    sym (i-scale-NP-path (k1 , np-k1) (i-scale-NN (k2 , nn-k2) a)) >=>
+    Iℚ-bounds-path (sym (r*-assoc _ _ _)) (sym (r*-assoc _ _ _)) >=>
+    i-scale-NP-path (_ , r*-NonPos-NonNeg np-k1 nn-k2) a
+
+  npnp-case : NonPos k1 -> NonPos k2 -> Ans
+  npnp-case np-k1 np-k2 =
+    cong (i-scale k1) (sym (i-scale-NP-path (k2 , np-k2) a)) >=>
+    sym (i-scale-NP-path (k1 , np-k1) (i-scale-NP (k2 , np-k2) a)) >=>
+    Iℚ-bounds-path (sym (r*-assoc _ _ _)) (sym (r*-assoc _ _ _)) >=>
+    i-scale-NN-path (_ , r*-NonPos-NonPos np-k1 np-k2) a
+
+  handle : (s1 s2 : Sign) -> (isSign s1 k1) -> (isSign s2 k2) -> Ans
+  handle pos-sign  pos-sign  p1 p2 = nnnn-case (inj-l p1) (inj-l p2)
+  handle pos-sign  zero-sign p1 p2 = nnnn-case (inj-l p1) (inj-r p2)
+  handle pos-sign  neg-sign  p1 p2 = nnnp-case (inj-l p1) (inj-l p2)
+  handle zero-sign pos-sign  p1 p2 = nnnn-case (inj-r p1) (inj-l p2)
+  handle zero-sign zero-sign p1 p2 = nnnn-case (inj-r p1) (inj-r p2)
+  handle zero-sign neg-sign  p1 p2 = nnnp-case (inj-r p1) (inj-l p2)
+  handle neg-sign  pos-sign  p1 p2 = npnn-case (inj-l p1) (inj-l p2)
+  handle neg-sign  zero-sign p1 p2 = npnp-case (inj-l p1) (inj-r p2)
+  handle neg-sign  neg-sign  p1 p2 = npnp-case (inj-l p1) (inj-l p2)
 
 
 
@@ -382,6 +505,243 @@ i*-width-NNCZ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al (np-
 
   wp : i-width (a i* b) == au r* (diffℚ bl bu)
   wp = cong2 diffℚ lp up >=> sym (r*-distrib-diffℚ au bl bu)
+
+
+i*-width-NPNP : (a b : Iℚ) -> NonPosI a -> NonPosI b ->
+                i-width (a i* b) ==
+                (i-width a r* (r- (Iℚ.l b))) r+ ((r- (Iℚ.u a)) r* (i-width b))
+i*-width-NPNP a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au np-bu =
+  wp2 >=> delta-p
+  where
+  np-al : NonPos al
+  np-al = subst NonPos (diffℚ-step au al)
+                       (r+-preserves-NonPos np-au (subst NonPos (sym (diffℚ-anticommute au al))
+                                                                (r--NonNeg al≤au)))
+  np-bl : NonPos bl
+  np-bl = subst NonPos (diffℚ-step bu bl)
+                       (r+-preserves-NonPos np-bu (subst NonPos (sym (diffℚ-anticommute bu bl))
+                                                                (r--NonNeg bl≤bu)))
+
+  wa = i-width a
+  wb = i-width b
+
+  albu≤albl : (al r* bu) ℚ≤ (al r* bl)
+  albu≤albl = r*₁-flips-≤ (al , np-al) bl bu bl≤bu
+  aubu≤aubl : (au r* bu) ℚ≤ (au r* bl)
+  aubu≤aubl = r*₁-flips-≤ (au , np-au) bl bu bl≤bu
+
+  aubl≤albl : (au r* bl) ℚ≤ (al r* bl)
+  aubl≤albl = r*₂-flips-≤ al au (bl , np-bl) al≤au
+  aubu≤albu : (au r* bu) ℚ≤ (al r* bu)
+  aubu≤albu = r*₂-flips-≤ al au (bu , np-bu) al≤au
+
+  i1 = i-scale al b
+  i1lp : Iℚ.l i1 == al r* bu
+  i1lp = minℚ-right _ _ albu≤albl
+  i1up : Iℚ.u i1 == al r* bl
+  i1up = maxℚ-left _ _ albu≤albl
+  i2 = i-scale au b
+  i2lp : Iℚ.l i2 == au r* bu
+  i2lp = minℚ-right _ _ aubu≤aubl
+  i2up : Iℚ.u i2 == au r* bl
+  i2up = maxℚ-left _ _ aubu≤aubl
+
+
+  l = Iℚ.l (a i* b)
+  lp : l == au r* bu
+  lp = cong2 minℚ i1lp i2lp >=> minℚ-right _ _ aubu≤albu
+
+  u = Iℚ.u (a i* b)
+  up : u == al r* bl
+  up = cong2 maxℚ i1up i2up >=> maxℚ-left _ _ aubl≤albl
+
+  wp : i-width (a i* b) == (al r* bl) r+ (r- (au r* bu))
+  wp = cong2 diffℚ lp up
+
+  delta = ((wa r* bl) r+ ((al r* wb) r+ (wa r* wb)))
+
+  abup : (au r* bu) == (al r* bl) r+ delta
+  abup = cong2 _r*_ (sym (diffℚ-step al au)) (sym (diffℚ-step bl bu)) >=>
+         RationalSemiring.*-distrib-+-left {al r+ wa} {bl} {wb} >=>
+         cong2 _r+_ (RationalSemiring.*-distrib-+-right {al} {wa} {bl})
+                    (RationalSemiring.*-distrib-+-right {al} {wa} {wb}) >=>
+         r+-assoc (al r* bl) (wa r* bl) ((al r* wb) r+ (wa r* wb))
+
+  wp2 : i-width (a i* b) == (r- delta)
+  wp2 = wp >=> (cong ((al r* bl) r+_)
+                     (cong r-_ abup >=>
+                      RationalRing.minus-distrib-plus {al r* bl} {delta})) >=>
+        sym (r+-assoc (al r* bl) (r- (al r* bl)) (r- delta)) >=>
+        cong (_r+ (r- delta)) (r+-inverse (al r* bl)) >=>
+        r+-left-zero (r- delta)
+
+  delta-p : (r- delta) == (wa r* (r- bl)) r+ ((r- au) r* wb)
+  delta-p =
+    cong r-_
+      (cong ((wa r* bl) r+_) (sym (RationalSemiring.*-distrib-+-right) >=>
+                              cong (_r* wb) (diffℚ-step al au))) >=>
+    RationalRing.minus-distrib-plus {wa r* bl} {au r* wb} >=>
+    cong2 _r+_ (sym (r*-minus-extract-right wa bl)) (sym (r*-minus-extract-left au wb))
+
+i*-width-NPCZ : (a b : Iℚ) -> NonPosI a -> CrossZeroI b ->
+                i-width (a i* b) == (r- (Iℚ.l a)) r* (i-width b)
+i*-width-NPCZ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au (np-bl , nn-bu) = wp
+  where
+  np-al : NonPos al
+  np-al = subst NonPos (diffℚ-step au al)
+                       (r+-preserves-NonPos np-au (subst NonPos (sym (diffℚ-anticommute au al))
+                                                                (r--NonNeg al≤au)))
+  wa = i-width a
+  wb = i-width b
+
+  albu≤albl : (al r* bu) ℚ≤ (al r* bl)
+  albu≤albl = r*₁-flips-≤ (al , np-al) bl bu bl≤bu
+  aubu≤aubl : (au r* bu) ℚ≤ (au r* bl)
+  aubu≤aubl = r*₁-flips-≤ (au , np-au) bl bu bl≤bu
+
+  aubl≤albl : (au r* bl) ℚ≤ (al r* bl)
+  aubl≤albl = r*₂-flips-≤ al au (bl , np-bl) al≤au
+  albu≤aubu : (al r* bu) ℚ≤ (au r* bu)
+  albu≤aubu = r*₂-preserves-≤ al au (bu , nn-bu) al≤au
+
+  i1 = i-scale al b
+  i1lp : Iℚ.l i1 == al r* bu
+  i1lp = minℚ-right _ _ albu≤albl
+  i1up : Iℚ.u i1 == al r* bl
+  i1up = maxℚ-left _ _ albu≤albl
+  i2 = i-scale au b
+  i2lp : Iℚ.l i2 == au r* bu
+  i2lp = minℚ-right _ _ aubu≤aubl
+  i2up : Iℚ.u i2 == au r* bl
+  i2up = maxℚ-left _ _ aubu≤aubl
+
+
+  l = Iℚ.l (a i* b)
+  lp : l == al r* bu
+  lp = cong2 minℚ i1lp i2lp >=> minℚ-left _ _ albu≤aubu
+
+  u = Iℚ.u (a i* b)
+  up : u == al r* bl
+  up = cong2 maxℚ i1up i2up >=> maxℚ-left _ _ aubl≤albl
+
+  wp : i-width (a i* b) == (r- al) r* wb
+  wp = cong2 diffℚ lp up >=> sym (r*-distrib-diffℚ al bu bl) >=>
+       cong (al r*_) (diffℚ-anticommute bu bl) >=>
+       r*-minus-extract-right al wb >=>
+       sym (r*-minus-extract-left al wb)
+
+
+i*-width-CZCZ-≤ : (a b : Iℚ) -> CrossZeroI a -> CrossZeroI b ->
+                  (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-width b)) r+ ((i-width a) r* (i-width b)))
+i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al , nn-au) (np-bl , nn-bu) =
+  d≤ww
+  where
+  wa = i-width a
+  wb = i-width b
+
+  nn-wa : NonNeg wa
+  nn-wa = NonNeg-i-width a
+  nn-wb : NonNeg wb
+  nn-wb = NonNeg-i-width b
+
+  albu≤albl : (al r* bu) ℚ≤ (al r* bl)
+  albu≤albl = r*₁-flips-≤ (al , np-al) bl bu bl≤bu
+  aubl≤aubu : (au r* bl) ℚ≤ (au r* bu)
+  aubl≤aubu = r*₁-preserves-≤ (au , nn-au) bl bu bl≤bu
+
+  aubl≤albl : (au r* bl) ℚ≤ (al r* bl)
+  aubl≤albl = r*₂-flips-≤ al au (bl , np-bl) al≤au
+  albu≤aubu : (al r* bu) ℚ≤ (au r* bu)
+  albu≤aubu = r*₂-preserves-≤ al au (bu , nn-bu) al≤au
+
+  i1 = i-scale al b
+  i1lp : Iℚ.l i1 == al r* bu
+  i1lp = minℚ-right _ _ albu≤albl
+  i1up : Iℚ.u i1 == al r* bl
+  i1up = maxℚ-left _ _ albu≤albl
+  i2 = i-scale au b
+  i2lp : Iℚ.l i2 == au r* bl
+  i2lp = minℚ-left _ _ aubl≤aubu
+  i2up : Iℚ.u i2 == au r* bu
+  i2up = maxℚ-right _ _ aubl≤aubu
+
+  w≤al : (r- wa) ℚ≤ al
+  w≤al = subst NonNeg (sym (cong (al r+_) (RationalRing.minus-double-inverse {wa}) >=>
+                            diffℚ-step al au)) nn-au
+  w≤bl : (r- wb) ℚ≤ bl
+  w≤bl = subst NonNeg (sym (cong (bl r+_) (RationalRing.minus-double-inverse {wb}) >=>
+                            diffℚ-step bl bu)) nn-bu
+  au≤w : au ℚ≤ wa
+  au≤w = subst NonNeg (cong r-_ (sym (diffℚ-step au al)) >=>
+                       RationalRing.minus-distrib-plus {au} {diffℚ au al} >=>
+                       cong ((r- au) r+_) (sym (diffℚ-anticommute al au)) >=>
+                       r+-commute (r- au) wa)
+                      (r--NonPos np-al)
+
+  bu≤w : bu ℚ≤ wb
+  bu≤w = subst NonNeg (cong r-_ (sym (diffℚ-step bu bl)) >=>
+                       RationalRing.minus-distrib-plus {bu} {diffℚ bu bl} >=>
+                       cong ((r- bu) r+_) (sym (diffℚ-anticommute bl bu)) >=>
+                       r+-commute (r- bu) wb)
+                      (r--NonPos np-bl)
+
+  ww≤albu : (r- (wa r* wb)) ℚ≤ (al r* bu)
+  ww≤albu =
+    subst (_ℚ≤ (al r* bu)) (r*-minus-extract-left wa wb)
+    (trans-ℚ≤ {(r- wa) r* wb} {al r* wb} {al r* bu}
+              (r*₂-preserves-≤ (r- wa) al (wb , nn-wb) w≤al)
+              (r*₁-flips-≤ (al , np-al) bu wb bu≤w))
+
+  ww≤aubl : (r- (wa r* wb)) ℚ≤ (au r* bl)
+  ww≤aubl =
+    subst (_ℚ≤ (au r* bl)) (r*-minus-extract-right wa wb)
+    (trans-ℚ≤ {wa r* (r- wb)} {wa r* bl} {au r* bl}
+              (r*₁-preserves-≤ (wa , nn-wa) (r- wb) bl w≤bl)
+              (r*₂-flips-≤ au wa (bl , np-bl) au≤w))
+
+  albl≤ww : (al r* bl) ℚ≤ (wa r* wb)
+  albl≤ww =
+    subst ((al r* bl) ℚ≤_) (r*-minus-extract-right (r- wa) wb >=>
+                            cong r-_ (r*-minus-extract-left wa wb) >=>
+                            RationalRing.minus-double-inverse {wa r* wb})
+    (trans-ℚ≤ {al r* bl} {(r- wa) r* bl} {(r- wa) r* (r- wb)}
+              (r*₂-flips-≤ (r- wa) al (bl , np-bl) w≤al)
+              (r*₁-flips-≤ ((r- wa) , (r--NonNeg nn-wa)) (r- wb) bl w≤bl))
+
+  aubu≤ww : (au r* bu) ℚ≤ (wa r* wb)
+  aubu≤ww =
+    (trans-ℚ≤ {au r* bu} {wa r* bu} {wa r* wb}
+              (r*₂-preserves-≤ au wa (bu , nn-bu) au≤w)
+              (r*₁-preserves-≤ (wa , nn-wa) bu wb bu≤w))
+
+  l = Iℚ.l (a i* b)
+  lp : l == minℚ (al r* bu) (au r* bl)
+  lp = cong2 minℚ i1lp i2lp
+
+  ww≤l : (r- (wa r* wb)) ℚ≤ l
+  ww≤l = subst ((r- (wa r* wb)) ℚ≤_) (sym lp)
+         (minℚ-property {P = ((r- (wa r* wb)) ℚ≤_)} (al r* bu) (au r* bl) ww≤albu ww≤aubl)
+
+  ml≤ww : (r- l) ℚ≤ (wa r* wb)
+  ml≤ww = subst ((r- l) ℚ≤_) (RationalRing.minus-double-inverse {wa r* wb})
+                (r--flips-≤ (r- (wa r* wb)) l ww≤l)
+
+  u = Iℚ.u (a i* b)
+  up : u == maxℚ (al r* bl) (au r* bu)
+  up = cong2 maxℚ i1up i2up
+
+  u≤ww : u ℚ≤ (wa r* wb)
+  u≤ww = subst (_ℚ≤ (wa r* wb)) (sym up)
+         (maxℚ-property {P = (_ℚ≤ (wa r* wb))} (al r* bl) (au r* bu) albl≤ww aubu≤ww)
+
+  d≤ww : (diffℚ l u) ℚ≤ ((wa r* wb) r+ (wa r* wb))
+  d≤ww = r+-both-preserves-≤ u (wa r* wb) (r- l) (wa r* wb) u≤ww ml≤ww
+
+
+-- i*-width-NNNN-≤ : (a b : Iℚ) -> NonNegI a -> NonNegI b ->
+--                   (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+-- i*-width-NNNN-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al nn-bl = ?
+
 
 
 Constant->zero-width : (a : Iℚ) -> ConstantI a -> i-width a == 0r

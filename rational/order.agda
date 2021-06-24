@@ -257,42 +257,43 @@ decide-<' x y = handle (i.int->sign z') (i.isSign-self z')
 diffℚ : ℚ -> ℚ -> ℚ
 diffℚ x y = (y r+ (r- x))
 
-diffℚ-anticommute : (x y : ℚ) -> diffℚ x y == r- (diffℚ y x)
-diffℚ-anticommute x y = sym (
-  RationalRing.minus-distrib-plus {x} {r- y} >=>
-  cong ((r- x) r+_) (RationalRing.minus-double-inverse {y}) >=>
-  r+-commute (r- x) y)
+abstract
+  diffℚ-anticommute : (x y : ℚ) -> diffℚ x y == r- (diffℚ y x)
+  diffℚ-anticommute x y = sym (
+    RationalRing.minus-distrib-plus {x} {r- y} >=>
+    cong ((r- x) r+_) (RationalRing.minus-double-inverse {y}) >=>
+    r+-commute (r- x) y)
 
-r+-swap-diffℚ : (a b c d : Rational) -> ((diffℚ a b) r+ (diffℚ c d)) == (diffℚ (a r+ c) (b r+ d))
-r+-swap-diffℚ a b c d =
-  r+-assoc b (r- a) (diffℚ c d) >=>
-  cong (b r+_) (sym (r+-assoc (r- a) d (r- c)) >=>
-                cong (_r+ (r- c)) (r+-commute (r- a) d) >=>
-                r+-assoc d (r- a) (r- c) >=>
-                cong (d r+_) (sym (RationalRing.minus-distrib-plus {a} {c}))) >=>
-  sym (r+-assoc b d (r- (a r+ c)))
+  r+-swap-diffℚ : (a b c d : Rational) -> ((diffℚ a b) r+ (diffℚ c d)) == (diffℚ (a r+ c) (b r+ d))
+  r+-swap-diffℚ a b c d =
+    r+-assoc b (r- a) (diffℚ c d) >=>
+    cong (b r+_) (sym (r+-assoc (r- a) d (r- c)) >=>
+                  cong (_r+ (r- c)) (r+-commute (r- a) d) >=>
+                  r+-assoc d (r- a) (r- c) >=>
+                  cong (d r+_) (sym (RationalRing.minus-distrib-plus {a} {c}))) >=>
+    sym (r+-assoc b d (r- (a r+ c)))
 
-r*-distrib-diffℚ : (a b c : Rational) -> a r* (diffℚ b c) == diffℚ (a r* b) (a r* c)
-r*-distrib-diffℚ a b c =
-  RationalSemiring.*-distrib-+-left {a} {c} {r- b} >=>
-  cong ((a r* c) r+_) (r*-minus-extract-right a b)
+  r*-distrib-diffℚ : (a b c : Rational) -> a r* (diffℚ b c) == diffℚ (a r* b) (a r* c)
+  r*-distrib-diffℚ a b c =
+    RationalSemiring.*-distrib-+-left {a} {c} {r- b} >=>
+    cong ((a r* c) r+_) (r*-minus-extract-right a b)
 
 
-diffℚ-trans : (x y z : ℚ) -> diffℚ x y r+ diffℚ y z == (diffℚ x z)
-diffℚ-trans x y z =
-  r+-commute (diffℚ x y) (diffℚ y z) >=>
-  r+-assoc z (r- y) (diffℚ x y) >=>
-  cong (z r+_) (sym (r+-assoc (r- y) y (r- x)) >=>
-                cong (_r+ (r- x)) (r+-commute (r- y) y >=> r+-inverse y) >=>
-                r+-left-zero (r- x))
+  diffℚ-trans : (x y z : ℚ) -> diffℚ x y r+ diffℚ y z == (diffℚ x z)
+  diffℚ-trans x y z =
+    r+-commute (diffℚ x y) (diffℚ y z) >=>
+    r+-assoc z (r- y) (diffℚ x y) >=>
+    cong (z r+_) (sym (r+-assoc (r- y) y (r- x)) >=>
+                  cong (_r+ (r- x)) (r+-commute (r- y) y >=> r+-inverse y) >=>
+                  r+-left-zero (r- x))
 
-diffℚ-step : (x y : ℚ) -> x + diffℚ x y == y
-diffℚ-step x y =
-  sym (r+-assoc x y (r- x)) >=>
-  cong (_r+ (r- x)) (r+-commute x y) >=>
-  (r+-assoc y x (r- x)) >=>
-  cong (y r+_) (r+-inverse x) >=>
-  r+-right-zero y
+  diffℚ-step : (x y : ℚ) -> x + diffℚ x y == y
+  diffℚ-step x y =
+    sym (r+-assoc x y (r- x)) >=>
+    cong (_r+ (r- x)) (r+-commute x y) >=>
+    (r+-assoc y x (r- x)) >=>
+    cong (y r+_) (r+-inverse x) >=>
+    r+-right-zero y
 
 
 
@@ -347,148 +348,151 @@ Zero-path =
     (\_ -> isPropΠ (\_ -> isSetRational _ _))
     (\q zq -> eq/ _ _ (Zero-r~ q (isSignℚ.v zq)))
 
-r+-preserves-Pos : (q1 q2 : Rational) -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r+ q2)
-r+-preserves-Pos =
-  RationalElim.elimProp2
-    {C2 = \q1 q2 -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r+ q2)}
-    (\q1 q2 -> isPropΠ2 (\ _ _ -> isProp-isSignℚ pos-sign (q1 r+ q2)))
-    (\q1 q2 p1 p2 -> is-signℚ (r+'-preserves-Pos (isSignℚ.v p1) (isSignℚ.v p2)))
+abstract
+  r+-preserves-Pos : (q1 q2 : Rational) -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r+ q2)
+  r+-preserves-Pos =
+    RationalElim.elimProp2
+      {C2 = \q1 q2 -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r+ q2)}
+      (\q1 q2 -> isPropΠ2 (\ _ _ -> isProp-isSignℚ pos-sign (q1 r+ q2)))
+      (\q1 q2 p1 p2 ->
+        subst Posℚ (sym r+-eval)
+              (is-signℚ (r+'-preserves-Pos (isSignℚ.v p1) (isSignℚ.v p2))))
 
-r+-preserves-NonNeg : {q1 q2 : ℚ} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r+ q2)
-r+-preserves-NonNeg {q1} {q2} (inj-r z1) nn-q2          =
-  (subst NonNeg (sym (cong (_r+ q2) (Zero-path _ z1) >=> r+-left-zero q2)) nn-q2)
-r+-preserves-NonNeg {q1} {q2} (inj-l p1) (inj-r z2) =
-  inj-l (subst Pos (sym (cong (q1 r+_) (Zero-path _ z2) >=> r+-right-zero q1)) p1)
-r+-preserves-NonNeg {q1} {q2} (inj-l p1) (inj-l p2) = inj-l (r+-preserves-Pos _ _ p1 p2)
+  r+-preserves-NonNeg : {q1 q2 : ℚ} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r+ q2)
+  r+-preserves-NonNeg {q1} {q2} (inj-r z1) nn-q2          =
+    (subst NonNeg (sym (cong (_r+ q2) (Zero-path _ z1) >=> r+-left-zero q2)) nn-q2)
+  r+-preserves-NonNeg {q1} {q2} (inj-l p1) (inj-r z2) =
+    inj-l (subst Pos (sym (cong (q1 r+_) (Zero-path _ z2) >=> r+-right-zero q1)) p1)
+  r+-preserves-NonNeg {q1} {q2} (inj-l p1) (inj-l p2) = inj-l (r+-preserves-Pos _ _ p1 p2)
 
-r*-preserves-Pos : (q1 q2 : Rational) -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r* q2)
-r*-preserves-Pos =
-  RationalElim.elimProp2
-    {C2 = \q1 q2 -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r* q2)}
-    (\q1 q2 -> isPropΠ2 (\ _ _ -> isProp-isSignℚ pos-sign (q1 r* q2)))
-    (\q1 q2 p1 p2 ->
-        subst Posℚ (sym r*-eval) (is-signℚ (r*'-preserves-Pos (isSignℚ.v p1) (isSignℚ.v p2))))
+  r*-preserves-Pos : (q1 q2 : Rational) -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r* q2)
+  r*-preserves-Pos =
+    RationalElim.elimProp2
+      {C2 = \q1 q2 -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r* q2)}
+      (\q1 q2 -> isPropΠ2 (\ _ _ -> isProp-isSignℚ pos-sign (q1 r* q2)))
+      (\q1 q2 p1 p2 ->
+          subst Posℚ (sym r*-eval) (is-signℚ (r*'-preserves-Pos (isSignℚ.v p1) (isSignℚ.v p2))))
 
-r*₁-preserves-Zero : (q1 : ℚ) {q2 : Rational} -> Zero q2 -> Zero (q1 r* q2)
-r*₁-preserves-Zero q1 {q2} zq2 = subst Zero (sym q1q2==0) Zero-0r
-  where
-  q2==0 : q2 == 0r
-  q2==0 = Zero-path q2 zq2
-  q1q2==0 : q1 r* q2 == 0r
-  q1q2==0 = cong (q1 r*_) q2==0 >=> r*-right-zero q1
+  r*₁-preserves-Zero : (q1 : ℚ) {q2 : Rational} -> Zero q2 -> Zero (q1 r* q2)
+  r*₁-preserves-Zero q1 {q2} zq2 = subst Zero (sym q1q2==0) Zero-0r
+    where
+    q2==0 : q2 == 0r
+    q2==0 = Zero-path q2 zq2
+    q1q2==0 : q1 r* q2 == 0r
+    q1q2==0 = cong (q1 r*_) q2==0 >=> r*-right-zero q1
 
-r*₂-preserves-Zero : {q1 : ℚ} -> Zero q1 -> (q2 : Rational) -> Zero (q1 r* q2)
-r*₂-preserves-Zero {q1} zq1 q2 = subst Zero (r*-commute q2 q1) (r*₁-preserves-Zero q2 zq1)
+  r*₂-preserves-Zero : {q1 : ℚ} -> Zero q1 -> (q2 : Rational) -> Zero (q1 r* q2)
+  r*₂-preserves-Zero {q1} zq1 q2 = subst Zero (r*-commute q2 q1) (r*₁-preserves-Zero q2 zq1)
 
-r*-preserves-NonNeg : {q1 q2 : ℚ} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r* q2)
-r*-preserves-NonNeg {q1} {q2} (inj-r z1) _          = inj-r (r*₂-preserves-Zero z1 q2)
-r*-preserves-NonNeg {q1} {q2} (inj-l p1) (inj-r z2) = inj-r (r*₁-preserves-Zero q1 z2)
-r*-preserves-NonNeg {q1} {q2} (inj-l p1) (inj-l p2) = inj-l (r*-preserves-Pos _ _ p1 p2)
+  r*-preserves-NonNeg : {q1 q2 : ℚ} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r* q2)
+  r*-preserves-NonNeg {q1} {q2} (inj-r z1) _          = inj-r (r*₂-preserves-Zero z1 q2)
+  r*-preserves-NonNeg {q1} {q2} (inj-l p1) (inj-r z2) = inj-r (r*₁-preserves-Zero q1 z2)
+  r*-preserves-NonNeg {q1} {q2} (inj-l p1) (inj-l p2) = inj-l (r*-preserves-Pos _ _ p1 p2)
 
-r--flips-sign : (q : Rational) (s : Sign) -> (isSignℚ s q) -> (isSignℚ (s⁻¹ s) (r- q))
-r--flips-sign =
-  RationalElim.elimProp
-    (\q -> isPropΠ2 (\ s _ -> isProp-isSignℚ (s⁻¹ s) (r- q)))
-    (\q s qs -> is-signℚ (r-'-flips-sign q s (isSignℚ.v qs)))
+  r--flips-sign : (q : Rational) (s : Sign) -> (isSignℚ s q) -> (isSignℚ (s⁻¹ s) (r- q))
+  r--flips-sign =
+    RationalElim.elimProp
+      (\q -> isPropΠ2 (\ s _ -> isProp-isSignℚ (s⁻¹ s) (r- q)))
+      (\q s qs -> is-signℚ (r-'-flips-sign q s (isSignℚ.v qs)))
 
-r+-preserves-Neg : (q1 q2 : ℚ) -> Neg q1 -> Neg q2 -> Neg (q1 r+ q2)
-r+-preserves-Neg q1 q2 n1 n2 =
-  subst Neg p (r--flips-sign _ _ (r+-preserves-Pos _ _ (r--flips-sign _ _ n1) (r--flips-sign _ _ n2)))
-  where
-  p : (r- ((r- q1) r+ (r- q2))) == (q1 r+ q2)
-  p = cong r-_ (sym (RationalRing.minus-distrib-plus {q1} {q2})) >=> RationalRing.minus-double-inverse
-
-
-r+-preserves-NonPos : {q1 q2 : ℚ} -> NonPos q1 -> NonPos q2 -> NonPos (q1 r+ q2)
-r+-preserves-NonPos {q1} {q2} (inj-r z1) np-q2          =
-  (subst NonPos (sym (cong (_r+ q2) (Zero-path _ z1) >=> r+-left-zero q2)) np-q2)
-r+-preserves-NonPos {q1} {q2} (inj-l n1) (inj-r z2) =
-  inj-l (subst Neg (sym (cong (q1 r+_) (Zero-path _ z2) >=> r+-right-zero q1)) n1)
-r+-preserves-NonPos {q1} {q2} (inj-l n1) (inj-l n2) = inj-l (r+-preserves-Neg _ _ n1 n2)
+  r+-preserves-Neg : (q1 q2 : ℚ) -> Neg q1 -> Neg q2 -> Neg (q1 r+ q2)
+  r+-preserves-Neg q1 q2 n1 n2 =
+    subst Neg p (r--flips-sign _ _ (r+-preserves-Pos _ _ (r--flips-sign _ _ n1) (r--flips-sign _ _ n2)))
+    where
+    p : (r- ((r- q1) r+ (r- q2))) == (q1 r+ q2)
+    p = cong r-_ (sym (RationalRing.minus-distrib-plus {q1} {q2})) >=> RationalRing.minus-double-inverse
 
 
-
-r1/-preserves-Pos : (q : Rational) -> (i : ℚInv q) -> Pos q -> Pos (r1/ q i)
-r1/-preserves-Pos =
-  RationalElim.elimProp
-    (\q -> isPropΠ2 (\ i _ -> isProp-Pos (r1/ q i)))
-    (\q i p -> is-signℚ (r1/'-preserves-Pos q (ℚInv->ℚInv' q i) (isSignℚ.v p)))
-
-
-r*₁-preserves-sign : (q : ℚ⁺) (r : Rational) {s : Sign} -> isSignℚ s r ->
-                     isSignℚ s (⟨ q ⟩ r* r)
-r*₁-preserves-sign (q , pos-q) r {zero-sign} zero-r =
-  subst Zero (sym qr==0) Zero-0r
-  where
-  r==0 : r == 0r
-  r==0 = Zero-path r zero-r
-  qr==0 : q r* r == 0r
-  qr==0 = cong (q r*_) r==0 >=> r*-right-zero q
-r*₁-preserves-sign (q , pos-q) r {pos-sign} pos-r = r*-preserves-Pos q r pos-q pos-r
-r*₁-preserves-sign (q , pos-q) r {neg-sign} neg-r =
-  subst Neg RationalRing.minus-double-inverse neg-mmqr
-  where
-  pos-mr : Pos (r- r)
-  pos-mr = r--flips-sign _ _ neg-r
-  pos-qmr : Pos (q r* (r- r))
-  pos-qmr = r*-preserves-Pos _ _ pos-q pos-mr
-  pos-mqr : Pos (r- (q r* r))
-  pos-mqr = subst Pos (r*-minus-extract-right q r) pos-qmr
-  neg-mmqr : Neg (r- (r- (q r* r)))
-  neg-mmqr = r--flips-sign _ _ pos-mqr
+  r+-preserves-NonPos : {q1 q2 : ℚ} -> NonPos q1 -> NonPos q2 -> NonPos (q1 r+ q2)
+  r+-preserves-NonPos {q1} {q2} (inj-r z1) np-q2          =
+    (subst NonPos (sym (cong (_r+ q2) (Zero-path _ z1) >=> r+-left-zero q2)) np-q2)
+  r+-preserves-NonPos {q1} {q2} (inj-l n1) (inj-r z2) =
+    inj-l (subst Neg (sym (cong (q1 r+_) (Zero-path _ z2) >=> r+-right-zero q1)) n1)
+  r+-preserves-NonPos {q1} {q2} (inj-l n1) (inj-l n2) = inj-l (r+-preserves-Neg _ _ n1 n2)
 
 
-r*₁-flips-sign : (q : ℚ⁻) (r : Rational) {s : Sign} -> isSignℚ s r ->
-                  isSignℚ (s⁻¹ s) (⟨ q ⟩ r* r)
-r*₁-flips-sign (q , neg-q) r {s} r-sign =
-  subst (isSignℚ (s⁻¹ s)) RationalRing.minus-double-inverse s-mmqr
-  where
-  mq = r- q
-  s-mqr1 = r*₁-preserves-sign (mq , r--flips-sign _ _ neg-q) r r-sign
-  s-mqr2 = subst (isSignℚ s) (r*-minus-extract-left q r) s-mqr1
-  s-mmqr = r--flips-sign _ _ s-mqr2
+
+  r1/-preserves-Pos : (q : Rational) -> (i : ℚInv q) -> Pos q -> Pos (r1/ q i)
+  r1/-preserves-Pos =
+    RationalElim.elimProp
+      (\q -> isPropΠ2 (\ i _ -> isProp-Pos (r1/ q i)))
+      (\q i p -> is-signℚ (r1/'-preserves-Pos q (ℚInv->ℚInv' q i) (isSignℚ.v p)))
 
 
-r*-NonNeg-NonNeg : {q1 q2 : ℚ} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r* q2)
-r*-NonNeg-NonNeg = r*-preserves-NonNeg
-
-r*-NonNeg-NonPos : {q1 q2 : ℚ} -> NonNeg q1 -> NonPos q2 -> NonPos (q1 r* q2)
-r*-NonNeg-NonPos (inj-r z1) _          = inj-r (r*₂-preserves-Zero z1 _)
-r*-NonNeg-NonPos (inj-l p1) (inj-r z2) = inj-r (r*₁-preserves-Zero _ z2)
-r*-NonNeg-NonPos (inj-l p1) (inj-l n2) = inj-l (r*₁-preserves-sign (_ , p1) _ n2)
-
-r*-NonPos-NonNeg : {q1 q2 : ℚ} -> NonPos q1 -> NonNeg q2 -> NonPos (q1 r* q2)
-r*-NonPos-NonNeg np1 nn2 = subst NonPos (r*-commute _ _) (r*-NonNeg-NonPos nn2 np1)
-
-r*-NonPos-NonPos : {q1 q2 : ℚ} -> NonPos q1 -> NonPos q2 -> NonNeg (q1 r* q2)
-r*-NonPos-NonPos (inj-r z1) _          = inj-r (r*₂-preserves-Zero z1 _)
-r*-NonPos-NonPos (inj-l p1) (inj-r z2) = inj-r (r*₁-preserves-Zero _ z2)
-r*-NonPos-NonPos (inj-l n1) (inj-l n2) = inj-l (r*₁-flips-sign (_ , n1) _ n2)
-
-r*-ZeroFactor : {q1 q2 : ℚ} -> Zero (q1 r* q2) -> Zero q1 ⊎ Zero q2
-r*-ZeroFactor {q1} {q2} zp = handle _ _ (isSign-self q1) (isSign-self q2)
-  where
-  handle : (s1 s2 : Sign) -> isSignℚ s1 q1 -> isSignℚ s2 q2 -> Zero q1 ⊎ Zero q2
-  handle zero-sign _         z1 _ = inj-l z1
-  handle pos-sign  zero-sign p1 z2 = inj-r z2
-  handle neg-sign  zero-sign n1 z2 = inj-r z2
-  handle pos-sign  pos-sign  p1 p2 =
-    bot-elim (NonZero->¬Zero (inj-l (r*₁-preserves-sign (_ , p1) _ p2)) zp)
-  handle pos-sign  neg-sign  p1 n2 =
-    bot-elim (NonZero->¬Zero (inj-r (r*₁-preserves-sign (_ , p1) _ n2)) zp)
-  handle neg-sign  pos-sign  n1 p2 =
-    bot-elim (NonZero->¬Zero (inj-r (r*₁-flips-sign (_ , n1) _ p2)) zp)
-  handle neg-sign  neg-sign  n1 n2 =
-    bot-elim (NonZero->¬Zero (inj-l (r*₁-flips-sign (_ , n1) _ n2)) zp)
+  r*₁-preserves-sign : (q : ℚ⁺) (r : Rational) {s : Sign} -> isSignℚ s r ->
+                       isSignℚ s (⟨ q ⟩ r* r)
+  r*₁-preserves-sign (q , pos-q) r {zero-sign} zero-r =
+    subst Zero (sym qr==0) Zero-0r
+    where
+    r==0 : r == 0r
+    r==0 = Zero-path r zero-r
+    qr==0 : q r* r == 0r
+    qr==0 = cong (q r*_) r==0 >=> r*-right-zero q
+  r*₁-preserves-sign (q , pos-q) r {pos-sign} pos-r = r*-preserves-Pos q r pos-q pos-r
+  r*₁-preserves-sign (q , pos-q) r {neg-sign} neg-r =
+    subst Neg RationalRing.minus-double-inverse neg-mmqr
+    where
+    pos-mr : Pos (r- r)
+    pos-mr = r--flips-sign _ _ neg-r
+    pos-qmr : Pos (q r* (r- r))
+    pos-qmr = r*-preserves-Pos _ _ pos-q pos-mr
+    pos-mqr : Pos (r- (q r* r))
+    pos-mqr = subst Pos (r*-minus-extract-right q r) pos-qmr
+    neg-mmqr : Neg (r- (r- (q r* r)))
+    neg-mmqr = r--flips-sign _ _ pos-mqr
 
 
-r--NonNeg : {q1 : ℚ} -> NonNeg q1 -> NonPos (r- q1)
-r--NonNeg (inj-l s) = (inj-l (r--flips-sign _ _ s))
-r--NonNeg (inj-r s) = (inj-r (r--flips-sign _ _ s))
+  r*₁-flips-sign : (q : ℚ⁻) (r : Rational) {s : Sign} -> isSignℚ s r ->
+                    isSignℚ (s⁻¹ s) (⟨ q ⟩ r* r)
+  r*₁-flips-sign (q , neg-q) r {s} r-sign =
+    subst (isSignℚ (s⁻¹ s)) RationalRing.minus-double-inverse s-mmqr
+    where
+    mq = r- q
+    s-mqr1 = r*₁-preserves-sign (mq , r--flips-sign _ _ neg-q) r r-sign
+    s-mqr2 = subst (isSignℚ s) (r*-minus-extract-left q r) s-mqr1
+    s-mmqr = r--flips-sign _ _ s-mqr2
 
-r--NonPos : {q1 : ℚ} -> NonPos q1 -> NonNeg (r- q1)
-r--NonPos (inj-l s) = (inj-l (r--flips-sign _ _ s))
-r--NonPos (inj-r s) = (inj-r (r--flips-sign _ _ s))
+
+  r*-NonNeg-NonNeg : {q1 q2 : ℚ} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r* q2)
+  r*-NonNeg-NonNeg = r*-preserves-NonNeg
+
+  r*-NonNeg-NonPos : {q1 q2 : ℚ} -> NonNeg q1 -> NonPos q2 -> NonPos (q1 r* q2)
+  r*-NonNeg-NonPos (inj-r z1) _          = inj-r (r*₂-preserves-Zero z1 _)
+  r*-NonNeg-NonPos (inj-l p1) (inj-r z2) = inj-r (r*₁-preserves-Zero _ z2)
+  r*-NonNeg-NonPos (inj-l p1) (inj-l n2) = inj-l (r*₁-preserves-sign (_ , p1) _ n2)
+
+  r*-NonPos-NonNeg : {q1 q2 : ℚ} -> NonPos q1 -> NonNeg q2 -> NonPos (q1 r* q2)
+  r*-NonPos-NonNeg np1 nn2 = subst NonPos (r*-commute _ _) (r*-NonNeg-NonPos nn2 np1)
+
+  r*-NonPos-NonPos : {q1 q2 : ℚ} -> NonPos q1 -> NonPos q2 -> NonNeg (q1 r* q2)
+  r*-NonPos-NonPos (inj-r z1) _          = inj-r (r*₂-preserves-Zero z1 _)
+  r*-NonPos-NonPos (inj-l p1) (inj-r z2) = inj-r (r*₁-preserves-Zero _ z2)
+  r*-NonPos-NonPos (inj-l n1) (inj-l n2) = inj-l (r*₁-flips-sign (_ , n1) _ n2)
+
+  r*-ZeroFactor : {q1 q2 : ℚ} -> Zero (q1 r* q2) -> Zero q1 ⊎ Zero q2
+  r*-ZeroFactor {q1} {q2} zp = handle _ _ (isSign-self q1) (isSign-self q2)
+    where
+    handle : (s1 s2 : Sign) -> isSignℚ s1 q1 -> isSignℚ s2 q2 -> Zero q1 ⊎ Zero q2
+    handle zero-sign _         z1 _ = inj-l z1
+    handle pos-sign  zero-sign p1 z2 = inj-r z2
+    handle neg-sign  zero-sign n1 z2 = inj-r z2
+    handle pos-sign  pos-sign  p1 p2 =
+      bot-elim (NonZero->¬Zero (inj-l (r*₁-preserves-sign (_ , p1) _ p2)) zp)
+    handle pos-sign  neg-sign  p1 n2 =
+      bot-elim (NonZero->¬Zero (inj-r (r*₁-preserves-sign (_ , p1) _ n2)) zp)
+    handle neg-sign  pos-sign  n1 p2 =
+      bot-elim (NonZero->¬Zero (inj-r (r*₁-flips-sign (_ , n1) _ p2)) zp)
+    handle neg-sign  neg-sign  n1 n2 =
+      bot-elim (NonZero->¬Zero (inj-l (r*₁-flips-sign (_ , n1) _ n2)) zp)
+
+
+  r--NonNeg : {q1 : ℚ} -> NonNeg q1 -> NonPos (r- q1)
+  r--NonNeg (inj-l s) = (inj-l (r--flips-sign _ _ s))
+  r--NonNeg (inj-r s) = (inj-r (r--flips-sign _ _ s))
+
+  r--NonPos : {q1 : ℚ} -> NonPos q1 -> NonNeg (r- q1)
+  r--NonPos (inj-l s) = (inj-l (r--flips-sign _ _ s))
+  r--NonPos (inj-r s) = (inj-r (r--flips-sign _ _ s))
 
 
 _<_ : Rational -> Rational -> Type₀
@@ -508,14 +512,18 @@ irrefl-< {a} a<a =
   RationalElim.elimProp
     {C = (\r -> r < r -> Bot)}
     (\_ -> isPropΠ (\_ -> isPropBot))
-    (\r s -> irrefl-<' {r} (isSignℚ.v s)) a a<a
+    (\r s -> (irrefl-<' {r} (isSignℚ.v (subst Posℚ r+-eval s)))) a a<a
 
-trans-< : Transitive _<_
-trans-< {a} {b} {c} a<b b<c =
-  RationalElim.elimProp3
-    {C3 = (\a b c -> a < b -> b < c -> a < c)}
-    (\a _ c -> isPropΠ2 (\_ _ -> isProp-< {a} {c}))
-    (\a b c a<b b<c -> is-signℚ (trans-<' (isSignℚ.v a<b) (isSignℚ.v b<c))) a b c a<b b<c
+abstract
+  trans-< : Transitive _<_
+  trans-< {a} {b} {c} a<b b<c =
+    RationalElim.elimProp3
+      {C3 = (\a b c -> a < b -> b < c -> a < c)}
+      (\a _ c -> isPropΠ2 (\_ _ -> isProp-< {a} {c}))
+      (\a b c a<b b<c -> subst Posℚ (sym r+-eval)
+                               (is-signℚ (trans-<' (isSignℚ.v (subst Posℚ r+-eval a<b))
+                                         (isSignℚ.v (subst Posℚ r+-eval b<c)))))
+      a b c a<b b<c
 
 asym-< : Asymmetric _<_
 asym-< {a} {b} lt1 lt2 = irrefl-< {a} (trans-< {a} {b} {a} lt1 lt2)
@@ -622,7 +630,7 @@ decide-< : Decidable2 _<_
 decide-< =
   RationalElim.elimProp2
     (\a b -> isPropDec (isProp-< {a} {b}))
-    (\a b -> handle (decide-<' a b))
+    (\a b -> subst (\x -> Dec (Posℚ x)) (sym r+-eval) (handle (decide-<' a b)))
   where
   handle : {q : Rational'} -> Dec (Pos q) -> Dec (Pos [ q ])
   handle (yes pq) = yes (is-signℚ pq)
@@ -830,7 +838,7 @@ r*₂-flips-≤ a b c@(c' , _) a≤b =
   ans = r~-preserves-sign Pos-sd sd~diff
 
 ℕ->ℚ-preserves-order : (a b : Nat) -> a nat.< b -> (ℕ->ℚ a) < (ℕ->ℚ b)
-ℕ->ℚ-preserves-order a b a<b = is-signℚ (ℕ->ℚ'-preserves-order a b a<b)
+ℕ->ℚ-preserves-order a b a<b = (subst Pos (sym r+-eval) (is-signℚ (ℕ->ℚ'-preserves-order a b a<b)))
 
 1/ℕ-flips-order : (a b : Nat⁺) -> ⟨ a ⟩ nat.< ⟨ b ⟩ -> 1/ℕ b < 1/ℕ a
 1/ℕ-flips-order a@(a' , _) b@(b' , _) lt = subst2 _<_ b-path a-path ab*<
@@ -864,17 +872,18 @@ midℚ : ℚ -> ℚ -> ℚ
 midℚ x y = 1/2r r* (x r+ y)
 
 
-r+-both-preserves-order : (a b c d : Rational) -> a < b -> c < d -> (a r+ c) < (b r+ d)
-r+-both-preserves-order a b c d a<b c<d = subst Posℚ (r+-swap-diffℚ a b c d) Pos-sum-diff
-  where
-  Pos-sum-diff : Posℚ ((diffℚ a b) r+ (diffℚ c d))
-  Pos-sum-diff = r+-preserves-Pos (diffℚ a b) (diffℚ c d) a<b c<d
+abstract
+  r+-both-preserves-order : (a b c d : Rational) -> a < b -> c < d -> (a r+ c) < (b r+ d)
+  r+-both-preserves-order a b c d a<b c<d = subst Posℚ (r+-swap-diffℚ a b c d) Pos-sum-diff
+    where
+    Pos-sum-diff : Posℚ ((diffℚ a b) r+ (diffℚ c d))
+    Pos-sum-diff = r+-preserves-Pos (diffℚ a b) (diffℚ c d) a<b c<d
 
-r+-both-preserves-≤ : (a b c d : Rational) -> a ℚ≤ b -> c ℚ≤ d -> (a r+ c) ℚ≤ (b r+ d)
-r+-both-preserves-≤ a b c d a<b c<d = subst NonNeg (r+-swap-diffℚ a b c d) NonNeg-sum-diff
-  where
-  NonNeg-sum-diff : NonNeg ((diffℚ a b) r+ (diffℚ c d))
-  NonNeg-sum-diff = r+-preserves-NonNeg {diffℚ a b} {diffℚ c d} a<b c<d
+  r+-both-preserves-≤ : (a b c d : Rational) -> a ℚ≤ b -> c ℚ≤ d -> (a r+ c) ℚ≤ (b r+ d)
+  r+-both-preserves-≤ a b c d a<b c<d = subst NonNeg (r+-swap-diffℚ a b c d) NonNeg-sum-diff
+    where
+    NonNeg-sum-diff : NonNeg ((diffℚ a b) r+ (diffℚ c d))
+    NonNeg-sum-diff = r+-preserves-NonNeg {diffℚ a b} {diffℚ c d} a<b c<d
 
 
 -- floor and <
@@ -1050,7 +1059,7 @@ private
     where
     handle : (n d : Nat⁺) -> Σ[ m ∈ Nat⁺ ] (1/ℕ' m ≤' (n⁺d⁺->ℚ' n d)) ->
              Σ[ m ∈ Nat⁺ ] (1/ℕ m ℚ≤ (n⁺d⁺->ℚ n d))
-    handle n d (m , p) = m , NonNeg-ℚ'->ℚ p
+    handle n d (m , p) = m , subst NonNeg (sym r+-eval) (NonNeg-ℚ'->ℚ p)
 
 small-1/ℕ : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] (1/ℕ m < ⟨ q ⟩)
 small-1/ℕ q = ∥-map handle (1/ℕ-<-step3 q)
