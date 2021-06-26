@@ -237,62 +237,178 @@ module _ (x y : ℝ)
         handle2 (inj-r cy3) = ℝ∈Iℚ->¬Constant y yi3 (ℝ∈Iℚ-intersect y yi1 yi2 eyi1 eyi2) cy3
 
     located : (a b : ℚ) -> a < b -> ∥ L a ⊎ U b ∥
-    located a b a<b = ∥-bind2 handle (find-open-ball x ε₁) (find-open-ball y ε₂)
+    located a b a<b = ∥-bind4 initial-bound x.Inhabited-L x.Inhabited-U y.Inhabited-L y.Inhabited-U
       where
-      ε₁ : ℚ⁺
-      ε₁ = ?
-      ε₂ : ℚ⁺
-      ε₂ = ?
+      Ans = ∥ L a ⊎ U b ∥
       d = diffℚ a b
 
-      handle : OpenBall x ⟨ ε₁ ⟩  -> OpenBall y ⟨ ε₂ ⟩ -> ∥ L a ⊎ U b ∥
-      handle (xb1 , xb2 , xbl , xbu , xbe) (yb1 , yb2 , ybl , ybu , ybe) =
-        handle2 (split-< a l)
+      initial-bound : Σ ℚ x.L -> Σ ℚ x.U -> Σ ℚ y.L -> Σ ℚ y.U -> Ans
+      initial-bound (xb1' , xbl') (xb2' , xbu') (yb1' , ybl') (yb2' , ybu') =
+        ∥-bind2 handle (find-open-ball x ε⁺) (find-open-ball y ε⁺)
         where
-        xi : Iℚ
-        xi = Iℚ-cons xb1 xb2 (inj-l (ℝ-bounds->ℚ< x _ _ xbl xbu))
-        yi : Iℚ
-        yi = Iℚ-cons yb1 yb2 (inj-l (ℝ-bounds->ℚ< y _ _ ybl ybu))
 
-        exi : ℝ∈Iℚ x xi
-        exi = xbl , xbu
+        xi' : Iℚ
+        xi' = Iℚ-cons xb1' xb2' (inj-l (ℝ-bounds->ℚ< x _ _ xbl' xbu'))
+        yi' : Iℚ
+        yi' = Iℚ-cons yb1' yb2' (inj-l (ℝ-bounds->ℚ< y _ _ ybl' ybu'))
 
-        eyi : ℝ∈Iℚ y yi
-        eyi = ybl , ybu
+        m-xi' = i-maxabs xi'
+        m-yi' = i-maxabs yi'
 
-        wxi : i-width xi == ⟨ ε₁ ⟩
-        wxi = xbe
+        exi' : ℝ∈Iℚ x xi'
+        exi' = xbl' , xbu'
 
-        p = xi i* yi
-        l = Iℚ.l p
-        u = Iℚ.u p
-        w = i-width p
-        w≤d : w ℚ≤ d
-        w≤d = ?
+        eyi' : ℝ∈Iℚ y yi'
+        eyi' = ybl' , ybu'
 
-        handle2 : (a < l ⊎ l ℚ≤ a) -> ∥ L a ⊎ U b ∥
-        handle2 (inj-l a<l) = ∣ inj-l ∣ (xi , yi , exi , eyi , (inj-l a<l)) ∣ ∣
-        handle2 (inj-r l≤a) = ∣ inj-r ∣ (xi , yi , exi , eyi , u≤b) ∣ ∣
+        pos-m-xi' : Pos m-xi'
+        pos-m-xi' = handle (NonNeg-i-maxabs xi')
           where
-          u≤b : u ℚ≤ b
-          u≤b = subst2 _ℚ≤_ (diffℚ-step l u) (diffℚ-step a b) (r+-both-preserves-≤ l a w d l≤a w≤d)
+          handle : NonNeg m-xi' -> Pos m-xi'
+          handle (inj-l p) = p
+          handle (inj-r z) = bot-elim (x.disjoint 0r (subst x.L (cong Iℚ.l zp) xbl' ,
+                                                      subst x.U (cong Iℚ.u zp) xbu'))
+            where
+            zp = i-maxabs-Zero xi' z
+
+        pos-m-yi' : Pos m-yi'
+        pos-m-yi' = handle (NonNeg-i-maxabs yi')
+          where
+          handle : NonNeg m-yi' -> Pos m-yi'
+          handle (inj-l p) = p
+          handle (inj-r z) = bot-elim (y.disjoint 0r (subst y.L (cong Iℚ.l zp) ybl' ,
+                                                      subst y.U (cong Iℚ.u zp) ybu'))
+            where
+            zp = i-maxabs-Zero yi' z
 
 
-  module _
-    (located : (a b : ℚ) -> a < b -> ∥ L a ⊎ U b ∥)
-    where
-    _ℝ*_ : ℝ
-    _ℝ*_ = record
-      { L = L
-      ; U = U
-      ; isProp-L = \_ -> squash
-      ; isProp-U = \_ -> squash
-      ; Inhabited-L = Inhabited-L
-      ; Inhabited-U = Inhabited-U
-      ; isLowerSet-L = isLowerSet-L
-      ; isUpperSet-U = isUpperSet-U
-      ; isUpperOpen-L = isUpperOpen-L
-      ; isLowerOpen-U = isLowerOpen-U
-      ; disjoint = disjoint
-      ; located = located
-      }
+        sm = (m-yi' r+ m-xi')
+        pos-sm = r+-preserves-Pos _ _ pos-m-yi' pos-m-xi'
+
+        nn-sm = r+-NonNeg-NonNeg
+
+        sm-inv : ℚInv sm
+        sm-inv z-sm =
+          NonPos->¬Pos (inj-r (subst Zero (sym z-sm) Zero-0r)) pos-sm
+
+        ε = (d r* (r1/ sm sm-inv))
+
+        ε⁺ : ℚ⁺
+        ε⁺ = ε , (r*₁-preserves-sign (d , a<b) _ (r1/-preserves-Pos sm sm-inv pos-sm))
+
+        ε-path : (ε r* (m-yi' r+ m-xi')) == d
+        ε-path = r*-assoc _ _ _ >=>
+                 (cong (d r*_) (r1/-inverse sm sm-inv)) >=>
+                 (r*-right-one d)
+
+
+
+        handle : OpenBall x ε  -> OpenBall y ε -> Ans
+        handle (xb1 , xb2 , xbl , xbu , xbe) (yb1 , yb2 , ybl , ybu , ybe) =
+          handle2 (split-< a l)
+          where
+          xi : Iℚ
+          xi = Iℚ-cons xb1 xb2 (inj-l (ℝ-bounds->ℚ< x _ _ xbl xbu))
+          yi : Iℚ
+          yi = Iℚ-cons yb1 yb2 (inj-l (ℝ-bounds->ℚ< y _ _ ybl ybu))
+
+          exi : ℝ∈Iℚ x xi
+          exi = xbl , xbu
+          eyi : ℝ∈Iℚ y yi
+          eyi = ybl , ybu
+
+          oxi : Overlap xi' xi
+          oxi = ℝ∈Iℚ->Overlap x xi' xi exi' exi
+          oyi : Overlap yi' yi
+          oyi = ℝ∈Iℚ->Overlap y yi' yi eyi' eyi
+
+          mxi : Iℚ
+          mxi = i-intersect xi' xi oxi
+          myi : Iℚ
+          myi = i-intersect yi' yi oyi
+
+          emxi : ℝ∈Iℚ x mxi
+          emxi = ℝ∈Iℚ-intersect x xi' xi exi' exi
+          emyi : ℝ∈Iℚ y myi
+          emyi = ℝ∈Iℚ-intersect y yi' yi eyi' eyi
+
+          mxi⊆xi' = i-intersect-⊆₁ xi' xi oxi
+          myi⊆yi' = i-intersect-⊆₁ yi' yi oyi
+          mxi⊆xi  = i-intersect-⊆₂ xi' xi oxi
+          myi⊆yi  = i-intersect-⊆₂ yi' yi oyi
+
+          w-mxi = i-width mxi
+          w-myi = i-width myi
+          m-mxi = i-maxabs mxi
+          m-myi = i-maxabs myi
+
+          nn-w-mxi = NonNeg-i-width mxi
+          nn-w-myi = NonNeg-i-width myi
+
+          nn-m-xi' = NonNeg-i-maxabs xi'
+          nn-m-yi' = NonNeg-i-maxabs yi'
+
+          w-xi = i-width xi
+          w-yi = i-width yi
+
+          w-mxi≤w-xi  = i-width-⊆ mxi⊆xi
+          w-myi≤w-yi  = i-width-⊆ myi⊆yi
+          m-mxi≤m-xi' = i-maxabs-⊆ mxi⊆xi'
+          m-myi≤m-yi' = i-maxabs-⊆ myi⊆yi'
+
+          w-mxi≤ε  = subst (w-mxi ℚ≤_) xbe w-mxi≤w-xi
+          w-myi≤ε  = subst (w-myi ℚ≤_) ybe w-myi≤w-yi
+
+          wm-xy-≤ : (w-mxi r* m-myi) ℚ≤ (ε r* m-yi')
+          wm-xy-≤ = trans-ℚ≤ {(w-mxi r* m-myi)} {(w-mxi r* m-yi')} {(ε r* m-yi')}
+                             (r*₁-preserves-≤ (w-mxi , nn-w-mxi) m-myi m-yi' m-myi≤m-yi')
+                             (r*₂-preserves-≤ w-mxi ε (m-yi' , nn-m-yi') w-mxi≤ε)
+
+          mw-xy-≤ : (m-mxi r* w-myi) ℚ≤ (ε r* m-xi')
+          mw-xy-≤ = trans-ℚ≤ {(m-mxi r* w-myi)} {(m-xi' r* w-myi)} {(ε r* m-xi')}
+                             (r*₂-preserves-≤ m-mxi m-xi' (w-myi , nn-w-myi)  m-mxi≤m-xi')
+                             (subst ((m-xi' r* w-myi) ℚ≤_) (r*-commute m-xi' ε)
+                                    (r*₁-preserves-≤ (m-xi' , nn-m-xi') w-myi ε w-myi≤ε))
+
+          wmmw = ((w-mxi r* m-myi) r+ (m-mxi r* w-myi))
+          wmmw≤d : wmmw ℚ≤ d
+          wmmw≤d =
+            subst (wmmw ℚ≤_) (sym (RationalSemiring.*-distrib-+-left {ε} {m-yi'} {m-xi'}) >=>
+                              ε-path)
+                  (r+-both-preserves-≤ (w-mxi r* m-myi) (ε r* m-yi') (m-mxi r* w-myi) (ε r* m-xi')
+                                       wm-xy-≤ mw-xy-≤)
+
+
+          p = mxi i* myi
+          l = Iℚ.l p
+          u = Iℚ.u p
+          w = i-width p
+
+          w≤wmmw : w ℚ≤ wmmw
+          w≤wmmw = i*-width-≤ mxi myi
+
+          w≤d : w ℚ≤ d
+          w≤d = trans-ℚ≤ {w} {wmmw} {d} w≤wmmw wmmw≤d
+
+          handle2 : (a < l ⊎ l ℚ≤ a) -> Ans
+          handle2 (inj-l a<l) = ∣ inj-l ∣ (mxi , myi , emxi , emyi , (inj-l a<l)) ∣ ∣
+          handle2 (inj-r l≤a) = ∣ inj-r ∣ (mxi , myi , emxi , emyi , u≤b) ∣ ∣
+            where
+            u≤b : u ℚ≤ b
+            u≤b = subst2 _ℚ≤_ (diffℚ-step l u) (diffℚ-step a b) (r+-both-preserves-≤ l a w d l≤a w≤d)
+
+  _ℝ*_ : ℝ
+  _ℝ*_ = record
+    { L = L
+    ; U = U
+    ; isProp-L = \_ -> squash
+    ; isProp-U = \_ -> squash
+    ; Inhabited-L = Inhabited-L
+    ; Inhabited-U = Inhabited-U
+    ; isLowerSet-L = isLowerSet-L
+    ; isUpperSet-U = isUpperSet-U
+    ; isUpperOpen-L = isUpperOpen-L
+    ; isLowerOpen-U = isLowerOpen-U
+    ; disjoint = disjoint
+    ; located = located
+    }

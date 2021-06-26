@@ -47,6 +47,13 @@ unsquash h (squash a b i) = h (unsquash h a) (unsquash h b) i
 ∥-bind2 : (A -> B -> ∥ C ∥) -> ∥ A ∥ -> ∥ B ∥ -> ∥ C ∥
 ∥-bind2 f a b = unsquash squash (∥-map2 f a b)
 
+∥-bind3 : (A -> B -> C -> ∥ D ∥) -> ∥ A ∥ -> ∥ B ∥ -> ∥ C ∥ -> ∥ D ∥
+∥-bind3 f a b c = unsquash squash (∥-map3 f a b c)
+
+∥-bind4 : (A -> B -> C -> D -> ∥ E ∥) -> ∥ A ∥ -> ∥ B ∥ -> ∥ C ∥ -> ∥ D ∥ -> ∥ E ∥
+∥-bind4 f a b c d = unsquash squash (∥-map4 f a b c d)
+
+
 private
   module rec (BSet : isSet B) where
     ∥->Set       : (f : A -> B) (eq : 2-Constant f) -> ∥ A ∥ -> B

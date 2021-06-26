@@ -258,6 +258,18 @@ abstract
                                (maxℚ-property a c a<b (trans-<-≤ {c} {d} {b} c<d d≤b))
 
 
+  maxℚ-preserves-≤ : (a b c d : ℚ) -> (a ℚ≤ b) -> (c ℚ≤ d) -> maxℚ a c ℚ≤ maxℚ b d
+  maxℚ-preserves-≤ a b c d a≤b c≤d = handle (split-< b d)
+    where
+    handle : (b < d ⊎ d ℚ≤ b) -> _
+    handle (inj-l b<d) =
+      subst (maxℚ a c ℚ≤_) (sym (maxℚ-right b d (inj-l b<d)))
+            (maxℚ-property {P = _ℚ≤ d} a c (inj-l (trans-≤-< {a} {b} {d} a≤b b<d)) c≤d)
+    handle (inj-r d≤b) =
+      subst (maxℚ a c ℚ≤_) (sym (maxℚ-left b d d≤b))
+            (maxℚ-property {P = _ℚ≤ b} a c a≤b (trans-ℚ≤ {c} {d} {b} c≤d d≤b))
+
+
   minℚ-assoc : (a b c : ℚ) -> minℚ (minℚ a b) c == minℚ a (minℚ b c)
   minℚ-assoc a b c = handle (split-< a b) (split-< a c)
     where

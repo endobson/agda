@@ -349,6 +349,25 @@ i-maxabs-CrossZero a@(Iℚ-cons l u l≤u) (np-l , nn-u) =
   u-lt = subst (_ℚ≤ w) (r+-right-zero u) (r+₁-preserves-≤ u _ _ (NonNeg-0≤ _ (r--NonPos np-l)))
 
 
+i-maxabs-Zero : (a : Iℚ) -> Zero (i-maxabs a) -> a == 0i
+i-maxabs-Zero a@(Iℚ-cons al au _) zm = Iℚ-bounds-path zl zu
+  where
+  np-aal : NonPos (absℚ al)
+  np-aal =
+    ≤0-NonPos _ ((subst ((absℚ al) ℚ≤_) (Zero-path _ zm) (maxℚ-≤-left (absℚ al) (absℚ au))))
+
+  np-aau : NonPos (absℚ au)
+  np-aau =
+    ≤0-NonPos _ ((subst ((absℚ au) ℚ≤_) (Zero-path _ zm) (maxℚ-≤-right (absℚ al) (absℚ au))))
+
+  zl : al == 0r
+  zl = Zero-path al (absℚ-Zero (NonNeg-NonPos->Zero (NonNeg-absℚ al) np-aal))
+  zu : au == 0r
+  zu = Zero-path au (absℚ-Zero (NonNeg-NonPos->Zero (NonNeg-absℚ au) np-aau))
+
+
+
+
 NonNeg-i-maxabs : (a : Iℚ) -> NonNeg (i-maxabs a)
 NonNeg-i-maxabs (Iℚ-cons l u _) =
   maxℚ-property {P = NonNeg} (absℚ l) (absℚ u) (NonNeg-absℚ l) (NonNeg-absℚ u)
@@ -935,11 +954,7 @@ i*-width-CZNP-≤ a b cz-a np-b =
                                 (r*-commute (i-maxabs b) (i-width a) i) i)
          (i*-width-NPCZ-≤ b a np-b cz-a)
 
-
-i*-width-≤ : (a b : Iℚ) ->
-             (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
-i*-width-≤ a b = handle (classify a) (classify b)
-  where
+private
   data Class (i : Iℚ) : Type₀ where
     nn-c : NonNegI i    -> Class i
     np-c : NonPosI i    -> Class i
@@ -955,6 +970,11 @@ i*-width-≤ a b = handle (classify a) (classify b)
     handle neg-sign  zero-sign nl zu = np-c (inj-r zu)
     handle neg-sign  neg-sign  nl nu = np-c (inj-l nu)
 
+
+i*-width-≤ : (a b : Iℚ) ->
+             (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+i*-width-≤ a b = handle (classify a) (classify b)
+  where
   handle : Class a -> Class b ->
            (i-width (a i* b)) ℚ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
   handle (nn-c pa) (nn-c pb) = i*-width-NNNN-≤ a b pa pb
@@ -1128,6 +1148,44 @@ i*₁-preserves-⊆ (Iℚ-cons al au _) b⊆c =
 
 i*₂-preserves-⊆ : {a b : Iℚ} -> a i⊆ b -> (c : Iℚ) -> (a i* c) i⊆ (b i* c)
 i*₂-preserves-⊆ {a} {b} a⊆b c = subst2 _i⊆_ (i*-commute c a) (i*-commute c b) (i*₁-preserves-⊆ c a⊆b)
+
+i-width-⊆ : {a b : Iℚ} -> a i⊆ b -> i-width a ℚ≤ i-width b
+i-width-⊆ {Iℚ-cons al au _} {Iℚ-cons bl bu _} (i⊆-cons l u) =
+  r+-both-preserves-≤ au bu (r- al) (r- bl) u (r--flips-≤ bl al l)
+
+i-maxabs-⊆ : {a b : Iℚ} -> a i⊆ b -> i-maxabs a ℚ≤ i-maxabs b
+i-maxabs-⊆ {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (i⊆-cons bl≤al au≤bu) =
+  maxℚ-property {P = _ℚ≤ i-maxabs b} (absℚ al) (absℚ au) aal≤mb aau≤mb
+  where
+  abs≤ : (q : ℚ) -> q ℚ≤ absℚ q
+  abs≤ q = maxℚ-≤-left q (r- q)
+  mabs≤ : (q : ℚ) -> (r- q) ℚ≤ absℚ q
+  mabs≤ q = maxℚ-≤-right q (r- q)
+
+  point : (q : ℚ) -> (bl ℚ≤ q) -> (q ℚ≤ bu) -> absℚ q ℚ≤ i-maxabs b
+  point q bl≤q q≤bu = handle (split-maxℚ q (r- q))
+    where
+    handle : (absℚ q == q ⊎ absℚ q == (r- q)) -> absℚ q ℚ≤ i-maxabs b
+    handle (inj-l p) =
+      subst (_ℚ≤ i-maxabs b) (sym p)
+            (trans-ℚ≤ {q} {bu} {i-maxabs b}
+                      q≤bu (trans-ℚ≤ {bu} {absℚ bu} {i-maxabs b}
+                                     (abs≤ bu) (maxℚ-≤-right (absℚ bl) (absℚ bu))))
+    handle (inj-r p) =
+      subst (_ℚ≤ i-maxabs b) (sym p)
+            (trans-ℚ≤ {(r- q)} {(r- bl)} {i-maxabs b}
+                      (r--flips-≤ bl q bl≤q)
+                      (trans-ℚ≤ {(r- bl)} {absℚ bl} {i-maxabs b}
+                                (mabs≤ bl) (maxℚ-≤-left (absℚ bl) (absℚ bu))))
+
+  al≤bu = trans-ℚ≤ {al} {au} {bu} al≤au au≤bu
+  bl≤au = trans-ℚ≤ {bl} {al} {au} bl≤al al≤au
+
+  aal≤mb = point al bl≤al al≤bu
+  aau≤mb = point au bl≤au au≤bu
+
+
+
 
 -- Strict Inclusion
 record _i⊂_ (a : Iℚ) (b : Iℚ) : Type₀ where
