@@ -10,140 +10,405 @@ open import order.instances.rational
 open import rational
 open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
 open import rational.factor-order
+open import rational.minmax
+open import rational.proper-interval
 open import real
 open import real.sequence
+open import real.arithmetic.absolute-value
 open import relation hiding (U)
+open import ring.implementations.rational
+open import sign
+open import sign.instances.rational
 open import truncation
 
 module _ (x y : ℝ)
-  (upperOpenℚ⁻ : (z : ℝ) -> (q : ℚ⁻) -> (Real.L z ⟨ q ⟩) ->
-                 ∃[ r ∈ ℚ⁻ ] (⟨ q ⟩ < ⟨ r ⟩ × Real.L z ⟨ r ⟩))
-  (lowerOpenℚ⁻ : (z : ℝ) -> (q : ℚ⁻) -> (Real.U z ⟨ q ⟩) ->
-                 ∃[ r ∈ ℚ⁻ ] (⟨ r ⟩ < ⟨ q ⟩ × Real.U z ⟨ r ⟩))
-  (refl-ℚ≤ : (q : ℚ) -> q ℚ≤ q)
-  (weaken-ℚ< : {q r : ℚ} -> q < r -> q ℚ≤ r)
-  (sqrt-ℚ< : (q : ℚ⁺) -> ∃[ r ∈ ℚ⁺ ] ((⟨ r ⟩ r* ⟨ r ⟩) < ⟨ q ⟩))
   where
   private
     module x = Real x
     module y = Real y
 
-    data L' : (q : ℚ) -> Type₀ where
-      L'-pp : (q1 : ℚ⁺) (q2 : ℚ⁺) -> x.L ⟨ q1 ⟩ -> y.L ⟨ q2 ⟩ -> L' (⟨ q1 ⟩ r* ⟨ q2 ⟩)
-      L'-nn : (q1 : ℚ⁻) (q2 : ℚ⁻) -> x.U ⟨ q1 ⟩ -> y.U ⟨ q2 ⟩ -> L' (⟨ q1 ⟩ r* ⟨ q2 ⟩)
-      L'-pn : (q1 : ℚ⁺) (q2 : ℚ⁻) -> x.U ⟨ q1 ⟩ -> y.L ⟨ q2 ⟩ -> L' (⟨ q1 ⟩ r* ⟨ q2 ⟩)
-      L'-np : (q1 : ℚ⁻) (q2 : ℚ⁺) -> x.L ⟨ q1 ⟩ -> y.U ⟨ q2 ⟩ -> L' (⟨ q1 ⟩ r* ⟨ q2 ⟩)
-      L'-<  : (q1 q2 : ℚ) -> (q1 < q2) -> L' q2 -> L' q1
+    ℝ∈Iℚ : ℝ -> Iℚ -> Type₀
+    ℝ∈Iℚ z (Iℚ-cons l u _) = Real.L z l × Real.U z u
+
+    L' : Pred ℚ ℓ-zero
+    L' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Lower (xi i* yi) q)
+
+    U' : Pred ℚ ℓ-zero
+    U' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Upper (xi i* yi) q)
 
     L : Pred ℚ ℓ-zero
     L q = ∥ L' q ∥
-
-
-    U' : Pred ℚ ℓ-zero
-    U' q = Σ[ r ∈ ℚ ] (r < q × (Comp L r))
     U : Pred ℚ ℓ-zero
     U q = ∥ U' q ∥
 
+    ℝ∈Iℚ->Overlap : (z : ℝ) (a b : Iℚ) -> ℝ∈Iℚ z a -> ℝ∈Iℚ z b -> Overlap a b
+    ℝ∈Iℚ->Overlap z a b (al , au) (bl , bu) =
+      inj-l (ℝ-bounds->ℚ< z _ _ bl au) , inj-l (ℝ-bounds->ℚ< z _ _ al bu)
 
-    Inhabited-L : ∃ ℚ L
-    Inhabited-L = ∥-map2 handle (ℝ->Pos-U x) (ℝ->Neg-L y)
+    ℝ∈Iℚ-intersect : (z : ℝ) (a b : Iℚ) -> (ea : ℝ∈Iℚ z a) -> (eb : ℝ∈Iℚ z b) ->
+                     ℝ∈Iℚ z (i-intersect a b (ℝ∈Iℚ->Overlap z a b ea eb))
+    ℝ∈Iℚ-intersect z a b (al , au) (bl , bu) =
+      maxℚ-property {P = Real.L z} _ _ al bl ,
+      minℚ-property {P = Real.U z} _ _ au bu
+
+    ℝ∈Iℚ->¬Constant : (z : ℝ) (a : Iℚ) -> ℝ∈Iℚ z a -> ¬ (ConstantI a)
+    ℝ∈Iℚ->¬Constant z a (al , au) p =
+      Real.disjoint z (Iℚ.u a) (subst (Real.L z) p al , au)
+
+    NonZero-UpperOpen : (z : ℝ) (q : ℚ) (l : Real.L z q) -> ∃[ r ∈ ℚ ] (NonZero r × q < r × Real.L z r)
+    NonZero-UpperOpen z q lq = ∥-bind handle (Real.isUpperOpen-L z q lq)
       where
-      handle : Σ[ q1 ∈ ℚ⁺ ] (x.U ⟨ q1 ⟩) -> Σ[ q2 ∈ ℚ⁻ ] (y.L ⟨ q2 ⟩) -> Σ ℚ L
-      handle (q1 , xu-q1) (q2 , yl-q2) = _ , ∣ L'-pn q1 q2 xu-q1 yl-q2 ∣
+      Ans = ∃[ r ∈ ℚ ] (NonZero r × q < r × Real.L z r)
+      handle : Σ[ r ∈ ℚ ] (q < r × Real.L z r) -> Ans
+      handle (r , q<r , lr) = handle2 _ (isSign-self r)
+        where
+        handle2 : (s : Sign) -> (isSign s r) -> Ans
+        handle2 pos-sign pr = ∣ r , inj-l pr , q<r , lr ∣
+        handle2 neg-sign nr = ∣ r , inj-r nr , q<r , lr ∣
+        handle2 zero-sign zr = ∥-bind handle3 (Real.isUpperOpen-L z r lr)
+          where
+          handle3 : Σ[ r2 ∈ ℚ ] (r < r2 × Real.L z r2) -> Ans
+          handle3 (r2 , r<r2 , lr2) = ∣ r2 , inj-l pr2 , trans-< {_} {_} {_} {q} {r} {r2} q<r r<r2 , lr2 ∣
+            where
+            pr2 : Pos r2
+            pr2 = 0<-Pos r2 (subst (_< r2) (Zero-path r zr) r<r2)
+
+    NonZero-LowerOpen : (z : ℝ) (q : ℚ) (l : Real.U z q) -> ∃[ r ∈ ℚ ] (NonZero r × r < q × Real.U z r)
+    NonZero-LowerOpen z q uq = ∥-bind handle (Real.isLowerOpen-U z q uq)
+      where
+      Ans = ∃[ r ∈ ℚ ] (NonZero r × r < q × Real.U z r)
+      handle : Σ[ r ∈ ℚ ] (r < q × Real.U z r) -> Ans
+      handle (r , r<q , ur) = handle2 _ (isSign-self r)
+        where
+        handle2 : (s : Sign) -> (isSign s r) -> Ans
+        handle2 pos-sign pr = ∣ r , inj-l pr , r<q , ur ∣
+        handle2 neg-sign nr = ∣ r , inj-r nr , r<q , ur ∣
+        handle2 zero-sign zr = ∥-bind handle3 (Real.isLowerOpen-U z r ur)
+          where
+          handle3 : Σ[ r2 ∈ ℚ ] (r2 < r × Real.U z r2) -> Ans
+          handle3 (r2 , r2<r , ur2) = ∣ r2 , inj-r nr2 , trans-< {_} {_} {_} {r2} {r} {q} r2<r r<q , ur2 ∣
+            where
+            nr2 : Neg r2
+            nr2 = <0-Neg r2 (subst (r2 <_) (Zero-path r zr) r2<r)
+
+    Inhabited-L : Inhabited L
+    Inhabited-L = ∥-map4 handle x.Inhabited-L x.Inhabited-U y.Inhabited-L y.Inhabited-U
+      where
+      handle : Σ ℚ x.L -> Σ ℚ x.U -> Σ ℚ y.L -> Σ ℚ y.U -> Σ ℚ L
+      handle (a , la) (b , ub) (c , lc) (d , ud) =
+        q , ∣ ab , cd , (la , ub) , (lc , ud) , refl-ℚ≤ {q} ∣
+        where
+        ab : Iℚ
+        ab = Iℚ-cons a b (inj-l (ℝ-bounds->ℚ< x _ _ la ub))
+        cd : Iℚ
+        cd = Iℚ-cons c d (inj-l (ℝ-bounds->ℚ< y _ _ lc ud))
+        q = Iℚ.l (ab i* cd)
+
+    Inhabited-U : Inhabited U
+    Inhabited-U = ∥-map4 handle x.Inhabited-L x.Inhabited-U y.Inhabited-L y.Inhabited-U
+      where
+      handle : Σ ℚ x.L -> Σ ℚ x.U -> Σ ℚ y.L -> Σ ℚ y.U -> Σ ℚ U
+      handle (a , la) (b , ub) (c , lc) (d , ud) =
+        q , ∣ ab , cd , (la , ub) , (lc , ud) , refl-ℚ≤ {q} ∣
+        where
+        ab : Iℚ
+        ab = Iℚ-cons a b (inj-l (ℝ-bounds->ℚ< x _ _ la ub))
+        cd : Iℚ
+        cd = Iℚ-cons c d (inj-l (ℝ-bounds->ℚ< y _ _ lc ud))
+        q = Iℚ.u (ab i* cd)
 
     isLowerSet-L : isLowerSet L
-    isLowerSet-L q r q<r = ∥-map (L'-< q r q<r)
+    isLowerSet-L a b a<b = ∥-map handle
+      where
+      handle : L' b -> L' a
+      handle (xi , yi , exi , eyi , lt) =
+        (xi , yi , exi , eyi , inj-l (trans-<-≤ {a} {b} {Iℚ.l (xi i* yi)} a<b lt))
+
+    isUpperSet-U : isUpperSet U
+    isUpperSet-U a b a<b = ∥-map handle
+      where
+      handle : U' a -> U' b
+      handle (xi , yi , exi , eyi , lt) =
+        (xi , yi , exi , eyi , inj-l (trans-≤-< {Iℚ.u (xi i* yi)} {a} {b} lt a<b))
 
 
     isUpperOpen-L : isUpperOpen L
     isUpperOpen-L q = ∥-bind handle
       where
-      Res' = Σ[ r ∈ ℚ ] (q < r × L r)
-      Res  = ∥ Res' ∥
-
-      handle : L' q -> Res
-      handle (L'-< _ r q<r lr) = ∣ r , q<r , ∣ lr ∣ ∣
-      handle (L'-pp (r1 , pos-r1) r2⁺@(r2 , _) xl-r1 yl-r2) =
-        ∥-map handle2 (x.isUpperOpen-L r1 xl-r1)
+      handle : L' q -> ∃[ r ∈ ℚ ] (q < r × L r)
+      handle (xi@(Iℚ-cons a b _) , yi@(Iℚ-cons c d _) , (xl , xu) , (yl , yu) , lt) =
+        ∥-map4 handle2 (NonZero-UpperOpen x _ xl) (NonZero-LowerOpen x _ xu)
+                       (y.isUpperOpen-L _ yl) (y.isLowerOpen-U _ yu)
         where
-        handle2 : Σ[ r3 ∈ ℚ ] (r1 < r3 × x.L r3) -> Res'
-        handle2 (r3 , r1<r3 , xl-r3) =
-          _ , r*₂-preserves-order r1 r3 r2⁺ r1<r3 , ∣ L'-pp r3⁺ r2⁺ xl-r3 yl-r2 ∣
+        handle2 : Σ[ a' ∈ ℚ ] (NonZero a' × a < a' × x.L a') ->
+                  Σ[ b' ∈ ℚ ] (NonZero b' × b' < b × x.U b') ->
+                  Σ[ c' ∈ ℚ ] (c < c' × y.L c') ->
+                  Σ[ d' ∈ ℚ ] (d' < d × y.U d') -> _
+        handle2 (a' , nza' , a<a' , la') (b' , nzb' , b'<b , ub') (c' , c<c' , lc') (d' , d'<d , ud') =
+          r , q<r , ∣ xi' , yi' , (la' , ub') , (lc' , ud') , refl-ℚ≤ {r} ∣
           where
-          r3⁺ : ℚ⁺
-          r3⁺ = r3 , subst Posℚ (r+-right-zero r3)
-                           (trans-< {_} {_} {_} {0r} {r1} {r3} (Pos-0< _ pos-r1) r1<r3)
-      handle (L'-np r1⁻@(r1 , _) r2⁺@(r2 , _) xl-r1 yu-r2) =
-        ∥-map handle2 (upperOpenℚ⁻ x r1⁻ xl-r1)
-        where
-        handle2 : Σ[ r3 ∈ ℚ⁻ ] (r1 < ⟨ r3 ⟩ × x.L ⟨ r3 ⟩) -> Res'
-        handle2 (r3⁻@(r3 , _) , r1<r3 , xl-r3) =
-          _ , r*₂-preserves-order r1 r3 r2⁺ r1<r3 , ∣ L'-np r3⁻ r2⁺ xl-r3 yu-r2 ∣
-      handle (L'-pn r1⁺@(r1 , _) r2⁻@(r2 , _) xu-r1 yl-r2) =
-        ∥-map handle2 (upperOpenℚ⁻ y r2⁻ yl-r2)
-        where
-        handle2 : Σ[ r3 ∈ ℚ⁻ ] (r2 < ⟨ r3 ⟩ × y.L ⟨ r3 ⟩) -> Res'
-        handle2 (r3⁻@(r3 , _) , r2<r3 , yl-r3) =
-          _ , r*₁-preserves-order r1⁺ r2 r3 r2<r3 , ∣ L'-pn r1⁺ r3⁻ xu-r1 yl-r3 ∣
-      handle (L'-nn r1⁻@(r1 , _) r2⁻@(r2 , _) xu-r1 yu-r2) =
-        ∥-map handle2 (lowerOpenℚ⁻ y r2⁻ yu-r2)
-        where
-        handle2 : Σ[ r3 ∈ ℚ⁻ ] (⟨ r3 ⟩ < r2 × y.U ⟨ r3 ⟩) -> Res'
-        handle2 (r3⁻@(r3 , _) , r3<r2 , yu-r3) =
-          _ , r*₁-flips-order r1⁻ r3 r2 r3<r2 , ∣ L'-nn r1⁻ r3⁻ xu-r1 yu-r3 ∣
+          xi' = Iℚ-cons a' b' (inj-l (ℝ-bounds->ℚ< x a' b' la' ub'))
+          yi' = Iℚ-cons c' d' (inj-l (ℝ-bounds->ℚ< y c' d' lc' ud'))
+          r = Iℚ.l (xi' i* yi')
 
+          nz-xi' : ¬ (ZeroEndedI xi')
+          nz-xi' (inj-l za') = NonZero->¬Zero nza' za'
+          nz-xi' (inj-r zb') = NonZero->¬Zero nzb' zb'
+
+          p'⊂p : (xi' i* yi') i⊂ (xi i* yi)
+          p'⊂p = i*-preserves-⊂ {xi'} {xi} {yi'} {yi} (i⊂-cons a<a' b'<b) (i⊂-cons c<c' d'<d) nz-xi'
+
+          q<r : q < r
+          q<r = trans-≤-< {q} {Iℚ.l (xi i* yi)} {r} lt (_i⊂_.l p'⊂p)
 
     isLowerOpen-U : isLowerOpen U
-    isLowerOpen-U q1 = ∥-map handle
+    isLowerOpen-U q = ∥-bind handle
       where
-      handle : U' q1 -> Σ[ q2 ∈ ℚ ] (q2 < q1 × U q2)
-      handle (r , r<q1 , ur) = (midℚ r q1 , midℚ-<₂ r q1 r<q1 , ∣ (r , midℚ-<₁ r q1 r<q1 , ur) ∣)
+      handle : U' q -> ∃[ r ∈ ℚ ] (r < q × U r)
+      handle (xi@(Iℚ-cons a b _) , yi@(Iℚ-cons c d _) , (xl , xu) , (yl , yu) , lt) =
+        ∥-map4 handle2 (NonZero-UpperOpen x _ xl) (NonZero-LowerOpen x _ xu)
+                       (y.isUpperOpen-L _ yl) (y.isLowerOpen-U _ yu)
+        where
+        handle2 : Σ[ a' ∈ ℚ ] (NonZero a' × a < a' × x.L a') ->
+                  Σ[ b' ∈ ℚ ] (NonZero b' × b' < b × x.U b') ->
+                  Σ[ c' ∈ ℚ ] (c < c' × y.L c') ->
+                  Σ[ d' ∈ ℚ ] (d' < d × y.U d') -> _
+        handle2 (a' , nza' , a<a' , la') (b' , nzb' , b'<b , ub') (c' , c<c' , lc') (d' , d'<d , ud') =
+          r , r<q , ∣ xi' , yi' , (la' , ub') , (lc' , ud') , refl-ℚ≤ {r} ∣
+          where
+          xi' = Iℚ-cons a' b' (inj-l (ℝ-bounds->ℚ< x a' b' la' ub'))
+          yi' = Iℚ-cons c' d' (inj-l (ℝ-bounds->ℚ< y c' d' lc' ud'))
+          r = Iℚ.u (xi' i* yi')
+
+          nz-xi' : ¬ (ZeroEndedI xi')
+          nz-xi' (inj-l za') = NonZero->¬Zero nza' za'
+          nz-xi' (inj-r zb') = NonZero->¬Zero nzb' zb'
+
+          p'⊂p : (xi' i* yi') i⊂ (xi i* yi)
+          p'⊂p = i*-preserves-⊂ {xi'} {xi} {yi'} {yi} (i⊂-cons a<a' b'<b) (i⊂-cons c<c' d'<d) nz-xi'
+
+          r<q : r < q
+          r<q = trans-<-≤ {r} {Iℚ.u (xi i* yi)} {q} (_i⊂_.u p'⊂p) lt
 
 
-    isUpperSet-U : isUpperSet U
-    isUpperSet-U q r q<r = ∥-map handle
-      where
-      handle : U' q -> U' r
-      handle (s , s<q , ¬ls) = (s , trans-< {_} {_} {_} {s} {q} {r} s<q q<r , ¬ls)
 
     disjoint : Universal (Comp (L ∩ U))
-    disjoint q (lq , uq) = unsquash isPropBot (∥-map handle uq)
+    disjoint q (lq , uq) = unsquash isPropBot (∥-map2 handle lq uq)
       where
-      handle : U' q -> Bot
-      handle (r , r<q , ¬lr) = ¬lr (isLowerSet-L r q r<q lq)
+      handle : L' q -> U' q -> Bot
+      handle (xi1 , yi1 , exi1 , eyi1 , l1) (xi2 , yi2 , exi2 , eyi2 , u2) =
+        handle2 (i*-Constant xi3 yi3 Constant-p3)
+        where
+        xi3 : Iℚ
+        xi3 = i-intersect xi1 xi2 (ℝ∈Iℚ->Overlap x xi1 xi2 exi1 exi2)
 
---    located : (q r : ℚ) -> (q < r) -> ∥ L q ⊎ U r ∥
---    located q r q<r = ∥-bind2 handle (find-open-ball x ε⁺) (find-open-ball y ε⁺)
---      where
---      ε : ℚ
---      ε = ?
---      ε⁺ : ℚ⁺
---      ε⁺ = ε , ?
---
---      Ans = ∥ L q ⊎ U r ∥
---      handle : OpenBall x ε -> OpenBall y ε -> Ans
---      handle (a , b , lx-a , ux-b , ab-path) (c , d , ly-c , uy-d , cd-path) =
---        handle2 (split-< a 0r)
---        where
---        handle2 : (a < 0r ⊎ 0r ≤ a) -> Ans
---        handle2 = ?
+        yi3 : Iℚ
+        yi3 = i-intersect yi1 yi2 (ℝ∈Iℚ->Overlap y yi1 yi2 eyi1 eyi2)
 
-  module _
-    (Inhabited-U : Inhabited U)
-    (located : (q r : ℚ) -> (q < r) -> ∥ L q ⊎ U r ∥)
-    where
-    _ℝ*_ : ℝ
-    _ℝ*_ = record
-      { L = L
-      ; U = U
-      ; isProp-L = \q -> squash
-      ; isProp-U = \q -> squash
-      ; Inhabited-L = Inhabited-L
-      ; Inhabited-U = Inhabited-U
-      ; isLowerSet-L = isLowerSet-L
-      ; isUpperSet-U = isUpperSet-U
-      ; isUpperOpen-L = isUpperOpen-L
-      ; isLowerOpen-U = isLowerOpen-U
-      ; disjoint = disjoint
-      ; located = located
-      }
+        xi3⊆xi1 : xi3 i⊆ xi1
+        xi3⊆xi1 = i-intersect-⊆₁ _ _ _
+        xi3⊆xi2 : xi3 i⊆ xi2
+        xi3⊆xi2 = i-intersect-⊆₂ _ _ _
+        yi3⊆yi1 : yi3 i⊆ yi1
+        yi3⊆yi1 = i-intersect-⊆₁ _ _ _
+        yi3⊆yi2 : yi3 i⊆ yi2
+        yi3⊆yi2 = i-intersect-⊆₂ _ _ _
+
+        p1 = xi1 i* yi1
+        p2 = xi2 i* yi2
+        p3 = xi3 i* yi3
+
+        p3⊆p1 : p3 i⊆ p1
+        p3⊆p1 = trans-i⊆ (i*₁-preserves-⊆ xi3 yi3⊆yi1) (i*₂-preserves-⊆ xi3⊆xi1 yi1)
+        p3⊆p2 : p3 i⊆ p2
+        p3⊆p2 = trans-i⊆ (i*₁-preserves-⊆ xi3 yi3⊆yi2) (i*₂-preserves-⊆ xi3⊆xi2 yi2)
+
+        l3 : i-Lower p3 q
+        l3 = i⊆-Lower p3⊆p1 q l1
+
+        u3 : i-Upper p3 q
+        u3 = i⊆-Upper p3⊆p2 q u2
+
+        Constant-p3 : ConstantI p3
+        Constant-p3 = LowerUpper->Constant {q} p3 l3 u3
+
+        handle2 : ConstantI xi3 ⊎ ConstantI yi3 -> Bot
+        handle2 (inj-l cx3) = ℝ∈Iℚ->¬Constant x xi3 (ℝ∈Iℚ-intersect x xi1 xi2 exi1 exi2) cx3
+        handle2 (inj-r cy3) = ℝ∈Iℚ->¬Constant y yi3 (ℝ∈Iℚ-intersect y yi1 yi2 eyi1 eyi2) cy3
+
+    located : (a b : ℚ) -> a < b -> ∥ L a ⊎ U b ∥
+    located a b a<b = ∥-bind4 initial-bound x.Inhabited-L x.Inhabited-U y.Inhabited-L y.Inhabited-U
+      where
+      Ans = ∥ L a ⊎ U b ∥
+      d = diffℚ a b
+
+      initial-bound : Σ ℚ x.L -> Σ ℚ x.U -> Σ ℚ y.L -> Σ ℚ y.U -> Ans
+      initial-bound (xb1' , xbl') (xb2' , xbu') (yb1' , ybl') (yb2' , ybu') =
+        ∥-bind2 handle (find-open-ball x ε⁺) (find-open-ball y ε⁺)
+        where
+
+        xi' : Iℚ
+        xi' = Iℚ-cons xb1' xb2' (inj-l (ℝ-bounds->ℚ< x _ _ xbl' xbu'))
+        yi' : Iℚ
+        yi' = Iℚ-cons yb1' yb2' (inj-l (ℝ-bounds->ℚ< y _ _ ybl' ybu'))
+
+        m-xi' = i-maxabs xi'
+        m-yi' = i-maxabs yi'
+
+        exi' : ℝ∈Iℚ x xi'
+        exi' = xbl' , xbu'
+
+        eyi' : ℝ∈Iℚ y yi'
+        eyi' = ybl' , ybu'
+
+        pos-m-xi' : Pos m-xi'
+        pos-m-xi' = handle (NonNeg-i-maxabs xi')
+          where
+          handle : NonNeg m-xi' -> Pos m-xi'
+          handle (inj-l p) = p
+          handle (inj-r z) = bot-elim (x.disjoint 0r (subst x.L (cong Iℚ.l zp) xbl' ,
+                                                      subst x.U (cong Iℚ.u zp) xbu'))
+            where
+            zp = i-maxabs-Zero xi' z
+
+        pos-m-yi' : Pos m-yi'
+        pos-m-yi' = handle (NonNeg-i-maxabs yi')
+          where
+          handle : NonNeg m-yi' -> Pos m-yi'
+          handle (inj-l p) = p
+          handle (inj-r z) = bot-elim (y.disjoint 0r (subst y.L (cong Iℚ.l zp) ybl' ,
+                                                      subst y.U (cong Iℚ.u zp) ybu'))
+            where
+            zp = i-maxabs-Zero yi' z
+
+
+        sm = (m-yi' r+ m-xi')
+        pos-sm = r+-preserves-Pos _ _ pos-m-yi' pos-m-xi'
+
+        nn-sm = r+-NonNeg-NonNeg
+
+        sm-inv : ℚInv sm
+        sm-inv z-sm =
+          NonPos->¬Pos (inj-r (subst Zero (sym z-sm) Zero-0r)) pos-sm
+
+        ε = (d r* (r1/ sm sm-inv))
+
+        ε⁺ : ℚ⁺
+        ε⁺ = ε , (r*₁-preserves-sign (d , a<b) _ (r1/-preserves-Pos sm sm-inv pos-sm))
+
+        ε-path : (ε r* (m-yi' r+ m-xi')) == d
+        ε-path = r*-assoc _ _ _ >=>
+                 (cong (d r*_) (r1/-inverse sm sm-inv)) >=>
+                 (r*-right-one d)
+
+
+
+        handle : OpenBall x ε  -> OpenBall y ε -> Ans
+        handle (xb1 , xb2 , xbl , xbu , xbe) (yb1 , yb2 , ybl , ybu , ybe) =
+          handle2 (split-< a l)
+          where
+          xi : Iℚ
+          xi = Iℚ-cons xb1 xb2 (inj-l (ℝ-bounds->ℚ< x _ _ xbl xbu))
+          yi : Iℚ
+          yi = Iℚ-cons yb1 yb2 (inj-l (ℝ-bounds->ℚ< y _ _ ybl ybu))
+
+          exi : ℝ∈Iℚ x xi
+          exi = xbl , xbu
+          eyi : ℝ∈Iℚ y yi
+          eyi = ybl , ybu
+
+          oxi : Overlap xi' xi
+          oxi = ℝ∈Iℚ->Overlap x xi' xi exi' exi
+          oyi : Overlap yi' yi
+          oyi = ℝ∈Iℚ->Overlap y yi' yi eyi' eyi
+
+          mxi : Iℚ
+          mxi = i-intersect xi' xi oxi
+          myi : Iℚ
+          myi = i-intersect yi' yi oyi
+
+          emxi : ℝ∈Iℚ x mxi
+          emxi = ℝ∈Iℚ-intersect x xi' xi exi' exi
+          emyi : ℝ∈Iℚ y myi
+          emyi = ℝ∈Iℚ-intersect y yi' yi eyi' eyi
+
+          mxi⊆xi' = i-intersect-⊆₁ xi' xi oxi
+          myi⊆yi' = i-intersect-⊆₁ yi' yi oyi
+          mxi⊆xi  = i-intersect-⊆₂ xi' xi oxi
+          myi⊆yi  = i-intersect-⊆₂ yi' yi oyi
+
+          w-mxi = i-width mxi
+          w-myi = i-width myi
+          m-mxi = i-maxabs mxi
+          m-myi = i-maxabs myi
+
+          nn-w-mxi = NonNeg-i-width mxi
+          nn-w-myi = NonNeg-i-width myi
+
+          nn-m-xi' = NonNeg-i-maxabs xi'
+          nn-m-yi' = NonNeg-i-maxabs yi'
+
+          w-xi = i-width xi
+          w-yi = i-width yi
+
+          w-mxi≤w-xi  = i-width-⊆ mxi⊆xi
+          w-myi≤w-yi  = i-width-⊆ myi⊆yi
+          m-mxi≤m-xi' = i-maxabs-⊆ mxi⊆xi'
+          m-myi≤m-yi' = i-maxabs-⊆ myi⊆yi'
+
+          w-mxi≤ε  = subst (w-mxi ℚ≤_) xbe w-mxi≤w-xi
+          w-myi≤ε  = subst (w-myi ℚ≤_) ybe w-myi≤w-yi
+
+          wm-xy-≤ : (w-mxi r* m-myi) ℚ≤ (ε r* m-yi')
+          wm-xy-≤ = trans-ℚ≤ {(w-mxi r* m-myi)} {(w-mxi r* m-yi')} {(ε r* m-yi')}
+                             (r*₁-preserves-≤ (w-mxi , nn-w-mxi) m-myi m-yi' m-myi≤m-yi')
+                             (r*₂-preserves-≤ w-mxi ε (m-yi' , nn-m-yi') w-mxi≤ε)
+
+          mw-xy-≤ : (m-mxi r* w-myi) ℚ≤ (ε r* m-xi')
+          mw-xy-≤ = trans-ℚ≤ {(m-mxi r* w-myi)} {(m-xi' r* w-myi)} {(ε r* m-xi')}
+                             (r*₂-preserves-≤ m-mxi m-xi' (w-myi , nn-w-myi)  m-mxi≤m-xi')
+                             (subst ((m-xi' r* w-myi) ℚ≤_) (r*-commute m-xi' ε)
+                                    (r*₁-preserves-≤ (m-xi' , nn-m-xi') w-myi ε w-myi≤ε))
+
+          wmmw = ((w-mxi r* m-myi) r+ (m-mxi r* w-myi))
+          wmmw≤d : wmmw ℚ≤ d
+          wmmw≤d =
+            subst (wmmw ℚ≤_) (sym (RationalSemiring.*-distrib-+-left {ε} {m-yi'} {m-xi'}) >=>
+                              ε-path)
+                  (r+-both-preserves-≤ (w-mxi r* m-myi) (ε r* m-yi') (m-mxi r* w-myi) (ε r* m-xi')
+                                       wm-xy-≤ mw-xy-≤)
+
+
+          p = mxi i* myi
+          l = Iℚ.l p
+          u = Iℚ.u p
+          w = i-width p
+
+          w≤wmmw : w ℚ≤ wmmw
+          w≤wmmw = i*-width-≤ mxi myi
+
+          w≤d : w ℚ≤ d
+          w≤d = trans-ℚ≤ {w} {wmmw} {d} w≤wmmw wmmw≤d
+
+          handle2 : (a < l ⊎ l ℚ≤ a) -> Ans
+          handle2 (inj-l a<l) = ∣ inj-l ∣ (mxi , myi , emxi , emyi , (inj-l a<l)) ∣ ∣
+          handle2 (inj-r l≤a) = ∣ inj-r ∣ (mxi , myi , emxi , emyi , u≤b) ∣ ∣
+            where
+            u≤b : u ℚ≤ b
+            u≤b = subst2 _ℚ≤_ (diffℚ-step l u) (diffℚ-step a b) (r+-both-preserves-≤ l a w d l≤a w≤d)
+
+  _ℝ*_ : ℝ
+  _ℝ*_ = record
+    { L = L
+    ; U = U
+    ; isProp-L = \_ -> squash
+    ; isProp-U = \_ -> squash
+    ; Inhabited-L = Inhabited-L
+    ; Inhabited-U = Inhabited-U
+    ; isLowerSet-L = isLowerSet-L
+    ; isUpperSet-U = isUpperSet-U
+    ; isUpperOpen-L = isUpperOpen-L
+    ; isLowerOpen-U = isLowerOpen-U
+    ; disjoint = disjoint
+    ; located = located
+    }
