@@ -320,12 +320,6 @@ module _ (x y z : ℝ) where
   ℝ+-assoc : xy-z == x-yz
   ℝ+-assoc = LU-paths->path xy-z x-yz L-path U-path
 
-0ℝ : ℝ
-0ℝ = ℚ->ℝ 0r
-
-1ℝ : ℝ
-1ℝ = ℚ->ℝ 1r
-
 module _ (x : ℝ) where
   private
     module x = Real x

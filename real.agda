@@ -104,6 +104,12 @@ record Real (ℓ : Level) : Type (ℓ-suc ℓ) where
     where
     d = dense-< {q1} {q2} q1<q2
 
+0ℝ : ℝ
+0ℝ = ℚ->ℝ 0r
+
+1ℝ : ℝ
+1ℝ = ℚ->ℝ 1r
+
 module _ (x : ℝ) where
   private
     module x = Real x

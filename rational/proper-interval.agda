@@ -48,6 +48,9 @@ i-_ (Iℚ-cons l u l≤u) = Iℚ-cons (r- u) (r- l) (r--flips-≤ l u l≤u)
 0i : Iℚ
 0i = ℚ->Iℚ 0r
 
+1i : Iℚ
+1i = ℚ->Iℚ 1r
+
 NonNegI : Pred Iℚ ℓ-zero
 NonNegI (Iℚ-cons l _ _) = NonNeg l
 NonPosI : Pred Iℚ ℓ-zero
@@ -55,11 +58,20 @@ NonPosI (Iℚ-cons _ u _) = NonPos u
 CrossZeroI : Pred Iℚ ℓ-zero
 CrossZeroI (Iℚ-cons l u _) = NonPos l × NonNeg u
 
+PosI : Pred Iℚ ℓ-zero
+PosI (Iℚ-cons l _ _) = Pos l
+NegI : Pred Iℚ ℓ-zero
+NegI (Iℚ-cons _ u _) = Neg u
+StrictCrossZeroI : Pred Iℚ ℓ-zero
+StrictCrossZeroI (Iℚ-cons l u _) = Neg l × Pos u
+
 ConstantI : Pred Iℚ ℓ-zero
 ConstantI (Iℚ-cons l u _) = l == u
 
 ZeroEndedI : Pred Iℚ ℓ-zero
 ZeroEndedI (Iℚ-cons l u _) = Zero l ⊎ Zero u
+
+
 
 i+-commute : (a b : Iℚ) -> a i+ b == b i+ a
 i+-commute (Iℚ-cons l1 u1 _) (Iℚ-cons l2 u2 _) = Iℚ-bounds-path (r+-commute l1 l2) (r+-commute u1 u2)
@@ -80,6 +92,9 @@ _i∪_ (Iℚ-cons l1 u1 l1≤u1) (Iℚ-cons l2 u2 l2≤u2) =
 
 i∪-commute : (a b : Iℚ) -> a i∪ b == b i∪ a
 i∪-commute a b = Iℚ-bounds-path minℚ-commute maxℚ-commute
+
+i∪-same : (a : Iℚ) -> a i∪ a == a
+i∪-same a = Iℚ-bounds-path minℚ-same maxℚ-same
 
 i-scale : ℚ -> Iℚ -> Iℚ
 i-scale k (Iℚ-cons l u l≤u) =
@@ -113,6 +128,9 @@ i-scale-NP-path (k , np-k) (Iℚ-cons l u l≤u) = Iℚ-bounds-path (sym lp) (sy
   up : maxℚ (k r* l) (k r* u) == k r* l
   up = maxℚ-left _ _ (r*₁-flips-≤ (k , np-k) l u l≤u)
 
+i-scale-1 : (a : Iℚ) -> i-scale 1r a == a
+i-scale-1 a = sym (i-scale-NN-path (1r , inj-l Pos-1r) a) >=>
+              Iℚ-bounds-path (r*-left-one _) (r*-left-one _)
 
 _i*_ : Iℚ -> Iℚ -> Iℚ
 _i*_ (Iℚ-cons l1 u1 _) i2 = (i-scale l1 i2) i∪ (i-scale u1 i2)
@@ -317,6 +335,21 @@ private
     subst NonPos (diffℚ-step b a)
                  (r+-preserves-NonPos np-b (subst NonPos (sym (diffℚ-anticommute b a))
                                                          (r--NonNeg a≤b)))
+  Pos-≤ : (a b : ℚ) -> Pos a -> a ℚ≤ b -> Pos b
+  Pos-≤ a b p-a a≤b = subst Pos (diffℚ-step a b) (r+-Pos-NonNeg p-a a≤b)
+  Neg-≤ : (a b : ℚ) -> Neg b -> a ℚ≤ b -> Neg a
+  Neg-≤ a b n-b a≤b =
+   subst Neg (RationalRing.minus-double-inverse {a})
+             (r--flips-sign _ _ (Pos-≤ (r- b) (r- a) (r--flips-sign _ _ n-b) (r--flips-≤ a b a≤b)))
+
+  Pos-< : (a b : ℚ) -> NonNeg a -> a < b -> Pos b
+  Pos-< a b nn-a a<b = subst Pos (diffℚ-step a b) (r+-NonNeg-Pos nn-a a<b)
+
+  Neg-< : (a b : ℚ) -> NonPos b -> a < b -> Neg a
+  Neg-< a b np-b a<b =
+   subst Neg (RationalRing.minus-double-inverse {a})
+             (r--flips-sign _ _ (Pos-< (r- b) (r- a) (r--NonPos np-b) (r--flips-order a b a<b)))
+
 
 
 i-maxabs-NonNeg : (a : Iℚ) -> NonNegI a -> i-maxabs a == Iℚ.u a
@@ -960,6 +993,16 @@ private
     np-c : NonPosI i    -> Class i
     cz-c : CrossZeroI i -> Class i
 
+  data StrictClass (i : Iℚ) : Type₀ where
+    p-c  : PosI i       -> StrictClass i
+    n-c  : NegI i       -> StrictClass i
+    cz-c : CrossZeroI i -> StrictClass i
+
+  data StrictClass' (i : Iℚ) : Type₀ where
+    nn-c : NonNegI i          -> StrictClass' i
+    np-c : NonPosI i          -> StrictClass' i
+    cz-c : StrictCrossZeroI i -> StrictClass' i
+
   classify : (i : Iℚ) -> Class i
   classify i@(Iℚ-cons l u _) = handle _ _ (isSign-self l) (isSign-self u)
     where
@@ -969,6 +1012,29 @@ private
     handle neg-sign  pos-sign  nl pu = cz-c (inj-l nl , inj-l pu)
     handle neg-sign  zero-sign nl zu = np-c (inj-r zu)
     handle neg-sign  neg-sign  nl nu = np-c (inj-l nu)
+
+  strict-classify : (i : Iℚ) -> StrictClass i
+  strict-classify i@(Iℚ-cons l u _) = handle _ _ (isSign-self l) (isSign-self u)
+    where
+    handle : (s1 s2 : Sign) -> (isSign s1 l) -> (isSign s2 u) -> StrictClass i
+    handle pos-sign   _         pl _  = p-c pl
+    handle zero-sign  pos-sign  zl pu = cz-c (inj-r zl , inj-l pu)
+    handle zero-sign  zero-sign zl zu = cz-c (inj-r zl , inj-r zu)
+    handle zero-sign  neg-sign  zl nu = n-c nu
+    handle neg-sign   pos-sign  nl pu = cz-c (inj-l nl , inj-l pu)
+    handle neg-sign   zero-sign nl zu = cz-c (inj-l nl , inj-r zu)
+    handle neg-sign   neg-sign  nl nu = n-c nu
+
+  strict-classify' : (i : Iℚ) -> StrictClass' i
+  strict-classify' i@(Iℚ-cons l u _) = handle _ _ (isSign-self l) (isSign-self u)
+    where
+    handle : (s1 s2 : Sign) -> (isSign s1 l) -> (isSign s2 u) -> StrictClass' i
+    handle pos-sign  _  pl _ = nn-c (inj-l pl)
+    handle zero-sign _  zl _ = nn-c (inj-r zl)
+    handle neg-sign  pos-sign  nl pu = cz-c (nl , pu)
+    handle neg-sign  zero-sign nl zu = np-c (inj-r zu)
+    handle neg-sign  neg-sign  nl nu = np-c (inj-l nu)
+
 
 
 i*-width-≤ : (a b : Iℚ) ->
@@ -1037,6 +1103,9 @@ i*-Constant a@(Iℚ-cons al au _) b const =
     pl = Zero-path _ (absℚ-Zero zal)
     pu : au == 0r
     pu = Zero-path _ (absℚ-Zero zau)
+
+i*-left-one : (a : Iℚ) -> 1i i* a == a
+i*-left-one a = cong2 _i∪_ (i-scale-1 a) (i-scale-1 a) >=> (i∪-same a)
 
 
 -- Inclusion
@@ -1273,3 +1342,360 @@ i*-preserves-⊂ : {a b c d : Iℚ} -> a i⊂ b -> c i⊂ d ->
                  (¬ (ZeroEndedI a)) -> (a i* c) i⊂ (b i* d)
 i*-preserves-⊂ {a} {b} {c} {d} a⊂b c⊂d ¬za =
   trans-i⊂-i⊆ (i*₁-preserves-⊂ a ¬za c⊂d) (i*₂-preserves-⊆ (weaken-i⊂ a⊂b) d)
+
+
+find-shrink-factor : {a b : Iℚ} -> a i⊂ b -> Σ[ k ∈ ℚ ] (Pos k × k < 1r × i-scale k a i⊆ b)
+find-shrink-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (i⊂-cons bl<al au<bu) =
+  handle (strict-classify b)
+  where
+  Ans = Σ[ k ∈ ℚ ] (Pos k × k < 1r × i-scale k a i⊆ b)
+  p-case : PosI b -> Ans
+  p-case p-bl = k , p-k , k<1 , subst (_i⊆ b) p-path (i⊆-cons bl≤pl pu≤bu)
+    where
+    al-pos : Pos al
+    al-pos = subst Pos (diffℚ-step bl al) (r+-preserves-Pos _ _ p-bl bl<al)
+
+    al-inv : ℚInv al
+    al-inv = Pos->Inv al-pos
+
+    1/al = (r1/ al al-inv)
+    pos-1/al = (r1/-preserves-Pos al al-inv al-pos)
+
+    k = bl r* 1/al
+
+    k<1 : k < 1r
+    k<1 = subst (k <_) (r*-commute al 1/al >=> r1/-inverse al al-inv)
+                (r*₂-preserves-order bl al (1/al , pos-1/al) bl<al)
+
+    p-k = r*₁-preserves-sign (bl , p-bl) _ pos-1/al
+    nn-k : NonNeg k
+    nn-k = inj-l p-k
+
+
+    nn-au : NonNeg au
+    nn-au = NonNeg-≤ al au (inj-l al-pos) al≤au
+
+    p = i-scale-NN (k , nn-k) a
+    pl = Iℚ.l p
+    pu = Iℚ.u p
+    p' = i-scale k a
+
+    p-path : p == p'
+    p-path = i-scale-NN-path (k , nn-k) a
+
+    pl-path : pl == bl
+    pl-path = r*-assoc bl 1/al al
+              >=> (cong (bl r*_) (r1/-inverse al al-inv))
+              >=> r*-right-one bl
+
+    bl≤pl : bl ℚ≤ pl
+    bl≤pl = subst (_ℚ≤ pl) pl-path (refl-ℚ≤ {pl})
+
+    pu≤au : pu ℚ≤ au
+    pu≤au = subst (pu ℚ≤_) (r*-left-one au) (r*₂-preserves-≤ k 1r (au , nn-au) (inj-l k<1))
+
+    pu≤bu : pu ℚ≤ bu
+    pu≤bu = trans-ℚ≤ {pu} {au} {bu} pu≤au (inj-l au<bu)
+
+  n-case : NegI b -> Ans
+  n-case n-bu =
+    k , p-k , k<1 , subst (_i⊆ b) p-path (i⊆-cons bl≤pl pu≤bu)
+    where
+    n-au : Neg au
+    n-au = subst Neg (cong (bu r+_) (sym (diffℚ-anticommute bu au)) >=> diffℚ-step bu au)
+                 (r+-preserves-Neg _ _ n-bu (r--flips-sign _ _ au<bu))
+
+    au-inv : ℚInv au
+    au-inv = Neg->Inv n-au
+
+    1/au = (r1/ au au-inv)
+    neg-1/au = (r1/-preserves-Neg au au-inv n-au)
+
+    k = bu r* 1/au
+
+    k<1 : k < 1r
+    k<1 = subst (k <_) (r*-commute au 1/au >=> r1/-inverse au au-inv)
+                (r*₂-flips-order au bu (1/au , neg-1/au) au<bu)
+
+    p-k = r*₁-flips-sign (bu , n-bu) _ neg-1/au
+    nn-k : NonNeg k
+    nn-k = inj-l p-k
+
+
+    np-al : NonPos al
+    np-al = NonPos-≤ al au (inj-l n-au) al≤au
+
+    p = i-scale-NN (k , nn-k) a
+    pl = Iℚ.l p
+    pu = Iℚ.u p
+    p' = i-scale k a
+
+    p-path : p == p'
+    p-path = i-scale-NN-path (k , nn-k) a
+
+    pu-path : pu == bu
+    pu-path = r*-assoc bu 1/au au
+              >=> (cong (bu r*_) (r1/-inverse au au-inv))
+              >=> r*-right-one bu
+
+    pu≤bu : pu ℚ≤ bu
+    pu≤bu = subst (pu ℚ≤_) pu-path (refl-ℚ≤ {pu})
+
+    al≤pl : al ℚ≤ pl
+    al≤pl = subst (_ℚ≤ pl) (r*-left-one al) (r*₂-flips-≤ k 1r (al , np-al) (inj-l k<1))
+
+    bl≤pl : bl ℚ≤ pl
+    bl≤pl = trans-ℚ≤ {bl} {al} {pl} (inj-l bl<al) al≤pl
+
+  cz-case : CrossZeroI b -> Ans
+  cz-case (np-bl , nn-bu) =
+    1/2r , Pos-1/ℕ (2 , _) , 1/2r<1r , subst (_i⊆ b) p-path (i⊆-cons bl≤pl pu≤bu)
+    where
+
+
+    p = i-scale-NN (1/2r , (inj-l (Pos-1/ℕ (2 , _)))) a
+    pl = Iℚ.l p
+    pu = Iℚ.u p
+    p' = i-scale 1/2r a
+
+    p-path : p == p'
+    p-path = i-scale-NN-path (1/2r , (inj-l (Pos-1/ℕ (2 , _)))) a
+
+    1/2bu≤bu : (1/2r r* bu) ℚ≤ bu
+    1/2bu≤bu = subst ((1/2r r* bu) ℚ≤_) (r*-left-one bu)
+                     (r*₂-preserves-≤ 1/2r 1r (bu , nn-bu) (inj-l 1/2r<1r))
+
+    pu≤1/2bu : pu ℚ≤ (1/2r r* bu)
+    pu≤1/2bu = r*₁-preserves-≤ (1/2r , inj-l (Pos-1/ℕ (2 , _))) au bu (inj-l au<bu)
+
+    pu≤bu : pu ℚ≤ bu
+    pu≤bu = trans-ℚ≤ {pu} {1/2r r* bu} {bu} pu≤1/2bu 1/2bu≤bu
+
+    bl≤1/2bl : bl ℚ≤ (1/2r r* bl)
+    bl≤1/2bl = subst (_ℚ≤ (1/2r r* bl)) (r*-left-one bl)
+                     (r*₂-flips-≤ 1/2r 1r (bl , np-bl) (inj-l 1/2r<1r))
+
+    1/2bl≤pl : (1/2r r* bl) ℚ≤ pl
+    1/2bl≤pl = r*₁-preserves-≤ (1/2r , inj-l (Pos-1/ℕ (2 , _))) bl al (inj-l bl<al)
+
+    bl≤pl : bl ℚ≤ pl
+    bl≤pl = trans-ℚ≤ {bl} {1/2r r* bl} {pl} bl≤1/2bl 1/2bl≤pl
+
+
+  handle : StrictClass b -> Ans
+  handle (p-c p) = p-case p
+  handle (n-c p) = n-case p
+  handle (cz-c p) = cz-case p
+
+
+find-growth-factor : {a b : Iℚ} -> a i⊂ b -> Σ[ k ∈ ℚ ] (Pos k × 1r < k × i-scale k a i⊆ b)
+find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (i⊂-cons bl<al au<bu) =
+  handle (strict-classify' b)
+  where
+  Ans = Σ[ k ∈ ℚ ] (Pos k × 1r < k × i-scale k a i⊆ b)
+  nn-case : NonNegI b -> Ans
+  nn-case nn-bl = k , p-k , 1<k , subst (_i⊆ b) p-path (i⊆-cons bl≤pl pu≤bu)
+    where
+    p-au : Pos au
+    p-au = Pos-< bl au nn-bl (trans-<-≤ {bl} {al} {au} bl<al al≤au)
+
+    au-inv : ℚInv au
+    au-inv = Pos->Inv p-au
+
+    1/au = (r1/ au au-inv)
+    pos-1/au = (r1/-preserves-Pos au au-inv p-au)
+
+    k = bu r* 1/au
+
+    1<k : 1r < k
+    1<k = subst (_< k) (r*-commute au 1/au >=> r1/-inverse au au-inv)
+                (r*₂-preserves-order au bu (1/au , pos-1/au) au<bu)
+
+    p-bu = Pos-≤ au bu p-au (inj-l au<bu)
+
+    p-k = r*₁-preserves-sign (bu , p-bu) _ pos-1/au
+    nn-k : NonNeg k
+    nn-k = inj-l p-k
+
+
+    nn-al : NonNeg al
+    nn-al = NonNeg-≤ bl al nn-bl (inj-l bl<al)
+
+    p = i-scale-NN (k , nn-k) a
+    pl = Iℚ.l p
+    pu = Iℚ.u p
+    p' = i-scale k a
+
+    p-path : p == p'
+    p-path = i-scale-NN-path (k , nn-k) a
+
+    pu-path : pu == bu
+    pu-path = r*-assoc bu 1/au au
+              >=> (cong (bu r*_) (r1/-inverse au au-inv))
+              >=> r*-right-one bu
+
+    pu≤bu : pu ℚ≤ bu
+    pu≤bu = subst (pu ℚ≤_) pu-path (refl-ℚ≤ {pu})
+
+    al≤pl : al ℚ≤ pl
+    al≤pl = subst (_ℚ≤ pl) (r*-left-one al) (r*₂-preserves-≤ 1r k (al , nn-al) (inj-l 1<k))
+
+    bl≤pl : bl ℚ≤ pl
+    bl≤pl = trans-ℚ≤ {bl} {al} {pl} (inj-l bl<al) al≤pl
+
+  np-case : NonPosI b -> Ans
+  np-case np-bu = k , p-k , 1<k , subst (_i⊆ b) p-path (i⊆-cons bl≤pl pu≤bu)
+    where
+    n-al : Neg al
+    n-al = Neg-< al bu np-bu (trans-≤-< {al} {au} {bu} al≤au au<bu)
+
+    al-inv : ℚInv al
+    al-inv = Neg->Inv n-al
+
+    1/al = (r1/ al al-inv)
+    neg-1/al = (r1/-preserves-Neg al al-inv n-al)
+
+    k = bl r* 1/al
+
+    1<k : 1r < k
+    1<k = subst (_< k) (r*-commute al 1/al >=> r1/-inverse al al-inv)
+                (r*₂-flips-order bl al (1/al , neg-1/al) bl<al)
+
+    n-bl = Neg-≤ bl al n-al (inj-l bl<al)
+
+    p-k = r*₁-flips-sign (bl , n-bl) _ neg-1/al
+    nn-k : NonNeg k
+    nn-k = inj-l p-k
+
+
+    np-au : NonPos au
+    np-au = NonPos-≤ au bu np-bu (inj-l au<bu)
+
+    p = i-scale-NN (k , nn-k) a
+    pl = Iℚ.l p
+    pu = Iℚ.u p
+    p' = i-scale k a
+
+    p-path : p == p'
+    p-path = i-scale-NN-path (k , nn-k) a
+
+    pl-path : pl == bl
+    pl-path = r*-assoc bl 1/al al
+              >=> (cong (bl r*_) (r1/-inverse al al-inv))
+              >=> r*-right-one bl
+
+    bl≤pl : bl ℚ≤ pl
+    bl≤pl = subst (_ℚ≤ pl) pl-path (refl-ℚ≤ {pl})
+
+    pu≤au : pu ℚ≤ au
+    pu≤au = subst (pu ℚ≤_) (r*-left-one au) (r*₂-flips-≤ 1r k (au , np-au) (inj-l 1<k))
+
+    pu≤bu : pu ℚ≤ bu
+    pu≤bu = trans-ℚ≤ {pu} {au} {bu} pu≤au (inj-l au<bu)
+
+
+
+  cz-case : StrictCrossZeroI b -> Ans
+  cz-case (n-bl , p-bu) = k , p-k , 1<k  , subst (_i⊆ b) p-path (i⊆-cons bl≤pl pu≤bu)
+    where
+    hbl = 1/2r r* bl
+    hbu = 1/2r r* bu
+
+    al' = minℚ al hbl
+    au' = maxℚ au hbu
+
+    n-al' : Neg al'
+    n-al' = Neg-≤ al' hbl (r*₁-preserves-sign (1/2r , Pos-1/ℕ (2 , _)) _ n-bl) (minℚ-≤-right al hbl)
+
+    p-au' : Pos au'
+    p-au' = Pos-≤ hbu au' (r*₁-preserves-sign (1/2r , Pos-1/ℕ (2 , _)) _ p-bu) (maxℚ-≤-right au hbu)
+
+    bl<al' : bl < al'
+    bl<al' = minℚ-property {P = bl <_} al hbl bl<al
+                           (subst (_< hbl) (r*-left-one bl)
+                                  (r*₂-flips-order 1/2r 1r (bl , n-bl) 1/2r<1r))
+    au'<bu : au' < bu
+    au'<bu = maxℚ-property {P = _< bu} au hbu au<bu
+                           (subst (hbu <_) (r*-left-one bu)
+                                  (r*₂-preserves-order 1/2r 1r (bu , p-bu) 1/2r<1r))
+
+    al'-inv : ℚInv al'
+    al'-inv = Neg->Inv n-al'
+
+    au'-inv : ℚInv au'
+    au'-inv = Pos->Inv p-au'
+
+    1/al' = (r1/ al' al'-inv)
+    1/au' = (r1/ au' au'-inv)
+
+    kl = bl r* 1/al'
+    ku = bu r* 1/au'
+
+    n-1/al' = r1/-preserves-Neg al' al'-inv n-al'
+    p-1/au' = r1/-preserves-Pos au' au'-inv p-au'
+
+    p-kl : Pos kl
+    p-kl = r*₁-flips-sign (bl , n-bl) _ n-1/al'
+    p-ku : Pos ku
+    p-ku = r*₁-preserves-sign (bu , p-bu) _ p-1/au'
+
+    1<kl : 1r < kl
+    1<kl = subst (_< kl) (r*-commute al' 1/al' >=> r1/-inverse al' al'-inv)
+                 (r*₂-flips-order bl al' (1/al' , n-1/al') bl<al')
+    1<ku : 1r < ku
+    1<ku = subst (_< ku) (r*-commute au' 1/au' >=> r1/-inverse au' au'-inv)
+                 (r*₂-preserves-order au' bu (1/au' , p-1/au') au'<bu)
+
+    k = minℚ kl ku
+
+    p-k : Pos k
+    p-k = minℚ-property {P = Pos} kl ku p-kl p-ku
+
+    1<k : 1r < k
+    1<k = minℚ-property {P = 1r <_} kl ku 1<kl 1<ku
+
+    p = i-scale-NN (k , inj-l p-k) a
+    pl = Iℚ.l p
+    pu = Iℚ.u p
+    p' = i-scale k a
+
+    p-path : p == p'
+    p-path = i-scale-NN-path (k , inj-l p-k) a
+
+    l-path : kl r* al' == bl
+    l-path = r*-assoc bl 1/al' al'
+             >=> (cong (bl r*_) (r1/-inverse al' al'-inv))
+             >=> r*-right-one bl
+
+    u-path : ku r* au' == bu
+    u-path = r*-assoc bu 1/au' au'
+             >=> (cong (bu r*_) (r1/-inverse au' au'-inv))
+             >=> r*-right-one bu
+
+    al'≤al : al' ℚ≤ al
+    al'≤al = minℚ-≤-left al hbl
+    au≤au' : au  ℚ≤ au'
+    au≤au' = maxℚ-≤-left au hbu
+
+    k≤kl : k ℚ≤ kl
+    k≤kl = minℚ-≤-left kl ku
+    k≤ku : k ℚ≤ ku
+    k≤ku = minℚ-≤-right kl ku
+
+
+    bl≤pl : bl ℚ≤ pl
+    bl≤pl = subst (_ℚ≤ pl) l-path
+                  (trans-ℚ≤ {kl r* al'} {k r* al'} {k r* al}
+                            (r*₂-flips-≤ k kl (al' , inj-l n-al') k≤kl)
+                            (r*₁-preserves-≤ (k , inj-l p-k) al' al al'≤al))
+
+    pu≤bu : pu ℚ≤ bu
+    pu≤bu = subst (pu ℚ≤_) u-path
+                  (trans-ℚ≤ {k r* au} {k r* au'} {ku r* au'}
+                            (r*₁-preserves-≤ (k , inj-l p-k) au au' au≤au')
+                            (r*₂-preserves-≤ k ku (au' , inj-l p-au') k≤ku))
+
+  handle : StrictClass' b -> Ans
+  handle (nn-c p) = nn-case p
+  handle (np-c p) = np-case p
+  handle (cz-c p) = cz-case p

@@ -4,6 +4,7 @@ module real.arithmetic.multiplication where
 
 open import base
 open import equality
+open import isomorphism
 open import hlevel
 open import order
 open import order.instances.rational
@@ -14,12 +15,37 @@ open import rational.minmax
 open import rational.proper-interval
 open import real
 open import real.sequence
-open import real.arithmetic.absolute-value
 open import relation hiding (U)
 open import ring.implementations.rational
 open import sign
 open import sign.instances.rational
 open import truncation
+open import univalence
+
+private
+  ℝ∈Iℚ : ℝ -> Iℚ -> Type₀
+  ℝ∈Iℚ z (Iℚ-cons l u _) = Real.L z l × Real.U z u
+
+  module _ (x y : ℝ) where
+    L' : Pred ℚ ℓ-zero
+    L' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Lower (xi i* yi) q)
+
+    U' : Pred ℚ ℓ-zero
+    U' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Upper (xi i* yi) q)
+
+  ℝ∈Iℚ->Overlap : (z : ℝ) (a b : Iℚ) -> ℝ∈Iℚ z a -> ℝ∈Iℚ z b -> Overlap a b
+  ℝ∈Iℚ->Overlap z a b (al , au) (bl , bu) =
+    inj-l (ℝ-bounds->ℚ< z _ _ bl au) , inj-l (ℝ-bounds->ℚ< z _ _ al bu)
+
+  ℝ∈Iℚ-intersect : (z : ℝ) (a b : Iℚ) -> (ea : ℝ∈Iℚ z a) -> (eb : ℝ∈Iℚ z b) ->
+                   ℝ∈Iℚ z (i-intersect a b (ℝ∈Iℚ->Overlap z a b ea eb))
+  ℝ∈Iℚ-intersect z a b (al , au) (bl , bu) =
+    maxℚ-property {P = Real.L z} _ _ al bl ,
+    minℚ-property {P = Real.U z} _ _ au bu
+
+  ℝ∈Iℚ->¬Constant : (z : ℝ) (a : Iℚ) -> ℝ∈Iℚ z a -> ¬ (ConstantI a)
+  ℝ∈Iℚ->¬Constant z a (al , au) p =
+    Real.disjoint z (Iℚ.u a) (subst (Real.L z) p al , au)
 
 module _ (x y : ℝ)
   where
@@ -27,33 +53,10 @@ module _ (x y : ℝ)
     module x = Real x
     module y = Real y
 
-    ℝ∈Iℚ : ℝ -> Iℚ -> Type₀
-    ℝ∈Iℚ z (Iℚ-cons l u _) = Real.L z l × Real.U z u
-
-    L' : Pred ℚ ℓ-zero
-    L' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Lower (xi i* yi) q)
-
-    U' : Pred ℚ ℓ-zero
-    U' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Upper (xi i* yi) q)
-
     L : Pred ℚ ℓ-zero
-    L q = ∥ L' q ∥
+    L q = ∥ L' x y q ∥
     U : Pred ℚ ℓ-zero
-    U q = ∥ U' q ∥
-
-    ℝ∈Iℚ->Overlap : (z : ℝ) (a b : Iℚ) -> ℝ∈Iℚ z a -> ℝ∈Iℚ z b -> Overlap a b
-    ℝ∈Iℚ->Overlap z a b (al , au) (bl , bu) =
-      inj-l (ℝ-bounds->ℚ< z _ _ bl au) , inj-l (ℝ-bounds->ℚ< z _ _ al bu)
-
-    ℝ∈Iℚ-intersect : (z : ℝ) (a b : Iℚ) -> (ea : ℝ∈Iℚ z a) -> (eb : ℝ∈Iℚ z b) ->
-                     ℝ∈Iℚ z (i-intersect a b (ℝ∈Iℚ->Overlap z a b ea eb))
-    ℝ∈Iℚ-intersect z a b (al , au) (bl , bu) =
-      maxℚ-property {P = Real.L z} _ _ al bl ,
-      minℚ-property {P = Real.U z} _ _ au bu
-
-    ℝ∈Iℚ->¬Constant : (z : ℝ) (a : Iℚ) -> ℝ∈Iℚ z a -> ¬ (ConstantI a)
-    ℝ∈Iℚ->¬Constant z a (al , au) p =
-      Real.disjoint z (Iℚ.u a) (subst (Real.L z) p al , au)
+    U q = ∥ U' x y q ∥
 
     NonZero-UpperOpen : (z : ℝ) (q : ℚ) (l : Real.L z q) -> ∃[ r ∈ ℚ ] (NonZero r × q < r × Real.L z r)
     NonZero-UpperOpen z q lq = ∥-bind handle (Real.isUpperOpen-L z q lq)
@@ -120,14 +123,14 @@ module _ (x y : ℝ)
     isLowerSet-L : isLowerSet L
     isLowerSet-L a b a<b = ∥-map handle
       where
-      handle : L' b -> L' a
+      handle : L' x y b -> L' x y a
       handle (xi , yi , exi , eyi , lt) =
         (xi , yi , exi , eyi , inj-l (trans-<-≤ {a} {b} {Iℚ.l (xi i* yi)} a<b lt))
 
     isUpperSet-U : isUpperSet U
     isUpperSet-U a b a<b = ∥-map handle
       where
-      handle : U' a -> U' b
+      handle : U' x y a -> U' x y b
       handle (xi , yi , exi , eyi , lt) =
         (xi , yi , exi , eyi , inj-l (trans-≤-< {Iℚ.u (xi i* yi)} {a} {b} lt a<b))
 
@@ -135,7 +138,7 @@ module _ (x y : ℝ)
     isUpperOpen-L : isUpperOpen L
     isUpperOpen-L q = ∥-bind handle
       where
-      handle : L' q -> ∃[ r ∈ ℚ ] (q < r × L r)
+      handle : L' x y q -> ∃[ r ∈ ℚ ] (q < r × L r)
       handle (xi@(Iℚ-cons a b _) , yi@(Iℚ-cons c d _) , (xl , xu) , (yl , yu) , lt) =
         ∥-map4 handle2 (NonZero-UpperOpen x _ xl) (NonZero-LowerOpen x _ xu)
                        (y.isUpperOpen-L _ yl) (y.isLowerOpen-U _ yu)
@@ -164,7 +167,7 @@ module _ (x y : ℝ)
     isLowerOpen-U : isLowerOpen U
     isLowerOpen-U q = ∥-bind handle
       where
-      handle : U' q -> ∃[ r ∈ ℚ ] (r < q × U r)
+      handle : U' x y q -> ∃[ r ∈ ℚ ] (r < q × U r)
       handle (xi@(Iℚ-cons a b _) , yi@(Iℚ-cons c d _) , (xl , xu) , (yl , yu) , lt) =
         ∥-map4 handle2 (NonZero-UpperOpen x _ xl) (NonZero-LowerOpen x _ xu)
                        (y.isUpperOpen-L _ yl) (y.isLowerOpen-U _ yu)
@@ -195,7 +198,7 @@ module _ (x y : ℝ)
     disjoint : Universal (Comp (L ∩ U))
     disjoint q (lq , uq) = unsquash isPropBot (∥-map2 handle lq uq)
       where
-      handle : L' q -> U' q -> Bot
+      handle : L' x y q -> U' x y q -> Bot
       handle (xi1 , yi1 , exi1 , eyi1 , l1) (xi2 , yi2 , exi2 , eyi2 , u2) =
         handle2 (i*-Constant xi3 yi3 Constant-p3)
         where
@@ -412,3 +415,136 @@ module _ (x y : ℝ)
     ; disjoint = disjoint
     ; located = located
     }
+
+
+
+
+module _ (x y : ℝ) where
+  private
+    module x = Real x
+    module y = Real y
+    xy = x ℝ* y
+    yx = y ℝ* x
+    module xy = Real xy
+    module yx = Real yx
+
+    L-path : (q : ℚ) -> xy.L q == yx.L q
+    L-path q = ua (isoToEquiv i)
+      where
+      open Iso
+      i : Iso (xy.L q) (yx.L q)
+      i .fun = ∥-map handle
+        where
+        handle : L' x y q -> L' y x q
+        handle (a , b , ea , eb , l) =
+          b , a , eb , ea , subst (\x -> i-Lower x q) (i*-commute a b) l
+      i .inv = ∥-map handle
+        where
+        handle : L' y x q -> L' x y q
+        handle (a , b , ea , eb , l) =
+          b , a , eb , ea , subst (\x -> i-Lower x q) (i*-commute a b) l
+      i .rightInv _ = squash _ _
+      i .leftInv _ = squash _ _
+
+    U-path : (q : ℚ) -> xy.U q == yx.U q
+    U-path q = ua (isoToEquiv i)
+      where
+      open Iso
+      i : Iso (xy.U q) (yx.U q)
+      i .fun = ∥-map handle
+        where
+        handle : U' x y q -> U' y x q
+        handle (a , b , ea , eb , l) =
+          b , a , eb , ea , subst (\x -> i-Upper x q) (i*-commute a b) l
+      i .inv = ∥-map handle
+        where
+        handle : U' y x q -> U' x y q
+        handle (a , b , ea , eb , l) =
+          b , a , eb , ea , subst (\x -> i-Upper x q) (i*-commute a b) l
+      i .rightInv _ = squash _ _
+      i .leftInv _ = squash _ _
+
+  ℝ*-commute : xy == yx
+  ℝ*-commute = LU-paths->path xy yx L-path U-path
+
+
+-- module _ (x : ℝ)
+--   (i-centered : ℚ -> ℚ⁺ -> Iℚ)
+--   where
+--   private
+--     module x = Real x
+--     module 1ℝ = Real 1ℝ
+--     1x = 1ℝ ℝ* x
+--     module 1x = Real 1x
+--
+--     1∈centered : (ε : ℚ⁺) -> ℝ∈Iℚ 1ℝ (i-centered 1r ε)
+--     1∈centered = ?
+--
+--     L-path : (q : ℚ) -> 1x.L q == x.L q
+--     L-path q = ua (isoToEquiv i)
+--       where
+--       open Iso
+--       i : Iso (1x.L q) (x.L q)
+--       i .rightInv _ = x.isProp-L q _ _
+--       i .leftInv _ = 1x.isProp-L q _ _
+--       i .inv xl-q = ∥-bind2 handle x.Inhabited-U (x.isUpperOpen-L q xl-q)
+--          where
+--          handle : Σ ℚ x.U -> Σ[ r ∈ ℚ ] (q < r × x.L r) -> 1x.L q
+--          handle (s , xu-s) (r , q<r , xl-r) =
+--            ∣ i-centered 1r ε⁺ , rs , 1∈centered ε⁺ , (xl-r , xu-s) , ? ∣
+--            where
+--            ε : ℚ
+--            ε = ?
+--            ε⁺ : ℚ⁺
+--            ε⁺ = ε , ?
+--
+--            rs : Iℚ
+--            rs = Iℚ-cons r s (inj-l (ℝ-bounds->ℚ< x _ _ xl-r xu-s))
+--
+--            -- path : (diffℚ r q) r+ r == q
+--            -- path = r+-commute (diffℚ r q) r >=> diffℚ-step r q
+--
+--            -- d'>0 : (diffℚ q r) > 0r
+--            -- d'>0 = Pos-0< _ q<r
+--
+--            -- d<0 : (diffℚ r q) < 0r
+--            -- d<0 = subst (_< 0r) (sym (diffℚ-anticommute r q)) (r--flips-order 0r (diffℚ q r) d'>0)
+--
+--       i .fun 0xl-q = ?
+
+--       i .fun 0xl-q = unsquash (x.isProp-L q) (∥-map handle 0xl-q)
+--         where
+--         handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (1ℝ.L a × x.L b × a r+ b == q) -> x.L q
+--         handle (a , b , 0l-a , xl-b , p) = x.isLowerSet-L q b q<b xl-b
+--           where
+--           q<b : q < b
+--           q<b = subst2 _<_ p (r+-left-zero b) (r+₂-preserves-order a 0r b 0l-a)
+--
+--    U-path : (q : ℚ) -> 0x.U q == x.U q
+--    U-path q = ua (isoToEquiv i)
+--      where
+--      open Iso
+--      i : Iso (0x.U q) (x.U q)
+--      i .rightInv _ = x.isProp-U q _ _
+--      i .leftInv _ = 0x.isProp-U q _ _
+--      i .inv xu-q = ∥-bind handle (x.isLowerOpen-U q xu-q)
+--        where
+--        handle : Σ[ r ∈ ℚ ] (r < q × x.U r) -> 0x.U q
+--        handle (r , r<q , xu-r) = ∣ (diffℚ r q) , r , 0<d , xu-r , path ∣
+--          where
+--          path : (diffℚ r q) r+ r == q
+--          path = r+-commute (diffℚ r q) r >=> diffℚ-step r q
+--
+--          0<d : 0r < (diffℚ r q)
+--          0<d = Pos-0< _ r<q
+--      i .fun 0xu-q = unsquash (x.isProp-U q) (∥-map handle 0xu-q)
+--        where
+--        handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (0ℝ.U a × x.U b × a r+ b == q) -> x.U q
+--        handle (a , b , 0u-a , xu-b , p) = x.isUpperSet-U b q b<q xu-b
+--          where
+--          b<q : b < q
+--          b<q = subst2 _<_ (r+-left-zero b) p (r+₂-preserves-order 0r a b 0u-a)
+--
+--
+--  ℝ+-left-zero : 0x == x
+--  ℝ+-left-zero = LU-paths->path 0x x L-path U-path

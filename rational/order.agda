@@ -184,6 +184,10 @@ r*'-preserves-Pos {q1} {q2} p1 p2 = is-signℚ' ans
 r1/'-preserves-Pos : (q : Rational') -> (i : ℚInv' q) -> Pos q -> Pos (r1/' q i)
 r1/'-preserves-Pos q i p = is-signℚ' (subst i.Pos i.*-commute (isSignℚ'.v p))
 
+r1/'-preserves-Neg : (q : Rational') -> (i : ℚInv' q) -> Neg q -> Neg (r1/' q i)
+r1/'-preserves-Neg q i p = is-signℚ' (subst i.Neg i.*-commute (isSignℚ'.v p))
+
+
 r-'-flips-sign : (q : Rational') (s : Sign) -> (isSign s q) -> (isSign (s⁻¹ s) (r-' q))
 r-'-flips-sign q s qs =
   is-signℚ'
@@ -348,6 +352,12 @@ Zero-path =
     (\_ -> isPropΠ (\_ -> isSetRational _ _))
     (\q zq -> eq/ _ _ (Zero-r~ q (isSignℚ.v zq)))
 
+Pos->Inv : {q : ℚ} -> Pos q -> ℚInv q
+Pos->Inv {q} p z = NonZero->¬Zero (inj-l p) (subst Zero (sym z) Zero-0r)
+
+Neg->Inv : {q : ℚ} -> Neg q -> ℚInv q
+Neg->Inv {q} p z = NonZero->¬Zero (inj-r p) (subst Zero (sym z) Zero-0r)
+
 abstract
   r+-preserves-Pos : (q1 q2 : Rational) -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r+ q2)
   r+-preserves-Pos =
@@ -417,6 +427,12 @@ abstract
     RationalElim.elimProp
       (\q -> isPropΠ2 (\ i _ -> isProp-Pos (r1/ q i)))
       (\q i p -> is-signℚ (r1/'-preserves-Pos q (ℚInv->ℚInv' q i) (isSignℚ.v p)))
+
+  r1/-preserves-Neg : (q : Rational) -> (i : ℚInv q) -> Neg q -> Neg (r1/ q i)
+  r1/-preserves-Neg =
+    RationalElim.elimProp
+      (\q -> isPropΠ2 (\ i _ -> isProp-Neg (r1/ q i)))
+      (\q i p -> is-signℚ (r1/'-preserves-Neg q (ℚInv->ℚInv' q i) (isSignℚ.v p)))
 
 
   r*₁-preserves-sign : (q : ℚ⁺) (r : Rational) {s : Sign} -> isSignℚ s r ->
@@ -786,6 +802,10 @@ r*₁-flips-order a⁻@(a , _) b c b<c = pos-acab
                         cong ((a r* b) +_) (r*-minus-extract-right a c))
                    pos-acb
 
+r*₂-flips-order : (a b : ℚ) (c : ℚ⁻) -> a < b -> (b r* ⟨ c ⟩) < (a r* ⟨ c ⟩)
+r*₂-flips-order a b c@(c' , _) a<b =
+  subst2 _<_ (r*-commute c' b) (r*-commute c' a) (r*₁-flips-order c a b a<b)
+
 
 r*₁-flips-≤ : (a : ℚ⁰⁻) (b c : Rational) -> b ℚ≤ c -> (⟨ a ⟩ r* c) ℚ≤ (⟨ a ⟩ r* b)
 r*₁-flips-≤ (a , _) b c (inj-r b=c) =
@@ -971,6 +991,16 @@ r+-NonNeg-NonNeg {q1} {q2} nn-q1 (inj-l p-q2) =
   inj-l (r+-NonNeg-Pos nn-q1 p-q2)
 r+-NonNeg-NonNeg {q1} {q2} nn-q1 (inj-r z-q2) =
   subst NonNeg (sym (r+-right-zero q1) >=> cong (q1 r+_) (sym (Zero-path q2 z-q2))) nn-q1
+
+r+-Neg-NonPos : {q1 q2 : Rational} -> Neg q1 -> NonPos q2 -> Neg (q1 r+ q2)
+r+-Neg-NonPos {q1} {q2} n-q1 np-q2 =
+   subst Neg (cong r-_ (sym RationalRing.minus-distrib-plus) >=>
+              RationalRing.minus-double-inverse {q1 r+ q2})
+             (r--flips-sign _ _ (r+-Pos-NonNeg (r--flips-sign _ _ n-q1) (r--NonPos np-q2)))
+
+r+-NonPos-Neg : {q1 q2 : Rational} -> NonPos q1 -> Neg q2 -> Neg (q1 r+ q2)
+r+-NonPos-Neg {q1} {q2} np n = subst Neg (r+-commute q2 q1) (r+-Neg-NonPos n np)
+
 
 trans-<-≤ : {q1 q2 q3 : Rational} -> q1 < q2 -> q2 ℚ≤ q3 -> q1 < q3
 trans-<-≤ {q1} {q2} {q3} q1<q2 q2≤q3 =
