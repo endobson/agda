@@ -468,83 +468,258 @@ module _ (x y : ℝ) where
   ℝ*-commute = LU-paths->path xy yx L-path U-path
 
 
--- module _ (x : ℝ)
---   (i-centered : ℚ -> ℚ⁺ -> Iℚ)
---   where
---   private
---     module x = Real x
---     module 1ℝ = Real 1ℝ
---     1x = 1ℝ ℝ* x
---     module 1x = Real 1x
---
---     1∈centered : (ε : ℚ⁺) -> ℝ∈Iℚ 1ℝ (i-centered 1r ε)
---     1∈centered = ?
---
---     L-path : (q : ℚ) -> 1x.L q == x.L q
---     L-path q = ua (isoToEquiv i)
---       where
---       open Iso
---       i : Iso (1x.L q) (x.L q)
---       i .rightInv _ = x.isProp-L q _ _
---       i .leftInv _ = 1x.isProp-L q _ _
---       i .inv xl-q = ∥-bind2 handle x.Inhabited-U (x.isUpperOpen-L q xl-q)
---          where
---          handle : Σ ℚ x.U -> Σ[ r ∈ ℚ ] (q < r × x.L r) -> 1x.L q
---          handle (s , xu-s) (r , q<r , xl-r) =
---            ∣ i-centered 1r ε⁺ , rs , 1∈centered ε⁺ , (xl-r , xu-s) , ? ∣
---            where
---            ε : ℚ
---            ε = ?
---            ε⁺ : ℚ⁺
---            ε⁺ = ε , ?
---
---            rs : Iℚ
---            rs = Iℚ-cons r s (inj-l (ℝ-bounds->ℚ< x _ _ xl-r xu-s))
---
---            -- path : (diffℚ r q) r+ r == q
---            -- path = r+-commute (diffℚ r q) r >=> diffℚ-step r q
---
---            -- d'>0 : (diffℚ q r) > 0r
---            -- d'>0 = Pos-0< _ q<r
---
---            -- d<0 : (diffℚ r q) < 0r
---            -- d<0 = subst (_< 0r) (sym (diffℚ-anticommute r q)) (r--flips-order 0r (diffℚ q r) d'>0)
---
---       i .fun 0xl-q = ?
+module _ (x : ℝ)
+  where
+  private
+    module x = Real x
+    module 1ℝ = Real 1ℝ
+    1x = 1ℝ ℝ* x
+    module 1x = Real 1x
 
---       i .fun 0xl-q = unsquash (x.isProp-L q) (∥-map handle 0xl-q)
---         where
---         handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (1ℝ.L a × x.L b × a r+ b == q) -> x.L q
---         handle (a , b , 0l-a , xl-b , p) = x.isLowerSet-L q b q<b xl-b
---           where
---           q<b : q < b
---           q<b = subst2 _<_ p (r+-left-zero b) (r+₂-preserves-order a 0r b 0l-a)
---
---    U-path : (q : ℚ) -> 0x.U q == x.U q
---    U-path q = ua (isoToEquiv i)
---      where
---      open Iso
---      i : Iso (0x.U q) (x.U q)
---      i .rightInv _ = x.isProp-U q _ _
---      i .leftInv _ = 0x.isProp-U q _ _
---      i .inv xu-q = ∥-bind handle (x.isLowerOpen-U q xu-q)
---        where
---        handle : Σ[ r ∈ ℚ ] (r < q × x.U r) -> 0x.U q
---        handle (r , r<q , xu-r) = ∣ (diffℚ r q) , r , 0<d , xu-r , path ∣
---          where
---          path : (diffℚ r q) r+ r == q
---          path = r+-commute (diffℚ r q) r >=> diffℚ-step r q
---
---          0<d : 0r < (diffℚ r q)
---          0<d = Pos-0< _ r<q
---      i .fun 0xu-q = unsquash (x.isProp-U q) (∥-map handle 0xu-q)
---        where
---        handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (0ℝ.U a × x.U b × a r+ b == q) -> x.U q
---        handle (a , b , 0u-a , xu-b , p) = x.isUpperSet-U b q b<q xu-b
---          where
---          b<q : b < q
---          b<q = subst2 _<_ (r+-left-zero b) p (r+₂-preserves-order 0r a b 0u-a)
---
---
---  ℝ+-left-zero : 0x == x
---  ℝ+-left-zero = LU-paths->path 0x x L-path U-path
+    isLowerSet≤ : (q r : ℚ) -> (q ℚ≤ r) -> x.L r -> x.L q
+    isLowerSet≤ q r q≤r lr = unsquash (x.isProp-L q) (∥-map handle (x.isUpperOpen-L r lr))
+      where
+      handle : Σ[ s ∈ ℚ ] (r < s × x.L s) -> x.L q
+      handle (s , r<s , ls) = x.isLowerSet-L q s (trans-≤-< {q} {r} {s} q≤r r<s) ls
+
+    isUpperSet≤ : (q r : ℚ) -> (q ℚ≤ r) -> x.U q -> x.U r
+    isUpperSet≤ q r q≤r uq = unsquash (x.isProp-U r) (∥-map handle (x.isLowerOpen-U q uq))
+      where
+      handle : Σ[ s ∈ ℚ ] (s < q × x.U s) -> x.U r
+      handle (s , s<q , us) = x.isUpperSet-U s r (trans-<-≤ {s} {q} {r} s<q q≤r) us
+
+    L-path : (q : ℚ) -> 1x.L q == x.L q
+    L-path q = ua (isoToEquiv i)
+      where
+      open Iso
+      i : Iso (1x.L q) (x.L q)
+      i .rightInv _ = x.isProp-L q _ _
+      i .leftInv _ = 1x.isProp-L q _ _
+      i .inv xl-q = ∥-bind2 handle x.Inhabited-U (x.isUpperOpen-L q xl-q)
+         where
+         handle : Σ ℚ x.U -> Σ[ r ∈ ℚ ] (q < r × x.L r) -> 1x.L q
+         handle (s , xu-s) (r , q<r , xl-r) =
+           handle2 (find-shrink-factor rs⊂qs') (find-growth-factor rs⊂qs')
+           where
+
+           s' : ℚ
+           s' = 1r r+ s
+
+           s<s' : s < s'
+           s<s' = subst Pos (sym (r+-right-zero 1r) >=>
+                             cong (1r r+_) (sym (r+-inverse s)) >=>
+                             sym (r+-assoc 1r s (r- s))) Pos-1r
+
+           r<s : r < s
+           r<s = (ℝ-bounds->ℚ< x _ _ xl-r xu-s)
+
+           q<s' : q < s'
+           q<s' = trans-< {_} {_} {_} {q} {r} {s'} q<r (trans-< {_} {_} {_} {r} {s} {s'} r<s s<s')
+
+           rs : Iℚ
+           rs = Iℚ-cons r s (inj-l r<s)
+
+           qs' : Iℚ
+           qs' = Iℚ-cons q s' (inj-l q<s')
+
+           rs⊂qs' : rs i⊂ qs'
+           rs⊂qs' = i⊂-cons q<r s<s'
+
+           handle2 : Σ[ kl ∈ ℚ ] (Pos kl × kl < 1r × i-scale kl rs i⊆ qs') ->
+                     Σ[ ku ∈ ℚ ] (Pos ku × 1r < ku × i-scale ku rs i⊆ qs') ->
+                     1x.L q
+           handle2 (kl , p-kl , kl<1 , scale-kl) (ku , p-ku , 1<ku , scale-ku) =
+             ∣ k , rs , (kl<1 , 1<ku) , (xl-r , xu-s) , _i⊆_.l prod-⊆ ∣
+             where
+             kl<ku = trans-< {_} {_} {_} {kl} {1r} {ku} kl<1 1<ku
+             k : Iℚ
+             k = (Iℚ-cons kl ku (inj-l kl<ku))
+
+             prod-⊆ : (k i* rs) i⊆ qs'
+             prod-⊆ = subst ((k i* rs) i⊆_) (i∪-same qs') (i∪-preserves-⊆ scale-kl scale-ku)
+
+      i .fun 1xl-q = unsquash (x.isProp-L q) (∥-map handle 1xl-q)
+        where
+        handle : L' 1ℝ x q -> x.L q
+        handle ((Iℚ-cons 1i-l 1i-u 1i-l≤u) , xi@(Iℚ-cons xi-l xi-u xi-l≤u) ,
+                 (1i-l<1 , 1<1i-u) , exi , q≤prod) =
+          isLowerSet≤ q xi-l ans (fst exi)
+          where
+
+
+          l-1 : (Iℚ.l (i-scale 1i-l xi)) == (minℚ (1i-l r* xi-l) (1i-l r* xi-u))
+          l-1 = refl
+
+
+          u-1 : (Iℚ.l (i-scale 1i-u xi)) == (minℚ (1i-u r* xi-l) (1i-u r* xi-u))
+          u-1 = refl
+
+
+          check : q ℚ≤ (minℚ (Iℚ.l (i-scale 1i-l xi)) (Iℚ.l (i-scale 1i-u xi)))
+          check = q≤prod
+
+          ans : q ℚ≤ xi-l
+          ans = handle2 (split-< xi-l 0r)
+            where
+            handle2 : (xi-l < 0r) ⊎ (0r ℚ≤ xi-l) -> q ℚ≤ xi-l
+            handle2 (inj-l xi-l<0) =
+              trans-ℚ≤ {q} {p0} {xi-l} q≤prod
+                (trans-ℚ≤ {p0} {p2} {xi-l} lt3
+                  (trans-ℚ≤ {p2} {p3} {xi-l} lt2 (inj-l lt1)))
+              where
+              n-xi-l : Neg xi-l
+              n-xi-l = <0-Neg xi-l xi-l<0
+
+              p1 = (Iℚ.l (i-scale 1i-l xi))
+              p2 = (Iℚ.l (i-scale 1i-u xi))
+              p0 = minℚ p1 p2
+              p3 = (1i-u r* xi-l)
+              p4 = (1i-u r* xi-u)
+
+
+              lt1 : (1i-u r* xi-l) < xi-l
+              lt1 = subst ((1i-u r* xi-l) <_) (r*-left-one xi-l)
+                          (r*₂-flips-order 1r 1i-u (xi-l , n-xi-l) 1<1i-u)
+              lt2 : (minℚ p3 p4) ℚ≤ p3
+              lt2 = minℚ-≤-left p3 p4
+              lt3 : (minℚ p1 p2) ℚ≤ p2
+              lt3 = minℚ-≤-right p1 p2
+            handle2 (inj-r 0≤xi-l) =
+              trans-ℚ≤ {q} {p0} {xi-l} q≤prod
+                (trans-ℚ≤ {p0} {p1} {xi-l} lt3
+                  (trans-ℚ≤ {p1} {p3} {xi-l} lt2 lt1))
+              where
+              nn-xi-l : NonNeg xi-l
+              nn-xi-l = 0≤-NonNeg xi-l 0≤xi-l
+
+
+              p1 = (Iℚ.l (i-scale 1i-l xi))
+              p2 = (Iℚ.l (i-scale 1i-u xi))
+              p0 = minℚ p1 p2
+              p3 = (1i-l r* xi-l)
+              p4 = (1i-l r* xi-u)
+
+              lt1 : (1i-l r* xi-l) ℚ≤ xi-l
+              lt1 = subst ((1i-l r* xi-l) ℚ≤_) (r*-left-one xi-l)
+                          (r*₂-preserves-≤ 1i-l 1r (xi-l , nn-xi-l) (inj-l 1i-l<1))
+              lt2 : (minℚ p3 p4) ℚ≤ p3
+              lt2 = minℚ-≤-left p3 p4
+              lt3 : (minℚ p1 p2) ℚ≤ p1
+              lt3 = minℚ-≤-left p1 p2
+
+
+    U-path : (q : ℚ) -> 1x.U q == x.U q
+    U-path q = ua (isoToEquiv i)
+      where
+      open Iso
+      i : Iso (1x.U q) (x.U q)
+      i .rightInv _ = x.isProp-U q _ _
+      i .leftInv _ = 1x.isProp-U q _ _
+      i .inv xu-q = ∥-bind2 handle x.Inhabited-L (x.isLowerOpen-U q xu-q)
+         where
+         handle : Σ ℚ x.L -> Σ[ r ∈ ℚ ] (r < q × x.U r) -> 1x.U q
+         handle (s , xl-s) (r , r<q , xu-r) =
+           handle2 (find-shrink-factor sr⊂s'q) (find-growth-factor sr⊂s'q)
+           where
+
+           s' : ℚ
+           s' = s r+ (r- 1r)
+
+           s'<s : s' < s
+           s'<s = subst Pos (sym (diffℚ-step s 1r) >=> cong (s r+_) (diffℚ-anticommute s 1r))
+                        Pos-1r
+
+           s<r : s < r
+           s<r = (ℝ-bounds->ℚ< x _ _ xl-s xu-r)
+
+           s'<q : s' < q
+           s'<q = trans-< {_} {_} {_} {s'} {r} {q} (trans-< {_} {_} {_} {s'} {s} {r} s'<s s<r) r<q
+
+           sr : Iℚ
+           sr = Iℚ-cons s r (inj-l s<r)
+
+           s'q : Iℚ
+           s'q = Iℚ-cons s' q (inj-l s'<q)
+
+           sr⊂s'q : sr i⊂ s'q
+           sr⊂s'q = i⊂-cons s'<s r<q
+
+           handle2 : Σ[ kl ∈ ℚ ] (Pos kl × kl < 1r × i-scale kl sr i⊆ s'q) ->
+                     Σ[ ku ∈ ℚ ] (Pos ku × 1r < ku × i-scale ku sr i⊆ s'q) ->
+                     1x.U q
+           handle2 (kl , p-kl , kl<1 , scale-kl) (ku , p-ku , 1<ku , scale-ku) =
+             ∣ k , sr , (kl<1 , 1<ku) , (xl-s , xu-r) , _i⊆_.u prod-⊆ ∣
+             where
+             kl<ku = trans-< {_} {_} {_} {kl} {1r} {ku} kl<1 1<ku
+             k : Iℚ
+             k = (Iℚ-cons kl ku (inj-l kl<ku))
+
+             prod-⊆ : (k i* sr) i⊆ s'q
+             prod-⊆ = subst ((k i* sr) i⊆_) (i∪-same s'q) (i∪-preserves-⊆ scale-kl scale-ku)
+
+      i .fun 1xu-q = unsquash (x.isProp-U q) (∥-map handle 1xu-q)
+        where
+        handle : U' 1ℝ x q -> x.U q
+        handle ((Iℚ-cons 1i-l 1i-u 1i-l≤u) , xi@(Iℚ-cons xi-l xi-u xi-l≤u) ,
+                 (1i-l<1 , 1<1i-u) , exi , prod≤q) =
+          isUpperSet≤ xi-u q ans (snd exi)
+          where
+
+          ans : xi-u ℚ≤ q
+          ans = (handle2 (split-< xi-u 0r))
+            where
+            handle2 : (xi-u < 0r) ⊎ (0r ℚ≤ xi-u) -> xi-u ℚ≤ q
+            handle2 (inj-l xi-u<0) =
+              trans-ℚ≤ {xi-u} {p0} {q}
+                (trans-ℚ≤ {xi-u} {p1} {p0}
+                  (trans-ℚ≤ {xi-u} {p4} {p1} (inj-l lt1) lt2)
+                  lt3)
+                prod≤q
+              where
+              n-xi-u : Neg xi-u
+              n-xi-u = <0-Neg xi-u xi-u<0
+
+              p1 = (Iℚ.u (i-scale 1i-l xi))
+              p2 = (Iℚ.u (i-scale 1i-u xi))
+              p0 = maxℚ p1 p2
+              p3 = (1i-l r* xi-l)
+              p4 = (1i-l r* xi-u)
+
+
+              lt1 : xi-u < (1i-l r* xi-u)
+              lt1 = subst (_< (1i-l r* xi-u)) (r*-left-one xi-u)
+                          (r*₂-flips-order 1i-l 1r (xi-u , n-xi-u) 1i-l<1)
+
+              lt2 : p4 ℚ≤ (maxℚ p3 p4)
+              lt2 = maxℚ-≤-right p3 p4
+              lt3 : p1 ℚ≤ (maxℚ p1 p2)
+              lt3 = maxℚ-≤-left p1 p2
+
+            handle2 (inj-r 0≤xi-u) =
+              trans-ℚ≤ {xi-u} {p0} {q}
+                (trans-ℚ≤ {xi-u} {p2} {p0}
+                  (trans-ℚ≤ {xi-u} {p4} {p2} lt1 lt2)
+                  lt3)
+                prod≤q
+              where
+              nn-xi-u : NonNeg xi-u
+              nn-xi-u = 0≤-NonNeg xi-u 0≤xi-u
+
+
+              p1 = (Iℚ.u (i-scale 1i-l xi))
+              p2 = (Iℚ.u (i-scale 1i-u xi))
+              p0 = maxℚ p1 p2
+              p3 = (1i-u r* xi-l)
+              p4 = (1i-u r* xi-u)
+
+              lt1 : xi-u ℚ≤ (1i-u r* xi-u)
+              lt1 = subst (_ℚ≤ (1i-u r* xi-u)) (r*-left-one xi-u)
+                          (r*₂-preserves-≤ 1r 1i-u (xi-u , nn-xi-u) (inj-l 1<1i-u))
+              lt2 : p4 ℚ≤ (maxℚ p3 p4)
+              lt2 = maxℚ-≤-right p3 p4
+              lt3 : p2 ℚ≤ (maxℚ p1 p2)
+              lt3 = maxℚ-≤-right p1 p2
+
+
+  ℝ*-left-one : 1x == x
+  ℝ*-left-one = LU-paths->path 1x x L-path U-path
