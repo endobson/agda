@@ -13,6 +13,8 @@ open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
 open import rational.factor-order
 open import rational.minmax
 open import rational.proper-interval
+open import rational.proper-interval.maxabs-multiplication
+open import rational.proper-interval.multiplication-strict-cross-zero
 open import real
 open import real.sequence
 open import relation hiding (U)
@@ -46,6 +48,9 @@ private
   ℝ∈Iℚ->¬Constant : (z : ℝ) (a : Iℚ) -> ℝ∈Iℚ z a -> ¬ (ConstantI a)
   ℝ∈Iℚ->¬Constant z a (al , au) p =
     Real.disjoint z (Iℚ.u a) (subst (Real.L z) p al , au)
+
+  ℝ∈Iℚ->NonConstant : (z : ℝ) (a : Iℚ) -> ℝ∈Iℚ z a -> NonConstantI a
+  ℝ∈Iℚ->NonConstant z a (al , au) = (ℝ-bounds->ℚ< z _ _ al au)
 
 module _ (x y : ℝ)
   where
@@ -723,3 +728,216 @@ module _ (x : ℝ)
 
   ℝ*-left-one : 1x == x
   ℝ*-left-one = LU-paths->path 1x x L-path U-path
+
+
+module _ (x : ℝ)
+  where
+  private
+    module x = Real x
+    module 0ℝ = Real 0ℝ
+    0x = 0ℝ ℝ* x
+    module 0x = Real 0x
+
+
+    L-path : (q : ℚ) -> 0x.L q == 0ℝ.L q
+    L-path q = ua (isoToEquiv i)
+      where
+      open Iso
+      i : Iso (0x.L q) (0ℝ.L q)
+      i .rightInv _ = 0ℝ.isProp-L q _ _
+      i .leftInv _ = 0x.isProp-L q _ _
+      i .inv 0ℝl-q = unsquash (0x.isProp-L q) (∥-map2 handle x.Inhabited-L x.Inhabited-U)
+        where
+        handle : Σ ℚ x.L -> Σ ℚ x.U -> 0x.L q
+        handle (p1 , xl-p1) (p2 , xu-p2) =
+          ∣ ir , ix , (Neg-<0 r neg-r , Pos-0< mr pos-mr) , (xl-p1 , xu-p2) , ans ∣
+          where
+          ix : Iℚ
+          ix = Iℚ-cons p1 p2 (inj-l (ℝ-bounds->ℚ< x _ _ xl-p1 xu-p2))
+
+          m = i-maxabs ix
+
+          pos-m : Pos m
+          pos-m = handle2 (NonNeg-i-maxabs ix)
+            where
+            handle2 : NonNeg m -> Pos m
+            handle2 (inj-l p) = p
+            handle2 (inj-r z) = bot-elim (x.disjoint 0r (subst x.L (cong Iℚ.l zp) xl-p1 ,
+                                                         subst x.U (cong Iℚ.u zp) xu-p2))
+              where
+              zp = i-maxabs-Zero ix z
+
+          inv-m = Pos->Inv pos-m
+          1/m = (r1/ m inv-m)
+          pos-1/m = r1/-preserves-Pos m inv-m pos-m
+
+          r = q r* 1/m
+
+          neg-q = <0-Neg q 0ℝl-q
+
+          neg-r = r*₁-flips-sign (q , neg-q) 1/m pos-1/m
+
+          mr = r- r
+
+
+          pos-mr = r--flips-sign r _ neg-r
+          r≤mr = NonPos≤NonNeg (inj-l neg-r) (inj-l pos-mr)
+
+          ir = Iℚ-cons r mr r≤mr
+
+          m-ir = i-maxabs ir
+
+          lb = Iℚ.l (ir i* ix)
+          ub = Iℚ.u (ir i* ix)
+          m2 = i-maxabs (ir i* ix)
+
+          -lb≤m2 : (r- lb) ℚ≤ m2
+          -lb≤m2 = trans-ℚ≤ {r- lb} {absℚ lb} {m2} (maxℚ-≤-right lb (r- lb))
+                                                   (maxℚ-≤-left (absℚ lb) (absℚ ub))
+          -m2≤lb : (r- m2) ℚ≤ lb
+          -m2≤lb = subst ((r- m2) ℚ≤_) (RationalRing.minus-double-inverse {lb})
+                         (r--flips-≤ (r- lb) m2 -lb≤m2)
+
+          m2=m-ir*m : m2 == m-ir r* m
+          m2=m-ir*m = i-maxabs-i* ir ix
+
+          m-ir=r : m-ir == (r- r)
+          m-ir=r = cong (maxℚ (absℚ r)) (cong (maxℚ (r- r)) (RationalRing.minus-double-inverse {r}) >=>
+                                         maxℚ-commute) >=>
+                   maxℚ-same >=>
+                   absℚ-NonPos (inj-l neg-r)
+
+          mr*m=-q : (r- r) r* m == (r- q)
+          mr*m=-q = cong (_r* m) (sym (r*-minus-extract-left q 1/m)) >=>
+                    r*-assoc (r- q) 1/m m >=>
+                    cong ((r- q) r*_) (r1/-inverse m inv-m) >=>
+                    r*-right-one (r- q)
+
+          -lb≤-q : (r- lb) ℚ≤ (r- q)
+          -lb≤-q = subst ((r- lb) ℚ≤_)
+                         (m2=m-ir*m >=> (cong (_r* m) m-ir=r) >=> mr*m=-q)
+                         -lb≤m2
+
+          ans : q ℚ≤ lb
+          ans = subst2 _ℚ≤_ (RationalRing.minus-double-inverse {q})
+                            (RationalRing.minus-double-inverse {lb})
+                            (r--flips-≤ (r- lb) (r- q) -lb≤-q)
+
+
+      i .fun 0x-q = unsquash (0ℝ.isProp-L q) (∥-map handle 0x-q)
+        where
+        handle : L' 0ℝ x q -> 0ℝ.L q
+        handle (0i@(Iℚ-cons 0i-l 0i-u 0i-l≤u) , xi@(Iℚ-cons xi-l xi-u xi-l≤u) ,
+                (0i-ll , 0i-uu) , exi , q≤prod) =
+          Neg-<0 q (Neg-≤ q p0 n-p0 q≤prod)
+          where
+          n-l : Neg 0i-l
+          n-l = <0-Neg 0i-l 0i-ll
+          p-u : Pos 0i-u
+          p-u = 0<-Pos 0i-u 0i-uu
+
+          p1 = (Iℚ.l (i-scale 0i-l xi))
+          p2 = (Iℚ.l (i-scale 0i-u xi))
+          p0 = minℚ p1 p2
+
+          n-p0 : Neg p0
+          n-p0 = fst (i*₁-StrictCrossZero 0i xi (n-l , p-u) (ℝ∈Iℚ->NonConstant x xi exi))
+
+
+    U-path : (q : ℚ) -> 0x.U q == 0ℝ.U q
+    U-path q = ua (isoToEquiv i)
+      where
+      open Iso
+      i : Iso (0x.U q) (0ℝ.U q)
+      i .rightInv _ = 0ℝ.isProp-U q _ _
+      i .leftInv _ = 0x.isProp-U q _ _
+      i .inv 0ℝu-q = unsquash (0x.isProp-U q) (∥-map2 handle x.Inhabited-L x.Inhabited-U)
+        where
+        handle : Σ ℚ x.L -> Σ ℚ x.U -> 0x.U q
+        handle (p1 , xl-p1) (p2 , xu-p2) =
+          ∣ ir , ix , (Neg-<0 mr neg-mr , Pos-0< r pos-r) , (xl-p1 , xu-p2) , ub≤q ∣
+          where
+          ix : Iℚ
+          ix = Iℚ-cons p1 p2 (inj-l (ℝ-bounds->ℚ< x _ _ xl-p1 xu-p2))
+
+          m = i-maxabs ix
+
+          pos-m : Pos m
+          pos-m = handle2 (NonNeg-i-maxabs ix)
+            where
+            handle2 : NonNeg m -> Pos m
+            handle2 (inj-l p) = p
+            handle2 (inj-r z) = bot-elim (x.disjoint 0r (subst x.L (cong Iℚ.l zp) xl-p1 ,
+                                                         subst x.U (cong Iℚ.u zp) xu-p2))
+              where
+              zp = i-maxabs-Zero ix z
+
+          inv-m = Pos->Inv pos-m
+          1/m = (r1/ m inv-m)
+          pos-1/m = r1/-preserves-Pos m inv-m pos-m
+
+          r = q r* 1/m
+
+          pos-q = 0<-Pos q 0ℝu-q
+
+          pos-r = r*₁-preserves-sign (q , pos-q) 1/m pos-1/m
+
+          mr = r- r
+
+
+          neg-mr = r--flips-sign r _ pos-r
+          mr≤r = NonPos≤NonNeg (inj-l neg-mr) (inj-l pos-r)
+
+          ir = Iℚ-cons mr r mr≤r
+
+          m-ir = i-maxabs ir
+
+          lb = Iℚ.l (ir i* ix)
+          ub = Iℚ.u (ir i* ix)
+          m2 = i-maxabs (ir i* ix)
+
+          ub≤m2 : ub ℚ≤ m2
+          ub≤m2 = trans-ℚ≤ {ub} {absℚ ub} {m2} (maxℚ-≤-left ub (r- ub))
+                                               (maxℚ-≤-right (absℚ lb) (absℚ ub))
+
+          m2=m-ir*m : m2 == m-ir r* m
+          m2=m-ir*m = i-maxabs-i* ir ix
+
+          m-ir=r : m-ir == r
+          m-ir=r = cong (\x -> (maxℚ x (absℚ r)))
+                        (cong (maxℚ (r- r)) (RationalRing.minus-double-inverse {r}) >=>
+                         maxℚ-commute) >=>
+                   maxℚ-same >=>
+                   absℚ-NonNeg (inj-l pos-r)
+
+          mr*m=q : r r* m == q
+          mr*m=q = r*-assoc q 1/m m >=>
+                   cong (q r*_) (r1/-inverse m inv-m) >=>
+                   r*-right-one q
+
+          ub≤q : ub ℚ≤ q
+          ub≤q = subst (ub ℚ≤_)
+                       (m2=m-ir*m >=> (cong (_r* m) m-ir=r) >=> mr*m=q)
+                       ub≤m2
+
+      i .fun 0x-q = unsquash (0ℝ.isProp-U q) (∥-map handle 0x-q)
+        where
+        handle : U' 0ℝ x q -> 0ℝ.U q
+        handle (0i@(Iℚ-cons 0i-l 0i-u 0i-l≤u) , xi@(Iℚ-cons xi-l xi-u xi-l≤u) ,
+                (0i-ll , 0i-uu) , exi , prod≤q) =
+          Pos-0< q (Pos-≤ p0 q p-p0 prod≤q)
+          where
+          n-l : Neg 0i-l
+          n-l = <0-Neg 0i-l 0i-ll
+          p-u : Pos 0i-u
+          p-u = 0<-Pos 0i-u 0i-uu
+
+          p1 = (Iℚ.u (i-scale 0i-l xi))
+          p2 = (Iℚ.u (i-scale 0i-u xi))
+          p0 = maxℚ p1 p2
+
+          p-p0 : Pos p0
+          p-p0 = snd (i*₁-StrictCrossZero 0i xi (n-l , p-u) (ℝ∈Iℚ->NonConstant x xi exi))
+
+  ℝ*-left-zero : 0x == 0ℝ
+  ℝ*-left-zero = LU-paths->path 0x 0ℝ L-path U-path

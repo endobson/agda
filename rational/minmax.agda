@@ -320,6 +320,84 @@ abstract
      sym (maxℚ-left a _ (maxℚ-property b c b≤a c≤a))
 
 
+  maxℚ-r*₁-NonNeg : (a b c : ℚ) -> (NonNeg a) -> maxℚ (a r* b) (a r* c) == a r* (maxℚ b c)
+  maxℚ-r*₁-NonNeg a b c nn-a = handle (split-< b c)
+    where
+    handle : (b < c) ⊎ (c ℚ≤ b) -> maxℚ (a r* b) (a r* c) == a r* (maxℚ b c)
+    handle (inj-l b<c) =
+      maxℚ-right (a r* b) (a r* c) (r*₁-preserves-≤ (a , nn-a) b c (inj-l b<c)) >=>
+      cong (a r*_) (sym (maxℚ-right b c (inj-l b<c)))
+    handle (inj-r c≤b) =
+      maxℚ-left (a r* b) (a r* c) (r*₁-preserves-≤ (a , nn-a) c b c≤b) >=>
+      cong (a r*_) (sym (maxℚ-left b c c≤b))
+
+  maxℚ-r*₂-NonNeg : (a b c : ℚ) -> (NonNeg c) -> maxℚ (a r* c) (b r* c) == (maxℚ a b) r* c
+  maxℚ-r*₂-NonNeg a b c nn-c =
+    cong2 maxℚ (r*-commute a c) (r*-commute b c) >=>
+    maxℚ-r*₁-NonNeg c a b nn-c >=>
+    r*-commute c (maxℚ a b)
+
+  maxℚ-r*₁-NonPos : (a b c : ℚ) -> (NonPos a) -> maxℚ (a r* b) (a r* c) == a r* (minℚ b c)
+  maxℚ-r*₁-NonPos a b c np-a = handle (split-< b c)
+    where
+    handle : (b < c) ⊎ (c ℚ≤ b) -> maxℚ (a r* b) (a r* c) == a r* (minℚ b c)
+    handle (inj-l b<c) =
+      maxℚ-left (a r* b) (a r* c) (r*₁-flips-≤ (a , np-a) b c (inj-l b<c)) >=>
+      cong (a r*_) (sym (minℚ-left b c (inj-l b<c)))
+    handle (inj-r c≤b) =
+      maxℚ-right (a r* b) (a r* c) (r*₁-flips-≤ (a , np-a) c b c≤b) >=>
+      cong (a r*_) (sym (minℚ-right b c c≤b))
+
+  minℚ-r*₁-NonNeg : (a b c : ℚ) -> (NonNeg a) -> minℚ (a r* b) (a r* c) == a r* (minℚ b c)
+  minℚ-r*₁-NonNeg a b c nn-a = handle (split-< b c)
+    where
+    handle : (b < c) ⊎ (c ℚ≤ b) -> minℚ (a r* b) (a r* c) == a r* (minℚ b c)
+    handle (inj-l b<c) =
+      minℚ-left (a r* b) (a r* c) (r*₁-preserves-≤ (a , nn-a) b c (inj-l b<c)) >=>
+      cong (a r*_) (sym (minℚ-left b c (inj-l b<c)))
+    handle (inj-r c≤b) =
+      minℚ-right (a r* b) (a r* c) (r*₁-preserves-≤ (a , nn-a) c b c≤b) >=>
+      cong (a r*_) (sym (minℚ-right b c c≤b))
+
+  minℚ-r*₂-NonNeg : (a b c : ℚ) -> (NonNeg c) -> minℚ (a r* c) (b r* c) == (minℚ a b) r* c
+  minℚ-r*₂-NonNeg a b c nn-c =
+    cong2 minℚ (r*-commute a c) (r*-commute b c) >=>
+    minℚ-r*₁-NonNeg c a b nn-c >=>
+    r*-commute c (minℚ a b)
+
+  minℚ-r*₁-NonPos : (a b c : ℚ) -> (NonPos a) -> minℚ (a r* b) (a r* c) == a r* (maxℚ b c)
+  minℚ-r*₁-NonPos a b c np-a = handle (split-< b c)
+    where
+    handle : (b < c) ⊎ (c ℚ≤ b) -> minℚ (a r* b) (a r* c) == a r* (maxℚ b c)
+    handle (inj-l b<c) =
+      minℚ-right (a r* b) (a r* c) (r*₁-flips-≤ (a , np-a) b c (inj-l b<c)) >=>
+      cong (a r*_) (sym (maxℚ-right b c (inj-l b<c)))
+    handle (inj-r c≤b) =
+      minℚ-left (a r* b) (a r* c) (r*₁-flips-≤ (a , np-a) c b c≤b) >=>
+      cong (a r*_) (sym (maxℚ-left b c c≤b))
+
+  r--maxℚ : (a b : ℚ) -> r- (maxℚ a b) == minℚ (r- a) (r- b)
+  r--maxℚ a b = handle (split-< a b)
+    where
+    handle : (a < b) ⊎ (b ℚ≤ a) -> r- (maxℚ a b) == minℚ (r- a) (r- b)
+    handle (inj-l a<b) =
+      cong r-_ (maxℚ-right a b (inj-l a<b)) >=>
+      sym (minℚ-right (r- a) (r- b) (r--flips-≤ a b (inj-l a<b)))
+    handle (inj-r b≤a) =
+      cong r-_ (maxℚ-left a b b≤a) >=>
+      sym (minℚ-left (r- a) (r- b) (r--flips-≤ b a b≤a))
+
+  r--minℚ : (a b : ℚ) -> r- (minℚ a b) == maxℚ (r- a) (r- b)
+  r--minℚ a b = handle (split-< a b)
+    where
+    handle : (a < b) ⊎ (b ℚ≤ a) -> r- (minℚ a b) == maxℚ (r- a) (r- b)
+    handle (inj-l a<b) =
+      cong r-_ (minℚ-left a b (inj-l a<b)) >=>
+      sym (maxℚ-left (r- a) (r- b) (r--flips-≤ a b (inj-l a<b)))
+    handle (inj-r b≤a) =
+      cong r-_ (minℚ-right a b b≤a) >=>
+      sym (maxℚ-right (r- a) (r- b) (r--flips-≤ b a b≤a))
+
 
 -- Absolute value
 
@@ -366,3 +444,28 @@ NonNeg-absℚ q = handle _ (isSign-self q)
   handle pos-sign pq = subst NonNeg (sym (absℚ-NonNeg (inj-l pq))) (inj-l pq)
   handle zero-sign zq = subst NonNeg (sym (absℚ-NonNeg (inj-r zq))) (inj-r zq)
   handle neg-sign nq = subst NonNeg (sym (absℚ-NonPos (inj-l nq))) (r--NonPos (inj-l nq))
+
+absℚ-r*₁-NonNeg : (a b : ℚ) -> (NonNeg a) -> absℚ (a r* b) == a r* absℚ b
+absℚ-r*₁-NonNeg a b nn-a =
+  cong (maxℚ (a r* b)) (sym (r*-minus-extract-right a b)) >=>
+  maxℚ-r*₁-NonNeg a b (r- b) nn-a
+
+absℚ-r*₁-NonPos : (a b : ℚ) -> (NonPos a) -> absℚ (a r* b) == (r- a) r* absℚ b
+absℚ-r*₁-NonPos a b np-a =
+  cong (maxℚ (a r* b)) (sym (r*-minus-extract-right a b)) >=>
+  maxℚ-r*₁-NonPos a b (r- b) np-a >=>
+  cong (\x -> (a r* (minℚ x (r- b)))) (sym (RationalRing.minus-double-inverse {b})) >=>
+  cong (a r*_) (sym (r--maxℚ (r- b) b) >=> cong r-_ maxℚ-commute) >=>
+  r*-minus-extract-right a (absℚ b) >=>
+  sym (r*-minus-extract-left a (absℚ b))
+
+absℚ-r* : (a b : ℚ) -> absℚ (a r* b) == absℚ a r* absℚ b
+absℚ-r* a b = handle _ (isSign-self a)
+  where
+  handle : (s : Sign) -> isSign s a -> absℚ (a r* b) == absℚ a r* absℚ b
+  handle pos-sign  p-a = absℚ-r*₁-NonNeg a b (inj-l p-a) >=>
+                         cong (_r* absℚ b) (sym (absℚ-NonNeg (inj-l p-a)))
+  handle zero-sign z-a = absℚ-r*₁-NonNeg a b (inj-r z-a) >=>
+                         cong (_r* absℚ b) (sym (absℚ-NonNeg (inj-r z-a)))
+  handle neg-sign  n-a = absℚ-r*₁-NonPos a b (inj-l n-a) >=>
+                         cong (_r* absℚ b) (sym (absℚ-NonPos (inj-l n-a)))

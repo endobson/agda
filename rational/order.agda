@@ -556,6 +556,9 @@ Pos-0< q = subst Posℚ p
   p : q == q r+ (r- 0r)
   p = sym (r+-right-zero q)
 
+Neg-<0 : (q : Rational) -> Negℚ q -> q < 0r
+Neg-<0 q n = subst Posℚ (sym (r+-left-zero (r- q))) (r--flips-sign q _ n)
+
 NonNeg-0≤ : (q : Rational) -> NonNeg q -> 0r ℚ≤ q
 NonNeg-0≤ q nn-q = subst NonNeg (sym (r+-right-zero q)) nn-q
 
@@ -574,6 +577,8 @@ NonNeg-0≤ q nn-q = subst NonNeg (sym (r+-right-zero q)) nn-q
                                             (r--flips-sign _ _ q<0))
 ≤0-NonPos q (inj-r q=0) = inj-r (subst Zeroℚ (sym (diffℚ-anticommute 0r q) >=> r+-right-zero q)
                                              (r--flips-sign _ _ q=0))
+
+
 
 NonPos≤NonNeg : {q r : Rational} -> NonPos q -> NonNeg r -> q ℚ≤ r
 NonPos≤NonNeg np-q nn-r = r+-preserves-NonNeg nn-r (r--NonPos np-q)
@@ -1000,6 +1005,29 @@ r+-Neg-NonPos {q1} {q2} n-q1 np-q2 =
 
 r+-NonPos-Neg : {q1 q2 : Rational} -> NonPos q1 -> Neg q2 -> Neg (q1 r+ q2)
 r+-NonPos-Neg {q1} {q2} np n = subst Neg (r+-commute q2 q1) (r+-Neg-NonPos n np)
+
+
+NonNeg-≤ : (a b : ℚ) -> NonNeg a -> a ℚ≤ b -> NonNeg b
+NonNeg-≤ a b nn-a a≤b = subst NonNeg (diffℚ-step a b) (r+-NonNeg-NonNeg nn-a a≤b)
+NonPos-≤ : (a b : ℚ) -> NonPos b -> a ℚ≤ b -> NonPos a
+NonPos-≤ a b np-b a≤b =
+  subst NonPos (diffℚ-step b a)
+               (r+-preserves-NonPos np-b (subst NonPos (sym (diffℚ-anticommute b a))
+                                                       (r--NonNeg a≤b)))
+Pos-≤ : (a b : ℚ) -> Pos a -> a ℚ≤ b -> Pos b
+Pos-≤ a b p-a a≤b = subst Pos (diffℚ-step a b) (r+-Pos-NonNeg p-a a≤b)
+Neg-≤ : (a b : ℚ) -> Neg b -> a ℚ≤ b -> Neg a
+Neg-≤ a b n-b a≤b =
+ subst Neg (RationalRing.minus-double-inverse {a})
+           (r--flips-sign _ _ (Pos-≤ (r- b) (r- a) (r--flips-sign _ _ n-b) (r--flips-≤ a b a≤b)))
+
+Pos-< : (a b : ℚ) -> NonNeg a -> a < b -> Pos b
+Pos-< a b nn-a a<b = subst Pos (diffℚ-step a b) (r+-NonNeg-Pos nn-a a<b)
+
+Neg-< : (a b : ℚ) -> NonPos b -> a < b -> Neg a
+Neg-< a b np-b a<b =
+ subst Neg (RationalRing.minus-double-inverse {a})
+           (r--flips-sign _ _ (Pos-< (r- b) (r- a) (r--NonPos np-b) (r--flips-order a b a<b)))
 
 
 trans-<-≤ : {q1 q2 q3 : Rational} -> q1 < q2 -> q2 ℚ≤ q3 -> q1 < q3

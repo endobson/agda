@@ -68,6 +68,9 @@ StrictCrossZeroI (Iℚ-cons l u _) = Neg l × Pos u
 ConstantI : Pred Iℚ ℓ-zero
 ConstantI (Iℚ-cons l u _) = l == u
 
+NonConstantI : Pred Iℚ ℓ-zero
+NonConstantI (Iℚ-cons l u _) = l < u
+
 ZeroEndedI : Pred Iℚ ℓ-zero
 ZeroEndedI (Iℚ-cons l u _) = Zero l ⊎ Zero u
 
@@ -326,30 +329,6 @@ i∪₂-width-≤ a b = subst (\x -> i-width b ℚ≤ i-width x) (i∪-commute b
 
 i-maxabs : Iℚ -> ℚ
 i-maxabs (Iℚ-cons l u _) = maxℚ (absℚ l) (absℚ u)
-
-private
-  NonNeg-≤ : (a b : ℚ) -> NonNeg a -> a ℚ≤ b -> NonNeg b
-  NonNeg-≤ a b nn-a a≤b = subst NonNeg (diffℚ-step a b) (r+-NonNeg-NonNeg nn-a a≤b)
-  NonPos-≤ : (a b : ℚ) -> NonPos b -> a ℚ≤ b -> NonPos a
-  NonPos-≤ a b np-b a≤b =
-    subst NonPos (diffℚ-step b a)
-                 (r+-preserves-NonPos np-b (subst NonPos (sym (diffℚ-anticommute b a))
-                                                         (r--NonNeg a≤b)))
-  Pos-≤ : (a b : ℚ) -> Pos a -> a ℚ≤ b -> Pos b
-  Pos-≤ a b p-a a≤b = subst Pos (diffℚ-step a b) (r+-Pos-NonNeg p-a a≤b)
-  Neg-≤ : (a b : ℚ) -> Neg b -> a ℚ≤ b -> Neg a
-  Neg-≤ a b n-b a≤b =
-   subst Neg (RationalRing.minus-double-inverse {a})
-             (r--flips-sign _ _ (Pos-≤ (r- b) (r- a) (r--flips-sign _ _ n-b) (r--flips-≤ a b a≤b)))
-
-  Pos-< : (a b : ℚ) -> NonNeg a -> a < b -> Pos b
-  Pos-< a b nn-a a<b = subst Pos (diffℚ-step a b) (r+-NonNeg-Pos nn-a a<b)
-
-  Neg-< : (a b : ℚ) -> NonPos b -> a < b -> Neg a
-  Neg-< a b np-b a<b =
-   subst Neg (RationalRing.minus-double-inverse {a})
-             (r--flips-sign _ _ (Pos-< (r- b) (r- a) (r--NonPos np-b) (r--flips-order a b a<b)))
-
 
 
 i-maxabs-NonNeg : (a : Iℚ) -> NonNegI a -> i-maxabs a == Iℚ.u a
