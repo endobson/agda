@@ -96,6 +96,9 @@ _i∪_ (Iℚ-cons l1 u1 l1≤u1) (Iℚ-cons l2 u2 l2≤u2) =
 i∪-commute : (a b : Iℚ) -> a i∪ b == b i∪ a
 i∪-commute a b = Iℚ-bounds-path minℚ-commute maxℚ-commute
 
+i∪-assoc : (a b c : Iℚ) -> (a i∪ b) i∪ c == a i∪ (b i∪ c)
+i∪-assoc a b c = Iℚ-bounds-path (minℚ-assoc _ _ _) (maxℚ-assoc _ _ _)
+
 i∪-same : (a : Iℚ) -> a i∪ a == a
 i∪-same a = Iℚ-bounds-path minℚ-same maxℚ-same
 
@@ -1196,6 +1199,10 @@ i*₁-preserves-⊆ (Iℚ-cons al au _) b⊆c =
 
 i*₂-preserves-⊆ : {a b : Iℚ} -> a i⊆ b -> (c : Iℚ) -> (a i* c) i⊆ (b i* c)
 i*₂-preserves-⊆ {a} {b} a⊆b c = subst2 _i⊆_ (i*-commute c a) (i*-commute c b) (i*₁-preserves-⊆ c a⊆b)
+
+i*-preserves-⊆ : {a b c d : Iℚ} -> a i⊆ b -> c i⊆ d  -> (a i* c) i⊆ (b i* d)
+i*-preserves-⊆ {a} {b} {c} {d} a⊆b c⊆d =
+  trans-i⊆ (i*₁-preserves-⊆ a c⊆d) (i*₂-preserves-⊆ a⊆b d)
 
 i-width-⊆ : {a b : Iℚ} -> a i⊆ b -> i-width a ℚ≤ i-width b
 i-width-⊆ {Iℚ-cons al au _} {Iℚ-cons bl bu _} (i⊆-cons l u) =

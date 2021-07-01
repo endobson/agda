@@ -24,33 +24,36 @@ open import sign.instances.rational
 open import truncation
 open import univalence
 
-private
-  ℝ∈Iℚ : ℝ -> Iℚ -> Type₀
-  ℝ∈Iℚ z (Iℚ-cons l u _) = Real.L z l × Real.U z u
+ℝ∈Iℚ : ℝ -> Iℚ -> Type₀
+ℝ∈Iℚ z (Iℚ-cons l u _) = Real.L z l × Real.U z u
 
+ℝ∈Iℚ->Overlap : (z : ℝ) (a b : Iℚ) -> ℝ∈Iℚ z a -> ℝ∈Iℚ z b -> Overlap a b
+ℝ∈Iℚ->Overlap z a b (al , au) (bl , bu) =
+  inj-l (ℝ-bounds->ℚ< z _ _ bl au) , inj-l (ℝ-bounds->ℚ< z _ _ al bu)
+
+ℝ∈Iℚ-intersect : (z : ℝ) (a b : Iℚ) -> (ea : ℝ∈Iℚ z a) -> (eb : ℝ∈Iℚ z b) ->
+                 ℝ∈Iℚ z (i-intersect a b (ℝ∈Iℚ->Overlap z a b ea eb))
+ℝ∈Iℚ-intersect z a b (al , au) (bl , bu) =
+  maxℚ-property {P = Real.L z} _ _ al bl ,
+  minℚ-property {P = Real.U z} _ _ au bu
+
+ℝ∈Iℚ->¬Constant : (z : ℝ) (a : Iℚ) -> ℝ∈Iℚ z a -> ¬ (ConstantI a)
+ℝ∈Iℚ->¬Constant z a (al , au) p =
+  Real.disjoint z (Iℚ.u a) (subst (Real.L z) p al , au)
+
+ℝ∈Iℚ->NonConstant : (z : ℝ) (a : Iℚ) -> ℝ∈Iℚ z a -> NonConstantI a
+ℝ∈Iℚ->NonConstant z a (al , au) = (ℝ-bounds->ℚ< z _ _ al au)
+
+isProp-ℝ∈Iℚ : (z : ℝ) (a : Iℚ) -> isProp (ℝ∈Iℚ z a)
+isProp-ℝ∈Iℚ z (Iℚ-cons l u _) = isProp× (Real.isProp-L z l) (Real.isProp-U z u)
+
+private
   module _ (x y : ℝ) where
     L' : Pred ℚ ℓ-zero
     L' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Lower (xi i* yi) q)
 
     U' : Pred ℚ ℓ-zero
     U' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Upper (xi i* yi) q)
-
-  ℝ∈Iℚ->Overlap : (z : ℝ) (a b : Iℚ) -> ℝ∈Iℚ z a -> ℝ∈Iℚ z b -> Overlap a b
-  ℝ∈Iℚ->Overlap z a b (al , au) (bl , bu) =
-    inj-l (ℝ-bounds->ℚ< z _ _ bl au) , inj-l (ℝ-bounds->ℚ< z _ _ al bu)
-
-  ℝ∈Iℚ-intersect : (z : ℝ) (a b : Iℚ) -> (ea : ℝ∈Iℚ z a) -> (eb : ℝ∈Iℚ z b) ->
-                   ℝ∈Iℚ z (i-intersect a b (ℝ∈Iℚ->Overlap z a b ea eb))
-  ℝ∈Iℚ-intersect z a b (al , au) (bl , bu) =
-    maxℚ-property {P = Real.L z} _ _ al bl ,
-    minℚ-property {P = Real.U z} _ _ au bu
-
-  ℝ∈Iℚ->¬Constant : (z : ℝ) (a : Iℚ) -> ℝ∈Iℚ z a -> ¬ (ConstantI a)
-  ℝ∈Iℚ->¬Constant z a (al , au) p =
-    Real.disjoint z (Iℚ.u a) (subst (Real.L z) p al , au)
-
-  ℝ∈Iℚ->NonConstant : (z : ℝ) (a : Iℚ) -> ℝ∈Iℚ z a -> NonConstantI a
-  ℝ∈Iℚ->NonConstant z a (al , au) = (ℝ-bounds->ℚ< z _ _ al au)
 
 module _ (x y : ℝ)
   where
