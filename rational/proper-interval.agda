@@ -263,6 +263,34 @@ i-scale-twice k1 k2 a = handle _ _ (isSign-self k1) (isSign-self k2)
   handle neg-sign  neg-sign  p1 p2 = npnp-case (inj-l p1) (inj-l p2)
 
 
+i-scale-distrib-i+ : (k : ℚ) (a b : Iℚ) -> i-scale k (a i+ b) == i-scale k a i+ i-scale k b
+i-scale-distrib-i+ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
+  handle _ (isSign-self k)
+  where
+  nn-case : NonNeg k -> i-scale k (a i+ b) == (i-scale k a) i+ (i-scale k b)
+  nn-case nn-k =
+    sym (i-scale-NN-path k⁺ (a i+ b)) >=>
+    Iℚ-bounds-path (RationalSemiring.*-distrib-+-left) (RationalSemiring.*-distrib-+-left) >=>
+    cong2 _i+_ (i-scale-NN-path k⁺ a) (i-scale-NN-path k⁺ b)
+    where
+    k⁺ : ℚ⁰⁺
+    k⁺ = k , nn-k
+
+  np-case : NonPos k -> i-scale k (a i+ b) == (i-scale k a) i+ (i-scale k b)
+  np-case np-k =
+    sym (i-scale-NP-path k⁻ (a i+ b)) >=>
+    Iℚ-bounds-path (RationalSemiring.*-distrib-+-left) (RationalSemiring.*-distrib-+-left) >=>
+    cong2 _i+_ (i-scale-NP-path k⁻ a) (i-scale-NP-path k⁻ b)
+    where
+    k⁻ : ℚ⁰⁻
+    k⁻ = k , np-k
+
+  handle : (s : Sign) -> isSign s k ->
+           i-scale k (a i+ b) == (i-scale k a) i+ (i-scale k b)
+  handle pos-sign pk = nn-case (inj-l pk)
+  handle zero-sign zk = nn-case (inj-r zk)
+  handle neg-sign nk = np-case (inj-l nk)
+
 
 i-Lower : Iℚ -> Pred ℚ ℓ-zero
 i-Lower (Iℚ-cons l _ _) q = q ℚ≤ l
@@ -1192,6 +1220,11 @@ i∪-preserves-⊆ : {a b c d : Iℚ} -> a i⊆ b -> c i⊆ d  -> (a i∪ c) i�
 i∪-preserves-⊆ {a} {b} {c} {d} a⊆b c⊆d =
   trans-i⊆ (i∪₁-preserves-⊆ a c⊆d) (i∪₂-preserves-⊆ a⊆b d)
 
+i∪₁-⊆ : (a b : Iℚ) -> a i⊆ (a i∪ b)
+i∪₁-⊆ (Iℚ-cons al au _) (Iℚ-cons bl bu _) = i⊆-cons (minℚ-≤-left al bl) (maxℚ-≤-left au bu)
+
+i∪₂-⊆ : (a b : Iℚ) -> b i⊆ (a i∪ b)
+i∪₂-⊆ (Iℚ-cons al au _) (Iℚ-cons bl bu _) = i⊆-cons (minℚ-≤-right al bl) (maxℚ-≤-right au bu)
 
 i*₁-preserves-⊆ : (a : Iℚ) {b c : Iℚ} -> b i⊆ c -> (a i* b) i⊆ (a i* c)
 i*₁-preserves-⊆ (Iℚ-cons al au _) b⊆c =
@@ -1203,6 +1236,18 @@ i*₂-preserves-⊆ {a} {b} a⊆b c = subst2 _i⊆_ (i*-commute c a) (i*-commute
 i*-preserves-⊆ : {a b c d : Iℚ} -> a i⊆ b -> c i⊆ d  -> (a i* c) i⊆ (b i* d)
 i*-preserves-⊆ {a} {b} {c} {d} a⊆b c⊆d =
   trans-i⊆ (i*₁-preserves-⊆ a c⊆d) (i*₂-preserves-⊆ a⊆b d)
+
+i+₁-preserves-⊆ : (a : Iℚ) {b c : Iℚ} -> b i⊆ c -> (a i+ b) i⊆ (a i+ c)
+i+₁-preserves-⊆ (Iℚ-cons al au _) (i⊆-cons cl≤bl bu≤cu) =
+  i⊆-cons (r+₁-preserves-≤ al _ _ cl≤bl) (r+₁-preserves-≤ au _ _ bu≤cu)
+
+i+₂-preserves-⊆ : {a b : Iℚ} -> a i⊆ b -> (c : Iℚ) -> (a i+ c) i⊆ (b i+ c)
+i+₂-preserves-⊆ (i⊆-cons bl≤al au≤bu) (Iℚ-cons cl cu _) =
+  i⊆-cons (r+₂-preserves-≤ _ _ cl bl≤al) (r+₂-preserves-≤ _ _ cu au≤bu)
+
+i+-preserves-⊆ : {a b c d : Iℚ} -> a i⊆ b -> c i⊆ d  -> (a i+ c) i⊆ (b i+ d)
+i+-preserves-⊆ {a} {b} {c} {d} a⊆b c⊆d =
+  trans-i⊆ (i+₁-preserves-⊆ a c⊆d) (i+₂-preserves-⊆ a⊆b d)
 
 i-width-⊆ : {a b : Iℚ} -> a i⊆ b -> i-width a ℚ≤ i-width b
 i-width-⊆ {Iℚ-cons al au _} {Iℚ-cons bl bu _} (i⊆-cons l u) =

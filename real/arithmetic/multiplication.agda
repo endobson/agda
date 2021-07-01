@@ -480,21 +480,27 @@ module _ (x : ℝ)
   where
   private
     module x = Real x
+
+  isLowerSet≤ : (q r : ℚ) -> (q ℚ≤ r) -> x.L r -> x.L q
+  isLowerSet≤ q r q≤r lr = unsquash (x.isProp-L q) (∥-map handle (x.isUpperOpen-L r lr))
+    where
+    handle : Σ[ s ∈ ℚ ] (r < s × x.L s) -> x.L q
+    handle (s , r<s , ls) = x.isLowerSet-L q s (trans-≤-< {q} {r} {s} q≤r r<s) ls
+
+  isUpperSet≤ : (q r : ℚ) -> (q ℚ≤ r) -> x.U q -> x.U r
+  isUpperSet≤ q r q≤r uq = unsquash (x.isProp-U r) (∥-map handle (x.isLowerOpen-U q uq))
+    where
+    handle : Σ[ s ∈ ℚ ] (s < q × x.U s) -> x.U r
+    handle (s , s<q , us) = x.isUpperSet-U s r (trans-<-≤ {s} {q} {r} s<q q≤r) us
+
+
+module _ (x : ℝ)
+  where
+  private
+    module x = Real x
     module 1ℝ = Real 1ℝ
     1x = 1ℝ ℝ* x
     module 1x = Real 1x
-
-    isLowerSet≤ : (q r : ℚ) -> (q ℚ≤ r) -> x.L r -> x.L q
-    isLowerSet≤ q r q≤r lr = unsquash (x.isProp-L q) (∥-map handle (x.isUpperOpen-L r lr))
-      where
-      handle : Σ[ s ∈ ℚ ] (r < s × x.L s) -> x.L q
-      handle (s , r<s , ls) = x.isLowerSet-L q s (trans-≤-< {q} {r} {s} q≤r r<s) ls
-
-    isUpperSet≤ : (q r : ℚ) -> (q ℚ≤ r) -> x.U q -> x.U r
-    isUpperSet≤ q r q≤r uq = unsquash (x.isProp-U r) (∥-map handle (x.isLowerOpen-U q uq))
-      where
-      handle : Σ[ s ∈ ℚ ] (s < q × x.U s) -> x.U r
-      handle (s , s<q , us) = x.isUpperSet-U s r (trans-<-≤ {s} {q} {r} s<q q≤r) us
 
     L-path : (q : ℚ) -> 1x.L q == x.L q
     L-path q = ua (isoToEquiv i)
@@ -551,7 +557,7 @@ module _ (x : ℝ)
         handle : L' 1ℝ x q -> x.L q
         handle ((Iℚ-cons 1i-l 1i-u 1i-l≤u) , xi@(Iℚ-cons xi-l xi-u xi-l≤u) ,
                  (1i-l<1 , 1<1i-u) , exi , q≤prod) =
-          isLowerSet≤ q xi-l ans (fst exi)
+          isLowerSet≤ x q xi-l ans (fst exi)
           where
 
 
@@ -670,7 +676,7 @@ module _ (x : ℝ)
         handle : U' 1ℝ x q -> x.U q
         handle ((Iℚ-cons 1i-l 1i-u 1i-l≤u) , xi@(Iℚ-cons xi-l xi-u xi-l≤u) ,
                  (1i-l<1 , 1<1i-u) , exi , prod≤q) =
-          isUpperSet≤ xi-u q ans (snd exi)
+          isUpperSet≤ x xi-u q ans (snd exi)
           where
 
           ans : xi-u ℚ≤ q
