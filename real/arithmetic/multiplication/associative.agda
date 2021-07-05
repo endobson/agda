@@ -89,7 +89,7 @@ private
         handle2 (inj-r xu-q) = ∣ xu-q ∣
 
 
-ℝ∈Iℚ-* : (x y : ℝ) (a b : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ y b -> ℝ∈Iℚ (x ℝ* y) (a i* b)
+ℝ∈Iℚ-* : (x y : ℝ) (a b : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ y b -> ℝ∈Iℚ (x ℝ*ᵉ y) (a i* b)
 ℝ∈Iℚ-* x y a b x∈a y∈b = ∣ a , b , x∈a , y∈b , refl-ℚ≤ ∣ , ∣ a , b , x∈a , y∈b , refl-ℚ≤ ∣
 
 module _ (x y z : ℝ)
@@ -98,10 +98,10 @@ module _ (x y z : ℝ)
     module x = Real x
     module y = Real y
     module z = Real z
-    xy = x ℝ* y
-    xy-z = xy ℝ* z
-    yz = y ℝ* z
-    x-yz = x ℝ* yz
+    xy = x ℝ*ᵉ y
+    xy-z = xy ℝ*ᵉ z
+    yz = y ℝ*ᵉ z
+    x-yz = x ℝ*ᵉ yz
 
     module xy = Real xy
     module xy-z = Real xy-z
@@ -189,6 +189,11 @@ module _ (x y z : ℝ)
           q-upper : i-Upper (c i* (d i* b)) qu
           q-upper = i⊆-Upper c-db⊆a2b2 qu a2b2≤qu
 
+    ℝ*ᵉ-assoc : xy-z == x-yz
+    ℝ*ᵉ-assoc = ℝ∈Iℚ->path xy-z x-yz forward
+
   abstract
-    ℝ*-assoc : xy-z == x-yz
-    ℝ*-assoc = ℝ∈Iℚ->path xy-z x-yz forward
+    ℝ*-assoc : (x ℝ* y) ℝ* z == x ℝ* (y ℝ* z)
+    ℝ*-assoc = cong (_ℝ* z) (ℝ*-eval {x} {y}) >=> (ℝ*-eval {xy} {z}) >=>
+               ℝ*ᵉ-assoc >=>
+               sym (ℝ*-eval {x} {yz}) >=> sym (cong (x ℝ*_) (ℝ*-eval {y} {z}))

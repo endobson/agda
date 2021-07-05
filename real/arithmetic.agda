@@ -170,8 +170,8 @@ module _ (x y : ℝ) where
           lt : (c r+ b) < q
           lt = subst ((c r+ b) <_) p (r+₂-preserves-order c a b c<a)
 
-  _ℝ+_ : ℝ
-  _ℝ+_ = record
+  _ℝ+ᵉ_ : ℝ
+  _ℝ+ᵉ_ = record
     { L = L
     ; U = U
     ; isProp-L = \q -> squash
@@ -186,12 +186,21 @@ module _ (x y : ℝ) where
     ; located = located
     }
 
+
+abstract
+  _ℝ+_ : ℝ -> ℝ -> ℝ
+  a ℝ+ b = a ℝ+ᵉ b
+
+  ℝ+-eval : {a b : ℝ} -> a ℝ+ b == a ℝ+ᵉ b
+  ℝ+-eval = refl
+
+
 module _ (x y : ℝ) where
   private
     module x = Real x
     module y = Real y
-    xy = x ℝ+ y
-    yx = y ℝ+ x
+    xy = x ℝ+ᵉ y
+    yx = y ℝ+ᵉ x
     module xy = Real xy
     module yx = Real yx
 
@@ -231,18 +240,24 @@ module _ (x y : ℝ) where
       i .rightInv _ = squash _ _
       i .leftInv _ = squash _ _
 
-  ℝ+-commute : xy == yx
-  ℝ+-commute = LU-paths->path xy yx L-path U-path
+    ℝ+ᵉ-commute : xy == yx
+    ℝ+ᵉ-commute = LU-paths->path xy yx L-path U-path
+
+  abstract
+    ℝ+-commute : x ℝ+ y == y ℝ+ x
+    ℝ+-commute = ℝ+ᵉ-commute
+
+
 
 module _ (x y z : ℝ) where
   private
     module x = Real x
     module y = Real y
     module z = Real z
-    xy = x ℝ+ y
-    xy-z = xy ℝ+ z
-    yz = y ℝ+ z
-    x-yz = x ℝ+ yz
+    xy = x ℝ+ᵉ y
+    xy-z = xy ℝ+ᵉ z
+    yz = y ℝ+ᵉ z
+    x-yz = x ℝ+ᵉ yz
 
     module xy = Real xy
     module xy-z = Real xy-z
@@ -317,14 +332,19 @@ module _ (x y z : ℝ) where
             path : (a r+ c) r+ d == q
             path = (r+-assoc a c d) >=> cong (a r+_) cd=b >=> ab=q
 
-  ℝ+-assoc : xy-z == x-yz
-  ℝ+-assoc = LU-paths->path xy-z x-yz L-path U-path
+    ℝ+ᵉ-assoc : xy-z == x-yz
+    ℝ+ᵉ-assoc = LU-paths->path xy-z x-yz L-path U-path
+
+  abstract
+    ℝ+-assoc : (x ℝ+ y) ℝ+ z == x ℝ+ (y ℝ+ z)
+    ℝ+-assoc = ℝ+ᵉ-assoc
+
 
 module _ (x : ℝ) where
   private
     module x = Real x
     module 0ℝ = Real 0ℝ
-    0x = 0ℝ ℝ+ x
+    0x = 0ℝ ℝ+ᵉ x
     module 0x = Real 0x
 
     L-path : (q : ℚ) -> 0x.L q == x.L q
@@ -381,9 +401,12 @@ module _ (x : ℝ) where
           b<q : b < q
           b<q = subst2 _<_ (r+-left-zero b) p (r+₂-preserves-order 0r a b 0u-a)
 
+    ℝ+ᵉ-left-zero : 0x == x
+    ℝ+ᵉ-left-zero = LU-paths->path 0x x L-path U-path
 
-  ℝ+-left-zero : 0x == x
-  ℝ+-left-zero = LU-paths->path 0x x L-path U-path
+  abstract
+    ℝ+-left-zero : 0ℝ ℝ+ x == x
+    ℝ+-left-zero = ℝ+ᵉ-left-zero
 
 module _ (x : ℝ) where
   private
@@ -442,8 +465,8 @@ module _ (x : ℝ) where
     located : (a b : ℚ) -> a < b -> ∥ L a ⊎ U b ∥
     located a b a<b = ∥-map ⊎-swap (x.located (r- b) (r- a) (r--flips-order a b a<b))
 
-  ℝ-_ : ℝ
-  ℝ-_ = record
+  ℝ-ᵉ_ : ℝ
+  ℝ-ᵉ_ = record
     { L = L
     ; U = U
     ; isProp-L = \q -> x.isProp-U (r- q)
@@ -458,10 +481,17 @@ module _ (x : ℝ) where
     ; located = located
     }
 
+abstract
+  ℝ-_ : ℝ -> ℝ
+  ℝ- a = ℝ-ᵉ a
+
+  ℝ--eval : {a : ℝ} -> ℝ- a == ℝ-ᵉ a
+  ℝ--eval = refl
+
 module _ (x : ℝ) where
   private
-    -x = ℝ- x
-    y = x ℝ+ -x
+    -x = ℝ-ᵉ x
+    y = x ℝ+ᵉ -x
     module -x = Real -x
     module x = Real x
     module y = Real y
@@ -526,8 +556,14 @@ module _ (x : ℝ) where
         xl-mmq1 : x.L (r- (r- q1))
         xl-mmq1 = subst x.L (sym RationalRing.minus-double-inverse) xl-q1
 
-  ℝ+-inverse : y == 0ℝ
-  ℝ+-inverse =
-    LU-paths->path y 0ℝ
-      (\q -> (ua (isoToEquiv (isProp->iso (L-forward q) (L-backward q) (y.isProp-L q) (0ℝ.isProp-L q)))))
-      (\q -> (ua (isoToEquiv (isProp->iso (U-forward q) (U-backward q) (y.isProp-U q) (0ℝ.isProp-U q)))))
+    ℝ+ᵉ-inverse : y == 0ℝ
+    ℝ+ᵉ-inverse =
+      LU-paths->path y 0ℝ
+        (\q -> (ua (isoToEquiv (isProp->iso (L-forward q) (L-backward q)
+                                            (y.isProp-L q) (0ℝ.isProp-L q)))))
+        (\q -> (ua (isoToEquiv (isProp->iso (U-forward q) (U-backward q)
+                                            (y.isProp-U q) (0ℝ.isProp-U q)))))
+
+  abstract
+    ℝ+-inverse : (x ℝ+ (ℝ- x)) == 0ℝ
+    ℝ+-inverse = ℝ+ᵉ-inverse

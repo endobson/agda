@@ -408,8 +408,8 @@ module _ (x y : ℝ)
             u≤b : u ℚ≤ b
             u≤b = subst2 _ℚ≤_ (diffℚ-step l u) (diffℚ-step a b) (r+-both-preserves-≤ l a w d l≤a w≤d)
 
-  _ℝ*_ : ℝ
-  _ℝ*_ = record
+  _ℝ*ᵉ_ : ℝ
+  _ℝ*ᵉ_ = record
     { L = L
     ; U = U
     ; isProp-L = \_ -> squash
@@ -424,15 +424,19 @@ module _ (x y : ℝ)
     ; located = located
     }
 
+abstract
+  _ℝ*_ : ℝ -> ℝ -> ℝ
+  a ℝ* b = a ℝ*ᵉ b
 
-
+  ℝ*-eval : {a b : ℝ} -> a ℝ* b == a ℝ*ᵉ b
+  ℝ*-eval = refl
 
 module _ (x y : ℝ) where
   private
     module x = Real x
     module y = Real y
-    xy = x ℝ* y
-    yx = y ℝ* x
+    xy = x ℝ*ᵉ y
+    yx = y ℝ*ᵉ x
     module xy = Real xy
     module yx = Real yx
 
@@ -472,8 +476,12 @@ module _ (x y : ℝ) where
       i .rightInv _ = squash _ _
       i .leftInv _ = squash _ _
 
-  ℝ*-commute : xy == yx
-  ℝ*-commute = LU-paths->path xy yx L-path U-path
+    ℝ*ᵉ-commute : xy == yx
+    ℝ*ᵉ-commute = LU-paths->path xy yx L-path U-path
+
+  abstract
+    ℝ*-commute : x ℝ* y == y ℝ* x
+    ℝ*-commute = ℝ*ᵉ-commute
 
 
 module _ (x : ℝ)
@@ -499,7 +507,7 @@ module _ (x : ℝ)
   private
     module x = Real x
     module 1ℝ = Real 1ℝ
-    1x = 1ℝ ℝ* x
+    1x = 1ℝ ℝ*ᵉ x
     module 1x = Real 1x
 
     L-path : (q : ℚ) -> 1x.L q == x.L q
@@ -735,8 +743,12 @@ module _ (x : ℝ)
               lt3 = maxℚ-≤-right p1 p2
 
 
-  ℝ*-left-one : 1x == x
-  ℝ*-left-one = LU-paths->path 1x x L-path U-path
+    ℝ*ᵉ-left-one : 1x == x
+    ℝ*ᵉ-left-one = LU-paths->path 1x x L-path U-path
+
+  abstract
+    ℝ*-left-one : 1ℝ ℝ* x == x
+    ℝ*-left-one = ℝ*ᵉ-left-one
 
 
 module _ (x : ℝ)
@@ -744,7 +756,7 @@ module _ (x : ℝ)
   private
     module x = Real x
     module 0ℝ = Real 0ℝ
-    0x = 0ℝ ℝ* x
+    0x = 0ℝ ℝ*ᵉ x
     module 0x = Real 0x
 
 
@@ -948,5 +960,9 @@ module _ (x : ℝ)
           p-p0 : Pos p0
           p-p0 = snd (i*₁-StrictCrossZero 0i xi (n-l , p-u) (ℝ∈Iℚ->NonConstant x xi exi))
 
-  ℝ*-left-zero : 0x == 0ℝ
-  ℝ*-left-zero = LU-paths->path 0x 0ℝ L-path U-path
+    ℝ*ᵉ-left-zero : 0x == 0ℝ
+    ℝ*ᵉ-left-zero = LU-paths->path 0x 0ℝ L-path U-path
+
+  abstract
+    ℝ*-left-zero : 0ℝ ℝ* x == 0ℝ
+    ℝ*-left-zero = ℝ*ᵉ-left-zero

@@ -34,8 +34,14 @@ private
     U' : Pred ℚ ℓ-zero
     U' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Upper (xi i* yi) q)
 
-ℝ∈Iℚ-+ : (x y : ℝ) (a b : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ y b -> ℝ∈Iℚ (x ℝ+ y) (a i+ b)
-ℝ∈Iℚ-+ x y a b (xl-a , xu-a) (yl-b , yu-b) =
+-- ℝ∈Iℚ-+ : (x y : ℝ) (a b : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ y b -> ℝ∈Iℚ (x ℝ+ y) (a i+ b)
+-- ℝ∈Iℚ-+ x y a b (xl-a , xu-a) (yl-b , yu-b) =
+--   ∣ Iℚ.l a , Iℚ.l b , xl-a , yl-b , refl ∣ ,
+--   ∣ Iℚ.u a , Iℚ.u b , xu-a , yu-b , refl ∣
+
+
+ℝ∈Iℚ-+ᵉ : (x y : ℝ) (a b : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ y b -> ℝ∈Iℚ (x ℝ+ᵉ y) (a i+ b)
+ℝ∈Iℚ-+ᵉ x y a b (xl-a , xu-a) (yl-b , yu-b) =
   ∣ Iℚ.l a , Iℚ.l b , xl-a , yl-b , refl ∣ ,
   ∣ Iℚ.u a , Iℚ.u b , xu-a , yu-b , refl ∣
 
@@ -51,11 +57,11 @@ module _ (x y z : ℝ)
     module x = Real x
     module y = Real y
     module z = Real z
-    xy = x ℝ+ y
-    xyz = xy ℝ* z
-    xz = x ℝ* z
-    yz = y ℝ* z
-    xzyz = xz ℝ+ yz
+    xy = x ℝ+ᵉ y
+    xyz = xy ℝ*ᵉ z
+    xz = x ℝ*ᵉ z
+    yz = y ℝ*ᵉ z
+    xzyz = xz ℝ+ᵉ yz
 
     module xy = Real xy
     module xyz = Real xyz
@@ -139,9 +145,16 @@ module _ (x y z : ℝ)
 
 
           xyz∈[xiyi]zi : ℝ∈Iℚ xyz ((xi i+ yi) i* zi)
-          xyz∈[xiyi]zi = ℝ∈Iℚ-* xy z (xi i+ yi) zi (ℝ∈Iℚ-+ x y xi yi x∈xi y∈yi) z∈zi
+          xyz∈[xiyi]zi = ℝ∈Iℚ-* xy z (xi i+ yi) zi (ℝ∈Iℚ-+ᵉ x y xi yi x∈xi y∈yi) z∈zi
 
+    ℝ*ᵉ-distrib-ℝ+ᵉ-right : xyz == xzyz
+    ℝ*ᵉ-distrib-ℝ+ᵉ-right = sym (ℝ∈Iℚ->path xzyz xyz forward)
 
   abstract
-    ℝ*-distrib-ℝ+-right : xyz == xzyz
-    ℝ*-distrib-ℝ+-right = sym (ℝ∈Iℚ->path xzyz xyz forward)
+    ℝ*-distrib-ℝ+-right : (x ℝ+ y) ℝ* z == (x ℝ* z) ℝ+ (y ℝ* z)
+    ℝ*-distrib-ℝ+-right =
+      cong (_ℝ* z) (ℝ+-eval {x} {y}) >=>
+      ℝ*-eval {xy} {z} >=>
+      ℝ*ᵉ-distrib-ℝ+ᵉ-right >=>
+      sym (ℝ+-eval {xz} {yz}) >=>
+      cong2 _ℝ+_ (sym (ℝ*-eval {x} {z})) (sym (ℝ*-eval {y} {z}))
