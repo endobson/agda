@@ -494,6 +494,11 @@ r1/'-inverse a i = path
   path = int.*-right-one {(denom a) i* (numer a)} >=> int.*-commute {denom a} {numer a}
          >=> sym int.*-left-one
 
+
+r1/'-double-inverse : (a : Rational') -> (i1 : ℚInv' a) -> (i2 : ℚInv' (r1/' a i1)) ->
+                      r1/' (r1/' a i1) i2 == a
+r1/'-double-inverse a _ _ = nd-paths->path _ _ refl refl
+
 ℚInv : Pred Rational ℓ-zero
 ℚInv a = (a != 0r)
 
@@ -537,11 +542,11 @@ module _ {ℓa ℓb ℓc : Level} {A : Type ℓa} {B : A -> Type ℓb} {C : Type
   funExtDep = transP-left (transP-right (sym f-path-left) f-path-t) f-path-right
 
 
-r1/ : (a : Rational) -> (ℚInv a) -> Rational
-r1/ = RationalElim.elim
-        (\_ -> isSetΠ (\_ -> isSetRational))
-        g
-        g'
+r1/ᵉ : (a : Rational) -> (ℚInv a) -> Rational
+r1/ᵉ = RationalElim.elim
+         (\_ -> isSetΠ (\_ -> isSetRational))
+         g
+         g'
   where
   g : (a : Rational') -> ℚInv ([ a ]) -> Rational
   g a i = [ r1/' a (ℚInv->ℚInv' a i) ]
@@ -554,11 +559,26 @@ r1/ = RationalElim.elim
     same i1 i2 = eq/ (r1/' a1 (ℚInv->ℚInv' a1 i1)) (r1/' a2 (ℚInv->ℚInv' a2 i2))
                      (r1/'-preserves-r~ a1 a2 (ℚInv->ℚInv' a1 i1) (ℚInv->ℚInv' a2 i2) r)
 
+
 abstract
+  r1/ : (a : Rational) -> (ℚInv a) -> Rational
+  r1/ = r1/ᵉ
+
+  r1/-eval : {a : Rational} -> {i : (ℚInv a)} -> (r1/ a i) == (r1/ᵉ a i)
+  r1/-eval = refl
+
   r1/-inverse : (a : Rational) -> (i : ℚInv a) -> ((r1/ a i) r* a) == 1r
   r1/-inverse = RationalElim.elimProp
                  (\_ -> isPropΠ (\_ -> isSetRational _ _))
                  (\ a i -> eq/ _ _ (r1/'-inverse a (ℚInv->ℚInv' _ i)))
+
+  r1/-double-inverse : (a : Rational) -> (i1 : ℚInv a) -> (i2 : ℚInv (r1/ a i1)) ->
+                       r1/ (r1/ a i1) i2 == a
+  r1/-double-inverse =
+    RationalElim.elimProp
+      (\_ -> isPropΠ2 (\_ _ -> isSetRational _ _))
+      (\ a i1 i2 -> cong [_] (r1/'-double-inverse a (ℚInv->ℚInv' _ i1) (ℚInv->ℚInv' _ i2)))
+
 
 
 ℤ->ℚ' : Int -> Rational'
@@ -640,11 +660,12 @@ abstract
       (\a b -> isPropΠ2 (\_ _ -> isProp-isNonZeroℚ (a r* b)))
       (\a b nza nzb -> int.*-NonZero-NonZero nza nzb)
 
-r1/-isNonZeroℚ : (a : ℚ) -> (nz : isNonZeroℚ a) -> isNonZeroℚ (r1/ a (isNonZeroℚ->ℚInv nz))
-r1/-isNonZeroℚ =
-  RationalElim.elimProp {C = \a -> (nz : isNonZeroℚ a) -> isNonZeroℚ (r1/ a (isNonZeroℚ->ℚInv nz))}
-    (\a -> isPropΠ (\ nz -> (isProp-isNonZeroℚ (r1/ a (isNonZeroℚ->ℚInv nz)))))
-    (\a nz -> rNonZero a)
+abstract
+  r1/-isNonZeroℚ : (a : ℚ) -> (nz : isNonZeroℚ a) -> isNonZeroℚ (r1/ a (isNonZeroℚ->ℚInv nz))
+  r1/-isNonZeroℚ =
+    RationalElim.elimProp {C = \a -> (nz : isNonZeroℚ a) -> isNonZeroℚ (r1/ a (isNonZeroℚ->ℚInv nz))}
+      (\a -> isPropΠ (\ nz -> (isProp-isNonZeroℚ (r1/ a (isNonZeroℚ->ℚInv nz)))))
+      (\a nz -> rNonZero a)
 
 NonZeroℚ : Type₀
 NonZeroℚ = Σ ℚ isNonZeroℚ

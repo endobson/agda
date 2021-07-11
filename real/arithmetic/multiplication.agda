@@ -484,23 +484,6 @@ module _ (x y : ℝ) where
     ℝ*-commute = ℝ*ᵉ-commute
 
 
-module _ (x : ℝ)
-  where
-  private
-    module x = Real x
-
-  isLowerSet≤ : (q r : ℚ) -> (q ℚ≤ r) -> x.L r -> x.L q
-  isLowerSet≤ q r q≤r lr = unsquash (x.isProp-L q) (∥-map handle (x.isUpperOpen-L r lr))
-    where
-    handle : Σ[ s ∈ ℚ ] (r < s × x.L s) -> x.L q
-    handle (s , r<s , ls) = x.isLowerSet-L q s (trans-≤-< {q} {r} {s} q≤r r<s) ls
-
-  isUpperSet≤ : (q r : ℚ) -> (q ℚ≤ r) -> x.U q -> x.U r
-  isUpperSet≤ q r q≤r uq = unsquash (x.isProp-U r) (∥-map handle (x.isLowerOpen-U q uq))
-    where
-    handle : Σ[ s ∈ ℚ ] (s < q × x.U s) -> x.U r
-    handle (s , s<q , us) = x.isUpperSet-U s r (trans-<-≤ {s} {q} {r} s<q q≤r) us
-
 
 module _ (x : ℝ)
   where

@@ -151,21 +151,46 @@ module _ (x : ℝ) where
                               Pos-1r)
                   0≤q
 
+  isLowerSet≤ : (q r : ℚ) -> (q ℚ≤ r) -> x.L r -> x.L q
+  isLowerSet≤ q r q≤r lr = unsquash (x.isProp-L q) (∥-map handle (x.isUpperOpen-L r lr))
+    where
+    handle : Σ[ s ∈ ℚ ] (r < s × x.L s) -> x.L q
+    handle (s , r<s , ls) = x.isLowerSet-L q s (trans-≤-< {q} {r} {s} q≤r r<s) ls
 
--- subst Posℚ (r+-right-zero q) q<0
-      --handle2 (inj-r q≤0) = (1r , Pos-1r) , x.isUpperSet-U q 1r q<1r uq
-      --  where
-      --  q<1r : q < 1r
-      --  q<1r = (trans-≤-< {q} {0r} {1r} q≤0 (Pos-0< 1r Pos-1r))
+  isUpperSet≤ : (q r : ℚ) -> (q ℚ≤ r) -> x.U q -> x.U r
+  isUpperSet≤ q r q≤r uq = unsquash (x.isProp-U r) (∥-map handle (x.isLowerOpen-U q uq))
+    where
+    handle : Σ[ s ∈ ℚ ] (s < q × x.U s) -> x.U r
+    handle (s , s<q , us) = x.isUpperSet-U s r (trans-<-≤ {s} {q} {r} s<q q≤r) us
 
 
--- ℝ->Neg-L : (x : ℝ) -> ∃[ r ∈ ℚ⁺ ] (x.L ⟨ r ⟩)
+  LowerOpen-Pos : (q : ℚ⁺) -> (x.U ⟨ q ⟩) -> ∃[ r ∈ ℚ⁺ ] (⟨ r ⟩ < ⟨ q ⟩ × x.U ⟨ r ⟩)
+  LowerOpen-Pos (q , pos-q) xu-q = ∥-map handle (x.isLowerOpen-U q xu-q)
+    where
+    handle : Σ[ r ∈ ℚ ] (r < q × x.U r) -> Σ[ r ∈ ℚ⁺ ] (⟨ r ⟩ < q × x.U ⟨ r ⟩)
+    handle (r , r<q , xu-r) = handle2 (split-< q/2 r)
+      where
+      q/2 : ℚ
+      q/2 = 1/2r r* q
+
+      q/2<q : q/2 < q
+      q/2<q = subst (q/2 <_) (r*-left-one q) (r*₂-preserves-order 1/2r 1r (q , pos-q) 1/2r<1r)
+
+      pos-q/2 : Posℚ q/2
+      pos-q/2 = r*₁-preserves-sign (1/2r , Pos-1/ℕ _) q pos-q
+
+      handle2 : (q/2 < r) ⊎ (r ℚ≤ q/2) ->  Σ[ r ∈ ℚ⁺ ] (⟨ r ⟩ < q × x.U ⟨ r ⟩)
+      handle2 (inj-l q/2<r) = (r , Pos-< q/2 r (inj-l pos-q/2) q/2<r) , r<q , xu-r
+      handle2 (inj-r r≤q/2) = (q/2 , pos-q/2) , q/2<q , isUpperSet≤ r q/2 r≤q/2 xu-r
+
+
 
 _ℝ<'_ : ℝ -> ℝ -> Type₀
 x ℝ<' y = Σ[ q ∈ ℚ ] (Real.U x q × Real.L y q)
 
 _ℝ<_ : ℝ -> ℝ -> Type₀
 x ℝ< y = ∃[ q ∈ ℚ ] (Real.U x q × Real.L y q)
+
 
 ℚ->ℝ-preserves-< : (q1 q2 : ℚ) -> (q1 < q2) -> (ℚ->ℝ q1) ℝ< (ℚ->ℝ q2)
 ℚ->ℝ-preserves-< q1 q2 lt = ∣ dense-< {q1} {q2} lt ∣
@@ -417,6 +442,22 @@ comparison-ℝ< x y z x<z = ∥-bind handle x<z
       handle3 (inj-l ly-r) = ∣ inj-l (∣ r , (ux-r , ly-r) ∣) ∣
       handle3 (inj-r uy-q) = ∣ inj-r (∣ q , (uy-q , lz-q) ∣) ∣
 
+ℝ<->U : (x : ℝ) (q : ℚ) -> x ℝ< (ℚ->ℝ q) -> Real.U x q
+ℝ<->U x q x<q = unsquash (x.isProp-U q) (∥-map handle x<q)
+  where
+  module x = Real x
+  handle : x ℝ<' (ℚ->ℝ q) -> Real.U x q
+  handle (r , xu-r , r<q) = x.isUpperSet-U r q r<q xu-r
+
+
+ℝ<->L : (q : ℚ) (x : ℝ) -> (ℚ->ℝ q) ℝ< x -> Real.L x q
+ℝ<->L q x q<x = unsquash (x.isProp-L q) (∥-map handle q<x)
+  where
+  module x = Real x
+  handle : (ℚ->ℝ q) ℝ<' x -> Real.L x q
+  handle (r , q<r , xl-r) = x.isLowerSet-L q r q<r xl-r
+
+
 _ℝ#_ : ℝ -> ℝ -> Type₀
 x ℝ# y = (x ℝ< y) ⊎ (y ℝ< x)
 
@@ -445,3 +486,9 @@ comparison-ℝ# x y z (inj-r z<x) = ∥-map handle (comparison-ℝ< z y x z<x)
 
 tight-ℝ# : (x y : ℝ) -> ¬(x ℝ# y) -> x == y
 tight-ℝ# x y p = connected-ℝ< x y (p ∘ inj-l) (p ∘ inj-r)
+
+ℝInv : Pred ℝ ℓ-zero
+ℝInv x = x ℝ# 0ℝ
+
+isProp-ℝInv : (x : ℝ) -> isProp (ℝInv x)
+isProp-ℝInv x = isProp-ℝ# x 0ℝ

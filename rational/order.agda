@@ -422,18 +422,24 @@ abstract
 
 
 
-  r1/-preserves-Pos : (q : Rational) -> (i : ℚInv q) -> Pos q -> Pos (r1/ q i)
-  r1/-preserves-Pos =
+  r1/ᵉ-preserves-Pos : (q : Rational) -> (i : ℚInv q) -> Pos q -> Pos (r1/ᵉ q i)
+  r1/ᵉ-preserves-Pos =
     RationalElim.elimProp
-      (\q -> isPropΠ2 (\ i _ -> isProp-Pos (r1/ q i)))
+      (\q -> isPropΠ2 (\ i _ -> isProp-Pos (r1/ᵉ q i)))
       (\q i p -> is-signℚ (r1/'-preserves-Pos q (ℚInv->ℚInv' q i) (isSignℚ.v p)))
 
-  r1/-preserves-Neg : (q : Rational) -> (i : ℚInv q) -> Neg q -> Neg (r1/ q i)
-  r1/-preserves-Neg =
+  r1/ᵉ-preserves-Neg : (q : Rational) -> (i : ℚInv q) -> Neg q -> Neg (r1/ᵉ q i)
+  r1/ᵉ-preserves-Neg =
     RationalElim.elimProp
-      (\q -> isPropΠ2 (\ i _ -> isProp-Neg (r1/ q i)))
+      (\q -> isPropΠ2 (\ i _ -> isProp-Neg (r1/ᵉ q i)))
       (\q i p -> is-signℚ (r1/'-preserves-Neg q (ℚInv->ℚInv' q i) (isSignℚ.v p)))
 
+
+  r1/-preserves-Pos : (q : Rational) -> (i : ℚInv q) -> Pos q -> Pos (r1/ q i)
+  r1/-preserves-Pos q i p = subst Pos (sym r1/-eval) (r1/ᵉ-preserves-Pos q i p)
+
+  r1/-preserves-Neg : (q : Rational) -> (i : ℚInv q) -> Neg q -> Neg (r1/ q i)
+  r1/-preserves-Neg q i n = subst Neg (sym r1/-eval) (r1/ᵉ-preserves-Neg q i n)
 
   r*₁-preserves-sign : (q : ℚ⁺) (r : Rational) {s : Sign} -> isSignℚ s r ->
                        isSignℚ s (⟨ q ⟩ r* r)
@@ -825,6 +831,30 @@ r*₂-flips-≤ : (a b : ℚ) (c : ℚ⁰⁻) -> a ℚ≤ b -> (b r* ⟨ c ⟩) 
 r*₂-flips-≤ a b c@(c' , _) a≤b =
   subst2 _ℚ≤_ (r*-commute c' b) (r*-commute c' a) (r*₁-flips-≤ c a b a≤b)
 
+r1/-Pos-flips-order : (a b : ℚ⁺) -> ⟨ a ⟩ < ⟨ b ⟩ ->
+                      (r1/ ⟨ b ⟩ (Pos->Inv (snd b))) < (r1/ ⟨ a ⟩ (Pos->Inv (snd a)))
+r1/-Pos-flips-order (a , pos-a) (b , pos-b) a<b = subst Pos path pos-prod
+  where
+  inv-a = (Pos->Inv pos-a)
+  inv-b = (Pos->Inv pos-b)
+  a' = r1/ a inv-a
+  b' = r1/ b inv-b
+  pos-a' = r1/-preserves-Pos a inv-a pos-a
+  pos-b' = r1/-preserves-Pos b inv-b pos-b
+
+  pos-a'b' : Pos (a' r* b')
+  pos-a'b' = r*₁-preserves-sign (_ , pos-a') b' pos-b'
+
+  pos-prod : Pos ((a' r* b') r* (b r+ (r- a)))
+  pos-prod = r*₁-preserves-sign ((a' r* b') , pos-a'b') (b r+ (r- a)) a<b
+
+  path : (a' r* b') r* (b r+ (r- a)) == a' r+ (r- b')
+  path =
+    *-distrib-+-left >=>
+    +-cong (*-assoc >=> *-right (r1/-inverse b inv-b) >=> *-right-one)
+           (r*-minus-extract-right _ _ >=>
+            cong r-_ (*-left *-commute >=> *-assoc >=>
+                      *-right (r1/-inverse a inv-a) >=> *-right-one))
 
 
 0<1r : 0r < 1r

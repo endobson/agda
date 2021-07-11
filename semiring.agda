@@ -83,6 +83,7 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
       (m * n) + (m * o)
     end
 
+
   +-right : {m n p : Domain} -> (n == p) -> m + n == m + p
   +-right {m} id = cong (\x -> m + x) id
 
@@ -100,6 +101,11 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
 
   *-cong : {m n p o : Domain} -> m == p -> n == o -> m * n == p * o
   *-cong = cong2 _*_
+
+
+  +-swap : {m n o p : Domain} -> (m + n) + (o + p) == (m + o) + (n + p)
+  +-swap = +-assoc >=> +-right (sym +-assoc >=> +-left +-commute >=> +-assoc) >=> sym +-assoc
+
 
 module _ {D : Type ℓ} {{S : Semiring D}} where
   open Semiring S public
