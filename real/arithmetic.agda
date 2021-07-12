@@ -10,7 +10,9 @@ open import order
 open import order.instances.rational
 open import rational
 open import rational.order hiding (_<_ ; _>_ ; irrefl-<)
+open import rational.proper-interval
 open import real
+open import real.interval
 open import real.sequence
 open import relation hiding (U)
 open import ring.implementations.rational
@@ -567,3 +569,17 @@ module _ (x : ℝ) where
   abstract
     ℝ+-inverse : (x ℝ+ (ℝ- x)) == 0ℝ
     ℝ+-inverse = ℝ+ᵉ-inverse
+
+
+-- Interval arithmetic
+
+-- ℝ∈Iℚ-+ : (x y : ℝ) (a b : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ y b -> ℝ∈Iℚ (x ℝ+ y) (a i+ b)
+-- ℝ∈Iℚ-+ x y a b (xl-a , xu-a) (yl-b , yu-b) =
+--   ∣ Iℚ.l a , Iℚ.l b , xl-a , yl-b , refl ∣ ,
+--   ∣ Iℚ.u a , Iℚ.u b , xu-a , yu-b , refl ∣
+
+
+ℝ∈Iℚ-+ᵉ : (x y : ℝ) (a b : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ y b -> ℝ∈Iℚ (x ℝ+ᵉ y) (a i+ b)
+ℝ∈Iℚ-+ᵉ x y a b (xl-a , xu-a) (yl-b , yu-b) =
+  ∣ Iℚ.l a , Iℚ.l b , xl-a , yl-b , refl ∣ ,
+  ∣ Iℚ.u a , Iℚ.u b , xu-a , yu-b , refl ∣

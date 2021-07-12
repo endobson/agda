@@ -16,6 +16,7 @@ open import rational.proper-interval.multiplication-assoc
 open import real
 open import relation hiding (U)
 open import real.arithmetic.multiplication
+open import real.interval
 open import ring.implementations.rational
 open import sign
 open import sign.instances.rational
@@ -32,65 +33,6 @@ private
     U' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Upper (xi i* yi) q)
 
 
-ℝ∈Iℚ->path : (x y : ℝ) -> (f : (q : Iℚ) -> ℝ∈Iℚ x q -> ℝ∈Iℚ y q) -> x == y
-ℝ∈Iℚ->path x y f = LU-paths->path x y L-path U-path
-  where
-  module x = Real x
-  module y = Real y
-
-  f-L : (q : ℚ) -> x.L q -> y.L q
-  f-L q xl-q = unsquash (y.isProp-L q) (∥-map handle x.Inhabited-U)
-    where
-    handle : Σ ℚ x.U -> y.L q
-    handle (r , xu-r) = fst (f xi (xl-q , xu-r))
-      where
-      xi = Iℚ-cons q r (inj-l (ℝ-bounds->ℚ< x q r xl-q xu-r))
-
-  f-U : (q : ℚ) -> x.U q -> y.U q
-  f-U q xu-q = unsquash (y.isProp-U q) (∥-map handle x.Inhabited-L)
-    where
-    handle : Σ ℚ x.L -> y.U q
-    handle (r , xl-r) = snd (f xi (xl-r , xu-q))
-      where
-      xi = Iℚ-cons r q (inj-l (ℝ-bounds->ℚ< x r q xl-r xu-q))
-
-  L-path : (q : ℚ) -> x.L q == y.L q
-  L-path q = ua (isoToEquiv i)
-    where
-    open Iso
-    i : Iso (x.L q) (y.L q)
-    i .rightInv _ = y.isProp-L q _ _
-    i .leftInv _ = x.isProp-L q _ _
-    i .fun = f-L q
-    i .inv yl-q = unsquash (x.isProp-L q) (∥-bind handle (y.isUpperOpen-L q yl-q))
-      where
-      handle : Σ[ q' ∈ ℚ ] (q < q' × y.L q') -> ∥ x.L q ∥
-      handle (q' , q<q' , yl-q')  = ∥-bind handle2 (x.located q q' q<q')
-        where
-        handle2 : (x.L q ⊎ x.U q') -> ∥ x.L q ∥
-        handle2 (inj-l xl-q) = ∣ xl-q ∣
-        handle2 (inj-r xu-q') = bot-elim (y.disjoint q' (yl-q' , f-U q' xu-q'))
-
-  U-path : (q : ℚ) -> x.U q == y.U q
-  U-path q = ua (isoToEquiv i)
-    where
-    open Iso
-    i : Iso (x.U q) (y.U q)
-    i .rightInv _ = y.isProp-U q _ _
-    i .leftInv _ = x.isProp-U q _ _
-    i .fun = f-U q
-    i .inv yu-q = unsquash (x.isProp-U q) (∥-bind handle (y.isLowerOpen-U q yu-q))
-      where
-      handle : Σ[ q' ∈ ℚ ] (q' < q × y.U q') -> ∥ x.U q ∥
-      handle (q' , q'<q , yu-q')  = ∥-bind handle2 (x.located q' q q'<q)
-        where
-        handle2 : (x.L q' ⊎ x.U q) -> ∥ x.U q ∥
-        handle2 (inj-l xl-q') = bot-elim (y.disjoint q' (f-L q' xl-q' , yu-q'))
-        handle2 (inj-r xu-q) = ∣ xu-q ∣
-
-
-ℝ∈Iℚ-* : (x y : ℝ) (a b : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ y b -> ℝ∈Iℚ (x ℝ*ᵉ y) (a i* b)
-ℝ∈Iℚ-* x y a b x∈a y∈b = ∣ a , b , x∈a , y∈b , refl-ℚ≤ ∣ , ∣ a , b , x∈a , y∈b , refl-ℚ≤ ∣
 
 module _ (x y z : ℝ)
   where

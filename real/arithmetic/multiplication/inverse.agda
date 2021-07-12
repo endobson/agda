@@ -22,6 +22,7 @@ open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication
 open import real.arithmetic.multiplication.associative
+open import real.interval
 open import relation hiding (U)
 open import ring.implementations.rational
 open import ring.implementations.real

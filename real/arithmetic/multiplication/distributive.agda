@@ -19,6 +19,7 @@ open import relation hiding (U)
 open import real.arithmetic.multiplication
 open import real.arithmetic.multiplication.associative
 open import real.arithmetic
+open import real.interval
 open import ring.implementations.rational
 open import sign
 open import sign.instances.rational
@@ -33,22 +34,6 @@ private
 
     U' : Pred ℚ ℓ-zero
     U' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Upper (xi i* yi) q)
-
--- ℝ∈Iℚ-+ : (x y : ℝ) (a b : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ y b -> ℝ∈Iℚ (x ℝ+ y) (a i+ b)
--- ℝ∈Iℚ-+ x y a b (xl-a , xu-a) (yl-b , yu-b) =
---   ∣ Iℚ.l a , Iℚ.l b , xl-a , yl-b , refl ∣ ,
---   ∣ Iℚ.u a , Iℚ.u b , xu-a , yu-b , refl ∣
-
-
-ℝ∈Iℚ-+ᵉ : (x y : ℝ) (a b : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ y b -> ℝ∈Iℚ (x ℝ+ᵉ y) (a i+ b)
-ℝ∈Iℚ-+ᵉ x y a b (xl-a , xu-a) (yl-b , yu-b) =
-  ∣ Iℚ.l a , Iℚ.l b , xl-a , yl-b , refl ∣ ,
-  ∣ Iℚ.u a , Iℚ.u b , xu-a , yu-b , refl ∣
-
-
-ℝ∈Iℚ-⊆ : (x : ℝ) {a b : Iℚ} -> a i⊆ b -> ℝ∈Iℚ x a -> ℝ∈Iℚ x b
-ℝ∈Iℚ-⊆ x {a} {b} (i⊆-cons bl≤al au≤bu) (xl-a , xu-a) =
-  isLowerSet≤ x _ _ bl≤al xl-a , isUpperSet≤ x _ _ au≤bu xu-a
 
 
 module _ (x y z : ℝ)
