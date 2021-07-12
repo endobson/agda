@@ -857,6 +857,19 @@ r1/-Pos-flips-order (a , pos-a) (b , pos-b) a<b = subst Pos path pos-prod
                       *-right (r1/-inverse a inv-a) >=> *-right-one))
 
 
+r1/-Pos-flips-≤ : (a b : ℚ⁺) -> ⟨ a ⟩ ℚ≤ ⟨ b ⟩ ->
+                  (r1/ ⟨ b ⟩ (Pos->Inv (snd b))) ℚ≤ (r1/ ⟨ a ⟩ (Pos->Inv (snd a)))
+r1/-Pos-flips-≤ a b (inj-l a<b) = inj-l (r1/-Pos-flips-order a b a<b)
+r1/-Pos-flips-≤ (a , pos-a) (b , pos-b) (inj-r z-ab) =
+  subst (_ℚ≤ (r1/ a (Pos->Inv pos-a))) path refl-ℚ≤
+
+  where
+  a==b = zero-diff->path a b z-ab
+
+  path : (r1/ a (Pos->Inv pos-a)) == (r1/ b (Pos->Inv pos-b))
+  path i = (r1/ (a==b i) (Pos->Inv (isProp->PathP (\ j -> isProp-Pos (a==b j)) pos-a pos-b i)))
+
+
 0<1r : 0r < 1r
 0<1r = subst Pos (sym (r+-right-zero 1r)) Pos-1r
 

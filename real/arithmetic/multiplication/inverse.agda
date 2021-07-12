@@ -21,6 +21,7 @@ open import rational.proper-interval.multiplication-assoc
 open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication
+open import real.arithmetic.multiplication.associative
 open import relation hiding (U)
 open import ring.implementations.rational
 open import ring.implementations.real
@@ -309,3 +310,50 @@ module _ (x : ℝ)  where
                                                 (subst ℝInv ℝ--eval (ℝ--preserves-ℝInv x xinv))
                                                 (ℝ--preserves-ℝInv x xinv)) >=>
     sym (ℝ1/-eval (ℝ- x) (ℝ--preserves-ℝInv x xinv))
+
+
+module _ (x : ℝ) where
+  private
+
+    module _ (x y : ℝ) where
+      L' : Pred ℚ ℓ-zero
+      L' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Lower (xi i* yi) q)
+
+      U' : Pred ℚ ℓ-zero
+      U' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Upper (xi i* yi) q)
+
+    module _ (0L : Real.L x 0r) where
+      1/x = ℝ1/-Pos x 0L
+      prod = (1/x ℝ*ᵉ x)
+
+      module x = Real x
+      module 1/x = Real 1/x
+      module prod = Real prod
+
+      -- interval-f : (a : Iℚ) -> ℝ∈Iℚ prod a -> ℝ∈Iℚ 1ℝ a
+      -- interval-f a@(Iℚ-cons al au al≤au) (pl-al , pu-au) =
+      --   unsquash (isProp-ℝ∈Iℚ 1ℝ a) (∥-map4 handle pl-al pu-au (x.isUpperOpen-L 0r 0L) x.Inhabited-U)
+      --   where
+      --   handle : L' 1/x x al -> U' 1/x x au -> Σ[ q ∈ ℚ ] (0r < q × x.L q) -> Σ ℚ x.U -> ℝ∈Iℚ 1ℝ a
+      --   handle (bi , ci , 1/x∈b , x∈c , al≤bc) (di , ei , 1/x∈d , x∈e , de≤au)
+      --          (fl , 0<fl , xl-fl) (fu , xu-fu) = al<1 , 1<au
+      --     where
+      --     fl<fu = ℝ-bounds->ℚ< x fl fu xl-fl xu-fu
+      --     fi = Iℚ-cons fl fu (inj-l fl<fu)
+      --     x∈f : ℝ∈Iℚ x fi
+      --     x∈f = xl-fl , xu-fu
+
+      --     bc = bi i* ci
+      --     bc-l = Iℚ.l bc
+      --     bc-l<1 : bc-l < 1r
+      --     bc-l<1 = ?
+
+      --     al<1 : al < 1r
+      --     al<1 = trans-≤-< {al} al≤bc bc-l<1
+
+      --     1<au : 1r < au
+      --     1<au = ?
+
+
+      -- 1/ℝ-Pos-inverse : 1/x ℝ*ᵉ x == 1ℝ
+      -- 1/ℝ-Pos-inverse = ℝ∈Iℚ->path (1/x ℝ*ᵉ x) 1ℝ interval-f
