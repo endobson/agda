@@ -39,12 +39,14 @@ private
     private
       module x = Real x
 
-      data L : ℚ -> Type₀ where
-        L-pos : {q : ℚ} -> (p : Pos q) -> x.U (r1/ q (Pos->Inv p)) -> L q
-        L-nonpos : {q : ℚ} -> NonPos q -> L q
+    data L : ℚ -> Type₀ where
+      L-pos : {q : ℚ} -> (p : Pos q) -> x.U (r1/ q (Pos->Inv p)) -> L q
+      L-nonpos : {q : ℚ} -> NonPos q -> L q
 
-      data U : ℚ -> Type₀ where
-        U-pos : {q : ℚ} -> (p : Pos q) -> x.L (r1/ q (Pos->Inv p)) -> U q
+    data U : ℚ -> Type₀ where
+      U-pos : {q : ℚ} -> (p : Pos q) -> x.L (r1/ q (Pos->Inv p)) -> U q
+
+    private
 
       isProp-L : (q : ℚ) -> isProp (L q)
       isProp-L q (L-pos p1 u1) (L-pos p2 u2) =
@@ -240,7 +242,7 @@ private
     ℝ1/-Neg = ℝ-ᵉ (ℝ1/-Pos -x -0L)
 
 module _ (x : ℝ)  where
-  ℝ1/ᵉ :  (xinv : ℝInv x) -> ℝ
+  ℝ1/ᵉ : (xinv : ℝInv x) -> ℝ
   ℝ1/ᵉ (inj-l x<0) = ℝ1/-Neg x (ℝ<->U x 0r x<0)
   ℝ1/ᵉ (inj-r 0<x) = ℝ1/-Pos x (ℝ<->L 0r x 0<x)
 
@@ -313,17 +315,17 @@ module _ (x : ℝ)  where
     sym (ℝ1/-eval (ℝ- x) (ℝ--preserves-ℝInv x xinv))
 
 
-module _ (x : ℝ) where
-  private
+private
 
-    module _ (x y : ℝ) where
-      L' : Pred ℚ ℓ-zero
-      L' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Lower (xi i* yi) q)
+  module _ (x y : ℝ) where
+    L' : Pred ℚ ℓ-zero
+    L' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Lower (xi i* yi) q)
 
-      U' : Pred ℚ ℓ-zero
-      U' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Upper (xi i* yi) q)
+    U' : Pred ℚ ℓ-zero
+    U' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Upper (xi i* yi) q)
 
-    module _ (0L : Real.L x 0r) where
+  module _ (x : ℝ) (0L : Real.L x 0r) where
+    private
       1/x = ℝ1/-Pos x 0L
       prod = (1/x ℝ*ᵉ x)
 
@@ -331,30 +333,105 @@ module _ (x : ℝ) where
       module 1/x = Real 1/x
       module prod = Real prod
 
-      -- interval-f : (a : Iℚ) -> ℝ∈Iℚ prod a -> ℝ∈Iℚ 1ℝ a
-      -- interval-f a@(Iℚ-cons al au al≤au) (pl-al , pu-au) =
-      --   unsquash (isProp-ℝ∈Iℚ 1ℝ a) (∥-map4 handle pl-al pu-au (x.isUpperOpen-L 0r 0L) x.Inhabited-U)
-      --   where
-      --   handle : L' 1/x x al -> U' 1/x x au -> Σ[ q ∈ ℚ ] (0r < q × x.L q) -> Σ ℚ x.U -> ℝ∈Iℚ 1ℝ a
-      --   handle (bi , ci , 1/x∈b , x∈c , al≤bc) (di , ei , 1/x∈d , x∈e , de≤au)
-      --          (fl , 0<fl , xl-fl) (fu , xu-fu) = al<1 , 1<au
-      --     where
-      --     fl<fu = ℝ-bounds->ℚ< x fl fu xl-fl xu-fu
-      --     fi = Iℚ-cons fl fu (inj-l fl<fu)
-      --     x∈f : ℝ∈Iℚ x fi
-      --     x∈f = xl-fl , xu-fu
+      0<x : 0ℝ < x
+      0<x = (x.isUpperOpen-L 0r 0L)
 
-      --     bc = bi i* ci
-      --     bc-l = Iℚ.l bc
-      --     bc-l<1 : bc-l < 1r
-      --     bc-l<1 = ?
+      0<1/x : 0ℝ < 1/x
+      0<1/x = ∥-map handle x.Inhabited-U
+        where
+        handle : Σ ℚ x.U -> 0ℝ ℝ<' 1/x
+        handle (q , xu-q) = q' , 0<q' , L-pos pos-q' (subst x.U (sym q''-path) xu-q)
+          where
+          0<q = ℝ-bounds->ℚ< x 0r q 0L xu-q
+          pos-q = 0<-Pos q 0<q
+          inv-q = (Pos->Inv pos-q)
+          q' = r1/ q inv-q
+          pos-q' = r1/-preserves-Pos q inv-q pos-q
+          inv-q' = (Pos->Inv pos-q')
+          0<q' = Pos-0< q' pos-q'
+          q'' = r1/ q' inv-q'
+          q''-path = r1/-double-inverse q inv-q inv-q'
 
-      --     al<1 : al < 1r
-      --     al<1 = trans-≤-< {al} al≤bc bc-l<1
+      extract-U : {q : ℚ} -> (p : Pos q) -> L x 0L q -> x.U (r1/ q (Pos->Inv p))
+      extract-U p (L-nonpos np) = bot-elim (NonPos->¬Pos np p)
+      extract-U {q} _ (L-pos _ xu) = subst (\i -> (x.U (r1/ q (Pos->Inv i)))) (isProp-Pos q _ _) xu
 
-      --     1<au : 1r < au
-      --     1<au = ?
+      extract-L : {q : ℚ} -> (p : Pos q) -> U x 0L q -> x.L (r1/ q (Pos->Inv p))
+      extract-L {q} _ (U-pos _ xl) = subst (\i -> (x.L (r1/ q (Pos->Inv i)))) (isProp-Pos q _ _) xl
 
 
-      -- 1/ℝ-Pos-inverse : 1/x ℝ*ᵉ x == 1ℝ
-      -- 1/ℝ-Pos-inverse = ℝ∈Iℚ->path (1/x ℝ*ᵉ x) 1ℝ interval-f
+      interval-f : (a : Iℚ) -> ℝ∈Iℚ prod a -> ℝ∈Iℚ 1ℝ a
+      interval-f a@(Iℚ-cons al au al≤au) p∈a =
+        unsquash (isProp-ℝ∈Iℚ 1ℝ a) (∥-bind handle (ℝ∈Iℚ-*⁻ 1/x x a p∈a))
+        where
+        handle : Σ[ b ∈ Iℚ ] Σ[ c ∈ Iℚ ] (ℝ∈Iℚ 1/x b × ℝ∈Iℚ x c × (b i* c) i⊆ a) -> ∥ ℝ∈Iℚ 1ℝ a ∥
+        handle (b , c , 1/x∈b , x∈c , bc⊆a) =
+          ∥-map2 handle2 (ℝ∈Iℚ-Pos-⊆ 1/x b 1/x∈b 0<1/x) (ℝ∈Iℚ-Pos-⊆ x c x∈c 0<x)
+          where
+          handle2 : Σ[ d ∈ Iℚ ] (d i⊆ b × ℝ∈Iℚ 1/x d × PosI d) ->
+                    Σ[ e ∈ Iℚ ] (e i⊆ c × ℝ∈Iℚ x e × PosI e) -> ℝ∈Iℚ 1ℝ a
+          handle2 (d@(Iℚ-cons dl du dl≤du) , d⊆b , (1/xl-dl , 1/xu-du) , pos-dl)
+                  (e@(Iℚ-cons el eu el≤eu) , e⊆c , (xl-el , xu-eu) , pos-el) =
+            ℝ∈Iℚ-⊆ 1ℝ de⊆a 1∈de
+            where
+            pos-du = Pos-≤ dl du pos-dl dl≤du
+            pos-eu = Pos-≤ el eu pos-el el≤eu
+            1/dl = (r1/ dl (Pos->Inv pos-dl))
+            1/du = (r1/ du (Pos->Inv pos-du))
+
+            xu-1/dl : x.U 1/dl
+            xu-1/dl = extract-U pos-dl 1/xl-dl
+            xl-1/du : x.L 1/du
+            xl-1/du = extract-L pos-du 1/xu-du
+
+            el<1/dl = ℝ-bounds->ℚ< x el 1/dl xl-el xu-1/dl
+            1/du<eu = ℝ-bounds->ℚ< x 1/du eu xl-1/du xu-eu
+
+
+            dlel<1 = subst2 _<_ *-commute (r1/-inverse dl (Pos->Inv pos-dl))
+                            (r*₂-preserves-order el 1/dl (dl , pos-dl) el<1/dl)
+
+            1<dueu = subst2 _<_ (r1/-inverse du (Pos->Inv pos-du)) *-commute
+                            (r*₂-preserves-order 1/du eu (du , pos-du) 1/du<eu)
+
+            de' = i*-NN d e (inj-l pos-dl) (inj-l pos-el)
+            de'==de : de' == (d i* e)
+            de'==de = i*-NN-path d e (inj-l pos-dl) (inj-l pos-el)
+
+            1∈de' : ℝ∈Iℚ 1ℝ de'
+            1∈de' = dlel<1 , 1<dueu
+
+            1∈de = subst (ℝ∈Iℚ 1ℝ) de'==de 1∈de'
+
+            de⊆bc : (d i* e) i⊆ (b i* c)
+            de⊆bc = i*-preserves-⊆ d⊆b e⊆c
+
+            de⊆a = trans-i⊆ de⊆bc bc⊆a
+
+      1/ℝ-Pos-inverse' : 1/x ℝ*ᵉ x == 1ℝ
+      1/ℝ-Pos-inverse' = ℝ∈Iℚ->path (1/x ℝ*ᵉ x) 1ℝ interval-f
+
+    1/ℝ-Pos-inverse : 1/x ℝ* x == 1ℝ
+    1/ℝ-Pos-inverse = ℝ*-eval {1/x} {x} >=> 1/ℝ-Pos-inverse'
+
+  module _ (x : ℝ) (0U : Real.U x 0r) where
+    private
+      1/x = ℝ1/-Neg x 0U
+
+    1/ℝ-Neg-inverse : 1/x ℝ* x == 1ℝ
+    1/ℝ-Neg-inverse =
+      cong (_ℝ* x) (sym (ℝ--eval {ℝ1/-Pos (ℝ-ᵉ x) 0U})) >=>
+      ℝRing.minus-extract-left >=>
+      sym ℝRing.minus-extract-right >=>
+      cong ((ℝ1/-Pos (ℝ-ᵉ x) 0U) ℝ*_) (ℝ--eval {x}) >=>
+      1/ℝ-Pos-inverse (ℝ-ᵉ x) 0U
+
+
+module _ (x : ℝ)  where
+  ℝ1/ᵉ-inverse : (xinv : ℝInv x) -> ℝ1/ᵉ x xinv ℝ* x == 1ℝ
+  ℝ1/ᵉ-inverse (inj-l x<0) = 1/ℝ-Neg-inverse x (ℝ<->U x 0r x<0)
+  ℝ1/ᵉ-inverse (inj-r 0<x) = 1/ℝ-Pos-inverse x (ℝ<->L 0r x 0<x)
+
+  abstract
+    ℝ1/-inverse : (xinv : ℝInv x) -> ℝ1/ x xinv ℝ* x == 1ℝ
+    ℝ1/-inverse = ℝ1/ᵉ-inverse

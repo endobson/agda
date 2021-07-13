@@ -141,6 +141,24 @@ i-scale-1 a = sym (i-scale-NN-path (1r , inj-l Pos-1r) a) >=>
 _i*_ : Iℚ -> Iℚ -> Iℚ
 _i*_ (Iℚ-cons l1 u1 _) i2 = (i-scale l1 i2) i∪ (i-scale u1 i2)
 
+i*-NN : (a b : Iℚ) -> (NonNegI a) -> (NonNegI b) -> Iℚ
+i*-NN (Iℚ-cons al au al≤au) (Iℚ-cons bl bu bl≤bu) nn-al nn-bl =
+  Iℚ-cons (al r* bl) (au r* bu)
+          (trans-ℚ≤ {al r* bl} {al r* bu} {au r* bu}
+            (r*₁-preserves-≤ (al , nn-al) bl bu bl≤bu)
+            (r*₂-preserves-≤ al au (bu , (NonNeg-≤ bl bu nn-bl bl≤bu)) al≤au))
+
+i*-NN-path : (a b : Iℚ) -> (nn-a : (NonNegI a)) -> (nn-b : (NonNegI b)) ->
+             i*-NN a b nn-a nn-b == (a i* b)
+i*-NN-path a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-a nn-b =
+  Iℚ-bounds-path (sym (minℚ-left  (al r* bl) (au r* bl) (r*₂-preserves-≤ al au (bl , nn-bl) al≤au)))
+                 (sym (maxℚ-right (al r* bu) (au r* bu) (r*₂-preserves-≤ al au (bu , nn-bu) al≤au))) >=>
+  cong2 _i∪_ (i-scale-NN-path (al , nn-al) b) (i-scale-NN-path (au , nn-au) b)
+  where
+  nn-al = nn-a
+  nn-au = NonNeg-≤ al au nn-al al≤au
+  nn-bl = nn-b
+  nn-bu = NonNeg-≤ bl bu nn-bl bl≤bu
 
 i*-commute : (a b : Iℚ) -> a i* b == b i* a
 i*-commute (Iℚ-cons al au _) (Iℚ-cons bl bu _) = Iℚ-bounds-path l-path u-path
@@ -1283,6 +1301,9 @@ i-maxabs-⊆ {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (i⊆-c
 
   aal≤mb = point al bl≤al al≤bu
   aau≤mb = point au bl≤au au≤bu
+
+i⊆-preserves-PosI : {a b : Iℚ} -> a i⊆ b -> PosI b -> PosI a
+i⊆-preserves-PosI (i⊆-cons bl≤al _) pos-bl = Pos-≤ _ _ pos-bl bl≤al
 
 
 
