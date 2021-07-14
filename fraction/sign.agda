@@ -31,25 +31,19 @@ private
   rNonZero = Rational'.NonZero-denominator
 
 record isSignℚ' (s : Sign) (q : Rational') : Type₀ where
+  constructor is-signℚ'
   field
     v : isSign s (numer q * denom q)
 
-is-signℚ' : {s : Sign} {q : Rational'} -> isSign s (numer q * denom q) -> isSignℚ' s q
-is-signℚ' v = record { v = v }
+private
+  abstract
+    isProp-isSignℚ' : (s : Sign) (q : Rational') -> isProp (isSignℚ' s q)
+    isProp-isSignℚ' s q a b =
+      cong is-signℚ' (isProp-isSign s (numer q * denom q) (isSignℚ'.v a) (isSignℚ'.v b) )
 
-Posℚ' : Rational' -> Type₀
-Posℚ' = isSignℚ' pos-sign
-Zeroℚ' : Rational' -> Type₀
-Zeroℚ' = isSignℚ' zero-sign
-
-
-isProp-isSignℚ' : (s : Sign) (q : Rational') -> isProp (isSignℚ' s q)
-isProp-isSignℚ' s q a b =
-  cong is-signℚ' (isProp-isSign s (numer q * denom q) (isSignℚ'.v a) (isSignℚ'.v b) )
-
-isSignℚ'-unique : (q : Rational') (s1 s2 : Sign) ->
-                  (isSignℚ' s1 q) -> (isSignℚ' s2 q) -> s1 == s2
-isSignℚ'-unique q s1 s2 p1 p2 = isSign-unique (numer q * denom q) s1 s2 (isSignℚ'.v p1) (isSignℚ'.v p2)
+    isSignℚ'-unique : (q : Rational') (s1 s2 : Sign) ->
+                      (isSignℚ' s1 q) -> (isSignℚ' s2 q) -> s1 == s2
+    isSignℚ'-unique q s1 s2 p1 p2 = isSign-unique (numer q * denom q) s1 s2 (isSignℚ'.v p1) (isSignℚ'.v p2)
 
 instance
   SignStr-ℚ' : SignStr ℚ' ℓ-zero
@@ -59,11 +53,19 @@ instance
     ; isSign-unique = isSignℚ'-unique
     }
 
-ℚ'->sign : Rational' -> Sign
-ℚ'->sign q = i.int->sign (numer q i.* denom q)
+private
+  abstract
+    ℚ'->sign : Rational' -> Sign
+    ℚ'->sign q = i.int->sign (numer q i.* denom q)
 
-isSign'-self : (q : Rational') -> isSign (ℚ'->sign q) q
-isSign'-self q = is-signℚ' (i.isSign-self (numer q i.* denom q))
+    isSign'-self : (q : Rational') -> isSign (ℚ'->sign q) q
+    isSign'-self q = is-signℚ' (i.isSign-self (numer q i.* denom q))
+
+instance
+  DecidableSignStr-ℚ' : DecidableSignStr SignStr-ℚ'
+  DecidableSignStr-ℚ' = record
+    { decide-sign = \q -> _ , isSign'-self q
+    }
 
 NonNeg-nd->ℚ' : {q : ℚ'} -> NonNeg (numer q * denom q) -> NonNeg q
 NonNeg-nd->ℚ' (inj-l p) = inj-l (is-signℚ' p)

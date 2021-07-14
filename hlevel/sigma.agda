@@ -8,6 +8,7 @@ open import base
 open import cubical
 open import equality
 open import hlevel.base
+open import relation
 open import sigma
 
 private
@@ -43,6 +44,11 @@ section-ΣProp== {A = A} pB {u} {v} p j i =
 
 isPropΣ : isProp A -> ((a : A) -> isProp (B a)) -> isProp (Σ A B)
 isPropΣ pA pB (a1 , _) (a2 , _) = ΣProp== pB (pA a1 a2)
+
+uniqueProp->isPropΣ : ((a1 a2 : A) -> (B a1) -> (B a2) -> a1 == a2) ->
+                      (isPropValuedPred B) -> isProp (Σ A B)
+uniqueProp->isPropΣ unique isPropB (a1 , b1) (a2 , b2) =
+  ΣProp-path (isPropB _) (unique a1 a2 b1 b2)
 
 isOfHLevelΣ : (n : Nat) -> isOfHLevel n A -> ((x : A) -> isOfHLevel n (B x)) -> isOfHLevel n (Σ A B)
 isOfHLevelΣ 0 = isContrΣ

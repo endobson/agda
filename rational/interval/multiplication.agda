@@ -23,7 +23,7 @@ private
 
 
   classify-Iℚ : (a : Iℚ) -> Iℚ-class a
-  classify-Iℚ a@(l , u) = handle (isSign-self l) (isSign-self u)
+  classify-Iℚ a@(l , u) = handle (snd (decide-sign l)) (snd (decide-sign u))
     where
     handle : {s1 s2 : Sign} -> isSign s1 l -> isSign s2 u -> Iℚ-class a
     handle {pos-sign}  {pos-sign}  pl pu = inj-l (inj-l (inj-l pl , inj-l pu))

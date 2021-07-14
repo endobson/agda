@@ -16,7 +16,7 @@ open import sign.instances.rational
 
 private
   i-maxabs-i-scale : (k : ℚ) (a : Iℚ) -> i-maxabs (i-scale k a) == (absℚ k) r* (i-maxabs a)
-  i-maxabs-i-scale k a@(Iℚ-cons al au al≤au) = handle _ (isSign-self k)
+  i-maxabs-i-scale k a@(Iℚ-cons al au al≤au) = handle (decide-sign k)
     where
     nn-case : NonNeg k -> i-maxabs (i-scale k a) == (absℚ k) r* (i-maxabs a)
     nn-case nn-k =
@@ -31,10 +31,10 @@ private
       cong2 maxℚ (absℚ-r* k al) (absℚ-r* k au) >=>
       maxℚ-r*₁-NonNeg (absℚ k) (absℚ al) (absℚ au) (NonNeg-absℚ k)
 
-    handle : (s : Sign) -> isSign s k -> i-maxabs (i-scale k a) == (absℚ k) r* (i-maxabs a)
-    handle pos-sign  p-k = nn-case (inj-l p-k)
-    handle zero-sign z-k = nn-case (inj-r z-k)
-    handle neg-sign  n-k = np-case (inj-l n-k)
+    handle : Σ[ s ∈ Sign ] isSign s k -> i-maxabs (i-scale k a) == (absℚ k) r* (i-maxabs a)
+    handle (pos-sign  , p-k) = nn-case (inj-l p-k)
+    handle (zero-sign , z-k) = nn-case (inj-r z-k)
+    handle (neg-sign  , n-k) = np-case (inj-l n-k)
 
   maxℚ-swap : (a b c d : ℚ) -> maxℚ (maxℚ a b) (maxℚ c d) == maxℚ (maxℚ a c) (maxℚ b d)
   maxℚ-swap a b c d =

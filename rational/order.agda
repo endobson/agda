@@ -64,12 +64,12 @@ isProp-≤' = isProp-NonNeg _
 
 
 r~-preserves-NonNeg : {q1 q2 : Rational'} -> NonNeg q1 -> q1 r~ q2 -> NonNeg q2
-r~-preserves-NonNeg {q1} {q2} nn-q1 r = handle (ℚ'->sign q1) (isSign'-self q1)
+r~-preserves-NonNeg {q1} {q2} nn-q1 r = handle (decide-sign q1)
   where
-  handle : (s : Sign) -> isSign s q1 -> NonNeg q2
-  handle pos-sign p-q1 = Pos->NonNeg (r~-preserves-sign p-q1 r)
-  handle zero-sign z-q1 = Zero->NonNeg (r~-preserves-sign z-q1 r)
-  handle neg-sign n-q1  = bot-elim (NonNeg->¬Neg nn-q1 n-q1)
+  handle : Σ[ s ∈ Sign ] isSign s q1 -> NonNeg q2
+  handle (pos-sign  , p-q1) = Pos->NonNeg (r~-preserves-sign p-q1 r)
+  handle (zero-sign , z-q1) = Zero->NonNeg (r~-preserves-sign z-q1 r)
+  handle (neg-sign  , n-q1)  = bot-elim (NonNeg->¬Neg nn-q1 n-q1)
 
 
 r~-preserves-<₁ : {q1 q2 r : Rational'} -> q1 <' r -> q1 r~ q2 -> q2 <' r
@@ -473,7 +473,7 @@ abstract
   r*-NonPos-NonPos (inj-l n1) (inj-l n2) = inj-l (r*₁-flips-sign (_ , n1) _ n2)
 
   r*-ZeroFactor : {q1 q2 : ℚ} -> Zero (q1 r* q2) -> Zero q1 ⊎ Zero q2
-  r*-ZeroFactor {q1} {q2} zp = handle _ _ (isSign-self q1) (isSign-self q2)
+  r*-ZeroFactor {q1} {q2} zp = handle _ _ (snd (decide-sign q1)) (snd (decide-sign q2))
     where
     handle : (s1 s2 : Sign) -> isSignℚ s1 q1 -> isSignℚ s2 q2 -> Zero q1 ⊎ Zero q2
     handle zero-sign _         z1 _ = inj-l z1
@@ -657,7 +657,7 @@ private
 
 connected-< : Connected _<_
 connected-< {x} {y} x≮y y≮x =
-  handle _ (isSign-self z)
+  handle (decide-sign z)
   where
   z = (y r+ (r- x))
   z2 = (x r+ (r- y))
@@ -667,10 +667,10 @@ connected-< {x} {y} x≮y y≮x =
     cong ((r- y) r+_) (RationalRing.minus-double-inverse {x}) >=>
     r+-commute (r- y) x
 
-  handle : (s : Sign) -> isSignℚ s z -> x == y
-  handle pos-sign pz = bot-elim (x≮y pz)
-  handle zero-sign zz = zero-diff->path x y zz
-  handle neg-sign nz = bot-elim (y≮x (subst Posℚ p (r--flips-sign z neg-sign nz)))
+  handle : Σ[ s ∈ Sign ] (isSignℚ s z) -> x == y
+  handle (pos-sign  , pz) = bot-elim (x≮y pz)
+  handle (zero-sign , zz) = zero-diff->path x y zz
+  handle (neg-sign  , nz) = bot-elim (y≮x (subst Posℚ p (r--flips-sign z neg-sign nz)))
 
 trichotomous-< : Trichotomous _<_
 trichotomous-< x y = handle (decide-< x y) (decide-< y x)

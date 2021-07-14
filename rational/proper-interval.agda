@@ -203,7 +203,7 @@ i--scale a@(Iℚ-cons l u l≤u) = Iℚ-bounds-path lp up
 i-scale-distrib-∪ : (k : ℚ) (a b : Iℚ) ->
                     i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
 i-scale-distrib-∪ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
-  handle _ (isSign-self k)
+  handle (decide-sign k)
   where
   nn-case : NonNeg k -> i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
   nn-case nn-k =
@@ -231,14 +231,14 @@ i-scale-distrib-∪ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
     up : k r* (maxℚ au bu) == minℚ (k r* au) (k r* bu)
     up = r*₁-flip-distrib-max k⁻ au bu
 
-  handle : (s : Sign) -> isSign s k ->
+  handle : Σ[ s ∈ Sign ] isSign s k ->
            i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
-  handle pos-sign pk = nn-case (inj-l pk)
-  handle zero-sign zk = nn-case (inj-r zk)
-  handle neg-sign nk = np-case (inj-l nk)
+  handle (pos-sign  , pk) = nn-case (inj-l pk)
+  handle (zero-sign , zk) = nn-case (inj-r zk)
+  handle (neg-sign  , nk) = np-case (inj-l nk)
 
 i-scale-twice : (k1 k2 : ℚ) (a : Iℚ) -> i-scale k1 (i-scale k2 a) == i-scale (k1 r* k2) a
-i-scale-twice k1 k2 a = handle _ _ (isSign-self k1) (isSign-self k2)
+i-scale-twice k1 k2 a = handle _ _ (snd (decide-sign k1)) (snd (decide-sign k2))
   where
   Ans = i-scale k1 (i-scale k2 a) == i-scale (k1 r* k2) a
 
@@ -284,7 +284,7 @@ i-scale-twice k1 k2 a = handle _ _ (isSign-self k1) (isSign-self k2)
 
 i-scale-distrib-i+ : (k : ℚ) (a b : Iℚ) -> i-scale k (a i+ b) == i-scale k a i+ i-scale k b
 i-scale-distrib-i+ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
-  handle _ (isSign-self k)
+  handle (decide-sign k)
   where
   nn-case : NonNeg k -> i-scale k (a i+ b) == (i-scale k a) i+ (i-scale k b)
   nn-case nn-k =
@@ -304,11 +304,11 @@ i-scale-distrib-i+ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
     k⁻ : ℚ⁰⁻
     k⁻ = k , np-k
 
-  handle : (s : Sign) -> isSign s k ->
+  handle : Σ[ s ∈ Sign ] isSign s k ->
            i-scale k (a i+ b) == (i-scale k a) i+ (i-scale k b)
-  handle pos-sign pk = nn-case (inj-l pk)
-  handle zero-sign zk = nn-case (inj-r zk)
-  handle neg-sign nk = np-case (inj-l nk)
+  handle (pos-sign  , pk) = nn-case (inj-l pk)
+  handle (zero-sign , zk) = nn-case (inj-r zk)
+  handle (neg-sign  , nk) = np-case (inj-l nk)
 
 
 i-Lower : Iℚ -> Pred ℚ ℓ-zero
@@ -333,7 +333,7 @@ NonNeg-i-width : (a : Iℚ) -> NonNeg (i-width a)
 NonNeg-i-width = Iℚ.l≤u
 
 i-scale-width : (k : ℚ) (a : Iℚ) -> i-width (i-scale k a) == absℚ k r* (i-width a)
-i-scale-width k a@(Iℚ-cons l u l≤u)  = handle (isSign-self k)
+i-scale-width k a@(Iℚ-cons l u l≤u)  = handle (decide-sign k)
   where
   nn-case : NonNeg k -> i-width (i-scale k a) == absℚ k r* (i-width a)
   nn-case nn-k =
@@ -360,10 +360,10 @@ i-scale-width k a@(Iℚ-cons l u l≤u)  = handle (isSign-self k)
     ku≤kl = r*₁-flips-≤ (k , inj-l n-k) l u l≤u
 
 
-  handle : {s : Sign} -> isSign s k -> i-width (i-scale k a) == absℚ k r* (i-width a)
-  handle {pos-sign}  pos-k  = nn-case (inj-l pos-k)
-  handle {zero-sign} zero-k = nn-case (inj-r zero-k)
-  handle {neg-sign}  neg-k  = n-case neg-k
+  handle : Σ[ s ∈ Sign ] isSign s k -> i-width (i-scale k a) == absℚ k r* (i-width a)
+  handle (pos-sign  , pos-k)  = nn-case (inj-l pos-k)
+  handle (zero-sign , zero-k) = nn-case (inj-r zero-k)
+  handle (neg-sign  , neg-k)  = n-case neg-k
 
 i∪₁-width-≤ : (a b : Iℚ) -> i-width a ℚ≤ i-width (a i∪ b)
 i∪₁-width-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
@@ -1033,7 +1033,7 @@ private
     cz-c : StrictCrossZeroI i -> StrictClass' i
 
   classify : (i : Iℚ) -> Class i
-  classify i@(Iℚ-cons l u _) = handle _ _ (isSign-self l) (isSign-self u)
+  classify i@(Iℚ-cons l u _) = handle _ _ (snd (decide-sign l)) (snd (decide-sign u))
     where
     handle : (s1 s2 : Sign) -> (isSign s1 l) -> (isSign s2 u) -> Class i
     handle pos-sign  _  pl _ = nn-c (inj-l pl)
@@ -1043,7 +1043,7 @@ private
     handle neg-sign  neg-sign  nl nu = np-c (inj-l nu)
 
   strict-classify : (i : Iℚ) -> StrictClass i
-  strict-classify i@(Iℚ-cons l u _) = handle _ _ (isSign-self l) (isSign-self u)
+  strict-classify i@(Iℚ-cons l u _) = handle _ _ (snd (decide-sign l)) (snd (decide-sign u))
     where
     handle : (s1 s2 : Sign) -> (isSign s1 l) -> (isSign s2 u) -> StrictClass i
     handle pos-sign   _         pl _  = p-c pl
@@ -1055,7 +1055,7 @@ private
     handle neg-sign   neg-sign  nl nu = n-c nu
 
   strict-classify' : (i : Iℚ) -> StrictClass' i
-  strict-classify' i@(Iℚ-cons l u _) = handle _ _ (isSign-self l) (isSign-self u)
+  strict-classify' i@(Iℚ-cons l u _) = handle _ _ (snd (decide-sign l)) (snd (decide-sign u))
     where
     handle : (s1 s2 : Sign) -> (isSign s1 l) -> (isSign s2 u) -> StrictClass' i
     handle pos-sign  _  pl _ = nn-c (inj-l pl)
@@ -1186,7 +1186,7 @@ i-intersect-⊆₂ a b _ = i⊆-cons (maxℚ-≤-right _ _) (minℚ-≤-right _ 
 
 i-scale-preserves-⊆ : (k : ℚ) {a b : Iℚ} -> a i⊆ b -> (i-scale k a) i⊆ (i-scale k b)
 i-scale-preserves-⊆ k {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (i⊆-cons l u) =
-  handle (isSign-self k)
+  handle (decide-sign k)
   where
   nn-case : NonNeg k -> (i-scale k a) i⊆ (i-scale k b)
   nn-case nn = i⊆-cons (subst2 _ℚ≤_ (sym minb-path) (sym mina-path) (r*₁-preserves-≤ (k , nn) bl al l))
@@ -1220,10 +1220,10 @@ i-scale-preserves-⊆ k {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤b
     maxa-path : maxℚ (k r* al) (k r* au) == k r* al
     maxa-path = maxℚ-left _ _ (r*₁-flips-≤ (k , np) al au al≤au)
 
-  handle : {s : Sign} -> isSign s k -> (i-scale k a) i⊆ (i-scale k b)
-  handle {pos-sign}  pk = nn-case (inj-l pk)
-  handle {zero-sign} zk = nn-case (inj-r zk)
-  handle {neg-sign}  nk = np-case (inj-l nk)
+  handle : Σ[ s ∈ Sign ] isSign s k -> (i-scale k a) i⊆ (i-scale k b)
+  handle (pos-sign  , pk) = nn-case (inj-l pk)
+  handle (zero-sign , zk) = nn-case (inj-r zk)
+  handle (neg-sign  , nk) = np-case (inj-l nk)
 
 
 i∪₁-preserves-⊆ : (a : Iℚ) {b c : Iℚ} -> b i⊆ c -> (a i∪ b) i⊆ (a i∪ c)
@@ -1371,7 +1371,8 @@ i-scale-preserves-⊂ {k} {(Iℚ-cons al au al≤au)} {(Iℚ-cons bl bu bl≤bu)
   maxa-path = maxℚ-left _ _ (r*₁-flips-≤ (k , inj-l nk) al au al≤au)
 
 i*₁-preserves-⊂ : (a : Iℚ) -> (¬ (ZeroEndedI a)) -> {b c : Iℚ} -> b i⊂ c -> (a i* b) i⊂ (a i* c)
-i*₁-preserves-⊂ a@(Iℚ-cons al au _) ¬za {b} {c} b⊂c = handle _ _ (isSign-self al) (isSign-self au)
+i*₁-preserves-⊂ a@(Iℚ-cons al au _) ¬za {b} {c} b⊂c =
+  handle _ _ (snd (decide-sign al)) (snd (decide-sign au))
   where
   handle : (s1 s2 : Sign) -> isSign s1 al -> isSign s2 au -> (a i* b) i⊂ (a i* c)
   handle pos-sign pos-sign pal pau =

@@ -211,6 +211,17 @@ record SignStr {ℓD : Level} (D : Type ℓD) (ℓS : Level) : Type (ℓ-max ℓ
   NonNeg-NonPos->Zero (inj-r z) _ = z
 
 
-
 module _ {ℓD ℓS : Level} {D : Type ℓD} {{S : SignStr D ℓS}} where
   open SignStr S public
+
+
+record DecidableSignStr {ℓD ℓS : Level} {D : Type ℓD} (S : SignStr D ℓS)
+  : Type (ℓ-max ℓD (ℓ-suc ℓS)) where
+  private
+    module S = SignStr S
+
+  field
+    decide-sign : (x : D) -> Σ[ s ∈ Sign ] (S.isSign s x)
+
+module _ {ℓD ℓS : Level} {D : Type ℓD} {S : SignStr D ℓS} {{DS : DecidableSignStr S}} where
+  open DecidableSignStr DS public

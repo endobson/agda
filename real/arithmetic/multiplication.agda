@@ -50,12 +50,12 @@ module _ (x y : ℝ)
       where
       Ans = ∃[ r ∈ ℚ ] (NonZero r × q < r × Real.L z r)
       handle : Σ[ r ∈ ℚ ] (q < r × Real.L z r) -> Ans
-      handle (r , q<r , lr) = handle2 _ (isSign-self r)
+      handle (r , q<r , lr) = handle2 (decide-sign r)
         where
-        handle2 : (s : Sign) -> (isSign s r) -> Ans
-        handle2 pos-sign pr = ∣ r , inj-l pr , q<r , lr ∣
-        handle2 neg-sign nr = ∣ r , inj-r nr , q<r , lr ∣
-        handle2 zero-sign zr = ∥-bind handle3 (Real.isUpperOpen-L z r lr)
+        handle2 : Σ[ s ∈ Sign ] (isSign s r) -> Ans
+        handle2 (pos-sign , pr) = ∣ r , inj-l pr , q<r , lr ∣
+        handle2 (neg-sign , nr) = ∣ r , inj-r nr , q<r , lr ∣
+        handle2 (zero-sign , zr) = ∥-bind handle3 (Real.isUpperOpen-L z r lr)
           where
           handle3 : Σ[ r2 ∈ ℚ ] (r < r2 × Real.L z r2) -> Ans
           handle3 (r2 , r<r2 , lr2) = ∣ r2 , inj-l pr2 , trans-< {_} {_} {_} {q} {r} {r2} q<r r<r2 , lr2 ∣
@@ -68,12 +68,12 @@ module _ (x y : ℝ)
       where
       Ans = ∃[ r ∈ ℚ ] (NonZero r × r < q × Real.U z r)
       handle : Σ[ r ∈ ℚ ] (r < q × Real.U z r) -> Ans
-      handle (r , r<q , ur) = handle2 _ (isSign-self r)
+      handle (r , r<q , ur) = handle2 (decide-sign r)
         where
-        handle2 : (s : Sign) -> (isSign s r) -> Ans
-        handle2 pos-sign pr = ∣ r , inj-l pr , r<q , ur ∣
-        handle2 neg-sign nr = ∣ r , inj-r nr , r<q , ur ∣
-        handle2 zero-sign zr = ∥-bind handle3 (Real.isLowerOpen-U z r ur)
+        handle2 : Σ[ s ∈ Sign ] (isSign s r) -> Ans
+        handle2 (pos-sign , pr) = ∣ r , inj-l pr , r<q , ur ∣
+        handle2 (neg-sign , nr) = ∣ r , inj-r nr , r<q , ur ∣
+        handle2 (zero-sign , zr) = ∥-bind handle3 (Real.isLowerOpen-U z r ur)
           where
           handle3 : Σ[ r2 ∈ ℚ ] (r2 < r × Real.U z r2) -> Ans
           handle3 (r2 , r2<r , ur2) = ∣ r2 , inj-r nr2 , trans-< {_} {_} {_} {r2} {r} {q} r2<r r<q , ur2 ∣

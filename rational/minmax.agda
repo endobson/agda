@@ -429,7 +429,7 @@ absℚ-NonPos {q} (inj-r zq) =
   maxℚ-right q (r- q) (NonPos≤NonNeg (inj-r zq) (inj-r (r--flips-sign _ _ zq)))
 
 absℚ-Zero : {q : ℚ} -> Zero (absℚ q) -> Zero q
-absℚ-Zero {q} zaq = handle (isSign-self q)
+absℚ-Zero {q} zaq = handle (snd (decide-sign q))
   where
   handle : {s : Sign} -> (isSign s q) -> Zero q
   handle {pos-sign} pq = subst Zero (absℚ-NonNeg (inj-l pq)) zaq
@@ -439,12 +439,12 @@ absℚ-Zero {q} zaq = handle (isSign-self q)
                 RationalRing.minus-double-inverse) (r--flips-sign _ _ zaq)
 
 NonNeg-absℚ : (q : ℚ) -> NonNeg (absℚ q)
-NonNeg-absℚ q = handle _ (isSign-self q)
+NonNeg-absℚ q = handle (decide-sign q)
   where
-  handle : (s : Sign) -> isSign s q -> NonNeg (absℚ q)
-  handle pos-sign pq = subst NonNeg (sym (absℚ-NonNeg (inj-l pq))) (inj-l pq)
-  handle zero-sign zq = subst NonNeg (sym (absℚ-NonNeg (inj-r zq))) (inj-r zq)
-  handle neg-sign nq = subst NonNeg (sym (absℚ-NonPos (inj-l nq))) (r--NonPos (inj-l nq))
+  handle : Σ[ s ∈ Sign ] (isSign s q) -> NonNeg (absℚ q)
+  handle (pos-sign  , pq) = subst NonNeg (sym (absℚ-NonNeg (inj-l pq))) (inj-l pq)
+  handle (zero-sign , zq) = subst NonNeg (sym (absℚ-NonNeg (inj-r zq))) (inj-r zq)
+  handle (neg-sign  , nq) = subst NonNeg (sym (absℚ-NonPos (inj-l nq))) (r--NonPos (inj-l nq))
 
 absℚ-r*₁-NonNeg : (a b : ℚ) -> (NonNeg a) -> absℚ (a r* b) == a r* absℚ b
 absℚ-r*₁-NonNeg a b nn-a =
@@ -461,12 +461,12 @@ absℚ-r*₁-NonPos a b np-a =
   sym (r*-minus-extract-left a (absℚ b))
 
 absℚ-r* : (a b : ℚ) -> absℚ (a r* b) == absℚ a r* absℚ b
-absℚ-r* a b = handle _ (isSign-self a)
+absℚ-r* a b = handle (decide-sign a)
   where
-  handle : (s : Sign) -> isSign s a -> absℚ (a r* b) == absℚ a r* absℚ b
-  handle pos-sign  p-a = absℚ-r*₁-NonNeg a b (inj-l p-a) >=>
-                         cong (_r* absℚ b) (sym (absℚ-NonNeg (inj-l p-a)))
-  handle zero-sign z-a = absℚ-r*₁-NonNeg a b (inj-r z-a) >=>
-                         cong (_r* absℚ b) (sym (absℚ-NonNeg (inj-r z-a)))
-  handle neg-sign  n-a = absℚ-r*₁-NonPos a b (inj-l n-a) >=>
-                         cong (_r* absℚ b) (sym (absℚ-NonPos (inj-l n-a)))
+  handle : Σ[ s ∈ Sign ] isSign s a -> absℚ (a r* b) == absℚ a r* absℚ b
+  handle (pos-sign  , p-a) = absℚ-r*₁-NonNeg a b (inj-l p-a) >=>
+                               cong (_r* absℚ b) (sym (absℚ-NonNeg (inj-l p-a)))
+  handle (zero-sign , z-a) = absℚ-r*₁-NonNeg a b (inj-r z-a) >=>
+                               cong (_r* absℚ b) (sym (absℚ-NonNeg (inj-r z-a)))
+  handle (neg-sign  , n-a) = absℚ-r*₁-NonPos a b (inj-l n-a) >=>
+                               cong (_r* absℚ b) (sym (absℚ-NonPos (inj-l n-a)))

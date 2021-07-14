@@ -88,14 +88,14 @@ private
 
       isLowerSet-L : isLowerSet L
       isLowerSet-L q r q<r (L-nonpos np-r) = (L-nonpos (NonPos-≤ q r np-r (inj-l q<r)))
-      isLowerSet-L q r q<r (L-pos p-r xu-1/r) = handle _ (isSign-self q)
+      isLowerSet-L q r q<r (L-pos p-r xu-1/r) = handle (decide-sign q)
         where
-        handle : (s : Sign) -> (isSign s q) -> L q
-        handle pos-sign  p-q =
+        handle : Σ[ s ∈ Sign ] (isSign s q) -> L q
+        handle (pos-sign  , p-q) =
           L-pos p-q (x.isUpperSet-U (r1/ r (Pos->Inv p-r)) (r1/ q (Pos->Inv p-q))
                                     (r1/-Pos-flips-order (q , p-q) (r , p-r) q<r) xu-1/r)
-        handle zero-sign z-q = L-nonpos (inj-r z-q)
-        handle neg-sign  n-q = L-nonpos (inj-l n-q)
+        handle (zero-sign , z-q) = L-nonpos (inj-r z-q)
+        handle (neg-sign  , n-q) = L-nonpos (inj-l n-q)
 
 
       isUpperSet-U : isUpperSet U
@@ -194,12 +194,12 @@ private
 
 
       located : (q r : Rational) -> (q < r) -> ∥ L q ⊎ U r ∥
-      located q r q<r = handle _ (isSign-self q)
+      located q r q<r = handle (decide-sign q)
         where
-        handle : (s : Sign) -> isSign s q -> ∥ L q ⊎ U r ∥
-        handle neg-sign  n-q = ∣ inj-l (L-nonpos (inj-l n-q)) ∣
-        handle zero-sign z-q = ∣ inj-l (L-nonpos (inj-r z-q)) ∣
-        handle pos-sign pos-q = ∥-map handle2 (x.located r' q' r'<q')
+        handle : Σ[ s ∈ Sign ] isSign s q -> ∥ L q ⊎ U r ∥
+        handle (neg-sign  , n-q) = ∣ inj-l (L-nonpos (inj-l n-q)) ∣
+        handle (zero-sign , z-q) = ∣ inj-l (L-nonpos (inj-r z-q)) ∣
+        handle (pos-sign  , pos-q) = ∥-map handle2 (x.located r' q' r'<q')
           where
           pos-r = Pos-< q r (inj-l pos-q) q<r
           inv-q = Pos->Inv pos-q

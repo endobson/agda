@@ -66,20 +66,21 @@ instance
     }
 
 private
-  ℚ->sign : Rational -> Sign
-  ℚ->sign = RationalElim.rec isSet-Sign ℚ'->sign preserved
-    where
-    preserved : (q1 q2 : Rational') -> (q1 r~ q2) -> (ℚ'->sign q1) == (ℚ'->sign q2)
-    preserved q1 q2 r =
-      isSign-unique q2 _ _
-        (r~-preserves-sign {q1} {q2} {ℚ'->sign q1} (isSign'-self q1) r)
-        (isSign'-self q2)
+  abstract
+    decide-signℚ : (q : Rational) -> Σ[ s ∈ Sign ] (isSign s q)
+    decide-signℚ =
+      RationalElim.elimProp
+        (\q -> uniqueProp->isPropΣ (isSign-unique q) (\s -> isProp-isSign s q))
+        (\q -> handle (decide-sign q))
+      where
+        handle : {q : ℚ'} -> Σ[ s ∈ Sign ] (isSign s q) -> Σ[ s ∈ Sign ] (isSign s [ q ])
+        handle (s , sq) = (s , is-signℚ sq)
 
-isSign-self : (q : Rational) -> isSign (ℚ->sign q) q
-isSign-self =
-  RationalElim.elimProp
-    (\q -> isProp-isSign (ℚ->sign q) q)
-    (\q -> is-signℚ (isSign'-self q))
+instance
+  DecidableSignStr-ℚ : DecidableSignStr SignStr-ℚ
+  DecidableSignStr-ℚ = record
+    { decide-sign = decide-signℚ
+    }
 
 
 NonNeg-ℚ'->ℚ : {q : Rational'} -> NonNeg q -> NonNeg [ q ]
