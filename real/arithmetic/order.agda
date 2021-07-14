@@ -51,3 +51,14 @@ private
 abstract
   ℝ+₁-preserves-< : (a b c : ℝ) -> b ℝ< c -> (a ℝ+ b) ℝ< (a ℝ+ c)
   ℝ+₁-preserves-< a b c b<c = subst2 _ℝ<_ (sym ℝ+-eval) (sym ℝ+-eval) (ℝ+ᵉ₁-preserves-< a b c b<c)
+
+  ℝ+₂-preserves-< : (a b c : ℝ) -> a ℝ< b -> (a ℝ+ c) ℝ< (b ℝ+ c)
+  ℝ+₂-preserves-< a b c lt =
+    subst2 _ℝ<_ (ℝ+-commute c a) (ℝ+-commute c b) (ℝ+₁-preserves-< c a b lt)
+
+
+-- Invertible differences
+
+ℝ#->ℝInv : (x y : ℝ) -> x ℝ# y -> ℝInv (y ℝ+ (ℝ- x))
+ℝ#->ℝInv x y (inj-l x<y) = inj-r (subst (_ℝ< (y ℝ+ (ℝ- x))) (ℝ+-inverse x) (ℝ+₂-preserves-< x y (ℝ- x) x<y))
+ℝ#->ℝInv x y (inj-r y<x) = inj-l (subst ((y ℝ+ (ℝ- x)) ℝ<_) (ℝ+-inverse x) (ℝ+₂-preserves-< y x (ℝ- x) y<x))

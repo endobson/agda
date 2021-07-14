@@ -5,12 +5,16 @@ module cartesian-geometry where
 
 open import base
 open import equality
+open import functions
 open import hlevel
 open import isomorphism
 open import real
 open import relation
+open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication
+open import real.arithmetic.multiplication.inverse
+open import real.arithmetic.order
 open import set-quotient
 open import semiring
 open import sigma
@@ -140,6 +144,86 @@ private
   Line'-point : Line' -> ℝ -> Point
   Line'-point (p1 , p2 , _) k = (k P* p1) P+ ((1ℝ ℝ+ (ℝ- k)) P* p2)
 
+  linear-combo : (a b k : ℝ) -> ℝ
+  linear-combo a b k = (k * a) + ((1ℝ- k) * b)
+
+  linear-combo' : (a b k : ℝ) -> ℝ
+  linear-combo' a b k = b + k * (a + (ℝ- b))
+
+
+--   linear-combo-< :
+--     (a b k1 k2 : ℝ) -> a > b -> (linear-combo a b k1) < (linear-combo a b k2) -> k1 < k2
+--   linear-combo-< a b k1 k2 b<a combo# = ? -- k1#k2
+--
+--   apart-linear-combo :
+--     (a b k1 k2 : ℝ) -> a ℝ# b -> (linear-combo a b k1) ℝ# (linear-combo a b k2) -> k1 ℝ# k2
+--   apart-linear-combo a b k1 k2 a#b combo# = ? -- k1#k2
+
+
+--  Line'-point-reflects-# :
+--    (l : Line') -> (k1 k2 : ℝ) -> (Line'-point l k1 P# Line'-point l k2) -> k1 ℝ# k2
+--  Line'-point-reflects-# = ?
+
+
+  Injective-Line'-point : (l : Line') -> Injective (Line'-point l)
+  Injective-Line'-point (l1 , l2 , ls) {k1} {k2} p1==p2 =
+    (unsquash (isSet-ℝ _ _) (∥-map handle (LineSegment.distinct ls)))
+    where
+    module l1 = Point l1
+    module l2 = Point l2
+
+    unique-linear-combo :
+      (a b : ℝ) -> a ℝ# b -> (k1 * a) + ((1ℝ- k1) * b) == (k2 * a) + ((1ℝ- k2) * b) -> k1 == k2
+    unique-linear-combo a b a#b path = k1==k2
+      where
+      zero-path : ((k1 * a) + ((1ℝ- k1) * b)) + (ℝ- ((k2 * a) + ((1ℝ- k2) * b))) == 0ℝ
+      zero-path = +-left path >=> ℝRing.+-inverse
+
+      x = (a + (ℝ- b))
+      inv-x : ℝInv x
+      inv-x = ℝ#->ℝInv b a (sym-ℝ# {a} {b} a#b)
+
+      k3 = k1 + (ℝ- k2)
+
+      reorg-path : ((k1 * a) + ((1ℝ- k1) * b)) + (ℝ- ((k2 * a) + ((1ℝ- k2) * b))) == k3 * x
+      reorg-path =
+        +-right (ℝRing.minus-distrib-plus >=>
+                 +-cong (sym ℝRing.minus-extract-left) (sym ℝRing.minus-extract-left)) >=>
+        +-swap >=>
+        +-cong (sym *-distrib-+-right) (sym *-distrib-+-right) >=>
+        +-right (*-left (sym 1ℝ--distrib-ℝ+-left >=> 1ℝ--distrib-ℝ+-right >=>
+                         +-right (1ℝ--double-inverse >=> sym ℝRing.minus-double-inverse) >=>
+                         sym ℝRing.minus-distrib-plus) >=>
+                 ℝRing.minus-extract-left >=>
+                 sym ℝRing.minus-extract-right) >=>
+        sym *-distrib-+-left
+
+
+      zero-path2 : k3 * x == 0ℝ
+      zero-path2 = sym reorg-path >=> zero-path
+
+      zero-path3 : k3 == 0ℝ
+      zero-path3 =
+        sym *-right-one >=>
+        *-right (sym (ℝ1/-inverse x inv-x) >=> *-commute) >=>
+        sym *-assoc >=>
+        *-left zero-path2 >=>
+        *-left-zero
+
+      k1==k2 : k1 == k2
+      k1==k2 =
+        sym +-right-zero >=>
+        +-right (sym (ℝ+-inverse k2) >=> +-commute) >=>
+        sym +-assoc >=>
+        +-left zero-path3 >=>
+        +-left-zero
+
+    handle : (l1.x ℝ# l2.x) ⊎ (l1.y ℝ# l2.y) -> k1 == k2
+    handle (inj-l dx) = unique-linear-combo l1.x l2.x dx (cong Point.x p1==p2)
+    handle (inj-r dy) = unique-linear-combo l1.y l2.y dy (cong Point.y p1==p2)
+
+
+
   OnLine' : Line' -> Pred Point ℓ-one
   OnLine' l p = Σ[ k ∈ ℝ ] (Line'-point l k == p)
 
@@ -155,45 +239,10 @@ private
   isProp-Collinear' : (p1 p2 p3 : Point) -> isProp (Collinear' p1 p2 p3)
   isProp-Collinear' _ _ _ = squash
 
---   isProp-OnLine' : (l : Line') -> (p : Point) -> isProp (OnLine' l p)
---   isProp-OnLine' l@(l1 , l2 , ls) p (k1 , path1) (k2 , path2) =
---     ΣProp-path (isSet-Point _ _) (unsquash (isSet-ℝ _ _) (∥-map handle (LineSegment.distinct ls)))
---     where
---     module l1 = Point l1
---     module l2 = Point l2
---
---     handle : (l1.x ℝ# l2.x) ⊎ (l1.y ℝ# l2.y) -> k1 == k2
---     handle (inj-l dx) = ?
---       where
---       path : (k1 * l1.x) + ((1ℝ- k1) * l2.x) == (k2 * l1.x) + ((1ℝ- k2) * l2.x)
---       path = cong Point.x (path1 >=> sym path2)
---
---       zero-path : ((k1 * l1.x) + ((1ℝ- k1) * l2.x)) + (ℝ- ((k2 * l1.x) + ((1ℝ- k2) * l2.x))) == 0ℝ
---       zero-path = +-left path >=> ℝRing.+-inverse
---
---       k3 = k1 + (ℝ- k2)
---
---       reorg-path : ((k1 * l1.x) + ((1ℝ- k1) * l2.x)) + (ℝ- ((k2 * l1.x) + ((1ℝ- k2) * l2.x))) ==
---                    k3 * (l1.x + (ℝ- l2.x))
---       reorg-path =
---         +-right (ℝRing.minus-distrib-plus >=>
---                  +-cong (sym ℝRing.minus-extract-left) (sym ℝRing.minus-extract-left)) >=>
---         +-swap >=>
---         +-cong (sym *-distrib-+-right) (sym *-distrib-+-right) >=>
---         +-right (*-left (sym 1ℝ--distrib-ℝ+-left >=> 1ℝ--distrib-ℝ+-right >=>
---                          +-right (1ℝ--double-inverse >=> sym ℝRing.minus-double-inverse) >=>
---                          sym ℝRing.minus-distrib-plus) >=>
---                  ℝRing.minus-extract-left >=>
---                  sym ℝRing.minus-extract-right) >=>
---         sym *-distrib-+-left
---
---       zero-path2 : k3 * (l1.x + (ℝ- l2.x)) == 0ℝ
---       zero-path2 = sym reorg-path >=> zero-path
---
---
---
---
---     handle (inj-r dy) = ?
+  isProp-OnLine' : (l : Line') -> (p : Point) -> isProp (OnLine' l p)
+  isProp-OnLine' l p (_ , path1) (_ , path2) =
+    ΣProp-path (isSet-Point _ _) (Injective-Line'-point l (path1 >=> sym path2))
+
 
 Line : Type₁
 Line = Line' / SameLine'
@@ -201,14 +250,29 @@ Line = Line' / SameLine'
 module LineElim = SetQuotientElim Line' SameLine'
 
 
-
-
-
-
-
 -- private
+--  sym-SameLine' : Symmetric SameLine'
+--  sym-SameLine' {l1@(l1a , l1b , l1s)} {l2@(l2a , l2b , l2s)}
+--                ((c , c-path) , (d , d-path)) =  l1a∈l2 , l1b∈l2
+--    where
+--    l1a∈l2 : OnLine' l2 l1a
+--    l1a∈l2 = ?
+--    l1b∈l2 : OnLine' l2 l1b
+--    l1b∈l2 = ?
+--
+--    c#d : c ℝ# d
+--    c#d = ?
+--
+--    s = c + (ℝ- d)
+--    inv-s : ℝInv s
+--    inv-s = ℝ#->ℝInv d c (sym-ℝ# {c} {d} c#d)
+--    s' = ℝ1/ s inv-s
+--
+--    k0 = (ℝ- d) * s'
+--    k1 = (1ℝ + (ℝ- d)) * s'
+
+
 module _
-  (isProp-OnLine' : (l : Line') (p : Point) -> isProp (OnLine' l p))
   (sym-SameLine' : Symmetric SameLine')
   where
   private
