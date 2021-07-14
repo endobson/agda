@@ -18,6 +18,7 @@ open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
 open import rational.minmax
 open import rational.proper-interval
 open import rational.proper-interval.multiplication-assoc
+open import rational.sign
 open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication

@@ -47,6 +47,9 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
     where
     g = elim isSetC f f~
 
+
+
+
   elimProp : (isPropC : (ar : A / R) -> isProp (C ar)) ->
              (f : (a : A) -> C [ a ]) ->
              (ar : A / R) -> C ar
@@ -71,6 +74,7 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
     elimProp (\a1 -> isPropΠ2 (isPropC3 a1))
              (\a1 -> (elimProp2 (isPropC3 [ a1 ]) (f a1)))
 
+
   rec2 : (isSetB : isSet B) (f : A -> A -> B)
          (f~₁ : (y x1 x2 : A) (r : R x1 x2) -> (f x1 y == f x2 y)) ->
          (f~₂ : (x y1 y2 : A) (r : R y1 y2) -> (f x y1 == f x y2)) ->
@@ -86,6 +90,34 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
 
     g~ : (a1 a2 : A) -> (r : R a1 a2) -> g a1 == g a2
     g~ a1 a2 r = funExt (g~' a1 a2 r)
+
+
+  elim2 : (isSetC2 : (ar1 ar2 : A / R) -> isSet (C2 ar1 ar2))
+          (f : (a1 a2 : A) -> C2 [ a1 ] [ a2 ]) ->
+          (f~₁ : (a1 a2 a3 : A) (r : R a1 a2) ->
+                 PathP (\i -> C2 (eq/ a1 a2 r i) [ a3 ]) (f a1 a3) (f a2 a3))
+          (f~₂ : (a1 a2 a3 : A) (r : R a2 a3) ->
+                 PathP (\i -> C2 [ a1 ] (eq/ a2 a3 r i)) (f a1 a2) (f a1 a3)) ->
+          (ar1 ar2 : A / R) -> C2 ar1 ar2
+  elim2 {C2 = C2} isSetC2 f f~₁ f~₂ = elim isSetC' g g~
+    where
+    g : (a1 : A) -> (ar2 : A / R) -> C2 [ a1 ] ar2
+    g a1 = elim (isSetC2 [ a1 ]) (f a1) (f~₂ a1)
+
+    isSetC' : (ar1 : A / R) -> isSet ((ar2 : A / R) -> C2 ar1 ar2)
+    isSetC' ar1 = isSetΠ (\ar2 -> isSetC2 ar1 ar2)
+
+    g~' : (a1 a2 : A) (r : R a1 a2) -> (ar3 : A / R) ->
+         PathP (\i -> C2 (eq/ a1 a2 r i) ar3) (g a1 ar3) (g a2 ar3)
+    g~' a1 a2 r = elimProp hlevel (\a3 -> f~₁ a1 a2 a3 r)
+      where
+      hlevel : (ar3 : A / R) -> isProp (PathP (\i -> C2 (eq/ a1 a2 r i) ar3) (g a1 ar3) (g a2 ar3))
+      hlevel ar3 p1 p2 =
+        isOfHLevel->isOfHLevelDep 2 (\x -> isSetC2 x ar3) _ _ _ _ _
+
+    g~ : (a1 a2 : A) (r : R a1 a2) ->
+         PathP (\i -> (ar3 : A / R) -> C2 (eq/ a1 a2 r i) ar3) (g a1) (g a2)
+    g~ a1 a2 r i ar3 = g~' a1 a2 r ar3 i
 
 
   pathRec : (isPropValued R) -> (isEquivRel R) -> (a1 a2 : A) ->

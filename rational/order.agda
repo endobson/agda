@@ -43,9 +43,6 @@ private
   rNonZero = Rational'.NonZero-denominator
 
 
-isSign'-self : (q : Rational') -> isSign (ℚ'->sign q) q
-isSign'-self q = is-signℚ' (i.isSign-self (numer q i.* denom q))
-
 _<'_ : Rational' -> Rational' -> Type₀
 q <' r = Pos (r r+' (r-' q))
 
@@ -307,31 +304,15 @@ private
 
 
 
-ℚ->sign : Rational -> Sign
-ℚ->sign = RationalElim.rec isSet-Sign ℚ'->sign preserved
-  where
-  preserved : (q1 q2 : Rational') -> (q1 r~ q2) -> (ℚ'->sign q1) == (ℚ'->sign q2)
-  preserved q1 q2 r =
-    isSign-unique q2 _ _
-      (r~-preserves-sign {q1} {q2} {ℚ'->sign q1} (isSign'-self q1) r)
-      (isSign'-self q2)
-
-isSign-self : (q : Rational) -> isSignℚ (ℚ->sign q) q
-isSign-self =
-  RationalElim.elimProp
-    (\q -> isProp-isSignℚ (ℚ->sign q) q)
-    (\q -> is-signℚ (isSign'-self q))
-
-
 Posℚ : Rational -> Type₀
-Posℚ = isSignℚ pos-sign
+Posℚ = isSign pos-sign
 Negℚ : Rational -> Type₀
-Negℚ = isSignℚ neg-sign
+Negℚ = isSign neg-sign
 Zeroℚ : Rational -> Type₀
-Zeroℚ = isSignℚ zero-sign
+Zeroℚ = isSign zero-sign
 
 isProp-Posℚ : {r : Rational} -> isProp (Posℚ r)
-isProp-Posℚ {r} = isProp-isSignℚ pos-sign r
+isProp-Posℚ {r} = isProp-isSign pos-sign r
 
 ℚ⁺ : Type₀
 ℚ⁺ = Σ ℚ Posℚ
@@ -363,7 +344,7 @@ abstract
   r+-preserves-Pos =
     RationalElim.elimProp2
       {C2 = \q1 q2 -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r+ q2)}
-      (\q1 q2 -> isPropΠ2 (\ _ _ -> isProp-isSignℚ pos-sign (q1 r+ q2)))
+      (\q1 q2 -> isPropΠ2 (\ _ _ -> isProp-Pos (q1 r+ q2)))
       (\q1 q2 p1 p2 ->
         subst Posℚ (sym r+-eval)
               (is-signℚ (r+'-preserves-Pos (isSignℚ.v p1) (isSignℚ.v p2))))
@@ -379,7 +360,7 @@ abstract
   r*-preserves-Pos =
     RationalElim.elimProp2
       {C2 = \q1 q2 -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r* q2)}
-      (\q1 q2 -> isPropΠ2 (\ _ _ -> isProp-isSignℚ pos-sign (q1 r* q2)))
+      (\q1 q2 -> isPropΠ2 (\ _ _ -> isProp-Pos (q1 r* q2)))
       (\q1 q2 p1 p2 ->
           subst Posℚ (sym r*-eval) (is-signℚ (r*'-preserves-Pos (isSignℚ.v p1) (isSignℚ.v p2))))
 
@@ -402,7 +383,7 @@ abstract
   r--flips-sign : (q : Rational) (s : Sign) -> (isSignℚ s q) -> (isSignℚ (s⁻¹ s) (r- q))
   r--flips-sign =
     RationalElim.elimProp
-      (\q -> isPropΠ2 (\ s _ -> isProp-isSignℚ (s⁻¹ s) (r- q)))
+      (\q -> isPropΠ2 (\ s _ -> isProp-isSign (s⁻¹ s) (r- q)))
       (\q s qs -> is-signℚ (r-'-flips-sign q s (isSignℚ.v qs)))
 
   r+-preserves-Neg : (q1 q2 : ℚ) -> Neg q1 -> Neg q2 -> Neg (q1 r+ q2)
@@ -527,7 +508,7 @@ _ℚ≤_ : ℚ -> ℚ -> Type₀
 x ℚ≤ y = NonNeg (diffℚ x y)
 
 isProp-< : {a b : Rational} -> isProp (a < b)
-isProp-< {a} {b} = isProp-isSignℚ pos-sign (b r+ (r- a))
+isProp-< {a} {b} = isProp-Pos (b r+ (r- a))
 
 irrefl-< : Irreflexive _<_
 irrefl-< {a} a<a =
@@ -676,7 +657,7 @@ private
 
 connected-< : Connected _<_
 connected-< {x} {y} x≮y y≮x =
-  handle (ℚ->sign z) (isSign-self z)
+  handle _ (isSign-self z)
   where
   z = (y r+ (r- x))
   z2 = (x r+ (r- y))
@@ -971,9 +952,6 @@ abstract
 
 -- floor and <
 
-
-
-ℚ' = Rational'
 
 
 isProp-ℚ≤ : {x y : ℚ} -> isProp (x ℚ≤ y)

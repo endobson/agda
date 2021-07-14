@@ -7,6 +7,7 @@ open import equality
 open import hlevel
 open import rational
 open import rational.order
+open import rational.sign
 open import relation
 open import ring.implementations.rational
 open import sign

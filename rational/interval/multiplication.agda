@@ -12,6 +12,7 @@ open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
 open import rational.minmax
 open import rational.interval
 open import rational.interval.multiplication-base
+open import rational.sign
 open import relation
 open import sign
 open import sign.instances.rational

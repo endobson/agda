@@ -15,6 +15,7 @@ open import rational.minmax
 open import rational.proper-interval
 open import rational.proper-interval.maxabs-multiplication
 open import rational.proper-interval.multiplication-strict-cross-zero
+open import rational.sign
 open import real
 open import real.interval
 open import real.sequence

@@ -30,6 +30,9 @@ record Rational' : Type₀ where
     denominator : Int
     NonZero-denominator : NonZero denominator
 
+ℚ' : Type₀
+ℚ' = Rational'
+
 
 private
   numer : Rational' -> Int
