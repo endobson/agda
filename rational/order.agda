@@ -6,6 +6,7 @@ open import abs
 open import base
 open import equality
 open import fraction.sign
+open import fraction.order
 open import hlevel
 open import isomorphism
 open import rational
@@ -43,26 +44,6 @@ private
   rNonZero = Rational'.NonZero-denominator
 
 
-_<'_ : Rational' -> Rational' -> Type₀
-q <' r = Pos (r r+' (r-' q))
-
-_>'_ : Rational' -> Rational' -> Type₀
-q >' r = r <' q
-
-
-_≤'_ : Rational' -> Rational' -> Type₀
-q ≤' r = NonNeg (r r+' (r-' q))
-
-_≥'_ : Rational' -> Rational' -> Type₀
-q ≥' r = r ≤' q
-
-isProp-<' : {q r : Rational'} -> isProp (q <' r)
-isProp-<' = isProp-Pos _
-
-isProp-≤' : {q r : Rational'} -> isProp (q ≤' r)
-isProp-≤' = isProp-NonNeg _
-
-
 r~-preserves-NonNeg : {q1 q2 : Rational'} -> NonNeg q1 -> q1 r~ q2 -> NonNeg q2
 r~-preserves-NonNeg {q1} {q2} nn-q1 r = handle (decide-sign q1)
   where
@@ -71,14 +52,6 @@ r~-preserves-NonNeg {q1} {q2} nn-q1 r = handle (decide-sign q1)
   handle (zero-sign , z-q1) = Zero->NonNeg (r~-preserves-sign z-q1 r)
   handle (neg-sign  , n-q1)  = bot-elim (NonNeg->¬Neg nn-q1 n-q1)
 
-
-r~-preserves-<₁ : {q1 q2 r : Rational'} -> q1 <' r -> q1 r~ q2 -> q2 <' r
-r~-preserves-<₁ {q1} {q2} {r} q1<r q1~q2 =
-  r~-preserves-sign q1<r (r+'-preserves-r~₂ r (r-' q1) (r-' q2) (r-'-preserves-r~ q1 q2 q1~q2))
-
-r~-preserves-<₂ : {q r1 r2 : Rational'} -> q <' r1 -> r1 r~ r2 -> q <' r2
-r~-preserves-<₂ {q} {r1} {r2} q<r1 r1~r2 =
-  r~-preserves-sign q<r1 (r+'-preserves-r~₁ (r-' q) r1 r2 r1~r2)
 
 r1/'-preserves-Pos : (q : Rational') -> (i : ℚInv' q) -> Pos q -> Pos (r1/' q i)
 r1/'-preserves-Pos q i p = is-signℚ' (subst i.Pos i.*-commute (isSignℚ'.v p))
@@ -93,68 +66,11 @@ r-'-flips-sign q s qs =
     (subst (i.isSign (s⁻¹ s)) (sym i.minus-extract-left)
            (i.minus-isSign {numer q i.* denom q} {s} (isSignℚ'.v qs)))
 
-Zero-0r' : Zero 0r'
-Zero-0r' = is-signℚ' (subst i.Zero (sym i.*-left-zero) tt)
-
 Zero-r~ : (q : Rational') -> Zero q -> q r~ 0r'
 Zero-r~ q zq = (cong (i._* (denom 0r')) path >=> i.*-left-zero >=> sym i.*-left-zero)
   where
-  path : (numer q) == (.int 0)
+  path : (numer q) == (int 0)
   path = i.*-left-zero-eq (rNonZero q) (i.Zero-path ((numer q) i.* (denom q)) (isSignℚ'.v zq))
-
-
-
-irrefl-<' : Irreflexive _<'_
-irrefl-<' {a} a<a = (i.NonPos->¬Pos (i.Zero->NonPos (isSignℚ'.v b-zero)) (isSignℚ'.v b-pos))
-  where
-  b = a r+' (r-' a)
-
-  b-pos : Pos b
-  b-pos = a<a
-  b-zero : Zero b
-  b-zero = r~-preserves-sign {0r'} {b} {zero-sign} Zero-0r' (sym (r+'-inverse a))
-
-trans-<' : Transitive _<'_
-trans-<' {a} {b} {c} a<b b<c = a<c
-  where
-  d = b r+' (r-' a)
-  e = c r+' (r-' b)
-  f = c r+' (r-' a)
-
-  step1 : (e r+' d) r~' (c r+' ((r-' b) r+' d))
-  step1 = r~->r~' r+'-assoc
-
-  step2 : (c r+' ((r-' b) r+' d)) r~' (c r+' (((r-' b) r+' b) r+' (r-' a)))
-  step2 = r~->r~' (r+'-preserves-r~₂ c _ _ (sym r+'-assoc))
-
-  step3 : ((r-' b) r+' b) r~ 0r'
-  step3 = (subst (_r~ 0r') (r+'-commute b (r-' b)) (r+'-inverse b))
-
-  step4 : (c r+' (((r-' b) r+' b) r+' (r-' a))) r~' (c r+' (0r' r+' (r-' a)))
-  step4 = r~->r~' (r+'-preserves-r~₂ _ _ _ (r+'-preserves-r~₁ _ _ _ step3))
-
-  step5 : (c r+' (0r' r+' (r-' a))) r~' (c r+' (r-' a))
-  step5 = r~->r~' (path->r~ (cong (c r+'_) (r+'-left-zero (r-' a))))
-
-  combined-steps : (e r+' d) r~' f
-  combined-steps = trans-r~' (trans-r~' (trans-r~' step1 step2) step4) step5
-
-  f-path : (e r+' d) r~ f
-  f-path = r~'->r~ combined-steps
-
-  a<c : a <' c
-  a<c = r~-preserves-sign {e r+' d} {f} {s = pos-sign} (r+'-preserves-Pos b<c a<b) f-path
-
-
-decide-<' : Decidable2 _<'_
-decide-<' x y = handle (i.int->sign z') (i.isSign-self z')
-  where
-  z = y r+' (r-' x)
-  z' = numer z i.* denom z
-  handle : (s : Sign) -> (i.isSign s z') -> Dec (x <' y)
-  handle pos-sign pz = yes (is-signℚ' pz)
-  handle zero-sign zz = no (\ pz -> i.NonPos->¬Pos (i.Zero->NonPos zz) (isSignℚ'.v pz))
-  handle neg-sign nz = no (\ pz -> i.NonPos->¬Pos (i.Neg->NonPos nz) (isSignℚ'.v pz))
 
 
 diffℚ : ℚ -> ℚ -> ℚ
@@ -417,7 +333,7 @@ irrefl-< {a} a<a =
   RationalElim.elimProp
     {C = (\r -> r < r -> Bot)}
     (\_ -> isPropΠ (\_ -> isPropBot))
-    (\r s -> (irrefl-<' {r} (isSignℚ.v (subst Posℚ r+-eval s)))) a a<a
+    (\r s -> (irrefl-ℚ'< {r} (ℚ'<-cons (isSignℚ.v (subst Posℚ r+-eval s))))) a a<a
 
 abstract
   trans-< : Transitive _<_
@@ -425,9 +341,10 @@ abstract
     RationalElim.elimProp3
       {C3 = (\a b c -> a < b -> b < c -> a < c)}
       (\a _ c -> isPropΠ2 (\_ _ -> isProp-< {a} {c}))
-      (\a b c a<b b<c -> subst Posℚ (sym r+-eval)
-                               (is-signℚ (trans-<' (isSignℚ.v (subst Posℚ r+-eval a<b))
-                                         (isSignℚ.v (subst Posℚ r+-eval b<c)))))
+      (\a b c a<b b<c ->
+        (subst Posℚ (sym r+-eval)
+               (is-signℚ (_ℚ'<_.v (trans-ℚ'< (ℚ'<-cons (isSignℚ.v (subst Posℚ r+-eval a<b)))
+                                             (ℚ'<-cons (isSignℚ.v (subst Posℚ r+-eval b<c))))))))
       a b c a<b b<c
 
 asym-< : Asymmetric _<_
@@ -540,11 +457,11 @@ decide-< : Decidable2 _<_
 decide-< =
   RationalElim.elimProp2
     (\a b -> isPropDec (isProp-< {a} {b}))
-    (\a b -> subst (\x -> Dec (Posℚ x)) (sym r+-eval) (handle (decide-<' a b)))
+    (\a b -> subst (\x -> Dec (Posℚ x)) (sym r+-eval) (handle (decide-ℚ'< a b)))
   where
-  handle : {q : Rational'} -> Dec (Pos q) -> Dec (Pos [ q ])
-  handle (yes pq) = yes (is-signℚ pq)
-  handle (no ¬pq) = no (\v -> ¬pq (isSignℚ.v v))
+  handle : {a b : Rational'} -> Dec (a ℚ'< b) -> Dec (Pos [ b r+' (r-'  a ) ])
+  handle (yes (ℚ'<-cons pq)) = yes (is-signℚ pq)
+  handle (no ¬pq) = no (\v -> ¬pq (ℚ'<-cons (isSignℚ.v v)))
 
 private
   zero-diff->path : (x y : Rational) -> Zeroℚ (y r+ (r- x)) -> x == y
@@ -774,8 +691,8 @@ r1/-Pos-flips-≤ (a , pos-a) (b , pos-b) (inj-r z-ab) =
   subst2 _<_ (sym (1/2ℕ-path n)) (r*-left-one (1/ℕ n))
         (r*₂-preserves-order 1/2r 1r (1/ℕ n , Pos-1/ℕ n) 1/2r<1r)
 
-ℕ->ℚ'-preserves-order : (a b : Nat) -> a nat.< b -> (ℕ->ℚ' a) <' (ℕ->ℚ' b)
-ℕ->ℚ'-preserves-order a b (c , path) = ans
+ℕ->ℚ'-preserves-order : (a b : Nat) -> a nat.< b -> (ℕ->ℚ' a) ℚ'< (ℕ->ℚ' b)
+ℕ->ℚ'-preserves-order a b (c , path) = ℚ'<-cons ans
   where
 
   sd : Rational'
@@ -804,7 +721,8 @@ r1/-Pos-flips-≤ (a , pos-a) (b , pos-b) (inj-r z-ab) =
   ans = r~-preserves-sign Pos-sd sd~diff
 
 ℕ->ℚ-preserves-order : (a b : Nat) -> a nat.< b -> (ℕ->ℚ a) < (ℕ->ℚ b)
-ℕ->ℚ-preserves-order a b a<b = (subst Pos (sym r+-eval) (is-signℚ (ℕ->ℚ'-preserves-order a b a<b)))
+ℕ->ℚ-preserves-order a b a<b =
+  (subst Pos (sym r+-eval) (is-signℚ (_ℚ'<_.v (ℕ->ℚ'-preserves-order a b a<b))))
 
 1/ℕ-flips-order : (a b : Nat⁺) -> ⟨ a ⟩ nat.< ⟨ b ⟩ -> 1/ℕ b < 1/ℕ a
 1/ℕ-flips-order a@(a' , _) b@(b' , _) lt = subst2 _<_ b-path a-path ab*<
@@ -1028,8 +946,8 @@ private
       path = ΣProp-path (\{x} -> isProp-Posℚ {x}) (eq/ _ _ nd~)
 
 
-  1/ℕ-<-step1 : (n d : Nat⁺) -> (1/ℕ' d) ≤' (n⁺d⁺->ℚ' n d)
-  1/ℕ-<-step1 n@(n'@(suc n'') , _)  d@(d' , pos-d) = ans
+  1/ℕ-<-step1 : (n d : Nat⁺) -> (1/ℕ' d) ℚ'≤ (n⁺d⁺->ℚ' n d)
+  1/ℕ-<-step1 n@(n'@(suc n'') , _)  d@(d' , pos-d) = ℚ'≤-cons ans
     where
     x1 = same-denom-r+' (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d))
     x2 = ((n⁺d⁺->ℚ' n d) r+' (r-' (1/ℕ' d)))
@@ -1047,15 +965,15 @@ private
     ans = r~-preserves-NonNeg {x1} {x2} ans2 ans~
 
 
-  1/ℕ-<-step2 : (n d : Nat⁺) -> ∃[ m ∈ Nat⁺ ] ( 1/ℕ' m ≤' (n⁺d⁺->ℚ' n d))
+  1/ℕ-<-step2 : (n d : Nat⁺) -> ∃[ m ∈ Nat⁺ ] ( 1/ℕ' m ℚ'≤ (n⁺d⁺->ℚ' n d))
   1/ℕ-<-step2 n d = ∣ d , 1/ℕ-<-step1 n d ∣
 
   1/ℕ-<-step3 : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] (1/ℕ m ℚ≤ ⟨ q ⟩)
   1/ℕ-<-step3 = ℚ⁺-elimProp (\q -> squash) (\n d -> (∥-map (handle n d) (1/ℕ-<-step2 n d)))
     where
-    handle : (n d : Nat⁺) -> Σ[ m ∈ Nat⁺ ] (1/ℕ' m ≤' (n⁺d⁺->ℚ' n d)) ->
+    handle : (n d : Nat⁺) -> Σ[ m ∈ Nat⁺ ] (1/ℕ' m ℚ'≤ (n⁺d⁺->ℚ' n d)) ->
              Σ[ m ∈ Nat⁺ ] (1/ℕ m ℚ≤ (n⁺d⁺->ℚ n d))
-    handle n d (m , p) = m , subst NonNeg (sym r+-eval) (NonNeg-ℚ'->ℚ p)
+    handle n d (m , p) = m , subst NonNeg (sym r+-eval) (NonNeg-ℚ'->ℚ (_ℚ'≤_.v p))
 
 small-1/ℕ : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] (1/ℕ m < ⟨ q ⟩)
 small-1/ℕ q = ∥-map handle (1/ℕ-<-step3 q)
