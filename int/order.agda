@@ -105,6 +105,17 @@ split-< i j =
     path : j == (pos k) + i
     path = sym +-left-zero >=> +-left (sym add-minus-zero) >=> +-assoc >=> cong ((pos k) +_) p
 
+trichotomous-< : Trichotomous _<_
+trichotomous-< i j = handle (split-< i j) (split-< j i)
+  where
+  handle : (i < j ⊎ j ≤ i) -> (j < i ⊎ i ≤ j) -> Tri (i < j) (i == j) (j < i)
+  handle (inj-l i<j) _           = tri< i<j (\i=j -> irrefl-< (subst (_< j) i=j i<j)) (asym-< i<j)
+  handle (inj-r j≤i) (inj-l j<i) = tri> (asym-< j<i) (\i=j -> irrefl-< (subst (j <_) i=j j<i)) j<i
+  handle (inj-r j≤i) (inj-r i≤j) =
+    tri= (\i<j -> irrefl-< (trans-≤-< j≤i i<j))
+         (antisym-≤ i≤j j≤i)
+         (\j<i -> irrefl-< (trans-≤-< i≤j j<i))
+
 comparison-< : {i j : Int} -> (i < j) -> (k : Int) ->  (i < k) ⊎ (k < j)
 comparison-< {i} {j} i<j k =
   case (split-< i k) of (\

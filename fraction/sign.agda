@@ -115,6 +115,15 @@ r~-preserves-sign {q1} {q2} {s} v p = is-signℚ' ans
   ans : isSign s (n2 * d2)
   ans = subst (\s -> isSign s (n2 * d2)) (sym end-path) (i.isSign-self (n2 * d2))
 
+r~-preserves-NonNeg : {q1 q2 : Rational'} -> NonNeg q1 -> q1 r~ q2 -> NonNeg q2
+r~-preserves-NonNeg {q1} {q2} nn-q1 r = handle (decide-sign q1)
+  where
+  handle : Σ[ s ∈ Sign ] isSign s q1 -> NonNeg q2
+  handle (pos-sign  , p-q1) = Pos->NonNeg (r~-preserves-sign p-q1 r)
+  handle (zero-sign , z-q1) = Zero->NonNeg (r~-preserves-sign z-q1 r)
+  handle (neg-sign  , n-q1)  = bot-elim (NonNeg->¬Neg nn-q1 n-q1)
+
+
 
 private
   Pos->same-sign :
@@ -212,16 +221,15 @@ abstract
       sn2 = proj₁ (snd full-s2)
       sd2 = proj₂ (snd full-s2)
 
+  r-'-flips-sign : (q : ℚ') (s : Sign) -> (isSign s q) -> (isSign (s⁻¹ s) (r-' q))
+  r-'-flips-sign q s qs =
+    is-signℚ'
+      (subst (i.isSign (s⁻¹ s)) (sym i.minus-extract-left)
+             (i.minus-isSign {numer q i.* denom q} {s} (isSignℚ'.v qs)))
+
+
+
 -- Constants
 
 Zero-0r' : Zero 0r'
 Zero-0r' = is-signℚ' (subst Zero (sym *-left-zero) tt)
-
-
--- r~-preserves-NonNeg : {q1 q2 : ℚ'} -> NonNeg q1 -> q1 r~ q2 -> NonNeg q2
--- r~-preserves-NonNeg {q1} {q2} nn-q1 r = handle (ℚ'->sign q1) (isSign'-self q1)
---   where
---   handle : (s : Sign) -> isSign s q1 -> NonNeg q2
---   handle pos-sign p-q1 = Pos->NonNeg (r~-preserves-sign p-q1 r)
---   handle zero-sign z-q1 = Zero->NonNeg (r~-preserves-sign z-q1 r)
---   handle neg-sign n-q1  = bot-elim (NonNeg->¬Neg nn-q1 n-q1)

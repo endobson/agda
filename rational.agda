@@ -440,6 +440,21 @@ r-'-preserves-r~ a1 a2 r =
   da2 = denom a2
 
 abstract
+  r-'-distrib-r+' : (a b : Rational') -> r-' (a r+' b) == (r-' a) r+' (r-' b)
+  r-'-distrib-r+' a b = nd-paths->path _ _ path refl
+    where
+    na = numer a
+    da = denom a
+    nb = numer b
+    db = denom b
+    path : (i- ((na i* db) i+ (nb i* da))) == (((i- na) i* db) i+ ((i- nb) i* da))
+    path = int.minus-distrib-+ >=> cong2 _i+_ (sym int.minus-extract-left) (sym int.minus-extract-left)
+
+  r-'-double-inverse : (a : Rational') -> r-' (r-' a) == a
+  r-'-double-inverse _ = nd-paths->path _ _ int.minus-double-inverse refl
+
+
+abstract
   r+'-inverse : (a : Rational') -> (a r+' (r-' a)) r~ 0r'
   r+'-inverse a =
     int.*-right-one {(na i* da) i+ ((i- na) i* da)}

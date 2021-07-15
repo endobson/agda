@@ -44,28 +44,12 @@ private
   rNonZero : (r : Rational') -> i.NonZero (denom r)
   rNonZero = Rational'.NonZero-denominator
 
-
-r~-preserves-NonNeg : {q1 q2 : Rational'} -> NonNeg q1 -> q1 r~ q2 -> NonNeg q2
-r~-preserves-NonNeg {q1} {q2} nn-q1 r = handle (decide-sign q1)
-  where
-  handle : Σ[ s ∈ Sign ] isSign s q1 -> NonNeg q2
-  handle (pos-sign  , p-q1) = Pos->NonNeg (r~-preserves-sign p-q1 r)
-  handle (zero-sign , z-q1) = Zero->NonNeg (r~-preserves-sign z-q1 r)
-  handle (neg-sign  , n-q1)  = bot-elim (NonNeg->¬Neg nn-q1 n-q1)
-
-
 r1/'-preserves-Pos : (q : Rational') -> (i : ℚInv' q) -> Pos q -> Pos (r1/' q i)
 r1/'-preserves-Pos q i p = is-signℚ' (subst i.Pos i.*-commute (isSignℚ'.v p))
 
 r1/'-preserves-Neg : (q : Rational') -> (i : ℚInv' q) -> Neg q -> Neg (r1/' q i)
 r1/'-preserves-Neg q i p = is-signℚ' (subst i.Neg i.*-commute (isSignℚ'.v p))
 
-
-r-'-flips-sign : (q : Rational') (s : Sign) -> (isSign s q) -> (isSign (s⁻¹ s) (r-' q))
-r-'-flips-sign q s qs =
-  is-signℚ'
-    (subst (i.isSign (s⁻¹ s)) (sym i.minus-extract-left)
-           (i.minus-isSign {numer q i.* denom q} {s} (isSignℚ'.v qs)))
 
 Zero-r~ : (q : Rational') -> Zero q -> q r~ 0r'
 Zero-r~ q zq = (cong (i._* (denom 0r')) path >=> i.*-left-zero >=> sym i.*-left-zero)
