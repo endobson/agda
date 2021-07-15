@@ -223,5 +223,8 @@ record DecidableSignStr {ℓD ℓS : Level} {D : Type ℓD} (S : SignStr D ℓS)
   field
     decide-sign : (x : D) -> Σ[ s ∈ Sign ] (S.isSign s x)
 
+  sign : D -> Sign
+  sign x = fst (decide-sign x)
+
 module _ {ℓD ℓS : Level} {D : Type ℓD} {S : SignStr D ℓS} {{DS : DecidableSignStr S}} where
   open DecidableSignStr DS public

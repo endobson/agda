@@ -14,3 +14,8 @@ instance
     ; isProp-isSign = \s _ -> i.isProp-isSign s
     ; isSign-unique = \_ _ _ -> i.isSign-unique
     }
+
+  DecidableSignStr-ℤ : DecidableSignStr SignStr-ℤ
+  DecidableSignStr-ℤ = record
+    { decide-sign = \x -> (i.int->sign x) , i.isSign-self x
+    }

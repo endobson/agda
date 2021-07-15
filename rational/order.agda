@@ -80,104 +80,6 @@ r~-preserves-<₂ : {q r1 r2 : Rational'} -> q <' r1 -> r1 r~ r2 -> q <' r2
 r~-preserves-<₂ {q} {r1} {r2} q<r1 r1~r2 =
   r~-preserves-sign q<r1 (r+'-preserves-r~₁ (r-' q) r1 r2 r1~r2)
 
-private
-  Pos->same-sign :
-    (q : Rational') -> Pos q -> Σ[ s ∈ Sign ] (i.isSign s (numer q) × i.isSign s (denom q))
-  Pos->same-sign q p = s1 , (i.isSign-self (numer q) ,
-                      subst (\x -> i.isSign x (denom q)) (sym path) (i.isSign-self (denom q)))
-    where
-    s1 = i.int->sign (numer q)
-    s2 = i.int->sign (denom q)
-    path : s1 == s2
-    path = handle s1 s2 (subst isPosSign i.int->sign-preserves-* (i.Pos->PosSign (isSignℚ'.v p)))
-      where
-      handle : (x y : Sign) -> isPosSign (x s* y) -> x == y
-      handle pos-sign pos-sign _ = refl
-      handle neg-sign neg-sign _ = refl
-      handle pos-sign  zero-sign ()
-      handle zero-sign zero-sign ()
-      handle neg-sign  zero-sign ()
-
-  same-sign->Pos :
-    (q : Rational') -> (s : Sign) -> i.isSign s (numer q) -> i.isSign s (denom q) -> Pos q
-  same-sign->Pos q s@pos-sign sn sd = is-signℚ' (int.*-isSign {s} {s} {numer q} {denom q} sn sd)
-  same-sign->Pos q s@neg-sign sn sd = is-signℚ' (int.*-isSign {s} {s} {numer q} {denom q} sn sd)
-  same-sign->Pos q zero-sign sn sd = bot-elim (int.NonZero->¬Zero (rNonZero q) sd)
-
-
-r+'-preserves-Pos : {q1 q2 : Rational'} -> Pos q1 -> Pos q2 -> Pos (q1 r+' q2)
-r+'-preserves-Pos {q1} {q2} p1 p2 = ans2
-  where
-  n1 = numer q1
-  n2 = numer q2
-  d1 = denom q1
-  d2 = denom q2
-
-  helper : (s1 s2 : Sign) -> i.isSign s1 n1 -> i.isSign s1 d1 -> i.isSign s2 n2 -> i.isSign s2 d2 ->
-           i.Pos ((n1 i.* d2 i.+ n2 i.* d1) i.* (d1 i.* d2))
-  helper zero-sign s2        sn1 sd1 sn2 sd2 = bot-elim (i.NonZero->¬Zero (rNonZero q1) sd1)
-  helper pos-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (i.NonZero->¬Zero (rNonZero q2) sd2)
-  helper neg-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (i.NonZero->¬Zero (rNonZero q2) sd2)
-  helper pos-sign  pos-sign  sn1 sd1 sn2 sd2 =
-    i.*-Pos-Pos (i.+-Pos-Pos (i.*-Pos-Pos sn1 sd2) (i.*-Pos-Pos sn2 sd1)) (i.*-Pos-Pos sd1 sd2)
-  helper pos-sign  neg-sign  sn1 sd1 sn2 sd2 =
-    i.*-Neg-Neg (i.+-Neg-Neg (i.*-Pos-Neg sn1 sd2) (i.*-Neg-Pos sn2 sd1)) (i.*-Pos-Neg sd1 sd2)
-  helper neg-sign  pos-sign  sn1 sd1 sn2 sd2 =
-    i.*-Neg-Neg (i.+-Neg-Neg (i.*-Neg-Pos sn1 sd2) (i.*-Pos-Neg sn2 sd1)) (i.*-Neg-Pos sd1 sd2)
-  helper neg-sign  neg-sign  sn1 sd1 sn2 sd2 =
-    i.*-Pos-Pos (i.+-Pos-Pos (i.*-Neg-Neg sn1 sd2) (i.*-Neg-Neg sn2 sd1)) (i.*-Neg-Neg sd1 sd2)
-
-  ans : i.Pos ((n1 i.* d2 i.+ n2 i.* d1) i.* (d1 i.* d2))
-  ans = helper s1 s2 sn1 sd1 sn2 sd2
-    where
-    full-s1 = Pos->same-sign q1 p1
-    full-s2 = Pos->same-sign q2 p2
-    s1 = fst full-s1
-    sn1 = proj₁ (snd full-s1)
-    sd1 = proj₂ (snd full-s1)
-    s2 = fst full-s2
-    sn2 = proj₁ (snd full-s2)
-    sd2 = proj₂ (snd full-s2)
-
-  ans2 : Pos (q1 r+' q2)
-  ans2 = subst Pos (sym r+'-eval) (is-signℚ' ans)
-
-
-r*'-preserves-Pos : {q1 q2 : Rational'} -> Pos q1 -> Pos q2 -> Pos (q1 r*' q2)
-r*'-preserves-Pos {q1} {q2} p1 p2 = is-signℚ' ans
-  where
-  n1 = numer q1
-  n2 = numer q2
-  d1 = denom q1
-  d2 = denom q2
-
-  helper : (s1 s2 : Sign) -> i.isSign s1 n1 -> i.isSign s1 d1 -> i.isSign s2 n2 -> i.isSign s2 d2 ->
-           i.Pos ((n1 i.* n2) i.* (d1 i.* d2))
-  helper zero-sign s2        sn1 sd1 sn2 sd2 = bot-elim (i.NonZero->¬Zero (rNonZero q1) sd1)
-  helper pos-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (i.NonZero->¬Zero (rNonZero q2) sd2)
-  helper neg-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (i.NonZero->¬Zero (rNonZero q2) sd2)
-  helper pos-sign  pos-sign  sn1 sd1 sn2 sd2 =
-    i.*-Pos-Pos (i.*-Pos-Pos sn1 sn2) (i.*-Pos-Pos sd1 sd2)
-  helper pos-sign  neg-sign  sn1 sd1 sn2 sd2 =
-    i.*-Neg-Neg (i.*-Pos-Neg sn1 sn2) (i.*-Pos-Neg sd1 sd2)
-  helper neg-sign  pos-sign  sn1 sd1 sn2 sd2 =
-    i.*-Neg-Neg (i.*-Neg-Pos sn1 sn2) (i.*-Neg-Pos sd1 sd2)
-  helper neg-sign  neg-sign  sn1 sd1 sn2 sd2 =
-    i.*-Pos-Pos (i.*-Neg-Neg sn1 sn2) (i.*-Neg-Neg sd1 sd2)
-
-  ans : i.Pos ((n1 i.* n2) i.* (d1 i.* d2))
-  ans = helper s1 s2 sn1 sd1 sn2 sd2
-    where
-    full-s1 = Pos->same-sign q1 p1
-    full-s2 = Pos->same-sign q2 p2
-    s1 = fst full-s1
-    sn1 = proj₁ (snd full-s1)
-    sd1 = proj₂ (snd full-s1)
-    s2 = fst full-s2
-    sn2 = proj₁ (snd full-s2)
-    sd2 = proj₂ (snd full-s2)
-
-
 r1/'-preserves-Pos : (q : Rational') -> (i : ℚInv' q) -> Pos q -> Pos (r1/' q i)
 r1/'-preserves-Pos q i p = is-signℚ' (subst i.Pos i.*-commute (isSignℚ'.v p))
 
@@ -197,7 +99,7 @@ Zero-0r' = is-signℚ' (subst i.Zero (sym i.*-left-zero) tt)
 Zero-r~ : (q : Rational') -> Zero q -> q r~ 0r'
 Zero-r~ q zq = (cong (i._* (denom 0r')) path >=> i.*-left-zero >=> sym i.*-left-zero)
   where
-  path : (numer q) == (i.int 0)
+  path : (numer q) == (int 0)
   path = i.*-left-zero-eq (rNonZero q) (i.Zero-path ((numer q) i.* (denom q)) (isSignℚ'.v zq))
 
 
