@@ -99,7 +99,7 @@ Zero-0r' = is-signℚ' (subst i.Zero (sym i.*-left-zero) tt)
 Zero-r~ : (q : Rational') -> Zero q -> q r~ 0r'
 Zero-r~ q zq = (cong (i._* (denom 0r')) path >=> i.*-left-zero >=> sym i.*-left-zero)
   where
-  path : (numer q) == (int 0)
+  path : (numer q) == (.int 0)
   path = i.*-left-zero-eq (rNonZero q) (i.Zero-path ((numer q) i.* (denom q)) (isSignℚ'.v zq))
 
 

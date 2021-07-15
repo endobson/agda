@@ -212,6 +212,12 @@ abstract
       sn2 = proj₁ (snd full-s2)
       sd2 = proj₂ (snd full-s2)
 
+-- Constants
+
+Zero-0r' : Zero 0r'
+Zero-0r' = is-signℚ' (subst Zero (sym *-left-zero) tt)
+
+
 -- r~-preserves-NonNeg : {q1 q2 : ℚ'} -> NonNeg q1 -> q1 r~ q2 -> NonNeg q2
 -- r~-preserves-NonNeg {q1} {q2} nn-q1 r = handle (ℚ'->sign q1) (isSign'-self q1)
 --   where

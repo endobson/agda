@@ -188,6 +188,16 @@ record SignStr {ℓD : Level} (D : Type ℓD) (ℓS : Level) : Type (ℓ-max ℓ
   Pos->NonZero : {x : D} -> Pos x -> NonZero x
   Pos->NonZero = inj-l
 
+  Neg->NonZero : {x : D} -> Neg x -> NonZero x
+  Neg->NonZero = inj-r
+
+  Neg->NonPos : {x : D} -> Neg x -> NonPos x
+  Neg->NonPos = inj-l
+
+  Zero->NonPos : {x : D} -> Zero x -> NonPos x
+  Zero->NonPos = inj-r
+
+
   NonPos->¬Pos : {x : D} -> NonPos x -> ¬ (Pos x)
   NonPos->¬Pos {x} (inj-l nx) px =
     (subst isPosSign (isSign-unique x pos-sign neg-sign px nx) tt)
