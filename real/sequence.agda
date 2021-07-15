@@ -8,6 +8,7 @@ open import hlevel
 open import nat.arithmetic
 open import nat.properties
 open import rational
+open import rational.difference
 open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-< )
 open import rational.minmax
 open import relation hiding (U)

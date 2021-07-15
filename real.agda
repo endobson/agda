@@ -9,6 +9,7 @@ open import functions
 open import hlevel
 open import isomorphism
 open import rational
+open import rational.difference
 open import rational.order
 open import relation hiding (U)
 open import ring

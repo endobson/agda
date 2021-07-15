@@ -5,6 +5,7 @@ module real.arithmetic.order where
 open import base
 open import equality
 open import rational
+open import rational.difference
 open import rational.order hiding (_<_)
 open import real
 open import real.arithmetic

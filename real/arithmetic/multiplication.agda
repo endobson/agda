@@ -9,8 +9,8 @@ open import hlevel
 open import order
 open import order.instances.rational
 open import rational
+open import rational.difference
 open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
-open import rational.factor-order
 open import rational.minmax
 open import rational.proper-interval
 open import rational.proper-interval.maxabs-multiplication

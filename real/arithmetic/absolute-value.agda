@@ -11,7 +11,6 @@ open import sign
 open import sign.instances.rational
 open import rational
 open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
-open import rational.factor-order
 open import real
 open import real.sequence
 open import relation hiding (U)

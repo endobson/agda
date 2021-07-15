@@ -6,6 +6,7 @@ open import base
 open import equality
 open import hlevel
 open import rational
+open import rational.difference
 open import rational.order
 open import rational.sign
 open import relation

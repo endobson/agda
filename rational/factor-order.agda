@@ -30,34 +30,3 @@ module _ (q r : ℚ) (q≤r : q ℚ≤ r)
       cb<ab = r*₂-preserves-order c a (b , pb) c<a
       r<q : r < q
       r<q = subst2 _<_ cd=r ab=q (trans-< {_} {_} {_} {c r* d} {c r* b} {a r* b} cd<cb cb<ab)
-
-
--- factor-order-flip : (a b c d : ℚ) (ab=cd : (a r* b) == (c r* d)) -> a < c -> b > d
--- factor-order-flip a b c d p a<c = handle (trichotomous-< b d)
---   where
---   handle : Tri (b < d) (b == d) (d < b) -> b > d
---   handle (tri< b<d _ _ ) = ?
---     where
---     cb<cd : (c r* b) < (c r* d)
---     cb<cd = r*₁-preserves-order (c , pc) d b d<b
---     cb<ab : (c r* b) < (a r* b)
---     cb<ab = r*₂-preserves-order c a (b , pb) c<a
-
--- module _ (q r : ℚ) (q≤r : q ℚ≤ r)
---          (a b c d : ℚ) (ab=q : (a r* b) == q) (cd=r : (c r* d) == r) where
---
---   factor-order-NNPP : (na : Pos a) (nb : Pos b) (pc : Pos c) (pd : Pos d) -> (a ℚ≤ c ⊎ b ℚ≤ d)
---   factor-order-NNPP na nb pc pd = handle (split-< c a) (split-< d b)
---     where
---     handle : (c < a) ⊎ (a ℚ≤ c) -> (d < b) ⊎ (b ℚ≤ d) -> (a ℚ≤ c ⊎ b ℚ≤ d)
---     handle (inj-r lt)  _           = (inj-l lt)
---     handle (inj-l _)   (inj-r lt)  = (inj-r lt)
---     handle (inj-l c<a) (inj-l d<b) =
---       bot-elim (irrefl-< {_} {_} {_} {r} (trans-<-≤ {r} {q} {r} r<q q≤r))
---       where
---       cd<cb : (c r* d) < (c r* b)
---       cd<cb = r*₁-preserves-order (c , pc) d b d<b
---       cb<ab : (c r* b) < (a r* b)
---       cb<ab = r*₂-preserves-order c a (b , pb) c<a
---       r<q : r < q
---       r<q = subst2 _<_ cd=r ab=q (trans-< {_} {_} {_} {c r* d} {c r* b} {a r* b} cd<cb cb<ab)
