@@ -74,13 +74,6 @@ Zero-r~ q zq = (cong (i._* (denom 0r')) path >=> i.*-left-zero >=> sym i.*-left-
   path = i.*-left-zero-eq (rNonZero q) (i.Zero-path ((numer q) i.* (denom q)) (isSignℚ'.v zq))
 
 
-
-private
-  Dense : {ℓ ℓA : Level} {A : Type ℓA} -> Rel A ℓ -> Type (ℓ-max ℓA ℓ)
-  Dense {A = A} _<_ = {x y : A} -> x < y -> Σ[ z ∈ A ] (x < z × z < y)
-
-
-
 Posℚ : Rational -> Type₀
 Posℚ = isSign pos-sign
 Negℚ : Rational -> Type₀
@@ -353,7 +346,7 @@ Pos-1r = Pos-1/ℕ nat.1⁺
 
 
 dense-< : Dense _<_
-dense-< {x} {y} lt = z , (pos-d3 , pos-d4)
+dense-< {x} {y} lt = ∣ z , (pos-d3 , pos-d4) ∣
   where
   d1 = y r+ (r- x)
   d2 = d1 r* 1/2r
@@ -460,16 +453,15 @@ trichotomous-< x y = handle (decide-< x y) (decide-< y x)
   handle (no x≮y)  (no y≮x)  = tri= x≮y (connected-< x≮y y≮x) y≮x
 
 comparison-< : Comparison _<_
-comparison-< x y z x<z = handle (trichotomous-< y w)
+comparison-< x y z x<z = ∥-map handle (dense-< {x} {z} x<z)
   where
-  Σw = dense-< {x} {z} x<z
-  w = fst Σw
-  x<w = proj₁ (snd Σw)
-  w<z = proj₂ (snd Σw)
-  handle : Tri (y < w) (y == w) (y > w) -> ∥ (x < y) ⊎ (y < z) ∥
-  handle (tri< y<w _ _)  = ∣ inj-r (trans-< {y} {w} {z} y<w w<z) ∣
-  handle (tri= _ y==w _) = ∣ inj-l (subst (x <_) (sym y==w) x<w) ∣
-  handle (tri> _ _ w<y)  = ∣ inj-l (trans-< {x} {w} {y} x<w w<y) ∣
+  handle : Σ[ w ∈ ℚ ] (x < w × w < z) -> (x < y) ⊎ (y < z)
+  handle (w , x<w , w<z) = handle2 (trichotomous-< y w)
+    where
+    handle2 : Tri (y < w) (y == w) (y > w) -> (x < y) ⊎ (y < z)
+    handle2 (tri< y<w _ _)  = inj-r (trans-< {y} {w} {z} y<w w<z)
+    handle2 (tri= _ y==w _) = inj-l (subst (x <_) (sym y==w) x<w)
+    handle2 (tri> _ _ w<y)  = inj-l (trans-< {x} {w} {y} x<w w<y)
 
 
 

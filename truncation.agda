@@ -96,3 +96,6 @@ Inhabited {A = A} P = ∃ A P
 
 Comparison : Rel A ℓ -> Type _
 Comparison {A = A} _~_ = (a b c : A) -> a ~ c -> ∥ (a ~ b) ⊎ (b ~ c) ∥
+
+Dense : {ℓ ℓA : Level} {A : Type ℓA} -> Rel A ℓ -> Type (ℓ-max ℓA ℓ)
+Dense {A = A} _<_ = {x y : A} -> x < y -> ∃[ z ∈ A ] (x < z × z < y)
