@@ -20,6 +20,7 @@ module _ {D : Type ℓD} (S : Semiring D) (O : LinearOrderStr D ℓ<) where
   record LinearlyOrderedSemiringStr : Type (ℓ-max (ℓ-suc ℓ<) ℓD) where
     field
       +₁-preserves-< : (a b c : D) -> b < c -> (a + b) < (a + c)
+      *-preserves-0< : (a b : D) -> 0# < a -> 0# < b -> 0# < (a * b)
 
 module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
          {{LOS : LinearlyOrderedSemiringStr S O}} where

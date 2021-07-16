@@ -14,4 +14,5 @@ instance
   LinearlyOrderedSemiringStr-ℚ : LinearlyOrderedSemiringStr RationalSemiring LinearOrderStr-ℚ
   LinearlyOrderedSemiringStr-ℚ = record
     { +₁-preserves-< = r+₁-preserves-order
+    ; *-preserves-0< = r*-preserves-0<
     }

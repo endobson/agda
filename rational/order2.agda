@@ -11,6 +11,7 @@ open import hlevel
 open import isomorphism
 open import order
 open import order.instances.int
+open import ordered-semiring
 open import rational
 open import relation
 open import ring
@@ -249,3 +250,10 @@ abstract
     where
     convert : (a b  : ℚ') -> 0r' ℚ'< a -> 0r' ℚ'< b -> 0r < ([ a ] * [ b ])
     convert a b 0<a 0<b = ℚ<-cons (subst (ℚ<-raw 0r) (sym r*-eval) (r*'-preserves-0< a b 0<a 0<b))
+
+instance
+  LinearlyOrderedSemiringStr-ℚ : LinearlyOrderedSemiringStr RationalSemiring LinearOrderStr-ℚ
+  LinearlyOrderedSemiringStr-ℚ = record
+    { +₁-preserves-< = r+₁-preserves-<
+    ; *-preserves-0< = r*-preserves-0<
+    }

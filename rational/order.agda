@@ -523,6 +523,10 @@ r*₂-preserves-order : (a b : Rational) (c : ℚ⁺) -> a < b -> ( a r* ⟨ c �
 r*₂-preserves-order a b c@(c' , _) a<b =
   subst2 _<_ (r*-commute c' a) (r*-commute c' b) (r*₁-preserves-order c a b a<b)
 
+r*-preserves-0< : (a b : ℚ) -> 0r < a -> 0r < b -> 0r < (a * b)
+r*-preserves-0< a b 0<a 0<b = (Pos-0< (a * b) (r*-preserves-Pos a b (0<-Pos a 0<a) (0<-Pos b 0<b)))
+
+
 r*₁-preserves-≤ : (a : ℚ⁰⁺) (b c : ℚ) -> b ℚ≤ c -> (⟨ a ⟩ r* b) ℚ≤ (⟨ a ⟩ r* c)
 r*₁-preserves-≤ (a , nn-a) b c b≤c =
   subst NonNeg (r*-distrib-diffℚ a b c) (r*-preserves-NonNeg nn-a b≤c)

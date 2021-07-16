@@ -5,10 +5,13 @@ module real.arithmetic.order where
 open import base
 open import equality
 open import rational
+open import rational.proper-interval
 open import rational.difference
 open import rational.order hiding (_<_)
 open import real
 open import real.arithmetic
+open import real.arithmetic.multiplication
+open import real.interval
 open import real.sequence
 open import ring.implementations.rational
 open import semiring
@@ -56,6 +59,29 @@ abstract
   ℝ+₂-preserves-< : (a b c : ℝ) -> a ℝ< b -> (a ℝ+ c) ℝ< (b ℝ+ c)
   ℝ+₂-preserves-< a b c lt =
     subst2 _ℝ<_ (ℝ+-commute c a) (ℝ+-commute c b) (ℝ+₁-preserves-< c a b lt)
+
+private
+  ℝ*ᵉ-preserves-0< : (a b : ℝ) -> 0ℝ ℝ< a -> 0ℝ ℝ< b -> 0ℝ ℝ< (a ℝ*ᵉ b)
+  ℝ*ᵉ-preserves-0< a b 0<a 0<b = (∥-map2 handle (ℝ∈Iℚ-Pos a 0<a) (ℝ∈Iℚ-Pos b 0<b))
+    where
+    al-0 = ℝ<->L 0r a 0<a
+    bl-0 = ℝ<->L 0r b 0<b
+    handle : Σ[ ia ∈ Iℚ ] (ℝ∈Iℚ a ia × PosI ia) -> Σ[ ib ∈ Iℚ ] (ℝ∈Iℚ b ib × PosI ib) ->
+             0ℝ ℝ<' (a ℝ*ᵉ b)
+    handle (ia , a∈ia , pos-ia) (ib , b∈ib , pos-ib) =
+      l , 0<l , ∣ ia , ib , a∈ia , b∈ib , subst (\x -> i-Lower x l) iab-path refl-ℚ≤ ∣
+      where
+      iab = ia i* ib
+      iab' = i*-NN ia ib (inj-l pos-ia) (inj-l pos-ib)
+      iab-path = i*-NN-path ia ib (inj-l pos-ia) (inj-l pos-ib)
+
+      l = Iℚ.l iab'
+      pos-l = r*-preserves-Pos _ _ pos-ia pos-ib
+      0<l = Pos-0< l pos-l
+
+abstract
+  ℝ*-preserves-0< : (a b : ℝ) -> 0ℝ ℝ< a -> 0ℝ ℝ< b -> 0ℝ ℝ< (a ℝ* b)
+  ℝ*-preserves-0< a b 0<a 0<b = subst (0ℝ ℝ<_) (sym ℝ*-eval) (ℝ*ᵉ-preserves-0< a b 0<a 0<b)
 
 
 -- Invertible differences
