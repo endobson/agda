@@ -548,7 +548,7 @@ r*₁-flips-order a⁻@(a , _) b c b<c = pos-acab
                        cong (a r*_) (sym (diffℚ-anticommute c b)))
                   (r--flips-sign _ neg-sign neg-abc)
   pos-acab : Pos (diffℚ (a r* c) (a r* b))
-  pos-acab = subst Pos (RationalSemiring.*-distrib-+-left {a} {b} {(r- c)} >=>
+  pos-acab = subst Pos (*-distrib-+-left >=>
                         cong ((a r* b) +_) (r*-minus-extract-right a c))
                    pos-acb
 

@@ -30,7 +30,7 @@ abstract
 
   r*-distrib-diffℚ : (a b c : Rational) -> a r* (diffℚ b c) == diffℚ (a r* b) (a r* c)
   r*-distrib-diffℚ a b c =
-    RationalSemiring.*-distrib-+-left {a} {c} {r- b} >=>
+    *-distrib-+-left >=>
     cong ((a r* c) r+_) (r*-minus-extract-right a b)
 
 

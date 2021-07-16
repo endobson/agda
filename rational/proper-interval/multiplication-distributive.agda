@@ -13,6 +13,7 @@ open import rational.minmax
 open import rational.proper-interval
 open import relation hiding (_⊆_)
 open import ring.implementations.rational
+open import semiring
 open import sign
 open import sign.instances.rational
 open import truncation
@@ -47,7 +48,7 @@ i-scale-distrib-r+ : (k1 k2 : ℚ) (a : Iℚ) -> i-scale (k1 r+ k2) a i⊆ (i-sc
 i-scale-distrib-r+ k1 k2 a@(Iℚ-cons al au al≤au) = (i⊆-cons lt1 lt2)
   where
   case1 : Iℚ.l (i-scale (k1 r+ k2) a) == minℚ ((k1 r* al) r+ (k2 r* al)) ((k1 r* au) r+ (k2 r* au))
-  case1 = cong2 minℚ (RationalSemiring.*-distrib-+-right) (RationalSemiring.*-distrib-+-right)
+  case1 = cong2 minℚ *-distrib-+-right *-distrib-+-right
 
   case2 : Iℚ.l ((i-scale k1 a) i+ (i-scale k2 a)) ==
           (minℚ (k1 r* al) (k1 r* au)) r+ (minℚ (k2 r* al) (k2 r* au))
@@ -57,7 +58,7 @@ i-scale-distrib-r+ k1 k2 a@(Iℚ-cons al au al≤au) = (i⊆-cons lt1 lt2)
   lt1 = subst2 _ℚ≤_ (sym case2) (sym case1) (minℚ-r+-swap _ _ _ _)
 
   case3 : Iℚ.u (i-scale (k1 r+ k2) a) == maxℚ ((k1 r* al) r+ (k2 r* al)) ((k1 r* au) r+ (k2 r* au))
-  case3 = cong2 maxℚ (RationalSemiring.*-distrib-+-right) (RationalSemiring.*-distrib-+-right)
+  case3 = cong2 maxℚ *-distrib-+-right *-distrib-+-right
 
   case4 : Iℚ.u ((i-scale k1 a) i+ (i-scale k2 a)) ==
           (maxℚ (k1 r* al) (k1 r* au)) r+ (maxℚ (k2 r* al) (k2 r* au))

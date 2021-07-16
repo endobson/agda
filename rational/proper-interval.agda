@@ -15,6 +15,7 @@ open import rational.minmax
 open import relation hiding (_⊆_)
 open import ring
 open import ring.implementations.rational
+open import semiring
 open import sign
 open import sign.instances.rational
 open import truncation
@@ -291,7 +292,7 @@ i-scale-distrib-i+ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
   nn-case : NonNeg k -> i-scale k (a i+ b) == (i-scale k a) i+ (i-scale k b)
   nn-case nn-k =
     sym (i-scale-NN-path k⁺ (a i+ b)) >=>
-    Iℚ-bounds-path (RationalSemiring.*-distrib-+-left) (RationalSemiring.*-distrib-+-left) >=>
+    Iℚ-bounds-path *-distrib-+-left *-distrib-+-left >=>
     cong2 _i+_ (i-scale-NN-path k⁺ a) (i-scale-NN-path k⁺ b)
     where
     k⁺ : ℚ⁰⁺
@@ -300,7 +301,7 @@ i-scale-distrib-i+ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
   np-case : NonPos k -> i-scale k (a i+ b) == (i-scale k a) i+ (i-scale k b)
   np-case np-k =
     sym (i-scale-NP-path k⁻ (a i+ b)) >=>
-    Iℚ-bounds-path (RationalSemiring.*-distrib-+-left) (RationalSemiring.*-distrib-+-left) >=>
+    Iℚ-bounds-path *-distrib-+-left *-distrib-+-left >=>
     cong2 _i+_ (i-scale-NP-path k⁻ a) (i-scale-NP-path k⁻ b)
     where
     k⁻ : ℚ⁰⁻
@@ -511,9 +512,8 @@ i*-width-NNNN a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al nn-b
 
   abup : (au r* bu) == delta r+ (al r* bl)
   abup = cong2 _r*_ (sym (diffℚ-step al au)) (sym (diffℚ-step bl bu)) >=>
-         RationalSemiring.*-distrib-+-left {al r+ wa} {bl} {wb} >=>
-         cong2 _r+_ (RationalSemiring.*-distrib-+-right {al} {wa} {bl})
-                    (RationalSemiring.*-distrib-+-right {al} {wa} {wb}) >=>
+         *-distrib-+-left >=>
+         cong2 _r+_ *-distrib-+-right *-distrib-+-right >=>
          r+-assoc (al r* bl) (wa r* bl) ((al r* wb) r+ (wa r* wb)) >=>
          r+-commute (al r* bl) ((wa r* bl) r+ ((al r* wb) r+ (wa r* wb)))
 
@@ -525,7 +525,7 @@ i*-width-NNNN a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al nn-b
 
   delta-p : delta == (wa r* bl) r+ (au r* wb)
   delta-p =
-    cong ((wa r* bl) r+_) (sym (RationalSemiring.*-distrib-+-right) >=>
+    cong ((wa r* bl) r+_) (sym *-distrib-+-right >=>
                            cong (_r* wb) (diffℚ-step al au))
 
 i*-width-NNNP : (a b : Iℚ) -> NonNegI a -> NonPosI b ->
@@ -578,11 +578,11 @@ i*-width-NNNP a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al np-b
 
   path : (al r* bu) r+ (r- (au r* bl)) == (wa r* (r- bl)) r+ (al r* wb)
   path = cong2 _r+_ (cong (al r*_) (sym (diffℚ-step bl bu)) >=>
-                     RationalSemiring.*-distrib-+-left {al} {bl} {wb} >=>
+                     *-distrib-+-left >=>
                      r+-commute (al r* bl) (al r* wb))
                     (sym (r*-minus-extract-right au bl) >=>
                      cong (_r* (r- bl)) (sym (diffℚ-step al au)) >=>
-                     RationalSemiring.*-distrib-+-right {al} {wa} {r- bl}) >=>
+                     *-distrib-+-right) >=>
          r+-assoc (al r* wb) (al r* bl) ((al r* (r- bl)) r+ (wa r* (r- bl))) >=>
          cong ((al r* wb) r+_) (sym (r+-assoc (al r* bl) (al r* (r- bl)) (wa r* (r- bl))) >=>
                                 cong (_r+ (wa r* (r- bl)))
@@ -690,9 +690,8 @@ i*-width-NPNP a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au np-b
 
   abup : (au r* bu) == (al r* bl) r+ delta
   abup = cong2 _r*_ (sym (diffℚ-step al au)) (sym (diffℚ-step bl bu)) >=>
-         RationalSemiring.*-distrib-+-left {al r+ wa} {bl} {wb} >=>
-         cong2 _r+_ (RationalSemiring.*-distrib-+-right {al} {wa} {bl})
-                    (RationalSemiring.*-distrib-+-right {al} {wa} {wb}) >=>
+         *-distrib-+-left >=>
+         cong2 _r+_ *-distrib-+-right *-distrib-+-right >=>
          r+-assoc (al r* bl) (wa r* bl) ((al r* wb) r+ (wa r* wb))
 
   wp2 : i-width (a i* b) == (r- delta)
@@ -705,7 +704,7 @@ i*-width-NPNP a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au np-b
   delta-p : (r- delta) == (wa r* (r- bl)) r+ ((r- au) r* wb)
   delta-p =
     cong r-_
-      (cong ((wa r* bl) r+_) (sym (RationalSemiring.*-distrib-+-right) >=>
+      (cong ((wa r* bl) r+_) (sym *-distrib-+-right >=>
                               cong (_r* wb) (diffℚ-step al au))) >=>
     minus-distrib-plus >=>
     cong2 _r+_ (sym (r*-minus-extract-right wa bl)) (sym (r*-minus-extract-left au wb))

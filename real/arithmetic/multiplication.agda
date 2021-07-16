@@ -22,6 +22,7 @@ open import real.sequence
 open import relation hiding (U)
 open import ring
 open import ring.implementations.rational
+open import semiring
 open import sign
 open import sign.instances.rational
 open import truncation
@@ -364,8 +365,7 @@ module _ (x y : ℝ)
           wmmw = ((w-mxi r* m-myi) r+ (m-mxi r* w-myi))
           wmmw≤d : wmmw ℚ≤ d
           wmmw≤d =
-            subst (wmmw ℚ≤_) (sym (RationalSemiring.*-distrib-+-left {ε} {m-yi'} {m-xi'}) >=>
-                              ε-path)
+            subst (wmmw ℚ≤_) (sym *-distrib-+-left >=> ε-path)
                   (r+-both-preserves-≤ (w-mxi r* m-myi) (ε r* m-yi') (m-mxi r* w-myi) (ε r* m-xi')
                                        wm-xy-≤ mw-xy-≤)
 
