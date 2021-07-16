@@ -26,7 +26,7 @@ module _ {D : Type ℓD} {S : Semiring D} {R : Ring S} {O : LinearOrderStr D ℓ
       ILOS = LinearlyOrderedRingStr.ordered-semiring LOR
       IS = Ring.semiring R
       IO = O
-  open Ring R using (-_ ; +-inverse)
+      IR = R
 
   abstract
     minus-flips-< : (a b : D) -> (a < b) -> (- b) < (- a)

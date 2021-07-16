@@ -166,12 +166,13 @@ module RingSolver {Domain : Type ℓ} {S : Semiring Domain} (R : Ring S) where
   module _ (n : Nat) where
     private
       R' = (ReaderRing (Vec Domain n) R)
-      open module M = Ring R'
+      open module M = Ring R' hiding (-_ ; +-inverse)
       module MS = Semiring M.semiring
       open ring.lists M.semiring
 
       instance
         IS = M.semiring
+        IR = R'
 
       Meaning = (Vec Domain n) -> Domain
 
@@ -890,7 +891,7 @@ module examples where
                                                (a ⊗ b) ⊕ (c ⊗ d) ⊕ (c ⊗ b) ⊕ (a ⊗ d)) refl
 
   module full where
-    open int using (Int ; int ; -_)
+    open int using (Int ; int)
 
     example1 : (a b c d : Int) -> (a + c) * (b + d) == a * b + c * d + c * b + a * d
     example1 = IntSolver.solve 4 (\ a b c d -> ((a ⊕ c) ⊗ (b ⊕ d)) ,

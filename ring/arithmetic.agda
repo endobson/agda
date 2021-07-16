@@ -16,7 +16,7 @@ module _ {D : Type ℓD} {S : Semiring D} {{R : Ring S}} where
   private
     instance
       I-SR = S
-  open Ring R
+      I-R = R
 
   +-right-injective : (a b c : D) -> (a + c) == (b + c) -> a == b
   +-right-injective a b c p =

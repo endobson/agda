@@ -165,9 +165,10 @@ ReaderRing : {ℓ : Level} {Domain : Type ℓ} {S : Semiring Domain} -> (A : Typ
              Ring (ReaderSemiring A S)
 ReaderRing {Domain = Domain} {S} A R = res
   where
-  open Ring R
+  instance
+    IR = R
 
   res : Ring (ReaderSemiring A S)
   res = record  {
     -_ = (\ x a -> - x a);
-    +-inverse = (\ {x} i a -> (+-inverse {x a} i)) }
+    +-inverse = (\ {x} i a -> (Ring.+-inverse R {x a} i)) }

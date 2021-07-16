@@ -8,7 +8,7 @@ open import div
 open import equality
 open import gcd.propositional
 open import gcd.euclidean-algorithm
-open import int
+open import int hiding (-_)
 open import linear-combo
 open import nat
 open import prime

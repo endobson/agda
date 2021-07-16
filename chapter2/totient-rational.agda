@@ -6,7 +6,7 @@ open import base
 open import equality
 open import commutative-monoid
 open import nat
-open import int
+open import int hiding (-_)
 open import rational
 open import funext
 open import finite-product

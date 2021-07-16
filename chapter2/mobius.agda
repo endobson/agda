@@ -21,7 +21,7 @@ open import finset.instances
 open import finsubset
 open import hlevel
 open import isomorphism
-open import int using (Int ; int ; neg ; _^_ ; zero-int ; pos ; ^-right-zero ; ^-right-one ; -_
+open import int using (Int ; int ; neg ; _^_ ; zero-int ; pos ; ^-right-zero ; ^-right-one
                       ; +-eval ; add-minus-zero)
 open import list
 open import list.discrete

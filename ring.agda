@@ -471,6 +471,14 @@ record Ring {ℓ : Level} {Domain : Type ℓ} (S : Semiring Domain) : Type ℓ w
     preserves-inverse : (x : ℤ) -> (base u^ℤ (int.- x)) == (u1/ (base u^ℤ x))
     preserves-inverse x = u^ℤ-preserves-inverse {base} {x}
 
+module _ {D : Type ℓ} {S : Semiring D} {{R : Ring S}} where
+  open Ring R public using
+    ( -_
+    ; +-inverse
+    ; minus-double-inverse
+    ; minus-zero
+    )
+
 
 record Semiringʰᵉ
     {ℓ₁ ℓ₂ : Level}
