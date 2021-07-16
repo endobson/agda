@@ -14,6 +14,7 @@ open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
 open import real
 open import real.sequence
 open import relation hiding (U)
+open import ring
 open import ring.implementations.rational
 open import truncation
 
@@ -58,7 +59,7 @@ module _ (x : ℝ)
         where
         handle2 : Tri (q < (r- r)) (q == (r- r)) ((r- r) < q) -> Σ ℚ U
         handle2 (tri< q<-r _ _) =
-          (r- q) , (subst x.L (sym RationalRing.minus-double-inverse) xl-q) ,
+          (r- q) , (subst x.L (sym minus-double-inverse) xl-q) ,
                    (x.isUpperSet-U r (r- q) r<-q xu-r)
           where
           r<-q : r < (r- q)
@@ -88,7 +89,7 @@ module _ (x : ℝ)
         handle2 : Σ[ r ∈ ℚ ] (r < (r- q) × x.U r ) -> Σ[ r ∈ ℚ ] (q < r × L r)
         handle2 (r , lt , xu-r) =
           (r- r) , subst Pos (r+-commute (r- q) (r- r)) lt
-                 , ∣ inj-r (subst x.U (sym RationalRing.minus-double-inverse) xu-r) ∣
+                 , ∣ inj-r (subst x.U (sym minus-double-inverse) xu-r) ∣
 
 
     isLowerOpen-U : isLowerOpen U
@@ -102,14 +103,14 @@ module _ (x : ℝ)
         handle2 : Tri (r1 < (r- r2)) (r1 == (r- r2)) ((r- r2) < r1) ->
                   Σ[ r3 ∈ ℚ ] (r3 < q × U r3)
         handle2 (tri< r1<-r2 _ _) =
-          (r- r1) , -r1<q , (subst x.L (sym RationalRing.minus-double-inverse) xl-r1) ,
+          (r- r1) , -r1<q , (subst x.L (sym minus-double-inverse) xl-r1) ,
                             (x.isUpperSet-U r2 (r- r1) r2<-r1 xu-r2)
           where
           r2<-r1 : r2 < (r- r1)
           r2<-r1 = subst Pos (r+-commute (r- r2) (r- r1)) r1<-r2
 
           -r1<q : (r- r1) < q
-          -r1<q = subst ((r- r1) <_) (RationalRing.minus-double-inverse {q})
+          -r1<q = subst ((r- r1) <_) minus-double-inverse
                         (r--flips-order (r- q) r1 -q<r1)
 
         handle2 (tri= _ r1=-r2 _) =

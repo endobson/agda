@@ -20,6 +20,7 @@ open import real
 open import real.interval
 open import real.sequence
 open import relation hiding (U)
+open import ring
 open import ring.implementations.rational
 open import sign
 open import sign.instances.rational
@@ -778,14 +779,14 @@ module _ (x : ℝ)
           -lb≤m2 = trans-ℚ≤ {r- lb} {absℚ lb} {m2} (maxℚ-≤-right lb (r- lb))
                                                    (maxℚ-≤-left (absℚ lb) (absℚ ub))
           -m2≤lb : (r- m2) ℚ≤ lb
-          -m2≤lb = subst ((r- m2) ℚ≤_) (RationalRing.minus-double-inverse {lb})
+          -m2≤lb = subst ((r- m2) ℚ≤_) minus-double-inverse
                          (r--flips-≤ (r- lb) m2 -lb≤m2)
 
           m2=m-ir*m : m2 == m-ir r* m
           m2=m-ir*m = i-maxabs-i* ir ix
 
           m-ir=r : m-ir == (r- r)
-          m-ir=r = cong (maxℚ (absℚ r)) (cong (maxℚ (r- r)) (RationalRing.minus-double-inverse {r}) >=>
+          m-ir=r = cong (maxℚ (absℚ r)) (cong (maxℚ (r- r)) minus-double-inverse >=>
                                          maxℚ-commute) >=>
                    maxℚ-same >=>
                    absℚ-NonPos (inj-l neg-r)
@@ -802,9 +803,12 @@ module _ (x : ℝ)
                          -lb≤m2
 
           ans : q ℚ≤ lb
-          ans = subst2 _ℚ≤_ (RationalRing.minus-double-inverse {q})
-                            (RationalRing.minus-double-inverse {lb})
-                            (r--flips-≤ (r- lb) (r- q) -lb≤-q)
+          ans = subst2 _ℚ≤_ path-q path-lb (r--flips-≤ (r- lb) (r- q) -lb≤-q)
+            where
+            path-lb : (r- (r- lb)) == lb
+            path-lb = minus-double-inverse
+            path-q : (r- (r- q)) == q
+            path-q = minus-double-inverse
 
 
       i .fun 0x-q = unsquash (0ℝ.isProp-L q) (∥-map handle 0x-q)
@@ -888,7 +892,7 @@ module _ (x : ℝ)
 
           m-ir=r : m-ir == r
           m-ir=r = cong (\x -> (maxℚ x (absℚ r)))
-                        (cong (maxℚ (r- r)) (RationalRing.minus-double-inverse {r}) >=>
+                        (cong (maxℚ (r- r)) minus-double-inverse >=>
                          maxℚ-commute) >=>
                    maxℚ-same >=>
                    absℚ-NonNeg (inj-l pos-r)

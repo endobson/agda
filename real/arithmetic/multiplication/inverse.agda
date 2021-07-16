@@ -25,6 +25,7 @@ open import real.arithmetic.multiplication
 open import real.arithmetic.multiplication.associative
 open import real.interval
 open import relation hiding (U)
+open import ring
 open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
@@ -257,7 +258,7 @@ module _ (x : ℝ)  where
 private
   abstract
     ℝ--zero : ℝ- 0ℝ == 0ℝ
-    ℝ--zero = sym (+-left-zero) >=> ℝRing.+-inverse
+    ℝ--zero = sym (+-left-zero) >=> +-inverse
 
 ℝ--preserves-ℝInv : (x : ℝ) -> ℝInv x -> ℝInv (ℝ- x)
 ℝ--preserves-ℝInv x (inj-l x<0) = inj-r (subst (_< (ℝ- x)) ℝ--zero (minus-flips-< x 0ℝ x<0))
@@ -274,8 +275,8 @@ module _ (x : ℝ)  where
     ℝ-ᵉ-double-inverse : (z : ℝ) -> ℝ-ᵉ (ℝ-ᵉ z) == z
     ℝ-ᵉ-double-inverse z =
       LU-paths->path (ℝ-ᵉ (ℝ-ᵉ z)) z
-        (\q -> cong (Real.L z) (RationalRing.minus-double-inverse))
-        (\q -> cong (Real.U z) (RationalRing.minus-double-inverse))
+        (\q -> cong (Real.L z) minus-double-inverse)
+        (\q -> cong (Real.U z) minus-double-inverse)
 
 
     ℝ-ᵉ-ℝ1/ᵉ-commute' : (xinv : ℝInv x) -> (-xinv : ℝInv -x) -> ℝ-ᵉ (ℝ1/ᵉ x xinv) == ℝ1/ᵉ -x -xinv
@@ -422,8 +423,8 @@ private
     1/ℝ-Neg-inverse : 1/x ℝ* x == 1ℝ
     1/ℝ-Neg-inverse =
       cong (_ℝ* x) (sym (ℝ--eval {ℝ1/-Pos (ℝ-ᵉ x) 0U})) >=>
-      ℝRing.minus-extract-left >=>
-      sym ℝRing.minus-extract-right >=>
+      minus-extract-left >=>
+      sym minus-extract-right >=>
       cong ((ℝ1/-Pos (ℝ-ᵉ x) 0U) ℝ*_) (ℝ--eval {x}) >=>
       1/ℝ-Pos-inverse (ℝ-ᵉ x) 0U
 

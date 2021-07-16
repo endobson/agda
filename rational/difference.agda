@@ -4,6 +4,7 @@ module rational.difference where
 
 open import base
 open import equality
+open import ring
 open import ring.implementations.rational
 open import rational
 open import semiring
@@ -14,8 +15,8 @@ diffℚ x y = (y r+ (r- x))
 abstract
   diffℚ-anticommute : (x y : ℚ) -> diffℚ x y == r- (diffℚ y x)
   diffℚ-anticommute x y = sym (
-    RationalRing.minus-distrib-plus {x} {r- y} >=>
-    cong ((r- x) r+_) (RationalRing.minus-double-inverse {y}) >=>
+    minus-distrib-plus >=>
+    cong ((r- x) r+_) minus-double-inverse >=>
     r+-commute (r- x) y)
 
   r+-swap-diffℚ : (a b c d : Rational) -> ((diffℚ a b) r+ (diffℚ c d)) == (diffℚ (a r+ c) (b r+ d))
@@ -24,7 +25,7 @@ abstract
     cong (b r+_) (sym (r+-assoc (r- a) d (r- c)) >=>
                   cong (_r+ (r- c)) (r+-commute (r- a) d) >=>
                   r+-assoc d (r- a) (r- c) >=>
-                  cong (d r+_) (sym (RationalRing.minus-distrib-plus {a} {c}))) >=>
+                  cong (d r+_) (sym (minus-distrib-plus))) >=>
     sym (r+-assoc b d (r- (a r+ c)))
 
   r*-distrib-diffℚ : (a b c : Rational) -> a r* (diffℚ b c) == diffℚ (a r* b) (a r* c)

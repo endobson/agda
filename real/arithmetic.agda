@@ -16,6 +16,7 @@ open import real
 open import real.interval
 open import real.sequence
 open import relation hiding (U)
+open import ring
 open import ring.implementations.rational
 open import sign
 open import sign.instances.rational
@@ -137,7 +138,7 @@ module _ (x y : ℝ) where
           path1 = r+-assoc a ε' (r- c) >=> cong (a r+_) (diffℚ-anticommute c ε')
           path2 : (b r+ (r- ε')) r+ (r- c) == e
           path2 = r+-assoc b (r- ε') (r- c) >=>
-                  cong (b r+_) (sym (RationalRing.minus-distrib-plus {ε'} {c}) >=>
+                  cong (b r+_) (sym minus-distrib-plus >=>
                                 cong r-_ (r+-commute ε' c))
 
         d-path : c⁻ r+ d == a
@@ -424,13 +425,13 @@ module _ (x : ℝ) where
     Inhabited-L = ∥-map handle x.Inhabited-U
       where
       handle : Σ[ q ∈ ℚ ] (x.U q) -> Σ ℚ L
-      handle (q , uq) = (r- q) , subst x.U (sym RationalRing.minus-double-inverse) uq
+      handle (q , uq) = (r- q) , subst x.U (sym minus-double-inverse) uq
 
     Inhabited-U : Inhabited U
     Inhabited-U = ∥-map handle x.Inhabited-L
       where
       handle : Σ[ q ∈ ℚ ] (x.L q) -> Σ ℚ U
-      handle (q , lq) = (r- q) , subst x.L (sym RationalRing.minus-double-inverse) lq
+      handle (q , lq) = (r- q) , subst x.L (sym minus-double-inverse) lq
 
     isLowerSet-L : isLowerSet L
     isLowerSet-L a b a<b = x.isUpperSet-U (r- b) (r- a) (r--flips-order a b a<b)
@@ -445,7 +446,7 @@ module _ (x : ℝ) where
       handle (r , r<-q , ur) =
         (r- r) ,
         subst Pos (r+-commute (r- q) (r- r)) r<-q ,
-        subst x.U (sym RationalRing.minus-double-inverse) ur
+        subst x.U (sym minus-double-inverse) ur
 
     isLowerOpen-U : isLowerOpen U
     isLowerOpen-U q uq = ∥-map handle (x.isUpperOpen-L (r- q) uq)
@@ -455,12 +456,12 @@ module _ (x : ℝ) where
       handle (r , -q<r , lr) =
         (r- r) ,
         subst Pos path -q<r ,
-        subst x.L (sym RationalRing.minus-double-inverse) lr
+        subst x.L (sym minus-double-inverse) lr
         where
         path : r r+ (r- (r- q)) == q r+ (r- (r- r))
-        path = cong (r r+_) RationalRing.minus-double-inverse >=>
+        path = cong (r r+_) minus-double-inverse >=>
                r+-commute r q >=>
-               cong (q r+_) (sym RationalRing.minus-double-inverse)
+               cong (q r+_) (sym minus-double-inverse)
 
     disjoint : Universal (Comp (L ∩ U))
     disjoint q (lq , uq) = x.disjoint (r- q) (uq , lq)
@@ -511,7 +512,7 @@ module _ (x : ℝ) where
         q1<mq2 = ℝ-bounds->ℚ< x q1 (r- q2) xl-q1 xu-mq2
 
         q<0r : q < 0r
-        q<0r = subst Pos (sym (RationalRing.minus-distrib-plus {q2} {q1}) >=>
+        q<0r = subst Pos (sym minus-distrib-plus >=>
                           cong r-_ (r+-commute q2 q1 >=> q-path) >=>
                           sym (r+-left-zero (r- q)) )
                      q1<mq2
@@ -528,10 +529,10 @@ module _ (x : ℝ) where
       handle (q1 , q2 , xl-q1 , xu-q2 , diff-path) = q1 , (r- q2) , xl-q1 , xu-mmq2 , path
         where
         xu-mmq2 : x.U (r- (r- q2))
-        xu-mmq2 = subst x.U (sym RationalRing.minus-double-inverse) xu-q2
+        xu-mmq2 = subst x.U (sym minus-double-inverse) xu-q2
 
         path : diffℚ q2 q1 == q
-        path = diffℚ-anticommute q2 q1 >=> cong r-_ diff-path >=> RationalRing.minus-double-inverse
+        path = diffℚ-anticommute q2 q1 >=> cong r-_ diff-path >=> minus-double-inverse
 
     U-forward : (q : ℚ) -> y.U q -> 0ℝ.U q
     U-forward q yu-q = unsquash (0ℝ.isProp-U q) (∥-map handle yu-q)
@@ -544,7 +545,7 @@ module _ (x : ℝ) where
         mq2<q1 = ℝ-bounds->ℚ< x (r- q2) q1 xl-mq2 xu-q1
 
         0r<q : 0r < q
-        0r<q = Pos-0< q (subst Pos (cong (q1 r+_) RationalRing.minus-double-inverse >=> q-path) mq2<q1)
+        0r<q = Pos-0< q (subst Pos (cong (q1 r+_) minus-double-inverse >=> q-path) mq2<q1)
 
     U-backward : (q : ℚ) -> 0ℝ.U q -> y.U q
     U-backward q 0r<q = ∥-map handle (find-open-ball x q⁺)
@@ -557,7 +558,7 @@ module _ (x : ℝ) where
       handle (q1 , q2 , xl-q1 , xu-q2 , path) = q2 , (r- q1) , xu-q2 , xl-mmq1 , path
         where
         xl-mmq1 : x.L (r- (r- q1))
-        xl-mmq1 = subst x.L (sym RationalRing.minus-double-inverse) xl-q1
+        xl-mmq1 = subst x.L (sym minus-double-inverse) xl-q1
 
     ℝ+ᵉ-inverse : y == 0ℝ
     ℝ+ᵉ-inverse =

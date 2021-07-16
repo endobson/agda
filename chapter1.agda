@@ -8,7 +8,7 @@ open import div
 open import equality
 open import gcd.propositional
 open import gcd.euclidean-algorithm
-open import int hiding (-_)
+open import int hiding (-_ ; minus-extract-left)
 open import linear-combo
 open import nat
 open import prime
@@ -168,7 +168,7 @@ private
           (- k * a) + (k * a + b)
         ==< sym (+-assoc { - k * a}) >
           (- k * a + k * a) + b
-        ==< +-left (+-left (minus-extract-left {k})) >
+        ==< +-left (+-left minus-extract-left) >
           (- (k * a) + k * a) + b
         ==< +-left (+-commute { - (k * a) }) >
           (k * a + - (k * a)) + b

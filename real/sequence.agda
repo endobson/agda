@@ -12,6 +12,7 @@ open import rational.difference
 open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-< )
 open import rational.minmax
 open import relation hiding (U)
+open import ring
 open import ring.implementations.rational
 open import real
 open import semiring
@@ -51,13 +52,13 @@ private
     where
     path : c r+ (r- (a r+ (r- b))) == b r+ (r- (a r+ (r- c)))
     path =
-      cong (c r+_) ((RationalRing.minus-distrib-plus {a} {r- b}) >=>
-                    cong ((r- a) r+_) (RationalRing.minus-double-inverse {b}) >=>
+      cong (c r+_) (minus-distrib-plus >=>
+                    cong ((r- a) r+_) minus-double-inverse >=>
                     (r+-commute (r- a) b)) >=>
       r+-commute c (b r+ (r- a)) >=>
-      cong ((b r+ (r- a)) r+_) (sym (RationalRing.minus-double-inverse {c})) >=>
+      cong ((b r+ (r- a)) r+_) (sym minus-double-inverse) >=>
       r+-assoc b (r- a) (r- (r- c)) >=>
-      cong (b r+_) (sym (RationalRing.minus-distrib-plus {a} {r- c}))
+      cong (b r+_) (sym minus-distrib-plus)
 
   ε-weaken-< : (q r : ℚ) -> (ε : ℚ⁺) -> (q r+ ⟨ ε ⟩) < r -> q < r
   ε-weaken-< q r ε⁺@(ε , _) lt =
@@ -85,7 +86,7 @@ private
   midℚ-minus-half-diffℚ : (x y : ℚ) -> (midℚ x y r+ (r- (1/2r r* (diffℚ x y)))) == x
   midℚ-minus-half-diffℚ x y =
     cong2 _r+_ (midℚ-commute x y)
-      (sym (RationalRing.minus-extract-right {1/2r} {diffℚ x y}) >=>
+      (sym minus-extract-right >=>
        cong (1/2r r*_) (sym (diffℚ-anticommute y x))) >=>
     midℚ-plus-half-diffℚ y x
 
@@ -142,7 +143,7 @@ module _
             (r+-commute (r- 1r) 1/2r >=>
              cong (1/2r r+_) (cong r-_ (sym (1/2r-path 1r) >=>
                                         cong2 _r+_ (r*-left-one 1/2r) (r*-left-one 1/2r)) >=>
-                              (RationalRing.minus-distrib-plus {1/2r} {1/2r})) >=>
+                              minus-distrib-plus) >=>
              sym (r+-assoc 1/2r (r- 1/2r) (r- 1/2r)) >=>
              cong (_r+ (r- 1/2r)) (r+-inverse 1/2r) >=>
              r+-left-zero (r- 1/2r))
@@ -404,7 +405,7 @@ module _
               sym (r+-assoc (mid r+ (r- d)) (r- d) d) >=>
               cong (_r+ d)
                 (r+-assoc mid (r- d) (r- d) >=>
-                 cong (mid r+_) (sym (RationalRing.minus-distrib-plus {d} {d}) >=>
+                 cong (mid r+_) (sym minus-distrib-plus >=>
                                  cong r-_ (1/2r-path' (1/2r r* diffℚ x y))) >=>
                  midℚ-minus-half-diffℚ x y)
 
@@ -441,7 +442,7 @@ centered-ball->Pos-ε x e (q , lq , uq) = subst Pos 1/2-2e==e Pos-1/2-2e
 
   path : diffℚ (q r+ (r- e)) (q r+ e) == 2r r* e
   path = sym (r+-swap-diffℚ q q (r- e) e) >=>
-         cong2 _r+_ (r+-inverse q) (cong (e r+_) (RationalRing.minus-double-inverse {e})) >=>
+         cong2 _r+_ (r+-inverse q) (cong (e r+_) minus-double-inverse) >=>
          r+-left-zero (e r+ e) >=>
          2r-path e
 

@@ -78,15 +78,15 @@ private
 
   1ℝ--double-inverse : {x : ℝ} -> (1ℝ- (1ℝ- x)) == x
   1ℝ--double-inverse =
-    +-right ℝRing.minus-distrib-plus >=>
+    +-right minus-distrib-plus >=>
     sym +-assoc >=>
-    +-left ℝRing.+-inverse >=>
+    +-left +-inverse >=>
     +-left-zero >=>
-    ℝRing.minus-double-inverse
+    minus-double-inverse
 
   1ℝ--distrib-ℝ+-left : {x y : ℝ} -> 1ℝ- (x ℝ+ y) == (1ℝ- x) ℝ+ (ℝ- y)
   1ℝ--distrib-ℝ+-left =
-    +-right ℝRing.minus-distrib-plus >=>
+    +-right minus-distrib-plus >=>
     sym +-assoc
 
   1ℝ--distrib-ℝ+-right : {x y : ℝ} -> 1ℝ- (x ℝ+ y) == (ℝ- x) ℝ+ (1ℝ- y)
@@ -96,10 +96,10 @@ private
   1ℝ--distrib-ℝ*-left : {x y : ℝ} -> (1ℝ- (x ℝ* y)) == (1ℝ- x) ℝ+ (x ℝ* (1ℝ- y))
   1ℝ--distrib-ℝ*-left {x} {y} =
     +-left (sym +-right-zero >=>
-            +-right (sym ℝRing.+-inverse >=> +-commute) >=>
+            +-right (sym +-inverse >=> +-commute) >=>
             sym +-assoc) >=>
     +-assoc >=>
-    +-right (cong2 _+_ (sym *-right-one) (sym ℝRing.minus-extract-right) >=>
+    +-right (cong2 _+_ (sym *-right-one) (sym minus-extract-right) >=>
              sym *-distrib-+-left)
 
 
@@ -177,7 +177,7 @@ private
     unique-linear-combo a b a#b path = k1==k2
       where
       zero-path : ((k1 * a) + ((1ℝ- k1) * b)) + (ℝ- ((k2 * a) + ((1ℝ- k2) * b))) == 0ℝ
-      zero-path = +-left path >=> ℝRing.+-inverse
+      zero-path = +-left path >=> +-inverse
 
       x = (a + (ℝ- b))
       inv-x : ℝInv x
@@ -187,15 +187,15 @@ private
 
       reorg-path : ((k1 * a) + ((1ℝ- k1) * b)) + (ℝ- ((k2 * a) + ((1ℝ- k2) * b))) == k3 * x
       reorg-path =
-        +-right (ℝRing.minus-distrib-plus >=>
-                 +-cong (sym ℝRing.minus-extract-left) (sym ℝRing.minus-extract-left)) >=>
+        +-right (minus-distrib-plus >=>
+                 +-cong (sym minus-extract-left) (sym minus-extract-left)) >=>
         +-swap >=>
         +-cong (sym *-distrib-+-right) (sym *-distrib-+-right) >=>
         +-right (*-left (sym 1ℝ--distrib-ℝ+-left >=> 1ℝ--distrib-ℝ+-right >=>
-                         +-right (1ℝ--double-inverse >=> sym ℝRing.minus-double-inverse) >=>
-                         sym ℝRing.minus-distrib-plus) >=>
-                 ℝRing.minus-extract-left >=>
-                 sym ℝRing.minus-extract-right) >=>
+                         +-right (1ℝ--double-inverse >=> sym minus-double-inverse) >=>
+                         sym minus-distrib-plus) >=>
+                 minus-extract-left >=>
+                 sym minus-extract-right) >=>
         sym *-distrib-+-left
 
 
@@ -298,9 +298,7 @@ module _
         1ℝ--distrib-ℝ+-left >=>
         cong2 _ℝ+_
              (1ℝ--distrib-ℝ*-left >=> ℝ+-commute _ _)
-             -- (ℝ*-extract--- (cong (k3' ℝ*_) (sym 1ℝ--double-inverse))
-             (sym ℝRing.minus-extract-right)
-             >=>
+             (sym minus-extract-right) >=>
         ℝ+-assoc _ _ _ >=>
         cong ((k3 ℝ* k1') ℝ+_) (+-left (sym *-right-one) >=>
                                 (sym *-distrib-+-left))

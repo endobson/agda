@@ -476,6 +476,9 @@ module _ {D : Type ℓ} {S : Semiring D} {{R : Ring S}} where
     ( -_
     ; +-inverse
     ; minus-double-inverse
+    ; minus-distrib-plus
+    ; minus-extract-left
+    ; minus-extract-right
     ; minus-zero
     )
 

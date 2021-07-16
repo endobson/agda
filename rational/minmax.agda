@@ -10,6 +10,7 @@ open import rational.difference
 open import rational.order
 open import rational.sign
 open import relation
+open import ring
 open import ring.implementations.rational
 open import sign
 open import sign.instances.rational
@@ -437,7 +438,7 @@ absℚ-Zero {q} zaq = handle (snd (decide-sign q))
   handle {zero-sign} zq = zq
   handle {neg-sign} nq =
     subst Zero (cong r-_ (absℚ-NonPos (inj-l nq)) >=>
-                RationalRing.minus-double-inverse) (r--flips-sign _ _ zaq)
+                minus-double-inverse) (r--flips-sign _ _ zaq)
 
 NonNeg-absℚ : (q : ℚ) -> NonNeg (absℚ q)
 NonNeg-absℚ q = handle (decide-sign q)
@@ -456,7 +457,7 @@ absℚ-r*₁-NonPos : (a b : ℚ) -> (NonPos a) -> absℚ (a r* b) == (r- a) r* 
 absℚ-r*₁-NonPos a b np-a =
   cong (maxℚ (a r* b)) (sym (r*-minus-extract-right a b)) >=>
   maxℚ-r*₁-NonPos a b (r- b) np-a >=>
-  cong (\x -> (a r* (minℚ x (r- b)))) (sym (RationalRing.minus-double-inverse {b})) >=>
+  cong (\x -> (a r* (minℚ x (r- b)))) (sym minus-double-inverse) >=>
   cong (a r*_) (sym (r--maxℚ (r- b) b) >=> cong r-_ maxℚ-commute) >=>
   r*-minus-extract-right a (absℚ b) >=>
   sym (r*-minus-extract-left a (absℚ b))

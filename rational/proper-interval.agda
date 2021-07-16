@@ -13,6 +13,7 @@ open import rational.sign
 open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
 open import rational.minmax
 open import relation hiding (_⊆_)
+open import ring
 open import ring.implementations.rational
 open import sign
 open import sign.instances.rational
@@ -350,7 +351,7 @@ i-scale-width k a@(Iℚ-cons l u l≤u)  = handle (decide-sign k)
   n-case n-k =
     cong2 diffℚ (minℚ-right _ _ ku≤kl) (maxℚ-left _ _ ku≤kl) >=>
     sym (r*-distrib-diffℚ k u l) >=>
-    sym RationalRing.minus-double-inverse >=>
+    sym minus-double-inverse >=>
     cong r-_ (sym (r*-minus-extract-right _ _)) >=>
     (sym (r*-minus-extract-left _ _)) >=>
     cong2 _r*_ (sym (absℚ-NonPos (inj-l n-k)))
@@ -696,8 +697,7 @@ i*-width-NPNP a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au np-b
 
   wp2 : i-width (a i* b) == (r- delta)
   wp2 = wp >=> (cong ((al r* bl) r+_)
-                     (cong r-_ abup >=>
-                      RationalRing.minus-distrib-plus {al r* bl} {delta})) >=>
+                     (cong r-_ abup >=> minus-distrib-plus)) >=>
         sym (r+-assoc (al r* bl) (r- (al r* bl)) (r- delta)) >=>
         cong (_r+ (r- delta)) (r+-inverse (al r* bl)) >=>
         r+-left-zero (r- delta)
@@ -707,7 +707,7 @@ i*-width-NPNP a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au np-b
     cong r-_
       (cong ((wa r* bl) r+_) (sym (RationalSemiring.*-distrib-+-right) >=>
                               cong (_r* wb) (diffℚ-step al au))) >=>
-    RationalRing.minus-distrib-plus {wa r* bl} {au r* wb} >=>
+    minus-distrib-plus >=>
     cong2 _r+_ (sym (r*-minus-extract-right wa bl)) (sym (r*-minus-extract-left au wb))
 
 i*-width-NPCZ : (a b : Iℚ) -> NonPosI a -> CrossZeroI b ->
@@ -810,11 +810,11 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
   mbl≤m = subst (_ℚ≤ mb) (absℚ-NonPos np-bl) (maxℚ-≤-left (absℚ bl) (absℚ bu))
 
   m≤al : (r- ma) ℚ≤ al
-  m≤al = subst ((r- ma) ℚ≤_) (RationalRing.minus-double-inverse {al})
+  m≤al = subst ((r- ma) ℚ≤_) minus-double-inverse
                (r--flips-≤ (r- al) ma mal≤m)
 
   m≤bl : (r- mb) ℚ≤ bl
-  m≤bl = subst ((r- mb) ℚ≤_) (RationalRing.minus-double-inverse {bl})
+  m≤bl = subst ((r- mb) ℚ≤_) minus-double-inverse
                (r--flips-≤ (r- bl) mb mbl≤m)
 
   au≤m : au ℚ≤ ma
@@ -841,7 +841,7 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
   albl≤mm =
     subst ((al r* bl) ℚ≤_) (r*-minus-extract-right (r- ma) mb >=>
                             cong r-_ (r*-minus-extract-left ma mb) >=>
-                            RationalRing.minus-double-inverse {ma r* mb})
+                            minus-double-inverse)
     (trans-ℚ≤ {al r* bl} {(r- ma) r* bl} {(r- ma) r* (r- mb)}
               (r*₂-flips-≤ (r- ma) al (bl , np-bl) m≤al)
               (r*₁-flips-≤ ((r- ma) , (r--NonNeg nn-ma)) (r- mb) bl m≤bl))
@@ -862,7 +862,7 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
          (minℚ-property {P = ((r- (ma r* mb)) ℚ≤_)} (al r* bu) (au r* bl) mm≤albu mm≤aubl)
 
   ml≤mm : (r- l) ℚ≤ (ma r* mb)
-  ml≤mm = subst ((r- l) ℚ≤_) (RationalRing.minus-double-inverse {ma r* mb})
+  ml≤mm = subst ((r- l) ℚ≤_) minus-double-inverse
                 (r--flips-≤ (r- (ma r* mb)) l mm≤l)
 
 

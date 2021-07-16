@@ -145,7 +145,7 @@ module _ (x : ℝ) where
         where
         -1r<q : (r- 1r) < q
         -1r<q = trans-<-≤ {r- 1r} {0r} {q}
-                  (subst Posℚ (RationalRing.minus-double-inverse >=>
+                  (subst Posℚ (minus-double-inverse >=>
                                (sym (r+-left-zero (r- (r- 1r)))))
                               Pos-1r)
                   0≤q
