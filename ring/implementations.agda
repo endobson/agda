@@ -62,9 +62,8 @@ instance
 module IntSemiring = Semiring IntSemiring
 
 instance
-  IntRing : Ring int.Int
+  IntRing : Ring IntSemiring
   IntRing = record  {
-    semiring = IntSemiring;
     -_ = int.-_;
     +-inverse = (\ {n} -> int.add-minus-zero {n}) }
 
@@ -162,13 +161,13 @@ ReaderSemiring {Domain = Domain} A S = res
     }
 
 
-ReaderRing : {ℓ : Level} {Domain : Type ℓ} -> (A : Type ℓ) -> Ring Domain -> Ring (A -> Domain)
-ReaderRing {Domain = Domain} A R = res
+ReaderRing : {ℓ : Level} {Domain : Type ℓ} {S : Semiring Domain} -> (A : Type ℓ) -> Ring S ->
+             Ring (ReaderSemiring A S)
+ReaderRing {Domain = Domain} {S} A R = res
   where
   open Ring R
 
-  res : Ring (A -> Domain)
+  res : Ring (ReaderSemiring A S)
   res = record  {
-    semiring = (ReaderSemiring A semiring);
     -_ = (\ x a -> - x a);
     +-inverse = (\ {x} i a -> (+-inverse {x a} i)) }

@@ -161,14 +161,14 @@ private
   ...    | equal-to list-pr = equal-to (\i -> (elem-pr i) :: (list-pr i))
 
 
-module RingSolver {Domain : Type ℓ} (R : Ring Domain) where
+module RingSolver {Domain : Type ℓ} {S : Semiring Domain} (R : Ring S) where
 
   module _ (n : Nat) where
     private
       R' = (ReaderRing (Vec Domain n) R)
       open module M = Ring R'
       module MS = Semiring M.semiring
-      open ring.lists (Ring.semiring R')
+      open ring.lists M.semiring
 
       instance
         IS = M.semiring

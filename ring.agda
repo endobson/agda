@@ -23,15 +23,16 @@ private
     ℓ : Level
     A : Set ℓ
 
-
-record Ring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
-  field
-    {{semiring}} : Semiring Domain
-  -- open Semiring semiring public
+record Ring {ℓ : Level} {Domain : Type ℓ} (S : Semiring Domain) : Type ℓ where
+  private
+    instance
+      IS = S
 
   field
     -_ : Domain -> Domain
     +-inverse : {x : Domain } -> (x + (- x)) == 0#
+
+  semiring = S
 
   minus-zero : (- 0#) == 0#
   minus-zero =
@@ -523,14 +524,15 @@ Semiringʰ-∘ {S₁ = S₁} {S₂} {S₃} {f} {g} f' g' = record
 record Ringʰᵉ
     {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    (R₁ : Ring D₁) (R₂ : Ring D₂)
+    {S₁ : Semiring D₁} {S₂ : Semiring D₂}
+    (R₁ : Ring S₁) (R₂ : Ring S₂)
     (f : D₁ -> D₂) : Type (ℓ-max ℓ₁ ℓ₂)
   where
   module R₁ = Ring R₁
   module R₂ = Ring R₂
 
-  module S₁ = Semiring R₁.semiring
-  module S₂ = Semiring R₂.semiring
+  module S₁ = Semiring S₁
+  module S₂ = Semiring S₂
 
   field
     preserves-0# : f S₁.0# == S₂.0#
@@ -543,14 +545,16 @@ record Ringʰᵉ
 Ringʰ :
     {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {{R₁ : Ring D₁}} {{R₂ : Ring D₂}}
+    {S₁ : Semiring D₁} {S₂ : Semiring D₂}
+    {{R₁ : Ring S₁}} {{R₂ : Ring S₂}}
     (f : D₁ -> D₂) -> Type (ℓ-max ℓ₁ ℓ₂)
 Ringʰ {{R₁ = R₁}} {{R₂ = R₂}} f = Ringʰᵉ R₁ R₂ f
 
 module Ringʰ
     {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {R₁ : Ring D₁} {R₂ : Ring D₂}
+    {S₁ : Semiring D₁} {S₂ : Semiring D₂}
+    {R₁ : Ring S₁} {R₂ : Ring S₂}
     {f : D₁ -> D₂}
     (s : Ringʰᵉ R₁ R₂ f) where
   open Ringʰᵉ s public

@@ -12,10 +12,10 @@ private
   variable
     ℓD : Level
 
-module _ {D : Type ℓD} {{R : Ring D}} where
+module _ {D : Type ℓD} {S : Semiring D} {{R : Ring S}} where
   private
     instance
-      I-SR = Ring.semiring R
+      I-SR = S
   open Ring R
 
   +-right-injective : (a b c : D) -> (a + c) == (b + c) -> a == b

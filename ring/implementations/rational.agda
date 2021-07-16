@@ -28,10 +28,9 @@ instance
 module RationalSemiring = Semiring RationalSemiring
 
 instance
-  RationalRing : Ring Rational
+  RationalRing : Ring RationalSemiring
   RationalRing = record
-    { semiring = RationalSemiring
-    ; -_ = r-_
+    { -_ = r-_
     ; +-inverse = (\ {a} -> r+-inverse a)
     }
 module RationalRing = Ring RationalRing

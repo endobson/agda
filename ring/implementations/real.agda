@@ -34,10 +34,9 @@ module ℝSemiring = Semiring ℝSemiring
 
 
 instance
-  ℝRing : Ring ℝ
+  ℝRing : Ring ℝSemiring
   ℝRing = record
-    { semiring = ℝSemiring
-    ; -_ = ℝ-_
+    { -_ = ℝ-_
     ; +-inverse = (\ {a} -> ℝ+-inverse a)
     }
 module ℝRing = Ring ℝRing
