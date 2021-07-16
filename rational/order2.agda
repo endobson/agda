@@ -168,3 +168,84 @@ instance
     ; connected-< = connected-ℚ<
     ; comparison-< = comparison-ℚ<
     }
+
+Posℚ : Pred ℚ ℓ-zero
+Posℚ q = 0r < q
+Negℚ : Pred ℚ ℓ-zero
+Negℚ q = q < 0r
+Zeroℚ : Pred ℚ ℓ-zero
+Zeroℚ q = q == 0r
+
+private
+  isSignℚ : REL Sign ℚ ℓ-zero
+  isSignℚ pos-sign = Posℚ
+  isSignℚ zero-sign = Zeroℚ
+  isSignℚ neg-sign = Negℚ
+
+  abstract
+    isProp-isSignℚ : (s : Sign) (q : ℚ) -> isProp (isSignℚ s q)
+    isProp-isSignℚ pos-sign _ = isProp-< _ _
+    isProp-isSignℚ zero-sign _ = isSetRational _ _
+    isProp-isSignℚ neg-sign _ = isProp-< _ _
+
+    isSignℚ-unique : (q : ℚ) (s1 s2 : Sign) -> (isSignℚ s1 q) -> (isSignℚ s2 q) -> s1 == s2
+    isSignℚ-unique q pos-sign  pos-sign  s1q s2q = refl
+    isSignℚ-unique q pos-sign  zero-sign s1q s2q = bot-elim (irrefl-< (subst (0r <_) s2q s1q))
+    isSignℚ-unique q pos-sign  neg-sign  s1q s2q = bot-elim (asym-< s1q s2q)
+    isSignℚ-unique q zero-sign pos-sign  s1q s2q = bot-elim (irrefl-< (subst (0r <_) s1q s2q))
+    isSignℚ-unique q zero-sign zero-sign s1q s2q = refl
+    isSignℚ-unique q zero-sign neg-sign  s1q s2q = bot-elim (irrefl-< (subst (_< 0r) s1q s2q))
+    isSignℚ-unique q neg-sign  pos-sign  s1q s2q = bot-elim (asym-< s1q s2q)
+    isSignℚ-unique q neg-sign  zero-sign s1q s2q = bot-elim (irrefl-< (subst (_< 0r) s2q s1q))
+    isSignℚ-unique q neg-sign  neg-sign  s1q s2q = refl
+
+instance
+  SignStr-ℚ : SignStr ℚ ℓ-zero
+  SignStr-ℚ = record
+    { isSign = isSignℚ
+    ; isProp-isSign = isProp-isSignℚ
+    ; isSign-unique = isSignℚ-unique
+    }
+
+ℚ⁺ : Type₀
+ℚ⁺ = Σ ℚ Pos
+ℚ⁻ : Type₀
+ℚ⁻ = Σ ℚ Neg
+
+ℚ⁰⁺ : Type₀
+ℚ⁰⁺ = Σ ℚ NonNeg
+ℚ⁰⁻ : Type₀
+ℚ⁰⁻ = Σ ℚ NonPos
+
+abstract
+  Zero-0r : Zero 0r
+  Zero-0r = refl
+
+  Pos->Inv : {q : ℚ} -> Pos q -> ℚInv q
+  Pos->Inv p = NonZero->¬Zero (inj-l p)
+
+  Neg->Inv : {q : ℚ} -> Neg q -> ℚInv q
+  Neg->Inv p = NonZero->¬Zero (inj-r p)
+
+abstract
+  r+₁-preserves-< : (a b c : ℚ) -> b < c -> (a + b) < (a + c)
+  r+₁-preserves-< a b c (ℚ<-cons b<c) =
+    RationalElim.elimProp3
+      {C3 = \a b c -> ℚ<-raw b c -> (a + b) < (a + c)}
+      (\_ _ _ -> isPropΠ (\_ -> isProp-< _ _))
+      convert
+      a b c b<c
+    where
+    convert : (a b c : ℚ') -> b ℚ'< c -> ([ a ] + [ b ]) < ([ a ] + [ c ])
+    convert a b c b<c = ℚ<-cons (subst2 ℚ<-raw (sym r+-eval) (sym r+-eval) (r+'₁-preserves-< a b c b<c))
+
+  r*-preserves-0< : (a b : ℚ) -> 0r < a -> 0r < b -> 0r < (a * b)
+  r*-preserves-0< a b (ℚ<-cons 0<a) (ℚ<-cons 0<b) =
+    RationalElim.elimProp2
+      {C2 = \a b -> ℚ<-raw 0r a -> ℚ<-raw 0r b -> 0r < (a * b)}
+      (\_ _ -> isPropΠ2 (\_ _ -> isProp-< _ _))
+      convert
+      a b 0<a 0<b
+    where
+    convert : (a b  : ℚ') -> 0r' ℚ'< a -> 0r' ℚ'< b -> 0r < ([ a ] * [ b ])
+    convert a b 0<a 0<b = ℚ<-cons (subst (ℚ<-raw 0r) (sym r*-eval) (r*'-preserves-0< a b 0<a 0<b))

@@ -95,6 +95,9 @@ refl-r~ = refl
 path->r~ : {a b : Rational'} -> a == b -> a r~ b
 path->r~ {a} p = subst (a r~_) p (refl-r~ {a})
 
+path->r~' : {a b : Rational'} -> a == b -> a r~' b
+path->r~' p = r~->r~' (path->r~ p)
+
 
 trans-r~' : {a b c : Rational'} -> a r~' b -> b r~' c -> a r~' c
 trans-r~' {a} {b} {c} p1 p2 = r~->r~' (trans-r~ a b c (r~'->r~ p1) (r~'->r~ p2))
@@ -246,6 +249,9 @@ abstract
 
     pd : (denom 0a) == (denom a)
     pd = int.*-left-one
+
+  r+'-right-zero : (a : Rational') -> (a r+' 0r') == a
+  r+'-right-zero a = r+'-commute a 0r' >=> r+'-left-zero a
 
 0r : Rational
 0r = [ 0r' ]

@@ -30,6 +30,9 @@ record LinearOrderStr (D : Type ℓD) (ℓ< : Level) : Type (ℓ-max (ℓ-suc �
   _≯_ : D -> D -> Type ℓ<
   x ≯ y = ¬ (x > y)
 
+  asym-< : Asymmetric _<_
+  asym-< x<y y<x = irrefl-< (trans-< x<y y<x)
+
 
 module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
   open LinearOrderStr S public

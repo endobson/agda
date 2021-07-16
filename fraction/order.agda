@@ -20,10 +20,57 @@ import int
 
 module fraction.order where
 
+diffℚ' : ℚ' -> ℚ' -> ℚ'
+diffℚ' q r = r r+' (r-' q)
+
+private
+  infixl 20 _>~>_
+  _>~>_ : {a b c : ℚ'} -> a r~' b -> b r~' c -> a r~' c
+  _>~>_ = trans-r~'
+
+abstract
+  r+'-swap : (a b c d : ℚ') -> ((a r+' b) r+' (c r+' d)) r~ ((a r+' c) r+' (b r+' d))
+  r+'-swap a b c d =
+    r~'->r~ (s1 >~> s2 >~> s3 >~> s4 >~> s5)
+    where
+    s1 : ((a r+' b) r+' (c r+' d)) r~' (a r+' (b r+' (c r+' d)))
+    s1 = r~->r~' r+'-assoc
+
+    s2 : (a r+' (b r+' (c r+' d))) r~' (a r+' ((b r+' c) r+' d))
+    s2 = r~->r~' (r+'-preserves-r~₂ a _ _ (sym r+'-assoc))
+
+    s3 : (a r+' ((b r+' c) r+' d)) r~' (a r+' ((c r+' b) r+' d))
+    s3 = r~->r~' (r+'-preserves-r~₂ a _ _ (r+'-preserves-r~₁ d _ _ (path->r~ (r+'-commute b c))))
+
+    s4 : (a r+' ((c r+' b) r+' d)) r~' (a r+' (c r+' (b r+' d)))
+    s4 = r~->r~' (r+'-preserves-r~₂ a _ _ r+'-assoc)
+
+    s5 : (a r+' (c r+' (b r+' d))) r~' ((a r+' c) r+' (b r+' d))
+    s5 = r~->r~' (sym r+'-assoc)
+
+
+  diffℚ'-r+'₁ : (a b c : ℚ') -> (diffℚ' (a r+' b) (a r+' c)) r~ (diffℚ' b c)
+  diffℚ'-r+'₁ a b c =
+    r~'->r~ (s1 >~> s2 >~> s3 >~> s4)
+    where
+    s1 : ((diffℚ' (a r+' b) (a r+' c))) r~' ((a r+' c) r+' ((r-' a) r+' (r-' b)))
+    s1 = path->r~' (cong ((a r+' c) r+'_) (r-'-distrib-r+' a b))
+
+    s2 : ((a r+' c) r+' ((r-' a) r+' (r-' b))) r~' ((a r+' (r-' a)) r+' (c r+' (r-' b)))
+    s2 = r~->r~' (r+'-swap a c (r-' a) (r-' b))
+
+    s3 : ((a r+' (r-' a)) r+' (c r+' (r-' b))) r~' (0r' r+' (diffℚ' b c))
+    s3 = r~->r~' (r+'-preserves-r~₁ (diffℚ' b c) (a r+' (r-' a)) 0r' (r+'-inverse a))
+
+    s4 : (0r' r+' (diffℚ' b c)) r~' (diffℚ' b c)
+    s4 = path->r~' (r+'-left-zero (diffℚ' b c))
+
+
+
 record _ℚ'<_ (q : ℚ') (r : ℚ') : Type₀ where
   constructor ℚ'<-cons
   field
-    v : Pos (r r+' (r-' q))
+    v : Pos (diffℚ' q r)
 
 _ℚ'>_ : ℚ' -> ℚ' -> Type₀
 q ℚ'> r = r ℚ'< q
@@ -31,7 +78,7 @@ q ℚ'> r = r ℚ'< q
 record _ℚ'≤_ (q : ℚ') (r : ℚ') : Type₀ where
   constructor ℚ'≤-cons
   field
-    v : NonNeg (r r+' (r-' q))
+    v : NonNeg (diffℚ' q r)
 
 _ℚ'≥_ : ℚ' -> ℚ' -> Type₀
 q ℚ'≥ r = r ℚ'≤ q
@@ -59,6 +106,17 @@ r~-preserves-≤₁ {q1} {q2} {r} (ℚ'≤-cons nn-diff) q1~q2 =
 r~-preserves-≤₂ : {q r1 r2 : Rational'} -> q ℚ'≤ r1 -> r1 r~ r2 -> q ℚ'≤ r2
 r~-preserves-≤₂ {q} {r1} {r2} (ℚ'≤-cons nn-diff) r1~r2 =
   ℚ'≤-cons (r~-preserves-NonNeg nn-diff (r+'-preserves-r~₁ (r-' q) r1 r2 r1~r2))
+
+
+r+'₁-preserves-< : (a b c : ℚ') -> b ℚ'< c -> (a r+' b) ℚ'< (a r+' c)
+r+'₁-preserves-< a b c (ℚ'<-cons pos-diff) =
+  ℚ'<-cons (r~-preserves-sign pos-diff (sym (diffℚ'-r+'₁ a b c)))
+
+r*'-preserves-0< : (a b : ℚ') -> 0r' ℚ'< a -> 0r' ℚ'< b -> 0r' ℚ'< (a r*' b)
+r*'-preserves-0< a b (ℚ'<-cons pos-a-diff) (ℚ'<-cons pos-b-diff) =
+  ℚ'<-cons (subst Pos (sym (r+'-right-zero (a r*' b)))
+                  (r*'-preserves-Pos (subst Pos (r+'-right-zero a) pos-a-diff)
+                                     (subst Pos (r+'-right-zero b) pos-b-diff)))
 
 
 irrefl-ℚ'< : Irreflexive _ℚ'<_
