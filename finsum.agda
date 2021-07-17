@@ -44,7 +44,7 @@ module _ {D : Type ℓ} {{S : Semiring D}} where
   enumerationSum : {n : Nat} -> (Fin n -> A) -> (A -> D) -> D
   enumerationSum = enumerationMerge CM
 
-  equivSum : {n : Nat} -> (A ≃ Fin n) -> (A -> D)  -> D
+  equivSum : {n : Nat} -> (A ≃ Fin n) -> (A -> D) -> D
   equivSum = equivMerge CM
 
   abstract
