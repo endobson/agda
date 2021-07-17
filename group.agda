@@ -5,11 +5,13 @@ module group where
 open import base
 open import equality
 open import functions
+open import hlevel
 open import commutative-monoid
 
 record GroupStr {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   field
     comm-monoid : CommMonoid Domain
+    isSet-Domain : isSet Domain
   open CommMonoid comm-monoid public
 
   field

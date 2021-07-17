@@ -509,7 +509,7 @@ instance
     ; *-left-zero = (\ {n} -> r*-left-zero n)
     ; *-left-one = (\ {n} -> r*-left-one n)
     ; *-distrib-+-right = (\ {m} {n} {o} -> r*-distrib-r+-right m n o)
-    ; isSetDomain = isSetRational
+    ; isSet-Domain = isSetRational
     }
 
   RationalRing : Ring RationalSemiring

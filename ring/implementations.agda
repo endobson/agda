@@ -38,7 +38,7 @@ instance
     ; *-left-zero = refl
     ; *-left-one = +'-right-zero
     ; *-distrib-+-right = (\ {m} {n} {o} -> *'-distrib-+' {m} {n} {o})
-    ; isSetDomain = isSetNat
+    ; isSet-Domain = isSetNat
     }
 module NatSemiring = Semiring NatSemiring
 
@@ -57,7 +57,7 @@ instance
     ; *-left-zero = int.*-left-zero
     ; *-left-one = int.*-left-one
     ; *-distrib-+-right = (\ {m} {n} {o} -> int.*-distrib-+ {m} {n} {o})
-    ; isSetDomain = int.isSetInt
+    ; isSet-Domain = int.isSetInt
     }
 module IntSemiring = Semiring IntSemiring
 
@@ -157,7 +157,7 @@ ReaderSemiring {Domain = Domain} A S = res
     ; *-left-zero = (\ {m} i a -> (S.*-left-zero {m a} i))
     ; *-left-one = (\ {m} i a -> (S.*-left-one {m a} i))
     ; *-distrib-+-right = (\ {m} {n} {o} i a -> (S.*-distrib-+-right {m a} {n a} {o a} i))
-    ; isSetDomain = isSetΠ (\ _ -> S.isSetDomain)
+    ; isSet-Domain = isSetΠ (\ _ -> S.isSet-Domain)
     }
 
 

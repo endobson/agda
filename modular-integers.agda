@@ -388,6 +388,9 @@ isProp-Unit' {n} {x} u1 u2 = (\i -> record
 ℤ/nℤ* : (n : Nat) -> Type₀
 ℤ/nℤ* n = Σ (ℤ/nℤ n) Unit'
 
+isSet-ℤ/nℤ* : {n : Nat} -> isSet (ℤ/nℤ* n)
+isSet-ℤ/nℤ* = isSetΣ isSet-ℤ/nℤ (\_ -> (isProp->isSet isProp-Unit'))
+
 module _ {n : Nat} where
 
   _u*_ : ℤ/nℤ* n -> ℤ/nℤ* n -> ℤ/nℤ* n
@@ -414,6 +417,7 @@ CommMonoidStr-ℤ/nℤ* {n} =
 GroupStr-ℤ/nℤ* : {n : Nat} -> GroupStr (ℤ/nℤ* n)
 GroupStr-ℤ/nℤ* {n} = record
   { comm-monoid = CommMonoidStr-ℤ/nℤ*
+  ; isSet-Domain = isSet-ℤ/nℤ*
   ; inverse = z1/
   ; ∙-left-inverse = \ {x} -> z1/-left-inverse x
   }

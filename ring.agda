@@ -259,6 +259,7 @@ record Ring {ℓ : Level} {Domain : Type ℓ} (S : Semiring Domain) : Type ℓ w
   +-Group : GroupStr Domain
   +-Group = record
     { comm-monoid = +-CommMonoid
+    ; isSet-Domain = isSet-Domain
     ; inverse = -_
     ; ∙-left-inverse = +-commute >=> +-inverse
     }
@@ -306,10 +307,13 @@ record Ring {ℓ : Level} {Domain : Type ℓ} (S : Semiring Domain) : Type ℓ w
       (cong (_* u2.inv) u1.path) >=> *-left-one
 
     path-path : PathP (\i -> x * (inv-path i) == 1#) u1.path u2.path
-    path-path = isProp->PathP (\_ -> isSetDomain _ _) u1.path u2.path
+    path-path = isProp->PathP (\_ -> isSet-Domain _ _) u1.path u2.path
 
   Unit : Type ℓ
   Unit = Σ Domain isUnit
+
+  isSet-Unit : isSet Unit
+  isSet-Unit = isSetΣ isSet-Domain (\_ -> (isProp->isSet isProp-isUnit))
 
   1u : Unit
   1u = 1# , isUnit-one
@@ -356,6 +360,7 @@ record Ring {ℓ : Level} {Domain : Type ℓ} (S : Semiring Domain) : Type ℓ w
   GroupStr-u* : GroupStr Unit
   GroupStr-u* = record
     { comm-monoid = CommMonoid-u*
+    ; isSet-Domain = isSet-Unit
     ; inverse = u1/_
     ; ∙-left-inverse = u1/-left-inverse
     }

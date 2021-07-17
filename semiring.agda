@@ -31,7 +31,7 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     *-left-zero : {m : Domain} -> (0# * m) == 0#
     *-left-one : {m : Domain} -> (1# * m) == m
     *-distrib-+-right : {m n o : Domain} -> (m + n) * o == (m * o) + (n * o)
-    isSetDomain : isSet Domain
+    isSet-Domain : isSet Domain
 
   +-right-zero : {m : Domain} -> (m + 0#) == m
   +-right-zero {m} = (+-commute {m} {0#}) >=> (+-left-zero {m})

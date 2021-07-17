@@ -49,22 +49,22 @@ module _ {D : Type ℓ} {{S : Semiring D}} where
 
   abstract
     finiteSum : {ℓ : Level} -> (s : FinSet ℓ) -> (⟨ s ⟩ -> D) -> D
-    finiteSum = finiteMerge CM isSetDomain
+    finiteSum = finiteMerge CM isSet-Domain
 
     finiteSum-eval : {ℓ : Level} (A : FinSet ℓ) {n : Nat}
                      -> (eq : (⟨ A ⟩ ≃ Fin n)) -> (f : ⟨ A ⟩ -> D)
                      -> finiteSum A f == equivSum eq f
-    finiteSum-eval = finiteMerge-eval CM isSetDomain
+    finiteSum-eval = finiteMerge-eval CM isSet-Domain
 
     finiteSum-convert : {ℓ₁ ℓ₂ : Level} -> (A : FinSet ℓ₁) (B : FinSet ℓ₂)
                         (eq : (⟨ B ⟩ ≃ ⟨ A ⟩) ) (f : ⟨ A ⟩ -> D)
                         -> finiteSum A f == finiteSum B (f ∘ (eqFun eq))
-    finiteSum-convert = finiteMerge-convert CM isSetDomain
+    finiteSum-convert = finiteMerge-convert CM isSet-Domain
 
     finiteSum-convert-iso : {ℓ₁ ℓ₂ : Level} -> (A : FinSet ℓ₁) (B : FinSet ℓ₂)
                             (i : Iso ⟨ B ⟩ ⟨ A ⟩) (f : ⟨ A ⟩ -> D)
                             -> finiteSum A f == finiteSum B (f ∘ (Iso.fun i))
-    finiteSum-convert-iso = finiteMerge-convert-iso CM isSetDomain
+    finiteSum-convert-iso = finiteMerge-convert-iso CM isSet-Domain
 
 
 private
@@ -311,7 +311,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
       (f : (Maybe B) -> D) ->
       (finiteSum (FinSet-Maybe (B , finB)) f)
       == (f nothing) S.+ finiteSum (B , finB) (f ∘ just)
-    finiteSum-Maybe f = unsquash (S.isSetDomain _ _) (∥-map handle finB)
+    finiteSum-Maybe f = unsquash (S.isSet-Domain _ _) (∥-map handle finB)
       where
       handle : Σ[ n ∈ Nat ] (B ≃ Fin n) ->
                (finiteSum (FinSet-Maybe (B , finB)) f)
@@ -459,7 +459,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
       (f : (A ⊎ B) -> D) ->
       (finiteSum (FinSet-⊎ (A , finA) (B , finB)) f)
       == (finiteSum (A , finA) (f ∘ inj-l)) S.+ (finiteSum (B , finB) (f ∘ inj-r))
-    finiteSum-⊎ f = unsquash (S.isSetDomain _ _) (∥-map handle finA)
+    finiteSum-⊎ f = unsquash (S.isSet-Domain _ _) (∥-map handle finA)
       where
       handle : Σ[ n ∈ Nat ] (A ≃ Fin n) ->
                (finiteSum (FinSet-⊎ (A , finA) (B , finB)) f)

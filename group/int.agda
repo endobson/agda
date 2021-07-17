@@ -10,6 +10,7 @@ open import commutative-monoid.int
 GroupStr-ℤ+ : GroupStr ℤ
 GroupStr-ℤ+ = record
   { comm-monoid = CommMonoid-ℤ+
+  ; isSet-Domain = isSetInt
   ; inverse = -_
   ; ∙-left-inverse = +-commute >=> add-minus-zero
   }

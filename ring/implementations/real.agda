@@ -28,7 +28,7 @@ instance
     ; *-left-zero = (\ {n} -> ℝ*-left-zero n)
     ; *-left-one = (\ {n} -> ℝ*-left-one n)
     ; *-distrib-+-right = (\ {m} {n} {o} -> ℝ*-distrib-ℝ+-right m n o)
-    ; isSetDomain = isSet-ℝ
+    ; isSet-Domain = isSet-ℝ
     }
 module ℝSemiring = Semiring ℝSemiring
 

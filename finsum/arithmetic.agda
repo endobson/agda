@@ -58,7 +58,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} {ℓA : Level} {FA : 
 
 
   finiteSum-+ : {f g : A -> D} -> finiteSum FA (\a -> (f a) S.+ (g a)) == finiteSum FA f S.+ finiteSum FA g
-  finiteSum-+ {f} {g} = unsquash (S.isSetDomain _ _) (∥-map handle (snd FA))
+  finiteSum-+ {f} {g} = unsquash (S.isSet-Domain _ _) (∥-map handle (snd FA))
     where
     handle : Σ[ n ∈ Nat ] (A ≃ Fin n) ->
              finiteSum FA (\a -> (f a) S.+ (g a)) == finiteSum FA f S.+ finiteSum FA g
@@ -93,7 +93,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} {ℓA : Level} {FA : 
       >=> cong (_ S.*_) (sym (finiteSum-convert _ _ (equiv⁻¹ (Fin-Maybe-eq n)) _))
 
   finiteSum-* : {k : D} {f : A -> D} -> finiteSum FA (\a -> k S.* (f a)) == k S.* finiteSum FA f
-  finiteSum-* {k} {f} = unsquash (S.isSetDomain _ _) (∥-map handle (snd FA))
+  finiteSum-* {k} {f} = unsquash (S.isSet-Domain _ _) (∥-map handle (snd FA))
     where
     handle : Σ[ n ∈ Nat ] (A ≃ Fin n) ->
              finiteSum FA (\a -> k S.* (f a)) == k S.* (finiteSum FA f)

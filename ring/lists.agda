@@ -132,13 +132,13 @@ module _ where
   open commutative-monoid
 
   unordered-sum : UList Domain -> Domain
-  unordered-sum = concat {{+-CommMonoid}} isSetDomain
+  unordered-sum = concat {{+-CommMonoid}} isSet-Domain
 
   unordered-sumʰ : CommMonoidʰ unordered-sum
   unordered-sumʰ = concatʰ {{+-CommMonoid}}
 
   unordered-product : UList Domain -> Domain
-  unordered-product = concat {{*-CommMonoid}} isSetDomain
+  unordered-product = concat {{*-CommMonoid}} isSet-Domain
 
   unordered-productʰ : CommMonoidʰ unordered-product
   unordered-productʰ = concatʰ {{*-CommMonoid}}

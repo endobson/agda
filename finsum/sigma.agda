@@ -127,7 +127,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
                 (f : (Σ ⟨ FA ⟩ (fst ∘ FB)) -> D) ->
                 finiteSum (FinSet-Σ FA FB) f ==
                 finiteSum FA (\a -> finiteSum (FB a) (f ∘ (a ,_)))
-  finiteSum-Σ {ℓA} {ℓB} FA@(A , finA) FB f = unsquash (S.isSetDomain _ _) (∥-map handle finA)
+  finiteSum-Σ {ℓA} {ℓB} FA@(A , finA) FB f = unsquash (S.isSet-Domain _ _) (∥-map handle finA)
     where
     B : A -> Type ℓB
     B = fst ∘ FB
