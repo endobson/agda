@@ -99,3 +99,9 @@ Comparison {A = A} _~_ = (a b c : A) -> a ~ c -> ∥ (a ~ b) ⊎ (b ~ c) ∥
 
 Dense : {ℓ ℓA : Level} {A : Type ℓA} -> Rel A ℓ -> Type (ℓ-max ℓA ℓ)
 Dense {A = A} _<_ = {x y : A} -> x < y -> ∃[ z ∈ A ] (x < z × z < y)
+
+Apartness : Rel A ℓ -> Type _
+Apartness _#_ = (Irreflexive _#_ × Symmetric _#_ × Comparison _#_)
+
+TightApartness : Rel A ℓ -> Type _
+TightApartness _#_ = (Tight _#_ × Apartness _#_)

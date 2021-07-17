@@ -97,6 +97,9 @@ module _ {_≤_ : Rel A ℓ} where
 Connected : Rel A ℓ -> Type _
 Connected {A = A} _~_ = {x y : A} -> ¬ (x ~ y) -> ¬ (y ~ x) -> x == y
 
+Tight : Rel A ℓ -> Type _
+Tight {A = A} _~_ = {x y : A} -> ¬ (x ~ y) -> x == y
+
 -- _⇒_ : REL A B ℓ₁ -> REL A B ℓ₂ -> Type _
 -- P ⇒ Q = ∀ x y -> P x y -> Q x y
 --
