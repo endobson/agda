@@ -267,19 +267,17 @@ record Ring {ℓ : Level} {Domain : Type ℓ} (S : Semiring Domain) : Type ℓ w
   -- Units
 
   record isUnit (x : Domain) : Type ℓ where
+    constructor is-unit
     eta-equality
     field
       inv : Domain
       path : (x * inv) == 1#
 
-  is-unit : (x inv : Domain) -> (x * inv) == 1# -> isUnit x
-  is-unit _ inv path = record { inv = inv ; path = path }
-
   isUnit-one : isUnit 1#
-  isUnit-one = is-unit 1# 1# *-left-one
+  isUnit-one = is-unit 1# *-left-one
 
   u*-closed : {x y : Domain} -> isUnit x -> isUnit y -> isUnit (x * y)
-  u*-closed {x} {y} ux uy = is-unit (x * y) (1/x * 1/y) p
+  u*-closed {x} {y} ux uy = is-unit (1/x * 1/y) p
     where
     1/x = isUnit.inv ux
     px = isUnit.path ux
@@ -320,7 +318,7 @@ record Ring {ℓ : Level} {Domain : Type ℓ} (S : Semiring Domain) : Type ℓ w
   (x , ux) u* (y , uy) = x * y , u*-closed ux uy
 
   u1/_ : Unit -> Unit
-  u1/ (x , u) = u.inv , (is-unit _ x (*-commute >=> u.path))
+  u1/ (x , u) = u.inv , (is-unit x (*-commute >=> u.path))
     where
     module u = isUnit u
 

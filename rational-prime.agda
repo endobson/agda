@@ -22,7 +22,7 @@ module _ (p : Prime') where
     isNonZeroℚ-p = Pos'->NonZeroℚ (Prime'.pos p)
 
     isUnit-p : rr.isUnit pℚ
-    isUnit-p = rr.is-unit pℚ 1/pℚ (r*-commute pℚ 1/pℚ >=> r1/-inverse pℚ ℚInv-p)
+    isUnit-p = rr.is-unit 1/pℚ (r*-commute pℚ 1/pℚ >=> r1/-inverse pℚ ℚInv-p)
       where
       ℚInv-p = (isNonZeroℚ->ℚInv isNonZeroℚ-p)
       1/pℚ = (r1/ pℚ ℚInv-p)

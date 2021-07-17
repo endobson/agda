@@ -14,6 +14,8 @@ open import nat
 open import hlevel
 open import quotient-remainder-int
 open import relation
+open import ring
+open import semiring
 open import set-quotient
 open import univalence
 open import isomorphism
@@ -492,6 +494,35 @@ abstract
   r*-minus-extract-right a1 a2 = r*-commute a1 (r- a2) >=> r*-minus-extract-left a2 a1 >=>
                                  cong r-_ (r*-commute a2 a1)
 
+instance
+  RationalSemiring : Semiring Rational
+  RationalSemiring = record
+    { 0# = 0r
+    ; 1# = 1r
+    ; _+_ = _r+_
+    ; _*_ = _r*_
+    ; +-assoc = (\ {m} {n} {o} -> (r+-assoc m n o))
+    ; +-commute = (\ {m} {n} -> (r+-commute m n))
+    ; *-assoc = (\ {m} {n} {o} -> (r*-assoc m n o))
+    ; *-commute = (\ {m} {n} -> (r*-commute m n))
+    ; +-left-zero = (\ {n} -> r+-left-zero n)
+    ; *-left-zero = (\ {n} -> r*-left-zero n)
+    ; *-left-one = (\ {n} -> r*-left-one n)
+    ; *-distrib-+-right = (\ {m} {n} {o} -> r*-distrib-r+-right m n o)
+    ; isSetDomain = isSetRational
+    }
+
+  RationalRing : Ring RationalSemiring
+  RationalRing = record
+    { -_ = r-_
+    ; +-inverse = (\ {a} -> r+-inverse a)
+    }
+
+module RationalSemiring = Semiring RationalSemiring
+module RationalRing = Ring RationalRing
+
+
+
 ℚInv' : Pred Rational' ℓ-zero
 ℚInv' a = NonZero (numer a)
 
@@ -670,6 +701,9 @@ isProp-isNonZeroℚ r = snd (isNonZeroℚ' r)
 
 isNonZeroℚ-1r : (isNonZeroℚ 1r)
 isNonZeroℚ-1r = inj-l tt
+
+1r!=0r : 1r != 0r
+1r!=0r 1r=0r = ¬isNonZeroℚ-0r (subst isNonZeroℚ 1r=0r isNonZeroℚ-1r)
 
 isNonZeroℚ->ℚInv : {r : ℚ} -> isNonZeroℚ r -> ℚInv r
 isNonZeroℚ->ℚInv nz p = ¬isNonZeroℚ-0r (subst isNonZeroℚ p nz)

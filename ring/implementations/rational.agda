@@ -8,33 +8,10 @@ open import ring
 open import ring.implementations
 open import semiring
 
-instance
-  RationalSemiring : Semiring Rational
-  RationalSemiring = record
-    { 0# = 0r
-    ; 1# = 1r
-    ; _+_ = _r+_
-    ; _*_ = _r*_
-    ; +-assoc = (\ {m} {n} {o} -> (r+-assoc m n o))
-    ; +-commute = (\ {m} {n} -> (r+-commute m n))
-    ; *-assoc = (\ {m} {n} {o} -> (r*-assoc m n o))
-    ; *-commute = (\ {m} {n} -> (r*-commute m n))
-    ; +-left-zero = (\ {n} -> r+-left-zero n)
-    ; *-left-zero = (\ {n} -> r*-left-zero n)
-    ; *-left-one = (\ {n} -> r*-left-one n)
-    ; *-distrib-+-right = (\ {m} {n} {o} -> r*-distrib-r+-right m n o)
-    ; isSetDomain = isSetRational
-    }
-module RationalSemiring = Semiring RationalSemiring
-
-instance
-  RationalRing : Ring RationalSemiring
-  RationalRing = record
-    { -_ = r-_
-    ; +-inverse = (\ {a} -> r+-inverse a)
-    }
-module RationalRing = Ring RationalRing
-
+open rational public using
+  ( RationalRing
+  ; RationalSemiring
+  )
 
 Semiringʰ-ℤ->ℚ : Semiringʰ ℤ->ℚ
 Semiringʰ-ℤ->ℚ = record
