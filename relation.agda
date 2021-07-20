@@ -3,6 +3,7 @@
 module relation where
 
 open import base
+open import equality
 open import hlevel.base
 
 private
@@ -48,6 +49,12 @@ Reflexive _~_ = ∀ {a} -> a ~ a
 
 Irreflexive : Rel A ℓ -> Type _
 Irreflexive _~_ = ∀ {a} -> ¬(a ~ a)
+
+IrreflexivePath : Rel A ℓ -> Type _
+IrreflexivePath _~_ = ∀ {a b} -> a == b -> ¬(a ~ b)
+
+Irreflexive->IrreflexivePath : (R : Rel A ℓ) -> Irreflexive R -> IrreflexivePath R
+Irreflexive->IrreflexivePath R x!~x a==b a~b = x!~x (subst (R _) (sym a==b) a~b)
 
 Symmetric : Rel A ℓ -> Type _
 Symmetric _~_ = ∀ {a b} -> (a ~ b) -> (b ~ a)

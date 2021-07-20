@@ -2,6 +2,7 @@
 
 module heyting-field where
 
+open import apartness
 open import base
 open import equality
 open import relation
@@ -20,14 +21,17 @@ record Field {ℓ : Level} {D : Type ℓ} {S : Semiring D} (R : Ring S) : Type �
       IS = S
       IR = R
 
-  _#_ : D -> D -> Type ℓ
-  x # y = R.isUnit (y + (- x))
+  _f#_ : D -> D -> Type ℓ
+  x f# y = R.isUnit (y + (- x))
 
   field
-    tight-apartness-# : TightApartness _#_
+    TightApartness-f# : TightApartness _f#_
 
-  sym-# : Symmetric _#_
-  sym-# = fst (snd (snd tight-apartness-#))
+  sym-f# : Symmetric _f#_
+  sym-f# = fst (snd (snd TightApartness-f#))
 
-  1#0 : 1# # 0#
-  1#0 = sym-# (subst R.isUnit (sym +-right-zero >=> +-right (sym minus-zero)) R.isUnit-one)
+  1#0 : 1# f# 0#
+  1#0 = sym-f# (subst R.isUnit (sym +-right-zero >=> +-right (sym minus-zero)) R.isUnit-one)
+
+  TightApartnessStr-f# : TightApartnessStr D ℓ
+  TightApartnessStr-f# = record { _#_ = _f#_ ; TightApartness-# = TightApartness-f# }
