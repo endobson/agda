@@ -91,12 +91,12 @@ private
   ℚ<>=isUnitℚ q r = (ua (ℚ<>-equiv-ℚInv q r)) >=> (ua (ℚInv-equiv-isUnit (diffℚ q r)))
 
   abstract
-    tight-apartness-ℚ# : TightApartness (\q r -> (isUnit (diffℚ q r)))
-    tight-apartness-ℚ# =
+    TightApartness-ℚ# : TightApartness (\q r -> (isUnit (diffℚ q r)))
+    TightApartness-ℚ# =
       subst TightApartness (\i q r -> ℚ<>=isUnitℚ q r i) tight-apartness-ℚ<>
 
 instance
   RationalField : Field RationalRing
   RationalField = record
-    { tight-apartness-# = tight-apartness-ℚ#
+    { TightApartness-f# = TightApartness-ℚ#
     }

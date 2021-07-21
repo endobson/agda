@@ -8,6 +8,7 @@ open import equality
 open import funext
 open import group
 open import heyting-field
+open import hlevel
 open import monoid
 open import ring
 open import semiring
@@ -23,6 +24,10 @@ record DirectProduct (D : Type ℓD) (I : Type ℓI) : Type (ℓ-max ℓI ℓD) 
   constructor direct-product-cons
   field
     f : I -> D
+
+isSet-DirectProduct : (isSet D) -> isSet (DirectProduct D I)
+isSet-DirectProduct h (direct-product-cons f1) (direct-product-cons f2) p1 p2 i j =
+  direct-product-cons (isSetΠ (\_ -> h) f1 f2 (cong DirectProduct.f p1) (cong DirectProduct.f p2) i j)
 
 private
   DP = DirectProduct
@@ -101,39 +106,40 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} (G : GroupStr D) (I : Type ℓI) wh
   GroupStr-DirectProduct : GroupStr (DP D I)
   GroupStr-DirectProduct = record
     { comm-monoid = CMDP
+    ; isSet-Domain = isSet-DirectProduct G.isSet-Domain
     ; inverse = inverse
     ; ∙-left-inverse = dp∙-left-inverse
     }
 
 
-module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K} (R : Ring S) (I : Type ℓI) where
-  private
-    module R = Ring R
-    instance
-      IS = S
-      IR = R
-
-    GroupStr-DP = (GroupStr-DirectProduct R.+-Group I)
-    _dp+_ = GroupStr._∙_ GroupStr-DP
-
-    _dp*_ : K -> (DP K I) -> (DP K I)
-    _dp*_ d = dp-map1 (d *_)
-
-    dp*-distrib-dp+ : {k : K} -> {v1 v2 : DP K I} -> k dp* (v1 dp+ v2) == (k dp* v1) dp+ (k dp* v2)
-    dp*-distrib-dp+ = cong wrap-dp (funExt (\_ -> *-distrib-+-left))
-    dp*-distrib-+ : {k1 k2 : K} -> {v : DP K I} -> (k1 + k2) dp* v == (k1 dp* v) dp+ (k2 dp* v)
-    dp*-distrib-+ = cong wrap-dp (funExt (\_ -> *-distrib-+-right))
-    dp*-assoc : {k1 k2 : K} -> {v : DP K I} -> (k1 * k2) dp* v == k1 dp* (k2 dp* v)
-    dp*-assoc = cong wrap-dp (funExt (\_ -> *-assoc))
-    dp*-left-one : {v : DP K I} -> 1# dp* v == v
-    dp*-left-one = cong wrap-dp (funExt (\_ -> *-left-one))
-
-  ModuleStr-DirectProduct : ModuleStr R (DP K I)
-  ModuleStr-DirectProduct = record
-    { GroupStr-V = GroupStr-DP
-    ; _v*_ = _dp*_
-    ; v*-distrib-v+ = dp*-distrib-dp+
-    ; v*-distrib-+ = dp*-distrib-+
-    ; v*-assoc = dp*-assoc
-    ; v*-left-one = dp*-left-one
-    }
+-- module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K} (R : Ring S) (I : Type ℓI) where
+--   private
+--     module R = Ring R
+--     instance
+--       IS = S
+--       IR = R
+--
+--     GroupStr-DP = (GroupStr-DirectProduct R.+-Group I)
+--     _dp+_ = GroupStr._∙_ GroupStr-DP
+--
+--     _dp*_ : K -> (DP K I) -> (DP K I)
+--     _dp*_ d = dp-map1 (d *_)
+--
+--     dp*-distrib-dp+ : {k : K} -> {v1 v2 : DP K I} -> k dp* (v1 dp+ v2) == (k dp* v1) dp+ (k dp* v2)
+--     dp*-distrib-dp+ = cong wrap-dp (funExt (\_ -> *-distrib-+-left))
+--     dp*-distrib-+ : {k1 k2 : K} -> {v : DP K I} -> (k1 + k2) dp* v == (k1 dp* v) dp+ (k2 dp* v)
+--     dp*-distrib-+ = cong wrap-dp (funExt (\_ -> *-distrib-+-right))
+--     dp*-assoc : {k1 k2 : K} -> {v : DP K I} -> (k1 * k2) dp* v == k1 dp* (k2 dp* v)
+--     dp*-assoc = cong wrap-dp (funExt (\_ -> *-assoc))
+--     dp*-left-one : {v : DP K I} -> 1# dp* v == v
+--     dp*-left-one = cong wrap-dp (funExt (\_ -> *-left-one))
+--
+--   ModuleStr-DirectProduct : ModuleStr R (DP K I) ℓI
+--   ModuleStr-DirectProduct = record
+--     { GroupStr-V = GroupStr-DP
+--     ; _v*_ = _dp*_
+--     ; v*-distrib-v+ = dp*-distrib-dp+
+--     ; v*-distrib-+ = dp*-distrib-+
+--     ; v*-assoc = dp*-assoc
+--     ; v*-left-one = dp*-left-one
+--     }
