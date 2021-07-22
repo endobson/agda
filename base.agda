@@ -117,3 +117,17 @@ case x of f = f x
 
 case_return_of_ : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} -> (a : A) -> (B : A -> Type ℓ₂) -> ((x : A) -> B x) -> B a
 case x return B of f = f x
+
+
+-- Variable argument levels
+private
+  Nary : {ℓ : Level} -> Nat -> Type ℓ -> Type ℓ -> Type ℓ
+  Nary zero    x y = y
+  Nary (suc n) x y = x -> (Nary n x y)
+
+  ℓ-max*-acc : (n : Nat) (acc : Level) -> Nary n Level Level
+  ℓ-max*-acc zero    ℓ-acc   = ℓ-acc
+  ℓ-max*-acc (suc n) ℓ-acc ℓ = ℓ-max*-acc n (ℓ-max ℓ-acc ℓ)
+
+ℓ-max* : (n : Nat) -> Nary n Level Level
+ℓ-max* n  = ℓ-max*-acc n ℓ-zero

@@ -33,5 +33,5 @@ record Field {ℓ : Level} {D : Type ℓ} {S : Semiring D} (R : Ring S) : Type �
   1#0 : 1# f# 0#
   1#0 = sym-f# (subst R.isUnit (sym +-right-zero >=> +-right (sym minus-zero)) R.isUnit-one)
 
-  TightApartnessStr-f# : TightApartnessStr D ℓ
+  TightApartnessStr-f# : TightApartnessStr D
   TightApartnessStr-f# = record { _#_ = _f#_ ; TightApartness-# = TightApartness-f# }

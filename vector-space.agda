@@ -3,7 +3,6 @@
 module vector-space where
 
 open import apartness
-open import apartness.instances.heyting-field
 open import base
 open import commutative-monoid
 open import equivalence
@@ -17,22 +16,23 @@ open import monoid
 open import ring
 open import relation
 open import semiring
+open import subset
 open import truncation
 
 private
   variable
     ℓ : Level
 
-module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} (R : Ring S) (V : Type ℓV) (ℓA : Level) where
+module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} (R : Ring S) (V : Type ℓV) where
   private
     instance
       IS = S
       IR = R
 
-  record ModuleStr : Type (ℓ-max (ℓ-max ℓK ℓV) (ℓ-suc ℓA)) where
+  record ModuleStr : Type (ℓ-max ℓK (ℓ-suc ℓV)) where
     field
       GroupStr-V : GroupStr V
-      TightApartnessStr-V : TightApartnessStr V ℓA
+      TightApartnessStr-V : TightApartnessStr V
 
     _v#_ = TightApartnessStr._#_ TightApartnessStr-V
 
@@ -49,8 +49,8 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} (R : Ring S) (V : 
       v*-left-one : {v : V} -> 1# v* v == v
 
 
-module _  {ℓK ℓV ℓA : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {V : Type ℓV}
-          {{M : ModuleStr R V ℓA}} where
+module _  {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {V : Type ℓV}
+          {{M : ModuleStr R V}} where
   open ModuleStr M public using
     ( _v+_
     ; 0v
@@ -64,16 +64,17 @@ module _  {ℓK ℓV ℓA : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
 
 
 module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
-         (F : Field R) (V : Type ℓV) (ℓA : Level)  where
+         (F : Field R) (V : Type ℓV)  where
   private
     instance
       IS = S
       IF = F
+      IFA = Field.TightApartnessStr-f# F
 
-  record VectorSpaceStr : Type (ℓ-max (ℓ-max ℓK ℓV) (ℓ-suc ℓA)) where
+  record VectorSpaceStr : Type (ℓ-max ℓK (ℓ-suc ℓV)) where
     constructor vector-space-str
     field
-      module-str : ModuleStr R V ℓA
+      module-str : ModuleStr R V
 
     private
       module MS = ModuleStr module-str
@@ -85,8 +86,8 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
                       ∥ (k1 # k2) ⊎ (v1 MS.v# v2) ∥
 
 
-module _ {ℓK ℓV ℓA : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {F : Field R} {V : Type ℓV}
-         (VS : VectorSpaceStr F V ℓA) where
+module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {F : Field R} {V : Type ℓV}
+         (VS : VectorSpaceStr F V) where
 
   private
     module VS = VectorSpaceStr VS
@@ -97,6 +98,7 @@ module _ {ℓK ℓV ℓA : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} 
       IS = S
       IF = F
       IVA = ModuleStr.TightApartnessStr-V IM
+      IFA = Field.TightApartnessStr-f# F
 
   private
     variable
@@ -110,48 +112,40 @@ module _ {ℓK ℓV ℓA : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} 
   vector-sum vs fs = finiteMerge CommMonoid-V+ M.isSet-V (_ , fs) vs
 
   private
-
-    module _ {ℓI₁ : Level} {I₁ : Type ℓI₁} (family : I₁ -> V) where
-      FinSubset : (ℓI₂ : Level) -> Type (ℓ-max (ℓ-suc ℓI₂) ℓI₁)
-      FinSubset ℓI₂ =
-        Σ[ I₂ ∈ (FinSet ℓI₂) ] Σ[ f ∈ (⟨ I₂ ⟩ -> I₁) ] (Injective f)
-
-
-  private
-    module LargeFamily {ℓI₁ : Level} {I₁ : Type ℓI₁} (family : I₁ -> V) where
-      Carrier : {ℓI₂ : Level} -> FinSubset family ℓI₂ -> Type ℓI₂
+    module _ {ℓI₁ : Level} {I₁ : Type ℓI₁} where
+      Carrier : {ℓI₂ : Level} -> FinSubset I₁ ℓI₂ -> Type ℓI₂
       Carrier ((T , _) , _) = T
 
-      isFinSet-Carrier : {ℓI₂ : Level} -> (S : FinSubset family ℓI₂) -> isFinSet (Carrier S)
+      isFinSet-Carrier : {ℓI₂ : Level} -> (S : FinSubset I₁ ℓI₂) -> isFinSet (Carrier S)
       isFinSet-Carrier ((_ , fs) , _) = fs
 
-      include : {ℓI₂ : Level} -> (S : FinSubset family ℓI₂) -> Carrier S -> I₁
+      include : {ℓI₂ : Level} -> (S : FinSubset I₁ ℓI₂) -> Carrier S -> I₁
       include (_ , f , _) = f
 
-      scaled-vector-sum : {ℓI₂ : Level} -> (S : FinSubset family ℓI₂) -> (a : Carrier S -> K) -> V
-      scaled-vector-sum S a = vector-sum (\i -> (a i) v* (family (include S i))) (isFinSet-Carrier S)
+    module _ {ℓI₁ ℓI₂ : Level} {I₁ : Type ℓI₁} (family : I₁ -> V) (S : FinSubset I₁ ℓI₂) where
+      scaled-vector-sum : (a : Carrier S -> K) -> V
+      scaled-vector-sum a = vector-sum (\i -> (a i) v* (family (include S i))) (isFinSet-Carrier S)
 
   module _ {ℓI₁ : Level} {I₁ : Type ℓI₁} (family : I₁ -> V) where
-    open LargeFamily family
 
-
-    LinearlyDependent : (ℓI₂ : Level) -> Type (ℓ-max (ℓ-max ℓK (ℓ-max ℓI₁ ℓV)) (ℓ-suc ℓI₂))
+    LinearlyDependent : (ℓI₂ : Level) -> Type (ℓ-max* 4 ℓK ℓV ℓI₁ (ℓ-suc ℓI₂))
     LinearlyDependent ℓI₂ =
-      ∃[ S ∈ FinSubset family ℓI₂ ]
-      Σ[ a ∈ (Carrier S -> K) ] (scaled-vector-sum S a == 0v ×
+      ∃[ S ∈ FinSubset I₁ ℓI₂ ]
+      Σ[ a ∈ (Carrier S -> K) ] (scaled-vector-sum family S a == 0v ×
                                  Σ[ i ∈ Carrier S ] (a i # 0#))
 
-    LinearlyIndependent : (ℓI₂ : Level) -> Type (ℓ-max (ℓ-max ℓK (ℓ-max ℓI₁ ℓV)) (ℓ-suc ℓI₂))
+    LinearlyIndependent : (ℓI₂ : Level) -> Type (ℓ-max* 4 ℓK ℓV ℓI₁ (ℓ-suc ℓI₂))
     LinearlyIndependent ℓI₂ =
-      (S : FinSubset family ℓI₂) -> (a : Carrier S -> K) ->
-      scaled-vector-sum S a == 0v ->
+      (S : FinSubset I₁ ℓI₂) -> (a : Carrier S -> K) ->
+      scaled-vector-sum family S a == 0v ->
       (i : Carrier S) -> a i == 0#
 
-    LinearlyFree : (ℓI₂ : Level) -> Type (ℓ-max (ℓ-max ℓK (ℓ-max ℓI₁ ℓA)) (ℓ-suc ℓI₂))
+    LinearlyFree : (ℓI₂ : Level) -> Type (ℓ-max* 4 ℓK ℓV ℓI₁ (ℓ-suc ℓI₂))
     LinearlyFree ℓI₂ =
-      (S : FinSubset family ℓI₂) -> (a : Carrier S -> K) ->
-      ∃[ i ∈ Carrier S ] (a i # 0#) ->
-      scaled-vector-sum S a # 0v
+      (S : FinSubset I₁ ℓI₂) -> (a : Carrier S -> K) ->
+      ∃[ i ∈ Carrier S ] ((a i) # 0#) ->
+      scaled-vector-sum family S a # 0v
+
 
     LinearlyFree->LinearlyIndependent : {ℓI₂ : Level} -> LinearlyFree ℓI₂ -> LinearlyIndependent ℓI₂
     LinearlyFree->LinearlyIndependent free S a sum0 i =
@@ -162,8 +156,8 @@ module _ {ℓK ℓV ℓA : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} 
     LinearlyIndependent->¬LinearlyDependent {ℓI₂} indep dep =
       unsquash isPropBot (∥-map handle dep)
       where
-      handle : Σ[ S ∈ FinSubset family ℓI₂ ]
-               Σ[ a ∈ (Carrier S -> K) ] (scaled-vector-sum S a == 0v ×
+      handle : Σ[ S ∈ FinSubset I₁ ℓI₂ ]
+               Σ[ a ∈ (Carrier S -> K) ] (scaled-vector-sum family S a == 0v ×
                                           Σ[ i ∈ Carrier S ] (a i # 0#)) -> Bot
       handle (S , a , sum0 , i , ai#0) = irrefl-path-# (indep S a sum0 i) ai#0
 
@@ -184,64 +178,5 @@ module _ {ℓK ℓV ℓA : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} 
 
     LinearSpan : (ℓI₂ : Level) -> Pred V _
     LinearSpan ℓI₂ v =
-      ∃[ S ∈ FinSubset family ℓI₂ ]
-      Σ[ a ∈ (Carrier S -> K) ] (scaled-vector-sum S a == v)
-
-
-  private
-    module SmallFamily {ℓS : Level} (S : FinSet ℓS) (family : ⟨ S ⟩ -> V) where
-      Carrier = fst S
-      isFinSet-Carrier = snd S
-
-      scaled-vector-sum : (Carrier -> K) -> V
-      scaled-vector-sum a = vector-sum (\i -> (a i) v* (family i)) isFinSet-Carrier
-
-  module _ {ℓS : Level} (S : FinSet ℓS) (family : ⟨ S ⟩ -> V) where
-    open SmallFamily S family
-
-    FinLinearlyDependent : Type (ℓ-max ℓK (ℓ-max ℓS ℓV))
-    FinLinearlyDependent =
-      ∃[ a ∈ (Carrier -> K) ] (scaled-vector-sum a == 0v × Σ[ i ∈ Carrier ] (a i # 0#))
-
-  module _ {ℓS : Level} (S : FinSet ℓS) (family : ⟨ S ⟩ -> V) where
-    module S = SmallFamily S family
-    module L = LargeFamily family
-
-    FinLinearlyDependent->LinearlyDependent :
-      FinLinearlyDependent S family -> LinearlyDependent family ℓS
-    FinLinearlyDependent->LinearlyDependent = ∥-map handle
-      where
-      handle :
-        Σ[ a ∈ (S.Carrier -> K) ] (S.scaled-vector-sum a == 0v × Σ[ i ∈ S.Carrier ] (a i # 0#)) ->
-        Σ[ F ∈ FinSubset family ℓS ]
-        Σ[ a ∈ (L.Carrier F -> K) ] (L.scaled-vector-sum F a == 0v ×
-                                     Σ[ i ∈ L.Carrier F ] (a i # 0#))
-      handle (a , sum0 , i , ai#0) =
-        ((S , (idfun _ , idfun _)) , a , sum0 , i , ai#0)
-
-    -- LinearlyDependent->FinLinearlyDependent :
-    --   LinearlyDependent family ℓS -> FinLinearlyDependent S family
-    -- LinearlyDependent->FinLinearlyDependent = ∥-map handle
-    --   where
-    --   handle :
-    --     Σ[ F ∈ FinSubset family ℓS ]
-    --     Σ[ a ∈ (L.Carrier F -> K) ] (L.scaled-vector-sum F a == 0v ×
-    --                                  Σ[ i ∈ L.Carrier F ] (a i # 0#)) ->
-    --     Σ[ a ∈ (S.Carrier -> K) ] (S.scaled-vector-sum a == 0v × Σ[ i ∈ S.Carrier ] (a i # 0#))
-    --   handle (((T , isFin-T) , inc , inc-inj) , a , sum0 , i , ai#0) = a2 , sum0-2 , i2 , ai2#0
-    --     where
-    --     T' : Pred S.Carrier ℓS
-    --     T' s = Σ[ t ∈ T ] (inc t == s)
-
-    --     ¬T' : Pred S.Carrier ℓS
-    --     ¬T' = Comp T'
-
-
-    --     a2 : S.Carrier -> K
-    --     a2 = ?
-    --     sum0-2 : S.scaled-vector-sum a2 == 0v
-    --     sum0-2 = ?
-
-    --     i2 = inc i
-    --     ai2#0 : a2 i2 # 0#
-    --     ai2#0 = ?
+      ∃[ S ∈ FinSubset I₁ ℓI₂ ]
+      Σ[ a ∈ (Carrier S -> K) ] (scaled-vector-sum family S a == v)

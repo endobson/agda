@@ -6,9 +6,10 @@ open import base
 open import relation
 open import truncation
 
-record TightApartnessStr {ℓD : Level} (D : Type ℓD) (ℓ : Level) : Type (ℓ-max ℓD (ℓ-suc ℓ)) where
+-- TODO: Figure out the right way to make this level polymorphic.
+record TightApartnessStr {ℓD : Level} (D : Type ℓD) : Type (ℓ-suc ℓD) where
   field
-    _#_ : Rel D ℓ
+    _#_ : Rel D ℓD
     TightApartness-# : TightApartness _#_
 
   tight-# : Tight _#_
@@ -20,7 +21,7 @@ record TightApartnessStr {ℓD : Level} (D : Type ℓD) (ℓ : Level) : Type (�
   irrefl-path-# : IrreflexivePath _#_
   irrefl-path-# = Irreflexive->IrreflexivePath _#_ irrefl-#
 
-module _ {ℓD ℓ# : Level} {D : Type ℓD} {{TA : TightApartnessStr D ℓ#}} where
+module _ {ℓD : Level} {D : Type ℓD} {{TA : TightApartnessStr D}} where
   open TightApartnessStr TA public using
     ( _#_
     ; tight-#
