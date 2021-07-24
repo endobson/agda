@@ -9,25 +9,28 @@ open import hlevel
 open import relation
 open import truncation
 
--- A subspace of the space D
-Subspace : {ℓD : Level} -> (D : Type ℓD) -> (ℓP : Level) -> Type (ℓ-max ℓD (ℓ-suc ℓP))
-Subspace D ℓP = (D -> hProp ℓP)
+-- A subtype of the type D
+Subtype : {ℓD : Level} -> (D : Type ℓD) -> (ℓP : Level) -> Type (ℓ-max ℓD (ℓ-suc ℓP))
+Subtype D ℓP = (D -> hProp ℓP)
 
-module _ {ℓD ℓS : Level} {D : Type ℓD} (S : Subspace D ℓS) where
-  ∈-Subspace : Type (ℓ-max ℓD ℓS)
-  ∈-Subspace = Σ[ d ∈ D ] ⟨ S d ⟩
+module _ {ℓD ℓS : Level} {D : Type ℓD} (S : Subtype D ℓS) where
+  ∈-Subtype : Type (ℓ-max ℓD ℓS)
+  ∈-Subtype = Σ[ d ∈ D ] ⟨ S d ⟩
 
-  isFiniteSubspace : Type _
-  isFiniteSubspace = isFinSet ∈-Subspace
+  isFiniteSubtype : Type _
+  isFiniteSubtype = isFinSet ∈-Subtype
+
+  isFullSubtype : Type _
+  isFullSubtype = ∀ (d : D) -> ⟨ S d ⟩
 
 
 -- Family of Ds indexed by I
 Family : {ℓD ℓI : Level} -> Type ℓD -> Type ℓI -> Type (ℓ-max ℓD ℓI)
 Family D I = I -> D
 
-Family->Subspace : {ℓD ℓI : Level} -> {D : Type ℓD} -> {I : Type ℓI} ->
-                   Family D I -> Subspace D (ℓ-max ℓD ℓI)
-Family->Subspace {I = I} f d = (∃[ i ∈ I ] (f i == d)) , squash
+Family->Subtype : {ℓD ℓI : Level} -> {D : Type ℓD} -> {I : Type ℓI} ->
+                   Family D I -> Subtype D (ℓ-max ℓD ℓI)
+Family->Subtype {I = I} f d = (∃[ i ∈ I ] (f i == d)) , squash
 
 
 -- A FinSubset is a finite amount of Ds

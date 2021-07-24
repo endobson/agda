@@ -290,6 +290,13 @@ record Ring {ℓ : Level} {Domain : Type ℓ} (S : Semiring Domain) : Type ℓ w
         *-assoc >=> (cong (y *_) (sym *-assoc)) >=>
         cong (y *_) (cong (_* 1/y) px >=> *-left-one) >=> py
 
+  u--closed : {x : Domain} -> isUnit x -> isUnit (- x)
+  u--closed {x} (is-unit inv path) =
+    (is-unit (- inv) (minus-extract-left >=>
+                      cong -_ minus-extract-right >=>
+                      minus-double-inverse >=>
+                      path))
+
   isProp-isUnit : {x : Domain} -> isProp (isUnit x)
   isProp-isUnit {x} u1 u2 = (\i -> record
     { inv = inv-path i
@@ -308,6 +315,13 @@ record Ring {ℓ : Level} {Domain : Type ℓ} (S : Semiring Domain) : Type ℓ w
 
     path-path : PathP (\i -> x * (inv-path i) == 1#) u1.path u2.path
     path-path = isProp->PathP (\_ -> isSet-Domain _ _) u1.path u2.path
+
+
+  *-isUnit-split : {x y : Domain} -> isUnit (x * y) -> (isUnit x) × (isUnit y)
+  *-isUnit-split {x} {y} (is-unit inv path) =
+    (is-unit (y * inv) (sym *-assoc >=> path)) ,
+    (is-unit (x * inv) (sym *-assoc >=> *-left *-commute >=> path))
+
 
   Unit : Type ℓ
   Unit = Σ Domain isUnit

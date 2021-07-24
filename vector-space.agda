@@ -7,6 +7,7 @@ open import base
 open import commutative-monoid
 open import equivalence
 open import finset
+open import finsum
 open import finite-commutative-monoid
 open import functions
 open import group
@@ -176,7 +177,29 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {F : 
     ¬LinearlyIndependent->¬LinearlyFree ¬indep free =
       ¬indep (LinearlyFree->LinearlyIndependent free)
 
-    LinearSpan : (ℓI₂ : Level) -> Pred V _
-    LinearSpan ℓI₂ v =
-      ∃[ S ∈ FinSubset I₁ ℓI₂ ]
-      Σ[ a ∈ (Carrier S -> K) ] (scaled-vector-sum family S a == v)
+    module _ (ℓI₂ : Level) where
+      isLinearCombination : Pred V _
+      isLinearCombination v =
+        ∃[ S ∈ FinSubset I₁ ℓI₂ ]
+        Σ[ a ∈ (Carrier S -> K) ] (scaled-vector-sum family S a == v)
+
+      LinearSpan : Subtype V (ℓ-max* 4 ℓK ℓV ℓI₁ (ℓ-suc ℓI₂))
+      LinearSpan v = isLinearCombination v , squash
+
+      isAffineCombination : Pred V _
+      isAffineCombination v =
+        ∃[ S ∈ FinSubset I₁ ℓI₂ ]
+        Σ[ a ∈ (Carrier S -> K) ] (scaled-vector-sum family S a == v ×
+                                   finiteSum ⟨ S ⟩ a == 1#)
+
+      AffineSpan : Subtype V (ℓ-max* 4 ℓK ℓV ℓI₁ (ℓ-suc ℓI₂))
+      AffineSpan v = isLinearCombination v , squash
+
+      isSpanning : Type _
+      isSpanning = isFullSubtype LinearSpan
+
+      isBasis : Type _
+      isBasis = isSpanning × LinearlyIndependent ℓI₂
+
+  Basis : (ℓI : Level) -> Type _
+  Basis ℓI = Σ[ I ∈ Type ℓI ] Σ[ family ∈ (I -> V) ] (isBasis family ℓI)
