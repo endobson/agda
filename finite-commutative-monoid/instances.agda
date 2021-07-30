@@ -5,25 +5,26 @@ module finite-commutative-monoid.instances where
 open import base
 open import commutative-monoid
 open import commutative-monoid.pi
-open import hlevel
-open import finite-commutative-monoid
-open import finset.instances
-open import equivalence
-open import isomorphism
-open import type-algebra
-open import fin-algebra
-open import finsum
-open import sum
-open import equality
-open import finset
-open import maybe
-open import functions
 open import cubical
+open import equality
+open import equivalence
 open import fin
-open import sigma
-open import nat.order
-open import truncation
+open import fin-algebra
+open import finite-commutative-monoid
+open import finset
+open import finset.instances
+open import finsum
+open import functions
 open import funext
+open import hlevel
+open import isomorphism
+open import maybe
+open import nat.order
+open import sigma
+open import subset
+open import sum
+open import truncation
+open import type-algebra
 
 private
   variable
@@ -48,6 +49,29 @@ module _ {D : Type ℓ} (CM : CommMonoid D) (isSetD : isSet D) where
 
     finiteMerge-Fin0 : (f : (Fin 0) -> D) -> finiteMerge' (FinSet-Fin 0) f == ε
     finiteMerge-Fin0 = eval (FinSet-Fin 0) (idEquiv _)
+
+  module _ {ℓB : Level} (FB : FinSet ℓB) where
+    private
+      B = fst FB
+      finB = snd FB
+
+    abstract
+      finiteMerge-isContr :
+        (isContr-B : isContr B) -> (f : B -> D) -> finiteMerge' FB f == f ⟨ isContr-B ⟩
+      finiteMerge-isContr isContr-B f = path
+        where
+        b = fst (isContr-B)
+
+        B≃Top : B ≃ Top
+        B≃Top = Contr-Top-eq isContr-B
+
+        path : finiteMerge' FB f == f b
+        path =
+          finiteMerge-convert' FB FinSet-Top (equiv⁻¹ B≃Top) f >=>
+          finiteMerge-Top (\_ -> f b)
+
+      finiteMerge-isProp : (isProp B) -> (b : B) -> (f : B -> D) -> finiteMerge' FB f == f b
+      finiteMerge-isProp isProp-B b f = finiteMerge-isContr (b , isProp-B b) f
 
 
   module _ {ℓB : Level} (FB : FinSet ℓB) where
@@ -90,6 +114,7 @@ module _ {D : Type ℓ} (CM : CommMonoid D) (isSetD : isSet D) where
 
           path2 : (eqInv eq' ∘ suc-fin) == (eqInv (Maybe-eq eq) ∘ just)
           path2 = cong (eqInv (Maybe-eq eq) ∘_) path3
+
 
   module _ {ℓB : Level} (FB : FinSet ℓB) where
     private
@@ -140,11 +165,11 @@ module _ {D : Type ℓ} (CM : CommMonoid D) (isSetD : isSet D) where
         >=> ∙-left-ε
         >=> finiteMerge-ε'
 
-      finiteMerge-ε : finiteMerge' FB (\_ -> ε) == ε
-      finiteMerge-ε = unsquash (isSetD _ _) (∥-map handle finB)
-        where
-        handle : Σ[ n ∈ Nat ] (B ≃ Fin n) -> finiteMerge' FB (\_ -> ε) == ε
-        handle (n , eq) = finiteMerge-convert' _ _ (equiv⁻¹ eq) _ >=> finiteMerge-ε'
+    finiteMerge-ε : finiteMerge' FB (\_ -> ε) == ε
+    finiteMerge-ε = unsquash (isSetD _ _) (∥-map handle finB)
+      where
+      handle : Σ[ n ∈ Nat ] (B ≃ Fin n) -> finiteMerge' FB (\_ -> ε) == ε
+      handle (n , eq) = finiteMerge-convert' _ _ (equiv⁻¹ eq) _ >=> finiteMerge-ε'
 
     finiteMerge-split : {f g : B -> D} ->
       finiteMerge' FB (\b -> (f b) ∙ (g b)) == finiteMerge' FB f ∙ finiteMerge' FB g
@@ -297,6 +322,35 @@ module _ {D : Type ℓ} (CM : CommMonoid D) (isSetD : isSet D) where
              (sym (finiteMerge-convert' (A , finA) (FinSet-Fin n) (equiv⁻¹ eq) (f ∘ inj-l))) >
           (finiteMerge' (A , finA) (f ∘ inj-l)) ∙ (finiteMerge' (B , finB) (f ∘ inj-r))
         end
+
+
+  -- module _ {ℓB ℓP : Level} (FB : FinSet ℓB) (partition : FinitePartition ⟨ FB ⟩ ℓP) where
+  --   private
+  --     B = fst FB
+  --     isFinSet-B = snd FB
+
+  --     n = fst partition
+  --     part : (i : Fin n) -> Subtype B ℓP
+  --     part = fst (snd partition)
+
+  --     isContr-parts = snd (snd partition)
+
+  --     P : (i : Fin n) -> Type _
+  --     P i = (Σ[ b ∈ B ] ⟨ part i b ⟩)
+
+  --     isFinSet-P : (i : Fin n) -> isFinSet (P i)
+  --     isFinSet-P = ?
+
+  --     FP : (i : Fin n) -> FinSet _
+  --     FP i = P i , isFinSet-P i
+
+
+  --   finiteMerge-partitions :
+  --     (f : B -> D) ->
+  --     finiteMerge' FB f ==
+  --     finiteMerge' (FinSet-Fin n) (\i -> (finiteMerge' (FP i) (f ∘ fst)))
+  --   finiteMerge-partitions = ?
+
 
 
 module _ {ℓD : Level} {D : Type ℓD} (CM-D : CommMonoid D) (isSetD : isSet D) where

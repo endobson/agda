@@ -5,7 +5,9 @@ module direct-product where
 open import apartness
 open import base
 open import commutative-monoid
-open import equality
+open import equality hiding (J)
+open import finset
+open import finset.search
 open import funext
 open import functions
 open import group
@@ -16,6 +18,7 @@ open import relation
 open import ring
 open import semiring
 open import sigma
+open import subset
 open import sum
 open import truncation
 open import vector-space
@@ -231,3 +234,118 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
     ; v*-apart-zero = dp*-apart-zero
     ; v*-apart-args = dp*-apart-args
     }
+
+module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
+         {R : Ring S} (F : Field R) (I : FinSet ℓI) where
+  private
+    instance
+      IS = S
+      IR = R
+
+    I' = ⟨ I ⟩
+    isFinSet-I = snd I
+    isSet-I = isFinSet->isSet isFinSet-I
+    discrete-I = isFinSet->Discrete isFinSet-I
+
+    VS = (VectorSpaceStr-DirectProduct F I')
+
+    J : FinSubset I' ℓI
+    J = I , (\x -> x) , (\p -> p)
+
+    indicator' : {i1 i2 : I'} -> Dec (i1 == i2) -> K
+    indicator' (yes _) = 1#
+    indicator' (no _) = 0#
+
+    indicator : I' -> I' -> K
+    indicator i1 i2 = indicator' (discrete-I i1 i2)
+
+    standard-basis' : I' -> (DP K I')
+    standard-basis' i1 = wrap-dp (indicator i1)
+
+    module _ (S : FinSubset I' ℓI) (f : ⟨ ⟨ S ⟩ ⟩ -> K) where
+      private
+        S' = ⟨ ⟨ S ⟩ ⟩
+        inc : S' -> I'
+        inc = fst (snd S)
+        inj-inc : Injective inc
+        inj-inc = snd (snd S)
+
+      ΣS' : Pred I' ℓI
+      ΣS' i = (Σ[ s ∈ S' ] (inc s == i))
+
+      isProp-ΣS' : isPropValuedPred ΣS'
+      isProp-ΣS' _ (s1 , p1) (s2 , p2) =
+        ΣProp-path (isSet-I _ _) (inj-inc (p1 >=> (sym p2)))
+
+
+      find-s : Decidable ΣS'
+      find-s i = handle find-or
+        where
+        find-or : Inhabited (\s -> inc s == i) ⊎ Universal (\s -> inc s != i)
+        find-or = finite-search' ⟨ S ⟩ (\s -> handle (discrete-I (inc s) i))
+          where
+          handle : {s : S'} -> Dec (inc s == i) -> (inc s == i) ⊎ (inc s != i)
+          handle (yes p) = inj-l p
+          handle (no p) = inj-r p
+
+        handle : (Inhabited (\s -> inc s == i) ⊎ Universal (\s -> inc s != i)) -> Dec (ΣS' i)
+        handle (inj-r f) = no (\(s , p) -> f s p)
+        handle (inj-l p) = yes (unsquash (isProp-ΣS' i) p)
+
+
+      extend' : {i : I'} -> Dec (ΣS' i) -> K
+      extend' (yes (s , _)) = f s
+      extend' (no _) = 0#
+
+      extend : I' -> K
+      extend i = extend' (find-s i)
+
+      extend-support : (s : S') -> extend (inc s) == f s
+      extend-support s = handle (find-s (inc s)) refl
+        where
+        handle : (d : Dec (Σ[ s2 ∈ S' ] (inc s2 == inc s))) -> d == find-s (inc s) ->
+                 extend (inc s) == f s
+        handle (yes (s2 , p)) path =
+          cong extend' (sym path) >=> cong f (inj-inc p)
+        handle (no ¬s2) path = bot-elim (¬s2 (s , refl))
+
+--      standard-basis'-sum'-i-elem : (i : I') -> ΣS' i ->
+--        unwrap-dp (scaled-vector-sum VS standard-basis' S f) i == extend i
+--      standard-basis'-sum'-i-elem i (s , path) = ?
+--
+--      standard-basis'-sum'-i-noelem : (i : I') -> ¬ (ΣS' i) ->
+--        unwrap-dp (scaled-vector-sum VS standard-basis' S f) i == extend i
+--      standard-basis'-sum'-i-noelem i ¬s = ?
+
+
+--      standard-basis'-sum'-i :
+--        ∀ (i : I') ->
+--        unwrap-dp (scaled-vector-sum VS standard-basis' S f) i == extend i
+--      standard-basis'-sum'-i i = ?
+--
+--
+--      standard-basis'-sum' :
+--        scaled-vector-sum VS standard-basis' S f == wrap-dp extend
+--      standard-basis'-sum' k = wrap-dp (\i -> standard-basis'-sum'-i i k)
+--
+--    extend-J : (f : I' -> K) -> extend J f == f
+--    extend-J f k i = extend-support J f i k
+--
+--
+--    standard-basis'-sum : (f : I' -> K) -> scaled-vector-sum VS standard-basis' J f == wrap-dp f
+--    standard-basis'-sum f = standard-basis'-sum' J f >=> cong wrap-dp (extend-J f)
+--
+--
+--    isSpanning-standard-basis' : isSpanning VS standard-basis' ℓI
+--    isSpanning-standard-basis' v = ∣ J , unwrap-dp v , standard-basis'-sum _ ∣
+--
+--    LinearlyIndependent-standard-basis' : LinearlyIndependent VS standard-basis' ℓI
+--    LinearlyIndependent-standard-basis' S a path s =
+--      sym (extend-support S a s) >=>
+--      cong (\x -> unwrap-dp x (fst (snd S) s)) (sym (standard-basis'-sum' S a) >=> path)
+--
+--    isBasis-standard-basis' : isBasis VS standard-basis' ℓI
+--    isBasis-standard-basis' = isSpanning-standard-basis' , LinearlyIndependent-standard-basis'
+--
+--  standard-basis : Basis VS ℓI
+--  standard-basis = I' , standard-basis' , isBasis-standard-basis'

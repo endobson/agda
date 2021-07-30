@@ -146,8 +146,27 @@ isProp-isOfHLevel (suc (suc n)) ha1 ha2 i a1 a2 = isProp-isOfHLevel (suc n) (ha1
 isProp-isProp : isProp (isProp A)
 isProp-isProp = isProp-isOfHLevel 1
 
+isProp-isSet : isProp (isSet A)
+isProp-isSet = isProp-isOfHLevel 2
+
 -- hlevel of equivalences (Needed early for univalence)
 
 isProp-isEquiv : {f : A₁ -> A₂} -> isProp (isEquiv f)
 isProp-isEquiv e1 e2 j .equiv-proof a2 =
   isProp-isContr (e1 .equiv-proof a2) (e2 .equiv-proof a2) j
+
+-- h-level for Top
+
+isContrTop : isContr Top
+isContrTop = (tt , \_ -> refl)
+
+isPropTop : isProp Top
+isPropTop tt tt = refl
+
+-- h-level for Bot and ¬
+
+isPropBot : isProp Bot
+isPropBot x _ = bot-elim x
+
+isProp¬ : (A : Type ℓ) -> isProp (¬ A)
+isProp¬ _ ¬x ¬y i x = isPropBot (¬x x) (¬y x) i

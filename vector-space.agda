@@ -9,6 +9,7 @@ open import equivalence
 open import finset
 open import finsum
 open import finite-commutative-monoid
+open import finite-commutative-monoid.instances
 open import functions
 open import group
 open import heyting-field
@@ -112,6 +113,23 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {F : 
   vector-sum : (I -> V) -> isFinSet I -> V
   vector-sum vs fs = finiteMerge CommMonoid-V+ M.isSet-V (_ , fs) vs
 
+  vector-sum-⊎ : {ℓ₁ ℓ₂ : Level} (FI₁ : FinSet ℓ₁) (FI₂ : FinSet ℓ₂) ->
+                 (f : (⟨ FI₁ ⟩ ⊎ ⟨ FI₂ ⟩) -> V) ->
+                 vector-sum f (snd (FinSet-⊎ FI₁ FI₂)) ==
+                 (vector-sum (f ∘ inj-l) (snd FI₁)) v+ (vector-sum (f ∘ inj-r) (snd FI₂))
+  vector-sum-⊎ FI₁ FI₂ = finiteMerge-⊎ CommMonoid-V+ M.isSet-V (snd FI₁) (snd FI₂)
+
+
+
+
+
+
+
+
+
+
+
+
   private
     module _ {ℓI₁ : Level} {I₁ : Type ℓI₁} where
       Carrier : {ℓI₂ : Level} -> FinSubset I₁ ℓI₂ -> Type ℓI₂
@@ -123,9 +141,9 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {F : 
       include : {ℓI₂ : Level} -> (S : FinSubset I₁ ℓI₂) -> Carrier S -> I₁
       include (_ , f , _) = f
 
-    module _ {ℓI₁ ℓI₂ : Level} {I₁ : Type ℓI₁} (family : I₁ -> V) (S : FinSubset I₁ ℓI₂) where
-      scaled-vector-sum : (a : Carrier S -> K) -> V
-      scaled-vector-sum a = vector-sum (\i -> (a i) v* (family (include S i))) (isFinSet-Carrier S)
+  module _ {ℓI₁ ℓI₂ : Level} {I₁ : Type ℓI₁} (family : I₁ -> V) (S : FinSubset I₁ ℓI₂) where
+    scaled-vector-sum : (a : Carrier S -> K) -> V
+    scaled-vector-sum a = vector-sum (\i -> (a i) v* (family (include S i))) (isFinSet-Carrier S)
 
   module _ {ℓI₁ : Level} {I₁ : Type ℓI₁} (family : I₁ -> V) where
 

@@ -48,6 +48,14 @@ Right : ∀ {ℓ₁ ℓ₂} {A : Type ℓ₁} {B : Type ℓ₂} -> A ⊎ B -> Ty
 Right (inj-l _) = Bot
 Right (inj-r _) = Top
 
+isProp-Left : ∀ {ℓ₁ ℓ₂} {A : Type ℓ₁} {B : Type ℓ₂} {s : A ⊎ B} -> isProp (Left s)
+isProp-Left {s = (inj-l _)} = isPropTop
+isProp-Left {s = (inj-r _)} = isPropBot
+
+isProp-Right : ∀ {ℓ₁ ℓ₂} {A : Type ℓ₁} {B : Type ℓ₂} {s : A ⊎ B} -> isProp (Right s)
+isProp-Right {s = (inj-l _)} = isPropBot
+isProp-Right {s = (inj-r _)} = isPropTop
+
 proj-l : ∀ {ℓ₁ ℓ₂} {A : Type ℓ₁} {B : Type ℓ₂} -> (s : A ⊎ B) -> Left s -> A
 proj-l (inj-l a) _ = a
 proj-l (inj-r _) ()
@@ -59,6 +67,10 @@ proj-r (inj-l _) ()
 inj-l!=inj-r : ∀ {ℓ₁ ℓ₂} {A : Type ℓ₁} {B : Type ℓ₂} {a : A} {b : B}
                -> ¬(Path (A ⊎ B) (inj-l a) (inj-r b))
 inj-l!=inj-r p = transport (\i -> Left (p i)) tt
+
+¬LeftRight : {s : (A ⊎ B)} -> Left s -> Right s -> Bot
+¬LeftRight {s = inj-l _} _ ()
+¬LeftRight {s = inj-r _} ()
 
 ⊎-swap : ∀ {ℓ₁ ℓ₂} {A : Type ℓ₁} {B : Type ℓ₂} -> A ⊎ B -> B ⊎ A
 ⊎-swap (inj-l a) = (inj-r a)

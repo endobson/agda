@@ -3,6 +3,7 @@
 module subset where
 
 open import base
+open import fin
 open import finset
 open import functions
 open import hlevel
@@ -36,3 +37,17 @@ Family->Subtype {I = I} f d = (∃[ i ∈ I ] (f i == d)) , squash
 -- A FinSubset is a finite amount of Ds
 FinSubset : {ℓD : Level} (D : Type ℓD) (ℓI : Level) -> Type (ℓ-max ℓD (ℓ-suc ℓI))
 FinSubset D ℓI = Σ[ I ∈ (FinSet ℓI) ] Σ[ f ∈ (⟨ I ⟩ -> D) ] (Injective f)
+
+-- A Detachable subtype is a subtype for which membership is decidable
+Detachable : {ℓD ℓ : Level} {D : Type ℓD} -> Subtype D ℓ -> Type (ℓ-max ℓD ℓ)
+Detachable P = Decidable (fst ∘ P)
+
+
+-- Partitions
+
+FinitePartition' : {ℓD : Level} -> (n : Nat) -> (D : Type ℓD) -> (ℓP : Level) -> Type _
+FinitePartition' n D ℓP =
+  Σ[ f ∈ (Fin n -> Subtype D ℓP) ] ((d : D) -> isContr (Σ[ i ∈ Fin n ] ⟨ f i d ⟩))
+
+FinitePartition : {ℓD : Level} -> (D : Type ℓD) -> (ℓP : Level) -> Type _
+FinitePartition D ℓP = Σ[ n ∈ Nat ] (FinitePartition' n D ℓP)

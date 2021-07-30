@@ -13,6 +13,7 @@ open import functions
 open import hlevel
 open import isomorphism
 open import nat
+open import relation
 open import sigma
 open import truncation
 open import univalence
@@ -41,6 +42,25 @@ isProp-isFinSetΣ {ℓ} {A = A} (n , n-equiv) (m , m-equiv) = ΣProp-path squash
   n==m = unsquash (isSetNat n m)
            (unsquash squash
              (∥-map (\neq -> ∥-map (\meq -> work neq meq) m-equiv) n-equiv))
+
+isFinSet->isSet : isFinSet A -> isSet A
+isFinSet->isSet {A = A} fs = unsquash isProp-isSet (∥-map handle fs)
+  where
+  handle : Σ[ n ∈ Nat ] (A ≃ Fin n) -> isSet A
+  handle (_ , eq) = ≃-isSet (equiv⁻¹ eq) isSetFin
+
+isFinSet->Discrete : isFinSet A -> Discrete A
+isFinSet->Discrete fs = unsquash (isPropΠ2 (\_ _ -> isPropDec (isFinSet->isSet fs _ _))) (∥-map handle fs)
+  where
+  handle : Σ[ n ∈ Nat ] (A ≃ Fin n) -> Discrete A
+  handle (n , eq) a1 a2 = handle2 (decide-fin (f a1) (f a2))
+    where
+    f = eqFun eq
+    g = eqInv eq
+    ret = eqRet eq
+    handle2 : Dec (f a1 == f a2) -> Dec (a1 == a2)
+    handle2 (yes p) = yes (sym (ret a1) >=> cong g p >=> ret a2)
+    handle2 (no ¬p) = no (\p -> ¬p (cong f p))
 
 -- The two notions of finite sets are the same.
 
