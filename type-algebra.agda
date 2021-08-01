@@ -13,6 +13,7 @@ open import isomorphism
 open import maybe
 open import monoid
 open import sum
+open import sigma
 open import truncation
 open import univalence
 open import vec
@@ -583,3 +584,23 @@ Contr-Top-eq {A = A} isContrA = isoToEquiv i
   i .inv _ = isContrA .fst
   i .rightInv _ = refl
   i .leftInv y = isContrA .snd y
+
+Σ-isContr-eq : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : A -> Type ℓ₂} ->
+               ((a : A) -> isContr (B a)) -> A ≃ Σ A B
+Σ-isContr-eq {A = A} {B} f = isoToEquiv i
+  where
+  i : Iso A (Σ A B)
+  i .fun a       = a , fst (f a)
+  i .inv (a , b) = a
+  i .leftInv _ = refl
+  i .rightInv (a , b) = ΣProp-path (\{a} -> (isContr->isProp (f a))) refl
+
+Σ-swap-eq : {ℓ₁ ℓ₂ ℓ₃ : Level} {A : Type ℓ₁} {B : Type ℓ₂} {C : A -> B -> Type ℓ₃} ->
+            (Σ[ a ∈ A ] Σ[ b ∈ B ] (C a b)) ≃ (Σ[ b ∈ B ] Σ[ a ∈ A ] (C a b))
+Σ-swap-eq {A = A} {B} {C} = isoToEquiv i
+  where
+  i : Iso (Σ[ a ∈ A ] Σ[ b ∈ B ] (C a b)) (Σ[ b ∈ B ] Σ[ a ∈ A ] (C a b))
+  i .fun (a , b , c) = (b , a , c)
+  i .inv (b , a , c) = (a , b , c)
+  i .rightInv _ = refl
+  i .leftInv _ = refl

@@ -52,3 +52,7 @@ FinSet-Maybe (A , finA) = Maybe A , isFinSet-Maybe finA
 abstract
   isFinSet-Uninhabited : {A : Type ℓ} -> ¬ A -> isFinSet A
   isFinSet-Uninhabited {A = A} ¬A = ∣ 0 , (∘-equiv (equiv⁻¹ Fin-Bot-eq) (¬-Bot-eq ¬A)) ∣
+
+abstract
+  isFinSet-isContr : {A : Type ℓ} -> isContr A -> isFinSet A
+  isFinSet-isContr isContr-A = ∣ 1 , (∘-equiv (equiv⁻¹ Fin-Top-eq) (Contr-Top-eq isContr-A)) ∣

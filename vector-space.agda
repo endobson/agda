@@ -6,10 +6,13 @@ open import apartness
 open import base
 open import commutative-monoid
 open import equivalence
+open import fin
 open import finset
+open import finset.partition
 open import finsum
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
+open import finite-commutative-monoid.partition
 open import functions
 open import group
 open import heyting-field
@@ -119,14 +122,14 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {F : 
                  (vector-sum (f ∘ inj-l) (snd FI₁)) v+ (vector-sum (f ∘ inj-r) (snd FI₂))
   vector-sum-⊎ FI₁ FI₂ = finiteMerge-⊎ CommMonoid-V+ M.isSet-V (snd FI₁) (snd FI₂)
 
-
-
-
-
-
-
-
-
+  vector-sum-binary-partition :
+    {ℓI ℓP : Level} (FI : FinSet ℓI) (partition : BinaryPartition ⟨ FI ⟩ ℓP) ->
+    (f : ⟨ FI ⟩ -> V) ->
+    vector-sum f (snd FI) ==
+    (vector-sum (f ∘ fst) (snd (FinSet-partition FI (2 , partition) zero-fin))) v+
+    (vector-sum (f ∘ fst) (snd (FinSet-partition FI (2 , partition) (suc-fin zero-fin))))
+  vector-sum-binary-partition =
+    finiteMerge-binary-partition CommMonoid-V+ M.isSet-V
 
 
 
@@ -142,8 +145,11 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {F : 
       include (_ , f , _) = f
 
   module _ {ℓI₁ ℓI₂ : Level} {I₁ : Type ℓI₁} (family : I₁ -> V) (S : FinSubset I₁ ℓI₂) where
+    scaled-vector-sum-inner : (a : Carrier S -> K) -> Carrier S -> V
+    scaled-vector-sum-inner a = (\i -> (a i) v* (family (include S i)))
+
     scaled-vector-sum : (a : Carrier S -> K) -> V
-    scaled-vector-sum a = vector-sum (\i -> (a i) v* (family (include S i))) (isFinSet-Carrier S)
+    scaled-vector-sum a = vector-sum (scaled-vector-sum-inner a) (isFinSet-Carrier S)
 
   module _ {ℓI₁ : Level} {I₁ : Type ℓI₁} (family : I₁ -> V) where
 

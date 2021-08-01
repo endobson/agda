@@ -174,7 +174,7 @@ abstract
   find-counterexample dec = finite-search (\x -> ⊎-swap (dec->⊎ (dec x)))
 
   find-example : {ℓ : Level} {n : Nat} {P : Pred (Fin n) ℓ} -> Decidable P
-                        -> (Satisfiable P) ⊎ (Universal (Comp P))
+                 -> (Satisfiable P) ⊎ (Universal (Comp P))
   find-example dec = finite-search (\x -> dec->⊎ (dec x))
 
 -- Inverse functions exist

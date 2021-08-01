@@ -50,6 +50,14 @@ module _ {D : Type ℓ} (CM : CommMonoid D) (isSetD : isSet D) where
     finiteMerge-Fin0 : (f : (Fin 0) -> D) -> finiteMerge' (FinSet-Fin 0) f == ε
     finiteMerge-Fin0 = eval (FinSet-Fin 0) (idEquiv _)
 
+    finiteMerge-Fin1 : (f : (Fin 1) -> D) -> finiteMerge' (FinSet-Fin 1) f == f zero-fin
+    finiteMerge-Fin1 f = eval (FinSet-Fin 1) (idEquiv _) f >=> ∙-right-ε
+
+    finiteMerge-Fin2 : (f : (Fin 2) -> D) -> finiteMerge' (FinSet-Fin 2) f ==
+                                             (f zero-fin) ∙ (f (suc-fin zero-fin))
+    finiteMerge-Fin2 f = eval (FinSet-Fin 2) (idEquiv _) f >=> sym ∙-assoc >=> ∙-right-ε
+
+
   module _ {ℓB : Level} (FB : FinSet ℓB) where
     private
       B = fst FB
@@ -73,6 +81,10 @@ module _ {D : Type ℓ} (CM : CommMonoid D) (isSetD : isSet D) where
       finiteMerge-isProp : (isProp B) -> (b : B) -> (f : B -> D) -> finiteMerge' FB f == f b
       finiteMerge-isProp isProp-B b f = finiteMerge-isContr (b , isProp-B b) f
 
+      finiteMerge-Uninhabited : (¬ B) -> (f : B -> D) -> finiteMerge' FB f == ε
+      finiteMerge-Uninhabited ¬b f =
+        finiteMerge-convert' FB FinSet-Bot (equiv⁻¹ (¬-Bot-eq ¬b)) f >=>
+        finiteMerge-Bot _
 
   module _ {ℓB : Level} (FB : FinSet ℓB) where
     private
@@ -322,34 +334,6 @@ module _ {D : Type ℓ} (CM : CommMonoid D) (isSetD : isSet D) where
              (sym (finiteMerge-convert' (A , finA) (FinSet-Fin n) (equiv⁻¹ eq) (f ∘ inj-l))) >
           (finiteMerge' (A , finA) (f ∘ inj-l)) ∙ (finiteMerge' (B , finB) (f ∘ inj-r))
         end
-
-
-  -- module _ {ℓB ℓP : Level} (FB : FinSet ℓB) (partition : FinitePartition ⟨ FB ⟩ ℓP) where
-  --   private
-  --     B = fst FB
-  --     isFinSet-B = snd FB
-
-  --     n = fst partition
-  --     part : (i : Fin n) -> Subtype B ℓP
-  --     part = fst (snd partition)
-
-  --     isContr-parts = snd (snd partition)
-
-  --     P : (i : Fin n) -> Type _
-  --     P i = (Σ[ b ∈ B ] ⟨ part i b ⟩)
-
-  --     isFinSet-P : (i : Fin n) -> isFinSet (P i)
-  --     isFinSet-P = ?
-
-  --     FP : (i : Fin n) -> FinSet _
-  --     FP i = P i , isFinSet-P i
-
-
-  --   finiteMerge-partitions :
-  --     (f : B -> D) ->
-  --     finiteMerge' FB f ==
-  --     finiteMerge' (FinSet-Fin n) (\i -> (finiteMerge' (FP i) (f ∘ fst)))
-  --   finiteMerge-partitions = ?
 
 
 

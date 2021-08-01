@@ -6,6 +6,7 @@ open import apartness
 open import base
 open import commutative-monoid
 open import equality hiding (J)
+open import fin
 open import finset
 open import finset.search
 open import funext
@@ -14,6 +15,7 @@ open import group
 open import heyting-field
 open import hlevel
 open import monoid
+open import nat.order
 open import relation
 open import ring
 open import semiring
@@ -262,6 +264,53 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
     standard-basis' : I' -> (DP K I')
     standard-basis' i1 = wrap-dp (indicator i1)
 
+    module indicator (i : I') where
+      P : Subtype I' ℓI
+      P i2 = (i == i2) , isSet-I i i2
+
+      Q : Subtype I' ℓI
+      Q i2 = (i != i2) , isPropΠ (\_ -> isPropBot)
+
+      part' : Fin 2 -> Subtype I' ℓI
+      part' (0 , _) = P
+      part' (1 , _) = Q
+      part' (suc (suc n) , lt) = bot-elim (zero-≮ (pred-≤ (pred-≤ lt)))
+
+      private
+        disjoint : {i2 : I'} -> ⟨ P i2 ⟩ -> ⟨ Q i2 ⟩ -> Bot
+        disjoint p q = q p
+
+        isProp-part' : (i2 : I') -> (j : Fin 2) -> isProp ⟨ part' j i2 ⟩
+        isProp-part' i2 j = snd (part' j i2)
+
+        isProp-part'-rev : (i2 : I') -> isProp (Σ[ j ∈ Fin 2 ] ⟨ part' j i2 ⟩)
+        isProp-part'-rev i2 ((0 , _) , p1) ((0 , _) , p2) =
+          ΣProp-path (\{j} -> (isProp-part' i2 j)) (ΣProp-path isProp≤ refl)
+        isProp-part'-rev i2 ((0 , _) , p) ((1 , _) , q) =
+          bot-elim (disjoint p q)
+        isProp-part'-rev i2 ((0 , _) , _) ((suc (suc n) , lt) , _) =
+          bot-elim (zero-≮ (pred-≤ (pred-≤ lt)))
+        isProp-part'-rev i2 ((1 , _) , q) ((0 , _) , p) =
+          bot-elim (disjoint p q)
+        isProp-part'-rev i2 ((1 , _) , q1) ((1 , _) , q2) =
+          ΣProp-path (\{j} -> (isProp-part' i2 j)) (ΣProp-path isProp≤ refl)
+        isProp-part'-rev i2 ((1 , _) , _) ((suc (suc n) , lt) , _) =
+          bot-elim (zero-≮ (pred-≤ (pred-≤ lt)))
+        isProp-part'-rev i2 ((suc (suc n) , lt) , _) =
+          bot-elim (zero-≮ (pred-≤ (pred-≤ lt)))
+
+
+      isContr-part'-rev : (i2 : I') -> isContr (Σ[ j ∈ Fin 2 ] ⟨ part' j i2 ⟩)
+      isContr-part'-rev i2 = handle (discrete-I i i2)
+        where
+        handle : Dec (i == i2) -> isContr (Σ[ j ∈ Fin 2 ] ⟨ part' j i2 ⟩)
+        handle (yes p) = (zero-fin , p) , isProp-part'-rev i2 _
+        handle (no q) = ((suc-fin zero-fin) , q) , isProp-part'-rev i2 _
+
+      part : BinaryPartition I' ℓI
+      part = part' , isContr-part'-rev
+
+
     module _ (S : FinSubset I' ℓI) (f : ⟨ ⟨ S ⟩ ⟩ -> K) where
       private
         S' = ⟨ ⟨ S ⟩ ⟩
@@ -308,6 +357,13 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
         handle (yes (s2 , p)) path =
           cong extend' (sym path) >=> cong f (inj-inc p)
         handle (no ¬s2) path = bot-elim (¬s2 (s , refl))
+
+
+
+--      standard-basis'-sum'-i-elem : (i : I') -> ΣS' i ->
+--        unwrap-dp (scaled-vector-sum VS standard-basis' S f) i == extend i
+--      standard-basis'-sum'-i-elem i (s , path) = ?
+
 
 --      standard-basis'-sum'-i-elem : (i : I') -> ΣS' i ->
 --        unwrap-dp (scaled-vector-sum VS standard-basis' S f) i == extend i

@@ -51,3 +51,6 @@ FinitePartition' n D ℓP =
 
 FinitePartition : {ℓD : Level} -> (D : Type ℓD) -> (ℓP : Level) -> Type _
 FinitePartition D ℓP = Σ[ n ∈ Nat ] (FinitePartition' n D ℓP)
+
+BinaryPartition : {ℓD : Level} -> (D : Type ℓD) -> (ℓP : Level) -> Type _
+BinaryPartition = FinitePartition' 2
