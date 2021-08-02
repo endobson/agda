@@ -18,3 +18,14 @@ CommMonoidStr-Π M = record
 
 CommMonoid-Π : {ℓ₁ ℓ₂ : Level} (A : Type ℓ₁) -> (A -> CommMonoidT ℓ₂) -> CommMonoidT (ℓ-max ℓ₁ ℓ₂)
 CommMonoid-Π A M = ((a : A) -> (fst (M a))) , CommMonoidStr-Π (\a -> (snd (M a)))
+
+
+app-to : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : A -> Type ℓ₂} -> (a : A) -> ((a : A) -> B a) -> B a
+app-to a f = f a
+
+app-toʰ : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : A -> Type ℓ₂} (CM-B : (a : A) -> CommMonoid (B a)) ->
+          (a : A) -> (CommMonoidʰᵉ (CommMonoidStr-Π CM-B) (CM-B a) (app-to a))
+app-toʰ CM-B a = record
+  { preserves-ε = refl
+  ; preserves-∙ = \_ _ -> refl
+  }

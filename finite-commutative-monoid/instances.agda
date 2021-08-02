@@ -12,6 +12,7 @@ open import fin
 open import fin-algebra
 open import finite-commutative-monoid
 open import finset
+open import finset.detachable
 open import finset.instances
 open import finsum
 open import functions
@@ -334,6 +335,26 @@ module _ {D : Type ℓ} (CM : CommMonoid D) (isSetD : isSet D) where
              (sym (finiteMerge-convert' (A , finA) (FinSet-Fin n) (equiv⁻¹ eq) (f ∘ inj-l))) >
           (finiteMerge' (A , finA) (f ∘ inj-l)) ∙ (finiteMerge' (B , finB) (f ∘ inj-r))
         end
+
+  module _ {ℓA ℓS : Level} (FA : FinSet ℓA) (S : Subtype ⟨ FA ⟩ ℓS) (d-S : Detachable S) where
+    private
+      A = ⟨ FA ⟩
+      fs-A = snd FA
+      fs-S = isFinSet-Detachable S fs-A d-S
+      fs-S' = isFinSet-DetachableComp S fs-A d-S
+      FS : FinSet (ℓ-max ℓA ℓS)
+      FS = _ , fs-S
+      FS' : FinSet(ℓ-max ℓA ℓS)
+      FS' = _ , fs-S'
+
+    finiteMerge-Detachable :
+      (f : A -> D) ->
+      finiteMerge' FA f ==
+      (finiteMerge' FS (f ∘ fst)) ∙
+      (finiteMerge' FS' (f ∘ fst))
+    finiteMerge-Detachable f =
+      finiteMerge-convert' FA (FinSet-⊎ FS FS') (equiv⁻¹ (Detachable-eq S d-S)) f
+      >=> finiteMerge-⊎ fs-S fs-S' (f ∘ eqFun (equiv⁻¹ (Detachable-eq S d-S)))
 
 
 

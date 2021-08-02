@@ -4,11 +4,14 @@ module vector-space where
 
 open import apartness
 open import base
+open import cubical using (_≃_)
 open import commutative-monoid
+open import equality
 open import equivalence
 open import fin
 open import finset
 open import finset.partition
+open import finset.detachable
 open import finsum
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
@@ -45,6 +48,8 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} (R : Ring S) (V : 
     0v = GroupStr.ε GroupStr-V
 
     isSet-V = GroupStr.isSet-Domain GroupStr-V
+    CommMonoid-V+ = GroupStr.comm-monoid GroupStr-V
+
 
     field
       _v*_ : K -> V -> V
@@ -66,6 +71,62 @@ module _  {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {V :
     ; v*-left-one
     ; _v#_
     )
+
+  private
+    instance
+      IS = S
+      IR = R
+
+
+
+
+  open GroupStr (ModuleStr.GroupStr-V M)
+
+  abstract
+    v+-right-zero : {v : V} -> v v+ 0v == v
+    v+-right-zero = ∙-right-ε
+
+    v+-left-zero : {v : V} -> 0v v+ v == v
+    v+-left-zero = ∙-left-ε
+
+    v*-left-zero : {v : V} -> 0# v* v == 0v
+    v*-left-zero {v} =
+      sym ∙-right-ε >=>
+      ∙-right (sym ∙-right-inverse) >=>
+      sym ∙-assoc >=>
+      ∙-left (∙-right (sym v*-left-one) >=>
+              sym v*-distrib-+ >=>
+              cong (_v* v) +-left-zero >=>
+              v*-left-one) >=>
+      ∙-right-inverse
+
+
+    v*-right-zero : {k : K} -> k v* 0v == 0v
+    v*-right-zero {k} =
+      sym ∙-right-ε >=>
+      ∙-right (sym v*-left-zero >=>
+               cong (_v* 0v) (sym +-inverse) >=>
+               v*-distrib-+) >=>
+      sym ∙-assoc >=>
+      ∙-left (sym v*-distrib-v+ >=>
+              cong (k v*_) (∙-right-ε)) >=>
+      sym v*-distrib-+ >=>
+      cong (_v* 0v) +-inverse >=>
+      v*-left-zero
+
+
+    v*-minus-inverse : {k : K} {v : V} -> (- k) v* v == k v* (inverse v)
+    v*-minus-inverse {k} {v} =
+      sym ∙-right-ε >=>
+      ∙-right (sym v*-left-zero >=>
+               cong (_v* (inverse v)) (sym +-inverse >=> +-commute) >=>
+               v*-distrib-+ { - k} {k}) >=>
+      sym ∙-assoc >=>
+      ∙-left (sym v*-distrib-v+ >=>
+              cong ((- k) v*_) ∙-right-inverse >=>
+              v*-right-zero) >=>
+      v+-left-zero
+
 
 
 module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
@@ -116,6 +177,12 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {F : 
   vector-sum : (I -> V) -> isFinSet I -> V
   vector-sum vs fs = finiteMerge CommMonoid-V+ M.isSet-V (_ , fs) vs
 
+  vector-sum-convert : {ℓ₁ ℓ₂ : Level} (FI₁ : FinSet ℓ₁) (FI₂ : FinSet ℓ₂) ->
+                       (eq : (⟨ FI₂ ⟩ ≃ ⟨ FI₁ ⟩)) (f : ⟨ FI₁ ⟩ -> V) ->
+                       vector-sum f (snd FI₁) == vector-sum (f ∘ (eqFun eq)) (snd FI₂)
+  vector-sum-convert = finiteMerge-convert CommMonoid-V+ M.isSet-V
+
+
   vector-sum-⊎ : {ℓ₁ ℓ₂ : Level} (FI₁ : FinSet ℓ₁) (FI₂ : FinSet ℓ₂) ->
                  (f : (⟨ FI₁ ⟩ ⊎ ⟨ FI₂ ⟩) -> V) ->
                  vector-sum f (snd (FinSet-⊎ FI₁ FI₂)) ==
@@ -130,6 +197,17 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {F : 
     (vector-sum (f ∘ fst) (snd (FinSet-partition FI (2 , partition) (suc-fin zero-fin))))
   vector-sum-binary-partition =
     finiteMerge-binary-partition CommMonoid-V+ M.isSet-V
+
+
+  vector-sum-Detachable :
+    {ℓI ℓS : Level} (FI : FinSet ℓI) (S : Subtype ⟨ FI ⟩ ℓS) -> (d-S : Detachable S) -> (f : ⟨ FI ⟩ -> V) ->
+    vector-sum f (snd FI) ==
+    vector-sum (f ∘ fst) (snd (FinSet-Detachable FI S d-S))  v+
+    vector-sum (f ∘ fst) (snd (FinSet-DetachableComp FI S d-S))
+  vector-sum-Detachable = finiteMerge-Detachable CommMonoid-V+ M.isSet-V
+
+  vector-sum-0v : (fs-I : isFinSet I) -> vector-sum (\_ -> 0v) fs-I == 0v
+  vector-sum-0v fs-I = finiteMerge-ε CommMonoid-V+ M.isSet-V (_ , fs-I)
 
 
 
