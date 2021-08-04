@@ -130,7 +130,7 @@ module _ (x y z : ℝ)
 
 
           xyz∈[xiyi]zi : ℝ∈Iℚ xyz ((xi i+ yi) i* zi)
-          xyz∈[xiyi]zi = ℝ∈Iℚ-* xy z (xi i+ yi) zi (ℝ∈Iℚ-+ᵉ x y xi yi x∈xi y∈yi) z∈zi
+          xyz∈[xiyi]zi = ℝ∈Iℚ-*ᵉ xy z (xi i+ yi) zi (ℝ∈Iℚ-+ᵉ x y xi yi x∈xi y∈yi) z∈zi
 
     ℝ*ᵉ-distrib-ℝ+ᵉ-right : xyz == xzyz
     ℝ*ᵉ-distrib-ℝ+ᵉ-right = sym (ℝ∈Iℚ->path xzyz xyz forward)

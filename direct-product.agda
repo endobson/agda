@@ -58,6 +58,8 @@ private
   dp-map2 : (D -> D -> D) -> (DP D I) -> (DP D I) -> (DP D I)
   dp-map2 f dp1 dp2 = wrap-dp (\i -> f (unwrap-dp dp1 i) (unwrap-dp dp2 i))
 
+direct-product-index : DP D I -> I -> D
+direct-product-index = unwrap-dp
 
 module _ {ℓD ℓI : Level} {D : Type ℓD} (M : Monoid D) (I : Type ℓI) where
   private

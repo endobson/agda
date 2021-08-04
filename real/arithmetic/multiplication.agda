@@ -934,32 +934,42 @@ module _ (x : ℝ)
     ℝ*-left-zero = ℝ*ᵉ-left-zero
 
 -- Interval properties
-ℝ∈Iℚ-* : (x y : ℝ) (a b : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ y b -> ℝ∈Iℚ (x ℝ*ᵉ y) (a i* b)
-ℝ∈Iℚ-* x y a b x∈a y∈b = ∣ a , b , x∈a , y∈b , refl-ℚ≤ ∣ , ∣ a , b , x∈a , y∈b , refl-ℚ≤ ∣
+abstract
+  ℝ∈Iℚ-*ᵉ : (x y : ℝ) (a b : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ y b -> ℝ∈Iℚ (x ℝ*ᵉ y) (a i* b)
+  ℝ∈Iℚ-*ᵉ x y a b x∈a y∈b = ∣ a , b , x∈a , y∈b , refl-ℚ≤ ∣ , ∣ a , b , x∈a , y∈b , refl-ℚ≤ ∣
 
-ℝ∈Iℚ-*⁻ : (x y : ℝ) (a : Iℚ) -> ℝ∈Iℚ (x ℝ*ᵉ y) a ->
-          ∥ Σ[ b ∈ Iℚ ] Σ[ c ∈ Iℚ ] (ℝ∈Iℚ x b × ℝ∈Iℚ y c × (b i* c) i⊆ a) ∥
-ℝ∈Iℚ-*⁻ x y a@(Iℚ-cons al au al≤au) (xyl-al , xyu-au) = (∥-map2 handle xyl-al xyu-au)
-  where
-  handle : L' x y al -> U' x y au -> Σ[ b ∈ Iℚ ] Σ[ c ∈ Iℚ ] (ℝ∈Iℚ x b × ℝ∈Iℚ y c × (b i* c) i⊆ a)
-  handle (bi , ci , x∈b , y∈c , al≤bc) (di , ei , x∈d , y∈e , de≤au) =
-    xi , yi , x∈xi , y∈yi , (i⊆-cons al≤xiyi xiyi≤au)
+  ℝ∈Iℚ-* : (x y : ℝ) (a b : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ y b -> ℝ∈Iℚ (x ℝ* y) (a i* b)
+  ℝ∈Iℚ-* x y a b x∈a y∈b =
+    subst (\z -> ℝ∈Iℚ z (a i* b)) (sym (ℝ*-eval {x} {y})) (ℝ∈Iℚ-*ᵉ x y a b x∈a y∈b)
+
+  ℝ∈Iℚ-*ᵉ⁻ : (x y : ℝ) (a : Iℚ) -> ℝ∈Iℚ (x ℝ*ᵉ y) a ->
+            ∥ Σ[ b ∈ Iℚ ] Σ[ c ∈ Iℚ ] (ℝ∈Iℚ x b × ℝ∈Iℚ y c × (b i* c) i⊆ a) ∥
+  ℝ∈Iℚ-*ᵉ⁻ x y a@(Iℚ-cons al au al≤au) (xyl-al , xyu-au) = (∥-map2 handle xyl-al xyu-au)
     where
-    o-bd = ℝ∈Iℚ->Overlap x bi di x∈b x∈d
-    xi = i-intersect bi di o-bd
-    x∈xi = ℝ∈Iℚ-intersect x bi di x∈b x∈d
+    handle : L' x y al -> U' x y au -> Σ[ b ∈ Iℚ ] Σ[ c ∈ Iℚ ] (ℝ∈Iℚ x b × ℝ∈Iℚ y c × (b i* c) i⊆ a)
+    handle (bi , ci , x∈b , y∈c , al≤bc) (di , ei , x∈d , y∈e , de≤au) =
+      xi , yi , x∈xi , y∈yi , (i⊆-cons al≤xiyi xiyi≤au)
+      where
+      o-bd = ℝ∈Iℚ->Overlap x bi di x∈b x∈d
+      xi = i-intersect bi di o-bd
+      x∈xi = ℝ∈Iℚ-intersect x bi di x∈b x∈d
 
-    o-ce = ℝ∈Iℚ->Overlap y ci ei y∈c y∈e
-    yi = i-intersect ci ei o-ce
-    y∈yi = ℝ∈Iℚ-intersect y ci ei y∈c y∈e
+      o-ce = ℝ∈Iℚ->Overlap y ci ei y∈c y∈e
+      yi = i-intersect ci ei o-ce
+      y∈yi = ℝ∈Iℚ-intersect y ci ei y∈c y∈e
 
-    xi⊆bi = i-intersect-⊆₁ bi di o-bd
-    xi⊆di = i-intersect-⊆₂ bi di o-bd
-    yi⊆ci = i-intersect-⊆₁ ci ei o-ce
-    yi⊆ei = i-intersect-⊆₂ ci ei o-ce
+      xi⊆bi = i-intersect-⊆₁ bi di o-bd
+      xi⊆di = i-intersect-⊆₂ bi di o-bd
+      yi⊆ci = i-intersect-⊆₁ ci ei o-ce
+      yi⊆ei = i-intersect-⊆₂ ci ei o-ce
 
-    xiyi⊆bc = i*-preserves-⊆ xi⊆bi yi⊆ci
-    xiyi⊆de = i*-preserves-⊆ xi⊆di yi⊆ei
+      xiyi⊆bc = i*-preserves-⊆ xi⊆bi yi⊆ci
+      xiyi⊆de = i*-preserves-⊆ xi⊆di yi⊆ei
 
-    al≤xiyi = i⊆-Lower xiyi⊆bc al al≤bc
-    xiyi≤au = i⊆-Upper xiyi⊆de au de≤au
+      al≤xiyi = i⊆-Lower xiyi⊆bc al al≤bc
+      xiyi≤au = i⊆-Upper xiyi⊆de au de≤au
+
+  ℝ∈Iℚ-*⁻ : (x y : ℝ) (a : Iℚ) -> ℝ∈Iℚ (x ℝ* y) a ->
+            ∥ Σ[ b ∈ Iℚ ] Σ[ c ∈ Iℚ ] (ℝ∈Iℚ x b × ℝ∈Iℚ y c × (b i* c) i⊆ a) ∥
+  ℝ∈Iℚ-*⁻ x y a xy∈a =
+    ℝ∈Iℚ-*ᵉ⁻ x y a (subst (\z -> ℝ∈Iℚ z a) (ℝ*-eval {x} {y}) xy∈a)

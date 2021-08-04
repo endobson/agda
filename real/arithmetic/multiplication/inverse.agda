@@ -34,6 +34,10 @@ open import sign.instances.rational
 open import truncation
 open import univalence
 
+private
+  abstract
+    ℝ--zero : ℝ- 0ℝ == 0ℝ
+    ℝ--zero = sym (+-left-zero) >=> +-inverse
 
 private
   module _ (x : ℝ) (0L : Real.L x 0r)
@@ -230,6 +234,9 @@ private
       ; located = located
       }
 
+    0<ℝ1/-Pos : 0ℝ < ℝ1/-Pos
+    0<ℝ1/-Pos = (isUpperOpen-L 0r (L-nonpos (inj-r Zero-0r)))
+
   module _ (x : ℝ) (0U : Real.U x 0r) where
     private
       -x = ℝ-ᵉ x
@@ -243,6 +250,18 @@ private
     ℝ1/-Neg : ℝ
     ℝ1/-Neg = ℝ-ᵉ (ℝ1/-Pos -x -0L)
 
+    ℝ1/-Neg<0 : ℝ1/-Neg < 0ℝ
+    ℝ1/-Neg<0 = subst2 _<_ ℝ--eval ℝ--zero p2
+      where
+      p : 0ℝ < (ℝ1/-Pos -x -0L)
+      p = 0<ℝ1/-Pos -x -0L
+
+      p2 : (- (ℝ1/-Pos -x -0L)) < (- 0ℝ)
+      p2 = minus-flips-< 0ℝ (ℝ1/-Pos -x -0L) p
+
+
+
+
 module _ (x : ℝ)  where
   ℝ1/ᵉ : (xinv : ℝInv x) -> ℝ
   ℝ1/ᵉ (inj-l x<0) = ℝ1/-Neg x (ℝ<->U x 0r x<0)
@@ -255,10 +274,10 @@ module _ (x : ℝ)  where
     ℝ1/-eval : (xinv : ℝInv x) -> ℝ1/ xinv == ℝ1/ᵉ xinv
     ℝ1/-eval _ = refl
 
-private
-  abstract
-    ℝ--zero : ℝ- 0ℝ == 0ℝ
-    ℝ--zero = sym (+-left-zero) >=> +-inverse
+    ℝ1/-preserves-ℝInv : (xinv : ℝInv x) -> ℝInv (ℝ1/ xinv)
+    ℝ1/-preserves-ℝInv (inj-l x<0) = inj-l (ℝ1/-Neg<0 x (ℝ<->U x 0r x<0))
+    ℝ1/-preserves-ℝInv (inj-r 0<x) = inj-r (0<ℝ1/-Pos x (ℝ<->L 0r x 0<x))
+
 
 ℝ--preserves-ℝInv : (x : ℝ) -> ℝInv x -> ℝInv (ℝ- x)
 ℝ--preserves-ℝInv x (inj-l x<0) = inj-r (subst (_< (ℝ- x)) ℝ--zero (minus-flips-< x 0ℝ x<0))
@@ -364,7 +383,7 @@ private
 
       interval-f : (a : Iℚ) -> ℝ∈Iℚ prod a -> ℝ∈Iℚ 1ℝ a
       interval-f a@(Iℚ-cons al au al≤au) p∈a =
-        unsquash (isProp-ℝ∈Iℚ 1ℝ a) (∥-bind handle (ℝ∈Iℚ-*⁻ 1/x x a p∈a))
+        unsquash (isProp-ℝ∈Iℚ 1ℝ a) (∥-bind handle (ℝ∈Iℚ-*ᵉ⁻ 1/x x a p∈a))
         where
         handle : Σ[ b ∈ Iℚ ] Σ[ c ∈ Iℚ ] (ℝ∈Iℚ 1/x b × ℝ∈Iℚ x c × (b i* c) i⊆ a) -> ∥ ℝ∈Iℚ 1ℝ a ∥
         handle (b , c , 1/x∈b , x∈c , bc⊆a) =

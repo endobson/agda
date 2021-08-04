@@ -25,3 +25,13 @@ module _ {D : Type ℓD} (S : Semiring D) (O : LinearOrderStr D ℓ<) where
 module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
          {{LOS : LinearlyOrderedSemiringStr S O}} where
   open LinearlyOrderedSemiringStr LOS public
+
+  private
+    instance
+      IS = S
+      IO = O
+      ILOS = LOS
+
+  abstract
+    +₂-preserves-< : (a b c : D) -> a < b -> (a + c) < (b + c)
+    +₂-preserves-< a b c a<b = subst2 _<_ +-commute +-commute (+₁-preserves-< c a b a<b)

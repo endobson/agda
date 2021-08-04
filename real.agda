@@ -471,7 +471,7 @@ sym-ℝ# : Symmetric _ℝ#_
 sym-ℝ# {x} (inj-l x<y) = (inj-r x<y)
 sym-ℝ# {x} (inj-r y<x) = (inj-l y<x)
 
-comparison-ℝ# : (x y z : ℝ) -> (x ℝ# z) -> ∥ (x ℝ# y) ⊎ (y ℝ# z) ∥
+comparison-ℝ# : Comparison _ℝ#_
 comparison-ℝ# x y z (inj-l x<z) = ∥-map handle (comparison-ℝ< x y z x<z)
   where
   handle : (x ℝ< y) ⊎ (y ℝ< z) → (x ℝ# y) ⊎ (y ℝ# z)
@@ -483,8 +483,11 @@ comparison-ℝ# x y z (inj-r z<x) = ∥-map handle (comparison-ℝ< z y x z<x)
   handle (inj-l lt) = (inj-r (inj-r lt))
   handle (inj-r lt) = (inj-l (inj-r lt))
 
-tight-ℝ# : (x y : ℝ) -> ¬(x ℝ# y) -> x == y
-tight-ℝ# x y p = connected-ℝ< x y (p ∘ inj-l) (p ∘ inj-r)
+tight-ℝ# : Tight _ℝ#_
+tight-ℝ# {x} {y} p = connected-ℝ< x y (p ∘ inj-l) (p ∘ inj-r)
+
+TightApartness-ℝ# : TightApartness _ℝ#_
+TightApartness-ℝ# = tight-ℝ# , (\{x} -> irrefl-ℝ# {x}) , (\{x} {y} -> sym-ℝ# {x} {y}) , comparison-ℝ#
 
 ℝInv : Pred ℝ ℓ-zero
 ℝInv x = x ℝ# 0ℝ

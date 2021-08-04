@@ -304,6 +304,9 @@ Neg-<0 q n = subst Posℚ (sym (r+-left-zero (r- q))) (r--flips-sign q _ n)
 NonNeg-0≤ : (q : Rational) -> NonNeg q -> 0r ℚ≤ q
 NonNeg-0≤ q nn-q = subst NonNeg (sym (r+-right-zero q)) nn-q
 
+NonPos-≤0 : (q : Rational) -> NonPos q -> q ℚ≤ 0r
+NonPos-≤0 q np-q = subst NonNeg (sym (r+-left-zero (- q))) (r--NonPos np-q)
+
 0<-Pos : (q : Rational) -> 0r < q -> Pos q
 0<-Pos q 0<q = subst Pos (r+-right-zero q) 0<q
 

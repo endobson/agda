@@ -20,6 +20,9 @@ data Dec (A : Type ℓ) : Type ℓ where
 Stable : Type ℓ -> Type ℓ
 Stable A = (¬ (¬ A)) -> A
 
+Stable-¬ : {A : Type ℓ} -> Stable (¬ A)
+Stable-¬ ¬¬¬a a = ¬¬¬a (\ ¬a -> ¬a a)
+
 Dec->Stable : Dec A -> Stable A
 Dec->Stable (yes a) ¬¬a = a
 Dec->Stable (no ¬a) ¬¬a = bot-elim (¬¬a ¬a)

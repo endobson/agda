@@ -89,8 +89,8 @@ module _ (x y z : ℝ)
         handle2 : L' x y al -> U' x y au -> ℝ∈Iℚ x-yz q
         handle2 (c1 , d1 , x∈c1 , y∈d1 , al≤c1d1)
                 (c2 , d2 , x∈c2 , y∈d2 , c2d2≤au) =
-          ∣ (c , (d i* b) , x∈c , ℝ∈Iℚ-* y z d b y∈d z∈b , q-lower) ∣ ,
-          ∣ (c , (d i* b) , x∈c , ℝ∈Iℚ-* y z d b y∈d z∈b , q-upper) ∣
+          ∣ (c , (d i* b) , x∈c , ℝ∈Iℚ-*ᵉ y z d b y∈d z∈b , q-lower) ∣ ,
+          ∣ (c , (d i* b) , x∈c , ℝ∈Iℚ-*ᵉ y z d b y∈d z∈b , q-upper) ∣
 
           where
           o-c1c2 = ℝ∈Iℚ->Overlap x c1 c2 x∈c1 x∈c2
