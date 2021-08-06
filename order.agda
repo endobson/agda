@@ -73,22 +73,55 @@ module _ (D : Type ℓD) (ℓ< ℓ≤ : Level)
   record CompatibleOrderStr : Type (ℓ-max (ℓ-max ℓ≤ ℓ<) ℓD) where
     field
       weaken-< : {d1 d2 : D} -> d1 < d2 -> d1 ≤ d2
-      strengthen-≤-≮ : {d1 d2 : D} -> d1 ≤ d2 -> d1 ≮ d2 -> d1 == d2
       strengthen-≤-≠ : {d1 d2 : D} -> d1 ≤ d2 -> d1 != d2 -> d1 < d2
 
-
-record DecidableCompatibleOrderStr
-         (D : Type ℓD) (ℓ< ℓ≤ : Level)
-         (<-Str : LinearOrderStr D ℓ<)
-         (≤-Str : TotalOrderStr D ℓ≤) : Type (ℓ-max (ℓ-max ℓ≤ ℓ<) ℓD) where
+module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {≤-Str : TotalOrderStr D ℓ≤}
+         {{S : CompatibleOrderStr D ℓ< ℓ≤ <-Str ≤-Str}} where
   private
     instance
       <-Str-I = <-Str
       ≤-Str-i = ≤-Str
 
-  field
-    split-< : (d1 d2 : D) -> (d1 < d2) ⊎ (d2 ≤ d1)
+  open CompatibleOrderStr S public
+
+  abstract
+    strengthen-≤-≮ : {d1 d2 : D} -> d1 ≤ d2 -> d1 ≮ d2 -> d1 == d2
+    strengthen-≤-≮ {d1} {d2} d1≤d2 d1≮d2 = connected-< d1≮d2 d2≮d1
+      where
+      d2≮d1 : d2 ≮ d1
+      d2≮d1 d2<d1 = irrefl-< (subst (_< d1) d2=d1 d2<d1)
+        where
+        d2=d1 : d2 == d1
+        d2=d1 = antisym-≤ (weaken-< d2<d1) d1≤d2
+
+
+module _ {D : Type ℓD} {ℓ< : Level} (<-Str : LinearOrderStr D ℓ<) where
+  private
+    instance
+      <-Str-I = <-Str
+
+  record DecidableLinearOrderStr : Type (ℓ-max ℓ< ℓD) where
+    field
+      trichotomous-< : Trichotomous _<_
+
+module _ {D : Type ℓD} {ℓ< : Level} {<-Str : LinearOrderStr D ℓ<}
+         {{S : DecidableLinearOrderStr <-Str}} where
+  open DecidableLinearOrderStr S public
 
 module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {≤-Str : TotalOrderStr D ℓ≤}
-         {{S : DecidableCompatibleOrderStr D ℓ< ℓ≤ <-Str ≤-Str}} where
-  open DecidableCompatibleOrderStr S public
+         {{S : CompatibleOrderStr D ℓ< ℓ≤ <-Str ≤-Str}} {{DS : DecidableLinearOrderStr <-Str}} where
+  private
+    instance
+      <-Str-I = <-Str
+      ≤-Str-i = ≤-Str
+      IS = S
+      IDS = DS
+
+  abstract
+    split-< : (d1 d2 : D) -> (d1 < d2) ⊎ (d2 ≤ d1)
+    split-< d1 d2 = handle (trichotomous-< d1 d2)
+      where
+      handle : Tri (d1 < d2) (d1 == d2) (d2 < d1) -> (d1 < d2) ⊎ (d2 ≤ d1)
+      handle (tri< d1<d2 _ _) = inj-l d1<d2
+      handle (tri= _ d1=d2 _) = inj-r (subst (_≤ d1) d1=d2 refl-≤)
+      handle (tri> _ _ d2<d1) = inj-r (weaken-< d2<d1)

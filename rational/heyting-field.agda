@@ -14,7 +14,7 @@ open import order
 open import order.instances.rational
 open import rational
 open import rational.difference
-open import rational.order using (trichotomous-< ; Zero-0r ; r--flips-sign)
+open import rational.order using (Zero-0r ; r--flips-sign)
 open import relation
 open import ring
 open import semiring

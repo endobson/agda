@@ -263,17 +263,17 @@ q ℚ> r = r ℚ< q
 _ℚ≤_ : ℚ -> ℚ -> Type₀
 x ℚ≤ y = NonNeg (diffℚ x y)
 
-isProp-ℚ< : {a b : Rational} -> isProp (a ℚ< b)
-isProp-ℚ< {a} {b} = isProp-Pos (b r+ (r- a))
-
-irrefl-ℚ< : Irreflexive _ℚ<_
-irrefl-ℚ< {a} a<a =
-  RationalElim.elimProp
-    {C = (\r -> r ℚ< r -> Bot)}
-    (\_ -> isPropΠ (\_ -> isPropBot))
-    (\r s -> (irrefl-ℚ'< {r} (ℚ'<-cons (isSignℚ.v (subst Posℚ r+-eval s))))) a a<a
-
 abstract
+  isProp-ℚ< : {a b : Rational} -> isProp (a ℚ< b)
+  isProp-ℚ< {a} {b} = isProp-Pos (b r+ (r- a))
+
+  irrefl-ℚ< : Irreflexive _ℚ<_
+  irrefl-ℚ< {a} a<a =
+    RationalElim.elimProp
+      {C = (\r -> r ℚ< r -> Bot)}
+      (\_ -> isPropΠ (\_ -> isPropBot))
+      (\r s -> (irrefl-ℚ'< {r} (ℚ'<-cons (isSignℚ.v (subst Posℚ r+-eval s))))) a a<a
+
   trans-ℚ< : Transitive _ℚ<_
   trans-ℚ< {a} {b} {c} a<b b<c =
     RationalElim.elimProp3
@@ -285,11 +285,15 @@ abstract
                                              (ℚ'<-cons (isSignℚ.v (subst Posℚ r+-eval b<c))))))))
       a b c a<b b<c
 
-asym-ℚ< : Asymmetric _ℚ<_
-asym-ℚ< {a} {b} lt1 lt2 = irrefl-ℚ< {a} (trans-ℚ< {a} {b} {a} lt1 lt2)
+  asym-ℚ< : Asymmetric _ℚ<_
+  asym-ℚ< {a} {b} lt1 lt2 = irrefl-ℚ< {a} (trans-ℚ< {a} {b} {a} lt1 lt2)
 
-refl-ℚ≤ : Reflexive _ℚ≤_
-refl-ℚ≤ {x} = inj-r (subst Zero (sym (r+-inverse x)) Zero-0r)
+  refl-ℚ≤ : Reflexive _ℚ≤_
+  refl-ℚ≤ {x} = inj-r (subst Zero (sym (r+-inverse x)) Zero-0r)
+
+  weaken-ℚ< : {q r : ℚ} -> q ℚ< r -> q ℚ≤ r
+  weaken-ℚ< = inj-l
+
 
 Pos-1/ℕ : (n : Nat⁺) -> Posℚ (1/ℕ n)
 Pos-1/ℕ (n@(suc _) , _) = is-signℚ (is-signℚ' (i.*-Pos-Pos tt tt))
@@ -415,42 +419,51 @@ private
         cong (_r+ x) (Zero-path (y r+ (r- x)) zyx) >=>
         r+-left-zero x
 
-connected-ℚ< : Connected _ℚ<_
-connected-ℚ< {x} {y} x≮y y≮x =
-  handle (decide-sign z)
-  where
-  z = (y r+ (r- x))
-  z2 = (x r+ (r- y))
-  p : (r- z) == z2
-  p =
-    minus-distrib-plus >=>
-    cong ((r- y) r+_) minus-double-inverse >=>
-    r+-commute (r- y) x
+abstract
+  strengthen-ℚ≤-≠ : {q r : ℚ} -> q ℚ≤ r -> q != r -> q ℚ< r
+  strengthen-ℚ≤-≠ (inj-l q<r) _    = q<r
+  strengthen-ℚ≤-≠ (inj-r zqr) q!=r = bot-elim (q!=r (zero-diff->path _ _ zqr))
 
-  handle : Σ[ s ∈ Sign ] (isSignℚ s z) -> x == y
-  handle (pos-sign  , pz) = bot-elim (x≮y pz)
-  handle (zero-sign , zz) = zero-diff->path x y zz
-  handle (neg-sign  , nz) = bot-elim (y≮x (subst Posℚ p (r--flips-sign z neg-sign nz)))
-
-trichotomous-< : Trichotomous _ℚ<_
-trichotomous-< x y = handle (decide-< x y) (decide-< y x)
-  where
-  handle : Dec (x ℚ< y) -> Dec (y ℚ< x) -> Tri (x ℚ< y) (x == y) (y ℚ< x)
-  handle (yes x<y) (yes y<x) = bot-elim (asym-ℚ< {x} {y} x<y y<x)
-  handle (yes x<y) (no y≮x)  = tri< x<y (\p -> y≮x (transport (\i -> (p i) ℚ< (p (~ i))) x<y)) y≮x
-  handle (no x≮y)  (yes y<x) = tri> x≮y (\p -> x≮y (transport (\i -> (p (~ i)) ℚ< (p i)) y<x)) y<x
-  handle (no x≮y)  (no y≮x)  = tri= x≮y (connected-ℚ< x≮y y≮x) y≮x
-
-comparison-ℚ< : Comparison _ℚ<_
-comparison-ℚ< x y z x<z = ∥-map handle (dense-< {x} {z} x<z)
-  where
-  handle : Σ[ w ∈ ℚ ] (x ℚ< w × w ℚ< z) -> (x ℚ< y) ⊎ (y ℚ< z)
-  handle (w , x<w , w<z) = handle2 (trichotomous-< y w)
+abstract
+  connected-ℚ< : Connected _ℚ<_
+  connected-ℚ< {x} {y} x≮y y≮x =
+    handle (decide-sign z)
     where
-    handle2 : Tri (y ℚ< w) (y == w) (y ℚ> w) -> (x ℚ< y) ⊎ (y ℚ< z)
-    handle2 (tri< y<w _ _)  = inj-r (trans-ℚ< {y} {w} {z} y<w w<z)
-    handle2 (tri= _ y==w _) = inj-l (subst (x ℚ<_) (sym y==w) x<w)
-    handle2 (tri> _ _ w<y)  = inj-l (trans-ℚ< {x} {w} {y} x<w w<y)
+    z = (y r+ (r- x))
+    z2 = (x r+ (r- y))
+    p : (r- z) == z2
+    p =
+      minus-distrib-plus >=>
+      cong ((r- y) r+_) minus-double-inverse >=>
+      r+-commute (r- y) x
+
+    handle : Σ[ s ∈ Sign ] (isSignℚ s z) -> x == y
+    handle (pos-sign  , pz) = bot-elim (x≮y pz)
+    handle (zero-sign , zz) = zero-diff->path x y zz
+    handle (neg-sign  , nz) = bot-elim (y≮x (subst Posℚ p (r--flips-sign z neg-sign nz)))
+
+private
+  abstract
+    trichotomous-ℚ< : Trichotomous _ℚ<_
+    trichotomous-ℚ< x y = handle (decide-< x y) (decide-< y x)
+      where
+      handle : Dec (x ℚ< y) -> Dec (y ℚ< x) -> Tri (x ℚ< y) (x == y) (y ℚ< x)
+      handle (yes x<y) (yes y<x) = bot-elim (asym-ℚ< {x} {y} x<y y<x)
+      handle (yes x<y) (no y≮x)  = tri< x<y (\p -> y≮x (transport (\i -> (p i) ℚ< (p (~ i))) x<y)) y≮x
+      handle (no x≮y)  (yes y<x) = tri> x≮y (\p -> x≮y (transport (\i -> (p (~ i)) ℚ< (p i)) y<x)) y<x
+      handle (no x≮y)  (no y≮x)  = tri= x≮y (connected-ℚ< x≮y y≮x) y≮x
+
+abstract
+  comparison-ℚ< : Comparison _ℚ<_
+  comparison-ℚ< x y z x<z = ∥-map handle (dense-< {x} {z} x<z)
+    where
+    handle : Σ[ w ∈ ℚ ] (x ℚ< w × w ℚ< z) -> (x ℚ< y) ⊎ (y ℚ< z)
+    handle (w , x<w , w<z) = handle2 (trichotomous-ℚ< y w)
+      where
+      handle2 : Tri (y ℚ< w) (y == w) (y ℚ> w) -> (x ℚ< y) ⊎ (y ℚ< z)
+      handle2 (tri< y<w _ _)  = inj-r (trans-ℚ< {y} {w} {z} y<w w<z)
+      handle2 (tri= _ y==w _) = inj-l (subst (x ℚ<_) (sym y==w) x<w)
+      handle2 (tri> _ _ w<y)  = inj-l (trans-ℚ< {x} {w} {y} x<w w<y)
 
 instance
   LinearOrderStr-ℚ : LinearOrderStr ℚ ℓ-zero
@@ -461,6 +474,12 @@ instance
     ; trans-< = \{x} {y} {z} -> trans-ℚ< {x} {y} {z}
     ; connected-< = connected-ℚ<
     ; comparison-< = comparison-ℚ<
+    }
+
+instance
+  DecidableLinearOrderStr-ℚ : DecidableLinearOrderStr LinearOrderStr-ℚ
+  DecidableLinearOrderStr-ℚ = record
+    { trichotomous-< = trichotomous-ℚ<
     }
 
 

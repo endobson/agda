@@ -27,7 +27,6 @@ open import rational.order using
  ; r--flips-≤
  ; r+-preserves-Pos
  ; Pos-1r
- ; trichotomous-<
  ; Neg-<0
  ; Pos-0<
  ; <0-Neg

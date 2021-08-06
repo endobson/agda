@@ -9,6 +9,7 @@ import rational.order as ro
 
 open ro public using
  ( LinearOrderStr-ℚ
+ ; DecidableLinearOrderStr-ℚ
  )
 
 instance
@@ -22,9 +23,9 @@ instance
     ; connex-≤ = ro.connex-ℚ≤
     }
 
-
-  DecidableCompatibleOrderStr-ℚ :
-    DecidableCompatibleOrderStr ℚ ℓ-zero ℓ-zero LinearOrderStr-ℚ TotalOrderStr-ℚ
-  DecidableCompatibleOrderStr-ℚ = record
-    { split-< = ro.split-ℚ<
+  CompatibleOrderStr-ℚ :
+    CompatibleOrderStr ℚ ℓ-zero ℓ-zero LinearOrderStr-ℚ TotalOrderStr-ℚ
+  CompatibleOrderStr-ℚ = record
+    { weaken-< = \{x} {y} -> ro.weaken-ℚ< {x} {y}
+    ; strengthen-≤-≠ = ro.strengthen-ℚ≤-≠
     }
