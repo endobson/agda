@@ -585,3 +585,13 @@ module _ (x : ℝ) where
 ℝ∈Iℚ-+ᵉ x y a b (xl-a , xu-a) (yl-b , yu-b) =
   ∣ Iℚ.l a , Iℚ.l b , xl-a , yl-b , refl ∣ ,
   ∣ Iℚ.u a , Iℚ.u b , xu-a , yu-b , refl ∣
+
+abstract
+  ℝ∈Iℚ--ᵉ : (x : ℝ) (a : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ (ℝ-ᵉ x) (i- a)
+  ℝ∈Iℚ--ᵉ x a (xl-a , xu-a) = (subst x.U (sym minus-double-inverse) xu-a ,
+                               subst x.L (sym minus-double-inverse) xl-a)
+    where
+    module x = Real x
+
+  ℝ∈Iℚ-- : (x : ℝ) (a : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ (ℝ- x) (i- a)
+  ℝ∈Iℚ-- = ℝ∈Iℚ--ᵉ

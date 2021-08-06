@@ -433,12 +433,7 @@ private
 
 
 
-module _ {x y : ℝ}
-  (ℝ∈Iℚ-- : (z : ℝ) (a : Iℚ) -> ℝ∈Iℚ z a -> ℝ∈Iℚ (ℝ- z) (i- a))
-  (i--double-inverse : (a : Iℚ) -> (i- (i- a)) == a)
-  (i*-preserves-Imbalanced : (a b : Iℚ) -> (ImbalancedI a) -> (ImbalancedI b) ->
-                             (ImbalancedI (a i* b)))
-  where
+module _ (x y : ℝ) where
   private
     xy = (x ℝ* y)
     mx = (ℝ- x)
@@ -454,7 +449,7 @@ module _ {x y : ℝ}
     module axay = Real axay
 
     ℝ∈Iℚ--' : (z : ℝ) (a : Iℚ) -> ℝ∈Iℚ z (i- a) -> ℝ∈Iℚ (ℝ- z) a
-    ℝ∈Iℚ--' z a z∈-a = subst (ℝ∈Iℚ (ℝ- z)) (i--double-inverse a) (ℝ∈Iℚ-- z (i- a) z∈-a)
+    ℝ∈Iℚ--' z a z∈-a = subst (ℝ∈Iℚ (ℝ- z)) (i--double-inverse {a}) (ℝ∈Iℚ-- z (i- a) z∈-a)
 
     f : (b : Iℚ) -> ImbalancedI b -> ℝ∈Iℚ axay b -> ℝ∈Iℚ axy b
     f b imb-b axay∈b = unsquash (isProp-ℝ∈Iℚ axy b) (∥-bind handle (ℝ∈Iℚ-*⁻ ax ay b axay∈b))
@@ -535,7 +530,7 @@ module _ {x y : ℝ}
         id⊆d = snd (snd (snd Σid))
 
         icid = ic i* id
-        imb-icid = i*-preserves-Imbalanced ic id imb-ic imb-id
+        imb-icid = i*-preserves-ImbalancedI ic id imb-ic imb-id
         axy∈icid = f icid imb-icid (ℝ∈Iℚ-* ax ay ic id ax∈ic ay∈id)
         icid⊆b = trans-i⊆ (i*-preserves-⊆ ic⊆c id⊆d) cd⊆b
         axy∈b = ℝ∈Iℚ-⊆ axy icid⊆b axy∈icid

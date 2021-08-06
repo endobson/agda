@@ -8,7 +8,7 @@ open import equality
 open import functions
 open import heyting-field
 open import rational
-open import rational.order
+open import rational.order hiding (asym-< ; _<_ ; trans-<)
 open import real
 open import real.sequence
 open import real.arithmetic.order
@@ -22,12 +22,14 @@ open import sum
 open import sign
 open import truncation
 open import univalence
+open import order
+open import order.instances.rational
+open import order.instances.real
+open import ordered-ring
+open import ordered-ring.instances.real
 open import ordered-semiring
 open import ordered-semiring.instances.real
 
-
-absℝ-distrib-* : {x y : ℝ} -> absℝ (x * y) == absℝ x * absℝ y
-absℝ-distrib-* = ?
 
 private
   open ℝRing using (is-unit)
@@ -42,6 +44,11 @@ private
     ε : ℚ⁺
     ε = 1/2r , Pos-1/ℕ (2 , tt)
     ε' = fst ε
+    εℝ = ℚ->ℝ ε'
+    0<εℝ : 0ℝ < εℝ
+    0<εℝ = ℚ->ℝ-preserves-< 0r ε' (Pos-0< ε' (snd ε))
+    εℝ<1 : εℝ < 1ℝ
+    εℝ<1 = ℚ->ℝ-preserves-< 1/2r 1r 1/2r<1r
 
     d = y + (- x)
 
@@ -72,7 +79,36 @@ private
              x ℝ# y
     handle (inj-r inv-d) _ = (Inv-d->x#y inv-d)
     handle (inj-l _) (inj-r inv-i) = (Inv-d->x#y (Inv-i->Inv-d inv-i))
-    handle (inj-l d<ε) (inj-l i<ε) = ?
+    handle (inj-l ad<ε) (inj-l ai<ε) = bot-elim (εε≮1 εε<1)
+      where
+      εai≮adai : (εℝ * (absℝ i)) ≮ ((absℝ d) * (absℝ i))
+      εai≮adai = *₂-preserves-≮ εℝ (absℝ d) (absℝ i) (asym-ℝ< {absℝ d} {εℝ} ad<ε) (absℝ-≮0 i)
+
+      εε≮εai : (εℝ * εℝ) ≮ (εℝ * (absℝ i))
+      εε≮εai = *₁-preserves-≮ εℝ εℝ (absℝ i) (asym-ℝ< {0ℝ} {εℝ} 0<εℝ) (asym-ℝ< {absℝ i} {εℝ} ai<ε)
+
+      εε≮adai : (εℝ * εℝ) ≮ ((absℝ d) * (absℝ i))
+      εε≮adai = trans-≮ {_} {_} {_} {εℝ * εℝ} {εℝ * (absℝ i)} {(absℝ d) * (absℝ i)} εε≮εai εai≮adai
+
+      0<1 : 0ℝ < 1ℝ
+      0<1 = (ℚ->ℝ-preserves-< 0r 1r 0<1r)
+
+      adai=1 : ((absℝ d) * (absℝ i)) == 1ℝ
+      adai=1 = sym (absℝ-distrib-* d i) >=>
+               cong absℝ path >=>
+               absℝ-NonNeg-idem 1ℝ (asym-ℝ< {0ℝ} {1ℝ} 0<1)
+
+      εε≮1 : (εℝ * εℝ) ≮ 1ℝ
+      εε≮1 = subst ((εℝ * εℝ) ≮_) adai=1 εε≮adai
+
+      εε<11 : (εℝ * εℝ) < (1ℝ * 1ℝ)
+      εε<11 = trans-< {_} {_} {_} {εℝ * εℝ} {εℝ * 1ℝ} {1ℝ * 1ℝ}
+                      (*₁-preserves-< εℝ εℝ 1ℝ 0<εℝ εℝ<1)
+                      (*₂-preserves-< εℝ 1ℝ 1ℝ εℝ<1 0<1)
+
+      εε<1 : (εℝ * εℝ) < 1ℝ
+      εε<1 = subst ((εℝ * εℝ) <_) *-right-one εε<11
+
 
 
 

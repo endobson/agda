@@ -37,6 +37,14 @@ record LinearOrderStr (D : Type ℓD) (ℓ< : Level) : Type (ℓ-max (ℓ-suc �
 module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
   open LinearOrderStr S public
 
+  abstract
+    trans-≮ : Transitive _≮_
+    trans-≮ {a} {b} {c} a≮b b≮c a<c = unsquash isPropBot (∥-map handle (comparison-< a b c a<c))
+      where
+      handle : (a < b) ⊎ (b < c) -> Bot
+      handle (inj-l a<b) = a≮b a<b
+      handle (inj-r b<c) = b≮c b<c
+
 
 record TotalOrderStr (D : Type ℓD) (ℓ≤ : Level) : Type (ℓ-max (ℓ-suc ℓ≤) ℓD) where
   field

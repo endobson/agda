@@ -56,6 +56,10 @@ module _ {D : Type ℓD} {S : Semiring D} {R : Ring S} {O : LinearOrderStr D ℓ
       ab<ac : (a * b) < (a * c)
       ab<ac = subst2 _<_ +-right-zero ab+acb=ac (+₁-preserves-< (a * b) _ _ 0<acb)
 
+    *₂-preserves-< : (a b c : D) -> (a < b) -> (0# < c) -> (a * c) < (b * c)
+    *₂-preserves-< a b c a<b 0<c =
+      subst2 _<_ *-commute *-commute (*₁-preserves-< c a b 0<c a<b)
+
   private
     case-≮' : (x y x' y' : D) -> (x < y -> y' ≮ x') -> (x == y -> x' == y') -> (y ≮ x -> y' ≮ x')
     case-≮' x y x' y' f< f= y≮x y'<x' = irrefl-< (subst (y' <_) x'==y' y'<x')
@@ -84,6 +88,11 @@ module _ {D : Type ℓD} {S : Semiring D} {R : Ring S} {O : LinearOrderStr D ℓ
 
       f< : (0# < a) -> (a * b) ≮ (a * c)
       f< 0<a = *₁-preserves-≮' a b c 0<a b≮c
+
+    *₂-preserves-≮ : (a b c : D) -> (a ≮ b) -> (c ≮ 0#) -> (a * c) ≮ (b * c)
+    *₂-preserves-≮ a b c a≮b c≮0 =
+      subst2 _≮_ *-commute *-commute (*₁-preserves-≮ c a b c≮0 a≮b)
+
 
     *-preserves-≮0 : (a b : D) -> (a ≮ 0#) -> (b ≮ 0#) -> (a * b) ≮ 0#
     *-preserves-≮0 a b a≮0 b≮0 = subst ((a * b) ≮_) *-right-zero (*₁-preserves-≮ a b 0# a≮0 b≮0)

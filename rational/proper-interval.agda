@@ -45,6 +45,8 @@ Iℚ-bounds-path {a} {b} pl pu = \i -> Iℚ-cons (pl i) (pu i) (p≤ i)
 i-_ : Iℚ -> Iℚ
 i-_ (Iℚ-cons l u l≤u) = Iℚ-cons (r- u) (r- l) (r--flips-≤ l u l≤u)
 
+i--double-inverse : {a : Iℚ} -> (i- (i- a)) == a
+i--double-inverse {Iℚ-cons l u l≤u} = Iℚ-bounds-path minus-double-inverse minus-double-inverse
 
 ℚ->Iℚ : ℚ -> Iℚ
 ℚ->Iℚ q = Iℚ-cons q q (refl-ℚ≤ {q})
@@ -71,6 +73,9 @@ StrictCrossZeroI (Iℚ-cons l u _) = Neg l × Pos u
 
 ConstantI : Pred Iℚ ℓ-zero
 ConstantI (Iℚ-cons l u _) = l == u
+
+ℚ∈Iℚ : ℚ -> Pred Iℚ ℓ-zero
+ℚ∈Iℚ q (Iℚ-cons l u _) = (l ℚ≤ q × q ℚ≤ u)
 
 NonConstantI : Pred Iℚ ℓ-zero
 NonConstantI (Iℚ-cons l u _) = l < u
