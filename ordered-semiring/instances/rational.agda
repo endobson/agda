@@ -16,3 +16,9 @@ instance
     { +₁-preserves-< = r+₁-preserves-order
     ; *-preserves-0< = r*-preserves-0<
     }
+
+  TotallyOrderedSemiringStr-ℚ : TotallyOrderedSemiringStr RationalSemiring TotalOrderStr-ℚ
+  TotallyOrderedSemiringStr-ℚ = record
+    { +₁-preserves-≤ = r+₁-preserves-≤
+    ; *-preserves-0≤ = r*-preserves-0≤
+    }

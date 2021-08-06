@@ -16,18 +16,13 @@ private
   variable
     ℓD ℓ< : Level
 
-record LinearlyOrderedRingStr {D : Type ℓD} {S : Semiring D} (R : Ring S) (O : LinearOrderStr D ℓ<)
-  : Type (ℓ-max (ℓ-suc ℓ<) ℓD) where
-  field
-    ordered-semiring : LinearlyOrderedSemiringStr S O
-
-
-module _ {D : Type ℓD} {S : Semiring D} {R : Ring S} {O : LinearOrderStr D ℓ<}
-         {{LOR : LinearlyOrderedRingStr R O}} where
+module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
+         {{LOS : LinearlyOrderedSemiringStr S O}}
+         {{R : Ring S}} where
   private
     instance
-      ILOS = LinearlyOrderedRingStr.ordered-semiring LOR
-      IS = Ring.semiring R
+      ILOS = LOS
+      IS = S
       IO = O
       IR = R
 

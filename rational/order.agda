@@ -288,6 +288,11 @@ abstract
   asym-ℚ< : Asymmetric _ℚ<_
   asym-ℚ< {a} {b} lt1 lt2 = irrefl-ℚ< {a} (trans-ℚ< {a} {b} {a} lt1 lt2)
 
+
+  isProp-ℚ≤ : {x y : ℚ} -> isProp (x ℚ≤ y)
+  isProp-ℚ≤ {x} {y} = isProp-NonNeg (diffℚ x y)
+
+
   refl-ℚ≤ : Reflexive _ℚ≤_
   refl-ℚ≤ {x} = inj-r (subst Zero (sym (r+-inverse x)) Zero-0r)
 
@@ -476,12 +481,10 @@ instance
     ; comparison-< = comparison-ℚ<
     }
 
-instance
   DecidableLinearOrderStr-ℚ : DecidableLinearOrderStr LinearOrderStr-ℚ
   DecidableLinearOrderStr-ℚ = record
     { trichotomous-< = trichotomous-ℚ<
     }
-
 
 
 r+₁-preserves-order : (a b c : Rational) -> b < c -> (a r+ b) < (a r+ c)
@@ -570,6 +573,9 @@ r*₂-preserves-≤ : (a b : Rational) (c : ℚ⁰⁺) -> a ℚ≤ b -> ( a r* �
 r*₂-preserves-≤ a b c@(c' , _) a≤b =
   subst2 _ℚ≤_ (r*-commute c' a) (r*-commute c' b) (r*₁-preserves-≤ c a b a≤b)
 
+r*-preserves-0≤ : (a b : ℚ) -> 0r ℚ≤ a -> 0r ℚ≤ b -> 0r ℚ≤ (a * b)
+r*-preserves-0≤ a b 0≤a 0≤b =
+  (NonNeg-0≤ (a * b) (r*-preserves-NonNeg (0≤-NonNeg a 0≤a) (0≤-NonNeg b 0≤b)))
 
 
 r*₁-flips-order : (a : ℚ⁻) (b c : Rational) -> b < c -> (⟨ a ⟩ r* c) < (⟨ a ⟩ r* b)
@@ -748,9 +754,6 @@ abstract
 
 
 
-isProp-ℚ≤ : {x y : ℚ} -> isProp (x ℚ≤ y)
-isProp-ℚ≤ {x} {y} = isProp-NonNeg (diffℚ x y)
-
 split-ℚ< : (q r : ℚ) -> (q < r) ⊎ (r ℚ≤ q)
 split-ℚ< q r = handle (trichotomous-< q r)
   where
@@ -863,6 +866,17 @@ antisym-ℚ≤ {a} {b} (inj-r a=b) _ = zero-diff->path a b a=b
 
 connex-ℚ≤ : Connex _ℚ≤_
 connex-ℚ≤ a b = ⊎-map inj-l (\x -> x) (split-ℚ< a b)
+
+instance
+  TotalOrderStr-ℚ : TotalOrderStr ℚ ℓ-zero
+  TotalOrderStr-ℚ = record
+    { _≤_ = _ℚ≤_
+    ; isProp-≤ = \x y -> isProp-ℚ≤ {x} {y}
+    ; refl-≤ = refl-ℚ≤
+    ; trans-≤ = \{a} {b} {c} -> trans-ℚ≤ {a} {b} {c}
+    ; antisym-≤ = antisym-ℚ≤
+    ; connex-≤ = connex-ℚ≤
+    }
 
 
 -- Archimedean

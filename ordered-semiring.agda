@@ -9,7 +9,7 @@ open import semiring
 
 private
   variable
-    ℓD ℓ< : Level
+    ℓD ℓ< ℓ≤ : Level
 
 module _ {D : Type ℓD} (S : Semiring D) (O : LinearOrderStr D ℓ<) where
   private
@@ -35,3 +35,15 @@ module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
   abstract
     +₂-preserves-< : (a b c : D) -> a < b -> (a + c) < (b + c)
     +₂-preserves-< a b c a<b = subst2 _<_ +-commute +-commute (+₁-preserves-< c a b a<b)
+
+
+module _ {D : Type ℓD} (S : Semiring D) (O : TotalOrderStr D ℓ≤) where
+  private
+    instance
+      IS = S
+      IO = O
+
+  record TotallyOrderedSemiringStr : Type (ℓ-max (ℓ-suc ℓ≤) ℓD) where
+    field
+      +₁-preserves-≤ : (a b c : D) -> b ≤ c -> (a + b) ≤ (a + c)
+      *-preserves-0≤ : (a b : D) -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a * b)

@@ -9,7 +9,7 @@ open import order
 open import order.instances.rational
 open import rational
 open import rational.difference
-open import rational.order
+open import rational.order-switch
 open import rational.sign
 open import relation
 open import ring
@@ -95,10 +95,10 @@ abstract
 
 
   minℚ-same : {x : ℚ} -> minℚ x x == x
-  minℚ-same {x} = minℚ-left _ _ (refl-ℚ≤ {x})
+  minℚ-same {x} = minℚ-left _ _ refl-≤
 
   maxℚ-same : {x : ℚ} -> maxℚ x x == x
-  maxℚ-same {x} = maxℚ-left _ _ (refl-ℚ≤ {x})
+  maxℚ-same {x} = maxℚ-left _ _ refl-≤
 
   minℚ-commute : {x y : ℚ} -> minℚ x y == minℚ y x
   minℚ-commute {x} {y} = handle (split-< x y)
@@ -119,7 +119,7 @@ abstract
   minℚ-≤-left x y = handle (split-< x y)
     where
     handle : _ -> _
-    handle (inj-l x<y) = subst (minℚ x y ℚ≤_) (minℚ-left x y (inj-l x<y)) (refl-ℚ≤ {minℚ x y})
+    handle (inj-l x<y) = subst (minℚ x y ℚ≤_) (minℚ-left x y (inj-l x<y)) refl-≤
     handle (inj-r y≤x) = subst (_ℚ≤ x) (sym (minℚ-right x y y≤x)) y≤x
 
   minℚ-≤-right : (x y : ℚ) -> minℚ x y ℚ≤ y
@@ -129,7 +129,7 @@ abstract
   maxℚ-≤-left x y = handle (split-< y x)
     where
     handle : _ -> _
-    handle (inj-l y<x) = subst (_ℚ≤ maxℚ x y) (maxℚ-left x y (inj-l y<x)) (refl-ℚ≤ {maxℚ x y})
+    handle (inj-l y<x) = subst (_ℚ≤ maxℚ x y) (maxℚ-left x y (inj-l y<x)) refl-≤
     handle (inj-r x≤y) = subst (x ℚ≤_) (sym (maxℚ-right x y x≤y)) x≤y
 
   maxℚ-≤-right : (x y : ℚ) -> y ℚ≤ maxℚ x y
@@ -229,7 +229,7 @@ abstract
     handle : (a < b) ⊎ (b ℚ≤ a) -> _
     handle (inj-l a<b) = subst2 _ℚ≤_ (sym (minℚ-left a b (inj-l a<b)))
                                      (sym (minℚ-left a c (inj-l (trans-<-≤ {a} {b} {c} a<b b≤c))))
-                                     (refl-ℚ≤ {a})
+                                     refl-≤
     handle (inj-r b≤a) =
       subst (_ℚ≤ (minℚ a c)) (sym (minℚ-right a b b≤a)) (minℚ-property a c b≤a b≤c)
 

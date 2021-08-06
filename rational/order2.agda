@@ -257,3 +257,8 @@ instance
     { +₁-preserves-< = r+₁-preserves-<
     ; *-preserves-0< = r*-preserves-0<
     }
+
+-- Compatibility functions
+
+Zero-path : (q : Rational) -> Zeroℚ q -> q == 0r
+Zero-path _ p = p
