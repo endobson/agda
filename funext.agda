@@ -3,6 +3,8 @@
 module funext where
 
 open import base
+open import equality
+open import functions
 open import cubical
 open import univalence
 
@@ -37,3 +39,30 @@ module _ {f g : (a : A) -> B a} where
 
 funExt2 : {f g : (a : A) -> (b : B a) -> C a b} -> ((a : A) -> (b : B a) -> f a b == g a b) -> f == g
 funExt2 p i a b = p a b i
+
+module _ {ℓa ℓb ℓc : Level} {A : Type ℓa} {B : A -> Type ℓb} {C : Type ℓc}
+         (a1 a2 : A)
+         {f1 : (B a1) -> C}
+         {f2 : (B a2) -> C}
+         {p : (B a1) == (B a2)}
+         (same : (b1 : (B a1)) (b2 : (B a2)) -> (f1 b1) == (f2 b2))
+         where
+  private
+    f-path-t : PathP (\k -> (p k) -> C)
+                     (\x -> f1 (transport refl x))
+                     (\x -> f2 (transport refl x))
+    f-path-t k x = same x1 x2 k
+      where
+      x1 : B a1
+      x1 = transport (\j -> p (~ j ∧ k)) x
+      x2 : B a2
+      x2 = transport (\j -> p (j ∨ k)) x
+
+    f-path-left : f1 ∘ (transport refl) == f1
+    f-path-left = funExt (\x -> cong f1 (transportRefl x))
+
+    f-path-right : f2 ∘ (transport refl) == f2
+    f-path-right = funExt (\x -> cong f2 (transportRefl x))
+
+  funExtDep : PathP (\k -> (p k) -> C) f1 f2
+  funExtDep = transP-left (transP-right (sym f-path-left) f-path-t) f-path-right
