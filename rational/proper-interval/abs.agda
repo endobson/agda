@@ -10,7 +10,7 @@ open import ordered-ring
 open import ordered-ring.instances.rational
 open import rational
 open import rational.minmax
-open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
+open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-< ; split-<)
 open import rational.proper-interval
 open import rational.proper-interval.maxabs-multiplication
 open import relation

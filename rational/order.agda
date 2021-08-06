@@ -21,6 +21,7 @@ open import sigma
 open import sign
 open import sign.instances.fraction
 open import sign.instances.rational
+open import sum
 open import truncation
 open import univalence
 
@@ -828,6 +829,9 @@ abstract
 antisym-ℚ≤ : Antisymmetric _ℚ≤_
 antisym-ℚ≤ {a} {b} (inj-l a<b) b≤a = bot-elim (irrefl-< {a} (trans-<-≤ {a} {b} {a} a<b b≤a))
 antisym-ℚ≤ {a} {b} (inj-r a=b) _ = zero-diff->path a b a=b
+
+connex-ℚ≤ : Connex _ℚ≤_
+connex-ℚ≤ a b = ⊎-map inj-l (\x -> x) (split-< a b)
 
 
 -- Archimedean

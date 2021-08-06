@@ -18,7 +18,27 @@ open import rational
 open import rational.proper-interval
 open import rational.proper-interval.abs
 open import rational.minmax
-open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
+open import rational.order using
+ ( ℚ⁻
+ ; ℚ⁺
+ ; _ℚ≤_
+ ; r--flips-sign
+ ; r--flips-order
+ ; r--flips-≤
+ ; r+-preserves-Pos
+ ; Pos-1r
+ ; trichotomous-<
+ ; Neg-<0
+ ; Pos-0<
+ ; <0-Neg
+ ; 0<-Pos
+ ; NonNeg-0≤
+ ; NonPos-≤0
+ ; trans-<-≤
+ ; trans-≤-<
+ ; refl-ℚ≤
+ ; trans-ℚ≤
+ )
 open import rational.sign
 open import real
 open import real.interval

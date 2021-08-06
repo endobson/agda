@@ -7,7 +7,7 @@ open import equality
 open import order
 open import order.instances.rational
 open import rational
-open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
+open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-< ; split-<)
 open import relation
 open import sign
 open import sign.instances.rational
