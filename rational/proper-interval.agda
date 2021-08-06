@@ -10,7 +10,7 @@ open import order.instances.rational
 open import rational
 open import rational.difference
 open import rational.sign
-open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
+open import rational.order
 open import rational.minmax
 open import relation hiding (_⊆_)
 open import ring

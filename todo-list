@@ -4,6 +4,11 @@ Remove iso constructor from Iso
 Remove gcd' constructor from GCD'
 Remove gcd constructor from GCD
 
+Change ℚ< and Posℚ to order2's version.
+-- Cleanup {_}s from that
+
+Change ℝ< to have the bounds
+
 Rename:
 Monoid -> MonoidStr
 CommMonoid -> CommMonoidStr

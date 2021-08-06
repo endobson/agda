@@ -10,7 +10,7 @@ open import order
 open import order.instances.rational
 open import rational
 open import rational.difference
-open import rational.order hiding (_<_ ; _>_ ; irrefl-<)
+open import rational.order
 open import rational.proper-interval
 open import real
 open import real.interval

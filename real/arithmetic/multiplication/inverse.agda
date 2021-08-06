@@ -14,7 +14,7 @@ open import ordered-ring.instances.real
 open import ordered-semiring
 open import ordered-semiring.instances.real
 open import rational
-open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
+open import rational.order
 open import rational.minmax
 open import rational.proper-interval
 open import rational.proper-interval.multiplication-assoc

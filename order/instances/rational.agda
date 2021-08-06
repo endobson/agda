@@ -7,17 +7,11 @@ open import order
 open import rational
 import rational.order as ro
 
-instance
-  LinearOrderStr-ℚ : LinearOrderStr ℚ ℓ-zero
-  LinearOrderStr-ℚ = record
-    { _<_ = ro._<_
-    ; isProp-< = \x y -> ro.isProp-< {x} {y}
-    ; irrefl-< = \{x} -> ro.irrefl-< {x}
-    ; trans-< = \{x} {y} {z} -> ro.trans-< {x} {y} {z}
-    ; connected-< = ro.connected-<
-    ; comparison-< = ro.comparison-<
-    }
+open ro public using
+ ( LinearOrderStr-ℚ
+ )
 
+instance
   TotalOrderStr-ℚ : TotalOrderStr ℚ ℓ-zero
   TotalOrderStr-ℚ = record
     { _≤_ = ro._ℚ≤_
@@ -32,5 +26,5 @@ instance
   DecidableCompatibleOrderStr-ℚ :
     DecidableCompatibleOrderStr ℚ ℓ-zero ℓ-zero LinearOrderStr-ℚ TotalOrderStr-ℚ
   DecidableCompatibleOrderStr-ℚ = record
-    { split-< = ro.split-<
+    { split-< = ro.split-ℚ<
     }

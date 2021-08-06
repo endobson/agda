@@ -8,7 +8,7 @@ open import hlevel
 open import order
 open import order.instances.rational
 open import rational
-open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-<)
+open import rational.order
 open import rational.minmax
 open import rational.interval
 open import rational.interval.multiplication-base

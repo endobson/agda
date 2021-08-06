@@ -5,6 +5,8 @@ module rational.minmax where
 open import base
 open import equality
 open import hlevel
+open import order
+open import order.instances.rational
 open import rational
 open import rational.difference
 open import rational.order
@@ -20,25 +22,25 @@ private
   Triℚ< x y = Tri (x < y) (x == y) (x > y)
 
   isProp-Triℚ< : (x y : ℚ) -> isProp (Triℚ< x y)
-  isProp-Triℚ< x y = isProp-Tri (isProp-< {x} {y})(isSetRational x y) (isProp-< {y} {x})
+  isProp-Triℚ< x y = isProp-Tri (isProp-< x y) (isSetRational x y) (isProp-< y x)
 
   <->Tri : (x y : ℚ) -> x < y -> Triℚ< x y
   <->Tri x y x<y =
     tri< x<y
-         (\x=y -> bot-elim (irrefl-< {y} (subst (_< y) x=y x<y)))
-         (\y<x -> bot-elim (asym-< {x} {y} x<y y<x))
+         (\x=y -> bot-elim (irrefl-< {_} {_} {_} {y} (subst (_< y) x=y x<y)))
+         (\y<x -> bot-elim (asym-< {_} {_} {_} {x} {y} x<y y<x))
 
   >->Tri : (x y : ℚ) -> x > y -> Triℚ< x y
   >->Tri x y x>y =
-    tri> (\x<y -> bot-elim (asym-< {x} {y} x<y x>y))
-         (\x=y -> bot-elim (irrefl-< {y} (subst (y <_) x=y x>y)))
+    tri> (\x<y -> bot-elim (asym-< {_} {_} {_} {x} {y} x<y x>y))
+         (\x=y -> bot-elim (irrefl-< {_} {_} {_} {y} (subst (y <_) x=y x>y)))
          x>y
 
   =->Tri : (x y : ℚ) -> x == y -> Triℚ< x y
   =->Tri x y x=y =
-    tri= (\x<y -> bot-elim (irrefl-< {y} (subst (_< y) x=y x<y)))
+    tri= (\x<y -> bot-elim (irrefl-< {_} {_} {_} {y} (subst (_< y) x=y x<y)))
          x=y
-         (\y<x -> bot-elim (irrefl-< {y} (subst (y <_) x=y y<x)))
+         (\y<x -> bot-elim (irrefl-< {_} {_} {_} {y} (subst (y <_) x=y y<x)))
 
 
 abstract
@@ -247,7 +249,7 @@ abstract
     where
     handle : (a < c ⊎ c ℚ≤ a) -> _
     handle (inj-l a<c) = subst (_< minℚ b d) (sym (minℚ-left a c (inj-l a<c)))
-                               (minℚ-property b d a<b (trans-< {a} {c} {d} a<c c<d))
+                               (minℚ-property b d a<b (trans-< {_} {_} {_} {a} {c} {d} a<c c<d))
     handle (inj-r c≤a) = subst (_< minℚ b d) (sym (minℚ-right a c c≤a))
                                (minℚ-property b d (trans-≤-< {c} {a} {b} c≤a a<b) c<d)
 
@@ -256,7 +258,7 @@ abstract
     where
     handle : (b < d ⊎ d ℚ≤ b) -> _
     handle (inj-l b<d) = subst (maxℚ a c <_) (sym (maxℚ-right b d (inj-l b<d)))
-                               (maxℚ-property a c (trans-< {a} {b} {d} a<b b<d) c<d)
+                               (maxℚ-property a c (trans-< {_} {_} {_} {a} {b} {d} a<b b<d) c<d)
     handle (inj-r d≤b) = subst (maxℚ a c <_) (sym (maxℚ-left b d d≤b))
                                (maxℚ-property a c a<b (trans-<-≤ {c} {d} {b} c<d d≤b))
 
@@ -416,7 +418,7 @@ abstract
     where
     handle : (t : Tri (x < y) (x == y) (x > y)) -> (w : ℚ) -> (w == maxℚ-helper x y t) -> w < z
              -> x < z
-    handle (tri< x<y  _ _) w p w<z = trans-< {x} {y} {z} x<y (subst (_< z) p w<z)
+    handle (tri< x<y  _ _) w p w<z = trans-< {_} {_} {_} {x} {y} {z} x<y (subst (_< z) p w<z)
     handle (tri= _ _ _) w p w<z = (subst (_< z) p w<z)
     handle (tri> _ _ _) w p w<z = (subst (_< z) p w<z)
 

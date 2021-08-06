@@ -9,7 +9,7 @@ open import nat.arithmetic
 open import nat.properties
 open import rational
 open import rational.difference
-open import rational.order hiding (_<_ ; _>_ ; irrefl-< ; trans-< )
+open import rational.order
 open import rational.minmax
 open import relation hiding (U)
 open import ring
@@ -62,7 +62,7 @@ private
 
   ε-weaken-< : (q r : ℚ) -> (ε : ℚ⁺) -> (q r+ ⟨ ε ⟩) < r -> q < r
   ε-weaken-< q r ε⁺@(ε , _) lt =
-    rational.order.trans-< {q} {q r+ ε} {r} (r+-Pos->order q ε⁺) lt
+    trans-< {_} {_} {_} {q} {q r+ ε} {r} (r+-Pos->order q ε⁺) lt
 
   abs-diffℚ-weaken-< : (x y z : ℚ) -> (abs-diffℚ x y) < z -> (diffℚ x y) < z
   abs-diffℚ-weaken-< x y z lt =
@@ -205,7 +205,7 @@ module _
       handle (n , ε⁺@(ε , _) , f) = n , ε⁺ , g
         where
         g : (m : ℕ) -> (m ≥ n) -> (q r+ ε) < s m
-        g m gt = rational.order.trans-< {q r+ ε} {r r+ ε} {s m} q<r' (f m gt)
+        g m gt = trans-< {_} {_} {_} {q r+ ε} {r r+ ε} {s m} q<r' (f m gt)
           where
           q<r' : (q r+ ε) < (r r+ ε)
           q<r' = r+₂-preserves-order q r ε q<r
@@ -218,7 +218,7 @@ module _
       handle (n , ε⁺@(ε , _) , f) = n , ε⁺ , g
         where
         g : (m : ℕ) -> (m ≥ n) -> (s m r+ ε) < r
-        g m gt = rational.order.trans-< {s m r+ ε} {q} {r} (f m gt) q<r
+        g m gt = trans-< {_} {_} {_} {s m r+ ε} {q} {r} (f m gt) q<r
 
     isUpperOpen-L : isUpperOpen L
     isUpperOpen-L q lq = ∥-map handle lq
@@ -333,7 +333,7 @@ module _
             lt3 = diff-swap (s m) (s n) d lt2
 
             lt4 : (s m r+ (r- d)) < mid
-            lt4 = rational.order.trans-< {s m r+ (r- d)} {t} {mid} lt3 lt
+            lt4 = trans-< {_} {_} {_} {s m r+ (r- d)} {t} {mid} lt3 lt
 
             lt5 : ((s m r+ (r- d)) r+ dd) < (mid r+ dd)
             lt5 = r+₂-preserves-order (s m r+ (r- d)) mid dd lt4
@@ -396,7 +396,7 @@ module _
             lt4 = r+₂-preserves-order mid t (r- d) mid<t
 
             lt5 : (mid r+ (r- d)) < s m
-            lt5 = rational.order.trans-< {mid r+ (r- d)} {t r+ (r- d)} {s m} lt4 lt3
+            lt5 = trans-< {_} {_} {_} {mid r+ (r- d)} {t r+ (r- d)} {s m} lt4 lt3
 
             path1 : mid r+ (r- d) == (x r+ d)
             path1 =

@@ -9,6 +9,7 @@ open import fraction.sign
 open import fraction.order
 open import hlevel
 open import isomorphism
+open import order
 open import rational
 open import rational.difference
 open import rational.sign
@@ -253,39 +254,39 @@ abstract
   r--NonPos (inj-r s) = (inj-r (r--flips-sign _ _ s))
 
 
-_<_ : Rational -> Rational -> Type₀
-q < r = Posℚ (r r+ (r- q))
+_ℚ<_ : Rational -> Rational -> Type₀
+q ℚ< r = Posℚ (r r+ (r- q))
 
-_>_ : Rational -> Rational -> Type₀
-q > r = r < q
+_ℚ>_ : Rational -> Rational -> Type₀
+q ℚ> r = r ℚ< q
 
 _ℚ≤_ : ℚ -> ℚ -> Type₀
 x ℚ≤ y = NonNeg (diffℚ x y)
 
-isProp-< : {a b : Rational} -> isProp (a < b)
-isProp-< {a} {b} = isProp-Pos (b r+ (r- a))
+isProp-ℚ< : {a b : Rational} -> isProp (a ℚ< b)
+isProp-ℚ< {a} {b} = isProp-Pos (b r+ (r- a))
 
-irrefl-< : Irreflexive _<_
-irrefl-< {a} a<a =
+irrefl-ℚ< : Irreflexive _ℚ<_
+irrefl-ℚ< {a} a<a =
   RationalElim.elimProp
-    {C = (\r -> r < r -> Bot)}
+    {C = (\r -> r ℚ< r -> Bot)}
     (\_ -> isPropΠ (\_ -> isPropBot))
     (\r s -> (irrefl-ℚ'< {r} (ℚ'<-cons (isSignℚ.v (subst Posℚ r+-eval s))))) a a<a
 
 abstract
-  trans-< : Transitive _<_
-  trans-< {a} {b} {c} a<b b<c =
+  trans-ℚ< : Transitive _ℚ<_
+  trans-ℚ< {a} {b} {c} a<b b<c =
     RationalElim.elimProp3
-      {C3 = (\a b c -> a < b -> b < c -> a < c)}
-      (\a _ c -> isPropΠ2 (\_ _ -> isProp-< {a} {c}))
+      {C3 = (\a b c -> a ℚ< b -> b ℚ< c -> a ℚ< c)}
+      (\a _ c -> isPropΠ2 (\_ _ -> isProp-ℚ< {a} {c}))
       (\a b c a<b b<c ->
         (subst Posℚ (sym r+-eval)
                (is-signℚ (_ℚ'<_.v (trans-ℚ'< (ℚ'<-cons (isSignℚ.v (subst Posℚ r+-eval a<b)))
                                              (ℚ'<-cons (isSignℚ.v (subst Posℚ r+-eval b<c))))))))
       a b c a<b b<c
 
-asym-< : Asymmetric _<_
-asym-< {a} {b} lt1 lt2 = irrefl-< {a} (trans-< {a} {b} {a} lt1 lt2)
+asym-ℚ< : Asymmetric _ℚ<_
+asym-ℚ< {a} {b} lt1 lt2 = irrefl-ℚ< {a} (trans-ℚ< {a} {b} {a} lt1 lt2)
 
 refl-ℚ≤ : Reflexive _ℚ≤_
 refl-ℚ≤ {x} = inj-r (subst Zero (sym (r+-inverse x)) Zero-0r)
@@ -293,13 +294,13 @@ refl-ℚ≤ {x} = inj-r (subst Zero (sym (r+-inverse x)) Zero-0r)
 Pos-1/ℕ : (n : Nat⁺) -> Posℚ (1/ℕ n)
 Pos-1/ℕ (n@(suc _) , _) = is-signℚ (is-signℚ' (i.*-Pos-Pos tt tt))
 
-Pos-0< : (q : Rational) -> Posℚ q -> 0r < q
+Pos-0< : (q : Rational) -> Posℚ q -> 0r ℚ< q
 Pos-0< q = subst Posℚ p
   where
   p : q == q r+ (r- 0r)
   p = sym (r+-right-zero q)
 
-Neg-<0 : (q : Rational) -> Negℚ q -> q < 0r
+Neg-<0 : (q : Rational) -> Negℚ q -> q ℚ< 0r
 Neg-<0 q n = subst Posℚ (sym (r+-left-zero (r- q))) (r--flips-sign q _ n)
 
 NonNeg-0≤ : (q : Rational) -> NonNeg q -> 0r ℚ≤ q
@@ -308,10 +309,10 @@ NonNeg-0≤ q nn-q = subst NonNeg (sym (r+-right-zero q)) nn-q
 NonPos-≤0 : (q : Rational) -> NonPos q -> q ℚ≤ 0r
 NonPos-≤0 q np-q = subst NonNeg (sym (r+-left-zero (- q))) (r--NonPos np-q)
 
-0<-Pos : (q : Rational) -> 0r < q -> Pos q
+0<-Pos : (q : Rational) -> 0r ℚ< q -> Pos q
 0<-Pos q 0<q = subst Pos (r+-right-zero q) 0<q
 
-<0-Neg : (q : Rational) -> q < 0r -> Neg q
+<0-Neg : (q : Rational) -> q ℚ< 0r -> Neg q
 <0-Neg q q<0 = (subst Negℚ (sym (diffℚ-anticommute 0r q) >=> r+-right-zero q)
                            (r--flips-sign _ _ q<0))
 
@@ -333,7 +334,7 @@ Pos-1r : Posℚ 1r
 Pos-1r = Pos-1/ℕ nat.1⁺
 
 
-dense-< : Dense _<_
+dense-< : Dense _ℚ<_
 dense-< {x} {y} lt = ∣ z , (pos-d3 , pos-d4) ∣
   where
   d1 = y r+ (r- x)
@@ -393,10 +394,10 @@ dense-< {x} {y} lt = ∣ z , (pos-d3 , pos-d4) ∣
   pos-d4 = subst Posℚ d4-path pos-d2
 
 
-decide-< : Decidable2 _<_
+decide-< : Decidable2 _ℚ<_
 decide-< =
   RationalElim.elimProp2
-    (\a b -> isPropDec (isProp-< {a} {b}))
+    (\a b -> isPropDec (isProp-ℚ< {a} {b}))
     (\a b -> subst (\x -> Dec (Posℚ x)) (sym r+-eval) (handle (decide-ℚ'< a b)))
   where
   handle : {a b : Rational'} -> Dec (a ℚ'< b) -> Dec (Pos [ b r+' (r-'  a ) ])
@@ -414,8 +415,8 @@ private
         cong (_r+ x) (Zero-path (y r+ (r- x)) zyx) >=>
         r+-left-zero x
 
-connected-< : Connected _<_
-connected-< {x} {y} x≮y y≮x =
+connected-ℚ< : Connected _ℚ<_
+connected-ℚ< {x} {y} x≮y y≮x =
   handle (decide-sign z)
   where
   z = (y r+ (r- x))
@@ -431,25 +432,36 @@ connected-< {x} {y} x≮y y≮x =
   handle (zero-sign , zz) = zero-diff->path x y zz
   handle (neg-sign  , nz) = bot-elim (y≮x (subst Posℚ p (r--flips-sign z neg-sign nz)))
 
-trichotomous-< : Trichotomous _<_
+trichotomous-< : Trichotomous _ℚ<_
 trichotomous-< x y = handle (decide-< x y) (decide-< y x)
   where
-  handle : Dec (x < y) -> Dec (y < x) -> Tri (x < y) (x == y) (y < x)
-  handle (yes x<y) (yes y<x) = bot-elim (asym-< {x} {y} x<y y<x)
-  handle (yes x<y) (no y≮x)  = tri< x<y (\p -> y≮x (transport (\i -> (p i) < (p (~ i))) x<y)) y≮x
-  handle (no x≮y)  (yes y<x) = tri> x≮y (\p -> x≮y (transport (\i -> (p (~ i)) < (p i)) y<x)) y<x
-  handle (no x≮y)  (no y≮x)  = tri= x≮y (connected-< x≮y y≮x) y≮x
+  handle : Dec (x ℚ< y) -> Dec (y ℚ< x) -> Tri (x ℚ< y) (x == y) (y ℚ< x)
+  handle (yes x<y) (yes y<x) = bot-elim (asym-ℚ< {x} {y} x<y y<x)
+  handle (yes x<y) (no y≮x)  = tri< x<y (\p -> y≮x (transport (\i -> (p i) ℚ< (p (~ i))) x<y)) y≮x
+  handle (no x≮y)  (yes y<x) = tri> x≮y (\p -> x≮y (transport (\i -> (p (~ i)) ℚ< (p i)) y<x)) y<x
+  handle (no x≮y)  (no y≮x)  = tri= x≮y (connected-ℚ< x≮y y≮x) y≮x
 
-comparison-< : Comparison _<_
-comparison-< x y z x<z = ∥-map handle (dense-< {x} {z} x<z)
+comparison-ℚ< : Comparison _ℚ<_
+comparison-ℚ< x y z x<z = ∥-map handle (dense-< {x} {z} x<z)
   where
-  handle : Σ[ w ∈ ℚ ] (x < w × w < z) -> (x < y) ⊎ (y < z)
+  handle : Σ[ w ∈ ℚ ] (x ℚ< w × w ℚ< z) -> (x ℚ< y) ⊎ (y ℚ< z)
   handle (w , x<w , w<z) = handle2 (trichotomous-< y w)
     where
-    handle2 : Tri (y < w) (y == w) (y > w) -> (x < y) ⊎ (y < z)
-    handle2 (tri< y<w _ _)  = inj-r (trans-< {y} {w} {z} y<w w<z)
-    handle2 (tri= _ y==w _) = inj-l (subst (x <_) (sym y==w) x<w)
-    handle2 (tri> _ _ w<y)  = inj-l (trans-< {x} {w} {y} x<w w<y)
+    handle2 : Tri (y ℚ< w) (y == w) (y ℚ> w) -> (x ℚ< y) ⊎ (y ℚ< z)
+    handle2 (tri< y<w _ _)  = inj-r (trans-ℚ< {y} {w} {z} y<w w<z)
+    handle2 (tri= _ y==w _) = inj-l (subst (x ℚ<_) (sym y==w) x<w)
+    handle2 (tri> _ _ w<y)  = inj-l (trans-ℚ< {x} {w} {y} x<w w<y)
+
+instance
+  LinearOrderStr-ℚ : LinearOrderStr ℚ ℓ-zero
+  LinearOrderStr-ℚ = record
+    { _<_ = _ℚ<_
+    ; isProp-< = \x y -> isProp-ℚ< {x} {y}
+    ; irrefl-< = \{x} -> irrefl-ℚ< {x}
+    ; trans-< = \{x} {y} {z} -> trans-ℚ< {x} {y} {z}
+    ; connected-< = connected-ℚ<
+    ; comparison-< = comparison-ℚ<
+    }
 
 
 
@@ -720,8 +732,8 @@ abstract
 isProp-ℚ≤ : {x y : ℚ} -> isProp (x ℚ≤ y)
 isProp-ℚ≤ {x} {y} = isProp-NonNeg (diffℚ x y)
 
-split-< : (q r : ℚ) -> (q < r) ⊎ (r ℚ≤ q)
-split-< q r = handle (trichotomous-< q r)
+split-ℚ< : (q r : ℚ) -> (q < r) ⊎ (r ℚ≤ q)
+split-ℚ< q r = handle (trichotomous-< q r)
   where
   handle : Tri (q < r) (q == r) (q > r) -> (q < r) ⊎ (r ℚ≤ q)
   handle (tri< q<r _ _) = inj-l q<r
@@ -827,11 +839,11 @@ abstract
     subst NonNeg (diffℚ-trans q1 q2 q3) (r+-NonNeg-NonNeg q1≤q2 q2<q3)
 
 antisym-ℚ≤ : Antisymmetric _ℚ≤_
-antisym-ℚ≤ {a} {b} (inj-l a<b) b≤a = bot-elim (irrefl-< {a} (trans-<-≤ {a} {b} {a} a<b b≤a))
+antisym-ℚ≤ {a} {b} (inj-l a<b) b≤a = bot-elim (irrefl-< {_} {_} {_} {a} (trans-<-≤ {a} {b} {a} a<b b≤a))
 antisym-ℚ≤ {a} {b} (inj-r a=b) _ = zero-diff->path a b a=b
 
 connex-ℚ≤ : Connex _ℚ≤_
-connex-ℚ≤ a b = ⊎-map inj-l (\x -> x) (split-< a b)
+connex-ℚ≤ a b = ⊎-map inj-l (\x -> x) (split-ℚ< a b)
 
 
 -- Archimedean
@@ -932,7 +944,7 @@ private
     where
     handle : Σ[ m ∈ Nat⁺ ] (1/ℕ m < q') -> Σ[ m ∈ Nat⁺ ] (1/ℕ (2⁺ nat.^⁺ ⟨ m ⟩) < q')
     handle (m@(m' , _) , lt) =
-      m , trans-< {1/ℕ (2⁺ nat.^⁺ m')} {1/ℕ m} {q'}
+      m , trans-< {_} {_} {_} {1/ℕ (2⁺ nat.^⁺ m')} {1/ℕ m} {q'}
             (1/ℕ-flips-order m (2⁺ nat.^⁺ m') (nat.2^n-large m')) lt
 
 small-1/2^ℕ : (q : ℚ⁺) -> ∃[ m ∈ Nat ] ((1/2r r^ℕ⁰ m) < ⟨ q ⟩)
