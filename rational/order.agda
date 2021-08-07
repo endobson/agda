@@ -859,7 +859,7 @@ antisym-ℚ≤ {a} {b} (inj-l a<b) b≤a = bot-elim (irrefl-< {_} {_} {_} {a} (t
 antisym-ℚ≤ {a} {b} (inj-r a=b) _ = zero-diff->path a b a=b
 
 connex-ℚ≤ : Connex _ℚ≤_
-connex-ℚ≤ a b = ⊎-map inj-l (\x -> x) (split-ℚ< a b)
+connex-ℚ≤ a b = ∣ ⊎-map inj-l (\x -> x) (split-ℚ< a b) ∣
 
 instance
   TotalOrderStr-ℚ : TotalOrderStr ℚ ℓ-zero

@@ -10,7 +10,7 @@ open import relation
 
 private
   variable
-    ℓ ℓ₀ ℓ₁ : Level
+    ℓ ℓ₀ ℓ₁ ℓ₂ : Level
     A B C D E : Type ℓ
 
 data Squash (A : Type ℓ) : Type ℓ where
@@ -99,6 +99,30 @@ Comparison {A = A} _~_ = (a b c : A) -> a ~ c -> ∥ (a ~ b) ⊎ (b ~ c) ∥
 
 Dense : {ℓ ℓA : Level} {A : Type ℓA} -> Rel A ℓ -> Type (ℓ-max ℓA ℓ)
 Dense {A = A} _<_ = {x y : A} -> x < y -> ∃[ z ∈ A ] (x < z × z < y)
+
+HeteroConnex : REL A B ℓ₁ -> REL B A ℓ₂ -> Type _
+HeteroConnex P Q = ∀ a b -> ∥ P a b ⊎ Q b a ∥
+
+Connex : Rel A ℓ -> Type _
+Connex _~_ = HeteroConnex _~_ _~_
+
+TotalOrder : Rel A ℓ -> Type _
+TotalOrder _≤_ = (Transitive _≤_ × Connex _≤_ × Antisymmetric _≤_)
+
+module _ {_≤_ : Rel A ℓ} where
+  private
+    _≥_ : Rel A ℓ
+    x ≥ y = y ≤ x
+  flip-total-order : TotalOrder _≤_ -> TotalOrder _≥_
+  flip-total-order (trans , connex , antisym) = (trans' , connex' , antisym')
+    where
+    trans' : Transitive _≥_
+    trans' x y   = trans y x
+    connex' : Connex _≥_
+    connex' x y  = connex y x
+    antisym' : Antisymmetric _≥_
+    antisym' x y = antisym y x
+
 
 Apartness : Rel A ℓ -> Type _
 Apartness _#_ = (Irreflexive _#_ × Symmetric _#_ × Comparison _#_)

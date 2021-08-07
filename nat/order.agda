@@ -13,6 +13,7 @@ open import nat.arithmetic
 open import nat.properties
 open import relation
 open import sigma
+open import sum
 open import truncation
 open import univalence
 
@@ -519,12 +520,13 @@ decide-nat≤ (suc m) (suc n) with (decide-nat≤ m n)
 ... | yes pr = yes (suc-≤ pr)
 ... | no f = no (f ∘ pred-≤)
 
+connex'-≤ : Connex' _≤_
+connex'-≤ zero    _    = inj-l zero-≤
+connex'-≤ (suc m) zero = inj-r zero-≤
+connex'-≤ (suc m) (suc n) = (⊎-map suc-≤ suc-≤) (connex'-≤ m n)
+
 connex-≤ : Connex _≤_
-connex-≤ zero    _    = inj-l zero-≤
-connex-≤ (suc m) zero = inj-r zero-≤
-connex-≤ (suc m) (suc n) with (connex-≤ m n)
-... | inj-l lt = inj-l (suc-≤ lt)
-... | inj-r lt = inj-r (suc-≤ lt)
+connex-≤ m n = ∣ connex'-≤ m n ∣
 
 total-order-≤ : TotalOrder _≤_
 total-order-≤ = (trans-≤ , connex-≤ , ≤-antisym)

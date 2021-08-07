@@ -11,6 +11,7 @@ open import nat.arithmetic
 open import nat.properties
 open import relation
 open import sigma
+open import truncation
 
 import nat.order as n
 
@@ -94,7 +95,7 @@ weaken-< ((x , _) , p) = (x , p)
 
 -- Computing the order for new values
 
-split-< : HeteroConnex _<_ _≤_
+split-< : HeteroConnex' _<_ _≤_
 split-< i j =
   handle (i + (- j)) (+-assoc >=> +-right (+-commute >=> add-minus-zero) >=> +-right-zero)
   where
@@ -125,10 +126,10 @@ comparison-< {i} {j} i<j k =
 
 connex-≤ : Connex _≤_
 connex-≤ i j =
-  case (split-< i j) of (\
-    { (inj-l i<j) -> (inj-l (weaken-< i<j))
-    ; (inj-r j≤i) -> (inj-r j≤i)
-    })
+  ∣ case (split-< i j) of (\
+      { (inj-l i<j) -> (inj-l (weaken-< i<j))
+      ; (inj-r j≤i) -> (inj-r j≤i)
+      }) ∣
 
 connected-< : Connected _<_
 connected-< {i} {j} i≮j j≮i =

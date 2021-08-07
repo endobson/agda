@@ -16,6 +16,7 @@ open import monoid
 open import nat
 open import nat.bounded
 open import relation
+open import truncation
 
 
 private
@@ -104,8 +105,11 @@ canonical-list-== {P = P} {as} {bs} (ce1-a , sa) (ce1-b , sb) =
     dec≥ x y = decide-nat≤ y x
     ord≥ : TotalOrder _≥_
     ord≥ = total-order-≥
+    connex'-≥ : Connex' _≥_
+    connex'-≥ x y = connex'-≤ y x
 
-    open total _≥_ dec≥ ord≥
+
+    open total _≥_ dec≥ ord≥ connex'-≥
 
 
 private

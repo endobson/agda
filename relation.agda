@@ -78,31 +78,14 @@ record isEquivRel (r : Rel A ℓ) : Type (ℓ-max ℓ (levelOf A)) where
     symmetric : Symmetric r
     transitive : Transitive r
 
-HeteroConnex : REL A B ℓ₁ -> REL B A ℓ₂ -> Type _
-HeteroConnex P Q = ∀ a b -> P a b ⊎ Q b a
+HeteroConnex' : REL A B ℓ₁ -> REL B A ℓ₂ -> Type _
+HeteroConnex' P Q = ∀ a b -> P a b ⊎ Q b a
 
-Connex : Rel A ℓ -> Type _
-Connex _~_ = HeteroConnex _~_ _~_
+Connex' : Rel A ℓ -> Type _
+Connex' _~_ = HeteroConnex' _~_ _~_
 
 PartialOrder : Rel A ℓ -> Type _
 PartialOrder _≤_ = (Transitive _≤_ × Reflexive _≤_ × Antisymmetric _≤_)
-
-TotalOrder : Rel A ℓ -> Type _
-TotalOrder _≤_ = (Transitive _≤_ × Connex _≤_ × Antisymmetric _≤_)
-
-module _ {_≤_ : Rel A ℓ} where
-  private
-    _≥_ : Rel A ℓ
-    x ≥ y = y ≤ x
-  flip-total-order : TotalOrder _≤_ -> TotalOrder _≥_
-  flip-total-order (trans , connex , antisym) = (trans' , connex' , antisym')
-    where
-    trans' : Transitive _≥_
-    trans' x y   = trans y x
-    connex' : Connex _≥_
-    connex' x y  = connex y x
-    antisym' : Antisymmetric _≥_
-    antisym' x y = antisym y x
 
 Connected : Rel A ℓ -> Type _
 Connected {A = A} _~_ = {x y : A} -> ¬ (x ~ y) -> ¬ (y ~ x) -> x == y

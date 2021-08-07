@@ -11,6 +11,7 @@ open import hlevel
 open import list hiding (insert) renaming (Sorted to Sorted' ; SemiSorted to SemiSorted')
 open import list.unordered
 open import sum
+open import truncation
 
 private
   Sorted = Sorted' _≤_
@@ -176,7 +177,7 @@ module dec-algo (trans≤ : Transitive _≤_) (dec≤ : Decidable2 _≤_) where
     sort-semi-sorted (a :: as) = (insert-semi-sorted a (sort-semi-sorted as))
 
 
-  module connex (connex≤ : Connex _≤_) where
+  module connex (connex≤ : Connex' _≤_) where
 
     private
       flip : {a a2 : A} -> ¬ (a ≤ a2) -> (a2 ≤ a)
@@ -406,7 +407,7 @@ module dec-algo (trans≤ : Transitive _≤_) (dec≤ : Decidable2 _≤_) where
           (unorder-permutation (insert-permutation a (order as)))
           >=> cong (a ul.::_) p
 
-module total (dec≤ : Decidable2 _≤_) (ord≤ : TotalOrder _≤_) where
+module total (dec≤ : Decidable2 _≤_) (ord≤ : TotalOrder _≤_) (connex'≤ : Connex' _≤_) where
   private
     trans≤ = fst ord≤
     connex≤ = fst (snd ord≤)
@@ -414,7 +415,7 @@ module total (dec≤ : Decidable2 _≤_) (ord≤ : TotalOrder _≤_) where
 
   private
     flip : {a a2 : A} -> ¬ (a ≤ a2) -> (a2 ≤ a)
-    flip {a} {a2} ¬a≤a2 = handle (connex≤ a a2)
+    flip {a} {a2} ¬a≤a2 = handle (connex'≤ a a2)
       where
       handle : (a ≤ a2 ⊎ a2 ≤ a) -> a2 ≤ a
       handle (inj-l a≤a2) = bot-elim (¬a≤a2 a≤a2)
@@ -434,7 +435,7 @@ module total (dec≤ : Decidable2 _≤_) (ord≤ : TotalOrder _≤_) where
       where
       x!=y : x != y
       x!=y x==y = ¬x≤y (transport (\i -> (x==y (~ i)) ≤ (x==y i)) y≤x)
-    handle (no ¬x≤y) (no ¬y≤x) = bot-elim (handle2 (connex≤ x y))
+    handle (no ¬x≤y) (no ¬y≤x) = bot-elim (handle2 (connex'≤ x y))
       where
       handle2 : ¬ (x ≤ y ⊎ y ≤ x)
       handle2 (inj-l x≤y) = ¬x≤y x≤y
@@ -446,7 +447,7 @@ module total (dec≤ : Decidable2 _≤_) (ord≤ : TotalOrder _≤_) where
   open algo' public
 
   private
-    module connex' = connex connex≤
+    module connex' = connex connex'≤
   open connex' public
 
   private

@@ -311,7 +311,7 @@ trans-ℚ'≤ {a} {b} {c} (ℚ'≤-cons a<b) (ℚ'≤-cons b<c) = a<c
   a<c = ℚ'≤-cons (r~-preserves-NonNeg (r+'-preserves-NonNeg b<c a<b) f-path)
 
 connex-ℚ'≤ : Connex _ℚ'≤_
-connex-ℚ'≤ a b = handle (trichotomous~-ℚ'< a b)
+connex-ℚ'≤ a b = ∣ handle (trichotomous~-ℚ'< a b) ∣
   where
   handle : Tri (a ℚ'< b) (a r~ b) (b ℚ'< a) -> (a ℚ'≤ b) ⊎ (b ℚ'≤ a)
   handle (tri< a<b _ _) = inj-l (weaken-ℚ'< a<b)
