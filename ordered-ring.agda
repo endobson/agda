@@ -131,3 +131,12 @@ module _ {D : Type ℓD} {S : Semiring D} {O : TotalOrderStr D ℓ<}
     *₂-preserves-≤ : (a b c : D) -> (a ≤ b) -> (0# ≤ c) -> (a * c) ≤ (b * c)
     *₂-preserves-≤ a b c a≤b 0≤c =
       subst2 _≤_ *-commute *-commute (*₁-preserves-≤ c a b 0≤c a≤b)
+
+    *₁-flips-≤ : (a b c : D) -> (a ≤ 0#) -> (b ≤ c) -> (a * c) ≤ (a * b)
+    *₁-flips-≤ a b c a≤0 b≤c =
+      subst2 _≤_ (cong -_ minus-extract-left >=> minus-double-inverse)
+                 (cong -_ minus-extract-left >=> minus-double-inverse)
+                 (minus-flips-≤ _ _ (*₁-preserves-≤ (- a) b c 0≤-a b≤c))
+      where
+      0≤-a : 0# ≤ (- a)
+      0≤-a = subst (_≤ (- a)) minus-zero (minus-flips-≤ _ _ a≤0)

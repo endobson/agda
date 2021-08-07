@@ -173,12 +173,12 @@ abstract
     handle : (y < z) ⊎ (z ℚ≤ y) -> _
     handle (inj-l y<z) =
       cong (x r*_) (minℚ-left y z y≤z) >=>
-      sym (maxℚ-left (x r* y) (x r* z) (r*₁-flips-≤ (x , np-x) y z y≤z))
+      sym (maxℚ-left (x r* y) (x r* z) (*₁-flips-≤ x y z (NonPos-≤0 x np-x) y≤z))
       where
       y≤z = inj-l y<z
     handle (inj-r z≤y) =
       cong (x r*_) (minℚ-right y z z≤y) >=>
-      sym (maxℚ-right (x r* y) (x r* z) (r*₁-flips-≤ (x , np-x) z y z≤y))
+      sym (maxℚ-right (x r* y) (x r* z) (*₁-flips-≤ x z y (NonPos-≤0 x np-x) z≤y))
 
   r*₁-distrib-max : (x : ℚ⁰⁺) (y z : ℚ) ->
                     ⟨ x ⟩ r* (maxℚ y z) == maxℚ (⟨ x ⟩ r* y) (⟨ x ⟩ r* z)
@@ -202,12 +202,12 @@ abstract
     handle : (y < z) ⊎ (z ℚ≤ y) -> _
     handle (inj-l y<z) =
       cong (x r*_) (maxℚ-right y z y≤z) >=>
-      sym (minℚ-right (x r* y) (x r* z) (r*₁-flips-≤ (x , np-x) y z y≤z))
+      sym (minℚ-right (x r* y) (x r* z) (*₁-flips-≤ x y z (NonPos-≤0 x np-x) y≤z))
       where
       y≤z = inj-l y<z
     handle (inj-r z≤y) =
       cong (x r*_) (maxℚ-left y z z≤y) >=>
-      sym (minℚ-left (x r* y) (x r* z) (r*₁-flips-≤ (x , np-x) z y z≤y))
+      sym (minℚ-left (x r* y) (x r* z) (*₁-flips-≤ x z y (NonPos-≤0 x np-x) z≤y))
 
   minℚ-property : {ℓ : Level} {P : Pred ℚ ℓ} -> (q r : ℚ) -> P q -> P r -> P (minℚ q r)
   minℚ-property {P = P} q r pq pr = handle (split-minℚ q r)
@@ -349,10 +349,10 @@ abstract
     where
     handle : (b < c) ⊎ (c ℚ≤ b) -> maxℚ (a r* b) (a r* c) == a r* (minℚ b c)
     handle (inj-l b<c) =
-      maxℚ-left (a r* b) (a r* c) (r*₁-flips-≤ (a , np-a) b c (inj-l b<c)) >=>
+      maxℚ-left (a r* b) (a r* c) (*₁-flips-≤ a b c (NonPos-≤0 a np-a) (inj-l b<c)) >=>
       cong (a r*_) (sym (minℚ-left b c (inj-l b<c)))
     handle (inj-r c≤b) =
-      maxℚ-right (a r* b) (a r* c) (r*₁-flips-≤ (a , np-a) c b c≤b) >=>
+      maxℚ-right (a r* b) (a r* c) (*₁-flips-≤ a c b (NonPos-≤0 a np-a) c≤b) >=>
       cong (a r*_) (sym (minℚ-right b c c≤b))
 
   minℚ-r*₁-NonNeg : (a b c : ℚ) -> (NonNeg a) -> minℚ (a r* b) (a r* c) == a r* (minℚ b c)
@@ -377,10 +377,10 @@ abstract
     where
     handle : (b < c) ⊎ (c ℚ≤ b) -> minℚ (a r* b) (a r* c) == a r* (maxℚ b c)
     handle (inj-l b<c) =
-      minℚ-right (a r* b) (a r* c) (r*₁-flips-≤ (a , np-a) b c (inj-l b<c)) >=>
+      minℚ-right (a r* b) (a r* c) (*₁-flips-≤ a b c (NonPos-≤0 a np-a) (inj-l b<c)) >=>
       cong (a r*_) (sym (maxℚ-right b c (inj-l b<c)))
     handle (inj-r c≤b) =
-      minℚ-left (a r* b) (a r* c) (r*₁-flips-≤ (a , np-a) c b c≤b) >=>
+      minℚ-left (a r* b) (a r* c) (*₁-flips-≤ a c b (NonPos-≤0 a np-a) c≤b) >=>
       cong (a r*_) (sym (maxℚ-left b c c≤b))
 
   r--maxℚ : (a b : ℚ) -> r- (maxℚ a b) == minℚ (r- a) (r- b)

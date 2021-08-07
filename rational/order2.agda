@@ -211,6 +211,16 @@ instance
     ; connex-≤ = connex-ℚ≤
     }
 
+abstract
+  weaken-ℚ< : {a b : ℚ} -> a ℚ< b -> a ℚ≤ b
+  weaken-ℚ< {a} {b} (ℚ<-cons a<b) =
+    RationalElim.elimProp2
+      {C2 = (\a b -> (ℚ<-raw a b) -> (a ℚ≤ b))}
+      (\_ _ -> isPropΠ (\_ -> isProp-ℚ≤))
+      (\a b a<b -> (ℚ≤-cons (weaken-ℚ'< a<b)))
+      a b a<b
+
+
 Posℚ : Pred ℚ ℓ-zero
 Posℚ q = 0r < q
 Negℚ : Pred ℚ ℓ-zero
@@ -304,6 +314,10 @@ instance
 Zero-path : (q : Rational) -> Zeroℚ q -> q == 0r
 Zero-path _ p = p
 
--- NonNeg-0≤ : (q : Rational) -> NonNeg q -> 0r ≤ q
--- NonNeg-0≤ _ (inj-l lt) = ?
--- NonNeg-0≤ _ (inj-r eq) = ?
+NonNeg-0≤ : (q : Rational) -> NonNeg q -> 0r ≤ q
+NonNeg-0≤ _ (inj-l pq) = weaken-ℚ< pq
+NonNeg-0≤ q (inj-r zq) = subst (_≤ q) zq refl-≤
+
+NonPos-≤0 : (q : Rational) -> NonPos q -> q ≤ 0r
+NonPos-≤0 _ (inj-l nq) = weaken-ℚ< nq
+NonPos-≤0 q (inj-r zq) = subst (q ≤_) zq refl-≤
