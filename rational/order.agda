@@ -10,6 +10,7 @@ open import fraction.order
 open import hlevel
 open import isomorphism
 open import order
+open import ordered-semiring
 open import rational
 open import rational.difference
 open import rational.sign
@@ -294,6 +295,8 @@ abstract
   weaken-ℚ< = inj-l
 
 
+
+
 Pos-1/ℕ : (n : Nat⁺) -> Posℚ (1/ℕ n)
 Pos-1/ℕ (n@(suc _) , _) = is-signℚ (is-signℚ' (i.*-Pos-Pos tt tt))
 
@@ -480,6 +483,15 @@ instance
     { trichotomous-< = trichotomous-ℚ<
     }
 
+abstract
+  ℚ≤-elim : {ℓ : Level} {P : ℚ -> ℚ -> Type ℓ} ->
+            ({q r : ℚ} -> isProp (P q r)) ->
+            ({q r : ℚ} -> q < r -> P q r) ->
+            ({q r : ℚ} -> q == r -> P q r) ->
+            (q r : ℚ) -> q ℚ≤ r -> P q r
+  ℚ≤-elim _ f< f= _ _ (inj-l q<r) = f< q<r
+  ℚ≤-elim _ f< f= _ _ (inj-r zd) = f= (zero-diff->path _ _ zd)
+
 
 r+₁-preserves-order : (a b c : Rational) -> b < c -> (a r+ b) < (a r+ c)
 r+₁-preserves-order a b c = subst Posℚ (sym path)
@@ -604,6 +616,8 @@ r*₁-flips-≤ (a , (inj-l na)) b c (inj-l b<c) =
 r*₂-flips-≤ : (a b : ℚ) (c : ℚ⁰⁻) -> a ℚ≤ b -> (b r* ⟨ c ⟩) ℚ≤ (a r* ⟨ c ⟩)
 r*₂-flips-≤ a b c@(c' , _) a≤b =
   subst2 _ℚ≤_ (r*-commute c' b) (r*-commute c' a) (r*₁-flips-≤ c a b a≤b)
+
+
 
 r1/-Pos-flips-order : (a b : ℚ⁺) -> ⟨ a ⟩ < ⟨ b ⟩ ->
                       (r1/ ⟨ b ⟩ (Pos->Inv (snd b))) < (r1/ ⟨ a ⟩ (Pos->Inv (snd a)))
@@ -869,13 +883,25 @@ instance
     ; connex-≤ = connex-ℚ≤
     }
 
-instance
   CompatibleOrderStr-ℚ :
     CompatibleOrderStr ℚ ℓ-zero ℓ-zero LinearOrderStr-ℚ TotalOrderStr-ℚ
   CompatibleOrderStr-ℚ = record
     { weaken-< = \{x} {y} -> weaken-ℚ< {x} {y}
     ; strengthen-≤-≠ = strengthen-ℚ≤-≠
     }
+
+  LinearlyOrderedSemiringStr-ℚ : LinearlyOrderedSemiringStr RationalSemiring LinearOrderStr-ℚ
+  LinearlyOrderedSemiringStr-ℚ = record
+    { +₁-preserves-< = r+₁-preserves-order
+    ; *-preserves-0< = r*-preserves-0<
+    }
+
+  TotallyOrderedSemiringStr-ℚ : TotallyOrderedSemiringStr RationalSemiring TotalOrderStr-ℚ
+  TotallyOrderedSemiringStr-ℚ = record
+    { +₁-preserves-≤ = r+₁-preserves-≤
+    ; *-preserves-0≤ = r*-preserves-0≤
+    }
+
 
 
 -- Archimedean

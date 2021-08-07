@@ -224,6 +224,15 @@ private
   ℚ'<-¬r~ {q} {r} (ℚ'<-cons pos-diff) q~r = NonPos->¬Pos (inj-r (r~->zero-diff q~r)) pos-diff
 
 
+ℚ'≤-elim : {ℓ : Level} {P : ℚ' -> ℚ' -> Type ℓ} ->
+           ({q r : ℚ'} -> q ℚ'< r -> P q r) ->
+           ({q r : ℚ'} -> q r~ r -> P q r) ->
+           (q r : ℚ') -> q ℚ'≤ r -> P q r
+ℚ'≤-elim f< f~ q r (ℚ'≤-cons (inj-l pd)) = f< (ℚ'<-cons pd)
+ℚ'≤-elim f< f~ q r (ℚ'≤-cons (inj-r zd)) = f~ (zero-diff->r~ zd)
+
+
+
 trichotomous~-ℚ'< : (q r : ℚ') -> Tri (q ℚ'< r) (q r~ r) (r ℚ'< q)
 trichotomous~-ℚ'< q r = handle (decide-sign d')
   where

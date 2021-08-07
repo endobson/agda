@@ -48,6 +48,8 @@ module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
     <->!= : {d1 d2 : D} -> d1 < d2 -> d1 != d2
     <->!= {d1} {d2} d1<d2 d1=d2 = irrefl-< (subst (_< d2) d1=d2 d1<d2)
 
+    =->≮ : {d1 d2 : D} -> d1 == d2 -> d1 ≮ d2
+    =->≮ {d1} {d2} d1=d2 = subst (d1 ≮_) d1=d2 irrefl-<
 
 
 record TotalOrderStr (D : Type ℓD) (ℓ≤ : Level) : Type (ℓ-max (ℓ-suc ℓ≤) ℓD) where
@@ -64,6 +66,11 @@ record TotalOrderStr (D : Type ℓD) (ℓ≤ : Level) : Type (ℓ-max (ℓ-suc �
 
 module _ {D : Type ℓD} {{S : TotalOrderStr D ℓ<}} where
   open TotalOrderStr S public
+
+
+  abstract
+    =->≤ : {d1 d2 : D} -> d1 == d2 -> d1 ≤ d2
+    =->≤ {d1} {d2} d1=d2 = subst (d1 ≤_) d1=d2 refl-≤
 
 module _ (D : Type ℓD) (ℓ< ℓ≤ : Level)
          (<-Str : LinearOrderStr D ℓ<)

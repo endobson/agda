@@ -7,11 +7,13 @@ open import base
 open import equality
 open import fraction.sign
 open import fraction.order
+open import functions
 open import hlevel
 open import isomorphism
 open import order
 open import order.instances.int
 open import ordered-semiring
+open import ordered-ring
 open import rational
 open import relation
 open import ring
@@ -113,6 +115,36 @@ record _ℚ≤_ (q : ℚ) (r : ℚ) : Type₀ where
   field
     v : ℚ≤-raw q r
 
+module _ where
+  private
+    module M where
+      abstract
+        ℚ≤-elim : {ℓ : Level} {P : ℚ -> ℚ -> Type ℓ} ->
+                  ({q r : ℚ} -> isProp (P q r)) ->
+                  ({q r : ℚ} -> q ℚ< r -> P q r) ->
+                  ({q r : ℚ} -> q == r -> P q r) ->
+                  (q r : ℚ) -> q ℚ≤ r -> P q r
+        ℚ≤-elim {P = P} isProp-P f< f= q r (ℚ≤-cons q≤r) =
+          RationalElim.elimProp2
+            {C2 = (\q r -> (ℚ≤-raw q r) -> P q r)}
+            (\_ _ -> isPropΠ (\_ -> isProp-P))
+            g≤ q r q≤r
+
+          where
+          g< : {q r : ℚ'} -> (q ℚ'< r) -> P [ q ] [ r ]
+          g< = f< ∘ ℚ<-cons
+
+          g= : {q r : ℚ'} -> (q r~ r) -> P [ q ] [ r ]
+          g= = f= ∘ (eq/ _ _ )
+
+          g≤ : (q r : ℚ') -> (ℚ≤-raw [ q ] [ r ]) -> P [ q ] [ r ]
+          g≤ = ℚ'≤-elim g< g=
+
+  open M public
+
+
+
+
 abstract
   isProp-ℚ< : {a b : Rational} -> isProp (a ℚ< b)
   isProp-ℚ< {a} {b} (ℚ<-cons a<b1) (ℚ<-cons a<b2) =
@@ -159,6 +191,8 @@ abstract
     compare : (a b c : ℚ') -> ℚ<-raw [ a ] [ c ] -> ∥ ([ a ] ℚ< [ b ]) ⊎ ([ b ] ℚ< [ c ]) ∥
     compare a b c a<c = ∥-map (⊎-map ℚ<-cons ℚ<-cons) (comparison-ℚ'< a b c a<c)
 
+
+
   refl-ℚ≤ : Reflexive _ℚ≤_
   refl-ℚ≤ {a} =
     RationalElim.elimProp
@@ -182,7 +216,6 @@ abstract
       (\a b a≤b b≤a -> eq/ _ _ (antisym~-ℚ'≤ a≤b b≤a))
       a b a≤b b≤a
 
-
   connex-ℚ≤ : Connex _ℚ≤_
   connex-ℚ≤ =
     RationalElim.elimProp2
@@ -201,6 +234,7 @@ instance
     ; comparison-< = comparison-ℚ<
     }
 
+
   TotalOrderStr-ℚ : TotalOrderStr ℚ ℓ-zero
   TotalOrderStr-ℚ = record
     { _≤_ = _ℚ≤_
@@ -212,6 +246,42 @@ instance
     }
 
 abstract
+  trichotomous-ℚ< : Trichotomous _ℚ<_
+  trichotomous-ℚ< a b =
+    RationalElim.elimProp2
+      {C2 = (\a b -> Triℚ< a b)}
+      isProp-Triℚ<
+      f a b
+
+    where
+    Triℚ< : Rel ℚ ℓ-zero
+    Triℚ< x y = Tri (x ℚ< y) (x == y) (y ℚ< x)
+
+    isProp-Triℚ< : (x y : ℚ) -> isProp (Triℚ< x y)
+    isProp-Triℚ< x y = isProp-Tri isProp-ℚ< (isSetRational x y) isProp-ℚ<
+
+    f : (a b : ℚ') -> Triℚ< [ a ] [ b ]
+    f a b = handle (trichotomous~-ℚ'< a b)
+      where
+      handle : Tri (a ℚ'< b) (a r~ b) (b ℚ'< a) -> Triℚ< [ a ] [ b ]
+      handle (tri< a<b' _ _) = tri< a<b (<->!= a<b) (asym-< a<b)
+        where
+        a<b = (ℚ<-cons a<b')
+      handle (tri= _ a~b _) = tri= (=->≮ a=b) a=b (=->≮ (sym a=b))
+        where
+        a=b = (eq/ _ _ a~b)
+      handle (tri> _ _ b<a') = tri> (asym-< b<a) (<->!= b<a ∘ sym) b<a
+        where
+        b<a = (ℚ<-cons b<a')
+
+instance
+  DecidableLinearOrderStr-ℚ : DecidableLinearOrderStr LinearOrderStr-ℚ
+  DecidableLinearOrderStr-ℚ = record
+    { trichotomous-< = trichotomous-ℚ<
+    }
+
+
+abstract
   weaken-ℚ< : {a b : ℚ} -> a ℚ< b -> a ℚ≤ b
   weaken-ℚ< {a} {b} (ℚ<-cons a<b) =
     RationalElim.elimProp2
@@ -219,6 +289,22 @@ abstract
       (\_ _ -> isPropΠ (\_ -> isProp-ℚ≤))
       (\a b a<b -> (ℚ≤-cons (weaken-ℚ'< a<b)))
       a b a<b
+
+  strengthen-ℚ≤-≠ : {a b : ℚ} -> a ℚ≤ b -> a != b -> a < b
+  strengthen-ℚ≤-≠ =
+    ℚ≤-elim {P = \a b -> a != b -> a < b }
+            (isPropΠ (\_ -> isProp-< _ _))
+            (\x _ -> x)
+            (\a=b a!=b -> bot-elim (a!=b a=b)) _ _
+
+instance
+  CompatibleOrderStr-ℚ :
+    CompatibleOrderStr ℚ ℓ-zero ℓ-zero LinearOrderStr-ℚ TotalOrderStr-ℚ
+  CompatibleOrderStr-ℚ = record
+    { weaken-< = weaken-ℚ<
+    ; strengthen-≤-≠ = strengthen-ℚ≤-≠
+    }
+
 
 
 Posℚ : Pred ℚ ℓ-zero
@@ -309,6 +395,72 @@ instance
     ; *-preserves-0< = r*-preserves-0<
     }
 
+
+module _ where
+  private
+    module M where
+      abstract
+        r+₁-preserves-≤ : (a b c : ℚ) -> b ≤ c -> (a + b) ≤ (a + c)
+        r+₁-preserves-≤ a = ℚ≤-elim (isProp-≤ _ _) f< f=
+          where
+          f< : {b c : ℚ} -> b < c -> _
+          f< = weaken-< ∘ r+₁-preserves-< a _ _
+
+          f= : {b c : ℚ} -> b == c -> _
+          f= = =->≤ ∘ (cong (a +_))
+  open M public
+
+
+private
+  module _ where
+    private
+      module M where
+        abstract
+          ℚ0≤-elim : {ℓ : Level} {P : ℚ -> Type ℓ} ->
+                     ({q : ℚ} -> isProp (P q)) ->
+                     ({q : ℚ} -> 0r ℚ< q -> P q) ->
+                     ({q : ℚ} -> 0r == q -> P q) ->
+                     (q : ℚ) -> 0r ℚ≤ q -> P q
+          ℚ0≤-elim {P = P} isProp-P f< f= r 0≤r =
+            ℚ≤-elim {P = \ z q -> z == 0r -> P q}
+              (\{z} {q} -> (isPropΠ \_ -> isProp-P {q}))
+              g< g=
+              0r r 0≤r refl
+            where
+             g< : {z q : ℚ} -> z < q -> z == 0r -> P q
+             g< {z} {q} z<q z=0 = f< (subst (_< q) z=0 z<q)
+
+             g= : {z q : ℚ} -> z == q -> z == 0r -> P q
+             g= {z} {q} z=q z=0 = f= (subst (_== q) z=0 z=q)
+    open M public
+
+abstract
+
+  r*-preserves-0≤ : (a b : ℚ) -> 0r ≤ a -> 0r ≤ b -> 0r ≤ (a * b)
+  r*-preserves-0≤ a b 0≤a 0≤b =
+    ℚ0≤-elim {P = \a -> ∀ b -> 0r ≤ b -> 0r ≤ (a * b)}
+      (isPropΠ2 (\_ _ -> (isProp-≤ _ _))) f< f= a 0≤a b 0≤b
+    where
+    f= : {a : ℚ} -> 0r == a -> (b : ℚ) -> 0r ≤ b -> 0r ≤ (a * b)
+    f= 0=a _ _ = =->≤ (sym *-left-zero >=> *-left 0=a)
+
+    f< : {a : ℚ} -> 0r < a -> (b : ℚ) -> 0r ≤ b -> 0r ≤ (a * b)
+    f< {a} 0<a = ℚ0≤-elim (isProp-≤ _ _) g< g=
+      where
+      g< : {b : ℚ} -> 0r < b -> 0r ≤ (a * b)
+      g< 0<b = weaken-< (*-preserves-0< _ _ 0<a 0<b)
+
+      g= : {b : ℚ} -> 0r == b -> 0r ≤ (a * b)
+      g= 0=b = =->≤ (sym *-right-zero >=> *-right 0=b)
+
+
+TotallyOrderedSemiringStr-ℚ : TotallyOrderedSemiringStr RationalSemiring TotalOrderStr-ℚ
+TotallyOrderedSemiringStr-ℚ = record
+  { +₁-preserves-≤ = r+₁-preserves-≤
+  ; *-preserves-0≤ = r*-preserves-0≤
+  }
+
+
 -- Compatibility functions
 
 Zero-path : (q : Rational) -> Zeroℚ q -> q == 0r
@@ -321,3 +473,19 @@ NonNeg-0≤ q (inj-r zq) = subst (_≤ q) zq refl-≤
 NonPos-≤0 : (q : Rational) -> NonPos q -> q ≤ 0r
 NonPos-≤0 _ (inj-l nq) = weaken-ℚ< nq
 NonPos-≤0 q (inj-r zq) = subst (q ≤_) zq refl-≤
+
+NonPos≤NonNeg : {q r : Rational} -> NonPos q -> NonNeg r -> q ℚ≤ r
+NonPos≤NonNeg np-q nn-r = trans-≤ (NonPos-≤0 _ np-q) (NonNeg-0≤ _ nn-r)
+
+r--flips-sign : (q : Rational) (s : Sign) -> (isSignℚ s q) -> (isSignℚ (s⁻¹ s) (r- q))
+r--flips-sign q pos-sign 0<q = minus-flips-< _ _ 0<q
+r--flips-sign q zero-sign q=0 = cong -_ q=0
+r--flips-sign q neg-sign q<0 = minus-flips-< _ _ q<0
+
+r--NonNeg : {q1 : ℚ} -> NonNeg q1 -> NonPos (r- q1)
+r--NonNeg (inj-l s) = (inj-l (r--flips-sign _ pos-sign s))
+r--NonNeg (inj-r s) = (inj-r (r--flips-sign _ zero-sign s))
+
+r--NonPos : {q1 : ℚ} -> NonPos q1 -> NonNeg (r- q1)
+r--NonPos (inj-l s) = (inj-l (r--flips-sign _ neg-sign s))
+r--NonPos (inj-r s) = (inj-r (r--flips-sign _ zero-sign s))

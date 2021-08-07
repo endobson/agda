@@ -65,35 +65,51 @@ abstract
   maxℚ x y = maxℚ-helper x y (trichotomous-< x y)
 
 abstract
+
+  private
+    minℚ-right-= : {x y : ℚ} -> y == x -> minℚ x y == y
+    minℚ-right-= {x} {y} y=x =
+      cong (minℚ-helper x y) (isProp-Triℚ< x y _ (=->Tri x y (sym y=x)))
+
+    minℚ-left-= : {x y : ℚ} -> x == y -> minℚ x y == x
+    minℚ-left-= x=y = minℚ-right-= (sym x=y) >=> sym x=y
+
+    minℚ-right-< : {x y : ℚ} -> y < x -> minℚ x y == y
+    minℚ-right-< {x} {y} y<x =
+      cong (minℚ-helper x y) (isProp-Triℚ< x y _ (>->Tri x y y<x))
+
+    minℚ-left-< : {x y : ℚ} -> x < y -> minℚ x y == x
+    minℚ-left-< {x} {y} x<y =
+      cong (minℚ-helper x y) (isProp-Triℚ< x y _ (<->Tri x y x<y))
+
   minℚ-left : (x y : ℚ) -> x ℚ≤ y -> minℚ x y == x
-  minℚ-left x y (inj-l x<y) = cong (minℚ-helper x y) (isProp-Triℚ< x y _ (<->Tri x y x<y))
-  minℚ-left x y (inj-r zd) =
-    cong (minℚ-helper x y) (isProp-Triℚ< x y _ (=->Tri x y x=y)) >=> (sym x=y)
-    where
-    x=y : x == y
-    x=y = sym (r+-right-zero x) >=> (cong (x r+_) (sym (Zero-path _ zd))) >=> diffℚ-step x y
+  minℚ-left = ℚ≤-elim (isSetRational _ _) minℚ-left-< minℚ-left-=
 
   minℚ-right : (x y : ℚ) -> y ℚ≤ x -> minℚ x y == y
-  minℚ-right x y (inj-l y<x) = cong (minℚ-helper x y) (isProp-Triℚ< x y _ (>->Tri x y y<x))
-  minℚ-right x y (inj-r zd) = cong (minℚ-helper x y) (isProp-Triℚ< x y _ (=->Tri x y (sym y=x)))
-    where
-    y=x : y == x
-    y=x = sym (r+-right-zero y) >=> (cong (y r+_) (sym (Zero-path _ zd))) >=> diffℚ-step y x
+  minℚ-right x y y≤x = ℚ≤-elim (isSetRational _ _) minℚ-right-< minℚ-right-= y x y≤x
+
+  private
+    maxℚ-left-= : {x y : ℚ} -> y == x -> maxℚ x y == x
+    maxℚ-left-= {x} {y} y=x =
+      cong (maxℚ-helper x y) (isProp-Triℚ< x y _ (=->Tri x y (sym y=x)))
+
+    maxℚ-right-= : {x y : ℚ} -> x == y -> maxℚ x y == y
+    maxℚ-right-= x=y = maxℚ-left-= (sym x=y) >=> x=y
+
+    maxℚ-left-< : {x y : ℚ} -> y < x -> maxℚ x y == x
+    maxℚ-left-< {x} {y} y<x =
+      cong (maxℚ-helper x y) (isProp-Triℚ< x y _ (>->Tri x y y<x))
+
+    maxℚ-right-< : {x y : ℚ} -> x < y -> maxℚ x y == y
+    maxℚ-right-< {x} {y} x<y =
+      cong (maxℚ-helper x y) (isProp-Triℚ< x y _ (<->Tri x y x<y))
 
   maxℚ-left : (x y : ℚ) -> y ℚ≤ x -> maxℚ x y == x
-  maxℚ-left x y (inj-l y<x) = cong (maxℚ-helper x y) (isProp-Triℚ< x y _ (>->Tri x y y<x))
-  maxℚ-left x y (inj-r zd) = cong (maxℚ-helper x y) (isProp-Triℚ< x y _ (=->Tri x y (sym y=x)))
-    where
-    y=x : y == x
-    y=x = sym (r+-right-zero y) >=> (cong (y r+_) (sym (Zero-path _ zd))) >=> diffℚ-step y x
+  maxℚ-left x y y≤x = ℚ≤-elim (isSetRational _ _) maxℚ-left-< maxℚ-left-= y x y≤x
 
   maxℚ-right : (x y : ℚ) -> x ℚ≤ y -> maxℚ x y == y
-  maxℚ-right x y (inj-l x<y) = cong (maxℚ-helper x y) (isProp-Triℚ< x y _ (<->Tri x y x<y))
-  maxℚ-right x y (inj-r zd) =
-    cong (maxℚ-helper x y) (isProp-Triℚ< x y _ (=->Tri x y x=y)) >=> x=y
-    where
-    x=y : x == y
-    x=y = sym (r+-right-zero x) >=> (cong (x r+_) (sym (Zero-path _ zd))) >=> diffℚ-step x y
+  maxℚ-right = ℚ≤-elim (isSetRational _ _) maxℚ-right-< maxℚ-right-=
+
 
 
   minℚ-same : {x : ℚ} -> minℚ x x == x
@@ -106,7 +122,9 @@ abstract
   minℚ-commute {x} {y} = handle (split-< x y)
     where
     handle : (x < y) ⊎ (y ℚ≤ x) -> _
-    handle (inj-l x<y) = (minℚ-left x y (inj-l x<y)) >=> sym (minℚ-right y x (inj-l x<y))
+    handle (inj-l x<y) =
+      (minℚ-left x y (weaken-< {d1 = x} x<y)) >=>
+      sym (minℚ-right y x (weaken-< {d1 = x} x<y))
     handle (inj-r y≤x) = (minℚ-right x y y≤x) >=> sym (minℚ-left y x y≤x)
 
   maxℚ-commute : {x y : ℚ} -> maxℚ x y == maxℚ y x
@@ -389,10 +407,10 @@ abstract
     handle : (a < b) ⊎ (b ℚ≤ a) -> r- (maxℚ a b) == minℚ (r- a) (r- b)
     handle (inj-l a<b) =
       cong r-_ (maxℚ-right a b (inj-l a<b)) >=>
-      sym (minℚ-right (r- a) (r- b) (r--flips-≤ a b (inj-l a<b)))
+      sym (minℚ-right (r- a) (r- b) (minus-flips-≤ a b (inj-l a<b)))
     handle (inj-r b≤a) =
       cong r-_ (maxℚ-left a b b≤a) >=>
-      sym (minℚ-left (r- a) (r- b) (r--flips-≤ b a b≤a))
+      sym (minℚ-left (r- a) (r- b) (minus-flips-≤ b a b≤a))
 
   r--minℚ : (a b : ℚ) -> r- (minℚ a b) == maxℚ (r- a) (r- b)
   r--minℚ a b = handle (split-< a b)
@@ -400,10 +418,10 @@ abstract
     handle : (a < b) ⊎ (b ℚ≤ a) -> r- (minℚ a b) == maxℚ (r- a) (r- b)
     handle (inj-l a<b) =
       cong r-_ (minℚ-left a b (inj-l a<b)) >=>
-      sym (maxℚ-left (r- a) (r- b) (r--flips-≤ a b (inj-l a<b)))
+      sym (maxℚ-left (r- a) (r- b) (minus-flips-≤ a b (inj-l a<b)))
     handle (inj-r b≤a) =
       cong r-_ (minℚ-right a b b≤a) >=>
-      sym (maxℚ-right (r- a) (r- b) (r--flips-≤ b a b≤a))
+      sym (maxℚ-right (r- a) (r- b) (minus-flips-≤ b a b≤a))
 
 
 -- Absolute value
