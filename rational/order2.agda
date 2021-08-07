@@ -345,6 +345,23 @@ instance
     ; isSign-unique = isSignℚ-unique
     }
 
+private
+  abstract
+    decide-signℚ : (q : Rational) -> Σ[ s ∈ Sign ] (isSign s q)
+    decide-signℚ q = handle (trichotomous-< q 0r)
+      where
+        handle : Tri (q ℚ< 0r) (q == 0r) (0r ℚ< q) -> Σ[ s ∈ Sign ] (isSign s q)
+        handle (tri< q<0 _ _) = neg-sign , q<0
+        handle (tri= _ q=0 _) = zero-sign , q=0
+        handle (tri> _ _ 0<q) = pos-sign , 0<q
+
+instance
+  DecidableSignStr-ℚ : DecidableSignStr SignStr-ℚ
+  DecidableSignStr-ℚ = record
+    { decide-sign = decide-signℚ
+    }
+
+
 ℚ⁺ : Type₀
 ℚ⁺ = Σ ℚ Pos
 ℚ⁻ : Type₀
@@ -453,12 +470,12 @@ abstract
       g= : {b : ℚ} -> 0r == b -> 0r ≤ (a * b)
       g= 0=b = =->≤ (sym *-right-zero >=> *-right 0=b)
 
-
-TotallyOrderedSemiringStr-ℚ : TotallyOrderedSemiringStr RationalSemiring TotalOrderStr-ℚ
-TotallyOrderedSemiringStr-ℚ = record
-  { +₁-preserves-≤ = r+₁-preserves-≤
-  ; *-preserves-0≤ = r*-preserves-0≤
-  }
+instance
+  TotallyOrderedSemiringStr-ℚ : TotallyOrderedSemiringStr RationalSemiring TotalOrderStr-ℚ
+  TotallyOrderedSemiringStr-ℚ = record
+    { +₁-preserves-≤ = r+₁-preserves-≤
+    ; *-preserves-0≤ = r*-preserves-0≤
+    }
 
 
 -- Compatibility functions

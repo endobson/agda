@@ -22,7 +22,6 @@ open import set-quotient
 open import sigma
 open import sign
 open import sign.instances.fraction
-open import sign.instances.rational
 open import sum
 open import truncation
 open import univalence
