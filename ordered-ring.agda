@@ -91,3 +91,43 @@ module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
 
     *-preserves-≮0 : (a b : D) -> (a ≮ 0#) -> (b ≮ 0#) -> (a * b) ≮ 0#
     *-preserves-≮0 a b a≮0 b≮0 = subst ((a * b) ≮_) *-right-zero (*₁-preserves-≮ a b 0# a≮0 b≮0)
+
+
+module _ {D : Type ℓD} {S : Semiring D} {O : TotalOrderStr D ℓ<}
+         {{TOS : TotallyOrderedSemiringStr S O}}
+         {{R : Ring S}} where
+  private
+    instance
+      ITOS = TOS
+      IS = S
+      IO = O
+      IR = R
+
+  abstract
+    minus-flips-≤ : (a b : D) -> (a ≤ b) -> (- b) ≤ (- a)
+    minus-flips-≤ a b a≤b =
+      subst2 _≤_
+        (+-assoc >=> +-right (+-commute >=> +-inverse) >=> +-right-zero)
+        (+-left +-commute >=> +-assoc >=> +-right (+-commute >=> +-inverse) >=> +-right-zero)
+        (+₁-preserves-≤ ((- b) + (- a)) a b a≤b)
+
+    *₁-preserves-≤ : (a b c : D) -> (0# ≤ a) -> (b ≤ c) -> (a * b) ≤ (a * c)
+    *₁-preserves-≤ a b c 0≤a b≤c = ab≤ac
+      where
+      0≤cb : 0# ≤ (c + (- b))
+      0≤cb = subst2 _≤_ +-inverse refl (+₂-preserves-≤ b c (- b) b≤c)
+
+      0≤acb : 0# ≤ (a * (c + (- b)))
+      0≤acb = *-preserves-0≤ a (c + (- b)) 0≤a 0≤cb
+
+      ab+acb=ac : (a * b) + (a * (c + (- b))) == a * c
+      ab+acb=ac =
+        sym *-distrib-+-left >=>
+        *-right (+-right +-commute >=> sym +-assoc >=> +-left +-inverse >=> +-left-zero)
+
+      ab≤ac : (a * b) ≤ (a * c)
+      ab≤ac = subst2 _≤_ +-right-zero ab+acb=ac (+₁-preserves-≤ (a * b) _ _ 0≤acb)
+
+    *₂-preserves-≤ : (a b c : D) -> (a ≤ b) -> (0# ≤ c) -> (a * c) ≤ (b * c)
+    *₂-preserves-≤ a b c a≤b 0≤c =
+      subst2 _≤_ *-commute *-commute (*₁-preserves-≤ c a b 0≤c a≤b)

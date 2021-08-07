@@ -53,12 +53,6 @@ r1/'-preserves-Neg : (q : Rational') -> (i : ℚInv' q) -> Neg q -> Neg (r1/' q 
 r1/'-preserves-Neg q i p = is-signℚ' (subst i.Neg i.*-commute (isSignℚ'.v p))
 
 
-Zero-r~ : (q : Rational') -> Zero q -> q r~ 0r'
-Zero-r~ q zq = (cong (i._* (denom 0r')) path >=> i.*-left-zero >=> sym i.*-left-zero)
-  where
-  path : (numer q) == (int 0)
-  path = i.*-left-zero-eq (rNonZero q) (i.Zero-path ((numer q) i.* (denom q)) (isSignℚ'.v zq))
-
 
 Posℚ : Rational -> Type₀
 Posℚ = isSign pos-sign
@@ -87,7 +81,7 @@ Zero-path : (q : Rational) -> Zeroℚ q -> q == 0r
 Zero-path =
   RationalElim.elimProp
     (\_ -> isPropΠ (\_ -> isSetRational _ _))
-    (\q zq -> eq/ _ _ (Zero-r~ q (isSignℚ.v zq)))
+    (\q zq -> eq/ _ _ (Zero-r~ (isSignℚ.v zq)))
 
 Pos->Inv : {q : ℚ} -> Pos q -> ℚInv q
 Pos->Inv {q} p z = NonZero->¬Zero (inj-l p) (subst Zero (sym z) Zero-0r)

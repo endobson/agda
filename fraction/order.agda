@@ -268,3 +268,52 @@ comparison-ℚ'< x y z x<z = ∣ handle (trichotomous~-ℚ'< x y) (trichotomous~
   handle (tri= _   x~y _)   (tri> ¬y<z _ _) = bot-elim (¬y<z (r~-preserves-<₁ x<z x~y))
   handle (tri> _   _ y<x)   (tri= ¬y<z _ _) = bot-elim (¬y<z (trans-ℚ'< y<x x<z))
   handle (tri> _   _ y<x)   (tri> ¬y<z _ _) = bot-elim (¬y<z (trans-ℚ'< y<x x<z))
+
+
+refl-ℚ'≤ : Reflexive _ℚ'≤_
+refl-ℚ'≤ {a} = (ℚ'≤-cons (inj-r zero-diff))
+  where
+  zero-diff : Zero (a r+' (r-' a))
+  zero-diff = r~-preserves-sign Zero-0r' (sym (r+'-inverse a))
+
+weaken-ℚ'< : {a b : ℚ'} -> a ℚ'< b -> a ℚ'≤ b
+weaken-ℚ'< (ℚ'<-cons p) = (ℚ'≤-cons (inj-l p))
+
+trans-ℚ'≤ : Transitive _ℚ'≤_
+trans-ℚ'≤ {a} {b} {c} (ℚ'≤-cons a<b) (ℚ'≤-cons b<c) = a<c
+  where
+  d = b r+' (r-' a)
+  e = c r+' (r-' b)
+  f = c r+' (r-' a)
+
+  step1 : (e r+' d) r~' (c r+' ((r-' b) r+' d))
+  step1 = r~->r~' r+'-assoc
+
+  step2 : (c r+' ((r-' b) r+' d)) r~' (c r+' (((r-' b) r+' b) r+' (r-' a)))
+  step2 = r~->r~' (r+'-preserves-r~₂ c _ _ (sym r+'-assoc))
+
+  step3 : ((r-' b) r+' b) r~ 0r'
+  step3 = (subst (_r~ 0r') (r+'-commute b (r-' b)) (r+'-inverse b))
+
+  step4 : (c r+' (((r-' b) r+' b) r+' (r-' a))) r~' (c r+' (0r' r+' (r-' a)))
+  step4 = r~->r~' (r+'-preserves-r~₂ _ _ _ (r+'-preserves-r~₁ _ _ _ step3))
+
+  step5 : (c r+' (0r' r+' (r-' a))) r~' (c r+' (r-' a))
+  step5 = r~->r~' (path->r~ (cong (c r+'_) (r+'-left-zero (r-' a))))
+
+  combined-steps : (e r+' d) r~' f
+  combined-steps = trans-r~' (trans-r~' (trans-r~' step1 step2) step4) step5
+
+  f-path : (e r+' d) r~ f
+  f-path = r~'->r~ combined-steps
+
+  a<c : a ℚ'≤ c
+  a<c = ℚ'≤-cons (r~-preserves-NonNeg (r+'-preserves-NonNeg b<c a<b) f-path)
+
+connex-ℚ'≤ : Connex _ℚ'≤_
+connex-ℚ'≤ a b = handle (trichotomous~-ℚ'< a b)
+  where
+  handle : Tri (a ℚ'< b) (a r~ b) (b ℚ'< a) -> (a ℚ'≤ b) ⊎ (b ℚ'≤ a)
+  handle (tri< a<b _ _) = inj-l (weaken-ℚ'< a<b)
+  handle (tri= _ a~b _) = inj-l (ℚ'≤-cons (inj-r (r~->zero-diff a~b)))
+  handle (tri> _ _ b<a) = inj-r (weaken-ℚ'< b<a)

@@ -123,6 +123,17 @@ r~-preserves-NonNeg {q1} {q2} nn-q1 r = handle (decide-sign q1)
   handle (zero-sign , z-q1) = Zero->NonNeg (r~-preserves-sign z-q1 r)
   handle (neg-sign  , n-q1)  = bot-elim (NonNeg->¬Neg nn-q1 n-q1)
 
+Zero-r~ : {q1 : Rational'} -> Zero q1 -> q1 r~ 0r'
+Zero-r~ {q1} (is-signℚ' p) = *-right-one >=> p2 >=> sym (*-left-zero)
+  where
+  n = numer q1
+  d = denom q1
+
+  p2 : n == 0#
+  p2 = i.*-right-injective (rNonZero q1) (i.Zero-path _ p >=> sym *-left-zero)
+
+Zero-0r' : Zero 0r'
+Zero-0r' = is-signℚ' (subst Zero (sym *-left-zero) tt)
 
 
 private
@@ -227,9 +238,26 @@ abstract
       (subst (i.isSign (s⁻¹ s)) (sym i.minus-extract-left)
              (i.minus-isSign {numer q i.* denom q} {s} (isSignℚ'.v qs)))
 
+abstract
+  r+'-preserves-NonNeg : {q1 q2 : Rational'} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r+' q2)
+  r+'-preserves-NonNeg {q1} {q2} (inj-r z1) nn2 = (r~-preserves-NonNeg NonNeg-0q2 0q2~q1q2)
+    where
+    q2~0q2 : q2 r~ (0r' r+' q2)
+    q2~0q2 = subst (q2 r~_) (sym (r+'-left-zero q2)) (refl-r~ {q2})
 
+    NonNeg-0q2 : NonNeg (0r' r+' q2)
+    NonNeg-0q2 = r~-preserves-NonNeg nn2 q2~0q2
 
--- Constants
+    0q2~q1q2 : (0r' r+' q2) r~ (q1 r+' q2)
+    0q2~q1q2 = r+'-preserves-r~₁ q2 0r' q1 (sym (Zero-r~ z1))
+  r+'-preserves-NonNeg (inj-l p1) (inj-l p2) = inj-l (r+'-preserves-Pos p1 p2)
+  r+'-preserves-NonNeg {q1} {q2} (inj-l p1) (inj-r z2) = inj-l (r~-preserves-sign Pos-q10 q10~q1q2)
+    where
+    q1~q10 : q1 r~ (q1 r+' 0r')
+    q1~q10 = subst (q1 r~_) (sym (r+'-right-zero q1)) (refl-r~ {q1})
 
-Zero-0r' : Zero 0r'
-Zero-0r' = is-signℚ' (subst Zero (sym *-left-zero) tt)
+    Pos-q10 : Pos (q1 r+' 0r')
+    Pos-q10 = r~-preserves-sign p1 q1~q10
+
+    q10~q1q2 : (q1 r+' 0r') r~ (q1 r+' q2)
+    q10~q1q2 = r+'-preserves-r~₂ q1 0r' q2 (sym (Zero-r~ z2))

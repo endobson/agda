@@ -47,3 +47,17 @@ module _ {D : Type ℓD} (S : Semiring D) (O : TotalOrderStr D ℓ≤) where
     field
       +₁-preserves-≤ : (a b c : D) -> b ≤ c -> (a + b) ≤ (a + c)
       *-preserves-0≤ : (a b : D) -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a * b)
+
+module _ {D : Type ℓD} {S : Semiring D} {O : TotalOrderStr D ℓ<}
+         {{TOS : TotallyOrderedSemiringStr S O}} where
+  open TotallyOrderedSemiringStr TOS public
+
+  private
+    instance
+      IS = S
+      IO = O
+      ITOS = TOS
+
+  abstract
+    +₂-preserves-≤ : (a b c : D) -> a ≤ b -> (a + c) ≤ (b + c)
+    +₂-preserves-≤ a b c a≤b = subst2 _≤_ +-commute +-commute (+₁-preserves-≤ c a b a≤b)

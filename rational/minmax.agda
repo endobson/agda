@@ -7,6 +7,8 @@ open import equality
 open import hlevel
 open import order
 open import order.instances.rational
+open import ordered-ring
+open import ordered-semiring.instances.rational
 open import rational
 open import rational.difference
 open import rational.order-switch
@@ -156,12 +158,12 @@ abstract
     handle : (y < z) ⊎ (z ℚ≤ y) -> _
     handle (inj-l y<z) =
       cong (x r*_) (minℚ-left y z y≤z) >=>
-      sym (minℚ-left (x r* y) (x r* z) (r*₁-preserves-≤ (x , nn-x) y z y≤z))
+      sym (minℚ-left (x r* y) (x r* z) (*₁-preserves-≤ x y z (NonNeg-0≤ x nn-x) y≤z))
       where
       y≤z = inj-l y<z
     handle (inj-r z≤y) =
       cong (x r*_) (minℚ-right y z z≤y) >=>
-      sym (minℚ-right (x r* y) (x r* z) (r*₁-preserves-≤ (x , nn-x) z y z≤y))
+      sym (minℚ-right (x r* y) (x r* z) (*₁-preserves-≤ x z y (NonNeg-0≤ x nn-x) z≤y))
 
 
   r*₁-flip-distrib-min : (x : ℚ⁰⁻) (y z : ℚ) ->
@@ -185,12 +187,12 @@ abstract
     handle : (y < z) ⊎ (z ℚ≤ y) -> _
     handle (inj-l y<z) =
       cong (x r*_) (maxℚ-right y z y≤z) >=>
-      sym (maxℚ-right (x r* y) (x r* z) (r*₁-preserves-≤ (x , nn-x) y z y≤z))
+      sym (maxℚ-right (x r* y) (x r* z) (*₁-preserves-≤ x y z (NonNeg-0≤ x nn-x) y≤z))
       where
       y≤z = inj-l y<z
     handle (inj-r z≤y) =
       cong (x r*_) (maxℚ-left y z z≤y) >=>
-      sym (maxℚ-left (x r* y) (x r* z) (r*₁-preserves-≤ (x , nn-x) z y z≤y))
+      sym (maxℚ-left (x r* y) (x r* z) (*₁-preserves-≤ x z y (NonNeg-0≤ x nn-x) z≤y))
 
 
   r*₁-flip-distrib-max : (x : ℚ⁰⁻) (y z : ℚ) ->
@@ -330,10 +332,10 @@ abstract
     where
     handle : (b < c) ⊎ (c ℚ≤ b) -> maxℚ (a r* b) (a r* c) == a r* (maxℚ b c)
     handle (inj-l b<c) =
-      maxℚ-right (a r* b) (a r* c) (r*₁-preserves-≤ (a , nn-a) b c (inj-l b<c)) >=>
+      maxℚ-right (a r* b) (a r* c) (*₁-preserves-≤ a b c (NonNeg-0≤ a nn-a) (inj-l b<c)) >=>
       cong (a r*_) (sym (maxℚ-right b c (inj-l b<c)))
     handle (inj-r c≤b) =
-      maxℚ-left (a r* b) (a r* c) (r*₁-preserves-≤ (a , nn-a) c b c≤b) >=>
+      maxℚ-left (a r* b) (a r* c) (*₁-preserves-≤ a c b (NonNeg-0≤ a nn-a) c≤b) >=>
       cong (a r*_) (sym (maxℚ-left b c c≤b))
 
   maxℚ-r*₂-NonNeg : (a b c : ℚ) -> (NonNeg c) -> maxℚ (a r* c) (b r* c) == (maxℚ a b) r* c
@@ -358,10 +360,10 @@ abstract
     where
     handle : (b < c) ⊎ (c ℚ≤ b) -> minℚ (a r* b) (a r* c) == a r* (minℚ b c)
     handle (inj-l b<c) =
-      minℚ-left (a r* b) (a r* c) (r*₁-preserves-≤ (a , nn-a) b c (inj-l b<c)) >=>
+      minℚ-left (a r* b) (a r* c) (*₁-preserves-≤ a b c (NonNeg-0≤ a nn-a) (inj-l b<c)) >=>
       cong (a r*_) (sym (minℚ-left b c (inj-l b<c)))
     handle (inj-r c≤b) =
-      minℚ-right (a r* b) (a r* c) (r*₁-preserves-≤ (a , nn-a) c b c≤b) >=>
+      minℚ-right (a r* b) (a r* c) (*₁-preserves-≤ a c b (NonNeg-0≤ a nn-a) c≤b) >=>
       cong (a r*_) (sym (minℚ-right b c c≤b))
 
   minℚ-r*₂-NonNeg : (a b c : ℚ) -> (NonNeg c) -> minℚ (a r* c) (b r* c) == (minℚ a b) r* c
