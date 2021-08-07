@@ -7,6 +7,7 @@ open import equality
 open import hlevel
 open import isomorphism
 open import order
+open import ordered-semiring
 open import order.instances.rational
 open import rational
 open import rational.difference
@@ -102,7 +103,7 @@ module _ (x y : ℝ) where
         handle2 : (Tri (r1 < r3) (r1 == r3) (r1 > r3)) -> (Tri (r2 < r4) (r2 == r4) (r2 > r4)) -> Bot
         handle2 (tri< r1<r3 _ _) (tri< r2<r4 _ _) =
           irrefl-< {a = r3 r+ r4} (subst (_< (r3 r+ r4)) (r12-path >=> sym (r34-path))
-                                         (r+-both-preserves-order r1 r3 r2 r4 r1<r3 r2<r4))
+                                         (+-preserves-< r1 r3 r2 r4 r1<r3 r2<r4))
         handle2 (tri< _ _ _) (tri= _ r2==r4 _) =
           y.disjoint r4 ((subst y.L r2==r4 l-r2) , u-r4)
         handle2 (tri< _ _ _) (tri> _ _ r4<r2) =

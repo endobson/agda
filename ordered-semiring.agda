@@ -36,6 +36,10 @@ module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
     +₂-preserves-< : (a b c : D) -> a < b -> (a + c) < (b + c)
     +₂-preserves-< a b c a<b = subst2 _<_ +-commute +-commute (+₁-preserves-< c a b a<b)
 
+    +-preserves-< : (a b c d : D) -> a < b -> c < d -> (a + c) < (b + d)
+    +-preserves-< a b c d a<b c<d =
+      trans-< (+₁-preserves-< a c d c<d) (+₂-preserves-< a b d a<b)
+
 
 module _ {D : Type ℓD} (S : Semiring D) (O : TotalOrderStr D ℓ≤) where
   private
@@ -47,6 +51,8 @@ module _ {D : Type ℓD} (S : Semiring D) (O : TotalOrderStr D ℓ≤) where
     field
       +₁-preserves-≤ : (a b c : D) -> b ≤ c -> (a + b) ≤ (a + c)
       *-preserves-0≤ : (a b : D) -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a * b)
+
+
 
 module _ {D : Type ℓD} {S : Semiring D} {O : TotalOrderStr D ℓ<}
          {{TOS : TotallyOrderedSemiringStr S O}} where
@@ -61,3 +67,7 @@ module _ {D : Type ℓD} {S : Semiring D} {O : TotalOrderStr D ℓ<}
   abstract
     +₂-preserves-≤ : (a b c : D) -> a ≤ b -> (a + c) ≤ (b + c)
     +₂-preserves-≤ a b c a≤b = subst2 _≤_ +-commute +-commute (+₁-preserves-≤ c a b a≤b)
+
+    +-preserves-≤ : (a b c d : D) -> a ≤ b -> c ≤ d -> (a + c) ≤ (b + d)
+    +-preserves-≤ a b c d a≤b c≤d =
+      trans-≤ (+₁-preserves-≤ a c d c≤d) (+₂-preserves-≤ a b d a≤b)

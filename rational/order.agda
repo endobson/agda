@@ -743,20 +743,6 @@ midℚ : ℚ -> ℚ -> ℚ
 midℚ x y = 1/2r r* (x r+ y)
 
 
-abstract
-  r+-both-preserves-order : (a b c d : Rational) -> a < b -> c < d -> (a r+ c) < (b r+ d)
-  r+-both-preserves-order a b c d a<b c<d = subst Posℚ (r+-swap-diffℚ a b c d) Pos-sum-diff
-    where
-    Pos-sum-diff : Posℚ ((diffℚ a b) r+ (diffℚ c d))
-    Pos-sum-diff = r+-preserves-Pos (diffℚ a b) (diffℚ c d) a<b c<d
-
-  r+-both-preserves-≤ : (a b c d : Rational) -> a ℚ≤ b -> c ℚ≤ d -> (a r+ c) ℚ≤ (b r+ d)
-  r+-both-preserves-≤ a b c d a<b c<d = subst NonNeg (r+-swap-diffℚ a b c d) NonNeg-sum-diff
-    where
-    NonNeg-sum-diff : NonNeg ((diffℚ a b) r+ (diffℚ c d))
-    NonNeg-sum-diff = r+-preserves-NonNeg {diffℚ a b} {diffℚ c d} a<b c<d
-
-
 -- floor and <
 
 

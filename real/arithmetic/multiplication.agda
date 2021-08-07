@@ -7,6 +7,7 @@ open import equality
 open import isomorphism
 open import hlevel
 open import order
+open import ordered-semiring
 open import order.instances.rational
 open import rational
 open import rational.difference
@@ -366,8 +367,8 @@ module _ (x y : ℝ)
           wmmw≤d : wmmw ℚ≤ d
           wmmw≤d =
             subst (wmmw ℚ≤_) (sym *-distrib-+-left >=> ε-path)
-                  (r+-both-preserves-≤ (w-mxi r* m-myi) (ε r* m-yi') (m-mxi r* w-myi) (ε r* m-xi')
-                                       wm-xy-≤ mw-xy-≤)
+                  (+-preserves-≤ (w-mxi r* m-myi) (ε r* m-yi') (m-mxi r* w-myi) (ε r* m-xi')
+                                 wm-xy-≤ mw-xy-≤)
 
 
           p = mxi i* myi
@@ -386,7 +387,7 @@ module _ (x y : ℝ)
           handle2 (inj-r l≤a) = ∣ inj-r ∣ (mxi , myi , emxi , emyi , u≤b) ∣ ∣
             where
             u≤b : u ℚ≤ b
-            u≤b = subst2 _ℚ≤_ (diffℚ-step l u) (diffℚ-step a b) (r+-both-preserves-≤ l a w d l≤a w≤d)
+            u≤b = subst2 _ℚ≤_ (diffℚ-step l u) (diffℚ-step a b) (+-preserves-≤ l a w d l≤a w≤d)
 
   _ℝ*ᵉ_ : ℝ
   _ℝ*ᵉ_ = record

@@ -6,11 +6,12 @@ open import base
 open import equality
 open import hlevel
 open import order
+open import ordered-semiring
 open import order.instances.rational
 open import rational
 open import rational.difference
-open import rational.sign
-open import rational.order
+open import rational.sign-switch
+open import rational.order-switch
 open import rational.minmax
 open import relation hiding (_⊆_)
 open import ring
@@ -34,7 +35,7 @@ record Iℚ : Type₀ where
 
 _i+_ : Iℚ -> Iℚ -> Iℚ
 _i+_ (Iℚ-cons l1 u1 l1≤u1) (Iℚ-cons l2 u2 l2≤u2 ) =
-  Iℚ-cons (l1 r+ l2) (u1 r+ u2) (r+-both-preserves-≤ l1 u1 l2 u2 l1≤u1 l2≤u2)
+  Iℚ-cons (l1 r+ l2) (u1 r+ u2) (+-preserves-≤ l1 u1 l2 u2 l1≤u1 l2≤u2)
 
 Iℚ-bounds-path : {a b : Iℚ} -> (Iℚ.l a == Iℚ.l b) -> (Iℚ.u a == Iℚ.u b) -> a == b
 Iℚ-bounds-path {a} {b} pl pu = \i -> Iℚ-cons (pl i) (pu i) (p≤ i)
@@ -375,7 +376,7 @@ i-scale-width k a@(Iℚ-cons l u l≤u)  = handle (decide-sign k)
 
 i∪₁-width-≤ : (a b : Iℚ) -> i-width a ℚ≤ i-width (a i∪ b)
 i∪₁-width-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
-  r+-both-preserves-≤ au (maxℚ au bu) (r- al) (r- (minℚ al bl)) lt1 lt2
+  +-preserves-≤ au (maxℚ au bu) (r- al) (r- (minℚ al bl)) lt1 lt2
   where
   lt1 : au ℚ≤ (maxℚ au bu)
   lt1 = maxℚ-≤-left au bu
@@ -463,8 +464,8 @@ i-width-bound a@(Iℚ-cons l u l≤u) =
   dp = (diffℚ-trans l 0r u)
 
   lt1 : (diffℚ l 0r r+ diffℚ 0r u) ℚ≤ (i-maxabs a r+ i-maxabs a)
-  lt1 = r+-both-preserves-≤ (diffℚ l 0r) (i-maxabs a) (diffℚ 0r u) (i-maxabs a)
-                            dl≤maxabs du≤maxabs
+  lt1 = +-preserves-≤ (diffℚ l 0r) (i-maxabs a) (diffℚ 0r u) (i-maxabs a)
+                      dl≤maxabs du≤maxabs
 
 
 i*-width-NNNN : (a b : Iℚ) -> NonNegI a -> NonNegI b ->
@@ -885,9 +886,9 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
   mm≤mw = r*₁-preserves-≤ (ma , nn-ma) mb wb mb≤wb
 
   d≤wmmw : (diffℚ l u) ℚ≤ ((wa r* mb) r+ (ma r* wb))
-  d≤wmmw = r+-both-preserves-≤ u (wa r* mb) (r- l) (ma r* wb)
-                               (trans-ℚ≤ {u}    {ma r* mb} {wa r* mb} u≤mm mm≤wm)
-                               (trans-ℚ≤ {r- l} {ma r* mb} {ma r* wb} ml≤mm mm≤mw)
+  d≤wmmw = +-preserves-≤ u (wa r* mb) (r- l) (ma r* wb)
+                         (trans-ℚ≤ {u}    {ma r* mb} {wa r* mb} u≤mm mm≤wm)
+                         (trans-ℚ≤ {r- l} {ma r* mb} {ma r* wb} ml≤mm mm≤mw)
 
 
 i*-width-NNNN-≤ : (a b : Iℚ) -> NonNegI a -> NonNegI b ->
@@ -1275,7 +1276,7 @@ i+-preserves-⊆ {a} {b} {c} {d} a⊆b c⊆d =
 
 i-width-⊆ : {a b : Iℚ} -> a i⊆ b -> i-width a ℚ≤ i-width b
 i-width-⊆ {Iℚ-cons al au _} {Iℚ-cons bl bu _} (i⊆-cons l u) =
-  r+-both-preserves-≤ au bu (r- al) (r- bl) u (r--flips-≤ bl al l)
+  +-preserves-≤ au bu (r- al) (r- bl) u (r--flips-≤ bl al l)
 
 i-maxabs-⊆ : {a b : Iℚ} -> a i⊆ b -> i-maxabs a ℚ≤ i-maxabs b
 i-maxabs-⊆ {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (i⊆-cons bl≤al au≤bu) =
