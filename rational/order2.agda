@@ -174,16 +174,21 @@ abstract
       (\a b c a≤b b≤c -> ℚ≤-cons (trans-ℚ'≤ a≤b b≤c))
       a b c a≤b b≤c
 
---  antisym-ℚ≤ : Antisymmetric _ℚ≤_
---  antisym-ℚ≤ = ?
---
---  connex-ℚ≤ : Connex _ℚ≤_
---  connex-ℚ≤ = ?
---    RationalElim.elimProp2
---      {C2 = (\a b -> ¬ (ℚ<-raw a b) -> ¬ (ℚ<-raw b a) -> a == b)}
---      (\_ _ -> isPropΠ2 (\_ _ -> isSetRational _ _))
---      (\a b ¬a<b ¬b<a -> eq/ _ _ (connected~-ℚ'< ¬a<b ¬b<a))
---      a b (\a<b -> ¬a<b (ℚ<-cons a<b)) (\b<a -> ¬b<a (ℚ<-cons b<a))
+  antisym-ℚ≤ : Antisymmetric _ℚ≤_
+  antisym-ℚ≤ {a} {b} (ℚ≤-cons a≤b) (ℚ≤-cons b≤a) =
+    RationalElim.elimProp2
+      {C2 = (\a b -> (ℚ≤-raw a b) -> (ℚ≤-raw b a) -> a == b)}
+      (\_ _ -> isPropΠ2 (\_ _ -> isSetRational _ _))
+      (\a b a≤b b≤a -> eq/ _ _ (antisym~-ℚ'≤ a≤b b≤a))
+      a b a≤b b≤a
+
+
+  connex-ℚ≤ : Connex _ℚ≤_
+  connex-ℚ≤ =
+    RationalElim.elimProp2
+      {C2 = (\a b -> ∥ (a ℚ≤ b) ⊎ (b ℚ≤ a) ∥)}
+      (\_ _ -> squash )
+      (\a b -> ∥-map (⊎-map ℚ≤-cons ℚ≤-cons) (connex-ℚ'≤ a b))
 
 instance
   LinearOrderStr-ℚ : LinearOrderStr ℚ ℓ-zero
@@ -196,15 +201,15 @@ instance
     ; comparison-< = comparison-ℚ<
     }
 
---  TotalOrderStr-ℚ : TotalOrderStr ℚ ℓ-zero
---  TotalOrderStr-ℚ = record
---    { _≤_ = _ℚ≤_
---    ; isProp-≤ = \_ _ -> isProp-ℚ≤
---    ; refl-≤ = refl-ℚ≤
---    ; trans-≤ = \{a} {b} {c} -> trans-ℚ≤ {a} {b} {c}
---    ; antisym-≤ = antisym-ℚ≤
---    ; connex-≤ = connex-ℚ≤
---    }
+  TotalOrderStr-ℚ : TotalOrderStr ℚ ℓ-zero
+  TotalOrderStr-ℚ = record
+    { _≤_ = _ℚ≤_
+    ; isProp-≤ = \_ _ -> isProp-ℚ≤
+    ; refl-≤ = refl-ℚ≤
+    ; trans-≤ = \{a} {b} {c} -> trans-ℚ≤ {a} {b} {c}
+    ; antisym-≤ = antisym-ℚ≤
+    ; connex-≤ = connex-ℚ≤
+    }
 
 Posℚ : Pred ℚ ℓ-zero
 Posℚ q = 0r < q

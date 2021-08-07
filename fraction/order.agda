@@ -195,6 +195,30 @@ private
     zn = subst Zero (sym zpath >=> cong Rational'.numerator (sym r+'-eval)) tt
     zd = is-signℚ' (int.*-Zero₁ zn)
 
+  zero-diff->r~ : {q r : ℚ'} -> Zero (r r+' (r-' q)) -> (q r~ r)
+  zero-diff->r~ {q} {r} z = q~r
+    where
+    diffᵉ = (r r+'ᵉ (r-' q))
+    nq = Rational'.numerator q
+    dq = Rational'.denominator q
+    nr = Rational'.numerator r
+    dr = Rational'.denominator r
+
+    znᵉ : (Rational'.numerator diffᵉ) == (int.int 0)
+    znᵉ = cong Rational'.numerator (sym r+'-eval) >=> int.Zero-path _ (Zero->Zero-numer z)
+
+    q~r : nq * dr == nr * dq
+    q~r =
+      begin
+        nq * dr
+      ==< sym +-right-zero >=> +-right ((sym znᵉ) >=> +-commute) >
+        (nq * dr) + (((int.- nq) * dr) + nr * dq)
+      ==< +-right (+-left int.minus-extract-left) >
+        (nq * dr) + (int.- (nq * dr) + nr * dq)
+      ==< sym +-assoc >=> +-left int.add-minus-zero >=> +-left-zero >
+        nr * dq
+      end
+
 
   ℚ'<-¬r~ : {q r : ℚ'} -> q ℚ'< r -> ¬ (q r~ r)
   ℚ'<-¬r~ {q} {r} (ℚ'<-cons pos-diff) q~r = NonPos->¬Pos (inj-r (r~->zero-diff q~r)) pos-diff
@@ -310,6 +334,16 @@ trans-ℚ'≤ {a} {b} {c} (ℚ'≤-cons a<b) (ℚ'≤-cons b<c) = a<c
   a<c : a ℚ'≤ c
   a<c = ℚ'≤-cons (r~-preserves-NonNeg (r+'-preserves-NonNeg b<c a<b) f-path)
 
+trans-ℚ'≤-ℚ'< : {a b c : ℚ'} -> a ℚ'≤ b -> b ℚ'< c -> a ℚ'< c
+trans-ℚ'≤-ℚ'< (ℚ'≤-cons (inj-l p)) = trans-ℚ'< (ℚ'<-cons p)
+trans-ℚ'≤-ℚ'< (ℚ'≤-cons (inj-r z)) b<c =
+  r~-preserves-<₁ b<c (sym (zero-diff->r~ z))
+
+trans-ℚ'<-ℚ'≤ : {a b c : ℚ'} -> a ℚ'< b -> b ℚ'≤ c -> a ℚ'< c
+trans-ℚ'<-ℚ'≤ a<b (ℚ'≤-cons (inj-l p)) = trans-ℚ'< a<b (ℚ'<-cons p)
+trans-ℚ'<-ℚ'≤ a<b (ℚ'≤-cons (inj-r z)) =
+  r~-preserves-<₂ a<b (zero-diff->r~ z)
+
 connex-ℚ'≤ : Connex _ℚ'≤_
 connex-ℚ'≤ a b = ∣ handle (trichotomous~-ℚ'< a b) ∣
   where
@@ -317,3 +351,11 @@ connex-ℚ'≤ a b = ∣ handle (trichotomous~-ℚ'< a b) ∣
   handle (tri< a<b _ _) = inj-l (weaken-ℚ'< a<b)
   handle (tri= _ a~b _) = inj-l (ℚ'≤-cons (inj-r (r~->zero-diff a~b)))
   handle (tri> _ _ b<a) = inj-r (weaken-ℚ'< b<a)
+
+antisym~-ℚ'≤ : {a b : ℚ'} -> a ℚ'≤ b -> b ℚ'≤ a -> a r~ b
+antisym~-ℚ'≤ {a} {b} a≤b b≤a = handle (trichotomous~-ℚ'< a b)
+  where
+  handle : Tri (a ℚ'< b) (a r~ b) (b ℚ'< a) -> a r~ b
+  handle (tri< a<b _ _) = bot-elim (irrefl-ℚ'< (trans-ℚ'≤-ℚ'< b≤a a<b))
+  handle (tri= _ a~b _) = a~b
+  handle (tri> _ _ b<a) = bot-elim (irrefl-ℚ'< (trans-ℚ'≤-ℚ'< a≤b b<a))

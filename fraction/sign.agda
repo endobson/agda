@@ -135,6 +135,16 @@ Zero-r~ {q1} (is-signℚ' p) = *-right-one >=> p2 >=> sym (*-left-zero)
 Zero-0r' : Zero 0r'
 Zero-0r' = is-signℚ' (subst Zero (sym *-left-zero) tt)
 
+Zero->Zero-numer : {q : ℚ'} -> Zero q -> Zero (numer q)
+Zero->Zero-numer {q} (is-signℚ' zq) = handle (decide-sign (numer q))
+  where
+  handle : Σ[ s ∈ Sign ] isSign s (numer q) -> Zero (numer q)
+  handle (pos-sign  , p-nq) =
+    bot-elim (NonZero->¬Zero (i.*-NonZero-NonZero (inj-l p-nq) (rNonZero q)) zq)
+  handle (zero-sign , z-nq) = z-nq
+  handle (neg-sign  , n-nq)  =
+    bot-elim (NonZero->¬Zero (i.*-NonZero-NonZero (inj-r n-nq) (rNonZero q)) zq)
+
 
 private
   Pos->same-sign :
