@@ -1329,8 +1329,8 @@ trans-i⊂ {Iℚ-cons al au _} {Iℚ-cons bl bu _} {Iℚ-cons cl cu _} a⊂b b�
 
 trans-i⊂-i⊆ : {a b c : Iℚ} -> a i⊂ b -> b i⊆ c -> a i⊂ c
 trans-i⊂-i⊆ {Iℚ-cons al au _} {Iℚ-cons bl bu _} {Iℚ-cons cl cu _} a⊂b b⊆c = record
-  { l = trans-≤-< {cl} {bl} {al} (_i⊆_.l b⊆c) (_i⊂_.l a⊂b)
-  ; u = trans-<-≤ {au} {bu} {cu} (_i⊂_.u a⊂b) (_i⊆_.u b⊆c)
+  { l = trans-≤-< {d1 = cl} {bl} {al} (_i⊆_.l b⊆c) (_i⊂_.l a⊂b)
+  ; u = trans-<-≤ {d1 = au} {bu} {cu} (_i⊂_.u a⊂b) (_i⊆_.u b⊆c)
   }
 
 weaken-i⊂ : {a b : Iℚ} -> a i⊂ b -> a i⊆ b
@@ -1556,7 +1556,7 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
   nn-case nn-bl = k , p-k , 1<k , subst (_i⊆ b) p-path (i⊆-cons bl≤pl pu≤bu)
     where
     p-au : Pos au
-    p-au = Pos-< bl au nn-bl (trans-<-≤ {bl} {al} {au} bl<al al≤au)
+    p-au = Pos-< bl au nn-bl (trans-<-≤ {d1 = bl} {al} {au} bl<al al≤au)
 
     au-inv : ℚInv au
     au-inv = Pos->Inv p-au
@@ -1606,7 +1606,7 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
   np-case np-bu = k , p-k , 1<k , subst (_i⊆ b) p-path (i⊆-cons bl≤pl pu≤bu)
     where
     n-al : Neg al
-    n-al = Neg-< al bu np-bu (trans-≤-< {al} {au} {bu} al≤au au<bu)
+    n-al = Neg-< al bu np-bu (trans-≤-< {d1 = al} {au} {bu} al≤au au<bu)
 
     al-inv : ℚInv al
     al-inv = Neg->Inv n-al

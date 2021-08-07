@@ -114,14 +114,14 @@ module _ (x y : ℝ)
       where
       handle : L' x y b -> L' x y a
       handle (xi , yi , exi , eyi , lt) =
-        (xi , yi , exi , eyi , inj-l (trans-<-≤ {a} {b} {Iℚ.l (xi i* yi)} a<b lt))
+        (xi , yi , exi , eyi , inj-l (trans-<-≤ {d1 = a} {b} {Iℚ.l (xi i* yi)} a<b lt))
 
     isUpperSet-U : isUpperSet U
     isUpperSet-U a b a<b = ∥-map handle
       where
       handle : U' x y a -> U' x y b
       handle (xi , yi , exi , eyi , lt) =
-        (xi , yi , exi , eyi , inj-l (trans-≤-< {Iℚ.u (xi i* yi)} {a} {b} lt a<b))
+        (xi , yi , exi , eyi , inj-l (trans-≤-< {d1 = Iℚ.u (xi i* yi)} {a} {b} lt a<b))
 
 
     isUpperOpen-L : isUpperOpen L
@@ -151,7 +151,7 @@ module _ (x y : ℝ)
           p'⊂p = i*-preserves-⊂ {xi'} {xi} {yi'} {yi} (i⊂-cons a<a' b'<b) (i⊂-cons c<c' d'<d) nz-xi'
 
           q<r : q < r
-          q<r = trans-≤-< {q} {Iℚ.l (xi i* yi)} {r} lt (_i⊂_.l p'⊂p)
+          q<r = trans-≤-< {d1 = q} {Iℚ.l (xi i* yi)} {r} lt (_i⊂_.l p'⊂p)
 
     isLowerOpen-U : isLowerOpen U
     isLowerOpen-U q = ∥-bind handle
@@ -180,7 +180,7 @@ module _ (x y : ℝ)
           p'⊂p = i*-preserves-⊂ {xi'} {xi} {yi'} {yi} (i⊂-cons a<a' b'<b) (i⊂-cons c<c' d'<d) nz-xi'
 
           r<q : r < q
-          r<q = trans-<-≤ {r} {Iℚ.u (xi i* yi)} {q} (_i⊂_.u p'⊂p) lt
+          r<q = trans-<-≤ {d1 = r} {Iℚ.u (xi i* yi)} {q} (_i⊂_.u p'⊂p) lt
 
 
 

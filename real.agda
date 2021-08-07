@@ -127,7 +127,7 @@ module _ (x : ℝ) where
       handle2 (inj-r q≤0) = (1r , Pos-1r) , x.isUpperSet-U q 1r q<1r uq
         where
         q<1r : q < 1r
-        q<1r = (trans-≤-< {q} {0r} {1r} q≤0 (Pos-0< 1r Pos-1r))
+        q<1r = (trans-≤-< {d1 = q} {0r} {1r} q≤0 (Pos-0< 1r Pos-1r))
 
   ℝ->Neg-L : ∃[ q ∈ ℚ⁻ ] (x.L ⟨ q ⟩)
   ℝ->Neg-L = ∥-map handle x.Inhabited-L
@@ -147,7 +147,7 @@ module _ (x : ℝ) where
                             x.isLowerSet-L (r- 1r) q -1r<q lq
         where
         -1r<q : (r- 1r) < q
-        -1r<q = trans-<-≤ {r- 1r} {0r} {q}
+        -1r<q = trans-<-≤ {d1 = r- 1r} {0r} {q}
                   (subst Posℚ (minus-double-inverse >=>
                                (sym (r+-left-zero (r- (r- 1r)))))
                               Pos-1r)
@@ -157,13 +157,13 @@ module _ (x : ℝ) where
   isLowerSet≤ q r q≤r lr = unsquash (x.isProp-L q) (∥-map handle (x.isUpperOpen-L r lr))
     where
     handle : Σ[ s ∈ ℚ ] (r < s × x.L s) -> x.L q
-    handle (s , r<s , ls) = x.isLowerSet-L q s (trans-≤-< {q} {r} {s} q≤r r<s) ls
+    handle (s , r<s , ls) = x.isLowerSet-L q s (trans-≤-< {d1 = q} {r} {s} q≤r r<s) ls
 
   isUpperSet≤ : (q r : ℚ) -> (q ℚ≤ r) -> x.U q -> x.U r
   isUpperSet≤ q r q≤r uq = unsquash (x.isProp-U r) (∥-map handle (x.isLowerOpen-U q uq))
     where
     handle : Σ[ s ∈ ℚ ] (s < q × x.U s) -> x.U r
-    handle (s , s<q , us) = x.isUpperSet-U s r (trans-<-≤ {s} {q} {r} s<q q≤r) us
+    handle (s , s<q , us) = x.isUpperSet-U s r (trans-<-≤ {d1 = s} {q} {r} s<q q≤r) us
 
 
   LowerOpen-Pos : (q : ℚ⁺) -> (x.U ⟨ q ⟩) -> ∃[ r ∈ ℚ⁺ ] (⟨ r ⟩ < ⟨ q ⟩ × x.U ⟨ r ⟩)
@@ -216,7 +216,7 @@ irrefl-ℝ< {x} x<x = unsquash isPropBot (∥-map handle x<x)
 
 ℝ-bounds->¬ℚ≤ : (x : ℝ) (q1 q2 : ℚ) -> (Real.L x q1) -> (Real.U x q2) -> ¬ (q2 ℚ≤ q1)
 ℝ-bounds->¬ℚ≤ x q1 q2 lq1 uq2 q2≤q1 =
-  irrefl-< {_} {_} {_} {q2} (trans-≤-< {q2} {q1} {q2} q2≤q1 (ℝ-bounds->ℚ< x q1 q2 lq1 uq2))
+  irrefl-< {_} {_} {_} {q2} (trans-≤-< {d1 = q2} {q1} {q2} q2≤q1 (ℝ-bounds->ℚ< x q1 q2 lq1 uq2))
 
 trans-ℝ< : Transitive _ℝ<_
 trans-ℝ< {x} {y} {z} x<y y<z = (∥-map2 handle x<y y<z)

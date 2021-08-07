@@ -45,6 +45,9 @@ module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
       handle (inj-l a<b) = a≮b a<b
       handle (inj-r b<c) = b≮c b<c
 
+    <->!= : {d1 d2 : D} -> d1 < d2 -> d1 != d2
+    <->!= {d1} {d2} d1<d2 d1=d2 = irrefl-< (subst (_< d2) d1=d2 d1<d2)
+
 
 
 record TotalOrderStr (D : Type ℓD) (ℓ≤ : Level) : Type (ℓ-max (ℓ-suc ℓ≤) ℓD) where
@@ -93,6 +96,32 @@ module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {
         where
         d2=d1 : d2 == d1
         d2=d1 = antisym-≤ (weaken-< d2<d1) d1≤d2
+
+    trans-<-≤ : {d1 d2 d3 : D} -> d1 < d2 -> d2 ≤ d3 -> d1 < d3
+    trans-<-≤ {d1} {d2} {d3} d1<d2 d2≤d3 =
+      strengthen-≤-≠ (trans-≤ (weaken-< d1<d2) d2≤d3) d1!=d3
+      where
+      d2!=d1 : d2 != d1
+      d2!=d1 d2=d1 = <->!= d1<d2 (sym d2=d1)
+
+      d1!=d3 : d1 != d3
+      d1!=d3 d1=d3 = asym-< d1<d2 (strengthen-≤-≠ d2≤d1 d2!=d1)
+        where
+        d2≤d1 : d2 ≤ d1
+        d2≤d1 = subst (d2 ≤_) (sym d1=d3) d2≤d3
+
+    trans-≤-< : {d1 d2 d3 : D} -> d1 ≤ d2 -> d2 < d3 -> d1 < d3
+    trans-≤-< {d1} {d2} {d3} d1≤d2 d2<d3 =
+      strengthen-≤-≠ (trans-≤ d1≤d2 (weaken-< d2<d3)) d1!=d3
+      where
+      d3!=d2 : d3 != d2
+      d3!=d2 d3=d2 = <->!= d2<d3 (sym d3=d2)
+
+      d1!=d3 : d1 != d3
+      d1!=d3 d1=d3 = asym-< d2<d3 (strengthen-≤-≠ d3≤d2 d3!=d2)
+        where
+        d3≤d2 : d3 ≤ d2
+        d3≤d2 = subst (_≤ d2) d1=d3 d1≤d2
 
 
 module _ {D : Type ℓD} {ℓ< : Level} (<-Str : LinearOrderStr D ℓ<) where

@@ -230,7 +230,7 @@ abstract
     where
     handle : (a < b) ⊎ (b ℚ≤ a) -> _
     handle (inj-l a<b) = subst2 _ℚ≤_ (sym (minℚ-left a b (inj-l a<b)))
-                                     (sym (minℚ-left a c (inj-l (trans-<-≤ {a} {b} {c} a<b b≤c))))
+                                     (sym (minℚ-left a c (inj-l (trans-<-≤ {d1 = a} {b} {c} a<b b≤c))))
                                      refl-≤
     handle (inj-r b≤a) =
       subst (_ℚ≤ (minℚ a c)) (sym (minℚ-right a b b≤a)) (minℚ-property a c b≤a b≤c)
@@ -253,7 +253,7 @@ abstract
     handle (inj-l a<c) = subst (_< minℚ b d) (sym (minℚ-left a c (inj-l a<c)))
                                (minℚ-property b d a<b (trans-< {_} {_} {_} {a} {c} {d} a<c c<d))
     handle (inj-r c≤a) = subst (_< minℚ b d) (sym (minℚ-right a c c≤a))
-                               (minℚ-property b d (trans-≤-< {c} {a} {b} c≤a a<b) c<d)
+                               (minℚ-property b d (trans-≤-< {d1 = c} {a} {b} c≤a a<b) c<d)
 
   maxℚ-preserves-< : (a b c d : ℚ) -> (a < b) -> (c < d) -> maxℚ a c < maxℚ b d
   maxℚ-preserves-< a b c d a<b c<d = handle (split-< b d)
@@ -262,7 +262,7 @@ abstract
     handle (inj-l b<d) = subst (maxℚ a c <_) (sym (maxℚ-right b d (inj-l b<d)))
                                (maxℚ-property a c (trans-< {_} {_} {_} {a} {b} {d} a<b b<d) c<d)
     handle (inj-r d≤b) = subst (maxℚ a c <_) (sym (maxℚ-left b d d≤b))
-                               (maxℚ-property a c a<b (trans-<-≤ {c} {d} {b} c<d d≤b))
+                               (maxℚ-property a c a<b (trans-<-≤ {d1 = c} {d} {b} c<d d≤b))
 
 
   maxℚ-preserves-≤ : (a b c d : ℚ) -> (a ℚ≤ b) -> (c ℚ≤ d) -> maxℚ a c ℚ≤ maxℚ b d
@@ -271,7 +271,7 @@ abstract
     handle : (b < d ⊎ d ℚ≤ b) -> _
     handle (inj-l b<d) =
       subst (maxℚ a c ℚ≤_) (sym (maxℚ-right b d (inj-l b<d)))
-            (maxℚ-property {P = _ℚ≤ d} a c (inj-l (trans-≤-< {a} {b} {d} a≤b b<d)) c≤d)
+            (maxℚ-property {P = _ℚ≤ d} a c (inj-l (trans-≤-< {d1 = a} {b} {d} a≤b b<d)) c≤d)
     handle (inj-r d≤b) =
       subst (maxℚ a c ℚ≤_) (sym (maxℚ-left b d d≤b))
             (maxℚ-property {P = _ℚ≤ b} a c a≤b (trans-ℚ≤ {c} {d} {b} c≤d d≤b))
@@ -289,14 +289,14 @@ abstract
       cong (\x -> minℚ x c) (minℚ-left a b (inj-l a<b)) >=>
       cong (minℚ a) (sym (minℚ-right b c c≤b))
       where
-      c≤b = inj-l (trans-≤-< {c} {a} {b} c≤a a<b)
+      c≤b = inj-l (trans-≤-< {d1 = c} {a} {b} c≤a a<b)
     handle (inj-r b≤a) (inj-l a<c) =
       cong (\x -> minℚ x c) (minℚ-right a b b≤a) >=>
       minℚ-left b c b≤c >=>
       sym (minℚ-right a b b≤a) >=>
       sym (cong (minℚ a) (minℚ-left b c b≤c))
       where
-      b≤c = inj-l (trans-≤-< {b} {a} {c} b≤a a<c)
+      b≤c = inj-l (trans-≤-< {d1 = b} {a} {c} b≤a a<c)
     handle (inj-r b≤a) (inj-r c≤a) =
       cong (\x -> minℚ x c) (minℚ-right a b b≤a) >=>
       sym (minℚ-right a (minℚ b c) (minℚ-property b c b≤a c≤a))
@@ -315,12 +315,12 @@ abstract
       sym (maxℚ-right a b (inj-l a<b)) >=>
       sym (cong (maxℚ a) (maxℚ-left b c c≤b))
       where
-      c≤b = inj-l (trans-≤-< {c} {a} {b} c≤a a<b)
+      c≤b = inj-l (trans-≤-< {d1 = c} {a} {b} c≤a a<b)
     handle (inj-r b≤a) (inj-l a<c) =
       cong (\x -> maxℚ x c) (maxℚ-left a b b≤a) >=>
       cong (maxℚ a) (sym (maxℚ-right b c b≤c))
       where
-      b≤c = inj-l (trans-≤-< {b} {a} {c} b≤a a<c)
+      b≤c = inj-l (trans-≤-< {d1 = b} {a} {c} b≤a a<c)
     handle (inj-r b≤a) (inj-r c≤a) =
      cong (\x -> maxℚ x c) (maxℚ-left a b b≤a) >=>
      maxℚ-left a c c≤a >=>

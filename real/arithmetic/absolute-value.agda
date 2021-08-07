@@ -31,8 +31,6 @@ open import rational.order using
  ; 0<-Pos
  ; NonNeg-0≤
  ; NonPos-≤0
- ; trans-<-≤
- ; trans-≤-<
  ; trans-ℚ≤
  )
 open import rational.sign
@@ -209,7 +207,7 @@ abstract
     ≤0->¬xU {q} q≤0 xU-q = unsquash isPropBot (∥-map handle (x.isLowerOpen-U q xU-q))
       where
       handle : Σ[ r ∈ ℚ ] (r < q × x.U r) -> Bot
-      handle (r , r<q , xU-r) = 0≤x ∣ (r , xU-r , trans-<-≤ {r} {q} {0r} r<q q≤0) ∣
+      handle (r , r<q , xU-r) = 0≤x ∣ (r , xU-r , trans-<-≤ {d1 = r} {q} {0r} r<q q≤0) ∣
 
     <0->xL : {q : ℚ} -> (q < 0r) -> x.L q
     <0->xL {q} q<0r = unsquash (x.isProp-L q) (∥-map handle (x.located q 0r q<0r))
@@ -270,11 +268,11 @@ abstract
       handle2 (inj-r 0≤r1) _ = inj-r (inj-r ans)
         where
         ans : 0ℝ < x
-        ans = ∥-map (\ (s , r1<s , xl) -> s , trans-≤-< {0r} 0≤r1 r1<s , xl) (x.isUpperOpen-L r1 xl-r1)
+        ans = ∥-map (\ (s , r1<s , xl) -> s , trans-≤-< {d1 = 0r} 0≤r1 r1<s , xl) (x.isUpperOpen-L r1 xl-r1)
       handle2 (inj-l r1<0) (inj-r r2≤0) = inj-r (inj-l ans)
         where
         ans : x < 0ℝ
-        ans = ∥-map (\ (s , s<r2 , xu) -> s , xu , trans-<-≤ {s} s<r2 r2≤0) (x.isLowerOpen-U r2 xu-r2)
+        ans = ∥-map (\ (s , s<r2 , xu) -> s , xu , trans-<-≤ {d1 = s} s<r2 r2≤0) (x.isLowerOpen-U r2 xu-r2)
       handle2 (inj-l r1<0) (inj-l 0<r2) = inj-l (∣ s , (xl--s , xu-s) , s<q ∣)
         where
         -r1<q : (- r1) < q

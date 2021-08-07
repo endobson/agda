@@ -840,14 +840,10 @@ Neg-< a b np-b a<b =
  subst Neg minus-double-inverse
            (r--flips-sign _ _ (Pos-< (r- b) (r- a) (r--NonPos np-b) (r--flips-order a b a<b)))
 
-
-trans-<-≤ : {q1 q2 q3 : Rational} -> q1 < q2 -> q2 ℚ≤ q3 -> q1 < q3
-trans-<-≤ {q1} {q2} {q3} q1<q2 q2≤q3 =
-  subst Pos (diffℚ-trans q1 q2 q3) (r+-Pos-NonNeg q1<q2 q2≤q3)
-
-trans-≤-< : {q1 q2 q3 : Rational} -> q1 ℚ≤ q2 -> q2 < q3 -> q1 < q3
-trans-≤-< {q1} {q2} {q3} q1≤q2 q2<q3 =
-  subst Pos (diffℚ-trans q1 q2 q3) (r+-NonNeg-Pos q1≤q2 q2<q3)
+private
+  trans-ℚ<-ℚ≤ : {q1 q2 q3 : Rational} -> q1 < q2 -> q2 ℚ≤ q3 -> q1 < q3
+  trans-ℚ<-ℚ≤ {q1} {q2} {q3} q1<q2 q2≤q3 =
+    subst Pos (diffℚ-trans q1 q2 q3) (r+-Pos-NonNeg q1<q2 q2≤q3)
 
 abstract
   trans-ℚ≤ : {q1 q2 q3 : Rational} -> q1 ℚ≤ q2 -> q2 ℚ≤ q3 -> q1 ℚ≤ q3
@@ -855,7 +851,8 @@ abstract
     subst NonNeg (diffℚ-trans q1 q2 q3) (r+-NonNeg-NonNeg q1≤q2 q2<q3)
 
 antisym-ℚ≤ : Antisymmetric _ℚ≤_
-antisym-ℚ≤ {a} {b} (inj-l a<b) b≤a = bot-elim (irrefl-< {_} {_} {_} {a} (trans-<-≤ {a} {b} {a} a<b b≤a))
+antisym-ℚ≤ {a} {b} (inj-l a<b) b≤a =
+  bot-elim (irrefl-< {_} {_} {_} {a} (trans-ℚ<-ℚ≤ {a} {b} {a} a<b b≤a))
 antisym-ℚ≤ {a} {b} (inj-r a=b) _ = zero-diff->path a b a=b
 
 connex-ℚ≤ : Connex _ℚ≤_
@@ -870,6 +867,14 @@ instance
     ; trans-≤ = \{a} {b} {c} -> trans-ℚ≤ {a} {b} {c}
     ; antisym-≤ = antisym-ℚ≤
     ; connex-≤ = connex-ℚ≤
+    }
+
+instance
+  CompatibleOrderStr-ℚ :
+    CompatibleOrderStr ℚ ℓ-zero ℓ-zero LinearOrderStr-ℚ TotalOrderStr-ℚ
+  CompatibleOrderStr-ℚ = record
+    { weaken-< = \{x} {y} -> weaken-ℚ< {x} {y}
+    ; strengthen-≤-≠ = strengthen-ℚ≤-≠
     }
 
 
@@ -963,7 +968,7 @@ small-1/ℕ : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] (1/ℕ m < ⟨ q ⟩)
 small-1/ℕ q = ∥-map handle (1/ℕ-<-step3 q)
   where
   handle : Σ[ m ∈ Nat⁺ ] (1/ℕ m ℚ≤ ⟨ q ⟩) -> Σ[ m ∈ Nat⁺ ] (1/ℕ m < ⟨ q ⟩)
-  handle (m , m≤) = (2⁺ *⁺ m) , trans-<-≤ {1/ℕ (2⁺ *⁺ m)} {1/ℕ m} {⟨ q ⟩} (1/2ℕ<1/ℕ m) m≤
+  handle (m , m≤) = (2⁺ *⁺ m) , trans-<-≤ {d1 = 1/ℕ (2⁺ *⁺ m)} {1/ℕ m} {⟨ q ⟩} (1/2ℕ<1/ℕ m) m≤
 
 private
   small-1/2^ℕ-step1 : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] (1/ℕ (2⁺ nat.^⁺ ⟨ m ⟩) < ⟨ q ⟩)
