@@ -10,7 +10,7 @@ open import ordered-ring
 open import ordered-semiring.instances.rational
 open import rational
 open import rational.minmax
-open import rational.order-switch
+open import rational.order
 open import rational.proper-interval
 open import rational.proper-interval.maxabs-multiplication
 open import relation

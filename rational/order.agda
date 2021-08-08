@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module rational.order2 where
+module rational.order where
 
 open import abs
 open import base

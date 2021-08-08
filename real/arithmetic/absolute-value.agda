@@ -17,7 +17,7 @@ open import rational
 open import rational.proper-interval
 open import rational.proper-interval.abs
 open import rational.minmax
-open import rational.order-switch using
+open import rational.order using
  ( ℚ⁻
  ; ℚ⁺
  ; r--flips-sign
@@ -29,9 +29,10 @@ open import rational.order-switch using
  ; 0<-Pos
  ; NonNeg-0≤
  ; NonPos-≤0
+ ; Pos-diffℚ⁻
+ ; Pos-diffℚ
  ; trans-ℚ≤
  )
-open import rational.sign-switch
 open import real
 open import real.interval
 open import real.arithmetic.multiplication

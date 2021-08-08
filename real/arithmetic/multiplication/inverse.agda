@@ -13,11 +13,10 @@ open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.real
 open import rational
-open import rational.order-switch
+open import rational.order
 open import rational.minmax
 open import rational.proper-interval
 open import rational.proper-interval.multiplication-assoc
-open import rational.sign-switch
 open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication

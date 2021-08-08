@@ -7,7 +7,7 @@ open import equality
 open import rational
 open import rational.proper-interval
 open import rational.difference
-open import rational.order-switch
+open import rational.order
 open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication

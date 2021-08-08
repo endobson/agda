@@ -9,7 +9,7 @@ open import order
 open import ordered-semiring
 open import order.instances.rational
 open import rational
-open import rational.order-switch
+open import rational.order
 open import rational.minmax
 open import rational.proper-interval
 open import relation hiding (_⊆_)

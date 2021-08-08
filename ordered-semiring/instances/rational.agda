@@ -2,7 +2,7 @@
 
 module ordered-semiring.instances.rational where
 
-open import rational.order-switch public using
+open import rational.order public using
   ( LinearlyOrderedSemiringStr-ℚ
   ; TotallyOrderedSemiringStr-ℚ
   )

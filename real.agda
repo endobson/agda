@@ -14,7 +14,7 @@ open import ordered-ring
 open import ordered-semiring
 open import rational
 open import rational.difference
-open import rational.order-switch
+open import rational.order
 open import relation hiding (U)
 open import ring
 open import ring.implementations.rational

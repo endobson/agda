@@ -8,7 +8,7 @@ open import equality
 open import functions
 open import heyting-field
 open import rational
-open import rational.order-switch
+open import rational.order
 open import real
 open import real.sequence
 open import real.arithmetic.order

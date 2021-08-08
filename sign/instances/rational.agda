@@ -2,7 +2,7 @@
 
 module sign.instances.rational where
 
-open import rational.sign-switch public using
+open import rational.order public using
   ( SignStr-ℚ
   ; DecidableSignStr-ℚ
   )

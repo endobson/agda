@@ -2,7 +2,7 @@
 
 module order.instances.rational where
 
-open import rational.order-switch public using
+open import rational.order public using
  ( LinearOrderStr-ℚ
  ; DecidableLinearOrderStr-ℚ
  ; TotalOrderStr-ℚ

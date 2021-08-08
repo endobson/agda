@@ -11,8 +11,7 @@ open import ordered-ring
 open import ordered-semiring.instances.rational
 open import rational
 open import rational.difference
-open import rational.order-switch
-open import rational.sign-switch
+open import rational.order
 open import relation
 open import ring
 open import ring.implementations.rational

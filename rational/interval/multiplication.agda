@@ -8,11 +8,10 @@ open import hlevel
 open import order
 open import order.instances.rational
 open import rational
-open import rational.order-switch
+open import rational.order
 open import rational.minmax
 open import rational.interval
 open import rational.interval.multiplication-base
-open import rational.sign-switch
 open import relation
 open import sign
 open import sign.instances.rational

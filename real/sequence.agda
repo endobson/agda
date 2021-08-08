@@ -9,7 +9,7 @@ open import nat.arithmetic
 open import nat.properties
 open import rational
 open import rational.difference
-open import rational.order-switch
+open import rational.order
 open import rational.minmax
 open import relation hiding (U)
 open import ring
