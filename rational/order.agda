@@ -735,6 +735,15 @@ r1/-Pos-flips-≤ (a , pos-a) (b , pos-b) (inj-r z-ab) =
            (ℕ->ℚ-preserves-order a' b' lt)
 
 
+NonNeg-diffℚ : (a b : ℚ) -> a ℚ≤ b -> NonNeg (diffℚ a b)
+NonNeg-diffℚ _ _ a≤b = a≤b
+
+NonNeg-diffℚ⁻ : (a b : ℚ) -> NonNeg (diffℚ a b) -> a ℚ≤ b
+NonNeg-diffℚ⁻ _ _ a≤b = a≤b
+
+Pos-diffℚ : (a b : ℚ) -> a ℚ< b -> Pos (diffℚ a b)
+Pos-diffℚ _ _ a<b = a<b
+
 -- ℕ<-1/ℕ< : (a b : Nat⁺) -> ⟨ a ⟩ nat.< ⟨ b ⟩ -> 1/ℕ b < 1/ℕ a
 -- ℕ<-1/ℕ< a b lt = ?
 

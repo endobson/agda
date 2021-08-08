@@ -64,6 +64,10 @@ module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
       0<-a : 0# < (- a)
       0<-a = subst (_< (- a)) minus-zero (minus-flips-< _ _ a<0)
 
+    *₂-flips-< : (a b c : D) -> (a < b) -> (c < 0#) -> (b * c) < (a * c)
+    *₂-flips-< a b c a<b c<0 =
+      subst2 _<_ *-commute *-commute (*₁-flips-< c a b c<0 a<b)
+
   private
     case-≮' : (x y x' y' : D) -> (x < y -> y' ≮ x') -> (x == y -> x' == y') -> (y ≮ x -> y' ≮ x')
     case-≮' x y x' y' f< f= y≮x y'<x' = irrefl-< (subst (y' <_) x'==y' y'<x')
