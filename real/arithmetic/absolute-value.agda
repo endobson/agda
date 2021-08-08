@@ -229,7 +229,7 @@ abstract
           where
           handle2 : (q < 0r ⊎ 0r ≤ q) -> x.L q
           handle2 (inj-l lt) = <0->xL lt
-          handle2 (inj-r ge) = bot-elim (≤0->¬xU (minus-flips-≤ 0r q ge) u-q)
+          handle2 (inj-r ge) = bot-elim (≤0->¬xU (minus-flips-0≤ ge) u-q)
       i .inv xl = ∣ inj-l xl ∣
       i .rightInv _ = x.isProp-L q _ _
       i .leftInv _ = ax.isProp-L q _ _
@@ -247,7 +247,7 @@ abstract
           where
           handle : ((- q) < 0r ⊎ 0r ≤ (- q)) -> (- q) < 0r
           handle (inj-l lt) = lt
-          handle (inj-r ge) = bot-elim (≤0->¬xU (minus-flips-≤ 0r (- q) ge)
+          handle (inj-r ge) = bot-elim (≤0->¬xU (minus-flips-0≤ ge)
                                                 (subst x.U (sym minus-double-inverse) xu))
       i .rightInv _ = x.isProp-U q _ _
       i .leftInv _ = ax.isProp-U q _ _
@@ -278,7 +278,7 @@ abstract
         -r1<q : (- r1) < q
         -r1<q = subst2 _<_ +-left-zero diff-path (+₂-preserves-< 0r r2 (- r1) 0<r2)
         r2<q : r2 < q
-        r2<q = subst2 _<_ +-right-zero diff-path (+₁-preserves-< r2 0r (- r1) (minus-flips-< r1 0r r1<0))
+        r2<q = subst2 _<_ +-right-zero diff-path (+₁-preserves-< r2 0r (- r1) (minus-flips-<0 r1<0))
 
 
         s = maxℚ (- r1) r2
@@ -357,7 +357,7 @@ abstract
       handle2 (inj-r u≤0) = isLowerSet≤ ax (maxℚ l 0r) (- u) l0≤-u axl--u
         where
         l0≤-u : (maxℚ l 0r) ≤ (- u)
-        l0≤-u = subst (_≤ (- u)) (sym l0=0) (minus-flips-≤ u 0r u≤0)
+        l0≤-u = subst (_≤ (- u)) (sym l0=0) (minus-flips-≤0 u≤0)
 
         axl--u : ax.L (- u)
         axl--u = ∣ inj-r (subst x.U (sym minus-double-inverse) xu-u) ∣
@@ -387,7 +387,7 @@ abstract
   0≤l : 0r ≤ l
   0≤l = NonNeg-0≤ l nn-l
   -u≤l : (- u) ≤ l
-  -u≤l = (trans-ℚ≤ { - u} (minus-flips-≤ l u l≤u) (trans-ℚ≤ { - l} (minus-flips-≤ 0r l 0≤l) 0≤l))
+  -u≤l = (trans-ℚ≤ { - u} (minus-flips-≤ l u l≤u) (trans-ℚ≤ { - l} (minus-flips-0≤ 0≤l) 0≤l))
 
 ℝ∈Iℚ-absℝ-NonPosI : (x : ℝ) (a : Iℚ) -> NonPosI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) (i- a)
 ℝ∈Iℚ-absℝ-NonPosI x (Iℚ-cons l u l≤u) np-u (xl-l , xu-u) =
@@ -399,7 +399,7 @@ abstract
   u≤0 = NonPos-≤0 u np-u
 
   u≤-l : u ≤ (- l)
-  u≤-l = (trans-ℚ≤ {u} (trans-ℚ≤ {u} u≤0 (minus-flips-≤ u 0r u≤0)) (minus-flips-≤ l u l≤u))
+  u≤-l = (trans-ℚ≤ {u} (trans-ℚ≤ {u} u≤0 (minus-flips-≤0 u≤0)) (minus-flips-≤ l u l≤u))
 
 private
   ℝ∈Iℚ-absℝ-ImbalancedI : (x : ℝ) (a : Iℚ) -> ImbalancedI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) a

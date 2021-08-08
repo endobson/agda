@@ -372,7 +372,7 @@ module _ (x : ℝ) where
           d'>0 = Pos-diffℚ q r q<r
 
           d<0 : (diffℚ r q) < 0r
-          d<0 = subst (_< 0r) (sym (diffℚ-anticommute r q)) (minus-flips-< 0r (diffℚ q r) d'>0)
+          d<0 = subst (_< 0r) (sym (diffℚ-anticommute r q)) (minus-flips-0< d'>0)
 
       i .fun 0xl-q = unsquash (x.isProp-L q) (∥-map handle 0xl-q)
         where
@@ -556,7 +556,7 @@ module _ (x : ℝ) where
     U-backward q 0r<q = ∥-map handle (find-open-ball x q⁺)
       where
       q⁺ : ℚ⁺
-      q⁺ = q , subst Pos (r+-right-zero q) (Pos-diffℚ 0r q 0r<q)
+      q⁺ = q , 0r<q
 
       handle :  Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (Real.L x q1 × Real.U x q2 × diffℚ q1 q2 == q) ->
                 Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (x.U q1 × x.L (r- q2) × q1 r+ q2 == q)

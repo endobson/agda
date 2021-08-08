@@ -34,6 +34,12 @@ module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
         (+-left +-commute >=> +-assoc >=> +-right (+-commute >=> +-inverse) >=> +-right-zero)
         (+₁-preserves-< ((- b) + (- a)) a b a<b)
 
+    minus-flips-0< : {a : D} -> (0# < a) -> (- a) < 0#
+    minus-flips-0< {a} 0<a = subst ((- a) <_) minus-zero (minus-flips-< _ _ 0<a)
+
+    minus-flips-<0 : {a : D} -> (a < 0#) -> 0# < (- a)
+    minus-flips-<0 {a} a<0 = subst (_< (- a)) minus-zero (minus-flips-< _ _ a<0)
+
     *₁-preserves-< : (a b c : D) -> (0# < a) -> (b < c) -> (a * b) < (a * c)
     *₁-preserves-< a b c 0<a b<c = ab<ac
       where
@@ -123,6 +129,12 @@ module _ {D : Type ℓD} {S : Semiring D} {O : TotalOrderStr D ℓ<}
         (+-assoc >=> +-right (+-commute >=> +-inverse) >=> +-right-zero)
         (+-left +-commute >=> +-assoc >=> +-right (+-commute >=> +-inverse) >=> +-right-zero)
         (+₁-preserves-≤ ((- b) + (- a)) a b a≤b)
+
+    minus-flips-0≤ : {a : D} -> (0# ≤ a) -> (- a) ≤ 0#
+    minus-flips-0≤ {a} 0≤a = subst ((- a) ≤_) minus-zero (minus-flips-≤ _ _ 0≤a)
+
+    minus-flips-≤0 : {a : D} -> (a ≤ 0#) -> 0# ≤ (- a)
+    minus-flips-≤0 {a} a≤0 = subst (_≤ (- a)) minus-zero (minus-flips-≤ _ _ a≤0)
 
     *₁-preserves-≤ : (a b c : D) -> (0# ≤ a) -> (b ≤ c) -> (a * b) ≤ (a * c)
     *₁-preserves-≤ a b c 0≤a b≤c = ab≤ac

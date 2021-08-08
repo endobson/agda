@@ -243,7 +243,7 @@ private
       module -x = Real -x
 
       -0L : -x.L 0r
-      -0L = 0U
+      -0L = subst x.U (sym minus-zero) 0U
 
     ℝ1/-Neg : ℝ
     ℝ1/-Neg = ℝ-ᵉ (ℝ1/-Pos -x -0L)
@@ -302,13 +302,19 @@ module _ (x : ℝ)  where
       p1 : ℝ-ᵉ (ℝ-ᵉ x) == x
       p1 = ℝ-ᵉ-double-inverse x
 
-      p2 : (ℝ1/-Pos (ℝ-ᵉ -x) (ℝ<->U -x 0r -x<0)) == (ℝ1/-Pos x (ℝ<->L 0r x 0<x))
+      L0 : Real.L (ℝ-ᵉ -x) 0r
+      L0 = subst (Real.U -x) (sym minus-zero) (ℝ<->U -x 0r -x<0)
+
+      p2 : (ℝ1/-Pos (ℝ-ᵉ -x) L0) == (ℝ1/-Pos x (ℝ<->L 0r x 0<x))
       p2 = cong2-dep ℝ1/-Pos p1
            (isProp->PathP (\i -> (Real.isProp-L (p1 i) 0r)) _ _)
 
     ℝ-ᵉ-ℝ1/ᵉ-commute' xinv@(inj-l x<0) -xinv@(inj-r 0<-x) =
-      ℝ-ᵉ-double-inverse (ℝ1/-Pos -x (ℝ<->U x 0r x<0)) >=>
-      cong (ℝ1/-Pos -x) (x.isProp-U 0r _ _)
+      ℝ-ᵉ-double-inverse (ℝ1/-Pos -x L0) >=>
+      cong (ℝ1/-Pos -x) (x.isProp-U (- 0r) _ _)
+      where
+      L0 : Real.L -x 0r
+      L0 = subst x.U (sym minus-zero) (ℝ<->U x 0r x<0)
 
     ℝ-ᵉ-ℝ1/ᵉ-commute' (inj-r 0<x) (inj-r 0<-x) = bot-elim (asym-ℝ< {0ℝ} {x} 0<x x<0)
       where
@@ -436,14 +442,15 @@ private
   module _ (x : ℝ) (0U : Real.U x 0r) where
     private
       1/x = ℝ1/-Neg x 0U
+      0L = (subst (Real.U x) (sym minus-zero) 0U)
 
     1/ℝ-Neg-inverse : 1/x ℝ* x == 1ℝ
     1/ℝ-Neg-inverse =
-      cong (_ℝ* x) (sym (ℝ--eval {ℝ1/-Pos (ℝ-ᵉ x) 0U})) >=>
+      cong (_ℝ* x) (sym (ℝ--eval {ℝ1/-Pos (ℝ-ᵉ x) 0L})) >=>
       minus-extract-left >=>
       sym minus-extract-right >=>
-      cong ((ℝ1/-Pos (ℝ-ᵉ x) 0U) ℝ*_) (ℝ--eval {x}) >=>
-      1/ℝ-Pos-inverse (ℝ-ᵉ x) 0U
+      cong ((ℝ1/-Pos (ℝ-ᵉ x) 0L) ℝ*_) (ℝ--eval {x}) >=>
+      1/ℝ-Pos-inverse (ℝ-ᵉ x) 0L
 
 
 module _ (x : ℝ)  where

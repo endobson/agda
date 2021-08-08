@@ -172,11 +172,11 @@ i-abs (Iℚ-cons l u l≤u) = (Iℚ-cons (maxℚ l 0r) (maxℚ (- l) u) lt)
       handle (inj-l l<0) =
         subst (_ℚ≤ (maxℚ (- l) u))
           (sym (maxℚ-right l 0r (weaken-< l<0)))
-          (trans-ℚ≤ {0r} (weaken-< (minus-flips-< l 0r l<0)) (maxℚ-≤-left (- l) u))
+          (trans-ℚ≤ {0r} (weaken-< (minus-flips-<0 l<0)) (maxℚ-≤-left (- l) u))
       handle (inj-r 0≤l) =
         subst2 (_ℚ≤_) (sym (maxℚ-left l 0r 0≤l)) (sym (maxℚ-right (- l) u -l≤u)) l≤u
         where
         -l≤0 : (- l) ℚ≤ 0r
-        -l≤0 = (minus-flips-≤ 0r l 0≤l)
+        -l≤0 = (minus-flips-0≤ 0≤l)
         -l≤u : (- l) ℚ≤ u
         -l≤u = trans-ℚ≤ { - l} (trans-ℚ≤ { - l}-l≤0 0≤l) l≤u

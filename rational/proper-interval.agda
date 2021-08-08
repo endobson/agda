@@ -458,7 +458,8 @@ i-width-bound a@(Iℚ-cons l u l≤u) =
   dl≤maxabs = trans-ℚ≤ {diffℚ l 0r} {absℚ l} {i-maxabs a} dl≤absl absl≤maxabs
 
   du≤absu : diffℚ 0r u ℚ≤ absℚ u
-  du≤absu = subst (_ℚ≤ absℚ u) (sym (r+-right-zero u)) (maxℚ-≤-left u (r- u))
+  du≤absu = subst (_ℚ≤ absℚ u) (sym (r+-right-zero u) >=> +-right (sym minus-zero))
+                  (maxℚ-≤-left u (r- u))
   absu≤maxabs : absℚ u ℚ≤ i-maxabs a
   absu≤maxabs = maxℚ-≤-right _ _
   du≤maxabs = trans-ℚ≤ {diffℚ 0r u} {absℚ u} {i-maxabs a} du≤absu absu≤maxabs

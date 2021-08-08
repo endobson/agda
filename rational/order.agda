@@ -34,8 +34,8 @@ import nat
 open nat using (ℕ ; Nat⁺; 2⁺ ; _*⁺_)
 
 private
-  ℚ<-full : ℚ -> ℚ -> hProp ℓ-zero
-  ℚ<-full = RationalElim.elim2 (\_ _ -> isSet-hProp) val preserved₁ preserved₂
+  ℚ<-fullᵉ : ℚᵉ -> ℚᵉ -> hProp ℓ-zero
+  ℚ<-fullᵉ = RationalElim.elim2 (\_ _ -> isSet-hProp) val preserved₁ preserved₂
     where
     val : ℚ' -> ℚ' -> hProp ℓ-zero
     val q r = q ℚ'< r , isProp-ℚ'<
@@ -58,22 +58,22 @@ private
       i .rightInv _ = isProp-ℚ'< _ _
       i .leftInv _ = isProp-ℚ'< _ _
 
-  ℚ<-rawᵉ : ℚ -> ℚ -> Type₀
-  ℚ<-rawᵉ q r = ⟨ ℚ<-full q r ⟩
+  ℚ<-rawᵉ : ℚᵉ -> ℚᵉ -> Type₀
+  ℚ<-rawᵉ q r = ⟨ ℚ<-fullᵉ q r ⟩
 
 
   abstract
-    ℚ<-raw : ℚ -> ℚ -> Type₀
-    ℚ<-raw = ℚ<-rawᵉ
+    ℚ<-full : ℚ -> ℚ -> hProp ℓ-zero
+    ℚ<-full = ℚ<-fullᵉ -- subst (\x -> (x -> x -> hProp ℓ-zero)) (sym ℚ-eval) ℚ<-fullᵉ
+
+    ℚ<-raw : Rel ℚ ℓ-zero
+    ℚ<-raw q r = ⟨ ℚ<-full q r ⟩
 
     isProp-ℚ<-raw : (q r : ℚ) -> isProp (ℚ<-raw q r)
     isProp-ℚ<-raw q r = snd (ℚ<-full q r)
 
-    ℚ<-raw-eval : {q r : ℚ} -> ℚ<-raw q r == ℚ<-rawᵉ q r
-    ℚ<-raw-eval = refl
-
-  ℚ≤-full : ℚ -> ℚ -> hProp ℓ-zero
-  ℚ≤-full = RationalElim.elim2 (\_ _ -> isSet-hProp) val preserved₁ preserved₂
+  ℚ≤-fullᵉ : ℚᵉ -> ℚᵉ -> hProp ℓ-zero
+  ℚ≤-fullᵉ = RationalElim.elim2 (\_ _ -> isSet-hProp) val preserved₁ preserved₂
     where
     val : ℚ' -> ℚ' -> hProp ℓ-zero
     val q r = q ℚ'≤ r , isProp-ℚ'≤
@@ -96,18 +96,18 @@ private
       i .rightInv _ = isProp-ℚ'≤ _ _
       i .leftInv _ = isProp-ℚ'≤ _ _
 
-  ℚ≤-rawᵉ : ℚ -> ℚ -> Type₀
-  ℚ≤-rawᵉ q r = ⟨ ℚ≤-full q r ⟩
+  ℚ≤-rawᵉ : ℚᵉ -> ℚᵉ -> Type₀
+  ℚ≤-rawᵉ q r = ⟨ ℚ≤-fullᵉ q r ⟩
 
   abstract
+    ℚ≤-full : ℚ -> ℚ -> hProp ℓ-zero
+    ℚ≤-full = ℚ≤-fullᵉ -- subst (\x -> (x -> x -> hProp ℓ-zero)) (sym ℚ-eval) ℚ≤-fullᵉ
+
     ℚ≤-raw : ℚ -> ℚ -> Type₀
-    ℚ≤-raw = ℚ≤-rawᵉ
+    ℚ≤-raw q r = ⟨ ℚ≤-full q r ⟩
 
     isProp-ℚ≤-raw : (q r : ℚ) -> isProp (ℚ≤-raw q r)
     isProp-ℚ≤-raw q r = snd (ℚ≤-full q r)
-
-    ℚ≤-raw-eval : {q r : ℚ} -> ℚ≤-raw q r == ℚ≤-rawᵉ q r
-    ℚ≤-raw-eval = refl
 
 
 record _ℚ<_ (q : ℚ) (r : ℚ) : Type₀ where
@@ -548,9 +548,9 @@ Zero-path : (q : Rational) -> Zeroℚ q -> q == 0r
 Zero-path _ p = p
 
 r--flips-sign : (q : Rational) (s : Sign) -> (isSignℚ s q) -> (isSignℚ (s⁻¹ s) (r- q))
-r--flips-sign q pos-sign 0<q = minus-flips-< _ _ 0<q
-r--flips-sign q zero-sign q=0 = cong -_ q=0
-r--flips-sign q neg-sign q<0 = minus-flips-< _ _ q<0
+r--flips-sign q pos-sign 0<q = minus-flips-0< 0<q
+r--flips-sign q zero-sign q=0 = cong -_ q=0 >=> minus-zero
+r--flips-sign q neg-sign q<0 = minus-flips-<0 q<0
 
 r--NonNeg : {q1 : ℚ} -> NonNeg q1 -> NonPos (r- q1)
 r--NonNeg (inj-l s) = (inj-l (r--flips-sign _ pos-sign s))
@@ -573,7 +573,7 @@ NonPos-≤0 q (inj-r zq) = subst (q ≤_) zq refl-≤
 
 ≤0-NonPos : (q : Rational) -> q ≤ 0r -> NonPos q
 ≤0-NonPos q q≤0 =
-  subst NonPos minus-double-inverse (r--NonNeg (0≤-NonNeg (r- q) (minus-flips-≤ q 0r q≤0)))
+  subst NonPos minus-double-inverse (r--NonNeg (0≤-NonNeg (r- q) (minus-flips-≤0 q≤0)))
 
 Pos-0< : (q : Rational) -> Pos q -> 0r < q
 Pos-0< q 0<q = 0<q
