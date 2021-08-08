@@ -55,6 +55,15 @@ module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
     *₂-preserves-< a b c a<b 0<c =
       subst2 _<_ *-commute *-commute (*₁-preserves-< c a b 0<c a<b)
 
+    *₁-flips-< : (a b c : D) -> (a < 0#) -> (b < c) -> (a * c) < (a * b)
+    *₁-flips-< a b c a<0 b<c =
+      subst2 _<_ (cong -_ minus-extract-left >=> minus-double-inverse)
+                 (cong -_ minus-extract-left >=> minus-double-inverse)
+                 (minus-flips-< _ _ (*₁-preserves-< (- a) b c 0<-a b<c))
+      where
+      0<-a : 0# < (- a)
+      0<-a = subst (_< (- a)) minus-zero (minus-flips-< _ _ a<0)
+
   private
     case-≮' : (x y x' y' : D) -> (x < y -> y' ≮ x') -> (x == y -> x' == y') -> (y ≮ x -> y' ≮ x')
     case-≮' x y x' y' f< f= y≮x y'<x' = irrefl-< (subst (y' <_) x'==y' y'<x')
@@ -140,3 +149,7 @@ module _ {D : Type ℓD} {S : Semiring D} {O : TotalOrderStr D ℓ<}
       where
       0≤-a : 0# ≤ (- a)
       0≤-a = subst (_≤ (- a)) minus-zero (minus-flips-≤ _ _ a≤0)
+
+    *₂-flips-≤ : (a b c : D) -> (a ≤ b) -> (c ≤ 0#) -> (b * c) ≤ (a * c)
+    *₂-flips-≤ a b c a≤b c≤0 =
+      subst2 _≤_ *-commute *-commute (*₁-flips-≤ c a b c≤0 a≤b)

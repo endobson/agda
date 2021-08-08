@@ -5,13 +5,14 @@ module fraction.sign where
 open import base
 open import equality
 open import hlevel.base
+open import nat
 open import rational
 open import relation
-open import semiring
 open import ring.implementations
+open import semiring
+open import sigma
 open import sign
 open import sign.instances.int
-open import sigma
 
 import int.order
 
@@ -169,6 +170,14 @@ private
   same-sign->Pos q s@pos-sign sn sd = is-signℚ' (int.*-isSign {s} {s} {numer q} {denom q} sn sd)
   same-sign->Pos q s@neg-sign sn sd = is-signℚ' (int.*-isSign {s} {s} {numer q} {denom q} sn sd)
   same-sign->Pos q zero-sign sn sd = bot-elim (int.NonZero->¬Zero (rNonZero q) sd)
+
+same-sign-ℤ->ℚ' : (i : ℤ) -> (s : Sign) -> isSign s i -> isSign s (ℤ->ℚ' i)
+same-sign-ℤ->ℚ' i s si =
+  subst (\x -> isSign x (ℤ->ℚ' i)) s*-pos-right-identity
+        (is-signℚ' (int.*-isSign {s} {pos-sign} {i} {i.int 1} si tt))
+
+Pos-ℕ⁺->ℚ' : (i : Nat⁺) -> Pos (ℕ->ℚ' ⟨ i ⟩)
+Pos-ℕ⁺->ℚ' (i@(suc _) , _) = same-sign-ℤ->ℚ' (i.int i) pos-sign tt
 
 abstract
   r+'-preserves-Pos : {q1 q2 : Rational'} -> Pos q1 -> Pos q2 -> Pos (q1 r+' q2)

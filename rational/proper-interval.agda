@@ -6,13 +6,14 @@ open import base
 open import equality
 open import hlevel
 open import order
-open import ordered-semiring
 open import order.instances.rational
+open import ordered-ring
+open import ordered-semiring
 open import rational
 open import rational.difference
-open import rational.sign-switch
-open import rational.order-switch
 open import rational.minmax
+open import rational.order-switch
+open import rational.sign-switch
 open import relation hiding (_⊆_)
 open import ring
 open import ring.implementations.rational
@@ -44,7 +45,7 @@ Iℚ-bounds-path {a} {b} pl pu = \i -> Iℚ-cons (pl i) (pu i) (p≤ i)
   p≤ = isProp->PathP (\i -> isProp-ℚ≤ {pl i} {pu i}) (Iℚ.l≤u a) (Iℚ.l≤u b)
 
 i-_ : Iℚ -> Iℚ
-i-_ (Iℚ-cons l u l≤u) = Iℚ-cons (r- u) (r- l) (r--flips-≤ l u l≤u)
+i-_ (Iℚ-cons l u l≤u) = Iℚ-cons (r- u) (r- l) (minus-flips-≤ l u l≤u)
 
 i--double-inverse : {a : Iℚ} -> (i- (i- a)) == a
 i--double-inverse {Iℚ-cons l u l≤u} = Iℚ-bounds-path minus-double-inverse minus-double-inverse
@@ -381,7 +382,7 @@ i∪₁-width-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
   lt1 : au ℚ≤ (maxℚ au bu)
   lt1 = maxℚ-≤-left au bu
   lt2 : (r- al) ℚ≤ (r- (minℚ al bl))
-  lt2 = r--flips-≤ (minℚ al bl) al (minℚ-≤-left al bl)
+  lt2 = minus-flips-≤ (minℚ al bl) al (minℚ-≤-left al bl)
 
 i∪₂-width-≤ : (a b : Iℚ) -> i-width b ℚ≤ i-width (a i∪ b)
 i∪₂-width-≤ a b = subst (\x -> i-width b ℚ≤ i-width x) (i∪-commute b a) (i∪₁-width-≤ b a)
@@ -400,7 +401,7 @@ i-maxabs-NonNeg (Iℚ-cons l u l≤u) nn-l =
 i-maxabs-NonPos : (a : Iℚ) -> NonPosI a -> i-maxabs a == (r- (Iℚ.l a))
 i-maxabs-NonPos (Iℚ-cons l u l≤u) np-u =
   cong2 maxℚ (absℚ-NonPos np-l) (absℚ-NonPos np-u) >=>
-  maxℚ-left (r- l) (r- u) (r--flips-≤ l u l≤u)
+  maxℚ-left (r- l) (r- u) (minus-flips-≤ l u l≤u)
   where
   np-l = NonPos-≤ l u np-u l≤u
 
@@ -414,7 +415,7 @@ i-maxabs-CrossZero a@(Iℚ-cons l u l≤u) (np-l , nn-u) =
   pm = cong2 maxℚ (absℚ-NonPos np-l) (absℚ-NonNeg nn-u)
 
   l-lt : (r- l) ℚ≤ w
-  l-lt = subst (_ℚ≤ w) (r+-left-zero (r- l)) (r+₂-preserves-≤ _ _ (r- l) (NonNeg-0≤ _ nn-u))
+  l-lt = subst (_ℚ≤ w) (r+-left-zero (r- l)) (+₂-preserves-≤ _ _ (r- l) (NonNeg-0≤ _ nn-u))
 
   u-lt : u ℚ≤ w
   u-lt = subst (_ℚ≤ w) (r+-right-zero u) (r+₁-preserves-≤ u _ _ (NonNeg-0≤ _ (r--NonPos np-l)))
@@ -816,11 +817,11 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
 
   m≤al : (r- ma) ℚ≤ al
   m≤al = subst ((r- ma) ℚ≤_) minus-double-inverse
-               (r--flips-≤ (r- al) ma mal≤m)
+               (minus-flips-≤ (r- al) ma mal≤m)
 
   m≤bl : (r- mb) ℚ≤ bl
   m≤bl = subst ((r- mb) ℚ≤_) minus-double-inverse
-               (r--flips-≤ (r- bl) mb mbl≤m)
+               (minus-flips-≤ (r- bl) mb mbl≤m)
 
   au≤m : au ℚ≤ ma
   au≤m = subst (_ℚ≤ ma) (absℚ-NonNeg nn-au) (maxℚ-≤-right (absℚ al) (absℚ au))
@@ -868,7 +869,7 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
 
   ml≤mm : (r- l) ℚ≤ (ma r* mb)
   ml≤mm = subst ((r- l) ℚ≤_) minus-double-inverse
-                (r--flips-≤ (r- (ma r* mb)) l mm≤l)
+                (minus-flips-≤ (r- (ma r* mb)) l mm≤l)
 
 
   u = Iℚ.u (a i* b)
@@ -904,7 +905,7 @@ i*-width-NNNN-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al 
   nn-wa = NonNeg-i-width a
 
   lt : ((wa r* bl) r+ (au r* wb)) ℚ≤ ((wa r* bu) r+ (au r* wb))
-  lt = r+₂-preserves-≤ _ _ (au r* wb) (r*₁-preserves-≤ (wa , nn-wa) bl bu bl≤bu)
+  lt = +₂-preserves-≤ _ _ (au r* wb) (r*₁-preserves-≤ (wa , nn-wa) bl bu bl≤bu)
 
   p : ((wa r* bu) r+ (au r* wb)) == ((wa r* (i-maxabs b)) r+ ((i-maxabs a) r* wb))
   p i = (wa r* (i-maxabs-NonNeg b nn-bl (~ i))) r+ ((i-maxabs-NonNeg a nn-al (~ i)) r* wb)
@@ -950,7 +951,7 @@ i*-width-NPNP-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au 
 
   lt : ((wa r* (r- bl)) r+ ((r- au) r* wb)) ℚ≤ ((wa r* (r- bl)) r+ ((r- al) r* wb))
   lt = r+₁-preserves-≤ (wa r* (r- bl)) _ _ (r*₂-preserves-≤ (r- au) (r- al) (wb , nn-wb)
-                                                            (r--flips-≤ al au al≤au))
+                                                            (minus-flips-≤ al au al≤au))
 
   p : ((wa r* (r- bl)) r+ ((r- al) r* wb)) == ((wa r* (i-maxabs b)) r+ ((i-maxabs a) r* wb))
   p i = (wa r* (i-maxabs-NonPos b np-bu (~ i))) r+ ((i-maxabs-NonPos a np-au (~ i)) r* wb)
@@ -975,7 +976,7 @@ i*-width-NNCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al 
   lt : (au r* wb) ℚ≤ ((wa r* mb) r+ (au r* wb))
   lt = subst (_ℚ≤ ((wa r* mb) r+ (au r* wb)))
              (r+-left-zero (au r* wb))
-             (r+₂-preserves-≤ _ _ (au r* wb) (NonNeg-0≤ _ (r*-NonNeg-NonNeg nn-wa nn-mb)))
+             (+₂-preserves-≤ _ _ (au r* wb) (NonNeg-0≤ _ (r*-NonNeg-NonNeg nn-wa nn-mb)))
 
   p : ((wa r* mb) r+ (au r* wb)) == ((wa r* mb) r+ (ma r* wb))
   p i = (wa r* mb) r+ ((i-maxabs-NonNeg a nn-al (~ i)) r* wb)
@@ -1008,7 +1009,7 @@ i*-width-NPCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au 
   lt : ((r- al) r* wb) ℚ≤ ((wa r* mb) r+ ((r- al) r* wb))
   lt = subst (_ℚ≤ ((wa r* mb) r+ ((r- al) r* wb)))
              (r+-left-zero ((r- al) r* wb))
-             (r+₂-preserves-≤ _ _ ((r- al) r* wb) (NonNeg-0≤ _ (r*-NonNeg-NonNeg nn-wa nn-mb)))
+             (+₂-preserves-≤ _ _ ((r- al) r* wb) (NonNeg-0≤ _ (r*-NonNeg-NonNeg nn-wa nn-mb)))
 
   p : ((wa r* mb) r+ ((r- al) r* wb)) == ((wa r* mb) r+ (ma r* wb))
   p i = (wa r* mb) r+ ((i-maxabs-NonPos a np-au (~ i)) r* wb)
@@ -1268,7 +1269,7 @@ i+₁-preserves-⊆ (Iℚ-cons al au _) (i⊆-cons cl≤bl bu≤cu) =
 
 i+₂-preserves-⊆ : {a b : Iℚ} -> a i⊆ b -> (c : Iℚ) -> (a i+ c) i⊆ (b i+ c)
 i+₂-preserves-⊆ (i⊆-cons bl≤al au≤bu) (Iℚ-cons cl cu _) =
-  i⊆-cons (r+₂-preserves-≤ _ _ cl bl≤al) (r+₂-preserves-≤ _ _ cu au≤bu)
+  i⊆-cons (+₂-preserves-≤ _ _ cl bl≤al) (+₂-preserves-≤ _ _ cu au≤bu)
 
 i+-preserves-⊆ : {a b c d : Iℚ} -> a i⊆ b -> c i⊆ d  -> (a i+ c) i⊆ (b i+ d)
 i+-preserves-⊆ {a} {b} {c} {d} a⊆b c⊆d =
@@ -1276,7 +1277,7 @@ i+-preserves-⊆ {a} {b} {c} {d} a⊆b c⊆d =
 
 i-width-⊆ : {a b : Iℚ} -> a i⊆ b -> i-width a ℚ≤ i-width b
 i-width-⊆ {Iℚ-cons al au _} {Iℚ-cons bl bu _} (i⊆-cons l u) =
-  +-preserves-≤ au bu (r- al) (r- bl) u (r--flips-≤ bl al l)
+  +-preserves-≤ au bu (r- al) (r- bl) u (minus-flips-≤ bl al l)
 
 i-maxabs-⊆ : {a b : Iℚ} -> a i⊆ b -> i-maxabs a ℚ≤ i-maxabs b
 i-maxabs-⊆ {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (i⊆-cons bl≤al au≤bu) =
@@ -1299,7 +1300,7 @@ i-maxabs-⊆ {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (i⊆-c
     handle (inj-r p) =
       subst (_ℚ≤ i-maxabs b) (sym p)
             (trans-ℚ≤ {(r- q)} {(r- bl)} {i-maxabs b}
-                      (r--flips-≤ bl q bl≤q)
+                      (minus-flips-≤ bl q bl≤q)
                       (trans-ℚ≤ {(r- bl)} {absℚ bl} {i-maxabs b}
                                 (mabs≤ bl) (maxℚ-≤-left (absℚ bl) (absℚ bu))))
 
