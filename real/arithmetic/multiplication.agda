@@ -8,15 +8,16 @@ open import isomorphism
 open import hlevel
 open import order
 open import ordered-semiring
+open import ordered-ring
 open import order.instances.rational
 open import rational
 open import rational.difference
-open import rational.order
+open import rational.order-switch
 open import rational.minmax
 open import rational.proper-interval
 open import rational.proper-interval.maxabs-multiplication
 open import rational.proper-interval.multiplication-strict-cross-zero
-open import rational.sign
+open import rational.sign-switch
 open import real
 open import real.interval
 open import real.sequence
@@ -92,9 +93,9 @@ module _ (x y : ℝ)
         q , ∣ ab , cd , (la , ub) , (lc , ud) , refl-ℚ≤ {q} ∣
         where
         ab : Iℚ
-        ab = Iℚ-cons a b (inj-l (ℝ-bounds->ℚ< x _ _ la ub))
+        ab = Iℚ-cons a b (weaken-< (ℝ-bounds->ℚ< x _ _ la ub))
         cd : Iℚ
-        cd = Iℚ-cons c d (inj-l (ℝ-bounds->ℚ< y _ _ lc ud))
+        cd = Iℚ-cons c d (weaken-< (ℝ-bounds->ℚ< y _ _ lc ud))
         q = Iℚ.l (ab i* cd)
 
     Inhabited-U : Inhabited U
@@ -105,9 +106,9 @@ module _ (x y : ℝ)
         q , ∣ ab , cd , (la , ub) , (lc , ud) , refl-ℚ≤ {q} ∣
         where
         ab : Iℚ
-        ab = Iℚ-cons a b (inj-l (ℝ-bounds->ℚ< x _ _ la ub))
+        ab = Iℚ-cons a b (weaken-< (ℝ-bounds->ℚ< x _ _ la ub))
         cd : Iℚ
-        cd = Iℚ-cons c d (inj-l (ℝ-bounds->ℚ< y _ _ lc ud))
+        cd = Iℚ-cons c d (weaken-< (ℝ-bounds->ℚ< y _ _ lc ud))
         q = Iℚ.u (ab i* cd)
 
     isLowerSet-L : isLowerSet L
@@ -115,14 +116,14 @@ module _ (x y : ℝ)
       where
       handle : L' x y b -> L' x y a
       handle (xi , yi , exi , eyi , lt) =
-        (xi , yi , exi , eyi , inj-l (trans-<-≤ {d1 = a} {b} {Iℚ.l (xi i* yi)} a<b lt))
+        (xi , yi , exi , eyi , weaken-< (trans-<-≤ {d1 = a} {b} {Iℚ.l (xi i* yi)} a<b lt))
 
     isUpperSet-U : isUpperSet U
     isUpperSet-U a b a<b = ∥-map handle
       where
       handle : U' x y a -> U' x y b
       handle (xi , yi , exi , eyi , lt) =
-        (xi , yi , exi , eyi , inj-l (trans-≤-< {d1 = Iℚ.u (xi i* yi)} {a} {b} lt a<b))
+        (xi , yi , exi , eyi , weaken-< (trans-≤-< {d1 = Iℚ.u (xi i* yi)} {a} {b} lt a<b))
 
 
     isUpperOpen-L : isUpperOpen L
@@ -140,8 +141,8 @@ module _ (x y : ℝ)
         handle2 (a' , nza' , a<a' , la') (b' , nzb' , b'<b , ub') (c' , c<c' , lc') (d' , d'<d , ud') =
           r , q<r , ∣ xi' , yi' , (la' , ub') , (lc' , ud') , refl-ℚ≤ {r} ∣
           where
-          xi' = Iℚ-cons a' b' (inj-l (ℝ-bounds->ℚ< x a' b' la' ub'))
-          yi' = Iℚ-cons c' d' (inj-l (ℝ-bounds->ℚ< y c' d' lc' ud'))
+          xi' = Iℚ-cons a' b' (weaken-< (ℝ-bounds->ℚ< x a' b' la' ub'))
+          yi' = Iℚ-cons c' d' (weaken-< (ℝ-bounds->ℚ< y c' d' lc' ud'))
           r = Iℚ.l (xi' i* yi')
 
           nz-xi' : ¬ (ZeroEndedI xi')
@@ -169,8 +170,8 @@ module _ (x y : ℝ)
         handle2 (a' , nza' , a<a' , la') (b' , nzb' , b'<b , ub') (c' , c<c' , lc') (d' , d'<d , ud') =
           r , r<q , ∣ xi' , yi' , (la' , ub') , (lc' , ud') , refl-ℚ≤ {r} ∣
           where
-          xi' = Iℚ-cons a' b' (inj-l (ℝ-bounds->ℚ< x a' b' la' ub'))
-          yi' = Iℚ-cons c' d' (inj-l (ℝ-bounds->ℚ< y c' d' lc' ud'))
+          xi' = Iℚ-cons a' b' (weaken-< (ℝ-bounds->ℚ< x a' b' la' ub'))
+          yi' = Iℚ-cons c' d' (weaken-< (ℝ-bounds->ℚ< y c' d' lc' ud'))
           r = Iℚ.u (xi' i* yi')
 
           nz-xi' : ¬ (ZeroEndedI xi')
@@ -241,9 +242,9 @@ module _ (x y : ℝ)
         where
 
         xi' : Iℚ
-        xi' = Iℚ-cons xb1' xb2' (inj-l (ℝ-bounds->ℚ< x _ _ xbl' xbu'))
+        xi' = Iℚ-cons xb1' xb2' (weaken-< (ℝ-bounds->ℚ< x _ _ xbl' xbu'))
         yi' : Iℚ
-        yi' = Iℚ-cons yb1' yb2' (inj-l (ℝ-bounds->ℚ< y _ _ ybl' ybu'))
+        yi' = Iℚ-cons yb1' yb2' (weaken-< (ℝ-bounds->ℚ< y _ _ ybl' ybu'))
 
         m-xi' = i-maxabs xi'
         m-yi' = i-maxabs yi'
@@ -287,7 +288,8 @@ module _ (x y : ℝ)
         ε = (d r* (r1/ sm sm-inv))
 
         ε⁺ : ℚ⁺
-        ε⁺ = ε , (r*₁-preserves-sign (d , a<b) _ (r1/-preserves-Pos sm sm-inv pos-sm))
+        ε⁺ = ε , (r*₁-preserves-sign (d , Pos-diffℚ _ _ a<b) _ {pos-sign}
+                                     (r1/-preserves-Pos sm sm-inv pos-sm))
 
         ε-path : (ε r* (m-yi' r+ m-xi')) == d
         ε-path = r*-assoc _ _ _ >=>
@@ -301,9 +303,9 @@ module _ (x y : ℝ)
           handle2 (split-< a l)
           where
           xi : Iℚ
-          xi = Iℚ-cons xb1 xb2 (inj-l (ℝ-bounds->ℚ< x _ _ xbl xbu))
+          xi = Iℚ-cons xb1 xb2 (weaken-< (ℝ-bounds->ℚ< x _ _ xbl xbu))
           yi : Iℚ
-          yi = Iℚ-cons yb1 yb2 (inj-l (ℝ-bounds->ℚ< y _ _ ybl ybu))
+          yi = Iℚ-cons yb1 yb2 (weaken-< (ℝ-bounds->ℚ< y _ _ ybl ybu))
 
           exi : ℝ∈Iℚ x xi
           exi = xbl , xbu
@@ -383,7 +385,7 @@ module _ (x y : ℝ)
           w≤d = trans-ℚ≤ {w} {wmmw} {d} w≤wmmw wmmw≤d
 
           handle2 : (a < l ⊎ l ℚ≤ a) -> Ans
-          handle2 (inj-l a<l) = ∣ inj-l ∣ (mxi , myi , emxi , emyi , (inj-l a<l)) ∣ ∣
+          handle2 (inj-l a<l) = ∣ inj-l ∣ (mxi , myi , emxi , emyi , (weaken-< a<l)) ∣ ∣
           handle2 (inj-r l≤a) = ∣ inj-r ∣ (mxi , myi , emxi , emyi , u≤b) ∣ ∣
             where
             u≤b : u ℚ≤ b
@@ -492,9 +494,10 @@ module _ (x : ℝ)
            s' = 1r r+ s
 
            s<s' : s < s'
-           s<s' = subst Pos (sym (r+-right-zero 1r) >=>
-                             cong (1r r+_) (sym (r+-inverse s)) >=>
-                             sym (r+-assoc 1r s (r- s))) Pos-1r
+           s<s' = Pos-diffℚ⁻ _ _
+                   (subst Pos (sym (r+-right-zero 1r) >=>
+                              cong (1r r+_) (sym (r+-inverse s)) >=>
+                              sym (r+-assoc 1r s (r- s))) Pos-1r)
 
            r<s : r < s
            r<s = (ℝ-bounds->ℚ< x _ _ xl-r xu-s)
@@ -503,10 +506,10 @@ module _ (x : ℝ)
            q<s' = trans-< {_} {_} {_} {q} {r} {s'} q<r (trans-< {_} {_} {_} {r} {s} {s'} r<s s<s')
 
            rs : Iℚ
-           rs = Iℚ-cons r s (inj-l r<s)
+           rs = Iℚ-cons r s (weaken-< r<s)
 
            qs' : Iℚ
-           qs' = Iℚ-cons q s' (inj-l q<s')
+           qs' = Iℚ-cons q s' (weaken-< q<s')
 
            rs⊂qs' : rs i⊂ qs'
            rs⊂qs' = i⊂-cons q<r s<s'
@@ -519,7 +522,7 @@ module _ (x : ℝ)
              where
              kl<ku = trans-< {_} {_} {_} {kl} {1r} {ku} kl<1 1<ku
              k : Iℚ
-             k = (Iℚ-cons kl ku (inj-l kl<ku))
+             k = (Iℚ-cons kl ku (weaken-< kl<ku))
 
              prod-⊆ : (k i* rs) i⊆ qs'
              prod-⊆ = subst ((k i* rs) i⊆_) (i∪-same qs') (i∪-preserves-⊆ scale-kl scale-ku)
@@ -551,7 +554,7 @@ module _ (x : ℝ)
             handle2 (inj-l xi-l<0) =
               trans-ℚ≤ {q} {p0} {xi-l} q≤prod
                 (trans-ℚ≤ {p0} {p2} {xi-l} lt3
-                  (trans-ℚ≤ {p2} {p3} {xi-l} lt2 (inj-l lt1)))
+                  (trans-ℚ≤ {p2} {p3} {xi-l} lt2 (weaken-< lt1)))
               where
               n-xi-l : Neg xi-l
               n-xi-l = <0-Neg xi-l xi-l<0
@@ -587,7 +590,7 @@ module _ (x : ℝ)
 
               lt1 : (1i-l r* xi-l) ℚ≤ xi-l
               lt1 = subst ((1i-l r* xi-l) ℚ≤_) (r*-left-one xi-l)
-                          (r*₂-preserves-≤ 1i-l 1r (xi-l , nn-xi-l) (inj-l 1i-l<1))
+                          (r*₂-preserves-≤ 1i-l 1r (xi-l , nn-xi-l) (weaken-< 1i-l<1))
               lt2 : (minℚ p3 p4) ℚ≤ p3
               lt2 = minℚ-≤-left p3 p4
               lt3 : (minℚ p1 p2) ℚ≤ p1
@@ -612,8 +615,10 @@ module _ (x : ℝ)
            s' = s r+ (r- 1r)
 
            s'<s : s' < s
-           s'<s = subst Pos (sym (diffℚ-step s 1r) >=> cong (s r+_) (diffℚ-anticommute s 1r))
-                        Pos-1r
+           s'<s =
+             Pos-diffℚ⁻ _ _ (subst Pos (sym (diffℚ-step s 1r) >=>
+                                        cong (s r+_) (diffℚ-anticommute s 1r))
+                                       Pos-1r)
 
            s<r : s < r
            s<r = (ℝ-bounds->ℚ< x _ _ xl-s xu-r)
@@ -622,10 +627,10 @@ module _ (x : ℝ)
            s'<q = trans-< {_} {_} {_} {s'} {r} {q} (trans-< {_} {_} {_} {s'} {s} {r} s'<s s<r) r<q
 
            sr : Iℚ
-           sr = Iℚ-cons s r (inj-l s<r)
+           sr = Iℚ-cons s r (weaken-< s<r)
 
            s'q : Iℚ
-           s'q = Iℚ-cons s' q (inj-l s'<q)
+           s'q = Iℚ-cons s' q (weaken-< s'<q)
 
            sr⊂s'q : sr i⊂ s'q
            sr⊂s'q = i⊂-cons s'<s r<q
@@ -638,7 +643,7 @@ module _ (x : ℝ)
              where
              kl<ku = trans-< {_} {_} {_} {kl} {1r} {ku} kl<1 1<ku
              k : Iℚ
-             k = (Iℚ-cons kl ku (inj-l kl<ku))
+             k = (Iℚ-cons kl ku (weaken-< kl<ku))
 
              prod-⊆ : (k i* sr) i⊆ s'q
              prod-⊆ = subst ((k i* sr) i⊆_) (i∪-same s'q) (i∪-preserves-⊆ scale-kl scale-ku)
@@ -658,7 +663,7 @@ module _ (x : ℝ)
             handle2 (inj-l xi-u<0) =
               trans-ℚ≤ {xi-u} {p0} {q}
                 (trans-ℚ≤ {xi-u} {p1} {p0}
-                  (trans-ℚ≤ {xi-u} {p4} {p1} (inj-l lt1) lt2)
+                  (trans-ℚ≤ {xi-u} {p4} {p1} (weaken-< lt1) lt2)
                   lt3)
                 prod≤q
               where
@@ -700,7 +705,7 @@ module _ (x : ℝ)
 
               lt1 : xi-u ℚ≤ (1i-u r* xi-u)
               lt1 = subst (_ℚ≤ (1i-u r* xi-u)) (r*-left-one xi-u)
-                          (r*₂-preserves-≤ 1r 1i-u (xi-u , nn-xi-u) (inj-l 1<1i-u))
+                          (r*₂-preserves-≤ 1r 1i-u (xi-u , nn-xi-u) (weaken-< 1<1i-u))
               lt2 : p4 ℚ≤ (maxℚ p3 p4)
               lt2 = maxℚ-≤-right p3 p4
               lt3 : p2 ℚ≤ (maxℚ p1 p2)
@@ -738,7 +743,7 @@ module _ (x : ℝ)
           ∣ ir , ix , (Neg-<0 r neg-r , Pos-0< mr pos-mr) , (xl-p1 , xu-p2) , ans ∣
           where
           ix : Iℚ
-          ix = Iℚ-cons p1 p2 (inj-l (ℝ-bounds->ℚ< x _ _ xl-p1 xu-p2))
+          ix = Iℚ-cons p1 p2 (weaken-< (ℝ-bounds->ℚ< x _ _ xl-p1 xu-p2))
 
           m = i-maxabs ix
 
@@ -760,12 +765,12 @@ module _ (x : ℝ)
 
           neg-q = <0-Neg q 0ℝl-q
 
-          neg-r = r*₁-flips-sign (q , neg-q) 1/m pos-1/m
+          neg-r = r*₁-flips-sign (q , neg-q) 1/m {pos-sign} pos-1/m
 
           mr = r- r
 
 
-          pos-mr = r--flips-sign r _ neg-r
+          pos-mr = r--flips-sign r neg-sign neg-r
           r≤mr = NonPos≤NonNeg (inj-l neg-r) (inj-l pos-mr)
 
           ir = Iℚ-cons r mr r≤mr
@@ -781,7 +786,7 @@ module _ (x : ℝ)
                                                    (maxℚ-≤-left (absℚ lb) (absℚ ub))
           -m2≤lb : (r- m2) ℚ≤ lb
           -m2≤lb = subst ((r- m2) ℚ≤_) minus-double-inverse
-                         (r--flips-≤ (r- lb) m2 -lb≤m2)
+                         (minus-flips-≤ (r- lb) m2 -lb≤m2)
 
           m2=m-ir*m : m2 == m-ir r* m
           m2=m-ir*m = i-maxabs-i* ir ix
@@ -804,7 +809,7 @@ module _ (x : ℝ)
                          -lb≤m2
 
           ans : q ℚ≤ lb
-          ans = subst2 _ℚ≤_ path-q path-lb (r--flips-≤ (r- lb) (r- q) -lb≤-q)
+          ans = subst2 _ℚ≤_ path-q path-lb (minus-flips-≤ (r- lb) (r- q) -lb≤-q)
             where
             path-lb : (r- (r- lb)) == lb
             path-lb = minus-double-inverse
@@ -846,7 +851,7 @@ module _ (x : ℝ)
           ∣ ir , ix , (Neg-<0 mr neg-mr , Pos-0< r pos-r) , (xl-p1 , xu-p2) , ub≤q ∣
           where
           ix : Iℚ
-          ix = Iℚ-cons p1 p2 (inj-l (ℝ-bounds->ℚ< x _ _ xl-p1 xu-p2))
+          ix = Iℚ-cons p1 p2 (weaken-< (ℝ-bounds->ℚ< x _ _ xl-p1 xu-p2))
 
           m = i-maxabs ix
 
@@ -868,12 +873,12 @@ module _ (x : ℝ)
 
           pos-q = 0<-Pos q 0ℝu-q
 
-          pos-r = r*₁-preserves-sign (q , pos-q) 1/m pos-1/m
+          pos-r = r*₁-preserves-sign (q , pos-q) 1/m {pos-sign} pos-1/m
 
           mr = r- r
 
 
-          neg-mr = r--flips-sign r _ pos-r
+          neg-mr = r--flips-sign r pos-sign pos-r
           mr≤r = NonPos≤NonNeg (inj-l neg-mr) (inj-l pos-r)
 
           ir = Iℚ-cons mr r mr≤r

@@ -8,10 +8,11 @@ open import hlevel
 open import isomorphism
 open import order
 open import ordered-semiring
+open import ordered-ring
 open import order.instances.rational
 open import rational
 open import rational.difference
-open import rational.order
+open import rational.order-switch
 open import rational.proper-interval
 open import real
 open import real.interval
@@ -65,7 +66,7 @@ module _ (x y : ℝ) where
         r3<r2 : r3 < r2
         r3<r2 = r+-Neg->order r2 ((diffℚ b a) ,
                                   subst Neg (sym (diffℚ-anticommute b a))
-                                        (r--flips-sign (diffℚ a b) pos-sign a<b))
+                                        (r--flips-sign (diffℚ a b) pos-sign (Pos-diffℚ a b a<b)))
         r3-path : r1 r+ r3 == a
         r3-path =
           sym (r+-assoc r1 r2 (a r+ (r- b))) >=>
@@ -83,7 +84,7 @@ module _ (x y : ℝ) where
         where
         r3 = r2 r+ (diffℚ a b)
         r2<r3 : r2 < r3
-        r2<r3 = r+-Pos->order r2 ((diffℚ a b) , a<b)
+        r2<r3 = r+-Pos->order r2 ((diffℚ a b) , (Pos-diffℚ a b a<b))
         r3-path : r1 r+ r3 == b
         r3-path =
           sym (r+-assoc r1 r2 (b r+ (r- a))) >=>
@@ -133,7 +134,7 @@ module _ (x y : ℝ) where
         d = a r+ (r- c⁻)
         e = b r+ (r- c⁺)
         d<e : d < e
-        d<e = subst2 _<_ path1 path2 (r+₂-preserves-order (a r+ ε') (b r+ (r- ε')) (r- c) aε<bε)
+        d<e = subst2 _<_ path1 path2 (+₂-preserves-< (a r+ ε') (b r+ (r- ε')) (r- c) aε<bε)
           where
           path1 : (a r+ ε') r+ (r- c) == d
           path1 = r+-assoc a ε' (r- c) >=> cong (a r+_) (diffℚ-anticommute c ε')
@@ -161,7 +162,7 @@ module _ (x y : ℝ) where
         handle2 (c , a<c , lc) = (c r+ b , lt , ∣ c , b , lc , lb , refl ∣)
           where
           lt : q < (c r+ b)
-          lt = subst (_< (c r+ b)) p (r+₂-preserves-order a c b a<c)
+          lt = subst (_< (c r+ b)) p (+₂-preserves-< a c b a<c)
 
     isLowerOpen-U : isLowerOpen U
     isLowerOpen-U q = ∥-bind handle
@@ -173,7 +174,7 @@ module _ (x y : ℝ) where
         handle2 (c , c<a , uc) = (c r+ b , lt , ∣ c , b , uc , ub , refl ∣)
           where
           lt : (c r+ b) < q
-          lt = subst ((c r+ b) <_) p (r+₂-preserves-order c a b c<a)
+          lt = subst ((c r+ b) <_) p (+₂-preserves-< c a b c<a)
 
   _ℝ+ᵉ_ : ℝ
   _ℝ+ᵉ_ = record
@@ -368,10 +369,10 @@ module _ (x : ℝ) where
           path = r+-commute (diffℚ r q) r >=> diffℚ-step r q
 
           d'>0 : (diffℚ q r) > 0r
-          d'>0 = Pos-0< _ q<r
+          d'>0 = Pos-diffℚ q r q<r
 
           d<0 : (diffℚ r q) < 0r
-          d<0 = subst (_< 0r) (sym (diffℚ-anticommute r q)) (r--flips-order 0r (diffℚ q r) d'>0)
+          d<0 = subst (_< 0r) (sym (diffℚ-anticommute r q)) (minus-flips-< 0r (diffℚ q r) d'>0)
 
       i .fun 0xl-q = unsquash (x.isProp-L q) (∥-map handle 0xl-q)
         where
@@ -379,7 +380,7 @@ module _ (x : ℝ) where
         handle (a , b , 0l-a , xl-b , p) = x.isLowerSet-L q b q<b xl-b
           where
           q<b : q < b
-          q<b = subst2 _<_ p (r+-left-zero b) (r+₂-preserves-order a 0r b 0l-a)
+          q<b = subst2 _<_ p (r+-left-zero b) (+₂-preserves-< a 0r b 0l-a)
 
     U-path : (q : ℚ) -> 0x.U q == x.U q
     U-path q = ua (isoToEquiv i)
@@ -397,14 +398,14 @@ module _ (x : ℝ) where
           path = r+-commute (diffℚ r q) r >=> diffℚ-step r q
 
           0<d : 0r < (diffℚ r q)
-          0<d = Pos-0< _ r<q
+          0<d = Pos-diffℚ r q r<q
       i .fun 0xu-q = unsquash (x.isProp-U q) (∥-map handle 0xu-q)
         where
         handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (0ℝ.U a × x.U b × a r+ b == q) -> x.U q
         handle (a , b , 0u-a , xu-b , p) = x.isUpperSet-U b q b<q xu-b
           where
           b<q : b < q
-          b<q = subst2 _<_ (r+-left-zero b) p (r+₂-preserves-order 0r a b 0u-a)
+          b<q = subst2 _<_ (r+-left-zero b) p (+₂-preserves-< 0r a b 0u-a)
 
     ℝ+ᵉ-left-zero : 0x == x
     ℝ+ᵉ-left-zero = LU-paths->path 0x x L-path U-path
@@ -435,9 +436,9 @@ module _ (x : ℝ) where
       handle (q , lq) = (r- q) , subst x.L (sym minus-double-inverse) lq
 
     isLowerSet-L : isLowerSet L
-    isLowerSet-L a b a<b = x.isUpperSet-U (r- b) (r- a) (r--flips-order a b a<b)
+    isLowerSet-L a b a<b = x.isUpperSet-U (r- b) (r- a) (minus-flips-< a b a<b)
     isUpperSet-U : isUpperSet U
-    isUpperSet-U a b a<b = x.isLowerSet-L (r- b) (r- a) (r--flips-order a b a<b)
+    isUpperSet-U a b a<b = x.isLowerSet-L (r- b) (r- a) (minus-flips-< a b a<b)
 
     isUpperOpen-L : isUpperOpen L
     isUpperOpen-L q lq = ∥-map handle (x.isLowerOpen-U (r- q) lq)
@@ -446,7 +447,7 @@ module _ (x : ℝ) where
                Σ[ r ∈ ℚ ] (q < r × L r)
       handle (r , r<-q , ur) =
         (r- r) ,
-        subst Pos (r+-commute (r- q) (r- r)) r<-q ,
+        Pos-diffℚ⁻ q (r- r) (subst Pos (r+-commute (r- q) (r- r)) (Pos-diffℚ r (- q) r<-q)),
         subst x.U (sym minus-double-inverse) ur
 
     isLowerOpen-U : isLowerOpen U
@@ -456,7 +457,7 @@ module _ (x : ℝ) where
                Σ[ r ∈ ℚ ] (r < q × U r)
       handle (r , -q<r , lr) =
         (r- r) ,
-        subst Pos path -q<r ,
+        Pos-diffℚ⁻ (r- r) q (subst Pos path (Pos-diffℚ (- q) r -q<r)) ,
         subst x.L (sym minus-double-inverse) lr
         where
         path : r r+ (r- (r- q)) == q r+ (r- (r- r))
@@ -468,7 +469,7 @@ module _ (x : ℝ) where
     disjoint q (lq , uq) = x.disjoint (r- q) (uq , lq)
 
     located : (a b : ℚ) -> a < b -> ∥ L a ⊎ U b ∥
-    located a b a<b = ∥-map ⊎-swap (x.located (r- b) (r- a) (r--flips-order a b a<b))
+    located a b a<b = ∥-map ⊎-swap (x.located (r- b) (r- a) (minus-flips-< a b a<b))
 
   ℝ-ᵉ_ : ℝ
   ℝ-ᵉ_ = record
@@ -513,17 +514,19 @@ module _ (x : ℝ) where
         q1<mq2 = ℝ-bounds->ℚ< x q1 (r- q2) xl-q1 xu-mq2
 
         q<0r : q < 0r
-        q<0r = subst Pos (sym minus-distrib-plus >=>
-                          cong r-_ (r+-commute q2 q1 >=> q-path) >=>
-                          sym (r+-left-zero (r- q)) )
-                     q1<mq2
+        q<0r =
+          Pos-diffℚ⁻ q 0r
+            (subst Pos (sym minus-distrib-plus >=>
+                        cong r-_ (r+-commute q2 q1 >=> q-path) >=>
+                        sym (r+-left-zero (r- q)))
+                   (Pos-diffℚ q1 (- q2) q1<mq2))
 
     L-backward : (q : ℚ) -> 0ℝ.L q -> y.L q
     L-backward q q<0r = ∥-map handle (find-open-ball x -q)
       where
       -q' = r- q
       -q : ℚ⁺
-      -q = -q' , subst Pos (r+-left-zero -q') q<0r
+      -q = -q' , subst Pos (r+-left-zero -q') (Pos-diffℚ q 0r q<0r)
 
       handle :  Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (Real.L x q1 × Real.U x q2 × diffℚ q1 q2 == -q') ->
                 Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (x.L q1 × x.U (r- q2) × q1 r+ q2 == q)
@@ -546,13 +549,14 @@ module _ (x : ℝ) where
         mq2<q1 = ℝ-bounds->ℚ< x (r- q2) q1 xl-mq2 xu-q1
 
         0r<q : 0r < q
-        0r<q = Pos-0< q (subst Pos (cong (q1 r+_) minus-double-inverse >=> q-path) mq2<q1)
+        0r<q = Pos-0< q (subst Pos (cong (q1 r+_) minus-double-inverse >=> q-path)
+                                   (Pos-diffℚ (- q2) q1 mq2<q1))
 
     U-backward : (q : ℚ) -> 0ℝ.U q -> y.U q
     U-backward q 0r<q = ∥-map handle (find-open-ball x q⁺)
       where
       q⁺ : ℚ⁺
-      q⁺ = q , subst Pos (r+-right-zero q) 0r<q
+      q⁺ = q , subst Pos (r+-right-zero q) (Pos-diffℚ 0r q 0r<q)
 
       handle :  Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (Real.L x q1 × Real.U x q2 × diffℚ q1 q2 == q) ->
                 Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (x.U q1 × x.L (r- q2) × q1 r+ q2 == q)

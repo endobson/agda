@@ -23,7 +23,7 @@ open import univalence
 
 ℝ∈Iℚ->Overlap : (z : ℝ) (a b : Iℚ) -> ℝ∈Iℚ z a -> ℝ∈Iℚ z b -> Overlap a b
 ℝ∈Iℚ->Overlap z a b (al , au) (bl , bu) =
-  inj-l (ℝ-bounds->ℚ< z _ _ bl au) , inj-l (ℝ-bounds->ℚ< z _ _ al bu)
+  weaken-< (ℝ-bounds->ℚ< z _ _ bl au) , weaken-< (ℝ-bounds->ℚ< z _ _ al bu)
 
 ℝ∈Iℚ-intersect : (z : ℝ) (a b : Iℚ) -> (ea : ℝ∈Iℚ z a) -> (eb : ℝ∈Iℚ z b) ->
                  ℝ∈Iℚ z (i-intersect a b (ℝ∈Iℚ->Overlap z a b ea eb))
@@ -53,7 +53,7 @@ isProp-ℝ∈Iℚ z (Iℚ-cons l u _) = isProp× (Real.isProp-L z l) (Real.isPro
     handle : Σ ℚ x.U -> y.L q
     handle (r , xu-r) = fst (f xi (xl-q , xu-r))
       where
-      xi = Iℚ-cons q r (inj-l (ℝ-bounds->ℚ< x q r xl-q xu-r))
+      xi = Iℚ-cons q r (weaken-< (ℝ-bounds->ℚ< x q r xl-q xu-r))
 
   f-U : (q : ℚ) -> x.U q -> y.U q
   f-U q xu-q = unsquash (y.isProp-U q) (∥-map handle x.Inhabited-L)
@@ -61,7 +61,7 @@ isProp-ℝ∈Iℚ z (Iℚ-cons l u _) = isProp× (Real.isProp-L z l) (Real.isPro
     handle : Σ ℚ x.L -> y.U q
     handle (r , xl-r) = snd (f xi (xl-r , xu-q))
       where
-      xi = Iℚ-cons r q (inj-l (ℝ-bounds->ℚ< x r q xl-r xu-q))
+      xi = Iℚ-cons r q (weaken-< (ℝ-bounds->ℚ< x r q xl-r xu-q))
 
   L-path : (q : ℚ) -> x.L q == y.L q
   L-path q = ua (isoToEquiv i)
@@ -107,7 +107,7 @@ isProp-ℝ∈Iℚ z (Iℚ-cons l u _) = isProp× (Real.isProp-L z l) (Real.isPro
   module x = Real x
   handle : Σ[ q ∈ ℚ ] (0r < q × x.L q) -> Σ ℚ x.U -> Σ[ b ∈ Iℚ ] (ℝ∈Iℚ x b × PosI b)
   handle (q , 0<q , xl-q) (r , xu-q) =
-    (Iℚ-cons q r (inj-l (ℝ-bounds->ℚ< x q r xl-q xu-q))) , (xl-q , xu-q) , 0<-Pos q 0<q
+    (Iℚ-cons q r (weaken-< (ℝ-bounds->ℚ< x q r xl-q xu-q))) , (xl-q , xu-q) , 0<q
 
 
 ℝ∈Iℚ-Pos-⊆ : (x : ℝ) (a : Iℚ) -> ℝ∈Iℚ x a -> 0ℝ ℝ< x -> ∃[ b ∈ Iℚ ] (b i⊆ a × ℝ∈Iℚ x b × PosI b)

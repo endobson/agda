@@ -8,7 +8,7 @@ open import hlevel
 open import order
 open import order.instances.rational
 open import rational
-open import rational.order
+open import rational.order-switch
 open import rational.minmax
 open import relation hiding (_⊆_)
 open import sign
@@ -69,8 +69,7 @@ BackwardI (l , u) = u ℚ≤ l
 
 private
   NonNegℚ-NonPosℚ-path : {q : ℚ} -> NonNeg q -> NonPos q -> q == 0r
-  NonNegℚ-NonPosℚ-path (inj-r zq) _ = (Zero-path _ zq)
-  NonNegℚ-NonPosℚ-path (inj-l pq) npq = bot-elim (NonPos->¬Pos npq pq)
+  NonNegℚ-NonPosℚ-path nn np = antisym-≤ (NonPos-≤0 _ np) (NonNeg-0≤ _ nn)
 
 NonNeg-ForwardZero-path : {a : Iℚ} -> NonNegI a -> ForwardZeroI a -> (Iℚ-l a) == 0r
 NonNeg-ForwardZero-path (nn-l , _) (np-l , _) = NonNegℚ-NonPosℚ-path nn-l np-l
@@ -124,8 +123,8 @@ weaken-ΣI {P = P} {al , au} {bl , bu} (bl≤al , au≤bu) (ΣI-∀ au≤al f) =
   handle (split-< bl bu) (split-< bl au)
   where
   handle : (bl < bu) ⊎ (bu ℚ≤ bl) -> (bl < au) ⊎ (au ℚ≤ bl) -> _
-  handle (inj-l bl<bu) (inj-l bl<au) = ΣI-∃ au (inj-l bl<au) au≤bu (f au (refl-ℚ≤ {au}) au≤al)
-  handle (inj-l bl<bu) (inj-r au≤bl) = ΣI-∃ bl (refl-ℚ≤ {bl}) (inj-l bl<bu) (f bl au≤bl bl≤al)
+  handle (inj-l bl<bu) (inj-l bl<au) = ΣI-∃ au (weaken-< bl<au) au≤bu (f au (refl-ℚ≤ {au}) au≤al)
+  handle (inj-l bl<bu) (inj-r au≤bl) = ΣI-∃ bl (refl-ℚ≤ {bl}) (weaken-< bl<bu) (f bl au≤bl bl≤al)
   handle (inj-r bu≤bl) _ =
     ΣI-∀ bu≤bl (\ x bu≤x x≤bl -> f x (trans-ℚ≤ {au} {bu} {x} au≤bu bu≤x)
                                      (trans-ℚ≤ {x} {bl} {al} x≤bl bl≤al))
@@ -138,11 +137,11 @@ weaken-∀I {P = P} {al , au} {bl , bu} (bl≤al , au≤bu) (∀I-∀ bl≤bu f)
   handle (split-< al au) (split-< bl au)
   where
   handle : (al < au) ⊎ (au ℚ≤ al) -> (bl < au) ⊎ (au ℚ≤ bl) -> _
-  handle (inj-r au≤al) (inj-l bl<au) = ∀I-∃ au (refl-ℚ≤ {au}) au≤al (f au (inj-l bl<au) au≤bu)
+  handle (inj-r au≤al) (inj-l bl<au) = ∀I-∃ au (refl-ℚ≤ {au}) au≤al (f au (weaken-< bl<au) au≤bu)
   handle (inj-r au≤al) (inj-r au≤bl) = ∀I-∃ bl au≤bl bl≤al (f bl (refl-ℚ≤ {bl}) bl≤bu)
   handle (inj-l al<au) _ =
-    ∀I-∀ (inj-l al<au) (\ x al≤x x≤au -> f x (trans-ℚ≤ {bl} {al} {x} bl≤al al≤x)
-                                             (trans-ℚ≤ {x} {au} {bu} x≤au au≤bu))
+    ∀I-∀ (weaken-< al<au) (\ x al≤x x≤au -> f x (trans-ℚ≤ {bl} {al} {x} bl≤al al≤x)
+                                                (trans-ℚ≤ {x} {au} {bu} x≤au au≤bu))
 
 
 

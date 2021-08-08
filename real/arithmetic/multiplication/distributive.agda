@@ -9,7 +9,7 @@ open import isomorphism
 open import order
 open import order.instances.rational
 open import rational
-open import rational.order
+open import rational.order-switch
 open import rational.minmax
 open import rational.proper-interval
 open import rational.proper-interval.multiplication-assoc
@@ -66,8 +66,8 @@ module _ (x y z : ℝ)
         unsquash (isProp-ℝ∈Iℚ xyz q) (∥-map4 handle2 xz-la yz-lb xz-uc yz-ud)
         where
 
-        ac = Iℚ-cons a c (inj-l (ℝ-bounds->ℚ< xz a c xz-la xz-uc))
-        bd = Iℚ-cons b d (inj-l (ℝ-bounds->ℚ< yz b d yz-lb yz-ud))
+        ac = Iℚ-cons a c (weaken-< (ℝ-bounds->ℚ< xz a c xz-la xz-uc))
+        bd = Iℚ-cons b d (weaken-< (ℝ-bounds->ℚ< yz b d yz-lb yz-ud))
         ac+bd=q : ac i+ bd == q
         ac+bd=q = Iℚ-bounds-path ab-path cd-path
 

@@ -6,9 +6,10 @@ open import base
 open import equality
 open import order
 open import order.instances.rational
+open import ordered-ring
 open import rational
 open import rational.minmax
-open import rational.order
+open import rational.order-switch
 open import rational.proper-interval
 open import rational.sign
 open import sign
@@ -55,7 +56,7 @@ private
     p1 = maxℚ-swap _ _ _ _ >=>
          cong2 maxℚ (maxℚ-right (minℚ al bl) (maxℚ au bu) albl≤aubu)
                     (maxℚ-left (r- (minℚ al bl)) (r- (maxℚ au bu))
-                               (r--flips-≤ (minℚ al bl) (maxℚ au bu) albl≤aubu)) >=>
+                               (minus-flips-≤ (minℚ al bl) (maxℚ au bu) albl≤aubu)) >=>
          cong (maxℚ (maxℚ au bu)) (r--minℚ al bl)
 
 
@@ -63,10 +64,10 @@ private
          maxℚ (maxℚ au bu) (maxℚ (r- al) (r- bl))
     p2 = cong2 maxℚ (maxℚ-swap _ _ _ _ >=>
                      (cong2 maxℚ (maxℚ-right al au al≤au)
-                                 (maxℚ-left (r- al) (r- au) (r--flips-≤ al au al≤au))))
+                                 (maxℚ-left (r- al) (r- au) (minus-flips-≤ al au al≤au))))
                     (maxℚ-swap _ _ _ _ >=>
                      (cong2 maxℚ (maxℚ-right bl bu bl≤bu)
-                                 (maxℚ-left (r- bl) (r- bu) (r--flips-≤ bl bu bl≤bu)))) >=>
+                                 (maxℚ-left (r- bl) (r- bu) (minus-flips-≤ bl bu bl≤bu)))) >=>
          maxℚ-swap _ _ _ _
 
 abstract

@@ -13,11 +13,11 @@ open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.real
 open import rational
-open import rational.order
+open import rational.order-switch
 open import rational.minmax
 open import rational.proper-interval
 open import rational.proper-interval.multiplication-assoc
-open import rational.sign
+open import rational.sign-switch
 open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication
@@ -91,7 +91,7 @@ private
       Inhabited-L = ∣ 0r , L-nonpos (inj-r Zero-0r) ∣
 
       isLowerSet-L : isLowerSet L
-      isLowerSet-L q r q<r (L-nonpos np-r) = (L-nonpos (NonPos-≤ q r np-r (inj-l q<r)))
+      isLowerSet-L q r q<r (L-nonpos np-r) = (L-nonpos (NonPos-≤ q r np-r (weaken-< q<r)))
       isLowerSet-L q r q<r (L-pos p-r xu-1/r) = handle (decide-sign q)
         where
         handle : Σ[ s ∈ Sign ] (isSign s q) -> L q
@@ -106,7 +106,7 @@ private
       isUpperSet-U q r q<r (U-pos pos-q xl-1/q) =
         U-pos pos-r (x.isLowerSet-L r' q' (r1/-Pos-flips-order (q , pos-q) (r , pos-r) q<r) xl-1/q)
         where
-        pos-r = (Pos-≤ q r pos-q (inj-l q<r))
+        pos-r = (Pos-≤ q r pos-q (weaken-< q<r))
         inv-q = (Pos->Inv pos-q)
         inv-r = (Pos->Inv pos-r)
         q' = r1/ q inv-q
@@ -138,7 +138,7 @@ private
       isUpperOpen-L q (L-nonpos (inj-l neg-q)) = ∣ q/2 , q<q/2 , (L-nonpos (inj-l neg-q/2)) ∣
         where
         q/2 = 1/2r r* q
-        neg-q/2 = r*₁-preserves-sign (1/2r , Pos-1/ℕ _) q neg-q
+        neg-q/2 = r*₁-preserves-sign (1/2r , Pos-1/ℕ _) q {neg-sign} neg-q
         q<q/2 = subst (_< q/2) (r*-left-one q) (r*₂-flips-order 1/2r 1r (q , neg-q) 1/2r<1r)
 
       isUpperOpen-L q (L-nonpos (inj-r zero-q)) = ∥-map handle (ℝ->Pos-U x)

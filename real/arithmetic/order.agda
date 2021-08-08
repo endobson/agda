@@ -7,7 +7,7 @@ open import equality
 open import rational
 open import rational.proper-interval
 open import rational.difference
-open import rational.order
+open import rational.order-switch
 open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication
@@ -36,7 +36,7 @@ private
         where
         d = diffℚ r q
         d⁺ : ℚ⁺
-        d⁺ = d , r<q
+        d⁺ = d , Pos-diffℚ r q r<q
 
         handle3 : OpenBall a d -> Ans
         handle3 (s1 , s2 , al-s1 , au-s2 , sd-path) =

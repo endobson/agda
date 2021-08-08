@@ -862,6 +862,10 @@ r+-Pos->order : (a : ℚ) (b : Σ ℚ Posℚ) -> a < (a r+ ⟨ b ⟩)
 r+-Pos->order a (b , pos-b) =
   subst (_< (a + b)) +-right-zero (+₁-preserves-< a 0r b pos-b)
 
+r+-Neg->order : (a : ℚ) (b : Σ ℚ Negℚ) -> a > (a r+ ⟨ b ⟩)
+r+-Neg->order a (b , neg-b) =
+  subst (_> (a + b)) +-right-zero (+₁-preserves-< a b 0r neg-b)
+
 
 abstract
   ℕ->ℚ-preserves-order : (a b : Nat) -> a nat.< b -> (ℕ->ℚ a) < (ℕ->ℚ b)
@@ -889,6 +893,58 @@ abstract
   ab*< : (ab r* (ℕ->ℚ a')) < (ab r* (ℕ->ℚ b'))
   ab*< = r*₁-preserves-order (ab , pos-ab) (ℕ->ℚ a') (ℕ->ℚ b')
            (ℕ->ℚ-preserves-order a' b' lt)
+
+
+private
+  zero-diff->path : (x y : Rational) -> Zeroℚ (y r+ (r- x)) -> x == y
+  zero-diff->path x y zyx = sym p
+    where
+    p : y == x
+    p = sym (r+-right-zero y) >=>
+        (cong (y r+_) (sym (r+-inverse x) >=> r+-commute x (r- x))) >=>
+        sym (r+-assoc y (r- x) x) >=>
+        cong (_r+ x) (Zero-path (y r+ (r- x)) zyx) >=>
+        r+-left-zero x
+
+r1/-Pos-flips-order : (a b : ℚ⁺) -> ⟨ a ⟩ < ⟨ b ⟩ ->
+                      (r1/ ⟨ b ⟩ (Pos->Inv (snd b))) < (r1/ ⟨ a ⟩ (Pos->Inv (snd a)))
+r1/-Pos-flips-order (a , pos-a) (b , pos-b) a<b =
+  Pos-diffℚ⁻ b' a' (subst Pos path pos-prod)
+  where
+  inv-a = (Pos->Inv pos-a)
+  inv-b = (Pos->Inv pos-b)
+  a' = r1/ a inv-a
+  b' = r1/ b inv-b
+  pos-a' = r1/-preserves-Pos a inv-a pos-a
+  pos-b' = r1/-preserves-Pos b inv-b pos-b
+
+  pos-a'b' : Pos (a' r* b')
+  pos-a'b' = r*₁-preserves-sign (_ , pos-a') b' {pos-sign} pos-b'
+
+  pos-prod : Pos ((a' r* b') r* (b r+ (r- a)))
+  pos-prod = r*₁-preserves-sign ((a' r* b') , pos-a'b') (b r+ (r- a)) {pos-sign} (Pos-diffℚ a b a<b)
+
+  path : (a' r* b') r* (b r+ (r- a)) == a' r+ (r- b')
+  path =
+    *-distrib-+-left >=>
+    +-cong (*-assoc >=> *-right (r1/-inverse b inv-b) >=> *-right-one)
+           (r*-minus-extract-right _ _ >=>
+            cong r-_ (*-left *-commute >=> *-assoc >=>
+                      *-right (r1/-inverse a inv-a) >=> *-right-one))
+
+r1/-Pos-flips-≤ : (a b : ℚ⁺) -> ⟨ a ⟩ ℚ≤ ⟨ b ⟩ ->
+                  (r1/ ⟨ b ⟩ (Pos->Inv (snd b))) ℚ≤ (r1/ ⟨ a ⟩ (Pos->Inv (snd a)))
+r1/-Pos-flips-≤ a@(a' , pos-a') b@(b' , pos-b') a≤b = handle (NonNeg-diffℚ a' b' a≤b)
+  where
+  handle : NonNeg (diffℚ a' b') -> _
+  handle (inj-l pd) = weaken-< (r1/-Pos-flips-order a b (Pos-diffℚ⁻ a' b' pd))
+  handle (inj-r zd) = =->≤ (sym path)
+    where
+    a==b = zero-diff->path a' b' zd
+
+    path : (r1/ a' (Pos->Inv pos-a')) == (r1/ b' (Pos->Inv pos-b'))
+    path i = (r1/ (a==b i) (Pos->Inv (isProp->PathP (\ j -> isProp-Pos (a==b j)) pos-a' pos-b' i)))
+
 
 
 -- Archimedean
@@ -1024,3 +1080,29 @@ small-1/2^ℕ q@(q' , _) = ∥-map handle (small-1/2^ℕ-step1 q)
     where
     lt2 : ((1/2r r^ℕ⁰ m) r* q1') < (q3' r* q1')
     lt2 = r*₂-preserves-order (1/2r r^ℕ⁰ m) q3' q1 lt
+
+seperate-< : (a b : ℚ) -> a < b -> Σ[ ε ∈ ℚ⁺ ] (a r+ ⟨ ε ⟩) < (b r+ (r- ⟨ ε ⟩))
+seperate-< a b a<b = ε , Pos-diffℚ⁻ (a r+ ε') (b r+ (r- ε')) pos-diff
+  where
+  Pos-1/2r = Pos-1/ℕ 2⁺
+  ε' = 1/2r r* (1/2r r* (diffℚ a b))
+  ε : ℚ⁺
+  ε = ε' , r*-preserves-Pos 1/2r _ Pos-1/2r
+                            (r*-preserves-Pos 1/2r (diffℚ a b) Pos-1/2r (Pos-diffℚ a b a<b))
+
+  path : (diffℚ (a r+ ε') (b r+ (r- ε'))) == 1/2r r* (diffℚ a b)
+  path =
+    sym (r+-swap-diffℚ a b ε' (r- ε')) >=>
+    cong2 _r+_
+          (sym (r*-left-one (diffℚ a b)))
+          (sym minus-distrib-plus >=>
+           cong r-_ (1/2r-path' (1/2r r* (diffℚ a b))) >=>
+           sym minus-extract-left) >=>
+    sym (*-distrib-+-right {_} {_} {1r} {r- 1/2r} {diffℚ a b}) >=>
+    cong (_r* (diffℚ a b)) (cong (_r+ (r- 1/2r)) (sym (1/2r-path 1r) >=>
+                                                  cong2 _+_ (r*-left-one 1/2r) (r*-left-one 1/2r)) >=>
+                            r+-assoc 1/2r 1/2r (r- 1/2r) >=>
+                            diffℚ-step 1/2r 1/2r)
+
+  pos-diff : Pos (diffℚ (a r+ ε') (b r+ (r- ε')))
+  pos-diff = subst Pos (sym path) (r*-preserves-Pos 1/2r (diffℚ a b) (Pos-1/ℕ 2⁺) (Pos-diffℚ a b a<b))

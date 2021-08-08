@@ -17,12 +17,10 @@ open import rational
 open import rational.proper-interval
 open import rational.proper-interval.abs
 open import rational.minmax
-open import rational.order using
+open import rational.order-switch using
  ( ℚ⁻
  ; ℚ⁺
  ; r--flips-sign
- ; r--flips-order
- ; r--flips-≤
  ; r+-preserves-Pos
  ; Pos-1r
  ; Neg-<0
@@ -33,7 +31,7 @@ open import rational.order using
  ; NonPos-≤0
  ; trans-ℚ≤
  )
-open import rational.sign
+open import rational.sign-switch
 open import real
 open import real.interval
 open import real.arithmetic.multiplication
@@ -74,13 +72,13 @@ module _ (x : ℝ)
     L-neg (q , nq) = x.located q (r- q) q<-q
       where
       pmq : Pos (r- q)
-      pmq = r--flips-sign _ _ nq
+      pmq = r--flips-sign _ neg-sign nq
 
       q<-q : q < (r- q)
-      q<-q = r+-preserves-Pos _ _ pmq pmq
+      q<-q = Pos-diffℚ⁻ q (- q) (r+-preserves-Pos _ _ pmq pmq)
 
     Inhabited-L : Inhabited L
-    Inhabited-L = ∣ (r- 1r) , L-neg (_ , r--flips-sign _ _ Pos-1r) ∣
+    Inhabited-L = ∣ (r- 1r) , L-neg (_ , r--flips-sign _ pos-sign Pos-1r) ∣
 
     Inhabited-U : Inhabited U
     Inhabited-U = ∥-map2 handle (ℝ->Neg-L x) (ℝ->Pos-U x)
@@ -94,7 +92,7 @@ module _ (x : ℝ)
                    (x.isUpperSet-U r (r- q) r<-q xu-r)
           where
           r<-q : r < (r- q)
-          r<-q = subst Pos (r+-commute (r- r) (r- q)) q<-r
+          r<-q = Pos-diffℚ⁻ r (- q) (subst Pos (r+-commute (r- r) (r- q)) (Pos-diffℚ q (- r) q<-r))
         handle2 (tri= _ q=-r _ ) = r , (subst x.L q=-r xl-q) , xu-r
         handle2 (tri> _ _ -r<q) = r , (x.isLowerSet-L (r- r) q -r<q xl-q) , xu-r
 
@@ -103,11 +101,11 @@ module _ (x : ℝ)
       where
       handle : L' r -> L' q
       handle (inj-l xl-r) = inj-l (x.isLowerSet-L q r q<r xl-r)
-      handle (inj-r xu-r) = inj-r (x.isUpperSet-U (r- r) (r- q) (r--flips-order q r q<r) xu-r)
+      handle (inj-r xu-r) = inj-r (x.isUpperSet-U (r- r) (r- q) (minus-flips-< q r q<r) xu-r)
 
     isUpperSet-U : isUpperSet U
     isUpperSet-U q r q<r (xl-q , xu-q) =
-      (x.isLowerSet-L (r- r) (r- q) (r--flips-order q r q<r) xl-q) ,
+      (x.isLowerSet-L (r- r) (r- q) (minus-flips-< q r q<r) xl-q) ,
       (x.isUpperSet-U q r q<r xu-q)
 
     isUpperOpen-L : isUpperOpen L
@@ -119,7 +117,7 @@ module _ (x : ℝ)
         where
         handle2 : Σ[ r ∈ ℚ ] (r < (r- q) × x.U r ) -> Σ[ r ∈ ℚ ] (q < r × L r)
         handle2 (r , lt , xu-r) =
-          (r- r) , subst Pos (r+-commute (r- q) (r- r)) lt
+          (r- r) , Pos-diffℚ⁻ q (r- r) (subst Pos (r+-commute (r- q) (r- r)) (Pos-diffℚ r (r- q) lt))
                  , ∣ inj-r (subst x.U (sym minus-double-inverse) xu-r) ∣
 
 
@@ -138,11 +136,12 @@ module _ (x : ℝ)
                             (x.isUpperSet-U r2 (r- r1) r2<-r1 xu-r2)
           where
           r2<-r1 : r2 < (r- r1)
-          r2<-r1 = subst Pos (r+-commute (r- r2) (r- r1)) r1<-r2
+          r2<-r1 = Pos-diffℚ⁻ r2 (- r1) (subst Pos (r+-commute (r- r2) (r- r1))
+                                               (Pos-diffℚ r1 (- r2) r1<-r2))
 
           -r1<q : (r- r1) < q
           -r1<q = subst ((r- r1) <_) minus-double-inverse
-                        (r--flips-order (r- q) r1 -q<r1)
+                        (minus-flips-< (r- q) r1 -q<r1)
 
         handle2 (tri= _ r1=-r2 _) =
           r2 , r2<q , (subst x.L r1=-r2 xl-r1) , xu-r2
@@ -160,7 +159,7 @@ module _ (x : ℝ)
 
     located : (q r : ℚ) -> (q < r) -> ∥ L q ⊎ U r ∥
     located q r q<r =  ∥-map2 handle (x.located q r q<r)
-                                     (x.located (r- r) (r- q) (r--flips-order q r q<r))
+                                     (x.located (r- r) (r- q) (minus-flips-< q r q<r))
       where
       handle : (x.L q ⊎ x.U r) -> (x.L (r- r) ⊎ x.U (r- q)) -> L q ⊎ U r
       handle (inj-l xl-q) _ = inj-l (∣ (inj-l xl-q) ∣)
@@ -188,7 +187,7 @@ abstract
   absℝ-0≤ x (q , neg-q) = Real.located x q (- q) q<-q
     where
     q<-q : q < (- q)
-    q<-q = trans-< {_} {_} {_} {q} (Neg-<0 q neg-q) (Pos-0< (- q) (r--flips-sign q _ neg-q))
+    q<-q = trans-< {_} {_} {_} {q} (Neg-<0 q neg-q) (Pos-0< (- q) (r--flips-sign q neg-sign neg-q))
 
   absℝ-≮0 : (x : ℝ) -> absℝ x ≮ 0ℝ
   absℝ-≮0 x = unsquash isPropBot ∘ ∥-map handle
@@ -229,7 +228,7 @@ abstract
           where
           handle2 : (q < 0r ⊎ 0r ≤ q) -> x.L q
           handle2 (inj-l lt) = <0->xL lt
-          handle2 (inj-r ge) = bot-elim (≤0->¬xU (r--flips-≤ 0r q ge) u-q)
+          handle2 (inj-r ge) = bot-elim (≤0->¬xU (minus-flips-≤ 0r q ge) u-q)
       i .inv xl = ∣ inj-l xl ∣
       i .rightInv _ = x.isProp-L q _ _
       i .leftInv _ = ax.isProp-L q _ _
@@ -247,7 +246,7 @@ abstract
           where
           handle : ((- q) < 0r ⊎ 0r ≤ (- q)) -> (- q) < 0r
           handle (inj-l lt) = lt
-          handle (inj-r ge) = bot-elim (≤0->¬xU (r--flips-≤ 0r (- q) ge)
+          handle (inj-r ge) = bot-elim (≤0->¬xU (minus-flips-≤ 0r (- q) ge)
                                                 (subst x.U (sym minus-double-inverse) xu))
       i .rightInv _ = x.isProp-U q _ _
       i .leftInv _ = ax.isProp-U q _ _
@@ -351,13 +350,13 @@ abstract
     handle (inj-l l<0) = handle2 (split-< 0r u)
       where
       l0=0 : (maxℚ l 0r) == 0r
-      l0=0 = maxℚ-right l 0r (inj-l l<0)
+      l0=0 = maxℚ-right l 0r (weaken-< l<0)
 
       handle2 : (0r < u) ⊎ (u ≤ 0r) -> ax.L (maxℚ l 0r)
       handle2 (inj-r u≤0) = isLowerSet≤ ax (maxℚ l 0r) (- u) l0≤-u axl--u
         where
         l0≤-u : (maxℚ l 0r) ≤ (- u)
-        l0≤-u = subst (_≤ (- u)) (sym l0=0) (r--flips-≤ u 0r u≤0)
+        l0≤-u = subst (_≤ (- u)) (sym l0=0) (minus-flips-≤ u 0r u≤0)
 
         axl--u : ax.L (- u)
         axl--u = ∣ inj-r (subst x.U (sym minus-double-inverse) xu-u) ∣
@@ -387,7 +386,7 @@ abstract
   0≤l : 0r ≤ l
   0≤l = NonNeg-0≤ l nn-l
   -u≤l : (- u) ≤ l
-  -u≤l = (trans-ℚ≤ { - u} (r--flips-≤ l u l≤u) (trans-ℚ≤ { - l} (r--flips-≤ 0r l 0≤l) 0≤l))
+  -u≤l = (trans-ℚ≤ { - u} (minus-flips-≤ l u l≤u) (trans-ℚ≤ { - l} (minus-flips-≤ 0r l 0≤l) 0≤l))
 
 ℝ∈Iℚ-absℝ-NonPosI : (x : ℝ) (a : Iℚ) -> NonPosI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) (i- a)
 ℝ∈Iℚ-absℝ-NonPosI x (Iℚ-cons l u l≤u) np-u (xl-l , xu-u) =
@@ -399,7 +398,7 @@ abstract
   u≤0 = NonPos-≤0 u np-u
 
   u≤-l : u ≤ (- l)
-  u≤-l = (trans-ℚ≤ {u} (trans-ℚ≤ {u} u≤0 (r--flips-≤ u 0r u≤0)) (r--flips-≤ l u l≤u))
+  u≤-l = (trans-ℚ≤ {u} (trans-ℚ≤ {u} u≤0 (minus-flips-≤ u 0r u≤0)) (minus-flips-≤ l u l≤u))
 
 private
   ℝ∈Iℚ-absℝ-ImbalancedI : (x : ℝ) (a : Iℚ) -> ImbalancedI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) a
@@ -407,7 +406,7 @@ private
     ∣ inj-l xl-l ∣ , (isLowerSet≤ x (- u) l -u≤l xl-l , xu-u)
     where
     -u≤l : (- u) ≤ l
-    -u≤l = subst ((- u) ≤_) minus-double-inverse (r--flips-≤ (- l) u -l≤u)
+    -u≤l = subst ((- u) ≤_) minus-double-inverse (minus-flips-≤ (- l) u -l≤u)
 
   ℝ∈Iℚ-absℝ-ΣImbalancedI : (x : ℝ) (a : Iℚ) -> ℝ∈Iℚ (absℝ x) a ->
                            Σ[ b ∈ Iℚ ] (ℝ∈Iℚ (absℝ x) b × ImbalancedI b × b i⊆ a)
@@ -423,10 +422,11 @@ private
     handle (inj-l u<-l) = b , (ℝ∈Iℚ-absℝ-ImbalancedI x b mmu≤u (xl--u , xu-u)) , mmu≤u , b⊆a
       where
       l≤-u : l ≤ (- u)
-      l≤-u = inj-l (subst (_< (- u)) (minus-double-inverse {_} {_} {_} {l}) (r--flips-order u (- l) u<-l))
+      l≤-u = weaken-< (subst (_< (- u)) (minus-double-inverse {_} {_} {_} {l})
+                                        (minus-flips-< u (- l) u<-l))
 
       b : Iℚ
-      b = (Iℚ-cons (- u) u (inj-l (ℝ-bounds->ℚ< x (- u) u xl--u xu-u)))
+      b = (Iℚ-cons (- u) u (weaken-< (ℝ-bounds->ℚ< x (- u) u xl--u xu-u)))
 
       mmu≤u : (- (- u)) ≤ u
       mmu≤u = subst ((- (- u)) ≤_) minus-double-inverse refl-≤

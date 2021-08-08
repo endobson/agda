@@ -8,11 +8,11 @@ open import hlevel
 open import order
 open import order.instances.rational
 open import rational
-open import rational.order
+open import rational.order-switch
 open import rational.minmax
 open import rational.interval
 open import rational.interval.multiplication-base
-open import rational.sign
+open import rational.sign-switch
 open import relation
 open import sign
 open import sign.instances.rational
@@ -23,18 +23,19 @@ private
 
 
   classify-Iℚ : (a : Iℚ) -> Iℚ-class a
-  classify-Iℚ a@(l , u) = handle (snd (decide-sign l)) (snd (decide-sign u))
+  classify-Iℚ a@(l , u) =
+    handle (fst (decide-sign l)) (fst (decide-sign u)) (snd (decide-sign l)) (snd (decide-sign u))
     where
-    handle : {s1 s2 : Sign} -> isSign s1 l -> isSign s2 u -> Iℚ-class a
-    handle {pos-sign}  {pos-sign}  pl pu = inj-l (inj-l (inj-l pl , inj-l pu))
-    handle {pos-sign}  {zero-sign} pl zu = inj-l (inj-l (inj-l pl , inj-r zu))
-    handle {pos-sign}  {neg-sign}  pl nu = inj-r (inj-r (inj-l pl , inj-l nu))
-    handle {zero-sign} {pos-sign}  zl pu = inj-l (inj-l (inj-r zl , inj-l pu))
-    handle {zero-sign} {zero-sign} zl zu = inj-l (inj-l (inj-r zl , inj-r zu))
-    handle {zero-sign} {neg-sign}  zl nu = inj-r (inj-r (inj-r zl , inj-l nu))
-    handle {neg-sign}  {pos-sign}  nl pu = inj-r (inj-l (inj-l nl , inj-l pu))
-    handle {neg-sign}  {zero-sign} nl zu = inj-l (inj-r (inj-l nl , inj-r zu))
-    handle {neg-sign}  {neg-sign}  nl nu = inj-l (inj-r (inj-l nl , inj-l nu))
+    handle : (s1 s2 : Sign) -> isSign s1 l -> isSign s2 u -> Iℚ-class a
+    handle pos-sign  pos-sign  pl pu = inj-l (inj-l (inj-l pl , inj-l pu))
+    handle pos-sign  zero-sign pl zu = inj-l (inj-l (inj-l pl , inj-r zu))
+    handle pos-sign  neg-sign  pl nu = inj-r (inj-r (inj-l pl , inj-l nu))
+    handle zero-sign pos-sign  zl pu = inj-l (inj-l (inj-r zl , inj-l pu))
+    handle zero-sign zero-sign zl zu = inj-l (inj-l (inj-r zl , inj-r zu))
+    handle zero-sign neg-sign  zl nu = inj-r (inj-r (inj-r zl , inj-l nu))
+    handle neg-sign  pos-sign  nl pu = inj-r (inj-l (inj-l nl , inj-l pu))
+    handle neg-sign  zero-sign nl zu = inj-l (inj-r (inj-l nl , inj-r zu))
+    handle neg-sign  neg-sign  nl nu = inj-l (inj-r (inj-l nl , inj-l nu))
 
   abstract
     i*-full : (a b : Iℚ) -> Σ Iℚ (Imul a b)

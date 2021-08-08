@@ -14,7 +14,7 @@ open import order
 open import order.instances.rational
 open import rational
 open import rational.difference
-open import rational.order using (Zero-0r ; r--flips-sign)
+open import rational.order-switch
 open import relation
 open import ring
 open import semiring
@@ -74,10 +74,10 @@ private
     where
     open Iso
     i : Iso (ℚ<> q r) (ℚInv (diffℚ q r))
-    i .fun (inj-l q<r) d=0 = NonZero->¬Zero (subst NonZero d=0 (inj-l q<r)) Zero-0r
+    i .fun (inj-l q<r) d=0 = NonZero->¬Zero (subst NonZero d=0 (inj-l (Pos-diffℚ q r q<r))) Zero-0r
     i .fun (inj-r r<q) d=0 =
       NonZero->¬Zero (subst NonZero (sym (diffℚ-anticommute _ _) >=> d=0)
-                            (inj-r (r--flips-sign _ _ r<q))) Zero-0r
+                            (inj-r (r--flips-sign _ pos-sign (Pos-diffℚ r q r<q)))) Zero-0r
     i .inv d!=0 = handle (trichotomous-< q r)
       where
       handle : Tri (q < r) (q == r) (r < q) -> ℚ<> q r
