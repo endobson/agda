@@ -8,7 +8,7 @@ open import equality
 open import functions
 open import heyting-field
 open import rational
-open import rational.order
+open import rational.order-switch
 open import real
 open import real.sequence
 open import real.arithmetic.order
@@ -26,7 +26,6 @@ open import order
 open import order.instances.rational
 open import order.instances.real
 open import ordered-ring
-open import ordered-ring.instances.real
 open import ordered-semiring
 open import ordered-semiring.instances.real
 

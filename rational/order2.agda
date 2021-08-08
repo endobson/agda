@@ -416,6 +416,9 @@ abstract
   Pos-1r : Pos 1r
   Pos-1r = same-sign-ℚ' pos-sign 1r' (Pos-ℕ⁺->ℚ' (1 , tt))
 
+  0<1r : 0r < 1r
+  0<1r = Pos-1r
+
   Pos-ℕ⁺->ℚ : (n : Nat⁺) -> Pos (ℕ->ℚ ⟨ n ⟩)
   Pos-ℕ⁺->ℚ n⁺@(n@(suc _), _) = same-sign-ℚ' pos-sign _ (Pos-ℕ⁺->ℚ' n⁺)
 
