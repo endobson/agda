@@ -355,14 +355,14 @@ module _ (x y : ℝ)
 
           wm-xy-≤ : (w-mxi r* m-myi) ℚ≤ (ε r* m-yi')
           wm-xy-≤ = trans-ℚ≤ {(w-mxi r* m-myi)} {(w-mxi r* m-yi')} {(ε r* m-yi')}
-                             (r*₁-preserves-≤ (w-mxi , nn-w-mxi) m-myi m-yi' m-myi≤m-yi')
-                             (r*₂-preserves-≤ w-mxi ε (m-yi' , nn-m-yi') w-mxi≤ε)
+                             (*₁-preserves-≤ w-mxi m-myi m-yi' (NonNeg-0≤ _ nn-w-mxi) m-myi≤m-yi')
+                             (*₂-preserves-≤ w-mxi ε m-yi' w-mxi≤ε (NonNeg-0≤ _  nn-m-yi'))
 
           mw-xy-≤ : (m-mxi r* w-myi) ℚ≤ (ε r* m-xi')
           mw-xy-≤ = trans-ℚ≤ {(m-mxi r* w-myi)} {(m-xi' r* w-myi)} {(ε r* m-xi')}
-                             (r*₂-preserves-≤ m-mxi m-xi' (w-myi , nn-w-myi)  m-mxi≤m-xi')
+                             (*₂-preserves-≤ m-mxi m-xi' w-myi m-mxi≤m-xi' (NonNeg-0≤ _ nn-w-myi))
                              (subst ((m-xi' r* w-myi) ℚ≤_) (r*-commute m-xi' ε)
-                                    (r*₁-preserves-≤ (m-xi' , nn-m-xi') w-myi ε w-myi≤ε))
+                                    (*₁-preserves-≤ m-xi' w-myi ε (NonNeg-0≤ _ nn-m-xi') w-myi≤ε))
 
           wmmw = ((w-mxi r* m-myi) r+ (m-mxi r* w-myi))
           wmmw≤d : wmmw ℚ≤ d
@@ -567,7 +567,7 @@ module _ (x : ℝ)
 
               lt1 : (1i-u r* xi-l) < xi-l
               lt1 = subst ((1i-u r* xi-l) <_) (r*-left-one xi-l)
-                          (r*₂-flips-order 1r 1i-u (xi-l , n-xi-l) 1<1i-u)
+                          (*₂-flips-< 1r 1i-u xi-l 1<1i-u n-xi-l)
               lt2 : (minℚ p3 p4) ℚ≤ p3
               lt2 = minℚ-≤-left p3 p4
               lt3 : (minℚ p1 p2) ℚ≤ p2
@@ -589,7 +589,7 @@ module _ (x : ℝ)
 
               lt1 : (1i-l r* xi-l) ℚ≤ xi-l
               lt1 = subst ((1i-l r* xi-l) ℚ≤_) (r*-left-one xi-l)
-                          (r*₂-preserves-≤ 1i-l 1r (xi-l , nn-xi-l) (weaken-< 1i-l<1))
+                          (*₂-preserves-≤ 1i-l 1r xi-l (weaken-< 1i-l<1) (NonNeg-0≤ _ nn-xi-l))
               lt2 : (minℚ p3 p4) ℚ≤ p3
               lt2 = minℚ-≤-left p3 p4
               lt3 : (minℚ p1 p2) ℚ≤ p1
@@ -678,7 +678,7 @@ module _ (x : ℝ)
 
               lt1 : xi-u < (1i-l r* xi-u)
               lt1 = subst (_< (1i-l r* xi-u)) (r*-left-one xi-u)
-                          (r*₂-flips-order 1i-l 1r (xi-u , n-xi-u) 1i-l<1)
+                          (*₂-flips-< 1i-l 1r xi-u 1i-l<1 n-xi-u)
 
               lt2 : p4 ℚ≤ (maxℚ p3 p4)
               lt2 = maxℚ-≤-right p3 p4
@@ -704,7 +704,7 @@ module _ (x : ℝ)
 
               lt1 : xi-u ℚ≤ (1i-u r* xi-u)
               lt1 = subst (_ℚ≤ (1i-u r* xi-u)) (r*-left-one xi-u)
-                          (r*₂-preserves-≤ 1r 1i-u (xi-u , nn-xi-u) (weaken-< 1<1i-u))
+                          (*₂-preserves-≤ 1r 1i-u xi-u (weaken-< 1<1i-u) (NonNeg-0≤ _ nn-xi-u))
               lt2 : p4 ℚ≤ (maxℚ p3 p4)
               lt2 = maxℚ-≤-right p3 p4
               lt3 : p2 ℚ≤ (maxℚ p1 p2)

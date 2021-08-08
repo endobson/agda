@@ -610,34 +610,6 @@ Pos-< a b nn a<b = trans-≤-< (NonNeg-0≤ _ nn) a<b
 Neg-< : (a b : ℚ) -> NonPos b -> a ℚ< b -> Neg a
 Neg-< a b np a<b = trans-<-≤ a<b (NonPos-≤0 _ np)
 
-r*₁-preserves-order : (a : ℚ⁺) (b c : ℚ) -> b ℚ< c -> (⟨ a ⟩ r* b) ℚ< (⟨ a ⟩ r* c)
-r*₁-preserves-order (a , 0<a) b c b<c = *₁-preserves-< a b c 0<a b<c
-
-r*₂-preserves-order : (a b : ℚ) (c : ℚ⁺) -> a ℚ< b -> (a r* ⟨ c ⟩) ℚ< (b r* ⟨ c ⟩)
-r*₂-preserves-order a b (c , 0<c) a<b = *₂-preserves-< a b c a<b 0<c
-
-r*₁-flips-order : (a : ℚ⁻) (b c : ℚ) -> b ℚ< c -> (⟨ a ⟩ r* c) ℚ< (⟨ a ⟩ r* b)
-r*₁-flips-order (a , a<0) b c b<c = *₁-flips-< a b c a<0 b<c
-
-r*₂-flips-order : (a b : ℚ) (c : ℚ⁻) -> a ℚ< b -> (b r* ⟨ c ⟩) ℚ< (a r* ⟨ c ⟩)
-r*₂-flips-order a b (c , c<0) a<b = *₂-flips-< a b c a<b c<0
-
-r*₁-preserves-≤ : (a : ℚ⁰⁺) (b c : ℚ) -> b ℚ≤ c -> (⟨ a ⟩ r* b) ℚ≤ (⟨ a ⟩ r* c)
-r*₁-preserves-≤ (a , (inj-l 0<a)) b c b≤c = *₁-preserves-≤ a b c (weaken-< 0<a) b≤c
-r*₁-preserves-≤ (a , (inj-r za)) b c b≤c = *₁-preserves-≤ a b c (=->≤ (sym (Zero-path a za))) b≤c
-
-r*₁-flips-≤ : (a : ℚ⁰⁻) (b c : ℚ) -> b ℚ≤ c -> (⟨ a ⟩ r* c) ℚ≤ (⟨ a ⟩ r* b)
-r*₁-flips-≤ (a , (inj-l a<0)) b c b≤c = *₁-flips-≤ a b c (weaken-< a<0) b≤c
-r*₁-flips-≤ (a , (inj-r za)) b c b≤c = *₁-flips-≤ a b c (=->≤ (Zero-path a za)) b≤c
-
-r*₂-flips-≤ : (a b : ℚ) (c : ℚ⁰⁻) -> a ℚ≤ b -> (b r* ⟨ c ⟩) ℚ≤ (a r* ⟨ c ⟩)
-r*₂-flips-≤ a b (c , (inj-l c<0)) a≤b = *₂-flips-≤ a b c a≤b (weaken-< c<0)
-r*₂-flips-≤ a b (c , (inj-r zc)) a≤b = *₂-flips-≤ a b c a≤b (=->≤ (Zero-path c zc))
-
-r*₂-preserves-≤ : (a b : ℚ) (c : ℚ⁰⁺) -> a ℚ≤ b -> (a r* ⟨ c ⟩) ℚ≤ (b r* ⟨ c ⟩)
-r*₂-preserves-≤ a b (c , (inj-l 0<c)) a≤b = *₂-preserves-≤ a b c a≤b (weaken-< 0<c)
-r*₂-preserves-≤ a b (c , (inj-r zc)) a≤b = *₂-preserves-≤ a b c a≤b (=->≤ (sym (Zero-path c zc)))
-
 r*-Pos-Pos : {q1 q2 : ℚ} -> Pos q1 -> Pos q2 -> Pos (q1 r* q2)
 r*-Pos-Pos p1 p2 = r*-preserves-0< _ _ p1 p2
 
@@ -783,7 +755,7 @@ Pos-1/ℕ n = subst Pos (sym (1/ℕ-inv-path n)) (r1/-preserves-Pos (ℕ->ℚ �
 1/2ℕ<1/ℕ : (n : Nat⁺) -> 1/ℕ (2⁺ *⁺ n) < 1/ℕ n
 1/2ℕ<1/ℕ n =
   subst2 _<_ (sym (1/2ℕ-path n)) (r*-left-one (1/ℕ n))
-        (r*₂-preserves-order 1/2r 1r (1/ℕ n , Pos-1/ℕ n) 1/2r<1r)
+        (*₂-preserves-< 1/2r 1r (1/ℕ n) 1/2r<1r (Pos-1/ℕ n))
 
 NonNeg-diffℚ : (a b : ℚ) -> a ≤ b -> NonNeg (diffℚ a b)
 NonNeg-diffℚ a b a≤b =
@@ -894,8 +866,8 @@ abstract
     r*-right-one (1/ℕ b)
 
   ab*< : (ab r* (ℕ->ℚ a')) < (ab r* (ℕ->ℚ b'))
-  ab*< = r*₁-preserves-order (ab , pos-ab) (ℕ->ℚ a') (ℕ->ℚ b')
-           (ℕ->ℚ-preserves-order a' b' lt)
+  ab*< = *₁-preserves-< ab (ℕ->ℚ a') (ℕ->ℚ b')
+           pos-ab (ℕ->ℚ-preserves-order a' b' lt)
 
 
 private
@@ -1082,7 +1054,7 @@ small-1/2^ℕ q@(q' , _) = ∥-map handle (small-1/2^ℕ-step1 q)
   handle (m , lt) = m , subst (((1/2r r^ℕ⁰ m) r* q1') <_) q3-path lt2
     where
     lt2 : ((1/2r r^ℕ⁰ m) r* q1') < (q3' r* q1')
-    lt2 = r*₂-preserves-order (1/2r r^ℕ⁰ m) q3' q1 lt
+    lt2 = *₂-preserves-< (1/2r r^ℕ⁰ m) q3' q1' lt pos-q1
 
 seperate-< : (a b : ℚ) -> a < b -> Σ[ ε ∈ ℚ⁺ ] (a r+ ⟨ ε ⟩) < (b r+ (r- ⟨ ε ⟩))
 seperate-< a b a<b = ε , Pos-diffℚ⁻ (a r+ ε') (b r+ (r- ε')) pos-diff

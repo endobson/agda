@@ -138,7 +138,7 @@ private
         where
         q/2 = 1/2r r* q
         neg-q/2 = r*₁-preserves-sign (1/2r , Pos-1/ℕ _) q {neg-sign} neg-q
-        q<q/2 = subst (_< q/2) (r*-left-one q) (r*₂-flips-order 1/2r 1r (q , neg-q) 1/2r<1r)
+        q<q/2 = subst (_< q/2) (r*-left-one q) (*₂-flips-< 1/2r 1r q 1/2r<1r neg-q)
 
       isUpperOpen-L q (L-nonpos (inj-r zero-q)) = ∥-map handle (ℝ->Pos-U x)
         where
@@ -408,10 +408,10 @@ private
 
 
             dlel<1 = subst2 _<_ *-commute (r1/-inverse dl (Pos->Inv pos-dl))
-                            (r*₂-preserves-order el 1/dl (dl , pos-dl) el<1/dl)
+                            (*₂-preserves-< el 1/dl dl el<1/dl pos-dl)
 
             1<dueu = subst2 _<_ (r1/-inverse du (Pos->Inv pos-du)) *-commute
-                            (r*₂-preserves-order 1/du eu (du , pos-du) 1/du<eu)
+                            (*₂-preserves-< 1/du eu du 1/du<eu pos-du)
 
             de' = i*-NN d e (inj-l pos-dl) (inj-l pos-el)
             de'==de : de' == (d i* e)

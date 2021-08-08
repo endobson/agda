@@ -6,6 +6,7 @@ open import base
 open import equality
 open import order
 open import order.instances.rational
+open import ordered-ring
 open import rational
 open import rational.minmax
 open import rational.order
@@ -22,18 +23,18 @@ i*₁-StrictCrossZero a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (n
 
   l-p : l == minℚ (al r* bu) (au r* bl)
   l-p = cong2 minℚ (minℚ-right (al r* bl) (al r* bu)
-                               (r*₁-flips-≤ (al , (inj-l n-al)) bl bu bl≤bu))
+                               (*₁-flips-≤ al bl bu (weaken-< n-al) bl≤bu))
                    (minℚ-left (au r* bl) (au r* bu)
-                              (r*₁-preserves-≤ (au , (inj-l p-au)) bl bu bl≤bu))
+                              (*₁-preserves-≤ au bl bu (weaken-< p-au) bl≤bu))
 
   u = maxℚ (maxℚ (al r* bl) (al r* bu)) (maxℚ (au r* bl) (au r* bu))
 
 
   u-p : u == maxℚ (al r* bl) (au r* bu)
   u-p = cong2 maxℚ (maxℚ-left (al r* bl) (al r* bu)
-                              (r*₁-flips-≤ (al , (inj-l n-al)) bl bu bl≤bu))
+                              (*₁-flips-≤ al bl bu (weaken-< n-al) bl≤bu))
                    (maxℚ-right (au r* bl) (au r* bu)
-                               (r*₁-preserves-≤ (au , (inj-l p-au)) bl bu bl≤bu))
+                               (*₁-preserves-≤ au bl bu (weaken-< p-au) bl≤bu))
 
 
   n-case : Neg bl -> StrictCrossZeroI (a i* b)

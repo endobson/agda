@@ -180,7 +180,7 @@ module _ (x : ℝ) where
       q/2 = 1/2r r* q
 
       q/2<q : q/2 < q
-      q/2<q = subst (q/2 <_) (r*-left-one q) (r*₂-preserves-order 1/2r 1r (q , pos-q) 1/2r<1r)
+      q/2<q = subst (q/2 <_) (r*-left-one q) (*₂-preserves-< 1/2r 1r q 1/2r<1r pos-q)
 
       pos-q/2 : Posℚ q/2
       pos-q/2 = r*₁-preserves-sign (1/2r , Pos-1/ℕ _) q {pos-sign} pos-q

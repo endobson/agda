@@ -66,7 +66,8 @@ ImbalancedI->i-maxabs (Iℚ-cons l u l≤u) -l≤u =
     np-k = ≤0-NonPos k (weaken-< k<0)
 
     kq∈ka' : ℚ∈Iℚ (k * q) (i-scale-NP (k , np-k) a)
-    kq∈ka' = r*₁-flips-≤ (k , np-k) q u q≤u , r*₁-flips-≤ (k , np-k) l q l≤q
+    kq∈ka' = *₁-flips-≤ k q u (weaken-< k<0) q≤u ,
+             *₁-flips-≤ k l q (weaken-< k<0) l≤q
 
   handle (inj-r 0≤k) = subst (ℚ∈Iℚ (k * q)) (i-scale-NN-path (k , nn-k) a) kq∈ka'
     where
@@ -74,7 +75,8 @@ ImbalancedI->i-maxabs (Iℚ-cons l u l≤u) -l≤u =
     nn-k = 0≤-NonNeg k 0≤k
 
     kq∈ka' : ℚ∈Iℚ (k * q) (i-scale-NN (k , nn-k) a)
-    kq∈ka' = r*₁-preserves-≤ (k , nn-k) l q l≤q , r*₁-preserves-≤ (k , nn-k) q u q≤u
+    kq∈ka' = *₁-preserves-≤ k l q 0≤k l≤q ,
+             *₁-preserves-≤ k q u 0≤k q≤u
 
 ℚ∈Iℚ-⊆ : (q : ℚ) -> {a b : Iℚ} -> (a i⊆ b) -> ℚ∈Iℚ q a -> ℚ∈Iℚ q b
 ℚ∈Iℚ-⊆ q {_} {b} (i⊆-cons bl≤al au≤bu) (al≤q , q≤au) =

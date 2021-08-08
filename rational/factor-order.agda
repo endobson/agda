@@ -5,6 +5,7 @@ module rational.factor-order where
 open import base
 open import equality
 open import order
+open import ordered-ring
 open import order.instances.rational
 open import rational
 open import rational.order
@@ -25,8 +26,8 @@ module _ (q r : ℚ) (q≤r : q ℚ≤ r)
       bot-elim (irrefl-< {_} {_} {_} {r} (trans-<-≤ {d1 = r} {q} {r} r<q q≤r))
       where
       cd<cb : (c r* d) < (c r* b)
-      cd<cb = r*₁-preserves-order (c , pc) d b d<b
+      cd<cb = *₁-preserves-< c d b pc d<b
       cb<ab : (c r* b) < (a r* b)
-      cb<ab = r*₂-preserves-order c a (b , pb) c<a
+      cb<ab = *₂-preserves-< c a b c<a pb
       r<q : r < q
       r<q = subst2 _<_ cd=r ab=q (trans-< {_} {_} {_} {c r* d} {c r* b} {a r* b} cd<cb cb<ab)
