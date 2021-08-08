@@ -161,3 +161,11 @@ module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {
       handle (tri< d1<d2 _ _) = inj-l d1<d2
       handle (tri= _ d1=d2 _) = inj-r (subst (_≤ d1) d1=d2 refl-≤)
       handle (tri> _ _ d2<d1) = inj-r (weaken-< d2<d1)
+
+    decide-< : (d1 d2 : D) -> Dec (d1 < d2)
+    decide-< d1 d2 = handle (trichotomous-< d1 d2)
+      where
+      handle : Tri (d1 < d2) (d1 == d2) (d2 < d1) -> Dec (d1 < d2)
+      handle (tri< d1<d2 _ _) = yes d1<d2
+      handle (tri= d1≮d2 _ _) = no d1≮d2
+      handle (tri> d1≮d2 _ _) = no d1≮d2

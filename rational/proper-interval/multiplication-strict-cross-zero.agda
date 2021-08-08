@@ -8,7 +8,7 @@ open import order
 open import order.instances.rational
 open import rational
 open import rational.minmax
-open import rational.order
+open import rational.order-switch
 open import rational.proper-interval
 open import sign
 open import sign.instances.rational
@@ -40,20 +40,20 @@ i*₁-StrictCrossZero a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (n
   n-case n-bl = n-l , p-u
     where
     n-l : Neg l
-    n-l = Neg-≤ l (au r* bl) (r*₁-preserves-sign (au , p-au) bl n-bl)
+    n-l = Neg-≤ l (au r* bl) (r*₁-preserves-sign (au , p-au) bl {neg-sign} n-bl)
                   (subst (_ℚ≤ (au r* bl)) (sym l-p) (minℚ-≤-right (al r* bu) (au r* bl)))
     p-u : Pos u
-    p-u = Pos-≤ (al r* bl) u (r*₁-flips-sign (al , n-al) bl n-bl)
+    p-u = Pos-≤ (al r* bl) u (r*₁-flips-sign (al , n-al) bl {neg-sign} n-bl)
                 (subst ((al r* bl) ℚ≤_) (sym u-p) (maxℚ-≤-left (al r* bl) (au r* bu)))
 
   p-case : Pos bu -> StrictCrossZeroI (a i* b)
   p-case p-bu = n-l , p-u
     where
     n-l : Neg l
-    n-l = Neg-≤ l (al r* bu) (r*₁-flips-sign (al , n-al) bu p-bu)
+    n-l = Neg-≤ l (al r* bu) (r*₁-flips-sign (al , n-al) bu {pos-sign} p-bu)
                   (subst (_ℚ≤ (al r* bu)) (sym l-p) (minℚ-≤-left (al r* bu) (au r* bl)))
     p-u : Pos u
-    p-u = Pos-≤ (au r* bu) u (r*₁-preserves-sign (au , p-au) bu p-bu)
+    p-u = Pos-≤ (au r* bu) u (r*₁-preserves-sign (au , p-au) bu {pos-sign} p-bu)
                 (subst ((au r* bu) ℚ≤_) (sym u-p) (maxℚ-≤-right (al r* bl) (au r* bu)))
 
 

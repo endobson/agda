@@ -814,6 +814,9 @@ abstract
   1/2^ℕ-path (suc n) = 1/2ℕ-path (2⁺ ^⁺ n) >=> cong (1/2r r*_) (1/2^ℕ-path n)
 
 
+midℚ : ℚ -> ℚ -> ℚ
+midℚ x y = 1/2r r* (x r+ y)
+
 -- Floor
 
 ℤ* = Σ ℤ NonZero

@@ -1,5 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
+open import abs
 open import base
 open import equality
 open import fraction.sign
@@ -17,6 +18,10 @@ open import sign.instances.fraction
 open import truncation
 
 import int
+import nat
+
+module i = int
+open i using (int)
 
 module fraction.order where
 
@@ -368,3 +373,34 @@ antisym~-ℚ'≤ {a} {b} a≤b b≤a = handle (trichotomous~-ℚ'< a b)
   handle (tri< a<b _ _) = bot-elim (irrefl-ℚ'< (trans-ℚ'≤-ℚ'< b≤a a<b))
   handle (tri= _ a~b _) = a~b
   handle (tri> _ _ b<a) = bot-elim (irrefl-ℚ'< (trans-ℚ'≤-ℚ'< a≤b b<a))
+
+-- Constants
+
+ℕ->ℚ'-preserves-order : (a b : Nat) -> a nat.< b -> (ℕ->ℚ' a) ℚ'< (ℕ->ℚ' b)
+ℕ->ℚ'-preserves-order a b (c , path) = ℚ'<-cons ans
+  where
+
+  sd : Rational'
+  sd = (same-denom-r+' (ℕ->ℚ' b) (r-' (ℕ->ℚ' a)))
+
+  diff : Rational'
+  diff = (ℕ->ℚ' b r+' (r-' (ℕ->ℚ' a)))
+
+  sd~diff : sd r~ diff
+  sd~diff = same-denom-r+'-r~ (ℕ->ℚ' b) (r-' (ℕ->ℚ' a)) refl
+
+  path2 : int (c nat.+' suc a) i.+ (i.- (int a)) == i.pos c
+  path2 = i.+-left (cong int nat.+'-right-suc) >=>
+          i.+-left (int-inject-+' {suc c} {a}) >=>
+          i.+-assoc >=>
+          i.+-right i.add-minus-zero >=>
+          i.+-right-zero
+
+  Pos-b-a : i.Pos ((int b) i.+ (i.- (int a)))
+  Pos-b-a = subst i.Pos (sym path2 >=> cong (\x -> (int x i.+ (i.- (int a)))) path) tt
+
+  Pos-sd : Pos sd
+  Pos-sd = is-signℚ' (int.*-Pos-Pos Pos-b-a tt)
+
+  ans : Pos diff
+  ans = r~-preserves-sign Pos-sd sd~diff

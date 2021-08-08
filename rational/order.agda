@@ -398,16 +398,16 @@ dense-< {x} {y} lt = ∣ z , (pos-d3 , pos-d4) ∣
   pos-d4 : Posℚ d4
   pos-d4 = subst Posℚ d4-path pos-d2
 
-
-decide-< : Decidable2 _ℚ<_
-decide-< =
-  RationalElim.elimProp2
-    (\a b -> isPropDec (isProp-ℚ< {a} {b}))
-    (\a b -> subst (\x -> Dec (Posℚ x)) (sym r+-eval) (handle (decide-ℚ'< a b)))
-  where
-  handle : {a b : Rational'} -> Dec (a ℚ'< b) -> Dec (Pos [ b r+' (r-'  a ) ])
-  handle (yes (ℚ'<-cons pq)) = yes (is-signℚ pq)
-  handle (no ¬pq) = no (\v -> ¬pq (ℚ'<-cons (isSignℚ.v v)))
+private
+  decide-ℚ< : Decidable2 _ℚ<_
+  decide-ℚ< =
+    RationalElim.elimProp2
+      (\a b -> isPropDec (isProp-ℚ< {a} {b}))
+      (\a b -> subst (\x -> Dec (Posℚ x)) (sym r+-eval) (handle (decide-ℚ'< a b)))
+    where
+    handle : {a b : Rational'} -> Dec (a ℚ'< b) -> Dec (Pos [ b r+' (r-'  a ) ])
+    handle (yes (ℚ'<-cons pq)) = yes (is-signℚ pq)
+    handle (no ¬pq) = no (\v -> ¬pq (ℚ'<-cons (isSignℚ.v v)))
 
 private
   zero-diff->path : (x y : Rational) -> Zeroℚ (y r+ (r- x)) -> x == y
@@ -446,7 +446,7 @@ abstract
 private
   abstract
     trichotomous-ℚ< : Trichotomous _ℚ<_
-    trichotomous-ℚ< x y = handle (decide-< x y) (decide-< y x)
+    trichotomous-ℚ< x y = handle (decide-ℚ< x y) (decide-ℚ< y x)
       where
       handle : Dec (x ℚ< y) -> Dec (y ℚ< x) -> Tri (x ℚ< y) (x == y) (y ℚ< x)
       handle (yes x<y) (yes y<x) = bot-elim (asym-ℚ< {x} {y} x<y y<x)
@@ -678,35 +678,6 @@ r1/-Pos-flips-≤ (a , pos-a) (b , pos-b) (inj-r z-ab) =
   subst2 _<_ (sym (1/2ℕ-path n)) (r*-left-one (1/ℕ n))
         (r*₂-preserves-order 1/2r 1r (1/ℕ n , Pos-1/ℕ n) 1/2r<1r)
 
-ℕ->ℚ'-preserves-order : (a b : Nat) -> a nat.< b -> (ℕ->ℚ' a) ℚ'< (ℕ->ℚ' b)
-ℕ->ℚ'-preserves-order a b (c , path) = ℚ'<-cons ans
-  where
-
-  sd : Rational'
-  sd = (same-denom-r+' (ℕ->ℚ' b) (r-' (ℕ->ℚ' a)))
-
-  diff : Rational'
-  diff = (ℕ->ℚ' b r+' (r-' (ℕ->ℚ' a)))
-
-  sd~diff : sd r~ diff
-  sd~diff = same-denom-r+'-r~ (ℕ->ℚ' b) (r-' (ℕ->ℚ' a)) refl
-
-  path2 : int (c nat.+' suc a) i.+ (i.- (int a)) == i.pos c
-  path2 = i.+-left (cong int nat.+'-right-suc) >=>
-          i.+-left (int-inject-+' {suc c} {a}) >=>
-          i.+-assoc >=>
-          i.+-right i.add-minus-zero >=>
-          i.+-right-zero
-
-  Pos-b-a : i.Pos ((int b) i.+ (i.- (int a)))
-  Pos-b-a = subst i.Pos (sym path2 >=> cong (\x -> (int x i.+ (i.- (int a)))) path) tt
-
-  Pos-sd : Pos sd
-  Pos-sd = is-signℚ' (int.*-Pos-Pos Pos-b-a tt)
-
-  ans : Pos diff
-  ans = r~-preserves-sign Pos-sd sd~diff
-
 ℕ->ℚ-preserves-order : (a b : Nat) -> a nat.< b -> (ℕ->ℚ a) < (ℕ->ℚ b)
 ℕ->ℚ-preserves-order a b a<b =
   (subst Pos (sym r+-eval) (is-signℚ (_ℚ'<_.v (ℕ->ℚ'-preserves-order a b a<b))))
@@ -744,12 +715,13 @@ NonNeg-diffℚ⁻ _ _ a≤b = a≤b
 Pos-diffℚ : (a b : ℚ) -> a ℚ< b -> Pos (diffℚ a b)
 Pos-diffℚ _ _ a<b = a<b
 
+Pos-diffℚ⁻ : (a b : ℚ) -> Pos (diffℚ a b) -> a ℚ< b
+Pos-diffℚ⁻ _ _ a<b = a<b
+
 -- ℕ<-1/ℕ< : (a b : Nat⁺) -> ⟨ a ⟩ nat.< ⟨ b ⟩ -> 1/ℕ b < 1/ℕ a
 -- ℕ<-1/ℕ< a b lt = ?
 
 
-midℚ : ℚ -> ℚ -> ℚ
-midℚ x y = 1/2r r* (x r+ y)
 
 
 -- floor and <

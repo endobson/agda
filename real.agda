@@ -8,14 +8,17 @@ open import equality
 open import functions
 open import hlevel
 open import isomorphism
-open import rational
-open import rational.difference
-open import rational.order
 open import order
 open import order.instances.rational
+open import ordered-ring
+open import ordered-semiring
+open import rational
+open import rational.difference
+open import rational.order-switch
 open import relation hiding (U)
 open import ring
 open import ring.implementations.rational
+open import sign
 open import truncation
 open import univalence
 
@@ -75,7 +78,7 @@ record Real (ℓ : Level) : Type (ℓ-suc ℓ) where
   Inhabited-L = ∣ q1 r+ (r- 1r)  , lt2 ∣
     where
     lt1 : (q1 r+ (r- 1r)) < (q1 r+ 0r)
-    lt1 = r+₁-preserves-order q1 (r- 1r) 0r (r--flips-order 0r 1r (Pos-0< 1r Pos-1r))
+    lt1 = +₁-preserves-< q1 (r- 1r) 0r (minus-flips-< 0r 1r (Pos-0< 1r Pos-1r))
     lt2 : (q1 r+ (r- 1r)) < q1
     lt2 = subst ((q1 r+ (r- 1r)) <_) (r+-right-zero q1) lt1
 
@@ -83,7 +86,7 @@ record Real (ℓ : Level) : Type (ℓ-suc ℓ) where
   Inhabited-U = ∣ q1 r+ 1r  , lt2 ∣
     where
     lt1 : (q1 r+ 1r) > (q1 r+ 0r)
-    lt1 = r+₁-preserves-order q1 0r 1r (Pos-0< 1r Pos-1r)
+    lt1 = +₁-preserves-< q1 0r 1r (Pos-0< 1r Pos-1r)
     lt2 : (q1 r+ 1r) > q1
     lt2 = subst ((q1 r+ 1r) >_) (r+-right-zero q1) lt1
 
@@ -123,7 +126,7 @@ module _ (x : ℝ) where
     handle (q , uq) = handle2 (split-< 0r q)
       where
       handle2 : (0r < q) ⊎ (q ℚ≤ 0r) -> Σ[ q ∈ ℚ⁺ ] (x.U ⟨ q ⟩)
-      handle2 (inj-l 0<q) = (q , subst Posℚ (r+-right-zero q) 0<q) , uq
+      handle2 (inj-l 0<q) = (q , subst Posℚ (r+-right-zero q) (Pos-diffℚ 0r q 0<q)) , uq
       handle2 (inj-r q≤0) = (1r , Pos-1r) , x.isUpperSet-U q 1r q<1r uq
         where
         q<1r : q < 1r
@@ -139,18 +142,19 @@ module _ (x : ℝ) where
       handle2 (inj-l q<0) = (q , Neg-q) , lq
         where
         Neg-d : Negℚ (diffℚ 0r q)
-        Neg-d = subst Negℚ (sym (diffℚ-anticommute 0r q)) (r--flips-sign _ _ q<0)
+        Neg-d = subst Negℚ (sym (diffℚ-anticommute 0r q))
+                           (r--flips-sign _ pos-sign (Pos-diffℚ q 0r q<0))
 
         Neg-q : Negℚ q
         Neg-q = subst Negℚ (r+-right-zero q) Neg-d
-      handle2 (inj-r 0≤q) = ((r- 1r) , (r--flips-sign _ _ Pos-1r)) ,
+      handle2 (inj-r 0≤q) = ((r- 1r) , (r--flips-sign _ pos-sign Pos-1r)) ,
                             x.isLowerSet-L (r- 1r) q -1r<q lq
         where
         -1r<q : (r- 1r) < q
         -1r<q = trans-<-≤ {d1 = r- 1r} {0r} {q}
-                  (subst Posℚ (minus-double-inverse >=>
-                               (sym (r+-left-zero (r- (r- 1r)))))
-                              Pos-1r)
+                  (Pos-diffℚ⁻ (r- 1r) 0r (subst Posℚ (minus-double-inverse >=>
+                                           (sym (r+-left-zero (r- (r- 1r)))))
+                                           Pos-1r))
                   0≤q
 
   isLowerSet≤ : (q r : ℚ) -> (q ℚ≤ r) -> x.L r -> x.L q
@@ -179,7 +183,7 @@ module _ (x : ℝ) where
       q/2<q = subst (q/2 <_) (r*-left-one q) (r*₂-preserves-order 1/2r 1r (q , pos-q) 1/2r<1r)
 
       pos-q/2 : Posℚ q/2
-      pos-q/2 = r*₁-preserves-sign (1/2r , Pos-1/ℕ _) q pos-q
+      pos-q/2 = r*₁-preserves-sign (1/2r , Pos-1/ℕ _) q {pos-sign} pos-q
 
       handle2 : (q/2 < r) ⊎ (r ℚ≤ q/2) ->  Σ[ r ∈ ℚ⁺ ] (⟨ r ⟩ < q × x.U ⟨ r ⟩)
       handle2 (inj-l q/2<r) = (r , Pos-< q/2 r (inj-l pos-q/2) q/2<r) , r<q , xu-r

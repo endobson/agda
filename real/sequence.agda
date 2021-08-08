@@ -9,7 +9,7 @@ open import nat.arithmetic
 open import nat.properties
 open import rational
 open import rational.difference
-open import rational.order
+open import rational.order-switch
 open import rational.minmax
 open import relation hiding (U)
 open import ring
@@ -20,6 +20,8 @@ open import truncation
 open import order
 open import order.instances.nat
 open import order.instances.rational
+open import ordered-semiring
+open import ordered-ring
 open import sign
 open import sign.instances.rational
 
@@ -48,7 +50,7 @@ OpenEventualLowerBound s q = ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> 
 
 private
   diff-swap : (a b c : ℚ) -> (a r+ (r- b)) < c -> (a r+ (r- c)) < b
-  diff-swap a b c = subst Pos path
+  diff-swap a b c d<c = Pos-diffℚ⁻ (diffℚ c a) b (subst Pos path (Pos-diffℚ (diffℚ b a) c d<c))
     where
     path : c r+ (r- (a r+ (r- b))) == b r+ (r- (a r+ (r- c)))
     path =
@@ -103,10 +105,16 @@ private
     diffℚ-step (midℚ a b) (1/2r r* diffℚ a b)
 
 midℚ-<₁ : (a b : ℚ) -> (a < b) -> a < (midℚ a b)
-midℚ-<₁ a b a<b = subst Pos (sym (diffℚ-midℚ' a b)) (r*-preserves-Pos 1/2r _ (Pos-1/ℕ _) a<b)
+midℚ-<₁ a b a<b =
+  Pos-diffℚ⁻ a (midℚ a b)
+    (subst Pos (sym (diffℚ-midℚ' a b))
+               (r*-preserves-Pos 1/2r _ (Pos-1/ℕ _) (Pos-diffℚ a b a<b)))
 
 midℚ-<₂ : (a b : ℚ) -> (a < b) -> (midℚ a b) < b
-midℚ-<₂ a b a<b = subst Pos (sym (diffℚ-midℚ a b)) (r*-preserves-Pos 1/2r _ (Pos-1/ℕ _) a<b)
+midℚ-<₂ a b a<b =
+  Pos-diffℚ⁻ (midℚ a b) b
+    (subst Pos (sym (diffℚ-midℚ a b))
+               (r*-preserves-Pos 1/2r _ (Pos-1/ℕ _) (Pos-diffℚ a b a<b)))
 
 
 module _
@@ -183,7 +191,7 @@ module _
           lt3 = diff-swap (s m) (s n) 1/2r lt2
 
           lt4 : ((s m r+ (r- 1/2r)) r+ 1r) < ub
-          lt4 = r+₂-preserves-order (s m r+ (r- 1/2r)) (s n) 1r lt3
+          lt4 = +₂-preserves-< (s m r+ (r- 1/2r)) (s n) 1r lt3
 
           path : (s m r+ (r- 1/2r)) r+ 1r == s m r+ 1/2r
           path =
@@ -208,7 +216,7 @@ module _
         g m gt = trans-< {_} {_} {_} {q r+ ε} {r r+ ε} {s m} q<r' (f m gt)
           where
           q<r' : (q r+ ε) < (r r+ ε)
-          q<r' = r+₂-preserves-order q r ε q<r
+          q<r' = +₂-preserves-< q r ε q<r
 
     isUpperSet-U : isUpperSet U
     isUpperSet-U q r q<r uq = ∥-map handle uq
@@ -267,7 +275,7 @@ module _
           lt1 = (f m gt)
 
           lt2 : ((s m r+ ε) r+ (r- ε/2)) < r
-          lt2 = r+₂-preserves-order (s m r+ ε) q (r- ε/2) lt1
+          lt2 = +₂-preserves-< (s m r+ ε) q (r- ε/2) lt1
 
           p : (s m r+ ε) r+ (r- ε/2) == s m r+ ε/2
           p = cong (_r+ (r- ε/2)) (cong (s m r+_) (sym (1/2r-path ε)) >=>
@@ -307,9 +315,9 @@ module _
 
       pos-d : Pos d
       pos-d =
-        r*-preserves-Pos 1/2r (1/2r r* (y r+ (r- x)))
+        (r*-preserves-Pos 1/2r (1/2r r* (y r+ (r- x)))
           Pos-1/2r
-          (r*-preserves-Pos 1/2r (y r+ (r- x)) Pos-1/2r x<y)
+          (r*-preserves-Pos 1/2r (y r+ (r- x)) Pos-1/2r (Pos-diffℚ x y x<y)))
       d⁺ : ℚ⁺
       d⁺ = d , pos-d
       handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ≥ n -> m₂ ≥ n ->
@@ -336,7 +344,7 @@ module _
             lt4 = trans-< {_} {_} {_} {s m r+ (r- d)} {t} {mid} lt3 lt
 
             lt5 : ((s m r+ (r- d)) r+ dd) < (mid r+ dd)
-            lt5 = r+₂-preserves-order (s m r+ (r- d)) mid dd lt4
+            lt5 = +₂-preserves-< (s m r+ (r- d)) mid dd lt4
 
             path1 : (mid r+ dd) == y
             path1 = cong (mid r+_) dd-path >=> midℚ-plus-half-diffℚ x y
@@ -366,7 +374,7 @@ module _
             lt4 = subst ((s m r+ (r- d)) <_) t==mid lt3
 
             lt5 : ((s m r+ (r- d)) r+ dd) < (mid r+ dd)
-            lt5 = r+₂-preserves-order (s m r+ (r- d)) mid dd lt4
+            lt5 = +₂-preserves-< (s m r+ (r- d)) mid dd lt4
 
             path1 : (mid r+ dd) == y
             path1 = cong (mid r+_) dd-path >=> midℚ-plus-half-diffℚ x y
@@ -393,7 +401,7 @@ module _
             lt3 = diff-swap (s n) (s m) d lt2
 
             lt4 : (mid r+ (r- d)) < (t r+ (r- d))
-            lt4 = r+₂-preserves-order mid t (r- d) mid<t
+            lt4 = +₂-preserves-< mid t (r- d) mid<t
 
             lt5 : (mid r+ (r- d)) < s m
             lt5 = trans-< {_} {_} {_} {mid r+ (r- d)} {t r+ (r- d)} {s m} lt4 lt3
@@ -447,7 +455,7 @@ centered-ball->Pos-ε x e (q , lq , uq) = subst Pos 1/2-2e==e Pos-1/2-2e
          2r-path e
 
   Pos-2e : Pos (2r r* e)
-  Pos-2e = subst Pos path q-e<q+e
+  Pos-2e = subst Pos path (Pos-diffℚ (q r+ (r- e)) (q r+ e) q-e<q+e)
 
   Pos-1/2-2e : Pos (1/2r r* (2r r* e))
   Pos-1/2-2e = r*-preserves-Pos 1/2r _ (Pos-1/ℕ _) Pos-2e
@@ -471,9 +479,9 @@ weaken-centered-ball x e1 e2 e1<e2 (q , lq , uq) =
   where
   module x = Real x
   q-e2<q-e1 : (q r+ (r- e2)) < (q r+ (r- e1))
-  q-e2<q-e1 = r+₁-preserves-order q (r- e2) (r- e1) (r--flips-order e1 e2 e1<e2)
+  q-e2<q-e1 = +₁-preserves-< q (r- e2) (r- e1) (minus-flips-< e1 e2 e1<e2)
   q+e1<q+e2 : (q r+ e1) < (q r+ e2)
-  q+e1<q+e2 = r+₁-preserves-order q e1 e2 e1<e2
+  q+e1<q+e2 = +₁-preserves-< q e1 e2 e1<e2
 
 
 strengthen-centered-ball : (x : ℝ) (ε : ℚ) -> CenteredBall x ε -> ∥ CenteredBall x (1/2r r* ε) ∥
@@ -496,9 +504,9 @@ strengthen-centered-ball x e b@(q , l-p1 , u-p5) =
   diffℚ-p3p5 = r+-assoc q e (r- q) >=> diffℚ-step q e
 
   p3<p5 : p3 < p5
-  p3<p5 = subst Pos (sym diffℚ-p3p5) Pos-e
+  p3<p5 = Pos-diffℚ⁻ p3 p5 (subst Pos (sym diffℚ-p3p5) Pos-e)
   p1<p3 : p1 < p3
-  p1<p3 = subst Pos (sym diffℚ-p1p3) Pos-e
+  p1<p3 = Pos-diffℚ⁻ p1 p3 (subst Pos (sym diffℚ-p1p3) Pos-e)
 
   p2<p3 : p2 < p3
   p2<p3 = midℚ-<₂ p1 p3 p1<p3
