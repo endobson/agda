@@ -105,8 +105,8 @@ module _ {n : Nat} where
       subst2 _~_ int.+-commute int.+-commute (i+-~₁ y x1 x2 c)
 
 
-    z+'-~₁ : (y x1 x2 : ℤ) -> (x1 ~ x2) -> [ x1 i+ y ] == [ x2 i+ y ]
-    z+'-~₁ y x1 x2 c = eq/ _ _ (i+-~₁ y x1 x2 c)
+    z+'-~₁ : (x1 x2 y : ℤ) -> (x1 ~ x2) -> [ x1 i+ y ] == [ x2 i+ y ]
+    z+'-~₁ x1 x2 y c = eq/ _ _ (i+-~₁ y x1 x2 c)
 
     z+'-~₂ : (x y1 y2 : ℤ) -> (y1 ~ y2) -> [ x i+ y1 ] == [ x i+ y2 ]
     z+'-~₂ x y1 y2 c = eq/ _ _ (i+-~₂ x y1 y2 c)
@@ -139,8 +139,8 @@ module _ {n : Nat} where
       subst2 _~_ int.*-commute int.*-commute (i*-~₁ y x1 x2 c)
 
 
-    z*'-~₁ : (y x1 x2 : ℤ) -> (x1 ~ x2) -> [ x1 i* y ] == [ x2 i* y ]
-    z*'-~₁ y x1 x2 c = eq/ _ _ (i*-~₁ y x1 x2 c)
+    z*'-~₁ : (x1 x2 y : ℤ) -> (x1 ~ x2) -> [ x1 i* y ] == [ x2 i* y ]
+    z*'-~₁ x1 x2 y c = eq/ _ _ (i*-~₁ y x1 x2 c)
 
     z*'-~₂ : (x y1 y2 : ℤ) -> (y1 ~ y2) -> [ x i* y1 ] == [ x i* y2 ]
     z*'-~₂ x y1 y2 c = eq/ _ _ (i*-~₂ x y1 y2 c)

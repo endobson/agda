@@ -216,7 +216,7 @@ module RationalElim = SetQuotientElim Rational' _r~_
 _r+ᵉ_ : ℚᵉ -> ℚᵉ -> ℚᵉ
 _r+ᵉ_ = RationalElim.rec2 squash/
           (\a b -> [ a r+' b ])
-          (\b a1 a2 r -> eq/ _ _ (r+'-preserves-r~₁ b a1 a2 r))
+          (\a1 a2 b r -> eq/ _ _ (r+'-preserves-r~₁ b a1 a2 r))
           (\a b1 b2 r -> eq/ _ _ (r+'-preserves-r~₂ a b1 b2 r))
 
 
@@ -333,7 +333,7 @@ private
 _r*ᵉ_ : ℚᵉ -> ℚᵉ -> ℚᵉ
 _r*ᵉ_ = RationalElim.rec2 squash/
           (\a b -> [ a r*' b ])
-          (\b a1 a2 r -> eq/ _ _ (r*'-preserves-r~₁ b a1 a2 r))
+          (\a1 a2 b r -> eq/ _ _ (r*'-preserves-r~₁ b a1 a2 r))
           (\a b1 b2 r -> eq/ _ _ (r*'-preserves-r~₂ a b1 b2 r))
 
 abstract

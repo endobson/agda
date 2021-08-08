@@ -76,8 +76,8 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
 
 
   rec2 : (isSetB : isSet B) (f : A -> A -> B)
-         (f~₁ : (y x1 x2 : A) (r : R x1 x2) -> (f x1 y == f x2 y)) ->
-         (f~₂ : (x y1 y2 : A) (r : R y1 y2) -> (f x y1 == f x y2)) ->
+         (f~₁ : (a1 a2 a3 : A) (r : R a1 a2) -> (f a1 a3 == f a2 a3)) ->
+         (f~₂ : (a1 a2 a3 : A) (r : R a2 a3) -> (f a1 a2 == f a1 a3)) ->
          A / R -> A / R -> B
   rec2 {B = B} isSetB f f~₁ f~₂ =
     rec (isSetΠ (\_ -> isSetB)) g g~
@@ -86,7 +86,7 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
     g a = rec isSetB (f a) (f~₂ a)
 
     g~' : (x1 x2 : A) -> (r : R x1 x2) -> (y : A / R) -> g x1 y == g x2 y
-    g~' x1 x2 r = elimProp (\i -> isSetB _ _) (\y -> f~₁ y x1 x2 r)
+    g~' x1 x2 r = elimProp (\i -> isSetB _ _) (\y -> f~₁ x1 x2 y r)
 
     g~ : (a1 a2 : A) -> (r : R a1 a2) -> g a1 == g a2
     g~ a1 a2 r = funExt (g~' a1 a2 r)

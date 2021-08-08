@@ -35,7 +35,7 @@ open nat using (ℕ ; Nat⁺; 2⁺ ; _*⁺_)
 
 private
   ℚ<-fullᵉ : ℚᵉ -> ℚᵉ -> hProp ℓ-zero
-  ℚ<-fullᵉ = RationalElim.elim2 (\_ _ -> isSet-hProp) val preserved₁ preserved₂
+  ℚ<-fullᵉ = RationalElim.rec2 isSet-hProp val preserved₁ preserved₂
     where
     val : ℚ' -> ℚ' -> hProp ℓ-zero
     val q r = q ℚ'< r , isProp-ℚ'<
