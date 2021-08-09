@@ -69,8 +69,9 @@ r~->r~' {a} {b} v = record { path = v }
 ℚᵉ : Type₀
 ℚᵉ = ℚ' / _r~_
 
--- abstract
-module _ where
+module RationalElim = SetQuotientElim ℚ' _r~_
+
+abstract
   ℚ : Type₀
   ℚ = ℚᵉ
 
@@ -82,6 +83,42 @@ module _ where
 
   r~->path : (a b : ℚ') -> (a r~ b) -> (ℚ'->ℚ a) == (ℚ'->ℚ b)
   r~->path a b r = eq/ a b r
+
+  ℚ-rec2 : {ℓ : Level} {A : Type ℓ} -> (isSetA : isSet A)
+           (f : ℚ' -> ℚ' -> A)
+           (f~₁ : (a1 a2 a3 : ℚ') (r : a1 r~ a2) -> (f a1 a3 == f a2 a3)) ->
+           (f~₂ : (a1 a2 a3 : ℚ') (r : a2 r~ a3) -> (f a1 a2 == f a1 a3)) ->
+           ℚ -> ℚ -> A
+  ℚ-rec2 = RationalElim.rec2
+
+
+  ℚ-rec2-eval : {ℓ : Level} {A : Type ℓ} -> (isSetA : isSet A)
+                (f : ℚ' -> ℚ' -> A)
+                (f~₁ : (a1 a2 a3 : ℚ') (r : a1 r~ a2) -> (f a1 a3 == f a2 a3)) ->
+                (f~₂ : (a1 a2 a3 : ℚ') (r : a2 r~ a3) -> (f a1 a2 == f a1 a3)) ->
+                (x y : ℚ') -> (ℚ-rec2 isSetA f f~₁ f~₂ (ℚ'->ℚ x) (ℚ'->ℚ y)) == f x y
+  ℚ-rec2-eval _ _ _ _ _ _ = refl
+
+  ℚ-elimProp : {ℓ : Level} {C : ℚ -> Type ℓ} ->
+                (isPropC : (q : ℚ) -> isProp (C q)) ->
+                (f : (q' : ℚ') -> C (ℚ'->ℚ q'))
+                (q : ℚ) -> C q
+  ℚ-elimProp = RationalElim.elimProp
+
+
+  ℚ-elimProp2 : {ℓ : Level} {C2 : ℚ -> ℚ -> Type ℓ} ->
+                (isPropC2 : (ar1 ar2 : ℚ) -> isProp (C2 ar1 ar2)) ->
+                (f : (a1 a2 : ℚ') -> C2 (ℚ'->ℚ a1) (ℚ'->ℚ a2)) ->
+                (ar1 ar2 : ℚ) -> C2 ar1 ar2
+  ℚ-elimProp2 = RationalElim.elimProp2
+
+  ℚ-elimProp3 : {ℓ : Level} {C3 : ℚ -> ℚ -> ℚ -> Type ℓ} ->
+                (isPropC3 : (q1 q2 q3 : ℚ) -> isProp (C3 q1 q2 q3)) ->
+                (f : (q1 q2 q3 : ℚ') -> C3 (ℚ'->ℚ q1) (ℚ'->ℚ q2) (ℚ'->ℚ q3)) ->
+                (q1 q2 q3 : ℚ) -> C3 q1 q2 q3
+  ℚ-elimProp3 = RationalElim.elimProp3
+
+
 
 Rational = ℚ
 
@@ -211,7 +248,6 @@ abstract
                  (int.*-right (int.*-right (sym p)) >=> sym int.*-assoc) >=>
    sym int.*-distrib-+
 
-module RationalElim = SetQuotientElim Rational' _r~_
 
 _r+ᵉ_ : ℚᵉ -> ℚᵉ -> ℚᵉ
 _r+ᵉ_ = RationalElim.rec2 squash/

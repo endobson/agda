@@ -34,80 +34,83 @@ import nat
 open nat using (ℕ ; Nat⁺; 2⁺ ; _*⁺_)
 
 private
-  ℚ<-fullᵉ : ℚᵉ -> ℚᵉ -> hProp ℓ-zero
-  ℚ<-fullᵉ = RationalElim.rec2 isSet-hProp val preserved₁ preserved₂
-    where
-    val : ℚ' -> ℚ' -> hProp ℓ-zero
-    val q r = q ℚ'< r , isProp-ℚ'<
-    preserved₁ : (a b c : ℚ') -> (a r~ b) -> val a c == val b c
-    preserved₁ a b c a~b = ΣProp-path isProp-isProp (ua (isoToEquiv i))
-      where
-      open Iso
-      i : Iso (a ℚ'< c) (b ℚ'< c)
-      i .fun a<c = r~-preserves-<₁ a<c a~b
-      i .inv b<c = r~-preserves-<₁ b<c (sym a~b)
-      i .rightInv _ = isProp-ℚ'< _ _
-      i .leftInv _ = isProp-ℚ'< _ _
-    preserved₂ : (a b c : ℚ') -> (b r~ c) -> val a b == val a c
-    preserved₂ a b c b~c = ΣProp-path isProp-isProp (ua (isoToEquiv i))
-      where
-      open Iso
-      i : Iso (a ℚ'< b) (a ℚ'< c)
-      i .fun a<b = r~-preserves-<₂ a<b b~c
-      i .inv a<c = r~-preserves-<₂ a<c (sym b~c)
-      i .rightInv _ = isProp-ℚ'< _ _
-      i .leftInv _ = isProp-ℚ'< _ _
+  module _ where
+    private
+      val : ℚ' -> ℚ' -> hProp ℓ-zero
+      val q r = q ℚ'< r , isProp-ℚ'<
+      preserved₁ : (a b c : ℚ') -> (a r~ b) -> val a c == val b c
+      preserved₁ a b c a~b = ΣProp-path isProp-isProp (ua (isoToEquiv i))
+        where
+        open Iso
+        i : Iso (a ℚ'< c) (b ℚ'< c)
+        i .fun a<c = r~-preserves-<₁ a<c a~b
+        i .inv b<c = r~-preserves-<₁ b<c (sym a~b)
+        i .rightInv _ = isProp-ℚ'< _ _
+        i .leftInv _ = isProp-ℚ'< _ _
+      preserved₂ : (a b c : ℚ') -> (b r~ c) -> val a b == val a c
+      preserved₂ a b c b~c = ΣProp-path isProp-isProp (ua (isoToEquiv i))
+        where
+        open Iso
+        i : Iso (a ℚ'< b) (a ℚ'< c)
+        i .fun a<b = r~-preserves-<₂ a<b b~c
+        i .inv a<c = r~-preserves-<₂ a<c (sym b~c)
+        i .rightInv _ = isProp-ℚ'< _ _
+        i .leftInv _ = isProp-ℚ'< _ _
 
-  ℚ<-rawᵉ : ℚᵉ -> ℚᵉ -> Type₀
-  ℚ<-rawᵉ q r = ⟨ ℚ<-fullᵉ q r ⟩
+      ℚ<-full : ℚ -> ℚ -> hProp ℓ-zero
+      ℚ<-full = ℚ-rec2 isSet-hProp val preserved₁ preserved₂
 
+    ℚ<-rawᵉ : ℚ -> ℚ -> Type₀
+    ℚ<-rawᵉ q r = ⟨ ℚ<-full q r ⟩
 
-  abstract
-    ℚ<-full : ℚ -> ℚ -> hProp ℓ-zero
-    ℚ<-full = ℚ<-fullᵉ -- subst (\x -> (x -> x -> hProp ℓ-zero)) (sym ℚ-eval) ℚ<-fullᵉ
+    abstract
+      ℚ<-raw : Rel ℚ ℓ-zero
+      ℚ<-raw q r = ⟨ ℚ<-full q r ⟩
 
-    ℚ<-raw : Rel ℚ ℓ-zero
-    ℚ<-raw q r = ⟨ ℚ<-full q r ⟩
+      isProp-ℚ<-raw : (q r : ℚ) -> isProp (ℚ<-raw q r)
+      isProp-ℚ<-raw q r = snd (ℚ<-full q r)
 
-    isProp-ℚ<-raw : (q r : ℚ) -> isProp (ℚ<-raw q r)
-    isProp-ℚ<-raw q r = snd (ℚ<-full q r)
+      ℚ<-raw-eval : {q r : ℚ'} -> ℚ<-raw (ℚ'->ℚ q) (ℚ'->ℚ r) == q ℚ'< r
+      ℚ<-raw-eval {q} {r} = cong fst (ℚ-rec2-eval isSet-hProp val preserved₁ preserved₂ q r)
 
-  ℚ≤-fullᵉ : ℚᵉ -> ℚᵉ -> hProp ℓ-zero
-  ℚ≤-fullᵉ = RationalElim.elim2 (\_ _ -> isSet-hProp) val preserved₁ preserved₂
-    where
-    val : ℚ' -> ℚ' -> hProp ℓ-zero
-    val q r = q ℚ'≤ r , isProp-ℚ'≤
-    preserved₁ : (a b c : ℚ') -> (a r~ b) -> val a c == val b c
-    preserved₁ a b c a~b = ΣProp-path isProp-isProp (ua (isoToEquiv i))
-      where
-      open Iso
-      i : Iso (a ℚ'≤ c) (b ℚ'≤ c)
-      i .fun a≤c = r~-preserves-≤₁ a≤c a~b
-      i .inv b≤c = r~-preserves-≤₁ b≤c (sym a~b)
-      i .rightInv _ = isProp-ℚ'≤ _ _
-      i .leftInv _ = isProp-ℚ'≤ _ _
-    preserved₂ : (a b c : ℚ') -> (b r~ c) -> val a b == val a c
-    preserved₂ a b c b~c = ΣProp-path isProp-isProp (ua (isoToEquiv i))
-      where
-      open Iso
-      i : Iso (a ℚ'≤ b) (a ℚ'≤ c)
-      i .fun a≤b = r~-preserves-≤₂ a≤b b~c
-      i .inv a≤c = r~-preserves-≤₂ a≤c (sym b~c)
-      i .rightInv _ = isProp-ℚ'≤ _ _
-      i .leftInv _ = isProp-ℚ'≤ _ _
+  module _ where
+    private
+      val : ℚ' -> ℚ' -> hProp ℓ-zero
+      val q r = q ℚ'≤ r , isProp-ℚ'≤
+      preserved₁ : (a b c : ℚ') -> (a r~ b) -> val a c == val b c
+      preserved₁ a b c a~b = ΣProp-path isProp-isProp (ua (isoToEquiv i))
+        where
+        open Iso
+        i : Iso (a ℚ'≤ c) (b ℚ'≤ c)
+        i .fun a≤c = r~-preserves-≤₁ a≤c a~b
+        i .inv b≤c = r~-preserves-≤₁ b≤c (sym a~b)
+        i .rightInv _ = isProp-ℚ'≤ _ _
+        i .leftInv _ = isProp-ℚ'≤ _ _
+      preserved₂ : (a b c : ℚ') -> (b r~ c) -> val a b == val a c
+      preserved₂ a b c b~c = ΣProp-path isProp-isProp (ua (isoToEquiv i))
+        where
+        open Iso
+        i : Iso (a ℚ'≤ b) (a ℚ'≤ c)
+        i .fun a≤b = r~-preserves-≤₂ a≤b b~c
+        i .inv a≤c = r~-preserves-≤₂ a≤c (sym b~c)
+        i .rightInv _ = isProp-ℚ'≤ _ _
+        i .leftInv _ = isProp-ℚ'≤ _ _
 
-  ℚ≤-rawᵉ : ℚᵉ -> ℚᵉ -> Type₀
-  ℚ≤-rawᵉ q r = ⟨ ℚ≤-fullᵉ q r ⟩
+      ℚ≤-full : ℚ -> ℚ -> hProp ℓ-zero
+      ℚ≤-full = ℚ-rec2 isSet-hProp val preserved₁ preserved₂
 
-  abstract
-    ℚ≤-full : ℚ -> ℚ -> hProp ℓ-zero
-    ℚ≤-full = ℚ≤-fullᵉ -- subst (\x -> (x -> x -> hProp ℓ-zero)) (sym ℚ-eval) ℚ≤-fullᵉ
+    ℚ≤-rawᵉ : ℚ -> ℚ -> Type₀
+    ℚ≤-rawᵉ q r = ⟨ ℚ≤-full q r ⟩
 
-    ℚ≤-raw : ℚ -> ℚ -> Type₀
-    ℚ≤-raw q r = ⟨ ℚ≤-full q r ⟩
+    abstract
+      ℚ≤-raw : ℚ -> ℚ -> Type₀
+      ℚ≤-raw q r = ⟨ ℚ≤-full q r ⟩
 
-    isProp-ℚ≤-raw : (q r : ℚ) -> isProp (ℚ≤-raw q r)
-    isProp-ℚ≤-raw q r = snd (ℚ≤-full q r)
+      isProp-ℚ≤-raw : (q r : ℚ) -> isProp (ℚ≤-raw q r)
+      isProp-ℚ≤-raw q r = snd (ℚ≤-full q r)
+
+      ℚ≤-raw-eval : {q r : ℚ'} -> ℚ≤-raw (ℚ'->ℚ q) (ℚ'->ℚ r) == q ℚ'≤ r
+      ℚ≤-raw-eval {q} {r} = cong fst (ℚ-rec2-eval isSet-hProp val preserved₁ preserved₂ q r)
 
 
 record _ℚ<_ (q : ℚ) (r : ℚ) : Type₀ where
@@ -130,21 +133,20 @@ module _ where
                   ({q r : ℚ} -> q == r -> P q r) ->
                   (q r : ℚ) -> q ℚ≤ r -> P q r
         ℚ≤-elim {P = P} isProp-P f< f= q r (ℚ≤-cons q≤r) =
-          RationalElim.elimProp2
+          ℚ-elimProp2
             {C2 = (\q r -> (ℚ≤-raw q r) -> P q r)}
             (\_ _ -> isPropΠ (\_ -> isProp-P))
             g≤ q r q≤r
 
           where
-          g< : {q r : ℚ'} -> (q ℚ'< r) -> P [ q ] [ r ]
-          g< = f< ∘ ℚ<-cons
+          g< : {q r : ℚ'} -> (q ℚ'< r) -> P (ℚ'->ℚ q) (ℚ'->ℚ r)
+          g< = f< ∘ ℚ<-cons ∘ transport (sym ℚ<-raw-eval)
 
-          g= : {q r : ℚ'} -> (q r~ r) -> P [ q ] [ r ]
-          g= = f= ∘ (eq/ _ _ )
+          g= : {q r : ℚ'} -> (q r~ r) -> P (ℚ'->ℚ q) (ℚ'->ℚ r)
+          g= = f= ∘ (r~->path _ _)
 
-          g≤ : (q r : ℚ') -> (ℚ≤-raw [ q ] [ r ]) -> P [ q ] [ r ]
-          g≤ = ℚ'≤-elim g< g=
-
+          g≤ : (q r : ℚ') -> (ℚ≤-raw (ℚ'->ℚ q) (ℚ'->ℚ r)) -> P (ℚ'->ℚ q) (ℚ'->ℚ r)
+          g≤ q r q≤r = ℚ'≤-elim g< g= q r (transport ℚ≤-raw-eval q≤r)
   open M public
 
 
@@ -159,19 +161,23 @@ abstract
   isProp-ℚ≤ {a} {b} (ℚ≤-cons a≤b1) (ℚ≤-cons a≤b2) =
     cong ℚ≤-cons (isProp-ℚ≤-raw a b a≤b1 a≤b2)
 
+
   irrefl-ℚ< : Irreflexive _ℚ<_
   irrefl-ℚ< {a} (ℚ<-cons a<a) =
-    RationalElim.elimProp
-      {C = (\r -> ℚ<-rawᵉ r r -> Bot)}
+    ℚ-elimProp
+      {C = (\r -> ℚ<-raw r r -> Bot)}
       (\_ -> isPropΠ (\_ -> isPropBot))
-      (\r r<r -> (irrefl-ℚ'< {r} r<r)) a a<a
+      (\r r<r -> (irrefl-ℚ'< (transport ℚ<-raw-eval r<r))) a a<a
+
 
   trans-ℚ< : Transitive _ℚ<_
   trans-ℚ< {a} {b} {c} (ℚ<-cons a<b) (ℚ<-cons b<c) =
-    RationalElim.elimProp3
+    ℚ-elimProp3
       {C3 = (\a b c -> ℚ<-raw a b -> ℚ<-raw b c -> a ℚ< c)}
       (\_ _ _ -> isPropΠ2 (\_ _ -> isProp-ℚ<))
-      (\a b c a<b b<c -> ℚ<-cons (trans-ℚ'< a<b b<c))
+      (\a b c a<b b<c -> ℚ<-cons
+        (transport (sym ℚ<-raw-eval) (trans-ℚ'< (transport ℚ<-raw-eval a<b)
+                                                (transport ℚ<-raw-eval b<c))))
       a b c a<b b<c
 
   asym-ℚ< : Asymmetric _ℚ<_
@@ -179,54 +185,68 @@ abstract
 
   connected-ℚ< : Connected _ℚ<_
   connected-ℚ< {a} {b} ¬a<b ¬b<a =
-    RationalElim.elimProp2
+    ℚ-elimProp2
       {C2 = (\a b -> ¬ (ℚ<-raw a b) -> ¬ (ℚ<-raw b a) -> a == b)}
       (\_ _ -> isPropΠ2 (\_ _ -> isSetRational _ _))
-      (\a b ¬a<b ¬b<a -> eq/ _ _ (connected~-ℚ'< ¬a<b ¬b<a))
+      (\a b ¬a<b ¬b<a ->
+        r~->path _ _ (connected~-ℚ'< (¬a<b ∘ (transport (sym ℚ<-raw-eval)))
+                                     (¬b<a ∘ (transport (sym ℚ<-raw-eval)))))
       a b (\a<b -> ¬a<b (ℚ<-cons a<b)) (\b<a -> ¬b<a (ℚ<-cons b<a))
 
   comparison-ℚ< : Comparison _ℚ<_
   comparison-ℚ< a b c (ℚ<-cons a<c) =
-    RationalElim.elimProp3
+    ℚ-elimProp3
       {C3 = (\a b c -> ℚ<-raw a c -> ∥ (a ℚ< b) ⊎ (b ℚ< c) ∥)}
       (\_ _ _ -> isPropΠ (\_ -> squash))
       compare
       a b c a<c
     where
-    compare : (a b c : ℚ') -> ℚ<-raw [ a ] [ c ] -> ∥ ([ a ] ℚ< [ b ]) ⊎ ([ b ] ℚ< [ c ]) ∥
-    compare a b c a<c = ∥-map (⊎-map ℚ<-cons ℚ<-cons) (comparison-ℚ'< a b c a<c)
-
+    compare : (a b c : ℚ') -> ℚ<-raw (ℚ'->ℚ a) (ℚ'->ℚ c) ->
+              ∥ ((ℚ'->ℚ a) ℚ< (ℚ'->ℚ b)) ⊎ ((ℚ'->ℚ b) ℚ< (ℚ'->ℚ c)) ∥
+    compare a b c a<c =
+      ∥-map (⊎-map ℚ<-cons ℚ<-cons)
+        (transport path (comparison-ℚ'< a b c (transport ℚ<-raw-eval a<c)))
+      where
+      path = cong ∥_∥ (cong2 _⊎_ (sym ℚ<-raw-eval) (sym ℚ<-raw-eval))
 
 
   refl-ℚ≤ : Reflexive _ℚ≤_
   refl-ℚ≤ {a} =
-    RationalElim.elimProp
+    ℚ-elimProp
       {C = (\r -> r ℚ≤ r)}
       (\_ -> isProp-ℚ≤)
-      (\r -> (ℚ≤-cons (refl-ℚ'≤ {r}))) a
+      (\r -> (ℚ≤-cons (transport (sym ℚ≤-raw-eval) (refl-ℚ'≤ {r})))) a
 
   trans-ℚ≤ : Transitive _ℚ≤_
   trans-ℚ≤ {a} {b} {c} (ℚ≤-cons a≤b) (ℚ≤-cons b≤c) =
-    RationalElim.elimProp3
+    ℚ-elimProp3
       {C3 = (\a b c -> ℚ≤-raw a b -> ℚ≤-raw b c -> a ℚ≤ c)}
       (\_ _ _ -> isPropΠ2 (\_ _ -> isProp-ℚ≤))
-      (\a b c a≤b b≤c -> ℚ≤-cons (trans-ℚ'≤ a≤b b≤c))
+      (\a b c a≤b b≤c ->
+        ℚ≤-cons (transport (sym ℚ≤-raw-eval) (trans-ℚ'≤ (transport ℚ≤-raw-eval a≤b)
+                                                        (transport ℚ≤-raw-eval b≤c))))
       a b c a≤b b≤c
 
   antisym-ℚ≤ : Antisymmetric _ℚ≤_
   antisym-ℚ≤ {a} {b} (ℚ≤-cons a≤b) (ℚ≤-cons b≤a) =
-    RationalElim.elimProp2
+    ℚ-elimProp2
       {C2 = (\a b -> (ℚ≤-raw a b) -> (ℚ≤-raw b a) -> a == b)}
       (\_ _ -> isPropΠ2 (\_ _ -> isSetRational _ _))
-      (\a b a≤b b≤a -> eq/ _ _ (antisym~-ℚ'≤ a≤b b≤a))
+      (\a b a≤b b≤a -> r~->path _ _ (antisym~-ℚ'≤ (transport ℚ≤-raw-eval a≤b)
+                                                  (transport ℚ≤-raw-eval b≤a)))
       a b a≤b b≤a
 
   connex-ℚ≤ : Connex _ℚ≤_
   connex-ℚ≤ =
-    RationalElim.elimProp2
+    ℚ-elimProp2
       {C2 = (\a b -> ∥ (a ℚ≤ b) ⊎ (b ℚ≤ a) ∥)}
       (\_ _ -> squash )
-      (\a b -> ∥-map (⊎-map ℚ≤-cons ℚ≤-cons) (connex-ℚ'≤ a b))
+      (\a b -> ∥-map (⊎-map ℚ≤-cons ℚ≤-cons) (transport (sym path) (connex-ℚ'≤ a b)))
+    where
+    path : {a b : ℚ'} -> ∥ (ℚ≤-raw (ℚ'->ℚ a) (ℚ'->ℚ b)) ⊎ (ℚ≤-raw (ℚ'->ℚ b) (ℚ'->ℚ a)) ∥ ==
+                         ∥ (a ℚ'≤ b) ⊎ (b ℚ'≤ a) ∥
+    path = (cong ∥_∥ (cong2 _⊎_ ℚ≤-raw-eval ℚ≤-raw-eval))
+
 
 instance
   LinearOrderStr-ℚ : LinearOrderStr ℚ ℓ-zero
@@ -253,7 +273,7 @@ instance
 abstract
   trichotomous-ℚ< : Trichotomous _ℚ<_
   trichotomous-ℚ< a b =
-    RationalElim.elimProp2
+    ℚ-elimProp2
       {C2 = (\a b -> Triℚ< a b)}
       isProp-Triℚ<
       f a b
@@ -265,19 +285,19 @@ abstract
     isProp-Triℚ< : (x y : ℚ) -> isProp (Triℚ< x y)
     isProp-Triℚ< x y = isProp-Tri isProp-ℚ< (isSetRational x y) isProp-ℚ<
 
-    f : (a b : ℚ') -> Triℚ< [ a ] [ b ]
+    f : (a b : ℚ') -> Triℚ< (ℚ'->ℚ a) (ℚ'->ℚ b)
     f a b = handle (trichotomous~-ℚ'< a b)
       where
-      handle : Tri (a ℚ'< b) (a r~ b) (b ℚ'< a) -> Triℚ< [ a ] [ b ]
+      handle : Tri (a ℚ'< b) (a r~ b) (b ℚ'< a) -> Triℚ< (ℚ'->ℚ a) (ℚ'->ℚ b)
       handle (tri< a<b' _ _) = tri< a<b (<->!= a<b) (asym-< a<b)
         where
-        a<b = (ℚ<-cons a<b')
+        a<b = (ℚ<-cons (transport (sym ℚ<-raw-eval) a<b'))
       handle (tri= _ a~b _) = tri= (=->≮ a=b) a=b (=->≮ (sym a=b))
         where
-        a=b = (eq/ _ _ a~b)
+        a=b = (r~->path _ _ a~b)
       handle (tri> _ _ b<a') = tri> (asym-< b<a) (<->!= b<a ∘ sym) b<a
         where
-        b<a = (ℚ<-cons b<a')
+        b<a = (ℚ<-cons (transport (sym ℚ<-raw-eval) b<a'))
 
 instance
   DecidableLinearOrderStr-ℚ : DecidableLinearOrderStr LinearOrderStr-ℚ
@@ -289,10 +309,10 @@ instance
 abstract
   weaken-ℚ< : {a b : ℚ} -> a ℚ< b -> a ℚ≤ b
   weaken-ℚ< {a} {b} (ℚ<-cons a<b) =
-    RationalElim.elimProp2
+    ℚ-elimProp2
       {C2 = (\a b -> (ℚ<-raw a b) -> (a ℚ≤ b))}
       (\_ _ -> isPropΠ (\_ -> isProp-ℚ≤))
-      (\a b a<b -> (ℚ≤-cons (weaken-ℚ'< a<b)))
+      (\a b a<b -> (ℚ≤-cons (transport (sym ℚ≤-raw-eval) (weaken-ℚ'< (transport ℚ<-raw-eval a<b)))))
       a b a<b
 
   strengthen-ℚ≤-≠ : {a b : ℚ} -> a ℚ≤ b -> a != b -> a < b
@@ -371,38 +391,38 @@ abstract
   Zero-0r : Zero 0r
   Zero-0r = refl
 
-  same-sign-ℚ' : (s : Sign) (q : ℚ') -> isSign s q -> isSign s [ q ]
-  same-sign-ℚ' pos-sign q pos-q = (ℚ<-cons 0<'q)
+  same-sign-ℚ' : (s : Sign) (q : ℚ') -> isSign s q -> isSign s (ℚ'->ℚ q )
+  same-sign-ℚ' pos-sign q pos-q = (ℚ<-cons (transport (sym ℚ<-raw-eval) 0<'q))
     where
     pos-diff : Pos (q r+' 0r')
     pos-diff = subst Pos (sym (r+'-right-zero q)) pos-q
 
     0<'q : 0r' ℚ'< q
     0<'q = (ℚ'<-cons pos-diff)
-  same-sign-ℚ' neg-sign q neg-q = (ℚ<-cons q<'0)
+  same-sign-ℚ' neg-sign q neg-q = (ℚ<-cons (transport (sym ℚ<-raw-eval) q<'0))
     where
     pos-diff : Pos (0r' r+' (r-' q))
     pos-diff = subst Pos (sym (r+'-left-zero (r-' q))) (r-'-flips-sign q neg-sign neg-q)
 
     q<'0 : q ℚ'< 0r'
     q<'0 = (ℚ'<-cons pos-diff)
-  same-sign-ℚ' zero-sign q zq = (eq/ _ _ q~0r)
+  same-sign-ℚ' zero-sign q zq = (r~->path _ _ q~0r)
     where
     q~0r : q r~ 0r'
     q~0r = Zero-r~ zq
 
-  NonNeg-ℚ'->ℚ : {q : Rational'} -> NonNeg q -> NonNeg [ q ]
+  NonNeg-ℚ'->ℚ : {q : Rational'} -> NonNeg q -> NonNeg (ℚ'->ℚ q)
   NonNeg-ℚ'->ℚ (inj-l p) = inj-l (same-sign-ℚ' _ _ p)
   NonNeg-ℚ'->ℚ (inj-r p) = inj-r (same-sign-ℚ' _ _ p)
 
-  same-sign-ℚ'⁻ : (s : Sign) (q : ℚ') -> isSign s [ q ] -> isSign s q
+  same-sign-ℚ'⁻ : (s : Sign) (q : ℚ') -> isSign s (ℚ'->ℚ q) -> isSign s q
   same-sign-ℚ'⁻ s q' sq = subst (\x -> (isSign x q')) s2=s s2q'
     where
     Σs2q' = decide-sign q'
     s2 = (fst Σs2q')
     s2q' = (snd Σs2q')
     q : ℚ
-    q = [ q' ]
+    q = (ℚ'->ℚ q')
     s2=s : s2 == s
     s2=s = isSign-unique q s2 s (same-sign-ℚ' s2 q' s2q') sq
 
@@ -449,25 +469,31 @@ abstract
 abstract
   r+₁-preserves-< : (a b c : ℚ) -> b < c -> (a + b) < (a + c)
   r+₁-preserves-< a b c (ℚ<-cons b<c) =
-    RationalElim.elimProp3
+    ℚ-elimProp3
       {C3 = \a b c -> ℚ<-raw b c -> (a + b) < (a + c)}
       (\_ _ _ -> isPropΠ (\_ -> isProp-< _ _))
       convert
       a b c b<c
     where
-    convert : (a b c : ℚ') -> b ℚ'< c -> ([ a ] + [ b ]) < ([ a ] + [ c ])
-    convert a b c b<c = ℚ<-cons (subst2 ℚ<-raw (sym r+-eval) (sym r+-eval) (r+'₁-preserves-< a b c b<c))
+    convert : (a b c : ℚ') -> ℚ<-raw (ℚ'->ℚ b) (ℚ'->ℚ c) ->
+              ((ℚ'->ℚ a) + (ℚ'->ℚ b)) < ((ℚ'->ℚ a) + (ℚ'->ℚ c))
+    convert a b c b<c =
+      ℚ<-cons
+        (transport (sym (cong2 ℚ<-raw r+-eval r+-eval >=> ℚ<-raw-eval))
+                   (r+'₁-preserves-< a b c (transport ℚ<-raw-eval b<c)))
 
   r*-preserves-0< : (a b : ℚ) -> 0r < a -> 0r < b -> 0r < (a * b)
   r*-preserves-0< a b (ℚ<-cons 0<a) (ℚ<-cons 0<b) =
-    RationalElim.elimProp2
+    ℚ-elimProp2
       {C2 = \a b -> ℚ<-raw 0r a -> ℚ<-raw 0r b -> 0r < (a * b)}
       (\_ _ -> isPropΠ2 (\_ _ -> isProp-< _ _))
       convert
       a b 0<a 0<b
     where
-    convert : (a b  : ℚ') -> 0r' ℚ'< a -> 0r' ℚ'< b -> 0r < ([ a ] * [ b ])
-    convert a b 0<a 0<b = ℚ<-cons (subst (ℚ<-raw 0r) (sym r*-eval) (r*'-preserves-0< a b 0<a 0<b))
+    convert : (a b : ℚ') -> ℚ<-raw 0r (ℚ'->ℚ a) -> ℚ<-raw 0r (ℚ'->ℚ b) -> 0r < ((ℚ'->ℚ a) * (ℚ'->ℚ b))
+    convert a b 0<a 0<b =
+      ℚ<-cons (transport (sym ℚ<-raw-eval >=> cong (ℚ<-raw 0r) (sym r*-eval))
+                         (r*'-preserves-0< a b (transport ℚ<-raw-eval 0<a) (transport ℚ<-raw-eval 0<b)))
 
 instance
   LinearlyOrderedSemiringStr-ℚ : LinearlyOrderedSemiringStr RationalSemiring LinearOrderStr-ℚ
@@ -844,7 +870,8 @@ r+-Neg->order a (b , neg-b) =
 
 abstract
   ℕ->ℚ-preserves-order : (a b : Nat) -> a nat.< b -> (ℕ->ℚ a) < (ℕ->ℚ b)
-  ℕ->ℚ-preserves-order a b a<b = ℚ<-cons (ℕ->ℚ'-preserves-order a b a<b)
+  ℕ->ℚ-preserves-order a b a<b =
+    ℚ<-cons (transport (sym ℚ<-raw-eval) (ℕ->ℚ'-preserves-order a b a<b))
 
 1/ℕ-flips-order : (a b : Nat⁺) -> ⟨ a ⟩ nat.< ⟨ b ⟩ -> 1/ℕ b < 1/ℕ a
 1/ℕ-flips-order a@(a' , _) b@(b' , _) lt = subst2 _<_ b-path a-path ab*<
@@ -939,7 +966,7 @@ private
   n⁺d⁺->ℚ' (n' , _)  d = nd⁺->ℚ' n' d
 
   n⁺d⁺->ℚ : (n d : Nat⁺) -> ℚ
-  n⁺d⁺->ℚ n d = [ n⁺d⁺->ℚ' n d ]
+  n⁺d⁺->ℚ n d = ℚ'->ℚ (n⁺d⁺->ℚ' n d)
 
   n⁺d⁺->ℚ⁺ : (n d : Nat⁺) -> ℚ⁺
   n⁺d⁺->ℚ⁺ n d = n⁺d⁺->ℚ n d ,
@@ -951,7 +978,7 @@ private
     ((n d : Nat⁺) -> P (n⁺d⁺->ℚ⁺ n d)) ->
     (q : ℚ⁺) -> P q
   ℚ⁺-elimProp {P = P} isProp-P f (q , pos-q) =
-    RationalElim.elimProp (\q -> isPropΠ (\pos-q -> isProp-P (q , pos-q))) handle q pos-q
+    ℚ-elimProp (\q -> isPropΠ (\pos-q -> isProp-P (q , pos-q))) handle q pos-q
     where
     find-rep : (q' : ℚ') -> (Pos q') -> Σ[ n ∈ Nat⁺ ] (Σ[ d ∈ Nat⁺ ] (n⁺d⁺->ℚ' n d r~ q'))
     find-rep (record { numerator = (i.pos n') ; denominator = (i.pos d') }) _ =
@@ -969,7 +996,7 @@ private
     find-rep (record { denominator = i.zero-int ; NonZero-denominator = inj-l ()})
     find-rep (record { denominator = i.zero-int ; NonZero-denominator = inj-r ()})
 
-    handle : (q' : ℚ') -> (pos-q : (Pos [ q' ])) -> P ([ q' ] , pos-q)
+    handle : (q' : ℚ') -> (pos-q : (Pos (ℚ'->ℚ q'))) -> P (ℚ'->ℚ q' , pos-q)
     handle q' pos-q' = subst P path (f n d)
       where
       rep = find-rep q' (same-sign-ℚ'⁻ _ _ pos-q')
@@ -977,8 +1004,8 @@ private
       d = fst (snd rep)
       nd~ = snd (snd rep)
 
-      path : (n⁺d⁺->ℚ⁺ n d) == ([ q' ] , pos-q')
-      path = ΣProp-path (\{x} -> isProp-Pos x) (eq/ _ _ nd~)
+      path : (n⁺d⁺->ℚ⁺ n d) == (ℚ'->ℚ q' , pos-q')
+      path = ΣProp-path (\{x} -> isProp-Pos x) (r~->path _ _ nd~)
 
 
   1/ℕ-<-step1 : (n d : Nat⁺) -> (1/ℕ' d) ℚ'≤ (n⁺d⁺->ℚ' n d)
@@ -1009,7 +1036,7 @@ private
       where
       handle : (n d : Nat⁺) -> Σ[ m ∈ Nat⁺ ] (1/ℕ' m ℚ'≤ (n⁺d⁺->ℚ' n d)) ->
                Σ[ m ∈ Nat⁺ ] (1/ℕ m ℚ≤ (n⁺d⁺->ℚ n d))
-      handle n d (m , p) = m , (ℚ≤-cons p)
+      handle n d (m , p) = m , (ℚ≤-cons (transport (sym ℚ≤-raw-eval) p))
 
 small-1/ℕ : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] (1/ℕ m < ⟨ q ⟩)
 small-1/ℕ q = ∥-map handle (1/ℕ-<-step3 q)
