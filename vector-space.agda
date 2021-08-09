@@ -46,6 +46,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} (R : Ring S) (V : 
 
     _v+_ = GroupStr._∙_ GroupStr-V
     0v = GroupStr.ε GroupStr-V
+    v-_ = GroupStr.inverse GroupStr-V
 
     isSet-V = GroupStr.isSet-Domain GroupStr-V
     CommMonoid-V+ = GroupStr.comm-monoid GroupStr-V
@@ -64,6 +65,7 @@ module _  {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {V :
   open ModuleStr M public using
     ( _v+_
     ; 0v
+    ; v-_
     ; _v*_
     ; v*-distrib-v+
     ; v*-distrib-+

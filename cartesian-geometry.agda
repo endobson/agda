@@ -16,6 +16,7 @@ open import real.arithmetic
 open import real.arithmetic.multiplication
 open import real.arithmetic.multiplication.inverse
 open import real.arithmetic.order
+open import real.heyting-field
 open import set-quotient
 open import semiring
 open import sigma
@@ -23,6 +24,7 @@ open import truncation
 open import univalence
 open import ring.implementations.real
 open import ring
+open import vector-space
 
 
 record Point : Type₁ where
@@ -36,6 +38,10 @@ data Axis : Type₀ where
 
 Vector : Type₁
 Vector = DirectProduct ℝ Axis
+
+instance
+  VectorSpaceStr-Vector = VectorSpaceStr-DirectProduct ℝField Axis
+  ModuleSpaceStr-Vector = VectorSpaceStr.module-str VectorSpaceStr-Vector
 
 P-coord : Point -> Axis -> ℝ
 P-coord p x-axis = Point.x p
@@ -97,3 +103,21 @@ record Triangle (p1 p2 p3 : Point) : Type₁ where
     distinct12 : p1 P# p2
     distinct23 : p2 P# p3
     distinct31 : p3 P# p1
+
+vector-length² : Vector -> ℝ
+vector-length² v = (x * x) + (y * y)
+  where
+  x = (direct-product-index v x-axis)
+  y = (direct-product-index v y-axis)
+
+isUnitVector : Pred Vector ℓ-one
+isUnitVector v = vector-length² v == 1ℝ
+
+Direction : Type₁
+Direction = Σ Vector isUnitVector
+
+data SameSemiDirection : Rel Vector ℓ-one where
+  same-semi-direction-same : {v1 v2 : Vector} -> v1 == v2 -> SameSemiDirection v1 v2
+  same-semi-direction-flipped : {v1 v2 : Vector} -> v1 == (v- v2) -> SameSemiDirection v1 v2
+
+SemiDirection = Direction / (\x y -> SameSemiDirection ⟨ x ⟩ ⟨ y ⟩)

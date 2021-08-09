@@ -4,7 +4,6 @@ module cartesian-geometry.line where
 
 open import base
 open import cartesian-geometry
-open import direct-product
 open import equality
 open import functions
 open import hlevel
@@ -199,8 +198,8 @@ private
   isProp-OnLine' l p (_ , path1) (_ , path2) =
     ΣProp-path (isSet-Point _ _) (Injective-Line'-point l (path1 >=> sym path2))
 
-  -- OnLine'2 : Line' -> Pred Point ℓ-one
-  -- OnLine'2 (p1 , p2 , ls) p = Σ[ k ∈ ℝ ] (P-shift p1 (k v* (P-diff p1 p2)) == p)
+  OnLine'2 : Line' -> Pred Point ℓ-one
+  OnLine'2 (p1 , p2 , ls) p = Σ[ k ∈ ℝ ] (P-shift p1 (k v* (P-diff p1 p2)) == p)
 
 
 Line : Type₁
