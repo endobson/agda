@@ -60,9 +60,6 @@ private
       ℚ<-full : ℚ -> ℚ -> hProp ℓ-zero
       ℚ<-full = ℚ-rec2 isSet-hProp val preserved₁ preserved₂
 
-    ℚ<-rawᵉ : ℚ -> ℚ -> Type₀
-    ℚ<-rawᵉ q r = ⟨ ℚ<-full q r ⟩
-
     abstract
       ℚ<-raw : Rel ℚ ℓ-zero
       ℚ<-raw q r = ⟨ ℚ<-full q r ⟩
@@ -98,9 +95,6 @@ private
 
       ℚ≤-full : ℚ -> ℚ -> hProp ℓ-zero
       ℚ≤-full = ℚ-rec2 isSet-hProp val preserved₁ preserved₂
-
-    ℚ≤-rawᵉ : ℚ -> ℚ -> Type₀
-    ℚ≤-rawᵉ q r = ⟨ ℚ≤-full q r ⟩
 
     abstract
       ℚ≤-raw : ℚ -> ℚ -> Type₀
