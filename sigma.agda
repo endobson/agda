@@ -34,7 +34,7 @@ private
                   ; (i = i1) -> snd (p j) })
          (inS (snd a))
 
-  pathSigma-π2 : {a b : Σ A B} -> (p : a == b) -> subst B (pathSigma-π1 p) (a .snd) == b .snd
+  pathSigma-π2 : {a b : Σ A B} -> (p : a == b) -> substᵉ B (pathSigma-π1 p) (a .snd) == b .snd
   pathSigma-π2 p i = filler-π2 p i i1
 
 pathSigma->sigmaPath : (a b : Σ A B) -> a == b -> a Σ==T b
@@ -130,7 +130,7 @@ reindexΣ-iso {A = A} {B} eq C = i
   where
   open Iso
   i : Iso (Σ A C) (Σ B (\b -> (C (eqFun eq b))))
-  i .fun (a , c) = (eqInv eq a , subst C (sym (eqSec eq a)) c)
+  i .fun (a , c) = (eqInv eq a , substᵉ C (sym (eqSec eq a)) c)
   i .inv (b , c) = (eqFun eq b , c)
   i .rightInv (b , c) = (\i -> path1 i , path2 i)
     where
@@ -138,14 +138,14 @@ reindexΣ-iso {A = A} {B} eq C = i
     path1 = eqRet eq b
     path-path' : (cong (eqFun eq) (eqRet eq b)) == (eqSec eq (eqFun eq b))
     path-path' = isHAEquiv.comm (equiv->isHAEquiv eq) b
-    path2 : PathP (\k -> C (eqFun eq (path1 k))) (subst C (sym (eqSec eq (eqFun eq b))) c) c
+    path2 : PathP (\k -> C (eqFun eq (path1 k))) (substᵉ C (sym (eqSec eq (eqFun eq b))) c) c
     path2 = symP (subst-filler2 C (cong (eqFun eq) (sym path1)) (sym (eqSec eq (eqFun eq b)))
                                   (cong sym path-path') c)
   i .leftInv (a , c) = (\i -> path1 i , path2 i)
     where
     path1 : (eqFun eq (eqInv eq a)) == a
     path1 = eqSec eq a
-    path2 : PathP (\k -> C (path1 k)) (subst C (sym (eqSec eq a)) c) c
+    path2 : PathP (\k -> C (path1 k)) (substᵉ C (sym (eqSec eq a)) c) c
     path2 = symP (subst-filler C (sym path1) c)
 
 reindexΣ : {ℓ₁ ℓ₂ ℓ₃ : Level} {A : Type ℓ₁} {B : Type ℓ₂}

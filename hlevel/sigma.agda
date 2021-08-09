@@ -56,7 +56,7 @@ isOfHLevelΣ 1 = isPropΣ
 isOfHLevelΣ {B = B} (suc (suc n)) hA hB x0 x1 =
   let hΣ : isOfHLevel (suc n) (x0 Σ==T x1)
       hΣ = isOfHLevelΣ (suc n) (hA (fst x0) (fst x1))
-                       (\ p -> (hB (p i1)) (subst B p (snd x0)) (snd x1))
+                       (\ p -> (hB (p i1)) (substᵉ B p (snd x0)) (snd x1))
   in transport (\i -> isOfHLevel (suc n) (pathSigma==sigmaPath x0 x1 (~ i))) hΣ
 
 isSetΣ : isSet A -> ((a : A) -> isSet (B a)) -> isSet (Σ A B)

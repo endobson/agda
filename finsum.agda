@@ -91,8 +91,8 @@ finiteSum-one n = finiteSum-eval _ (idEquiv _) (\i -> 1) >=> i<nSum-one {n}
   where
 
   forward : (Σ[ i ∈ Fin (suc n) ] (P i)) -> (P zero-fin ⊎ Σ[ i ∈ Fin n ] (P (suc-fin i)))
-  forward ((0 , lt) , p) = inj-l (subst P (ΣProp-path isProp≤ refl) p)
-  forward ((suc i , lt) , p) = inj-r ((i , pred-≤ lt) , (subst P (ΣProp-path isProp≤ refl) p))
+  forward ((0 , lt) , p) = inj-l (substᵉ P (ΣProp-path isProp≤ refl) p)
+  forward ((suc i , lt) , p) = inj-r ((i , pred-≤ lt) , (substᵉ P (ΣProp-path isProp≤ refl) p))
 
   backward : (P zero-fin ⊎ Σ[ i ∈ Fin n ] (P (suc-fin i))) -> (Σ[ i ∈ Fin (suc n) ] (P i))
   backward (inj-l p) = (zero-fin , p)
@@ -110,7 +110,7 @@ finiteSum-one n = finiteSum-eval _ (idEquiv _) (\i -> 1) >=> i<nSum-one {n}
     p1 = sym (cong suc-fin fst-path)
     p2 = (ΣProp-path isProp≤ refl)
 
-    fb-r-snd : PathP (\k -> P (p1 (~ k))) (subst P p2 p) p
+    fb-r-snd : PathP (\k -> P (p1 (~ k))) (substᵉ P p2 p) p
     fb-r-snd = symP (subst-filler2 P p1 p2 (isSetFin x y p1 p2) p)
 
     fb-r : forward (backward (inj-r (i , p))) == inj-r (i , p)
@@ -123,7 +123,7 @@ finiteSum-one n = finiteSum-eval _ (idEquiv _) (\i -> 1) >=> i<nSum-one {n}
       path-i : zero-fin == zero-fin
       path-i = ΣProp-path isProp≤ refl
 
-      path : (subst P path-i p) == p
+      path : (substᵉ P path-i p) == p
       path = sym (subst-filler2 P refl path-i (isSetFin _ _ _ _) p)
 
   bf-zero : (lt : 0 < (suc n)) (p : P (0 , lt)) ->
@@ -132,7 +132,7 @@ finiteSum-one n = finiteSum-eval _ (idEquiv _) (\i -> 1) >=> i<nSum-one {n}
     where
     path1 : (0 , lt) == zero-fin
     path1 = ΣProp-path isProp≤ refl
-    path2 : PathP (\i -> P (path1 i)) p (subst P path1 p)
+    path2 : PathP (\i -> P (path1 i)) p (substᵉ P path1 p)
     path2 = subst-filler P path1 p
 
   bf-suc : (i : Nat) (lt : (suc i) < (suc n)) (p : P (suc i , lt)) ->
@@ -141,7 +141,7 @@ finiteSum-one n = finiteSum-eval _ (idEquiv _) (\i -> 1) >=> i<nSum-one {n}
     where
     path1 : (suc i , lt) == _
     path1 = ΣProp-path isProp≤ refl
-    path2 : PathP (\i -> P (path1 i)) p (subst P path1 p)
+    path2 : PathP (\i -> P (path1 i)) p (substᵉ P path1 p)
     path2 = subst-filler P path1 p
 
 
@@ -182,7 +182,7 @@ isFinSetΣ-Σ' {ℓ} {zero} FB = 0 , ∣ isoToEquiv i ∣
   i .inv i = bot-elim (¬fin-zero i)
   i .rightInv i = bot-elim (¬fin-zero i)
   i .leftInv (i , _) = bot-elim (¬fin-zero i)
-isFinSetΣ-Σ' {ℓ} {suc n} FB = subst isFinSetΣ (sym (ua (ΣFin-suc-eq' n B))) combined
+isFinSetΣ-Σ' {ℓ} {suc n} FB = substᵉ isFinSetΣ (sym (ua (ΣFin-suc-eq' n B))) combined
   where
   B : Fin (suc n) -> Type ℓ
   B = fst ∘ FB

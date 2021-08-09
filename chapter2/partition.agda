@@ -74,7 +74,7 @@ module _ {ℓ₁ : Level}  {D : Type ℓ₁} {{S : Semiring D}} where
 --    equiv-sum-Top eq = refl
 
     transport-sum : {B : Type ℓ} -> (e : isFinSet A) -> (p : A == B)
-                    -> sum (A , e) f == sum (B , (subst isFinSet p e))
+                    -> sum (A , e) f == sum (B , (substᵉ isFinSet p e))
                                          (transport (cong (\x -> x -> D) p) f)
     transport-sum e p k =
       sum (p k , transport-filler (\k -> (isFinSet (p k))) e k)
@@ -108,11 +108,11 @@ module _ {ℓ₁ : Level}  {D : Type ℓ₁} {{S : Semiring D}} where
       begin
         sum AF f
       ==< transport-sum f (snd AF) p >
-        sum (B , (subst isFinSet p (snd AF))) (transport (cong (\x -> x -> D) p) f)
-      ==< cong (sum (B , (subst isFinSet p (snd AF)))) (transport-test2 f p) >
-        sum (B , (subst isFinSet p (snd AF))) (f ∘ transport (sym p))
+        sum (B , (substᵉ isFinSet p (snd AF))) (transport (cong (\x -> x -> D) p) f)
+      ==< cong (sum (B , (substᵉ isFinSet p (snd AF)))) (transport-test2 f p) >
+        sum (B , (substᵉ isFinSet p (snd AF))) (f ∘ transport (sym p))
       ==< cong (\x -> sum (B , x) (f ∘ transport (sym p)))
-               (squash (subst isFinSet p (snd AF)) (snd BF)) >
+               (squash (substᵉ isFinSet p (snd AF)) (snd BF)) >
         sum BF (f ∘ transport (sym p))
       end
 
