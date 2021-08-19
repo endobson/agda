@@ -121,12 +121,12 @@ module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
         b≮0 (subst2 _<_ (sym +-assoc >=> +-left (+-commute >=> +-inverse) >=> +-left-zero)
                         (+-commute >=> +-inverse) (+₁-preserves-< (- a) ab a ab<a))
 
-module _ {D : Type ℓD} {S : Semiring D} {O : TotalOrderStr D ℓ<}
-         {{TOS : TotallyOrderedSemiringStr S O}}
+module _ {D : Type ℓD} {S : Semiring D} {O : PartialOrderStr D ℓ<}
+         {{POS : PartiallyOrderedSemiringStr S O}}
          {{R : Ring S}} where
   private
     instance
-      ITOS = TOS
+      IPOS = POS
       IS = S
       IO = O
       IR = R

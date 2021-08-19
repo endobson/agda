@@ -10,7 +10,7 @@ open import truncation
 
 private
   variable
-    ℓD ℓ< : Level
+    ℓD ℓ< ℓ≤ : Level
 
 record LinearOrderStr (D : Type ℓD) (ℓ< : Level) : Type (ℓ-max (ℓ-suc ℓ<) ℓD) where
   field
@@ -51,41 +51,52 @@ module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
     =->≮ : {d1 d2 : D} -> d1 == d2 -> d1 ≮ d2
     =->≮ {d1} {d2} d1=d2 = subst (d1 ≮_) d1=d2 irrefl-<
 
-
-record TotalOrderStr (D : Type ℓD) (ℓ≤ : Level) : Type (ℓ-max (ℓ-suc ℓ≤) ℓD) where
+record PartialOrderStr (D : Type ℓD) (ℓ≤ : Level) : Type (ℓ-max (ℓ-suc ℓ≤) ℓD) where
   field
     _≤_ : D -> D -> Type ℓ≤
     isProp-≤ : (x y : D) -> isProp (x ≤ y)
     refl-≤ : Reflexive _≤_
     trans-≤ : Transitive _≤_
     antisym-≤ : Antisymmetric _≤_
-    connex-≤ : Connex _≤_
 
   _≥_ : D -> D -> Type ℓ≤
   x ≥ y = y ≤ x
 
-module _ {D : Type ℓD} {{S : TotalOrderStr D ℓ<}} where
-  open TotalOrderStr S public
 
+module _ {D : Type ℓD} {{S : PartialOrderStr D ℓ<}} where
+  open PartialOrderStr S public
 
   abstract
     =->≤ : {d1 d2 : D} -> d1 == d2 -> d1 ≤ d2
     =->≤ {d1} {d2} d1=d2 = subst (d1 ≤_) d1=d2 refl-≤
 
+
+module _ {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) where
+  private
+    instance
+      IPO = PO
+
+  record TotalOrderStr : Type (ℓ-max ℓD ℓ≤) where
+    field
+      connex-≤ : Connex _≤_
+
+module _ {D : Type ℓD} {P : PartialOrderStr D ℓ<} {{T : TotalOrderStr P}} where
+  open TotalOrderStr T public
+
 module _ (D : Type ℓD) (ℓ< ℓ≤ : Level)
          (<-Str : LinearOrderStr D ℓ<)
-         (≤-Str : TotalOrderStr D ℓ≤) where
+         (≤-Str : PartialOrderStr D ℓ≤) where
   private
     instance
       <-Str-I = <-Str
-      ≤-Str-i = ≤-Str
+      ≤-Str-I = ≤-Str
 
   record CompatibleOrderStr : Type (ℓ-max (ℓ-max ℓ≤ ℓ<) ℓD) where
     field
       weaken-< : {d1 d2 : D} -> d1 < d2 -> d1 ≤ d2
       strengthen-≤-≠ : {d1 d2 : D} -> d1 ≤ d2 -> d1 != d2 -> d1 < d2
 
-module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {≤-Str : TotalOrderStr D ℓ≤}
+module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {≤-Str : PartialOrderStr D ℓ≤}
          {{S : CompatibleOrderStr D ℓ< ℓ≤ <-Str ≤-Str}} where
   private
     instance
@@ -158,7 +169,7 @@ module _ {D : Type ℓD} {ℓ< : Level} {<-Str : LinearOrderStr D ℓ<}
       handle (tri> ¬d1<d2 _ _) = bot-elim (¬¬d1<d2 ¬d1<d2)
 
 
-module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {≤-Str : TotalOrderStr D ℓ≤}
+module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {≤-Str : PartialOrderStr D ℓ≤}
          {{S : CompatibleOrderStr D ℓ< ℓ≤ <-Str ≤-Str}} {{DS : DecidableLinearOrderStr <-Str}} where
   private
     instance

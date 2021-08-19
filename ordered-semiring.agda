@@ -41,28 +41,28 @@ module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
       trans-< (+₁-preserves-< a c d c<d) (+₂-preserves-< a b d a<b)
 
 
-module _ {D : Type ℓD} (S : Semiring D) (O : TotalOrderStr D ℓ≤) where
+module _ {D : Type ℓD} (S : Semiring D) (O : PartialOrderStr D ℓ≤) where
   private
     instance
       IS = S
       IO = O
 
-  record TotallyOrderedSemiringStr : Type (ℓ-max (ℓ-suc ℓ≤) ℓD) where
+  record PartiallyOrderedSemiringStr : Type (ℓ-max (ℓ-suc ℓ≤) ℓD) where
     field
       +₁-preserves-≤ : (a b c : D) -> b ≤ c -> (a + b) ≤ (a + c)
       *-preserves-0≤ : (a b : D) -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a * b)
 
 
 
-module _ {D : Type ℓD} {S : Semiring D} {O : TotalOrderStr D ℓ<}
-         {{TOS : TotallyOrderedSemiringStr S O}} where
-  open TotallyOrderedSemiringStr TOS public
+module _ {D : Type ℓD} {S : Semiring D} {O : PartialOrderStr D ℓ<}
+         {{POS : PartiallyOrderedSemiringStr S O}} where
+  open PartiallyOrderedSemiringStr POS public
 
   private
     instance
       IS = S
       IO = O
-      ITOS = TOS
+      IPOS = POS
 
   abstract
     +₂-preserves-≤ : (a b c : D) -> a ≤ b -> (a + c) ≤ (b + c)

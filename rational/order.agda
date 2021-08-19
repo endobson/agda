@@ -254,14 +254,18 @@ instance
     }
 
 
-  TotalOrderStr-ℚ : TotalOrderStr ℚ ℓ-zero
-  TotalOrderStr-ℚ = record
+  PartialOrderStr-ℚ : PartialOrderStr ℚ ℓ-zero
+  PartialOrderStr-ℚ = record
     { _≤_ = _ℚ≤_
     ; isProp-≤ = \_ _ -> isProp-ℚ≤
     ; refl-≤ = refl-ℚ≤
     ; trans-≤ = \{a} {b} {c} -> trans-ℚ≤ {a} {b} {c}
     ; antisym-≤ = antisym-ℚ≤
-    ; connex-≤ = connex-ℚ≤
+    }
+
+  TotalOrderStr-ℚ : TotalOrderStr PartialOrderStr-ℚ
+  TotalOrderStr-ℚ = record
+    { connex-≤ = connex-ℚ≤
     }
 
 abstract
@@ -318,7 +322,7 @@ abstract
 
 instance
   CompatibleOrderStr-ℚ :
-    CompatibleOrderStr ℚ ℓ-zero ℓ-zero LinearOrderStr-ℚ TotalOrderStr-ℚ
+    CompatibleOrderStr ℚ ℓ-zero ℓ-zero LinearOrderStr-ℚ PartialOrderStr-ℚ
   CompatibleOrderStr-ℚ = record
     { weaken-< = weaken-ℚ<
     ; strengthen-≤-≠ = strengthen-ℚ≤-≠
@@ -554,8 +558,8 @@ abstract
       g= 0=b = =->≤ (sym *-right-zero >=> *-right 0=b)
 
 instance
-  TotallyOrderedSemiringStr-ℚ : TotallyOrderedSemiringStr RationalSemiring TotalOrderStr-ℚ
-  TotallyOrderedSemiringStr-ℚ = record
+  PartiallyOrderedSemiringStr-ℚ : PartiallyOrderedSemiringStr RationalSemiring PartialOrderStr-ℚ
+  PartiallyOrderedSemiringStr-ℚ = record
     { +₁-preserves-≤ = r+₁-preserves-≤
     ; *-preserves-0≤ = r*-preserves-0≤
     }

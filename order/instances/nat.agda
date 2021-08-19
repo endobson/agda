@@ -17,12 +17,15 @@ instance
     ; comparison-< = no.comparison-nat<
     }
 
-  TotalOrderStr-ℕ : TotalOrderStr Nat ℓ-zero
-  TotalOrderStr-ℕ = record
+  PartialOrderStr-ℕ : PartialOrderStr Nat ℓ-zero
+  PartialOrderStr-ℕ = record
     { _≤_ = no._≤_
     ; isProp-≤ = \x y -> no.isProp≤ {x} {y}
     ; refl-≤ = \{x} -> no.same-≤ x
     ; trans-≤ = \{x} {y} {z} -> no.trans-≤ {x} {y} {z}
     ; antisym-≤ = ≤-antisym
-    ; connex-≤ = no.connex-≤
+    }
+  TotalOrderStr-ℕ : TotalOrderStr PartialOrderStr-ℕ
+  TotalOrderStr-ℕ = record
+    { connex-≤ = no.connex-≤
     }
