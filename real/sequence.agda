@@ -300,7 +300,6 @@ module _
 
     private
       1/4r = (1/ℕ (2 , tt)) r* (1/ℕ (2 , tt))
-      Pos-1/2r = (Pos-1/ℕ (2 , tt))
       Pos-1/4r = r*-preserves-Pos 1/2r 1/2r Pos-1/2r Pos-1/2r
 
     located : (x y : Rational) -> x < y -> ∥ L x ⊎ U y ∥

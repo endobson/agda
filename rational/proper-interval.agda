@@ -322,6 +322,28 @@ i-scale-distrib-i+ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
   handle (zero-sign , zk) = nn-case (inj-r zk)
   handle (neg-sign  , nk) = np-case (inj-l nk)
 
+i-scale-i*₂ : (k : ℚ) (a b : Iℚ) -> i-scale k (a i* b) == a i* (i-scale k b)
+i-scale-i*₂ k a@(Iℚ-cons al au al≤au) b =
+  i-scale-distrib-∪ k (i-scale al b) (i-scale au b) >=>
+  cong2 _i∪_ (i-scale-twice k al b >=>
+              (cong (\x -> i-scale x b) *-commute) >=>
+              sym (i-scale-twice al k b))
+             (i-scale-twice k au b >=>
+              (cong (\x -> i-scale x b) *-commute) >=>
+              sym (i-scale-twice au k b))
+
+i--extract-right : (a b : Iℚ) -> a i* (i- b) == i- (a i* b)
+i--extract-right a b =
+  cong (a i*_) (i--scale b) >=>
+  sym (i-scale-i*₂ (r- 1r) a b) >=>
+  sym (i--scale (a i* b))
+
+i--extract-left : (a b : Iℚ) -> (i- a) i* b == i- (a i* b)
+i--extract-left a b =
+  i*-commute (i- a) b >=> (i--extract-right b a) >=> cong i-_ (i*-commute b a)
+
+
+
 
 i-Lower : Iℚ -> Pred ℚ ℓ-zero
 i-Lower (Iℚ-cons l _ _) q = q ℚ≤ l

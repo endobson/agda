@@ -19,6 +19,7 @@ open import ring.implementations.rational
 open import semiring
 open import sign
 open import sign.instances.rational
+open import truncation
 
 
 ImbalancedI : Pred Iℚ ℓ-zero
@@ -30,6 +31,16 @@ i-maxabs≤->ImbalancedI (Iℚ-cons l u l≤u) ma≤au =
   trans-ℚ≤ { - l}
     (maxℚ-≤-right l (- l))
     (trans-ℚ≤ {absℚ l} (maxℚ-≤-left (absℚ l) (absℚ u)) ma≤au)
+
+ImbalancedI->0≤u : (a : Iℚ) -> ImbalancedI a -> (0r ≤ Iℚ.u a)
+ImbalancedI->0≤u (Iℚ-cons l u l≤u) -l≤u = NonNeg-0≤ u nn-u
+  where
+  al≤u : absℚ l ℚ≤ u
+  al≤u = maxℚ-property {P = _ℚ≤ u} l (- l) l≤u -l≤u
+
+  nn-u : NonNeg u
+  nn-u = NonNeg-≤ (absℚ l) u (NonNeg-absℚ l) al≤u
+
 
 ImbalancedI->i-maxabs : (a : Iℚ) -> ImbalancedI a -> (i-maxabs a == Iℚ.u a)
 ImbalancedI->i-maxabs (Iℚ-cons l u l≤u) -l≤u =
@@ -46,6 +57,27 @@ ImbalancedI->i-maxabs (Iℚ-cons l u l≤u) -l≤u =
 
   al≤au : absℚ l ℚ≤ absℚ u
   al≤au = trans-ℚ≤ {absℚ l} al≤u (maxℚ-≤-left u (- u))
+
+naive-i² : (a : Iℚ) -> ImbalancedI a -> Iℚ
+naive-i² (Iℚ-cons l u l≤u) -l≤u = (Iℚ-cons (l * l) (u * u) ll≤uu)
+  where
+  ll≤uu : (l * l) ≤ (u * u)
+  ll≤uu = unsquash (isProp-≤ (l * l) (u * u)) (∥-map handle (connex-≤ 0r l))
+    where
+    handle : (0r ≤ l ⊎ l ≤ 0r) -> (l * l) ≤ (u * u)
+    handle (inj-l 0≤l) =
+      trans-≤ (*₁-preserves-≤ l l u 0≤l l≤u)
+              (*₂-preserves-≤ l u u l≤u (trans-≤ 0≤l l≤u))
+    handle (inj-r l≤0) = subst (_≤ (u * u)) -l-l=ll -l-l≤uu
+      where
+      0≤-l = minus-flips-≤0 l≤0
+      -l = - l
+
+      -l-l≤uu = trans-≤ (*₁-preserves-≤ -l -l u 0≤-l -l≤u)
+                        (*₂-preserves-≤ -l u u -l≤u (trans-≤ 0≤-l -l≤u))
+      -l-l=ll : (-l * -l) == l * l
+      -l-l=ll = minus-extract-left >=> cong -_ minus-extract-right >=> minus-double-inverse
+
 
 
 ℚ∈Iℚ-i∪₁ : (q : ℚ) (a b : Iℚ) -> ℚ∈Iℚ q a -> ℚ∈Iℚ q (a i∪ b)
@@ -131,6 +163,19 @@ ImbalancedI->i-maxabs (Iℚ-cons l u l≤u) -l≤u =
 
 ℚ∈Iℚ-u : (a : Iℚ) -> (ℚ∈Iℚ (Iℚ.u a) a)
 ℚ∈Iℚ-u (Iℚ-cons l u l≤u) = l≤u , refl-ℚ≤
+
+
+
+naive-i²-⊆-* : (a : Iℚ) -> (i : ImbalancedI a) -> (naive-i² a i) i⊆ (a i* a)
+naive-i²-⊆-* a@(Iℚ-cons l u l≤u) i@-l≤u = a²⊆aa
+  where
+  a² = (naive-i² a i)
+  aa = a i* a
+  a²⊆aa : a² i⊆ aa
+  a²⊆aa = i⊆-cons (fst (ℚ∈Iℚ-* l l a a (ℚ∈Iℚ-l a) (ℚ∈Iℚ-l a)))
+                  (snd (ℚ∈Iℚ-* u u a a (ℚ∈Iℚ-u a) (ℚ∈Iℚ-u a)))
+
+
 
 i*-preserves-ImbalancedI : (a b : Iℚ) -> ImbalancedI a -> ImbalancedI b -> ImbalancedI (a i* b)
 i*-preserves-ImbalancedI a b imb-a imb-b = i-maxabs≤->ImbalancedI ab mab≤abu

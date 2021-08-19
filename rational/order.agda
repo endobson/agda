@@ -512,28 +512,27 @@ module _ where
   open M public
 
 
-private
-  module _ where
-    private
-      module M where
-        abstract
-          ℚ0≤-elim : {ℓ : Level} {P : ℚ -> Type ℓ} ->
-                     ({q : ℚ} -> isProp (P q)) ->
-                     ({q : ℚ} -> 0r ℚ< q -> P q) ->
-                     ({q : ℚ} -> 0r == q -> P q) ->
-                     (q : ℚ) -> 0r ℚ≤ q -> P q
-          ℚ0≤-elim {P = P} isProp-P f< f= r 0≤r =
-            ℚ≤-elim {P = \ z q -> z == 0r -> P q}
-              (\{z} {q} -> (isPropΠ \_ -> isProp-P {q}))
-              g< g=
-              0r r 0≤r refl
-            where
-             g< : {z q : ℚ} -> z < q -> z == 0r -> P q
-             g< {z} {q} z<q z=0 = f< (subst (_< q) z=0 z<q)
+module _ where
+  private
+    module M where
+      abstract
+        ℚ0≤-elim : {ℓ : Level} {P : ℚ -> Type ℓ} ->
+                   ({q : ℚ} -> isProp (P q)) ->
+                   ({q : ℚ} -> 0r ℚ< q -> P q) ->
+                   ({q : ℚ} -> 0r == q -> P q) ->
+                   (q : ℚ) -> 0r ℚ≤ q -> P q
+        ℚ0≤-elim {P = P} isProp-P f< f= r 0≤r =
+          ℚ≤-elim {P = \ z q -> z == 0r -> P q}
+            (\{z} {q} -> (isPropΠ \_ -> isProp-P {q}))
+            g< g=
+            0r r 0≤r refl
+          where
+           g< : {z q : ℚ} -> z < q -> z == 0r -> P q
+           g< {z} {q} z<q z=0 = f< (subst (_< q) z=0 z<q)
 
-             g= : {z q : ℚ} -> z == q -> z == 0r -> P q
-             g= {z} {q} z=q z=0 = f= (subst (_== q) z=0 z=q)
-    open M public
+           g= : {z q : ℚ} -> z == q -> z == 0r -> P q
+           g= {z} {q} z=q z=0 = f= (subst (_== q) z=0 z=q)
+  open M public
 
 abstract
 
@@ -759,6 +758,9 @@ r1/-preserves-Neg q i nq = handle (decide-sign qi)
 
 Pos-1/ℕ : (n : Nat⁺) -> Pos (1/ℕ n)
 Pos-1/ℕ n = subst Pos (sym (1/ℕ-inv-path n)) (r1/-preserves-Pos (ℕ->ℚ ⟨ n ⟩) _ (Pos-ℕ⁺->ℚ n))
+
+Pos-1/2r : Pos 1/2r
+Pos-1/2r = Pos-1/ℕ (2 , tt)
 
 
 --
@@ -1080,7 +1082,6 @@ small-1/2^ℕ q@(q' , _) = ∥-map handle (small-1/2^ℕ-step1 q)
 seperate-< : (a b : ℚ) -> a < b -> Σ[ ε ∈ ℚ⁺ ] (a r+ ⟨ ε ⟩) < (b r+ (r- ⟨ ε ⟩))
 seperate-< a b a<b = ε , Pos-diffℚ⁻ (a r+ ε') (b r+ (r- ε')) pos-diff
   where
-  Pos-1/2r = Pos-1/ℕ 2⁺
   ε' = 1/2r r* (1/2r r* (diffℚ a b))
   ε : ℚ⁺
   ε = ε' , r*-preserves-Pos 1/2r _ Pos-1/2r

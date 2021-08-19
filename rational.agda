@@ -618,6 +618,9 @@ abstract
 ℚInv : Pred Rational ℓ-zero
 ℚInv a = (a != 0r)
 
+isProp-ℚInv : {a : ℚ} -> isProp (ℚInv a)
+isProp-ℚInv = isProp¬ _
+
 
 abstract
   ℚInv->ℚInv' : (a : Rational') -> ℚInv (ℚ'->ℚ a) -> ℚInv' a
@@ -670,6 +673,19 @@ abstract
     RationalElim.elimProp
       (\_ -> isPropΠ2 (\_ _ -> isSetRational _ _))
       (\ a i1 i2 -> cong [_] (r1/'-double-inverse a (ℚInv->ℚInv' _ i1) (ℚInv->ℚInv' _ i2)))
+
+r1/-distrib-* : (a b : ℚ) (ai : ℚInv a) (bi : ℚInv b) (abi : ℚInv (a * b)) ->
+                r1/ (a * b) abi == (r1/ a ai) * (r1/ b bi)
+r1/-distrib-* a b ai bi abi =
+  sym *-right-one >=>
+  *-right (sym *-right-one >=>
+           cong2 _*_ (sym (r1/-inverse a ai)) (sym (r1/-inverse b bi)) >=>
+           *-assoc >=> (*-right (*-commute >=> *-assoc)) >=> sym *-assoc >=>
+           *-right *-commute >=> *-commute) >=>
+  sym *-assoc >=>
+  *-left (r1/-inverse (a * b) abi) >=>
+  *-left-one
+
 
 
 

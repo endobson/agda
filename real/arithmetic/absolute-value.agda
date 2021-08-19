@@ -409,6 +409,7 @@ private
     -u≤l : (- u) ≤ l
     -u≤l = subst ((- u) ≤_) minus-double-inverse (minus-flips-≤ (- l) u -l≤u)
 
+abstract
   ℝ∈Iℚ-absℝ-ΣImbalancedI : (x : ℝ) (a : Iℚ) -> ℝ∈Iℚ (absℝ x) a ->
                            Σ[ b ∈ Iℚ ] (ℝ∈Iℚ (absℝ x) b × ImbalancedI b × b i⊆ a)
   ℝ∈Iℚ-absℝ-ΣImbalancedI x a@(Iℚ-cons l u l≤u) ax∈a@(axl-l , (xl--u , xu-u)) = handle (split-< u (- l))

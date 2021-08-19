@@ -462,6 +462,21 @@ comparison-ℝ< x y z x<z = ∥-bind handle x<z
   handle : (ℚ->ℝ q) ℝ<' x -> Real.L x q
   handle (r , q<r , xl-r) = x.isLowerSet-L q r q<r xl-r
 
+ℝ≮0-¬U0 : (x : ℝ) (x≮0 : ¬ (x ℝ< 0ℝ)) -> ¬ (Real.U x 0r)
+ℝ≮0-¬U0 x x≮0 xU-0r = unsquash isPropBot (∥-map handle (x.isLowerOpen-U 0r xU-0r))
+    where
+    module x = Real x
+    handle : _ -> Bot
+    handle (r , r<0 , xU-r) = x≮0 (∣ r , xU-r , r<0 ∣)
+
+ℝ≮0-L∀<0 : (x : ℝ) (x≮0 : ¬ (x ℝ< 0ℝ)) -> {q : ℚ} -> q < 0r -> Real.L x q
+ℝ≮0-L∀<0 x x≮0 {q} q<0 = unsquash (x.isProp-L q) (∥-map handle (x.located q 0r q<0))
+  where
+  module x = Real x
+  handle : x.L q ⊎ x.U 0r -> x.L q
+  handle (inj-l l) = l
+  handle (inj-r u) = bot-elim (ℝ≮0-¬U0 x x≮0 u)
+
 
 _ℝ#_ : ℝ -> ℝ -> Type₀
 x ℝ# y = (x ℝ< y) ⊎ (y ℝ< x)
