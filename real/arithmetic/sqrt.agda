@@ -232,13 +232,13 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
       xiyi-u = Iℚ.u xiyi
 
       0<xu : 0r < xu
-      0<xu = strengthen-≤-≠ (fst sx-ux) 0!=xu
+      0<xu = strengthen-ℚ≤-≠ (fst sx-ux) 0!=xu
         where
         0!=xu : 0r != xu
         0!=xu 0=xu = ℝ≮0-¬U0 sx (≮0-sqrtᵉ x x≮0) (subst sx.U (sym 0=xu) sx-ux)
 
       0<yu : 0r < yu
-      0<yu = strengthen-≤-≠ (fst sx-uy) 0!=yu
+      0<yu = strengthen-ℚ≤-≠ (fst sx-uy) 0!=yu
         where
         0!=yu : 0r != yu
         0!=yu 0=yu = ℝ≮0-¬U0 sx (≮0-sqrtᵉ x x≮0) (subst sx.U (sym 0=yu) sx-uy)

@@ -16,3 +16,9 @@ instance
     ; connected-< = \{x} {y} -> connected-ℝ< x y
     ; comparison-< = comparison-ℝ<
     }
+
+  PartialOrderStr-ℝ : PartialOrderStr ℝ ℓ-zero
+  PartialOrderStr-ℝ = NegatedLinearOrder LinearOrderStr-ℝ
+
+  CompatibleOrderStr-ℝ : CompatibleOrderStr LinearOrderStr-ℝ PartialOrderStr-ℝ
+  CompatibleOrderStr-ℝ = CompatibleNegatedLinearOrder LinearOrderStr-ℝ

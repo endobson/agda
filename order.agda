@@ -80,10 +80,11 @@ module _ {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) where
     field
       connex-≤ : Connex _≤_
 
+
 module _ {D : Type ℓD} {P : PartialOrderStr D ℓ<} {{T : TotalOrderStr P}} where
   open TotalOrderStr T public
 
-module _ (D : Type ℓD) (ℓ< ℓ≤ : Level)
+module _ {D : Type ℓD}
          (<-Str : LinearOrderStr D ℓ<)
          (≤-Str : PartialOrderStr D ℓ≤) where
   private
@@ -94,10 +95,30 @@ module _ (D : Type ℓD) (ℓ< ℓ≤ : Level)
   record CompatibleOrderStr : Type (ℓ-max (ℓ-max ℓ≤ ℓ<) ℓD) where
     field
       weaken-< : {d1 d2 : D} -> d1 < d2 -> d1 ≤ d2
-      strengthen-≤-≠ : {d1 d2 : D} -> d1 ≤ d2 -> d1 != d2 -> d1 < d2
+
+
+module _ {D : Type ℓD} (L : LinearOrderStr D ℓ<) where
+  private
+    instance
+      IL = L
+
+  NegatedLinearOrder : PartialOrderStr D ℓ<
+  NegatedLinearOrder = record
+    { _≤_ = _≯_
+    ; refl-≤ = irrefl-<
+    ; trans-≤ = \a≤b b≤c -> trans-≮ b≤c a≤b
+    ; antisym-≤ = \a≤b b≤a -> connected-< b≤a a≤b
+    ; isProp-≤ = \x y -> isProp¬ _
+    }
+
+  CompatibleNegatedLinearOrder : CompatibleOrderStr L NegatedLinearOrder
+  CompatibleNegatedLinearOrder = record
+    { weaken-< = asym-<
+    }
+
 
 module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {≤-Str : PartialOrderStr D ℓ≤}
-         {{S : CompatibleOrderStr D ℓ< ℓ≤ <-Str ≤-Str}} where
+         {{S : CompatibleOrderStr <-Str ≤-Str}} where
   private
     instance
       <-Str-I = <-Str
@@ -117,29 +138,23 @@ module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {
 
     trans-<-≤ : {d1 d2 d3 : D} -> d1 < d2 -> d2 ≤ d3 -> d1 < d3
     trans-<-≤ {d1} {d2} {d3} d1<d2 d2≤d3 =
-      strengthen-≤-≠ (trans-≤ (weaken-< d1<d2) d2≤d3) d1!=d3
+      unsquash (isProp-< d1 d3) (∥-map handle (comparison-< d1 d3 d2 d1<d2))
       where
-      d2!=d1 : d2 != d1
-      d2!=d1 d2=d1 = <->!= d1<d2 (sym d2=d1)
-
-      d1!=d3 : d1 != d3
-      d1!=d3 d1=d3 = asym-< d1<d2 (strengthen-≤-≠ d2≤d1 d2!=d1)
+      handle : (d1 < d3 ⊎ d3 < d2) -> d1 < d3
+      handle (inj-l d1<d3) = d1<d3
+      handle (inj-r d3<d2) = bot-elim (<->!= d3<d2 d3=d2)
         where
-        d2≤d1 : d2 ≤ d1
-        d2≤d1 = subst (d2 ≤_) (sym d1=d3) d2≤d3
+        d3=d2 = antisym-≤ (weaken-< d3<d2) d2≤d3
 
     trans-≤-< : {d1 d2 d3 : D} -> d1 ≤ d2 -> d2 < d3 -> d1 < d3
     trans-≤-< {d1} {d2} {d3} d1≤d2 d2<d3 =
-      strengthen-≤-≠ (trans-≤ d1≤d2 (weaken-< d2<d3)) d1!=d3
+      unsquash (isProp-< d1 d3) (∥-map handle (comparison-< d2 d1 d3 d2<d3))
       where
-      d3!=d2 : d3 != d2
-      d3!=d2 d3=d2 = <->!= d2<d3 (sym d3=d2)
-
-      d1!=d3 : d1 != d3
-      d1!=d3 d1=d3 = asym-< d2<d3 (strengthen-≤-≠ d3≤d2 d3!=d2)
+      handle : (d2 < d1 ⊎ d1 < d3) -> d1 < d3
+      handle (inj-r d1<d3) = d1<d3
+      handle (inj-l d2<d1) = bot-elim (<->!= d2<d1 d2=d1)
         where
-        d3≤d2 : d3 ≤ d2
-        d3≤d2 = subst (_≤ d2) d1=d3 d1≤d2
+        d2=d1 = antisym-≤ (weaken-< d2<d1) d1≤d2
 
 
 module _ {D : Type ℓD} {ℓ< : Level} (<-Str : LinearOrderStr D ℓ<) where
@@ -170,7 +185,7 @@ module _ {D : Type ℓD} {ℓ< : Level} {<-Str : LinearOrderStr D ℓ<}
 
 
 module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {≤-Str : PartialOrderStr D ℓ≤}
-         {{S : CompatibleOrderStr D ℓ< ℓ≤ <-Str ≤-Str}} {{DS : DecidableLinearOrderStr <-Str}} where
+         {{S : CompatibleOrderStr <-Str ≤-Str}} {{DS : DecidableLinearOrderStr <-Str}} where
   private
     instance
       <-Str-I = <-Str

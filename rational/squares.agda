@@ -55,7 +55,7 @@ private
                       *-right-zero) >=>
              *-right-zero
 
-    0<bb = strengthen-≤-≠ 0≤bb 0!=bb
+    0<bb = strengthen-ℚ≤-≠ 0≤bb 0!=bb
 
     handle : (0r < b) ⊎ (b < 1r) -> (0r < b) ⊎ (b < bb) -> 0r < b
     handle (inj-l 0<b) _            = 0<b
@@ -91,7 +91,7 @@ private
     0!=a : 0r != a
     0!=a 0=a = irrefl-< (subst2 _<_ (*-left (sym 0=a) >=> *-left-zero)
                                     (*-left (sym 0=a) >=> *-left-zero) ab<ac)
-    0<a = strengthen-≤-≠ 0≤a 0!=a
+    0<a = strengthen-ℚ≤-≠ 0≤a 0!=a
 
   *₂-reflects-<' : {a b c : ℚ} -> (0r ≤ c) -> ((a * c) < (b * c)) -> a < b
   *₂-reflects-<' 0≤c ac<bc = *₁-reflects-<' 0≤c (subst2 _<_ *-commute *-commute ac<bc)
@@ -159,7 +159,7 @@ private
       0!=ε' 0=ε' = irrefl-< (subst (_< ε²) (sym *-right-zero >=> *-right 0=ε' >=> ε'ε'=ε²) 0<ε²)
 
       0<ε' : 0r < ε'
-      0<ε' = strengthen-≤-≠ 0≤ε' 0!=ε'
+      0<ε' = strengthen-ℚ≤-≠ 0≤ε' 0!=ε'
 
       0<ε : 0r < ε
       0<ε = minℚ-property {P = (0r <_)} _ _ 0<ε' (r*-preserves-Pos _ _ pos-d/2 Pos-1/2r)
@@ -281,7 +281,7 @@ private
       where
       0<s = trans-< 0<1/r² 1/r²<s
       1/s = r1/ s (Pos->Inv 0<s)
-      0<t = strengthen-≤-≠ 0≤t 0!=t
+      0<t = strengthen-ℚ≤-≠ 0≤t 0!=t
         where
         0!=t : 0r != t
         0!=t 0=t = irrefl-< (subst (0r <_) (sym tt=s >=> *-right (sym 0=t) >=> *-right-zero) 0<s)

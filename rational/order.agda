@@ -322,10 +322,9 @@ abstract
 
 instance
   CompatibleOrderStr-ℚ :
-    CompatibleOrderStr ℚ ℓ-zero ℓ-zero LinearOrderStr-ℚ PartialOrderStr-ℚ
+    CompatibleOrderStr LinearOrderStr-ℚ PartialOrderStr-ℚ
   CompatibleOrderStr-ℚ = record
     { weaken-< = weaken-ℚ<
-    ; strengthen-≤-≠ = strengthen-ℚ≤-≠
     }
 
 
