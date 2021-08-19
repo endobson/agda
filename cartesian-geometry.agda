@@ -3,12 +3,17 @@
 
 module cartesian-geometry where
 
+open import apartness
 open import base
 open import equality
 open import direct-product
 open import functions
 open import hlevel
 open import isomorphism
+open import order
+open import order.instances.real
+open import ordered-ring
+open import ordered-semiring.instances.real
 open import real
 open import relation
 open import real
@@ -16,6 +21,7 @@ open import real.arithmetic
 open import real.arithmetic.multiplication
 open import real.arithmetic.multiplication.inverse
 open import real.arithmetic.order
+open import real.arithmetic.sqrt
 open import real.heyting-field
 open import set-quotient
 open import semiring
@@ -110,11 +116,34 @@ vector-length² v = (x * x) + (y * y)
   x = (direct-product-index v x-axis)
   y = (direct-product-index v y-axis)
 
+vector-length²≮0 : (v : Vector) -> (vector-length² v ≮ 0ℝ)
+vector-length²≮0 v = +-preserves-≮0 (x * x) (y * y) (≮0-square x) (≮0-square y)
+  where
+  x = (direct-product-index v x-axis)
+  y = (direct-product-index v y-axis)
+
+vector-length : Vector -> ℝ
+vector-length v = sqrtℝ (vector-length² v) (vector-length²≮0 v)
+
 isUnitVector : Pred Vector ℓ-one
-isUnitVector v = vector-length² v == 1ℝ
+isUnitVector v = vector-length v == 1ℝ
 
 Direction : Type₁
 Direction = Σ Vector isUnitVector
+
+
+-- vector-length>0 : (v : Vector) -> (v v# 0v) -> (vector-length v > 0#)
+-- vector-length>0 v v#0 = unsquash (isProp-< 0# (vector-length v)) (∥-map handle v#0)
+--   where
+--   x = (direct-product-index v x-axis)
+--   y = (direct-product-index v y-axis)
+--
+--   handle : Σ[ a ∈ Axis ] (direct-product-index v a) # 0# -> (vector-length v > 0#)
+--   handle (x-axis , x#0) = ?
+--   handle (y-axis , y#0) = ?
+
+
+
 
 data SameSemiDirection : Rel Vector ℓ-one where
   same-semi-direction-same : {v1 v2 : Vector} -> v1 == v2 -> SameSemiDirection v1 v2

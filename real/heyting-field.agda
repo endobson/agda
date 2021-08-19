@@ -2,6 +2,7 @@
 
 module real.heyting-field where
 
+open import apartness
 open import base
 open import cubical
 open import equality
@@ -149,12 +150,17 @@ private
   tight-diff# ¬d# = tight-ℝ# (¬d# ∘ ℝ#->diff#)
 
 
-
   TightApartness-ℝUnit : TightApartness diff#
   TightApartness-ℝUnit = tight-diff# , irrefl-diff# , sym-diff# , comparison-diff#
 
-
 instance
+  TightApartnessStr-ℝ : TightApartnessStr ℝ
+  TightApartnessStr-ℝ = record
+    { _#_ = diff#
+    ; TightApartness-# = TightApartness-ℝUnit
+    ; isProp-# = \x y -> ℝRing.isProp-isUnit
+    }
+
   ℝField : Field ℝRing
   ℝField = record
     { TightApartness-f# = TightApartness-ℝUnit
