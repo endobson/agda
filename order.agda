@@ -2,8 +2,11 @@
 
 module order where
 
+open import apartness
 open import base
+open import cubical
 open import equality
+open import equivalence
 open import hlevel
 open import relation
 open import truncation
@@ -50,6 +53,25 @@ module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
 
     =->≮ : {d1 d2 : D} -> d1 == d2 -> d1 ≮ d2
     =->≮ {d1} {d2} d1=d2 = subst (d1 ≮_) d1=d2 irrefl-<
+
+  _<>_ : Rel D ℓ<
+  a <> b = (a < b) ⊎ (b < a)
+
+
+module _ {D : Type ℓD} (A : TightApartnessStr D) (O : LinearOrderStr D ℓ<) where
+  private
+    instance
+     IO = O
+     IA = A
+
+  record ApartLinearOrderStr : Type (ℓ-max ℓ< ℓD) where
+    field
+      <>-equiv-# : (a b : D) -> (a <> b) ≃ (a # b)
+
+
+module _ {D : Type ℓD} {A : TightApartnessStr D} {O : LinearOrderStr D ℓ<}
+         {{AO : ApartLinearOrderStr A O}} where
+  open ApartLinearOrderStr AO public
 
 record PartialOrderStr (D : Type ℓD) (ℓ≤ : Level) : Type (ℓ-max (ℓ-suc ℓ≤) ℓD) where
   field
@@ -155,6 +177,28 @@ module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {
       handle (inj-l d2<d1) = bot-elim (<->!= d2<d1 d2=d1)
         where
         d2=d1 = antisym-≤ (weaken-< d2<d1) d1≤d2
+
+
+module _ {D : Type ℓD}
+         {L : LinearOrderStr D ℓ<}
+         {P : PartialOrderStr D ℓ≤}
+         {A : TightApartnessStr D}
+         {{LA : ApartLinearOrderStr A L}}
+         {{CO : CompatibleOrderStr L P}} where
+  private
+    instance
+      IL = L
+      IP = P
+      IA = A
+      ICO = CO
+
+  strengthen-≤-# : {d1 d2 : D} -> d1 ≤ d2 -> d1 # d2 -> d1 < d2
+  strengthen-≤-# {d1} {d2} d1≤d2 d1#d2 = handle (eqInv (<>-equiv-# d1 d2) d1#d2)
+    where
+    handle : (d1 < d2 ⊎ d2 < d1) -> d1 < d2
+    handle (inj-l d1<d2) = d1<d2
+    handle (inj-r d2<d1) = bot-elim (irrefl-< (trans-≤-< d1≤d2 d2<d1))
+
 
 
 module _ {D : Type ℓD} {ℓ< : Level} (<-Str : LinearOrderStr D ℓ<) where

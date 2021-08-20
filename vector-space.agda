@@ -132,7 +132,8 @@ module _  {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {V :
 
 
 module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
-         (F : Field R) (V : Type ℓV)  where
+         {A : TightApartnessStr K}
+         (F : Field R A) (V : Type ℓV)  where
   private
     instance
       IS = S
@@ -154,7 +155,8 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
                       ∥ (k1 # k2) ⊎ (v1 MS.v# v2) ∥
 
 
-module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {F : Field R} {V : Type ℓV}
+module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
+         {A : TightApartnessStr K} {F : Field R A} {V : Type ℓV}
          (VS : VectorSpaceStr F V) where
 
   private

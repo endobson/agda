@@ -200,7 +200,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
     }
 
 module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
-         {R : Ring S} (F : Field R) (I : Type ℓI) where
+         {R : Ring S} {A : TightApartnessStr K} (F : Field R A) (I : Type ℓI) where
   private
     instance
       IS = S

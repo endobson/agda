@@ -6,6 +6,8 @@ open import apartness
 open import base
 open import cubical
 open import equality
+open import equivalence
+open import isomorphism
 open import functions
 open import heyting-field
 open import rational
@@ -153,6 +155,10 @@ private
   TightApartness-ℝUnit : TightApartness diff#
   TightApartness-ℝUnit = tight-diff# , irrefl-diff# , sym-diff# , comparison-diff#
 
+  ℝ#≃diff# : (x y : ℝ) -> (x ℝ# y) ≃ (diff# x y)
+  ℝ#≃diff# x y = isoToEquiv (isProp->iso ℝ#->diff# diff#->ℝ# (isProp-ℝ# x y) ℝRing.isProp-isUnit)
+
+
 instance
   TightApartnessStr-ℝ : TightApartnessStr ℝ
   TightApartnessStr-ℝ = record
@@ -161,7 +167,7 @@ instance
     ; isProp-# = \x y -> ℝRing.isProp-isUnit
     }
 
-  ℝField : Field ℝRing
+  ℝField : Field ℝRing TightApartnessStr-ℝ
   ℝField = record
-    { TightApartness-f# = TightApartness-ℝUnit
+    { f#-path = refl
     }

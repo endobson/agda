@@ -2,6 +2,7 @@
 
 module rational.heyting-field where
 
+open import apartness
 open import base
 open import cubical
 open import equality
@@ -96,7 +97,14 @@ private
       subst TightApartness (\i q r -> ℚ<>=isUnitℚ q r i) tight-apartness-ℚ<>
 
 instance
-  RationalField : Field RationalRing
+  TightApartnessStr-ℚ : TightApartnessStr ℚ
+  TightApartnessStr-ℚ = record
+    { _#_ = \q r -> isUnit (diffℚ q r)
+    ; TightApartness-# = TightApartness-ℚ#
+    ; isProp-# = \x y -> RationalRing.isProp-isUnit
+    }
+
+  RationalField : Field RationalRing TightApartnessStr-ℚ
   RationalField = record
-    { TightApartness-f# = TightApartness-ℚ#
+    { f#-path = refl
     }

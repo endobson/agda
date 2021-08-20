@@ -51,7 +51,7 @@ private
 
 
 module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
-         {R : Ring S} (F : Field R) (I : FinSet ℓI) where
+         {R : Ring S} {A : TightApartnessStr K} (F : Field R A) (I : FinSet ℓI) where
   private
     instance
       IS = S
