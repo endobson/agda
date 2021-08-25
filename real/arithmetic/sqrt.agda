@@ -97,6 +97,10 @@ abstract
   ≮0-square : (x : ℝ) -> (x * x) ≮ 0ℝ
   ≮0-square x = subst (_≮ 0ℝ) (sym (ℝ*-eval {x} {x})) (≮0-squareᵉ x)
 
+  absℝ-square : (x : ℝ) -> x * x == absℝ x * absℝ x
+  absℝ-square x = sym (absℝ-NonNeg-idem (x * x) (≮0-square x)) >=> absℝ-distrib-* x x
+
+
 module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
   private
     sx = sqrtℝ x x≮0
@@ -256,11 +260,12 @@ module _ (x : ℝ) where
             s-x-x∈bi = (ℝ∈Iℚ-sqrt⁺ mx -x-x≮0 bi imb-bi -x∈bi)
 
   abstract
-    sqrt-* : sqrtℝ (x * x) (≮0-square x) == absℝ x
-    sqrt-* = sqrtℝ-eval (x * x) (≮0-square x) >=>
-             cong2-dep sqrtℝᵉ (ℝ*-eval {x} {x})
-                              (isProp->PathP (\_ -> (isProp¬ _)) (≮0-square x) (≮0-squareᵉ x)) >=>
-             sqrt-*ᵉ (≮0-squareᵉ x)
+    sqrt-square : sqrtℝ (x * x) (≮0-square x) == absℝ x
+    sqrt-square =
+      sqrtℝ-eval (x * x) (≮0-square x) >=>
+      cong2-dep sqrtℝᵉ (ℝ*-eval {x} {x})
+                (isProp->PathP (\_ -> (isProp¬ _)) (≮0-square x) (≮0-squareᵉ x)) >=>
+      sqrt-*ᵉ (≮0-squareᵉ x)
 
 module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
   private
@@ -388,10 +393,10 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
       sx∈xi' = subst (\x -> ℝ∈Iℚ x xi) (sqrtℝ-eval x x≮0) sx∈xi
       sx∈yi' = subst (\x -> ℝ∈Iℚ x yi) (sqrtℝ-eval x x≮0) sx∈yi
 
-    *-sqrt : (sqrtℝ x x≮0) * (sqrtℝ x x≮0) == x
-    *-sqrt = cong2 _ℝ*_ (sqrtℝ-eval x x≮0) (sqrtℝ-eval x x≮0) >=>
-             ℝ*-eval {sx} {sx} >=>
-             *-sqrtᵉ
+    sqrt² : (sqrtℝ x x≮0) * (sqrtℝ x x≮0) == x
+    sqrt² = cong2 _ℝ*_ (sqrtℝ-eval x x≮0) (sqrtℝ-eval x x≮0) >=>
+            ℝ*-eval {sx} {sx} >=>
+            *-sqrtᵉ
 
 private
   split-ℝ∈Iℚ-0≤ : (x : ℝ) (ai : Iℚ) -> ℝ∈Iℚ x ai -> 0ℝ ≤ x ->
@@ -515,9 +520,10 @@ module _ (x : ℝ)
           where
           mbci⊆ai = i*-i⊆-square-BalancedI⁻ mbci ai bal-ai mbcimbci⊆aiai
 
-    ℝ∈Iℚ-square⁻ : (ai : Iℚ) -> (0≤x : 0ℝ ≤ x) -> ImbalancedI ai ->
-                   ℝ∈Iℚ (x * x) (ai i* ai) -> ℝ∈Iℚ ax ai
-    ℝ∈Iℚ-square⁻ ai@(Iℚ-cons l u l≤u) 0≤x imb-ai xx∈aiai = handle (split-< l 0r)
+
+  abstract
+    ℝ∈Iℚ-square-ImbalancedI⁻ : (ai : Iℚ) -> ImbalancedI ai -> ℝ∈Iℚ (x * x) (ai i* ai) -> ℝ∈Iℚ ax ai
+    ℝ∈Iℚ-square-ImbalancedI⁻ ai@(Iℚ-cons l u l≤u) imb-ai xx∈aiai = handle (split-< l 0r)
       where
       -l = - l
       xxU-uu : xx.U (u * u)
@@ -531,16 +537,16 @@ module _ (x : ℝ)
           where
           -l=u : BalancedI ai
           -l=u = antisym-≤ imb-ai u≤-l
-        handle2 (inj-l -l<u) = unsquash (isProp-ℝ∈Iℚ ax ai) (∥-map handle3 (x.located -l u -l<u))
+        handle2 (inj-l -l<u) = unsquash (isProp-ℝ∈Iℚ ax ai) (∥-map handle3 (ax.located -l u -l<u))
           where
-          handle3 : x.L -l ⊎ x.U u -> ℝ∈Iℚ ax ai
-          handle3 (inj-r xU-u) = subst (\z -> ℝ∈Iℚ z ai) (sym (absℝ-NonNeg-idem x 0≤x)) x∈ai
+          handle3 : ax.L -l ⊎ ax.U u -> ℝ∈Iℚ ax ai
+          handle3 (inj-r axU-u) = ax∈ai
             where
-            xL-l : x.L l
-            xL-l = ℝ≮0-L∀<0 x 0≤x l<0
-            x∈ai : ℝ∈Iℚ x ai
-            x∈ai = xL-l , xU-u
-          handle3 (inj-l xL--l) = ℝ∈Iℚ-⊆ ax bi⊆ai ax∈bi
+            axL-l : ax.L l
+            axL-l = ℝ≮0-L∀<0 ax (absℝ-≮0 x) l<0
+            ax∈ai : ℝ∈Iℚ ax ai
+            ax∈ai = axL-l , axU-u
+          handle3 (inj-l axL--l) = ℝ∈Iℚ-⊆ ax bi⊆ai ax∈bi
             where
             0<-l = minus-flips-<0 l<0
             bi = Iℚ-cons -l u imb-ai
@@ -550,18 +556,19 @@ module _ (x : ℝ)
             bi⊆ai = i⊆-cons (weaken-< (trans-< l<0 0<-l)) refl-≤
 
             xxL--l-l : xx.L (-l * -l)
-            xxL--l-l = unsquash (xx.isProp-L (-l * -l)) (∥-map handle4 x.Inhabited-U)
+            xxL--l-l = unsquash (xx.isProp-L (-l * -l)) (∥-map handle4 ax.Inhabited-U)
               where
-              handle4 : Σ[ u2 ∈ ℚ ] (x.U u2) -> xx.L (-l * -l)
-              handle4 (u2 , xU-u2) = (fst (subst (ℝ∈Iℚ xx) (sym (i²-NonNegI-path ci nn-ci)) xx∈cici))
+              handle4 : Σ[ u2 ∈ ℚ ] (ax.U u2) -> xx.L (-l * -l)
+              handle4 (u2 , axU-u2) = (fst (subst (ℝ∈Iℚ xx) (sym (i²-NonNegI-path ci nn-ci)) xx∈cici))
                 where
-                l<u2 = ℝ-bounds->ℚ< x _ _ xL--l xU-u2
+                l<u2 = ℝ-bounds->ℚ< ax _ _ axL--l axU-u2
                 ci = Iℚ-cons -l u2 (weaken-< l<u2)
                 nn-ci = 0≤-NonNeg -l (weaken-< 0<-l)
-                x∈ci : ℝ∈Iℚ x ci
-                x∈ci = xL--l , xU-u2
+                ax∈ci : ℝ∈Iℚ ax ci
+                ax∈ci = axL--l , axU-u2
                 xx∈cici : ℝ∈Iℚ xx (ci i* ci)
-                xx∈cici = ℝ∈Iℚ-* x x ci ci x∈ci x∈ci
+                xx∈cici = subst (\z -> ℝ∈Iℚ z (ci i* ci)) (sym (absℝ-square x))
+                                (ℝ∈Iℚ-* ax ax ci ci ax∈ci ax∈ci)
 
             xx∈bi² : ℝ∈Iℚ xx bi²
             xx∈bi² = xxL--l-l , xxU-uu
@@ -571,9 +578,7 @@ module _ (x : ℝ)
             ax∈bi = ℝ∈Iℚ-square-NonNeg⁻ bi nn-bi xx∈bibi
 
 
-
-module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) (y : ℝ) (y≮0 : y ≮ 0ℝ)
-         (ℝ∈Iℚ-square⁻ : (z : ℝ) (ai : Iℚ) -> (0≤z : 0ℝ ≤ z) -> ℝ∈Iℚ (z * z) (ai i* ai) -> ℝ∈Iℚ z ai)
+module _ (x : ℝ) (y : ℝ) (x≮0 : x ≮ 0ℝ) (y≮0 : y ≮ 0ℝ)
   where
   private
     xy = x * y
@@ -582,6 +587,8 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) (y : ℝ) (y≮0 : y ≮ 0ℝ)
     sx = (sqrtℝ x x≮0)
     sy = (sqrtℝ y y≮0)
     sxy = (sqrtℝ xy 0≤xy)
+    0≤sx = (sqrt-0≤ x x≮0)
+    0≤sy = (sqrt-0≤ y y≮0)
     0≤sxy = (sqrt-0≤ xy 0≤xy)
     sxsy = sx ℝ* sy
     module x = Real x
@@ -591,8 +598,12 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) (y : ℝ) (y≮0 : y ≮ 0ℝ)
     module sxsy = Real sxsy
 
 
-    ℝ∈Iℚ-sqrt-* : (xi yi : Iℚ) -> ℝ∈Iℚ sx xi -> ℝ∈Iℚ sy yi -> ℝ∈Iℚ sxy (xi i* yi)
-    ℝ∈Iℚ-sqrt-* xi yi sx∈xi sy∈yi = ℝ∈Iℚ-square⁻ sxy (xi i* yi) 0≤sxy xy∈2
+    ℝ∈Iℚ-sqrt-*-ImbalancedI : (xi yi : Iℚ) -> ℝ∈Iℚ sx xi -> ℝ∈Iℚ sy yi ->
+                              ImbalancedI xi -> ImbalancedI yi -> ℝ∈Iℚ sxy (xi i* yi)
+    ℝ∈Iℚ-sqrt-*-ImbalancedI xi yi sx∈xi sy∈yi imb-xi imb-yi =
+      subst (\z -> ℝ∈Iℚ z (xi i* yi)) (absℝ-NonNeg-idem sxy 0≤sxy)
+            (ℝ∈Iℚ-square-ImbalancedI⁻ sxy (xi i* yi) imb-xiyi xy∈2)
+
       where
       x∈xixi : ℝ∈Iℚ x (xi i* xi)
       x∈xixi = ℝ∈Iℚ-sqrt⁻ x x≮0 xi xi sx∈xi sx∈xi
@@ -606,9 +617,33 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) (y : ℝ) (y≮0 : y ≮ 0ℝ)
                                  sym (i*-assoc yi xi yi)) >=>
                   i*-assoc xi yi (xi i* yi)
       xy-split : xy == sxy * sxy
-      xy-split = sym (*-sqrt xy 0≤xy)
+      xy-split = sym (sqrt² xy 0≤xy)
+
+      imb-xiyi = i*-preserves-ImbalancedI xi yi imb-xi imb-yi
 
       xy∈1 : ℝ∈Iℚ xy ((xi i* xi) i* (yi i* yi))
       xy∈1 = ℝ∈Iℚ-* x y (xi i* xi) (yi i* yi) x∈xixi y∈yiyi
       xy∈2 : ℝ∈Iℚ (sxy * sxy) ((xi i* yi) i* (xi i* yi))
       xy∈2 = subst2 ℝ∈Iℚ xy-split xiyi-swap xy∈1
+
+
+    ℝ∈Iℚ-sqrt-*-split : (xi yi : Iℚ) -> ℝ∈Iℚ sx xi -> ℝ∈Iℚ sy yi -> ℝ∈Iℚ sxy (xi i* yi)
+    ℝ∈Iℚ-sqrt-*-split xi yi sx∈xi sy∈yi =
+      handle (ℝ∈Iℚ-≤0-ΣImbalancedI sx xi 0≤sx sx∈xi) (ℝ∈Iℚ-≤0-ΣImbalancedI sy yi 0≤sy sy∈yi)
+      where
+      handle : Σ[ ai ∈ Iℚ ] (ℝ∈Iℚ sx ai × ImbalancedI ai × ai i⊆ xi) ->
+               Σ[ bi ∈ Iℚ ] (ℝ∈Iℚ sy bi × ImbalancedI bi × bi i⊆ yi) ->
+               ℝ∈Iℚ sxy (xi i* yi)
+      handle (ai , sx∈ai , imb-ai , ai⊆xi) (bi , sy∈bi , imb-bi , bi⊆yi) =
+        ℝ∈Iℚ-⊆ sxy (i*-preserves-⊆ ai⊆xi bi⊆yi)
+          (ℝ∈Iℚ-sqrt-*-ImbalancedI ai bi sx∈ai sy∈bi imb-ai imb-bi)
+
+    ℝ∈Iℚ-sqrt-* : (ai : Iℚ) -> ℝ∈Iℚ sxsy ai -> ℝ∈Iℚ sxy ai
+    ℝ∈Iℚ-sqrt-* ai sxsy∈ai = unsquash (isProp-ℝ∈Iℚ sxy ai) (∥-map handle (ℝ∈Iℚ-*⁻ sx sy ai sxsy∈ai))
+      where
+      handle : Σ[ bi ∈ Iℚ ] Σ[ ci ∈ Iℚ ] (ℝ∈Iℚ sx bi × ℝ∈Iℚ sy ci × (bi i* ci) i⊆ ai) -> ℝ∈Iℚ sxy ai
+      handle (bi , ci , sx∈bi , sy∈ci , bici⊆ai) =
+        ℝ∈Iℚ-⊆ sxy bici⊆ai (ℝ∈Iℚ-sqrt-*-split bi ci sx∈bi sy∈ci)
+
+  sqrt-* : sxy == sxsy
+  sqrt-* = sym (ℝ∈Iℚ->path sxsy sxy ℝ∈Iℚ-sqrt-*)

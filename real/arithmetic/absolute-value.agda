@@ -437,6 +437,12 @@ abstract
       b⊆a = i⊆-cons l≤-u refl-≤
 
 
+  ℝ∈Iℚ-≤0-ΣImbalancedI : (x : ℝ) (a : Iℚ) -> (0ℝ ≤ x) -> ℝ∈Iℚ x a ->
+                         Σ[ b ∈ Iℚ ] (ℝ∈Iℚ x b × ImbalancedI b × b i⊆ a)
+  ℝ∈Iℚ-≤0-ΣImbalancedI x a 0≤x =
+    subst (\z -> ℝ∈Iℚ z a -> Σ[ b ∈ Iℚ ] (ℝ∈Iℚ z b × ImbalancedI b × b i⊆ a))
+          (absℝ-NonNeg-idem x 0≤x) (ℝ∈Iℚ-absℝ-ΣImbalancedI x a)
+
 
 ℝ∈Iℚ-absℝ⁻ : (x : ℝ) (a : Iℚ) -> ℝ∈Iℚ (absℝ x) a -> ∥ ℝ∈Iℚ x a ⊎ ℝ∈Iℚ x (i- a) ∥
 ℝ∈Iℚ-absℝ⁻ x a@(Iℚ-cons l u l≤u) (axl-l , (xl--u , xu-u)) = ∥-map handle axl-l
@@ -555,13 +561,3 @@ module _ (x y : ℝ) where
   abstract
     absℝ-distrib-* : absℝ (x ℝ* y) == absℝ x ℝ* absℝ y
     absℝ-distrib-* = sym (ℝ∈Iℚ->path axay axy f')
-
- --   absℝ-distrib-* : absℝ (x * y) == absℝ x * absℝ y
- --   absℝ-distrib-* = p1 >=> p2 >=> p3
- --     where
- --     p1 : absℝ (x ℝ* y) == absℝ (x ℝ*ᵉ y)
- --     p1 = cong absℝ (ℝ*-eval {x} {y})
- --     p2 : absℝ (x ℝ*ᵉ y) == absℝ x ℝ*ᵉ absℝ y
- --     p2 = absℝ-distrib-*ᵉ
- --     p3 : absℝ x ℝ*ᵉ absℝ y == absℝ x ℝ* absℝ y
- --     p3 = sym (ℝ*-eval {absℝ x} {absℝ y})
