@@ -342,7 +342,9 @@ i--extract-left : (a b : Iℚ) -> (i- a) i* b == i- (a i* b)
 i--extract-left a b =
   i*-commute (i- a) b >=> (i--extract-right b a) >=> cong i-_ (i*-commute b a)
 
-
+i--extract-both : (a b : Iℚ) -> (i- a) i* (i- b) == (a i* b)
+i--extract-both a b = i--extract-left a (i- b) >=> cong i-_ (i--extract-right a b) >=>
+                      i--double-inverse
 
 
 i-Lower : Iℚ -> Pred ℚ ℓ-zero

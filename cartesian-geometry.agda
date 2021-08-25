@@ -5,31 +5,33 @@ module cartesian-geometry where
 
 open import apartness
 open import base
-open import equality
 open import direct-product
+open import equality
+open import equivalence
 open import functions
 open import hlevel
 open import isomorphism
 open import order
 open import order.instances.real
 open import ordered-ring
+open import ordered-semiring
 open import ordered-semiring.instances.real
-open import real
-open import relation
 open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication
 open import real.arithmetic.multiplication.inverse
 open import real.arithmetic.order
 open import real.arithmetic.sqrt
+open import real.arithmetic.sqrt.base
 open import real.heyting-field
-open import set-quotient
+open import relation
+open import ring
+open import ring.implementations.real
 open import semiring
+open import set-quotient
 open import sigma
 open import truncation
 open import univalence
-open import ring.implementations.real
-open import ring
 open import vector-space
 
 
@@ -131,18 +133,58 @@ isUnitVector v = vector-length v == 1ℝ
 Direction : Type₁
 Direction = Σ Vector isUnitVector
 
+0<-square : (x : ℝ) -> (x # 0#) -> 0# < (x * x)
+0<-square x x#0 = handle (eqInv (<>-equiv-# x 0#) x#0)
+  where
+  handle : (x < 0# ⊎ 0# < x) -> 0# < (x * x)
+  handle (inj-l x<0) = subst (_< (x * x)) *-right-zero (*₁-flips-< x x 0# x<0 x<0)
+  handle (inj-r 0<x) = subst (_< (x * x)) *-right-zero (*₁-preserves-< x 0# x 0<x 0<x)
 
--- vector-length>0 : (v : Vector) -> (v v# 0v) -> (vector-length v > 0#)
--- vector-length>0 v v#0 = unsquash (isProp-< 0# (vector-length v)) (∥-map handle v#0)
---   where
---   x = (direct-product-index v x-axis)
---   y = (direct-product-index v y-axis)
---
---   handle : Σ[ a ∈ Axis ] (direct-product-index v a) # 0# -> (vector-length v > 0#)
---   handle (x-axis , x#0) = ?
---   handle (y-axis , y#0) = ?
+vector-length>0 : (v : Vector) -> (v v# 0v) -> (vector-length v > 0#)
+vector-length>0 v v#0 = unsquash (isProp-< 0# (vector-length v)) (∥-map handle v#0)
+  where
+  x = (direct-product-index v x-axis)
+  y = (direct-product-index v y-axis)
+  xx = x * x
+  yy = y * y
+  xxyy = xx + yy
+
+  handle-vl²>0 : (vector-length² v > 0#) -> (vector-length v > 0#)
+  handle-vl²>0 = sqrt-0< (vector-length² v) (vector-length²≮0 v)
 
 
+  handle : Σ[ a ∈ Axis ] (direct-product-index v a) # 0# -> (vector-length v > 0#)
+  handle (x-axis , x#0) = handle-vl²>0 (trans-<-≤ {d1 = 0ℝ} {xx} {xxyy}  0<xx xx≤xxyy)
+    where
+    0<xx : 0# < xx
+    0<xx = 0<-square x x#0
+    0≤yy : 0# ≤ yy
+    0≤yy = ≮0-square y
+    xx≤xxyy : xx ≤ xxyy
+    xx≤xxyy = subst (_≤ xxyy) +-right-zero (+₁-preserves-≤ xx 0# yy 0≤yy)
+  handle (y-axis , y#0) = handle-vl²>0 (trans-<-≤ {d1 = 0ℝ} {yy} {xxyy}  0<yy yy≤xxyy)
+    where
+    0<yy : 0# < yy
+    0<yy = 0<-square y y#0
+    0≤xx : 0# ≤ xx
+    0≤xx = ≮0-square x
+    yy≤xxyy : yy ≤ xxyy
+    yy≤xxyy = subst (_≤ xxyy) +-left-zero (+₂-preserves-≤ 0# xx yy 0≤xx)
+
+vector-length²-* : (k : ℝ) (v : Vector) -> vector-length² (k v* v) == (k * k) * vector-length² v
+vector-length²-* k v = p
+  where
+  x = (direct-product-index v x-axis)
+  y = (direct-product-index v y-axis)
+  kx = k * x
+  ky = k * y
+
+  swap-* : (z : ℝ) -> ((k * z) * (k * z)) == (k * k) * (z * z)
+  swap-* z = *-assoc >=> *-right (*-commute >=> *-assoc) >=> sym *-assoc
+
+  p : (kx * kx) + (ky * ky) == (k * k) * ((x * x) + (y * y))
+  p = cong2 _+_ (swap-* x) (swap-* y) >=>
+      sym *-distrib-+-left
 
 
 data SameSemiDirection : Rel Vector ℓ-one where

@@ -167,6 +167,11 @@ instance
     ; isProp-# = \x y -> ℝRing.isProp-isUnit
     }
 
+  ApartLinearOrderStr-ℝ : ApartLinearOrderStr TightApartnessStr-ℝ LinearOrderStr-ℝ
+  ApartLinearOrderStr-ℝ = record
+    { <>-equiv-# = ℝ#≃diff#
+    }
+
   ℝField : Field ℝRing TightApartnessStr-ℝ
   ℝField = record
     { f#-path = refl

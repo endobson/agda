@@ -401,13 +401,13 @@ abstract
   u≤-l : u ≤ (- l)
   u≤-l = (trans-ℚ≤ {u} (trans-ℚ≤ {u} u≤0 (minus-flips-≤0 u≤0)) (minus-flips-≤ l u l≤u))
 
-private
-  ℝ∈Iℚ-absℝ-ImbalancedI : (x : ℝ) (a : Iℚ) -> ImbalancedI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) a
-  ℝ∈Iℚ-absℝ-ImbalancedI x (Iℚ-cons l u l≤u) -l≤u (xl-l , xu-u) =
-    ∣ inj-l xl-l ∣ , (isLowerSet≤ x (- u) l -u≤l xl-l , xu-u)
-    where
-    -u≤l : (- u) ≤ l
-    -u≤l = subst ((- u) ≤_) minus-double-inverse (minus-flips-≤ (- l) u -l≤u)
+ℝ∈Iℚ-absℝ-ImbalancedI : (x : ℝ) (a : Iℚ) -> ImbalancedI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) a
+ℝ∈Iℚ-absℝ-ImbalancedI x (Iℚ-cons l u l≤u) -l≤u (xl-l , xu-u) =
+  ∣ inj-l xl-l ∣ , (isLowerSet≤ x (- u) l -u≤l xl-l , xu-u)
+  where
+  -u≤l : (- u) ≤ l
+  -u≤l = subst ((- u) ≤_) minus-double-inverse (minus-flips-≤ (- l) u -l≤u)
+
 
 abstract
   ℝ∈Iℚ-absℝ-ΣImbalancedI : (x : ℝ) (a : Iℚ) -> ℝ∈Iℚ (absℝ x) a ->

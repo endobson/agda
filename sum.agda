@@ -64,6 +64,14 @@ proj-r : ∀ {ℓ₁ ℓ₂} {A : Type ℓ₁} {B : Type ℓ₂} -> (s : A ⊎ B
 proj-r (inj-r b) _ = b
 proj-r (inj-l _) ()
 
+proj-¬l : (A ⊎ B) -> ¬ A -> B
+proj-¬l (inj-l a) ¬a = bot-elim (¬a a)
+proj-¬l (inj-r b) ¬a = b
+
+proj-¬r : (A ⊎ B) -> ¬ B -> A
+proj-¬r (inj-l a) ¬b = a
+proj-¬r (inj-r b) ¬b = bot-elim (¬b b)
+
 inj-l!=inj-r : ∀ {ℓ₁ ℓ₂} {A : Type ℓ₁} {B : Type ℓ₂} {a : A} {b : B}
                -> ¬(Path (A ⊎ B) (inj-l a) (inj-r b))
 inj-l!=inj-r p = transport (\i -> Left (p i)) tt

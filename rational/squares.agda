@@ -30,10 +30,10 @@ open import truncation
   handle (inj-l 0≤q) = subst2 _≤_ *-right-zero refl (*₁-preserves-≤ q 0r q 0≤q 0≤q)
   handle (inj-r q≤0) = subst2 _≤_ *-right-zero refl (*₁-flips-≤ q q 0r q≤0 q≤0)
 
-private
-  isSquareℚ : Pred ℚ ℓ-zero
-  isSquareℚ q = Σ[ r ∈ ℚ ] ((0r ≤ r) × r * r == q)
+isSquareℚ : Pred ℚ ℓ-zero
+isSquareℚ q = Σ[ r ∈ ℚ ] ((0r ≤ r) × r * r == q)
 
+private
   *₁-reflects-0< : {a b : ℚ} -> (0r < a) -> (0r < (a * b)) -> 0r < b
   *₁-reflects-0< {a} {b} 0<a 0<ab =
     unsquash (isProp-< _ _) (∥-map2 handle (comparison-< 0r b 1r 0<1r) (comparison-< 0r b bb 0<bb))
@@ -119,13 +119,30 @@ abstract
     handle (inj-l qq<qr) = *₁-reflects-<' 0≤q qq<qr
     handle (inj-r qr<rr) = *₂-reflects-<' 0≤r qr<rr
 
+  squares-ordered-< : {q r : ℚ} -> (0r ≤ r) -> (q * q) < (r * r) -> q < r
+  squares-ordered-< {q} {r} 0≤r qq<rr = handle (split-< q 0r)
+    where
+    handle : (q < 0r ⊎ 0r ≤ q) -> q < r
+    handle (inj-l q<0) = trans-<-≤ q<0 0≤r
+    handle (inj-r 0≤q) = squares-ordered 0≤q 0≤r qq<rr
+
+
+  squares-ordered-≤ : {q r : ℚ} -> (0r ≤ r) -> (q * q) ≤ (r * r) -> q ≤ r
+  squares-ordered-≤ {q} {r} 0≤r qq≤rr =
+    handle (split-< r q)
+    where
+
+    handle : (r < q) ⊎ (q ≤ r) -> q ≤ r
+    handle (inj-r q≤r) = q≤r
+    handle (inj-l r<q) = bot-elim (irrefl-< (trans-<-≤ (squares-ordered⁺ 0≤r r<q) qq≤rr))
+
 
 private
   +-preserves-≤-< : (a b c d : ℚ) -> a ≤ b -> c < d -> (a + c) < (b + d)
   +-preserves-≤-< a b c d a≤b c<d =
     trans-<-≤ (+₁-preserves-< a c d c<d) (+₂-preserves-≤ a b d a≤b)
 
-
+abstract
   squares-dense-0 : {q : ℚ} -> (0r < q) -> ∃[ s ∈ ℚ ] (isSquareℚ s × 0r < s × s < q)
   squares-dense-0 {q} 0<q = ∥-map handle (comparison-< 1/4r q 1r 1/4<1)
     where
@@ -140,6 +157,8 @@ private
       where
       0<qq = r*-Pos-Pos 0<q 0<q
       qq<q = (subst ((q * q) <_) *-right-one (*₁-preserves-< _ _ _ 0<q q<1))
+
+private
 
   squares-dense-1 : {q : ℚ} -> (1r < q) ->
                     ∃[ s ∈ ℚ ] (isSquareℚ s × 1r < s × s < q)

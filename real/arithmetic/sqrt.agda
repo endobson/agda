@@ -12,14 +12,17 @@ open import order.instances.real
 open import ordered-semiring
 open import ordered-ring
 open import ordered-semiring.instances.rational
+open import ordered-semiring.instances.real
 open import rational
 open import rational.proper-interval.abs
+open import rational.proper-interval.multiplication-assoc
 open import rational.proper-interval
 open import rational.order
 open import rational.minmax
 open import rational.squares
 open import real
 open import real.arithmetic
+open import real.arithmetic.sqrt.base
 open import real.arithmetic.multiplication
 open import real.arithmetic.absolute-value
 open import real.interval
@@ -30,157 +33,8 @@ open import ring.implementations.real
 open import semiring
 open import sign
 open import sign.instances.rational
+open import sum
 open import truncation
-
-
-module _ (x : ℝ) (x≮0 : x ≮ 0ℝ)
-  where
-  private
-    module x = Real x
-
-    U : Pred ℚ ℓ-zero
-    U q = (0r ≤ q) × (x.U (q * q))
-
-    L : Pred ℚ ℓ-zero
-    L q = (Neg q) ⊎ ((0r ≤ q) × (x.L (q * q)))
-
-    isProp-U : isPropValuedPred U
-    isProp-U q = isProp× (isProp-≤ 0r q) (x.isProp-U (q * q))
-
-    isProp-L : isPropValuedPred L
-    isProp-L q = isProp⊎ (isProp-Neg q) (isProp× (isProp-≤ 0r q) (x.isProp-L (q * q)))
-                 (\n (0≤q , _) -> (NonNeg->¬Neg (0≤-NonNeg q 0≤q) n))
-
-    disjoint : Universal (Comp (L ∩ U))
-    disjoint q (inj-l nq , (0≤q , _)) = (NonNeg->¬Neg (0≤-NonNeg q 0≤q) nq)
-    disjoint q (inj-r (_ , lqq) , (_ , uqq)) = x.disjoint (q * q) (lqq , uqq)
-
-    Inhabited-L : Inhabited L
-    Inhabited-L = ∣ (- 1r) , (inj-l (minus-flips-0< 0<1r)) ∣
-
-    Inhabited-U : Inhabited U
-    Inhabited-U = ∥-map handle x.Inhabited-U
-      where
-      handle : Σ ℚ x.U -> Σ ℚ U
-      handle (q , xu-q) = handle2 (split-< q 1r)
-        where
-        handle2 : (q < 1r ⊎ 1r ≤ q) -> Σ ℚ U
-        handle2 (inj-l q<1) = 1r , (weaken-< 0<1r , x.isUpperSet-U q _ q<1*1 xu-q)
-          where
-          q<1*1 = subst (q <_) (sym *-right-one) q<1
-        handle2 (inj-r 1≤q) = q , (0≤q , (isUpperSet≤ x q _ q<q*q xu-q))
-          where
-          0≤q = trans-≤ (weaken-< 0<1r) 1≤q
-          q<q*q = subst (_≤ (q * q)) *-right-one (*₁-preserves-≤ q 1r q 0≤q 1≤q)
-
-    isUpperSet-U : isUpperSet U
-    isUpperSet-U q r q<r (0≤q , xu-qq) =
-      (weaken-< 0<r , x.isUpperSet-U (q * q) (r * r) qq<rr xu-qq)
-      where
-      0<r = trans-≤-< 0≤q q<r
-      qq<rr : (q * q) < (r * r)
-      qq<rr = trans-≤-< (*₁-preserves-≤ q q r 0≤q (weaken-< q<r)) (*₂-preserves-< q r r q<r 0<r)
-
-    isLowerSet-L : isLowerSet L
-    isLowerSet-L q r q<r (inj-l r<0) = (inj-l (trans-< q<r r<0))
-    isLowerSet-L q r q<r (inj-r (0≤r , xu-rr)) = handle (split-< q 0r)
-      where
-      handle : (q < 0r ⊎ 0r ≤ q) -> L q
-      handle (inj-l q<0) = (inj-l q<0)
-      handle (inj-r 0≤q) = (inj-r (0≤q , isLowerSet≤ x (q * q) (r * r) qq≤rr xu-rr))
-        where
-        q≤r = weaken-< q<r
-        qq≤rr : (q * q) ≤ (r * r)
-        qq≤rr = trans-≤ (*₁-preserves-≤ q q r 0≤q q≤r) (*₂-preserves-≤ q r r q≤r 0≤r)
-
-
-    isLowerOpen-U : isLowerOpen U
-    isLowerOpen-U q (0≤q , xu-qq) = ∥-bind handle (x.isLowerOpen-U qq xu-qq)
-      where
-      qq = (q * q)
-      handle : Σ[ r ∈ ℚ ] (r < qq × x.U r) -> ∃[ r ∈ ℚ ] (r < q × U r)
-      handle (r , (r<qq , xu-r)) = handle2 (split-< 0r r)
-        where
-        handle2 : (0r < r ⊎ r ≤ 0r) -> ∃[ r ∈ ℚ ] (r < q × U r)
-        handle2 (inj-r r≤0) = bot-elim (x≮0 x<0)
-          where
-          handle3 : Σ[ s ∈ ℚ ] (s < r × x.U s) -> x ℝ<' 0ℝ
-          handle3 (s , s<r , xu-s) = (s , xu-s , trans-<-≤ s<r r≤0)
-
-          x<0 : x < 0ℝ
-          x<0 = ∥-map handle3 (x.isLowerOpen-U r xu-r)
-        handle2 (inj-l 0<r) = ∥-map handle3 (squares-dense-upper-square 0<r 0≤q r<qq)
-          where
-          handle3 : _ -> Σ[ r ∈ ℚ ] (r < q × U r)
-          handle3 (s , (t , 0≤t , tt=s) , r<s , s<qq) =
-            t , (squares-ordered 0≤t 0≤q tt<qq)
-              , 0≤t , subst x.U (sym tt=s) (x.isUpperSet-U r s r<s xu-r)
-            where
-            tt<qq : (t * t) < (q * q)
-            tt<qq = subst (_< (q * q)) (sym tt=s) s<qq
-
-    isUpperOpen-L : isUpperOpen L
-    isUpperOpen-L q (inj-l q<0) = ∣ 1/2r * q , q<1/2q , inj-l 1/2q<0 ∣
-      where
-      q<1/2q = subst2 _<_ *-left-one refl (*₂-flips-< 1/2r 1r q 1/2r<1r q<0)
-      1/2q<0 = subst2 _<_ refl *-right-zero (*₁-preserves-< 1/2r q 0r Pos-1/2r q<0)
-
-    isUpperOpen-L q (inj-r (0≤q , xl-qq)) = ∥-bind handle (x.isUpperOpen-L qq xl-qq)
-      where
-      qq = (q * q)
-      handle : Σ[ r ∈ ℚ ] (qq < r × x.L r) -> ∃[ r ∈ ℚ ] (q < r × L r)
-      handle (r , (qq<r , xl-r)) = ∥-map handle2 (squares-dense-lower-square 0≤q qq<r)
-        where
-        0≤qq : 0r ≤ qq
-        0≤qq = *-preserves-0≤ _ _ 0≤q 0≤q
-
-        handle2 : _ -> Σ[ r ∈ ℚ ] (q < r × L r)
-        handle2 (s , (t , 0≤t , tt=s) , qq<s , s<r) =
-          t , (squares-ordered 0≤q 0≤t (subst2 _<_ refl (sym tt=s) qq<s)) ,
-          inj-r (0≤t , subst x.L (sym tt=s) (x.isLowerSet-L s r s<r xl-r))
-
-    located : (q r : ℚ) -> q < r -> ∥ L q ⊎ U r ∥
-    located q r q<r = handle (split-< q 0r)
-      where
-      handle : (q < 0r ⊎ 0r ≤ q) -> ∥ L q ⊎ U r ∥
-      handle (inj-l q<0) = ∣ inj-l (inj-l q<0) ∣
-      handle (inj-r 0≤q) = ∥-map handle2 (x.located qq rr qq<rr)
-        where
-        qq = (q * q)
-        rr = (r * r)
-
-        0<r = trans-≤-< 0≤q q<r
-        0≤r = weaken-< 0<r
-
-        qq<rr : qq < rr
-        qq<rr = squares-ordered⁺ 0≤q q<r
-
-        handle2 : x.L qq ⊎ x.U rr -> L q ⊎ U r
-        handle2 (inj-l xl-qq) = inj-l (inj-r (0≤q , xl-qq))
-        handle2 (inj-r xu-rr) = inj-r (0≤r , xu-rr)
-
-  sqrtℝᵉ : ℝ
-  sqrtℝᵉ = record
-    { L = L
-    ; U = U
-    ; isProp-L = isProp-L
-    ; isProp-U = isProp-U
-    ; Inhabited-L = Inhabited-L
-    ; Inhabited-U = Inhabited-U
-    ; isLowerSet-L = isLowerSet-L
-    ; isUpperSet-U = isUpperSet-U
-    ; isUpperOpen-L = isUpperOpen-L
-    ; isLowerOpen-U = isLowerOpen-U
-    ; disjoint = disjoint
-    ; located = located
-    }
-
-  abstract
-    sqrtℝ : ℝ
-    sqrtℝ = sqrtℝᵉ
-
-    sqrtℝ-eval : sqrtℝ == sqrtℝᵉ
-    sqrtℝ-eval = refl
 
 module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
   ≮0-sqrtᵉ : (sqrtℝᵉ x x≮0) ≮ 0ℝ
@@ -207,131 +61,6 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
 ℚ∈Iℚ-i-intersect₂ q a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) o (il≤q , q≤iu) =
   trans-≤ (maxℚ-≤-right al bl) il≤q , trans-≤ q≤iu (minℚ-≤-right au bu)
 
-
-module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
-  private
-    sx = (sqrtℝᵉ x x≮0)
-    sxsx = sx ℝ*ᵉ sx
-    module x = Real x
-    module sx = Real sx
-    module sxsx = Real sxsx
-
-    ℝ∈Iℚ-sqrt⁻ : (xi yi : Iℚ) -> ℝ∈Iℚ sx xi -> ℝ∈Iℚ sx yi -> ℝ∈Iℚ x (xi i* yi)
-    ℝ∈Iℚ-sqrt⁻ xi@(Iℚ-cons xl xu xl≤xu) yi@(Iℚ-cons yl yu yl≤yu)
-               sx∈xi@(sx-lx , sx-ux) sx∈yi@(sx-ly , sx-uy) = x-l1 , x-u2
-      where
-      xyi-o = ℝ∈Iℚ->Overlap sx xi yi sx∈xi sx∈yi
-      xyi = i-intersect xi yi xyi-o
-      sx∈xyi = ℝ∈Iℚ-intersect sx xi yi sx∈xi sx∈yi
-      xyi-l = Iℚ.l xyi
-      xyi-u = Iℚ.u xyi
-      xyi-l≤u = Iℚ.l≤u xyi
-
-      xiyi = xi i* yi
-      xiyi-l = Iℚ.l xiyi
-      xiyi-u = Iℚ.u xiyi
-
-      0<xu : 0r < xu
-      0<xu = strengthen-ℚ≤-≠ (fst sx-ux) 0!=xu
-        where
-        0!=xu : 0r != xu
-        0!=xu 0=xu = ℝ≮0-¬U0 sx (≮0-sqrtᵉ x x≮0) (subst sx.U (sym 0=xu) sx-ux)
-
-      0<yu : 0r < yu
-      0<yu = strengthen-ℚ≤-≠ (fst sx-uy) 0!=yu
-        where
-        0!=yu : 0r != yu
-        0!=yu 0=yu = ℝ≮0-¬U0 sx (≮0-sqrtᵉ x x≮0) (subst sx.U (sym 0=yu) sx-uy)
-
-      x-u1 : x.U (xyi-u * xyi-u)
-      x-u1 = snd (snd sx∈xyi)
-
-      xyi-u²∈xiyi : ℚ∈Iℚ (xyi-u * xyi-u) xiyi
-      xyi-u²∈xiyi = ℚ∈Iℚ-* xyi-u xyi-u xi yi ∈xi ∈yi
-        where
-        ∈xi : ℚ∈Iℚ xyi-u xi
-        ∈xi = ℚ∈Iℚ-i-intersect₁ xyi-u xi yi xyi-o (xyi-l≤u , refl-≤)
-        ∈yi : ℚ∈Iℚ xyi-u yi
-        ∈yi = ℚ∈Iℚ-i-intersect₂ xyi-u xi yi xyi-o (xyi-l≤u , refl-≤)
-
-      x-u2 : x.U xiyi-u
-      x-u2 = isUpperSet≤ x (xyi-u * xyi-u) xiyi-u (snd xyi-u²∈xiyi) x-u1
-
-      x-l1 : x.L xiyi-l
-      x-l1 = handle (fst sx∈xi) (fst sx∈yi)
-        where
-        handle : (xl < 0r ⊎ ((0r ≤ xl) × (x.L (xl * xl)))) ->
-                 (yl < 0r ⊎ ((0r ≤ yl) × (x.L (yl * yl)))) ->
-                 x.L xiyi-l
-        handle (inj-l xl<0) _ = ℝ≮0-L∀<0 x x≮0 xiyi-l<0
-          where
-          xl∈xi : ℚ∈Iℚ xl xi
-          xl∈xi = refl-≤ , xl≤xu
-          yu∈yi : ℚ∈Iℚ yu yi
-          yu∈yi = yl≤yu , refl-≤
-          xlyu<0 : (xl * yu) < 0r
-          xlyu<0 = r*-Neg-Pos xl<0 0<yu
-
-          xiyi-l≤xlyu : xiyi-l ≤ (xl * yu)
-          xiyi-l≤xlyu = fst (ℚ∈Iℚ-* xl yu xi yi xl∈xi yu∈yi)
-          xiyi-l<0 = trans-≤-< xiyi-l≤xlyu xlyu<0
-        handle (inj-r _) (inj-l yl<0) = ℝ≮0-L∀<0 x x≮0 xiyi-l<0
-          where
-          xu∈xi : ℚ∈Iℚ xu xi
-          xu∈xi = xl≤xu , refl-≤
-          yl∈yi : ℚ∈Iℚ yl yi
-          yl∈yi = refl-≤ , yl≤yu
-          xuyl<0 : (xu * yl) < 0r
-          xuyl<0 = r*-Pos-Neg 0<xu yl<0
-
-          xiyi-l≤xuyl : xiyi-l ≤ (xu * yl)
-          xiyi-l≤xuyl = fst (ℚ∈Iℚ-* xu yl xi yi xu∈xi yl∈yi)
-          xiyi-l<0 = trans-≤-< xiyi-l≤xuyl xuyl<0
-
-        handle (inj-r (0≤xl , xL-xl²)) (inj-r (0≤yl , xL-yl²)) =
-          isLowerSet≤ x xiyi-l (xyi-l * xyi-l) (fst xyi-l²∈xiyi) x-l2
-          where
-
-          x-l2 : x.L (xyi-l * xyi-l)
-          x-l2 = maxℚ-property {P = \z -> x.L (z * z)} xl yl xL-xl² xL-yl²
-
-          xyi-l²∈xiyi : ℚ∈Iℚ (xyi-l * xyi-l) xiyi
-          xyi-l²∈xiyi = ℚ∈Iℚ-* xyi-l xyi-l xi yi ∈xi ∈yi
-            where
-            ∈xi : ℚ∈Iℚ xyi-l xi
-            ∈xi = ℚ∈Iℚ-i-intersect₁ xyi-l xi yi xyi-o (refl-≤ , xyi-l≤u)
-            ∈yi : ℚ∈Iℚ xyi-l yi
-            ∈yi = ℚ∈Iℚ-i-intersect₂ xyi-l xi yi xyi-o (refl-≤ , xyi-l≤u)
-
-
-
-    *-sqrtᵉ : sxsx == x
-    *-sqrtᵉ = ℝ∈Iℚ->path (sx ℝ*ᵉ sx) x f
-      where
-      f : (a : Iℚ) -> ℝ∈Iℚ sxsx a -> ℝ∈Iℚ x a
-      f a@(Iℚ-cons l u l≤u) (sxsx-lq , sxsx-uq) =
-        unsquash (isProp-ℝ∈Iℚ x a) (∥-map2 handle sxsx-lq sxsx-uq)
-        where
-        handle : Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ sx xi × ℝ∈Iℚ sx yi × i-Lower (xi i* yi) l) ->
-                 Σ[ zi ∈ Iℚ ] Σ[ wi ∈ Iℚ ] (ℝ∈Iℚ sx zi × ℝ∈Iℚ sx wi × i-Upper (zi i* wi) u) ->
-                 ℝ∈Iℚ x a
-        handle (xi , yi , sx∈xi , sx∈yi , l≤xyi) (zi , wi , sx∈zi , sx∈wi , zwi≤u) =
-          isLowerSet≤ x l (Iℚ.l xyi) l≤xyi (fst x∈xyi) ,
-          isUpperSet≤ x (Iℚ.u zwi) u zwi≤u (snd x∈zwi)
-          where
-          xyi = xi i* yi
-          x∈xyi : ℝ∈Iℚ x xyi
-          x∈xyi = ℝ∈Iℚ-sqrt⁻ xi yi sx∈xi sx∈yi
-
-          zwi = zi i* wi
-          x∈zwi : ℝ∈Iℚ x (zi i* wi)
-          x∈zwi = ℝ∈Iℚ-sqrt⁻ zi wi sx∈zi sx∈wi
-
-  abstract
-    *-sqrt : (sqrtℝ x x≮0) * (sqrtℝ x x≮0) == x
-    *-sqrt = cong2 _ℝ*_ (sqrtℝ-eval x x≮0) (sqrtℝ-eval x x≮0) >=>
-             ℝ*-eval {sx} {sx} >=>
-             *-sqrtᵉ
 
 private
   module _ (x : ℝ) where
@@ -367,6 +96,51 @@ private
 abstract
   ≮0-square : (x : ℝ) -> (x * x) ≮ 0ℝ
   ≮0-square x = subst (_≮ 0ℝ) (sym (ℝ*-eval {x} {x})) (≮0-squareᵉ x)
+
+module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
+  private
+    sx = sqrtℝ x x≮0
+    sxᵉ = sqrtℝᵉ x x≮0
+    module x = Real x
+    module sx = Real sx
+    module sxᵉ = Real sxᵉ
+
+    sqrt-0<ᵉ : (0<x : 0ℝ < x) -> 0ℝ < sxᵉ
+    sqrt-0<ᵉ 0<x = ∥-bind handle 0<x
+      where
+      handle : Σ[ q ∈ ℚ ] (Pos q × x.L q) -> ∃[ q ∈ ℚ ] (Pos q × sxᵉ.L q)
+      handle (q , 0<q , xL-q) = ∥-map handle2 (squares-dense-0 0<q)
+        where
+        handle2 : Σ[ s ∈ ℚ ] (isSquareℚ s × 0r < s × s < q) -> Σ[ q ∈ ℚ ] (Pos q × sxᵉ.L q)
+        handle2 (s , (t , 0≤t , tt=s) , 0<s , s<q) =
+          t , strengthen-ℚ≤-≠ 0≤t 0!=t ,
+          inj-r (0≤t , (subst x.L (sym tt=s) (x.isLowerSet-L s q s<q xL-q)))
+          where
+          0!=t : 0r != t
+          0!=t 0=t = <->!= 0<s (sym *-right-zero >=> *-right 0=t >=> tt=s)
+
+  abstract
+    sqrt-0< : (0<x : 0ℝ < x) -> 0ℝ < sx
+    sqrt-0< 0<x = subst (0ℝ <_) (sym (sqrtℝ-eval x x≮0)) (sqrt-0<ᵉ 0<x)
+
+module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
+  private
+    sx = sqrtℝ x x≮0
+    sxᵉ = sqrtℝᵉ x x≮0
+    module x = Real x
+    module sx = Real sx
+    module sxᵉ = Real sxᵉ
+
+    sqrt-0≤ᵉ : sxᵉ ≮ 0ℝ
+    sqrt-0≤ᵉ sx<0 = unsquash isPropBot (∥-map handle sx<0)
+      where
+      handle : Σ[ q ∈ ℚ ] (sxᵉ.U q × q < 0r) -> Bot
+      handle (q , sxU-q , q<0) = sxᵉ.disjoint q (inj-l q<0 , sxU-q)
+
+  abstract
+    sqrt-0≤ : 0ℝ ≤ sx
+    sqrt-0≤ = subst (0ℝ ≤_) (sym (sqrtℝ-eval x x≮0)) sqrt-0≤ᵉ
+
 
 module _ (x : ℝ) where
   private
@@ -487,3 +261,354 @@ module _ (x : ℝ) where
              cong2-dep sqrtℝᵉ (ℝ*-eval {x} {x})
                               (isProp->PathP (\_ -> (isProp¬ _)) (≮0-square x) (≮0-squareᵉ x)) >=>
              sqrt-*ᵉ (≮0-squareᵉ x)
+
+module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
+  private
+    sx = (sqrtℝᵉ x x≮0)
+    sxsx = sx ℝ*ᵉ sx
+    module x = Real x
+    module sx = Real sx
+    module sxsx = Real sxsx
+
+    ℝ∈Iℚ-sqrtᵉ⁻ : (xi yi : Iℚ) -> ℝ∈Iℚ sx xi -> ℝ∈Iℚ sx yi -> ℝ∈Iℚ x (xi i* yi)
+    ℝ∈Iℚ-sqrtᵉ⁻ xi@(Iℚ-cons xl xu xl≤xu) yi@(Iℚ-cons yl yu yl≤yu)
+                sx∈xi@(sx-lx , sx-ux) sx∈yi@(sx-ly , sx-uy) = x-l1 , x-u2
+      where
+      xyi-o = ℝ∈Iℚ->Overlap sx xi yi sx∈xi sx∈yi
+      xyi = i-intersect xi yi xyi-o
+      sx∈xyi = ℝ∈Iℚ-intersect sx xi yi sx∈xi sx∈yi
+      xyi-l = Iℚ.l xyi
+      xyi-u = Iℚ.u xyi
+      xyi-l≤u = Iℚ.l≤u xyi
+
+      xiyi = xi i* yi
+      xiyi-l = Iℚ.l xiyi
+      xiyi-u = Iℚ.u xiyi
+
+      0<xu : 0r < xu
+      0<xu = strengthen-ℚ≤-≠ (fst sx-ux) 0!=xu
+        where
+        0!=xu : 0r != xu
+        0!=xu 0=xu = ℝ≮0-¬U0 sx (≮0-sqrtᵉ x x≮0) (subst sx.U (sym 0=xu) sx-ux)
+
+      0<yu : 0r < yu
+      0<yu = strengthen-ℚ≤-≠ (fst sx-uy) 0!=yu
+        where
+        0!=yu : 0r != yu
+        0!=yu 0=yu = ℝ≮0-¬U0 sx (≮0-sqrtᵉ x x≮0) (subst sx.U (sym 0=yu) sx-uy)
+
+      x-u1 : x.U (xyi-u * xyi-u)
+      x-u1 = snd (snd sx∈xyi)
+
+      xyi-u²∈xiyi : ℚ∈Iℚ (xyi-u * xyi-u) xiyi
+      xyi-u²∈xiyi = ℚ∈Iℚ-* xyi-u xyi-u xi yi ∈xi ∈yi
+        where
+        ∈xi : ℚ∈Iℚ xyi-u xi
+        ∈xi = ℚ∈Iℚ-i-intersect₁ xyi-u xi yi xyi-o (xyi-l≤u , refl-≤)
+        ∈yi : ℚ∈Iℚ xyi-u yi
+        ∈yi = ℚ∈Iℚ-i-intersect₂ xyi-u xi yi xyi-o (xyi-l≤u , refl-≤)
+
+      x-u2 : x.U xiyi-u
+      x-u2 = isUpperSet≤ x (xyi-u * xyi-u) xiyi-u (snd xyi-u²∈xiyi) x-u1
+
+      x-l1 : x.L xiyi-l
+      x-l1 = handle (fst sx∈xi) (fst sx∈yi)
+        where
+        handle : (xl < 0r ⊎ ((0r ≤ xl) × (x.L (xl * xl)))) ->
+                 (yl < 0r ⊎ ((0r ≤ yl) × (x.L (yl * yl)))) ->
+                 x.L xiyi-l
+        handle (inj-l xl<0) _ = ℝ≮0-L∀<0 x x≮0 xiyi-l<0
+          where
+          xl∈xi : ℚ∈Iℚ xl xi
+          xl∈xi = refl-≤ , xl≤xu
+          yu∈yi : ℚ∈Iℚ yu yi
+          yu∈yi = yl≤yu , refl-≤
+          xlyu<0 : (xl * yu) < 0r
+          xlyu<0 = r*-Neg-Pos xl<0 0<yu
+
+          xiyi-l≤xlyu : xiyi-l ≤ (xl * yu)
+          xiyi-l≤xlyu = fst (ℚ∈Iℚ-* xl yu xi yi xl∈xi yu∈yi)
+          xiyi-l<0 = trans-≤-< xiyi-l≤xlyu xlyu<0
+        handle (inj-r _) (inj-l yl<0) = ℝ≮0-L∀<0 x x≮0 xiyi-l<0
+          where
+          xu∈xi : ℚ∈Iℚ xu xi
+          xu∈xi = xl≤xu , refl-≤
+          yl∈yi : ℚ∈Iℚ yl yi
+          yl∈yi = refl-≤ , yl≤yu
+          xuyl<0 : (xu * yl) < 0r
+          xuyl<0 = r*-Pos-Neg 0<xu yl<0
+
+          xiyi-l≤xuyl : xiyi-l ≤ (xu * yl)
+          xiyi-l≤xuyl = fst (ℚ∈Iℚ-* xu yl xi yi xu∈xi yl∈yi)
+          xiyi-l<0 = trans-≤-< xiyi-l≤xuyl xuyl<0
+
+        handle (inj-r (0≤xl , xL-xl²)) (inj-r (0≤yl , xL-yl²)) =
+          isLowerSet≤ x xiyi-l (xyi-l * xyi-l) (fst xyi-l²∈xiyi) x-l2
+          where
+
+          x-l2 : x.L (xyi-l * xyi-l)
+          x-l2 = maxℚ-property {P = \z -> x.L (z * z)} xl yl xL-xl² xL-yl²
+
+          xyi-l²∈xiyi : ℚ∈Iℚ (xyi-l * xyi-l) xiyi
+          xyi-l²∈xiyi = ℚ∈Iℚ-* xyi-l xyi-l xi yi ∈xi ∈yi
+            where
+            ∈xi : ℚ∈Iℚ xyi-l xi
+            ∈xi = ℚ∈Iℚ-i-intersect₁ xyi-l xi yi xyi-o (refl-≤ , xyi-l≤u)
+            ∈yi : ℚ∈Iℚ xyi-l yi
+            ∈yi = ℚ∈Iℚ-i-intersect₂ xyi-l xi yi xyi-o (refl-≤ , xyi-l≤u)
+
+
+
+    *-sqrtᵉ : sxsx == x
+    *-sqrtᵉ = ℝ∈Iℚ->path (sx ℝ*ᵉ sx) x f
+      where
+      f : (a : Iℚ) -> ℝ∈Iℚ sxsx a -> ℝ∈Iℚ x a
+      f a@(Iℚ-cons l u l≤u) (sxsx-lq , sxsx-uq) =
+        unsquash (isProp-ℝ∈Iℚ x a) (∥-map2 handle sxsx-lq sxsx-uq)
+        where
+        handle : Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ sx xi × ℝ∈Iℚ sx yi × i-Lower (xi i* yi) l) ->
+                 Σ[ zi ∈ Iℚ ] Σ[ wi ∈ Iℚ ] (ℝ∈Iℚ sx zi × ℝ∈Iℚ sx wi × i-Upper (zi i* wi) u) ->
+                 ℝ∈Iℚ x a
+        handle (xi , yi , sx∈xi , sx∈yi , l≤xyi) (zi , wi , sx∈zi , sx∈wi , zwi≤u) =
+          isLowerSet≤ x l (Iℚ.l xyi) l≤xyi (fst x∈xyi) ,
+          isUpperSet≤ x (Iℚ.u zwi) u zwi≤u (snd x∈zwi)
+          where
+          xyi = xi i* yi
+          x∈xyi : ℝ∈Iℚ x xyi
+          x∈xyi = ℝ∈Iℚ-sqrtᵉ⁻ xi yi sx∈xi sx∈yi
+
+          zwi = zi i* wi
+          x∈zwi : ℝ∈Iℚ x (zi i* wi)
+          x∈zwi = ℝ∈Iℚ-sqrtᵉ⁻ zi wi sx∈zi sx∈wi
+
+  abstract
+    ℝ∈Iℚ-sqrt⁻ : (xi yi : Iℚ) -> ℝ∈Iℚ (sqrtℝ x x≮0) xi -> ℝ∈Iℚ (sqrtℝ x x≮0) yi -> ℝ∈Iℚ x (xi i* yi)
+    ℝ∈Iℚ-sqrt⁻ xi yi sx∈xi sx∈yi = ℝ∈Iℚ-sqrtᵉ⁻ xi yi sx∈xi' sx∈yi'
+      where
+      sx∈xi' = subst (\x -> ℝ∈Iℚ x xi) (sqrtℝ-eval x x≮0) sx∈xi
+      sx∈yi' = subst (\x -> ℝ∈Iℚ x yi) (sqrtℝ-eval x x≮0) sx∈yi
+
+    *-sqrt : (sqrtℝ x x≮0) * (sqrtℝ x x≮0) == x
+    *-sqrt = cong2 _ℝ*_ (sqrtℝ-eval x x≮0) (sqrtℝ-eval x x≮0) >=>
+             ℝ*-eval {sx} {sx} >=>
+             *-sqrtᵉ
+
+private
+  split-ℝ∈Iℚ-0≤ : (x : ℝ) (ai : Iℚ) -> ℝ∈Iℚ x ai -> 0ℝ ≤ x ->
+                  ∃[ bi ∈ Iℚ ] (ℝ∈Iℚ x bi × bi i⊆ ai × (BalancedI bi ⊎ NonNegI bi))
+  split-ℝ∈Iℚ-0≤ x ai@(Iℚ-cons l u l≤u) x∈ai 0≤x = handle (split-< l 0r) (split-< u -l)
+    where
+    module x = Real x
+    -l = - l
+    -u = - u
+    0<u : 0r < u
+    0<u = proj-¬r (split-< 0r u) ¬u≤0
+      where
+      ¬u≤0 : ¬ (u ≤ 0r)
+      ¬u≤0 u≤0 = ℝ≮0-¬U0 x 0≤x (isUpperSet≤ x u 0r u≤0 (snd x∈ai))
+
+    Ans = Σ[ bi ∈ Iℚ ] (ℝ∈Iℚ x bi × bi i⊆ ai × (BalancedI bi ⊎ NonNegI bi))
+    Ans' = ∥ Ans ∥
+    handle : (l < 0r ⊎ 0r ≤ l) -> (u < -l ⊎ -l ≤ u) -> Ans'
+    handle (inj-r 0≤l) _            = ∣ ai , x∈ai , (i⊆-cons refl-≤ refl-≤) , inj-r (0≤-NonNeg l 0≤l) ∣
+    handle (inj-l l<0) (inj-r -l≤u) = ∥-map handle2 (x.located 0r -l 0<-l)
+      where
+      0<-l = minus-flips-<0 l<0
+      handle2 : (x.L 0r ⊎ x.U -l) -> Ans
+      handle2 (inj-l xL-0) = bi , (xL-0 , snd x∈ai) , i⊆-cons (weaken-< l<0) refl-≤ ,
+                             inj-r (0≤-NonNeg 0r refl-≤)
+        where
+        bi = Iℚ-cons 0r u (weaken-< (trans-<-≤ 0<-l -l≤u))
+      handle2 (inj-r xU--l) = bi , (fst x∈ai , xU--l) , i⊆-cons refl-≤ -l≤u , inj-l refl
+        where
+        bi = Iℚ-cons l -l (weaken-< (trans-< l<0 0<-l))
+    handle (inj-l l<0) (inj-l u<-l) = ∥-map handle2 (x.located -u 0r -u<0)
+      where
+      l<-u = subst (_< -u) minus-double-inverse (minus-flips-< _ _ u<-l)
+      -u<0 = minus-flips-0< 0<u
+      handle2 : (x.L -u ⊎ x.U 0r) -> Ans
+      handle2 (inj-l xL--u) = bi , (xL--u , snd x∈ai) , i⊆-cons (weaken-< l<-u) refl-≤ ,
+                              inj-l minus-double-inverse
+        where
+        bi = Iℚ-cons -u u (weaken-< (trans-< -u<0 0<u))
+      handle2 (inj-r xU-0) = bot-elim (ℝ≮0-¬U0 x 0≤x xU-0)
+
+
+module _ (x : ℝ)
+  where
+  private
+    xx = x ℝ* x
+    ax = absℝ x
+    mx = - x
+    module x = Real x
+    module ax = Real ax
+    module xx = Real xx
+
+
+    ℝ∈Iℚ-square-NonNeg⁻ : (ai : Iℚ) -> NonNegI ai -> ℝ∈Iℚ xx (ai i* ai) -> ℝ∈Iℚ ax ai
+    ℝ∈Iℚ-square-NonNeg⁻ ai nn-ai xx∈aiai =
+      unsquash (isProp-ℝ∈Iℚ ax ai) (∥-map handle (ℝ∈Iℚ-*⁻ x x (ai i* ai) xx∈aiai))
+      where
+      handle : Σ[ bi ∈ Iℚ ] Σ[ ci ∈ Iℚ ] (ℝ∈Iℚ x bi × ℝ∈Iℚ x ci × (bi i* ci) i⊆ (ai i* ai)) ->
+               ℝ∈Iℚ ax ai
+      handle (bi , ci , x∈bi , x∈ci , bici⊆aiai) = handle2 (ImbalancedI-i- bci)
+        where
+        bci-o = ℝ∈Iℚ->Overlap x bi ci x∈bi x∈ci
+        bci = i-intersect bi ci bci-o
+        mbci = i- bci
+        x∈bci = ℝ∈Iℚ-intersect x bi ci x∈bi x∈ci
+
+        bci⊆bi = i-intersect-⊆₁ bi ci bci-o
+        bci⊆ci = i-intersect-⊆₂ bi ci bci-o
+        bcibci⊆bici = i*-preserves-⊆ bci⊆bi bci⊆ci
+        bcibci⊆aiai = trans-i⊆ bcibci⊆bici bici⊆aiai
+
+        mbci²=bci² : mbci i* mbci == (bci i* bci)
+        mbci²=bci² = i--extract-both bci bci
+
+        mbcimbci⊆aiai = subst (_i⊆ (ai i* ai)) (sym mbci²=bci²) bcibci⊆aiai
+        mx∈mbci = ℝ∈Iℚ-- x bci x∈bci
+
+        handle2 : ImbalancedI bci ⊎ ImbalancedI mbci -> ℝ∈Iℚ ax ai
+        handle2 (inj-l imb-bci) =
+          ℝ∈Iℚ-absℝ-ImbalancedI x ai (NonNegI->ImbalancedI ai nn-ai) (ℝ∈Iℚ-⊆ x bci⊆ai x∈bci)
+          where
+          bci⊆ai = i*-i⊆-square-NonNegI2⁻ bci ai imb-bci nn-ai bcibci⊆aiai
+        handle2 (inj-r imb-mbci) =
+          subst (\x -> ℝ∈Iℚ x ai) (absℝ-- x)
+            (ℝ∈Iℚ-absℝ-ImbalancedI mx ai (NonNegI->ImbalancedI ai nn-ai) (ℝ∈Iℚ-⊆ mx mbci⊆ai mx∈mbci))
+          where
+          mbci⊆ai = i*-i⊆-square-NonNegI2⁻ mbci ai imb-mbci nn-ai mbcimbci⊆aiai
+
+    ℝ∈Iℚ-square-Balanced⁻ : (ai : Iℚ) -> BalancedI ai -> ℝ∈Iℚ xx (ai i* ai) -> ℝ∈Iℚ ax ai
+    ℝ∈Iℚ-square-Balanced⁻ ai bal-ai xx∈aiai =
+      unsquash (isProp-ℝ∈Iℚ ax ai) (∥-map handle (ℝ∈Iℚ-*⁻ x x (ai i* ai) xx∈aiai))
+      where
+      handle : Σ[ bi ∈ Iℚ ] Σ[ ci ∈ Iℚ ] (ℝ∈Iℚ x bi × ℝ∈Iℚ x ci × (bi i* ci) i⊆ (ai i* ai)) ->
+               ℝ∈Iℚ ax ai
+      handle (bi , ci , x∈bi , x∈ci , bici⊆aiai) = handle2 (ImbalancedI-i- bci)
+        where
+        bci-o = ℝ∈Iℚ->Overlap x bi ci x∈bi x∈ci
+        bci = i-intersect bi ci bci-o
+        mbci = i- bci
+        x∈bci = ℝ∈Iℚ-intersect x bi ci x∈bi x∈ci
+
+        bci⊆bi = i-intersect-⊆₁ bi ci bci-o
+        bci⊆ci = i-intersect-⊆₂ bi ci bci-o
+        bcibci⊆bici = i*-preserves-⊆ bci⊆bi bci⊆ci
+        bcibci⊆aiai = trans-i⊆ bcibci⊆bici bici⊆aiai
+
+        mbci²=bci² : mbci i* mbci == (bci i* bci)
+        mbci²=bci² = i--extract-both bci bci
+
+        mbcimbci⊆aiai = subst (_i⊆ (ai i* ai)) (sym mbci²=bci²) bcibci⊆aiai
+        mx∈mbci = ℝ∈Iℚ-- x bci x∈bci
+
+        handle2 : ImbalancedI bci ⊎ ImbalancedI mbci -> ℝ∈Iℚ ax ai
+        handle2 (inj-l imb-bci) =
+          ℝ∈Iℚ-absℝ-ImbalancedI x ai (BalancedI->ImbalancedI ai bal-ai) (ℝ∈Iℚ-⊆ x bci⊆ai x∈bci)
+          where
+          bci⊆ai = i*-i⊆-square-BalancedI⁻ bci ai bal-ai bcibci⊆aiai
+        handle2 (inj-r imb-mbci) =
+          subst (\x -> ℝ∈Iℚ x ai) (absℝ-- x)
+            (ℝ∈Iℚ-absℝ-ImbalancedI mx ai (BalancedI->ImbalancedI ai bal-ai) (ℝ∈Iℚ-⊆ mx mbci⊆ai mx∈mbci))
+          where
+          mbci⊆ai = i*-i⊆-square-BalancedI⁻ mbci ai bal-ai mbcimbci⊆aiai
+
+    ℝ∈Iℚ-square⁻ : (ai : Iℚ) -> (0≤x : 0ℝ ≤ x) -> ImbalancedI ai ->
+                   ℝ∈Iℚ (x * x) (ai i* ai) -> ℝ∈Iℚ ax ai
+    ℝ∈Iℚ-square⁻ ai@(Iℚ-cons l u l≤u) 0≤x imb-ai xx∈aiai = handle (split-< l 0r)
+      where
+      -l = - l
+      xxU-uu : xx.U (u * u)
+      xxU-uu = subst xx.U (cong Iℚ.u (sym (i²-ImbalancedI-path ai imb-ai))) (snd xx∈aiai)
+      handle : (l < 0r ⊎ 0r ≤ l) -> ℝ∈Iℚ ax ai
+      handle (inj-r 0≤l) = ℝ∈Iℚ-square-NonNeg⁻ ai (0≤-NonNeg _ 0≤l) xx∈aiai
+      handle (inj-l l<0) = handle2 (split-< -l u)
+        where
+        handle2 : (-l < u ⊎ u ≤ -l) -> ℝ∈Iℚ ax ai
+        handle2 (inj-r u≤-l) = ℝ∈Iℚ-square-Balanced⁻ ai -l=u xx∈aiai
+          where
+          -l=u : BalancedI ai
+          -l=u = antisym-≤ imb-ai u≤-l
+        handle2 (inj-l -l<u) = unsquash (isProp-ℝ∈Iℚ ax ai) (∥-map handle3 (x.located -l u -l<u))
+          where
+          handle3 : x.L -l ⊎ x.U u -> ℝ∈Iℚ ax ai
+          handle3 (inj-r xU-u) = subst (\z -> ℝ∈Iℚ z ai) (sym (absℝ-NonNeg-idem x 0≤x)) x∈ai
+            where
+            xL-l : x.L l
+            xL-l = ℝ≮0-L∀<0 x 0≤x l<0
+            x∈ai : ℝ∈Iℚ x ai
+            x∈ai = xL-l , xU-u
+          handle3 (inj-l xL--l) = ℝ∈Iℚ-⊆ ax bi⊆ai ax∈bi
+            where
+            0<-l = minus-flips-<0 l<0
+            bi = Iℚ-cons -l u imb-ai
+            nn-bi = 0≤-NonNeg -l (weaken-< 0<-l)
+            bi² = i²-NonNegI bi nn-bi
+            bi⊆ai : bi i⊆ ai
+            bi⊆ai = i⊆-cons (weaken-< (trans-< l<0 0<-l)) refl-≤
+
+            xxL--l-l : xx.L (-l * -l)
+            xxL--l-l = unsquash (xx.isProp-L (-l * -l)) (∥-map handle4 x.Inhabited-U)
+              where
+              handle4 : Σ[ u2 ∈ ℚ ] (x.U u2) -> xx.L (-l * -l)
+              handle4 (u2 , xU-u2) = (fst (subst (ℝ∈Iℚ xx) (sym (i²-NonNegI-path ci nn-ci)) xx∈cici))
+                where
+                l<u2 = ℝ-bounds->ℚ< x _ _ xL--l xU-u2
+                ci = Iℚ-cons -l u2 (weaken-< l<u2)
+                nn-ci = 0≤-NonNeg -l (weaken-< 0<-l)
+                x∈ci : ℝ∈Iℚ x ci
+                x∈ci = xL--l , xU-u2
+                xx∈cici : ℝ∈Iℚ xx (ci i* ci)
+                xx∈cici = ℝ∈Iℚ-* x x ci ci x∈ci x∈ci
+
+            xx∈bi² : ℝ∈Iℚ xx bi²
+            xx∈bi² = xxL--l-l , xxU-uu
+            xx∈bibi : ℝ∈Iℚ xx (bi i* bi)
+            xx∈bibi = subst (ℝ∈Iℚ xx) (i²-NonNegI-path bi nn-bi) xx∈bi²
+            ax∈bi : ℝ∈Iℚ ax bi
+            ax∈bi = ℝ∈Iℚ-square-NonNeg⁻ bi nn-bi xx∈bibi
+
+
+
+module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) (y : ℝ) (y≮0 : y ≮ 0ℝ)
+         (ℝ∈Iℚ-square⁻ : (z : ℝ) (ai : Iℚ) -> (0≤z : 0ℝ ≤ z) -> ℝ∈Iℚ (z * z) (ai i* ai) -> ℝ∈Iℚ z ai)
+  where
+  private
+    xy = x * y
+    0≤xy : 0ℝ ≤ xy
+    0≤xy = *-preserves-≮0 x y x≮0 y≮0
+    sx = (sqrtℝ x x≮0)
+    sy = (sqrtℝ y y≮0)
+    sxy = (sqrtℝ xy 0≤xy)
+    0≤sxy = (sqrt-0≤ xy 0≤xy)
+    sxsy = sx ℝ* sy
+    module x = Real x
+    module y = Real y
+    module sx = Real sx
+    module sy = Real sy
+    module sxsy = Real sxsy
+
+
+    ℝ∈Iℚ-sqrt-* : (xi yi : Iℚ) -> ℝ∈Iℚ sx xi -> ℝ∈Iℚ sy yi -> ℝ∈Iℚ sxy (xi i* yi)
+    ℝ∈Iℚ-sqrt-* xi yi sx∈xi sy∈yi = ℝ∈Iℚ-square⁻ sxy (xi i* yi) 0≤sxy xy∈2
+      where
+      x∈xixi : ℝ∈Iℚ x (xi i* xi)
+      x∈xixi = ℝ∈Iℚ-sqrt⁻ x x≮0 xi xi sx∈xi sx∈xi
+      y∈yiyi : ℝ∈Iℚ y (yi i* yi)
+      y∈yiyi = ℝ∈Iℚ-sqrt⁻ y y≮0 yi yi sy∈yi sy∈yi
+
+      xiyi-swap : ((xi i* xi) i* (yi i* yi)) == ((xi i* yi) i* (xi i* yi))
+      xiyi-swap = sym (i*-assoc xi xi (yi i* yi)) >=>
+                  cong (xi i*_) (i*-assoc xi yi yi >=>
+                                 cong (_i* yi) (i*-commute xi yi) >=>
+                                 sym (i*-assoc yi xi yi)) >=>
+                  i*-assoc xi yi (xi i* yi)
+      xy-split : xy == sxy * sxy
+      xy-split = sym (*-sqrt xy 0≤xy)
+
+      xy∈1 : ℝ∈Iℚ xy ((xi i* xi) i* (yi i* yi))
+      xy∈1 = ℝ∈Iℚ-* x y (xi i* xi) (yi i* yi) x∈xixi y∈yiyi
+      xy∈2 : ℝ∈Iℚ (sxy * sxy) ((xi i* yi) i* (xi i* yi))
+      xy∈2 = subst2 ℝ∈Iℚ xy-split xiyi-swap xy∈1

@@ -62,6 +62,16 @@ record Ring {ℓ : Level} {Domain : Type ℓ} (S : Semiring Domain) : Type ℓ w
       - a
     end
 
+  minus-double-inverse : {a : Domain} -> - - a == a
+  minus-double-inverse {a} = sym (minus-unique
+    (begin
+       - a + a
+     ==< +-commute >
+       a + - a
+     ==< +-inverse >
+       0#
+     end))
+
   *-left-minus-one : {a : Domain} -> (- 1#) * a == - a
   *-left-minus-one {a} =
     begin
@@ -100,6 +110,9 @@ record Ring {ℓ : Level} {Domain : Type ℓ} (S : Semiring Domain) : Type ℓ w
   minus-extract-right : {a b : Domain} -> (a * - b) == - (a * b)
   minus-extract-right = *-commute >=> minus-extract-left >=> cong -_ *-commute
 
+  minus-extract-both : {a b : Domain} -> (- a * - b) == (a * b)
+  minus-extract-both = minus-extract-left >=> cong -_ minus-extract-right >=> minus-double-inverse
+
   minus-distrib-plus : {a b : Domain} -> - (a + b) == - a + - b
   minus-distrib-plus {a} {b} =
     begin
@@ -113,16 +126,6 @@ record Ring {ℓ : Level} {Domain : Type ℓ} (S : Semiring Domain) : Type ℓ w
     ==< +-right *-left-minus-one >
       - a + - b
     end
-
-  minus-double-inverse : {a : Domain} -> - - a == a
-  minus-double-inverse {a} = sym (minus-unique
-    (begin
-       - a + a
-     ==< +-commute >
-       a + - a
-     ==< +-inverse >
-       0#
-     end))
 
 
   lift-nat : Nat -> Domain
@@ -496,6 +499,7 @@ module _ {D : Type ℓ} {S : Semiring D} {{R : Ring S}} where
     ; minus-distrib-plus
     ; minus-extract-left
     ; minus-extract-right
+    ; minus-extract-both
     ; minus-zero
     )
 

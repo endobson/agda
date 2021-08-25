@@ -111,6 +111,13 @@ module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
     *-preserves-≮0 : (a b : D) -> (a ≮ 0#) -> (b ≮ 0#) -> (a * b) ≮ 0#
     *-preserves-≮0 a b a≮0 b≮0 = subst ((a * b) ≮_) *-right-zero (*₁-preserves-≮ a b 0# a≮0 b≮0)
 
+    +₁-preserves-≮ : (a b c : D) -> b ≮ c -> (a + b) ≮ (a + c)
+    +₁-preserves-≮ a b c b≮c ab<ac =
+      b≮c (subst2 _<_ (sym +-assoc >=> (+-left (+-commute >=> +-inverse)) >=> +-left-zero)
+                      (sym +-assoc >=> (+-left (+-commute >=> +-inverse)) >=> +-left-zero)
+                      (+₁-preserves-< (- a ) (a + b) (a + c) ab<ac))
+
+
     +-preserves-≮0 : (a b : D) -> a ≮ 0# -> b ≮ 0# -> (a + b) ≮ 0#
     +-preserves-≮0 a b a≮0 b≮0 ab<0 = unsquash isPropBot (∥-map handle (comparison-< ab a 0# ab<0))
       where
