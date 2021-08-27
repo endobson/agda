@@ -44,6 +44,8 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} (R : Ring S) (V : 
 
     _v#_ = TightApartnessStr._#_ TightApartnessStr-V
 
+    isProp-v# = TightApartnessStr.isProp-# TightApartnessStr-V
+
     _v+_ = GroupStr._∙_ GroupStr-V
     0v = GroupStr.ε GroupStr-V
     v-_ = GroupStr.inverse GroupStr-V
@@ -72,6 +74,7 @@ module _  {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {V :
     ; v*-assoc
     ; v*-left-one
     ; _v#_
+    ; isProp-v#
     )
 
   private
@@ -116,18 +119,49 @@ module _  {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {V :
       cong (_v* 0v) +-inverse >=>
       v*-left-zero
 
+    v*-left : {k1 k2 : K} {v : V} -> k1 == k2 -> k1 v* v == k2 v* v
+    v*-left {k1} {k2} {v} p = cong (_v* v) p
 
-    v*-minus-inverse : {k : K} {v : V} -> (- k) v* v == k v* (inverse v)
+    v*-right : {k : K} {v1 v2 : V} -> v1 == v2 -> k v* v1 == k v* v2
+    v*-right {k} p = cong (k v*_) p
+
+
+    v*-minus-inverse : {k : K} {v : V} -> (- k) v* v == k v* (v- v)
     v*-minus-inverse {k} {v} =
       sym ∙-right-ε >=>
       ∙-right (sym v*-left-zero >=>
-               cong (_v* (inverse v)) (sym +-inverse >=> +-commute) >=>
+               cong (_v* (v- v)) (sym +-inverse >=> +-commute) >=>
                v*-distrib-+ { - k} {k}) >=>
       sym ∙-assoc >=>
       ∙-left (sym v*-distrib-v+ >=>
               cong ((- k) v*_) ∙-right-inverse >=>
               v*-right-zero) >=>
       v+-left-zero
+
+    v*-left-minus-one : {v : V} -> (- 1#) v* v == (v- v)
+    v*-left-minus-one = v*-minus-inverse >=> v*-left-one
+
+    v*-minus-extract-left : {k : K} {v : V} -> (- k) v* v == v- (k v* v)
+    v*-minus-extract-left =
+      v*-left (sym *-left-one >=> minus-extract-right >=> sym minus-extract-left) >=>
+      v*-assoc >=>
+      v*-left-minus-one
+
+    v*-minus-extract-right : {k : K} {v : V} -> k v* (v- v) == v- (k v* v)
+    v*-minus-extract-right =
+      v*-right (sym v*-left-minus-one) >=>
+      sym v*-assoc >=>
+      v*-left *-commute >=>
+      v*-assoc >=>
+      v*-left-minus-one
+
+    v--double-inverse : {v : V} -> (v- (v- v)) == v
+    v--double-inverse =
+      sym v*-left-minus-one >=>
+      v*-minus-extract-right >=>
+      sym v*-minus-extract-left >=>
+      v*-left minus-double-inverse >=>
+      v*-left-one
 
 
 
@@ -154,14 +188,19 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
                       (k1 MS.v* v1) MS.v# (k2 MS.v* v2) ->
                       ∥ (k1 # k2) ⊎ (v1 MS.v# v2) ∥
 
-
 module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
          {A : TightApartnessStr K} {F : Field R A} {V : Type ℓV}
-         (VS : VectorSpaceStr F V) where
+         {{VS : VectorSpaceStr F V}} where
+  open VectorSpaceStr VS public using
+    ( v*-apart-zero
+    ; v*-apart-args
+    )
 
   private
     module VS = VectorSpaceStr VS
     module M = ModuleStr VS.module-str
+    module R = Ring R
+    module F = Field F
 
     instance
       IM = VS.module-str
@@ -169,6 +208,36 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
       IF = F
       IVA = ModuleStr.TightApartnessStr-V IM
       IFA = Field.TightApartnessStr-f# F
+
+  abstract
+    v*-#0 : {k : K} -> {v : V} -> k # 0# -> v v# 0v -> (k v* v) v# 0v
+    v*-#0 {k} {v} k#0 v#0 = snd (v*-apart-zero k'kv#0)
+      where
+      k-unit : R.isUnit k
+      k-unit = F.#0->isUnit k#0
+      k' = R.isUnit.inv k-unit
+      kk'=1 = R.isUnit.path k-unit
+      k'kv#0 = subst (_v# 0v) (sym v*-left-one >=> v*-left (sym kk'=1 >=> *-commute) >=> v*-assoc) v#0
+
+
+module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
+         {A : TightApartnessStr K} {F : Field R A} {V : Type ℓV}
+         (VS : VectorSpaceStr F V) where
+
+
+  private
+    module VS = VectorSpaceStr VS
+    module M = ModuleStr VS.module-str
+    module R = Ring R
+    module F = Field F
+
+    instance
+      IM = VS.module-str
+      IS = S
+      IF = F
+      IVA = ModuleStr.TightApartnessStr-V IM
+      IFA = Field.TightApartnessStr-f# F
+
 
   private
     variable
