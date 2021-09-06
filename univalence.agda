@@ -91,14 +91,11 @@ private
   equivEq {e1 = e1} {e2 = e2} p i .snd =
     isProp->PathP (\i -> isProp-isEquiv {f = p i}) (e1 .snd) (e2 .snd) i
 
-  pathToEquiv' : {A1 A2 : Type ℓ} -> (A1 == A2) -> (A1 ≃ A2)
-  pathToEquiv' p = pathToEquiv (\i -> p i)
-
-  pathToEquiv'-refl : pathToEquiv' refl == idEquiv A
-  pathToEquiv'-refl {A = A} = equivEq (\i x -> transp (\_ -> A) i x)
+  pathToEquiv-refl : pathToEquiv refl == idEquiv A
+  pathToEquiv-refl {A = A} = equivEq (\i x -> transp (\_ -> A) i x)
 
 univalence-iso : Iso (A1 == A2) (A1 ≃ A2)
-univalence-iso = Univalence.i pathToEquiv' pathToEquiv'-refl
+univalence-iso = Univalence.i pathToEquiv pathToEquiv-refl
 
 univalence : (A1 == A2) ≃ (A1 ≃ A2)
 univalence = isoToEquiv univalence-iso

@@ -165,6 +165,7 @@ module _  {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {V :
 
 
 
+
 module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
          {A : TightApartnessStr K}
          (F : Field R A) (V : Type ℓV)  where
@@ -172,7 +173,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
     instance
       IS = S
       IF = F
-      IFA = Field.TightApartnessStr-f# F
+      IA = A
 
   record VectorSpaceStr : Type (ℓ-max ℓK (ℓ-suc ℓV)) where
     constructor vector-space-str
@@ -205,9 +206,9 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
     instance
       IM = VS.module-str
       IS = S
+      IA = A
       IF = F
       IVA = ModuleStr.TightApartnessStr-V IM
-      IFA = Field.TightApartnessStr-f# F
 
   abstract
     v*-#0 : {k : K} -> {v : V} -> k # 0# -> v v# 0v -> (k v* v) v# 0v

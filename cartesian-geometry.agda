@@ -31,6 +31,7 @@ open import relation
 open import ring
 open import ring.implementations.real
 open import semiring
+open import subset
 open import set-quotient
 open import sigma
 open import truncation
@@ -176,6 +177,10 @@ vector-length>0 v v#0 = unsquash (isProp-< 0# (vector-length v)) (∥-map handle
     0≤xx = ≮0-square x
     yy≤xxyy : yy ≤ xxyy
     yy≤xxyy = subst (_≤ xxyy) +-left-zero (+₂-preserves-≤ 0# xx yy 0≤xx)
+
+-- vector-length>0-#0 : (v : Vector) -> (vector-length v > 0#) -> (v v# 0v)
+-- vector-length>0-#0 v l>0 = ?
+
 
 vector-length²-* : (k : ℝ) (v : Vector) -> vector-length² (k v* v) == (k * k) * vector-length² v
 vector-length²-* k v = p
@@ -341,7 +346,7 @@ vector->semi-direction-v* :
   vector->semi-direction (k v* v) kv#0 == vector->semi-direction v v#0
 vector->semi-direction-v* v v#0 k kv#0 = handle (eqInv (<>-equiv-# k 0ℝ) k#0)
   where
-  k#0 = v*-apart-zero
+  k#0 = fst (v*-apart-zero kv#0)
   handle : (k ℝ# 0ℝ) -> vector->semi-direction (k v* v) kv#0 == vector->semi-direction v v#0
   handle (inj-r 0<k) = eq/ _ _ (same-semi-direction-same (normalize-vector-v*-Pos v v#0 k 0<k kv#0))
   handle (inj-l k<0) = eq/ _ _ (same-semi-direction-flipped p)
@@ -367,3 +372,20 @@ vector->semi-direction-v* v v#0 k kv#0 = handle (eqInv (<>-equiv-# k 0ℝ) k#0)
 
     p : normalize-vector (k v* v) kv#0 == v- (normalize-vector v v#0)
     p = sym v--double-inverse >=> cong v-_ (sym p2 >=> p3 >=> p1)
+
+
+direction-span' : Direction -> Pred Vector ℓ-one
+direction-span' (v , _) v2 = Σ[ k ∈ ℝ ] (k v* v == v2)
+
+-- direction-span : Direction -> Subtype Vector ℓ-one
+-- direction-span d@(v , _) v2 = direction-span' d v2 , isProp-direction-span
+--   where
+--   isProp-direction-span : isProp (direction-span' d v2)
+--   isProp-direction-span (k1 , p1) (k2 , p2) = ?
+--     where
+--     vl-p : (k1 v* v) == (k2 v* v)
+--     vl-p = cong vector-length (p1 >=> sym p2)
+
+
+--semi-direction-span : SemiDirection -> Subtype Vector ℓ-one
+--semi-direction-span s = ?

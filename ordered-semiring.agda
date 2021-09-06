@@ -40,6 +40,10 @@ module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
     +-preserves-< a b c d a<b c<d =
       trans-< (+₁-preserves-< a c d c<d) (+₂-preserves-< a b d a<b)
 
+    +-preserves-0< : {a b : D} -> 0# < a -> 0# < b -> 0# < (a + b)
+    +-preserves-0< {a} {b} 0<a 0<b =
+      subst (_< (a + b)) +-right-zero (+-preserves-< 0# a 0# b 0<a 0<b)
+
 
 
 module _ {D : Type ℓD} (S : Semiring D) (O : PartialOrderStr D ℓ≤) where

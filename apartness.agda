@@ -3,6 +3,8 @@
 module apartness where
 
 open import base
+open import equality
+open import functions
 open import hlevel
 open import relation
 open import truncation
@@ -42,3 +44,10 @@ module _ {ℓD : Level} {D : Type ℓD} {{TA : TightApartnessStr D}} where
 
   isProp-# : {d1 d2 : D} -> isProp (d1 # d2)
   isProp-# = TightApartnessStr.isProp-# TA _ _
+
+  StronglyInjective : Pred (D -> D) ℓD
+  StronglyInjective f = {d1 d2 : D} -> d1 # d2 -> f d1 # f d2
+
+  ∘-StronglyInjective : {f g : D -> D} -> StronglyInjective f -> StronglyInjective g ->
+                        StronglyInjective (f ∘ g)
+  ∘-StronglyInjective f' g' = f' ∘ g'

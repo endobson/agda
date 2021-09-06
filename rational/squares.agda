@@ -22,14 +22,6 @@ open import sign.instances.rational
 open import truncation
 
 
-
-0≤-square : {q : ℚ} -> 0r ≤ (q * q)
-0≤-square {q} = unsquash (isProp-≤ _ _) (∥-map handle (connex-≤ 0r q))
-  where
-  handle : (0r ≤ q) ⊎ (q ≤ 0r) -> 0r ≤ (q * q)
-  handle (inj-l 0≤q) = subst2 _≤_ *-right-zero refl (*₁-preserves-≤ q 0r q 0≤q 0≤q)
-  handle (inj-r q≤0) = subst2 _≤_ *-right-zero refl (*₁-flips-≤ q q 0r q≤0 q≤0)
-
 isSquareℚ : Pred ℚ ℓ-zero
 isSquareℚ q = Σ[ r ∈ ℚ ] ((0r ≤ r) × r * r == q)
 

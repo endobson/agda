@@ -68,6 +68,10 @@ idEquiv : (A : Type ℓ) → A ≃ A
 idEquiv A .fst = idfun A
 idEquiv A .snd = idIsEquiv A
 
+pathToEquiv : A1 == A2 -> A1 ≃ A2
+pathToEquiv p = lineToEquiv (\i -> p i)
+
+
 
 liftEquiv : {ℓA : Level} (ℓ : Level) (A : Type ℓA) -> Lift ℓ A ≃ A
 liftEquiv ℓ A .fst = Lift.lower

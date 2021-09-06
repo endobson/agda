@@ -5,6 +5,7 @@ module cubical where
 
 open import Agda.Builtin.Cubical.Glue public
   renaming ( prim^glue      to glue
+           ; pathToEquiv    to lineToEquiv
            )
 open import Agda.Builtin.Cubical.Path public
 

@@ -23,6 +23,9 @@ Injective f = ∀ {a1 a2} -> (f a1) == (f a2) -> a1 == a2
 ∘-Injective : {f : B -> C} {g : A -> B} -> Injective f -> Injective g -> Injective (f ∘ g)
 ∘-Injective fi gi = gi ∘ fi
 
+∘-Injective⁻ : (f : B -> C) (g : A -> B) -> Injective (f ∘ g) -> Injective g
+∘-Injective⁻ f g fgi p = fgi (cong f p)
+
 Injective2 : Pred (A -> B -> C) _
 Injective2 f = ∀ {a1 b1 a2 b2} -> (f a1 b1) == (f a2 b2) -> (a1 == a2) × (b1 == b2)
 

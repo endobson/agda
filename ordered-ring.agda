@@ -14,12 +14,13 @@ open import truncation
 
 private
   variable
-    ℓD ℓ< : Level
+    ℓD ℓ< ℓ≤ : Level
 
 module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
          {{LOS : LinearlyOrderedSemiringStr S O}}
          {{R : Ring S}} where
   private
+    module R = Ring R
     instance
       ILOS = LOS
       IS = S
@@ -128,6 +129,16 @@ module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
         b≮0 (subst2 _<_ (sym +-assoc >=> +-left (+-commute >=> +-inverse) >=> +-left-zero)
                         (+-commute >=> +-inverse) (+₁-preserves-< (- a) ab a ab<a))
 
+    1≮0# : 1# ≮ 0#
+    1≮0# 1<0 = irrefl-< (trans-< -1<0 0<-1)
+      where
+      0<-1 = minus-flips-<0 1<0
+      -1<0 = subst2 _<_ *-left-one *-left-one (*₁-flips-< 1# 0# (- 1#) 1<0 0<-1)
+
+
+--    u1/-preserves-0< : (x : R.Unit) -> 0# < ⟨ x ⟩ -> 0# < ⟨ (R.u1/ x) ⟩
+--    u1/-preserves-0< (x , (R.is-unit 1/x x/x=1)) = ?
+
 module _ {D : Type ℓD} {S : Semiring D} {O : PartialOrderStr D ℓ<}
          {{POS : PartiallyOrderedSemiringStr S O}}
          {{R : Ring S}} where
@@ -185,3 +196,84 @@ module _ {D : Type ℓD} {S : Semiring D} {O : PartialOrderStr D ℓ<}
     *₂-flips-≤ : (a b c : D) -> (a ≤ b) -> (c ≤ 0#) -> (b * c) ≤ (a * c)
     *₂-flips-≤ a b c a≤b c≤0 =
       subst2 _≤_ *-commute *-commute (*₁-flips-≤ c a b c≤0 a≤b)
+
+
+module _ {D : Type ℓD} {S : Semiring D} {O : PartialOrderStr D ℓ≤}
+         {{TO : TotalOrderStr O}}
+         {{POS : PartiallyOrderedSemiringStr S O}}
+         {{R : Ring S}} where
+  private
+    instance
+      IPOS = POS
+      ITO = TO
+      IS = S
+      IO = O
+      IR = R
+
+  abstract
+    0≤-square : {a : D} -> 0# ≤ (a * a)
+    0≤-square {a} = unsquash (isProp-≤ _ _) (∥-map handle (connex-≤ 0# a))
+      where
+      handle : (0# ≤ a) ⊎ (a ≤ 0#) -> 0# ≤ (a * a)
+      handle (inj-l 0≤a) = subst2 _≤_ *-right-zero refl (*₁-preserves-≤ a 0# a 0≤a 0≤a)
+      handle (inj-r a≤0) = subst2 _≤_ *-right-zero refl (*₁-flips-≤ a a 0# a≤0 a≤0)
+
+
+-- module _ {D : Type ℓD} {S : Semiring D} {LO : LinearOrderStr D ℓ<} {PO : PartialOrderStr D ℓ≤}
+--          {{CO : CompatibleOrderStr LO PO}}
+--   --       {{TO : TotalOrderStr PO}}
+--          {{LOS : LinearlyOrderedSemiringStr S LO}}
+--          {{POS : PartiallyOrderedSemiringStr S PO}}
+--          {{R : Ring S}} where
+--   private
+--     instance
+--       ILO = LO
+--       IPOS = POS
+--       IS = S
+--       IR = R
+--
+--   abstract
+--     *₁-reflects-0< : {a b : D} -> (0# < a) -> (0# < (a * b)) -> 0# < b
+--     *₁-reflects-0< {a} {b} 0<a 0<ab = ?
+--       where
+--       ab = a * b
+--       b<a : b < a
+--       b<a = ?
+--       b<ab : b < ab
+--       b<ab = ?
+
+
+      -- unsquash (isProp-< _ _) (∥-map2 handle (comparison-< 0# b 1# 0<1r) (comparison-< 0r b bb 0<bb))
+      -- where
+      -- aa = a * a
+      -- ab = a * b
+      -- bb = b * b
+      -- 0≤bb : 0r ≤ bb
+      -- 0≤bb = 0≤-square
+
+      -- 0!=bb : 0r != bb
+      -- 0!=bb 0=bb = irrefl-< (subst (0r <_) path (*-preserves-0< ab ab 0<ab 0<ab))
+      --   where
+      --   path : ab * ab == 0r
+      --   path = *-assoc >=>
+      --          *-right (*-commute >=>
+      --                   *-assoc >=>
+      --                   *-right (sym 0=bb) >=>
+      --                   *-right-zero) >=>
+      --          *-right-zero
+
+      -- 0<bb = strengthen-ℚ≤-≠ 0≤bb 0!=bb
+
+      -- handle : (0r < b) ⊎ (b < 1r) -> (0r < b) ⊎ (b < bb) -> 0r < b
+      -- handle (inj-l 0<b) _            = 0<b
+      -- handle (inj-r b<1) (inj-l 0<b)  = 0<b
+      -- handle (inj-r b<1) (inj-r b<bb) = bot-elim (asym-< aab<aabb aabb<aab)
+      --   where
+      --   0<aa : 0r < aa
+      --   0<aa = *-preserves-0< a a 0<a 0<a
+      --   aab<aabb : ((a * a) * b) < ((a * a) * (b * b))
+      --   aab<aabb = *₁-preserves-< aa b bb 0<aa b<bb
+      --   0<aab : 0r < (aa * b)
+      --   0<aab = subst (0r <_) (sym *-assoc) (*-preserves-0< a ab 0<a 0<ab)
+      --   aabb<aab : ((a * a) * (b * b)) < ((a * a) * b)
+      --   aabb<aab = subst2 _<_ *-assoc *-right-one (*₁-preserves-< (aa * b) b 1r 0<aab b<1)

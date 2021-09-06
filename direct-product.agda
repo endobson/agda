@@ -205,10 +205,10 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
     instance
       IS = S
       IR = R
-      IFA = (Field.TightApartnessStr-f# F)
-      IVA = TightApartnessStr-DirectProduct IFA I
+      IA = A
+      IVA = TightApartnessStr-DirectProduct IA I
 
-    MS = ModuleStr-DirectProduct R IFA I
+    MS = ModuleStr-DirectProduct R IA I
     module MS = ModuleStr MS
     module R = Ring R
     module F = Field F

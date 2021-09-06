@@ -492,6 +492,9 @@ record Ring {ℓ : Level} {Domain : Type ℓ} (S : Semiring Domain) : Type ℓ w
     preserves-inverse x = u^ℤ-preserves-inverse {base} {x}
 
 module _ {D : Type ℓ} {S : Semiring D} {{R : Ring S}} where
+  private
+    instance IS = S
+
   open Ring R public using
     ( -_
     ; +-inverse
@@ -502,6 +505,35 @@ module _ {D : Type ℓ} {S : Semiring D} {{R : Ring S}} where
     ; minus-extract-both
     ; minus-zero
     )
+
+  diff : D -> D -> D
+  diff x y = y + (- x)
+
+  diff-step : {x y : D} -> x + diff x y == y
+  diff-step {x} {y} =
+    sym +-assoc >=>
+    +-left +-commute >=>
+    +-assoc >=>
+    +-right +-inverse >=>
+    +-right-zero
+
+  +-swap-diff : {a b c d : D} -> ((diff a b) + (diff c d)) == (diff (a + c) (b + d))
+  +-swap-diff {a} {b} {c} {d} =
+    +-assoc >=>
+    +-right (sym +-assoc >=>
+             +-left +-commute >=>
+             +-assoc >=>
+             +-right (sym (minus-distrib-plus))) >=>
+    sym +-assoc
+
+  diff-anticommute : {x y : D} -> diff x y == - (diff y x)
+  diff-anticommute = sym (
+    minus-distrib-plus >=>
+    +-right minus-double-inverse >=>
+    +-commute)
+
+  *-distrib-diff-left : {x y z : D} -> x * (diff y z) == diff (x * y) (x * z)
+  *-distrib-diff-left = *-distrib-+-left >=> +-right minus-extract-right
 
 
 record Semiringʰᵉ
