@@ -6,7 +6,7 @@ open import apartness
 open import base
 open import cubical using (_≃_)
 open import commutative-monoid
-open import equality
+open import equality hiding (J)
 open import equivalence
 open import fin
 open import finset
@@ -388,3 +388,34 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
 
   Basis : (ℓI : Level) -> Type _
   Basis ℓI = Σ[ I ∈ Type ℓI ] Σ[ family ∈ (I -> V) ] (isBasis family ℓI)
+
+  module _ {ℓI : Level} (I : FinSet ℓI) (family : ⟨ I ⟩ -> V) where
+    private
+      I' = ⟨ I ⟩
+      J : FinSubset I' ℓI
+      J = I , (\x -> x) , (\p -> p)
+
+      scale-family : Family K I' -> Family V I' -> Family V I'
+      scale-family ks vs i = ks i v* vs i
+
+    isLinearCombination' : Pred V _
+    isLinearCombination' v =
+      ∃[ a ∈ (I' -> K) ] (vector-sum (scale-family a family) (snd I) == v)
+
+    LinearSpan' : Subtype V (ℓ-max* 3 ℓK ℓV ℓI)
+    LinearSpan' v = isLinearCombination' v , squash
+
+    isSpanning' : Type _
+    isSpanning' = isFullSubtype LinearSpan'
+
+    LinearlyIndependent' : Type (ℓ-max* 3 ℓK ℓV ℓI)
+    LinearlyIndependent' =
+      (a : I' -> K) ->
+      scaled-vector-sum family J a == 0v ->
+      (i : I') -> a i == 0#
+
+    isBasis' : Type _
+    isBasis' = isSpanning' × LinearlyIndependent'
+
+  Basis' : (ℓI : Level) -> Type _
+  Basis' ℓI = Σ[ I ∈ FinSet ℓI ] Σ[ family ∈ (⟨ I ⟩ -> V) ] (isBasis' I family)

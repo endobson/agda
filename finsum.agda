@@ -171,6 +171,13 @@ isFinSet-⊎ FA FB = isFinSetΣ->isFinSet (isFinSetΣ-⊎ (isFinSet->isFinSetΣ 
 FinSet-⊎ : {ℓ₁ ℓ₂ : Level} -> (A : FinSet ℓ₁) -> (B : FinSet ℓ₂) -> FinSet (ℓ-max ℓ₁ ℓ₂)
 FinSet-⊎ (A , finA) (B , finB) = (A ⊎ B) , isFinSet-⊎ finA finB
 
+instance
+  FinSetStr-⊎ : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Type ℓ₂} {{FA : FinSetStr A}}
+                {{FB : FinSetStr B}} -> FinSetStr (A ⊎ B)
+  FinSetStr-⊎ {{FA = FA}} {{FB = FB}} = record
+    { isFin = isFinSet-⊎ (FinSetStr.isFin FA) (FinSetStr.isFin FB)
+    }
+
 isFinSetΣ-Σ' : {ℓ : Level} {n : Nat} (B : Fin n -> FinSet ℓ) -> isFinSetΣ (Σ[ i ∈ Fin n ] ⟨ B i ⟩)
 isFinSetΣ-Σ' {ℓ} {zero} FB = 0 , ∣ isoToEquiv i ∣
   where

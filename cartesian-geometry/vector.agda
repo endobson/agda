@@ -4,10 +4,15 @@ module cartesian-geometry.vector where
 
 open import apartness
 open import base
+open import cubical using (_≃_)
 open import direct-product
+open import direct-product.standard-basis
 open import equality
 open import equivalence
 open import functions
+open import finset
+open import fin
+open import fin-algebra
 open import hlevel
 open import integral-domain
 open import integral-domain.instances.real
@@ -40,6 +45,36 @@ open import vector-space
 data Axis : Type₀ where
  x-axis : Axis
  y-axis : Axis
+
+isFinSet-Axis : isFinSet Axis
+isFinSet-Axis = ∣ 2 , eq2 ∣
+  where
+  abstract
+    forward : Axis -> Top ⊎ Top
+    forward x-axis = inj-l tt
+    forward y-axis = inj-r tt
+
+    backward : Top ⊎ Top -> Axis
+    backward (inj-l _) = x-axis
+    backward (inj-r _) = y-axis
+
+    fb : (i : Top ⊎ Top) -> forward (backward i) == i
+    fb (inj-l _) = refl
+    fb (inj-r _) = refl
+
+    bf : (a : Axis) -> backward (forward a) == a
+    bf x-axis = refl
+    bf y-axis = refl
+
+    i : Iso Axis (Top ⊎ Top)
+    i = iso forward backward fb bf
+
+    eq : Axis ≃ (Top ⊎ Top)
+    eq = isoToEquiv i
+
+    eq2 : Axis ≃ Fin 2
+    eq2 = subst (Axis ≃_) (cong2 _⊎_ (sym Fin-Top) (sym Fin-Top) >=> sym (Fin-+ 1 1)) eq
+
 
 Vector : Type₁
 Vector = DirectProduct ℝ Axis
@@ -512,3 +547,21 @@ _sd#_ sd1 sd2 = fst (sd#-full sd1 sd2)
 
 isProp-sd# : (sd1 sd2 : SemiDirection) -> isProp (sd1 sd# sd2)
 isProp-sd# sd1 sd2 = snd (sd#-full sd1 sd2)
+
+private
+  VS = VectorSpaceStr-Vector
+
+  v-basis : Basis VS ℓ-zero
+  v-basis = standard-basis ℝField (Axis , isFinSet-Axis)
+
+  v-basis' : Family Vector Axis
+  v-basis' = fst (snd v-basis)
+
+  isBasis-v-basis' : isBasis VS v-basis' ℓ-zero
+  isBasis-v-basis' = snd (snd v-basis)
+
+  decompose : (v : Vector) -> ⟨ LinearSpan VS v-basis' ℓ-zero v ⟩
+  decompose v = fst isBasis-v-basis' v
+
+  -- x-vector : Vector -> Vector
+  -- x-vector v = decompose v
