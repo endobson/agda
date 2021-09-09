@@ -200,6 +200,9 @@ x ℝ< y = ∃[ q ∈ ℚ ] (Real.U x q × Real.L y q)
 ℚ->ℝ-preserves-< : (q1 q2 : ℚ) -> (q1 < q2) -> (ℚ->ℝ q1) ℝ< (ℚ->ℝ q2)
 ℚ->ℝ-preserves-< q1 q2 lt = dense-< {q1} {q2} lt
 
+0ℝ<1ℝ : 0ℝ ℝ< 1ℝ
+0ℝ<1ℝ = ℚ->ℝ-preserves-< 0r 1r 0<1r
+
 isProp-ℝ< : (x y : ℝ) -> isProp (x ℝ< y)
 isProp-ℝ< x y = squash
 

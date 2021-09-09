@@ -23,6 +23,10 @@ open Iso
 ⊎-map f g (inj-l a) = inj-l (f a)
 ⊎-map f g (inj-r b) = inj-r (g b)
 
+either : (A -> C) -> (B -> C) -> (A ⊎ B) -> C
+either f g (inj-l a) = f a
+either f g (inj-r b) = g b
+
 ⊎-map-left : (f : A -> C) -> (A ⊎ B) -> (C ⊎ B)
 ⊎-map-left f = ⊎-map f (\x -> x)
 

@@ -4,6 +4,7 @@ module cartesian-geometry.line where
 
 open import base
 open import cartesian-geometry
+open import cartesian-geometry.vector
 open import equality
 open import functions
 open import hlevel
@@ -19,6 +20,7 @@ open import ring.implementations.real
 open import semiring
 open import set-quotient
 open import sigma
+open import subset
 open import truncation
 open import univalence
 open import vector-space
@@ -38,5 +40,29 @@ Ray = Σ Point RayFrom
 Line' : Type₁
 Line' = Point × SemiDirection
 
--- OnLine' : REL Line' Point ℓ-one
--- OnLine' (o , s) p = vector->semi-direction (P-diff o p)
+line'-point : Line' -> Point
+line'-point (p , _) = p
+
+line'-semi-direction : Line' -> SemiDirection
+line'-semi-direction (_ , s) = s
+
+OnLine' : Line' -> Subtype Point ℓ-one
+OnLine' (o , s) p = semi-direction-span s (P-diff o p)
+
+-- OnLine'-self : (l : Line') -> ⟨ OnLine' l (line'-point l) ⟩
+-- OnLine'-self (p , s) = subst (\v -> ⟨ semi-direction-span s v ⟩) (sym dpp) semi-direction-span-0v
+--   where
+--   semi-direction-span-0v : ⟨ semi-direction-span s 0v ⟩
+--   semi-direction-span-0v = ?
+--
+--   dpp : P-diff p p == 0v
+--   dpp = ?
+
+SameLine' : Rel Line' ℓ-two
+SameLine' l1 l2 = OnLine' l1 == OnLine' l2
+
+SameLine'2 : Rel Line' ℓ-one
+SameLine'2 l1@(p1 , s1) l2@(p2 , s2) = ⟨ OnLine' l1 p2 ⟩ × ⟨ OnLine' l2 p1 ⟩ × s1 == s2
+
+Line : Type ℓ-two
+Line = Line' / SameLine'

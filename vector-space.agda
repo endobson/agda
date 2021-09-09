@@ -164,6 +164,15 @@ module _  {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {V :
       v*-left-one
 
 
+    v*-minus-extract-both : {k : K} {v : V} -> (- k) v* (v- v) == (k v* v)
+    v*-minus-extract-both =
+      v*-minus-extract-left >=>
+      cong v-_ v*-minus-extract-right >=>
+      v--double-inverse
+
+  vdiff : V -> V -> V
+  vdiff v1 v2 = v2 v+ (v- v1)
+
 
 
 module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}

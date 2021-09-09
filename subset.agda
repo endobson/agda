@@ -8,10 +8,13 @@ open import equality
 open import fin
 open import finset
 open import functions
+open import funext
 open import hlevel
 open import isomorphism
 open import relation
+open import sigma
 open import truncation
+open import univalence
 
 -- A subtype of the type D
 Subtype : {ℓD : Level} -> (D : Type ℓD) -> (ℓP : Level) -> Type (ℓ-max ℓD (ℓ-suc ℓP))
@@ -30,6 +33,8 @@ module _ {ℓD ℓS : Level} {D : Type ℓD} (S : Subtype D ℓS) where
   isFullSubtype : Type _
   isFullSubtype = ∀ (d : D) -> ⟨ S d ⟩
 
+isSet-Subtype : {ℓD ℓP : Level} {D : Type ℓD} -> isSet (Subtype D ℓP)
+isSet-Subtype = isSetΠ (\_ -> isSet-hProp)
 
 -- Family of Ds indexed by I
 Family : {ℓD ℓI : Level} -> Type ℓD -> Type ℓI -> Type (ℓ-max ℓD ℓI)
@@ -99,3 +104,16 @@ Detachable-eq {D = D} S decide = isoToEquiv i
     where
     path : decide d == no ¬s
     path = isPropDec (snd (S d)) _ _
+
+-- Same Subtypes
+abstract
+  same-Subtype : {ℓD ℓP : Level} -> {D : Type ℓD} -> {S1 S2 : Subtype D ℓP} ->
+                 ({d : D} -> ⟨ S1 d ⟩ -> ⟨ S2 d ⟩) ->
+                 ({d : D} -> ⟨ S2 d ⟩ -> ⟨ S1 d ⟩) ->
+                 S1 == S2
+  same-Subtype {D = D} {S1} {S2} forward backward = funExt proof
+    where
+    proof : (d : D) -> S1 d == S2 d
+    proof d = ΣProp-path isProp-isProp (ua (isoToEquiv i))
+      where
+      i = isProp->iso forward backward (snd (S1 d)) (snd (S2 d))

@@ -4,7 +4,7 @@ module chapter2.divisors where
 
 open import base
 open import chapter2.multiplicative
-open import cubical using (_≃_ ; pathToEquiv)
+open import cubical using (_≃_)
 open import div hiding (remainder)
 open import equality
 open import equivalence
