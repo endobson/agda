@@ -54,6 +54,7 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     +-CommMonoid : CommMonoid Domain
     +-CommMonoid = record
       { ∙-commute = +-commute
+      ; isSet-Domain = isSet-Domain
       }
 
     *-Monoid : Monoid Domain
@@ -68,6 +69,7 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     *-CommMonoid : CommMonoid Domain
     *-CommMonoid = record
       { ∙-commute = *-commute
+      ; isSet-Domain = isSet-Domain
       }
 
 

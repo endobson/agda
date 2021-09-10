@@ -10,4 +10,5 @@ CommMonoid-ℤ+ : CommMonoid ℤ
 CommMonoid-ℤ+ = record
   { monoid = Monoid-ℤ+
   ; ∙-commute = +-commute
+  ; isSet-Domain = isSetInt
   }

@@ -102,6 +102,7 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} (M : CommMonoid D) (I : Type ℓI) 
   CommMonoid-DirectProduct = record
     { monoid = MDP
     ; ∙-commute = dp∙-commute
+    ; isSet-Domain = isSet-DirectProduct M.isSet-Domain
     }
 
 
@@ -119,7 +120,6 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} (G : GroupStr D) (I : Type ℓI) wh
   GroupStr-DirectProduct : GroupStr (DP D I)
   GroupStr-DirectProduct = record
     { comm-monoid = CMDP
-    ; isSet-Domain = isSet-DirectProduct G.isSet-Domain
     ; inverse = inverse
     ; ∙-left-inverse = dp∙-left-inverse
     }

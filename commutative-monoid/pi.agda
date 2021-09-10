@@ -3,17 +3,19 @@
 module commutative-monoid.pi where
 
 open import base
+open import commutative-monoid
 open import equality
+open import funext
+open import hlevel
 open import monoid
 open import monoid.pi
-open import funext
-open import commutative-monoid
 
 CommMonoidStr-Π : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {D : A -> Type ℓ₂} ->
                   ((a : A) -> CommMonoid (D a)) -> CommMonoid ((a : A) -> (D a))
 CommMonoidStr-Π M = record
   { monoid = MonoidStr-Π (\a -> CommMonoid.monoid (M a))
   ; ∙-commute = funExt (\a -> (CommMonoid.∙-commute (M a)))
+  ; isSet-Domain = isSetΠ (\a -> CommMonoid.isSet-Domain (M a))
   }
 
 CommMonoid-Π : {ℓ₁ ℓ₂ : Level} (A : Type ℓ₁) -> (A -> CommMonoidT ℓ₂) -> CommMonoidT (ℓ-max ℓ₁ ℓ₂)

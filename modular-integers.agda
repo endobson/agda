@@ -361,6 +361,7 @@ module _ {n : Nat} where
   CommMonoidStr-ℤ/nℤ-* = record
     { monoid = MonoidStr-ℤ/nℤ-*
     ; ∙-commute = \{x} {y} -> z*-commute x y
+    ; isSet-Domain = isSet-ℤ/nℤ
     }
 
 
@@ -417,7 +418,6 @@ CommMonoidStr-ℤ/nℤ* {n} =
 GroupStr-ℤ/nℤ* : {n : Nat} -> GroupStr (ℤ/nℤ* n)
 GroupStr-ℤ/nℤ* {n} = record
   { comm-monoid = CommMonoidStr-ℤ/nℤ*
-  ; isSet-Domain = isSet-ℤ/nℤ*
   ; inverse = z1/
   ; ∙-left-inverse = \ {x} -> z1/-left-inverse x
   }

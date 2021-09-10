@@ -5,6 +5,7 @@ module commutative-monoid where
 open import base
 open import equality
 open import functions
+open import hlevel
 import monoid
 
 record CommMonoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
@@ -14,6 +15,7 @@ record CommMonoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
 
   field
     ∙-commute : {m n : Domain} -> (m ∙ n) == (n ∙ m)
+    isSet-Domain : isSet Domain
 
 record CommMonoidʰᵉ
     {ℓ₁ ℓ₂ : Level}

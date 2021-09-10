@@ -102,6 +102,7 @@ instance
   UListCommMonoid : CommMonoid (UList A)
   UListCommMonoid = record
     { ∙-commute = (\ {as} {bs} -> ++-commute as bs )
+    ; isSet-Domain = trunc
     }
 
 concat : {{M : CommMonoid A}} -> isSet A -> UList A -> A

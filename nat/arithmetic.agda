@@ -3,14 +3,8 @@
 module nat.arithmetic where
 
 open import base
-open import commutative-monoid
 open import equality
-open import equivalence
-open import hlevel
-open import isomorphism
-open import monoid
 open import nat.properties
-open import relation
 open import sum
 
 infixl 6 _+'_

@@ -88,10 +88,10 @@ instance
     ; ∙-right-ε = \{A} -> ×-flip >=> ×-Top A
     }
 
-  ×-CommMonoid : CommMonoid (Type ℓ-zero)
-  ×-CommMonoid = record
-    { ∙-commute = ×-flip
-    }
+  -- ×-CommMonoid : CommMonoid (Type ℓ-zero)
+  -- ×-CommMonoid = record
+  --   { ∙-commute = ×-flip
+  --   }
 
 -- Disjoint Sum
 
@@ -381,10 +381,10 @@ instance
     ; ∙-right-ε = \{A} -> ⊎-flip >=> ⊎-Bot A
     }
 
-  ⊎-CommMonoid : CommMonoid (Type ℓ-zero)
-  ⊎-CommMonoid = record
-    { ∙-commute = ⊎-flip
-    }
+  -- ⊎-CommMonoid : CommMonoid (Type ℓ-zero)
+  -- ⊎-CommMonoid = record
+  --   { ∙-commute = ⊎-flip
+  --   }
 
 ×-distrib-⊎ : {A B C : Type ℓ} -> ((A ⊎ B) × C) == ((A × C) ⊎ (B × C))
 ×-distrib-⊎ {A = A} {B} {C} = ua (isoToEquiv i)

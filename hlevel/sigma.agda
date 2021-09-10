@@ -64,3 +64,6 @@ isSetΣ = isOfHLevelΣ 2
 
 isProp× : isProp A₁ -> isProp A₂ -> isProp (A₁ × A₂)
 isProp× pA₁ pA₂ = isPropΣ pA₁ (\_ -> pA₂)
+
+isSet× : isSet A₁ -> isSet A₂ -> isSet (A₁ × A₂)
+isSet× sA₁ sA₂ = isSetΣ sA₁ (\_ -> sA₂)

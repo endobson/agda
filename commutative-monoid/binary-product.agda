@@ -4,6 +4,7 @@ module commutative-monoid.binary-product where
 
 open import base
 open import equality
+open import hlevel.sigma
 open import monoid
 open import monoid.binary-product
 open import commutative-monoid
@@ -13,6 +14,7 @@ CommMonoidStr-× : {ℓ₁ ℓ₂ : Level} {D₁ : Type ℓ₁} {D₂ : Type ℓ
 CommMonoidStr-× M₁ M₂ = record
   { monoid = MonoidStr-× M₁.monoid M₂.monoid
   ; ∙-commute = cong2 _,_ M₁.∙-commute M₂.∙-commute
+  ; isSet-Domain = isSet× M₁.isSet-Domain M₂.isSet-Domain
   }
   where
   module M₁ = CommMonoid M₁
