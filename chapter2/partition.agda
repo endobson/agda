@@ -423,8 +423,14 @@ module _ (n⁺ : Nat⁺) where
     i : Iso (Divisors n) (Divisors n)
     i .Iso.fun (a , (d , p)) = d , (a , *'-commute {a} {d} >=> p)
     i .Iso.inv (d , (a , p)) = a , (d , *'-commute {d} {a} >=> p)
-    i .Iso.rightInv (d , (a , p)) = cong (\x -> (d , (a , x))) (isSetNat _ _ _ _)
-    i .Iso.leftInv (a , (d , p)) = cong (\x -> (a , (d , x))) (isSetNat _ _ _ _)
+    i .Iso.rightInv (d , (a , p)) = cong f (isSetNat _ _ _ _)
+      where
+      f : a * d == n -> Divisors n
+      f x = d , a , x
+    i .Iso.leftInv (a , (d , p)) = cong f (isSetNat _ _ _ _)
+      where
+      f : d * a == n -> Divisors n
+      f x = a , d , x
 
   reindexed : (Σ[ d ∈ (Divisors n) ] (Totatives ⟨ d ⟩)) ≃
               (Σ[ d ∈ (Divisors n) ] (Totatives ⟨ (snd d) ⟩))

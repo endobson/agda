@@ -36,11 +36,11 @@ module _ where
         (suc-fin-f f ∘ suc-fin) == (suc-fin ∘ f)
       suc-fin-f-compose-path f k (i , p) = path k
         where
-        lemma : (suc (f (i , pred-≤ (suc-≤ p)) .fst)) == suc (f (i , p) .fst)
-        lemma k = (suc (f (i , isProp≤ (pred-≤ (suc-≤ p)) p k) .fst))
+        lemma : (suc (Fin.i (f (i , pred-≤ (suc-≤ p))))) == suc (Fin.i (f (i , p)))
+        lemma k = (suc (Fin.i (f (i , isProp≤ (pred-≤ (suc-≤ p)) p k))))
 
         path : (suc-fin-f f ∘ suc-fin) (i , p) == (suc-fin ∘ f) (i , p)
-        path = ΣProp-path isProp≤ lemma
+        path = fin-i-path lemma
 
       suc-fin-f-double-compose-path : {n : Nat} (f : Fin n -> Fin n) (g : Fin n -> Fin n) ->
         (suc-fin-f f ∘ suc-fin-f g ∘ suc-fin) == (suc-fin ∘ f ∘ g)
@@ -56,13 +56,13 @@ module _ where
         ((cong f path) ∙∙ zp ∙∙ (cong g (sym path))) i
         where
         path : (zero , p) == zero-fin
-        path = ΣProp-path isProp≤ refl
+        path = fin-i-path refl
       fin-fun-eq-split-zero {f = f} {g = g} zp sp i (suc j , p) =
         ((cong f path) ∙∙ (\i -> sp i (j , (pred-≤ p))) ∙∙ (cong g (sym path))) i
 
         where
         path : (suc j , p) == suc-fin (j , (pred-≤ p))
-        path = ΣProp-path isProp≤ refl
+        path = fin-i-path refl
 
       sucPerm-rightInv : {n : Nat} (φ : Perm n)
                          -> suc-fin-f (φ .fun) ∘ suc-fin-f (φ .inv) == idfun (Fin (suc n))
@@ -108,24 +108,24 @@ module _ {m n : Nat} where
 
     abstract
       embed-inc-injective : {i j : Fin m} -> embed-inc i == embed-inc j -> i == j
-      embed-inc-injective p = ΣProp-path isProp≤ (cong fst p)
+      embed-inc-injective p = fin-i-path (cong Fin.i p)
 
       embed-suc-injective : {i j : Fin n} -> embed-suc i == embed-suc j -> i == j
-      embed-suc-injective p = ΣProp-path isProp≤ (+'-left-injective (cong fst p))
+      embed-suc-injective p = fin-i-path (+'-left-injective (cong Fin.i p))
 
       embed-inc!=embed-suc : {i : Fin m} {j : Fin n} -> embed-inc i != embed-suc j
       embed-inc!=embed-suc {i , lt-i} {j , _} p = zero-≮ lt'
         where
         lt : (j +' m) < m
-        lt = transport (\k -> (cong fst p >=> +'-commute {m} {j}) k < m) lt-i
+        lt = transport (\k -> (cong Fin.i p >=> +'-commute {m} {j}) k < m) lt-i
         lt' : j < 0
         lt' = (+-right-≤⁻ m) lt
 
 
       split-fin : (i : Fin (m +' n)) -> SplitFin i
       split-fin (i , p) with (split-nat< i m)
-      ... | (inj-l i<m)          = inj-l ((i , i<m) , ΣProp-path isProp≤ refl)
-      ... | (inj-r (j , j+m==i)) = inj-r (res , ΣProp-path isProp≤ (+'-commute {m} {j} >=> j+m==i))
+      ... | (inj-l i<m)          = inj-l ((i , i<m) , fin-i-path refl)
+      ... | (inj-r (j , j+m==i)) = inj-r (res , fin-i-path (+'-commute {m} {j} >=> j+m==i))
         where
         res : Fin n
         res = (j , lemma)

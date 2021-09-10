@@ -188,7 +188,7 @@ module _ (p : Prime') where
     is-totative-of-prime-power :
       {k : Nat} (n : Nat⁺) (i : Fin p') ->
       Totient (prime-power p ⟨ n ⟩) k ->
-      Totient (prime-power p (suc ⟨ n ⟩)) ((⟨ i ⟩ *' (prime-power p ⟨ n ⟩)) +' k)
+      Totient (prime-power p (suc ⟨ n ⟩)) ((Fin.i i *' (prime-power p ⟨ n ⟩)) +' k)
     is-totative-of-prime-power {k} n⁺@(n@(suc n-1) , _) (i , i<p) t = record
       { pos-k = pos-ipnk
       ; k≤n = ipnk≤psn
@@ -266,17 +266,17 @@ module _ (p : Prime') where
     is-totative-of-prime-power-pred :
       {k : Nat} (n : Nat⁺) -> (qr : QuotientRemainder (prime-power⁺ p ⟨ n ⟩) k) ->
       Totient (prime-power p (suc ⟨ n ⟩)) k ->
-      (Fin p' × Totient (prime-power p ⟨ n ⟩) ⟨ (QuotientRemainder.r qr) ⟩)
+      (Fin p' × Totient (prime-power p ⟨ n ⟩) (Fin.i (QuotientRemainder.r qr)))
     is-totative-of-prime-power-pred {k} n⁺@(n , _) qr t = (q , q<p) , record
       { pos-k = pos-r
-      ; k≤n = weaken-< (snd r)
+      ; k≤n = weaken-< (Fin.i<n r)
       ; rp = rp
       }
       where
       module qr = QuotientRemainder qr
       r : Fin (prime-power p n)
       r = qr.r
-      r' = ⟨ r ⟩
+      r' = Fin.i r
       q : Nat
       q = qr.q
 
@@ -334,26 +334,26 @@ module _ (p : Prime') where
       i : Iso
           (Σ[ k ∈ Nat ] (Totient (prime-power p (suc n)) k × QuotientRemainder (prime-power⁺ p n) k))
           (Fin p' × (Totatives (prime-power p n)))
-      i .fun (k , (t , qr)) =  fst ans , (⟨ QuotientRemainder.r qr ⟩ , snd ans)
+      i .fun (k , (t , qr)) =  fst ans , (Fin.i (QuotientRemainder.r qr) , snd ans)
         where
         ans = is-totative-of-prime-power-pred n⁺ qr t
       i .inv (i , (k , t)) =
         (ipnk , (is-totative-of-prime-power n⁺ i t , quotient-remainder (prime-power⁺ p n) ipnk))
         where
-        ipnk = (⟨ i ⟩ *' (prime-power p n)) +' k
+        ipnk = (Fin.i i *' (prime-power p n)) +' k
       i .rightInv (i , (k , t)) =
-        cong2 _,_ (ΣProp-path isProp≤ i'-path) (ΣProp-path isProp-isTotativeOf k-path)
+        cong2 _,_ (fin-i-path i'-path) (ΣProp-path isProp-isTotativeOf k-path)
         where
         prime-power≥prime : (prime-power p n) ≥ p'
         prime-power≥prime = div'->≤ (prime-power-div p n⁺) {snd (prime-power⁺ p n)}
         pn>1 : (prime-power p n) > 1
         pn>1 = trans-≤ (Prime'.>1 p) prime-power≥prime
-        i'-path : quotient ((⟨ i ⟩ *' (prime-power p n)) +' k) (prime-power⁺ p n) == ⟨ i ⟩
+        i'-path : quotient ((Fin.i i *' (prime-power p n)) +' k) (prime-power⁺ p n) == Fin.i i
         i'-path = quotient-path (prime-power⁺ p n) _ (k , (Totient.k<n t pn>1))
-        k-path : ⟨ remainder ((⟨ i ⟩ *' (prime-power p n)) +' k) (prime-power⁺ p n) ⟩ == k
-        k-path = cong ⟨_⟩ (remainder-path (prime-power⁺ p n)
-                                          ⟨ i ⟩
-                                          (k , (Totient.k<n t pn>1)))
+        k-path : Fin.i (remainder ((Fin.i i *' (prime-power p n)) +' k) (prime-power⁺ p n)) == k
+        k-path = cong Fin.i (remainder-path (prime-power⁺ p n)
+                                            (Fin.i i)
+                                            (k , (Totient.k<n t pn>1)))
       i .leftInv (k , (t , qr)) =
         ΣProp-path (isProp× isProp-isTotativeOf (isContr->isProp isContr-QuotientRemainder))
                    (QuotientRemainder.path qr)
@@ -491,11 +491,11 @@ private
         i .inv ((suc i , lt) , rp) = (i , weaken-< lt) , rp
         i .rightInv ((zero  , lt) , rp) = bot-elim (<->!= n>1 (sym (rp-zero (rp-sym rp))))
         i .rightInv ((suc i , (j , path)) , rp) =
-          ΣProp-path isProp-RelativelyPrime⁰ (ΣProp-path isProp≤ refl)
+          ΣProp-path isProp-RelativelyPrime⁰ (fin-i-path refl)
         i .leftInv ((i , (zero  , path)) , rp) =
           bot-elim (<->!= n>1 (sym ((subst (RelativelyPrime⁰ n) path rp) n div'-refl div'-refl)))
         i .leftInv ((i , (suc j , path)) , rp) =
-          ΣProp-path isProp-RelativelyPrime⁰ (ΣProp-path isProp≤ refl)
+          ΣProp-path isProp-RelativelyPrime⁰ (fin-i-path refl)
 
     FinSucRP-FinRP-1-eq : (Σ (Fin 1) (\(i , _) -> RelativelyPrime⁰ 1 (suc i))) ≃
                           (Σ (Fin 1) (\(i , _) -> RelativelyPrime⁰ 1 i))

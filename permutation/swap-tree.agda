@@ -70,7 +70,7 @@ abstract
       {n : Nat} -> (ins : (Fin (suc n)))
       -> enc-st (ins->st ins) zero-fin == ins
     insert-swap-tree-path0 {zero} ins = isPropFin1 zero-fin ins
-    insert-swap-tree-path0 {suc _} (0     , lt) = ΣProp-path isProp≤ refl
+    insert-swap-tree-path0 {suc _} (0     , lt) = fin-i-path refl
     insert-swap-tree-path0 {suc n} ins@(suc i , lt) =
       begin
         enc-st (ins->st ins) zero-fin
@@ -84,7 +84,7 @@ abstract
         (suc-fin ∘ enc-st (ins->st ins')) zero-fin
       ==< cong suc-fin (insert-swap-tree-path0 ins') >
         (suc-fin ins')
-      ==< ΣProp-path isProp≤ refl >
+      ==< fin-i-path refl >
         ins
       end
       where

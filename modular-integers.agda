@@ -229,7 +229,7 @@ module _ (n⁺ : Nat⁺) where
     rep->ℤ/nℤ->rep : (i : Fin n) -> (ℤ/nℤ->representative (representative->ℤ/nℤ i)) == i
     rep->ℤ/nℤ->rep i = cong QuotientRemainder.r (isContr-QuotientRemainder .snd qr)
       where
-      qr : QuotientRemainder n⁺ (int ⟨ i ⟩)
+      qr : QuotientRemainder n⁺ (int (Fin.i i))
       qr = record { q = (int 0) ; r = i ; path = int.+-left int.*-left-zero >=> int.+-left-zero }
 
     ℤ/nℤ->rep->ℤ/nℤ : (i : ℤ/nℤ n) -> (representative->ℤ/nℤ (ℤ/nℤ->representative i)) == i
@@ -239,7 +239,7 @@ module _ (n⁺ : Nat⁺) where
       handle i = sym (eq/ _ _ r)
         where
         module qr = QuotientRemainder (quotient-remainder n⁺ i)
-        r : i ~ (int ⟨ qr.r ⟩)
+        r : i ~ (int (Fin.i qr.r))
         r = congruent-mod (qr.q ,
               sym int.+-right-zero >=> int.+-right (sym (int.add-minus-zero)) >=>
               sym int.+-assoc >=> int.+-left qr.path)

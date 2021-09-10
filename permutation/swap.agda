@@ -46,32 +46,33 @@ private
 abstract
   encode-swap-injective : {n : Nat} -> (sw : Swap n) -> Injective (encode-swap sw)
   encode-swap-injective swap           {zero          , lt} {zero          , lt2} p =
-    ΣProp-path isProp≤ refl
+    fin-i-path refl
   encode-swap-injective swap           {zero          , lt} {(suc zero)    , lt2} p =
-    zero-suc-absurd (cong fst (sym p))
+    zero-suc-absurd (cong Fin.i (sym p))
   encode-swap-injective swap           {zero          , lt} {(suc (suc _)) , lt2} p =
-    zero-suc-absurd (suc-injective (cong fst p))
+    zero-suc-absurd (suc-injective (cong Fin.i p))
   encode-swap-injective swap           {(suc zero)    , lt} {zero          , lt2} p =
-    zero-suc-absurd (cong fst p)
+    zero-suc-absurd (cong Fin.i p)
   encode-swap-injective swap           {(suc zero)    , lt} {(suc zero)    , lt2} p =
-    ΣProp-path isProp≤ refl
+    fin-i-path refl
   encode-swap-injective swap           {(suc zero)    , lt} {(suc (suc _)) , lt2} p =
-    zero-suc-absurd (cong fst p)
+    zero-suc-absurd (cong Fin.i p)
   encode-swap-injective swap           {(suc (suc _)) , lt} {zero          , lt2} p =
-    zero-suc-absurd (suc-injective (cong fst (sym p)))
+    zero-suc-absurd (suc-injective (cong Fin.i (sym p)))
   encode-swap-injective swap           {(suc (suc _)) , lt} {(suc zero)    , lt2} p =
-    zero-suc-absurd (cong fst (sym p))
+    zero-suc-absurd (cong Fin.i (sym p))
   encode-swap-injective swap           {(suc (suc _)) , lt} {(suc (suc _)) , lt2} p =
     p
   encode-swap-injective (swap-skip sw) {zero          , lt} {zero          , lt2} p =
-    ΣProp-path isProp≤ refl
+    fin-i-path refl
   encode-swap-injective (swap-skip sw) {zero          , lt} {(suc _)       , lt2} p =
-    zero-suc-absurd (cong fst p)
+    zero-suc-absurd (cong Fin.i p)
   encode-swap-injective (swap-skip sw) {(suc _)       , lt} {zero          , lt2} p =
-    zero-suc-absurd (cong fst (sym p))
+    zero-suc-absurd (cong Fin.i (sym p))
   encode-swap-injective (swap-skip sw) {(suc i)       , lt} {(suc j)       , lt2} p =
-    ΣProp-path isProp≤
-      (cong (suc ∘ fst) (encode-swap-injective sw {i , pred-≤ lt} {j , pred-≤ lt2} (suc-fin-injective p)))
+    fin-i-path
+      (cong (suc ∘ Fin.i) (encode-swap-injective sw {i , pred-≤ lt} {j , pred-≤ lt2}
+                                                 (suc-fin-injective p)))
 
   private
     -- SwapPerm manipulation functions
@@ -130,7 +131,7 @@ abstract
                                 -> encode-swap (swap-skip sw) (suc-fin i)
                                    == fin-rec zero-fin (suc-fin ∘ encode-swap sw) (suc-fin i)
     encode-swap-swap-skip-suc sw i =
-      cong (\x -> suc-fin (encode-swap sw x)) (ΣProp-path isProp≤ refl)
+      cong (\x -> suc-fin (encode-swap sw x)) (fin-i-path refl)
       >=> sym (fin-rec-suc-point zero-fin (suc-fin ∘ encode-swap sw) i)
 
     encode-swap-swap-skip' : {n : Nat} -> (sw : Swap n) -> (i : Fin (suc n))
@@ -182,8 +183,8 @@ abstract
     encode-sperm'-swap-skip {n} zero sp = sym (funExt path)
       where
       path : (i : Fin (suc n)) -> (fin-rec zero-fin suc-fin i) == i
-      path (0       , lt) = ΣProp-path isProp≤ refl
-      path ((suc i) , lt) = ΣProp-path isProp≤ refl
+      path (0       , lt) = fin-i-path refl
+      path ((suc i) , lt) = fin-i-path refl
     encode-sperm'-swap-skip (suc l) sp = ans
       where
       rec : encode-sperm' l (swap-skip ∘ sp ∘ suc-fin)
@@ -214,9 +215,9 @@ abstract
     encode-single-swap' : {n : Nat} -> (x : Fin (suc (suc n)))
                           -> encode-sperm (single-sperm swap) x
                              == fin-rec one-fin (fin-rec zero-fin (\x -> suc-fin (suc-fin x))) x
-    encode-single-swap' (zero          , lt) = ΣProp-path isProp≤ refl
-    encode-single-swap' ((suc zero)    , lt) = ΣProp-path isProp≤ refl
-    encode-single-swap' ((suc (suc _)) , lt) = ΣProp-path isProp≤ refl
+    encode-single-swap' (zero          , lt) = fin-i-path refl
+    encode-single-swap' ((suc zero)    , lt) = fin-i-path refl
+    encode-single-swap' ((suc (suc _)) , lt) = fin-i-path refl
 
     encode-single-swap :
       {n : Nat} -> Path (Fin (suc (suc n)) -> Fin (suc (suc n)))

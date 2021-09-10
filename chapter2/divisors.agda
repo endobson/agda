@@ -189,11 +189,11 @@ module _ (p : Prime') where
     backward ((suc (suc _)) , lt) = bot-elim (zero-≮ (pred-≤ (pred-≤ lt)))
 
     forward-backward : (i : Fin 2) -> (forward (backward i)) == i
-    forward-backward (0 , lt) = path >=> ΣProp-path isProp≤ refl
+    forward-backward (0 , lt) = path >=> fin-i-path refl
       where
       path : (forward (backward (0 , lt))) == zero-fin
       path = (forward'-constant (p' , div'-refl) _ (inj-l refl))
-    forward-backward (1 , lt) = path >=> ΣProp-path isProp≤ refl
+    forward-backward (1 , lt) = path >=> fin-i-path refl
       where
       path : (forward (backward (1 , lt))) == suc-fin zero-fin
       path = (forward'-constant (1 , div'-one) _ (inj-r refl))

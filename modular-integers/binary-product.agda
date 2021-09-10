@@ -244,7 +244,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
       i .inv x .fst = z*2-inv₁ x
       i .inv x .snd = z*2-inv₂ x
       i .rightInv x = z*2-inv-path1 x
-      i .leftInv (x , y) = cong2 _,_ (z*2-inv-path3-full y x) (z*2-inv-path2-full x y)
+      i .leftInv (x , y) i = (z*2-inv-path3-full y x i) , (z*2-inv-path2-full x y i)
 
 
     z*2-distrib-*' : (x1 x2 : ℤ) (y1 y2 : ℤ) ->

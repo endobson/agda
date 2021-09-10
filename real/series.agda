@@ -6,6 +6,7 @@ open import base
 open import real
 open import real.sequence
 open import finsum
+open import fin
 open import finset.instances
 open import ring.implementations.rational
 

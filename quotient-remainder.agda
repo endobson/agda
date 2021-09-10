@@ -18,7 +18,7 @@ record QuotientRemainder (d : Nat⁺) (n : Nat) : Type₀ where
     r : Fin d'
 
   private
-    r' = ⟨ r ⟩
+    r' = Fin.i r
 
   field
     path : q *' d' +' r' == n
@@ -37,16 +37,16 @@ private
 
   small-remainder-helper : (n x y : Nat) (d : Nat⁺) -> (p : (x +' y == ⟨ d ⟩)) ->
                            (lt1 : n < x) ->
-                           fst (remainder-helper n x y d p) == n +' y
+                           Fin.i (remainder-helper n x y d p) == n +' y
   small-remainder-helper n       zero    y d p lt1 = bot-elim (zero-≮ lt1)
   small-remainder-helper zero    (suc x) y d p lt1 = refl
   small-remainder-helper (suc n) (suc x) y d p lt1 =
     small-remainder-helper n x (suc y) d (+'-right-suc >=> p) (pred-≤ lt1) >=> +'-right-suc
 
-  small-remainder : (d : Nat⁺) (n : Fin ⟨ d ⟩) -> remainder ⟨ n ⟩ d == n
-  small-remainder d@(suc _  , _) (zero  , n<d) = ΣProp-path isProp≤ refl
+  small-remainder : (d : Nat⁺) (n : Fin ⟨ d ⟩) -> remainder (Fin.i n) d == n
+  small-remainder d@(suc _  , _) (zero  , n<d) = fin-i-path refl
   small-remainder d@(suc d' , _) (suc n , n<d) =
-    ΣProp-path isProp≤
+    fin-i-path
       ((small-remainder-helper n d' 1 d (+'-right-suc >=> +'-right-zero) (pred-≤ n<d))
        >=> +'-right-suc >=> +'-right-zero)
 
@@ -93,46 +93,47 @@ private
   small-quotient-helper zero    (suc x) b a<x = refl
   small-quotient-helper (suc a) (suc x) b a<x = small-quotient-helper a x b (pred-≤ a<x)
 
-  small-quotient : (d : Nat⁺) (n : Fin ⟨ d ⟩) -> quotient ⟨ n ⟩ d == 0
+  small-quotient : (d : Nat⁺) (n : Fin ⟨ d ⟩) -> quotient (Fin.i n) d == 0
   small-quotient _ (zero , _) = refl
   small-quotient d@(suc d' , _) (suc n , n<d) = small-quotient-helper n d' d (pred-≤ n<d)
 
 
-remainder-path : (d : Nat⁺) (q : Nat) (r : Fin ⟨ d ⟩) -> remainder ((q *' ⟨ d ⟩) +' ⟨ r ⟩) d == r
+remainder-path : (d : Nat⁺) (q : Nat) (r : Fin ⟨ d ⟩) -> remainder ((q *' ⟨ d ⟩) +' (Fin.i r)) d == r
 remainder-path d zero    r = small-remainder d r
 remainder-path d (suc q) r =
-  large-remainder d ((q *' ⟨ d ⟩ +' ⟨ r ⟩) , +'-commute {_} {⟨ d ⟩} >=> sym (+'-assoc {⟨ d ⟩} {_} {_}))
+  large-remainder d ((q *' ⟨ d ⟩ +' (Fin.i r)) ,
+                     +'-commute {_} {⟨ d ⟩} >=> sym (+'-assoc {⟨ d ⟩} {_} {_}))
   >=> remainder-path d q r
 
-quotient-path : (d : Nat⁺) (q : Nat) (r : Fin ⟨ d ⟩) -> quotient ((q *' ⟨ d ⟩) +' ⟨ r ⟩) d == q
+quotient-path : (d : Nat⁺) (q : Nat) (r : Fin ⟨ d ⟩) -> quotient ((q *' ⟨ d ⟩) +' (Fin.i r)) d == q
 quotient-path d zero    r = small-quotient d r
 quotient-path d (suc q) r =
-  large-quotient d ((q *' ⟨ d ⟩ +' ⟨ r ⟩) , +'-commute {_} {⟨ d ⟩} >=> sym (+'-assoc {⟨ d ⟩} {_} {_}))
+  large-quotient d ((q *' ⟨ d ⟩ +' (Fin.i r)) , +'-commute {_} {⟨ d ⟩} >=> sym (+'-assoc {⟨ d ⟩} {_} {_}))
   >=> cong suc (quotient-path d q r)
 
 private
   decompose-path' : (d : Nat⁺) (n : Nat) (b : Nat) -> (n < b) ->
-                    n == (quotient n d) *' ⟨ d ⟩ +' ⟨ (remainder n d) ⟩
+                    n == (quotient n d) *' ⟨ d ⟩ +' Fin.i (remainder n d)
   decompose-path' d n zero n<b = bot-elim (zero-≮ n<b)
   decompose-path' d@(d'@(suc d'') , _) n (suc b) n<b = handle (split-nat< n d')
     where
     n≤b : n ≤ b
     n≤b = pred-≤ n<b
-    handle : ((n < d') ⊎ (d' ≤ n)) -> n == (quotient n d) *' ⟨ d ⟩ +' ⟨ (remainder n d) ⟩
+    handle : ((n < d') ⊎ (d' ≤ n)) -> n == (quotient n d) *' ⟨ d ⟩ +' Fin.i (remainder n d)
     handle (inj-l n<d) =
-      sym (\i -> (small-quotient d (n , n<d) i) *' d' +' ⟨ small-remainder d (n , n<d) i ⟩)
+      sym (\i -> (small-quotient d (n , n<d) i) *' d' +' Fin.i (small-remainder d (n , n<d) i))
     handle (inj-r (k , p)) =
       begin
         n
       ==< sym p >
         k +' d'
       ==< cong (_+' d') (decompose-path' d k b k<b) >
-        ((quotient k d) *' ⟨ d ⟩ +' ⟨ (remainder k d) ⟩)  +' d'
+        ((quotient k d) *' ⟨ d ⟩ +' Fin.i (remainder k d))  +' d'
       ==< +'-commute {_} {d'} >=> sym (+'-assoc {d'}) >
-        ((suc (quotient k d)) *' ⟨ d ⟩) +' ⟨ (remainder k d) ⟩
+        ((suc (quotient k d)) *' ⟨ d ⟩) +' Fin.i (remainder k d)
       ==< cong2 _+'_ (cong (_*' d') (sym (large-quotient d (k , p))))
-                     (cong ⟨_⟩ (sym (large-remainder d (k , p)))) >
-        (quotient n d) *' ⟨ d ⟩ +' ⟨ (remainder n d) ⟩
+                     (cong Fin.i (sym (large-remainder d (k , p)))) >
+        (quotient n d) *' ⟨ d ⟩ +' Fin.i (remainder n d)
       end
       where
       k<n : k < n
@@ -141,7 +142,7 @@ private
       k<b = trans-≤ k<n n≤b
 
   decompose-path : (d : Nat⁺) (n : Nat) ->
-                   n == (quotient n d) *' ⟨ d ⟩ +' ⟨ (remainder n d) ⟩
+                   n == (quotient n d) *' ⟨ d ⟩ +' Fin.i (remainder n d)
   decompose-path d n = decompose-path' d n (suc n) (same-≤ (suc n))
 
 
@@ -166,5 +167,5 @@ isContr-QuotientRemainder {d} {n} .snd qr2 = (\i -> record
   q-path = cong (\x -> quotient x d) (sym qr2.path) >=> quotient-path d qr2.q qr2.r
   r-path : qr.r == qr2.r
   r-path = cong (\x -> remainder x d) (sym qr2.path) >=> remainder-path d qr2.q qr2.r
-  p-path : PathP (\i -> (q-path i) *' ⟨ d ⟩ +' ⟨ r-path i ⟩ == n) qr.path qr2.path
+  p-path : PathP (\i -> (q-path i) *' ⟨ d ⟩ +' Fin.i (r-path i) == n) qr.path qr2.path
   p-path = isProp->PathP (\i -> isSetNat _ _) _ _

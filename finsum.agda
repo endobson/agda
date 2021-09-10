@@ -91,8 +91,8 @@ finiteSum-one n = finiteSum-eval _ (idEquiv _) (\i -> 1) >=> i<nSum-one {n}
   where
 
   forward : (Σ[ i ∈ Fin (suc n) ] (P i)) -> (P zero-fin ⊎ Σ[ i ∈ Fin n ] (P (suc-fin i)))
-  forward ((0 , lt) , p) = inj-l (substᵉ P (ΣProp-path isProp≤ refl) p)
-  forward ((suc i , lt) , p) = inj-r ((i , pred-≤ lt) , (substᵉ P (ΣProp-path isProp≤ refl) p))
+  forward ((0 , lt) , p) = inj-l (substᵉ P (fin-i-path refl) p)
+  forward ((suc i , lt) , p) = inj-r ((i , pred-≤ lt) , (substᵉ P (fin-i-path refl) p))
 
   backward : (P zero-fin ⊎ Σ[ i ∈ Fin n ] (P (suc-fin i))) -> (Σ[ i ∈ Fin (suc n) ] (P i))
   backward (inj-l p) = (zero-fin , p)
@@ -100,7 +100,7 @@ finiteSum-one n = finiteSum-eval _ (idEquiv _) (\i -> 1) >=> i<nSum-one {n}
 
   module _ (i : Fin n) (p : (P (suc-fin i))) where
     fst-path : fst (proj-r (forward (backward (inj-r (i , p)))) tt) == i
-    fst-path = ΣProp-path isProp≤ refl
+    fst-path = fin-i-path refl
 
     x : Fin (suc n)
     x = suc-fin i
@@ -108,7 +108,7 @@ finiteSum-one n = finiteSum-eval _ (idEquiv _) (\i -> 1) >=> i<nSum-one {n}
     y = suc-fin (fst-path i0)
     p1 p2 : x == y
     p1 = sym (cong suc-fin fst-path)
-    p2 = (ΣProp-path isProp≤ refl)
+    p2 = (fin-i-path refl)
 
     fb-r-snd : PathP (\k -> P (p1 (~ k))) (substᵉ P p2 p) p
     fb-r-snd = symP (subst-filler2 P p1 p2 (isSetFin x y p1 p2) p)
@@ -121,7 +121,7 @@ finiteSum-one n = finiteSum-eval _ (idEquiv _) (\i -> 1) >=> i<nSum-one {n}
     fb-l = cong inj-l path
       where
       path-i : zero-fin == zero-fin
-      path-i = ΣProp-path isProp≤ refl
+      path-i = fin-i-path refl
 
       path : (substᵉ P path-i p) == p
       path = sym (subst-filler2 P refl path-i (isSetFin _ _ _ _) p)
@@ -131,7 +131,7 @@ finiteSum-one n = finiteSum-eval _ (idEquiv _) (\i -> 1) >=> i<nSum-one {n}
   bf-zero lt p = (\i -> path1 (~ i) , path2 (~ i))
     where
     path1 : (0 , lt) == zero-fin
-    path1 = ΣProp-path isProp≤ refl
+    path1 = fin-i-path refl
     path2 : PathP (\i -> P (path1 i)) p (substᵉ P path1 p)
     path2 = subst-filler P path1 p
 
@@ -140,7 +140,7 @@ finiteSum-one n = finiteSum-eval _ (idEquiv _) (\i -> 1) >=> i<nSum-one {n}
   bf-suc i lt p = (\i -> path1 (~ i) , path2 (~ i))
     where
     path1 : (suc i , lt) == _
-    path1 = ΣProp-path isProp≤ refl
+    path1 = fin-i-path refl
     path2 : PathP (\i -> P (path1 i)) p (substᵉ P path1 p)
     path2 = subst-filler P path1 p
 
@@ -344,7 +344,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
         eq' = (Maybe-eq eq >eq> (equiv⁻¹ (Fin-Maybe-eq n)))
 
         path3 : (eqFun (Fin-Maybe-eq n) ∘ suc-fin) == just
-        path3 = funExt (\i -> cong just (ΣProp-path isProp≤ refl))
+        path3 = funExt (\i -> cong just (fin-i-path refl))
 
         path4 : (eqInv eq' ∘ suc-fin) == (eqInv (Maybe-eq eq) ∘ eqFun (Fin-Maybe-eq n) ∘ suc-fin)
         path4 = refl

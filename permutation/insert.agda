@@ -28,13 +28,13 @@ private
 
     encode-iperm'-inj : {n : Nat} -> (i : InsertPerm n) -> Injective (encode-iperm' i)
     encode-iperm'-inj [] {j1} {j2} p = bot-elim (¬fin-zero j1)
-    encode-iperm'-inj (ins :: perm) {zero   , lt1} {zero   , lt2} p = ΣProp-path isProp≤ refl
+    encode-iperm'-inj (ins :: perm) {zero   , lt1} {zero   , lt2} p = fin-i-path refl
     encode-iperm'-inj (ins :: perm) {zero   , lt1} {suc j2 , lt2} p =
       bot-elim (avoid-fin-no-path _ (sym p))
     encode-iperm'-inj (ins :: perm) {suc j1 , lt1} {zero   , lt2} p =
       bot-elim (avoid-fin-no-path _ p)
     encode-iperm'-inj (ins :: perm) {suc j1 , lt1} {suc j2 , lt2} p =
-      ΣProp-path isProp≤ (cong suc (cong fst path))
+      fin-i-path (cong suc (cong Fin.i path))
       where
       path : (j1 , pred-≤ lt1) == (j2 , pred-≤ lt2)
       path = encode-iperm'-inj perm (avoid-fin-inj ins p)
@@ -84,11 +84,11 @@ private
           ans2 : Path (Fin n)
                   (remove-fin ins
                               (avoid-fin ins
-                                        (g ((fst i) , pred-≤ (suc-≤ (snd i)))))
+                                        (g ((Fin.i i) , pred-≤ (suc-≤ (Fin.i<n i)))))
                               (zero-fin!=suc-fin ∘ f-inj))
                   (g i)
           ans2 = remove-fin-avoid-fin-path ins _ (zero-fin!=suc-fin ∘ f-inj)
-                 >=> (cong g (ΣProp-path isProp≤ refl))
+                 >=> (cong g (fin-i-path refl))
 
           ans : remove-fin ins (f (suc-fin i)) (zero-fin!=suc-fin ∘ f-inj)
                 == g i
@@ -110,7 +110,7 @@ private
       fin-elim encode'-decode-point0 encode'-decode-point-suc
       where
       encode'-decode-point0 : encode-iperm' (decode-iperm fi) zero-fin == f zero-fin
-      encode'-decode-point0 = cong f (ΣProp-path isProp≤ refl)
+      encode'-decode-point0 = cong f (fin-i-path refl)
 
       encode'-decode-point-suc :
         (x : Fin n) -> encode-iperm' (decode-iperm fi) (suc-fin x) == f (suc-fin x)

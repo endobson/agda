@@ -123,7 +123,7 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
           eq' = (Maybe-eq eq >eq> (equiv⁻¹ (Fin-Maybe-eq n)))
 
           path3 : (eqFun (Fin-Maybe-eq n) ∘ suc-fin) == just
-          path3 = funExt (\i -> cong just (ΣProp-path isProp≤ refl))
+          path3 = funExt (\i -> cong just (fin-i-path refl))
 
           path2 : (eqInv eq' ∘ suc-fin) == (eqInv (Maybe-eq eq) ∘ just)
           path2 = cong (eqInv (Maybe-eq eq) ∘_) path3

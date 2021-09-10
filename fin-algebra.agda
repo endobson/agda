@@ -49,7 +49,7 @@ Fin-Top-eq = (isoToEquiv i)
   i .fun _ = tt
   i .inv _ = zero-fin
   i .rightInv tt = refl
-  i .leftInv  (zero  , _)  = ΣProp-path isProp≤ refl
+  i .leftInv  (zero  , _)  = fin-i-path refl
   i .leftInv  (suc i , lt) = bot-elim (zero-≮ (pred-≤ lt))
 
 Fin-Top : Fin 1 == Top
@@ -66,9 +66,9 @@ Fin-suc-⊎-eq n = isoToEquiv i
   i .inv (inj-l _)   = zero-fin
   i .inv (inj-r j)   = suc-fin j
   i .rightInv (inj-l _)  = refl
-  i .rightInv (inj-r j)  = cong inj-r (ΣProp-path isProp≤ refl)
-  i .leftInv (zero  , p) = (ΣProp-path isProp≤ refl)
-  i .leftInv (suc i , p) = (ΣProp-path isProp≤ refl)
+  i .rightInv (inj-r j)  = cong inj-r (fin-i-path refl)
+  i .leftInv (zero  , p) = (fin-i-path refl)
+  i .leftInv (suc i , p) = (fin-i-path refl)
 
 Fin-suc-⊎ : (n : Nat) -> Fin (suc n) == (Top ⊎ Fin n)
 Fin-suc-⊎ n = ua (Fin-suc-⊎-eq n)
@@ -82,9 +82,9 @@ Fin-Maybe-eq n = isoToEquiv i
   i .inv nothing     = zero-fin
   i .inv (just j)    = suc-fin j
   i .rightInv nothing    = refl
-  i .rightInv (just j)   = cong just (ΣProp-path isProp≤ refl)
-  i .leftInv (zero  , p) = (ΣProp-path isProp≤ refl)
-  i .leftInv (suc i , p) = (ΣProp-path isProp≤ refl)
+  i .rightInv (just j)   = cong just (fin-i-path refl)
+  i .leftInv (zero  , p) = (fin-i-path refl)
+  i .leftInv (suc i , p) = (fin-i-path refl)
 
 
 Fin-injective : Injective Fin
@@ -111,10 +111,14 @@ private
     i .rightInv (inj-l _) = refl
     i .rightInv (inj-r (j@(j' , p) , a)) k =
       (inj-r ((j' , isProp≤ (pred-≤ (suc-≤ p)) p k) , a))
-    i .leftInv ((0     , p) , a) =
-      cong (_, a) (ΣProp-path isProp≤ refl)
-    i .leftInv ((suc n , p) , a) =
-      cong (_, a) (ΣProp-path isProp≤ refl)
+    i .leftInv ((0     , p) , a) = \i -> p2 i , a
+      where
+      p2 : Path (Fin (suc n)) zero-fin (0 , p)
+      p2 = fin-i-path refl
+    i .leftInv ((suc n2 , p) , a) = \i -> p2 i , a
+      where
+      p2 : Path (Fin (suc n)) (suc n2 , (suc-≤ (pred-≤ p))) (suc n2 , p)
+      p2 = fin-i-path refl
 
 Fin-+ : (m n : Nat) -> Fin (m +' n) == (Fin m ⊎ Fin n)
 Fin-+ zero    n = sym (cong (_⊎ Fin n) Fin-Bot >=> ⊎-Bot (Fin n))

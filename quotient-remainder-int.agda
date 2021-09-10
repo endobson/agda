@@ -23,7 +23,7 @@ record QuotientRemainder (d : Nat⁺) (n : Int) : Type₀ where
     q : Int
     r : Fin d'
 
-  ri = int ⟨ r ⟩
+  ri = int (Fin.i r)
 
   field
     path : q * (int d') + ri == n
@@ -34,9 +34,10 @@ private
     j , (i , +'-right-suc >=> cong suc (+'-commute {i} {j}) >=> sym +'-right-suc >=> path)
 
   flip-fin-twice : {n : Nat} -> (i : Fin n) -> flip-fin (flip-fin i) == i
-  flip-fin-twice _ = ΣProp-path isProp≤ refl
+  flip-fin-twice _ = fin-i-path refl
 
-  flip-fin-path : {n : Nat} -> (i : Fin n) -> (int n) + (- (int ⟨ flip-fin i ⟩)) == (add1 (int ⟨ i ⟩))
+  flip-fin-path : {n : Nat} -> (i : Fin n) -> (int n) + (- (int (Fin.i (flip-fin i)))) ==
+                                              (add1 (int (Fin.i i)))
   flip-fin-path {n} (i , (j , p)) =
     begin
      (int n) + (- (int j))
@@ -50,7 +51,8 @@ private
      (add1 (int i))
     end
 
-  flip-fin-path' : {n : Nat} -> (i : Fin n) -> int ⟨ flip-fin i ⟩ == (int n) + (- (add1 (int ⟨ i ⟩)))
+  flip-fin-path' : {n : Nat} -> (i : Fin n) -> int (Fin.i (flip-fin i)) ==
+                                               (int n) + (- (add1 (int (Fin.i i))))
   flip-fin-path' {n} (i , (j , p)) =
     begin
       (int j)
@@ -64,7 +66,7 @@ private
       (int n) + (- (add1 (int i)))
     end
 
-  fin-small : {n : Nat} -> (i : Fin n) -> Neg ((int ⟨ i ⟩) + (- (int n)))
+  fin-small : {n : Nat} -> (i : Fin n) -> Neg ((int (Fin.i i)) + (- (int n)))
   fin-small {zero} i = bot-elim (¬fin-zero i)
   fin-small {suc n} (zero , lt) = subst Neg (sym +-left-zero) tt
   fin-small {suc n} (suc i , lt) =
@@ -89,69 +91,69 @@ quotient (neg n)    d = - (int (suc (qr.quotient n d)))
 
 private
   qr-path : (d : Nat⁺) (n : Int) ->
-            (quotient n d) * (int ⟨ d ⟩) + (int ⟨ (remainder n d) ⟩) == n
+            (quotient n d) * (int ⟨ d ⟩) + (int (Fin.i (remainder n d))) == n
   qr-path d (nonneg n) = ans
     where
-    path : (int ((qr.quotient n d) *' ⟨ d ⟩ +' ⟨ qr.remainder n d ⟩)) ==
-           (int (qr.quotient n d) * (int ⟨ d ⟩)) + (int ⟨ (qr.remainder n d) ⟩)
+    path : (int ((qr.quotient n d) *' ⟨ d ⟩ +' Fin.i (qr.remainder n d))) ==
+           (int (qr.quotient n d) * (int ⟨ d ⟩)) + (int (Fin.i (qr.remainder n d)))
     path = int-inject-+' >=> +-left int-inject-*'
 
-    ans : (quotient (nonneg n) d) * (int ⟨ d ⟩) + (int ⟨ (remainder (nonneg n) d) ⟩) == (nonneg n)
+    ans : (quotient (nonneg n) d) * (int ⟨ d ⟩) + (int (Fin.i (remainder (nonneg n) d))) == (nonneg n)
     ans = sym path >=> cong nonneg (qr.QuotientRemainder.path (qr.quotient-remainder d n))
   qr-path d (neg n) = ans
     where
-    path : (neg ((qr.quotient n d) *' ⟨ d ⟩ +' ⟨ qr.remainder n d ⟩)) ==
+    path : (neg ((qr.quotient n d) *' ⟨ d ⟩ +' Fin.i (qr.remainder n d))) ==
            ((- (int (suc (qr.quotient n d)))) * (int ⟨ d ⟩)
-            + (int ⟨ (flip-fin (qr.remainder n d)) ⟩))
+            + (int (Fin.i (flip-fin (qr.remainder n d)))))
     path =
       begin
-        (neg ((qr.quotient n d) *' ⟨ d ⟩ +' ⟨ qr.remainder n d ⟩))
+        (neg ((qr.quotient n d) *' ⟨ d ⟩ +' (Fin.i (qr.remainder n d))))
       ==<>
-        (- (add1 (int (((qr.quotient n d) *' ⟨ d ⟩) +' ⟨ (qr.remainder n d)⟩))))
+        (- (add1 (int (((qr.quotient n d) *' ⟨ d ⟩) +' Fin.i (qr.remainder n d)))))
       ==< cong -_ (cong add1 int-inject-+') >
-        (- (add1 ((int ((qr.quotient n d) *' ⟨ d ⟩)) + (int ⟨ (qr.remainder n d)⟩))))
+        (- (add1 ((int ((qr.quotient n d) *' ⟨ d ⟩)) + (int (Fin.i (qr.remainder n d))))))
       ==< cong -_ (sym add1-extract-right) >
-        (- ((int ((qr.quotient n d) *' ⟨ d ⟩)) + (add1 (int ⟨ (qr.remainder n d)⟩))))
+        (- ((int ((qr.quotient n d) *' ⟨ d ⟩)) + (add1 (int (Fin.i (qr.remainder n d))))))
       ==< minus-distrib-+ >
-        (- (int ((qr.quotient n d) *' ⟨ d ⟩))) + (- (add1 (int ⟨ (qr.remainder n d)⟩ )))
+        (- (int ((qr.quotient n d) *' ⟨ d ⟩))) + (- (add1 (int (Fin.i (qr.remainder n d)))))
       ==<>
-        (- (int ((qr.quotient n d) *' ⟨ d ⟩))) + (neg ⟨ (qr.remainder n d)⟩ )
+        (- (int ((qr.quotient n d) *' ⟨ d ⟩))) + (neg (Fin.i (qr.remainder n d)))
       ==< +-left (cong -_ int-inject-*') >
-        (- ((int (qr.quotient n d)) * (int ⟨ d ⟩))) + (neg ⟨ (qr.remainder n d)⟩ )
+        (- ((int (qr.quotient n d)) * (int ⟨ d ⟩))) + (neg (Fin.i (qr.remainder n d)))
       ==< +-left (sym (+-left add-minus-zero >=> +-left-zero)) >
         ((((int ⟨ d ⟩) + (- (int ⟨ d ⟩))) + (- ((int (qr.quotient n d)) * (int ⟨ d ⟩))))
-          + (neg ⟨ (qr.remainder n d)⟩ ))
+          + (neg (Fin.i (qr.remainder n d))))
       ==< +-left +-assoc >
         (((int ⟨ d ⟩) + ((- (int ⟨ d ⟩)) + (- ((int (qr.quotient n d)) * (int ⟨ d ⟩)))))
-          + (neg ⟨ (qr.remainder n d)⟩ ))
+          + (neg (Fin.i (qr.remainder n d))))
       ==< +-left (+-right (sym minus-distrib-+)) >
         (((int ⟨ d ⟩) + (- ((int ⟨ d ⟩) + ((int (qr.quotient n d)) * (int ⟨ d ⟩)))))
-          + (neg ⟨ (qr.remainder n d)⟩ ))
+          + (neg (Fin.i (qr.remainder n d))))
       ==< +-left +-commute >
         ((- ((int ⟨ d ⟩) + ((int (qr.quotient n d)) * (int ⟨ d ⟩)))
-          + (int ⟨ d ⟩)) + (neg ⟨ (qr.remainder n d)⟩ ))
+          + (int ⟨ d ⟩)) + (neg (Fin.i (qr.remainder n d))))
       ==< +-assoc >
         (- ((int ⟨ d ⟩) + ((int (qr.quotient n d)) * (int ⟨ d ⟩)))
-         + ((int ⟨ d ⟩) + (neg ⟨ (qr.remainder n d)⟩ )))
+         + ((int ⟨ d ⟩) + (neg (Fin.i (qr.remainder n d)))))
       ==< +-left (cong -_ (sym add1-extract-*)) >
         (- ((int (suc (qr.quotient n d))) * (int ⟨ d ⟩))
-         + ((int ⟨ d ⟩) + (neg ⟨ (qr.remainder n d)⟩ )))
+         + ((int ⟨ d ⟩) + (neg (Fin.i (qr.remainder n d)))))
       ==< +-left (sym minus-extract-left) >
         ((- (int (suc (qr.quotient n d)))) * (int ⟨ d ⟩)
-         + ((int ⟨ d ⟩) + (neg ⟨ (qr.remainder n d)⟩ )))
+         + ((int ⟨ d ⟩) + (neg (Fin.i (qr.remainder n d)))))
       ==<>
         ((neg (qr.quotient n d)) * (int ⟨ d ⟩)
-         + ((int ⟨ d ⟩) + (- (add1 (int ⟨ (qr.remainder n d)⟩ )))))
+         + ((int ⟨ d ⟩) + (- (add1 (int (Fin.i (qr.remainder n d)))))))
       ==< +-right (sym (flip-fin-path' (qr.remainder n d))) >
         ((neg (qr.quotient n d)) * (int ⟨ d ⟩)
-         + (int ⟨ (flip-fin (qr.remainder n d))⟩))
+         + (int (Fin.i (flip-fin (qr.remainder n d)))))
       ==<>
         ((- (int (suc (qr.quotient n d)))) * (int ⟨ d ⟩)
-         + (int ⟨ (flip-fin (qr.remainder n d))⟩))
+         + (int (Fin.i (flip-fin (qr.remainder n d)))))
       end
 
 
-    ans : (quotient (neg n) d) * (int ⟨ d ⟩) + (int ⟨ (remainder (neg n) d) ⟩) == (neg n)
+    ans : (quotient (neg n) d) * (int ⟨ d ⟩) + (int (Fin.i (remainder (neg n) d))) == (neg n)
     ans = sym path >=>
           cong neg (qr.QuotientRemainder.path (qr.quotient-remainder d n))
 
@@ -174,22 +176,22 @@ private
     module qr2 = QuotientRemainder qr2
     d' = ⟨ d ⟩
 
-    f : {q : Int} -> q * (int d') + (int ⟨ qr2.r ⟩) == (int n) -> q == (quotient (nonneg n) d)
+    f : {q : Int} -> q * (int d') + (int (Fin.i qr2.r)) == (int n) -> q == (quotient (nonneg n) d)
     f {nonneg q'} p =
       cong (nonneg ∘ qr.QuotientRemainder.q) (sym (qr.isContr-QuotientRemainder .snd qr3))
       where
-      p2 : n == (q' *' d' +' ⟨ qr2.r ⟩)
+      p2 : n == (q' *' d' +' Fin.i qr2.r)
       p2 = nonneg-injective ((sym p) >=> +-left (sym int-inject-*') >=> sym int-inject-+')
       qr3 : qr.QuotientRemainder d n
       qr3 = record { q = q' ; r = qr2.r ; path = sym p2 }
     f {neg q'} p = bot-elim (subst Neg (sym p2) neg1)
       where
-      p2 : (nonneg n) == ((int ⟨ qr2.r ⟩) + (- (int d'))) + (- ((int q') * (int d')))
+      p2 : (nonneg n) == ((int (Fin.i qr2.r)) + (- (int d'))) + (- ((int q') * (int d')))
       p2 = (sym p) >=>
            +-left (minus-extract-left >=> cong -_ add1-extract-* >=> minus-distrib-+) >=>
            +-commute >=> sym +-assoc
 
-      neg1 : Neg (((int ⟨ qr2.r ⟩) + (- (int d'))) + (- ((int q') * (int d'))))
+      neg1 : Neg (((int (Fin.i qr2.r)) + (- (int d'))) + (- ((int q') * (int d'))))
       neg1 = +-Neg-NonPos (fin-small qr2.r) (minus-NonNeg (*-NonNeg-NonNeg (NonNeg-nonneg q')
                                                                            (NonNeg-nonneg d')))
   quotient-unique d (neg n) qr2 = f qr2.path
@@ -197,50 +199,50 @@ private
     module qr2 = QuotientRemainder qr2
     d' = ⟨ d ⟩
 
-    f : {q : Int} -> q * (int d') + (int ⟨ qr2.r ⟩) == (neg n) -> q == (quotient (neg n) d)
+    f : {q : Int} -> q * (int d') + (int (Fin.i qr2.r)) == (neg n) -> q == (quotient (neg n) d)
     f {nonneg q'} p = bot-elim (NonNeg->¬Neg {neg n} (subst NonNeg p nonneg1) tt)
       where
-      nonneg1 : NonNeg ((int q') * (int d') + (int ⟨ qr2.r ⟩))
+      nonneg1 : NonNeg ((int q') * (int d') + (int (Fin.i qr2.r)))
       nonneg1 = +-NonNeg-NonNeg (*-NonNeg-NonNeg (NonNeg-nonneg q') (NonNeg-nonneg d'))
-                                (NonNeg-nonneg ⟨ qr2.r ⟩)
+                                (NonNeg-nonneg (Fin.i qr2.r))
     f {neg q'} p =
       cong (neg ∘ qr.QuotientRemainder.q) (sym (qr.isContr-QuotientRemainder .snd qr3))
       where
       check : (quotient (neg n) d) == (neg (qr.quotient n d))
       check = refl
 
-      p2 : (neg n) == neg (q' *' d' +' ⟨ flip-fin qr2.r ⟩)
+      p2 : (neg n) == neg (q' *' d' +' Fin.i (flip-fin qr2.r))
       p2 =
         begin
           (neg n)
         ==< sym p >
-          (neg q' * (int d') + (int ⟨ qr2.r ⟩))
+          (neg q' * (int d') + qr2.ri)
         ==<>
-          (- (add1 (int q')) * (int d') + (int ⟨ qr2.r ⟩))
+          (- (add1 (int q')) * (int d') + qr2.ri)
         ==< +-left (minus-extract-left >=> cong -_ add1-extract-*) >
-          (- ((int d') + ((int q') * (int d'))) + (int ⟨ qr2.r ⟩))
+          (- ((int d') + ((int q') * (int d'))) + qr2.ri)
         ==< +-right (sym minus-double-inverse) >
-          (- ((int d') + ((int q') * (int d'))) + (- (- (int ⟨ qr2.r ⟩))))
+          (- ((int d') + ((int q') * (int d'))) + (- (- qr2.ri)))
         ==< sym minus-distrib-+ >
-          (- (((int d') + ((int q') * (int d'))) + (- (int ⟨ qr2.r ⟩))))
+          (- (((int d') + ((int q') * (int d'))) + (- qr2.ri)))
         ==< cong -_ (+-left +-commute >=> +-assoc) >
-          (- (((int q') * (int d')) + ((int d') + (- (int ⟨ qr2.r ⟩)))))
+          (- (((int q') * (int d')) + ((int d') + (- qr2.ri))))
         ==< cong -_ (+-left (sym int-inject-*')) >
-          (- (int (q' *' d') + ((int d') + (- (int ⟨ qr2.r ⟩)))))
+          (- (int (q' *' d') + ((int d') + (- qr2.ri))))
         ==<>
-          (- (int (q' *' d') + ((int d') + (- (sub1 (add1 (int ⟨ qr2.r ⟩)))))))
+          (- (int (q' *' d') + ((int d') + (- (sub1 (add1 qr2.ri))))))
         ==< cong -_ (+-right (+-right (sym add1-minus->minus-sub1))) >
-          (- (int (q' *' d') + ((int d') + (add1 (- (add1 (int ⟨ qr2.r ⟩)))))))
+          (- (int (q' *' d') + ((int d') + (add1 (- (add1 qr2.ri))))))
         ==< cong -_ (+-right add1-extract-right) >
-          (- (int (q' *' d') + add1 ((int d') + (- (add1 (int ⟨ qr2.r ⟩))))))
+          (- (int (q' *' d') + add1 ((int d') + (- (add1 qr2.ri)))))
         ==< cong (\x -> (- (int (q' *' d') + add1 x))) (sym (flip-fin-path' qr2.r)) >
-          (- (int (q' *' d') + add1 (int ⟨ flip-fin qr2.r ⟩)))
+          (- (int (q' *' d') + add1 (int (Fin.i (flip-fin qr2.r)))))
         ==< cong -_ add1-extract-right >
-          (- (add1 (int (q' *' d') + int (⟨ flip-fin qr2.r ⟩))))
+          (- (add1 (int (q' *' d') + int (Fin.i (flip-fin qr2.r)))))
         ==< cong -_ (cong add1 (sym int-inject-+')) >
-          (- (add1 (int (q' *' d' +' ⟨ flip-fin qr2.r ⟩))))
+          (- (add1 (int (q' *' d' +' Fin.i (flip-fin qr2.r)))))
         ==<>
-          neg (q' *' d' +' ⟨ flip-fin qr2.r ⟩)
+          neg (q' *' d' +' Fin.i (flip-fin qr2.r))
         end
 
 
@@ -251,17 +253,17 @@ private
   remainder-unique : (d : Nat⁺) (n : Int) -> (qr2 : QuotientRemainder d n) ->
                      (QuotientRemainder.r qr2) == (remainder n d)
   remainder-unique d n qr2 =
-    ΣProp-path isProp≤ (nonneg-injective (+-left-injective (qr1.q * d') p2))
+    fin-i-path (nonneg-injective (+-left-injective (qr1.q * d') p2))
     where
     module qr1 = QuotientRemainder (quotient-remainder d n)
     module qr2 = QuotientRemainder qr2
     d' = int ⟨ d ⟩
 
-    p1 : (qr2.q * d' + (int ⟨ qr2.r ⟩)) == (qr1.q * d' + (int ⟨ qr1.r ⟩))
+    p1 : (qr2.q * d' + qr2.ri) == (qr1.q * d' + qr1.ri)
     p1 = qr2.path >=> sym qr1.path
 
-    p2 : (qr1.q * d' + (int ⟨ qr2.r ⟩)) == (qr1.q * d' + (int ⟨ qr1.r ⟩))
-    p2 = (\ i -> (quotient-unique d n qr2 (~ i)) * d' + (int ⟨ qr2.r ⟩)) >=> p1
+    p2 : (qr1.q * d' + qr2.ri) == (qr1.q * d' + qr1.ri)
+    p2 = (\ i -> (quotient-unique d n qr2 (~ i)) * d' + qr2.ri) >=> p1
 
 
 
@@ -277,7 +279,7 @@ isContr-QuotientRemainder {d} {n} .snd qr2 = (\i -> record
   module qr2 = QuotientRemainder qr2
 
   p-path : PathP (\i -> (quotient-unique d n qr2 (~ i)) * (int ⟨ d ⟩) +
-                        (int ⟨ remainder-unique d n qr2 (~ i) ⟩) == n)
+                        (int (Fin.i (remainder-unique d n qr2 (~ i)))) == n)
                  qr1.path qr2.path
   p-path = isProp->PathP (\i -> isSetInt _ _) _ _
 
@@ -297,13 +299,13 @@ quotient-multiple-path m⁺@(m , m-pos) n d@(d' , _) =
   module qr-n = QuotientRemainder qr-n
 
   r' : Fin (m *' d')
-  r' = m *' (fst qr-n.r) , *-left-<⁺ (Pos'->< m-pos) (snd qr-n.r)
+  r' = m *' (Fin.i qr-n.r) , *-left-<⁺ (Pos'->< m-pos) (Fin.i<n qr-n.r)
 
-  path : qr-n.q * int (m *' d') + int ⟨ r' ⟩ == int m * n
+  path : qr-n.q * int (m *' d') + int (Fin.i r') == int m * n
   path =
     +-left (*-right (int-inject-*' {m} {d'}) >=>
             sym *-assoc >=> *-left *-commute >=> *-assoc) >=>
-    +-right (int-inject-*' {m} {fst qr-n.r}) >=>
+    +-right (int-inject-*' {m} {Fin.i qr-n.r}) >=>
     sym *-distrib-+-left >=>
     *-right qr-n.path
 

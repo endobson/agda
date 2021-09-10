@@ -901,8 +901,8 @@ quotientℤ n (int.zero-int , (inj-l ()))
 quotientℤ n (int.zero-int , (inj-r ()))
 
 remainderℤ : (n : ℤ) (d : ℤ*) -> ℤ
-remainderℤ n (int.pos d , _) = int ⟨ remainder n (suc d , tt) ⟩
-remainderℤ n (int.neg d , _) = int.- (int ⟨ (remainder (int.- n) (suc d , tt)) ⟩)
+remainderℤ n (int.pos d , _) = int (Fin.i (remainder n (suc d , tt)))
+remainderℤ n (int.neg d , _) = int.- (int (Fin.i (remainder (int.- n) (suc d , tt))))
 remainderℤ n (int.zero-int , (inj-l ()))
 remainderℤ n (int.zero-int , (inj-r ()))
 
