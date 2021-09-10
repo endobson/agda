@@ -28,6 +28,7 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) 
   open CommMonoid CM
 
   private
+    finiteMergeᵉ' = finiteMergeᵉ CM
     finiteMerge' = finiteMerge CM
     finiteMerge'-convert = finiteMerge-convert CM
 
@@ -35,6 +36,10 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) 
     private
       B = fst FB
       isFinSet-B = snd FB
+
+      instance
+        FinSetStr-B : FinSetStr B
+        FinSetStr-B = record {isFin = isFinSet-B}
 
       n = fst partition
       part : (i : Fin n) -> Subtype B ℓP
@@ -64,8 +69,8 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) 
     abstract
       finiteMerge-partition :
         (f : B -> D) ->
-        finiteMerge' FB f ==
-        finiteMerge' (FinSet-Fin n) (\i -> (finiteMerge' (FP i) (f ∘ fst)))
+        finiteMerge' f ==
+        finiteMerge' (\i -> (finiteMergeᵉ' (FP i) (f ∘ fst)))
       finiteMerge-partition f =
         finiteMerge'-convert FB (FinSet-Σ (FinSet-Fin n) FP) (equiv⁻¹ (B≃ΣP-rev >eq> ΣP-rev≃ΣP)) f >=>
         finiteMerge-Σ CM isSet-D (FinSet-Fin n) FP (\x -> f (fst (snd x)))
@@ -74,6 +79,10 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) 
     private
       B = fst FB
       isFinSet-B = snd FB
+
+      instance
+        FinSetStr-B : FinSetStr B
+        FinSetStr-B = record {isFin = isFinSet-B}
 
       k0 : Fin 2
       k0 = zero-fin
@@ -86,8 +95,8 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) 
     abstract
       finiteMerge-binary-partition :
         (f : B -> D) ->
-        finiteMerge' FB f ==
-        (finiteMerge' (FP' k0) (f ∘ fst)) ∙ (finiteMerge' (FP' k1) (f ∘ fst))
+        finiteMerge' f ==
+        (finiteMergeᵉ' (FP' k0) (f ∘ fst)) ∙ (finiteMergeᵉ' (FP' k1) (f ∘ fst))
       finiteMerge-binary-partition f =
         finiteMerge-partition FB (2 , partition) f >=>
-        finiteMerge-Fin2 CM (\k -> (finiteMerge' (FP' k) (f ∘ fst)))
+        finiteMerge-Fin2 CM (\k -> (finiteMergeᵉ' (FP' k) (f ∘ fst)))

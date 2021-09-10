@@ -28,7 +28,7 @@ private
 private
   module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
     finiteProductᵉ : {ℓ : Level} -> (s : FinSet ℓ) -> (⟨ s ⟩ -> D) -> D
-    finiteProductᵉ = finiteMerge *-CommMonoid
+    finiteProductᵉ = finiteMergeᵉ *-CommMonoid
 
 module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
   private

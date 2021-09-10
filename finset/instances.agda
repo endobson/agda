@@ -25,6 +25,10 @@ abstract
 FinSet-Bot : FinSet ℓ-zero
 FinSet-Bot = Bot , isFinSet-Bot
 
+instance
+  FinSetStr-Bot : FinSetStr Bot
+  FinSetStr-Bot = record { isFin = isFinSet-Bot }
+
 abstract
   isFinSet-Top : isFinSet Top
   isFinSet-Top = ∣ 1 , pathToEquiv (\i -> Fin-Top (~ i)) ∣
@@ -32,12 +36,20 @@ abstract
 FinSet-Top : FinSet ℓ-zero
 FinSet-Top = Top , isFinSet-Top
 
+instance
+  FinSetStr-Top : FinSetStr Top
+  FinSetStr-Top = record { isFin = isFinSet-Top }
+
 abstract
   isFinSet-Fin : {n : Nat} -> isFinSet (Fin n)
   isFinSet-Fin {n = n} = ∣ n , pathToEquiv (\i -> Fin n) ∣
 
 FinSet-Fin : (n : Nat) -> FinSet ℓ-zero
 FinSet-Fin n = Fin n , isFinSet-Fin
+
+instance
+  FinSetStr-Fin : {n : Nat} -> FinSetStr (Fin n)
+  FinSetStr-Fin = record { isFin = isFinSet-Fin }
 
 abstract
   isFinSet-Maybe : {ℓ : Level} {A : Type ℓ} -> isFinSet A -> isFinSet (Maybe A)
@@ -48,6 +60,11 @@ abstract
 
 FinSet-Maybe : {ℓ : Level} -> FinSet ℓ -> FinSet ℓ
 FinSet-Maybe (A , finA) = Maybe A , isFinSet-Maybe finA
+
+
+instance
+  FinSetStr-Maybe : {ℓ : Level} {A : Type ℓ} {{FA : FinSetStr A}} -> FinSetStr (Maybe A)
+  FinSetStr-Maybe {{FA = FA}} = record { isFin = isFinSet-Maybe (FinSetStr.isFin FA) }
 
 abstract
   isFinSet-Uninhabited : {A : Type ℓ} -> ¬ A -> isFinSet A

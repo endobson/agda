@@ -258,7 +258,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
     CommMonoid-V+ = GroupStr.comm-monoid M.GroupStr-V
 
   vector-sum : (I -> V) -> isFinSet I -> V
-  vector-sum vs fs = finiteMerge CommMonoid-V+ (_ , fs) vs
+  vector-sum vs fs = finiteMergeᵉ CommMonoid-V+ (_ , fs) vs
 
   vector-sum-convert : {ℓ₁ ℓ₂ : Level} (FI₁ : FinSet ℓ₁) (FI₂ : FinSet ℓ₂) ->
                        (eq : (⟨ FI₂ ⟩ ≃ ⟨ FI₁ ⟩)) (f : ⟨ FI₁ ⟩ -> V) ->

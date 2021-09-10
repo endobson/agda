@@ -110,14 +110,6 @@ record FinSetStr (A : Type ℓ) : Type ℓ where
   field
     isFin : isFinSet A
 
-
-
-
-
-
-
-
-
 -- Useful examples that aren't yet used.
 private
   FinSet-LiftedFin-path' : (A : Type ℓ) (isFinA : isFinSetΣ A) -> ∥ A == Lift ℓ (Fin ⟨ isFinA ⟩) ∥
