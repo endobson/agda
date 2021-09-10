@@ -187,7 +187,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
         extended-scale-up : (i : I') -> V
         extended-scale-up i = extend i v* (standard-basis' i)
 
-        vsum' = vector-sum VS
+        vsum' = vector-sumᵉ VS
 
         extended-scale-up-no-support : Path (∉-Subtype SubS -> V) (extended-scale-up ∘ fst) (\_ -> 0v)
         extended-scale-up-no-support = funExt (\ (i , ¬s) -> path i ¬s)
@@ -212,27 +212,34 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
         fs-ΣSI : isFinSet (Σ[ s ∈ S' ] Σ[ i ∈ I' ] (inc s == i))
         fs-ΣSI = isFinSet-equiv Σ-swap-eq fs-ΣIS
 
+        instance
+          FinSetStr-ΣIS : FinSetStr _
+          FinSetStr-ΣIS = record {isFin = fs-ΣIS}
+          FinSetStr-ΣIS' : FinSetStr _
+          FinSetStr-ΣIS' = record {isFin = fs-ΣIS'}
+          FinSetStr-ΣSI : FinSetStr _
+          FinSetStr-ΣSI = record {isFin = fs-ΣSI}
+
+
 
         sum1 : scaled-vector-sum VS standard-basis' S f ==
-               vector-sum VS scale-up isFinSet-S'
+               vector-sum VS scale-up
         sum1 = refl
 
         sum2 : vsum' extended-scale-up isFinSet-I ==
                vsum' (extended-scale-up ∘ fst) fs-ΣIS v+
                vsum' (extended-scale-up ∘ fst) fs-ΣIS'
-        sum2 = vector-sum-Detachable VS I SubS detachable-S extended-scale-up
+        sum2 = finiteMerge-Detachable _ SubS detachable-S extended-scale-up
 
         sum3 : vsum' (extended-scale-up ∘ fst) fs-ΣIS'  == 0v
         sum3 = cong (\f -> vsum' f fs-ΣIS') extended-scale-up-no-support >=>
-               vector-sum-0v VS fs-ΣIS'
+               finiteMerge-ε _
 
         sum4 : vsum' (extended-scale-up ∘ fst) fs-ΣIS
                == vsum' scale-up isFinSet-S'
         sum4 = cong (\f -> vsum' f fs-ΣIS) extended-scale-up-support >=>
-               vector-sum-convert VS (_ , fs-ΣIS) (_ , fs-ΣSI) Σ-swap-eq
-                                  (\ (i , s , _) -> scale-up s) >=>
-               vector-sum-convert VS (_ , fs-ΣSI) (_ , isFinSet-S') (Σ-isContr-eq isContr-ΣI)
-                                  (scale-up ∘ fst)
+               finiteMerge-convert _ Σ-swap-eq (\ (i , s , _) -> scale-up s) >=>
+               finiteMerge-convert _ (Σ-isContr-eq isContr-ΣI) (scale-up ∘ fst)
 
         sum5 : scaled-vector-sum VS standard-basis' S f ==
                vsum' extended-scale-up isFinSet-I
@@ -261,6 +268,13 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
           fs-ΣIP = (snd (FinSet-Detachable I P detachable-P))
           fs-ΣIP' : isFinSet (∉-Subtype P)
           fs-ΣIP' = (snd (FinSet-DetachableComp I P detachable-P))
+
+          instance
+            FinSetStr-ΣIP : FinSetStr _
+            FinSetStr-ΣIP = record {isFin = fs-ΣIP}
+            FinSetStr-ΣIP' : FinSetStr _
+            FinSetStr-ΣIP' = record {isFin = fs-ΣIP'}
+
 
           isProp-ΣIP : isProp (∈-Subtype P)
           isProp-ΣIP (i1 , p1) (i2 , p2) = ΣProp-path (isSet-I _ _) (sym p1 >=> p2)
@@ -312,12 +326,6 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
                              finiteMerge-ε CM-K+)
                   >=> +-right-zero
                   >=> finiteMerge-isContr CM-K+ isContr-ΣIP (\_ -> extend i)
-             where
-             instance
-               FinSetStr-ΣIP : FinSetStr _
-               FinSetStr-ΣIP = record {isFin = fs-ΣIP}
-               FinSetStr-ΣIP' : FinSetStr _
-               FinSetStr-ΣIP' = record {isFin = fs-ΣIP'}
 
 
 

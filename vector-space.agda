@@ -257,58 +257,11 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
     CommMonoid-V+ : CommMonoid V
     CommMonoid-V+ = GroupStr.comm-monoid M.GroupStr-V
 
-  vector-sum : (I -> V) -> isFinSet I -> V
-  vector-sum vs fs = finiteMergeᵉ CommMonoid-V+ (_ , fs) vs
+  vector-sumᵉ : (I -> V) -> isFinSet I -> V
+  vector-sumᵉ vs fs = finiteMergeᵉ CommMonoid-V+ (_ , fs) vs
 
-  vector-sum-convert : {ℓ₁ ℓ₂ : Level} (FI₁ : FinSet ℓ₁) (FI₂ : FinSet ℓ₂) ->
-                       (eq : (⟨ FI₂ ⟩ ≃ ⟨ FI₁ ⟩)) (f : ⟨ FI₁ ⟩ -> V) ->
-                       vector-sum f (snd FI₁) == vector-sum (f ∘ (eqFun eq)) (snd FI₂)
-  vector-sum-convert = finiteMergeᵉ-convert CommMonoid-V+
-
-
-  vector-sum-⊎ : {ℓ₁ ℓ₂ : Level} (FI₁ : FinSet ℓ₁) (FI₂ : FinSet ℓ₂) ->
-                 (f : (⟨ FI₁ ⟩ ⊎ ⟨ FI₂ ⟩) -> V) ->
-                 vector-sum f (snd (FinSet-⊎ FI₁ FI₂)) ==
-                 (vector-sum (f ∘ inj-l) (snd FI₁)) v+ (vector-sum (f ∘ inj-r) (snd FI₂))
-  vector-sum-⊎ FI₁ FI₂ = finiteMerge-⊎ CommMonoid-V+
-    where
-    instance
-      FinSetStr-I₁ : FinSetStr (fst FI₁)
-      FinSetStr-I₁ = record {isFin = snd FI₁}
-
-      FinSetStr-I₂ : FinSetStr (fst FI₂)
-      FinSetStr-I₂ = record {isFin = snd FI₂}
-
-
-  vector-sum-binary-partition :
-    {ℓI ℓP : Level} (FI : FinSet ℓI) (partition : BinaryPartition ⟨ FI ⟩ ℓP) ->
-    (f : ⟨ FI ⟩ -> V) ->
-    vector-sum f (snd FI) ==
-    (vector-sum (f ∘ fst) (snd (FinSet-partition FI (2 , partition) zero-fin))) v+
-    (vector-sum (f ∘ fst) (snd (FinSet-partition FI (2 , partition) (suc-fin zero-fin))))
-  vector-sum-binary-partition =
-    finiteMerge-binary-partition CommMonoid-V+
-
-
-  vector-sum-Detachable :
-    {ℓI ℓS : Level} (FI : FinSet ℓI) (S : Subtype ⟨ FI ⟩ ℓS) -> (d-S : Detachable S) -> (f : ⟨ FI ⟩ -> V) ->
-    vector-sum f (snd FI) ==
-    vector-sum (f ∘ fst) (snd (FinSet-Detachable FI S d-S)) v+
-    vector-sum (f ∘ fst) (snd (FinSet-DetachableComp FI S d-S))
-  vector-sum-Detachable FI = finiteMerge-Detachable CommMonoid-V+
-    where
-    instance
-      FinSetStr-I : FinSetStr (fst FI)
-      FinSetStr-I = record {isFin = snd FI}
-
-
-  vector-sum-0v : (fs-I : isFinSet I) -> vector-sum (\_ -> 0v) fs-I == 0v
-  vector-sum-0v {I = I} fs-I = finiteMerge-ε CommMonoid-V+
-    where
-    instance
-      FinSetStr-I : FinSetStr I
-      FinSetStr-I = record {isFin = fs-I}
-
+  vector-sum : {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} -> (I -> V) -> V
+  vector-sum = finiteMerge CommMonoid-V+
 
 
   private
@@ -327,7 +280,11 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
     scaled-vector-sum-inner a = (\i -> (a i) v* (family (include S i)))
 
     scaled-vector-sum : (a : Carrier S -> K) -> V
-    scaled-vector-sum a = vector-sum (scaled-vector-sum-inner a) (isFinSet-Carrier S)
+    scaled-vector-sum a = vector-sum (scaled-vector-sum-inner a)
+      where
+      instance
+        FinSetStr-S : FinSetStr (Carrier S)
+        FinSetStr-S = record {isFin = isFinSet-Carrier S}
 
   module _ {ℓI₁ : Level} {I₁ : Type ℓI₁} (family : I₁ -> V) where
 
@@ -415,9 +372,13 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
       scale-family : Family K I' -> Family V I' -> Family V I'
       scale-family ks vs i = ks i v* vs i
 
+      instance
+        FinSetStr-I : FinSetStr I'
+        FinSetStr-I = record {isFin = snd I}
+
     isLinearCombination' : Pred V _
     isLinearCombination' v =
-      ∃[ a ∈ (I' -> K) ] (vector-sum (scale-family a family) (snd I) == v)
+      ∃[ a ∈ (I' -> K) ] (vector-sum (scale-family a family) == v)
 
     LinearSpan' : Subtype V (ℓ-max* 3 ℓK ℓV ℓI)
     LinearSpan' v = isLinearCombination' v , squash
