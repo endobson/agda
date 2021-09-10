@@ -258,19 +258,19 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
     CommMonoid-V+ = GroupStr.comm-monoid M.GroupStr-V
 
   vector-sum : (I -> V) -> isFinSet I -> V
-  vector-sum vs fs = finiteMerge CommMonoid-V+ M.isSet-V (_ , fs) vs
+  vector-sum vs fs = finiteMerge CommMonoid-V+ (_ , fs) vs
 
   vector-sum-convert : {ℓ₁ ℓ₂ : Level} (FI₁ : FinSet ℓ₁) (FI₂ : FinSet ℓ₂) ->
                        (eq : (⟨ FI₂ ⟩ ≃ ⟨ FI₁ ⟩)) (f : ⟨ FI₁ ⟩ -> V) ->
                        vector-sum f (snd FI₁) == vector-sum (f ∘ (eqFun eq)) (snd FI₂)
-  vector-sum-convert = finiteMerge-convert CommMonoid-V+ M.isSet-V
+  vector-sum-convert = finiteMerge-convert CommMonoid-V+
 
 
   vector-sum-⊎ : {ℓ₁ ℓ₂ : Level} (FI₁ : FinSet ℓ₁) (FI₂ : FinSet ℓ₂) ->
                  (f : (⟨ FI₁ ⟩ ⊎ ⟨ FI₂ ⟩) -> V) ->
                  vector-sum f (snd (FinSet-⊎ FI₁ FI₂)) ==
                  (vector-sum (f ∘ inj-l) (snd FI₁)) v+ (vector-sum (f ∘ inj-r) (snd FI₂))
-  vector-sum-⊎ FI₁ FI₂ = finiteMerge-⊎ CommMonoid-V+ M.isSet-V (snd FI₁) (snd FI₂)
+  vector-sum-⊎ FI₁ FI₂ = finiteMerge-⊎ CommMonoid-V+ (snd FI₁) (snd FI₂)
 
   vector-sum-binary-partition :
     {ℓI ℓP : Level} (FI : FinSet ℓI) (partition : BinaryPartition ⟨ FI ⟩ ℓP) ->
@@ -287,10 +287,10 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
     vector-sum f (snd FI) ==
     vector-sum (f ∘ fst) (snd (FinSet-Detachable FI S d-S))  v+
     vector-sum (f ∘ fst) (snd (FinSet-DetachableComp FI S d-S))
-  vector-sum-Detachable = finiteMerge-Detachable CommMonoid-V+ M.isSet-V
+  vector-sum-Detachable = finiteMerge-Detachable CommMonoid-V+
 
   vector-sum-0v : (fs-I : isFinSet I) -> vector-sum (\_ -> 0v) fs-I == 0v
-  vector-sum-0v fs-I = finiteMerge-ε CommMonoid-V+ M.isSet-V (_ , fs-I)
+  vector-sum-0v fs-I = finiteMerge-ε CommMonoid-V+ (_ , fs-I)
 
 
 

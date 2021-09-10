@@ -27,10 +27,10 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) 
   open CommMonoid CM
 
   private
-    finiteMerge' = finiteMerge CM isSet-D
-    finiteMerge'-convert = finiteMerge-convert CM isSet-D
-    finiteMerge'-⊎ = finiteMerge-⊎ CM isSet-D
-    finiteMerge'-Maybe = finiteMerge-Maybe CM isSet-D
+    finiteMerge' = finiteMerge CM
+    finiteMerge'-convert = finiteMerge-convert CM
+    finiteMerge'-⊎ = finiteMerge-⊎ CM
+    finiteMerge'-Maybe = finiteMerge-Maybe CM
 
   module _ {ℓB : Level} {FB : Fin 0 -> FinSet ℓB}  where
     private
@@ -43,8 +43,8 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) 
         finiteMerge' (FinSet-Σ (FinSet-Fin 0) FB) f ==
         finiteMerge' (FinSet-Fin 0) (\i -> finiteMerge' (FB i) (\b -> f (i , b)))
       finiteMerge-Σ'-zero f =
-        finiteMerge-Uninhabited CM isSet-D _ (¬fin-zero ∘ fst) _ >=>
-        sym (finiteMerge-Uninhabited CM isSet-D _ ¬fin-zero _)
+        finiteMerge-Uninhabited CM _ (¬fin-zero ∘ fst) _ >=>
+        sym (finiteMerge-Uninhabited CM _ ¬fin-zero _)
 
   private
     finiteMerge-Σ' : {ℓB : Level} {n : Nat} {FB : Fin n -> FinSet ℓB}

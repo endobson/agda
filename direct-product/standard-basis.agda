@@ -231,16 +231,16 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
 
       private
         sum6 : unwrap-dp (vsum' extended-scale-up isFinSet-I) ==
-               finiteMerge CM-ΠK+ (isSetΠ (\_ -> isSet-K)) I (unwrap-dp ∘ extended-scale-up)
-        sum6 = sym (finiteMerge-homo-inject _ _ _ _ _ unwrap-dpʰ)
+               finiteMerge CM-ΠK+ I (unwrap-dp ∘ extended-scale-up)
+        sum6 = sym (finiteMerge-homo-inject _ _ _ unwrap-dpʰ)
 
 
         module _ (i : I') where
 
-          sum7 : finiteMerge CM-ΠK+ (isSetΠ (\_ -> isSet-K)) I
+          sum7 : finiteMerge CM-ΠK+ I
                              (unwrap-dp ∘ extended-scale-up) i  ==
-                 finiteMerge CM-K+ isSet-K I (app-to i ∘ unwrap-dp ∘ extended-scale-up)
-          sum7  = sym (finiteMerge-homo-inject _ _ _ _ _ (app-toʰ _ i))
+                 finiteMerge CM-K+ I (app-to i ∘ unwrap-dp ∘ extended-scale-up)
+          sum7  = sym (finiteMerge-homo-inject _ _ _ (app-toʰ _ i))
 
           P : Subtype I' ℓI
           P i2 = (i == i2) , isSet-I i i2
@@ -260,12 +260,12 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
           isContr-ΣIP = (i , refl) , isProp-ΣIP _
 
 
-          sum8 : finiteMerge CM-K+ isSet-K I (app-to i ∘ unwrap-dp ∘ extended-scale-up) ==
-                 finiteMerge CM-K+ isSet-K (_ , fs-ΣIP)
+          sum8 : finiteMerge CM-K+ I (app-to i ∘ unwrap-dp ∘ extended-scale-up) ==
+                 finiteMerge CM-K+ (_ , fs-ΣIP)
                              (app-to i ∘ unwrap-dp ∘ extended-scale-up ∘ fst) +
-                 finiteMerge CM-K+ isSet-K (_ , fs-ΣIP')
+                 finiteMerge CM-K+ (_ , fs-ΣIP')
                              (app-to i ∘ unwrap-dp ∘ extended-scale-up ∘ fst)
-          sum8 = finiteMerge-Detachable CM-K+ isSet-K I P detachable-P
+          sum8 = finiteMerge-Detachable CM-K+ I P detachable-P
                    (app-to i ∘ unwrap-dp ∘ extended-scale-up)
 
 
@@ -295,20 +295,20 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
               ans = cong2 _*_ (cong extend (sym i=i2)) (cong indicator' (sym path)) >=>
                     *-right-one
 
-          sum11 : finiteMerge CM-K+ isSet-K I (app-to i ∘ unwrap-dp ∘ extended-scale-up) ==
+          sum11 : finiteMerge CM-K+ I (app-to i ∘ unwrap-dp ∘ extended-scale-up) ==
                   extend i
           sum11 = sum8 >=>
-                  cong2 _+_ (cong (finiteMerge CM-K+ isSet-K (_ , fs-ΣIP))
+                  cong2 _+_ (cong (finiteMerge CM-K+ (_ , fs-ΣIP))
                                   (funExt path10))
-                            (cong (finiteMerge CM-K+ isSet-K (_ , fs-ΣIP'))
+                            (cong (finiteMerge CM-K+ (_ , fs-ΣIP'))
                                   (funExt path9) >=>
-                             finiteMerge-ε CM-K+ isSet-K (_ , fs-ΣIP'))
+                             finiteMerge-ε CM-K+ (_ , fs-ΣIP'))
                   >=> +-right-zero
-                  >=> finiteMerge-isContr CM-K+ isSet-K (_ , fs-ΣIP) isContr-ΣIP (\_ -> extend i)
+                  >=> finiteMerge-isContr CM-K+ (_ , fs-ΣIP) isContr-ΣIP (\_ -> extend i)
 
 
 
-        sum12 : finiteMerge CM-ΠK+ (isSetΠ (\_ -> isSet-K)) I (unwrap-dp ∘ extended-scale-up) ==
+        sum12 : finiteMerge CM-ΠK+  I (unwrap-dp ∘ extended-scale-up) ==
                 extend
         sum12 = funExt (\i -> (sum7 i >=> sum11 i))
 

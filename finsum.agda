@@ -49,22 +49,22 @@ module _ {D : Type ℓ} {{S : Semiring D}} where
 
   abstract
     finiteSum : {ℓ : Level} -> (s : FinSet ℓ) -> (⟨ s ⟩ -> D) -> D
-    finiteSum = finiteMerge CM isSet-Domain
+    finiteSum = finiteMerge CM
 
     finiteSum-eval : {ℓ : Level} (A : FinSet ℓ) {n : Nat}
                      -> (eq : (⟨ A ⟩ ≃ Fin n)) -> (f : ⟨ A ⟩ -> D)
                      -> finiteSum A f == equivSum eq f
-    finiteSum-eval = finiteMerge-eval CM isSet-Domain
+    finiteSum-eval = finiteMerge-eval CM
 
     finiteSum-convert : {ℓ₁ ℓ₂ : Level} -> (A : FinSet ℓ₁) (B : FinSet ℓ₂)
                         (eq : (⟨ B ⟩ ≃ ⟨ A ⟩) ) (f : ⟨ A ⟩ -> D)
                         -> finiteSum A f == finiteSum B (f ∘ (eqFun eq))
-    finiteSum-convert = finiteMerge-convert CM isSet-Domain
+    finiteSum-convert = finiteMerge-convert CM
 
     finiteSum-convert-iso : {ℓ₁ ℓ₂ : Level} -> (A : FinSet ℓ₁) (B : FinSet ℓ₂)
                             (i : Iso ⟨ B ⟩ ⟨ A ⟩) (f : ⟨ A ⟩ -> D)
                             -> finiteSum A f == finiteSum B (f ∘ (Iso.fun i))
-    finiteSum-convert-iso = finiteMerge-convert-iso CM isSet-Domain
+    finiteSum-convert-iso = finiteMerge-convert-iso CM
 
 
 private

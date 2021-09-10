@@ -28,8 +28,8 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) 
   open CommMonoid CM
 
   private
-    finiteMerge' = finiteMerge CM isSet-D
-    finiteMerge'-convert = finiteMerge-convert CM isSet-D
+    finiteMerge' = finiteMerge CM
+    finiteMerge'-convert = finiteMerge-convert CM
 
   module _ {ℓB ℓP : Level} (FB : FinSet ℓB) (partition : FinitePartition ⟨ FB ⟩ ℓP) where
     private
@@ -90,4 +90,4 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) 
         (finiteMerge' (FP' k0) (f ∘ fst)) ∙ (finiteMerge' (FP' k1) (f ∘ fst))
       finiteMerge-binary-partition f =
         finiteMerge-partition FB (2 , partition) f >=>
-        finiteMerge-Fin2 CM isSet-D (\k -> (finiteMerge' (FP' k) (f ∘ fst)))
+        finiteMerge-Fin2 CM (\k -> (finiteMerge' (FP' k) (f ∘ fst)))

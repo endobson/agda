@@ -31,15 +31,15 @@ private
   variable
     ℓ : Level
 
-module _ {D : Type ℓ} (CM : CommMonoid D) (isSetD : isSet D) where
+module _ {D : Type ℓ} (CM : CommMonoid D) where
   open CommMonoid CM
 
   private
-    finiteMerge' = finiteMerge CM isSetD
+    finiteMerge' = finiteMerge CM
     equivMerge' = equivMerge CM
-    finiteMerge-convert' = finiteMerge-convert CM isSetD
+    finiteMerge-convert' = finiteMerge-convert CM
     enumerationMerge' = enumerationMerge CM
-    eval = finiteMerge-eval CM isSetD
+    eval = finiteMerge-eval CM
 
   abstract
     finiteMerge-Bot : (f : Bot -> D) -> finiteMerge' FinSet-Bot f == ε
@@ -97,7 +97,7 @@ module _ {D : Type ℓ} (CM : CommMonoid D) (isSetD : isSet D) where
         (f : (Maybe B) -> D) ->
         (finiteMerge' (FinSet-Maybe FB) f)
         == (f nothing) ∙ finiteMerge' FB (f ∘ just)
-      finiteMerge-Maybe f = unsquash (isSetD _ _) (∥-map handle finB)
+      finiteMerge-Maybe f = unsquash (isSet-Domain _ _) (∥-map handle finB)
         where
         handle : Σ[ n ∈ Nat ] (B ≃ Fin n) ->
                  (finiteMerge' (FinSet-Maybe FB) f)
@@ -179,14 +179,14 @@ module _ {D : Type ℓ} (CM : CommMonoid D) (isSetD : isSet D) where
         >=> finiteMerge-ε'
 
     finiteMerge-ε : finiteMerge' FB (\_ -> ε) == ε
-    finiteMerge-ε = unsquash (isSetD _ _) (∥-map handle finB)
+    finiteMerge-ε = unsquash (isSet-Domain _ _) (∥-map handle finB)
       where
       handle : Σ[ n ∈ Nat ] (B ≃ Fin n) -> finiteMerge' FB (\_ -> ε) == ε
       handle (n , eq) = finiteMerge-convert' _ _ (equiv⁻¹ eq) _ >=> finiteMerge-ε'
 
     finiteMerge-split : {f g : B -> D} ->
       finiteMerge' FB (\b -> (f b) ∙ (g b)) == finiteMerge' FB f ∙ finiteMerge' FB g
-    finiteMerge-split {f} {g} = unsquash (isSetD _ _) (∥-map handle (snd FB))
+    finiteMerge-split {f} {g} = unsquash (isSet-Domain _ _) (∥-map handle (snd FB))
       where
       handle : Σ[ n ∈ Nat ] (B ≃ Fin n) ->
                finiteMerge' FB (\b -> (f b) ∙ (g b)) == finiteMerge' FB f ∙ finiteMerge' FB g
@@ -315,7 +315,7 @@ module _ {D : Type ℓ} (CM : CommMonoid D) (isSetD : isSet D) where
       (f : (A ⊎ B) -> D) ->
       (finiteMerge' (FinSet-⊎ (A , finA) (B , finB)) f)
       == (finiteMerge' (A , finA) (f ∘ inj-l)) ∙ (finiteMerge' (B , finB) (f ∘ inj-r))
-    finiteMerge-⊎ f = unsquash (isSetD _ _) (∥-map handle finA)
+    finiteMerge-⊎ f = unsquash (isSet-Domain _ _) (∥-map handle finA)
       where
       handle : Σ[ n ∈ Nat ] (A ≃ Fin n) ->
                (finiteMerge' (FinSet-⊎ (A , finA) (B , finB)) f)
@@ -358,10 +358,10 @@ module _ {D : Type ℓ} (CM : CommMonoid D) (isSetD : isSet D) where
 
 
 
-module _ {ℓD : Level} {D : Type ℓD} (CM-D : CommMonoid D) (isSetD : isSet D) where
+module _ {ℓD : Level} {D : Type ℓD} (CM-D : CommMonoid D) where
   module CM-D = CommMonoid CM-D
 
-  module _ {ℓA ℓB : Level} (FA : FinSet ℓA) {B : Type ℓB} (CM-B : CommMonoid B) (isSetB : isSet B) where
+  module _ {ℓA ℓB : Level} (FA : FinSet ℓA) {B : Type ℓB} (CM-B : CommMonoid B) where
     private
       A = ⟨ FA ⟩
     module CM-B = CommMonoid CM-B
@@ -369,29 +369,29 @@ module _ {ℓD : Level} {D : Type ℓD} (CM-D : CommMonoid D) (isSetD : isSet D)
       module fʰ = CommMonoidʰ fʰ
       private
         finiteMerge-homo-inject' : {n : Nat} {g : Fin n -> B} ->
-          finiteMerge CM-D isSetD (FinSet-Fin n) (\i -> (f (g i))) ==
-          f (finiteMerge CM-B isSetB (FinSet-Fin n) g)
+          finiteMerge CM-D (FinSet-Fin n) (\i -> (f (g i))) ==
+          f (finiteMerge CM-B (FinSet-Fin n) g)
         finiteMerge-homo-inject' {zero} {g} =
-          finiteMerge-Fin0 CM-D isSetD (f ∘ g) >=>
+          finiteMerge-Fin0 CM-D (f ∘ g) >=>
           sym fʰ.preserves-ε >=>
-          cong f (sym (finiteMerge-Fin0 CM-B isSetB g))
+          cong f (sym (finiteMerge-Fin0 CM-B g))
         finiteMerge-homo-inject' {suc n} {g} =
-          finiteMerge-convert CM-D isSetD _ _ (equiv⁻¹ (Fin-Maybe-eq n)) (f ∘ g)
-          >=> finiteMerge-Maybe CM-D isSetD _ _
+          finiteMerge-convert CM-D _ _ (equiv⁻¹ (Fin-Maybe-eq n)) (f ∘ g)
+          >=> finiteMerge-Maybe CM-D _ _
           >=> cong (f (g zero-fin) CM-D.∙_) finiteMerge-homo-inject'
           >=> sym (fʰ.preserves-∙ _ _)
-          >=> cong f ((sym (finiteMerge-Maybe CM-B isSetB _ _)) >=>
-                      (sym (finiteMerge-convert CM-B isSetB _ _ (equiv⁻¹ (Fin-Maybe-eq n)) g)))
+          >=> cong f ((sym (finiteMerge-Maybe CM-B _ _)) >=>
+                      (sym (finiteMerge-convert CM-B _ _ (equiv⁻¹ (Fin-Maybe-eq n)) g)))
 
       finiteMerge-homo-inject : {g : A -> B} ->
-        finiteMerge CM-D isSetD FA (f ∘ g) ==
-        f (finiteMerge CM-B isSetB FA g)
-      finiteMerge-homo-inject {g} = unsquash (isSetD _ _) (∥-map handle (snd FA))
+        finiteMerge CM-D FA (f ∘ g) ==
+        f (finiteMerge CM-B FA g)
+      finiteMerge-homo-inject {g} = unsquash (CM-D.isSet-Domain _ _) (∥-map handle (snd FA))
         where
         handle : Σ[ n ∈ Nat ] (A ≃ Fin n) ->
-                 finiteMerge CM-D isSetD FA (f ∘ g) ==
-                 f (finiteMerge CM-B isSetB FA g)
+                 finiteMerge CM-D FA (f ∘ g) ==
+                 f (finiteMerge CM-B FA g)
         handle (n , eq) =
-         finiteMerge-convert CM-D isSetD _ _ (equiv⁻¹ eq) _
+         finiteMerge-convert CM-D _ _ (equiv⁻¹ eq) _
          >=> finiteMerge-homo-inject'
-         >=> cong f (sym (finiteMerge-convert CM-B isSetB _ _ (equiv⁻¹ eq) _))
+         >=> cong f (sym (finiteMerge-convert CM-B _ _ (equiv⁻¹ eq) _))
