@@ -62,6 +62,11 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
     isSet-I = isFinSet->isSet isFinSet-I
     discrete-I = isFinSet->Discrete isFinSet-I
 
+    instance
+      FinSetStr-I : FinSetStr I'
+      FinSetStr-I = record {isFin = isFinSet-I}
+
+
     isSet-K = Semiring.isSet-Domain S
 
     VS = (VectorSpaceStr-DirectProduct F I')
@@ -107,6 +112,10 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
         inc = fst (snd S)
         inj-inc : Injective inc
         inj-inc = snd (snd S)
+
+        instance
+          FinSetStr-S' : FinSetStr S'
+          FinSetStr-S' = record {isFin = isFinSet-S'}
 
       ΣS' : Pred I' ℓI
       ΣS' i = (Σ[ s ∈ S' ] (inc s == i))
@@ -232,7 +241,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
       private
         sum6 : unwrap-dp (vsum' extended-scale-up isFinSet-I) ==
                finiteMergeᵉ CM-ΠK+ I (unwrap-dp ∘ extended-scale-up)
-        sum6 = sym (finiteMerge-homo-inject _ _ _ unwrap-dpʰ)
+        sum6 = sym (finiteMerge-homo-inject _ _ unwrap-dpʰ)
 
 
         module _ (i : I') where
@@ -240,7 +249,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
           sum7 : finiteMergeᵉ CM-ΠK+ I
                               (unwrap-dp ∘ extended-scale-up) i  ==
                  finiteMergeᵉ CM-K+ I (app-to i ∘ unwrap-dp ∘ extended-scale-up)
-          sum7  = sym (finiteMerge-homo-inject _ _ _ (app-toʰ _ i))
+          sum7  = sym (finiteMerge-homo-inject _ _ (app-toʰ _ i))
 
           P : Subtype I' ℓI
           P i2 = (i == i2) , isSet-I i i2
@@ -265,7 +274,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
                               (app-to i ∘ unwrap-dp ∘ extended-scale-up ∘ fst) +
                  finiteMergeᵉ CM-K+ (_ , fs-ΣIP')
                               (app-to i ∘ unwrap-dp ∘ extended-scale-up ∘ fst)
-          sum8 = finiteMerge-Detachable CM-K+ I P detachable-P
+          sum8 = finiteMerge-Detachable CM-K+ P detachable-P
                    (app-to i ∘ unwrap-dp ∘ extended-scale-up)
 
 
@@ -298,13 +307,17 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
           sum11 : finiteMergeᵉ CM-K+ I (app-to i ∘ unwrap-dp ∘ extended-scale-up) ==
                   extend i
           sum11 = sum8 >=>
-                  cong2 _+_ (cong (finiteMergeᵉ CM-K+ (_ , fs-ΣIP))
-                                  (funExt path10))
-                            (cong (finiteMergeᵉ CM-K+ (_ , fs-ΣIP'))
-                                  (funExt path9) >=>
-                             finiteMerge-ε CM-K+ (_ , fs-ΣIP'))
+                  cong2 _+_ (cong (finiteMerge CM-K+) (funExt path10))
+                            (cong (finiteMerge CM-K+) (funExt path9) >=>
+                             finiteMerge-ε CM-K+)
                   >=> +-right-zero
-                  >=> finiteMerge-isContr CM-K+ (_ , fs-ΣIP) isContr-ΣIP (\_ -> extend i)
+                  >=> finiteMerge-isContr CM-K+ isContr-ΣIP (\_ -> extend i)
+             where
+             instance
+               FinSetStr-ΣIP : FinSetStr _
+               FinSetStr-ΣIP = record {isFin = fs-ΣIP}
+               FinSetStr-ΣIP' : FinSetStr _
+               FinSetStr-ΣIP' = record {isFin = fs-ΣIP'}
 
 
 

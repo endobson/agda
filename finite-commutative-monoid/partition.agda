@@ -24,13 +24,12 @@ open import type-algebra
 
 
 
-module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) where
+module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
   open CommMonoid CM
 
   private
     finiteMergeᵉ' = finiteMergeᵉ CM
     finiteMerge' = finiteMerge CM
-    finiteMerge'-convert = finiteMerge-convert CM
 
   module _ {ℓB ℓP : Level} (FB : FinSet ℓB) (partition : FinitePartition ⟨ FB ⟩ ℓP) where
     private
@@ -72,8 +71,8 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) 
         finiteMerge' f ==
         finiteMerge' (\i -> (finiteMergeᵉ' (FP i) (f ∘ fst)))
       finiteMerge-partition f =
-        finiteMerge'-convert FB (FinSet-Σ (FinSet-Fin n) FP) (equiv⁻¹ (B≃ΣP-rev >eq> ΣP-rev≃ΣP)) f >=>
-        finiteMerge-Σ CM isSet-D (FinSet-Fin n) FP (\x -> f (fst (snd x)))
+        finiteMergeᵉ-convert CM FB (FinSet-Σ (FinSet-Fin n) FP) (equiv⁻¹ (B≃ΣP-rev >eq> ΣP-rev≃ΣP)) f >=>
+        finiteMerge-Σ CM (FinSet-Fin n) FP (\x -> f (fst (snd x)))
 
   module _ {ℓB ℓP : Level} (FB : FinSet ℓB) (partition : BinaryPartition ⟨ FB ⟩ ℓP) where
     private

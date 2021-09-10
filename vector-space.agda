@@ -263,14 +263,22 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
   vector-sum-convert : {ℓ₁ ℓ₂ : Level} (FI₁ : FinSet ℓ₁) (FI₂ : FinSet ℓ₂) ->
                        (eq : (⟨ FI₂ ⟩ ≃ ⟨ FI₁ ⟩)) (f : ⟨ FI₁ ⟩ -> V) ->
                        vector-sum f (snd FI₁) == vector-sum (f ∘ (eqFun eq)) (snd FI₂)
-  vector-sum-convert = finiteMerge-convert CommMonoid-V+
+  vector-sum-convert = finiteMergeᵉ-convert CommMonoid-V+
 
 
   vector-sum-⊎ : {ℓ₁ ℓ₂ : Level} (FI₁ : FinSet ℓ₁) (FI₂ : FinSet ℓ₂) ->
                  (f : (⟨ FI₁ ⟩ ⊎ ⟨ FI₂ ⟩) -> V) ->
                  vector-sum f (snd (FinSet-⊎ FI₁ FI₂)) ==
                  (vector-sum (f ∘ inj-l) (snd FI₁)) v+ (vector-sum (f ∘ inj-r) (snd FI₂))
-  vector-sum-⊎ FI₁ FI₂ = finiteMerge-⊎ CommMonoid-V+ (snd FI₁) (snd FI₂)
+  vector-sum-⊎ FI₁ FI₂ = finiteMerge-⊎ CommMonoid-V+
+    where
+    instance
+      FinSetStr-I₁ : FinSetStr (fst FI₁)
+      FinSetStr-I₁ = record {isFin = snd FI₁}
+
+      FinSetStr-I₂ : FinSetStr (fst FI₂)
+      FinSetStr-I₂ = record {isFin = snd FI₂}
+
 
   vector-sum-binary-partition :
     {ℓI ℓP : Level} (FI : FinSet ℓI) (partition : BinaryPartition ⟨ FI ⟩ ℓP) ->
@@ -279,18 +287,27 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
     (vector-sum (f ∘ fst) (snd (FinSet-partition FI (2 , partition) zero-fin))) v+
     (vector-sum (f ∘ fst) (snd (FinSet-partition FI (2 , partition) (suc-fin zero-fin))))
   vector-sum-binary-partition =
-    finiteMerge-binary-partition CommMonoid-V+ M.isSet-V
+    finiteMerge-binary-partition CommMonoid-V+
 
 
   vector-sum-Detachable :
     {ℓI ℓS : Level} (FI : FinSet ℓI) (S : Subtype ⟨ FI ⟩ ℓS) -> (d-S : Detachable S) -> (f : ⟨ FI ⟩ -> V) ->
     vector-sum f (snd FI) ==
-    vector-sum (f ∘ fst) (snd (FinSet-Detachable FI S d-S))  v+
+    vector-sum (f ∘ fst) (snd (FinSet-Detachable FI S d-S)) v+
     vector-sum (f ∘ fst) (snd (FinSet-DetachableComp FI S d-S))
-  vector-sum-Detachable = finiteMerge-Detachable CommMonoid-V+
+  vector-sum-Detachable FI = finiteMerge-Detachable CommMonoid-V+
+    where
+    instance
+      FinSetStr-I : FinSetStr (fst FI)
+      FinSetStr-I = record {isFin = snd FI}
+
 
   vector-sum-0v : (fs-I : isFinSet I) -> vector-sum (\_ -> 0v) fs-I == 0v
-  vector-sum-0v fs-I = finiteMerge-ε CommMonoid-V+ (_ , fs-I)
+  vector-sum-0v {I = I} fs-I = finiteMerge-ε CommMonoid-V+
+    where
+    instance
+      FinSetStr-I : FinSetStr I
+      FinSetStr-I = record {isFin = fs-I}
 
 
 

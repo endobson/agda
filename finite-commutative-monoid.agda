@@ -153,20 +153,26 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
 
   abstract
 
-    finiteMerge-eval : {ℓ : Level} (A : FinSet ℓ) {n : Nat}
+    finiteMergeᵉ-eval : {ℓ : Level} (A : FinSet ℓ) {n : Nat}
                        -> (eq : (⟨ A ⟩ ≃ Fin n)) -> (f : ⟨ A ⟩ -> D)
                        -> finiteMergeᵉ A f == equivMerge eq f
-    finiteMerge-eval {ℓ} (A , isFinA) {n} eq f =
+    finiteMergeᵉ-eval {ℓ} (A , isFinA) {n} eq f =
       begin
         finiteMergeᵉ (A , isFinA) f
       ==< (\i -> finiteMergeᵉ (A , squash isFinA ∣ n , eq ∣ i) f)>
         finiteMergeᵉ (A , ∣ n , eq ∣) f
       end
 
-    finiteMerge-convert : {ℓ₁ ℓ₂ : Level} -> (A : FinSet ℓ₁) (B : FinSet ℓ₂)
-                          (eq : (⟨ B ⟩ ≃ ⟨ A ⟩) ) (f : ⟨ A ⟩ -> D)
-                          -> finiteMergeᵉ A f == finiteMergeᵉ B (f ∘ (eqFun eq))
-    finiteMerge-convert {ℓ₁} {ℓ₂} A B eq f = outer-path
+    finiteMerge-eval : {ℓ : Level} {A : Type ℓ} {{FA : FinSetStr A}} {n : Nat} ->
+                       (eq : A ≃ Fin n) -> (f : A -> D) ->
+                       finiteMerge f == equivMerge eq f
+    finiteMerge-eval {A = A} {{FA = FA}} = finiteMergeᵉ-eval (A , FinSetStr.isFin FA)
+
+
+    finiteMergeᵉ-convert : {ℓ₁ ℓ₂ : Level} -> (A : FinSet ℓ₁) (B : FinSet ℓ₂)
+                           (eq : (⟨ B ⟩ ≃ ⟨ A ⟩) ) (f : ⟨ A ⟩ -> D)
+                           -> finiteMergeᵉ A f == finiteMergeᵉ B (f ∘ (eqFun eq))
+    finiteMergeᵉ-convert {ℓ₁} {ℓ₂} A B eq f = outer-path
       where
       A' = ⟨ A ⟩
       isFinA = snd A
@@ -178,7 +184,7 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
       inner-path (n , eqA) =
         begin
           finiteMergeᵉ A f
-        ==< finiteMerge-eval A eqA f >
+        ==< finiteMergeᵉ-eval A eqA f >
           equivMerge eqA f
         ==<>
           finMergeDep n (f ∘ eqInv eqA)
@@ -188,7 +194,7 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
           finMergeDep n (f ∘ (eqFun eq) ∘ (eqInv eqB))
         ==<>
           equivMerge eqB (f ∘ (eqFun eq))
-        ==< sym (finiteMerge-eval B eqB (f ∘ (eqFun eq))) >
+        ==< sym (finiteMergeᵉ-eval B eqB (f ∘ (eqFun eq))) >
           finiteMergeᵉ B (f ∘ (eqFun eq))
         end
         where
@@ -203,7 +209,21 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
       outer-path : finiteMergeᵉ A f == finiteMergeᵉ B (f ∘ (eqFun eq))
       outer-path = unsquash (isSet-Domain _ _) (∥-map inner-path isFinA)
 
-    finiteMerge-convert-iso : {ℓ₁ ℓ₂ : Level} -> (A : FinSet ℓ₁) (B : FinSet ℓ₂)
-                              (i : Iso ⟨ B ⟩ ⟨ A ⟩) (f : ⟨ A ⟩ -> D)
-                              -> finiteMergeᵉ A f == finiteMergeᵉ B (f ∘ (Iso.fun i))
-    finiteMerge-convert-iso {ℓ₁} {ℓ₂} A B i f = finiteMerge-convert A B (isoToEquiv i) f
+    finiteMerge-convert : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Type ℓ₂}
+                          {{FA : FinSetStr A}} {{FB : FinSetStr B}} ->
+                          (eq : B ≃ A) (f : A -> D) ->
+                          finiteMerge f == finiteMerge (f ∘ (eqFun eq))
+    finiteMerge-convert {A = A} {B = B} {{FA = FA}} {{FB = FB}} =
+      finiteMergeᵉ-convert (A , FinSetStr.isFin FA) (B , FinSetStr.isFin FB)
+
+    finiteMergeᵉ-convert-iso : {ℓ₁ ℓ₂ : Level} -> (A : FinSet ℓ₁) (B : FinSet ℓ₂)
+                               (i : Iso ⟨ B ⟩ ⟨ A ⟩) (f : ⟨ A ⟩ -> D)
+                               -> finiteMergeᵉ A f == finiteMergeᵉ B (f ∘ (Iso.fun i))
+    finiteMergeᵉ-convert-iso {ℓ₁} {ℓ₂} A B i f = finiteMergeᵉ-convert A B (isoToEquiv i) f
+
+    finiteMerge-convert-iso : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Type ℓ₂}
+                              {{FA : FinSetStr A}} {{FB : FinSetStr B}} ->
+                              (i : Iso B A) (f : A -> D) ->
+                              finiteMerge f == finiteMerge (f ∘ (Iso.fun i))
+    finiteMerge-convert-iso {A = A} {B = B} {{FA = FA}} {{FB = FB}} =
+      finiteMergeᵉ-convert-iso (A , FinSetStr.isFin FA) (B , FinSetStr.isFin FB)

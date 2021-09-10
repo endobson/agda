@@ -23,13 +23,13 @@ open import sigma
 open import truncation
 open import type-algebra
 
-module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) where
+module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
   open CommMonoid CM
 
   private
     finiteMerge' = finiteMerge CM
     finiteMergeᵉ' = finiteMergeᵉ CM
-    finiteMerge'-convert = finiteMerge-convert CM
+    finiteMerge'-convert = finiteMergeᵉ-convert CM
     finiteMerge'-⊎ = finiteMerge-⊎ CM
     finiteMerge'-Maybe = finiteMerge-Maybe CM
 
@@ -37,6 +37,11 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) 
     private
       B : Fin 0 -> Type ℓB
       B = fst ∘ FB
+
+      instance
+        FinSetStr-B : {z : Fin 0} -> FinSetStr (B z)
+        FinSetStr-B {z} = record {isFin = snd (FB z)}
+
     abstract
 
       finiteMerge-Σ'-zero :
@@ -44,8 +49,8 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) 
         finiteMergeᵉ' (FinSet-Σ (FinSet-Fin 0) FB) f ==
         finiteMergeᵉ' (FinSet-Fin 0) (\i -> finiteMergeᵉ' (FB i) (\b -> f (i , b)))
       finiteMerge-Σ'-zero f =
-        finiteMerge-Uninhabited CM _ (¬fin-zero ∘ fst) _ >=>
-        sym (finiteMerge-Uninhabited CM _ ¬fin-zero _)
+        finiteMerge-Uninhabited CM (¬fin-zero ∘ fst) _ >=>
+        sym (finiteMerge-Uninhabited CM ¬fin-zero _)
 
   private
     finiteMerge-Σ' : {ℓB : Level} {n : Nat} {FB : Fin n -> FinSet ℓB}
@@ -62,8 +67,8 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) 
                       (FinSet-Σ (FinSet-Fin n) (FB ∘ suc-fin)))
             (equiv⁻¹ (reindexΣ (equiv⁻¹ (Fin-Maybe-eq n)) B >eq> Σ-Maybe-eq)) _ >
         finiteMergeᵉ' (FinSet-⊎ (FB zero-fin)
-                            (FinSet-Σ (FinSet-Fin n) (FB ∘ suc-fin))) _
-      ==< finiteMerge'-⊎ _ _ _ >
+                                (FinSet-Σ (FinSet-Fin n) (FB ∘ suc-fin))) _
+      ==< finiteMerge'-⊎ _ >
         finiteMergeᵉ' (FB zero-fin) g ∙
         finiteMergeᵉ' (FinSet-Σ (FinSet-Fin n) (FB ∘ suc-fin)) _
       ==< cong (finiteMergeᵉ' (FB zero-fin) _ ∙_) (finiteMerge-Σ' _) >
@@ -80,6 +85,10 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) 
       B : Fin (suc n) -> Type ℓB
       B i = fst (FB i)
 
+      instance
+        FinSetStr-B : {i : Fin (suc n)} -> FinSetStr (B i)
+        FinSetStr-B {i} = record {isFin = snd (FB i)}
+
       g : {i : Fin (suc n)} -> B i -> D
       g {i} b = f (i , b)
 
@@ -91,7 +100,7 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) 
       path2 =
         finiteMerge'-convert (FinSet-Fin (suc n)) (FinSet-Maybe (FinSet-Fin n))
                              (equiv⁻¹ (Fin-Maybe-eq n)) f'
-        >=> finiteMerge'-Maybe _ _
+        >=> finiteMerge'-Maybe _
 
   module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : ⟨ FA ⟩ -> FinSet ℓB) where
     private
@@ -110,7 +119,7 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) (isSet-D : isSet D) 
       finiteMerge-Σ : (f : (Σ ⟨ FA ⟩ (fst ∘ FB)) -> D) ->
                       finiteMerge' f ==
                       finiteMerge' (\a -> finiteMerge' (f ∘ (a ,_)))
-      finiteMerge-Σ f = unsquash (isSet-D _ _) (∥-map handle finA)
+      finiteMerge-Σ f = unsquash (CommMonoid.isSet-Domain CM _ _) (∥-map handle finA)
         where
         handle : Σ[ n ∈ Nat ] (A ≃ Fin n) ->
                  finiteMergeᵉ' (FinSet-Σ FA FB) f ==

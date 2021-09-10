@@ -54,17 +54,17 @@ module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
     finiteProduct-eval : {ℓ : Level} (A : FinSet ℓ) {n : Nat}
                          -> (eq : (⟨ A ⟩ ≃ Fin n)) -> (f : ⟨ A ⟩ -> D)
                          -> finiteProduct A f == equivProduct eq f
-    finiteProduct-eval = finiteMerge-eval CM
+    finiteProduct-eval = finiteMergeᵉ-eval CM
 
     finiteProduct-convert : {ℓ₁ ℓ₂ : Level} -> (A : FinSet ℓ₁) (B : FinSet ℓ₂)
                             (eq : (⟨ B ⟩ ≃ ⟨ A ⟩) ) (f : ⟨ A ⟩ -> D)
                             -> finiteProduct A f == finiteProduct B (f ∘ (eqFun eq))
-    finiteProduct-convert = finiteMerge-convert CM
+    finiteProduct-convert = finiteMergeᵉ-convert CM
 
     finiteProduct-convert-iso : {ℓ₁ ℓ₂ : Level} -> (A : FinSet ℓ₁) (B : FinSet ℓ₂)
                                 (i : Iso ⟨ B ⟩ ⟨ A ⟩) (f : ⟨ A ⟩ -> D)
                                 -> finiteProduct A f == finiteProduct B (f ∘ (Iso.fun i))
-    finiteProduct-convert-iso = finiteMerge-convert-iso CM
+    finiteProduct-convert-iso = finiteMergeᵉ-convert-iso CM
 
     finiteProduct-Bot : (f : Bot -> D) -> finiteProduct FinSet-Bot f == 1#
     finiteProduct-Bot = finiteMerge-Bot CM
@@ -76,22 +76,40 @@ module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
       (FB : FinSet ℓ) (f : Maybe ⟨ FB ⟩ -> D) ->
       finiteProduct (FinSet-Maybe FB) f ==
       (f nothing) * (finiteProduct FB (f ∘ just))
-    finiteProduct-Maybe = finiteMerge-Maybe CM
+    finiteProduct-Maybe FB = finiteMerge-Maybe CM
+      where
+      instance
+        FinSetStr-B : FinSetStr (fst FB)
+        FinSetStr-B = record {isFin = snd FB}
 
     finiteProduct-⊎ :
       (FA : FinSet ℓ) (FB : FinSet ℓ) (f : (⟨ FA ⟩ ⊎ ⟨ FB ⟩) -> D) ->
       finiteProduct (FinSet-⊎ FA FB) f ==
       (finiteProduct FA (f ∘ inj-l)) * (finiteProduct FB (f ∘ inj-r))
-    finiteProduct-⊎ FA FB = finiteMerge-⊎ CM (snd FA) (snd FB)
+    finiteProduct-⊎ FA FB = finiteMerge-⊎ CM
+      where
+      instance
+        FinSetStr-A : FinSetStr (fst FA)
+        FinSetStr-A = record {isFin = snd FA}
+        FinSetStr-B : FinSetStr (fst FB)
+        FinSetStr-B = record {isFin = snd FB}
 
     finiteProduct-split :
       (FB : FinSet ℓ) {f g : ⟨ FB ⟩ -> D} ->
       finiteProduct FB (\b -> f b * g b) ==
       finiteProduct FB f * finiteProduct FB g
-    finiteProduct-split FB = finiteMerge-split CM FB
+    finiteProduct-split FB = finiteMerge-split CM
+      where
+      instance
+        FinSetStr-B : FinSetStr (fst FB)
+        FinSetStr-B = record {isFin = snd FB}
 
     finiteProductʰ : (FB : FinSet ℓ) -> CommMonoidʰᵉ (CommMonoidStr-Π (\_ -> CM)) CM (finiteProduct FB)
-    finiteProductʰ FB = finiteMergeʰ CM FB
+    finiteProductʰ FB = finiteMergeʰ CM
+      where
+      instance
+        FinSetStr-B : FinSetStr (fst FB)
+        FinSetStr-B = record {isFin = snd FB}
 
 
 module _ {ℓB ℓC : Level} {B : Type ℓB} {C : Type ℓC} {{SB : Semiring B}} {{SC : Semiring C}} where
@@ -107,5 +125,9 @@ module _ {ℓB ℓC : Level} {B : Type ℓB} {C : Type ℓC} {{SB : Semiring B}}
       finiteProduct FA (f ∘ g) == f (finiteProduct FA g)
     finiteProduct-homo-inject FA {f = f} fʰ =
       finiteProductᵉ-path >=>
-      finiteMerge-homo-inject CM-C FA CM-B fʰ >=>
+      finiteMerge-homo-inject CM-C CM-B fʰ >=>
       cong f (sym finiteProductᵉ-path)
+      where
+      instance
+        FinSetStr-A : FinSetStr (fst FA)
+        FinSetStr-A = record {isFin = snd FA}
