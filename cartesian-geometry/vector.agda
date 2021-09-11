@@ -40,6 +40,7 @@ open import subset
 open import truncation
 open import univalence
 open import vector-space
+open import vector-space.infinite
 
 
 data Axis : Type₀ where

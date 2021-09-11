@@ -26,14 +26,7 @@ open import relation
 open import semiring
 open import subset
 open import truncation
-open import vector-space using
-  ( ModuleStr
-  ; VectorSpaceStr
-  ; _v+_
-  ; _v*_
-  ; 0v
-  ; vector-sum
-  )
+open import vector-space
 
 private
   variable
