@@ -51,38 +51,35 @@ private
 
 
 
-module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
-         {R : Ring S} {A : TightApartnessStr K} (F : Field R A) (I : FinSet ℓI) where
+module _ {ℓK ℓI : Level} {K : Type ℓK} {{S : Semiring K}}
+         {{R : Ring S}} {{A : TightApartnessStr K}} (F : Field R A) (I : Type ℓI)
+         {{FI : FinSetStr I}}  where
   private
-    instance
-      IS = S
-      IR = R
-
-    I' = ⟨ I ⟩
-    isFinSet-I = snd I
+    isFinSet-I = FinSetStr.isFin FI
     isSet-I = isFinSet->isSet isFinSet-I
     discrete-I = isFinSet->Discrete isFinSet-I
 
     instance
-      FinSetStr-I : FinSetStr I'
+      FinSetStr-I : FinSetStr I
       FinSetStr-I = record {isFin = isFinSet-I}
 
 
     isSet-K = Semiring.isSet-Domain S
 
-    VS = (VectorSpaceStr-DirectProduct F I')
+    VS = (VectorSpaceStr-DirectProduct F I)
     MS = VectorSpaceStr.module-str VS
-    V = (DP K I')
+    V = (DP K I)
 
     instance
       IMS = MS
       IVS = VS
+      IF = F
 
 
     -- Show that unwrap is a CommMonoidʰ
     CM-V = ModuleStr.CommMonoid-V+ MS
     CM-K+ = Semiring.+-CommMonoid S
-    CM-ΠK+ : CommMonoid (I' -> K)
+    CM-ΠK+ : CommMonoid (I -> K)
     CM-ΠK+ = CommMonoidStr-Π (\_ -> CM-K+)
     module CM-V = CommMonoid CM-V
     module CM-ΠK+ = CommMonoid CM-ΠK+
@@ -94,23 +91,23 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
       }
 
 
-    indicator' : {i1 i2 : I'} -> Dec (i1 == i2) -> K
+    indicator' : {i1 i2 : I} -> Dec (i1 == i2) -> K
     indicator' (yes _) = 1#
     indicator' (no _) = 0#
 
-    indicator : I' -> I' -> K
+    indicator : I -> I -> K
     indicator i1 i2 = indicator' (discrete-I i1 i2)
 
-    -- The family of vectors that are the standard basis.
-    standard-basis' : I' -> V
-    standard-basis' i1 = wrap-dp (indicator i1)
+  -- The family of vectors that are the standard basis.
+  standard-basis : I -> V
+  standard-basis i1 = wrap-dp (indicator i1)
 
-
-    module _ (S : FinSubset I' ℓI) (f : ⟨ ⟨ S ⟩ ⟩ -> K) where
+  private
+    module _ (S : FinSubset I ℓI) (f : ⟨ ⟨ S ⟩ ⟩ -> K) where
       private
         S' = ⟨ ⟨ S ⟩ ⟩
         isFinSet-S' = snd ⟨ S ⟩
-        inc : S' -> I'
+        inc : S' -> I
         inc = fst (snd S)
         inj-inc : Injective inc
         inj-inc = snd (snd S)
@@ -119,18 +116,18 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
           FinSetStr-S' : FinSetStr S'
           FinSetStr-S' = record {isFin = isFinSet-S'}
 
-      ΣS' : Pred I' ℓI
+      ΣS' : Pred I ℓI
       ΣS' i = (Σ[ s ∈ S' ] (inc s == i))
 
       isProp-ΣS' : isPropValuedPred ΣS'
       isProp-ΣS' _ (s1 , p1) (s2 , p2) =
         ΣProp-path (isSet-I _ _) (inj-inc (p1 >=> (sym p2)))
 
-      SubS : Subtype I' ℓI
+      SubS : Subtype I ℓI
       SubS i = ΣS' i , isProp-ΣS' i
 
       ΣI : Pred S' ℓI
-      ΣI s = (Σ[ i ∈ I' ] (inc s == i))
+      ΣI s = (Σ[ i ∈ I ] (inc s == i))
 
       isProp-ΣI : (s : S') -> isProp (ΣI s)
       isProp-ΣI s (i1 , p1) (i2 , p2) = ΣProp-path (isSet-I _ _) (sym p1 >=> p2)
@@ -155,11 +152,11 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
       detachable-S : Detachable SubS
       detachable-S = find-s
 
-      extend' : {i : I'} -> Dec (ΣS' i) -> K
+      extend' : {i : I} -> Dec (ΣS' i) -> K
       extend' (yes (s , _)) = f s
       extend' (no _) = 0#
 
-      extend : I' -> K
+      extend : I -> K
       extend i = extend' (find-s i)
 
       extend-support' : (s : S') -> extend (inc s) == f s
@@ -171,10 +168,10 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
           cong extend' (sym path) >=> cong f (inj-inc p)
         handle (no ¬s2) path = bot-elim (¬s2 (s , refl))
 
-      extend-support : (i : I') -> (s : ΣS' i) -> extend i == f ⟨ s ⟩
+      extend-support : (i : I) -> (s : ΣS' i) -> extend i == f ⟨ s ⟩
       extend-support i (s , p) = cong extend (sym p) >=> extend-support' s
 
-      extend-no-support : (i : I') -> (¬s : ¬ (ΣS' i)) -> extend i == 0#
+      extend-no-support : (i : I) -> (¬s : ¬ (ΣS' i)) -> extend i == 0#
       extend-no-support i ¬s = handle (find-s i) refl
         where
         handle : (d : Dec (ΣS' i)) -> d == find-s i ->
@@ -184,32 +181,32 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
 
       private
         scale-up : (s : S') -> V
-        scale-up s = (f s) v* (standard-basis' (inc s))
+        scale-up s = (f s) v* (standard-basis (inc s))
 
-        extended-scale-up : (i : I') -> V
-        extended-scale-up i = extend i v* (standard-basis' i)
+        extended-scale-up : (i : I) -> V
+        extended-scale-up i = extend i v* (standard-basis i)
 
         extended-scale-up-no-support : Path (∉-Subtype SubS -> V) (extended-scale-up ∘ fst) (\_ -> 0v)
         extended-scale-up-no-support = funExt (\ (i , ¬s) -> path i ¬s)
           where
-          path : (i : I') -> ¬(ΣS' i) -> extended-scale-up i == 0v
-          path i ¬s = cong (_v* (standard-basis' i)) (extend-no-support i ¬s) >=> v*-left-zero
+          path : (i : I) -> ¬(ΣS' i) -> extended-scale-up i == 0v
+          path i ¬s = cong (_v* (standard-basis i)) (extend-no-support i ¬s) >=> v*-left-zero
 
         extended-scale-up-support :
           Path (∈-Subtype SubS -> V) (extended-scale-up ∘ fst)
                                      (\ (i , s , _) -> scale-up s)
         extended-scale-up-support = funExt (\ (i , Σs) -> path i Σs)
           where
-          path : (i : I') -> (s : ΣS' i) -> extended-scale-up i == scale-up ⟨ s ⟩
+          path : (i : I) -> (s : ΣS' i) -> extended-scale-up i == scale-up ⟨ s ⟩
           path i s@(_ , p) =
-            cong2 (\a b -> a v* (standard-basis' b)) (extend-support i s) (sym p)
+            cong2 (\a b -> a v* (standard-basis b)) (extend-support i s) (sym p)
 
         fs-ΣIS : isFinSet (∈-Subtype SubS)
-        fs-ΣIS = (snd (FinSet-Detachable I SubS detachable-S))
+        fs-ΣIS = (snd (FinSet-Detachable (I , isFinSet-I) SubS detachable-S))
         fs-ΣIS' : isFinSet (∉-Subtype SubS)
-        fs-ΣIS' = (snd (FinSet-DetachableComp I SubS detachable-S))
+        fs-ΣIS' = (snd (FinSet-DetachableComp (I , isFinSet-I) SubS detachable-S))
 
-        fs-ΣSI : isFinSet (Σ[ s ∈ S' ] Σ[ i ∈ I' ] (inc s == i))
+        fs-ΣSI : isFinSet (Σ[ s ∈ S' ] Σ[ i ∈ I ] (inc s == i))
         fs-ΣSI = isFinSet-equiv Σ-swap-eq fs-ΣIS
 
         instance
@@ -222,7 +219,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
 
 
 
-        sum1 : scaled-vector-sum VS standard-basis' S f ==
+        sum1 : scaled-vector-sum VS standard-basis S f ==
                vector-sum scale-up
         sum1 = refl
 
@@ -240,7 +237,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
                finiteMerge-convert _ Σ-swap-eq (\ (i , s , _) -> scale-up s) >=>
                finiteMerge-convert _ (Σ-isContr-eq isContr-ΣI) (scale-up ∘ fst)
 
-        sum5 : scaled-vector-sum VS standard-basis' S f ==
+        sum5 : scaled-vector-sum VS standard-basis S f ==
                vector-sum extended-scale-up
         sum5 = sym (sum2 >=> cong2 _v+_ sum4 sum3 >=> v+-right-zero)
 
@@ -250,23 +247,22 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
         sum6 = sym (finiteMerge-homo-inject _ _ unwrap-dpʰ)
 
 
-        module _ (i : I') where
+        module _ (i : I) where
 
-          sum7 : finiteMergeᵉ CM-ΠK+ I
-                              (unwrap-dp ∘ extended-scale-up) i  ==
-                 finiteMergeᵉ CM-K+ I (app-to i ∘ unwrap-dp ∘ extended-scale-up)
+          sum7 : finiteMerge CM-ΠK+ (unwrap-dp ∘ extended-scale-up) i  ==
+                 finiteMerge CM-K+ (app-to i ∘ unwrap-dp ∘ extended-scale-up)
           sum7  = sym (finiteMerge-homo-inject _ _ (app-toʰ _ i))
 
-          P : Subtype I' ℓI
+          P : Subtype I ℓI
           P i2 = (i == i2) , isSet-I i i2
 
           detachable-P : Detachable P
           detachable-P = discrete-I i
 
           fs-ΣIP : isFinSet (∈-Subtype P)
-          fs-ΣIP = (snd (FinSet-Detachable I P detachable-P))
+          fs-ΣIP = (snd (FinSet-Detachable (I , isFinSet-I) P detachable-P))
           fs-ΣIP' : isFinSet (∉-Subtype P)
-          fs-ΣIP' = (snd (FinSet-DetachableComp I P detachable-P))
+          fs-ΣIP' = (snd (FinSet-DetachableComp (I , isFinSet-I) P detachable-P))
 
           instance
             FinSetStr-ΣIP : FinSetStr _
@@ -282,7 +278,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
           isContr-ΣIP = (i , refl) , isProp-ΣIP _
 
 
-          sum8 : finiteMergeᵉ CM-K+ I (app-to i ∘ unwrap-dp ∘ extended-scale-up) ==
+          sum8 : finiteMerge CM-K+ (app-to i ∘ unwrap-dp ∘ extended-scale-up) ==
                  finiteMergeᵉ CM-K+ (_ , fs-ΣIP)
                               (app-to i ∘ unwrap-dp ∘ extended-scale-up ∘ fst) +
                  finiteMergeᵉ CM-K+ (_ , fs-ΣIP')
@@ -317,7 +313,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
               ans = cong2 _*_ (cong extend (sym i=i2)) (cong indicator' (sym path)) >=>
                     *-right-one
 
-          sum11 : finiteMergeᵉ CM-K+ I (app-to i ∘ unwrap-dp ∘ extended-scale-up) ==
+          sum11 : finiteMerge CM-K+ (app-to i ∘ unwrap-dp ∘ extended-scale-up) ==
                   extend i
           sum11 = sum8 >=>
                   cong2 _+_ (cong (finiteMerge CM-K+) (funExt path10))
@@ -328,36 +324,47 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
 
 
 
-        sum12 : finiteMergeᵉ CM-ΠK+  I (unwrap-dp ∘ extended-scale-up) ==
+        sum12 : finiteMerge CM-ΠK+ (unwrap-dp ∘ extended-scale-up) ==
                 extend
         sum12 = funExt (\i -> (sum7 i >=> sum11 i))
 
-      standard-basis'-sum' : scaled-vector-sum VS standard-basis' S f == wrap-dp extend
-      standard-basis'-sum' = sum5 >=> cong wrap-dp (sum6 >=> sum12)
+      standard-basis-sum' : scaled-vector-sum VS standard-basis S f == wrap-dp extend
+      standard-basis-sum' = sum5 >=> cong wrap-dp (sum6 >=> sum12)
 
   private
+    J : FinSubset I ℓI
+    J = (I , isFinSet-I) , (\x -> x) , (\p -> p)
 
-    -- The improper subset of I
-    J : FinSubset I' ℓI
-    J = I , (\x -> x) , (\p -> p)
-
-    extend-J : (f : I' -> K) -> extend J f == f
+    extend-J : (f : I -> K) -> extend J f == f
     extend-J f k i = extend-support J f i (i , refl) k
 
-    standard-basis'-sum : (f : I' -> K) -> scaled-vector-sum VS standard-basis' J f == wrap-dp f
-    standard-basis'-sum f = standard-basis'-sum' J f >=> cong wrap-dp (extend-J f)
+    standard-basis-sum : (f : I -> K) -> scaled-vector-sum VS standard-basis J f == wrap-dp f
+    standard-basis-sum f = standard-basis-sum' J f >=> cong wrap-dp (extend-J f)
 
-    isSpanning-standard-basis' : isSpanning VS standard-basis' ℓI
-    isSpanning-standard-basis' v = ∣ J , unwrap-dp v , standard-basis'-sum _ ∣
+    module inf where
+      import vector-space.infinite as vsi
+      -- The improper subset of I
 
-    LinearlyIndependent-standard-basis' : LinearlyIndependent VS standard-basis' ℓI
-    LinearlyIndependent-standard-basis' S a path s =
-      sym (extend-support' S a s) >=>
-      cong (\x -> unwrap-dp x (fst (snd S) s)) (sym (standard-basis'-sum' S a) >=> path)
+      isSpanning-standard-basis : vsi.isSpanning VS standard-basis ℓI
+      isSpanning-standard-basis v = ∣ J , unwrap-dp v , standard-basis-sum _ ∣
 
-    abstract
-      isBasis-standard-basis' : isBasis VS standard-basis' ℓI
-      isBasis-standard-basis' = isSpanning-standard-basis' , LinearlyIndependent-standard-basis'
+      LinearlyIndependent-standard-basis : vsi.LinearlyIndependent VS standard-basis ℓI
+      LinearlyIndependent-standard-basis S a path s =
+        sym (extend-support' S a s) >=>
+        cong (\x -> unwrap-dp x (fst (snd S) s)) (sym (standard-basis-sum' S a) >=> path)
 
-  standard-basis : Basis VS ℓI
-  standard-basis = I' , standard-basis' , isBasis-standard-basis'
+      isBasis-standard-basis : vsi.isBasis VS standard-basis ℓI
+      isBasis-standard-basis = isSpanning-standard-basis , LinearlyIndependent-standard-basis
+
+    import vector-space.finite as vsf
+
+    isSpanning-standard-basis : vsf.isSpanning standard-basis
+    isSpanning-standard-basis v = ∣ unwrap-dp v , standard-basis-sum _ ∣
+
+    LinearlyIndependent-standard-basis : vsf.LinearlyIndependent standard-basis
+    LinearlyIndependent-standard-basis a path i =
+      cong (\v -> unwrap-dp v i) (sym (standard-basis-sum a) >=> path)
+
+  abstract
+    isBasis-standard-basis : vsf.isBasis standard-basis
+    isBasis-standard-basis = isSpanning-standard-basis , LinearlyIndependent-standard-basis

@@ -40,7 +40,7 @@ open import subset
 open import truncation
 open import univalence
 open import vector-space
-open import vector-space.infinite
+open import vector-space.finite
 
 
 data Axis : Type₀ where
@@ -76,6 +76,9 @@ isFinSet-Axis = ∣ 2 , eq2 ∣
     eq2 : Axis ≃ Fin 2
     eq2 = subst (Axis ≃_) (cong2 _⊎_ (sym Fin-Top) (sym Fin-Top) >=> sym (Fin-+ 1 1)) eq
 
+instance
+  FinSetStr-Axis : FinSetStr Axis
+  FinSetStr-Axis = record {isFin = isFinSet-Axis}
 
 Vector : Type₁
 Vector = DirectProduct ℝ Axis
@@ -552,17 +555,14 @@ isProp-sd# sd1 sd2 = snd (sd#-full sd1 sd2)
 private
   VS = VectorSpaceStr-Vector
 
-  v-basis : Basis VS ℓ-zero
-  v-basis = standard-basis ℝField (Axis , isFinSet-Axis)
+  v-basis : Family Vector Axis
+  v-basis = standard-basis ℝField Axis
 
-  v-basis' : Family Vector Axis
-  v-basis' = fst (snd v-basis)
+  isBasis-v-basis : isBasis v-basis
+  isBasis-v-basis = isBasis-standard-basis ℝField Axis
 
-  isBasis-v-basis' : isBasis VS v-basis' ℓ-zero
-  isBasis-v-basis' = snd (snd v-basis)
-
-  decompose : (v : Vector) -> ⟨ LinearSpan VS v-basis' ℓ-zero v ⟩
-  decompose v = fst isBasis-v-basis' v
+  decompose : (v : Vector) -> ⟨ LinearSpan v-basis v ⟩
+  decompose v = fst isBasis-v-basis v
 
   -- x-vector : Vector -> Vector
   -- x-vector v = decompose v
