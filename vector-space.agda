@@ -232,6 +232,18 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
 
 module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
          {A : TightApartnessStr K} {F : Field R A} {V : Type ℓV}
+         {{VS : VectorSpaceStr F V}} where
+
+  private
+    CommMonoid-V+ : CommMonoid V
+    CommMonoid-V+ = GroupStr.comm-monoid (ModuleStr.GroupStr-V (VectorSpaceStr.module-str VS))
+
+  vector-sum : {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} -> (I -> V) -> V
+  vector-sum = finiteMerge CommMonoid-V+
+
+
+module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
+         {A : TightApartnessStr K} {F : Field R A} {V : Type ℓV}
          (VS : VectorSpaceStr F V) where
 
 
@@ -247,6 +259,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
       IF = F
       IVA = ModuleStr.TightApartnessStr-V IM
       IFA = Field.TightApartnessStr-f# F
+      IVS = VS
 
 
   private
@@ -256,12 +269,6 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
   private
     CommMonoid-V+ : CommMonoid V
     CommMonoid-V+ = GroupStr.comm-monoid M.GroupStr-V
-
-  vector-sumᵉ : (I -> V) -> isFinSet I -> V
-  vector-sumᵉ vs fs = finiteMergeᵉ CommMonoid-V+ (_ , fs) vs
-
-  vector-sum : {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} -> (I -> V) -> V
-  vector-sum = finiteMerge CommMonoid-V+
 
 
   private

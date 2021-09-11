@@ -75,6 +75,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
 
     instance
       IMS = MS
+      IVS = VS
 
 
     -- Show that unwrap is a CommMonoidʰ
@@ -187,8 +188,6 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
         extended-scale-up : (i : I') -> V
         extended-scale-up i = extend i v* (standard-basis' i)
 
-        vsum' = vector-sumᵉ VS
-
         extended-scale-up-no-support : Path (∉-Subtype SubS -> V) (extended-scale-up ∘ fst) (\_ -> 0v)
         extended-scale-up-no-support = funExt (\ (i , ¬s) -> path i ¬s)
           where
@@ -223,31 +222,30 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {S : Semiring K}
 
 
         sum1 : scaled-vector-sum VS standard-basis' S f ==
-               vector-sum VS scale-up
+               vector-sum scale-up
         sum1 = refl
 
-        sum2 : vsum' extended-scale-up isFinSet-I ==
-               vsum' (extended-scale-up ∘ fst) fs-ΣIS v+
-               vsum' (extended-scale-up ∘ fst) fs-ΣIS'
+        sum2 : vector-sum extended-scale-up ==
+               vector-sum (extended-scale-up ∘ fst) v+
+               vector-sum (extended-scale-up ∘ fst)
         sum2 = finiteMerge-Detachable _ SubS detachable-S extended-scale-up
 
-        sum3 : vsum' (extended-scale-up ∘ fst) fs-ΣIS'  == 0v
-        sum3 = cong (\f -> vsum' f fs-ΣIS') extended-scale-up-no-support >=>
+        sum3 : vector-sum (extended-scale-up ∘ fst) == 0v
+        sum3 = cong vector-sum extended-scale-up-no-support >=>
                finiteMerge-ε _
 
-        sum4 : vsum' (extended-scale-up ∘ fst) fs-ΣIS
-               == vsum' scale-up isFinSet-S'
-        sum4 = cong (\f -> vsum' f fs-ΣIS) extended-scale-up-support >=>
+        sum4 : vector-sum (extended-scale-up ∘ fst) == vector-sum scale-up
+        sum4 = cong vector-sum extended-scale-up-support >=>
                finiteMerge-convert _ Σ-swap-eq (\ (i , s , _) -> scale-up s) >=>
                finiteMerge-convert _ (Σ-isContr-eq isContr-ΣI) (scale-up ∘ fst)
 
         sum5 : scaled-vector-sum VS standard-basis' S f ==
-               vsum' extended-scale-up isFinSet-I
+               vector-sum extended-scale-up
         sum5 = sym (sum2 >=> cong2 _v+_ sum4 sum3 >=> v+-right-zero)
 
       private
-        sum6 : unwrap-dp (vsum' extended-scale-up isFinSet-I) ==
-               finiteMergeᵉ CM-ΠK+ I (unwrap-dp ∘ extended-scale-up)
+        sum6 : unwrap-dp (vector-sum extended-scale-up) ==
+               finiteMerge CM-ΠK+ (unwrap-dp ∘ extended-scale-up)
         sum6 = sym (finiteMerge-homo-inject _ _ unwrap-dpʰ)
 
 

@@ -9,6 +9,13 @@ Change ℚ< and Posℚ to order2's version.
 
 Change ℝ< to have the bounds
 
+Change ≤ to just be a partial order
+
+FiniteMerge cleanup
+finsum needs to use implicit
+finproduct needs to use impliict
+fcm/sigma needs to use implicit in some places
+
 Rename:
 Monoid -> MonoidStr
 CommMonoid -> CommMonoidStr
