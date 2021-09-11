@@ -4,7 +4,7 @@ module vector-space.finite where
 
 open import apartness
 open import base
-open import cubical using (_≃_)
+open import cubical using (_≃_ ; isEquiv)
 open import commutative-monoid
 open import equality hiding (J)
 open import equivalence
@@ -17,6 +17,7 @@ open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
 open import finite-commutative-monoid.partition
 open import functions
+open import funext
 open import group
 open import heyting-field
 open import hlevel
@@ -24,6 +25,7 @@ open import monoid
 open import ring
 open import relation
 open import semiring
+open import sigma
 open import subset
 open import truncation
 open import vector-space
@@ -93,9 +95,12 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {{S : Semiring K}} {{R : Ring S}}
     ¬LinearlyIndependent->¬LinearlyFree ¬indep free =
       ¬indep (LinearlyFree->LinearlyIndependent free)
 
+    isLinearCombination' : Pred V _
+    isLinearCombination' v =
+      Σ[ a ∈ (I -> K) ] (scaled-vector-sum a vs == v)
+
     isLinearCombination : Pred V _
-    isLinearCombination v =
-      ∃[ a ∈ (I -> K) ] (scaled-vector-sum a vs == v)
+    isLinearCombination v = ∥ isLinearCombination' v ∥
 
     LinearSpan : Subtype V (ℓ-max* 3 ℓK ℓV ℓI)
     LinearSpan v = isLinearCombination v , squash
@@ -114,3 +119,56 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {{S : Semiring K}} {{R : Ring S}}
 
     isBasis : Type (ℓ-max* 3 ℓK ℓV ℓI)
     isBasis = isSpanning × LinearlyIndependent
+
+
+module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK} {{S : Semiring K}} {{R : Ring S}}
+         {{A : TightApartnessStr K}} {{F : Field R A}} {V1 : Type ℓV1} {V2 : Type ℓV2}
+         {{VS1 : VectorSpaceStr F V1}} {{VS2 : VectorSpaceStr F V2}}
+         where
+
+  private
+    instance
+      IM1 = VectorSpaceStr.module-str VS1
+      IM2 = VectorSpaceStr.module-str VS2
+
+
+  module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
+    transform-isSpanning : {f : V1 -> V2} {vs : I -> V1} ->
+                           isLinearTransformation f -> isEquiv f -> isSpanning vs -> isSpanning (f ∘ vs)
+    transform-isSpanning {f} {vs} lt isEq-f vs-span = fvs-span
+      where
+      fvs-span : isSpanning (f ∘ vs)
+      fvs-span v2 = ∥-map handle (vs-span v1)
+        where
+        v1 = isEqInv isEq-f v2
+        handle : isLinearCombination' vs v1 -> isLinearCombination' (f ∘ vs) v2
+        handle (a , p) = (a , path)
+          where
+          path : scaled-vector-sum a (f ∘ vs) == v2
+          path = cong vector-sum (funExt (\i -> sym (lt-preserves-* lt (a i) (vs i)))) >=>
+                 sym (lt-preserves-vector-sum lt) >=>
+                 cong f p >=>
+                 isEqSec isEq-f v2
+
+
+    transform-LinearlyIndependent :
+      {f : V1 -> V2} {vs : I -> V1} ->
+      isLinearTransformation f -> isEquiv f -> LinearlyIndependent vs -> LinearlyIndependent (f ∘ vs)
+    transform-LinearlyIndependent {f} {vs} lt isEq-f vs-ind a p i = vs-ind a path i
+      where
+      f-path : f (scaled-vector-sum a vs) == f 0v
+      f-path = lt-preserves-vector-sum lt >=>
+               cong vector-sum (funExt (\i -> (lt-preserves-* lt (a i) (vs i)))) >=>
+               p >=>
+               sym (lt-preserves-0v lt)
+
+      path : scaled-vector-sum a vs == 0v
+      path = sym (isEqRet isEq-f (scaled-vector-sum a vs)) >=>
+             (cong (isEqInv isEq-f) f-path) >=>
+             (isEqRet isEq-f 0v)
+
+    transform-basis : {f : V1 -> V2} {vs : I -> V1} ->
+                      isLinearTransformation f -> isEquiv f ->
+                      isBasis vs -> isBasis (f ∘ vs)
+    transform-basis lt isEq-f =
+      ×-map (transform-isSpanning lt isEq-f) (transform-LinearlyIndependent lt isEq-f)

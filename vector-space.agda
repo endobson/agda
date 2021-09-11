@@ -240,3 +240,47 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
 
   vector-sum : {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} -> (I -> V) -> V
   vector-sum = finiteMerge CommMonoid-V+
+
+
+module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
+         {A : TightApartnessStr K} {F : Field R A} {V1 : Type ℓV1} {V2 : Type ℓV2}
+         {{VS1 : VectorSpaceStr F V1}} {{VS2 : VectorSpaceStr F V2}} where
+  private
+    instance
+      IM1 = VectorSpaceStr.module-str VS1
+      IM2 = VectorSpaceStr.module-str VS2
+      IS = S
+
+  record isLinearTransformation (f : V1 -> V2) : Type (ℓ-max* 3 ℓK ℓV1 ℓV2) where
+    constructor is-linear-transformation
+    field
+      preserves-+ : (v1 v2 : V1) -> f (v1 v+ v2) == f v1 v+ f v2
+      preserves-* : (k : K) (v : V1) -> f (k v* v) == k v* f v
+
+  lt-preserves-+ : {f : V1 -> V2} -> isLinearTransformation f -> (v1 v2 : V1) ->
+                   f (v1 v+ v2) == f v1 v+ f v2
+  lt-preserves-+ = isLinearTransformation.preserves-+
+
+  lt-preserves-* : {f : V1 -> V2} -> isLinearTransformation f -> (k : K) -> (v : V1) ->
+                   f (k v* v) == k v* f v
+  lt-preserves-* = isLinearTransformation.preserves-*
+
+  lt-preserves-0v : {f : V1 -> V2} -> isLinearTransformation f -> f 0v == 0v
+  lt-preserves-0v {f} lt = cong f (sym v*-left-zero) >=> lt-preserves-* lt 0# 0v >=> v*-left-zero
+
+  module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
+    abstract
+      lt-preserves-vector-sum : {f : V1 -> V2} {vs : I -> V1} -> isLinearTransformation f ->
+                                f (vector-sum vs) == vector-sum (f ∘ vs)
+      lt-preserves-vector-sum {f} lt = sym (finiteMerge-homo-inject CM-V2+ CM-V1+ h)
+        where
+        instance
+          CM-V1+ : CommMonoid V1
+          CM-V1+ = GroupStr.comm-monoid (ModuleStr.GroupStr-V (VectorSpaceStr.module-str VS1))
+          CM-V2+ : CommMonoid V2
+          CM-V2+ = GroupStr.comm-monoid (ModuleStr.GroupStr-V (VectorSpaceStr.module-str VS2))
+        h : CommMonoidʰ f
+        h = record
+          { preserves-∙ = lt-preserves-+ lt
+          ; preserves-ε = lt-preserves-0v lt
+          }
