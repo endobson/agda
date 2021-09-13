@@ -4,7 +4,7 @@ module cartesian-geometry.vector where
 
 open import apartness
 open import base
-open import cubical using (_≃_)
+open import cubical using (_≃_ ; isEquiv)
 open import direct-product
 open import direct-product.standard-basis
 open import equality
@@ -37,6 +37,7 @@ open import semiring
 open import set-quotient
 open import sigma
 open import subset
+open import solver
 open import truncation
 open import univalence
 open import vector-space
@@ -88,6 +89,13 @@ instance
   ModuleSpaceStr-Vector = VectorSpaceStr.module-str VectorSpaceStr-Vector
   TightApartnessStr-Vector = ModuleStr.TightApartnessStr-V ModuleSpaceStr-Vector
 
+conjugate-vector : Vector -> Vector
+conjugate-vector v = direct-product-cons f
+  where
+  f : Axis -> ℝ
+  f x-axis = direct-product-index v x-axis
+  f y-axis = - (direct-product-index v y-axis)
+
 vector-length² : Vector -> ℝ
 vector-length² v = (x * x) + (y * y)
   where
@@ -114,6 +122,34 @@ isUnitVector v = vector-length v == 1ℝ
 
 isProp-isUnitVector : (v : Vector) -> isProp (isUnitVector v)
 isProp-isUnitVector v = isSet-ℝ (vector-length v) 1ℝ
+
+isUnitVector' : Pred Vector ℓ-one
+isUnitVector' v = vector-length² v == 1ℝ
+
+isProp-isUnitVector' : (v : Vector) -> isProp (isUnitVector' v)
+isProp-isUnitVector' v = isSet-ℝ (vector-length² v) 1ℝ
+
+isUnitVector'-equiv : (v : Vector) -> isUnitVector' v ≃ isUnitVector v
+isUnitVector'-equiv v =
+  isoToEquiv (isProp->iso forward backward (isProp-isUnitVector' v) (isProp-isUnitVector v))
+  where
+  forward : isUnitVector' v -> isUnitVector v
+  forward p = path
+    where
+    p2 = p >=> sym *-left-one
+    0<1 : 0ℝ < 1ℝ
+    0<1 = ℚ->ℝ-preserves-< 0r 1r 0<1r
+
+    0≤1 : 0ℝ ≤ 1ℝ
+    0≤1 = (weaken-< {_} {_} {_} {_} {_} {_} {0ℝ} {1ℝ} 0<1)
+
+    path : vector-length v == 1#
+    path = cong2-dep sqrtℝ p2 (isProp->PathP (\i -> isProp-≤ 0ℝ (p2 i)) _ _) >=>
+           sqrt-square 1# >=> absℝ-NonNeg-idem 1# 0≤1
+
+  backward : isUnitVector v -> isUnitVector' v
+  backward p = sym (vector-length-squared-path v) >=> *-cong p p >=> *-left-one
+
 
 Direction : Type₁
 Direction = Σ Vector isUnitVector
@@ -321,6 +357,217 @@ vector->direction v v#0 = normalize-vector v v#0 , path
                                (*₁-flips-< k 0ℝ vl k<0 0<vl))
   path : vector-length (k v* v) == 1ℝ
   path = vector-length-* k v >=> *-left (absℝ-NonNeg-idem k 0≤k) >=> ℝ1/-inverse vl vl-inv
+
+conjugate-preserves-vector-length² :
+  (v : Vector) -> vector-length² (conjugate-vector v) == vector-length² v
+conjugate-preserves-vector-length² v = +-right minus-extract-both
+
+conjugate-preserves-vector-length :
+  (v : Vector) -> vector-length (conjugate-vector v) == vector-length v
+conjugate-preserves-vector-length v =
+  cong2-dep sqrtℝ p (isProp->PathP (\i -> isProp-≤ 0ℝ (p i)) _ _)
+  where
+  p = conjugate-preserves-vector-length² v
+
+conjugate-direction : Direction -> Direction
+conjugate-direction (v , p) = conjugate-vector v , conjugate-preserves-vector-length v >=> p
+
+
+xaxis-dir : Direction
+xaxis-dir = v , path
+  where
+  f : Axis -> ℝ
+  f x-axis = 1#
+  f y-axis = 0#
+  v = direct-product-cons f
+  abstract
+    path2 : vector-length² v == 1#
+    path2 = +-cong *-right-one *-right-zero >=> +-right-zero
+
+    path : vector-length v == 1#
+    path = eqFun (isUnitVector'-equiv v) path2
+
+zero-rotation : Direction
+zero-rotation = xaxis-dir
+
+rotate : Direction -> Vector -> Vector
+rotate (d , _) v = direct-product-cons f
+  where
+  f : Axis -> ℝ
+  f x-axis = (direct-product-index d x-axis) * (direct-product-index v x-axis) +
+             (- ((direct-product-index d y-axis) * (direct-product-index v y-axis)))
+  f y-axis = (direct-product-index d x-axis) * (direct-product-index v y-axis) +
+             (direct-product-index d y-axis) * (direct-product-index v x-axis)
+
+rotate-preserves-vector-length² :
+  (d : Direction) (v : Vector) -> vector-length² (rotate d v) == vector-length² v
+rotate-preserves-vector-length² (d , vl-d=1) v = ans
+  where
+  dx = direct-product-index d x-axis
+  dy = direct-product-index d y-axis
+  vx = direct-product-index v x-axis
+  vy = direct-product-index v y-axis
+
+  reorder : (dx * vx + (- (dy * vy))) * (dx * vx + (- (dy * vy))) +
+            (dx * vy + dy * vx) * (dx * vy + dy * vx) ==
+            (dx * dx + dy * dy) * (vx * vx + vy * vy)
+  reorder = RingSolver.solve ℝRing 4
+            (\dx dy vx vy ->
+              (dx ⊗ vx ⊕ (⊖ (dy ⊗ vy))) ⊗ (dx ⊗ vx ⊕ (⊖ (dy ⊗ vy))) ⊕
+              (dx ⊗ vy ⊕ dy ⊗ vx) ⊗ (dx ⊗ vy ⊕ dy ⊗ vx),
+              (dx ⊗ dx ⊕ dy ⊗ dy) ⊗ (vx ⊗ vx ⊕ vy ⊗ vy))
+            refl dx dy vx vy
+
+  ans : (dx * vx + (- (dy * vy))) * (dx * vx + (- (dy * vy))) +
+        (dx * vy + dy * vx) * (dx * vy + dy * vx) ==
+        (vx * vx) + (vy * vy)
+  ans = reorder >=> *-left (eqInv (isUnitVector'-equiv d) vl-d=1) >=> *-left-one
+
+rotate-preserves-vector-length :
+  (d : Direction) (v : Vector) -> vector-length (rotate d v) == vector-length v
+rotate-preserves-vector-length d v =
+  cong2-dep sqrtℝ p (isProp->PathP (\i -> isProp-≤ 0ℝ (p i)) _ _)
+  where
+  p = rotate-preserves-vector-length² d v
+
+rotate-direction : Direction -> Direction -> Direction
+rotate-direction d (v , vl=1) = rotate d v , rotate-preserves-vector-length d v >=> vl=1
+
+
+rotate-zero-rotation : (v : Vector) -> (rotate zero-rotation v) == v
+rotate-zero-rotation v = \i -> direct-product-cons (\a -> (f a i))
+  where
+  f : (a : Axis) -> (direct-product-index (rotate zero-rotation v) a) ==
+                    (direct-product-index v a)
+  f x-axis = +-cong *-left-one (cong -_ *-left-zero >=> minus-zero) >=> +-right-zero
+  f y-axis = +-cong *-left-one *-left-zero >=> +-right-zero
+
+rotate-direction-zero-rotation : (d : Direction) -> (rotate-direction zero-rotation d) == d
+rotate-direction-zero-rotation (v , _) =
+  ΣProp-path (\{v} -> isProp-isUnitVector v) (rotate-zero-rotation v)
+
+rotate-direction-commute : (d1 d2 : Direction) -> rotate-direction d1 d2 == rotate-direction d2 d1
+rotate-direction-commute d1@(v1 , _) d2@(v2 , _) =
+  ΣProp-path (\{v} -> isProp-isUnitVector v) (\i -> direct-product-cons (\a -> f a i))
+  where
+  f : (a : Axis) -> direct-product-index (rotate d1 v2) a ==
+                    direct-product-index (rotate d2 v1) a
+  f x-axis = +-cong *-commute (cong -_ *-commute)
+  f y-axis = +-commute >=> +-cong *-commute *-commute
+
+rotate-direction-conjugate :
+  (d : Direction) -> (rotate-direction d (conjugate-direction d)) == zero-rotation
+rotate-direction-conjugate d@(v , p) =
+  ΣProp-path (\{v} -> isProp-isUnitVector v) (\i -> direct-product-cons (\a -> f a i))
+  where
+  f : (a : Axis) -> (direct-product-index (rotate d (conjugate-vector v)) a) ==
+                    (direct-product-index (fst xaxis-dir) a)
+  f x-axis = +-right (cong -_ minus-extract-right >=> minus-double-inverse) >=>
+             (eqInv (isUnitVector'-equiv v) p)
+  f y-axis = +-cong minus-extract-right *-commute >=> +-commute >=> +-inverse
+
+
+rotate-assoc : (d1 d2 : Direction) (v : Vector) ->
+               (rotate d1 (rotate d2 v)) == (rotate (rotate-direction d1 d2) v)
+rotate-assoc d1@(dv1 , _) d2@(dv2 , _) v = \i -> direct-product-cons (\a -> (f a i))
+  where
+  d1x = direct-product-index dv1 x-axis
+  d1y = direct-product-index dv1 y-axis
+  d2x = direct-product-index dv2 x-axis
+  d2y = direct-product-index dv2 y-axis
+  vx = direct-product-index v x-axis
+  vy = direct-product-index v y-axis
+
+  f : (a : Axis) -> (direct-product-index (rotate d1 (rotate d2 v)) a) ==
+                    (direct-product-index (rotate (rotate-direction d1 d2) v) a)
+  f x-axis =
+    RingSolver.solve ℝRing 6
+      (\d1x d1y d2x d2y vx vy ->
+        d1x ⊗ (d2x ⊗ vx ⊕ (⊖ (d2y ⊗ vy))) ⊕ (⊖ (d1y ⊗ (d2x ⊗ vy ⊕ (d2y ⊗ vx)))) ,
+        ((d1x ⊗ d2x ⊕ (⊖ (d1y ⊗ d2y))) ⊗ vx) ⊕ (⊖ ((d1x ⊗ d2y ⊕ d1y ⊗ d2x) ⊗ vy)))
+      refl d1x d1y d2x d2y vx vy
+  f y-axis =
+    RingSolver.solve ℝRing 6
+      (\d1x d1y d2x d2y vx vy ->
+        d1x ⊗ (d2x ⊗ vy ⊕ d2y ⊗ vx) ⊕ d1y ⊗ (d2x ⊗ vx ⊕ (⊖ (d2y ⊗ vy))) ,
+        ((d1x ⊗ d2x ⊕ (⊖ (d1y ⊗ d2y))) ⊗ vy) ⊕ ((d1x ⊗ d2y ⊕ d1y ⊗ d2x) ⊗ vx))
+      refl d1x d1y d2x d2y vx vy
+
+isEquiv-rotate : (d : Direction) -> isEquiv (rotate d)
+isEquiv-rotate d = snd (isoToEquiv i)
+  where
+  open Iso
+  i : Iso Vector Vector
+  i .fun = rotate d
+  i .inv = rotate (conjugate-direction d)
+  i .rightInv v = rotate-assoc d (conjugate-direction d) v >=>
+                  cong (\d -> rotate d v) (rotate-direction-conjugate d) >=>
+                  rotate-zero-rotation v
+  i .leftInv v = rotate-assoc (conjugate-direction d) d v >=>
+                 cong (\d -> rotate d v) ((rotate-direction-commute (conjugate-direction d) d) >=>
+                                          rotate-direction-conjugate d) >=>
+                 rotate-zero-rotation v
+
+rotate-preserves-+ :
+  (d : Direction) (v1 v2 : Vector) ->
+  rotate d (v1 v+ v2) == rotate d v1 v+ rotate d v2
+rotate-preserves-+ d@(dv , _) v1 v2 = \i -> direct-product-cons (\a -> (f a i))
+  where
+  dx = direct-product-index dv x-axis
+  dy = direct-product-index dv y-axis
+  v1x = direct-product-index v1 x-axis
+  v1y = direct-product-index v1 y-axis
+  v2x = direct-product-index v2 x-axis
+  v2y = direct-product-index v2 y-axis
+
+  f : (a : Axis) -> (direct-product-index (rotate d (v1 v+ v2)) a) ==
+                    (direct-product-index (rotate d v1 v+ rotate d v2) a)
+  f x-axis = RingSolver.solve ℝRing 6
+             (\dx dy v1x v1y v2x v2y ->
+               dx ⊗ (v1x ⊕ v2x) ⊕ (⊖ (dy ⊗ (v1y ⊕ v2y))) ,
+               (dx ⊗ v1x ⊕ (⊖ (dy ⊗ v1y))) ⊕ (dx ⊗ v2x ⊕ (⊖ (dy ⊗ v2y))))
+             refl dx dy v1x v1y v2x v2y
+  f y-axis = RingSolver.solve ℝRing 6
+             (\dx dy v1x v1y v2x v2y ->
+               dx ⊗ (v1y ⊕ v2y) ⊕ dy ⊗ (v1x ⊕ v2x) ,
+               (dx ⊗ v1y ⊕ dy ⊗ v1x) ⊕ (dx ⊗ v2y ⊕ dy ⊗ v2x))
+             refl dx dy v1x v1y v2x v2y
+
+rotate-preserves-* :
+  (d : Direction) (k : ℝ) (v : Vector) ->
+  rotate d (k v* v) == k v* (rotate d v)
+rotate-preserves-* d@(dv , _) k v = \i -> direct-product-cons (\a -> (f a i))
+  where
+  dx = direct-product-index dv x-axis
+  dy = direct-product-index dv y-axis
+  vx = direct-product-index v x-axis
+  vy = direct-product-index v y-axis
+
+  f : (a : Axis) -> (direct-product-index (rotate d (k v* v)) a) ==
+                    (direct-product-index (k v* (rotate d v)) a)
+  f x-axis = RingSolver.solve ℝRing 5
+             (\dx dy k vx vy ->
+               (dx ⊗ (k ⊗ vx) ⊕ (⊖ (dy ⊗ (k ⊗ vy))) ,
+                k ⊗ (dx ⊗ vx ⊕ (⊖ (dy ⊗ vy)))))
+             refl dx dy k vx vy
+  f y-axis = RingSolver.solve ℝRing 5
+             (\dx dy k vx vy ->
+               (dx ⊗ (k ⊗ vy) ⊕ dy ⊗ (k ⊗ vx) ,
+                k ⊗ (dx ⊗ vy ⊕ dy ⊗ vx)))
+             refl dx dy k vx vy
+
+isLinearTransformation-rotate : (d : Direction) -> isLinearTransformation (rotate d)
+isLinearTransformation-rotate d =
+  is-linear-transformation (rotate-preserves-+ d) (rotate-preserves-* d)
+
+rotated-basis : Direction -> Axis -> Vector
+rotated-basis d = (rotate d) ∘ (standard-basis ℝField Axis)
+
+isBasis-rotated-basis : (d : Direction) -> isBasis (rotated-basis d)
+isBasis-rotated-basis d =
+  transform-basis (isLinearTransformation-rotate d)
+                  (isEquiv-rotate d)
+                  (isBasis-standard-basis ℝField Axis)
 
 
 

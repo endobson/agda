@@ -121,6 +121,59 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {{S : Semiring K}} {{R : Ring S}}
     isBasis = isSpanning × LinearlyIndependent
 
 
+module _ {ℓK ℓV : Level} {K : Type ℓK} {{S : Semiring K}} {{R : Ring S}}
+         {{A : TightApartnessStr K}} {{F : Field R A}} {V : Type ℓV}
+         {{VS : VectorSpaceStr F V}}
+         where
+  private
+    instance
+      M = VectorSpaceStr.module-str VS
+
+    isSet-V = ModuleStr.isSet-V M
+    CM-V+ = GroupStr.comm-monoid (ModuleStr.GroupStr-V M)
+
+  module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
+    linearlyIndependent->isProp-isLinearCombination :
+      {vs : I -> V} -> LinearlyIndependent vs -> {v : V} -> isProp (isLinearCombination' vs v)
+    linearlyIndependent->isProp-isLinearCombination {vs} li {v} (a1 , p1) (a2 , p2) =
+      ΣProp-path (isSet-V _ _) a1=a2
+      where
+      da : I -> K
+      da i = diff (a1 i) (a2 i)
+
+      d1-path : scaled-vector-sum a1 vs == scaled-vector-sum a2 vs
+      d1-path = p1 >=> sym p2
+
+      d2-path : scaled-vector-sum a2 vs v+ (v- scaled-vector-sum a1 vs) == 0v
+      d2-path = cong (_v+ (v- scaled-vector-sum a1 vs)) (sym d1-path) >=> v+-inverse
+
+      d3-path : scaled-vector-sum a2 vs v+ (v- scaled-vector-sum a1 vs) ==
+                scaled-vector-sum da vs
+      d3-path =
+        v+-right (sym (finiteMerge-homo-inject _ _ v-ʰ)) >=>
+        sym (finiteMerge-split _) >=>
+        cong vector-sum (funExt (\i -> v+-right (sym v*-minus-extract-left) >=>
+                                       sym v*-distrib-+))
+
+      d-path : scaled-vector-sum da vs == 0v
+      d-path = sym d3-path >=> d2-path
+
+      a1=a2 : a1 == a2
+      a1=a2 = funExt (\ i -> diff-zero (li da d-path i))
+
+
+    basis-decomposition : {b : I -> V} -> isBasis b -> V -> (I -> K)
+    basis-decomposition {b} (span , li) v =
+      ⟨ (unsquash (linearlyIndependent->isProp-isLinearCombination li) (span v)) ⟩
+
+    basis-decomposition-path :
+      {b : I -> V} {v : V} -> (isBasis-b : isBasis b) ->
+      scaled-vector-sum (basis-decomposition isBasis-b v) b == v
+    basis-decomposition-path {b} {v} (span , li) =
+      snd (unsquash (linearlyIndependent->isProp-isLinearCombination li) (span v))
+
+
+
 module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK} {{S : Semiring K}} {{R : Ring S}}
          {{A : TightApartnessStr K}} {{F : Field R A}} {V1 : Type ℓV1} {V2 : Type ℓV2}
          {{VS1 : VectorSpaceStr F V1}} {{VS2 : VectorSpaceStr F V2}}

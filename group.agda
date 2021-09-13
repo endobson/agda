@@ -20,6 +20,26 @@ record GroupStr {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   ∙-right-inverse : {x : Domain} -> x ∙ (inverse x) == ε
   ∙-right-inverse = ∙-commute >=> ∙-left-inverse
 
+  abstract
+    inverse-CMʰ : CommMonoidʰᵉ comm-monoid comm-monoid inverse
+    inverse-CMʰ = record
+      { preserves-ε = sym ∙-right-ε >=> ∙-left-inverse
+      ; preserves-∙ = preserves-∙
+      }
+      where
+      preserves-∙ : (x y : Domain) -> inverse (x ∙ y) == (inverse x) ∙ (inverse y)
+      preserves-∙ x y =
+        sym ∙-right-ε >=>
+        ∙-right (sym ∙-right-ε >=>
+                 cong2 _∙_ (sym ∙-right-inverse) (sym ∙-right-inverse) >=>
+                 ∙-assoc >=>
+                 ∙-right (sym ∙-assoc >=> ∙-left ∙-commute >=> ∙-assoc) >=>
+                 sym ∙-assoc) >=>
+        sym ∙-assoc >=>
+        ∙-left ∙-left-inverse >=>
+        ∙-left-ε
+
+
 Group : (ℓ : Level) -> Type (ℓ-suc ℓ)
 Group ℓ = Σ[ D ∈ Type ℓ ] (GroupStr D)
 

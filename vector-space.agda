@@ -94,6 +94,16 @@ module _  {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {V :
     v+-left-zero : {v : V} -> 0v v+ v == v
     v+-left-zero = ∙-left-ε
 
+    v+-inverse : {v : V} -> v v+ (v- v) == 0v
+    v+-inverse = ∙-right-inverse
+
+    v+-left : {v1 v2 v3 : V} -> v1 == v2 -> v1 v+ v3 == v2 v+ v3
+    v+-left {v3 = v3} p = cong (_v+ v3) p
+
+    v+-right : {v1 v2 v3 : V} -> v2 == v3 -> v1 v+ v2 == v1 v+ v3
+    v+-right {v1} p = cong (v1 v+_) p
+
+
     v*-left-zero : {v : V} -> 0# v* v == 0v
     v*-left-zero {v} =
       sym ∙-right-ε >=>
@@ -172,6 +182,13 @@ module _  {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {V :
 
   vdiff : V -> V -> V
   vdiff v1 v2 = v2 v+ (v- v1)
+
+  private
+    G-V+ = (ModuleStr.GroupStr-V M)
+    CM-V+ = GroupStr.comm-monoid G-V+
+
+  v-ʰ : CommMonoidʰᵉ CM-V+ CM-V+ v-_
+  v-ʰ = GroupStr.inverse-CMʰ G-V+
 
 
 

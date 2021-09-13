@@ -534,6 +534,9 @@ module _ {D : Type ℓ} {S : Semiring D} {{R : Ring S}} where
   *-distrib-diff-left : {x y z : D} -> x * (diff y z) == diff (x * y) (x * z)
   *-distrib-diff-left = *-distrib-+-left >=> +-right minus-extract-right
 
+  diff-zero : {x y : D} -> diff x y == 0# -> x == y
+  diff-zero p = sym +-right-zero >=> +-right (sym p) >=> diff-step
+
 
 record Semiringʰᵉ
     {ℓ₁ ℓ₂ : Level}
