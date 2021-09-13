@@ -4,15 +4,21 @@ module cartesian-geometry.vector where
 
 open import apartness
 open import base
+open import commutative-monoid
 open import cubical using (_≃_ ; isEquiv)
 open import direct-product
 open import direct-product.standard-basis
 open import equality
 open import equivalence
-open import functions
-open import finset
 open import fin
 open import fin-algebra
+open import finite-commutative-monoid
+open import finite-commutative-monoid.instances
+open import finset
+open import finset.instances
+open import finsum
+open import functions
+open import funext
 open import hlevel
 open import integral-domain
 open import integral-domain.instances.real
@@ -47,6 +53,13 @@ open import vector-space.finite
 data Axis : Type₀ where
  x-axis : Axis
  y-axis : Axis
+
+x-axis≠y-axis : x-axis != y-axis
+x-axis≠y-axis x=y = subst f x=y tt
+  where
+  f : Axis -> Type₀
+  f x-axis = Top
+  f y-axis = Bot
 
 isFinSet-Axis : isFinSet Axis
 isFinSet-Axis = ∣ 2 , eq2 ∣
@@ -88,6 +101,26 @@ instance
   VectorSpaceStr-Vector = VectorSpaceStr-DirectProduct ℝField Axis
   ModuleSpaceStr-Vector = VectorSpaceStr.module-str VectorSpaceStr-Vector
   TightApartnessStr-Vector = ModuleStr.TightApartnessStr-V ModuleSpaceStr-Vector
+
+abstract
+  axis-merge : {ℓ : Level} {D : Type ℓ} {CM : CommMonoid D} (f : Axis -> D) ->
+               finiteMerge CM f == CommMonoid._∙_ CM (f x-axis) (f y-axis)
+  axis-merge {CM = CM} f =
+    finiteMerge-convert-iso CM (iso⁻¹ i) f >=>
+    finiteMerge-⊎ CM _ >=>
+    cong2 CM._∙_ (finiteMerge-Top CM _) (finiteMerge-Top CM _)
+    where
+    module CM = CommMonoid CM
+    open Iso
+    i : Iso Axis (Top ⊎ Top)
+    i .fun x-axis = inj-l tt
+    i .fun y-axis = inj-r tt
+    i .inv (inj-l _) = x-axis
+    i .inv (inj-r _) = y-axis
+    i .rightInv (inj-l _) = refl
+    i .rightInv (inj-r _) = refl
+    i .leftInv x-axis = refl
+    i .leftInv y-axis = refl
 
 conjugate-vector : Vector -> Vector
 conjugate-vector v = direct-product-cons f
@@ -373,22 +406,27 @@ conjugate-direction : Direction -> Direction
 conjugate-direction (v , p) = conjugate-vector v , conjugate-preserves-vector-length v >=> p
 
 
+xaxis-vector : Vector
+xaxis-vector = direct-product-cons (\{ x-axis -> 1# ; y-axis -> 0#})
+yaxis-vector : Vector
+yaxis-vector = direct-product-cons (\{ x-axis -> 0# ; y-axis -> 1#})
+
+
 xaxis-dir : Direction
-xaxis-dir = v , path
+xaxis-dir = xaxis-vector , path
   where
-  f : Axis -> ℝ
-  f x-axis = 1#
-  f y-axis = 0#
-  v = direct-product-cons f
   abstract
-    path2 : vector-length² v == 1#
+    path2 : vector-length² xaxis-vector == 1#
     path2 = +-cong *-right-one *-right-zero >=> +-right-zero
 
-    path : vector-length v == 1#
-    path = eqFun (isUnitVector'-equiv v) path2
+    path : vector-length xaxis-vector == 1#
+    path = eqFun (isUnitVector'-equiv xaxis-vector) path2
 
 zero-rotation : Direction
 zero-rotation = xaxis-dir
+
+zero-rotation=xaxis-dir : zero-rotation == xaxis-dir
+zero-rotation=xaxis-dir = refl
 
 rotate : Direction -> Vector -> Vector
 rotate (d , _) v = direct-product-cons f
@@ -560,15 +598,51 @@ isLinearTransformation-rotate : (d : Direction) -> isLinearTransformation (rotat
 isLinearTransformation-rotate d =
   is-linear-transformation (rotate-preserves-+ d) (rotate-preserves-* d)
 
+axis-basis : Axis -> Vector
+axis-basis x-axis = xaxis-vector
+axis-basis y-axis = yaxis-vector
+
+isBasis-axis-basis : isBasis axis-basis
+isBasis-axis-basis = subst isBasis (funExt f) (isBasis-standard-basis ℝField Axis)
+  where
+  s = standard-basis ℝField Axis
+  g : (a1 a2 : Axis) -> (direct-product-index (s a1) a2) == (direct-product-index (axis-basis a1) a2)
+  g x-axis x-axis = indicator-path (yes refl)
+  g x-axis y-axis = indicator-path (no x-axis≠y-axis)
+  g y-axis x-axis = indicator-path (no (x-axis≠y-axis ∘ sym))
+  g y-axis y-axis = indicator-path (yes refl)
+
+  f : (a : Axis) -> s a == axis-basis a
+  f a = \i -> direct-product-cons (\a2 -> g a a2 i)
+
+
 rotated-basis : Direction -> Axis -> Vector
-rotated-basis d = (rotate d) ∘ (standard-basis ℝField Axis)
+rotated-basis d = (rotate d) ∘ axis-basis
 
 isBasis-rotated-basis : (d : Direction) -> isBasis (rotated-basis d)
 isBasis-rotated-basis d =
   transform-basis (isLinearTransformation-rotate d)
                   (isEquiv-rotate d)
-                  (isBasis-standard-basis ℝField Axis)
+                  isBasis-axis-basis
 
+rotated-basis-x-axis : (d : Direction) -> rotated-basis d x-axis == ⟨ d ⟩
+rotated-basis-x-axis d = cong fst p4
+  where
+  p1 : rotate-direction d xaxis-dir == rotate-direction xaxis-dir d
+  p1 = rotate-direction-commute d xaxis-dir
+
+  p2 : rotate-direction zero-rotation d == d
+  p2 = rotate-direction-zero-rotation d
+
+  p3 : rotate-direction xaxis-dir d == rotate-direction zero-rotation d
+  p3 = cong (\d2 -> rotate-direction d2 d) (sym zero-rotation=xaxis-dir)
+
+  p4 = p1 >=> p3 >=> p2
+
+
+semi-direction-distance : (d : Direction) (v : Vector) -> ℝ
+semi-direction-distance d v =
+  absℝ (basis-decomposition (isBasis-rotated-basis d) v y-axis)
 
 
 data SameSemiDirection : Rel Direction ℓ-one where
@@ -723,6 +797,59 @@ vector->semi-direction-v* v v#0 k kv#0 = handle (eqInv (<>-equiv-# k 0ℝ) k#0)
 direction-span' : Direction -> Pred Vector ℓ-one
 direction-span' (v , _) v2 = Σ[ k ∈ ℝ ] (k v* v == v2)
 
+
+abstract
+  semi-direction-distance0->0y :
+    (d : Direction) (v : Vector) -> semi-direction-distance d v == 0# ->
+    basis-decomposition (isBasis-rotated-basis d) v y-axis == 0#
+  semi-direction-distance0->0y d v dis0 = absℝ-zero dis0
+
+semi-direction-distance0->direction-span :
+  (d : Direction) (v : Vector) -> semi-direction-distance d v == 0# -> direction-span' d v
+semi-direction-distance0->direction-span d@(dv , dp) v dis0 =
+  basis-decomposition b v x-axis ,
+  v*-right x-path >=>
+  sym v+-right-zero >=>
+  v+-right (sym v*-left-zero >=> v*-left (sym y0)) >=>
+  sym (axis-merge _) >=>
+  basis-decomposition-path b
+  where
+  b = isBasis-rotated-basis d
+
+  y0 = semi-direction-distance0->0y d v dis0
+
+  x-path : dv == rotate d xaxis-vector
+  x-path = sym (rotated-basis-x-axis d)
+
+
+direction-span->semi-direction-distance0 :
+  (d : Direction) (v : Vector) -> direction-span' d v -> semi-direction-distance d v == 0#
+direction-span->semi-direction-distance0 d@(dv , dp) v (k , kdv=v) = ans
+  where
+  b' = rotated-basis d
+  b = isBasis-rotated-basis d
+  c = (basis-decomposition b v)
+
+  x-path : b' x-axis == dv
+  x-path = (rotated-basis-x-axis d)
+
+  kx-path : k v* (b' x-axis) == v
+  kx-path = v*-right x-path >=> kdv=v
+
+  c2 : Axis -> ℝ
+  c2 x-axis = k
+  c2 y-axis = 0#
+
+  scaled-sum-path : scaled-vector-sum c2 b' == v
+  scaled-sum-path = axis-merge _ >=> v+-right v*-left-zero >=> v+-right-zero >=> kx-path
+
+  ans2 : c y-axis == 0#
+  ans2 = cong (\f -> f y-axis) (sym (basis-decomposition-unique b scaled-sum-path))
+
+  ans : absℝ (c y-axis) == 0#
+  ans = cong absℝ ans2 >=> absℝ-NonNeg-idem 0ℝ (refl-≤ {_} {_} {_} {0ℝ})
+
+
 direction-span : Direction -> Subtype Vector ℓ-one
 direction-span d@(v , vl=1) v2 = direction-span' d v2 , isProp-direction-span
   where
@@ -741,6 +868,7 @@ direction-span d@(v , vl=1) v2 = direction-span' d v2 , isProp-direction-span
 
     k1=k2 : k1 == k2
     k1=k2 = unsquash (isSet-ℝ k1 k2) (∥-map handle v#0)
+
 
 direction-span'-comp : Direction -> Pred Vector ℓ-one
 direction-span'-comp (dv , _) v =
@@ -798,18 +926,3 @@ _sd#_ sd1 sd2 = fst (sd#-full sd1 sd2)
 
 isProp-sd# : (sd1 sd2 : SemiDirection) -> isProp (sd1 sd# sd2)
 isProp-sd# sd1 sd2 = snd (sd#-full sd1 sd2)
-
-private
-  VS = VectorSpaceStr-Vector
-
-  v-basis : Family Vector Axis
-  v-basis = standard-basis ℝField Axis
-
-  isBasis-v-basis : isBasis v-basis
-  isBasis-v-basis = isBasis-standard-basis ℝField Axis
-
-  decompose : (v : Vector) -> ⟨ LinearSpan v-basis v ⟩
-  decompose v = fst isBasis-v-basis v
-
-  -- x-vector : Vector -> Vector
-  -- x-vector v = decompose v

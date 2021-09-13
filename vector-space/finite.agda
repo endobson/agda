@@ -161,16 +161,28 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {{S : Semiring K}} {{R : Ring S}}
       a1=a2 : a1 == a2
       a1=a2 = funExt (\ i -> diff-zero (li da d-path i))
 
+    basis-decomposition-full : {b : I -> V} -> isBasis b -> (v : V) ->
+                               isContr (isLinearCombination' b v)
+    basis-decomposition-full {b} (span , li) v =
+      combo , (isProp-lc combo)
+      where
+      isProp-lc = (linearlyIndependent->isProp-isLinearCombination li)
+      combo = unsquash isProp-lc (span v)
 
     basis-decomposition : {b : I -> V} -> isBasis b -> V -> (I -> K)
-    basis-decomposition {b} (span , li) v =
-      ⟨ (unsquash (linearlyIndependent->isProp-isLinearCombination li) (span v)) ⟩
+    basis-decomposition b v = fst (fst (basis-decomposition-full b v))
 
     basis-decomposition-path :
       {b : I -> V} {v : V} -> (isBasis-b : isBasis b) ->
       scaled-vector-sum (basis-decomposition isBasis-b v) b == v
-    basis-decomposition-path {b} {v} (span , li) =
-      snd (unsquash (linearlyIndependent->isProp-isLinearCombination li) (span v))
+    basis-decomposition-path {_} {v} b =
+      snd (fst (basis-decomposition-full b v))
+
+    basis-decomposition-unique :
+      {vs : I -> V} {v : V} {f : I -> K} (b : isBasis vs) ->
+      scaled-vector-sum f vs == v -> f == basis-decomposition b v
+    basis-decomposition-unique {vs} {v} {f} b p =
+      cong fst (sym (snd (basis-decomposition-full b  v) (f , p)))
 
 
 

@@ -255,6 +255,7 @@ abstract
   absℝ-absℝ-idem : (x : ℝ) -> absℝ (absℝ x) == (absℝ x)
   absℝ-absℝ-idem x = absℝ-NonNeg-idem (absℝ x) (absℝ-≮0 x)
 
+
   split-small-absℝ : (x : ℝ) -> (q : ℚ⁺) -> ∥ (absℝ x ℝ< (ℚ->ℝ ⟨ q ⟩)) ⊎ ℝInv x ∥
   split-small-absℝ x q⁺@(q , Pos-q) = ∥-map handle (find-open-ball x q⁺)
     where

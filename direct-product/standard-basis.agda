@@ -49,6 +49,26 @@ private
   i-coord i (direct-product-cons f) = f i
 
 
+module _ {ℓI ℓK : Level} {I : Type ℓI} {K : Type ℓK} {{S : Semiring K}} where
+
+  indicator' : {i1 i2 : I} -> Dec (i1 == i2) -> K
+  indicator' (yes _) = 1#
+  indicator' (no _) = 0#
+
+  module _ {{FI : FinSetStr I}}  where
+    private
+      isFinSet-I = FinSetStr.isFin FI
+      isSet-I = isFinSet->isSet isFinSet-I
+      discrete-I = isFinSet->Discrete isFinSet-I
+
+    indicator : I -> I -> K
+    indicator i1 i2 = indicator' (discrete-I i1 i2)
+
+    abstract
+      indicator-path : {i1 i2 : I} -> (d : Dec (i1 == i2)) ->
+                       indicator i1 i2 == indicator' d
+      indicator-path {i1} {i2} d =
+        cong indicator' (isProp->PathP (\_ -> isPropDec (isSet-I i1 i2)) (discrete-I i1 i2) d)
 
 
 module _ {ℓK ℓI : Level} {K : Type ℓK} {{S : Semiring K}}
@@ -89,14 +109,6 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {{S : Semiring K}}
       { preserves-ε = refl
       ; preserves-∙ = \x y -> refl
       }
-
-
-    indicator' : {i1 i2 : I} -> Dec (i1 == i2) -> K
-    indicator' (yes _) = 1#
-    indicator' (no _) = 0#
-
-    indicator : I -> I -> K
-    indicator i1 i2 = indicator' (discrete-I i1 i2)
 
   -- The family of vectors that are the standard basis.
   standard-basis : I -> V

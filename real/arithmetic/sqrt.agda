@@ -100,6 +100,21 @@ abstract
   absℝ-square : (x : ℝ) -> x * x == absℝ x * absℝ x
   absℝ-square x = sym (absℝ-NonNeg-idem (x * x) (≮0-square x)) >=> absℝ-distrib-* x x
 
+  absℝ-zero : {x : ℝ} -> absℝ x == 0ℝ -> x == 0ℝ
+  absℝ-zero {x} p = sym (absℝ-NonNeg-idem x 0≤x) >=> p
+    where
+    0≤x : 0ℝ ≤ x
+    0≤x x<0 = irrefl-< {_} {_} {_} {0ℝ} (subst2 _<_ x0=0 xx=0 x0<xx)
+      where
+      x0<xx : (x * 0ℝ) < (x * x)
+      x0<xx = *₁-flips-< x x 0ℝ x<0 x<0
+      xx=0 : x * x == 0ℝ
+      xx=0 = absℝ-square x >=> *-right p >=> *-right-zero
+      x0=0 : x * 0ℝ == 0ℝ
+      x0=0 = *-right-zero
+
+  -- absℝ-NonNeg-idem : (x : ℝ) -> (x ≮ 0ℝ) -> absℝ x == x
+
 
 module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
   private
