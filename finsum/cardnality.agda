@@ -19,3 +19,9 @@ cardnality-× S₁ S₂ =
   finiteSum-* {k = cardnality S₂} >=>
   cong (cardnality S₂ *'_) (finiteSum'-one {S = S₁}) >=>
   *'-commute {cardnality S₂} {cardnality S₁}
+  where
+  instance
+    FinSetStr-S₁ : FinSetStr (fst S₁)
+    FinSetStr-S₁ = record {isFin = snd S₁}
+    FinSetStr-S₂ : FinSetStr (fst S₂)
+    FinSetStr-S₂ = record {isFin = snd S₂}

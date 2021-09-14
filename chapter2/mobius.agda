@@ -379,6 +379,10 @@ module _ {ℓ : Level} {D : Type ℓ} {{S : Semiring D}} where
       ==< finiteSum-* >=> S.*-commute >
         (divisorSum n1 f) S.* (divisorSum n2 f)
       end
+      where
+      instance
+        FinSetStr-Divisor : {n : Nat⁺} -> FinSetStr (Divisor n)
+        FinSetStr-Divisor {n} = record {isFin = snd (FinSet-Divisor n)}
 
 
 divisorSum-μ : (n : Nat⁺) -> Int

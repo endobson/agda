@@ -241,3 +241,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
       ==< sym ⊗-eval' >
         _
       end
+      where
+      instance
+        FinSetStr-PairedDivisor : {n : Nat⁺} -> FinSetStr (PairedDivisor n)
+        FinSetStr-PairedDivisor {n} = record {isFin = snd (FinSet-PairedDivisor n)}
