@@ -9,6 +9,7 @@ open import hlevel
 import monoid
 
 record CommMonoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
+  no-eta-equality
   field
     {{monoid}} : monoid.Monoid Domain
   open monoid.Monoid monoid public

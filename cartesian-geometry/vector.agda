@@ -97,6 +97,14 @@ instance
 Vector : Type₁
 Vector = DirectProduct ℝ Axis
 
+vector-cons : (Axis -> ℝ) -> Vector
+vector-cons = direct-product-cons
+vector-index : Vector -> Axis -> ℝ
+vector-index = direct-product-index
+
+vector-ext : {v1 v2 : Vector} -> ((a : Axis) -> vector-index v1 a == vector-index v2 a) -> v1 == v2
+vector-ext f i = direct-product-cons (\a -> f a i)
+
 instance
   VectorSpaceStr-Vector = VectorSpaceStr-DirectProduct ℝField Axis
   ModuleSpaceStr-Vector = VectorSpaceStr.module-str VectorSpaceStr-Vector
@@ -757,6 +765,9 @@ DifferentSemiDirection-~₂ d1 d2 d3 (same-semi-direction-flipped p) =
               sym (DifferentSemiDirection-d-₂-path d1 d3)
 
 SemiDirection = Direction / SameSemiDirection
+
+isSet-SemiDirection : isSet SemiDirection
+isSet-SemiDirection = squash/
 
 vector->semi-direction : (v : Vector) -> v v# 0v -> SemiDirection
 vector->semi-direction v v#0 = [ vector->direction v v#0 ]

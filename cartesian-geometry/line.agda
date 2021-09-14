@@ -36,7 +36,6 @@ record RayFrom (p : Point) : Type₁ where
 Ray : Type₁
 Ray = Σ Point RayFrom
 
-
 Line' : Type₁
 Line' = Point × SemiDirection
 
@@ -58,11 +57,14 @@ OnLine' (o , s) p = semi-direction-span s (P-diff o p)
 --   dpp : P-diff p p == 0v
 --   dpp = ?
 
-SameLine' : Rel Line' ℓ-two
-SameLine' l1 l2 = OnLine' l1 == OnLine' l2
+SameLine' : Rel Line' ℓ-one
+SameLine' l1@(p1 , s1) l2@(p2 , s2) = ⟨ OnLine' l1 p2 ⟩ × ⟨ OnLine' l2 p1 ⟩ × s1 == s2
 
-SameLine'2 : Rel Line' ℓ-one
-SameLine'2 l1@(p1 , s1) l2@(p2 , s2) = ⟨ OnLine' l1 p2 ⟩ × ⟨ OnLine' l2 p1 ⟩ × s1 == s2
-
-Line : Type ℓ-two
+Line : Type ℓ-one
 Line = Line' / SameLine'
+
+line-slope : Line -> SemiDirection
+line-slope =
+  SetQuotientElim.rec Line' SameLine' isSet-SemiDirection
+    line'-semi-direction
+    (\_ _ (_ , _ , p) -> p)
