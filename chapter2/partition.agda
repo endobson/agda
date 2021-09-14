@@ -35,7 +35,7 @@ open import univalence
 
 module _ {ℓ₁ : Level}  {D : Type ℓ₁} {{S : Semiring D}} where
   private
-    sum = finiteSum
+    sum = finiteSumᵉ
 
     ATop : {ℓ : Level} -> Type ℓ -> Type ℓ
     ATop A = A × Top
@@ -174,28 +174,8 @@ module _ {ℓ₁ : Level}  {D : Type ℓ₁} {{S : Semiring D}} where
 
 
     sum-×-Top : sum AF f == sum (ATopF (snd AF)) (f ∘ fst)
-    sum-×-Top = finiteSum-convert AF (ATopF (snd AF)) (×-Top' A) f
+    sum-×-Top = finiteSumᵉ-convert AF (ATopF (snd AF)) (×-Top' A) f
 
-
-    --transport-filler (\i -> (p i) -> D) f
-
-
-    --  begin
-    --    (transport (cong (\x -> x -> D) p) f)
-    --  ==<>
-    --    (\b -> transp (\i -> D) i0 (f (transp (\j -> p (~ j)) i0 b)))
-    --  ==<>
-    --    (\b -> transp (\i -> D) i0 (f (transp (\j -> p (~ j)) i0 b)))
-    --  ==< ? >
-    --    (\a -> (f (transp (\j -> p (~ j)) i0 a)))
-    --  ==<>
-    --    (f ∘ transport (sym p))
-    --  end
-
-
-    --transport-sum2 : {B : Type} -> (eA : isFinSet A) (eB : isFinSet) (p : A == B)
-    --                 -> sum (A , e) f == sum (B , eB)
-    --                                     (transport (cong (\x -> x -> D) p) f)
 
 
 Fin1 : Nat -> Type₀
@@ -461,68 +441,8 @@ module _ (n⁺ : Nat⁺) where
   finΣ : isFinSetΣ (Fin n)
   finΣ = n , ∣ idEquiv _ ∣
 
-  theorem2-2 : finiteSum FinSet-Divisors φ' == n
+  theorem2-2 : finiteSumᵉ FinSet-Divisors φ' == n
   theorem2-2 =
     sym (cardnality-Σ3 FinSet-Divisors (\(d , _) -> FinSet-Totatives d))
     >=> cong cardnality combined-path
     >=> cardnality-path (FinSet-Fin n) finΣ
-
-
---module _ {ℓ₁ ℓ₂ ℓ₃ : Level}  {D : Type ℓ₁} (S : Semiring D)
---         (AF : FinSet ℓ₂) (PF : (a : ⟨ AF ⟩) -> FinSet ℓ₃) where
---  open Semiring S
---  private
---    A = ⟨ AF ⟩
---    P : A -> Type _
---    P a = ⟨ PF a ⟩
---    sum = finiteSum S
---
---  ΣF : FinSet _
---  ΣF = Σ A P , ?
---
---  ΣSum : (f : (Σ A P) -> D) -> sum ΣF f == sum AF (\a -> (sum (PF a) (\p -> f (a , p))))
---  ΣSum = ?
---
---
---module _ {ℓ₁ ℓ₂ ℓ₃ : Level}  {D : Type ℓ₁} (S : Semiring D)
---         (AF : FinSet ℓ₂) (PF : FinSet ℓ₃)
---         where
---  open Semiring S
---  private
---    A = ⟨ AF ⟩
---    P = ⟨ PF ⟩
---    sum = finiteSum S
---
---  module _ (val : A -> D) (part-key : A -> P) where
---
---    Pair0 : Type _
---    Pair0 = Σ[ a ∈ A ] Top
---
---    Pair1 : Type _
---    Pair1 = Σ[ a ∈ A ] (Σ[ p ∈ P ] (part-key a == p))
---
---    Pair2 : Type _
---    Pair2 = Σ[ p ∈ P ] (Σ[ a ∈ A ] (part-key a == p))
---
---
---    Pair1F : FinSet _
---    Pair1F = Pair1 , ?
---
---    Partition : P -> Type _
---    Partition p = Σ[ a ∈ A ] (part-key a == p)
---
---    isFinSet-Partition : {p : P} -> isFinSet (Partition p)
---    isFinSet-Partition = ?
---
---    PartitionF : P -> FinSet _
---    PartitionF p = Partition p , isFinSet-Partition
---
---    partitionedSum : (sum AF val) == (sum PF (\p -> sum (PartitionF p) (val ∘ fst)))
---    partitionedSum =
---      begin
---        (sum AF val)
---      ==< ? >
---        (sum PairF (val ∘ fst))
---      ==< ? >
---        (sum PF (\p -> sum (PartitionF p) (val ∘ fst)))
---      end

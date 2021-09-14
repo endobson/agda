@@ -318,14 +318,14 @@ module _ {ℓ : Level} {D : Type ℓ} {{S : Semiring D}} where
     module S = Semiring S
 
   divisorSum : (n : Nat⁺) -> (f : Nat⁺ -> D) -> D
-  divisorSum n f = finiteSum (FinSet-Divisor n) (f ∘ divisor->nat⁺ n)
+  divisorSum n f = finiteSumᵉ (FinSet-Divisor n) (f ∘ divisor->nat⁺ n)
 
   divisorSum-one : (f : Nat⁺ -> D) -> divisorSum 1⁺ f == f 1⁺
   divisorSum-one f =
-    finiteSum-convert (FinSet-Divisor 1⁺) (FinSet-Fin 1)
+    finiteSumᵉ-convert (FinSet-Divisor 1⁺) (FinSet-Fin 1)
                       (Fin-Top-eq >eq> (equiv⁻¹ Divisor-one-eq))
                       (f ∘ divisor->nat⁺ 1⁺)
-    >=> finiteSum-eval (FinSet-Fin 1) (idEquiv _) _
+    >=> finiteSumᵉ-eval (FinSet-Fin 1) (idEquiv _) _
     >=> Semiring.+-right-zero S
 
   Multiplicative-divisorSum : {f : Nat⁺ -> D} -> Multiplicative f ->
@@ -358,23 +358,23 @@ module _ {ℓ : Level} {D : Type ℓ} {{S : Semiring D}} where
       begin
         divisorSum (n1 *⁺ n2) f
       ==<>
-        finiteSum (FinSet-Divisor (n1 *⁺ n2)) (f ∘ divisor->nat⁺ (n1 *⁺ n2))
-      ==< finiteSum-convert (FinSet-Divisor (n1 *⁺ n2))
-                            (FinSet-Σ (FinSet-Divisor n1) (\_ -> (FinSet-Divisor n2)))
-                            (Divisor-*-eq⁻¹ n1 n2 rp)
-                            (f ∘ divisor->nat⁺ (n1 *⁺ n2)) >
-        finiteSum (FinSet-Σ (FinSet-Divisor n1) (\_ -> (FinSet-Divisor n2))) _
-      ==< cong (finiteSum (FinSet-Σ (FinSet-Divisor n1) (\_ -> (FinSet-Divisor n2))))
+        finiteSumᵉ (FinSet-Divisor (n1 *⁺ n2)) (f ∘ divisor->nat⁺ (n1 *⁺ n2))
+      ==< finiteSumᵉ-convert (FinSet-Divisor (n1 *⁺ n2))
+                             (FinSet-Σ (FinSet-Divisor n1) (\_ -> (FinSet-Divisor n2)))
+                             (Divisor-*-eq⁻¹ n1 n2 rp)
+                             (f ∘ divisor->nat⁺ (n1 *⁺ n2)) >
+        finiteSumᵉ (FinSet-Σ (FinSet-Divisor n1) (\_ -> (FinSet-Divisor n2))) _
+      ==< cong (finiteSumᵉ (FinSet-Σ (FinSet-Divisor n1) (\_ -> (FinSet-Divisor n2))))
                (path3 >=> path4) >
-        finiteSum (FinSet-Σ (FinSet-Divisor n1) (\_ -> (FinSet-Divisor n2)))
-                  (\(d1 , d2) -> f (divisor->nat⁺ n1 d1) S.* f (divisor->nat⁺ n2 d2))
+        finiteSumᵉ (FinSet-Σ (FinSet-Divisor n1) (\_ -> (FinSet-Divisor n2)))
+                   (\(d1 , d2) -> f (divisor->nat⁺ n1 d1) S.* f (divisor->nat⁺ n2 d2))
       ==< finiteSum-Σ _ _ _ >
-        finiteSum (FinSet-Divisor n1)
-          (\d1 -> finiteSum (FinSet-Divisor n2)
+        finiteSumᵉ (FinSet-Divisor n1)
+          (\d1 -> finiteSumᵉ (FinSet-Divisor n2)
             (\d2 -> f (divisor->nat⁺ n1 d1) S.* f (divisor->nat⁺ n2 d2)))
-      ==< cong (finiteSum (FinSet-Divisor n1)) (funExt (\d1 -> finiteSum-* >=> S.*-commute)) >
-        finiteSum (FinSet-Divisor n1)
-          (\d1 -> (finiteSum (FinSet-Divisor n2) (\d2 -> f (divisor->nat⁺ n2 d2))) S.*
+      ==< cong (finiteSumᵉ (FinSet-Divisor n1)) (funExt (\d1 -> finiteSum-* >=> S.*-commute)) >
+        finiteSumᵉ (FinSet-Divisor n1)
+          (\d1 -> (finiteSumᵉ (FinSet-Divisor n2) (\d2 -> f (divisor->nat⁺ n2 d2))) S.*
                   f (divisor->nat⁺ n1 d1))
       ==< finiteSum-* >=> S.*-commute >
         (divisorSum n1 f) S.* (divisorSum n2 f)
@@ -392,7 +392,7 @@ divisorSum-μ-prime : (p : Prime') -> divisorSum-μ (Prime'.nat⁺ p) == (int 0)
 divisorSum-μ-prime p =
   begin
     divisorSum-μ p⁺
-  ==< finiteSum-eval _ (Divisor-prime-eq p) _ >
+  ==< finiteSumᵉ-eval _ (Divisor-prime-eq p) _ >
     μ (p' , _) + (μ 1⁺ + (int 0))
   ==< cong (\x -> μ (p' , x) + (μ 1⁺ + (int 0))) (isPropPos' _ _) >
     μ p⁺ + (μ 1⁺ + (int 0))
@@ -421,28 +421,28 @@ divisorSum-μ-prime-power p ((suc n@(suc n')) , _) =
   begin
     divisorSum-μ psn
   ==<>
-    finiteSum (FinSet-Divisor psn) (μ ∘ divisor->nat⁺ psn)
-  ==< finiteSum-convert _ _ (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n)) _ >
-    finiteSum (FinSet-Maybe (FinSet-Divisor pn))
+    finiteSumᵉ (FinSet-Divisor psn) (μ ∘ divisor->nat⁺ psn)
+  ==< finiteSumᵉ-convert _ _ (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n)) _ >
+    finiteSumᵉ (FinSet-Maybe (FinSet-Divisor pn))
        ((μ ∘ divisor->nat⁺ psn) ∘ (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))))
   ==< finiteSum-Maybe (snd (FinSet-Divisor pn))
        ((μ ∘ divisor->nat⁺ psn) ∘ (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n)))) >
     μ (prime-power p (suc n) , _) +
-    finiteSum (FinSet-Divisor pn) ((μ ∘ divisor->nat⁺ psn) ∘
-                                   (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))) ∘
-                                   just)
-  ==< cong (\x -> (μ x + finiteSum (FinSet-Divisor pn)
-                                   ((μ ∘ divisor->nat⁺ psn) ∘
+    finiteSumᵉ (FinSet-Divisor pn) ((μ ∘ divisor->nat⁺ psn) ∘
                                     (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))) ∘
-                                    just)))
+                                    just)
+  ==< cong (\x -> (μ x + finiteSumᵉ (FinSet-Divisor pn)
+                                    ((μ ∘ divisor->nat⁺ psn) ∘
+                                     (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))) ∘
+                                     just)))
            (ΣProp-path isPropPos' (refl {x = (fst psn)})) >
-    μ psn + finiteSum (FinSet-Divisor pn)
-                      ((μ ∘ divisor->nat⁺ psn) ∘
-                       (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))) ∘
-                       just)
-  ==< cong (\x -> μ psn + finiteSum (FinSet-Divisor pn) x)
+    μ psn + finiteSumᵉ (FinSet-Divisor pn)
+                       ((μ ∘ divisor->nat⁺ psn) ∘
+                        (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))) ∘
+                        just)
+  ==< cong (\x -> μ psn + finiteSumᵉ (FinSet-Divisor pn) x)
            (funExt (\d -> cong μ (ΣProp-path isPropPos' (refl {x = ⟨ d ⟩})))) >
-    μ psn + finiteSum (FinSet-Divisor pn) (μ ∘ divisor->nat⁺ pn)
+    μ psn + finiteSumᵉ (FinSet-Divisor pn) (μ ∘ divisor->nat⁺ pn)
   ==< cong2 _+_ (¬square-free-μ (prime-power-¬square-free p sn≥2))
                 (divisorSum-μ-prime-power p (n , tt)) >
     (int 0) + (int 0)

@@ -108,8 +108,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {{S : Semiring K}} {{R : Ring S}}
 
     isAffineCombination : Pred V _
     isAffineCombination v =
-      ∃[ a ∈ (I -> K) ] (scaled-vector-sum a vs == v ×
-                         finiteSum (I , FinSetStr.isFin FI) a == 1#)
+      ∃[ a ∈ (I -> K) ] (scaled-vector-sum a vs == v × finiteSum a == 1#)
 
     AffineSpan : Subtype V (ℓ-max* 3 ℓK ℓV ℓI)
     AffineSpan v = isAffineCombination v , squash

@@ -144,27 +144,27 @@ module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
 
   abstract
     _⊗_ : (f g : Nat⁺ -> D) -> (Nat⁺ -> D)
-    (f ⊗ g) n = finiteSum (FinSet-Divisor n) (\d -> f (divisor->nat⁺ n d) S.* g (divisor->nat⁺' n d))
+    (f ⊗ g) n = finiteSumᵉ (FinSet-Divisor n) (\d -> f (divisor->nat⁺ n d) S.* g (divisor->nat⁺' n d))
 
     ⊗-eval : {f g : Nat⁺ -> D} {n : Nat⁺} ->
-             (f ⊗ g) n == finiteSum (FinSet-Divisor n)
-                                    (\d -> f (divisor->nat⁺ n d) S.* g (divisor->nat⁺' n d))
+             (f ⊗ g) n == finiteSumᵉ (FinSet-Divisor n)
+                                     (\d -> f (divisor->nat⁺ n d) S.* g (divisor->nat⁺' n d))
     ⊗-eval = refl
 
 
     ⊗-commute : {f g : Nat⁺ -> D} {n : Nat⁺} -> (f ⊗ g) n == (g ⊗ f) n
     ⊗-commute {f} {g} {n} =
       begin
-        finiteSum (FinSet-Divisor n) (\d -> f (divisor->nat⁺ n d) S.* g (divisor->nat⁺' n d))
-      ==< finiteSum-convert _ _ (Divisors-flip-eq n) _ >
-        finiteSum (FinSet-Divisor n)
+        finiteSumᵉ (FinSet-Divisor n) (\d -> f (divisor->nat⁺ n d) S.* g (divisor->nat⁺' n d))
+      ==< finiteSumᵉ-convert _ _ (Divisors-flip-eq n) _ >
+        finiteSumᵉ (FinSet-Divisor n)
           (\d -> f (fst (divisor->nat⁺' n d) , _) S.*
                  g (fst (divisor->nat⁺ n d)  , _))
-      ==< cong (finiteSum (FinSet-Divisor n))
+      ==< cong (finiteSumᵉ (FinSet-Divisor n))
                (funExt (\d -> (cong2 S._*_ (cong f (ΣProp-path isPropPos' refl))
                                            (cong g (ΣProp-path isPropPos' refl)))
                               >=> S.*-commute)) >
-        finiteSum (FinSet-Divisor n) (\d -> g (divisor->nat⁺ n d) S.* f (divisor->nat⁺' n d))
+        finiteSumᵉ (FinSet-Divisor n) (\d -> g (divisor->nat⁺ n d) S.* f (divisor->nat⁺' n d))
       end
 
     FinDivisor : Nat⁺ -> Type₀
@@ -187,22 +187,22 @@ module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
 
 
     ⊗-eval' : {f g : Nat⁺ -> D} {n : Nat⁺} ->
-              (f ⊗ g) n == finiteSum (FinSet-PairedDivisor n) (\((i , j) , _) -> f j S.* g i)
+              (f ⊗ g) n == finiteSumᵉ (FinSet-PairedDivisor n) (\((i , j) , _) -> f j S.* g i)
     ⊗-eval' {f} {g} {n} =
       begin
-        finiteSum (FinSet-Divisor n) (\d -> f (divisor->nat⁺ n d) S.* g (divisor->nat⁺' n d))
-      ==< finiteSum-convert _ _ (equiv⁻¹ (Divisor-PairedDivisor-eq n)) _ >
-        finiteSum (FinSet-PairedDivisor n) _
-      ==< cong (finiteSum (FinSet-PairedDivisor n))
+        finiteSumᵉ (FinSet-Divisor n) (\d -> f (divisor->nat⁺ n d) S.* g (divisor->nat⁺' n d))
+      ==< finiteSumᵉ-convert _ _ (equiv⁻¹ (Divisor-PairedDivisor-eq n)) _ >
+        finiteSumᵉ (FinSet-PairedDivisor n) _
+      ==< cong (finiteSumᵉ (FinSet-PairedDivisor n))
                (funExt (\((i , j) , _) ->
                  cong2 (\x y -> f x S.* g y)
                        (ΣProp-path isPropPos' refl)
                        (ΣProp-path isPropPos' refl))) >
-        finiteSum (FinSet-PairedDivisor n) (\((i , j) , _) -> f j S.* g i)
+        finiteSumᵉ (FinSet-PairedDivisor n) (\((i , j) , _) -> f j S.* g i)
       end
 
     ⊗-eval'2 : {f g : Nat⁺ -> D} {n : Nat⁺} ->
-              (f ⊗ g) n == finiteSum (FinSet-PairedDivisor n) (\((i , j) , _) -> g j S.* f i)
+              (f ⊗ g) n == finiteSumᵉ (FinSet-PairedDivisor n) (\((i , j) , _) -> g j S.* f i)
     ⊗-eval'2 {f} {g} {n} = ⊗-commute {f} {g} {n} >=> ⊗-eval' {g} {f} {n}
 
 
@@ -211,33 +211,33 @@ module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
       begin
         _
       ==< ⊗-eval'2 >
-        finiteSum (FinSet-PairedDivisor n) (\((i , j) , _) -> h j S.* (f ⊗ g) i)
-      ==< cong (finiteSum (FinSet-PairedDivisor n))
+        finiteSumᵉ (FinSet-PairedDivisor n) (\((i , j) , _) -> h j S.* (f ⊗ g) i)
+      ==< cong (finiteSumᵉ (FinSet-PairedDivisor n))
                (funExt (\((i , j) , _) ->
                  (cong (h j S.*_) (⊗-eval' {f} {g}) >=> sym finiteSum-*))) >
-        finiteSum (FinSet-PairedDivisor n) (\((i , j) , _) ->
-          finiteSum (FinSet-PairedDivisor i) (\((i2 , j2) , _) -> h j S.* (f j2 S.* g i2)))
+        finiteSumᵉ (FinSet-PairedDivisor n) (\((i , j) , _) ->
+          finiteSumᵉ (FinSet-PairedDivisor i) (\((i2 , j2) , _) -> h j S.* (f j2 S.* g i2)))
       ==< sym (finiteSum-Σ (FinSet-PairedDivisor n) (\((i , j) , _) -> (FinSet-PairedDivisor i)) _) >
-        finiteSum (FinSet-Σ (FinSet-PairedDivisor n) (\((i , j) , _) -> (FinSet-PairedDivisor i)))
+        finiteSumᵉ (FinSet-Σ (FinSet-PairedDivisor n) (\((i , j) , _) -> (FinSet-PairedDivisor i)))
           (\(((i , j) , _) , ((i2 , j2) , _)) -> h j S.* (f j2 S.* g i2))
-      ==< finiteSum-convert _ _ (equiv⁻¹ (PairedPairedDivisor-TripledDivisor-eq n)) _ >
-        finiteSum (FinSet-TripledDivisor n) (\(((i2 , j2) , j) , _) -> h j S.* (f j2 S.* g i2))
-      ==< finiteSum-convert _ _ (equiv⁻¹ (TripledDivisor-auto n)) _ >
-        finiteSum (FinSet-TripledDivisor n) (\(((i2 , j2) , j) , _) -> h i2 S.* (f j S.* g j2))
-      ==< cong (finiteSum (FinSet-TripledDivisor n))
+      ==< finiteSumᵉ-convert _ _ (equiv⁻¹ (PairedPairedDivisor-TripledDivisor-eq n)) _ >
+        finiteSumᵉ (FinSet-TripledDivisor n) (\(((i2 , j2) , j) , _) -> h j S.* (f j2 S.* g i2))
+      ==< finiteSumᵉ-convert _ _ (equiv⁻¹ (TripledDivisor-auto n)) _ >
+        finiteSumᵉ (FinSet-TripledDivisor n) (\(((i2 , j2) , j) , _) -> h i2 S.* (f j S.* g j2))
+      ==< cong (finiteSumᵉ (FinSet-TripledDivisor n))
                (funExt (\(((i2 , j2) , j) , _) ->
                  (S.*-commute >=> S.*-assoc))) >
-        finiteSum (FinSet-TripledDivisor n) (\(((i2 , j2) , j) , _) -> f j S.* (g j2 S.* h i2))
-      ==< sym (finiteSum-convert _ _ (equiv⁻¹ (PairedPairedDivisor-TripledDivisor-eq n)) _) >
-        finiteSum (FinSet-Σ (FinSet-PairedDivisor n) (\((i , j) , _) -> (FinSet-PairedDivisor i)))
+        finiteSumᵉ (FinSet-TripledDivisor n) (\(((i2 , j2) , j) , _) -> f j S.* (g j2 S.* h i2))
+      ==< sym (finiteSumᵉ-convert _ _ (equiv⁻¹ (PairedPairedDivisor-TripledDivisor-eq n)) _) >
+        finiteSumᵉ (FinSet-Σ (FinSet-PairedDivisor n) (\((i , j) , _) -> (FinSet-PairedDivisor i)))
           (\(((i , j) , _) , ((i2 , j2) , _)) -> f j S.* (g j2 S.* h i2))
       ==< finiteSum-Σ (FinSet-PairedDivisor n) (\((i , j) , _) -> (FinSet-PairedDivisor i)) _ >
-        finiteSum (FinSet-PairedDivisor n) (\((i , j) , _) ->
-          finiteSum (FinSet-PairedDivisor i) (\((i2 , j2) , _) -> f j S.* (g j2 S.* h i2)))
-      ==< sym (cong (finiteSum (FinSet-PairedDivisor n))
+        finiteSumᵉ (FinSet-PairedDivisor n) (\((i , j) , _) ->
+          finiteSumᵉ (FinSet-PairedDivisor i) (\((i2 , j2) , _) -> f j S.* (g j2 S.* h i2)))
+      ==< sym (cong (finiteSumᵉ (FinSet-PairedDivisor n))
                     (funExt (\((i , j) , _) ->
                       ((cong (f j S.*_) (⊗-eval' {g} {h})) >=> sym finiteSum-*)))) >
-        finiteSum (FinSet-PairedDivisor n) (\((i , j) , _) -> f j S.* (g ⊗ h) i)
+        finiteSumᵉ (FinSet-PairedDivisor n) (\((i , j) , _) -> f j S.* (g ⊗ h) i)
       ==< sym ⊗-eval' >
         _
       end

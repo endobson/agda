@@ -392,12 +392,12 @@ module _ (p : Prime') where
     ==< cong cardnality fs-path >
       cardnality (FinSet-Σ (FinSet-Fin p') (\_ -> (FinSet-Totatives (prime-power p n))))
     ==< cardnality-Σ3 (FinSet-Fin p') (\_ -> (FinSet-Totatives (prime-power p n))) >
-      finiteSum (FinSet-Fin p') (\_ -> cardnality (FinSet-Totatives (prime-power p n)))
-    ==< cong (\x -> finiteSum (FinSet-Fin p') (\_ -> x))
+      finiteSumᵉ (FinSet-Fin p') (\_ -> cardnality (FinSet-Totatives (prime-power p n)))
+    ==< cong (\x -> finiteSumᵉ (FinSet-Fin p') (\_ -> x))
              (φ-prime-power (n , tt) >=> sym *'-right-one) >
-      finiteSum (FinSet-Fin p') (\_ -> ((prime-power p n) -' (prime-power p (pred n))) *' 1)
+      finiteSumᵉ (FinSet-Fin p') (\_ -> ((prime-power p n) -' (prime-power p (pred n))) *' 1)
     ==< finiteSum-* {k = (prime-power p n) -' (prime-power p (pred n))} {f = \_ -> 1} >
-      ((prime-power p n) -' (prime-power p (pred n))) *' finiteSum (FinSet-Fin p') (\_ -> 1)
+      ((prime-power p n) -' (prime-power p (pred n))) *' finiteSumᵉ (FinSet-Fin p') (\_ -> 1)
     ==< cong (((prime-power p n) -' (prime-power p (pred n))) *'_) (finiteSum-one p') >
       ((prime-power p n) -' (prime-power p (pred n))) *' p'
     ==< *'-distrib-minus {prime-power p n} {prime-power p (pred n)} {p'} >

@@ -14,4 +14,4 @@ private
   Seq = ℚSequence
 
 partial-sums : Seq -> Seq
-partial-sums s n = finiteSum (FinSet-Fin n) (\ (i , _) -> s i)
+partial-sums s n = finiteSum (\ ((i , _) : Fin n) -> s i)

@@ -145,7 +145,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
       isAffineCombination v =
         ∃[ S ∈ FinSubset I₁ ℓI₂ ]
         Σ[ a ∈ (Carrier S -> K) ] (scaled-vector-sum family S a == v ×
-                                   finiteSum ⟨ S ⟩ a == 1#)
+                                   finiteSumᵉ ⟨ S ⟩ a == 1#)
 
       AffineSpan : Subtype V (ℓ-max* 4 ℓK ℓV ℓI₁ (ℓ-suc ℓI₂))
       AffineSpan v = isLinearCombination v , squash
