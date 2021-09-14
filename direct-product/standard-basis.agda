@@ -377,6 +377,5 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {{S : Semiring K}}
     LinearlyIndependent-standard-basis a path i =
       cong (\v -> unwrap-dp v i) (sym (standard-basis-sum a) >=> path)
 
-  abstract
-    isBasis-standard-basis : vsf.isBasis standard-basis
-    isBasis-standard-basis = isSpanning-standard-basis , LinearlyIndependent-standard-basis
+  isBasis-standard-basis : vsf.isBasis standard-basis
+  isBasis-standard-basis = isSpanning-standard-basis , LinearlyIndependent-standard-basis

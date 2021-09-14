@@ -165,7 +165,8 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {{S : Semiring K}} {{R : Ring S}}
     basis-decomposition-full {b} (span , li) v =
       combo , (isProp-lc combo)
       where
-      isProp-lc = (linearlyIndependent->isProp-isLinearCombination li)
+      abstract
+        isProp-lc = (linearlyIndependent->isProp-isLinearCombination li)
       combo = unsquash isProp-lc (span v)
 
     basis-decomposition : {b : I -> V} -> isBasis b -> V -> (I -> K)
@@ -214,6 +215,13 @@ module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK} {{S : Semiring K}} {{R : Rin
                  cong f p >=>
                  isEqSec isEq-f v2
 
+    transform-isSpanning-path :
+      {vs1 : I -> V1} {vs2 : I -> V1} -> vs1 == vs2 ->
+      isSpanning vs1 -> isSpanning vs2
+    transform-isSpanning-path {vs1} {vs2} p1 vs1-span v = ∥-map handle (vs1-span v)
+      where
+      handle : isLinearCombination' vs1 v -> isLinearCombination' vs2 v
+      handle (a , p2) = (a , cong (scaled-vector-sum a) (sym p1) >=> p2)
 
     transform-LinearlyIndependent :
       {f : V1 -> V2} {vs : I -> V1} ->

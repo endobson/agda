@@ -610,8 +610,11 @@ axis-basis : Axis -> Vector
 axis-basis x-axis = xaxis-vector
 axis-basis y-axis = yaxis-vector
 
+-- Don't use substitution so that we get better computational behavior
 isBasis-axis-basis : isBasis axis-basis
-isBasis-axis-basis = subst isBasis (funExt f) (isBasis-standard-basis ℝField Axis)
+isBasis-axis-basis =
+  transform-isSpanning-path (funExt f) (fst (isBasis-standard-basis ℝField Axis)) ,
+  subst LinearlyIndependent (funExt f) (snd (isBasis-standard-basis ℝField Axis))
   where
   s = standard-basis ℝField Axis
   g : (a1 a2 : Axis) -> (direct-product-index (s a1) a2) == (direct-product-index (axis-basis a1) a2)

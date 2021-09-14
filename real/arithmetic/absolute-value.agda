@@ -167,21 +167,22 @@ module _ (x : ℝ)
       handle (inj-r xu-r) (inj-r xu-mq) = inj-l (∣ (inj-r xu-mq) ∣)
       handle (inj-r xu-r) (inj-l xl-mr) = inj-r (xl-mr , xu-r)
 
-  absℝ : ℝ
-  absℝ = record
-    { L = L
-    ; U = U
-    ; isProp-L = isProp-L
-    ; isProp-U = isProp-U
-    ; Inhabited-L = Inhabited-L
-    ; Inhabited-U = Inhabited-U
-    ; isLowerSet-L = isLowerSet-L
-    ; isUpperSet-U = isUpperSet-U
-    ; isUpperOpen-L = isUpperOpen-L
-    ; isLowerOpen-U = isLowerOpen-U
-    ; disjoint = disjoint
-    ; located = located
-    }
+  abstract
+    absℝ : ℝ
+    absℝ = record
+      { L = L
+      ; U = U
+      ; isProp-L = isProp-L
+      ; isProp-U = isProp-U
+      ; Inhabited-L = Inhabited-L
+      ; Inhabited-U = Inhabited-U
+      ; isLowerSet-L = isLowerSet-L
+      ; isUpperSet-U = isUpperSet-U
+      ; isUpperOpen-L = isUpperOpen-L
+      ; isLowerOpen-U = isLowerOpen-U
+      ; disjoint = disjoint
+      ; located = located
+      }
 
 abstract
   absℝ-0≤ : (x : ℝ) -> (q : ℚ⁻) -> Real.L (absℝ x) ⟨ q ⟩
@@ -336,78 +337,95 @@ abstract
       i .leftInv _ = amx.isProp-U q _ _
 
 
-
-ℝ∈Iℚ-absℝ-StrictCrossZeroI :
-  (x : ℝ) (a : Iℚ) -> ¬ (StrictCrossZeroI a) -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) (i-abs a)
-ℝ∈Iℚ-absℝ-StrictCrossZeroI x (Iℚ-cons l u l≤u) ¬scz (xl-l , xu-u) = axl-l0 , axu--lu
+absℝ-#0 : (x : ℝ) -> absℝ x ℝ# 0# -> x ℝ# 0#
+absℝ-#0 x (inj-l ax<0) = bot-elim (absℝ-≮0 x ax<0)
+absℝ-#0 x (inj-r 0<ax) = unsquash (isProp-ℝ# x 0#) (∥-bind handle 0<ax)
   where
-  module x = Real x
-  ax = (absℝ x)
+  ax = absℝ x
   module ax = Real ax
-  axl-l0 : ax.L (maxℚ l 0r)
-  axl-l0 = handle (split-< l 0r)
+  handle : Σ[ q ∈ ℚ ] (0r < q × ax.L q) -> ∥ x ℝ# 0# ∥
+  handle (q , 0<q , axL-q) = ∥-map handle2 (split-small-absℝ x (q , 0<q))
     where
-    handle : (l < 0r) ⊎ (0r ≤ l) -> ax.L (maxℚ l 0r)
-    handle (inj-r 0≤l) = ∣ inj-l (subst x.L (sym (maxℚ-left l 0r 0≤l)) xl-l) ∣
-    handle (inj-l l<0) = handle2 (split-< 0r u)
+    handle2 : (absℝ x ℝ< (ℚ->ℝ q) ⊎ (ℝInv x)) -> x ℝ# 0#
+    handle2 (inj-r inv-x) = inv-x
+    handle2 (inj-l ax<q) = bot-elim (unsquash isPropBot (∥-map handle3 ax<q))
       where
-      l0=0 : (maxℚ l 0r) == 0r
-      l0=0 = maxℚ-right l 0r (weaken-< l<0)
+      handle3 : (absℝ x ℝ<' (ℚ->ℝ q)) -> Bot
+      handle3 (r , axU-r , r<q) = asym-< (ℝ-bounds->ℚ< ax q r axL-q axU-r) r<q
 
-      handle2 : (0r < u) ⊎ (u ≤ 0r) -> ax.L (maxℚ l 0r)
-      handle2 (inj-r u≤0) = isLowerSet≤ ax (maxℚ l 0r) (- u) l0≤-u axl--u
-        where
-        l0≤-u : (maxℚ l 0r) ≤ (- u)
-        l0≤-u = subst (_≤ (- u)) (sym l0=0) (minus-flips-≤0 u≤0)
 
-        axl--u : ax.L (- u)
-        axl--u = ∣ inj-r (subst x.U (sym minus-double-inverse) xu-u) ∣
-      handle2 (inj-l 0<u) = bot-elim (¬scz (<0-Neg l l<0 , 0<-Pos u 0<u))
-
-  axu--lu : ax.U (maxℚ (- l) u)
-  axu--lu = subst x.L (sym p) xl-l-u , xu--lu
+abstract
+  ℝ∈Iℚ-absℝ-StrictCrossZeroI :
+    (x : ℝ) (a : Iℚ) -> ¬ (StrictCrossZeroI a) -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) (i-abs a)
+  ℝ∈Iℚ-absℝ-StrictCrossZeroI x (Iℚ-cons l u l≤u) ¬scz (xl-l , xu-u) = axl-l0 , axu--lu
     where
-    xu--lu : x.U (maxℚ (- l) u)
-    xu--lu = isUpperSet≤ x u (maxℚ (- l) u) (maxℚ-≤-right (- l) u) xu-u
+    module x = Real x
+    ax = (absℝ x)
+    module ax = Real ax
+    axl-l0 : ax.L (maxℚ l 0r)
+    axl-l0 = handle (split-< l 0r)
+      where
+      handle : (l < 0r) ⊎ (0r ≤ l) -> ax.L (maxℚ l 0r)
+      handle (inj-r 0≤l) = ∣ inj-l (subst x.L (sym (maxℚ-left l 0r 0≤l)) xl-l) ∣
+      handle (inj-l l<0) = handle2 (split-< 0r u)
+        where
+        l0=0 : (maxℚ l 0r) == 0r
+        l0=0 = maxℚ-right l 0r (weaken-< l<0)
 
-    p : (- (maxℚ (- l) u)) == minℚ l (- u)
-    p = (r--maxℚ (- l) u >=> (cong2 minℚ minus-double-inverse refl))
+        handle2 : (0r < u) ⊎ (u ≤ 0r) -> ax.L (maxℚ l 0r)
+        handle2 (inj-r u≤0) = isLowerSet≤ ax (maxℚ l 0r) (- u) l0≤-u axl--u
+          where
+          l0≤-u : (maxℚ l 0r) ≤ (- u)
+          l0≤-u = subst (_≤ (- u)) (sym l0=0) (minus-flips-≤0 u≤0)
 
-    xl-l-u : x.L (minℚ l (- u))
-    xl-l-u = isLowerSet≤ x (minℚ l (- u)) l (minℚ-≤-left l (- u)) xl-l
+          axl--u : ax.L (- u)
+          axl--u = ∣ inj-r (subst x.U (sym minus-double-inverse) xu-u) ∣
+        handle2 (inj-l 0<u) = bot-elim (¬scz (<0-Neg l l<0 , 0<-Pos u 0<u))
 
-ℝ∈Iℚ-absℝ-dual : (x : ℝ) (a : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ x (i- a) ->
-                 ℝ∈Iℚ (absℝ x) a
-ℝ∈Iℚ-absℝ-dual x (Iℚ-cons l u l≤u) (xl-l , xu-u) (xl--u , xu--l) =
-  ∣ inj-l xl-l ∣ , (xl--u , xu-u)
+    axu--lu : ax.U (maxℚ (- l) u)
+    axu--lu = subst x.L (sym p) xl-l-u , xu--lu
+      where
+      xu--lu : x.U (maxℚ (- l) u)
+      xu--lu = isUpperSet≤ x u (maxℚ (- l) u) (maxℚ-≤-right (- l) u) xu-u
 
-ℝ∈Iℚ-absℝ-NonNegI : (x : ℝ) (a : Iℚ) -> NonNegI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) a
-ℝ∈Iℚ-absℝ-NonNegI x (Iℚ-cons l u l≤u) nn-l (xl-l , xu-u) =
-  ∣ inj-l xl-l ∣ , (isLowerSet≤ x (- u) l -u≤l xl-l , xu-u)
-  where
-  0≤l : 0r ≤ l
-  0≤l = NonNeg-0≤ l nn-l
-  -u≤l : (- u) ≤ l
-  -u≤l = (trans-ℚ≤ { - u} (minus-flips-≤ l u l≤u) (trans-ℚ≤ { - l} (minus-flips-0≤ 0≤l) 0≤l))
+      p : (- (maxℚ (- l) u)) == minℚ l (- u)
+      p = (r--maxℚ (- l) u >=> (cong2 minℚ minus-double-inverse refl))
 
-ℝ∈Iℚ-absℝ-NonPosI : (x : ℝ) (a : Iℚ) -> NonPosI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) (i- a)
-ℝ∈Iℚ-absℝ-NonPosI x (Iℚ-cons l u l≤u) np-u (xl-l , xu-u) =
-  ∣ inj-r (subst x.U (sym minus-double-inverse) xu-u) ∣ ,
-  ( subst x.L (sym minus-double-inverse) xl-l , isUpperSet≤ x u (- l) u≤-l xu-u)
-  where
-  module x = Real x
-  u≤0 : u ≤ 0r
-  u≤0 = NonPos-≤0 u np-u
+      xl-l-u : x.L (minℚ l (- u))
+      xl-l-u = isLowerSet≤ x (minℚ l (- u)) l (minℚ-≤-left l (- u)) xl-l
 
-  u≤-l : u ≤ (- l)
-  u≤-l = (trans-ℚ≤ {u} (trans-ℚ≤ {u} u≤0 (minus-flips-≤0 u≤0)) (minus-flips-≤ l u l≤u))
+  ℝ∈Iℚ-absℝ-dual : (x : ℝ) (a : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ x (i- a) ->
+                   ℝ∈Iℚ (absℝ x) a
+  ℝ∈Iℚ-absℝ-dual x (Iℚ-cons l u l≤u) (xl-l , xu-u) (xl--u , xu--l) =
+    ∣ inj-l xl-l ∣ , (xl--u , xu-u)
 
-ℝ∈Iℚ-absℝ-ImbalancedI : (x : ℝ) (a : Iℚ) -> ImbalancedI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) a
-ℝ∈Iℚ-absℝ-ImbalancedI x (Iℚ-cons l u l≤u) -l≤u (xl-l , xu-u) =
-  ∣ inj-l xl-l ∣ , (isLowerSet≤ x (- u) l -u≤l xl-l , xu-u)
-  where
-  -u≤l : (- u) ≤ l
-  -u≤l = subst ((- u) ≤_) minus-double-inverse (minus-flips-≤ (- l) u -l≤u)
+  ℝ∈Iℚ-absℝ-NonNegI : (x : ℝ) (a : Iℚ) -> NonNegI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) a
+  ℝ∈Iℚ-absℝ-NonNegI x (Iℚ-cons l u l≤u) nn-l (xl-l , xu-u) =
+    ∣ inj-l xl-l ∣ , (isLowerSet≤ x (- u) l -u≤l xl-l , xu-u)
+    where
+    0≤l : 0r ≤ l
+    0≤l = NonNeg-0≤ l nn-l
+    -u≤l : (- u) ≤ l
+    -u≤l = (trans-ℚ≤ { - u} (minus-flips-≤ l u l≤u) (trans-ℚ≤ { - l} (minus-flips-0≤ 0≤l) 0≤l))
+
+  ℝ∈Iℚ-absℝ-NonPosI : (x : ℝ) (a : Iℚ) -> NonPosI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) (i- a)
+  ℝ∈Iℚ-absℝ-NonPosI x (Iℚ-cons l u l≤u) np-u (xl-l , xu-u) =
+    ∣ inj-r (subst x.U (sym minus-double-inverse) xu-u) ∣ ,
+    ( subst x.L (sym minus-double-inverse) xl-l , isUpperSet≤ x u (- l) u≤-l xu-u)
+    where
+    module x = Real x
+    u≤0 : u ≤ 0r
+    u≤0 = NonPos-≤0 u np-u
+
+    u≤-l : u ≤ (- l)
+    u≤-l = (trans-ℚ≤ {u} (trans-ℚ≤ {u} u≤0 (minus-flips-≤0 u≤0)) (minus-flips-≤ l u l≤u))
+
+  ℝ∈Iℚ-absℝ-ImbalancedI : (x : ℝ) (a : Iℚ) -> ImbalancedI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) a
+  ℝ∈Iℚ-absℝ-ImbalancedI x (Iℚ-cons l u l≤u) -l≤u (xl-l , xu-u) =
+    ∣ inj-l xl-l ∣ , (isLowerSet≤ x (- u) l -u≤l xl-l , xu-u)
+    where
+    -u≤l : (- u) ≤ l
+    -u≤l = subst ((- u) ≤_) minus-double-inverse (minus-flips-≤ (- l) u -l≤u)
 
 
 abstract
@@ -445,14 +463,14 @@ abstract
           (absℝ-NonNeg-idem x 0≤x) (ℝ∈Iℚ-absℝ-ΣImbalancedI x a)
 
 
-ℝ∈Iℚ-absℝ⁻ : (x : ℝ) (a : Iℚ) -> ℝ∈Iℚ (absℝ x) a -> ∥ ℝ∈Iℚ x a ⊎ ℝ∈Iℚ x (i- a) ∥
-ℝ∈Iℚ-absℝ⁻ x a@(Iℚ-cons l u l≤u) (axl-l , (xl--u , xu-u)) = ∥-map handle axl-l
-  where
-  module x = Real x
+  ℝ∈Iℚ-absℝ⁻ : (x : ℝ) (a : Iℚ) -> ℝ∈Iℚ (absℝ x) a -> ∥ ℝ∈Iℚ x a ⊎ ℝ∈Iℚ x (i- a) ∥
+  ℝ∈Iℚ-absℝ⁻ x a@(Iℚ-cons l u l≤u) (axl-l , (xl--u , xu-u)) = ∥-map handle axl-l
+    where
+    module x = Real x
 
-  handle : (x.L l) ⊎ (x.U (- l)) -> ℝ∈Iℚ x a ⊎ ℝ∈Iℚ x (i- a)
-  handle (inj-l xl-l) = inj-l (xl-l , xu-u)
-  handle (inj-r xu--l) = inj-r (xl--u , xu--l)
+    handle : (x.L l) ⊎ (x.U (- l)) -> ℝ∈Iℚ x a ⊎ ℝ∈Iℚ x (i- a)
+    handle (inj-l xl-l) = inj-l (xl-l , xu-u)
+    handle (inj-r xu--l) = inj-r (xl--u , xu--l)
 
 
 
