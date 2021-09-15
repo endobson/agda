@@ -252,11 +252,33 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
          {{VS : VectorSpaceStr F V}} where
 
   private
+    instance
+      IM = VectorSpaceStr.module-str VS
+
+  private
     CommMonoid-V+ : CommMonoid V
     CommMonoid-V+ = GroupStr.comm-monoid (ModuleStr.GroupStr-V (VectorSpaceStr.module-str VS))
 
   vector-sum : {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} -> (I -> V) -> V
   vector-sum = finiteMerge CommMonoid-V+
+
+  record isLinearSubtype  {ℓS : Level} (S : (Subtype V ℓS)) : Type (ℓ-max* 3 ℓS ℓV ℓK) where
+    field
+      closed-under-v+ : {v1 v2 : V} -> ⟨ S v1 ⟩ -> ⟨ S v2 ⟩ -> ⟨ S (v1 v+ v2) ⟩
+      closed-under-v* : {v : V} (k : K) -> ⟨ S v ⟩ -> ⟨ S (k v* v) ⟩
+
+  isProp-isLinearSubtype : {ℓS : Level} {S : (Subtype V ℓS)} -> isProp (isLinearSubtype S)
+  isProp-isLinearSubtype {S = S} ls1 ls2 i = record
+    { closed-under-v+ =
+      isPropΠ2 (\sv1 sv2 -> snd (S _))
+        (isLinearSubtype.closed-under-v+ ls1)
+        (isLinearSubtype.closed-under-v+ ls2) i
+    ; closed-under-v* =
+      isPropΠ2 (\k sv -> snd (S (k v* _)))
+        (isLinearSubtype.closed-under-v* ls1)
+        (isLinearSubtype.closed-under-v* ls2) i
+    }
+
 
 
 module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}

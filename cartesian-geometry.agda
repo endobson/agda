@@ -53,6 +53,9 @@ P-coord : Point -> Axis -> ℝ
 P-coord p x-axis = Point.x p
 P-coord p y-axis = Point.y p
 
+P-ext : {p1 p2 : Point} -> ((a : Axis) -> P-coord p1 a == P-coord p2 a) -> p1 == p2
+P-ext f i = record { x = f x-axis i ; y = f y-axis i }
+
 
 _P#_ : Point -> Point -> Type₀
 p1 P# p2 = ∥ (p1.x ℝ# p2.x) ⊎ (p1.y ℝ# p2.y) ∥
@@ -101,6 +104,18 @@ P-shift p v = record
   { x = Point.x p + direct-product-index v x-axis
   ; y = Point.y p + direct-product-index v y-axis
   }
+
+P-diff-step : (p1 p2 : Point) -> P-shift p1 (P-diff p1 p2) == p2
+P-diff-step p1 p2 = P-ext (\{x-axis -> diff-step ; y-axis -> diff-step})
+
+P-shift-step : (p : Point) (v : Vector) -> P-diff p (P-shift p v) == v
+P-shift-step _ _ = vector-ext (\{x-axis -> path1 ; y-axis -> path1})
+  where
+  path1 : {p v : ℝ} -> (diff p (p + v)) == v
+  path1 = +-left +-commute >=> +-assoc >=> +-right +-inverse >=> +-right-zero
+
+P-diff-trans : (p1 p2 p3 : Point) -> P-diff p1 p2 v+ P-diff p2 p3 == P-diff p1 p3
+P-diff-trans p1 p2 p3 = vector-ext (\{x-axis -> diff-trans ; y-axis -> diff-trans})
 
 -- Collinear : Point -> Point -> Point -> Type₁
 

@@ -63,8 +63,32 @@ SameLine' l1@(p1 , s1) l2@(p2 , s2) = ⟨ OnLine' l1 p2 ⟩ × ⟨ OnLine' l2 p1
 Line : Type ℓ-one
 Line = Line' / SameLine'
 
-line-slope : Line -> SemiDirection
-line-slope =
+line-semi-direction : Line -> SemiDirection
+line-semi-direction =
   SetQuotientElim.rec Line' SameLine' isSet-SemiDirection
     line'-semi-direction
     (\_ _ (_ , _ , p) -> p)
+
+OnLine'-SameLine' : (l1 l2 : Line') -> SameLine' l1 l2 -> OnLine' l1 == OnLine' l2
+OnLine'-SameLine' l1 l2 (p2∈l1 , p1∈l2 , s1=s2) =
+  same-Subtype (f p1∈l2 s1=s2) (f p2∈l1 (sym s1=s2))
+  where
+  f : {l1 l2 : Line'} -> ⟨ OnLine' l2 (line'-point l1) ⟩ ->
+      line'-semi-direction l1 == line'-semi-direction l2 ->
+      {d : Point} -> ⟨ OnLine' l1 d ⟩ -> ⟨ OnLine' l2 d ⟩
+  f {p1 , s1} {p2 , s2} p1∈l2 s1=s2 {d} d∈l1 =
+    subst (\v -> ⟨ semi-direction-span s2 v ⟩) (P-diff-trans p2 p1 d) check3
+    where
+    check1 : ⟨ semi-direction-span s2 (P-diff p2 p1) ⟩
+    check1 = p1∈l2
+
+    check2 : ⟨ semi-direction-span s2 (P-diff p1 d) ⟩
+    check2 = subst (\s -> ⟨ semi-direction-span s (P-diff p1 d) ⟩) s1=s2 d∈l1
+
+    check3 : ⟨ semi-direction-span s2 (P-diff p2 p1 v+ P-diff p1 d) ⟩
+    check3 = isLinearSubtype.closed-under-v+ (isLinearSubtype-semi-direction-span s2) check1 check2
+
+
+OnLine : Line -> Subtype Point ℓ-one
+OnLine =
+  SetQuotientElim.rec Line' SameLine' isSet-Subtype OnLine' OnLine'-SameLine'

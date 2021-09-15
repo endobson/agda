@@ -537,6 +537,9 @@ module _ {D : Type ℓ} {S : Semiring D} {{R : Ring S}} where
   diff-zero : {x y : D} -> diff x y == 0# -> x == y
   diff-zero p = sym +-right-zero >=> +-right (sym p) >=> diff-step
 
+  diff-trans : {a b c : D} -> (diff a b + diff b c) == (diff a c)
+  diff-trans = +-left +-commute >=> +-assoc >=> +-right diff-step >=> +-commute
+
 
 record Semiringʰᵉ
     {ℓ₁ ℓ₂ : Level}
