@@ -64,11 +64,16 @@ Line : Type ℓ-one
 Line = Line' / SameLine'
 
 -- Standard lines
-xaxis-line : Line
-xaxis-line = [ 0P , [ xaxis-dir ] ]
 
+xaxis-line' : Line'
+xaxis-line' = 0P , [ xaxis-dir ]
+xaxis-line : Line
+xaxis-line = [ xaxis-line' ]
+
+yaxis-line' : Line'
+yaxis-line' = 0P , [ yaxis-dir ]
 yaxis-line : Line
-yaxis-line = [ 0P , [ yaxis-dir ] ]
+yaxis-line = [ yaxis-line' ]
 
 
 line-semi-direction : Line -> SemiDirection

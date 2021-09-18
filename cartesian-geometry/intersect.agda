@@ -233,12 +233,14 @@ private
     P-shift p ((- (Point.y p)) v* (semi-direction->unit-rise sd sd#0))
 
 
---  point-semi-direction->x-intercept-full :
---    (lp : Point) (sd : SemiDirection) ->
---    semi-direction-distance' sd xaxis-vector # 0# ->
---    isContr (Σ[ p ∈ Point ] (⟨ semi-direction-span sd (P-diff lp p) ⟩ ×
---                             ⟨ semi-direction-span xaxis-semi-dir (P-diff 0P p) ⟩))
---  point-semi-direction->x-intercept-full lp = ?
+  point-semi-direction->x-intercept-full :
+    (lp : Point) (sd : SemiDirection) ->
+    isContr (
+      semi-direction-distance' sd xaxis-vector # 0# ->
+      Σ[ p ∈ Point ] (⟨ semi-direction-span sd (P-diff lp p) ⟩ ×
+                      ⟨ semi-direction-span xaxis-semi-dir (P-diff 0P p) ⟩))
+  point-semi-direction->x-intercept-full lp =
+    SemiDirectionElim.liftContr (\ d -> isContrΠ (\ d#0 -> point-direction->x-intercept-full lp d d#0))
 
 
 
@@ -277,52 +279,18 @@ private
     line'->x-intercept l l#x , line'->x-intercept-on-line' l l#x
 
 
---  line->x-intercept-full :
---    (l : Line) -> isContr ((l#x : (line-semi-direction l) sd# xaxis-semi-dir) ->
---                           Σ[ p ∈ Point ] (⟨ OnLine l p ⟩ × ⟨ OnLine xaxis-line p ⟩))
---  line->x-intercept-full =
---    SetQuotientElim.liftContr Line' SameLine'
---      ?
+  line'->x-intercept-full :
+    (l : Line') ->
+    isContr (
+      semi-direction-distance' (line'-semi-direction l) xaxis-vector # 0# ->
+      Σ[ p ∈ Point ] (⟨ OnLine' l p ⟩ × ⟨ OnLine' xaxis-line' p ⟩))
+  line'->x-intercept-full (lp , sd) = point-semi-direction->x-intercept-full lp sd
 
---      (\l -> isSetΠ (\l#a -> isSet-Point))
---      line'->x-intercept
---      path-f
---    where
---    path-f : (l1 l2 : Line') (sl : SameLine' l1 l2) ->
---             PathP (\i -> line-semi-direction (eq/ l1 l2 sl i) sd# xaxis-semi-dir ->
---                          Point)
---             (line'->x-intercept l1)
---             (line'->x-intercept l2)
---    path-f l1 l2 sl = funExtDep _ _ path-f2
---      where
---      path-f2 : (l1# : (line-semi-direction [ l1 ] sd# xaxis-semi-dir)) ->
---                (l2# : (line-semi-direction [ l2 ] sd# xaxis-semi-dir)) ->
---                (line'->x-intercept l1 l1#) == (line'->x-intercept l2 l2#)
---      path-f2 = ?
-
-
-  -- line->point-on-line :
-  --   (l : Line) -> (l#x : (line-semi-direction l) sd# xaxis-semi-dir) -> Σ Point (fst ∘ OnLine l)
-  -- line->point-on-line =
-  --   SetQuotientElim.elim Line' SameLine'
-  --     (\l -> isSetΠ (\l#a -> isSetΣ isSet-Point (\p -> isProp->isSet (snd (OnLine l p)))))
-  --     line'->point-on-line'
-  --     path-f
-  --   where
-  --   path-f : (l1 l2 : Line') (sl : SameLine' l1 l2) ->
-  --            PathP (\i -> line-semi-direction (eq/ l1 l2 sl i) sd# xaxis-semi-dir ->
-  --                         Σ Point (fst ∘ OnLine (eq/ l1 l2 sl i)))
-  --                  (line'->point-on-line' l1)
-  --                  (line'->point-on-line' l2)
-  --   path-f l1 l2 sl = ? -- funExtDep _ _ path-f2
-  --     where
-  --     path-f2 : (l1# : (line-semi-direction [ l1 ] sd# xaxis-semi-dir)) ->
-  --               (l2# : (line-semi-direction [ l2 ] sd# xaxis-semi-dir)) ->
-  --               PathP (line'->point-on-line' l1 l1#) == (line'->point-on-line' l2 l2#)
-  --     path-f2 = ?
-
-
-
+  line->x-intercept-full :
+    (l : Line) ->
+    isContr (ConvergentLines l xaxis-line ->
+             Σ[ p ∈ Point ] (⟨ OnLine l p ⟩ × ⟨ OnLine xaxis-line p ⟩))
+  line->x-intercept-full = SetQuotientElim.liftContr _ _ line'->x-intercept-full
 
 
 
