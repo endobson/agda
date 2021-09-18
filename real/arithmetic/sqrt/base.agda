@@ -95,7 +95,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ)
           handle2 (inj-r r≤0) = bot-elim (x≮0 x<0)
             where
             handle3 : Σ[ s ∈ ℚ ] (s < r × x.U s) -> x ℝ<' 0ℝ
-            handle3 (s , s<r , xu-s) = (s , xu-s , trans-<-≤ s<r r≤0)
+            handle3 (s , s<r , xu-s) = (s , xu-s , ℚ<->L (trans-<-≤ s<r r≤0))
 
             x<0 : x < 0ℝ
             x<0 = ∥-map handle3 (x.isLowerOpen-U r xu-r)

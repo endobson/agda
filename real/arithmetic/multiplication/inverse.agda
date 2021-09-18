@@ -233,7 +233,10 @@ private
       }
 
     0<ℝ1/-Pos : 0ℝ < ℝ1/-Pos
-    0<ℝ1/-Pos = (isUpperOpen-L 0r (L-nonpos (inj-r Zero-0r)))
+    0<ℝ1/-Pos = ∥-map handle (isUpperOpen-L 0r (L-nonpos (inj-r Zero-0r)))
+      where
+      handle : Σ[ q ∈ ℚ ] (0r < q × L q) -> 0ℝ ℝ<' ℝ1/-Pos
+      handle (q , 0<q , lq) = (q , ℚ<->U 0<q , lq)
 
   module _ (x : ℝ) (0U : Real.U x 0r) where
     private
@@ -359,13 +362,16 @@ private
       module prod = Real prod
 
       0<x : 0ℝ < x
-      0<x = (x.isUpperOpen-L 0r 0L)
+      0<x = ∥-map handle (x.isUpperOpen-L 0r 0L)
+        where
+        handle : Σ[ q ∈ ℚ ] (0r < q × x.L q) -> 0ℝ ℝ<' x
+        handle (q , 0<q , xl-q) = (q , ℚ<->U 0<q , xl-q)
 
       0<1/x : 0ℝ < 1/x
       0<1/x = ∥-map handle x.Inhabited-U
         where
         handle : Σ ℚ x.U -> 0ℝ ℝ<' 1/x
-        handle (q , xu-q) = q' , 0<q' , L-pos pos-q' (subst x.U (sym q''-path) xu-q)
+        handle (q , xu-q) = q' , ℚ<->U 0<q' , L-pos pos-q' (subst x.U (sym q''-path) xu-q)
           where
           0<q = ℝ-bounds->ℚ< x 0r q 0L xu-q
           pos-q = 0<-Pos q 0<q
@@ -424,7 +430,7 @@ private
             de'==de = i*-NN-path d e (inj-l pos-dl) (inj-l pos-el)
 
             1∈de' : ℝ∈Iℚ 1ℝ de'
-            1∈de' = dlel<1 , 1<dueu
+            1∈de' = ℚ<->L dlel<1 , ℚ<->U 1<dueu
 
             1∈de = subst (ℝ∈Iℚ 1ℝ) de'==de 1∈de'
 

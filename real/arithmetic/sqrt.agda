@@ -72,7 +72,7 @@ private
     ≮0-squareᵉ : xx ≮ 0ℝ
     ≮0-squareᵉ x²<0 = unsquash isPropBot (∥-bind handle x²<0)
       where
-      handle : Σ[ q ∈ ℚ ] (xx.U q × q < 0r) -> ∥ Bot ∥
+      handle : Σ[ q ∈ ℚ ] (xx.U q × Real.L 0ℝ q) -> ∥ Bot ∥
       handle (q , xxU-q , q<0) = ∥-map handle2 xxU-q
         where
         handle2 : Σ[ ai ∈ Iℚ ] Σ[ bi ∈ Iℚ ] (ℝ∈Iℚ x ai × ℝ∈Iℚ x bi × i-Upper (ai i* bi) q) -> Bot
@@ -91,7 +91,7 @@ private
           uu∈ai*bi : ℚ∈Iℚ (u * u) ai*bi
           uu∈ai*bi = ℚ∈Iℚ-* u u ai bi u∈ai u∈bi
           uu<0 : (u * u) < 0r
-          uu<0 = trans-≤-< (trans-≤ (snd uu∈ai*bi) abi≤q) q<0
+          uu<0 = trans-≤-< (trans-≤ (snd uu∈ai*bi) abi≤q) (L->ℚ< q<0)
 
 abstract
   ≮0-square : (x : ℝ) -> (x * x) ≮ 0ℝ
@@ -127,12 +127,12 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
     sqrt-0<ᵉ : (0<x : 0ℝ < x) -> 0ℝ < sxᵉ
     sqrt-0<ᵉ 0<x = ∥-bind handle 0<x
       where
-      handle : Σ[ q ∈ ℚ ] (Pos q × x.L q) -> ∃[ q ∈ ℚ ] (Pos q × sxᵉ.L q)
-      handle (q , 0<q , xL-q) = ∥-map handle2 (squares-dense-0 0<q)
+      handle : Σ[ q ∈ ℚ ] (Real.U 0ℝ q × x.L q) -> ∃[ q ∈ ℚ ] (Real.U 0ℝ q × sxᵉ.L q)
+      handle (q , 0<q , xL-q) = ∥-map handle2 (squares-dense-0 (U->ℚ< 0<q))
         where
-        handle2 : Σ[ s ∈ ℚ ] (isSquareℚ s × 0r < s × s < q) -> Σ[ q ∈ ℚ ] (Pos q × sxᵉ.L q)
+        handle2 : Σ[ s ∈ ℚ ] (isSquareℚ s × 0r < s × s < q) -> Σ[ q ∈ ℚ ] (Real.U 0ℝ q × sxᵉ.L q)
         handle2 (s , (t , 0≤t , tt=s) , 0<s , s<q) =
-          t , strengthen-ℚ≤-≠ 0≤t 0!=t ,
+          t , ℚ<->U (strengthen-ℚ≤-≠ 0≤t 0!=t) ,
           inj-r (0≤t , (subst x.L (sym tt=s) (x.isLowerSet-L s q s<q xL-q)))
           where
           0!=t : 0r != t
@@ -153,8 +153,8 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
     sqrt-0≤ᵉ : sxᵉ ≮ 0ℝ
     sqrt-0≤ᵉ sx<0 = unsquash isPropBot (∥-map handle sx<0)
       where
-      handle : Σ[ q ∈ ℚ ] (sxᵉ.U q × q < 0r) -> Bot
-      handle (q , sxU-q , q<0) = sxᵉ.disjoint q (inj-l q<0 , sxU-q)
+      handle : Σ[ q ∈ ℚ ] (sxᵉ.U q × Real.L 0ℝ q) -> Bot
+      handle (q , sxU-q , q<0) = sxᵉ.disjoint q (inj-l (L->ℚ< q<0) , sxU-q)
 
   abstract
     sqrt-0≤ : 0ℝ ≤ sx

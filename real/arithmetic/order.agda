@@ -69,7 +69,7 @@ private
     handle : Σ[ ia ∈ Iℚ ] (ℝ∈Iℚ a ia × PosI ia) -> Σ[ ib ∈ Iℚ ] (ℝ∈Iℚ b ib × PosI ib) ->
              0ℝ ℝ<' (a ℝ*ᵉ b)
     handle (ia , a∈ia , pos-ia) (ib , b∈ib , pos-ib) =
-      l , 0<l , ∣ ia , ib , a∈ia , b∈ib , subst (\x -> i-Lower x l) iab-path refl-ℚ≤ ∣
+      l , ℚ<->U 0<l , ∣ ia , ib , a∈ia , b∈ib , subst (\x -> i-Lower x l) iab-path refl-ℚ≤ ∣
       where
       iab = ia i* ib
       iab' = i*-NN ia ib (inj-l pos-ia) (inj-l pos-ib)

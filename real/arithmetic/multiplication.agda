@@ -517,7 +517,7 @@ module _ (x : ℝ)
                      Σ[ ku ∈ ℚ ] (Pos ku × 1r < ku × i-scale ku rs i⊆ qs') ->
                      1x.L q
            handle2 (kl , p-kl , kl<1 , scale-kl) (ku , p-ku , 1<ku , scale-ku) =
-             ∣ k , rs , (kl<1 , 1<ku) , (xl-r , xu-s) , _i⊆_.l prod-⊆ ∣
+             ∣ k , rs , (ℚ<->L kl<1 , ℚ<->U 1<ku) , (xl-r , xu-s) , _i⊆_.l prod-⊆ ∣
              where
              kl<ku = trans-< {_} {_} {_} {kl} {1r} {ku} kl<1 1<ku
              k : Iℚ
@@ -567,7 +567,7 @@ module _ (x : ℝ)
 
               lt1 : (1i-u r* xi-l) < xi-l
               lt1 = subst ((1i-u r* xi-l) <_) (r*-left-one xi-l)
-                          (*₂-flips-< 1r 1i-u xi-l 1<1i-u n-xi-l)
+                          (*₂-flips-< 1r 1i-u xi-l (U->ℚ< 1<1i-u) n-xi-l)
               lt2 : (minℚ p3 p4) ℚ≤ p3
               lt2 = minℚ-≤-left p3 p4
               lt3 : (minℚ p1 p2) ℚ≤ p2
@@ -589,7 +589,7 @@ module _ (x : ℝ)
 
               lt1 : (1i-l r* xi-l) ℚ≤ xi-l
               lt1 = subst ((1i-l r* xi-l) ℚ≤_) (r*-left-one xi-l)
-                          (*₂-preserves-≤ 1i-l 1r xi-l (weaken-< 1i-l<1) (NonNeg-0≤ _ nn-xi-l))
+                          (*₂-preserves-≤ 1i-l 1r xi-l (weaken-< (L->ℚ< 1i-l<1)) (NonNeg-0≤ _ nn-xi-l))
               lt2 : (minℚ p3 p4) ℚ≤ p3
               lt2 = minℚ-≤-left p3 p4
               lt3 : (minℚ p1 p2) ℚ≤ p1
@@ -638,7 +638,7 @@ module _ (x : ℝ)
                      Σ[ ku ∈ ℚ ] (Pos ku × 1r < ku × i-scale ku sr i⊆ s'q) ->
                      1x.U q
            handle2 (kl , p-kl , kl<1 , scale-kl) (ku , p-ku , 1<ku , scale-ku) =
-             ∣ k , sr , (kl<1 , 1<ku) , (xl-s , xu-r) , _i⊆_.u prod-⊆ ∣
+             ∣ k , sr , (ℚ<->L kl<1 , ℚ<->U 1<ku) , (xl-s , xu-r) , _i⊆_.u prod-⊆ ∣
              where
              kl<ku = trans-< {_} {_} {_} {kl} {1r} {ku} kl<1 1<ku
              k : Iℚ
@@ -678,7 +678,7 @@ module _ (x : ℝ)
 
               lt1 : xi-u < (1i-l r* xi-u)
               lt1 = subst (_< (1i-l r* xi-u)) (r*-left-one xi-u)
-                          (*₂-flips-< 1i-l 1r xi-u 1i-l<1 n-xi-u)
+                          (*₂-flips-< 1i-l 1r xi-u (L->ℚ< 1i-l<1) n-xi-u)
 
               lt2 : p4 ℚ≤ (maxℚ p3 p4)
               lt2 = maxℚ-≤-right p3 p4
@@ -704,7 +704,7 @@ module _ (x : ℝ)
 
               lt1 : xi-u ℚ≤ (1i-u r* xi-u)
               lt1 = subst (_ℚ≤ (1i-u r* xi-u)) (r*-left-one xi-u)
-                          (*₂-preserves-≤ 1r 1i-u xi-u (weaken-< 1<1i-u) (NonNeg-0≤ _ nn-xi-u))
+                          (*₂-preserves-≤ 1r 1i-u xi-u (weaken-< (U->ℚ< 1<1i-u)) (NonNeg-0≤ _ nn-xi-u))
               lt2 : p4 ℚ≤ (maxℚ p3 p4)
               lt2 = maxℚ-≤-right p3 p4
               lt3 : p2 ℚ≤ (maxℚ p1 p2)
@@ -739,7 +739,7 @@ module _ (x : ℝ)
         where
         handle : Σ ℚ x.L -> Σ ℚ x.U -> 0x.L q
         handle (p1 , xl-p1) (p2 , xu-p2) =
-          ∣ ir , ix , (Neg-<0 r neg-r , Pos-0< mr pos-mr) , (xl-p1 , xu-p2) , ans ∣
+          ∣ ir , ix , (ℚ<->L (Neg-<0 r neg-r) , ℚ<->U (Pos-0< mr pos-mr)) , (xl-p1 , xu-p2) , ans ∣
           where
           ix : Iℚ
           ix = Iℚ-cons p1 p2 (weaken-< (ℝ-bounds->ℚ< x _ _ xl-p1 xu-p2))
@@ -762,7 +762,7 @@ module _ (x : ℝ)
 
           r = q r* 1/m
 
-          neg-q = <0-Neg q 0ℝl-q
+          neg-q = <0-Neg q (L->ℚ< 0ℝl-q)
 
           neg-r = r*₁-flips-sign (q , neg-q) 1/m {pos-sign} pos-1/m
 
@@ -821,12 +821,12 @@ module _ (x : ℝ)
         handle : L' 0ℝ x q -> 0ℝ.L q
         handle (0i@(Iℚ-cons 0i-l 0i-u 0i-l≤u) , xi@(Iℚ-cons xi-l xi-u xi-l≤u) ,
                 (0i-ll , 0i-uu) , exi , q≤prod) =
-          Neg-<0 q (Neg-≤ q p0 n-p0 q≤prod)
+          ℚ<->L (Neg-<0 q (Neg-≤ q p0 n-p0 q≤prod))
           where
           n-l : Neg 0i-l
-          n-l = <0-Neg 0i-l 0i-ll
+          n-l = <0-Neg 0i-l (L->ℚ< 0i-ll)
           p-u : Pos 0i-u
-          p-u = 0<-Pos 0i-u 0i-uu
+          p-u = 0<-Pos 0i-u (U->ℚ< 0i-uu)
 
           p1 = (Iℚ.l (i-scale 0i-l xi))
           p2 = (Iℚ.l (i-scale 0i-u xi))
@@ -847,7 +847,7 @@ module _ (x : ℝ)
         where
         handle : Σ ℚ x.L -> Σ ℚ x.U -> 0x.U q
         handle (p1 , xl-p1) (p2 , xu-p2) =
-          ∣ ir , ix , (Neg-<0 mr neg-mr , Pos-0< r pos-r) , (xl-p1 , xu-p2) , ub≤q ∣
+          ∣ ir , ix , (ℚ<->L (Neg-<0 mr neg-mr) , ℚ<->U (Pos-0< r pos-r)) , (xl-p1 , xu-p2) , ub≤q ∣
           where
           ix : Iℚ
           ix = Iℚ-cons p1 p2 (weaken-< (ℝ-bounds->ℚ< x _ _ xl-p1 xu-p2))
@@ -870,7 +870,7 @@ module _ (x : ℝ)
 
           r = q r* 1/m
 
-          pos-q = 0<-Pos q 0ℝu-q
+          pos-q = 0<-Pos q (U->ℚ< 0ℝu-q)
 
           pos-r = r*₁-preserves-sign (q , pos-q) 1/m {pos-sign} pos-1/m
 
@@ -917,12 +917,12 @@ module _ (x : ℝ)
         handle : U' 0ℝ x q -> 0ℝ.U q
         handle (0i@(Iℚ-cons 0i-l 0i-u 0i-l≤u) , xi@(Iℚ-cons xi-l xi-u xi-l≤u) ,
                 (0i-ll , 0i-uu) , exi , prod≤q) =
-          Pos-0< q (Pos-≤ p0 q p-p0 prod≤q)
+          ℚ<->U (Pos-0< q (Pos-≤ p0 q p-p0 prod≤q))
           where
           n-l : Neg 0i-l
-          n-l = <0-Neg 0i-l 0i-ll
+          n-l = <0-Neg 0i-l (L->ℚ< 0i-ll)
           p-u : Pos 0i-u
-          p-u = 0<-Pos 0i-u 0i-uu
+          p-u = 0<-Pos 0i-u (U->ℚ< 0i-uu)
 
           p1 = (Iℚ.u (i-scale 0i-l xi))
           p2 = (Iℚ.u (i-scale 0i-u xi))

@@ -363,7 +363,7 @@ module _ (x : ℝ) where
       i .inv xl-q = ∥-bind handle (x.isUpperOpen-L q xl-q)
         where
         handle : Σ[ r ∈ ℚ ] (q < r × x.L r) -> 0x.L q
-        handle (r , q<r , xl-r) = ∣ (diffℚ r q) , r , d<0 , xl-r , path ∣
+        handle (r , q<r , xl-r) = ∣ (diffℚ r q) , r , ℚ<->L d<0 , xl-r , path ∣
           where
           path : (diffℚ r q) r+ r == q
           path = r+-commute (diffℚ r q) r >=> diffℚ-step r q
@@ -380,7 +380,7 @@ module _ (x : ℝ) where
         handle (a , b , 0l-a , xl-b , p) = x.isLowerSet-L q b q<b xl-b
           where
           q<b : q < b
-          q<b = subst2 _<_ p (r+-left-zero b) (+₂-preserves-< a 0r b 0l-a)
+          q<b = subst2 _<_ p (r+-left-zero b) (+₂-preserves-< a 0r b (L->ℚ< 0l-a))
 
     U-path : (q : ℚ) -> 0x.U q == x.U q
     U-path q = ua (isoToEquiv i)
@@ -392,7 +392,7 @@ module _ (x : ℝ) where
       i .inv xu-q = ∥-bind handle (x.isLowerOpen-U q xu-q)
         where
         handle : Σ[ r ∈ ℚ ] (r < q × x.U r) -> 0x.U q
-        handle (r , r<q , xu-r) = ∣ (diffℚ r q) , r , 0<d , xu-r , path ∣
+        handle (r , r<q , xu-r) = ∣ (diffℚ r q) , r , (ℚ<->U 0<d) , xu-r , path ∣
           where
           path : (diffℚ r q) r+ r == q
           path = r+-commute (diffℚ r q) r >=> diffℚ-step r q
@@ -405,7 +405,7 @@ module _ (x : ℝ) where
         handle (a , b , 0u-a , xu-b , p) = x.isUpperSet-U b q b<q xu-b
           where
           b<q : b < q
-          b<q = subst2 _<_ (r+-left-zero b) p (+₂-preserves-< 0r a b 0u-a)
+          b<q = subst2 _<_ (r+-left-zero b) p (+₂-preserves-< 0r a b (U->ℚ< 0u-a))
 
     ℝ+ᵉ-left-zero : 0x == x
     ℝ+ᵉ-left-zero = LU-paths->path 0x x L-path U-path
@@ -506,9 +506,8 @@ module _ (x : ℝ) where
     L-forward : (q : ℚ) -> y.L q -> 0ℝ.L q
     L-forward q yl-q = unsquash (0ℝ.isProp-L q) (∥-map handle yl-q)
       where
-      handle : Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (x.L q1 × x.U (r- q2) × q1 r+ q2 == q) ->
-               q < 0r
-      handle (q1 , q2 , xl-q1 , xu-mq2 , q-path) = q<0r
+      handle : Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (x.L q1 × x.U (r- q2) × q1 r+ q2 == q) -> 0ℝ.L q
+      handle (q1 , q2 , xl-q1 , xu-mq2 , q-path) = ℚ<->L q<0r
         where
         q1<mq2 : q1 < (r- q2)
         q1<mq2 = ℝ-bounds->ℚ< x q1 (r- q2) xl-q1 xu-mq2
@@ -526,7 +525,7 @@ module _ (x : ℝ) where
       where
       -q' = r- q
       -q : ℚ⁺
-      -q = -q' , subst Pos (r+-left-zero -q') (Pos-diffℚ q 0r q<0r)
+      -q = -q' , subst Pos (r+-left-zero -q') (Pos-diffℚ q 0r (L->ℚ< q<0r))
 
       handle :  Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (Real.L x q1 × Real.U x q2 × diffℚ q1 q2 == -q') ->
                 Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (x.L q1 × x.U (r- q2) × q1 r+ q2 == q)
@@ -541,9 +540,8 @@ module _ (x : ℝ) where
     U-forward : (q : ℚ) -> y.U q -> 0ℝ.U q
     U-forward q yu-q = unsquash (0ℝ.isProp-U q) (∥-map handle yu-q)
       where
-      handle : Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (x.U q1 × x.L (r- q2) × q1 r+ q2 == q) ->
-               0r < q
-      handle (q1 , q2 , xu-q1 , xl-mq2 , q-path) = 0r<q
+      handle : Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (x.U q1 × x.L (r- q2) × q1 r+ q2 == q) -> 0ℝ.U q
+      handle (q1 , q2 , xu-q1 , xl-mq2 , q-path) = ℚ<->U 0r<q
         where
         mq2<q1 : (r- q2) < q1
         mq2<q1 = ℝ-bounds->ℚ< x (r- q2) q1 xl-mq2 xu-q1
@@ -556,7 +554,7 @@ module _ (x : ℝ) where
     U-backward q 0r<q = ∥-map handle (find-open-ball x q⁺)
       where
       q⁺ : ℚ⁺
-      q⁺ = q , 0r<q
+      q⁺ = q , U->ℚ< 0r<q
 
       handle :  Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (Real.L x q1 × Real.U x q2 × diffℚ q1 q2 == q) ->
                 Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (x.U q1 × x.L (r- q2) × q1 r+ q2 == q)
