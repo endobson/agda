@@ -114,8 +114,16 @@ P-shift-step _ _ = vector-ext (\{x-axis -> path1 ; y-axis -> path1})
   path1 : {p v : ℝ} -> (diff p (p + v)) == v
   path1 = +-left +-commute >=> +-assoc >=> +-right +-inverse >=> +-right-zero
 
+P-shift-0v : (p : Point) -> P-shift p 0v == p
+P-shift-0v _ = P-ext (\{x-axis -> +-right-zero ; y-axis -> +-right-zero})
+
+
 P-diff-trans : (p1 p2 p3 : Point) -> P-diff p1 p2 v+ P-diff p2 p3 == P-diff p1 p3
 P-diff-trans p1 p2 p3 = vector-ext (\{x-axis -> diff-trans ; y-axis -> diff-trans})
+
+P-diff-anticommute : (p1 p2 : Point) -> P-diff p1 p2 == v- (P-diff p2 p1)
+P-diff-anticommute p1 p2 = vector-ext (\{x-axis -> diff-anticommute ; y-axis -> diff-anticommute})
+
 
 -- Collinear : Point -> Point -> Point -> Type₁
 

@@ -256,6 +256,10 @@ vector-length>0-#0 v l>0 = unsquash (isProp-v# v 0v) (∥-map handle (+-reflects
   handle (inj-l xx#0) = ∣ x-axis , *₁-reflects-#0 xx#0 ∣
   handle (inj-r yy#0) = ∣ y-axis , *₁-reflects-#0 yy#0 ∣
 
+direction-#0 : (d : Direction) -> ⟨ d ⟩ v# 0v
+direction-#0 (dv , dp) = vector-length>0-#0 dv (subst (0ℝ <_) (sym dp) 0ℝ<1ℝ)
+
+
 
 vector-length²-* : (k : ℝ) (v : Vector) -> vector-length² (k v* v) == (k * k) * vector-length² v
 vector-length²-* k v = p
@@ -438,6 +442,17 @@ xaxis-dir = xaxis-vector , path
     path : vector-length xaxis-vector == 1#
     path = eqFun (isUnitVector'-equiv xaxis-vector) path2
 
+yaxis-dir : Direction
+yaxis-dir = yaxis-vector , path
+  where
+  abstract
+    path2 : vector-length² yaxis-vector == 1#
+    path2 = +-cong *-right-zero *-right-one >=> +-left-zero
+
+    path : vector-length yaxis-vector == 1#
+    path = eqFun (isUnitVector'-equiv yaxis-vector) path2
+
+
 zero-rotation : Direction
 zero-rotation = xaxis-dir
 
@@ -505,6 +520,26 @@ rotate-d- d@(dv , _) v = vector-ext f
     where
     ans : (- dx) * vy + (- dy) * vx == - (dx * vy + dy * vx)
     ans = +-cong minus-extract-left minus-extract-left >=> sym minus-distrib-plus
+
+rotate-v- : (d : Direction) (v : Vector) -> (rotate d (v- v)) == v- (rotate d v)
+rotate-v- d@(dv , _) v = vector-ext f
+  where
+  dx = vector-index dv x-axis
+  dy = vector-index dv y-axis
+  vx = vector-index v x-axis
+  vy = vector-index v y-axis
+
+  f : (a : Axis) -> (vector-index (rotate d (v- v)) a) == (vector-index (v- (rotate d v)) a)
+  f x-axis = ans
+    where
+    ans : dx * (- vx) + (- (dy * (- vy))) == - (dx * vx + (- (dy * vy)))
+    ans = +-cong minus-extract-right (cong -_ minus-extract-right) >=>
+          sym minus-distrib-plus
+  f y-axis = ans
+    where
+    ans : dx * (- vy) + dy * (- vx) == - (dx * vy + dy * vx)
+    ans = +-cong minus-extract-right minus-extract-right >=> sym minus-distrib-plus
+
 
 rotate-zero-rotation : (v : Vector) -> (rotate zero-rotation v) == v
 rotate-zero-rotation v = \i -> direct-product-cons (\a -> (f a i))
@@ -800,6 +835,13 @@ module SemiDirectionElim = SetQuotientElim Direction SameSemiDirection
 isSet-SemiDirection : isSet SemiDirection
 isSet-SemiDirection = squash/
 
+xaxis-semi-dir : SemiDirection
+xaxis-semi-dir = [ xaxis-dir ]
+
+yaxis-semi-dir : SemiDirection
+yaxis-semi-dir = [ yaxis-dir ]
+
+
 vector->semi-direction : (v : Vector) -> v v# 0v -> SemiDirection
 vector->semi-direction v v#0 = [ vector->direction v v#0 ]
 
@@ -864,9 +906,36 @@ same-semi-direction-distance d1 d2 (same-semi-direction-flipped p) = funExt f
            conjugate-direction-d- d2) >=>
          rotate-d- (conjugate-direction d2) v)
 
+
+semi-direction-distance-v- : (d : Direction) -> {v1 v2 : Vector} -> v1 == (v- v2) ->
+  semi-direction-distance d v1 == semi-direction-distance d v2
+semi-direction-distance-v- d {v1} {v2} v1=-v2 =
+  cong absℝ (dec1=-dec2 y-axis) >=> absℝ-- _
+  where
+
+  dec1 : Axis -> ℝ
+  dec1 = (basis-decomposition (isBasis-rotated-basis d) v1)
+
+  dec2 : Axis -> ℝ
+  dec2 = (basis-decomposition (isBasis-rotated-basis d) v2)
+
+  dec1=-dec2 : (a : Axis) -> dec1 a == - (dec2 a)
+  dec1=-dec2 a =
+    cong (\d -> vector-index d a)
+      (cong (rotate (conjugate-direction d)) v1=-v2 >=>
+       rotate-v- (conjugate-direction d) v2)
+
+
 semi-direction-distance' : SemiDirection -> Vector -> ℝ
 semi-direction-distance' =
   SemiDirectionElim.rec (isSetΠ \_ -> isSet-ℝ) semi-direction-distance same-semi-direction-distance
+
+semi-direction-distance'-v- : {v1 v2 : Vector} (sd : SemiDirection) -> v1 == (v- v2) ->
+  semi-direction-distance' sd v1 == semi-direction-distance' sd v2
+semi-direction-distance'-v- {v1} {v2} =
+  SemiDirectionElim.elimProp
+    (\_ -> (isPropΠ (\_ -> isSet-ℝ _ _)))
+    (\d -> semi-direction-distance-v- d {v1} {v2})
 
 
 direction-span' : Direction -> Pred Vector ℓ-one
@@ -950,17 +1019,32 @@ isLinearSubtype-direction-span d = record
   ; closed-under-v* = \ k (k2 , p) -> k * k2 , v*-assoc >=> cong (k v*_) p
   }
 
+isProp-semi-direction-distance0 : (d : Direction) (v : Vector) ->
+  isProp (semi-direction-distance d v == 0#)
+isProp-semi-direction-distance0 d v = isSet-ℝ _ _
+
+semi-direction-distance0-Subtype : (d : Direction) -> Subtype Vector ℓ-one
+semi-direction-distance0-Subtype d v =
+  (semi-direction-distance d v == 0#) , isProp-semi-direction-distance0 d v
+
+direction-span=semi-direction-distance0 : (d : Direction) ->
+  direction-span d == semi-direction-distance0-Subtype d
+direction-span=semi-direction-distance0 d =
+  same-Subtype (\{v} -> direction-span->semi-direction-distance0 d v)
+               (\{v} -> semi-direction-distance0->direction-span d v)
+
 
 direction-span'-comp : Direction -> Pred Vector ℓ-one
-direction-span'-comp (dv , _) v =
-  (v # ((vector-length v) v* dv)) × (v # ((vector-length v) v* (v- dv)))
+direction-span'-comp d v = semi-direction-distance d v # 0#
 
--- direction-span'-comp-tight : (d : Direction) (v : Vector) ->
---                              ¬ (direction-span'-comp d v) -> direction-span' d v
--- direction-span'-comp-tight d@(dv , _) v _ = ?
+direction-span'-comp-tight : (d : Direction) (v : Vector) ->
+                              ¬ (direction-span'-comp d v) -> direction-span' d v
+direction-span'-comp-tight d v ¬dis#0 =
+  transport (sym (cong (\f -> (fst (f v))) (direction-span=semi-direction-distance0 d)))
+            (tight-# ¬dis#0)
 
 direction-span-comp : Direction -> Subtype Vector ℓ-one
-direction-span-comp d v = direction-span'-comp d v , isProp× isProp-# isProp-#
+direction-span-comp d v = direction-span'-comp d v , isProp-#
 
 same-semi-direction-span : (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
                            (direction-span d1) == (direction-span d2)
@@ -975,18 +1059,15 @@ same-semi-direction-span d1 d2 same-semi =
              cong (k v*_) (sym p) >=> kd=v)
 
 same-semi-direction-span-comp : (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
-                                (direction-span-comp d1) == (direction-span-comp d2)
+                                 (direction-span-comp d1) == (direction-span-comp d2)
 same-semi-direction-span-comp d1 d2 same-semi =
-  same-Subtype (handle same-semi) (handle (sym-SameSemiDirection same-semi))
+  same-Subtype (\{v} -> handle same-semi {v})
+               (\{v} -> handle (sym-SameSemiDirection same-semi) {v})
   where
-  handle : {d1 d2 : Direction} {v : Vector} -> SameSemiDirection d1 d2 ->
+  handle : {d1 d2 : Direction} -> SameSemiDirection d1 d2 -> {v : Vector} ->
            (direction-span'-comp d1 v) -> (direction-span'-comp d2 v)
-  handle {v = v} (same-semi-direction-same p) (v#vldv , v#vl-dv) =
-    subst (\dv -> v # (vector-length v v* dv)) p v#vldv ,
-    subst (\dv -> v # (vector-length v v* (v- dv))) p v#vl-dv
-  handle {v = v} (same-semi-direction-flipped p) (v#vldv , v#vl-dv) =
-    subst (\dv -> v # (vector-length v v* dv)) (cong v-_ p >=> v--double-inverse) v#vl-dv ,
-    subst (\dv -> v # (vector-length v v* dv)) p v#vldv
+  handle {d1} {d2} same {v} dis#0 =
+    subst (\ sd -> semi-direction-distance' sd v # 0#) (eq/ d1 d2 same) dis#0
 
 
 semi-direction-span : SemiDirection -> Subtype Vector ℓ-one
@@ -997,13 +1078,31 @@ isLinearSubtype-semi-direction-span =
   SemiDirectionElim.elimProp (\_ -> isProp-isLinearSubtype) isLinearSubtype-direction-span
 
 semi-direction-span-comp : SemiDirection -> Subtype Vector ℓ-one
-semi-direction-span-comp =
-  SemiDirectionElim.rec isSet-Subtype direction-span-comp same-semi-direction-span-comp
+semi-direction-span-comp sd v = semi-direction-distance' sd v # 0# , isProp-#
+
+private
+  sd#-direction : SemiDirection -> Direction -> hProp ℓ-one
+  sd#-direction sd (dv , _) = semi-direction-span-comp sd dv
+
+  sd#-direction-same-direction : (sd : SemiDirection) ->
+    (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
+    sd#-direction sd d1 == sd#-direction sd d2
+  sd#-direction-same-direction sd d1 d2 (same-semi-direction-same p) = ΣProp-path isProp-isProp path
+    where
+    path : ⟨ semi-direction-span-comp sd ⟨ d1 ⟩ ⟩ ==
+           ⟨ semi-direction-span-comp sd ⟨ d2 ⟩ ⟩
+    path = cong (\dv -> ⟨ semi-direction-span-comp sd dv ⟩) p
+
+  sd#-direction-same-direction sd d1 d2 (same-semi-direction-flipped p) = ΣProp-path isProp-isProp path
+    where
+    path : ⟨ semi-direction-span-comp sd ⟨ d1 ⟩ ⟩ ==
+           ⟨ semi-direction-span-comp sd ⟨ d2 ⟩ ⟩
+    path = cong (_# 0#) (semi-direction-distance'-v- sd p)
 
 
 sd#-full : SemiDirection -> SemiDirection -> hProp ℓ-one
-sd#-full = SemiDirectionElim.rec2 isSet-hProp DifferentSemiDirection-hProp
-                                  DifferentSemiDirection-~₁ DifferentSemiDirection-~₂
+sd#-full sd1 =
+  SemiDirectionElim.rec isSet-hProp (sd#-direction sd1) (sd#-direction-same-direction sd1)
 
 _sd#_ : Rel SemiDirection ℓ-one
 _sd#_ sd1 sd2 = fst (sd#-full sd1 sd2)

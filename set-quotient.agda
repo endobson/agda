@@ -47,9 +47,6 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
     where
     g = elim isSetC f f~
 
-
-
-
   elimProp : (isPropC : (ar : A / R) -> isProp (C ar)) ->
              (f : (a : A) -> C [ a ]) ->
              (ar : A / R) -> C ar
@@ -58,7 +55,6 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
     where
     f~ : (a1 a2 : A) (r : R a1 a2) -> PathP (\i -> C (eq/ a1 a2 r i)) (f a1) (f a2)
     f~ a1 a2 r = isProp->PathP (\i -> isPropC (eq/ a1 a2 r i)) (f a1) (f a2)
-
 
   elimProp2 : (isPropC2 : (ar1 ar2 : A / R) -> isProp (C2 ar1 ar2)) ->
               (f : (a1 a2 : A) -> C2 [ a1 ] [ a2 ]) ->
@@ -73,6 +69,13 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
   elimProp3 {C3 = C3} isPropC3 f =
     elimProp (\a1 -> isPropΠ2 (isPropC3 a1))
              (\a1 -> (elimProp2 (isPropC3 [ a1 ]) (f a1)))
+
+  liftContr : (f : (a : A) -> isContr (C [ a ])) ->
+              (ar : A / R) -> isContr (C ar)
+  liftContr {C = C} f = \ar -> elimProp p (\x -> fst (f x)) ar , p ar _
+    where
+    p : (ar : A / R) -> isProp (C ar)
+    p = elimProp (\_ -> isProp-isProp) (\a -> isContr->isProp (f a))
 
 
   rec2 : (isSetB : isSet B) (f : A -> A -> B)

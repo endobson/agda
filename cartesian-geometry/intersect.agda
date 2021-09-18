@@ -25,14 +25,16 @@ open import ring
 open import ring.implementations.real
 open import semiring
 open import set-quotient
+open import sigma
+open import subset
 open import vector-space
 open import vector-space.finite
 
 private
   abstract
-    direction->isUnit-y : (d : Direction) -> semi-direction-distance d xaxis-vector # 0# ->
-                          Ring.isUnit ℝRing (vector-index ⟨ d ⟩ y-axis)
-    direction->isUnit-y d@(dv , _) abs-d#axis = isUnit-y
+    direction->y#0 : (d : Direction) -> semi-direction-distance d xaxis-vector # 0# ->
+                          (vector-index ⟨ d ⟩ y-axis) # 0#
+    direction->y#0 d@(dv , _) abs-d#axis = d#axis3
       where
       d#axis : (basis-decomposition (isBasis-rotated-basis d) xaxis-vector y-axis) # 0#
       d#axis = (eqFun (<>-equiv-# _ _) (absℝ-#0 _ (eqInv (<>-equiv-# _ _) abs-d#axis)))
@@ -47,8 +49,9 @@ private
       d#axis3 : (vector-index dv y-axis) # 0#
       d#axis3 = subst2 _#_ minus-double-inverse minus-zero (minus-reflects-# d#axis2)
 
-      isUnit-y : Ring.isUnit ℝRing (vector-index dv y-axis)
-      isUnit-y = Field.#0->isUnit ℝField d#axis3
+    direction->isUnit-y : (d : Direction) -> semi-direction-distance d xaxis-vector # 0# ->
+                          Ring.isUnit ℝRing (vector-index ⟨ d ⟩ y-axis)
+    direction->isUnit-y d d#0 = Field.#0->isUnit ℝField (direction->y#0 d d#0)
 
 
   direction->run/rise : (d : Direction) -> semi-direction-distance d xaxis-vector # 0# -> ℝ
@@ -133,6 +136,23 @@ private
     Point.y (point-direction->x-intercept p d d#0) == 0#
   point-direction->x-intercept-on-axis p d d#0 = +-right *-right-one >=> +-inverse
 
+  point-direction->x-intercept-on-axis' :
+    (p : Point) (d : Direction) -> (d#0 : semi-direction-distance d xaxis-vector # 0#) ->
+    ⟨ direction-span xaxis-dir (P-diff 0P (point-direction->x-intercept p d d#0)) ⟩
+  point-direction->x-intercept-on-axis' p d d#0 = vx , vx-path
+    where
+    v = (P-diff 0P (point-direction->x-intercept p d d#0))
+    vx = vector-index v x-axis
+    abstract
+      vx-path : vx v* xaxis-vector == v
+      vx-path = vector-ext f
+        where
+        f : (a : Axis) -> vector-index (vx v* xaxis-vector) a == vector-index v a
+        f x-axis = *-right-one
+        f y-axis = *-right-zero >=> sym +-right-zero >=> +-right (sym minus-zero) >=>
+                   +-left (sym (point-direction->x-intercept-on-axis p d d#0))
+
+
   point-direction->x-intercept-on-span :
     (p : Point) (d : Direction) -> (d#0 : semi-direction-distance d xaxis-vector # 0#) ->
     ⟨ direction-span d (P-diff p (point-direction->x-intercept p d d#0)) ⟩
@@ -146,11 +166,82 @@ private
 
     unit-rise-on-span = direction->unit-rise-on-span d d#0
 
+  module _ (lp : Point) (d : Direction) (d#0 : semi-direction-distance d xaxis-vector # 0#)
+    where
+    private
+      on-axis : Subtype Point ℓ-one
+      on-axis p = direction-span xaxis-dir (P-diff 0P p)
+      on-span : Subtype Point ℓ-one
+      on-span p = direction-span d (P-diff lp p)
+
+    isProp-x-intercept : isProp (Σ[ p ∈ Point ] (⟨ on-span p ⟩ × ⟨ on-axis p ⟩))
+    isProp-x-intercept (p1 , (sk1 , sp1) , a1@(ak1 , ap1)) (p2 , (sk2 , sp2) , a2@(ak2 , ap2)) =
+      ΣProp-path (\{p} -> isProp× (snd (on-span p)) (snd (on-axis p))) p1=p2
+      where
+      ya-path : (p : Point) -> ⟨ on-axis p ⟩ -> P-coord p y-axis == 0#
+      ya-path p (_ , ap) =
+        sym +-right-zero >=> +-right (sym minus-zero) >=>
+        sym (cong (\v -> vector-index v y-axis) ap) >=>
+        *-right-zero
+
+      diff-path : (diff sk1 sk2) v* ⟨ d ⟩ == P-diff p1 p2
+      diff-path = sym step1 >=> step2 >=> step3
+        where
+        step2 : (v- (sk1 v* ⟨ d ⟩)) v+ (sk2 v* ⟨ d ⟩) == (v- (P-diff lp p1)) v+ (P-diff lp p2)
+        step2 = cong2 _v+_ (cong v-_ sp1) sp2
+
+        step3 : (v- (P-diff lp p1)) v+ (P-diff lp p2) == P-diff p1 p2
+        step3 = v+-left (sym (P-diff-anticommute p1 lp)) >=> P-diff-trans p1 lp p2
+
+        step1 : (v- (sk1 v* ⟨ d ⟩)) v+ (sk2 v* ⟨ d ⟩) == (diff sk1 sk2) v* ⟨ d ⟩
+        step1 = v+-left (sym v*-minus-extract-left) >=>
+                v+-commute >=>
+                sym v*-distrib-+
+
+      diff0s-path : (diff sk1 sk2) == 0#
+      diff0s-path = *₂-reflects-= (direction->y#0 d d#0) path3
+        where
+        path1 : (diff sk1 sk2) * (vector-index ⟨ d ⟩ y-axis) ==
+                vector-index (P-diff p1 p2) y-axis
+        path1 = cong (\v -> vector-index v y-axis) diff-path
+
+        path2 : (diff sk1 sk2) * (vector-index ⟨ d ⟩ y-axis) == 0#
+        path2 = path1 >=> +-cong (ya-path p2 a2) (cong -_ (ya-path p1 a1)) >=> +-inverse
+
+        path3 : (diff sk1 sk2) * (vector-index ⟨ d ⟩ y-axis) == 0# * (vector-index ⟨ d ⟩ y-axis)
+        path3 = path2 >=> sym *-left-zero
+
+
+      diff0p-path : P-diff p1 p2 == 0v
+      diff0p-path = sym diff-path >=> v*-left diff0s-path >=> v*-left-zero
+
+      p1=p2 : p1 == p2
+      p1=p2 = sym (P-shift-0v p1) >=> cong (P-shift p1) (sym diff0p-path) >=> (P-diff-step p1 p2)
+
+    point-direction->x-intercept-full : isContr (Σ[ p ∈ Point ] (⟨ on-span p ⟩ × ⟨ on-axis p ⟩))
+    point-direction->x-intercept-full =
+      (point-direction->x-intercept lp d d#0 ,
+       point-direction->x-intercept-on-span lp d d#0 ,
+       point-direction->x-intercept-on-axis' lp d d#0) ,
+      isProp-x-intercept _
+
+
 
   point-semi-direction->x-intercept :
     (p : Point) (sd : SemiDirection) -> semi-direction-distance' sd xaxis-vector # 0# -> Point
   point-semi-direction->x-intercept p sd sd#0 =
     P-shift p ((- (Point.y p)) v* (semi-direction->unit-rise sd sd#0))
+
+
+--  point-semi-direction->x-intercept-full :
+--    (lp : Point) (sd : SemiDirection) ->
+--    semi-direction-distance' sd xaxis-vector # 0# ->
+--    isContr (Σ[ p ∈ Point ] (⟨ semi-direction-span sd (P-diff lp p) ⟩ ×
+--                             ⟨ semi-direction-span xaxis-semi-dir (P-diff 0P p) ⟩))
+--  point-semi-direction->x-intercept-full lp = ?
+
+
+
 
 
   point-semi-direction->x-intercept-on-axis :
@@ -166,6 +257,74 @@ private
       (\sd -> isPropΠ (\sd#0 -> snd (semi-direction-span sd
                                       (P-diff p (point-semi-direction->x-intercept p sd sd#0)))))
       (point-direction->x-intercept-on-span p)
+
+
+
+
+  line'->x-intercept :
+    (l : Line') -> (line'-semi-direction l) sd# xaxis-semi-dir -> Point
+  line'->x-intercept (p , sd) l#a = point-semi-direction->x-intercept p sd l#a
+
+  line'->x-intercept-on-line' :
+    (l : Line') -> (l#x : (line'-semi-direction l) sd# xaxis-semi-dir) ->
+      ⟨ OnLine' l (line'->x-intercept l l#x) ⟩
+  line'->x-intercept-on-line' (p , sd) l#x =
+    point-semi-direction->x-intercept-on-span p sd l#x
+
+  line'->point-on-line' :
+    (l : Line') -> (l#x : (line'-semi-direction l) sd# xaxis-semi-dir) -> Σ Point (fst ∘ OnLine' l)
+  line'->point-on-line' l l#x =
+    line'->x-intercept l l#x , line'->x-intercept-on-line' l l#x
+
+
+--  line->x-intercept-full :
+--    (l : Line) -> isContr ((l#x : (line-semi-direction l) sd# xaxis-semi-dir) ->
+--                           Σ[ p ∈ Point ] (⟨ OnLine l p ⟩ × ⟨ OnLine xaxis-line p ⟩))
+--  line->x-intercept-full =
+--    SetQuotientElim.liftContr Line' SameLine'
+--      ?
+
+--      (\l -> isSetΠ (\l#a -> isSet-Point))
+--      line'->x-intercept
+--      path-f
+--    where
+--    path-f : (l1 l2 : Line') (sl : SameLine' l1 l2) ->
+--             PathP (\i -> line-semi-direction (eq/ l1 l2 sl i) sd# xaxis-semi-dir ->
+--                          Point)
+--             (line'->x-intercept l1)
+--             (line'->x-intercept l2)
+--    path-f l1 l2 sl = funExtDep _ _ path-f2
+--      where
+--      path-f2 : (l1# : (line-semi-direction [ l1 ] sd# xaxis-semi-dir)) ->
+--                (l2# : (line-semi-direction [ l2 ] sd# xaxis-semi-dir)) ->
+--                (line'->x-intercept l1 l1#) == (line'->x-intercept l2 l2#)
+--      path-f2 = ?
+
+
+  -- line->point-on-line :
+  --   (l : Line) -> (l#x : (line-semi-direction l) sd# xaxis-semi-dir) -> Σ Point (fst ∘ OnLine l)
+  -- line->point-on-line =
+  --   SetQuotientElim.elim Line' SameLine'
+  --     (\l -> isSetΠ (\l#a -> isSetΣ isSet-Point (\p -> isProp->isSet (snd (OnLine l p)))))
+  --     line'->point-on-line'
+  --     path-f
+  --   where
+  --   path-f : (l1 l2 : Line') (sl : SameLine' l1 l2) ->
+  --            PathP (\i -> line-semi-direction (eq/ l1 l2 sl i) sd# xaxis-semi-dir ->
+  --                         Σ Point (fst ∘ OnLine (eq/ l1 l2 sl i)))
+  --                  (line'->point-on-line' l1)
+  --                  (line'->point-on-line' l2)
+  --   path-f l1 l2 sl = ? -- funExtDep _ _ path-f2
+  --     where
+  --     path-f2 : (l1# : (line-semi-direction [ l1 ] sd# xaxis-semi-dir)) ->
+  --               (l2# : (line-semi-direction [ l2 ] sd# xaxis-semi-dir)) ->
+  --               PathP (line'->point-on-line' l1 l1#) == (line'->point-on-line' l2 l2#)
+  --     path-f2 = ?
+
+
+
+
+
 
   point-direction->OnLine' :
     (p : Point) (d : Direction) -> (d#0 : semi-direction-distance d xaxis-vector # 0#) ->

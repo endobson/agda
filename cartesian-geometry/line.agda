@@ -63,11 +63,25 @@ SameLine' l1@(p1 , s1) l2@(p2 , s2) = ⟨ OnLine' l1 p2 ⟩ × ⟨ OnLine' l2 p1
 Line : Type ℓ-one
 Line = Line' / SameLine'
 
+-- Standard lines
+xaxis-line : Line
+xaxis-line = [ 0P , [ xaxis-dir ] ]
+
+yaxis-line : Line
+yaxis-line = [ 0P , [ yaxis-dir ] ]
+
+
 line-semi-direction : Line -> SemiDirection
 line-semi-direction =
   SetQuotientElim.rec Line' SameLine' isSet-SemiDirection
     line'-semi-direction
     (\_ _ (_ , _ , p) -> p)
+
+ParallelLines : Rel Line ℓ-one
+ParallelLines l1 l2 = (line-semi-direction l1) == (line-semi-direction l2)
+
+ConvergentLines : Rel Line ℓ-one
+ConvergentLines l1 l2 = (line-semi-direction l1) sd# (line-semi-direction l2)
 
 OnLine'-SameLine' : (l1 l2 : Line') -> SameLine' l1 l2 -> OnLine' l1 == OnLine' l2
 OnLine'-SameLine' l1 l2 (p2∈l1 , p1∈l2 , s1=s2) =
@@ -87,7 +101,6 @@ OnLine'-SameLine' l1 l2 (p2∈l1 , p1∈l2 , s1=s2) =
 
     check3 : ⟨ semi-direction-span s2 (P-diff p2 p1 v+ P-diff p1 d) ⟩
     check3 = isLinearSubtype.closed-under-v+ (isLinearSubtype-semi-direction-span s2) check1 check2
-
 
 OnLine : Line -> Subtype Point ℓ-one
 OnLine =

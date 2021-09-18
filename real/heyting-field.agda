@@ -155,8 +155,9 @@ private
   TightApartness-ℝUnit : TightApartness diff#
   TightApartness-ℝUnit = tight-diff# , irrefl-diff# , sym-diff# , comparison-diff#
 
-  ℝ#≃diff# : (x y : ℝ) -> (x ℝ# y) ≃ (diff# x y)
-  ℝ#≃diff# x y = isoToEquiv (isProp->iso ℝ#->diff# diff#->ℝ# (isProp-ℝ# x y) ℝRing.isProp-isUnit)
+  abstract
+    ℝ#≃diff# : (x y : ℝ) -> (x ℝ# y) ≃ (diff# x y)
+    ℝ#≃diff# x y = isoToEquiv (isProp->iso ℝ#->diff# diff#->ℝ# (isProp-ℝ# x y) ℝRing.isProp-isUnit)
 
 
 instance

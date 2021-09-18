@@ -25,5 +25,8 @@ isOfHLevelΠ {A = A} {B = B} 1 h f g i a = h a (f a) (g a) i
 isOfHLevelΠ {A = A} {B = B} (suc (suc n)) h f g =
    subst (isOfHLevel (suc n)) funExtPath (isOfHLevelΠ (suc n) (\a -> h a (f a) (g a)))
 
+isContrΠ : ((x : A) -> isContr (B x)) -> isContr ((x : A) -> (B x))
+isContrΠ = isOfHLevelΠ 0
+
 isSetΠ : ((x : A) -> isSet (B x)) -> isSet ((x : A) -> (B x))
 isSetΠ = isOfHLevelΠ 2

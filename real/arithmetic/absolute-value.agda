@@ -337,21 +337,22 @@ abstract
       i .leftInv _ = amx.isProp-U q _ _
 
 
-absℝ-#0 : (x : ℝ) -> absℝ x ℝ# 0# -> x ℝ# 0#
-absℝ-#0 x (inj-l ax<0) = bot-elim (absℝ-≮0 x ax<0)
-absℝ-#0 x (inj-r 0<ax) = unsquash (isProp-ℝ# x 0#) (∥-bind handle 0<ax)
-  where
-  ax = absℝ x
-  module ax = Real ax
-  handle : Σ[ q ∈ ℚ ] (0r < q × ax.L q) -> ∥ x ℝ# 0# ∥
-  handle (q , 0<q , axL-q) = ∥-map handle2 (split-small-absℝ x (q , 0<q))
+abstract
+  absℝ-#0 : (x : ℝ) -> absℝ x ℝ# 0# -> x ℝ# 0#
+  absℝ-#0 x (inj-l ax<0) = bot-elim (absℝ-≮0 x ax<0)
+  absℝ-#0 x (inj-r 0<ax) = unsquash (isProp-ℝ# x 0#) (∥-bind handle 0<ax)
     where
-    handle2 : (absℝ x ℝ< (ℚ->ℝ q) ⊎ (ℝInv x)) -> x ℝ# 0#
-    handle2 (inj-r inv-x) = inv-x
-    handle2 (inj-l ax<q) = bot-elim (unsquash isPropBot (∥-map handle3 ax<q))
+    ax = absℝ x
+    module ax = Real ax
+    handle : Σ[ q ∈ ℚ ] (0r < q × ax.L q) -> ∥ x ℝ# 0# ∥
+    handle (q , 0<q , axL-q) = ∥-map handle2 (split-small-absℝ x (q , 0<q))
       where
-      handle3 : (absℝ x ℝ<' (ℚ->ℝ q)) -> Bot
-      handle3 (r , axU-r , r<q) = asym-< (ℝ-bounds->ℚ< ax q r axL-q axU-r) r<q
+      handle2 : (absℝ x ℝ< (ℚ->ℝ q) ⊎ (ℝInv x)) -> x ℝ# 0#
+      handle2 (inj-r inv-x) = inv-x
+      handle2 (inj-l ax<q) = bot-elim (unsquash isPropBot (∥-map handle3 ax<q))
+        where
+        handle3 : (absℝ x ℝ<' (ℚ->ℝ q)) -> Bot
+        handle3 (r , axU-r , r<q) = asym-< (ℝ-bounds->ℚ< ax q r axL-q axU-r) r<q
 
 
 abstract

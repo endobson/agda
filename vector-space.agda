@@ -103,6 +103,8 @@ module _  {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {V :
     v+-right : {v1 v2 v3 : V} -> v2 == v3 -> v1 v+ v2 == v1 v+ v3
     v+-right {v1} p = cong (v1 v+_) p
 
+    v+-commute : {v1 v2 : V} -> v1 v+ v2 == v2 v+ v1
+    v+-commute = ∙-commute
 
     v*-left-zero : {v : V} -> 0# v* v == 0v
     v*-left-zero {v} =
