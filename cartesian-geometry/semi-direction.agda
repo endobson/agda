@@ -113,21 +113,21 @@ private
       d1=-d2 = direction-ext p
 
       dec1 : Axis -> ℝ
-      dec1 = (basis-decomposition (isBasis-rotated-basis d1) v)
+      dec1 = (basis-decomposition (isBasis-rotated-basis (rotation d1)) v)
 
       dec2 : Axis -> ℝ
-      dec2 = (basis-decomposition (isBasis-rotated-basis d2) v)
+      dec2 = (basis-decomposition (isBasis-rotated-basis (rotation d2)) v)
 
-      check : dec1 x-axis == vector-index (rotate (conjugate-direction d1) v) x-axis
+      check : dec1 x-axis == vector-index (rotate (r- (rotation d1)) v) x-axis
       check = refl
 
       dec1=-dec2 : (a : Axis) -> dec1 a == - (dec2 a)
       dec1=-dec2 a =
-        cong (\d -> vector-index d a)
-          (cong (\d -> rotate d v)
-            (cong conjugate-direction d1=-d2 >=>
-             conjugate-direction-d- d2) >=>
-           rotate-d- (conjugate-direction d2) v)
+        cong (\v -> vector-index v a)
+          ((cong (\r -> rotate r v)
+             (cong (r- ∘ rotation) d1=-d2 >=>
+              cong rotation (conjugate-direction-d- d2))) >=>
+           rotate-add-half-rotation (r- (rotation d2)) v)
 
 semi-direction-distance' : SemiDirection -> Vector -> ℝ
 semi-direction-distance' =

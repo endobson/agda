@@ -38,12 +38,12 @@ private
                           (vector-index ⟨ d ⟩ y-axis) # 0#
     direction->y#0 d@(dv , _) abs-d#axis = d#axis3
       where
-      d#axis : (basis-decomposition (isBasis-rotated-basis d) xaxis-vector y-axis) # 0#
+      d#axis : (basis-decomposition (isBasis-rotated-basis (rotation d)) xaxis-vector y-axis) # 0#
       d#axis = (eqFun (<>-equiv-# _ _) (absℝ-#0 _ (eqInv (<>-equiv-# _ _) abs-d#axis)))
 
-      d-path : (basis-decomposition (isBasis-rotated-basis d) xaxis-vector) ==
+      d-path : (basis-decomposition (isBasis-rotated-basis (rotation d)) xaxis-vector) ==
                (vector-index ⟨ (conjugate-direction d) ⟩ )
-      d-path = cong vector-index (rotated-basis-x-axis (conjugate-direction d))
+      d-path = cong vector-index (rotated-basis-x-axis (r- (rotation d)))
 
       d#axis2 : (- (vector-index dv y-axis)) # 0#
       d#axis2 = subst (\x -> x y-axis # 0#) d-path d#axis
