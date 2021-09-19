@@ -6,6 +6,7 @@ open import apartness
 open import base
 open import cartesian-geometry
 open import cartesian-geometry.line
+open import cartesian-geometry.rotation
 open import cartesian-geometry.semi-direction
 open import cartesian-geometry.vector
 open import cubical

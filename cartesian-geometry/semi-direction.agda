@@ -5,6 +5,7 @@ module cartesian-geometry.semi-direction where
 open import apartness
 open import base
 open import cartesian-geometry.vector
+open import cartesian-geometry.rotation
 open import equality
 open import equivalence
 open import funext
