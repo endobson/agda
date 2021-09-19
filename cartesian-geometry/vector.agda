@@ -140,6 +140,9 @@ conjugate-vector v = direct-product-cons f
 conjugate-vector-v- : (v : Vector) -> conjugate-vector (v- v) == v- (conjugate-vector v)
 conjugate-vector-v- v = vector-ext (\{ x-axis -> refl ; y-axis -> refl })
 
+conjugate-vector-double-inverse : (v : Vector) -> conjugate-vector (conjugate-vector v) == v
+conjugate-vector-double-inverse v = vector-ext (\{ x-axis -> refl ; y-axis -> minus-double-inverse })
+
 vector-length² : Vector -> ℝ
 vector-length² v = (x * x) + (y * y)
   where
@@ -198,8 +201,9 @@ isUnitVector'-equiv v =
 Direction : Type₁
 Direction = Σ Vector isUnitVector
 
-direction-ext : {d1 d2 : Direction} -> ⟨ d1 ⟩ == ⟨ d2 ⟩ -> d1 == d2
-direction-ext = ΣProp-path (\{v} -> isProp-isUnitVector v)
+abstract
+  direction-ext : {d1 d2 : Direction} -> ⟨ d1 ⟩ == ⟨ d2 ⟩ -> d1 == d2
+  direction-ext = ΣProp-path (\{v} -> isProp-isUnitVector v)
 
 0<-square : (x : ℝ) -> (x # 0#) -> 0# < (x * x)
 0<-square x x#0 = handle (eqInv (<>-equiv-# x 0#) x#0)
@@ -421,10 +425,17 @@ conjugate-preserves-vector-length v =
   p = conjugate-preserves-vector-length² v
 
 conjugate-direction : Direction -> Direction
-conjugate-direction (v , p) = conjugate-vector v , conjugate-preserves-vector-length v >=> p
+conjugate-direction (v , p) = conjugate-vector v , vl=1'
+  where
+  abstract
+    vl=1' = conjugate-preserves-vector-length v >=> p
 
-conjugate-direction-d- : (d : Direction) -> conjugate-direction (d- d) == d- (conjugate-direction d)
-conjugate-direction-d- d = direction-ext (conjugate-vector-v- ⟨ d ⟩)
+abstract
+  conjugate-direction-d- : (d : Direction) -> conjugate-direction (d- d) == d- (conjugate-direction d)
+  conjugate-direction-d- d = direction-ext (conjugate-vector-v- ⟨ d ⟩)
+
+  conjugate-direction-double-inverse : (d : Direction) -> conjugate-direction (conjugate-direction d) == d
+  conjugate-direction-double-inverse d = direction-ext (conjugate-vector-double-inverse ⟨ d ⟩)
 
 xaxis-vector : Vector
 xaxis-vector = direct-product-cons (\{ x-axis -> 1# ; y-axis -> 0#})
@@ -500,105 +511,128 @@ rotate-preserves-vector-length d v =
   p = rotate-preserves-vector-length² d v
 
 rotate-direction : Direction -> Direction -> Direction
-rotate-direction d (v , vl=1) = rotate d v , rotate-preserves-vector-length d v >=> vl=1
-
-rotate-d- : (d : Direction) (v : Vector) -> (rotate (d- d) v) == v- (rotate d v)
-rotate-d- d@(dv , _) v = vector-ext f
+rotate-direction d (v , vl=1) = rotate d v , vl=1'
   where
-  dx = vector-index dv x-axis
-  dy = vector-index dv y-axis
-  vx = vector-index v x-axis
-  vy = vector-index v y-axis
+  abstract
+    vl=1' = rotate-preserves-vector-length d v >=> vl=1
 
-  f : (a : Axis) -> (vector-index (rotate (d- d) v) a) == (vector-index (v- (rotate d v)) a)
-  f x-axis = ans
+abstract
+  rotate-d- : (d : Direction) (v : Vector) -> (rotate (d- d) v) == v- (rotate d v)
+  rotate-d- d@(dv , _) v = vector-ext f
     where
-    ans : (- dx) * vx + (- ((- dy) * vy)) == - (dx * vx + (- (dy * vy)))
-    ans = +-cong minus-extract-left (cong -_ minus-extract-left) >=>
-          sym minus-distrib-plus
-  f y-axis = ans
+    dx = vector-index dv x-axis
+    dy = vector-index dv y-axis
+    vx = vector-index v x-axis
+    vy = vector-index v y-axis
+
+    f : (a : Axis) -> (vector-index (rotate (d- d) v) a) == (vector-index (v- (rotate d v)) a)
+    f x-axis = ans
+      where
+      ans : (- dx) * vx + (- ((- dy) * vy)) == - (dx * vx + (- (dy * vy)))
+      ans = +-cong minus-extract-left (cong -_ minus-extract-left) >=>
+            sym minus-distrib-plus
+    f y-axis = ans
+      where
+      ans : (- dx) * vy + (- dy) * vx == - (dx * vy + dy * vx)
+      ans = +-cong minus-extract-left minus-extract-left >=> sym minus-distrib-plus
+
+  rotate-v- : (d : Direction) (v : Vector) -> (rotate d (v- v)) == v- (rotate d v)
+  rotate-v- d@(dv , _) v = vector-ext f
     where
-    ans : (- dx) * vy + (- dy) * vx == - (dx * vy + dy * vx)
-    ans = +-cong minus-extract-left minus-extract-left >=> sym minus-distrib-plus
+    dx = vector-index dv x-axis
+    dy = vector-index dv y-axis
+    vx = vector-index v x-axis
+    vy = vector-index v y-axis
 
-rotate-v- : (d : Direction) (v : Vector) -> (rotate d (v- v)) == v- (rotate d v)
-rotate-v- d@(dv , _) v = vector-ext f
-  where
-  dx = vector-index dv x-axis
-  dy = vector-index dv y-axis
-  vx = vector-index v x-axis
-  vy = vector-index v y-axis
+    f : (a : Axis) -> (vector-index (rotate d (v- v)) a) == (vector-index (v- (rotate d v)) a)
+    f x-axis = ans
+      where
+      ans : dx * (- vx) + (- (dy * (- vy))) == - (dx * vx + (- (dy * vy)))
+      ans = +-cong minus-extract-right (cong -_ minus-extract-right) >=>
+            sym minus-distrib-plus
+    f y-axis = ans
+      where
+      ans : dx * (- vy) + dy * (- vx) == - (dx * vy + dy * vx)
+      ans = +-cong minus-extract-right minus-extract-right >=> sym minus-distrib-plus
 
-  f : (a : Axis) -> (vector-index (rotate d (v- v)) a) == (vector-index (v- (rotate d v)) a)
-  f x-axis = ans
+
+  rotate-zero-rotation : (v : Vector) -> (rotate zero-rotation v) == v
+  rotate-zero-rotation v = \i -> direct-product-cons (\a -> (f a i))
     where
-    ans : dx * (- vx) + (- (dy * (- vy))) == - (dx * vx + (- (dy * vy)))
-    ans = +-cong minus-extract-right (cong -_ minus-extract-right) >=>
-          sym minus-distrib-plus
-  f y-axis = ans
+    f : (a : Axis) -> (direct-product-index (rotate zero-rotation v) a) ==
+                      (direct-product-index v a)
+    f x-axis = +-cong *-left-one (cong -_ *-left-zero >=> minus-zero) >=> +-right-zero
+    f y-axis = +-cong *-left-one *-left-zero >=> +-right-zero
+
+  rotate-direction-zero-rotation : (d : Direction) -> (rotate-direction zero-rotation d) == d
+  rotate-direction-zero-rotation (v , _) =
+    ΣProp-path (\{v} -> isProp-isUnitVector v) (rotate-zero-rotation v)
+
+  rotate-direction-commute : (d1 d2 : Direction) -> rotate-direction d1 d2 == rotate-direction d2 d1
+  rotate-direction-commute d1@(v1 , _) d2@(v2 , _) =
+    ΣProp-path (\{v} -> isProp-isUnitVector v) (\i -> direct-product-cons (\a -> f a i))
     where
-    ans : dx * (- vy) + dy * (- vx) == - (dx * vy + dy * vx)
-    ans = +-cong minus-extract-right minus-extract-right >=> sym minus-distrib-plus
+    f : (a : Axis) -> direct-product-index (rotate d1 v2) a ==
+                      direct-product-index (rotate d2 v1) a
+    f x-axis = +-cong *-commute (cong -_ *-commute)
+    f y-axis = +-commute >=> +-cong *-commute *-commute
+
+  rotate-direction-conjugate :
+    (d : Direction) -> (rotate-direction d (conjugate-direction d)) == zero-rotation
+  rotate-direction-conjugate d@(v , p) =
+    ΣProp-path (\{v} -> isProp-isUnitVector v) (\i -> direct-product-cons (\a -> f a i))
+    where
+    f : (a : Axis) -> (direct-product-index (rotate d (conjugate-vector v)) a) ==
+                      (direct-product-index (fst xaxis-dir) a)
+    f x-axis = +-right (cong -_ minus-extract-right >=> minus-double-inverse) >=>
+               (eqInv (isUnitVector'-equiv v) p)
+    f y-axis = +-cong minus-extract-right *-commute >=> +-commute >=> +-inverse
 
 
-rotate-zero-rotation : (v : Vector) -> (rotate zero-rotation v) == v
-rotate-zero-rotation v = \i -> direct-product-cons (\a -> (f a i))
-  where
-  f : (a : Axis) -> (direct-product-index (rotate zero-rotation v) a) ==
-                    (direct-product-index v a)
-  f x-axis = +-cong *-left-one (cong -_ *-left-zero >=> minus-zero) >=> +-right-zero
-  f y-axis = +-cong *-left-one *-left-zero >=> +-right-zero
-
-rotate-direction-zero-rotation : (d : Direction) -> (rotate-direction zero-rotation d) == d
-rotate-direction-zero-rotation (v , _) =
-  ΣProp-path (\{v} -> isProp-isUnitVector v) (rotate-zero-rotation v)
-
-rotate-direction-commute : (d1 d2 : Direction) -> rotate-direction d1 d2 == rotate-direction d2 d1
-rotate-direction-commute d1@(v1 , _) d2@(v2 , _) =
-  ΣProp-path (\{v} -> isProp-isUnitVector v) (\i -> direct-product-cons (\a -> f a i))
-  where
-  f : (a : Axis) -> direct-product-index (rotate d1 v2) a ==
-                    direct-product-index (rotate d2 v1) a
-  f x-axis = +-cong *-commute (cong -_ *-commute)
-  f y-axis = +-commute >=> +-cong *-commute *-commute
-
-rotate-direction-conjugate :
-  (d : Direction) -> (rotate-direction d (conjugate-direction d)) == zero-rotation
-rotate-direction-conjugate d@(v , p) =
-  ΣProp-path (\{v} -> isProp-isUnitVector v) (\i -> direct-product-cons (\a -> f a i))
-  where
-  f : (a : Axis) -> (direct-product-index (rotate d (conjugate-vector v)) a) ==
-                    (direct-product-index (fst xaxis-dir) a)
-  f x-axis = +-right (cong -_ minus-extract-right >=> minus-double-inverse) >=>
-             (eqInv (isUnitVector'-equiv v) p)
-  f y-axis = +-cong minus-extract-right *-commute >=> +-commute >=> +-inverse
+  conjugate-distrib-rotate :
+    (d : Direction) (v : Vector) ->
+    (conjugate-vector (rotate d v)) == (rotate (conjugate-direction d) (conjugate-vector v))
+  conjugate-distrib-rotate d@(dv , _) v = (vector-ext f)
+    where
+    f : (a : Axis) -> (vector-index (conjugate-vector (rotate d v)) a) ==
+                      (vector-index (rotate (conjugate-direction d) (conjugate-vector v)) a)
+    f x-axis = +-right (cong -_ (sym minus-extract-both))
+    f y-axis = minus-distrib-plus >=> +-cong (sym minus-extract-right) (sym minus-extract-left)
 
 
-rotate-assoc : (d1 d2 : Direction) (v : Vector) ->
-               (rotate d1 (rotate d2 v)) == (rotate (rotate-direction d1 d2) v)
-rotate-assoc d1@(dv1 , _) d2@(dv2 , _) v = \i -> direct-product-cons (\a -> (f a i))
-  where
-  d1x = direct-product-index dv1 x-axis
-  d1y = direct-product-index dv1 y-axis
-  d2x = direct-product-index dv2 x-axis
-  d2y = direct-product-index dv2 y-axis
-  vx = direct-product-index v x-axis
-  vy = direct-product-index v y-axis
+  conjugate-distrib-rotate-direction :
+    (d1 d2 : Direction)  ->
+    (conjugate-direction (rotate-direction d1 d2)) ==
+    (rotate-direction (conjugate-direction d1) (conjugate-direction d2))
+  conjugate-distrib-rotate-direction d1 d2 = direction-ext (conjugate-distrib-rotate d1 ⟨ d2 ⟩)
 
-  f : (a : Axis) -> (direct-product-index (rotate d1 (rotate d2 v)) a) ==
-                    (direct-product-index (rotate (rotate-direction d1 d2) v) a)
-  f x-axis =
-    RingSolver.solve ℝRing 6
-      (\d1x d1y d2x d2y vx vy ->
-        d1x ⊗ (d2x ⊗ vx ⊕ (⊖ (d2y ⊗ vy))) ⊕ (⊖ (d1y ⊗ (d2x ⊗ vy ⊕ (d2y ⊗ vx)))) ,
-        ((d1x ⊗ d2x ⊕ (⊖ (d1y ⊗ d2y))) ⊗ vx) ⊕ (⊖ ((d1x ⊗ d2y ⊕ d1y ⊗ d2x) ⊗ vy)))
-      refl d1x d1y d2x d2y vx vy
-  f y-axis =
-    RingSolver.solve ℝRing 6
-      (\d1x d1y d2x d2y vx vy ->
-        d1x ⊗ (d2x ⊗ vy ⊕ d2y ⊗ vx) ⊕ d1y ⊗ (d2x ⊗ vx ⊕ (⊖ (d2y ⊗ vy))) ,
-        ((d1x ⊗ d2x ⊕ (⊖ (d1y ⊗ d2y))) ⊗ vy) ⊕ ((d1x ⊗ d2y ⊕ d1y ⊗ d2x) ⊗ vx))
-      refl d1x d1y d2x d2y vx vy
+
+
+  rotate-assoc : (d1 d2 : Direction) (v : Vector) ->
+                 (rotate d1 (rotate d2 v)) == (rotate (rotate-direction d1 d2) v)
+  rotate-assoc d1@(dv1 , _) d2@(dv2 , _) v = \i -> direct-product-cons (\a -> (f a i))
+    where
+    d1x = direct-product-index dv1 x-axis
+    d1y = direct-product-index dv1 y-axis
+    d2x = direct-product-index dv2 x-axis
+    d2y = direct-product-index dv2 y-axis
+    vx = direct-product-index v x-axis
+    vy = direct-product-index v y-axis
+
+    f : (a : Axis) -> (direct-product-index (rotate d1 (rotate d2 v)) a) ==
+                      (direct-product-index (rotate (rotate-direction d1 d2) v) a)
+    f x-axis =
+      RingSolver.solve ℝRing 6
+        (\d1x d1y d2x d2y vx vy ->
+          d1x ⊗ (d2x ⊗ vx ⊕ (⊖ (d2y ⊗ vy))) ⊕ (⊖ (d1y ⊗ (d2x ⊗ vy ⊕ (d2y ⊗ vx)))) ,
+          ((d1x ⊗ d2x ⊕ (⊖ (d1y ⊗ d2y))) ⊗ vx) ⊕ (⊖ ((d1x ⊗ d2y ⊕ d1y ⊗ d2x) ⊗ vy)))
+        refl d1x d1y d2x d2y vx vy
+    f y-axis =
+      RingSolver.solve ℝRing 6
+        (\d1x d1y d2x d2y vx vy ->
+          d1x ⊗ (d2x ⊗ vy ⊕ d2y ⊗ vx) ⊕ d1y ⊗ (d2x ⊗ vx ⊕ (⊖ (d2y ⊗ vy))) ,
+          ((d1x ⊗ d2x ⊕ (⊖ (d1y ⊗ d2y))) ⊗ vy) ⊕ ((d1x ⊗ d2y ⊕ d1y ⊗ d2x) ⊗ vx))
+        refl d1x d1y d2x d2y vx vy
 
 isEquiv-rotate : (d : Direction) -> isEquiv (rotate d)
 isEquiv-rotate d = snd (isoToEquiv i)
@@ -717,24 +751,6 @@ semi-direction-distance d v =
   absℝ (basis-decomposition (isBasis-rotated-basis d) v y-axis)
 
 
-data SameSemiDirection : Rel Direction ℓ-one where
-  same-semi-direction-same : {d1 d2 : Direction} -> ⟨ d1 ⟩ == ⟨ d2 ⟩ -> SameSemiDirection d1 d2
-  same-semi-direction-flipped : {d1 d2 : Direction} -> ⟨ d1 ⟩ == (v- ⟨ d2 ⟩) -> SameSemiDirection d1 d2
-
-sym-SameSemiDirection : {d1 d2 : Direction} -> SameSemiDirection d1 d2 -> SameSemiDirection d2 d1
-sym-SameSemiDirection (same-semi-direction-same p) = same-semi-direction-same (sym p)
-sym-SameSemiDirection (same-semi-direction-flipped p) =
-  same-semi-direction-flipped (sym v--double-inverse >=> cong v-_ (sym p))
-
-DifferentSemiDirection : Rel Direction ℓ-one
-DifferentSemiDirection (v1 , _) (v2 , _) = (v1 v# v2) × (v1 v# (v- v2))
-
-isProp-DifferentSemiDirection : (d1 d2 : Direction) -> isProp (DifferentSemiDirection d1 d2)
-isProp-DifferentSemiDirection (v1 , _) (v2 , _) = isProp× (isProp-v# v1 v2) (isProp-v# v1 (v- v2))
-
-DifferentSemiDirection-hProp : Direction -> Direction -> hProp ℓ-one
-DifferentSemiDirection-hProp d1 d2 =
-  DifferentSemiDirection d1 d2 , isProp-DifferentSemiDirection d1 d2
 
 
 v--preserves-# : {v1 v2 : Vector} -> v1 # v2 -> (v- v1) # (v- v2)
@@ -744,168 +760,9 @@ v--preserves-# {v1} {v2} = ∥-map handle
            Σ[ a ∈ Axis ] (direct-product-index (v- v1) a) # (direct-product-index (v- v2) a)
   handle (a , cv1#cv2) = (a , minus-reflects-# cv1#cv2)
 
-sym-DifferentSemiDirection :
-  (d1 d2 : Direction) -> DifferentSemiDirection d1 d2 -> DifferentSemiDirection d2 d1
-sym-DifferentSemiDirection (v1 , _) (v2 , _) (v1#v2 , v1#-v2) =
-  (sym-# v1#v2 , subst (_# (v- v1)) v--double-inverse (sym-# (v--preserves-# v1#-v2)))
-
-sym-path-DifferentSemiDirection :
-  (d1 d2 : Direction) -> DifferentSemiDirection d1 d2 == DifferentSemiDirection d2 d1
-sym-path-DifferentSemiDirection d1 d2 =
-  ua (isoToEquiv
-       (isProp->iso (sym-DifferentSemiDirection d1 d2) (sym-DifferentSemiDirection d2 d1)
-                    (isProp-DifferentSemiDirection d1 d2) (isProp-DifferentSemiDirection d2 d1)))
-
-DifferentSemiDirection-d-₂ :
-  (d1 d2 : Direction) -> DifferentSemiDirection d1 d2 -> DifferentSemiDirection d1 (d- d2)
-DifferentSemiDirection-d-₂ (v1 , _) (v2 , _) (v1#v2 , v1#-v2) =
-  (v1#-v2 , subst (v1 #_) (sym v--double-inverse) v1#v2)
 
 d--double-inverse : (d : Direction) -> (d- (d- d)) == d
 d--double-inverse _ = ΣProp-path (\{v} -> isProp-isUnitVector v) v--double-inverse
-
-DifferentSemiDirection-d-₂-path :
-  (d1 d2 : Direction) -> DifferentSemiDirection d1 d2 == DifferentSemiDirection d1 (d- d2)
-DifferentSemiDirection-d-₂-path d1 d2 =
-  ua (isoToEquiv
-       (isProp->iso (DifferentSemiDirection-d-₂ d1 d2) (DifferentSemiDirection-d-₂' d1 d2)
-                    (isProp-DifferentSemiDirection d1 d2) (isProp-DifferentSemiDirection d1 (d- d2))))
-  where
-  DifferentSemiDirection-d-₂' :
-    (d1 d2 : Direction) -> DifferentSemiDirection d1 (d- d2) -> DifferentSemiDirection d1 d2
-  DifferentSemiDirection-d-₂' d1 d2 dsd =
-    subst (DifferentSemiDirection d1) (d--double-inverse d2)
-          (DifferentSemiDirection-d-₂ d1 (d- d2) dsd)
-
-
-
-DifferentSemiDirection-d-₁ :
-  (d1 d2 : Direction) -> DifferentSemiDirection d1 d2 -> DifferentSemiDirection (d- d1) d2
-DifferentSemiDirection-d-₁ d1 d2 =
-  sym-DifferentSemiDirection d2 (d- d1) ∘
-  DifferentSemiDirection-d-₂ d2 d1 ∘
-  sym-DifferentSemiDirection d1 d2
-
-DifferentSemiDirection-d-₁-path :
-  (d1 d2 : Direction) -> DifferentSemiDirection d1 d2 == DifferentSemiDirection (d- d1) d2
-DifferentSemiDirection-d-₁-path d1 d2 =
-  sym-path-DifferentSemiDirection d1 d2 >=>
-  DifferentSemiDirection-d-₂-path d2 d1 >=>
-  sym-path-DifferentSemiDirection d2 (d- d1)
-
-
-DifferentSemiDirection-~₁ : (d1 d2 d3 : Direction) -> SameSemiDirection d1 d2 ->
-                            DifferentSemiDirection-hProp d1 d3 == DifferentSemiDirection-hProp d2 d3
-DifferentSemiDirection-~₁ d1 d2 d3 (same-semi-direction-same p) =
-  cong (\d -> DifferentSemiDirection-hProp d d3) d1=d2
-  where
-  d1=d2 : d1 == d2
-  d1=d2 = ΣProp-path (\{v} -> isProp-isUnitVector v) p
-DifferentSemiDirection-~₁ d1 d2 d3 (same-semi-direction-flipped p) =
-  ΣProp-path isProp-isProp dsd1=dsd2
-  where
-  d1=-d2 : d1 == (d- d2)
-  d1=-d2 = ΣProp-path (\{v} -> isProp-isUnitVector v) p
-
-  dsd1=dsd2 : DifferentSemiDirection d1 d3 == DifferentSemiDirection d2 d3
-  dsd1=dsd2 = cong (\d -> DifferentSemiDirection d d3) d1=-d2 >=>
-              sym (DifferentSemiDirection-d-₁-path d2 d3)
-
-DifferentSemiDirection-~₂ : (d1 d2 d3 : Direction) -> SameSemiDirection d2 d3 ->
-                            DifferentSemiDirection-hProp d1 d2 == DifferentSemiDirection-hProp d1 d3
-DifferentSemiDirection-~₂ d1 d2 d3 (same-semi-direction-same p) =
-  cong (\d -> DifferentSemiDirection-hProp d1 d) d2=d3
-  where
-  d2=d3 : d2 == d3
-  d2=d3 = ΣProp-path (\{v} -> isProp-isUnitVector v) p
-DifferentSemiDirection-~₂ d1 d2 d3 (same-semi-direction-flipped p) =
-  ΣProp-path isProp-isProp dsd2=dsd3
-  where
-  d2=-d3 : d2 == (d- d3)
-  d2=-d3 = ΣProp-path (\{v} -> isProp-isUnitVector v) p
-
-  dsd2=dsd3 : DifferentSemiDirection d1 d2 == DifferentSemiDirection d1 d3
-  dsd2=dsd3 = cong (DifferentSemiDirection d1) d2=-d3 >=>
-              sym (DifferentSemiDirection-d-₂-path d1 d3)
-
-SemiDirection = Direction / SameSemiDirection
-
-module SemiDirectionElim = SetQuotientElim Direction SameSemiDirection
-
-isSet-SemiDirection : isSet SemiDirection
-isSet-SemiDirection = squash/
-
-xaxis-semi-dir : SemiDirection
-xaxis-semi-dir = [ xaxis-dir ]
-
-yaxis-semi-dir : SemiDirection
-yaxis-semi-dir = [ yaxis-dir ]
-
-
-vector->semi-direction : (v : Vector) -> v v# 0v -> SemiDirection
-vector->semi-direction v v#0 = [ vector->direction v v#0 ]
-
-vector->semi-direction-v* :
-  (v : Vector) -> (v#0 : v v# 0v) -> (k : ℝ) -> (kv#0 : (k v* v) v# 0v) ->
-  vector->semi-direction (k v* v) kv#0 == vector->semi-direction v v#0
-vector->semi-direction-v* v v#0 k kv#0 = handle (eqInv (<>-equiv-# k 0ℝ) k#0)
-  where
-  k#0 = fst (v*-apart-zero kv#0)
-  handle : (k ℝ# 0ℝ) -> vector->semi-direction (k v* v) kv#0 == vector->semi-direction v v#0
-  handle (inj-r 0<k) = eq/ _ _ (same-semi-direction-same (normalize-vector-v*-Pos v v#0 k 0<k kv#0))
-  handle (inj-l k<0) = eq/ _ _ (same-semi-direction-flipped p)
-    where
-    -k = - k
-    0<-k = minus-flips-<0 {_} {_} {_} {_} {_} {k} k<0
-
-    v-p1 : (v- (k v* v)) == ((- k) v* v)
-    v-p1 = sym v*-minus-extract-left
-
-    -kv#0 : ((- k) v* v) v# 0v
-    -kv#0 = v*-#0 (eqFun (<>-equiv-# -k 0ℝ) (inj-r 0<-k)) v#0
-
-    v-kv#0 : (v- (k v* v)) v# 0v
-    v-kv#0 = subst (_v# 0v) (sym v-p1) -kv#0
-
-    p1 : normalize-vector ((- k) v* v) -kv#0 == (normalize-vector v v#0)
-    p1 = normalize-vector-v*-Pos v v#0 -k 0<-k -kv#0
-    p2 : normalize-vector (v- (k v* v)) v-kv#0 == v- (normalize-vector (k v* v) kv#0)
-    p2 = normalize-vector-v- (k v* v) kv#0 v-kv#0
-    p3 : normalize-vector (v- (k v* v)) v-kv#0 == normalize-vector ((- k) v* v) -kv#0
-    p3 = cong2-dep normalize-vector v-p1 (isProp->PathP (\i -> isProp-v# (v-p1 i) _) v-kv#0 -kv#0)
-
-    p : normalize-vector (k v* v) kv#0 == v- (normalize-vector v v#0)
-    p = sym v--double-inverse >=> cong v-_ (sym p2 >=> p3 >=> p1)
-
-same-semi-direction-distance : (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
-  semi-direction-distance d1 == semi-direction-distance d2
-same-semi-direction-distance d1 d2 (same-semi-direction-same p) =
-  cong semi-direction-distance (direction-ext {d1} {d2} p)
-same-semi-direction-distance d1 d2 (same-semi-direction-flipped p) = funExt f
-  where
-  f : (v : Vector) -> semi-direction-distance d1 v == semi-direction-distance d2 v
-  f v = cong absℝ (dec1=-dec2 y-axis) >=> absℝ-- _
-    where
-    d1=-d2 : d1 == (d- d2)
-    d1=-d2 = direction-ext p
-
-    dec1 : Axis -> ℝ
-    dec1 = (basis-decomposition (isBasis-rotated-basis d1) v)
-
-    dec2 : Axis -> ℝ
-    dec2 = (basis-decomposition (isBasis-rotated-basis d2) v)
-
-    check : dec1 x-axis == vector-index (rotate (conjugate-direction d1) v) x-axis
-    check = refl
-
-    dec1=-dec2 : (a : Axis) -> dec1 a == - (dec2 a)
-    dec1=-dec2 a =
-      cong (\d -> vector-index d a)
-        (cong (\d -> rotate d v)
-          (cong conjugate-direction d1=-d2 >=>
-           conjugate-direction-d- d2) >=>
-         rotate-d- (conjugate-direction d2) v)
-
 
 semi-direction-distance-v- : (d : Direction) -> {v1 v2 : Vector} -> v1 == (v- v2) ->
   semi-direction-distance d v1 == semi-direction-distance d v2
@@ -926,16 +783,32 @@ semi-direction-distance-v- d {v1} {v2} v1=-v2 =
        rotate-v- (conjugate-direction d) v2)
 
 
-semi-direction-distance' : SemiDirection -> Vector -> ℝ
-semi-direction-distance' =
-  SemiDirectionElim.rec (isSetΠ \_ -> isSet-ℝ) semi-direction-distance same-semi-direction-distance
+sym-semi-direction-distance :
+  (d1 d2 : Direction) ->
+  semi-direction-distance d1 ⟨ d2 ⟩ == semi-direction-distance d2 ⟨ d1 ⟩
+sym-semi-direction-distance d1 d2 =
+  cong absℝ (cong (\d -> vector-index ⟨ d ⟩ y-axis) path) >=>
+  absℝ-- _
+  where
+  c = conjugate-direction
+  r = rotate-direction
 
-semi-direction-distance'-v- : {v1 v2 : Vector} (sd : SemiDirection) -> v1 == (v- v2) ->
-  semi-direction-distance' sd v1 == semi-direction-distance' sd v2
-semi-direction-distance'-v- {v1} {v2} =
-  SemiDirectionElim.elimProp
-    (\_ -> (isPropΠ (\_ -> isSet-ℝ _ _)))
-    (\d -> semi-direction-distance-v- d {v1} {v2})
+  path : (r (c d1) d2) ==
+         (c (r (c d2) d1))
+  path = sym (conjugate-distrib-rotate-direction (c d2) d1 >=>
+              rotate-direction-commute (c (c d2)) (c d1) >=>
+              cong (r (c d1)) (conjugate-direction-double-inverse d2))
+
+
+-- semi-direction-distance-comparison' :
+--   (d1 d2 d3 : Direction) ->
+--   semi-direction-distance d1 ⟨ d3 ⟩ # semi-direction-distance d1 ⟨ d2 ⟩ ->
+--   semi-direction-distance d2 ⟨ d3 ⟩ # 0#
+-- semi-direction-distance-comparison' d1@(v1 , p1) d2@(v2 , p2) d3@(v3 , p3) dis# = ?
+--   where
+--   check : absℝ (basis-decomposition (isBasis-rotated-basis d1) v3 y-axis) #
+--           absℝ (basis-decomposition (isBasis-rotated-basis d1) v2 y-axis)
+--   check = ?
 
 
 direction-span' : Direction -> Pred Vector ℓ-one
@@ -1033,7 +906,6 @@ direction-span=semi-direction-distance0 d =
   same-Subtype (\{v} -> direction-span->semi-direction-distance0 d v)
                (\{v} -> semi-direction-distance0->direction-span d v)
 
-
 direction-span'-comp : Direction -> Pred Vector ℓ-one
 direction-span'-comp d v = semi-direction-distance d v # 0#
 
@@ -1045,67 +917,3 @@ direction-span'-comp-tight d v ¬dis#0 =
 
 direction-span-comp : Direction -> Subtype Vector ℓ-one
 direction-span-comp d v = direction-span'-comp d v , isProp-#
-
-same-semi-direction-span : (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
-                           (direction-span d1) == (direction-span d2)
-same-semi-direction-span d1 d2 same-semi =
-  same-Subtype (handle same-semi) (handle (sym-SameSemiDirection same-semi))
-  where
-  handle : {d1 d2 : Direction} {v : Vector} -> SameSemiDirection d1 d2 ->
-           (direction-span' d1 v) -> (direction-span' d2 v)
-  handle (same-semi-direction-same p) (k , kd=v) = (k , cong (k v*_) (sym p) >=> kd=v)
-  handle (same-semi-direction-flipped p) (k , kd=v) =
-    ((- k) , v*-minus-extract-left >=> sym v*-minus-extract-right >=>
-             cong (k v*_) (sym p) >=> kd=v)
-
-same-semi-direction-span-comp : (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
-                                 (direction-span-comp d1) == (direction-span-comp d2)
-same-semi-direction-span-comp d1 d2 same-semi =
-  same-Subtype (\{v} -> handle same-semi {v})
-               (\{v} -> handle (sym-SameSemiDirection same-semi) {v})
-  where
-  handle : {d1 d2 : Direction} -> SameSemiDirection d1 d2 -> {v : Vector} ->
-           (direction-span'-comp d1 v) -> (direction-span'-comp d2 v)
-  handle {d1} {d2} same {v} dis#0 =
-    subst (\ sd -> semi-direction-distance' sd v # 0#) (eq/ d1 d2 same) dis#0
-
-
-semi-direction-span : SemiDirection -> Subtype Vector ℓ-one
-semi-direction-span = SemiDirectionElim.rec isSet-Subtype direction-span same-semi-direction-span
-
-isLinearSubtype-semi-direction-span : (s : SemiDirection) -> isLinearSubtype (semi-direction-span s)
-isLinearSubtype-semi-direction-span =
-  SemiDirectionElim.elimProp (\_ -> isProp-isLinearSubtype) isLinearSubtype-direction-span
-
-semi-direction-span-comp : SemiDirection -> Subtype Vector ℓ-one
-semi-direction-span-comp sd v = semi-direction-distance' sd v # 0# , isProp-#
-
-private
-  sd#-direction : SemiDirection -> Direction -> hProp ℓ-one
-  sd#-direction sd (dv , _) = semi-direction-span-comp sd dv
-
-  sd#-direction-same-direction : (sd : SemiDirection) ->
-    (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
-    sd#-direction sd d1 == sd#-direction sd d2
-  sd#-direction-same-direction sd d1 d2 (same-semi-direction-same p) = ΣProp-path isProp-isProp path
-    where
-    path : ⟨ semi-direction-span-comp sd ⟨ d1 ⟩ ⟩ ==
-           ⟨ semi-direction-span-comp sd ⟨ d2 ⟩ ⟩
-    path = cong (\dv -> ⟨ semi-direction-span-comp sd dv ⟩) p
-
-  sd#-direction-same-direction sd d1 d2 (same-semi-direction-flipped p) = ΣProp-path isProp-isProp path
-    where
-    path : ⟨ semi-direction-span-comp sd ⟨ d1 ⟩ ⟩ ==
-           ⟨ semi-direction-span-comp sd ⟨ d2 ⟩ ⟩
-    path = cong (_# 0#) (semi-direction-distance'-v- sd p)
-
-
-sd#-full : SemiDirection -> SemiDirection -> hProp ℓ-one
-sd#-full sd1 =
-  SemiDirectionElim.rec isSet-hProp (sd#-direction sd1) (sd#-direction-same-direction sd1)
-
-_sd#_ : Rel SemiDirection ℓ-one
-_sd#_ sd1 sd2 = fst (sd#-full sd1 sd2)
-
-isProp-sd# : (sd1 sd2 : SemiDirection) -> isProp (sd1 sd# sd2)
-isProp-sd# sd1 sd2 = snd (sd#-full sd1 sd2)

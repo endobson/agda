@@ -13,6 +13,7 @@ open import order.instances.real
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.rational
+open import ordered-semiring.instances.real
 open import rational
 open import rational.proper-interval
 open import rational.proper-interval.abs
@@ -37,6 +38,7 @@ open import real
 open import real.interval
 open import real.arithmetic.multiplication
 open import real.arithmetic
+open import real.arithmetic.order
 open import real.sequence
 open import relation hiding (U)
 open import ring
@@ -337,6 +339,14 @@ abstract
       i .inv (p1 , p2) = (subst x.U (sym minus-double-inverse) p2 , p1)
       i .rightInv _ = ax.isProp-U q _ _
       i .leftInv _ = amx.isProp-U q _ _
+
+  absℝ-NonPos-minus : (x : ℝ) -> (x ≤ 0ℝ) -> absℝ x == (- x)
+  absℝ-NonPos-minus x x≤0 = sym (absℝ-- x) >=> absℝ-NonNeg-idem mx 0≤mx
+    where
+    mx = - x
+    0≤mx = minus-flips-≤0 x≤0
+
+
 
 
 abstract

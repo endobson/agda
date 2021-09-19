@@ -177,3 +177,27 @@ instance
   ℝField = record
     { f#-path = refl
     }
+
+-- Here because we need the apartness
+module _ (x y : ℝ) where
+  private
+    mx = (- x)
+    ax = absℝ x
+    module x = Real x
+    module mx = Real mx
+    module ax = Real ax
+    module y = Real y
+
+  abstract
+    absℝ-cases : (y # 0#) -> absℝ x == y -> (x == y) ⊎ (x == (- y))
+    absℝ-cases y#0 ax=y = handle x#0
+      where
+      x#0 : x ℝ# 0#
+      x#0 = absℝ-#0 x (eqInv (<>-equiv-# (absℝ x) 0#) (subst (_# 0#) (sym ax=y) y#0))
+
+      handle : x ℝ# 0# -> (x == y) ⊎ (x == (- y))
+      handle (inj-l x<0) = inj-r (sym minus-double-inverse >=> cong -_ -x=y)
+        where
+        -x=y = (sym (absℝ-NonPos-minus x (weaken-< {_} {_} {_} {_} {_} {_} {x} {0ℝ} x<0)) >=> ax=y)
+      handle (inj-r 0<x) =
+        inj-l (sym (absℝ-NonNeg-idem x (weaken-< {_} {_} {_} {_} {_} {_} {0ℝ} {x} 0<x)) >=> ax=y)

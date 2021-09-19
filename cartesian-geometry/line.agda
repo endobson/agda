@@ -5,6 +5,7 @@ module cartesian-geometry.line where
 open import base
 open import cartesian-geometry
 open import cartesian-geometry.vector
+open import cartesian-geometry.semi-direction
 open import equality
 open import functions
 open import hlevel
@@ -65,13 +66,19 @@ Line = Line' / SameLine'
 
 -- Standard lines
 
+direction-line' : Direction -> Line'
+direction-line' d = 0P , [ d ]
+
+semi-direction-line' : SemiDirection -> Line'
+semi-direction-line' sd = 0P , sd
+
 xaxis-line' : Line'
-xaxis-line' = 0P , [ xaxis-dir ]
+xaxis-line' = direction-line' xaxis-dir
 xaxis-line : Line
 xaxis-line = [ xaxis-line' ]
 
 yaxis-line' : Line'
-yaxis-line' = 0P , [ yaxis-dir ]
+yaxis-line' = direction-line' yaxis-dir
 yaxis-line : Line
 yaxis-line = [ yaxis-line' ]
 
