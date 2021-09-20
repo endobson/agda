@@ -125,7 +125,7 @@ private
       dec1=-dec2 a =
         cong (\v -> vector-index v a)
           ((cong (\r -> rotate r v)
-             (cong (r- ∘ rotation) d1=-d2 >=>
+             (cong (r-_ ∘ rotation) d1=-d2 >=>
               cong rotation (conjugate-direction-d- d2))) >=>
            rotate-add-half-rotation (r- (rotation d2)) v)
 

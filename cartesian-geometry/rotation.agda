@@ -5,13 +5,18 @@ module cartesian-geometry.rotation where
 open import apartness
 open import base
 open import cartesian-geometry.vector
-open import cubical using (isEquiv)
+open import cubical using (isEquiv ; I)
+open import commutative-monoid
 open import direct-product
 open import equality
 open import equivalence
 open import functions
+open import group
 open import hlevel
+open import integral-domain
+open import integral-domain.instances.real
 open import isomorphism
+open import monoid
 open import order
 open import order.instances.real
 open import real
@@ -26,6 +31,7 @@ open import semiring
 open import sigma
 open import solver
 open import subset
+open import truncation
 open import vector-space
 open import vector-space.finite
 
@@ -76,8 +82,19 @@ record Rotation : Type₁ where
     dir : Direction
 
 rotation-ext : {r1 r2 : Rotation} -> (Rotation.dir r1) == (Rotation.dir r2) -> r1 == r2
-rotation-ext p i = record { dir = p i }
+rotation-ext {r1@(rotation d1)} {r2@(rotation d2)} p = a.path
+  where
+  module a where
+    abstract
+      path : r1 == r2
+      path = \i -> record { dir = p i }
 
+
+isSet-Rotation : isSet Rotation
+isSet-Rotation r1@(rotation d1) r2@(rotation d2) p1 p2 = (\i j -> rotation (sq i j))
+  where
+  sq : Path (d1 == d2) (cong Rotation.dir p1) (cong Rotation.dir p2)
+  sq = (isSet-Direction d1 d2 (cong Rotation.dir p1) (cong Rotation.dir p2))
 
 
 zero-rotation : Rotation
@@ -85,6 +102,7 @@ zero-rotation = rotation xaxis-dir
 
 half-rotation : Rotation
 half-rotation = rotation (d- xaxis-dir)
+
 
 rotate : Rotation -> Vector -> Vector
 rotate (rotation (d , _)) v = raw-rotate d v
@@ -102,19 +120,204 @@ rotate-preserves-vector-length r v =
   p = rotate-preserves-vector-length² r v
 
 rotate-direction : Rotation -> Direction -> Direction
-rotate-direction r (v , vl=1) = rotate r v , vl=1'
+rotate-direction r (v , vl=1) = rotate r v , a.vl=1'
   where
-  abstract
-    vl=1' = rotate-preserves-vector-length r v >=> vl=1
+  module a where
+    abstract
+      vl=1' : vector-length (rotate r v) == 1#
+      vl=1' = rotate-preserves-vector-length r v >=> vl=1
 
 _r+_ : Rotation -> Rotation -> Rotation
 _r+_ r (rotation d) = rotation (rotate-direction r d)
 
-r- : Rotation -> Rotation
-r- (rotation d) = rotation (conjugate-direction d)
+r-_ : Rotation -> Rotation
+r-_ (rotation d) = rotation (conjugate-direction d)
 
 add-half-rotation : Rotation -> Rotation
 add-half-rotation (rotation d) = (rotation (d- d))
+
+direction-diff : Direction -> Direction -> Rotation
+direction-diff d1 d2 = rotation d2 r+ (r- (rotation d1))
+
+direction-shift : Direction -> Rotation -> Direction
+direction-shift d r = rotate-direction r d
+
+abstract
+  rotate-zero-rotation : (v : Vector) -> (rotate zero-rotation v) == v
+  rotate-zero-rotation v = \i -> direct-product-cons (\a -> (f a i))
+    where
+    f : (a : Axis) -> (direct-product-index (rotate zero-rotation v) a) ==
+                      (direct-product-index v a)
+    f x-axis = +-cong *-left-one (cong -_ *-left-zero >=> minus-zero) >=> +-right-zero
+    f y-axis = +-cong *-left-one *-left-zero >=> +-right-zero
+
+  r+-commute : (r1 r2 : Rotation) -> r1 r+ r2 == r2 r+ r1
+  r+-commute (rotation (v1 , _)) (rotation (v2 , _)) =
+    rotation-ext (direction-ext (raw-rotate-commute v1 v2))
+
+
+  r+-left-zero : (r : Rotation) -> (zero-rotation r+ r) == r
+  r+-left-zero (rotation (v , _)) = rotation-ext (direction-ext (rotate-zero-rotation v))
+
+  r+-right-zero : (r : Rotation) -> (r r+ zero-rotation) == r
+  r+-right-zero r = r+-commute r zero-rotation >=> r+-left-zero r
+
+
+  rotate-assoc : (r1 r2 : Rotation) (v : Vector) ->
+                 (rotate r1 (rotate r2 v)) == (rotate (r1 r+ r2) v)
+  rotate-assoc r1@(rotation (dv1 , _)) r2@(rotation (dv2 , _)) v = vector-ext f
+    where
+    d1x = direct-product-index dv1 x-axis
+    d1y = direct-product-index dv1 y-axis
+    d2x = direct-product-index dv2 x-axis
+    d2y = direct-product-index dv2 y-axis
+    vx = direct-product-index v x-axis
+    vy = direct-product-index v y-axis
+
+    f : (a : Axis) -> (direct-product-index (rotate r1 (rotate r2 v)) a) ==
+                      (direct-product-index (rotate (r1 r+ r2) v) a)
+    f x-axis =
+      RingSolver.solve ℝRing 6
+        (\d1x d1y d2x d2y vx vy ->
+          d1x ⊗ (d2x ⊗ vx ⊕ (⊖ (d2y ⊗ vy))) ⊕ (⊖ (d1y ⊗ (d2x ⊗ vy ⊕ (d2y ⊗ vx)))) ,
+          ((d1x ⊗ d2x ⊕ (⊖ (d1y ⊗ d2y))) ⊗ vx) ⊕ (⊖ ((d1x ⊗ d2y ⊕ d1y ⊗ d2x) ⊗ vy)))
+        refl d1x d1y d2x d2y vx vy
+    f y-axis =
+      RingSolver.solve ℝRing 6
+        (\d1x d1y d2x d2y vx vy ->
+          d1x ⊗ (d2x ⊗ vy ⊕ d2y ⊗ vx) ⊕ d1y ⊗ (d2x ⊗ vx ⊕ (⊖ (d2y ⊗ vy))) ,
+          ((d1x ⊗ d2x ⊕ (⊖ (d1y ⊗ d2y))) ⊗ vy) ⊕ ((d1x ⊗ d2y ⊕ d1y ⊗ d2x) ⊗ vx))
+        refl d1x d1y d2x d2y vx vy
+
+  rotate-direction-assoc :
+    (r1 r2 : Rotation) (d : Direction) ->
+    (rotate-direction r1 (rotate-direction r2 d)) == (rotate-direction (r1 r+ r2) d)
+  rotate-direction-assoc r1 r2 d = direction-ext (rotate-assoc r1 r2 ⟨ d ⟩)
+
+  r+-assoc : (r1 r2 r3 : Rotation) -> (r1 r+ r2) r+ r3 == r1 r+ (r2 r+ r3)
+  r+-assoc r1 r2 r3@(rotation d3) =
+    rotation-ext (sym (rotate-direction-assoc r1 r2 d3))
+
+
+  r+-inverse : (r : Rotation) -> (r r+ (r- r)) == zero-rotation
+  r+-inverse (rotation (v , p)) = rotation-ext (direction-ext (vector-ext f))
+    where
+    f : (a : Axis) -> (vector-index (raw-rotate v (conjugate-vector v)) a) ==
+                      (vector-index xaxis-vector a)
+    f x-axis = +-right (cong -_ minus-extract-right >=> minus-double-inverse) >=>
+               (eqInv (isUnitVector'-equiv v) p)
+    f y-axis = +-cong minus-extract-right *-commute >=> +-commute >=> +-inverse
+
+  -- r--distrib-r+ : (r1 r2 : Rotation) -> (r- (r1 r+ r2)) ==
+
+Monoid-Rotation : Monoid Rotation
+Monoid-Rotation = record
+  { ε = zero-rotation
+  ; _∙_ = _r+_
+  ; ∙-assoc = \{r1} {r2} {r3} -> r+-assoc r1 r2 r3
+  ; ∙-left-ε = \{r} -> r+-left-zero r
+  ; ∙-right-ε = \{r} -> r+-right-zero r
+  }
+
+CommMonoid-Rotation : CommMonoid Rotation
+CommMonoid-Rotation = record
+  { monoid = Monoid-Rotation
+  ; ∙-commute = \{r1} {r2} -> r+-commute r1 r2
+  ; isSet-Domain = isSet-Rotation
+  }
+
+Group-Rotation : GroupStr Rotation
+Group-Rotation = record
+  { comm-monoid = CommMonoid-Rotation
+  ; inverse = r-_
+  ; ∙-left-inverse = \{r} -> r+-commute (r- r) r >=> r+-inverse r
+  }
+
+NonTrivialRotation : Pred Rotation ℓ-one
+NonTrivialRotation r = ⟨ Rotation.dir r ⟩ v# xaxis-vector
+
+r+-reflects-NonTrivial :
+  (r1 r2 : Rotation) -> NonTrivialRotation (r1 r+ r2) ->
+  ∥ NonTrivialRotation r1 ⊎ NonTrivialRotation r2 ∥
+r+-reflects-NonTrivial r1@(rotation (v1 , p1)) r2@(rotation (v2 , p2)) =
+  ∥-bind handle
+  where
+  x1 = vector-index v1 x-axis
+  y1 = vector-index v1 y-axis
+  x2 = vector-index v2 x-axis
+  y2 = vector-index v2 y-axis
+  path1 = eqInv (isUnitVector'-equiv v1) p1
+  v12 = ⟨ Rotation.dir (r1 r+ r2) ⟩
+
+  Ans = ∥ NonTrivialRotation r1 ⊎ NonTrivialRotation r2 ∥
+  handle : Σ[ a ∈ Axis ] (vector-index v12 a # vector-index xaxis-vector a) -> Ans
+  handle (x-axis , v#axis) = ∥-bind handle2 (+-reflects-#0 xys#0)
+    where
+    xys-path : ((x1 * (x2 + (- x1))) + (y1 * (- (y2 + y1)))) ==
+               ((x1 * x2) + (- (y1 * y2))) + (- 1#)
+    xys-path =
+      +-cong (*-distrib-+-left >=>
+              +-right minus-extract-right)
+             (minus-extract-right >=>
+              cong -_ *-distrib-+-left >=>
+              minus-distrib-plus) >=>
+      +-assoc >=> (+-right (sym +-assoc >=> +-left +-commute >=> +-assoc)) >=> sym +-assoc >=>
+      +-right (sym minus-distrib-plus >=> cong -_ path1)
+
+    xys#0 : ((x1 * (x2 + (- x1))) + (y1 * (- (y2 + y1)))) # 0#
+    xys#0 = subst2 _#_ (sym xys-path) +-inverse (+₂-preserves-# v#axis)
+
+    handle2 : ((x1 * (x2 + (- x1))) # 0#) ⊎ ((y1 * (- (y2 + y1))) # 0#) -> Ans
+    handle2 (inj-l xs#0) = ∥-bind handle3 (comparison-# x2 1# x1 x2#x1)
+      where
+      x2-x1#0 : (x2 + (- x1)) # 0#
+      x2-x1#0 = *₁-reflects-#0 xs#0
+      x2#x1 : x2 # x1
+      x2#x1 = subst2 _#_ (+-assoc >=> +-right (+-commute >=> +-inverse) >=> +-right-zero)
+                         +-left-zero (+₂-preserves-# x2-x1#0)
+      handle3 : (x2 # 1#) ⊎ (1# # x1) -> Ans
+      handle3 (inj-l x2#1) = ∣ inj-r (∣ x-axis , x2#1 ∣) ∣
+      handle3 (inj-r 1#x1) = ∣ inj-l (∣ x-axis , sym-# 1#x1 ∣) ∣
+    handle2 (inj-r ys#0) = ∣ inj-l (∣ y-axis , *₂-reflects-#0 ys#0 ∣) ∣
+
+  handle (y-axis , v#axis) = ∥-bind handle2 (+-reflects-#0 v#axis)
+    where
+    handle2 : ((x1 * y2) # 0#) ⊎ ((y1 * x2) # 0#) -> Ans
+    handle2 (inj-l x1y2#0) = ∣ inj-r (∣ y-axis , *₁-reflects-#0 x1y2#0 ∣) ∣
+    handle2 (inj-r y1x2#0) = ∣ inj-l (∣ y-axis , *₂-reflects-#0 y1x2#0 ∣) ∣
+
+r--preserves-NonTrivial : (r : Rotation) -> NonTrivialRotation r -> NonTrivialRotation (r- r)
+r--preserves-NonTrivial r@(rotation (v , _)) = ∥-map handle
+  where
+  c = conjugate-vector v
+  cy = vector-index c y-axis
+
+  handle : Σ[ a ∈ Axis ] (vector-index v a # vector-index xaxis-vector a) ->
+           Σ[ a ∈ Axis ] (vector-index c a # vector-index xaxis-vector a)
+  handle (x-axis , vx#1) = (x-axis , vx#1)
+  handle (y-axis , vy#0) = (y-axis , subst (cy #_) minus-zero (minus-reflects-# vy#0))
+
+¬NonTrivial-zero-rotation : ¬ (NonTrivialRotation zero-rotation)
+¬NonTrivial-zero-rotation = irrefl-#
+
+record _r#_ (r1 r2 : Rotation) : Type₁ where
+  constructor r#-cons
+  field
+    NonTrivial-diff : NonTrivialRotation (r2 r+ (r- r1))
+
+irrefl-r# : Irreflexive _r#_
+irrefl-r# {r} (r#-cons nt) =
+  ¬NonTrivial-zero-rotation (subst NonTrivialRotation (r+-inverse r) nt)
+
+--sym-r# : Symmetric _r#_
+--sym-r# {r1} {r2} (r#-cons nt) = (r#-cons rev-nt)
+--  where
+--  d = r2 r+ (r- r1)
+--  rev-nt = subst NonTrivialRotation (r--distrib-r+
+--                 (r--preserves-NonTrivial d nt)
+
+--  ¬NonTrivial-zero-rotation (subst NonTrivialRotation (r+-inverse r) nt)
+
 
 abstract
   rotate-add-half-rotation : (r : Rotation) (v : Vector) ->
@@ -158,29 +361,7 @@ abstract
       ans = +-cong minus-extract-right minus-extract-right >=> sym minus-distrib-plus
 
 
-  rotate-zero-rotation : (v : Vector) -> (rotate zero-rotation v) == v
-  rotate-zero-rotation v = \i -> direct-product-cons (\a -> (f a i))
-    where
-    f : (a : Axis) -> (direct-product-index (rotate zero-rotation v) a) ==
-                      (direct-product-index v a)
-    f x-axis = +-cong *-left-one (cong -_ *-left-zero >=> minus-zero) >=> +-right-zero
-    f y-axis = +-cong *-left-one *-left-zero >=> +-right-zero
 
-  r+-left-zero : (r : Rotation) -> (zero-rotation r+ r) == r
-  r+-left-zero (rotation (v , _)) = rotation-ext (direction-ext (rotate-zero-rotation v))
-
-  r+-commute : (r1 r2 : Rotation) -> r1 r+ r2 == r2 r+ r1
-  r+-commute (rotation (v1 , _)) (rotation (v2 , _)) =
-    rotation-ext (direction-ext (raw-rotate-commute v1 v2))
-
-  r+-inverse : (r : Rotation) -> (r r+ (r- r)) == zero-rotation
-  r+-inverse (rotation (v , p)) = rotation-ext (direction-ext (vector-ext f))
-    where
-    f : (a : Axis) -> (vector-index (raw-rotate v (conjugate-vector v)) a) ==
-                      (vector-index xaxis-vector a)
-    f x-axis = +-right (cong -_ minus-extract-right >=> minus-double-inverse) >=>
-               (eqInv (isUnitVector'-equiv v) p)
-    f y-axis = +-cong minus-extract-right *-commute >=> +-commute >=> +-inverse
 
   conjugate-distrib-rotate :
     (r : Rotation) (v : Vector) ->
@@ -201,31 +382,17 @@ abstract
 
 
 
-  rotate-assoc : (r1 r2 : Rotation) (v : Vector) ->
-                 (rotate r1 (rotate r2 v)) == (rotate (r1 r+ r2) v)
-  rotate-assoc r1@(rotation (dv1 , _)) r2@(rotation (dv2 , _)) v = vector-ext f
-    where
-    d1x = direct-product-index dv1 x-axis
-    d1y = direct-product-index dv1 y-axis
-    d2x = direct-product-index dv2 x-axis
-    d2y = direct-product-index dv2 y-axis
-    vx = direct-product-index v x-axis
-    vy = direct-product-index v y-axis
 
-    f : (a : Axis) -> (direct-product-index (rotate r1 (rotate r2 v)) a) ==
-                      (direct-product-index (rotate (r1 r+ r2) v) a)
-    f x-axis =
-      RingSolver.solve ℝRing 6
-        (\d1x d1y d2x d2y vx vy ->
-          d1x ⊗ (d2x ⊗ vx ⊕ (⊖ (d2y ⊗ vy))) ⊕ (⊖ (d1y ⊗ (d2x ⊗ vy ⊕ (d2y ⊗ vx)))) ,
-          ((d1x ⊗ d2x ⊕ (⊖ (d1y ⊗ d2y))) ⊗ vx) ⊕ (⊖ ((d1x ⊗ d2y ⊕ d1y ⊗ d2x) ⊗ vy)))
-        refl d1x d1y d2x d2y vx vy
-    f y-axis =
-      RingSolver.solve ℝRing 6
-        (\d1x d1y d2x d2y vx vy ->
-          d1x ⊗ (d2x ⊗ vy ⊕ d2y ⊗ vx) ⊕ d1y ⊗ (d2x ⊗ vx ⊕ (⊖ (d2y ⊗ vy))) ,
-          ((d1x ⊗ d2x ⊕ (⊖ (d1y ⊗ d2y))) ⊗ vy) ⊕ ((d1x ⊗ d2y ⊕ d1y ⊗ d2x) ⊗ vx))
-        refl d1x d1y d2x d2y vx vy
+  direction-diff-step : (d1 d2 : Direction) -> (direction-shift d1 (direction-diff d1 d2)) == d2
+  direction-diff-step d1 d2 =
+    sym (rotate-direction-assoc r2 (r- r1) d1) >=>
+    cong (rotate-direction r2) (cong Rotation.dir (r+-commute (r- r1) r1 >=> r+-inverse r1)) >=>
+    cong Rotation.dir (r+-commute r2 zero-rotation >=> r+-left-zero r2)
+    where
+    r1 = rotation d1
+    r2 = rotation d2
+
+
 
 isEquiv-rotate : (r : Rotation) -> isEquiv (rotate r)
 isEquiv-rotate r = snd (isoToEquiv i)
@@ -306,11 +473,22 @@ isLinearTransformation-rotate r =
 rotated-basis : Rotation -> Axis -> Vector
 rotated-basis r = (rotate r) ∘ axis-basis
 
+direction-basis : Direction -> Axis -> Vector
+direction-basis d = (rotate (direction-diff xaxis-dir d)) ∘ axis-basis
+
 isBasis-rotated-basis : (r : Rotation) -> isBasis (rotated-basis r)
 isBasis-rotated-basis r =
   transform-basis (isLinearTransformation-rotate r)
                   (isEquiv-rotate r)
                   isBasis-axis-basis
+
+isBasis-direction-basis : (d : Direction) -> isBasis (direction-basis d)
+isBasis-direction-basis d =
+  transform-basis (isLinearTransformation-rotate r)
+                  (isEquiv-rotate r)
+                  isBasis-axis-basis
+  where
+  r = (direction-diff xaxis-dir d)
 
 rotated-basis-x-axis : (r : Rotation) -> rotated-basis r x-axis == ⟨ Rotation.dir r ⟩
 rotated-basis-x-axis r = cong (fst ∘ Rotation.dir) (p1 >=> p2)
@@ -320,6 +498,13 @@ rotated-basis-x-axis r = cong (fst ∘ Rotation.dir) (p1 >=> p2)
 
   p2 : zero-rotation r+ r == r
   p2 = r+-left-zero r
+
+direction-basis-x-axis : (d : Direction) -> direction-basis d x-axis == ⟨ d ⟩
+direction-basis-x-axis d = cong fst p1
+  where
+  p1 : direction-shift xaxis-dir (direction-diff xaxis-dir d) == d
+  p1 = direction-diff-step xaxis-dir d
+
 
 
 semi-direction-distance : (d : Direction) (v : Vector) -> ℝ

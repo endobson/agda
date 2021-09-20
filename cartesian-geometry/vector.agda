@@ -89,6 +89,9 @@ instance
   FinSetStr-Axis : FinSetStr Axis
   FinSetStr-Axis = record {isFin = isFinSet-Axis}
 
+axis-dot-product : (f1 f2 : Axis -> ℝ) -> ℝ
+axis-dot-product f1 f2 = (f1 x-axis * f2 x-axis) + (f1 y-axis * f2 y-axis)
+
 Vector : Type₁
 Vector = DirectProduct ℝ Axis
 
@@ -97,8 +100,12 @@ vector-cons = direct-product-cons
 vector-index : Vector -> Axis -> ℝ
 vector-index = direct-product-index
 
-vector-ext : {v1 v2 : Vector} -> ((a : Axis) -> vector-index v1 a == vector-index v2 a) -> v1 == v2
-vector-ext f i = direct-product-cons (\a -> f a i)
+abstract
+  vector-ext : {v1 v2 : Vector} -> ((a : Axis) -> vector-index v1 a == vector-index v2 a) -> v1 == v2
+  vector-ext f i = direct-product-cons (\a -> f a i)
+
+isSet-Vector : isSet Vector
+isSet-Vector = isSet-DirectProduct isSet-ℝ
 
 instance
   VectorSpaceStr-Vector = VectorSpaceStr-DirectProduct ℝField Axis
@@ -139,10 +146,7 @@ conjugate-vector-double-inverse : (v : Vector) -> conjugate-vector (conjugate-ve
 conjugate-vector-double-inverse v = vector-ext (\{ x-axis -> refl ; y-axis -> minus-double-inverse })
 
 vector-length² : Vector -> ℝ
-vector-length² v = (x * x) + (y * y)
-  where
-  x = (direct-product-index v x-axis)
-  y = (direct-product-index v y-axis)
+vector-length² v = axis-dot-product (vector-index v) (vector-index v)
 
 vector-length²≮0 : (v : Vector) -> (vector-length² v ≮ 0ℝ)
 vector-length²≮0 v = +-preserves-≮0 (x * x) (y * y) (≮0-square x) (≮0-square y)
@@ -197,6 +201,9 @@ Direction = Σ Vector isUnitVector
 abstract
   direction-ext : {d1 d2 : Direction} -> ⟨ d1 ⟩ == ⟨ d2 ⟩ -> d1 == d2
   direction-ext = ΣProp-path (\{v} -> isProp-isUnitVector v)
+
+isSet-Direction : isSet Direction
+isSet-Direction = isSetΣ isSet-Vector (\v -> isProp->isSet (isProp-isUnitVector v))
 
 0<-square : (x : ℝ) -> (x # 0#) -> 0# < (x * x)
 0<-square x x#0 = handle (eqInv (<>-equiv-# x 0#) x#0)
@@ -494,7 +501,7 @@ direction-span d@(v , vl=1) v2 = direction-span' d v2 , isProp-direction-span
   where
   isProp-direction-span : isProp (direction-span' d v2)
   isProp-direction-span (k1 , p1) (k2 , p2) =
-    ΣProp-path (\{k} -> (isSet-DirectProduct isSet-ℝ (k v* v) v2)) k1=k2
+    ΣProp-path (\{k} -> (isSet-Vector (k v* v) v2)) k1=k2
     where
     kv-p : (k1 v* v) == (k2 v* v)
     kv-p = p1 >=> sym p2
