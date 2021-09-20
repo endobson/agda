@@ -77,6 +77,7 @@ private
 
 
 record Rotation : Type₁ where
+  no-eta-equality
   constructor rotation
   field
     dir : Direction
@@ -89,12 +90,9 @@ rotation-ext {r1@(rotation d1)} {r2@(rotation d2)} p = a.path
       path : r1 == r2
       path = \i -> record { dir = p i }
 
-
 isSet-Rotation : isSet Rotation
-isSet-Rotation r1@(rotation d1) r2@(rotation d2) p1 p2 = (\i j -> rotation (sq i j))
-  where
-  sq : Path (d1 == d2) (cong Rotation.dir p1) (cong Rotation.dir p2)
-  sq = (isSet-Direction d1 d2 (cong Rotation.dir p1) (cong Rotation.dir p2))
+isSet-Rotation =
+  isSet-Retract Rotation.dir rotation (\_ -> rotation-ext refl) isSet-Direction
 
 
 zero-rotation : Rotation
