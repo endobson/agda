@@ -31,6 +31,7 @@ open import semiring
 open import sigma
 open import solver
 open import subset
+open import sum
 open import truncation
 open import vector-space
 open import vector-space.finite
@@ -206,7 +207,10 @@ abstract
                (eqInv (isUnitVector'-equiv v) p)
     f y-axis = +-cong minus-extract-right *-commute >=> +-commute >=> +-inverse
 
-  -- r--distrib-r+ : (r1 r2 : Rotation) -> (r- (r1 r+ r2)) ==
+  r--double-inverse : (r : Rotation) -> (r- (r- r)) == r
+  r--double-inverse (rotation d) =
+    rotation-ext (conjugate-direction-double-inverse d)
+
 
 Monoid-Rotation : Monoid Rotation
 Monoid-Rotation = record
@@ -230,6 +234,10 @@ Group-Rotation = record
   ; inverse = r-_
   ; ∙-left-inverse = \{r} -> r+-commute (r- r) r >=> r+-inverse r
   }
+
+abstract
+  r--distrib-r+ : (r1 r2 : Rotation) -> (r- (r1 r+ r2)) == (r- r1) r+ (r- r2)
+  r--distrib-r+ = CommMonoidʰ.preserves-∙ (GroupStr.inverse-CMʰ Group-Rotation)
 
 NonTrivialRotation : Pred Rotation ℓ-one
 NonTrivialRotation r = ⟨ Rotation.dir r ⟩ v# xaxis-vector
@@ -298,6 +306,10 @@ r--preserves-NonTrivial r@(rotation (v , _)) = ∥-map handle
 ¬NonTrivial-zero-rotation : ¬ (NonTrivialRotation zero-rotation)
 ¬NonTrivial-zero-rotation = irrefl-#
 
+¬NonTrivial->zero-rotation : {r : Rotation} -> ¬ (NonTrivialRotation r) -> (r == zero-rotation)
+¬NonTrivial->zero-rotation {r} rv#0 = rotation-ext (direction-ext (tight-# rv#0))
+
+
 record _r#_ (r1 r2 : Rotation) : Type₁ where
   constructor r#-cons
   field
@@ -307,14 +319,46 @@ irrefl-r# : Irreflexive _r#_
 irrefl-r# {r} (r#-cons nt) =
   ¬NonTrivial-zero-rotation (subst NonTrivialRotation (r+-inverse r) nt)
 
---sym-r# : Symmetric _r#_
---sym-r# {r1} {r2} (r#-cons nt) = (r#-cons rev-nt)
---  where
---  d = r2 r+ (r- r1)
---  rev-nt = subst NonTrivialRotation (r--distrib-r+
---                 (r--preserves-NonTrivial d nt)
+sym-r# : Symmetric _r#_
+sym-r# {r1} {r2} (r#-cons nt) = (r#-cons rev-nt)
+  where
+  d = r2 r+ (r- r1)
+  rev-nt = subst NonTrivialRotation (r--distrib-r+ r2 (r- r1) >=>
+                                     r+-commute (r- r2) (r- (r- r1)) >=>
+                                     cong (_r+ (r- r2)) (r--double-inverse r1))
+                 (r--preserves-NonTrivial d nt)
 
---  ¬NonTrivial-zero-rotation (subst NonTrivialRotation (r+-inverse r) nt)
+comparison-r# : Comparison _r#_
+comparison-r# r1 r2 r3 (r#-cons r1#r3) =
+  ∥-map (⊎-swap ∘ ⊎-map r#-cons r#-cons)
+    (r+-reflects-NonTrivial (r3 r+ (r- r2)) (r2 r+ (r- r1)) NonTrivial-r3r2-r2r1)
+  where
+  split-rs : r3 r+ (r- r1) == (r3 r+ (r- r2)) r+ (r2 r+ (r- r1))
+  split-rs =
+    sym (r+-left-zero _) >=>
+    cong (_r+ (r3 r+ (r- r1))) (sym (r+-inverse r2)) >=>
+    r+-assoc r2 (r- r2) (r3 r+ (r- r1)) >=>
+    r+-commute r2 ((r- r2) r+ (r3 r+ (r- r1))) >=>
+    cong (_r+ r2) (sym (r+-assoc (r- r2) r3 (r- r1))) >=>
+    r+-assoc ((r- r2) r+ r3) (r- r1) (r2) >=>
+    cong2 _r+_ (r+-commute (r- r2) r3) (r+-commute (r- r1) r2)
+
+  NonTrivial-r3r2-r2r1 : NonTrivialRotation ((r3 r+ (r- r2)) r+ (r2 r+ (r- r1)))
+  NonTrivial-r3r2-r2r1 = subst NonTrivialRotation split-rs r1#r3
+
+tight-r# : Tight _r#_
+tight-r# {r1} {r2} ¬r1#r2 = ans
+  where
+  path : r2 r+ (r- r1) == zero-rotation
+  path = ¬NonTrivial->zero-rotation (¬r1#r2 ∘ r#-cons)
+
+  ans : r1 == r2
+  ans = sym (r+-left-zero r1) >=> sym (cong (_r+ r1) path) >=>
+        r+-assoc r2 (r- r1) r1 >=> cong (r2 r+_) (r+-commute (r- r1) r1 >=> r+-inverse r1) >=>
+        r+-right-zero r2
+
+
+
 
 
 abstract
