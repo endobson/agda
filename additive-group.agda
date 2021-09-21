@@ -44,5 +44,6 @@ record AdditiveGroup {ℓ : Level} (D : Type ℓ) {{ACM : AdditiveCommMonoid D}}
     -_ : D -> D
     +-inverse : {x : D} -> x + (- x) == 0#
 
-module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{AG : AdditiveGroup D}} where
-  open AdditiveGroup AG public
+-- TODO expose this once it is ready to replace Ring
+-- module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{AG : AdditiveGroup D}} where
+--   open AdditiveGroup AG public

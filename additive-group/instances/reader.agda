@@ -38,6 +38,9 @@ module _ {ℓ : Level} {D : Type ℓ}
   private
     instance
       IACM-Reader = AdditiveCommMonoid-Reader ACM A
+
+    open AdditiveGroup AG
+
   AdditiveGroup-Reader : AdditiveGroup (A -> D)
   AdditiveGroup-Reader = record
     { -_ = \f i -> - (f i)
