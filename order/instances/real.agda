@@ -7,7 +7,7 @@ open import order
 open import real
 
 instance
-  LinearOrderStr-ℝ : LinearOrderStr ℝ ℓ-zero
+  LinearOrderStr-ℝ : LinearOrderStr ℝ ℓ-one
   LinearOrderStr-ℝ = record
     { _<_ = _ℝ<_
     ; isProp-< = \x y -> isProp-ℝ< x y
@@ -17,7 +17,7 @@ instance
     ; comparison-< = comparison-ℝ<
     }
 
-  PartialOrderStr-ℝ : PartialOrderStr ℝ ℓ-zero
+  PartialOrderStr-ℝ : PartialOrderStr ℝ ℓ-one
   PartialOrderStr-ℝ = NegatedLinearOrder LinearOrderStr-ℝ
 
   CompatibleOrderStr-ℝ : CompatibleOrderStr LinearOrderStr-ℝ PartialOrderStr-ℝ

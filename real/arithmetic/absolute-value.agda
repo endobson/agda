@@ -196,8 +196,9 @@ abstract
   absℝ-≮0 : (x : ℝ) -> absℝ x ≮ 0ℝ
   absℝ-≮0 x = unsquash isPropBot ∘ ∥-map handle
     where
-    handle : Σ[ q ∈ ℚ ] (Real.U (absℝ x) q × Real.L 0ℝ q) -> Bot
-    handle (q , axu-q , q<0) = Real.disjoint (absℝ x) q (absℝ-0≤ x (q , <0-Neg _ (L->ℚ< q<0)) , axu-q)
+    handle : (absℝ x) ℝ<' 0ℝ -> Bot
+    handle (ℝ<'-cons q axu-q q<0) =
+      Real.disjoint (absℝ x) q (absℝ-0≤ x (q , <0-Neg _ (L->ℚ< q<0)) , axu-q)
 
 
   absℝ-NonNeg-idem : (x : ℝ) -> (x ≮ 0ℝ) -> absℝ x == x
@@ -210,7 +211,7 @@ abstract
     ≤0->¬xU {q} q≤0 xU-q = unsquash isPropBot (∥-map handle (x.isLowerOpen-U q xU-q))
       where
       handle : Σ[ r ∈ ℚ ] (r < q × x.U r) -> Bot
-      handle (r , r<q , xU-r) = 0≤x ∣ (r , xU-r , ℚ<->L (trans-<-≤ {d1 = r} {q} {0r} r<q q≤0)) ∣
+      handle (r , r<q , xU-r) = 0≤x ∣ (ℝ<'-cons r xU-r (ℚ<->L (trans-<-≤ {d1 = r} {q} {0r} r<q q≤0))) ∣
 
     <0->xL : {q : ℚ} -> (q < 0r) -> x.L q
     <0->xL {q} q<0r = unsquash (x.isProp-L q) (∥-map handle (x.located q 0r q<0r))
@@ -272,14 +273,14 @@ abstract
       handle2 (inj-r 0≤r1) _ = inj-r (inj-r ans)
         where
         ans : 0ℝ < x
-        ans = ∥-map (\ (s , r1<s , xl) -> s , ℚ<->U (trans-≤-< {d1 = 0r} 0≤r1 r1<s) , xl)
+        ans = ∥-map (\ (s , r1<s , xl) -> ℝ<'-cons s  (ℚ<->U (trans-≤-< {d1 = 0r} 0≤r1 r1<s)) xl)
                     (x.isUpperOpen-L r1 xl-r1)
       handle2 (inj-l r1<0) (inj-r r2≤0) = inj-r (inj-l ans)
         where
         ans : x < 0ℝ
-        ans = ∥-map (\ (s , s<r2 , xu) -> s , xu , ℚ<->L (trans-<-≤ {d1 = s} s<r2 r2≤0))
+        ans = ∥-map (\ (s , s<r2 , xu) -> ℝ<'-cons s xu (ℚ<->L (trans-<-≤ {d1 = s} s<r2 r2≤0)))
                     (x.isLowerOpen-U r2 xu-r2)
-      handle2 (inj-l r1<0) (inj-l 0<r2) = inj-l (∣ s , (xl--s , xu-s) , ℚ<->L s<q ∣)
+      handle2 (inj-l r1<0) (inj-l 0<r2) = inj-l (∣ ℝ<'-cons s (xl--s , xu-s) (ℚ<->L s<q) ∣)
         where
         -r1<q : (- r1) < q
         -r1<q = subst2 _<_ +-left-zero diff-path (+₂-preserves-< 0r r2 (- r1) 0<r2)
@@ -355,16 +356,15 @@ abstract
   absℝ-#0 x (inj-r 0<ax) = unsquash (isProp-ℝ# x 0#) (∥-bind handle 0<ax)
     where
     ax = absℝ x
-    module ax = Real ax
-    handle : Σ[ q ∈ ℚ ] (Real.U 0ℝ q × ax.L q) -> ∥ x ℝ# 0# ∥
-    handle (q , 0<q , axL-q) = ∥-map handle2 (split-small-absℝ x (q , (U->ℚ< 0<q)))
+    handle : 0ℝ ℝ<' ax -> ∥ x ℝ# 0# ∥
+    handle (ℝ<'-cons q 0<q axL-q) = ∥-map handle2 (split-small-absℝ x (q , (U->ℚ< 0<q)))
       where
       handle2 : (absℝ x ℝ< (ℚ->ℝ q) ⊎ (ℝInv x)) -> x ℝ# 0#
       handle2 (inj-r inv-x) = inv-x
       handle2 (inj-l ax<q) = bot-elim (unsquash isPropBot (∥-map handle3 ax<q))
         where
         handle3 : (absℝ x ℝ<' (ℚ->ℝ q)) -> Bot
-        handle3 (r , axU-r , r<q) = asym-< (ℝ-bounds->ℚ< ax q r axL-q axU-r) (L->ℚ< r<q)
+        handle3 (ℝ<'-cons r axU-r r<q) = asym-< (ℝ-bounds->ℚ< ax q r axL-q axU-r) (L->ℚ< r<q)
 
 
 abstract

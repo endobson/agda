@@ -190,17 +190,24 @@ module _ (x : ℝ) where
       handle2 (inj-r r≤q/2) = (q/2 , pos-q/2) , q/2<q , isUpperSet≤ r q/2 r≤q/2 xu-r
 
 
+record _ℝ<'_ (x y : ℝ) : Type₁ where
+  no-eta-equality
+  constructor ℝ<'-cons
+  field
+    q : ℚ
+    xU-q : Real.U x q
+    yL-q : Real.L y q
 
-_ℝ<'_ : ℝ -> ℝ -> Type₀
-x ℝ<' y = Σ[ q ∈ ℚ ] (Real.U x q × Real.L y q)
-
-_ℝ<_ : ℝ -> ℝ -> Type₀
-x ℝ< y = ∃[ q ∈ ℚ ] (Real.U x q × Real.L y q)
+_ℝ<_ : ℝ -> ℝ -> Type₁
+x ℝ< y = ∥ x ℝ<' y ∥
 
 
 abstract
   ℚ->ℝ-preserves-< : (q1 q2 : ℚ) -> (q1 < q2) -> (ℚ->ℝ q1) ℝ< (ℚ->ℝ q2)
-  ℚ->ℝ-preserves-< q1 q2 lt = dense-< {q1} {q2} lt
+  ℚ->ℝ-preserves-< q1 q2 lt = ∥-map handle (dense-< {q1} {q2} lt)
+    where
+    handle : Σ[ q ∈ ℚ ] (q1 < q × q < q2) -> (ℚ->ℝ q1) ℝ<' (ℚ->ℝ q2)
+    handle (q , l , u) = ℝ<'-cons q l u
 
 0ℝ<1ℝ : 0ℝ ℝ< 1ℝ
 0ℝ<1ℝ = ℚ->ℝ-preserves-< 0r 1r 0<1r
@@ -212,7 +219,7 @@ irrefl-ℝ< : Irreflexive _ℝ<_
 irrefl-ℝ< {x} x<x = unsquash isPropBot (∥-map handle x<x)
   where
   handle : x ℝ<' x -> Bot
-  handle (q , (u , l)) = Real.disjoint x q (l , u)
+  handle (ℝ<'-cons q u  l) = Real.disjoint x q (l , u)
 
 ℝ-bounds->ℚ< : (x : ℝ) (q1 q2 : ℚ) -> (Real.L x q1) -> (Real.U x q2) -> q1 < q2
 ℝ-bounds->ℚ< x q1 q2 l u = handle (trichotomous-< q1 q2)
@@ -230,7 +237,7 @@ trans-ℝ< : Transitive _ℝ<_
 trans-ℝ< {x} {y} {z} x<y y<z = (∥-map2 handle x<y y<z)
   where
   handle : x ℝ<' y -> y ℝ<' z -> x ℝ<' z
-  handle (q1 , (ux-q1 , ly-q1)) (q2 , (uy-q2 , lz-q2)) = (q1 , (ux-q1 , lz-q1))
+  handle (ℝ<'-cons q1 ux-q1 ly-q1) (ℝ<'-cons q2 uy-q2 lz-q2) = (ℝ<'-cons q1 ux-q1 lz-q1)
     where
     q1<q2 = ℝ-bounds->ℚ< y q1 q2 ly-q1 uy-q2
     lz-q1 : Real.L z q1
@@ -407,7 +414,7 @@ connected-ℝ< x y x≮y y≮x = LU-paths->path x y l-path u-path
       where
       handle2 : (Real.L y q ⊎ Real.U y r) -> Real.L y q
       handle2 (inj-l ly-q) = ly-q
-      handle2 (inj-r uy-r) = bot-elim (y≮x ∣ (r , (uy-r , lx-r)) ∣)
+      handle2 (inj-r uy-r) = bot-elim (y≮x ∣ ℝ<'-cons r uy-r lx-r ∣)
 
   l-path : (q : ℚ) -> Real.L x q == Real.L y q
   l-path q = ua (isoToEquiv i)
@@ -426,7 +433,7 @@ connected-ℝ< x y x≮y y≮x = LU-paths->path x y l-path u-path
     handle (r , (r<q , ux-r)) = unsquash (Real.isProp-U y q) (∥-map handle2 (Real.located y r q r<q))
       where
       handle2 : (Real.L y r ⊎ Real.U y q) -> Real.U y q
-      handle2 (inj-l ly-r) = bot-elim (x≮y ∣ (r , (ux-r , ly-r)) ∣)
+      handle2 (inj-l ly-r) = bot-elim (x≮y ∣ ℝ<'-cons r ux-r ly-r ∣)
       handle2 (inj-r uy-q) = uy-q
 
   u-path : (q : ℚ) -> Real.U x q == Real.U y q
@@ -442,15 +449,15 @@ connected-ℝ< x y x≮y y≮x = LU-paths->path x y l-path u-path
 comparison-ℝ< : (x y z : ℝ) -> x ℝ< z -> ∥ (x ℝ< y) ⊎ (y ℝ< z) ∥
 comparison-ℝ< x y z x<z = ∥-bind handle x<z
   where
-  handle : Σ[ q ∈ ℚ ] (Real.U x q × Real.L z q) -> ∥ (x ℝ< y) ⊎ (y ℝ< z) ∥
-  handle (q , (ux-q , lz-q)) = ∥-bind handle2 (Real.isLowerOpen-U x q ux-q)
+  handle : x ℝ<' z -> ∥ (x ℝ< y) ⊎ (y ℝ< z) ∥
+  handle (ℝ<'-cons q ux-q lz-q) = ∥-bind handle2 (Real.isLowerOpen-U x q ux-q)
     where
     handle2 : Σ[ r ∈ ℚ ] (r < q × Real.U x r) -> ∥ (x ℝ< y) ⊎ (y ℝ< z) ∥
     handle2 (r , (r<q , ux-r)) = ∥-bind handle3 (Real.located y r q r<q)
       where
       handle3 : (Real.L y r ⊎ Real.U y q) -> ∥ (x ℝ< y) ⊎ (y ℝ< z) ∥
-      handle3 (inj-l ly-r) = ∣ inj-l (∣ r , (ux-r , ly-r) ∣) ∣
-      handle3 (inj-r uy-q) = ∣ inj-r (∣ q , (uy-q , lz-q) ∣) ∣
+      handle3 (inj-l ly-r) = ∣ inj-l (∣ ℝ<'-cons r ux-r ly-r ∣) ∣
+      handle3 (inj-r uy-q) = ∣ inj-r (∣ ℝ<'-cons q uy-q lz-q ∣) ∣
 
 abstract
   ℚ<->L : {q r : ℚ} -> q < r -> Real.L (ℚ->ℝ r) q
@@ -471,7 +478,7 @@ abstract
     where
     module x = Real x
     handle : x ℝ<' (ℚ->ℝ q) -> Real.U x q
-    handle (r , xu-r , r<q) = x.isUpperSet-U r q r<q xu-r
+    handle (ℝ<'-cons r xu-r r<q) = x.isUpperSet-U r q r<q xu-r
 
 
   ℝ<->L : (q : ℚ) (x : ℝ) -> (ℚ->ℝ q) ℝ< x -> Real.L x q
@@ -479,14 +486,14 @@ abstract
     where
     module x = Real x
     handle : (ℚ->ℝ q) ℝ<' x -> Real.L x q
-    handle (r , q<r , xl-r) = x.isLowerSet-L q r q<r xl-r
+    handle (ℝ<'-cons r q<r xl-r) = x.isLowerSet-L q r q<r xl-r
 
   ℝ≮0-¬U0 : (x : ℝ) (x≮0 : ¬ (x ℝ< 0ℝ)) -> ¬ (Real.U x 0r)
   ℝ≮0-¬U0 x x≮0 xU-0r = unsquash isPropBot (∥-map handle (x.isLowerOpen-U 0r xU-0r))
       where
       module x = Real x
       handle : _ -> Bot
-      handle (r , r<0 , xU-r) = x≮0 (∣ r , xU-r , r<0 ∣)
+      handle (r , r<0 , xU-r) = x≮0 (∣ ℝ<'-cons r xU-r r<0 ∣)
 
   ℝ≮0-L∀<0 : (x : ℝ) (x≮0 : ¬ (x ℝ< 0ℝ)) -> {q : ℚ} -> q < 0r -> Real.L x q
   ℝ≮0-L∀<0 x x≮0 {q} q<0 = unsquash (x.isProp-L q) (∥-map handle (x.located q 0r q<0))
@@ -497,7 +504,7 @@ abstract
     handle (inj-r u) = bot-elim (ℝ≮0-¬U0 x x≮0 u)
 
 
-_ℝ#_ : ℝ -> ℝ -> Type₀
+_ℝ#_ : ℝ -> ℝ -> Type₁
 x ℝ# y = (x ℝ< y) ⊎ (y ℝ< x)
 
 isProp-ℝ# : (x y : ℝ) -> isProp (x ℝ# y)
@@ -529,7 +536,7 @@ tight-ℝ# {x} {y} p = connected-ℝ< x y (p ∘ inj-l) (p ∘ inj-r)
 TightApartness-ℝ# : TightApartness _ℝ#_
 TightApartness-ℝ# = tight-ℝ# , (\{x} -> irrefl-ℝ# {x}) , (\{x} {y} -> sym-ℝ# {x} {y}) , comparison-ℝ#
 
-ℝInv : Pred ℝ ℓ-zero
+ℝInv : Pred ℝ ℓ-one
 ℝInv x = x ℝ# 0ℝ
 
 isProp-ℝInv : (x : ℝ) -> isProp (ℝInv x)

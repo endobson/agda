@@ -57,7 +57,7 @@ P-ext : {p1 p2 : Point} -> ((a : Axis) -> P-coord p1 a == P-coord p2 a) -> p1 ==
 P-ext f i = record { x = f x-axis i ; y = f y-axis i }
 
 
-_P#_ : Point -> Point -> Type₀
+_P#_ : Point -> Point -> Type₁
 p1 P# p2 = ∥ (p1.x ℝ# p2.x) ⊎ (p1.y ℝ# p2.y) ∥
   where
   module p1 = Point p1

@@ -29,7 +29,7 @@ private
     module c = Real c
 
     handle : b ℝ<' c -> Ans
-    handle (q , bu-q , cl-q) = ∥-bind handle2 (b.isLowerOpen-U q bu-q)
+    handle (ℝ<'-cons q bu-q cl-q) = ∥-bind handle2 (b.isLowerOpen-U q bu-q)
       where
       handle2 : Σ[ r ∈ ℚ ] (r < q × b.U r) -> Ans
       handle2 (r , r<q , bu-r) = ∥-bind handle3 (find-open-ball a d⁺)
@@ -40,7 +40,8 @@ private
 
         handle3 : OpenBall a d -> Ans
         handle3 (s1 , s2 , al-s1 , au-s2 , sd-path) =
-          ∣ s2 + r , ∣ (s2 , r , au-s2 , bu-r , refl) ∣ , ∣ s1 , q , al-s1 , cl-q , sum-path ∣ ∣
+          ∣ ℝ<'-cons (s2 + r)  (∣ (s2 , r , au-s2 , bu-r , refl) ∣)
+                               (∣ s1 , q , al-s1 , cl-q , sum-path ∣) ∣
           where
           sum-path : s1 + q == s2 + r
           sum-path = +-left (sym (diffℚ-step s2 s1) >=>
@@ -69,7 +70,7 @@ private
     handle : Σ[ ia ∈ Iℚ ] (ℝ∈Iℚ a ia × PosI ia) -> Σ[ ib ∈ Iℚ ] (ℝ∈Iℚ b ib × PosI ib) ->
              0ℝ ℝ<' (a ℝ*ᵉ b)
     handle (ia , a∈ia , pos-ia) (ib , b∈ib , pos-ib) =
-      l , ℚ<->U 0<l , ∣ ia , ib , a∈ia , b∈ib , subst (\x -> i-Lower x l) iab-path refl-ℚ≤ ∣
+      ℝ<'-cons l (ℚ<->U 0<l) (∣ ia , ib , a∈ia , b∈ib , subst (\x -> i-Lower x l) iab-path refl-ℚ≤ ∣)
       where
       iab = ia i* ib
       iab' = i*-NN ia ib (inj-l pos-ia) (inj-l pos-ib)
