@@ -41,6 +41,7 @@ isUpperOpen : Pred Rational ℓ -> Type ℓ
 isUpperOpen L = (x : Rational) -> L x -> ∃[ y ∈ Rational ] (x < y × L y)
 
 record Real (ℓ : Level) : Type (ℓ-suc ℓ) where
+  no-eta-equality
   field
     L : Pred Rational ℓ
     U : Pred Rational ℓ
@@ -251,7 +252,7 @@ abstract
                    -> (∀ q -> (Real.L x q) == (Real.L y q))
                    -> (∀ q -> (Real.U x q) == (Real.U y q))
                    -> x == y
-  LU-paths->path x y lp up = (\i -> record
+  LU-paths->path x@(record {}) y@(record {}) lp up = (\i -> record
     { L = lp' i
     ; U = up' i
     ; isProp-L = isProp-L i
@@ -397,8 +398,8 @@ private
       }
       where
       module r = Real r
-    i .rightInv _ = refl
-    i .leftInv _ = refl
+    i .rightInv (record {}) = refl
+    i .leftInv (record {}) = refl
 
 isSet-ℝ : isSet ℝ
 isSet-ℝ = subst isSet GoodCut==ℝ isSet-GoodCut
