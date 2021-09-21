@@ -6,6 +6,11 @@
 module everything where
 
 open import abs using ()
+open import additive-group using ()
+open import additive-group.instances.int using ()
+open import additive-group.instances.nat using ()
+open import additive-group.instances.reader using ()
+open import additive-group.instances.real using ()
 open import apartness using ()
 open import base using ()
 open import cartesian-geometry using ()

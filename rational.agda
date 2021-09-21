@@ -3,6 +3,7 @@
 module rational where
 
 open import abs
+open import additive-group
 open import base
 open import cubical using (_∧_ ; _∨_ ; ~_)
 open import equality
@@ -555,6 +556,27 @@ abstract
                                  cong r-_ (r*-commute a2 a1)
 
 instance
+  AdditiveCommMonoid-Rational : AdditiveCommMonoid Rational
+  AdditiveCommMonoid-Rational = record
+    { comm-monoid = record
+      { monoid = record
+        { ε = 0r
+        ; _∙_ = _r+_
+        ; ∙-assoc = \ {m} {n} {o} -> r+-assoc m n o
+        ; ∙-left-ε = \ {n} -> r+-left-zero n
+        ; ∙-right-ε = \ {n} -> r+-right-zero n
+        }
+      ; ∙-commute = \ {m} {n} -> r+-commute m n
+      ; isSet-Domain = isSetRational
+      }
+    }
+
+  AdditiveGroup-Rational : AdditiveGroup Rational
+  AdditiveGroup-Rational = record
+    { -_ = r-_
+    ; +-inverse = (\ {a} -> r+-inverse a)
+    }
+
   RationalSemiring : Semiring Rational
   RationalSemiring = record
     { 0# = 0r
