@@ -3,6 +3,7 @@
 module semiring where
 
 open import base
+open import additive-group using (AdditiveCommMonoid)
 open import commutative-monoid
 open import equality
 open import hlevel
@@ -14,7 +15,7 @@ private
     ℓ : Level
     A : Set ℓ
 
-record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
+record Semiring {ℓ : Level} (Domain : Type ℓ) {{ACM : AdditiveCommMonoid Domain}} : Type ℓ where
   no-eta-equality
   infixl 7 _*_
   infixl 6 _+_
@@ -110,7 +111,7 @@ record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   +-swap = +-assoc >=> +-right (sym +-assoc >=> +-left +-commute >=> +-assoc) >=> sym +-assoc
 
 
-module _ {D : Type ℓ} {{S : Semiring D}} where
+module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{S : Semiring D}} where
   open Semiring S public
 
 

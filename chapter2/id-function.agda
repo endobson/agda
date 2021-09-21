@@ -2,6 +2,8 @@
 
 module chapter2.id-function where
 
+open import additive-group.instances.nat
+open import additive-group.instances.int
 open import base
 open import nat
 open import rational

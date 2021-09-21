@@ -2,6 +2,7 @@
 
 module ordered-semiring.instances.real where
 
+open import additive-group.instances.real
 open import base
 open import ordered-semiring
 open import ordered-ring
@@ -16,6 +17,7 @@ instance
     { +₁-preserves-< = ℝ+₁-preserves-<
     ; *-preserves-0< = ℝ*-preserves-0<
     }
+
 
   PartiallyOrderedSemiringStr-ℝ : PartiallyOrderedSemiringStr ℝSemiring PartialOrderStr-ℝ
   PartiallyOrderedSemiringStr-ℝ = record

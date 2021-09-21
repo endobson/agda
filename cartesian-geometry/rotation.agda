@@ -2,6 +2,7 @@
 
 module cartesian-geometry.rotation where
 
+open import additive-group.instances.real
 open import apartness
 open import base
 open import cartesian-geometry.vector

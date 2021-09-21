@@ -2,6 +2,7 @@
 
 module chapter2.dirichlet where
 
+open import additive-group using (AdditiveCommMonoid)
 open import base
 open import cubical
 open import equality
@@ -22,7 +23,7 @@ open import sigma
 open import div
 open import funext
 
-module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Semiring D}} where
   private
     module S = Semiring S
     Divisors-flip-eq = flipDivisors-equiv

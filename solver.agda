@@ -2,6 +2,10 @@
 
 module solver where
 
+open import additive-group using (AdditiveCommMonoid)
+open import additive-group.instances.nat
+open import additive-group.instances.int
+open import additive-group.instances.reader
 open import base
 open import equality
 open import fin
@@ -161,7 +165,8 @@ private
   ...    | equal-to list-pr = equal-to (\i -> (elem-pr i) :: (list-pr i))
 
 
-module RingSolver {Domain : Type ℓ} {S : Semiring Domain} (R : Ring S) where
+module RingSolver {Domain : Type ℓ} {{ACM : AdditiveCommMonoid Domain}}
+                  {S : Semiring Domain} (R : Ring S) where
 
   module _ (n : Nat) where
     private
@@ -671,7 +676,7 @@ module RingSolver {Domain : Type ℓ} {S : Semiring Domain} (R : Ring S) where
 
 
 
-module Solver {Domain : Type ℓ} (S : Semiring Domain) where
+module Solver {Domain : Type ℓ} {{ACM : AdditiveCommMonoid Domain}} (S : Semiring Domain) where
   module S = Semiring S
 
   module _ (n : Nat) where

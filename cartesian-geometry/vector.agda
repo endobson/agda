@@ -2,6 +2,7 @@
 
 module cartesian-geometry.vector where
 
+open import additive-group.instances.real
 open import apartness
 open import base
 open import commutative-monoid
@@ -108,6 +109,7 @@ isSet-Vector : isSet Vector
 isSet-Vector = isSet-DirectProduct isSet-ℝ
 
 instance
+  VectorSpaceStr-Vector : VectorSpaceStr ℝField Vector
   VectorSpaceStr-Vector = VectorSpaceStr-DirectProduct ℝField Axis
   ModuleSpaceStr-Vector = VectorSpaceStr.module-str VectorSpaceStr-Vector
   TightApartnessStr-Vector = ModuleStr.TightApartnessStr-V ModuleSpaceStr-Vector

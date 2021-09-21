@@ -2,6 +2,7 @@
 
 module finite-product where
 
+open import additive-group using (AdditiveCommMonoid)
 open import base
 open import cubical
 open import equality
@@ -26,11 +27,11 @@ private
 
 
 private
-  module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
+  module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Semiring D}} where
     finiteProductᵉ : {ℓ : Level} -> (s : FinSet ℓ) -> (⟨ s ⟩ -> D) -> D
     finiteProductᵉ = finiteMergeᵉ *-CommMonoid
 
-module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Semiring D}} where
   private
     CM = *-CommMonoid
 
@@ -112,7 +113,9 @@ module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
         FinSetStr-B = record {isFin = snd FB}
 
 
-module _ {ℓB ℓC : Level} {B : Type ℓB} {C : Type ℓC} {{SB : Semiring B}} {{SC : Semiring C}} where
+module _ {ℓB ℓC : Level} {B : Type ℓB} {C : Type ℓC}
+         {{ACM : AdditiveCommMonoid B}} {{ACM : AdditiveCommMonoid C}}
+         {{SB : Semiring B}} {{SC : Semiring C}} where
   private
     module SB = Semiring SB
     module SC = Semiring SC

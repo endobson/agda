@@ -2,6 +2,8 @@
 
 module chapter2.totient-rational where
 
+open import additive-group.instances.int
+open import additive-group.instances.nat
 open import base
 open import equality
 open import commutative-monoid

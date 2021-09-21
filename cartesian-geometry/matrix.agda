@@ -2,6 +2,7 @@
 
 module cartesian-geometry.matrix where
 
+open import additive-group.instances.real
 open import base
 open import cartesian-geometry.vector
 open import direct-product

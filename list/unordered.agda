@@ -2,6 +2,7 @@
 
 module list.unordered where
 
+open import additive-group using (AdditiveCommMonoid)
 open import base
 open import equality
 open import relation
@@ -64,7 +65,7 @@ module _ {ℓA : Level} {A : Type ℓA} {{disc'A : Discrete' A}} where
     pos-count : (count a l) > 0
     pos-count = transport (\i -> unorder-count a l (~ i) > 0) (ul.contains->count>0 c)
 
-module _ {Domain : Type ℓ} (s : Semiring Domain) where
+module _ {Domain : Type ℓ} {{ACM : AdditiveCommMonoid Domain}} (s : Semiring Domain) where
   private
     instance
       IS = s

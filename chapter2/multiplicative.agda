@@ -2,6 +2,7 @@
 
 module chapter2.multiplicative where
 
+open import additive-group using (AdditiveCommMonoid)
 open import base
 open import int hiding (_*_)
 open import functions
@@ -32,7 +33,8 @@ instance
   RationalMultiplication : Multiplication Rational
   RationalMultiplication = record { mult = _r*_; 1# = (ℕ->ℚ 1) }
 
-SemiringMultiplication : {D : Type ℓ} -> (S : Semiring D) -> Multiplication D
+SemiringMultiplication : {D : Type ℓ} -> {{ACM : AdditiveCommMonoid D}} ->
+                         (S : Semiring D) -> Multiplication D
 SemiringMultiplication S = record { mult = Semiring._*_ S ; 1# = Semiring.1# S }
 
 

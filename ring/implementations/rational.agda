@@ -3,6 +3,8 @@
 module ring.implementations.rational where
 
 open import base
+open import additive-group.instances.nat
+open import additive-group.instances.int
 open import rational
 open import ring
 open import ring.implementations
@@ -11,6 +13,7 @@ open import semiring
 open rational public using
   ( RationalRing
   ; RationalSemiring
+  ; AdditiveCommMonoid-Rational
   )
 
 Semiringʰ-ℤ->ℚ : Semiringʰ ℤ->ℚ

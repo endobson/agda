@@ -2,6 +2,7 @@
 
 module prime-factorization where
 
+open import additive-group.instances.nat
 open import base
 open import commutative-monoid
 open import div

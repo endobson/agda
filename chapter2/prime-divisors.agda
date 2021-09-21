@@ -2,6 +2,7 @@
 
 module chapter2.prime-divisors where
 
+open import additive-group using (AdditiveCommMonoid)
 open import base
 open import equality
 open import functions
@@ -350,7 +351,7 @@ isFinSet-PrimePowerFactor zero =
 isFinSet-PrimePowerFactor n@(suc _) =
   isFinSet-equiv (PrimeDivisor-PrimePowerFactor-eq (n , tt)) (isFinSet-PrimeDivisor (n , tt))
 
-module _ {D : Type ℓ} {{S : Semiring D}} where
+module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{S : Semiring D}} where
   private
     instance
       M : Multiplication D

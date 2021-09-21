@@ -1,6 +1,7 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
 open import abs
+open import additive-group.instances.int
 open import base
 open import equality
 open import fraction.sign

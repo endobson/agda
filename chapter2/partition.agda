@@ -3,6 +3,9 @@
 module chapter2.partition where
 
 open import abs
+open import additive-group using (AdditiveCommMonoid)
+open import additive-group.instances.int
+open import additive-group.instances.nat
 open import base
 open import cubical
 open import chapter2.totient
@@ -33,7 +36,7 @@ open import type-algebra
 open import univalence
 
 
-module _ {ℓ₁ : Level}  {D : Type ℓ₁} {{S : Semiring D}} where
+module _ {ℓ₁ : Level} {D : Type ℓ₁} {{ACM : AdditiveCommMonoid D}} {{S : Semiring D}} where
   private
     sum = finiteSumᵉ
 

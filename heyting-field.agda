@@ -2,6 +2,7 @@
 
 module heyting-field where
 
+open import additive-group using (AdditiveCommMonoid)
 open import apartness
 open import base
 open import cubical
@@ -18,7 +19,9 @@ private
   variable
     ℓ : Level
 
-record Field {ℓ : Level} {D : Type ℓ} {S : Semiring D} (R : Ring S) (A : TightApartnessStr D)
+record Field {ℓ : Level} {D : Type ℓ}
+             {{ACM : AdditiveCommMonoid D}}
+             {S : Semiring D} (R : Ring S) (A : TightApartnessStr D)
   : Type (ℓ-suc ℓ) where
   private
     module R = Ring R

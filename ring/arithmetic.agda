@@ -2,6 +2,7 @@
 
 module ring.arithmetic where
 
+open import additive-group using (AdditiveCommMonoid)
 open import base
 open import equality
 open import ring
@@ -12,7 +13,7 @@ private
   variable
     ℓD : Level
 
-module _ {D : Type ℓD} {S : Semiring D} {{R : Ring S}} where
+module _ {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {S : Semiring D} {{R : Ring S}} where
   private
     instance
       I-SR = S

@@ -2,6 +2,10 @@
 
 module ring.implementations where
 
+open import additive-group using (AdditiveCommMonoid)
+open import additive-group.instances.nat
+open import additive-group.instances.int
+open import additive-group.instances.reader
 open import base
 open import commutative-monoid
 open import equality
@@ -136,8 +140,8 @@ module _ where
 
 
 
-ReaderSemiring : {ℓ₁ ℓ₂ : Level} {Domain : Type ℓ₁} -> (A : Type ℓ₂)
-                 -> Semiring Domain -> Semiring (A -> Domain)
+ReaderSemiring : {ℓ₁ ℓ₂ : Level} {Domain : Type ℓ₁} {{ACM : AdditiveCommMonoid Domain}}
+                 -> (A : Type ℓ₂) -> Semiring Domain -> Semiring (A -> Domain)
 ReaderSemiring {Domain = Domain} A S = res
   where
   private
@@ -161,8 +165,8 @@ ReaderSemiring {Domain = Domain} A S = res
     }
 
 
-ReaderRing : {ℓ : Level} {Domain : Type ℓ} {S : Semiring Domain} -> (A : Type ℓ) -> Ring S ->
-             Ring (ReaderSemiring A S)
+ReaderRing : {ℓ : Level} {Domain : Type ℓ} {{ACM : AdditiveCommMonoid Domain}} {S : Semiring Domain} ->
+             (A : Type ℓ) -> Ring S -> Ring (ReaderSemiring A S)
 ReaderRing {Domain = Domain} {S} A R = res
   where
   instance

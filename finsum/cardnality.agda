@@ -2,6 +2,7 @@
 
 module finsum.cardnality where
 
+open import additive-group.instances.nat
 open import base
 open import equality
 open import finset

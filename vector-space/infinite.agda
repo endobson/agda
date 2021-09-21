@@ -2,6 +2,7 @@
 
 module vector-space.infinite where
 
+open import additive-group using (AdditiveCommMonoid)
 open import apartness
 open import base
 open import cubical using (_≃_)
@@ -32,7 +33,9 @@ private
   variable
     ℓ : Level
 
-module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
+module _ {ℓK ℓV : Level} {K : Type ℓK}
+         {{ACM : AdditiveCommMonoid K}}
+         {S : Semiring K} {R : Ring S}
          {A : TightApartnessStr K} {F : Field R A} {V : Type ℓV}
          (VS : VectorSpaceStr F V) where
 

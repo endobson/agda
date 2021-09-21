@@ -2,6 +2,7 @@
 
 module ordered-field where
 
+open import additive-group using (AdditiveCommMonoid)
 open import apartness
 open import base
 open import equality
@@ -21,7 +22,8 @@ private
   variable
     ℓD ℓ< : Level
 
-module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
+module _ {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
+         {S : Semiring D} {O : LinearOrderStr D ℓ<}
          {R : Ring S} {A : TightApartnessStr D}
          {{LOS : LinearlyOrderedSemiringStr S O}}
          {{F : Field R A}}

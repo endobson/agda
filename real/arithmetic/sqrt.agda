@@ -2,6 +2,7 @@
 
 module real.arithmetic.sqrt where
 
+open import additive-group.instances.real
 open import base
 open import equality
 open import hlevel.sigma

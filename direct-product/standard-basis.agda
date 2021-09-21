@@ -2,6 +2,7 @@
 
 module direct-product.standard-basis where
 
+open import additive-group using (AdditiveCommMonoid)
 open import apartness
 open import base
 open import commutative-monoid
@@ -49,7 +50,8 @@ private
   i-coord i (direct-product-cons f) = f i
 
 
-module _ {ℓI ℓK : Level} {I : Type ℓI} {K : Type ℓK} {{S : Semiring K}} where
+module _ {ℓI ℓK : Level} {I : Type ℓI} {K : Type ℓK}
+         {{ACM : AdditiveCommMonoid K}} {{S : Semiring K}} where
 
   indicator' : {i1 i2 : I} -> Dec (i1 == i2) -> K
   indicator' (yes _) = 1#
@@ -71,7 +73,9 @@ module _ {ℓI ℓK : Level} {I : Type ℓI} {K : Type ℓK} {{S : Semiring K}} 
         cong indicator' (isProp->PathP (\_ -> isPropDec (isSet-I i1 i2)) (discrete-I i1 i2) d)
 
 
-module _ {ℓK ℓI : Level} {K : Type ℓK} {{S : Semiring K}}
+module _ {ℓK ℓI : Level} {K : Type ℓK}
+         {{ACM : AdditiveCommMonoid K}}
+         {{S : Semiring K}}
          {{R : Ring S}} {{A : TightApartnessStr K}} (F : Field R A) (I : Type ℓI)
          {{FI : FinSetStr I}}  where
   private

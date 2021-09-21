@@ -2,6 +2,7 @@
 
 module vector-space where
 
+open import additive-group using (AdditiveCommMonoid)
 open import apartness
 open import base
 open import cubical using (_≃_)
@@ -31,7 +32,8 @@ private
   variable
     ℓ : Level
 
-module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} (R : Ring S) (V : Type ℓV) where
+module _ {ℓK ℓV : Level} {K : Type ℓK} {{ACM : AdditiveCommMonoid K}}
+         {S : Semiring K} (R : Ring S) (V : Type ℓV) where
   private
     instance
       IS = S
@@ -62,7 +64,9 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} (R : Ring S) (V : 
       v*-left-one : {v : V} -> 1# v* v == v
 
 
-module _  {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {V : Type ℓV}
+module _  {ℓK ℓV : Level} {K : Type ℓK}
+          {{ACM : AdditiveCommMonoid K}}
+          {S : Semiring K} {R : Ring S} {V : Type ℓV}
           {{M : ModuleStr R V}} where
   open ModuleStr M public using
     ( _v+_
@@ -194,7 +198,9 @@ module _  {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S} {V :
 
 
 
-module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
+module _ {ℓK ℓV : Level} {K : Type ℓK}
+         {{ACM : AdditiveCommMonoid K}}
+         {S : Semiring K} {R : Ring S}
          {A : TightApartnessStr K}
          (F : Field R A) (V : Type ℓV)  where
   private
@@ -217,7 +223,9 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
                       (k1 MS.v* v1) MS.v# (k2 MS.v* v2) ->
                       ∥ (k1 # k2) ⊎ (v1 MS.v# v2) ∥
 
-module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
+module _ {ℓK ℓV : Level} {K : Type ℓK}
+         {{ACM : AdditiveCommMonoid K}}
+         {S : Semiring K} {R : Ring S}
          {A : TightApartnessStr K} {F : Field R A} {V : Type ℓV}
          {{VS : VectorSpaceStr F V}} where
   open VectorSpaceStr VS public using
@@ -249,7 +257,9 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
       k'kv#0 = subst (_v# 0v) (sym v*-left-one >=> v*-left (sym kk'=1 >=> *-commute) >=> v*-assoc) v#0
 
 
-module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
+module _ {ℓK ℓV : Level} {K : Type ℓK}
+         {{ACM : AdditiveCommMonoid K}}
+         {S : Semiring K} {R : Ring S}
          {A : TightApartnessStr K} {F : Field R A} {V : Type ℓV}
          {{VS : VectorSpaceStr F V}} where
 
@@ -283,7 +293,9 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
 
 
 
-module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK} {S : Semiring K} {R : Ring S}
+module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK}
+         {{ACM : AdditiveCommMonoid K}}
+         {S : Semiring K} {R : Ring S}
          {A : TightApartnessStr K} {F : Field R A} {V1 : Type ℓV1} {V2 : Type ℓV2}
          {{VS1 : VectorSpaceStr F V1}} {{VS2 : VectorSpaceStr F V2}} where
   private

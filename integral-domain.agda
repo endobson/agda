@@ -2,6 +2,7 @@
 
 module integral-domain where
 
+open import additive-group using (AdditiveCommMonoid)
 open import apartness
 open import base
 open import cubical
@@ -15,7 +16,8 @@ open import sigma
 open import truncation
 
 
-module _ {ℓ : Level} {D : Type ℓ} {S : Semiring D}
+module _ {ℓ : Level} {D : Type ℓ}
+         {{ACM : AdditiveCommMonoid D}} {S : Semiring D}
          (R : Ring S) (A : TightApartnessStr D) where
   private
     module R = Ring R
@@ -31,7 +33,8 @@ module _ {ℓ : Level} {D : Type ℓ} {S : Semiring D}
       *-#0-equiv : {a b : D} -> ((a # 0#) × (b # 0#)) ≃ (a * b) # 0#
 
 
-module _ {ℓ : Level} {D : Type ℓ} {S : Semiring D}
+module _ {ℓ : Level} {D : Type ℓ}
+         {{ACM : AdditiveCommMonoid D}} {S : Semiring D}
          {R : Ring S} {A : TightApartnessStr D} {{IntD : IntegralDomain R A}} where
   private
     module R = Ring R

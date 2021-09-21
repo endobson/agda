@@ -2,6 +2,7 @@
 
 module cartesian-geometry.line where
 
+open import additive-group.instances.real
 open import base
 open import cartesian-geometry
 open import cartesian-geometry.vector

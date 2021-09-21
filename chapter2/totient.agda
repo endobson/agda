@@ -2,6 +2,7 @@
 
 module chapter2.totient where
 
+open import additive-group.instances.nat
 open import base
 open import cubical
 open import chapter2.divisors

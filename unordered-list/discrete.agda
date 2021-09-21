@@ -5,6 +5,7 @@ open import relation
 
 module unordered-list.discrete {ℓ : Level} {A : Type ℓ} {{disc'A : Discrete' A}} where
 
+open import additive-group.instances.nat
 open import commutative-monoid
 open import equality
 open import functions

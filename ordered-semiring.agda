@@ -2,6 +2,7 @@
 
 module ordered-semiring where
 
+open import additive-group using (AdditiveCommMonoid)
 open import base
 open import equality
 open import order
@@ -11,7 +12,7 @@ private
   variable
     ℓD ℓ< ℓ≤ : Level
 
-module _ {D : Type ℓD} (S : Semiring D) (O : LinearOrderStr D ℓ<) where
+module _ {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} (S : Semiring D) (O : LinearOrderStr D ℓ<) where
   private
     instance
       IS = S
@@ -23,7 +24,7 @@ module _ {D : Type ℓD} (S : Semiring D) (O : LinearOrderStr D ℓ<) where
       +₁-preserves-< : (a b c : D) -> b < c -> (a + b) < (a + c)
       *-preserves-0< : (a b : D) -> 0# < a -> 0# < b -> 0# < (a * b)
 
-module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
+module _ {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}  {S : Semiring D} {O : LinearOrderStr D ℓ<}
          {{LOS : LinearlyOrderedSemiringStr S O}} where
   open LinearlyOrderedSemiringStr LOS public
 
@@ -47,7 +48,7 @@ module _ {D : Type ℓD} {S : Semiring D} {O : LinearOrderStr D ℓ<}
 
 
 
-module _ {D : Type ℓD} (S : Semiring D) (O : PartialOrderStr D ℓ≤) where
+module _ {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} (S : Semiring D) (O : PartialOrderStr D ℓ≤) where
   private
     instance
       IS = S
@@ -61,7 +62,7 @@ module _ {D : Type ℓD} (S : Semiring D) (O : PartialOrderStr D ℓ≤) where
 
 
 
-module _ {D : Type ℓD} {S : Semiring D} {O : PartialOrderStr D ℓ<}
+module _ {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {S : Semiring D} {O : PartialOrderStr D ℓ<}
          {{POS : PartiallyOrderedSemiringStr S O}} where
   open PartiallyOrderedSemiringStr POS public
 

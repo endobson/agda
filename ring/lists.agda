@@ -1,9 +1,11 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
+open import additive-group using (AdditiveCommMonoid)
 open import base
 open import semiring
 
-module ring.lists {ℓD : Level} {Domain : Type ℓD} (S : Semiring Domain) where
+module ring.lists {ℓD : Level} {Domain : Type ℓD} {{ACM : AdditiveCommMonoid Domain}}
+                  (S : Semiring Domain) where
 
 open import equality
 

@@ -2,6 +2,7 @@
 
 module finsum.arithmetic where
 
+open import additive-group using (AdditiveCommMonoid)
 open import base
 open import commutative-monoid
 open import equality
@@ -10,7 +11,8 @@ open import finset
 open import finsum
 open import semiring
 
-module _ {ℓD ℓI : Level} {D : Type ℓD} {I : Type ℓI} {{S : Semiring D}} {{FI : FinSetStr I}}
+module _ {ℓD ℓI : Level} {D : Type ℓD} {I : Type ℓI}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring D}} {{FI : FinSetStr I}}
   where
   private
     module S = Semiring S

@@ -2,6 +2,8 @@
 
 module finsum where
 
+open import additive-group using (AdditiveCommMonoid)
+open import additive-group.instances.nat
 open import base
 open import equality
 open import equivalence
@@ -34,7 +36,7 @@ private
     ℓ : Level
     A : Type ℓ
 
-module _ {D : Type ℓ} {{S : Semiring D}} where
+module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{S : Semiring D}} where
   private
     CM = +-CommMonoid
 
@@ -72,7 +74,7 @@ module _ {D : Type ℓ} {{S : Semiring D}} where
 
 
 private
-  module _ {D : Type ℓ} {{S : Semiring D}} where
+  module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{S : Semiring D}} where
     i<nSum : (n : Nat) -> (f : Nat -> D) -> D
     i<nSum n f = finSumDep n (\ (x , _) -> f x)
 
@@ -313,7 +315,7 @@ finiteSum'-one {S = S@(S' , FS)} = unsquash (isSetNat _ _) (∥-map handle FS)
                     finiteSum-one n >=> sym (cardnality-path S (n , ∣ eq ∣))
 
 
-module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Semiring D}} where
   private
     module S = Semiring S
 

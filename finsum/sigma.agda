@@ -2,6 +2,7 @@
 
 module finsum.sigma where
 
+open import additive-group using (AdditiveCommMonoid)
 open import base
 open import finset
 open import functions
@@ -19,7 +20,7 @@ open import fin
 open import semiring
 open import truncation
 
-module _ {ℓD : Level} {D : Type ℓD} {{S : Semiring D}} where
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Semiring D}} where
   private
     module S = Semiring S
 

@@ -2,6 +2,7 @@
 
 module ring.implementations.real where
 
+open import additive-group.instances.real
 open import base
 open import real
 open import real.arithmetic

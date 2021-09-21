@@ -2,6 +2,8 @@
 
 module chapter2.mobius where
 
+open import additive-group using (AdditiveCommMonoid)
+open import additive-group.instances.int
 open import base
 open import chapter2.square-free
 open import chapter2.divisors
@@ -308,7 +310,7 @@ divisor->nat⁺' : (n : Nat⁺) -> Divisor n -> Nat⁺
 divisor->nat⁺' (_ , n-pos) (d , d%n@(x , _)) = x , div'-pos->pos' d%n n-pos
 
 
-module _ {ℓ : Level} {D : Type ℓ} {{S : Semiring D}} where
+module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{S : Semiring D}} where
   private
 
     instance

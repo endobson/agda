@@ -2,6 +2,7 @@
 
 module real.heyting-field where
 
+open import additive-group.instances.real
 open import apartness
 open import base
 open import cubical

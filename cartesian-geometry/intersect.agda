@@ -2,6 +2,7 @@
 
 module cartesian-geometry.intersect where
 
+open import additive-group.instances.real
 open import apartness
 open import base
 open import cartesian-geometry

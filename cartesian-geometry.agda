@@ -3,6 +3,7 @@
 
 module cartesian-geometry where
 
+open import additive-group.instances.real
 open import apartness
 open import cartesian-geometry.vector
 open import base
