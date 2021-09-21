@@ -15,6 +15,7 @@ private
     A : Set ℓ
 
 record Semiring {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
+  no-eta-equality
   infixl 7 _*_
   infixl 6 _+_
 

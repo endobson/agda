@@ -24,6 +24,7 @@ private
     A : Set ℓ
 
 record Ring {ℓ : Level} {Domain : Type ℓ} (S : Semiring Domain) : Type ℓ where
+  no-eta-equality
   private
     instance
       IS = S

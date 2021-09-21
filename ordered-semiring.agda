@@ -18,6 +18,7 @@ module _ {D : Type ℓD} (S : Semiring D) (O : LinearOrderStr D ℓ<) where
       IO = O
 
   record LinearlyOrderedSemiringStr : Type (ℓ-max (ℓ-suc ℓ<) ℓD) where
+    no-eta-equality
     field
       +₁-preserves-< : (a b c : D) -> b < c -> (a + b) < (a + c)
       *-preserves-0< : (a b : D) -> 0# < a -> 0# < b -> 0# < (a * b)
@@ -53,6 +54,7 @@ module _ {D : Type ℓD} (S : Semiring D) (O : PartialOrderStr D ℓ≤) where
       IO = O
 
   record PartiallyOrderedSemiringStr : Type (ℓ-max (ℓ-suc ℓ≤) ℓD) where
+    no-eta-equality
     field
       +₁-preserves-≤ : (a b c : D) -> b ≤ c -> (a + b) ≤ (a + c)
       *-preserves-0≤ : (a b : D) -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a * b)

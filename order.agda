@@ -16,6 +16,7 @@ private
     ℓD ℓ< ℓ≤ : Level
 
 record LinearOrderStr (D : Type ℓD) (ℓ< : Level) : Type (ℓ-max (ℓ-suc ℓ<) ℓD) where
+  no-eta-equality
   field
     _<_ : D -> D -> Type ℓ<
     isProp-< : (x y : D) -> isProp (x < y)
@@ -65,6 +66,7 @@ module _ {D : Type ℓD} (A : TightApartnessStr D) (O : LinearOrderStr D ℓ<) w
      IA = A
 
   record ApartLinearOrderStr : Type (ℓ-max ℓ< ℓD) where
+    no-eta-equality
     field
       <>-equiv-# : (a b : D) -> (a <> b) ≃ (a # b)
 
@@ -74,6 +76,7 @@ module _ {D : Type ℓD} {A : TightApartnessStr D} {O : LinearOrderStr D ℓ<}
   open ApartLinearOrderStr AO public
 
 record PartialOrderStr (D : Type ℓD) (ℓ≤ : Level) : Type (ℓ-max (ℓ-suc ℓ≤) ℓD) where
+  no-eta-equality
   field
     _≤_ : D -> D -> Type ℓ≤
     isProp-≤ : (x y : D) -> isProp (x ≤ y)
@@ -99,6 +102,7 @@ module _ {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) where
       IPO = PO
 
   record TotalOrderStr : Type (ℓ-max ℓD ℓ≤) where
+    no-eta-equality
     field
       connex-≤ : Connex _≤_
 
@@ -115,6 +119,7 @@ module _ {D : Type ℓD}
       ≤-Str-I = ≤-Str
 
   record CompatibleOrderStr : Type (ℓ-max (ℓ-max ℓ≤ ℓ<) ℓD) where
+    no-eta-equality
     field
       weaken-< : {d1 d2 : D} -> d1 < d2 -> d1 ≤ d2
 
@@ -207,6 +212,7 @@ module _ {D : Type ℓD} {ℓ< : Level} (<-Str : LinearOrderStr D ℓ<) where
       <-Str-I = <-Str
 
   record DecidableLinearOrderStr : Type (ℓ-max ℓ< ℓD) where
+    no-eta-equality
     field
       trichotomous-< : Trichotomous _<_
 
