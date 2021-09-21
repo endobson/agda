@@ -24,8 +24,8 @@ private
     ℓ : Level
     A : Set ℓ
 
-record Ring {ℓ : Level} {Domain : Type ℓ} {{ACM : AdditiveCommMonoid Domain}}
-            (S : Semiring Domain) : Type ℓ where
+record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
+            (S : Semiring ACM) : Type ℓ where
   no-eta-equality
   private
     instance
@@ -493,7 +493,7 @@ record Ring {ℓ : Level} {Domain : Type ℓ} {{ACM : AdditiveCommMonoid Domain}
     preserves-inverse : (x : ℤ) -> (base u^ℤ (int.- x)) == (u1/ (base u^ℤ x))
     preserves-inverse x = u^ℤ-preserves-inverse {base} {x}
 
-module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {S : Semiring D} {{R : Ring S}} where
+module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {{R : Ring S}} where
   private
     instance IS = S
 
@@ -547,8 +547,8 @@ module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {S : Semiring D} {{R : Ri
 record Semiringʰᵉ
     {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {{ACM₁ : AdditiveCommMonoid D₁}} {{ACM₂ : AdditiveCommMonoid D₂}}
-    (S₁ : Semiring D₁) (S₂ : Semiring D₂)
+    {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
+    (S₁ : Semiring ACM₁) (S₂ : Semiring ACM₂)
     (f : D₁ -> D₂) : Type (ℓ-max ℓ₁ ℓ₂)
   where
   module S₁ = Semiring S₁
@@ -562,16 +562,16 @@ record Semiringʰᵉ
 Semiringʰ :
     {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {{ACM₁ : AdditiveCommMonoid D₁}} {{ACM₂ : AdditiveCommMonoid D₂}}
-    {{S₁ : Semiring D₁}} {{S₂ : Semiring D₂}}
+    {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
+    {{S₁ : Semiring ACM₁}} {{S₂ : Semiring ACM₂}}
     (f : D₁ -> D₂) -> Type (ℓ-max ℓ₁ ℓ₂)
 Semiringʰ {{S₁ = S₁}} {{S₂ = S₂}} f = Semiringʰᵉ S₁ S₂ f
 
 module Semiringʰ
     {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {{ACM₁ : AdditiveCommMonoid D₁}} {{ACM₂ : AdditiveCommMonoid D₂}}
-    {S₁ : Semiring D₁} {S₂ : Semiring D₂}
+    {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
+    {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
     {f : D₁ -> D₂}
     (s : Semiringʰᵉ S₁ S₂ f) where
   open Semiringʰᵉ s public
@@ -579,8 +579,8 @@ module Semiringʰ
 Semiringʰ-∘ :
   {ℓ₁ ℓ₂ ℓ₃ : Level}
   {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} {D₃ : Type ℓ₃}
-  {{ACM₁ : AdditiveCommMonoid D₁}} {{ACM₂ : AdditiveCommMonoid D₂}} {{ACM₃ : AdditiveCommMonoid D₃}}
-  {S₁ : Semiring D₁} {S₂ : Semiring D₂} {S₃ : Semiring D₃}
+  {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂} {ACM₃ : AdditiveCommMonoid D₃}
+  {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂} {S₃ : Semiring ACM₃}
   {f : D₂ -> D₃} {g : D₁ -> D₂} ->
   (Semiringʰᵉ S₂ S₃ f) ->
   (Semiringʰᵉ S₁ S₂ g) ->
@@ -600,8 +600,8 @@ Semiringʰ-∘ {S₁ = S₁} {S₂} {S₃} {f} {g} f' g' = record
 record Ringʰᵉ
     {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {{ACM₁ : AdditiveCommMonoid D₁}} {{ACM₂ : AdditiveCommMonoid D₂}}
-    {S₁ : Semiring D₁} {S₂ : Semiring D₂}
+    {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
+    {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
     (R₁ : Ring S₁) (R₂ : Ring S₂)
     (f : D₁ -> D₂) : Type (ℓ-max ℓ₁ ℓ₂)
   where
@@ -622,8 +622,8 @@ record Ringʰᵉ
 Ringʰ :
     {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {{ACM₁ : AdditiveCommMonoid D₁}} {{ACM₂ : AdditiveCommMonoid D₂}}
-    {S₁ : Semiring D₁} {S₂ : Semiring D₂}
+    {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
+    {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
     {{R₁ : Ring S₁}} {{R₂ : Ring S₂}}
     (f : D₁ -> D₂) -> Type (ℓ-max ℓ₁ ℓ₂)
 Ringʰ {{R₁ = R₁}} {{R₂ = R₂}} f = Ringʰᵉ R₁ R₂ f
@@ -631,8 +631,8 @@ Ringʰ {{R₁ = R₁}} {{R₂ = R₂}} f = Ringʰᵉ R₁ R₂ f
 module Ringʰ
     {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {{ACM₁ : AdditiveCommMonoid D₁}} {{ACM₂ : AdditiveCommMonoid D₂}}
-    {S₁ : Semiring D₁} {S₂ : Semiring D₂}
+    {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
+    {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
     {R₁ : Ring S₁} {R₂ : Ring S₂}
     {f : D₁ -> D₂}
     (s : Ringʰᵉ R₁ R₂ f) where

@@ -310,7 +310,7 @@ divisor->nat⁺' : (n : Nat⁺) -> Divisor n -> Nat⁺
 divisor->nat⁺' (_ , n-pos) (d , d%n@(x , _)) = x , div'-pos->pos' d%n n-pos
 
 
-module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{S : Semiring D}} where
+module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
   private
 
     instance

@@ -51,7 +51,7 @@ private
 
 
 module _ {ℓI ℓK : Level} {I : Type ℓI} {K : Type ℓK}
-         {{ACM : AdditiveCommMonoid K}} {{S : Semiring K}} where
+         {ACM : AdditiveCommMonoid K} {{S : Semiring ACM}} where
 
   indicator' : {i1 i2 : I} -> Dec (i1 == i2) -> K
   indicator' (yes _) = 1#
@@ -74,8 +74,8 @@ module _ {ℓI ℓK : Level} {I : Type ℓI} {K : Type ℓK}
 
 
 module _ {ℓK ℓI : Level} {K : Type ℓK}
-         {{ACM : AdditiveCommMonoid K}}
-         {{S : Semiring K}}
+         {ACM : AdditiveCommMonoid K}
+         {{S : Semiring ACM}}
          {{R : Ring S}} {{A : TightApartnessStr K}} (F : Field R A) (I : Type ℓI)
          {{FI : FinSetStr I}}  where
   private

@@ -22,8 +22,8 @@ private
   variable
     ℓD ℓ< : Level
 
-module _ {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
-         {S : Semiring D} {O : LinearOrderStr D ℓ<}
+module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+         {S : Semiring ACM} {O : LinearOrderStr D ℓ<}
          {R : Ring S} {A : TightApartnessStr D}
          {{LOS : LinearlyOrderedSemiringStr S O}}
          {{F : Field R A}}

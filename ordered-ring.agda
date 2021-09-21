@@ -17,8 +17,8 @@ private
   variable
     ℓD ℓ< ℓ≤ : Level
 
-module _ {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
-         {S : Semiring D} {O : LinearOrderStr D ℓ<}
+module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+         {S : Semiring ACM} {O : LinearOrderStr D ℓ<}
          {{LOS : LinearlyOrderedSemiringStr S O}}
          {{R : Ring S}} where
   private
@@ -141,8 +141,8 @@ module _ {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
 --    u1/-preserves-0< : (x : R.Unit) -> 0# < ⟨ x ⟩ -> 0# < ⟨ (R.u1/ x) ⟩
 --    u1/-preserves-0< (x , (R.is-unit 1/x x/x=1)) = ?
 
-module _ {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
-         {S : Semiring D} {O : PartialOrderStr D ℓ<}
+module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+         {S : Semiring ACM} {O : PartialOrderStr D ℓ<}
          {{POS : PartiallyOrderedSemiringStr S O}}
          {{R : Ring S}} where
   private
@@ -201,7 +201,7 @@ module _ {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
       subst2 _≤_ *-commute *-commute (*₁-flips-≤ c a b c≤0 a≤b)
 
 
-module _ {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {S : Semiring D} {O : PartialOrderStr D ℓ≤}
+module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : PartialOrderStr D ℓ≤}
          {{TO : TotalOrderStr O}}
          {{POS : PartiallyOrderedSemiringStr S O}}
          {{R : Ring S}} where

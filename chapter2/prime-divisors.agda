@@ -351,7 +351,7 @@ isFinSet-PrimePowerFactor zero =
 isFinSet-PrimePowerFactor n@(suc _) =
   isFinSet-equiv (PrimeDivisor-PrimePowerFactor-eq (n , tt)) (isFinSet-PrimeDivisor (n , tt))
 
-module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{S : Semiring D}} where
+module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
   private
     instance
       M : Multiplication D

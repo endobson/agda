@@ -165,8 +165,8 @@ private
   ...    | equal-to list-pr = equal-to (\i -> (elem-pr i) :: (list-pr i))
 
 
-module RingSolver {Domain : Type ℓ} {{ACM : AdditiveCommMonoid Domain}}
-                  {S : Semiring Domain} (R : Ring S) where
+module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
+                  {S : Semiring ACM} (R : Ring S) where
 
   module _ (n : Nat) where
     private
@@ -676,7 +676,7 @@ module RingSolver {Domain : Type ℓ} {{ACM : AdditiveCommMonoid Domain}}
 
 
 
-module Solver {Domain : Type ℓ} {{ACM : AdditiveCommMonoid Domain}} (S : Semiring Domain) where
+module Solver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain} (S : Semiring ACM) where
   module S = Semiring S
 
   module _ (n : Nat) where

@@ -20,7 +20,7 @@ open import fin
 open import semiring
 open import truncation
 
-module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Semiring D}} where
+module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
   private
     module S = Semiring S
 

@@ -23,7 +23,7 @@ open import sum
 open import truncation
 open import univalence
 
-module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {S : Semiring D}
+module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
          {R : Ring S} {A : TightApartnessStr D} (ID : IntegralDomain R A) where
   private
     module R = Ring R
@@ -524,7 +524,7 @@ module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {S : Semiri
         }
 
 
-      Semiring-Q : Semiring Q
+      Semiring-Q : Semiring AdditiveCommMonoid-Q
       Semiring-Q = record
         { 0# = 0q
         ; 1# = 1q
@@ -660,7 +660,7 @@ module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {S : Semiri
       ba#b0 = subst2 _#_ (sym p >=> q*-commute a b) 0=b0 1q#0
         where
         0=b0 : 0# == b * 0#
-        0=b0 = sym (*-right-zero {_} {_} {b})
+        0=b0 = sym (*-right-zero {_} {_} {_} {b})
 
     isUnit->q# : (a b : Q) -> Ring-Q.isUnit (diff a b) -> a # b
     isUnit->q# a b = eqInv (diff-q#-equiv a b) ∘ isUnit->q#0

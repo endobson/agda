@@ -28,7 +28,7 @@ open int using
  )
 
 instance
-  NatSemiring : Semiring Nat
+  NatSemiring : Semiring AdditiveCommMonoid-Nat
   NatSemiring = record
     { 0# = 0
     ; 1# = 1
@@ -47,7 +47,7 @@ instance
 module NatSemiring = Semiring NatSemiring
 
 instance
-  IntSemiring : Semiring int.Int
+  IntSemiring : Semiring AdditiveCommMonoid-Int
   IntSemiring = record
     { 0# = (int.int 0)
     ; 1# = (int.int 1)
@@ -140,14 +140,15 @@ module _ where
 
 
 
-ReaderSemiring : {ℓ₁ ℓ₂ : Level} {Domain : Type ℓ₁} {{ACM : AdditiveCommMonoid Domain}}
-                 -> (A : Type ℓ₂) -> Semiring Domain -> Semiring (A -> Domain)
-ReaderSemiring {Domain = Domain} A S = res
+ReaderSemiring : {ℓ₁ ℓ₂ : Level} {Domain : Type ℓ₁} {ACM : AdditiveCommMonoid Domain} ->
+                 (A : Type ℓ₂) -> Semiring ACM ->
+                 Semiring (AdditiveCommMonoid-Reader ACM A)
+ReaderSemiring {Domain = Domain} {ACM = ACM} A S = res
   where
   private
     module S = Semiring S
 
-  res : Semiring (A -> Domain)
+  res : Semiring (AdditiveCommMonoid-Reader ACM A)
   res = record
     { 0# = \a -> Semiring.0# S
     ; 1# = \a -> Semiring.1# S
@@ -165,9 +166,9 @@ ReaderSemiring {Domain = Domain} A S = res
     }
 
 
-ReaderRing : {ℓ : Level} {Domain : Type ℓ} {{ACM : AdditiveCommMonoid Domain}} {S : Semiring Domain} ->
+ReaderRing : {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain} {S : Semiring ACM} ->
              (A : Type ℓ) -> Ring S -> Ring (ReaderSemiring A S)
-ReaderRing {Domain = Domain} {S} A R = res
+ReaderRing {Domain = Domain} {ACM} {S} A R = res
   where
   instance
     IR = R

@@ -12,7 +12,7 @@ open import finsum
 open import semiring
 
 module _ {ℓD ℓI : Level} {D : Type ℓD} {I : Type ℓI}
-         {{ACM : AdditiveCommMonoid D}} {{S : Semiring D}} {{FI : FinSetStr I}}
+         {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} {{FI : FinSetStr I}}
   where
   private
     module S = Semiring S

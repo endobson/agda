@@ -577,7 +577,7 @@ instance
     ; +-inverse = (\ {a} -> r+-inverse a)
     }
 
-  RationalSemiring : Semiring Rational
+  RationalSemiring : Semiring AdditiveCommMonoid-Rational
   RationalSemiring = record
     { 0# = 0r
     ; 1# = 1r

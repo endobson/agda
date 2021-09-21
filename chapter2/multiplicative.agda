@@ -33,8 +33,8 @@ instance
   RationalMultiplication : Multiplication Rational
   RationalMultiplication = record { mult = _r*_; 1# = (ℕ->ℚ 1) }
 
-SemiringMultiplication : {D : Type ℓ} -> {{ACM : AdditiveCommMonoid D}} ->
-                         (S : Semiring D) -> Multiplication D
+SemiringMultiplication : {D : Type ℓ} -> {ACM : AdditiveCommMonoid D} ->
+                         (S : Semiring ACM) -> Multiplication D
 SemiringMultiplication S = record { mult = Semiring._*_ S ; 1# = Semiring.1# S }
 
 

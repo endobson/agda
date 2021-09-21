@@ -17,7 +17,7 @@ open import truncation
 
 
 module _ {ℓ : Level} {D : Type ℓ}
-         {{ACM : AdditiveCommMonoid D}} {S : Semiring D}
+         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
          (R : Ring S) (A : TightApartnessStr D) where
   private
     module R = Ring R
@@ -34,7 +34,7 @@ module _ {ℓ : Level} {D : Type ℓ}
 
 
 module _ {ℓ : Level} {D : Type ℓ}
-         {{ACM : AdditiveCommMonoid D}} {S : Semiring D}
+         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
          {R : Ring S} {A : TightApartnessStr D} {{IntD : IntegralDomain R A}} where
   private
     module R = Ring R

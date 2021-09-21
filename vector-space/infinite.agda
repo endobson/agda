@@ -34,8 +34,8 @@ private
     ℓ : Level
 
 module _ {ℓK ℓV : Level} {K : Type ℓK}
-         {{ACM : AdditiveCommMonoid K}}
-         {S : Semiring K} {R : Ring S}
+         {ACM : AdditiveCommMonoid K}
+         {S : Semiring ACM} {R : Ring S}
          {A : TightApartnessStr K} {F : Field R A} {V : Type ℓV}
          (VS : VectorSpaceStr F V) where
 

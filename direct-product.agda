@@ -167,7 +167,7 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} (TD : TightApartnessStr D) (I : Typ
 
 
 module _ {ℓK ℓI : Level} {K : Type ℓK}
-         {{ACM : AdditiveCommMonoid K}} {S : Semiring K}
+         {ACM : AdditiveCommMonoid K} {S : Semiring ACM}
          (R : Ring S) (TK : TightApartnessStr K) (I : Type ℓI) where
   private
     module R = Ring R
@@ -202,7 +202,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
     }
 
 module _ {ℓK ℓI : Level} {K : Type ℓK}
-         {{ACM : AdditiveCommMonoid K}} {S : Semiring K}
+         {ACM : AdditiveCommMonoid K} {S : Semiring ACM}
          {R : Ring S} {A : TightApartnessStr K} (F : Field R A) (I : Type ℓI) where
   private
     instance

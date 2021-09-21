@@ -457,7 +457,7 @@ abstract
     handle (inj-l u<-l) = b , (ℝ∈Iℚ-absℝ-ImbalancedI x b mmu≤u (xl--u , xu-u)) , mmu≤u , b⊆a
       where
       l≤-u : l ≤ (- u)
-      l≤-u = weaken-< (subst (_< (- u)) (minus-double-inverse {_} {_} {_} {l})
+      l≤-u = weaken-< (subst (_< (- u)) (minus-double-inverse {_} {_} {_} {_} {l})
                                         (minus-flips-< u (- l) u<-l))
 
       b : Iℚ

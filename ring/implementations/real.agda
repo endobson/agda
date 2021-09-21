@@ -15,7 +15,7 @@ open import semiring
 
 
 instance
-  ℝSemiring : Semiring ℝ
+  ℝSemiring : Semiring AdditiveCommMonoid-ℝ
   ℝSemiring = record
     { 0# = 0ℝ
     ; 1# = 1ℝ

@@ -20,8 +20,8 @@ private
     ℓ : Level
 
 record Field {ℓ : Level} {D : Type ℓ}
-             {{ACM : AdditiveCommMonoid D}}
-             {S : Semiring D} (R : Ring S) (A : TightApartnessStr D)
+             {ACM : AdditiveCommMonoid D}
+             {S : Semiring ACM} (R : Ring S) (A : TightApartnessStr D)
   : Type (ℓ-suc ℓ) where
   private
     module R = Ring R

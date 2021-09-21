@@ -72,14 +72,14 @@ private
 
   midℚ-plus-half-diffℚ : (x y : ℚ) -> (midℚ x y r+ (1/2r r* (diffℚ x y))) == y
   midℚ-plus-half-diffℚ x y =
-    sym (*-distrib-+-left {_} {_} {1/2r} {x r+ y} {diffℚ x y}) >=>
+    sym (*-distrib-+-left {_} {_} {_} {1/2r} {x r+ y} {diffℚ x y}) >=>
     cong (1/2r r*_)
       (cong2 _r+_ (r+-commute x y) (r+-commute y (r- x)) >=>
        r+-assoc y x ((r- x) r+ y) >=>
        cong (y r+_) ((sym (r+-assoc x (r- x) y)) >=>
                      cong (_r+ y) (r+-inverse x) >=>
                      r+-left-zero y)) >=>
-    (*-distrib-+-left {_} {_} {1/2r} {y} {y}) >=>
+    (*-distrib-+-left {_} {_} {_} {1/2r} {y} {y}) >=>
     1/2r-path' y
 
   midℚ-commute : (x y : ℚ) -> midℚ x y == midℚ y x
