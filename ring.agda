@@ -265,7 +265,7 @@ record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
 
   +-Group : GroupStr Domain
   +-Group = record
-    { comm-monoid = +-CommMonoid
+    { comm-monoid = Semiring.+-CommMonoid semiring
     ; inverse = -_
     ; ∙-left-inverse = +-commute >=> +-inverse
     }
@@ -320,7 +320,7 @@ record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
       (cong (_* u2.inv) u1.path) >=> *-left-one
 
     path-path : PathP (\i -> x * (inv-path i) == 1#) u1.path u2.path
-    path-path = isProp->PathP (\_ -> isSet-Domain _ _) u1.path u2.path
+    path-path = isProp->PathP (\_ -> Semiring.isSet-Domain semiring _ _) u1.path u2.path
 
 
   *-isUnit-split : {x y : Domain} -> isUnit (x * y) -> (isUnit x) × (isUnit y)
@@ -333,7 +333,7 @@ record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
   Unit = Σ Domain isUnit
 
   isSet-Unit : isSet Unit
-  isSet-Unit = isSetΣ isSet-Domain (\_ -> (isProp->isSet isProp-isUnit))
+  isSet-Unit = isSetΣ (Semiring.isSet-Domain semiring) (\_ -> (isProp->isSet isProp-isUnit))
 
   1u : Unit
   1u = 1# , isUnit-one

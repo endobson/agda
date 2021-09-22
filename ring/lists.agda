@@ -33,10 +33,10 @@ module _ where
   open monoid
 
   sum : List Domain -> Domain
-  sum = concat {{+-Monoid}}
+  sum = concat {{S.+-Monoid}}
 
-  sumʰ : Monoidʰ {{M₁ = ListMonoid}} {{M₂ = +-Monoid}} sum
-  sumʰ = concatʰ {{+-Monoid}}
+  sumʰ : Monoidʰ {{M₁ = ListMonoid}} {{M₂ = S.+-Monoid}} sum
+  sumʰ = concatʰ {{S.+-Monoid}}
   module sumʰ where
     open Monoidʰ sumʰ public
     preserves-+ = preserves-∙
@@ -98,10 +98,10 @@ module _ where
 
 
   product : List Domain -> Domain
-  product = concat {{*-Monoid}}
+  product = concat {{S.*-Monoid}}
 
 
-  productʰ : Monoidʰ {{M₂ = *-Monoid}} product
+  productʰ : Monoidʰ {{M₂ = S.*-Monoid}} product
   productʰ = concatʰ
   module productʰ where
     open Monoidʰ productʰ public
@@ -133,13 +133,13 @@ module _ where
   open commutative-monoid
 
   unordered-sum : UList Domain -> Domain
-  unordered-sum = concat {{+-CommMonoid}} isSet-Domain
+  unordered-sum = concat {{S.+-CommMonoid}} S.isSet-Domain
 
   unordered-sumʰ : CommMonoidʰ unordered-sum
-  unordered-sumʰ = concatʰ {{+-CommMonoid}}
+  unordered-sumʰ = concatʰ {{S.+-CommMonoid}}
 
   unordered-product : UList Domain -> Domain
-  unordered-product = concat {{*-CommMonoid}} isSet-Domain
+  unordered-product = concat {{S.*-CommMonoid}} S.isSet-Domain
 
   unordered-productʰ : CommMonoidʰ unordered-product
-  unordered-productʰ = concatʰ {{*-CommMonoid}}
+  unordered-productʰ = concatʰ {{S.*-CommMonoid}}

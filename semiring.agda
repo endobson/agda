@@ -32,10 +32,11 @@ record Semiring {ℓ : Level} {Domain : Type ℓ} (ACM : AdditiveCommMonoid Doma
     *-distrib-+-right : {m n o : Domain} -> (m + n) * o == (m * o) + (n * o)
     isSet-Domain : isSet Domain
 
-  *-right-zero : {m : Domain} -> (m * 0#) == 0#
-  *-right-zero {m} = (*-commute {m} {0#}) >=> (*-left-zero {m})
-  *-right-one : {m : Domain} -> (m * 1#) == m
-  *-right-one {m} = (*-commute {m} {1#}) >=> (*-left-one {m})
+  abstract
+    *-right-zero : {m : Domain} -> (m * 0#) == 0#
+    *-right-zero {m} = (*-commute {m} {0#}) >=> (*-left-zero {m})
+    *-right-one : {m : Domain} -> (m * 1#) == m
+    *-right-one {m} = (*-commute {m} {1#}) >=> (*-left-one {m})
 
   instance
     +-Monoid : Monoid Domain
@@ -69,62 +70,57 @@ record Semiring {ℓ : Level} {Domain : Type ℓ} (ACM : AdditiveCommMonoid Doma
       }
 
 
-  *-distrib-+-left : {m n o : Domain} -> m * (n + o) == (m * n) + (m * o)
-  *-distrib-+-left {m} {n} {o} =
-    begin
-      m * (n + o)
-    ==< (*-commute {m} {n + o}) >
-      (n + o) * m
-    ==< (*-distrib-+-right {n} {o} {m}) >
-      n * m + o * m
-    ==< (cong2 _+_ (*-commute {n} {m}) (*-commute {o} {m})) >
-      (m * n) + (m * o)
-    end
-
-
-  +-right : {m n p : Domain} -> (n == p) -> m + n == m + p
-  +-right {m} id = cong (\x -> m + x) id
-
-  +-left : {m n p : Domain} -> (n == p) -> n + m == p + m
-  +-left {m} id = cong (\x -> x + m) id
-
-  +-cong : {m n p o : Domain} -> m == p -> n == o -> m + n == p + o
-  +-cong = cong2 _+_
-
-  *-right : {m n p : Domain} -> (n == p) -> m * n == m * p
-  *-right {m} id = cong (\x -> m * x) id
-
-  *-left : {m n p : Domain} -> (n == p) -> n * m == p * m
-  *-left {m} id = cong (\x -> x * m) id
-
-  *-cong : {m n p o : Domain} -> m == p -> n == o -> m * n == p * o
-  *-cong = cong2 _*_
-
-
-  +-swap : {m n o p : Domain} -> (m + n) + (o + p) == (m + o) + (n + p)
-  +-swap = +-assoc >=> +-right (sym +-assoc >=> +-left +-commute >=> +-assoc) >=> sym +-assoc
-
 
 module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
-  open Semiring S public
+  private
+    instance
+      IACM = ACM
+
+  open Semiring S public using (1# ; _*_)
+
+  abstract
+    open Semiring S public using
+      ( *-assoc
+      ; *-commute
+      ; *-left-zero
+      ; *-right-zero
+      ; *-left-one
+      ; *-right-one
+      ; *-distrib-+-right
+      )
 
 
---record SignedSemiringStr {ℓD : Level} (D : Type ℓD) (ℓS : Level) : Type (ℓ-max ℓD (ℓ-suc ℓS)) where
---  field
---    {{ semiring }} : Semiring D
---    {{ sign }} : SignStr D ℓS
---
---  field
---    Zero-0# : Zero 0#
---    Pos-1# : Pos 1#
+    *-distrib-+-left : {m n o : D} -> m * (n + o) == (m * n) + (m * o)
+    *-distrib-+-left {m} {n} {o} =
+      begin
+        m * (n + o)
+      ==< (*-commute {m} {n + o}) >
+        (n + o) * m
+      ==< (*-distrib-+-right {n} {o} {m}) >
+        n * m + o * m
+      ==< (cong2 _+_ (*-commute {n} {m}) (*-commute {o} {m})) >
+        (m * n) + (m * o)
+      end
 
 
---   open Semiring semiring
---   open SignStr sign
---
---   field
---     Zero-0# : Zero 0#
---     Pos-1# : Pos 1#
---     +-Pos-Pos : {x y : D} -> Pos x -> Pos y -> Pos (x + y)
---     +-Neg-Neg : {x y : D} -> Neg x -> Neg y -> Neg (x + y)
---     *-Pos-Pos : {x y : D} -> Pos x -> Pos y -> Pos (x * y)
+    +-right : {m n p : D} -> (n == p) -> m + n == m + p
+    +-right {m} id = cong (\x -> m + x) id
+
+    +-left : {m n p : D} -> (n == p) -> n + m == p + m
+    +-left {m} id = cong (\x -> x + m) id
+
+    +-cong : {m n p o : D} -> m == p -> n == o -> m + n == p + o
+    +-cong = cong2 _+_
+
+    *-right : {m n p : D} -> (n == p) -> m * n == m * p
+    *-right {m} id = cong (\x -> m * x) id
+
+    *-left : {m n p : D} -> (n == p) -> n * m == p * m
+    *-left {m} id = cong (\x -> x * m) id
+
+    *-cong : {m n p o : D} -> m == p -> n == o -> m * n == p * o
+    *-cong = cong2 _*_
+
+
+    +-swap : {m n o p : D} -> (m + n) + (o + p) == (m + o) + (n + p)
+    +-swap = +-assoc >=> +-right (sym +-assoc >=> +-left +-commute >=> +-assoc) >=> sym +-assoc

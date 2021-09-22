@@ -29,11 +29,11 @@ private
 private
   module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
     finiteProductᵉ : {ℓ : Level} -> (s : FinSet ℓ) -> (⟨ s ⟩ -> D) -> D
-    finiteProductᵉ = finiteMergeᵉ *-CommMonoid
+    finiteProductᵉ = finiteMergeᵉ (Semiring.*-CommMonoid S)
 
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
   private
-    CM = *-CommMonoid
+    CM = (Semiring.*-CommMonoid S)
 
   finProductDep : (n : Nat) -> (f : (Fin n) -> D) -> D
   finProductDep = finMergeDep CM

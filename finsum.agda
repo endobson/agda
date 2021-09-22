@@ -38,7 +38,7 @@ private
 
 module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
   private
-    CM = +-CommMonoid
+    CM = Semiring.+-CommMonoid S
 
   finSumDep : (n : Nat) -> (f : (Fin n) -> D) -> D
   finSumDep = finMergeDep CM
@@ -482,7 +482,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
       (f : (A ⊎ B) -> D) ->
       (finiteSumᵉ (FinSet-⊎ (A , finA) (B , finB)) f)
       == (finiteSumᵉ (A , finA) (f ∘ inj-l)) + (finiteSumᵉ (B , finB) (f ∘ inj-r))
-    finiteSum-⊎ f = unsquash (isSet-Domain _ _) (∥-map handle finA)
+    finiteSum-⊎ f = unsquash (Semiring.isSet-Domain S _ _) (∥-map handle finA)
       where
       handle : Σ[ n ∈ Nat ] (A ≃ Fin n) ->
                (finiteSumᵉ (FinSet-⊎ (A , finA) (B , finB)) f)
