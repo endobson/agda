@@ -5,7 +5,7 @@ module chapter2.dirichlet where
 open import additive-group using (AdditiveCommMonoid)
 open import base
 open import cubical
-open import equality-path
+open import equality
 open import equivalence
 open import semiring
 open import fin
@@ -30,6 +30,10 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
 
     PairedDivisor : Nat⁺ -> Type₀
     PairedDivisor n = Σ[ ij ∈ (Nat⁺ × Nat⁺) ] (proj₁ ij *⁺ proj₂ ij == n)
+
+    paired-divisor-ext :
+      {n : Nat⁺} {p1 p2 : PairedDivisor n} -> fst p1 == fst p2 -> p1 == p2
+    paired-divisor-ext = ΣProp-path (isSetNat⁺ _ _)
 
     Divisor-PairedDivisor-eq : (n : Nat⁺) -> Divisor n ≃ PairedDivisor n
     Divisor-PairedDivisor-eq n = isoToEquiv i
@@ -78,9 +82,10 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
         path4 : fst (fst (fst (backward (forward ppd)))) == i
         path4 = path2
         path5 : (fst (backward (forward ppd))) == pd
-        path5 = ΣProp-path (isSetNat⁺ _ _) (cong2 _,_ path4 path3)
+        path5 = paired-divisor-ext (cong2 _,_ path4 path3)
+
         path5' : fst (fst (fst (backward (forward ppd)))) == i
-        path5' = cong fst (cong fst path5)
+        path5' k = fst (fst (path5 k))
 
         path7 : fst (snd (backward (forward ppd))) == fst pd2
         path7 = refl

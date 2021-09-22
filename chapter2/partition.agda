@@ -71,94 +71,12 @@ module _ {ℓ₁ : Level} {D : Type ℓ₁} {ACM : AdditiveCommMonoid D} {{S : S
 
 
   module _ {ℓ : Level} {A : Type ℓ} (f : A -> D) where
-
---    equiv-sum-Top : {n : Nat} -> (eq : (A ≃ Fin n)) ->
---                    equivSum S f eq == equivSum S (f ∘ fst) (top-eq eq)
---    equiv-sum-Top eq = refl
-
     transport-sum : {B : Type ℓ} -> (e : isFinSet A) -> (p : A == B)
                     -> sum (A , e) f == sum (B , (substᵉ isFinSet p e))
-                                         (transport (cong (\x -> x -> D) p) f)
+                                            (transport (\i -> (p i) -> D) f)
     transport-sum e p k =
       sum (p k , transport-filler (\k -> (isFinSet (p k))) e k)
           (transport-filler (\k -> p k -> D) f k)
-
-
-    transport-test : {B : Type ℓ} (p : A == B) ->
-                     PathP (\i -> p i -> D) f (transport (cong (\x -> x -> D) p) f)
-    transport-test p = transport-filler (\i -> (p i) -> D) f
-
-    transport-test3 : {B : Type ℓ} (p : A == B) (b : B) ->
-                      (transport (cong (\x -> x -> D) p) f b) == (f (transport (sym p) b))
-    transport-test3 p b = transportRefl (f (transport (sym p) b))
-
-    transport-test2 : {B : Type ℓ} (p : A == B) ->
-                      (transport (cong (\x -> x -> D) p) f) == (f ∘ transport (sym p))
-    transport-test2 p i b = transport-test3 p b i
-
-    transport-test4 : {B : Type ℓ} (p : A == B) ->
-                      PathP (\i -> p i -> D) f (f ∘ transport (sym p))
-    transport-test4 p =
-      transP-left (transport-test p) (transport-test2 p)
-
-  module _ {ℓ : Level} (AF BF : FinSet ℓ) (f : ⟨ AF ⟩ -> D) where
-    private
-      A = ⟨ AF ⟩
-      B = ⟨ BF ⟩
-
-    transport-sum2 : (p : A == B) -> sum AF f == sum BF (f ∘ transport (sym p))
-    transport-sum2 p =
-      begin
-        sum AF f
-      ==< transport-sum f (snd AF) p >
-        sum (B , (substᵉ isFinSet p (snd AF))) (transport (cong (\x -> x -> D) p) f)
-      ==< cong (sum (B , (substᵉ isFinSet p (snd AF)))) (transport-test2 f p) >
-        sum (B , (substᵉ isFinSet p (snd AF))) (f ∘ transport (sym p))
-      ==< cong (\x -> sum (B , x) (f ∘ transport (sym p)))
-               (squash (substᵉ isFinSet p (snd AF)) (snd BF)) >
-        sum BF (f ∘ transport (sym p))
-      end
-
-  --module _ (AF : FinSet ℓ-zero) (f : ⟨ AF ⟩ -> D) where
-  --  private
-  --    A = ⟨ AF ⟩
-
-
-  --    ×-Top' : (A : Type ℓ-zero) -> A == (A × Top)
-  --    ×-Top' A = ua (isoToEquiv i)
-  --      where
-  --      open Iso
-  --      i : Iso A (A × Top)
-  --      i .fun a         = (a , tt)
-  --      i .inv (a , tt)  = a
-  --      i .rightInv _ = refl
-  --      i .leftInv _ = refl
-
-  --  sum-×-Top : sum AF f == sum (ATopF (snd AF)) (f ∘ fst)
-  --  sum-×-Top = transport-sum2 AF (ATopF (snd AF)) f (×-Top' A)
-
-  --module _ (isFinSet-Fin : isFinSet Boolean) (f : Boolean -> D) where
-  --  private
-  --    AF : FinSet ℓ-zero
-  --    AF = Boolean , isFinSet-Fin
-
-
-  --    ×-Top' : (A : Type ℓ-zero) -> A == (A × Top)
-  --    ×-Top' A = ua (isoToEquiv i)
-  --      where
-  --      open Iso
-  --      i : Iso A (A × Top)
-  --      i .fun a         = (a , tt)
-  --      i .inv (a , tt)  = a
-  --      i .rightInv _ = refl
-  --      i .leftInv _ = refl
-
-  --  sum-×-Top : sum AF f == sum (ATopF (snd AF)) (f ∘ fst)
-  --  sum-×-Top = transport-sum2 AF (ATopF (snd AF)) f (×-Top' Boolean)
-
-
-   --sum-×-Top ∣ (n , eq) ∣ = refl
-   --sum-×-Top (squash x y i) j = isSetDomain (sum ? f) (sum ? (f ∘ fst)) ? ? j i
 
 
   module _  (AF : FinSet ℓ-zero) (f : ⟨ AF ⟩ -> D) where
