@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import base
 open import semiring
 
@@ -22,6 +22,7 @@ private
 
   instance
     IS = S
+    IACM = ACM
 
   module S = Semiring S
 
@@ -53,9 +54,7 @@ module _ where
   sum-map-Permutation f (permutation-cons a p) =
     cong (f a +_) (sum-map-Permutation f p)
   sum-map-Permutation f (permutation-swap a b p) =
-    sym (S.+-assoc {f a} {f b})
-    >=> (+-left (S.+-commute {f a} {f b}))
-    >=> (S.+-assoc {f b} {f a})
+    sym (+-assoc) >=> (+-left +-commute) >=> (+-assoc)
   sum-map-Permutation f (permutation-compose p1 p2) =
     sum-map-Permutation f p1 >=> sum-map-Permutation f p2
 

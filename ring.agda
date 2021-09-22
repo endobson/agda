@@ -2,7 +2,7 @@
 
 module ring where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import base
 open import commutative-monoid
 open import equality
@@ -29,6 +29,7 @@ record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
   no-eta-equality
   private
     instance
+      IACM = ACM
       IS = S
 
   field
@@ -37,7 +38,7 @@ record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
 
   semiring = S
 
-  minus-zero : (- 0#) == 0#
+  minus-zero : Path Domain (- 0#) 0#
   minus-zero =
     begin
       (- 0#)
@@ -495,7 +496,9 @@ record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
 
 module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {{R : Ring S}} where
   private
-    instance IS = S
+    instance
+      IS = S
+      IACM = ACM
 
   open Ring R public using
     ( -_
@@ -544,20 +547,23 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {{R : Ri
   diff-trans = +-left +-commute >=> +-assoc >=> +-right diff-step >=> +-commute
 
 
-record Semiringʰᵉ
-    {ℓ₁ ℓ₂ : Level}
-    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
-    (S₁ : Semiring ACM₁) (S₂ : Semiring ACM₂)
-    (f : D₁ -> D₂) : Type (ℓ-max ℓ₁ ℓ₂)
-  where
-  module S₁ = Semiring S₁
-  module S₂ = Semiring S₂
+module _ {ℓ₁ ℓ₂ : Level}
+         {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+         {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
+         (S₁ : Semiring ACM₁) (S₂ : Semiring ACM₂)
+         (f : D₁ -> D₂) where
+  private
+    instance
+      IACM₁ = ACM₁
+      IACM₂ = ACM₂
+    module S₁ = Semiring S₁
+    module S₂ = Semiring S₂
 
-  field
-    preserves-1# : f S₁.1# == S₂.1#
-    preserves-+ : ∀ x y -> f (x S₁.+ y) == f x S₂.+ f y
-    preserves-* : ∀ x y -> f (x S₁.* y) == f x S₂.* f y
+  record Semiringʰᵉ  : Type (ℓ-max ℓ₁ ℓ₂) where
+    field
+      preserves-1# : f S₁.1# == S₂.1#
+      preserves-+ : ∀ x y -> f (x + y) == f x + f y
+      preserves-* : ∀ x y -> f (x S₁.* y) == f x S₂.* f y
 
 Semiringʰ :
     {ℓ₁ ℓ₂ : Level}
@@ -597,26 +603,32 @@ Semiringʰ-∘ {S₁ = S₁} {S₂} {S₃} {f} {g} f' g' = record
   module g' = Semiringʰ g'
 
 
-record Ringʰᵉ
+
+module _
     {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
     {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
     {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
     (R₁ : Ring S₁) (R₂ : Ring S₂)
-    (f : D₁ -> D₂) : Type (ℓ-max ℓ₁ ℓ₂)
-  where
-  module R₁ = Ring R₁
-  module R₂ = Ring R₂
+    (f : D₁ -> D₂) where
+  private
+    instance
+      IACM₁ = ACM₁
+      IACM₂ = ACM₂
 
-  module S₁ = Semiring S₁
-  module S₂ = Semiring S₂
+    module R₁ = Ring R₁
+    module R₂ = Ring R₂
 
-  field
-    preserves-0# : f S₁.0# == S₂.0#
-    preserves-1# : f S₁.1# == S₂.1#
-    preserves-+ : ∀ x y -> f (x S₁.+ y) == f x S₂.+ f y
-    preserves-* : ∀ x y -> f (x S₁.* y) == f x S₂.* f y
-    preserves-minus : ∀ x -> f (R₁.- x) == R₂.- (f x)
+    module S₁ = Semiring S₁
+    module S₂ = Semiring S₂
+
+  record Ringʰᵉ : Type (ℓ-max ℓ₁ ℓ₂) where
+    field
+      preserves-0# : f 0# == 0#
+      preserves-1# : f S₁.1# == S₂.1#
+      preserves-+ : ∀ x y -> f (x + y) == f x + f y
+      preserves-* : ∀ x y -> f (x S₁.* y) == f x S₂.* f y
+      preserves-minus : ∀ x -> f (R₁.- x) == R₂.- (f x)
 
 
 Ringʰ :

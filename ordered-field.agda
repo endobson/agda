@@ -2,7 +2,7 @@
 
 module ordered-field where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import apartness
 open import base
 open import equality
@@ -34,6 +34,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     module R = Ring R
     instance
       ILOS = LOS
+      IACM = ACM
       IS = S
       IO = O
       IR = R

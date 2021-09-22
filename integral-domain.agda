@@ -2,7 +2,7 @@
 
 module integral-domain where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import apartness
 open import base
 open import cubical
@@ -23,6 +23,7 @@ module _ {ℓ : Level} {D : Type ℓ}
     module R = Ring R
     instance
       IS = S
+      IACM = ACM
       IR = R
       IA = A
 
@@ -39,6 +40,7 @@ module _ {ℓ : Level} {D : Type ℓ}
   private
     module R = Ring R
     instance
+      IACM = ACM
       IS = S
       IR = R
       IA = A

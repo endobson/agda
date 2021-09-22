@@ -2,7 +2,7 @@
 
 module list.unordered where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import base
 open import equality
 open import relation
@@ -68,6 +68,7 @@ module _ {ℓA : Level} {A : Type ℓA} {{disc'A : Discrete' A}} where
 module _ {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain} (s : Semiring ACM) where
   private
     instance
+      IACM = ACM
       IS = s
   open ring.lists s
 

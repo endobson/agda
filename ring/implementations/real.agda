@@ -17,15 +17,10 @@ open import semiring
 instance
   ℝSemiring : Semiring AdditiveCommMonoid-ℝ
   ℝSemiring = record
-    { 0# = 0ℝ
-    ; 1# = 1ℝ
-    ; _+_ = _ℝ+_
+    { 1# = 1ℝ
     ; _*_ = _ℝ*_
-    ; +-assoc = (\ {m} {n} {o} -> (ℝ+-assoc m n o))
-    ; +-commute = (\ {m} {n} -> (ℝ+-commute m n))
     ; *-assoc = (\ {m} {n} {o} -> (ℝ*-assoc m n o))
     ; *-commute = (\ {m} {n} -> (ℝ*-commute m n))
-    ; +-left-zero = (\ {n} -> ℝ+-left-zero n)
     ; *-left-zero = (\ {n} -> ℝ*-left-zero n)
     ; *-left-one = (\ {n} -> ℝ*-left-one n)
     ; *-distrib-+-right = (\ {m} {n} {o} -> ℝ*-distrib-ℝ+-right m n o)

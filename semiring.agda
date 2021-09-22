@@ -3,7 +3,7 @@
 module semiring where
 
 open import base
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import commutative-monoid
 open import equality
 open import hlevel
@@ -18,25 +18,19 @@ private
 record Semiring {ℓ : Level} {Domain : Type ℓ} (ACM : AdditiveCommMonoid Domain) : Type ℓ where
   no-eta-equality
   infixl 7 _*_
-  infixl 6 _+_
+
+  private
+    instance IACM = ACM
 
   field
-    0# : Domain
     1# : Domain
-    _+_ : Domain -> Domain -> Domain
     _*_ : Domain -> Domain -> Domain
-    +-assoc : {m n o : Domain} -> (m + n) + o == m + (n + o)
-    +-commute : {m n : Domain} -> (m + n) == (n + m)
     *-assoc : {m n o : Domain} -> (m * n) * o == m * (n * o)
     *-commute : {m n : Domain} -> (m * n) == (n * m)
-    +-left-zero : {m : Domain} -> (0# + m) == m
     *-left-zero : {m : Domain} -> (0# * m) == 0#
     *-left-one : {m : Domain} -> (1# * m) == m
     *-distrib-+-right : {m n o : Domain} -> (m + n) * o == (m * o) + (n * o)
     isSet-Domain : isSet Domain
-
-  +-right-zero : {m : Domain} -> (m + 0#) == m
-  +-right-zero {m} = (+-commute {m} {0#}) >=> (+-left-zero {m})
 
   *-right-zero : {m : Domain} -> (m * 0#) == 0#
   *-right-zero {m} = (*-commute {m} {0#}) >=> (*-left-zero {m})
@@ -48,9 +42,9 @@ record Semiring {ℓ : Level} {Domain : Type ℓ} (ACM : AdditiveCommMonoid Doma
     +-Monoid = record
       { ε = 0#
       ; _∙_ = _+_
-      ; ∙-assoc = (\ {m} {n} {o} -> +-assoc {m} {n} {o})
-      ; ∙-left-ε = (\ {m} -> +-left-zero {m})
-      ; ∙-right-ε = (\ {m} -> +-right-zero {m})
+      ; ∙-assoc = +-assoc
+      ; ∙-left-ε = +-left-zero
+      ; ∙-right-ε = +-right-zero
       }
 
     +-CommMonoid : CommMonoid Domain
@@ -63,9 +57,9 @@ record Semiring {ℓ : Level} {Domain : Type ℓ} (ACM : AdditiveCommMonoid Doma
     *-Monoid = record
       { ε = 1#
       ; _∙_ = _*_
-      ; ∙-assoc = (\ {m} {n} {o} -> *-assoc {m} {n} {o})
-      ; ∙-left-ε = (\ {m} -> *-left-one {m})
-      ; ∙-right-ε = (\ {m} -> *-right-one {m})
+      ; ∙-assoc = *-assoc
+      ; ∙-left-ε = *-left-one
+      ; ∙-right-ε = *-right-one
       }
 
     *-CommMonoid : CommMonoid Domain

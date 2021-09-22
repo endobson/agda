@@ -18,6 +18,7 @@ record AdditiveCommMonoid {ℓ : Level} (D : Type ℓ) : Type ℓ where
 module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} where
   private
     module CM = CommMonoid (AdditiveCommMonoid.comm-monoid ACM)
+  infixl 6 _+_
 
   _+_ : D -> D -> D
   _+_ = CM._∙_

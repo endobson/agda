@@ -2,7 +2,7 @@
 
 module ordered-ring where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import base
 open import equality
 open import functions
@@ -25,6 +25,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     module R = Ring R
     instance
       ILOS = LOS
+      IACM = ACM
       IS = S
       IO = O
       IR = R
@@ -148,6 +149,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
   private
     instance
       IPOS = POS
+      IACM = ACM
       IS = S
       IO = O
       IR = R
@@ -209,6 +211,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : Pa
     instance
       IPOS = POS
       ITO = TO
+      IACM = ACM
       IS = S
       IO = O
       IR = R

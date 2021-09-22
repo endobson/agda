@@ -2,7 +2,7 @@
 
 module ordered-semiring where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import base
 open import equality
 open import order
@@ -15,6 +15,7 @@ private
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : LinearOrderStr D ℓ<) where
   private
     instance
+      IACM = ACM
       IS = S
       IO = O
 
@@ -30,6 +31,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
 
   private
     instance
+      IACM = ACM
       IS = S
       IO = O
       ILOS = LOS
@@ -51,6 +53,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : PartialOrderStr D ℓ≤) where
   private
     instance
+      IACM = ACM
       IS = S
       IO = O
 
@@ -68,6 +71,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : Pa
 
   private
     instance
+      IACM = ACM
       IS = S
       IO = O
       IPOS = POS

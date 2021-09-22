@@ -2,7 +2,7 @@
 
 module ring.arithmetic where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import base
 open import equality
 open import ring
@@ -16,8 +16,8 @@ private
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {{R : Ring S}} where
   private
     instance
-      I-SR = S
-      I-R = R
+      IACM = ACM
+      IS = S
 
   +-right-injective : (a b c : D) -> (a + c) == (b + c) -> a == b
   +-right-injective a b c p =

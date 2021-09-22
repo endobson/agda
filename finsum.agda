@@ -2,7 +2,7 @@
 
 module finsum where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import additive-group.instances.nat
 open import base
 open import equality-path
@@ -317,13 +317,15 @@ finiteSum'-one {S = S@(S' , FS)} = unsquash (isSetNat _ _) (∥-map handle FS)
 
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
   private
+    instance
+      IACM = ACM
     module S = Semiring S
 
   abstract
-    finiteSum-Bot : (f : Bot -> D) -> finiteSum f == S.0#
+    finiteSum-Bot : (f : Bot -> D) -> finiteSum f == 0#
     finiteSum-Bot f = finiteSumᵉ-eval FinSet-Bot (equiv⁻¹ Fin-Bot-eq) f
 
-  finiteSum-Fin0 : (f : (Fin 0) -> D) -> finiteSum f == S.0#
+  finiteSum-Fin0 : (f : (Fin 0) -> D) -> finiteSum f == 0#
   finiteSum-Fin0 f = finiteSumᵉ-eval (FinSet-Fin 0) (idEquiv _) f
 
   module _ {ℓB : Level} {B : Type ℓB} (finB : isFinSet B) where
@@ -331,12 +333,12 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
     finiteSum-Maybe :
       (f : (Maybe B) -> D) ->
       (finiteSumᵉ (FinSet-Maybe (B , finB)) f)
-      == (f nothing) S.+ finiteSumᵉ (B , finB) (f ∘ just)
+      == (f nothing) + finiteSumᵉ (B , finB) (f ∘ just)
     finiteSum-Maybe f = unsquash (S.isSet-Domain _ _) (∥-map handle finB)
       where
       handle : Σ[ n ∈ Nat ] (B ≃ Fin n) ->
                (finiteSumᵉ (FinSet-Maybe (B , finB)) f)
-               == (f nothing) S.+ finiteSumᵉ (B , finB) (f ∘ just)
+               == (f nothing) + finiteSumᵉ (B , finB) (f ∘ just)
       handle (n , eq) =
         begin
           finiteSumᵉ (FinSet-Maybe (B , finB)) f
@@ -345,13 +347,13 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
         ==<>
           enumerationSum (eqInv eq') f
         ==<>
-          (f nothing) S.+ (enumerationSum (eqInv eq' ∘ suc-fin) f)
-        ==< cong (\x -> (f nothing) S.+ (enumerationSum x f)) path2 >
-          (f nothing) S.+ (enumerationSum (just ∘ eqInv eq) f)
+          (f nothing) + (enumerationSum (eqInv eq' ∘ suc-fin) f)
+        ==< cong (\x -> (f nothing) + (enumerationSum x f)) path2 >
+          (f nothing) + (enumerationSum (just ∘ eqInv eq) f)
         ==<>
-          (f nothing) S.+ (enumerationSum (eqInv eq) (f ∘ just))
-        ==< cong (f nothing S.+_) (sym (finiteSumᵉ-eval _ eq (f ∘ just))) >
-          (f nothing) S.+ finiteSumᵉ (B , finB) (f ∘ just)
+          (f nothing) + (enumerationSum (eqInv eq) (f ∘ just))
+        ==< cong (f nothing +_) (sym (finiteSumᵉ-eval _ eq (f ∘ just))) >
+          (f nothing) + finiteSumᵉ (B , finB) (f ∘ just)
         end
         where
         eq' : Maybe B ≃ Fin (suc n)
@@ -385,18 +387,18 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
     finiteSum-⊎'-zero :
       (f : (Fin 0 ⊎ B) -> D) ->
       (finiteSumᵉ (FinSet-⊎ (FinSet-Fin 0) (B , finB)) f)
-      == (finiteSumᵉ (FinSet-Fin 0) (f ∘ inj-l)) S.+
+      == (finiteSumᵉ (FinSet-Fin 0) (f ∘ inj-l)) +
          (finiteSumᵉ (B , finB) (f ∘ inj-r))
     finiteSum-⊎'-zero f =
       finiteSum-⊎'-zero' f
-      >=> (sym S.+-left-zero)
-      >=> (cong (S._+ (finiteSumᵉ (B , finB) (f ∘ inj-r)))
+      >=> (sym +-left-zero)
+      >=> (cong (_+ (finiteSumᵉ (B , finB) (f ∘ inj-r)))
                 (sym (finiteSum-Fin0 (f ∘ inj-l))))
 
     finiteSum-⊎'-suc' : {n : Nat}
       (f : (Fin (suc n) ⊎ B) -> D) ->
       (finiteSumᵉ (FinSet-⊎ (FinSet-Fin (suc n)) (B , finB)) f)
-      == f (inj-l zero-fin) S.+
+      == f (inj-l zero-fin) +
          (finiteSumᵉ (FinSet-⊎ (FinSet-Fin n) (B , finB))
                      (f ∘ (⊎-map suc-fin (idfun B))))
     finiteSum-⊎'-suc' {n} f =
@@ -408,10 +410,10 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
             eq f >
         (finiteSumᵉ (FinSet-Maybe (FinSet-⊎ (FinSet-Fin n) (B , finB))) (f ∘ (eqFun eq)))
       ==< finiteSum-Maybe (snd (FinSet-⊎ (FinSet-Fin n) (B , finB))) (f ∘ (eqFun eq)) >
-        (f (eqFun eq nothing)) S.+
+        (f (eqFun eq nothing)) +
         (finiteSumᵉ (FinSet-⊎ (FinSet-Fin n) (B , finB)) (f ∘ (eqFun eq) ∘ just))
       ==< path >
-        (f (inj-l zero-fin)) S.+
+        (f (inj-l zero-fin)) +
         (finiteSumᵉ (FinSet-⊎ (FinSet-Fin n) (B , finB))
                     (f ∘ (⊎-map suc-fin (idfun B))))
       end
@@ -433,40 +435,40 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
 
 
       path : Path D
-               ((f (eqFun eq nothing)) S.+
+               ((f (eqFun eq nothing)) +
                 (finiteSumᵉ (FinSet-⊎ (FinSet-Fin n) (B , finB)) (f ∘ (eqFun eq) ∘ just)))
-               ((f (inj-l zero-fin)) S.+
+               ((f (inj-l zero-fin)) +
                 (finiteSumᵉ (FinSet-⊎ (FinSet-Fin n) (B , finB))
                             (f ∘ (⊎-map suc-fin (idfun B)))))
-      path i = (f (eqFun eq nothing)) S.+
+      path i = (f (eqFun eq nothing)) +
                (finiteSumᵉ (FinSet-⊎ (FinSet-Fin n) (B , finB)) (path4 i))
 
 
     finiteSum-⊎' : {n : Nat}
       (f : (Fin n ⊎ B) -> D) ->
       (finiteSumᵉ (FinSet-⊎ (FinSet-Fin n) (B , finB)) f)
-      == (finiteSumᵉ (FinSet-Fin n) (f ∘ inj-l)) S.+
+      == (finiteSumᵉ (FinSet-Fin n) (f ∘ inj-l)) +
          (finiteSumᵉ (B , finB) (f ∘ inj-r))
     finiteSum-⊎' {zero} f = finiteSum-⊎'-zero f
     finiteSum-⊎' {suc n} f =
       step
-      >=> cong (f (inj-l zero-fin) S.+_) rec
-      >=> (sym S.+-assoc)
-      >=> (cong (S._+ (finiteSumᵉ (B , finB) (f ∘ inj-r))) (sym step2))
+      >=> cong (f (inj-l zero-fin) +_) rec
+      >=> (sym +-assoc)
+      >=> (cong (_+ (finiteSumᵉ (B , finB) (f ∘ inj-r))) (sym step2))
       where
       f' = f ∘ (⊎-map suc-fin (idfun B))
       rec : (finiteSumᵉ (FinSet-⊎ (FinSet-Fin n) (B , finB)) f')
-            == (finiteSumᵉ (FinSet-Fin n) (f ∘ inj-l ∘ suc-fin)) S.+
+            == (finiteSumᵉ (FinSet-Fin n) (f ∘ inj-l ∘ suc-fin)) +
                (finiteSumᵉ (B , finB) (f ∘ inj-r))
       rec = finiteSum-⊎' f'
 
       step : (finiteSumᵉ (FinSet-⊎ (FinSet-Fin (suc n)) (B , finB)) f)
-             == f (inj-l zero-fin) S.+
+             == f (inj-l zero-fin) +
                 (finiteSumᵉ (FinSet-⊎ (FinSet-Fin n) (B , finB)) f')
       step = finiteSum-⊎'-suc' f
 
       step2 : (finiteSumᵉ (FinSet-Fin (suc n)) (f ∘ inj-l))
-              == f (inj-l zero-fin) S.+
+              == f (inj-l zero-fin) +
                  (finiteSumᵉ (FinSet-Fin n) (f ∘ inj-l ∘ suc-fin))
       step2 =
         finiteSumᵉ-convert (FinSet-Fin (suc n)) (FinSet-Maybe (FinSet-Fin n))
@@ -479,12 +481,12 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
     finiteSum-⊎ :
       (f : (A ⊎ B) -> D) ->
       (finiteSumᵉ (FinSet-⊎ (A , finA) (B , finB)) f)
-      == (finiteSumᵉ (A , finA) (f ∘ inj-l)) S.+ (finiteSumᵉ (B , finB) (f ∘ inj-r))
-    finiteSum-⊎ f = unsquash (S.isSet-Domain _ _) (∥-map handle finA)
+      == (finiteSumᵉ (A , finA) (f ∘ inj-l)) + (finiteSumᵉ (B , finB) (f ∘ inj-r))
+    finiteSum-⊎ f = unsquash (isSet-Domain _ _) (∥-map handle finA)
       where
       handle : Σ[ n ∈ Nat ] (A ≃ Fin n) ->
                (finiteSumᵉ (FinSet-⊎ (A , finA) (B , finB)) f)
-               == (finiteSumᵉ (A , finA) (f ∘ inj-l)) S.+ (finiteSumᵉ (B , finB) (f ∘ inj-r))
+               == (finiteSumᵉ (A , finA) (f ∘ inj-l)) + (finiteSumᵉ (B , finB) (f ∘ inj-r))
       handle (n , eq) =
         begin
           finiteSumᵉ (FinSet-⊎ (A , finA) (B , finB)) f
@@ -494,9 +496,9 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
               (⊎-equiv (equiv⁻¹ eq) (idEquiv B)) f >
           finiteSumᵉ (FinSet-⊎ (FinSet-Fin n) (B , finB)) _
         ==< finiteSum-⊎' finB _ >
-          (finiteSumᵉ (FinSet-Fin n) _) S.+ (finiteSumᵉ (B , finB) (f ∘ inj-r))
+          (finiteSumᵉ (FinSet-Fin n) _) + (finiteSumᵉ (B , finB) (f ∘ inj-r))
         ==< cong
-             (S._+ (finiteSumᵉ (B , finB) (f ∘ inj-r)))
+             (_+ (finiteSumᵉ (B , finB) (f ∘ inj-r)))
              (sym (finiteSumᵉ-convert (A , finA) (FinSet-Fin n) (equiv⁻¹ eq) (f ∘ inj-l))) >
-          (finiteSumᵉ (A , finA) (f ∘ inj-l)) S.+ (finiteSumᵉ (B , finB) (f ∘ inj-r))
+          (finiteSumᵉ (A , finA) (f ∘ inj-l)) + (finiteSumᵉ (B , finB) (f ∘ inj-r))
         end

@@ -2,7 +2,7 @@
 
 module integral-domain.instances.heyting-field where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import apartness
 open import base
 open import cubical
@@ -26,6 +26,7 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
     module R = Ring R
     module F = Field F
     instance
+      IACM = ACM
       IS = S
       IR = R
       IA = A

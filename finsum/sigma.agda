@@ -2,7 +2,7 @@
 
 module finsum.sigma where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import base
 open import finset
 open import functions
@@ -23,6 +23,8 @@ open import truncation
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
   private
     module S = Semiring S
+    instance
+      IACM = ACM
 
   module _ {ℓB : Level} {FB : Fin 0 -> FinSet ℓB}  where
     private
@@ -56,10 +58,10 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
           finiteSumᵉ FinSet-Bot (\x -> f (iso1.inv x))
         path1 = finiteSumᵉ-convert-iso (FinSet-Σ (FinSet-Fin 0) FB) FinSet-Bot (iso⁻¹ iso1) f
 
-        path2 : finiteSumᵉ FinSet-Bot (f ∘ iso1.inv) == S.0#
+        path2 : finiteSumᵉ FinSet-Bot (f ∘ iso1.inv) == 0#
         path2 = finiteSum-Bot (f ∘ iso1.inv)
 
-        path3 : S.0# == finiteSumᵉ FinSet-Bot (g ∘ iso2.inv)
+        path3 : 0# == finiteSumᵉ FinSet-Bot (g ∘ iso2.inv)
         path3 = sym (finiteSum-Bot _)
 
         path4 : finiteSumᵉ FinSet-Bot (g ∘ iso2.inv)
@@ -90,13 +92,13 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
         finiteSumᵉ (FinSet-⊎ (FB zero-fin)
                             (FinSet-Σ (FinSet-Fin n) (FB ∘ suc-fin))) _
       ==< finiteSum-⊎ _ _ _ >
-        finiteSumᵉ (FB zero-fin) _ S.+
+        finiteSumᵉ (FB zero-fin) _ +
         finiteSumᵉ (FinSet-Σ (FinSet-Fin n) (FB ∘ suc-fin)) _
-      ==< cong (finiteSumᵉ (FB zero-fin) _ S.+_) (finiteSum-Σ' _) >
-        finiteSumᵉ (FB zero-fin) g S.+
+      ==< cong (finiteSumᵉ (FB zero-fin) _ +_) (finiteSum-Σ' _) >
+        finiteSumᵉ (FB zero-fin) g +
         finiteSumᵉ (FinSet-Fin n) (f' ∘ suc-fin)
       ==<>
-        f' zero-fin S.+
+        f' zero-fin +
         finiteSumᵉ (FinSet-Fin n) (f' ∘ suc-fin)
       ==< sym path2 >
         finiteSumᵉ (FinSet-Fin (suc n)) f'
@@ -117,7 +119,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
 
 
       path2 : finiteSumᵉ (FinSet-Fin (suc n)) f' ==
-              ((f' zero-fin) S.+
+              ((f' zero-fin) +
                finiteSumᵉ (FinSet-Fin n) (f' ∘ suc-fin))
       path2 =
         finiteSumᵉ-convert (FinSet-Fin (suc n)) (FinSet-Maybe (FinSet-Fin n))

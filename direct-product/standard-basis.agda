@@ -2,7 +2,7 @@
 
 module direct-product.standard-basis where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import apartness
 open import base
 open import commutative-monoid
@@ -52,6 +52,9 @@ private
 
 module _ {ℓI ℓK : Level} {I : Type ℓI} {K : Type ℓK}
          {ACM : AdditiveCommMonoid K} {{S : Semiring ACM}} where
+  private
+    instance
+      IACM = ACM
 
   indicator' : {i1 i2 : I} -> Dec (i1 == i2) -> K
   indicator' (yes _) = 1#
@@ -95,6 +98,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
     V = (DP K I)
 
     instance
+      IACM = ACM
       IMS = MS
       IVS = VS
       IF = F

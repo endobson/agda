@@ -2,6 +2,7 @@
 
 module real.arithmetic.multiplication.inverse where
 
+open import additive-group
 open import additive-group.instances.real
 open import base
 open import equality

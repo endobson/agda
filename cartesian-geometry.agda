@@ -1,8 +1,8 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-
 module cartesian-geometry where
 
+open import additive-group
 open import additive-group.instances.real
 open import apartness
 open import cartesian-geometry.vector

@@ -2,7 +2,7 @@
 
 module heyting-field where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import apartness
 open import base
 open import cubical
@@ -26,6 +26,7 @@ record Field {ℓ : Level} {D : Type ℓ}
   private
     module R = Ring R
     instance
+      IACM = ACM
       IS = S
       IR = R
       IA = A

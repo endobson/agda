@@ -2,7 +2,7 @@
 
 module solver where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import additive-group.instances.nat
 open import additive-group.instances.int
 open import additive-group.instances.reader
@@ -177,6 +177,7 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
 
       instance
         IS = M.semiring
+        IACM = (AdditiveCommMonoid-Reader ACM (Vec Domain n))
         IR = R'
 
       Meaning = (Vec Domain n) -> Domain
@@ -314,7 +315,7 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
       ++-terms-flip :
         ∀ ts1 ts2 -> ⟦ ts1 ++ ts2 ⟧terms == ⟦ ts2 ++ ts1 ⟧terms
       ++-terms-flip ts1 ts2 =
-        ++-terms≈ ts1 ts2 >=> (MS.+-commute {⟦ ts1 ⟧terms} {⟦ ts2 ⟧terms}) >=> (sym (++-terms≈ ts2 ts1))
+        ++-terms≈ ts1 ts2 >=> +-commute >=> (sym (++-terms≈ ts2 ts1))
 
       merge-equal-terms≈ : ∀ t1 t2 pr
         -> ⟦ (merge-equal-terms t1 t2 pr) ⟧term == ⟦ t1 ⟧term + ⟦ t2 ⟧term
@@ -688,6 +689,7 @@ module Solver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain} (S : Semirin
     private
       instance
         IS = S'
+        IACM = (AdditiveCommMonoid-Reader ACM (Vec Domain n))
 
     ⟦_⟧ : Syntax n -> Meaning
     ⟦ (var i) ⟧ env = lookup env i

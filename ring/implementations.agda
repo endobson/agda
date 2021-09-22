@@ -2,13 +2,14 @@
 
 module ring.implementations where
 
-open import additive-group using (AdditiveCommMonoid)
-open import additive-group.instances.nat
+open import additive-group
 open import additive-group.instances.int
+open import additive-group.instances.nat
 open import additive-group.instances.reader
 open import base
 open import commutative-monoid
 open import equality
+open import funext
 open import hlevel
 open import nat
 open import ring
@@ -30,15 +31,10 @@ open int using
 instance
   NatSemiring : Semiring AdditiveCommMonoid-Nat
   NatSemiring = record
-    { 0# = 0
-    ; 1# = 1
-    ; _+_ = _+'_
+    { 1# = 1
     ; _*_ = _*'_
-    ; +-assoc = (\ {m} {n} {o} -> (+'-assoc {m} {n} {o}))
-    ; +-commute = (\ {m} {n} -> (+'-commute {m} {n}))
     ; *-assoc = (\ {m} {n} {o} -> (*'-assoc {m} {n} {o}))
     ; *-commute = (\ {m} {n} -> (*'-commute {m} {n}))
-    ; +-left-zero = refl
     ; *-left-zero = refl
     ; *-left-one = +'-right-zero
     ; *-distrib-+-right = (\ {m} {n} {o} -> *'-distrib-+' {m} {n} {o})
@@ -49,15 +45,10 @@ module NatSemiring = Semiring NatSemiring
 instance
   IntSemiring : Semiring AdditiveCommMonoid-Int
   IntSemiring = record
-    { 0# = (int.int 0)
-    ; 1# = (int.int 1)
-    ; _+_ = int._+_
+    { 1# = (int.int 1)
     ; _*_ = int._*_
-    ; +-assoc = (\ {m} {n} {o} -> (int.+-assoc {m} {n} {o}))
-    ; +-commute = (\ {m} {n} -> (int.+-commute {m} {n}))
     ; *-assoc = (\ {m} {n} {o} -> (int.*-assoc {m} {n} {o}))
     ; *-commute = (\ {m} {n} -> (int.*-commute {m} {n}))
-    ; +-left-zero = int.+-left-zero
     ; *-left-zero = int.*-left-zero
     ; *-left-one = int.*-left-one
     ; *-distrib-+-right = (\ {m} {n} {o} -> int.*-distrib-+ {m} {n} {o})
@@ -150,15 +141,10 @@ ReaderSemiring {Domain = Domain} {ACM = ACM} A S = res
 
   res : Semiring (AdditiveCommMonoid-Reader ACM A)
   res = record
-    { 0# = \a -> Semiring.0# S
-    ; 1# = \a -> Semiring.1# S
-    ; _+_ = (\ x y a -> (x a S.+ y a))
+    { 1# = \a -> S.1#
     ; _*_ = (\ x y a -> (x a S.* y a))
-    ; +-assoc = (\ {m} {n} {o} i a -> (S.+-assoc {m a} {n a} {o a}) i)
-    ; +-commute = (\ {m} {n} i a -> (S.+-commute {m a} {n a} i))
     ; *-assoc = (\ {m} {n} {o} i a -> (S.*-assoc {m a} {n a} {o a} i))
     ; *-commute = (\ {m} {n} i a -> (S.*-commute {m a} {n a} i))
-    ; +-left-zero = (\ {m} i a -> (S.+-left-zero {m a} i))
     ; *-left-zero = (\ {m} i a -> (S.*-left-zero {m a} i))
     ; *-left-one = (\ {m} i a -> (S.*-left-one {m a} i))
     ; *-distrib-+-right = (\ {m} {n} {o} i a -> (S.*-distrib-+-right {m a} {n a} {o a} i))

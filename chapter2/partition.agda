@@ -3,7 +3,7 @@
 module chapter2.partition where
 
 open import abs
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import additive-group.instances.int
 open import additive-group.instances.nat
 open import base

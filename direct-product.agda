@@ -2,7 +2,7 @@
 
 module direct-product where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import apartness
 open import base
 open import commutative-monoid
@@ -172,6 +172,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
   private
     module R = Ring R
     instance
+      IACM = ACM
       IS = S
       IR = R
 
@@ -206,6 +207,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
          {R : Ring S} {A : TightApartnessStr K} (F : Field R A) (I : Type ℓI) where
   private
     instance
+      IACM = ACM
       IS = S
       IR = R
       IA = A

@@ -3,6 +3,7 @@
 module rational.order where
 
 open import abs
+open import additive-group
 open import base
 open import equality
 open import fraction.sign

@@ -2,7 +2,7 @@
 
 module quotient-field where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import apartness
 open import base
 open import cubical
@@ -29,6 +29,7 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
     module R = Ring R
     module ID = IntegralDomain ID
     instance
+      IACM = ACM
       IS = S
       IR = R
       IA = A
@@ -526,15 +527,10 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
 
       Semiring-Q : Semiring AdditiveCommMonoid-Q
       Semiring-Q = record
-        { 0# = 0q
-        ; 1# = 1q
-        ; _+_ = _q+_
+        { 1# = 1q
         ; _*_ = _q*_
-        ; +-assoc = \{a} {b} {c} -> q+-assoc a b c
-        ; +-commute = \{a} {b} -> q+-commute a b
         ; *-assoc = \{a} {b} {c} -> q*-assoc a b c
         ; *-commute = \{a} {b} -> q*-commute a b
-        ; +-left-zero = \{a} -> q+-left-zero a
         ; *-left-zero = \{a} -> q*-left-zero a
         ; *-left-one = \{a} -> q*-left-one a
         ; *-distrib-+-right = \{a} {b} {c} -> q*-distrib-+-right a b c

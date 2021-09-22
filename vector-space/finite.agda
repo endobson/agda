@@ -2,7 +2,7 @@
 
 module vector-space.finite where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import apartness
 open import base
 open import cubical using (_≃_ ; isEquiv)
@@ -48,6 +48,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
 
     instance
       IM = VS.module-str
+      IACM = ACM
       IVA = ModuleStr.TightApartnessStr-V IM
 
 

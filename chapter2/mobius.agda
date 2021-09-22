@@ -2,7 +2,7 @@
 
 module chapter2.mobius where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import additive-group.instances.int
 open import base
 open import chapter2.square-free
@@ -316,6 +316,7 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semirin
     instance
       M : Multiplication D
       M = SemiringMultiplication S
+      IACM = ACM
 
     module S = Semiring S
 
@@ -328,7 +329,7 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semirin
                       (Fin-Top-eq >eq> (equiv⁻¹ Divisor-one-eq))
                       (f ∘ divisor->nat⁺ 1⁺)
     >=> finiteSumᵉ-eval (FinSet-Fin 1) (idEquiv _) _
-    >=> Semiring.+-right-zero S
+    >=> +-right-zero
 
   Multiplicative-divisorSum : {f : Nat⁺ -> D} -> Multiplicative f ->
                               Multiplicative (\n -> divisorSum n f)

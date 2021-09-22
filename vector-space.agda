@@ -2,7 +2,7 @@
 
 module vector-space where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
 open import apartness
 open import base
 open import cubical using (_≃_)
@@ -36,6 +36,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {ACM : AdditiveCommMonoid K}
          {S : Semiring ACM} (R : Ring S) (V : Type ℓV) where
   private
     instance
+      IACM = ACM
       IS = S
       IR = R
 
@@ -83,6 +84,7 @@ module _  {ℓK ℓV : Level} {K : Type ℓK}
 
   private
     instance
+      IACM = ACM
       IS = S
       IR = R
 
@@ -205,6 +207,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
          (F : Field R A) (V : Type ℓV)  where
   private
     instance
+      IACM = ACM
       IS = S
       IF = F
       IA = A
@@ -241,6 +244,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
 
     instance
       IM = VS.module-str
+      IACM = ACM
       IS = S
       IA = A
       IF = F
@@ -302,6 +306,7 @@ module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK}
     instance
       IM1 = VectorSpaceStr.module-str VS1
       IM2 = VectorSpaceStr.module-str VS2
+      IACM = ACM
       IS = S
 
   record isLinearTransformation (f : V1 -> V2) : Type (ℓ-max* 3 ℓK ℓV1 ℓV2) where

@@ -579,15 +579,10 @@ instance
 
   RationalSemiring : Semiring AdditiveCommMonoid-Rational
   RationalSemiring = record
-    { 0# = 0r
-    ; 1# = 1r
-    ; _+_ = _r+_
+    { 1# = 1r
     ; _*_ = _r*_
-    ; +-assoc = (\ {m} {n} {o} -> (r+-assoc m n o))
-    ; +-commute = (\ {m} {n} -> (r+-commute m n))
     ; *-assoc = (\ {m} {n} {o} -> (r*-assoc m n o))
     ; *-commute = (\ {m} {n} -> (r*-commute m n))
-    ; +-left-zero = (\ {n} -> r+-left-zero n)
     ; *-left-zero = (\ {n} -> r*-left-zero n)
     ; *-left-one = (\ {n} -> r*-left-one n)
     ; *-distrib-+-right = (\ {m} {n} {o} -> r*-distrib-r+-right m n o)

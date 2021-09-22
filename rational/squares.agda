@@ -3,6 +3,7 @@
 module rational.squares where
 
 open import base
+open import additive-group
 open import equality
 open import hlevel
 open import order
