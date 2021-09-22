@@ -243,9 +243,9 @@ module _ (x : ℝ) where
       module sxx = Real sxx
 
       p : (mx ℝ*ᵉ mx) == (x ℝ*ᵉ x)
-      p = p1 >=> minus-extract-left {_} {_} {_} {_} {x} {mx} >=>
-          cong -_ (minus-extract-right {_} {_} {_} {_} {x} {x}) >=>
-          minus-double-inverse {_} {_} {_} {_} {x * x}>=>
+      p = p1 >=> minus-extract-left >=>
+          cong -_ minus-extract-right >=>
+          minus-double-inverse >=>
           p5
         where
         abstract

@@ -25,7 +25,7 @@ private
     A : Set ℓ
 
 record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
-            (S : Semiring ACM) : Type ℓ where
+            (S : Semiring ACM) (AG : AdditiveGroup ACM) : Type ℓ where
   no-eta-equality
   private
     instance
@@ -494,7 +494,8 @@ record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
     preserves-inverse : (x : ℤ) -> (base u^ℤ (int.- x)) == (u1/ (base u^ℤ x))
     preserves-inverse x = u^ℤ-preserves-inverse {base} {x}
 
-module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {{R : Ring S}} where
+module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : AdditiveGroup ACM}
+         {{R : Ring S AG}} where
   private
     instance
       IS = S
@@ -621,7 +622,8 @@ module _
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
     {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
     {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
-    (R₁ : Ring S₁) (R₂ : Ring S₂)
+    {AG₁ : AdditiveGroup ACM₁} {AG₂ : AdditiveGroup ACM₂}
+    (R₁ : Ring S₁ AG₁) (R₂ : Ring S₂ AG₂)
     (f : D₁ -> D₂) where
   private
     instance
@@ -648,7 +650,8 @@ Ringʰ :
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
     {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
     {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
-    {{R₁ : Ring S₁}} {{R₂ : Ring S₂}}
+    {AG₁ : AdditiveGroup ACM₁} {AG₂ : AdditiveGroup ACM₂}
+    {{R₁ : Ring S₁ AG₁}} {{R₂ : Ring S₂ AG₂}}
     (f : D₁ -> D₂) -> Type (ℓ-max ℓ₁ ℓ₂)
 Ringʰ {{R₁ = R₁}} {{R₂ = R₂}} f = Ringʰᵉ R₁ R₂ f
 
@@ -657,7 +660,8 @@ module Ringʰ
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
     {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
     {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
-    {R₁ : Ring S₁} {R₂ : Ring S₂}
+    {AG₁ : AdditiveGroup ACM₁} {AG₂ : AdditiveGroup ACM₂}
+    {R₁ : Ring S₁ AG₁} {R₂ : Ring S₂ AG₂}
     {f : D₁ -> D₂}
     (s : Ringʰᵉ R₁ R₂ f) where
   open Ringʰᵉ s public

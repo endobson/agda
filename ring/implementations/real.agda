@@ -30,7 +30,7 @@ module ℝSemiring = Semiring ℝSemiring
 
 
 instance
-  ℝRing : Ring ℝSemiring
+  ℝRing : Ring ℝSemiring AdditiveGroup-ℝ
   ℝRing = record
     { -_ = ℝ-_
     ; +-inverse = (\ {a} -> ℝ+-inverse a)

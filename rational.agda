@@ -589,7 +589,7 @@ instance
     ; isSet-Domain = isSetRational
     }
 
-  RationalRing : Ring RationalSemiring
+  RationalRing : Ring RationalSemiring AdditiveGroup-Rational
   RationalRing = record
     { -_ = r-_
     ; +-inverse = (\ {a} -> r+-inverse a)

@@ -23,8 +23,8 @@ open import sum
 open import truncation
 open import univalence
 
-module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {R : Ring S} {A : TightApartnessStr D} (ID : IntegralDomain R A) where
+module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : AdditiveGroup ACM}
+         {R : Ring S AG} {A : TightApartnessStr D} (ID : IntegralDomain R A) where
   private
     module R = Ring R
     module ID = IntegralDomain ID
@@ -524,6 +524,11 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
           }
         }
 
+      AdditiveGroup-Q : AdditiveGroup AdditiveCommMonoid-Q
+      AdditiveGroup-Q = record
+        { -_ = q-_
+        ; +-inverse = \{a} -> q+-inverse a
+        }
 
       Semiring-Q : Semiring AdditiveCommMonoid-Q
       Semiring-Q = record
@@ -538,7 +543,7 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
         }
 
 
-    Ring-Q : Ring Semiring-Q
+    Ring-Q : Ring Semiring-Q AdditiveGroup-Q
     Ring-Q = record
       { -_ = q-_
       ; +-inverse = \{a} -> q+-inverse a

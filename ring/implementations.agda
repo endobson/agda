@@ -57,7 +57,7 @@ instance
 module IntSemiring = Semiring IntSemiring
 
 instance
-  IntRing : Ring IntSemiring
+  IntRing : Ring IntSemiring AdditiveGroup-Int
   IntRing = record  {
     -_ = int.-_;
     +-inverse = (\ {n} -> int.add-minus-zero {n}) }
@@ -152,14 +152,15 @@ ReaderSemiring {Domain = Domain} {ACM = ACM} A S = res
     }
 
 
-ReaderRing : {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain} {S : Semiring ACM} ->
-             (A : Type ℓ) -> Ring S -> Ring (ReaderSemiring A S)
-ReaderRing {Domain = Domain} {ACM} {S} A R = res
+ReaderRing : {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain} {S : Semiring ACM}
+             {AG : AdditiveGroup ACM} ->
+             (A : Type ℓ) -> Ring S AG -> Ring (ReaderSemiring A S) (AdditiveGroup-Reader AG A)
+ReaderRing {Domain = Domain} {ACM} {S} {AG} A R = res
   where
   instance
     IR = R
 
-  res : Ring (ReaderSemiring A S)
+  res : Ring (ReaderSemiring A S) (AdditiveGroup-Reader AG A)
   res = record  {
     -_ = (\ x a -> - x a);
     +-inverse = (\ {x} i a -> (Ring.+-inverse R {x a} i)) }

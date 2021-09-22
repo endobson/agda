@@ -79,7 +79,7 @@ private
     handle (inj-l k<0) = eq/ _ _ (same-semi-direction-flipped p)
       where
       -k = - k
-      0<-k = minus-flips-<0 {_} {_} {_} {_} {_} {_} {k} k<0
+      0<-k = minus-flips-<0 k<0
 
       v-p1 : (v- (k v* v)) == ((- k) v* v)
       v-p1 = sym v*-minus-extract-left

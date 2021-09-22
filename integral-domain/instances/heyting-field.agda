@@ -19,8 +19,8 @@ open import ring
 open import semiring
 open import truncation
 
-module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
-         {S : Semiring ACM} {R : Ring S} {A : TightApartnessStr D} {{F : Field R A}}
+module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {AG : AdditiveGroup ACM}
+         {S : Semiring ACM} {R : Ring S AG} {A : TightApartnessStr D} {{F : Field R A}}
   where
   private
     module R = Ring R

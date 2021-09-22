@@ -166,7 +166,7 @@ private
 
 
 module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
-                  {S : Semiring ACM} (R : Ring S) where
+                  {S : Semiring ACM} {AG : AdditiveGroup ACM} (R : Ring S AG) where
 
   module _ (n : Nat) where
     private

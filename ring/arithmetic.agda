@@ -13,7 +13,8 @@ private
   variable
     ℓD : Level
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {{R : Ring S}} where
+module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : AdditiveGroup ACM}
+         {{R : Ring S AG}} where
   private
     instance
       IACM = ACM
