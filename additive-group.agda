@@ -25,17 +25,18 @@ module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} where
   0# : D
   0# = CM.ε
 
-  +-assoc : {m n o : D} -> (m + n) + o == m + (n + o)
-  +-assoc = CM.∙-assoc
+  abstract
+    +-assoc : {m n o : D} -> (m + n) + o == m + (n + o)
+    +-assoc = CM.∙-assoc
 
-  +-left-zero : {m : D} -> (0# + m) == m
-  +-left-zero = CM.∙-left-ε
+    +-left-zero : {m : D} -> (0# + m) == m
+    +-left-zero = CM.∙-left-ε
 
-  +-right-zero : {m : D} -> (m + 0#) == m
-  +-right-zero = CM.∙-right-ε
+    +-right-zero : {m : D} -> (m + 0#) == m
+    +-right-zero = CM.∙-right-ε
 
-  +-commute : {m n : D} -> (m + n) == (n + m)
-  +-commute = CM.∙-commute
+    +-commute : {m n : D} -> (m + n) == (n + m)
+    +-commute = CM.∙-commute
 
 
 record AdditiveGroup {ℓ : Level} (D : Type ℓ) {{ACM : AdditiveCommMonoid D}} : Type ℓ where
