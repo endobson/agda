@@ -4,7 +4,7 @@ module list where
 
 open import base
 open import relation
-open import equality
+open import equality-path
 open import functions
 open import monoid
 open import nat

@@ -8,7 +8,7 @@ open import apartness
 open import cartesian-geometry.vector
 open import base
 open import direct-product
-open import equality
+open import equality-path
 open import equivalence
 open import functions
 open import funext

@@ -3,7 +3,7 @@
 module set-quotient where
 
 open import base
-open import equality
+open import equality-path
 open import equivalence
 open import funext
 open import hlevel

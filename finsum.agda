@@ -5,7 +5,7 @@ module finsum where
 open import additive-group using (AdditiveCommMonoid)
 open import additive-group.instances.nat
 open import base
-open import equality
+open import equality-path
 open import equivalence
 open import cubical
 open import fin

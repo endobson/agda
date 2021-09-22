@@ -6,7 +6,7 @@ open import additive-group using (AdditiveCommMonoid)
 open import apartness
 open import base
 open import commutative-monoid
-open import equality hiding (J)
+open import equality-path hiding (J)
 open import fin
 open import finset
 open import finset.search

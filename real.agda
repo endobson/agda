@@ -4,7 +4,7 @@ module real where
 
 open import base
 open import cubical
-open import equality
+open import equality-path
 open import functions
 open import hlevel
 open import isomorphism

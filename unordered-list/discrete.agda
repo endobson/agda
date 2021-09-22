@@ -7,7 +7,7 @@ module unordered-list.discrete {ℓ : Level} {A : Type ℓ} {{disc'A : Discrete'
 
 open import additive-group.instances.nat
 open import commutative-monoid
-open import equality
+open import equality-path
 open import functions
 open import hlevel
 open import nat

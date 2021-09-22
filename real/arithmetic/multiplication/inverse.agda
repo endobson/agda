@@ -4,7 +4,7 @@ module real.arithmetic.multiplication.inverse where
 
 open import additive-group.instances.real
 open import base
-open import equality
+open import equality-path
 open import hlevel
 open import isomorphism
 open import order

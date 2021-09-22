@@ -10,7 +10,7 @@ open import base
 open import cubical
 open import chapter2.totient
 open import div
-open import equality
+open import equality-path
 open import equivalence
 open import fin
 open import finsum
