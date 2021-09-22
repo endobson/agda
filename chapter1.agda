@@ -2,6 +2,7 @@
 
 module chapter1 where
 
+open import additive-group using (-_)
 open import additive-group.instances.int
 open import abs
 open import base

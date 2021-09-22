@@ -28,6 +28,7 @@ record Field {ℓ : Level} {D : Type ℓ}
     module R = Ring R
     instance
       IACM = ACM
+      IAG = AG
       IS = S
       IR = R
       IA = A

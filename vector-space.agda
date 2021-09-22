@@ -37,6 +37,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {ACM : AdditiveCommMonoid K}
   private
     instance
       IACM = ACM
+      IAG = AG
       IS = S
       IR = R
 
@@ -85,6 +86,7 @@ module _  {ℓK ℓV : Level} {K : Type ℓK}
   private
     instance
       IACM = ACM
+      IAG = AG
       IS = S
       IR = R
 

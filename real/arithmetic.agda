@@ -2,6 +2,7 @@
 
 module real.arithmetic where
 
+open import additive-group
 open import base
 open import equality
 open import hlevel

@@ -18,6 +18,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : A
   private
     instance
       IACM = ACM
+      IAG = AG
       IS = S
 
   +-right-injective : (a b c : D) -> (a + c) == (b + c) -> a == b

@@ -171,13 +171,14 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
   module _ (n : Nat) where
     private
       R' = (ReaderRing (Vec Domain n) R)
-      open module M = Ring R' hiding (-_ ; +-inverse)
+      open module M = Ring R'
       module MS = Semiring M.semiring
       open ring.lists M.semiring
 
       instance
         IS = M.semiring
         IACM = (AdditiveCommMonoid-Reader ACM (Vec Domain n))
+        IAG = (AdditiveGroup-Reader AG (Vec Domain n))
         IR = R'
 
       Meaning = (Vec Domain n) -> Domain

@@ -51,6 +51,14 @@ module _ {ℓ : Level} {D : Type ℓ} (ACM : AdditiveCommMonoid D) where
       -_ : D -> D
       +-inverse : {x : D} -> x + (- x) == 0#
 
--- TODO expose this once it is ready to replace Ring
--- module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{AG : AdditiveGroup D}} where
---   open AdditiveGroup AG public
+module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}} where
+  open AdditiveGroup AG public using (-_)
+  private
+    module AG = AdditiveGroup AG
+
+    instance
+      IACM = ACM
+
+  abstract
+    +-inverse : {x : D} -> x + (- x) == 0#
+    +-inverse = AG.+-inverse

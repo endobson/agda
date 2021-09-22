@@ -2,6 +2,7 @@
 
 module rational.heyting-field where
 
+open import additive-group
 open import apartness
 open import base
 open import cubical

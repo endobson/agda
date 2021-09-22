@@ -30,6 +30,7 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
     module ID = IntegralDomain ID
     instance
       IACM = ACM
+      IAG = AG
       IS = S
       IR = R
       IA = A
@@ -544,10 +545,7 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
 
 
     Ring-Q : Ring Semiring-Q AdditiveGroup-Q
-    Ring-Q = record
-      { -_ = q-_
-      ; +-inverse = \{a} -> q+-inverse a
-      }
+    Ring-Q = record {}
     module Ring-Q = Ring Ring-Q
     private
       instance

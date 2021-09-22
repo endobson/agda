@@ -30,11 +30,8 @@ record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
   private
     instance
       IACM = ACM
+      IAG = AG
       IS = S
-
-  field
-    -_ : Domain -> Domain
-    +-inverse : {x : Domain} -> (x + (- x)) == 0#
 
   semiring = S
 
@@ -500,14 +497,10 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : Ad
     instance
       IS = S
       IACM = ACM
+      IAG = AG
     module R = Ring R
 
-  open Ring R public using (-_)
-
   abstract
-    +-inverse : {x : D} -> (x + (- x)) == 0#
-    +-inverse = R.+-inverse
-
     minus-double-inverse : {a : D} -> - - a == a
     minus-double-inverse = R.minus-double-inverse
     minus-distrib-plus : {a b : D} -> - (a + b) == - a + - b
@@ -629,6 +622,8 @@ module _
     instance
       IACM₁ = ACM₁
       IACM₂ = ACM₂
+      IAG₁ = AG₁
+      IAG₂ = AG₂
 
     module R₁ = Ring R₁
     module R₂ = Ring R₂
@@ -642,7 +637,7 @@ module _
       preserves-1# : f S₁.1# == S₂.1#
       preserves-+ : ∀ x y -> f (x + y) == f x + f y
       preserves-* : ∀ x y -> f (x S₁.* y) == f x S₂.* f y
-      preserves-minus : ∀ x -> f (R₁.- x) == R₂.- (f x)
+      preserves-minus : ∀ x -> f (- x) == - (f x)
 
 
 Ringʰ :

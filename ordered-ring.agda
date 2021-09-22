@@ -27,6 +27,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     instance
       ILOS = LOS
       IACM = ACM
+      IAG = AG
       IS = S
       IO = O
       IR = R
@@ -152,6 +153,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     instance
       IPOS = POS
       IACM = ACM
+      IAG = AG
       IS = S
       IO = O
       IR = R

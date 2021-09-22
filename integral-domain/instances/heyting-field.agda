@@ -27,6 +27,7 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {AG : Additiv
     module F = Field F
     instance
       IACM = ACM
+      IAG = AG
       IS = S
       IR = R
       IA = A

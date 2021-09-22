@@ -590,10 +590,7 @@ instance
     }
 
   RationalRing : Ring RationalSemiring AdditiveGroup-Rational
-  RationalRing = record
-    { -_ = r-_
-    ; +-inverse = (\ {a} -> r+-inverse a)
-    }
+  RationalRing = record {}
 
 module RationalSemiring = Semiring RationalSemiring
 module RationalRing = Ring RationalRing
