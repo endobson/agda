@@ -4,7 +4,7 @@ module real.arithmetic.multiplication.inverse where
 
 open import additive-group.instances.real
 open import base
-open import equality-path
+open import equality
 open import hlevel
 open import isomorphism
 open import order
@@ -338,9 +338,10 @@ module _ (x : ℝ)  where
     ℝ--eval >=>
     cong ℝ-ᵉ_ (ℝ1/-eval x xinv) >=>
     ℝ-ᵉ-ℝ1/ᵉ-commute' xinv (subst ℝInv ℝ--eval (ℝ--preserves-ℝInv x xinv)) >=>
-    cong2-dep ℝ1/ᵉ (sym ℝ--eval) (isProp->PathP (\i -> isProp-ℝInv (ℝ--eval {x} (~ i)))
-                                                (subst ℝInv ℝ--eval (ℝ--preserves-ℝInv x xinv))
-                                                (ℝ--preserves-ℝInv x xinv)) >=>
+    cong2-dep ℝ1/ᵉ (\i -> ℝ--eval (~ i))
+      (isProp->PathP (\i -> isProp-ℝInv (ℝ--eval {x} (~ i)))
+                     (subst ℝInv ℝ--eval (ℝ--preserves-ℝInv x xinv))
+                     (ℝ--preserves-ℝInv x xinv)) >=>
     sym (ℝ1/-eval (ℝ- x) (ℝ--preserves-ℝInv x xinv))
 
 

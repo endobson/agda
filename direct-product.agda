@@ -6,7 +6,7 @@ open import additive-group using (AdditiveCommMonoid)
 open import apartness
 open import base
 open import commutative-monoid
-open import equality-path hiding (J)
+open import equality hiding (J)
 open import fin
 open import finset
 open import finset.search
@@ -38,8 +38,8 @@ record DirectProduct (D : Type ℓD) (I : Type ℓI) : Type (ℓ-max ℓI ℓD) 
     f : I -> D
 
 isSet-DirectProduct : (isSet D) -> isSet (DirectProduct D I)
-isSet-DirectProduct h (direct-product-cons f1) (direct-product-cons f2) p1 p2 i j =
-  direct-product-cons (isSetΠ (\_ -> h) f1 f2 (cong DirectProduct.f p1) (cong DirectProduct.f p2) i j)
+isSet-DirectProduct h = isSet-Retract DirectProduct.f direct-product-cons (\_ -> refl) (isSetΠ (\_ -> h))
+
 
 private
   DP = DirectProduct

@@ -8,7 +8,7 @@ open import apartness
 open import cartesian-geometry.vector
 open import base
 open import direct-product
-open import equality-path
+open import equality
 open import equivalence
 open import functions
 open import funext
@@ -64,14 +64,16 @@ p1 P# p2 = ∥ (p1.x ℝ# p2.x) ⊎ (p1.y ℝ# p2.y) ∥
   module p1 = Point p1
   module p2 = Point p2
 
-isSet-Point : isSet Point
-isSet-Point p1 p2 path1 path2 i j = record
-  { x = isSet-ℝ p1.x p2.x (cong Point.x path1) (cong Point.x path2) i j
-  ; y = isSet-ℝ p1.y p2.y (cong Point.y path1) (cong Point.y path2) i j
-  }
-  where
-  module p1 = Point p1
-  module p2 = Point p2
+abstract
+  isSet-Point : isSet Point
+  isSet-Point = isSet-Retract point-decons point-cons (\_ -> refl) (isSet× isSet-ℝ isSet-ℝ)
+    where
+    point-decons : Point -> ℝ × ℝ
+    point-decons p = Point.x p , Point.y p
+
+    point-cons : ℝ × ℝ -> Point
+    point-cons (x , y) = record {x = x ; y = y}
+
 
 _P+_ : Point -> Point -> Point
 p1 P+ p2 = record
