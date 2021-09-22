@@ -163,6 +163,18 @@ existential-eq {A = A} {B} {C} f = isoToEquiv i
   i .rightInv (a , c) i = (a , eqSec (f a) c i)
   i .leftInv (a , b) i = (a , eqRet (f a) b i)
 
+existential-iso : {ℓ₁ ℓ₂ ℓ₃ : Level} {A : Type ℓ₁} {B : A -> Type ℓ₂} {C : A -> Type ℓ₃} ->
+                 ((a : A) -> Iso (B a) (C a)) -> Iso (Σ A B) (Σ A C)
+existential-iso {A = A} {B} {C} f = i
+  where
+  open Iso
+  i : Iso (Σ A B) (Σ A C)
+  i .fun (a , b) = (a , (f a) .fun b)
+  i .inv (a , c) = (a , (f a) .inv c)
+  i .rightInv (a , c) i = (a , (f a) .rightInv c i)
+  i .leftInv (a , b) i = (a , (f a) .leftInv b i)
+
+
 Decidable-∩ : {P : Pred A ℓ₁} {Q : Pred A ℓ₁} -> Decidable P -> Decidable Q -> Decidable (P ∩ Q)
 Decidable-∩ {P = P} {Q} decP decQ a = handle (decP a) (decQ a)
   where

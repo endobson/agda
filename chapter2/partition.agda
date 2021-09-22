@@ -252,143 +252,147 @@ module _ (n⁺ : Nat⁺) where
     isoADiv .Iso.rightInv ((d , d-div) , (k , g)) i = ((d , isPropDiv' n⁺ (g .GCD'.%b) d-div i) , (k , g))
     isoADiv .Iso.leftInv _ = refl
 
-    diva->totative : (d : Nat) -> (d-div : (d div' n)) -> A d -> Totatives ⟨ d-div ⟩
-    diva->totative  d d%n@(nd , nd-path) (((k , pos-k) , lt) , g) = q , record
-      { pos-k = pos-q
-      ; k≤n = q≤nd
-      ; rp = q-rp
-      }
-      where
-      d%k : d div' k
-      d%k = (g .GCD'.%a)
-      q = fst d%k
-      q-path : q *' d == k
-      q-path = snd d%k
-
-      d⁺ : Nat⁺
-      d⁺ = d , (div'-pos->pos d%k pos-k)
-      pos-q = (div'-pos->pos' d%k pos-k)
-
-      qd≤ndd : (q *' d) ≤ (nd *' d)
-      qd≤ndd = transport (\i -> (q-path (~ i)) ≤ (nd-path (~ i))) lt
-      q≤nd : q ≤ nd
-      q≤nd = *-right-≤⁻ d⁺ qd≤ndd
-
-      q-rp : RelativelyPrime⁰ q nd
-      q-rp s (sq' , sq'-path) (snd' , snd'-path) = s==1
-        where
-        sd%k : (s *' d) div' k
-        sd%k = sq' , sym (*'-assoc {sq'} {s} {d}) >=> (cong (_*' d) sq'-path) >=> q-path
-        sd%n : (s *' d) div' n
-        sd%n = snd' , sym (*'-assoc {snd'} {s} {d}) >=> (cong (_*' d) snd'-path) >=> nd-path
-
-        sd%d : (s *' d) div' d
-        sd%d = g .GCD'.f (s *' d) sd%k sd%n
-        d%sd : d div' (s *' d)
-        d%sd = s , refl
-
-        sd==d : (s *' d) == d
-        sd==d = div'-antisym sd%d d%sd
-
-        s==1 : s == 1
-        s==1 = *'-right-injective d⁺ (sd==d >=> sym (*'-left-one))
-
-
-    totative->diva : (d : Nat) -> (d-div : (d div' n)) -> Totatives ⟨ d-div ⟩ -> A d
-    totative->diva d d%n@(nd , nd-path) (q , tot) = (((q *' d) , pos-qd) , qd≤n) , gcd-d4
-      where
-      gcd1 : GCD' q nd 1
-      gcd1 = relatively-prime->gcd (tot .Totient.rp)
-
-      gcd-d : GCD ((int q) * (int d)) ((int nd) * (int d)) (int d)
-      gcd-d .GCD.non-neg = int.NonNeg-nonneg d
-      gcd-d .GCD.%a = (int q) , refl
-      gcd-d .GCD.%b = (int nd) , refl
-      gcd-d .GCD.f s (sq' , sq-path) (snd' , snd-path) = s%d
-        where
-        p1 : s * sq' == (int d) * (int q)
-        p1 = *-commute >=> sq-path >=> *-commute
-        p2 : s * snd' == (int d) * (int nd)
-        p2 = *-commute >=> snd-path >=> *-commute
-
-        lc : LinearCombination' q nd 1
-        lc = gcd'->linear-combo gcd1
-        module lc = LinearCombination lc
-
-        path : s * (sq' * lc.x + snd' * lc.y) == (int d)
-        path =
-          begin
-            s * (sq' * lc.x + snd' * lc.y)
-          ==< *-distrib-+-left >
-            (s * (sq' * lc.x)) + (s * (snd' * lc.y))
-          ==< cong2 _+_ (sym *-assoc) (sym *-assoc) >
-            ((s * sq') * lc.x) + ((s * snd') * lc.y)
-          ==< (\i -> (p1 i) * lc.x + (p2 i) * lc.y) >
-            (((int d) * (int q)) * lc.x) + (((int d) * (int nd)) * lc.y)
-          ==< cong2 _+_ *-assoc *-assoc >
-            ((int d) * ((int q) * lc.x)) + ((int d) * ((int nd) * lc.y))
-          ==< sym *-distrib-+-left >
-            (int d) * ((int q) * lc.x + (int nd) * lc.y)
-          ==< *-right (cong2 _+_ *-commute *-commute) >
-            (int d) * (lc.x * (int q) + lc.y * (int nd))
-          ==< (\i -> (int d) * (lc.path i)) >
-            (int d) * (int 1)
-          ==< *-right-one >
-            (int d)
-          end
-
-        s%d : s div (int d)
-        s%d = (sq' * lc.x + snd' * lc.y) , *-commute >=> path
-
-      gcd-d2 : GCD (int (q *' d)) (int (nd *' d)) (int d)
-      gcd-d2 = transport (\i -> GCD (int-inject-*' {q} {d} (~ i))
-                                    (int-inject-*' {nd} {d} (~ i)) (int d)) gcd-d
-
-      gcd-d3 : GCD' (q *' d) (nd *' d) d
-      gcd-d3 = gcd->gcd' gcd-d2
-
-      gcd-d4 : GCD' (q *' d) n d
-      gcd-d4 = transport (\i -> GCD' (q *' d) (nd-path i) d) gcd-d3
-
-      q≤nd : q ≤ nd
-      q≤nd = tot .Totient.k≤n
-      qd≤ndd : (q *' d) ≤ (nd *' d)
-      qd≤ndd = *-right-≤⁺ d q≤nd
-      qd≤n : (q *' d) ≤ n
-      qd≤n = fst qd≤ndd , snd qd≤ndd >=> nd-path
-
-      pos-qd : Pos' (q *' d)
-      pos-qd = *'-Pos'-Pos' (tot .Totient.pos-k) (div'-pos->pos d%n (snd n⁺))
-
-    diva->totative->diva : (d : Nat) -> (d-div : (d div' n)) -> (a : A d) ->
-                           totative->diva d d-div (diva->totative d d-div a) == a
-    diva->totative->diva d d%n a = (\i -> path3 i , path4 i)
-      where
-      path1 : (fst (fst (fst (totative->diva d d%n (diva->totative d d%n a))))) ==
-              (fst (fst (fst a)))
-      path1 = snd ((snd a) .GCD'.%a)
-
-      path2 : (fst (fst (totative->diva d d%n (diva->totative d d%n a)))) == (fst (fst a))
-      path2 = (ΣProp-path isPropPos' path1)
-      path3 : (fst (totative->diva d d%n (diva->totative d d%n a))) == (fst a)
-      path3 = (ΣProp-path isProp≤ path2)
-
-      path4 : PathP (\i -> GCD' (fst (fst (path3 i))) n d)
-                    (snd (totative->diva d d%n (diva->totative d d%n a)))
-                    (snd a)
-      path4 = isProp->PathP (\j -> isPropGCD' (fst (path3 j)) d)
-                            (snd (totative->diva d d%n (diva->totative d d%n a)))
-                            (snd a)
-
-    totative->diva->totative : (d : Nat) -> (d-div : (d div' n)) -> (tot : Totatives ⟨ d-div ⟩) ->
-                               diva->totative d d-div (totative->diva d d-div tot) == tot
-    totative->diva->totative d d%n tot = (ΣProp-path isProp-isTotativeOf refl)
-
     isoTotADiv : Iso (Σ[ d ∈ (Divisors n) ] (Totatives ⟨ (snd d) ⟩)) (Σ[ d ∈ (Divisors n) ] (A ⟨ d ⟩))
-    isoTotADiv .Iso.fun ((d , d%n) , tot) = (d , d%n) , totative->diva d d%n tot
-    isoTotADiv .Iso.inv ((d , d%n) , a) = (d , d%n) , diva->totative d d%n a
-    isoTotADiv .Iso.rightInv ((d , d%n) , a) i = (d , d%n) , diva->totative->diva d d%n a i
-    isoTotADiv .Iso.leftInv ((d , d%n) , tot) i = (d , d%n) , totative->diva->totative d d%n tot i
+    isoTotADiv = existential-iso inner-iso
+      where
+      abstract
+        diva->totative : (d : Nat) -> (d-div : (d div' n)) -> A d -> Totatives ⟨ d-div ⟩
+        diva->totative  d d%n@(nd , nd-path) (((k , pos-k) , lt) , g) = q , record
+          { pos-k = pos-q
+          ; k≤n = q≤nd
+          ; rp = q-rp
+          }
+          where
+          d%k : d div' k
+          d%k = (g .GCD'.%a)
+          q = fst d%k
+          q-path : q *' d == k
+          q-path = snd d%k
+
+          d⁺ : Nat⁺
+          d⁺ = d , (div'-pos->pos d%k pos-k)
+          pos-q = (div'-pos->pos' d%k pos-k)
+
+          qd≤ndd : (q *' d) ≤ (nd *' d)
+          qd≤ndd = transport (\i -> (q-path (~ i)) ≤ (nd-path (~ i))) lt
+          q≤nd : q ≤ nd
+          q≤nd = *-right-≤⁻ d⁺ qd≤ndd
+
+          q-rp : RelativelyPrime⁰ q nd
+          q-rp s (sq' , sq'-path) (snd' , snd'-path) = s==1
+            where
+            sd%k : (s *' d) div' k
+            sd%k = sq' , sym (*'-assoc {sq'} {s} {d}) >=> (cong (_*' d) sq'-path) >=> q-path
+            sd%n : (s *' d) div' n
+            sd%n = snd' , sym (*'-assoc {snd'} {s} {d}) >=> (cong (_*' d) snd'-path) >=> nd-path
+
+            sd%d : (s *' d) div' d
+            sd%d = g .GCD'.f (s *' d) sd%k sd%n
+            d%sd : d div' (s *' d)
+            d%sd = s , refl
+
+            sd==d : (s *' d) == d
+            sd==d = div'-antisym sd%d d%sd
+
+            s==1 : s == 1
+            s==1 = *'-right-injective d⁺ (sd==d >=> sym (*'-left-one))
+
+
+        totative->diva : (d : Nat) -> (d-div : (d div' n)) -> Totatives ⟨ d-div ⟩ -> A d
+        totative->diva d d%n@(nd , nd-path) (q , tot) = (((q *' d) , pos-qd) , qd≤n) , gcd-d4
+          where
+          gcd1 : GCD' q nd 1
+          gcd1 = relatively-prime->gcd (tot .Totient.rp)
+
+          gcd-d : GCD ((int q) * (int d)) ((int nd) * (int d)) (int d)
+          gcd-d .GCD.non-neg = int.NonNeg-nonneg d
+          gcd-d .GCD.%a = (int q) , refl
+          gcd-d .GCD.%b = (int nd) , refl
+          gcd-d .GCD.f s (sq' , sq-path) (snd' , snd-path) = s%d
+            where
+            p1 : s * sq' == (int d) * (int q)
+            p1 = *-commute >=> sq-path >=> *-commute
+            p2 : s * snd' == (int d) * (int nd)
+            p2 = *-commute >=> snd-path >=> *-commute
+
+            lc : LinearCombination' q nd 1
+            lc = gcd'->linear-combo gcd1
+            module lc = LinearCombination lc
+
+            path : s * (sq' * lc.x + snd' * lc.y) == (int d)
+            path =
+              begin
+                s * (sq' * lc.x + snd' * lc.y)
+              ==< *-distrib-+-left >
+                (s * (sq' * lc.x)) + (s * (snd' * lc.y))
+              ==< cong2 _+_ (sym *-assoc) (sym *-assoc) >
+                ((s * sq') * lc.x) + ((s * snd') * lc.y)
+              ==< (\i -> (p1 i) * lc.x + (p2 i) * lc.y) >
+                (((int d) * (int q)) * lc.x) + (((int d) * (int nd)) * lc.y)
+              ==< cong2 _+_ *-assoc *-assoc >
+                ((int d) * ((int q) * lc.x)) + ((int d) * ((int nd) * lc.y))
+              ==< sym *-distrib-+-left >
+                (int d) * ((int q) * lc.x + (int nd) * lc.y)
+              ==< *-right (cong2 _+_ *-commute *-commute) >
+                (int d) * (lc.x * (int q) + lc.y * (int nd))
+              ==< (\i -> (int d) * (lc.path i)) >
+                (int d) * (int 1)
+              ==< *-right-one >
+                (int d)
+              end
+
+            s%d : s div (int d)
+            s%d = (sq' * lc.x + snd' * lc.y) , *-commute >=> path
+
+          gcd-d2 : GCD (int (q *' d)) (int (nd *' d)) (int d)
+          gcd-d2 = transport (\i -> GCD (int-inject-*' {q} {d} (~ i))
+                                        (int-inject-*' {nd} {d} (~ i)) (int d)) gcd-d
+
+          gcd-d3 : GCD' (q *' d) (nd *' d) d
+          gcd-d3 = gcd->gcd' gcd-d2
+
+          gcd-d4 : GCD' (q *' d) n d
+          gcd-d4 = transport (\i -> GCD' (q *' d) (nd-path i) d) gcd-d3
+
+          q≤nd : q ≤ nd
+          q≤nd = tot .Totient.k≤n
+          qd≤ndd : (q *' d) ≤ (nd *' d)
+          qd≤ndd = *-right-≤⁺ d q≤nd
+          qd≤n : (q *' d) ≤ n
+          qd≤n = fst qd≤ndd , snd qd≤ndd >=> nd-path
+
+          pos-qd : Pos' (q *' d)
+          pos-qd = *'-Pos'-Pos' (tot .Totient.pos-k) (div'-pos->pos d%n (snd n⁺))
+
+        diva->totative->diva : (d : Nat) -> (d-div : (d div' n)) -> (a : A d) ->
+                               totative->diva d d-div (diva->totative d d-div a) == a
+        diva->totative->diva d d%n a = (\i -> path3 i , path4 i)
+          where
+          path1 : (fst (fst (fst (totative->diva d d%n (diva->totative d d%n a))))) ==
+                  (fst (fst (fst a)))
+          path1 = snd ((snd a) .GCD'.%a)
+
+          path2 : (fst (fst (totative->diva d d%n (diva->totative d d%n a)))) == (fst (fst a))
+          path2 = (ΣProp-path isPropPos' path1)
+          path3 : (fst (totative->diva d d%n (diva->totative d d%n a))) == (fst a)
+          path3 = (ΣProp-path isProp≤ path2)
+
+          path4 : PathP (\i -> GCD' (fst (fst (path3 i))) n d)
+                        (snd (totative->diva d d%n (diva->totative d d%n a)))
+                        (snd a)
+          path4 = isProp->PathP (\j -> isPropGCD' (fst (path3 j)) d)
+                                (snd (totative->diva d d%n (diva->totative d d%n a)))
+                                (snd a)
+
+        totative->diva->totative : (d : Nat) -> (d-div : (d div' n)) -> (tot : Totatives ⟨ d-div ⟩) ->
+                                   diva->totative d d-div (totative->diva d d-div tot) == tot
+        totative->diva->totative d d%n tot = (ΣProp-path isProp-isTotativeOf refl)
+
+      inner-iso : (d : (Divisors n)) -> Iso (Totatives ⟨ (snd d) ⟩) (A ⟨ d ⟩)
+      inner-iso (d , d%n) .Iso.fun tot = totative->diva d d%n tot
+      inner-iso (d , d%n) .Iso.inv a = diva->totative d d%n a
+      inner-iso (d , d%n) .Iso.rightInv a = diva->totative->diva d d%n a
+      inner-iso (d , d%n) .Iso.leftInv tot = totative->diva->totative d d%n tot
 
   isoFin1 : Iso (Fin1 n) (Fin n)
   isoFin1 .Iso.fun (((suc x) , tt) , lt) = (x , lt)
