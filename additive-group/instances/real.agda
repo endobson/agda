@@ -26,7 +26,7 @@ instance
       }
     }
 
-  AdditiveGroup-ℝ : AdditiveGroup ℝ
+  AdditiveGroup-ℝ : AdditiveGroup AdditiveCommMonoid-ℝ
   AdditiveGroup-ℝ = record
     { -_ = ℝ-_
     ; +-inverse = \ {x} -> ℝ+-inverse x

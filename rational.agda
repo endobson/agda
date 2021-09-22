@@ -571,7 +571,7 @@ instance
       }
     }
 
-  AdditiveGroup-Rational : AdditiveGroup Rational
+  AdditiveGroup-Rational : AdditiveGroup AdditiveCommMonoid-Rational
   AdditiveGroup-Rational = record
     { -_ = r-_
     ; +-inverse = (\ {a} -> r+-inverse a)

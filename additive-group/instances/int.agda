@@ -24,7 +24,7 @@ instance
       }
     }
 
-  AdditiveGroup-Int : AdditiveGroup Int
+  AdditiveGroup-Int : AdditiveGroup AdditiveCommMonoid-Int
   AdditiveGroup-Int = record
     { -_ = int.-_
     ; +-inverse = \ {n} -> int.add-minus-zero {n}

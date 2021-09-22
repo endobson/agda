@@ -31,18 +31,18 @@ module _ {ℓ : Level} {D : Type ℓ} (ACM : AdditiveCommMonoid D) where
 
 
 module _ {ℓ : Level} {D : Type ℓ}
-         {{ACM : AdditiveCommMonoid D}}
-         {{AG : AdditiveGroup D}}
+         {ACM : AdditiveCommMonoid D}
+         (AG : AdditiveGroup ACM)
          {ℓ₂ : Level} (A : Type ℓ₂)
          where
   private
     instance
       IACM-Reader = AdditiveCommMonoid-Reader ACM A
 
-    open AdditiveGroup AG
+    module AG = AdditiveGroup AG
 
-  AdditiveGroup-Reader : AdditiveGroup (A -> D)
+  AdditiveGroup-Reader : AdditiveGroup IACM-Reader
   AdditiveGroup-Reader = record
-    { -_ = \f i -> - (f i)
-    ; +-inverse = funExt (\_ -> +-inverse)
+    { -_ = \f i -> AG.- (f i)
+    ; +-inverse = funExt (\_ -> AG.+-inverse)
     }

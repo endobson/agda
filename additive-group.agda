@@ -40,11 +40,16 @@ module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} where
     +-commute = CM.∙-commute
 
 
-record AdditiveGroup {ℓ : Level} (D : Type ℓ) {{ACM : AdditiveCommMonoid D}} : Type ℓ where
-  no-eta-equality
-  field
-    -_ : D -> D
-    +-inverse : {x : D} -> x + (- x) == 0#
+module _ {ℓ : Level} {D : Type ℓ} (ACM : AdditiveCommMonoid D) where
+  private
+    instance
+      IACM = ACM
+
+  record AdditiveGroup  : Type ℓ where
+    no-eta-equality
+    field
+      -_ : D -> D
+      +-inverse : {x : D} -> x + (- x) == 0#
 
 -- TODO expose this once it is ready to replace Ring
 -- module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{AG : AdditiveGroup D}} where
