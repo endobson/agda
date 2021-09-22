@@ -35,44 +35,6 @@ record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
 
   semiring = S
 
-  minus-zero : Path Domain (- 0#) 0#
-  minus-zero =
-    begin
-      (- 0#)
-    ==< sym +-left-zero >
-      0# + (- 0#)
-    ==< +-inverse >
-      0#
-    end
-
-  minus-unique : {a b : Domain} -> a + b == 0# -> b == - a
-  minus-unique {a} {b} pr =
-    begin
-      b
-    ==< sym +-left-zero >
-      0# + b
-    ==< +-left (sym +-inverse) >
-      (a + - a) + b
-    ==< +-left +-commute >
-      (- a + a) + b
-    ==< +-assoc >
-      - a + (a + b)
-    ==< +-right pr >
-      - a + 0#
-    ==< +-right-zero  >
-      - a
-    end
-
-  minus-double-inverse : {a : Domain} -> - - a == a
-  minus-double-inverse {a} = sym (minus-unique
-    (begin
-       - a + a
-     ==< +-commute >
-       a + - a
-     ==< +-inverse >
-       0#
-     end))
-
   *-left-minus-one : {a : Domain} -> (- 1#) * a == - a
   *-left-minus-one {a} =
     begin
@@ -113,20 +75,6 @@ record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
 
   minus-extract-both : {a b : Domain} -> (- a * - b) == (a * b)
   minus-extract-both = minus-extract-left >=> cong -_ minus-extract-right >=> minus-double-inverse
-
-  minus-distrib-plus : {a b : Domain} -> - (a + b) == - a + - b
-  minus-distrib-plus {a} {b} =
-    begin
-      - (a + b)
-    ==< sym *-left-minus-one >
-      - 1# * (a + b)
-    ==< *-distrib-+-left >
-      - 1# * a + - 1# * b
-    ==< +-left *-left-minus-one >
-      - a + - 1# * b
-    ==< +-right *-left-minus-one >
-      - a + - b
-    end
 
 
   lift-nat : Nat -> Domain
@@ -501,18 +449,12 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : Ad
     module R = Ring R
 
   abstract
-    minus-double-inverse : {a : D} -> - - a == a
-    minus-double-inverse = R.minus-double-inverse
-    minus-distrib-plus : {a b : D} -> - (a + b) == - a + - b
-    minus-distrib-plus = R.minus-distrib-plus
     minus-extract-left : {a b : D} -> (- a * b) == - (a * b)
     minus-extract-left = R.minus-extract-left
     minus-extract-right : {a b : D} -> (a * - b) == - (a * b)
     minus-extract-right = R.minus-extract-right
     minus-extract-both : {a b : D} -> (- a * - b) == (a * b)
     minus-extract-both = R.minus-extract-both
-    minus-zero : Path D (- 0#) 0#
-    minus-zero = R.minus-zero
 
 
   diff : D -> D -> D

@@ -128,8 +128,6 @@ rotate-direction r (v , vl=1) = rotate r v , a.vl=1'
       vl=1' : vector-length (rotate r v) == 1#
       vl=1' = rotate-preserves-vector-length r v >=> vl=1
 
-
-
 _r+_ : Rotation -> Rotation -> Rotation
 _r+_ r (rotation d) = rotation (rotate-direction r d)
 

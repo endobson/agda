@@ -87,8 +87,8 @@ p1 P+ p2 = record
 
 P+-swap : (p1 p2 p3 p4 : Point) -> (p1 P+ p2) P+ (p3 P+ p4) == (p1 P+ p3) P+ (p2 P+ p4)
 P+-swap p1 p2 p3 p4 i = record
-  { x = +-swap {_} {_} {_} {p1.x} {p2.x} {p3.x} {p4.x} i
-  ; y = +-swap {_} {_} {_} {p1.y} {p2.y} {p3.y} {p4.y} i
+  { x = +-swap {_} {_} {p1.x} {p2.x} {p3.x} {p4.x} i
+  ; y = +-swap {_} {_} {p1.y} {p2.y} {p3.y} {p4.y} i
   }
   where
   module p1 = Point p1

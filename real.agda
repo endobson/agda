@@ -2,6 +2,7 @@
 
 module real where
 
+open import additive-group
 open import base
 open import cubical
 open import equality-path

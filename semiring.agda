@@ -113,16 +113,6 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
         (m * n) + (m * o)
       end
 
-
-    +-right : {m n p : D} -> (n == p) -> m + n == m + p
-    +-right {m} id = cong (\x -> m + x) id
-
-    +-left : {m n p : D} -> (n == p) -> n + m == p + m
-    +-left {m} id = cong (\x -> x + m) id
-
-    +-cong : {m n p o : D} -> m == p -> n == o -> m + n == p + o
-    +-cong = cong2 _+_
-
     *-right : {m n p : D} -> (n == p) -> m * n == m * p
     *-right {m} id = cong (\x -> m * x) id
 
@@ -131,7 +121,3 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
 
     *-cong : {m n p o : D} -> m == p -> n == o -> m * n == p * o
     *-cong = cong2 _*_
-
-
-    +-swap : {m n o p : D} -> (m + n) + (o + p) == (m + o) + (n + p)
-    +-swap = +-assoc >=> +-right (sym +-assoc >=> +-left +-commute >=> +-assoc) >=> sym +-assoc
