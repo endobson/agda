@@ -75,20 +75,31 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
   private
     instance
       IACM = ACM
+    module S = Semiring S
 
   open Semiring S public using (1# ; _*_)
 
   abstract
-    open Semiring S public using
-      ( *-assoc
-      ; *-commute
-      ; *-left-zero
-      ; *-right-zero
-      ; *-left-one
-      ; *-right-one
-      ; *-distrib-+-right
-      )
+    *-assoc : {m n o : D} -> (m * n) * o == m * (n * o)
+    *-assoc = S.*-assoc
 
+    *-commute : {m n : D} -> (m * n) == (n * m)
+    *-commute = S.*-commute
+
+    *-left-zero : {m : D} -> (0# * m) == 0#
+    *-left-zero = S.*-left-zero
+
+    *-left-one : {m : D} -> (1# * m) == m
+    *-left-one = S.*-left-one
+
+    *-distrib-+-right : {m n o : D} -> (m + n) * o == (m * o) + (n * o)
+    *-distrib-+-right = S.*-distrib-+-right
+
+    *-right-zero : {m : D} -> (m * 0#) == 0#
+    *-right-zero = S.*-right-zero
+
+    *-right-one : {m : D} -> (m * 1#) == m
+    *-right-one = S.*-right-one
 
     *-distrib-+-left : {m n o : D} -> m * (n + o) == (m * n) + (m * o)
     *-distrib-+-left {m} {n} {o} =

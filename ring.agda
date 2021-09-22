@@ -34,7 +34,7 @@ record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
 
   field
     -_ : Domain -> Domain
-    +-inverse : {x : Domain } -> (x + (- x)) == 0#
+    +-inverse : {x : Domain} -> (x + (- x)) == 0#
 
   semiring = S
 
@@ -499,52 +499,64 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {{R : Ri
     instance
       IS = S
       IACM = ACM
+    module R = Ring R
 
-  open Ring R public using
-    ( -_
-    ; +-inverse
-    ; minus-double-inverse
-    ; minus-distrib-plus
-    ; minus-extract-left
-    ; minus-extract-right
-    ; minus-extract-both
-    ; minus-zero
-    )
+  open Ring R public using (-_)
+
+  abstract
+    +-inverse : {x : D} -> (x + (- x)) == 0#
+    +-inverse = R.+-inverse
+
+    minus-double-inverse : {a : D} -> - - a == a
+    minus-double-inverse = R.minus-double-inverse
+    minus-distrib-plus : {a b : D} -> - (a + b) == - a + - b
+    minus-distrib-plus = R.minus-distrib-plus
+    minus-extract-left : {a b : D} -> (- a * b) == - (a * b)
+    minus-extract-left = R.minus-extract-left
+    minus-extract-right : {a b : D} -> (a * - b) == - (a * b)
+    minus-extract-right = R.minus-extract-right
+    minus-extract-both : {a b : D} -> (- a * - b) == (a * b)
+    minus-extract-both = R.minus-extract-both
+    minus-zero : Path D (- 0#) 0#
+    minus-zero = R.minus-zero
+
 
   diff : D -> D -> D
   diff x y = y + (- x)
 
-  diff-step : {x y : D} -> x + diff x y == y
-  diff-step {x} {y} =
-    sym +-assoc >=>
-    +-left +-commute >=>
-    +-assoc >=>
-    +-right +-inverse >=>
-    +-right-zero
+  abstract
 
-  +-swap-diff : {a b c d : D} -> ((diff a b) + (diff c d)) == (diff (a + c) (b + d))
-  +-swap-diff {a} {b} {c} {d} =
-    +-assoc >=>
-    +-right (sym +-assoc >=>
-             +-left +-commute >=>
-             +-assoc >=>
-             +-right (sym (minus-distrib-plus))) >=>
-    sym +-assoc
+    diff-step : {x y : D} -> x + diff x y == y
+    diff-step {x} {y} =
+      sym +-assoc >=>
+      +-left +-commute >=>
+      +-assoc >=>
+      +-right +-inverse >=>
+      +-right-zero
 
-  diff-anticommute : {x y : D} -> diff x y == - (diff y x)
-  diff-anticommute = sym (
-    minus-distrib-plus >=>
-    +-right minus-double-inverse >=>
-    +-commute)
+    +-swap-diff : {a b c d : D} -> ((diff a b) + (diff c d)) == (diff (a + c) (b + d))
+    +-swap-diff {a} {b} {c} {d} =
+      +-assoc >=>
+      +-right (sym +-assoc >=>
+               +-left +-commute >=>
+               +-assoc >=>
+               +-right (sym (minus-distrib-plus))) >=>
+      sym +-assoc
 
-  *-distrib-diff-left : {x y z : D} -> x * (diff y z) == diff (x * y) (x * z)
-  *-distrib-diff-left = *-distrib-+-left >=> +-right minus-extract-right
+    diff-anticommute : {x y : D} -> diff x y == - (diff y x)
+    diff-anticommute = sym (
+      minus-distrib-plus >=>
+      +-right minus-double-inverse >=>
+      +-commute)
 
-  diff-zero : {x y : D} -> diff x y == 0# -> x == y
-  diff-zero p = sym +-right-zero >=> +-right (sym p) >=> diff-step
+    *-distrib-diff-left : {x y z : D} -> x * (diff y z) == diff (x * y) (x * z)
+    *-distrib-diff-left = *-distrib-+-left >=> +-right minus-extract-right
 
-  diff-trans : {a b c : D} -> (diff a b + diff b c) == (diff a c)
-  diff-trans = +-left +-commute >=> +-assoc >=> +-right diff-step >=> +-commute
+    diff-zero : {x y : D} -> diff x y == 0# -> x == y
+    diff-zero p = sym +-right-zero >=> +-right (sym p) >=> diff-step
+
+    diff-trans : {a b c : D} -> (diff a b + diff b c) == (diff a c)
+    diff-trans = +-left +-commute >=> +-assoc >=> +-right diff-step >=> +-commute
 
 
 module _ {ℓ₁ ℓ₂ : Level}
