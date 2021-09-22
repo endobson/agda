@@ -10,7 +10,7 @@ open import base
 open import cubical
 open import chapter2.totient
 open import div
-open import equality-path
+open import equality
 open import equivalence
 open import fin
 open import finsum
@@ -217,7 +217,7 @@ module _ (n⁺ : Nat⁺) where
 
 
         totative->diva : (d : Nat) -> (d-div : (d div' n)) -> Totatives ⟨ d-div ⟩ -> A d
-        totative->diva d d%n@(nd , nd-path) (q , tot) = (((q *' d) , pos-qd) , qd≤n) , gcd-d4
+        totative->diva d d%n@(nd , nd-path) (q , tot) = (((q *' d) , pos-qd) , qd≤n) , gcd-d5
           where
           gcd1 : GCD' q nd 1
           gcd1 = relatively-prime->gcd (tot .Totient.rp)
@@ -271,6 +271,9 @@ module _ (n⁺ : Nat⁺) where
 
           gcd-d4 : GCD' (q *' d) n d
           gcd-d4 = transport (\i -> GCD' (q *' d) (nd-path i) d) gcd-d3
+
+          gcd-d5 : GCD' (q *' d) n d
+          gcd-d5 = record gcd-d4 { %a = (q , refl) }
 
           q≤nd : q ≤ nd
           q≤nd = tot .Totient.k≤n
