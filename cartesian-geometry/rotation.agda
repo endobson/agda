@@ -128,6 +128,8 @@ rotate-direction r (v , vl=1) = rotate r v , a.vl=1'
       vl=1' : vector-length (rotate r v) == 1#
       vl=1' = rotate-preserves-vector-length r v >=> vl=1
 
+
+
 _r+_ : Rotation -> Rotation -> Rotation
 _r+_ r (rotation d) = rotation (rotate-direction r d)
 
@@ -230,22 +232,25 @@ CommMonoid-Rotation = record
   ; isSet-Domain = isSet-Rotation
   }
 
+instance
+  AdditiveCommMonoid-Rotation : AdditiveCommMonoid Rotation
+  AdditiveCommMonoid-Rotation = record { comm-monoid = CommMonoid-Rotation }
+
+  AdditiveGroup-Rotation : AdditiveGroup AdditiveCommMonoid-Rotation
+  AdditiveGroup-Rotation = record { -_ = r-_ ; +-inverse = \{r} -> r+-inverse r }
+
 Group-Rotation : GroupStr Rotation
-Group-Rotation = record
-  { comm-monoid = CommMonoid-Rotation
-  ; inverse = r-_
-  ; ∙-left-inverse = \{r} -> r+-commute (r- r) r >=> r+-inverse r
-  }
+Group-Rotation = AdditiveGroup.group-str AdditiveGroup-Rotation
 
 abstract
-  r--distrib-r+ : (r1 r2 : Rotation) -> (r- (r1 r+ r2)) == (r- r1) r+ (r- r2)
+  r--distrib-r+ : (r1 r2 : Rotation) -> (- (r1 + r2)) == (- r1) + (- r2)
   r--distrib-r+ = CommMonoidʰ.preserves-∙ (GroupStr.inverse-CMʰ Group-Rotation)
 
 NonTrivialRotation : Pred Rotation ℓ-one
 NonTrivialRotation r = ⟨ Rotation.dir r ⟩ v# xaxis-vector
 
 r+-reflects-NonTrivial :
-  (r1 r2 : Rotation) -> NonTrivialRotation (r1 r+ r2) ->
+  (r1 r2 : Rotation) -> NonTrivialRotation (r1 + r2) ->
   ∥ NonTrivialRotation r1 ⊎ NonTrivialRotation r2 ∥
 r+-reflects-NonTrivial r1@(rotation (v1 , p1)) r2@(rotation (v2 , p2)) =
   ∥-bind handle

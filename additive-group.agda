@@ -3,6 +3,7 @@
 module additive-group where
 
 open import base
+open import equality
 open import commutative-monoid
 open import group
 open import hlevel
@@ -50,6 +51,11 @@ module _ {ℓ : Level} {D : Type ℓ} (ACM : AdditiveCommMonoid D) where
     field
       -_ : D -> D
       +-inverse : {x : D} -> x + (- x) == 0#
+
+    group-str : GroupStr D
+    group-str .GroupStr.comm-monoid = AdditiveCommMonoid.comm-monoid ACM
+    group-str .GroupStr.inverse = -_
+    group-str .GroupStr.∙-left-inverse = +-commute >=> +-inverse
 
 module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}} where
   open AdditiveGroup AG public using (-_)
