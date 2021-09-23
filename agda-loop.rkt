@@ -53,6 +53,8 @@
            (printf "Typechecking succeeded~n")])]
        ["Error"
         (printf "Error: ~a~n" (hash-ref info 'message))]
+       ["GoalSpecific"
+        (printf "Goal Type: ~a" (hash-ref (hash-ref info 'goalInfo) 'type))]
        [kind (error 'handle-response "Unknown display info kind, Got: ~s in ~s" kind info)])]
     ["JumpToError" (void)]
     ["HighlightingInfo" (void)]
@@ -72,10 +74,17 @@
 
 (define command
   (format "IOTCM \"~a\" None Direct (Cmd_load \"~a\" [])\n" full-path full-path))
+;(define command2
+;  (format (string-append
+;            "IOTCM \"~a\" None Direct "
+;            "(Cmd_goal_type Normalised 0 noRange \"\")\n")
+;          full-path))
 
 (with-handlers ([exn:break? void])
   (let loop ()
     (write-string command agda-in)
     (flush-output agda-in)
+    ;(write-string command2 agda-in)
+    ;(flush-output agda-in)
     (read-line)
     (loop)))

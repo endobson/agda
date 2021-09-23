@@ -40,12 +40,25 @@ private
                           (vector-index ⟨ d ⟩ y-axis) # 0#
     direction->y#0 d@(dv , _) abs-d#axis = d#axis3
       where
-      d#axis : (basis-decomposition (isBasis-rotated-basis (rotation d)) xaxis-vector y-axis) # 0#
+      d#axis : (basis-decomposition (isBasis-direction-basis d) xaxis-vector y-axis) # 0#
       d#axis = (eqFun (<>-equiv-# _ _) (absℝ-#0 _ (eqInv (<>-equiv-# _ _) abs-d#axis)))
 
-      d-path : (basis-decomposition (isBasis-rotated-basis (rotation d)) xaxis-vector) ==
+      dx-path : (direction-diff d xaxis-dir) == (direction->rotation (conjugate-direction d))
+      dx-path = +-left-zero >=> r--direction->rotation d
+
+      d-path' : (a : Axis) ->
+                (basis-decomposition (isBasis-direction-basis d) xaxis-vector a) ==
+                (vector-index (conjugate-vector ⟨ d ⟩) a)
+      d-path' a =
+        direction-basis-decomposition d xaxis-vector a >=>
+        cong (\r -> (vector-index (rotate-vector r xaxis-vector) a)) dx-path >=>
+        cong (\v -> (vector-index v a))
+          (cong fst (rotate-direction-commute (conjugate-direction d) xaxis-dir) >=>
+           rotate-vector-zero-rotation ⟨ (conjugate-direction d) ⟩)
+
+      d-path : (basis-decomposition (isBasis-direction-basis d) xaxis-vector) ==
                (vector-index ⟨ (conjugate-direction d) ⟩ )
-      d-path = cong vector-index (rotated-basis-x-axis (r- (rotation d)))
+      d-path = funExt d-path'
 
       d#axis2 : (- (vector-index dv y-axis)) # 0#
       d#axis2 = subst (\x -> x y-axis # 0#) d-path d#axis

@@ -135,12 +135,13 @@ abstract
     i .leftInv x-axis = refl
     i .leftInv y-axis = refl
 
+
+conjugate-coords : (Axis -> ℝ) -> (Axis -> ℝ)
+conjugate-coords c x-axis = c x-axis
+conjugate-coords c y-axis = - (c y-axis)
+
 conjugate-vector : Vector -> Vector
-conjugate-vector v = direct-product-cons f
-  where
-  f : Axis -> ℝ
-  f x-axis = direct-product-index v x-axis
-  f y-axis = - (direct-product-index v y-axis)
+conjugate-vector v = vector-cons (conjugate-coords (vector-index v))
 
 conjugate-vector-v- : (v : Vector) -> conjugate-vector (v- v) == v- (conjugate-vector v)
 conjugate-vector-v- v = vector-ext (\{ x-axis -> refl ; y-axis -> refl })
@@ -326,8 +327,12 @@ vector-length-v- v = cong2-dep sqrtℝ p (isProp->PathP (\i -> isProp-≤ 0ℝ (
   p = vector-length²-v- v
 
 d-_ : Direction -> Direction
-d-_ (v , vl=1) = (v- v , vector-length-v- v >=> vl=1)
-
+d-_ (v , vl=1) = v- v , a.vl-=1
+  where
+  module a where
+    abstract
+      vl-=1 : vector-length (v- v) == 1#
+      vl-=1 = vector-length-v- v >=> vl=1
 
 normalize-vector : (v : Vector) -> v v# 0v -> Vector
 normalize-vector v v#0 = (ℝ1/ (vector-length v) (inj-r (vector-length>0 v v#0))) v* v
@@ -438,10 +443,15 @@ abstract
   conjugate-direction-double-inverse : (d : Direction) -> conjugate-direction (conjugate-direction d) == d
   conjugate-direction-double-inverse d = direction-ext (conjugate-vector-double-inverse ⟨ d ⟩)
 
+xaxis-coords : Axis -> ℝ
+xaxis-coords = (\{ x-axis -> 1# ; y-axis -> 0#})
+yaxis-coords : Axis -> ℝ
+yaxis-coords = (\{ x-axis -> 0# ; y-axis -> 1#})
+
 xaxis-vector : Vector
-xaxis-vector = direct-product-cons (\{ x-axis -> 1# ; y-axis -> 0#})
+xaxis-vector = direct-product-cons xaxis-coords
 yaxis-vector : Vector
-yaxis-vector = direct-product-cons (\{ x-axis -> 0# ; y-axis -> 1#})
+yaxis-vector = direct-product-cons yaxis-coords
 
 
 xaxis-dir : Direction

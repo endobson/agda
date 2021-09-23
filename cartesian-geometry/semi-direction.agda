@@ -109,27 +109,36 @@ private
   same-semi-direction-distance d1 d2 (same-semi-direction-flipped p) = funExt f
     where
     f : (v : Vector) -> semi-direction-distance d1 v == semi-direction-distance d2 v
-    f v = cong absℝ (dec1=-dec2 y-axis) >=> absℝ-- _
+    f v = cong absℝ dec1=-dec2 >=> absℝ-- _
       where
       d1=-d2 : d1 == (d- d2)
       d1=-d2 = direction-ext p
 
       dec1 : Axis -> ℝ
-      dec1 = (basis-decomposition (isBasis-rotated-basis (rotation d1)) v)
+      dec1 = (basis-decomposition (isBasis-direction-basis d1) v)
 
       dec2 : Axis -> ℝ
-      dec2 = (basis-decomposition (isBasis-rotated-basis (rotation d2)) v)
+      dec2 = (basis-decomposition (isBasis-direction-basis d2) v)
 
-      check : dec1 x-axis == vector-index (rotate (r- (rotation d1)) v) x-axis
-      check = refl
+      check : dec1 x-axis == vector-index (rotate-vector (direction-diff d1 xaxis-dir) v) x-axis
+      check = direction-basis-decomposition d1 v x-axis
 
-      dec1=-dec2 : (a : Axis) -> dec1 a == - (dec2 a)
-      dec1=-dec2 a =
-        cong (\v -> vector-index v a)
-          ((cong (\r -> rotate r v)
-             (cong (r-_ ∘ rotation) d1=-d2 >=>
-              cong rotation (conjugate-direction-d- d2))) >=>
-           rotate-add-half-rotation (r- (rotation d2)) v)
+      pd : (direction-diff d1 xaxis-dir) == add-half-rotation (direction-diff d2 xaxis-dir)
+      pd = +-right (cong (-_ ∘ direction->rotation) d1=-d2 >=>
+                    cong -_ (sym (add-half-rotation-direction->rotation d2)) >=>
+                    sym (add-half-rotation-minus-commute (direction->rotation d2)) >=>
+                    add-half-rotation-path (- (direction->rotation d2))) >=>
+           sym +-assoc >=>
+           sym (add-half-rotation-path (direction-diff d2 xaxis-dir))
+
+
+      dec1=-dec2 : dec1 y-axis == - (dec2 y-axis)
+      dec1=-dec2 =
+        direction-basis-decomposition d1 v y-axis >=>
+        cong (\v -> vector-index v y-axis)
+          (cong (\r -> rotate-vector r v) pd >=>
+           rotate-add-half-rotation (direction-diff d2 xaxis-dir) v) >=>
+        cong -_ (sym (direction-basis-decomposition d2 v y-axis))
 
 semi-direction-distance' : SemiDirection -> Vector -> ℝ
 semi-direction-distance' =
