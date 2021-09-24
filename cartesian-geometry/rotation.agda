@@ -314,6 +314,16 @@ add-half-rotation-minus-commute r =
   sym minus-distrib-plus >=>
   cong -_ (sym (add-half-rotation-path r))
 
+add-half-rotation-double-inverse : (r : Rotation) ->
+  add-half-rotation (add-half-rotation r) == r
+add-half-rotation-double-inverse _ =
+  add-half-rotation-path _ >=>
+  +-left (add-half-rotation-path _) >=>
+  +-assoc >=>
+  +-right (+-right (sym minus-half-rotation) >=>
+           +-inverse) >=>
+  +-right-zero
+
 
 
 
@@ -465,6 +475,18 @@ instance
   TightApartnessStr-Rotation .TightApartnessStr.TightApartness-# =
     tight-r# , (irrefl-r# , sym-r# , comparison-r#)
   TightApartnessStr-Rotation .TightApartnessStr.isProp-# = \x y -> isProp-r#
+
+abstract
+  +₁-preserves-r# : {r1 r2 r3 : Rotation} -> r2 # r3 -> (r1 + r2) # (r1 + r3)
+  +₁-preserves-r# {r1} {r2} {r3} (r#-cons nt-r2r3) = r#-cons (subst NonTrivialRotation p nt-r2r3)
+    where
+    p : diff r2 r3 == diff (r1 + r2) (r1 + r3)
+    p = sym +-left-zero >=>
+        +-left (sym +-inverse) >=>
+        +-swap-diff
+
+  +₂-preserves-r# : {r1 r2 r3 : Rotation} -> r1 # r2 -> (r1 + r3) # (r2 + r3)
+  +₂-preserves-r# {r1} {r2} {r3} r1#r2 = subst2 _#_ +-commute +-commute (+₁-preserves-r# r1#r2)
 
 
 -- Rotate Vector
