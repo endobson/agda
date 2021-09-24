@@ -457,42 +457,11 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : Ad
     minus-extract-both = R.minus-extract-both
 
 
-  diff : D -> D -> D
-  diff x y = y + (- x)
-
   abstract
-
-    diff-step : {x y : D} -> x + diff x y == y
-    diff-step {x} {y} =
-      sym +-assoc >=>
-      +-left +-commute >=>
-      +-assoc >=>
-      +-right +-inverse >=>
-      +-right-zero
-
-    +-swap-diff : {a b c d : D} -> ((diff a b) + (diff c d)) == (diff (a + c) (b + d))
-    +-swap-diff {a} {b} {c} {d} =
-      +-assoc >=>
-      +-right (sym +-assoc >=>
-               +-left +-commute >=>
-               +-assoc >=>
-               +-right (sym (minus-distrib-plus))) >=>
-      sym +-assoc
-
-    diff-anticommute : {x y : D} -> diff x y == - (diff y x)
-    diff-anticommute = sym (
-      minus-distrib-plus >=>
-      +-right minus-double-inverse >=>
-      +-commute)
 
     *-distrib-diff-left : {x y z : D} -> x * (diff y z) == diff (x * y) (x * z)
     *-distrib-diff-left = *-distrib-+-left >=> +-right minus-extract-right
 
-    diff-zero : {x y : D} -> diff x y == 0# -> x == y
-    diff-zero p = sym +-right-zero >=> +-right (sym p) >=> diff-step
-
-    diff-trans : {a b c : D} -> (diff a b + diff b c) == (diff a c)
-    diff-trans = +-left +-commute >=> +-assoc >=> +-right diff-step >=> +-commute
 
 
 module _ {ℓ₁ ℓ₂ : Level}

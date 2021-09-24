@@ -44,7 +44,7 @@ private
       d#axis = (eqFun (<>-equiv-# _ _) (absℝ-#0 _ (eqInv (<>-equiv-# _ _) abs-d#axis)))
 
       dx-path : (direction-diff d xaxis-dir) == (direction->rotation (conjugate-direction d))
-      dx-path = +-left-zero >=> r--direction->rotation d
+      dx-path = +-left (rotation-ext refl) >=> +-left-zero >=> r--direction->rotation d
 
       d-path' : (a : Axis) ->
                 (basis-decomposition (isBasis-direction-basis d) xaxis-vector a) ==

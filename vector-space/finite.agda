@@ -133,6 +133,8 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
   private
     instance
       M = VectorSpaceStr.module-str VS
+      IACM = ACM
+      IAG = AG
 
     isSet-V = ModuleStr.isSet-V M
     CM-V+ = GroupStr.comm-monoid (ModuleStr.GroupStr-V M)

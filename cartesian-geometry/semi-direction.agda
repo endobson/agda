@@ -124,13 +124,8 @@ private
       check = direction-basis-decomposition d1 v x-axis
 
       pd : (direction-diff d1 xaxis-dir) == add-half-rotation (direction-diff d2 xaxis-dir)
-      pd = +-right (cong (-_ ∘ direction->rotation) d1=-d2 >=>
-                    cong -_ (sym (add-half-rotation-direction->rotation d2)) >=>
-                    sym (add-half-rotation-minus-commute (direction->rotation d2)) >=>
-                    add-half-rotation-path (- (direction->rotation d2))) >=>
-           sym +-assoc >=>
-           sym (add-half-rotation-path (direction-diff d2 xaxis-dir))
-
+      pd = cong (\d -> direction-diff d xaxis-dir) d1=-d2 >=>
+           direction-diff-minus-left _ _
 
       dec1=-dec2 : dec1 y-axis == - (dec2 y-axis)
       dec1=-dec2 =

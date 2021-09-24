@@ -191,14 +191,14 @@ private
   r~->zero-diff : {q r : ℚ'} -> (q r~ r) -> Zero (r r+' (r-' q))
   r~->zero-diff {q} {r} q~r = zd
     where
-    diff = (r r+' (r-' q))
-    diffᵉ = (r r+'ᵉ (r-' q))
-    n = Rational'.numerator diffᵉ
+    diff-v = (r r+' (r-' q))
+    diffᵉ-v = (r r+'ᵉ (r-' q))
+    n = Rational'.numerator diffᵉ-v
     zpath : n == (int.int 0)
     zpath = +-left (sym q~r) >=>
             +-right int.minus-extract-left >=>
             int.add-minus-zero
-    zn : Zero (Rational'.numerator diff)
+    zn : Zero (Rational'.numerator diff-v)
     zn = subst Zero (sym zpath >=> cong Rational'.numerator (sym r+'-eval)) tt
     zd = is-signℚ' (int.*-Zero₁ zn)
 
@@ -385,10 +385,10 @@ antisym~-ℚ'≤ {a} {b} a≤b b≤a = handle (trichotomous~-ℚ'< a b)
   sd : Rational'
   sd = (same-denom-r+' (ℕ->ℚ' b) (r-' (ℕ->ℚ' a)))
 
-  diff : Rational'
-  diff = (ℕ->ℚ' b r+' (r-' (ℕ->ℚ' a)))
+  diff-v : Rational'
+  diff-v = (ℕ->ℚ' b r+' (r-' (ℕ->ℚ' a)))
 
-  sd~diff : sd r~ diff
+  sd~diff : sd r~ diff-v
   sd~diff = same-denom-r+'-r~ (ℕ->ℚ' b) (r-' (ℕ->ℚ' a)) refl
 
   path2 : int (c nat.+' suc a) i.+ (i.- (int a)) == i.pos c
@@ -404,5 +404,5 @@ antisym~-ℚ'≤ {a} {b} a≤b b≤a = handle (trichotomous~-ℚ'< a b)
   Pos-sd : Pos sd
   Pos-sd = is-signℚ' (int.*-Pos-Pos Pos-b-a tt)
 
-  ans : Pos diff
+  ans : Pos diff-v
   ans = r~-preserves-sign Pos-sd sd~diff

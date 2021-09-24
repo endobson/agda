@@ -126,3 +126,42 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : Additi
       where
       p : (a + b) + (- a + - b) == 0#
       p = +-swap >=> +-cong +-inverse +-inverse >=> +-right-zero
+
+  diff : D -> D -> D
+  diff d1 d2 = d2 + (- d1)
+
+
+  abstract
+    diff-anticommute : {a b : D} -> diff a b == - (diff b a)
+    diff-anticommute = sym (
+      minus-distrib-plus >=>
+      +-right minus-double-inverse >=>
+      +-commute)
+
+    diff-trans : {x y z : D} -> diff x y + diff y z == diff x z
+    diff-trans {x} {y} {z} =
+      +-commute >=>
+      +-assoc >=>
+      +-right (sym +-assoc >=>
+               +-left (+-commute >=> +-inverse) >=>
+               +-left-zero)
+
+    diff-step : {x y : D} -> x + diff x y == y
+    diff-step =
+      sym +-assoc >=>
+      +-left +-commute >=>
+      +-assoc >=>
+      +-right +-inverse >=>
+      +-right-zero
+
+    diff-zero : {x y : D} -> diff x y == 0# -> x == y
+    diff-zero p = sym +-right-zero >=> +-right (sym p) >=> diff-step
+
+    +-swap-diff : {a b c d : D} -> ((diff a b) + (diff c d)) == (diff (a + c) (b + d))
+    +-swap-diff {a} {b} {c} {d} =
+      +-assoc >=>
+      +-right (sym +-assoc >=>
+               +-left +-commute >=>
+               +-assoc >=>
+               +-right (sym (minus-distrib-plus))) >=>
+      sym +-assoc

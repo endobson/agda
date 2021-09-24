@@ -101,14 +101,6 @@ record Rotation : Type₁ where
         path = eqFun (isUnitVector'-equiv v) len=1
 
 
-direction->rotation : Direction -> Rotation
-direction->rotation (v , p) = rotation-cons (vector-index v) a.path
-  where
-  module a where
-    abstract
-      path : vector-length² v == 1#
-      path = (eqInv (isUnitVector'-equiv v) p)
-
 rotation->coords : Rotation -> Coords
 rotation->coords (rotation-cons c _) = c
 
@@ -124,25 +116,46 @@ rotation-ext {r1@(rotation-cons _ l1)} {r2@(rotation-cons _ l2)} p = a.path
       path : r1 == r2
       path i = rotation-cons (p i) (path-l i)
 
-
-
 isSet-Rotation : isSet Rotation
-isSet-Rotation =
-  isSet-Retract Rotation.dir direction->rotation (\_ -> rotation-ext refl)
-                isSet-Direction
+isSet-Rotation = isSet-Retract forward backward path isSet-T
+  where
+  T : Type₁
+  T = Σ Coords UnitCoords
+
+  isSet-T : isSet T
+  isSet-T = isSetΣ (isSetΠ (\_ -> isSet-ℝ)) (\_ -> (isProp->isSet (isSet-ℝ _ _)))
+
+  forward : Rotation -> T
+  forward (rotation-cons c p) = c , p
+  backward : T -> Rotation
+  backward (c , p) = (rotation-cons c p)
+  path : (r : Rotation) -> backward (forward r) == r
+  path (rotation-cons c p) = refl
+
 
 zero-rotation-coords : Coords
 zero-rotation-coords = xaxis-coords
 
 zero-rotation : Rotation
-zero-rotation = direction->rotation xaxis-dir
+zero-rotation = rotation-cons zero-rotation-coords a.path
+  where
+  module a where
+    abstract
+     path : axis-dot-product zero-rotation-coords zero-rotation-coords == 1#
+     path = +-cong *-right-one *-right-zero >=> +-right-zero
+
+add-half-rotation : Rotation -> Rotation
+add-half-rotation r = rotation-cons c a.path
+  where
+  c = -_ ∘ (Rotation.c r)
+  module a where
+    abstract
+      path : axis-dot-product c c == 1#
+      path = +-cong minus-extract-both minus-extract-both >=> (Rotation.len=1 r)
 
 half-rotation : Rotation
-half-rotation = direction->rotation (d- xaxis-dir)
+half-rotation = add-half-rotation zero-rotation
 
--- TODO change impl
-add-half-rotation : Rotation -> Rotation
-add-half-rotation r = direction->rotation (d- (Rotation.dir r))
 
 module _ where
   private
@@ -623,14 +636,59 @@ rotate-direction-assoc :
 rotate-direction-assoc r1 r2 d = direction-ext (rotate-vector-assoc r1 r2 ⟨ d ⟩)
 
 
+direction->rotation : Direction -> Rotation
+direction->rotation (v , p) = rotation-cons (vector-index v) a.path
+  where
+  module a where
+    abstract
+      path : vector-length² v == 1#
+      path = (eqInv (isUnitVector'-equiv v) p)
+
 direction-diff : Direction -> Direction -> Rotation
-direction-diff d1 d2 = direction->rotation d2 r+ (r- (direction->rotation d1))
+direction-diff d1 d2 = diff (direction->rotation d1) (direction->rotation d2)
 
 direction-shift : Direction -> Rotation -> Direction
 direction-shift d r = rotate-direction r d
 
 
 abstract
+  direction-diff-anticommute : (d1 d2 : Direction) ->
+    (direction-diff d1 d2) == - (direction-diff d2 d1)
+  direction-diff-anticommute d1 d2 =
+    sym (minus-distrib-plus >=> +-commute >=> +-left minus-double-inverse)
+
+
+  rotate-direction-commute : (d1 d2 : Direction) ->
+    rotate-direction (direction->rotation d1) d2 ==
+    rotate-direction (direction->rotation d2) d1
+  rotate-direction-commute d1 d2 = direction-ext (cong vector-cons (raw-rotate-commute _ _))
+
+
+  direction-diff-trans : (d1 d2 d3 : Direction) ->
+    (direction-diff d1 d2) r+ (direction-diff d2 d3) ==
+    (direction-diff d1 d3)
+  direction-diff-trans _ _ _ = diff-trans
+
+  direction-shift-diff : (d1 d2 d3 : Direction) ->
+    direction-shift d1 (direction-diff d2 d3) ==
+    direction-shift d3 (direction-diff d2 d1)
+  direction-shift-diff d1 d2 d3 =
+    cong (direction-shift d1) +-commute >=>
+    sym (rotate-direction-assoc _ _ _) >=>
+    cong (rotate-direction (r- (direction->rotation d2)))
+      (rotate-direction-commute d3 d1) >=>
+    (rotate-direction-assoc _ _ _) >=>
+    cong (direction-shift d3) +-commute
+
+  direction-diff-shift : (d1 d2 : Direction) (r : Rotation) ->
+    direction-diff d1 (direction-shift d2 r) ==
+    direction-diff d1 d2 r+ r
+  direction-diff-shift d1 d2 r =
+    +-commute >=>
+    +-right (rotation-ext refl >=> +-commute) >=>
+    sym +-assoc >=>
+    +-left +-commute
+
   conjugate-distrib-rotate-direction :
     (r : Rotation) (d : Direction) ->
     (conjugate-direction (rotate-direction r d)) ==
@@ -655,14 +713,29 @@ abstract
   rotate-direction-add-half-rotation r d =
     direction-ext (rotate-add-half-rotation r ⟨ d ⟩)
 
+  direction-diff-minus-left : (d1 d2 : Direction) ->
+    (direction-diff (d- d1) d2) == add-half-rotation (direction-diff d1 d2)
+  direction-diff-minus-left d1 d2 =
+    +-right (cong r-_ (sym (add-half-rotation-direction->rotation _) >=>
+                       add-half-rotation-path (direction->rotation d1)) >=>
+             minus-distrib-plus >=>
+             +-right minus-half-rotation) >=>
+    sym +-assoc >=>
+    sym (add-half-rotation-path _)
+
+  direction-diff-minus-right : (d1 d2 : Direction) ->
+    (direction-diff d1 (d- d2)) == add-half-rotation (direction-diff d1 d2)
+  direction-diff-minus-right d1 d2 =
+    +-commute >=>
+    +-right (sym (add-half-rotation-direction->rotation _) >=>
+             add-half-rotation-path (direction->rotation d2)) >=>
+    sym +-assoc >=>
+    +-left +-commute >=>
+    sym (add-half-rotation-path _)
+
 
   rotate-direction-self-diff' : (d : Direction) -> direction-diff d d == zero-rotation
   rotate-direction-self-diff' d = +-inverse
-
-  rotate-direction-commute : (d1 d2 : Direction) ->
-    rotate-direction (direction->rotation d1) d2 ==
-    rotate-direction (direction->rotation d2) d1
-  rotate-direction-commute d1 d2 = direction-ext (cong vector-cons (raw-rotate-commute _ _))
 
   direction-diff-step : (d1 d2 : Direction) -> (direction-shift d1 (direction-diff d1 d2)) == d2
   direction-diff-step d1 d2 =
@@ -780,12 +853,14 @@ sym-semi-direction-distance d1 d2 =
   p2 : (rotate-direction (direction-diff d1 xaxis-dir) d2) ==
        (conjugate-direction (rotate-direction (direction-diff d2 xaxis-dir) d1))
   p2 =
-    sym (rotate-direction-assoc zero-rotation (r- r1) d2) >=>
+    sym (rotate-direction-assoc (direction->rotation xaxis-dir) (r- r1) d2) >=>
+    cong (direction-shift _) (rotation-ext refl) >=>
     rotate-direction-zero-rotation (rotate-direction (r- r1) d2) >=>
     cong (\r -> rotate-direction r d2) (r--direction->rotation d1) >=>
     rotate-direction-commute (conjugate-direction d1) d2 >=>
     cong (\r -> rotate-direction r (conjugate-direction d1))
       (sym (cong r-_ +-left-zero >=> minus-double-inverse)) >=>
+    cong (direction-shift _) (cong r-_ (+-left (rotation-ext refl))) >=>
     sym (conjugate-distrib-rotate-direction (direction-diff d2 xaxis-dir) d1)
 
   p : (rotate-vector (direction-diff d1 xaxis-dir) v2) ==
