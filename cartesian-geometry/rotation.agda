@@ -22,6 +22,9 @@ open import isomorphism
 open import monoid
 open import order
 open import order.instances.real
+open import ordered-ring
+open import ordered-semiring
+open import ordered-semiring.instances.real
 open import real
 open import real.arithmetic.absolute-value
 open import real.arithmetic.sqrt
@@ -276,53 +279,54 @@ Group-Rotation : GroupStr Rotation
 Group-Rotation = AdditiveGroup.group-str AdditiveGroup-Rotation
 
 
-add-half-rotation-path : (r : Rotation) -> add-half-rotation r == r + half-rotation
-add-half-rotation-path r@(rotation-cons c l=1) = a.ans
-  where
-  module a where
-    abstract
-      path2 : (a : Axis) -> (- (c a)) == Rotation.c (r r+ᵉ half-rotation) a
-      path2 x-axis = sym (+-cong (minus-extract-right >=> cong -_ *-right-one)
-                                 (cong -_ (*-right minus-zero >=> *-right-zero) >=> minus-zero) >=>
-                          +-right-zero)
-      path2 y-axis = sym (+-cong (*-right minus-zero >=> *-right-zero)
-                                 (minus-extract-right >=> cong -_ *-right-one) >=>
-                          +-left-zero)
+abstract
+  add-half-rotation-path : (r : Rotation) -> add-half-rotation r == r + half-rotation
+  add-half-rotation-path r@(rotation-cons c l=1) = a.ans
+    where
+    module a where
+      abstract
+        path2 : (a : Axis) -> (- (c a)) == Rotation.c (r r+ᵉ half-rotation) a
+        path2 x-axis = sym (+-cong (minus-extract-right >=> cong -_ *-right-one)
+                                   (cong -_ (*-right minus-zero >=> *-right-zero) >=> minus-zero) >=>
+                            +-right-zero)
+        path2 y-axis = sym (+-cong (*-right minus-zero >=> *-right-zero)
+                                   (minus-extract-right >=> cong -_ *-right-one) >=>
+                            +-left-zero)
 
-      path : add-half-rotation r == r r+ᵉ half-rotation
-      path = rotation-ext (funExt path2)
+        path : add-half-rotation r == r r+ᵉ half-rotation
+        path = rotation-ext (funExt path2)
 
-      ans : add-half-rotation r == r r+ half-rotation
-      ans = path >=> sym (r+-eval r half-rotation)
+        ans : add-half-rotation r == r r+ half-rotation
+        ans = path >=> sym (r+-eval r half-rotation)
 
-minus-half-rotation : - half-rotation == half-rotation
-minus-half-rotation = a.ans
-  where
-  module a where
-    abstract
-      inner : r-ᵉ half-rotation == half-rotation
-      inner = rotation-ext (funExt (\{ x-axis -> refl ; y-axis -> cong -_ minus-zero }))
+  minus-half-rotation : - half-rotation == half-rotation
+  minus-half-rotation = a.ans
+    where
+    module a where
+      abstract
+        inner : r-ᵉ half-rotation == half-rotation
+        inner = rotation-ext (funExt (\{ x-axis -> refl ; y-axis -> cong -_ minus-zero }))
 
-      ans : - half-rotation == half-rotation
-      ans = r--eval half-rotation >=> inner
+        ans : - half-rotation == half-rotation
+        ans = r--eval half-rotation >=> inner
 
-add-half-rotation-minus-commute :
-  (r : Rotation) -> add-half-rotation (- r) == - (add-half-rotation r)
-add-half-rotation-minus-commute r =
-  add-half-rotation-path (- r) >=>
-  +-right (sym minus-half-rotation) >=>
-  sym minus-distrib-plus >=>
-  cong -_ (sym (add-half-rotation-path r))
+  add-half-rotation-minus-commute :
+    (r : Rotation) -> add-half-rotation (- r) == - (add-half-rotation r)
+  add-half-rotation-minus-commute r =
+    add-half-rotation-path (- r) >=>
+    +-right (sym minus-half-rotation) >=>
+    sym minus-distrib-plus >=>
+    cong -_ (sym (add-half-rotation-path r))
 
-add-half-rotation-double-inverse : (r : Rotation) ->
-  add-half-rotation (add-half-rotation r) == r
-add-half-rotation-double-inverse _ =
-  add-half-rotation-path _ >=>
-  +-left (add-half-rotation-path _) >=>
-  +-assoc >=>
-  +-right (+-right (sym minus-half-rotation) >=>
-           +-inverse) >=>
-  +-right-zero
+  add-half-rotation-double-inverse : (r : Rotation) ->
+    add-half-rotation (add-half-rotation r) == r
+  add-half-rotation-double-inverse _ =
+    add-half-rotation-path _ >=>
+    +-left (add-half-rotation-path _) >=>
+    +-assoc >=>
+    +-right (+-right (sym minus-half-rotation) >=>
+             +-inverse) >=>
+    +-right-zero
 
 
 
@@ -419,6 +423,25 @@ r--preserves-NonTrivial r nt =
 ¬NonTrivial->zero-rotation {r} rv#0 =
   rotation-ext (cong vector-index (tight-# (rv#0 ∘ non-trivial-rotation)))
 
+NonTrivial-half-rotation : NonTrivialRotation half-rotation
+NonTrivial-half-rotation = a.ans
+  where
+  module a where
+    abstract
+      0<1 : 0ℝ < 1ℝ
+      0<1 = 0ℝ<1ℝ
+      -1<0 : (- 1ℝ) < 0ℝ
+      -1<0 = minus-flips-0< 0ℝ<1ℝ
+      -1<1 : (- 1ℝ) < 1ℝ
+      -1<1 = subst2 _<_ +-left-zero +-right-zero (+-preserves-< _ _ _ _ 0<1 -1<0)
+
+      -1#1 : (- 1#) # 1#
+      -1#1 = eqFun (<>-equiv-# (- 1#) 1#) (inj-l -1<1)
+
+      ans : NonTrivialRotation half-rotation
+      ans = non-trivial-rotation ∣ x-axis , -1#1 ∣
+
+
 record _r#_ (r1 r2 : Rotation) : Type₁ where
   constructor r#-cons
   field
@@ -488,6 +511,26 @@ abstract
   +₂-preserves-r# : {r1 r2 r3 : Rotation} -> r1 # r2 -> (r1 + r3) # (r2 + r3)
   +₂-preserves-r# {r1} {r2} {r3} r1#r2 = subst2 _#_ +-commute +-commute (+₁-preserves-r# r1#r2)
 
+  minus-preserves-r# : {r1 r2 : Rotation} -> r1 # r2 -> (- r1) # (- r2)
+  minus-preserves-r# {r1} {r2} (r#-cons nt) =
+    (r#-cons (subst NonTrivialRotation minus-distrib-plus (r--preserves-NonTrivial _ nt)))
+
+  +-reflects-r# : {r1 r2 r3 r4 : Rotation} -> (r1 + r2) # (r3 + r4) -> ∥ (r1 # r3) ⊎ (r2 # r4) ∥
+  +-reflects-r# {r1} {r2} {r3} {r4} (r#-cons nt) =
+    ∥-map (⊎-map r#-cons r#-cons) (r+-reflects-NonTrivial _ _ nt')
+    where
+    nt' : NonTrivialRotation ((diff r1 r3) + (diff r2 r4))
+    nt' = subst NonTrivialRotation (sym +-swap-diff) nt
+
+  +-reflects-r#0 : {r1 r2 : Rotation} -> (r1 + r2) # 0# -> ∥ (r1 # 0#) ⊎ (r2 # 0#) ∥
+  +-reflects-r#0 {r1} {r2} r1r2#0 =
+    +-reflects-r# (subst ((r1 + r2) #_) (sym +-right-zero) r1r2#0)
+
+
+  half-rotation#0 : half-rotation # 0#
+  half-rotation#0 =
+    (r#-cons (subst NonTrivialRotation (sym minus-half-rotation >=> sym +-left-zero)
+                    NonTrivial-half-rotation))
 
 -- Rotate Vector
 
