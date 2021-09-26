@@ -251,22 +251,22 @@ module _ where
 
   open ops public
 
+private
+  Monoid-Rotation : Monoid Rotation
+  Monoid-Rotation = record
+    { ε = zero-rotation
+    ; _∙_ = _r+_
+    ; ∙-assoc = \{r1} {r2} {r3} -> r+-assoc r1 r2 r3
+    ; ∙-left-ε = \{r} -> r+-left-zero r
+    ; ∙-right-ε = \{r} -> r+-right-zero r
+    }
 
-Monoid-Rotation : Monoid Rotation
-Monoid-Rotation = record
-  { ε = zero-rotation
-  ; _∙_ = _r+_
-  ; ∙-assoc = \{r1} {r2} {r3} -> r+-assoc r1 r2 r3
-  ; ∙-left-ε = \{r} -> r+-left-zero r
-  ; ∙-right-ε = \{r} -> r+-right-zero r
-  }
-
-CommMonoid-Rotation : CommMonoid Rotation
-CommMonoid-Rotation = record
-  { monoid = Monoid-Rotation
-  ; ∙-commute = \{r1} {r2} -> r+-commute r1 r2
-  ; isSet-Domain = isSet-Rotation
-  }
+  CommMonoid-Rotation : CommMonoid Rotation
+  CommMonoid-Rotation = record
+    { monoid = Monoid-Rotation
+    ; ∙-commute = \{r1} {r2} -> r+-commute r1 r2
+    ; isSet-Domain = isSet-Rotation
+    }
 
 instance
   AdditiveCommMonoid-Rotation : AdditiveCommMonoid Rotation

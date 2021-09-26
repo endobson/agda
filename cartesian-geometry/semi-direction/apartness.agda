@@ -3,12 +3,17 @@
 module cartesian-geometry.semi-direction.apartness where
 
 open import additive-group
+open import apartness
 open import base
-open import equality
-open import cartesian-geometry.semi-direction
+open import cartesian-geometry.rotation
+open import cartesian-geometry.semi-direction hiding
+  ( _sd#_
+  ; sym-sd#
+  )
 open import cartesian-geometry.semi-rotation
 open import cartesian-geometry.vector
-open import cartesian-geometry.rotation
+open import equality
+open import relation
 open import set-quotient
 
 
@@ -53,3 +58,13 @@ semi-direction-diff =
           +-left (sym (add-half-rotation-path _) >=>
                   add-half-rotation-direction->rotation _ >=>
                   cong direction->rotation (cong d-_ d2=-d3 >=> d--double-inverse _))
+
+private
+  record _sd#_ (sd1 sd2 : SemiDirection) : Type₁ where
+    no-eta-equality
+    constructor sd#-cons
+    field
+      apart : semi-direction-diff sd1 sd2 # zero-semi-rotation
+
+--  sym-sd# : Symmetric _sd#_
+--  sym-sd# (sd#-cons d#0) = sd#-cons (subst2 _#_ ? ? ?)

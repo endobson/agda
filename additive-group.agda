@@ -31,6 +31,9 @@ module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} where
     +-assoc : {m n o : D} -> (m + n) + o == m + (n + o)
     +-assoc = CM.∙-assoc
 
+    +-assocᵉ : (m n o : D) -> (m + n) + o == m + (n + o)
+    +-assocᵉ _ _ _ = CM.∙-assoc
+
     +-left-zero : {m : D} -> (0# + m) == m
     +-left-zero = CM.∙-left-ε
 
@@ -39,6 +42,9 @@ module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} where
 
     +-commute : {m n : D} -> (m + n) == (n + m)
     +-commute = CM.∙-commute
+
+    +-commuteᵉ : (m n : D) -> (m + n) == (n + m)
+    +-commuteᵉ _ _ = CM.∙-commute
 
   abstract
     +-right : {m n p : D} -> (n == p) -> m + n == m + p
@@ -81,6 +87,9 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : Additi
   abstract
     +-inverse : {x : D} -> x + (- x) == 0#
     +-inverse = AG.+-inverse
+
+    +-inverseᵉ : (x : D) -> x + (- x) == 0#
+    +-inverseᵉ _ = AG.+-inverse
 
   abstract
     minus-zero : Path D (- 0#) 0#
@@ -137,6 +146,9 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : Additi
       minus-distrib-plus >=>
       +-right minus-double-inverse >=>
       +-commute)
+
+    diff-anticommuteᵉ : (a b : D) -> diff a b == - (diff b a)
+    diff-anticommuteᵉ _ _ = diff-anticommute
 
     diff-trans : {x y z : D} -> diff x y + diff y z == diff x z
     diff-trans {x} {y} {z} =
