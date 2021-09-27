@@ -226,6 +226,65 @@ private
         f2 r (\ r#h -> ¬nt (non-trivial-semi-rotation r#0 r#h))
 
 
+  sr+-reflects-NonTrivial : (sr1 sr2 : SemiRotation) ->
+    NonTrivialSemiRotation (sr1 + sr2) ->
+    ∥ NonTrivialSemiRotation sr1 ⊎ NonTrivialSemiRotation sr2 ∥
+  sr+-reflects-NonTrivial =
+    SemiRotationElim.elimProp2 (\sr1 sr2 -> isPropΠ (\_ -> squash)) f
+    where
+    f : (r1 r2 : Rotation) -> NonTrivialSemiRotation' (r1 + r2) ->
+       ∥ NonTrivialSemiRotation' r1 ⊎ NonTrivialSemiRotation' r2 ∥
+    f r1 r2 (non-trivial-semi-rotation 12#0 12#h) =
+      ∥-bind2 handle c1 c2
+      where
+      Ans = ∥ (NonTrivialSemiRotation' r1) ⊎ (NonTrivialSemiRotation' r2) ∥
+      h = half-rotation
+
+      r12#00 : ∥ (r1 # 0#) ⊎ (r2 # 0#) ∥
+      r12#00 = +-reflects-r# (subst2 _#_ refl (sym +-right-zero) 12#0)
+
+      r12#0h : ∥ (r1 # 0#) ⊎ (r2 # h) ∥
+      r12#0h = +-reflects-r# (subst2 _#_ refl (sym +-left-zero) 12#h)
+
+      r12#h0 : ∥ (r1 # h) ⊎ (r2 # 0#) ∥
+      r12#h0 = +-reflects-r# (subst2 _#_ refl (sym +-right-zero) 12#h)
+
+      r12#hh : ∥ (r1 # h) ⊎ (r2 # h) ∥
+      r12#hh = +-reflects-r# (subst2 _#_ refl p 12#0)
+        where
+        p = sym +-inverse >=> +-right minus-half-rotation
+
+      c1 : ∥ (r1 # h) ⊎ (r1 # 0#) ∥
+      c1 = ∥-map (⊎-map-left sym-#) (comparison-# half-rotation r1 0# half-rotation#0)
+
+      c2 : ∥ (r2 # h) ⊎ (r2 # 0#) ∥
+      c2 = ∥-map (⊎-map-left sym-#) (comparison-# half-rotation r2 0# half-rotation#0)
+
+      handle : ((r1 # h) ⊎ (r1 # 0#)) -> ((r2 # h) ⊎ (r2 # 0#)) ->
+               Ans
+      handle (inj-l r1#h) (inj-l r2#h) = ∥-bind handle2 r12#00
+        where
+        handle2 : (r1 # 0#) ⊎ (r2 # 0#) -> Ans
+        handle2 (inj-l r1#0) = ∣ inj-l (non-trivial-semi-rotation r1#0 r1#h) ∣
+        handle2 (inj-r r2#0) = ∣ inj-r (non-trivial-semi-rotation r2#0 r2#h) ∣
+      handle (inj-r r1#0) (inj-l r2#h) = ∥-bind handle2 r12#h0
+        where
+        handle2 : (r1 # h) ⊎ (r2 # 0#) -> Ans
+        handle2 (inj-l r1#h) = ∣ inj-l (non-trivial-semi-rotation r1#0 r1#h) ∣
+        handle2 (inj-r r2#0) = ∣ inj-r (non-trivial-semi-rotation r2#0 r2#h) ∣
+      handle (inj-l r1#h) (inj-r r2#0) = ∥-bind handle2 r12#0h
+        where
+        handle2 : (r1 # 0#) ⊎ (r2 # h) -> Ans
+        handle2 (inj-l r1#0) = ∣ inj-l (non-trivial-semi-rotation r1#0 r1#h) ∣
+        handle2 (inj-r r2#h) = ∣ inj-r (non-trivial-semi-rotation r2#0 r2#h) ∣
+      handle (inj-r r1#0) (inj-r r2#0) = ∥-bind handle2 r12#hh
+        where
+        handle2 : (r1 # h) ⊎ (r2 # h) -> Ans
+        handle2 (inj-l r1#h) = ∣ inj-l (non-trivial-semi-rotation r1#0 r1#h) ∣
+        handle2 (inj-r r2#h) = ∣ inj-r (non-trivial-semi-rotation r2#0 r2#h) ∣
+
+
+
 
   sr--preserves-NonTrivial :
     (sr : SemiRotation) -> NonTrivialSemiRotation sr -> NonTrivialSemiRotation (- sr)
@@ -247,6 +306,27 @@ private
       nt : NonTrivialSemiRotation (diff sr1 sr2)
 
 abstract
+
+  +-reflects-sr# : {sr1 sr2 sr3 sr4 : SemiRotation} ->
+    (sr1 + sr2) sr# (sr3 + sr4) -> ∥ (sr1 sr# sr3) ⊎ (sr2 sr# sr4) ∥
+  +-reflects-sr# {sr1} {sr2} {sr3} {sr4} (sr#-cons nt) =
+    ∥-map (⊎-map sr#-cons sr#-cons) (sr+-reflects-NonTrivial (diff sr1 sr3) (diff sr2 sr4) nt')
+    where
+    nt' : NonTrivialSemiRotation ((diff sr1 sr3) + (diff sr2 sr4))
+    nt' = subst NonTrivialSemiRotation (sym (+-swap-diffᵉ sr1 sr3 sr2 sr4)) nt
+
+  +-reflects-sr#0 : {sr1 sr2 : SemiRotation} -> (sr1 + sr2) sr# 0# -> ∥ (sr1 sr# 0#) ⊎ (sr2 sr# 0#) ∥
+  +-reflects-sr#0 {sr1} {sr2} r1r2#0 =
+    +-reflects-sr# (subst ((sr1 + sr2) sr#_) (sym +-right-zero) r1r2#0)
+
+
+  minus-preserves-sr# : {sr1 sr2 : SemiRotation} -> sr1 sr# sr2 -> (- sr1) sr# (- sr2)
+  minus-preserves-sr# {sr1} {sr2} (sr#-cons nt) =
+    sr#-cons (subst NonTrivialSemiRotation (minus-distrib-plusᵉ sr2 (- sr1))
+                    (sr--preserves-NonTrivial (diff sr1 sr2) nt))
+
+
+abstract
   isProp-sr# : {sr1 sr2 : SemiRotation} -> isProp (sr1 sr# sr2)
   isProp-sr# {sr1} {sr2} (sr#-cons nt1) (sr#-cons nt2) =
     cong sr#-cons (isProp-NonTrivialSemiRotation (diff sr1 sr2) nt1 nt2)
@@ -266,61 +346,10 @@ abstract
 
     comparison-sr# : (sr1 sr2 sr3 : SemiRotation) -> (sr1 sr# sr3) ->
                      ∥ (sr1 sr# sr2) ⊎ (sr2 sr# sr3) ∥
-    comparison-sr# =
-      SemiRotationElim.elimProp3 (\ _ _ _ -> isPropΠ (\_ -> squash)) f
-      where
-      f : (r1 r2 r3 : Rotation) -> ([ r1 ] sr# [ r3 ]) -> ∥ ([ r1 ] sr# [ r2 ]) ⊎ ([ r2 ] sr# [ r3 ]) ∥
-      f r1 r2 r3 (sr#-cons (non-trivial-semi-rotation 13#0 13#h)) =
-        ∥-bind2 handle c1 c2
-        where
-        Ans = ∥ ([ r1 ] sr# [ r2 ]) ⊎ ([ r2 ] sr# [ r3 ]) ∥
-        h = half-rotation
-
-        diffs#00 : ∥ ((diff r1 r2) # 0#) ⊎ ((diff r2 r3) # 0#) ∥
-        diffs#00 = +-reflects-r# (subst2 _#_ (sym diff-trans) (sym +-right-zero) 13#0)
-
-        diffs#0h : ∥ ((diff r1 r2) # 0#) ⊎ ((diff r2 r3) # h) ∥
-        diffs#0h = +-reflects-r# (subst2 _#_ (sym diff-trans) (sym +-left-zero) 13#h)
-
-        diffs#h0 : ∥ ((diff r1 r2) # h) ⊎ ((diff r2 r3) # 0#) ∥
-        diffs#h0 = +-reflects-r# (subst2 _#_ (sym diff-trans) (sym +-right-zero) 13#h)
-
-        diffs#hh : ∥ ((diff r1 r2) # h) ⊎ ((diff r2 r3) # h) ∥
-        diffs#hh = +-reflects-r# (subst2 _#_ (sym diff-trans) p 13#0)
-          where
-          p = sym +-inverse >=> +-right minus-half-rotation
-
-
-        c1 : ∥ ((diff r1 r2) # h) ⊎ ((diff r1 r2) # 0#) ∥
-        c1 = ∥-map (⊎-map-left sym-#) (comparison-# half-rotation (diff r1 r2) 0# half-rotation#0)
-
-        c2 : ∥ ((diff r2 r3) # h) ⊎ ((diff r2 r3) # 0#) ∥
-        c2 = ∥-map (⊎-map-left sym-#) (comparison-# half-rotation (diff r2 r3) 0# half-rotation#0)
-
-        handle : (((diff r1 r2) # h) ⊎ ((diff r1 r2) # 0#)) ->
-                 (((diff r2 r3) # h) ⊎ ((diff r2 r3) # 0#)) ->
-                 Ans
-        handle (inj-l d12#h) (inj-l d23#h) = ∥-bind handle2 diffs#00
-          where
-          handle2 : ((diff r1 r2) # 0#) ⊎ ((diff r2 r3) # 0#) -> Ans
-          handle2 (inj-l d12#0) = ∣ inj-l (sr#-cons (non-trivial-semi-rotation d12#0 d12#h)) ∣
-          handle2 (inj-r d23#0) = ∣ inj-r (sr#-cons (non-trivial-semi-rotation d23#0 d23#h)) ∣
-        handle (inj-r d12#0) (inj-l d23#h) = ∥-bind handle2 diffs#h0
-          where
-          handle2 : ((diff r1 r2) # h) ⊎ ((diff r2 r3) # 0#) -> Ans
-          handle2 (inj-l d12#h) = ∣ inj-l (sr#-cons (non-trivial-semi-rotation d12#0 d12#h)) ∣
-          handle2 (inj-r d23#0) = ∣ inj-r (sr#-cons (non-trivial-semi-rotation d23#0 d23#h)) ∣
-        handle (inj-l d12#h) (inj-r d23#0) = ∥-bind handle2 diffs#0h
-          where
-          handle2 : ((diff r1 r2) # 0#) ⊎ ((diff r2 r3) # h) -> Ans
-          handle2 (inj-l d12#0) = ∣ inj-l (sr#-cons (non-trivial-semi-rotation d12#0 d12#h)) ∣
-          handle2 (inj-r d23#h) = ∣ inj-r (sr#-cons (non-trivial-semi-rotation d23#0 d23#h)) ∣
-        handle (inj-r d12#0) (inj-r d23#0) = ∥-bind handle2 diffs#hh
-          where
-          handle2 : ((diff r1 r2) # h) ⊎ ((diff r2 r3) # h) -> Ans
-          handle2 (inj-l d12#h) = ∣ inj-l (sr#-cons (non-trivial-semi-rotation d12#0 d12#h)) ∣
-          handle2 (inj-r d23#h) = ∣ inj-r (sr#-cons (non-trivial-semi-rotation d23#0 d23#h)) ∣
-
+    comparison-sr# sr1 sr2 sr3 (sr#-cons nt) =
+      ∥-map (⊎-map sr#-cons sr#-cons)
+        (sr+-reflects-NonTrivial (diff sr1 sr2) (diff sr2 sr3)
+          (subst NonTrivialSemiRotation (sym (diff-transᵉ sr1 sr2 sr3)) nt))
 
     tight-sr# : Tight _sr#_
     tight-sr# {sr1} {sr2} ¬sr1#sr2 = sym path

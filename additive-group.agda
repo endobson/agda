@@ -136,6 +136,9 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : Additi
       p : (a + b) + (- a + - b) == 0#
       p = +-swap >=> +-cong +-inverse +-inverse >=> +-right-zero
 
+    minus-distrib-plusᵉ : (a b : D) -> - (a + b) == - a + - b
+    minus-distrib-plusᵉ _ _ = minus-distrib-plus
+
   diff : D -> D -> D
   diff d1 d2 = d2 + (- d1)
 
@@ -158,6 +161,9 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : Additi
                +-left (+-commute >=> +-inverse) >=>
                +-left-zero)
 
+    diff-transᵉ : (x y z : D) -> diff x y + diff y z == diff x z
+    diff-transᵉ _ _ _ = diff-trans
+
     diff-step : {x y : D} -> x + diff x y == y
     diff-step =
       sym +-assoc >=>
@@ -177,3 +183,6 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : Additi
                +-assoc >=>
                +-right (sym (minus-distrib-plus))) >=>
       sym +-assoc
+
+    +-swap-diffᵉ : (a b c d : D) -> ((diff a b) + (diff c d)) == (diff (a + c) (b + d))
+    +-swap-diffᵉ _ _ _ _ = +-swap-diff

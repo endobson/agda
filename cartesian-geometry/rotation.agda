@@ -799,8 +799,8 @@ abstract
     sym (add-half-rotation-path _)
 
 
-  rotate-direction-self-diff' : (d : Direction) -> direction-diff d d == zero-rotation
-  rotate-direction-self-diff' d = +-inverse
+  direction-diff-self : (d : Direction) -> direction-diff d d == zero-rotation
+  direction-diff-self _ = +-inverse
 
   direction-diff-step : (d1 d2 : Direction) -> (direction-shift d1 (direction-diff d1 d2)) == d2
   direction-diff-step d1 d2 =
