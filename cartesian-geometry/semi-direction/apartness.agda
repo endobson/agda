@@ -11,6 +11,7 @@ open import cartesian-geometry.semi-direction hiding
   ; sym-sd#
   ; irrefl-sd#
   ; tight-sd#
+  ; isProp-sd#
   )
 open import cartesian-geometry.semi-rotation
 open import cartesian-geometry.vector
@@ -113,8 +114,19 @@ semi-direction-shift =
           p = cong (rotate-vector r) v1=-v2 >=> rotate-v- r v2
 
 
-
 private
+  semi-direction-shift-zero : (sd : SemiDirection) -> semi-direction-shift sd 0# == sd
+  semi-direction-shift-zero =
+    SemiDirectionElim.elimProp (\_ -> isSet-SemiDirection _ _)
+      (\d -> cong [_] (rotate-direction-zero-rotation d))
+
+  semi-direction-diff-step : (sd1 sd2 : SemiDirection) ->
+    semi-direction-shift sd1 (semi-direction-diff sd1 sd2) == sd2
+  semi-direction-diff-step =
+    SemiDirectionElim.elimProp2 (\_ _ -> isSet-SemiDirection _ _)
+      (\d1 d2 -> cong [_] (direction-diff-step d1 d2))
+
+
   semi-direction-diff-anticommute : (sd1 sd2 : SemiDirection) ->
     (semi-direction-diff sd1 sd2) == - (semi-direction-diff sd2 sd1)
   semi-direction-diff-anticommute =
@@ -142,23 +154,38 @@ private
     field
       apart : semi-direction-diff sd1 sd2 # 0#
 
-private
-  irrefl-sd# : Irreflexive _sd#_
-  irrefl-sd# {sd} (sd#-cons d#0) =
-    irrefl-# (subst2 _#_ (semi-direction-diff-self sd) refl d#0)
+  abstract
+    isProp-sd# : {sd1 sd2 : SemiDirection} -> isProp (sd1 sd# sd2)
+    isProp-sd# {sd1} {sd2} (sd#-cons a1) (sd#-cons a2) = cong sd#-cons (isProp-# a1 a2)
 
-  sym-sd# : Symmetric _sd#_
-  sym-sd# {sd1} {sd2} (sd#-cons d#0) = sd#-cons (subst2 _#_ p minus-zero (minus-preserves-sr# d#0))
-    where
-    p : - (semi-direction-diff sd1 sd2) == (semi-direction-diff sd2 sd1)
-    p = sym (semi-direction-diff-anticommute sd2 sd1)
+    irrefl-sd# : Irreflexive _sd#_
+    irrefl-sd# {sd} (sd#-cons d#0) =
+      irrefl-# (subst2 _#_ (semi-direction-diff-self sd) refl d#0)
 
-  comparison-sd# : Comparison _sd#_
-  comparison-sd# sd1 sd2 sd3 (sd#-cons d13#0) =
-    ∥-map (⊎-map sd#-cons sd#-cons)
-      (+-reflects-sr#0 (subst (_# 0#) (sym (semi-direction-diff-trans sd1 sd2 sd3)) d13#0))
+    sym-sd# : Symmetric _sd#_
+    sym-sd# {sd1} {sd2} (sd#-cons d#0) = sd#-cons (subst2 _#_ p minus-zero (minus-preserves-sr# d#0))
+      where
+      p : - (semi-direction-diff sd1 sd2) == (semi-direction-diff sd2 sd1)
+      p = sym (semi-direction-diff-anticommute sd2 sd1)
 
-  --tight-sd# : Tight _sd#_
-  --tight-sd# {sd1} {sd2} ¬sd1#sd2 = ?
-  --  where
-  --  ¬nt : ¬ (NonTrivialRotation
+    comparison-sd# : Comparison _sd#_
+    comparison-sd# sd1 sd2 sd3 (sd#-cons d13#0) =
+      ∥-map (⊎-map sd#-cons sd#-cons)
+        (+-reflects-sr#0 (subst (_# 0#) (sym (semi-direction-diff-trans sd1 sd2 sd3)) d13#0))
+
+    tight-sd# : Tight _sd#_
+    tight-sd# {sd1} {sd2} ¬sd1#sd2 =
+      sym (sym (semi-direction-diff-step sd1 sd2) >=>
+           cong (semi-direction-shift sd1) diff=0 >=>
+           semi-direction-shift-zero sd1)
+
+      where
+      diff=0 : (semi-direction-diff sd1 sd2) == 0#
+      diff=0 = tight-# (¬sd1#sd2 ∘ sd#-cons)
+
+instance
+  TightApartnessStr-SemiDirection : TightApartnessStr SemiDirection
+  TightApartnessStr-SemiDirection .TightApartnessStr._#_ = _sd#_
+  TightApartnessStr-SemiDirection .TightApartnessStr.TightApartness-# =
+    tight-sd# , (irrefl-sd# , sym-sd# , comparison-sd#)
+  TightApartnessStr-SemiDirection .TightApartnessStr.isProp-# = \x y -> isProp-sd#
