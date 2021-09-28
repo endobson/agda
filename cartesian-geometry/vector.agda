@@ -258,7 +258,7 @@ vector-length>0-#0 v l>0 = unsquash (isProp-v# v 0v) (∥-map handle (+-reflects
   vl#0 : vl # 0#
   vl#0 = eqFun (<>-equiv-# (vector-length v) 0#) (inj-r l>0)
   vl²#0 : vl² # 0#
-  vl²#0 = subst (_# 0#) (vector-length-squared-path v) (*₁-preserves-#0 vl#0 vl#0)
+  vl²#0 = subst (_# 0#) (vector-length-squared-path v) (*-preserves-#0 vl#0 vl#0)
 
   handle : ((x * x) # 0#) ⊎ ((y * y) # 0#) -> v v# 0v
   handle (inj-l xx#0) = ∣ x-axis , *₁-reflects-#0 xx#0 ∣

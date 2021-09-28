@@ -67,8 +67,8 @@ module _ {ℓ : Level} {D : Type ℓ}
       p = sym +-left-zero >=> +-left (sym +-inverse) >=> +-swap-diff
 
   abstract
-    *₁-preserves-#0 : {a b : D} -> a # 0# -> b # 0# -> (a * b) # 0#
-    *₁-preserves-#0 a#0 b#0 = eqFun *-#0-equiv (a#0 , b#0)
+    *-preserves-#0 : {a b : D} -> a # 0# -> b # 0# -> (a * b) # 0#
+    *-preserves-#0 a#0 b#0 = eqFun *-#0-equiv (a#0 , b#0)
 
     *₁-reflects-#0 : {a b : D} -> (a * b) # 0# -> b # 0#
     *₁-reflects-#0 = snd ∘ eqInv *-#0-equiv
