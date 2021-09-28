@@ -14,6 +14,7 @@ private
     ℓ : Level
     A : Type ℓ
     B : A -> Type ℓ
+    C : (a : A) -> B a -> Type ℓ
 
 -- isPropΠ is defined in hlevel.base since it doesn't need funExtPath and is needed
 -- earlier on for meta hlevel constructions.
@@ -30,3 +31,6 @@ isContrΠ = isOfHLevelΠ 0
 
 isSetΠ : ((x : A) -> isSet (B x)) -> isSet ((x : A) -> (B x))
 isSetΠ = isOfHLevelΠ 2
+
+isSetΠ2 : ((x : A) -> (y : B x) -> isSet (C x y)) -> isSet ((x : A) -> (y : B x) -> (C x y))
+isSetΠ2 h = isSetΠ (\ a -> (isSetΠ (h a)))

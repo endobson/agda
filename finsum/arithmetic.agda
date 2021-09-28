@@ -17,10 +17,10 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} {I : Type ℓI}
   private
     module S = Semiring S
 
-  finiteSum-* : {k : D} {f : I -> D} -> finiteSum (\i -> k * (f i)) == k * finiteSum f
-  finiteSum-* = finiteMerge-homo-inject _ _ k*ʰ
-    where
-    abstract
+  abstract
+    finiteSum-* : {k : D} {f : I -> D} -> finiteSum (\i -> k * (f i)) == k * finiteSum f
+    finiteSum-* = finiteMerge-homo-inject _ _ k*ʰ
+      where
       k*ʰ : {k : D} -> CommMonoidʰᵉ S.+-CommMonoid S.+-CommMonoid (k *_)
       k*ʰ {k} = record
         { preserves-ε = *-right-zero
