@@ -414,18 +414,20 @@ normalize-vector-v- v v#0 -v#0 =
 
 
 vector->direction : (v : Vector) -> v v# 0v -> Direction
-vector->direction v v#0 = normalize-vector v v#0 , path
+vector->direction v v#0 = normalize-vector v v#0 , a.path
   where
   vl = (vector-length v)
   0<vl = (vector-length>0 v v#0)
   vl-inv = (inj-r 0<vl)
   k = (ℝ1/ vl vl-inv)
-  0≤k : 0ℝ ≤ k
-  0≤k k<0 = asym-< {_} {_} {_} {0ℝ} {1ℝ} 0ℝ<1ℝ
-                   (subst2 _<_ (ℝ1/-inverse vl vl-inv) (*-right-zero {m = k})
-                               (*₁-flips-< k 0ℝ vl k<0 0<vl))
-  path : vector-length (k v* v) == 1ℝ
-  path = vector-length-* k v >=> *-left (absℝ-NonNeg-idem k 0≤k) >=> ℝ1/-inverse vl vl-inv
+  module a where
+    abstract
+      0≤k : 0ℝ ≤ k
+      0≤k k<0 = asym-< {_} {_} {_} {0ℝ} {1ℝ} 0ℝ<1ℝ
+                       (subst2 _<_ (ℝ1/-inverse vl vl-inv) (*-right-zero {m = k})
+                                   (*₁-flips-< k 0ℝ vl k<0 0<vl))
+      path : vector-length (k v* v) == 1ℝ
+      path = vector-length-* k v >=> *-left (absℝ-NonNeg-idem k 0≤k) >=> ℝ1/-inverse vl vl-inv
 
 conjugate-preserves-vector-length² :
   (v : Vector) -> vector-length² (conjugate-vector v) == vector-length² v

@@ -7,7 +7,7 @@ open import additive-group.instances.real
 open import apartness
 open import base
 open import cartesian-geometry
-open import cartesian-geometry.line
+open import cartesian-geometry.line hiding (ConvergentLines)
 open import cartesian-geometry.rotation
 open import cartesian-geometry.semi-direction
 open import cartesian-geometry.semi-direction.apartness
@@ -32,6 +32,7 @@ open import real
 open import real.arithmetic.sqrt
 open import real.arithmetic.absolute-value
 open import real.heyting-field
+open import relation
 open import ring
 open import ring.implementations.real
 open import semiring
@@ -45,6 +46,10 @@ open import vector-space
 open import vector-space.finite
 
 import int
+
+
+ConvergentLines : Rel Line ℓ-one
+ConvergentLines l1 l2 = (line-semi-direction l1) # (line-semi-direction l2)
 
 SplitDiff : Type₁
 SplitDiff = {d1 d2 : Direction} -> t d1 d2
@@ -361,18 +366,110 @@ module _ (split-diff : SplitDiff) where
     ans1 : Σ[ p ∈ Point ] (⟨ OnLine l1 p ⟩ × ⟨ OnLine l2 p ⟩)
     ans1 = i1 , (OnLine-l1i1 , OnLine-l2i1)
 
-    -- isProp-intersect : isProp (Σ[ p ∈ Point ] (⟨ OnLine l1 p ⟩ × ⟨ OnLine l2 p ⟩))
-    -- isProp-intersect (pa , (k1-a , path1-a) , (k2-a , path2-a))
-    --                  (pb , (k1-b , path1-b) , (k2-b , path2-b)) =
-    --   ?
-    --   where
+    isProp-intersect : isProp (Σ[ p ∈ Point ] (⟨ OnLine l1 p ⟩ × ⟨ OnLine l2 p ⟩))
+    isProp-intersect (pa , (k1-a , path1-a) , (k2-a , path2-a))
+                     (pb , (k1-b , path1-b) , (k2-b , path2-b)) =
+      ΣProp-path (\{p} -> isProp× (snd (OnLine l1 p)) (snd (OnLine l2 p))) pa=pb
+      where
+      dp : Vector
+      dp = P-diff pa pb
 
-  --module _ (p1 p2 : Point) (sd1 sd2 : SemiDirection)
-  --         (different-directions : sd1 # sd2) where
-  --  private
-  --    l1 : Line
-  --    l1 = [ p1 , sd1 ]
-  --    l2 : Line
-  --    l2 = [ p2 , sd2 ]
-  --  ans2 : Σ[ p ∈ Point ] (⟨ OnLine l1 p ⟩ × ⟨ OnLine l2 p ⟩)
-  --  ans2 = ?
+      ¬dp#0 : ¬ (dp # 0v)
+      ¬dp#0 dp#0 = irrefl-path-# sd-path different-directions
+        where
+        v1#0 : v1 # 0v
+        v1#0 = direction-#0 d1
+        v2#0 : v2 # 0v
+        v2#0 = direction-#0 d2
+
+        sd1 : SemiDirection
+        sd1 = vector->semi-direction v1 v1#0
+        sd2 : SemiDirection
+        sd2 = vector->semi-direction v2 v2#0
+
+
+        path1-ab : (diff k1-a k1-b) v* v1 == dp
+        path1-ab =
+          v*-distrib-+ >=>
+          v+-right (v*-minus-extract-left) >=>
+          cong2 _v+_ path1-b (cong v-_ path1-a) >=>
+          v+-commute >=>
+          v+-left (sym (P-diff-anticommute pa p1)) >=>
+          P-diff-trans pa p1 pb
+
+        path2-ab : (diff k2-a k2-b) v* v2 == dp
+        path2-ab =
+          v*-distrib-+ >=>
+          v+-right (v*-minus-extract-left) >=>
+          cong2 _v+_ path2-b (cong v-_ path2-a) >=>
+          v+-commute >=>
+          v+-left (sym (P-diff-anticommute pa p2)) >=>
+          P-diff-trans pa p2 pb
+
+
+        dp-semi : SemiDirection
+        dp-semi = vector->semi-direction dp dp#0
+
+        semi-path1 : sd1 == dp-semi
+        semi-path1 = vector->semi-direction-v* v1 v1#0 dp dp#0 _ path1-ab
+        semi-path2 : sd2 == dp-semi
+        semi-path2 = vector->semi-direction-v* v2 v2#0 dp dp#0 _ path2-ab
+
+        normal-d-path : (d : Direction) -> normalize-vector ⟨ d ⟩ (direction-#0 d) == ⟨ d ⟩
+        normal-d-path d@(v , len=1) =
+          sym v*-left-one >=>
+          v*-left (sym len=1) >=>
+          (sym (normalize-vector-path v (direction-#0 d)))
+
+        sd-path : [ d1 ] == [ d2 ]
+        sd-path =
+          cong [_] (sym (direction-ext (normal-d-path d1))) >=>
+          semi-path1 >=> sym semi-path2 >=>
+          cong [_] (direction-ext (normal-d-path d2))
+
+
+      dp=0 : dp == 0v
+      dp=0 = tight-# ¬dp#0
+
+      pa=pb : pa == pb
+      pa=pb = sym (P-shift-0v pa) >=> cong (P-shift pa) (sym dp=0) >=> (P-diff-step pa pb)
+
+    ans2 : isContr (Σ[ p ∈ Point ] (⟨ OnLine l1 p ⟩ × ⟨ OnLine l2 p ⟩))
+    ans2 = ans1 , isProp-intersect ans1
+
+  module _ (p1 p2 : Point) (d1 d2 : Direction) where
+    private
+      l1 : Line
+      l1 = [ p1 , [ d1 ] ]
+      l2 : Line
+      l2 = [ p2 , [ d2 ] ]
+
+    ans3 : isContr ([ d1 ] # [ d2 ] -> Σ[ p ∈ Point ] (⟨ OnLine l1 p ⟩ × ⟨ OnLine l2 p ⟩))
+    ans3 = isContrΠ (ans2 p1 p2 d1 d2)
+
+
+  module _ (l1' l2' : Line') where
+    private
+      p1 = fst l1'
+      p2 = fst l2'
+      sd1 = snd l1'
+      sd2 = snd l2'
+      l1 : Line
+      l1 = [ l1' ]
+      l2 : Line
+      l2 = [ l2' ]
+    ans4 : isContr (sd1 # sd2 -> Σ[ p ∈ Point ] (⟨ OnLine l1 p ⟩ × ⟨ OnLine l2 p ⟩))
+    ans4 = SemiDirectionElim.liftContr2
+             {C2 = \sd1 sd2 -> (sd1 # sd2 -> Σ[ p ∈ Point ] (⟨ OnLine [ p1 , sd1 ] p ⟩ ×
+                                                             ⟨ OnLine [ p2 , sd2 ] p ⟩))}
+             (ans3 p1 p2) sd1 sd2
+
+
+  ans5 : (l1 l2 : Line) ->
+         isContr (ConvergentLines l1 l2 ->
+                  Σ[ p ∈ Point ] (⟨ OnLine l1 p ⟩ × ⟨ OnLine l2 p ⟩))
+  ans5 = SetQuotientElim.liftContr2 Line' SameLine' ans4
+
+  ans6 : (l1 l2 : Line) -> ConvergentLines l1 l2 ->
+         isContr (Σ[ p ∈ Point ] (⟨ OnLine l1 p ⟩ × ⟨ OnLine l2 p ⟩))
+  ans6 l1 l2 cls = fst (ans5 l1 l2) cls , \p -> cong (\f -> f cls) (snd (ans5 l1 l2) (\_ -> p))

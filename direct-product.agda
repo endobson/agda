@@ -136,26 +136,27 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} (TD : TightApartnessStr D) (I : Typ
     _dp#_ : Rel (DP D I) _
     _dp#_ dp1 dp2 = ∥ dp1 dp#' dp2 ∥
 
-    tight-dp# : Tight _dp#_
-    tight-dp# {a} {b} ¬a#b = cong wrap-dp (funExt (\i -> tight-# (¬ai#bi i)))
-      where
-      ¬ai#bi : (i : I) -> ¬ ((unwrap-dp a i) # (unwrap-dp b i))
-      ¬ai#bi i ai#bi = ¬a#b ∣ i , ai#bi ∣
+    abstract
+      tight-dp# : Tight _dp#_
+      tight-dp# {a} {b} ¬a#b = cong wrap-dp (funExt (\i -> tight-# (¬ai#bi i)))
+        where
+        ¬ai#bi : (i : I) -> ¬ ((unwrap-dp a i) # (unwrap-dp b i))
+        ¬ai#bi i ai#bi = ¬a#b ∣ i , ai#bi ∣
 
-    irrefl-dp# : Irreflexive _dp#_
-    irrefl-dp# a#a = unsquash isPropBot (∥-map (\ (i , a#a) -> irrefl-# a#a) a#a)
+      irrefl-dp# : Irreflexive _dp#_
+      irrefl-dp# a#a = unsquash isPropBot (∥-map (\ (i , a#a) -> irrefl-# a#a) a#a)
 
-    sym-dp# : Symmetric _dp#_
-    sym-dp# = ∥-map (\ (i , a#b) -> i , (sym-# a#b))
+      sym-dp# : Symmetric _dp#_
+      sym-dp# = ∥-map (\ (i , a#b) -> i , (sym-# a#b))
 
-    comparison-dp# : Comparison _dp#_
-    comparison-dp# a b c = ∥-bind handle
-      where
-      handle : (a dp#' c) -> ∥ (a dp# b) ⊎ (b dp# c) ∥
-      handle (i , ai#ci) =
-        ∥-map
-          (⊎-map (\a#b -> ∣ i , a#b ∣) (\b#c -> ∣ i , b#c ∣))
-          (comparison-# (unwrap-dp a i) (unwrap-dp b i) (unwrap-dp c i) ai#ci)
+      comparison-dp# : Comparison _dp#_
+      comparison-dp# a b c = ∥-bind handle
+        where
+        handle : (a dp#' c) -> ∥ (a dp# b) ⊎ (b dp# c) ∥
+        handle (i , ai#ci) =
+          ∥-map
+            (⊎-map (\a#b -> ∣ i , a#b ∣) (\b#c -> ∣ i , b#c ∣))
+            (comparison-# (unwrap-dp a i) (unwrap-dp b i) (unwrap-dp c i) ai#ci)
 
 
   TightApartnessStr-DirectProduct : TightApartnessStr (DP D I)
