@@ -48,6 +48,9 @@ private
   matrix-column : Matrix -> Axis -> (Axis -> ℝ)
   matrix-column m a a2 = matrix-index m a2 a
 
+matrix-transpose : Matrix -> Matrix
+matrix-transpose m = matrix (\a1 a2 -> matrix-index m a2 a1)
+
 _mv*_ : Matrix -> Vector -> Vector
 _mv*_ m v =
   direct-product-cons (\a -> (finiteSum (\a2 -> matrix-index m a a2 * (vector-index v a2))))
@@ -79,6 +82,14 @@ m*-right-identity m = matrix-ext f
   f y-axis x-axis = +-cong *-right-one *-right-zero >=> +-right-zero
   f y-axis y-axis = +-cong *-right-zero *-right-one >=> +-left-zero
 
+mv*-left-identity : (v : Vector) -> identity-matrix mv* v == v
+mv*-left-identity v = vector-ext f
+  where
+  f : (a : Axis) -> vector-index (identity-matrix mv* v) a == vector-index v a
+  f x-axis = finiteMerge-Axis _ _ >=> +-cong *-left-one *-left-zero >=> +-right-zero
+  f y-axis = finiteMerge-Axis _ _ >=> +-cong *-left-zero *-left-one >=> +-left-zero
+
+
 m*-assoc : (m1 m2 m3 : Matrix) -> (m1 m* m2) m* m3 == m1 m* (m2 m* m3)
 m*-assoc m1 m2 m3 = matrix-ext f
   where
@@ -88,6 +99,21 @@ m*-assoc m1 m2 m3 = matrix-ext f
            (*-distrib-+-right >=> +-cong *-assoc *-assoc) >=>
     +-swap >=>
     sym (+-cong *-distrib-+-left *-distrib-+-left)
+
+mv*-assoc : (m1 m2 : Matrix) (v : Vector) -> (m1 m* m2) mv* v == m1 mv* (m2 mv* v)
+mv*-assoc m1 m2 v = vector-ext f
+  where
+  f : (a : Axis) -> vector-index ((m1 m* m2) mv* v) a == vector-index (m1 mv* (m2 mv* v)) a
+  f a =
+    finiteMerge-Axis _ _ >=>
+    +-cong *-distrib-+-right *-distrib-+-right >=>
+    +-swap >=>
+    +-cong (+-cong *-assoc *-assoc >=> (sym *-distrib-+-left))
+           (+-cong *-assoc *-assoc >=> (sym *-distrib-+-left)) >=>
+    +-cong (*-right (sym (finiteMerge-Axis _ _)))
+           (*-right (sym (finiteMerge-Axis _ _))) >=>
+    sym (finiteMerge-Axis _ _)
+
 
 isLinearTransformation-mv* : (m : Matrix) -> isLinearTransformation (m mv*_)
 isLinearTransformation-mv* m = is-linear-transformation preserves-+ preserves-*

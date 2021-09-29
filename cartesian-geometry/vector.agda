@@ -58,10 +58,10 @@ x-axis≠y-axis x=y = subst f x=y tt
   f x-axis = Top
   f y-axis = Bot
 
-isFinSet-Axis : isFinSet Axis
-isFinSet-Axis = ∣ 2 , eq2 ∣
-  where
-  abstract
+private
+  Axis-iso-Top⊎Top : Iso Axis (Top ⊎ Top)
+  Axis-iso-Top⊎Top = iso forward backward fb bf
+    where
     forward : Axis -> Top ⊎ Top
     forward x-axis = inj-l tt
     forward y-axis = inj-r tt
@@ -78,11 +78,12 @@ isFinSet-Axis = ∣ 2 , eq2 ∣
     bf x-axis = refl
     bf y-axis = refl
 
-    i : Iso Axis (Top ⊎ Top)
-    i = iso forward backward fb bf
-
+isFinSet-Axis : isFinSet Axis
+isFinSet-Axis = ∣ 2 , eq2 ∣
+  where
+  abstract
     eq : Axis ≃ (Top ⊎ Top)
-    eq = isoToEquiv i
+    eq = isoToEquiv Axis-iso-Top⊎Top
 
     eq2 : Axis ≃ Fin 2
     eq2 = subst (Axis ≃_) (cong2 _⊎_ (sym Fin-Top) (sym Fin-Top) >=> sym (Fin-+ 1 1)) eq
@@ -93,6 +94,13 @@ instance
 
 axis-dot-product : (f1 f2 : Axis -> ℝ) -> ℝ
 axis-dot-product f1 f2 = (f1 x-axis * f2 x-axis) + (f1 y-axis * f2 y-axis)
+
+finiteMerge-Axis : {ℓ : Level} {D : Type ℓ} (CM : CommMonoid D) (f : Axis -> D) ->
+                   finiteMerge CM f == (CommMonoid._∙_ CM) (f x-axis) (f y-axis)
+finiteMerge-Axis CM f =
+  finiteMerge-convert-iso CM (iso⁻¹ Axis-iso-Top⊎Top) f >=>
+  finiteMerge-⊎ CM _ >=>
+  cong2 (CommMonoid._∙_ CM) (finiteMerge-Top CM _) (finiteMerge-Top CM _)
 
 Vector : Type₁
 Vector = DirectProduct ℝ Axis

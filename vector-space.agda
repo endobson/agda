@@ -114,6 +114,12 @@ module _  {ℓK ℓV : Level} {K : Type ℓK}
     v+-commute : {v1 v2 : V} -> v1 v+ v2 == v2 v+ v1
     v+-commute = ∙-commute
 
+    v+-assoc : {v1 v2 v3 : V} -> (v1 v+ v2) v+ v3 == v1 v+ (v2 v+ v3)
+    v+-assoc = ∙-assoc
+
+    v--distrib-v+ : {v1 v2 : V} -> (v- (v1 v+ v2)) == (v- v1) v+ (v- v2)
+    v--distrib-v+ = CommMonoidʰ.preserves-∙ inverse-CMʰ _ _
+
     v*-left-zero : {v : V} -> 0# v* v == 0v
     v*-left-zero {v} =
       sym ∙-right-ε >=>

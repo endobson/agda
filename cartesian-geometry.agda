@@ -121,6 +121,10 @@ P-shift-0v : (p : Point) -> P-shift p 0v == p
 P-shift-0v _ = P-ext (\{x-axis -> +-right-zero ; y-axis -> +-right-zero})
 
 
+P-shift-twice : (p : Point) (v1 v2 : Vector) -> (P-shift (P-shift p v1) v2) == P-shift p (v1 v+ v2)
+P-shift-twice _ _ _ = P-ext (\{x-axis -> +-assoc ; y-axis -> +-assoc})
+
+
 P-diff-trans : (p1 p2 p3 : Point) -> P-diff p1 p2 v+ P-diff p2 p3 == P-diff p1 p3
 P-diff-trans p1 p2 p3 = vector-ext (\{x-axis -> diff-trans ; y-axis -> diff-trans})
 

@@ -325,6 +325,14 @@ abstract
     sr#-cons (subst NonTrivialSemiRotation (minus-distrib-plusᵉ sr2 (- sr1))
                     (sr--preserves-NonTrivial (diff sr1 sr2) nt))
 
+  sr#->r# : {r1 r2 : Rotation} -> [ r1 ] sr# [ r2 ] -> (r1 # r2) × (r1 # add-half-rotation r2)
+  sr#->r# (sr#-cons (non-trivial-semi-rotation 12#0 12#h)) =
+    subst2 _#_ +-left-zero (+-assoc >=> (+-right (+-commute >=> +-inverse)) >=> +-right-zero)
+           (+₂-preserves-r# (sym-# 12#0)) ,
+    subst2 _#_ (+-right (sym diff-anticommute) >=> diff-step)
+               (+-right minus-half-rotation >=> sym (add-half-rotation-path _))
+               (+₁-preserves-r# (minus-preserves-r# 12#h))
+
 
 abstract
   isProp-sr# : {sr1 sr2 : SemiRotation} -> isProp (sr1 sr# sr2)

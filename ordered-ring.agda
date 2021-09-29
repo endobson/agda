@@ -80,6 +80,10 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     *₂-flips-< a b c a<b c<0 =
       subst2 _<_ *-commute *-commute (*₁-flips-< c a b c<0 a<b)
 
+    *-flips-<0 : (a b : D) -> a < 0# -> b < 0# -> 0# < (a * b)
+    *-flips-<0 a b a<0 b<0 = subst (_< (a * b)) *-left-zero (*₂-flips-< a 0# b a<0 b<0)
+
+
   private
     case-≮' : (x y x' y' : D) -> (x < y -> y' ≮ x') -> (x == y -> x' == y') -> (y ≮ x -> y' ≮ x')
     case-≮' x y x' y' f< f= y≮x y'<x' = irrefl-< (subst (y' <_) x'==y' y'<x')
