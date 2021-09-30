@@ -4,6 +4,7 @@ module cartesian-geometry.semi-direction.apartness where
 
 open import additive-group
 open import apartness
+open import apartness
 open import base
 open import cartesian-geometry.rotation
 open import cartesian-geometry.semi-direction hiding
@@ -189,3 +190,31 @@ instance
   TightApartnessStr-SemiDirection .TightApartnessStr.TightApartness-# =
     tight-sd# , (irrefl-sd# , sym-sd# , comparison-sd#)
   TightApartnessStr-SemiDirection .TightApartnessStr.isProp-# = \x y -> isProp-sd#
+
+module _ {d1 d2 : Direction} where
+  private
+    v1 = ⟨ d1 ⟩
+    v2 = ⟨ d2 ⟩
+    sd1 : SemiDirection
+    sd1 = [ d1 ]
+    sd2 : SemiDirection
+    sd2 = [ d2 ]
+  split-semi-direction-# : sd1 # sd2 -> (v1 # v2) × (v1 # (v- v2))
+  split-semi-direction-# (sd#-cons diff#0) =
+    subst2 _#_ (rotate-vector-zero-rotation v1) (cong ⟨_⟩ (direction-diff-step d1 d2))
+           (sym-# raw-vs#1) ,
+    subst2 _#_
+           (sym (rotate-add-half-rotation (add-half-rotation 0#) v1) >=>
+            cong (\r -> rotate-vector r v1) (add-half-rotation-double-inverse 0#) >=>
+            rotate-vector-zero-rotation v1)
+           (cong v-_ (cong ⟨_⟩ (direction-diff-step d1 d2)))
+           (v--preserves-# (sym-# raw-vs#2))
+    where
+    r = direction-diff d1 d2
+
+
+    rotations-apart = sr#->r# diff#0
+    raw-vs#1 : rotate-vector r v1 # rotate-vector 0# v1
+    raw-vs#1 = rotate-direction₂-preserves-# (proj₁ rotations-apart) d1
+    raw-vs#2 : rotate-vector r v1 # rotate-vector (add-half-rotation 0#) v1
+    raw-vs#2 = rotate-direction₂-preserves-# (proj₂ rotations-apart) d1

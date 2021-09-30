@@ -51,20 +51,8 @@ import int
 ConvergentLines : Rel Line ℓ-one
 ConvergentLines l1 l2 = (line-semi-direction l1) # (line-semi-direction l2)
 
-SplitDiff : Type₁
-SplitDiff = {d1 d2 : Direction} -> t d1 d2
-  where
-  module _ (d1 d2 : Direction) where
-    v1 = ⟨ d1 ⟩
-    v2 = ⟨ d2 ⟩
-    sd1 : SemiDirection
-    sd1 = [ d1 ]
-    sd2 : SemiDirection
-    sd2 = [ d2 ]
-    t = sd1 # sd2 -> (v1 # v2) × (v1 # (v- v2))
 
-
-module _ (split-diff : SplitDiff) where
+private
   module _ (p1 p2 : Point) (d1 d2 : Direction)
            (different-directions : [ d1 ] # [ d2 ])
            where
@@ -78,10 +66,10 @@ module _ (split-diff : SplitDiff) where
       dir-m = matrix-transpose (matrix (\ { x-axis -> vector-index v1 ; y-axis -> vector-index v2 }))
 
       v1#v2 : v1 # v2
-      v1#v2 = proj₁ (split-diff different-directions)
+      v1#v2 = proj₁ (split-semi-direction-# different-directions)
 
       v1#-v2 : v1 # (v- v2)
-      v1#-v2 = proj₂ (split-diff different-directions)
+      v1#-v2 = proj₂ (split-semi-direction-# different-directions)
 
       a = matrix-index dir-m x-axis x-axis
       b = matrix-index dir-m x-axis y-axis
@@ -473,3 +461,9 @@ module _ (split-diff : SplitDiff) where
   ans6 : (l1 l2 : Line) -> ConvergentLines l1 l2 ->
          isContr (Σ[ p ∈ Point ] (⟨ OnLine l1 p ⟩ × ⟨ OnLine l2 p ⟩))
   ans6 l1 l2 cls = fst (ans5 l1 l2) cls , \p -> cong (\f -> f cls) (snd (ans5 l1 l2) (\_ -> p))
+
+abstract
+  convergent-lines->intersection :
+    (l1 l2 : Line) -> ConvergentLines l1 l2 ->
+    isContr (Σ[ p ∈ Point ] (⟨ OnLine l1 p ⟩ × ⟨ OnLine l2 p ⟩))
+  convergent-lines->intersection = ans6

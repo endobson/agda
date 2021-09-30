@@ -336,7 +336,7 @@ record NonTrivialRotation (r : Rotation) : Type₁ where
   no-eta-equality
   constructor non-trivial-rotation
   field
-    apart : ⟨ Rotation.dir r ⟩ v# xaxis-vector
+    apart : Rotation.v r v# xaxis-vector
 
 isProp-NonTrivialRotation : {r : Rotation} -> isProp (NonTrivialRotation r)
 isProp-NonTrivialRotation (non-trivial-rotation a1) (non-trivial-rotation a2) =
@@ -668,6 +668,7 @@ isLinearTransformation-rotate-vector : (r : Rotation) -> isLinearTransformation 
 isLinearTransformation-rotate-vector r =
   is-linear-transformation (rotate-vector-preserves-+ r) (rotate-vector-preserves-* r)
 
+
 -- Rotate Direction
 
 rotate-vector-preserves-vector-length² :
@@ -815,6 +816,117 @@ abstract
     r2 = direction->rotation d2
 
 
+  private
+    sum-of-squares-#0 : (x y : ℝ) -> x # 0# -> (x * x + y * y) # 0#
+    sum-of-squares-#0 x y x#0 = eqFun (<>-equiv-# _ _) (inj-r (trans-<-≤ 0<xx xx≤xxyy))
+      where
+      0≤yy : 0# ≤ (y * y)
+      0≤yy = ≮0-square y
+
+      0<xx : 0# < (x * x)
+      0<xx = handle2 (eqInv (<>-equiv-# _ _) x#0)
+        where
+        handle2 : (x < 0#) ⊎ (0# < x) -> _
+        handle2 (inj-l x<0) = *-flips-<0 _ _ x<0 x<0
+        handle2 (inj-r 0<x) = *-preserves-0< _ _ 0<x 0<x
+
+      xx≤xxyy : (x * x) ≤ (x * x + y * y)
+      xx≤xxyy = subst2 _≤_ +-right-zero refl (+₁-preserves-≤ _ _ _ 0≤yy)
+
+
+    rotate-direction-NonTrivial : {r : Rotation} -> NonTrivialRotation r -> (d : Direction) ->
+      ⟨ (rotate-direction r d) ⟩ # ⟨ d ⟩
+    rotate-direction-NonTrivial {r} (non-trivial-rotation r#x) d =
+      unsquash isProp-# (∥-map handle r#x)
+      where
+      Ans = ⟨ (rotate-direction r d) ⟩ # ⟨ d ⟩
+      dx = vector-index ⟨ d ⟩ x-axis
+      dy = vector-index ⟨ d ⟩ y-axis
+      cx = Rotation.c r x-axis
+      cy = Rotation.c r y-axis
+      cx' = cx + (- 1#)
+
+      ℝx² : ℝ -> ℝ
+      ℝx² x = x * x
+      ℝ2x : ℝ -> ℝ
+      ℝ2x x = x + x
+      Sx² : {n : Nat} -> RingSyntax n -> RingSyntax n
+      Sx² x = x ⊗ x
+      S2x : {n : Nat} -> RingSyntax n -> RingSyntax n
+      S2x x = x ⊕ x
+
+      val1 : ℝ
+      val1 = ℝx² ((cx' * dx) + (- (cy * dy))) + ℝx² ((cx' * dy) + (cy * dx))
+
+      val1#0->ans : (val1 # 0#) -> Ans
+      val1#0->ans val1#0 = unsquash isProp-# (∥-map handle (+-reflects-#0 val1#0))
+        where
+        handle : (ℝx² ((cx' * dx) + (- (cy * dy))) # 0#) ⊎ (ℝx² ((cx' * dy) + (cy * dx)) # 0#) -> Ans
+        handle (inj-l ap) =
+          ∣ x-axis , subst2 _#_ path +-right-zero (+₁-preserves-# (*₁-reflects-#0 ap)) ∣
+          where
+          path : dx + ((cx' * dx) + (- (cy * dy))) == ((cx * dx) + (- (cy * dy)))
+          path =
+            +-left (sym *-left-one) >=>
+            sym +-assoc >=>
+            +-left (sym *-distrib-+-right >=>
+                    *-left diff-step)
+        handle (inj-r ap) =
+          ∣ y-axis , subst2 _#_ path +-right-zero (+₁-preserves-# (*₁-reflects-#0 ap)) ∣
+          where
+          path : dy + ((cx' * dy) + (cy * dx)) == ((cx * dy) + (cy * dx))
+          path =
+            +-left (sym *-left-one) >=>
+            sym +-assoc >=>
+            +-left (sym *-distrib-+-right >=>
+                    *-left diff-step)
+
+      val2 : ℝ
+      val2 = (cx' * cx' + cy * cy) * (dx * dx + dy * dy) +
+             ℝ2x ((cx' * cy * dx * dy) + (- (cx' * cy * dx * dy)))
+
+      val2=val1 : val2 == val1
+      val2=val1 = RingSolver.solve ℝRing 4
+        (\cx' cy dx dy ->
+          (cx' ⊗ cx' ⊕ cy ⊗ cy) ⊗ (dx ⊗ dx ⊕ dy ⊗ dy) ⊕
+           S2x ((cx' ⊗ cy ⊗ dx ⊗ dy) ⊕ (⊖ (cx' ⊗ cy ⊗ dx ⊗ dy))) ,
+          Sx² ((cx' ⊗ dx) ⊕ (⊖ (cy ⊗ dy))) ⊕ Sx² ((cx' ⊗ dy) ⊕ (cy ⊗ dx)))
+        refl cx' cy dx dy
+
+      val3 : ℝ
+      val3 = (cx' * cx' + cy * cy)
+
+      val2=val3 : val2 == val3
+      val2=val3 =
+        +-left (*-right (eqInv (isUnitVector'-equiv (fst d)) (snd d)) >=> *-right-one) >=>
+        +-right (cong ℝ2x +-inverse >=> +-right-zero) >=>
+        +-right-zero
+
+      val3#0->ans : val3 # 0# -> Ans
+      val3#0->ans = subst (\x -> x # 0# -> Ans) (sym val2=val1 >=> val2=val3) val1#0->ans
+
+      handle : Σ[ ax ∈ Axis ] (Rotation.c r ax # vector-index xaxis-vector ax) -> Ans
+      handle (x-axis , cx#1) = val3#0->ans (sum-of-squares-#0 cx' cy cx'#0)
+        where
+        cx'#0 : cx' # 0#
+        cx'#0 = subst2 _#_ refl +-inverse (+₂-preserves-# cx#1)
+      handle (y-axis , cy#0) =
+        val3#0->ans (subst2 _#_ +-commute refl (sum-of-squares-#0 cy cx' cy#0))
+
+
+
+  rotate-direction₂-preserves-# :
+    {r1 r2 : Rotation} -> (r1 # r2) -> (d : Direction) ->
+    ⟨ rotate-direction r1 d ⟩ # ⟨ rotate-direction r2 d ⟩
+  rotate-direction₂-preserves-# {r1} {r2} (r#-cons nt) d =
+    subst2 _#_ refl (cong ⟨_⟩ path)
+               (sym-# (rotate-direction-NonTrivial nt (rotate-direction r1 d)))
+    where
+    path : rotate-direction (r2 + (- r1)) (rotate-direction r1 d) == rotate-direction r2 d
+    path =
+      rotate-direction-assoc _ _ d >=>
+      cong (direction-shift d) (+-commute >=> diff-step)
+
 
 
 
@@ -939,16 +1051,6 @@ sym-semi-direction-distance d1 d2 =
      cong (\v -> vector-index v y-axis) p >=>
      cong -_ (sym (direction-basis-decomposition d2 v1 y-axis)))
 
-
--- semi-direction-distance-comparison' :
---   (d1 d2 d3 : Direction) ->
---   semi-direction-distance d1 ⟨ d3 ⟩ # semi-direction-distance d1 ⟨ d2 ⟩ ->
---   semi-direction-distance d2 ⟨ d3 ⟩ # 0#
--- semi-direction-distance-comparison' d1@(v1 , p1) d2@(v2 , p2) d3@(v3 , p3) dis# = ?
---   where
---   check : absℝ (basis-decomposition (isBasis-rotated-basis d1) v3 y-axis) #
---           absℝ (basis-decomposition (isBasis-rotated-basis d1) v2 y-axis)
---   check = ?
 
 
 abstract
