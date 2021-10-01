@@ -400,3 +400,10 @@ OffLine l p = 0# < point-line-distance p l , isProp-< _ _
 ¬OffLine->OnLine l p 0≮dis = subst (\s -> fst (s p)) (sym (OnLine=point-line-distance0 l)) dis=0
   where
   dis=0 = sym (strengthen-≤-≮ (0≤point-line-distance p l) 0≮dis)
+
+record NonCollinear (a b c : Point) : Type₁ where
+  no-eta-equality
+  constructor non-collinear-cons
+  field
+    a#b : a P# b
+    c#ab : ⟨ OffLine (line-segment->line (line-segment-cons a#b)) c ⟩

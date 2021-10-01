@@ -30,10 +30,14 @@ open import univalence
 open import vector-space
 
 record LineSegment (p1 p2 : Point) : Type₁ where
+  no-eta-equality
+  constructor line-segment-cons
   field
     distinct : p1 P# p2
 
 record RayFrom (p : Point) : Type₁ where
+  no-eta-equality
+  constructor ray-cons
   field
     direction : Direction
 
@@ -66,25 +70,6 @@ SameLine' l1@(p1 , s1) l2@(p2 , s2) = ⟨ OnLine' l1 p2 ⟩ × ⟨ OnLine' l2 p1
 
 Line : Type ℓ-one
 Line = Line' / SameLine'
-
--- Standard lines
-
-direction-line' : Direction -> Line'
-direction-line' d = 0P , [ d ]
-
-semi-direction-line' : SemiDirection -> Line'
-semi-direction-line' sd = 0P , sd
-
-xaxis-line' : Line'
-xaxis-line' = direction-line' xaxis-dir
-xaxis-line : Line
-xaxis-line = [ xaxis-line' ]
-
-yaxis-line' : Line'
-yaxis-line' = direction-line' yaxis-dir
-yaxis-line : Line
-yaxis-line = [ yaxis-line' ]
-
 
 line-semi-direction : Line -> SemiDirection
 line-semi-direction =
@@ -120,3 +105,26 @@ OnLine'-SameLine' l1 l2 (p2∈l1 , p1∈l2 , s1=s2) =
 OnLine : Line -> Subtype Point ℓ-one
 OnLine =
   SetQuotientElim.rec Line' SameLine' isSet-Subtype OnLine' OnLine'-SameLine'
+
+
+-- Standard lines
+
+direction-line' : Direction -> Line'
+direction-line' d = 0P , [ d ]
+
+semi-direction-line' : SemiDirection -> Line'
+semi-direction-line' sd = 0P , sd
+
+xaxis-line' : Line'
+xaxis-line' = direction-line' xaxis-dir
+xaxis-line : Line
+xaxis-line = [ xaxis-line' ]
+
+yaxis-line' : Line'
+yaxis-line' = direction-line' yaxis-dir
+yaxis-line : Line
+yaxis-line = [ yaxis-line' ]
+
+line-segment->line : {p1 p2 : Point} -> LineSegment p1 p2 -> Line
+line-segment->line {p1} {p2} l =
+  [ p1 , (vector->semi-direction (P-diff p1 p2) (P#->P-diff#0 p1 p2 (LineSegment.distinct l))) ]
