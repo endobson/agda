@@ -27,16 +27,21 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : Li
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : LinearOrderStr D ℓ<}
          {{LOS : LinearlyOrderedSemiringStr S O}} where
-  open LinearlyOrderedSemiringStr LOS public
 
   private
+    module LOS = LinearlyOrderedSemiringStr LOS
     instance
       IACM = ACM
       IS = S
       IO = O
-      ILOS = LOS
 
   abstract
+    +₁-preserves-< : (a b c : D) -> b < c -> (a + b) < (a + c)
+    +₁-preserves-< = LOS.+₁-preserves-<
+
+    *-preserves-0< : (a b : D) -> 0# < a -> 0# < b -> 0# < (a * b)
+    *-preserves-0< = LOS.*-preserves-0<
+
     +₂-preserves-< : (a b c : D) -> a < b -> (a + c) < (b + c)
     +₂-preserves-< a b c a<b = subst2 _<_ +-commute +-commute (+₁-preserves-< c a b a<b)
 
@@ -67,16 +72,21 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : Pa
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : PartialOrderStr D ℓ<}
          {{POS : PartiallyOrderedSemiringStr S O}} where
-  open PartiallyOrderedSemiringStr POS public
 
   private
+    module POS = PartiallyOrderedSemiringStr POS
     instance
       IACM = ACM
       IS = S
       IO = O
-      IPOS = POS
 
   abstract
+    +₁-preserves-≤ : (a b c : D) -> b ≤ c -> (a + b) ≤ (a + c)
+    +₁-preserves-≤ = POS.+₁-preserves-≤
+
+    *-preserves-0≤ : (a b : D) -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a * b)
+    *-preserves-0≤ = POS.*-preserves-0≤
+
     +₂-preserves-≤ : (a b c : D) -> a ≤ b -> (a + c) ≤ (b + c)
     +₂-preserves-≤ a b c a≤b = subst2 _≤_ +-commute +-commute (+₁-preserves-≤ c a b a≤b)
 

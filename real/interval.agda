@@ -18,7 +18,7 @@ open import truncation
 open import univalence
 
 ℝ∈Iℚ : ℝ -> Iℚ -> Type₀
-ℝ∈Iℚ z (Iℚ-cons l u _) = Real.L z l × Real.U z u
+ℝ∈Iℚ z a = Real.L z (Iℚ.l a) × Real.U z (Iℚ.u a)
 
 ℝ∈Iℚ->Overlap : (z : ℝ) (a b : Iℚ) -> ℝ∈Iℚ z a -> ℝ∈Iℚ z b -> Overlap a b
 ℝ∈Iℚ->Overlap z a b (al , au) (bl , bu) =

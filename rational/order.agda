@@ -567,305 +567,306 @@ instance
 
 -- Compatibility functions
 
-Zero-path : (q : Rational) -> Zeroℚ q -> q == 0r
-Zero-path _ p = p
+abstract
+  Zero-path : (q : Rational) -> Zeroℚ q -> q == 0r
+  Zero-path _ p = p
 
-r--flips-sign : (q : Rational) (s : Sign) -> (isSignℚ s q) -> (isSignℚ (s⁻¹ s) (r- q))
-r--flips-sign q pos-sign 0<q = minus-flips-0< 0<q
-r--flips-sign q zero-sign q=0 = cong -_ q=0 >=> minus-zero
-r--flips-sign q neg-sign q<0 = minus-flips-<0 q<0
+  r--flips-sign : (q : Rational) (s : Sign) -> (isSignℚ s q) -> (isSignℚ (s⁻¹ s) (r- q))
+  r--flips-sign q pos-sign 0<q = minus-flips-0< 0<q
+  r--flips-sign q zero-sign q=0 = cong -_ q=0 >=> minus-zero
+  r--flips-sign q neg-sign q<0 = minus-flips-<0 q<0
 
-r--NonNeg : {q1 : ℚ} -> NonNeg q1 -> NonPos (r- q1)
-r--NonNeg (inj-l s) = (inj-l (r--flips-sign _ pos-sign s))
-r--NonNeg (inj-r s) = (inj-r (r--flips-sign _ zero-sign s))
+  r--NonNeg : {q1 : ℚ} -> NonNeg q1 -> NonPos (r- q1)
+  r--NonNeg (inj-l s) = (inj-l (r--flips-sign _ pos-sign s))
+  r--NonNeg (inj-r s) = (inj-r (r--flips-sign _ zero-sign s))
 
-r--NonPos : {q1 : ℚ} -> NonPos q1 -> NonNeg (r- q1)
-r--NonPos (inj-l s) = (inj-l (r--flips-sign _ neg-sign s))
-r--NonPos (inj-r s) = (inj-r (r--flips-sign _ zero-sign s))
+  r--NonPos : {q1 : ℚ} -> NonPos q1 -> NonNeg (r- q1)
+  r--NonPos (inj-l s) = (inj-l (r--flips-sign _ neg-sign s))
+  r--NonPos (inj-r s) = (inj-r (r--flips-sign _ zero-sign s))
 
-NonNeg-0≤ : (q : Rational) -> NonNeg q -> 0r ≤ q
-NonNeg-0≤ _ (inj-l pq) = weaken-ℚ< pq
-NonNeg-0≤ q (inj-r zq) = subst (_≤ q) zq refl-≤
+  NonNeg-0≤ : (q : Rational) -> NonNeg q -> 0r ≤ q
+  NonNeg-0≤ _ (inj-l pq) = weaken-ℚ< pq
+  NonNeg-0≤ q (inj-r zq) = subst (_≤ q) zq refl-≤
 
-NonPos-≤0 : (q : Rational) -> NonPos q -> q ≤ 0r
-NonPos-≤0 _ (inj-l nq) = weaken-ℚ< nq
-NonPos-≤0 q (inj-r zq) = subst (q ≤_) zq refl-≤
+  NonPos-≤0 : (q : Rational) -> NonPos q -> q ≤ 0r
+  NonPos-≤0 _ (inj-l nq) = weaken-ℚ< nq
+  NonPos-≤0 q (inj-r zq) = subst (q ≤_) zq refl-≤
 
-0≤-NonNeg : (q : Rational) -> 0r ≤ q -> NonNeg q
-0≤-NonNeg q 0≤q = ℚ0≤-elim (isProp-NonNeg _) inj-l (inj-r ∘ sym) q 0≤q
+  0≤-NonNeg : (q : Rational) -> 0r ≤ q -> NonNeg q
+  0≤-NonNeg q 0≤q = ℚ0≤-elim (isProp-NonNeg _) inj-l (inj-r ∘ sym) q 0≤q
 
-≤0-NonPos : (q : Rational) -> q ≤ 0r -> NonPos q
-≤0-NonPos q q≤0 =
-  subst NonPos minus-double-inverse (r--NonNeg (0≤-NonNeg (r- q) (minus-flips-≤0 q≤0)))
+  ≤0-NonPos : (q : Rational) -> q ≤ 0r -> NonPos q
+  ≤0-NonPos q q≤0 =
+    subst NonPos minus-double-inverse (r--NonNeg (0≤-NonNeg (r- q) (minus-flips-≤0 q≤0)))
 
-Pos-0< : (q : Rational) -> Pos q -> 0r < q
-Pos-0< q 0<q = 0<q
+  Pos-0< : (q : Rational) -> Pos q -> 0r < q
+  Pos-0< q 0<q = 0<q
 
-Neg-<0 : (q : Rational) -> Neg q -> q < 0r
-Neg-<0 q q<0 = q<0
+  Neg-<0 : (q : Rational) -> Neg q -> q < 0r
+  Neg-<0 q q<0 = q<0
 
-0<-Pos : (q : Rational) -> 0r < q -> Pos q
-0<-Pos q 0<q = 0<q
+  0<-Pos : (q : Rational) -> 0r < q -> Pos q
+  0<-Pos q 0<q = 0<q
 
-<0-Neg : (q : Rational) -> q < 0r -> Neg q
-<0-Neg q q<0 = q<0
+  <0-Neg : (q : Rational) -> q < 0r -> Neg q
+  <0-Neg q q<0 = q<0
 
-NonPos≤NonNeg : {q r : Rational} -> NonPos q -> NonNeg r -> q ℚ≤ r
-NonPos≤NonNeg np-q nn-r = trans-≤ (NonPos-≤0 _ np-q) (NonNeg-0≤ _ nn-r)
+  NonPos≤NonNeg : {q r : Rational} -> NonPos q -> NonNeg r -> q ℚ≤ r
+  NonPos≤NonNeg np-q nn-r = trans-≤ (NonPos-≤0 _ np-q) (NonNeg-0≤ _ nn-r)
 
-NonNeg-≤ : (a b : ℚ) -> NonNeg a -> a ℚ≤ b -> NonNeg b
-NonNeg-≤ a b (inj-l 0<a) a≤b = 0≤-NonNeg _ (trans-≤ (weaken-< 0<a) a≤b)
-NonNeg-≤ a b (inj-r za) a≤b = 0≤-NonNeg _ (trans-≤ (=->≤ (sym (Zero-path a za))) a≤b)
+  NonNeg-≤ : (a b : ℚ) -> NonNeg a -> a ℚ≤ b -> NonNeg b
+  NonNeg-≤ a b (inj-l 0<a) a≤b = 0≤-NonNeg _ (trans-≤ (weaken-< 0<a) a≤b)
+  NonNeg-≤ a b (inj-r za) a≤b = 0≤-NonNeg _ (trans-≤ (=->≤ (sym (Zero-path a za))) a≤b)
 
-NonPos-≤ : (a b : ℚ) -> NonPos b -> a ℚ≤ b -> NonPos a
-NonPos-≤ a b (inj-l b<0) a≤b = ≤0-NonPos _ (trans-≤ a≤b (weaken-< b<0))
-NonPos-≤ a b (inj-r zb) a≤b = ≤0-NonPos _ (trans-≤ a≤b (=->≤ (Zero-path b zb)))
+  NonPos-≤ : (a b : ℚ) -> NonPos b -> a ℚ≤ b -> NonPos a
+  NonPos-≤ a b (inj-l b<0) a≤b = ≤0-NonPos _ (trans-≤ a≤b (weaken-< b<0))
+  NonPos-≤ a b (inj-r zb) a≤b = ≤0-NonPos _ (trans-≤ a≤b (=->≤ (Zero-path b zb)))
 
-Pos-≤ : (a b : ℚ) -> Pos a -> a ℚ≤ b -> Pos b
-Pos-≤ a b 0<a a≤b = trans-<-≤ 0<a a≤b
+  Pos-≤ : (a b : ℚ) -> Pos a -> a ℚ≤ b -> Pos b
+  Pos-≤ a b 0<a a≤b = trans-<-≤ 0<a a≤b
 
-Neg-≤ : (a b : ℚ) -> Neg b -> a ℚ≤ b -> Neg a
-Neg-≤ a b b<0 a≤b = trans-≤-< a≤b b<0
+  Neg-≤ : (a b : ℚ) -> Neg b -> a ℚ≤ b -> Neg a
+  Neg-≤ a b b<0 a≤b = trans-≤-< a≤b b<0
 
-Pos-< : (a b : ℚ) -> NonNeg a -> a ℚ< b -> Pos b
-Pos-< a b nn a<b = trans-≤-< (NonNeg-0≤ _ nn) a<b
+  Pos-< : (a b : ℚ) -> NonNeg a -> a ℚ< b -> Pos b
+  Pos-< a b nn a<b = trans-≤-< (NonNeg-0≤ _ nn) a<b
 
-Neg-< : (a b : ℚ) -> NonPos b -> a ℚ< b -> Neg a
-Neg-< a b np a<b = trans-<-≤ a<b (NonPos-≤0 _ np)
+  Neg-< : (a b : ℚ) -> NonPos b -> a ℚ< b -> Neg a
+  Neg-< a b np a<b = trans-<-≤ a<b (NonPos-≤0 _ np)
 
-r*-Pos-Pos : {q1 q2 : ℚ} -> Pos q1 -> Pos q2 -> Pos (q1 r* q2)
-r*-Pos-Pos p1 p2 = r*-preserves-0< _ _ p1 p2
+  r*-Pos-Pos : {q1 q2 : ℚ} -> Pos q1 -> Pos q2 -> Pos (q1 r* q2)
+  r*-Pos-Pos p1 p2 = r*-preserves-0< _ _ p1 p2
 
-r*-Pos-Neg : {q1 q2 : ℚ} -> Pos q1 -> Neg q2 -> Neg (q1 r* q2)
-r*-Pos-Neg {q1} {q2} p1 n2 =
-  subst ((q1 * q2) <_) *-right-zero (*₁-preserves-< q1 q2 0r p1 n2)
+  r*-Pos-Neg : {q1 q2 : ℚ} -> Pos q1 -> Neg q2 -> Neg (q1 r* q2)
+  r*-Pos-Neg {q1} {q2} p1 n2 =
+    subst ((q1 * q2) <_) *-right-zero (*₁-preserves-< q1 q2 0r p1 n2)
 
-r*-Neg-Pos : {q1 q2 : ℚ} -> Neg q1 -> Pos q2 -> Neg (q1 r* q2)
-r*-Neg-Pos n1 p2 = subst Neg *-commute (r*-Pos-Neg p2 n1)
+  r*-Neg-Pos : {q1 q2 : ℚ} -> Neg q1 -> Pos q2 -> Neg (q1 r* q2)
+  r*-Neg-Pos n1 p2 = subst Neg *-commute (r*-Pos-Neg p2 n1)
 
-r*-Neg-Neg : {q1 q2 : ℚ} -> Neg q1 -> Neg q2 -> Pos (q1 r* q2)
-r*-Neg-Neg {q1} {q2} n1 n2 = subst (_< (q1 * q2)) *-right-zero (*₁-flips-< q1 q2 0r n1 n2)
-
-
-r*-NonNeg-NonNeg : {q1 q2 : ℚ} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r* q2)
-r*-NonNeg-NonNeg nn1 nn2 = 0≤-NonNeg _ (r*-preserves-0≤ _ _ (NonNeg-0≤ _ nn1) (NonNeg-0≤ _ nn2))
-
-r*-NonNeg-NonPos : {q1 q2 : ℚ} -> NonNeg q1 -> NonPos q2 -> NonPos (q1 r* q2)
-r*-NonNeg-NonPos {q1} {q2} nn1 np2 = ≤0-NonPos _ q1q2≤0
-  where
-  q1q2≤0 : (q1 * q2) ≤ 0r
-  q1q2≤0 = subst ((q1 * q2) ≤_) *-right-zero (*₁-preserves-≤ q1 q2 0r (NonNeg-0≤ _ nn1) (NonPos-≤0 _ np2))
-
-r*-NonPos-NonNeg : {q1 q2 : ℚ} -> NonPos q1 -> NonNeg q2 -> NonPos (q1 r* q2)
-r*-NonPos-NonNeg np nn = subst NonPos *-commute (r*-NonNeg-NonPos nn np)
-
-r*-NonPos-NonPos : {q1 q2 : ℚ} -> NonPos q1 -> NonPos q2 -> NonNeg (q1 r* q2)
-r*-NonPos-NonPos {q1} {q2} nn1 np2 = 0≤-NonNeg _ 0≤q1q2
-  where
-  0≤q1q2 : 0r ≤ (q1 * q2)
-  0≤q1q2 = subst (_≤ (q1 * q2)) *-right-zero (*₁-flips-≤ q1 q2 0r (NonPos-≤0 _ nn1) (NonPos-≤0 _ np2))
+  r*-Neg-Neg : {q1 q2 : ℚ} -> Neg q1 -> Neg q2 -> Pos (q1 r* q2)
+  r*-Neg-Neg {q1} {q2} n1 n2 = subst (_< (q1 * q2)) *-right-zero (*₁-flips-< q1 q2 0r n1 n2)
 
 
+  r*-NonNeg-NonNeg : {q1 q2 : ℚ} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r* q2)
+  r*-NonNeg-NonNeg nn1 nn2 = 0≤-NonNeg _ (r*-preserves-0≤ _ _ (NonNeg-0≤ _ nn1) (NonNeg-0≤ _ nn2))
 
-r+-NonNeg-NonNeg : {q1 q2 : ℚ} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r+ q2)
-r+-NonNeg-NonNeg {q1} {q2} nn1 nn2 = 0≤-NonNeg (q1 + q2)
-  (subst (_≤ (q1 + q2)) +-left-zero (+-preserves-≤ _ _ _ _ (NonNeg-0≤ q1 nn1) (NonNeg-0≤ q2 nn2)))
-
-r+-NonPos-NonPos : {q1 q2 : ℚ} -> NonPos q1 -> NonPos q2 -> NonPos (q1 r+ q2)
-r+-NonPos-NonPos {q1} {q2} np1 np2 = ≤0-NonPos (q1 + q2)
-  (subst ((q1 + q2) ≤_) +-left-zero (+-preserves-≤ _ _ _ _ (NonPos-≤0 q1 np1) (NonPos-≤0 q2 np2)))
-
-
-r*-preserves-Pos : (q1 q2 : Rational) -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r* q2)
-r*-preserves-Pos _ _ = r*-Pos-Pos
-
-
-r+-preserves-NonPos : {q1 q2 : ℚ} -> NonPos q1 -> NonPos q2 -> NonPos (q1 r+ q2)
-r+-preserves-NonPos = r+-NonPos-NonPos
-
-r+-preserves-Pos : (q1 q2 : ℚ) -> Pos q1 -> Pos q2 -> Pos (q1 r+ q2)
-r+-preserves-Pos q1 q2 p1 p2 =
-  subst (_< (q1 + q2)) +-left-zero (+-preserves-< _ _ _ _ p1 p2)
-
-r+-preserves-Neg : (q1 q2 : ℚ) -> Neg q1 -> Neg q2 -> Neg (q1 r+ q2)
-r+-preserves-Neg q1 q2 p1 p2 =
-  subst ((q1 + q2) <_) +-left-zero (+-preserves-< _ _ _ _ p1 p2)
-
-
-
-r*-ZeroFactor : {q1 q2 : ℚ} -> Zero (q1 r* q2) -> Zero q1 ⊎ Zero q2
-r*-ZeroFactor {q1} {q2} zp =
-  handle (fst (decide-sign q1)) (fst (decide-sign q2)) (snd (decide-sign q1)) (snd (decide-sign q2))
-  where
-  handle : (s1 s2 : Sign) -> isSignℚ s1 q1 -> isSignℚ s2 q2 -> Zero q1 ⊎ Zero q2
-  handle zero-sign _         z1 _ = inj-l z1
-  handle pos-sign  zero-sign p1 z2 = inj-r z2
-  handle neg-sign  zero-sign n1 z2 = inj-r z2
-  handle pos-sign  pos-sign  p1 p2 =
-    bot-elim (NonZero->¬Zero (inj-l (*-preserves-0< _ _ p1 p2)) zp)
-  handle pos-sign  neg-sign  p1 n2 = bot-elim (NonZero->¬Zero (inj-r p<0) zp)
+  r*-NonNeg-NonPos : {q1 q2 : ℚ} -> NonNeg q1 -> NonPos q2 -> NonPos (q1 r* q2)
+  r*-NonNeg-NonPos {q1} {q2} nn1 np2 = ≤0-NonPos _ q1q2≤0
     where
-    p<0 : (q1 * q2) < 0r
-    p<0 = subst ((q1 * q2) <_) *-right-zero (*₁-preserves-< q1 q2 0r p1 n2)
-  handle neg-sign  pos-sign  n1 p2 = bot-elim (NonZero->¬Zero (inj-r p<0) zp)
+    q1q2≤0 : (q1 * q2) ≤ 0r
+    q1q2≤0 = subst ((q1 * q2) ≤_) *-right-zero (*₁-preserves-≤ q1 q2 0r (NonNeg-0≤ _ nn1) (NonPos-≤0 _ np2))
+
+  r*-NonPos-NonNeg : {q1 q2 : ℚ} -> NonPos q1 -> NonNeg q2 -> NonPos (q1 r* q2)
+  r*-NonPos-NonNeg np nn = subst NonPos *-commute (r*-NonNeg-NonPos nn np)
+
+  r*-NonPos-NonPos : {q1 q2 : ℚ} -> NonPos q1 -> NonPos q2 -> NonNeg (q1 r* q2)
+  r*-NonPos-NonPos {q1} {q2} nn1 np2 = 0≤-NonNeg _ 0≤q1q2
     where
-    p<0 : (q1 * q2) < 0r
-    p<0 = subst ((q1 * q2) <_) *-left-zero (*₂-preserves-< q1 0r q2 n1 p2)
-  handle neg-sign  neg-sign  n1 n2 = bot-elim (NonZero->¬Zero (inj-l 0<p) zp)
+    0≤q1q2 : 0r ≤ (q1 * q2)
+    0≤q1q2 = subst (_≤ (q1 * q2)) *-right-zero (*₁-flips-≤ q1 q2 0r (NonPos-≤0 _ nn1) (NonPos-≤0 _ np2))
+
+
+
+  r+-NonNeg-NonNeg : {q1 q2 : ℚ} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r+ q2)
+  r+-NonNeg-NonNeg {q1} {q2} nn1 nn2 = 0≤-NonNeg (q1 + q2)
+    (subst (_≤ (q1 + q2)) +-left-zero (+-preserves-≤ _ _ _ _ (NonNeg-0≤ q1 nn1) (NonNeg-0≤ q2 nn2)))
+
+  r+-NonPos-NonPos : {q1 q2 : ℚ} -> NonPos q1 -> NonPos q2 -> NonPos (q1 r+ q2)
+  r+-NonPos-NonPos {q1} {q2} np1 np2 = ≤0-NonPos (q1 + q2)
+    (subst ((q1 + q2) ≤_) +-left-zero (+-preserves-≤ _ _ _ _ (NonPos-≤0 q1 np1) (NonPos-≤0 q2 np2)))
+
+
+  r*-preserves-Pos : (q1 q2 : Rational) -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r* q2)
+  r*-preserves-Pos _ _ = r*-Pos-Pos
+
+
+  r+-preserves-NonPos : {q1 q2 : ℚ} -> NonPos q1 -> NonPos q2 -> NonPos (q1 r+ q2)
+  r+-preserves-NonPos = r+-NonPos-NonPos
+
+  r+-preserves-Pos : (q1 q2 : ℚ) -> Pos q1 -> Pos q2 -> Pos (q1 r+ q2)
+  r+-preserves-Pos q1 q2 p1 p2 =
+    subst (_< (q1 + q2)) +-left-zero (+-preserves-< _ _ _ _ p1 p2)
+
+  r+-preserves-Neg : (q1 q2 : ℚ) -> Neg q1 -> Neg q2 -> Neg (q1 r+ q2)
+  r+-preserves-Neg q1 q2 p1 p2 =
+    subst ((q1 + q2) <_) +-left-zero (+-preserves-< _ _ _ _ p1 p2)
+
+
+
+  r*-ZeroFactor : {q1 q2 : ℚ} -> Zero (q1 r* q2) -> Zero q1 ⊎ Zero q2
+  r*-ZeroFactor {q1} {q2} zp =
+    handle (fst (decide-sign q1)) (fst (decide-sign q2)) (snd (decide-sign q1)) (snd (decide-sign q2))
     where
-    0<p : 0r < (q1 * q2)
-    0<p = subst (_< (q1 * q2)) *-right-zero (*₁-flips-< q1 q2 0r n1 n2)
+    handle : (s1 s2 : Sign) -> isSignℚ s1 q1 -> isSignℚ s2 q2 -> Zero q1 ⊎ Zero q2
+    handle zero-sign _         z1 _ = inj-l z1
+    handle pos-sign  zero-sign p1 z2 = inj-r z2
+    handle neg-sign  zero-sign n1 z2 = inj-r z2
+    handle pos-sign  pos-sign  p1 p2 =
+      bot-elim (NonZero->¬Zero (inj-l (*-preserves-0< _ _ p1 p2)) zp)
+    handle pos-sign  neg-sign  p1 n2 = bot-elim (NonZero->¬Zero (inj-r p<0) zp)
+      where
+      p<0 : (q1 * q2) < 0r
+      p<0 = subst ((q1 * q2) <_) *-right-zero (*₁-preserves-< q1 q2 0r p1 n2)
+    handle neg-sign  pos-sign  n1 p2 = bot-elim (NonZero->¬Zero (inj-r p<0) zp)
+      where
+      p<0 : (q1 * q2) < 0r
+      p<0 = subst ((q1 * q2) <_) *-left-zero (*₂-preserves-< q1 0r q2 n1 p2)
+    handle neg-sign  neg-sign  n1 n2 = bot-elim (NonZero->¬Zero (inj-l 0<p) zp)
+      where
+      0<p : 0r < (q1 * q2)
+      0<p = subst (_< (q1 * q2)) *-right-zero (*₁-flips-< q1 q2 0r n1 n2)
 
 
-r*₁-preserves-sign : (q : ℚ⁺) (r : Rational) {s : Sign} -> isSignℚ s r -> isSignℚ s (⟨ q ⟩ r* r)
-r*₁-preserves-sign (q , pq) r {pos-sign} pr = r*-preserves-0< _ _ pq pr
-r*₁-preserves-sign (q , pq) r {zero-sign} zr = *-right zr >=> *-right-zero
-r*₁-preserves-sign (q , pq) r {neg-sign} nr = r*-Pos-Neg pq nr
+  r*₁-preserves-sign : (q : ℚ⁺) (r : Rational) {s : Sign} -> isSignℚ s r -> isSignℚ s (⟨ q ⟩ r* r)
+  r*₁-preserves-sign (q , pq) r {pos-sign} pr = r*-preserves-0< _ _ pq pr
+  r*₁-preserves-sign (q , pq) r {zero-sign} zr = *-right zr >=> *-right-zero
+  r*₁-preserves-sign (q , pq) r {neg-sign} nr = r*-Pos-Neg pq nr
 
-r*₁-flips-sign : (q : ℚ⁻) (r : Rational) {s : Sign} -> isSignℚ s r -> isSignℚ (s⁻¹ s) (⟨ q ⟩ r* r)
-r*₁-flips-sign (q , nq) r {pos-sign} pr = r*-Neg-Pos nq pr
-r*₁-flips-sign (q , nq) r {zero-sign} zr = *-right zr >=> *-right-zero
-r*₁-flips-sign (q , nq) r {neg-sign} nr = r*-Neg-Neg nq nr
+  r*₁-flips-sign : (q : ℚ⁻) (r : Rational) {s : Sign} -> isSignℚ s r -> isSignℚ (s⁻¹ s) (⟨ q ⟩ r* r)
+  r*₁-flips-sign (q , nq) r {pos-sign} pr = r*-Neg-Pos nq pr
+  r*₁-flips-sign (q , nq) r {zero-sign} zr = *-right zr >=> *-right-zero
+  r*₁-flips-sign (q , nq) r {neg-sign} nr = r*-Neg-Neg nq nr
 
 
-r1/-preserves-Pos : (q : Rational) -> (i : ℚInv q) -> Pos q -> Pos (r1/ q i)
-r1/-preserves-Pos q i pq = handle (decide-sign qi)
-  where
-  qi = (r1/ q i)
-  handle : Σ[ s ∈ Sign ] (isSign s qi) -> Pos qi
-  handle (pos-sign , pqi) = pqi
-  handle (zero-sign , zqi) = bot-elim (NonPos->¬Pos (inj-r z1) Pos-1r)
+  r1/-preserves-Pos : (q : Rational) -> (i : ℚInv q) -> Pos q -> Pos (r1/ q i)
+  r1/-preserves-Pos q i pq = handle (decide-sign qi)
     where
-    z1 : Zero 1r
-    z1 = subst Zero (*-commute >=> r1/-inverse q i) (r*₁-preserves-sign (q , pq) qi {zero-sign} zqi)
-  handle (neg-sign , nqi) = bot-elim (NonPos->¬Pos (inj-l n1) Pos-1r)
+    qi = (r1/ q i)
+    handle : Σ[ s ∈ Sign ] (isSign s qi) -> Pos qi
+    handle (pos-sign , pqi) = pqi
+    handle (zero-sign , zqi) = bot-elim (NonPos->¬Pos (inj-r z1) Pos-1r)
+      where
+      z1 : Zero 1r
+      z1 = subst Zero (*-commute >=> r1/-inverse q i) (r*₁-preserves-sign (q , pq) qi {zero-sign} zqi)
+    handle (neg-sign , nqi) = bot-elim (NonPos->¬Pos (inj-l n1) Pos-1r)
+      where
+      n1 : Neg 1r
+      n1 = subst Neg (*-commute >=> r1/-inverse q i) (r*₁-preserves-sign (q , pq) qi {neg-sign} nqi)
+
+
+
+  r1/-preserves-Neg : (q : Rational) -> (i : ℚInv q) -> Neg q -> Neg (r1/ q i)
+  r1/-preserves-Neg q i nq = handle (decide-sign qi)
     where
-    n1 : Neg 1r
-    n1 = subst Neg (*-commute >=> r1/-inverse q i) (r*₁-preserves-sign (q , pq) qi {neg-sign} nqi)
+    qi = (r1/ q i)
+    handle : Σ[ s ∈ Sign ] (isSign s qi) -> Neg qi
+    handle (neg-sign , nqi) = nqi
+    handle (zero-sign , zqi) = bot-elim (NonPos->¬Pos (inj-r z1) Pos-1r)
+      where
+      z1 : Zero 1r
+      z1 = subst Zero (*-commute >=> r1/-inverse q i) (r*₁-flips-sign (q , nq) qi {zero-sign} zqi)
+    handle (pos-sign , pqi) = bot-elim (NonPos->¬Pos (inj-l n1) Pos-1r)
+      where
+      n1 : Neg 1r
+      n1 = subst Neg (*-commute >=> r1/-inverse q i) (r*₁-flips-sign (q , nq) qi {pos-sign} pqi)
+
+  Pos-1/ℕ : (n : Nat⁺) -> Pos (1/ℕ n)
+  Pos-1/ℕ n = subst Pos (sym (1/ℕ-inv-path n)) (r1/-preserves-Pos (ℕ->ℚ ⟨ n ⟩) _ (Pos-ℕ⁺->ℚ n))
+
+  Pos-1/2r : Pos 1/2r
+  Pos-1/2r = Pos-1/ℕ (2 , tt)
 
 
+  --
 
-r1/-preserves-Neg : (q : Rational) -> (i : ℚInv q) -> Neg q -> Neg (r1/ q i)
-r1/-preserves-Neg q i nq = handle (decide-sign qi)
-  where
-  qi = (r1/ q i)
-  handle : Σ[ s ∈ Sign ] (isSign s qi) -> Neg qi
-  handle (neg-sign , nqi) = nqi
-  handle (zero-sign , zqi) = bot-elim (NonPos->¬Pos (inj-r z1) Pos-1r)
+  1/2r<1r : 1/2r < 1r
+  1/2r<1r = subst2 _<_ (r+-left-zero 1/2r) (2r-path 1/2r >=> 2r-1/2r-path)  0r+1/2r<1/2r+1/2r
     where
-    z1 : Zero 1r
-    z1 = subst Zero (*-commute >=> r1/-inverse q i) (r*₁-flips-sign (q , nq) qi {zero-sign} zqi)
-  handle (pos-sign , pqi) = bot-elim (NonPos->¬Pos (inj-l n1) Pos-1r)
+    0<1/2r : 0r < 1/2r
+    0<1/2r = (Pos-1/ℕ (2 , tt))
+
+    0r+1/2r<1/2r+1/2r : (0r r+ 1/2r) < (1/2r r+ 1/2r)
+    0r+1/2r<1/2r+1/2r = +₂-preserves-< 0r 1/2r 1/2r 0<1/2r
+
+  1/2ℕ<1/ℕ : (n : Nat⁺) -> 1/ℕ (2⁺ *⁺ n) < 1/ℕ n
+  1/2ℕ<1/ℕ n =
+    subst2 _<_ (sym (1/2ℕ-path n)) (r*-left-one (1/ℕ n))
+          (*₂-preserves-< 1/2r 1r (1/ℕ n) 1/2r<1r (Pos-1/ℕ n))
+
+  NonNeg-diffℚ : (a b : ℚ) -> a ≤ b -> NonNeg (diffℚ a b)
+  NonNeg-diffℚ a b a≤b =
+    0≤-NonNeg _ (subst (_≤ (diffℚ a b)) +-inverse (+₂-preserves-≤ a b (- a) a≤b))
+
+  NonNeg-diffℚ⁻ : (a b : ℚ) -> NonNeg (diffℚ a b) -> a ≤ b
+  NonNeg-diffℚ⁻ a b nn =
+    subst2 _≤_ +-right-zero (diffℚ-step a b) (+₁-preserves-≤ a _ _ (NonNeg-0≤ _ nn))
+
+  Pos-diffℚ : (a b : ℚ) -> a < b -> Pos (diffℚ a b)
+  Pos-diffℚ a b a<b =
+    subst (_< (diffℚ a b)) +-inverse (+₂-preserves-< a b (- a) a<b)
+
+  Pos-diffℚ⁻ : (a b : ℚ) -> Pos (diffℚ a b) -> a < b
+  Pos-diffℚ⁻ a b p =
+    subst2 _<_ +-right-zero (diffℚ-step a b) (+₁-preserves-< a _ _ p)
+
+
+  dense-< : Dense _ℚ<_
+  dense-< {x} {y} lt = ∣ z , (Pos-diffℚ⁻ _ _ pos-d3 , Pos-diffℚ⁻ _ _ pos-d4) ∣
     where
-    n1 : Neg 1r
-    n1 = subst Neg (*-commute >=> r1/-inverse q i) (r*₁-flips-sign (q , nq) qi {pos-sign} pqi)
+    d1 = y r+ (r- x)
+    d2 = d1 r* 1/2r
+    z = x r+ d2
+    z' = y r+ (r- d2)
+    d3 = z r+ (r- x)
+    d4 = y r+ (r- z)
 
-Pos-1/ℕ : (n : Nat⁺) -> Pos (1/ℕ n)
-Pos-1/ℕ n = subst Pos (sym (1/ℕ-inv-path n)) (r1/-preserves-Pos (ℕ->ℚ ⟨ n ⟩) _ (Pos-ℕ⁺->ℚ n))
+    d2-path : d2 r+ d2 == d1
+    d2-path = 1/2r-path d1
 
-Pos-1/2r : Pos 1/2r
-Pos-1/2r = Pos-1/ℕ (2 , tt)
+    z-path : z == z'
+    z-path =
+      begin
+        x r+ d2
+      ==< sym (r+-right-zero _) >
+        (x r+ d2) r+ 0r
+      ==< cong ((x r+ d2) r+_) (sym (r+-inverse d2)) >
+        (x r+ d2) r+ (d2 r+ (r- d2))
+      ==< r+-assoc x d2 (d2 r+ (r- d2)) >=>
+          cong (x r+_) (sym (r+-assoc d2 d2 (r- d2)) >=> (cong (_r+ (r- d2)) d2-path)) >
+        x r+ (d1 r+ (r- d2))
+      ==< sym (r+-assoc x d1 (r- d2)) >
+        (x r+ (y r+ (r- x))) r+ (r- d2)
+      ==< cong (_r+ (r- d2)) (sym (r+-assoc x y (r- x)) >=>
+                              cong (_r+ (r- x)) (r+-commute x y) >=>
+                              r+-assoc y x (r- x) >=>
+                              cong (y r+_) (r+-inverse x) >=>
+                              r+-right-zero y) >
+        y r+ (r- d2)
+      end
 
+    pos-d1 : Posℚ d1
+    pos-d1 = Pos-diffℚ _ _ lt
 
---
+    pos-d2 : Posℚ d2
+    pos-d2 = r*-Pos-Pos pos-d1 (Pos-1/ℕ (2 , tt))
 
-1/2r<1r : 1/2r < 1r
-1/2r<1r = subst2 _<_ (r+-left-zero 1/2r) (2r-path 1/2r >=> 2r-1/2r-path)  0r+1/2r<1/2r+1/2r
-  where
-  0<1/2r : 0r < 1/2r
-  0<1/2r = (Pos-1/ℕ (2 , tt))
+    d3-path : d2 == d3
+    d3-path =
+      sym (cong (_r+ (r- x)) (r+-commute x d2) >=>
+           r+-assoc d2 x (r- x) >=>
+           cong (d2 r+_) (r+-inverse x) >=>
+           r+-right-zero d2)
+    pos-d3 : Posℚ d3
+    pos-d3 = subst Posℚ d3-path pos-d2
 
-  0r+1/2r<1/2r+1/2r : (0r r+ 1/2r) < (1/2r r+ 1/2r)
-  0r+1/2r<1/2r+1/2r = +₂-preserves-< 0r 1/2r 1/2r 0<1/2r
+    d4-path : d2 == d4
+    d4-path =
+      sym (cong (\z -> y r+ (r- z)) z-path >=>
+           cong (y r+_) minus-distrib-plus >=>
+           sym (r+-assoc y (r- y) (r- (r- d2))) >=>
+           cong2 _r+_ (r+-inverse y) minus-double-inverse >=>
+           r+-left-zero d2)
+    pos-d4 : Posℚ d4
+    pos-d4 = subst Posℚ d4-path pos-d2
 
-1/2ℕ<1/ℕ : (n : Nat⁺) -> 1/ℕ (2⁺ *⁺ n) < 1/ℕ n
-1/2ℕ<1/ℕ n =
-  subst2 _<_ (sym (1/2ℕ-path n)) (r*-left-one (1/ℕ n))
-        (*₂-preserves-< 1/2r 1r (1/ℕ n) 1/2r<1r (Pos-1/ℕ n))
+  r+-Pos->order : (a : ℚ) (b : Σ ℚ Posℚ) -> a < (a r+ ⟨ b ⟩)
+  r+-Pos->order a (b , pos-b) =
+    subst (_< (a + b)) +-right-zero (+₁-preserves-< a 0r b pos-b)
 
-NonNeg-diffℚ : (a b : ℚ) -> a ≤ b -> NonNeg (diffℚ a b)
-NonNeg-diffℚ a b a≤b =
-  0≤-NonNeg _ (subst (_≤ (diffℚ a b)) +-inverse (+₂-preserves-≤ a b (- a) a≤b))
-
-NonNeg-diffℚ⁻ : (a b : ℚ) -> NonNeg (diffℚ a b) -> a ≤ b
-NonNeg-diffℚ⁻ a b nn =
-  subst2 _≤_ +-right-zero (diffℚ-step a b) (+₁-preserves-≤ a _ _ (NonNeg-0≤ _ nn))
-
-Pos-diffℚ : (a b : ℚ) -> a < b -> Pos (diffℚ a b)
-Pos-diffℚ a b a<b =
-  subst (_< (diffℚ a b)) +-inverse (+₂-preserves-< a b (- a) a<b)
-
-Pos-diffℚ⁻ : (a b : ℚ) -> Pos (diffℚ a b) -> a < b
-Pos-diffℚ⁻ a b p =
-  subst2 _<_ +-right-zero (diffℚ-step a b) (+₁-preserves-< a _ _ p)
-
-
-dense-< : Dense _ℚ<_
-dense-< {x} {y} lt = ∣ z , (Pos-diffℚ⁻ _ _ pos-d3 , Pos-diffℚ⁻ _ _ pos-d4) ∣
-  where
-  d1 = y r+ (r- x)
-  d2 = d1 r* 1/2r
-  z = x r+ d2
-  z' = y r+ (r- d2)
-  d3 = z r+ (r- x)
-  d4 = y r+ (r- z)
-
-  d2-path : d2 r+ d2 == d1
-  d2-path = 1/2r-path d1
-
-  z-path : z == z'
-  z-path =
-    begin
-      x r+ d2
-    ==< sym (r+-right-zero _) >
-      (x r+ d2) r+ 0r
-    ==< cong ((x r+ d2) r+_) (sym (r+-inverse d2)) >
-      (x r+ d2) r+ (d2 r+ (r- d2))
-    ==< r+-assoc x d2 (d2 r+ (r- d2)) >=>
-        cong (x r+_) (sym (r+-assoc d2 d2 (r- d2)) >=> (cong (_r+ (r- d2)) d2-path)) >
-      x r+ (d1 r+ (r- d2))
-    ==< sym (r+-assoc x d1 (r- d2)) >
-      (x r+ (y r+ (r- x))) r+ (r- d2)
-    ==< cong (_r+ (r- d2)) (sym (r+-assoc x y (r- x)) >=>
-                            cong (_r+ (r- x)) (r+-commute x y) >=>
-                            r+-assoc y x (r- x) >=>
-                            cong (y r+_) (r+-inverse x) >=>
-                            r+-right-zero y) >
-      y r+ (r- d2)
-    end
-
-  pos-d1 : Posℚ d1
-  pos-d1 = Pos-diffℚ _ _ lt
-
-  pos-d2 : Posℚ d2
-  pos-d2 = r*-Pos-Pos pos-d1 (Pos-1/ℕ (2 , tt))
-
-  d3-path : d2 == d3
-  d3-path =
-    sym (cong (_r+ (r- x)) (r+-commute x d2) >=>
-         r+-assoc d2 x (r- x) >=>
-         cong (d2 r+_) (r+-inverse x) >=>
-         r+-right-zero d2)
-  pos-d3 : Posℚ d3
-  pos-d3 = subst Posℚ d3-path pos-d2
-
-  d4-path : d2 == d4
-  d4-path =
-    sym (cong (\z -> y r+ (r- z)) z-path >=>
-         cong (y r+_) minus-distrib-plus >=>
-         sym (r+-assoc y (r- y) (r- (r- d2))) >=>
-         cong2 _r+_ (r+-inverse y) minus-double-inverse >=>
-         r+-left-zero d2)
-  pos-d4 : Posℚ d4
-  pos-d4 = subst Posℚ d4-path pos-d2
-
-r+-Pos->order : (a : ℚ) (b : Σ ℚ Posℚ) -> a < (a r+ ⟨ b ⟩)
-r+-Pos->order a (b , pos-b) =
-  subst (_< (a + b)) +-right-zero (+₁-preserves-< a 0r b pos-b)
-
-r+-Neg->order : (a : ℚ) (b : Σ ℚ Negℚ) -> a > (a r+ ⟨ b ⟩)
-r+-Neg->order a (b , neg-b) =
-  subst (_> (a + b)) +-right-zero (+₁-preserves-< a b 0r neg-b)
+  r+-Neg->order : (a : ℚ) (b : Σ ℚ Negℚ) -> a > (a r+ ⟨ b ⟩)
+  r+-Neg->order a (b , neg-b) =
+    subst (_> (a + b)) +-right-zero (+₁-preserves-< a b 0r neg-b)
 
 
 abstract
@@ -873,79 +874,79 @@ abstract
   ℕ->ℚ-preserves-order a b a<b =
     ℚ<-cons (transport (sym ℚ<-raw-eval) (ℕ->ℚ'-preserves-order a b a<b))
 
-1/ℕ-flips-order : (a b : Nat⁺) -> ⟨ a ⟩ nat.< ⟨ b ⟩ -> 1/ℕ b < 1/ℕ a
-1/ℕ-flips-order a@(a' , _) b@(b' , _) lt = subst2 _<_ b-path a-path ab*<
-  where
-  ab = 1/ℕ a r* 1/ℕ b
-  pos-ab : Pos ab
-  pos-ab = r*-preserves-Pos _ _ (Pos-1/ℕ a) (Pos-1/ℕ b)
-
-  a-path : (ab r* (ℕ->ℚ b')) == 1/ℕ a
-  a-path =
-    r*-assoc (1/ℕ a) (1/ℕ b) (ℕ->ℚ b') >=>
-    cong (1/ℕ a r*_) (1/ℕ-ℕ-path b) >=>
-    r*-right-one (1/ℕ a)
-  b-path : (ab r* (ℕ->ℚ a')) == 1/ℕ b
-  b-path =
-    cong (_r* ℕ->ℚ a') (r*-commute (1/ℕ a) (1/ℕ b)) >=>
-    r*-assoc (1/ℕ b) (1/ℕ a) (ℕ->ℚ a') >=>
-    cong (1/ℕ b r*_) (1/ℕ-ℕ-path a) >=>
-    r*-right-one (1/ℕ b)
-
-  ab*< : (ab r* (ℕ->ℚ a')) < (ab r* (ℕ->ℚ b'))
-  ab*< = *₁-preserves-< ab (ℕ->ℚ a') (ℕ->ℚ b')
-           pos-ab (ℕ->ℚ-preserves-order a' b' lt)
-
-
-private
-  zero-diff->path : (x y : Rational) -> Zeroℚ (y r+ (r- x)) -> x == y
-  zero-diff->path x y zyx = sym p
+  1/ℕ-flips-order : (a b : Nat⁺) -> ⟨ a ⟩ nat.< ⟨ b ⟩ -> 1/ℕ b < 1/ℕ a
+  1/ℕ-flips-order a@(a' , _) b@(b' , _) lt = subst2 _<_ b-path a-path ab*<
     where
-    p : y == x
-    p = sym (r+-right-zero y) >=>
-        (cong (y r+_) (sym (r+-inverse x) >=> r+-commute x (r- x))) >=>
-        sym (r+-assoc y (r- x) x) >=>
-        cong (_r+ x) (Zero-path (y r+ (r- x)) zyx) >=>
-        r+-left-zero x
+    ab = 1/ℕ a r* 1/ℕ b
+    pos-ab : Pos ab
+    pos-ab = r*-preserves-Pos _ _ (Pos-1/ℕ a) (Pos-1/ℕ b)
 
-r1/-Pos-flips-order : (a b : ℚ⁺) -> ⟨ a ⟩ < ⟨ b ⟩ ->
-                      (r1/ ⟨ b ⟩ (Pos->Inv (snd b))) < (r1/ ⟨ a ⟩ (Pos->Inv (snd a)))
-r1/-Pos-flips-order (a , pos-a) (b , pos-b) a<b =
-  Pos-diffℚ⁻ b' a' (subst Pos path pos-prod)
-  where
-  inv-a = (Pos->Inv pos-a)
-  inv-b = (Pos->Inv pos-b)
-  a' = r1/ a inv-a
-  b' = r1/ b inv-b
-  pos-a' = r1/-preserves-Pos a inv-a pos-a
-  pos-b' = r1/-preserves-Pos b inv-b pos-b
+    a-path : (ab r* (ℕ->ℚ b')) == 1/ℕ a
+    a-path =
+      r*-assoc (1/ℕ a) (1/ℕ b) (ℕ->ℚ b') >=>
+      cong (1/ℕ a r*_) (1/ℕ-ℕ-path b) >=>
+      r*-right-one (1/ℕ a)
+    b-path : (ab r* (ℕ->ℚ a')) == 1/ℕ b
+    b-path =
+      cong (_r* ℕ->ℚ a') (r*-commute (1/ℕ a) (1/ℕ b)) >=>
+      r*-assoc (1/ℕ b) (1/ℕ a) (ℕ->ℚ a') >=>
+      cong (1/ℕ b r*_) (1/ℕ-ℕ-path a) >=>
+      r*-right-one (1/ℕ b)
 
-  pos-a'b' : Pos (a' r* b')
-  pos-a'b' = r*₁-preserves-sign (_ , pos-a') b' {pos-sign} pos-b'
+    ab*< : (ab r* (ℕ->ℚ a')) < (ab r* (ℕ->ℚ b'))
+    ab*< = *₁-preserves-< ab (ℕ->ℚ a') (ℕ->ℚ b')
+             pos-ab (ℕ->ℚ-preserves-order a' b' lt)
 
-  pos-prod : Pos ((a' r* b') r* (b r+ (r- a)))
-  pos-prod = r*₁-preserves-sign ((a' r* b') , pos-a'b') (b r+ (r- a)) {pos-sign} (Pos-diffℚ a b a<b)
 
-  path : (a' r* b') r* (b r+ (r- a)) == a' r+ (r- b')
-  path =
-    *-distrib-+-left >=>
-    +-cong (*-assoc >=> *-right (r1/-inverse b inv-b) >=> *-right-one)
-           (r*-minus-extract-right _ _ >=>
-            cong r-_ (*-left *-commute >=> *-assoc >=>
-                      *-right (r1/-inverse a inv-a) >=> *-right-one))
+  private
+    zero-diff->path : (x y : Rational) -> Zeroℚ (y r+ (r- x)) -> x == y
+    zero-diff->path x y zyx = sym p
+      where
+      p : y == x
+      p = sym (r+-right-zero y) >=>
+          (cong (y r+_) (sym (r+-inverse x) >=> r+-commute x (r- x))) >=>
+          sym (r+-assoc y (r- x) x) >=>
+          cong (_r+ x) (Zero-path (y r+ (r- x)) zyx) >=>
+          r+-left-zero x
 
-r1/-Pos-flips-≤ : (a b : ℚ⁺) -> ⟨ a ⟩ ℚ≤ ⟨ b ⟩ ->
-                  (r1/ ⟨ b ⟩ (Pos->Inv (snd b))) ℚ≤ (r1/ ⟨ a ⟩ (Pos->Inv (snd a)))
-r1/-Pos-flips-≤ a@(a' , pos-a') b@(b' , pos-b') a≤b = handle (NonNeg-diffℚ a' b' a≤b)
-  where
-  handle : NonNeg (diffℚ a' b') -> _
-  handle (inj-l pd) = weaken-< (r1/-Pos-flips-order a b (Pos-diffℚ⁻ a' b' pd))
-  handle (inj-r zd) = =->≤ (sym path)
+  r1/-Pos-flips-order : (a b : ℚ⁺) -> ⟨ a ⟩ < ⟨ b ⟩ ->
+                        (r1/ ⟨ b ⟩ (Pos->Inv (snd b))) < (r1/ ⟨ a ⟩ (Pos->Inv (snd a)))
+  r1/-Pos-flips-order (a , pos-a) (b , pos-b) a<b =
+    Pos-diffℚ⁻ b' a' (subst Pos path pos-prod)
     where
-    a==b = zero-diff->path a' b' zd
+    inv-a = (Pos->Inv pos-a)
+    inv-b = (Pos->Inv pos-b)
+    a' = r1/ a inv-a
+    b' = r1/ b inv-b
+    pos-a' = r1/-preserves-Pos a inv-a pos-a
+    pos-b' = r1/-preserves-Pos b inv-b pos-b
 
-    path : (r1/ a' (Pos->Inv pos-a')) == (r1/ b' (Pos->Inv pos-b'))
-    path i = (r1/ (a==b i) (Pos->Inv (isProp->PathP (\ j -> isProp-Pos (a==b j)) pos-a' pos-b' i)))
+    pos-a'b' : Pos (a' r* b')
+    pos-a'b' = r*₁-preserves-sign (_ , pos-a') b' {pos-sign} pos-b'
+
+    pos-prod : Pos ((a' r* b') r* (b r+ (r- a)))
+    pos-prod = r*₁-preserves-sign ((a' r* b') , pos-a'b') (b r+ (r- a)) {pos-sign} (Pos-diffℚ a b a<b)
+
+    path : (a' r* b') r* (b r+ (r- a)) == a' r+ (r- b')
+    path =
+      *-distrib-+-left >=>
+      +-cong (*-assoc >=> *-right (r1/-inverse b inv-b) >=> *-right-one)
+             (r*-minus-extract-right _ _ >=>
+              cong r-_ (*-left *-commute >=> *-assoc >=>
+                        *-right (r1/-inverse a inv-a) >=> *-right-one))
+
+  r1/-Pos-flips-≤ : (a b : ℚ⁺) -> ⟨ a ⟩ ℚ≤ ⟨ b ⟩ ->
+                    (r1/ ⟨ b ⟩ (Pos->Inv (snd b))) ℚ≤ (r1/ ⟨ a ⟩ (Pos->Inv (snd a)))
+  r1/-Pos-flips-≤ a@(a' , pos-a') b@(b' , pos-b') a≤b = handle (NonNeg-diffℚ a' b' a≤b)
+    where
+    handle : NonNeg (diffℚ a' b') -> _
+    handle (inj-l pd) = weaken-< (r1/-Pos-flips-order a b (Pos-diffℚ⁻ a' b' pd))
+    handle (inj-r zd) = =->≤ (sym path)
+      where
+      a==b = zero-diff->path a' b' zd
+
+      path : (r1/ a' (Pos->Inv pos-a')) == (r1/ b' (Pos->Inv pos-b'))
+      path i = (r1/ (a==b i) (Pos->Inv (isProp->PathP (\ j -> isProp-Pos (a==b j)) pos-a' pos-b' i)))
 
 
 

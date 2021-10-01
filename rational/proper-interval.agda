@@ -27,25 +27,39 @@ private
     ℓ : Level
 
 record Iℚ : Type₀ where
+  no-eta-equality
   constructor Iℚ-cons
   field
     l : ℚ
     u : ℚ
     l≤u : l ℚ≤ u
 
-
 _i+_ : Iℚ -> Iℚ -> Iℚ
-_i+_ (Iℚ-cons l1 u1 l1≤u1) (Iℚ-cons l2 u2 l2≤u2 ) =
-  Iℚ-cons (l1 r+ l2) (u1 r+ u2) (+-preserves-≤ l1 u1 l2 u2 l1≤u1 l2≤u2)
+_i+_ a b = Iℚ-cons (a.l + b.l) (a.u + b.u) abs.lt
+  where
+  module a = Iℚ a
+  module b = Iℚ b
+  module abs where
+    abstract
+      lt : (a.l + b.l) ≤ (a.u + b.u)
+      lt = (+-preserves-≤ _ _ _ _ a.l≤u b.l≤u)
+
 
 Iℚ-bounds-path : {a b : Iℚ} -> (Iℚ.l a == Iℚ.l b) -> (Iℚ.u a == Iℚ.u b) -> a == b
-Iℚ-bounds-path {a} {b} pl pu = \i -> Iℚ-cons (pl i) (pu i) (p≤ i)
+Iℚ-bounds-path {a@(Iℚ-cons _ _ _)} {b@(Iℚ-cons _ _ _)} pl pu = a.path
   where
-  p≤ : PathP (\i -> (pl i) ℚ≤ (pu i)) (Iℚ.l≤u a) (Iℚ.l≤u b)
-  p≤ = isProp->PathP (\i -> isProp-ℚ≤ {pl i} {pu i}) (Iℚ.l≤u a) (Iℚ.l≤u b)
+  module a where
+    abstract
+      p≤ : PathP (\i -> (pl i) ℚ≤ (pu i)) (Iℚ.l≤u a) (Iℚ.l≤u b)
+      p≤ = isProp->PathP (\i -> isProp-ℚ≤ {pl i} {pu i}) (Iℚ.l≤u a) (Iℚ.l≤u b)
+
+      path : a == b
+      path i = Iℚ-cons (pl i) (pu i) (p≤ i)
 
 i-_ : Iℚ -> Iℚ
-i-_ (Iℚ-cons l u l≤u) = Iℚ-cons (r- u) (r- l) (minus-flips-≤ l u l≤u)
+i-_ a = Iℚ-cons (- a.u) (r- a.l) (minus-flips-≤ a.l a.u a.l≤u)
+  where
+  module a = Iℚ a
 
 i--double-inverse : {a : Iℚ} -> (i- (i- a)) == a
 i--double-inverse {Iℚ-cons l u l≤u} = Iℚ-bounds-path minus-double-inverse minus-double-inverse
@@ -60,30 +74,30 @@ i--double-inverse {Iℚ-cons l u l≤u} = Iℚ-bounds-path minus-double-inverse 
 1i = ℚ->Iℚ 1r
 
 NonNegI : Pred Iℚ ℓ-zero
-NonNegI (Iℚ-cons l _ _) = NonNeg l
+NonNegI a = NonNeg (Iℚ.l a)
 NonPosI : Pred Iℚ ℓ-zero
-NonPosI (Iℚ-cons _ u _) = NonPos u
+NonPosI a = NonPos (Iℚ.u a)
 CrossZeroI : Pred Iℚ ℓ-zero
-CrossZeroI (Iℚ-cons l u _) = NonPos l × NonNeg u
+CrossZeroI a = NonPos (Iℚ.l a) × NonNeg (Iℚ.u a)
 
 PosI : Pred Iℚ ℓ-zero
-PosI (Iℚ-cons l _ _) = Pos l
+PosI a = Pos (Iℚ.l a)
 NegI : Pred Iℚ ℓ-zero
-NegI (Iℚ-cons _ u _) = Neg u
+NegI a = Neg (Iℚ.u a)
 StrictCrossZeroI : Pred Iℚ ℓ-zero
-StrictCrossZeroI (Iℚ-cons l u _) = Neg l × Pos u
+StrictCrossZeroI a = Neg (Iℚ.l a) × Pos (Iℚ.u a)
 
 ConstantI : Pred Iℚ ℓ-zero
-ConstantI (Iℚ-cons l u _) = l == u
+ConstantI a = (Iℚ.l a) == (Iℚ.u a)
 
 ℚ∈Iℚ : ℚ -> Pred Iℚ ℓ-zero
-ℚ∈Iℚ q (Iℚ-cons l u _) = (l ℚ≤ q × q ℚ≤ u)
+ℚ∈Iℚ q a = (Iℚ.l a ≤ q) × (q ≤ Iℚ.u a)
 
 NonConstantI : Pred Iℚ ℓ-zero
-NonConstantI (Iℚ-cons l u _) = l < u
+NonConstantI a = Iℚ.l a < Iℚ.u a
 
 ZeroEndedI : Pred Iℚ ℓ-zero
-ZeroEndedI (Iℚ-cons l u _) = Zero l ⊎ Zero u
+ZeroEndedI a = Zero (Iℚ.l a) ⊎ Zero (Iℚ.u a)
 
 
 
@@ -98,11 +112,14 @@ i+-right-zero : (a : Iℚ) -> a i+ 0i == a
 i+-right-zero (Iℚ-cons l u _) = Iℚ-bounds-path (r+-right-zero l) (r+-right-zero u)
 
 _i∪_ : Iℚ -> Iℚ -> Iℚ
-_i∪_ (Iℚ-cons l1 u1 l1≤u1) (Iℚ-cons l2 u2 l2≤u2) =
-  (Iℚ-cons (minℚ l1 l2) (maxℚ u1 u2)
-           (trans-ℚ≤ {minℚ l1 l2} {u1} {maxℚ u1 u2}
-                     (trans-ℚ≤ {minℚ l1 l2} {l1} {u1} (minℚ-≤-left l1 l2) l1≤u1)
-                     (maxℚ-≤-left u1 u2)))
+_i∪_ a b = (Iℚ-cons (minℚ a.l b.l) (maxℚ a.u b.u) abs.lt)
+  where
+  module a = Iℚ a
+  module b = Iℚ b
+  module abs where
+    abstract
+      lt : (minℚ a.l b.l) ≤ (maxℚ a.u b.u)
+      lt = (trans-≤ (trans-≤ (minℚ-≤-left a.l b.l) a.l≤u) (maxℚ-≤-left a.u b.u))
 
 i∪-commute : (a b : Iℚ) -> a i∪ b == b i∪ a
 i∪-commute a b = Iℚ-bounds-path minℚ-commute maxℚ-commute
@@ -114,57 +131,74 @@ i∪-same : (a : Iℚ) -> a i∪ a == a
 i∪-same a = Iℚ-bounds-path minℚ-same maxℚ-same
 
 i-scale : ℚ -> Iℚ -> Iℚ
-i-scale k (Iℚ-cons l u l≤u) =
-  Iℚ-cons min max (trans-ℚ≤ {min} {k r* l} {max} (minℚ-≤-left (k r* l) (k r* u))
-                                                 (maxℚ-≤-left (k r* l) (k r* u)))
+i-scale k a =
+  Iℚ-cons min max abs.lt
   where
-  min = minℚ (k r* l) (k r* u)
-  max = maxℚ (k r* l) (k r* u)
+  module a = Iℚ a
+  min = minℚ (k * a.l) (k * a.u)
+  max = maxℚ (k * a.l) (k * a.u)
+  module abs where
+    abstract
+      lt : min ≤ max
+      lt = (trans-≤ (minℚ-≤-left (k * a.l) (k * a.u)) (maxℚ-≤-left (k * a.l) (k * a.u)))
 
 i-scale-NN : ℚ⁰⁺ -> Iℚ -> Iℚ
-i-scale-NN (k , nn-k) (Iℚ-cons l u l≤u) =
-  Iℚ-cons (k r* l) (k r* u) (*₁-preserves-≤ k l u (NonNeg-0≤ _ nn-k) l≤u)
+i-scale-NN (k , nn-k) a =
+  Iℚ-cons (k * a.l) (k * a.u) (*₁-preserves-≤ k a.l a.u (NonNeg-0≤ _ nn-k) a.l≤u)
+  where
+  module a = Iℚ a
 
 i-scale-NP : ℚ⁰⁻ -> Iℚ -> Iℚ
-i-scale-NP (k , np-k) (Iℚ-cons l u l≤u) =
-  Iℚ-cons (k r* u) (k r* l) (*₁-flips-≤ k l u (NonPos-≤0 _ np-k) l≤u)
+i-scale-NP (k , np-k) a =
+  Iℚ-cons (k * a.u) (k * a.l) (*₁-flips-≤ k a.l a.u (NonPos-≤0 _ np-k) a.l≤u)
+  where
+  module a = Iℚ a
 
 i-scale-NN-path : (k : ℚ⁰⁺) -> (a : Iℚ) -> i-scale-NN k a == i-scale ⟨ k ⟩ a
 i-scale-NN-path (k , nn-k) (Iℚ-cons l u l≤u) = Iℚ-bounds-path (sym lp) (sym up)
   where
-  lp : minℚ (k r* l) (k r* u) == k r* l
-  lp = minℚ-left _ _ (*₁-preserves-≤ k l u (NonNeg-0≤ _ nn-k) l≤u)
-  up : maxℚ (k r* l) (k r* u) == k r* u
+  lp-1 : _
+  lp-1 = (NonNeg-0≤ _ nn-k)
+  lp-2 : _
+  lp-2 = (*₁-preserves-≤ k l u lp-1 l≤u)
+  lp : minℚ (k * l) (k * u) == k * l
+  lp = minℚ-left _ _ lp-2
+  up : maxℚ (k * l) (k * u) == k * u
   up = maxℚ-right _ _ (*₁-preserves-≤ k l u (NonNeg-0≤ _ nn-k) l≤u)
 
 i-scale-NP-path : (k : ℚ⁰⁻) -> (a : Iℚ) -> i-scale-NP k a == i-scale ⟨ k ⟩ a
 i-scale-NP-path (k , np-k) (Iℚ-cons l u l≤u) = Iℚ-bounds-path (sym lp) (sym up)
   where
-  lp : minℚ (k r* l) (k r* u) == k r* u
+  lp : minℚ (k * l) (k * u) == k * u
   lp = minℚ-right _ _ (*₁-flips-≤ k l u (NonPos-≤0 _ np-k) l≤u)
-  up : maxℚ (k r* l) (k r* u) == k r* l
+  up : maxℚ (k * l) (k * u) == k * l
   up = maxℚ-left _ _ (*₁-flips-≤ k l u (NonPos-≤0 _ np-k) l≤u)
 
 i-scale-1 : (a : Iℚ) -> i-scale 1r a == a
 i-scale-1 a = sym (i-scale-NN-path (1r , inj-l Pos-1r) a) >=>
-              Iℚ-bounds-path (r*-left-one _) (r*-left-one _)
+              Iℚ-bounds-path *-left-one *-left-one
 
 _i*_ : Iℚ -> Iℚ -> Iℚ
 _i*_ (Iℚ-cons l1 u1 _) i2 = (i-scale l1 i2) i∪ (i-scale u1 i2)
 
 i*-NN : (a b : Iℚ) -> (NonNegI a) -> (NonNegI b) -> Iℚ
-i*-NN (Iℚ-cons al au al≤au) (Iℚ-cons bl bu bl≤bu) nn-al nn-bl =
-  Iℚ-cons (al r* bl) (au r* bu)
-          (trans-ℚ≤ {al r* bl} {al r* bu} {au r* bu}
-            (*₁-preserves-≤ al bl bu (NonNeg-0≤ _ nn-al) bl≤bu)
-            (*₂-preserves-≤ al au bu al≤au (NonNeg-0≤ _ (NonNeg-≤ bl bu nn-bl bl≤bu))))
+i*-NN a b nn-al nn-bl = Iℚ-cons (a.l * b.l) (a.u * b.u) abs.lt
+  where
+  module a = Iℚ a
+  module b = Iℚ b
+  module abs where
+    abstract
+      lt : (a.l * b.l) ≤ (a.u * b.u)
+      lt = (trans-≤
+             (*₁-preserves-≤ a.l b.l b.u (NonNeg-0≤ _ nn-al) b.l≤u)
+             (*₂-preserves-≤ a.l a.u b.u a.l≤u (NonNeg-0≤ _ (NonNeg-≤ b.l b.u nn-bl b.l≤u))))
 
 i*-NN-path : (a b : Iℚ) -> (nn-a : (NonNegI a)) -> (nn-b : (NonNegI b)) ->
              i*-NN a b nn-a nn-b == (a i* b)
 i*-NN-path a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-a nn-b =
-  Iℚ-bounds-path (sym (minℚ-left  (al r* bl) (au r* bl)
+  Iℚ-bounds-path (sym (minℚ-left (al * bl) (au * bl)
                                   (*₂-preserves-≤ al au bl al≤au (NonNeg-0≤ _ nn-bl))))
-                 (sym (maxℚ-right (al r* bu) (au r* bu)
+                 (sym (maxℚ-right (al * bu) (au * bu)
                                   (*₂-preserves-≤ al au bu al≤au (NonNeg-0≤ _ nn-bu)))) >=>
   cong2 _i∪_ (i-scale-NN-path (al , nn-al) b) (i-scale-NN-path (au , nn-au) b)
   where
@@ -176,78 +210,82 @@ i*-NN-path a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-a nn-b =
 i*-commute : (a b : Iℚ) -> a i* b == b i* a
 i*-commute (Iℚ-cons al au _) (Iℚ-cons bl bu _) = Iℚ-bounds-path l-path u-path
   where
-  l-path : minℚ (minℚ (al r* bl) (al r* bu)) (minℚ (au r* bl) (au r* bu)) ==
-           minℚ (minℚ (bl r* al) (bl r* au)) (minℚ (bu r* al) (bu r* au))
+  l-path : minℚ (minℚ (al * bl) (al * bu)) (minℚ (au * bl) (au * bu)) ==
+           minℚ (minℚ (bl * al) (bl * au)) (minℚ (bu * al) (bu * au))
   l-path = minℚ-assoc _ _ _ >=>
            cong (minℚ _) (sym (minℚ-assoc _ _ _) >=>
                           cong (\x -> minℚ x _) minℚ-commute >=>
                           minℚ-assoc _ _ _) >=>
            sym (minℚ-assoc _ _ _) >=>
-           cong2 minℚ (cong2 minℚ (r*-commute _ _) (r*-commute _ _))
-                      (cong2 minℚ (r*-commute _ _) (r*-commute _ _))
-  u-path : maxℚ (maxℚ (al r* bl) (al r* bu)) (maxℚ (au r* bl) (au r* bu)) ==
-           maxℚ (maxℚ (bl r* al) (bl r* au)) (maxℚ (bu r* al) (bu r* au))
+           cong2 minℚ (cong2 minℚ *-commute *-commute)
+                      (cong2 minℚ *-commute *-commute)
+  u-path : maxℚ (maxℚ (al * bl) (al * bu)) (maxℚ (au * bl) (au * bu)) ==
+           maxℚ (maxℚ (bl * al) (bl * au)) (maxℚ (bu * al) (bu * au))
   u-path = maxℚ-assoc _ _ _ >=>
            cong (maxℚ _) (sym (maxℚ-assoc _ _ _) >=>
                           cong (\x -> maxℚ x _) maxℚ-commute >=>
                           maxℚ-assoc _ _ _) >=>
            sym (maxℚ-assoc _ _ _) >=>
-           cong2 maxℚ (cong2 maxℚ (r*-commute _ _) (r*-commute _ _))
-                      (cong2 maxℚ (r*-commute _ _) (r*-commute _ _))
+           cong2 maxℚ (cong2 maxℚ *-commute *-commute)
+                      (cong2 maxℚ *-commute *-commute)
 
 i--scale : (a : Iℚ) -> i- a == i-scale (r- 1r) a
 i--scale a@(Iℚ-cons l u l≤u) = Iℚ-bounds-path lp up
   where
-  mu≤ml : ((r- 1r) r* u) ℚ≤ ((r- 1r) r* l)
+  mu≤ml : ((r- 1r) * u) ℚ≤ ((r- 1r) * l)
   mu≤ml = *₁-flips-≤ (r- 1r) l u (weaken-< (r--flips-sign _ pos-sign Pos-1r)) l≤u
 
 
-  lp : (r- u) == minℚ ((r- 1r) r* l) ((r- 1r) r* u)
-  lp = cong r-_ (sym (r*-left-one u)) >=>
-       sym (r*-minus-extract-left 1r u) >=>
-       sym (minℚ-right ((r- 1r) r* l) ((r- 1r) r* u) mu≤ml)
-  up : (r- l) == maxℚ ((r- 1r) r* l) ((r- 1r) r* u)
-  up = cong r-_ (sym (r*-left-one l)) >=>
-       sym (r*-minus-extract-left 1r l) >=>
-       sym (maxℚ-left ((r- 1r) r* l) ((r- 1r) r* u) mu≤ml)
+  lp : (r- u) == minℚ ((r- 1r) * l) ((r- 1r) * u)
+  lp = cong r-_ (sym *-left-one) >=>
+       sym minus-extract-left >=>
+       sym (minℚ-right ((r- 1r) * l) ((r- 1r) * u) mu≤ml)
+  up : (r- l) == maxℚ ((r- 1r) * l) ((r- 1r) * u)
+  up = cong r-_ (sym *-left-one) >=>
+       sym minus-extract-left >=>
+       sym (maxℚ-left ((r- 1r) * l) ((r- 1r) * u) mu≤ml)
 
 
 i-scale-distrib-∪ : (k : ℚ) (a b : Iℚ) ->
                     i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
-i-scale-distrib-∪ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
-  handle (decide-sign k)
+i-scale-distrib-∪ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) = a.path
   where
-  nn-case : NonNeg k -> i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
-  nn-case nn-k =
-    sym (i-scale-NN-path k⁺ (a i∪ b)) >=>
-    Iℚ-bounds-path lp up >=>
-    cong2 _i∪_ (i-scale-NN-path k⁺ a) (i-scale-NN-path k⁺ b)
-    where
-    k⁺ : ℚ⁰⁺
-    k⁺ = k , nn-k
-    lp : k r* (minℚ al bl) == minℚ (k r* al) (k r* bl)
-    lp = r*₁-distrib-min k⁺ al bl
-    up : k r* (maxℚ au bu) == maxℚ (k r* au) (k r* bu)
-    up = r*₁-distrib-max k⁺ au bu
+  module a where
+    abstract
+      nn-case : NonNeg k -> i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
+      nn-case nn-k =
+        sym (i-scale-NN-path k⁺ (a i∪ b)) >=>
+        Iℚ-bounds-path lp up >=>
+        cong2 _i∪_ (i-scale-NN-path k⁺ a) (i-scale-NN-path k⁺ b)
+        where
+        k⁺ : ℚ⁰⁺
+        k⁺ = k , nn-k
+        lp : k r* (minℚ al bl) == minℚ (k r* al) (k r* bl)
+        lp = r*₁-distrib-min k⁺ al bl
+        up : k r* (maxℚ au bu) == maxℚ (k r* au) (k r* bu)
+        up = r*₁-distrib-max k⁺ au bu
 
-  np-case : NonPos k -> i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
-  np-case np-k =
-    sym (i-scale-NP-path k⁻ (a i∪ b)) >=>
-    Iℚ-bounds-path up lp >=>
-    cong2 _i∪_ (i-scale-NP-path k⁻ a) (i-scale-NP-path k⁻ b)
-    where
-    k⁻ : ℚ⁰⁻
-    k⁻ = k , np-k
-    lp : k r* (minℚ al bl) == maxℚ (k r* al) (k r* bl)
-    lp = r*₁-flip-distrib-min k⁻ al bl
-    up : k r* (maxℚ au bu) == minℚ (k r* au) (k r* bu)
-    up = r*₁-flip-distrib-max k⁻ au bu
+      np-case : NonPos k -> i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
+      np-case np-k =
+        sym (i-scale-NP-path k⁻ (a i∪ b)) >=>
+        Iℚ-bounds-path up lp >=>
+        cong2 _i∪_ (i-scale-NP-path k⁻ a) (i-scale-NP-path k⁻ b)
+        where
+        k⁻ : ℚ⁰⁻
+        k⁻ = k , np-k
+        lp : k r* (minℚ al bl) == maxℚ (k r* al) (k r* bl)
+        lp = r*₁-flip-distrib-min k⁻ al bl
+        up : k r* (maxℚ au bu) == minℚ (k r* au) (k r* bu)
+        up = r*₁-flip-distrib-max k⁻ au bu
 
-  handle : Σ[ s ∈ Sign ] isSign s k ->
-           i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
-  handle (pos-sign  , pk) = nn-case (inj-l pk)
-  handle (zero-sign , zk) = nn-case (inj-r zk)
-  handle (neg-sign  , nk) = np-case (inj-l nk)
+      handle : Σ[ s ∈ Sign ] isSign s k ->
+               i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
+      handle (pos-sign  , pk) = nn-case (inj-l pk)
+      handle (zero-sign , zk) = nn-case (inj-r zk)
+      handle (neg-sign  , nk) = np-case (inj-l nk)
+
+      path : i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
+      path = handle (decide-sign k)
 
 i-scale-twice : (k1 k2 : ℚ) (a : Iℚ) -> i-scale k1 (i-scale k2 a) == i-scale (k1 r* k2) a
 i-scale-twice k1 k2 a =
@@ -349,16 +387,16 @@ i--extract-both a b = i--extract-left a (i- b) >=> cong i-_ (i--extract-right a 
 
 
 i-Lower : Iℚ -> Pred ℚ ℓ-zero
-i-Lower (Iℚ-cons l _ _) q = q ℚ≤ l
+i-Lower a q = q ℚ≤ (Iℚ.l a)
 
 i-Upper : Iℚ -> Pred ℚ ℓ-zero
-i-Upper (Iℚ-cons _ u _) q = u ℚ≤ q
+i-Upper a q = (Iℚ.u a) ℚ≤ q
 
 i∪-Lower : {q : ℚ} -> (a b : Iℚ) -> i-Lower a q -> i-Lower b q -> i-Lower (a i∪ b) q
-i∪-Lower a b q≤al q≤bl = minℚ-property (Iℚ.l a) (Iℚ.l b) q≤al q≤bl
+i∪-Lower {q} a b q≤al q≤bl = minℚ-property {P = q ≤_} (Iℚ.l a) (Iℚ.l b) q≤al q≤bl
 
 i∪-Upper : {q : ℚ} -> (a b : Iℚ) -> i-Upper a q -> i-Upper b q -> i-Upper (a i∪ b) q
-i∪-Upper a b au≤q bu≤q = maxℚ-property (Iℚ.u a) (Iℚ.u b) au≤q bu≤q
+i∪-Upper {q} a b au≤q bu≤q = maxℚ-property {P = _≤ q} (Iℚ.u a) (Iℚ.u b) au≤q bu≤q
 
 LowerUpper->Constant : {q : ℚ} -> (a : Iℚ) -> i-Lower a q -> i-Upper a q -> ConstantI a
 LowerUpper->Constant {q} (Iℚ-cons l u l≤u)  q≤l u≤q = antisym-ℚ≤ l≤u (trans-ℚ≤ {u} {q} {l} u≤q q≤l)
@@ -1186,25 +1224,28 @@ record _i⊆_ (a : Iℚ) (b : Iℚ) : Type₀ where
     u : Iℚ.u a ℚ≤ Iℚ.u b
 
 OrderedOverlap : (a b : Iℚ) -> Type₀
-OrderedOverlap (Iℚ-cons al au _) (Iℚ-cons bl bu _) = bl ℚ≤ au
+OrderedOverlap a b = (Iℚ.l b) ≤ (Iℚ.u a)
 
 Overlap : (a b : Iℚ) -> Type₀
 Overlap a b = OrderedOverlap a b × OrderedOverlap b a
 
 i-intersect : (a b : Iℚ) -> Overlap a b -> Iℚ
-i-intersect a@(Iℚ-cons l1 u1 l1≤u1) b@(Iℚ-cons l2 u2 l2≤u2) (l2≤u1 , l1≤u2) =
-  Iℚ-cons (maxℚ l1 l2) (minℚ u1 u2) ls≤us
+i-intersect a b (bl≤au , al≤bu) =
+  Iℚ-cons (maxℚ a.l b.l) (minℚ a.u b.u) ls≤us
   where
-  ls = maxℚ l1 l2
-  us = minℚ u1 u2
-  ls≤u1 : ls ℚ≤ u1
-  ls≤u1 = maxℚ-property l1 l2 l1≤u1 l2≤u1
+  module a = Iℚ a
+  module b = Iℚ b
 
-  ls≤u2 : ls ℚ≤ u2
-  ls≤u2 = maxℚ-property l1 l2 l1≤u2 l2≤u2
+  ls = maxℚ a.l b.l
+  us = minℚ a.u b.u
+  ls≤au : ls ℚ≤ a.u
+  ls≤au = maxℚ-property {P = _≤ a.u} a.l b.l a.l≤u bl≤au
+
+  ls≤bu : ls ℚ≤ b.u
+  ls≤bu = maxℚ-property {P = _≤ b.u} a.l b.l al≤bu b.l≤u
 
   ls≤us : ls ℚ≤ us
-  ls≤us = minℚ-property {P = ls ℚ≤_} u1 u2 ls≤u1 ls≤u2
+  ls≤us = minℚ-property {P = ls ℚ≤_} a.u b.u ls≤au ls≤bu
 
 i⊆-Lower : {a b : Iℚ} -> a i⊆ b -> (q : ℚ) -> i-Lower b q -> i-Lower a q
 i⊆-Lower {a} {b} (i⊆-cons bl≤al _) q q≤bl = trans-ℚ≤ {q} {Iℚ.l b} {Iℚ.l a} q≤bl bl≤al
@@ -1355,16 +1396,15 @@ i⊆-preserves-PosI (i⊆-cons bl≤al _) pos-bl = Pos-≤ _ _ pos-bl bl≤al
 
 -- Strict Inclusion
 record _i⊂_ (a : Iℚ) (b : Iℚ) : Type₀ where
+  no-eta-equality
   constructor i⊂-cons
   field
     l : Iℚ.l b < Iℚ.l a
     u : Iℚ.u a < Iℚ.u b
 
 trans-i⊂ : {a b c : Iℚ} -> a i⊂ b -> b i⊂ c -> a i⊂ c
-trans-i⊂ {Iℚ-cons al au _} {Iℚ-cons bl bu _} {Iℚ-cons cl cu _} a⊂b b⊂c = record
-  { l = trans-< {_} {_} {_} {cl} {bl} {al} (_i⊂_.l b⊂c) (_i⊂_.l a⊂b)
-  ; u = trans-< {_} {_} {_} {au} {bu} {cu} (_i⊂_.u a⊂b) (_i⊂_.u b⊂c)
-  }
+trans-i⊂ (i⊂-cons ab-l ab-u) (i⊂-cons bc-l bc-u) =
+  i⊂-cons (trans-< bc-l ab-l) (trans-< ab-u bc-u)
 
 trans-i⊂-i⊆ : {a b c : Iℚ} -> a i⊂ b -> b i⊆ c -> a i⊂ c
 trans-i⊂-i⊆ {Iℚ-cons al au _} {Iℚ-cons bl bu _} {Iℚ-cons cl cu _} a⊂b b⊆c = record
@@ -1384,35 +1424,35 @@ i∪-preserves-⊂ {a@(Iℚ-cons al au _)} {b@(Iℚ-cons bl bu _)} {c@(Iℚ-cons
 
 i-scale-preserves-⊂ : {k : ℚ} {a b : Iℚ} -> NonZero k -> a i⊂ b -> (i-scale k a) i⊂ (i-scale k b)
 i-scale-preserves-⊂ {k} {(Iℚ-cons al au al≤au)} {(Iℚ-cons bl bu bl≤bu)} (inj-l pk) (i⊂-cons bl<al au<bu) =
-  i⊂-cons (subst2 _<_ (sym minb-path) (sym mina-path) (*₁-preserves-< k bl al pk bl<al))
-          (subst2 _<_ (sym maxa-path) (sym maxb-path) (*₁-preserves-< k au bu pk au<bu))
+  i⊂-cons (subst2 _<_ (sym minb-path) (sym mina-path) (*₁-preserves-< _ _ _ pk bl<al))
+          (subst2 _<_ (sym maxa-path) (sym maxb-path) (*₁-preserves-< _ _ _ pk au<bu))
   where
   minb-path : minℚ (k r* bl) (k r* bu) == k r* bl
-  minb-path = minℚ-left _ _ (*₁-preserves-≤ k bl bu (weaken-< pk) bl≤bu)
+  minb-path = minℚ-left _ _ (*₁-preserves-≤ _ _ _ (weaken-< pk) bl≤bu)
 
   mina-path : minℚ (k r* al) (k r* au) == k r* al
-  mina-path = minℚ-left _ _ (*₁-preserves-≤ k al au (weaken-< pk) al≤au)
+  mina-path = minℚ-left _ _ (*₁-preserves-≤ _ _ _ (weaken-< pk) al≤au)
 
   maxb-path : maxℚ (k r* bl) (k r* bu) == k r* bu
-  maxb-path = maxℚ-right _ _ (*₁-preserves-≤ k bl bu (weaken-< pk) bl≤bu)
+  maxb-path = maxℚ-right _ _ (*₁-preserves-≤ _ _ _ (weaken-< pk) bl≤bu)
 
   maxa-path : maxℚ (k r* al) (k r* au) == k r* au
-  maxa-path = maxℚ-right _ _ (*₁-preserves-≤ k al au (weaken-< pk) al≤au)
+  maxa-path = maxℚ-right _ _ (*₁-preserves-≤ _ _ _ (weaken-< pk) al≤au)
 i-scale-preserves-⊂ {k} {(Iℚ-cons al au al≤au)} {(Iℚ-cons bl bu bl≤bu)} (inj-r nk) (i⊂-cons bl<al au<bu) =
-  i⊂-cons (subst2 _<_ (sym minb-path) (sym mina-path) (*₁-flips-< k au bu nk au<bu))
-          (subst2 _<_ (sym maxa-path) (sym maxb-path) (*₁-flips-< k bl al nk bl<al))
+  i⊂-cons (subst2 _<_ (sym minb-path) (sym mina-path) (*₁-flips-< _ _ _ nk au<bu))
+          (subst2 _<_ (sym maxa-path) (sym maxb-path) (*₁-flips-< _ _ _ nk bl<al))
   where
   minb-path : minℚ (k r* bl) (k r* bu) == k r* bu
-  minb-path = minℚ-right _ _ (*₁-flips-≤ k bl bu (weaken-< nk) bl≤bu)
+  minb-path = minℚ-right _ _ (*₁-flips-≤ _ _ _ (weaken-< nk) bl≤bu)
 
   mina-path : minℚ (k r* al) (k r* au) == k r* au
-  mina-path = minℚ-right _ _ (*₁-flips-≤ k al au (weaken-< nk) al≤au)
+  mina-path = minℚ-right _ _ (*₁-flips-≤ _ _ _ (weaken-< nk) al≤au)
 
   maxb-path : maxℚ (k r* bl) (k r* bu) == k r* bl
-  maxb-path = maxℚ-left _ _ (*₁-flips-≤ k bl bu (weaken-< nk) bl≤bu)
+  maxb-path = maxℚ-left _ _ (*₁-flips-≤ _ _ _ (weaken-< nk) bl≤bu)
 
   maxa-path : maxℚ (k r* al) (k r* au) == k r* al
-  maxa-path = maxℚ-left _ _ (*₁-flips-≤ k al au (weaken-< nk) al≤au)
+  maxa-path = maxℚ-left _ _ (*₁-flips-≤ _ _ _ (weaken-< nk) al≤au)
 
 i*₁-preserves-⊂ : (a : Iℚ) -> (¬ (ZeroEndedI a)) -> {b c : Iℚ} -> b i⊂ c -> (a i* b) i⊂ (a i* c)
 i*₁-preserves-⊂ a@(Iℚ-cons al au _) ¬za {b} {c} b⊂c =
@@ -1462,7 +1502,7 @@ find-shrink-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     k = bl r* 1/al
 
     k<1 : k < 1r
-    k<1 = subst (k <_) (r*-commute al 1/al >=> r1/-inverse al al-inv)
+    k<1 = subst (k <_) (*-commute >=> r1/-inverse al al-inv)
                 (*₂-preserves-< bl al 1/al bl<al pos-1/al)
 
     p-k = r*₁-preserves-sign (bl , p-bl) _ {pos-sign} pos-1/al
@@ -1513,7 +1553,7 @@ find-shrink-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     k = bu r* 1/au
 
     k<1 : k < 1r
-    k<1 = subst (k <_) (r*-commute au 1/au >=> r1/-inverse au au-inv)
+    k<1 = subst (k <_) (*-commute >=> r1/-inverse au au-inv)
                 (*₂-flips-< au bu 1/au au<bu neg-1/au)
 
     p-k = r*₁-flips-sign (bu , n-bu) _ {neg-sign} neg-1/au
@@ -1541,7 +1581,7 @@ find-shrink-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     pu≤bu = subst (pu ℚ≤_) pu-path (refl-ℚ≤ {pu})
 
     al≤pl : al ℚ≤ pl
-    al≤pl = subst (_ℚ≤ pl) (r*-left-one al)
+    al≤pl = subst (_ℚ≤ pl) *-left-one
                   (*₂-flips-≤ k 1r al (weaken-< {d1 = k} k<1) (NonPos-≤0 _ np-al))
 
     bl≤pl : bl ℚ≤ pl
@@ -1638,7 +1678,7 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     pu≤bu = subst (pu ℚ≤_) pu-path (refl-ℚ≤ {pu})
 
     al≤pl : al ℚ≤ pl
-    al≤pl = subst (_ℚ≤ pl) (r*-left-one al)
+    al≤pl = subst (_ℚ≤ pl) *-left-one
                   (*₂-preserves-≤ 1r k al (weaken-< {d1 = 1r} 1<k) (NonNeg-0≤ _ nn-al))
 
     bl≤pl : bl ℚ≤ pl

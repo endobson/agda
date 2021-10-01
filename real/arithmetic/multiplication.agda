@@ -200,13 +200,13 @@ module _ (x y : ℝ)
         yi3 = i-intersect yi1 yi2 (ℝ∈Iℚ->Overlap y yi1 yi2 eyi1 eyi2)
 
         xi3⊆xi1 : xi3 i⊆ xi1
-        xi3⊆xi1 = i-intersect-⊆₁ _ _ _
+        xi3⊆xi1 = i-intersect-⊆₁ xi1 xi2 (ℝ∈Iℚ->Overlap x xi1 xi2 exi1 exi2)
         xi3⊆xi2 : xi3 i⊆ xi2
-        xi3⊆xi2 = i-intersect-⊆₂ _ _ _
+        xi3⊆xi2 = i-intersect-⊆₂ xi1 xi2 (ℝ∈Iℚ->Overlap x xi1 xi2 exi1 exi2)
         yi3⊆yi1 : yi3 i⊆ yi1
-        yi3⊆yi1 = i-intersect-⊆₁ _ _ _
+        yi3⊆yi1 = i-intersect-⊆₁ yi1 yi2 (ℝ∈Iℚ->Overlap y yi1 yi2 eyi1 eyi2)
         yi3⊆yi2 : yi3 i⊆ yi2
-        yi3⊆yi2 = i-intersect-⊆₂ _ _ _
+        yi3⊆yi2 = i-intersect-⊆₂ yi1 yi2 (ℝ∈Iℚ->Overlap y yi1 yi2 eyi1 eyi2)
 
         p1 = xi1 i* yi1
         p2 = xi2 i* yi2

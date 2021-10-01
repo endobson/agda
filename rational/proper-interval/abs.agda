@@ -27,10 +27,10 @@ open import truncation
 
 
 ImbalancedI : Pred Iℚ ℓ-zero
-ImbalancedI (Iℚ-cons l u _) = (- l) ℚ≤ u
+ImbalancedI a = (- (Iℚ.l a)) ≤ (Iℚ.u a)
 
 BalancedI : Pred Iℚ ℓ-zero
-BalancedI (Iℚ-cons l u _) = (- l) == u
+BalancedI a = (- (Iℚ.l a)) == (Iℚ.u a)
 
 BalancedI->ImbalancedI : (a : Iℚ) -> BalancedI a -> ImbalancedI a
 BalancedI->ImbalancedI a = =->≤
