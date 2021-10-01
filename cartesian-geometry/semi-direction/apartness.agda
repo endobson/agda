@@ -7,13 +7,7 @@ open import apartness
 open import apartness
 open import base
 open import cartesian-geometry.rotation
-open import cartesian-geometry.semi-direction hiding
-  ( _sd#_
-  ; sym-sd#
-  ; irrefl-sd#
-  ; tight-sd#
-  ; isProp-sd#
-  )
+open import cartesian-geometry.semi-direction
 open import cartesian-geometry.semi-rotation
 open import cartesian-geometry.vector
 open import equality

@@ -137,7 +137,7 @@ module _ (x y : ℝ)
         handle2 : Σ[ a' ∈ ℚ ] (NonZero a' × a < a' × x.L a') ->
                   Σ[ b' ∈ ℚ ] (NonZero b' × b' < b × x.U b') ->
                   Σ[ c' ∈ ℚ ] (c < c' × y.L c') ->
-                  Σ[ d' ∈ ℚ ] (d' < d × y.U d') -> _
+                  Σ[ d' ∈ ℚ ] (d' < d × y.U d') -> Σ[ r ∈ ℚ ] (q < r × L r)
         handle2 (a' , nza' , a<a' , la') (b' , nzb' , b'<b , ub') (c' , c<c' , lc') (d' , d'<d , ud') =
           r , q<r , ∣ xi' , yi' , (la' , ub') , (lc' , ud') , refl-ℚ≤ {r} ∣
           where
@@ -166,7 +166,7 @@ module _ (x y : ℝ)
         handle2 : Σ[ a' ∈ ℚ ] (NonZero a' × a < a' × x.L a') ->
                   Σ[ b' ∈ ℚ ] (NonZero b' × b' < b × x.U b') ->
                   Σ[ c' ∈ ℚ ] (c < c' × y.L c') ->
-                  Σ[ d' ∈ ℚ ] (d' < d × y.U d') -> _
+                  Σ[ d' ∈ ℚ ] (d' < d × y.U d') -> Σ[ r ∈ ℚ ] (r < q × U r)
         handle2 (a' , nza' , a<a' , la') (b' , nzb' , b'<b , ub') (c' , c<c' , lc') (d' , d'<d , ud') =
           r , r<q , ∣ xi' , yi' , (la' , ub') , (lc' , ud') , refl-ℚ≤ {r} ∣
           where

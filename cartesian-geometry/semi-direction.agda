@@ -60,12 +60,10 @@ vector->semi-direction : (v : Vector) -> v v# 0v -> SemiDirection
 vector->semi-direction v v#0 = [ vector->direction v v#0 ]
 
 
-private
-
-  sym-SameSemiDirection : {d1 d2 : Direction} -> SameSemiDirection d1 d2 -> SameSemiDirection d2 d1
-  sym-SameSemiDirection (same-semi-direction-same p) = same-semi-direction-same (sym p)
-  sym-SameSemiDirection (same-semi-direction-flipped p) =
-    same-semi-direction-flipped (sym v--double-inverse >=> cong v-_ (sym p))
+sym-SameSemiDirection : {d1 d2 : Direction} -> SameSemiDirection d1 d2 -> SameSemiDirection d2 d1
+sym-SameSemiDirection (same-semi-direction-same p) = same-semi-direction-same (sym p)
+sym-SameSemiDirection (same-semi-direction-flipped p) =
+  same-semi-direction-flipped (sym v--double-inverse >=> cong v-_ (sym p))
 
 
 private
@@ -122,51 +120,6 @@ vector->semi-direction-v* v1 v1#0 v2 v2#0 k path =
   path2 i = vector->semi-direction (path i) (path3 i)
 
 
-private
-
-  same-semi-direction-distance : (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
-    semi-direction-distance d1 == semi-direction-distance d2
-  same-semi-direction-distance d1 d2 (same-semi-direction-same p) =
-    cong semi-direction-distance (direction-ext {d1} {d2} p)
-  same-semi-direction-distance d1 d2 (same-semi-direction-flipped p) = funExt f
-    where
-    f : (v : Vector) -> semi-direction-distance d1 v == semi-direction-distance d2 v
-    f v = cong absℝ dec1=-dec2 >=> absℝ-- _
-      where
-      d1=-d2 : d1 == (d- d2)
-      d1=-d2 = direction-ext p
-
-      dec1 : Axis -> ℝ
-      dec1 = (basis-decomposition (isBasis-direction-basis d1) v)
-
-      dec2 : Axis -> ℝ
-      dec2 = (basis-decomposition (isBasis-direction-basis d2) v)
-
-      check : dec1 x-axis == vector-index (rotate-vector (direction-diff d1 xaxis-dir) v) x-axis
-      check = direction-basis-decomposition d1 v x-axis
-
-      pd : (direction-diff d1 xaxis-dir) == add-half-rotation (direction-diff d2 xaxis-dir)
-      pd = cong (\d -> direction-diff d xaxis-dir) d1=-d2 >=>
-           direction-diff-minus-left _ _
-
-      dec1=-dec2 : dec1 y-axis == - (dec2 y-axis)
-      dec1=-dec2 =
-        direction-basis-decomposition d1 v y-axis >=>
-        cong (\v -> vector-index v y-axis)
-          (cong (\r -> rotate-vector r v) pd >=>
-           rotate-add-half-rotation (direction-diff d2 xaxis-dir) v) >=>
-        cong -_ (sym (direction-basis-decomposition d2 v y-axis))
-
-semi-direction-distance' : SemiDirection -> Vector -> ℝ
-semi-direction-distance' =
-  SemiDirectionElim.rec (isSetΠ \_ -> isSet-ℝ) semi-direction-distance same-semi-direction-distance
-
-semi-direction-distance'-v- : {v1 v2 : Vector} (sd : SemiDirection) -> v1 == (v- v2) ->
-  semi-direction-distance' sd v1 == semi-direction-distance' sd v2
-semi-direction-distance'-v- {v1} {v2} =
-  SemiDirectionElim.elimProp
-    (\_ -> (isPropΠ (\_ -> isSet-ℝ _ _)))
-    (\d -> semi-direction-distance-v- d {v1} {v2})
 
 
 private
@@ -210,101 +163,10 @@ private
                  p))
 
 
-  same-semi-direction-span-comp : (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
-                                   (direction-span-comp d1) == (direction-span-comp d2)
-  same-semi-direction-span-comp d1 d2 same-semi =
-    same-Subtype (\{v} -> handle same-semi {v})
-                 (\{v} -> handle (sym-SameSemiDirection same-semi) {v})
-    where
-    handle : {d1 d2 : Direction} -> SameSemiDirection d1 d2 -> {v : Vector} ->
-             (direction-span'-comp d1 v) -> (direction-span'-comp d2 v)
-    handle {d1} {d2} same {v} dis#0 =
-      subst (\ sd -> semi-direction-distance' sd v # 0#) (eq/ d1 d2 same) dis#0
-
 
 semi-direction-span : SemiDirection -> Subtype Vector ℓ-one
 semi-direction-span = SemiDirectionElim.rec isSet-Subtype direction-span same-semi-direction-span
 
-semi-direction-span-comp : SemiDirection -> Subtype Vector ℓ-one
-semi-direction-span-comp sd v = semi-direction-distance' sd v # 0# , isProp-#
-
 isLinearSubtype-semi-direction-span : (s : SemiDirection) -> isLinearSubtype (semi-direction-span s)
 isLinearSubtype-semi-direction-span =
   SemiDirectionElim.elimProp (\_ -> isProp-isLinearSubtype) isLinearSubtype-direction-span
-
-
--- Apartness
-private
-  sd#-direction : SemiDirection -> Direction -> hProp ℓ-one
-  sd#-direction sd (dv , _) = semi-direction-span-comp sd dv
-
-  sd#-direction-same-direction : (sd : SemiDirection) ->
-    (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
-    sd#-direction sd d1 == sd#-direction sd d2
-  sd#-direction-same-direction sd d1 d2 (same-semi-direction-same p) = ΣProp-path isProp-isProp path
-    where
-    path : ⟨ semi-direction-span-comp sd ⟨ d1 ⟩ ⟩ ==
-           ⟨ semi-direction-span-comp sd ⟨ d2 ⟩ ⟩
-    path = cong (\dv -> ⟨ semi-direction-span-comp sd dv ⟩) p
-
-  sd#-direction-same-direction sd d1 d2 (same-semi-direction-flipped p) = ΣProp-path isProp-isProp path
-    where
-    path : ⟨ semi-direction-span-comp sd ⟨ d1 ⟩ ⟩ ==
-           ⟨ semi-direction-span-comp sd ⟨ d2 ⟩ ⟩
-    path = cong (_# 0#) (semi-direction-distance'-v- sd p)
-
-  sd#-full : SemiDirection -> SemiDirection -> hProp ℓ-one
-  sd#-full sd1 =
-    SemiDirectionElim.rec isSet-hProp (sd#-direction sd1) (sd#-direction-same-direction sd1)
-
-_sd#_ : Rel SemiDirection ℓ-one
-_sd#_ sd1 sd2 = fst (sd#-full sd1 sd2)
-
-isProp-sd# : (sd1 sd2 : SemiDirection) -> isProp (sd1 sd# sd2)
-isProp-sd# sd1 sd2 = snd (sd#-full sd1 sd2)
-
-sym-sd# : Symmetric _sd#_
-sym-sd# {sd1} {sd2} =
-  SemiDirectionElim.elimProp2
-    (\sd1 sd2 -> isPropΠ (\(_ : sd1 sd# sd2) -> isProp-sd# sd2 sd1))
-    f sd1 sd2
-  where
-  f : (d1 d2 : Direction) -> [ d1 ] sd# [ d2 ] -> [ d2 ] sd# [ d1 ]
-  f d1 d2 = subst (_# 0#) (sym-semi-direction-distance d1 d2)
-
-
-tight-sd# : Tight _sd#_
-tight-sd# {sd1} {sd2} =
-  SemiDirectionElim.elimProp2
-    (\sd1 sd2 -> isPropΠ (\(_ : ¬ (sd1 sd# sd2)) -> isSet-SemiDirection sd1 sd2))
-    f sd1 sd2
-  where
-  f : (d1 d2 : Direction) -> ¬ ([ d1 ] sd# [ d2 ]) -> [ d1 ] == [ d2 ]
-  f d1 d2 ¬d1#d2 = eq/ d1 d2 (in-span->same-semi-direction d1 d2 in-span)
-    where
-    in-span : ⟨ direction-span d1 ⟨ d2 ⟩ ⟩
-    in-span = direction-span'-comp-tight d1 ⟨ d2 ⟩ ¬d1#d2
-
-
-irrefl-sd# : Irreflexive _sd#_
-irrefl-sd# {sd} = SemiDirectionElim.elimProp (\sd -> isProp¬ (sd sd# sd)) f sd
-  where
-  f : (d : Direction) -> ¬ ([ d ] sd# [ d ])
-  f d@(dv , _) = irrefl-path-# dis=0
-    where
-    dis=0 : semi-direction-distance d dv == 0#
-    dis=0 = direction-span->semi-direction-distance0 d dv (1# , v*-left-one)
-
-
---comparison-sd# : Comparison _sd#_
---comparison-sd# =
---  SemiDirectionElim.elimProp3 (\sd1 sd2 sd3 -> isPropΠ (\_ -> squash)) f
---  where
---  f : (d1 d2 d3 : Direction) -> ([ d1 ] sd# [ d3 ]) ->  ∥ ([ d1 ] sd# [ d2 ]) ⊎ ([ d2 ] sd# [ d3 ]) ∥
---  f d1 d2 d3 d1#d3 = ?
---    where
---    check : semi-direction-distance d1 ⟨ d3 ⟩ # 0#
---    check = d1#d3
---
---    check2 : semi-direction-distance d1 ⟨ d3 ⟩ # semi-direction-distance d1 ⟨ d2 ⟩
---    check2 = ?

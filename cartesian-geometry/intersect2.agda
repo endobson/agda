@@ -7,7 +7,7 @@ open import additive-group.instances.real
 open import apartness
 open import base
 open import cartesian-geometry
-open import cartesian-geometry.line hiding (ConvergentLines)
+open import cartesian-geometry.line
 open import cartesian-geometry.rotation
 open import cartesian-geometry.semi-direction
 open import cartesian-geometry.semi-direction.apartness
@@ -44,13 +44,6 @@ open import sum
 open import truncation
 open import vector-space
 open import vector-space.finite
-
-import int
-
-
-ConvergentLines : Rel Line ℓ-one
-ConvergentLines l1 l2 = (line-semi-direction l1) # (line-semi-direction l2)
-
 
 private
   module _ (p1 p2 : Point) (d1 d2 : Direction)

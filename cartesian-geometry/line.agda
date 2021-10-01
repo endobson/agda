@@ -3,10 +3,12 @@
 module cartesian-geometry.line where
 
 open import additive-group.instances.real
+open import apartness
 open import base
 open import cartesian-geometry
 open import cartesian-geometry.vector
 open import cartesian-geometry.semi-direction
+open import cartesian-geometry.semi-direction.apartness
 open import equality
 open import functions
 open import hlevel
@@ -94,7 +96,7 @@ ParallelLines : Rel Line ℓ-one
 ParallelLines l1 l2 = (line-semi-direction l1) == (line-semi-direction l2)
 
 ConvergentLines : Rel Line ℓ-one
-ConvergentLines l1 l2 = (line-semi-direction l1) sd# (line-semi-direction l2)
+ConvergentLines l1 l2 = (line-semi-direction l1) # (line-semi-direction l2)
 
 OnLine'-SameLine' : (l1 l2 : Line') -> SameLine' l1 l2 -> OnLine' l1 == OnLine' l2
 OnLine'-SameLine' l1 l2 (p2∈l1 , p1∈l2 , s1=s2) =
