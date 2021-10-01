@@ -109,11 +109,13 @@ private
 
 
 record _ℚ<_ (q : ℚ) (r : ℚ) : Type₀ where
+  no-eta-equality
   constructor ℚ<-cons
   field
     v : ℚ<-raw q r
 
 record _ℚ≤_ (q : ℚ) (r : ℚ) : Type₀ where
+  no-eta-equality
   constructor ℚ≤-cons
   field
     v : ℚ≤-raw q r
