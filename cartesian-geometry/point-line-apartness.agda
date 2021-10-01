@@ -25,6 +25,7 @@ open import vector-space.finite
 open import vector-space
 open import order
 open import subset
+open import sigma
 open import funext
 open import set-quotient
 
@@ -267,6 +268,13 @@ private
   semi-direction-distance' =
     SemiDirectionElim.rec (isSetΠ \_ -> isSet-ℝ) semi-direction-distance same-semi-direction-distance
 
+  0≤semi-direction-distance' : (sd : SemiDirection) -> (v : Vector) -> 0# ≤ semi-direction-distance' sd v
+  0≤semi-direction-distance' sd v =
+    SemiDirectionElim.elimProp
+      (\sd -> isProp-≤ _ (semi-direction-distance' sd v))
+      (\d -> (absℝ-≮0 _)) sd
+
+
   semi-direction-distance'-v- : {v1 v2 : Vector} (sd : SemiDirection) -> v1 == (v- v2) ->
     semi-direction-distance' sd v1 == semi-direction-distance' sd v2
   semi-direction-distance'-v- {v1} {v2} =
@@ -274,19 +282,34 @@ private
       (\_ -> (isPropΠ (\_ -> isSet-ℝ _ _)))
       (\d -> semi-direction-distance-v- d {v1} {v2})
 
-  same-semi-direction-span-comp : (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
-                                   (direction-span-comp d1) == (direction-span-comp d2)
-  same-semi-direction-span-comp d1 d2 same-semi =
-    same-Subtype (\{v} -> handle same-semi {v})
-                 (\{v} -> handle (sym-SameSemiDirection same-semi) {v})
-    where
-    handle : {d1 d2 : Direction} -> SameSemiDirection d1 d2 -> {v : Vector} ->
-             (direction-span'-comp d1 v) -> (direction-span'-comp d2 v)
-    handle {d1} {d2} same {v} dis#0 =
-      subst (\ sd -> semi-direction-distance' sd v # 0#) (eq/ d1 d2 same) dis#0
+  -- same-semi-direction-span-comp : (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
+  --                                  (direction-span-comp d1) == (direction-span-comp d2)
+  -- same-semi-direction-span-comp d1 d2 same-semi =
+  --   same-Subtype (\{v} -> handle same-semi {v})
+  --                (\{v} -> handle (sym-SameSemiDirection same-semi) {v})
+  --   where
+  --   handle : {d1 d2 : Direction} -> SameSemiDirection d1 d2 -> {v : Vector} ->
+  --            (direction-span'-comp d1 v) -> (direction-span'-comp d2 v)
+  --   handle {d1} {d2} same {v} dis#0 =
+  --     subst (\ sd -> semi-direction-distance' sd v # 0#) (eq/ d1 d2 same) dis#0
 
-  semi-direction-span-comp : SemiDirection -> Subtype Vector ℓ-one
-  semi-direction-span-comp sd v = semi-direction-distance' sd v # 0# , isProp-#
+  -- semi-direction-span-comp : SemiDirection -> Subtype Vector ℓ-one
+  -- semi-direction-span-comp sd v = semi-direction-distance' sd v # 0# , isProp-#
+
+  semi-direction-distance'0-Subtype : (sd : SemiDirection) -> Subtype Vector ℓ-one
+  semi-direction-distance'0-Subtype sd v =
+    (semi-direction-distance' sd v == 0#) , isSet-ℝ _ _
+
+
+  semi-direction-span=semi-direction-distance'0 : (sd : SemiDirection) ->
+    semi-direction-span sd == semi-direction-distance'0-Subtype sd
+  semi-direction-span=semi-direction-distance'0 sd =
+    SemiDirectionElim.elimProp
+      (\sd -> isSet-Subtype (semi-direction-span sd) (semi-direction-distance'0-Subtype sd))
+      (\d -> direction-span=semi-direction-distance0 d >=>
+             funExt (\v -> ΣProp-path isProp-isProp refl))
+      sd
+
 
   semi-direction-span->semi-direction-distance'0 :
     (sd : SemiDirection) (v : Vector) ->
@@ -312,8 +335,6 @@ private
                          isSet-ℝ (semi-direction-distance' sd (v1 v+ v2))
                                  (semi-direction-distance' sd v2)))
       (\d -> semi-direction-distance-cancel0 d v1 v2) sd
-
-
 
   point-line'-distance : Point -> Line' -> ℝ
   point-line'-distance p (lp , sd) = semi-direction-distance' sd (P-diff lp p)
@@ -344,29 +365,38 @@ private
 
 
   point-line-distance : Point -> Line -> ℝ
-  point-line-distance p l =
+  point-line-distance p =
     SetQuotientElim.rec Line' SameLine' isSet-ℝ
       (\ l -> point-line'-distance p l)
-      (\ l1 l2 sl -> point-line'-distance-SameLine' p l1 l2 sl) l
+      (\ l1 l2 sl -> point-line'-distance-SameLine' p l1 l2 sl)
+
+  0≤point-line-distance : (p : Point) -> (l : Line) -> 0# ≤ point-line-distance p l
+  0≤point-line-distance p =
+    SetQuotientElim.elimProp Line' SameLine' (\l -> isProp-≤ _ _)
+      (\(lp , sd) -> 0≤semi-direction-distance' sd (P-diff lp p))
+
+  point-line-distance0-Subtype : (l : Line) -> Subtype Point ℓ-one
+  point-line-distance0-Subtype l p =
+    (point-line-distance p l == 0#) , isSet-ℝ _ _
+
+
+  OnLine=point-line-distance0 : (l : Line) ->
+    OnLine l == point-line-distance0-Subtype l
+  OnLine=point-line-distance0 =
+    SetQuotientElim.elimProp Line' SameLine' (\l -> isSet-Subtype _ _)
+      (\l -> funExt (f l))
+    where
+    f : (l : Line') (p : Point) -> OnLine' l p == point-line-distance0-Subtype [ l ] p
+    f (lp , sd) p =
+      cong (\s -> s (P-diff lp p)) (semi-direction-span=semi-direction-distance'0 sd) >=>
+      ΣProp-path isProp-isProp refl
+
 
 
 OffLine : Line -> Subtype Point ℓ-one
 OffLine l p = 0# < point-line-distance p l , isProp-< _ _
 
-
-
--- module _
---   where
---   OffLine'-SameLine' : (l1 l2 : Line') -> SameLine' l1 l2 -> OffLine' l1 == OffLine' l2
---   OffLine'-SameLine' l1 l2 (p2∈l1 , p1∈l2 , s1=s2) =
---     same-Subtype (f p1∈l2 s1=s2) (f p2∈l1 (sym s1=s2))
---     where
---     f : {l1 l2 : Line'} -> ⟨ OnLine' l2 (line'-point l1) ⟩ ->
---         line'-semi-direction l1 == line'-semi-direction l2 ->
---         {d : Point} -> ⟨ OffLine' l1 d ⟩ -> ⟨ OffLine' l2 d ⟩
---     f {p1 , s1} {p2 , s2} p1∈l2 s1=s2 {d} d∉l1 = ?
---
---
---   OffLine : Line -> Subtype Point ℓ-one
---   OffLine =
---     SetQuotientElim.rec Line' SameLine' isSet-Subtype OnLine' OnLine'-SameLine'
+¬OffLine->OnLine : (l : Line) (p : Point) -> ¬ ⟨ OffLine l p ⟩ -> ⟨ OnLine l p ⟩
+¬OffLine->OnLine l p 0≮dis = subst (\s -> fst (s p)) (sym (OnLine=point-line-distance0 l)) dis=0
+  where
+  dis=0 = sym (strengthen-≤-≮ (0≤point-line-distance p l) 0≮dis)
