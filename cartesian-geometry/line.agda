@@ -33,7 +33,7 @@ record LineSegment (p1 p2 : Point) : Type₁ where
   no-eta-equality
   constructor line-segment-cons
   field
-    distinct : p1 P# p2
+    distinct : p1 # p2
 
 record RayFrom (p : Point) : Type₁ where
   no-eta-equality
@@ -127,4 +127,7 @@ yaxis-line = [ yaxis-line' ]
 
 line-segment->line : {p1 p2 : Point} -> LineSegment p1 p2 -> Line
 line-segment->line {p1} {p2} l =
-  [ p1 , (vector->semi-direction (P-diff p1 p2) (P#->P-diff#0 p1 p2 (LineSegment.distinct l))) ]
+  [ p1 , (vector->semi-direction (P-diff p1 p2) (p#->P-diff#0 p1 p2 (LineSegment.distinct l))) ]
+
+flip-line-segment : {a b : Point} -> LineSegment a b -> LineSegment b a
+flip-line-segment l = line-segment-cons (sym-# (LineSegment.distinct l))

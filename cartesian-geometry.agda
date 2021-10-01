@@ -58,12 +58,6 @@ P-ext : {p1 p2 : Point} -> ((a : Axis) -> P-coord p1 a == P-coord p2 a) -> p1 ==
 P-ext f i = record { x = f x-axis i ; y = f y-axis i }
 
 
-_P#_ : Point -> Point -> Type₁
-p1 P# p2 = ∥ (p1.x # p2.x) ⊎ (p1.y # p2.y) ∥
-  where
-  module p1 = Point p1
-  module p2 = Point p2
-
 abstract
   isSet-Point : isSet Point
   isSet-Point = isSet-Retract point-decons point-cons (\_ -> refl) (isSet× isSet-ℝ isSet-ℝ)
@@ -73,6 +67,42 @@ abstract
 
     point-cons : ℝ × ℝ -> Point
     point-cons (x , y) = record {x = x ; y = y}
+
+record _p#_ (a b : Point) : Type₁ where
+  no-eta-equality
+  constructor p#-cons
+  private
+    module a = Point a
+    module b = Point b
+  field
+    apart : ∥ (a.x # b.x) ⊎ (a.y # b.y) ∥
+
+private
+  isProp-p# : {p1 p2 : Point} -> isProp (p1 p# p2)
+  isProp-p# (p#-cons ap1) (p#-cons ap2) i = p#-cons (squash ap1 ap2 i)
+
+  sym-p# : Symmetric _p#_
+  sym-p# (p#-cons ap) = (p#-cons (∥-map (⊎-map sym-# sym-#) ap))
+
+  irrefl-p# : Irreflexive _p#_
+  irrefl-p# (p#-cons ap) = unsquash isPropBot (∥-map (either irrefl-# irrefl-#) ap)
+
+  comparison-p# : Comparison _p#_
+  comparison-p# a b c (p#-cons ap) =
+    ∥-bind (either (∥-map (⊎-map (p#-cons ∘ ∣_∣ ∘ inj-l) (p#-cons ∘ ∣_∣ ∘ inj-l)) ∘ comparison-# _ _ _)
+                   (∥-map (⊎-map (p#-cons ∘ ∣_∣ ∘ inj-r) (p#-cons ∘ ∣_∣ ∘ inj-r)) ∘ comparison-# _ _ _))
+            ap
+
+  tight-p# : Tight _p#_
+  tight-p# ¬p# = \i -> record {x = tight-# (¬p# ∘ p#-cons ∘ ∣_∣ ∘ inj-l) i ;
+                               y = tight-# (¬p# ∘ p#-cons ∘ ∣_∣ ∘ inj-r) i }
+
+instance
+  TightApartnessStr-Point : TightApartnessStr Point
+  TightApartnessStr-Point .TightApartnessStr._#_ = _p#_
+  TightApartnessStr-Point .TightApartnessStr.TightApartness-# =
+    tight-p# , (irrefl-p# , sym-p# , comparison-p#)
+  TightApartnessStr-Point .TightApartnessStr.isProp-# = \x y -> isProp-p#
 
 
 _P+_ : Point -> Point -> Point
@@ -131,8 +161,8 @@ P-diff-trans p1 p2 p3 = vector-ext (\{x-axis -> diff-trans ; y-axis -> diff-tran
 P-diff-anticommute : (p1 p2 : Point) -> P-diff p1 p2 == v- (P-diff p2 p1)
 P-diff-anticommute p1 p2 = vector-ext (\{x-axis -> diff-anticommute ; y-axis -> diff-anticommute})
 
-P#->P-diff#0 : (p1 p2 : Point) -> p1 P# p2 -> (P-diff p1 p2) # 0v
-P#->P-diff#0 p1 p2 = ∥-bind handle
+p#->P-diff#0 : (p1 p2 : Point) -> p1 p# p2 -> (P-diff p1 p2) # 0v
+p#->P-diff#0 p1 p2 (p#-cons ap) = ∥-bind handle ap
   where
   module p1 = Point p1
   module p2 = Point p2
@@ -145,6 +175,6 @@ P#->P-diff#0 p1 p2 = ∥-bind handle
 
 record Triangle (p1 p2 p3 : Point) : Type₁ where
   field
-    distinct12 : p1 P# p2
-    distinct23 : p2 P# p3
-    distinct31 : p3 P# p1
+    distinct12 : p1 p# p2
+    distinct23 : p2 p# p3
+    distinct31 : p3 p# p1

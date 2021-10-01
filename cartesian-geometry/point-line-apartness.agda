@@ -405,5 +405,5 @@ record NonCollinear (a b c : Point) : Type₁ where
   no-eta-equality
   constructor non-collinear-cons
   field
-    a#b : a P# b
+    a#b : a # b
     c#ab : ⟨ OffLine (line-segment->line (line-segment-cons a#b)) c ⟩
