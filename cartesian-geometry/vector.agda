@@ -540,6 +540,7 @@ direction-span d@(v , vl=1) v2 = direction-span' d v2 , isProp-direction-span
 
 isLinearSubtype-direction-span : (d : Direction) -> isLinearSubtype (direction-span d)
 isLinearSubtype-direction-span d = record
-  { closed-under-v+ = \ (k1 , p1) (k2 , p2) -> k1 + k2 , v*-distrib-+ >=> cong2 _v+_ p1 p2
+  { closed-under-0v = 0# , v*-left-zero
+  ; closed-under-v+ = \ (k1 , p1) (k2 , p2) -> k1 + k2 , v*-distrib-+ >=> cong2 _v+_ p1 p2
   ; closed-under-v* = \ k (k2 , p) -> k * k2 , v*-assoc >=> cong (k v*_) p
   }

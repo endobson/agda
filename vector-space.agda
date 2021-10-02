@@ -288,12 +288,17 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
 
   record isLinearSubtype  {ℓS : Level} (S : (Subtype V ℓS)) : Type (ℓ-max* 3 ℓS ℓV ℓK) where
     field
+      closed-under-0v : ⟨ S 0v ⟩
       closed-under-v+ : {v1 v2 : V} -> ⟨ S v1 ⟩ -> ⟨ S v2 ⟩ -> ⟨ S (v1 v+ v2) ⟩
       closed-under-v* : {v : V} (k : K) -> ⟨ S v ⟩ -> ⟨ S (k v* v) ⟩
 
   isProp-isLinearSubtype : {ℓS : Level} {S : (Subtype V ℓS)} -> isProp (isLinearSubtype S)
   isProp-isLinearSubtype {S = S} ls1 ls2 i = record
-    { closed-under-v+ =
+    { closed-under-0v =
+        snd (S 0v)
+          (isLinearSubtype.closed-under-0v ls1)
+          (isLinearSubtype.closed-under-0v ls2) i
+    ; closed-under-v+ =
       isPropΠ2 (\sv1 sv2 -> snd (S _))
         (isLinearSubtype.closed-under-v+ ls1)
         (isLinearSubtype.closed-under-v+ ls2) i
