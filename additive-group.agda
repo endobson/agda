@@ -2,11 +2,13 @@
 
 module additive-group where
 
+open import apartness
 open import base
 open import equality
 open import commutative-monoid
 open import group
 open import hlevel
+open import truncation
 
 record AdditiveCommMonoid {ℓ : Level} (D : Type ℓ) : Type ℓ where
   no-eta-equality
@@ -186,3 +188,54 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : Additi
 
     +-swap-diffᵉ : (a b c d : D) -> ((diff a b) + (diff c d)) == (diff (a + c) (b + d))
     +-swap-diffᵉ _ _ _ _ = +-swap-diff
+
+module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
+         (AG : AdditiveGroup ACM) (A : TightApartnessStr D) where
+  private
+    instance
+      IACM = ACM
+      IAG = AG
+      IA = A
+
+  record ApartAdditiveGroup : Type ℓ where
+    no-eta-equality
+    field
+      +-reflects-# : {d1 d2 d3 d4 : D} -> (d1 + d2) # (d3 + d4) -> ∥ (d1 # d3) ⊎ (d2 # d4) ∥
+
+module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
+         {AG : AdditiveGroup ACM} {A : TightApartnessStr D}
+         {{AAG : ApartAdditiveGroup AG A}} where
+  private
+    instance
+      IACM = ACM
+      IAG = AG
+      IA = A
+
+  abstract
+    +-reflects-# : {d1 d2 d3 d4 : D} -> (d1 + d2) # (d3 + d4) -> ∥ (d1 # d3) ⊎ (d2 # d4) ∥
+    +-reflects-# = ApartAdditiveGroup.+-reflects-# AAG
+
+    +₁-preserves-# : {a b c : D} -> (b # c) -> (a + b) # (a + c)
+    +₁-preserves-# {a} {b} {c} b#c =
+      unsquash isProp-# (∥-map handle (+-reflects-# ap))
+      where
+      ap : ((a + b) + (- a)) # ((a + c) + (- a))
+      ap = subst2 _#_ (sym +-right-zero >=> +-right (sym +-inverse) >=> sym +-assoc >=> +-left +-commute)
+                      (sym +-right-zero >=> +-right (sym +-inverse) >=> sym +-assoc >=> +-left +-commute)
+                      b#c
+      handle : ((a + b) # (a + c)) ⊎ ((- a) # (- a)) -> ((a + b) # (a + c))
+      handle (inj-l ap) = ap
+      handle (inj-r ap) = bot-elim (irrefl-# ap)
+
+    +₂-preserves-# : {a b c : D} -> (a # b) -> (a + c) # (b + c)
+    +₂-preserves-# a#b = subst2 _#_ +-commute +-commute (+₁-preserves-# a#b)
+
+
+    +-reflects-#0 : {a b : D} -> (a + b) # 0# -> ∥ (a # 0#) ⊎ (b # 0#) ∥
+    +-reflects-#0 {a} {b} ab#0 = +-reflects-# (subst ((a + b) #_) (sym +-right-zero) ab#0)
+
+    minus-reflects-# : {a b : D} -> a # b -> (- a) # (- b)
+    minus-reflects-# a#b =
+      subst2 _#_ (+-left +-commute >=> +-assoc >=> +-right (+-commute >=> +-inverse) >=> +-right-zero)
+                 (+-assoc >=> +-right (+-commute >=> +-inverse) >=> +-right-zero)
+                 (+₁-preserves-# (sym-# a#b))

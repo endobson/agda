@@ -91,25 +91,5 @@ module _ {ℓ : Level} {D : Type ℓ}
     *₂-reflects-= : {a b c : D} -> c # 0# -> (a * c) == (b * c) -> a == b
     *₂-reflects-= c#0 ac=bc = *₁-reflects-= c#0 (*-commute >=> ac=bc >=> *-commute)
 
-    +₁-preserves-# : {a b c : D} -> b # c -> (a + b) # (a + c)
-    +₁-preserves-# = eqFun +-#-equiv
-
-    +₂-preserves-# : {a b c : D} -> a # b -> (a + c) # (b + c)
-    +₂-preserves-# a#b = subst2 _#_ +-commute +-commute (+₁-preserves-# a#b)
-
     +₁-reflects-# : {a b c : D} -> (a + b) # (a + c) -> b # c
     +₁-reflects-# = eqInv +-#-equiv
-
-    +-reflects-#0 : {a b : D} -> (a + b) # 0# -> ∥ (a # 0#) ⊎ (b # 0#) ∥
-    +-reflects-#0 {a} {b} ab#0 = ∥-map handle (comparison-# _ a _ ab#0)
-      where
-      handle : ((a + b) # a) ⊎ (a # 0#) -> (a # 0#) ⊎ (b # 0#)
-      handle (inj-r a#0)  = inj-l a#0
-      handle (inj-l ab#a) = inj-r (+₁-reflects-# (subst2 _#_ refl (sym +-right-zero) ab#a))
-
-    minus-reflects-# : {a b : D} -> a # b -> (- a) # (- b)
-    minus-reflects-# a#b = subst2 _#_ R.*-left-minus-one R.*-left-minus-one
-                                      (*₁-preserves-# -1#0 a#b)
-      where
-      -1#0 : (- 1#) # 0#
-      -1#0 = subst2 _#_ +-left-zero +-inverse (+₂-preserves-# (sym-# 1#0))

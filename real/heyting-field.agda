@@ -11,6 +11,7 @@ open import equality
 open import equivalence
 open import isomorphism
 open import functions
+open import funext
 open import heyting-field
 open import rational
 open import rational.order
@@ -179,6 +180,24 @@ instance
   ℝField = record
     { f#-path = refl
     }
+
+  abstract
+    ApartAdditiveGroup-ℝ : ApartAdditiveGroup AdditiveGroup-ℝ TightApartnessStr-ℝ
+    ApartAdditiveGroup-ℝ = record
+      { +-reflects-# = +-reflects-#'
+      }
+      where
+      +-reflects-ℝ# : {a b c d : ℝ} -> (a + b) ℝ# (c + d) -> ∥ (a ℝ# c) ⊎ (b ℝ# d) ∥
+      +-reflects-ℝ# (inj-l ab<cd) = ∥-map (⊎-map inj-l inj-l) (+-reflects-< ab<cd)
+      +-reflects-ℝ# (inj-r ab>cd) = ∥-map (⊎-map inj-r inj-r) (+-reflects-< ab>cd)
+
+
+      +-reflects-#' : {a b c d : ℝ} -> (a + b) # (c + d) -> ∥ (a # c) ⊎ (b # d) ∥
+      +-reflects-#' {a} {b} {c} {d} =
+         subst (\ap -> (ap (a + b) (c + d)) -> ∥ (ap a c) ⊎ (ap b d) ∥)
+               (funExt (\a -> (funExt (\b -> (ua (<>-equiv-# a b))))))
+               +-reflects-ℝ#
+
 
 -- Here because we need the apartness
 module _ (x y : ℝ) where
