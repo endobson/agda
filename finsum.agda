@@ -36,9 +36,9 @@ private
     ℓ : Level
     A : Type ℓ
 
-module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
+module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} where
   private
-    CM = Semiring.+-CommMonoid S
+    CM = AdditiveCommMonoid.comm-monoid ACM
 
   finSumDep : (n : Nat) -> (f : (Fin n) -> D) -> D
   finSumDep = finMergeDep CM
@@ -74,7 +74,7 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
 
 
 private
-  module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
+  module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} where
     i<nSum : (n : Nat) -> (f : Nat -> D) -> D
     i<nSum n f = finSumDep n (\ (x , _) -> f x)
 

@@ -49,10 +49,7 @@ record Semiring {ℓ : Level} {Domain : Type ℓ} (ACM : AdditiveCommMonoid Doma
       }
 
     +-CommMonoid : CommMonoid Domain
-    +-CommMonoid = record
-      { ∙-commute = +-commute
-      ; isSet-Domain = isSet-Domain
-      }
+    +-CommMonoid = AdditiveCommMonoid.comm-monoid ACM
 
     *-Monoid : Monoid Domain
     *-Monoid = record

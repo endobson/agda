@@ -25,6 +25,8 @@ open import funext
 
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
   private
+    instance
+      IACM = ACM
     module S = Semiring S
     Divisors-flip-eq = flipDivisors-equiv
 

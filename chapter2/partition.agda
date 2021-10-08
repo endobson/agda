@@ -36,7 +36,7 @@ open import type-algebra
 open import univalence
 
 
-module _ {ℓ₁ : Level} {D : Type ℓ₁} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
+module _ {ℓ₁ : Level} {D : Type ℓ₁} {{ACM : AdditiveCommMonoid D}} where
   private
     sum = finiteSumᵉ
 

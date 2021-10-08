@@ -16,6 +16,8 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} {I : Type ℓI}
   where
   private
     module S = Semiring S
+    instance
+      IACM = ACM
 
   abstract
     finiteSum-* : {k : D} {f : I -> D} -> finiteSum (\i -> k * (f i)) == k * finiteSum f
