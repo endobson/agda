@@ -167,6 +167,7 @@ private
 semi-direction-span : SemiDirection -> Subtype Vector ℓ-one
 semi-direction-span = SemiDirectionElim.rec isSet-Subtype direction-span same-semi-direction-span
 
-isLinearSubtype-semi-direction-span : (s : SemiDirection) -> isLinearSubtype (semi-direction-span s)
-isLinearSubtype-semi-direction-span =
-  SemiDirectionElim.elimProp (\_ -> isProp-isLinearSubtype) isLinearSubtype-direction-span
+abstract
+  isLinearSubtype-semi-direction-span : (s : SemiDirection) -> isLinearSubtype (semi-direction-span s)
+  isLinearSubtype-semi-direction-span =
+    SemiDirectionElim.elimProp (\_ -> isProp-isLinearSubtype) isLinearSubtype-direction-span

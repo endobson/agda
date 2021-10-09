@@ -59,6 +59,9 @@ private
   dp-map2 : (D -> D -> D) -> (DP D I) -> (DP D I) -> (DP D I)
   dp-map2 f dp1 dp2 = wrap-dp (\i -> f (unwrap-dp dp1 i) (unwrap-dp dp2 i))
 
+  dp-ext : {dp1 dp2 : DP D I} -> ((i : I) -> (unwrap-dp dp1 i) == (unwrap-dp dp2 i)) -> dp1 == dp2
+  dp-ext = cong wrap-dp ∘ funExt
+
 direct-product-index : DP D I -> I -> D
 direct-product-index = unwrap-dp
 
@@ -89,6 +92,13 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} (M : Monoid D) (I : Type ℓI) wher
     ; ∙-right-ε = dp∙-right-ε
     }
 
+  Monoidʰ-direct-product-index :
+    (i : I) -> Monoidʰᵉ Monoid-DirectProduct M (\dp -> direct-product-index dp i)
+  Monoidʰ-direct-product-index i = record
+    { preserves-ε = refl
+    ; preserves-∙ = \x y -> refl
+    }
+
 
 module _ {ℓD ℓI : Level} {D : Type ℓD} (M : CommMonoid D) (I : Type ℓI) where
   private
@@ -104,6 +114,13 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} (M : CommMonoid D) (I : Type ℓI) 
     { monoid = MDP
     ; ∙-commute = dp∙-commute
     ; isSet-Domain = isSet-DirectProduct M.isSet-Domain
+    }
+
+  CommMonoidʰ-direct-product-index :
+    (i : I) -> CommMonoidʰᵉ CommMonoid-DirectProduct M (\dp -> direct-product-index dp i)
+  CommMonoidʰ-direct-product-index i = record
+    { preserves-ε = refl
+    ; preserves-∙ = \x y -> refl
     }
 
 
@@ -165,6 +182,60 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} (TD : TightApartnessStr D) (I : Typ
     ; TightApartness-# = (tight-dp# , (irrefl-dp# , sym-dp# , comparison-dp#))
     ; isProp-# = \_ _ -> squash
     }
+
+
+module _ {ℓK ℓI : Level} {K : Type ℓK} (ACM : AdditiveCommMonoid K) (I : Type ℓI) where
+  AdditiveCommMonoid-DirectProduct : AdditiveCommMonoid (DP K I)
+  AdditiveCommMonoid-DirectProduct = record
+    { comm-monoid = (CommMonoid-DirectProduct (AdditiveCommMonoid.comm-monoid ACM) I)
+    }
+
+module _ {ℓK ℓI : Level} {K : Type ℓK} {ACM : AdditiveCommMonoid K}
+         (AG : AdditiveGroup ACM) (I : Type ℓI) where
+  private
+    instance
+      ACM-DP = AdditiveCommMonoid-DirectProduct ACM I
+      IAG = AG
+
+    dp-_ : DP K I -> DP K I
+    dp-_ = dp-map1 -_
+
+    dp+-inverse : (v : DP K I) -> (v + (dp- v)) == 0#
+    dp+-inverse _ = dp-ext (\_ -> +-inverse)
+
+  AdditiveGroup-DirectProduct : AdditiveGroup ACM-DP
+  AdditiveGroup-DirectProduct = record
+    { -_ = dp-_
+    ; +-inverse = \{v} -> dp+-inverse v
+    }
+
+
+module _ {ℓK ℓI : Level} {K : Type ℓK}
+         {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
+         {TA : TightApartnessStr K} (AAG : ApartAdditiveGroup AG TA) (I : Type ℓI) where
+  private
+    instance
+      IACM = ACM
+      IAAG = AAG
+      ITA = TA
+      ACM-DP = AdditiveCommMonoid-DirectProduct ACM I
+      AAG-DP = AdditiveGroup-DirectProduct AG I
+      TA-DP = TightApartnessStr-DirectProduct TA I
+
+
+    dp+-reflects-# : {v1 v2 v3 v4 : DP K I} -> (v1 + v2) # (v3 + v4) -> ∥ (v1 # v3) ⊎ (v2 # v4) ∥
+    dp+-reflects-# {v1} {v2} {v3} {v4} = ∥-bind f
+      where
+      f : Σ[ i ∈ I ] ((unwrap-dp (v1 + v2) i) # (unwrap-dp (v3 + v4) i)) ->
+          ∥ (v1 # v3) ⊎ (v2 # v4) ∥
+      f (i , ap) = ∥-map (⊎-map (\ ap2 -> ∣ i , ap2 ∣) (\ ap2 -> ∣ i , ap2 ∣))
+                   (+-reflects-# ap)
+
+  ApartAdditiveGroup-DirectProduct : ApartAdditiveGroup AAG-DP TA-DP
+  ApartAdditiveGroup-DirectProduct = record
+    { +-reflects-# = dp+-reflects-#
+    }
+
 
 
 module _ {ℓK ℓI : Level} {K : Type ℓK}

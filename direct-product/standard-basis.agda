@@ -385,5 +385,19 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
     LinearlyIndependent-standard-basis a path i =
       cong (\v -> unwrap-dp v i) (sym (standard-basis-sum a) >=> path)
 
+  LinearlyFree-standard-basis : vsf.LinearlyFree standard-basis
+  LinearlyFree-standard-basis a = unsquash (isProp-v# _ _) ∘ ∥-map handle
+    where
+    handle : Σ[ i ∈ I ] (a i # 0#) -> vsf.scaled-vector-sum a standard-basis v# 0v
+    handle (i , ai#0) = ∣ i , subst (_# 0#) (sym path) ai#0 ∣
+      where
+      path : unwrap-dp (vsf.scaled-vector-sum a standard-basis) i == (a i)
+      path = cong (\v -> unwrap-dp v i) (standard-basis-sum a)
+
+
   isBasis-standard-basis : vsf.isBasis standard-basis
   isBasis-standard-basis = isSpanning-standard-basis , LinearlyIndependent-standard-basis
+
+  standard-basis-decomposition : {dp : DP K I} ->
+    dp == vector-sum (\i -> (unwrap-dp dp i) v* (standard-basis i))
+  standard-basis-decomposition {dp} = sym (standard-basis-sum _)

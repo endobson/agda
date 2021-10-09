@@ -2,32 +2,35 @@
 
 module cartesian-geometry.point-line-apartness where
 
-open import apartness
 open import additive-group
 open import additive-group.instances.real
+open import apartness
 open import base
-open import equality
-open import functions
 open import cartesian-geometry
 open import cartesian-geometry.line
 open import cartesian-geometry.rotation
 open import cartesian-geometry.semi-direction
 open import cartesian-geometry.vector
+open import equality
+open import equivalence
+open import functions
+open import funext
+open import hlevel
+open import order
 open import order.instances.real
 open import real
 open import real.arithmetic.absolute-value
 open import real.arithmetic.sqrt
 open import real.heyting-field
-open import ring.implementations.real
-open import hlevel
 open import relation
-open import vector-space.finite
-open import vector-space
-open import order
-open import subset
-open import sigma
-open import funext
+open import ring.implementations.real
+open import semiring
 open import set-quotient
+open import sigma
+open import subset
+open import truncation
+open import vector-space
+open import vector-space.finite
 
 private
   direction-basis : Direction -> Axis -> Vector
@@ -38,6 +41,16 @@ private
     transform-basis (isLinearTransformation-rotate-vector r)
                     (isEquiv-rotate-vector r)
                     isBasis-axis-basis
+    where
+    r = (direction-diff xaxis-dir d)
+
+
+  LinearlyFree-direction-basis : (d : Direction) -> LinearlyFree (direction-basis d)
+  LinearlyFree-direction-basis d =
+    transform-LinearlyFree
+      (isLinearTransformation-rotate-vector r)
+      (rotate-vector₁-preserves-# r)
+      LinearlyFree-axis-basis
     where
     r = (direction-diff xaxis-dir d)
 
@@ -218,6 +231,28 @@ private
     same-Subtype (\{v} -> direction-span->semi-direction-distance0 d v)
                  (\{v} -> semi-direction-distance0->direction-span d v)
 
+
+  private
+    semi-direction-distance#0->y#0 :
+      (d : Direction) (v : Vector) -> semi-direction-distance d v # 0# ->
+      basis-decomposition (isBasis-direction-basis d) v y-axis # 0#
+    semi-direction-distance#0->y#0 d v dis#0 =
+      eqFun (<>-equiv-# _ _) (absℝ-#0 _ (eqInv (<>-equiv-# _ _) dis#0))
+
+
+    semi-direction-distance#0->v#0 :
+      (d : Direction) (v : Vector) -> semi-direction-distance d v # 0# -> v # 0v
+    semi-direction-distance#0->v#0 d v sd#0 =
+      subst (_# 0#) (basis-decomposition-path (isBasis-direction-basis d)) ans
+      where
+      ans : scaled-vector-sum (basis-decomposition (isBasis-direction-basis d) v) (direction-basis d) #
+            0#
+      ans = LinearlyFree-direction-basis d
+             (basis-decomposition (isBasis-direction-basis d) v)
+             ∣ y-axis , semi-direction-distance#0->y#0 d v sd#0 ∣
+
+
+
   direction-span'-comp : Direction -> Pred Vector ℓ-one
   direction-span'-comp d v = semi-direction-distance d v # 0#
 
@@ -281,6 +316,14 @@ private
     SemiDirectionElim.elimProp
       (\_ -> (isPropΠ (\_ -> isSet-ℝ _ _)))
       (\d -> semi-direction-distance-v- d {v1} {v2})
+
+
+  semi-direction-distance'#0->v#0 :
+    (sd : SemiDirection) (v : Vector) -> semi-direction-distance' sd v # 0# -> v # 0v
+  semi-direction-distance'#0->v#0 =
+    SemiDirectionElim.elimProp
+      (\sd -> isPropΠ2 (\_ _ -> isProp-#))
+      semi-direction-distance#0->v#0
 
   -- same-semi-direction-span-comp : (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
   --                                  (direction-span-comp d1) == (direction-span-comp d2)
@@ -401,9 +444,81 @@ OffLine l p = 0# < point-line-distance p l , isProp-< _ _
   where
   dis=0 = sym (strengthen-≤-≮ (0≤point-line-distance p l) 0≮dis)
 
+module _
+  where
+  private
+    line-path : (p : Point) (l : Line) -> ⟨ OnLine l p ⟩ ->
+                l == [ p , line-semi-direction l ]
+    line-path p =
+      SetQuotientElim.elimProp Line' SameLine'
+        (\l -> isPropΠ (\_ -> isSet-Line l [ p , line-semi-direction l ]))
+        f
+      where
+      f : (l' : Line') -> ⟨ OnLine [ l' ] p ⟩ ->
+          Path Line ([ l' ]) ([ p , line-semi-direction [ l' ] ])
+      f l' on-line = eq/ _ _ (on-line , a.ans , refl)
+        where
+        sd : SemiDirection
+        sd = line'-semi-direction l'
+        lp : Point
+        lp = fst l'
+
+        module a where
+          abstract
+            -span : ⟨ semi-direction-span sd ((- 1#) v* (P-diff lp p)) ⟩
+            -span = (isLinearSubtype.closed-under-v* (isLinearSubtype-semi-direction-span sd)
+                      (- 1#) on-line)
+
+            path : (- 1#) v* (P-diff lp p) == (P-diff p lp)
+            path = v*-left-minus-one >=> sym (P-diff-anticommute p lp)
+
+
+            ans : ⟨ semi-direction-span sd (P-diff p lp) ⟩
+            ans = subst (\v -> ⟨ semi-direction-span sd v ⟩) path -span
+
+    canon-case : (p : Point) (l' : Line') -> ⟨ OffLine [ l' ] p ⟩ -> p # (line'-point l')
+    canon-case p (p2 , sd) off-lp = sym-# (P-diff#0->p# p2 p ans)
+      where
+      sd#0 : semi-direction-distance' sd (P-diff p2 p) # 0#
+      sd#0 = eqFun (<>-equiv-# _ _) (inj-r off-lp)
+      ans : (P-diff p2 p) # 0v
+      ans = semi-direction-distance'#0->v#0 sd (P-diff p2 p) sd#0
+
+  OffLine-OnLine-# : (l : Line) (p1 p2 : Point) -> ⟨ OffLine l p1 ⟩ -> ⟨ OnLine l p2 ⟩ -> p1 # p2
+  OffLine-OnLine-# l p1 p2 off-line on-line =
+    canon-case p1 l' (subst (\l -> ⟨ OffLine l p1 ⟩) (line-path p2 l on-line) off-line)
+    where
+    l' : Line'
+    l' = p2 , line-semi-direction l
+
+
+
+
+
+
+
+
 record NonCollinear (a b c : Point) : Type₁ where
   no-eta-equality
   constructor non-collinear-cons
   field
     a#b : a # b
     c#ab : ⟨ OffLine (line-segment->line (line-segment-cons a#b)) c ⟩
+
+sym₁₂-NonCollinear : {a b c : Point} -> NonCollinear a b c -> NonCollinear b a c
+sym₁₂-NonCollinear {a} {b} {c} (non-collinear-cons a#b c#ab) =
+  non-collinear-cons (sym-# a#b) (subst (\l -> ⟨ OffLine l c ⟩) p c#ab)
+  where
+  l' = (line-segment-cons a#b)
+  p : (line-segment->line l') == (line-segment->line (flip-line-segment l'))
+  p = sym (flip-line-segment-path l')
+
+-- sym₂₃-NonCollinear : {a b c : Point} -> NonCollinear a b c -> NonCollinear a c b
+-- sym₂₃-NonCollinear {a} {b} {c} nc =
+--   non-collinear-cons a#c ?
+--   where
+--   module nc = NonCollinear nc
+--   l'-ab = (line-segment-cons nc.a#b)
+--   l-ab = line-segment->line l'-ab
+--   a#c : a # c
+--   a#c = sym-# (OffLine-OnLine-# l-ab c a nc.c#ab (OnLine-line-segment-start l'-ab))

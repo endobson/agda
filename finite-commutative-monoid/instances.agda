@@ -58,6 +58,12 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
                                              (f zero-fin) ∙ (f (suc-fin zero-fin))
     finiteMerge-Fin2 f = eval (idEquiv _) f >=> sym ∙-assoc >=> ∙-right-ε
 
+    finiteMerge-FinSuc :
+      {n : Nat} (f : (Fin (suc n)) -> D) ->
+      finiteMerge' f == (f zero-fin) ∙ (finiteMerge' (f ∘ suc-fin))
+    finiteMerge-FinSuc f =
+      eval (idEquiv _) f >=> cong (f zero-fin ∙_) (sym (eval (idEquiv _) (f ∘ suc-fin)))
+
 
   module _ {ℓB : Level} {B : Type ℓB} {{FB : FinSetStr B}} where
     private

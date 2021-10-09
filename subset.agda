@@ -2,6 +2,7 @@
 
 module subset where
 
+open import apartness
 open import base
 open import cubical
 open import equality
@@ -27,11 +28,22 @@ module _ {ℓD ℓS : Level} {D : Type ℓD} (S : Subtype D ℓS) where
   ∉-Subtype : Type (ℓ-max ℓD ℓS)
   ∉-Subtype = Σ[ d ∈ D ] (¬ ⟨ S d ⟩)
 
-  isFiniteSubtype : Type _
+  isSingletonSubtype : Type (ℓ-max ℓD ℓS)
+  isSingletonSubtype = isContr ∈-Subtype
+
+  isFiniteSubtype : Type (ℓ-max ℓD ℓS)
   isFiniteSubtype = isFinSet ∈-Subtype
 
-  isFullSubtype : Type _
+  ∈-Subtype-ext : {e1 e2 : ∈-Subtype} -> ⟨ e1 ⟩ == ⟨ e2 ⟩ -> e1 == e2
+  ∈-Subtype-ext p = ΣProp-path (\{d} -> (snd (S d))) p
+
+  isFullSubtype : Type (ℓ-max ℓD ℓS)
   isFullSubtype = ∀ (d : D) -> ⟨ S d ⟩
+
+module _ {ℓD ℓS : Level} {D : Type ℓD} {{AD : TightApartnessStr D}} (S : Subtype D ℓS) where
+  isOpenSubtype : Type (ℓ-max ℓD ℓS)
+  isOpenSubtype = ∀ {d1 : D} -> ⟨ S d1 ⟩ -> (d2 : D) -> (⟨ S d2 ⟩ ⊎ (d1 # d2))
+
 
 isSet-Subtype : {ℓD ℓP : Level} {D : Type ℓD} -> isSet (Subtype D ℓP)
 isSet-Subtype = isSetΠ (\_ -> isSet-hProp)
@@ -43,6 +55,7 @@ Family D I = I -> D
 Family->Subtype : {ℓD ℓI : Level} -> {D : Type ℓD} -> {I : Type ℓI} ->
                    Family D I -> Subtype D (ℓ-max ℓD ℓI)
 Family->Subtype {I = I} f d = (∃[ i ∈ I ] (f i == d)) , squash
+
 
 
 -- A FinSubset is a finite amount of Ds

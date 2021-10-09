@@ -170,6 +170,15 @@ p#->P-diff#0 p1 p2 (p#-cons ap) = ∥-bind handle ap
   handle (inj-l x#x) = ∣ x-axis , subst2 _#_ refl +-inverse (sym-# (+₂-preserves-# x#x)) ∣
   handle (inj-r y#y) = ∣ y-axis , subst2 _#_ refl +-inverse (sym-# (+₂-preserves-# y#y)) ∣
 
+P-diff#0->p# : (p1 p2 : Point) -> (P-diff p1 p2) # 0v -> p1 p# p2
+P-diff#0->p# p1 p2 = p#-cons ∘ ∥-map handle
+  where
+  module p1 = Point p1
+  module p2 = Point p2
+  handle : Σ[ a ∈ Axis ] (vector-index (P-diff p1 p2) a # 0#) -> (p1.x # p2.x) ⊎ (p1.y # p2.y)
+  handle (x-axis , d#0) = inj-l (sym-# (subst2 _#_ diff-step +-right-zero (+₁-preserves-# d#0)))
+  handle (y-axis , d#0) = inj-r (sym-# (subst2 _#_ diff-step +-right-zero (+₁-preserves-# d#0)))
+
 
 -- Collinear : Point -> Point -> Point -> Type₁
 

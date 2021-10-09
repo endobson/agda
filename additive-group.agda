@@ -62,6 +62,16 @@ module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} where
     +-swap = +-assoc >=> +-right (sym +-assoc >=> +-left +-commute >=> +-assoc) >=> sym +-assoc
 
 
+module _ {ℓ₁ ℓ₂ : Level} {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+         {{ACM₁ : AdditiveCommMonoid D₁}}
+         {{ACM₂ : AdditiveCommMonoid D₂}} where
+  AdditiveCommMonoidʰ : (D₁ -> D₂) -> Type (ℓ-max ℓ₁ ℓ₂)
+  AdditiveCommMonoidʰ f =
+    CommMonoidʰᵉ (AdditiveCommMonoid.comm-monoid ACM₁)
+                 (AdditiveCommMonoid.comm-monoid ACM₂)
+                 f
+
+
 module _ {ℓ : Level} {D : Type ℓ} (ACM : AdditiveCommMonoid D) where
   private
     instance

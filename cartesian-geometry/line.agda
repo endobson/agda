@@ -56,20 +56,26 @@ line'-semi-direction (_ , s) = s
 OnLine' : Line' -> Subtype Point ℓ-one
 OnLine' (o , s) p = semi-direction-span s (P-diff o p)
 
--- OnLine'-self : (l : Line') -> ⟨ OnLine' l (line'-point l) ⟩
--- OnLine'-self (p , s) = subst (\v -> ⟨ semi-direction-span s v ⟩) (sym dpp) semi-direction-span-0v
---   where
---   semi-direction-span-0v : ⟨ semi-direction-span s 0v ⟩
---   semi-direction-span-0v = ?
---
---   dpp : P-diff p p == 0v
---   dpp = ?
+OnLine'-self : (l : Line') -> ⟨ OnLine' l (line'-point l) ⟩
+OnLine'-self (p , s) =
+  subst (\v -> ⟨ semi-direction-span s v ⟩) (sym dpp) semi-direction-span-0v
+  where
+  semi-direction-span-0v : ⟨ semi-direction-span s 0v ⟩
+  semi-direction-span-0v =
+    isLinearSubtype.closed-under-0v (isLinearSubtype-semi-direction-span s)
+
+  dpp : P-diff p p == 0v
+  dpp = cong (P-diff p) (sym (P-shift-0v p)) >=>
+        P-shift-step p 0v
 
 SameLine' : Rel Line' ℓ-one
 SameLine' l1@(p1 , s1) l2@(p2 , s2) = ⟨ OnLine' l1 p2 ⟩ × ⟨ OnLine' l2 p1 ⟩ × s1 == s2
 
 Line : Type ℓ-one
 Line = Line' / SameLine'
+
+isSet-Line : isSet Line
+isSet-Line = squash/
 
 line-semi-direction : Line -> SemiDirection
 line-semi-direction =
@@ -107,6 +113,7 @@ OnLine =
   SetQuotientElim.rec Line' SameLine' isSet-Subtype OnLine' OnLine'-SameLine'
 
 
+
 -- Standard lines
 
 direction-line' : Direction -> Line'
@@ -125,9 +132,47 @@ yaxis-line' = direction-line' yaxis-dir
 yaxis-line : Line
 yaxis-line = [ yaxis-line' ]
 
+
+line-segment->line' : {p1 p2 : Point} -> LineSegment p1 p2 -> Line'
+line-segment->line' {p1} {p2} l =
+  p1 , (vector->semi-direction (P-diff p1 p2) (p#->P-diff#0 p1 p2 (LineSegment.distinct l)))
+
 line-segment->line : {p1 p2 : Point} -> LineSegment p1 p2 -> Line
-line-segment->line {p1} {p2} l =
-  [ p1 , (vector->semi-direction (P-diff p1 p2) (p#->P-diff#0 p1 p2 (LineSegment.distinct l))) ]
+line-segment->line {p1} {p2} l = [ line-segment->line' l ]
+
+OnLine-line-segment-start :
+  {p1 p2 : Point} -> (l : LineSegment p1 p2) -> ⟨ OnLine (line-segment->line l) p1 ⟩
+OnLine-line-segment-start l =  OnLine'-self (line-segment->line' l)
+
+OnLine-line-segment-end :
+  {p1 p2 : Point} -> (l : LineSegment p1 p2) -> ⟨ OnLine (line-segment->line l) p2 ⟩
+OnLine-line-segment-end {p1} {p2} l =
+  vector-length (P-diff p1 p2) ,
+  sym (normalize-vector-path (P-diff p1 p2)
+                             (p#->P-diff#0 p1 p2 (LineSegment.distinct l)))
 
 flip-line-segment : {a b : Point} -> LineSegment a b -> LineSegment b a
 flip-line-segment l = line-segment-cons (sym-# (LineSegment.distinct l))
+
+flip-line-segment-path :
+  {a b : Point} -> (l : LineSegment a b) ->
+  (line-segment->line (flip-line-segment l)) == (line-segment->line l)
+flip-line-segment-path {p1} {p2} ls = eq/ _ _ sl
+  where
+  fls = (flip-line-segment ls)
+  l'1 = (line-segment->line' fls)
+  l'2 = (line-segment->line' ls)
+
+  d1 = (vector->direction (P-diff p1 p2) (p#->P-diff#0 p1 p2 (LineSegment.distinct ls)))
+  d2 = (vector->direction (P-diff p2 p1) (p#->P-diff#0 p2 p1 (LineSegment.distinct fls)))
+
+  same-sd : SameSemiDirection d2 d1
+  same-sd =
+    same-semi-direction-flipped
+      (sym (normalize-vector-v-'
+             (P-diff p1 p2) (p#->P-diff#0 p1 p2 (LineSegment.distinct ls))
+             (P-diff p2 p1) (p#->P-diff#0 p2 p1 (LineSegment.distinct fls))
+             (P-diff-anticommute p1 p2)))
+
+  sl : SameLine' l'1 l'2
+  sl = (OnLine-line-segment-end fls) , (OnLine-line-segment-end ls) , (eq/ _ _ same-sd)

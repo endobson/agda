@@ -7,6 +7,7 @@ open import additive-group.instances.real
 open import apartness
 open import base
 open import cartesian-geometry.vector
+open import cartesian-geometry.matrix
 open import cubical using (isEquiv ; I)
 open import commutative-monoid
 open import direct-product
@@ -39,6 +40,7 @@ open import solver
 open import subset
 open import sum
 open import truncation
+open import univalence
 open import vector-space
 open import vector-space.finite
 
@@ -616,6 +618,7 @@ isEquiv-rotate-vector r = snd (isoToEquiv i)
                  cong (\r -> rotate-vector r v) (r+-commute (r- r) r >=> r+-inverse r) >=>
                  rotate-vector-zero-rotation v
 
+
 rotate-vector-preserves-+ :
   (r : Rotation) (v1 v2 : Vector) ->
   rotate-vector r (v1 v+ v2) == rotate-vector r v1 v+ rotate-vector r v2
@@ -667,6 +670,15 @@ rotate-vector-preserves-* r@(rotation-cons dv _) k v = \i -> direct-product-cons
 isLinearTransformation-rotate-vector : (r : Rotation) -> isLinearTransformation (rotate-vector r)
 isLinearTransformation-rotate-vector r =
   is-linear-transformation (rotate-vector-preserves-+ r) (rotate-vector-preserves-* r)
+
+
+rotate-vector₁-preserves-# : {v1 v2 : Vector} -> (r : Rotation) -> v1 # v2 ->
+  rotate-vector r v1 # rotate-vector r v2
+rotate-vector₁-preserves-# r =
+  vector-lt-preserves-#
+    (isLinearTransformation-rotate-vector r)
+    (isEquiv-rotate-vector r)
+
 
 
 -- Rotate Direction

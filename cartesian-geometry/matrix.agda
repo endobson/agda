@@ -7,20 +7,28 @@ open import additive-group.instances.real
 open import apartness
 open import base
 open import cartesian-geometry.vector
+open import cubical using (isEquiv)
 open import direct-product
 open import equality
+open import equivalence
+open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
 open import finsum
 open import finsum.arithmetic
+open import functions
 open import funext
 open import heyting-field
 open import hlevel
+open import integral-domain
+open import integral-domain.instances.real
 open import real
 open import real.heyting-field
 open import relation
 open import ring
 open import ring.implementations.real
 open import semiring
+open import subset
+open import truncation
 open import vector-space
 
 -- Matrix : Row × Column
@@ -53,10 +61,28 @@ matrix-transpose m = matrix (\a1 a2 -> matrix-index m a2 a1)
 
 _mv*_ : Matrix -> Vector -> Vector
 _mv*_ m v =
-  direct-product-cons (\a -> (finiteSum (\a2 -> matrix-index m a a2 * (vector-index v a2))))
+  vector-cons (\a -> (finiteSum (\a2 -> matrix-index m a a2 * (vector-index v a2))))
 
 _m*_ : Matrix -> Matrix -> Matrix
 _m*_ m1 m2 = matrix (\a1 a2 -> axis-dot-product (matrix-row m1 a1) (matrix-column m2 a2))
+
+matrix-mv*-ext : {m1 m2 : Matrix} -> ((v : Vector) -> m1 mv* v == m2 mv* v) -> m1 == m2
+matrix-mv*-ext {m1} {m2} vp = matrix-ext f
+  where
+
+  m-path : (m : Matrix) (a1 a2 : Axis) ->
+    matrix-index m a1 a2 == vector-index (m mv* (axis-basis a2)) a1
+  m-path m _ x-axis =
+    sym (axis-merge _ >=> +-cong *-right-one *-right-zero >=> +-right-zero)
+  m-path m _ y-axis =
+    sym (axis-merge _ >=> +-cong *-right-zero *-right-one >=> +-left-zero)
+
+
+  f : (a1 a2 : Axis) -> (matrix-index m1 a1 a2 == matrix-index m2 a1 a2)
+  f a1 a2 =
+    m-path m1 a1 a2 >=>
+    cong (\v -> vector-index v a1) (vp (axis-basis a2)) >=>
+    sym (m-path m2 a1 a2)
 
 identity-matrix : Matrix
 identity-matrix .Matrix.f x-axis x-axis = 1#
@@ -114,6 +140,20 @@ mv*-assoc m1 m2 v = vector-ext f
            (*-right (sym (finiteMerge-Axis _ _))) >=>
     sym (finiteMerge-Axis _ _)
 
+mv*-right-zero : (m : Matrix) -> m mv* 0v == 0v
+mv*-right-zero m = vector-ext f
+  where
+  f : (a : Axis) -> vector-index (m mv* 0v) a == 0#
+  f a = finiteMerge-Axis _ _ >=> +-cong *-right-zero *-right-zero >=> +-right-zero
+
+mv*-reflects-#0 : (m : Matrix) (v : Vector) -> (m mv* v) # 0v -> v # 0v
+mv*-reflects-#0 m v = ∥-bind handle
+  where
+  handle : Σ[ a1 ∈ Axis ] (vector-index (m mv* v) a1 # 0#) -> v # 0v
+  handle (a1 , mva#0) = ∥-bind handle2 (finiteSum-#0 mva#0)
+    where
+    handle2 : Σ[ a2 ∈ Axis ] ((matrix-index m a1 a2 * vector-index v a2) # 0#) -> v # 0v
+    handle2 (a2 , mv#0) = ∣ (a2 , *₁-reflects-#0 mv#0) ∣
 
 isLinearTransformation-mv* : (m : Matrix) -> isLinearTransformation (m mv*_)
 isLinearTransformation-mv* m = is-linear-transformation preserves-+ preserves-*
@@ -132,6 +172,28 @@ isLinearTransformation-mv* m = is-linear-transformation preserves-+ preserves-*
 
 linear-transformation->matrix : {f : Vector -> Vector} -> (isLinearTransformation f) -> Matrix
 linear-transformation->matrix {f} _ = matrix (\a1 a2 -> vector-index (f (axis-basis a2)) a1)
+
+linear-transformation->matrix-path : {f : Vector -> Vector} (lt : isLinearTransformation f) ->
+  (linear-transformation->matrix lt mv*_) == f
+linear-transformation->matrix-path {f} lt = funExt (\v -> vector-ext (\a -> p v a))
+  where
+  p : (v : Vector) (a : Axis) ->
+      (vector-index (linear-transformation->matrix lt mv* v) a) == (vector-index (f v) a)
+  p v a = m-path >=> cong (\v -> vector-index v a) (sym fv-path)
+    where
+    v-path : v == vector-sum (\a -> (vector-index v a) v* (axis-basis a))
+    v-path = axis-basis-decomposition
+    fv-path : f v == vector-sum (\a -> (vector-index v a) v* (f (axis-basis a)))
+    fv-path =
+      cong f v-path >=>
+      (lt-preserves-vector-sum lt) >=>
+      cong vector-sum (funExt (\a -> lt-preserves-* lt _ _))
+
+    m-path : (vector-index (linear-transformation->matrix lt mv* v) a) ==
+             (vector-index (vector-sum (\a2 -> (vector-index v a2) v* (f (axis-basis a2)))) a)
+    m-path = cong finiteSum (funExt (\a2 -> *-commute)) >=>
+             (finiteMerge-homo-inject _ _ (AdditiveCommMonoidʰ-vector-index a))
+
 
 determinant : Matrix -> ℝ
 determinant m = diff (f x-axis y-axis * f y-axis x-axis) (f x-axis x-axis * f y-axis y-axis)
@@ -279,3 +341,109 @@ module _ (m : Matrix) (det#0 : determinant m # 0#) where
   det#0->isInvertible .isInvertibleMatrix.inv = inv
   det#0->isInvertible .isInvertibleMatrix.left-inverse = inv*m=id
   det#0->isInvertible .isInvertibleMatrix.right-inverse = m*inv=id
+
+MatrixKernel : Matrix -> Subtype Vector ℓ-one
+MatrixKernel m v = (m mv* v == 0v) , isSet-Vector _ _
+
+0∈MatrixKernel : (m : Matrix) -> ⟨ MatrixKernel m 0v ⟩
+0∈MatrixKernel m = mv*-right-zero m
+
+isInvertible->isSingleton-MatrixKernel : {m : Matrix} ->
+  isInvertibleMatrix m -> isSingletonSubtype (MatrixKernel m)
+isInvertible->isSingleton-MatrixKernel {m} inv-m =
+  (0v , 0∈MatrixKernel m) , isProp-ker _
+  where
+  module inv-m = isInvertibleMatrix inv-m
+  isProp-ker : isProp (∈-Subtype (MatrixKernel m))
+  isProp-ker (v1 , mv1=0) (v2 , mv2=0) = ∈-Subtype-ext (MatrixKernel m) v1=v2
+    where
+    v1=v2 : v1 == v2
+    v1=v2 =
+      sym (mv*-left-identity v1) >=>
+      cong (_mv* v1) (sym inv-m.left-inverse) >=>
+      mv*-assoc inv-m.inv m v1 >=>
+      cong (inv-m.inv mv*_) (mv1=0 >=> sym mv2=0) >=>
+      sym (mv*-assoc inv-m.inv m v2) >=>
+      cong (_mv* v2) (inv-m.left-inverse) >=>
+      (mv*-left-identity v2)
+
+isInvertible->mv*-preserves-#0 : {m : Matrix} ->
+  isInvertibleMatrix m -> {v : Vector} -> v # 0v ->
+  (m mv* v) # 0v
+isInvertible->mv*-preserves-#0 {m} inv-m {v} v#0 =
+  mv*-reflects-#0 i (m mv* v) (subst (_# 0v) p v#0)
+  where
+  i = isInvertibleMatrix.inv inv-m
+  i-path = isInvertibleMatrix.left-inverse inv-m
+  p = sym (mv*-left-identity v) >=>
+      cong (_mv* v) (sym i-path) >=>
+      mv*-assoc i m v
+
+isInvertible->mv*-preserves-# : {m : Matrix} ->
+  isInvertibleMatrix m -> {v1 v2 : Vector} -> v1 # v2 ->
+  (m mv* v1) # (m mv* v2)
+isInvertible->mv*-preserves-# {m} inv-m {v1} {v2} v1#v2 =
+  subst2 _#_ p +-left-zero (+₂-preserves-# mdiff#0)
+  where
+  diff#0 = subst2 _#_ refl +-inverse (+₂-preserves-# v1#v2)
+  mdiff#0 = isInvertible->mv*-preserves-#0 inv-m diff#0
+  p : (m mv* (diff v2 v1)) + (m mv* v2) == m mv* v1
+  p = sym (lt-preserves-+ (isLinearTransformation-mv* m) _ _) >=>
+      cong (m mv*_) (+-commute >=> diff-step)
+
+isInvertible-linear-transformation->matrix :
+  {f : Vector -> Vector} -> (lt : isLinearTransformation f) -> isEquiv f ->
+  isInvertibleMatrix (linear-transformation->matrix lt)
+isInvertible-linear-transformation->matrix {f} lt eq = record
+  { inv = mg
+  ; left-inverse = left-inverse
+  ; right-inverse = right-inverse
+  }
+  where
+  g : Vector -> Vector
+  g = isEqInv eq
+
+  g-preserves-+ : (v1 v2 : Vector) -> g (v1 + v2) == g v1 + g v2
+  g-preserves-+ v1 v2 =
+    cong g (+-cong (sym (isEqSec eq v1)) (sym (isEqSec eq v2)) >=>
+            sym (lt-preserves-+ lt (g v1) (g v2))) >=>
+    isEqRet eq _
+
+  g-preserves-* : (k : ℝ) (v : Vector) -> g (k v* v) == k v* (g v)
+  g-preserves-* k v =
+    cong g (v*-right (sym (isEqSec eq v)) >=>
+            sym (lt-preserves-* lt k (g v))) >=>
+    isEqRet eq _
+
+  lt2 : isLinearTransformation g
+  lt2 = record {preserves-+ = g-preserves-+ ; preserves-* = g-preserves-*}
+
+  mf = linear-transformation->matrix lt
+  mg = linear-transformation->matrix lt2
+
+  left-inverse : mg m* mf == identity-matrix
+  left-inverse = matrix-mv*-ext (\v ->
+    mv*-assoc mg mf v >=>
+    cong2 (\g f -> g (f v))
+      (linear-transformation->matrix-path lt2)
+      (linear-transformation->matrix-path lt) >=>
+    isEqRet eq _ >=>
+    sym (mv*-left-identity v))
+
+  right-inverse : mf m* mg == identity-matrix
+  right-inverse = matrix-mv*-ext (\v ->
+    mv*-assoc mf mg v >=>
+    cong2 (\f g -> f (g v))
+      (linear-transformation->matrix-path lt)
+      (linear-transformation->matrix-path lt2) >=>
+    isEqSec eq _ >=>
+    sym (mv*-left-identity v))
+
+
+vector-lt-preserves-# :
+  {f : Vector -> Vector} -> (lt : isLinearTransformation f) -> isEquiv f ->
+  {v1 v2 : Vector} -> v1 # v2 -> f v1 # f v2
+vector-lt-preserves-# {f} lt eq =
+  subst (\f -> {v1 v2 : Vector} -> v1 # v2 -> (f v1 # f v2))
+    (linear-transformation->matrix-path lt)
+    (isInvertible->mv*-preserves-# (isInvertible-linear-transformation->matrix lt eq))

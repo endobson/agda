@@ -45,9 +45,18 @@ module _ {ℓD : Level} {D : Type ℓD} {{TA : TightApartnessStr D}} where
   isProp-# : {d1 d2 : D} -> isProp (d1 # d2)
   isProp-# = TightApartnessStr.isProp-# TA _ _
 
-  StronglyInjective : Pred (D -> D) ℓD
-  StronglyInjective f = {d1 d2 : D} -> d1 # d2 -> f d1 # f d2
 
-  ∘-StronglyInjective : {f g : D -> D} -> StronglyInjective f -> StronglyInjective g ->
+module _ {ℓD1 ℓD2 : Level} {D1 : Type ℓD1} {D2 : Type ℓD2}
+         {{TA1 : TightApartnessStr D1}} {{TA2 : TightApartnessStr D2}}
+  where
+
+  StronglyInjective : Pred (D1 -> D2) (ℓ-max ℓD1 ℓD2)
+  StronglyInjective f = {a b : D1} -> a # b -> f a # f b
+
+module _ {ℓD1 ℓD2 ℓD3 : Level} {D1 : Type ℓD1} {D2 : Type ℓD2} {D3 : Type ℓD3}
+         {{TA1 : TightApartnessStr D1}} {{TA2 : TightApartnessStr D2}} {{TA3 : TightApartnessStr D3}}
+  where
+
+  ∘-StronglyInjective : {f : D2 -> D3} {g : D1 -> D2} -> StronglyInjective f -> StronglyInjective g ->
                         StronglyInjective (f ∘ g)
   ∘-StronglyInjective f' g' = f' ∘ g'

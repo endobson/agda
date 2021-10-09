@@ -118,10 +118,16 @@ isSet-Vector : isSet Vector
 isSet-Vector = isSet-DirectProduct isSet-ℝ
 
 instance
+  AdditiveCommMonoid-Vector : AdditiveCommMonoid Vector
+  AdditiveCommMonoid-Vector = AdditiveCommMonoid-DirectProduct AdditiveCommMonoid-ℝ Axis
+  AdditiveGroup-Vector : AdditiveGroup AdditiveCommMonoid-Vector
+  AdditiveGroup-Vector = AdditiveGroup-DirectProduct AdditiveGroup-ℝ Axis
   VectorSpaceStr-Vector : VectorSpaceStr ℝField Vector
   VectorSpaceStr-Vector = VectorSpaceStr-DirectProduct ℝField Axis
   ModuleSpaceStr-Vector = VectorSpaceStr.module-str VectorSpaceStr-Vector
   TightApartnessStr-Vector = ModuleStr.TightApartnessStr-V ModuleSpaceStr-Vector
+  ApartAdditiveGroup-Vector : ApartAdditiveGroup AdditiveGroup-Vector TightApartnessStr-Vector
+  ApartAdditiveGroup-Vector = ApartAdditiveGroup-DirectProduct ApartAdditiveGroup-ℝ Axis
 
 abstract
   axis-merge : {ℓ : Level} {D : Type ℓ} {CM : CommMonoid D} (f : Axis -> D) ->
@@ -143,6 +149,9 @@ abstract
     i .leftInv x-axis = refl
     i .leftInv y-axis = refl
 
+  AdditiveCommMonoidʰ-vector-index :
+    (a : Axis) -> AdditiveCommMonoidʰ (\v -> vector-index v a)
+  AdditiveCommMonoidʰ-vector-index = CommMonoidʰ-direct-product-index _ _
 
 conjugate-coords : (Axis -> ℝ) -> (Axis -> ℝ)
 conjugate-coords c x-axis = c x-axis
@@ -411,6 +420,21 @@ normalize-vector-v- v v#0 -v#0 =
   vl = (vector-length v)
   vl-inv = (inj-r (vector-length>0 v v#0))
 
+normalize-vector-v-' :
+   (v1 : Vector) -> (v1#0 : v1 v# 0v) ->
+   (v2 : Vector) -> (v2#0 : v2 v# 0v) ->
+   (v1 == (v- v2)) ->
+   v- (normalize-vector v1 v1#0) == (normalize-vector v2 v2#0)
+normalize-vector-v-' v1 v1#0 v2 v2#0 v1=-v2 =
+  sym (normalize-vector-v- v1 v1#0 -v1#0) >=>
+  cong2-dep normalize-vector -v1=v2 (isProp->PathP (\i -> isProp-#) -v1#0 v2#0)
+  where
+  -v1=v2 : (v- v1) == v2
+  -v1=v2 = cong v-_ v1=-v2 >=> v--double-inverse
+
+  -v1#0 : (v- v1) # 0v
+  -v1#0 = subst (_v# 0v) (sym -v1=v2) v2#0
+
 
 
 vector->direction : (v : Vector) -> v v# 0v -> Direction
@@ -488,13 +512,35 @@ axis-basis : Axis -> Vector
 axis-basis x-axis = xaxis-vector
 axis-basis y-axis = yaxis-vector
 
+private
+  standard-axis-basis : Family Vector Axis
+  standard-axis-basis = standard-basis ℝField Axis
+
+  axis-basis=standard-basis : axis-basis == standard-axis-basis
+  axis-basis=standard-basis = funExt (\a1 -> vector-ext (\a2 -> (sym (g a1 a2))))
+    where
+    s = standard-axis-basis
+    g : (a1 a2 : Axis) -> (direct-product-index (s a1) a2) == (direct-product-index (axis-basis a1) a2)
+    g x-axis x-axis = indicator-path (yes refl)
+    g x-axis y-axis = indicator-path (no x-axis≠y-axis)
+    g y-axis x-axis = indicator-path (no (x-axis≠y-axis ∘ sym))
+    g y-axis y-axis = indicator-path (yes refl)
+
+axis-basis-decomposition : {v : Vector} ->
+  v == vector-sum (\a -> (vector-index v a) v* (axis-basis a))
+axis-basis-decomposition {v} =
+  subst (\b -> v == vector-sum (\a -> (vector-index v a) v* (b a)))
+        (sym axis-basis=standard-basis)
+        (standard-basis-decomposition ℝField Axis)
+
+
 -- Doesn't use substitution on the spanning part so that it gets better computational behavior
 isBasis-axis-basis : isBasis axis-basis
 isBasis-axis-basis =
   transform-isSpanning-path (funExt f) (fst (isBasis-standard-basis ℝField Axis)) ,
   subst LinearlyIndependent (funExt f) (snd (isBasis-standard-basis ℝField Axis))
   where
-  s = standard-basis ℝField Axis
+  s = standard-axis-basis
   g : (a1 a2 : Axis) -> (direct-product-index (s a1) a2) == (direct-product-index (axis-basis a1) a2)
   g x-axis x-axis = indicator-path (yes refl)
   g x-axis y-axis = indicator-path (no x-axis≠y-axis)
@@ -503,6 +549,10 @@ isBasis-axis-basis =
 
   f : (a : Axis) -> s a == axis-basis a
   f a = \i -> direct-product-cons (\a2 -> g a a2 i)
+
+LinearlyFree-axis-basis : LinearlyFree axis-basis
+LinearlyFree-axis-basis =
+  subst LinearlyFree (sym axis-basis=standard-basis) (LinearlyFree-standard-basis ℝField Axis)
 
 v--preserves-# : {v1 v2 : Vector} -> v1 # v2 -> (v- v1) # (v- v2)
 v--preserves-# {v1} {v2} = ∥-map handle
@@ -544,3 +594,6 @@ isLinearSubtype-direction-span d = record
   ; closed-under-v+ = \ (k1 , p1) (k2 , p2) -> k1 + k2 , v*-distrib-+ >=> cong2 _v+_ p1 p2
   ; closed-under-v* = \ k (k2 , p) -> k * k2 , v*-assoc >=> cong (k v*_) p
   }
+
+direction-span-self : (d : Direction) -> ⟨ direction-span d ⟨ d ⟩ ⟩
+direction-span-self d = 1# , v*-left-one

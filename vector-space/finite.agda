@@ -205,6 +205,9 @@ module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK}
     instance
       IM1 = VectorSpaceStr.module-str VS1
       IM2 = VectorSpaceStr.module-str VS2
+      IACM = ACM
+      IVA1 = ModuleStr.TightApartnessStr-V IM1
+      IVA2 = ModuleStr.TightApartnessStr-V IM2
 
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
@@ -248,6 +251,20 @@ module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK}
       path = sym (isEqRet isEq-f (scaled-vector-sum a vs)) >=>
              (cong (isEqInv isEq-f) f-path) >=>
              (isEqRet isEq-f 0v)
+
+    transform-LinearlyFree :
+      {f : V1 -> V2} {vs : I -> V1} ->
+      isLinearTransformation f -> StronglyInjective f -> LinearlyFree vs -> LinearlyFree (f ∘ vs)
+    transform-LinearlyFree {f} {vs} lt inj-f vs-free a a#0 =
+      subst2 _v#_ (sym path1) (sym path2) (inj-f (vs-free a a#0))
+      where
+      path1 : scaled-vector-sum a (f ∘ vs) == f (scaled-vector-sum a vs)
+      path1 = cong vector-sum (funExt (\i -> sym (lt-preserves-* lt (a i) (vs i)))) >=>
+              sym (lt-preserves-vector-sum lt)
+
+      path2 : 0v == f 0v
+      path2 = sym (lt-preserves-0v lt)
+
 
     transform-basis : {f : V1 -> V2} {vs : I -> V1} ->
                       isLinearTransformation f -> isEquiv f ->
