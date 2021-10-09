@@ -44,9 +44,9 @@ module _ {ℓD ℓS : Level} {D : Type ℓD} {{AD : TightApartnessStr D}} (S : S
   isOpenSubtype : Type (ℓ-max ℓD ℓS)
   isOpenSubtype = ∀ {d1 : D} -> ⟨ S d1 ⟩ -> (d2 : D) -> (⟨ S d2 ⟩ ⊎ (d1 # d2))
 
-
-isSet-Subtype : {ℓD ℓP : Level} {D : Type ℓD} -> isSet (Subtype D ℓP)
-isSet-Subtype = isSetΠ (\_ -> isSet-hProp)
+abstract
+  isSet-Subtype : {ℓD ℓP : Level} {D : Type ℓD} -> isSet (Subtype D ℓP)
+  isSet-Subtype = isSetΠ (\_ -> isSet-hProp)
 
 -- Family of Ds indexed by I
 Family : {ℓD ℓI : Level} -> Type ℓD -> Type ℓI -> Type (ℓ-max ℓD ℓI)

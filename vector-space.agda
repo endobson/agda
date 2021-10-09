@@ -278,6 +278,9 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
   private
     instance
       IM = VectorSpaceStr.module-str VS
+      IACM = ACM
+      IAG = AG
+      IS = S
 
   private
     CommMonoid-V+ : CommMonoid V
@@ -291,6 +294,10 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
       closed-under-0v : ⟨ S 0v ⟩
       closed-under-v+ : {v1 v2 : V} -> ⟨ S v1 ⟩ -> ⟨ S v2 ⟩ -> ⟨ S (v1 v+ v2) ⟩
       closed-under-v* : {v : V} (k : K) -> ⟨ S v ⟩ -> ⟨ S (k v* v) ⟩
+
+    abstract
+      closed-under-v- : {v : V} -> ⟨ S v ⟩ -> ⟨ S (v- v) ⟩
+      closed-under-v- {v} sv = subst (\mv -> ⟨ S mv ⟩) v*-left-minus-one (closed-under-v* (- 1#) sv)
 
   isProp-isLinearSubtype : {ℓS : Level} {S : (Subtype V ℓS)} -> isProp (isLinearSubtype S)
   isProp-isLinearSubtype {S = S} ls1 ls2 i = record

@@ -71,6 +71,20 @@ OnLine'-self (p , s) =
 SameLine' : Rel Line' ℓ-one
 SameLine' l1@(p1 , s1) l2@(p2 , s2) = ⟨ OnLine' l1 p2 ⟩ × ⟨ OnLine' l2 p1 ⟩ × s1 == s2
 
+module _ {l1 l2 : Line'} where
+  private
+    p1 = line'-point l1
+    p2 = line'-point l2
+    sd1 = line'-semi-direction l1
+    sd2 = line'-semi-direction l2
+  simple-SameLine' : ⟨ OnLine' l1 p2 ⟩ -> sd1 == sd2 -> SameLine' l1 l2
+  simple-SameLine' ol sd1=sd2 = ol , ol2 , sd1=sd2
+    where
+    ol2 : ⟨ OnLine' l2 p1 ⟩
+    ol2 = subst (\v -> ⟨ semi-direction-span sd2 v ⟩) (sym (P-diff-anticommute p2 p1))
+            (isLinearSubtype.closed-under-v- (isLinearSubtype-semi-direction-span sd2)
+               (subst (\sd -> ⟨ semi-direction-span sd (P-diff p1 p2) ⟩) sd1=sd2 ol))
+
 Line : Type ℓ-one
 Line = Line' / SameLine'
 
@@ -111,6 +125,15 @@ OnLine'-SameLine' l1 l2 (p2∈l1 , p1∈l2 , s1=s2) =
 OnLine : Line -> Subtype Point ℓ-one
 OnLine =
   SetQuotientElim.rec Line' SameLine' isSet-Subtype OnLine' OnLine'-SameLine'
+
+
+abstract
+  OnLine-path : {p : Point} {l : Line} -> ⟨ OnLine l p ⟩ -> l == [ p , (line-semi-direction l) ]
+  OnLine-path {p} {l} =
+    SetQuotientElim.elimProp Line' SameLine'
+      (\l -> (isPropΠ (\(_ : ⟨ OnLine l p ⟩) -> isSet-Line l [ p , (line-semi-direction l)])))
+      (\l' ol' -> eq/ _ _ (simple-SameLine' ol' refl))
+      l
 
 
 

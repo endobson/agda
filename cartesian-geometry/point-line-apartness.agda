@@ -434,6 +434,57 @@ private
       cong (\s -> s (P-diff lp p)) (semi-direction-span=semi-direction-distance'0 sd) >=>
       ΣProp-path isProp-isProp refl
 
+  -- Parallel lines have the same distance
+
+  ParallelLines'-same-line-same-distance :
+    (l1 l2 : Line') -> line'-semi-direction l1 == line'-semi-direction l2 ->
+    (point-line-distance (line'-point l1) [ l2 ]) ==
+    (point-line-distance (line'-point l2) [ l1 ])
+  ParallelLines'-same-line-same-distance l1 l2 sd1=sd2 = ans
+    where
+    p1 = line'-point l1
+    p2 = line'-point l2
+    sd1 = line'-semi-direction l1
+    sd2 = line'-semi-direction l2
+    ans : semi-direction-distance' sd2 (P-diff p2 p1) == semi-direction-distance' sd1 (P-diff p1 p2)
+    ans =
+      cong (\sd -> semi-direction-distance' sd (P-diff p2 p1)) (sym sd1=sd2) >=>
+      semi-direction-distance'-v- sd1 (P-diff-anticommute p2 p1)
+
+  ParallelLines-same-line-same-distance :
+    (l1 l2 : Line) -> ParallelLines l1 l2 -> (p1 p2 : Point) ->
+    ⟨ OnLine l1 p1 ⟩ -> ⟨ OnLine l1 p2 ⟩ ->
+    point-line-distance p1 l2 == point-line-distance p2 l2
+  ParallelLines-same-line-same-distance l1 l2 sd1=sd2 p1 p2 ol1 ol2 =
+    SetQuotientElim.elimProp Line' SameLine'
+      (\l2 -> isPropΠ (\(_ : line-semi-direction l1 == line-semi-direction l2) ->
+                        isSet-ℝ (point-line-distance p1 l2) (point-line-distance p2 l2)))
+      f l2 sd1=sd2
+    where
+    sd1 = line-semi-direction l1
+    p1-canon' : Line'
+    p1-canon' = p1 , sd1
+    p2-canon' : Line'
+    p2-canon' = p2 , sd1
+    l1=p1-canon : l1 == [ p1-canon' ]
+    l1=p1-canon = OnLine-path ol1
+    l1=p2-canon : l1 == [ p2-canon' ]
+    l1=p2-canon = OnLine-path ol2
+
+    f : (l' : Line') -> line-semi-direction l1 == line-semi-direction [ l' ] ->
+        point-line-distance p1 [ l' ] == point-line-distance p2 [ l' ]
+    f l'@(lp , sd2) sd1=sd2 =
+      d1-path >=>
+      cong (point-line-distance lp) (sym l1=p1-canon >=> l1=p2-canon) >=>
+      sym d2-path
+      where
+      d1-path : point-line-distance p1 [ l' ] == point-line-distance lp [ p1-canon' ]
+      d1-path = ParallelLines'-same-line-same-distance p1-canon' l' sd1=sd2
+      d2-path : point-line-distance p2 [ l' ] == point-line-distance lp [ p2-canon' ]
+      d2-path = ParallelLines'-same-line-same-distance p2-canon' l' sd1=sd2
+
+
+
 
 
 OffLine : Line -> Subtype Point ℓ-one
@@ -498,6 +549,8 @@ module _
 
 
 
+
+
 record NonCollinear (a b c : Point) : Type₁ where
   no-eta-equality
   constructor non-collinear-cons
@@ -522,3 +575,6 @@ sym₁₂-NonCollinear {a} {b} {c} (non-collinear-cons a#b c#ab) =
 --   l-ab = line-segment->line l'-ab
 --   a#c : a # c
 --   a#c = sym-# (OffLine-OnLine-# l-ab c a nc.c#ab (OnLine-line-segment-start l'-ab))
+--
+--   l'-ac = (line-segment-cons a#c)
+--   l-ac = line-segment->line l'-ac
