@@ -91,6 +91,21 @@ infix 2 ∃-syntax
 
 syntax ∃-syntax A (λ x → B) = ∃[ x ∈ A ] B
 
+∃! : (A : Type ℓ₀) -> (B : A -> Type ℓ₁) -> Type (ℓ-max ℓ₀ ℓ₁)
+∃! A B = isContr (Σ A B)
+
+∃!-syntax : (A : Type ℓ₀) -> (B : A -> Type ℓ₁) -> Type (ℓ-max ℓ₀ ℓ₁)
+∃!-syntax = ∃!
+
+syntax ∃!-syntax A (λ x → B) = ∃![ x ∈ A ] B
+
+∃!-val : {A : Type ℓ₀} {B : A -> Type ℓ₁} -> ∃! A B -> A
+∃!-val = fst ∘ fst
+
+∃!-prop : {A : Type ℓ₀} {B : A -> Type ℓ₁} -> (p : ∃! A B) -> B (∃!-val p)
+∃!-prop = snd ∘ fst
+
+
 Inhabited : {A : Type ℓ₀} -> Pred A ℓ₁ -> Type (ℓ-max ℓ₀ ℓ₁)
 Inhabited {A = A} P = ∃ A P
 

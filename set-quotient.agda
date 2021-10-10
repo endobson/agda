@@ -77,6 +77,24 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
     p : (ar : A / R) -> isProp (C ar)
     p = elimProp (\_ -> isProp-isProp) (\a -> isContr->isProp (f a))
 
+
+  liftΠContr :
+    {ℓ₁ ℓ₂ : Level}
+    {C₁ : A / R -> Type ℓ₁}
+    {C₂ : A / R -> Type ℓ₂}
+    (f : (a : A) -> (C₁ [ a ]) -> isContr (C₂ [ a ])) ->
+    (ar : A / R) -> (C₁ ar) -> isContr (C₂ ar)
+  liftΠContr {C₁ = C₁} {C₂ = C₂} f =
+    \ar c1 -> g ar c1 , p ar c1 _
+    where
+    p : (ar : A / R) -> (C₁ ar) -> isProp (C₂ ar)
+    p =
+      elimProp (\_ -> isPropΠ (\_ -> isProp-isProp))
+        (\a c1 -> isContr->isProp (f a c1))
+
+    g : (ar : A / R) -> (C₁ ar) -> (C₂ ar)
+    g ar c1 = elimProp (\ar -> isPropΠ (\c1 -> p ar c1)) (\x c1 -> fst (f x c1)) ar c1
+
   liftContr2 : (f : (a1 a2 : A) -> isContr (C2 [ a1 ] [ a2 ])) ->
                (ar1 ar2 : A / R) -> isContr (C2 ar1 ar2)
   liftContr2 {C2 = C2} f ar1 ar2 =

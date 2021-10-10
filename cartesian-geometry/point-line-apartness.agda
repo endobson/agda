@@ -11,6 +11,7 @@ open import cartesian-geometry.line
 open import cartesian-geometry.rotation
 open import cartesian-geometry.semi-direction
 open import cartesian-geometry.vector
+open import cubical
 open import equality
 open import equivalence
 open import functions
@@ -436,11 +437,11 @@ private
 
   -- Parallel lines have the same distance
 
-  ParallelLines'-same-line-same-distance :
+  ParallelLines'-same-distance :
     (l1 l2 : Line') -> line'-semi-direction l1 == line'-semi-direction l2 ->
     (point-line-distance (line'-point l1) [ l2 ]) ==
     (point-line-distance (line'-point l2) [ l1 ])
-  ParallelLines'-same-line-same-distance l1 l2 sd1=sd2 = ans
+  ParallelLines'-same-distance l1 l2 sd1=sd2 = ans
     where
     p1 = line'-point l1
     p2 = line'-point l2
@@ -450,6 +451,37 @@ private
     ans =
       cong (\sd -> semi-direction-distance' sd (P-diff p2 p1)) (sym sd1=sd2) >=>
       semi-direction-distance'-v- sd1 (P-diff-anticommute p2 p1)
+
+  ParallelLines-different-lines-same-distance :
+    (l1 l2 : Line) -> ParallelLines l1 l2 -> (p1 p2 : Point) ->
+    ⟨ OnLine l1 p1 ⟩ -> ⟨ OnLine l2 p2 ⟩ ->
+    point-line-distance p1 l2 == point-line-distance p2 l1
+  ParallelLines-different-lines-same-distance l1 l2 sd1=sd2 p1 p2 =
+    SetQuotientElim.elimProp2 Line' SameLine'
+    (\l1 l2 -> isPropΠ3 (\(_ : line-semi-direction l1 == line-semi-direction l2)
+                          (_ : ⟨ OnLine l1 p1 ⟩) (_ : ⟨ OnLine l2 p2 ⟩) ->
+                          isSet-ℝ (point-line-distance p1 l2) (point-line-distance p2 l1)))
+    f
+    l1 l2 sd1=sd2
+    where
+    f : (l1 l2 : Line') -> ParallelLines [ l1 ] [ l2 ] ->
+        ⟨ OnLine [ l1 ] p1 ⟩ -> ⟨ OnLine [ l2 ] p2 ⟩ ->
+        (point-line-distance p1 [ l2 ]) == (point-line-distance p2 [ l1 ])
+    f l1 l2 sd1=sd2 ol1 ol2 =
+      cong (point-line-distance p1) l2=p2-canon >=>
+      ParallelLines'-same-distance p1-canon p2-canon (sd1=sd2) >=>
+      cong (point-line-distance p2) (sym l1=p1-canon)
+      where
+      sd1 = line'-semi-direction l1
+      sd2 = line'-semi-direction l2
+      p1-canon : Line'
+      p1-canon = p1 , sd1
+      p2-canon : Line'
+      p2-canon = p2 , sd2
+      l1=p1-canon : [ l1 ] == [ p1-canon ]
+      l1=p1-canon = OnLine-path ol1
+      l2=p2-canon : [ l2 ] == [ p2-canon ]
+      l2=p2-canon = OnLine-path ol2
 
   ParallelLines-same-line-same-distance :
     (l1 l2 : Line) -> ParallelLines l1 l2 -> (p1 p2 : Point) ->
@@ -461,27 +493,58 @@ private
                         isSet-ℝ (point-line-distance p1 l2) (point-line-distance p2 l2)))
       f l2 sd1=sd2
     where
-    sd1 = line-semi-direction l1
-    p1-canon' : Line'
-    p1-canon' = p1 , sd1
-    p2-canon' : Line'
-    p2-canon' = p2 , sd1
-    l1=p1-canon : l1 == [ p1-canon' ]
-    l1=p1-canon = OnLine-path ol1
-    l1=p2-canon : l1 == [ p2-canon' ]
-    l1=p2-canon = OnLine-path ol2
-
     f : (l' : Line') -> line-semi-direction l1 == line-semi-direction [ l' ] ->
-        point-line-distance p1 [ l' ] == point-line-distance p2 [ l' ]
-    f l'@(lp , sd2) sd1=sd2 =
-      d1-path >=>
-      cong (point-line-distance lp) (sym l1=p1-canon >=> l1=p2-canon) >=>
-      sym d2-path
-      where
-      d1-path : point-line-distance p1 [ l' ] == point-line-distance lp [ p1-canon' ]
-      d1-path = ParallelLines'-same-line-same-distance p1-canon' l' sd1=sd2
-      d2-path : point-line-distance p2 [ l' ] == point-line-distance lp [ p2-canon' ]
-      d2-path = ParallelLines'-same-line-same-distance p2-canon' l' sd1=sd2
+         point-line-distance p1 [ l' ] == point-line-distance p2 [ l' ]
+    f l'@(lp , _) sd= =
+      ParallelLines-different-lines-same-distance l1 [ l' ] sd= p1 lp ol1 (OnLine'-self l') >=>
+      sym (ParallelLines-different-lines-same-distance l1 [ l' ] sd= p2 lp ol2 (OnLine'-self l'))
+
+  ParallelLines-distance :
+    (l1 l2 : Line) -> ParallelLines l1 l2 -> ℝ
+  ParallelLines-distance l1 l2 par =
+    SetQuotientElim.elim Line' SameLine'
+      (\l1 -> isSetΠ (\(_ : ParallelLines l1 l2) -> isSet-ℝ))
+      (\(p , _) _ -> point-line-distance p l2)
+      proof
+      l1 par
+    where
+    proof : (l1' l2' : Line') -> (sl : SameLine' l1' l2') ->
+             (PathP (\i -> ParallelLines (eq/ l1' l2' sl i) l2 -> ℝ)
+               (\_ -> point-line-distance (line'-point l1') l2)
+               (\_ -> point-line-distance (line'-point l2') l2))
+    proof l1'@(p1 , _) l2'@(p2 , _) sl@(p2∈l1' , p1∈l2' , _) =
+      funExtDep
+        {B = (\l -> ParallelLines l l2)}
+        [ l1' ] [ l2' ]
+        (\par1 par2 ->
+          ParallelLines-same-line-same-distance [ l1' ] l2 par1 p1 p2 (OnLine'-self l1') p2∈l1')
+
+  ParallelLines'-∃!distance :
+    (l1 : Line') -> (l2 : Line) -> ParallelLines [ l1 ] l2 ->
+    ∃![ d ∈ ℝ ] ((p : Point) -> ⟨ OnLine [ l1 ] p ⟩ -> point-line-distance p l2 == d)
+  ParallelLines'-∃!distance l1'@(p1 , _) l2 par = val , prop val
+    where
+    val =
+     (point-line-distance p1 l2 ,
+       (\ p ol -> ParallelLines-same-line-same-distance [ l1' ] l2 par p p1 ol (OnLine'-self l1')))
+    f : (d1 d2 : ℝ) ->
+        ((p : Point) -> ⟨ OnLine [ l1' ] p ⟩ -> point-line-distance p l2 == d1) ->
+        ((p : Point) -> ⟨ OnLine [ l1' ] p ⟩ -> point-line-distance p l2 == d2) ->
+        d1 == d2
+    f d1 d2 g1 g2 = sym (g1 p1 (OnLine'-self l1')) >=> (g2 p1 (OnLine'-self l1'))
+
+    prop : isProp (Σ[ d ∈ ℝ ] ((p : Point) -> ⟨ OnLine [ l1' ] p ⟩ -> point-line-distance p l2 == d))
+    prop = uniqueProp->isPropΣ f (\d -> isPropΠ2 (\_ _ -> isSet-ℝ _ _))
+
+
+  ParallelLines-∃!distance :
+    (l1 l2 : Line) -> ParallelLines l1 l2 ->
+    ∃![ d ∈ ℝ ] ((p : Point) -> ⟨ OnLine l1 p ⟩ -> point-line-distance p l2 == d)
+  ParallelLines-∃!distance l1 l2 =
+    SetQuotientElim.liftΠContr Line' SameLine'
+      {C₁ = \l -> ParallelLines l l2}
+      {C₂ = \l -> Σ[ d ∈ ℝ ] ((p : Point) -> ⟨ OnLine l p ⟩ -> point-line-distance p l2 == d)}
+      (\l1 -> ParallelLines'-∃!distance l1 l2) l1
 
 
 
@@ -546,8 +609,20 @@ module _
 
 
 
+record NonCollinear' (a b c : Point) : Type₁ where
+  no-eta-equality
+  constructor non-collinear-cons
+  field
+    a#b : a # b
+    a#c : a # c
+    b#c : b # c
 
-
+  line-ab : Line
+  line-ab = (line-segment->line (line-segment-cons a#b))
+  line-ac : Line
+  line-ac = (line-segment->line (line-segment-cons a#c))
+  line-bc : Line
+  line-bc = (line-segment->line (line-segment-cons b#c))
 
 
 

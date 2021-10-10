@@ -64,5 +64,6 @@ module _ {ℓa ℓb ℓc : Level} {A : Type ℓa} {B : A -> Type ℓb} {C : Type
     f-path-right : f2 ∘ (transport refl) == f2
     f-path-right = funExt (\x -> cong f2 (transportRefl x))
 
-  funExtDep : PathP (\k -> (p k) -> C) f1 f2
-  funExtDep = transP-left (transP-right (sym f-path-left) f-path-t) f-path-right
+  abstract
+    funExtDep : PathP (\k -> (p k) -> C) f1 f2
+    funExtDep = transP-left (transP-right (sym f-path-left) f-path-t) f-path-right

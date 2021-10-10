@@ -12,7 +12,7 @@ open import hlevel.base
 private
   variable
     ℓ : Level
-    A : Type ℓ
+    A A1 A2 A3 : Type ℓ
     B : A -> Type ℓ
     C : (a : A) -> B a -> Type ℓ
 
@@ -29,8 +29,19 @@ isOfHLevelΠ {A = A} {B = B} (suc (suc n)) h f g =
 isContrΠ : ((x : A) -> isContr (B x)) -> isContr ((x : A) -> (B x))
 isContrΠ = isOfHLevelΠ 0
 
+isContrΠ2 : ((x : A) -> (y : B x) -> isContr (C x y)) -> isContr ((x : A) -> (y : B x) -> C x y)
+isContrΠ2 h = isContrΠ (\a -> isContrΠ (h a))
+
 isSetΠ : ((x : A) -> isSet (B x)) -> isSet ((x : A) -> (B x))
 isSetΠ = isOfHLevelΠ 2
 
 isSetΠ2 : ((x : A) -> (y : B x) -> isSet (C x y)) -> isSet ((x : A) -> (y : B x) -> (C x y))
-isSetΠ2 h = isSetΠ (\ a -> (isSetΠ (h a)))
+isSetΠ2 h = isSetΠ (\a -> (isSetΠ (h a)))
+
+-- Non dependent contractible function spaces can be reordered
+
+isContrFun⁻ : isContr (A1 -> A2) -> A1 -> isContr A2
+isContrFun⁻ (f , f') a1 = f a1 , \a2 i -> f' (\_ -> a2) i a1
+
+isContrFun2⁻ : isContr (A1 -> A2 -> A3) -> A1 -> A2 -> isContr A3
+isContrFun2⁻ h a1 = isContrFun⁻ (isContrFun⁻ h a1)
