@@ -499,53 +499,47 @@ private
       ParallelLines-different-lines-same-distance l1 [ l' ] sd= p1 lp ol1 (OnLine'-self l') >=>
       sym (ParallelLines-different-lines-same-distance l1 [ l' ] sd= p2 lp ol2 (OnLine'-self l'))
 
-  ParallelLines-distance :
-    (l1 l2 : Line) -> ParallelLines l1 l2 -> ℝ
-  ParallelLines-distance l1 l2 par =
-    SetQuotientElim.elim Line' SameLine'
-      (\l1 -> isSetΠ (\(_ : ParallelLines l1 l2) -> isSet-ℝ))
-      (\(p , _) _ -> point-line-distance p l2)
-      proof
-      l1 par
-    where
-    proof : (l1' l2' : Line') -> (sl : SameLine' l1' l2') ->
-             (PathP (\i -> ParallelLines (eq/ l1' l2' sl i) l2 -> ℝ)
-               (\_ -> point-line-distance (line'-point l1') l2)
-               (\_ -> point-line-distance (line'-point l2') l2))
-    proof l1'@(p1 , _) l2'@(p2 , _) sl@(p2∈l1' , p1∈l2' , _) =
-      funExtDep
-        {B = (\l -> ParallelLines l l2)}
-        [ l1' ] [ l2' ]
-        (\par1 par2 ->
-          ParallelLines-same-line-same-distance [ l1' ] l2 par1 p1 p2 (OnLine'-self l1') p2∈l1')
+
 
   ParallelLines'-∃!distance :
     (l1 : Line') -> (l2 : Line) -> ParallelLines [ l1 ] l2 ->
-    ∃![ d ∈ ℝ ] ((p : Point) -> ⟨ OnLine [ l1 ] p ⟩ -> point-line-distance p l2 == d)
+    ∃![ d ∈ ℝ ] (
+      ((p : Point) -> ⟨ OnLine [ l1 ] p ⟩ -> point-line-distance p l2 == d) ×
+      ((p : Point) -> ⟨ OnLine l2 p ⟩ -> point-line-distance p [ l1 ] == d))
   ParallelLines'-∃!distance l1'@(p1 , _) l2 par = val , prop val
     where
     val =
-     (point-line-distance p1 l2 ,
-       (\ p ol -> ParallelLines-same-line-same-distance [ l1' ] l2 par p p1 ol (OnLine'-self l1')))
+     point-line-distance p1 l2 ,
+      ((\p ol -> ParallelLines-same-line-same-distance [ l1' ] l2 par p p1 ol (OnLine'-self l1')) ,
+       (\p ol -> sym (ParallelLines-different-lines-same-distance
+                       [ l1' ] l2 par p1 p (OnLine'-self l1') ol)))
     f : (d1 d2 : ℝ) ->
-        ((p : Point) -> ⟨ OnLine [ l1' ] p ⟩ -> point-line-distance p l2 == d1) ->
-        ((p : Point) -> ⟨ OnLine [ l1' ] p ⟩ -> point-line-distance p l2 == d2) ->
+        (((p : Point) -> ⟨ OnLine [ l1' ] p ⟩ -> point-line-distance p l2 == d1) × _) ->
+        (((p : Point) -> ⟨ OnLine [ l1' ] p ⟩ -> point-line-distance p l2 == d2) × _) ->
         d1 == d2
-    f d1 d2 g1 g2 = sym (g1 p1 (OnLine'-self l1')) >=> (g2 p1 (OnLine'-self l1'))
+    f d1 d2 g1 g2 = sym ((fst g1) p1 (OnLine'-self l1')) >=> ((fst g2) p1 (OnLine'-self l1'))
 
-    prop : isProp (Σ[ d ∈ ℝ ] ((p : Point) -> ⟨ OnLine [ l1' ] p ⟩ -> point-line-distance p l2 == d))
-    prop = uniqueProp->isPropΣ f (\d -> isPropΠ2 (\_ _ -> isSet-ℝ _ _))
+    prop : isProp (Σ[ d ∈ ℝ ] (
+                    ((p : Point) -> ⟨ OnLine [ l1' ] p ⟩ -> point-line-distance p l2 == d) ×
+                    ((p : Point) -> ⟨ OnLine l2 p ⟩ -> point-line-distance p [ l1' ] == d)))
+    prop = uniqueProp->isPropΣ f
+             (\d -> isProp× (isPropΠ2 (\_ _ ->  (isSet-ℝ _ _))) (isPropΠ2 (\_ _ ->  (isSet-ℝ _ _))))
 
 
   ParallelLines-∃!distance :
     (l1 l2 : Line) -> ParallelLines l1 l2 ->
-    ∃![ d ∈ ℝ ] ((p : Point) -> ⟨ OnLine l1 p ⟩ -> point-line-distance p l2 == d)
+    ∃![ d ∈ ℝ ] (((p : Point) -> ⟨ OnLine l1 p ⟩ -> point-line-distance p l2 == d) ×
+                 ((p : Point) -> ⟨ OnLine l2 p ⟩ -> point-line-distance p l1 == d))
   ParallelLines-∃!distance l1 l2 =
     SetQuotientElim.liftΠContr Line' SameLine'
       {C₁ = \l -> ParallelLines l l2}
-      {C₂ = \l -> Σ[ d ∈ ℝ ] ((p : Point) -> ⟨ OnLine l p ⟩ -> point-line-distance p l2 == d)}
+      {C₂ = \l -> Σ[ d ∈ ℝ ] (((p : Point) -> ⟨ OnLine l p ⟩ -> point-line-distance p l2 == d) ×
+                              ((p : Point) -> ⟨ OnLine l2 p ⟩ -> point-line-distance p l == d))}
       (\l1 -> ParallelLines'-∃!distance l1 l2) l1
 
+  ParallelLines-distance :
+    (l1 l2 : Line) -> ParallelLines l1 l2 -> ℝ
+  ParallelLines-distance l1 l2 par = ∃!-val (ParallelLines-∃!distance l1 l2 par)
 
 
 
