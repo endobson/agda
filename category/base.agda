@@ -5,7 +5,7 @@ module category.base where
 open import base
 open import cubical
 open import hlevel
-open import equality-path using (J)
+open import equality-path using (J ; JRefl)
 
 private
   variable
@@ -54,6 +54,10 @@ record isCategory (C : PreCategory ℓObj ℓMor) : Type (ℓ-suc (ℓ-max ℓOb
   field
     isSet-Mor : (x y : C .Obj) -> isSet (C [ x , y ])
 
+isSet-Mor : {C : PreCategory ℓObj ℓMor} {{isCat : isCategory C}} ->
+            (x y : C .Obj) -> isSet (C [ x , y ])
+isSet-Mor {{isCat}} = isCategory.isSet-Mor isCat
+
 record CatIso (C : PreCategory ℓObj ℓMor) (x y : C .Obj) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
   field
     mor : C [ x , y ]
@@ -61,18 +65,24 @@ record CatIso (C : PreCategory ℓObj ℓMor) (x y : C .Obj) : Type (ℓ-suc (�
     sec : inv ⋆⟨ C ⟩ mor == C .id
     ret : mor ⋆⟨ C ⟩ inv == C .id
 
-pathToIso : (C : PreCategory ℓObj ℓMor) (x y : C .Obj) -> x == y -> CatIso C x y
-pathToIso C _ _ = J (\ y _ -> CatIso C _ y) (record
+idCatIso : (C : PreCategory ℓObj ℓMor) (x : C .Obj) -> CatIso C x x
+idCatIso C x = record
   { mor = C .id
   ; inv = C .id
   ; sec = PreCategory.⋆-left-id C _
   ; ret = PreCategory.⋆-left-id C _
-  })
+  }
+
+pathToCatIso : (C : PreCategory ℓObj ℓMor) (x y : C .Obj) -> x == y -> CatIso C x y
+pathToCatIso C x _ = J (\ y _ -> CatIso C x y) (idCatIso C x)
+
+pathToCatIso-refl : (C : PreCategory ℓObj ℓMor) (x : C .Obj) ->
+                    pathToCatIso C x x refl == idCatIso C x
+pathToCatIso-refl C x = JRefl (\ y _ -> CatIso C x y) (idCatIso C x)
 
 record isUnivalent (C : PreCategory ℓObj ℓMor) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
   field
-    isEquiv-pathToIso : (x y : C .Obj) -> isEquiv (pathToIso C x y)
-
+    isEquiv-pathToCatIso : (x y : C .Obj) -> isEquiv (pathToCatIso C x y)
 
 module _ (C : PreCategory ℓObj ℓMor) where
   private
