@@ -3,7 +3,8 @@
 module category.base where
 
 open import base
-open import cubical
+open import cubical using (isEquiv ; I)
+open import equality-path
 open import hlevel
 open import equality-path using (J ; JRefl)
 
@@ -96,3 +97,40 @@ module _ (C : PreCategory ℓObj ℓMor) where
   _^op .PreCategory.⋆-left-id = C.∘-left-id
   _^op .PreCategory.⋆-right-id = C.∘-right-id
   _^op .PreCategory.⋆-assoc = C.∘-assoc
+
+
+record isIso (C : PreCategory ℓObj ℓMor) {x y : C .Obj} (mor : C [ x , y ]) : Type ℓMor where
+  constructor is-iso
+  field
+    inv : C [ y , x ]
+    sec : inv ⋆⟨ C ⟩ mor == C .id
+    ret : mor ⋆⟨ C ⟩ inv == C .id
+
+isProp-isIso : {C : PreCategory ℓObj ℓMor} -> {{isCategory C}} -> {x y : C .Obj} {mor : C [ x , y ]} ->
+               isProp (isIso C mor)
+isProp-isIso {C = C} {x} {y} {mor} i1 i2 = (\i -> record
+    { inv = ip i
+    ; sec = ans-sec i
+    ; ret = ans-ret i
+    })
+  where
+  module C = PreCategory C
+  module i1 = isIso i1
+  module i2 = isIso i2
+
+  ip : i1.inv == i2.inv
+  ip = sym (C.⋆-left-id _) >=>
+       cong (C._⋆ i1.inv) (sym i2.sec) >=>
+       C.⋆-assoc i2.inv mor i1.inv >=>
+       cong (i2.inv C.⋆_) i1.ret >=>
+       (C.⋆-right-id i2.inv)
+
+  ret-line : I -> Type _
+  ret-line i = mor ⋆⟨ C ⟩ ip i == C.id
+  ans-ret : PathP ret-line i1.ret i2.ret
+  ans-ret = isProp->PathP (\i -> (isSet-Mor _ _ _ _)) _ _
+
+  sec-line : I -> Type _
+  sec-line i = ip i ⋆⟨ C ⟩ mor == C.id
+  ans-sec : PathP sec-line i1.sec i2.sec
+  ans-sec = isProp->PathP (\i -> (isSet-Mor _ _ _ _)) _ _
