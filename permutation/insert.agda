@@ -9,7 +9,7 @@ open import functions
 open import hlevel
 open import isomorphism
 open import nat
-open import sigma
+open import sigma.base
 
 data InsertPerm : Nat -> Type₀ where
   [] : InsertPerm 0

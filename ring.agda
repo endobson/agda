@@ -11,7 +11,7 @@ open import group
 open import hlevel
 open import monoid
 open import nat
-open import sigma
+open import sigma.base
 open import semiring
 open import sign
 open import group.int

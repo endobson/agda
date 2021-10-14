@@ -16,7 +16,7 @@ open import prime-div-count
 open import prime-div-count.computational
 open import prime-gcd
 open import relatively-prime
-open import sigma
+open import sigma.base
 open import unique-prime-factorization
 
 

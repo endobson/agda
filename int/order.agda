@@ -10,7 +10,7 @@ open import int
 open import nat.arithmetic
 open import nat.properties
 open import relation
-open import sigma
+open import sigma.base
 open import truncation
 
 import nat.order as n

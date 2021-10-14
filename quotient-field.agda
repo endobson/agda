@@ -18,7 +18,7 @@ open import relation
 open import ring
 open import semiring
 open import set-quotient
-open import sigma
+open import sigma.base
 open import sum
 open import truncation
 open import univalence

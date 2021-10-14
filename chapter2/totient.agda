@@ -33,6 +33,7 @@ open import relatively-prime
 open import relation
 open import ring.implementations
 open import sigma
+open import sigma.base
 open import truncation
 open import type-algebra
 open import fin-algebra

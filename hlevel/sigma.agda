@@ -10,6 +10,7 @@ open import equality-path
 open import hlevel.base
 open import relation
 open import sigma
+open import sigma.base
 
 private
   variable

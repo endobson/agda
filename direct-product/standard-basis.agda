@@ -25,7 +25,7 @@ open import nat.order
 open import relation
 open import ring
 open import semiring
-open import sigma
+open import sigma.base
 open import subset
 open import sum
 open import truncation

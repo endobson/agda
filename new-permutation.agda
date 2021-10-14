@@ -12,7 +12,7 @@ open import hlevel
 open import nat
 open import pigeonhole
 open import relation
-open import sigma
+open import sigma.base
 
 open Iso
 

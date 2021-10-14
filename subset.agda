@@ -13,7 +13,7 @@ open import funext
 open import hlevel
 open import isomorphism
 open import relation
-open import sigma
+open import sigma.base
 open import truncation
 open import univalence
 

@@ -10,7 +10,7 @@ open import lattice
 open import lcm
 open import lcm.exists
 open import nat
-open import sigma
+open import sigma.base
 
 div# : RawLattice Nat⁺
 RawLattice._≼_ div# = _div⁺_

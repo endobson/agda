@@ -8,7 +8,7 @@ open import gcd.propositional using (GCD' ; GCD⁺)
 open import gcd.euclidean-algorithm
 open import int
 open import nat
-open import sigma
+open import sigma.base
 
 module gprop = gcd.propositional
 

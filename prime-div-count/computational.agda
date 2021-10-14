@@ -10,7 +10,7 @@ open import prime
 open import prime-div-count
 open import gcd.computational
 open import lcm.exists
-open import sigma
+open import sigma.base
 
 prime-div-count : Prime' -> Nat⁺ -> Nat
 prime-div-count p a = fst (compute-prime-div-count p a)

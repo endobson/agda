@@ -20,7 +20,7 @@ open import prime-factorization
 open import prime-gcd
 open import relation
 open import relatively-prime
-open import sigma
+open import sigma.base
 open import univalence
 open import unordered-list
 open import unordered-list.discrete

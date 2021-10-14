@@ -19,7 +19,7 @@ open import isomorphism
 open import relation
 open import truncation
 open import type-algebra
-open import sigma
+open import sigma.base
 open import sum
 open import univalence
 

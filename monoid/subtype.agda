@@ -6,7 +6,7 @@ open import base
 open import equality
 open import monoid
 open import relation
-open import sigma
+open import sigma.base
 
 module _ {ℓ₁ ℓ₂ : Level} {D : Type ℓ₁} {P : Pred D ℓ₂}
          (isProp-P : isPropValuedPred P) (M : Monoid D) where

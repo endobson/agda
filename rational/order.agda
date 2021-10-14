@@ -23,7 +23,7 @@ open import ring.implementations.rational
 open import ring.implementations
 open import semiring
 open import set-quotient
-open import sigma
+open import sigma.base
 open import sign
 open import sign.instances.fraction
 open import sum

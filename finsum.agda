@@ -25,6 +25,7 @@ open import ring
 open import ring.implementations
 open import semiring
 open import sigma
+open import sigma.base
 open import sum
 open import truncation
 open import type-algebra

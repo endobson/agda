@@ -11,7 +11,7 @@ open import funext
 open import isomorphism
 open import univalence
 open import relation
-open import sigma
+open import sigma.base
 open import sum
 open import univalence
 

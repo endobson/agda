@@ -20,7 +20,7 @@ open import semiring
 open import set-quotient
 open import univalence
 open import isomorphism
-open import sigma
+open import sigma.base
 import int
 import solver
 

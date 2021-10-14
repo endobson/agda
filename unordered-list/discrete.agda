@@ -13,7 +13,7 @@ open import hlevel
 open import nat
 open import ring
 open import ring.implementations
-open import sigma
+open import sigma.base
 open import unordered-list.base
 open import unordered-list.operations
 

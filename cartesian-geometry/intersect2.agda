@@ -37,7 +37,7 @@ open import ring
 open import ring.implementations.real
 open import semiring
 open import set-quotient
-open import sigma
+open import sigma.base
 open import solver
 open import subset
 open import sum

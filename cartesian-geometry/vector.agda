@@ -40,7 +40,7 @@ open import relation
 open import ring
 open import ring.implementations.real
 open import semiring
-open import sigma
+open import sigma.base
 open import subset
 open import truncation
 open import vector-space

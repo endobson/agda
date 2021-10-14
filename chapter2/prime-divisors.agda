@@ -24,6 +24,7 @@ open import finsubset
 open import chapter2.divisors
 open import chapter2.multiplicative
 open import sigma
+open import sigma.base
 open import prime-factorization
 open import hlevel
 open import relatively-prime

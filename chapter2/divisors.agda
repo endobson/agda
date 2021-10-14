@@ -35,6 +35,7 @@ open import relation
 open import relatively-prime
 open import ring.implementations
 open import sigma
+open import sigma.base
 open import sum
 open import type-algebra
 open import unique-prime-factorization

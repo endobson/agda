@@ -12,7 +12,7 @@ open import nat
 open import quotient hiding (remainder)
 open import relation
 open import ring.implementations
-open import sigma
+open import sigma.base
 
 _div_ : Int -> Int -> Type₀
 a div b = Σ[ c ∈ Int ] (c * a == b)

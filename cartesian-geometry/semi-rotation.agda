@@ -14,7 +14,7 @@ open import hlevel
 open import isomorphism
 open import cartesian-geometry.rotation
 open import set-quotient
-open import sigma
+open import sigma.base
 open import sum
 open import truncation
 open import relation

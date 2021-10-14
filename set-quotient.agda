@@ -7,7 +7,7 @@ open import equality-path
 open import equivalence
 open import funext
 open import hlevel
-open import sigma
+open import sigma.base
 open import univalence
 open import isomorphism
 open import relation

@@ -9,7 +9,7 @@ open import functions
 open import hlevel
 open import nat
 open import relation
-open import sigma
+open import sigma.base
 
 record IsPrime' (p : Nat) : Type₀ where
   constructor is-prime'

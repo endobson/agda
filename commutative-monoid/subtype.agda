@@ -9,7 +9,7 @@ open import hlevel
 open import monoid
 open import monoid.subtype
 open import relation
-open import sigma
+open import sigma.base
 
 module _ {ℓ₁ ℓ₂ : Level} {D : Type ℓ₁} {P : Pred D ℓ₂}
          (isProp-P : isPropValuedPred P) (M : CommMonoid D) where

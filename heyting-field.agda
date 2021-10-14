@@ -12,7 +12,7 @@ open import funext
 open import relation
 open import ring
 open import semiring
-open import sigma
+open import sigma.base
 open import truncation
 
 private

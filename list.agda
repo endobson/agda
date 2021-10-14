@@ -10,7 +10,7 @@ open import monoid
 open import nat
 open import quotient
 open import ring.implementations
-open import sigma
+open import sigma.base
 open import sum
 
 open import list.append public

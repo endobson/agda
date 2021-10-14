@@ -19,7 +19,7 @@ open import isomorphism
 open import chapter2.mobius
 open import chapter2.divisors
 open import chapter2.partition
-open import sigma
+open import sigma.base
 open import div
 open import funext
 

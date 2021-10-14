@@ -13,7 +13,7 @@ open import isomorphism
 open import maybe
 open import monoid
 open import sum
-open import sigma
+open import sigma.base
 open import truncation
 open import univalence
 open import vec

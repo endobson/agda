@@ -13,7 +13,7 @@ open import hlevel
 open import nat
 open import fin
 open import relatively-prime
-open import sigma
+open import sigma.base
 open import linear-combo
 open import gcd.propositional
 open import gcd.euclidean-algorithm
