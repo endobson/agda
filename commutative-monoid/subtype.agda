@@ -19,6 +19,6 @@ module _ {ℓ₁ ℓ₂ : Level} {D : Type ℓ₁} {P : Pred D ℓ₂}
   SubCommMonoidStr : P (M.ε) -> ClosedUnder M._∙_ P -> CommMonoid (Σ D P)
   SubCommMonoidStr Pε closed = record
     { monoid = SubMonoidStr isProp-P M.monoid Pε closed
-    ; ∙-commute = ΣProp-pathᵉ (isProp-P _) M.∙-commute
+    ; ∙-commute = ΣProp-path (isProp-P _) M.∙-commute
     ; isSet-Domain = isSetΣ M.isSet-Domain (\d -> isProp->isSet (isProp-P d))
     }

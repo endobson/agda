@@ -353,8 +353,10 @@ module _ (p : Prime') where
     switch-pn : (d : Nat) (d%p : d div' (prime-power p n)) ->
                 (dec : (Dec (p' div' ⟨ div'-mult d%p p' ⟩))) ->
                 switch d (div'-mult d%p p') dec == just (d , d%p)
-    switch-pn d d%p (yes p%x) =
-      cong (\x -> just (d , x)) (isPropDiv' (prime-power⁺ p n) _ _)
+    switch-pn d d%p (yes p%x) = cong f (isPropDiv' (prime-power⁺ p n) _ _)
+      where
+      f : (d div' (prime-power p n)) -> (Maybe (Divisor (prime-power⁺ p n)))
+      f x = just (d , x)
     switch-pn d (x , x-path) (no ¬p%px) = bot-elim (¬p%px p%px)
       where
       p%px : (p' div' (p' *' x))

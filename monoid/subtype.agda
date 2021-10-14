@@ -17,7 +17,7 @@ module _ {ℓ₁ ℓ₂ : Level} {D : Type ℓ₁} {P : Pred D ℓ₂}
   SubMonoidStr Pε closed = record
     { ε = M.ε , Pε
     ; _∙_ = \(x , px) (y , py) -> x M.∙ y , closed px py
-    ; ∙-assoc = ΣProp-pathᵉ (isProp-P _) M.∙-assoc
-    ; ∙-left-ε = ΣProp-pathᵉ (isProp-P _) M.∙-left-ε
-    ; ∙-right-ε = ΣProp-pathᵉ (isProp-P _) M.∙-right-ε
+    ; ∙-assoc = ΣProp-path (isProp-P _) M.∙-assoc
+    ; ∙-left-ε = ΣProp-path (isProp-P _) M.∙-left-ε
+    ; ∙-right-ε = ΣProp-path (isProp-P _) M.∙-right-ε
     }
