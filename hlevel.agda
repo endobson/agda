@@ -156,11 +156,6 @@ isOfHLevel-≃ (suc n) h1 h2 =
 isProp-≃ : (isProp A₁) -> (isProp A₂) -> (isProp (A₁ ≃ A₂))
 isProp-≃ = isOfHLevel-≃ 1
 
--- The types of all types that are of a certain hlevel.
-
-hProp : (ℓ : Level) -> Type (ℓ-suc ℓ)
-hProp ℓ = Σ (Type ℓ) isProp
-
 isContr-Retract : (f : A₁ -> A₂) (g : A₂ -> A₁) (h : ∀ a -> g (f a) == a) -> isContr A₂ -> isContr A₁
 isContr-Retract f g h (a2 , p) = (g a2 , \a1 -> cong g (p (f a1)) >=> h a1)
 
@@ -211,11 +206,19 @@ isProp-== : (isProp A₁) -> (isProp A₂) -> isProp (A₁ == A₂)
 isProp-== h1 h2 = isProp-Retract (eqFun univalence) (eqInv univalence) (eqRet univalence)
                                  (isProp-≃ h1 h2)
 
+-- The types of all types that are of a certain hlevel.
+
+hProp : (ℓ : Level) -> Type (ℓ-suc ℓ)
+hProp ℓ = Σ (Type ℓ) isProp
+
 isSet-hProp : isSet (hProp ℓ)
 isSet-hProp {ℓ} (t1 , h1) (t2 , h2) =
   isProp-Retract (cong fst) (\p -> ΣProp== (\_ -> (isProp-isOfHLevel 1)) p)
                  (section-ΣProp== (\_ -> (isProp-isOfHLevel 1)))
                  (isProp-== h1 h2)
+
+hSet : (ℓ : Level) -> Type (ℓ-suc ℓ)
+hSet ℓ = Σ (Type ℓ) isSet
 
 -- Equivalent types have the same hlevel
 
