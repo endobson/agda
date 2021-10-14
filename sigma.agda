@@ -12,6 +12,7 @@ open import hlevel.base
 open import isomorphism
 open import relation
 open import sigma.base
+open import univalence
 
 private
   variable

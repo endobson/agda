@@ -4,7 +4,7 @@ module univalence where
 
 open import base
 open import cubical
-open import equality
+open import equality-path
 open import equivalence
 open import hlevel.base
 open import isomorphism
@@ -99,3 +99,12 @@ univalence-iso = Univalence.i pathToEquiv pathToEquiv-refl
 
 univalence : (A1 == A2) ≃ (A1 ≃ A2)
 univalence = isoToEquiv univalence-iso
+
+isoToPath : Iso A1 A2 -> A1 == A2
+isoToPath f = ua (isoToEquiv f)
+
+isoToPath-id-iso : Path (A == A) (isoToPath id-iso) refl
+isoToPath-id-iso = cong ua isoToEquiv-id-iso >=> uaIdEquiv
+
+transport-isoToPath : (i : Iso A1 A2) -> transport (isoToPath i) == Iso.fun i
+transport-isoToPath i j x = transportRefl (Iso.fun i x) j -- (Iso.fun i x) j

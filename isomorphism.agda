@@ -8,6 +8,7 @@ open import equality-path
 open import equivalence
 open import functions
 open import hlevel.base
+open import sigma.base
 
 open import isomorphism.base public
 
@@ -226,10 +227,8 @@ isoToEquiv : Iso A B -> A ≃ B
 isoToEquiv i .fst = _
 isoToEquiv i .snd = isoToIsEquiv i
 
-isoToPath : Iso A B -> A == B
-isoToPath {A = A} {B = B} f i =
-  Glue B (\ { (i = i0) -> (A , isoToEquiv f)
-            ; (i = i1) -> (B , idEquiv B) })
+isoToEquiv-id-iso : {A : Type ℓ} -> (isoToEquiv id-iso) == (idEquiv A)
+isoToEquiv-id-iso = ΣProp-path isProp-isEquiv refl
 
 equivToIso : A ≃ B -> Iso A B
 equivToIso e .Iso.fun = eqFun e
