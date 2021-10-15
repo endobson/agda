@@ -53,10 +53,10 @@ syntax comp' C g f = g ∘⟨ C ⟩ f
 
 record isCategory (C : PreCategory ℓObj ℓMor) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
   field
-    isSet-Mor : (x y : C .Obj) -> isSet (C [ x , y ])
+    isSet-Mor : {x y : C .Obj} -> isSet (C [ x , y ])
 
 isSet-Mor : {C : PreCategory ℓObj ℓMor} {{isCat : isCategory C}} ->
-            (x y : C .Obj) -> isSet (C [ x , y ])
+            {x y : C .Obj} -> isSet (C [ x , y ])
 isSet-Mor {{isCat}} = isCategory.isSet-Mor isCat
 
 record CatIso (C : PreCategory ℓObj ℓMor) (x y : C .Obj) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
@@ -128,9 +128,9 @@ isProp-isIso {C = C} {x} {y} {mor} i1 i2 = (\i -> record
   ret-line : I -> Type _
   ret-line i = mor ⋆⟨ C ⟩ ip i == C.id
   ans-ret : PathP ret-line i1.ret i2.ret
-  ans-ret = isProp->PathP (\i -> (isSet-Mor _ _ _ _)) _ _
+  ans-ret = isProp->PathP (\i -> (isSet-Mor _ _)) _ _
 
   sec-line : I -> Type _
   sec-line i = ip i ⋆⟨ C ⟩ mor == C.id
   ans-sec : PathP sec-line i1.sec i2.sec
-  ans-sec = isProp->PathP (\i -> (isSet-Mor _ _ _ _)) _ _
+  ans-sec = isProp->PathP (\i -> (isSet-Mor _ _)) _ _
