@@ -88,12 +88,14 @@ module _ {l1 l2 : Line'} where
 Line : Type ℓ-one
 Line = Line' / SameLine'
 
+module LineElim = SetQuotientElim Line' SameLine'
+
 isSet-Line : isSet Line
 isSet-Line = squash/
 
 line-semi-direction : Line -> SemiDirection
 line-semi-direction =
-  SetQuotientElim.rec Line' SameLine' isSet-SemiDirection
+  LineElim.rec isSet-SemiDirection
     line'-semi-direction
     (\_ _ (_ , _ , p) -> p)
 
@@ -123,14 +125,13 @@ OnLine'-SameLine' l1 l2 (p2∈l1 , p1∈l2 , s1=s2) =
     check3 = isLinearSubtype.closed-under-v+ (isLinearSubtype-semi-direction-span s2) check1 check2
 
 OnLine : Line -> Subtype Point ℓ-one
-OnLine =
-  SetQuotientElim.rec Line' SameLine' isSet-Subtype OnLine' OnLine'-SameLine'
+OnLine = LineElim.rec isSet-Subtype OnLine' OnLine'-SameLine'
 
 
 abstract
   OnLine-path : {p : Point} {l : Line} -> ⟨ OnLine l p ⟩ -> l == [ p , (line-semi-direction l) ]
   OnLine-path {p} {l} =
-    SetQuotientElim.elimProp Line' SameLine'
+    LineElim.elimProp
       (\l -> (isPropΠ (\(_ : ⟨ OnLine l p ⟩) -> isSet-Line l [ p , (line-semi-direction l)])))
       (\l' ol' -> eq/ _ _ (simple-SameLine' ol' refl))
       l
@@ -199,3 +200,39 @@ flip-line-segment-path {p1} {p2} ls = eq/ _ _ sl
 
   sl : SameLine' l'1 l'2
   sl = (OnLine-line-segment-end fls) , (OnLine-line-segment-end ls) , (eq/ _ _ same-sd)
+
+line->line-segment : (l : Line) ->
+  ∃[ p1 ∈ Point ] Σ[ p2 ∈ Point ] Σ[ ls ∈ LineSegment p1 p2 ] (line-segment->line ls == l)
+line->line-segment = LineElim.elimProp isProp-Ans f
+  where
+  Ans : Line -> Type ℓ-one
+  Ans l = ∃[ p1 ∈ Point ] Σ[ p2 ∈ Point ] Σ[ ls ∈ LineSegment p1 p2 ] (line-segment->line ls == l)
+  isProp-Ans : (l : Line) -> isProp (Ans l)
+  isProp-Ans _ = squash
+  f : (l : Line') -> Ans [ l ]
+  f l@(p1 , sd) = SemiDirectionElim.elimProp (\sd -> isProp-Ans [ (p1 , sd) ]) g sd
+    where
+    g : (d : Direction) -> Ans [ (p1 , [ d ]) ]
+    g d@(v , _) = ∣ p1 , p2 , line-segment-cons p1#p2 , line-path ∣
+      where
+      p2 = P-shift p1 v
+      v#0 : v # 0v
+      v#0 = direction-#0 d
+      p1p2#0 : P-diff p1 p2 # 0v
+      p1p2#0 = subst (_# 0v) (sym (P-shift-step p1 v)) v#0
+      p1#p2 : p1 # p2
+      p1#p2 = P-diff#0->p# _ _ p1p2#0
+
+      dov-1 : DirectionOfVector' (P-diff p1 p2)
+                                 (vector->direction (P-diff p1 p2) (p#->P-diff#0 p1 p2 p1#p2))
+      dov-1 = DirectionOfVector'-vector->direction (p#->P-diff#0 p1 p2 p1#p2)
+
+      dov-2 : DirectionOfVector' (P-diff p1 p2) d
+      dov-2 = subst (\v -> (DirectionOfVector' v d)) (sym (P-shift-step p1 v))
+                    DirectionOfVector'-direction
+
+      d-path : (vector->direction (P-diff p1 p2) (p#->P-diff#0 p1 p2 p1#p2)) == d
+      d-path = cong fst (isProp-DirectionOfVector (_ , dov-1) (_ , dov-2))
+
+      line-path : line-segment->line (line-segment-cons p1#p2) == [ p1 , [ d ] ]
+      line-path i = [ p1 , [ d-path i ] ]

@@ -30,6 +30,7 @@ open import order.instances.real
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.real
+open import ordered-integral-domain
 open import real
 open import real.arithmetic.absolute-value
 open import real.arithmetic.multiplication.inverse
@@ -452,6 +453,102 @@ vector->direction v v#0 = normalize-vector v v#0 , a.path
                                    (*₁-flips-< k 0ℝ vl k<0 0<vl))
       path : vector-length (k v* v) == 1ℝ
       path = vector-length-* k v >=> *-left (absℝ-NonNeg-idem k 0≤k) >=> ℝ1/-inverse vl vl-inv
+
+record DirectionOfVector' (v : Vector) (d : Direction) : Type₁ where
+  constructor direction-of-vector-cons
+  field
+    k : ℝ
+    0≤k : 0# ≤ k
+    path : k v* v == ⟨ d ⟩
+
+DirectionOfVector : Vector -> Type₁
+DirectionOfVector v = Σ Direction (DirectionOfVector' v)
+
+isProp-DirectionOfVector' : {v : Vector} {d : Direction} -> isProp (DirectionOfVector' v d)
+isProp-DirectionOfVector' {v} {d} (direction-of-vector-cons k1 0≤k1 path1)
+                                  (direction-of-vector-cons k2 0≤k2 path2) =
+  (\i -> record
+    { k = (k-path i)
+    ; 0≤k = (isProp->PathP (\j -> isProp-≤ 0# (k-path j)) 0≤k1 0≤k2 i)
+    ; path = (isProp->PathP (\j -> isSet-Vector ((k-path j) v* v) ⟨ d ⟩) path1 path2 i)
+    })
+  where
+  d-l : vector-length ⟨ d ⟩ == 1#
+  d-l = (snd d)
+
+  k-path : k1 == k2
+  k-path =
+    sym *-right-one >=>
+    *-right (sym d-l >=>
+             cong vector-length (sym path2) >=>
+             vector-length-* k2 v >=>
+             *-left (absℝ-NonNeg-idem k2 0≤k2)) >=>
+    sym *-assoc >=> *-left *-commute >=> *-assoc >=>
+    *-right (*-left (sym (absℝ-NonNeg-idem k1 0≤k1)) >=>
+             sym (vector-length-* k1 v) >=>
+             cong vector-length path1 >=>
+             d-l) >=>
+    *-right-one
+
+
+isProp-DirectionOfVector : {v : Vector} -> isProp (DirectionOfVector v)
+isProp-DirectionOfVector {v} (d1 , (direction-of-vector-cons k1 0≤k1 path1))
+                             (d2 , (direction-of-vector-cons k2 0≤k2 path2)) =
+  ΣProp-path isProp-DirectionOfVector' d-path
+  where
+  d1-l : vector-length ⟨ d1 ⟩ == 1#
+  d1-l = (snd d1)
+  d2-l : vector-length ⟨ d2 ⟩ == 1#
+  d2-l = (snd d2)
+  k-path : k1 == k2
+  k-path =
+    sym *-right-one >=>
+    *-right (sym d2-l >=>
+             cong vector-length (sym path2) >=>
+             vector-length-* k2 v >=>
+             *-left (absℝ-NonNeg-idem k2 0≤k2)) >=>
+    sym *-assoc >=> *-left *-commute >=> *-assoc >=>
+    *-right (*-left (sym (absℝ-NonNeg-idem k1 0≤k1)) >=>
+             sym (vector-length-* k1 v) >=>
+             cong vector-length path1 >=>
+             d1-l) >=>
+    *-right-one
+  d-path : d1 == d2
+  d-path = direction-ext (sym path1 >=> cong (_v* v) k-path >=> path2)
+
+DirectionOfVector'-vector->direction :
+  {v : Vector} -> (v#0 : v # 0#) -> DirectionOfVector' v (vector->direction v v#0)
+DirectionOfVector'-vector->direction {v} v#0 =
+  (direction-of-vector-cons
+    1/vl
+    (asym-< 0<1/vl)
+    (cong (1/vl v*_) (normalize-vector-path v v#0) >=>
+     sym v*-assoc >=>
+     cong (_v* (normalize-vector v v#0)) (ℝ1/-inverse vl vl-inv) >=>
+     v*-left-one))
+  where
+  vl = vector-length v
+  0<vl = (vector-length>0 v v#0)
+  vl-inv = (inj-r 0<vl)
+  1/vl = (ℝ1/ vl vl-inv)
+
+  0vl<1/vl*vl : (0# * vl) < (1/vl * vl)
+  0vl<1/vl*vl = subst2 _<_ (sym *-left-zero) (sym (ℝ1/-inverse vl vl-inv)) 0ℝ<1ℝ
+  0<1/vl : 0# < 1/vl
+  0<1/vl = *₂-reflects-< 0vl<1/vl*vl 0<vl
+
+
+
+isContr-DirectionOfVector : {v : Vector} -> v # 0v -> isContr (DirectionOfVector v)
+isContr-DirectionOfVector {v} v#0 = ans , isProp-DirectionOfVector ans
+  where
+  ans : (DirectionOfVector v)
+  ans = vector->direction v v#0 , (DirectionOfVector'-vector->direction v#0)
+
+DirectionOfVector'-direction : {d : Direction} -> DirectionOfVector' ⟨ d ⟩ d
+DirectionOfVector'-direction {d} =
+  (direction-of-vector-cons 1# (asym-< 0ℝ<1ℝ) v*-left-one)
+
 
 conjugate-preserves-vector-length² :
   (v : Vector) -> vector-length² (conjugate-vector v) == vector-length² v

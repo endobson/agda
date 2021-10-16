@@ -161,6 +161,10 @@ P-diff-trans p1 p2 p3 = vector-ext (\{x-axis -> diff-trans ; y-axis -> diff-tran
 P-diff-anticommute : (p1 p2 : Point) -> P-diff p1 p2 == v- (P-diff p2 p1)
 P-diff-anticommute p1 p2 = vector-ext (\{x-axis -> diff-anticommute ; y-axis -> diff-anticommute})
 
+P-diff-self : (p : Point) -> P-diff p p == 0v
+P-diff-self p = vector-ext (\{x-axis -> +-inverse ; y-axis -> +-inverse})
+
+
 p#->P-diff#0 : (p1 p2 : Point) -> p1 p# p2 -> (P-diff p1 p2) # 0v
 p#->P-diff#0 p1 p2 (p#-cons ap) = ∥-bind handle ap
   where
