@@ -26,8 +26,8 @@ module _ (q r : ℚ) (q≤r : q ℚ≤ r)
       bot-elim (irrefl-< {_} {_} {_} {r} (trans-<-≤ {d1 = r} {q} {r} r<q q≤r))
       where
       cd<cb : (c r* d) < (c r* b)
-      cd<cb = *₁-preserves-< c d b pc d<b
+      cd<cb = *₁-preserves-< pc d<b
       cb<ab : (c r* b) < (a r* b)
-      cb<ab = *₂-preserves-< c a b c<a pb
+      cb<ab = *₂-preserves-< c<a pb
       r<q : r < q
       r<q = subst2 _<_ cd=r ab=q (trans-< {_} {_} {_} {c r* d} {c r* b} {a r* b} cd<cb cb<ab)

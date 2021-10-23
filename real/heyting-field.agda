@@ -76,8 +76,8 @@ private
         p2 : (x + 0ℝ) == x
         p2 = +-right-zero
       Inv-d->x#y : ℝInv d -> x ℝ# y
-      Inv-d->x#y (inj-l d<0) = inj-r (subst2 _ℝ<_ p1 p2 (+₁-preserves-< x d 0ℝ d<0))
-      Inv-d->x#y (inj-r 0<d) = inj-l (subst2 _ℝ<_ p2 p1 (+₁-preserves-< x 0ℝ d 0<d))
+      Inv-d->x#y (inj-l d<0) = inj-r (subst2 _ℝ<_ p1 p2 (+₁-preserves-< d<0))
+      Inv-d->x#y (inj-r 0<d) = inj-l (subst2 _ℝ<_ p2 p1 (+₁-preserves-< 0<d))
 
     handle : ((absℝ d ℝ< (ℚ->ℝ ε')) ⊎ ℝInv d) ->
              ((absℝ i ℝ< (ℚ->ℝ ε')) ⊎ ℝInv i) ->
@@ -87,10 +87,10 @@ private
     handle (inj-l ad<ε) (inj-l ai<ε) = bot-elim (εε≮1 εε<1)
       where
       εai≮adai : (εℝ * (absℝ i)) ≮ ((absℝ d) * (absℝ i))
-      εai≮adai = *₂-preserves-≮ εℝ (absℝ d) (absℝ i) (asym-ℝ< {absℝ d} {εℝ} ad<ε) (absℝ-≮0 i)
+      εai≮adai = *₂-preserves-≮ (asym-ℝ< {absℝ d} {εℝ} ad<ε) (absℝ-≮0 i)
 
       εε≮εai : (εℝ * εℝ) ≮ (εℝ * (absℝ i))
-      εε≮εai = *₁-preserves-≮ εℝ εℝ (absℝ i) (asym-ℝ< {0ℝ} {εℝ} 0<εℝ) (asym-ℝ< {absℝ i} {εℝ} ai<ε)
+      εε≮εai = *₁-preserves-≮ (asym-ℝ< {0ℝ} {εℝ} 0<εℝ) (asym-ℝ< {absℝ i} {εℝ} ai<ε)
 
       εε≮adai : (εℝ * εℝ) ≮ ((absℝ d) * (absℝ i))
       εε≮adai = trans-≮ {_} {_} {_} {εℝ * εℝ} {εℝ * (absℝ i)} {(absℝ d) * (absℝ i)} εε≮εai εai≮adai
@@ -108,8 +108,8 @@ private
 
       εε<11 : (εℝ * εℝ) < (1ℝ * 1ℝ)
       εε<11 = trans-< {_} {_} {_} {εℝ * εℝ} {εℝ * 1ℝ} {1ℝ * 1ℝ}
-                      (*₁-preserves-< εℝ εℝ 1ℝ 0<εℝ εℝ<1)
-                      (*₂-preserves-< εℝ 1ℝ 1ℝ εℝ<1 0<1)
+                      (*₁-preserves-< 0<εℝ εℝ<1)
+                      (*₂-preserves-< εℝ<1 0<1)
 
       εε<1 : (εℝ * εℝ) < 1ℝ
       εε<1 = subst ((εℝ * εℝ) <_) *-right-one εε<11

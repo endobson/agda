@@ -22,8 +22,8 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : Li
   record LinearlyOrderedSemiringStr : Type (ℓ-max (ℓ-suc ℓ<) ℓD) where
     no-eta-equality
     field
-      +₁-preserves-< : (a b c : D) -> b < c -> (a + b) < (a + c)
-      *-preserves-0< : (a b : D) -> 0# < a -> 0# < b -> 0# < (a * b)
+      +₁-preserves-< : {a b c : D} -> b < c -> (a + b) < (a + c)
+      *-preserves-0< : {a b : D} -> 0# < a -> 0# < b -> 0# < (a * b)
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : LinearOrderStr D ℓ<}
          {{LOS : LinearlyOrderedSemiringStr S O}} where
@@ -36,22 +36,22 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
       IO = O
 
   abstract
-    +₁-preserves-< : (a b c : D) -> b < c -> (a + b) < (a + c)
+    +₁-preserves-< : {a b c : D} -> b < c -> (a + b) < (a + c)
     +₁-preserves-< = LOS.+₁-preserves-<
 
-    *-preserves-0< : (a b : D) -> 0# < a -> 0# < b -> 0# < (a * b)
+    *-preserves-0< : {a b : D} -> 0# < a -> 0# < b -> 0# < (a * b)
     *-preserves-0< = LOS.*-preserves-0<
 
-    +₂-preserves-< : (a b c : D) -> a < b -> (a + c) < (b + c)
-    +₂-preserves-< a b c a<b = subst2 _<_ +-commute +-commute (+₁-preserves-< c a b a<b)
+    +₂-preserves-< : {a b c : D} -> a < b -> (a + c) < (b + c)
+    +₂-preserves-< a<b = subst2 _<_ +-commute +-commute (+₁-preserves-< a<b)
 
-    +-preserves-< : (a b c d : D) -> a < b -> c < d -> (a + c) < (b + d)
-    +-preserves-< a b c d a<b c<d =
-      trans-< (+₁-preserves-< a c d c<d) (+₂-preserves-< a b d a<b)
+    +-preserves-< : {a b c d : D} -> a < b -> c < d -> (a + c) < (b + d)
+    +-preserves-< a<b c<d =
+      trans-< (+₁-preserves-< c<d) (+₂-preserves-< a<b)
 
     +-preserves-0< : {a b : D} -> 0# < a -> 0# < b -> 0# < (a + b)
     +-preserves-0< {a} {b} 0<a 0<b =
-      subst (_< (a + b)) +-right-zero (+-preserves-< 0# a 0# b 0<a 0<b)
+      subst (_< (a + b)) +-right-zero (+-preserves-< 0<a 0<b)
 
 
 
@@ -65,8 +65,8 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : Pa
   record PartiallyOrderedSemiringStr : Type (ℓ-max (ℓ-suc ℓ≤) ℓD) where
     no-eta-equality
     field
-      +₁-preserves-≤ : (a b c : D) -> b ≤ c -> (a + b) ≤ (a + c)
-      *-preserves-0≤ : (a b : D) -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a * b)
+      +₁-preserves-≤ : {a b c : D} -> b ≤ c -> (a + b) ≤ (a + c)
+      *-preserves-0≤ : {a b : D} -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a * b)
 
 
 
@@ -81,15 +81,18 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : Pa
       IO = O
 
   abstract
-    +₁-preserves-≤ : (a b c : D) -> b ≤ c -> (a + b) ≤ (a + c)
+    +₁-preserves-≤ : {a b c : D} -> b ≤ c -> (a + b) ≤ (a + c)
     +₁-preserves-≤ = POS.+₁-preserves-≤
 
-    *-preserves-0≤ : (a b : D) -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a * b)
+    *-preserves-0≤ : {a b : D} -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a * b)
     *-preserves-0≤ = POS.*-preserves-0≤
 
-    +₂-preserves-≤ : (a b c : D) -> a ≤ b -> (a + c) ≤ (b + c)
-    +₂-preserves-≤ a b c a≤b = subst2 _≤_ +-commute +-commute (+₁-preserves-≤ c a b a≤b)
+    +₂-preserves-≤ : {a b c : D} -> a ≤ b -> (a + c) ≤ (b + c)
+    +₂-preserves-≤ a≤b = subst2 _≤_ +-commute +-commute (+₁-preserves-≤ a≤b)
 
-    +-preserves-≤ : (a b c d : D) -> a ≤ b -> c ≤ d -> (a + c) ≤ (b + d)
-    +-preserves-≤ a b c d a≤b c≤d =
-      trans-≤ (+₁-preserves-≤ a c d c≤d) (+₂-preserves-≤ a b d a≤b)
+    +-preserves-≤ : {a b c d : D} -> a ≤ b -> c ≤ d -> (a + c) ≤ (b + d)
+    +-preserves-≤ a≤b c≤d = trans-≤ (+₁-preserves-≤ c≤d) (+₂-preserves-≤ a≤b)
+
+    +-preserves-0≤ : {a b : D} -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a + b)
+    +-preserves-0≤ {a} {b} 0≤a 0≤b =
+      subst (_≤ (a + b)) +-right-zero (+-preserves-≤ 0≤a 0≤b)

@@ -105,7 +105,7 @@ module _ (x y : ℝ) where
         handle2 : (Tri (r1 < r3) (r1 == r3) (r1 > r3)) -> (Tri (r2 < r4) (r2 == r4) (r2 > r4)) -> Bot
         handle2 (tri< r1<r3 _ _) (tri< r2<r4 _ _) =
           irrefl-< {a = r3 r+ r4} (subst (_< (r3 r+ r4)) (r12-path >=> sym (r34-path))
-                                         (+-preserves-< r1 r3 r2 r4 r1<r3 r2<r4))
+                                         (+-preserves-< r1<r3 r2<r4))
         handle2 (tri< _ _ _) (tri= _ r2==r4 _) =
           y.disjoint r4 ((subst y.L r2==r4 l-r2) , u-r4)
         handle2 (tri< _ _ _) (tri> _ _ r4<r2) =
@@ -135,7 +135,7 @@ module _ (x y : ℝ) where
         d = a r+ (r- c⁻)
         e = b r+ (r- c⁺)
         d<e : d < e
-        d<e = subst2 _<_ path1 path2 (+₂-preserves-< (a r+ ε') (b r+ (r- ε')) (r- c) aε<bε)
+        d<e = subst2 _<_ path1 path2 (+₂-preserves-< aε<bε)
           where
           path1 : (a r+ ε') r+ (r- c) == d
           path1 = r+-assoc a ε' (r- c) >=> cong (a r+_) (diffℚ-anticommute c ε')
@@ -163,7 +163,7 @@ module _ (x y : ℝ) where
         handle2 (c , a<c , lc) = (c r+ b , lt , ∣ c , b , lc , lb , refl ∣)
           where
           lt : q < (c r+ b)
-          lt = subst (_< (c r+ b)) p (+₂-preserves-< a c b a<c)
+          lt = subst (_< (c r+ b)) p (+₂-preserves-< a<c)
 
     isLowerOpen-U : isLowerOpen U
     isLowerOpen-U q = ∥-bind handle
@@ -175,7 +175,7 @@ module _ (x y : ℝ) where
         handle2 (c , c<a , uc) = (c r+ b , lt , ∣ c , b , uc , ub , refl ∣)
           where
           lt : (c r+ b) < q
-          lt = subst ((c r+ b) <_) p (+₂-preserves-< c a b c<a)
+          lt = subst ((c r+ b) <_) p (+₂-preserves-< c<a)
 
   _ℝ+ᵉ_ : ℝ
   _ℝ+ᵉ_ = record
@@ -381,7 +381,7 @@ module _ (x : ℝ) where
         handle (a , b , 0l-a , xl-b , p) = x.isLowerSet-L q b q<b xl-b
           where
           q<b : q < b
-          q<b = subst2 _<_ p (r+-left-zero b) (+₂-preserves-< a 0r b (L->ℚ< 0l-a))
+          q<b = subst2 _<_ p (r+-left-zero b) (+₂-preserves-< (L->ℚ< 0l-a))
 
     U-path : (q : ℚ) -> 0x.U q == x.U q
     U-path q = ua (isoToEquiv i)
@@ -406,7 +406,7 @@ module _ (x : ℝ) where
         handle (a , b , 0u-a , xu-b , p) = x.isUpperSet-U b q b<q xu-b
           where
           b<q : b < q
-          b<q = subst2 _<_ (r+-left-zero b) p (+₂-preserves-< 0r a b (U->ℚ< 0u-a))
+          b<q = subst2 _<_ (r+-left-zero b) p (+₂-preserves-< (U->ℚ< 0u-a))
 
     ℝ+ᵉ-left-zero : 0x == x
     ℝ+ᵉ-left-zero = LU-paths->path 0x x L-path U-path
@@ -437,9 +437,9 @@ module _ (x : ℝ) where
       handle (q , lq) = (r- q) , subst x.L (sym minus-double-inverse) lq
 
     isLowerSet-L : isLowerSet L
-    isLowerSet-L a b a<b = x.isUpperSet-U (r- b) (r- a) (minus-flips-< a b a<b)
+    isLowerSet-L a b a<b = x.isUpperSet-U (r- b) (r- a) (minus-flips-< a<b)
     isUpperSet-U : isUpperSet U
-    isUpperSet-U a b a<b = x.isLowerSet-L (r- b) (r- a) (minus-flips-< a b a<b)
+    isUpperSet-U a b a<b = x.isLowerSet-L (r- b) (r- a) (minus-flips-< a<b)
 
     isUpperOpen-L : isUpperOpen L
     isUpperOpen-L q lq = ∥-map handle (x.isLowerOpen-U (r- q) lq)
@@ -470,7 +470,7 @@ module _ (x : ℝ) where
     disjoint q (lq , uq) = x.disjoint (r- q) (uq , lq)
 
     located : (a b : ℚ) -> a < b -> ∥ L a ⊎ U b ∥
-    located a b a<b = ∥-map ⊎-swap (x.located (r- b) (r- a) (minus-flips-< a b a<b))
+    located a b a<b = ∥-map ⊎-swap (x.located (r- b) (r- a) (minus-flips-< a<b))
 
   ℝ-ᵉ_ : ℝ
   ℝ-ᵉ_ = record

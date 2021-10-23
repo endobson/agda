@@ -140,7 +140,7 @@ private
         where
         q/2 = 1/2r r* q
         neg-q/2 = r*₁-preserves-sign (1/2r , Pos-1/ℕ _) q {neg-sign} neg-q
-        q<q/2 = subst (_< q/2) (r*-left-one q) (*₂-flips-< 1/2r 1r q 1/2r<1r neg-q)
+        q<q/2 = subst (_< q/2) (r*-left-one q) (*₂-flips-< 1/2r<1r neg-q)
 
       isUpperOpen-L q (L-nonpos (inj-r zero-q)) = ∥-map handle (ℝ->Pos-U x)
         where
@@ -260,7 +260,7 @@ private
       p = 0<ℝ1/-Pos -x -0L
 
       p2 : (- (ℝ1/-Pos -x -0L)) < (- 0ℝ)
-      p2 = minus-flips-< 0ℝ (ℝ1/-Pos -x -0L) p
+      p2 = minus-flips-<  p
 
 
 
@@ -283,8 +283,8 @@ module _ (x : ℝ)  where
 
 
 ℝ--preserves-ℝInv : (x : ℝ) -> ℝInv x -> ℝInv (ℝ- x)
-ℝ--preserves-ℝInv x (inj-l x<0) = inj-r (subst (_< (ℝ- x)) ℝ--zero (minus-flips-< x 0ℝ x<0))
-ℝ--preserves-ℝInv x (inj-r 0<x) = inj-l (subst ((ℝ- x) <_) ℝ--zero (minus-flips-< 0ℝ x 0<x))
+ℝ--preserves-ℝInv x (inj-l x<0) = inj-r (minus-flips-<0 x<0)
+ℝ--preserves-ℝInv x (inj-r 0<x) = inj-l (minus-flips-0< 0<x)
 
 
 
@@ -325,13 +325,13 @@ module _ (x : ℝ)  where
       where
       x<0 : x ℝ< 0ℝ
       x<0 = subst2 _ℝ<_ +-right-zero (+-right (sym ℝ--eval) >=> ℝ+-inverse x)
-                        (+₁-preserves-< x 0ℝ -x 0<-x)
+                        (+₁-preserves-< 0<-x)
 
     ℝ-ᵉ-ℝ1/ᵉ-commute' (inj-l x<0) (inj-l -x<0) = bot-elim (asym-ℝ< {0ℝ} {x} 0<x x<0)
       where
       0<x : 0ℝ ℝ< x
       0<x = subst2 _ℝ<_ (+-right (sym ℝ--eval) >=> ℝ+-inverse x) +-right-zero
-                        (+₁-preserves-< x -x 0ℝ -x<0)
+                        (+₁-preserves-< -x<0)
 
 
   ℝ--ℝ1/-commute : (xinv : ℝInv x) -> ℝ- (ℝ1/ x xinv) == ℝ1/ (ℝ- x) (ℝ--preserves-ℝInv x xinv)
@@ -423,10 +423,10 @@ private
 
 
             dlel<1 = subst2 _<_ *-commute (r1/-inverse dl (Pos->Inv pos-dl))
-                            (*₂-preserves-< el 1/dl dl el<1/dl pos-dl)
+                            (*₂-preserves-< el<1/dl pos-dl)
 
             1<dueu = subst2 _<_ (r1/-inverse du (Pos->Inv pos-du)) *-commute
-                            (*₂-preserves-< 1/du eu du 1/du<eu pos-du)
+                            (*₂-preserves-< 1/du<eu pos-du)
 
             de' = i*-NN d e (inj-l pos-dl) (inj-l pos-el)
             de'==de : de' == (d i* e)

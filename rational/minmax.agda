@@ -177,12 +177,12 @@ abstract
     handle : (y < z) ⊎ (z ℚ≤ y) -> _
     handle (inj-l y<z) =
       cong (x r*_) (minℚ-left y z y≤z) >=>
-      sym (minℚ-left (x r* y) (x r* z) (*₁-preserves-≤ x y z (NonNeg-0≤ x nn-x) y≤z))
+      sym (minℚ-left (x r* y) (x r* z) (*₁-preserves-≤ (NonNeg-0≤ x nn-x) y≤z))
       where
       y≤z = weaken-< {d1 = y} y<z
     handle (inj-r z≤y) =
       cong (x r*_) (minℚ-right y z z≤y) >=>
-      sym (minℚ-right (x r* y) (x r* z) (*₁-preserves-≤ x z y (NonNeg-0≤ x nn-x) z≤y))
+      sym (minℚ-right (x r* y) (x r* z) (*₁-preserves-≤ (NonNeg-0≤ x nn-x) z≤y))
 
 
   r*₁-flip-distrib-min : (x : ℚ⁰⁻) (y z : ℚ) ->
@@ -192,12 +192,12 @@ abstract
     handle : (y < z) ⊎ (z ℚ≤ y) -> _
     handle (inj-l y<z) =
       cong (x r*_) (minℚ-left y z y≤z) >=>
-      sym (maxℚ-left (x r* y) (x r* z) (*₁-flips-≤ x y z (NonPos-≤0 x np-x) y≤z))
+      sym (maxℚ-left (x r* y) (x r* z) (*₁-flips-≤ (NonPos-≤0 x np-x) y≤z))
       where
       y≤z = weaken-< {d1 = y} y<z
     handle (inj-r z≤y) =
       cong (x r*_) (minℚ-right y z z≤y) >=>
-      sym (maxℚ-right (x r* y) (x r* z) (*₁-flips-≤ x z y (NonPos-≤0 x np-x) z≤y))
+      sym (maxℚ-right (x r* y) (x r* z) (*₁-flips-≤ (NonPos-≤0 x np-x) z≤y))
 
   r*₁-distrib-max : (x : ℚ⁰⁺) (y z : ℚ) ->
                     ⟨ x ⟩ r* (maxℚ y z) == maxℚ (⟨ x ⟩ r* y) (⟨ x ⟩ r* z)
@@ -206,12 +206,12 @@ abstract
     handle : (y < z) ⊎ (z ℚ≤ y) -> _
     handle (inj-l y<z) =
       cong (x r*_) (maxℚ-right y z y≤z) >=>
-      sym (maxℚ-right (x r* y) (x r* z) (*₁-preserves-≤ x y z (NonNeg-0≤ x nn-x) y≤z))
+      sym (maxℚ-right (x r* y) (x r* z) (*₁-preserves-≤ (NonNeg-0≤ x nn-x) y≤z))
       where
       y≤z = weaken-< {d1 = y} y<z
     handle (inj-r z≤y) =
       cong (x r*_) (maxℚ-left y z z≤y) >=>
-      sym (maxℚ-left (x r* y) (x r* z) (*₁-preserves-≤ x z y (NonNeg-0≤ x nn-x) z≤y))
+      sym (maxℚ-left (x r* y) (x r* z) (*₁-preserves-≤ (NonNeg-0≤ x nn-x) z≤y))
 
 
   r*₁-flip-distrib-max : (x : ℚ⁰⁻) (y z : ℚ) ->
@@ -221,12 +221,12 @@ abstract
     handle : (y < z) ⊎ (z ℚ≤ y) -> _
     handle (inj-l y<z) =
       cong (x r*_) (maxℚ-right y z y≤z) >=>
-      sym (minℚ-right (x r* y) (x r* z) (*₁-flips-≤ x y z (NonPos-≤0 x np-x) y≤z))
+      sym (minℚ-right (x r* y) (x r* z) (*₁-flips-≤ (NonPos-≤0 x np-x) y≤z))
       where
       y≤z = weaken-< {d1 = y} y<z
     handle (inj-r z≤y) =
       cong (x r*_) (maxℚ-left y z z≤y) >=>
-      sym (minℚ-left (x r* y) (x r* z) (*₁-flips-≤ x z y (NonPos-≤0 x np-x) z≤y))
+      sym (minℚ-left (x r* y) (x r* z) (*₁-flips-≤ (NonPos-≤0 x np-x) z≤y))
 
   minℚ-property : {ℓ : Level} {P : Pred ℚ ℓ} -> (q r : ℚ) -> P q -> P r -> P (minℚ q r)
   minℚ-property {P = P} q r pq pr = handle (split-minℚ q r)
@@ -352,10 +352,10 @@ abstract
     where
     handle : (b < c) ⊎ (c ℚ≤ b) -> maxℚ (a r* b) (a r* c) == a r* (maxℚ b c)
     handle (inj-l b<c) =
-      maxℚ-right (a r* b) (a r* c) (*₁-preserves-≤ a b c (NonNeg-0≤ a nn-a) (weaken-< {d1 = b} b<c)) >=>
+      maxℚ-right (a r* b) (a r* c) (*₁-preserves-≤ (NonNeg-0≤ a nn-a) (weaken-< {d1 = b} b<c)) >=>
       cong (a r*_) (sym (maxℚ-right b c (weaken-< {d1 = b} b<c)))
     handle (inj-r c≤b) =
-      maxℚ-left (a r* b) (a r* c) (*₁-preserves-≤ a c b (NonNeg-0≤ a nn-a) c≤b) >=>
+      maxℚ-left (a r* b) (a r* c) (*₁-preserves-≤ (NonNeg-0≤ a nn-a) c≤b) >=>
       cong (a r*_) (sym (maxℚ-left b c c≤b))
 
   maxℚ-r*₂-NonNeg : (a b c : ℚ) -> (NonNeg c) -> maxℚ (a r* c) (b r* c) == (maxℚ a b) r* c
@@ -369,10 +369,10 @@ abstract
     where
     handle : (b < c) ⊎ (c ℚ≤ b) -> maxℚ (a r* b) (a r* c) == a r* (minℚ b c)
     handle (inj-l b<c) =
-      maxℚ-left (a r* b) (a r* c) (*₁-flips-≤ a b c (NonPos-≤0 a np-a) (weaken-< {d1 = b} b<c)) >=>
+      maxℚ-left (a r* b) (a r* c) (*₁-flips-≤ (NonPos-≤0 a np-a) (weaken-< {d1 = b} b<c)) >=>
       cong (a r*_) (sym (minℚ-left b c (weaken-< {d1 = b} b<c)))
     handle (inj-r c≤b) =
-      maxℚ-right (a r* b) (a r* c) (*₁-flips-≤ a c b (NonPos-≤0 a np-a) c≤b) >=>
+      maxℚ-right (a r* b) (a r* c) (*₁-flips-≤ (NonPos-≤0 a np-a) c≤b) >=>
       cong (a r*_) (sym (minℚ-right b c c≤b))
 
   minℚ-r*₁-NonNeg : (a b c : ℚ) -> (NonNeg a) -> minℚ (a r* b) (a r* c) == a r* (minℚ b c)
@@ -380,10 +380,10 @@ abstract
     where
     handle : (b < c) ⊎ (c ℚ≤ b) -> minℚ (a r* b) (a r* c) == a r* (minℚ b c)
     handle (inj-l b<c) =
-      minℚ-left (a r* b) (a r* c) (*₁-preserves-≤ a b c (NonNeg-0≤ a nn-a) (weaken-< {d1 = b} b<c)) >=>
+      minℚ-left (a r* b) (a r* c) (*₁-preserves-≤ (NonNeg-0≤ a nn-a) (weaken-< {d1 = b} b<c)) >=>
       cong (a r*_) (sym (minℚ-left b c (weaken-< {d1 = b} b<c)))
     handle (inj-r c≤b) =
-      minℚ-right (a r* b) (a r* c) (*₁-preserves-≤ a c b (NonNeg-0≤ a nn-a) c≤b) >=>
+      minℚ-right (a r* b) (a r* c) (*₁-preserves-≤ (NonNeg-0≤ a nn-a) c≤b) >=>
       cong (a r*_) (sym (minℚ-right b c c≤b))
 
   minℚ-r*₂-NonNeg : (a b c : ℚ) -> (NonNeg c) -> minℚ (a r* c) (b r* c) == (minℚ a b) r* c
@@ -397,10 +397,10 @@ abstract
     where
     handle : (b < c) ⊎ (c ℚ≤ b) -> minℚ (a r* b) (a r* c) == a r* (maxℚ b c)
     handle (inj-l b<c) =
-      minℚ-right (a r* b) (a r* c) (*₁-flips-≤ a b c (NonPos-≤0 a np-a) (weaken-< {d1 = b} b<c)) >=>
+      minℚ-right (a r* b) (a r* c) (*₁-flips-≤ (NonPos-≤0 a np-a) (weaken-< {d1 = b} b<c)) >=>
       cong (a r*_) (sym (maxℚ-right b c (weaken-< {d1 = b} b<c)))
     handle (inj-r c≤b) =
-      minℚ-left (a r* b) (a r* c) (*₁-flips-≤ a c b (NonPos-≤0 a np-a) c≤b) >=>
+      minℚ-left (a r* b) (a r* c) (*₁-flips-≤ (NonPos-≤0 a np-a) c≤b) >=>
       cong (a r*_) (sym (maxℚ-left b c c≤b))
 
   r--maxℚ : (a b : ℚ) -> r- (maxℚ a b) == minℚ (r- a) (r- b)
@@ -409,10 +409,10 @@ abstract
     handle : (a < b) ⊎ (b ℚ≤ a) -> r- (maxℚ a b) == minℚ (r- a) (r- b)
     handle (inj-l a<b) =
       cong r-_ (maxℚ-right a b (weaken-< {d1 = a} a<b)) >=>
-      sym (minℚ-right (r- a) (r- b) (minus-flips-≤ a b (weaken-< {d1 = a} a<b)))
+      sym (minℚ-right (r- a) (r- b) (minus-flips-≤ (weaken-< {d1 = a} a<b)))
     handle (inj-r b≤a) =
       cong r-_ (maxℚ-left a b b≤a) >=>
-      sym (minℚ-left (r- a) (r- b) (minus-flips-≤ b a b≤a))
+      sym (minℚ-left (r- a) (r- b) (minus-flips-≤ b≤a))
 
   r--minℚ : (a b : ℚ) -> r- (minℚ a b) == maxℚ (r- a) (r- b)
   r--minℚ a b = handle (split-< a b)
@@ -420,10 +420,10 @@ abstract
     handle : (a < b) ⊎ (b ℚ≤ a) -> r- (minℚ a b) == maxℚ (r- a) (r- b)
     handle (inj-l a<b) =
       cong r-_ (minℚ-left a b (weaken-< {d1 = a} a<b)) >=>
-      sym (maxℚ-left (r- a) (r- b) (minus-flips-≤ a b (weaken-< {d1 = a} a<b)))
+      sym (maxℚ-left (r- a) (r- b) (minus-flips-≤ (weaken-< {d1 = a} a<b)))
     handle (inj-r b≤a) =
       cong r-_ (minℚ-right a b b≤a) >=>
-      sym (maxℚ-right (r- a) (r- b) (minus-flips-≤ b a b≤a))
+      sym (maxℚ-right (r- a) (r- b) (minus-flips-≤ b≤a))
 
 
 -- Absolute value

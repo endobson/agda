@@ -29,8 +29,8 @@ private
     cd≤c = minℚ-≤-left c d
     cd≤d = minℚ-≤-right c d
 
-    abcd≤ac = +-preserves-≤ (minℚ a b) _ (minℚ c d) _ ab≤a cd≤c
-    abcd≤bd = +-preserves-≤ (minℚ a b) _ (minℚ c d) _ ab≤b cd≤d
+    abcd≤ac = +-preserves-≤ ab≤a cd≤c
+    abcd≤bd = +-preserves-≤ ab≤b cd≤d
 
 
   maxℚ-r+-swap : (a b c d : ℚ) -> maxℚ (a r+ c) (b r+ d) ℚ≤ (maxℚ a b r+ maxℚ c d)
@@ -42,8 +42,8 @@ private
     c≤cd = maxℚ-≤-left c d
     d≤cd = maxℚ-≤-right c d
 
-    ac≤abcd = +-preserves-≤ _ (maxℚ a b) _ (maxℚ c d) a≤ab c≤cd
-    bd≤abcd = +-preserves-≤ _ (maxℚ a b) _ (maxℚ c d) b≤ab d≤cd
+    ac≤abcd = +-preserves-≤ a≤ab c≤cd
+    bd≤abcd = +-preserves-≤ b≤ab d≤cd
 
 i-scale-distrib-r+ : (k1 k2 : ℚ) (a : Iℚ) -> i-scale (k1 r+ k2) a i⊆ (i-scale k1 a i+ i-scale k2 a)
 i-scale-distrib-r+ k1 k2 a@(Iℚ-cons al au al≤au) = (i⊆-cons lt1 lt2)

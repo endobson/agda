@@ -100,11 +100,11 @@ private
             0<ba = handle2 (eqInv (<>-equiv-# _ _) ba#0)
               where
               handle2 : (diff b a < 0#) ⊎ (0# < diff b a) -> _
-              handle2 (inj-l ba<0) = *-flips-<0 _ _ ba<0 ba<0
-              handle2 (inj-r 0<ba) = *-preserves-0< _ _ 0<ba 0<ba
+              handle2 (inj-l ba<0) = *-flips-<0 ba<0 ba<0
+              handle2 (inj-r 0<ba) = *-preserves-0< 0<ba 0<ba
 
             ba≤left-val : ((diff b a) * (diff b a)) ≤ left-val
-            ba≤left-val = subst2 _≤_ +-right-zero refl (+₁-preserves-≤ _ _ _ 0≤cd)
+            ba≤left-val = subst2 _≤_ +-right-zero refl (+₁-preserves-≤ 0≤cd)
 
             0<left-val = trans-<-≤ 0<ba ba≤left-val
           handle (y-axis , c#d) = eqFun (<>-equiv-# _ _) (inj-r 0<left-val)
@@ -119,11 +119,11 @@ private
             0<cd = handle2 (eqInv (<>-equiv-# _ _) cd#0)
               where
               handle2 : (diff c d < 0#) ⊎ (0# < diff c d) -> _
-              handle2 (inj-l cd<0) = *-flips-<0 _ _ cd<0 cd<0
-              handle2 (inj-r 0<cd) = *-preserves-0< _ _ 0<cd 0<cd
+              handle2 (inj-l cd<0) = *-flips-<0 cd<0 cd<0
+              handle2 (inj-r 0<cd) = *-preserves-0< 0<cd 0<cd
 
             cd≤left-val : ((diff c d) * (diff c d)) ≤ left-val
-            cd≤left-val = subst2 _≤_ +-left-zero refl (+₂-preserves-≤ _ _ _ 0≤ba)
+            cd≤left-val = subst2 _≤_ +-left-zero refl (+₂-preserves-≤ 0≤ba)
 
             0<left-val = trans-<-≤ 0<cd cd≤left-val
 
@@ -145,11 +145,11 @@ private
             0<ab = handle2 (eqInv (<>-equiv-# _ _) ab#0)
               where
               handle2 : ((a + b) < 0#) ⊎ (0# < (a + b)) -> _
-              handle2 (inj-l ab<0) = *-flips-<0 _ _ ab<0 ab<0
-              handle2 (inj-r 0<ab) = *-preserves-0< _ _ 0<ab 0<ab
+              handle2 (inj-l ab<0) = *-flips-<0 ab<0 ab<0
+              handle2 (inj-r 0<ab) = *-preserves-0< 0<ab 0<ab
 
             ab≤right-val : ((a + b) * (a + b)) ≤ right-val
-            ab≤right-val = subst2 _≤_ +-right-zero refl (+₁-preserves-≤ _ _ _ 0≤dc)
+            ab≤right-val = subst2 _≤_ +-right-zero refl (+₁-preserves-≤ 0≤dc)
 
             0<right-val = trans-<-≤ 0<ab ab≤right-val
           handle (y-axis , c#-d) = eqFun (<>-equiv-# _ _) (inj-r 0<right-val)
@@ -164,11 +164,11 @@ private
             0<dc = handle2 (eqInv (<>-equiv-# _ _) dc#0)
               where
               handle2 : ((d + c) < 0#) ⊎ (0# < (d + c)) -> _
-              handle2 (inj-l dc<0) = *-flips-<0 _ _ dc<0 dc<0
-              handle2 (inj-r 0<dc) = *-preserves-0< _ _ 0<dc 0<dc
+              handle2 (inj-l dc<0) = *-flips-<0 dc<0 dc<0
+              handle2 (inj-r 0<dc) = *-preserves-0< 0<dc 0<dc
 
             dc≤right-val : ((d + c) * (d + c)) ≤ right-val
-            dc≤right-val = subst2 _≤_ +-left-zero refl (+₂-preserves-≤ _ _ _ 0≤ab)
+            dc≤right-val = subst2 _≤_ +-left-zero refl (+₂-preserves-≤ 0≤ab)
 
             0<right-val = trans-<-≤ 0<dc dc≤right-val
 

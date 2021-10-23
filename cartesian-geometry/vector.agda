@@ -171,7 +171,7 @@ vector-length² : Vector -> ℝ
 vector-length² v = axis-dot-product (vector-index v) (vector-index v)
 
 vector-length²≮0 : (v : Vector) -> (vector-length² v ≮ 0ℝ)
-vector-length²≮0 v = +-preserves-≮0 (x * x) (y * y) (≮0-square x) (≮0-square y)
+vector-length²≮0 v = +-preserves-≮0 (≮0-square x) (≮0-square y)
   where
   x = (direct-product-index v x-axis)
   y = (direct-product-index v y-axis)
@@ -231,8 +231,8 @@ isSet-Direction = isSetΣ isSet-Vector (\v -> isProp->isSet (isProp-isUnitVector
 0<-square x x#0 = handle (eqInv (<>-equiv-# x 0#) x#0)
   where
   handle : (x < 0# ⊎ 0# < x) -> 0# < (x * x)
-  handle (inj-l x<0) = subst (_< (x * x)) *-right-zero (*₁-flips-< x x 0# x<0 x<0)
-  handle (inj-r 0<x) = subst (_< (x * x)) *-right-zero (*₁-preserves-< x 0# x 0<x 0<x)
+  handle (inj-l x<0) = subst (_< (x * x)) *-right-zero (*₁-flips-< x<0 x<0)
+  handle (inj-r 0<x) = subst (_< (x * x)) *-right-zero (*₁-preserves-< 0<x 0<x)
 
 vector-length>0 : (v : Vector) -> (v v# 0v) -> (vector-length v > 0#)
 vector-length>0 v v#0 = unsquash (isProp-< 0# (vector-length v)) (∥-map handle v#0)
@@ -255,7 +255,7 @@ vector-length>0 v v#0 = unsquash (isProp-< 0# (vector-length v)) (∥-map handle
     0≤yy : 0# ≤ yy
     0≤yy = ≮0-square y
     xx≤xxyy : xx ≤ xxyy
-    xx≤xxyy = subst (_≤ xxyy) +-right-zero (+₁-preserves-≤ xx 0# yy 0≤yy)
+    xx≤xxyy = subst (_≤ xxyy) +-right-zero (+₁-preserves-≤ 0≤yy)
   handle (y-axis , y#0) = handle-vl²>0 (trans-<-≤ {d1 = 0ℝ} {yy} {xxyy}  0<yy yy≤xxyy)
     where
     0<yy : 0# < yy
@@ -263,7 +263,7 @@ vector-length>0 v v#0 = unsquash (isProp-< 0# (vector-length v)) (∥-map handle
     0≤xx : 0# ≤ xx
     0≤xx = ≮0-square x
     yy≤xxyy : yy ≤ xxyy
-    yy≤xxyy = subst (_≤ xxyy) +-left-zero (+₂-preserves-≤ 0# xx yy 0≤xx)
+    yy≤xxyy = subst (_≤ xxyy) +-left-zero (+₂-preserves-≤ 0≤xx)
 
 vector-length>0-#0 : (v : Vector) -> (vector-length v > 0#) -> (v v# 0v)
 vector-length>0-#0 v l>0 = unsquash (isProp-v# v 0v) (∥-map handle (+-reflects-#0 vl²#0))
@@ -313,7 +313,7 @@ vector-length-* k v = p6
   0≤l2kv = vector-length²≮0 (k v* v)
   0≤l2v = vector-length²≮0 v
   0≤lv = vector-length≮0 v
-  0≤aklv = *-preserves-0≤ _ _ (absℝ-≮0 k) 0≤lv
+  0≤aklv = *-preserves-0≤ (absℝ-≮0 k) 0≤lv
 
   p2 : l2v == lv * lv
   p2 = sym (sqrt² l2v 0≤l2v)
@@ -450,7 +450,7 @@ vector->direction v v#0 = normalize-vector v v#0 , a.path
       0≤k : 0ℝ ≤ k
       0≤k k<0 = asym-< {_} {_} {_} {0ℝ} {1ℝ} 0ℝ<1ℝ
                        (subst2 _<_ (ℝ1/-inverse vl vl-inv) (*-right-zero {m = k})
-                                   (*₁-flips-< k 0ℝ vl k<0 0<vl))
+                                   (*₁-flips-< k<0 0<vl))
       path : vector-length (k v* v) == 1ℝ
       path = vector-length-* k v >=> *-left (absℝ-NonNeg-idem k 0≤k) >=> ℝ1/-inverse vl vl-inv
 

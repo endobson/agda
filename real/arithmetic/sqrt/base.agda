@@ -62,7 +62,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ)
           handle2 (inj-r 1≤q) = q , (0≤q , (isUpperSet≤ x q _ q<q*q xu-q))
             where
             0≤q = trans-≤ (weaken-< 0<1r) 1≤q
-            q<q*q = subst (_≤ (q * q)) *-right-one (*₁-preserves-≤ q 1r q 0≤q 1≤q)
+            q<q*q = subst (_≤ (q * q)) *-right-one (*₁-preserves-≤ 0≤q 1≤q)
 
       isUpperSet-U : isUpperSet U
       isUpperSet-U q r q<r (0≤q , xu-qq) =
@@ -70,7 +70,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ)
         where
         0<r = trans-≤-< 0≤q q<r
         qq<rr : (q * q) < (r * r)
-        qq<rr = trans-≤-< (*₁-preserves-≤ q q r 0≤q (weaken-< q<r)) (*₂-preserves-< q r r q<r 0<r)
+        qq<rr = trans-≤-< (*₁-preserves-≤ 0≤q (weaken-< q<r)) (*₂-preserves-< q<r 0<r)
 
       isLowerSet-L : isLowerSet L
       isLowerSet-L q r q<r (inj-l r<0) = (inj-l (trans-< q<r r<0))
@@ -82,7 +82,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ)
           where
           q≤r = weaken-< q<r
           qq≤rr : (q * q) ≤ (r * r)
-          qq≤rr = trans-≤ (*₁-preserves-≤ q q r 0≤q q≤r) (*₂-preserves-≤ q r r q≤r 0≤r)
+          qq≤rr = trans-≤ (*₁-preserves-≤ 0≤q q≤r) (*₂-preserves-≤ q≤r 0≤r)
 
 
       isLowerOpen-U : isLowerOpen U
@@ -113,8 +113,8 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ)
       isUpperOpen-L : isUpperOpen L
       isUpperOpen-L q (inj-l q<0) = ∣ 1/2r * q , q<1/2q , inj-l 1/2q<0 ∣
         where
-        q<1/2q = subst2 _<_ *-left-one refl (*₂-flips-< 1/2r 1r q 1/2r<1r q<0)
-        1/2q<0 = subst2 _<_ refl *-right-zero (*₁-preserves-< 1/2r q 0r Pos-1/2r q<0)
+        q<1/2q = subst2 _<_ *-left-one refl (*₂-flips-< 1/2r<1r q<0)
+        1/2q<0 = subst2 _<_ refl *-right-zero (*₁-preserves-< Pos-1/2r q<0)
 
       isUpperOpen-L q (inj-r (0≤q , xl-qq)) = ∥-bind handle (x.isUpperOpen-L qq xl-qq)
         where
@@ -123,7 +123,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ)
         handle (r , (qq<r , xl-r)) = ∥-map handle2 (squares-dense-lower-square 0≤q qq<r)
           where
           0≤qq : 0r ≤ qq
-          0≤qq = *-preserves-0≤ _ _ 0≤q 0≤q
+          0≤qq = *-preserves-0≤ 0≤q 0≤q
 
           handle2 : _ -> Σ[ r ∈ ℚ ] (q < r × L r)
           handle2 (s , (t , 0≤t , tt=s) , qq<s , s<r) =

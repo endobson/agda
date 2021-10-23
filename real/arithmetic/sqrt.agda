@@ -109,7 +109,7 @@ abstract
     0≤x x<0 = irrefl-< {_} {_} {_} {0ℝ} (subst2 _<_ x0=0 xx=0 x0<xx)
       where
       x0<xx : (x * 0ℝ) < (x * x)
-      x0<xx = *₁-flips-< x x 0ℝ x<0 x<0
+      x0<xx = *₁-flips-< x<0 x<0
       xx=0 : x * x == 0ℝ
       xx=0 = absℝ-square x >=> *-right p >=> *-right-zero
       x0=0 : x * 0ℝ == 0ℝ
@@ -186,20 +186,20 @@ module _ (x : ℝ) where
           aiai≤auau : Iℚ.u (ai i* ai) ≤ (au * au)
           aiai≤auau = maxℚ-property {P = \x -> x ≤ (au * au)} _ _ alai≤auau auai≤auau
             where
-            alau≤auau = *₂-preserves-≤ al au au al≤au 0≤au
+            alau≤auau = *₂-preserves-≤ al≤au 0≤au
             alal≤auau = handle (split-< al 0r)
               where
               handle : (al < 0r ⊎ 0r ≤ al) -> (al * al) ≤ (au * au)
               handle (inj-r 0≤al) =
-                trans-≤ (*₁-preserves-≤ al al au 0≤al al≤au)
-                        (*₂-preserves-≤ al au au al≤au 0≤au)
+                trans-≤ (*₁-preserves-≤ 0≤al al≤au)
+                        (*₂-preserves-≤ al≤au 0≤au)
               handle (inj-l al<0) = subst (_≤ (au * au)) -al-al=alal -al-al≤auau
                 where
                 0≤-al = minus-flips-≤0 (weaken-< al<0)
                 -al = - al
 
-                -al-al≤auau = trans-≤ (*₁-preserves-≤ -al -al au 0≤-al -al≤au)
-                                      (*₂-preserves-≤ -al au au -al≤au 0≤au)
+                -al-al≤auau = trans-≤ (*₁-preserves-≤ 0≤-al -al≤au)
+                                      (*₂-preserves-≤ -al≤au 0≤au)
                 -al-al=alal : (-al * -al) == al * al
                 -al-al=alal = minus-extract-left >=> cong -_ minus-extract-right >=> minus-double-inverse
 
@@ -226,7 +226,7 @@ module _ (x : ℝ) where
                               refl-≤
             alal≤auai : (al * al) ≤ Iℚ.l (i-scale au ai)
             alal≤auai = subst (\x -> (al * al) ≤ Iℚ.l x) (i-scale-NN-path (au , 0≤-NonNeg au 0≤au) ai)
-                              (*₂-preserves-≤ al au al al≤au 0≤al)
+                              (*₂-preserves-≤ al≤au 0≤al)
 
 module _ (x : ℝ) where
   private
@@ -446,7 +446,7 @@ private
         bi = Iℚ-cons l -l (weaken-< (trans-< l<0 0<-l))
     handle (inj-l l<0) (inj-l u<-l) = ∥-map handle2 (x.located -u 0r -u<0)
       where
-      l<-u = subst (_< -u) minus-double-inverse (minus-flips-< _ _ u<-l)
+      l<-u = subst (_< -u) minus-double-inverse (minus-flips-< u<-l)
       -u<0 = minus-flips-0< 0<u
       handle2 : (x.L -u ⊎ x.U 0r) -> Ans
       handle2 (inj-l xL--u) = bi , (xL--u , snd x∈ai) , i⊆-cons (weaken-< l<-u) refl-≤ ,
@@ -600,7 +600,7 @@ module _ (x : ℝ) (y : ℝ) (x≮0 : x ≮ 0ℝ) (y≮0 : y ≮ 0ℝ)
   private
     xy = x * y
     0≤xy : 0ℝ ≤ xy
-    0≤xy = *-preserves-≮0 x y x≮0 y≮0
+    0≤xy = *-preserves-≮0 x≮0 y≮0
     sx = (sqrtℝ x x≮0)
     sy = (sqrtℝ y y≮0)
     sxy = (sqrtℝ xy 0≤xy)

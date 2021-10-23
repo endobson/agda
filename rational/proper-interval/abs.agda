@@ -85,7 +85,7 @@ i²-ImbalancedI : (ai : Iℚ) -> ImbalancedI ai -> Iℚ
 i²-ImbalancedI ai@(Iℚ-cons l u l≤u) -l≤u = (Iℚ-cons (minℚ (l * l) (l * u)) (u * u) lllu≤uu)
   where
   0≤u = ImbalancedI->0≤u ai -l≤u
-  lu≤uu = *₂-preserves-≤ l u u l≤u 0≤u
+  lu≤uu = *₂-preserves-≤ l≤u 0≤u
 
   lllu≤uu : minℚ (l * l) (l * u) ≤ (u * u)
   lllu≤uu = trans-≤ (minℚ-≤-right _ _) lu≤uu
@@ -99,17 +99,17 @@ i²-ImbalancedI-path ai@(Iℚ-cons l u l≤u) -l≤u = Iℚ-bounds-path l-path u
 
   0≤u = ImbalancedI->0≤u ai -l≤u
 
-  lu≤uu = *₂-preserves-≤ l u u l≤u 0≤u
-  ul≤uu = *₁-preserves-≤ u l u 0≤u l≤u
+  lu≤uu = *₂-preserves-≤ l≤u 0≤u
+  ul≤uu = *₁-preserves-≤ 0≤u l≤u
   ll≤uu = handle (split-< l 0r)
     where
     handle : (l < 0r ⊎ 0r ≤ l) -> (l * l) ≤ (u * u)
-    handle (inj-r 0≤l) = trans-≤ (*₁-preserves-≤ l l u 0≤l l≤u)
-                                 (*₂-preserves-≤ l u u l≤u 0≤u)
+    handle (inj-r 0≤l) = trans-≤ (*₁-preserves-≤ 0≤l l≤u)
+                                 (*₂-preserves-≤ l≤u 0≤u)
     handle (inj-l l<0) =
       subst (_≤ (u * u)) minus-extract-both
-            (trans-≤ (*₁-preserves-≤ -l -l u 0≤-l -l≤u)
-                     (*₂-preserves-≤ -l u u -l≤u 0≤u))
+            (trans-≤ (*₁-preserves-≤ 0≤-l -l≤u)
+                     (*₂-preserves-≤ -l≤u 0≤u))
       where
       0≤-l = (minus-flips-≤0 (weaken-< l<0))
 
@@ -132,8 +132,8 @@ i²-NonNegI ai@(Iℚ-cons l u l≤u)  nn-ai = (Iℚ-cons (l * l) (u * u) ll≤uu
 
   ll≤uu : (l * l) ≤ (u * u)
   ll≤uu =
-    trans-≤ (*₁-preserves-≤ l l u 0≤l l≤u)
-            (*₂-preserves-≤ l u u l≤u (trans-≤ 0≤l l≤u))
+    trans-≤ (*₁-preserves-≤ 0≤l l≤u)
+            (*₂-preserves-≤ l≤u (trans-≤ 0≤l l≤u))
 
 
 i²-NonNegI-path : (ai : Iℚ) -> (nn-ai : NonNegI ai) -> i²-NonNegI ai nn-ai == (ai i* ai)
@@ -145,10 +145,10 @@ i²-NonNegI-path ai@(Iℚ-cons l u l≤u) nn-ai = Iℚ-bounds-path l-path u-path
   l2 = Iℚ.l (ai i* ai)
   u2 = Iℚ.u (ai i* ai)
 
-  ll≤lu = *₁-preserves-≤ l l u 0≤l l≤u
-  ll≤ul = *₂-preserves-≤ l u l l≤u 0≤l
-  ul≤uu = *₁-preserves-≤ u l u 0≤u l≤u
-  lu≤uu = *₂-preserves-≤ l u u l≤u 0≤u
+  ll≤lu = *₁-preserves-≤ 0≤l l≤u
+  ll≤ul = *₂-preserves-≤ l≤u 0≤l
+  ul≤uu = *₁-preserves-≤ 0≤u l≤u
+  lu≤uu = *₂-preserves-≤ l≤u 0≤u
 
   l-path : (l * l) == l2
   l-path = sym (cong2 minℚ (minℚ-left _ _ ll≤lu) (minℚ-left _ _ ul≤uu) >=>
@@ -164,7 +164,7 @@ i²-BalancedI ai@(Iℚ-cons l u l≤u) -l=u = Iℚ-cons (l * u) (u * u) lu≤uu
   where
   0≤u = ImbalancedI->0≤u ai (BalancedI->ImbalancedI ai -l=u)
 
-  lu≤uu = *₂-preserves-≤ l u u l≤u 0≤u
+  lu≤uu = *₂-preserves-≤ l≤u 0≤u
 
 
 i²-BalancedI-path : (ai : Iℚ) -> (bal-ai : BalancedI ai) -> i²-BalancedI ai bal-ai == (ai i* ai)
@@ -176,10 +176,10 @@ i²-BalancedI-path ai@(Iℚ-cons l u l≤u) bal-ai = Iℚ-bounds-path l-path u-p
   l2 = Iℚ.l (ai i* ai)
   u2 = Iℚ.u (ai i* ai)
 
-  lu≤ll = *₁-flips-≤ l l u l≤0 l≤u
-  ul≤ll = *₂-flips-≤ l u l l≤u l≤0
-  ul≤uu = *₁-preserves-≤ u l u 0≤u l≤u
-  lu≤uu = *₂-preserves-≤ l u u l≤u 0≤u
+  lu≤ll = *₁-flips-≤ l≤0 l≤u
+  ul≤ll = *₂-flips-≤ l≤u l≤0
+  ul≤uu = *₁-preserves-≤ 0≤u l≤u
+  lu≤uu = *₂-preserves-≤ l≤u 0≤u
   ll=uu : (l * l) == (u * u)
   ll=uu = sym minus-extract-both >=> *-cong bal-ai bal-ai
   lu=ul : (l * u) == (u * l)
@@ -204,15 +204,15 @@ naive-i² (Iℚ-cons l u l≤u) -l≤u = (Iℚ-cons (l * l) (u * u) ll≤uu)
     where
     handle : (0r ≤ l ⊎ l ≤ 0r) -> (l * l) ≤ (u * u)
     handle (inj-l 0≤l) =
-      trans-≤ (*₁-preserves-≤ l l u 0≤l l≤u)
-              (*₂-preserves-≤ l u u l≤u (trans-≤ 0≤l l≤u))
+      trans-≤ (*₁-preserves-≤ 0≤l l≤u)
+              (*₂-preserves-≤ l≤u (trans-≤ 0≤l l≤u))
     handle (inj-r l≤0) = subst (_≤ (u * u)) -l-l=ll -l-l≤uu
       where
       0≤-l = minus-flips-≤0 l≤0
       -l = - l
 
-      -l-l≤uu = trans-≤ (*₁-preserves-≤ -l -l u 0≤-l -l≤u)
-                        (*₂-preserves-≤ -l u u -l≤u (trans-≤ 0≤-l -l≤u))
+      -l-l≤uu = trans-≤ (*₁-preserves-≤ 0≤-l -l≤u)
+                        (*₂-preserves-≤ -l≤u (trans-≤ 0≤-l -l≤u))
       -l-l=ll : (-l * -l) == l * l
       -l-l=ll = minus-extract-left >=> cong -_ minus-extract-right >=> minus-double-inverse
 
@@ -236,8 +236,8 @@ naive-i² (Iℚ-cons l u l≤u) -l≤u = (Iℚ-cons (l * l) (u * u) ll≤uu)
     np-k = ≤0-NonPos k (weaken-< k<0)
 
     kq∈ka' : ℚ∈Iℚ (k * q) (i-scale-NP (k , np-k) a)
-    kq∈ka' = *₁-flips-≤ k q u (weaken-< k<0) q≤u ,
-             *₁-flips-≤ k l q (weaken-< k<0) l≤q
+    kq∈ka' = *₁-flips-≤ (weaken-< k<0) q≤u ,
+             *₁-flips-≤ (weaken-< k<0) l≤q
 
   handle (inj-r 0≤k) = subst (ℚ∈Iℚ (k * q)) (i-scale-NN-path (k , nn-k) a) kq∈ka'
     where
@@ -245,8 +245,8 @@ naive-i² (Iℚ-cons l u l≤u) -l≤u = (Iℚ-cons (l * l) (u * u) ll≤uu)
     nn-k = 0≤-NonNeg k 0≤k
 
     kq∈ka' : ℚ∈Iℚ (k * q) (i-scale-NN (k , nn-k) a)
-    kq∈ka' = *₁-preserves-≤ k l q 0≤k l≤q ,
-             *₁-preserves-≤ k q u 0≤k q≤u
+    kq∈ka' = *₁-preserves-≤ 0≤k l≤q ,
+             *₁-preserves-≤ 0≤k q≤u
 
 ℚ∈Iℚ-⊆ : (q : ℚ) -> {a b : Iℚ} -> (a i⊆ b) -> ℚ∈Iℚ q a -> ℚ∈Iℚ q b
 ℚ∈Iℚ-⊆ q {_} {b} (i⊆-cons bl≤al au≤bu) (al≤q , q≤au) =
@@ -346,7 +346,7 @@ i*-i⊆-square-NonNegI2⁻ ai@(Iℚ-cons al au al≤au) bi@(Iℚ-cons bl bu bl�
   where
   0≤au = ImbalancedI->0≤u ai imb-ai
   0≤bl = NonNeg-0≤ bl nn-bi
-  0≤blbl = *-preserves-0≤ _ _ 0≤bl 0≤bl
+  0≤blbl = *-preserves-0≤ 0≤bl 0≤bl
   a²l≤alau = fst (ℚ∈Iℚ-* _ _ ai ai (ℚ∈Iℚ-l ai) (ℚ∈Iℚ-u ai))
   b²l≤alau = trans-≤ b²l≤a²l a²l≤alau
   blbl≤alau = subst (_≤ (al * au)) (cong Iℚ.l (sym (i²-NonNegI-path bi nn-bi)))  b²l≤alau
@@ -357,7 +357,7 @@ i*-i⊆-square-NonNegI2⁻ ai@(Iℚ-cons al au al≤au) bi@(Iℚ-cons bl bu bl�
     where
     0<-al = minus-flips-<0 al<0
     0<au = trans-<-≤ 0<-al imb-ai
-    alau<0 = subst ((al * au) <_) *-left-zero (*₂-preserves-< al 0r au al<0 0<au)
+    alau<0 = subst ((al * au) <_) *-left-zero (*₂-preserves-< al<0 0<au)
 
   nn-ai : NonNegI ai
   nn-ai = 0≤-NonNeg al (proj-¬l (split-< al 0r) al≮0)
@@ -395,7 +395,7 @@ i*-i⊆-square-BalancedI⁻ ai@(Iℚ-cons al au al≤au) bi@(Iℚ-cons bl bu bl�
   au≤bu = squares-ordered-≤ 0≤bu auau≤bubu
   mal≤bu = squares-ordered-≤ 0≤bu malmal≤bubu
   mal≤mbl = subst ((- al) ≤_) (sym bal-bi) mal≤bu
-  bl≤al = subst2 _≤_ minus-double-inverse minus-double-inverse (minus-flips-≤ _ _ mal≤mbl)
+  bl≤al = subst2 _≤_ minus-double-inverse minus-double-inverse (minus-flips-≤ mal≤mbl)
 
 
 

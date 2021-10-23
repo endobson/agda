@@ -498,8 +498,8 @@ abstract
 instance
   LinearlyOrderedSemiringStr-ℚ : LinearlyOrderedSemiringStr RationalSemiring LinearOrderStr-ℚ
   LinearlyOrderedSemiringStr-ℚ = record
-    { +₁-preserves-< = r+₁-preserves-<
-    ; *-preserves-0< = r*-preserves-0<
+    { +₁-preserves-< = r+₁-preserves-< _ _ _
+    ; *-preserves-0< = r*-preserves-0< _ _
     }
 
 
@@ -554,7 +554,7 @@ abstract
     f< {a} 0<a = ℚ0≤-elim (isProp-≤ _ _) g< g=
       where
       g< : {b : ℚ} -> 0r < b -> 0r ≤ (a * b)
-      g< 0<b = weaken-< (*-preserves-0< _ _ 0<a 0<b)
+      g< 0<b = weaken-< (*-preserves-0< 0<a 0<b)
 
       g= : {b : ℚ} -> 0r == b -> 0r ≤ (a * b)
       g= 0=b = =->≤ (sym *-right-zero >=> *-right 0=b)
@@ -562,8 +562,8 @@ abstract
 instance
   PartiallyOrderedSemiringStr-ℚ : PartiallyOrderedSemiringStr RationalSemiring PartialOrderStr-ℚ
   PartiallyOrderedSemiringStr-ℚ = record
-    { +₁-preserves-≤ = r+₁-preserves-≤
-    ; *-preserves-0≤ = r*-preserves-0≤
+    { +₁-preserves-≤ = r+₁-preserves-≤ _ _ _
+    ; *-preserves-0≤ = r*-preserves-0≤ _ _
     }
 
 
@@ -641,13 +641,13 @@ abstract
 
   r*-Pos-Neg : {q1 q2 : ℚ} -> Pos q1 -> Neg q2 -> Neg (q1 r* q2)
   r*-Pos-Neg {q1} {q2} p1 n2 =
-    subst ((q1 * q2) <_) *-right-zero (*₁-preserves-< q1 q2 0r p1 n2)
+    subst ((q1 * q2) <_) *-right-zero (*₁-preserves-< p1 n2)
 
   r*-Neg-Pos : {q1 q2 : ℚ} -> Neg q1 -> Pos q2 -> Neg (q1 r* q2)
   r*-Neg-Pos n1 p2 = subst Neg *-commute (r*-Pos-Neg p2 n1)
 
   r*-Neg-Neg : {q1 q2 : ℚ} -> Neg q1 -> Neg q2 -> Pos (q1 r* q2)
-  r*-Neg-Neg {q1} {q2} n1 n2 = subst (_< (q1 * q2)) *-right-zero (*₁-flips-< q1 q2 0r n1 n2)
+  r*-Neg-Neg {q1} {q2} n1 n2 = subst (_< (q1 * q2)) *-right-zero (*₁-flips-< n1 n2)
 
 
   r*-NonNeg-NonNeg : {q1 q2 : ℚ} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r* q2)
@@ -657,7 +657,7 @@ abstract
   r*-NonNeg-NonPos {q1} {q2} nn1 np2 = ≤0-NonPos _ q1q2≤0
     where
     q1q2≤0 : (q1 * q2) ≤ 0r
-    q1q2≤0 = subst ((q1 * q2) ≤_) *-right-zero (*₁-preserves-≤ q1 q2 0r (NonNeg-0≤ _ nn1) (NonPos-≤0 _ np2))
+    q1q2≤0 = subst ((q1 * q2) ≤_) *-right-zero (*₁-preserves-≤ (NonNeg-0≤ _ nn1) (NonPos-≤0 _ np2))
 
   r*-NonPos-NonNeg : {q1 q2 : ℚ} -> NonPos q1 -> NonNeg q2 -> NonPos (q1 r* q2)
   r*-NonPos-NonNeg np nn = subst NonPos *-commute (r*-NonNeg-NonPos nn np)
@@ -666,17 +666,17 @@ abstract
   r*-NonPos-NonPos {q1} {q2} nn1 np2 = 0≤-NonNeg _ 0≤q1q2
     where
     0≤q1q2 : 0r ≤ (q1 * q2)
-    0≤q1q2 = subst (_≤ (q1 * q2)) *-right-zero (*₁-flips-≤ q1 q2 0r (NonPos-≤0 _ nn1) (NonPos-≤0 _ np2))
+    0≤q1q2 = subst (_≤ (q1 * q2)) *-right-zero (*₁-flips-≤ (NonPos-≤0 _ nn1) (NonPos-≤0 _ np2))
 
 
 
   r+-NonNeg-NonNeg : {q1 q2 : ℚ} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r+ q2)
   r+-NonNeg-NonNeg {q1} {q2} nn1 nn2 = 0≤-NonNeg (q1 + q2)
-    (subst (_≤ (q1 + q2)) +-left-zero (+-preserves-≤ _ _ _ _ (NonNeg-0≤ q1 nn1) (NonNeg-0≤ q2 nn2)))
+    (subst (_≤ (q1 + q2)) +-left-zero (+-preserves-≤ (NonNeg-0≤ q1 nn1) (NonNeg-0≤ q2 nn2)))
 
   r+-NonPos-NonPos : {q1 q2 : ℚ} -> NonPos q1 -> NonPos q2 -> NonPos (q1 r+ q2)
   r+-NonPos-NonPos {q1} {q2} np1 np2 = ≤0-NonPos (q1 + q2)
-    (subst ((q1 + q2) ≤_) +-left-zero (+-preserves-≤ _ _ _ _ (NonPos-≤0 q1 np1) (NonPos-≤0 q2 np2)))
+    (subst ((q1 + q2) ≤_) +-left-zero (+-preserves-≤ (NonPos-≤0 q1 np1) (NonPos-≤0 q2 np2)))
 
 
   r*-preserves-Pos : (q1 q2 : Rational) -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r* q2)
@@ -688,11 +688,11 @@ abstract
 
   r+-preserves-Pos : (q1 q2 : ℚ) -> Pos q1 -> Pos q2 -> Pos (q1 r+ q2)
   r+-preserves-Pos q1 q2 p1 p2 =
-    subst (_< (q1 + q2)) +-left-zero (+-preserves-< _ _ _ _ p1 p2)
+    subst (_< (q1 + q2)) +-left-zero (+-preserves-< p1 p2)
 
   r+-preserves-Neg : (q1 q2 : ℚ) -> Neg q1 -> Neg q2 -> Neg (q1 r+ q2)
   r+-preserves-Neg q1 q2 p1 p2 =
-    subst ((q1 + q2) <_) +-left-zero (+-preserves-< _ _ _ _ p1 p2)
+    subst ((q1 + q2) <_) +-left-zero (+-preserves-< p1 p2)
 
 
 
@@ -705,19 +705,19 @@ abstract
     handle pos-sign  zero-sign p1 z2 = inj-r z2
     handle neg-sign  zero-sign n1 z2 = inj-r z2
     handle pos-sign  pos-sign  p1 p2 =
-      bot-elim (NonZero->¬Zero (inj-l (*-preserves-0< _ _ p1 p2)) zp)
+      bot-elim (NonZero->¬Zero (inj-l (*-preserves-0< p1 p2)) zp)
     handle pos-sign  neg-sign  p1 n2 = bot-elim (NonZero->¬Zero (inj-r p<0) zp)
       where
       p<0 : (q1 * q2) < 0r
-      p<0 = subst ((q1 * q2) <_) *-right-zero (*₁-preserves-< q1 q2 0r p1 n2)
+      p<0 = subst ((q1 * q2) <_) *-right-zero (*₁-preserves-< p1 n2)
     handle neg-sign  pos-sign  n1 p2 = bot-elim (NonZero->¬Zero (inj-r p<0) zp)
       where
       p<0 : (q1 * q2) < 0r
-      p<0 = subst ((q1 * q2) <_) *-left-zero (*₂-preserves-< q1 0r q2 n1 p2)
+      p<0 = subst ((q1 * q2) <_) *-left-zero (*₂-preserves-< n1 p2)
     handle neg-sign  neg-sign  n1 n2 = bot-elim (NonZero->¬Zero (inj-l 0<p) zp)
       where
       0<p : 0r < (q1 * q2)
-      0<p = subst (_< (q1 * q2)) *-right-zero (*₁-flips-< q1 q2 0r n1 n2)
+      0<p = subst (_< (q1 * q2)) *-right-zero (*₁-flips-< n1 n2)
 
 
   r*₁-preserves-sign : (q : ℚ⁺) (r : Rational) {s : Sign} -> isSignℚ s r -> isSignℚ s (⟨ q ⟩ r* r)
@@ -779,28 +779,28 @@ abstract
     0<1/2r = (Pos-1/ℕ (2 , tt))
 
     0r+1/2r<1/2r+1/2r : (0r r+ 1/2r) < (1/2r r+ 1/2r)
-    0r+1/2r<1/2r+1/2r = +₂-preserves-< 0r 1/2r 1/2r 0<1/2r
+    0r+1/2r<1/2r+1/2r = +₂-preserves-< 0<1/2r
 
   1/2ℕ<1/ℕ : (n : Nat⁺) -> 1/ℕ (2⁺ *⁺ n) < 1/ℕ n
   1/2ℕ<1/ℕ n =
     subst2 _<_ (sym (1/2ℕ-path n)) (r*-left-one (1/ℕ n))
-          (*₂-preserves-< 1/2r 1r (1/ℕ n) 1/2r<1r (Pos-1/ℕ n))
+          (*₂-preserves-< 1/2r<1r (Pos-1/ℕ n))
 
   NonNeg-diffℚ : (a b : ℚ) -> a ≤ b -> NonNeg (diffℚ a b)
   NonNeg-diffℚ a b a≤b =
-    0≤-NonNeg _ (subst (_≤ (diffℚ a b)) +-inverse (+₂-preserves-≤ a b (- a) a≤b))
+    0≤-NonNeg _ (subst (_≤ (diffℚ a b)) +-inverse (+₂-preserves-≤ a≤b))
 
   NonNeg-diffℚ⁻ : (a b : ℚ) -> NonNeg (diffℚ a b) -> a ≤ b
   NonNeg-diffℚ⁻ a b nn =
-    subst2 _≤_ +-right-zero (diffℚ-step a b) (+₁-preserves-≤ a _ _ (NonNeg-0≤ _ nn))
+    subst2 _≤_ +-right-zero (diffℚ-step a b) (+₁-preserves-≤ (NonNeg-0≤ _ nn))
 
   Pos-diffℚ : (a b : ℚ) -> a < b -> Pos (diffℚ a b)
   Pos-diffℚ a b a<b =
-    subst (_< (diffℚ a b)) +-inverse (+₂-preserves-< a b (- a) a<b)
+    subst (_< (diffℚ a b)) +-inverse (+₂-preserves-< a<b)
 
   Pos-diffℚ⁻ : (a b : ℚ) -> Pos (diffℚ a b) -> a < b
   Pos-diffℚ⁻ a b p =
-    subst2 _<_ +-right-zero (diffℚ-step a b) (+₁-preserves-< a _ _ p)
+    subst2 _<_ +-right-zero (diffℚ-step a b) (+₁-preserves-< p)
 
 
   dense-< : Dense _ℚ<_
@@ -864,11 +864,11 @@ abstract
 
   r+-Pos->order : (a : ℚ) (b : Σ ℚ Posℚ) -> a < (a r+ ⟨ b ⟩)
   r+-Pos->order a (b , pos-b) =
-    subst (_< (a + b)) +-right-zero (+₁-preserves-< a 0r b pos-b)
+    subst (_< (a + b)) +-right-zero (+₁-preserves-< pos-b)
 
   r+-Neg->order : (a : ℚ) (b : Σ ℚ Negℚ) -> a > (a r+ ⟨ b ⟩)
   r+-Neg->order a (b , neg-b) =
-    subst (_> (a + b)) +-right-zero (+₁-preserves-< a b 0r neg-b)
+    subst (_> (a + b)) +-right-zero (+₁-preserves-< neg-b)
 
 
 abstract
@@ -896,8 +896,7 @@ abstract
       r*-right-one (1/ℕ b)
 
     ab*< : (ab r* (ℕ->ℚ a')) < (ab r* (ℕ->ℚ b'))
-    ab*< = *₁-preserves-< ab (ℕ->ℚ a') (ℕ->ℚ b')
-             pos-ab (ℕ->ℚ-preserves-order a' b' lt)
+    ab*< = *₁-preserves-< pos-ab (ℕ->ℚ-preserves-order a' b' lt)
 
 
   private
@@ -1084,7 +1083,7 @@ small-1/2^ℕ q@(q' , _) = ∥-map handle (small-1/2^ℕ-step1 q)
   handle (m , lt) = m , subst (((1/2r r^ℕ⁰ m) r* q1') <_) q3-path lt2
     where
     lt2 : ((1/2r r^ℕ⁰ m) r* q1') < (q3' r* q1')
-    lt2 = *₂-preserves-< (1/2r r^ℕ⁰ m) q3' q1' lt pos-q1
+    lt2 = *₂-preserves-< lt pos-q1
 
 seperate-< : (a b : ℚ) -> a < b -> Σ[ ε ∈ ℚ⁺ ] (a r+ ⟨ ε ⟩) < (b r+ (r- ⟨ ε ⟩))
 seperate-< a b a<b = ε , Pos-diffℚ⁻ (a r+ ε') (b r+ (r- ε')) pos-diff

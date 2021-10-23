@@ -356,21 +356,20 @@ module _ (x y : ℝ)
 
           wm-xy-≤ : (w-mxi r* m-myi) ℚ≤ (ε r* m-yi')
           wm-xy-≤ = trans-ℚ≤ {(w-mxi r* m-myi)} {(w-mxi r* m-yi')} {(ε r* m-yi')}
-                             (*₁-preserves-≤ w-mxi m-myi m-yi' (NonNeg-0≤ _ nn-w-mxi) m-myi≤m-yi')
-                             (*₂-preserves-≤ w-mxi ε m-yi' w-mxi≤ε (NonNeg-0≤ _  nn-m-yi'))
+                             (*₁-preserves-≤ (NonNeg-0≤ _ nn-w-mxi) m-myi≤m-yi')
+                             (*₂-preserves-≤ w-mxi≤ε (NonNeg-0≤ _  nn-m-yi'))
 
           mw-xy-≤ : (m-mxi r* w-myi) ℚ≤ (ε r* m-xi')
           mw-xy-≤ = trans-ℚ≤ {(m-mxi r* w-myi)} {(m-xi' r* w-myi)} {(ε r* m-xi')}
-                             (*₂-preserves-≤ m-mxi m-xi' w-myi m-mxi≤m-xi' (NonNeg-0≤ _ nn-w-myi))
+                             (*₂-preserves-≤ m-mxi≤m-xi' (NonNeg-0≤ _ nn-w-myi))
                              (subst ((m-xi' r* w-myi) ℚ≤_) (r*-commute m-xi' ε)
-                                    (*₁-preserves-≤ m-xi' w-myi ε (NonNeg-0≤ _ nn-m-xi') w-myi≤ε))
+                                    (*₁-preserves-≤ (NonNeg-0≤ _ nn-m-xi') w-myi≤ε))
 
           wmmw = ((w-mxi r* m-myi) r+ (m-mxi r* w-myi))
           wmmw≤d : wmmw ℚ≤ d
           wmmw≤d =
             subst (wmmw ℚ≤_) (sym *-distrib-+-left >=> ε-path)
-                  (+-preserves-≤ (w-mxi r* m-myi) (ε r* m-yi') (m-mxi r* w-myi) (ε r* m-xi')
-                                 wm-xy-≤ mw-xy-≤)
+                  (+-preserves-≤ wm-xy-≤ mw-xy-≤)
 
 
           p = mxi i* myi
@@ -389,7 +388,7 @@ module _ (x y : ℝ)
           handle2 (inj-r l≤a) = ∣ inj-r ∣ (mxi , myi , emxi , emyi , u≤b) ∣ ∣
             where
             u≤b : u ℚ≤ b
-            u≤b = subst2 _ℚ≤_ (diffℚ-step l u) (diffℚ-step a b) (+-preserves-≤ l a w d l≤a w≤d)
+            u≤b = subst2 _ℚ≤_ (diffℚ-step l u) (diffℚ-step a b) (+-preserves-≤ l≤a w≤d)
 
   _ℝ*ᵉ_ : ℝ
   _ℝ*ᵉ_ = record
@@ -568,7 +567,7 @@ module _ (x : ℝ)
 
               lt1 : (1i-u r* xi-l) < xi-l
               lt1 = subst ((1i-u r* xi-l) <_) (r*-left-one xi-l)
-                          (*₂-flips-< 1r 1i-u xi-l (U->ℚ< 1<1i-u) n-xi-l)
+                          (*₂-flips-< (U->ℚ< 1<1i-u) n-xi-l)
               lt2 : (minℚ p3 p4) ℚ≤ p3
               lt2 = minℚ-≤-left p3 p4
               lt3 : (minℚ p1 p2) ℚ≤ p2
@@ -590,7 +589,7 @@ module _ (x : ℝ)
 
               lt1 : (1i-l r* xi-l) ℚ≤ xi-l
               lt1 = subst ((1i-l r* xi-l) ℚ≤_) (r*-left-one xi-l)
-                          (*₂-preserves-≤ 1i-l 1r xi-l (weaken-< (L->ℚ< 1i-l<1)) (NonNeg-0≤ _ nn-xi-l))
+                          (*₂-preserves-≤ (weaken-< (L->ℚ< 1i-l<1)) (NonNeg-0≤ _ nn-xi-l))
               lt2 : (minℚ p3 p4) ℚ≤ p3
               lt2 = minℚ-≤-left p3 p4
               lt3 : (minℚ p1 p2) ℚ≤ p1
@@ -679,7 +678,7 @@ module _ (x : ℝ)
 
               lt1 : xi-u < (1i-l r* xi-u)
               lt1 = subst (_< (1i-l r* xi-u)) (r*-left-one xi-u)
-                          (*₂-flips-< 1i-l 1r xi-u (L->ℚ< 1i-l<1) n-xi-u)
+                          (*₂-flips-< (L->ℚ< 1i-l<1) n-xi-u)
 
               lt2 : p4 ℚ≤ (maxℚ p3 p4)
               lt2 = maxℚ-≤-right p3 p4
@@ -705,7 +704,7 @@ module _ (x : ℝ)
 
               lt1 : xi-u ℚ≤ (1i-u r* xi-u)
               lt1 = subst (_ℚ≤ (1i-u r* xi-u)) (r*-left-one xi-u)
-                          (*₂-preserves-≤ 1r 1i-u xi-u (weaken-< (U->ℚ< 1<1i-u)) (NonNeg-0≤ _ nn-xi-u))
+                          (*₂-preserves-≤ (weaken-< (U->ℚ< 1<1i-u)) (NonNeg-0≤ _ nn-xi-u))
               lt2 : p4 ℚ≤ (maxℚ p3 p4)
               lt2 = maxℚ-≤-right p3 p4
               lt3 : p2 ℚ≤ (maxℚ p1 p2)
@@ -786,7 +785,7 @@ module _ (x : ℝ)
                                                    (maxℚ-≤-left (absℚ lb) (absℚ ub))
           -m2≤lb : (r- m2) ℚ≤ lb
           -m2≤lb = subst ((r- m2) ℚ≤_) minus-double-inverse
-                         (minus-flips-≤ (r- lb) m2 -lb≤m2)
+                         (minus-flips-≤ -lb≤m2)
 
           m2=m-ir*m : m2 == m-ir r* m
           m2=m-ir*m = i-maxabs-i* ir ix
@@ -809,7 +808,7 @@ module _ (x : ℝ)
                          -lb≤m2
 
           ans : q ℚ≤ lb
-          ans = subst2 _ℚ≤_ path-q path-lb (minus-flips-≤ (r- lb) (r- q) -lb≤-q)
+          ans = subst2 _ℚ≤_ path-q path-lb (minus-flips-≤ -lb≤-q)
             where
             path-lb : (r- (r- lb)) == lb
             path-lb = minus-double-inverse

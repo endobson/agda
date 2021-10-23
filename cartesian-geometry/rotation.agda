@@ -435,7 +435,7 @@ NonTrivial-half-rotation = a.ans
       -1<0 : (- 1ℝ) < 0ℝ
       -1<0 = minus-flips-0< 0ℝ<1ℝ
       -1<1 : (- 1ℝ) < 1ℝ
-      -1<1 = subst2 _<_ +-left-zero +-right-zero (+-preserves-< _ _ _ _ 0<1 -1<0)
+      -1<1 = subst2 _<_ +-left-zero +-right-zero (+-preserves-< 0<1 -1<0)
 
       -1#1 : (- 1#) # 1#
       -1#1 = eqFun (<>-equiv-# (- 1#) 1#) (inj-l -1<1)
@@ -839,11 +839,11 @@ abstract
       0<xx = handle2 (eqInv (<>-equiv-# _ _) x#0)
         where
         handle2 : (x < 0#) ⊎ (0# < x) -> _
-        handle2 (inj-l x<0) = *-flips-<0 _ _ x<0 x<0
-        handle2 (inj-r 0<x) = *-preserves-0< _ _ 0<x 0<x
+        handle2 (inj-l x<0) = *-flips-<0 x<0 x<0
+        handle2 (inj-r 0<x) = *-preserves-0< 0<x 0<x
 
       xx≤xxyy : (x * x) ≤ (x * x + y * y)
-      xx≤xxyy = subst2 _≤_ +-right-zero refl (+₁-preserves-≤ _ _ _ 0≤yy)
+      xx≤xxyy = subst2 _≤_ +-right-zero refl (+₁-preserves-≤ 0≤yy)
 
 
     rotate-direction-NonTrivial : {r : Rotation} -> NonTrivialRotation r -> (d : Direction) ->

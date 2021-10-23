@@ -192,7 +192,7 @@ module _
           lt3 = diff-swap (s m) (s n) 1/2r lt2
 
           lt4 : ((s m r+ (r- 1/2r)) r+ 1r) < ub
-          lt4 = +₂-preserves-< (s m r+ (r- 1/2r)) (s n) 1r lt3
+          lt4 = +₂-preserves-< lt3
 
           path : (s m r+ (r- 1/2r)) r+ 1r == s m r+ 1/2r
           path =
@@ -217,7 +217,7 @@ module _
         g m gt = trans-< {_} {_} {_} {q r+ ε} {r r+ ε} {s m} q<r' (f m gt)
           where
           q<r' : (q r+ ε) < (r r+ ε)
-          q<r' = +₂-preserves-< q r ε q<r
+          q<r' = +₂-preserves-< q<r
 
     isUpperSet-U : isUpperSet U
     isUpperSet-U q r q<r uq = ∥-map handle uq
@@ -276,7 +276,7 @@ module _
           lt1 = (f m gt)
 
           lt2 : ((s m r+ ε) r+ (r- ε/2)) < r
-          lt2 = +₂-preserves-< (s m r+ ε) q (r- ε/2) lt1
+          lt2 = +₂-preserves-< lt1
 
           p : (s m r+ ε) r+ (r- ε/2) == s m r+ ε/2
           p = cong (_r+ (r- ε/2)) (cong (s m r+_) (sym (1/2r-path ε)) >=>
@@ -344,7 +344,7 @@ module _
             lt4 = trans-< {_} {_} {_} {s m r+ (r- d)} {t} {mid} lt3 lt
 
             lt5 : ((s m r+ (r- d)) r+ dd) < (mid r+ dd)
-            lt5 = +₂-preserves-< (s m r+ (r- d)) mid dd lt4
+            lt5 = +₂-preserves-< lt4
 
             path1 : (mid r+ dd) == y
             path1 = cong (mid r+_) dd-path >=> midℚ-plus-half-diffℚ x y
@@ -374,7 +374,7 @@ module _
             lt4 = subst ((s m r+ (r- d)) <_) t==mid lt3
 
             lt5 : ((s m r+ (r- d)) r+ dd) < (mid r+ dd)
-            lt5 = +₂-preserves-< (s m r+ (r- d)) mid dd lt4
+            lt5 = +₂-preserves-< lt4
 
             path1 : (mid r+ dd) == y
             path1 = cong (mid r+_) dd-path >=> midℚ-plus-half-diffℚ x y
@@ -401,7 +401,7 @@ module _
             lt3 = diff-swap (s n) (s m) d lt2
 
             lt4 : (mid r+ (r- d)) < (t r+ (r- d))
-            lt4 = +₂-preserves-< mid t (r- d) mid<t
+            lt4 = +₂-preserves-< mid<t
 
             lt5 : (mid r+ (r- d)) < s m
             lt5 = trans-< {_} {_} {_} {mid r+ (r- d)} {t r+ (r- d)} {s m} lt4 lt3
@@ -479,9 +479,9 @@ weaken-centered-ball x e1 e2 e1<e2 (q , lq , uq) =
   where
   module x = Real x
   q-e2<q-e1 : (q r+ (r- e2)) < (q r+ (r- e1))
-  q-e2<q-e1 = +₁-preserves-< q (r- e2) (r- e1) (minus-flips-< e1 e2 e1<e2)
+  q-e2<q-e1 = +₁-preserves-< (minus-flips-< e1<e2)
   q+e1<q+e2 : (q r+ e1) < (q r+ e2)
-  q+e1<q+e2 = +₁-preserves-< q e1 e2 e1<e2
+  q+e1<q+e2 = +₁-preserves-< e1<e2
 
 
 strengthen-centered-ball : (x : ℝ) (ε : ℚ) -> CenteredBall x ε -> ∥ CenteredBall x (1/2r r* ε) ∥

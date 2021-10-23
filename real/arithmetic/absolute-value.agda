@@ -106,11 +106,11 @@ module _ (x : ℝ)
       where
       handle : L' r -> L' q
       handle (inj-l xl-r) = inj-l (x.isLowerSet-L q r q<r xl-r)
-      handle (inj-r xu-r) = inj-r (x.isUpperSet-U (r- r) (r- q) (minus-flips-< q r q<r) xu-r)
+      handle (inj-r xu-r) = inj-r (x.isUpperSet-U (r- r) (r- q) (minus-flips-< q<r) xu-r)
 
     isUpperSet-U : isUpperSet U
     isUpperSet-U q r q<r (xl-q , xu-q) =
-      (x.isLowerSet-L (r- r) (r- q) (minus-flips-< q r q<r) xl-q) ,
+      (x.isLowerSet-L (r- r) (r- q) (minus-flips-< q<r) xl-q) ,
       (x.isUpperSet-U q r q<r xu-q)
 
     isUpperOpen-L : isUpperOpen L
@@ -146,7 +146,7 @@ module _ (x : ℝ)
 
           -r1<q : (r- r1) < q
           -r1<q = subst ((r- r1) <_) minus-double-inverse
-                        (minus-flips-< (r- q) r1 -q<r1)
+                        (minus-flips-< -q<r1)
 
         handle2 (tri= _ r1=-r2 _) =
           r2 , r2<q , (subst x.L r1=-r2 xl-r1) , xu-r2
@@ -164,7 +164,7 @@ module _ (x : ℝ)
 
     located : (q r : ℚ) -> (q < r) -> ∥ L q ⊎ U r ∥
     located q r q<r =  ∥-map2 handle (x.located q r q<r)
-                                     (x.located (r- r) (r- q) (minus-flips-< q r q<r))
+                                     (x.located (r- r) (r- q) (minus-flips-< q<r))
       where
       handle : (x.L q ⊎ x.U r) -> (x.L (r- r) ⊎ x.U (r- q)) -> L q ⊎ U r
       handle (inj-l xl-q) _ = inj-l (∣ (inj-l xl-q) ∣)
@@ -285,9 +285,9 @@ abstract
       handle2 (inj-l r1<0) (inj-l 0<r2) = inj-l (∣ ℝ<'-cons s (xl--s , xu-s) (ℚ<->L s<q) ∣)
         where
         -r1<q : (- r1) < q
-        -r1<q = subst2 _<_ +-left-zero diff-path (+₂-preserves-< 0r r2 (- r1) 0<r2)
+        -r1<q = subst2 _<_ +-left-zero diff-path (+₂-preserves-< 0<r2)
         r2<q : r2 < q
-        r2<q = subst2 _<_ +-right-zero diff-path (+₁-preserves-< r2 0r (- r1) (minus-flips-<0 r1<0))
+        r2<q = subst2 _<_ +-right-zero diff-path (+₁-preserves-< (minus-flips-<0 r1<0))
 
 
         s = maxℚ (- r1) r2
@@ -421,7 +421,7 @@ abstract
     0≤l : 0r ≤ l
     0≤l = NonNeg-0≤ l nn-l
     -u≤l : (- u) ≤ l
-    -u≤l = (trans-ℚ≤ { - u} (minus-flips-≤ l u l≤u) (trans-ℚ≤ { - l} (minus-flips-0≤ 0≤l) 0≤l))
+    -u≤l = (trans-ℚ≤ { - u} (minus-flips-≤ l≤u) (trans-ℚ≤ { - l} (minus-flips-0≤ 0≤l) 0≤l))
 
   ℝ∈Iℚ-absℝ-NonPosI : (x : ℝ) (a : Iℚ) -> NonPosI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) (i- a)
   ℝ∈Iℚ-absℝ-NonPosI x (Iℚ-cons l u l≤u) np-u (xl-l , xu-u) =
@@ -433,14 +433,14 @@ abstract
     u≤0 = NonPos-≤0 u np-u
 
     u≤-l : u ≤ (- l)
-    u≤-l = (trans-ℚ≤ {u} (trans-ℚ≤ {u} u≤0 (minus-flips-≤0 u≤0)) (minus-flips-≤ l u l≤u))
+    u≤-l = (trans-ℚ≤ {u} (trans-ℚ≤ {u} u≤0 (minus-flips-≤0 u≤0)) (minus-flips-≤ l≤u))
 
   ℝ∈Iℚ-absℝ-ImbalancedI : (x : ℝ) (a : Iℚ) -> ImbalancedI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) a
   ℝ∈Iℚ-absℝ-ImbalancedI x (Iℚ-cons l u l≤u) -l≤u (xl-l , xu-u) =
     ∣ inj-l xl-l ∣ , (isLowerSet≤ x (- u) l -u≤l xl-l , xu-u)
     where
     -u≤l : (- u) ≤ l
-    -u≤l = subst ((- u) ≤_) minus-double-inverse (minus-flips-≤ (- l) u -l≤u)
+    -u≤l = subst ((- u) ≤_) minus-double-inverse (minus-flips-≤ -l≤u)
 
 
 abstract
@@ -458,7 +458,7 @@ abstract
     handle (inj-l u<-l) = b , (ℝ∈Iℚ-absℝ-ImbalancedI x b mmu≤u (xl--u , xu-u)) , mmu≤u , b⊆a
       where
       l≤-u : l ≤ (- u)
-      l≤-u = weaken-< (subst (_< (- u)) minus-double-inverse (minus-flips-< u (- l) u<-l))
+      l≤-u = weaken-< (subst (_< (- u)) minus-double-inverse (minus-flips-< u<-l))
 
       b : Iℚ
       b = (Iℚ-cons (- u) u (weaken-< (ℝ-bounds->ℚ< x (- u) u xl--u xu-u)))

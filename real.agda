@@ -82,7 +82,7 @@ abstract
     Inhabited-L = ∣ q1 r+ (r- 1r)  , lt2 ∣
       where
       lt1 : (q1 r+ (r- 1r)) < (q1 r+ 0r)
-      lt1 = +₁-preserves-< q1 (r- 1r) 0r (minus-flips-0< (Pos-0< 1r Pos-1r))
+      lt1 = +₁-preserves-< (minus-flips-0< (Pos-0< 1r Pos-1r))
       lt2 : (q1 r+ (r- 1r)) < q1
       lt2 = subst ((q1 r+ (r- 1r)) <_) (r+-right-zero q1) lt1
 
@@ -90,7 +90,7 @@ abstract
     Inhabited-U = ∣ q1 r+ 1r  , lt2 ∣
       where
       lt1 : (q1 r+ 1r) > (q1 r+ 0r)
-      lt1 = +₁-preserves-< q1 0r 1r (Pos-0< 1r Pos-1r)
+      lt1 = +₁-preserves-< (Pos-0< 1r Pos-1r)
       lt2 : (q1 r+ 1r) > q1
       lt2 = subst ((q1 r+ 1r) >_) (r+-right-zero q1) lt1
 
@@ -182,7 +182,7 @@ module _ (x : ℝ) where
       q/2 = 1/2r r* q
 
       q/2<q : q/2 < q
-      q/2<q = subst (q/2 <_) (r*-left-one q) (*₂-preserves-< 1/2r 1r q 1/2r<1r pos-q)
+      q/2<q = subst (q/2 <_) (r*-left-one q) (*₂-preserves-< 1/2r<1r pos-q)
 
       pos-q/2 : Posℚ q/2
       pos-q/2 = r*₁-preserves-sign (1/2r , Pos-1/ℕ _) q {pos-sign} pos-q
