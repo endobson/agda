@@ -105,6 +105,10 @@ syntax ∃!-syntax A (λ x → B) = ∃![ x ∈ A ] B
 ∃!-prop : {A : Type ℓ₀} {B : A -> Type ℓ₁} -> (p : ∃! A B) -> B (∃!-val p)
 ∃!-prop = snd ∘ fst
 
+∃!-unique : {A : Type ℓ₀} {B : A -> Type ℓ₁} -> (p : ∃! A B) ->
+            (a : A) -> B a -> (∃!-val p) == a
+∃!-unique p a b = cong fst (snd p (a , b))
+
 
 Inhabited : {A : Type ℓ₀} -> Pred A ℓ₁ -> Type (ℓ-max ℓ₀ ℓ₁)
 Inhabited {A = A} P = ∃ A P
