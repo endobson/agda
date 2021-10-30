@@ -117,3 +117,6 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
 
     *-cong : {m n p o : D} -> m == p -> n == o -> m * n == p * o
     *-cong = cong2 _*_
+
+    *-swap : {m n o p : D} -> (m * n) * (o * p) == (m * o) * (n * p)
+    *-swap = *-assoc >=> *-right (sym *-assoc >=> *-left *-commute >=> *-assoc) >=> sym *-assoc

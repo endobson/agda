@@ -454,6 +454,8 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : Ad
     minus-extract-right = R.minus-extract-right
     minus-extract-both : {a b : D} -> (- a * - b) == (a * b)
     minus-extract-both = R.minus-extract-both
+    *-left-minus-one : {a : D} -> (- 1#) * a == - a
+    *-left-minus-one = R.*-left-minus-one
 
 
   abstract
