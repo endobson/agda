@@ -96,17 +96,18 @@ semi-direction-shift =
       srd~ =
         SemiRotationElim.elimProp (\sr -> isPropΠ3 (\_ _ _ -> isSet-SemiDirection _ _)) g
         where
-        g : (r : Rotation) (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
-            [ rotate-direction r d1 ] == [ rotate-direction r d2 ]
-        g r d1 d2 (same-semi-direction-same v1=v2) =
-          cong (\d -> [ rotate-direction r d ]) (direction-ext v1=v2)
-        g r d1 d2 (same-semi-direction-flipped v1=-v2) =
-          eq/ _ _ (same-semi-direction-flipped p)
-          where
-          v1 = fst d1
-          v2 = fst d2
-          p : rotate-vector r v1 == v- (rotate-vector r v2)
-          p = cong (rotate-vector r) v1=-v2 >=> rotate-v- r v2
+        module _ where
+          g : (r : Rotation) (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
+              [ rotate-direction r d1 ] == [ rotate-direction r d2 ]
+          g r d1 d2 (same-semi-direction-same v1=v2) =
+            cong (\d -> [ rotate-direction r d ]) (direction-ext v1=v2)
+          g r d1 d2 (same-semi-direction-flipped v1=-v2) =
+            eq/ _ _ (same-semi-direction-flipped p)
+            where
+            v1 = fst d1
+            v2 = fst d2
+            p : rotate-vector r v1 == v- (rotate-vector r v2)
+            p = cong (rotate-vector r) v1=-v2 >=> rotate-v- r v2
 
 
 private
@@ -144,7 +145,7 @@ private
 
 private
   record _sd#_ (sd1 sd2 : SemiDirection) : Type₁ where
-    no-eta-equality
+    no-eta-equality ; pattern
     constructor sd#-cons
     field
       apart : semi-direction-diff sd1 sd2 # 0#

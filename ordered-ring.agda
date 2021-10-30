@@ -50,19 +50,20 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     *₁-preserves-< : {a b c : D} -> (0# < a) -> (b < c) -> (a * b) < (a * c)
     *₁-preserves-< {a} {b} {c} 0<a b<c = ab<ac
       where
-      0<cb : 0# < (c + (- b))
-      0<cb = subst2 _<_ +-inverse refl (+₂-preserves-< b<c)
+      module _ where
+        0<cb : 0# < (c + (- b))
+        0<cb = subst2 _<_ +-inverse refl (+₂-preserves-< b<c)
 
-      0<acb : 0# < (a * (c + (- b)))
-      0<acb = *-preserves-0< 0<a 0<cb
+        0<acb : 0# < (a * (c + (- b)))
+        0<acb = *-preserves-0< 0<a 0<cb
 
-      ab+acb=ac : (a * b) + (a * (c + (- b))) == a * c
-      ab+acb=ac =
-        sym *-distrib-+-left >=>
-        *-right (+-right +-commute >=> sym +-assoc >=> +-left +-inverse >=> +-left-zero)
+        ab+acb=ac : (a * b) + (a * (c + (- b))) == a * c
+        ab+acb=ac =
+          sym *-distrib-+-left >=>
+          *-right (+-right +-commute >=> sym +-assoc >=> +-left +-inverse >=> +-left-zero)
 
-      ab<ac : (a * b) < (a * c)
-      ab<ac = subst2 _<_ +-right-zero ab+acb=ac (+₁-preserves-< 0<acb)
+        ab<ac : (a * b) < (a * c)
+        ab<ac = subst2 _<_ +-right-zero ab+acb=ac (+₁-preserves-< 0<acb)
 
     *₂-preserves-< : {a b c : D} -> (a < b) -> (0# < c) -> (a * c) < (b * c)
     *₂-preserves-< a<b 0<c =
@@ -74,8 +75,9 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
                  (cong -_ minus-extract-left >=> minus-double-inverse)
                  (minus-flips-< (*₁-preserves-< 0<-a b<c))
       where
-      0<-a : 0# < (- a)
-      0<-a = (minus-flips-<0 a<0)
+      module _ where
+        0<-a : 0# < (- a)
+        0<-a = (minus-flips-<0 a<0)
 
     *₂-flips-< : {a b c : D} -> (a < b) -> (c < 0#) -> (b * c) < (a * c)
     *₂-flips-< a<b c<0 =
@@ -132,6 +134,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     +-preserves-≮0 : {a b : D} -> a ≮ 0# -> b ≮ 0# -> (a + b) ≮ 0#
     +-preserves-≮0 {a} {b} a≮0 b≮0 ab<0 = unsquash isPropBot (∥-map handle (comparison-< ab a 0# ab<0))
       where
+      ab : D
       ab = a + b
       handle : (ab < a) ⊎ (a < 0#) -> Bot
       handle (inj-r a<0) = a≮0 a<0
@@ -142,8 +145,9 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     1≮0# : 1# ≮ 0#
     1≮0# 1<0 = irrefl-< (trans-< -1<0 0<-1)
       where
-      0<-1 = minus-flips-<0 1<0
-      -1<0 = subst2 _<_ *-left-one *-left-one (*₁-flips-< 1<0 0<-1)
+      module _ where
+        0<-1 = minus-flips-<0 1<0
+        -1<0 = subst2 _<_ *-left-one *-left-one (*₁-flips-< 1<0 0<-1)
 
   abstract
     +₂-reflects-< : {a b c : D} -> (a + c) < (b + c) -> (a < b)
@@ -193,19 +197,20 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     *₁-preserves-≤ : {a b c : D} -> (0# ≤ a) -> (b ≤ c) -> (a * b) ≤ (a * c)
     *₁-preserves-≤ {a} {b} {c} 0≤a b≤c = ab≤ac
       where
-      0≤cb : 0# ≤ (c + (- b))
-      0≤cb = subst2 _≤_ +-inverse refl (+₂-preserves-≤ b≤c)
+      module _ where
+        0≤cb : 0# ≤ (c + (- b))
+        0≤cb = subst2 _≤_ +-inverse refl (+₂-preserves-≤ b≤c)
 
-      0≤acb : 0# ≤ (a * (c + (- b)))
-      0≤acb = *-preserves-0≤ 0≤a 0≤cb
+        0≤acb : 0# ≤ (a * (c + (- b)))
+        0≤acb = *-preserves-0≤ 0≤a 0≤cb
 
-      ab+acb=ac : (a * b) + (a * (c + (- b))) == a * c
-      ab+acb=ac =
-        sym *-distrib-+-left >=>
-        *-right (+-right +-commute >=> sym +-assoc >=> +-left +-inverse >=> +-left-zero)
+        ab+acb=ac : (a * b) + (a * (c + (- b))) == a * c
+        ab+acb=ac =
+          sym *-distrib-+-left >=>
+          *-right (+-right +-commute >=> sym +-assoc >=> +-left +-inverse >=> +-left-zero)
 
-      ab≤ac : (a * b) ≤ (a * c)
-      ab≤ac = subst2 _≤_ +-right-zero ab+acb=ac (+₁-preserves-≤ 0≤acb)
+        ab≤ac : (a * b) ≤ (a * c)
+        ab≤ac = subst2 _≤_ +-right-zero ab+acb=ac (+₁-preserves-≤ 0≤acb)
 
     *₂-preserves-≤ : {a b c : D} -> (a ≤ b) -> (0# ≤ c) -> (a * c) ≤ (b * c)
     *₂-preserves-≤ {a} {b} {c} a≤b 0≤c =
@@ -217,8 +222,9 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
                  (cong -_ minus-extract-left >=> minus-double-inverse)
                  (minus-flips-≤ (*₁-preserves-≤ 0≤-a b≤c))
       where
-      0≤-a : 0# ≤ (- a)
-      0≤-a = (minus-flips-≤0 a≤0)
+      module _ where
+        0≤-a : 0# ≤ (- a)
+        0≤-a = (minus-flips-≤0 a≤0)
 
     *₂-flips-≤ : {a b c : D} -> (a ≤ b) -> (c ≤ 0#) -> (b * c) ≤ (a * c)
     *₂-flips-≤ {a} {b} {c} a≤b c≤0 =

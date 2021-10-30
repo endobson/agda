@@ -185,10 +185,11 @@ abstract
   r+'-preserves-Pos : {q1 q2 : Rational'} -> Pos q1 -> Pos q2 -> Pos (q1 r+' q2)
   r+'-preserves-Pos {q1} {q2} p1 p2 = ans2
     where
-    n1 = numer q1
-    n2 = numer q2
-    d1 = denom q1
-    d2 = denom q2
+    module _ where
+      n1 = numer q1
+      n2 = numer q2
+      d1 = denom q1
+      d2 = denom q2
 
     helper : (s1 s2 : Sign) -> isSign s1 n1 -> isSign s1 d1 -> isSign s2 n2 -> isSign s2 d2 ->
              Pos ((n1 * d2 + n2 * d1) * (d1 * d2))
@@ -207,14 +208,15 @@ abstract
     ans : Pos ((n1 * d2 + n2 * d1) * (d1 * d2))
     ans = helper s1 s2 sn1 sd1 sn2 sd2
       where
-      full-s1 = Pos->same-sign q1 p1
-      full-s2 = Pos->same-sign q2 p2
-      s1 = fst full-s1
-      sn1 = proj₁ (snd full-s1)
-      sd1 = proj₂ (snd full-s1)
-      s2 = fst full-s2
-      sn2 = proj₁ (snd full-s2)
-      sd2 = proj₂ (snd full-s2)
+      module _ where
+        full-s1 = Pos->same-sign q1 p1
+        full-s2 = Pos->same-sign q2 p2
+        s1 = fst full-s1
+        sn1 = proj₁ (snd full-s1)
+        sd1 = proj₂ (snd full-s1)
+        s2 = fst full-s2
+        sn2 = proj₁ (snd full-s2)
+        sd2 = proj₂ (snd full-s2)
 
     ans2 : Pos (q1 r+' q2)
     ans2 = subst Pos (sym r+'-eval) (is-signℚ' ans)
@@ -222,10 +224,11 @@ abstract
   r*'-preserves-Pos : {q1 q2 : Rational'} -> Pos q1 -> Pos q2 -> Pos (q1 r*' q2)
   r*'-preserves-Pos {q1} {q2} p1 p2 = is-signℚ' ans
     where
-    n1 = numer q1
-    n2 = numer q2
-    d1 = denom q1
-    d2 = denom q2
+    module _ where
+      n1 = numer q1
+      n2 = numer q2
+      d1 = denom q1
+      d2 = denom q2
 
     helper : (s1 s2 : Sign) -> isSign s1 n1 -> isSign s1 d1 -> isSign s2 n2 -> isSign s2 d2 ->
              Pos ((n1 * n2) * (d1 * d2))
@@ -244,14 +247,15 @@ abstract
     ans : Pos ((n1 * n2) * (d1 * d2))
     ans = helper s1 s2 sn1 sd1 sn2 sd2
       where
-      full-s1 = Pos->same-sign q1 p1
-      full-s2 = Pos->same-sign q2 p2
-      s1 = fst full-s1
-      sn1 = proj₁ (snd full-s1)
-      sd1 = proj₂ (snd full-s1)
-      s2 = fst full-s2
-      sn2 = proj₁ (snd full-s2)
-      sd2 = proj₂ (snd full-s2)
+      module _ where
+        full-s1 = Pos->same-sign q1 p1
+        full-s2 = Pos->same-sign q2 p2
+        s1 = fst full-s1
+        sn1 = proj₁ (snd full-s1)
+        sd1 = proj₂ (snd full-s1)
+        s2 = fst full-s2
+        sn2 = proj₁ (snd full-s2)
+        sd2 = proj₂ (snd full-s2)
 
   r-'-flips-sign : (q : ℚ') (s : Sign) -> (isSign s q) -> (isSign (s⁻¹ s) (r-' q))
   r-'-flips-sign q s qs =

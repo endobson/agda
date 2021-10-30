@@ -24,12 +24,16 @@ record Fin (n : Nat) : Type₀ where
     i : Nat
     i<n : i < n
 
-abstract
-  fin-i-path : {n : Nat} {x y : Fin n} -> Fin.i x == Fin.i y -> x == y
-  fin-i-path {n} {x} {y} p = \i -> p i , q i
+private
+  fin-i-pathᵉ : {n : Nat} {x y : Fin n} -> Fin.i x == Fin.i y -> x == y
+  fin-i-pathᵉ {n} {x} {y} p = \i -> p i , q i
     where
     q : PathP (\i -> p i < n) (Fin.i<n x) (Fin.i<n y)
     q = isProp->PathP (\i -> isProp≤) (Fin.i<n x) (Fin.i<n y)
+
+abstract
+  fin-i-path : {n : Nat} {x y : Fin n} -> Fin.i x == Fin.i y -> x == y
+  fin-i-path = fin-i-pathᵉ
 
 zero-fin : {n : Nat} -> Fin (suc n)
 zero-fin = 0 , zero-<
@@ -259,49 +263,48 @@ abstract
     path = cong Fin.i (rec (suc-fin-injective p))
 
 -- Remove a particular number from the set
+private
+  remove-fin' : {n : Nat} -> (i j : Fin (suc n)) -> Fin.i i != Fin.i j -> Fin n
+  remove-fin' {n = zero}    i j np = bot-elim (np (cong Fin.i (isPropFin1 i j)))
+  remove-fin' {n = suc _}   (zero    , i-lt) (zero    , j-lt) np =
+    bot-elim (np refl)
+  remove-fin' {n = suc _}   ((suc i) , i-lt) (zero    , j-lt) np =
+    zero , (trans-≤-< zero-≤ (pred-≤ i-lt))
+  remove-fin' {n = suc _}   (zero    , i-lt) ((suc j) , j-lt) np =
+    j , pred-≤ j-lt
+  remove-fin' {n = (suc _)} ((suc i) , i-lt) ((suc j) , j-lt) np =
+    suc-fin (remove-fin' (i , (pred-≤ i-lt)) (j , (pred-≤ j-lt)) (np ∘ cong suc))
+
+  remove-fin'-inj : {n : Nat}
+                    -> (i : Fin (suc n))
+                    -> (j1 : Fin (suc n)) -> (j1-np : Fin.i i != Fin.i j1)
+                    -> (j2 : Fin (suc n)) -> (j2-np : Fin.i i != Fin.i j2)
+                    -> remove-fin' i j1 j1-np == remove-fin' i j2 j2-np
+                    -> Fin.i j1 == Fin.i j2
+  remove-fin'-inj {n = zero}   _ j1 j1-np j2 j2-np p =
+    cong Fin.i (isPropFin1 j1 j2)
+  remove-fin'-inj {n = suc _}   (zero  , i-lt) (zero   , j1-lt) j1-np (zero   , j2-lt) j2-np p =
+    refl
+  remove-fin'-inj {n = suc _}   (zero  , i-lt) (zero   , j1-lt) j1-np (suc j2 , j2-lt) j2-np p =
+    bot-elim (j1-np refl)
+  remove-fin'-inj {n = suc _}   (zero  , i-lt) (suc j1 , j1-lt) j1-np (zero   , j2-lt) j2-np p =
+    bot-elim (j2-np refl)
+  remove-fin'-inj {n = suc _}   (zero  , i-lt) (suc j1 , j1-lt) j1-np (suc j2 , j2-lt) j2-np p =
+    cong (suc ∘ Fin.i) p
+  remove-fin'-inj {n = (suc n)} (suc i , i-lt) (zero   , j1-lt) j1-np (zero   , j2-lt) j2-np p =
+    refl
+  remove-fin'-inj {n = (suc n)} (suc i , i-lt) (zero   , j1-lt) j1-np (suc j2 , j2-lt) j2-np p =
+    zero-suc-absurd (cong Fin.i p)
+  remove-fin'-inj {n = (suc n)} (suc i , i-lt) (suc j1 , j1-lt) j1-np (zero   , j2-lt) j2-np p =
+    zero-suc-absurd (cong Fin.i (sym p))
+  remove-fin'-inj {n = (suc n)} (suc i , i-lt) (suc j1 , j1-lt) j1-np (suc j2 , j2-lt) j2-np p =
+    cong suc
+      (remove-fin'-inj (i , (pred-≤ i-lt))
+                       (j1 , (pred-≤ j1-lt)) (j1-np ∘ cong suc)
+                       (j2 , (pred-≤ j2-lt)) (j2-np ∘ cong suc)
+                       (suc-fin-injective p))
+
 abstract
-  private
-    remove-fin' : {n : Nat} -> (i j : Fin (suc n)) -> Fin.i i != Fin.i j -> Fin n
-    remove-fin' {n = zero}    i j np = bot-elim (np (cong Fin.i (isPropFin1 i j)))
-    remove-fin' {n = suc _}   (zero    , i-lt) (zero    , j-lt) np =
-      bot-elim (np refl)
-    remove-fin' {n = suc _}   ((suc i) , i-lt) (zero    , j-lt) np =
-      zero , (trans-≤-< zero-≤ (pred-≤ i-lt))
-    remove-fin' {n = suc _}   (zero    , i-lt) ((suc j) , j-lt) np =
-      j , pred-≤ j-lt
-    remove-fin' {n = (suc _)} ((suc i) , i-lt) ((suc j) , j-lt) np =
-      suc-fin (remove-fin' (i , (pred-≤ i-lt)) (j , (pred-≤ j-lt)) (np ∘ cong suc))
-
-    remove-fin'-inj : {n : Nat}
-                      -> (i : Fin (suc n))
-                      -> (j1 : Fin (suc n)) -> (j1-np : Fin.i i != Fin.i j1)
-                      -> (j2 : Fin (suc n)) -> (j2-np : Fin.i i != Fin.i j2)
-                      -> remove-fin' i j1 j1-np == remove-fin' i j2 j2-np
-                      -> Fin.i j1 == Fin.i j2
-    remove-fin'-inj {n = zero}   _ j1 j1-np j2 j2-np p =
-      cong Fin.i (isPropFin1 j1 j2)
-    remove-fin'-inj {n = suc _}   (zero  , i-lt) (zero   , j1-lt) j1-np (zero   , j2-lt) j2-np p =
-      refl
-    remove-fin'-inj {n = suc _}   (zero  , i-lt) (zero   , j1-lt) j1-np (suc j2 , j2-lt) j2-np p =
-      bot-elim (j1-np refl)
-    remove-fin'-inj {n = suc _}   (zero  , i-lt) (suc j1 , j1-lt) j1-np (zero   , j2-lt) j2-np p =
-      bot-elim (j2-np refl)
-    remove-fin'-inj {n = suc _}   (zero  , i-lt) (suc j1 , j1-lt) j1-np (suc j2 , j2-lt) j2-np p =
-      cong (suc ∘ Fin.i) p
-    remove-fin'-inj {n = (suc n)} (suc i , i-lt) (zero   , j1-lt) j1-np (zero   , j2-lt) j2-np p =
-      refl
-    remove-fin'-inj {n = (suc n)} (suc i , i-lt) (zero   , j1-lt) j1-np (suc j2 , j2-lt) j2-np p =
-      zero-suc-absurd (cong Fin.i p)
-    remove-fin'-inj {n = (suc n)} (suc i , i-lt) (suc j1 , j1-lt) j1-np (zero   , j2-lt) j2-np p =
-      zero-suc-absurd (cong Fin.i (sym p))
-    remove-fin'-inj {n = (suc n)} (suc i , i-lt) (suc j1 , j1-lt) j1-np (suc j2 , j2-lt) j2-np p =
-      cong suc
-        (remove-fin'-inj (i , (pred-≤ i-lt))
-                         (j1 , (pred-≤ j1-lt)) (j1-np ∘ cong suc)
-                         (j2 , (pred-≤ j2-lt)) (j2-np ∘ cong suc)
-                         (suc-fin-injective p))
-
-
   remove-fin : {n : Nat} -> (i j : Fin (suc n)) -> i != j -> Fin n
   remove-fin i j np = remove-fin' i j (np ∘ fin-i-path)
 
@@ -313,92 +316,92 @@ abstract
       (remove-fin'-inj i j1 (j1-np ∘ fin-i-path) j2 (j2-np ∘ fin-i-path) p)
 
 -- Combine avoid-fin and remove-fin
+private
+  avoid-fin-suc : {n : Nat} (i : Fin (suc n)) (j : Fin n)
+                        -> avoid-fin (suc-fin i) (suc-fin j) == suc-fin (avoid-fin i j)
+  avoid-fin-suc {zero}  i j = bot-elim (¬fin-zero j)
+  avoid-fin-suc {suc n} i j = (\k -> suc-fin (avoid-fin (p1 k) (p2 k)))
+    where
+    p1 : (pred-fin (suc-fin i)) == i
+    p1 = fin-i-path refl
+
+    p2 : (pred-fin (suc-fin j)) == j
+    p2 = fin-i-path refl
+
+  avoid-fin-remove-fin'-path :
+    {n : Nat} (i j : Fin (suc n)) (p : (Fin.i i) != (Fin.i j))
+    -> avoid-fin i (remove-fin' i j p) == j
+  avoid-fin-remove-fin'-path {zero} i j p = bot-elim (p (cong Fin.i (isPropFin1 i j)))
+  avoid-fin-remove-fin'-path {suc _} (0     , lt1) (0     , lt2) p =
+    bot-elim (p refl)
+  avoid-fin-remove-fin'-path {suc _} (0     , lt1) (suc j , lt2) p =
+    (fin-i-path refl)
+  avoid-fin-remove-fin'-path {suc _} (suc i , lt1) (0     , lt2) p =
+    (fin-i-path refl)
+  avoid-fin-remove-fin'-path {suc n} fi@(suc i , lt1) fj@(suc j , lt2) p = ans
+    where
+    module _ where
+    pi : Fin (suc n)
+    pi = (i , pred-≤ lt1)
+    pj : Fin (suc n)
+    pj = (j , pred-≤ lt2)
+
+    i-path : fi == suc-fin pi
+    i-path = fin-i-path refl
+    j-path : fj == suc-fin pj
+    j-path = fin-i-path refl
+
+    rec : avoid-fin pi (remove-fin' pi pj (p ∘ cong suc)) == pj
+    rec = avoid-fin-remove-fin'-path pi pj (p ∘ cong suc)
+
+    ans4 : suc-fin (avoid-fin pi (remove-fin' pi pj (p ∘ cong suc)))
+           == fj
+    ans4 = cong suc-fin rec >=> (sym j-path)
+
+    ans3 : avoid-fin (suc-fin pi) (suc-fin (remove-fin' pi pj (p ∘ cong suc)))
+           == fj
+    ans3 = avoid-fin-suc pi (remove-fin' pi pj (p ∘ cong suc))
+           >=> ans4
+
+    ans2 : avoid-fin fi (suc-fin (remove-fin' pi pj (p ∘ cong suc)))
+           == fj
+    ans2 = (\k -> avoid-fin (i-path k) (suc-fin (remove-fin' pi pj (p ∘ cong suc))))
+           >=> ans3
+
+    ans : avoid-fin fi (remove-fin' fi fj p) == fj
+    ans = ans2
+
+  remove-fin'-avoid-fin-path :
+    {n : Nat} (i : Fin (suc n)) (j : Fin n) (p : Fin.i i != Fin.i (avoid-fin i j))
+    -> Fin.i (remove-fin' i (avoid-fin i j) p) == Fin.i j
+  remove-fin'-avoid-fin-path {zero}  i j p = bot-elim (¬fin-zero j)
+  remove-fin'-avoid-fin-path {suc n} (0     , lt) (j     , lt2) p = refl
+  remove-fin'-avoid-fin-path {suc n} (suc i , lt) (0     , lt2) p = refl
+  remove-fin'-avoid-fin-path {suc n} fi@(suc i , lt) fj@(suc j , lt2) p = ans
+    where
+    pi : Fin (suc n)
+    pi = (i , pred-≤ lt)
+    pj : Fin n
+    pj = (j , pred-≤ lt2)
+
+    avoid-path : (pred-fin (suc-fin (avoid-fin pi pj))) == (avoid-fin pi pj)
+    avoid-path = fin-i-pathᵉ refl
+
+    rec : Fin.i (remove-fin' pi (avoid-fin pi pj) (p ∘ cong suc)) == Fin.i pj
+    rec = (remove-fin'-avoid-fin-path pi pj (p ∘ cong suc))
+
+    ans : suc (Fin.i (remove-fin' pi
+                       (pred-fin (suc-fin (avoid-fin pi pj)))
+                       (p ∘ cong suc))) == Fin.i fj
+    ans = (\k -> suc (Fin.i (remove-fin' pi (avoid-path k) (p ∘ cong suc))))
+          >=> (cong suc rec)
+
 abstract
-  private
-    avoid-fin-suc : {n : Nat} (i : Fin (suc n)) (j : Fin n)
-                          -> avoid-fin (suc-fin i) (suc-fin j) == suc-fin (avoid-fin i j)
-    avoid-fin-suc {zero}  i j = bot-elim (¬fin-zero j)
-    avoid-fin-suc {suc n} i j = (\k -> suc-fin (avoid-fin (p1 k) (p2 k)))
-      where
-      p1 : (pred-fin (suc-fin i)) == i
-      p1 = fin-i-path refl
-
-      p2 : (pred-fin (suc-fin j)) == j
-      p2 = fin-i-path refl
-
-    avoid-fin-remove-fin'-path :
-      {n : Nat} (i j : Fin (suc n)) (p : (Fin.i i) != (Fin.i j))
-      -> avoid-fin i (remove-fin' i j p) == j
-    avoid-fin-remove-fin'-path {zero} i j p = bot-elim (p (cong Fin.i (isPropFin1 i j)))
-    avoid-fin-remove-fin'-path {suc _} (0     , lt1) (0     , lt2) p =
-      bot-elim (p refl)
-    avoid-fin-remove-fin'-path {suc _} (0     , lt1) (suc j , lt2) p =
-      (fin-i-path refl)
-    avoid-fin-remove-fin'-path {suc _} (suc i , lt1) (0     , lt2) p =
-      (fin-i-path refl)
-    avoid-fin-remove-fin'-path {suc n} fi@(suc i , lt1) fj@(suc j , lt2) p = ans
-      where
-      pi : Fin (suc n)
-      pi = (i , pred-≤ lt1)
-      pj : Fin (suc n)
-      pj = (j , pred-≤ lt2)
-
-      i-path : fi == suc-fin pi
-      i-path = fin-i-path refl
-      j-path : fj == suc-fin pj
-      j-path = fin-i-path refl
-
-      rec : avoid-fin pi (remove-fin' pi pj (p ∘ cong suc)) == pj
-      rec = avoid-fin-remove-fin'-path pi pj (p ∘ cong suc)
-
-      ans4 : suc-fin (avoid-fin pi (remove-fin' pi pj (p ∘ cong suc)))
-             == fj
-      ans4 = cong suc-fin rec >=> (sym j-path)
-
-      ans3 : avoid-fin (suc-fin pi) (suc-fin (remove-fin' pi pj (p ∘ cong suc)))
-             == fj
-      ans3 = avoid-fin-suc pi (remove-fin' pi pj (p ∘ cong suc))
-             >=> ans4
-
-      ans2 : avoid-fin fi (suc-fin (remove-fin' pi pj (p ∘ cong suc)))
-             == fj
-      ans2 = (\k -> avoid-fin (i-path k) (suc-fin (remove-fin' pi pj (p ∘ cong suc))))
-             >=> ans3
-
-      ans : avoid-fin fi (remove-fin' fi fj p) == fj
-      ans = ans2
-
   avoid-fin-remove-fin-path :
     {n : Nat} (i j : Fin (suc n)) (p : i != j)
     -> avoid-fin i (remove-fin i j p) == j
   avoid-fin-remove-fin-path i j np =
     avoid-fin-remove-fin'-path i j (np ∘ fin-i-path)
-
-  private
-    remove-fin'-avoid-fin-path :
-      {n : Nat} (i : Fin (suc n)) (j : Fin n) (p : Fin.i i != Fin.i (avoid-fin i j))
-      -> Fin.i (remove-fin' i (avoid-fin i j) p) == Fin.i j
-    remove-fin'-avoid-fin-path {zero}  i j p = bot-elim (¬fin-zero j)
-    remove-fin'-avoid-fin-path {suc n} (0     , lt) (j     , lt2) p = refl
-    remove-fin'-avoid-fin-path {suc n} (suc i , lt) (0     , lt2) p = refl
-    remove-fin'-avoid-fin-path {suc n} fi@(suc i , lt) fj@(suc j , lt2) p = ans
-      where
-      pi : Fin (suc n)
-      pi = (i , pred-≤ lt)
-      pj : Fin n
-      pj = (j , pred-≤ lt2)
-
-      avoid-path : (pred-fin (suc-fin (avoid-fin pi pj))) == (avoid-fin pi pj)
-      avoid-path = fin-i-path refl
-
-      rec : Fin.i (remove-fin' pi (avoid-fin pi pj) (p ∘ cong suc)) == Fin.i pj
-      rec = (remove-fin'-avoid-fin-path pi pj (p ∘ cong suc))
-
-      ans : suc (Fin.i (remove-fin' pi
-                         (pred-fin (suc-fin (avoid-fin pi pj)))
-                         (p ∘ cong suc))) == Fin.i fj
-      ans = (\k -> suc (Fin.i (remove-fin' pi (avoid-path k) (p ∘ cong suc))))
-            >=> (cong suc rec)
 
   remove-fin-avoid-fin-path :
     {n : Nat} (i : Fin (suc n)) (j : Fin n) (p : i != (avoid-fin i j))

@@ -184,12 +184,14 @@ module _ (n⁺ : Nat⁺) where
           where
           d%k : d div' k
           d%k = (g .GCD'.%a)
+          q : Nat
           q = fst d%k
           q-path : q *' d == k
           q-path = snd d%k
 
           d⁺ : Nat⁺
           d⁺ = d , (div'-pos->pos d%k pos-k)
+          pos-q : Pos' q
           pos-q = (div'-pos->pos' d%k pos-k)
 
           qd≤ndd : (q *' d) ≤ (nd *' d)

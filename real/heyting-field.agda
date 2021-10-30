@@ -219,6 +219,7 @@ module _ (x y : ℝ) where
       handle : x ℝ# 0# -> (x == y) ⊎ (x == (- y))
       handle (inj-l x<0) = inj-r (sym minus-double-inverse >=> cong -_ -x=y)
         where
-        -x=y = (sym (absℝ-NonPos-minus x (weaken-< {_} {_} {_} {_} {_} {_} {x} {0ℝ} x<0)) >=> ax=y)
+        module _ where
+          -x=y = (sym (absℝ-NonPos-minus x (weaken-< {_} {_} {_} {_} {_} {_} {x} {0ℝ} x<0)) >=> ax=y)
       handle (inj-r 0<x) =
         inj-l (sym (absℝ-NonNeg-idem x (weaken-< {_} {_} {_} {_} {_} {_} {0ℝ} {x} 0<x)) >=> ax=y)

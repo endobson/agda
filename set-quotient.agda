@@ -15,7 +15,8 @@ open import relation
 data _/_ {ℓ₁ ℓ₂ : Level} (A : Type ℓ₁) (R : A -> A -> Type ℓ₂) : Type (ℓ-max ℓ₁ ℓ₂) where
   [_] : (a : A) -> A / R
   eq/ : (a b : A) -> (r : R a b) -> [ a ] == [ b ]
-  squash/ : isSet (A / R)
+  -- squash/ : isSet (A / R)
+  squash/ : (a b : A / R) -> (p q : a == b) -> p == q -- isSet (A / R)
 
 module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type ℓR) where
   private
@@ -31,7 +32,8 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
         A / R -> B
   rec isSetB f f~ [ a ] = f a
   rec isSetB f f~ (eq/ a1 a2 r i) = f~ a1 a2 r i
-  rec isSetB f f~ (squash/ a1 a2 p1 p2 i j) = isSetB (g a1) (g a2) (cong g p1) (cong g p2) i j
+  rec isSetB f f~ (squash/ a1 a2 p1 p2 i j) =
+    isSetB (g a1) (g a2) (\k -> g (p1 k)) (\k -> g (p2 k)) i j -- (g a1) (g a2) (cong g p1) (cong g p2) i j
     where
     g = rec isSetB f f~
 
@@ -43,7 +45,8 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
   elim isSetC f f~ [ a ] = f a
   elim isSetC f f~ (eq/ a1 a2 r i) = f~ a1 a2 r i
   elim isSetC f f~ (squash/ a1 a2 p1 p2 i j) =
-    isOfHLevel->isOfHLevelDep 2 isSetC (g a1) (g a2) (cong g p1) (cong g p2) (squash/ a1 a2 p1 p2) i j
+    isOfHLevel->isOfHLevelDep 2 isSetC (g a1) (g a2) (\k -> g (p1 k)) (\k -> g (p2 k))
+      (squash/ a1 a2 p1 p2) i j
     where
     g = elim isSetC f f~
 

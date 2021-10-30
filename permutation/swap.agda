@@ -99,9 +99,11 @@ abstract
       where
       fp1 : SwapPerm n
       fp1 = (suc i) , p1
+      p1' : SwapPerm' n i
       p1' = p1 ∘ suc-fin
       fp1' : SwapPerm n
       fp1' = i , p1'
+      sw : Swap n
       sw = (p1 zero-fin)
 
       rec : encode-sperm (append-sperm fp1' fp2) == encode-sperm fp1' ∘ encode-sperm fp2

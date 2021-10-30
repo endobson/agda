@@ -174,6 +174,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
       combo , (isProp-lc combo)
       where
       abstract
+        isProp-lc : isProp (isLinearCombination' b v)
         isProp-lc = (linearlyIndependent->isProp-isLinearCombination li)
       combo = unsquash isProp-lc (span v)
 

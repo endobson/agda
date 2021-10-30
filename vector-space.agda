@@ -262,11 +262,12 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
     v*-#0 : {k : K} -> {v : V} -> k # 0# -> v v# 0v -> (k v* v) v# 0v
     v*-#0 {k} {v} k#0 v#0 = snd (v*-apart-zero k'kv#0)
       where
-      k-unit : R.isUnit k
-      k-unit = F.#0->isUnit k#0
-      k' = R.isUnit.inv k-unit
-      kk'=1 = R.isUnit.path k-unit
-      k'kv#0 = subst (_v# 0v) (sym v*-left-one >=> v*-left (sym kk'=1 >=> *-commute) >=> v*-assoc) v#0
+      module _ where
+        k-unit : R.isUnit k
+        k-unit = F.#0->isUnit k#0
+        k' = R.isUnit.inv k-unit
+        kk'=1 = R.isUnit.path k-unit
+        k'kv#0 = subst (_v# 0v) (sym v*-left-one >=> v*-left (sym kk'=1 >=> *-commute) >=> v*-assoc) v#0
 
 
 module _ {ℓK ℓV : Level} {K : Type ℓK}

@@ -91,11 +91,13 @@ abstract
   gcd'-exists : (a b : Nat) -> Σ[ d ∈ Nat ] (GCD' a b d)
   gcd'-exists a b = (euclidean-tree-root t) , (euclidean-tree->gcd t)
     where
+    t : EuclideanTree a b
     t = compute-euclidean-tree a b
 
   gcd-exists : (a b : Int) -> Σ[ d ∈ Int ] (GCD a b d)
   gcd-exists a b = (int (euclidean-tree-root t)) , (gcd'->gcd (NonNeg-nonneg _) (euclidean-tree->gcd t))
     where
+    t : EuclideanTree (abs' a) (abs' b)
     t = compute-euclidean-tree (abs' a) (abs' b)
 
 

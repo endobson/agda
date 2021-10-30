@@ -108,12 +108,13 @@ abstract
     0≤x : 0ℝ ≤ x
     0≤x x<0 = irrefl-< {_} {_} {_} {0ℝ} (subst2 _<_ x0=0 xx=0 x0<xx)
       where
-      x0<xx : (x * 0ℝ) < (x * x)
-      x0<xx = *₁-flips-< x<0 x<0
-      xx=0 : x * x == 0ℝ
-      xx=0 = absℝ-square x >=> *-right p >=> *-right-zero
-      x0=0 : x * 0ℝ == 0ℝ
-      x0=0 = *-right-zero
+      module _ where
+        x0<xx : (x * 0ℝ) < (x * x)
+        x0<xx = *₁-flips-< x<0 x<0
+        xx=0 : x * x == 0ℝ
+        xx=0 = absℝ-square x >=> *-right p >=> *-right-zero
+        x0=0 : x * 0ℝ == 0ℝ
+        x0=0 = *-right-zero
 
   -- absℝ-NonNeg-idem : (x : ℝ) -> (x ≮ 0ℝ) -> absℝ x == x
 
@@ -158,8 +159,11 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
       handle : sxᵉ ℝ<' 0ℝ -> Bot
       handle (ℝ<'-cons q sxU-q q<0) = sxᵉ.disjoint q (inj-l (L->ℚ< q<0) , sxU-q)
 
+  private
+    LT : Rel ℝ ℓ-one
+    LT = _≤_
   abstract
-    sqrt-0≤ : 0ℝ ≤ sx
+    sqrt-0≤ : LT 0ℝ sx
     sqrt-0≤ = subst (0ℝ ≤_) (sym (sqrtℝ-eval x x≮0)) sqrt-0≤ᵉ
 
 
@@ -195,8 +199,9 @@ module _ (x : ℝ) where
                         (*₂-preserves-≤ al≤au 0≤au)
               handle (inj-l al<0) = subst (_≤ (au * au)) -al-al=alal -al-al≤auau
                 where
-                0≤-al = minus-flips-≤0 (weaken-< al<0)
                 -al = - al
+                0≤-al : 0# ≤ -al
+                0≤-al = minus-flips-≤0 (weaken-< al<0)
 
                 -al-al≤auau = trans-≤ (*₁-preserves-≤ 0≤-al -al≤au)
                                       (*₂-preserves-≤ -al≤au 0≤au)
@@ -407,8 +412,9 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
     ℝ∈Iℚ-sqrt⁻ : (xi yi : Iℚ) -> ℝ∈Iℚ (sqrtℝ x x≮0) xi -> ℝ∈Iℚ (sqrtℝ x x≮0) yi -> ℝ∈Iℚ x (xi i* yi)
     ℝ∈Iℚ-sqrt⁻ xi yi sx∈xi sx∈yi = ℝ∈Iℚ-sqrtᵉ⁻ xi yi sx∈xi' sx∈yi'
       where
-      sx∈xi' = subst (\x -> ℝ∈Iℚ x xi) (sqrtℝ-eval x x≮0) sx∈xi
-      sx∈yi' = subst (\x -> ℝ∈Iℚ x yi) (sqrtℝ-eval x x≮0) sx∈yi
+      module _ where
+        sx∈xi' = subst (\x -> ℝ∈Iℚ x xi) (sqrtℝ-eval x x≮0) sx∈xi
+        sx∈yi' = subst (\x -> ℝ∈Iℚ x yi) (sqrtℝ-eval x x≮0) sx∈yi
 
     sqrt² : (sqrtℝ x x≮0) * (sqrtℝ x x≮0) == x
     sqrt² = cong2 _ℝ*_ (sqrtℝ-eval x x≮0) (sqrtℝ-eval x x≮0) >=>
@@ -542,57 +548,58 @@ module _ (x : ℝ)
     ℝ∈Iℚ-square-ImbalancedI⁻ : (ai : Iℚ) -> ImbalancedI ai -> ℝ∈Iℚ (x * x) (ai i* ai) -> ℝ∈Iℚ ax ai
     ℝ∈Iℚ-square-ImbalancedI⁻ ai@(Iℚ-cons l u l≤u) imb-ai xx∈aiai = handle (split-< l 0r)
       where
-      -l = - l
-      xxU-uu : xx.U (u * u)
-      xxU-uu = subst xx.U (cong Iℚ.u (sym (i²-ImbalancedI-path ai imb-ai))) (snd xx∈aiai)
-      handle : (l < 0r ⊎ 0r ≤ l) -> ℝ∈Iℚ ax ai
-      handle (inj-r 0≤l) = ℝ∈Iℚ-square-NonNeg⁻ ai (0≤-NonNeg _ 0≤l) xx∈aiai
-      handle (inj-l l<0) = handle2 (split-< -l u)
-        where
-        handle2 : (-l < u ⊎ u ≤ -l) -> ℝ∈Iℚ ax ai
-        handle2 (inj-r u≤-l) = ℝ∈Iℚ-square-Balanced⁻ ai -l=u xx∈aiai
+      module _ where
+        -l = - l
+        xxU-uu : xx.U (u * u)
+        xxU-uu = subst xx.U (cong Iℚ.u (sym (i²-ImbalancedI-path ai imb-ai))) (snd xx∈aiai)
+        handle : (l < 0r ⊎ 0r ≤ l) -> ℝ∈Iℚ ax ai
+        handle (inj-r 0≤l) = ℝ∈Iℚ-square-NonNeg⁻ ai (0≤-NonNeg _ 0≤l) xx∈aiai
+        handle (inj-l l<0) = handle2 (split-< -l u)
           where
-          -l=u : BalancedI ai
-          -l=u = antisym-≤ imb-ai u≤-l
-        handle2 (inj-l -l<u) = unsquash (isProp-ℝ∈Iℚ ax ai) (∥-map handle3 (ax.located -l u -l<u))
-          where
-          handle3 : ax.L -l ⊎ ax.U u -> ℝ∈Iℚ ax ai
-          handle3 (inj-r axU-u) = ax∈ai
+          handle2 : (-l < u ⊎ u ≤ -l) -> ℝ∈Iℚ ax ai
+          handle2 (inj-r u≤-l) = ℝ∈Iℚ-square-Balanced⁻ ai -l=u xx∈aiai
             where
-            axL-l : ax.L l
-            axL-l = ℝ≮0-L∀<0 ax (absℝ-≮0 x) l<0
-            ax∈ai : ℝ∈Iℚ ax ai
-            ax∈ai = axL-l , axU-u
-          handle3 (inj-l axL--l) = ℝ∈Iℚ-⊆ ax bi⊆ai ax∈bi
+            -l=u : BalancedI ai
+            -l=u = antisym-≤ imb-ai u≤-l
+          handle2 (inj-l -l<u) = unsquash (isProp-ℝ∈Iℚ ax ai) (∥-map handle3 (ax.located -l u -l<u))
             where
-            0<-l = minus-flips-<0 l<0
-            bi = Iℚ-cons -l u imb-ai
-            nn-bi = 0≤-NonNeg -l (weaken-< 0<-l)
-            bi² = i²-NonNegI bi nn-bi
-            bi⊆ai : bi i⊆ ai
-            bi⊆ai = i⊆-cons (weaken-< (trans-< l<0 0<-l)) refl-≤
-
-            xxL--l-l : xx.L (-l * -l)
-            xxL--l-l = unsquash (xx.isProp-L (-l * -l)) (∥-map handle4 ax.Inhabited-U)
+            handle3 : ax.L -l ⊎ ax.U u -> ℝ∈Iℚ ax ai
+            handle3 (inj-r axU-u) = ax∈ai
               where
-              handle4 : Σ[ u2 ∈ ℚ ] (ax.U u2) -> xx.L (-l * -l)
-              handle4 (u2 , axU-u2) = (fst (subst (ℝ∈Iℚ xx) (sym (i²-NonNegI-path ci nn-ci)) xx∈cici))
-                where
-                l<u2 = ℝ-bounds->ℚ< ax _ _ axL--l axU-u2
-                ci = Iℚ-cons -l u2 (weaken-< l<u2)
-                nn-ci = 0≤-NonNeg -l (weaken-< 0<-l)
-                ax∈ci : ℝ∈Iℚ ax ci
-                ax∈ci = axL--l , axU-u2
-                xx∈cici : ℝ∈Iℚ xx (ci i* ci)
-                xx∈cici = subst (\z -> ℝ∈Iℚ z (ci i* ci)) (sym (absℝ-square x))
-                                (ℝ∈Iℚ-* ax ax ci ci ax∈ci ax∈ci)
+              axL-l : ax.L l
+              axL-l = ℝ≮0-L∀<0 ax (absℝ-≮0 x) l<0
+              ax∈ai : ℝ∈Iℚ ax ai
+              ax∈ai = axL-l , axU-u
+            handle3 (inj-l axL--l) = ℝ∈Iℚ-⊆ ax bi⊆ai ax∈bi
+              where
+              0<-l = minus-flips-<0 l<0
+              bi = Iℚ-cons -l u imb-ai
+              nn-bi = 0≤-NonNeg -l (weaken-< 0<-l)
+              bi² = i²-NonNegI bi nn-bi
+              bi⊆ai : bi i⊆ ai
+              bi⊆ai = i⊆-cons (weaken-< (trans-< l<0 0<-l)) refl-≤
 
-            xx∈bi² : ℝ∈Iℚ xx bi²
-            xx∈bi² = xxL--l-l , xxU-uu
-            xx∈bibi : ℝ∈Iℚ xx (bi i* bi)
-            xx∈bibi = subst (ℝ∈Iℚ xx) (i²-NonNegI-path bi nn-bi) xx∈bi²
-            ax∈bi : ℝ∈Iℚ ax bi
-            ax∈bi = ℝ∈Iℚ-square-NonNeg⁻ bi nn-bi xx∈bibi
+              xxL--l-l : xx.L (-l * -l)
+              xxL--l-l = unsquash (xx.isProp-L (-l * -l)) (∥-map handle4 ax.Inhabited-U)
+                where
+                handle4 : Σ[ u2 ∈ ℚ ] (ax.U u2) -> xx.L (-l * -l)
+                handle4 (u2 , axU-u2) = (fst (subst (ℝ∈Iℚ xx) (sym (i²-NonNegI-path ci nn-ci)) xx∈cici))
+                  where
+                  l<u2 = ℝ-bounds->ℚ< ax _ _ axL--l axU-u2
+                  ci = Iℚ-cons -l u2 (weaken-< l<u2)
+                  nn-ci = 0≤-NonNeg -l (weaken-< 0<-l)
+                  ax∈ci : ℝ∈Iℚ ax ci
+                  ax∈ci = axL--l , axU-u2
+                  xx∈cici : ℝ∈Iℚ xx (ci i* ci)
+                  xx∈cici = subst (\z -> ℝ∈Iℚ z (ci i* ci)) (sym (absℝ-square x))
+                                  (ℝ∈Iℚ-* ax ax ci ci ax∈ci ax∈ci)
+
+              xx∈bi² : ℝ∈Iℚ xx bi²
+              xx∈bi² = xxL--l-l , xxU-uu
+              xx∈bibi : ℝ∈Iℚ xx (bi i* bi)
+              xx∈bibi = subst (ℝ∈Iℚ xx) (i²-NonNegI-path bi nn-bi) xx∈bi²
+              ax∈bi : ℝ∈Iℚ ax bi
+              ax∈bi = ℝ∈Iℚ-square-NonNeg⁻ bi nn-bi xx∈bibi
 
 
 module _ (x : ℝ) (y : ℝ) (x≮0 : x ≮ 0ℝ) (y≮0 : y ≮ 0ℝ)

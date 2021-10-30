@@ -73,6 +73,7 @@ abstract
   p1 >=> p2 = trans p1 p2
 
   private
+    _∙_ : {x y z : A} -> x == y -> y == z -> x == z
     _∙_ = trans
 
   compPath-filler : {x y z : A} (p : x == y) (q : y == z) -> PathP (\i -> x == (q i)) p (p ∙ q)
@@ -141,6 +142,7 @@ substᵉ : {x y : A} -> (P : A → Type ℓ) -> x == y -> P x -> P y
 substᵉ P path = transport (\ i -> (P (path i)))
 
 abstract
+  subst : {x y : A} -> (P : A → Type ℓ) -> x == y -> P x -> P y
   subst = substᵉ
 
   subst2 : {a11 a12 : A1} {a21 a22 : A2} -> (P : A1 -> A2 -> Type ℓ) ->

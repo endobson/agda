@@ -621,7 +621,7 @@ record NonCollinear' (a b c : Point) : Type₁ where
 
 
 record NonCollinear (a b c : Point) : Type₁ where
-  no-eta-equality
+  no-eta-equality ; pattern
   constructor non-collinear-cons
   field
     a#b : a # b

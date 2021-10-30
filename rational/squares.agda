@@ -95,22 +95,24 @@ abstract
   squares-ordered⁺ {q} {r} 0≤q q<r =
     trans-≤-< (*₁-preserves-≤ 0≤q (weaken-< q<r)) (*₂-preserves-< q<r 0<r)
     where
-    0<r = trans-≤-< 0≤q q<r
+    module _ where
+      0<r = trans-≤-< 0≤q q<r
 
   squares-ordered : {q r : ℚ} -> (0r ≤ q) -> (0r ≤ r) -> (q * q) < (r * r) -> q < r
   squares-ordered {q} {r} 0≤q 0≤r qq<rr =
     unsquash (isProp-< _ _) (∥-map handle (comparison-< qq qr rr qq<rr))
     where
-    qq = (q * q)
-    qr = (q * r)
-    rr = (r * r)
+    module _ where
+      qq = (q * q)
+      qr = (q * r)
+      rr = (r * r)
 
-    r≮q : r ≮ q
-    r≮q r<q = asym-< qq<rr (squares-ordered⁺ 0≤r r<q)
+      r≮q : r ≮ q
+      r≮q r<q = asym-< qq<rr (squares-ordered⁺ 0≤r r<q)
 
-    handle : (qq < qr) ⊎ (qr < rr) -> q < r
-    handle (inj-l qq<qr) = *₁-reflects-<' 0≤q qq<qr
-    handle (inj-r qr<rr) = *₂-reflects-<' 0≤r qr<rr
+      handle : (qq < qr) ⊎ (qr < rr) -> q < r
+      handle (inj-l qq<qr) = *₁-reflects-<' 0≤q qq<qr
+      handle (inj-r qr<rr) = *₂-reflects-<' 0≤r qr<rr
 
   squares-ordered-< : {q r : ℚ} -> (0r ≤ r) -> (q * q) < (r * r) -> q < r
   squares-ordered-< {q} {r} 0≤r qq<rr = handle (split-< q 0r)
@@ -139,17 +141,18 @@ abstract
   squares-dense-0 : {q : ℚ} -> (0r < q) -> ∃[ s ∈ ℚ ] (isSquareℚ s × 0r < s × s < q)
   squares-dense-0 {q} 0<q = ∥-map handle (comparison-< 1/4r q 1r 1/4<1)
     where
-    1/4r = 1/2r * 1/2r
-    1/4<1 : 1/4r < 1r
-    1/4<1 = trans-< (subst (1/4r <_) *-right-one (*₁-preserves-< Pos-1/2r 1/2r<1r)) 1/2r<1r
+    module _ where
+      1/4r = 1/2r * 1/2r
+      1/4<1 : 1/4r < 1r
+      1/4<1 = trans-< (subst (1/4r <_) *-right-one (*₁-preserves-< Pos-1/2r 1/2r<1r)) 1/2r<1r
 
-    handle : (1/4r < q) ⊎ (q < 1r) -> Σ[ s ∈ ℚ ] (isSquareℚ s × 0r < s × s < q)
-    handle (inj-l 1/4<q) = 1/4r , (1/2r , weaken-< Pos-1/2r , refl) ,
-                           *-preserves-0< Pos-1/2r Pos-1/2r , 1/4<q
-    handle (inj-r q<1) = (q * q) , (q , weaken-< 0<q , refl) , 0<qq , qq<q
-      where
-      0<qq = r*-Pos-Pos 0<q 0<q
-      qq<q = (subst ((q * q) <_) *-right-one (*₁-preserves-< 0<q q<1))
+      handle : (1/4r < q) ⊎ (q < 1r) -> Σ[ s ∈ ℚ ] (isSquareℚ s × 0r < s × s < q)
+      handle (inj-l 1/4<q) = 1/4r , (1/2r , weaken-< Pos-1/2r , refl) ,
+                             *-preserves-0< Pos-1/2r Pos-1/2r , 1/4<q
+      handle (inj-r q<1) = (q * q) , (q , weaken-< 0<q , refl) , 0<qq , qq<q
+        where
+        0<qq = r*-Pos-Pos 0<q 0<q
+        qq<q = (subst ((q * q) <_) *-right-one (*₁-preserves-< 0<q q<1))
 
 private
 

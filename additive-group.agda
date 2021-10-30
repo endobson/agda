@@ -229,13 +229,15 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
     +₁-preserves-# {a} {b} {c} b#c =
       unsquash isProp-# (∥-map handle (+-reflects-# ap))
       where
-      ap : ((a + b) + (- a)) # ((a + c) + (- a))
-      ap = subst2 _#_ (sym +-right-zero >=> +-right (sym +-inverse) >=> sym +-assoc >=> +-left +-commute)
-                      (sym +-right-zero >=> +-right (sym +-inverse) >=> sym +-assoc >=> +-left +-commute)
-                      b#c
-      handle : ((a + b) # (a + c)) ⊎ ((- a) # (- a)) -> ((a + b) # (a + c))
-      handle (inj-l ap) = ap
-      handle (inj-r ap) = bot-elim (irrefl-# ap)
+      module _ where
+        handle : ((a + b) # (a + c)) ⊎ ((- a) # (- a)) -> ((a + b) # (a + c))
+        handle (inj-l ap2) = ap2
+        handle (inj-r ap2) = bot-elim (irrefl-# ap2)
+
+        ap : ((a + b) + (- a)) # ((a + c) + (- a))
+        ap = subst2 _#_ (sym +-right-zero >=> +-right (sym +-inverse) >=> sym +-assoc >=> +-left +-commute)
+                        (sym +-right-zero >=> +-right (sym +-inverse) >=> sym +-assoc >=> +-left +-commute)
+                        b#c
 
     +₂-preserves-# : {a b c : D} -> (a # b) -> (a + c) # (b + c)
     +₂-preserves-# a#b = subst2 _#_ +-commute +-commute (+₁-preserves-# a#b)

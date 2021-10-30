@@ -52,6 +52,7 @@ module _ where
           f~₁ r1 r2 r3 (same-semi-rotation-flipped p) =
             eq/ _ _ (same-semi-rotation-flipped p2)
             where
+            p2 : add-half-rotation (r1 + r3) == (r2 + r3)
             p2 = add-half-rotation-path _ >=>
                  +-left +-commute >=> +-assoc >=> +-commute >=>
                  +-left (sym (add-half-rotation-path _) >=> p)
@@ -72,6 +73,7 @@ module _ where
           f~ r1 r2 (same-semi-rotation-flipped p) =
             eq/ _ _ (same-semi-rotation-flipped p2)
             where
+            p2 : add-half-rotation (- r1) == (- r2)
             p2 = add-half-rotation-minus-commute _ >=>
                  cong -_ p
 
@@ -132,7 +134,7 @@ module _ where
 private
 
   record NonTrivialSemiRotation' (r : Rotation) : Type₁ where
-    no-eta-equality
+    no-eta-equality ; pattern
     constructor non-trivial-semi-rotation
     field
       apart-zero : r # zero-rotation
@@ -187,6 +189,7 @@ private
                                          isProp-NonTrivialSemiRotation'
                                          isProp-NonTrivialSemiRotation')))
           where
+          p2 : add-half-rotation r2 == r1
           p2 = cong add-half-rotation (sym p) >=> add-half-rotation-double-inverse _
 
 
@@ -300,7 +303,7 @@ private
       -r#h = subst ((- r) #_) minus-half-rotation (minus-preserves-r# r#h)
 
   record _sr#_ (sr1 sr2 : SemiRotation) : Type₁ where
-    no-eta-equality
+    no-eta-equality ; pattern
     constructor sr#-cons
     field
       nt : NonTrivialSemiRotation (diff sr1 sr2)

@@ -74,9 +74,10 @@ private
       smaller-encode' {zero}      ins perm = isPropΠ (\_ -> isPropFin0) _ _
       smaller-encode' {n@(suc _)} ins perm = ans
         where
-        f = encode-iperm' (ins :: perm)
-        f-inj = encode-iperm'-inj (ins :: perm)
-        g = encode-iperm' perm
+        module _ where
+          f = encode-iperm' (ins :: perm)
+          f-inj = encode-iperm'-inj (ins :: perm)
+          g = encode-iperm' perm
 
         point : (i : Fin n) -> smaller-fun' f f-inj i == g i
         point i = ans

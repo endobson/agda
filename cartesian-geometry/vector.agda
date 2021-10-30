@@ -565,6 +565,7 @@ conjugate-direction : Direction -> Direction
 conjugate-direction (v , p) = conjugate-vector v , vl=1'
   where
   abstract
+    vl=1' : vector-length (conjugate-vector v) == 1#
     vl=1' = conjugate-preserves-vector-length v >=> p
 
 abstract

@@ -32,7 +32,6 @@ data RingSyntax (n : Nat) : Type₀ where
   var : Fin n -> RingSyntax n
 
 
-
 infixl 6 _⊕_
 infixl 7 _⊗_
 
@@ -134,35 +133,45 @@ private
   compare-nat zero zero = equal-to refl
   compare-nat (suc _) zero = greater-than
   compare-nat zero (suc _) = less-than
-  compare-nat (suc m) (suc n) with compare-nat m n
-  ... | less-than = less-than
-  ... | equal-to p = equal-to (cong suc p)
-  ... | greater-than = greater-than
+  compare-nat (suc m) (suc n) = handle (compare-nat m n)
+    where
+    handle : Order m n -> Order (suc m) (suc n)
+    handle less-than = less-than
+    handle (equal-to p) = equal-to (cong suc p)
+    handle greater-than = greater-than
 
   compare-fin : {n : Nat} (x y : Fin n) -> Order x y
-  compare-fin m n with compare-nat (fin->nat m) (fin->nat n)
-  ... | less-than = less-than
-  ... | equal-to p = equal-to (transport (sym fin->nat-path) p)
-  ... | greater-than = greater-than
+  compare-fin m n = handle (compare-nat (fin->nat m) (fin->nat n))
+    where
+    handle : Order (fin->nat m) (fin->nat n) -> Order m n
+    handle less-than = less-than
+    handle (equal-to p) = equal-to (transport (sym fin->nat-path) p)
+    handle greater-than = greater-than
 
   fin< : {n : Nat} -> Fin n -> Fin n -> Boolean
-  fin< i j with compare-fin i j
-  ... | less-than = true
-  ... | equal-to _ = false
-  ... | greater-than = false
+  fin< i j = handle (compare-fin i j)
+    where
+    handle : Order i j -> Boolean
+    handle less-than = true
+    handle (equal-to _) = false
+    handle greater-than = false
 
 
   compare-list : ((a b : A) -> Order a b) -> (x y : List A) -> Order x y
   compare-list _ [] [] = equal-to refl
   compare-list _ (_ :: _) [] = greater-than
   compare-list _ [] (_ :: _) = less-than
-  compare-list compare-elem (el :: ll) (er :: lr) with compare-elem el er
-  ... | less-than = less-than
-  ... | greater-than = greater-than
-  ... | equal-to elem-pr with compare-list compare-elem ll lr
-  ...    | less-than = less-than
-  ...    | greater-than = greater-than
-  ...    | equal-to list-pr = equal-to (\i -> (elem-pr i) :: (list-pr i))
+  compare-list compare-elem (el :: ll) (er :: lr) =
+    case (compare-elem el er) of
+      (\{ less-than -> less-than
+        ; greater-than -> greater-than
+        ; (equal-to elem-pr) ->
+          case (compare-list compare-elem ll lr) of
+            (\{ less-than -> less-than
+              ; greater-than -> greater-than
+              ; (equal-to list-pr) -> equal-to (\i -> (elem-pr i) :: (list-pr i))
+              })
+        })
 
 
 module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
@@ -225,16 +234,23 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
 
       merge-terms : Terms -> Terms -> Terms
       merge-terms1 : Term -> Terms -> Terms -> Terms
+      merge-terms2-cmp :
+        (t1 t2 : Term) -> Order (Term.vars t1) (Term.vars t2) -> Terms -> Terms -> Terms
 
       merge-terms [] terms = terms
       merge-terms (t :: ts1) ts2 = merge-terms1 t ts1 ts2
 
       merge-terms1 t1 terms1 [] = t1 :: terms1
-      merge-terms1 t1 terms1 (t2 :: terms2)
-        with compare-vars (Term.vars t1) (Term.vars t2)
-      ... | less-than = t1 :: (merge-terms1 t2 terms2 terms1)
-      ... | greater-than = t2 :: (merge-terms1 t1 terms1 terms2)
-      ... | equal-to pr = (merge-equal-terms t1 t2 pr) :: (merge-terms terms1 terms2)
+      merge-terms1 t1 terms1 (t2 :: terms2) =
+        merge-terms2-cmp t1 t2 (compare-vars (Term.vars t1) (Term.vars t2))
+                         terms1 terms2
+
+      merge-terms2-cmp t1 t2 less-than terms1 terms2 =
+        t1 :: (merge-terms1 t2 terms2 terms1)
+      merge-terms2-cmp t1 t2 greater-than terms1 terms2 =
+        t2 :: (merge-terms1 t1 terms1 terms2)
+      merge-terms2-cmp t1 t2 (equal-to pr) terms1 terms2 =
+        (merge-equal-terms t1 t2 pr) :: (merge-terms terms1 terms2)
 
       insertion-sort-terms' : Terms -> Terms -> Terms
       insertion-sort-terms' [] acc = acc
@@ -254,10 +270,10 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
       filter-zero-terms [] = []
       filter-zero-terms ((term (int.zero-int) vars) :: terms) =
         filter-zero-terms terms
-      filter-zero-terms (term@(term (int.pos _) vars) :: terms) =
-        term :: filter-zero-terms terms
-      filter-zero-terms (term@(term (int.neg _) vars) :: terms) =
-        term :: filter-zero-terms terms
+      filter-zero-terms (t@(term (int.pos _) vars) :: terms) =
+        t :: filter-zero-terms terms
+      filter-zero-terms (t@(term (int.neg _) vars) :: terms) =
+        t :: filter-zero-terms terms
 
 
 
@@ -349,44 +365,53 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
       merge-terms≈ (e :: ts1) ts2 = merge-terms1≈ e ts1 ts2
 
       merge-terms1≈ t1 ts1 [] = ++-terms-flip [] (t1 :: ts1)
-      merge-terms1≈ t1@(term m1 vars1) ts1 (t2@(term m2 vars2) :: ts2)
-        with (compare-vars vars1 vars2)
-      ... | less-than =
-        begin
-          ⟦ t1 ⟧term + ⟦ merge-terms1 t2 ts2 ts1 ⟧terms
-        ==< +-right (merge-terms1≈ t2 ts2 ts1) >
-          ⟦ t1 ⟧term + ⟦ (t2 :: ts2) ++ ts1 ⟧terms
-        ==< +-right (++-terms-flip (t2 :: ts2) ts1) >
-          ⟦ t1 ⟧term + ⟦ ts1 ++ (t2 :: ts2) ⟧terms
-        ==<>
-          ⟦ (t1 :: ts1) ++ (t2 :: ts2) ⟧terms
-        end
-      ... | greater-than =
-        begin
-          ⟦ t2 ⟧term + ⟦ merge-terms1 t1 ts1 ts2 ⟧terms
-        ==< +-right (merge-terms1≈ t1 ts1 ts2) >
-          ⟦ t2 ⟧term + ⟦ (t1 :: ts1) ++ ts2 ⟧terms
-        ==< +-right (++-terms-flip (t1 :: ts1) ts2) >
-          ⟦ t2 ⟧term + ⟦ ts2 ++ (t1 :: ts1) ⟧terms
-        ==<>
-          ⟦ (t2 :: ts2) ++ (t1 :: ts1) ⟧terms
-        ==< ++-terms-flip (t2 :: ts2) (t1 :: ts1) >
-          ⟦ (t1 :: ts1) ++ (t2 :: ts2) ⟧terms
-        end
-      ... | equal-to pr =
-        begin
-          ⟦ (merge-equal-terms t1 t2 pr) ⟧term + ⟦ merge-terms ts1 ts2 ⟧terms
-        ==< +-left (merge-equal-terms≈ t1 t2 pr) >
-          (⟦ t1 ⟧term + ⟦ t2 ⟧term) + ⟦ merge-terms ts1 ts2 ⟧terms
-        ==< +-right (merge-terms≈ ts1 ts2) >
-          (⟦ t1 ⟧term + ⟦ t2 ⟧term) + ⟦ ts1 ++ ts2 ⟧terms
-        ==< +-right (++-terms-flip ts1 ts2) >
-          (⟦ t1 ⟧term + ⟦ t2 ⟧term) + ⟦ ts2 ++ ts1 ⟧terms
-        ==< +-assoc >
-          ⟦ t1 ⟧term + ⟦ (t2 :: ts2) ++ ts1 ⟧terms
-        ==< +-right (++-terms-flip (t2 :: ts2) ts1) >
-           ⟦ (t1 :: ts1) ++ (t2 :: ts2) ⟧terms
-        end
+      merge-terms1≈ t1@(term m1 vars1) ts1 (t2@(term m2 vars2) :: ts2) =
+        handle (compare-vars vars1 vars2) refl
+        where
+        handle : (o : Order vars1 vars2) -> (compare-vars vars1 vars2) == o ->
+                 ⟦ (merge-terms1 t1 ts1 (t2 :: ts2)) ⟧terms == ⟦ (t1 :: ts1) ++ (t2 :: ts2) ⟧terms
+        handle less-than o-path =
+          begin
+            ⟦ (merge-terms1 t1 ts1 (t2 :: ts2)) ⟧terms
+          ==< cong (\o -> ⟦ (merge-terms2-cmp t1 t2 o ts1 ts2) ⟧terms) o-path >
+            ⟦ t1 ⟧term + ⟦ merge-terms1 t2 ts2 ts1 ⟧terms
+          ==< +-right (merge-terms1≈ t2 ts2 ts1) >
+            ⟦ t1 ⟧term + ⟦ (t2 :: ts2) ++ ts1 ⟧terms
+          ==< +-right (++-terms-flip (t2 :: ts2) ts1) >
+            ⟦ t1 ⟧term + ⟦ ts1 ++ (t2 :: ts2) ⟧terms
+          ==<>
+            ⟦ (t1 :: ts1) ++ (t2 :: ts2) ⟧terms
+          end
+        handle greater-than o-path =
+          begin
+            ⟦ (merge-terms1 t1 ts1 (t2 :: ts2)) ⟧terms
+          ==< cong (\o -> ⟦ (merge-terms2-cmp t1 t2 o ts1 ts2) ⟧terms) o-path >
+            ⟦ t2 ⟧term + ⟦ merge-terms1 t1 ts1 ts2 ⟧terms
+          ==< +-right (merge-terms1≈ t1 ts1 ts2) >
+            ⟦ t2 ⟧term + ⟦ (t1 :: ts1) ++ ts2 ⟧terms
+          ==< +-right (++-terms-flip (t1 :: ts1) ts2) >
+            ⟦ t2 ⟧term + ⟦ ts2 ++ (t1 :: ts1) ⟧terms
+          ==<>
+            ⟦ (t2 :: ts2) ++ (t1 :: ts1) ⟧terms
+          ==< ++-terms-flip (t2 :: ts2) (t1 :: ts1) >
+            ⟦ (t1 :: ts1) ++ (t2 :: ts2) ⟧terms
+          end
+        handle (equal-to pr) o-path =
+          begin
+            ⟦ (merge-terms1 t1 ts1 (t2 :: ts2)) ⟧terms
+          ==< cong (\o -> ⟦ (merge-terms2-cmp t1 t2 o ts1 ts2) ⟧terms) o-path >
+            ⟦ (merge-equal-terms t1 t2 pr) ⟧term + ⟦ merge-terms ts1 ts2 ⟧terms
+          ==< +-left (merge-equal-terms≈ t1 t2 pr) >
+            (⟦ t1 ⟧term + ⟦ t2 ⟧term) + ⟦ merge-terms ts1 ts2 ⟧terms
+          ==< +-right (merge-terms≈ ts1 ts2) >
+            (⟦ t1 ⟧term + ⟦ t2 ⟧term) + ⟦ ts1 ++ ts2 ⟧terms
+          ==< +-right (++-terms-flip ts1 ts2) >
+            (⟦ t1 ⟧term + ⟦ t2 ⟧term) + ⟦ ts2 ++ ts1 ⟧terms
+          ==< +-assoc >
+            ⟦ t1 ⟧term + ⟦ (t2 :: ts2) ++ ts1 ⟧terms
+          ==< +-right (++-terms-flip (t2 :: ts2) ts1) >
+             ⟦ (t1 :: ts1) ++ (t2 :: ts2) ⟧terms
+          end
 
 
       insertion-sort'≈ :
@@ -625,9 +650,15 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
         normalize-split :
           ⟦ normalize (l ⊕ r) ⟧norm ==
           ⟦ normalize l ⟧norm + ⟦ normalize r ⟧norm
-        normalize-split with (normalize l)  | (normalize r)
-        ...                | (expr l-terms) | (expr r-terms) =
-          filtered-merge-terms≈ l-terms r-terms
+        normalize-split = handle (normalize l) (normalize r) refl refl
+          where
+          handle : (el er : Expr) -> normalize l == el -> normalize r == er ->
+                   ⟦ normalize (l ⊕ r) ⟧norm ==
+                   ⟦ normalize l ⟧norm + ⟦ normalize r ⟧norm
+          handle (expr l-terms) (expr r-terms) lp rp =
+            (\i -> ⟦ expr-+ (lp i) (rp i) ⟧norm) >=>
+            filtered-merge-terms≈ l-terms r-terms >=>
+            (\i -> ⟦ lp (~ i) ⟧norm + ⟦ rp (~ i) ⟧norm)
       correct  (l ⊗ r) =
         begin
           ⟦ (l ⊗ r) ⇓⟧
@@ -646,9 +677,15 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
         normalize-split :
           ⟦ normalize (l ⊗ r) ⟧norm ==
           ⟦ normalize l ⟧norm * ⟦ normalize r ⟧norm
-        normalize-split with (normalize l)  | (normalize r)
-        ...                | (expr l-terms) | (expr r-terms) =
-          all-products≈ l-terms r-terms
+        normalize-split = handle (normalize l) (normalize r) refl refl
+          where
+          handle : (el er : Expr) -> normalize l == el -> normalize r == er ->
+                   ⟦ normalize (l ⊗ r) ⟧norm ==
+                   ⟦ normalize l ⟧norm * ⟦ normalize r ⟧norm
+          handle (expr l-terms) (expr r-terms) lp rp =
+            (\i -> ⟦ expr-* (lp i) (rp i) ⟧norm) >=>
+            all-products≈ l-terms r-terms >=>
+            (\i -> ⟦ lp (~ i) ⟧norm * ⟦ rp (~ i) ⟧norm)
 
 
     solve : (f : Nary n (RingSyntax n) ((RingSyntax n) × (RingSyntax n)))
@@ -710,12 +747,12 @@ module Solver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain} (S : Semirin
       flatten (var i) = (i :: [])
       flatten (l ⊗ r) = (flatten l) ++ (flatten r)
       res : Boolean
-      res with (compare-list compare-fin (insertion-sort fin< (flatten t1))
-                                         (insertion-sort fin< (flatten t2)))
-      ... | less-than = true
-      ... | greater-than = false
-      ... | equal-to _ = false
-
+      res = case (compare-list compare-fin (insertion-sort fin< (flatten t1))
+                                           (insertion-sort fin< (flatten t2))) of
+              (\{ less-than -> true
+                ; greater-than -> false
+                ; (equal-to _) -> false
+                })
 
 
     all-pairs : List Term -> List Term -> List Term

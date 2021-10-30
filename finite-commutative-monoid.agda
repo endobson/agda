@@ -174,10 +174,11 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
                            -> finiteMergeᵉ A f == finiteMergeᵉ B (f ∘ (eqFun eq))
     finiteMergeᵉ-convert {ℓ₁} {ℓ₂} A B eq f = outer-path
       where
-      A' = ⟨ A ⟩
-      isFinA = snd A
-      B' = ⟨ B ⟩
-      isFinB = snd B
+      module _ where
+        A' = ⟨ A ⟩
+        isFinA = snd A
+        B' = ⟨ B ⟩
+        isFinB = snd B
 
       inner-path : Σ[ n ∈ Nat ] (A' ≃ Fin n)
                    -> finiteMergeᵉ A f == finiteMergeᵉ B (f ∘ (eqFun eq))

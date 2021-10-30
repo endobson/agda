@@ -37,7 +37,8 @@ module UListElim where
     full (a :: as) = a ::* (full as)
     full (swap a1 a2 as i) = (swap* a1 a2 (full as) i)
     full (trunc as1 as2 p q i j) =
-      isOfHLevel->isOfHLevelDep 2 (\_ -> trunc*) (full as1) (full as2) (cong full p) (cong full q)
+      isOfHLevel->isOfHLevelDep 2 (\_ -> trunc*) (full as1) (full as2)
+                                (\k -> full (p k)) (\k -> full (q k))
                                 (trunc as1 as2 p q) i j
 
   module _ {ℓ} {B : UList A -> Type ℓ}
@@ -69,4 +70,4 @@ module UListElim where
     rec [] = []*
     rec (a :: as) = a ::* (rec as)
     rec (swap a1 a2 as i) = (swap* a1 a2 (rec as) i)
-    rec (trunc as1 as2 p q i j) = (BSet* (rec as1) (rec as2) (cong rec p) (cong rec q) i j)
+    rec (trunc as1 as2 p q i j) = (BSet* (rec as1) (rec as2) (\k -> rec (p k)) (\k -> rec (q k)) i j)

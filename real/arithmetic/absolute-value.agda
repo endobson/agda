@@ -192,8 +192,9 @@ abstract
   absℝ-0≤ : (x : ℝ) -> (q : ℚ⁻) -> Real.L (absℝ x) ⟨ q ⟩
   absℝ-0≤ x (q , neg-q) = Real.located x q (- q) q<-q
     where
-    q<-q : q < (- q)
-    q<-q = trans-< {_} {_} {_} {q} (Neg-<0 q neg-q) (Pos-0< (- q) (r--flips-sign q neg-sign neg-q))
+    module _ where
+      q<-q : q < (- q)
+      q<-q = trans-< {_} {_} {_} {q} (Neg-<0 q neg-q) (Pos-0< (- q) (r--flips-sign q neg-sign neg-q))
 
   absℝ-≮0 : (x : ℝ) -> absℝ x ≮ 0ℝ
   absℝ-≮0 x = unsquash isPropBot ∘ ∥-map handle
@@ -265,8 +266,9 @@ abstract
   split-small-absℝ : (x : ℝ) -> (q : ℚ⁺) -> ∥ (absℝ x ℝ< (ℚ->ℝ ⟨ q ⟩)) ⊎ ℝInv x ∥
   split-small-absℝ x q⁺@(q , Pos-q) = ∥-map handle (find-open-ball x q⁺)
     where
-    module x = Real x
-    Res = (absℝ x ℝ< (ℚ->ℝ q)) ⊎ ℝInv x
+    module _ where
+      module x = Real x
+      Res = (absℝ x ℝ< (ℚ->ℝ q)) ⊎ ℝInv x
 
     handle : OpenBall x q -> Res
     handle (r1 , r2 , xl-r1 , xu-r2 , diff-path) = handle2 (split-< r1 0r) (split-< 0r r2)
@@ -274,46 +276,49 @@ abstract
       handle2 : (r1 < 0r) ⊎ (0r ≤ r1) -> (0r < r2) ⊎ (r2 ≤ 0r) -> Res
       handle2 (inj-r 0≤r1) _ = inj-r (inj-r ans)
         where
-        ans : 0ℝ < x
-        ans = ∥-map (\ (s , r1<s , xl) -> ℝ<'-cons s  (ℚ<->U (trans-≤-< {d1 = 0r} 0≤r1 r1<s)) xl)
-                    (x.isUpperOpen-L r1 xl-r1)
+        module _ where
+          ans : 0ℝ < x
+          ans = ∥-map (\ (s , r1<s , xl) -> ℝ<'-cons s  (ℚ<->U (trans-≤-< {d1 = 0r} 0≤r1 r1<s)) xl)
+                      (x.isUpperOpen-L r1 xl-r1)
       handle2 (inj-l r1<0) (inj-r r2≤0) = inj-r (inj-l ans)
         where
-        ans : x < 0ℝ
-        ans = ∥-map (\ (s , s<r2 , xu) -> ℝ<'-cons s xu (ℚ<->L (trans-<-≤ {d1 = s} s<r2 r2≤0)))
-                    (x.isLowerOpen-U r2 xu-r2)
+        module _ where
+          ans : x < 0ℝ
+          ans = ∥-map (\ (s , s<r2 , xu) -> ℝ<'-cons s xu (ℚ<->L (trans-<-≤ {d1 = s} s<r2 r2≤0)))
+                      (x.isLowerOpen-U r2 xu-r2)
       handle2 (inj-l r1<0) (inj-l 0<r2) = inj-l (∣ ℝ<'-cons s (xl--s , xu-s) (ℚ<->L s<q) ∣)
         where
-        -r1<q : (- r1) < q
-        -r1<q = subst2 _<_ +-left-zero diff-path (+₂-preserves-< 0<r2)
-        r2<q : r2 < q
-        r2<q = subst2 _<_ +-right-zero diff-path (+₁-preserves-< (minus-flips-<0 r1<0))
+        module _ where
+          -r1<q : (- r1) < q
+          -r1<q = subst2 _<_ +-left-zero diff-path (+₂-preserves-< 0<r2)
+          r2<q : r2 < q
+          r2<q = subst2 _<_ +-right-zero diff-path (+₁-preserves-< (minus-flips-<0 r1<0))
 
+          s = maxℚ (- r1) r2
+          s<q : s < q
+          s<q = maxℚ-property (- r1) r2 -r1<q r2<q
 
-        s = maxℚ (- r1) r2
-        s<q : s < q
-        s<q = maxℚ-property (- r1) r2 -r1<q r2<q
+          xl--s : x.L (- s)
+          xl--s = isLowerSet≤ x (- s) r1 lt xl-r1
+            where
+            lt : (- s) ≤ r1
+            lt = subst (_≤ r1) (sym (r--maxℚ (- r1) r2 >=> (cong2 minℚ minus-double-inverse refl)))
+                                (minℚ-≤-left r1 (- r2))
 
-        xl--s : x.L (- s)
-        xl--s = isLowerSet≤ x (- s) r1 lt xl-r1
-          where
-          lt : (- s) ≤ r1
-          lt = subst (_≤ r1) (sym (r--maxℚ (- r1) r2 >=> (cong2 minℚ minus-double-inverse refl)))
-                              (minℚ-≤-left r1 (- r2))
-
-        xu-s : x.U s
-        xu-s = isUpperSet≤ x r2 s (maxℚ-≤-right (- r1) r2) xu-r2
+          xu-s : x.U s
+          xu-s = isUpperSet≤ x r2 s (maxℚ-≤-right (- r1) r2) xu-r2
 
   absℝ-- : (x : ℝ) -> absℝ (- x) == absℝ x
   absℝ-- x = cong absℝ (ℝ--eval {x}) >=> LU-paths->path amx ax L-path U-path
     where
-    mx = ℝ-ᵉ x
-    ax = absℝ x
-    amx = absℝ mx
-    module x = Real x
-    module ax = Real ax
-    module mx = Real mx
-    module amx = Real amx
+    module _ where
+      mx = ℝ-ᵉ x
+      ax = absℝ x
+      amx = absℝ mx
+      module x = Real x
+      module ax = Real ax
+      module mx = Real mx
+      module amx = Real amx
 
     L-path : (q : ℚ) -> amx.L q == ax.L q
     L-path q = ua (isoToEquiv i)
@@ -346,8 +351,9 @@ abstract
   absℝ-NonPos-minus : (x : ℝ) -> (x ≤ 0ℝ) -> absℝ x == (- x)
   absℝ-NonPos-minus x x≤0 = sym (absℝ-- x) >=> absℝ-NonNeg-idem mx 0≤mx
     where
-    mx = - x
-    0≤mx = minus-flips-≤0 x≤0
+    module _ where
+      mx = - x
+      0≤mx = minus-flips-≤0 x≤0
 
 
 
@@ -357,6 +363,7 @@ abstract
   absℝ-#0 x (inj-l ax<0) = bot-elim (absℝ-≮0 x ax<0)
   absℝ-#0 x (inj-r 0<ax) = unsquash (isProp-ℝ# x 0#) (∥-bind handle 0<ax)
     where
+    ax : ℝ
     ax = absℝ x
     handle : 0ℝ ℝ<' ax -> ∥ x ℝ# 0# ∥
     handle (ℝ<'-cons q 0<q axL-q) = ∥-map handle2 (split-small-absℝ x (q , (U->ℚ< 0<q)))
@@ -374,9 +381,10 @@ abstract
     (x : ℝ) (a : Iℚ) -> ¬ (StrictCrossZeroI a) -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) (i-abs a)
   ℝ∈Iℚ-absℝ-StrictCrossZeroI x (Iℚ-cons l u l≤u) ¬scz (xl-l , xu-u) = axl-l0 , axu--lu
     where
-    module x = Real x
-    ax = (absℝ x)
-    module ax = Real ax
+    module _ where
+      module x = Real x
+      ax = (absℝ x)
+      module ax = Real ax
     axl-l0 : ax.L (maxℚ l 0r)
     axl-l0 = handle (split-< l 0r)
       where
@@ -390,8 +398,9 @@ abstract
         handle2 : (0r < u) ⊎ (u ≤ 0r) -> ax.L (maxℚ l 0r)
         handle2 (inj-r u≤0) = isLowerSet≤ ax (maxℚ l 0r) (- u) l0≤-u axl--u
           where
-          l0≤-u : (maxℚ l 0r) ≤ (- u)
-          l0≤-u = subst (_≤ (- u)) (sym l0=0) (minus-flips-≤0 u≤0)
+          module _ where
+            l0≤-u : (maxℚ l 0r) ≤ (- u)
+            l0≤-u = subst (_≤ (- u)) (sym l0=0) (minus-flips-≤0 u≤0)
 
           axl--u : ax.L (- u)
           axl--u = ∣ inj-r (subst x.U (sym minus-double-inverse) xu-u) ∣
@@ -418,29 +427,32 @@ abstract
   ℝ∈Iℚ-absℝ-NonNegI x (Iℚ-cons l u l≤u) nn-l (xl-l , xu-u) =
     ∣ inj-l xl-l ∣ , (isLowerSet≤ x (- u) l -u≤l xl-l , xu-u)
     where
-    0≤l : 0r ≤ l
-    0≤l = NonNeg-0≤ l nn-l
-    -u≤l : (- u) ≤ l
-    -u≤l = (trans-ℚ≤ { - u} (minus-flips-≤ l≤u) (trans-ℚ≤ { - l} (minus-flips-0≤ 0≤l) 0≤l))
+    module _ where
+      0≤l : 0r ≤ l
+      0≤l = NonNeg-0≤ l nn-l
+      -u≤l : (- u) ≤ l
+      -u≤l = (trans-ℚ≤ { - u} (minus-flips-≤ l≤u) (trans-ℚ≤ { - l} (minus-flips-0≤ 0≤l) 0≤l))
 
   ℝ∈Iℚ-absℝ-NonPosI : (x : ℝ) (a : Iℚ) -> NonPosI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) (i- a)
   ℝ∈Iℚ-absℝ-NonPosI x (Iℚ-cons l u l≤u) np-u (xl-l , xu-u) =
     ∣ inj-r (subst x.U (sym minus-double-inverse) xu-u) ∣ ,
     ( subst x.L (sym minus-double-inverse) xl-l , isUpperSet≤ x u (- l) u≤-l xu-u)
     where
-    module x = Real x
-    u≤0 : u ≤ 0r
-    u≤0 = NonPos-≤0 u np-u
+    module _ where
+      module x = Real x
+      u≤0 : u ≤ 0r
+      u≤0 = NonPos-≤0 u np-u
 
-    u≤-l : u ≤ (- l)
-    u≤-l = (trans-ℚ≤ {u} (trans-ℚ≤ {u} u≤0 (minus-flips-≤0 u≤0)) (minus-flips-≤ l≤u))
+      u≤-l : u ≤ (- l)
+      u≤-l = (trans-ℚ≤ {u} (trans-ℚ≤ {u} u≤0 (minus-flips-≤0 u≤0)) (minus-flips-≤ l≤u))
 
   ℝ∈Iℚ-absℝ-ImbalancedI : (x : ℝ) (a : Iℚ) -> ImbalancedI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) a
   ℝ∈Iℚ-absℝ-ImbalancedI x (Iℚ-cons l u l≤u) -l≤u (xl-l , xu-u) =
     ∣ inj-l xl-l ∣ , (isLowerSet≤ x (- u) l -u≤l xl-l , xu-u)
     where
-    -u≤l : (- u) ≤ l
-    -u≤l = subst ((- u) ≤_) minus-double-inverse (minus-flips-≤ -l≤u)
+    module _ where
+      -u≤l : (- u) ≤ l
+      -u≤l = subst ((- u) ≤_) minus-double-inverse (minus-flips-≤ -l≤u)
 
 
 abstract
@@ -448,26 +460,28 @@ abstract
                            Σ[ b ∈ Iℚ ] (ℝ∈Iℚ (absℝ x) b × ImbalancedI b × b i⊆ a)
   ℝ∈Iℚ-absℝ-ΣImbalancedI x a@(Iℚ-cons l u l≤u) ax∈a@(axl-l , (xl--u , xu-u)) = handle (split-< u (- l))
     where
-    ax = absℝ x
-    module x = Real x
-    module ax = Real ax
-    Res = Σ[ b ∈ Iℚ ] (ℝ∈Iℚ (absℝ x) b × ImbalancedI b × b i⊆ a)
+    module _ where
+      ax = absℝ x
+      module x = Real x
+      module ax = Real ax
+      Res = Σ[ b ∈ Iℚ ] (ℝ∈Iℚ (absℝ x) b × ImbalancedI b × b i⊆ a)
 
     handle : (u < (- l) ⊎ (- l) ≤ u) -> Res
     handle (inj-r -l≤u) = a , ax∈a , -l≤u , (i⊆-cons refl-≤ refl-≤)
     handle (inj-l u<-l) = b , (ℝ∈Iℚ-absℝ-ImbalancedI x b mmu≤u (xl--u , xu-u)) , mmu≤u , b⊆a
       where
-      l≤-u : l ≤ (- u)
-      l≤-u = weaken-< (subst (_< (- u)) minus-double-inverse (minus-flips-< u<-l))
+      module _ where
+        l≤-u : l ≤ (- u)
+        l≤-u = weaken-< (subst (_< (- u)) minus-double-inverse (minus-flips-< u<-l))
 
-      b : Iℚ
-      b = (Iℚ-cons (- u) u (weaken-< (ℝ-bounds->ℚ< x (- u) u xl--u xu-u)))
+        b : Iℚ
+        b = (Iℚ-cons (- u) u (weaken-< (ℝ-bounds->ℚ< x (- u) u xl--u xu-u)))
 
-      mmu≤u : (- (- u)) ≤ u
-      mmu≤u = subst ((- (- u)) ≤_) minus-double-inverse refl-≤
+        mmu≤u : (- (- u)) ≤ u
+        mmu≤u = subst ((- (- u)) ≤_) minus-double-inverse refl-≤
 
-      b⊆a : b i⊆ a
-      b⊆a = i⊆-cons l≤-u refl-≤
+        b⊆a : b i⊆ a
+        b⊆a = i⊆-cons l≤-u refl-≤
 
 
   ℝ∈Iℚ-≤0-ΣImbalancedI : (x : ℝ) (a : Iℚ) -> (0ℝ ≤ x) -> ℝ∈Iℚ x a ->

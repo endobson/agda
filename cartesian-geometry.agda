@@ -69,7 +69,7 @@ abstract
     point-cons (x , y) = record {x = x ; y = y}
 
 record _p#_ (a b : Point) : Type₁ where
-  no-eta-equality
+  no-eta-equality ; pattern
   constructor p#-cons
   private
     module a = Point a

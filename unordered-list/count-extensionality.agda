@@ -157,7 +157,7 @@ private
 
       use-rec : {as : UList A} -> StrongRec as -> B as
       use-rec sr-empty      = []*
-      use-rec (sr-cons a f) = (::* a (use-rec ∘ f))
+      use-rec (sr-cons a f) = (::* a (\x -> use-rec (f x)))
       use-rec (trunc p q i) = BProp (use-rec p) (use-rec q) i
 
     f : (as : UList A) -> B as

@@ -5,7 +5,7 @@ module rational where
 open import abs
 open import additive-group
 open import base
-open import cubical using (_∧_ ; _∨_ ; ~_)
+open import cubical using (_∧_ ; _∨_ ; ~_ ; I)
 open import equality
 open import equivalence
 open import fin
@@ -178,12 +178,13 @@ abstract
   r+'-commute : (a b : Rational') -> a r+' b == b r+' a
   r+'-commute a b = nd-paths->path ab ba n-p d-p
     where
-    ab = a r+' b
-    ba = b r+' a
-    na = numer a
-    nb = numer b
-    da = denom a
-    db = denom b
+    module _ where
+      ab = a r+' b
+      ba = b r+' a
+      na = numer a
+      nb = numer b
+      da = denom a
+      db = denom b
 
     n-p : numer ab == numer ba
     n-p = int.+-commute {na i* db} {nb i* da}
@@ -286,9 +287,10 @@ abstract
   r+'-left-zero : (a : Rational') -> (0r' r+' a) == a
   r+'-left-zero a = nd-paths->path 0a a pn pd
     where
-    na = numer a
-    da = denom a
-    0a = (0r' r+' a)
+    module _ where
+      na = numer a
+      da = denom a
+      0a = (0r' r+' a)
 
 
     pn' : ((int 0) i* (denom a)) i+ ((numer a) i* (int 1)) == (numer a)
@@ -429,12 +431,13 @@ abstract
   r+'-assoc : {a b c : Rational'} -> ((a r+' b) r+' c) r~ (a r+' (b r+' c))
   r+'-assoc {a} {b} {c} = path
     where
-    na = numer a
-    nb = numer b
-    nc = numer c
-    da = denom a
-    db = denom b
-    dc = denom c
+    module _ where
+      na = numer a
+      nb = numer b
+      nc = numer c
+      da = denom a
+      db = denom b
+      dc = denom c
 
     path : ((((na i* db) i+ (nb i* da)) i* dc) i+ (nc i* (da i* db)))
            i* (da i* (db i* dc))
@@ -461,17 +464,18 @@ private
     r*'-distrib-r+'-right : (a b c : Rational') -> ((a r+' b) r*' c) r~ ((a r*' c) r+' (b r*' c))
     r*'-distrib-r+'-right a b c = path
       where
-      ab = a r+' b
-      ac = a r*' c
-      bc = b r*' c
-      ab-c = ab r*' c
-      ac-bc = ac r+' bc
-      na = numer a
-      nb = numer b
-      nc = numer c
-      da = denom a
-      db = denom b
-      dc = denom c
+      module _ where
+        ab = a r+' b
+        ac = a r*' c
+        bc = b r*' c
+        ab-c = ab r*' c
+        ac-bc = ac r+' bc
+        na = numer a
+        nb = numer b
+        nc = numer c
+        da = denom a
+        db = denom b
+        dc = denom c
 
       path : (((na i* db) i+ (nb i* da)) i* nc) i* ((da i* dc) i* (db i* dc))
              == (((na i* nc) i* (db i* dc)) i+ ((nb i* nc) i* (da i* dc))) i* ((da i* db) i* dc)
@@ -499,18 +503,20 @@ abstract
   r-'-preserves-r~ a1 a2 r =
     int.minus-extract-left {na1} {da2} >=> cong i-_ r >=> sym (int.minus-extract-left {na2} {da1})
     where
-    na1 = numer a1
-    da1 = denom a1
-    na2 = numer a2
-    da2 = denom a2
+    module _ where
+      na1 = numer a1
+      da1 = denom a1
+      na2 = numer a2
+      da2 = denom a2
 
   r-'-distrib-r+' : (a b : Rational') -> r-' (a r+' b) == (r-' a) r+' (r-' b)
   r-'-distrib-r+' a b = nd-paths->path _ _ path refl
     where
-    na = numer a
-    da = denom a
-    nb = numer b
-    db = denom b
+    module _ where
+      na = numer a
+      da = denom a
+      nb = numer b
+      db = denom b
     path : (i- ((na i* db) i+ (nb i* da))) == (((i- na) i* db) i+ ((i- nb) i* da))
     path = int.minus-distrib-+ >=> cong2 _i+_ (sym int.minus-extract-left) (sym int.minus-extract-left)
 
@@ -527,8 +533,9 @@ abstract
     >=> int.*-left-zero {da}
     >=> sym (int.*-left-zero {denom a i* denom a})
     where
-    na = numer a
-    da = denom a
+    module _ where
+      na = numer a
+      da = denom a
 
 
 r-ᵉ_ : ℚᵉ -> ℚᵉ
@@ -655,18 +662,12 @@ abstract
   r1/ᵉ = RationalElim.elim
            (\_ -> isSetΠ (\_ -> isSetRational))
            g
-           g'
+           (\a1 a2 r -> funExtDep a1 a2 (\i1 i2 ->
+             eq/ (r1/' a1 (ℚInv->ℚInv' a1 i1)) (r1/' a2 (ℚInv->ℚInv' a2 i2))
+                 (r1/'-preserves-r~ a1 a2 (ℚInv->ℚInv' a1 i1) (ℚInv->ℚInv' a2 i2) r)))
     where
     g : (a : Rational') -> ℚInv (ℚ'->ℚ a) -> Rational
     g a i = ℚ'->ℚ (r1/' a (ℚInv->ℚInv' a i))
-
-    g' : (a1 a2 : Rational') -> (r : (a1 r~ a2)) ->
-         PathP (\k -> (ℚInv (eq/ a1 a2 r k)) -> Rational) (g a1) (g a2)
-    g' a1 a2 r = funExtDep a1 a2 same
-      where
-      same : (i1 : (ℚInv (ℚ'->ℚ a1))) -> (i2 : (ℚInv (ℚ'->ℚ a2))) -> (g a1 i1) == (g a2 i2)
-      same i1 i2 = eq/ (r1/' a1 (ℚInv->ℚInv' a1 i1)) (r1/' a2 (ℚInv->ℚInv' a2 i2))
-                       (r1/'-preserves-r~ a1 a2 (ℚInv->ℚInv' a1 i1) (ℚInv->ℚInv' a2 i2) r)
 
 
 abstract
@@ -997,10 +998,11 @@ abstract
     >=> sym (quotientℤ-multiple-path dx* ny dy*)
 
     where
-    nx = numer x
-    ny = numer y
-    dx = denom x
-    dy = denom y
+    module _ where
+      nx = numer x
+      ny = numer y
+      dx = denom x
+      dy = denom y
     dx* : ℤ*
     dx* = denom x , rNonZero x
     dy* : ℤ*
@@ -1027,6 +1029,7 @@ abstract
     ; NonZero-denominator = isProp->PathP (\i -> int.isPropNonZero {dp i}) (rNonZero q') (rNonZero q) i
     })
     where
+    q' : ℚ'
     q' = ℤ->ℚ' (floor' q) r+' (fractional-part' q)
 
     np : numer q' == numer q
@@ -1041,10 +1044,11 @@ abstract
                                   (fractional-part' a r~ fractional-part' b)
   fractional-part'-preserves-r~ a b r = ans
     where
-    na = numer a
-    nb = numer b
-    da = denom a
-    db = denom b
+    module _ where
+      na = numer a
+      nb = numer b
+      da = denom a
+      db = denom b
     da* : ℤ*
     da* = (da , rNonZero a)
     db* : ℤ*

@@ -135,6 +135,7 @@ substᵉ : {x y : A} -> (P : A → Type ℓ) -> x == y -> P x -> P y
 substᵉ P path = transport (\ i -> (P (path i)))
 
 abstract
+  subst : {x y : A} -> (P : A → Type ℓ) -> x == y -> P x -> P y
   subst = substᵉ
 
 subst2 : {a11 a12 : A1} {a21 a22 : A2} -> (P : A1 -> A2 -> Type ℓ) ->

@@ -75,6 +75,7 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
         (isContr-B : isContr B) -> (f : B -> D) -> finiteMerge' f == f ⟨ isContr-B ⟩
       finiteMerge-isContr isContr-B f = path
         where
+        b : B
         b = fst (isContr-B)
 
         B≃Top : B ≃ Top
@@ -181,7 +182,7 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
       finiteMerge-ε : finiteMerge' (\(_ : B) -> ε) == ε
       finiteMerge-ε = unsquash (isSet-Domain _ _) (∥-map handle finB)
         where
-        handle : Σ[ n ∈ Nat ] (B ≃ Fin n) -> finiteMerge' (\_ -> ε) == ε
+        handle : Σ[ n ∈ Nat ] (B ≃ Fin n) -> finiteMerge' (\(_ : B) -> ε) == ε
         handle (n , eq) = finiteMerge-convert' (equiv⁻¹ eq) _ >=> finiteMerge-ε'
 
       finiteMerge-split : {f g : B -> D} ->

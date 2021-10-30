@@ -33,7 +33,7 @@ open import vector-space
 
 -- Matrix : Row × Column
 record Matrix : Type₁ where
-  no-eta-equality
+  no-eta-equality ; pattern
   constructor matrix
   field
     f : Axis -> Axis -> ℝ
@@ -85,10 +85,13 @@ matrix-mv*-ext {m1} {m2} vp = matrix-ext f
     sym (m-path m2 a1 a2)
 
 identity-matrix : Matrix
-identity-matrix .Matrix.f x-axis x-axis = 1#
-identity-matrix .Matrix.f x-axis y-axis = 0#
-identity-matrix .Matrix.f y-axis x-axis = 0#
-identity-matrix .Matrix.f y-axis y-axis = 1#
+identity-matrix = matrix f
+  where
+  f : Axis -> Axis -> ℝ
+  f x-axis x-axis = 1#
+  f x-axis y-axis = 0#
+  f y-axis x-axis = 0#
+  f y-axis y-axis = 1#
 
 m*-left-identity : (m : Matrix) -> identity-matrix m* m == m
 m*-left-identity m = matrix-ext f
@@ -201,7 +204,7 @@ determinant m = diff (f x-axis y-axis * f y-axis x-axis) (f x-axis x-axis * f y-
   f = matrix-index m
 
 record isInvertibleMatrix (m : Matrix) : Type₁ where
-  no-eta-equality
+  no-eta-equality ; pattern
   constructor is-invertible-matrix
   field
     inv : Matrix
@@ -338,9 +341,7 @@ module _ (m : Matrix) (det#0 : determinant m # 0#) where
           1/det-path
 
   det#0->isInvertible : isInvertibleMatrix m
-  det#0->isInvertible .isInvertibleMatrix.inv = inv
-  det#0->isInvertible .isInvertibleMatrix.left-inverse = inv*m=id
-  det#0->isInvertible .isInvertibleMatrix.right-inverse = m*inv=id
+  det#0->isInvertible = is-invertible-matrix inv inv*m=id m*inv=id
 
 MatrixKernel : Matrix -> Subtype Vector ℓ-one
 MatrixKernel m v = (m mv* v == 0v) , isSet-Vector _ _

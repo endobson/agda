@@ -52,7 +52,7 @@
           [else
            (printf "Typechecking succeeded~n")])]
        ["Error"
-        (printf "Error: ~a~n" (hash-ref info 'message))]
+        (printf "Error: ~a~n" (hash-ref (hash-ref info 'error) 'message))]
        ["GoalSpecific"
         (printf "Goal Type: ~a" (hash-ref (hash-ref info 'goalInfo) 'type))]
        [kind (error 'handle-response "Unknown display info kind, Got: ~s in ~s" kind info)])]

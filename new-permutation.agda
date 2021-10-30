@@ -238,6 +238,7 @@ module _ {n : Nat} (f : (Fin n) -> (Fin n)) (inj-f : (Injective f)) where
   open Iso
   private
     abstract
+      Σg : Satisfiable (RightInverse f)
       Σg = fin-injective->reverse f inj-f
       g : Fin n -> Fin n
       g = fst Σg

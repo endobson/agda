@@ -129,4 +129,5 @@ abstract
     proof : (d : D) -> S1 d == S2 d
     proof d = ΣProp-path isProp-isProp (ua (isoToEquiv i))
       where
+      i : Iso ⟨ S1 d ⟩ ⟨ S2 d ⟩
       i = isProp->iso forward backward (snd (S1 d)) (snd (S2 d))

@@ -33,6 +33,15 @@ double-map {A = A} f g as = UListElim.prop (trunc _ _) refl ::* as
         -> map f (map g (a :: as)) == map (f ∘ g) (a :: as)
   ::* a p = cong (f (g a) ::_) p
 
+map-id : (as : UList A) -> map (\x -> x) as == as
+map-id {A = A} = UListElim.prop (trunc _ _) refl ::*
+  where
+  ::* : (a : A) {as : UList A}
+        -> map (\x -> x) as == as
+        -> map (\x -> x) (a :: as) == (a :: as)
+  ::* a p i = a :: p i
+
+
 _++_ : (UList A) -> (UList A) -> (UList A)
 _++_ as bs = UListElim.rec trunc bs _::_ swap as
 

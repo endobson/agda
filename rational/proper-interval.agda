@@ -27,7 +27,7 @@ private
     ℓ : Level
 
 record Iℚ : Type₀ where
-  no-eta-equality
+  no-eta-equality ; pattern
   constructor Iℚ-cons
   field
     l : ℚ
@@ -40,8 +40,9 @@ _i+_ a b = Iℚ-cons (a.l + b.l) (a.u + b.u) abs.lt
   module a = Iℚ a
   module b = Iℚ b
   module abs where
+    LT = _≤_
     abstract
-      lt : (a.l + b.l) ≤ (a.u + b.u)
+      lt : LT (a.l + b.l) (a.u + b.u)
       lt = (+-preserves-≤ a.l≤u b.l≤u)
 
 
@@ -117,8 +118,9 @@ _i∪_ a b = (Iℚ-cons (minℚ a.l b.l) (maxℚ a.u b.u) abs.lt)
   module a = Iℚ a
   module b = Iℚ b
   module abs where
+    LT = _≤_
     abstract
-      lt : (minℚ a.l b.l) ≤ (maxℚ a.u b.u)
+      lt : LT (minℚ a.l b.l) (maxℚ a.u b.u)
       lt = (trans-≤ (trans-≤ (minℚ-≤-left a.l b.l) a.l≤u) (maxℚ-≤-left a.u b.u))
 
 i∪-commute : (a b : Iℚ) -> a i∪ b == b i∪ a
@@ -138,8 +140,9 @@ i-scale k a =
   min = minℚ (k * a.l) (k * a.u)
   max = maxℚ (k * a.l) (k * a.u)
   module abs where
+    LT = _≤_
     abstract
-      lt : min ≤ max
+      lt : LT min max
       lt = (trans-≤ (minℚ-≤-left (k * a.l) (k * a.u)) (maxℚ-≤-left (k * a.l) (k * a.u)))
 
 i-scale-NN : ℚ⁰⁺ -> Iℚ -> Iℚ
@@ -187,8 +190,9 @@ i*-NN a b nn-al nn-bl = Iℚ-cons (a.l * b.l) (a.u * b.u) abs.lt
   module a = Iℚ a
   module b = Iℚ b
   module abs where
+    LT = _≤_
     abstract
-      lt : (a.l * b.l) ≤ (a.u * b.u)
+      lt : LT (a.l * b.l) (a.u * b.u)
       lt = (trans-≤
              (*₁-preserves-≤ (NonNeg-0≤ _ nn-al) b.l≤u)
              (*₂-preserves-≤ a.l≤u (NonNeg-0≤ _ (NonNeg-≤ b.l b.u nn-bl b.l≤u))))
@@ -1390,7 +1394,7 @@ i⊆-preserves-PosI (i⊆-cons bl≤al _) pos-bl = Pos-≤ _ _ pos-bl bl≤al
 
 -- Strict Inclusion
 record _i⊂_ (a : Iℚ) (b : Iℚ) : Type₀ where
-  no-eta-equality
+  no-eta-equality ; pattern
   constructor i⊂-cons
   field
     l : Iℚ.l b < Iℚ.l a

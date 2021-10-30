@@ -23,23 +23,38 @@ open import ring.lists NatSemiring
 private
   discA = Discrete'.f disc'A
 
+  isPropDecA : {a b : A} -> isProp (Dec (a == b))
+  isPropDecA {a} {b} = isPropDec (Discrete->isSet discA a b)
+
+  indicator' : {a b : A} -> Dec (a == b) -> Nat
+  indicator' (yes _) = 1
+  indicator' (no _) = 0
+
   indicator : A -> A -> Nat
-  indicator x a with (discA x a)
-  ...              | (yes _)     = 1
-  ...              | (no  _)     = 0
+  indicator x a = indicator' (discA x a)
+
+  indicator-1 : {a b : A} -> a == b -> indicator a b == 1
+  indicator-1 {a} {b} a=b = handle (discA a b) refl
+    where
+    handle : (dec : Dec (a == b)) -> discA a b == dec -> indicator a b == 1
+    handle (yes _) p i = indicator' (p i)
+    handle (no a!=b) p = bot-elim (a!=b a=b)
+
+  indicator-0 : {a b : A} -> a != b -> indicator a b == 0
+  indicator-0 {a} {b} a!=b = handle (discA a b) refl
+    where
+    handle : (dec : Dec (a == b)) -> discA a b == dec -> indicator a b == 0
+    handle (yes a=b) p = bot-elim (a!=b a=b)
+    handle (no _) p i = indicator' (p i)
 
 count : (x : A) -> UList A -> Nat
 count x = unordered-sum ∘ (map (indicator x))
 
 count-== : {x : A} {a : A} (as : UList A) -> x == a -> count x (a :: as) == suc (count x as)
-count-== {x} {a} as x==a with (discA x a)
-...                         | (yes _)     = refl
-...                         | (no x!=a)   = bot-elim (x!=a x==a)
+count-== {x} {a} as x=a i = (indicator-1 x=a i) +' (count x as)
 
 count-!= : {x : A} {a : A} (as : UList A) -> x != a -> count x (a :: as) == (count x as)
-count-!= {x} {a} as x!=a with (discA x a)
-...                         | (yes x==a)  = bot-elim (x!=a x==a)
-...                         | (no _)   = refl
+count-!= {x} {a} as x!=a i = (indicator-0 x!=a i) +' (count x as)
 
 count-≤ : (x : A) {a : A} (as : UList A) -> count x as ≤ count x (a :: as)
 count-≤ x {a} as = handle (discA x a)
@@ -48,64 +63,77 @@ count-≤ x {a} as = handle (discA x a)
   handle (yes x==a) = 1 , sym (count-== as x==a)
   handle (no  x!=a) = 0 , sym (count-!= as x!=a)
 
+
+private
+  module _ (x : A) where
+    Pair : Type ℓ
+    Pair = (Σ[ a ∈ A ] (Dec (x == a)))
+
+    pair : UList A -> UList Pair
+    pair = map (\a -> a , discA x a)
+
+    unpair : UList Pair -> UList A
+    unpair = map fst
+
+    unpair-pair : (as : UList A) -> unpair (pair as) == as
+    unpair-pair as = double-map _ _ as >=> map-id as
+
+    remove-match : UList Pair -> UList Pair
+    remove-match [] = []
+    remove-match (  (_ , (yes _)) :: ps) = ps
+    remove-match (p@(_ , (no _))  :: ps) = p :: (remove-match ps)
+    remove-match (trunc as1 as2 p q i j) =
+      (trunc (remove-match as1) (remove-match as2)
+             (\i -> (remove-match (p i)))
+             (\i -> (remove-match (q i))) i j)
+    remove-match (swap p1@(_ , (no _)) p2@(_ , (no _)) ps i) =
+      swap p1 p2 (remove-match ps) i
+    remove-match (swap p1@(_ , (no _)) (_ , (yes _)) ps i) =
+      p1 :: ps
+    remove-match (swap (_ , (yes _)) p2@(_ , (no _)) ps i) =
+      p2 :: ps
+    remove-match (swap p1@(a1 , (yes q1)) p2@(a2 , (yes q2)) ps i) =
+      path i :: ps
+      where
+      path : p2 == p1
+      path = (ΣProp-path isPropDecA (sym q2 >=> q1))
+
+    pair-dec : {a : A} (as : UList A) (d : Dec (x == a)) -> pair (a :: as) == (a , d) :: pair as
+    pair-dec {a} as d i = (a , (isPropDecA (discA x a) d i)) :: pair as
+
 remove1 : (x : A) -> UList A -> UList A
-remove1 x [] = []
-remove1 x (a :: as) with (discA x a)
-...                    | (yes _)     = as
-...                    | (no  _)     = a :: (remove1 x as)
-remove1 x (swap a1 a2 as i) = path i
-  where
-  path : (remove1 x (a1 :: (a2 :: as))) == (remove1 x (a2 :: (a1 :: as)))
-  path with (discA x a1) | (discA x a2)
-  ... | (yes p1) | (yes p2) = (\i -> ((sym p2 >=> p1) i) :: as)
-  ... | (yes p1) | (no _) = (\i -> a2 :: (inner (~ i)))
-    where
-    inner : remove1 x (a1 :: as) == as
-    inner with (discA x a1)
-    ...      | (yes _)      = refl
-    ...      | (no ¬p1)     = bot-elim (¬p1 p1)
-  ... | (no _) | (yes p2) = (\i -> a1 :: (inner i))
-    where
-    inner : remove1 x (a2 :: as) == as
-    inner with (discA x a2)
-    ...      | (yes _)      = refl
-    ...      | (no ¬p2)     = bot-elim (¬p2 p2)
-  ... | (no ¬p1) | (no ¬p2) = (\i -> a1 :: p i) ∙∙ swap a1 a2 (remove1 x as) ∙∙ (\i -> a2 :: q (~ i))
-    where
-    p : (remove1 x (a2 :: as)) == a2 :: (remove1 x as)
-    p with (discA x a2)
-    ...  | (yes p2) = bot-elim (¬p2 p2)
-    ...  | (no _)  = refl
-    q : (remove1 x (a1 :: as)) == a1 :: (remove1 x as)
-    q with (discA x a1)
-    ...  | (yes p1) = bot-elim (¬p1 p1)
-    ...  | (no _)  = refl
-remove1 x (trunc as1 as2 p q i j) =
-  (trunc (remove1 x as1) (remove1 x as2) (cong (remove1 x) p) (cong (remove1 x) q) i j)
+remove1 x = unpair x ∘ remove-match x ∘ pair x
 
-remove1-== : {x : A} {a : A} (as : UList A) -> (x == a) -> remove1 x (a :: as) == as
-remove1-== {x} {a} as x==a with (discA x a)
-...                         | (yes _)     = refl
-...                         | (no x!=a)   = bot-elim (x!=a x==a)
+remove1-== : {x a : A} -> (as : UList A) -> x == a -> remove1 x (a :: as) == as
+remove1-== {x} as x=a =
+  cong (unpair x ∘ remove-match x) (pair-dec x as (yes x=a)) >=>
+  unpair-pair x as
 
-remove1-!= : {x : A} {a : A} (as : UList A) -> (x != a) -> remove1 x (a :: as) == a :: (remove1 x as)
-remove1-!= {x} {a} as x!=a with (discA x a)
-...                         | (yes x==a)  = bot-elim (x!=a x==a)
-...                         | (no _)   = refl
+remove1-!= : {x a : A} -> (as : UList A) -> x != a -> remove1 x (a :: as) == a :: remove1 x as
+remove1-!= {x} as x!=a =
+  cong (unpair x ∘ remove-match x) (pair-dec x as (no x!=a))
 
 remove1-count-pred-refl : (x : A) (as : UList A) -> count x (remove1 x as) == pred (count x as)
 remove1-count-pred-refl x = UListElim.prop (isSetNat _ _) []* _::*_
   where
-  P : UList A -> Type _
+  P : UList A -> Type ℓ-zero
   P as = count x (remove1 x as) == pred (count x as)
 
   []* : P []
   []* = refl
 
   _::*_ : (a : A) -> {as : UList A} -> P as -> P (a :: as)
-  _::*_ a {as} p with (discA x a)
-  ...               | (yes x==a)  = refl
-  ...               | (no x!=a)   = count-!= (remove1 x as) x!=a >=> p
+  _::*_ a {as} p = handle (discA x a)
+    where
+    handle : Dec (x == a) -> P (a :: as)
+    handle (yes x=a) =
+      cong (count x) (remove1-== as x=a) >=>
+      cong pred (sym (count-== as x=a))
+    handle (no x!=a) =
+      cong (count x) (remove1-!= as x!=a) >=>
+      count-!= (remove1 x as) x!=a >=>
+      p >=>
+      cong pred (sym (count-!= as x!=a))
 
 
 remove1-count-pred : {x : A} {y : A} (as : UList A) -> (x == y)
@@ -125,17 +153,25 @@ remove1-count-ignore {x} {y} as x!=y = UListElim.prop (isSetNat _ _) []* _::*_ a
   []* = refl
 
   _::*_ : (a : A) -> {as : UList A} -> P as -> P (a :: as)
-  _::*_ a {as} p with (discA y a)
-  ...               | (yes y==a)  = (sym (count-!= as x!=a))
+  _::*_ a {as} p = handle (discA y a) (discA x a)
     where
-    x!=a : x != a
-    x!=a x==a = x!=y (x==a >=> (sym y==a))
-  ...               | (no y!=a)   =  proof
-    where
-    proof : (count x (a :: (remove1 y as))) == (count x (a :: as))
-    proof with (discA x a)
-    ...      | (yes _) = (cong suc p)
-    ...      | (no _)  = p
+    handle : Dec (y == a) -> Dec (x == a) -> P (a :: as)
+    handle (yes y=a) _ =
+      cong (count x) (remove1-== as y=a) >=>
+      sym (count-!= as x!=a)
+      where
+      x!=a : x != a
+      x!=a x=a = x!=y (x=a >=> (sym y=a))
+    handle (no y!=a) (yes x=a) =
+      cong (count x) (remove1-!= as y!=a) >=>
+      count-== (remove1 y as) x=a >=>
+      cong suc p >=>
+      sym (count-== as x=a)
+    handle (no y!=a) (no x!=a) =
+      cong (count x) (remove1-!= as y!=a) >=>
+      count-!= (remove1 y as) x!=a >=>
+      p >=>
+      sym (count-!= as x!=a)
 
 
 remove1-count-zero : {x : A} {as : UList A} -> (count x as) == 0 -> (remove1 x as) == as
@@ -168,12 +204,15 @@ remove1-count-suc {x} {as} {n} = UListElim.prop PisProp []* _::*_ as
   []* count-p = bot-elim (zero-suc-absurd count-p)
 
   _::*_ : (a : A) -> {as : UList A} -> P as -> P (a :: as)
-  _::*_ a {as} f with (discA x a)
-  ...               | (yes x==a)  = (\ _ i -> (x==a i) :: as)
-  ...               | (no x!=a)   = proof
+  _::*_ a {as} f = handle (discA x a)
     where
-    proof : (count x as == suc n) -> x :: a :: (remove1 x as) == a :: as
-    proof p = (swap x a (remove1 x as)) >=> (\i -> a :: f p i)
+    handle : (Dec (x == a)) -> P (a :: as)
+    handle (yes x=a) c=sn i =
+      x=a i :: remove1-== as x=a i
+    handle (no x!=a) c=sn =
+      cong (x ::_) (remove1-!= as x!=a) >=>
+      swap x a (remove1 x as) >=>
+      cong (a ::_) (f (sym (count-!= as x!=a) >=> c=sn))
 
 -- No duplicates
 

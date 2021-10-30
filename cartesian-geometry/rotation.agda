@@ -88,7 +88,7 @@ private
 
 
 record Rotation : Type₁ where
-  no-eta-equality
+  no-eta-equality ; pattern
   constructor rotation-cons
   field
     c : Coords
@@ -166,9 +166,10 @@ module _ where
   private
     module ops where
       _r+ᵉ_ : Rotation -> Rotation -> Rotation
-      _r+ᵉ_ r1 r2 .Rotation.c = (raw-rotate (Rotation.c r1) (Rotation.c r2))
-      _r+ᵉ_ r1 r2 .Rotation.len=1 =
-        raw-rotate-dot-product c1 c2 >=> *-cong p1 p2 >=> *-left-one
+      _r+ᵉ_ r1 r2 =
+        rotation-cons
+          (raw-rotate (Rotation.c r1) (Rotation.c r2))
+          (raw-rotate-dot-product c1 c2 >=> *-cong p1 p2 >=> *-left-one)
         where
         c1 = Rotation.c r1
         c2 = Rotation.c r2
@@ -176,10 +177,12 @@ module _ where
         p2 = Rotation.len=1 r2
 
       r-ᵉ_ : Rotation -> Rotation
-      r-ᵉ_ r .Rotation.c = conjugate-coords (Rotation.c r)
-      r-ᵉ_ r .Rotation.len=1 = +-right minus-extract-both >=> (Rotation.len=1 r)
+      r-ᵉ_ r =
+        rotation-cons
+          (conjugate-coords (Rotation.c r))
+          (+-right minus-extract-both >=> (Rotation.len=1 r))
 
-      module _ where
+      abstract
         _r+_ : Rotation -> Rotation -> Rotation
         _r+_ = _r+ᵉ_
 
@@ -213,12 +216,13 @@ module _ where
                            (raw-rotate c1 (raw-rotate c2 c3))
         raw-rotate-assoc c1 c2 c3 = sym (funExt f)
           where
-          c1x = c1 x-axis
-          c1y = c1 y-axis
-          c2x = c2 x-axis
-          c2y = c2 y-axis
-          c3x = c3 x-axis
-          c3y = c3 y-axis
+          module _ where
+            c1x = c1 x-axis
+            c1y = c1 y-axis
+            c2x = c2 x-axis
+            c2y = c2 y-axis
+            c3x = c3 x-axis
+            c3y = c3 y-axis
 
           f : (a : Axis) ->
                 (raw-rotate c1 (raw-rotate c2 c3)) a ==
@@ -244,12 +248,12 @@ module _ where
         r+-inverse (rotation-cons c p) =
           rotation-ext (funExt f)
           where
+          v : Vector
           v = vector-cons c
           f : (a : Axis) -> ((raw-rotate c (vector-index (conjugate-vector v))) a) ==
                             (vector-index xaxis-vector a)
           f x-axis = +-right (cong -_ minus-extract-right >=> minus-double-inverse) >=> p
           f y-axis = +-cong minus-extract-right *-commute >=> +-commute >=> +-inverse
-
 
   open ops public
 
@@ -335,7 +339,7 @@ abstract
 
 
 record NonTrivialRotation (r : Rotation) : Type₁ where
-  no-eta-equality
+  no-eta-equality ; pattern
   constructor non-trivial-rotation
   field
     apart : Rotation.v r v# xaxis-vector
@@ -428,18 +432,18 @@ r--preserves-NonTrivial r nt =
 NonTrivial-half-rotation : NonTrivialRotation half-rotation
 NonTrivial-half-rotation = a.ans
   where
+  0<1 : 0ℝ < 1ℝ
+  0<1 = 0ℝ<1ℝ
+  -1<0 : (- 1ℝ) < 0ℝ
+  -1<0 = minus-flips-0< 0ℝ<1ℝ
+  -1<1 : (- 1ℝ) < 1ℝ
+  -1<1 = subst2 _<_ +-left-zero +-right-zero (+-preserves-< 0<1 -1<0)
+
+  -1#1 : (- 1#) # 1#
+  -1#1 = eqFun (<>-equiv-# (- 1#) 1#) (inj-l -1<1)
   module a where
+
     abstract
-      0<1 : 0ℝ < 1ℝ
-      0<1 = 0ℝ<1ℝ
-      -1<0 : (- 1ℝ) < 0ℝ
-      -1<0 = minus-flips-0< 0ℝ<1ℝ
-      -1<1 : (- 1ℝ) < 1ℝ
-      -1<1 = subst2 _<_ +-left-zero +-right-zero (+-preserves-< 0<1 -1<0)
-
-      -1#1 : (- 1#) # 1#
-      -1#1 = eqFun (<>-equiv-# (- 1#) 1#) (inj-l -1<1)
-
       ans : NonTrivialRotation half-rotation
       ans = non-trivial-rotation ∣ x-axis , -1#1 ∣
 
@@ -501,6 +505,9 @@ instance
     tight-r# , (irrefl-r# , sym-r# , comparison-r#)
   TightApartnessStr-Rotation .TightApartnessStr.isProp-# = \x y -> isProp-r#
 
+private
+  AP = _#_
+
 abstract
   +₁-preserves-r# : {r1 r2 r3 : Rotation} -> r2 # r3 -> (r1 + r2) # (r1 + r3)
   +₁-preserves-r# {r1} {r2} {r3} (r#-cons nt-r2r3) = r#-cons (subst NonTrivialRotation p nt-r2r3)
@@ -529,7 +536,7 @@ abstract
     +-reflects-r# (subst ((r1 + r2) #_) (sym +-right-zero) r1r2#0)
 
 
-  half-rotation#0 : half-rotation # 0#
+  half-rotation#0 : AP half-rotation 0#
   half-rotation#0 =
     (r#-cons (subst NonTrivialRotation (sym minus-half-rotation >=> sym +-left-zero)
                     NonTrivial-half-rotation))
@@ -544,18 +551,20 @@ rotate-vector-zero-rotation v = cong direct-product-cons (raw-rotate-zero-rotati
 
 rotate-vector-assoc : (r1 r2 : Rotation) (v : Vector) ->
                       (rotate-vector r1 (rotate-vector r2 v)) == (rotate-vector (r1 r+ r2) v)
-rotate-vector-assoc (rotation-cons dv1 _) (rotation-cons dv2 _) v =
-  cong vector-cons (sym (raw-rotate-assoc dv1 dv2 (vector-index v)))
+rotate-vector-assoc r1@(rotation-cons dv1 _) r2@(rotation-cons dv2 _) v =
+  cong vector-cons (sym (raw-rotate-assoc dv1 dv2 (vector-index v))) >=>
+  cong (\r -> rotate-vector r v) (sym (r+-eval r1 r2))
 
 abstract
   rotate-add-half-rotation : (r : Rotation) (v : Vector) ->
     (rotate-vector (add-half-rotation r) v) == v- (rotate-vector r v)
   rotate-add-half-rotation r@(rotation-cons dv _) v = vector-ext f
     where
-    dx = dv x-axis
-    dy = dv y-axis
-    vx = vector-index v x-axis
-    vy = vector-index v y-axis
+    module _ where
+      dx = dv x-axis
+      dy = dv y-axis
+      vx = vector-index v x-axis
+      vy = vector-index v y-axis
 
     f : (a : Axis) -> (vector-index (rotate-vector (add-half-rotation r) v) a) ==
                       (vector-index (v- (rotate-vector r v)) a)
@@ -572,10 +581,11 @@ abstract
   rotate-v- : (r : Rotation) (v : Vector) -> (rotate-vector r (v- v)) == v- (rotate-vector r v)
   rotate-v- r@(rotation-cons dv _) v = vector-ext f
     where
-    dx = dv x-axis
-    dy = dv y-axis
-    vx = vector-index v x-axis
-    vy = vector-index v y-axis
+    module _ where
+      dx = dv x-axis
+      dy = dv y-axis
+      vx = vector-index v x-axis
+      vy = vector-index v y-axis
 
     f : (a : Axis) -> (vector-index (rotate-vector r (v- v)) a) ==
                       (vector-index (v- (rotate-vector r v)) a)
@@ -763,7 +773,7 @@ abstract
     direction-diff d1 d2 r+ r
   direction-diff-shift d1 d2 r =
     +-commute >=>
-    +-right (rotation-ext refl >=> +-commute) >=>
+    +-right (rotation-ext refl >=> sym (r+-eval r (direction->rotation d2)) >=> +-commute) >=>
     sym +-assoc >=>
     +-left +-commute
 
@@ -824,7 +834,9 @@ abstract
     cong (direction-shift d2) (+-commute >=> +-inverse) >=>
     rotate-direction-zero-rotation d2
     where
+    r1 : Rotation
     r1 = direction->rotation d1
+    r2 : Rotation
     r2 = direction->rotation d2
 
 
@@ -832,18 +844,19 @@ abstract
     sum-of-squares-#0 : (x y : ℝ) -> x # 0# -> (x * x + y * y) # 0#
     sum-of-squares-#0 x y x#0 = eqFun (<>-equiv-# _ _) (inj-r (trans-<-≤ 0<xx xx≤xxyy))
       where
-      0≤yy : 0# ≤ (y * y)
-      0≤yy = ≮0-square y
+      module _ where
+        0≤yy : 0# ≤ (y * y)
+        0≤yy = ≮0-square y
 
-      0<xx : 0# < (x * x)
-      0<xx = handle2 (eqInv (<>-equiv-# _ _) x#0)
-        where
-        handle2 : (x < 0#) ⊎ (0# < x) -> _
-        handle2 (inj-l x<0) = *-flips-<0 x<0 x<0
-        handle2 (inj-r 0<x) = *-preserves-0< 0<x 0<x
+        0<xx : 0# < (x * x)
+        0<xx = handle2 (eqInv (<>-equiv-# _ _) x#0)
+          where
+          handle2 : (x < 0#) ⊎ (0# < x) -> _
+          handle2 (inj-l x<0) = *-flips-<0 x<0 x<0
+          handle2 (inj-r 0<x) = *-preserves-0< 0<x 0<x
 
-      xx≤xxyy : (x * x) ≤ (x * x + y * y)
-      xx≤xxyy = subst2 _≤_ +-right-zero refl (+₁-preserves-≤ 0≤yy)
+        xx≤xxyy : (x * x) ≤ (x * x + y * y)
+        xx≤xxyy = subst2 _≤_ +-right-zero refl (+₁-preserves-≤ 0≤yy)
 
 
     rotate-direction-NonTrivial : {r : Rotation} -> NonTrivialRotation r -> (d : Direction) ->
@@ -851,79 +864,80 @@ abstract
     rotate-direction-NonTrivial {r} (non-trivial-rotation r#x) d =
       unsquash isProp-# (∥-map handle r#x)
       where
-      Ans = ⟨ (rotate-direction r d) ⟩ # ⟨ d ⟩
-      dx = vector-index ⟨ d ⟩ x-axis
-      dy = vector-index ⟨ d ⟩ y-axis
-      cx = Rotation.c r x-axis
-      cy = Rotation.c r y-axis
-      cx' = cx + (- 1#)
+      module _ where
+        Ans = ⟨ (rotate-direction r d) ⟩ # ⟨ d ⟩
+        dx = vector-index ⟨ d ⟩ x-axis
+        dy = vector-index ⟨ d ⟩ y-axis
+        cx = Rotation.c r x-axis
+        cy = Rotation.c r y-axis
+        cx' = cx + (- 1#)
 
-      ℝx² : ℝ -> ℝ
-      ℝx² x = x * x
-      ℝ2x : ℝ -> ℝ
-      ℝ2x x = x + x
-      Sx² : {n : Nat} -> RingSyntax n -> RingSyntax n
-      Sx² x = x ⊗ x
-      S2x : {n : Nat} -> RingSyntax n -> RingSyntax n
-      S2x x = x ⊕ x
+        ℝx² : ℝ -> ℝ
+        ℝx² x = x * x
+        ℝ2x : ℝ -> ℝ
+        ℝ2x x = x + x
+        Sx² : {n : Nat} -> RingSyntax n -> RingSyntax n
+        Sx² x = x ⊗ x
+        S2x : {n : Nat} -> RingSyntax n -> RingSyntax n
+        S2x x = x ⊕ x
 
-      val1 : ℝ
-      val1 = ℝx² ((cx' * dx) + (- (cy * dy))) + ℝx² ((cx' * dy) + (cy * dx))
+        val1 : ℝ
+        val1 = ℝx² ((cx' * dx) + (- (cy * dy))) + ℝx² ((cx' * dy) + (cy * dx))
 
-      val1#0->ans : (val1 # 0#) -> Ans
-      val1#0->ans val1#0 = unsquash isProp-# (∥-map handle (+-reflects-#0 val1#0))
-        where
-        handle : (ℝx² ((cx' * dx) + (- (cy * dy))) # 0#) ⊎ (ℝx² ((cx' * dy) + (cy * dx)) # 0#) -> Ans
-        handle (inj-l ap) =
-          ∣ x-axis , subst2 _#_ path +-right-zero (+₁-preserves-# (*₁-reflects-#0 ap)) ∣
+        val1#0->ans : (val1 # 0#) -> Ans
+        val1#0->ans val1#0 = unsquash isProp-# (∥-map handle (+-reflects-#0 val1#0))
           where
-          path : dx + ((cx' * dx) + (- (cy * dy))) == ((cx * dx) + (- (cy * dy)))
-          path =
-            +-left (sym *-left-one) >=>
-            sym +-assoc >=>
-            +-left (sym *-distrib-+-right >=>
-                    *-left diff-step)
-        handle (inj-r ap) =
-          ∣ y-axis , subst2 _#_ path +-right-zero (+₁-preserves-# (*₁-reflects-#0 ap)) ∣
+          handle : (ℝx² ((cx' * dx) + (- (cy * dy))) # 0#) ⊎ (ℝx² ((cx' * dy) + (cy * dx)) # 0#) -> Ans
+          handle (inj-l ap) =
+            ∣ x-axis , subst2 _#_ path +-right-zero (+₁-preserves-# (*₁-reflects-#0 ap)) ∣
+            where
+            path : dx + ((cx' * dx) + (- (cy * dy))) == ((cx * dx) + (- (cy * dy)))
+            path =
+              +-left (sym *-left-one) >=>
+              sym +-assoc >=>
+              +-left (sym *-distrib-+-right >=>
+                      *-left diff-step)
+          handle (inj-r ap) =
+            ∣ y-axis , subst2 _#_ path +-right-zero (+₁-preserves-# (*₁-reflects-#0 ap)) ∣
+            where
+            path : dy + ((cx' * dy) + (cy * dx)) == ((cx * dy) + (cy * dx))
+            path =
+              +-left (sym *-left-one) >=>
+              sym +-assoc >=>
+              +-left (sym *-distrib-+-right >=>
+                      *-left diff-step)
+
+        val2 : ℝ
+        val2 = (cx' * cx' + cy * cy) * (dx * dx + dy * dy) +
+               ℝ2x ((cx' * cy * dx * dy) + (- (cx' * cy * dx * dy)))
+
+        val2=val1 : val2 == val1
+        val2=val1 = RingSolver.solve ℝRing 4
+          (\cx' cy dx dy ->
+            (cx' ⊗ cx' ⊕ cy ⊗ cy) ⊗ (dx ⊗ dx ⊕ dy ⊗ dy) ⊕
+             S2x ((cx' ⊗ cy ⊗ dx ⊗ dy) ⊕ (⊖ (cx' ⊗ cy ⊗ dx ⊗ dy))) ,
+            Sx² ((cx' ⊗ dx) ⊕ (⊖ (cy ⊗ dy))) ⊕ Sx² ((cx' ⊗ dy) ⊕ (cy ⊗ dx)))
+          refl cx' cy dx dy
+
+        val3 : ℝ
+        val3 = (cx' * cx' + cy * cy)
+
+        val2=val3 : val2 == val3
+        val2=val3 =
+          +-left (*-right (eqInv (isUnitVector'-equiv (fst d)) (snd d)) >=> *-right-one) >=>
+          +-right (cong ℝ2x +-inverse >=> +-right-zero) >=>
+          +-right-zero
+
+        val3#0->ans : val3 # 0# -> Ans
+        val3#0->ans = subst (\x -> x # 0# -> Ans) (sym val2=val1 >=> val2=val3) val1#0->ans
+
+        handle : Σ[ ax ∈ Axis ] (Rotation.c r ax # vector-index xaxis-vector ax) -> Ans
+        handle (x-axis , cx#1) = val3#0->ans (sum-of-squares-#0 cx' cy cx'#0)
           where
-          path : dy + ((cx' * dy) + (cy * dx)) == ((cx * dy) + (cy * dx))
-          path =
-            +-left (sym *-left-one) >=>
-            sym +-assoc >=>
-            +-left (sym *-distrib-+-right >=>
-                    *-left diff-step)
-
-      val2 : ℝ
-      val2 = (cx' * cx' + cy * cy) * (dx * dx + dy * dy) +
-             ℝ2x ((cx' * cy * dx * dy) + (- (cx' * cy * dx * dy)))
-
-      val2=val1 : val2 == val1
-      val2=val1 = RingSolver.solve ℝRing 4
-        (\cx' cy dx dy ->
-          (cx' ⊗ cx' ⊕ cy ⊗ cy) ⊗ (dx ⊗ dx ⊕ dy ⊗ dy) ⊕
-           S2x ((cx' ⊗ cy ⊗ dx ⊗ dy) ⊕ (⊖ (cx' ⊗ cy ⊗ dx ⊗ dy))) ,
-          Sx² ((cx' ⊗ dx) ⊕ (⊖ (cy ⊗ dy))) ⊕ Sx² ((cx' ⊗ dy) ⊕ (cy ⊗ dx)))
-        refl cx' cy dx dy
-
-      val3 : ℝ
-      val3 = (cx' * cx' + cy * cy)
-
-      val2=val3 : val2 == val3
-      val2=val3 =
-        +-left (*-right (eqInv (isUnitVector'-equiv (fst d)) (snd d)) >=> *-right-one) >=>
-        +-right (cong ℝ2x +-inverse >=> +-right-zero) >=>
-        +-right-zero
-
-      val3#0->ans : val3 # 0# -> Ans
-      val3#0->ans = subst (\x -> x # 0# -> Ans) (sym val2=val1 >=> val2=val3) val1#0->ans
-
-      handle : Σ[ ax ∈ Axis ] (Rotation.c r ax # vector-index xaxis-vector ax) -> Ans
-      handle (x-axis , cx#1) = val3#0->ans (sum-of-squares-#0 cx' cy cx'#0)
-        where
-        cx'#0 : cx' # 0#
-        cx'#0 = subst2 _#_ refl +-inverse (+₂-preserves-# cx#1)
-      handle (y-axis , cy#0) =
-        val3#0->ans (subst2 _#_ +-commute refl (sum-of-squares-#0 cy cx' cy#0))
+          cx'#0 : cx' # 0#
+          cx'#0 = subst2 _#_ refl +-inverse (+₂-preserves-# cx#1)
+        handle (y-axis , cy#0) =
+          val3#0->ans (subst2 _#_ +-commute refl (sum-of-squares-#0 cy cx' cy#0))
 
 
 

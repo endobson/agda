@@ -171,6 +171,7 @@ module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {
       handle (inj-l d1<d3) = d1<d3
       handle (inj-r d3<d2) = bot-elim (<->!= d3<d2 d3=d2)
         where
+        d3=d2 : d3 == d2
         d3=d2 = antisym-≤ (weaken-< d3<d2) d2≤d3
 
     trans-≤-< : {d1 d2 d3 : D} -> d1 ≤ d2 -> d2 < d3 -> d1 < d3
@@ -181,6 +182,7 @@ module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {
       handle (inj-r d1<d3) = d1<d3
       handle (inj-l d2<d1) = bot-elim (<->!= d2<d1 d2=d1)
         where
+        d2=d1 : d2 == d1
         d2=d1 = antisym-≤ (weaken-< d2<d1) d1≤d2
 
 

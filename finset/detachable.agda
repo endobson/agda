@@ -64,13 +64,14 @@ private
 abstract
   isFinSet-Detachable : {ℓA ℓB : Level} {A : Type ℓA} (B : Subtype A ℓB) ->
                         isFinSet A -> Detachable B -> isFinSet (∈-Subtype B)
-  isFinSet-Detachable {A = A} B fs-A d-B = ∥-bind handle fs-A
+  isFinSet-Detachable {ℓB = ℓB} {A = A} B fs-A d-B = ∥-bind handle fs-A
     where
     handle : Σ[ n ∈ Nat ] (A ≃ Fin n) -> isFinSet (∈-Subtype B)
     handle (n , eq) = ∥-bind handle2 (isFinSet-Detachable-Fin B' d-B')
       where
+      eq' : Fin n ≃ A
       eq' = equiv⁻¹ eq
-      B' : Subtype (Fin n) _
+      B' : Subtype (Fin n) ℓB
       B' i = B (eqFun eq' i)
       d-B' : Detachable B'
       d-B' = d-B ∘ (eqFun eq')

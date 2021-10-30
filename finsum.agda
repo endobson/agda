@@ -224,6 +224,7 @@ abstract
     handle : Σ[ n ∈ Nat ] (S ≃ Fin n) -> isFinSet (Σ[ s ∈ S ] ⟨ FB s ⟩)
     handle (n , eq) = isFinSet-equiv (equiv⁻¹ eqΣ) inner
       where
+      eq' : Fin n ≃ S
       eq' = equiv⁻¹ eq
       inner : isFinSet (Σ[ i ∈ Fin n ] (fst (FB (eqFun eq' i))))
       inner = isFinSet-Σ' (\i -> (FB (eqFun eq' i)))
