@@ -174,8 +174,7 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
   module _ (n : Nat) where
     private
       R' = (ReaderRing (Vec Domain n) R)
-      open module M = Ring R'
-      module MS = Semiring M.semiring
+      open module M = Ring R' hiding (*-left-minus-one)
       open ring.lists M.semiring
 
       instance
@@ -936,7 +935,6 @@ module examples where
     example1 = IntSolver.solve 4 (\ a b c d -> ((a ⊕ c) ⊗ (b ⊕ d)) ,
                                                (a ⊗ b) ⊕ (c ⊗ d) ⊕ (c ⊗ b) ⊕ (a ⊗ d)) refl
 
-
     example2 : (x y a b : Int) ->
          (x + y) * (a + b) + (x + - y) * (a + - b) ==
          (x * b + x * - b) + ((x * a + y * b) + ((x * a + - y * - b) + (y * a + - y * a)))
@@ -957,6 +955,7 @@ module examples where
           (© (int 2)) ⊗ (x ⊗ a ⊕ y ⊗ b))
         refl
 
-
-
-
+    example4 : (a b : Int) -> (a + (- a)) * (b + (- b)) == (b + (- b))
+    example4 =
+      IntSolver.solve 2
+        (\ a b -> ((a ⊕ (⊖ a)) ⊗ (b ⊕ (⊖ b)) , (b ⊕ (⊖ b)))) refl
