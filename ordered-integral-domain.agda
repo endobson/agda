@@ -50,3 +50,11 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     *₂-reflects-< : {a b c : D} -> (a * c) < (b * c) -> (0# < c) -> (a < b)
     *₂-reflects-< {a} {b} {c} ac<bc 0<c =
       *₁-reflects-< 0<c (subst2 _<_ *-commute *-commute ac<bc)
+
+    *₁-reflects-0< : {a b : D} -> (0# < a) -> 0# < (a * b) -> (0# < b)
+    *₁-reflects-0< {a} {b} 0<a 0<ab =
+      *₁-reflects-< 0<a (subst (_< (a * b)) (sym *-right-zero) 0<ab)
+
+    *₂-reflects-0< : {a b : D} -> 0# < (a * b) -> (0# < b) -> (0# < a)
+    *₂-reflects-0< {a} {b} 0<ab 0<b =
+      *₂-reflects-< (subst (_< (a * b)) (sym *-left-zero) 0<ab) 0<b
