@@ -10,23 +10,12 @@ open import cartesian-geometry.vector
 open import cartesian-geometry.semi-direction
 open import cartesian-geometry.semi-direction.apartness
 open import equality
-open import functions
 open import hlevel
-open import isomorphism
 open import real
-open import real.arithmetic
-open import real.arithmetic.multiplication
-open import real.arithmetic.multiplication.inverse
-open import real.arithmetic.order
 open import relation
-open import ring
-open import ring.implementations.real
-open import semiring
 open import set-quotient
-open import sigma
 open import subset
 open import truncation
-open import univalence
 open import vector-space
 
 record LineSegment (p1 p2 : Point) : Type₁ where

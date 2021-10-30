@@ -13,14 +13,12 @@ open import isomorphism
 open import ring
 open import semiring
 open import sigma
-open import truncation
 
 
 module _ {ℓ : Level} {D : Type ℓ}
          {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : AdditiveGroup ACM}
          (R : Ring S AG) (A : TightApartnessStr D) where
   private
-    module R = Ring R
     instance
       IS = S
       IACM = ACM
@@ -39,7 +37,6 @@ module _ {ℓ : Level} {D : Type ℓ}
          {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : AdditiveGroup ACM}
          {R : Ring S AG} {A : TightApartnessStr D} {{IntD : IntegralDomain R A}} where
   private
-    module R = Ring R
     instance
       IACM = ACM
       IAG = AG

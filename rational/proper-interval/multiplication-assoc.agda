@@ -4,17 +4,11 @@ module rational.proper-interval.multiplication-assoc where
 
 open import base
 open import equality
-open import hlevel
-open import order
 open import order.instances.rational
 open import rational
-open import rational.minmax
 open import rational.proper-interval
-open import relation hiding (_⊆_)
 open import ring.implementations.rational
-open import sign
 open import sign.instances.rational
-open import truncation
 
 private
   i∪-swap : (a b c d : Iℚ) -> (a i∪ b) i∪ (c i∪ d) == (a i∪ c) i∪ (b i∪ d)

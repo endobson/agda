@@ -5,7 +5,6 @@ module chapter2.prime-divisors where
 open import additive-group using (AdditiveCommMonoid)
 open import base
 open import equality
-open import functions
 open import cubical
 open import isomorphism
 open import nat
@@ -29,7 +28,6 @@ open import prime-factorization
 open import hlevel
 open import relatively-prime
 open import type-algebra
-open import relation
 open import semiring
 
 private

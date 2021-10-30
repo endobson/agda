@@ -10,7 +10,6 @@ open import chapter2.multiplicative
 open import div hiding (remainder)
 open import equality
 open import equivalence
-open import functions
 open import fin
 open import int using (int)
 open import finsum
@@ -23,8 +22,6 @@ open import gcd.computational
 open import gcd.propositional hiding (gcd'-unique)
 open import hlevel
 open import isomorphism
-open import list
-open import list.nat
 open import nat
 open import nat.bounded
 open import prime

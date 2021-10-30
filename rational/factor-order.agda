@@ -9,7 +9,6 @@ open import ordered-ring
 open import order.instances.rational
 open import rational
 open import rational.order
-open import relation
 open import sign
 open import sign.instances.rational
 

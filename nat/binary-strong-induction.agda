@@ -3,7 +3,6 @@
 module nat.binary-strong-induction where
 
 open import base
-open import equality
 open import nat
 open import relation
 

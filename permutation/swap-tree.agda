@@ -3,17 +3,11 @@
 module permutation.swap-tree where
 
 open import base
-open import cubical
 open import equality
-open import equivalence
 open import fin
 open import functions
-open import hlevel
-open import isomorphism
 open import nat
 open import permutation.insert
-open import relation
-open import sigma
 
 data SwapTree : Nat -> Type₀ where
   id-swap-tree : {n : Nat} -> SwapTree n
@@ -56,8 +50,6 @@ private
   ign-st = ignore-swap-tree
   swap-st : {n : Nat} -> SwapTree (suc (suc n))
   swap-st = swap-swap-tree
-  id-st : {n : Nat} -> SwapTree n
-  id-st = id-swap-tree
 
   ins->st : {n : Nat} -> Fin n -> SwapTree n
   ins->st = insert->swap-tree

@@ -5,7 +5,6 @@ module list.powerset where
 open import base
 open import equality
 open import list
-open import nat
 
 private
   variable

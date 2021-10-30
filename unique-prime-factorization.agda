@@ -5,11 +5,8 @@ module unique-prime-factorization where
 open import base
 open import div
 open import equality
-open import equivalence
-open import functions
 open import hlevel
 open import isomorphism
-open import lcm
 open import gcd.propositional
 open import gcd.computational
 open import nat
@@ -24,7 +21,6 @@ open import sigma.base
 open import univalence
 open import unordered-list
 open import unordered-list.discrete
-open import univalence
 
 private
   record DivisionCount (d : Nat) (n : Nat) : Type₀ where
@@ -148,10 +144,6 @@ private
         where
         n' : Nat
         n' = x *' d ^' k2
-
-        d-proof : (x *' d) *' (d ^' k2) == n
-        d-proof = (*'-assoc {x}) >=> pr
-
 
         div-next : (d ^' k2) div' n'
         div-next = x , refl
@@ -442,36 +434,35 @@ module _ (p : Prime') {a : Nat} (pf : PrimeFactorization a) where
   prime-div==prime-factorization-∈ = ua (isoToEquiv prime-div-prime-factorization-∈-iso)
 
 
-private
-  prime-div-count->division-count :
-    {p : Prime'} {a n : Nat} -> PrimeDivCount p a n -> DivisionCount ⟨ p ⟩ a
-  prime-div-count->division-count {p} {a} {n} dc = record
-    { d-pos = (Prime'.pos p)
-    ; n-pos = (PrimeDivCount.a-pos dc)
-    ; k = n
-    ; d^k%n        = (PrimeDivCount.%a dc)
-    ; ¬d^[suc-k]%n = (PrimeDivCount.¬p^sn%a dc)
-    }
+prime-div-count->division-count :
+  {p : Prime'} {a n : Nat} -> PrimeDivCount p a n -> DivisionCount ⟨ p ⟩ a
+prime-div-count->division-count {p} {a} {n} dc = record
+  { d-pos = (Prime'.pos p)
+  ; n-pos = (PrimeDivCount.a-pos dc)
+  ; k = n
+  ; d^k%n        = (PrimeDivCount.%a dc)
+  ; ¬d^[suc-k]%n = (PrimeDivCount.¬p^sn%a dc)
+  }
 
-  division-count->prime-div-count :
-    {p : Prime'} {a : Nat} -> (dc : DivisionCount ⟨ p ⟩ a) -> PrimeDivCount p a (DivisionCount.k dc)
-  division-count->prime-div-count {p} {a} dc = record
-    { %a = dc.d^k%n
-    ; ¬p%r = ¬p%r
-    }
+division-count->prime-div-count :
+  {p : Prime'} {a : Nat} -> (dc : DivisionCount ⟨ p ⟩ a) -> PrimeDivCount p a (DivisionCount.k dc)
+division-count->prime-div-count {p} {a} dc = record
+  { %a = dc.d^k%n
+  ; ¬p%r = ¬p%r
+  }
+  where
+  module dc = DivisionCount dc
+  p' = ⟨ p ⟩
+
+  r = fst dc.d^k%n
+  r-path : r *' (prime-power p dc.k) == a
+  r-path = snd dc.d^k%n
+
+  ¬p%r : ¬ (p' div' r)
+  ¬p%r (x , x-path) = dc.¬d^[suc-k]%n p^sk%a
     where
-    module dc = DivisionCount dc
-    p' = ⟨ p ⟩
-
-    r = fst dc.d^k%n
-    r-path : r *' (prime-power p dc.k) == a
-    r-path = snd dc.d^k%n
-
-    ¬p%r : ¬ (p' div' r)
-    ¬p%r (x , x-path) = dc.¬d^[suc-k]%n p^sk%a
-      where
-      p^sk%a : (prime-power p (suc dc.k)) div' a
-      p^sk%a = x , sym (*'-assoc {x} {p'}) >=> *'-left x-path >=> r-path
+    p^sk%a : (prime-power p (suc dc.k)) div' a
+    p^sk%a = x , sym (*'-assoc {x} {p'}) >=> *'-left x-path >=> r-path
 
 
 same-division-count : (a b : Nat⁺) ->
@@ -586,8 +577,6 @@ prime-different-division-count a@(a' , a-pos) b@(b' , b-pos) a<b =
   p%db = snd Σp
   p' = ⟨ p ⟩
 
-  db2 : Nat
-  db2 = ⟨ p%db ⟩
   db2⁺ : Nat⁺
   db2⁺ = div⁺->multiple⁺ {Prime'.nat⁺ p} {db⁺} p%db
 

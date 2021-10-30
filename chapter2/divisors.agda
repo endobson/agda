@@ -3,7 +3,6 @@
 module chapter2.divisors where
 
 open import base
-open import chapter2.multiplicative
 open import cubical using (_≃_)
 open import div hiding (remainder)
 open import equality
@@ -14,7 +13,7 @@ open import fin-algebra
 open import finsubset
 open import functions
 open import gcd.properties
-open import gcd.propositional using (GCD'; GCD⁺; gcd'-sym)
+open import gcd.propositional using (GCD'; GCD⁺)
 open import gcd.computational
 open import hlevel
 open import isomorphism

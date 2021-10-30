@@ -9,10 +9,8 @@ open import equality
 open import hlevel.base
 open import nat
 open import rational
-open import relation
 open import ring.implementations
 open import semiring
-open import sigma
 open import sign
 open import sign.instances.int
 

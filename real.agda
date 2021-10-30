@@ -17,9 +17,6 @@ open import rational
 open import rational.difference
 open import rational.order
 open import relation hiding (U)
-open import ring
-open import ring.implementations.rational
-open import semiring
 open import sign
 open import truncation
 open import univalence

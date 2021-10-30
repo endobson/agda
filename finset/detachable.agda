@@ -5,7 +5,6 @@ module finset.detachable where
 open import base
 open import cubical
 open import equivalence
-open import hlevel
 open import isomorphism
 open import relation
 open import fin

@@ -4,10 +4,8 @@ module commutative-monoid.pi where
 
 open import base
 open import commutative-monoid
-open import equality
 open import funext
 open import hlevel
-open import monoid
 open import monoid.pi
 
 CommMonoidStr-Π : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {D : A -> Type ℓ₂} ->

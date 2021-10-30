@@ -7,7 +7,7 @@ open import hlevel
 open import int.base
 open import nat.properties using (Pos')
 open import relation
-open import sign using (Sign ; pos-sign ; zero-sign ; neg-sign ; isNonZeroSign ; isPosSign ; isNegSign)
+open import sign using (Sign ; pos-sign ; zero-sign ; neg-sign ; isNonZeroSign ; isPosSign)
 
 -- Sign based predicates
 

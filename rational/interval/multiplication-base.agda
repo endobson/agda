@@ -4,14 +4,11 @@ module rational.interval.multiplication-base where
 
 open import base
 open import equality
-open import hlevel
-open import order
 open import order.instances.rational
 open import rational
 open import rational.order
 open import rational.minmax
 open import rational.interval
-open import relation
 open import sign
 open import sign.instances.rational
 

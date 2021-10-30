@@ -6,7 +6,6 @@ open import additive-group
 open import apartness
 open import base
 open import equality
-open import equivalence
 open import functions
 open import monoid
 open import commutative-monoid

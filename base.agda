@@ -8,7 +8,6 @@ open import Level public
   renaming ( zero to ℓ-zero
            ; suc  to ℓ-suc
            ; _⊔_  to ℓ-max
-           ; Setω  to Typeω
            )
 
 open import cubical

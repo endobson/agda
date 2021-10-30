@@ -10,7 +10,6 @@ open import abs
 open import fin
 open import functions
 open import hlevel
-open import sigma
 
 import quotient-remainder as qr
 import hit-int as h

@@ -7,17 +7,12 @@ open import apartness
 open import base
 open import cubical
 open import equality
-open import equivalence
 open import heyting-field
 open import hlevel
 open import isomorphism
 open import integral-domain
-open import functions
-open import funext
-open import relation
 open import ring
 open import semiring
-open import truncation
 
 module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {AG : AdditiveGroup ACM}
          {S : Semiring ACM} {R : Ring S AG} {A : TightApartnessStr D} {{F : Field R A}}

@@ -3,8 +3,6 @@
 module additive-group.instances.int where
 
 open import additive-group
-open import base
-open import group
 open import int using (Int)
 
 

@@ -3,24 +3,19 @@
 module finite-commutative-monoid where
 
 open import base
-open import hlevel
-open import equality
+open import commutative-monoid
 open import cubical
+open import equality
 open import equivalence
 open import fin
-open import fin-algebra
 open import finset
 open import finset.instances
-open import funext
-open import truncation
-open import permutation.swap
 open import functions
-open import commutative-monoid
+open import funext
 open import isomorphism
-open import maybe
-open import type-algebra
-open import sigma
 open import nat.order
+open import permutation.swap
+open import truncation
 
 private
   variable

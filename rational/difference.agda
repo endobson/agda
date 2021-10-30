@@ -5,7 +5,6 @@ module rational.difference where
 open import additive-group
 open import base
 open import equality
-open import ring
 open import ring.implementations.rational
 open import rational
 open import semiring

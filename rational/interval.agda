@@ -4,7 +4,6 @@ module rational.interval where
 
 open import base
 open import equality
-open import hlevel
 open import order
 open import order.instances.rational
 open import rational

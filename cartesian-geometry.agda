@@ -11,37 +11,15 @@ open import direct-product
 open import equality
 open import equivalence
 open import functions
-open import funext
 open import hlevel
-open import isomorphism
 open import integral-domain
 open import integral-domain.instances.real
-open import order
-open import order.instances.real
-open import ordered-ring
-open import ordered-semiring
-open import ordered-semiring.instances.real
-open import rational
-open import rational.order
 open import real
 open import real.arithmetic
-open import real.arithmetic.absolute-value
-open import real.arithmetic.multiplication
-open import real.arithmetic.multiplication.inverse
-open import real.arithmetic.order
-open import real.arithmetic.sqrt
-open import real.arithmetic.sqrt.base
 open import real.heyting-field
 open import relation
-open import ring
-open import ring.implementations.real
-open import semiring
-open import set-quotient
-open import subset
 open import sum
-open import sigma
 open import truncation
-open import univalence
 open import vector-space
 
 

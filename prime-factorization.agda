@@ -11,7 +11,6 @@ open import functions
 open import nat
 open import prime
 open import relation
-open import ring
 open import ring.implementations
 open import unordered-list
 

@@ -4,12 +4,8 @@ module real.arithmetic.multiplication.associative where
 
 open import base
 open import equality
-open import hlevel
-open import isomorphism
-open import order
 open import order.instances.rational
 open import rational
-open import rational.minmax
 open import rational.proper-interval
 open import rational.proper-interval.multiplication-assoc
 open import real
@@ -17,10 +13,8 @@ open import relation hiding (U)
 open import real.arithmetic.multiplication
 open import real.interval
 open import ring.implementations.rational
-open import sign
 open import sign.instances.rational
 open import truncation
-open import univalence
 
 
 private

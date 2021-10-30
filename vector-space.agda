@@ -5,25 +5,16 @@ module vector-space where
 open import additive-group
 open import apartness
 open import base
-open import cubical using (_≃_)
 open import commutative-monoid
 open import equality hiding (J)
-open import equivalence
-open import fin
 open import finset
-open import finset.partition
-open import finset.detachable
-open import finsum
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
-open import finite-commutative-monoid.partition
 open import functions
 open import group
 open import heyting-field
 open import hlevel
-open import monoid
 open import ring
-open import relation
 open import semiring
 open import subset
 open import truncation
@@ -246,7 +237,6 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
 
   private
     module VS = VectorSpaceStr VS
-    module M = ModuleStr VS.module-str
     module R = Ring R
     module F = Field F
 
@@ -265,7 +255,6 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
       module _ where
         k-unit : R.isUnit k
         k-unit = F.#0->isUnit k#0
-        k' = R.isUnit.inv k-unit
         kk'=1 = R.isUnit.path k-unit
         k'kv#0 = subst (_v# 0v) (sym v*-left-one >=> v*-left (sym kk'=1 >=> *-commute) >=> v*-assoc) v#0
 

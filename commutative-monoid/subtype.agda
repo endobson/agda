@@ -4,9 +4,7 @@ module commutative-monoid.subtype where
 
 open import base
 open import commutative-monoid
-open import equality
 open import hlevel
-open import monoid
 open import monoid.subtype
 open import relation
 open import sigma.base

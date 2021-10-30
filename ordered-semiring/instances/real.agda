@@ -3,12 +3,10 @@
 module ordered-semiring.instances.real where
 
 open import additive-group.instances.real
-open import base
 open import ordered-semiring
 open import ordered-ring
 open import order.instances.real
 open import real.arithmetic.order
-open import semiring
 open import ring.implementations.real
 
 instance

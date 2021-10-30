@@ -14,15 +14,9 @@ open import finset
 open import finite-commutative-monoid
 open import finset.instances
 open import functions
-open import hlevel
 open import isomorphism
 open import maybe
 open import nat
-open import permutation.insert
-open import permutation.swap
-open import relation
-open import ring
-open import ring.implementations
 open import semiring
 open import sigma
 open import sigma.base

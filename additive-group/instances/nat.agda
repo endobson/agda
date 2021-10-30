@@ -5,7 +5,6 @@ module additive-group.instances.nat where
 open import additive-group
 open import base
 open import nat
-open import group
 
 instance
   AdditiveCommMonoid-Nat : AdditiveCommMonoid Nat

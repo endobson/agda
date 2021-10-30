@@ -5,9 +5,7 @@ module rational where
 open import abs
 open import additive-group
 open import base
-open import cubical using (_∧_ ; _∨_ ; ~_ ; I)
 open import equality
-open import equivalence
 open import fin
 open import functions
 open import funext

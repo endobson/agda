@@ -12,7 +12,6 @@ open import nat.bounded
 open import fin
 open import finset
 open import finset.instances
-open import fin-algebra
 open import functions
 open import hlevel
 open import isomorphism

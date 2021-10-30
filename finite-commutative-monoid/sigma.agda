@@ -6,7 +6,6 @@ open import base
 open import commutative-monoid
 open import cubical
 open import equality
-open import equivalence
 open import fin
 open import fin-algebra
 open import finite-commutative-monoid
@@ -15,10 +14,7 @@ open import finset
 open import finset.instances
 open import finsum
 open import functions
-open import hlevel
 open import isomorphism
-open import maybe
-open import semiring
 open import sigma
 open import truncation
 open import type-algebra

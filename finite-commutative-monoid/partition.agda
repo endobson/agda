@@ -12,13 +12,10 @@ open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
 open import finite-commutative-monoid.sigma
 open import finset
-open import finset.detachable
 open import finset.partition
 open import finset.instances
 open import finsum
 open import functions
-open import hlevel
-open import relation
 open import subset
 open import type-algebra
 

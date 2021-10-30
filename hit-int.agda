@@ -3,11 +3,8 @@
 module hit-int where
 
 open import base
-open import nat
 open import isomorphism
-open import equivalence
 open import cubical
-open import equality
 
 import int
 

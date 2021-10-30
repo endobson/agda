@@ -4,7 +4,6 @@ module set-quotient where
 
 open import base
 open import equality-path
-open import equivalence
 open import funext
 open import hlevel
 open import sigma.base

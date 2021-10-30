@@ -73,12 +73,6 @@ private
   apply zero b [] = b
   apply (suc m) f (a :: v) = apply m (f a) v
 
-
-  apply-curry-id : (n : Nat) -> (f : (Vec A n) -> B) -> (vec : Vec A n)
-                   -> (apply n (curry n f) vec) == f vec
-  apply-curry-id zero f [] = refl
-  apply-curry-id (suc m) f (e :: v) = apply-curry-id m (\ v2 -> f (e :: v2)) v
-
   Eq : {A : Type ℓ₁} -> (n : Nat) -> (REL B C ℓ₂)
        -> (REL (Nary n A B) (Nary n A C) (Nary-level ℓ₁ ℓ₂ n))
   Eq n r f g = ∀ⁿ n (curry n (\ vec -> r (apply n f vec) (apply n g vec)))

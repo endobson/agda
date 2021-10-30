@@ -3,7 +3,6 @@
 module monoid.pi where
 
 open import base
-open import equality
 open import monoid
 open import funext
 

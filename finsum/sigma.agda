@@ -6,11 +6,9 @@ open import additive-group
 open import base
 open import finset
 open import functions
-open import equivalence
 open import cubical
 open import sigma
 open import isomorphism
-open import maybe
 open import type-algebra
 open import fin-algebra
 open import equality
@@ -113,10 +111,6 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
 
       f' : Fin (suc n) -> D
       f' i = finiteSumᵉ (FB i) g
-
-      FB' : Maybe (Fin n) -> FinSet ℓB
-      FB' i = FB (eqInv (Fin-Maybe-eq n) i)
-
 
       path2 : finiteSumᵉ (FinSet-Fin (suc n)) f' ==
               ((f' zero-fin) +

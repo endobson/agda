@@ -7,8 +7,6 @@ open import equality
 open import fin
 open import functions
 open import nat
-open import relation
-open import sigma
 
 module _ where
   private

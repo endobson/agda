@@ -4,7 +4,6 @@ module rational.proper-interval.maxabs-multiplication where
 
 open import base
 open import equality
-open import order
 open import order.instances.rational
 open import ordered-ring
 open import rational

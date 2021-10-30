@@ -6,14 +6,12 @@ open import base
 open import cubical
 open import div
 open import equality
-open import equivalence
 open import hlevel
 open import int
 open import isomorphism
 open import nat
 open import prime
 open import prime-factorization
-open import relation
 
 RelativelyPrime⁰ : Nat -> Nat -> Type₀
 RelativelyPrime⁰ a b = (d : Nat) -> d div' a -> d div' b -> d == 1

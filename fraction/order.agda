@@ -7,7 +7,6 @@ open import base
 open import equality
 open import fraction.sign
 open import hlevel
-open import int.order using (trichotomous-<)
 open import order
 open import order.instances.int
 open import rational

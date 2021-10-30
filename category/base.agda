@@ -6,7 +6,6 @@ open import base
 open import cubical using (isEquiv ; I)
 open import equality-path
 open import hlevel
-open import equality-path using (J ; JRefl)
 
 private
   variable

@@ -6,12 +6,10 @@ open import additive-group
 open import additive-group.instances.real
 open import base
 open import equality
-open import hlevel.sigma
 open import hlevel
 open import order
 open import order.instances.rational
 open import order.instances.real
-open import ordered-semiring
 open import ordered-ring
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
@@ -33,7 +31,6 @@ open import ring
 open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
-open import sign
 open import sign.instances.rational
 open import sum
 open import truncation
@@ -68,8 +65,6 @@ private
   module _ (x : ℝ) where
     private
       xx = x ℝ*ᵉ x
-      module x = Real x
-      module xx = Real xx
 
     ≮0-squareᵉ : xx ≮ 0ℝ
     ≮0-squareᵉ x²<0 = unsquash isPropBot (∥-bind handle x²<0)
@@ -84,7 +79,6 @@ private
 
           abi-o = ℝ∈Iℚ->Overlap x ai bi x∈ai x∈bi
           ai∩bi = i-intersect ai bi abi-o
-          x∈ai∩bi = ℝ∈Iℚ-intersect x ai bi x∈ai x∈bi
           u = Iℚ.u ai∩bi
           u∈ai∩bi : ℚ∈Iℚ u ai∩bi
           u∈ai∩bi = Iℚ.l≤u ai∩bi , refl-≤
@@ -124,8 +118,6 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
     sx = sqrtℝ x x≮0
     sxᵉ = sqrtℝᵉ x x≮0
     module x = Real x
-    module sx = Real sx
-    module sxᵉ = Real sxᵉ
 
     sqrt-0<ᵉ : (0<x : 0ℝ < x) -> 0ℝ < sxᵉ
     sqrt-0<ᵉ 0<x = ∥-bind handle 0<x
@@ -149,8 +141,6 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
   private
     sx = sqrtℝ x x≮0
     sxᵉ = sqrtℝᵉ x x≮0
-    module x = Real x
-    module sx = Real sx
     module sxᵉ = Real sxᵉ
 
     sqrt-0≤ᵉ : sxᵉ ≮ 0ℝ
@@ -170,13 +160,11 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
 module _ (x : ℝ) where
   private
     xx = x ℝ*ᵉ x
-    module x = Real x
     module xx = Real xx
 
   module _ (≮0 : xx ≮ 0ℝ) where
     private
       sxx = (sqrtℝᵉ xx ≮0)
-      module sxx = Real sxx
 
     ℝ∈Iℚ-sqrt⁺ : (ai : Iℚ) -> ImbalancedI ai -> ℝ∈Iℚ x ai -> ℝ∈Iℚ sxx ai
     ℝ∈Iℚ-sqrt⁺ ai@(Iℚ-cons al au al≤au) -al≤au x∈ai@(xL-al , xU-au) = handle (split-< al 0r)
@@ -236,8 +224,6 @@ module _ (x : ℝ) where
 module _ (x : ℝ) where
   private
     xx = x ℝ*ᵉ x
-    module x = Real x
-    module xx = Real xx
 
     sqrt-*ᵉ : (≮0 : xx ≮ 0ℝ) -> sqrtℝᵉ xx ≮0 == absℝ x
     sqrt-*ᵉ ≮0 = sym (ℝ∈Iℚ->path (absℝ x) (sqrtℝᵉ xx ≮0) ℝ∈Iℚ-sqrt-abs)
@@ -246,7 +232,6 @@ module _ (x : ℝ) where
       -x-x≮0 = ≮0-squareᵉ mx
       sxx = (sqrtℝᵉ xx ≮0)
       s-x-x = (sqrtℝᵉ (mx ℝ*ᵉ mx) -x-x≮0)
-      module sxx = Real sxx
 
       p : (mx ℝ*ᵉ mx) == (x ℝ*ᵉ x)
       p = p1 >=> minus-extract-left >=>
@@ -295,7 +280,6 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
     sxsx = sx ℝ*ᵉ sx
     module x = Real x
     module sx = Real sx
-    module sxsx = Real sxsx
 
     ℝ∈Iℚ-sqrtᵉ⁻ : (xi yi : Iℚ) -> ℝ∈Iℚ sx xi -> ℝ∈Iℚ sx yi -> ℝ∈Iℚ x (xi i* yi)
     ℝ∈Iℚ-sqrtᵉ⁻ xi@(Iℚ-cons xl xu xl≤xu) yi@(Iℚ-cons yl yu yl≤yu)
@@ -421,45 +405,44 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
             ℝ*-eval {sx} {sx} >=>
             *-sqrtᵉ
 
-private
-  split-ℝ∈Iℚ-0≤ : (x : ℝ) (ai : Iℚ) -> ℝ∈Iℚ x ai -> 0ℝ ≤ x ->
-                  ∃[ bi ∈ Iℚ ] (ℝ∈Iℚ x bi × bi i⊆ ai × (BalancedI bi ⊎ NonNegI bi))
-  split-ℝ∈Iℚ-0≤ x ai@(Iℚ-cons l u l≤u) x∈ai 0≤x = handle (split-< l 0r) (split-< u -l)
+split-ℝ∈Iℚ-0≤ : (x : ℝ) (ai : Iℚ) -> ℝ∈Iℚ x ai -> 0ℝ ≤ x ->
+                ∃[ bi ∈ Iℚ ] (ℝ∈Iℚ x bi × bi i⊆ ai × (BalancedI bi ⊎ NonNegI bi))
+split-ℝ∈Iℚ-0≤ x ai@(Iℚ-cons l u l≤u) x∈ai 0≤x = handle (split-< l 0r) (split-< u -l)
+  where
+  module x = Real x
+  -l = - l
+  -u = - u
+  0<u : 0r < u
+  0<u = proj-¬r (split-< 0r u) ¬u≤0
     where
-    module x = Real x
-    -l = - l
-    -u = - u
-    0<u : 0r < u
-    0<u = proj-¬r (split-< 0r u) ¬u≤0
-      where
-      ¬u≤0 : ¬ (u ≤ 0r)
-      ¬u≤0 u≤0 = ℝ≮0-¬U0 x 0≤x (isUpperSet≤ x u 0r u≤0 (snd x∈ai))
+    ¬u≤0 : ¬ (u ≤ 0r)
+    ¬u≤0 u≤0 = ℝ≮0-¬U0 x 0≤x (isUpperSet≤ x u 0r u≤0 (snd x∈ai))
 
-    Ans = Σ[ bi ∈ Iℚ ] (ℝ∈Iℚ x bi × bi i⊆ ai × (BalancedI bi ⊎ NonNegI bi))
-    Ans' = ∥ Ans ∥
-    handle : (l < 0r ⊎ 0r ≤ l) -> (u < -l ⊎ -l ≤ u) -> Ans'
-    handle (inj-r 0≤l) _            = ∣ ai , x∈ai , (i⊆-cons refl-≤ refl-≤) , inj-r (0≤-NonNeg l 0≤l) ∣
-    handle (inj-l l<0) (inj-r -l≤u) = ∥-map handle2 (x.located 0r -l 0<-l)
+  Ans = Σ[ bi ∈ Iℚ ] (ℝ∈Iℚ x bi × bi i⊆ ai × (BalancedI bi ⊎ NonNegI bi))
+  Ans' = ∥ Ans ∥
+  handle : (l < 0r ⊎ 0r ≤ l) -> (u < -l ⊎ -l ≤ u) -> Ans'
+  handle (inj-r 0≤l) _            = ∣ ai , x∈ai , (i⊆-cons refl-≤ refl-≤) , inj-r (0≤-NonNeg l 0≤l) ∣
+  handle (inj-l l<0) (inj-r -l≤u) = ∥-map handle2 (x.located 0r -l 0<-l)
+    where
+    0<-l = minus-flips-<0 l<0
+    handle2 : (x.L 0r ⊎ x.U -l) -> Ans
+    handle2 (inj-l xL-0) = bi , (xL-0 , snd x∈ai) , i⊆-cons (weaken-< l<0) refl-≤ ,
+                           inj-r (0≤-NonNeg 0r refl-≤)
       where
-      0<-l = minus-flips-<0 l<0
-      handle2 : (x.L 0r ⊎ x.U -l) -> Ans
-      handle2 (inj-l xL-0) = bi , (xL-0 , snd x∈ai) , i⊆-cons (weaken-< l<0) refl-≤ ,
-                             inj-r (0≤-NonNeg 0r refl-≤)
-        where
-        bi = Iℚ-cons 0r u (weaken-< (trans-<-≤ 0<-l -l≤u))
-      handle2 (inj-r xU--l) = bi , (fst x∈ai , xU--l) , i⊆-cons refl-≤ -l≤u , inj-l refl
-        where
-        bi = Iℚ-cons l -l (weaken-< (trans-< l<0 0<-l))
-    handle (inj-l l<0) (inj-l u<-l) = ∥-map handle2 (x.located -u 0r -u<0)
+      bi = Iℚ-cons 0r u (weaken-< (trans-<-≤ 0<-l -l≤u))
+    handle2 (inj-r xU--l) = bi , (fst x∈ai , xU--l) , i⊆-cons refl-≤ -l≤u , inj-l refl
       where
-      l<-u = subst (_< -u) minus-double-inverse (minus-flips-< u<-l)
-      -u<0 = minus-flips-0< 0<u
-      handle2 : (x.L -u ⊎ x.U 0r) -> Ans
-      handle2 (inj-l xL--u) = bi , (xL--u , snd x∈ai) , i⊆-cons (weaken-< l<-u) refl-≤ ,
-                              inj-l minus-double-inverse
-        where
-        bi = Iℚ-cons -u u (weaken-< (trans-< -u<0 0<u))
-      handle2 (inj-r xU-0) = bot-elim (ℝ≮0-¬U0 x 0≤x xU-0)
+      bi = Iℚ-cons l -l (weaken-< (trans-< l<0 0<-l))
+  handle (inj-l l<0) (inj-l u<-l) = ∥-map handle2 (x.located -u 0r -u<0)
+    where
+    l<-u = subst (_< -u) minus-double-inverse (minus-flips-< u<-l)
+    -u<0 = minus-flips-0< 0<u
+    handle2 : (x.L -u ⊎ x.U 0r) -> Ans
+    handle2 (inj-l xL--u) = bi , (xL--u , snd x∈ai) , i⊆-cons (weaken-< l<-u) refl-≤ ,
+                            inj-l minus-double-inverse
+      where
+      bi = Iℚ-cons -u u (weaken-< (trans-< -u<0 0<u))
+    handle2 (inj-r xU-0) = bot-elim (ℝ≮0-¬U0 x 0≤x xU-0)
 
 
 module _ (x : ℝ)
@@ -468,7 +451,6 @@ module _ (x : ℝ)
     xx = x ℝ* x
     ax = absℝ x
     mx = - x
-    module x = Real x
     module ax = Real ax
     module xx = Real xx
 
@@ -615,11 +597,6 @@ module _ (x : ℝ) (y : ℝ) (x≮0 : x ≮ 0ℝ) (y≮0 : y ≮ 0ℝ)
     0≤sy = (sqrt-0≤ y y≮0)
     0≤sxy = (sqrt-0≤ xy 0≤xy)
     sxsy = sx ℝ* sy
-    module x = Real x
-    module y = Real y
-    module sx = Real sx
-    module sy = Real sy
-    module sxsy = Real sxsy
 
 
     ℝ∈Iℚ-sqrt-*-ImbalancedI : (xi yi : Iℚ) -> ℝ∈Iℚ sx xi -> ℝ∈Iℚ sy yi ->

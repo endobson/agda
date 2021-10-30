@@ -4,27 +4,19 @@ module real.arithmetic.multiplication.distributive where
 
 open import base
 open import equality
-open import hlevel
-open import isomorphism
 open import order
 open import order.instances.rational
 open import rational
-open import rational.order
-open import rational.minmax
 open import rational.proper-interval
-open import rational.proper-interval.multiplication-assoc
 open import rational.proper-interval.multiplication-distributive
 open import real
 open import relation hiding (U)
 open import real.arithmetic.multiplication
-open import real.arithmetic.multiplication.associative
 open import real.arithmetic
 open import real.interval
 open import ring.implementations.rational
-open import sign
 open import sign.instances.rational
 open import truncation
-open import univalence
 
 
 private

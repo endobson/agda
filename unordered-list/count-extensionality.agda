@@ -5,13 +5,9 @@ open import relation
 
 module unordered-list.count-extensionality {ℓ : Level} {A : Type ℓ} {{disc'A : Discrete' A}} where
 
-open import commutative-monoid
 open import equality
-open import equivalence
-open import functions
 open import hlevel
 open import nat
-open import truncation
 open import unordered-list.base
 open import unordered-list.operations
 open import unordered-list.discrete
@@ -57,12 +53,6 @@ private
   ... | (no x!=b)  = transport (\i -> (remove1-count-ignore as x!=b (~ i)) ≤
                                       (remove1-count-ignore bs x!=b (~ i)))
                                (lt x)
-
-  ::-≼ : {as bs : UList A} -> (a : A) -> as ≼ bs -> (a :: as) ≼ (a :: bs)
-  ::-≼ {as} {bs} a lt x with (discA x a)
-  ... | (yes x==a) = (suc-≤ (lt x))
-  ... | (no x!=a)  = (lt x)
-
 
   data StrongRec : UList A -> Type (levelOf A) where
     sr-empty : StrongRec []
@@ -256,9 +246,6 @@ private
     pp : PathP _ p1 p2
     pp = isProp->PathP (\i -> (trunc _ _)) p1 p2
 
-
-  subset-::-right : {as bs : UList A} -> (b : A) -> (Subset as bs) -> Subset as (b :: bs)
-  subset-::-right b (x , pr) = (b :: x , cong (b ::_) pr)
 
   subset-::-both : {as bs : UList A} -> (a : A) -> (Subset as bs) -> Subset (a :: as) (a :: bs)
   subset-::-both {as} {bs} b (x , pr) = (x , pr2)

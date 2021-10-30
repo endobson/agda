@@ -6,14 +6,12 @@ open import base
 open import div
 open import equality
 open import gcd.propositional
-open import gcd.euclidean-algorithm
 open import lcm
 open import nat
 open import prime
 open import prime-gcd
 open import relation
 open import relatively-prime
-open import sigma
 
 
 record PrimeDivCount (p : Prime') (a : Nat) (n : Nat)  : Type₀ where

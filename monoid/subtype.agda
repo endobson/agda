@@ -3,7 +3,6 @@
 module monoid.subtype where
 
 open import base
-open import equality
 open import monoid
 open import relation
 open import sigma.base

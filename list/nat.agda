@@ -5,9 +5,7 @@ module list.nat where
 open import base
 open import equality
 open import fin
-open import functions
 open import list
-open import list.discrete
 open import list.filter
 open import list.sorted
 open import list.unordered

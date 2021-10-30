@@ -6,7 +6,6 @@ open import additive-group using (AdditiveCommMonoid)
 open import base
 open import cubical
 open import equality
-open import equivalence
 open import semiring
 open import fin
 open import hlevel.base

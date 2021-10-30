@@ -10,29 +10,23 @@ open import cartesian-geometry.vector
 open import cartesian-geometry.rotation
 open import equality
 open import equivalence
-open import funext
 open import functions
 open import hlevel
 open import integral-domain
 open import integral-domain.instances.real
 open import order
 open import ordered-ring
-open import ordered-semiring
 open import ordered-semiring.instances.real
 open import real
 open import real.arithmetic.absolute-value
 open import real.heyting-field
 open import relation
-open import ring
 open import ring.implementations.real
 open import semiring
 open import set-quotient
 open import sigma
 open import subset
-open import sum
-open import truncation
 open import vector-space
-open import vector-space.finite
 
 
 data SameSemiDirection : Rel Direction ℓ-one where

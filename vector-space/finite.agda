@@ -5,24 +5,17 @@ module vector-space.finite where
 open import additive-group
 open import apartness
 open import base
-open import cubical using (_≃_ ; isEquiv)
-open import commutative-monoid
+open import cubical using (isEquiv)
 open import equality hiding (J)
 open import equivalence
 open import fin
 open import finset
-open import finset.partition
-open import finset.detachable
 open import finsum
-open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
-open import finite-commutative-monoid.partition
 open import functions
 open import funext
-open import group
 open import heyting-field
 open import hlevel
-open import monoid
 open import ring
 open import relation
 open import semiring
@@ -44,7 +37,6 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
 
   private
     module VS = VectorSpaceStr VS
-    module M = ModuleStr VS.module-str
 
     instance
       IM = VS.module-str
@@ -137,7 +129,6 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
       IAG = AG
 
     isSet-V = ModuleStr.isSet-V M
-    CM-V+ = GroupStr.comm-monoid (ModuleStr.GroupStr-V M)
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
     linearlyIndependent->isProp-isLinearCombination :

@@ -3,7 +3,6 @@
 module real.series where
 
 open import base
-open import real
 open import real.sequence
 open import finsum
 open import fin

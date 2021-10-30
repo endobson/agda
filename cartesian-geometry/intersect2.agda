@@ -8,21 +8,16 @@ open import apartness
 open import base
 open import cartesian-geometry
 open import cartesian-geometry.line
-open import cartesian-geometry.rotation
 open import cartesian-geometry.semi-direction
 open import cartesian-geometry.semi-direction.apartness
-open import cartesian-geometry.semi-rotation
 open import cartesian-geometry.vector
 open import cartesian-geometry.matrix
 open import equality
 open import equivalence
 open import functions
-open import funext
-open import heyting-field
 open import hlevel
 open import integral-domain
 open import integral-domain.instances.real
-open import isomorphism
 open import order
 open import order.instances.real
 open import ordered-ring
@@ -30,20 +25,16 @@ open import ordered-semiring
 open import ordered-semiring.instances.real
 open import real
 open import real.arithmetic.sqrt
-open import real.arithmetic.absolute-value
 open import real.heyting-field
-open import relation
 open import ring
 open import ring.implementations.real
 open import semiring
 open import set-quotient
 open import sigma.base
 open import solver
-open import subset
 open import sum
 open import truncation
 open import vector-space
-open import vector-space.finite
 
 private
   module _ (p1 p2 : Point) (d1 d2 : Direction)

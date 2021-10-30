@@ -9,7 +9,6 @@ open import additive-group.instances.reader
 open import base
 open import commutative-monoid
 open import equality
-open import funext
 open import hlevel
 open import nat
 open import ring

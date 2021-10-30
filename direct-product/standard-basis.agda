@@ -17,17 +17,13 @@ open import finset.detachable
 open import finset.search
 open import funext
 open import functions
-open import group
 open import heyting-field
 open import hlevel
-open import monoid
-open import nat.order
 open import relation
 open import ring
 open import semiring
 open import sigma.base
 open import subset
-open import sum
 open import truncation
 open import type-algebra
 open import vector-space

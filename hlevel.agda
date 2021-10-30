@@ -13,7 +13,6 @@ open import univalence
 open import relation
 open import sigma.base
 open import sum
-open import univalence
 
 open import hlevel.base public
 open import hlevel.pi public

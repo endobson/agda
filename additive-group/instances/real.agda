@@ -3,9 +3,7 @@
 module additive-group.instances.real where
 
 open import additive-group
-open import base
 open import equality
-open import group
 open import real
 open import real.arithmetic
 

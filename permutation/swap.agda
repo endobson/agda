@@ -4,14 +4,12 @@ module permutation.swap where
 
 open import base
 open import equality
-open import equivalence
 open import fin
 open import functions
 open import funext
 open import nat
 open import permutation.swap-tree
 open import permutation.insert
-open import sigma
 
 data Swap : Nat -> Type₀ where
   swap      : {n : Nat} -> Swap (suc (suc n))

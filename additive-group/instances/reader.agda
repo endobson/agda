@@ -5,7 +5,6 @@ module additive-group.instances.reader where
 open import additive-group
 open import base
 open import funext
-open import group
 open import hlevel
 
 

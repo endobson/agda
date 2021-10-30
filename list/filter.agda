@@ -5,7 +5,6 @@ module list.filter where
 open import base
 open import relation
 open import equality
-open import functions
 open import list
 open import monoid
 open import nat

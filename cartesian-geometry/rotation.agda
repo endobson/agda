@@ -8,7 +8,7 @@ open import apartness
 open import base
 open import cartesian-geometry.vector
 open import cartesian-geometry.matrix
-open import cubical using (isEquiv ; I)
+open import cubical using (isEquiv)
 open import commutative-monoid
 open import direct-product
 open import equality
@@ -27,7 +27,6 @@ open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.real
 open import real
-open import real.arithmetic.absolute-value
 open import real.arithmetic.sqrt
 open import real.arithmetic.sqrt.base
 open import real.heyting-field
@@ -35,14 +34,10 @@ open import relation
 open import ring
 open import ring.implementations.real
 open import semiring
-open import sigma
 open import solver
-open import subset
 open import sum
 open import truncation
-open import univalence
 open import vector-space
-open import vector-space.finite
 
 
 private

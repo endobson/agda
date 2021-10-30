@@ -8,7 +8,6 @@ open import commutative-monoid
 open import equality
 open import hlevel
 open import monoid
-open import sign
 
 private
   variable

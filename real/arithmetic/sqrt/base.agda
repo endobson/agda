@@ -5,18 +5,15 @@ module real.arithmetic.sqrt.base where
 open import additive-group
 open import base
 open import equality
-open import hlevel.sigma
 open import hlevel
 open import order
 open import order.instances.real
-open import ordered-semiring
 open import ordered-ring
 open import rational
 open import rational.order
 open import rational.squares
 open import real
 open import relation hiding (U)
-open import ring
 open import semiring
 open import sign
 open import truncation
@@ -128,9 +125,6 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ)
           handle : Σ[ r ∈ ℚ ] (qq < r × x.L r) -> ∃[ r ∈ ℚ ] (q < r × L r)
           handle (r , (qq<r , xl-r)) = ∥-map handle2 (squares-dense-lower-square 0≤q qq<r)
             where
-            0≤qq : 0r ≤ qq
-            0≤qq = *-preserves-0≤ 0≤q 0≤q
-
             handle2 : _ -> Σ[ r ∈ ℚ ] (q < r × L r)
             handle2 (s , (t , 0≤t , tt=s) , qq<s , s<r) =
               t , (squares-ordered 0≤q 0≤t (subst2 _<_ refl (sym tt=s) qq<s)) ,

@@ -4,7 +4,6 @@ module fin where
 
 open import base
 open import equality
-open import equivalence
 open import univalence
 open import functions
 open import hlevel
@@ -13,7 +12,6 @@ open import nat
 open import relation
 open import sigma.base
 open import sum
-open import univalence
 
 -- Fin type is based on ≤ instead of straight inductive structure
 -- This is so that things compute better when using transport.

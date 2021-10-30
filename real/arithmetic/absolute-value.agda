@@ -40,13 +40,11 @@ open import real
 open import real.interval
 open import real.arithmetic.multiplication
 open import real.arithmetic
-open import real.arithmetic.order
 open import real.sequence
 open import relation hiding (U)
 open import ring
 open import ring.implementations.rational
 open import ring.implementations.real
-open import semiring
 open import sign
 open import sign.instances.rational
 open import truncation

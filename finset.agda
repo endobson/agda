@@ -16,7 +16,6 @@ open import nat
 open import relation
 open import sigma.base
 open import truncation
-open import univalence
 
 private
   variable

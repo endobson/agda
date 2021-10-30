@@ -1085,10 +1085,6 @@ abstract
   int->sign-preserves-* {m} {n} =
     isSign-unique (isSign-self (m * n))
       (*-isSign {int->sign m} {int->sign n} (isSign-self m) (isSign-self n))
-    where
-    handle : (s1 s2 : Sign) -> (isSign s1 m) -> (isSign s2 n) -> isSign (s1 s* s2) (m * n)
-    handle s1 s2 = *-isSign {s1} {s2} {m} {n}
-
 
   _^_ : Int -> Nat -> Int
   a ^ zero = (int 1)

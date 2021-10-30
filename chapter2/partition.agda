@@ -22,7 +22,7 @@ open import gcd.euclidean-algorithm
 open import gcd.propositional
 open import hlevel
 open import isomorphism
-open import int using (Int ; int)
+open import int using (int)
 open import linear-combo
 open import nat
 open import nat.bounded
@@ -33,7 +33,6 @@ open import ring.implementations
 open import sigma
 open import sigma.base
 open import truncation
-open import type-algebra
 open import univalence
 
 

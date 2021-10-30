@@ -8,7 +8,6 @@ open import equality-path
 open import equivalence
 open import functions
 open import haequiv
-open import hlevel.base
 open import isomorphism
 open import relation
 open import sigma.base

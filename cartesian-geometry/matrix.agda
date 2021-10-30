@@ -8,14 +8,11 @@ open import apartness
 open import base
 open import cartesian-geometry.vector
 open import cubical using (isEquiv)
-open import direct-product
 open import equality
 open import equivalence
-open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
 open import finsum
 open import finsum.arithmetic
-open import functions
 open import funext
 open import heyting-field
 open import hlevel
@@ -23,7 +20,6 @@ open import integral-domain
 open import integral-domain.instances.real
 open import real
 open import real.heyting-field
-open import relation
 open import ring
 open import ring.implementations.real
 open import semiring

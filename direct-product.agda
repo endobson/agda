@@ -8,20 +8,15 @@ open import base
 open import commutative-monoid
 open import equality hiding (J)
 open import fin
-open import finset
-open import finset.search
 open import funext
 open import functions
 open import group
 open import heyting-field
 open import hlevel
 open import monoid
-open import nat.order
 open import relation
 open import ring
 open import semiring
-open import sigma
-open import subset
 open import sum
 open import truncation
 open import vector-space

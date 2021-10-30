@@ -3,10 +3,6 @@
 module metric-space where
 
 open import base
-open import order
-open import real
-open import real.arithmetic
-open import order.instances.real
 
 private
   variable

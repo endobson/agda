@@ -5,15 +5,12 @@ module fin-algebra where
 open import base
 open import cubical
 open import equality
-open import equivalence
-open import univalence
 open import fin
-open import type-algebra
+open import functions
 open import isomorphism
 open import maybe
 open import nat
-open import functions
-open import sigma
+open import type-algebra
 open import univalence
 open import vec
 

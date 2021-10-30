@@ -3,7 +3,6 @@
 module apartness where
 
 open import base
-open import equality
 open import functions
 open import hlevel
 open import relation

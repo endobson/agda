@@ -3,14 +3,10 @@
 module rational.proper-interval.multiplication-inverse where
 
 open import base
-open import equality
-open import order
 open import order.instances.rational
 open import rational
-open import rational.minmax
 open import rational.order
 open import rational.proper-interval
-open import sign
 open import sign.instances.rational
 
 i1/-Pos : (a : Iℚ) -> PosI a -> Iℚ

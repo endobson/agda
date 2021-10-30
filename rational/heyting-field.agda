@@ -7,7 +7,6 @@ open import apartness
 open import base
 open import cubical
 open import equality
-open import equivalence
 open import functions
 open import isomorphism
 open import heyting-field
@@ -18,7 +17,6 @@ open import rational
 open import rational.difference
 open import rational.order
 open import relation
-open import ring
 open import semiring
 open import sign
 open import sign.instances.rational

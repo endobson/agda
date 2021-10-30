@@ -22,7 +22,6 @@ open import real
 open import real.interval
 open import real.sequence
 open import relation hiding (U)
-open import ring
 open import ring.implementations.rational
 open import semiring
 open import sign

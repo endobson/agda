@@ -5,7 +5,6 @@ module commutative-monoid.binary-product where
 open import base
 open import equality
 open import hlevel.sigma
-open import monoid
 open import monoid.binary-product
 open import commutative-monoid
 

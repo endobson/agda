@@ -8,9 +8,9 @@ open import equality
 open import hlevel
 open import isomorphism
 open import order
-open import ordered-semiring
-open import ordered-ring
 open import order.instances.rational
+open import ordered-ring
+open import ordered-semiring
 open import rational
 open import rational.difference
 open import rational.order
@@ -19,7 +19,6 @@ open import real
 open import real.interval
 open import real.sequence
 open import relation hiding (U)
-open import ring
 open import ring.implementations.rational
 open import sign
 open import sign.instances.rational

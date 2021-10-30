@@ -2,7 +2,6 @@
 
 module rational.order where
 
-open import abs
 open import additive-group
 open import base
 open import equality
@@ -22,7 +21,6 @@ open import ring
 open import ring.implementations.rational
 open import ring.implementations
 open import semiring
-open import set-quotient
 open import sigma.base
 open import sign
 open import sign.instances.fraction

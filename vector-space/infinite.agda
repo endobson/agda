@@ -5,23 +5,11 @@ module vector-space.infinite where
 open import additive-group
 open import apartness
 open import base
-open import cubical using (_≃_)
-open import commutative-monoid
-open import equality hiding (J)
-open import equivalence
 open import fin
 open import finset
-open import finset.partition
-open import finset.detachable
 open import finsum
-open import finite-commutative-monoid
-open import finite-commutative-monoid.instances
-open import finite-commutative-monoid.partition
-open import functions
-open import group
 open import heyting-field
 open import hlevel
-open import monoid
 open import ring
 open import relation
 open import semiring
@@ -42,8 +30,6 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
   private
     module VS = VectorSpaceStr VS
     module M = ModuleStr VS.module-str
-    module R = Ring R
-    module F = Field F
 
     instance
       IM = VS.module-str
@@ -58,10 +44,6 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
   private
     variable
       I : Type ℓ
-
-  private
-    CommMonoid-V+ : CommMonoid V
-    CommMonoid-V+ = GroupStr.comm-monoid M.GroupStr-V
 
 
   private

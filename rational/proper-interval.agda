@@ -20,7 +20,6 @@ open import ring.implementations.rational
 open import semiring
 open import sign
 open import sign.instances.rational
-open import truncation
 
 private
   variable

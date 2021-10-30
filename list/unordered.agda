@@ -9,7 +9,6 @@ open import relation
 open import list
 open import list.discrete
 open import nat
-open import ring
 open import semiring
 
 import ring.lists

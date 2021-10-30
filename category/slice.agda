@@ -4,7 +4,6 @@ module category.slice where
 
 open import base
 open import category.base
-open import cubical
 open import equality-path
 open import sigma.base
 open import hlevel

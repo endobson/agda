@@ -3,9 +3,7 @@
 module ring.implementations.real where
 
 open import additive-group.instances.real
-open import base
 open import real
-open import real.arithmetic
 open import real.arithmetic.multiplication
 open import real.arithmetic.multiplication.associative
 open import real.arithmetic.multiplication.distributive

@@ -15,7 +15,6 @@ open import real.arithmetic.multiplication
 open import real.interval
 open import real.sequence
 open import ring.implementations.rational
-open import semiring
 open import truncation
 open import order
 open import order.instances.rational

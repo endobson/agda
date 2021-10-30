@@ -11,7 +11,6 @@ open import cartesian-geometry.line
 open import cartesian-geometry.rotation
 open import cartesian-geometry.semi-direction
 open import cartesian-geometry.vector
-open import cubical
 open import equality
 open import equivalence
 open import functions

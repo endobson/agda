@@ -7,8 +7,6 @@ open import apartness
 open import base
 open import equality
 open import equivalence
-open import functions
-open import hlevel
 open import heyting-field
 open import order
 open import ordered-semiring
@@ -16,7 +14,6 @@ open import ordered-ring
 open import ring
 open import semiring
 open import sum
-open import truncation
 
 private
   variable

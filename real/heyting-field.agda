@@ -16,7 +16,6 @@ open import heyting-field
 open import rational
 open import rational.order
 open import real
-open import real.sequence
 open import real.arithmetic.order
 open import real.arithmetic.absolute-value
 open import real.arithmetic.multiplication.inverse
@@ -25,7 +24,6 @@ open import ring
 open import ring.implementations.real
 open import semiring
 open import sum
-open import sign
 open import truncation
 open import univalence
 open import order

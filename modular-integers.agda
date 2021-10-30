@@ -4,9 +4,7 @@ module modular-integers where
 
 open import base
 open import equality
-open import equivalence
 open import cubical
-open import functions
 open import isomorphism
 open import div
 open import hlevel
@@ -15,7 +13,6 @@ open import fin
 open import relatively-prime
 open import sigma.base
 open import linear-combo
-open import gcd.propositional
 open import gcd.euclidean-algorithm
 open import prime-gcd
 open import quotient-remainder-int

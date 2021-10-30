@@ -11,8 +11,6 @@ open import order.instances.rational
 open import rational
 open import rational.minmax
 open import rational.proper-interval
-open import rational.proper-interval.maxabs-multiplication
-open import rational.proper-interval.multiplication-strict-cross-zero
 open import real
 open import truncation
 open import univalence

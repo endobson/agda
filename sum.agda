@@ -5,7 +5,6 @@ module sum where
 open import base
 open import cubical
 open import equality-path
-open import equivalence
 open import functions
 open import hlevel.base
 open import isomorphism

@@ -4,7 +4,6 @@ module type-algebra where
 
 open import base
 open import cubical
-open import commutative-monoid
 open import equality
 open import equivalence
 open import functions

@@ -4,20 +4,15 @@ module rational.proper-interval.multiplication-distributive where
 
 open import base
 open import equality
-open import hlevel
-open import order
 open import ordered-semiring
 open import order.instances.rational
 open import rational
 open import rational.order
 open import rational.minmax
 open import rational.proper-interval
-open import relation hiding (_⊆_)
 open import ring.implementations.rational
 open import semiring
-open import sign
 open import sign.instances.rational
-open import truncation
 
 private
   minℚ-r+-swap : (a b c d : ℚ) -> (minℚ a b r+ minℚ c d) ℚ≤ minℚ (a r+ c) (b r+ d)

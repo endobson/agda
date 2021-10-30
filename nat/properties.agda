@@ -4,7 +4,6 @@ module nat.properties where
 
 open import base
 open import equality
-open import equivalence
 open import hlevel
 open import isomorphism
 open import relation

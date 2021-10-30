@@ -5,13 +5,11 @@ module modular-integers.binary-product where
 open import base
 open import cubical
 open import isomorphism
-open import equivalence
 open import modular-integers
 open import nat
 open import relatively-prime
 open import set-quotient
 open import int
-open import quotient-remainder-int
 open import abs
 open import sigma
 open import div

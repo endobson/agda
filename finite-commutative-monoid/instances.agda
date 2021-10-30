@@ -21,7 +21,6 @@ open import hlevel
 open import isomorphism
 open import maybe
 open import nat.order
-open import sigma
 open import subset
 open import sum
 open import truncation

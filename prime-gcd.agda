@@ -2,7 +2,6 @@
 
 module prime-gcd where
 
-open import abs
 open import base
 open import div
 open import equality

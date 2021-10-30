@@ -5,7 +5,6 @@ module equivalence where
 open import base
 open import cubical
 open import equality-path
-open import hlevel.base
 
 private
   variable

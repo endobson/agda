@@ -7,7 +7,6 @@ open import equality
 open import nat
 open import fin
 open import hlevel
-open import sigma
 
 record QuotientRemainder (d : Nat⁺) (n : Nat) : Type₀ where
   private
