@@ -48,9 +48,9 @@ private
     ε = 1/2r , Pos-1/ℕ (2 , tt)
     ε' = fst ε
     εℝ = ℚ->ℝ ε'
-    0<εℝ : 0ℝ < εℝ
+    0<εℝ : 0# < εℝ
     0<εℝ = ℚ->ℝ-preserves-< 0r ε' (Pos-0< ε' (snd ε))
-    εℝ<1 : εℝ < 1ℝ
+    εℝ<1 : εℝ < 1#
     εℝ<1 = ℚ->ℝ-preserves-< 1/2r 1r 1/2r<1r
 
     d = y + (- x)
@@ -71,7 +71,7 @@ private
         p1 : (x + d) == y
         p1 = +-right +-commute >=> sym +-assoc >=> +-left +-inverse >=> +-left-zero
 
-        p2 : (x + 0ℝ) == x
+        p2 : (x + 0#) == x
         p2 = +-right-zero
       Inv-d->x#y : ℝInv d -> x ℝ# y
       Inv-d->x#y (inj-l d<0) = inj-r (subst2 _ℝ<_ p1 p2 (+₁-preserves-< d<0))
@@ -88,28 +88,26 @@ private
       εai≮adai = *₂-preserves-≮ (asym-ℝ< {absℝ d} {εℝ} ad<ε) (absℝ-≮0 i)
 
       εε≮εai : (εℝ * εℝ) ≮ (εℝ * (absℝ i))
-      εε≮εai = *₁-preserves-≮ (asym-ℝ< {0ℝ} {εℝ} 0<εℝ) (asym-ℝ< {absℝ i} {εℝ} ai<ε)
+      εε≮εai = *₁-preserves-≮ (asym-ℝ< 0<εℝ) (asym-ℝ< ai<ε)
 
       εε≮adai : (εℝ * εℝ) ≮ ((absℝ d) * (absℝ i))
-      εε≮adai = trans-≮ {_} {_} {_} {εℝ * εℝ} {εℝ * (absℝ i)} {(absℝ d) * (absℝ i)} εε≮εai εai≮adai
+      εε≮adai = trans-≮ εε≮εai εai≮adai
 
-      0<1 : 0ℝ < 1ℝ
+      0<1 : 0# < 1#
       0<1 = (ℚ->ℝ-preserves-< 0r 1r 0<1r)
 
-      adai=1 : ((absℝ d) * (absℝ i)) == 1ℝ
+      adai=1 : ((absℝ d) * (absℝ i)) == 1#
       adai=1 = sym (absℝ-distrib-* d i) >=>
                cong absℝ path >=>
-               absℝ-NonNeg-idem 1ℝ (asym-ℝ< {0ℝ} {1ℝ} 0<1)
+               absℝ-NonNeg-idem 1ℝ (asym-ℝ< 0<1)
 
-      εε≮1 : (εℝ * εℝ) ≮ 1ℝ
+      εε≮1 : (εℝ * εℝ) ≮ 1#
       εε≮1 = subst ((εℝ * εℝ) ≮_) adai=1 εε≮adai
 
-      εε<11 : (εℝ * εℝ) < (1ℝ * 1ℝ)
-      εε<11 = trans-< {_} {_} {_} {εℝ * εℝ} {εℝ * 1ℝ} {1ℝ * 1ℝ}
-                      (*₁-preserves-< 0<εℝ εℝ<1)
-                      (*₂-preserves-< εℝ<1 0<1)
+      εε<11 : (εℝ * εℝ) < (1# * 1#)
+      εε<11 = trans-< (*₁-preserves-< 0<εℝ εℝ<1) (*₂-preserves-< εℝ<1 0<1)
 
-      εε<1 : (εℝ * εℝ) < 1ℝ
+      εε<1 : (εℝ * εℝ) < 1#
       εε<1 = subst ((εℝ * εℝ) <_) *-right-one εε<11
 
 
@@ -134,12 +132,12 @@ private
 
   irrefl-diff# : Irreflexive diff#
   irrefl-diff# {x} (is-unit i path) =
-    irrefl-ℝ< {1ℝ} (subst (_ℝ< 1ℝ) 0=1 (ℚ->ℝ-preserves-< 0r 1r 0<1r))
+    irrefl-ℝ< (subst (_ℝ< 1ℝ) 0=1 (ℚ->ℝ-preserves-< 0r 1r 0<1r))
     where
-    x+-x=0 : x + (- x) == 0ℝ
+    x+-x=0 : x + (- x) == 0#
     x+-x=0 = +-inverse
 
-    0=1 : 0ℝ == 1ℝ
+    0=1 : 0# == 1#
     0=1 =
       sym *-left-zero >=>
       *-left (sym (+-inverse)) >=>
@@ -218,6 +216,6 @@ module _ (x y : ℝ) where
       handle (inj-l x<0) = inj-r (sym minus-double-inverse >=> cong -_ -x=y)
         where
         module _ where
-          -x=y = (sym (absℝ-NonPos-minus x (weaken-< {_} {_} {_} {_} {_} {_} {x} {0ℝ} x<0)) >=> ax=y)
+          -x=y = (sym (absℝ-NonPos-minus x (weaken-< x<0)) >=> ax=y)
       handle (inj-r 0<x) =
-        inj-l (sym (absℝ-NonNeg-idem x (weaken-< {_} {_} {_} {_} {_} {_} {0ℝ} {x} 0<x)) >=> ax=y)
+        inj-l (sym (absℝ-NonNeg-idem x (weaken-< 0<x)) >=> ax=y)

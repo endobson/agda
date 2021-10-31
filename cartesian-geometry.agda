@@ -105,7 +105,7 @@ P+-swap p1 p2 p3 p4 i = record
   module p4 = Point p4
 
 0P : Point
-0P = record { x = 0ℝ ; y = 0ℝ }
+0P = record { x = 0# ; y = 0# }
 
 P-diff : Point -> Point -> Vector
 P-diff p1 p2 = direct-product-cons (\a -> (P-coord p2 a) ℝ+ (ℝ- (P-coord p1 a)))

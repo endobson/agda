@@ -214,7 +214,7 @@ private
     ans2 = cong (\f -> f y-axis) (sym (basis-decomposition-unique b scaled-sum-path))
 
     ans : absℝ (c y-axis) == 0#
-    ans = cong absℝ ans2 >=> absℝ-NonNeg-idem 0ℝ (refl-≤ {_} {_} {_} {0ℝ})
+    ans = cong absℝ ans2 >=> absℝ-NonNeg-idem 0# refl-≤
 
 
   isProp-semi-direction-distance0 : (d : Direction) (v : Vector) ->

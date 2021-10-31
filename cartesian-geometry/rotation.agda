@@ -43,7 +43,7 @@ open import vector-space
 private
   Coords = Axis -> ℝ
   UnitCoords : Pred Coords ℓ-one
-  UnitCoords c = axis-dot-product c c == 1ℝ
+  UnitCoords c = axis-dot-product c c == 1#
 
   raw-rotate : Coords -> Coords -> Coords
   raw-rotate r v = f
@@ -87,7 +87,7 @@ record Rotation : Type₁ where
   constructor rotation-cons
   field
     c : Coords
-    len=1 : axis-dot-product c c == 1ℝ
+    len=1 : axis-dot-product c c == 1#
 
   v : Vector
   v = vector-cons c
@@ -109,7 +109,7 @@ rotation-ext {r1@(rotation-cons _ l1)} {r2@(rotation-cons _ l2)} p = a.path
   where
   module a where
     abstract
-      path-l : PathP (\ i -> axis-dot-product (p i) (p i) == 1ℝ)
+      path-l : PathP (\ i -> axis-dot-product (p i) (p i) == 1#)
                      (Rotation.len=1 r1) (Rotation.len=1 r2)
       path-l = isProp->PathP (\i -> isSet-ℝ _ _) l1 l2
 
@@ -427,11 +427,11 @@ r--preserves-NonTrivial r nt =
 NonTrivial-half-rotation : NonTrivialRotation half-rotation
 NonTrivial-half-rotation = a.ans
   where
-  0<1 : 0ℝ < 1ℝ
+  0<1 : 0# < 1#
   0<1 = 0ℝ<1ℝ
-  -1<0 : (- 1ℝ) < 0ℝ
+  -1<0 : (- 1#) < 0#
   -1<0 = minus-flips-0< 0ℝ<1ℝ
-  -1<1 : (- 1ℝ) < 1ℝ
+  -1<1 : (- 1#) < 1#
   -1<1 = subst2 _<_ +-left-zero +-right-zero (+-preserves-< 0<1 -1<0)
 
   -1#1 : (- 1#) # 1#
@@ -698,7 +698,7 @@ rotate-vector-preserves-vector-length² (rotation-cons dv vl-d=1) v =
 rotate-preserves-vector-length :
   (r : Rotation) (v : Vector) -> vector-length (rotate-vector r v) == vector-length v
 rotate-preserves-vector-length r v =
-  cong2-dep sqrtℝ p (isProp->PathP (\i -> isProp-≤ 0ℝ (p i)) _ _)
+  cong2-dep sqrtℝ p (isProp->PathP (\i -> isProp-≤ 0# (p i)) _ _)
   where
   p = rotate-vector-preserves-vector-length² r v
 
