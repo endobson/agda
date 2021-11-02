@@ -4,6 +4,7 @@ module set-quotient where
 
 open import base
 open import equality-path
+open import functions
 open import funext
 open import hlevel
 open import sigma.base
@@ -171,3 +172,15 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
 
     a1a1=a1a2 : R a1 a1 == R a1 a2
     a1a1=a1a2 = cong fst (cong path p)
+
+module _ {ℓA ℓR : Level} {A : Type ℓA} {R : A -> A -> Type ℓR} where
+  Discrete-SetQuotient : (isPropValued R) -> (isEquivRel R) -> (Decidable2 R) -> Discrete (A / R)
+  Discrete-SetQuotient isProp-R isEquivRel-R decide-R =
+    SetQuotientElim.elimProp2 A R (\_ _ -> isPropDec (squash/ _ _)) f
+    where
+    f : (a1 a2 : A) -> Dec ([ a1 ] == [ a2 ])
+    f a1 a2 = handle (decide-R a1 a2)
+      where
+      handle : Dec (R a1 a2) -> Dec ([ a1 ] == [ a2 ])
+      handle (yes a1~a2) = yes (eq/ a1 a2 a1~a2)
+      handle (no ¬a1~a2) = no (¬a1~a2 ∘ SetQuotientElim.pathRec A R isProp-R isEquivRel-R a1 a2)

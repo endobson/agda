@@ -266,7 +266,7 @@ abstract
   r+'-preserves-NonNeg {q1} {q2} (inj-r z1) nn2 = (r~-preserves-NonNeg NonNeg-0q2 0q2~q1q2)
     where
     q2~0q2 : q2 r~ (0r' r+' q2)
-    q2~0q2 = subst (q2 r~_) (sym (r+'-left-zero q2)) (refl-r~ {q2})
+    q2~0q2 = subst (q2 r~_) (sym (r+'-left-zero q2)) (refl-r~ q2)
 
     NonNeg-0q2 : NonNeg (0r' r+' q2)
     NonNeg-0q2 = r~-preserves-NonNeg nn2 q2~0q2
@@ -277,7 +277,7 @@ abstract
   r+'-preserves-NonNeg {q1} {q2} (inj-l p1) (inj-r z2) = inj-l (r~-preserves-sign Pos-q10 q10~q1q2)
     where
     q1~q10 : q1 r~ (q1 r+' 0r')
-    q1~q10 = subst (q1 r~_) (sym (r+'-right-zero q1)) (refl-r~ {q1})
+    q1~q10 = subst (q1 r~_) (sym (r+'-right-zero q1)) (refl-r~ q1)
 
     Pos-q10 : Pos (q1 r+' 0r')
     Pos-q10 = r~-preserves-sign p1 q1~q10

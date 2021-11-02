@@ -22,10 +22,11 @@ open import sigma.base
 import int
 import solver
 
-open int using (int ; Int ; NonZero ; ℕ->ℤ ; ℤ ; nonneg ; neg)
+open int using (int ; Int ; NonZero ; ℕ->ℤ ; ℤ ; nonneg ; neg ; discreteInt)
 open solver using (_⊗_ ; _⊕_)
 
 record ℚ' : Type₀ where
+  constructor ℚ'-cons
   field
     numerator : Int
     denominator : Int
@@ -44,6 +45,19 @@ private
   denom = Rational'.denominator
   rNonZero : (r : Rational') -> NonZero (denom r)
   rNonZero = Rational'.NonZero-denominator
+
+Discrete-ℚ' : Discrete ℚ'
+Discrete-ℚ' q1@(ℚ'-cons n1 d1 nz1) q2@(ℚ'-cons n2 d2 nz2) =
+  handle (discreteInt n1 n2) (discreteInt d1 d2)
+  where
+  handle : Dec (n1 == n2) -> Dec (d1 == d2) -> Dec (q1 == q2)
+  handle (no n1!=n2) _ =
+    no (n1!=n2 ∘ (cong numer))
+  handle (yes n1=n2) (no d1!=d2) =
+    no (d1!=d2 ∘ (cong denom))
+  handle (yes n1=n2) (yes d1=d2) =
+    yes (\i -> (ℚ'-cons (n1=n2 i) (d1=d2 i)
+                        (isProp->PathP (\i -> int.isPropNonZero {d1=d2 i}) nz1 nz2 i)))
 
 
 private
@@ -136,11 +150,14 @@ trans-r~ a b c p1 p2 = int.*-right-injective (rNonZero b) p3
        sym int.*-assoc >=> int.*-left (int.*-commute >=> p2) >=>
        int.*-assoc >=> int.*-right int.*-commute >=> sym int.*-assoc
 
-refl-r~ : {a : Rational'} -> a r~ a
-refl-r~ = refl
+refl-r~ : (a : Rational') -> a r~ a
+refl-r~ a = refl
+
+sym-r~ : (a b : Rational') -> a r~ b -> b r~ a
+sym-r~ a b a~b = sym a~b
 
 path->r~ : {a b : Rational'} -> a == b -> a r~ b
-path->r~ {a} p = subst (a r~_) p (refl-r~ {a})
+path->r~ {a} p = subst (a r~_) p (refl-r~ a)
 
 path->r~' : {a b : Rational'} -> a == b -> a r~' b
 path->r~' p = r~->r~' (path->r~ p)
@@ -148,6 +165,19 @@ path->r~' p = r~->r~' (path->r~ p)
 
 trans-r~' : {a b c : Rational'} -> a r~' b -> b r~' c -> a r~' c
 trans-r~' {a} {b} {c} p1 p2 = r~->r~' (trans-r~ a b c (r~'->r~ p1) (r~'->r~ p2))
+
+isEquivRel-r~ : isEquivRel _r~_
+isEquivRel-r~ = record
+  { reflexive = \{a} -> refl-r~ a
+  ; symmetric = \{a} {b} -> sym-r~ a b
+  ; transitive = \{a} {b} {c} -> trans-r~ a b c
+  }
+
+isProp-r~ : isPropValued _r~_
+isProp-r~ _ _ = int.isSetInt _ _
+
+Decidable2-r~ : Decidable2 _r~_
+Decidable2-r~ q r = discreteInt _ _
 
 nd-paths->path : (a b : Rational') -> (numer a == numer b) -> (denom a == denom b) -> a == b
 nd-paths->path a b pn pd = (\i -> record
@@ -158,6 +188,17 @@ nd-paths->path a b pn pd = (\i -> record
   where
   pnz : PathP (\i -> NonZero (pd i)) (rNonZero a) (rNonZero b)
   pnz = isProp->PathP (\_ -> int.isPropNonZero) _ _
+
+isSet-ℚᵉ : isSet ℚᵉ
+isSet-ℚᵉ = squash/
+
+abstract
+  isSetRational : isSet Rational
+  isSetRational = isSet-ℚᵉ
+
+  Discrete-ℚ : Discrete ℚ
+  Discrete-ℚ = Discrete-SetQuotient isProp-r~ isEquivRel-r~ Decidable2-r~
+
 
 _r+'ᵉ_ : Rational' -> Rational' -> Rational'
 a r+'ᵉ b = record
@@ -262,13 +303,6 @@ abstract
 
   r+-eval : {a b : Rational'} -> (ℚ'->ℚ a) r+ (ℚ'->ℚ b) == (ℚ'->ℚ (a r+' b))
   r+-eval = refl
-
-isSet-ℚᵉ : isSet ℚᵉ
-isSet-ℚᵉ = squash/
-
-abstract
-  isSetRational : isSet Rational
-  isSetRational = isSet-ℚᵉ
 
 abstract
   r+-commute : (a b : Rational) -> (a r+ b) == (b r+ a)
