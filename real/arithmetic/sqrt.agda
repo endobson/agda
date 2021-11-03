@@ -110,8 +110,6 @@ abstract
         x0=0 : x * 0ℝ == 0ℝ
         x0=0 = *-right-zero
 
-  -- absℝ-NonNeg-idem : (x : ℝ) -> (x ≮ 0ℝ) -> absℝ x == x
-
 
 module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
   private
