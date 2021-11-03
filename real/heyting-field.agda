@@ -112,49 +112,12 @@ private
       εε<1 : (εℝ * εℝ) < 1#
       εε<1 = subst ((εℝ * εℝ) <_) *-right-one εε<11
 
-
-
-
   ℝ#->diff# : {x y : ℝ} -> x ℝ# y -> diff# x y
   ℝ#->diff# {x} {y} x#y = is-unit (ℝ1/ d inv) (*-commute >=> ℝ1/-inverse d inv)
     where
     d = (y + (- x))
     inv : ℝInv d
     inv = ℝ#->ℝInv x y x#y
-
-  sym-diff# : Symmetric diff#
-  sym-diff# {x} {y} (is-unit i path) =
-    is-unit (- i)
-      (minus-extract-right >=>
-       sym minus-extract-left >=>
-       *-left (minus-distrib-plus >=>
-               +-commute >=>
-               +-left minus-double-inverse) >=>
-       path)
-
-  irrefl-diff# : Irreflexive diff#
-  irrefl-diff# {x} (is-unit i path) =
-    irrefl-ℝ< (subst (_ℝ< 1ℝ) 0=1 (ℚ->ℝ-preserves-< 0r 1r 0<1))
-    where
-    x+-x=0 : x + (- x) == 0#
-    x+-x=0 = +-inverse
-
-    0=1 : 0# == 1#
-    0=1 =
-      sym *-left-zero >=>
-      *-left (sym (+-inverse)) >=>
-      path
-
-  comparison-diff# : Comparison diff#
-  comparison-diff# x y z d# =
-    ∥-map (⊎-map ℝ#->diff# ℝ#->diff#) (comparison-ℝ# x y z (diff#->ℝ# d#))
-
-  tight-diff# : Tight diff#
-  tight-diff# ¬d# = tight-ℝ# (¬d# ∘ ℝ#->diff#)
-
-
-  TightApartness-ℝUnit : TightApartness diff#
-  TightApartness-ℝUnit = tight-diff# , irrefl-diff# , sym-diff# , comparison-diff#
 
   abstract
     ℝ#≃diff# : (x y : ℝ) -> (x ℝ# y) ≃ (diff# x y)
@@ -164,38 +127,30 @@ private
 instance
   TightApartnessStr-ℝ : TightApartnessStr ℝ
   TightApartnessStr-ℝ = record
-    { _#_ = diff#
-    ; TightApartness-# = TightApartness-ℝUnit
-    ; isProp-# = \x y -> ℝRing.isProp-isUnit
+    { _#_ = _ℝ#_
+    ; TightApartness-# = TightApartness-ℝ#
+    ; isProp-# = isProp-ℝ#
     }
 
   ApartLinearOrderStr-ℝ : ApartLinearOrderStr TightApartnessStr-ℝ LinearOrderStr-ℝ
   ApartLinearOrderStr-ℝ = record
-    { <>-equiv-# = ℝ#≃diff#
+    { <>-equiv-# = \_ _ -> idEquiv _
     }
 
   ℝField : Field ℝRing TightApartnessStr-ℝ
   ℝField = record
-    { f#-path = refl
+    { f#-path = (sym (funExt2 (\x y -> (ua (ℝ#≃diff# x y)))))
     }
 
   abstract
     ApartAdditiveGroup-ℝ : ApartAdditiveGroup AdditiveGroup-ℝ TightApartnessStr-ℝ
     ApartAdditiveGroup-ℝ = record
-      { +-reflects-# = +-reflects-#'
+      { +-reflects-# = +-reflects-ℝ#
       }
       where
       +-reflects-ℝ# : {a b c d : ℝ} -> (a + b) ℝ# (c + d) -> ∥ (a ℝ# c) ⊎ (b ℝ# d) ∥
       +-reflects-ℝ# (inj-l ab<cd) = ∥-map (⊎-map inj-l inj-l) (+-reflects-< ab<cd)
       +-reflects-ℝ# (inj-r ab>cd) = ∥-map (⊎-map inj-r inj-r) (+-reflects-< ab>cd)
-
-
-      +-reflects-#' : {a b c d : ℝ} -> (a + b) # (c + d) -> ∥ (a # c) ⊎ (b # d) ∥
-      +-reflects-#' {a} {b} {c} {d} =
-         subst (\ap -> (ap (a + b) (c + d)) -> ∥ (ap a c) ⊎ (ap b d) ∥)
-               (funExt (\a -> (funExt (\b -> (ua (<>-equiv-# a b))))))
-               +-reflects-ℝ#
-
 
 -- Here because we need the apartness
 module _ (x y : ℝ) where
