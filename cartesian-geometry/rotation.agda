@@ -428,11 +428,8 @@ r--preserves-NonTrivial r nt =
 NonTrivial-half-rotation : NonTrivialRotation half-rotation
 NonTrivial-half-rotation = a.ans
   where
-  -1<1 : (- 1#) < 1#
-  -1<1 = trans-< (minus-flips-0< 0<1) 0<1
-
   -1#1 : (- 1#) # 1#
-  -1#1 = eqFun (<>-equiv-# (- 1#) 1#) (inj-l -1<1)
+  -1#1 = inj-l (trans-< (minus-flips-0< 0<1) 0<1)
   module a where
 
     abstract
@@ -834,14 +831,14 @@ abstract
 
   private
     sum-of-squares-#0 : (x y : ℝ) -> x # 0# -> (x * x + y * y) # 0#
-    sum-of-squares-#0 x y x#0 = eqFun (<>-equiv-# _ _) (inj-r (trans-<-≤ 0<xx xx≤xxyy))
+    sum-of-squares-#0 x y x#0 = inj-r (trans-<-≤ 0<xx xx≤xxyy)
       where
       module _ where
         0≤yy : 0# ≤ (y * y)
         0≤yy = ≮0-square y
 
         0<xx : 0# < (x * x)
-        0<xx = handle2 (eqInv (<>-equiv-# _ _) x#0)
+        0<xx = handle2 x#0
           where
           handle2 : (x < 0#) ⊎ (0# < x) -> _
           handle2 (inj-l x<0) = *-flips-<0 x<0 x<0

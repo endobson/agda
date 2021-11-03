@@ -79,7 +79,7 @@ private
         left-#0 = unsquash isProp-# (∥-map handle v1#v2)
           where
           handle : Σ[ ax ∈ Axis ] (vector-index v1 ax # vector-index v2 ax) -> left-ans
-          handle (x-axis , a#b) = eqFun (<>-equiv-# _ _) (inj-r 0<left-val)
+          handle (x-axis , a#b) = (inj-r 0<left-val)
             where
             0≤cd : 0# ≤ ((diff c d) * (diff c d))
             0≤cd = ≮0-square (diff c d)
@@ -88,7 +88,7 @@ private
             ba#0 = subst2 _#_ refl +-inverse (+₂-preserves-# a#b)
 
             0<ba : 0# < ((diff b a) * (diff b a))
-            0<ba = handle2 (eqInv (<>-equiv-# _ _) ba#0)
+            0<ba = handle2 ba#0
               where
               handle2 : (diff b a < 0#) ⊎ (0# < diff b a) -> _
               handle2 (inj-l ba<0) = *-flips-<0 ba<0 ba<0
@@ -98,7 +98,7 @@ private
             ba≤left-val = subst2 _≤_ +-right-zero refl (+₁-preserves-≤ 0≤cd)
 
             0<left-val = trans-<-≤ 0<ba ba≤left-val
-          handle (y-axis , c#d) = eqFun (<>-equiv-# _ _) (inj-r 0<left-val)
+          handle (y-axis , c#d) = (inj-r 0<left-val)
             where
             0≤ba : 0# ≤ ((diff b a) * (diff b a))
             0≤ba = ≮0-square (diff b a)
@@ -107,7 +107,7 @@ private
             cd#0 = subst2 _#_ refl +-inverse (+₂-preserves-# (sym-# c#d))
 
             0<cd : 0# < ((diff c d) * (diff c d))
-            0<cd = handle2 (eqInv (<>-equiv-# _ _) cd#0)
+            0<cd = handle2 cd#0
               where
               handle2 : (diff c d < 0#) ⊎ (0# < diff c d) -> _
               handle2 (inj-l cd<0) = *-flips-<0 cd<0 cd<0
@@ -124,7 +124,7 @@ private
         right-#0 = unsquash isProp-# (∥-map handle v1#-v2)
           where
           handle : Σ[ ax ∈ Axis ] (vector-index v1 ax # vector-index (v- v2) ax) -> right-ans
-          handle (x-axis , a#-b) = eqFun (<>-equiv-# _ _) (inj-r 0<right-val)
+          handle (x-axis , a#-b) = inj-r 0<right-val
             where
             0≤dc : 0# ≤ ((d + c) * (d + c))
             0≤dc = ≮0-square (d + c)
@@ -133,7 +133,7 @@ private
             ab#0 = subst2 _#_ +-commute +-inverse (+₁-preserves-# a#-b)
 
             0<ab : 0# < ((a + b) * (a + b))
-            0<ab = handle2 (eqInv (<>-equiv-# _ _) ab#0)
+            0<ab = handle2 ab#0
               where
               handle2 : ((a + b) < 0#) ⊎ (0# < (a + b)) -> _
               handle2 (inj-l ab<0) = *-flips-<0 ab<0 ab<0
@@ -143,7 +143,7 @@ private
             ab≤right-val = subst2 _≤_ +-right-zero refl (+₁-preserves-≤ 0≤dc)
 
             0<right-val = trans-<-≤ 0<ab ab≤right-val
-          handle (y-axis , c#-d) = eqFun (<>-equiv-# _ _) (inj-r 0<right-val)
+          handle (y-axis , c#-d) = inj-r 0<right-val
             where
             0≤ab : 0# ≤ ((a + b) * (a + b))
             0≤ab = ≮0-square (a + b)
@@ -152,7 +152,7 @@ private
             dc#0 = subst2 _#_ refl +-inverse (+₁-preserves-# c#-d)
 
             0<dc : 0# < ((d + c) * (d + c))
-            0<dc = handle2 (eqInv (<>-equiv-# _ _) dc#0)
+            0<dc = handle2 dc#0
               where
               handle2 : ((d + c) < 0#) ⊎ (0# < (d + c)) -> _
               handle2 (inj-l dc<0) = *-flips-<0 dc<0 dc<0

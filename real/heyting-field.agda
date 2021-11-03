@@ -134,7 +134,7 @@ instance
 
   ApartLinearOrderStr-ℝ : ApartLinearOrderStr TightApartnessStr-ℝ LinearOrderStr-ℝ
   ApartLinearOrderStr-ℝ = record
-    { <>-equiv-# = \_ _ -> idEquiv _
+    { <>-equiv-# = idEquiv _
     }
 
   ℝField : Field ℝRing TightApartnessStr-ℝ
@@ -167,7 +167,7 @@ module _ (x y : ℝ) where
     absℝ-cases y#0 ax=y = handle x#0
       where
       x#0 : x ℝ# 0#
-      x#0 = absℝ-reflects-#0 (eqInv (<>-equiv-# (absℝ x) 0#) (subst (_# 0#) (sym ax=y) y#0))
+      x#0 = absℝ-reflects-#0 (subst (_# 0#) (sym ax=y) y#0)
 
       handle : x ℝ# 0# -> (x == y) ⊎ (x == (- y))
       handle (inj-l x<0) = inj-r (sym minus-double-inverse >=> cong -_ -x=y)

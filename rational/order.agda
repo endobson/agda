@@ -313,8 +313,8 @@ instance
     { <>-equiv-# = f
     }
     where
-    f : (a b : ℚ) -> (a <> b) ≃ (a # b)
-    f a b = isoToEquiv (isProp->iso forward backward isProp-<> isProp-#)
+    f : {a b : ℚ} -> (a <> b) ≃ (a # b)
+    f {a} {b} = isoToEquiv (isProp->iso forward backward isProp-<> isProp-#)
       where
       forward : a <> b -> a # b
       forward (inj-l a<b) a=b = irrefl-path-< a=b a<b

@@ -83,7 +83,7 @@ private
           v-p1 = sym v*-minus-extract-left
 
           -kv#0 : ((- k) v* v) v# 0v
-          -kv#0 = v*-#0 (eqFun (<>-equiv-# -k 0#) (inj-r 0<-k)) v#0
+          -kv#0 = v*-#0 (inj-r 0<-k) v#0
 
           v-kv#0 : (v- (k v* v)) v# 0v
           v-kv#0 = subst (_v# 0v) (sym v-p1) -kv#0
@@ -99,7 +99,7 @@ private
           p = sym v--double-inverse >=> cong v-_ (sym p2 >=> p3 >=> p1)
 
         ans : vector->semi-direction (k v* v) kv#0 == vector->semi-direction v v#0
-        ans = handle (eqInv (<>-equiv-# k 0#) k#0)
+        ans = handle k#0
 
 vector->semi-direction-v* :
   (v1 : Vector) (v1#0 : v1 v# 0v) (v2 : Vector) (v2#0 : v2 # 0v) (k : ℝ) ->

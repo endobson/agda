@@ -43,13 +43,13 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {AG : AdditiveGroup ACM}
     2# = 1# + 1#
 
     0<1# : 0# < 1#
-    0<1# = proj-¬l (eqInv (<>-equiv-# 1# 0#) F.1#0) 1≮0
+    0<1# = proj-¬l (eqInv <>-equiv-# F.1#0) 1≮0
 
     0<2# : 0# < 2#
     0<2# = +-preserves-0< 0<1# 0<1#
 
     2#0 : 2# # 0#
-    2#0 = (eqFun (<>-equiv-# 2# 0#) (inj-r 0<2#))
+    2#0 = (eqFun <>-equiv-# (inj-r 0<2#))
 
     1/2u = R.u1/ (2# , F.#0->isUnit 2#0) -- (F.#0->isUnit 2#0)) -- (R.is-unit 2# )
     1/2# = fst 1/2u

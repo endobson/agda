@@ -225,11 +225,8 @@ isSet-Direction : isSet Direction
 isSet-Direction = isSetΣ isSet-Vector (\v -> isProp->isSet (isProp-isUnitVector v))
 
 0<-square : (x : ℝ) -> (x # 0#) -> 0# < (x * x)
-0<-square x x#0 = handle (eqInv (<>-equiv-# x 0#) x#0)
-  where
-  handle : (x < 0# ⊎ 0# < x) -> 0# < (x * x)
-  handle (inj-l x<0) = subst (_< (x * x)) *-right-zero (*₁-flips-< x<0 x<0)
-  handle (inj-r 0<x) = subst (_< (x * x)) *-right-zero (*₁-preserves-< 0<x 0<x)
+0<-square x (inj-l x<0) = subst (_< (x * x)) *-right-zero (*₁-flips-< x<0 x<0)
+0<-square x (inj-r 0<x) = subst (_< (x * x)) *-right-zero (*₁-preserves-< 0<x 0<x)
 
 vector-length>0 : (v : Vector) -> (v v# 0v) -> (vector-length v > 0#)
 vector-length>0 v v#0 = unsquash (isProp-< 0# (vector-length v)) (∥-map handle v#0)
@@ -271,7 +268,7 @@ vector-length>0-#0 v l>0 = unsquash (isProp-v# v 0v) (∥-map handle (+-reflects
   y = (direct-product-index v y-axis)
 
   vl#0 : vl # 0#
-  vl#0 = eqFun (<>-equiv-# (vector-length v) 0#) (inj-r l>0)
+  vl#0 = inj-r l>0
   vl²#0 : vl² # 0#
   vl²#0 = subst (_# 0#) (vector-length-squared-path v) (*-preserves-#0 vl#0 vl#0)
 

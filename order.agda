@@ -77,7 +77,7 @@ module _ {D : Type ℓD} (A : TightApartnessStr D) (O : LinearOrderStr D ℓ<) w
   record ApartLinearOrderStr : Type (ℓ-max ℓ< ℓD) where
     no-eta-equality
     field
-      <>-equiv-# : (a b : D) -> (a <> b) ≃ (a # b)
+      <>-equiv-# : {a b : D} -> (a <> b) ≃ (a # b)
 
 
 module _ {D : Type ℓD} {A : TightApartnessStr D} {O : LinearOrderStr D ℓ<}
@@ -209,7 +209,7 @@ module _ {D : Type ℓD}
       ICO = CO
 
   strengthen-≤-# : {d1 d2 : D} -> d1 ≤ d2 -> d1 # d2 -> d1 < d2
-  strengthen-≤-# {d1} {d2} d1≤d2 d1#d2 = handle (eqInv (<>-equiv-# d1 d2) d1#d2)
+  strengthen-≤-# {d1} {d2} d1≤d2 d1#d2 = handle (eqInv <>-equiv-# d1#d2)
     where
     handle : (d1 < d2 ⊎ d2 < d1) -> d1 < d2
     handle (inj-l d1<d2) = d1<d2

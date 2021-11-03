@@ -39,18 +39,18 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
 
   abstract
     0<1 : LT 0# 1#
-    0<1 = handle (eqInv (<>-equiv-# _ _) ID.1#0)
+    0<1 = handle (eqInv <>-equiv-# ID.1#0)
       where
       handle : (1# < 0#) ⊎ (0# < 1#) -> 0# < 1#
       handle (inj-l 1<0) = bot-elim (1≮0 1<0)
       handle (inj-r 0<1) = 0<1
 
     *₁-reflects-< : {a b c : D} -> (0# < a) -> (a * b) < (a * c) -> (b < c)
-    *₁-reflects-< {a} {b} {c} 0<a ab<ac = handle (eqInv (<>-equiv-# _ _) b#c)
+    *₁-reflects-< {a} {b} {c} 0<a ab<ac = handle (eqInv <>-equiv-# b#c)
       where
       module _ where
         ab#ac : (a * b) # (a * c)
-        ab#ac = eqFun (<>-equiv-# _ _) (inj-l ab<ac)
+        ab#ac = eqFun <>-equiv-# (inj-l ab<ac)
         b#c : b # c
         b#c = *₁-reflects-# ab#ac
         handle : (b < c) ⊎ (c < b) -> b < c
