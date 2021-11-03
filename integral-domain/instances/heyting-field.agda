@@ -45,8 +45,8 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {AG : Additiv
       b-aa#0a : ((b + (- a)) + a) # (0# + a)
       b-aa#0a = F.StronglyInjective-+₂ b-a#0
 
-    diff-#-equiv : {a b : D} -> (a # b) ≃ (diff a b # 0#)
-    diff-#-equiv = isoToEquiv (isProp->iso diff-#-forward diff-#-backward isProp-# isProp-#)
+    diff-#-equiv' : {a b : D} -> (a # b) ≃ (diff a b # 0#)
+    diff-#-equiv' = isoToEquiv (isProp->iso diff-#-forward diff-#-backward isProp-# isProp-#)
 
     *-#0-forward : {a b : D} -> ((a # 0#) × (b # 0#)) -> (a * b) # 0#
     *-#0-forward (a#0 , b#0) =
@@ -64,6 +64,6 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {AG : Additiv
     IntegralDomain-Field : IntegralDomain R A
     IntegralDomain-Field = record
       { 1#0 = F.1#0
-      ; diff-#-equiv = diff-#-equiv
+      ; diff-#-equiv = diff-#-equiv'
       ; *-#0-equiv = *-#0-equiv
       }

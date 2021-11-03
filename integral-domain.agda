@@ -44,7 +44,11 @@ module _ {ℓ : Level} {D : Type ℓ}
       IR = R
       IA = A
 
-    open IntegralDomain IntD
+    open IntegralDomain IntD hiding (diff-#-equiv)
+
+  abstract
+    diff-#-equiv : {a b : D} -> (a # b) ≃ (diff a b # 0#)
+    diff-#-equiv = IntegralDomain.diff-#-equiv IntD
 
   private
     *-#-equiv : {a b c : D} -> ((a # 0#) × (b # c)) ≃ ((a * b) # (a * c))
