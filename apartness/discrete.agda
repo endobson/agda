@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module apartness.decidable where
+module apartness.discrete where
 
 open import apartness
 open import base

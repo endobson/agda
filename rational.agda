@@ -2,6 +2,8 @@
 
 module rational where
 
+open import apartness
+open import apartness.discrete
 open import abs
 open import additive-group
 open import base
@@ -199,6 +201,9 @@ abstract
   Discrete-ℚ : Discrete ℚ
   Discrete-ℚ = Discrete-SetQuotient isProp-r~ isEquivRel-r~ Decidable2-r~
 
+instance
+  TightApartnessStr-ℚ : TightApartnessStr ℚ
+  TightApartnessStr-ℚ = TightApartnessStr-Discrete Discrete-ℚ
 
 _r+'ᵉ_ : Rational' -> Rational' -> Rational'
 a r+'ᵉ b = record

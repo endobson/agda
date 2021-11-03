@@ -142,8 +142,8 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
         b≮0 (subst2 _<_ (sym +-assoc >=> +-left (+-commute >=> +-inverse) >=> +-left-zero)
                         (+-commute >=> +-inverse) (+₁-preserves-< ab<a))
 
-    1≮0# : 1# ≮ 0#
-    1≮0# 1<0 = irrefl-< (trans-< -1<0 0<-1)
+    1≮0 : 1# ≮ 0#
+    1≮0 1<0 = irrefl-< (trans-< -1<0 0<-1)
       where
       module _ where
         0<-1 = minus-flips-<0 1<0

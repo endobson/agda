@@ -2,8 +2,10 @@
 
 module rational.order where
 
+open import apartness
 open import additive-group
 open import base
+open import cubical using (_≃_)
 open import equality
 open import fraction.sign
 open import fraction.order
@@ -306,6 +308,25 @@ instance
     { trichotomous-< = trichotomous-ℚ<
     }
 
+  ApartLinearOrderStr-ℚ : ApartLinearOrderStr TightApartnessStr-ℚ LinearOrderStr-ℚ
+  ApartLinearOrderStr-ℚ = record
+    { <>-equiv-# = f
+    }
+    where
+    f : (a b : ℚ) -> (a <> b) ≃ (a # b)
+    f a b = isoToEquiv (isProp->iso forward backward isProp-<> isProp-#)
+      where
+      forward : a <> b -> a # b
+      forward (inj-l a<b) a=b = irrefl-path-< a=b a<b
+      forward (inj-r b<a) a=b = irrefl-path-< (sym a=b) b<a
+      backward : a # b -> a <> b
+      backward ¬a=b =
+        case (trichotomous-ℚ< a b) of
+          (\{ (tri< a<b _ _) -> inj-l a<b
+            ; (tri= _ a=b _) -> bot-elim (¬a=b a=b)
+            ; (tri> _ _ b<a) -> inj-r b<a
+            })
+
 
 abstract
   weaken-ℚ< : {a b : ℚ} -> a ℚ< b -> a ℚ≤ b
@@ -436,9 +457,6 @@ abstract
 
   Pos-1r : Pos 1r
   Pos-1r = same-sign-ℚ' pos-sign 1r' (Pos-ℕ⁺->ℚ' (1 , tt))
-
-0<1r : 0r < 1r
-0<1r = Pos-1r
 
 abstract
 

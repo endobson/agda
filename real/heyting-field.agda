@@ -10,11 +10,13 @@ open import cubical
 open import equality
 open import equivalence
 open import isomorphism
+open import ordered-integral-domain
 open import functions
 open import funext
 open import heyting-field
 open import rational
 open import rational.order
+open import rational.integral-domain
 open import real
 open import real.arithmetic.order
 open import real.arithmetic.absolute-value
@@ -93,19 +95,19 @@ private
       εε≮adai : (εℝ * εℝ) ≮ ((absℝ d) * (absℝ i))
       εε≮adai = trans-≮ εε≮εai εai≮adai
 
-      0<1 : 0# < 1#
-      0<1 = (ℚ->ℝ-preserves-< 0r 1r 0<1r)
+      0<1ℝ : 0# < 1#
+      0<1ℝ = (ℚ->ℝ-preserves-< 0r 1r 0<1)
 
       adai=1 : ((absℝ d) * (absℝ i)) == 1#
       adai=1 = sym (absℝ-distrib-* d i) >=>
                cong absℝ path >=>
-               absℝ-NonNeg-idem 1ℝ (asym-ℝ< 0<1)
+               absℝ-NonNeg-idem 1ℝ (asym-ℝ< 0<1ℝ)
 
       εε≮1 : (εℝ * εℝ) ≮ 1#
       εε≮1 = subst ((εℝ * εℝ) ≮_) adai=1 εε≮adai
 
       εε<11 : (εℝ * εℝ) < (1# * 1#)
-      εε<11 = trans-< (*₁-preserves-< 0<εℝ εℝ<1) (*₂-preserves-< εℝ<1 0<1)
+      εε<11 = trans-< (*₁-preserves-< 0<εℝ εℝ<1) (*₂-preserves-< εℝ<1 0<1ℝ)
 
       εε<1 : (εℝ * εℝ) < 1#
       εε<1 = subst ((εℝ * εℝ) <_) *-right-one εε<11
@@ -132,7 +134,7 @@ private
 
   irrefl-diff# : Irreflexive diff#
   irrefl-diff# {x} (is-unit i path) =
-    irrefl-ℝ< (subst (_ℝ< 1ℝ) 0=1 (ℚ->ℝ-preserves-< 0r 1r 0<1r))
+    irrefl-ℝ< (subst (_ℝ< 1ℝ) 0=1 (ℚ->ℝ-preserves-< 0r 1r 0<1))
     where
     x+-x=0 : x + (- x) == 0#
     x+-x=0 = +-inverse

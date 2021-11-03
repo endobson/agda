@@ -43,7 +43,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {AG : AdditiveGroup ACM}
     2# = 1# + 1#
 
     0<1# : 0# < 1#
-    0<1# = proj-¬l (eqInv (<>-equiv-# 1# 0#) F.1#0) 1≮0#
+    0<1# = proj-¬l (eqInv (<>-equiv-# 1# 0#) F.1#0) 1≮0
 
     0<2# : 0# < 2#
     0<2# = +-preserves-0< 0<1# 0<1#

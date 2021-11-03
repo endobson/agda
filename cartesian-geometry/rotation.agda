@@ -23,6 +23,7 @@ open import isomorphism
 open import monoid
 open import order
 open import order.instances.real
+open import ordered-integral-domain
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.real
@@ -427,12 +428,8 @@ r--preserves-NonTrivial r nt =
 NonTrivial-half-rotation : NonTrivialRotation half-rotation
 NonTrivial-half-rotation = a.ans
   where
-  0<1 : 0# < 1#
-  0<1 = 0ℝ<1ℝ
-  -1<0 : (- 1#) < 0#
-  -1<0 = minus-flips-0< 0ℝ<1ℝ
   -1<1 : (- 1#) < 1#
-  -1<1 = subst2 _<_ +-left-zero +-right-zero (+-preserves-< 0<1 -1<0)
+  -1<1 = trans-< (minus-flips-0< 0<1) 0<1
 
   -1#1 : (- 1#) # 1#
   -1#1 = eqFun (<>-equiv-# (- 1#) 1#) (inj-l -1<1)

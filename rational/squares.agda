@@ -2,17 +2,19 @@
 
 module rational.squares where
 
-open import base
 open import additive-group
+open import base
 open import equality
 open import hlevel
 open import order
 open import order.instances.rational
+open import ordered-integral-domain
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import rational
 open import rational.difference
+open import rational.integral-domain
 open import rational.minmax
 open import rational.order
 open import relation hiding (U)
@@ -27,57 +29,6 @@ isSquareℚ : Pred ℚ ℓ-zero
 isSquareℚ q = Σ[ r ∈ ℚ ] ((0r ≤ r) × r * r == q)
 
 private
-  *₁-reflects-0< : {a b : ℚ} -> (0r < a) -> (0r < (a * b)) -> 0r < b
-  *₁-reflects-0< {a} {b} 0<a 0<ab =
-    unsquash (isProp-< _ _) (∥-map2 handle (comparison-< 0r b 1r 0<1r) (comparison-< 0r b bb 0<bb))
-    where
-    aa = a * a
-    ab = a * b
-    bb = b * b
-    0≤bb : 0r ≤ bb
-    0≤bb = 0≤-square
-
-    0!=bb : 0r != bb
-    0!=bb 0=bb = irrefl-< (subst (0r <_) path (*-preserves-0< 0<ab 0<ab))
-      where
-      path : ab * ab == 0r
-      path = *-assoc >=>
-             *-right (*-commute >=>
-                      *-assoc >=>
-                      *-right (sym 0=bb) >=>
-                      *-right-zero) >=>
-             *-right-zero
-
-    0<bb = strengthen-ℚ≤-≠ 0≤bb 0!=bb
-
-    handle : (0r < b) ⊎ (b < 1r) -> (0r < b) ⊎ (b < bb) -> 0r < b
-    handle (inj-l 0<b) _            = 0<b
-    handle (inj-r b<1) (inj-l 0<b)  = 0<b
-    handle (inj-r b<1) (inj-r b<bb) = bot-elim (asym-< aab<aabb aabb<aab)
-      where
-      0<aa : 0r < aa
-      0<aa = *-preserves-0< 0<a 0<a
-      aab<aabb : ((a * a) * b) < ((a * a) * (b * b))
-      aab<aabb = *₁-preserves-< 0<aa b<bb
-      0<aab : 0r < (aa * b)
-      0<aab = subst (0r <_) (sym *-assoc) (*-preserves-0< 0<a 0<ab)
-      aabb<aab : ((a * a) * (b * b)) < ((a * a) * b)
-      aabb<aab = subst2 _<_ *-assoc *-right-one (*₁-preserves-< 0<aab b<1)
-
-  *₂-reflects-0< : {a b : ℚ} -> (0r < b) -> (0r < (a * b)) -> 0r < a
-  *₂-reflects-0< 0<b 0<ab = *₁-reflects-0< 0<b (subst (0r <_) *-commute 0<ab)
-
-  *₁-reflects-< : {a b c : ℚ} -> (0r < a) -> ((a * b) < (a * c)) -> b < c
-  *₁-reflects-< {a} {b} {c} 0<a ab<ac =
-    Pos-diffℚ⁻ _ _ (*₁-reflects-0< 0<a 0<acb)
-    where
-    p : diffℚ (a * b) (a * c) == a * (diffℚ b c)
-    p = +-right (sym minus-extract-right) >=> sym *-distrib-+-left
-
-    0<acb : 0r < (a * (diffℚ b c))
-    0<acb = subst (0r <_) p (Pos-diffℚ _ _ ab<ac)
-
-
   *₁-reflects-<' : {a b c : ℚ} -> (0r ≤ a) -> ((a * b) < (a * c)) -> b < c
   *₁-reflects-<' {a} {b} {c} 0≤a ab<ac = *₁-reflects-< 0<a ab<ac
     where
@@ -211,7 +162,7 @@ private
         pos = (r+-preserves-Pos _ _ (*-preserves-0< 0<2r 0<ε) (*-preserves-0< 0<ε 0<ε))
 
       r = (1r + ε)
-      0<r = r+-preserves-Pos _ _ 0<1r 0<ε
+      0<r = r+-preserves-Pos _ _ 0<1 0<ε
 
 
       r²=s : (r * r) == s

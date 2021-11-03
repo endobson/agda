@@ -9,8 +9,10 @@ open import hlevel
 open import order
 open import order.instances.real
 open import ordered-ring
+open import ordered-integral-domain
 open import rational
 open import rational.order
+open import rational.integral-domain
 open import rational.squares
 open import real
 open import relation hiding (U)
@@ -44,7 +46,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ)
       disjoint q (inj-r (_ , lqq) , (_ , uqq)) = x.disjoint (q * q) (lqq , uqq)
 
       Inhabited-L : Inhabited L
-      Inhabited-L = ∣ (- 1r) , (inj-l (minus-flips-0< 0<1r)) ∣
+      Inhabited-L = ∣ (- 1r) , (inj-l (minus-flips-0< 0<1)) ∣
 
       Inhabited-U : Inhabited U
       Inhabited-U = ∥-map handle x.Inhabited-U
@@ -54,12 +56,12 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ)
           handle (q , xu-q) = handle2 (split-< q 1r)
             where
             handle2 : (q < 1r ⊎ 1r ≤ q) -> Σ ℚ U
-            handle2 (inj-l q<1) = 1r , (weaken-< 0<1r , x.isUpperSet-U q _ q<1*1 xu-q)
+            handle2 (inj-l q<1) = 1r , (0≤1 , x.isUpperSet-U q _ q<1*1 xu-q)
               where
               q<1*1 = subst (q <_) (sym *-right-one) q<1
             handle2 (inj-r 1≤q) = q , (0≤q , (isUpperSet≤ x q _ q<q*q xu-q))
               where
-              0≤q = trans-≤ (weaken-< 0<1r) 1≤q
+              0≤q = trans-≤ 0≤1 1≤q
               q<q*q = subst (_≤ (q * q)) *-right-one (*₁-preserves-≤ 0≤q 1≤q)
 
       isUpperSet-U : isUpperSet U

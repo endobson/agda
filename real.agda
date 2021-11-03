@@ -211,8 +211,6 @@ abstract
     handle : Σ[ q ∈ ℚ ] (q1 < q × q < q2) -> (ℚ->ℝ q1) ℝ<' (ℚ->ℝ q2)
     handle (q , l , u) = ℝ<'-cons q l u
 
-  0ℝ<1ℝ : 0ℝ ℝ< 1ℝ
-  0ℝ<1ℝ = ℚ->ℝ-preserves-< 0r 1r 0<1r
 
   isProp-ℝ< : (x y : ℝ) -> isProp (x ℝ< y)
   isProp-ℝ< x y = squash

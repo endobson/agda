@@ -206,9 +206,6 @@ isUnitVector'-equiv v =
     where
     p2 = p >=> sym *-left-one
 
-    0≤1 : 0# ≤ 1#
-    0≤1 = weaken-< 0ℝ<1ℝ
-
     path : vector-length v == 1#
     path = cong2-dep sqrtℝ p2 (isProp->PathP (\i -> isProp-≤ 0# (p2 i)) _ _) >=>
            sqrt-square 1# >=> absℝ-NonNeg-idem 1# 0≤1
@@ -283,7 +280,7 @@ vector-length>0-#0 v l>0 = unsquash (isProp-v# v 0v) (∥-map handle (+-reflects
   handle (inj-r yy#0) = ∣ y-axis , *₁-reflects-#0 yy#0 ∣
 
 direction-#0 : (d : Direction) -> ⟨ d ⟩ v# 0v
-direction-#0 (dv , dp) = vector-length>0-#0 dv (subst (0# <_) (sym dp) 0ℝ<1ℝ)
+direction-#0 (dv , dp) = vector-length>0-#0 dv (subst (0# <_) (sym dp) 0<1)
 
 
 
@@ -448,7 +445,7 @@ vector->direction v v#0 = normalize-vector v v#0 , a.path
   module a where
     abstract
       0≤k : 0# ≤ k
-      0≤k k<0 = asym-< 0ℝ<1ℝ
+      0≤k k<0 = asym-< 0<1
                        (subst2 _<_ (ℝ1/-inverse vl vl-inv) (*-right-zero {m = k})
                                    (*₁-flips-< k<0 0<vl))
       path : vector-length (k v* v) == 1#
@@ -533,7 +530,7 @@ DirectionOfVector'-vector->direction {v} v#0 =
   1/vl = (ℝ1/ vl vl-inv)
 
   0vl<1/vl*vl : (0# * vl) < (1/vl * vl)
-  0vl<1/vl*vl = subst2 _<_ (sym *-left-zero) (sym (ℝ1/-inverse vl vl-inv)) 0ℝ<1ℝ
+  0vl<1/vl*vl = subst2 _<_ (sym *-left-zero) (sym (ℝ1/-inverse vl vl-inv)) 0<1
   0<1/vl : 0# < 1/vl
   0<1/vl = *₂-reflects-< 0vl<1/vl*vl 0<vl
 
@@ -547,7 +544,7 @@ isContr-DirectionOfVector {v} v#0 = ans , isProp-DirectionOfVector ans
 
 DirectionOfVector'-direction : {d : Direction} -> DirectionOfVector' ⟨ d ⟩ d
 DirectionOfVector'-direction {d} =
-  (direction-of-vector-cons 1# (asym-< 0ℝ<1ℝ) v*-left-one)
+  (direction-of-vector-cons 1# 0≤1 v*-left-one)
 
 
 conjugate-preserves-vector-length² :
@@ -678,7 +675,7 @@ direction-span d@(v , vl=1) v2 = direction-span' d v2 , isProp-direction-span
     kv-p = p1 >=> sym p2
 
     v#0 : v v# 0v
-    v#0 = vector-length>0-#0 v (subst (0# <_) (sym vl=1) 0ℝ<1ℝ)
+    v#0 = vector-length>0-#0 v (subst (0# <_) (sym vl=1) 0<1)
 
     handle : Σ[ a ∈ Axis ] (direct-product-index v a) # 0# -> k1 == k2
     handle (axis , c#0) = *₂-reflects-= c#0 (cong (\v -> direct-product-index v axis) kv-p)

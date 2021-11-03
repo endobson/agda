@@ -37,6 +37,9 @@ record LinearOrderStr (D : Type ℓD) (ℓ< : Level) : Type (ℓ-max (ℓ-suc �
   asym-< : Asymmetric _<_
   asym-< x<y y<x = irrefl-< (trans-< x<y y<x)
 
+  irrefl-path-< : IrreflexivePath _<_
+  irrefl-path-< = Irreflexive->IrreflexivePath _<_ irrefl-<
+
 
 module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
   open LinearOrderStr S public
@@ -57,6 +60,12 @@ module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
 
   _<>_ : Rel D ℓ<
   a <> b = (a < b) ⊎ (b < a)
+
+  isProp-<> : {a b : D} -> isProp (a <> b)
+  isProp-<> (inj-l lt1) (inj-l lt2) = cong inj-l (isProp-< _ _ lt1 lt2)
+  isProp-<> (inj-l lt1) (inj-r gt2) = bot-elim (asym-< lt1 gt2)
+  isProp-<> (inj-r gt1) (inj-l lt2) = bot-elim (asym-< gt1 lt2)
+  isProp-<> (inj-r gt1) (inj-r gt2) = cong inj-r (isProp-< _ _ gt1 gt2)
 
 
 module _ {D : Type ℓD} (A : TightApartnessStr D) (O : LinearOrderStr D ℓ<) where
