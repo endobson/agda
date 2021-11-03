@@ -194,8 +194,8 @@ abstract
       q<-q : q < (- q)
       q<-q = trans-< {_} {_} {_} {q} (Neg-<0 q neg-q) (Pos-0< (- q) (r--flips-sign q neg-sign neg-q))
 
-  absℝ-≮0 : (x : ℝ) -> absℝ x ≮ 0ℝ
-  absℝ-≮0 x = unsquash isPropBot ∘ ∥-map handle
+  absℝ-≮0 : {x : ℝ} -> absℝ x ≮ 0ℝ
+  absℝ-≮0 {x} = unsquash isPropBot ∘ ∥-map handle
     where
     handle : (absℝ x) ℝ<' 0ℝ -> Bot
     handle (ℝ<'-cons q axu-q q<0) =
@@ -258,7 +258,7 @@ abstract
       i .leftInv _ = ax.isProp-U q _ _
 
   absℝ-absℝ-idem : (x : ℝ) -> absℝ (absℝ x) == (absℝ x)
-  absℝ-absℝ-idem x = absℝ-NonNeg-idem (absℝ x) (absℝ-≮0 x)
+  absℝ-absℝ-idem x = absℝ-NonNeg-idem (absℝ x) absℝ-≮0
 
 
   split-small-absℝ : (x : ℝ) -> (q : ℚ⁺) -> ∥ (absℝ x ℝ< (ℚ->ℝ ⟨ q ⟩)) ⊎ ℝInv x ∥
@@ -357,9 +357,9 @@ abstract
 
 
 abstract
-  absℝ-#0 : (x : ℝ) -> absℝ x ℝ# 0# -> x ℝ# 0#
-  absℝ-#0 x (inj-l ax<0) = bot-elim (absℝ-≮0 x ax<0)
-  absℝ-#0 x (inj-r 0<ax) = unsquash (isProp-ℝ# x 0#) (∥-bind handle 0<ax)
+  absℝ-reflects-#0 : {x : ℝ} -> absℝ x ℝ# 0# -> x ℝ# 0#
+  absℝ-reflects-#0     (inj-l ax<0) = bot-elim (absℝ-≮0 ax<0)
+  absℝ-reflects-#0 {x} (inj-r 0<ax) = unsquash (isProp-ℝ# x 0#) (∥-bind handle 0<ax)
     where
     ax : ℝ
     ax = absℝ x
@@ -372,6 +372,15 @@ abstract
         where
         handle3 : (absℝ x ℝ<' (ℚ->ℝ q)) -> Bot
         handle3 (ℝ<'-cons r axU-r r<q) = asym-< (ℝ-bounds->ℚ< ax q r axL-q axU-r) (L->ℚ< r<q)
+
+  0<absℝ : {x : ℝ} -> x ℝ# 0# -> 0# < absℝ x
+  0<absℝ {x} (inj-l x<0) =
+    subst (0# <_) (sym (absℝ-NonPos-minus x (asym-< x<0))) (minus-flips-<0 x<0)
+  0<absℝ {x} (inj-r 0<x) =
+    subst (0# <_) (sym (absℝ-NonNeg-idem x (asym-< 0<x))) 0<x
+
+  absℝ-preserves-#0 : {x : ℝ} -> x ℝ# 0# -> absℝ x ℝ# 0#
+  absℝ-preserves-#0 x#0 = inj-r (0<absℝ x#0)
 
 
 abstract

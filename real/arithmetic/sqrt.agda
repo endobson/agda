@@ -547,7 +547,7 @@ module _ (x : ℝ)
             handle3 (inj-r axU-u) = ax∈ai
               where
               axL-l : ax.L l
-              axL-l = ℝ≮0-L∀<0 ax (absℝ-≮0 x) l<0
+              axL-l = ℝ≮0-L∀<0 ax absℝ-≮0 l<0
               ax∈ai : ℝ∈Iℚ ax ai
               ax∈ai = axL-l , axU-u
             handle3 (inj-l axL--l) = ℝ∈Iℚ-⊆ ax bi⊆ai ax∈bi

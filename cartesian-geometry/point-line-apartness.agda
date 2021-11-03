@@ -237,7 +237,7 @@ private
       (d : Direction) (v : Vector) -> semi-direction-distance d v # 0# ->
       basis-decomposition (isBasis-direction-basis d) v y-axis # 0#
     semi-direction-distance#0->y#0 d v dis#0 =
-      eqFun (<>-equiv-# _ _) (absℝ-#0 _ (eqInv (<>-equiv-# _ _) dis#0))
+      eqFun (<>-equiv-# _ _) (absℝ-reflects-#0 (eqInv (<>-equiv-# _ _) dis#0))
 
 
     semi-direction-distance#0->v#0 :
@@ -307,7 +307,7 @@ private
   0≤semi-direction-distance' sd v =
     SemiDirectionElim.elimProp
       (\sd -> isProp-≤ _ (semi-direction-distance' sd v))
-      (\d -> (absℝ-≮0 _)) sd
+      (\d -> absℝ-≮0) sd
 
 
   semi-direction-distance'-v- : {v1 v2 : Vector} (sd : SemiDirection) -> v1 == (v- v2) ->

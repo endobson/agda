@@ -310,7 +310,7 @@ vector-length-* k v = p6
   0≤l2kv = vector-length²≮0 (k v* v)
   0≤l2v = vector-length²≮0 v
   0≤lv = vector-length≮0 v
-  0≤aklv = *-preserves-0≤ (absℝ-≮0 k) 0≤lv
+  0≤aklv = *-preserves-0≤ absℝ-≮0 0≤lv
 
   p2 : l2v == lv * lv
   p2 = sym (sqrt² l2v 0≤l2v)

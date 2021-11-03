@@ -87,7 +87,7 @@ private
     handle (inj-l ad<ε) (inj-l ai<ε) = bot-elim (εε≮1 εε<1)
       where
       εai≮adai : (εℝ * (absℝ i)) ≮ ((absℝ d) * (absℝ i))
-      εai≮adai = *₂-preserves-≮ (asym-ℝ< {absℝ d} {εℝ} ad<ε) (absℝ-≮0 i)
+      εai≮adai = *₂-preserves-≮ (asym-ℝ< {absℝ d} {εℝ} ad<ε) absℝ-≮0
 
       εε≮εai : (εℝ * εℝ) ≮ (εℝ * (absℝ i))
       εε≮εai = *₁-preserves-≮ (asym-ℝ< 0<εℝ) (asym-ℝ< ai<ε)
@@ -212,7 +212,7 @@ module _ (x y : ℝ) where
     absℝ-cases y#0 ax=y = handle x#0
       where
       x#0 : x ℝ# 0#
-      x#0 = absℝ-#0 x (eqInv (<>-equiv-# (absℝ x) 0#) (subst (_# 0#) (sym ax=y) y#0))
+      x#0 = absℝ-reflects-#0 (eqInv (<>-equiv-# (absℝ x) 0#) (subst (_# 0#) (sym ax=y) y#0))
 
       handle : x ℝ# 0# -> (x == y) ⊎ (x == (- y))
       handle (inj-l x<0) = inj-r (sym minus-double-inverse >=> cong -_ -x=y)
