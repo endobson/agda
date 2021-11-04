@@ -133,3 +133,7 @@ isProp-isIso {C = C} {x} {y} {mor} i1 i2 = (\i -> record
   sec-line i = ip i ⋆⟨ C ⟩ mor == C.id
   ans-sec : PathP sec-line i1.sec i2.sec
   ans-sec = isProp->PathP (\i -> (isSet-Mor _ _)) _ _
+
+record isThin (C : PreCategory ℓObj ℓMor) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
+  field
+    isProp-Mor : {x y : C .Obj} -> isProp (C [ x , y ])

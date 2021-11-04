@@ -39,6 +39,9 @@ zero-fin = 0 , zero-<
 suc-fin : {n : Nat} -> Fin n -> Fin (suc n)
 suc-fin (i , p) = suc i , suc-≤ p
 
+inc-fin : {n : Nat} -> Fin n -> Fin (suc n)
+inc-fin (i , p) = i , right-suc-≤ p
+
 zero-fin!=suc-fin : {n : Nat} {x : Fin n} -> zero-fin != (suc-fin x)
 zero-fin!=suc-fin p = zero-suc-absurd (cong Fin.i p)
 
