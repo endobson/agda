@@ -27,7 +27,7 @@ module _ (D : Type ℓObj) {{PO : PartialOrderStr D ℓMor}} where
   isThin-PartialOrderC .isThin.isProp-Mor = isProp-≤ _ _
 
   isCategory-PartialOrderC : isCategory PartialOrderC
-  isCategory-PartialOrderC .isCategory.isSet-Mor = isProp->isSet (isProp-≤ _ _ )
+  isCategory-PartialOrderC .isCategory.isSet-Mor = isProp->isSet (isProp-≤ _ _)
 
   isUnivalent-PartialOrderC : isSet D -> isUnivalent PartialOrderC
   isUnivalent-PartialOrderC isSet-D .isUnivalent.isEquiv-pathToCatIso x y =
