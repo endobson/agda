@@ -50,6 +50,9 @@ syntax seq' C f g = f ⋆⟨ C ⟩ g
 infixr 16 comp'
 syntax comp' C g f = g ∘⟨ C ⟩ f
 
+idᵉ : (C : PreCategory ℓObj ℓMor) -> (x : Obj C) -> C [ x , x ]
+idᵉ C _ = id C
+
 record isCategory (C : PreCategory ℓObj ℓMor) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
   field
     isSet-Mor : {x y : C .Obj} -> isSet (C [ x , y ])
@@ -137,3 +140,18 @@ isProp-isIso {C = C} {x} {y} {mor} i1 i2 = (\i -> record
 record isThin (C : PreCategory ℓObj ℓMor) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
   field
     isProp-Mor : {x y : C .Obj} -> isProp (C [ x , y ])
+
+-- Functors
+
+record Functor {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
+               (C : PreCategory ℓObjC ℓMorC) (D : PreCategory ℓObjD ℓMorD) :
+               Type (ℓ-max* 4 ℓObjC ℓObjD ℓMorC ℓMorD) where
+  no-eta-equality
+  field
+    F-obj : Obj C -> Obj D
+    F-mor : {x y : Obj C} -> C [ x , y ] -> D [ F-obj x , F-obj y ]
+    F-id : (x : Obj C) -> (F-mor (idᵉ C x)) == (id D)
+    F-⋆ : {x y z : Obj C} -> (f : C [ x , y ]) -> (g : C [ y , z ]) ->
+          F-mor (f ⋆⟨ C ⟩ g) == (F-mor f ⋆⟨ D ⟩ F-mor g)
+
+open Functor
