@@ -37,6 +37,29 @@ module _ {f g : (a : A) -> B a} where
   funExtPath : ((x : A) -> f x == g x) == (f == g)
   funExtPath = ua funExtEquiv
 
+module _ {f g : {a : A} -> B a} where
+  private
+    fg-path = Path ({a : A} -> B a) f g
+  funExtⁱ : ({x : A} -> (f {x}) == (g {x})) -> fg-path
+  funExtⁱ p i {x} = p {x} i
+  funExtⁱ⁻ : fg-path -> ({x : A} -> f {x} == g {x})
+  funExtⁱ⁻ eq {a} i = eq i {a}
+
+  private
+    fib : (p : fg-path) -> fiber funExtⁱ p
+    fib p = ((\{x} i -> (p i) {x}) , refl)
+    funExt-fiber-isContr : (p : fg-path) -> (fi : fiber funExtⁱ p) -> fib p == fi
+    funExt-fiber-isContr p (h , eq) i = (funExtⁱ⁻ (eq (~ i)) , \j -> eq (~ i ∨ j))
+
+  isEquiv-funExtⁱ : isEquiv funExtⁱ
+  equiv-proof isEquiv-funExtⁱ p = (fib p , funExt-fiber-isContr p)
+
+  funExtⁱEquiv : ({x : A} -> f {x} == g {x}) ≃ fg-path
+  funExtⁱEquiv = (funExtⁱ , isEquiv-funExtⁱ)
+
+  funExtⁱPath : ({x : A} -> f {x} == g {x}) == Path ({a : A} -> B a) f g
+  funExtⁱPath = ua funExtⁱEquiv
+
 funExt2 : {f g : (a : A) -> (b : B a) -> C a b} -> ((a : A) -> (b : B a) -> f a b == g a b) -> f == g
 funExt2 p i a b = p a b i
 

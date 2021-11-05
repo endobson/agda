@@ -33,6 +33,10 @@ record PreCategory (ℓObj ℓMor : Level) : Type (ℓ-suc (ℓ-max ℓObj ℓMo
             (f ∘ g) ∘ h == f ∘ (g ∘ h)
   ∘-assoc f g h i = ⋆-assoc h g f (~ i)
 
+  ⋆-cong : {s t u : Obj} {m1 m2 : Mor s t} {m3 m4 : Mor t u} ->
+           m1 == m2 -> m3 == m4 -> m1 ⋆ m3 == m2 ⋆ m4
+  ⋆-cong p12 p34 i = p12 i ⋆ p34 i
+
 open PreCategory public using (Obj ; id)
 
 _[_,_] : (C : PreCategory ℓObj ℓMor) -> (x y : C .Obj) -> Type ℓMor
@@ -154,4 +158,25 @@ record Functor {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
     F-⋆ : {x y z : Obj C} -> (f : C [ x , y ]) -> (g : C [ y , z ]) ->
           F-mor (f ⋆⟨ C ⟩ g) == (F-mor f ⋆⟨ D ⟩ F-mor g)
 
-open Functor
+open Functor public
+
+-- Natural Transformations public
+
+module _
+  {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
+  {C : PreCategory ℓObjC ℓMorC} {D : PreCategory ℓObjD ℓMorD}
+  (F G : Functor C D) where
+
+  NT-obj-Type : Type (ℓ-max* 2 ℓObjC ℓMorD)
+  NT-obj-Type = (c : Obj C) -> D [ F-obj F c , F-obj G c ]
+  NT-mor-Type : NT-obj-Type -> Type (ℓ-max* 3 ℓObjC ℓMorC ℓMorD)
+  NT-mor-Type obj = {x y : Obj C} -> (f : C [ x , y ]) ->
+                    obj x ⋆⟨ D ⟩ F-mor G f == F-mor F f ⋆⟨ D ⟩ obj y
+
+  record NaturalTransformation : Type (ℓ-max* 4 ℓObjC ℓObjD ℓMorC ℓMorD) where
+    no-eta-equality
+    field
+      NT-obj : NT-obj-Type
+      NT-mor : NT-mor-Type NT-obj
+
+open NaturalTransformation public
