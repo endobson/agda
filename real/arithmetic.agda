@@ -17,6 +17,8 @@ open import rational.order
 open import rational.proper-interval
 open import real
 open import real.interval
+open import real.order
+open import real.rational
 open import real.sequence
 open import relation hiding (U)
 open import ring.implementations.rational

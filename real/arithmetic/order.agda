@@ -3,6 +3,7 @@
 module real.arithmetic.order where
 
 open import additive-group
+open import apartness
 open import base
 open import equality
 open import rational
@@ -13,11 +14,14 @@ open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication
 open import real.interval
+open import real.order
+open import real.rational
 open import real.sequence
 open import ring.implementations.rational
 open import truncation
 open import order
 open import order.instances.rational
+open import order.instances.real
 
 private
   ℝ+ᵉ₁-preserves-< : (a b c : ℝ) -> b ℝ< c -> (a ℝ+ᵉ b) ℝ< (a ℝ+ᵉ c)
@@ -87,6 +91,6 @@ abstract
 
 -- Invertible differences
 
-ℝ#->ℝInv : (x y : ℝ) -> x ℝ# y -> ℝInv (y ℝ+ (ℝ- x))
-ℝ#->ℝInv x y (inj-l x<y) = inj-r (subst (_ℝ< (y ℝ+ (ℝ- x))) (ℝ+-inverse x) (ℝ+₂-preserves-< x y (ℝ- x) x<y))
-ℝ#->ℝInv x y (inj-r y<x) = inj-l (subst ((y ℝ+ (ℝ- x)) ℝ<_) (ℝ+-inverse x) (ℝ+₂-preserves-< y x (ℝ- x) y<x))
+ℝ#->ℝInv : (x y : ℝ) -> x # y -> ℝInv (y ℝ+ (ℝ- x))
+ℝ#->ℝInv x y (inj-l x<y) = inj-r (subst (_< (y ℝ+ (ℝ- x))) (ℝ+-inverse x) (ℝ+₂-preserves-< x y (ℝ- x) x<y))
+ℝ#->ℝInv x y (inj-r y<x) = inj-l (subst ((y ℝ+ (ℝ- x)) <_) (ℝ+-inverse x) (ℝ+₂-preserves-< y x (ℝ- x) y<x))

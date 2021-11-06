@@ -17,6 +17,7 @@ open import integral-domain.instances.real
 open import real
 open import real.arithmetic
 open import real.heyting-field
+open import real.order
 open import relation
 open import sum
 open import truncation

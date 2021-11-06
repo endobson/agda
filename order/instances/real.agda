@@ -5,6 +5,7 @@ module order.instances.real where
 open import base
 open import order
 open import real
+open import real.order
 
 instance
   LinearOrderStr-ℝ : LinearOrderStr ℝ ℓ-one

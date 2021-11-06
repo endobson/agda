@@ -21,6 +21,8 @@ open import real
 open import real.arithmetic.order
 open import real.arithmetic.absolute-value
 open import real.arithmetic.multiplication.inverse
+open import real.rational
+open import real.order
 open import relation
 open import ring
 open import ring.implementations.real
@@ -42,9 +44,9 @@ private
   diff# : ℝ -> ℝ -> Type _
   diff# x y = ℝRing.isUnit (y + (- x))
 
-  diff#->ℝ# : {x y : ℝ} -> diff# x y -> x ℝ# y
+  diff#->ℝ# : {x y : ℝ} -> diff# x y -> x # y
   diff#->ℝ# {x} {y} (is-unit i path) =
-    unsquash (isProp-ℝ# x y) (∥-map2 handle (split-small-absℝ d ε) (split-small-absℝ i ε))
+    unsquash isProp-# (∥-map2 handle (split-small-absℝ d ε) (split-small-absℝ i ε))
     where
     ε : ℚ⁺
     ε = 1/2r , Pos-1/ℕ (2 , tt)
@@ -75,22 +77,22 @@ private
 
         p2 : (x + 0#) == x
         p2 = +-right-zero
-      Inv-d->x#y : ℝInv d -> x ℝ# y
-      Inv-d->x#y (inj-l d<0) = inj-r (subst2 _ℝ<_ p1 p2 (+₁-preserves-< d<0))
-      Inv-d->x#y (inj-r 0<d) = inj-l (subst2 _ℝ<_ p2 p1 (+₁-preserves-< 0<d))
+      Inv-d->x#y : ℝInv d -> x # y
+      Inv-d->x#y (inj-l d<0) = inj-r (subst2 _<_ p1 p2 (+₁-preserves-< d<0))
+      Inv-d->x#y (inj-r 0<d) = inj-l (subst2 _<_ p2 p1 (+₁-preserves-< 0<d))
 
-    handle : ((absℝ d ℝ< (ℚ->ℝ ε')) ⊎ ℝInv d) ->
-             ((absℝ i ℝ< (ℚ->ℝ ε')) ⊎ ℝInv i) ->
-             x ℝ# y
+    handle : ((absℝ d < (ℚ->ℝ ε')) ⊎ ℝInv d) ->
+             ((absℝ i < (ℚ->ℝ ε')) ⊎ ℝInv i) ->
+             x # y
     handle (inj-r inv-d) _ = (Inv-d->x#y inv-d)
     handle (inj-l _) (inj-r inv-i) = (Inv-d->x#y (Inv-i->Inv-d inv-i))
     handle (inj-l ad<ε) (inj-l ai<ε) = bot-elim (εε≮1 εε<1)
       where
       εai≮adai : (εℝ * (absℝ i)) ≮ ((absℝ d) * (absℝ i))
-      εai≮adai = *₂-preserves-≮ (asym-ℝ< {absℝ d} {εℝ} ad<ε) absℝ-≮0
+      εai≮adai = *₂-preserves-≮ (asym-< ad<ε) absℝ-≮0
 
       εε≮εai : (εℝ * εℝ) ≮ (εℝ * (absℝ i))
-      εε≮εai = *₁-preserves-≮ (asym-ℝ< 0<εℝ) (asym-ℝ< ai<ε)
+      εε≮εai = *₁-preserves-≮ (asym-< 0<εℝ) (asym-< ai<ε)
 
       εε≮adai : (εℝ * εℝ) ≮ ((absℝ d) * (absℝ i))
       εε≮adai = trans-≮ εε≮εai εai≮adai
@@ -101,7 +103,7 @@ private
       adai=1 : ((absℝ d) * (absℝ i)) == 1#
       adai=1 = sym (absℝ-distrib-* d i) >=>
                cong absℝ path >=>
-               absℝ-NonNeg-idem 1ℝ (asym-ℝ< 0<1ℝ)
+               absℝ-NonNeg-idem 1ℝ (asym-< 0<1ℝ)
 
       εε≮1 : (εℝ * εℝ) ≮ 1#
       εε≮1 = subst ((εℝ * εℝ) ≮_) adai=1 εε≮adai
@@ -112,7 +114,7 @@ private
       εε<1 : (εℝ * εℝ) < 1#
       εε<1 = subst ((εℝ * εℝ) <_) *-right-one εε<11
 
-  ℝ#->diff# : {x y : ℝ} -> x ℝ# y -> diff# x y
+  ℝ#->diff# : {x y : ℝ} -> x # y -> diff# x y
   ℝ#->diff# {x} {y} x#y = is-unit (ℝ1/ d inv) (*-commute >=> ℝ1/-inverse d inv)
     where
     d = (y + (- x))
@@ -120,18 +122,10 @@ private
     inv = ℝ#->ℝInv x y x#y
 
   abstract
-    ℝ#≃diff# : (x y : ℝ) -> (x ℝ# y) ≃ (diff# x y)
-    ℝ#≃diff# x y = isoToEquiv (isProp->iso ℝ#->diff# diff#->ℝ# (isProp-ℝ# x y) ℝRing.isProp-isUnit)
-
+    ℝ#≃diff# : (x y : ℝ) -> (x # y) ≃ (diff# x y)
+    ℝ#≃diff# x y = isoToEquiv (isProp->iso ℝ#->diff# diff#->ℝ# isProp-# ℝRing.isProp-isUnit)
 
 instance
-  TightApartnessStr-ℝ : TightApartnessStr ℝ
-  TightApartnessStr-ℝ = record
-    { _#_ = _ℝ#_
-    ; TightApartness-# = TightApartness-ℝ#
-    ; isProp-# = isProp-ℝ#
-    }
-
   ApartLinearOrderStr-ℝ : ApartLinearOrderStr TightApartnessStr-ℝ LinearOrderStr-ℝ
   ApartLinearOrderStr-ℝ = record
     { <>-equiv-# = idEquiv _
@@ -148,7 +142,7 @@ instance
       { +-reflects-# = +-reflects-ℝ#
       }
       where
-      +-reflects-ℝ# : {a b c d : ℝ} -> (a + b) ℝ# (c + d) -> ∥ (a ℝ# c) ⊎ (b ℝ# d) ∥
+      +-reflects-ℝ# : {a b c d : ℝ} -> (a + b) # (c + d) -> ∥ (a # c) ⊎ (b # d) ∥
       +-reflects-ℝ# (inj-l ab<cd) = ∥-map (⊎-map inj-l inj-l) (+-reflects-< ab<cd)
       +-reflects-ℝ# (inj-r ab>cd) = ∥-map (⊎-map inj-r inj-r) (+-reflects-< ab>cd)
 
@@ -161,15 +155,16 @@ module _ (x y : ℝ) where
     module mx = Real mx
     module ax = Real ax
     module y = Real y
+    AP = _#_
 
   abstract
     absℝ-cases : (y # 0#) -> absℝ x == y -> (x == y) ⊎ (x == (- y))
     absℝ-cases y#0 ax=y = handle x#0
       where
-      x#0 : x ℝ# 0#
+      x#0 : AP x 0#
       x#0 = absℝ-reflects-#0 (subst (_# 0#) (sym ax=y) y#0)
 
-      handle : x ℝ# 0# -> (x == y) ⊎ (x == (- y))
+      handle : x # 0# -> (x == y) ⊎ (x == (- y))
       handle (inj-l x<0) = inj-r (sym minus-double-inverse >=> cong -_ -x=y)
         where
         module _ where

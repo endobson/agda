@@ -7,6 +7,7 @@ open import real
 open import real.arithmetic.multiplication
 open import real.arithmetic.multiplication.associative
 open import real.arithmetic.multiplication.distributive
+open import real.rational
 open import ring
 open import ring.implementations
 open import semiring

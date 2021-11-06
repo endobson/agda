@@ -12,6 +12,8 @@ open import rational
 open import rational.minmax
 open import rational.proper-interval
 open import real
+open import real.order
+open import real.rational
 open import truncation
 open import univalence
 

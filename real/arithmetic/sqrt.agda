@@ -26,6 +26,8 @@ open import real.arithmetic.sqrt.base
 open import real.arithmetic.multiplication
 open import real.arithmetic.absolute-value
 open import real.interval
+open import real.order
+open import real.rational
 open import relation hiding (U)
 open import ring
 open import ring.implementations.rational
@@ -35,8 +37,8 @@ open import sign.instances.rational
 open import sum
 open import truncation
 
-module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
-  ≮0-sqrtᵉ : (sqrtℝᵉ x x≮0) ≮ 0ℝ
+module _ (x : ℝ) (x≮0 : x ≮ 0#) where
+  ≮0-sqrtᵉ : (sqrtℝᵉ x x≮0) ≮ 0#
   ≮0-sqrtᵉ s<0 = ℝ≮0-¬U0 x x≮0 xU-0
     where
     s = (sqrtℝᵉ x x≮0)
@@ -47,8 +49,8 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
     xU-0 : x.U 0r
     xU-0 = subst x.U *-right-zero (snd (sU-0))
 
-  ≮0-sqrt : (sqrtℝ x x≮0) ≮ 0ℝ
-  ≮0-sqrt = subst (_≮ 0ℝ) (sym (sqrtℝ-eval x x≮0)) ≮0-sqrtᵉ
+  ≮0-sqrt : (sqrtℝ x x≮0) ≮ 0#
+  ≮0-sqrt = subst (_≮ 0#) (sym (sqrtℝ-eval x x≮0)) ≮0-sqrtᵉ
 
 ℚ∈Iℚ-i-intersect₁ : (q : ℚ) (a b : Iℚ) -> (o : Overlap a b) ->
                     ℚ∈Iℚ q (i-intersect a b o) -> ℚ∈Iℚ q a
@@ -66,10 +68,10 @@ private
     private
       xx = x ℝ*ᵉ x
 
-    ≮0-squareᵉ : xx ≮ 0ℝ
+    ≮0-squareᵉ : xx ≮ 0#
     ≮0-squareᵉ x²<0 = unsquash isPropBot (∥-bind handle x²<0)
       where
-      handle : xx ℝ<' 0ℝ -> ∥ Bot ∥
+      handle : xx ℝ<' 0# -> ∥ Bot ∥
       handle (ℝ<'-cons q xxU-q q<0) = ∥-map handle2 xxU-q
         where
         handle2 : Σ[ ai ∈ Iℚ ] Σ[ bi ∈ Iℚ ] (ℝ∈Iℚ x ai × ℝ∈Iℚ x bi × i-Upper (ai i* bi) q) -> Bot
@@ -90,40 +92,40 @@ private
           uu<0 = trans-≤-< (trans-≤ (snd uu∈ai*bi) abi≤q) (L->ℚ< q<0)
 
 abstract
-  ≮0-square : (x : ℝ) -> (x * x) ≮ 0ℝ
-  ≮0-square x = subst (_≮ 0ℝ) (sym (ℝ*-eval {x} {x})) (≮0-squareᵉ x)
+  ≮0-square : (x : ℝ) -> (x * x) ≮ 0#
+  ≮0-square x = subst (_≮ 0#) (sym (ℝ*-eval {x} {x})) (≮0-squareᵉ x)
 
   absℝ-square : (x : ℝ) -> x * x == absℝ x * absℝ x
   absℝ-square x = sym (absℝ-NonNeg-idem (x * x) (≮0-square x)) >=> absℝ-distrib-* x x
 
-  absℝ-zero : {x : ℝ} -> absℝ x == 0ℝ -> x == 0ℝ
+  absℝ-zero : {x : ℝ} -> absℝ x == 0# -> x == 0#
   absℝ-zero {x} p = sym (absℝ-NonNeg-idem x 0≤x) >=> p
     where
-    0≤x : 0ℝ ≤ x
-    0≤x x<0 = irrefl-< {_} {_} {_} {0ℝ} (subst2 _<_ x0=0 xx=0 x0<xx)
+    0≤x : 0# ≤ x
+    0≤x x<0 = irrefl-< {_} {_} {_} {0#} (subst2 _<_ x0=0 xx=0 x0<xx)
       where
       module _ where
-        x0<xx : (x * 0ℝ) < (x * x)
+        x0<xx : (x * 0#) < (x * x)
         x0<xx = *₁-flips-< x<0 x<0
-        xx=0 : x * x == 0ℝ
+        xx=0 : x * x == 0#
         xx=0 = absℝ-square x >=> *-right p >=> *-right-zero
-        x0=0 : x * 0ℝ == 0ℝ
+        x0=0 : x * 0# == 0#
         x0=0 = *-right-zero
 
 
-module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
+module _ (x : ℝ) (x≮0 : x ≮ 0#) where
   private
     sx = sqrtℝ x x≮0
     sxᵉ = sqrtℝᵉ x x≮0
     module x = Real x
 
-    sqrt-0<ᵉ : (0<x : 0ℝ < x) -> 0ℝ < sxᵉ
+    sqrt-0<ᵉ : (0<x : 0# < x) -> 0# < sxᵉ
     sqrt-0<ᵉ 0<x = ∥-bind handle 0<x
       where
-      handle : 0ℝ ℝ<' x -> 0ℝ ℝ< sxᵉ
+      handle : 0# ℝ<' x -> 0# ℝ< sxᵉ
       handle (ℝ<'-cons q 0<q xL-q) = ∥-map handle2 (squares-dense-0 (U->ℚ< 0<q))
         where
-        handle2 : Σ[ s ∈ ℚ ] (isSquareℚ s × 0r < s × s < q) -> 0ℝ ℝ<' sxᵉ
+        handle2 : Σ[ s ∈ ℚ ] (isSquareℚ s × 0r < s × s < q) -> 0# ℝ<' sxᵉ
         handle2 (s , (t , 0≤t , tt=s) , 0<s , s<q) =
           ℝ<'-cons t (ℚ<->U (strengthen-ℚ≤-≠ 0≤t 0!=t))
                      (inj-r (0≤t , (subst x.L (sym tt=s) (x.isLowerSet-L s q s<q xL-q))))
@@ -132,27 +134,27 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
           0!=t 0=t = <->!= 0<s (sym *-right-zero >=> *-right 0=t >=> tt=s)
 
   abstract
-    sqrt-0< : (0<x : 0ℝ < x) -> 0ℝ < sx
-    sqrt-0< 0<x = subst (0ℝ <_) (sym (sqrtℝ-eval x x≮0)) (sqrt-0<ᵉ 0<x)
+    sqrt-0< : (0<x : 0# < x) -> 0# < sx
+    sqrt-0< 0<x = subst (0# <_) (sym (sqrtℝ-eval x x≮0)) (sqrt-0<ᵉ 0<x)
 
-module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
+module _ (x : ℝ) (x≮0 : x ≮ 0#) where
   private
     sx = sqrtℝ x x≮0
     sxᵉ = sqrtℝᵉ x x≮0
     module sxᵉ = Real sxᵉ
 
-    sqrt-0≤ᵉ : sxᵉ ≮ 0ℝ
+    sqrt-0≤ᵉ : sxᵉ ≮ 0#
     sqrt-0≤ᵉ sx<0 = unsquash isPropBot (∥-map handle sx<0)
       where
-      handle : sxᵉ ℝ<' 0ℝ -> Bot
+      handle : sxᵉ ℝ<' 0# -> Bot
       handle (ℝ<'-cons q sxU-q q<0) = sxᵉ.disjoint q (inj-l (L->ℚ< q<0) , sxU-q)
 
   private
     LT : Rel ℝ ℓ-one
     LT = _≤_
   abstract
-    sqrt-0≤ : LT 0ℝ sx
-    sqrt-0≤ = subst (0ℝ ≤_) (sym (sqrtℝ-eval x x≮0)) sqrt-0≤ᵉ
+    sqrt-0≤ : LT 0# sx
+    sqrt-0≤ = subst (0# ≤_) (sym (sqrtℝ-eval x x≮0)) sqrt-0≤ᵉ
 
 
 module _ (x : ℝ) where
@@ -160,7 +162,7 @@ module _ (x : ℝ) where
     xx = x ℝ*ᵉ x
     module xx = Real xx
 
-  module _ (≮0 : xx ≮ 0ℝ) where
+  module _ (≮0 : xx ≮ 0#) where
     private
       sxx = (sqrtℝᵉ xx ≮0)
 
@@ -223,7 +225,7 @@ module _ (x : ℝ) where
   private
     xx = x ℝ*ᵉ x
 
-    sqrt-*ᵉ : (≮0 : xx ≮ 0ℝ) -> sqrtℝᵉ xx ≮0 == absℝ x
+    sqrt-*ᵉ : (≮0 : xx ≮ 0#) -> sqrtℝᵉ xx ≮0 == absℝ x
     sqrt-*ᵉ ≮0 = sym (ℝ∈Iℚ->path (absℝ x) (sqrtℝᵉ xx ≮0) ℝ∈Iℚ-sqrt-abs)
       where
       mx = (- x)
@@ -271,7 +273,7 @@ module _ (x : ℝ) where
       cong2-dep sqrtℝᵉ (ℝ*-eval {x} {x}) (isProp->PathP (\_ -> (isProp¬ _))) >=>
       sqrt-*ᵉ (≮0-squareᵉ x)
 
-module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
+module _ (x : ℝ) (x≮0 : x ≮ 0#) where
   private
     sx = (sqrtℝᵉ x x≮0)
     sxsx = sx ℝ*ᵉ sx
@@ -402,7 +404,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where
             ℝ*-eval {sx} {sx} >=>
             *-sqrtᵉ
 
-split-ℝ∈Iℚ-0≤ : (x : ℝ) (ai : Iℚ) -> ℝ∈Iℚ x ai -> 0ℝ ≤ x ->
+split-ℝ∈Iℚ-0≤ : (x : ℝ) (ai : Iℚ) -> ℝ∈Iℚ x ai -> 0# ≤ x ->
                 ∃[ bi ∈ Iℚ ] (ℝ∈Iℚ x bi × bi i⊆ ai × (BalancedI bi ⊎ NonNegI bi))
 split-ℝ∈Iℚ-0≤ x ai@(Iℚ-cons l u l≤u) x∈ai 0≤x = handle (split-< l 0r) (split-< u -l)
   where
@@ -581,11 +583,11 @@ module _ (x : ℝ)
               ax∈bi = ℝ∈Iℚ-square-NonNeg⁻ bi nn-bi xx∈bibi
 
 
-module _ (x : ℝ) (y : ℝ) (x≮0 : x ≮ 0ℝ) (y≮0 : y ≮ 0ℝ)
+module _ (x : ℝ) (y : ℝ) (x≮0 : x ≮ 0#) (y≮0 : y ≮ 0#)
   where
   private
     xy = x * y
-    0≤xy : 0ℝ ≤ xy
+    0≤xy : 0# ≤ xy
     0≤xy = *-preserves-≮0 x≮0 y≮0
     sx = (sqrtℝ x x≮0)
     sy = (sqrtℝ y y≮0)

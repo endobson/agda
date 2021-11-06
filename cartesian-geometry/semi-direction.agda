@@ -20,6 +20,7 @@ open import ordered-semiring.instances.real
 open import real
 open import real.arithmetic.absolute-value
 open import real.heyting-field
+open import real.order
 open import relation
 open import ring.implementations.real
 open import semiring
@@ -71,7 +72,7 @@ private
       abstract
         k#0 : AP k 0#
         k#0 = fst (v*-apart-zero kv#0)
-        handle : (k ℝ# 0#) -> vector->semi-direction (k v* v) kv#0 == vector->semi-direction v v#0
+        handle : (k # 0#) -> vector->semi-direction (k v* v) kv#0 == vector->semi-direction v v#0
         handle (inj-r 0<k) = eq/ _ _ (same-semi-direction-same (normalize-vector-v*-Pos v v#0 k 0<k kv#0))
         handle (inj-l k<0) = eq/ _ _ (same-semi-direction-flipped p)
           where

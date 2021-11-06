@@ -4,6 +4,7 @@ module integral-domain.instances.real where
 
 open import additive-group.instances.real
 open import real.heyting-field
+open import real.order
 open import integral-domain
 open import integral-domain.instances.heyting-field
 open import ring.implementations.real

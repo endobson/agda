@@ -22,6 +22,7 @@ open import real
 open import real.arithmetic.absolute-value
 open import real.arithmetic.sqrt
 open import real.heyting-field
+open import real.order
 open import relation
 open import ring.implementations.real
 open import semiring

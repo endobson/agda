@@ -16,6 +16,8 @@ open import relation hiding (U)
 open import ring
 open import ring.implementations.rational
 open import real
+open import real.order
+open import real.rational
 open import semiring
 open import truncation
 open import order

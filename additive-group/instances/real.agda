@@ -5,6 +5,7 @@ module additive-group.instances.real where
 open import additive-group
 open import equality
 open import real
+open import real.rational
 open import real.arithmetic
 
 

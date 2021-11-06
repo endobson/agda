@@ -26,6 +26,7 @@ open import ordered-semiring.instances.real
 open import real
 open import real.arithmetic.sqrt
 open import real.heyting-field
+open import real.order
 open import ring
 open import ring.implementations.real
 open import semiring

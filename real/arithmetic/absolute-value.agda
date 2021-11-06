@@ -4,6 +4,7 @@ module real.arithmetic.absolute-value where
 
 open import additive-group
 open import additive-group.instances.real
+open import apartness
 open import base
 open import equality
 open import functions
@@ -37,9 +38,11 @@ open import rational.order using
  ; trans-ℚ≤
  )
 open import real
-open import real.interval
-open import real.arithmetic.multiplication
 open import real.arithmetic
+open import real.arithmetic.multiplication
+open import real.interval
+open import real.order
+open import real.rational
 open import real.sequence
 open import relation hiding (U)
 open import ring
@@ -194,15 +197,15 @@ abstract
       q<-q : q < (- q)
       q<-q = trans-< {_} {_} {_} {q} (Neg-<0 q neg-q) (Pos-0< (- q) (r--flips-sign q neg-sign neg-q))
 
-  absℝ-≮0 : {x : ℝ} -> absℝ x ≮ 0ℝ
+  absℝ-≮0 : {x : ℝ} -> absℝ x ≮ 0#
   absℝ-≮0 {x} = unsquash isPropBot ∘ ∥-map handle
     where
-    handle : (absℝ x) ℝ<' 0ℝ -> Bot
+    handle : (absℝ x) ℝ<' 0# -> Bot
     handle (ℝ<'-cons q axu-q q<0) =
       Real.disjoint (absℝ x) q (absℝ-0≤ x (q , <0-Neg _ (L->ℚ< q<0)) , axu-q)
 
 
-  absℝ-NonNeg-idem : (x : ℝ) -> (x ≮ 0ℝ) -> absℝ x == x
+  absℝ-NonNeg-idem : (x : ℝ) -> (x ≮ 0#) -> absℝ x == x
   absℝ-NonNeg-idem x 0≤x = LU-paths->path (absℝ x) x L-path U-path
     where
     module ax = Real (absℝ x)
@@ -275,13 +278,13 @@ abstract
       handle2 (inj-r 0≤r1) _ = inj-r (inj-r ans)
         where
         module _ where
-          ans : 0ℝ < x
+          ans : 0# < x
           ans = ∥-map (\ (s , r1<s , xl) -> ℝ<'-cons s  (ℚ<->U (trans-≤-< {d1 = 0r} 0≤r1 r1<s)) xl)
                       (x.isUpperOpen-L r1 xl-r1)
       handle2 (inj-l r1<0) (inj-r r2≤0) = inj-r (inj-l ans)
         where
         module _ where
-          ans : x < 0ℝ
+          ans : x < 0#
           ans = ∥-map (\ (s , s<r2 , xu) -> ℝ<'-cons s xu (ℚ<->L (trans-<-≤ {d1 = s} s<r2 r2≤0)))
                       (x.isLowerOpen-U r2 xu-r2)
       handle2 (inj-l r1<0) (inj-l 0<r2) = inj-l (∣ ℝ<'-cons s (xl--s , xu-s) (ℚ<->L s<q) ∣)
@@ -346,7 +349,7 @@ abstract
       i .rightInv _ = ax.isProp-U q _ _
       i .leftInv _ = amx.isProp-U q _ _
 
-  absℝ-NonPos-minus : (x : ℝ) -> (x ≤ 0ℝ) -> absℝ x == (- x)
+  absℝ-NonPos-minus : (x : ℝ) -> (x ≤ 0#) -> absℝ x == (- x)
   absℝ-NonPos-minus x x≤0 = sym (absℝ-- x) >=> absℝ-NonNeg-idem mx 0≤mx
     where
     module _ where
@@ -357,29 +360,29 @@ abstract
 
 
 abstract
-  absℝ-reflects-#0 : {x : ℝ} -> absℝ x ℝ# 0# -> x ℝ# 0#
+  absℝ-reflects-#0 : {x : ℝ} -> absℝ x # 0# -> x # 0#
   absℝ-reflects-#0     (inj-l ax<0) = bot-elim (absℝ-≮0 ax<0)
-  absℝ-reflects-#0 {x} (inj-r 0<ax) = unsquash (isProp-ℝ# x 0#) (∥-bind handle 0<ax)
+  absℝ-reflects-#0 {x} (inj-r 0<ax) = unsquash isProp-# (∥-bind handle 0<ax)
     where
     ax : ℝ
     ax = absℝ x
-    handle : 0ℝ ℝ<' ax -> ∥ x ℝ# 0# ∥
+    handle : 0# ℝ<' ax -> ∥ x # 0# ∥
     handle (ℝ<'-cons q 0<q axL-q) = ∥-map handle2 (split-small-absℝ x (q , (U->ℚ< 0<q)))
       where
-      handle2 : (absℝ x ℝ< (ℚ->ℝ q) ⊎ (ℝInv x)) -> x ℝ# 0#
+      handle2 : (absℝ x ℝ< (ℚ->ℝ q) ⊎ (ℝInv x)) -> x # 0#
       handle2 (inj-r inv-x) = inv-x
       handle2 (inj-l ax<q) = bot-elim (unsquash isPropBot (∥-map handle3 ax<q))
         where
         handle3 : (absℝ x ℝ<' (ℚ->ℝ q)) -> Bot
         handle3 (ℝ<'-cons r axU-r r<q) = asym-< (ℝ-bounds->ℚ< ax q r axL-q axU-r) (L->ℚ< r<q)
 
-  0<absℝ : {x : ℝ} -> x ℝ# 0# -> 0# < absℝ x
+  0<absℝ : {x : ℝ} -> x # 0# -> 0# < absℝ x
   0<absℝ {x} (inj-l x<0) =
     subst (0# <_) (sym (absℝ-NonPos-minus x (asym-< x<0))) (minus-flips-<0 x<0)
   0<absℝ {x} (inj-r 0<x) =
     subst (0# <_) (sym (absℝ-NonNeg-idem x (asym-< 0<x))) 0<x
 
-  absℝ-preserves-#0 : {x : ℝ} -> x ℝ# 0# -> absℝ x ℝ# 0#
+  absℝ-preserves-#0 : {x : ℝ} -> x # 0# -> absℝ x # 0#
   absℝ-preserves-#0 x#0 = inj-r (0<absℝ x#0)
 
 
@@ -491,7 +494,7 @@ abstract
         b⊆a = i⊆-cons l≤-u refl-≤
 
 
-  ℝ∈Iℚ-≤0-ΣImbalancedI : (x : ℝ) (a : Iℚ) -> (0ℝ ≤ x) -> ℝ∈Iℚ x a ->
+  ℝ∈Iℚ-≤0-ΣImbalancedI : (x : ℝ) (a : Iℚ) -> (0# ≤ x) -> ℝ∈Iℚ x a ->
                          Σ[ b ∈ Iℚ ] (ℝ∈Iℚ x b × ImbalancedI b × b i⊆ a)
   ℝ∈Iℚ-≤0-ΣImbalancedI x a 0≤x =
     subst (\z -> ℝ∈Iℚ z a -> Σ[ b ∈ Iℚ ] (ℝ∈Iℚ z b × ImbalancedI b × b i⊆ a))

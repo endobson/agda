@@ -3,6 +3,7 @@
 module real.arithmetic.sqrt.base where
 
 open import additive-group
+open import additive-group.instances.real
 open import base
 open import equality
 open import hlevel
@@ -15,13 +16,15 @@ open import rational.order
 open import rational.integral-domain
 open import rational.squares
 open import real
+open import real.order
+open import real.rational
 open import relation hiding (U)
 open import semiring
 open import sign
 open import truncation
 
 
-module _ (x : ℝ) (x≮0 : x ≮ 0ℝ)
+module _ (x : ℝ) (x≮0 : x ≮ 0#)
   where
   private
     module x = Real x
@@ -98,10 +101,10 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ)
             handle2 : (0r < r ⊎ r ≤ 0r) -> ∃[ r ∈ ℚ ] (r < q × U r)
             handle2 (inj-r r≤0) = bot-elim (x≮0 x<0)
               where
-              handle3 : Σ[ s ∈ ℚ ] (s < r × x.U s) -> x ℝ<' 0ℝ
+              handle3 : Σ[ s ∈ ℚ ] (s < r × x.U s) -> x ℝ<' 0#
               handle3 (s , s<r , xu-s) = (ℝ<'-cons s xu-s (ℚ<->L (trans-<-≤ s<r r≤0)))
 
-              x<0 : x < 0ℝ
+              x<0 : x < 0#
               x<0 = ∥-map handle3 (x.isLowerOpen-U r xu-r)
             handle2 (inj-l 0<r) = ∥-map handle3 (squares-dense-upper-square 0<r 0≤q r<qq)
               where

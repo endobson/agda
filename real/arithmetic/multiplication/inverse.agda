@@ -20,6 +20,8 @@ open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication
 open import real.interval
+open import real.order
+open import real.rational
 open import relation hiding (U)
 open import ring
 open import ring.implementations.rational
@@ -31,7 +33,7 @@ open import truncation
 
 private
   abstract
-    ℝ--zero : ℝ- 0ℝ == 0ℝ
+    ℝ--zero : ℝ- 0# == 0#
     ℝ--zero = sym (+-left-zero) >=> +-inverse
 
 private
@@ -229,10 +231,10 @@ private
       ; located = located
       }
 
-    0<ℝ1/-Pos : 0ℝ < ℝ1/-Pos
+    0<ℝ1/-Pos : 0# < ℝ1/-Pos
     0<ℝ1/-Pos = ∥-map handle (isUpperOpen-L 0r (L-nonpos (inj-r Zero-0r)))
       where
-      handle : Σ[ q ∈ ℚ ] (0r < q × L q) -> 0ℝ ℝ<' ℝ1/-Pos
+      handle : Σ[ q ∈ ℚ ] (0r < q × L q) -> 0# ℝ<' ℝ1/-Pos
       handle (q , 0<q , lq) = ℝ<'-cons q (ℚ<->U 0<q) lq
 
   module _ (x : ℝ) (0U : Real.U x 0r) where
@@ -248,13 +250,13 @@ private
     ℝ1/-Neg : ℝ
     ℝ1/-Neg = ℝ-ᵉ (ℝ1/-Pos -x -0L)
 
-    ℝ1/-Neg<0 : ℝ1/-Neg < 0ℝ
+    ℝ1/-Neg<0 : ℝ1/-Neg < 0#
     ℝ1/-Neg<0 = subst2 _<_ ℝ--eval ℝ--zero p2
       where
-      p : 0ℝ < (ℝ1/-Pos -x -0L)
+      p : 0# < (ℝ1/-Pos -x -0L)
       p = 0<ℝ1/-Pos -x -0L
 
-      p2 : (- (ℝ1/-Pos -x -0L)) < (- 0ℝ)
+      p2 : (- (ℝ1/-Pos -x -0L)) < (- 0#)
       p2 = minus-flips-<  p
 
 
@@ -315,17 +317,17 @@ module _ (x : ℝ)  where
       L0 : Real.L -x 0r
       L0 = subst x.U (sym minus-zero) (ℝ<->U x 0r x<0)
 
-    ℝ-ᵉ-ℝ1/ᵉ-commute' (inj-r 0<x) (inj-r 0<-x) = bot-elim (asym-ℝ< {0ℝ} {x} 0<x x<0)
+    ℝ-ᵉ-ℝ1/ᵉ-commute' (inj-r 0<x) (inj-r 0<-x) = bot-elim (asym-ℝ< {0#} {x} 0<x x<0)
       where
-      x<0 : x ℝ< 0ℝ
+      x<0 : x ℝ< 0#
       x<0 = subst2 _ℝ<_ +-right-zero (+-right (sym ℝ--eval) >=> ℝ+-inverse x)
                         (+₁-preserves-< 0<-x)
 
-    ℝ-ᵉ-ℝ1/ᵉ-commute' (inj-l x<0) (inj-l -x<0) = bot-elim (asym-ℝ< {0ℝ} {x} 0<x x<0)
+    ℝ-ᵉ-ℝ1/ᵉ-commute' (inj-l x<0) (inj-l -x<0) = bot-elim (asym-ℝ< {0#} {x} 0<x x<0)
       where
-      0<x : 0ℝ ℝ< x
-      0<x = subst2 _ℝ<_ (+-right (sym ℝ--eval) >=> ℝ+-inverse x) +-right-zero
-                        (+₁-preserves-< -x<0)
+      0<x : 0# < x
+      0<x = subst2 _<_ (+-right (sym ℝ--eval) >=> ℝ+-inverse x) +-right-zero
+                       (+₁-preserves-< -x<0)
 
 
   ℝ--ℝ1/-commute : (xinv : ℝInv x) -> ℝ- (ℝ1/ x xinv) == ℝ1/ (ℝ- x) (ℝ--preserves-ℝInv x xinv)
@@ -355,16 +357,16 @@ private
       module 1/x = Real 1/x
       module prod = Real prod
 
-      0<x : 0ℝ < x
+      0<x : 0# < x
       0<x = ∥-map handle (x.isUpperOpen-L 0r 0L)
         where
-        handle : Σ[ q ∈ ℚ ] (0r < q × x.L q) -> 0ℝ ℝ<' x
+        handle : Σ[ q ∈ ℚ ] (0r < q × x.L q) -> 0# ℝ<' x
         handle (q , 0<q , xl-q) = ℝ<'-cons q (ℚ<->U 0<q) xl-q
 
-      0<1/x : 0ℝ < 1/x
+      0<1/x : 0# < 1/x
       0<1/x = ∥-map handle x.Inhabited-U
         where
-        handle : Σ ℚ x.U -> 0ℝ ℝ<' 1/x
+        handle : Σ ℚ x.U -> 0# ℝ<' 1/x
         handle (q , xu-q) = ℝ<'-cons q' (ℚ<->U 0<q') (L-pos pos-q' (subst x.U (sym q''-path) xu-q))
           where
           0<q = ℝ-bounds->ℚ< x 0r q 0L xu-q

@@ -19,6 +19,8 @@ open import rational.proper-interval
 open import rational.proper-interval.maxabs-multiplication
 open import rational.proper-interval.multiplication-strict-cross-zero
 open import real
+open import real.rational
+open import real.order
 open import real.interval
 open import real.sequence
 open import relation hiding (U)

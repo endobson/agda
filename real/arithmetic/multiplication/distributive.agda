@@ -14,6 +14,8 @@ open import relation hiding (U)
 open import real.arithmetic.multiplication
 open import real.arithmetic
 open import real.interval
+open import real.order
+open import real.rational
 open import ring.implementations.rational
 open import sign.instances.rational
 open import truncation
