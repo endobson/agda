@@ -62,14 +62,14 @@ module _ {ℓI ℓK : Level} {I : Type ℓI} {K : Type ℓK}
       isSet-I = isFinSet->isSet isFinSet-I
       discrete-I = isFinSet->Discrete isFinSet-I
 
-    indicator : I -> I -> K
-    indicator i1 i2 = indicator' (discrete-I i1 i2)
-
     abstract
+      indicator : I -> I -> K
+      indicator i1 i2 = indicator' (discrete-I i1 i2)
+
       indicator-path : {i1 i2 : I} -> (d : Dec (i1 == i2)) ->
                        indicator i1 i2 == indicator' d
       indicator-path {i1} {i2} d =
-        cong indicator' (isProp->PathP (\_ -> isPropDec (isSet-I i1 i2)) (discrete-I i1 i2) d)
+        cong indicator' (isProp->PathPᵉ (\_ -> isPropDec (isSet-I i1 i2)) (discrete-I i1 i2) d)
 
 
 module _ {ℓK ℓI : Level} {K : Type ℓK}
@@ -305,28 +305,27 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
 
           path9 : (ip : (∉-Subtype P)) ->
                   (app-to i ∘ unwrap-dp ∘ extended-scale-up ∘ fst) ip == 0#
-          path9 ip@(i2 , i!=i2) = handle (discrete-I i2 i) refl
+          path9 ip@(i2 , i!=i2) = handle (discrete-I i2 i)
             where
-            handle : (d : Dec (i2 == i)) -> d == (discrete-I i2 i) ->
+            handle : (d : Dec (i2 == i)) ->
                      (app-to i ∘ unwrap-dp ∘ extended-scale-up ∘ fst) ip == 0#
             handle (yes i2=i) = bot-elim (i!=i2 (sym i2=i))
-            handle (no _) path = ans
+            handle d@(no _) = ans
               where
               ans : extend i2 * indicator i2 i == 0#
-              ans = cong (extend i2 *_) (cong indicator' (sym path)) >=>
-                    *-right-zero
+              ans = cong (extend i2 *_) (indicator-path d) >=> *-right-zero
 
           path10 : (ip : (∈-Subtype P)) ->
                    (app-to i ∘ unwrap-dp ∘ extended-scale-up ∘ fst) ip == extend i
-          path10 ip@(i2 , i=i2) = handle (discrete-I i2 i) refl
+          path10 ip@(i2 , i=i2) = handle (discrete-I i2 i)
             where
-            handle : (d : Dec (i2 == i)) -> d == (discrete-I i2 i) ->
+            handle : (d : Dec (i2 == i)) ->
                      (app-to i ∘ unwrap-dp ∘ extended-scale-up ∘ fst) ip == extend i
             handle (no i2!=i) = bot-elim (i2!=i (sym i=i2))
-            handle (yes _) path = ans
+            handle d@(yes _) = ans
               where
               ans : extend i2 * indicator i2 i == extend i
-              ans = cong2 _*_ (cong extend (sym i=i2)) (cong indicator' (sym path)) >=>
+              ans = cong2 _*_ (cong extend (sym i=i2)) (indicator-path d) >=>
                     *-right-one
 
           sum11 : finiteMerge CM-K+ (app-to i ∘ unwrap-dp ∘ extended-scale-up) ==

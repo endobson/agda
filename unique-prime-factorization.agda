@@ -129,11 +129,11 @@ private
                       dc1@(division-count d-pos1 n-pos1 k1 div-k1 ¬div-sk1)
                       dc2@(division-count d-pos2 n-pos2 k2 div-k2 ¬div-sk2) i =
       (division-count
-        (isProp->PathP (\i -> isPropPos') d-pos1 d-pos2 i)
-        (isProp->PathP (\i -> isPropPos') n-pos1 n-pos2 i)
+        (isProp->PathPᵉ (\i -> isPropPos') d-pos1 d-pos2 i)
+        (isProp->PathPᵉ (\i -> isPropPos') n-pos1 n-pos2 i)
         (p-k i)
-        (isProp->PathP (\i -> isPropDiv' {d ^' (p-k i)} n1⁺) div-k1 div-k2 i)
-        (isProp->PathP (\i -> isProp¬ ((d ^' (suc (p-k i))) div' n)) ¬div-sk1 ¬div-sk2 i))
+        (isProp->PathPᵉ (\i -> isPropDiv' {d ^' (p-k i)} n1⁺) div-k1 div-k2 i)
+        (isProp->PathPᵉ (\i -> isProp¬ ((d ^' (suc (p-k i))) div' n)) ¬div-sk1 ¬div-sk2 i))
     where
       n1⁺ = DivisionCount.n⁺ dc1
 
@@ -258,7 +258,7 @@ private
 
       path-part1 : PathP (\i -> DivisionCount ⟨ p ⟩ ((path (~ i) .fst) *' (prime-product ps)))
                          (primes-division-count p (p2 :: ps)) c2
-      path-part1 = isProp->PathP (\_ -> isPropDivisionCount) (primes-division-count p (p2 :: ps)) c2
+      path-part1 = isProp->PathP (\_ -> isPropDivisionCount)
 
     prime-product-same-division-count :
       ∀ {n : Nat} (p2 : Prime') -> p != p2 -> DivisionCount ⟨ p ⟩ n -> DivisionCount ⟨ p ⟩ (⟨ p2 ⟩ *' n)
@@ -342,13 +342,13 @@ private
         PathP (\i -> DivisionCount ⟨ p ⟩ (path1 i) )
         (compute-prime-division-count p (prime-product⁺ primes1))
         (compute-prime-division-count p n⁺)
-      middle-path1 = isProp->PathP (\_ -> isPropDivisionCount) _ _
+      middle-path1 = isProp->PathP (\_ -> isPropDivisionCount)
 
       middle-path2 :
         PathP (\i -> DivisionCount ⟨ p ⟩ (path2 i) )
         (compute-prime-division-count p (prime-product⁺ primes2))
         (compute-prime-division-count p n⁺)
-      middle-path2 = isProp->PathP (\_ -> isPropDivisionCount) _ _
+      middle-path2 = isProp->PathP (\_ -> isPropDivisionCount)
 
       middle-path1' :
         DivisionCount.k (compute-prime-division-count p (prime-product⁺ primes1))
@@ -374,8 +374,7 @@ isPropPrimeFactorization p1@(prime-factorization ps1 product1)
     where
     product-path :
       PathP (\i -> (prime-product (primes-path i)) == _) product1 product2
-    product-path =
-      isProp->PathP (\i -> isSetNat _ _) product1 product2
+    product-path = isProp->PathP (\i -> isSetNat _ _)
 
 isContrPrimeFactorization⁺ : {n : Nat⁺} -> isContr (PrimeFactorization⁺ n)
 isContrPrimeFactorization⁺ {n} = pf , isPropPrimeFactorization pf

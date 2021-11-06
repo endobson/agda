@@ -980,7 +980,7 @@ abstract
       a==b = zero-diff->path a' b' zd
 
       path : (r1/ a' (Pos->Inv pos-a')) == (r1/ b' (Pos->Inv pos-b'))
-      path i = (r1/ (a==b i) (Pos->Inv (isProp->PathP (\ j -> isProp-Pos (a==b j)) pos-a' pos-b' i)))
+      path i = (r1/ (a==b i) (Pos->Inv (isProp->PathPᵉ (\ j -> isProp-Pos (a==b j)) pos-a' pos-b' i)))
 
 
 

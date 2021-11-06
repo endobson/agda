@@ -82,9 +82,13 @@ abstract
       toPathP p i = hcomp (\ j -> (\ { (i = i0) -> x
                                      ; (i = i1) -> p j}))
                           (transp (\ j -> A (i ∧ j)) (~ i) x)
-  isProp->PathP : {B : I -> Type ℓ} -> ((i : I) -> isProp (B i)) -> (b0 : (B i0)) (b1 : (B i1))
+  isProp->PathP : {B : I -> Type ℓ} -> ((i : I) -> isProp (B i)) -> {b0 : (B i0)} {b1 : (B i1)}
                   -> PathP (\i -> B i) b0 b1
-  isProp->PathP hB b0 b1 = toPathP (hB _ _ _)
+  isProp->PathP hB = toPathP (hB _ _ _)
+
+  isProp->PathPᵉ : {B : I -> Type ℓ} -> ((i : I) -> isProp (B i)) -> (b0 : (B i0)) (b1 : (B i1))
+                  -> PathP (\i -> B i) b0 b1
+  isProp->PathPᵉ hB _ _ = isProp->PathP hB
 
 isOfHLevelDep : Nat -> {A : Type ℓ₁} -> (B : A -> Type ℓ₂) -> Type (ℓ-max ℓ₁ ℓ₂)
 isOfHLevelDep 0 {A = A} B =
@@ -99,8 +103,8 @@ abstract
   isOfHLevel->isOfHLevelDep :
     (n : Nat) -> (h : (a : A) -> isOfHLevel n (B a)) -> isOfHLevelDep n {A = A} B
   isOfHLevel->isOfHLevelDep 0 h {a} =
-    (h a .fst , (\ b p -> isProp->PathP (\i -> isContr->isProp (h (p i))) (h a .fst) b))
-  isOfHLevel->isOfHLevelDep 1 h = (\ b0 b1 p -> isProp->PathP (\i -> (h (p i))) b0 b1)
+    (h a .fst , (\ b p -> isProp->PathP (\i -> isContr->isProp (h (p i)))))
+  isOfHLevel->isOfHLevelDep 1 h = (\ b0 b1 p -> isProp->PathP (\i -> (h (p i))))
   isOfHLevel->isOfHLevelDep {A = A} {B = B} (suc (suc n)) h {a0} {a1} b0 b1 =
     isOfHLevel->isOfHLevelDep (suc n) (\ p -> helper a1 p b1)
     where
@@ -112,15 +116,15 @@ abstract
 -- ΣProp==/isPropΠ since they are simple and needed for some of the meta hlevel cases
 abstract
   ΣProp== : ((a : A) -> isProp (B a)) -> {u v : Σ A B} (p : u .fst == v .fst) -> u == v
-  ΣProp== {B = B} pB {u} {v} p i = (p i , isProp->PathP (\ i -> pB (p i)) (u .snd) (v .snd) i)
+  ΣProp== {B = B} pB {u} {v} p i = (p i , isProp->PathPᵉ (\ i -> pB (p i)) (u .snd) (v .snd) i)
 
   section-ΣProp== : (pB : (x : A) → isProp (B x)) {u v : Σ A B} ->
                     (∀ x -> (ΣProp== pB {u} {v} (\j -> fst (x j))) == x)
   section-ΣProp== {A = A} pB {u} {v} p j i =
-    (p i .fst) , isProp->PathP (\ i -> isOfHLevelPath 1 (pB (fst (p i)))
-                                         (ΣProp== pB {u} {v} (\j -> fst (p j)) i .snd)
-                                         (p i .snd))
-                                         refl refl i j
+    (p i .fst) , isProp->PathPᵉ (\ i -> isOfHLevelPath 1 (pB (fst (p i)))
+                                          (ΣProp== pB {u} {v} (\j -> fst (p j)) i .snd)
+                                          (p i .snd))
+                                          refl refl i j
 
 abstract
 

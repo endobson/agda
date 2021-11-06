@@ -89,7 +89,7 @@ private
   equivEq : {A1 : Type ℓ₁} {A2 : Type ℓ₂} {e1 e2 : A1 ≃ A2} (p : e1 .fst == e2 .fst) -> e1 == e2
   equivEq p i .fst = p i
   equivEq {e1 = e1} {e2 = e2} p i .snd =
-    isProp->PathP (\i -> isProp-isEquiv {f = p i}) (e1 .snd) (e2 .snd) i
+    isProp->PathPᵉ (\i -> isProp-isEquiv {f = p i}) (e1 .snd) (e2 .snd) i
 
   pathToEquiv-refl : pathToEquiv refl == idEquiv A
   pathToEquiv-refl {A = A} = equivEq (\i x -> transp (\_ -> A) i x)

@@ -51,7 +51,7 @@ Iℚ-bounds-path {a@(Iℚ-cons _ _ _)} {b@(Iℚ-cons _ _ _)} pl pu = a.path
   module a where
     abstract
       p≤ : PathP (\i -> (pl i) ℚ≤ (pu i)) (Iℚ.l≤u a) (Iℚ.l≤u b)
-      p≤ = isProp->PathP (\i -> isProp-ℚ≤ {pl i} {pu i}) (Iℚ.l≤u a) (Iℚ.l≤u b)
+      p≤ = isProp->PathP (\i -> isProp-ℚ≤ {pl i} {pu i})
 
       path : a == b
       path i = Iℚ-cons (pl i) (pu i) (p≤ i)

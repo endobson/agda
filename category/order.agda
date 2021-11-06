@@ -47,10 +47,10 @@ module _ (D : Type ℓObj) {{PO : PartialOrderStr D ℓMor}} where
       inv-path i = isProp-≤ y x (CatIso.inv c1) (CatIso.inv c2) i
       sec-path : PathP (\i -> inv-path i ⋆⟨ PartialOrderC ⟩ mor-path i == refl-≤)
                        (CatIso.sec c1) (CatIso.sec c2)
-      sec-path = isProp->PathP (\i -> isProp->isSet (isProp-≤ _ _) _ _) _ _
+      sec-path = isProp->PathP (\i -> isProp->isSet (isProp-≤ _ _) _ _)
       ret-path : PathP (\i -> mor-path i ⋆⟨ PartialOrderC ⟩ inv-path i == refl-≤)
                        (CatIso.ret c1) (CatIso.ret c2)
-      ret-path = isProp->PathP (\i -> isProp->isSet (isProp-≤ _ _) _ _) _ _
+      ret-path = isProp->PathP (\i -> isProp->isSet (isProp-≤ _ _) _ _)
 
 
     Iso-pathToCatIso : Iso (x == y) (CatIso PartialOrderC x y)

@@ -20,7 +20,7 @@ module _ where
                    -> ({a : A} -> isProp (B a))
                    -> (p : (x .fst) == (y .fst))
                    -> PathP (\i -> B (p i)) (x .snd) (y .snd)
-        snd-path x y h p = isProp->PathP (\i -> h {(p i)}) (x .snd) (y .snd)
+        snd-path x y h p = isProp->PathP (\i -> h {(p i)})
 
         snd-path-refl : {ℓA ℓB : Level} {A : Type ℓA} {B : A -> Type ℓB} (x : Σ A B)
                         -> (h : {a : A} -> isProp (B a)  )

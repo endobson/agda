@@ -93,7 +93,7 @@ private
           p2 : normalize-vector (v- (k v* v)) v-kv#0 == v- (normalize-vector (k v* v) kv#0)
           p2 = normalize-vector-v- (k v* v) kv#0 v-kv#0
           p3 : normalize-vector (v- (k v* v)) v-kv#0 == normalize-vector ((- k) v* v) -kv#0
-          p3 = cong2-dep normalize-vector v-p1 (isProp->PathP (\i -> isProp-v# (v-p1 i) _) v-kv#0 -kv#0)
+          p3 = cong2-dep normalize-vector v-p1 (isProp->PathPᵉ (\i -> isProp-v# (v-p1 i) _) v-kv#0 -kv#0)
 
           p : normalize-vector (k v* v) kv#0 == v- (normalize-vector v v#0)
           p = sym v--double-inverse >=> cong v-_ (sym p2 >=> p3 >=> p1)
@@ -111,7 +111,7 @@ vector->semi-direction-v* v1 v1#0 v2 v2#0 k path =
   kv1#0 : (k v* v1) # 0v
   kv1#0 = (subst (_v# 0v) (sym path) v2#0)
   path3 : PathP (\i -> path i # 0v) kv1#0 v2#0
-  path3 = (isProp->PathP (\i -> isProp-#) kv1#0 v2#0)
+  path3 = isProp->PathP (\i -> isProp-#)
   path2 : vector->semi-direction (k v* v1) kv1#0 == vector->semi-direction v2 v2#0
   path2 i = vector->semi-direction (path i) (path3 i)
 

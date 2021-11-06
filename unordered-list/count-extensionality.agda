@@ -143,7 +143,7 @@ private
                  -> PathP (\i -> StrongRec (swap a1 a2 as i))
                           (a1 ::s (a2 ::s sr))
                           (a2 ::s (a1 ::s sr))
-        swap-s a1 a2 sr = isProp->PathP (\i -> trunc) _ _
+        swap-s a1 a2 sr = isProp->PathP (\i -> trunc)
 
       use-rec : {as : UList A} -> StrongRec as -> B as
       use-rec sr-empty      = []*
@@ -244,7 +244,7 @@ private
     xp : x1 == x2
     xp = ++-injective as (++-commute as x1 >=> p1 >=> sym p2 >=> ++-commute x2 as)
     pp : PathP _ p1 p2
-    pp = isProp->PathP (\i -> (trunc _ _)) p1 p2
+    pp = isProp->PathP (\i -> (trunc _ _))
 
 
   subset-::-both : {as bs : UList A} -> (a : A) -> (Subset as bs) -> Subset (a :: as) (a :: bs)

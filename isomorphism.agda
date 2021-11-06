@@ -271,12 +271,12 @@ module _ (hA : isSet A) (hB : isSet B) {iso₁ iso₂ : Iso A B}
   p-rightInv : (b : B) -> PathP (\i -> (p-fun i (p-inv i b)) == b)
                                 (Iso.rightInv iso₁ b)
                                 (Iso.rightInv iso₂ b)
-  p-rightInv b = isProp->PathP (\_ -> hB _ _) _ _
+  p-rightInv b = isProp->PathP (\_ -> hB _ _)
 
   p-leftInv : (a : A) -> PathP (\i -> (p-inv i (p-fun i a)) == a)
                                (Iso.leftInv iso₁ a)
                                (Iso.leftInv iso₂ a)
-  p-leftInv a = isProp->PathP (\_ -> hA _ _) _ _
+  p-leftInv a = isProp->PathP (\_ -> hA _ _)
 
   isSet-iso-path : iso₁ == iso₂
   Iso.fun (isSet-iso-path i) = p-fun i

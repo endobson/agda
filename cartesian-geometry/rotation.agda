@@ -112,7 +112,7 @@ rotation-ext {r1@(rotation-cons _ l1)} {r2@(rotation-cons _ l2)} p = a.path
     abstract
       path-l : PathP (\ i -> axis-dot-product (p i) (p i) == 1#)
                      (Rotation.len=1 r1) (Rotation.len=1 r2)
-      path-l = isProp->PathP (\i -> isSet-ℝ _ _) l1 l2
+      path-l = isProp->PathP (\i -> isSet-ℝ _ _)
 
       path : r1 == r2
       path i = rotation-cons (p i) (path-l i)
@@ -692,7 +692,7 @@ rotate-vector-preserves-vector-length² (rotation-cons dv vl-d=1) v =
 rotate-preserves-vector-length :
   (r : Rotation) (v : Vector) -> vector-length (rotate-vector r v) == vector-length v
 rotate-preserves-vector-length r v =
-  cong2-dep sqrtℝ p (isProp->PathP (\i -> isProp-≤ 0# (p i)) _ _)
+  cong2-dep sqrtℝ p (isProp->PathP (\i -> isProp-≤ 0# (p i)))
   where
   p = rotate-vector-preserves-vector-length² r v
 

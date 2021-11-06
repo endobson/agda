@@ -27,7 +27,7 @@ private
   fin-i-pathᵉ {n} {x} {y} p = \i -> p i , q i
     where
     q : PathP (\i -> p i < n) (Fin.i<n x) (Fin.i<n y)
-    q = isProp->PathP (\i -> isProp≤) (Fin.i<n x) (Fin.i<n y)
+    q = isProp->PathP (\i -> isProp≤)
 
 abstract
   fin-i-path : {n : Nat} {x y : Fin n} -> Fin.i x == Fin.i y -> x == y

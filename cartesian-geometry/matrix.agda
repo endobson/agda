@@ -221,9 +221,9 @@ isProp-isInvertibleMatrix {m}
       cong (_m* inv2) left-inv1 >=>
       m*-left-identity inv2
     left-p : PathP (\i -> p i m* m == identity-matrix) left-inv1 left-inv2
-    left-p = isProp->PathP (\i -> isSet-Matrix _ _) _ _
+    left-p = isProp->PathP (\i -> isSet-Matrix _ _)
     right-p : PathP (\i -> m m* p i == identity-matrix) right-inv1 right-inv2
-    right-p = isProp->PathP (\i -> isSet-Matrix _ _) _ _
+    right-p = isProp->PathP (\i -> isSet-Matrix _ _)
 
 inverse-matrix : (m : Matrix) -> determinant m # 0# -> Matrix
 inverse-matrix m det#0 = matrix f

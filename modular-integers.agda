@@ -379,7 +379,7 @@ isProp-Unit' {n} {x} u1 u2 = (\i -> record
     (cong (_z* u2.inv) u1.path) >=> z*-left-one u2.inv)
 
   path-a-path : PathP (\i -> x z*a (inv-path i) == 1#) u1.path-a u2.path-a
-  path-a-path = isProp->PathP (\_ -> isSet-ℤ/nℤ _ _) u1.path-a u2.path-a
+  path-a-path = isProp->PathP (\_ -> isSet-ℤ/nℤ _ _)
 
 
 

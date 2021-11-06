@@ -57,7 +57,7 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
     elim (\ar -> (isProp->isSet (isPropC ar))) f f~
     where
     f~ : (a1 a2 : A) (r : R a1 a2) -> PathP (\i -> C (eq/ a1 a2 r i)) (f a1) (f a2)
-    f~ a1 a2 r = isProp->PathP (\i -> isPropC (eq/ a1 a2 r i)) (f a1) (f a2)
+    f~ a1 a2 r = isProp->PathP (\i -> isPropC (eq/ a1 a2 r i))
 
   elimProp2 : (isPropC2 : (ar1 ar2 : A / R) -> isProp (C2 ar1 ar2)) ->
               (f : (a1 a2 : A) -> C2 [ a1 ] [ a2 ]) ->

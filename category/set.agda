@@ -80,12 +80,12 @@ private
     ret-line : I -> Type ℓ
     ret-line i = mp i ⋆⟨ C ⟩ ip i == C.id
     ans-ret : PathP ret-line c1.ret c2.ret
-    ans-ret = isProp->PathP (\i -> (isSet-Mor _ _)) _ _
+    ans-ret = isProp->PathP (\i -> (isSet-Mor _ _))
 
     sec-line : I -> Type ℓ
     sec-line i = ip i ⋆⟨ C ⟩ mp i == C.id
     ans-sec : PathP sec-line c1.sec c2.sec
-    ans-sec = isProp->PathP (\i -> (isSet-Mor _ _)) _ _
+    ans-sec = isProp->PathP (\i -> (isSet-Mor _ _))
 
 
 

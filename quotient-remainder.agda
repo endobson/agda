@@ -167,4 +167,4 @@ isContr-QuotientRemainder {d} {n} .snd qr2 = (\i -> record
   r-path : qr.r == qr2.r
   r-path = cong (\x -> remainder x d) (sym qr2.path) >=> remainder-path d qr2.q qr2.r
   p-path : PathP (\i -> (q-path i) *' ⟨ d ⟩ +' Fin.i (r-path i) == n) qr.path qr2.path
-  p-path = isProp->PathP (\i -> isSetNat _ _) _ _
+  p-path = isProp->PathP (\i -> isSetNat _ _)

@@ -93,7 +93,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
 
         path8 : PathP (\k -> i2 *⁺ j2 == (path5' k))
                       (snd (snd (backward (forward ppd)))) (snd pd2)
-        path8 = isProp->PathP (\_ -> isSetNat⁺ _ _) _ _
+        path8 = isProp->PathP (\_ -> isSetNat⁺ _ _)
 
         path6 : PathP (\k -> PairedDivisor (path5' k)) (snd (backward (forward ppd))) pd2
         path6 i = path7 i , path8 i

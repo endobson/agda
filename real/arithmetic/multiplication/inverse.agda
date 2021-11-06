@@ -51,8 +51,8 @@ private
 
       isProp-L : (q : ℚ) -> isProp (L q)
       isProp-L q (L-pos p1 u1) (L-pos p2 u2) =
-        (\i -> L-pos (pos-path i) (isProp->PathP (\i -> x.isProp-U (r1/ q (Pos->Inv (pos-path i))))
-                                                 u1 u2 i))
+        (\i -> L-pos (pos-path i) (isProp->PathPᵉ (\i -> x.isProp-U (r1/ q (Pos->Inv (pos-path i))))
+                                                  u1 u2 i))
         where
         pos-path : p1 == p2
         pos-path = isProp-Pos q p1 p2
@@ -63,8 +63,8 @@ private
 
       isProp-U : (q : ℚ) -> isProp (U q)
       isProp-U q (U-pos p1 l1) (U-pos p2 l2) =
-        (\i -> U-pos (pos-path i) (isProp->PathP (\i -> x.isProp-L (r1/ q (Pos->Inv (pos-path i))))
-                                                 l1 l2 i))
+        (\i -> U-pos (pos-path i) (isProp->PathPᵉ (\i -> x.isProp-L (r1/ q (Pos->Inv (pos-path i))))
+                                                  l1 l2 i))
         where
         pos-path : p1 == p2
         pos-path = isProp-Pos q p1 p2
@@ -306,8 +306,7 @@ module _ (x : ℝ)  where
       L0 = subst (Real.U -x) (sym minus-zero) (ℝ<->U -x 0r -x<0)
 
       p2 : (ℝ1/-Pos (ℝ-ᵉ -x) L0) == (ℝ1/-Pos x (ℝ<->L 0r x 0<x))
-      p2 = cong2-dep ℝ1/-Pos p1
-           (isProp->PathP (\i -> (Real.isProp-L (p1 i) 0r)) _ _)
+      p2 = cong2-dep ℝ1/-Pos p1 (isProp->PathP (\i -> (Real.isProp-L (p1 i) 0r)))
 
     ℝ-ᵉ-ℝ1/ᵉ-commute' xinv@(inj-l x<0) -xinv@(inj-r 0<-x) =
       ℝ-ᵉ-double-inverse (ℝ1/-Pos -x L0) >=>
@@ -334,10 +333,7 @@ module _ (x : ℝ)  where
     ℝ--eval >=>
     cong ℝ-ᵉ_ (ℝ1/-eval x xinv) >=>
     ℝ-ᵉ-ℝ1/ᵉ-commute' xinv (subst ℝInv ℝ--eval (ℝ--preserves-ℝInv x xinv)) >=>
-    cong2-dep ℝ1/ᵉ (\i -> ℝ--eval (~ i))
-      (isProp->PathP (\i -> isProp-ℝInv (ℝ--eval {x} (~ i)))
-                     (subst ℝInv ℝ--eval (ℝ--preserves-ℝInv x xinv))
-                     (ℝ--preserves-ℝInv x xinv)) >=>
+    cong2-dep ℝ1/ᵉ (\i -> ℝ--eval (~ i)) (isProp->PathP (\i -> isProp-ℝInv (ℝ--eval {x} (~ i)))) >=>
     sym (ℝ1/-eval (ℝ- x) (ℝ--preserves-ℝInv x xinv))
 
 

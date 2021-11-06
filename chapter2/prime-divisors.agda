@@ -137,7 +137,7 @@ isProp-PrimeDivCount {p} {a} {n} dc1 dc2 = (\i -> record
   %a-path = isPropDiv' (a , (PrimeDivCount.a-pos dc1)) _ _
   ¬p%r-path : PathP (\i -> ¬ (p' div' ⟨ %a-path i ⟩))
                     (PrimeDivCount.¬p%r dc1) (PrimeDivCount.¬p%r dc2)
-  ¬p%r-path = isProp->PathP (\_ -> isProp¬ _) _ _
+  ¬p%r-path = isProp->PathP (\_ -> isProp¬ _)
 
 
 PrimePowerFactor : Nat -> Type₀

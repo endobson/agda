@@ -258,22 +258,22 @@ abstract
     ; isProp-L = isProp-L i
     ; isProp-U = isProp-U i
     ; Inhabited-L =
-      isProp->PathP (\i -> squash {A = Σ ℚ (lp' i)}) (Real.Inhabited-L x) (Real.Inhabited-L y) i
+      isProp->PathPᵉ (\i -> squash {A = Σ ℚ (lp' i)}) (Real.Inhabited-L x) (Real.Inhabited-L y) i
     ; Inhabited-U =
-      isProp->PathP (\i -> squash {A = Σ ℚ (up' i)}) (Real.Inhabited-U x) (Real.Inhabited-U y) i
+      isProp->PathPᵉ (\i -> squash {A = Σ ℚ (up' i)}) (Real.Inhabited-U x) (Real.Inhabited-U y) i
     ; isLowerSet-L =
-      isProp->PathP isProp-isLowerSet (Real.isLowerSet-L x) (Real.isLowerSet-L y) i
+      isProp->PathPᵉ isProp-isLowerSet (Real.isLowerSet-L x) (Real.isLowerSet-L y) i
     ; isUpperSet-U =
-      isProp->PathP isProp-isUpperSet (Real.isUpperSet-U x) (Real.isUpperSet-U y) i
+      isProp->PathPᵉ isProp-isUpperSet (Real.isUpperSet-U x) (Real.isUpperSet-U y) i
     ; isUpperOpen-L =
-      isProp->PathP isProp-isUpperOpen (Real.isUpperOpen-L x) (Real.isUpperOpen-L y) i
+      isProp->PathPᵉ isProp-isUpperOpen (Real.isUpperOpen-L x) (Real.isUpperOpen-L y) i
     ; isLowerOpen-U =
-      isProp->PathP isProp-isLowerOpen (Real.isLowerOpen-U x) (Real.isLowerOpen-U y) i
+      isProp->PathPᵉ isProp-isLowerOpen (Real.isLowerOpen-U x) (Real.isLowerOpen-U y) i
     ; disjoint =
-      isProp->PathP {B = \i -> (q : Rational) -> (lp q i) × (up q i) -> Bot}
+      isProp->PathPᵉ {B = \i -> (q : Rational) -> (lp q i) × (up q i) -> Bot}
         (\i -> isPropΠ2 (\ _ _ -> isPropBot)) (Real.disjoint x) (Real.disjoint y) i
     ; located =
-      isProp->PathP {B = \i -> (q r : Rational) -> (q < r) -> ∥ lp q i ⊎ up r i ∥}
+      isProp->PathPᵉ {B = \i -> (q r : Rational) -> (q < r) -> ∥ lp q i ⊎ up r i ∥}
         (\i -> isPropΠ3 (\ _ _ _ -> squash)) (Real.located x) (Real.located y) i
     })
     where
@@ -282,11 +282,11 @@ abstract
     up' : (Real.U x) == (Real.U y)
     up' i q = up q i
     isProp-L : (i : I) (q : ℚ) -> isProp (lp' i q)
-    isProp-L i q = isProp->PathP (\i -> isProp-isProp {A = lp' i q})
-                                 (Real.isProp-L x q) (Real.isProp-L y q) i
+    isProp-L i q = isProp->PathPᵉ (\i -> isProp-isProp {A = lp' i q})
+                                  (Real.isProp-L x q) (Real.isProp-L y q) i
     isProp-U : (i : I) (q : ℚ) -> isProp (up' i q)
-    isProp-U i q = isProp->PathP (\i -> isProp-isProp {A = up' i q})
-                                 (Real.isProp-U x q) (Real.isProp-U y q) i
+    isProp-U i q = isProp->PathPᵉ (\i -> isProp-isProp {A = up' i q})
+                                  (Real.isProp-U x q) (Real.isProp-U y q) i
 
     isProp-isLowerSet : (i : I) -> isProp (isLowerSet (lp' i))
     isProp-isLowerSet i = isPropΠ4 (\q _ _ _ -> isProp-L i q)

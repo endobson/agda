@@ -46,10 +46,10 @@ module _ {D : Type ℓObj} (isSet-D : isSet D) where
       inv-path i = isSet-D y x (CatIso.inv c1) (CatIso.inv c2) i
       sec-path : PathP (\i -> inv-path i ⋆⟨ DiscreteC ⟩ mor-path i == refl)
                        (CatIso.sec c1) (CatIso.sec c2)
-      sec-path = isProp->PathP (\i -> isProp->isSet (isSet-D _ _) _ _) _ _
+      sec-path = isProp->PathP (\i -> isProp->isSet (isSet-D _ _) _ _)
       ret-path : PathP (\i -> mor-path i ⋆⟨ DiscreteC ⟩ inv-path i == refl)
                        (CatIso.ret c1) (CatIso.ret c2)
-      ret-path = isProp->PathP (\i -> isProp->isSet (isSet-D _ _) _ _) _ _
+      ret-path = isProp->PathP (\i -> isProp->isSet (isSet-D _ _) _ _)
 
 
     Iso-pathToCatIso : Iso (x == y) (CatIso DiscreteC x y)

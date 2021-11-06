@@ -156,7 +156,7 @@ module _ (n⁺ : Nat⁺) where
       dpath = disjointA (k , g2) (k , g) refl
 
       gpath : PathP (\i -> GCD' k' n (dpath i)) g2 g
-      gpath = isProp->PathP (\i -> isPropGCD' ⟨ k ⟩ (dpath i)) g2 g
+      gpath = isProp->PathP (\i -> isPropGCD' ⟨ k ⟩ (dpath i))
     isoA .Iso.leftInv _ = refl
 
   module _ where
@@ -304,8 +304,6 @@ module _ (n⁺ : Nat⁺) where
                         (snd (totative->diva d d%n (diva->totative d d%n a)))
                         (snd a)
           path4 = isProp->PathP (\j -> isPropGCD' (fst (path3 j)) d)
-                                (snd (totative->diva d d%n (diva->totative d d%n a)))
-                                (snd a)
 
         totative->diva->totative : (d : Nat) -> (d-div : (d div' n)) -> (tot : Totatives ⟨ d-div ⟩) ->
                                    diva->totative d d-div (totative->diva d d-div tot) == tot

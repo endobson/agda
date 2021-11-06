@@ -74,7 +74,7 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
 
     nd-path : (f1 f2 : F) -> F.n f1 == F.n f2 -> F.d f1 == F.d f2 -> f1 == f2
     nd-path (frac _ _ d1#0) (frac _ _ d2#0) n d i =
-      frac (n i) (d i) (isProp->PathP p d1#0 d2#0 i)
+      frac (n i) (d i) (isProp->PathPᵉ p d1#0 d2#0 i)
       where
       p : (i : I) -> isProp (d i # 0#)
       p i = isProp-#

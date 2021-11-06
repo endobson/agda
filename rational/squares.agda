@@ -257,7 +257,7 @@ private
       1/tt = r1/ (t * t) (Pos->Inv 0<tt)
 
       1/tt=1/s : 1/tt == 1/s
-      1/tt=1/s = cong2-dep r1/ tt=s (isProp->PathP (\_ -> isProp-ℚInv) (Pos->Inv 0<tt) (Pos->Inv 0<s))
+      1/tt=1/s = cong2-dep r1/ tt=s (isProp->PathP (\_ -> isProp-ℚInv))
       1/t²=1/s = sym (r1/-distrib-* t t (Pos->Inv 0<t) (Pos->Inv 0<t) (Pos->Inv 0<tt)) >=> 1/tt=1/s
 
       q<1/s : q < 1/s

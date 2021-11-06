@@ -54,7 +54,7 @@ module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
       where
       ans : PathP (\j -> op j x ⋆⟨ D ⟩ F-mor G f == F-mor F f ⋆⟨ D ⟩ op j y)
                   (NT-mor nt1 f) (NT-mor nt2 f)
-      ans = isProp->PathP (\ j -> isSet-Mor _ _) _ _
+      ans = isProp->PathP (\ j -> isSet-Mor _ _)
 
     compose-NT-left-id : {F G : Functor C D} ->
                          (nt : NaturalTransformation F G) ->

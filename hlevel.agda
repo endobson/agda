@@ -93,7 +93,7 @@ abstract
                   {a₁₀ : A} {a₁₁ : A} {a₁₋ : Path A a₁₀ a₁₁}
                   {a₋₀ : Path A a₀₀ a₁₀}
                   {a₋₁ : Path A a₀₁ a₁₁} -> isSet A -> Square a₀₋ a₁₋ a₋₀ a₋₁
-  isSet->Square h = isProp->PathP (\ k -> (h _ _)) _ _
+  isSet->Square h = isProp->PathP (\ k -> (h _ _))
 
   isSet->Squareᵉ : {ℓ : Level} {A : Type ℓ}
                    -> isSet A ->
@@ -101,7 +101,7 @@ abstract
                    {a₁₀ : A} {a₁₁ : A} (a₁₋ : Path A a₁₀ a₁₁)
                    (a₋₀ : Path A a₀₀ a₁₀)
                    (a₋₁ : Path A a₀₁ a₁₁) -> Square a₀₋ a₁₋ a₋₀ a₋₁
-  isSet->Squareᵉ h _ _ _ _ = isProp->PathP (\ k -> (h _ _)) _ _
+  isSet->Squareᵉ h _ _ _ _ = isProp->PathP (\ k -> (h _ _))
 
 
   isProp->Square : {ℓ : Level} {A : Type ℓ}
@@ -109,7 +109,7 @@ abstract
                   {a₁₀ : A} {a₁₁ : A} {a₁₋ : Path A a₁₀ a₁₁}
                   {a₋₀ : Path A a₀₀ a₁₀}
                   {a₋₁ : Path A a₀₁ a₁₁} -> isProp A -> Square a₀₋ a₁₋ a₋₀ a₋₁
-  isProp->Square h = isProp->PathP (\ _ -> (isProp->isSet h _ _)) _ _
+  isProp->Square h = isProp->PathP (\ _ -> (isProp->isSet h _ _))
 
 
   -- h-level for function property types

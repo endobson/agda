@@ -59,7 +59,7 @@ Discrete-ℚ' q1@(ℚ'-cons n1 d1 nz1) q2@(ℚ'-cons n2 d2 nz2) =
     no (d1!=d2 ∘ (cong denom))
   handle (yes n1=n2) (yes d1=d2) =
     yes (\i -> (ℚ'-cons (n1=n2 i) (d1=d2 i)
-                        (isProp->PathP (\i -> int.isPropNonZero {d1=d2 i}) nz1 nz2 i)))
+                        (isProp->PathPᵉ (\i -> int.isPropNonZero {d1=d2 i}) nz1 nz2 i)))
 
 
 private
@@ -189,7 +189,7 @@ nd-paths->path a b pn pd = (\i -> record
   })
   where
   pnz : PathP (\i -> NonZero (pd i)) (rNonZero a) (rNonZero b)
-  pnz = isProp->PathP (\_ -> int.isPropNonZero) _ _
+  pnz = isProp->PathP (\_ -> int.isPropNonZero)
 
 isSet-ℚᵉ : isSet ℚᵉ
 isSet-ℚᵉ = squash/
@@ -1063,7 +1063,7 @@ abstract
   fractional-part'-r+' q = (\i -> record
     { numerator = np i
     ; denominator = dp i
-    ; NonZero-denominator = isProp->PathP (\i -> int.isPropNonZero {dp i}) (rNonZero q') (rNonZero q) i
+    ; NonZero-denominator = isProp->PathPᵉ (\i -> int.isPropNonZero {dp i}) (rNonZero q') (rNonZero q) i
     })
     where
     q' : ℚ'

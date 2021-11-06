@@ -244,7 +244,7 @@ module _ (x : ℝ) where
           p5 = (ℝ*-eval {x} {x})
 
       sp : sxx == s-x-x
-      sp = cong2-dep sqrtℝᵉ (sym p) (isProp->PathP (\_ -> (isProp¬ _)) ≮0 -x-x≮0)
+      sp = cong2-dep sqrtℝᵉ (sym p) (isProp->PathP (\_ -> (isProp¬ _)))
 
 
       ℝ∈Iℚ-sqrt-abs : (ai : Iℚ) -> ℝ∈Iℚ (absℝ x) ai -> ℝ∈Iℚ sxx ai
@@ -268,8 +268,7 @@ module _ (x : ℝ) where
     sqrt-square : sqrtℝ (x * x) (≮0-square x) == absℝ x
     sqrt-square =
       sqrtℝ-eval (x * x) (≮0-square x) >=>
-      cong2-dep sqrtℝᵉ (ℝ*-eval {x} {x})
-                (isProp->PathP (\_ -> (isProp¬ _)) (≮0-square x) (≮0-squareᵉ x)) >=>
+      cong2-dep sqrtℝᵉ (ℝ*-eval {x} {x}) (isProp->PathP (\_ -> (isProp¬ _))) >=>
       sqrt-*ᵉ (≮0-squareᵉ x)
 
 module _ (x : ℝ) (x≮0 : x ≮ 0ℝ) where

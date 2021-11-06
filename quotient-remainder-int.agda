@@ -280,7 +280,7 @@ isContr-QuotientRemainder {d} {n} .snd qr2 = (\i -> record
   p-path : PathP (\i -> (quotient-unique d n qr2 (~ i)) * (int ⟨ d ⟩) +
                         (int (Fin.i (remainder-unique d n qr2 (~ i)))) == n)
                  qr1.path qr2.path
-  p-path = isProp->PathP (\i -> isSetInt _ _) _ _
+  p-path = isProp->PathP (\i -> isSetInt _ _)
 
 
 isProp-QuotientRemainder : {d : Nat⁺} {n : Int} -> isProp (QuotientRemainder d n)
