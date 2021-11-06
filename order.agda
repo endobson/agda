@@ -19,7 +19,7 @@ record LinearOrderStr (D : Type ℓD) (ℓ< : Level) : Type (ℓ-max (ℓ-suc �
   no-eta-equality
   field
     _<_ : D -> D -> Type ℓ<
-    isProp-< : (x y : D) -> isProp (x < y)
+    isProp-< : {x y : D} -> isProp (x < y)
     irrefl-< : Irreflexive _<_
     trans-< : Transitive _<_
     comparison-< : Comparison _<_
@@ -62,10 +62,10 @@ module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
   a <> b = (a < b) ⊎ (b < a)
 
   isProp-<> : {a b : D} -> isProp (a <> b)
-  isProp-<> (inj-l lt1) (inj-l lt2) = cong inj-l (isProp-< _ _ lt1 lt2)
+  isProp-<> (inj-l lt1) (inj-l lt2) = cong inj-l (isProp-< lt1 lt2)
   isProp-<> (inj-l lt1) (inj-r gt2) = bot-elim (asym-< lt1 gt2)
   isProp-<> (inj-r gt1) (inj-l lt2) = bot-elim (asym-< gt1 lt2)
-  isProp-<> (inj-r gt1) (inj-r gt2) = cong inj-r (isProp-< _ _ gt1 gt2)
+  isProp-<> (inj-r gt1) (inj-r gt2) = cong inj-r (isProp-< gt1 gt2)
 
 
 module _ {D : Type ℓD} (A : TightApartnessStr D) (O : LinearOrderStr D ℓ<) where
@@ -88,7 +88,7 @@ record PartialOrderStr (D : Type ℓD) (ℓ≤ : Level) : Type (ℓ-max (ℓ-suc
   no-eta-equality
   field
     _≤_ : D -> D -> Type ℓ≤
-    isProp-≤ : (x y : D) -> isProp (x ≤ y)
+    isProp-≤ : {x y : D} -> isProp (x ≤ y)
     refl-≤ : Reflexive _≤_
     trans-≤ : Transitive _≤_
     antisym-≤ : Antisymmetric _≤_
@@ -144,7 +144,7 @@ module _ {D : Type ℓD} (L : LinearOrderStr D ℓ<) where
     ; refl-≤ = irrefl-<
     ; trans-≤ = \a≤b b≤c -> trans-≮ b≤c a≤b
     ; antisym-≤ = \a≤b b≤a -> connected-< b≤a a≤b
-    ; isProp-≤ = \x y -> isProp¬ _
+    ; isProp-≤ = isProp¬ _
     }
 
   CompatibleNegatedLinearOrder : CompatibleOrderStr L NegatedLinearOrder
@@ -174,7 +174,7 @@ module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {
 
     trans-<-≤ : {d1 d2 d3 : D} -> d1 < d2 -> d2 ≤ d3 -> d1 < d3
     trans-<-≤ {d1} {d2} {d3} d1<d2 d2≤d3 =
-      unsquash (isProp-< d1 d3) (∥-map handle (comparison-< d1 d3 d2 d1<d2))
+      unsquash isProp-< (∥-map handle (comparison-< d1 d3 d2 d1<d2))
       where
       handle : (d1 < d3 ⊎ d3 < d2) -> d1 < d3
       handle (inj-l d1<d3) = d1<d3
@@ -185,7 +185,7 @@ module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {
 
     trans-≤-< : {d1 d2 d3 : D} -> d1 ≤ d2 -> d2 < d3 -> d1 < d3
     trans-≤-< {d1} {d2} {d3} d1≤d2 d2<d3 =
-      unsquash (isProp-< d1 d3) (∥-map handle (comparison-< d2 d1 d3 d2<d3))
+      unsquash isProp-< (∥-map handle (comparison-< d2 d1 d3 d2<d3))
       where
       handle : (d2 < d1 ⊎ d1 < d3) -> d1 < d3
       handle (inj-r d1<d3) = d1<d3

@@ -10,7 +10,7 @@ instance
   LinearOrderStr-ℕ : LinearOrderStr Nat ℓ-zero
   LinearOrderStr-ℕ = record
     { _<_ = no._<_
-    ; isProp-< = \x y -> no.isProp≤ {suc x} {y}
+    ; isProp-< = no.isProp≤
     ; irrefl-< = \{x} -> no.same-≮ {x}
     ; trans-< = \{x} {y} {z} -> no.trans-< {x} {y} {z}
     ; connected-< = no.connected-nat<
@@ -20,7 +20,7 @@ instance
   PartialOrderStr-ℕ : PartialOrderStr Nat ℓ-zero
   PartialOrderStr-ℕ = record
     { _≤_ = no._≤_
-    ; isProp-≤ = \x y -> no.isProp≤ {x} {y}
+    ; isProp-≤ = no.isProp≤
     ; refl-≤ = \{x} -> no.same-≤ x
     ; trans-≤ = \{x} {y} {z} -> no.trans-≤ {x} {y} {z}
     ; antisym-≤ = ≤-antisym

@@ -249,7 +249,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : A
 
   abstract
     0≤-square : {a : D} -> 0# ≤ (a * a)
-    0≤-square {a} = unsquash (isProp-≤ _ _) (∥-map handle (connex-≤ 0# a))
+    0≤-square {a} = unsquash isProp-≤ (∥-map handle (connex-≤ 0# a))
       where
       handle : (0# ≤ a) ⊎ (a ≤ 0#) -> 0# ≤ (a * a)
       handle (inj-l 0≤a) = subst2 _≤_ *-right-zero refl (*₁-preserves-≤ 0≤a 0≤a)

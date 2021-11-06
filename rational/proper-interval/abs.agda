@@ -200,7 +200,7 @@ naive-i² : (a : Iℚ) -> ImbalancedI a -> Iℚ
 naive-i² (Iℚ-cons l u l≤u) -l≤u = (Iℚ-cons (l * l) (u * u) ll≤uu)
   where
   ll≤uu : (l * l) ≤ (u * u)
-  ll≤uu = unsquash (isProp-≤ (l * l) (u * u)) (∥-map handle (connex-≤ 0r l))
+  ll≤uu = unsquash isProp-≤ (∥-map handle (connex-≤ 0r l))
     where
     handle : (0r ≤ l ⊎ l ≤ 0r) -> (l * l) ≤ (u * u)
     handle (inj-l 0≤l) =

@@ -20,8 +20,9 @@ private
   Triℚ< : Rel ℚ ℓ-zero
   Triℚ< x y = Tri (x < y) (x == y) (x > y)
 
-  isProp-Triℚ< : (x y : ℚ) -> isProp (Triℚ< x y)
-  isProp-Triℚ< x y = isProp-Tri (isProp-< x y) (isSetRational x y) (isProp-< y x)
+  abstract
+    isProp-Triℚ< : (x y : ℚ) -> isProp (Triℚ< x y)
+    isProp-Triℚ< x y = isProp-Tri isProp-< (isSetRational x y) isProp-<
 
   <->Tri : {x y : ℚ} -> x < y -> Triℚ< x y
   <->Tri {x} {y} x<y =

@@ -207,7 +207,7 @@ isUnitVector'-equiv v =
     p2 = p >=> sym *-left-one
 
     path : vector-length v == 1#
-    path = cong2-dep sqrtℝ p2 (isProp->PathP (\i -> isProp-≤ 0# (p2 i))) >=>
+    path = cong2-dep sqrtℝ p2 (isProp->PathP (\i -> isProp-≤)) >=>
            sqrt-square 1# >=> absℝ-NonNeg-idem 1# 0≤1
 
   backward : isUnitVector v -> isUnitVector' v
@@ -229,7 +229,7 @@ isSet-Direction = isSetΣ isSet-Vector (\v -> isProp->isSet (isProp-isUnitVector
 0<-square x (inj-r 0<x) = subst (_< (x * x)) *-right-zero (*₁-preserves-< 0<x 0<x)
 
 vector-length>0 : (v : Vector) -> (v v# 0v) -> (vector-length v > 0#)
-vector-length>0 v v#0 = unsquash (isProp-< 0# (vector-length v)) (∥-map handle v#0)
+vector-length>0 v v#0 = unsquash isProp-< (∥-map handle v#0)
   where
   x = (direct-product-index v x-axis)
   y = (direct-product-index v y-axis)
@@ -318,7 +318,7 @@ vector-length-* k v = p6
   p3 = vector-length²-* k v >=> *-right p2 >=> p4
 
   p5 : lkv == sqrtℝ (aklv * aklv) (≮0-square aklv)
-  p5 = cong2-dep sqrtℝ p3 (isProp->PathP (\i -> isProp-≤ 0# (p3 i)))
+  p5 = cong2-dep sqrtℝ p3 (isProp->PathP (\i -> isProp-≤))
 
   p6 : lkv == aklv
   p6 = p5 >=> sqrt-square aklv >=> absℝ-NonNeg-idem aklv 0≤aklv
@@ -334,7 +334,7 @@ vector-length²-v- v =
   -v=-1v = sym v*-left-minus-one
 
 vector-length-v- : (v : Vector) -> vector-length (v- v) == vector-length v
-vector-length-v- v = cong2-dep sqrtℝ p (isProp->PathP (\i -> isProp-≤ 0# (p i)))
+vector-length-v- v = cong2-dep sqrtℝ p (isProp->PathP (\i -> isProp-≤))
   where
   p = vector-length²-v- v
 
@@ -463,7 +463,7 @@ isProp-DirectionOfVector' {v} {d} (direction-of-vector-cons k1 0≤k1 path1)
                                   (direction-of-vector-cons k2 0≤k2 path2) =
   (\i -> record
     { k = (k-path i)
-    ; 0≤k = (isProp->PathPᵉ (\j -> isProp-≤ 0# (k-path j)) 0≤k1 0≤k2 i)
+    ; 0≤k = (0≤k-path i)
     ; path = (isProp->PathPᵉ (\j -> isSet-Vector ((k-path j) v* v) ⟨ d ⟩) path1 path2 i)
     })
   where
@@ -483,6 +483,9 @@ isProp-DirectionOfVector' {v} {d} (direction-of-vector-cons k1 0≤k1 path1)
              cong vector-length path1 >=>
              d-l) >=>
     *-right-one
+
+  0≤k-path : PathP (\i -> 0# ≤ k-path i) 0≤k1 0≤k2
+  0≤k-path = (isProp->PathPᵉ (\j -> isProp-≤) 0≤k1 0≤k2)
 
 
 isProp-DirectionOfVector : {v : Vector} -> isProp (DirectionOfVector v)
@@ -551,7 +554,7 @@ conjugate-preserves-vector-length² v = +-right minus-extract-both
 conjugate-preserves-vector-length :
   (v : Vector) -> vector-length (conjugate-vector v) == vector-length v
 conjugate-preserves-vector-length v =
-  cong2-dep sqrtℝ p (isProp->PathP (\i -> isProp-≤ 0# (p i)))
+  cong2-dep sqrtℝ p (isProp->PathP (\i -> isProp-≤))
   where
   p = conjugate-preserves-vector-length² v
 

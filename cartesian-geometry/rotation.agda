@@ -692,7 +692,7 @@ rotate-vector-preserves-vector-length² (rotation-cons dv vl-d=1) v =
 rotate-preserves-vector-length :
   (r : Rotation) (v : Vector) -> vector-length (rotate-vector r v) == vector-length v
 rotate-preserves-vector-length r v =
-  cong2-dep sqrtℝ p (isProp->PathP (\i -> isProp-≤ 0# (p i)))
+  cong2-dep sqrtℝ p (isProp->PathP (\i -> isProp-≤))
   where
   p = rotate-vector-preserves-vector-length² r v
 

@@ -19,15 +19,15 @@ module _ (D : Type ℓObj) {{PO : PartialOrderStr D ℓMor}} where
   PartialOrderC .PreCategory.Mor x y = x ≤ y
   PartialOrderC .PreCategory.id = refl-≤
   PartialOrderC .PreCategory._⋆_ = trans-≤
-  PartialOrderC .PreCategory.⋆-left-id f = isProp-≤ _ _ _ _
-  PartialOrderC .PreCategory.⋆-right-id f = isProp-≤ _ _ _ _
-  PartialOrderC .PreCategory.⋆-assoc f g h = isProp-≤ _ _ _ _
+  PartialOrderC .PreCategory.⋆-left-id f = isProp-≤ _ _
+  PartialOrderC .PreCategory.⋆-right-id f = isProp-≤ _ _
+  PartialOrderC .PreCategory.⋆-assoc f g h = isProp-≤ _ _
 
   isThin-PartialOrderC : isThin PartialOrderC
-  isThin-PartialOrderC .isThin.isProp-Mor = isProp-≤ _ _
+  isThin-PartialOrderC .isThin.isProp-Mor = isProp-≤
 
   isCategory-PartialOrderC : isCategory PartialOrderC
-  isCategory-PartialOrderC .isCategory.isSet-Mor = isProp->isSet (isProp-≤ _ _)
+  isCategory-PartialOrderC .isCategory.isSet-Mor = isProp->isSet isProp-≤
 
   isUnivalent-PartialOrderC : isSet D -> isUnivalent PartialOrderC
   isUnivalent-PartialOrderC isSet-D .isUnivalent.isEquiv-pathToCatIso x y =
@@ -42,15 +42,15 @@ module _ (D : Type ℓObj) {{PO : PartialOrderStr D ℓMor}} where
       })
       where
       mor-path : (CatIso.mor c1) == (CatIso.mor c2)
-      mor-path i = isProp-≤ x y (CatIso.mor c1) (CatIso.mor c2) i
+      mor-path i = isProp-≤ (CatIso.mor c1) (CatIso.mor c2) i
       inv-path : (CatIso.inv c1) == (CatIso.inv c2)
-      inv-path i = isProp-≤ y x (CatIso.inv c1) (CatIso.inv c2) i
+      inv-path i = isProp-≤ (CatIso.inv c1) (CatIso.inv c2) i
       sec-path : PathP (\i -> inv-path i ⋆⟨ PartialOrderC ⟩ mor-path i == refl-≤)
                        (CatIso.sec c1) (CatIso.sec c2)
-      sec-path = isProp->PathP (\i -> isProp->isSet (isProp-≤ _ _) _ _)
+      sec-path = isProp->PathP (\i -> isProp->isSet isProp-≤ _ _)
       ret-path : PathP (\i -> mor-path i ⋆⟨ PartialOrderC ⟩ inv-path i == refl-≤)
                        (CatIso.ret c1) (CatIso.ret c2)
-      ret-path = isProp->PathP (\i -> isProp->isSet (isProp-≤ _ _) _ _)
+      ret-path = isProp->PathP (\i -> isProp->isSet isProp-≤ _ _)
 
 
     Iso-pathToCatIso : Iso (x == y) (CatIso PartialOrderC x y)

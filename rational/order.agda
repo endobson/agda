@@ -250,7 +250,7 @@ instance
   LinearOrderStr-ℚ : LinearOrderStr ℚ ℓ-zero
   LinearOrderStr-ℚ = record
     { _<_ = _ℚ<_
-    ; isProp-< = \_ _ -> isProp-ℚ<
+    ; isProp-< = isProp-ℚ<
     ; irrefl-< = irrefl-ℚ<
     ; trans-< = trans-ℚ<
     ; connected-< = connected-ℚ<
@@ -261,7 +261,7 @@ instance
   PartialOrderStr-ℚ : PartialOrderStr ℚ ℓ-zero
   PartialOrderStr-ℚ = record
     { _≤_ = _ℚ≤_
-    ; isProp-≤ = \_ _ -> isProp-ℚ≤
+    ; isProp-≤ = isProp-ℚ≤
     ; refl-≤ = refl-ℚ≤
     ; trans-≤ = \{a} {b} {c} -> trans-ℚ≤ {a} {b} {c}
     ; antisym-≤ = antisym-ℚ≤
@@ -340,7 +340,7 @@ abstract
   strengthen-ℚ≤-≠ : {a b : ℚ} -> a ℚ≤ b -> a != b -> a < b
   strengthen-ℚ≤-≠ =
     ℚ≤-elim {P = \a b -> a != b -> a < b }
-            (isPropΠ (\_ -> isProp-< _ _))
+            (isPropΠ (\_ -> isProp-<))
             (\x _ -> x)
             (\a=b a!=b -> bot-elim (a!=b a=b)) _ _
 
@@ -368,9 +368,9 @@ private
 
   abstract
     isProp-isSignℚ : (s : Sign) (q : ℚ) -> isProp (isSignℚ s q)
-    isProp-isSignℚ pos-sign _ = isProp-< _ _
+    isProp-isSignℚ pos-sign _ = isProp-<
     isProp-isSignℚ zero-sign _ = isSetRational _ _
-    isProp-isSignℚ neg-sign _ = isProp-< _ _
+    isProp-isSignℚ neg-sign _ = isProp-<
 
     isSignℚ-unique : (q : ℚ) (s1 s2 : Sign) -> (isSignℚ s1 q) -> (isSignℚ s2 q) -> s1 == s2
     isSignℚ-unique q pos-sign  pos-sign  s1q s2q = refl
@@ -493,7 +493,7 @@ abstract
   r+₁-preserves-< a b c (ℚ<-cons b<c) =
     ℚ-elimProp3
       {C3 = \a b c -> ℚ<-raw b c -> (a + b) < (a + c)}
-      (\_ _ _ -> isPropΠ (\_ -> isProp-< _ _))
+      (\_ _ _ -> isPropΠ (\_ -> isProp-<))
       convert
       a b c b<c
     where
@@ -508,7 +508,7 @@ abstract
   r*-preserves-0< a b (ℚ<-cons 0<a) (ℚ<-cons 0<b) =
     ℚ-elimProp2
       {C2 = \a b -> ℚ<-raw 0r a -> ℚ<-raw 0r b -> 0r < (a * b)}
-      (\_ _ -> isPropΠ2 (\_ _ -> isProp-< _ _))
+      (\_ _ -> isPropΠ2 (\_ _ -> isProp-<))
       convert
       a b 0<a 0<b
     where
@@ -530,7 +530,7 @@ module _ where
     module M where
       abstract
         r+₁-preserves-≤ : (a b c : ℚ) -> b ≤ c -> (a + b) ≤ (a + c)
-        r+₁-preserves-≤ a = ℚ≤-elim (isProp-≤ _ _) f< f=
+        r+₁-preserves-≤ a = ℚ≤-elim isProp-≤ f< f=
           where
           module _ where
             f< : {b c : ℚ} -> b < c -> _
@@ -568,13 +568,13 @@ abstract
   r*-preserves-0≤ : (a b : ℚ) -> 0r ≤ a -> 0r ≤ b -> 0r ≤ (a * b)
   r*-preserves-0≤ a b 0≤a 0≤b =
     ℚ0≤-elim {P = \a -> ∀ b -> 0r ≤ b -> 0r ≤ (a * b)}
-      (isPropΠ2 (\_ _ -> (isProp-≤ _ _))) f< f= a 0≤a b 0≤b
+      (isPropΠ2 (\_ _ -> isProp-≤)) f< f= a 0≤a b 0≤b
     where
     f= : {a : ℚ} -> 0r == a -> (b : ℚ) -> 0r ≤ b -> 0r ≤ (a * b)
     f= 0=a _ _ = =->≤ (sym *-left-zero >=> *-left 0=a)
 
     f< : {a : ℚ} -> 0r < a -> (b : ℚ) -> 0r ≤ b -> 0r ≤ (a * b)
-    f< {a} 0<a = ℚ0≤-elim (isProp-≤ _ _) g< g=
+    f< {a} 0<a = ℚ0≤-elim isProp-≤ g< g=
       where
       g< : {b : ℚ} -> 0r < b -> 0r ≤ (a * b)
       g< 0<b = weaken-< (*-preserves-0< 0<a 0<b)

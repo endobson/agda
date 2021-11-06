@@ -35,10 +35,10 @@ module _ (x : ℝ) (x≮0 : x ≮ 0ℝ)
     abstract
 
       isProp-U : isPropValuedPred U
-      isProp-U q = isProp× (isProp-≤ 0r q) (x.isProp-U (q * q))
+      isProp-U q = isProp× isProp-≤ (x.isProp-U (q * q))
 
       isProp-L : isPropValuedPred L
-      isProp-L q = isProp⊎ (isProp-Neg q) (isProp× (isProp-≤ 0r q) (x.isProp-L (q * q)))
+      isProp-L q = isProp⊎ (isProp-Neg q) (isProp× isProp-≤ (x.isProp-L (q * q)))
                    (\n (0≤q , _) -> (NonNeg->¬Neg (0≤-NonNeg q 0≤q) n))
 
       disjoint : Universal (Comp (L ∩ U))

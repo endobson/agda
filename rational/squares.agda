@@ -51,7 +51,7 @@ abstract
 
   squares-ordered : {q r : ℚ} -> (0r ≤ q) -> (0r ≤ r) -> (q * q) < (r * r) -> q < r
   squares-ordered {q} {r} 0≤q 0≤r qq<rr =
-    unsquash (isProp-< _ _) (∥-map handle (comparison-< qq qr rr qq<rr))
+    unsquash isProp-< (∥-map handle (comparison-< qq qr rr qq<rr))
     where
     module _ where
       qq = (q * q)

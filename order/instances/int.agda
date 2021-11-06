@@ -12,7 +12,7 @@ instance
   LinearOrderStr-ℤ : LinearOrderStr ℤ ℓ-zero
   LinearOrderStr-ℤ = record
     { _<_ = io._<_
-    ; isProp-< = \x y -> io.isProp-< {x} {y}
+    ; isProp-< = io.isProp-<
     ; irrefl-< = \{x} -> io.irrefl-< {x}
     ; trans-< = \{x} {y} {z} -> io.trans-< {x} {y} {z}
     ; connected-< = io.connected-<

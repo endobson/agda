@@ -61,8 +61,8 @@ abstract
   ℚ->ℝ q1 = record
     { L = L
     ; U = U
-    ; isProp-L = \q2 -> isProp-< q2 q1
-    ; isProp-U = \q2 -> isProp-< q1 q2
+    ; isProp-L = \q2 -> isProp-<
+    ; isProp-U = \q2 -> isProp-<
     ; Inhabited-L = Inhabited-L
     ; Inhabited-U = Inhabited-U
     ; isLowerSet-L = \q2 q3 q2<q3 q3<q1 -> trans-< {_} {_} {_} {q2} {q3} {q1} q2<q3 q3<q1
