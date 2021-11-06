@@ -125,6 +125,24 @@ abstract
         handle3 (inj-l ly-r) = ∣ inj-l (∣ ℝ<'-cons r ux-r ly-r ∣) ∣
         handle3 (inj-r uy-q) = ∣ inj-r (∣ ℝ<'-cons q uy-q lz-q ∣) ∣
 
+trans-L-ℝ< : {q : ℚ} {x y : ℝ} -> Real.L x q -> x ℝ< y -> Real.L y q
+trans-L-ℝ< {q} {x} {y} q<x x<y = unsquash (Real.isProp-L y q) (∥-map handle x<y)
+  where
+  handle : x ℝ<' y -> Real.L y q
+  handle (ℝ<'-cons r x<r r<y) = Real.isLowerSet-L y q r q<r r<y
+    where
+    q<r : q < r
+    q<r = ℝ-bounds->ℚ< x q<x x<r
+
+trans-ℝ<-U : {q : ℚ} {x y : ℝ} -> x ℝ< y -> Real.U y q -> Real.U x q
+trans-ℝ<-U {q} {x} {y} x<y y<q = unsquash (Real.isProp-U x q) (∥-map handle x<y)
+  where
+  handle : x ℝ<' y -> Real.U x q
+  handle (ℝ<'-cons r x<r r<y) = Real.isUpperSet-U x r q r<q x<r
+    where
+    r<q : r < q
+    r<q = ℝ-bounds->ℚ< y r<y y<q
+
 private
   _ℝ#_ : ℝ -> ℝ -> Type₁
   x ℝ# y = (x ℝ< y) ⊎ (y ℝ< x)

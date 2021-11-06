@@ -77,12 +77,6 @@ abstract
       isLowerOpen-U q2 q1<q2 =
         ∥-map (\ (q3 , q1<q3 , q3<q2) -> q3 , q3<q2 , q1<q3) (dense-< {q1} {q2} q1<q2)
 
-0ℝ : ℝ
-0ℝ = ℚ->ℝ 0r
-
-1ℝ : ℝ
-1ℝ = ℚ->ℝ 1r
-
 abstract
   ℚ->ℝ-preserves-< : (q1 q2 : ℚ) -> (q1 < q2) -> (ℚ->ℝ q1) ℝ< (ℚ->ℝ q2)
   ℚ->ℝ-preserves-< q1 q2 lt = ∥-map handle (dense-< {q1} {q2} lt)
@@ -90,8 +84,6 @@ abstract
     handle : Σ[ q ∈ ℚ ] (q1 < q × q < q2) -> (ℚ->ℝ q1) ℝ<' (ℚ->ℝ q2)
     handle (q , l , u) = ℝ<'-cons q l u
 
-  0ℝ<1ℝ : 0ℝ ℝ< 1ℝ
-  0ℝ<1ℝ = ℚ->ℝ-preserves-< 0r 1r 0<1
 
 
   ℚ<->L : {q r : ℚ} -> q < r -> Real.L (ℚ->ℝ r) q
@@ -133,6 +125,20 @@ abstract
     handle : Σ[ r ∈ ℚ ] (r < q × Real.U x r) -> x ℝ< (ℚ->ℝ q)
     handle (r , r<q , x<r) = ∣ ℝ<'-cons r x<r r<q ∣
 
+-- Constants
+
+0ℝ : ℝ
+0ℝ = ℚ->ℝ 0r
+
+1ℝ : ℝ
+1ℝ = ℚ->ℝ 1r
+
+0ℝ<1ℝ : 0ℝ ℝ< 1ℝ
+0ℝ<1ℝ = ℚ->ℝ-preserves-< 0r 1r 0<1
+
+-- Properties with the constants
+
+abstract
   ℝ≮0-¬U0 : (x : ℝ) -> ¬ (x ℝ< 0ℝ) -> ¬ (Real.U x 0r)
   ℝ≮0-¬U0 x x≮0 xU-0r = unsquash isPropBot (∥-map handle (x.isLowerOpen-U 0r xU-0r))
     where
