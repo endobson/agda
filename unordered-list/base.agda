@@ -49,10 +49,7 @@ module UListElim where
     private
       swap* : (a1 a2 : A) -> {as : UList A} -> (bs : B as)
               -> PathP (\ i -> B (swap a1 a2 as i)) (a1 ::* (a2 ::* bs)) (a2 ::* (a1 ::* bs))
-      swap* a1 a2 {as} bs =
-        toPathP (BProp
-                  (transp (\ i -> B (swap a1 a2 as i)) i0 (a1 ::* (a2 ::* bs)))
-                  (a2 ::* (a1 ::* bs)))
+      swap* a1 a2 {as} bs = isProp->PathP (\i -> BProp {swap a1 a2 as i}) _ _
       trunc* : {as : UList A} -> isSet (B as)
       trunc* = isProp->isSet BProp
 
