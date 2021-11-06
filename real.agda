@@ -6,15 +6,12 @@ open import additive-group
 open import base
 open import cubical
 open import equality-path
-open import functions
 open import hlevel
 open import isomorphism
 open import order
-open import order.instances.rational
 open import ordered-ring
 open import ordered-semiring
 open import rational
-open import rational.difference
 open import rational.order
 open import relation hiding (U)
 open import sign
@@ -82,8 +79,8 @@ module _ (x : ℝ) where
       handle2 : (q < 0r) ⊎ (0r ℚ≤ q) -> Σ[ q ∈ ℚ⁻ ] (x.L ⟨ q ⟩)
       handle2 (inj-l q<0) = (q , Neg-q) , lq
         where
-        Neg-d : Negℚ (diffℚ 0r q)
-        Neg-d = subst Negℚ (sym (diffℚ-anticommute 0r q))
+        Neg-d : Negℚ (diff 0r q)
+        Neg-d = subst Negℚ (sym diff-anticommute)
                            (r--flips-sign _ pos-sign (Pos-diffℚ q 0r q<0))
 
         Neg-q : Negℚ q
