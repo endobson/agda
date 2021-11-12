@@ -1227,6 +1227,31 @@ OrderedOverlap a b = (Iℚ.l b) ≤ (Iℚ.u a)
 Overlap : (a b : Iℚ) -> Type₀
 Overlap a b = OrderedOverlap a b × OrderedOverlap b a
 
+sym-Overlap : (a b : Iℚ) -> Overlap a b -> Overlap b a
+sym-Overlap _ _ (o1 , o2) = (o2 , o1)
+
+NonOverlap : (a b : Iℚ) -> Type₀
+NonOverlap a b = (Iℚ.u a < Iℚ.l b) ⊎ (Iℚ.u b < Iℚ.l a)
+
+decidable-Overlap : Decidable2 Overlap
+decidable-Overlap a@(Iℚ-cons al au _) b@(Iℚ-cons bl bu _) =
+  handle (split-< au bl) (split-< bu al)
+  where
+  handle : ((au < bl) ⊎ (bl ≤ au)) -> ((bu < al) ⊎ (al ≤ bu)) -> Dec (Overlap a b)
+  handle (inj-l au<bl) _             = no (\{ (bl≤au , al≤bu) -> irrefl-< (trans-<-≤ au<bl bl≤au) })
+  handle (inj-r bl≤au) (inj-l bu<al) = no (\{ (bl≤au , al≤bu) -> irrefl-< (trans-<-≤ bu<al al≤bu) })
+  handle (inj-r bl≤au) (inj-r al≤bu) = yes (bl≤au , al≤bu)
+
+split-Overlap : (a b : Iℚ) -> (Overlap a b ⊎ NonOverlap a b)
+split-Overlap a@(Iℚ-cons al au _) b@(Iℚ-cons bl bu _) =
+  handle (split-< au bl) (split-< bu al)
+  where
+  handle : ((au < bl) ⊎ (bl ≤ au)) -> ((bu < al) ⊎ (al ≤ bu)) -> (Overlap a b ⊎ NonOverlap a b)
+  handle (inj-l au<bl) _             = inj-r (inj-l au<bl)
+  handle (inj-r bl≤au) (inj-l bu<al) = inj-r (inj-r bu<al)
+  handle (inj-r bl≤au) (inj-r al≤bu) = inj-l (bl≤au , al≤bu)
+
+
 i-intersect : (a b : Iℚ) -> Overlap a b -> Iℚ
 i-intersect a b (bl≤au , al≤bu) =
   Iℚ-cons (maxℚ a.l b.l) (minℚ a.u b.u) ls≤us
