@@ -4,6 +4,8 @@ module sequence where
 
 open import base
 open import nat
+open import relation
+open import truncation
 
 private
   variable
@@ -26,3 +28,9 @@ module _ {D : Type ℓ} where
 
   drop1 : Seq -> Seq
   drop1 s n = s (suc n)
+
+∀Largeℕ' : {ℓP : Level} -> Pred ℕ ℓP -> Type ℓP
+∀Largeℕ' P = Σ[ n ∈ ℕ ] ((m : ℕ) -> n ≤ m -> P m)
+
+∀Largeℕ : {ℓP : Level} -> Pred ℕ ℓP -> Type ℓP
+∀Largeℕ P = ∥ ∀Largeℕ' P ∥
