@@ -52,6 +52,12 @@ module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
       handle (inj-l a<b) = a≮b a<b
       handle (inj-r b<c) = b≮c b<c
 
+    trans-<-= : {d1 d2 d3 : D} -> d1 < d2 -> d2 == d3 -> d1 < d3
+    trans-<-= {d1 = d1} d1<d2 d2=d3 = subst (d1 <_) d2=d3 d1<d2
+
+    trans-=-< : {d1 d2 d3 : D} -> d1 == d2 -> d2 < d3 -> d1 < d3
+    trans-=-< {d3 = d3} d1=d2 d2<d3 = subst (_< d3) (sym d1=d2) d2<d3
+
     <->!= : {d1 d2 : D} -> d1 < d2 -> d1 != d2
     <->!= {d1} {d2} d1<d2 d1=d2 = irrefl-< (subst (_< d2) d1=d2 d1<d2)
 
@@ -101,8 +107,15 @@ module _ {D : Type ℓD} {{S : PartialOrderStr D ℓ<}} where
   open PartialOrderStr S public
 
   abstract
-    =->≤ : {d1 d2 : D} -> d1 == d2 -> d1 ≤ d2
-    =->≤ {d1} {d2} d1=d2 = subst (d1 ≤_) d1=d2 refl-≤
+    path-≤ : {d1 d2 : D} -> d1 == d2 -> d1 ≤ d2
+    path-≤ {d1} {d2} d1=d2 = subst (d1 ≤_) d1=d2 refl-≤
+
+    trans-≤-= : {d1 d2 d3 : D} -> d1 ≤ d2 -> d2 == d3 -> d1 ≤ d3
+    trans-≤-= {d1 = d1} d1≤d2 d2=d3 = subst (d1 ≤_) d2=d3 d1≤d2
+
+    trans-=-≤ : {d1 d2 d3 : D} -> d1 == d2 -> d2 ≤ d3 -> d1 ≤ d3
+    trans-=-≤ {d3 = d3} d1=d2 d2≤d3 = subst (_≤ d3) (sym d1=d2) d2≤d3
+
 
 
 module _ {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) where

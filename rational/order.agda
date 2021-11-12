@@ -537,7 +537,7 @@ module _ where
             f< = weaken-< ∘ r+₁-preserves-< a _ _
 
             f= : {b c : ℚ} -> b == c -> _
-            f= = =->≤ ∘ (cong (a +_))
+            f= = path-≤ ∘ (cong (a +_))
   open M public
 
 
@@ -571,7 +571,7 @@ abstract
       (isPropΠ2 (\_ _ -> isProp-≤)) f< f= a 0≤a b 0≤b
     where
     f= : {a : ℚ} -> 0r == a -> (b : ℚ) -> 0r ≤ b -> 0r ≤ (a * b)
-    f= 0=a _ _ = =->≤ (sym *-left-zero >=> *-left 0=a)
+    f= 0=a _ _ = path-≤ (sym *-left-zero >=> *-left 0=a)
 
     f< : {a : ℚ} -> 0r < a -> (b : ℚ) -> 0r ≤ b -> 0r ≤ (a * b)
     f< {a} 0<a = ℚ0≤-elim isProp-≤ g< g=
@@ -580,7 +580,7 @@ abstract
       g< 0<b = weaken-< (*-preserves-0< 0<a 0<b)
 
       g= : {b : ℚ} -> 0r == b -> 0r ≤ (a * b)
-      g= 0=b = =->≤ (sym *-right-zero >=> *-right 0=b)
+      g= 0=b = path-≤ (sym *-right-zero >=> *-right 0=b)
 
 instance
   PartiallyOrderedSemiringStr-ℚ : PartiallyOrderedSemiringStr RationalSemiring PartialOrderStr-ℚ
@@ -641,11 +641,11 @@ abstract
 
   NonNeg-≤ : (a b : ℚ) -> NonNeg a -> a ℚ≤ b -> NonNeg b
   NonNeg-≤ a b (inj-l 0<a) a≤b = 0≤-NonNeg _ (trans-≤ (weaken-< 0<a) a≤b)
-  NonNeg-≤ a b (inj-r za) a≤b = 0≤-NonNeg _ (trans-≤ (=->≤ (sym (Zero-path a za))) a≤b)
+  NonNeg-≤ a b (inj-r za) a≤b = 0≤-NonNeg _ (trans-=-≤ (sym (Zero-path a za)) a≤b)
 
   NonPos-≤ : (a b : ℚ) -> NonPos b -> a ℚ≤ b -> NonPos a
   NonPos-≤ a b (inj-l b<0) a≤b = ≤0-NonPos _ (trans-≤ a≤b (weaken-< b<0))
-  NonPos-≤ a b (inj-r zb) a≤b = ≤0-NonPos _ (trans-≤ a≤b (=->≤ (Zero-path b zb)))
+  NonPos-≤ a b (inj-r zb) a≤b = ≤0-NonPos _ (trans-≤-= a≤b (Zero-path b zb))
 
   Pos-≤ : (a b : ℚ) -> Pos a -> a ℚ≤ b -> Pos b
   Pos-≤ a b 0<a a≤b = trans-<-≤ 0<a a≤b
@@ -974,7 +974,7 @@ abstract
     where
     handle : NonNeg (diffℚ a' b') -> (r1/ b' (Pos->Inv pos-b')) ℚ≤ (r1/ a' (Pos->Inv pos-a'))
     handle (inj-l pd) = weaken-< (r1/-Pos-flips-order a b (Pos-diffℚ⁻ a' b' pd))
-    handle (inj-r zd) = =->≤ (sym path)
+    handle (inj-r zd) = path-≤ (sym path)
       where
       a==b : a' == b'
       a==b = zero-diff->path a' b' zd

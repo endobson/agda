@@ -33,7 +33,7 @@ BalancedI : Pred Iℚ ℓ-zero
 BalancedI a = (- (Iℚ.l a)) == (Iℚ.u a)
 
 BalancedI->ImbalancedI : (a : Iℚ) -> BalancedI a -> ImbalancedI a
-BalancedI->ImbalancedI a = =->≤
+BalancedI->ImbalancedI a = path-≤
 
 NonNegI->ImbalancedI : (a : Iℚ) -> NonNegI a -> ImbalancedI a
 NonNegI->ImbalancedI a@(Iℚ-cons l u l≤u) nn-a = trans-≤ (trans-≤ -l≤0 0≤l) l≤u
@@ -188,11 +188,11 @@ i²-BalancedI-path ai@(Iℚ-cons l u l≤u) bal-ai = Iℚ-bounds-path l-path u-p
 
   l-path : (l * u) == l2
   l-path = sym (cong2 minℚ (minℚ-right _ _ lu≤ll) (minℚ-left _ _ ul≤uu) >=>
-                minℚ-left _ _ (=->≤ lu=ul))
+                minℚ-left _ _ (path-≤ lu=ul))
 
   u-path : (u * u) == u2
   u-path = sym (cong2 maxℚ (maxℚ-left _ _ lu≤ll) (maxℚ-right _ _ ul≤uu) >=>
-                maxℚ-right _ _ (=->≤ ll=uu))
+                maxℚ-right _ _ (path-≤ ll=uu))
 
 
 
