@@ -9,20 +9,26 @@ open import base
 open import cubical
 open import equality
 open import equivalence
-open import isomorphism
-open import ordered-integral-domain
 open import functions
 open import funext
 open import heyting-field
+open import isomorphism
+open import order
+open import order.instances.rational
+open import order.instances.real
+open import ordered-integral-domain
+open import ordered-ring
+open import ordered-semiring
+open import ordered-semiring.instances.real
 open import rational
-open import rational.order
 open import rational.integral-domain
+open import rational.order
 open import real
-open import real.arithmetic.order
 open import real.arithmetic.absolute-value
 open import real.arithmetic.multiplication.inverse
-open import real.rational
+open import real.arithmetic.order
 open import real.order
+open import real.rational
 open import relation
 open import ring
 open import ring.implementations.real
@@ -30,12 +36,6 @@ open import semiring
 open import sum
 open import truncation
 open import univalence
-open import order
-open import order.instances.rational
-open import order.instances.real
-open import ordered-ring
-open import ordered-semiring
-open import ordered-semiring.instances.real
 
 
 private
