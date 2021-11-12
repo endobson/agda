@@ -369,7 +369,7 @@ private
         handle : Σ ℚ x.U -> 0# ℝ<' 1/x
         handle (q , xu-q) = ℝ<'-cons q' (ℚ<->U 0<q') (L-pos pos-q' (subst x.U (sym q''-path) xu-q))
           where
-          0<q = ℝ-bounds->ℚ< x 0r q 0L xu-q
+          0<q = ℝ-bounds->ℚ< x 0L xu-q
           pos-q = 0<-Pos q 0<q
           inv-q = (Pos->Inv pos-q)
           q' = r1/ q inv-q
@@ -411,8 +411,8 @@ private
             xl-1/du : x.L 1/du
             xl-1/du = extract-L pos-du 1/xu-du
 
-            el<1/dl = ℝ-bounds->ℚ< x el 1/dl xl-el xu-1/dl
-            1/du<eu = ℝ-bounds->ℚ< x 1/du eu xl-1/du xu-eu
+            el<1/dl = ℝ-bounds->ℚ< x xl-el xu-1/dl
+            1/du<eu = ℝ-bounds->ℚ< x xl-1/du xu-eu
 
 
             dlel<1 = subst2 _<_ *-commute (r1/-inverse dl (Pos->Inv pos-dl))

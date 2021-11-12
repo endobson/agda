@@ -566,8 +566,7 @@ module _ (x : ℝ)
                 handle4 : Σ[ u2 ∈ ℚ ] (ax.U u2) -> xx.L (-l * -l)
                 handle4 (u2 , axU-u2) = (fst (subst (ℝ∈Iℚ xx) (sym (i²-NonNegI-path ci nn-ci)) xx∈cici))
                   where
-                  l<u2 = ℝ-bounds->ℚ< ax _ _ axL--l axU-u2
-                  ci = Iℚ-cons -l u2 (weaken-< l<u2)
+                  ci = ℝ-bounds->Iℚ ax axL--l axU-u2
                   nn-ci = 0≤-NonNeg -l (weaken-< 0<-l)
                   ax∈ci : ℝ∈Iℚ ax ci
                   ax∈ci = axL--l , axU-u2

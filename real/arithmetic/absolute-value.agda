@@ -374,7 +374,7 @@ abstract
       handle2 (inj-l ax<q) = bot-elim (unsquash isPropBot (∥-map handle3 ax<q))
         where
         handle3 : (absℝ x ℝ<' (ℚ->ℝ q)) -> Bot
-        handle3 (ℝ<'-cons r axU-r r<q) = asym-< (ℝ-bounds->ℚ< ax q r axL-q axU-r) (L->ℚ< r<q)
+        handle3 (ℝ<'-cons r axU-r r<q) = asym-< (ℝ-bounds->ℚ< ax axL-q axU-r) (L->ℚ< r<q)
 
   0<absℝ : {x : ℝ} -> x # 0# -> 0# < absℝ x
   0<absℝ {x} (inj-l x<0) =
@@ -485,7 +485,7 @@ abstract
         l≤-u = weaken-< (subst (_< (- u)) minus-double-inverse (minus-flips-< u<-l))
 
         b : Iℚ
-        b = (Iℚ-cons (- u) u (weaken-< (ℝ-bounds->ℚ< x (- u) u xl--u xu-u)))
+        b = ℝ-bounds->Iℚ x xl--u xu-u
 
         mmu≤u : (- (- u)) ≤ u
         mmu≤u = subst ((- (- u)) ≤_) minus-double-inverse refl-≤

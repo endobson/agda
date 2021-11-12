@@ -448,7 +448,7 @@ centered-ball->Pos-ε : (x : ℝ) (ε : ℚ) -> CenteredBall x ε -> Pos ε
 centered-ball->Pos-ε x e (q , lq , uq) = subst Pos 1/2-2e==e Pos-1/2-2e
   where
   q-e<q+e : (q r+ (r- e)) < (q r+ e)
-  q-e<q+e = ℝ-bounds->ℚ< x _ _ lq uq
+  q-e<q+e = ℝ-bounds->ℚ< x lq uq
 
   path : diffℚ (q r+ (r- e)) (q r+ e) == 2r r* e
   path = sym (r+-swap-diffℚ q q (r- e) e) >=>

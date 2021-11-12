@@ -94,9 +94,9 @@ module _ (x y : ℝ)
         q , ∣ ab , cd , (la , ub) , (lc , ud) , refl-ℚ≤ {q} ∣
         where
         ab : Iℚ
-        ab = Iℚ-cons a b (weaken-< (ℝ-bounds->ℚ< x _ _ la ub))
+        ab = ℝ-bounds->Iℚ x la ub
         cd : Iℚ
-        cd = Iℚ-cons c d (weaken-< (ℝ-bounds->ℚ< y _ _ lc ud))
+        cd = ℝ-bounds->Iℚ y lc ud
         q = Iℚ.l (ab i* cd)
 
     Inhabited-U : Inhabited U
@@ -107,9 +107,9 @@ module _ (x y : ℝ)
         q , ∣ ab , cd , (la , ub) , (lc , ud) , refl-ℚ≤ {q} ∣
         where
         ab : Iℚ
-        ab = Iℚ-cons a b (weaken-< (ℝ-bounds->ℚ< x _ _ la ub))
+        ab = ℝ-bounds->Iℚ x la ub
         cd : Iℚ
-        cd = Iℚ-cons c d (weaken-< (ℝ-bounds->ℚ< y _ _ lc ud))
+        cd = ℝ-bounds->Iℚ y lc ud
         q = Iℚ.u (ab i* cd)
 
     isLowerSet-L : isLowerSet L
@@ -142,8 +142,8 @@ module _ (x y : ℝ)
         handle2 (a' , nza' , a<a' , la') (b' , nzb' , b'<b , ub') (c' , c<c' , lc') (d' , d'<d , ud') =
           r , q<r , ∣ xi' , yi' , (la' , ub') , (lc' , ud') , refl-ℚ≤ {r} ∣
           where
-          xi' = Iℚ-cons a' b' (weaken-< (ℝ-bounds->ℚ< x a' b' la' ub'))
-          yi' = Iℚ-cons c' d' (weaken-< (ℝ-bounds->ℚ< y c' d' lc' ud'))
+          xi' = ℝ-bounds->Iℚ x la' ub'
+          yi' = ℝ-bounds->Iℚ y lc' ud'
           r = Iℚ.l (xi' i* yi')
 
           nz-xi' : ¬ (ZeroEndedI xi')
@@ -171,8 +171,8 @@ module _ (x y : ℝ)
         handle2 (a' , nza' , a<a' , la') (b' , nzb' , b'<b , ub') (c' , c<c' , lc') (d' , d'<d , ud') =
           r , r<q , ∣ xi' , yi' , (la' , ub') , (lc' , ud') , refl-ℚ≤ {r} ∣
           where
-          xi' = Iℚ-cons a' b' (weaken-< (ℝ-bounds->ℚ< x a' b' la' ub'))
-          yi' = Iℚ-cons c' d' (weaken-< (ℝ-bounds->ℚ< y c' d' lc' ud'))
+          xi' = ℝ-bounds->Iℚ x la' ub'
+          yi' = ℝ-bounds->Iℚ y lc' ud'
           r = Iℚ.u (xi' i* yi')
 
           nz-xi' : ¬ (ZeroEndedI xi')
@@ -243,9 +243,9 @@ module _ (x y : ℝ)
         where
 
         xi' : Iℚ
-        xi' = Iℚ-cons xb1' xb2' (weaken-< (ℝ-bounds->ℚ< x _ _ xbl' xbu'))
+        xi' = ℝ-bounds->Iℚ x xbl' xbu'
         yi' : Iℚ
-        yi' = Iℚ-cons yb1' yb2' (weaken-< (ℝ-bounds->ℚ< y _ _ ybl' ybu'))
+        yi' = ℝ-bounds->Iℚ y ybl' ybu'
 
         m-xi' = i-maxabs xi'
         m-yi' = i-maxabs yi'
@@ -304,9 +304,9 @@ module _ (x y : ℝ)
           handle2 (split-< a l)
           where
           xi : Iℚ
-          xi = Iℚ-cons xb1 xb2 (weaken-< (ℝ-bounds->ℚ< x _ _ xbl xbu))
+          xi = ℝ-bounds->Iℚ x xbl xbu
           yi : Iℚ
-          yi = Iℚ-cons yb1 yb2 (weaken-< (ℝ-bounds->ℚ< y _ _ ybl ybu))
+          yi = ℝ-bounds->Iℚ y ybl ybu
 
           exi : ℝ∈Iℚ x xi
           exi = xbl , xbu
@@ -500,7 +500,7 @@ module _ (x : ℝ)
                               sym (r+-assoc 1r s (r- s))) Pos-1r)
 
            r<s : r < s
-           r<s = (ℝ-bounds->ℚ< x _ _ xl-r xu-s)
+           r<s = ℝ-bounds->ℚ< x xl-r xu-s
 
            q<s' : q < s'
            q<s' = trans-< {_} {_} {_} {q} {r} {s'} q<r (trans-< {_} {_} {_} {r} {s} {s'} r<s s<s')
@@ -621,7 +621,7 @@ module _ (x : ℝ)
                                        Pos-1r)
 
            s<r : s < r
-           s<r = (ℝ-bounds->ℚ< x _ _ xl-s xu-r)
+           s<r = ℝ-bounds->ℚ< x xl-s xu-r
 
            s'<q : s' < q
            s'<q = trans-< {_} {_} {_} {s'} {r} {q} (trans-< {_} {_} {_} {s'} {s} {r} s'<s s<r) r<q
@@ -743,7 +743,7 @@ module _ (x : ℝ)
           ∣ ir , ix , (ℚ<->L (Neg-<0 r neg-r) , ℚ<->U (Pos-0< mr pos-mr)) , (xl-p1 , xu-p2) , ans ∣
           where
           ix : Iℚ
-          ix = Iℚ-cons p1 p2 (weaken-< (ℝ-bounds->ℚ< x _ _ xl-p1 xu-p2))
+          ix = ℝ-bounds->Iℚ x xl-p1 xu-p2
 
           m = i-maxabs ix
 
@@ -851,7 +851,7 @@ module _ (x : ℝ)
           ∣ ir , ix , (ℚ<->L (Neg-<0 mr neg-mr) , ℚ<->U (Pos-0< r pos-r)) , (xl-p1 , xu-p2) , ub≤q ∣
           where
           ix : Iℚ
-          ix = Iℚ-cons p1 p2 (weaken-< (ℝ-bounds->ℚ< x _ _ xl-p1 xu-p2))
+          ix = ℝ-bounds->Iℚ x xl-p1 xu-p2
 
           m = i-maxabs ix
 

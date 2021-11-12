@@ -512,7 +512,7 @@ module _ (x : ℝ) where
       handle (q1 , q2 , xl-q1 , xu-mq2 , q-path) = ℚ<->L q<0r
         where
         q1<mq2 : q1 < (r- q2)
-        q1<mq2 = ℝ-bounds->ℚ< x q1 (r- q2) xl-q1 xu-mq2
+        q1<mq2 = ℝ-bounds->ℚ< x xl-q1 xu-mq2
 
         q<0r : q < 0r
         q<0r =
@@ -546,7 +546,7 @@ module _ (x : ℝ) where
       handle (q1 , q2 , xu-q1 , xl-mq2 , q-path) = ℚ<->U 0r<q
         where
         mq2<q1 : (r- q2) < q1
-        mq2<q1 = ℝ-bounds->ℚ< x (r- q2) q1 xl-mq2 xu-q1
+        mq2<q1 = ℝ-bounds->ℚ< x xl-mq2 xu-q1
 
         0r<q : 0r < q
         0r<q = Pos-0< q (subst Pos (cong (q1 r+_) minus-double-inverse >=> q-path)

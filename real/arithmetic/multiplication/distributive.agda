@@ -60,8 +60,8 @@ module _ (x y z : ℝ)
         unsquash (isProp-ℝ∈Iℚ xyz q) (∥-map4 handle2 xz-la yz-lb xz-uc yz-ud)
         where
 
-        ac = Iℚ-cons a c (weaken-< (ℝ-bounds->ℚ< xz a c xz-la xz-uc))
-        bd = Iℚ-cons b d (weaken-< (ℝ-bounds->ℚ< yz b d yz-lb yz-ud))
+        ac = ℝ-bounds->Iℚ xz xz-la xz-uc
+        bd = ℝ-bounds->Iℚ yz yz-lb yz-ud
         ac+bd=q : ac i+ bd == q
         ac+bd=q = Iℚ-bounds-path ab-path cd-path
 
