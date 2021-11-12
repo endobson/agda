@@ -120,3 +120,9 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
 
     *-swap : {m n o p : D} -> (m * n) * (o * p) == (m * o) * (n * p)
     *-swap = *-assoc >=> *-right (sym *-assoc >=> *-left *-commute >=> *-assoc) >=> sym *-assoc
+
+    *-left-zeroᵉ : (m : D) -> (0# * m) == 0#
+    *-left-zeroᵉ _ = *-left-zero
+
+    *-right-zeroᵉ : (m : D) -> (m * 0#) == 0#
+    *-right-zeroᵉ _ = *-right-zero
