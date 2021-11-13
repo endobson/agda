@@ -30,6 +30,7 @@ open import ordered-integral-domain
 open import ordered-semiring.instances.real
 open import semiring
 open import sequence
+open import sequence.partial-sums
 open import rational
 open import rational.proper-interval
 open import real
@@ -57,8 +58,6 @@ instance
   AdditiveGroup-Seq : AdditiveGroup AdditiveCommMonoid-Seq
   AdditiveGroup-Seq = AdditiveGroup-Reader AdditiveGroup-ℝ Nat
 
-partial-sums : Seq -> Seq
-partial-sums s n = finiteSum (\ ((i , _) : Fin n) -> s i)
 
 isInfiniteSum : REL Seq ℝ ℓ-one
 isInfiniteSum s r = isLimit (partial-sums s) r
@@ -307,15 +306,3 @@ module _
         *-right (sym y-path) >=>
         sym *-assoc >=>
         *-left (geometric-series-path x n)
-  
-
-
---cons-single-prefix-isInfiniteSum : 
---  {s : Seq} {v : ℝ} -> isInfiniteSum (s ∘ suc) v -> isInfiniteSum s (v + s zero)
---cons-single-prefix-isInfiniteSum {s} {v} lim = close->isLimit f
---  where
---  s2 = partial-sums s
---  f : (qi : Iℚ) -> (ℝ∈Iℚ (v + s zero) qi) -> 
---      ∃[ n ∈ ℕ ] ((m : ℕ) -> m ≥ n -> ℝ∈Iℚ (s2 m) qi)
---  f qi v+sz∈qi = ∥?
---    where

@@ -55,6 +55,8 @@ open import ring
 open import ring.implementations.rational
 open import ring.implementations.real
 open import sequence
+open import sequence.drop
+open import sequence.partial-sums
 open import truncation
 open import nat using (≤-max-left ; ≤-max-right)
 
@@ -94,10 +96,6 @@ private
     0<b = inverse-preserves-0< ab=1 0<a
     0<d = inverse-preserves-0< cd=1 0<c
 
-  drop : (n : ℕ) -> Seq -> Seq
-  drop zero    s = s
-  drop (suc n) s = (drop n s) ∘ suc
-
   drop-preserves-limit :
     {s : Seq} {v : ℝ} -> (n : ℕ) -> isLimit s v -> isLimit (drop n s) v
   drop-preserves-limit {s} {v} zero    l = l
@@ -118,37 +116,6 @@ private
   --   {s : Seq} {v : ℝ} -> (x : ℝ) -> isInfiniteSum s v ->
   --   isInfiniteSum (seq-cons x s) (x + v)
   -- isInfiniteSum-cons = ?
-
-
-  partial-sums-cons : (x : ℝ) (s : Seq) (n : ℕ) ->
-    partial-sums (seq-cons x s) (suc n) == x + partial-sums s n
-  partial-sums-cons x s zero =
-   finiteMerge-Fin1 _ _ >=>
-   sym +-right-zero >=>
-   +-right (sym (finiteMerge-Fin0 _ _))
-  partial-sums-cons x s (suc n) = finiteMerge-FinSuc _ _
-
-  partial-sum-split : (s : Seq) (n : ℕ) -> (partial-sums s (suc n)) == s n + partial-sums s n
-  partial-sum-split s zero =
-    finiteMerge-Fin1 _ _ >=>
-    sym +-right-zero >=>
-    +-right (sym (finiteMerge-Fin0 _ _))
-  partial-sum-split s (suc n) =
-    finiteMerge-FinSuc _ _ >=>
-    +-right (partial-sum-split (s ∘ suc) n) >=>
-    sym +-assoc >=>
-    +-left +-commute >=>
-    +-assoc >=>
-    +-right (sym (finiteMerge-FinSuc _ _))
-
-  partial-sums-0≤ :
-    (s : Seq) -> ((n : ℕ) -> 0# ≤ s n) -> (n : ℕ) -> 0# ≤ partial-sums s n
-  partial-sums-0≤ s 0≤s zero =
-    subst2 _≤_ (finiteMerge-Fin0 _ _) refl refl-≤
-  partial-sums-0≤ s 0≤s (suc n) =
-    subst (0# ≤_) (sym (partial-sum-split s n))
-          (+-preserves-0≤ (0≤s n) (partial-sums-0≤ s 0≤s n))
-
 
 
   partial-sums-drop1 : (s : Seq) (n : ℕ) ->
