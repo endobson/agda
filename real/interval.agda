@@ -2,18 +2,23 @@
 
 module real.interval where
 
+open import additive-group
 open import base
 open import equality
 open import hlevel
 open import isomorphism
 open import order
 open import order.instances.rational
+open import ordered-semiring
+open import ordered-ring
 open import rational
+open import rational.order
 open import rational.minmax
 open import rational.proper-interval
 open import real
 open import real.order
 open import real.rational
+open import real.sequence
 open import truncation
 open import univalence
 
@@ -135,3 +140,67 @@ tighter-ℝ∈Iℚ x (Iℚ-cons l u _) (l<x , x<u) =
              (i⊂-cons l<l' u'<u) ,
              (l'<x , x<u') })
          (Real.isUpperOpen-L x l l<x) (Real.isLowerOpen-U x u x<u)
+
+find-small-ℝ∈Iℚ : (x : ℝ) (ε : ℚ⁺) -> ∃[ qi ∈ Iℚ ] (ℝ∈Iℚ x qi × i-width qi ≤ ⟨ ε ⟩)
+find-small-ℝ∈Iℚ x ε = ∥-map handle (find-open-ball x ε)
+  where
+  handle : OpenBall x ⟨ ε ⟩ -> Σ[ qi ∈ Iℚ ] (ℝ∈Iℚ x qi × i-width qi ≤ ⟨ ε ⟩)
+  handle (l , u , l<x , x<u , diff=ε) =
+    (ℝ-bounds->Iℚ x l<x x<u) ,
+    (l<x , x<u) ,
+    subst2 _≤_ refl diff=ε refl-≤
+
+private
+  tighter-ε : (x : ℝ) (qi1 qi2 : Iℚ) -> (qi1 i⊂ qi2) ->
+              Σ[ ε ∈ ℚ⁺ ] ((qi3 : Iℚ) -> i-width qi3 ≤ ⟨ ε ⟩ -> Overlap qi3 qi1 -> qi3 i⊆ qi2)
+  tighter-ε x qi1@(Iℚ-cons l1 u1 _) qi2@(Iℚ-cons l2 u2 _) (i⊂-cons l2<l1 u1<u2) = (ε , 0<ε) , f
+    where
+    dl = (diff l2 l1)
+    du = (diff u1 u2)
+    ε = minℚ dl du
+    0<dl : 0# < dl
+    0<dl = trans-=-< (sym +-inverse) (+₂-preserves-< l2<l1)
+    0<du : 0# < du
+    0<du = trans-=-< (sym +-inverse) (+₂-preserves-< u1<u2)
+    0<ε : 0# < ε
+    0<ε = minℚ-property {P = 0# <_} dl du 0<dl 0<du
+
+    f : (qi3 : Iℚ) -> i-width qi3 ≤ ε -> Overlap qi3 qi1 -> qi3 i⊆ qi2
+    f qi3@(Iℚ-cons l3 u3 _) w≤ε (l1≤u3 , l3≤u1) = i⊆-cons l2≤l3 u3≤u2
+      where
+      w = diff l3 u3
+      -w = diff u3 l3
+      l2≤l3 : l2 ≤ l3
+      l2≤l3 = subst2 _≤_ diff-step diff-step (+-preserves-≤ l1≤u3 -dl≤-w)
+        where
+        -dl≤-w : (diff l1 l2) ≤ -w
+        -dl≤-w = subst2 _≤_ (sym diff-anticommute) (sym diff-anticommute)
+                        (minus-flips-≤ (trans-≤ w≤ε (minℚ-≤-left dl du)))
+      u3≤u2 : u3 ≤ u2
+      u3≤u2 = subst2 _≤_ diff-step diff-step (+-preserves-≤ l3≤u1 w≤du)
+        where
+        w≤du : w ≤ du
+        w≤du = trans-≤ w≤ε (minℚ-≤-right dl du)
+
+
+overlapping-ℝ∈Iℚs->path :
+  (x y : ℝ) ->
+  ((qi1 qi2 : Iℚ) -> ℝ∈Iℚ x qi1 -> ℝ∈Iℚ y qi2 -> Overlap qi1 qi2) ->
+  x == y
+overlapping-ℝ∈Iℚs->path x y f = ℝ∈Iℚ->path x y g
+  where
+  g : (qi : Iℚ) -> ℝ∈Iℚ x qi -> ℝ∈Iℚ y qi
+  g qi x∈qi = unsquash (isProp-ℝ∈Iℚ y qi) (∥-bind handle (tighter-ℝ∈Iℚ x qi x∈qi))
+    where
+    handle : Σ[ qi2 ∈ Iℚ ] ((qi2 i⊂ qi) × ℝ∈Iℚ x qi2) -> ∥ ℝ∈Iℚ y qi ∥
+    handle (qi2 , qi2⊂qi , x∈qi2) = handle2 (tighter-ε x qi2 qi qi2⊂qi)
+      where
+      handle2 : Σ[ ε ∈ ℚ⁺ ] ((qi3 : Iℚ) -> i-width qi3 ≤ ⟨ ε ⟩ -> Overlap qi3 qi2 -> qi3 i⊆ qi) ->
+                ∥ ℝ∈Iℚ y qi ∥
+      handle2 (ε , h) = ∥-bind handle3 (find-small-ℝ∈Iℚ y ε)
+        where
+        handle3 : Σ[ qi3 ∈ Iℚ ] (ℝ∈Iℚ y qi3 × i-width qi3 ≤ ⟨ ε ⟩) -> ∥ ℝ∈Iℚ y qi ∥
+        handle3 (qi3 , y∈qi3 , w-qi3≤ε) = ∣ ℝ∈Iℚ-⊆ y qi3⊆qi y∈qi3 ∣
+          where
+          o-qi3-qi2 = sym-Overlap qi2 qi3 (f qi2 qi3 x∈qi2 y∈qi3)
+          qi3⊆qi = h qi3 w-qi3≤ε o-qi3-qi2
