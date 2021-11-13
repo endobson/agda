@@ -24,3 +24,20 @@ record isLimit (seq : Seq) (lim : ℝ) : Type ℓ-one where
   close : (i : Iℚ) -> (ℝ∈Iℚ lim i) -> ∀Largeℕ (\m -> ℝ∈Iℚ (seq m) i)
   close (Iℚ-cons l u l≤u) (l<lim , lim<u) =
     ∀Largeℕ-∩ (lower l l<lim) (upper u lim<u)
+
+close->isLimit :
+  {seq : Seq} {lim : ℝ} ->
+  ((i : Iℚ) -> (ℝ∈Iℚ lim i) -> ∀Largeℕ (\m -> ℝ∈Iℚ (seq m) i)) ->
+  isLimit seq lim
+close->isLimit {seq} {lim} f .isLimit.lower l L-l = ∥-bind handle (Real.Inhabited-U lim)
+  where
+  handle : Σ ℚ (Real.U lim) -> ∀Largeℕ (\m -> Real.L (seq m) l)
+  handle (u , U-u) = ∀Largeℕ-map proj₁ (f qi (L-l , U-u))
+    where
+    qi = ℝ-bounds->Iℚ lim L-l U-u
+close->isLimit {seq} {lim} f .isLimit.upper u U-u = ∥-bind handle (Real.Inhabited-L lim)
+  where
+  handle : Σ ℚ (Real.L lim) -> ∀Largeℕ (\m -> Real.U (seq m) u)
+  handle (l , L-l) = ∀Largeℕ-map proj₂ (f qi (L-l , U-u))
+    where
+    qi = ℝ-bounds->Iℚ lim L-l U-u

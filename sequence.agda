@@ -38,12 +38,20 @@ module _ {D : Type ℓ} where
 ∀Largeℕ'-∩ : {ℓ₁ ℓ₂ : Level} {P₁ : Pred ℕ ℓ₁} {P₂ : Pred ℕ ℓ₂} ->
              ∀Largeℕ' P₁ -> ∀Largeℕ' P₂ -> ∀Largeℕ' (P₁ ∩ P₂)
 ∀Largeℕ'-∩ (n1 , f1) (n2 , f2) =
-  n , (\ m m≥n -> f1 m (trans-≤ n≥n1 m≥n) , f2 m (trans-≤ n≥n2 m≥n))
+  n , (\ m n≤m -> f1 m (trans-≤ n1≤n n≤m) , f2 m (trans-≤ n2≤n n≤m))
   where
   n = max n1 n2
-  n≥n1 = ≤-max-left
-  n≥n2 = ≤-max-right
+  n1≤n = ≤-max-left
+  n2≤n = ≤-max-right
 
 ∀Largeℕ-∩ : {ℓ₁ ℓ₂ : Level} {P₁ : Pred ℕ ℓ₁} {P₂ : Pred ℕ ℓ₂} ->
              ∀Largeℕ P₁ -> ∀Largeℕ P₂ -> ∀Largeℕ (P₁ ∩ P₂)
 ∀Largeℕ-∩ = ∥-map2 ∀Largeℕ'-∩
+
+∀Largeℕ'-map : {ℓ₁ ℓ₂ : Level} {P₁ : Pred ℕ ℓ₁} {P₂ : Pred ℕ ℓ₂} ->
+               ({m : ℕ} -> P₁ m -> P₂ m) -> ∀Largeℕ' P₁ -> ∀Largeℕ' P₂
+∀Largeℕ'-map f (n , g) = n , (\m n≤m -> f (g m n≤m))
+
+∀Largeℕ-map : {ℓ₁ ℓ₂ : Level} {P₁ : Pred ℕ ℓ₁} {P₂ : Pred ℕ ℓ₂} ->
+              ({m : ℕ} -> P₁ m -> P₂ m) -> ∀Largeℕ P₁ -> ∀Largeℕ P₂
+∀Largeℕ-map f = ∥-map (∀Largeℕ'-map f)
