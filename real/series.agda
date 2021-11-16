@@ -91,10 +91,6 @@ isProp-isConvergentSeries = isProp-isConvergentSequence
 ℝ∈Iℚ-+⁻ x y a x+y∈a =
   ℝ∈Iℚ-+ᵉ⁻ x y a (subst (\z -> ℝ∈Iℚ z a) ℝ+-eval x+y∈a)
 
-ℝ∈Iℚ-+ : (x y : ℝ) (a b : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ y b -> ℝ∈Iℚ (x ℝ+ y) (a i+ b)
-ℝ∈Iℚ-+ x y a b x∈a y∈b =
-  subst (\z -> ℝ∈Iℚ z (a i+ b)) (sym ℝ+-eval) (ℝ∈Iℚ-+ᵉ x y a b x∈a y∈b)
-
 +-preserves-limit : {s1 s2 : Seq} -> {v1 v2 : ℝ} ->
                     isLimit s1 v1 -> isLimit s2 v2 -> isLimit (s1 + s2) (v1 + v2)
 +-preserves-limit {s1} {s2} {v1} {v2} l1 l2 = close->isLimit f

@@ -18,6 +18,10 @@ _∘_ : {A : Type ℓ₁} {B : Type ℓ₂} {C : (b : B) -> Type ℓ₃} (f : (b
       (g : A -> B) -> (a : A) -> C (g a)
 (f ∘ g) a = f (g a)
 
+curry : {ℓ₁ ℓ₂ ℓ₃ : Level} {A : Type ℓ₁} {B : A -> Type ℓ₂} {C : (a : A) -> B a -> Type ℓ₃} ->
+        ((a : A) -> (b : B a) -> C a b) -> (p : (Σ A B)) -> C (fst p) (snd p)
+curry f (a , b) = f a b
+
 isComposition : (f : B -> C) (g : A -> B) (h : A -> C) -> Type _
 isComposition f g h = ∀ a -> f (g a) == h a
 

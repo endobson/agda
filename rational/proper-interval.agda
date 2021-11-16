@@ -1227,6 +1227,9 @@ OrderedOverlap a b = (Iℚ.l b) ≤ (Iℚ.u a)
 Overlap : (a b : Iℚ) -> Type₀
 Overlap a b = OrderedOverlap a b × OrderedOverlap b a
 
+isProp-Overlap : (a b : Iℚ) -> isProp (Overlap a b)
+isProp-Overlap a b = isProp× isProp-≤ isProp-≤
+
 sym-Overlap : (a b : Iℚ) -> Overlap a b -> Overlap b a
 sym-Overlap _ _ (o1 , o2) = (o2 , o1)
 

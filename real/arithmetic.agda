@@ -591,6 +591,10 @@ module _ (x : ℝ) where
   ∣ Iℚ.l a , Iℚ.l b , xl-a , yl-b , refl ∣ ,
   ∣ Iℚ.u a , Iℚ.u b , xu-a , yu-b , refl ∣
 
+ℝ∈Iℚ-+ : (x y : ℝ) (a b : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ y b -> ℝ∈Iℚ (x ℝ+ y) (a i+ b)
+ℝ∈Iℚ-+ x y a b x∈a y∈b =
+  subst (\z -> ℝ∈Iℚ z (a i+ b)) (sym ℝ+-eval) (ℝ∈Iℚ-+ᵉ x y a b x∈a y∈b)
+
 abstract
   ℝ∈Iℚ--ᵉ : (x : ℝ) (a : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ (ℝ-ᵉ x) (i- a)
   ℝ∈Iℚ--ᵉ x a (xl-a , xu-a) = (subst x.U (sym minus-double-inverse) xu-a ,

@@ -8,10 +8,12 @@ open import equality
 open import base
 open import rational
 open import rational.proper-interval
+open import rational.order
 open import real
 open import real.rational
 open import order
 open import order.instances.rational
+open import order.instances.real
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import ordered-ring
@@ -60,3 +62,6 @@ open import truncation
 1/2ℝ-1-path =
   sym ℚ->ℝ-preserves-+ >=>
   cong ℚ->ℝ (+-cong (sym *-right-one) (sym *-right-one) >=> 1/2r-path' 1#)
+
+0<1/2ℝ : 0# < 1/2ℝ
+0<1/2ℝ = ℚ->ℝ-preserves-< _ _ Pos-1/2r
