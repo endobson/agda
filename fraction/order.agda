@@ -9,6 +9,7 @@ open import fraction.sign
 open import hlevel
 open import order
 open import order.instances.int
+open import order.instances.nat
 open import rational
 open import relation
 open import ring.implementations
@@ -405,3 +406,14 @@ antisym~-ℚ'≤ {a} {b} a≤b b≤a = handle (trichotomous~-ℚ'< a b)
 
   ans : Pos diff-v
   ans = r~-preserves-sign Pos-sd sd~diff
+
+
+ℕ->ℚ'-preserves-≤ : (a b : Nat) -> a nat.≤ b -> (ℕ->ℚ' a) ℚ'≤ (ℕ->ℚ' b)
+ℕ->ℚ'-preserves-≤ a b (zero , path) =
+  subst2 _ℚ'≤_ refl (cong ℕ->ℚ' path) refl-ℚ'≤
+ℕ->ℚ'-preserves-≤ a b (suc c , path) = weaken-ℚ'< aℚ'<b
+  where
+  a<b : a < b
+  a<b = c , nat.+'-right-suc >=> path
+  aℚ'<b : (ℕ->ℚ' a) ℚ'< (ℕ->ℚ' b)
+  aℚ'<b = ℕ->ℚ'-preserves-order a b a<b

@@ -906,6 +906,10 @@ abstract
   ℕ->ℚ-preserves-order a b a<b =
     ℚ<-cons (transport (sym ℚ<-raw-eval) (ℕ->ℚ'-preserves-order a b a<b))
 
+  ℕ->ℚ-preserves-≤ : (a b : Nat) -> a nat.≤ b -> (ℕ->ℚ a) ≤ (ℕ->ℚ b)
+  ℕ->ℚ-preserves-≤ a b a≤b =
+    ℚ≤-cons (transport (sym ℚ≤-raw-eval) (ℕ->ℚ'-preserves-≤ a b a≤b))
+
   1/ℕ-flips-order : (a b : Nat⁺) -> ⟨ a ⟩ nat.< ⟨ b ⟩ -> 1/ℕ b < 1/ℕ a
   1/ℕ-flips-order a@(a' , _) b@(b' , _) lt = subst2 _<_ b-path a-path ab*<
     where
@@ -929,6 +933,28 @@ abstract
       ab*< : (ab r* (ℕ->ℚ a')) < (ab r* (ℕ->ℚ b'))
       ab*< = *₁-preserves-< pos-ab (ℕ->ℚ-preserves-order a' b' lt)
 
+  1/ℕ-flips-≤ : (a b : Nat⁺) -> ⟨ a ⟩ nat.≤ ⟨ b ⟩ -> 1/ℕ b ≤ 1/ℕ a
+  1/ℕ-flips-≤ a@(a' , _) b@(b' , _) lt = subst2 _≤_ b-path a-path ab*≤
+    where
+    module _ where
+      ab = 1/ℕ a r* 1/ℕ b
+      pos-ab : Pos ab
+      pos-ab = r*-preserves-Pos _ _ (Pos-1/ℕ a) (Pos-1/ℕ b)
+
+      a-path : (ab r* (ℕ->ℚ b')) == 1/ℕ a
+      a-path =
+        r*-assoc (1/ℕ a) (1/ℕ b) (ℕ->ℚ b') >=>
+        cong (1/ℕ a r*_) (1/ℕ-ℕ-path b) >=>
+        r*-right-one (1/ℕ a)
+      b-path : (ab r* (ℕ->ℚ a')) == 1/ℕ b
+      b-path =
+        cong (_r* ℕ->ℚ a') (r*-commute (1/ℕ a) (1/ℕ b)) >=>
+        r*-assoc (1/ℕ b) (1/ℕ a) (ℕ->ℚ a') >=>
+        cong (1/ℕ b r*_) (1/ℕ-ℕ-path a) >=>
+        r*-right-one (1/ℕ b)
+
+      ab*≤ : (ab r* (ℕ->ℚ a')) ≤ (ab r* (ℕ->ℚ b'))
+      ab*≤ = *₁-preserves-≤ (weaken-< pos-ab) (ℕ->ℚ-preserves-≤ a' b' lt)
 
   private
     zero-diff->path : (x y : Rational) -> Zeroℚ (y r+ (r- x)) -> x == y
