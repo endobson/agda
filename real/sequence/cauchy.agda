@@ -37,6 +37,9 @@ private
 εBounded : ℚ -> ℝ -> Type₀
 εBounded ε x = Real.L x (- ε) × Real.U x ε
 
+isProp-εBounded : (ε : ℚ) -> (x : ℝ) -> isProp (εBounded ε x)
+isProp-εBounded ε x = isProp× (Real.isProp-L x (- ε)) (Real.isProp-U x ε)
+
 εBounded-0 : (ε : ℚ⁺) -> εBounded ⟨ ε ⟩ 0#
 εBounded-0 (ε , 0<ε) = (ℚ<->L (minus-flips-0< 0<ε) , ℚ<->U 0<ε)
 

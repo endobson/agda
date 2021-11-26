@@ -6,6 +6,7 @@ open import apartness
 open import apartness.discrete
 open import abs
 open import additive-group
+open import additive-group.instances.int
 open import base
 open import equality
 open import fin
@@ -16,6 +17,7 @@ open import hlevel
 open import quotient-remainder-int
 open import relation
 open import ring
+open import ring.implementations
 open import semiring
 open import set-quotient
 open import univalence
@@ -779,6 +781,10 @@ abstract
 abstract
   ℤ->ℚ-preserves-minus : (x : Int) -> ℤ->ℚ (int.- x) == r- (ℤ->ℚ x)
   ℤ->ℚ-preserves-minus x = cong [_] refl
+
+ℤ->ℚ-preserves-diff : (x y : ℤ) -> ℤ->ℚ (diff x y) == diff (ℤ->ℚ x) (ℤ->ℚ y)
+ℤ->ℚ-preserves-diff x y = 
+  ℤ->ℚ-preserves-+ y (- x) >=> +-right (ℤ->ℚ-preserves-minus x)
 
 private
   abstract

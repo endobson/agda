@@ -1437,6 +1437,12 @@ trans-i⊂-i⊆ {Iℚ-cons al au _} {Iℚ-cons bl bu _} {Iℚ-cons cl cu _} a⊂
   ; u = trans-<-≤ {d1 = au} {bu} {cu} (_i⊂_.u a⊂b) (_i⊆_.u b⊆c)
   }
 
+trans-i⊆-i⊂ : {a b c : Iℚ} -> a i⊆ b -> b i⊂ c -> a i⊂ c
+trans-i⊆-i⊂ {Iℚ-cons al au _} {Iℚ-cons bl bu _} {Iℚ-cons cl cu _} a⊆b b⊂c = record
+  { l = trans-<-≤ (_i⊂_.l b⊂c) (_i⊆_.l a⊆b)
+  ; u = trans-≤-< (_i⊆_.u a⊆b) (_i⊂_.u b⊂c)
+  }
+
 weaken-i⊂ : {a b : Iℚ} -> a i⊂ b -> a i⊆ b
 weaken-i⊂ {a} {b} (i⊂-cons l u) = (i⊆-cons (weaken-< {d1 = Iℚ.l b} l) (weaken-< {d1 = Iℚ.u a} u))
 

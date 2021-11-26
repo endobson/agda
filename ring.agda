@@ -459,9 +459,11 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : Ad
 
 
   abstract
-
     *-distrib-diff-left : {x y z : D} -> x * (diff y z) == diff (x * y) (x * z)
     *-distrib-diff-left = *-distrib-+-left >=> +-right minus-extract-right
+
+    *-distrib-diff-right : {x y z : D} -> (diff x y) * z == diff (x * z) (y * z)
+    *-distrib-diff-right = *-distrib-+-right >=> +-right minus-extract-left
 
 
 
