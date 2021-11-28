@@ -8,6 +8,7 @@ open import base
 open import equality
 open import hlevel
 open import order
+open import order.instances.real
 open import ordered-integral-domain
 open import ordered-ring
 open import ordered-semiring
@@ -84,7 +85,11 @@ abstract
     handle : Σ[ q ∈ ℚ ] (q1 < q × q < q2) -> (ℚ->ℝ q1) ℝ<' (ℚ->ℝ q2)
     handle (q , l , u) = ℝ<'-cons q l u
 
-
+  ℚ->ℝ-preserves-≤ : (q1 q2 : ℚ) -> (q1 ≤ q2) -> (ℚ->ℝ q1) ≤ (ℚ->ℝ q2)
+  ℚ->ℝ-preserves-≤ q1 q2 q1≤q2 q2<q1 = unsquash isPropBot (∥-map handle q2<q1)
+    where
+    handle : (ℚ->ℝ q2) ℝ<' (ℚ->ℝ q1) -> Bot
+    handle (ℝ<'-cons q q2<q q<q1) = irrefl-< (trans-< q<q1 (trans-≤-< q1≤q2 q2<q))
 
   ℚ<->L : {q r : ℚ} -> q < r -> Real.L (ℚ->ℝ r) q
   ℚ<->L q<r = q<r
