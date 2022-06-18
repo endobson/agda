@@ -11,7 +11,9 @@ open import base
 open import equality
 open import fin
 open import finset.instances
+open import finite-commutative-monoid.instances
 open import finsum
+open import funext
 open import hlevel
 open import nat.properties
 open import order
@@ -125,6 +127,9 @@ riemann-sum f p =
 --     where
 --     check : tp.n == suc n'
 --     check = n=n'
+
+private
+  module _ {
 
 tagged-partition->≤ : {a b : ℝ} -> TaggedPartition a b -> a ≤ b
 tagged-partition->≤ {a} {b} tp = handle tp.n refl
@@ -341,16 +346,29 @@ small-1/ℕ-ℝ (x , 0<x) = ∥-bind handle 0<x
       δab≤δ = trans-≤-= (weaken-< (*₁-preserves-< 0<δ ab<1)) *-right-one
 
 
-record isIntegral (a : ℝ) (b : ℝ) (f : ℝ -> ℝ) (v : ℝ) : Type₁ where
+record isOrderedIntegral' (a : ℝ) (b : ℝ) (f : ℝ -> ℝ) (v : ℝ) : Type₁ where
   no-eta-equality
   field
+    a≤b : a ≤ b
     δε : (ε : ℚ⁺) -> ∃[ δ ∈ ℝ⁺ ] (
            (p : TaggedPartition a b) -> isδFinePartition ⟨ δ ⟩ p ->
            εBounded ⟨ ε ⟩ (diff (riemann-sum f p) v))
 
+data isIntegral' (a : ℝ) (b : ℝ) (f : ℝ -> ℝ) (v : ℝ) : Type₁ where
+  isIntegral'-≤-cons : a ≤ b -> isOrderedIntegral' a b f v -> isIntegral' a b f v
+  isIntegral'-≥-cons : a ≥ b -> isOrderedIntegral' b a f (- v) -> isIntegral' a b f v
+
+isIntegral : (a : ℝ) (b : ℝ) (f : ℝ -> ℝ) (v : ℝ) -> Type₁ 
+isIntegral a b f v = ∥ isIntegral' a b f v ∥
+
+isProp-isOrderedIntegral' : {a b : ℝ} {f : ℝ -> ℝ} {v : ℝ} -> isProp (isOrderedIntegral' a b f v)
+isProp-isOrderedIntegral' i1 i2 i .isOrderedIntegral'.a≤b =
+  isProp-≤ (isOrderedIntegral'.a≤b i1) (isOrderedIntegral'.a≤b i2) i
+isProp-isOrderedIntegral' i1 i2 i .isOrderedIntegral'.δε ε =
+  squash (isOrderedIntegral'.δε i1 ε) (isOrderedIntegral'.δε i2 ε) i
+
 isProp-isIntegral : {a b : ℝ} {f : ℝ -> ℝ} {v : ℝ} -> isProp (isIntegral a b f v)
-isProp-isIntegral i1 i2 i .isIntegral.δε ε =
-  squash (isIntegral.δε i1 ε) (isIntegral.δε i2 ε) i
+isProp-isIntegral = squash
 
 
 εBounded->zero-path : (x : ℝ) -> ((ε : ℚ⁺) -> εBounded ⟨ ε ⟩ x) -> x == 0#
@@ -378,14 +396,15 @@ isProp-isIntegral i1 i2 i .isIntegral.δε ε =
   sym (sym diff-step >=> cong (x +_) (εBounded->zero-path (diff x y) εB) >=> +-right-zero)
 
 
-isProp-ΣisIntegral : {a b : ℝ} {f : ℝ -> ℝ} -> a ≤ b -> isProp (Σ ℝ (isIntegral a b f))
-isProp-ΣisIntegral {a} {b} {f} a≤b (v1 , i1) (v2 , i2) =
-  ΣProp-path isProp-isIntegral v1=v2
+isProp-ΣisOrderedIntegral' : {a b : ℝ} {f : ℝ -> ℝ} -> isProp (Σ ℝ (isOrderedIntegral' a b f))
+isProp-ΣisOrderedIntegral' {a} {b} {f} (v1 , i1) (v2 , i2) =
+  ΣProp-path isProp-isOrderedIntegral' v1=v2
   where
+  a≤b = isOrderedIntegral'.a≤b i1
   g : (ε : ℚ⁺) -> εBounded ⟨ ε ⟩ (diff v1 v2)
   g (ε , 0<ε) =
     unsquash (isProp-εBounded ε (diff v1 v2))
-      (∥-bind2 handle (isIntegral.δε i1 (ε/2 , 0<ε/2)) (isIntegral.δε i2 (ε/2 , 0<ε/2)))
+      (∥-bind2 handle (isOrderedIntegral'.δε i1 (ε/2 , 0<ε/2)) (isOrderedIntegral'.δε i2 (ε/2 , 0<ε/2)))
     where
     ε/2 = 1/2r * ε
     0<ε/2 = *-preserves-0< Pos-1/2r 0<ε
@@ -417,3 +436,27 @@ isProp-ΣisIntegral {a} {b} {f} a≤b (v1 , i1) (v2 , i2) =
 
   v1=v2 : v1 == v2
   v1=v2 = εBounded-diff->path v1 v2 g
+
+
+isOrderedIntegral'-zero-interval : {a : ℝ} {f : ℝ -> ℝ} -> isOrderedIntegral' a a f 0#
+isOrderedIntegral'-zero-interval {a} {f} .isOrderedIntegral'.a≤b = refl-≤
+isOrderedIntegral'-zero-interval {a} {f} .isOrderedIntegral'.δε ε⁺@(ε , 0<ε) = ∣ (δ , 0<1) , bound ∣
+  where
+  δ = 1#
+
+  zero-sum : (p : TaggedPartition a a) -> (riemann-sum f p) == 0#
+  zero-sum p = cong finiteSum (funExt zero-term) >=> finiteMerge-ε _
+    where
+    module p = TaggedPartition p
+    u=a : (i : Fin (suc p.n)) -> p.u i == a
+    u=a i = ?
+
+
+    zero-term : (i : Fin p.n) -> p.t i * p.width i == 0#
+    zero-term i = *-right (cong2 diff (u=a _) (u=a _) >=> +-inverse) >=> *-right-zero
+
+
+
+  bound : (p : TaggedPartition a a) -> isδFinePartition δ p ->
+           εBounded ε (diff (riemann-sum f p) 0#)
+  bound p _ = subst (εBounded ε) (sym +-inverse >=> +-left (zero-sum p)) (εBounded-0 ε⁺)
