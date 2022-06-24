@@ -3,6 +3,7 @@
 module base where
 
 open import Agda.Builtin.Sigma public
+open import Agda.Builtin.Nat public using (Nat; zero; suc)
 open import Level public
   using    ( Level )
   renaming ( zero to ℓ-zero
@@ -100,11 +101,6 @@ proj₁ (a , b) = a
 proj₂ : A × B -> B
 proj₂ (a , b) = b
 
-
-data Nat : Type₀ where
- zero : Nat
- suc : Nat -> Nat
-{-# BUILTIN NATURAL Nat #-}
 
 data Boolean : Type₀ where
   true : Boolean

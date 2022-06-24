@@ -129,6 +129,15 @@ Decidable2 : Rel A ℓ -> Type _
 Decidable2 _~_ = ∀ x y -> Dec (x ~ y)
 
 
+data TransitiveReflexiveClosure {A : Type ℓ₁} (r : Rel A ℓ₂) : Rel A (ℓ-max ℓ₁ ℓ₂) where
+  trc-refl : {a : A} -> TransitiveReflexiveClosure r a a
+  trc-rel : {a b : A} -> r a b -> TransitiveReflexiveClosure r a b
+  trc-trans : {a b c : A} -> 
+              TransitiveReflexiveClosure r a b ->
+              TransitiveReflexiveClosure r b c ->
+              TransitiveReflexiveClosure r a c
+
+
 -- Unary Relations
 
 Pred :  Type ℓ₁ -> (ℓ₂ : Level) -> Type (ℓ-max ℓ₁ (ℓ-suc ℓ₂))

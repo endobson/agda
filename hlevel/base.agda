@@ -188,3 +188,8 @@ abstract
 
   isProp¬ : (A : Type ℓ) -> isProp (¬ A)
   isProp¬ _ ¬x ¬y i x = isPropBot (¬x x) (¬y x) i
+
+-- Implicit hlevels
+record isSet' (A : Type ℓ) : Type ℓ where
+  field
+    f : isSet A
