@@ -853,4 +853,17 @@ private
 Reflexive-α-equiv : Reflexive α-equiv
 Reflexive-α-equiv {t} = Reflexive-α-equiv' (term-depth t) t refl-≤
 
+Symmetric-α-equiv : Symmetric α-equiv
+Symmetric-α-equiv (var v) = (var v)
+Symmetric-α-equiv (const v) = (const v)
+Symmetric-α-equiv (empty) = (empty)
+Symmetric-α-equiv (branch l r) = (branch (Symmetric-α-equiv l) (Symmetric-α-equiv r))
+Symmetric-α-equiv (abstraction {p1} {p2} p3 r1 r2 pr1 pr2 disjoint outer-α inner-α) =
+  (abstraction p3 r2 r1 pr2 pr1 disjoint' (Symmetric-α-equiv outer-α) (Symmetric-α-equiv inner-α))
+  where
+  disjoint' : DisjointFinSet (atoms/pattern p3) (fm'-union (atoms/pattern p2) (atoms/pattern p1))
+  disjoint' hk3 hk21 = 
+    disjoint hk3 (either (\{(v , hk) -> v , HasKV-fm'-union/right hk})
+                         (\{(v , hk) -> v , HasKV-fm'-union/left hk})
+                         (HasKey-fm'-union/split (atoms/pattern p2) (atoms/pattern p1) hk21))
 
