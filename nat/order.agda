@@ -461,7 +461,18 @@ Iso.leftInv  <-minus-iso _ = ΣProp-path (isSetNat _ _) refl
 ≤-max-least {suc m} {suc n} {suc x} m≤x n≤x =
   suc-≤ (≤-max-least {m} {n} {x} (pred-≤ m≤x) (pred-≤ n≤x))
 
+
+max-monotonic-≤ : {a b c d : Nat} -> a ≤ b -> c ≤ d -> max a c ≤ max b d
+max-monotonic-≤ a≤b c≤d = ≤-max-least a≤bd c≤bd
+  where
+  a≤bd = trans-≤ a≤b ≤-max-left
+  c≤bd = trans-≤ c≤d ≤-max-right
+
+-- max-monotonic-≤ a1 a2 a1≤a2= 
+
 -- Flipped ≤
+
+
 _≤'_ : Nat -> Nat -> Type₀
 m ≤' n = Σ[ x ∈ Nat ] m +' x == n
 
@@ -687,3 +698,4 @@ suc-monotonic-< : Monotonic _<_ _<_ suc
 suc-monotonic-< a1 a2 a1<a2 = suc-≤ a1<a2
 suc-monotonic-> : Monotonic _>_ _>_ suc
 suc-monotonic-> a1 a2 a1>a2 = suc-≤ a1>a2
+

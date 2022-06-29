@@ -9,6 +9,7 @@ open import nat
 open import hlevel
 open import relation
 open import equality
+open import sum
 
 private
   variable
@@ -27,10 +28,56 @@ data HasKV' {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} (k : K) (v : V) 
   has-kv-skip : {m : FinMap' K V} -> (k2 : K) (v2 : V) ->
                 HasKV' k v m -> HasKV' k v (fm-cons k2 v2 m)
 
+fm'-rest : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> FinMap' K V -> FinMap' K V
+fm'-rest [] = []
+fm'-rest (fm-cons _ _ m) = m
+
 
 HasKey' : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> REL K (FinMap' K V) (ℓ-max ℓK ℓV)
 HasKey' {V = V} k m = Σ[ v ∈ V ] HasKV' k v m
 
+
+fm'-value-map : {ℓK ℓV ℓV2 : Level} {K : Type ℓK} {V : Type ℓV} {V2 : Type ℓV2} -> 
+                (K -> V -> V2) -> FinMap' K V -> FinMap' K V2
+fm'-value-map f [] = []
+fm'-value-map f (fm-cons k v m) = fm-cons k (f k v) (fm'-value-map f m)
+
+fm'-value-map/HasKV : {ℓK ℓV ℓV2 : Level} {K : Type ℓK} {V : Type ℓV} {V2 : Type ℓV2}
+                      (f : K -> V -> V2) -> {k : K} {v : V} {m : FinMap' K V} ->
+                      HasKV' k v m -> HasKV' k (f k v) (fm'-value-map f m)
+fm'-value-map/HasKV f (has-kv-here kp vp m) = has-kv-here kp (cong2 f kp vp) _
+fm'-value-map/HasKV f (has-kv-skip k v hkv) = 
+  has-kv-skip k (f k v) (fm'-value-map/HasKV f hkv)
+                    
+
+fm'-value-map/HasKV' : {ℓK ℓV ℓV2 : Level} {K : Type ℓK} {V : Type ℓV} {V2 : Type ℓV2}
+                       (f : K -> V -> V2) -> {k : K} {v2 : V2} {m : FinMap' K V} ->
+                       HasKV' k v2 (fm'-value-map f m) -> 
+                       Σ[ v ∈ V ] (f k v == v2 × HasKV' k v m)
+fm'-value-map/HasKV' f {m = (fm-cons k v m)} (has-kv-here kp vp _) = 
+  v , cong2 f kp refl >=> sym vp , has-kv-here kp refl _
+fm'-value-map/HasKV' f {m = (fm-cons k v m)} (has-kv-skip _ _ hkv) = 
+  case (fm'-value-map/HasKV' f hkv) of (\{ (v , p , hkv) -> v , p , has-kv-skip _ _ hkv})
+
+
+fm'-keys : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> FinMap' K V -> FinMap' K Top 
+fm'-keys = fm'-value-map (\_ _ -> tt)
+
+fm'-keys/HasKey : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+                  {k : K} {m : FinMap' K V} -> HasKey' k m -> HasKey' k (fm'-keys m)
+fm'-keys/HasKey (v , has-kv-here kp _ m) = (tt , has-kv-here kp refl (fm'-keys m))
+fm'-keys/HasKey (v , has-kv-skip _ _ m) = 
+  case (fm'-keys/HasKey (v , m)) of \{ (v , hkv) -> v , has-kv-skip _ _ hkv }
+
+fm'-keys/HasKV' : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+                  {k : K} {m : FinMap' K V} -> HasKV' k tt (fm'-keys m) ->
+                  Σ[ v ∈ V ] (HasKV' k v m)
+fm'-keys/HasKV' hkv = 
+  case (fm'-value-map/HasKV' _ hkv) of (\{(v , _ , hkv) -> v , hkv})
+
+
+DisjointKeys' : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> Rel (FinMap' K V) (ℓ-max ℓK ℓV)
+DisjointKeys'  m1 m2 = ∀ {k} -> HasKey' k m1 -> HasKey' k m2 -> Bot
 
 data HasUniqueKeys {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} : 
   Pred (FinMap' K V) (ℓ-max ℓK ℓV) where
@@ -50,12 +97,216 @@ HasKey : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> REL K (FinMap K 
 HasKey k (m , _) = HasKey' k m
 
 DisjointKeys : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> Rel (FinMap K V) (ℓ-max ℓK ℓV)
-DisjointKeys  m1 m2 = ∀ {k} -> HasKey k m1 -> HasKey k m2 -> Bot
+DisjointKeys m1 m2 = ∀ {k} -> HasKey k m1 -> HasKey k m2 -> Bot
+
 
 fm'-union : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
             (FinMap' K V) -> (FinMap' K V) -> (FinMap' K V)
 fm'-union [] m = m
 fm'-union (fm-cons k v m) m2 = fm-cons k v (fm'-union m m2)
+
+module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
+
+  HasKV-fm'-union/split :
+    {k : K} {v : V} (fm1 fm2 : FinMap' K V) -> 
+    HasKV' k v (fm'-union fm1 fm2) -> (HasKV' k v fm1) ⊎ (HasKV' k v fm2)
+  HasKV-fm'-union/split [] _ hk = inj-r hk
+  HasKV-fm'-union/split {k} (fm-cons _ _ fm1) fm2 (has-kv-here kp vp _) =
+    inj-l (has-kv-here kp vp fm1)
+  HasKV-fm'-union/split {k} (fm-cons _ _ fm1) fm2 (has-kv-skip _ _ hkv) = 
+    case (HasKV-fm'-union/split fm1 fm2 hkv) of \{
+      (inj-l hkv) -> inj-l (has-kv-skip _ _ hkv) ;
+      (inj-r hkv) -> inj-r hkv }
+
+  HasKey-fm'-union/split :
+    {k : K} (fm1 fm2 : FinMap' K V) -> 
+    HasKey' k (fm'-union fm1 fm2) -> (HasKey' k fm1) ⊎ (HasKey' k fm2)
+  HasKey-fm'-union/split {k} fm1 fm2 (v , hkv) = 
+    case (HasKV-fm'-union/split fm1 fm2 hkv) of \{
+      (inj-l hkv) -> inj-l (v , hkv) ;
+      (inj-r hkv) -> inj-r (v , hkv) }
+
+  DisjointKeys-fm'-union :
+    {fm1 fm2 fm3 : FinMap' K V} -> 
+    DisjointKeys' fm1 fm2 -> DisjointKeys' fm1 fm3 -> DisjointKeys' fm1 (fm'-union fm2 fm3)
+  DisjointKeys-fm'-union dis12 dis13 hk1 hk23 = 
+    either (dis12 hk1) (dis13 hk1) (HasKey-fm'-union/split _ _ hk23)
+
+  HasKV-fm'-union/left :
+    {k : K} {v : V} {fm1 fm2 : FinMap' K V} -> 
+    HasKV' k v fm1 -> HasKV' k v (fm'-union fm1 fm2)
+  HasKV-fm'-union/left (has-kv-here kp vp _) = has-kv-here kp vp _
+  HasKV-fm'-union/left (has-kv-skip k v hk) =
+    has-kv-skip k v (HasKV-fm'-union/left hk)
+
+  HasKV-fm'-union/right :
+    {k : K} {v : V} {fm1 fm2 : FinMap' K V} -> 
+    HasKV' k v fm2 -> HasKV' k v (fm'-union fm1 fm2)
+  HasKV-fm'-union/right {fm1 = []} hk = hk
+  HasKV-fm'-union/right {fm1 = (fm-cons k v m)} hk =
+    has-kv-skip k v (HasKV-fm'-union/right hk)
+
+
+isInjectiveFinMap' : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+                     Pred (FinMap' K V) (ℓ-max ℓK ℓV)
+isInjectiveFinMap' m = ∀ {k1 k2 v} -> HasKV' k1 v m -> HasKV' k2 v m -> k1 == k2
+
+isFunctionalFinMap' : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+                      Pred (FinMap' K V) (ℓ-max ℓK ℓV)
+isFunctionalFinMap' m = ∀ {k v1 v2} -> HasKV' k v1 m -> HasKV' k v2 m -> v1 == v2
+
+isBijectiveFinMap' : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+                     Pred (FinMap' K V) (ℓ-max ℓK ℓV)
+isBijectiveFinMap' = isInjectiveFinMap' ∩ isFunctionalFinMap'
+
+isInjectiveFinMap'-rest : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+                          (m : FinMap' K V) -> isInjectiveFinMap' m -> 
+                          isInjectiveFinMap' (fm'-rest m)
+isInjectiveFinMap'-rest [] f = f
+isInjectiveFinMap'-rest (fm-cons k v m) f hkv1 hkv2 = f (has-kv-skip k v hkv1) (has-kv-skip k v hkv2)
+
+isFunctionalFinMap'-rest : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+                           (m : FinMap' K V) -> isFunctionalFinMap' m -> 
+                           isFunctionalFinMap' (fm'-rest m)
+isFunctionalFinMap'-rest [] f = f
+isFunctionalFinMap'-rest (fm-cons k v m) f hkv1 hkv2 = f (has-kv-skip k v hkv1) (has-kv-skip k v hkv2)
+
+isBijectiveFinMap'-rest : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+                          (m : FinMap' K V) -> isBijectiveFinMap' m -> 
+                          isBijectiveFinMap' (fm'-rest m)
+isBijectiveFinMap'-rest m (inj , fun) = isInjectiveFinMap'-rest m inj , isFunctionalFinMap'-rest m fun
+
+isBijectiveFinMap'-single : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+                            (k : K) (v : V) -> isBijectiveFinMap' (fm-cons k v [])
+isBijectiveFinMap'-single k v = inj , fun
+  where
+  inj : isInjectiveFinMap' (fm-cons k v [])
+  inj (has-kv-here kp1 _ _) (has-kv-here kp2 _ _) = kp1 >=> sym kp2
+  fun : isFunctionalFinMap' (fm-cons k v [])
+  fun (has-kv-here _ vp1 _) (has-kv-here _ vp2 _) = vp1 >=> sym vp2
+
+isBijectiveFinMap'-[] : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+                        isBijectiveFinMap' {K = K} {V = V} []
+isBijectiveFinMap'-[] = inj , fun
+  where
+  inj : isInjectiveFinMap' []
+  inj ()
+  fun : isFunctionalFinMap' []
+  fun ()
+
+fm'-invert : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+             (FinMap' K V) -> (FinMap' V K) 
+fm'-invert [] = []
+fm'-invert (fm-cons k v m) = fm-cons v k (fm'-invert m)
+
+fm'-invert/Involution : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+                        (m : FinMap' K V) -> (fm'-invert (fm'-invert m)) == m
+fm'-invert/Involution [] = refl
+fm'-invert/Involution (fm-cons k v m) = cong (fm-cons k v) (fm'-invert/Involution m)
+
+fm'-invert/HasKV : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+                   {k : K} {v : V} {m : FinMap' K V} -> HasKV' k v m -> 
+                   HasKV' v k (fm'-invert m)
+fm'-invert/HasKV (has-kv-here kp vp m) = has-kv-here vp kp (fm'-invert m)
+fm'-invert/HasKV (has-kv-skip k v hkv) = has-kv-skip v k (fm'-invert/HasKV hkv)
+                    
+
+fm'-invert/unique-keys : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+                         (m : FinMap' K V) -> HasUniqueKeys m -> isInjectiveFinMap' (fm'-invert m)
+fm'-invert/unique-keys [] _ () 
+fm'-invert/unique-keys (fm-cons k1 v1 m) (fm-cons ¬hk _ huk) 
+                       (has-kv-here v2p k2p _) (has-kv-here v3p k3p _) = v2p >=> sym v3p
+fm'-invert/unique-keys (fm-cons k1 v1 m) (fm-cons ¬hk _ huk) 
+                       {v2} {v3} {k} (has-kv-here v2p kp _) (has-kv-skip _ _ hkv) =
+                       bot-elim (¬hk (v3 , swapped-hkv))
+  where
+  swapped-hkv : HasKV' k1 v3 m
+  swapped-hkv = subst2 (\k m -> HasKV' k v3 m) kp (fm'-invert/Involution m) (fm'-invert/HasKV hkv)
+fm'-invert/unique-keys (fm-cons k1 v1 m) (fm-cons ¬hk _ huk) 
+                       {v2} {v3} {k} (has-kv-skip _ _ hkv) (has-kv-here v3p kp _) =
+                       bot-elim (¬hk (v2 , swapped-hkv))
+  where
+  swapped-hkv : HasKV' k1 v2 m
+  swapped-hkv = subst2 (\k m -> HasKV' k v2 m) kp (fm'-invert/Involution m) (fm'-invert/HasKV hkv)
+
+fm'-invert/unique-keys (fm-cons k1 v1 m) (fm-cons ¬hk _ huk) 
+                       (has-kv-skip _ _ hkv1) (has-kv-skip _ _ hkv2) =
+  fm'-invert/unique-keys m huk hkv1 hkv2
+  
+
+fm'-invert/injective : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+                       (m : FinMap' K V) -> isInjectiveFinMap' m -> 
+                       isFunctionalFinMap' (fm'-invert m)
+fm'-invert/injective [] _ ()
+fm'-invert/injective (fm-cons k1 v1 m) _
+                     (has-kv-here k2p v2p _) (has-kv-here k3p v3p _) = v2p >=> sym v3p
+fm'-invert/injective (fm-cons k v m) inj
+                     (has-kv-skip _ _ hkv1) (has-kv-skip _ _ hkv2) = rec hkv1 hkv2
+  where
+  inj' : isInjectiveFinMap' m
+  inj' hkv1 hkv2 = inj (has-kv-skip k v hkv1) (has-kv-skip k v hkv2)
+  rec : isFunctionalFinMap' (fm'-invert m)
+  rec = fm'-invert/injective m inj'
+
+fm'-invert/injective (fm-cons k1 v1 m) inj
+                     {v} {k2} {k3} hkv2@(has-kv-here vp _ _) hkv3@(has-kv-skip _ _ _) = 
+                     inj swapped-hkv2 swapped-hkv3
+  where
+  swapped-hkv2 : HasKV' k2 v1 (fm-cons k1 v1 m)
+  swapped-hkv2 = subst2 (\v m -> HasKV' k2 v (fm-cons k1 v1 m)) vp (fm'-invert/Involution m) (fm'-invert/HasKV hkv2)
+
+  swapped-hkv3 : HasKV' k3 v1 (fm-cons k1 v1 m)
+  swapped-hkv3 = subst2 (\v' m -> HasKV' k3 v' (fm-cons k1 v1 m)) vp (fm'-invert/Involution m) (fm'-invert/HasKV hkv3)
+fm'-invert/injective (fm-cons k1 v1 m) inj
+                     {v} {k2} {k3} hkv2@(has-kv-skip _ _ _) hkv3@(has-kv-here vp _ _) = 
+                     inj swapped-hkv2 swapped-hkv3
+  where
+  swapped-hkv2 : HasKV' k2 v1 (fm-cons k1 v1 m)
+  swapped-hkv2 = subst2 (\v m -> HasKV' k2 v (fm-cons k1 v1 m)) vp (fm'-invert/Involution m) (fm'-invert/HasKV hkv2)
+
+  swapped-hkv3 : HasKV' k3 v1 (fm-cons k1 v1 m)
+  swapped-hkv3 = subst2 (\v m -> HasKV' k3 v (fm-cons k1 v1 m)) vp (fm'-invert/Involution m) (fm'-invert/HasKV hkv3)
+
+fm'-invert/functional : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+                       (m : FinMap' K V) -> isFunctionalFinMap' m -> 
+                       isInjectiveFinMap' (fm'-invert m)
+fm'-invert/functional [] _ ()
+fm'-invert/functional (fm-cons k1 v1 m) _
+                      (has-kv-here v2p k2p _) (has-kv-here v3p k3p _) = v2p >=> sym v3p
+fm'-invert/functional (fm-cons k v m) fun
+                      (has-kv-skip _ _ hkv1) (has-kv-skip _ _ hkv2) = rec hkv1 hkv2
+  where
+  fun' : isFunctionalFinMap' m
+  fun' hkv1 hkv2 = fun (has-kv-skip k v hkv1) (has-kv-skip k v hkv2)
+  rec : isInjectiveFinMap' (fm'-invert m)
+  rec = fm'-invert/functional m fun'
+fm'-invert/functional (fm-cons k1 v1 m) fun
+                      {v2} {v3} {k} hkv2@(has-kv-here _ kp _) hkv3@(has-kv-skip _ _ _) = 
+                      fun swapped-hkv2 swapped-hkv3
+  where
+  swapped-hkv2 : HasKV' k1 v2 (fm-cons k1 v1 m)
+  swapped-hkv2 = subst2 (\k m -> HasKV' k v2 (fm-cons k1 v1 m)) kp (fm'-invert/Involution m) (fm'-invert/HasKV hkv2)
+
+  swapped-hkv3 : HasKV' k1 v3 (fm-cons k1 v1 m)
+  swapped-hkv3 = subst2 (\k m -> HasKV' k v3 (fm-cons k1 v1 m)) kp (fm'-invert/Involution m) (fm'-invert/HasKV hkv3)
+fm'-invert/functional (fm-cons k1 v1 m) fun
+                      {v2} {v3} {k} hkv2@(has-kv-skip _ _ _) hkv3@(has-kv-here _ kp _) = 
+                      fun swapped-hkv2 swapped-hkv3
+  where
+  swapped-hkv2 : HasKV' k1 v2 (fm-cons k1 v1 m)
+  swapped-hkv2 = subst2 (\k m -> HasKV' k v2 (fm-cons k1 v1 m)) kp (fm'-invert/Involution m) (fm'-invert/HasKV hkv2)
+
+  swapped-hkv3 : HasKV' k1 v3 (fm-cons k1 v1 m)
+  swapped-hkv3 = subst2 (\k m -> HasKV' k v3 (fm-cons k1 v1 m)) kp (fm'-invert/Involution m) (fm'-invert/HasKV hkv3)
+
+
+fm'-invert/bijective : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
+                       (m : FinMap' K V) -> isBijectiveFinMap' m -> 
+                       isBijectiveFinMap' (fm'-invert m)
+fm'-invert/bijective m (inj , fun) = fm'-invert/functional m fun , fm'-invert/injective m inj
+
+
+            
 
 module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} 
          {{disc'K : Discrete' K}} 
@@ -115,9 +366,6 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV}
   isProp-HasKV2 (_ , (fm-cons ¬hk2' _ _))
                 (has-kv-skip _ _ hkv1') (has-kv-here kp _ _) =
     bot-elim (¬hk2' (subst (\k -> HasKey' k _) kp (_ , hkv1')))
-    
-  
-
 
 
 -- fm'-size : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> FinMap' K V -> Nat

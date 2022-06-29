@@ -29,3 +29,8 @@ instance
   TotalOrderStr-ℕ = record
     { connex-≤ = no.connex-≤
     }
+  CompatibleOrderStr-ℕ :
+    CompatibleOrderStr LinearOrderStr-ℕ PartialOrderStr-ℕ
+  CompatibleOrderStr-ℕ = record
+    { weaken-< = no.weaken-<
+    }
