@@ -38,6 +38,9 @@ RightInverse f g = ∀ b -> f (g b) == b
 LeftInverse : (A -> B) -> Pred (B -> A) _
 LeftInverse f g = ∀ b -> (g (f b)) == b
 
+Involution : Pred (A -> A) _
+Involution f = ∀ {a} -> (f (f a)) == a
+
 -- Constant functions.
 -- 2-Constant is constant up to paths.
 2-Constant : (A -> B) -> Type _

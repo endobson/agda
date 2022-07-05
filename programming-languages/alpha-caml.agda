@@ -3,6 +3,8 @@
 module programming-languages.alpha-caml where
 
 open import container.finmap
+open import container.finmap.composition
+open import container.finmap.entry-map
 open import base
 open import relation
 open import hlevel.base
@@ -14,6 +16,7 @@ open import list
 open import order
 open import order.instances.nat
 open import truncation
+open import programming-languages.renamings
 
 private
   variable
@@ -26,8 +29,10 @@ instance
   isSet'-Atom : isSet' Atom
   isSet'-Atom .isSet'.f = isSetNat
 
-DiscreteAtom : Discrete Atom
-DiscreteAtom = decide-nat
+module _ where
+  abstract
+    DiscreteAtom : Discrete Atom
+    DiscreteAtom = decide-nat
 
 FinSet : Type ℓ -> Type ℓ
 FinSet A = FinMap' A Top
@@ -112,41 +117,6 @@ data PatternDepth where
         (s : ScopeSpecifier) -> TermDepth t td -> PatternDepth (eoa s t) (suc td)
 
 
-isRenaming : Pred (FinMap' Atom Atom) ℓ-zero
-isRenaming = isBijectiveFinMap'
-
-Renaming : Type₀
-Renaming = Σ (FinMap' Atom Atom) isRenaming
-
-use-renaming : Renaming -> Atom -> Atom
-use-renaming (m , isRename) = f m isRename
-  where
-  f : (m : FinMap' Atom Atom) -> isRenaming m -> Atom -> Atom
-  f [] _ a = a
-  f (fm-cons a1 a2 m) isRename a3 = 
-    case (DiscreteAtom a1 a3) of \{
-      (yes _) -> a2 ;
-      (no _) -> f m (isBijectiveFinMap'-rest _ isRename) a3}
-
--- rename# : Atom -> Atom -> List (Atom × Atom) -> Type₀
--- 
--- data isRenaming where
---   [] : isRenaming []
---   rename-cons : {l : List (Atom × Atom)} -> (a1 a2 : Atom) -> (r : isRenaming l) -> 
---                 rename# a1 a2 l -> isRenaming ((a1 , a2) :: l)
--- 
--- rename# a1 a2 = ContainsAll \{(a3 , a4) -> (a1 != a3) × (a2 != a4)}
-
-single-renaming : Atom -> Atom -> Renaming
-single-renaming a1 a2 = _ , isBijectiveFinMap'-single a1 a2
-
-empty-renaming : Renaming
-empty-renaming = _ , isBijectiveFinMap'-[]
-
-single-renaming-unique-value : {k1 v1 k2 v2 : Atom} -> HasKV' k1 v1 ⟨ single-renaming k2 v2 ⟩ -> 
-                               (k1 == k2 × v1 == v2)
-single-renaming-unique-value (has-kv-here kp vp _) = kp , vp
-
 
 
 module _ (a1 : Atom) (a2 : Atom) where
@@ -173,6 +143,31 @@ module _ (rename-atom/atom : Atom -> Atom) where
   rename-atom/pattern (var v) = var (rename-atom/atom v)
   rename-atom/pattern (branch p1 p2) = branch (rename-atom/pattern p1) (rename-atom/pattern p2)
   rename-atom/pattern (eoa s t) = eoa s (rename-atom/term t)
+
+module _ (f g : Atom -> Atom) where
+
+  rename-atom/term-compose : (t : Term) ->
+   rename-atom/term f (rename-atom/term g t) ==
+   rename-atom/term (f ∘ g) t
+  rename-atom/pattern-compose : (p : Pattern) ->
+   rename-atom/pattern f (rename-atom/pattern g p) ==
+   rename-atom/pattern (f ∘ g) p
+
+  rename-atom/term-compose empty = refl
+  rename-atom/term-compose (const k) = refl
+  rename-atom/term-compose (var v) = refl
+  rename-atom/term-compose (branch t1 t2) = 
+    cong2 branch (rename-atom/term-compose t1) (rename-atom/term-compose t2)
+  rename-atom/term-compose (abstraction p) = 
+    cong abstraction (rename-atom/pattern-compose p)
+
+  rename-atom/pattern-compose empty = refl
+  rename-atom/pattern-compose (var v) = refl
+  rename-atom/pattern-compose (branch p1 p2) =
+    cong2 branch (rename-atom/pattern-compose p1) (rename-atom/pattern-compose p2)
+  rename-atom/pattern-compose (eoa s t) = 
+    cong (eoa s) (rename-atom/term-compose t)
+
 
 use-renaming/term : Renaming -> Term -> Term
 use-renaming/term r = rename-atom/term (use-renaming r)
@@ -257,24 +252,10 @@ term-depth-use-renaming : (r : Renaming) (t : Term) ->
 term-depth-use-renaming r t = term-depth-rename-atom/term (use-renaming r) t
 
 
-RenamingExtension : Renaming -> Renaming -> Type₀
-RenamingExtension orig result = {k v : Atom} -> HasKV' k v ⟨ orig ⟩ -> HasKV' k v ⟨ result ⟩
 
 isSubFinSet : FinSet Atom -> FinSet Atom -> Type₀
 isSubFinSet fs1 fs2 = {k : Atom} -> HasKey' k fs2 -> HasKey' k fs1
 
-record RenamingUnion (left right result : Renaming) : Type₀ where
-  field
-    forward-left : RenamingExtension left result
-    forward-right : RenamingExtension right result
-    backward : {k v : Atom} -> HasKV' k v ⟨ result ⟩ -> 
-               HasKV' k v ⟨ left ⟩ ⊎ HasKV' k v ⟨ right ⟩
-
-
-record CompatibleRenamings (r1 r2 : Renaming) : Type₀ where
-  field
-    range : {k v1 v2 : Atom} -> HasKV' k v1 ⟨ r1 ⟩ -> HasKV' k v2 ⟨ r2 ⟩ -> v1 == v2
-    domain : {k1 k2 v : Atom} -> HasKV' k1 v ⟨ r1 ⟩ -> HasKV' k2 v ⟨ r2 ⟩ -> k1 == k2
 
 
 data PatternRenaming : Pattern -> Pattern -> Renaming -> Type₀ where
@@ -285,79 +266,84 @@ data PatternRenaming : Pattern -> Pattern -> Renaming -> Type₀ where
            PatternRenaming p1 p3 r1 -> PatternRenaming p2 p4 r2 ->
            RenamingUnion r1 r2 r3 ->
            PatternRenaming (branch p1 p2) (branch p3 p4) r3
-    
-data α-equiv : Rel Term ℓ-zero where
-  var : (v : Atom) -> α-equiv (var v) (var v)
-  const : (v : Atom) -> α-equiv (const v) (const v)
-  empty : α-equiv empty empty
-  branch : {t1 t2 t3 t4 : Term} -> α-equiv t1 t2 -> α-equiv t3 t4 ->
-           α-equiv (branch t1 t3) (branch t2 t4)
-  abstraction : {p1 p2 : Pattern} -> (p3 : Pattern) ->
-    (r1 r2 : Renaming) -> 
-    PatternRenaming p1 p3 r1 -> 
-    PatternRenaming p2 p3 r2 -> 
-    DisjointFinSet (atoms/pattern p3) (fm'-union (atoms/pattern p1) (atoms/pattern p2)) ->
-    α-equiv (pattern/side outer p1) (pattern/side outer p2) ->
-    α-equiv (use-renaming/term r1 (pattern/side inner p1))
-            (use-renaming/term r2 (pattern/side inner p2)) ->
-    α-equiv (abstraction p1) (abstraction p2)
+
+invert-PatternRenaming : {p1 p2 : Pattern} {r : Renaming} -> 
+                         PatternRenaming p1 p2 r -> PatternRenaming p2 p1 (invert-renaming r)
+invert-PatternRenaming {p1} {p2} (var v1 v2) = 
+  subst (PatternRenaming p2 p1) (sym invert-single-renaming) (var v2 v1)
+invert-PatternRenaming {p1} {p2} empty = 
+  subst (PatternRenaming p2 p1) (sym invert-empty-renaming) empty
+invert-PatternRenaming {p1} {p2} (eoa s t1 t2) = 
+  subst (PatternRenaming p2 p1) (sym invert-empty-renaming) (eoa s t2 t1)
+invert-PatternRenaming (branch p1 p2 p3 p4 r1 r2 r3 pr1 pr2 ru) = 
+  (branch p3 p4 p1 p2 (invert-renaming r1) (invert-renaming r2) (invert-renaming r3) 
+          (invert-PatternRenaming pr1) (invert-PatternRenaming pr2)
+          (invert-RenamingUnion ru))
+
+PatternRenamings->MatchedRenamings :
+  {p1 p2 p3 : Pattern} {r1 r2 : Renaming} ->
+  PatternRenaming p1 p2 r1 -> PatternRenaming p2 p3 r2 ->
+  MatchedRenamings r1 r2
+PatternRenamings->MatchedRenamings (var v1 v2) (var v2 v3) (has-kv-here kp vp _) =
+  v3 , has-kv-here vp refl []
+PatternRenamings->MatchedRenamings (empty) (empty) ()
+PatternRenamings->MatchedRenamings (eoa s t1 t2) (eoa s t2 t3) ()
+PatternRenamings->MatchedRenamings
+  (branch p1 p2 p3 p4 r13 r24 ur1 pr13 pr24 ru1)
+  (branch p3 p4 p5 p6 r35 r46 ur2 pr35 pr46 ru2) {k} {v} hkv-ur1 =
+  handle (RenamingUnion.backward ru1 hkv-ur1)
+  where
+  handle : (HasKV' k v ⟨ r13 ⟩) ⊎ (HasKV' k v ⟨ r24 ⟩) -> Σ[ v2 ∈ Atom ] (HasKV' v v2 ⟨ ur2 ⟩)
+  handle (inj-l hkv-r13) = 
+    case (PatternRenamings->MatchedRenamings pr13 pr35 hkv-r13) of
+      (\{ (v2 , hkv-r35) -> v2 , RenamingUnion.forward-left ru2 hkv-r35})
+  handle (inj-r hkv-r24) = 
+    case (PatternRenamings->MatchedRenamings pr24 pr46 hkv-r24) of
+      (\{ (v2 , hkv-r46) -> v2 , RenamingUnion.forward-right ru2 hkv-r46})
 
 
-renaming-target-atoms : Renaming -> FinSet Atom
-renaming-target-atoms r = fm'-keys (fm'-invert ⟨ r ⟩)
+transitive-PatternRenaming :
+  {p1 p2 p3 : Pattern} {r1 r2 : Renaming} -> 
+  PatternRenaming p1 p2 r1 -> PatternRenaming p2 p3 r2 ->
+  Σ[ r3 ∈ Renaming ] (RenamingComposition r1 r2 r3 × PatternRenaming p1 p3 r3)
+transitive-PatternRenaming (var v1 v2) (var v2 v3) = 
+  single-renaming v1 v3 , RenamingComposition-single-renaming , var v1 v3
+transitive-PatternRenaming (empty) (empty) = 
+  empty-renaming , FinMapComposition'-empty-left , empty
+transitive-PatternRenaming (eoa s t1 t2) (eoa s t2 t3) =
+  empty-renaming , FinMapComposition'-empty-left , eoa s t1 t3
+transitive-PatternRenaming
+  (branch p1 p2 p3 p4 r13 r24 ur1 pr13 pr24 ru1)
+  (branch p3 p4 p5 p6 r35 r46 ur2 pr35 pr46 ru2) =
+  final-r , 
+  c-final-r ,
+  (branch p1 p2 p5 p6 (fst Σpr15) (fst Σpr26) final-r (snd (snd Σpr15)) (snd (snd Σpr26)) ans)
+  where
+  Σpr15 = transitive-PatternRenaming pr13 pr35
+  Σpr26 = transitive-PatternRenaming pr24 pr46
+  Σur = Σcompose-renamings ur1 ur2
+  r7 = fst (Σpr15)
+  r8 = fst (Σpr26)
+  final-r = (fst Σur)
+  c-final-r = (snd Σur)
 
-isFreshBoundOfRenaming : (r : Renaming) (v : Atom) -> Type₀
-isFreshBoundOfRenaming r b = 
-  (a : Atom) -> b ≤ a -> ¬ (Σ[ k ∈ Atom ] (HasKV' k a ⟨ r ⟩)) ×
-                         ¬ (Σ[ v ∈ Atom ] (HasKV' a v ⟨ r ⟩))
+  ans : RenamingUnion r7 r8 final-r
+  ans = (RenamingUnion-RenamingComposition ru1 ru2 (fst (snd Σpr15)) (fst (snd Σpr26)) c-final-r
+                                           (PatternRenamings->MatchedRenamings pr13 pr35)
+                                           (PatternRenamings->MatchedRenamings pr24 pr46))
 
+
+   
+
+isFreshBoundOfSet : (fs : FinSet Atom) (v : Atom) -> Type₀
+isFreshBoundOfSet fs b = {a : Atom} -> (HasKey' a fs) -> a < b 
 
 isFreshBoundOfPattern : (p : Pattern) (v : Atom) -> Type₀
-isFreshBoundOfPattern p b =
-  {a : Atom} -> (HasKey' a (atoms/pattern p)) -> a < b 
+isFreshBoundOfPattern p = isFreshBoundOfSet (atoms/pattern p)
 
 isFreshBoundOfTerm : (t : Term) (v : Atom) -> Type₀
-isFreshBoundOfTerm t b =
-  {a : Atom} -> (HasKey' a (atoms/term t)) -> a < b 
+isFreshBoundOfTerm t = isFreshBoundOfSet (atoms/term t)
 
-computeFreshBoundOfRenaming : (r : Renaming) -> Σ Atom (isFreshBoundOfRenaming r)
-computeFreshBoundOfRenaming (m , _) = handle m
-  where
-  isFreshBoundOfMap : (m : FinMap' Atom Atom) (v : Atom) -> Type₀
-  isFreshBoundOfMap m b = 
-    (a : Atom) -> b ≤ a -> ¬ (Σ[ k ∈ Atom ] (HasKV' k a m)) ×
-                           ¬ (Σ[ v ∈ Atom ] (HasKV' a v m))
-
-
-  handle : (m : FinMap' Atom Atom) -> Σ Atom (isFreshBoundOfMap m)
-  handle [] = 0 , \a lt -> ((\{(_ , ())}) , (\{(_ , ())}))
-  handle fm@(fm-cons k v m) = ans , freshBound
-    where
-    rec = handle m
-    ans = max (suc (max k v)) (fst rec)
-    
-    freshBound : isFreshBoundOfMap fm ans
-    freshBound a ans≤a = case-k , case-v
-      where
-      case-k : ¬ (Σ[ k ∈ Atom ] (HasKV' k a fm))
-      case-k (_ , has-kv-here kp vp _) = irrefl-< lt
-        where
-        lt : v < v
-        lt = (trans-<-≤
-               (suc-≤ ≤-max-right)
-               (trans-≤ (≤-max-left {suc (max k v)} {fst rec}) (trans-≤ ans≤a (path-≤ vp))))
-      case-k (k , has-kv-skip _ _ hkv) =
-        fst ((snd rec) a (trans-≤ ≤-max-right ans≤a)) (k , hkv)
-
-      case-v : ¬ (Σ[ v ∈ Atom ] (HasKV' a v fm))
-      case-v (_ , has-kv-here kp vp _) = irrefl-< lt
-        where
-        lt : k < k
-        lt = (trans-<-≤
-               (suc-≤ ≤-max-left)
-               (trans-≤ (≤-max-left {suc (max k v)} {fst rec}) (trans-≤ ans≤a (path-≤ kp))))
-      case-v (v , has-kv-skip _ _ hkv) =
-        snd ((snd rec) a (trans-≤ ≤-max-right ans≤a)) (v , hkv)
 
 record Supply (b : Atom) : Type₀ where
   field
@@ -376,60 +362,47 @@ initSupply b = record {
     next-var = suc b ;
     b<next-var = refl-≤ }
 
+computeFreshBoundOfSet : (fs : FinSet Atom) -> Σ Atom (isFreshBoundOfSet fs)
+computeFreshBoundOfSet [] = 0 , \()
+computeFreshBoundOfSet (fm-cons v _ m) = handle (computeFreshBoundOfSet m)
+  where
+  handle : Σ Atom (isFreshBoundOfSet m) -> Σ Atom (isFreshBoundOfSet (fm-cons v tt m) )
+  handle (b , fb) = max (suc v) b , fresh
+    where
+    fresh : isFreshBoundOfSet (fm-cons v tt m) (max (suc v) b) 
+    fresh (_ , (has-kv-here vp _ _)) = trans-≤ (suc-≤ (path-≤ vp)) (≤-max-left {suc v} {b})
+    fresh (_ , (has-kv-skip _ _ hkv)) = trans-≤ (fb (tt , hkv)) ≤-max-right 
+
+
 computeFreshBoundOfPattern : (p : Pattern) -> Σ Atom (isFreshBoundOfPattern p)
+computeFreshBoundOfPattern p = computeFreshBoundOfSet (atoms/pattern p)
 computeFreshBoundOfTerm : (t : Term) -> Σ Atom (isFreshBoundOfTerm t)
-
-computeFreshBoundOfPattern (var v) = suc v , \{ (_ , (has-kv-here kp vp _)) -> suc-≤ (path-≤ kp)}
-computeFreshBoundOfPattern (empty) = 0 , \()
-computeFreshBoundOfPattern (branch l r) =
-  handle (computeFreshBoundOfPattern l) (computeFreshBoundOfPattern r)
-  where
-  handle : Σ Atom (isFreshBoundOfPattern l) -> Σ Atom (isFreshBoundOfPattern r) ->
-           Σ Atom (isFreshBoundOfPattern (branch l r))
-  handle (lb , fl) (rb , fb) = 
-    max lb rb , \hk -> either (\hk -> trans-≤ (fl hk) ≤-max-left)
-                              (\hk -> trans-≤ (fb hk) ≤-max-right)
-                       (HasKey-fm'-union/split _ _ hk)
-computeFreshBoundOfPattern (eoa _ t) = computeFreshBoundOfTerm t
-
-computeFreshBoundOfTerm (var v) = suc v , \{ (_ , (has-kv-here kp vp _)) -> suc-≤ (path-≤ kp)}
-computeFreshBoundOfTerm (empty) = 0 , \()
-computeFreshBoundOfTerm (const _) = 0 , \()
-computeFreshBoundOfTerm (branch l r) = handle (computeFreshBoundOfTerm l) (computeFreshBoundOfTerm r)
-  where
-  handle : Σ Atom (isFreshBoundOfTerm l) -> Σ Atom (isFreshBoundOfTerm r) ->
-           Σ Atom (isFreshBoundOfTerm (branch l r))
-  handle (lb , fl) (rb , fb) = 
-    max lb rb , \hk -> either (\hk -> trans-≤ (fl hk) ≤-max-left)
-                              (\hk -> trans-≤ (fb hk) ≤-max-right)
-                       (HasKey-fm'-union/split _ _ hk)
-computeFreshBoundOfTerm (abstraction p) = computeFreshBoundOfPattern p
+computeFreshBoundOfTerm t = computeFreshBoundOfSet (atoms/term t)
 
 find-fresh-rename : 
-  (p : Pattern) -> 
+  (source : FinSet Atom) (avoid : FinSet Atom) -> 
   Σ[ r ∈ Renaming ] (
-    (DisjointFinSet (renaming-target-atoms r) (atoms/pattern p)) ×
-    (∀ k -> HasKey' k (atoms/pattern p) -> HasKey' k ⟨ r ⟩))
-find-fresh-rename p = (renaming' , (inj-renaming , fun-renaming)) , dis , has-key
+    (DisjointFinSet (renaming-target-atoms r) avoid) ×
+    (∀ k -> HasKey' k source -> HasKey' k ⟨ r ⟩))
+find-fresh-rename source avoid = (renaming' , (inj-renaming , fun-renaming)) , dis , has-key
   where
-  bound : Σ Atom (isFreshBoundOfPattern p)
-  bound = computeFreshBoundOfPattern p
+  bound : Σ Atom (isFreshBoundOfSet avoid)
+  bound = computeFreshBoundOfSet avoid
   b = fst bound
   fresh-b = snd bound
-
 
   f : Atom -> Top -> Atom
   f k _ = suc b +' k
 
   renaming' : FinMap' Atom Atom
-  renaming' = fm'-value-map (\k _ -> suc b +' k) (atoms/pattern p)
+  renaming' = fm'-value-map (\k _ -> suc b +' k) source
 
   fun-renaming : isFunctionalFinMap' renaming'
   fun-renaming {k} {v1} {v2} hkv1 hkv2 =
     handle (fm'-value-map/HasKV' _ hkv1) (fm'-value-map/HasKV' _ hkv2)
     where
-    handle : Σ[ v ∈ Top ] ((f k v == v1) × HasKV' k v (atoms/pattern p)) ->
-             Σ[ v ∈ Top ] ((f k v == v2) × HasKV' k v (atoms/pattern p)) ->
+    handle : Σ[ v ∈ Top ] ((f k v == v1) × HasKV' k v source) ->
+             Σ[ v ∈ Top ] ((f k v == v2) × HasKV' k v source) ->
              v1 == v2
     handle (tt , k1p , _) (tt , k2p , _) = sym k1p >=> k2p
 
@@ -437,18 +410,18 @@ find-fresh-rename p = (renaming' , (inj-renaming , fun-renaming)) , dis , has-ke
   inj-renaming {k1} {k2} {v2} hkv1 hkv2 =
     handle (fm'-value-map/HasKV' _ hkv1) (fm'-value-map/HasKV' _ hkv2)
     where
-    handle : Σ[ v ∈ Top ] ((f k1 v == v2) × HasKV' k1 v (atoms/pattern p)) ->
-             Σ[ v ∈ Top ] ((f k2 v == v2) × HasKV' k2 v (atoms/pattern p)) ->
+    handle : Σ[ v ∈ Top ] ((f k1 v == v2) × HasKV' k1 v source) ->
+             Σ[ v ∈ Top ] ((f k2 v == v2) × HasKV' k2 v source) ->
              k1 == k2
     handle (_ , k1p , _) (_ , k2p , _) = 
       +'-left-injective {suc b} (k1p >=> sym k2p)
 
-  has-key : (∀ k -> HasKey' k (atoms/pattern p) -> HasKey' k renaming')
+  has-key : (∀ k -> HasKey' k source -> HasKey' k renaming')
   has-key k (v , hkv) = _ , fm'-value-map/HasKV f hkv
 
 
 
-  dis : (DisjointFinSet (fm'-keys (fm'-invert renaming')) (atoms/pattern p))
+  dis : (DisjointFinSet (fm'-keys (fm'-invert renaming')) avoid)
   dis {k} (tt , hkv1) (tt , hkv2) =
     bot-elim (irrefl-< (trans-≤ (fresh-b (tt , hkv2)) b≤k))
 
@@ -461,297 +434,13 @@ find-fresh-rename p = (renaming' , (inj-renaming , fun-renaming)) , dis , has-ke
     b≤k : b ≤ k
     b≤k = handle (fm'-value-map/HasKV' f (snd hkv-r))
       where
-      handle : Σ[ v ∈ Top ] (f (fst hkv-r) v == k ×  HasKV' (fst hkv-r) v (atoms/pattern p)) -> 
+      handle : Σ[ v ∈ Top ] (f (fst hkv-r) v == k ×  HasKV' (fst hkv-r) v source) -> 
                b ≤ k
       handle (_ , p , _) = pred-≤ (right-suc-≤ sb≤k)
         where
         sb≤k : suc b ≤ k 
         sb≤k = (fst hkv-r) , +'-commute {fst hkv-r} {suc b} >=> p
 
-
-    
-
-
-   --  case (rec-p p b (initSupply b) empty-renaming fresh-b (\{_ (_ , ())})) of
-   --    (\{(r , dis , keys , _) -> r , (\{k} -> (dis {k})) , keys})
-   --  where 
-   --  initial-bound : Σ Atom (isFreshBoundOfPattern p)
-   --  initial-bound = computeFreshBoundOfRenaming p
-   --  b = fst initial-bound
-   --  fresh-b = snd initial-bound
-  
-   --  rec-p : (p : Pattern) -> (b : Atom) -> (s : Supply b) ->
-   --          (init-r : Renaming)
-   --          (freshBound : isFreshBoundOfPattern p b) ->
-   --          (DisjointFinSet (renaming-target-atoms init-r) (atoms/pattern p)) ->
-   --           Σ[ r ∈ Renaming ] (
-   --             (DisjointFinSet (renaming-target-atoms r) (atoms/pattern p)) ×
-   --             (∀ k -> HasKey' k (atoms/pattern p) -> HasKey' k ⟨ r ⟩) ×
-   --             RenamingExtension init-r r)
-   --  rec-t : (t : Term) -> (b : Atom) -> (s : Supply b) ->
-   --          (init-r : Renaming)
-   --          (freshBound : isFreshBoundOfTerm t b) ->
-   --          (DisjointFinSet (renaming-target-atoms init-r) (atoms/term t)) ->
-   --           Σ[ r ∈ Renaming ] (
-   --             (DisjointFinSet (renaming-target-atoms r) (atoms/term t)) ×
-   --             (∀ k -> HasKey' k (atoms/term t) -> HasKey' k ⟨ r ⟩) ×
-   --             RenamingExtension init-r r)
-  
-   --  rec-p (empty) b s init-r _ dis = init-r , dis , (\{_ (_ , ())}) , (\hk -> hk)
-   --  rec-p (eoa ss t) b s init-r fresh dis = rec-t t b s init-r fresh dis
-  
-   --  rec-t (empty) b s init-r _ dis = init-r , dis , (\{_ (_ , ())}) , (\hk -> hk)
-   --  rec-t (abstraction p) b s init-r fresh dis = rec-p p b s init-r fresh dis
-
-
--- freshen-pattern : (p1 : Pattern) -> Σ[ p2 ∈ Pattern ] Σ[ r ∈ Renaming ] 
---                                     (PatternRenaming p1 p2 r × 
---                                      DisjointFinSet (atoms/pattern p2) (atoms/pattern p1))
-
-
-renaming-union : (r1 r2 : Renaming) -> CompatibleRenamings r1 r2 ->
-                 Σ[ r3 ∈ Renaming ] (RenamingUnion r1 r2 r3)
-renaming-union ren1@(r1 , is-r1) ren2@(r2 , is-r2) c = ren , ru
-  where
-  fm = fm'-union r1 r2 
-
-  isInj : isInjectiveFinMap' fm
-  isInj {k1} {k2} {v} hk1 hk2 = handle (HasKV-fm'-union/split _ _ hk1) (HasKV-fm'-union/split _ _ hk2)
-    where
-    handle : (HasKV' k1 v r1 ⊎ HasKV' k1 v r2) ->
-             (HasKV' k2 v r1 ⊎ HasKV' k2 v r2) ->
-             k1 == k2
-    handle (inj-l hkv1) (inj-l hkv2) = fst is-r1 hkv1 hkv2
-    handle (inj-l hkv1) (inj-r hkv2) = 
-      CompatibleRenamings.domain c hkv1 hkv2
-    handle (inj-r hkv1) (inj-l hkv2) =
-      sym (CompatibleRenamings.domain c hkv2 hkv1)
-    handle (inj-r hkv1) (inj-r hkv2) = fst is-r2 hkv1 hkv2
-
-  isFun : isFunctionalFinMap' fm
-  isFun {k} {v1} {v2} hk1 hk2 = handle (HasKV-fm'-union/split _ _ hk1) (HasKV-fm'-union/split _ _ hk2)
-    where
-    handle : (HasKV' k v1 r1 ⊎ HasKV' k v1 r2) ->
-             (HasKV' k v2 r1 ⊎ HasKV' k v2 r2) ->
-             v1 == v2
-    handle (inj-l hkv1) (inj-l hkv2) = snd is-r1 hkv1 hkv2
-    handle (inj-l hkv1) (inj-r hkv2) = 
-      CompatibleRenamings.range c hkv1 hkv2
-    handle (inj-r hkv1) (inj-l hkv2) =
-      sym (CompatibleRenamings.range c hkv2 hkv1)
-    handle (inj-r hkv1) (inj-r hkv2) = snd is-r2 hkv1 hkv2
-
-  ren : Renaming
-  ren = (fm , isInj , isFun)
-  ru : RenamingUnion ren1 ren2 ren
-  ru .RenamingUnion.forward-left = HasKV-fm'-union/left
-  ru .RenamingUnion.forward-right = HasKV-fm'-union/right
-  ru .RenamingUnion.backward hk = HasKV-fm'-union/split _ _ hk
-
---module _ (renaming-union : (r1 r2 : Renaming) -> CompatibleRenamings r1 r2 ->
---                           Σ[ r3 ∈ Renaming ] (RenamingUnion r1 r2 r3))
---         (compatible-extension :
---           (r1 r2 r3 : Renaming) -> 
---           RenamingExtension r1 r2 ->
---           CompatibleRenamings r2 r3 ->
---           CompatibleRenamings r1 r3)
---         (compatible-union :
---           {r1 r2 r3 r4 : Renaming} -> 
---           RenamingUnion r1 r2 r3 ->
---           CompatibleRenamings r1 r4 ->
---           CompatibleRenamings r2 r4 ->
---           CompatibleRenamings r3 r4)
---         (Symmetric-CompatibleRenamings : 
---           (r1 r2 : Renaming) -> CompatibleRenamings r1 r2 -> CompatibleRenamings r2 r1)
---         (Symmetric-DisjointKeys : 
---           {s1 s2 : FinSet Atom} -> DisjointKeys' s1 s2 -> DisjointKeys' s2 s1)
---  where
---  freshen-pattern : (p1 : Pattern) (init-r : Renaming) ->
---                    (DisjointFinSet (renaming-target-atoms init-r) (atoms/pattern p1)) -> 
---                    (bound : Atom) ->
---                    Σ[ p2 ∈ Pattern ] Σ[ r ∈ Renaming ] 
---                    (PatternRenaming p1 p2 r × 
---                     DisjointFinSet (atoms/pattern p2) (atoms/pattern p1) ×
---                     CompatibleRenamings r init-r)
---  freshen-pattern p1@(var v) init-r dis-init-r _ = handle (lookup' v ⟨ init-r ⟩)
---    where
---    handle : Dec (HasKey' v ⟨ init-r ⟩) ->
---             Σ[ p2 ∈ Pattern ] Σ[ r ∈ Renaming ] 
---             (PatternRenaming p1 p2 r × 
---              DisjointFinSet (atoms/pattern p2) (atoms/pattern p1) ×
---              CompatibleRenamings r init-r)
---    handle (no ¬k∈r) = var v2 , single-renaming v v2 , var v v2 , dis , compat
---      where
---  
---      bound : Σ Atom (isFreshBoundOfRenaming init-r)
---      bound = computeFreshBoundOfRenaming init-r
---      b = fst bound
---      
---      v2 : Atom
---      v2 = max (suc v) b 
---      b≤v2 : b ≤ v2
---      b≤v2 = ≤-max-right
---      v2!=v : v2 != v
---      v2!=v p = irrefl-< (trans-<-≤ lt lt2)
---        where
---        lt : (suc v) ≤ v2
---        lt = ≤-max-left {suc v} {b}
---        lt2 : v2 ≤ v
---        lt2 = (path-≤ p)
---    
---      dis : DisjointFinSet (fm-cons v2 tt []) (fm-cons v tt [])
---      dis (_ , has-kv-here kp _ _) (_ , has-kv-here kp2 _ _) = bot-elim (v2!=v (sym kp >=> kp2))
---  
---      compat : CompatibleRenamings (single-renaming v v2) init-r
---      compat .CompatibleRenamings.range {k} {v3} {v4} hkv1 hkv2 = bot-elim (¬k∈r (v4 , hkv'))
---        where
---        paths : k == v × v3 == v2
---        paths = single-renaming-unique-value hkv1
---        hkv' : HasKV' v v4 ⟨ init-r ⟩
---        hkv' = subst (\k -> HasKV' k v4 ⟨ init-r ⟩) (fst paths) hkv2
---      compat .CompatibleRenamings.domain {k1} {k2} {v3} hkv1 hkv2 =
---        bot-elim (fst ((snd bound) v2 b≤v2) (k2 , hkv'))
---        where
---        paths : k1 == v × v3 == v2
---        paths = single-renaming-unique-value hkv1
---        hkv' : HasKV' k2 v2 ⟨ init-r ⟩
---        hkv' = subst (\v -> HasKV' k2 v ⟨ init-r ⟩) (snd paths) hkv2
---    handle (yes (v2 , kv2∈r)) = var v2 , single-renaming v v2 , var v v2 , dis , compat
---      where
---      v∈atoms : HasKey' v (atoms/pattern p1)
---      v∈atoms = tt , has-kv-here refl refl []
---
---      v2∈init-r : HasKey' v2 (fm'-keys (fm'-invert ⟨ init-r ⟩))
---      v2∈init-r = fm'-keys/HasKey (v , fm'-invert/HasKV kv2∈r)
---
---      v2!=v : v2 != v
---      v2!=v v2=v = dis-init-r (subst (\v -> HasKey' v (fm'-keys (fm'-invert ⟨ init-r ⟩))) 
---                                     v2=v v2∈init-r) 
---                              v∈atoms
---
---      dis : DisjointFinSet (fm-cons v2 tt []) (fm-cons v tt [])
---      dis (_ , has-kv-here kp _ _) (_ , has-kv-here kp2 _ _) = bot-elim (v2!=v (sym kp >=> kp2))
---
---      compat : CompatibleRenamings (single-renaming v v2) init-r
---      compat .CompatibleRenamings.range {k} {v3} {v4} hkv1 hkv2 = 
---        (snd (snd init-r)) check-kv2∈r hkv2
---        where
---        paths : k == v × v3 == v2
---        paths = single-renaming-unique-value hkv1
---        check-kv2∈r : HasKV' k v3 ⟨ init-r ⟩
---        check-kv2∈r = subst2 (\k v -> HasKV' k v ⟨ init-r ⟩) (sym (fst paths)) (sym (snd paths)) kv2∈r
---
---      compat .CompatibleRenamings.domain {k1} {k2} {v3} hkv1 hkv2 =
---        (fst (snd init-r)) check-kv2∈r hkv2
---        where
---        paths : k1 == v × v3 == v2
---        paths = single-renaming-unique-value hkv1
---        check-kv2∈r : HasKV' k1 v3 ⟨ init-r ⟩
---        check-kv2∈r = subst2 (\k v -> HasKV' k v ⟨ init-r ⟩) (sym (fst paths)) (sym (snd paths)) kv2∈r
---
---
---  freshen-pattern (empty) init-r _ _ = empty , empty-renaming , empty , (\()) , compat
---    where
---    compat : CompatibleRenamings empty-renaming init-r
---    compat = record { range = \() ; domain = \() }
---  freshen-pattern (eoa s t) init-r _ _ = (eoa s empty) , empty-renaming , eoa s t empty , (\()) , compat
---    where
---    compat : CompatibleRenamings empty-renaming init-r
---    compat = record { range = \() ; domain = \() }
---  freshen-pattern (branch l1 r1) init-r dis-init-r init-bound =
---    branch (fst fresh-l) (fst fresh-r) ,
---    final-rename ,
---    branch _ _ _ _ _ _ _ (fst (snd (snd fresh-l))) (fst (snd (snd fresh-r))) final-rename-union ,
---    dis-final ,
---    compat-final
---    where
---    dis-init-r-l1 : DisjointFinSet (renaming-target-atoms init-r) (atoms/pattern l1)
---    dis-init-r-l1 = ?
---
---    fresh-l : Σ[ l2 ∈ Pattern ] Σ[ r ∈ Renaming ] 
---                    (PatternRenaming l1 l2 r × 
---                     DisjointFinSet (atoms/pattern l2) (atoms/pattern l1) ×
---                     CompatibleRenamings r init-r)
---    fresh-l = freshen-pattern l1 init-r dis-init-r-l1 init-bound
---
---    rename-l = (fst (snd fresh-l))
---
---    Σinit-r2 : Σ Renaming (RenamingUnion rename-l init-r)
---    Σinit-r2 = (renaming-union rename-l init-r (snd (snd (snd (snd fresh-l)))))
---    init-r2 = fst Σinit-r2
---
---    dis-init-r2-r1 : DisjointFinSet (renaming-target-atoms init-r2) (atoms/pattern r1)
---    dis-init-r2-r1 = ?
---
---    fresh-r : Σ[ r2 ∈ Pattern ] Σ[ r ∈ Renaming ] 
---                    (PatternRenaming r1 r2 r × 
---                     DisjointFinSet (atoms/pattern r2) (atoms/pattern r1) ×
---                     CompatibleRenamings r init-r2)
---    fresh-r = freshen-pattern r1 init-r2 dis-init-r2-r1 init-bound
---
---    rename-r = (fst (snd fresh-r))
---
---    Σfinal-rename : Σ Renaming (RenamingUnion rename-l rename-r)
---    Σfinal-rename = renaming-union rename-l rename-r ?
---    final-rename = fst Σfinal-rename
---    final-rename-union = snd Σfinal-rename
---      
---    dis-final : DisjointFinSet (atoms/pattern (branch (fst fresh-l) (fst fresh-r)))
---                               (atoms/pattern (branch l1 r1))
---    dis-final = (DisjointKeys-fm'-union d1 d2)
---      where
---      d-ll : DisjointFinSet (atoms/pattern l1) (atoms/pattern (fst fresh-l)) 
---      d-ll = Symmetric-DisjointKeys (fst (snd (snd (snd fresh-l))))
---      d-lr : DisjointFinSet (atoms/pattern l1) (atoms/pattern (fst fresh-r)) 
---      d-lr = ?
---      d-rl : DisjointFinSet (atoms/pattern r1) (atoms/pattern (fst fresh-l)) 
---      d-rl = ?
---      d-rr : DisjointFinSet (atoms/pattern r1) (atoms/pattern (fst fresh-r)) 
---      d-rr = Symmetric-DisjointKeys (fst (snd (snd (snd fresh-r))))
---
---
---
---
---      d1 : DisjointFinSet (atoms/pattern (branch (fst fresh-l) (fst fresh-r))) (atoms/pattern l1)
---      d1 = Symmetric-DisjointKeys (DisjointKeys-fm'-union d-ll d-lr)
---      d2 : DisjointFinSet (atoms/pattern (branch (fst fresh-l) (fst fresh-r))) (atoms/pattern r1)
---      d2 = Symmetric-DisjointKeys (DisjointKeys-fm'-union d-rl d-rr)
--- 
---     
--- 
--- 
---     compat-r2 : CompatibleRenamings init-r rename-r
---     compat-r2 = (compatible-extension init-r init-r2 rename-r 
---                                       (RenamingUnion.forward-right (snd Σinit-r2))
---                                       (Symmetric-CompatibleRenamings 
---                                         rename-r init-r2
---                                         (snd (snd (snd (snd fresh-r)))))
---                                       )
--- 
---     compat-final : CompatibleRenamings final-rename init-r
---     compat-final = compatible-union final-rename-union (snd (snd (snd (snd fresh-l)))) 
---                                     (Symmetric-CompatibleRenamings _ _ compat-r2)
-
-
-retractions-compatible : (r1 r2 r3 : Renaming) -> 
-                         RenamingExtension r1 r3 ->
-                         RenamingExtension r2 r3 ->
-                         CompatibleRenamings r1 r2
-retractions-compatible r1 r2 r3 ext13 ext23 = record { range = range ; domain = domain }
-  where
-  range : {k v1 v2 : Atom} -> HasKV' k v1 ⟨ r1 ⟩ -> HasKV' k v2 ⟨ r2 ⟩ -> v1 == v2
-  range hkv1 hkv2 = (snd (snd r3)) (ext13 hkv1) (ext23 hkv2)
-  domain : {k1 k2 v : Atom} -> HasKV' k1 v ⟨ r1 ⟩ -> HasKV' k2 v ⟨ r2 ⟩ -> k1 == k2
-  domain hkv1 hkv2 = (fst (snd r3)) (ext13 hkv1) (ext23 hkv2)
-
-retractions-union : (r1 r2 r3 r4 : Renaming) -> 
-                    RenamingExtension r1 r3 ->
-                    RenamingExtension r2 r3 ->
-                    RenamingUnion r1 r2 r4 ->
-                    RenamingExtension r4 r3
-retractions-union r1 r2 r3 r4 ext13 ext23 u124 hkv4 = 
-  either ext13 ext23 (RenamingUnion.backward u124 hkv4)
-  
 
 
 toplevel-apply-rename : (p : Pattern) (r : Renaming) -> 
@@ -812,7 +501,7 @@ freshen-pattern : (p1 : Pattern) -> Σ[ p2 ∈ Pattern ] Σ[ r ∈ Renaming ]
 freshen-pattern p1 = 
   p2 , (fst (snd Σpattern)) , (fst (snd (snd (snd Σpattern)))) , disjoint
   where
-  Σrename = find-fresh-rename p1
+  Σrename = find-fresh-rename (atoms/pattern p1) (atoms/pattern p1)
   Σpattern = toplevel-apply-rename p1 (fst Σrename) (snd (snd Σrename))
   p2 = (fst Σpattern)
 
@@ -824,46 +513,4 @@ freshen-pattern p1 =
   disjoint : DisjointFinSet (atoms/pattern p2) (atoms/pattern p1)
   disjoint hkv2 hkv1 = (fst (snd Σrename)) (isSub hkv2) hkv1
 
-
-
-private
-  Reflexive-α-equiv' : (n : Nat) -> (t : Term) -> (term-depth t ≤ n) -> α-equiv t t
-  Reflexive-α-equiv' _ (var v) lt = var v
-  Reflexive-α-equiv' _ (const k) lt = const k 
-  Reflexive-α-equiv' _ (empty) lt = empty
-  Reflexive-α-equiv' zero (branch l r) lt = bot-elim (zero-≮ lt)
-  Reflexive-α-equiv' (suc n) (branch l r) lt = 
-    branch (Reflexive-α-equiv' n l (trans-≤ ≤-max-left (pred-≤ lt)))
-           (Reflexive-α-equiv' n r (trans-≤ ≤-max-right (pred-≤ lt)))
-  Reflexive-α-equiv' zero (abstraction p) lt = bot-elim (zero-≮ lt)
-  Reflexive-α-equiv' (suc n) (abstraction p) lt = 
-    let (p2 , r , pr , dis) = freshen-pattern p in
-      abstraction p2 r r pr pr (DisjointKeys-fm'-union dis dis) 
-        (Reflexive-α-equiv' n _ lt-outer)
-        (Reflexive-α-equiv' n _ lt-inner)
-      where
-      r = (fst (snd (freshen-pattern p)))
-      lt-outer : term-depth (pattern/side outer p) ≤ n
-      lt-outer = trans-≤ (term-depth-pattern/side outer p) (pred-≤ lt)
-      lt-inner : term-depth (use-renaming/term r (pattern/side inner p)) ≤ n
-      lt-inner = trans-=-≤ (term-depth-use-renaming r _) 
-                           (trans-≤ (term-depth-pattern/side inner p)
-                                    (pred-≤ lt))
-
-Reflexive-α-equiv : Reflexive α-equiv
-Reflexive-α-equiv {t} = Reflexive-α-equiv' (term-depth t) t refl-≤
-
-Symmetric-α-equiv : Symmetric α-equiv
-Symmetric-α-equiv (var v) = (var v)
-Symmetric-α-equiv (const v) = (const v)
-Symmetric-α-equiv (empty) = (empty)
-Symmetric-α-equiv (branch l r) = (branch (Symmetric-α-equiv l) (Symmetric-α-equiv r))
-Symmetric-α-equiv (abstraction {p1} {p2} p3 r1 r2 pr1 pr2 disjoint outer-α inner-α) =
-  (abstraction p3 r2 r1 pr2 pr1 disjoint' (Symmetric-α-equiv outer-α) (Symmetric-α-equiv inner-α))
-  where
-  disjoint' : DisjointFinSet (atoms/pattern p3) (fm'-union (atoms/pattern p2) (atoms/pattern p1))
-  disjoint' hk3 hk21 = 
-    disjoint hk3 (either (\{(v , hk) -> v , HasKV-fm'-union/right hk})
-                         (\{(v , hk) -> v , HasKV-fm'-union/left hk})
-                         (HasKey-fm'-union/split (atoms/pattern p2) (atoms/pattern p1) hk21))
 
