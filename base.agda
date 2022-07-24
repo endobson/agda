@@ -126,3 +126,8 @@ private
 
 ℓ-max* : (n : Nat) -> Nary n Level Level
 ℓ-max* n  = ℓ-max*-acc n ℓ-zero
+
+
+-- Implicits
+useⁱ : {ℓ : Level} -> {A : Type ℓ} -> {{a : A}} -> A
+useⁱ {{a = a}} = a

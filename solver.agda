@@ -13,7 +13,7 @@ open import list
 open import nat
 open import ring
 open import ring.implementations
-open import relation
+open import relation hiding (acc)
 open import semiring
 
 import int

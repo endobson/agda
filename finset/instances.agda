@@ -40,9 +40,8 @@ instance
   FinSetStr-Top : FinSetStr Top
   FinSetStr-Top = record { isFin = isFinSet-Top }
 
-abstract
-  isFinSet-Fin : {n : Nat} -> isFinSet (Fin n)
-  isFinSet-Fin {n = n} = ∣ n , pathToEquiv (\i -> Fin n) ∣
+isFinSet-Fin : {n : Nat} -> isFinSet (Fin n)
+isFinSet-Fin {n = n} = ∣ n , pathToEquiv (\i -> Fin n) ∣
 
 FinSet-Fin : (n : Nat) -> FinSet ℓ-zero
 FinSet-Fin n = Fin n , isFinSet-Fin
@@ -50,6 +49,14 @@ FinSet-Fin n = Fin n , isFinSet-Fin
 instance
   FinSetStr-Fin : {n : Nat} -> FinSetStr (Fin n)
   FinSetStr-Fin = record { isFin = isFinSet-Fin }
+
+abstract
+  isFinSet-FinT : {n : Nat} -> isFinSet (FinT n)
+  isFinSet-FinT {n = n} = ∣ n , pathToEquiv (\i -> FinT=Fin n i) ∣
+
+FinSet-FinT : (n : Nat) -> FinSet ℓ-zero
+FinSet-FinT n = FinT n , isFinSet-FinT
+
 
 abstract
   isFinSet-Maybe : {ℓ : Level} {A : Type ℓ} -> isFinSet A -> isFinSet (Maybe A)

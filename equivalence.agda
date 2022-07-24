@@ -5,6 +5,7 @@ module equivalence where
 open import base
 open import cubical
 open import equality-path
+open import functions
 
 private
   variable
@@ -24,10 +25,10 @@ module _ {f : A1 -> A2} (eq-f : isEquiv f) where
   isEqInv : A2 -> A1
   isEqInv a = eq-f .equiv-proof a .fst .fst
 
-  isEqSec : (a : A2) -> isEqFun (isEqInv a) == a
+  isEqSec : isSectionOf isEqFun isEqInv
   isEqSec a = eq-f .equiv-proof a .fst .snd
 
-  isEqRet : (a : A1) -> isEqInv (isEqFun a) == a
+  isEqRet : isRetractionOf isEqFun isEqInv
   isEqRet a i = eq-f .equiv-proof (f a) .snd (a , refl) i .fst
 
   isEqComm : (a : A1) -> Square (isEqSec (f a)) refl (cong f (isEqRet a)) refl
@@ -40,10 +41,10 @@ module _ (e : A1 ≃ A2) where
   eqInv : A2 -> A1
   eqInv = isEqInv (snd e)
 
-  eqSec : (a : A2) -> eqFun (eqInv a) == a
+  eqSec : isSectionOf eqFun eqInv
   eqSec = isEqSec (snd e)
 
-  eqRet : (a : A1) -> eqInv (eqFun a) == a
+  eqRet : isRetractionOf eqFun eqInv
   eqRet = isEqRet (snd e)
 
   eqComm : (a : A1) -> Square (eqSec (eqFun a)) refl (cong eqFun (eqRet a)) refl
@@ -54,7 +55,6 @@ module _ (e : A1 ≃ A2) where
 
   eqCtrPath : (a : A2) -> (f : fiber eqFun a) -> (eqCtr a) == f
   eqCtrPath a = e .snd .equiv-proof a .snd
-
 
 idfun : (A : Type ℓ) → A → A
 idfun _ x = x
@@ -78,3 +78,4 @@ liftEquiv ℓ A .snd .equiv-proof a = (lift a , refl) , contr a
   where
   contr : (a : A) -> (a2 : fiber Lift.lower a) -> (lift a , refl) == a2
   contr a (_ , p2) i = (lift (p2 (~ i)) , (\j -> p2 (~ i ∨ j)))
+

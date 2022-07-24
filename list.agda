@@ -3,7 +3,7 @@
 module list where
 
 open import base
-open import relation
+open import relation hiding (acc)
 open import equality-path
 open import functions
 open import monoid

@@ -371,6 +371,6 @@ module _ (n⁺ : Nat⁺) where
 
   theorem2-2 : finiteSumᵉ FinSet-Divisors φ' == n
   theorem2-2 =
-    sym (cardnality-Σ3 FinSet-Divisors (\(d , _) -> FinSet-Totatives d))
-    >=> cong cardnality combined-path
-    >=> cardnality-path (FinSet-Fin n) finΣ
+    sym (cardinality-Σ3 FinSet-Divisors (\(d , _) -> FinSet-Totatives d))
+    >=> cong cardinality combined-path
+    >=> cardinality-path (FinSet-Fin n) finΣ

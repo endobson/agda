@@ -316,6 +316,22 @@ fm'-invert/bijective : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} ->
 fm'-invert/bijective m (inj , fun) = fm'-invert/functional m fun , fm'-invert/injective m inj
 
 
+
+_fm⊆_ : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> FinMap' K V -> FinMap' K V -> Type (ℓ-max ℓK ℓV)
+m1 fm⊆ m2 = ∀ {k} {v} -> HasKV' k v m1 -> HasKV' k v m2
+
+_fm⊂_ : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> FinMap' K V -> FinMap' K V -> Type (ℓ-max ℓK ℓV)
+_fm⊂_ {K = K} {V = V} m1 m2 = (m1 fm⊆ m2) × (Σ[ k ∈ K ] Σ[ v ∈ V ] (¬ (HasKV' k v m1) × HasKV' k v m2))
+
+_fm⊂'_ : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> FinMap' K V -> FinMap' K V -> Type (ℓ-max ℓK ℓV)
+_fm⊂'_ {K = K} {V = V} m1 m2 = 
+  (m1 fm⊆ m2) × (∃![ kv ∈ (K × V) ] (¬ (HasKV' (proj₁ kv) (proj₂ kv) m1) × 
+                                     HasKV' (proj₁ kv) (proj₂ kv) m2))
+
+isBijective-fm⊆ : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} {fm1 fm2 : FinMap' K V} ->
+                  fm1 fm⊆ fm2 -> isBijectiveFinMap' fm2 -> isBijectiveFinMap' fm1
+isBijective-fm⊆ inc (inj , fun) =
+  (\hk1 hk2 -> inj (inc hk1) (inc hk2)) , (\hk1 hk2 -> fun (inc hk1) (inc hk2))
             
 
 module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} 
@@ -409,10 +425,10 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
   HasKVQuot : K -> V -> FinMapQuot K V -> Type (ℓ-max ℓK ℓV)
   HasKVQuot k v m = fst (HasKVQuot-hProp k v m)
 
--- fm'-size : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> FinMap' K V -> Nat
--- fm'-size [] = 0
--- fm'-size (fm-cons k v m) = suc (fm'-size m)
--- 
+fm'-size : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> FinMap' K V -> Nat
+fm'-size [] = 0
+fm'-size (fm-cons k v m) = suc (fm'-size m)
+
 -- fm'-rest : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> FinMap' K V -> FinMap' K V
 -- fm'-rest [] = []
 -- fm'-rest (fm-cons _ _ m) = m

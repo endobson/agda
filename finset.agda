@@ -93,21 +93,24 @@ FinSet ℓ = Σ[ t ∈ Type ℓ ] isFinSet t
 FinSetΣ : (ℓ : Level) -> Type (ℓ-suc ℓ)
 FinSetΣ ℓ = Σ[ t ∈ Type ℓ ] isFinSetΣ t
 
--- Cardnality of finite sets
+-- Cardinality of finite sets
 
-cardnalityΣ : FinSetΣ ℓ -> Nat
-cardnalityΣ (_ , (n , eq)) = n
+cardinalityΣ : FinSetΣ ℓ -> Nat
+cardinalityΣ (_ , (n , eq)) = n
 
-cardnality : FinSet ℓ -> Nat
-cardnality (A , fin) = cardnalityΣ (A , (isFinSet->isFinSetΣ fin))
+cardinality : FinSet ℓ -> Nat
+cardinality (A , fin) = cardinalityΣ (A , (isFinSet->isFinSetΣ fin))
 
-cardnality-path : (A : FinSet ℓ) -> (finΣ : isFinSetΣ ⟨ A ⟩) -> cardnality A == ⟨ finΣ ⟩
-cardnality-path (A , fin) finΣ = cong fst (isProp-isFinSetΣ (isFinSet->isFinSetΣ fin) finΣ)
+cardinality-path : (A : FinSet ℓ) -> (finΣ : isFinSetΣ ⟨ A ⟩) -> cardinality A == ⟨ finΣ ⟩
+cardinality-path (A , fin) finΣ = cong fst (isProp-isFinSetΣ (isFinSet->isFinSetΣ fin) finΣ)
 
 -- Structures for implicit arguments
 record FinSetStr (A : Type ℓ) : Type ℓ where
   field
     isFin : isFinSet A
+
+cardinalityⁱ : (A : Type ℓ) {{fs : FinSetStr A}} -> Nat
+cardinalityⁱ A {{fs}} = cardinality (A , FinSetStr.isFin fs)
 
 -- Useful examples that aren't yet used.
 private
@@ -117,7 +120,7 @@ private
     handle : (A ≃ Fin n) -> A == Lift ℓ (Fin n)
     handle eq = ua (eq >eq> (equiv⁻¹ (liftEquiv ℓ (Fin n))))
 
-  FinSet-LiftedFin-path : (A : FinSet ℓ) -> ∥ ⟨ A ⟩ == Lift ℓ (Fin (cardnality A)) ∥
+  FinSet-LiftedFin-path : (A : FinSet ℓ) -> ∥ ⟨ A ⟩ == Lift ℓ (Fin (cardinality A)) ∥
   FinSet-LiftedFin-path (A , isFinA) = FinSet-LiftedFin-path' A (isFinSet->isFinSetΣ isFinA)
 
   extract : (A : FinSet ℓ) ->

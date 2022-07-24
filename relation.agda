@@ -198,3 +198,17 @@ isPropValued R = ∀ a1 a2 -> isProp (R a1 a2)
 
 isPropValuedPred : Pred A ℓ -> Type _
 isPropValuedPred P = ∀ a -> isProp (P a)
+
+-- Well Founded
+
+data Acc {A : Type ℓ₁} (_<_ : Rel A ℓ₂) (x : A) : Set (ℓ-max ℓ₁ ℓ₂) where
+  acc : (∀ y -> y < x -> Acc _<_ y) -> Acc _<_ x
+
+un-acc : {_<_ : Rel A ℓ₂} {x : A} -> Acc _<_ x -> (y : A) -> y < x -> Acc _<_ y
+un-acc (acc f) = f
+
+WellFounded : (R : Rel A ℓ₂) -> Type _
+WellFounded R = ∀ a -> Acc R a
+
+
+

@@ -699,3 +699,11 @@ suc-monotonic-< a1 a2 a1<a2 = suc-≤ a1<a2
 suc-monotonic-> : Monotonic _>_ _>_ suc
 suc-monotonic-> a1 a2 a1>a2 = suc-≤ a1>a2
 
+
+-- WellFounded
+Acc-Nat< : (n : Nat) -> (x : Nat) -> (x < n) -> Acc _<_ x
+Acc-Nat< zero x x<n = acc (\y y<x -> bot-elim (zero-≮ (trans-< y<x x<n)))
+Acc-Nat< (suc n) x sx≤sn = acc (\y y<x -> Acc-Nat< n y (trans-<-≤ y<x (pred-≤ sx≤sn)))
+
+WellFounded-Nat< : WellFounded _<_
+WellFounded-Nat< n = Acc-Nat< (suc n) n (same-≤ (suc n))

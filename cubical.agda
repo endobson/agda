@@ -26,7 +26,7 @@ open import Agda.Builtin.Cubical.Sub public
 
 open Helpers public
   using ( isContr
-        ; fiber
+        ; fiber -- (f : (A -> B)) -> Σ[ x ∈ A ] (f x == y)
         ; hfill
         ; fill
         )

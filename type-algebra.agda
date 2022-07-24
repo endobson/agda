@@ -398,6 +398,10 @@ instance
   i .rightInv (inj-l _) = refl
   i .rightInv (inj-r _) = refl
 
+LeftRight-Top : (x : (A ⊎ B)) -> (Left x ⊎ Right x) == Top
+LeftRight-Top (inj-r _) = ⊎-Bot Top
+LeftRight-Top (inj-l _) = ⊎-flip >=> ⊎-Bot Top
+
 
 Vec-Top : (A : Type₀) -> Vec A 0 == Top
 Vec-Top A = ua (isoToEquiv i)

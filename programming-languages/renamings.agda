@@ -5,10 +5,12 @@ module programming-languages.renamings where
 open import base
 open import container.finmap
 open import container.finmap.composition
+open import container.finmap.remove
 open import equality
 open import functions
 open import hlevel.base
 open import hlevel
+open import list
 open import nat hiding (_≤_ ; trans-≤ ; _<_ ; _>_; trans-<-≤)
 open import order
 open import order.instances.nat
@@ -96,7 +98,7 @@ invert-empty-renaming : invert-renaming empty-renaming == empty-renaming
 invert-empty-renaming = ΣProp-path isProp-isRenaming refl
 
 RenamingExtension : Renaming -> Renaming -> Type₀
-RenamingExtension orig result = {k v : Atom} -> HasKV' k v ⟨ orig ⟩ -> HasKV' k v ⟨ result ⟩
+RenamingExtension orig result = ⟨ orig ⟩ fm⊆ ⟨ result ⟩
 
 invert-RenamingExtension : 
   {r1 r2 : Renaming} -> RenamingExtension r1 r2 -> 
@@ -294,6 +296,8 @@ RenamingUnion-RenamingComposition-right {r1} {r2} {r3} {r4} {r5} {r6} {r7}
     hkv4 = (fst (snd res43))
     res12 = RenamingUnion.backward ru123 (snd (snd res43))
 
+renaming-source-atoms : Renaming -> FinSet Atom
+renaming-source-atoms r = fm'-keys ⟨ r ⟩
 
 renaming-target-atoms : Renaming -> FinSet Atom
 renaming-target-atoms r = fm'-keys (fm'-invert ⟨ r ⟩)
@@ -400,3 +404,55 @@ retractions-union : (r1 r2 r3 r4 : Renaming) ->
                     RenamingExtension r4 r3
 retractions-union r1 r2 r3 r4 ext13 ext23 u124 hkv4 = 
   either ext13 ext23 (RenamingUnion.backward u124 hkv4)
+
+-- Try to do recursion over singular entries
+
+renaming-remove : Atom -> Renaming -> Renaming
+renaming-remove k (m , r) = m' , r'
+  where
+  m' = finmap'-remove k m 
+  r' = isBijective-fm⊆ (fm⊆-finmap'-remove k m) r
+
+module RenamingRec where
+
+  module _ {ℓ : Level} {R : Type ℓ} 
+           (base : R) (step : (Atom -> Atom -> R -> R))
+    where
+    private
+      sized-entry-rec : (n : Nat) (r : Renaming) -> fm'-size ⟨ r ⟩ ≤ n -> R
+      sized-entry-rec n ([] , _) _ = base
+      sized-entry-rec zero (fm-cons k v _ , _) lt = bot-elim (zero-≮ lt)
+      sized-entry-rec (suc n) (fm-cons k v m , isBij) lt = 
+        step k v (sized-entry-rec n (m' , isBij') (trans-≤ (fm'-size-finmap'-remove k m) (pred-≤ lt)))
+        where
+        m' = finmap'-remove k m 
+        isBij' = isBijective-fm⊆ (fm⊆-finmap'-remove k m) (isBijectiveFinMap'-rest _ isBij)
+
+    entry-rec : Renaming -> R
+    entry-rec r = sized-entry-rec (fm'-size ⟨ r ⟩) r refl-≤
+
+  private
+    renaming-entries : Renaming -> List (Atom × Atom)
+    renaming-entries = entry-rec [] (\k v -> (k , v) ::_)
+    
+  data EntryStructure (r : Renaming) : Type₀ where
+    entries-empty : ¬(Σ[ k ∈ Atom ] HasKey' k ⟨ r ⟩) -> EntryStructure r
+    entries-cons : (k v : Atom) -> HasKV' k v ⟨ r ⟩ ->
+                   EntryStructure (renaming-remove v r) ->
+                   EntryStructure r
+    
+  renaming-entry-structure : (r : Renaming) -> EntryStructure r
+  renaming-entry-structure r = handle (fm'-size ⟨ r ⟩) r refl-≤
+    where
+    handle : (n : Nat) (r : Renaming) -> fm'-size ⟨ r ⟩ ≤ n -> EntryStructure r
+    handle _ ([] , _) _ = entries-empty (\())
+    handle zero      (fm-cons _ _ _ , _) lt = bot-elim (zero-≮ lt)
+    handle (suc n) r@(fm-cons k v m , _) lt = 
+      entries-cons k v (has-kv-here refl refl m) 
+        (handle n (renaming-remove v r) (pred-≤ lt'))
+      where
+      lt' : (fm'-size ⟨ renaming-remove v r ⟩) < suc n
+      lt' = ?
+
+
+

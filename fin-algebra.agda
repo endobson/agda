@@ -144,6 +144,15 @@ Fin-Fun {suc n} A =
   >=> (\i -> Top-Fun A i × Fin-Fun {n} A i)
   >=> sym (Vec-× A)
 
+FinT : Nat -> Type₀
+FinT zero = Bot
+FinT (suc n) = Top ⊎ FinT n
+
+FinT=Fin : (n : Nat) -> FinT n == Fin n
+FinT=Fin zero = sym Fin-Bot
+FinT=Fin (suc n) = cong (Top ⊎_) (FinT=Fin n) >=> sym (Fin-suc-⊎ n)
+
+
 --Fin-suc-Σ-eq : {n : Nat} -> {A : Fin (suc n) -> Type ℓ} ->
 --            Σ (Fin (suc n)) A ≃ (A zero-fin ⊎ Σ (Fin n) (A ∘ suc-fin))
 --Fin-suc-Σ-eq = isoToEquiv i

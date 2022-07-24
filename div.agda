@@ -10,7 +10,7 @@ open import hlevel
 open import int
 open import nat
 open import quotient hiding (remainder)
-open import relation
+open import relation hiding (acc)
 open import ring.implementations
 open import sigma.base
 

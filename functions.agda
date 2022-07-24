@@ -3,8 +3,9 @@
 module functions where
 
 open import base
+open import cubical
 open import relation
-open import equality
+open import equality-path
 
 private
   variable
@@ -16,6 +17,9 @@ infixr 9 _∘_
 _∘_ : {A : Type ℓ₁} {B : Type ℓ₂} {C : (b : B) -> Type ℓ₃} (f : (b : B) -> (C b))
       (g : A -> B) -> (a : A) -> C (g a)
 (f ∘ g) a = f (g a)
+
+isComposition : (f : B -> C) (g : A -> B) (h : A -> C) -> Type _
+isComposition f g h = ∀ a -> f (g a) == h a
 
 Injective : Pred (A -> B) _
 Injective f = ∀ {a1 a2} -> (f a1) == (f a2) -> a1 == a2
@@ -45,3 +49,18 @@ Involution f = ∀ {a} -> (f (f a)) == a
 -- 2-Constant is constant up to paths.
 2-Constant : (A -> B) -> Type _
 2-Constant {A = A} f = (x y : A) -> f x == f y
+
+isEmbedding : Pred (A -> B) _
+isEmbedding f = ∀ x y -> isEquiv {A = x == y} (cong f)
+
+isSectionOf : (f : A -> B) -> Pred (B -> A) _
+isSectionOf f g = ∀ b -> f ( g b) == b
+
+isRetractionOf : (f : A -> B) -> Pred (B -> A) _
+isRetractionOf f g = ∀ b -> g (f b) == b
+
+Section : Pred (A -> B) _
+Section {A = A} {B = B} f = Σ (B -> A) (isSectionOf f)
+
+Retraction : Pred (A -> B) _
+Retraction {A = A} {B = B} f = Σ (B -> A) (isRetractionOf f)

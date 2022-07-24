@@ -162,3 +162,7 @@ Decidable-∩ {P = P} {Q} decP decQ a = handle (decP a) (decQ a)
   handle (yes p) (yes q) = yes (p , q)
   handle (yes p) (no ¬q) = no (¬q ∘ snd)
   handle (no ¬p) _       = no (¬p ∘ fst)
+
+isContr-singleton : (a : A) -> isContr (Σ A (a ==_))
+isContr-singleton a = (a , refl) , \{ (b , p) i -> p i , (\j -> p (j ∧ i)) }
+

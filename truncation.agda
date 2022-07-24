@@ -3,6 +3,7 @@
 module truncation where
 
 open import base
+open import cubical
 open import equality
 open import functions
 open import hlevel
@@ -148,3 +149,6 @@ Apartness _#_ = (Irreflexive _#_ × Symmetric _#_ × Comparison _#_)
 
 TightApartness : Rel A ℓ -> Type _
 TightApartness _#_ = (Tight _#_ × Apartness _#_)
+
+isSurjection : Pred (A -> B) _
+isSurjection f = ∀ b -> ∥ fiber f b ∥

@@ -169,9 +169,29 @@ module _ (f g : Atom -> Atom) where
     cong (eoa s) (rename-atom/term-compose t)
 
 
+rename-atom/term-identity : (t : Term) ->
+   rename-atom/term (\x -> x) t == t
+rename-atom/pattern-identity : (p : Pattern) ->
+   rename-atom/pattern (\x -> x) p == p
+
+rename-atom/term-identity empty = refl
+rename-atom/term-identity (const k) = refl
+rename-atom/term-identity (var v) = refl
+rename-atom/term-identity (branch t1 t2) = 
+  cong2 branch (rename-atom/term-identity t1) (rename-atom/term-identity t2)
+rename-atom/term-identity (abstraction p) = 
+  cong abstraction (rename-atom/pattern-identity p)
+
+rename-atom/pattern-identity empty = refl
+rename-atom/pattern-identity (var v) = refl
+rename-atom/pattern-identity (branch p1 p2) =
+  cong2 branch (rename-atom/pattern-identity p1) (rename-atom/pattern-identity p2)
+rename-atom/pattern-identity (eoa s t) = 
+  cong (eoa s) (rename-atom/term-identity t)
+
+
 use-renaming/term : Renaming -> Term -> Term
 use-renaming/term r = rename-atom/term (use-renaming r)
-
 
 
 atoms/atom : Atom -> FinSet Atom
@@ -190,6 +210,44 @@ atoms/pattern empty = []
 atoms/pattern (var v) = fm-cons v tt []
 atoms/pattern (branch p1 p2) = fm'-union (atoms/pattern p1) (atoms/pattern p2)
 atoms/pattern (eoa s t) = atoms/term t
+
+
+rename-atom/term-support : {f g : Atom -> Atom} ->
+   (t : Term) -> 
+   ((a : Atom) -> HasKey' a (atoms/term t) -> f a == g a) ->
+   rename-atom/term f t == rename-atom/term g t
+rename-atom/pattern-support : {f g : Atom -> Atom} ->
+   (p : Pattern) -> 
+   ((a : Atom) -> HasKey' a (atoms/pattern p) -> f a == g a) ->
+   rename-atom/pattern f p == rename-atom/pattern g p
+
+rename-atom/term-support (var v) fg =
+  cong var (fg v (tt , has-kv-here refl refl []))
+rename-atom/term-support (const k) fg = refl
+rename-atom/term-support (empty) fg = refl
+rename-atom/term-support {f} {g} (branch t1 t2) fg = 
+  cong2 branch (rename-atom/term-support t1 fg1) (rename-atom/term-support t2 fg2)
+  where
+  fg1 : (a : Atom) -> HasKey' a (atoms/term t1) -> f a == g a
+  fg1 a (v , hkv) = fg a (v , HasKV-fm'-union/left hkv)
+  fg2 : (a : Atom) -> HasKey' a (atoms/term t2) -> f a == g a
+  fg2 a (v , hkv) = fg a (v , HasKV-fm'-union/right hkv)
+rename-atom/term-support (abstraction p) fg = 
+  cong abstraction (rename-atom/pattern-support p fg)
+
+rename-atom/pattern-support (var v) fg =
+  cong var (fg v (tt , has-kv-here refl refl []))
+rename-atom/pattern-support (empty) fg = refl
+rename-atom/pattern-support {f} {g} (branch t1 t2) fg =
+  cong2 branch (rename-atom/pattern-support t1 fg1) (rename-atom/pattern-support t2 fg2)
+  where
+  fg1 : (a : Atom) -> HasKey' a (atoms/pattern t1) -> f a == g a
+  fg1 a (v , hkv) = fg a (v , HasKV-fm'-union/left hkv)
+  fg2 : (a : Atom) -> HasKey' a (atoms/pattern t2) -> f a == g a
+  fg2 a (v , hkv) = fg a (v , HasKV-fm'-union/right hkv)
+rename-atom/pattern-support (eoa s t) fg = 
+  cong (eoa s) (rename-atom/term-support t fg)
+
 
 pattern/side : ScopeSpecifier -> Pattern -> Term
 pattern/side _ empty  = empty

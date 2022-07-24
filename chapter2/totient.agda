@@ -14,7 +14,7 @@ open import fin
 open import int using (int)
 open import finsum
 open import finsum.arithmetic
-open import finsum.cardnality
+open import finsum.cardinality
 open import finset
 open import finset.instances
 open import finsubset
@@ -93,7 +93,7 @@ FinSet-Totatives : Nat -> FinSet ℓ-zero
 FinSet-Totatives n = Totatives n , isFinSet-Totatives
 
 φ : Nat⁺ -> Nat
-φ (n , _) = cardnality (FinSet-Totatives n)
+φ (n , _) = cardinality (FinSet-Totatives n)
 
 private
   totient-one-one : (Totient 1 1)
@@ -116,7 +116,7 @@ private
       path = ≤-antisym (Pos'->< (Totient.pos-k tot)) (Totient.k≤n tot)
 
 φ-one : φ 1⁺ == 1
-φ-one = cong cardnality path >=> cardnality-path FinSet-Top top-finΣ
+φ-one = cong cardinality path >=> cardinality-path FinSet-Top top-finΣ
   where
   path : (Totatives 1 , isFinSet-Totatives) == FinSet-Top
   path = (ΣProp-path isProp-isFinSet (ua totatives-one-eq))
@@ -172,7 +172,7 @@ module _ (p : Prime') where
 
 
   φ-prime : φ p⁺ == (pred p')
-  φ-prime = cong cardnality path >=> cardnality-path (FinSet-Fin (pred p')) finΣ
+  φ-prime = cong cardinality path >=> cardinality-path (FinSet-Fin (pred p')) finΣ
     where
     path : (Totatives p' , isFinSet-Totatives) == FinSet-Fin (pred p')
     path = (ΣProp-path isProp-isFinSet (ua totatives-prime-eq >=> ua Fin1-Fin-eq))
@@ -388,10 +388,10 @@ module _ (p : Prime') where
   φ-prime-power (suc n@(suc _) , _) =
     begin
       φ (prime-power⁺ p (suc n))
-    ==< cong cardnality fs-path >
-      cardnality (FinSet-Σ (FinSet-Fin p') (\_ -> (FinSet-Totatives (prime-power p n))))
-    ==< cardnality-Σ3 (FinSet-Fin p') (\_ -> (FinSet-Totatives (prime-power p n))) >
-      finiteSumᵉ (FinSet-Fin p') (\_ -> cardnality (FinSet-Totatives (prime-power p n)))
+    ==< cong cardinality fs-path >
+      cardinality (FinSet-Σ (FinSet-Fin p') (\_ -> (FinSet-Totatives (prime-power p n))))
+    ==< cardinality-Σ3 (FinSet-Fin p') (\_ -> (FinSet-Totatives (prime-power p n))) >
+      finiteSumᵉ (FinSet-Fin p') (\_ -> cardinality (FinSet-Totatives (prime-power p n)))
     ==< cong (\x -> finiteSumᵉ (FinSet-Fin p') (\_ -> x))
              (φ-prime-power (n , tt) >=> sym *'-right-one) >
       finiteSumᵉ (FinSet-Fin p') (\_ -> ((prime-power p n) -' (prime-power p (pred n))) *' 1)
@@ -588,11 +588,11 @@ Multiplicative-φ .snd a b rp =
   begin
     φ (a *⁺ b)
   ==<>
-    cardnality (FinSet-Totatives (a' *' b'))
-  ==< cong cardnality path1 >
-    cardnality (FinSet-× (FinSet-Totatives a') (FinSet-Totatives b'))
-  ==< cardnality-× _ _ >
-    cardnality (FinSet-Totatives a') *' cardnality (FinSet-Totatives b')
+    cardinality (FinSet-Totatives (a' *' b'))
+  ==< cong cardinality path1 >
+    cardinality (FinSet-× (FinSet-Totatives a') (FinSet-Totatives b'))
+  ==< cardinality-× _ _ >
+    cardinality (FinSet-Totatives a') *' cardinality (FinSet-Totatives b')
   ==<>
     φ a *' φ b
   end

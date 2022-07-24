@@ -18,7 +18,7 @@ open import ordered-semiring.instances.real
 open import rational
 open import rational.order
 open import real
-open import real.arithmetic.rational
+-- open import real.arithmetic.rational
 open import real.rational
 open import real.sequence.limit
 open import relation hiding (U)
@@ -29,6 +29,7 @@ open import truncation
 
 open import nat using (≤-max-left ; ≤-max-right)
 
+{-
 private
   Seq : Type₁
   Seq = Sequence ℝ
@@ -362,3 +363,4 @@ module _
 
   Cauchy->isConvergentSequence : isConvergentSequence s
   Cauchy->isConvergentSequence = _ , isLimit-CauchySeq->ℝ
+-}
