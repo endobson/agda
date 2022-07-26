@@ -6,6 +6,7 @@ open import base
 open import equality
 open import equivalence
 open import fin
+open import fin.functions
 open import functions
 open import isomorphism
 open import hlevel
