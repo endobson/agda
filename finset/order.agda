@@ -15,7 +15,7 @@ open import finset
 open import finset.cardinality
 open import finset.detachable
 open import finset.instances
-open import finset.instances
+open import finset.search
 open import finsum
 open import functions
 open import funext
@@ -99,6 +99,31 @@ private
                                              (\i=j -> inj-l!=inj-r (sym (inj-f i=j)))
                                              (\i=j -> inj-l!=inj-r (sym (inj-f i=j)))
                                              f'i1=f'i2))
+
+--  Injective-Fin->Surjective : (n : Nat) (f : FinT n -> FinT n) -> (Injective f) -> isSurjection f
+--  Injective-Fin->Surjective zero f _ = \()
+--  Injective-Fin->Surjective (suc n) f inj-f = ?
+
+
+
+  ¬Surjection-Fin : (n1 n2 : Nat) (f : Fin n1 -> Fin n2) -> ¬ (isSurjection f) -> 
+                     ∃[ i ∈ Fin n2 ] (∀ j -> f j != i)
+  ¬Surjection-Fin n1 n2 f ¬sur-f = 
+    handle (finite-search (FinSet-Fin n2) univPQ)
+    where
+    P : Fin n2 -> Type₀
+    P i = ∀ j -> f j != i
+
+    Q : Fin n2 -> Type₀
+    Q i = ∃[ j ∈ Fin n1 ] (f j == i)
+
+    univPQ : Universal (P ∪ Q)
+    univPQ s = ⊎-swap (finite-search-dec (FinSet-Fin n1) (\j -> decide-fin (f j) s))
+
+    handle : Inhabited P ⊎ Universal Q -> Inhabited P
+    handle (inj-l p) = p
+    handle (inj-r q) = bot-elim (¬sur-f q)
+
 
   FinSet≤-Fin-Collection : {ℓ : Level} (n : Nat) (A : Fin n -> FinSet ℓ) -> 
                            (∀ i -> ∥ ⟨ A i ⟩  ∥) -> 

@@ -36,7 +36,7 @@ module _ where
     pigeonhole-small : {n m : Nat} -> (n < m) -> (f : Fin n -> Fin m)
                        -> Σ[ j ∈ Fin m ] ((i : Fin n) -> ¬(f i == j))
     pigeonhole-small {n} {m} lt f =
-        case (find-right-inverse f)
+        case (find-section f)
           return (\_ -> Σ[ j ∈ Fin m ] ((i : Fin n) -> ¬(f i == j))) of \where
           (inj-l sat) -> sat
           (inj-r (g , g-inv)) -> bot-elim (pigeonhole-large lt g (g-inj g-inv))

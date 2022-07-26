@@ -8,17 +8,40 @@ open import equality
 open import equivalence
 open import fin
 open import finset
+open import functions
 open import hlevel
 open import relation
 open import sum
 open import truncation
+open import fin-algebra
 
 
 abstract
-  finite-search' : {ℓS ℓ₁ ℓ₂ : Level} (S : FinSet ℓS) {P : Pred ⟨ S ⟩ ℓ₁} {Q : Pred ⟨ S ⟩ ℓ₂}
+  private
+    finite-search-FinT : {ℓ₁ ℓ₂ : Level} (n : Nat) {P : Pred (FinT n) ℓ₁} {Q : Pred (FinT n) ℓ₂}
+                         -> (Universal (P ∪ Q))
+                         -> (Satisfiable P) ⊎ (Universal Q)
+    finite-search-FinT zero dec = inj-r (\())
+    finite-search-FinT (suc n) {P} {Q} dec with (dec (inj-l tt))
+    ... | (inj-l p) = inj-l (inj-l tt , p)
+    ... | (inj-r q) with (finite-search-FinT n (dec ∘ inj-r))
+    ...             | (inj-l (e , p)) = inj-l (inj-r e , p)
+    ...             | (inj-r qs) = inj-r (\{ (inj-l tt) -> q ; (inj-r i) -> qs i})
+
+    finite-search-Fin : {ℓ₁ ℓ₂ : Level} (n : Nat) {P : Pred (Fin n) ℓ₁} {Q : Pred (Fin n) ℓ₂}
+                        -> (Universal (P ∪ Q))
+                        -> (Satisfiable P) ⊎ (Universal Q)
+    finite-search-Fin {ℓ₁} {ℓ₂} n = 
+      subst (\F -> ∀ {P : Pred F ℓ₁} {Q : Pred F ℓ₂}
+                     -> (Universal (P ∪ Q))
+                     -> (Satisfiable P) ⊎ (Universal Q))
+            (FinT=Fin n) (finite-search-FinT n)
+
+
+  finite-search : {ℓS ℓ₁ ℓ₂ : Level} (S : FinSet ℓS) {P : Pred ⟨ S ⟩ ℓ₁} {Q : Pred ⟨ S ⟩ ℓ₂}
                   -> (Universal (P ∪ Q))
                   -> (Inhabited P) ⊎ (Universal Q)
-  finite-search' (S , isFinSet-S) {P = P} {Q = Q} p =
+  finite-search (S , isFinSet-S) {P = P} {Q = Q} p =
     extract2 (unsquash isProp-SideSplit (∥-map extract isFinSet-S))
     where
     module _ where
@@ -34,7 +57,7 @@ abstract
 
 
       extract : Σ[ n ∈ Nat ] (S ≃ Fin n) -> SideSplit
-      extract (n , eq) = ⊎-map l-case r-case (finite-search Universal-P'Q')
+      extract (n , eq) = ⊎-map l-case r-case (finite-search-Fin n Universal-P'Q')
         where
         f = (eqFun eq)
         g = (eqInv eq)
@@ -62,3 +85,22 @@ abstract
       extract2 : SideSplit -> (Inhabited P) ⊎ (Universal Q)
       extract2 (inj-l ∃s-Left) = inj-l (∥-map (\(s , l) -> s , proj-l (p s) l) ∃s-Left)
       extract2 (inj-r ∀s-Right) = inj-r (\s -> proj-r (p s) (∀s-Right s))
+
+
+  finite-search-dec : {ℓS ℓ₁ : Level} (S : FinSet ℓS) {P : Pred ⟨ S ⟩ ℓ₁} 
+                      -> (Decidable P)
+                      -> (Inhabited P) ⊎ (Universal (Comp P))
+  finite-search-dec S {P} dec = finite-search S (\s -> split (dec s))
+    where
+    split : {s : ⟨ S ⟩} -> Dec (P s) ->  P s ⊎ (¬ (P s))
+    split (yes p) = inj-l p
+    split (no ¬p) = inj-r ¬p
+
+  finite-search-dec' : {ℓS ℓ₁ : Level} (S : FinSet ℓS) {P : Pred ⟨ S ⟩ ℓ₁} 
+                       -> (Decidable P)
+                       -> (Inhabited (Comp P)) ⊎ (Universal P)
+  finite-search-dec' S {P} dec = finite-search S (\s -> split (dec s))
+    where
+    split : {s : ⟨ S ⟩} -> Dec (P s) -> (¬ (P s)) ⊎ (P s)
+    split (yes p) = inj-r p
+    split (no ¬p) = inj-l ¬p

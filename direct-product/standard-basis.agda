@@ -155,7 +155,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
       find-s i = handle find-or
         where
         find-or : Inhabited (\s -> inc s == i) ⊎ Universal (\s -> inc s != i)
-        find-or = finite-search' ⟨ S ⟩ (\s -> handle (discrete-I (inc s) i))
+        find-or = finite-search ⟨ S ⟩ (\s -> handle (discrete-I (inc s) i))
           where
           handle : {s : S'} -> Dec (inc s == i) -> (inc s == i) ⊎ (inc s != i)
           handle (yes p) = inj-l p
