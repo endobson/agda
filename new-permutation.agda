@@ -217,13 +217,11 @@ module _ {m n : Nat} where
 
 
 private
-  fin-injective->reverse : {n : Nat} (f : Fin n -> Fin n) -> Injective f
-                           -> Satisfiable (RightInverse f)
-  fin-injective->reverse {zero} f f-inj = (\i -> bot-elim (¬fin-zero i)) , (\i -> bot-elim (¬fin-zero i))
-  fin-injective->reverse {suc n} f f-inj = handle (find-right-inverse f)
+  fin-injective->section : {n : Nat} (f : Fin n -> Fin n) -> Injective f -> Section f
+  fin-injective->section {zero} f f-inj = (\i -> i) , (\i -> bot-elim (¬fin-zero i))
+  fin-injective->section {suc n} f f-inj = handle (find-right-inverse f)
     where
-    handle : (Σ[ j ∈ Fin (suc n) ] (∀ i -> ¬(f i == j))) ⊎ (Satisfiable (RightInverse f))
-              -> Satisfiable (RightInverse f)
+    handle : (Σ[ j ∈ Fin (suc n) ] (∀ i -> ¬(f i == j))) ⊎ Section f -> Section f
     handle (inj-r inv) = inv
     handle (inj-l (j , not-image)) = bot-elim (pigeonhole-large (add1-< n) f' f'-inj)
       where
@@ -239,18 +237,18 @@ module _ {n : Nat} (f : (Fin n) -> (Fin n)) (inj-f : (Injective f)) where
   open Iso
   private
     abstract
-      Σg : Satisfiable (RightInverse f)
-      Σg = fin-injective->reverse f inj-f
+      Σg : Section f
+      Σg = fin-injective->section f inj-f
       g : Fin n -> Fin n
       g = fst Σg
-      right-inv : RightInverse f g
-      right-inv = snd Σg
+      sec : isSectionOf f g
+      sec = snd Σg
 
   fin-injective->permutation : Perm n
   fin-injective->permutation .fun = f
   fin-injective->permutation .inv = g
-  fin-injective->permutation .rightInv = right-inv
-  fin-injective->permutation .leftInv x = inj-f (right-inv (f x))
+  fin-injective->permutation .rightInv = sec
+  fin-injective->permutation .leftInv x = inj-f (sec (f x))
 
 module _ {n : Nat} where
   open Iso

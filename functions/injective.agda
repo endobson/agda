@@ -7,6 +7,7 @@ open import boolean
 open import cubical
 open import equality-path
 open import functions
+open import truncation
 
 private
   variable
@@ -48,3 +49,9 @@ Injective-2of3₂ {f = f} c inj-f inj-h p = inj-h (sym (c _) >=> cong f p >=> c 
 
   ¬inj-f : ¬ (Injective f)
   ¬inj-f inj-f = true!=false (inj-f refl)
+
+Retraction->Injective : {f : A -> B} -> Retraction f -> Injective f
+Retraction->Injective {f = f} (g , ret-g) p = sym (ret-g _) >=> cong g p >=> (ret-g _)
+
+Section->Surjection : {f : A -> B} -> Section f -> isSurjection f
+Section->Surjection {f = f} (g , sec-g) b = ∣ g b , sec-g b ∣

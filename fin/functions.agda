@@ -16,30 +16,29 @@ open import truncation
 
 -- Finite search functions
 -- More general ones availible in finset libraries.
-private
-  abstract
-    finite-search : {ℓ₁ ℓ₂ : Level} {n : Nat} {P : Pred (Fin n) ℓ₁} {Q : Pred (Fin n) ℓ₂}
-                    -> (Universal (P ∪ Q))
-                    -> (Satisfiable P) ⊎ (Universal Q)
-    finite-search {n = zero}  dec = inj-r (\ i -> (bot-elim (¬fin-zero i)))
-    finite-search {n = suc _} {P} {Q} dec =
-      case (dec zero-fin) return _ of \where
-        (inj-l p) -> inj-l (zero-fin , p)
-        (inj-r q) ->
-          case (finite-search (dec ∘ suc-fin))
-               return _ of \ where
-            (inj-l (i , p)) -> inj-l (suc-fin i , p)
-            (inj-r f) -> inj-r \ where
-              (zero  , lt) -> subst Q (fin-i-path refl) q
-              (suc i , lt) -> subst Q (fin-i-path refl) (f (i , pred-≤ lt))
-  
-    find-counterexample : {ℓ : Level} {n : Nat} {P : Pred (Fin n) ℓ} -> Decidable P
-                          -> (Satisfiable (Comp P)) ⊎ (Universal P)
-    find-counterexample dec = finite-search (\x -> ⊎-swap (dec->⊎ (dec x)))
-  
-    find-example : {ℓ : Level} {n : Nat} {P : Pred (Fin n) ℓ} -> Decidable P
-                   -> (Satisfiable P) ⊎ (Universal (Comp P))
-    find-example dec = finite-search (\x -> dec->⊎ (dec x))
+abstract
+  finite-search : {ℓ₁ ℓ₂ : Level} {n : Nat} {P : Pred (Fin n) ℓ₁} {Q : Pred (Fin n) ℓ₂}
+                  -> (Universal (P ∪ Q))
+                  -> (Satisfiable P) ⊎ (Universal Q)
+  finite-search {n = zero}  dec = inj-r (\ i -> (bot-elim (¬fin-zero i)))
+  finite-search {n = suc _} {P} {Q} dec =
+    case (dec zero-fin) return _ of \where
+      (inj-l p) -> inj-l (zero-fin , p)
+      (inj-r q) ->
+        case (finite-search (dec ∘ suc-fin))
+             return _ of \ where
+          (inj-l (i , p)) -> inj-l (suc-fin i , p)
+          (inj-r f) -> inj-r \ where
+            (zero  , lt) -> subst Q (fin-i-path refl) q
+            (suc i , lt) -> subst Q (fin-i-path refl) (f (i , pred-≤ lt))
+
+  find-counterexample : {ℓ : Level} {n : Nat} {P : Pred (Fin n) ℓ} -> Decidable P
+                        -> (Satisfiable (Comp P)) ⊎ (Universal P)
+  find-counterexample dec = finite-search (\x -> ⊎-swap (dec->⊎ (dec x)))
+
+  find-example : {ℓ : Level} {n : Nat} {P : Pred (Fin n) ℓ} -> Decidable P
+                 -> (Satisfiable P) ⊎ (Universal (Comp P))
+  find-example dec = finite-search (\x -> dec->⊎ (dec x))
 
 private
   choiceΣ : {ℓ₁ ℓ₂ ℓ₃ : Level} {A : Type ℓ₁} {B : A -> Type ℓ₂} {P : (a : A) -> B a -> Type ℓ₃} ->

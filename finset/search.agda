@@ -8,6 +8,7 @@ open import equality
 open import equivalence
 open import fin
 open import finset
+open import finset.choice
 open import functions
 open import hlevel
 open import relation
@@ -104,3 +105,17 @@ abstract
     split : {s : ⟨ S ⟩} -> Dec (P s) -> (¬ (P s)) ⊎ (P s)
     split (yes p) = inj-r p
     split (no ¬p) = inj-l ¬p
+
+  module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : FinSet ℓB) (f : ⟨ FA ⟩ -> ⟨ FB ⟩) where
+    private
+      A = fst FA
+      B = fst FB
+  
+    private
+  
+      module _ (b : B) where
+        find-fiber : (∀ a -> f a != b) ⊎ ∥ (fiber f b) ∥
+        find-fiber = ⊎-swap (finite-search-dec FA (\a -> isFinSet->Discrete (snd FB) (f a) b))
+  
+    find-section : (∃[ b ∈ B ] (∀ a -> f a != b)) ⊎ ∥(Section f)∥
+    find-section = ⊎-map-right (finite-choice FB) (finite-search FB find-fiber)

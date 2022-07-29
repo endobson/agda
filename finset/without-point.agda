@@ -10,7 +10,7 @@ open import fin
 open import fin.without-point
 open import fin-algebra
 open import finset
-open import finset.order
+open import finset.order.base
 open import finset.cardinality
 open import functions
 open import hlevel
@@ -67,10 +67,10 @@ cardinality-WithoutPoint FA@(A , fsA) a =
                    (isFinSetΣ-WithoutPoint (isFinSet->isFinSetΣ fsA) a)
 
 FinSet<-WithoutPoint : (A : FinSet ℓ) -> (a : ⟨ A ⟩) -> 
-                       FinSetᵉ< (FinSet-WithoutPoint A a) A
+                       FinSet< (FinSet-WithoutPoint A a) A
 FinSet<-WithoutPoint A a = handle (cardinality A) refl
   where
-  handle : (n : Nat) -> cardinality A == n -> FinSetᵉ< (FinSet-WithoutPoint A a) A
+  handle : (n : Nat) -> cardinality A == n -> FinSet< (FinSet-WithoutPoint A a) A
   handle zero    p = bot-elim (eqInv (uninhabited-cardinality0 A) p a)
   handle (suc n) p = 
     path-≤ (cong suc (cardinality-WithoutPoint A a) >=> cong suc (cong pred p) >=> sym p)
