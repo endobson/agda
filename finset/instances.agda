@@ -50,9 +50,8 @@ instance
   FinSetStr-Fin : {n : Nat} -> FinSetStr (Fin n)
   FinSetStr-Fin = record { isFin = isFinSet-Fin }
 
-abstract
-  isFinSet-FinT : {n : Nat} -> isFinSet (FinT n)
-  isFinSet-FinT {n = n} = ∣ n , pathToEquiv (\i -> FinT=Fin n i) ∣
+isFinSet-FinT : {n : Nat} -> isFinSet (FinT n)
+isFinSet-FinT {n = n} = ∣ n , pathToEquiv (\i -> FinT=Fin n i) ∣
 
 FinSet-FinT : (n : Nat) -> FinSet ℓ-zero
 FinSet-FinT n = FinT n , isFinSet-FinT
@@ -80,3 +79,13 @@ abstract
 abstract
   isFinSet-isContr : {A : Type ℓ} -> isContr A -> isFinSet A
   isFinSet-isContr isContr-A = ∣ 1 , (∘-equiv (equiv⁻¹ Fin-Top-eq) (Contr-Top-eq isContr-A)) ∣
+
+abstract
+  isFinSet-Lift : {A : Type ℓ} (ℓ₂ : Level) -> isFinSet A -> isFinSet (Lift ℓ₂ A)
+  isFinSet-Lift {A = A} ℓ₂  = ∥-map handle
+    where
+    handle : Σ[ n ∈ Nat ] (A ≃ Fin n) -> Σ[ n ∈ Nat ] (Lift ℓ₂ A ≃ Fin n)
+    handle (n , eq) = n , liftEquiv ℓ₂ A >eq> eq
+
+FinSet-Lift : {ℓ : Level} (ℓ₂ : Level) -> FinSet ℓ -> FinSet (ℓ-max ℓ ℓ₂)
+FinSet-Lift ℓ₂ (A , fsA) = Lift ℓ₂ A , isFinSet-Lift ℓ₂ fsA

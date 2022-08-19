@@ -29,6 +29,9 @@ maybe : (b : B) (f : A -> B) -> Maybe A -> B
 maybe b f nothing = b
 maybe b f (just a) = f a
 
+maybe-map : (f : A -> B) -> Maybe A -> Maybe B
+maybe-map f = maybe nothing (\a -> just (f a))
+
 just-injective : {a1 a2 : A} -> (just a1) == (just a2) -> a1 == a2
 just-injective {a1 = a1} p = cong (maybe a1 (\x -> x)) p
 

@@ -51,7 +51,10 @@ Involution f = ∀ {a} -> (f (f a)) == a
 2-Constant {A = A} f = (x y : A) -> f x == f y
 
 isEmbedding : Pred (A -> B) _
-isEmbedding f = ∀ x y -> isEquiv {A = x == y} (cong f)
+isEmbedding f = ∀ x y -> isEquiv {A = x == y} {B = (f x) == (f y)} (cong f)
+
+_↪_ : Type ℓ₁ -> Type ℓ₂ -> Type (ℓ-max ℓ₁ ℓ₂)
+A ↪ B = Σ (A -> B) isEmbedding
 
 isSectionOf : (f : A -> B) -> Pred (B -> A) _
 isSectionOf f g = ∀ b -> f ( g b) == b

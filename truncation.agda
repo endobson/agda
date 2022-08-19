@@ -152,3 +152,6 @@ TightApartness _#_ = (Tight _#_ × Apartness _#_)
 
 isSurjection : Pred (A -> B) _
 isSurjection f = ∀ b -> ∥ fiber f b ∥
+
+_↠_ : Type ℓ₁ -> Type ℓ₂ -> Type (ℓ-max ℓ₁ ℓ₂)
+A ↠ B = Σ (A -> B) isSurjection

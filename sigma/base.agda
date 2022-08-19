@@ -45,6 +45,10 @@ module _ where
         -> (A -> C) -> (B -> D) -> (A × B) -> (C × D)
 ×-map f g (a , b) = (f a , g b)
 
+Σ-map : {ℓA ℓB ℓC : Level} {A : Type ℓA} {B : A -> Type ℓB} {C : A -> Type ℓC} ->
+        ((a : A) -> B a -> C a) -> Σ A B -> Σ A C
+Σ-map f (a , b) = (a , f a b)
+
 
 ¬exists->forall : ¬ (Σ[ a ∈ A ] (B a)) -> (a : A) -> ¬ (B a)
 ¬exists->forall ne a b = ne (a , b)

@@ -248,3 +248,12 @@ abstract
 
   ≃-isSet : A₁ ≃ A₂ -> isSet A₁ -> isSet A₂
   ≃-isSet eq = iso-isSet (equivToIso eq)
+
+-- Acc/WellFounded 
+
+isProp-Acc : (R : Rel A ℓ) -> (a : A) -> isProp (Acc R a)
+isProp-Acc R a (acc f) (acc g) i = 
+  acc (\y yRa -> isProp-Acc R y (f y yRa) (g y yRa) i)
+
+isProp-WellFounded : (R : Rel A ℓ) -> isProp (WellFounded R)
+isProp-WellFounded R = isPropΠ (\a -> isProp-Acc R a)

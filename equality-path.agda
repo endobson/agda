@@ -130,6 +130,19 @@ transP-right {A = A} {a0} {b0} {b1} p q =
 symP : {A : I -> Type ℓ} -> {a0 : A i0} {a1 : A i1} -> PathP A a0 a1 -> PathP (\k -> A (~ k)) a1 a0
 symP p k = p (~ k)
 
+-- Path composition is associative (here because it uses transP).
+compPath-assoc : {ℓ : Level} {A : Type ℓ} {x y z w : A} ->
+                 (p : x == y) (q : y == z) (r : z == w) ->
+                 (p >=> q) >=> r == p >=> (q >=> r)
+compPath-assoc {A = A} {x} {y} {z} {w} p q r = \i -> (t1 i) >=> (t2 (~ i))
+  where
+  t1 : PathP (\ i -> x == q (~ i)) (p >=> q) p
+  t1 = transP-left (\ i -> p >=> (\j -> q ((~ i) ∧ j))) (compPath-refl-right p)
+
+  t2 : PathP (\ i -> q i == w ) (q >=> r) r
+  t2 = transP-left (\ i -> (\j -> q (i ∨ j)) >=> r) (compPath-refl-left r)
+
+
 -- Substitution
 substᵉ : {x y : A} -> (P : A → Type ℓ) -> x == y -> P x -> P y
 substᵉ P path = transport (\ i -> (P (path i)))
