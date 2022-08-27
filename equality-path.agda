@@ -142,6 +142,20 @@ compPath-assoc {A = A} {x} {y} {z} {w} p q r = \i -> (t1 i) >=> (t2 (~ i))
   t2 : PathP (\ i -> q i == w ) (q >=> r) r
   t2 = transP-left (\ i -> (\j -> q (i ∨ j)) >=> r) (compPath-refl-left r)
 
+-- congruence rules
+cong-trans : {x y z : A1} (f : A1 -> A2) (p1 : x == y) (p2 : y == z) ->
+             (cong f p1 >=> cong f p2) == cong f (p1 >=> p2)
+cong-trans f p1 p2 = part2
+  where
+  part1 : (cong f (p1 >=> refl) >=> cong f p2) ==
+          cong f (p1 >=> p2) >=> cong f refl
+  part1 i = cong f (p1 >=> (\j -> p2 (i ∧ j))) >=> cong f (\j -> p2 (i ∨ j))
+  part2 : cong f p1 >=> cong f p2 == cong f (p1 >=> p2)
+  part2 = (\i -> cong f (compPath-refl-right p1 (~ i)) >=> cong f p2) >=> 
+          part1 >=>
+          (compPath-refl-right (cong f (p1 >=> p2)))
+           
+
 
 -- Substitution
 substᵉ : {x y : A} -> (P : A → Type ℓ) -> x == y -> P x -> P y

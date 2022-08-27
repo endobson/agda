@@ -17,6 +17,11 @@ private
 -- fiber : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (y : B) → Type (ℓ-max ℓ ℓ')
 -- fiber {A = A} f y = Σ[ x ∈ A ] f x ≡ y
 
+-- record isEquiv {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) : Set (ℓ ⊔ ℓ') where
+--  no-eta-equality
+--  field
+--    equiv-proof : (y : B) → isContr (fiber f y)
+
 
 module _ {f : A1 -> A2} (eq-f : isEquiv f) where
   isEqFun : A1 -> A2

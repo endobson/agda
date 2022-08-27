@@ -3,12 +3,13 @@
 module container.finmap where
 
 open import base
+open import cubical
 open import fin
 open import functions
 open import nat
 open import hlevel
 open import relation
-open import equality
+open import equality-path
 open import sigma.base
 open import sum
 open import univalence
@@ -94,19 +95,19 @@ data HasUniqueKeys {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} :
   fm-cons : {k : K} {m : FinMap' K V} -> ¬ (HasKey' k m) -> (v : V) -> 
             HasUniqueKeys m -> HasUniqueKeys (fm-cons k v m)
 
-FinMap : {ℓK ℓV : Level} (K : Type ℓK) (V : Type ℓV) -> Type (ℓ-max ℓK ℓV)
-FinMap K V = Σ (FinMap' K V) HasUniqueKeys
+FinMapUK : {ℓK ℓV : Level} (K : Type ℓK) (V : Type ℓV) -> Type (ℓ-max ℓK ℓV)
+FinMapUK K V = Σ (FinMap' K V) HasUniqueKeys
 
 
-HasKV : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} ->
-        K -> V -> (FinMap K V) -> Type (ℓ-max ℓK ℓV)
-HasKV k v (m , _) = HasKV' k v m
+HasKV-UK : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} ->
+        K -> V -> (FinMapUK K V) -> Type (ℓ-max ℓK ℓV)
+HasKV-UK k v (m , _) = HasKV' k v m
 
-HasKey : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> REL K (FinMap K V) (ℓ-max ℓK ℓV)
-HasKey k (m , _) = HasKey' k m
+HasKey-UK : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> REL K (FinMapUK K V) (ℓ-max ℓK ℓV)
+HasKey-UK k (m , _) = HasKey' k m
 
-DisjointKeys : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> Rel (FinMap K V) (ℓ-max ℓK ℓV)
-DisjointKeys m1 m2 = ∀ {k} -> HasKey k m1 -> HasKey k m2 -> Bot
+DisjointKeys : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> Rel (FinMapUK K V) (ℓ-max ℓK ℓV)
+DisjointKeys m1 m2 = ∀ {k} -> HasKey-UK k m1 -> HasKey-UK k m2 -> Bot
 
 
 fm'-union : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> 
@@ -328,20 +329,18 @@ _fm⊂'_ {K = K} {V = V} m1 m2 =
   (m1 fm⊆ m2) × (∃![ kv ∈ (K × V) ] (¬ (HasKV' (proj₁ kv) (proj₂ kv) m1) × 
                                      HasKV' (proj₁ kv) (proj₂ kv) m2))
 
+
+
 isBijective-fm⊆ : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} {fm1 fm2 : FinMap' K V} ->
                   fm1 fm⊆ fm2 -> isBijectiveFinMap' fm2 -> isBijectiveFinMap' fm1
 isBijective-fm⊆ inc (inj , fun) =
   (\hk1 hk2 -> inj (inc hk1) (inc hk2)) , (\hk1 hk2 -> fun (inc hk1) (inc hk2))
             
 
-module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} 
-         {{disc'K : Discrete' K}} 
-         {{isSet'V : isSet' V}} 
+module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} 
          where
   private
     discK = Discrete'.f disc'K
-    isSetK = Discrete->isSet discK
-    isSetV = isSet'.f isSet'V
 
   lookup' : (k : K) (m : FinMap' K V) -> Dec (HasKey' k m)
   lookup' k [] = no (\())
@@ -356,15 +355,17 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV}
       handle2 (_ , (has-kv-here kp vp _)) = ¬k=k2 kp
       handle2 (v , (has-kv-skip _ _ hkv)) = ¬hkv (v , hkv)
 
-  lookup : (k : K) (m : FinMap K V) -> Dec (HasKey k m)
+  lookup : (k : K) (m : FinMapUK K V) -> Dec (HasKey-UK k m)
   lookup k (m , _) = lookup' k m
 
-  isUnique-HasKV2 : {k : K} {v1 v2 : V} (m : FinMap K V) -> 
-                    HasKV k v1 m -> HasKV k v2 m -> v1 == v2
+module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} 
+         where
+  isUnique-HasKV2 : {k : K} {v1 v2 : V} (m : FinMapUK K V) -> 
+                    HasKV-UK k v1 m -> HasKV-UK k v2 m -> v1 == v2
   isUnique-HasKV2 (m , !m) (has-kv-here _ vp1 _) (has-kv-here _ vp2 _) = 
     vp1 >=> sym vp2
   isUnique-HasKV2 ((fm-cons _ _ m') , (fm-cons _ _ !m')) 
-                    (has-kv-skip _ _ hkv1') (has-kv-skip _ _ hkv2') =
+                   (has-kv-skip _ _ hkv1') (has-kv-skip _ _ hkv2') =
     isUnique-HasKV2 (m' , !m') hkv1' hkv2' 
   isUnique-HasKV2 (fm-cons kn vn m' , (fm-cons ¬hk1' _ _))
                   (has-kv-here kp _ _) (has-kv-skip _ _ hkv2') =
@@ -374,9 +375,18 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV}
     bot-elim (¬hk2' (subst (\k -> HasKey' k _) kp (_ , hkv1')))
 
 
-  isProp-HasKV2 : {k : K} {v : V} -> (m : FinMap K V) -> 
-                  (hk1 : HasKV k v m) -> (hk2 : HasKV k v m) -> hk1 == hk2
-  isProp-HasKV2 m (has-kv-here k1p v1p m') (has-kv-here k2p v2p m') = 
+module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} 
+         {{isSet'K : isSet' K}} 
+         {{isSet'V : isSet' V}} 
+         where
+  private
+    isSetK = isSet'.f isSet'K
+    isSetV = isSet'.f isSet'V
+
+  isProp-HasKV2 : {k : K} {v : V} -> (m : FinMapUK K V) -> 
+                  (hk1 : HasKV-UK k v m) -> (hk2 : HasKV-UK k v m) -> hk1 == hk2
+  isProp-HasKV2 {k} {v} m hk1@(has-kv-here {k1} {v1} k1p v1p m') 
+                          hk2@(has-kv-here {k2} {v2} k2p v2p m') =
     \i -> has-kv-here (kp i) (vp i) m'
     where
     kp : k1p == k2p
@@ -384,7 +394,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV}
     vp : v1p == v2p
     vp = isSetV _ _ v1p v2p
   isProp-HasKV2 ((fm-cons _ _ m') , (fm-cons _ _ !m'))
-                  (has-kv-skip _ _ hkv1') (has-kv-skip _ _ hkv2') =
+                 (has-kv-skip _ _ hkv1') (has-kv-skip _ _ hkv2') =
     cong (has-kv-skip _ _) (isProp-HasKV2 (m' , !m') hkv1' hkv2')
   isProp-HasKV2 (_ , (fm-cons ¬hk1' _ _))
                 (has-kv-here kp _ _) (has-kv-skip _ _ hkv2') =
@@ -393,37 +403,69 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV}
                 (has-kv-skip _ _ hkv1') (has-kv-here kp _ _) =
     bot-elim (¬hk2' (subst (\k -> HasKey' k _) kp (_ , hkv1')))
 
-module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
-  record FinMapEq (l r : FinMap K V) : Type (ℓ-max ℓK ℓV) where
-    field
-      forward : {k : K} {v : V} -> HasKV k v l -> ∥ HasKV k v r ∥
-      backward : {k : K} {v : V} -> HasKV k v r -> ∥ HasKV k v l ∥
+  isProp-HasKey-UK : {k : K} (m : FinMapUK K V) -> isProp (HasKey-UK k m)
+  isProp-HasKey-UK m (v1 , hkv1) (v2 , hkv2) = 
+    ΣProp-path (isProp-HasKV2 m) (isUnique-HasKV2 m hkv1 hkv2)
 
-FinMapQuot : {ℓK ℓV : Level} (K : Type ℓK) (V : Type ℓV) -> Type (ℓ-max ℓK ℓV)
-FinMapQuot K V = FinMap K V / FinMapEq
+
+module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
+  record FinMapEq (l r : FinMapUK K V) : Type (ℓ-max ℓK ℓV) where
+    field
+      forward : {k : K} {v : V} -> HasKV-UK k v l -> ∥ HasKV-UK k v r ∥
+      backward : {k : K} {v : V} -> HasKV-UK k v r -> ∥ HasKV-UK k v l ∥
+
+FinMap : {ℓK ℓV : Level} (K : Type ℓK) (V : Type ℓV) -> Type (ℓ-max ℓK ℓV)
+FinMap K V = FinMapUK K V / FinMapEq
 
 
 module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
   private
-    module FinMapQuotElim = SetQuotientElim (FinMap K V) FinMapEq
+    module FinMapElim = SetQuotientElim (FinMapUK K V) FinMapEq
 
-    HasKVQuot-hProp : K -> V -> FinMapQuot K V -> hProp (ℓ-max ℓK ℓV)
-    HasKVQuot-hProp k v = 
-      FinMapQuotElim.rec isSet-hProp (\m -> ∥ HasKV k v m ∥ , squash) same
+  HasKV-hProp : K -> V -> FinMap K V -> hProp (ℓ-max ℓK ℓV)
+  HasKV-hProp k v = 
+    FinMapElim.rec isSet-hProp (\m -> ∥ HasKV-UK k v m ∥ , squash) same
+    where
+    same : (m1 m2 : FinMapUK K V) (eq : FinMapEq m1 m2) -> 
+           (∥ HasKV-UK k v m1 ∥ , squash) == (∥ HasKV-UK k v m2 ∥ , squash)
+    same m1 m2 eq = ΣProp-path isProp-isProp (isoToPath iso-hkv)
       where
-      same : (m1 m2 : FinMap K V) (eq : FinMapEq m1 m2) -> 
-             (∥ HasKV k v m1 ∥ , squash) == (∥ HasKV k v m2 ∥ , squash)
-      same m1 m2 eq = ΣProp-path isProp-isProp (isoToPath iso-hkv)
-        where
-        open Iso
-        iso-hkv : Iso ∥ HasKV k v m1 ∥ ∥ HasKV k v m2 ∥
-        iso-hkv .fun = ∥-bind (FinMapEq.forward eq)
-        iso-hkv .inv = ∥-bind (FinMapEq.backward eq)
-        iso-hkv .rightInv _ = squash _ _
-        iso-hkv .leftInv _ = squash _ _
+      open Iso
+      iso-hkv : Iso ∥ HasKV-UK k v m1 ∥ ∥ HasKV-UK k v m2 ∥
+      iso-hkv .fun = ∥-bind (FinMapEq.forward eq)
+      iso-hkv .inv = ∥-bind (FinMapEq.backward eq)
+      iso-hkv .rightInv _ = squash _ _
+      iso-hkv .leftInv _ = squash _ _
 
-  HasKVQuot : K -> V -> FinMapQuot K V -> Type (ℓ-max ℓK ℓV)
-  HasKVQuot k v m = fst (HasKVQuot-hProp k v m)
+  HasKV : K -> V -> FinMap K V -> Type (ℓ-max ℓK ℓV)
+  HasKV k v m = fst (HasKV-hProp k v m)
+
+
+module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} 
+         {{disc'K : Discrete' K}} 
+         {{isSet'V : isSet' V}} 
+         where
+  private
+    module FinMapElim = SetQuotientElim (FinMapUK K V) FinMapEq
+    isSetV = isSet'.f isSet'V
+
+  isUnique-HasKV : {k : K} {v1 v2 : V} (m : FinMap K V) -> 
+                   HasKV k v1 m -> HasKV k v2 m -> v1 == v2
+  isUnique-HasKV =
+    FinMapElim.elimProp (\_ -> isPropΠ2 (\_ _ -> isSetV _ _))
+      (\m hkv1 hkv2 -> unsquash (isSetV _ _) (∥-map2 (isUnique-HasKV2 m) hkv1 hkv2)) -- isUnique-HasKV2
+
+  HasKey-hProp : K -> FinMap K V -> hProp (ℓ-max ℓK ℓV)
+  HasKey-hProp k m = HK , same
+    where
+    HK : Type (ℓ-max ℓK ℓV)
+    HK = (Σ[ v ∈ V ] (HasKV k v m))
+    same : (hk1 hk2 : HK) -> hk1 == hk2
+    same (v1 , hkv1) (v2 , hkv2) = 
+      ΣProp-path (\{v} -> (snd (HasKV-hProp k v m))) (isUnique-HasKV m hkv1 hkv2)
+
+  HasKey : K -> FinMap K V -> Type (ℓ-max ℓK ℓV)
+  HasKey k m = fst (HasKey-hProp k m)
 
 fm'-size : {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} -> FinMap' K V -> Nat
 fm'-size [] = 0

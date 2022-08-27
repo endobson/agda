@@ -90,6 +90,33 @@ abstract
                   -> PathP (\i -> B i) b0 b1
   isProp->PathPᵉ hB _ _ = isProp->PathP hB
 
+  isProp->isContrPathP : {A : I -> Type ℓ} -> ((i : I) -> isProp (A i)) -> 
+                         (x : (A i0)) (y : A i1) ->
+                         isContr (PathP (\i -> A i) x y)
+  isProp->isContrPathP {A = A} h x y = p , same
+    where
+    p : PathP (\i -> A i) x y
+    p = isProp->PathP h
+    same : (p2 : PathP (\i -> A i) x y) -> p == p2
+    same p2 = vlines2-refl
+      where
+      vlines : (i : I) -> p i == p2 i
+      vlines i = h i (p i) (p2 i)
+  
+      vlines-i0 : vlines i0 == refl
+      vlines-i0 = isContr->isProp (isProp->isContrPath (h i0) x x) _ _
+  
+      vlines-i1 : vlines i1 == refl
+      vlines-i1 = isContr->isProp (isProp->isContrPath (h i1) y y) _ _
+  
+      vlines2 : SquareP {A = \i j -> A j} p p2 (vlines i0) (vlines i1)
+      vlines2 i j = vlines j i
+  
+      vlines2-refl : SquareP {A = \i j -> A j} p p2 refl refl 
+      vlines2-refl = subst2 (SquareP p p2) vlines-i0 vlines-i1 vlines2
+    
+
+
 isOfHLevelDep : Nat -> {A : Type ℓ₁} -> (B : A -> Type ℓ₂) -> Type (ℓ-max ℓ₁ ℓ₂)
 isOfHLevelDep 0 {A = A} B =
   {a : A} -> Σ[ b ∈ B a ] ({a' : A} (b' : B a') (p : a == a') -> PathP (\i -> (B (p i))) b b')
