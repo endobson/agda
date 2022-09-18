@@ -42,3 +42,7 @@ Glue : ∀ {ℓ₁ ℓ₂ : Level} (A : Type ℓ₁) {φ : I}
        → (Te : Partial φ (Σ (Type ℓ₂) (\T -> T ≃ A)))
        → Type ℓ₂
 Glue A Te = primGlue A (λ x → Te x .fst) (λ x → Te x .snd)
+
+unglue : {ℓ ℓ' : Level} {A : Type ℓ} (φ : I) {T : Partial φ (Type ℓ')}
+         {e : PartialP φ (λ o -> T o ≃ A)} -> primGlue A T e → A
+unglue φ = prim^unglue {φ = φ}

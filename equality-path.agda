@@ -67,14 +67,19 @@ trans : {x y z : A} -> x == y -> y == z -> x == z
 trans p1 p2 = refl ∙∙ p1 ∙∙ p2
 
 infixl 20 _>=>_
+infixl 20 _>=>'_
 _>=>_ : {x y z : A} -> x == y -> y == z -> x == z
 p1 >=> p2 = trans p1 p2
+_>=>'_ : {x y z : A} -> x == y -> y == z -> x == z
+p1 >=>' p2 = p1 ∙∙ refl ∙∙ p2
+
 
 private
   _∙_ = trans
 
 compPath-filler : {x y z : A} (p : x == y) (q : y == z) -> PathP (\i -> x == (q i)) p (p ∙ q)
 compPath-filler p q = doubleCompPath-filler refl p q
+
 
 
 -- Path identies with refl
@@ -92,6 +97,20 @@ compPath-sym p = contract >=> compPath-refl-right refl
   where
   contract : (p >=> sym p) == (refl >=> refl)
   contract j = (\i -> p (i ∧ (~ j))) >=> (\i -> p (~ i ∧ (~ j)))
+
+
+
+compPath'==compPath : {x y z : A} -> (p1 : x == y) -> (p2 : y == z) -> p1 >=>' p2 == p1 >=> p2
+compPath'==compPath p1 p2 i = (\j -> p1 (j ∧ (~ i))) ∙∙ (\j -> p1 (j ∨ (~ i))) ∙∙ p2
+
+compPath'-refl-right : {x y : A} (p : x == y) -> (p >=>' refl) == p
+compPath'-refl-right p = compPath'==compPath p refl >=> compPath-refl-right p
+
+compPath'-refl-left : {x y : A} (p : x == y) -> (refl >=>' p) == p
+compPath'-refl-left p = compPath'==compPath refl p >=> compPath-refl-left p
+  
+
+
 
 -- Path composition with transport
 transport-twice : ∀ {A B C : Type ℓ} (p : B == C) (q : A == B) (x : A)
@@ -142,6 +161,17 @@ compPath-assoc {A = A} {x} {y} {z} {w} p q r = \i -> (t1 i) >=> (t2 (~ i))
   t2 : PathP (\ i -> q i == w ) (q >=> r) r
   t2 = transP-left (\ i -> (\j -> q (i ∨ j)) >=> r) (compPath-refl-left r)
 
+compPath'-assoc : {ℓ : Level} {A : Type ℓ} {x y z w : A} ->
+                  (p : x == y) (q : y == z) (r : z == w) ->
+                  (p >=>' q) >=>' r == p >=>' (q >=>' r)
+compPath'-assoc p q r = 
+  cong (_>=>' r) (compPath'==compPath p q) >=>
+  compPath'==compPath (p >=> q) r >=>
+  compPath-assoc p q r >=>
+  sym (compPath'==compPath p (q >=> r)) >=>
+  cong (p >=>'_) (sym (compPath'==compPath q r))
+
+
 -- congruence rules
 cong-trans : {x y z : A1} (f : A1 -> A2) (p1 : x == y) (p2 : y == z) ->
              (cong f p1 >=> cong f p2) == cong f (p1 >=> p2)
@@ -179,6 +209,12 @@ abstract
                    (qx : Q x) -> PathP (\k -> Q (p1 k)) qx (substᵉ Q p2 qx)
   subst-filler2 Q p1 p2 pp qx = transP-left (subst-filler Q p1 qx) (\k -> subst Q (pp k) qx)
 
+
+private
+  funExt2 : {f g : (a : A) -> (b : B a) -> C a b} -> ((a : A) -> (b : B a) -> f a b == g a b) -> f == g
+  funExt2 p i a b = p a b i
+
+
 -- True identity
 
 path->id : {x y : A} -> x == y -> x === y
@@ -196,6 +232,14 @@ SquareP : {ℓ : Level} {A : I -> I -> Type ℓ}
           (a₋₁ : PathP (\i -> A i i1) a₀₁ a₁₁) -> Type ℓ
 SquareP {A = A} a₀₋ a₁₋ a₋₀ a₋₁ = PathP (\i -> PathP (\j -> A i j) (a₋₀ i) (a₋₁ i)) a₀₋ a₁₋
 
+-- Square l r b t : i j -> A
+-- Organized like cartesian plane
+--
+--         t
+--  (0,1) -- (1,1)
+--  l |        | r
+--  (0,0) -- (1,0)
+--         b
 
 Square : {ℓ : Level} {A : Type ℓ}
           {a₀₀ : A} {a₀₁ : A} (a₀₋ : Path A a₀₀ a₀₁)

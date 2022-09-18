@@ -441,18 +441,18 @@ module RenamingRec where
                    EntryStructure (renaming-remove v r) ->
                    EntryStructure r
     
-  renaming-entry-structure : (r : Renaming) -> EntryStructure r
-  renaming-entry-structure r = handle (fm'-size ⟨ r ⟩) r refl-≤
-    where
-    handle : (n : Nat) (r : Renaming) -> fm'-size ⟨ r ⟩ ≤ n -> EntryStructure r
-    handle _ ([] , _) _ = entries-empty (\())
-    handle zero      (fm-cons _ _ _ , _) lt = bot-elim (zero-≮ lt)
-    handle (suc n) r@(fm-cons k v m , _) lt = 
-      entries-cons k v (has-kv-here refl refl m) 
-        (handle n (renaming-remove v r) (pred-≤ lt'))
-      where
-      lt' : (fm'-size ⟨ renaming-remove v r ⟩) < suc n
-      lt' = ?
+  -- renaming-entry-structure : (r : Renaming) -> EntryStructure r
+  -- renaming-entry-structure r = handle (fm'-size ⟨ r ⟩) r refl-≤
+  --   where
+  --   handle : (n : Nat) (r : Renaming) -> fm'-size ⟨ r ⟩ ≤ n -> EntryStructure r
+  --   handle _ ([] , _) _ = entries-empty (\())
+  --   handle zero      (fm-cons _ _ _ , _) lt = bot-elim (zero-≮ lt)
+  --   handle (suc n) r@(fm-cons k v m , _) lt = 
+  --     entries-cons k v (has-kv-here refl refl m) 
+  --       (handle n (renaming-remove v r) (pred-≤ lt'))
+  --     where
+  --     lt' : (fm'-size ⟨ renaming-remove v r ⟩) < suc n
+  --     lt' = ?
 
 
 

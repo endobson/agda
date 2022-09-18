@@ -155,3 +155,6 @@ isSurjection f = ∀ b -> ∥ fiber f b ∥
 
 _↠_ : Type ℓ₁ -> Type ℓ₂ -> Type (ℓ-max ℓ₁ ℓ₂)
 A ↠ B = Σ (A -> B) isSurjection
+
+Image : (A -> B) -> Type _
+Image {B = B} f = Σ[ b ∈ B ] ∥ fiber f b ∥

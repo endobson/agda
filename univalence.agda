@@ -22,10 +22,6 @@ private
   uaIdEquiv : ∀ {A : Type ℓ} -> ua (idEquiv A) == refl
   uaIdEquiv {A = A} i j = Glue A {φ = i ∨ j ∨ ~ j} (\_ -> A , idEquiv A)
 
-  unglue : {A : Type ℓ₁} (φ : I) {T : Partial φ (Type ℓ₂)}
-         {e : PartialP φ (\o -> T o ≃ A)} -> primGlue A T e -> A
-  unglue φ = prim^unglue {φ = φ}
-
   unglueIsEquiv : (A : Type ℓ) (φ : I)
                   (f : PartialP φ (\_ -> Σ[ T ∈ Type ℓ ] (T ≃ A))) ->
                   isEquiv {A = Glue A f} (unglue φ)
