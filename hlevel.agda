@@ -201,6 +201,15 @@ abstract
       q11 : retract-p2 == refl
       q11 = compPath-sym (sym (\i -> retract-p i))
 
+  isProp-≃-right : (isProp A₂) -> (isProp (A₁ ≃ A₂))
+  isProp-≃-right pA2 (f1 , e1) (f2 , e2) = ΣProp-path (isProp-isEquiv) f-path
+    where
+    f-path : f1 == f2
+    f-path = funExt (\x -> pA2 _ _)
+  
+  isProp-≃-left : (isProp A₁) -> (isProp (A₁ ≃ A₂))
+  isProp-≃-left pA1 e1 e2 = isProp-≃-right (isProp-Retract (eqInv e1) (eqFun e1) (eqSec e1) pA1) e1 e2
+
 
 
   isProp-== : (isProp A₁) -> (isProp A₂) -> isProp (A₁ == A₂)

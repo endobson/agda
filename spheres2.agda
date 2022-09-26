@@ -178,8 +178,6 @@ Connected-S1 (loop i) = ans i
     Zeroℤ (same-zero i) = Top
 
 
-    
-
 
 
 
