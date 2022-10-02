@@ -1,11 +1,11 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module category.base where
-
 open import base
 open import cubical using (isEquiv ; I)
 open import equality-path
 open import hlevel
+
+module category.base where
 
 private
   variable
@@ -160,7 +160,7 @@ record Functor {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
 
 open Functor public
 
--- Natural Transformations public
+-- Natural Transformations
 
 module _
   {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
@@ -180,3 +180,19 @@ module _
       NT-mor : NT-mor-Type NT-obj
 
 open NaturalTransformation public
+
+
+module _
+  {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
+  {C : PreCategory ℓObjC ℓMorC} {D : PreCategory ℓObjD ℓMorD}
+  (F G : Functor C D) where
+
+  isNaturalIso : NaturalTransformation F G -> Type _
+  isNaturalIso nt = ∀ c -> isIso D (NT-obj nt c)
+
+  module _ {{isCat-D : isCategory D}} where
+    isProp-isNaturalIso : {nt : NaturalTransformation F G} -> isProp (isNaturalIso nt)
+    isProp-isNaturalIso = isPropΠ (\_ -> isProp-isIso)
+
+
+

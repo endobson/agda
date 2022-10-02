@@ -145,6 +145,21 @@ transP-right {A = A} {a0} {b0} {b1} p q =
   transport (\k -> PathP (\j -> (compPath-refl-left (\k -> A k) k) j) a0 b1)
             (transP p q)
 
+transP-sym : {A : I -> Type ℓ} {a : A i0} {b : A i1} {c : A i0}
+             (p : PathP (\i -> A i)     a b) 
+             (q : PathP (\i -> A (~ i)) b c) ->
+             Path (A i0) a c
+transP-sym {ℓ} {A} {a} {b} {c} p q = 
+  transport (\i -> PathP (\j -> (pA=refl i) j) a c) (transP p q)
+  where
+  pA : Path (Type ℓ) (A i0) (A i0)
+  pA = (\i -> A i) ∙ (\i -> A (~ i))
+
+  pA=refl : pA == refl
+  pA=refl = compPath-sym (\i -> A i)
+
+
+
 -- Path reversal on PathP
 symP : {A : I -> Type ℓ} -> {a0 : A i0} {a1 : A i1} -> PathP A a0 a1 -> PathP (\k -> A (~ k)) a1 a0
 symP p k = p (~ k)

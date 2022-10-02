@@ -23,7 +23,7 @@ Nat⁺ = Σ[ n ∈ Nat ] (Pos' n)
 
 ℕ = Nat
 
-zero-suc-absurd : {A : Set} {x : Nat} -> 0 == (suc x) -> A
+zero-suc-absurd : {ℓ : Level} {A : Type ℓ} {x : Nat} -> 0 == (suc x) -> A
 zero-suc-absurd path = bot-elim (subst Pos' (sym path) tt)
 
 -- Internal implementation of pred to avoid circularity issues
