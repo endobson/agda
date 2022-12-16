@@ -4,6 +4,7 @@ module set-quotient where
 
 open import base
 open import equality-path
+open import cubical
 open import functions
 open import funext
 open import hlevel
@@ -11,6 +12,7 @@ open import sigma.base
 open import univalence
 open import isomorphism
 open import relation
+open import truncation
 
 data _/_ {ℓ₁ ℓ₂ : Level} (A : Type ℓ₁) (R : A -> A -> Type ℓ₂) : Type (ℓ-max ℓ₁ ℓ₂) where
   [_] : (a : A) -> A / R
@@ -172,6 +174,46 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
 
     a1a1=a1a2 : R a1 a1 == R a1 a2
     a1a1=a1a2 = cong fst (cong path p)
+
+  pathRecSTRC : (a1 a2 : A) -> Path (A / R) [ a1 ] [ a2 ] -> 
+                ∥ SymmetricTransitiveReflexiveClosure R a1 a2 ∥
+  pathRecSTRC a1 a2 p = transport a1a1=a1a2 ∣ strc-refl ∣
+    where
+    STRC : A -> A -> Type (ℓ-max ℓR ℓA)
+    STRC a1 a2 = ∥ SymmetricTransitiveReflexiveClosure R a1 a2 ∥
+
+    props : (A / R) -> hProp (ℓ-max ℓR ℓA)
+    props = rec isSet-hProp prop1 prop1/eq
+      where
+      prop1 : A -> hProp (ℓ-max ℓR ℓA)
+      prop1 a = STRC a1 a , squash
+      prop1/eq : (a3 a4 : A) -> (r : R a3 a4) -> prop1 a3 == prop1 a4
+      prop1/eq a3 a4 r34 = ΣProp-path isProp-isProp (ua (isoToEquiv i))
+        where
+        open Iso
+        i : Iso (STRC a1 a3) (STRC a1 a4)
+        i .fun = ∥-map (\t13 -> strc-trans t13 (strc-rel r34))
+        i .inv = ∥-map (\t14 -> strc-trans t14 (strc-sym (strc-rel r34)))
+        i .rightInv _ = squash _ _
+        i .leftInv _ = squash _ _
+
+    a1a1=a1a2 : STRC a1 a1 == STRC a1 a2
+    a1a1=a1a2 = cong fst (cong props p)
+
+
+  path≃STRC : (a1 a2 : A) -> (Path (A / R) [ a1 ] [ a2 ]) ≃ 
+                             ∥ SymmetricTransitiveReflexiveClosure R a1 a2 ∥
+  path≃STRC a1 a2 = isoToEquiv (isProp->iso (pathRecSTRC a1 a2) 
+                               (\c -> unsquash (squash/ _ _) (∥-map strc->path c))
+                               (squash/ _ _) squash)
+    where
+    strc->path : {a1 a2 : A} -> SymmetricTransitiveReflexiveClosure R a1 a2 -> Path (A / R) [ a1 ] [ a2 ]
+    strc->path (strc-rel r) = eq/ _ _ r
+    strc->path (strc-refl) = refl
+    strc->path (strc-sym c) = sym (strc->path c)
+    strc->path (strc-trans c1 c2) = strc->path c1 >=> strc->path c2
+
+
 
 module _ {ℓA ℓR : Level} {A : Type ℓA} {R : A -> A -> Type ℓR} where
   Discrete-SetQuotient : (isPropValued R) -> (isEquivRel R) -> (Decidable2 R) -> Discrete (A / R)

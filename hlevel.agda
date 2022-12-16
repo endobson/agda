@@ -266,3 +266,8 @@ isProp-Acc R a (acc f) (acc g) i =
 
 isProp-WellFounded : (R : Rel A ℓ) -> isProp (WellFounded R)
 isProp-WellFounded R = isPropΠ (\a -> isProp-Acc R a)
+
+-- Lift
+
+isProp-Lift : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} -> isProp A -> isProp (Lift ℓ₂ A)
+isProp-Lift = ≃-isProp (equiv⁻¹ (liftEquiv _ _)) 

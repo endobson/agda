@@ -68,3 +68,6 @@ Section {A = A} {B = B} f = Σ (B -> A) (isSectionOf f)
 
 Retraction : Pred (A -> B) _
 Retraction {A = A} {B = B} f = Σ (B -> A) (isRetractionOf f)
+
+_<->_ : Type ℓ₁ -> Type ℓ₂ -> Type (ℓ-max ℓ₁ ℓ₂)
+A <-> B = (A -> B) × (B -> A)
