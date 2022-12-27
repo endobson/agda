@@ -7,6 +7,7 @@ open import additive-group.instances.int
 open import base
 open import chapter2.square-free
 open import chapter2.divisors
+open import chapter2.indicator
 open import chapter2.multiplicative
 open import commutative-monoid
 open import div
@@ -385,105 +386,112 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semirin
 divisorSum-μ : (n : Nat⁺) -> Int
 divisorSum-μ n = divisorSum n μ
 
-divisorSum-μ-rp : {a b : Nat⁺} -> RelativelyPrime⁺ a b ->
-                   divisorSum-μ (a *⁺ b) == divisorSum-μ a * divisorSum-μ b
-divisorSum-μ-rp {a} {b} rp = Multiplicative-divisorSum {f = μ} (Multiplicative-μ) .snd a b rp
+private
+  divisorSum-μ-rp : {a b : Nat⁺} -> RelativelyPrime⁺ a b ->
+                     divisorSum-μ (a *⁺ b) == divisorSum-μ a * divisorSum-μ b
+  divisorSum-μ-rp {a} {b} rp = Multiplicative-divisorSum {f = μ} (Multiplicative-μ) .snd a b rp
 
-divisorSum-μ-prime : (p : Prime') -> divisorSum-μ (Prime'.nat⁺ p) == (int 0)
-divisorSum-μ-prime p =
-  begin
-    divisorSum-μ p⁺
-  ==< finiteSumᵉ-eval _ (Divisor-prime-eq p) _ >
-    μ (p' , _) + (μ 1⁺ + (int 0))
-  ==< cong (\x -> μ (p' , x) + (μ 1⁺ + (int 0))) (isPropPos' _ _) >
-    μ p⁺ + (μ 1⁺ + (int 0))
-  ==< cong (\x -> μ p⁺ + x) +-right-zero >
-    μ p⁺ + μ 1⁺
-  ==< cong2 _+_ (μp==-1 p) μ1==1 >
-    (- (int 1)) + (int 1)
-  ==< +-commute >
-    (int 1) + (- (int 1))
-  ==< add-minus-zero {int 1}>
-    (int 0)
-  end
-  where
-  p' = ⟨ p ⟩
-  p⁺ = (Prime'.nat⁺ p)
-
-
-divisorSum-μ-prime-power : (p : Prime') (n : Nat⁺)
-                           -> divisorSum-μ (prime-power⁺ p ⟨ n ⟩) == (int 0)
-divisorSum-μ-prime-power p (suc zero , _) =
-  transport (\i -> divisorSum-μ (path (~ i)) == (int 0)) (divisorSum-μ-prime p)
-  where
-  path : (prime-power⁺ p 1) == (Prime'.nat⁺ p)
-  path = ΣProp-path isPropPos' ^'-right-one
-divisorSum-μ-prime-power p ((suc n@(suc n')) , _) =
-  begin
-    divisorSum-μ psn
-  ==<>
-    finiteSumᵉ (FinSet-Divisor psn) (μ ∘ divisor->nat⁺ psn)
-  ==< finiteSumᵉ-convert _ _ (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n)) _ >
-    finiteSumᵉ (FinSet-Maybe (FinSet-Divisor pn))
-       ((μ ∘ divisor->nat⁺ psn) ∘ (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))))
-  ==< finiteSum-Maybe (snd (FinSet-Divisor pn))
-       ((μ ∘ divisor->nat⁺ psn) ∘ (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n)))) >
-    μ (prime-power p (suc n) , _) +
-    finiteSumᵉ (FinSet-Divisor pn) ((μ ∘ divisor->nat⁺ psn) ∘
-                                    (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))) ∘
-                                    just)
-  ==< cong (\x -> (μ x + finiteSumᵉ (FinSet-Divisor pn)
-                                    ((μ ∘ divisor->nat⁺ psn) ∘
-                                     (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))) ∘
-                                     just)))
-           (ΣProp-path isPropPos' (refl {x = (fst psn)})) >
-    μ psn + finiteSumᵉ (FinSet-Divisor pn)
-                       ((μ ∘ divisor->nat⁺ psn) ∘
-                        (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))) ∘
-                        just)
-  ==< cong (\x -> μ psn + finiteSumᵉ (FinSet-Divisor pn) x)
-           (funExt (\d -> cong μ (ΣProp-path isPropPos' (refl {x = ⟨ d ⟩})))) >
-    μ psn + finiteSumᵉ (FinSet-Divisor pn) (μ ∘ divisor->nat⁺ pn)
-  ==< cong2 _+_ (¬square-free-μ (prime-power-¬square-free p sn≥2))
-                (divisorSum-μ-prime-power p (n , tt)) >
-    (int 0) + (int 0)
-  ==< +-left-zero >
-    (int 0)
-  end
-  where
-  psn = (prime-power⁺ p (suc n))
-  pn = (prime-power⁺ p n)
-  n>0 : n > 0
-  n>0 = n' , +'-commute {n'} {1}
-  sn≥2 : suc n ≥ 2
-  sn≥2 = suc-≤ n>0
-
-
-divisorSum-μ-one : divisorSum-μ 1⁺ == (int 1)
-divisorSum-μ-one = divisorSum-one μ >=> μ1==1
-
-
-divisorSum-μ->1 : {n : Nat⁺} -> ⟨ n ⟩ > 1 -> divisorSum-μ n == (int 0)
-divisorSum-μ->1 {n} n>1 = handle {n} (compute-ppf n>1)
-  where
-  handle : {n : Nat⁺} -> (PrimePowerFactorization ⟨ n ⟩) -> divisorSum-μ n == (int 0)
-  handle (ppf-base p n@(suc n' , _)) =
-    cong divisorSum-μ (ΣProp-path isPropPos' refl)
-    >=> divisorSum-μ-prime-power p (suc n' , tt)
-  handle (ppf-combine {a'} {b'} ppf-a ppf-b rp) =
+  divisorSum-μ-prime : (p : Prime') -> divisorSum-μ (Prime'.nat⁺ p) == (int 0)
+  divisorSum-μ-prime p =
     begin
-      divisorSum-μ _
-    ==< cong divisorSum-μ (ΣProp-path isPropPos' refl) >
-      divisorSum-μ (a *⁺ b)
-    ==< divisorSum-μ-rp {a = a} {b} rp >
-      divisorSum-μ a * divisorSum-μ b
-    ==< *-left (handle {a} ppf-a) >
-      (int 0) * divisorSum-μ b
-    ==< *-left-zero >
+      divisorSum-μ p⁺
+    ==< finiteSumᵉ-eval _ (Divisor-prime-eq p) _ >
+      μ (p' , _) + (μ 1⁺ + (int 0))
+    ==< cong (\x -> μ (p' , x) + (μ 1⁺ + (int 0))) (isPropPos' _ _) >
+      μ p⁺ + (μ 1⁺ + (int 0))
+    ==< cong (\x -> μ p⁺ + x) +-right-zero >
+      μ p⁺ + μ 1⁺
+    ==< cong2 _+_ (μp==-1 p) μ1==1 >
+      (- (int 1)) + (int 1)
+    ==< +-commute >
+      (int 1) + (- (int 1))
+    ==< add-minus-zero {int 1}>
       (int 0)
     end
     where
-    a : Nat⁺
-    a = a' , ppf->pos ppf-a
-    b : Nat⁺
-    b = b' , ppf->pos ppf-b
+    p' = ⟨ p ⟩
+    p⁺ = (Prime'.nat⁺ p)
+
+
+  divisorSum-μ-prime-power : (p : Prime') (n : Nat⁺)
+                             -> divisorSum-μ (prime-power⁺ p ⟨ n ⟩) == (int 0)
+  divisorSum-μ-prime-power p (suc zero , _) =
+    transport (\i -> divisorSum-μ (path (~ i)) == (int 0)) (divisorSum-μ-prime p)
+    where
+    path : (prime-power⁺ p 1) == (Prime'.nat⁺ p)
+    path = ΣProp-path isPropPos' ^'-right-one
+  divisorSum-μ-prime-power p ((suc n@(suc n')) , _) =
+    begin
+      divisorSum-μ psn
+    ==<>
+      finiteSumᵉ (FinSet-Divisor psn) (μ ∘ divisor->nat⁺ psn)
+    ==< finiteSumᵉ-convert _ _ (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n)) _ >
+      finiteSumᵉ (FinSet-Maybe (FinSet-Divisor pn))
+         ((μ ∘ divisor->nat⁺ psn) ∘ (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))))
+    ==< finiteSum-Maybe (snd (FinSet-Divisor pn))
+         ((μ ∘ divisor->nat⁺ psn) ∘ (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n)))) >
+      μ (prime-power p (suc n) , _) +
+      finiteSumᵉ (FinSet-Divisor pn) ((μ ∘ divisor->nat⁺ psn) ∘
+                                      (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))) ∘
+                                      just)
+    ==< cong (\x -> (μ x + finiteSumᵉ (FinSet-Divisor pn)
+                                      ((μ ∘ divisor->nat⁺ psn) ∘
+                                       (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))) ∘
+                                       just)))
+             (ΣProp-path isPropPos' (refl {x = (fst psn)})) >
+      μ psn + finiteSumᵉ (FinSet-Divisor pn)
+                         ((μ ∘ divisor->nat⁺ psn) ∘
+                          (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))) ∘
+                          just)
+    ==< cong (\x -> μ psn + finiteSumᵉ (FinSet-Divisor pn) x)
+             (funExt (\d -> cong μ (ΣProp-path isPropPos' (refl {x = ⟨ d ⟩})))) >
+      μ psn + finiteSumᵉ (FinSet-Divisor pn) (μ ∘ divisor->nat⁺ pn)
+    ==< cong2 _+_ (¬square-free-μ (prime-power-¬square-free p sn≥2))
+                  (divisorSum-μ-prime-power p (n , tt)) >
+      (int 0) + (int 0)
+    ==< +-left-zero >
+      (int 0)
+    end
+    where
+    psn = (prime-power⁺ p (suc n))
+    pn = (prime-power⁺ p n)
+    n>0 : n > 0
+    n>0 = n' , +'-commute {n'} {1}
+    sn≥2 : suc n ≥ 2
+    sn≥2 = suc-≤ n>0
+
+
+  divisorSum-μ-one : divisorSum-μ 1⁺ == (int 1)
+  divisorSum-μ-one = divisorSum-one μ >=> μ1==1
+
+  divisorSum-μ->1 : {n : Nat⁺} -> ⟨ n ⟩ > 1 -> divisorSum-μ n == (int 0)
+  divisorSum-μ->1 {n} n>1 = handle {n} (compute-ppf n>1)
+    where
+    handle : {n : Nat⁺} -> (PrimePowerFactorization ⟨ n ⟩) -> divisorSum-μ n == (int 0)
+    handle (ppf-base p n@(suc n' , _)) =
+      cong divisorSum-μ (ΣProp-path isPropPos' refl)
+      >=> divisorSum-μ-prime-power p (suc n' , tt)
+    handle (ppf-combine {a'} {b'} ppf-a ppf-b rp) =
+      begin
+        divisorSum-μ _
+      ==< cong divisorSum-μ (ΣProp-path isPropPos' refl) >
+        divisorSum-μ (a *⁺ b)
+      ==< divisorSum-μ-rp {a = a} {b} rp >
+        divisorSum-μ a * divisorSum-μ b
+      ==< *-left (handle {a} ppf-a) >
+        (int 0) * divisorSum-μ b
+      ==< *-left-zero >
+        (int 0)
+      end
+      where
+      a : Nat⁺
+      a = a' , ppf->pos ppf-a
+      b : Nat⁺
+      b = b' , ppf->pos ppf-b
+
+divisorSum-μ-Ind : divisorSum-μ == Ind
+divisorSum-μ-Ind = funExt paths
+  where
+  paths : (n : Nat⁺) -> divisorSum-μ n == Ind n
+  paths (suc zero , _) = divisorSum-μ-one
+  paths (suc (suc _) , _) = divisorSum-μ->1 (suc-< zero-<)
