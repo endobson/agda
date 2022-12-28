@@ -29,13 +29,14 @@ open import truncation
 
 open import nat using (≤-max-left ; ≤-max-right)
 
+
+εBounded : ℚ -> ℝ -> Type₀
+εBounded ε x = Real.L x (- ε) × Real.U x ε
+
 {-
 private
   Seq : Type₁
   Seq = Sequence ℝ
-
-εBounded : ℚ -> ℝ -> Type₀
-εBounded ε x = Real.L x (- ε) × Real.U x ε
 
 isProp-εBounded : (ε : ℚ) -> (x : ℝ) -> isProp (εBounded ε x)
 isProp-εBounded ε x = isProp× (Real.isProp-L x (- ε)) (Real.isProp-U x ε)
