@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --exact-split --guardedness #-}
+{-# OPTIONS --cubical --safe --exact-split #-}
 
 module chain where
 
@@ -122,24 +122,24 @@ isFiniteCoList-colist-rest c = ∥-map handle
   handle (n , path) = (suc n , path)
 
 
-WF->DCC : (R : Rel A ℓ₁) -> (∀ a -> Acc R a) -> DescChainCondition R
-WF->DCC {A = A} R acc-f c@(b , f) desc = handle (⟨ b ⟩ zero) refl
-  where
-  handle : (v0 : Boolean) -> (⟨ b ⟩ zero == v0) -> isFiniteCoList c
-  handle true bz=t = ∣ zero , bz=t ∣
-  handle false bz=f = Acc->DCC (f zero bz=f) (acc-f (f zero bz=f)) c (bz=f , refl) desc
-    where
-    Acc->DCC : (a : A) -> Acc R a -> (c : CoList A) -> NonEmptyCoList a c -> 
-                isDescChain R c -> isFiniteCoList c
-    Acc->DCC a (acc acc-f) c@(b , f) (iz , fz=a) desc = handle2 (⟨ b ⟩ (suc zero)) refl 
-      where
-      handle2 : (v1 : Boolean) -> (⟨ b ⟩ (suc zero) == v1) -> isFiniteCoList c
-      handle2 true bo=t = ∣ suc zero , bo=t ∣
-      handle2 false bo=f = isFiniteCoList-colist-rest c rec
-        where
-        acc2 = acc-f (f (suc zero) bo=f) (subst2 R refl fz=a (desc zero iz bo=f))
-        c2 = colist-rest c
-        rec : isFiniteCoList c2
-        rec = Acc->DCC (colist-index c (suc zero) bo=f) acc2 c2 
-                       (bo=f , refl)
-                       (isDescChain-colist-rest R c desc)
+-- WF->DCC : (R : Rel A ℓ₁) -> (∀ a -> Acc R a) -> DescChainCondition R
+-- WF->DCC {A = A} R acc-f c@(b , f) desc = handle (⟨ b ⟩ zero) refl
+--   where
+--   handle : (v0 : Boolean) -> (⟨ b ⟩ zero == v0) -> isFiniteCoList c
+--   handle true bz=t = ∣ zero , bz=t ∣
+--   handle false bz=f = Acc->DCC (f zero bz=f) (acc-f (f zero bz=f)) c (bz=f , refl) desc
+--     where
+--     Acc->DCC : (a : A) -> Acc R a -> (c : CoList A) -> NonEmptyCoList a c -> 
+--                 isDescChain R c -> isFiniteCoList c
+--     Acc->DCC a (acc acc-f) c@(b , f) (iz , fz=a) desc = handle2 (⟨ b ⟩ (suc zero)) refl 
+--       where
+--       handle2 : (v1 : Boolean) -> (⟨ b ⟩ (suc zero) == v1) -> isFiniteCoList c
+--       handle2 true bo=t = ∣ suc zero , bo=t ∣
+--       handle2 false bo=f = isFiniteCoList-colist-rest c rec
+--         where
+--         acc2 = acc-f (f (suc zero) bo=f) (subst2 R refl fz=a (desc zero iz bo=f))
+--         c2 = colist-rest c
+--         rec : isFiniteCoList c2
+--         rec = Acc->DCC (colist-index c (suc zero) bo=f) acc2 c2 
+--                        (bo=f , refl)
+--                        (isDescChain-colist-rest R c desc)

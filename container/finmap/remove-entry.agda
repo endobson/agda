@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module container.finmap.remove where
+module container.finmap.remove-entry where
 
 open import base
 open import container.finmap

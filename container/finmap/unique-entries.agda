@@ -75,14 +75,14 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
           ... | (just hkv') = \ i -> fst (snd (just-injective p i))
           ... | (nothing) = bot-elim (just!=nothing (sym p))
 
-    fm⊂3'->UniqueEntries< :
-      fm⊂3' ->
-      KFinSet< (KFinSet-UniqueEntries m1) (KFinSet-UniqueEntries m2)
-    fm⊂3'->UniqueEntries< m1⊂m2 n idx-U2 = (∥-bind handle m1⊂m2)
-      where
-      handle : Σ[ f ∈ F ] isSurjection (l f) -> 
-               ∃[ m ∈ Nat ] (m < n × isIndexable (UniqueEntries m1) m)
-      handle (f , sur-lf) = ?
+--    fm⊂3'->UniqueEntries< :
+--      fm⊂3' ->
+--      KFinSet< (KFinSet-UniqueEntries m1) (KFinSet-UniqueEntries m2)
+--    fm⊂3'->UniqueEntries< m1⊂m2 n idx-U2 = (∥-bind handle m1⊂m2)
+--      where
+--      handle : Σ[ f ∈ F ] isSurjection (l f) -> 
+--               ∃[ m ∈ Nat ] (m < n × isIndexable (UniqueEntries m1) m)
+--      handle (f , sur-lf) = ?
                 
 
 

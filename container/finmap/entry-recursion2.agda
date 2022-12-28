@@ -206,15 +206,15 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
       p' : PathP (\i -> Right (hasKV-index (p i))) tt tt
       p' = isProp->PathP (\i -> isProp-Right)
 
-    inj-hasKV-index : {k : K} {v : V} {m : FinMap' K V} -> (hkv1 hkv2 : HasKV' k v m) -> 
-                      (hasKV-index hkv1) == (hasKV-index hkv2) ->
-                      hkv1 == hkv2
-    inj-hasKV-index (has-kv-here kp2 vp2 m) (has-kv-skip k v hkv3) p =
-      bot-elim (inj-l!=inj-r p)
-    inj-hasKV-index (has-kv-skip k v hkv2) (has-kv-here kp3 vp3 m) p =
-      bot-elim (inj-l!=inj-r (sym p))
-    inj-hasKV-index (has-kv-skip k v hkv2) (has-kv-skip k v hkv3) p =
-      cong (has-kv-skip k v) (inj-hasKV-index hkv2 hkv3 (inj-r-injective p))
+--    inj-hasKV-index : {k : K} {v : V} {m : FinMap' K V} -> (hkv1 hkv2 : HasKV' k v m) -> 
+--                      (hasKV-index hkv1) == (hasKV-index hkv2) ->
+--                      hkv1 == hkv2
+--    inj-hasKV-index (has-kv-here kp2 vp2 m) (has-kv-skip k v hkv3) p =
+--      bot-elim (inj-l!=inj-r p)
+--    inj-hasKV-index (has-kv-skip k v hkv2) (has-kv-here kp3 vp3 m) p =
+--      bot-elim (inj-l!=inj-r (sym p))
+--    inj-hasKV-index (has-kv-skip k v hkv2) (has-kv-skip k v hkv3) p =
+--      cong (has-kv-skip k v) (inj-hasKV-index hkv2 hkv3 (inj-r-injective p))
 
 
     inj-entry->index : (m : FinMap' K V) -> (e1 e2 : AllEntries m) ->

@@ -30,7 +30,7 @@ R x y = x == y
 add-loop : (a : S1) -> a == base -> a == base
 add-loop a p = p >=>' loop
 
-loop-commute : (p : S1) (p2 : S1) -> p1 == p2 -> 
+-- loop-commute : (p : S1) (p2 : S1) -> p1 == p2 -> 
 
 --loop-commute : (p : base == base) -> (loop ∙∙ p ∙∙ refl) == (refl ∙∙ p ∙∙ loop)
 --loop-commute p i j =
@@ -126,8 +126,8 @@ loop-commute : (p : S1) (p2 : S1) -> p1 == p2 ->
 
 
 
-self-inverse1 : InverseRelations R R
-self-inverse1 a b = isoToEquiv (iso sym sym (\_ -> refl) (\_ -> refl))
+--self-inverse1 : InverseRelations R R
+--self-inverse1 a b = isoToEquiv (iso sym sym (\_ -> refl) (\_ -> refl))
 
 
 --self-inverse2 : InverseRelations R R

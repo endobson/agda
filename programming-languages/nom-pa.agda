@@ -172,10 +172,10 @@ module _ where
       handle (inj-l _) = (var (name v2))
       handle (inj-r n) = (coerce-term (W⊆-# v2 v2#) (env n))
 
-  subst-term2 : {w1 w2 : World} -> Env w1 (Tm w2) -> w1 W⊆ w2 -> Tm w1 -> Tm w2
-  subst-term2 env inc (app f a) = (app (subst-term2 env inc f) (subst-term2 env inc a))
-  subst-term2 env inc (var name) = env name
-  subst-term2 {w1} {w2} env inc (lam v body) = (lam v ?)
+--  subst-term2 : {w1 w2 : World} -> Env w1 (Tm w2) -> w1 W⊆ w2 -> Tm w1 -> Tm w2
+--  subst-term2 env inc (app f a) = (app (subst-term2 env inc f) (subst-term2 env inc a))
+--  subst-term2 env inc (var name) = env name
+--  subst-term2 {w1} {w2} env inc (lam v body) = (lam v ?)
   --   where
   --   module s = Supply s
   --   v2 = s.binder

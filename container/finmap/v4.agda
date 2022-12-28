@@ -318,33 +318,35 @@ module _ {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} {{isSet'V : is
   raw-finmap-merge raw-finmap-empty m2 = m2
   raw-finmap-merge (raw-finmap-cons k v m1) m2 = raw-finmap-cons k v (raw-finmap-merge m1 m2)
 
-  module _ (m1 m2 : RawFinMap K V) {k : K} {v : V} where
-    private
-      AnsL : (m1 m2 : RawFinMap K V) -> Type ℓKV
-      AnsL m1 m2 = RawFinMap-HasKV (raw-finmap-merge m1 m2) k v
-      AnsR : (m1 m2 : RawFinMap K V) -> Type ℓKV
-      AnsR m1 m2 = (RawFinMap-HasKV m1 k v ⊎ (¬ (RawFinMap-HasKV m1 k v) × (RawFinMap-HasKV m2 k v)))
+  -- module _ (m1 m2 : RawFinMap K V) {k : K} {v : V} where
+  --   private
+  --     AnsL : (m1 m2 : RawFinMap K V) -> Type ℓKV
+  --     AnsL m1 m2 = RawFinMap-HasKV (raw-finmap-merge m1 m2) k v
+  --     AnsR : (m1 m2 : RawFinMap K V) -> Type ℓKV
+  --     AnsR m1 m2 = (RawFinMap-HasKV m1 k v ⊎ (¬ (RawFinMap-HasKV m1 k v) × (RawFinMap-HasKV m2 k v)))
 
-    raw-finmap-merge-HasKV : AnsL m1 m2 <-> AnsR m1 m2
-    raw-finmap-merge-HasKV = forward m1 m2 , backward m1 m2
-      where
-      forward : (m1 m2 : RawFinMap K V) -> AnsL m1 m2 -> AnsR m1 m2
-      forward raw-finmap-empty _ hkv = inj-r ((\()) , hkv)
-      forward (raw-finmap-cons k v m1) m2 (raw-finmap-haskv-head kp vp) =
-        inj-l (raw-finmap-haskv-head kp vp)
-      forward m1@(raw-finmap-cons k2 v2 m1') m2 (raw-finmap-haskv-cons ¬kp hkv) =
-        handle (forward m1' m2 hkv)
-        where
-        handle : AnsR m1' m2 -> AnsR m1 m2
-        handle (inj-l hkv) = (inj-l (raw-finmap-haskv-cons ¬kp hkv))
-        handle (inj-r (¬hkv1' , hkv2)) = inj-r (¬hkv1 , hkv2)
-          where
-          ¬hkv1 : ¬ (RawFinMap-HasKV m1 k v)
-          ¬hkv1 (raw-finmap-haskv-head kp _) = bot-elim (¬kp kp)
-          ¬hkv1 (raw-finmap-haskv-cons _ hkv1') = bot-elim (¬hkv1' hkv1')
+  --   raw-finmap-merge-HasKV : AnsL m1 m2 <-> AnsR m1 m2
+  --   raw-finmap-merge-HasKV = forward m1 m2 , backward m1 m2
+  --     where
+  --     forward : (m1 m2 : RawFinMap K V) -> AnsL m1 m2 -> AnsR m1 m2
+  --     forward raw-finmap-empty _ hkv = inj-r ((\()) , hkv)
+  --     forward (raw-finmap-cons k v m1) m2 (raw-finmap-haskv-head kp vp) =
+  --       inj-l (raw-finmap-haskv-head kp vp)
+  --     forward m1@(raw-finmap-cons k2 v2 m1') m2 (raw-finmap-haskv-cons ¬kp hkv) =
+  --       handle (forward m1' m2 hkv)
+  --       where
+  --       handle : AnsR m1' m2 -> AnsR m1 m2
+  --       handle (inj-l hkv) = (inj-l (raw-finmap-haskv-cons ¬kp hkv))
+  --       handle (inj-r (¬hkv1' , hkv2)) = inj-r (¬hkv1 , hkv2)
+  --         where
+  --         ¬hkv1 : ¬ (RawFinMap-HasKV m1 k v)
+  --         ¬hkv1 (raw-finmap-haskv-head kp _) = bot-elim (¬kp kp)
+  --         ¬hkv1 (raw-finmap-haskv-cons _ hkv1') = bot-elim (¬hkv1' hkv1')
 
-      backward : (m1 m2 : RawFinMap K V) -> AnsR m1 m2 -> AnsL m1 m2
-      backward m1 m2 (inj-l (raw-finmap-haskv-head kp vp)) = (raw-finmap-haskv-head kp vp)
+  --     backward : (m1 m2 : RawFinMap K V) -> AnsR m1 m2 -> AnsL m1 m2
+  --     backward m1 m2 (inj-l (raw-finmap-haskv-head kp vp)) = (raw-finmap-haskv-head kp vp)
+  --     backward m1 m2 (inj-l (raw-finmap-haskv-cons ¬kp hkv)) = ?
+  --     backward m1 m2 (inj-r ( (raw-finmap-haskv-cons ¬kp hkv)) = ?
     
 
   -- module _ (magic : Bot) where

@@ -39,12 +39,12 @@ module _ {K : Type ℓK} {V : Type ℓV}
   isInvertibleFinMap : Pred (FinMap K V) _
   isInvertibleFinMap m = Σ[ m2 ∈ FinMap V K ] (InverseFinMaps m m2)
 
-  isProp-isInvertibleFinMap : (m : FinMap K V) -> isProp (isInvertibleFinMap m)
-  isProp-isInvertibleFinMap m (m2 , m-m2) (m3 , m-m3) = 
-    ΣProp-path (\{m'} -> isPropΠ2 (\k v -> isProp× (isPropΠ (\_ -> isProp-FinMap-HasKV m' v k))
-                                                   (isPropΠ (\_ -> isProp-FinMap-HasKV m k v))))
-      ?
-    where
-    m2-m3 : ∀ k v -> (FinMap-HasKV m2 v k) <-> (FinMap-HasKV m3 v k)
-    m2-m3 k v = proj₁ (m-m3 k v) ∘ proj₂ (m-m2 k v) , 
-                proj₁ (m-m2 k v) ∘ proj₂ (m-m3 k v) 
+--  isProp-isInvertibleFinMap : (m : FinMap K V) -> isProp (isInvertibleFinMap m)
+--  isProp-isInvertibleFinMap m (m2 , m-m2) (m3 , m-m3) = 
+--    ΣProp-path (\{m'} -> isPropΠ2 (\k v -> isProp× (isPropΠ (\_ -> isProp-FinMap-HasKV m' v k))
+--                                                   (isPropΠ (\_ -> isProp-FinMap-HasKV m k v))))
+--      ?
+--    where
+--    m2-m3 : ∀ k v -> (FinMap-HasKV m2 v k) <-> (FinMap-HasKV m3 v k)
+--    m2-m3 k v = proj₁ (m-m3 k v) ∘ proj₂ (m-m2 k v) , 
+--                proj₁ (m-m2 k v) ∘ proj₂ (m-m3 k v) 

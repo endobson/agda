@@ -188,14 +188,14 @@ Symmetric-α-equiv (abstraction {p1} {p2} p3 r1 r2 pr1 pr2 disjoint outer-α inn
 
 --find-swaps-renaming/term (fm-cons k v m , r) t dis = ?
 
-swaps-for-finmap' : (m : FinMap' Atom Atom) -> List (Atom × Atom)
-swaps-for-finmap' [] = []
-swaps-for-finmap' (fm-cons k v m) = 
-  (k , v) :: swaps-for-finmap' (finmap'-remove k m)
+-- swaps-for-finmap' : (m : FinMap' Atom Atom) -> List (Atom × Atom)
+-- swaps-for-finmap' [] = []
+-- swaps-for-finmap' (fm-cons k v m) = 
+--   (k , v) :: swaps-for-finmap' (finmap'-remove k m)
 
 
-swaps-for-renaming : (r : Renaming) -> List (Atom × Atom)
-swaps-for-renaming (m , _) = swaps-for-finmap' m
+-- swaps-for-renaming : (r : Renaming) -> List (Atom × Atom)
+-- swaps-for-renaming (m , _) = swaps-for-finmap' m
 
 module _
   (swaps-for-renaming : (r : Renaming) -> List (Atom × Atom))

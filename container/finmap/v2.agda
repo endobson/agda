@@ -99,7 +99,7 @@ FinMap K V ℓ = Σ (Map K V ℓ) isFinMap
 
 -- FinMap-compose : 
 
-FinMap-compose : FinMap A B ℓ -> FinMap B C ℓ -> FinMap A C (ℓ-max ℓ (levelOf B))
-FinMap-compose _ = ?
+-- FinMap-compose : FinMap A B ℓ -> FinMap B C ℓ -> FinMap A C (ℓ-max ℓ (levelOf B))
+-- FinMap-compose _ = ?
 
 

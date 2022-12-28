@@ -68,38 +68,26 @@ module _ {ℓ : Level} where
       eq' = eq >eq> Fin-suc-⊎-eq (suc n) >eq> 
             (⊎-equiv (equiv⁻¹ (liftEquiv _ _)) (equiv⁻¹ (liftEquiv _ _)))
 
-  module _ {ℓP : Level} {P : Pred (NonEmptyFinSet ℓ) ℓP} where
-    NonEmptyFinSet-elimProp :
-      (isPropP : ∀ fs -> isProp (P fs)) ->
-      (∀ fs -> isSingletonFinSet (fst fs) -> P fs) ->
-      (∀ fs fs1 fs2 -> P fs1 -> P fs2 -> (fs == NonEmptyFinSet-⊎ fs1 fs2) -> P fs) ->
-      (fs : NonEmptyFinSet ℓ) -> P fs
-    NonEmptyFinSet-elimProp prop single-case branch-case fs@((T , (n , eq)) , 0<n) = (handle n 0<n T eq)
-      where
-      handle : (n : Nat) (0<n : 0 < n) (T : Type ℓ) (eq : ∥ T ≃ Fin n ∥) -> P ((T , (n , eq)) , 0<n)
-      handle 0 0<0 = bot-elim (irrefl-< 0<0)
-      handle 1 0<1 T eq = single-case ((T , (1 , eq)) , 0<1) refl
-      handle (suc (suc n)) 0<ssn T ∣eq∣ = unsquash (prop _) (∥-map handle2 ∣eq∣)
-        where
-        handle2 : T ≃ Fin (suc (suc n)) -> P ((T , ((suc (suc n)) , ∣eq∣)) , 0<ssn)
-        handle2 eq = 
-          branch-case _ 
-            NonEmptyFinSet-Topℓ (NonEmptyFinSet-Finℓ n)
-            (handle _ _ _ _) (handle _ _ _ _)
-            (ΣProp-path isProp-< (ΣProp-path isProp-isFinSetΣ (ua eq')))
-          where
-          eq' : T ≃ (Lift ℓ Top ⊎ Lift ℓ (Fin (suc n)))
-          eq' = eq >eq> Fin-suc-⊎-eq (suc n) >eq> 
-                (⊎-equiv (equiv⁻¹ (liftEquiv _ _)) (equiv⁻¹ (liftEquiv _ _)))
-
-
-
-
-
-
-
-
-
-
-
-
+  --module _ {ℓP : Level} {P : Pred (NonEmptyFinSet ℓ) ℓP} where
+  --  NonEmptyFinSet-elimProp :
+  --    (isPropP : ∀ fs -> isProp (P fs)) ->
+  --    (∀ fs -> isSingletonFinSet (fst fs) -> P fs) ->
+  --    (∀ fs fs1 fs2 -> P fs1 -> P fs2 -> (fs == NonEmptyFinSet-⊎ fs1 fs2) -> P fs) ->
+  --    (fs : NonEmptyFinSet ℓ) -> P fs
+  --  NonEmptyFinSet-elimProp prop single-case branch-case fs@((T , (n , eq)) , 0<n) = (handle n 0<n T eq)
+  --    where
+  --    handle : (n : Nat) (0<n : 0 < n) (T : Type ℓ) (eq : ∥ T ≃ Fin n ∥) -> P ((T , (n , eq)) , 0<n)
+  --    handle 0 0<0 = bot-elim (irrefl-< 0<0)
+  --    handle 1 0<1 T eq = single-case ((T , (1 , eq)) , 0<1) refl
+  --    handle (suc (suc n)) 0<ssn T ∣eq∣ = unsquash (prop _) (∥-map handle2 ∣eq∣)
+  --      where
+  --      handle2 : T ≃ Fin (suc (suc n)) -> P ((T , ((suc (suc n)) , ∣eq∣)) , 0<ssn)
+  --      handle2 eq = 
+  --        branch-case _ 
+  --          NonEmptyFinSet-Topℓ (NonEmptyFinSet-Finℓ n)
+  --          (handle _ _ _ _) (handle _ _ _ _)
+  --          (ΣProp-path isProp-< (ΣProp-path isProp-isFinSetΣ (ua eq')))
+  --        where
+  --        eq' : T ≃ (Lift ℓ Top ⊎ Lift ℓ (Fin (suc n)))
+  --        eq' = eq >eq> Fin-suc-⊎-eq (suc n) >eq> 
+  --              (⊎-equiv (equiv⁻¹ (liftEquiv _ _)) (equiv⁻¹ (liftEquiv _ _)))
