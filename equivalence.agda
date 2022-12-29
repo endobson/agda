@@ -6,6 +6,7 @@ open import base
 open import cubical
 open import equality-path
 open import functions
+open import isomorphism
 
 open import Agda.Builtin.Cubical.Glue
   using ()
@@ -14,66 +15,29 @@ open import Agda.Builtin.Cubical.Glue
 
 open import equivalence.base public
 
-
 private
   variable
-    ℓ ℓ₁ ℓ₂ : Level
-    A A1 A2 : Type ℓ
-    B : A -> Type ℓ
-    C : (a : A) -> B a -> Type ℓ
+    ℓ : Level
+    A1 A2 : Type ℓ
+    A B C : Type ℓ
 
 module _ {f : A1 -> A2} (eq-f : isEquiv f) where
-  isEqFun : A1 -> A2
-  isEqFun = f
-
-  isEqInv : A2 -> A1
-  isEqInv a = eq-f .equiv-proof a .fst .fst
-
-  isEqSec : isSectionOf isEqFun isEqInv
-  isEqSec a = eq-f .equiv-proof a .fst .snd
-
-  isEqRet : isRetractionOf isEqFun isEqInv
-  isEqRet a i = eq-f .equiv-proof (f a) .snd (a , refl) i .fst
-
-  isEqComm : (a : A1) -> Square (isEqSec (f a)) refl (cong f (isEqRet a)) refl
+  isEqComm : (a : A1) -> Square (isEqSec eq-f (f a)) refl (cong f (isEqRet eq-f a)) refl
   isEqComm a i = eq-f .equiv-proof (f a) .snd (a , refl) i .snd
 
 module _ (e : A1 ≃ A2) where
-  eqFun : A1 -> A2
-  eqFun = fst e
-
-  eqInv : A2 -> A1
-  eqInv = isEqInv (snd e)
-
-  eqSec : isSectionOf eqFun eqInv
-  eqSec = isEqSec (snd e)
-
-  eqRet : isRetractionOf eqFun eqInv
-  eqRet = isEqRet (snd e)
-
-  eqComm : (a : A1) -> Square (eqSec (eqFun a)) refl (cong eqFun (eqRet a)) refl
+  eqComm : (a : A1) -> Square (eqSec e (eqFun e a)) refl (cong (eqFun e) (eqRet e a)) refl
   eqComm = isEqComm (snd e)
 
-  eqCtr : (a : A2) -> fiber eqFun a
+  eqCtr : (a : A2) -> fiber (eqFun e) a
   eqCtr a = e .snd .equiv-proof a .fst
 
-  eqCtrPath : (a : A2) -> (f : fiber eqFun a) -> (eqCtr a) == f
+  eqCtrPath : (a : A2) -> (f : fiber (eqFun e) a) -> (eqCtr a) == f
   eqCtrPath a = e .snd .equiv-proof a .snd
 
-idfun : (A : Type ℓ) → A → A
-idfun _ x = x
-
-idIsEquiv : (A : Type ℓ) → isEquiv (idfun A)
-equiv-proof (idIsEquiv A) y =
-  ((y , refl) , \ z i -> z .snd (~ i) , \ j -> z .snd (~ i ∨ j))
-
-idEquiv : (A : Type ℓ) → A ≃ A
-idEquiv A .fst = idfun A
-idEquiv A .snd = idIsEquiv A
 
 pathToEquiv : A1 == A2 -> A1 ≃ A2
 pathToEquiv p = lineToEquiv (\i -> p i)
-
 
 
 liftEquiv : {ℓA : Level} (ℓ : Level) (A : Type ℓA) -> Lift ℓ A ≃ A
@@ -83,3 +47,12 @@ liftEquiv ℓ A .snd .equiv-proof a = (lift a , refl) , contr a
   contr : (a : A) -> (a2 : fiber Lift.lower a) -> (lift a , refl) == a2
   contr a (_ , p2) i = (lift (p2 (~ i)) , (\j -> p2 (~ i ∨ j)))
 
+∘-equiv : B ≃ C -> A ≃ B -> A ≃ C
+∘-equiv f g = isoToEquiv (equivToIso f ∘ⁱ equivToIso g)
+
+equiv⁻¹ : A ≃ B -> B ≃ A
+equiv⁻¹ f = isoToEquiv (iso⁻¹ (equivToIso f))
+
+infixl 20 _>eq>_
+_>eq>_ : A ≃ B -> B ≃ C -> A ≃ C
+_>eq>_ f g = ∘-equiv g f

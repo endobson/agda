@@ -5,7 +5,7 @@ module isomorphism where
 open import base
 open import cubical
 open import equality-path
-open import equivalence
+open import equivalence.base
 open import functions
 open import hlevel.base
 open import sigma.base
@@ -236,16 +236,6 @@ equivToIso e .Iso.inv = eqInv e
 equivToIso e .Iso.rightInv = eqSec e
 equivToIso e .Iso.leftInv = eqRet e
 
-∘-equiv : B ≃ C -> A ≃ B -> A ≃ C
-∘-equiv f g = isoToEquiv (equivToIso f ∘ⁱ equivToIso g)
-
-equiv⁻¹ : A ≃ B -> B ≃ A
-equiv⁻¹ f = isoToEquiv (iso⁻¹ (equivToIso f))
-
-infixl 20 _>eq>_
-_>eq>_ : A ≃ B -> B ≃ C -> A ≃ C
-_>eq>_ f g = ∘-equiv g f
-
 pathToIso : A == B -> Iso A B
 pathToIso p .Iso.fun = transport p
 pathToIso p .Iso.inv = transport (sym p)
@@ -261,22 +251,22 @@ pathToIso p .Iso.leftInv a =
 -- In sets isomorphisms with equal foward functions are equal
 module _ (hA : isSet A) (hB : isSet B) {iso₁ iso₂ : Iso A B}
          (p-fun : (Iso.fun iso₁) == (Iso.fun iso₂)) where
+  private
+    p-inv : (Iso.inv iso₁) == (Iso.inv iso₂)
+    p-inv i b =
+      (cong (Iso.inv iso₁) (sym (Iso.rightInv iso₂ b))
+       >=> (\ j -> (Iso.inv iso₁ (p-fun (~ j) (Iso.inv iso₂ b))))
+       >=> (Iso.leftInv iso₁ (Iso.inv iso₂ b))) i
 
-  p-inv : (Iso.inv iso₁) == (Iso.inv iso₂)
-  p-inv i b =
-    (cong (Iso.inv iso₁) (sym (Iso.rightInv iso₂ b))
-     >=> (\ j -> (Iso.inv iso₁ (p-fun (~ j) (Iso.inv iso₂ b))))
-     >=> (Iso.leftInv iso₁ (Iso.inv iso₂ b))) i
+    p-rightInv : (b : B) -> PathP (\i -> (p-fun i (p-inv i b)) == b)
+                                  (Iso.rightInv iso₁ b)
+                                  (Iso.rightInv iso₂ b)
+    p-rightInv b = isProp->PathP (\_ -> hB _ _)
 
-  p-rightInv : (b : B) -> PathP (\i -> (p-fun i (p-inv i b)) == b)
-                                (Iso.rightInv iso₁ b)
-                                (Iso.rightInv iso₂ b)
-  p-rightInv b = isProp->PathP (\_ -> hB _ _)
-
-  p-leftInv : (a : A) -> PathP (\i -> (p-inv i (p-fun i a)) == a)
-                               (Iso.leftInv iso₁ a)
-                               (Iso.leftInv iso₂ a)
-  p-leftInv a = isProp->PathP (\_ -> hA _ _)
+    p-leftInv : (a : A) -> PathP (\i -> (p-inv i (p-fun i a)) == a)
+                                 (Iso.leftInv iso₁ a)
+                                 (Iso.leftInv iso₂ a)
+    p-leftInv a = isProp->PathP (\_ -> hA _ _)
 
   isSet-iso-path : iso₁ == iso₂
   Iso.fun (isSet-iso-path i) = p-fun i
