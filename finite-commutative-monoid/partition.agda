@@ -28,7 +28,7 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
     finiteMergeᵉ' = finiteMergeᵉ CM
     finiteMerge' = finiteMerge CM
 
-  module _ {ℓB ℓP : Level} (FB : FinSet ℓB) (partition : FinitePartition ⟨ FB ⟩ ℓP) where
+  module _ {ℓB ℓS ℓP : Level} (FB : FinSet ℓB) (partition : FinitePartition ⟨ FB ⟩ ℓS ℓP) where
     private
       B = fst FB
       isFinSet-B = snd FB
@@ -37,14 +37,21 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
         FinSetStr-B : FinSetStr B
         FinSetStr-B = record {isFin = isFinSet-B}
 
-      n = fst partition
-      part : (i : Fin n) -> Subtype B ℓP
+
+      fS = fst partition
+      S = fst fS
+
+      instance
+        iFS : FinSetStr S
+        iFS = record {isFin = snd fS}
+
+      part : (i : S) -> Subtype B ℓP
       part = fst (snd partition)
 
-      part-rev : (b : B) -> Subtype (Fin n) ℓP
+      part-rev : (b : B) -> Subtype S ℓP
       part-rev b i = part i b
 
-      P : (i : Fin n) -> Type _
+      P : (i : S) -> Type _
       P i = ∈-Subtype (part i)
 
       P-rev : (b : B) -> Type _
@@ -56,10 +63,10 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
       B≃ΣP-rev : B ≃ (Σ B P-rev)
       B≃ΣP-rev = Σ-isContr-eq isContr-P-rev
 
-      ΣP-rev≃ΣP : (Σ B P-rev) ≃ (Σ (Fin n) P)
+      ΣP-rev≃ΣP : (Σ B P-rev) ≃ (Σ S P)
       ΣP-rev≃ΣP = Σ-swap-eq
 
-      FP : (i : Fin n) -> FinSet _
+      FP : (i : S) -> FinSet _
       FP = FinSet-partition FB partition
 
     abstract
@@ -68,10 +75,10 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
         finiteMerge' f ==
         finiteMerge' (\i -> (finiteMergeᵉ' (FP i) (f ∘ fst)))
       finiteMerge-partition f =
-        finiteMergeᵉ-convert CM FB (FinSet-Σ (FinSet-Fin n) FP) (equiv⁻¹ (B≃ΣP-rev >eq> ΣP-rev≃ΣP)) f >=>
-        finiteMerge-Σ CM (FinSet-Fin n) FP (\x -> f (fst (snd x)))
+        finiteMergeᵉ-convert CM FB (FinSet-Σ fS FP) (equiv⁻¹ (B≃ΣP-rev >eq> ΣP-rev≃ΣP)) f >=>
+        finiteMerge-Σ CM fS FP (\x -> f (fst (snd x)))
 
-  module _ {ℓB ℓP : Level} (FB : FinSet ℓB) (partition : BinaryPartition ⟨ FB ⟩ ℓP) where
+  module _ {ℓB ℓS ℓP : Level} (FB : FinSet ℓB) (bin-partition : BinaryPartition ⟨ FB ⟩ ℓS ℓP) where
     private
       B = fst FB
       isFinSet-B = snd FB
@@ -80,19 +87,19 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
         FinSetStr-B : FinSetStr B
         FinSetStr-B = record {isFin = isFinSet-B}
 
-      k0 : Fin 2
-      k0 = zero-fin
-      k1 : Fin 2
-      k1 = suc-fin zero-fin
+      partition = fst bin-partition
+      FS = fst partition
+      S = fst FS
 
-      FP' : (i : Fin 2) -> FinSet (ℓ-max* 2 ℓB ℓP)
-      FP' = FinSet-partition FB (2 , partition)
+      FP' : (b : Boolean) -> FinSet (ℓ-max* 2 ℓB ℓP)
+      FP' b = FinSet-partition FB partition (eqInv (snd bin-partition) b)
 
     abstract
       finiteMerge-binary-partition :
         (f : B -> D) ->
         finiteMerge' f ==
-        (finiteMergeᵉ' (FP' k0) (f ∘ fst)) ∙ (finiteMergeᵉ' (FP' k1) (f ∘ fst))
+        (finiteMergeᵉ' (FP' true) (f ∘ fst)) ∙ (finiteMergeᵉ' (FP' false) (f ∘ fst))
       finiteMerge-binary-partition f =
-        finiteMerge-partition FB (2 , partition) f >=>
-        finiteMerge-Fin2 CM (\k -> (finiteMergeᵉ' (FP' k) (f ∘ fst)))
+        finiteMerge-partition FB partition f >=>
+        finiteMergeᵉ-convert CM _ _ (equiv⁻¹ (snd bin-partition)) _ >=>
+        finiteMerge-Boolean CM (\k -> (finiteMergeᵉ' (FP' k) (f ∘ fst)))

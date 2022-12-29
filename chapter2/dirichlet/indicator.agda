@@ -10,9 +10,11 @@ open import chapter2.divisors
 open import chapter2.mobius
 open import chapter2.indicator
 open import equality
+open import equivalence
 open import funext
 open import functions
 open import finset.instances
+open import finset.instances.boolean
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
 open import nat
@@ -49,29 +51,26 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
       D1 : Subtype (Divisor n) ℓ-zero
       D1 d = (⟨ d ⟩ == 1) , isSetNat _ _
 
-      partition : BinaryPartition (Divisor n) ℓ-zero
-      partition = sub , isContr-Part
+      partition : BinaryPartition (Divisor n) ℓ-zero ℓ-zero
+      partition = (FinSet-Boolean , sub , isContr-Part) , idEquiv _
         where
-        sub : Fin 2 -> Subtype (Divisor n) ℓ-zero
-        sub (zero , _) = D1
-        sub (suc zero , _) = Subtype-Comp D1
-        sub (suc (suc _) , lt) = bot-elim (zero-≮ (pred-≤ (pred-≤ lt)))
+        sub : Boolean -> Subtype (Divisor n) ℓ-zero
+        sub true = D1
+        sub false = Subtype-Comp D1
 
-        isContr-Part : (d : Divisor n) -> isContr (Σ[ i ∈ Fin 2 ] ⟨ sub i d ⟩)
+        isContr-Part : (d : Divisor n) -> isContr (Σ[ i ∈ Boolean ] ⟨ sub i d ⟩)
         isContr-Part d@(d' , d'|n) = handle (decide-nat d' 1)
           where
-          handle : Dec (d' == 1) -> isContr (Σ[ i ∈ Fin 2 ] ⟨ sub i d ⟩)
+          handle : Dec (d' == 1) -> isContr (Σ[ i ∈ Boolean ] ⟨ sub i d ⟩)
           handle (yes d'==1) =
-            ((0 , zero-<) , d'==1) ,
-            \{ ((0 , _) , _) -> ΣProp-path (\{i} -> snd (sub i d)) (fin-i-path refl)
-             ; ((1 , _) , d'!=1) -> bot-elim (d'!=1 d'==1)
-             ; ((suc (suc _) , lt) , _) -> bot-elim (zero-≮ (pred-≤ (pred-≤ lt)))
+            (true , d'==1) ,
+            \{ (true , _) -> ΣProp-path (\{i} -> snd (sub i d)) refl
+             ; (false , d'!=1) -> bot-elim (d'!=1 d'==1)
              }
           handle (no d'!=1) =
-            ((1 , suc-< zero-<) , d'!=1) ,
-            \{ ((0 , _) , d'==1) -> bot-elim (d'!=1 d'==1)
-             ; ((1 , _) , _) -> ΣProp-path (\{i} -> snd (sub i d)) (fin-i-path refl)
-             ; ((suc (suc _) , lt) , _) -> bot-elim (zero-≮ (pred-≤ (pred-≤ lt)))
+            (false , d'!=1) ,
+            \{ (true , d'==1) -> bot-elim (d'!=1 d'==1)
+             ; (false , _) -> ΣProp-path (\{i} -> snd (sub i d)) refl
              }
 
 

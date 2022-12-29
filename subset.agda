@@ -69,15 +69,14 @@ Detachable P = Decidable (fst ∘ P)
 
 -- Partitions
 
-FinitePartition' : {ℓD : Level} -> (n : Nat) -> (D : Type ℓD) -> (ℓP : Level) -> Type _
-FinitePartition' n D ℓP =
-  Σ[ f ∈ (Fin n -> Subtype D ℓP) ] ((d : D) -> isContr (Σ[ i ∈ Fin n ] ⟨ f i d ⟩))
+FinitePartition : {ℓD  : Level} -> (D : Type ℓD) -> (ℓS ℓP : Level) -> Type _
+FinitePartition D ℓS ℓP =
+  Σ[ S ∈ FinSet ℓS ] Σ[ f ∈ (⟨ S ⟩ -> Subtype D ℓP) ]
+    ((d : D) -> isContr (Σ[ s ∈ ⟨ S ⟩ ] ⟨ f s d ⟩))
 
-FinitePartition : {ℓD : Level} -> (D : Type ℓD) -> (ℓP : Level) -> Type _
-FinitePartition D ℓP = Σ[ n ∈ Nat ] (FinitePartition' n D ℓP)
-
-BinaryPartition : {ℓD : Level} -> (D : Type ℓD) -> (ℓP : Level) -> Type _
-BinaryPartition = FinitePartition' 2
+BinaryPartition : {ℓD  : Level} -> (D : Type ℓD) -> (ℓS ℓP : Level) -> Type _
+BinaryPartition D ℓS ℓP =
+  Σ[ fp ∈ FinitePartition D ℓS ℓP ] (⟨ ⟨ fp ⟩ ⟩ ≃ Boolean)
 
 
 -- Complement of subtypes

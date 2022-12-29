@@ -15,6 +15,7 @@ open import finset
 open import finset.detachable
 open import finset.instances
 open import finset.instances.base
+open import finset.instances.boolean
 open import finsum
 open import functions
 open import funext
@@ -26,6 +27,7 @@ open import subset
 open import sum
 open import truncation
 open import type-algebra
+open import type-algebra.boolean
 
 private
   variable
@@ -63,6 +65,9 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
       finiteMerge' f == (f zero-fin) ∙ (finiteMerge' (f ∘ suc-fin))
     finiteMerge-FinSuc f =
       eval (idEquiv _) f >=> cong (f zero-fin ∙_) (sym (eval (idEquiv _) (f ∘ suc-fin)))
+
+    finiteMerge-Boolean : (f : Boolean -> D) -> finiteMerge' f == (f true) ∙ (f false)
+    finiteMerge-Boolean f = eval (equiv⁻¹ Fin2≃Boolean) f >=> sym ∙-assoc >=> ∙-right-ε
 
 
   module _ {ℓB : Level} {B : Type ℓB} {{FB : FinSetStr B}} where
