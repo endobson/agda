@@ -8,6 +8,7 @@ open import equality
 open import equivalence
 open import fin
 open import finset
+open import finset.instances.boolean
 open import functions
 open import funext
 open import hlevel
@@ -130,3 +131,32 @@ abstract
       where
       i : Iso ⟨ S1 d ⟩ ⟨ S2 d ⟩
       i = isProp->iso forward backward (snd (S1 d)) (snd (S2 d))
+
+-- Partition construction
+module _ {ℓB ℓP : Level} {B : Type ℓB} (P : Subtype B ℓP) (decide : Detachable P) where
+
+  Detachable->Partition : FinitePartition B ℓ-zero ℓP
+  Detachable->Partition = (FinSet-Boolean , sub , isContr-Part)
+    where
+    sub : Boolean -> Subtype B ℓP
+    sub true = P
+    sub false = Subtype-Comp P
+
+    isContr-Part : (b : B) -> isContr (Σ[ i ∈ Boolean ] ⟨ sub i b ⟩)
+    isContr-Part b = handle (decide b)
+      where
+      unique-sub : (i1 i2 : Boolean) -> ⟨ sub i1 b ⟩ -> ⟨ sub i2 b ⟩ -> i1 == i2
+      unique-sub true true   _   _   = refl
+      unique-sub true  false pb  ¬pb = bot-elim (¬pb pb)
+      unique-sub false true  ¬pb pb  = bot-elim (¬pb pb)
+      unique-sub false false _   _   = refl
+
+      isProp-Σsub : isProp (Σ[ i ∈ Boolean ] ⟨ sub i b ⟩)
+      isProp-Σsub v1 v2 = ΣProp-path (\{i} -> snd (sub i b)) (unique-sub _ _ (snd v1) (snd v2))
+
+      handle : Dec ⟨ P b ⟩ -> isContr (Σ[ i ∈ Boolean ] ⟨ sub i b ⟩)
+      handle (yes pb) = (true , pb) , isProp-Σsub _
+      handle (no ¬pb) = (false , ¬pb) , isProp-Σsub _
+
+  Detachable->BinaryPartition : BinaryPartition B ℓ-zero ℓP
+  Detachable->BinaryPartition = Detachable->Partition , idEquiv _

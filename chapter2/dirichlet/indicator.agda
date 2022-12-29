@@ -52,27 +52,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
       D1 d = (⟨ d ⟩ == 1) , isSetNat _ _
 
       partition : BinaryPartition (Divisor n) ℓ-zero ℓ-zero
-      partition = (FinSet-Boolean , sub , isContr-Part) , idEquiv _
-        where
-        sub : Boolean -> Subtype (Divisor n) ℓ-zero
-        sub true = D1
-        sub false = Subtype-Comp D1
-
-        isContr-Part : (d : Divisor n) -> isContr (Σ[ i ∈ Boolean ] ⟨ sub i d ⟩)
-        isContr-Part d@(d' , d'|n) = handle (decide-nat d' 1)
-          where
-          handle : Dec (d' == 1) -> isContr (Σ[ i ∈ Boolean ] ⟨ sub i d ⟩)
-          handle (yes d'==1) =
-            (true , d'==1) ,
-            \{ (true , _) -> ΣProp-path (\{i} -> snd (sub i d)) refl
-             ; (false , d'!=1) -> bot-elim (d'!=1 d'==1)
-             }
-          handle (no d'!=1) =
-            (false , d'!=1) ,
-            \{ (true , d'==1) -> bot-elim (d'!=1 d'==1)
-             ; (false , _) -> ΣProp-path (\{i} -> snd (sub i d)) refl
-             }
-
+      partition = Detachable->BinaryPartition D1 (\d -> (decide-nat (fst d) 1))
 
       g : Divisor n -> D
       g d = Ind (divisor->nat⁺ n d) * f (divisor->nat⁺' n d)
