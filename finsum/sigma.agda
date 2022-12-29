@@ -6,12 +6,12 @@ open import additive-group
 open import base
 open import finset
 open import functions
-open import cubical
 open import sigma
 open import isomorphism
 open import type-algebra
 open import fin-algebra
 open import equality
+open import equivalence
 open import finsum
 open import finset.instances
 open import fin

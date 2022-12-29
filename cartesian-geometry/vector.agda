@@ -7,7 +7,6 @@ open import additive-group.instances.real
 open import apartness
 open import base
 open import commutative-monoid
-open import cubical using (_≃_)
 open import direct-product
 open import direct-product.standard-basis
 open import equality

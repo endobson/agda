@@ -3,9 +3,9 @@
 module finite-commutative-monoid.partition where
 
 open import base
-open import cubical
 open import commutative-monoid
 open import equality
+open import equivalence
 open import isomorphism
 open import fin
 open import finite-commutative-monoid

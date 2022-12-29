@@ -3,9 +3,10 @@
 module funext where
 
 open import base
-open import equality
-open import functions
 open import cubical
+open import equality
+open import equivalence.base
+open import functions
 open import univalence
 
 private

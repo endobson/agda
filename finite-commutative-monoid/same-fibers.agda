@@ -4,8 +4,8 @@ module finite-commutative-monoid.same-fibers where
 
 open import base
 open import commutative-monoid
-open import cubical
 open import equality
+open import equivalence
 open import finite-commutative-monoid
 open import finset
 open import isomorphism

@@ -7,7 +7,6 @@ open import additive-group.instances.real
 open import apartness
 open import base
 open import cartesian-geometry.vector
-open import cubical using (isEquiv)
 open import equality
 open import equivalence
 open import finite-commutative-monoid.instances

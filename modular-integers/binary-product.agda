@@ -3,7 +3,6 @@
 module modular-integers.binary-product where
 
 open import base
-open import cubical
 open import isomorphism
 open import modular-integers
 open import nat
@@ -15,6 +14,7 @@ open import sigma
 open import div
 open import fin
 open import equality
+open import equivalence
 open import linear-combo
 open import gcd.euclidean-algorithm
 open import prime-gcd

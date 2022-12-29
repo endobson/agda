@@ -1,8 +1,9 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
 open import base
-open import cubical using (isEquiv ; I)
+open import cubical using (I)
 open import equality-path
+open import equivalence.base using (isEquiv)
 open import hlevel
 
 module category.base where

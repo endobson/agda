@@ -5,7 +5,7 @@ module chapter2.prime-divisors where
 open import additive-group using (AdditiveCommMonoid)
 open import base
 open import equality
-open import cubical
+open import equivalence
 open import isomorphism
 open import nat
 open import nat.bounded

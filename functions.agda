@@ -3,9 +3,9 @@
 module functions where
 
 open import base
-open import cubical
 open import relation
 open import equality-path
+open import equivalence.base
 
 private
   variable

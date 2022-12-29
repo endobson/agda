@@ -3,9 +3,9 @@
 module relatively-prime where
 
 open import base
-open import cubical
 open import div
 open import equality
+open import equivalence
 open import hlevel
 open import int
 open import isomorphism

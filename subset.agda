@@ -4,8 +4,8 @@ module subset where
 
 open import apartness
 open import base
-open import cubical
 open import equality
+open import equivalence
 open import fin
 open import finset
 open import functions

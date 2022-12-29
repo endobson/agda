@@ -7,21 +7,20 @@ open import cubical
 open import equality-path
 open import functions
 
+open import Agda.Builtin.Cubical.Glue
+  using ()
+  renaming ( pathToEquiv    to lineToEquiv
+           )
+
+open import equivalence.base public
+
+
 private
   variable
     ℓ ℓ₁ ℓ₂ : Level
     A A1 A2 : Type ℓ
     B : A -> Type ℓ
     C : (a : A) -> B a -> Type ℓ
-
--- fiber : ∀ {ℓ ℓ'} {A : Type ℓ} {B : Type ℓ'} (f : A → B) (y : B) → Type (ℓ-max ℓ ℓ')
--- fiber {A = A} f y = Σ[ x ∈ A ] f x ≡ y
-
--- record isEquiv {ℓ ℓ'} {A : Set ℓ} {B : Set ℓ'} (f : A → B) : Set (ℓ ⊔ ℓ') where
---  no-eta-equality
---  field
---    equiv-proof : (y : B) → isContr (fiber f y)
-
 
 module _ {f : A1 -> A2} (eq-f : isEquiv f) where
   isEqFun : A1 -> A2

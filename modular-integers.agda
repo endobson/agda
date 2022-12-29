@@ -4,7 +4,7 @@ module modular-integers where
 
 open import base
 open import equality
-open import cubical
+open import equivalence
 open import isomorphism
 open import div
 open import hlevel

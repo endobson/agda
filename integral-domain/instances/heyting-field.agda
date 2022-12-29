@@ -5,8 +5,8 @@ module integral-domain.instances.heyting-field where
 open import additive-group
 open import apartness
 open import base
-open import cubical
 open import equality
+open import equivalence
 open import heyting-field
 open import hlevel
 open import isomorphism

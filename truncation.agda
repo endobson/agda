@@ -3,8 +3,8 @@
 module truncation where
 
 open import base
-open import cubical
 open import equality
+open import equivalence
 open import functions
 open import hlevel
 open import relation

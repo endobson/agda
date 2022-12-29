@@ -5,6 +5,7 @@ module hit-int where
 open import base
 open import isomorphism
 open import cubical
+open import equivalence
 
 import int
 

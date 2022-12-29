@@ -8,7 +8,6 @@ open import base
 open import commutative-monoid
 open import equality
 open import equivalence
-open import cubical using (_≃_)
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
 open import finset

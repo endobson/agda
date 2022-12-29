@@ -5,8 +5,8 @@ module rational.order where
 open import apartness
 open import additive-group
 open import base
-open import cubical using (_≃_)
 open import equality
+open import equivalence
 open import fraction.sign
 open import fraction.order
 open import functions

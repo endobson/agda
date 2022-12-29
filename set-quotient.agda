@@ -4,7 +4,7 @@ module set-quotient where
 
 open import base
 open import equality-path
-open import cubical
+open import equivalence
 open import functions
 open import funext
 open import hlevel

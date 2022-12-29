@@ -3,7 +3,6 @@
 module chapter2.divisors where
 
 open import base
-open import cubical using (_≃_)
 open import div hiding (remainder)
 open import equality
 open import equivalence

@@ -3,8 +3,8 @@
 module container.finmap.trunc-path where
 
 open import base
-open import cubical
 open import equality
+open import equivalence
 open import list
 open import fin-algebra
 open import truncation

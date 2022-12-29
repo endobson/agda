@@ -4,9 +4,23 @@ module cubical where
 
 
 open import Agda.Builtin.Cubical.Glue public
+  using ()
   renaming ( prim^glue      to glue
-           ; pathToEquiv    to lineToEquiv
            )
+
+open import Agda.Builtin.Cubical.Glue
+  using ( module Helpers
+        ; _≃_
+        ; primGlue
+        ; prim^unglue
+        )
+
+open Helpers public
+  using ( isContr
+        ; hfill
+        ; fill
+        )
+
 open import Agda.Builtin.Cubical.Path public
 
 open import Agda.Primitive.Cubical public
@@ -23,13 +37,6 @@ open import Agda.Builtin.Cubical.Sub public
   renaming ( inc        to inS
            ; primSubOut to outS
            )
-
-open Helpers public
-  using ( isContr
-        ; fiber -- (f : (A -> B)) -> Σ[ x ∈ A ] (f x == y)
-        ; hfill
-        ; fill
-        )
 
 open import Agda.Builtin.Sigma
 open import Level

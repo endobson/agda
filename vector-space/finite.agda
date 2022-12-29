@@ -5,7 +5,6 @@ module vector-space.finite where
 open import additive-group
 open import apartness
 open import base
-open import cubical using (isEquiv)
 open import equality hiding (J)
 open import equivalence
 open import fin

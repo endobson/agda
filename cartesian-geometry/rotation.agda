@@ -8,7 +8,6 @@ open import apartness
 open import base
 open import cartesian-geometry.vector
 open import cartesian-geometry.matrix
-open import cubical using (isEquiv)
 open import commutative-monoid
 open import direct-product
 open import equality

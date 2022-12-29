@@ -5,7 +5,6 @@ module finset.order where
 open import additive-group
 open import additive-group.instances.nat
 open import base
-open import cubical using (_≃_; fiber)
 open import equality
 open import equivalence
 open import fin
