@@ -128,8 +128,8 @@ riemann-sum f p =
 --     check : tp.n == suc n'
 --     check = n=n'
 
-private
-  module _ {
+--private
+--  module _ {
 
 tagged-partition->≤ : {a b : ℝ} -> TaggedPartition a b -> a ≤ b
 tagged-partition->≤ {a} {b} tp = handle tp.n refl
@@ -358,7 +358,7 @@ data isIntegral' (a : ℝ) (b : ℝ) (f : ℝ -> ℝ) (v : ℝ) : Type₁ where
   isIntegral'-≤-cons : a ≤ b -> isOrderedIntegral' a b f v -> isIntegral' a b f v
   isIntegral'-≥-cons : a ≥ b -> isOrderedIntegral' b a f (- v) -> isIntegral' a b f v
 
-isIntegral : (a : ℝ) (b : ℝ) (f : ℝ -> ℝ) (v : ℝ) -> Type₁ 
+isIntegral : (a : ℝ) (b : ℝ) (f : ℝ -> ℝ) (v : ℝ) -> Type₁
 isIntegral a b f v = ∥ isIntegral' a b f v ∥
 
 isProp-isOrderedIntegral' : {a b : ℝ} {f : ℝ -> ℝ} {v : ℝ} -> isProp (isOrderedIntegral' a b f v)
@@ -438,25 +438,25 @@ isProp-ΣisOrderedIntegral' {a} {b} {f} (v1 , i1) (v2 , i2) =
   v1=v2 = εBounded-diff->path v1 v2 g
 
 
-isOrderedIntegral'-zero-interval : {a : ℝ} {f : ℝ -> ℝ} -> isOrderedIntegral' a a f 0#
-isOrderedIntegral'-zero-interval {a} {f} .isOrderedIntegral'.a≤b = refl-≤
-isOrderedIntegral'-zero-interval {a} {f} .isOrderedIntegral'.δε ε⁺@(ε , 0<ε) = ∣ (δ , 0<1) , bound ∣
-  where
-  δ = 1#
-
-  zero-sum : (p : TaggedPartition a a) -> (riemann-sum f p) == 0#
-  zero-sum p = cong finiteSum (funExt zero-term) >=> finiteMerge-ε _
-    where
-    module p = TaggedPartition p
-    u=a : (i : Fin (suc p.n)) -> p.u i == a
-    u=a i = ?
-
-
-    zero-term : (i : Fin p.n) -> p.t i * p.width i == 0#
-    zero-term i = *-right (cong2 diff (u=a _) (u=a _) >=> +-inverse) >=> *-right-zero
-
-
-
-  bound : (p : TaggedPartition a a) -> isδFinePartition δ p ->
-           εBounded ε (diff (riemann-sum f p) 0#)
-  bound p _ = subst (εBounded ε) (sym +-inverse >=> +-left (zero-sum p)) (εBounded-0 ε⁺)
+-- isOrderedIntegral'-zero-interval : {a : ℝ} {f : ℝ -> ℝ} -> isOrderedIntegral' a a f 0#
+-- isOrderedIntegral'-zero-interval {a} {f} .isOrderedIntegral'.a≤b = refl-≤
+-- isOrderedIntegral'-zero-interval {a} {f} .isOrderedIntegral'.δε ε⁺@(ε , 0<ε) = ∣ (δ , 0<1) , bound ∣
+--   where
+--   δ = 1#
+--
+--   zero-sum : (p : TaggedPartition a a) -> (riemann-sum f p) == 0#
+--   zero-sum p = cong finiteSum (funExt zero-term) >=> finiteMerge-ε _
+--     where
+--     module p = TaggedPartition p
+--     u=a : (i : Fin (suc p.n)) -> p.u i == a
+--     u=a i = ?
+--
+--
+--     zero-term : (i : Fin p.n) -> p.t i * p.width i == 0#
+--     zero-term i = *-right (cong2 diff (u=a _) (u=a _) >=> +-inverse) >=> *-right-zero
+--
+--
+--
+--   bound : (p : TaggedPartition a a) -> isδFinePartition δ p ->
+--            εBounded ε (diff (riemann-sum f p) 0#)
+--   bound p _ = subst (εBounded ε) (sym +-inverse >=> +-left (zero-sum p)) (εBounded-0 ε⁺)

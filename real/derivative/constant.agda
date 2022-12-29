@@ -13,6 +13,7 @@ open import rational
 open import rational.integral-domain
 open import rational.order
 open import real
+open import real.sequence.cauchy
 open import ring.implementations.real
 open import real.derivative
 open import real.order

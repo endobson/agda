@@ -57,7 +57,7 @@ open import truncation
     U-case = ℚ<->U (subst2 _<_ refl minus-double-inverse (minus-flips-< (L->ℚ< L-mu)))
 
 ℚ->ℝ-preserves-diff : {q r : ℚ} -> ℚ->ℝ (diff q r) == diff (ℚ->ℝ q) (ℚ->ℝ r)
-ℚ->ℝ-preserves-diff = 
+ℚ->ℝ-preserves-diff =
   ℚ->ℝ-preserves-+ >=> +-right ℚ->ℝ-preserves--
 
 
@@ -66,10 +66,10 @@ private
   ℝ∈Iℚ->ℚ∈Iℚ qi (L , U) = weaken-< (L->ℚ< L) , weaken-< (U->ℚ< U)
 
   ℚ∈Iℚ->ℝ∈Iℚ : {q : ℚ} {a b : Iℚ} -> a i⊂ b -> ℚ∈Iℚ q a -> ℝ∈Iℚ (ℚ->ℝ q) b
-  ℚ∈Iℚ->ℝ∈Iℚ (i⊂-cons bl<al au<bu) (al≤q , q≤au) = 
-    ℚ<->L (trans-<-≤ bl<al al≤q) , 
+  ℚ∈Iℚ->ℝ∈Iℚ (i⊂-cons bl<al au<bu) (al≤q , q≤au) =
+    ℚ<->L (trans-<-≤ bl<al al≤q) ,
     ℚ<->U (trans-≤-< q≤au au<bu)
-  
+
 ℚ->ℝ-preserves-* : {q r : ℚ} -> ℚ->ℝ (q * r) == ℚ->ℝ q * ℚ->ℝ r
 ℚ->ℝ-preserves-* {q} {r} = sym (ℝ∈Iℚ->path _ _ f)
   where
@@ -77,7 +77,7 @@ private
   r' = ℚ->ℝ r
   qr' = ℚ->ℝ (q * r)
   f : (qi : Iℚ) -> ℝ∈Iℚ (q' * r') qi -> ℝ∈Iℚ qr' qi
-  f qi@(Iℚ-cons l u _) q*r∈qi = 
+  f qi@(Iℚ-cons l u _) q*r∈qi =
     unsquash (isProp-ℝ∈Iℚ qr' qi) (∥-bind handle (tighter-ℝ∈Iℚ (q' * r') qi q*r∈qi))
     where
     handle : Σ[ a ∈ Iℚ ] ((a i⊂ qi) × ℝ∈Iℚ (q' * r') a) ->
