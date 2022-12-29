@@ -18,28 +18,6 @@ private
   variable
     ℓ : Level
 
-abstract
-  isFinSet-Bot : isFinSet Bot
-  isFinSet-Bot = ∣ 0 , pathToEquiv (\i -> Fin-Bot (~ i)) ∣
-
-FinSet-Bot : FinSet ℓ-zero
-FinSet-Bot = Bot , isFinSet-Bot
-
-instance
-  FinSetStr-Bot : FinSetStr Bot
-  FinSetStr-Bot = record { isFin = isFinSet-Bot }
-
-abstract
-  isFinSet-Top : isFinSet Top
-  isFinSet-Top = ∣ 1 , pathToEquiv (\i -> Fin-Top (~ i)) ∣
-
-FinSet-Top : FinSet ℓ-zero
-FinSet-Top = Top , isFinSet-Top
-
-instance
-  FinSetStr-Top : FinSetStr Top
-  FinSetStr-Top = record { isFin = isFinSet-Top }
-
 isFinSet-Fin : {n : Nat} -> isFinSet (Fin n)
 isFinSet-Fin {n = n} = ∣ n , pathToEquiv (\i -> Fin n) ∣
 
@@ -73,19 +51,5 @@ instance
   FinSetStr-Maybe {{FA = FA}} = record { isFin = isFinSet-Maybe (FinSetStr.isFin FA) }
 
 abstract
-  isFinSet-Uninhabited : {A : Type ℓ} -> ¬ A -> isFinSet A
-  isFinSet-Uninhabited {A = A} ¬A = ∣ 0 , (∘-equiv (equiv⁻¹ Fin-Bot-eq) (¬-Bot-eq ¬A)) ∣
-
-abstract
   isFinSet-isContr : {A : Type ℓ} -> isContr A -> isFinSet A
   isFinSet-isContr isContr-A = ∣ 1 , (∘-equiv (equiv⁻¹ Fin-Top-eq) (Contr-Top-eq isContr-A)) ∣
-
-abstract
-  isFinSet-Lift : {A : Type ℓ} (ℓ₂ : Level) -> isFinSet A -> isFinSet (Lift ℓ₂ A)
-  isFinSet-Lift {A = A} ℓ₂  = ∥-map handle
-    where
-    handle : Σ[ n ∈ Nat ] (A ≃ Fin n) -> Σ[ n ∈ Nat ] (Lift ℓ₂ A ≃ Fin n)
-    handle (n , eq) = n , liftEquiv ℓ₂ A >eq> eq
-
-FinSet-Lift : {ℓ : Level} (ℓ₂ : Level) -> FinSet ℓ -> FinSet (ℓ-max ℓ ℓ₂)
-FinSet-Lift ℓ₂ (A , fsA) = Lift ℓ₂ A , isFinSet-Lift ℓ₂ fsA

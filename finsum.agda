@@ -13,6 +13,7 @@ open import fin-algebra
 open import finset
 open import finite-commutative-monoid
 open import finset.instances
+open import finset.instances.base
 open import functions
 open import isomorphism
 open import maybe

@@ -16,6 +16,7 @@ open import finsum
 open import finsum.arithmetic
 open import finsum.cardinality
 open import finset
+open import finset.instances.base
 open import finset.instances
 open import finsubset
 open import gcd.computational

@@ -9,7 +9,7 @@ open import isomorphism
 open import relation
 open import fin
 open import finset
-open import finset.instances
+open import finset.instances.base
 open import finsum
 open import fin-algebra
 open import functions

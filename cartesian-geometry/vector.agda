@@ -16,7 +16,7 @@ open import fin-algebra
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
 open import finset
-open import finset.instances
+open import finset.instances.base
 open import finsum
 open import functions
 open import funext

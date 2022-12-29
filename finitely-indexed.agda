@@ -10,6 +10,7 @@ open import fin-algebra
 open import fin
 open import finset
 open import finset.instances
+open import finset.instances.base
 open import functions
 open import hlevel
 open import isomorphism

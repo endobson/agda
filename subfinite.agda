@@ -8,6 +8,7 @@ open import equivalence
 open import fin
 open import finset
 open import finset.instances
+open import finset.instances.base
 open import functions
 open import functions.injective
 open import isomorphism

@@ -14,6 +14,7 @@ open import equality
 open import equivalence
 open import finsum
 open import finset.instances
+open import finset.instances.base
 open import fin
 open import semiring
 open import truncation

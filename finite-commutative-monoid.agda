@@ -9,7 +9,6 @@ open import equality
 open import equivalence
 open import fin
 open import finset
-open import finset.instances
 open import functions
 open import funext
 open import isomorphism

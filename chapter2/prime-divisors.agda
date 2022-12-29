@@ -17,7 +17,7 @@ open import prime-power-factorization
 open import prime-gcd
 open import finset
 open import finsum
-open import finset.instances
+open import finset.instances.base
 open import finite-product
 open import finsubset
 open import chapter2.divisors

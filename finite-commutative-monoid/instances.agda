@@ -14,6 +14,7 @@ open import finite-commutative-monoid
 open import finset
 open import finset.detachable
 open import finset.instances
+open import finset.instances.base
 open import finsum
 open import functions
 open import funext
