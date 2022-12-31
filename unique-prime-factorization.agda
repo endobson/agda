@@ -10,6 +10,7 @@ open import isomorphism
 open import gcd.propositional
 open import gcd.computational
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 open import prime
@@ -195,7 +196,7 @@ private
       proof-2 : k2 ≤ k1
       proof-2 = lesser-power ¬div-sk1 div-k2
       p-k : k1 == k2
-      p-k = (≤-antisym proof-1 proof-2)
+      p-k = (antisym-≤ proof-1 proof-2)
 
   prime->Pos' : ∀ (p : Prime') -> Pos' ⟨ p ⟩
   prime->Pos' (zero  , (is-prime' p>1 _)) = bot-elim (zero-≮ p>1)

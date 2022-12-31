@@ -55,9 +55,9 @@ module _ {m n : Nat} (lt1@(x1 , p1) lt2@(x2 , p2) : m ≤ n) where
     p-p : PathP (\i -> p-x i +' m == n) p1 p2
     p-p = isSet->Square isSetNat
 
-  isProp≤ : lt1 == lt2
-  isProp≤  i .fst = p-x i
-  isProp≤  i .snd = p-p i
+  isProp-ℕ≤ : lt1 == lt2
+  isProp-ℕ≤ i .fst = p-x i
+  isProp-ℕ≤ i .snd = p-p i
 
 isProp≮ : {m n : Nat} -> isProp (m ≮ n)
 isProp≮ = isProp¬ _
@@ -201,8 +201,8 @@ Pos'->< {suc _} _ = zero-<
 suc-≤-iso : {m n : Nat} -> Iso (m ≤ n) (suc m ≤ suc n)
 Iso.fun suc-≤-iso = suc-≤
 Iso.inv suc-≤-iso = pred-≤
-Iso.rightInv suc-≤-iso _ = isProp≤ _ _
-Iso.leftInv  suc-≤-iso _ = isProp≤ _ _
+Iso.rightInv suc-≤-iso _ = isProp-ℕ≤ _ _
+Iso.leftInv  suc-≤-iso _ = isProp-ℕ≤ _ _
 
 suc-≤-== : {m n : Nat} -> (m ≤ n) == (suc m ≤ suc n)
 suc-≤-== = ua (isoToEquiv suc-≤-iso)
@@ -370,17 +370,16 @@ private
 2^n-large : (n : Nat) -> n < (2 ^' n)
 2^n-large n = 2^n-large' n n refl
 
-
-≤-antisym : {m n : Nat} -> m ≤ n -> n ≤ m -> m == n
-≤-antisym (zero  , p1) _ = p1
-≤-antisym {m} {n} (suc i , p1) (j , p2) = bot-elim (zero-suc-absurd (sym path))
+ℕ≤-antisym : {m n : Nat} -> m ≤ n -> n ≤ m -> m == n
+ℕ≤-antisym (zero  , p1) _ = p1
+ℕ≤-antisym {m} {n} (suc i , p1) (j , p2) = bot-elim (zero-suc-absurd (sym path))
   where
   path : (suc i +' j) == 0
   path = transport (sym (+'-right-path n))
                    (+'-assoc {suc i} >=> cong (suc i +'_) p2 >=> p1)
 
-<-asym : Asymmetric _<_
-<-asym {x} {y} x<y y<x = same-≮ (trans-< x<y y<x)
+ℕ<-asym : Asymmetric _<_
+ℕ<-asym {x} {y} x<y y<x = same-≮ (trans-< x<y y<x)
 
 
 
@@ -393,11 +392,11 @@ private
   ≮-≥-iso : {m n : Nat} -> Iso (m ≮ n) (m ≥ n)
   Iso.fun ≮-≥-iso = ≮->≥
   Iso.inv ≮-≥-iso n≤m m<n = same-≮ (trans-≤-< n≤m m<n)
-  Iso.rightInv ≮-≥-iso _ = isProp≤ _ _
+  Iso.rightInv ≮-≥-iso _ = isProp-ℕ≤ _ _
   Iso.leftInv  ≮-≥-iso _ = isProp≮ _ _
 
 connected-nat< : Connected _<_
-connected-nat< x≮y y≮x = ≤-antisym (≮->≥ y≮x) (≮->≥ x≮y)
+connected-nat< x≮y y≮x = ℕ≤-antisym (≮->≥ y≮x) (≮->≥ x≮y)
 
 
 ≮==≥ : {m n : Nat} -> m ≮ n == m ≥ n
@@ -539,8 +538,8 @@ trichotomous-nat< x y = handle (decide-nat x y) (decide-nat< x y) (decide-nat< y
   handle (yes x==y) _         _         = tri= (\ lt -> <->!= lt x==y) x==y (\ lt -> <->!= lt (sym x==y))
   handle (no  x!=y) (yes x<y) (no y≮x)  = tri< x<y x!=y y≮x
   handle (no  x!=y) (no x≮y)  (yes y<x) = tri> x≮y x!=y y<x
-  handle (no  x!=y) (yes x<y) (yes y<x) = bot-elim (<-asym x<y y<x)
-  handle (no  x!=y) (no x<y)  (no y<x)  = bot-elim (x!=y (≤-antisym (≮->≥ y<x) (≮->≥ x<y)))
+  handle (no  x!=y) (yes x<y) (yes y<x) = bot-elim (ℕ<-asym x<y y<x)
+  handle (no  x!=y) (no x<y)  (no y<x)  = bot-elim (x!=y (ℕ≤-antisym (≮->≥ y<x) (≮->≥ x<y)))
 
 
 
@@ -556,11 +555,11 @@ connex'-≤ zero    _    = inj-l zero-≤
 connex'-≤ (suc m) zero = inj-r zero-≤
 connex'-≤ (suc m) (suc n) = (⊎-map suc-≤ suc-≤) (connex'-≤ m n)
 
-connex-≤ : Connex _≤_
-connex-≤ m n = ∣ connex'-≤ m n ∣
+connex-ℕ≤ : Connex _≤_
+connex-ℕ≤ m n = ∣ connex'-≤ m n ∣
 
 total-order-≤ : TotalOrder _≤_
-total-order-≤ = (trans-≤ , connex-≤ , ≤-antisym)
+total-order-≤ = (trans-≤ , connex-ℕ≤ , ℕ≤-antisym)
 total-order-≥ : TotalOrder _≥_
 total-order-≥ = flip-total-order total-order-≤
 
@@ -646,7 +645,7 @@ pred-≤i (suc-≤i lt) = lt
 Iso.fun ≤-≤i-iso = ≤->≤i
 Iso.inv ≤-≤i-iso = ≤i->≤
 Iso.rightInv ≤-≤i-iso _ = isProp≤i _ _
-Iso.leftInv  ≤-≤i-iso _ = isProp≤ _ _
+Iso.leftInv  ≤-≤i-iso _ = isProp-ℕ≤ _ _
 
 ≤==≤i : {m n : Nat} -> (m ≤ n) == (m ≤i n)
 ≤==≤i = ua (isoToEquiv ≤-≤i-iso)

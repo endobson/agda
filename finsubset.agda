@@ -15,6 +15,7 @@ open import hlevel
 open import isomorphism
 open import maybe
 open import nat
+open import nat.order
 open import nat.bounded
 open import order
 open import order.instances.nat
@@ -129,7 +130,7 @@ private
     i : Iso (Σ Nat P) (Σ[ i ∈ Fin b ] (P (Fin.i i)))
     i .fun (i , p) = (i , f p) , p
     i .inv ((i , lt), p) = i , p
-    i .rightInv ((i , lt) , p) k = (i , isProp≤ (f p) lt k) , p
+    i .rightInv ((i , lt) , p) k = (i , isProp-≤ (f p) lt k) , p
     i .leftInv _ = refl
 
   boundedDecidable->isFinSet : {P : Pred Nat ℓ} -> isBounded P -> Decidable P ->
@@ -138,7 +139,7 @@ private
     subst isFinSet (sym (ua eq1)) isFin
     where
     boundP' : (Squash ∘ P) ⊆ (_< n)
-    boundP' p = unsquash isProp≤ (∥-map boundP p)
+    boundP' p = unsquash isProp-≤ (∥-map boundP p)
 
 
     eq1 : Σ Nat (Squash ∘ P) ≃ (Σ[ i ∈ Fin n ] ∥ P (Fin.i i) ∥)

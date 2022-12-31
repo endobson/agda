@@ -10,6 +10,7 @@ open import hlevel
 open import int
 open import isomorphism
 open import nat
+open import nat.order
 open import prime
 open import prime-factorization
 

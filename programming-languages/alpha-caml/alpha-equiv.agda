@@ -2,24 +2,25 @@
 
 module programming-languages.alpha-caml.alpha-equiv where
 
+open import base
 open import container.finmap
 open import container.finmap.composition
 open import container.finmap.remove
-open import base
-open import relation
-open import hlevel.base
 open import equality
-open import sum
 open import functions
-open import nat
+open import hlevel.base
 open import list
+open import nat
+open import nat.order
 open import order
 open import order.instances.nat
-open import truncation
-open import programming-languages.renamings
 open import programming-languages.alpha-caml
-open import programming-languages.alpha-caml.single-swap
 open import programming-languages.alpha-caml.multi-swap
+open import programming-languages.alpha-caml.single-swap
+open import programming-languages.renamings
+open import relation
+open import sum
+open import truncation
 
     
 data α-equiv : Rel Term ℓ-zero where

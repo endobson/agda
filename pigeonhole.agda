@@ -8,6 +8,7 @@ open import fin
 open import fin.functions
 open import functions
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 

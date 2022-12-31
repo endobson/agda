@@ -26,6 +26,7 @@ open import int using (int)
 open import linear-combo
 open import nat
 open import nat.bounded
+open import nat.order
 open import order
 open import order.instances.nat
 open import prime-gcd
@@ -300,7 +301,7 @@ module _ (n⁺ : Nat⁺) where
           path2 : (fst (fst (totative->diva d d%n (diva->totative d d%n a)))) == (fst (fst a))
           path2 = (ΣProp-path isPropPos' path1)
           path3 : (fst (totative->diva d d%n (diva->totative d d%n a))) == (fst a)
-          path3 = (ΣProp-path isProp≤ path2)
+          path3 = (ΣProp-path isProp-≤ path2)
 
           path4 : PathP (\i -> GCD' (fst (fst (path3 i))) n d)
                         (snd (totative->diva d d%n (diva->totative d d%n a)))

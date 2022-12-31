@@ -4,31 +4,32 @@ module chapter2.prime-divisors where
 
 open import additive-group using (AdditiveCommMonoid)
 open import base
+open import chapter2.divisors
+open import chapter2.multiplicative
+open import div hiding (remainder)
 open import equality
 open import equivalence
+open import finite-product
+open import finset
+open import finset.instances.base
+open import finsubset
+open import finsum
+open import hlevel
 open import isomorphism
 open import nat
 open import nat.bounded
-open import div hiding (remainder)
+open import nat.order
 open import prime
 open import prime-div-count
 open import prime-div-count.computational
-open import prime-power-factorization
+open import prime-factorization
 open import prime-gcd
-open import finset
-open import finsum
-open import finset.instances.base
-open import finite-product
-open import finsubset
-open import chapter2.divisors
-open import chapter2.multiplicative
+open import prime-power-factorization
+open import relatively-prime
+open import semiring
 open import sigma
 open import sigma.base
-open import prime-factorization
-open import hlevel
-open import relatively-prime
 open import type-algebra
-open import semiring
 
 private
   variable

@@ -11,6 +11,7 @@ open import functions
 open import isomorphism
 open import hlevel
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 open import pigeonhole
@@ -40,7 +41,7 @@ module _ where
       suc-fin-f-compose-path f k (i , p) = path k
         where
         lemma : (suc (Fin.i (f (i , pred-≤ (suc-≤ p))))) == suc (Fin.i (f (i , p)))
-        lemma k = (suc (Fin.i (f (i , isProp≤ (pred-≤ (suc-≤ p)) p k))))
+        lemma k = (suc (Fin.i (f (i , isProp-≤ (pred-≤ (suc-≤ p)) p k))))
 
         path : (suc-fin-f f ∘ suc-fin) (i , p) == (suc-fin ∘ f) (i , p)
         path = fin-i-path lemma

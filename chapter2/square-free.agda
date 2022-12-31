@@ -10,6 +10,7 @@ open import functions
 open import hlevel
 open import isomorphism
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 open import prime
@@ -29,7 +30,7 @@ SquareFree⁰ zero = Bot
 SquareFree⁰ (suc n) = SquareFree ((suc n) , tt)
 
 isPropSquareFree : {n : Nat⁺} -> isProp (SquareFree n)
-isPropSquareFree = isPropΠ2 (\_ _ -> isProp≤)
+isPropSquareFree = isPropΠ2 (\_ _ -> isProp-≤)
 
 decide-square-free : (n : Nat⁺) -> Dec (SquareFree n)
 decide-square-free n⁺@(n@(suc _) , n-pos) = answer
@@ -125,7 +126,7 @@ relatively-prime-square-free a⁺@(a , _) b⁺@(b , _) rp sf-a sf-b p@(p' , _) p
     count-a' = contains->count>0 (Iso.fun (prime-div-prime-factorization-∈-iso p pf-a) p%a)
 
     count-a : count p primes-a == 1
-    count-a = ≤-antisym (sf-a p pf-a) count-a'
+    count-a = antisym-≤ (sf-a p pf-a) count-a'
 
     ¬p%b : ¬ (p' div' b)
     ¬p%b p%b = <->!= (Prime'.>1 p) (sym (rp p' p%a p%b))

@@ -9,6 +9,7 @@ open import functions
 open import hlevel
 open import monoid
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 open import relation
@@ -277,7 +278,7 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
         >=> sym (filter-drops as ¬p)
 
   filter-length≤ : (as : UList A) -> length (filter as) ≤ length as
-  filter-length≤ = UListElim.prop isProp≤ []* ::*
+  filter-length≤ = UListElim.prop isProp-≤ []* ::*
     where
     []* : length (filter []) ≤ length {A = A} []
     []* = zero-≤

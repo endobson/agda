@@ -180,7 +180,7 @@ module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : FinSet ℓB) where
     eqB' = subst (\t -> (∥ B ≃ t ∥)) (sym (FinT=Fin nB)) (snd fsB)
 
   Retraction->FinSet≤ : (f : A -> B) -> (Retraction f) -> FinSet≤ FA FB
-  Retraction->FinSet≤ f (g , ret-g) = unsquash isProp≤ (∥-map2 helper eqA' eqB')
+  Retraction->FinSet≤ f (g , ret-g) = unsquash isProp-≤ (∥-map2 helper eqA' eqB')
     where
     helper : (A ≃ FinT nA) -> (B ≃ FinT nB) -> FinSet≤ FA FB
     helper eqA eqB = Injective->FinSet≤-FinT nA nB f' inj-f'
@@ -202,7 +202,7 @@ module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : FinSet ℓB) where
       inj-f' {a1} {a2} p = sym (ret-g' a1) >=> cong g' p >=> (ret-g' a2)
 
   Injective->FinSet≤ : (f : A -> B) -> (Injective f) -> FinSet≤ FA FB
-  Injective->FinSet≤ f inj-f = unsquash isProp≤ (∥-map2 helper eqA' eqB')
+  Injective->FinSet≤ f inj-f = unsquash isProp-≤ (∥-map2 helper eqA' eqB')
     where
     helper : (A ≃ FinT nA) -> (B ≃ FinT nB) -> FinSet≤ FA FB
     helper eqA eqB = Injective->FinSet≤-FinT nA nB f' inj-f'
@@ -220,7 +220,7 @@ module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : FinSet ℓB) where
  
   Section->FinSet≤ : (f : A -> B) -> (Section f) -> FinSet≤ FB FA
   Section->FinSet≤ f (g , sec-g) = 
-    unsquash isProp≤ (∥-map2 helper (snd fsB) (snd fsA))
+    unsquash isProp-≤ (∥-map2 helper (snd fsB) (snd fsA))
     where
     helper : (B ≃ Fin nB) -> (A ≃ Fin nA) -> FinSet≤ FB FA
     helper eqB eqA = Surjective->FinSet≤-Fin nA nB f' sur-f'
@@ -244,7 +244,7 @@ module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : FinSet ℓB) where
 
   Surjective->FinSet≤ : (f : A -> B) -> (isSurjection f) -> FinSet≤ FB FA
   Surjective->FinSet≤ f sur-f = 
-    unsquash isProp≤ (∥-map2 helper (snd fsB) (snd fsA))
+    unsquash isProp-≤ (∥-map2 helper (snd fsB) (snd fsA))
     where
     helper : (B ≃ Fin nB) -> (A ≃ Fin nA) -> FinSet≤ FB FA
     helper eqB eqA = Surjective->FinSet≤-Fin nA nB f' sur-f'

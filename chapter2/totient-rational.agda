@@ -17,6 +17,7 @@ open import finset
 open import funext
 open import int hiding (-_)
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 open import prime

@@ -7,8 +7,8 @@ open import additive-group.instances.real
 open import base
 open import equality
 open import hlevel
-open import nat.arithmetic
-open import nat.properties
+open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 open import order.instances.real
@@ -26,8 +26,6 @@ open import ring.implementations.real
 open import semiring
 open import sequence
 open import truncation
-
-open import nat using (≤-max-left ; ≤-max-right)
 
 
 εBounded : ℚ -> ℝ -> Type₀

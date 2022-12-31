@@ -13,6 +13,7 @@ open import gcd.euclidean-algorithm
 open import int hiding (-_ ; minus-extract-left)
 open import linear-combo
 open import nat
+open import nat.order
 open import prime-gcd
 open import ring
 open import ring.implementations

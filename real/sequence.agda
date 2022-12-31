@@ -6,8 +6,7 @@ open import base
 open import additive-group
 open import equality
 open import hlevel
-open import nat.arithmetic
-open import nat.properties
+open import nat
 open import rational
 open import rational.difference
 open import rational.order
@@ -27,8 +26,6 @@ open import ordered-semiring
 open import ordered-ring
 open import sign
 open import sign.instances.rational
-
-open import nat using (≤-max-left ; ≤-max-right)
 
 private
   variable

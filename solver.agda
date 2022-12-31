@@ -11,6 +11,7 @@ open import equality
 open import fin
 open import list
 open import nat
+open import nat.order
 open import ring
 open import ring.implementations
 open import relation hiding (acc)

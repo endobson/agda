@@ -9,6 +9,7 @@ open import div
 open import equality
 open import functions
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 open import prime
@@ -65,7 +66,7 @@ private
     step-≤u : {m n : Nat} -> suc m ≤u n -> m ≤u n
 
   ≤u->≤ : {m n : Nat} -> m ≤u n -> m ≤ n
-  ≤u->≤ (refl-≤u {m}) = same-≤ m
+  ≤u->≤ (refl-≤u {m}) = refl-≤
   ≤u->≤ (step-≤u rec) = (pred-≤ (right-suc-≤ (≤u->≤ rec)))
 
   div->composite : {d n : Nat} -> d != 0 -> d != 1 -> d != n -> n != 0 -> d div' n -> Primality n

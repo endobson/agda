@@ -11,6 +11,7 @@ open import equality-path
 open import functions
 open import hlevel
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 open import ring.implementations
@@ -221,7 +222,7 @@ NoDuplicates : UList A -> Type ℓ
 NoDuplicates ul = ∀ (a : A) -> count a ul ≤ 1
 
 isPropNoDuplicates : {ul : UList A} -> isProp (NoDuplicates ul)
-isPropNoDuplicates = isPropΠ (\_ -> isProp≤)
+isPropNoDuplicates = isPropΠ (\_ -> isProp-≤)
 
 decide-no-duplicates : (ul : UList A) -> Dec (NoDuplicates ul)
 decide-no-duplicates = UListElim.prop {B = P} (\{ul} -> isPropP {ul}) []* ::*
@@ -323,7 +324,7 @@ decide-contains x as = handle (count x as) refl
 module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
 
   filter-count≤ : (a : A) (as : UList A) -> count a (filter f as) ≤ count a as
-  filter-count≤ a as = UListElim.prop isProp≤ zero-≤ ::* as
+  filter-count≤ a as = UListElim.prop isProp-≤ zero-≤ ::* as
     where
     ::* : (a2 : A) {as : UList A}
           -> count a (filter f as) ≤ count a as

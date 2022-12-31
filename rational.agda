@@ -2,27 +2,28 @@
 
 module rational where
 
-open import apartness
-open import apartness.discrete
 open import abs
 open import additive-group
 open import additive-group.instances.int
+open import apartness
+open import apartness.discrete
 open import base
 open import equality
 open import fin
 open import functions
 open import funext
-open import nat
 open import hlevel
+open import isomorphism
+open import nat
+open import nat.order
 open import quotient-remainder-int
 open import relation
 open import ring
 open import ring.implementations
 open import semiring
 open import set-quotient
-open import univalence
-open import isomorphism
 open import sigma.base
+open import univalence
 import int
 import solver
 

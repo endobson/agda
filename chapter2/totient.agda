@@ -25,6 +25,7 @@ open import hlevel
 open import isomorphism
 open import nat
 open import nat.bounded
+open import nat.order
 open import order
 open import order.instances.nat
 open import prime
@@ -60,7 +61,7 @@ isTotativeOf = Totient
 isProp-isTotativeOf : {n k : Nat} -> isProp (isTotativeOf n k)
 isProp-isTotativeOf t1 t2 i = record
   { pos-k = isPropPos' (t1 .Totient.pos-k) (t2 .Totient.pos-k) i
-  ; k≤n = isProp≤ (t1 .Totient.k≤n) (t2 .Totient.k≤n) i
+  ; k≤n = isProp-≤ (t1 .Totient.k≤n) (t2 .Totient.k≤n) i
   ; rp = isPropΠ3 (\ _ _ _ -> isSetNat _ _) (t1 .Totient.rp) (t2 .Totient.rp) i
   }
 
@@ -116,7 +117,7 @@ private
     i .leftInv (x , tot) = (ΣProp-path isProp-isTotativeOf path)
       where
       path : 1 == x
-      path = ≤-antisym (Pos'->< (Totient.pos-k tot)) (Totient.k≤n tot)
+      path = antisym-≤ (Pos'->< (Totient.pos-k tot)) (Totient.k≤n tot)
 
 φ-one : φ 1⁺ == 1
 φ-one = cong cardinality path >=> cardinality-path FinSet-Top top-finΣ
@@ -170,7 +171,7 @@ module _ (p : Prime') where
       i : Iso (Totatives p') (Fin1 (pred p'))
       i .fun (x , t) = ((x , Totient.pos-k t) , pred-≤ (Totient.k<n t (Prime'.>1 p)))
       i .inv ((x , pos) , lt) = x , totient-prime pos (pos-pred-≤ (Prime'.pos p) lt)
-      i .rightInv _ = ΣProp-path isProp≤ (ΣProp-path isPropPos' refl)
+      i .rightInv _ = ΣProp-path isProp-≤ (ΣProp-path isPropPos' refl)
       i .leftInv _ = ΣProp-path isProp-isTotativeOf refl
 
 

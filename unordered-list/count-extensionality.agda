@@ -8,6 +8,7 @@ module unordered-list.count-extensionality {ℓ : Level} {A : Type ℓ} {{disc'A
 open import equality
 open import hlevel
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 open import unordered-list.base
@@ -22,7 +23,7 @@ private
   as ≼ bs = (x : A) -> (count x as) ≤ (count x bs)
 
   ≼[]->[] : (as : UList A) -> as ≼ [] -> as == []
-  ≼[]->[] as f = all-count-zero->[] as (\ x -> ≤-antisym (f x) (zero-≤))
+  ≼[]->[] as f = all-count-zero->[] as (\ x -> antisym-≤ (f x) (zero-≤))
     where
     all-count-zero->[] : (as : UList A) -> ((x : A) -> count x as == 0) -> as == []
     all-count-zero->[] as = UListElim.prop PisProp (\_ -> refl) _::*_ as

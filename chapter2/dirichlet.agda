@@ -11,6 +11,8 @@ open import fin
 open import hlevel.base
 open import finset
 open import nat
+open import order
+open import order.instances.nat
 open import finsum
 open import finsum.sigma
 open import finsum.arithmetic
@@ -185,7 +187,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
       i .fun (d , d%n) = ((d , div'-pos->pos d%n (snd n)), (div'->≤ d%n {snd n})) , d%n
       i .inv (((d , _) , _) , d%n) = d , d%n
       i .rightInv (((d , p) , lt) , d%n) =
-        (ΣProp-path (isPropDiv' n) (ΣProp-path isProp≤ (ΣProp-path isPropPos' refl)))
+        (ΣProp-path (isPropDiv' n) (ΣProp-path isProp-≤ (ΣProp-path isPropPos' refl)))
       i .leftInv _ = refl
 
     FinSet-FinDivisor : Nat⁺ -> FinSet ℓ-zero

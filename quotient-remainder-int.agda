@@ -2,14 +2,15 @@
 
 module quotient-remainder-int where
 
+open import abs
 open import base
 open import equality
-open import nat
-open import int
-open import abs
 open import fin
 open import functions
 open import hlevel
+open import int
+open import nat
+open import nat.order
 
 import quotient-remainder as qr
 import hit-int as h

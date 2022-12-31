@@ -2,63 +2,62 @@
 
 module real.exponetial-series where
 
-open import apartness
 open import additive-group
 open import additive-group.instances.nat
 open import additive-group.instances.reader
 open import additive-group.instances.real
+open import apartness
 open import base
 open import equality
-open import fin
 open import factorial
-open import funext
+open import fin
+open import finite-commutative-monoid.instances
 open import finset.instances
 open import finsum
 open import finsum.arithmetic
 open import functions
-open import finite-commutative-monoid.instances
-open import hlevel
+open import funext
 open import heyting-field
-open import nat.arithmetic
-open import nat.properties
-open import order
+open import hlevel
 open import integral-domain.instances.real
+open import nat
+open import nat.order
+open import order
 open import order.instances.nat
 open import order.instances.rational
 open import order.instances.real
-open import ordered-semiring
-open import ordered-ring
 open import ordered-integral-domain
-open import ordered-semiring.instances.real
-open import ordered-semiring.instances.rational
+open import ordered-ring
+open import ordered-semiring
 open import ordered-semiring.instances.nat
-open import semiring
+open import ordered-semiring.instances.rational
+open import ordered-semiring.instances.real
 open import rational
-open import rational.order
-open import rational.proper-interval
 open import rational.heyting-field
 open import rational.integral-domain
+open import rational.order
+open import rational.proper-interval
 open import real
-open import real.arithmetic.absolute-value
-open import real.rational
-open import real.heyting-field
 open import real.arithmetic
+open import real.arithmetic.absolute-value
 open import real.arithmetic.rational
+open import real.heyting-field
 open import real.interval
 open import real.order
-open import real.series
-open import real.sequence.limit
-open import real.sequence.cauchy
+open import real.rational
 open import real.sequence hiding (Cauchy)
+open import real.sequence.cauchy
+open import real.sequence.limit
+open import real.series
 open import relation
 open import ring
 open import ring.implementations.rational
 open import ring.implementations.real
+open import semiring
 open import sequence
 open import sequence.drop
 open import sequence.partial-sums
 open import truncation
-open import nat using (≤-max-left ; ≤-max-right)
 
 private
   Seq : Type₁
@@ -110,7 +109,7 @@ private
       handle2 (n2 , f) = (n2 , g)
         where
         g : (m : ℕ) -> m ≥ n2 -> ℝ∈Iℚ (drop (suc n) s m) qi
-        g m m≥n2 = f (suc m) (nat.right-suc-≤ m≥n2)
+        g m m≥n2 = f (suc m) (right-suc-≤ m≥n2)
 
   -- isInfiniteSum-cons :
   --   {s : Seq} {v : ℝ} -> (x : ℝ) -> isInfiniteSum s v ->
@@ -287,14 +286,14 @@ private
                 sym (finiteMerge-Fin0 _ _))
                refl refl-≤
       f4 (suc m) m≥0 =
-        subst2 _≤_ (sym p1) (sym p2) (+-preserves-≤ lt-e (f4 m nat.zero-≤))
+        subst2 _≤_ (sym p1) (sym p2) (+-preserves-≤ lt-e (f4 m zero-≤))
         where
         p1 : partial-sums (drop n s1) (suc m) == s1 (n + m) + partial-sums (drop n s1) m
         p1 = partial-sum-split (drop n s1) m >=> +-left (drop-+ n m s1)
         p2 : partial-sums (drop n s2) (suc m) == s2 (n + m) + partial-sums (drop n s2) m
         p2 = partial-sum-split (drop n s2) m >=> +-left (drop-+ n m s2)
         lt-e : s1 (n + m) ≤ s2 (n + m)
-        lt-e = f (n + m) (subst2 _≤_ +-right-zero refl (+-preserves-≤ refl-≤ nat.zero-≤))
+        lt-e = f (n + m) (subst2 _≤_ +-right-zero refl (+-preserves-≤ refl-≤ zero-≤))
 
   bound-partial-sums' :
     (s1 s2 : Seq) ->
@@ -316,14 +315,14 @@ private
                 sym (finiteMerge-Fin0 _ _))
                refl refl-≤
       f2 n (suc m) n≥n₀ _ =
-        subst2 _≤_ (sym p1) (sym p2) (+-preserves-≤ lt-e (f2 n m n≥n₀ nat.zero-≤))
+        subst2 _≤_ (sym p1) (sym p2) (+-preserves-≤ lt-e (f2 n m n≥n₀ zero-≤))
         where
         p1 : partial-sums (drop n s1) (suc m) == s1 (n + m) + partial-sums (drop n s1) m
         p1 = partial-sum-split (drop n s1) m >=> +-left (drop-+ n m s1)
         p2 : partial-sums (drop n s2) (suc m) == s2 (n + m) + partial-sums (drop n s2) m
         p2 = partial-sum-split (drop n s2) m >=> +-left (drop-+ n m s2)
         lt-e : s1 (n + m) ≤ s2 (n + m)
-        lt-e = f (n + m) (subst2 _≤_ +-right-zero refl (+-preserves-≤ n≥n₀ nat.zero-≤))
+        lt-e = f (n + m) (subst2 _≤_ +-right-zero refl (+-preserves-≤ n≥n₀ zero-≤))
 
   bound-partial-sums'2 :
     (s1 s2 : Seq) ->
@@ -352,7 +351,7 @@ private
         p2 : partial-sums (drop n s2) (suc m) == s2 (n + m) + partial-sums (drop n s2) m
         p2 = partial-sum-split (drop n s2) m >=> +-left (drop-+ n m s2)
         lt-e : s1 (n + m) ≤ s2 (n + m)
-        lt-e = f (n + m) (subst2 _≤_ +-right-zero refl (+-preserves-≤ n≥n₀ nat.zero-≤))
+        lt-e = f (n + m) (subst2 _≤_ +-right-zero refl (+-preserves-≤ n≥n₀ zero-≤))
 
 
   squeeze-partial-sums :
@@ -379,8 +378,8 @@ private
       f : (n m : ℕ) -> n ≥ n₀ -> (partial-sums (drop n s1) m ≤ partial-sums (drop n s2) m) ×
                                  (partial-sums (drop n s2) m ≤ partial-sums (drop n s3) m)
       f n m n≥n₀ =
-        f12 n m (trans-≤ nat.≤-max-left n≥n₀) ,
-        f23 n m (trans-≤ nat.≤-max-right n≥n₀)
+        f12 n m (trans-≤ ≤-max-left n≥n₀) ,
+        f23 n m (trans-≤ ≤-max-right n≥n₀)
 
   εI : ℚ⁺ -> Iℚ
   εI (ε , 0<ε) = Iℚ-cons (- ε) ε (weaken-< (trans-< (minus-flips-0< 0<ε) 0<ε))
@@ -421,13 +420,13 @@ private
                    (diff (partial-sums s2 m₁) (partial-sums s2 m₂)) < ℚ->ℝ ⟨ ε ⟩
           f-ans2 m₁ m₂ m₁≥n m₂≥n (d , d+m₁=m₂) = lt2
             where
-            m₁≥n-ps = trans-≤ nat.≤-max-left m₁≥n
+            m₁≥n-ps = trans-≤ ≤-max-left m₁≥n
             m₁≥n-13 : m₁ ≥ max n₀-1 n₀-3
-            m₁≥n-13 = (trans-≤ (nat.≤-max-right {n₀-ps}) m₁≥n)
+            m₁≥n-13 = (trans-≤ (≤-max-right {n₀-ps}) m₁≥n)
             m₁≥n-1 : m₁ ≥ n₀-1
-            m₁≥n-1 = trans-≤ nat.≤-max-left m₁≥n-13
+            m₁≥n-1 = trans-≤ ≤-max-left m₁≥n-13
             m₁≥n-3 : m₁ ≥ n₀-3
-            m₁≥n-3 = trans-≤ nat.≤-max-right m₁≥n-13
+            m₁≥n-3 = trans-≤ ≤-max-right m₁≥n-13
             p0 : m₂ == m₁ + d
             p0 = sym d+m₁=m₂ >=> +'-commute {d} {m₁}
             p1 : (diff (partial-sums s2 m₁) (partial-sums s2 m₂)) == partial-sums (drop m₁ s2) d
@@ -442,13 +441,13 @@ private
                    (- ℚ->ℝ ⟨ ε ⟩) < (diff (partial-sums s2 m₁) (partial-sums s2 m₂))
           f-ans3 m₁ m₂ m₁≥n m₂≥n (d , d+m₁=m₂) = lt2
             where
-            m₁≥n-ps = trans-≤ nat.≤-max-left m₁≥n
+            m₁≥n-ps = trans-≤ ≤-max-left m₁≥n
             m₁≥n-13 : m₁ ≥ max n₀-1 n₀-3
-            m₁≥n-13 = (trans-≤ (nat.≤-max-right {n₀-ps}) m₁≥n)
+            m₁≥n-13 = (trans-≤ (≤-max-right {n₀-ps}) m₁≥n)
             m₁≥n-1 : m₁ ≥ n₀-1
-            m₁≥n-1 = trans-≤ nat.≤-max-left m₁≥n-13
+            m₁≥n-1 = trans-≤ ≤-max-left m₁≥n-13
             m₁≥n-3 : m₁ ≥ n₀-3
-            m₁≥n-3 = trans-≤ nat.≤-max-right m₁≥n-13
+            m₁≥n-3 = trans-≤ ≤-max-right m₁≥n-13
             p0 : m₂ == m₁ + d
             p0 = sym d+m₁=m₂ >=> +'-commute {d} {m₁}
             p1 : (diff (partial-sums s2 m₁) (partial-sums s2 m₂)) == partial-sums (drop m₁ s2) d
@@ -514,8 +513,8 @@ private
 
         fn<1/2^n : 1/ℕ (factorial⁺ n) < (1/ℕ 2^n⁺)
         fn<1/2^n = inverse-flips-< inv-2^n-1/2^n inv-fn-1/fn
-                     (ℕ->ℚ-preserves-order _ _ (nat.Pos'->< (snd 2^n⁺)))
-                     (ℕ->ℚ-preserves-order _ _ (nat.Pos'->< (snd (factorial⁺ n))))
+                     (ℕ->ℚ-preserves-order _ _ (Pos'->< (snd 2^n⁺)))
+                     (ℕ->ℚ-preserves-order _ _ (Pos'->< (snd (factorial⁺ n))))
                      (ℕ->ℚ-preserves-order _ _ 2^n<f)
 
       isConvergentSeries-exponential-sequence1 : isConvergentSeries exponential-sequence1

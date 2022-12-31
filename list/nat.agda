@@ -13,6 +13,7 @@ open import list.discrete
 open import monoid
 open import nat
 open import nat.bounded
+open import nat.order
 open import order
 open import order.instances.nat
 open import relation
@@ -150,7 +151,7 @@ module _ {ℓp ℓq : Level} {P : Pred Nat ℓp} {Q : Pred Nat ℓq} where
     count1 : {P : Pred Nat ℓ} {x : Nat} {xs : List Nat}
              -> CanonicalList≥ P xs -> contains x xs -> count x xs == 1
     count1 {x = x} {xs = xs} canonical contains-x =
-      ≤-antisym (no-duplicates->count (canonical-no-duplicates canonical) x)
+      antisym-≤ (no-duplicates->count (canonical-no-duplicates canonical) x)
                 (contains->count>0 xs contains-x)
     count0 : {P : Pred Nat ℓ} {x : Nat} {xs : List Nat}
              -> CanonicalList≥ P xs -> ¬(contains x xs) -> count x xs == 0

@@ -8,6 +8,7 @@ open import fin
 open import functions
 open import funext
 open import nat
+open import nat.order
 open import permutation.swap-tree
 open import permutation.insert
 

@@ -15,7 +15,8 @@ open import finite-commutative-monoid.instances
 open import finsum
 open import funext
 open import hlevel
-open import nat.properties
+open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 open import order.instances.real
@@ -45,8 +46,6 @@ open import sigma.base
 open import truncation
 
 import int
-import nat.order as no
-import nat
 
 record TaggedPartition (a : ℝ) (b : ℝ) : Type₁ where
   no-eta-equality
@@ -91,7 +90,7 @@ riemann-sum f p =
 --     j<sn = Fin.i<n j
 --
 --     i<n : i' < tp.n
---     i<n = no.pred-≤ (trans-≤-< i<j j<sn)
+--     i<n = pred-≤ (trans-≤-< i<j j<sn)
 --
 --     i2 : Fin tp.n
 --     i2 = i' , i<n
@@ -106,11 +105,11 @@ riemann-sum f p =
 --     j<sn = Fin.i<n j
 --
 --     pj : Fin sn
---     pj = inc-fin (pj' , no.pred-≤ pj<sn)
+--     pj = inc-fin (pj' , pred-≤ pj<sn)
 --
 --     upj<uj : tp.u pj < tp.u j
 --     upj<uj = subst2 _<_ (cong tp.u (fin-i-path refl)) (cong tp.u (fin-i-path refl))
---                     (tp.u<u (pj' , no.pred-≤ pj<sn))
+--                     (tp.u<u (pj' , pred-≤ pj<sn))
 --   u-preserves-<' i j@(zero , _) (suc k) p =
 --     bot-elim (nat.zero-≮ (suc k , nat.+'-right-suc {suc k} >=> p))
 --
@@ -122,7 +121,7 @@ riemann-sum f p =
 --   handle zero       n=z  = path-≤ (sym tp.u0=a >=> cong tp.u (fin-i-path (sym n=z)) >=> tp.un=b)
 --   handle (suc n') n=n' =
 --     trans-=-≤ (sym tp.u0=a)
---       (trans-≤-= (weaken-< (u-preserves-< zero-fin (suc-fin (n' , path-≤ (sym n=n'))) no.zero-<))
+--       (trans-≤-= (weaken-< (u-preserves-< zero-fin (suc-fin (n' , path-≤ (sym n=n'))) zero-<))
 --                  (cong tp.u (fin-i-path (sym n=n')) >=> tp.un=b))
 --     where
 --     check : tp.n == suc n'
@@ -150,12 +149,12 @@ tagged-partition->≤ {a} {b} tp = handle tp.n refl
     j<sn = Fin.i<n j
 
     i<n : i' < tp.n
-    i<n = no.pred-≤ (trans-≤-< i<j j<sn)
+    i<n = pred-≤ (trans-≤-< i<j j<sn)
 
     i2 : Fin tp.n
     i2 = i' , i<n
   u-preserves-≤' i j@(suc pj' , pj<sn) (suc k) p =
-    trans-≤ (u-preserves-≤' i pj k (cong nat.pred p)) upj≤uj
+    trans-≤ (u-preserves-≤' i pj k (cong pred p)) upj≤uj
     where
     sn = suc tp.n
     i' = Fin.i i
@@ -165,23 +164,23 @@ tagged-partition->≤ {a} {b} tp = handle tp.n refl
     j<sn = Fin.i<n j
 
     pj : Fin sn
-    pj = inc-fin (pj' , no.pred-≤ pj<sn)
+    pj = inc-fin (pj' , pred-≤ pj<sn)
 
     upj≤uj : tp.u pj ≤ tp.u j
     upj≤uj = subst2 _≤_ (cong tp.u (fin-i-path refl)) (cong tp.u (fin-i-path refl))
-                    (tp.u≤u (pj' , no.pred-≤ pj<sn))
+                    (tp.u≤u (pj' , pred-≤ pj<sn))
   u-preserves-≤' i j@(zero , _) (suc k) p =
-    bot-elim (nat.zero-≮ (suc k , nat.+'-right-suc {suc k} >=> p))
+    bot-elim (zero-≮ (suc k , +'-right-suc {suc k} >=> p))
 
   u-preserves-≤ : (i j : Fin (suc tp.n)) -> Fin.i i < Fin.i j -> tp.u i ≤ tp.u j
-  u-preserves-≤ i j (k , sk+i=j) = u-preserves-≤' i j k (sym nat.+'-right-suc >=> sk+i=j)
+  u-preserves-≤ i j (k , sk+i=j) = u-preserves-≤' i j k (sym +'-right-suc >=> sk+i=j)
 
 
   handle : (n : ℕ) (path : tp.n == n) -> a ≤ b
   handle zero       n=z  = path-≤ (sym tp.u0=a >=> cong tp.u (fin-i-path (sym n=z)) >=> tp.un=b)
   handle (suc n') n=n' =
     trans-=-≤ (sym tp.u0=a)
-      (trans-≤-= (u-preserves-≤ zero-fin (suc-fin (n' , path-≤ (sym n=n'))) no.zero-<)
+      (trans-≤-= (u-preserves-≤ zero-fin (suc-fin (n' , path-≤ (sym n=n'))) zero-<)
                  (cong tp.u (fin-i-path (sym n=n')) >=> tp.un=b))
     where
     check : tp.n == suc n'

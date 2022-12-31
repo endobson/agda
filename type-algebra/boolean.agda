@@ -8,6 +8,7 @@ open import equivalence.base
 open import fin
 open import isomorphism
 open import nat
+open import nat.order
 
 Fin2≃Boolean : Fin 2 ≃ Boolean
 Fin2≃Boolean = (isoToEquiv i)

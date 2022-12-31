@@ -9,6 +9,7 @@ open import fin
 open import functions
 open import hlevel
 open import nat
+open import nat.order
 open import relation
 open import sigma.base
 open import sum

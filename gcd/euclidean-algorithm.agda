@@ -10,6 +10,7 @@ open import gcd.propositional
 open import int
 open import linear-combo
 open import nat
+open import nat.order
 open import nat.binary-strong-induction
 open import order
 open import order.instances.nat

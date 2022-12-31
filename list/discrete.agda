@@ -11,6 +11,7 @@ open import hlevel
 open import list
 open import list.filter
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 

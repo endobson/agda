@@ -10,6 +10,9 @@ open import functions
 open import isomorphism
 open import maybe
 open import nat
+open import nat.order
+open import order
+open import order.instances.nat
 open import type-algebra
 open import univalence
 open import vec
@@ -107,7 +110,7 @@ private
     i .inv (inj-r (j , a)) = (suc-fin j , a)
     i .rightInv (inj-l _) = refl
     i .rightInv (inj-r (j@(j' , p) , a)) k =
-      (inj-r ((j' , isProp≤ (pred-≤ (suc-≤ p)) p k) , a))
+      (inj-r ((j' , isProp-≤ (pred-≤ (suc-≤ p)) p k) , a))
     i .leftInv ((0     , p) , a) = \i -> p2 i , a
       where
       p2 : Path (Fin (suc n)) zero-fin (0 , p)

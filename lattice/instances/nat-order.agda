@@ -5,6 +5,7 @@ module lattice.instances.nat-order where
 open import base
 open import lattice
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 
@@ -19,7 +20,7 @@ instance
   open Infimum
 
   isLattice-≤ : IsLattice ≤#
-  isLattice-≤ .partial-order = (trans-≤ , (\ {x} -> same-≤ x) , ≤-antisym)
+  isLattice-≤ .partial-order = (trans-≤ , refl-≤ , antisym-≤)
   isLattice-≤ .supremum .x≼x∨y = \_ _ -> ≤-max-left
   isLattice-≤ .supremum .y≼x∨y = \_ _ -> ≤-max-right
   isLattice-≤ .supremum .∨-least = \_ _ _ -> ≤-max-least

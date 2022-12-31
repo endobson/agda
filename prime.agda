@@ -8,6 +8,7 @@ open import equality
 open import functions
 open import hlevel
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 open import relation
@@ -28,7 +29,7 @@ record IsPrime' (p : Nat) : Type₀ where
 
 isPropIsPrime' : {n : Nat} -> isProp (IsPrime' n)
 isPropIsPrime' (is-prime' gt1 f1) (is-prime' gt2 f2) i =
-  (is-prime' (isProp≤ gt1 gt2 i) (isPropΠ3 (\ _ _ _ -> (isSetNat _ _)) f1 f2 i))
+  (is-prime' (isProp-≤ gt1 gt2 i) (isPropΠ3 (\ _ _ _ -> (isSetNat _ _)) f1 f2 i))
 
 Prime' : Type₀
 Prime' = Σ Nat IsPrime'

@@ -26,6 +26,7 @@ open import int using (Int ; int ; neg ; _^_ ; zero-int ; ^-right-zero ; ^-right
 open import list
 open import maybe
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 open import prime

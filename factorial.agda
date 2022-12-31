@@ -5,13 +5,14 @@ module factorial where
 open import base
 open import equality
 open import nat
-open import ring.implementations
-open import semiring
+open import nat.order
 open import order
 open import order.instances.nat
-open import ordered-semiring
 open import ordered-ring
+open import ordered-semiring
 open import ordered-semiring.instances.nat
+open import ring.implementations
+open import semiring
 
 factorial : ℕ -> ℕ
 factorial zero = 1#

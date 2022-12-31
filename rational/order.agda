@@ -12,6 +12,8 @@ open import fraction.order
 open import functions
 open import hlevel
 open import isomorphism
+open import nat using (ℕ ; Nat⁺; 2⁺ ; _*⁺_; _^⁺_)
+open import nat.order using (2^n-large)
 open import order
 open import order.instances.int
 open import order.instances.nat
@@ -32,8 +34,6 @@ open import truncation
 open import univalence
 
 import int as i
-import nat
-open nat using (ℕ ; Nat⁺; 2⁺ ; _*⁺_; _^⁺_; 2^n-large)
 
 private
   module _ where

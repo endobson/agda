@@ -7,6 +7,7 @@ open import equality
 open import fin
 open import functions
 open import nat
+open import nat.order
 open import permutation.insert
 
 data SwapTree : Nat -> Type₀ where

@@ -7,6 +7,7 @@ open import equality
 open import fin
 open import hlevel
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 

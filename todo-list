@@ -7,6 +7,13 @@ Remove gcd constructor from GCD
 Change ℚ< and Posℚ to order2's version.
 -- Cleanup {_}s from that
 
+Add structures for ℕ≤
+-- Apartness
+-- Decidable
+Cleanup ℕ≤
+-- Remove ℕ≤ specific functions
+-- same-≤
+
 Change ℝ< to have the bounds
 
 Change ≤ to just be a partial order

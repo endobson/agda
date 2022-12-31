@@ -10,6 +10,7 @@ open import gcd.euclidean-algorithm
 open import int
 open import lcm
 open import nat
+open import nat.order
 open import prime
 open import relation
 open import relatively-prime

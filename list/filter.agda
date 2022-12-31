@@ -8,6 +8,7 @@ open import equality
 open import list
 open import monoid
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 

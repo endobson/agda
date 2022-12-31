@@ -24,6 +24,7 @@ open import list.sorted
 open import maybe
 open import nat
 open import nat.bounded
+open import nat.order
 open import order
 open import order.instances.nat
 open import prime

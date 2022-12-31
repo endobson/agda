@@ -6,6 +6,7 @@ open import base
 open import div
 open import equality
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 open import prime

@@ -17,8 +17,8 @@ open import functions
 open import finite-commutative-monoid.instances
 open import hlevel
 open import heyting-field
-open import nat.arithmetic
-open import nat.properties
+open import nat
+open import nat.order
 open import order
 open import integral-domain.instances.real
 open import order.instances.nat
@@ -46,7 +46,6 @@ open import ring
 open import ring.implementations.rational
 open import ring.implementations.real
 open import truncation
-open import nat using (≤-max-left ; ≤-max-right)
 
 private
   Seq : Type₁
@@ -130,8 +129,8 @@ isLimit-seq-cons x s v l = close->isLimit f
     handle (n , g) = suc n , h
       where
       h : (m : ℕ) -> m ≥ (suc n) -> ℝ∈Iℚ (seq-cons x s m) qi
-      h zero sn≤z = bot-elim (nat.zero-≮ sn≤z)
-      h (suc m) sn≤sm = g m (nat.pred-≤ sn≤sm)
+      h zero sn≤z = bot-elim (zero-≮ sn≤z)
+      h (suc m) sn≤sm = g m (pred-≤ sn≤sm)
 
 
 geometric-sequence : ℝ -> Seq
@@ -203,9 +202,9 @@ geometric-sequence-≤1 : {x : ℝ} -> 0# ≤ x -> x ≤ 1# -> (n m : ℕ) -> n 
                         (geometric-sequence x m) ≤ (geometric-sequence x n)
 geometric-sequence-≤1 0≤x x≤1 zero m _ = 
   geometric-sequence-≤1' 0≤x x≤1 m
-geometric-sequence-≤1 0≤x x≤1 (suc n) zero = bot-elim ∘ nat.zero-≮
+geometric-sequence-≤1 0≤x x≤1 (suc n) zero = bot-elim ∘ zero-≮
 geometric-sequence-≤1 0≤x x≤1 (suc n) (suc m) sn≤sm =
-  *₁-preserves-≤ 0≤x (geometric-sequence-≤1 0≤x x≤1 n m (nat.pred-≤ sn≤sm))
+  *₁-preserves-≤ 0≤x (geometric-sequence-≤1 0≤x x≤1 n m (pred-≤ sn≤sm))
 
 
 
