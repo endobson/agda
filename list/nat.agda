@@ -13,6 +13,8 @@ open import list.discrete
 open import monoid
 open import nat
 open import nat.bounded
+open import order
+open import order.instances.nat
 open import relation
 open import truncation
 

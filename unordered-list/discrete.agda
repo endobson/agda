@@ -11,6 +11,8 @@ open import equality-path
 open import functions
 open import hlevel
 open import nat
+open import order
+open import order.instances.nat
 open import ring.implementations
 open import sigma.base
 open import unordered-list.base

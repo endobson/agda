@@ -6,6 +6,8 @@ open import base
 open import div
 open import equality
 open import nat
+open import order
+open import order.instances.nat
 open import prime
 open import prime-div-count
 open import gcd.computational

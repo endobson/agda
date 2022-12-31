@@ -11,7 +11,7 @@ open import hlevel.base
 open import equality
 open import sum
 open import functions
-open import nat hiding (_≤_ ; trans-≤ ; _<_ ; _>_; trans-<-≤)
+open import nat
 open import list
 open import order
 open import order.instances.nat

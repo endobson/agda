@@ -11,7 +11,7 @@ open import functions
 open import hlevel.base
 open import hlevel
 open import list
-open import nat hiding (_≤_ ; trans-≤ ; _<_ ; _>_; trans-<-≤)
+open import nat
 open import order
 open import order.instances.nat
 open import relation

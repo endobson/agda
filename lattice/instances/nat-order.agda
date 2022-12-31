@@ -5,6 +5,8 @@ module lattice.instances.nat-order where
 open import base
 open import lattice
 open import nat
+open import order
+open import order.instances.nat
 
 ≤# : RawLattice Nat
 RawLattice._≼_ ≤# = _≤_

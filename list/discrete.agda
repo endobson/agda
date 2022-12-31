@@ -11,6 +11,8 @@ open import hlevel
 open import list
 open import list.filter
 open import nat
+open import order
+open import order.instances.nat
 
 private
   discA = Discrete'.f disc'A

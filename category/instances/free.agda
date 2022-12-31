@@ -16,9 +16,8 @@ open import hlevel
 open import isomorphism
 open import list
 open import maybe
-open import nat hiding (trans-≤ ; _<_; _≤_; trans-<-≤)
+open import nat
 open import order
-open import order.instances.nat
 open import order.instances.nat
 open import ordered-semiring
 open import ordered-semiring.instances.nat

@@ -7,6 +7,8 @@ open import div
 open import equality
 open import lcm
 open import nat
+open import order
+open import order.instances.nat
 open import prime-power-factorization
 open import prime-div-count
 open import prime

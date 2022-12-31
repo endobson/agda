@@ -8,6 +8,8 @@ open import equality
 open import gcd.propositional
 open import lcm
 open import nat
+open import order
+open import order.instances.nat
 open import prime
 open import prime-gcd
 open import relation

@@ -4,7 +4,8 @@ module finset.order.base where
 
 open import base
 open import finset
-open import nat.order
+open import order
+open import order.instances.nat
 
 FinSet≤ : {ℓA ℓB : Level} -> (A : FinSet ℓA) -> (B : FinSet ℓB) -> Type₀
 FinSet≤ A B = cardinality A ≤ cardinality B

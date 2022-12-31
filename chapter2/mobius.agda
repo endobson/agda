@@ -26,6 +26,8 @@ open import int using (Int ; int ; neg ; _^_ ; zero-int ; ^-right-zero ; ^-right
 open import list
 open import maybe
 open import nat
+open import order
+open import order.instances.nat
 open import prime
 open import prime-factorization
 open import prime-power-factorization

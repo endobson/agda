@@ -9,20 +9,20 @@ open import nat.order as no
 instance
   LinearOrderStr-ℕ : LinearOrderStr Nat ℓ-zero
   LinearOrderStr-ℕ = record
-    { _<_ = no._<_
+    { _<_ = no._ℕ<_
     ; isProp-< = no.isProp≤
     ; irrefl-< = \{x} -> no.same-≮ {x}
-    ; trans-< = \{x} {y} {z} -> no.trans-< {x} {y} {z}
+    ; trans-< = \{x} {y} {z} -> no.trans-ℕ< {x} {y} {z}
     ; connected-< = no.connected-nat<
     ; comparison-< = no.comparison-nat<
     }
 
   PartialOrderStr-ℕ : PartialOrderStr Nat ℓ-zero
   PartialOrderStr-ℕ = record
-    { _≤_ = no._≤_
+    { _≤_ = no._ℕ≤_
     ; isProp-≤ = no.isProp≤
     ; refl-≤ = \{x} -> no.same-≤ x
-    ; trans-≤ = \{x} {y} {z} -> no.trans-≤ {x} {y} {z}
+    ; trans-≤ = \{x} {y} {z} -> no.trans-ℕ≤ {x} {y} {z}
     ; antisym-≤ = ≤-antisym
     }
   TotalOrderStr-ℕ : TotalOrderStr PartialOrderStr-ℕ
@@ -32,5 +32,5 @@ instance
   CompatibleOrderStr-ℕ :
     CompatibleOrderStr LinearOrderStr-ℕ PartialOrderStr-ℕ
   CompatibleOrderStr-ℕ = record
-    { weaken-< = no.weaken-<
+    { weaken-< = no.weaken-ℕ<
     }

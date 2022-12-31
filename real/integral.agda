@@ -91,7 +91,7 @@ riemann-sum f p =
 --     j<sn = Fin.i<n j
 --
 --     i<n : i' < tp.n
---     i<n = no.pred-≤ (no.trans-≤-< i<j j<sn)
+--     i<n = no.pred-≤ (trans-≤-< i<j j<sn)
 --
 --     i2 : Fin tp.n
 --     i2 = i' , i<n
@@ -150,7 +150,7 @@ tagged-partition->≤ {a} {b} tp = handle tp.n refl
     j<sn = Fin.i<n j
 
     i<n : i' < tp.n
-    i<n = no.pred-≤ (no.trans-≤-< i<j j<sn)
+    i<n = no.pred-≤ (trans-≤-< i<j j<sn)
 
     i2 : Fin tp.n
     i2 = i' , i<n

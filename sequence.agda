@@ -4,6 +4,8 @@ module sequence where
 
 open import base
 open import nat
+open import order
+open import order.instances.nat
 open import relation
 open import truncation
 

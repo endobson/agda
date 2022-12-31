@@ -9,6 +9,8 @@ open import relation
 open import list
 open import list.discrete
 open import nat
+open import order
+open import order.instances.nat
 open import semiring
 
 import ring.lists

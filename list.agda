@@ -3,12 +3,14 @@
 module list where
 
 open import base
-open import relation hiding (acc)
 open import equality-path
 open import functions
 open import monoid
 open import nat
+open import order
+open import order.instances.nat
 open import quotient
+open import relation hiding (acc)
 open import ring.implementations
 open import sigma.base
 open import sum
@@ -103,7 +105,7 @@ safe-head x (a :: as) = a
 
 -- AtIndex and Contains
 
-AtIndex : Nat -> List A -> A -> Type _
+AtIndex : Nat -> List A -> A -> Type (levelOf A)
 AtIndex n       []        x = Lift _ Bot
 AtIndex zero    (a :: as) x = x == a
 AtIndex (suc n) (_ :: as) x = AtIndex n as x
@@ -170,9 +172,9 @@ split-contains-++ (a :: as) bs (suc n , ai) =
 ++-at-index-left⁻ {i = zero}  (a :: as) bs lt ai = ai
 ++-at-index-left⁻ {i = suc i} (a :: as) bs lt ai = ++-at-index-left⁻ as bs (pred-≤ lt) ai
 
-++-at-index-right⁻ : {i : Nat} {x : A} (as bs : List A) -> (lt : (length as) ≤ i)
-                     -> AtIndex i (as ++ bs) x
-                     -> AtIndex ⟨ lt ⟩ bs x
+++-at-index-right⁻ :
+  {ℓ : Level} {A : Type ℓ} {i : Nat} {x : A}
+  (as bs : List A) -> (lt : (length as) ≤ i) -> AtIndex i (as ++ bs) x -> AtIndex ⟨ lt ⟩ bs x
 ++-at-index-right⁻ {i = i} {x = x} [] bs (k , path) ai =
   transport (\j -> AtIndex (full-path j) bs x) ai
   where

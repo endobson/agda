@@ -5,6 +5,9 @@ module quotient where
 open import base
 open import equality
 open import nat
+open import order
+open import order.instances.nat
+
 
 quotient : (a : Nat) (b : Nat⁺) -> Nat
 

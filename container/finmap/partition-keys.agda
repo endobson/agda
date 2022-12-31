@@ -7,7 +7,7 @@ open import container.finmap
 open import equality
 open import functions
 open import hlevel
-open import nat.order hiding (_≤_ ; _<_)
+open import nat.order
 open import order
 open import order.instances.nat
 open import sigma.base

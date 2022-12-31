@@ -3,22 +3,22 @@
 module programming-languages.renamings2 where
 
 open import base
-open import equality-path
-open import univalence
-open import fin
-open import truncation
-open import cubical
-open import finset
-open import equivalence
-open import isomorphism
-open import relation
-open import functions
-open import nat hiding (_≤_ ; trans-≤ ; _<_ ; _>_; trans-<-≤)
-open import hlevel
-open import type-algebra
 open import container.finmap.v3
+open import cubical
 open import dominance
+open import equality-path
+open import equivalence
+open import fin
+open import finset
+open import functions
+open import hlevel
+open import isomorphism
+open import nat
 open import partial-map
+open import relation
+open import truncation
+open import type-algebra
+open import univalence
 
 private
   variable

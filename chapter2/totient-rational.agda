@@ -6,24 +6,26 @@ open import additive-group using (-_)
 open import additive-group.instances.int
 open import additive-group.instances.nat
 open import base
-open import equality
-open import commutative-monoid
-open import nat
-open import int hiding (-_)
-open import rational
-open import funext
-open import finite-product
-open import finset
-open import chapter2.totient
 open import chapter2.id-function
 open import chapter2.multiplicative
 open import chapter2.prime-divisors
-open import prime-div-count.computational
-open import ring
+open import chapter2.totient
+open import commutative-monoid
+open import equality
+open import finite-product
+open import finset
+open import funext
+open import int hiding (-_)
+open import nat
+open import order
+open import order.instances.nat
 open import prime
+open import prime-div-count.computational
+open import rational
 open import rational-prime
-open import ring.implementations.rational
+open import ring
 open import ring.implementations
+open import ring.implementations.rational
 
 φℚ : Nat⁺ -> Rational
 φℚ n = ℕ->ℚ (φ n)

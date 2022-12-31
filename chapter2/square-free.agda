@@ -10,6 +10,8 @@ open import functions
 open import hlevel
 open import isomorphism
 open import nat
+open import order
+open import order.instances.nat
 open import prime
 open import prime-factorization
 open import relation

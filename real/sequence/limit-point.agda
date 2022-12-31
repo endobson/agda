@@ -9,7 +9,7 @@ open import base
 open import equality
 open import functions
 open import hlevel
-open import nat hiding (_<_ ; _≤_ ; trans-≤ ; weaken-< ; trans-<)
+open import nat
 open import order
 open import order.instances.real
 open import order.instances.nat

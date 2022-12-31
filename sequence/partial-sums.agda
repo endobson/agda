@@ -11,7 +11,7 @@ open import finset.instances
 open import finsum
 open import functions
 open import funext
-open import nat hiding (_≤_)
+open import nat
 open import order
 open import ordered-semiring
 open import semiring

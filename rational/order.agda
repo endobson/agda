@@ -14,6 +14,7 @@ open import hlevel
 open import isomorphism
 open import order
 open import order.instances.int
+open import order.instances.nat
 open import ordered-semiring
 open import ordered-ring
 open import rational
@@ -32,7 +33,7 @@ open import univalence
 
 import int as i
 import nat
-open nat using (ℕ ; Nat⁺; 2⁺ ; _*⁺_)
+open nat using (ℕ ; Nat⁺; 2⁺ ; _*⁺_; _^⁺_; 2^n-large)
 
 private
   module _ where
@@ -902,15 +903,15 @@ abstract
 
 
 abstract
-  ℕ->ℚ-preserves-order : (a b : Nat) -> a nat.< b -> (ℕ->ℚ a) < (ℕ->ℚ b)
+  ℕ->ℚ-preserves-order : (a b : Nat) -> a < b -> (ℕ->ℚ a) < (ℕ->ℚ b)
   ℕ->ℚ-preserves-order a b a<b =
     ℚ<-cons (transport (sym ℚ<-raw-eval) (ℕ->ℚ'-preserves-order a b a<b))
 
-  ℕ->ℚ-preserves-≤ : (a b : Nat) -> a nat.≤ b -> (ℕ->ℚ a) ≤ (ℕ->ℚ b)
+  ℕ->ℚ-preserves-≤ : (a b : Nat) -> a ≤ b -> (ℕ->ℚ a) ≤ (ℕ->ℚ b)
   ℕ->ℚ-preserves-≤ a b a≤b =
     ℚ≤-cons (transport (sym ℚ≤-raw-eval) (ℕ->ℚ'-preserves-≤ a b a≤b))
 
-  1/ℕ-flips-order : (a b : Nat⁺) -> ⟨ a ⟩ nat.< ⟨ b ⟩ -> 1/ℕ b < 1/ℕ a
+  1/ℕ-flips-order : (a b : Nat⁺) -> ⟨ a ⟩ < ⟨ b ⟩ -> 1/ℕ b < 1/ℕ a
   1/ℕ-flips-order a@(a' , _) b@(b' , _) lt = subst2 _<_ b-path a-path ab*<
     where
     module _ where
@@ -933,7 +934,7 @@ abstract
       ab*< : (ab r* (ℕ->ℚ a')) < (ab r* (ℕ->ℚ b'))
       ab*< = *₁-preserves-< pos-ab (ℕ->ℚ-preserves-order a' b' lt)
 
-  1/ℕ-flips-≤ : (a b : Nat⁺) -> ⟨ a ⟩ nat.≤ ⟨ b ⟩ -> 1/ℕ b ≤ 1/ℕ a
+  1/ℕ-flips-≤ : (a b : Nat⁺) -> ⟨ a ⟩ ≤ ⟨ b ⟩ -> 1/ℕ b ≤ 1/ℕ a
   1/ℕ-flips-≤ a@(a' , _) b@(b' , _) lt = subst2 _≤_ b-path a-path ab*≤
     where
     module _ where
@@ -1106,18 +1107,18 @@ small-1/ℕ q = ∥-map handle (1/ℕ-<-step3 q)
   handle (m , m≤) = (2⁺ *⁺ m) , trans-<-≤ {d1 = 1/ℕ (2⁺ *⁺ m)} {1/ℕ m} {⟨ q ⟩} (1/2ℕ<1/ℕ m) m≤
 
 private
-  small-1/2^ℕ-step1 : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] (1/ℕ (2⁺ nat.^⁺ ⟨ m ⟩) < ⟨ q ⟩)
+  small-1/2^ℕ-step1 : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] (1/ℕ (2⁺ ^⁺ ⟨ m ⟩) < ⟨ q ⟩)
   small-1/2^ℕ-step1 q@(q' , _) = ∥-map handle (small-1/ℕ q)
     where
-    handle : Σ[ m ∈ Nat⁺ ] (1/ℕ m < q') -> Σ[ m ∈ Nat⁺ ] (1/ℕ (2⁺ nat.^⁺ ⟨ m ⟩) < q')
+    handle : Σ[ m ∈ Nat⁺ ] (1/ℕ m < q') -> Σ[ m ∈ Nat⁺ ] (1/ℕ (2⁺ ^⁺ ⟨ m ⟩) < q')
     handle (m@(m' , _) , lt) =
-      m , trans-< {_} {_} {_} {1/ℕ (2⁺ nat.^⁺ m')} {1/ℕ m} {q'}
-            (1/ℕ-flips-order m (2⁺ nat.^⁺ m') (nat.2^n-large m')) lt
+      m , trans-< {_} {_} {_} {1/ℕ (2⁺ ^⁺ m')} {1/ℕ m} {q'}
+            (1/ℕ-flips-order m (2⁺ ^⁺ m') (2^n-large m')) lt
 
 small-1/2^ℕ : (q : ℚ⁺) -> ∃[ m ∈ Nat ] ((1/2r r^ℕ⁰ m) < ⟨ q ⟩)
 small-1/2^ℕ q@(q' , _) = ∥-map handle (small-1/2^ℕ-step1 q)
   where
-  handle : Σ[ m ∈ Nat⁺ ] (1/ℕ (2⁺ nat.^⁺ ⟨ m ⟩) < q') ->
+  handle : Σ[ m ∈ Nat⁺ ] (1/ℕ (2⁺ ^⁺ ⟨ m ⟩) < q') ->
            Σ[ m ∈ Nat ] ((1/2r r^ℕ⁰ m) < q')
   handle ((m , _) , lt) = m , subst (_< q') (1/2^ℕ-path m) lt
 

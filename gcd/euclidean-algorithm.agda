@@ -11,6 +11,8 @@ open import int
 open import linear-combo
 open import nat
 open import nat.binary-strong-induction
+open import order
+open import order.instances.nat
 open import relation
 
 

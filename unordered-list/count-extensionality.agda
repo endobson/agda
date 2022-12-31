@@ -8,6 +8,8 @@ module unordered-list.count-extensionality {ℓ : Level} {A : Type ℓ} {{disc'A
 open import equality
 open import hlevel
 open import nat
+open import order
+open import order.instances.nat
 open import unordered-list.base
 open import unordered-list.operations
 open import unordered-list.discrete

@@ -6,9 +6,6 @@ open import base
 open import cubical
 open import equality
 open import equivalence
-open import maybe
-open import nat
-open import nat.bounded
 open import fin
 open import finset
 open import finset.instances
@@ -16,11 +13,16 @@ open import finset.instances.base
 open import functions
 open import hlevel
 open import isomorphism
+open import maybe
+open import nat
+open import nat.bounded
+open import order
+open import order.instances.nat
 open import relation
-open import truncation
-open import type-algebra
 open import sigma.base
 open import sum
+open import truncation
+open import type-algebra
 open import univalence
 
 private

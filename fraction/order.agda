@@ -378,7 +378,7 @@ antisym~-ℚ'≤ {a} {b} a≤b b≤a = handle (trichotomous~-ℚ'< a b)
 
 -- Constants
 
-ℕ->ℚ'-preserves-order : (a b : Nat) -> a nat.< b -> (ℕ->ℚ' a) ℚ'< (ℕ->ℚ' b)
+ℕ->ℚ'-preserves-order : (a b : Nat) -> a < b -> (ℕ->ℚ' a) ℚ'< (ℕ->ℚ' b)
 ℕ->ℚ'-preserves-order a b (c , path) = ℚ'<-cons ans
   where
 
@@ -408,7 +408,7 @@ antisym~-ℚ'≤ {a} {b} a≤b b≤a = handle (trichotomous~-ℚ'< a b)
   ans = r~-preserves-sign Pos-sd sd~diff
 
 
-ℕ->ℚ'-preserves-≤ : (a b : Nat) -> a nat.≤ b -> (ℕ->ℚ' a) ℚ'≤ (ℕ->ℚ' b)
+ℕ->ℚ'-preserves-≤ : (a b : Nat) -> a ≤ b -> (ℕ->ℚ' a) ℚ'≤ (ℕ->ℚ' b)
 ℕ->ℚ'-preserves-≤ a b (zero , path) =
   subst2 _ℚ'≤_ refl (cong ℕ->ℚ' path) refl-ℚ'≤
 ℕ->ℚ'-preserves-≤ a b (suc c , path) = weaken-ℚ'< aℚ'<b

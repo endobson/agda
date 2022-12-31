@@ -10,7 +10,7 @@ open import isomorphism
 open import fin
 open import finset
 open import hlevel
-open import nat hiding (_<_)
+open import nat
 open import order
 open import order.instances.nat
 open import truncation

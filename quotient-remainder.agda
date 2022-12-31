@@ -4,9 +4,11 @@ module quotient-remainder where
 
 open import base
 open import equality
-open import nat
 open import fin
 open import hlevel
+open import nat
+open import order
+open import order.instances.nat
 
 record QuotientRemainder (d : Nat⁺) (n : Nat) : Type₀ where
   private

@@ -4,7 +4,7 @@ module real.sequence.limit where
 
 open import base
 open import hlevel
-open import nat hiding (_<_)
+open import nat
 open import rational
 open import rational.proper-interval
 open import real

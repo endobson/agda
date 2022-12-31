@@ -26,6 +26,8 @@ open import int using (int)
 open import linear-combo
 open import nat
 open import nat.bounded
+open import order
+open import order.instances.nat
 open import prime-gcd
 open import relatively-prime
 open import semiring

@@ -9,6 +9,8 @@ open import functions
 open import hlevel
 open import monoid
 open import nat
+open import order
+open import order.instances.nat
 open import relation
 open import ring.implementations
 open import unordered-list.base

@@ -11,6 +11,8 @@ open import functions
 open import isomorphism
 open import hlevel
 open import nat
+open import order
+open import order.instances.nat
 open import pigeonhole
 open import relation
 open import sigma.base

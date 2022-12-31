@@ -4,7 +4,7 @@ module factorial where
 
 open import base
 open import equality
-open import nat hiding (_<_ ; _≤_ ; _≥_ ; trans-<)
+open import nat
 open import ring.implementations
 open import semiring
 open import order

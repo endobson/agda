@@ -15,24 +15,31 @@ open import sigma.base
 open import sum
 open import truncation
 
+private
+  _≤_ : Nat -> Nat -> Type₀
+  m ≤ n = Σ[ x ∈ Nat ] x +' m == n
 
-_≤_ : Nat -> Nat -> Type₀
-m ≤ n = Σ[ x ∈ Nat ] x +' m == n
+  _≥_ : Nat -> Nat -> Set
+  m ≥ n = n ≤ m
 
-_≥_ : Nat -> Nat -> Set
-m ≥ n = n ≤ m
+  _<_ : Nat -> Nat -> Set
+  m < n = (suc m) ≤ n
 
-_<_ : Nat -> Nat -> Set
-m < n = (suc m) ≤ n
+  _>_ : Nat -> Nat -> Set
+  m > n = n < m
 
-_>_ : Nat -> Nat -> Set
-m > n = n < m
+  _≮_ : Nat -> Nat -> Set
+  m ≮ n = ¬ (m < n)
 
-_≮_ : Nat -> Nat -> Set
-m ≮ n = ¬ (m < n)
+  _≯_ : Nat -> Nat -> Set
+  m ≯ n = ¬ (m > n)
 
-_≯_ : Nat -> Nat -> Set
-m ≯ n = ¬ (m > n)
+
+_ℕ≤_ : Nat -> Nat -> Type₀
+_ℕ≤_ = _≤_
+
+_ℕ<_ : Nat -> Nat -> Set
+_ℕ<_ = _<_
 
 _<⁺_ : Nat⁺ -> Nat⁺ -> Set
 m <⁺ n = ⟨ m ⟩ < ⟨ n ⟩
@@ -127,30 +134,44 @@ right-suc-≤ (x , p) = suc x , cong suc p
 right-suc-< : {m n : Nat} -> m < n -> m < (suc n)
 right-suc-< = right-suc-≤
 
-weaken-< : {m n : Nat} -> m < n -> m ≤ n
-weaken-< lt = pred-≤ (right-suc-≤ lt)
+weaken-ℕ< : {m n : Nat} -> m < n -> m ≤ n
+weaken-ℕ< lt = pred-≤ (right-suc-≤ lt)
+
+private
+  weaken-< = weaken-ℕ<
 
 strengthen-≤ : {m n : Nat} -> m ≤ n -> m != n -> m < n
 strengthen-≤ (0     , path) ¬path = bot-elim (¬path path)
 strengthen-≤ (suc x , path) ¬path = (x , +'-right-suc >=> path)
 
-trans-≤ : {m n o : Nat} -> m ≤ n -> n ≤ o -> m ≤ o
-trans-≤ (x1 , p1) (x2 , p2) =
+trans-ℕ≤ : {m n o : Nat} -> m ≤ n -> n ≤ o -> m ≤ o
+trans-ℕ≤ (x1 , p1) (x2 , p2) =
   x1 +' x2 , +'-left (+'-commute {x1} {x2}) >=> +'-assoc {x2} {x1} >=> cong (x2 +'_) p1 >=> p2
 
-trans-<-≤ : {m n o : Nat} -> (m < n) -> (n ≤ o) -> (m < o)
-trans-<-≤ = trans-≤
+private
+  trans-≤ = trans-ℕ≤
 
-trans-≤-< : {m n o : Nat} -> m ≤ n -> n < o -> m < o
-trans-≤-< {m} {n} {o} (x1 , p1) (x2 , p2) = x2 +' x1 , path
+trans-ℕ<-ℕ≤ : {m n o : Nat} -> (m < n) -> (n ≤ o) -> (m < o)
+trans-ℕ<-ℕ≤ = trans-≤
+
+private
+  trans-<-≤ = trans-ℕ<-ℕ≤
+
+trans-ℕ≤-ℕ< : {m n o : Nat} -> m ≤ n -> n < o -> m < o
+trans-ℕ≤-ℕ< {m} {n} {o} (x1 , p1) (x2 , p2) = x2 +' x1 , path
   where
   path : (x2 +' x1) +' suc m == o
   path = +'-assoc {x2}
          >=> cong (x2 +'_) (+'-right-suc >=> cong suc p1)
          >=> p2
+private
+  trans-≤-< = trans-ℕ≤-ℕ<
 
-trans-< : {m n o : Nat} -> (m < n) -> (n < o) -> (m < o)
-trans-< lt1 lt2 = trans-≤-< (pred-≤ (right-suc-≤ lt1)) lt2
+trans-ℕ< : {m n o : Nat} -> (m < n) -> (n < o) -> (m < o)
+trans-ℕ< lt1 lt2 = trans-≤-< (pred-≤ (right-suc-≤ lt1)) lt2
+
+private
+  trans-< = trans-ℕ<
 
 comparison-nat< : Comparison _<_
 comparison-nat< x y z x<z = handle (split-nat< x y)
@@ -159,9 +180,10 @@ comparison-nat< x y z x<z = handle (split-nat< x y)
   handle (inj-l x<y) = ∣ inj-l x<y ∣
   handle (inj-r y≤x) = ∣ inj-r (trans-≤-< y≤x x<z) ∣
 
-<->!= : {m n : Nat} -> m < n -> m != n
-<->!= {m} {n} (x , p) m==n =
-  zero-suc-absurd (transport (sym (+'-right-path m)) (m==n >=> sym p >=> +'-right-suc))
+private
+  <->!= : {m n : Nat} -> m < n -> m != n
+  <->!= {m} {n} (x , p) m==n =
+    zero-suc-absurd (transport (sym (+'-right-path m)) (m==n >=> sym p >=> +'-right-suc))
 
 same-≮ : {n : Nat} -> (n ≮ n)
 same-≮ {n} lt = <->!= lt refl
@@ -468,7 +490,7 @@ max-monotonic-≤ a≤b c≤d = ≤-max-least a≤bd c≤bd
   a≤bd = trans-≤ a≤b ≤-max-left
   c≤bd = trans-≤ c≤d ≤-max-right
 
--- max-monotonic-≤ a1 a2 a1≤a2= 
+-- max-monotonic-≤ a1 a2 a1≤a2=
 
 -- Flipped ≤
 

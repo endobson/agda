@@ -2,21 +2,21 @@
 
 module programming-languages.alpha-caml where
 
+open import base
 open import container.finmap
 open import container.finmap.composition
 open import container.finmap.entry-map
-open import base
-open import relation
-open import hlevel.base
 open import equality
-open import sum
 open import functions
-open import nat hiding (_≤_ ; trans-≤ ; _<_ ; _>_; trans-<-≤)
+open import hlevel.base
 open import list
+open import nat
 open import order
 open import order.instances.nat
-open import truncation
 open import programming-languages.renamings
+open import relation
+open import sum
+open import truncation
 
 private
   variable

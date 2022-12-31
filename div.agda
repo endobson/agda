@@ -4,11 +4,13 @@ module div where
 
 open import abs
 open import base
-open import equality
 open import commutative-monoid
+open import equality
 open import hlevel
 open import int
 open import nat
+open import order
+open import order.instances.nat
 open import quotient hiding (remainder)
 open import relation hiding (acc)
 open import ring.implementations

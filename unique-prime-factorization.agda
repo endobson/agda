@@ -10,6 +10,8 @@ open import isomorphism
 open import gcd.propositional
 open import gcd.computational
 open import nat
+open import order
+open import order.instances.nat
 open import prime
 open import prime-div-count
 open import prime-div-count.computational

@@ -2,11 +2,13 @@
 
 module int where
 
-open import equality
 open import base
-open import nat
-open import monoid
+open import equality
 open import hlevel
+open import monoid
+open import nat
+open import order
+open import order.instances.nat
 open import relation
 open import sign using (Sign ; s⁻¹_ ; _s*_ ; pos-sign ; zero-sign ; neg-sign )
 
