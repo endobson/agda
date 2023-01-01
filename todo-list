@@ -13,10 +13,14 @@ Add structures for ℕ≤
 Cleanup ℕ≤
 -- Remove ℕ≤ specific functions
 -- same-≤
+Cleanup ℤ operations so they don't conflict with generic names
 
 Change ℝ< to have the bounds
 
 Change ≤ to just be a partial order
+
+Add concept of ordered ring homomorphisms
+Add non-ℚ-specific utilities for diff and <
 
 FiniteMerge cleanup
 finsum needs to use implicit
