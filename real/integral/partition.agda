@@ -23,7 +23,7 @@ record Partition (a : ℝ) (b : ℝ) : Type₁ where
     u : Fin (suc n) -> ℝ
     u0=a : u zero-fin == a
     un=b : u (n , refl-≤) == b
-    u<u : (i : Fin n) -> u (inc-fin i) < u (suc-fin i)
+    u≤u : (i : Fin n) -> u (inc-fin i) ≤ u (suc-fin i)
 
   width : (i : Fin n) -> ℝ
   width i = (diff (u (inc-fin i)) (u (suc-fin i)))
@@ -50,22 +50,22 @@ partition->≤ {a} {b} p = handle (WF-PartitionSize< p)
       sym (Partition.u0=a p) >=>
       cong (Partition.u p) (fin-i-path refl) >=>
       (Partition.un=b p))
-  handle {p@(record {n = (suc zero); u = u; u0=a = u0=a; un=b = un=b; u<u = u<u})} (acc f) =
-    weaken-< (subst2 _<_ (cong u (fin-i-path refl) >=> u0=a) (cong u (fin-i-path refl) >=> un=b)
-                    (u<u zero-fin))
+  handle {p@(record {n = (suc zero); u = u; u0=a = u0=a; un=b = un=b; u≤u = u≤u})} (acc f) =
+   (subst2 _≤_ (cong u (fin-i-path refl) >=> u0=a) (cong u (fin-i-path refl) >=> un=b)
+          (u≤u zero-fin))
 
-  handle {p@(record {n = (suc (suc n)); u = u; u0=a = u0=a; un=b = un=b; u<u = u<u})} (acc f) =
+  handle {p@(record {n = (suc (suc n)); u = u; u0=a = u0=a; un=b = un=b; u≤u = u≤u})} (acc f) =
     handle (f p2 refl-≤)
     where
     u' : Fin (suc (suc n)) -> ℝ
     u' (zero , _) = u zero-fin
     u' i@(suc n , _) = u (suc-fin i)
 
-    u'<u' : (i : Fin (suc n)) -> u' (inc-fin i) < u' (suc-fin i)
-    u'<u' i@(zero , _) =
-      trans-< (subst2 _<_ (cong u (fin-i-path refl)) refl (u<u (inc-fin i)))
-              (subst2 _<_ (cong u (fin-i-path refl)) refl (u<u (suc-fin i)))
-    u'<u' i@(suc n , _) = subst2 _<_ (cong u (fin-i-path refl)) refl (u<u (suc-fin i))
+    u'≤u' : (i : Fin (suc n)) -> u' (inc-fin i) ≤ u' (suc-fin i)
+    u'≤u' i@(zero , _) =
+      trans-≤ (subst2 _≤_ (cong u (fin-i-path refl)) refl (u≤u (inc-fin i)))
+              (subst2 _≤_ (cong u (fin-i-path refl)) refl (u≤u (suc-fin i)))
+    u'≤u' i@(suc n , _) = subst2 _≤_ (cong u (fin-i-path refl)) refl (u≤u (suc-fin i))
 
     p2 : Partition a b
     p2 = record
@@ -73,10 +73,14 @@ partition->≤ {a} {b} p = handle (WF-PartitionSize< p)
       ; u = u'
       ; u0=a = u0=a
       ; un=b = cong u (fin-i-path refl) >=> un=b
-      ; u<u = u'<u'
+      ; u≤u = u'≤u'
       }
 
 isδFine : {a b : ℝ} (δ : ℝ) (p : Partition a b) -> Type₁
 isδFine δ p = (i : Fin p.n) -> p.width i ≤ δ
   where
   module p = Partition p
+
+weaken-isδFine : {a b : ℝ} {δ1 δ2 : ℝ} -> δ1 ≤ δ2 -> (p : Partition a b) ->
+                          isδFine δ1 p -> isδFine δ2 p
+weaken-isδFine δ1≤δ2 _ f i = trans-≤ (f i) δ1≤δ2

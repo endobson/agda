@@ -17,7 +17,6 @@ open import semiring
 
 record Tagging {a b : ℝ} (p : Partition a b) : Type₁ where
   no-eta-equality
-  pattern
   private
     n = (Partition.n p)
     u = (Partition.u p)
@@ -36,3 +35,18 @@ riemann-sum f (p , t) =
   where
   module p = Partition p
   module t = Tagging t
+
+
+left-tagging : {a b : ℝ} -> (p : Partition a b) -> Tagging p
+left-tagging p = record
+  { t = \i -> Partition.u p (inc-fin i)
+  ; u≤t = \i -> refl-≤
+  ; t≤u = \i -> Partition.u≤u p i
+  }
+
+right-tagging : {a b : ℝ} -> (p : Partition a b) -> Tagging p
+right-tagging p = record
+  { t = \i -> Partition.u p (suc-fin i)
+  ; u≤t = \i -> Partition.u≤u p i
+  ; t≤u = \i -> refl-≤
+  }

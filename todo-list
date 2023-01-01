@@ -16,6 +16,7 @@ Cleanup ℕ≤
 Cleanup ℤ operations so they don't conflict with generic names
 
 Change ℝ< to have the bounds
+Add ℝ⁺ constant
 
 Change ≤ to just be a partial order
 
