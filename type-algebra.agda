@@ -44,6 +44,15 @@ private
   i .rightInv b      = bot-elim b
   i .leftInv (b , _) = bot-elim b
 
+×-LiftBot : (A : Type ℓ) -> (Lift ℓ Bot × A) == Lift ℓ Bot
+×-LiftBot {ℓ} A = ua (isoToEquiv i)
+  where
+  i : Iso (Lift ℓ Bot × A) (Lift ℓ Bot)
+  i .fun (lift b , _)  = bot-elim b
+  i .inv (lift b) = bot-elim b
+  i .rightInv (lift b) = bot-elim b
+  i .leftInv (lift b , _)   = bot-elim b
+
 ×-Top-eq : (A : Type ℓ) -> (Top × A) ≃ A
 ×-Top-eq A = (isoToEquiv i)
   where
@@ -55,6 +64,17 @@ private
 
 ×-Top : (A : Type ℓ) -> (Top × A) == A
 ×-Top A = ua (×-Top-eq A)
+
+
+×-LiftTop : (A : Type ℓ) -> (Lift ℓ Top × A) == A
+×-LiftTop A = ua (isoToEquiv i)
+  where
+  i : Iso (Lift ℓ Top × A) A
+  i .fun (lift tt , a)  = a
+  i .inv a         = (lift tt , a)
+  i .rightInv _ = refl
+  i .leftInv _ = refl
+
 
 ×-flip-eq : {A B : Type ℓ} -> (A × B) ≃ (B × A)
 ×-flip-eq {A = A} {B} = (isoToEquiv i)
