@@ -3,11 +3,21 @@
 module real.integral.is-integral where
 
 open import additive-group
+open import additive-group.instances.nat
 open import additive-group.instances.real
 open import base
 open import equality
+open import fin
+open import finite-commutative-monoid
+open import finite-commutative-monoid.instances
+open import finset.instances
+open import finsum
+open import funext
 open import hlevel
+open import nat
+open import nat.order
 open import order
+open import order.instances.nat
 open import order.instances.real
 open import ordered-ring
 open import ordered-semiring
@@ -25,6 +35,7 @@ open import real.minimum
 open import real.rational
 open import real.sequence.cauchy
 open import real.sequence.limit-point
+open import relation
 open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
@@ -127,3 +138,75 @@ private
 
 isProp-isIntegral : {a b : ℝ} {f : ℝ -> ℝ} {v : ℝ} -> isProp (isIntegral a b f v)
 isProp-isIntegral = squash
+
+private
+  module _ {a b : ℝ} (a=b : a == b) (p : Partition a b) where
+    n = Partition.n p
+    u = Partition.u p
+    width = Partition.width p
+
+    trivial-interval->ui=a : (i : Fin (suc n)) -> (u i) == a
+    trivial-interval->ui=a i =
+      antisym-≤ (trans-≤-= (Partition.ui≤b p i) (sym a=b)) (Partition.a≤ui p i)
+
+    trivial-interval->zero-width : (i : Fin n) -> (width i) == 0#
+    trivial-interval->zero-width i =
+      cong2 diff (trivial-interval->ui=a (inc-fin i)) (trivial-interval->ui=a (suc-fin i)) >=>
+      +-inverse
+
+    trivial-interval->zero-sum : (t : Tagging p) -> (f : ℝ -> ℝ) -> riemann-sum f (p , t) == 0#
+    trivial-interval->zero-sum t f =
+      cong finiteSum f-p >=> finiteMerge-ε _
+      where
+      f-p : (\ (i : Fin n) -> (Tagging.t t i * width i) ) == (\i -> 0#)
+      f-p = funExt (\i -> *-right (trivial-interval->zero-width i) >=> *-right-zero)
+
+  module _ {a b : ℝ} {v : ℝ} {f : ℝ -> ℝ} where
+    trivial-interval->zero-ordered-integral : a == b -> isOrderedIntegral' a b f v -> v == 0#
+    trivial-interval->zero-ordered-integral a=b i =
+      εBounded->zero-path v bound
+      where
+      bound : (ε : ℚ⁺) -> εBounded ⟨ ε ⟩ v
+      bound ε = unsquash (isProp-εBounded ⟨ ε ⟩ v) (∥-bind handle (isOrderedIntegral'.δε i ε))
+        where
+        handle : Σ[ δ ∈ ℝ⁺ ] ((p : TaggedPartition a b) -> isδFine ⟨ δ ⟩ ⟨ p ⟩ ->
+                              εBounded ⟨ ε ⟩ (diff (riemann-sum f p) v)) ->
+                 ∥ εBounded ⟨ ε ⟩ v ∥
+        handle (δ , p-bound) = ∥-map handle2 (∃δFinePartition (path-≤ a=b) δ)
+          where
+          handle2 : Σ (Partition a b) (isδFine ⟨ δ ⟩) -> εBounded ⟨ ε ⟩ v
+          handle2 (p , δp) =
+            subst (εBounded ⟨ ε ⟩) diff-path (p-bound tp δp)
+            where
+            tp = (p , left-tagging p)
+            diff-path : (diff (riemann-sum f tp) v) == v
+            diff-path =
+              (cong2 diff (trivial-interval->zero-sum a=b p (left-tagging p) f) refl) >=>
+              +-right minus-zero >=>
+              +-right-zero
+
+isProp-ΣisIntegral : {a b : ℝ} {f : ℝ -> ℝ} -> isProp (Σ ℝ (isIntegral a b f))
+isProp-ΣisIntegral {a} {b} {f} (v1 , i1) (v2 , i2) =
+  ΣProp-path isProp-isIntegral (unsquash (isSet-ℝ v1 v2) (∥-map2 handle i1 i2))
+  where
+  handle : isIntegral' a b f v1 -> isIntegral' a b f v2 -> v1 == v2
+  handle (isIntegral'-≤-cons _ oi1) (isIntegral'-≤-cons _ oi2) =
+    cong fst (isProp-ΣisOrderedIntegral' (v1 , oi1) (v2 , oi2))
+  handle (isIntegral'-≥-cons _ oi1) (isIntegral'-≥-cons _ oi2) =
+    sym minus-double-inverse >=>
+    cong -_ (cong fst (isProp-ΣisOrderedIntegral' (- v1 , oi1) (- v2 , oi2))) >=>
+    minus-double-inverse
+  handle (isIntegral'-≤-cons a≤b oi1) (isIntegral'-≥-cons b≤a oi2) =
+    trivial-interval->zero-ordered-integral a=b oi1 >=>
+    sym minus-zero >=>
+    cong -_ (sym (trivial-interval->zero-ordered-integral (sym a=b) oi2)) >=>
+    minus-double-inverse
+    where
+    a=b = antisym-≤ a≤b b≤a
+  handle (isIntegral'-≥-cons b≤a oi1) (isIntegral'-≤-cons a≤b oi2) =
+    sym (trivial-interval->zero-ordered-integral a=b oi2 >=>
+         sym minus-zero >=>
+         cong -_ (sym (trivial-interval->zero-ordered-integral (sym a=b) oi1)) >=>
+         minus-double-inverse)
+    where
+    a=b = antisym-≤ a≤b b≤a

@@ -3,6 +3,7 @@
 module real.integral.partition where
 
 open import additive-group
+open import additive-group.instances.nat
 open import additive-group.instances.real
 open import base
 open import equality
@@ -27,6 +28,28 @@ record Partition (a : ℝ) (b : ℝ) : Type₁ where
 
   width : (i : Fin n) -> ℝ
   width i = (diff (u (inc-fin i)) (u (suc-fin i)))
+
+  abstract
+    a≤ui : (i : Fin (suc n)) -> a ≤ u i
+    a≤ui (i , lt) = handle i lt
+      where
+      handle : (i : Nat) -> (lt : i < suc n) -> a ≤ u (i , lt)
+      handle zero lt = path-≤ (sym u0=a >=> cong u (fin-i-path refl))
+      handle (suc i) lt =
+        trans-≤ (handle i (trans-< refl-≤ lt))
+                (subst2 _≤_ (cong u (fin-i-path refl)) (cong u (fin-i-path refl))
+                            (u≤u (i , pred-≤ lt)))
+
+    ui≤b : (i : Fin (suc n)) -> u i ≤ b
+    ui≤b (i , j , path) = handle i j path
+      where
+      handle : (i j : Nat) -> (p : j + (suc i) == (suc n)) -> u (i , j , p) ≤ b
+      handle i zero path = path-≤ (cong u (fin-i-path (cong pred path)) >=> un=b)
+      handle i (suc j) path =
+        trans-≤ (subst2 _≤_ (cong u (fin-i-path refl)) (cong u (fin-i-path refl))
+                            (u≤u (i , j , cong pred path)))
+                (handle (suc i) j (+'-right-suc >=> path))
+
 
 PartitionSize< : {a b : ℝ} -> Rel (Partition a b) ℓ-zero
 PartitionSize< p1 p2 = Partition.n p1 < Partition.n p2
