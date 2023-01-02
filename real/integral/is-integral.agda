@@ -158,7 +158,7 @@ private
     trivial-interval->zero-sum t f =
       cong finiteSum f-p >=> finiteMerge-ε _
       where
-      f-p : (\ (i : Fin n) -> (Tagging.t t i * width i) ) == (\i -> 0#)
+      f-p : (\ (i : Fin n) -> (f (Tagging.t t i) * width i) ) == (\i -> 0#)
       f-p = funExt (\i -> *-right (trivial-interval->zero-width i) >=> *-right-zero)
 
   module _ {a b : ℝ} {v : ℝ} {f : ℝ -> ℝ} where

@@ -31,7 +31,7 @@ TaggedPartition a b = Σ (Partition a b) Tagging
 
 riemann-sum : {a b : ℝ} -> (f : ℝ -> ℝ) -> TaggedPartition a b -> ℝ
 riemann-sum f (p , t) =
-  finiteSum (\ (i : Fin p.n) -> t.t i * p.width i)
+  finiteSum (\ (i : Fin p.n) -> f (t.t i) * p.width i)
   where
   module p = Partition p
   module t = Tagging t
