@@ -147,7 +147,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
       d3-path : scaled-vector-sum a2 vs v+ (v- scaled-vector-sum a1 vs) ==
                 scaled-vector-sum da vs
       d3-path =
-        v+-right (sym (finiteMerge-homo-inject _ _ v-ʰ)) >=>
+        v+-right (sym (finiteMerge-homo-inject v-ʰ)) >=>
         sym (finiteMerge-split _) >=>
         cong vector-sum (funExt (\i -> v+-right (sym v*-minus-extract-left) >=>
                                        sym v*-distrib-+))

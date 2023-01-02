@@ -20,3 +20,11 @@ module _ {ℓ₁ ℓ₂ : Level} {D : Type ℓ₁} {P : Pred D ℓ₂}
     ; ∙-commute = ΣProp-path (isProp-P _) M.∙-commute
     ; isSet-Domain = isSetΣ M.isSet-Domain (\d -> isProp->isSet (isProp-P d))
     }
+
+module _ {ℓ₁ ℓ₂ : Level} {D : Type ℓ₁} {P : Pred D ℓ₂}
+         {isProp-P : isPropValuedPred P} {M : CommMonoid D}
+         {Pε : P (CommMonoid.ε M)} {P∙ : ClosedUnder (CommMonoid._∙_ M) P}
+         where
+  CommMonoidʰ-fst : CommMonoidʰᵉ (SubCommMonoidStr isProp-P M Pε P∙) M fst
+  CommMonoidʰ-fst .CommMonoidʰ.preserves-ε = refl
+  CommMonoidʰ-fst .CommMonoidʰ.preserves-∙ x y = refl

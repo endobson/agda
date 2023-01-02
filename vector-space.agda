@@ -340,7 +340,7 @@ module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK}
     abstract
       lt-preserves-vector-sum : {f : V1 -> V2} {vs : I -> V1} -> isLinearTransformation f ->
                                 f (vector-sum vs) == vector-sum (f ∘ vs)
-      lt-preserves-vector-sum {f} lt = sym (finiteMerge-homo-inject CM-V2+ CM-V1+ h)
+      lt-preserves-vector-sum {f} lt = sym (finiteMerge-homo-inject h)
         where
         instance
           CM-V1+ : CommMonoid V1

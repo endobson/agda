@@ -191,7 +191,7 @@ linear-transformation->matrix-path {f} lt = funExt (\v -> vector-ext (\a -> p v 
     m-path : (vector-index (linear-transformation->matrix lt mv* v) a) ==
              (vector-index (vector-sum (\a2 -> (vector-index v a2) v* (f (axis-basis a2)))) a)
     m-path = cong finiteSum (funExt (\a2 -> *-commute)) >=>
-             (finiteMerge-homo-inject _ _ (AdditiveCommMonoidʰ-vector-index a))
+             (finiteMerge-homo-inject (AdditiveCommMonoidʰ-vector-index a))
 
 
 determinant : Matrix -> ℝ

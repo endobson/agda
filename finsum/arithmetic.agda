@@ -30,7 +30,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
     abstract
       finiteSum-* : {k : D} {f : I -> D} -> finiteSum (\i -> k * (f i)) == k * finiteSum f
-      finiteSum-* = finiteMerge-homo-inject _ _ k*ʰ
+      finiteSum-* = finiteMerge-homo-inject k*ʰ
         where
         k*ʰ : {k : D} -> CommMonoidʰᵉ S.+-CommMonoid S.+-CommMonoid (k *_)
         k*ʰ {k} = record

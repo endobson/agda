@@ -356,12 +356,10 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
 
 
 
-module _ {ℓD : Level} {D : Type ℓD} (CM-D : CommMonoid D) where
-  module CM-D = CommMonoid CM-D
-
-  module _ {ℓA ℓB : Level} {A : Type ℓA} {{FA : FinSetStr A}}
-           {B : Type ℓB} (CM-B : CommMonoid B) where
-
+module _ {ℓA ℓB ℓD : Level} {A : Type ℓA} {B : Type ℓB} {D : Type ℓD}
+         {CM-B : CommMonoid B} {CM-D : CommMonoid D} {{FA : FinSetStr A}}
+  where
+    module CM-D = CommMonoid CM-D
     module CM-B = CommMonoid CM-B
     module _ {f : B  -> D} (fʰ : (CommMonoidʰᵉ CM-B CM-D f)) where
       module fʰ = CommMonoidʰ fʰ

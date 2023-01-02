@@ -129,7 +129,7 @@ module _ {ℓB ℓC : Level} {B : Type ℓB} {C : Type ℓC}
       finiteProduct FA (f ∘ g) == f (finiteProduct FA g)
     finiteProduct-homo-inject FA {f = f} fʰ =
       finiteProductᵉ-path >=>
-      finiteMerge-homo-inject CM-C CM-B fʰ >=>
+      finiteMerge-homo-inject fʰ >=>
       cong f (sym finiteProductᵉ-path)
       where
       instance

@@ -260,14 +260,14 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
       private
         sum6 : unwrap-dp (vector-sum extended-scale-up) ==
                finiteMerge CM-ΠK+ (unwrap-dp ∘ extended-scale-up)
-        sum6 = sym (finiteMerge-homo-inject _ _ unwrap-dpʰ)
+        sum6 = sym (finiteMerge-homo-inject unwrap-dpʰ)
 
 
         module _ (i : I) where
 
           sum7 : finiteMerge CM-ΠK+ (unwrap-dp ∘ extended-scale-up) i  ==
                  finiteMerge CM-K+ (app-to i ∘ unwrap-dp ∘ extended-scale-up)
-          sum7  = sym (finiteMerge-homo-inject _ _ (app-toʰ _ i))
+          sum7  = sym (finiteMerge-homo-inject (app-toʰ _ i))
 
           P : Subtype I ℓI
           P i2 = (i == i2) , isSet-I i i2
