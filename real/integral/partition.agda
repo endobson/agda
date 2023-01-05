@@ -11,6 +11,8 @@ open import fin
 open import nat
 open import nat.order
 open import order
+open import ordered-semiring
+open import ordered-semiring.instances.real
 open import order.instances.nat
 open import order.instances.real
 open import real
@@ -49,6 +51,10 @@ record Partition (a : ℝ) (b : ℝ) : Type₁ where
         trans-≤ (subst2 _≤_ (cong u (fin-i-path refl)) (cong u (fin-i-path refl))
                             (u≤u (i , j , cong pred path)))
                 (handle (suc i) j (+'-right-suc >=> path))
+
+    0≤width : (i : Fin n) -> 0# ≤ width i
+    0≤width i = trans-=-≤ (sym +-inverse) (+₂-preserves-≤ (u≤u i))
+
 
 
 PartitionSize< : {a b : ℝ} -> Rel (Partition a b) ℓ-zero
