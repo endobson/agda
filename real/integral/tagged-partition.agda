@@ -41,12 +41,12 @@ left-tagging : {a b : ℝ} -> (p : Partition a b) -> Tagging p
 left-tagging p = record
   { t = \i -> Partition.u p (inc-fin i)
   ; u≤t = \i -> refl-≤
-  ; t≤u = \i -> Partition.u≤u p i
+  ; t≤u = \i -> weaken-< (Partition.u<u p i)
   }
 
 right-tagging : {a b : ℝ} -> (p : Partition a b) -> Tagging p
 right-tagging p = record
   { t = \i -> Partition.u p (suc-fin i)
-  ; u≤t = \i -> Partition.u≤u p i
+  ; u≤t = \i -> weaken-< (Partition.u<u p i)
   ; t≤u = \i -> refl-≤
   }

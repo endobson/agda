@@ -34,14 +34,14 @@ open import truncation
 
 import int
 
-harmonic-partition : {a b : ℝ} -> a ≤ b -> Nat⁺ -> Partition a b
-harmonic-partition {a} {b} a≤b n⁺@(n , _) =
+harmonic-partition : {a b : ℝ} -> a < b -> Nat⁺ -> Partition a b
+harmonic-partition {a} {b} a<b n⁺@(n , _) =
   record
   { n = n
   ; u = u
   ; u0=a = u0=a
   ; un=b = un=b
-  ; u≤u = u≤u
+  ; u<u = u<u
   }
   where
   u : Fin (suc n) -> ℝ
@@ -59,19 +59,19 @@ harmonic-partition {a} {b} a≤b n⁺@(n , _) =
     +-commute >=>
     diff-step
 
-  0≤diff : 0# ≤ diff a b
-  0≤diff = trans-=-≤ (sym +-inverse) (+₂-preserves-≤ a≤b)
+  0<diff : 0# < diff a b
+  0<diff = trans-=-< (sym +-inverse) (+₂-preserves-< a<b)
 
-  u≤u : (i : Fin n) -> u (inc-fin i) ≤ u (suc-fin i)
-  u≤u _ =
-    +₂-preserves-≤ (*₂-preserves-≤
-      (weaken-< (*₂-preserves-<
-                  (ℚ->ℝ-preserves-< _ _ (ℕ->ℚ-preserves-order _ _ refl-≤))
-                  (ℚ->ℝ-preserves-< _ _ (Pos-1/ℕ n⁺))))
-      0≤diff)
+  u<u : (i : Fin n) -> u (inc-fin i) < u (suc-fin i)
+  u<u _ =
+    +₂-preserves-< (*₂-preserves-<
+      (*₂-preserves-<
+        (ℚ->ℝ-preserves-< _ _ (ℕ->ℚ-preserves-order _ _ refl-≤))
+        (ℚ->ℝ-preserves-< _ _ (Pos-1/ℕ n⁺)))
+      0<diff)
 
-isδFine-harmonic-partition : {a b : ℝ} -> (a≤b : a ≤ b) -> (n : Nat⁺) ->
-  isδFine (ℚ->ℝ (1/ℕ n) * diff a b) (harmonic-partition a≤b n)
+isδFine-harmonic-partition : {a b : ℝ} -> (a<b : a < b) -> (n : Nat⁺) ->
+  isδFine (ℚ->ℝ (1/ℕ n) * diff a b) (harmonic-partition a<b n)
 isδFine-harmonic-partition {a} {b} a<b n⁺@(n , _) i = path-≤ p-width-path
   where
 
@@ -111,23 +111,23 @@ private
                 Σ[ m ∈ Nat⁺ ] (ℚ->ℝ (1/ℕ m) < x)
       handle2 (m , 1/m<q) = m , ∣ (ℝ<'-cons q (ℚ<->U 1/m<q) q<x) ∣
 
-  ∃δFinePartition' : {a b : ℝ} -> a ≤ b -> (δ : ℝ⁺) -> ∃ (Partition a b) (isδFine (⟨ δ ⟩ * diff a b))
-  ∃δFinePartition' {a} {b} a≤b (δ , 0<δ) = ∥-map handle (small-1/ℕ-ℝ (δ , 0<δ))
+  ∃δFinePartition' : {a b : ℝ} -> a < b -> (δ : ℝ⁺) -> ∃ (Partition a b) (isδFine (⟨ δ ⟩ * diff a b))
+  ∃δFinePartition' {a} {b} a<b (δ , 0<δ) = ∥-map handle (small-1/ℕ-ℝ (δ , 0<δ))
     where
     handle : Σ[ m ∈ Nat⁺ ] (ℚ->ℝ (1/ℕ m) < δ) ->
              Σ (Partition a b) (isδFine (δ * diff a b))
     handle (n⁺ , 1/n<δ) =
       p , (weaken-isδFine (*₂-preserves-≤ (weaken-< 1/n<δ) 0≤ab) p δ-p)
       where
-      p = harmonic-partition a≤b n⁺
+      p = harmonic-partition a<b n⁺
       δ-p : isδFine (ℚ->ℝ (1/ℕ n⁺) * diff a b) p
-      δ-p = isδFine-harmonic-partition a≤b n⁺
+      δ-p = isδFine-harmonic-partition a<b n⁺
 
-      0≤ab = trans-=-≤ (sym +-inverse) (+₂-preserves-≤ a≤b)
+      0≤ab = weaken-< (trans-=-< (sym +-inverse) (+₂-preserves-< a<b))
 
 
-∃δFinePartition : {a b : ℝ} -> a ≤ b -> (δ : ℝ⁺) -> ∃ (Partition a b) (isδFine ⟨ δ ⟩)
-∃δFinePartition {a} {b} a≤b (δ , 0<δ) =
+∃δFinePartition : {a b : ℝ} -> a < b -> (δ : ℝ⁺) -> ∃ (Partition a b) (isδFine ⟨ δ ⟩)
+∃δFinePartition {a} {b} a<b (δ , 0<δ) =
   ∥-bind handle (comparison-< 0# ab 1# 0<1)
   where
   ab = diff a b
@@ -135,7 +135,7 @@ private
   handle (inj-l 0<ab) =
     subst (\δ -> ∃ (Partition a b) (isδFine δ))
           (*-assoc >=> *-right (ℝ1/-inverse ab (inj-r 0<ab)) >=> *-right-one)
-          (∃δFinePartition' a≤b (δ/ab , 0<δ/ab))
+          (∃δFinePartition' a<b (δ/ab , 0<δ/ab))
     where
     1/ab = ℝ1/ ab (inj-r 0<ab)
     0<1/ab : 0# < 1/ab
@@ -145,7 +145,7 @@ private
         0<ab
     δ/ab = δ * 1/ab
     0<δ/ab = *-preserves-0< 0<δ 0<1/ab
-  handle (inj-r ab<1) = ∥-map handle2 (∃δFinePartition' a≤b (δ , 0<δ))
+  handle (inj-r ab<1) = ∥-map handle2 (∃δFinePartition' a<b (δ , 0<δ))
     where
     handle2 : Σ (Partition a b) (isδFine (δ * ab)) ->
               Σ (Partition a b) (isδFine δ)
