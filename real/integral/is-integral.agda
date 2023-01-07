@@ -27,7 +27,7 @@ open import rational
 open import rational.order
 open import rational.proper-interval
 open import real
-open import real.integral.harmonic-partition
+open import real.integral.delta-fine-partition
 open import real.integral.partition
 open import real.integral.tagged-partition
 open import real.interval
@@ -54,7 +54,7 @@ record isOrderedIntegral' (a : ℝ) (b : ℝ) (f : ℝ -> ℝ) (v : ℝ) : Type�
            (p : TaggedPartition a b) -> isδFine ⟨ δ ⟩ ⟨ p ⟩ ->
            εBounded ⟨ ε ⟩ (diff (riemann-sum f p) v))
 
-data isIntegral (a : ℝ) (b : ℝ) (f : ℝ -> ℝ) (v : ℝ) : Type₁ where
+data isIntegral' (a : ℝ) (b : ℝ) (f : ℝ -> ℝ) (v : ℝ) : Type₁ where
   isIntegral'-<-cons : a < b -> isOrderedIntegral' a b f v -> isIntegral' a b f v
   isIntegral'->-cons : a > b -> isOrderedIntegral' b a f (- v) -> isIntegral' a b f v
   isIntegral'-=-cons : a == b -> v == 0# -> isIntegral' a b f v

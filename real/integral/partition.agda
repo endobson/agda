@@ -7,54 +7,108 @@ open import additive-group.instances.nat
 open import additive-group.instances.real
 open import base
 open import equality
+open import equivalence
 open import fin
+open import finset
 open import nat
 open import nat.order
 open import order
 open import ordered-semiring
 open import ordered-semiring.instances.real
 open import order.instances.nat
+open import order.instances.rational
 open import order.instances.real
 open import real
+open import truncation
+open import real.rational
+open import rational
 open import relation
+open import fin-algebra
+open import type-algebra
+open import isomorphism
+open import maybe
 
-record Partition (a : ℝ) (b : ℝ) : Type₁ where
+data PartitionIndex (n : Nat) : Type₀ where
+  pi-low : PartitionIndex n
+  pi-mid : Fin n -> PartitionIndex n
+  pi-high : PartitionIndex n
+
+
+PartitionIndex≃Fin : {n : Nat} -> PartitionIndex n ≃ Fin (suc (suc n))
+PartitionIndex≃Fin {n} =
+  (isoToEquiv i) >eq> (Maybe-eq (equiv⁻¹ (Fin-Maybe-eq _))) >eq> (equiv⁻¹ (Fin-Maybe-eq _))
+  where
+  open Iso
+  i : Iso (PartitionIndex n) (Maybe (Maybe (Fin n)))
+  i .fun pi-low = nothing
+  i .fun (pi-mid idx) = (just (just idx))
+  i .fun pi-high = (just nothing)
+  i .inv nothing = pi-low
+  i .inv (just nothing) = pi-high
+  i .inv (just (just idx)) = pi-mid idx
+  i .leftInv pi-low = refl
+  i .leftInv (pi-mid idx) = refl
+  i .leftInv pi-high = refl
+  i .rightInv nothing = refl
+  i .rightInv (just nothing) = refl
+  i .rightInv (just (just idx)) = refl
+
+instance
+  FinSetStr-PartitionIndex : {n : Nat} -> FinSetStr (PartitionIndex n)
+  FinSetStr-PartitionIndex .FinSetStr.isFin = ∣ _ , PartitionIndex≃Fin ∣
+
+record Partition (a : ℝ) (b : ℝ) : Type₀ where
   no-eta-equality
   pattern
   field
     n : ℕ
-    u : Fin (suc n) -> ℝ
-    u0=a : u zero-fin == a
-    un=b : u (n , refl-≤) == b
+    u : Fin (suc n) -> ℚ
+    aU-u0 : Real.U a (u zero-fin)
+    bL-un : Real.L b (u (n , refl-≤))
     u<u : (i : Fin n) -> u (inc-fin i) < u (suc-fin i)
 
-  width : (i : Fin n) -> ℝ
-  width i = (diff (u (inc-fin i)) (u (suc-fin i)))
+  uℝ : Fin (suc n) -> ℝ
+  uℝ i = ℚ->ℝ (u i)
+
+  a<u0 : a < uℝ zero-fin
+  a<u0 = U->ℝ< aU-u0
+
+  un<b : (uℝ (n , refl-≤)) < b
+  un<b = L->ℝ< bL-un
+
+  uℝ<uℝ : (i : Fin n) -> uℝ (inc-fin i) < uℝ (suc-fin i)
+  uℝ<uℝ i = ℚ->ℝ-preserves-< _ _ (u<u i)
+
+  width : (i : PartitionIndex n) -> ℝ
+  width (pi-low) = diff a (uℝ zero-fin)
+  width (pi-mid i) = (diff (uℝ (inc-fin i)) (uℝ (suc-fin i)))
+  width (pi-high) = diff (uℝ (n , refl-≤)) b
 
   abstract
-    a≤ui : (i : Fin (suc n)) -> a ≤ u i
-    a≤ui (i , lt) = handle i lt
+    a<ui : (i : Fin (suc n)) -> a < uℝ i
+    a<ui (i , lt) = handle i lt
       where
-      handle : (i : Nat) -> (lt : i < suc n) -> a ≤ u (i , lt)
-      handle zero lt = path-≤ (sym u0=a >=> cong u (fin-i-path refl))
+      handle : (i : Nat) -> (lt : i < suc n) -> a < uℝ (i , lt)
+      handle zero lt = trans-<-= a<u0 (cong uℝ (fin-i-path refl))
       handle (suc i) lt =
-        trans-≤ (handle i (trans-< refl-≤ lt))
-                (subst2 _≤_ (cong u (fin-i-path refl)) (cong u (fin-i-path refl))
-                            (weaken-< (u<u (i , pred-≤ lt))))
+        trans-< (handle i (trans-< refl-≤ lt))
+                (subst2 _<_ (cong uℝ (fin-i-path refl)) (cong uℝ (fin-i-path refl))
+                            (uℝ<uℝ (i , pred-≤ lt)))
 
-    ui≤b : (i : Fin (suc n)) -> u i ≤ b
-    ui≤b (i , j , path) = handle i j path
+    ui<b : (i : Fin (suc n)) -> uℝ i < b
+    ui<b (i , j , path) = handle i j path
       where
-      handle : (i j : Nat) -> (p : j + (suc i) == (suc n)) -> u (i , j , p) ≤ b
-      handle i zero path = path-≤ (cong u (fin-i-path (cong pred path)) >=> un=b)
+      handle : (i j : Nat) -> (p : j + (suc i) == (suc n)) -> uℝ (i , j , p) < b
+      handle i zero path = trans-=-< (cong uℝ (fin-i-path (cong pred path))) un<b
       handle i (suc j) path =
-        trans-≤ (subst2 _≤_ (cong u (fin-i-path refl)) (cong u (fin-i-path refl))
-                            (weaken-< (u<u (i , j , cong pred path))))
+        trans-< (subst2 _<_ (cong uℝ (fin-i-path refl)) (cong uℝ (fin-i-path refl))
+                            (uℝ<uℝ (i , j , cong pred path)))
                 (handle (suc i) j (+'-right-suc >=> path))
 
-    0<width : (i : Fin n) -> 0# < width i
-    0<width i = trans-=-< (sym +-inverse) (+₂-preserves-< (u<u i))
-
+    0<width : (i : PartitionIndex n) -> 0# < width i
+    0<width pi-low = trans-=-< (sym +-inverse) (+₂-preserves-< a<u0)
+    0<width (pi-mid i) = trans-=-< (sym +-inverse) (+₂-preserves-< (uℝ<uℝ i))
+    0<width pi-high = trans-=-< (sym +-inverse) (+₂-preserves-< un<b)
 
 
 PartitionSize< : {a b : ℝ} -> Rel (Partition a b) ℓ-zero
@@ -70,43 +124,12 @@ WF-PartitionSize< {a} {b} p = rec p (Partition.n p) refl-≤
     acc \p2 p2n<pn -> rec p2 n' (pred-≤ (trans-≤ p2n<pn lt))
 
 
-partition->≤ : {a b : ℝ} -> Partition a b -> a ≤ b
-partition->≤ {a} {b} p = handle (WF-PartitionSize< p)
-  where
-  handle : {p : Partition a b} -> Acc PartitionSize< p -> a ≤ b
-  handle {p@(record {n = zero})} (acc f) =
-    path-≤ (
-      sym (Partition.u0=a p) >=>
-      cong (Partition.u p) (fin-i-path refl) >=>
-      (Partition.un=b p))
-  handle {p@(record {n = (suc zero); u = u; u0=a = u0=a; un=b = un=b; u<u = u<u})} (acc f) =
-   (subst2 _≤_ (cong u (fin-i-path refl) >=> u0=a) (cong u (fin-i-path refl) >=> un=b)
-          (weaken-< (u<u zero-fin)))
-
-  handle {p@(record {n = (suc (suc n)); u = u; u0=a = u0=a; un=b = un=b; u<u = u<u})} (acc f) =
-    handle (f p2 refl-≤)
-    where
-    u' : Fin (suc (suc n)) -> ℝ
-    u' (zero , _) = u zero-fin
-    u' i@(suc n , _) = u (suc-fin i)
-
-    u'<u' : (i : Fin (suc n)) -> u' (inc-fin i) < u' (suc-fin i)
-    u'<u' i@(zero , _) =
-      trans-< (subst2 _<_ (cong u (fin-i-path refl)) refl (u<u (inc-fin i)))
-              (subst2 _<_ (cong u (fin-i-path refl)) refl (u<u (suc-fin i)))
-    u'<u' i@(suc n , _) = subst2 _<_ (cong u (fin-i-path refl)) refl (u<u (suc-fin i))
-
-    p2 : Partition a b
-    p2 = record
-      { n = (suc n)
-      ; u = u'
-      ; u0=a = u0=a
-      ; un=b = cong u (fin-i-path refl) >=> un=b
-      ; u<u = u'<u'
-      }
+partition->< : {a b : ℝ} -> Partition a b -> a < b
+partition->< p =
+  trans-< (Partition.a<ui p zero-fin) (Partition.ui<b p zero-fin)
 
 isδFine : {a b : ℝ} (δ : ℝ) (p : Partition a b) -> Type₁
-isδFine δ p = (i : Fin p.n) -> p.width i ≤ δ
+isδFine δ p = (i : PartitionIndex p.n) -> p.width i ≤ δ
   where
   module p = Partition p
 

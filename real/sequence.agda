@@ -117,6 +117,20 @@ midℚ-<₂ a b a<b =
                (r*-preserves-Pos 1/2r _ (Pos-1/ℕ _) (Pos-diffℚ a b a<b)))
 
 
+midℚ-≤₁ : (a b : ℚ) -> (a ≤ b) -> a ≤ (midℚ a b)
+midℚ-≤₁ a b a≤b =
+  NonNeg-diffℚ⁻ a (midℚ a b)
+    (subst NonNeg (sym (diffℚ-midℚ' a b))
+                  (0≤-NonNeg _ (*-preserves-0≤ (weaken-< (Pos-1/ℕ _))
+                               (NonNeg-0≤ _ (NonNeg-diffℚ a b a≤b)))))
+
+midℚ-≤₂ : (a b : ℚ) -> (a ≤ b) -> (midℚ a b) ≤ b
+midℚ-≤₂ a b a≤b =
+  NonNeg-diffℚ⁻ (midℚ a b) b
+    (subst NonNeg (sym (diffℚ-midℚ a b))
+                  (0≤-NonNeg _ (*-preserves-0≤ (weaken-< (Pos-1/ℕ _))
+                               (NonNeg-0≤ _ (NonNeg-diffℚ a b a≤b)))))
+
 CenteredBall : ℝ -> ℚ -> Type₀
 CenteredBall x ε = Σ[ q ∈ ℚ ] (Real.L x (q r+ (r- ε)) × Real.U x (q r+ ε))
 
