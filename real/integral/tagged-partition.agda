@@ -13,6 +13,7 @@ open import order.instances.nat
 open import order.instances.real
 open import real
 open import real.integral.partition
+open import real.integral.partition-index
 open import ring.implementations.real
 open import semiring
 
@@ -20,24 +21,12 @@ record Tagging {a b : ℝ} (p : Partition a b) : Type₁ where
   no-eta-equality
   private
     n = (Partition.n p)
-    uℝ = (Partition.uℝ p)
+    uB = (Partition.uB p)
 
   field
-    t-low : ℝ
-    t-mid : Fin n -> ℝ
-    t-high : ℝ
-
-    a≤t : a ≤ t-low
-    t≤u0 : t-low ≤ uℝ zero-fin
-    u≤t : (i : Fin n) -> uℝ (inc-fin i) ≤ t-mid i
-    t≤u : (i : Fin n) -> t-mid i ≤ uℝ (suc-fin i)
-    un≤t : uℝ (n , refl-≤) ≤ t-high
-    t≤b : t-high ≤ b
-
-  t : PartitionIndex n -> ℝ
-  t pi-low = t-low
-  t (pi-mid i) = t-mid i
-  t pi-high = t-high
+    t : PartitionIndex n -> ℝ
+    t∈bounds : (i : PartitionIndex n) -> (uB ⟨ index->low-boundary i ⟩ ≤ t i ×
+                                          t i ≤ uB ⟨ index->high-boundary i ⟩)
 
 TaggedPartition : ℝ -> ℝ -> Type₁
 TaggedPartition a b = Σ (Partition a b) Tagging
@@ -52,32 +41,40 @@ riemann-sum f (p , t) =
 
 left-tagging : {a b : ℝ} -> (p : Partition a b) -> Tagging p
 left-tagging {a} {b} p = record
-  { t-low = a
-  ; t-mid = \i -> uℝ (inc-fin i)
-  ; t-high = uℝ (n , refl-≤)
-  ; a≤t = refl-≤
-  ; t≤u0 = weaken-< (Partition.a<u0 p)
-  ; u≤t = \i -> refl-≤
-  ; t≤u = \i -> weaken-< (Partition.uℝ<uℝ p i)
-  ; un≤t = refl-≤
-  ; t≤b = weaken-< (Partition.un<b p)
+  { t = t
+  ; t∈bounds = t∈bounds
   }
   where
   uℝ = Partition.uℝ p
+  uB = Partition.uB p
   n = Partition.n p
+
+  t : PartitionIndex n -> ℝ
+  t pi-low = a
+  t (pi-mid i) = uℝ (inc-fin i)
+  t pi-high = uℝ (n , refl-≤)
+  t∈bounds : (i : PartitionIndex n) -> (uB ⟨ index->low-boundary i ⟩ ≤ t i ×
+                                        t i ≤ uB ⟨ index->high-boundary i ⟩)
+  t∈bounds pi-low = refl-≤ , weaken-< (Partition.a<u0 p)
+  t∈bounds (pi-mid i) = refl-≤ , weaken-< (Partition.uℝ<uℝ p i)
+  t∈bounds pi-high = refl-≤ , weaken-< (Partition.un<b p)
 
 right-tagging : {a b : ℝ} -> (p : Partition a b) -> Tagging p
 right-tagging {a} {b} p = record
-  { t-low = uℝ zero-fin
-  ; t-mid = \i -> uℝ (suc-fin i)
-  ; t-high = b
-  ; a≤t = weaken-< (Partition.a<u0 p)
-  ; t≤u0 = refl-≤
-  ; u≤t = \i -> weaken-< (Partition.uℝ<uℝ p i)
-  ; t≤u = \i -> refl-≤
-  ; un≤t = weaken-< (Partition.un<b p)
-  ; t≤b = refl-≤
+  { t = t
+  ; t∈bounds = t∈bounds
   }
   where
   uℝ = Partition.uℝ p
+  uB = Partition.uB p
   n = Partition.n p
+
+  t : PartitionIndex n -> ℝ
+  t pi-low = uℝ zero-fin
+  t (pi-mid i) = uℝ (suc-fin i)
+  t pi-high = b
+  t∈bounds : (i : PartitionIndex n) -> (uB ⟨ index->low-boundary i ⟩ ≤ t i ×
+                                        t i ≤ uB ⟨ index->high-boundary i ⟩)
+  t∈bounds pi-low = weaken-< (Partition.a<u0 p) , refl-≤
+  t∈bounds (pi-mid i) = weaken-< (Partition.uℝ<uℝ p i) , refl-≤
+  t∈bounds pi-high = weaken-< (Partition.un<b p) , refl-≤

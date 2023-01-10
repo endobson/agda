@@ -26,6 +26,7 @@ open import real.arithmetic.multiplication.inverse
 open import real.arithmetic.rational
 open import real.heyting-field
 open import real.integral.partition
+open import real.integral.partition-index
 open import real.interval
 open import real.minimum
 open import real.order
@@ -133,95 +134,98 @@ private
                                                      *-right-one))))
                 (L->ℝ< δL-δ'))
 
-
-∃δFinePartition : {a b : ℝ} -> a < b -> (δ : ℝ⁺) -> ∃ (Partition a b) (isδFine ⟨ δ ⟩)
-∃δFinePartition {a} {b} a<b (δ , 0<δ) = ∥-bind handle 0<δ2
-  where
-  ab/2 = (diff a b) * 1/2ℝ
-
-  0<ab : 0# < diff a b
-  0<ab = trans-=-< (sym +-inverse) (+₂-preserves-< a<b)
-
-  δ2 = minℝ ab/2 δ
-  0<δ2 : 0# < δ2
-  0<δ2 = minℝ-<-both (*-preserves-0< 0<ab 0<1/2ℝ) 0<δ
-
-  handle : (0# ℝ<' δ2) -> ∃ (Partition a b) (isδFine δ)
-  handle (ℝ<'-cons δ2' 0U-δ2' δ2L-δ2') =
-    ∥-bind2 handle2 (find-small-ℝ∈Iℚ a (δ2' , U->ℚ< 0U-δ2'))
-                    (find-small-ℝ∈Iℚ b (δ2' , U->ℚ< 0U-δ2'))
+  ∃δFinePartition' : {a b : ℝ} -> a < b -> (δ : ℝ⁺) -> ∃ (Partition a b) (isδFine ⟨ δ ⟩)
+  ∃δFinePartition' {a} {b} a<b (δ , 0<δ) = ∥-bind handle 0<δ2
     where
-    handle2 : Σ[ qi ∈ Iℚ ] (ℝ∈Iℚ a qi × i-width qi ≤ δ2') ->
-              Σ[ qi ∈ Iℚ ] (ℝ∈Iℚ b qi × i-width qi ≤ δ2') ->
-              ∃ (Partition a b) (isδFine δ)
-    handle2 (ai@(Iℚ-cons al au al<au) , (aL-al , aU-au) , w-ai≤δ2')
-            (bi@(Iℚ-cons bl bu bl<bu) , (bL-bl , bU-bu) , w-bi≤δ2') =
-      rational-bounds->∃δFinePartition au bl aU-au bL-bl au<bl (δ , 0<δ) diff-aau≤δ diff-blb≤δ
-        where
-        diff-aal<0 : diff a (ℚ->ℝ al) < 0#
-        diff-aal<0 = trans-<-= (+₂-preserves-< (L->ℝ< aL-al)) +-inverse
+    ab/2 = (diff a b) * 1/2ℝ
 
-        diff-bub<0 : diff (ℚ->ℝ bu) b < 0#
-        diff-bub<0 = trans-<-= (+₂-preserves-< (U->ℝ< bU-bu)) +-inverse
+    0<ab : 0# < diff a b
+    0<ab = trans-=-< (sym +-inverse) (+₂-preserves-< a<b)
 
-        diff-aau≤δ : diff a (ℚ->ℝ au) ≤ δ
-        diff-aau≤δ =
-          trans-=-≤ (sym diff-trans)
-            (trans-≤-= (+-preserves-≤ (weaken-< diff-aal<0)
-                                      (trans-=-≤ (sym ℚ->ℝ-preserves-diff)
-                                                 (trans-≤ (ℚ->ℝ-preserves-≤ _ _ w-ai≤δ2')
-                                                          (trans-≤ (weaken-< (L->ℝ< δ2L-δ2'))
-                                                                   (minℝ-≤-right ab/2 _)))))
-                       +-left-zero)
+    δ2 = minℝ ab/2 δ
+    0<δ2 : 0# < δ2
+    0<δ2 = minℝ-<-both (*-preserves-0< 0<ab 0<1/2ℝ) 0<δ
 
-        diff-blb≤δ : diff (ℚ->ℝ bl) b ≤ δ
-        diff-blb≤δ =
-          trans-=-≤ (sym diff-trans)
-            (trans-≤-= (+-preserves-≤ (trans-=-≤ (sym ℚ->ℝ-preserves-diff)
-                                                 (trans-≤ (ℚ->ℝ-preserves-≤ _ _ w-bi≤δ2')
-                                                          (trans-≤ (weaken-< (L->ℝ< δ2L-δ2'))
-                                                                   (minℝ-≤-right ab/2 _))))
-                                      (weaken-< diff-bub<0))
-                       +-right-zero)
-
-
-        au<bl : au < bl
-        au<bl = handle3 (split-< au bl)
+    handle : (0# ℝ<' δ2) -> ∃ (Partition a b) (isδFine δ)
+    handle (ℝ<'-cons δ2' 0U-δ2' δ2L-δ2') =
+      ∥-bind2 handle2 (find-small-ℝ∈Iℚ a (δ2' , U->ℚ< 0U-δ2'))
+                      (find-small-ℝ∈Iℚ b (δ2' , U->ℚ< 0U-δ2'))
+      where
+      handle2 : Σ[ qi ∈ Iℚ ] (ℝ∈Iℚ a qi × i-width qi ≤ δ2') ->
+                Σ[ qi ∈ Iℚ ] (ℝ∈Iℚ b qi × i-width qi ≤ δ2') ->
+                ∃ (Partition a b) (isδFine δ)
+      handle2 (ai@(Iℚ-cons al au al<au) , (aL-al , aU-au) , w-ai≤δ2')
+              (bi@(Iℚ-cons bl bu bl<bu) , (bL-bl , bU-bu) , w-bi≤δ2') =
+        rational-bounds->∃δFinePartition au bl aU-au bL-bl au<bl (δ , 0<δ) diff-aau≤δ diff-blb≤δ
           where
-          handle3 : (au < bl) ⊎ (bl ≤ au) -> au < bl
-          handle3 (inj-l au<bl) = au<bl
-          handle3 (inj-r bl≤au) =
-            bot-elim (albu≤diff-ab diff-ab<albu)
+          diff-aal<0 : diff a (ℚ->ℝ al) < 0#
+          diff-aal<0 = trans-<-= (+₂-preserves-< (L->ℝ< aL-al)) +-inverse
+
+          diff-bub<0 : diff (ℚ->ℝ bu) b < 0#
+          diff-bub<0 = trans-<-= (+₂-preserves-< (U->ℝ< bU-bu)) +-inverse
+
+          diff-aau≤δ : diff a (ℚ->ℝ au) ≤ δ
+          diff-aau≤δ =
+            trans-=-≤ (sym diff-trans)
+              (trans-≤-= (+-preserves-≤ (weaken-< diff-aal<0)
+                                        (trans-=-≤ (sym ℚ->ℝ-preserves-diff)
+                                                   (trans-≤ (ℚ->ℝ-preserves-≤ _ _ w-ai≤δ2')
+                                                            (trans-≤ (weaken-< (L->ℝ< δ2L-δ2'))
+                                                                     (minℝ-≤-right ab/2 _)))))
+                         +-left-zero)
+
+          diff-blb≤δ : diff (ℚ->ℝ bl) b ≤ δ
+          diff-blb≤δ =
+            trans-=-≤ (sym diff-trans)
+              (trans-≤-= (+-preserves-≤ (trans-=-≤ (sym ℚ->ℝ-preserves-diff)
+                                                   (trans-≤ (ℚ->ℝ-preserves-≤ _ _ w-bi≤δ2')
+                                                            (trans-≤ (weaken-< (L->ℝ< δ2L-δ2'))
+                                                                     (minℝ-≤-right ab/2 _))))
+                                        (weaken-< diff-bub<0))
+                         +-right-zero)
+
+
+          au<bl : au < bl
+          au<bl = handle3 (split-< au bl)
             where
-            diff-path : diff al bu == diff al au + (diff au bl + diff bl bu)
-            diff-path = sym diff-trans >=> +-right (sym diff-trans)
+            handle3 : (au < bl) ⊎ (bl ≤ au) -> au < bl
+            handle3 (inj-l au<bl) = au<bl
+            handle3 (inj-r bl≤au) =
+              bot-elim (albu≤diff-ab diff-ab<albu)
+              where
+              diff-path : diff al bu == diff al au + (diff au bl + diff bl bu)
+              diff-path = sym diff-trans >=> +-right (sym diff-trans)
 
-            albu≤ : diff al bu ≤ (δ2' + δ2')
-            albu≤ =
-              trans-=-≤ diff-path
-                (+-preserves-≤ w-ai≤δ2'
-                  (trans-≤-= (+-preserves-≤ (trans-≤-= (+₂-preserves-≤ bl≤au) +-inverse)
-                                            w-bi≤δ2')
-                             +-left-zero))
+              albu≤ : diff al bu ≤ (δ2' + δ2')
+              albu≤ =
+                trans-=-≤ diff-path
+                  (+-preserves-≤ w-ai≤δ2'
+                    (trans-≤-= (+-preserves-≤ (trans-≤-= (+₂-preserves-≤ bl≤au) +-inverse)
+                                              w-bi≤δ2')
+                               +-left-zero))
 
 
-            δ2'<ab/2 : ℚ->ℝ δ2' ≤ ab/2
-            δ2'<ab/2 = weaken-< (trans-<-≤ (L->ℝ< δ2L-δ2') (minℝ-≤-left _ δ))
+              δ2'<ab/2 : ℚ->ℝ δ2' ≤ ab/2
+              δ2'<ab/2 = weaken-< (trans-<-≤ (L->ℝ< δ2L-δ2') (minℝ-≤-left _ δ))
 
-            albu≤diff-ab : ℚ->ℝ (diff al bu) ≤ diff a b
-            albu≤diff-ab =
-              trans-≤ (ℚ->ℝ-preserves-≤ _ _ albu≤)
-                (trans-=-≤ ℚ->ℝ-preserves-+ (trans-≤-= (+-preserves-≤ δ2'<ab/2 δ2'<ab/2)
-                                                       (sym *-distrib-+-left >=>
-                                                        *-right 1/2ℝ-1-path >=> *-right-one)))
+              albu≤diff-ab : ℚ->ℝ (diff al bu) ≤ diff a b
+              albu≤diff-ab =
+                trans-≤ (ℚ->ℝ-preserves-≤ _ _ albu≤)
+                  (trans-=-≤ ℚ->ℝ-preserves-+ (trans-≤-= (+-preserves-≤ δ2'<ab/2 δ2'<ab/2)
+                                                         (sym *-distrib-+-left >=>
+                                                          *-right 1/2ℝ-1-path >=> *-right-one)))
 
-            diff-ab-path : diff a b == diff a (ℚ->ℝ al) + (ℚ->ℝ (diff al bu) + diff (ℚ->ℝ bu) b)
-            diff-ab-path =
-              sym diff-trans >=>
-              +-right (sym diff-trans >=> +-left (sym ℚ->ℝ-preserves-diff))
+              diff-ab-path : diff a b == diff a (ℚ->ℝ al) + (ℚ->ℝ (diff al bu) + diff (ℚ->ℝ bu) b)
+              diff-ab-path =
+                sym diff-trans >=>
+                +-right (sym diff-trans >=> +-left (sym ℚ->ℝ-preserves-diff))
 
-            diff-ab<albu : diff a b < ℚ->ℝ (diff al bu)
-            diff-ab<albu =
-              trans-=-< diff-ab-path
-                (trans-<-= (+-preserves-< diff-aal<0 (+₁-preserves-< diff-bub<0))
-                           (+-left-zero >=> +-right-zero))
+              diff-ab<albu : diff a b < ℚ->ℝ (diff al bu)
+              diff-ab<albu =
+                trans-=-< diff-ab-path
+                  (trans-<-= (+-preserves-< diff-aal<0 (+₁-preserves-< diff-bub<0))
+                             (+-left-zero >=> +-right-zero))
+
+abstract
+  ∃δFinePartition : {a b : ℝ} -> a < b -> (δ : ℝ⁺) -> ∃ (Partition a b) (isδFine ⟨ δ ⟩)
+  ∃δFinePartition = ∃δFinePartition'

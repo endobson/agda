@@ -7,55 +7,21 @@ open import additive-group.instances.nat
 open import additive-group.instances.real
 open import base
 open import equality
-open import equivalence
 open import fin
-open import finset
 open import nat
-open import nat.order
+open import nat.order.base
 open import order
-open import ordered-semiring
-open import ordered-semiring.instances.real
+open import order.instances.fin
 open import order.instances.nat
 open import order.instances.rational
 open import order.instances.real
-open import real
-open import truncation
-open import real.rational
+open import ordered-semiring
+open import ordered-semiring.instances.real
 open import rational
+open import real
+open import real.integral.partition-index
+open import real.rational
 open import relation
-open import fin-algebra
-open import type-algebra
-open import isomorphism
-open import maybe
-
-data PartitionIndex (n : Nat) : Type₀ where
-  pi-low : PartitionIndex n
-  pi-mid : Fin n -> PartitionIndex n
-  pi-high : PartitionIndex n
-
-
-PartitionIndex≃Fin : {n : Nat} -> PartitionIndex n ≃ Fin (suc (suc n))
-PartitionIndex≃Fin {n} =
-  (isoToEquiv i) >eq> (Maybe-eq (equiv⁻¹ (Fin-Maybe-eq _))) >eq> (equiv⁻¹ (Fin-Maybe-eq _))
-  where
-  open Iso
-  i : Iso (PartitionIndex n) (Maybe (Maybe (Fin n)))
-  i .fun pi-low = nothing
-  i .fun (pi-mid idx) = (just (just idx))
-  i .fun pi-high = (just nothing)
-  i .inv nothing = pi-low
-  i .inv (just nothing) = pi-high
-  i .inv (just (just idx)) = pi-mid idx
-  i .leftInv pi-low = refl
-  i .leftInv (pi-mid idx) = refl
-  i .leftInv pi-high = refl
-  i .rightInv nothing = refl
-  i .rightInv (just nothing) = refl
-  i .rightInv (just (just idx)) = refl
-
-instance
-  FinSetStr-PartitionIndex : {n : Nat} -> FinSetStr (PartitionIndex n)
-  FinSetStr-PartitionIndex .FinSetStr.isFin = ∣ _ , PartitionIndex≃Fin ∣
 
 record Partition (a : ℝ) (b : ℝ) : Type₀ where
   no-eta-equality
@@ -70,6 +36,11 @@ record Partition (a : ℝ) (b : ℝ) : Type₀ where
   uℝ : Fin (suc n) -> ℝ
   uℝ i = ℚ->ℝ (u i)
 
+  uB : PartitionBoundary n -> ℝ
+  uB pb-low     = a
+  uB (pb-mid i) = (uℝ i)
+  uB pb-high    = b
+
   a<u0 : a < uℝ zero-fin
   a<u0 = U->ℝ< aU-u0
 
@@ -79,50 +50,100 @@ record Partition (a : ℝ) (b : ℝ) : Type₀ where
   uℝ<uℝ : (i : Fin n) -> uℝ (inc-fin i) < uℝ (suc-fin i)
   uℝ<uℝ i = ℚ->ℝ-preserves-< _ _ (u<u i)
 
+  interval-low : (i : PartitionIndex n) -> ℝ
+  interval-low i = uB (fst (index->low-boundary i))
+
+  interval-high : (i : PartitionIndex n) -> ℝ
+  interval-high i = uB (fst (index->high-boundary i))
+
   width : (i : PartitionIndex n) -> ℝ
-  width (pi-low) = diff a (uℝ zero-fin)
-  width (pi-mid i) = (diff (uℝ (inc-fin i)) (uℝ (suc-fin i)))
-  width (pi-high) = diff (uℝ (n , refl-≤)) b
+  width i = diff (interval-low i) (interval-high i)
 
   abstract
-    a<ui : (i : Fin (suc n)) -> a < uℝ i
-    a<ui (i , lt) = handle i lt
+    u0≤ui : (i : Fin (suc n)) -> u zero-fin ≤ u i
+    u0≤ui (i , lt) = handle i lt
       where
-      handle : (i : Nat) -> (lt : i < suc n) -> a < uℝ (i , lt)
-      handle zero lt = trans-<-= a<u0 (cong uℝ (fin-i-path refl))
+      handle : (i : Nat) -> (lt : i < suc n) -> u zero-fin ≤ u (i , lt)
+      handle zero lt = path-≤ (cong u (fin-i-path refl))
       handle (suc i) lt =
-        trans-< (handle i (trans-< refl-≤ lt))
-                (subst2 _<_ (cong uℝ (fin-i-path refl)) (cong uℝ (fin-i-path refl))
-                            (uℝ<uℝ (i , pred-≤ lt)))
+        trans-≤ (handle i (trans-< refl-≤ lt))
+                (weaken-< (subst2 _<_ (cong u (fin-i-path refl)) (cong u (fin-i-path refl))
+                                  (u<u (i , pred-≤ lt))))
+
+
+    a<ui : (i : Fin (suc n)) -> a < uℝ i
+    a<ui i = trans-<-≤ a<u0 (ℚ->ℝ-preserves-≤ _ _ (u0≤ui i))
+
+
+    ui≤un : (i : Fin (suc n)) -> u i ≤ u (n , refl-≤)
+    ui≤un (i , j , path) = handle i j path
+      where
+      handle : (i j : Nat) -> (p : j + (suc i) == (suc n)) -> u (i , j , p) ≤ u (n , refl-≤)
+      handle i zero path = path-≤ (cong u (fin-i-path (cong pred path)))
+      handle i (suc j) path =
+        trans-≤ (weaken-< (subst2 _<_ (cong u (fin-i-path refl)) (cong u (fin-i-path refl))
+                                      (u<u (i , j , cong pred path))))
+                (handle (suc i) j (+'-right-suc >=> path))
 
     ui<b : (i : Fin (suc n)) -> uℝ i < b
-    ui<b (i , j , path) = handle i j path
+    ui<b i = trans-≤-< (ℚ->ℝ-preserves-≤ _ _ (ui≤un i)) un<b
+
+    a<b : a < b
+    a<b = (trans-< (a<ui zero-fin) (ui<b zero-fin))
+
+    a≤uB : (i : PartitionBoundary n) -> a ≤ uB i
+    a≤uB pb-low = refl-≤
+    a≤uB (pb-mid i) = weaken-< (a<ui i)
+    a≤uB pb-high = weaken-< a<b 
+
+    uB≤b : (i : PartitionBoundary n) -> uB i ≤ b
+    uB≤b pb-low = weaken-< a<b
+    uB≤b (pb-mid i) = weaken-< (ui<b i)
+    uB≤b pb-high = refl-≤
+
+    low-boundary<b : (i : Σ (PartitionBoundary n) LowPartitionBoundary) -> uB ⟨ i ⟩ < b
+    low-boundary<b (pb-low   , _) = a<b
+    low-boundary<b (pb-mid i , _) = ui<b i
+
+    a<high-boundary : (i : Σ (PartitionBoundary n) HighPartitionBoundary) -> a < uB ⟨ i ⟩
+    a<high-boundary (pb-mid i , _) = a<ui i
+    a<high-boundary (pb-high   , _) = a<b
+
+    u-preserves-< : {i j : Fin (suc n)} -> i < j -> u i < u j
+    u-preserves-< {i , i<n} {j , j<n} (fin< (k , kp)) = handle i j i<n j<n k kp
       where
-      handle : (i j : Nat) -> (p : j + (suc i) == (suc n)) -> uℝ (i , j , p) < b
-      handle i zero path = trans-=-< (cong uℝ (fin-i-path (cong pred path))) un<b
-      handle i (suc j) path =
-        trans-< (subst2 _<_ (cong uℝ (fin-i-path refl)) (cong uℝ (fin-i-path refl))
-                            (uℝ<uℝ (i , j , cong pred path)))
-                (handle (suc i) j (+'-right-suc >=> path))
+      handle : (i j : Nat) -> (i<sn : i < (suc n)) -> (j<sn : j < (suc n)) -> 
+               (k : Nat) -> (k + (suc i) == j) -> 
+               u (i , i<sn) < u (j , j<sn)
+      handle i zero     _ _ k kp = bot-elim (zero-≮ (k , kp))
+      handle i (suc j') _ j<sn zero kp =
+        subst2 _<_ (cong u (fin-i-path refl)) (cong u (fin-i-path kp))
+               (u<u (i , pred-≤ (trans-≤-< (zero , kp) j<sn)))
+      handle i (suc j') i<sn j<sn (suc k) kp =
+        trans-< (handle i j' i<sn (trans-< refl-≤ j<sn) k (cong pred kp))
+                (subst2 _<_ (cong u (fin-i-path refl)) (cong u (fin-i-path refl))
+                        (u<u (j' , pred-≤ j<sn)))
+
+    uB-preserves-< : {i j : PartitionBoundary n} -> i < j -> uB i < uB j
+    uB-preserves-< (pb<-low-mid i)  = a<high-boundary _
+    uB-preserves-< (pb<-low-high)   = a<b
+    uB-preserves-< (pb<-mid-high i) = low-boundary<b _
+    uB-preserves-< (pb<-mid-mid i j lt) = ℚ->ℝ-preserves-< _ _ (u-preserves-< lt)
+
+    uB-preserves-≤ : {i j : PartitionBoundary n} -> i ≤ j -> uB i ≤ uB j
+    uB-preserves-≤ {i} {j} i≤j uBj<uBi = handle (trichotomous-< i j)
+      where
+      handle : Tri< i j -> Bot
+      handle (tri< i<j _ _) = asym-< (uB-preserves-< i<j) uBj<uBi
+      handle (tri= _ i=j _) = irrefl-< (trans-<-= uBj<uBi (cong uB i=j))
+      handle (tri> _ _ j<i) = i≤j j<i
+      
+
 
     0<width : (i : PartitionIndex n) -> 0# < width i
     0<width pi-low = trans-=-< (sym +-inverse) (+₂-preserves-< a<u0)
     0<width (pi-mid i) = trans-=-< (sym +-inverse) (+₂-preserves-< (uℝ<uℝ i))
     0<width pi-high = trans-=-< (sym +-inverse) (+₂-preserves-< un<b)
-
-
-PartitionSize< : {a b : ℝ} -> Rel (Partition a b) ℓ-zero
-PartitionSize< p1 p2 = Partition.n p1 < Partition.n p2
-
-WF-PartitionSize< : {a b : ℝ} -> WellFounded (PartitionSize< {a} {b})
-WF-PartitionSize< {a} {b} p = rec p (Partition.n p) refl-≤
-  where
-  rec : (p : Partition a b) -> (n : Nat) -> (Partition.n p) ≤ n -> Acc PartitionSize< p
-  rec p@(record {n = zero})    _    _  = acc (\y yn<0 -> bot-elim (zero-≮ yn<0))
-  rec p@(record {n = (suc n)}) zero lt = bot-elim (zero-≮ lt)
-  rec p@(record {n = (suc n)}) (suc n') lt =
-    acc \p2 p2n<pn -> rec p2 n' (pred-≤ (trans-≤ p2n<pn lt))
-
 
 partition->< : {a b : ℝ} -> Partition a b -> a < b
 partition->< p =

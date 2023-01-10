@@ -6,6 +6,11 @@ Remove gcd constructor from GCD
 
 Change ℚ< and Posℚ to order2's version.
 -- Cleanup {_}s from that
+Remove bounds on operations that never need to provide them
+-- ℚ->ℝ-preserves-≤
+
+Move midℚ to a rational directory.
+
 
 Add structures for ℕ≤
 -- Apartness
