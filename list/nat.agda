@@ -103,7 +103,7 @@ canonical-list-== {P = P} {as} {bs} (ce1-a , sa) (ce1-b , sb) =
   end
   where
     dec≥ : Decidable2 _≥_
-    dec≥ x y = decide-nat≤ y x
+    dec≥ x y = decide-≤ y x
     ord≥ : TotalOrder _≥_
     ord≥ = total-order-≥
     connex'-≥ : Connex' _≥_

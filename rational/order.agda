@@ -277,29 +277,26 @@ abstract
   trichotomous-ℚ< : Trichotomous _ℚ<_
   trichotomous-ℚ< a b =
     ℚ-elimProp2
-      {C2 = (\a b -> Triℚ< a b)}
-      isProp-Triℚ<
+      {C2 = (\a b -> Tri< a b)}
+      isProp-Tri<
       f a b
 
     where
     module _ where
-      Triℚ< : Rel ℚ ℓ-zero
-      Triℚ< x y = Tri (x ℚ< y) (x == y) (y ℚ< x)
+      isProp-Tri< : (x y : ℚ) -> isProp (Tri< x y)
+      isProp-Tri< x y = isProp-Tri isProp-ℚ< (isSetRational x y) isProp-ℚ<
 
-      isProp-Triℚ< : (x y : ℚ) -> isProp (Triℚ< x y)
-      isProp-Triℚ< x y = isProp-Tri isProp-ℚ< (isSetRational x y) isProp-ℚ<
-
-      f : (a b : ℚ') -> Triℚ< (ℚ'->ℚ a) (ℚ'->ℚ b)
+      f : (a b : ℚ') -> Tri< (ℚ'->ℚ a) (ℚ'->ℚ b)
       f a b = handle (trichotomous~-ℚ'< a b)
         where
-        handle : Tri (a ℚ'< b) (a r~ b) (b ℚ'< a) -> Triℚ< (ℚ'->ℚ a) (ℚ'->ℚ b)
-        handle (tri< a<b' _ _) = tri< a<b (<->!= a<b) (asym-< a<b)
+        handle : Tri (a ℚ'< b) (a r~ b) (b ℚ'< a) -> Tri< (ℚ'->ℚ a) (ℚ'->ℚ b)
+        handle (tri< a<b' _ _) = tri<' a<b
           where
           a<b = (ℚ<-cons (transport (sym ℚ<-raw-eval) a<b'))
-        handle (tri= _ a~b _) = tri= (=->≮ a=b) a=b (=->≮ (sym a=b))
+        handle (tri= _ a~b _) = tri=' a=b
           where
           a=b = (r~->path _ _ a~b)
-        handle (tri> _ _ b<a') = tri> (asym-< b<a) (<->!= b<a ∘ sym) b<a
+        handle (tri> _ _ b<a') = tri>' b<a
           where
           b<a = (ℚ<-cons (transport (sym ℚ<-raw-eval) b<a'))
 

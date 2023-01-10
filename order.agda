@@ -73,6 +73,18 @@ module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
   isProp-<> (inj-r gt1) (inj-l lt2) = bot-elim (asym-< gt1 lt2)
   isProp-<> (inj-r gt1) (inj-r gt2) = cong inj-r (isProp-< gt1 gt2)
 
+  Tri< : (x y : D) -> Type (ℓ-max ℓD ℓ<)
+  Tri< x y = Tri (x < y) (x == y) (y < x)
+
+  tri<' : {x y : D} -> x < y -> Tri< x y
+  tri<' x<y = tri< x<y (\p -> irrefl-path-< p x<y) (asym-< x<y)
+
+  tri>' : {x y : D} -> x > y -> Tri< x y
+  tri>' x>y = tri> (asym-< x>y) (\p -> irrefl-path-< (sym p) x>y) x>y
+
+  tri=' : {x y : D} -> x == y -> Tri< x y
+  tri=' x=y = tri= (irrefl-path-< x=y) x=y (irrefl-path-< (sym x=y))
+
 
 module _ {D : Type ℓD} (A : TightApartnessStr D) (O : LinearOrderStr D ℓ<) where
   private
@@ -283,3 +295,11 @@ module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {
       handle (tri< d1<d2 _ _) = yes d1<d2
       handle (tri= d1≮d2 _ _) = no d1≮d2
       handle (tri> d1≮d2 _ _) = no d1≮d2
+
+    decide-≤ : (d1 d2 : D) -> Dec (d1 ≤ d2)
+    decide-≤ d1 d2 = handle (trichotomous-< d1 d2)
+      where
+      handle : Tri (d1 < d2) (d1 == d2) (d2 < d1) -> Dec (d1 ≤ d2)
+      handle (tri< d1<d2 _ _) = yes (weaken-< d1<d2)
+      handle (tri= _ d1=d2 _) = yes (path-≤ d1=d2)
+      handle (tri> _ _ d2<d1) = no (\d1≤d2 -> irrefl-< (trans-<-≤ d2<d1 d1≤d2))

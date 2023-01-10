@@ -530,19 +530,6 @@ zero-≤s (suc n) = step-≤s (zero-≤s n)
 
 -- Decidable <
 
-
-trichotomous-nat< : Trichotomous _<_
-trichotomous-nat< x y = handle (decide-nat x y) (decide-nat< x y) (decide-nat< y x)
-  where
-  handle : Dec (x == y) -> Dec (x < y) -> Dec (y < x) -> Tri (x < y) (x == y) (y < x)
-  handle (yes x==y) _         _         = tri= (\ lt -> <->!= lt x==y) x==y (\ lt -> <->!= lt (sym x==y))
-  handle (no  x!=y) (yes x<y) (no y≮x)  = tri< x<y x!=y y≮x
-  handle (no  x!=y) (no x≮y)  (yes y<x) = tri> x≮y x!=y y<x
-  handle (no  x!=y) (yes x<y) (yes y<x) = bot-elim (ℕ<-asym x<y y<x)
-  handle (no  x!=y) (no x<y)  (no y<x)  = bot-elim (x!=y (ℕ≤-antisym (≮->≥ y<x) (≮->≥ x<y)))
-
-
-
 decide-nat≤ : (x : Nat) -> (y : Nat) -> Dec (x ≤ y)
 decide-nat≤ zero    _       = yes zero-≤
 decide-nat≤ (suc m) zero    = no zero-≮

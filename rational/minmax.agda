@@ -17,35 +17,14 @@ open import sign
 open import sign.instances.rational
 
 private
-  Triℚ< : Rel ℚ ℓ-zero
-  Triℚ< x y = Tri (x < y) (x == y) (x > y)
-
   abstract
-    isProp-Triℚ< : (x y : ℚ) -> isProp (Triℚ< x y)
-    isProp-Triℚ< x y = isProp-Tri isProp-< (isSetRational x y) isProp-<
-
-  <->Tri : {x y : ℚ} -> x < y -> Triℚ< x y
-  <->Tri {x} {y} x<y =
-    tri< x<y
-         (\x=y -> bot-elim (irrefl-< (subst (_< y) x=y x<y)))
-         (\y<x -> bot-elim (asym-< x<y y<x))
-
-  >->Tri : {x y : ℚ} -> x > y -> Triℚ< x y
-  >->Tri {x} {y} x>y =
-    tri> (\x<y -> bot-elim (asym-< x<y x>y))
-         (\x=y -> bot-elim (irrefl-< (subst (y <_) x=y x>y)))
-         x>y
-
-  =->Tri : {x y : ℚ} -> x == y -> Triℚ< x y
-  =->Tri {x} {y} x=y =
-    tri= (\x<y -> bot-elim (irrefl-< (subst (_< y) x=y x<y)))
-         x=y
-         (\y<x -> bot-elim (irrefl-< (subst (y <_) x=y y<x)))
+    isProp-Tri< : {x y : ℚ} -> isProp (Tri< x y)
+    isProp-Tri< {x} {y} = isProp-Tri isProp-< (isSetRational x y) isProp-<
 
 
 abstract
   private
-    minℚ-helper : (x y : ℚ) -> Triℚ< x y -> ℚ
+    minℚ-helper : (x y : ℚ) -> Tri< x y -> ℚ
     minℚ-helper x y (tri< _ _ _) = x
     minℚ-helper x y (tri= _ _ _) = y
     minℚ-helper x y (tri> _ _ _) = y
@@ -55,7 +34,7 @@ abstract
 
 abstract
   private
-    maxℚ-helper : (x y : ℚ) -> Triℚ< x y -> ℚ
+    maxℚ-helper : (x y : ℚ) -> Tri< x y -> ℚ
     maxℚ-helper x y (tri< _ _ _) = y
     maxℚ-helper x y (tri= _ _ _) = x
     maxℚ-helper x y (tri> _ _ _) = x
@@ -67,18 +46,18 @@ abstract
   private
     minℚ-right-= : {x y : ℚ} -> y == x -> minℚ x y == y
     minℚ-right-= {x} {y} y=x =
-      cong (minℚ-helper x y) (isProp-Triℚ< x y _ (=->Tri (sym y=x)))
+      cong (minℚ-helper x y) (isProp-Tri< _ (tri=' (sym y=x)))
 
     minℚ-left-= : {x y : ℚ} -> x == y -> minℚ x y == x
     minℚ-left-= x=y = minℚ-right-= (sym x=y) >=> sym x=y
 
     minℚ-right-< : {x y : ℚ} -> y < x -> minℚ x y == y
     minℚ-right-< {x} {y} y<x =
-      cong (minℚ-helper x y) (isProp-Triℚ< x y _ (>->Tri y<x))
+      cong (minℚ-helper x y) (isProp-Tri< _ (tri>' y<x))
 
     minℚ-left-< : {x y : ℚ} -> x < y -> minℚ x y == x
     minℚ-left-< {x} {y} x<y =
-      cong (minℚ-helper x y) (isProp-Triℚ< x y _ (<->Tri x<y))
+      cong (minℚ-helper x y) (isProp-Tri< _ (tri<' x<y))
 
   minℚ-left : (x y : ℚ) -> x ℚ≤ y -> minℚ x y == x
   minℚ-left = ℚ≤-elim (isSetRational _ _) minℚ-left-< minℚ-left-=
@@ -89,18 +68,18 @@ abstract
   private
     maxℚ-left-= : {x y : ℚ} -> y == x -> maxℚ x y == x
     maxℚ-left-= {x} {y} y=x =
-      cong (maxℚ-helper x y) (isProp-Triℚ< x y _ (=->Tri (sym y=x)))
+      cong (maxℚ-helper x y) (isProp-Tri< _ (tri=' (sym y=x)))
 
     maxℚ-right-= : {x y : ℚ} -> x == y -> maxℚ x y == y
     maxℚ-right-= x=y = maxℚ-left-= (sym x=y) >=> x=y
 
     maxℚ-left-< : {x y : ℚ} -> y < x -> maxℚ x y == x
     maxℚ-left-< {x} {y} y<x =
-      cong (maxℚ-helper x y) (isProp-Triℚ< x y _ (>->Tri y<x))
+      cong (maxℚ-helper x y) (isProp-Tri< _ (tri>' y<x))
 
     maxℚ-right-< : {x y : ℚ} -> x < y -> maxℚ x y == y
     maxℚ-right-< {x} {y} x<y =
-      cong (maxℚ-helper x y) (isProp-Triℚ< x y _ (<->Tri x<y))
+      cong (maxℚ-helper x y) (isProp-Tri< _ (tri<' x<y))
 
   maxℚ-left : (x y : ℚ) -> y ℚ≤ x -> maxℚ x y == x
   maxℚ-left x y y≤x = ℚ≤-elim (isSetRational _ _) maxℚ-left-< maxℚ-left-= y x y≤x
