@@ -17,6 +17,7 @@ open import nat.order
 open import prime-gcd
 open import ring
 open import ring.implementations
+open import ring.lift
 open import solver
 
 ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)
@@ -84,11 +85,11 @@ ex1-4' {a} {b} {n} rp (gcd _ n%a+b n%a-b f) = handle (gcd->linear-combo rp)
             (x ⊕ y) ⊗ (a ⊕ b) ⊕ (x ⊕ (⊖ y)) ⊗ (a ⊕ (⊖ b)) ,
             (© (int 2)) ⊗ (x ⊗ a ⊕ y ⊗ b))
           refl x y a b >
-        (Ring.lift-nat IntRing 2) * (x * a + y * b)
-      ==< *-right {Ring.lift-nat IntRing 2} proof >
-        (Ring.lift-nat IntRing 2) * (int 1)
+        (lift-int (int 2)) * (x * a + y * b)
+      ==< *-right {lift-int (int 2)} proof >
+        (lift-int (int 2)) * (int 1)
       ==< *-right-one >
-        (Ring.lift-nat IntRing 2)
+        (lift-int (int 2))
       ==< +-eval >=> cong ((int 1) +ᵉ_) +-eval >
         (int 2)
       end
@@ -140,7 +141,7 @@ ex1-6 {a} {b} {d} (gcd _ _ _ f) d%a+b =
 
 ex1-5-arith-type : Set
 ex1-5-arith-type = ∀ a b -> ((a + b) * (a + b) +  - (a * a + - (a * b) + b * b))
-                            == ((a * b) * (Ring.lift-nat IntRing 3))
+                            == ((a * b) * (lift-int (int 3)))
 
 ex1-5-arith-type' : Set
 ex1-5-arith-type' = ∀ a b -> ((a + b) * (a + b) +  - (a * a + - (a * b) + b * b))

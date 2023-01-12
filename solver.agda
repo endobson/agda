@@ -3,8 +3,8 @@
 module solver where
 
 open import additive-group
-open import additive-group.instances.nat
 open import additive-group.instances.int
+open import additive-group.instances.nat
 open import additive-group.instances.reader
 open import base
 open import equality
@@ -12,9 +12,10 @@ open import fin
 open import list
 open import nat
 open import nat.order
+open import relation hiding (acc)
 open import ring
 open import ring.implementations
-open import relation hiding (acc)
+open import ring.lift
 open import semiring
 
 import int
@@ -337,7 +338,7 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
           (lift-int (m1 int.+ᵉ m2)) * ⟦ vars1 ⟧vars
         ==< *-left (cong lift-int (sym int.+-eval)) >
           (lift-int (m1 int.+ m2)) * ⟦ vars1 ⟧vars
-        ==< *-left (sym (+-lift-int {m1} {m2})) >
+        ==< *-left (sym +-lift-int) >
           ((lift-int m1) + (lift-int m2)) * ⟦ vars1 ⟧vars
         ==< *-distrib-+-right >
           (lift-int m1) * ⟦ vars1 ⟧vars +
@@ -458,7 +459,7 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
           (lift-int (m1 int.* m2)) * ⟦ (vs1 ++ vs2) ⟧vars
         ==< *-right (++-vars≈ vs1 vs2) >
           (lift-int (m1 int.* m2)) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars)
-        ==< *-left (sym (*-lift-int {m1} {m2})) >
+        ==< *-left (sym *-lift-int) >
           ((lift-int m1) * (lift-int m2)) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars)
         ==< *-assoc >
           (lift-int m1) * ((lift-int m2) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars))
@@ -948,7 +949,7 @@ module examples where
 
     example3 : (x y a b : Int) ->
         (x + y) * (a + b) + (x + - y) * (a + - b) ==
-        (Ring.lift-nat IntRing 2) * (x * a + y * b)
+        (lift-int (int 2)) * (x * a + y * b)
     example3 =
       IntSolver.solve 4
         (\ x y a b  ->

@@ -2,11 +2,12 @@
 
 module rational-prime where
 
-open import rational
-open import equality
-open import prime
-open import int hiding (_*_)
 open import base
+open import equality
+open import int hiding (_*_)
+open import prime
+open import rational
+open import ring.exponentiation
 open import ring.implementations.rational
 open import semiring
 
@@ -35,7 +36,7 @@ module _ (p : Prime') where
 
 
   prime-powerℚ' : ℤ -> rr.Unit
-  prime-powerℚ' x = (pℚU rr.u^ℤ x)
+  prime-powerℚ' x = (pℚU u^ℤ x)
 
   prime-powerℚ : ℤ -> ℚ
   prime-powerℚ x = fst (prime-powerℚ' x)

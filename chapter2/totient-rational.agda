@@ -25,6 +25,7 @@ open import prime-div-count.computational
 open import rational
 open import rational-prime
 open import ring
+open import ring.exponentiation
 open import ring.implementations
 open import ring.implementations.rational
 
@@ -74,7 +75,7 @@ module _ (p : Prime') where
             (Ringʰ.preserves-minus Ringʰ-ℤ->ℚ _ >=>
              cong r-_ (ℕ->ℚ-prime-power p (pred n') >=>
                        cong (prime-powerℚ p) pred->sub1 >=>
-                       cong fst (RationalRing.u^ℤ-sub1 (ℚUnit-prime p) (int n'))) >=>
+                       cong fst (u^ℤ-sub1 (ℚUnit-prime p) (int n'))) >=>
              sym (r*-minus-extract-left
                    (fst (RationalRing.u1/ (ℚUnit-prime p)))
                    (prime-powerℚ p (int n'))))) >=>
