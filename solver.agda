@@ -15,8 +15,9 @@ open import nat.order
 open import relation hiding (acc)
 open import ring
 open import ring.implementations
-open import ring.lift
+open import ring.initial-integers
 open import semiring
+open import truncation
 
 import int
 import ring.lists
@@ -208,6 +209,8 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
         field
           terms : Terms
 
+      lift-int : int.Int -> Meaning
+      lift-int = ∃!-val ∃!ℤ->Ring
 
       compare-vars : (x y : Vars) -> Order x y
       compare-vars = compare-list compare-fin
@@ -338,7 +341,7 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
           (lift-int (m1 int.+ᵉ m2)) * ⟦ vars1 ⟧vars
         ==< *-left (cong lift-int (sym int.+-eval)) >
           (lift-int (m1 int.+ m2)) * ⟦ vars1 ⟧vars
-        ==< *-left (sym +-lift-int) >
+        ==< *-left (Ringʰ.preserves-+ (∃!-prop ∃!ℤ->Ring) _ _) >
           ((lift-int m1) + (lift-int m2)) * ⟦ vars1 ⟧vars
         ==< *-distrib-+-right >
           (lift-int m1) * ⟦ vars1 ⟧vars +
@@ -459,7 +462,7 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
           (lift-int (m1 int.* m2)) * ⟦ (vs1 ++ vs2) ⟧vars
         ==< *-right (++-vars≈ vs1 vs2) >
           (lift-int (m1 int.* m2)) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars)
-        ==< *-left (sym *-lift-int) >
+        ==< *-left (Ringʰ.preserves-* (∃!-prop ∃!ℤ->Ring) _ _) >
           ((lift-int m1) * (lift-int m2)) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars)
         ==< *-assoc >
           (lift-int m1) * ((lift-int m2) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars))
@@ -949,7 +952,7 @@ module examples where
 
     example3 : (x y a b : Int) ->
         (x + y) * (a + b) + (x + - y) * (a + - b) ==
-        (lift-int (int 2)) * (x * a + y * b)
+        (∃!-val ∃!ℤ->Ring (int 2)) * (x * a + y * b)
     example3 =
       IntSolver.solve 4
         (\ x y a b  ->

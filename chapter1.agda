@@ -17,8 +17,9 @@ open import nat.order
 open import prime-gcd
 open import ring
 open import ring.implementations
-open import ring.lift
+open import ring.initial-integers
 open import solver
+open import truncation
 
 ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)
 ex1-1 {a} {b} {c} {d} (gcd _ _ _ gcd-f) c-div-a d-div-b =
@@ -76,6 +77,8 @@ ex1-4' {a} {b} {n} rp (gcd _ n%a+b n%a-b f) = handle (gcd->linear-combo rp)
   handle : LinearCombination a b (int 1) -> n div (int 2)
   handle (linear-combo x y proof) = res
     where
+    lift-int = ∃!-val ∃!ℤ->Ring
+
     lin-proof : (x + y) * (a + b) + (x + - y) * (a + - b) == (int 2)
     lin-proof =
       begin
@@ -141,7 +144,7 @@ ex1-6 {a} {b} {d} (gcd _ _ _ f) d%a+b =
 
 ex1-5-arith-type : Set
 ex1-5-arith-type = ∀ a b -> ((a + b) * (a + b) +  - (a * a + - (a * b) + b * b))
-                            == ((a * b) * (lift-int (int 3)))
+                            == ((a * b) * (∃!-val ∃!ℤ->Ring (int 3)))
 
 ex1-5-arith-type' : Set
 ex1-5-arith-type' = ∀ a b -> ((a + b) * (a + b) +  - (a * a + - (a * b) + b * b))

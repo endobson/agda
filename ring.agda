@@ -330,3 +330,34 @@ module Ringʰ
     {f : D₁ -> D₂}
     (s : Ringʰᵉ R₁ R₂ f) where
   open Ringʰᵉ s public
+
+module _
+    {ℓ₁ ℓ₂ : Level}
+    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+    {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
+    {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
+    {AG₁ : AdditiveGroup ACM₁} {AG₂ : AdditiveGroup ACM₂}
+    {{R₁ : Ring S₁ AG₁}} {{R₂ : Ring S₂ AG₂}}
+    {f : D₁ -> D₂}
+
+    where
+  private
+    instance
+      IACM₁ = ACM₁
+      IACM₂ = ACM₂
+      IS₁ = S₁
+      IS₂ = S₂
+
+    isSetD = AdditiveCommMonoid.isSet-Domain ACM₂
+
+  isProp-Ringʰ : isProp (Ringʰ f)
+  isProp-Ringʰ h1 h2 i .Ringʰ.preserves-0# =
+    isSetD _ _ (Ringʰ.preserves-0# h1) (Ringʰ.preserves-0# h2) i
+  isProp-Ringʰ h1 h2 i .Ringʰ.preserves-1# =
+    isSetD _ _ (Ringʰ.preserves-1# h1) (Ringʰ.preserves-1# h2) i
+  isProp-Ringʰ h1 h2 i .Ringʰ.preserves-+ x y =
+    isSetD _ _ (Ringʰ.preserves-+ h1 x y) (Ringʰ.preserves-+ h2 x y) i
+  isProp-Ringʰ h1 h2 i .Ringʰ.preserves-* x y =
+    isSetD _ _ (Ringʰ.preserves-* h1 x y) (Ringʰ.preserves-* h2 x y) i
+  isProp-Ringʰ h1 h2 i .Ringʰ.preserves-minus x =
+    isSetD _ _ (Ringʰ.preserves-minus h1 x) (Ringʰ.preserves-minus h2 x) i
