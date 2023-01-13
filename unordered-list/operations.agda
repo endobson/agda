@@ -295,7 +295,7 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
     where
     handle : (Dec (P x)) -> P x
     handle (yes px) = px
-    handle (no ¬px) = bot-elim (same-≮ bad-length)
+    handle (no ¬px) = bot-elim (irrefl-< bad-length)
       where
       filter-extends : filter as' == x :: as'
       filter-extends =

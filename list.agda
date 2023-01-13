@@ -656,7 +656,7 @@ cartesian-product-at-index' {i = i} {x} {y} [] bs ai _ =
   bot-elim (Lift.lower (transport (\j -> AtIndex i [] (x , y)) ai))
 
 
-cartesian-product-at-index' {i = i} {x} {y} (a :: as) bs ai pos-lb = handle (split-nat< i (length bs))
+cartesian-product-at-index' {i = i} {x} {y} (a :: as) bs ai pos-lb = handle (split-< i (length bs))
   where
   lb = ((length bs) , pos-lb)
   l = (map (a ,_) bs)

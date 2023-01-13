@@ -125,7 +125,7 @@ open PrimeUpTo
 1-is-¬prime : ¬(IsPrime' 1)
 1-is-¬prime (is-prime' lt _) = zero-≮ (pred-≤ lt)
 2-is-prime : IsPrime' 2
-2-is-prime = prime-up-to->is-prime' (prime-up-to-two 2 (same-≤ 2))
+2-is-prime = prime-up-to->is-prime' (prime-up-to-two 2 refl-≤)
 
 
 -- Prime powers

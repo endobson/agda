@@ -325,7 +325,7 @@ div'-zero = zero , refl
 no-small-dividends : {d n : Nat} -> n < d -> n != 0 -> d != 0 -> ¬ (d div' n)
 no-small-dividends {d} {n} n<d n!=0 d!=0 (x , pr) with x
 ... | zero = n!=0 (sym pr)
-... | (suc y) = same-≮ n<n
+... | (suc y) = irrefl-< n<n
   where
   d≤n : d ≤ n
   d≤n = ≤'->≤ (y *' d , pr)

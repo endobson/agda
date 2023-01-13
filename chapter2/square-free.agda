@@ -87,7 +87,7 @@ prime-power-¬square-free : {n : Nat} (p : Prime') -> n ≥ 2 ->
 prime-power-¬square-free {zero}        p n≥2 sf = zero-≮ n≥2
 prime-power-¬square-free {suc zero}    p n≥2 sf = zero-≮ (pred-≤ n≥2)
 prime-power-¬square-free {suc (suc n)} p n≥2 sf =
-  (same-≮ (trans-≤ p-count-≤ sf-≤))
+  (irrefl-< (trans-≤ p-count-≤ sf-≤))
   where
   primes-base : UList Prime'
   primes-base = (PrimeFactorization.primes (prime-power-prime-factorization p n))
@@ -179,7 +179,7 @@ relatively-prime-square-free a⁺@(a , _) b⁺@(b , _) rp sf-a sf-b p@(p' , _) p
     count-a : count p primes-a ≤ 1
     count-a = transport
       (\i -> (+'-commute {count p primes-a} {0} i) ≤ 1)
-      (trans-≤ (+-both-≤⁺ (same-≤ (count p primes-a)) zero-≤) count-ab)
+      (trans-≤ (+-both-≤⁺ refl-≤ zero-≤) count-ab)
 
 
 ¬square-free-*-right : (a : Nat⁺) {b : Nat⁺} -> ¬(SquareFree b) -> ¬ (SquareFree (a *⁺ b))
@@ -200,4 +200,4 @@ relatively-prime-square-free a⁺@(a , _) b⁺@(b , _) rp sf-a sf-b p@(p' , _) p
       (sf-ab p (*'-prime-factorization pf-a pf-b) )
 
     count-b : count p primes-b ≤ 1
-    count-b = (trans-≤ (+-both-≤⁺ zero-≤ (same-≤ (count p primes-b))) count-ab)
+    count-b = (trans-≤ (+-both-≤⁺ zero-≤ refl-≤) count-ab)

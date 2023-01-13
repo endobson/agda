@@ -287,7 +287,7 @@ module _ (p : Prime') where
     isProp-split-prime-power = isProp⊎ (isSetNat _ _) (isPropDiv' (prime-power⁺ p n)) handle
       where
       handle : (d == (prime-power p (suc n))) -> ¬ (d div' (prime-power p n))
-      handle path d%pn = same-≮ (trans-≤ gt lt)
+      handle path d%pn = irrefl-< (trans-≤ gt lt)
         where
         lt : (prime-power p (suc n)) ≤ (prime-power p n)
         lt = div'->≤ (subst (\x -> x div' (prime-power p n)) path d%pn)
@@ -644,7 +644,7 @@ module _ (a b : Nat⁺) where
                      -> a1 div' a' -> a2 div' a' -> b1 div' b' -> b2 div' b'
                      -> a1 *' b1 == a2 *' b2
                      -> a1 != a2 -> Bot
-    different-div {a1} {a2} {b1} {b2} a1%a a2%a b1%b b2%b ab-path ¬ap = handle (split-nat< a1 a2)
+    different-div {a1} {a2} {b1} {b2} a1%a a2%a b1%b b2%b ab-path ¬ap = handle (split-< a1 a2)
       where
       handle : (a1 < a2 ⊎ a2 ≤ a1) -> Bot
       handle (inj-l a1<a2) = different-div< a1%a a2%a b1%b b2%b ab-path a1<a2

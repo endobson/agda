@@ -29,7 +29,7 @@ prime-div-count-proof p a = snd (compute-prime-div-count p a)
 
 div-prime-div-count : {a b : Nat⁺} -> a div⁺ b -> (p : Prime')
                       -> prime-div-count p a ≤ prime-div-count p b
-div-prime-div-count {a} {b} a%b p = handle (split-nat< nb na)
+div-prime-div-count {a} {b} a%b p = handle (split-< nb na)
   where
   na = prime-div-count p a
   nb = prime-div-count p b

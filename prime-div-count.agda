@@ -99,7 +99,7 @@ private
                       (prime-div-count-suc dc)
 
 compute-prime-div-count : (p : Prime') (a : Nat⁺) -> Σ[ n ∈ Nat ] (PrimeDivCount p ⟨ a ⟩ n)
-compute-prime-div-count p a = compute-prime-div-count' p a (suc (fst a)) (same-≤ (suc (fst a)))
+compute-prime-div-count p a = compute-prime-div-count' p a (suc (fst a)) refl-≤
 
 prime-div-count-unique : {p : Prime'} {a n1 n2 : Nat}
                          -> PrimeDivCount p a n1 -> PrimeDivCount p a n2

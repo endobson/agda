@@ -127,7 +127,7 @@ module _ {m n : Nat} where
 
 
       split-fin : (i : Fin (m +' n)) -> SplitFin i
-      split-fin (i , p) with (split-nat< i m)
+      split-fin (i , p) with (split-< i m)
       ... | (inj-l i<m)          = inj-l ((i , i<m) , fin-i-path refl)
       ... | (inj-r (j , j+m==i)) = inj-r (res , fin-i-path (+'-commute {m} {j} >=> j+m==i))
         where

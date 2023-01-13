@@ -9,6 +9,7 @@ open import equality
 open import equivalence
 open import hlevel
 open import relation
+open import sum
 open import truncation
 
 private
@@ -285,7 +286,7 @@ module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {
       where
       handle : Tri (d1 < d2) (d1 == d2) (d2 < d1) -> (d1 < d2) ⊎ (d2 ≤ d1)
       handle (tri< d1<d2 _ _) = inj-l d1<d2
-      handle (tri= _ d1=d2 _) = inj-r (subst (_≤ d1) d1=d2 refl-≤)
+      handle (tri= _ d1=d2 _) = inj-r (path-≤ (sym d1=d2))
       handle (tri> _ _ d2<d1) = inj-r (weaken-< d2<d1)
 
     decide-< : (d1 d2 : D) -> Dec (d1 < d2)
@@ -303,3 +304,8 @@ module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {
       handle (tri< d1<d2 _ _) = yes (weaken-< d1<d2)
       handle (tri= _ d1=d2 _) = yes (path-≤ d1=d2)
       handle (tri> _ _ d2<d1) = no (\d1≤d2 -> irrefl-< (trans-<-≤ d2<d1 d1≤d2))
+
+  TotalOrderStr-LinearOrder : TotalOrderStr ≤-Str
+  TotalOrderStr-LinearOrder = record
+   { connex-≤ = \x y -> ∣ (⊎-map weaken-< (\x -> x)) (split-< x y) ∣
+   }

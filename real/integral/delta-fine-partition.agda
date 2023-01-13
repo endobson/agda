@@ -55,7 +55,7 @@ private
         u0=a' =
           +-left (*-left *-left-zero >=> *-left-zero) >=> +-left-zero
 
-        un=b' : u (n , same-≤ _) == b'
+        un=b' : u (n , refl-≤) == b'
         un=b' =
           +-left (*-left (*-commute >=> (1/ℕ-ℕ-path n⁺)) >=>
                   *-left-one) >=>

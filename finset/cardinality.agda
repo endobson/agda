@@ -31,7 +31,7 @@ private
 
   inhabited-0<cardinality⁺ : (A : FinSet ℓ) -> ∥ ⟨ A ⟩  ∥ -> 0 < cardinality A 
   inhabited-0<cardinality⁺ A a = 
-    case (split-nat< (cardinality A) 1) of (\{
+    case (split-< (cardinality A) 1) of (\{
       (inj-r 1≤ca) -> 1≤ca ;
       (inj-l sca≤1) -> bot-elim (zero-case (zero-≤->zero (pred-≤ sca≤1))) })
     where
@@ -50,7 +50,7 @@ private
 
   uninhabited-cardinality0⁺ : (A : FinSet ℓ) -> ¬ ⟨ A ⟩ -> cardinality A == 0 
   uninhabited-cardinality0⁺ A ¬a =
-    case (split-nat< 0 (cardinality A)) of (\{
+    case (split-< 0 (cardinality A)) of (\{
       (inj-r ca≤0) -> (zero-≤->zero ca≤0) ;
       (inj-l 0<ca) ->
         bot-elim (unsquash isPropBot (∥-map ¬a (inhabited-0<cardinality⁻ A 0<ca)))})

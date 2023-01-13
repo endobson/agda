@@ -166,7 +166,7 @@ module _ {P : Nat -> Nat -> Type ℓ}
     sym-induction≤ : (y : Nat) {a b : Nat} -> a ≤ y -> b ≤ y -> P a b
     sym-induction≤' : {y a b : Nat} -> a ≤ b -> a ≤ y -> b ≤ y -> P a b
 
-    sym-induction≤ y {a} {b} a≤y b≤y = handle (split-nat< a b)
+    sym-induction≤ y {a} {b} a≤y b≤y = handle (split-< a b)
       where
       handle : (a < b) ⊎ (b ≤ a) -> P a b
       handle (inj-l a<b) = sym-induction≤' (weaken-< a<b) a≤y b≤y

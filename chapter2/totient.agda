@@ -66,7 +66,7 @@ isProp-isTotativeOf t1 t2 i = record
   }
 
 isBoundedTotient : {n : Nat} -> isBounded (Totient n)
-isBoundedTotient {n} = (suc n) , (\ t -> trans-≤-< (Totient.k≤n t) (suc-≤ (same-≤ n)))
+isBoundedTotient {n} = (suc n) , (\ t -> trans-≤-< (Totient.k≤n t) refl-≤)
 
 decide-rp : (k n : Nat) -> Dec (RelativelyPrime⁰ k n)
 decide-rp k n = handle (decide-nat (gcd' k n) 1)
@@ -102,7 +102,7 @@ FinSet-Totatives n = Totatives n , isFinSet-Totatives
 private
   totient-one-one : (Totient 1 1)
   totient-one-one = record
-    { k≤n = (same-≤ 1)
+    { k≤n = refl-≤
     ; rp = rp-one
     }
 
@@ -143,7 +143,7 @@ module _ (p : Prime') where
       }
       where
       ¬p%k : ¬(p' div' k)
-      ¬p%k p%k = same-≮ (trans-<-≤ k<p (div'->≤ p%k {pos-k}))
+      ¬p%k p%k = irrefl-< (trans-<-≤ k<p (div'->≤ p%k {pos-k}))
 
       rp : RelativelyPrime⁰ k p'
       rp = rp-sym (prime->relatively-prime p ¬p%k)

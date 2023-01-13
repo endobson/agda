@@ -17,6 +17,7 @@ open import nat.order
 open import order
 open import order.instances.nat
 open import relation
+open import sum
 open import truncation
 
 
@@ -36,12 +37,12 @@ allNatsUnder< (suc n) (suc i , p) =
   cons-contains n (allNatsUnder< n (i , cong pred p))
 
 onlyNatsUnder< : (n : Nat) -> ContainsOnly (_< n) (allNatsUnder n)
-onlyNatsUnder< n = transport (\i -> ContainsOnly (_< n) (path (same-≤ n) i))
+onlyNatsUnder< n = transport (\i -> ContainsOnly (_< n) (path refl-≤ i))
                              (filter-contains-only decide-P (allNatsUnder n))
   where
 
   decide-P : (a : Nat) -> Dec (a < n)
-  decide-P a = decide-nat< a n
+  decide-P a = decide-< a n
 
   path : {m : Nat} -> (m ≤ n) -> (filter decide-P (allNatsUnder m)) == (allNatsUnder m)
   path {zero} lt = refl
@@ -55,7 +56,7 @@ all-nats-no-duplicates zero = lift tt
 all-nats-no-duplicates (suc n) = (¬c , all-nats-no-duplicates n)
   where
   ¬c : ¬ (contains n (allNatsUnder n))
-  ¬c c = same-≮ (onlyNatsUnder< n c)
+  ¬c c = irrefl-< (onlyNatsUnder< n c)
 
 all-nats-sorted : (n : Nat) -> Sorted _>_ (allNatsUnder n)
 all-nats-sorted zero    = lift tt
@@ -107,7 +108,7 @@ canonical-list-== {P = P} {as} {bs} (ce1-a , sa) (ce1-b , sb) =
     ord≥ : TotalOrder _≥_
     ord≥ = total-order-≥
     connex'-≥ : Connex' _≥_
-    connex'-≥ x y = connex'-≤ y x
+    connex'-≥ x y = ⊎-map weaken-< (\x -> x) (split-< y x)
 
 
     open total _≥_ dec≥ ord≥ connex'-≥
@@ -295,7 +296,7 @@ clopen-range-++ : {m n p : Nat} -> m ≤ n -> n ≤ p
                   -> clopen-range m p == clopen-range n p ++ clopen-range m n
 clopen-range-++ {m} {n} {p} m≤n@(k1 , k1-path) n≤p@(k2 , k2-path) = full-path
   where
-  k3 = k1 +' k2
+  k3 = k2 +' k1
   k3-path : k3 +' m == p
   k3-path = (snd (trans-≤ m≤n n≤p))
 
@@ -308,7 +309,7 @@ clopen-range-++ {m} {n} {p} m≤n@(k1 , k1-path) n≤p@(k2 , k2-path) = full-pat
       clopen-range (m +' 0) (m +' k3)
     ==< clopen-range-+-left m 0 k3 >
       map (m +'_) (clopen-range 0 k3)
-    ==< cong (map (m +'_)) (clopen-range0-++ (k2 , +'-commute {k2} {k1})) >
+    ==< cong (map (m +'_)) (clopen-range0-++ (k2 , refl)) >
       map (m +'_) ((clopen-range k1 k3) ++ clopen-range 0 k1)
     ==< Monoidʰ.preserves-∙ (mapʰ (m +'_)) (clopen-range k1 k3) (clopen-range 0 k1) >
       map (m +'_) (clopen-range k1 k3) ++

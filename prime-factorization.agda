@@ -104,7 +104,7 @@ private
                     (<->!= (suc-≤ (suc-≤ (≤u->≤ step))))
                     (\ p -> bot-elim (zero-suc-absurd (sym p)))
                     div
-  compute-primality {suc zero} p>1 = bot-elim (same-≮ p>1)
+  compute-primality {suc zero} p>1 = bot-elim (irrefl-< p>1)
   compute-primality {zero}     p>1 = bot-elim (zero-≮ p>1)
 
 
@@ -223,7 +223,7 @@ prime-power-prime-factorization p (suc n) = handle (prime-power-prime-factorizat
 
 Decidable-IsPrime' : Decidable IsPrime'
 Decidable-IsPrime' zero = no (\p -> IsPrime'.pos p)
-Decidable-IsPrime' (suc zero) = no (\p -> same-≮ (IsPrime'.>1 p))
+Decidable-IsPrime' (suc zero) = no (\p -> irrefl-< (IsPrime'.>1 p))
 Decidable-IsPrime' n@(suc (suc _)) = handle (compute-primality (suc-≤ (suc-≤ zero-≤)))
   where
   handle : {n : Nat} -> Primality n -> Dec (IsPrime' n)

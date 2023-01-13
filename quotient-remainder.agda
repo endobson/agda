@@ -117,7 +117,7 @@ private
   decompose-path' : (d : Nat⁺) (n : Nat) (b : Nat) -> (n < b) ->
                     n == (quotient n d) *' ⟨ d ⟩ +' Fin.i (remainder n d)
   decompose-path' d n zero n<b = bot-elim (zero-≮ n<b)
-  decompose-path' d@(d'@(suc d'') , _) n (suc b) n<b = handle (split-nat< n d')
+  decompose-path' d@(d'@(suc d'') , _) n (suc b) n<b = handle (split-< n d')
     where
     n≤b : n ≤ b
     n≤b = pred-≤ n<b
@@ -145,7 +145,7 @@ private
 
   decompose-path : (d : Nat⁺) (n : Nat) ->
                    n == (quotient n d) *' ⟨ d ⟩ +' Fin.i (remainder n d)
-  decompose-path d n = decompose-path' d n (suc n) (same-≤ (suc n))
+  decompose-path d n = decompose-path' d n (suc n) refl-≤
 
 
 quotient-remainder : (d : Nat⁺) (n : Nat) -> QuotientRemainder d n

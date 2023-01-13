@@ -124,7 +124,7 @@ private
 
   compute-division-count : (d : Nat) -> (n : Nat⁺) -> 1 < d -> DivisionCount d ⟨ n ⟩
   compute-division-count d n@(n' , _) 1<d =
-    compute-division-count' d n (suc n') 1<d (same-≤ (suc n'))
+    compute-division-count' d n (suc n') 1<d refl-≤
 
 
   isPropDivisionCount : {d n : Nat} -> isProp (DivisionCount d n)
@@ -242,7 +242,7 @@ private
       }
       where
       no-divides : ¬ (pv div' 1)
-      no-divides pv%1 = same-≮ (trans-≤-< (div'->≤ pv%1) p>1)
+      no-divides pv%1 = irrefl-< (trans-≤-< (div'->≤ pv%1) p>1)
 
     product-division-count-empty : product-division-count p [] == 0
     product-division-count-empty =
@@ -561,7 +561,7 @@ prime-different-division-count a@(a' , a-pos) b@(b' , b-pos) a<b =
     handle : (x : Nat) -> (x == db) -> db > 1
     handle zero path = bot-elim (transport (cong Pos' (sym path)) (snd db⁺))
     handle (suc (suc x)) path = x , +'-commute {x} {2} >=> path
-    handle (suc zero) path = bot-elim (same-≮ (trans-<-≤ a<b b≤a))
+    handle (suc zero) path = bot-elim (irrefl-< (trans-<-≤ a<b b≤a))
       where
       g=b : g' == b'
       g=b = sym *'-left-one >=> *'-left path >=> db-path

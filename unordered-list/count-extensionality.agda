@@ -46,7 +46,7 @@ private
   trans-≼ f g y = trans-≤ (f y) (g y)
 
   refl-≼ : {as : UList A} -> as ≼ as
-  refl-≼ a = same-≤ _
+  refl-≼ a = refl-≤
 
   remove1-≼ : {as bs : UList A} -> (b : A) -> as ≼ bs -> (remove1 b as) ≼ (remove1 b bs)
   remove1-≼ {as} {bs} b lt x with (discA x b)
@@ -291,6 +291,6 @@ countExtUList : ∀ (as bs : UList A) -> (∀ a -> count a as == count a bs) -> 
 countExtUList as bs f = antisym-Subset (≼->Subset as≼bs) (≼->Subset bs≼as)
   where
   as≼bs : as ≼ bs
-  as≼bs x = transport (\i -> count x as ≤ (f x i)) (same-≤ (count x as))
+  as≼bs x = transport (\i -> count x as ≤ (f x i)) refl-≤
   bs≼as : bs ≼ as
-  bs≼as x = transport (\i -> count x bs ≤ (f x (~ i))) (same-≤ (count x bs))
+  bs≼as x = transport (\i -> count x bs ≤ (f x (~ i))) refl-≤

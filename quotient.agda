@@ -96,11 +96,11 @@ data AddRec (a : Nat) (b : Nat⁺) : Type₀ where
   add-rec-step : (gt : (a ≥ ⟨ b ⟩)) -> AddRec ⟨ gt ⟩ b -> AddRec a b
 
 add-rec-exists : (a : Nat) (b : Nat⁺) -> AddRec a b
-add-rec-exists a b = add-rec-exists' a b (suc a) (same-≤ (suc a))
+add-rec-exists a b = add-rec-exists' a b (suc a) refl-≤
   where
   add-rec-exists' : (a : Nat) (b : Nat⁺) (bound : Nat) -> (a < bound) -> AddRec a b
   add-rec-exists' a   (b'           , _) zero        lt = bot-elim (zero-≮ lt)
-  add-rec-exists' a b@(b'@(suc b'') , _) (suc bound) lt = handle (split-nat< a b')
+  add-rec-exists' a b@(b'@(suc b'') , _) (suc bound) lt = handle (split-< a b')
     where
     handle : (a < b') ⊎ (a ≥ b') -> AddRec a b
     handle (inj-l a<b) = add-rec-base a<b
