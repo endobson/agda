@@ -364,24 +364,24 @@ a r*' b = record
   ; NonZero-denominator = int.*-NonZero-NonZero (rNonZero a) (rNonZero b)
   }
 
+r*'-commute : (a b : Rational') -> a r*' b == b r*' a
+r*'-commute a b = nd-paths->path ab ba n-p d-p
+  where
+  ab = a r*' b
+  ba = b r*' a
+  na = numer a
+  nb = numer b
+  da = denom a
+  db = denom b
+
+  n-p : numer ab == numer ba
+  n-p = int.*-commute {na} {nb}
+
+  d-p : denom ab == denom ba
+  d-p = int.*-commute {da} {db}
+
+
 private
-  r*'-commute : (a b : Rational') -> a r*' b == b r*' a
-  r*'-commute a b = nd-paths->path ab ba n-p d-p
-    where
-    ab = a r*' b
-    ba = b r*' a
-    na = numer a
-    nb = numer b
-    da = denom a
-    db = denom b
-
-    n-p : numer ab == numer ba
-    n-p = int.*-commute {na} {nb}
-
-    d-p : denom ab == denom ba
-    d-p = int.*-commute {da} {db}
-
-
   r*'-preserves-r~₂ : (a b1 b2 : Rational') -> b1 r~ b2 -> (a r*' b1) r~ (a r*' b2)
   r*'-preserves-r~₂ a b1 b2 r = path
     where
@@ -499,31 +499,30 @@ abstract
                (\a b c -> isSetRational ((a r+ b) r+ c) (a r+ (b r+ c)))
                (\a b c -> (eq/ ((a r+' b) r+' c) (a r+' (b r+' c)) (r+'-assoc {a} {b} {c})))
 
-private
-  abstract
-    r*'-distrib-r+'-right : (a b c : Rational') -> ((a r+' b) r*' c) r~ ((a r*' c) r+' (b r*' c))
-    r*'-distrib-r+'-right a b c = path
-      where
-      module _ where
-        ab = a r+' b
-        ac = a r*' c
-        bc = b r*' c
-        ab-c = ab r*' c
-        ac-bc = ac r+' bc
-        na = numer a
-        nb = numer b
-        nc = numer c
-        da = denom a
-        db = denom b
-        dc = denom c
+abstract
+  r*'-distrib-r+'-right : (a b c : Rational') -> ((a r+' b) r*' c) r~ ((a r*' c) r+' (b r*' c))
+  r*'-distrib-r+'-right a b c = path
+    where
+    module _ where
+      ab = a r+' b
+      ac = a r*' c
+      bc = b r*' c
+      ab-c = ab r*' c
+      ac-bc = ac r+' bc
+      na = numer a
+      nb = numer b
+      nc = numer c
+      da = denom a
+      db = denom b
+      dc = denom c
 
-      path : (((na i* db) i+ (nb i* da)) i* nc) i* ((da i* dc) i* (db i* dc))
-             == (((na i* nc) i* (db i* dc)) i+ ((nb i* nc) i* (da i* dc))) i* ((da i* db) i* dc)
-      path = solver.IntSolver.solve 6
-             (\ na da nb db nc dc ->
-                (((na ⊗ db) ⊕ (nb ⊗ da)) ⊗ nc) ⊗ ((da ⊗ dc) ⊗ (db ⊗ dc)) ,
-                (((na ⊗ nc) ⊗ (db ⊗ dc)) ⊕ ((nb ⊗ nc) ⊗ (da ⊗ dc))) ⊗ ((da ⊗ db) ⊗ dc))
-             refl na da nb db nc dc
+    path : (((na i* db) i+ (nb i* da)) i* nc) i* ((da i* dc) i* (db i* dc))
+           == (((na i* nc) i* (db i* dc)) i+ ((nb i* nc) i* (da i* dc))) i* ((da i* db) i* dc)
+    path = solver.IntSolver.solve 6
+           (\ na da nb db nc dc ->
+              (((na ⊗ db) ⊕ (nb ⊗ da)) ⊗ nc) ⊗ ((da ⊗ dc) ⊗ (db ⊗ dc)) ,
+              (((na ⊗ nc) ⊗ (db ⊗ dc)) ⊕ ((nb ⊗ nc) ⊗ (da ⊗ dc))) ⊗ ((da ⊗ db) ⊗ dc))
+           refl na da nb db nc dc
 
 abstract
   r*-distrib-r+-right : (a b c : Rational) -> ((a r+ b) r* c) == ((a r* c) r+ (b r* c))

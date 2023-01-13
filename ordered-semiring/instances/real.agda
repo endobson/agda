@@ -13,12 +13,12 @@ instance
   LinearlyOrderedSemiringStr-ℝ : LinearlyOrderedSemiringStr ℝSemiring LinearOrderStr-ℝ
   LinearlyOrderedSemiringStr-ℝ = record
     { +₁-preserves-< = ℝ+₁-preserves-< _ _ _
-    ; *-preserves-0< = ℝ*-preserves-0< _ _
+    ; *₁-preserves-< = ℝ*₁-preserves-< _ _ _
     }
 
 
   PartiallyOrderedSemiringStr-ℝ : PartiallyOrderedSemiringStr ℝSemiring PartialOrderStr-ℝ
   PartiallyOrderedSemiringStr-ℝ = record
     { +₁-preserves-≤ = \{a} {b} {c} -> +₁-preserves-≮
-    ; *-preserves-0≤ = \{a} {b} -> *-preserves-≮0
+    ; *₁-preserves-≤ = \{a} {b} -> *₁-preserves-≮
     }

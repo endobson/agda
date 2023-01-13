@@ -3,6 +3,7 @@
 module real.arithmetic.order where
 
 open import additive-group
+open import additive-group.instances.real
 open import apartness
 open import base
 open import equality
@@ -18,6 +19,8 @@ open import real.order
 open import real.rational
 open import real.sequence
 open import ring.implementations.rational
+open import ring.implementations.real
+open import semiring
 open import truncation
 open import order
 open import order.instances.rational
@@ -87,6 +90,24 @@ private
 abstract
   ℝ*-preserves-0< : (a b : ℝ) -> 0ℝ ℝ< a -> 0ℝ ℝ< b -> 0ℝ ℝ< (a ℝ* b)
   ℝ*-preserves-0< a b 0<a 0<b = subst (0ℝ ℝ<_) (sym ℝ*-eval) (ℝ*ᵉ-preserves-0< a b 0<a 0<b)
+
+  ℝ*₁-preserves-< : (a b c : ℝ) -> 0ℝ ℝ< a -> (b ℝ< c) -> (a ℝ* b) ℝ< (a ℝ* c)
+  ℝ*₁-preserves-< a b c 0<a b<c = ab<ac
+    where
+    module _ where
+      0<cb : 0# < (c + (- b))
+      0<cb = subst2 _<_ +-inverse refl (ℝ+₂-preserves-< _ _ _ b<c)
+
+      0<acb : 0# < (a ℝ* (c + (- b)))
+      0<acb = ℝ*-preserves-0< _ _ 0<a 0<cb
+
+      ab+acb=ac : (a ℝ* b) + (a ℝ* (c + (- b))) == a ℝ* c
+      ab+acb=ac =
+        sym *-distrib-+-left >=>
+        *-right (+-right +-commute >=> sym +-assoc >=> +-left +-inverse >=> +-left-zero)
+
+      ab<ac : (a * b) < (a * c)
+      ab<ac = subst2 _<_ +-right-zero ab+acb=ac (ℝ+₁-preserves-< _ _ _ 0<acb)
 
 
 -- Invertible differences

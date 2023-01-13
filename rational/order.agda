@@ -502,24 +502,25 @@ abstract
         (transport (sym (cong2 ℚ<-raw r+-eval r+-eval >=> ℚ<-raw-eval))
                    (r+'₁-preserves-< a b c (transport ℚ<-raw-eval b<c)))
 
-  r*-preserves-0< : (a b : ℚ) -> 0r < a -> 0r < b -> 0r < (a * b)
-  r*-preserves-0< a b (ℚ<-cons 0<a) (ℚ<-cons 0<b) =
-    ℚ-elimProp2
-      {C2 = \a b -> ℚ<-raw 0r a -> ℚ<-raw 0r b -> 0r < (a * b)}
-      (\_ _ -> isPropΠ2 (\_ _ -> isProp-<))
+  r*₁-preserves-< : (a b c : ℚ) -> 0r < a -> b < c -> (a * b) < (a * c)
+  r*₁-preserves-< a b c (ℚ<-cons 0<a) (ℚ<-cons b<c) =
+    ℚ-elimProp3
+      {C3 = \a b c -> ℚ<-raw 0r a -> ℚ<-raw b c -> (a * b) < (a * c)}
+      (\_ _ _ -> isPropΠ2 (\_ _ -> isProp-<))
       convert
-      a b 0<a 0<b
+      a b c 0<a b<c
     where
-    convert : (a b : ℚ') -> ℚ<-raw 0r (ℚ'->ℚ a) -> ℚ<-raw 0r (ℚ'->ℚ b) -> 0r < ((ℚ'->ℚ a) * (ℚ'->ℚ b))
-    convert a b 0<a 0<b =
-      ℚ<-cons (transport (sym ℚ<-raw-eval >=> cong (ℚ<-raw 0r) (sym r*-eval))
-                         (r*'-preserves-0< a b (transport ℚ<-raw-eval 0<a) (transport ℚ<-raw-eval 0<b)))
+    convert : (a b c : ℚ') -> ℚ<-raw 0r (ℚ'->ℚ a) -> ℚ<-raw (ℚ'->ℚ b) (ℚ'->ℚ c) ->
+              ((ℚ'->ℚ a) * (ℚ'->ℚ b)) < ((ℚ'->ℚ a) * (ℚ'->ℚ c))
+    convert a b c 0<a b<c =
+      ℚ<-cons (transport (sym ℚ<-raw-eval >=> cong2 ℚ<-raw (sym r*-eval) (sym r*-eval))
+                         (r*'₁-preserves-< a b c (transport ℚ<-raw-eval 0<a) (transport ℚ<-raw-eval b<c)))
 
 instance
   LinearlyOrderedSemiringStr-ℚ : LinearlyOrderedSemiringStr RationalSemiring LinearOrderStr-ℚ
   LinearlyOrderedSemiringStr-ℚ = record
     { +₁-preserves-< = r+₁-preserves-< _ _ _
-    ; *-preserves-0< = r*-preserves-0< _ _
+    ; *₁-preserves-< = r*₁-preserves-< _ _ _
     }
 
 
@@ -563,28 +564,42 @@ module _ where
 
 abstract
 
-  r*-preserves-0≤ : (a b : ℚ) -> 0r ≤ a -> 0r ≤ b -> 0r ≤ (a * b)
-  r*-preserves-0≤ a b 0≤a 0≤b =
-    ℚ0≤-elim {P = \a -> ∀ b -> 0r ≤ b -> 0r ≤ (a * b)}
-      (isPropΠ2 (\_ _ -> isProp-≤)) f< f= a 0≤a b 0≤b
+  r*₁-preserves-≤ : (a b c : ℚ) -> 0r ≤ a -> b ≤ c -> (a * b) ≤ (a * c)
+  r*₁-preserves-≤ a b c 0≤a b≤c =
+    ℚ0≤-elim {P = \a -> (a * b) ≤ (a * c)}
+       isProp-≤ f< f= a 0≤a
     where
-    f= : {a : ℚ} -> 0r == a -> (b : ℚ) -> 0r ≤ b -> 0r ≤ (a * b)
-    f= 0=a _ _ = path-≤ (sym *-left-zero >=> *-left 0=a)
+    0≤bc : 0r ≤ diff b c
+    0≤bc = subst2 _≤_ (+-commute >=> +-inverse) +-commute (r+₁-preserves-≤ (- b) b c b≤c)
 
-    f< : {a : ℚ} -> 0r < a -> (b : ℚ) -> 0r ≤ b -> 0r ≤ (a * b)
-    f< {a} 0<a = ℚ0≤-elim isProp-≤ g< g=
+    f= : {a : ℚ} -> 0r == a -> (a * b) ≤ (a * c)
+    f= 0=a = path-≤ (*-left (sym 0=a) >=> *-left-zero >=> sym *-left-zero >=> *-left 0=a)
+
+    f< : {a : ℚ} -> 0r < a -> (a * b) ≤ (a * c)
+    f< {a} 0<a =
+      subst2 _≤_ +-right-zero
+        (+-right (r*-distrib-diffℚ _ _ _ >=> +-commute) >=>
+         sym +-assoc >=>
+         +-left +-inverse >=>
+         +-left-zero)
+        (r+₁-preserves-≤ (a * b) 0r (a * diff b c) 0≤abc)
       where
-      g< : {b : ℚ} -> 0r < b -> 0r ≤ (a * b)
-      g< 0<b = weaken-< (*-preserves-0< 0<a 0<b)
 
-      g= : {b : ℚ} -> 0r == b -> 0r ≤ (a * b)
-      g= 0=b = path-≤ (sym *-right-zero >=> *-right 0=b)
+      g= : {bc : ℚ} -> 0r == bc -> 0r ≤ (a * bc)
+      g= 0=bc = path-≤ (sym *-right-zero >=> *-right 0=bc)
+
+      g< : {bc : ℚ} -> 0r < bc -> 0r ≤ (a * bc)
+      g< 0<bc = weaken-< (*-preserves-0< 0<a 0<bc)
+
+      0≤abc : 0r ≤ (a * (diff b c))
+      0≤abc = ℚ0≤-elim isProp-≤ g< g= (diff b c) 0≤bc
+
 
 instance
   PartiallyOrderedSemiringStr-ℚ : PartiallyOrderedSemiringStr RationalSemiring PartialOrderStr-ℚ
   PartiallyOrderedSemiringStr-ℚ = record
     { +₁-preserves-≤ = r+₁-preserves-≤ _ _ _
-    ; *-preserves-0≤ = r*-preserves-0≤ _ _
+    ; *₁-preserves-≤ = r*₁-preserves-≤ _ _ _
     }
 
 
@@ -658,7 +673,7 @@ abstract
   Neg-< a b np a<b = trans-<-≤ a<b (NonPos-≤0 _ np)
 
   r*-Pos-Pos : {q1 q2 : ℚ} -> Pos q1 -> Pos q2 -> Pos (q1 r* q2)
-  r*-Pos-Pos p1 p2 = r*-preserves-0< _ _ p1 p2
+  r*-Pos-Pos p1 p2 = *-preserves-0< p1 p2
 
   r*-Pos-Neg : {q1 q2 : ℚ} -> Pos q1 -> Neg q2 -> Neg (q1 r* q2)
   r*-Pos-Neg {q1} {q2} p1 n2 =
@@ -672,7 +687,7 @@ abstract
 
 
   r*-NonNeg-NonNeg : {q1 q2 : ℚ} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r* q2)
-  r*-NonNeg-NonNeg nn1 nn2 = 0≤-NonNeg _ (r*-preserves-0≤ _ _ (NonNeg-0≤ _ nn1) (NonNeg-0≤ _ nn2))
+  r*-NonNeg-NonNeg nn1 nn2 = 0≤-NonNeg _ (*-preserves-0≤ (NonNeg-0≤ _ nn1) (NonNeg-0≤ _ nn2))
 
   r*-NonNeg-NonPos : {q1 q2 : ℚ} -> NonNeg q1 -> NonPos q2 -> NonPos (q1 r* q2)
   r*-NonNeg-NonPos {q1} {q2} nn1 np2 = ≤0-NonPos _ q1q2≤0
@@ -745,7 +760,7 @@ abstract
 
 
   r*₁-preserves-sign : (q : ℚ⁺) (r : Rational) {s : Sign} -> isSignℚ s r -> isSignℚ s (⟨ q ⟩ r* r)
-  r*₁-preserves-sign (q , pq) r {pos-sign} pr = r*-preserves-0< _ _ pq pr
+  r*₁-preserves-sign (q , pq) r {pos-sign} pr = *-preserves-0< pq pr
   r*₁-preserves-sign (q , pq) r {zero-sign} zr = *-right zr >=> *-right-zero
   r*₁-preserves-sign (q , pq) r {neg-sign} nr = r*-Pos-Neg pq nr
 

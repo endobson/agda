@@ -23,7 +23,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : Li
     no-eta-equality
     field
       +₁-preserves-< : {a b c : D} -> b < c -> (a + b) < (a + c)
-      *-preserves-0< : {a b : D} -> 0# < a -> 0# < b -> 0# < (a * b)
+      *₁-preserves-< : {a b c : D} -> 0# < a -> b < c -> (a * b) < (a * c)
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : LinearOrderStr D ℓ<}
          {{LOS : LinearlyOrderedSemiringStr S O}} where
@@ -40,7 +40,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
     +₁-preserves-< = LOS.+₁-preserves-<
 
     *-preserves-0< : {a b : D} -> 0# < a -> 0# < b -> 0# < (a * b)
-    *-preserves-0< = LOS.*-preserves-0<
+    *-preserves-0< 0<a 0<b = trans-=-< (sym *-right-zero) (LOS.*₁-preserves-< 0<a 0<b)
 
     +₂-preserves-< : {a b c : D} -> a < b -> (a + c) < (b + c)
     +₂-preserves-< a<b = subst2 _<_ +-commute +-commute (+₁-preserves-< a<b)
@@ -66,7 +66,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : Pa
     no-eta-equality
     field
       +₁-preserves-≤ : {a b c : D} -> b ≤ c -> (a + b) ≤ (a + c)
-      *-preserves-0≤ : {a b : D} -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a * b)
+      *₁-preserves-≤ : {a b c : D} -> 0# ≤ a -> b ≤ c -> (a * b) ≤ (a * c)
 
 
 
@@ -85,7 +85,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : Pa
     +₁-preserves-≤ = POS.+₁-preserves-≤
 
     *-preserves-0≤ : {a b : D} -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a * b)
-    *-preserves-0≤ = POS.*-preserves-0≤
+    *-preserves-0≤ 0≤a 0≤b = trans-=-≤ (sym *-right-zero) (POS.*₁-preserves-≤ 0≤a 0≤b)
 
     +₂-preserves-≤ : {a b c : D} -> a ≤ b -> (a + c) ≤ (b + c)
     +₂-preserves-≤ a≤b = subst2 _≤_ +-commute +-commute (+₁-preserves-≤ a≤b)

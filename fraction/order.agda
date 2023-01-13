@@ -72,6 +72,41 @@ abstract
     s4 : (0r' r+' (diffℚ' b c)) r~' (diffℚ' b c)
     s4 = path->r~' (r+'-left-zero (diffℚ' b c))
 
+  diffℚ'-r*'₁ : (a b c : ℚ') -> (diffℚ' (a r*' b) (a r*' c)) r~ (a r*' (diffℚ' b c))
+  diffℚ'-r*'₁ a b c =
+    trans-r~ (diffℚ' (a r*' b) (a r*' c)) ((a r*' c) r+' (a r*' (r-' b))) (a r*' (diffℚ' b c))
+             (r+'-preserves-r~₂ (a r*' c) _ _ s7) s1
+    where
+
+
+    r*'-distrib-r+'-left : (a b c : Rational') -> (a r*' (b r+' c)) r~ ((a r*' b) r+' (a r*' c))
+    r*'-distrib-r+'-left a b c =
+      r~'->r~ (s2 >~> r~->r~' (r*'-distrib-r+'-right _ _ _) >~> s5 >~> s6)
+      where
+
+      s2 : (a r*' (b r+' c)) r~' ((b r+' c) r*' a)
+      s2 = path->r~' (r*'-commute _ _)
+
+      s3 : (b r*' a) r~ (a r*' b)
+      s3 = (path->r~ (r*'-commute b a))
+
+      s4 : (c r*' a) r~ (a r*' c)
+      s4 = (path->r~ (r*'-commute c a))
+
+      s5 : ((b r*' a) r+' (c r*' a)) r~' ((a r*' b) r+' (c r*' a))
+      s5 = (r~->r~' (r+'-preserves-r~₁ (c r*' a) (b r*' a) (a r*' b) s3))
+
+      s6 : ((a r*' b) r+' (c r*' a)) r~' ((a r*' b) r+' (a r*' c))
+      s6 = (r~->r~' (r+'-preserves-r~₂ (a r*' b) (c r*' a) (a r*' c) s4))
+
+    s1 : ((a r*' c) r+' (a r*' (r-' b))) r~ (a r*' (c r+' (r-' b)))
+    s1 = sym-r~ (a r*' (c r+' (r-' b))) ((a r*' c) r+' (a r*' (r-' b)))
+                (r*'-distrib-r+'-left _ _ _)
+
+    s7 : (r-' (a r*' b)) r~ (a r*' (r-' b))
+    s7 = *-left (sym int.minus-extract-right)
+
+
 
 
 record _ℚ'<_ (q : ℚ') (r : ℚ') : Type₀ where
@@ -124,6 +159,18 @@ r*'-preserves-0< a b (ℚ'<-cons pos-a-diff) (ℚ'<-cons pos-b-diff) =
   ℚ'<-cons (subst Pos (sym (r+'-right-zero (a r*' b)))
                   (r*'-preserves-Pos (subst Pos (r+'-right-zero a) pos-a-diff)
                                      (subst Pos (r+'-right-zero b) pos-b-diff)))
+
+r*'₁-preserves-< : (a b c : ℚ') -> 0r' ℚ'< a -> b ℚ'< c -> (a r*' b) ℚ'< (a r*' c)
+r*'₁-preserves-< a b c (ℚ'<-cons pos-a-diff) (ℚ'<-cons pos-bc-diff) =
+  ℚ'<-cons (r~-preserves-sign pabc
+             (sym-r~ (diffℚ' (a r*' b) (a r*' c)) (a r*' (diffℚ' b c)) (diffℚ'-r*'₁ a b c)))
+  where
+  pa : Pos a
+  pa = (subst Pos (r+'-right-zero a) pos-a-diff)
+  pbc : Pos (diffℚ' b c)
+  pbc = pos-bc-diff
+  pabc : Pos (a r*' diffℚ' b c)
+  pabc = (r*'-preserves-Pos pa pos-bc-diff)
 
 
 irrefl-ℚ'< : Irreflexive _ℚ'<_
