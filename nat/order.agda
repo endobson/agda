@@ -84,103 +84,40 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
 
 -- Helpers for addition and ≤
 
-+-left-≤ : {m n : Nat} -> (x : Nat) -> m ≤ n == (x +' m) ≤ (x +' n)
-+-left-≤ {m} {n} x =
-  induction {P = (\x -> m ≤ n == (x +' m) ≤ (x +' n))}
-            refl (_>=> suc-≤-==) x
-
-+-left-≤⁻ : {m n : Nat} -> (x : Nat) -> (x +' m) ≤ (x +' n) -> m ≤ n
-+-left-≤⁻ zero    lt = lt
-+-left-≤⁻ (suc x) lt = +-left-≤⁻ x (pred-≤ lt)
-
 +-left-≤⁺ : {m n : Nat} -> (x : Nat) -> m ≤ n -> (x +' m) ≤ (x +' n)
 +-left-≤⁺ zero    lt = lt
 +-left-≤⁺ (suc x) lt = suc-≤ (+-left-≤⁺ x lt)
-
-+-left-< : {m n : Nat} -> (x : Nat) -> m < n == (x +' m) < (x +' n)
-+-left-< {m} {n} x =
-  induction {P = (\x -> m < n == (x +' m) < (x +' n))}
-              refl (_>=> suc-≤-==) x
-
-+-left-<⁻ : {m n : Nat} -> (x : Nat) -> (x +' m) < (x +' n) -> m < n
-+-left-<⁻ zero    lt = lt
-+-left-<⁻ (suc x) lt = +-left-<⁻ x (pred-≤ lt)
 
 +-left-<⁺ : {m n : Nat} -> (x : Nat) -> m < n -> (x +' m) < (x +' n)
 +-left-<⁺ zero    lt = lt
 +-left-<⁺ (suc x) lt = suc-≤ (+-left-<⁺ x lt)
 
-+-right-≤ : {m n : Nat} -> (x : Nat) -> m ≤ n == (m +' x) ≤ (n +' x)
-+-right-≤ {m} {n} x =
-  transport (\i -> m ≤ n == (+'-commute {x} {m} i) ≤ (+'-commute {x} {n} i)) (+-left-≤ x)
+*-left-≤⁺ : {m n : Nat} -> (x : Nat) -> m ≤ n -> (x *' m) ≤ (x *' n)
+*-left-≤⁺         zero    lt = zero-≤
+*-left-≤⁺ {m} {n} (suc x) lt = trans-≤ lt2 (+-left-≤⁺ n (*-left-≤⁺ x lt))
+  where
+  lt2 : (m +' x *' m) ≤ (n +' x *' m)
+  lt2 = (subst2 _≤_ (+'-commute {x *' m}) (+'-commute {x *' m}) (+-left-≤⁺ (x *' m) lt))
 
-+-right-≤⁺ : {m n : Nat} -> (x : Nat) -> m ≤ n -> (m +' x) ≤ (n +' x)
-+-right-≤⁺ {m} {n} x lt =
-  transport (\k -> (+'-commute {x} {m} k) ≤ (+'-commute {x} {n} k)) (+-left-≤⁺ x lt)
+*-left-<⁺ : {x m n : Nat} -> x > 0 -> m < n -> (x *' m) < (x *' n)
+*-left-<⁺ {zero}             x-gt lt = bot-elim (zero-≮ x-gt)
+*-left-<⁺ {suc x} {m} {n} x-gt lt =
+  trans-<-≤ lt2 (+-left-≤⁺ n (*-left-≤⁺ x (weaken-< lt)))
+  where
+  lt2 : (m +' x *' m) < (n +' x *' m)
+  lt2 = (subst2 _<_ (+'-commute {x *' m}) (+'-commute {x *' m}) (+-left-<⁺ (x *' m) lt))
+
++-left-≤⁻ : {m n : Nat} -> (x : Nat) -> (x +' m) ≤ (x +' n) -> m ≤ n
++-left-≤⁻ zero    lt = lt
++-left-≤⁻ (suc x) lt = +-left-≤⁻ x (pred-≤ lt)
+
++-left-<⁻ : {m n : Nat} -> (x : Nat) -> (x +' m) < (x +' n) -> m < n
++-left-<⁻ zero    lt = lt
++-left-<⁻ (suc x) lt = +-left-<⁻ x (pred-≤ lt)
 
 +-right-≤⁻ : {m n : Nat} -> (x : Nat) -> (m +' x) ≤ (n +' x) -> m ≤ n
 +-right-≤⁻ {m} {n} x lt =
   +-left-≤⁻ x (transport (\k -> (+'-commute {m} {x} k) ≤ (+'-commute {n} {x} k)) lt)
-
-+-right-< : {m n : Nat} -> (x : Nat) -> m < n == (m +' x) < (n +' x)
-+-right-< = +-right-≤
-
-+-right-<⁺ : {m n : Nat} -> (x : Nat) -> m < n -> (m +' x) < (n +' x)
-+-right-<⁺ = +-right-≤⁺
-
-+-right-<⁻ : {m n : Nat} -> (x : Nat) -> (m +' x) < (n +' x) -> m < n
-+-right-<⁻ = +-right-≤⁻
-
-+-both-≤⁺ : {a b c d : Nat} -> a ≤ b -> c ≤ d -> (a +' c) ≤ (b +' d)
-+-both-≤⁺ {a} {b} {c} {d} (e , e+a=b) (f , f+c=d) = (e +' f , path)
-  where
-  path : (e +' f) +' (a +' c) == (b +' d)
-  path =
-    begin
-      (e +' f) +' (a +' c)
-    ==< +'-assoc {e} {f} {a +' c} >
-      e +' (f +' (a +' c))
-    ==< +'-right {e} (sym (+'-assoc {f} {a} {c})) >
-      e +' ((f +' a) +' c)
-    ==< +'-right {e} (+'-left (+'-commute {f} {a})) >
-      e +' ((a +' f) +' c)
-    ==< +'-right {e} (+'-assoc {a} {f} {c}) >
-      e +' (a +' (f +' c))
-    ==< sym (+'-assoc {e} {a} {f +' c}) >
-      (e +' a) +' (f +' c)
-    ==< (\i -> (e+a=b i) +' (f+c=d i)) >
-      b +' d
-    end
-
-+-both-<⁺ : {a b c d : Nat} -> a < b -> c < d -> (a +' c) < (b +' d)
-+-both-<⁺ {a} {b} {c} {d} a<b c<d = trans-<-≤ desuc (+-both-≤⁺ a<b c<d)
-  where
-  desuc : (a +' c) < (suc a +' suc c)
-  desuc = 1 , cong suc (sym +'-right-suc)
-
--- Helpers for multiplication and ≤
-
-*-left-≤⁺ : {m n : Nat} -> (x : Nat) -> m ≤ n -> (x *' m) ≤ (x *' n)
-*-left-≤⁺ zero    lt = zero-≤
-*-left-≤⁺ (suc x) lt = +-both-≤⁺ lt (*-left-≤⁺ x lt)
-
-*-left-<⁺ : {x m n : Nat} -> x > 0 -> m < n -> (x *' m) < (x *' n)
-*-left-<⁺ {zero}             x-gt lt = bot-elim (zero-≮ x-gt)
-*-left-<⁺ {suc zero} {m} {n} x-gt lt =
-  transport (\i -> *'-left-one {m} (~ i) < *'-left-one {n} (~ i)) lt
-*-left-<⁺ {suc (suc x)} x-gt lt = +-both-<⁺ lt (*-left-<⁺ (zero-< {x}) lt)
-
-
-
-*-right-≤⁺ : {m n : Nat} -> (x : Nat) -> m ≤ n -> (m *' x) ≤ (n *' x)
-*-right-≤⁺ {m} {n} x lt =
-  transport (\i -> (*'-commute {x} {m} i) ≤ (*'-commute {x} {n} i))
-            (*-left-≤⁺ x lt)
-
-*-right-<⁺ : {x m n : Nat} -> x > 0 -> m < n -> (m *' x) < (n *' x)
-*-right-<⁺ {x} {m} {n} x>0 lt =
-  transport (\i -> (*'-commute {x} {m} i) < (*'-commute {x} {n} i))
-            (*-left-<⁺ x>0 lt)
 
 *-left-<⁻ : {m n : Nat} -> (x : Nat) -> (x *' m) < (x *' n) -> m < n
 *-left-<⁻ {m} {n} x prod-lt = handle (split-< m n)
@@ -203,20 +140,6 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
 *-right-≤⁻ : {m n : Nat} -> (x : Nat⁺) -> (m *' ⟨ x ⟩) ≤ (n *' ⟨ x ⟩) -> m ≤ n
 *-right-≤⁻ {m} {n} x⁺@(x , _) lt =
   *-left-≤⁻ x⁺ (transport (\i -> (*'-commute {m} {x} i) ≤ (*'-commute {n} {x} i)) lt)
-
-*-prod-right-< : {m n : Nat} -> (m > 1) -> (p : Nat⁺) -> m *' n == ⟨ p ⟩ -> n < ⟨ p ⟩
-*-prod-right-< {zero} {n} m>1 _ path = bot-elim (zero-≮ m>1)
-*-prod-right-< {suc zero} {n} m>1 _ path = bot-elim (irrefl-< m>1)
-*-prod-right-< {m@(suc (suc m'))} {zero} m>1 (p , p-pos) path =
-  bot-elim (transport (cong Pos' (sym path >=> *'-right-zero {m})) p-pos)
-*-prod-right-< {m@(suc (suc m'))} {n@(suc n')} m>1 (p , _) path =
-  (n' +' (m' *' n)) , path'
-  where
-  path' : (n' +' (m' *' n)) +' (suc n) == p
-  path' = +'-right-suc >=> +'-commute {_} {n} >=> path
-
-*-prod-left-< : {m n : Nat} -> (n > 1) -> (p : Nat⁺) -> m *' n == ⟨ p ⟩ -> m < ⟨ p ⟩
-*-prod-left-< {m} {n} n>1 p path = *-prod-right-< n>1 p (*'-commute {n} {m} >=> path)
 
 
 -- Helpers for exponentiation and ≤
@@ -244,11 +167,6 @@ private
 
 2^n-large : (n : Nat) -> n < (2 ^' n)
 2^n-large n = 2^n-large' n n refl
-
-
-ℕ<-asym : Asymmetric _<_
-ℕ<-asym {x} {y} x<y y<x = irrefl-< (trans-< x<y y<x)
-
 
 
 private

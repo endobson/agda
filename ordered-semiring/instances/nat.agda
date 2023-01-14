@@ -17,12 +17,12 @@ abstract
   instance
     LinearlyOrderedSemiringStr-ℕ : LinearlyOrderedSemiringStr NatSemiring LinearOrderStr-ℕ
     LinearlyOrderedSemiringStr-ℕ .LinearlyOrderedSemiringStr.+₁-preserves-< =
-      transport (no.+-left-< _)
-    LinearlyOrderedSemiringStr-ℕ .LinearlyOrderedSemiringStr.*₁-preserves-< {a} {b} {c} 0<a b<c =
-      (no.*-left-<⁺ 0<a b<c)
+      no.+-left-<⁺ _
+    LinearlyOrderedSemiringStr-ℕ .LinearlyOrderedSemiringStr.*₁-preserves-< =
+      no.*-left-<⁺
 
     PartiallyOrderedSemiringStr-ℕ : PartiallyOrderedSemiringStr NatSemiring PartialOrderStr-ℕ
     PartiallyOrderedSemiringStr-ℕ .PartiallyOrderedSemiringStr.+₁-preserves-≤ =
-      transport (no.+-left-≤ _)
-    PartiallyOrderedSemiringStr-ℕ .PartiallyOrderedSemiringStr.*₁-preserves-≤ {a} {b} 0≤a 0≤b =
-      (no.*-left-≤⁺ a 0≤b)
+      no.+-left-≤⁺ _
+    PartiallyOrderedSemiringStr-ℕ .PartiallyOrderedSemiringStr.*₁-preserves-≤ {a} 0≤a =
+      no.*-left-≤⁺ a

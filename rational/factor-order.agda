@@ -5,7 +5,7 @@ module rational.factor-order where
 open import base
 open import equality
 open import order
-open import ordered-ring
+open import ordered-semiring
 open import order.instances.rational
 open import rational
 open import rational.order

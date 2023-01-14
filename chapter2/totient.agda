@@ -28,6 +28,8 @@ open import nat.bounded
 open import nat.order
 open import order
 open import order.instances.nat
+open import ordered-semiring
+open import ordered-semiring.instances.nat
 open import prime
 open import prime-gcd
 open import relatively-prime
@@ -211,7 +213,7 @@ module _ (p : Prime') where
       i≤p : i ≤ pred p'
       i≤p = pred-≤ i<p
       ipn≤ppn : (i *' prime-power p n) ≤ (pred p' *' (prime-power p n))
-      ipn≤ppn = *-right-≤⁺ (prime-power p n) i≤p
+      ipn≤ppn = *₂-preserves-≤ i≤p zero-≤
 
       k≤pn : k ≤ (prime-power p n)
       k≤pn = Totient.k≤n t
@@ -220,10 +222,10 @@ module _ (p : Prime') where
       k<pn = Totient.k<n t pn>1
 
       ipnk≤ppnpn : ((i *' prime-power p n) +' k) ≤ (pred p' *' (prime-power p n) +' (prime-power p n))
-      ipnk≤ppnpn = +-both-≤⁺ ipn≤ppn k≤pn
+      ipnk≤ppnpn = +-preserves-≤ ipn≤ppn k≤pn
 
       kipn<pnppn : (k +' (i *' prime-power p n)) < ((prime-power p n) +' pred p' *' (prime-power p n))
-      kipn<pnppn = +-both-≤⁺ k<pn ipn≤ppn
+      kipn<pnppn = +-preserves-≤ k<pn ipn≤ppn
 
 
       suc-pred-path : (n : Nat⁺) -> suc (pred ⟨ n ⟩) == ⟨ n ⟩

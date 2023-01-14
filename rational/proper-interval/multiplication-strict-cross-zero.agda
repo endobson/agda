@@ -7,6 +7,7 @@ open import equality
 open import order
 open import order.instances.rational
 open import ordered-ring
+open import ordered-semiring
 open import rational
 open import rational.minmax
 open import rational.order

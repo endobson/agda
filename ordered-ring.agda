@@ -47,28 +47,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     minus-flips-<0 : {a : D} -> (a < 0#) -> 0# < (- a)
     minus-flips-<0 {a} a<0 = subst (_< (- a)) minus-zero (minus-flips-< a<0)
 
-    *₁-preserves-< : {a b c : D} -> (0# < a) -> (b < c) -> (a * b) < (a * c)
-    *₁-preserves-< {a} {b} {c} 0<a b<c = ab<ac
-      where
-      module _ where
-        0<cb : 0# < (c + (- b))
-        0<cb = subst2 _<_ +-inverse refl (+₂-preserves-< b<c)
-
-        0<acb : 0# < (a * (c + (- b)))
-        0<acb = *-preserves-0< 0<a 0<cb
-
-        ab+acb=ac : (a * b) + (a * (c + (- b))) == a * c
-        ab+acb=ac =
-          sym *-distrib-+-left >=>
-          *-right (+-right +-commute >=> sym +-assoc >=> +-left +-inverse >=> +-left-zero)
-
-        ab<ac : (a * b) < (a * c)
-        ab<ac = subst2 _<_ +-right-zero ab+acb=ac (+₁-preserves-< 0<acb)
-
-    *₂-preserves-< : {a b c : D} -> (a < b) -> (0# < c) -> (a * c) < (b * c)
-    *₂-preserves-< a<b 0<c =
-      subst2 _<_ *-commute *-commute (*₁-preserves-< 0<c a<b)
-
     *₁-flips-< : {a b c : D} -> (a < 0#) -> (b < c) -> (a * c) < (a * b)
     *₁-flips-< {a} {b} {c} a<0 b<c =
       subst2 _<_ (cong -_ minus-extract-left >=> minus-double-inverse)
@@ -195,28 +173,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
 
     minus-flips-≤0 : {a : D} -> (a ≤ 0#) -> 0# ≤ (- a)
     minus-flips-≤0 {a} a≤0 = subst (_≤ (- a)) minus-zero (minus-flips-≤ a≤0)
-
-    *₁-preserves-≤ : {a b c : D} -> (0# ≤ a) -> (b ≤ c) -> (a * b) ≤ (a * c)
-    *₁-preserves-≤ {a} {b} {c} 0≤a b≤c = ab≤ac
-      where
-      module _ where
-        0≤cb : 0# ≤ (c + (- b))
-        0≤cb = subst2 _≤_ +-inverse refl (+₂-preserves-≤ b≤c)
-
-        0≤acb : 0# ≤ (a * (c + (- b)))
-        0≤acb = *-preserves-0≤ 0≤a 0≤cb
-
-        ab+acb=ac : (a * b) + (a * (c + (- b))) == a * c
-        ab+acb=ac =
-          sym *-distrib-+-left >=>
-          *-right (+-right +-commute >=> sym +-assoc >=> +-left +-inverse >=> +-left-zero)
-
-        ab≤ac : (a * b) ≤ (a * c)
-        ab≤ac = subst2 _≤_ +-right-zero ab+acb=ac (+₁-preserves-≤ 0≤acb)
-
-    *₂-preserves-≤ : {a b c : D} -> (a ≤ b) -> (0# ≤ c) -> (a * c) ≤ (b * c)
-    *₂-preserves-≤ {a} {b} {c} a≤b 0≤c =
-      subst2 _≤_ *-commute *-commute (*₁-preserves-≤ 0≤c a≤b)
 
     *₁-flips-≤ : {a b c : D} -> (a ≤ 0#) -> (b ≤ c) -> (a * c) ≤ (a * b)
     *₁-flips-≤ {a} {b} {c} a≤0 b≤c =

@@ -11,6 +11,8 @@ open import hlevel
 open import int
 open import nat
 open import nat.order
+open import ordered-semiring
+open import ordered-semiring.instances.nat
 
 import quotient-remainder as qr
 import hit-int as h
@@ -299,7 +301,7 @@ quotient-multiple-path m⁺@(m , m-pos) n d@(d' , _) =
   module qr-n = QuotientRemainder qr-n
 
   r' : Fin (m *' d')
-  r' = m *' (Fin.i qr-n.r) , *-left-<⁺ (Pos'->< m-pos) (Fin.i<n qr-n.r)
+  r' = m *' (Fin.i qr-n.r) , *₁-preserves-< (Pos'->< m-pos) (Fin.i<n qr-n.r)
 
   path : qr-n.q * int (m *' d') + int (Fin.i r') == int m * n
   path =

@@ -9,11 +9,12 @@ open import equality
 open import hlevel
 open import order
 open import order.instances.real
-open import ordered-ring
 open import ordered-integral-domain
+open import ordered-ring
+open import ordered-semiring
 open import rational
-open import rational.order
 open import rational.integral-domain
+open import rational.order
 open import rational.squares
 open import real
 open import real.order

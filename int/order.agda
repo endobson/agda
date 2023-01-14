@@ -157,9 +157,19 @@ connected-< {i} {j} i≮j j≮i =
 Pos->>0 : {i : Int} -> Pos i -> (int 0) < i
 Pos->>0 {nonneg (suc i)} _ = (suc i , tt) , +-right-zero
 
+≥0->NonNeg : {i : Int} -> (int 0) ≤ i -> NonNeg i
+≥0->NonNeg (x , path) = subst NonNeg path (+-NonNeg-NonNeg (NonNeg-nonneg x) (NonNeg-nonneg 0))
+
+NonNeg->≥0 : {i : Int} -> NonNeg i -> (int 0) ≤ i
+NonNeg->≥0 {nonneg i} _ = i , +-right-zero
+NonNeg->≥0 {neg i} (inj-l ())
+NonNeg->≥0 {neg i} (inj-r ())
+
 >0-preserved-by-* : {i j : Int} -> (int 0) < i -> (int 0) < j -> (int 0) < (i * j)
 >0-preserved-by-* 0<i 0<j = Pos->>0 (*-Pos-Pos (>0->Pos 0<i) (>0->Pos 0<j))
 
+≥0-preserved-by-* : {i j : Int} -> (int 0) ≤ i -> (int 0) ≤ j -> (int 0) ≤ (i * j)
+≥0-preserved-by-* 0≤i 0≤j = NonNeg->≥0 (*-NonNeg-NonNeg (≥0->NonNeg 0≤i) (≥0->NonNeg 0≤j))
 
 -- Preserved/Flipped by Multiplication
 

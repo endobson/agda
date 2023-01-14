@@ -29,6 +29,8 @@ open import nat.bounded
 open import nat.order
 open import order
 open import order.instances.nat
+open import ordered-semiring
+open import ordered-semiring.instances.nat
 open import prime-gcd
 open import relatively-prime
 open import semiring
@@ -283,7 +285,7 @@ module _ (n⁺ : Nat⁺) where
           q≤nd : q ≤ nd
           q≤nd = tot .Totient.k≤n
           qd≤ndd : (q *' d) ≤ (nd *' d)
-          qd≤ndd = *-right-≤⁺ d q≤nd
+          qd≤ndd = *₂-preserves-≤ q≤nd zero-≤
           qd≤n : (q *' d) ≤ n
           qd≤n = fst qd≤ndd , snd qd≤ndd >=> nd-path
 

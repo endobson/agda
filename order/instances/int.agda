@@ -21,6 +21,17 @@ instance
     ; comparison-< = \i j k i<k -> ∣ io.comparison-< i<k j ∣
     }
 
+
+instance
+  PartialOrderStr-ℤ : PartialOrderStr ℤ ℓ-zero
+  PartialOrderStr-ℤ = record
+    { _≤_ = io._≤_
+    ; isProp-≤ = io.isProp-≤
+    ; refl-≤ = \{x} -> io.refl-≤ {x}
+    ; trans-≤ = \{x} {y} {z} -> io.trans-≤ {x} {y} {z}
+    ; antisym-≤ = io.antisym-≤
+    }
+
 private
   trichotomous-ℤ< : Trichotomous io._<_
   trichotomous-ℤ< i j = handle (io.split-< i j) (io.split-< j i)

@@ -39,9 +39,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
     +₁-preserves-< : {a b c : D} -> b < c -> (a + b) < (a + c)
     +₁-preserves-< = LOS.+₁-preserves-<
 
-    *-preserves-0< : {a b : D} -> 0# < a -> 0# < b -> 0# < (a * b)
-    *-preserves-0< 0<a 0<b = trans-=-< (sym *-right-zero) (LOS.*₁-preserves-< 0<a 0<b)
-
     +₂-preserves-< : {a b c : D} -> a < b -> (a + c) < (b + c)
     +₂-preserves-< a<b = subst2 _<_ +-commute +-commute (+₁-preserves-< a<b)
 
@@ -52,6 +49,17 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
     +-preserves-0< : {a b : D} -> 0# < a -> 0# < b -> 0# < (a + b)
     +-preserves-0< {a} {b} 0<a 0<b =
       subst (_< (a + b)) +-right-zero (+-preserves-< 0<a 0<b)
+
+    *₁-preserves-< : {a b c : D} -> 0# < a -> b < c -> (a * b) < (a * c)
+    *₁-preserves-< = LOS.*₁-preserves-<
+
+    *₂-preserves-< : {a b c : D} -> a < b -> 0# < c -> (a * c) < (b * c)
+    *₂-preserves-< a<b 0<c =
+      subst2 _<_ *-commute *-commute (*₁-preserves-< 0<c a<b)
+
+    *-preserves-0< : {a b : D} -> 0# < a -> 0# < b -> 0# < (a * b)
+    *-preserves-0< 0<a 0<b = trans-=-< (sym *-right-zero) (LOS.*₁-preserves-< 0<a 0<b)
+
 
 
 
@@ -84,9 +92,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : Pa
     +₁-preserves-≤ : {a b c : D} -> b ≤ c -> (a + b) ≤ (a + c)
     +₁-preserves-≤ = POS.+₁-preserves-≤
 
-    *-preserves-0≤ : {a b : D} -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a * b)
-    *-preserves-0≤ 0≤a 0≤b = trans-=-≤ (sym *-right-zero) (POS.*₁-preserves-≤ 0≤a 0≤b)
-
     +₂-preserves-≤ : {a b c : D} -> a ≤ b -> (a + c) ≤ (b + c)
     +₂-preserves-≤ a≤b = subst2 _≤_ +-commute +-commute (+₁-preserves-≤ a≤b)
 
@@ -96,3 +101,13 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : Pa
     +-preserves-0≤ : {a b : D} -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a + b)
     +-preserves-0≤ {a} {b} 0≤a 0≤b =
       subst (_≤ (a + b)) +-right-zero (+-preserves-≤ 0≤a 0≤b)
+
+    *-preserves-0≤ : {a b : D} -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a * b)
+    *-preserves-0≤ 0≤a 0≤b = trans-=-≤ (sym *-right-zero) (POS.*₁-preserves-≤ 0≤a 0≤b)
+
+    *₁-preserves-≤ : {a b c : D} -> (0# ≤ a) -> (b ≤ c) -> (a * b) ≤ (a * c)
+    *₁-preserves-≤ = POS.*₁-preserves-≤
+
+    *₂-preserves-≤ : {a b c : D} -> (a ≤ b) -> (0# ≤ c) -> (a * c) ≤ (b * c)
+    *₂-preserves-≤ {a} {b} {c} a≤b 0≤c =
+      subst2 _≤_ *-commute *-commute (*₁-preserves-≤ 0≤c a≤b)

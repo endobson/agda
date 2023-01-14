@@ -11,9 +11,13 @@ open import nat
 open import nat.order
 open import order
 open import order.instances.nat
+open import ordered-semiring
+open import ordered-semiring.instances.nat
 open import prime
 open import prime-gcd
 open import relation
+open import semiring
+open import ring.implementations
 open import relatively-prime
 
 
@@ -84,7 +88,9 @@ private
       a≤bound : a' ≤ bound
       a≤bound = pred-≤ a<sbound
       b<a : b < a'
-      b<a = *-prod-left-< (Prime'.>1 p) a b-path
+      b<a = (trans-=-< (sym *-right-one)
+              (trans-<-= (*₁-preserves-< (Pos'->< (snd b⁺)) (Prime'.>1 p))
+                         b-path))
 
       rec : Σ[ n ∈ Nat ] (PrimeDivCount p b n)
       rec = compute-prime-div-count' p b⁺ bound (trans-<-≤ b<a a≤bound)

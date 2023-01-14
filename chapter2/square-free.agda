@@ -13,6 +13,8 @@ open import nat
 open import nat.order
 open import order
 open import order.instances.nat
+open import ordered-semiring
+open import ordered-semiring.instances.nat
 open import prime
 open import prime-factorization
 open import relation
@@ -179,7 +181,7 @@ relatively-prime-square-free a⁺@(a , _) b⁺@(b , _) rp sf-a sf-b p@(p' , _) p
     count-a : count p primes-a ≤ 1
     count-a = transport
       (\i -> (+'-commute {count p primes-a} {0} i) ≤ 1)
-      (trans-≤ (+-both-≤⁺ refl-≤ zero-≤) count-ab)
+      (trans-≤ (+-preserves-≤ refl-≤ zero-≤) count-ab)
 
 
 ¬square-free-*-right : (a : Nat⁺) {b : Nat⁺} -> ¬(SquareFree b) -> ¬ (SquareFree (a *⁺ b))
@@ -200,4 +202,4 @@ relatively-prime-square-free a⁺@(a , _) b⁺@(b , _) rp sf-a sf-b p@(p' , _) p
       (sf-ab p (*'-prime-factorization pf-a pf-b) )
 
     count-b : count p primes-b ≤ 1
-    count-b = (trans-≤ (+-both-≤⁺ zero-≤ refl-≤) count-ab)
+    count-b = (trans-≤ (+-preserves-≤ zero-≤ refl-≤) count-ab)
