@@ -9,6 +9,8 @@ open import hlevel
 open import isomorphism
 open import nat.arithmetic
 open import nat.properties
+open import ordered-semiring
+open import ordered-semiring.instances.nat
 open import order
 open import order.instances.nat
 open import relation
@@ -88,10 +90,6 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
 +-left-≤⁺ zero    lt = lt
 +-left-≤⁺ (suc x) lt = suc-≤ (+-left-≤⁺ x lt)
 
-+-left-<⁺ : {m n : Nat} -> (x : Nat) -> m < n -> (x +' m) < (x +' n)
-+-left-<⁺ zero    lt = lt
-+-left-<⁺ (suc x) lt = suc-≤ (+-left-<⁺ x lt)
-
 *-left-≤⁺ : {m n : Nat} -> (x : Nat) -> m ≤ n -> (x *' m) ≤ (x *' n)
 *-left-≤⁺         zero    lt = zero-≤
 *-left-≤⁺ {m} {n} (suc x) lt = trans-≤ lt2 (+-left-≤⁺ n (*-left-≤⁺ x lt))
@@ -99,43 +97,22 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
   lt2 : (m +' x *' m) ≤ (n +' x *' m)
   lt2 = (subst2 _≤_ (+'-commute {x *' m}) (+'-commute {x *' m}) (+-left-≤⁺ (x *' m) lt))
 
-*-left-<⁺ : {x m n : Nat} -> x > 0 -> m < n -> (x *' m) < (x *' n)
-*-left-<⁺ {zero}             x-gt lt = bot-elim (zero-≮ x-gt)
-*-left-<⁺ {suc x} {m} {n} x-gt lt =
-  trans-<-≤ lt2 (+-left-≤⁺ n (*-left-≤⁺ x (weaken-< lt)))
-  where
-  lt2 : (m +' x *' m) < (n +' x *' m)
-  lt2 = (subst2 _<_ (+'-commute {x *' m}) (+'-commute {x *' m}) (+-left-<⁺ (x *' m) lt))
-
 +-left-≤⁻ : {m n : Nat} -> (x : Nat) -> (x +' m) ≤ (x +' n) -> m ≤ n
 +-left-≤⁻ zero    lt = lt
 +-left-≤⁻ (suc x) lt = +-left-≤⁻ x (pred-≤ lt)
 
-+-left-<⁻ : {m n : Nat} -> (x : Nat) -> (x +' m) < (x +' n) -> m < n
-+-left-<⁻ zero    lt = lt
-+-left-<⁻ (suc x) lt = +-left-<⁻ x (pred-≤ lt)
 
 +-right-≤⁻ : {m n : Nat} -> (x : Nat) -> (m +' x) ≤ (n +' x) -> m ≤ n
 +-right-≤⁻ {m} {n} x lt =
   +-left-≤⁻ x (transport (\k -> (+'-commute {m} {x} k) ≤ (+'-commute {n} {x} k)) lt)
 
-*-left-<⁻ : {m n : Nat} -> (x : Nat) -> (x *' m) < (x *' n) -> m < n
-*-left-<⁻ {m} {n} x prod-lt = handle (split-< m n)
-  where
-  handle : (m < n) ⊎ (n ≤ m) -> m < n
-  handle (inj-l lt) = lt
-  handle (inj-r lt) = bot-elim (irrefl-< (trans-<-≤ prod-lt (*-left-≤⁺ x lt)))
 
 *-left-≤⁻ : {m n : Nat} -> (x : Nat⁺) -> (⟨ x ⟩ *' m) ≤ (⟨ x ⟩ *' n) -> m ≤ n
 *-left-≤⁻ {m} {n} x⁺@((suc x) , _) prod-lt = handle (split-< n m)
   where
   handle : (m > n) ⊎ (m ≤ n) -> m ≤ n
   handle (inj-r lt) = lt
-  handle (inj-l gt) = bot-elim (irrefl-< (trans-≤-< prod-lt (*-left-<⁺ (zero-< {x}) gt)))
-
-*-right-<⁻ : {m n : Nat} -> (x : Nat) -> (m *' x) < (n *' x) -> m < n
-*-right-<⁻ {m} {n} x lt =
-  *-left-<⁻ x (transport (\i -> (*'-commute {m} {x} i) < (*'-commute {n} {x} i)) lt)
+  handle (inj-l gt) = bot-elim (irrefl-< (trans-≤-< prod-lt (*₁-preserves-< (zero-< {x}) gt)))
 
 *-right-≤⁻ : {m n : Nat} -> (x : Nat⁺) -> (m *' ⟨ x ⟩) ≤ (n *' ⟨ x ⟩) -> m ≤ n
 *-right-≤⁻ {m} {n} x⁺@(x , _) lt =
@@ -150,7 +127,7 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
 
 ^-suc-< : {m : Nat} -> m > 1 -> (n : Nat) ->  (m ^' n) < (m ^' (suc n))
 ^-suc-<     (x , path) zero    = (x , path >=> (sym ^'-right-one))
-^-suc-< {m} m>1        (suc n) = *-left-<⁺ (weaken-< m>1) (^-suc-< m>1 n)
+^-suc-< {m} m>1        (suc n) = *₁-preserves-< (weaken-< m>1) (^-suc-< m>1 n)
 
 private
   2^n-large' : (n m : Nat) -> n == m -> n < (2 ^' n)
@@ -162,7 +139,7 @@ private
     lt1 : (suc n) ≤ (2 *' n)
     lt1 = n' , +'-right-suc >=> +'-right {suc n'} (sym *'-left-one)
     lt2 : (2 *' n) < (2 ^' (suc n))
-    lt2 = *-left-<⁺ (zero-< {1}) (2^n-large' n m (cong pred p))
+    lt2 = *₁-preserves-< (zero-< {1}) (2^n-large' n m (cong pred p))
 
 
 2^n-large : (n : Nat) -> n < (2 ^' n)

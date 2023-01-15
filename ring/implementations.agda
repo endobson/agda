@@ -13,6 +13,10 @@ open import hlevel
 open import nat
 open import ring
 open import semiring
+open import semiring.instances.nat
+
+
+module NatSemiring = Semiring NatSemiring
 
 import int
 open int using
@@ -26,20 +30,6 @@ open int using
  ; add1-extract-left
  ; add1-extract-*
  )
-
-instance
-  NatSemiring : Semiring AdditiveCommMonoid-Nat
-  NatSemiring = record
-    { 1# = 1
-    ; _*_ = _*'_
-    ; *-assoc = (\ {m} {n} {o} -> (*'-assoc {m} {n} {o}))
-    ; *-commute = (\ {m} {n} -> (*'-commute {m} {n}))
-    ; *-left-zero = refl
-    ; *-left-one = +'-right-zero
-    ; *-distrib-+-right = (\ {m} {n} {o} -> *'-distrib-+' {m} {n} {o})
-    ; isSet-Domain = isSetNat
-    }
-module NatSemiring = Semiring NatSemiring
 
 instance
   IntSemiring : Semiring AdditiveCommMonoid-Int

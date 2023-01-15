@@ -4,25 +4,28 @@ module chapter2.totient where
 
 open import additive-group.instances.nat
 open import base
-open import cubical
 open import chapter2.divisors
 open import chapter2.multiplicative
+open import cubical
 open import div hiding (remainder)
 open import equality
 open import equivalence
 open import fin
-open import int using (int)
+open import fin-algebra
+open import finset
+open import finset.instances
+open import finset.instances.base
+open import finsubset
 open import finsum
 open import finsum.arithmetic
 open import finsum.cardinality
-open import finset
-open import finset.instances.base
-open import finset.instances
-open import finsubset
 open import gcd.computational
 open import gcd.propositional hiding (gcd'-unique)
 open import hlevel
+open import int using (int)
 open import isomorphism
+open import modular-integers
+open import modular-integers.binary-product
 open import nat
 open import nat.bounded
 open import nat.order
@@ -32,18 +35,15 @@ open import ordered-semiring
 open import ordered-semiring.instances.nat
 open import prime
 open import prime-gcd
-open import relatively-prime
+open import quotient-remainder
 open import relation
-open import ring.implementations
+open import relatively-prime
+open import semiring.instances.nat
 open import sigma
 open import sigma.base
 open import truncation
 open import type-algebra
-open import fin-algebra
-open import quotient-remainder
 open import univalence
-open import modular-integers
-open import modular-integers.binary-product
 
 record Totient (n : Nat) (k : Nat) : Type₀ where
   field
@@ -310,13 +310,13 @@ module _ (p : Prime') where
       0<r : 0 < r'
       0<r = Pos'->< pos-r
       qpn0<qpnr : (q *' (prime-power p n) +' 0) < ((q *' (prime-power p n)) +' r')
-      qpn0<qpnr = +-left-<⁺ (q *' (prime-power p n)) 0<r
+      qpn0<qpnr = +₁-preserves-< 0<r
       qpn<k : (q *' (prime-power p n)) < k
       qpn<k = transport (\i -> (+'-right-zero {q *' (prime-power p n)} i) < (k-path i)) qpn0<qpnr
       qpn<psn : (q *' (prime-power p n)) < (p' *' (prime-power p n))
       qpn<psn = trans-≤ qpn<k k≤psn
       q<p : q < p'
-      q<p = *-right-<⁻ (prime-power p n) qpn<psn
+      q<p = *₂-reflects-< qpn<psn (Pos'->< (snd (prime-power⁺ p n)))
 
       rp : RelativelyPrime⁰ r' (prime-power p n)
       rp a a%r a%pn = Totient.rp t a a%k a%psn

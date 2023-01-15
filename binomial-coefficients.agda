@@ -9,6 +9,7 @@ open import equality
 open import nat
 open import ring.implementations
 open import semiring
+open import semiring.instances.nat
 
 -- (n + k) C k
 binomial-coeff' : ℕ -> ℕ -> ℕ

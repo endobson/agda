@@ -10,7 +10,7 @@ open import nat
 open import finsum.arithmetic
 open import finsum
 open import finset.instances
-open import ring.implementations
+open import semiring.instances.nat
 
 cardinality-× : {ℓ : Level} (S₁ S₂ : FinSet ℓ) ->
                 cardinality (FinSet-× S₁ S₂) == cardinality S₁ *' cardinality S₂

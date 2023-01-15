@@ -28,6 +28,7 @@ open import ring
 open import ring.exponentiation
 open import ring.implementations
 open import ring.implementations.rational
+open import semiring.instances.nat
 
 φℚ : Nat⁺ -> Rational
 φℚ n = ℕ->ℚ (φ n)

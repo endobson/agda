@@ -14,6 +14,8 @@ open import nat
 open import nat.order
 open import order
 open import order.instances.nat
+open import ordered-semiring
+open import ordered-semiring.instances.nat
 open import pigeonhole
 open import relation
 open import sigma.base
@@ -103,7 +105,7 @@ module _ {m n : Nat} where
                                        (+-left-≤⁺ m zero-≤))
 
       embed-suc : Fin n -> Fin (m +' n)
-      embed-suc (i , p) = m +' i , (+-left-<⁺ m p)
+      embed-suc (i , p) = m +' i , (+₁-preserves-< p)
 
     -- Exposed so that the final proof can use it
     SplitFin : Fin (m +' n) -> Type₀
@@ -137,7 +139,7 @@ module _ {m n : Nat} where
           m+j<m+n : (m +' j) < (m +' n)
           m+j<m+n = transport (\k -> (sym j+m==i >=> +'-commute {j} {m}) k < (m +' n)) p
           lemma : j < n
-          lemma = +-left-<⁻ m m+j<m+n
+          lemma = +₁-reflects-< m+j<m+n
 
       join-fin-f : (Fin m -> Fin m) -> (Fin n -> Fin n)
                     -> Fin (m +' n) -> Fin (m +' n)

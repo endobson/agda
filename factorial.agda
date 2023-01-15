@@ -11,8 +11,8 @@ open import order.instances.nat
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.nat
-open import ring.implementations
 open import semiring
+open import semiring.instances.nat
 
 factorial : ℕ -> ℕ
 factorial zero = 1#

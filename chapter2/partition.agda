@@ -7,22 +7,22 @@ open import additive-group
 open import additive-group.instances.int
 open import additive-group.instances.nat
 open import base
-open import cubical
 open import chapter2.totient
+open import cubical
 open import div
 open import equality
 open import equivalence
 open import fin
-open import finsum
 open import finset
 open import finset.instances
 open import finsubset
+open import finsum
 open import functions
 open import gcd.euclidean-algorithm
 open import gcd.propositional
 open import hlevel
-open import isomorphism
 open import int using (int)
+open import isomorphism
 open import linear-combo
 open import nat
 open import nat.bounded
@@ -33,8 +33,9 @@ open import ordered-semiring
 open import ordered-semiring.instances.nat
 open import prime-gcd
 open import relatively-prime
-open import semiring
 open import ring.implementations
+open import semiring
+open import semiring.instances.nat
 open import sigma
 open import sigma.base
 open import truncation

@@ -15,6 +15,7 @@ open import order.instances.nat
 open import prime
 open import relation
 open import ring.implementations
+open import semiring.instances.nat
 open import unordered-list
 
 open PrimeUpTo

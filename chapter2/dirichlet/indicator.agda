@@ -23,7 +23,7 @@ open import fin
 open import div
 open import semiring
 open import relation
-open import ring.implementations
+open import semiring.instances.nat
 open import subset
 open import sigma.base
 open import finite-commutative-monoid.partition

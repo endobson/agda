@@ -2,19 +2,20 @@
 
 module chapter2.id-function where
 
-open import additive-group.instances.nat
 open import additive-group.instances.int
+open import additive-group.instances.nat
 open import base
-open import nat
-open import rational
-open import finite-product
 open import chapter2.multiplicative
 open import chapter2.prime-divisors
-open import ring.implementations.rational
-open import ring.implementations
-open import ring
+open import finite-product
+open import nat
 open import prime
 open import prime-div-count.computational
+open import rational
+open import ring
+open import ring.implementations
+open import ring.implementations.rational
+open import semiring.instances.nat
 
 N : Nat⁺ -> Nat⁺
 N x = x

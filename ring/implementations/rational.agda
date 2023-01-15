@@ -8,6 +8,7 @@ open import additive-group.instances.int
 open import rational
 open import ring
 open import ring.implementations
+open import semiring.instances.nat
 
 open rational public using
   ( RationalRing

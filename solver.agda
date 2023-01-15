@@ -17,6 +17,7 @@ open import ring
 open import ring.implementations
 open import ring.initial-integers
 open import semiring
+open import semiring.instances.nat
 open import truncation
 
 import int

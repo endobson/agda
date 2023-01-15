@@ -16,9 +16,10 @@ open import ordered-semiring.instances.nat
 open import prime
 open import prime-gcd
 open import relation
-open import semiring
-open import ring.implementations
 open import relatively-prime
+open import ring.implementations
+open import semiring
+open import semiring.instances.nat
 
 
 record PrimeDivCount (p : Prime') (a : Nat) (n : Nat)  : Type₀ where
