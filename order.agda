@@ -265,7 +265,7 @@ module _ {D : Type ℓD} {ℓ< : Level} {<-Str : LinearOrderStr D ℓ<}
     stable-< : {d1 d2 : D} -> Stable (d1 < d2)
     stable-< {d1} {d2} ¬¬d1<d2 = handle (trichotomous-< d1 d2)
       where
-      handle : Tri (d1 < d2) (d1 == d2) (d2 < d1) -> d1 < d2
+      handle : Tri< d1 d2 -> d1 < d2
       handle (tri< d1<d2 _ _) = d1<d2
       handle (tri= ¬d1<d2 _ _) = bot-elim (¬¬d1<d2 ¬d1<d2)
       handle (tri> ¬d1<d2 _ _) = bot-elim (¬¬d1<d2 ¬d1<d2)

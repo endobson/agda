@@ -18,6 +18,7 @@ open import order
 open import order.instances.int
 open import order.instances.nat
 open import ordered-semiring
+open import ordered-semiring.decidable
 open import ordered-ring
 open import rational
 open import rational.difference
@@ -523,6 +524,9 @@ instance
     ; *₁-preserves-< = r*₁-preserves-< _ _ _
     }
 
+  StronglyLinearlyOrderedSemiringStr-ℚ : StronglyLinearlyOrderedSemiringStr _ _
+  StronglyLinearlyOrderedSemiringStr-ℚ =
+    StronglyLinearlyOrderedSemiringStr-Dec<
 
 module _ where
   private

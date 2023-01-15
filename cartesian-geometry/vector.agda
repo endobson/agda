@@ -29,6 +29,7 @@ open import order.instances.real
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.real
+open import ordered-semiring.instances.real-strong
 open import ordered-integral-domain
 open import real
 open import real.arithmetic.absolute-value

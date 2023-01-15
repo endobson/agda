@@ -127,25 +127,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
         0<-1 = minus-flips-<0 1<0
         -1<0 = subst2 _<_ *-left-one *-left-one (*₁-flips-< 1<0 0<-1)
 
-  abstract
-    +₂-reflects-< : {a b c : D} -> (a + c) < (b + c) -> (a < b)
-    +₂-reflects-< {a} {b} {c} ac<bc =
-      subst2 _<_ (+-assoc >=> +-right +-inverse >=> +-right-zero)
-                 (+-assoc >=> +-right +-inverse >=> +-right-zero)
-                 (+₂-preserves-< ac<bc)
-
-    +₁-reflects-< : {a b c : D} -> (a + b) < (a + c) -> (b < c)
-    +₁-reflects-< ab<ac = +₂-reflects-< (subst2 _<_ +-commute +-commute ab<ac)
-
-    +-reflects-< : {a b c d : D} -> (a + b) < (c + d) -> ∥ (a < c) ⊎ (b < d) ∥
-    +-reflects-< {a} {b} {c} {d} ab<cd = ∥-map handle (comparison-< _ (c + b) _ ab<cd)
-      where
-      handle : ((a + b) < (c + b)) ⊎ ((c + b) < (c + d)) -> (a < c) ⊎ (b < d)
-      handle = ⊎-map +₂-reflects-< +₁-reflects-<
-
-    +-reflects-0< : {a b : D} -> 0# < (a + b) -> ∥ (0# < a) ⊎ (0# < b) ∥
-    +-reflects-0< {a} {b} 0<ab = +-reflects-< (subst (_< (a + b)) (sym +-right-zero) 0<ab)
-
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
          {S : Semiring ACM} {AG : AdditiveGroup ACM}
          {O : PartialOrderStr D ℓ<}

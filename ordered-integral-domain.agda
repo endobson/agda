@@ -45,30 +45,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       handle (inj-l 1<0) = bot-elim (1≮0 1<0)
       handle (inj-r 0<1) = 0<1
 
-    *₁-reflects-< : {a b c : D} -> (0# < a) -> (a * b) < (a * c) -> (b < c)
-    *₁-reflects-< {a} {b} {c} 0<a ab<ac = handle (eqInv <>-equiv-# b#c)
-      where
-      module _ where
-        ab#ac : (a * b) # (a * c)
-        ab#ac = eqFun <>-equiv-# (inj-l ab<ac)
-        b#c : b # c
-        b#c = *₁-reflects-# ab#ac
-        handle : (b < c) ⊎ (c < b) -> b < c
-        handle (inj-l b<c) = b<c
-        handle (inj-r c<b) = bot-elim (asym-< ab<ac (*₁-preserves-< 0<a c<b))
-
-    *₂-reflects-< : {a b c : D} -> (a * c) < (b * c) -> (0# < c) -> (a < b)
-    *₂-reflects-< {a} {b} {c} ac<bc 0<c =
-      *₁-reflects-< 0<c (subst2 _<_ *-commute *-commute ac<bc)
-
-    *₁-reflects-0< : {a b : D} -> (0# < a) -> 0# < (a * b) -> (0# < b)
-    *₁-reflects-0< {a} {b} 0<a 0<ab =
-      *₁-reflects-< 0<a (subst (_< (a * b)) (sym *-right-zero) 0<ab)
-
-    *₂-reflects-0< : {a b : D} -> 0# < (a * b) -> (0# < b) -> (0# < a)
-    *₂-reflects-0< {a} {b} 0<ab 0<b =
-      *₂-reflects-< (subst (_< (a * b)) (sym *-left-zero) 0<ab) 0<b
-
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
          {S : Semiring ACM} {AG : AdditiveGroup ACM}
