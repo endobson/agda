@@ -44,6 +44,8 @@ abstract
       +-left-<⁺ _
     LinearlyOrderedSemiringStr-ℕ .LinearlyOrderedSemiringStr.*₁-preserves-< =
       *-left-<⁺
+    LinearlyOrderedSemiringStr-ℕ .LinearlyOrderedSemiringStr.*₁-flips-< a<0 =
+      bot-elim (zero-≮ a<0)
 
     StronglyLinearlyOrderedSemiringStr-ℕ : StronglyLinearlyOrderedSemiringStr NatSemiring LinearOrderStr-ℕ
     StronglyLinearlyOrderedSemiringStr-ℕ = StronglyLinearlyOrderedSemiringStr-Dec<

@@ -47,23 +47,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     minus-flips-<0 : {a : D} -> (a < 0#) -> 0# < (- a)
     minus-flips-<0 {a} a<0 = subst (_< (- a)) minus-zero (minus-flips-< a<0)
 
-    *₁-flips-< : {a b c : D} -> (a < 0#) -> (b < c) -> (a * c) < (a * b)
-    *₁-flips-< {a} {b} {c} a<0 b<c =
-      subst2 _<_ (cong -_ minus-extract-left >=> minus-double-inverse)
-                 (cong -_ minus-extract-left >=> minus-double-inverse)
-                 (minus-flips-< (*₁-preserves-< 0<-a b<c))
-      where
-      module _ where
-        0<-a : 0# < (- a)
-        0<-a = (minus-flips-<0 a<0)
-
-    *₂-flips-< : {a b c : D} -> (a < b) -> (c < 0#) -> (b * c) < (a * c)
-    *₂-flips-< a<b c<0 =
-      subst2 _<_ *-commute *-commute (*₁-flips-< c<0 a<b)
-
-    *-flips-<0 : {a b : D} -> a < 0# -> b < 0# -> 0# < (a * b)
-    *-flips-<0 {a} {b} a<0 b<0 = subst (_< (a * b)) *-left-zero (*₂-flips-< a<0 b<0)
-
 
   private
     case-≮' : (x y x' y' : D) -> (x < y -> y' ≮ x') -> (x == y -> x' == y') -> (y ≮ x -> y' ≮ x')

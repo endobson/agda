@@ -26,6 +26,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : Li
     field
       +₁-preserves-< : {a b c : D} -> b < c -> (a + b) < (a + c)
       *₁-preserves-< : {a b c : D} -> 0# < a -> b < c -> (a * b) < (a * c)
+      *₁-flips-< : {a b c : D} -> a < 0# -> b < c -> (a * c) < (a * b)
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : LinearOrderStr D ℓ<}
          {{LOS : LinearlyOrderedSemiringStr S O}} where
@@ -61,6 +62,17 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
 
     *-preserves-0< : {a b : D} -> 0# < a -> 0# < b -> 0# < (a * b)
     *-preserves-0< 0<a 0<b = trans-=-< (sym *-right-zero) (LOS.*₁-preserves-< 0<a 0<b)
+
+    *₁-flips-< : {a b c : D} -> (a < 0#) -> (b < c) -> (a * c) < (a * b)
+    *₁-flips-< = LOS.*₁-flips-<
+
+    *₂-flips-< : {a b c : D} -> (a < b) -> (c < 0#) -> (b * c) < (a * c)
+    *₂-flips-< a<b c<0 =
+      subst2 _<_ *-commute *-commute (*₁-flips-< c<0 a<b)
+
+    *-flips-<0 : {a b : D} -> a < 0# -> b < 0# -> 0# < (a * b)
+    *-flips-<0 {a} {b} a<0 b<0 = subst (_< (a * b)) *-left-zero (*₂-flips-< a<0 b<0)
+
 
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : LinearOrderStr D ℓ<) where

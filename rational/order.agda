@@ -18,6 +18,7 @@ open import order
 open import order.instances.int
 open import order.instances.nat
 open import ordered-semiring
+open import ordered-semiring.ring
 open import ordered-semiring.decidable
 open import ordered-ring
 open import rational
@@ -519,10 +520,9 @@ abstract
 
 instance
   LinearlyOrderedSemiringStr-ℚ : LinearlyOrderedSemiringStr RationalSemiring LinearOrderStr-ℚ
-  LinearlyOrderedSemiringStr-ℚ = record
-    { +₁-preserves-< = r+₁-preserves-< _ _ _
-    ; *₁-preserves-< = r*₁-preserves-< _ _ _
-    }
+  LinearlyOrderedSemiringStr-ℚ = LinearlyOrderedSemiringStr-Ring
+    (r+₁-preserves-< _ _ _)
+    (r*₁-preserves-< _ _ _)
 
   StronglyLinearlyOrderedSemiringStr-ℚ : StronglyLinearlyOrderedSemiringStr _ _
   StronglyLinearlyOrderedSemiringStr-ℚ =

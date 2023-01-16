@@ -8,6 +8,7 @@ open import nat.arithmetic
 open import order
 open import order.instances.int
 open import ordered-semiring
+open import ordered-semiring.ring
 open import ring.implementations
 open import semiring
 
@@ -15,14 +16,13 @@ import int.order as io
 
 abstract
   instance
-    LinearlyOrderedSemiringStr-ℕ : LinearlyOrderedSemiringStr IntSemiring useⁱ
-    LinearlyOrderedSemiringStr-ℕ .LinearlyOrderedSemiringStr.+₁-preserves-< =
-      io.+₁-preserves-< _
-    LinearlyOrderedSemiringStr-ℕ .LinearlyOrderedSemiringStr.*₁-preserves-< 0<a b<c =
-      io.*₁-Pos-preserves-<⁺ b<c (io.>0->Pos 0<a)
+    LinearlyOrderedSemiringStr-ℤ : LinearlyOrderedSemiringStr IntSemiring useⁱ
+    LinearlyOrderedSemiringStr-ℤ = LinearlyOrderedSemiringStr-Ring
+      (io.+₁-preserves-< _)
+      (\ 0<a b<c -> io.*₁-Pos-preserves-<⁺ b<c (io.>0->Pos 0<a))
 
-    PartiallyOrderedSemiringStr-ℕ : PartiallyOrderedSemiringStr IntSemiring useⁱ
-    PartiallyOrderedSemiringStr-ℕ .PartiallyOrderedSemiringStr.+₁-preserves-≤ =
+    PartiallyOrderedSemiringStr-ℤ : PartiallyOrderedSemiringStr IntSemiring useⁱ
+    PartiallyOrderedSemiringStr-ℤ .PartiallyOrderedSemiringStr.+₁-preserves-≤ =
       io.+₁-preserves-≤ _
-    PartiallyOrderedSemiringStr-ℕ .PartiallyOrderedSemiringStr.*₁-preserves-≤ 0≤a b≤c =
+    PartiallyOrderedSemiringStr-ℤ .PartiallyOrderedSemiringStr.*₁-preserves-≤ 0≤a b≤c =
       io.*₁-NonNeg-preserves-≤⁺ b≤c (io.≥0->NonNeg 0≤a)
