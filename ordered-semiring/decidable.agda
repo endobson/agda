@@ -8,6 +8,7 @@ open import equality
 open import order
 open import ordered-semiring
 open import semiring
+open import relation
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM}
          {O : LinearOrderStr D ℓ<} {{LOS : LinearlyOrderedSemiringStr S O}}
@@ -21,7 +22,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : 
   StronglyLinearlyOrderedSemiringStr-Dec< : StronglyLinearlyOrderedSemiringStr S O
   StronglyLinearlyOrderedSemiringStr-Dec< = record
     { +₁-reflects-< = \ab<ac -> stable-< (+₁-reflects-<' ab<ac)
-    ; *₁-reflects-< = \ 0<a ab<ac -> stable-< (*₁-reflects-<' 0<a ab<ac)
+    ; *₁-fully-reflects-< = *₁-fully-reflects-<'
     }
     where
     +₁-reflects-<' : {a b c : D} -> (a + b) < (a + c) -> ¬ (¬ (b < c))
@@ -32,10 +33,22 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : 
       b=c : b == c
       b=c = connected-< b≮c c≮b
 
-    *₁-reflects-<' : {a b c : D} -> (0# < a) -> (a * b) < (a * c) -> ¬ (¬ (b < c))
-    *₁-reflects-<' {a} {b} {c} 0<a ab<ac b≮c = irrefl-path-< (cong (a *_) b=c) ab<ac
+    *₁-fully-reflects-<' : {a b c : D} -> (a * b) < (a * c) ->
+        (b < c × 0# < a) ⊎ (c < b × a < 0#)
+    *₁-fully-reflects-<' {a} {b} {c} ab<ac =
+      handle (trichotomous-< b c) (trichotomous-< 0# a)
       where
-      c≮b : c ≮ b
-      c≮b c<b = asym-< ab<ac (*₁-preserves-< 0<a c<b)
-      b=c : b == c
-      b=c = connected-< b≮c c≮b
+      handle : Tri< b c -> Tri< 0# a -> _
+      handle (tri= _ b=c _) _ = bot-elim (irrefl-path-< (cong (a *_) b=c) ab<ac)
+      handle (tri< _ _ _) (tri= _ 0=a _) =
+        bot-elim (irrefl-< (subst2 _<_ (*-left (sym 0=a) >=> *-left-zero)
+                                       (*-left (sym 0=a) >=> *-left-zero) ab<ac))
+      handle (tri> _ _ _) (tri= _ 0=a _) =
+        bot-elim (irrefl-< (subst2 _<_ (*-left (sym 0=a) >=> *-left-zero)
+                                       (*-left (sym 0=a) >=> *-left-zero) ab<ac))
+      handle (tri< b<c _ _) (tri< 0<a _ _) = inj-l (b<c , 0<a)
+      handle (tri> _ _ c<b) (tri> _ _ a<0) = inj-r (c<b , a<0)
+      handle (tri< b<c _ _) (tri> _ _ a<0) =
+        bot-elim (asym-< ab<ac (*₁-flips-< a<0 b<c))
+      handle (tri> _ _ c<b) (tri< 0<a _ _) =
+        bot-elim (asym-< ab<ac (*₁-preserves-< 0<a c<b))

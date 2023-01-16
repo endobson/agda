@@ -86,8 +86,8 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : Li
     no-eta-equality
     field
       +₁-reflects-< : {a b c : D} -> (a + b) < (a + c) -> b < c
-      *₁-reflects-< : {a b c : D} -> 0# < a -> (a * b) < (a * c) -> b < c
-
+      *₁-fully-reflects-< : {a b c : D} -> (a * b) < (a * c) ->
+        (b < c × 0# < a) ⊎ (c < b × a < 0#)
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : LinearOrderStr D ℓ<}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S O}} where
@@ -111,11 +111,12 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
       handle : ((a + b) < (c + b)) ⊎ ((c + b) < (c + d)) -> (a < c) ⊎ (b < d)
       handle = ⊎-map +₂-reflects-< +₁-reflects-<
 
-    +-reflects-0< : {a b : D} -> 0# < (a + b) -> ∥ (0# < a) ⊎( 0# < b) ∥
+    +-reflects-0< : {a b : D} -> 0# < (a + b) -> ∥ (0# < a) ⊎ (0# < b) ∥
     +-reflects-0< {a} {b} 0<ab = +-reflects-< (subst (_< (a + b)) (sym +-right-zero) 0<ab)
 
     *₁-reflects-< : {a b c : D} -> (0# < a) -> (a * b) < (a * c) -> (b < c)
-    *₁-reflects-< = SLOS.*₁-reflects-<
+    *₁-reflects-< 0<a ab<ac =
+      proj₁ (proj-¬r (SLOS.*₁-fully-reflects-< ab<ac) (\ (c<b , a<0) -> asym-< a<0 0<a))
 
     *₂-reflects-< : {a b c : D} -> (a * c) < (b * c) -> (0# < c) -> (a < b)
     *₂-reflects-< {a} {b} {c} ac<bc 0<c =
