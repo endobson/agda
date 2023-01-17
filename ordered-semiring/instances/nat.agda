@@ -55,3 +55,7 @@ abstract
       +-left-≤⁺ _
     PartiallyOrderedSemiringStr-ℕ .PartiallyOrderedSemiringStr.*₁-preserves-≤ {a} 0≤a =
       *-left-≤⁺ a
+
+    StronglyPartiallyOrderedSemiringStr-ℕ :
+      StronglyPartiallyOrderedSemiringStr NatSemiring useⁱ useⁱ
+    StronglyPartiallyOrderedSemiringStr-ℕ = StronglyPartiallyOrderedSemiringStr-Dec<

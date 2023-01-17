@@ -114,9 +114,13 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
     +-reflects-0< : {a b : D} -> 0# < (a + b) -> ∥ (0# < a) ⊎ (0# < b) ∥
     +-reflects-0< {a} {b} 0<ab = +-reflects-< (subst (_< (a + b)) (sym +-right-zero) 0<ab)
 
+    *₁-fully-reflects-< : {a b c : D} -> (a * b) < (a * c) ->
+                          (b < c × 0# < a) ⊎ (c < b × a < 0#)
+    *₁-fully-reflects-< = SLOS.*₁-fully-reflects-<
+
     *₁-reflects-< : {a b c : D} -> (0# < a) -> (a * b) < (a * c) -> (b < c)
     *₁-reflects-< 0<a ab<ac =
-      proj₁ (proj-¬r (SLOS.*₁-fully-reflects-< ab<ac) (\ (c<b , a<0) -> asym-< a<0 0<a))
+      proj₁ (proj-¬r (*₁-fully-reflects-< ab<ac) (\ (c<b , a<0) -> asym-< a<0 0<a))
 
     *₂-reflects-< : {a b c : D} -> (a * c) < (b * c) -> (0# < c) -> (a < b)
     *₂-reflects-< {a} {b} {c} ac<bc 0<c =
@@ -179,3 +183,47 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : Pa
     *₂-preserves-≤ : {a b c : D} -> (a ≤ b) -> (0# ≤ c) -> (a * c) ≤ (b * c)
     *₂-preserves-≤ {a} {b} {c} a≤b 0≤c =
       subst2 _≤_ *-commute *-commute (*₁-preserves-≤ 0≤c a≤b)
+
+
+
+module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+         (S : Semiring ACM) (LO : LinearOrderStr D ℓ<) (PO : PartialOrderStr D ℓ≤) where
+  private
+    instance
+      IACM = ACM
+      IS = S
+      ILO = LO
+      IPO = PO
+
+  record StronglyPartiallyOrderedSemiringStr : Type (ℓ-max* 3 ℓ< ℓ≤ ℓD) where
+    no-eta-equality
+    field
+      +₁-reflects-≤ : {a b c : D} -> (a + b) ≤ (a + c) -> b ≤ c
+      *₁-reflects-≤ : {a b c : D} -> 0# < a -> (a * b) ≤ (a * c) -> b ≤ c
+      *₁-flip-reflects-≤ : {a b c : D} -> a < 0# -> (a * b) ≤ (a * c) -> c ≤ b
+
+module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+         {LO : LinearOrderStr D ℓ<} {PO : PartialOrderStr D ℓ≤}
+         {{SPOS : StronglyPartiallyOrderedSemiringStr S LO PO}} where
+
+  private
+    module SPOS = StronglyPartiallyOrderedSemiringStr SPOS
+    instance
+      IACM = ACM
+      IS = S
+      IPO = PO
+      ILO = LO
+
+  abstract
+    +₁-reflects-≤ : {a b c : D} -> (a + b) ≤ (a + c) -> b ≤ c
+    +₁-reflects-≤ = SPOS.+₁-reflects-≤
+
+    +₂-reflects-≤ : {a b c : D} -> (a + c) ≤ (b + c) -> a ≤ b
+    +₂-reflects-≤ ac≤bc = +₁-reflects-≤ (subst2 _≤_ +-commute +-commute ac≤bc)
+
+    *₁-reflects-≤ : {a b c : D} -> (0# < a) -> (a * b) ≤ (a * c) -> (b ≤ c)
+    *₁-reflects-≤ = SPOS.*₁-reflects-≤
+
+    *₂-reflects-≤ : {a b c : D} -> (a * c) ≤ (b * c) -> (0# < c) -> (a ≤ b)
+    *₂-reflects-≤ {a} {b} {c} ac≤bc 0<c =
+      *₁-reflects-≤ 0<c (subst2 _≤_ *-commute *-commute ac≤bc)

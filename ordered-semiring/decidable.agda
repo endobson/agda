@@ -8,6 +8,7 @@ open import equality
 open import order
 open import ordered-semiring
 open import semiring
+open import sum
 open import relation
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM}
@@ -52,3 +53,37 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : 
         bot-elim (asym-< ab<ac (*₁-flips-< a<0 b<c))
       handle (tri> _ _ c<b) (tri< 0<a _ _) =
         bot-elim (asym-< ab<ac (*₁-preserves-< 0<a c<b))
+
+
+module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM}
+         {LO : LinearOrderStr D ℓ<} {PO : PartialOrderStr D ℓ≤}
+         {{CO : CompatibleOrderStr LO PO}}
+         {{POS : PartiallyOrderedSemiringStr S PO}}
+         {{LOS : LinearlyOrderedSemiringStr S LO}}
+         {{DLO : DecidableLinearOrderStr LO}}
+         where
+  private
+    instance
+      IACM = ACM
+      IS = S
+      ILO = LO
+      IPO = PO
+
+  StronglyPartiallyOrderedSemiringStr-Dec< : StronglyPartiallyOrderedSemiringStr S LO PO
+  StronglyPartiallyOrderedSemiringStr-Dec< = record
+    { +₁-reflects-≤ = +₁-reflects-≤'
+    ; *₁-reflects-≤ = *₁-reflects-≤'
+    ; *₁-flip-reflects-≤ = *₁-flip-reflects-≤'
+    }
+    where
+    +₁-reflects-≤' : {a b c : D} -> (a + b) ≤ (a + c) -> b ≤ c
+    +₁-reflects-≤' {a} {b} {c} ab≤ac =
+      proj-¬l (split-< c b) (\c<b -> irrefl-< (trans-<-≤ (+₁-preserves-< c<b) ab≤ac))
+
+    *₁-reflects-≤' : {a b c : D} -> 0# < a -> (a * b) ≤ (a * c) -> b ≤ c
+    *₁-reflects-≤' {a} {b} {c} 0<a ab≤ac =
+      proj-¬l (split-< c b) (\c<b -> irrefl-< (trans-<-≤ (*₁-preserves-< 0<a c<b) ab≤ac))
+
+    *₁-flip-reflects-≤' : {a b c : D} -> a < 0# -> (a * b) ≤ (a * c) -> c ≤ b
+    *₁-flip-reflects-≤' {a} {b} {c} a<0 ab≤ac =
+      proj-¬l (split-< b c) (\b<c -> irrefl-< (trans-<-≤ (*₁-flips-< a<0 b<c) ab≤ac))

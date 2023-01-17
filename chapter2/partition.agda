@@ -202,7 +202,7 @@ module _ (n⁺ : Nat⁺) where
           qd≤ndd : (q *' d) ≤ (nd *' d)
           qd≤ndd = transport (\i -> (q-path (~ i)) ≤ (nd-path (~ i))) lt
           q≤nd : q ≤ nd
-          q≤nd = *-right-≤⁻ d⁺ qd≤ndd
+          q≤nd = *₂-reflects-≤ qd≤ndd (Pos'->< (snd d⁺))
 
           q-rp : RelativelyPrime⁰ q nd
           q-rp s (sq' , sq'-path) (snd' , snd'-path) = s==1

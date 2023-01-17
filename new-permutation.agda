@@ -102,7 +102,7 @@ module _ {m n : Nat} where
         where
         lemma : i < (m +' n)
         lemma = trans-<-≤ p (transport (\k -> (+'-commute {m} {0} k) ≤ (m +' n))
-                                       (+-left-≤⁺ m zero-≤))
+                                       (+₁-preserves-≤ zero-≤))
 
       embed-suc : Fin n -> Fin (m +' n)
       embed-suc (i , p) = m +' i , (+₁-preserves-< p)
@@ -125,7 +125,7 @@ module _ {m n : Nat} where
         lt : (j +' m) < m
         lt = transport (\k -> (cong Fin.i p >=> +'-commute {m} {j}) k < m) lt-i
         lt' : j < 0
-        lt' = (+-right-≤⁻ m) lt
+        lt' = +₂-reflects-≤ lt
 
 
       split-fin : (i : Fin (m +' n)) -> SplitFin i

@@ -19,6 +19,7 @@ Change ℝ< to have the bounds
 Add ℝ⁺ constant
 
 Change ≤ to just be a partial order
+Check levels in semiring order types
 
 Add concept of ordered ring homomorphisms
 Add non-ℚ-specific utilities for diff and <
