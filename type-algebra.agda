@@ -4,7 +4,7 @@ module type-algebra where
 
 open import base
 open import cubical
-open import equality
+open import equality-path
 open import equivalence
 open import functions
 open import hlevel
@@ -16,6 +16,7 @@ open import sigma.base
 open import truncation
 open import univalence
 open import vec
+open import funext
 
 open Iso
 
@@ -490,6 +491,16 @@ Top-Fun A = ua (isoToEquiv i)
   i .rightInv ()
   i .leftInv a = bot-elim (¬A a)
 
+¬-eq : {A : Type ℓ₁} {B : Type ℓ₂} -> A ≃ B -> ¬ A ≃ ¬ B
+¬-eq {A = A} {B} eq = (isoToEquiv i)
+  where
+  i : Iso (¬ A) (¬ B)
+  i .fun ¬a b = ¬a (eqInv eq b)
+  i .inv ¬b a = ¬b (eqFun eq a)
+  i .rightInv _ = isProp¬ _ _ _
+  i .leftInv _ = isProp¬ _ _ _
+
+
 ¬-Bot : {A : Type ℓ} -> ¬ A -> A == Lift ℓ Bot
 ¬-Bot {A = A} ¬A = ua (isoToEquiv i)
   where
@@ -547,6 +558,16 @@ Top-Fun A = ua (isoToEquiv i)
   i .inv a = ∣ a ∣
   i .rightInv _ = isPropA _ _
   i .leftInv _ = squash _ _
+
+∥-eq : {A : Type ℓ₁} {B : Type ℓ₂} -> A ≃ B -> ∥ A ∥ ≃ ∥ B ∥
+∥-eq {A = A} {B} eq = (isoToEquiv i)
+  where
+  i : Iso ∥ A ∥ ∥ B ∥
+  i .fun = ∥-map (eqFun eq)
+  i .inv = ∥-map (eqInv eq)
+  i .rightInv _ = squash _ _
+  i .leftInv _ = squash _ _
+
 
 Σ-distrib-⊎ : {A : Type ℓ₁} {B : A -> Type ℓ₂} {C : A -> Type ℓ₃} ->
               (Σ[ a ∈ A ] (B a ⊎ C a)) ≃ (Σ A B ⊎ Σ A C)
@@ -627,3 +648,43 @@ Contr-Top-eq {A = A} isContrA = isoToEquiv i
   i .inv (b , a , c) = (a , b , c)
   i .rightInv _ = refl
   i .leftInv _ = refl
+
+
+reindexΠ : {ℓ₁ ℓ₂ ℓ₃ : Level} {A : Type ℓ₁} {B : Type ℓ₂}
+           (eq : B ≃ A) (C : A -> Type ℓ₃) -> ((a : A) -> C a) ≃ ((b : B) -> (C (eqFun eq b)))
+reindexΠ {A = A} {B} eq C = isoToEquiv i
+  where
+  i : Iso ((a : A) -> C a) ((b : B) -> (C (eqFun eq b)))
+  i .fun f b = f (eqFun eq b)
+  i .inv g a = substᵉ C (eqSec eq a) (g (eqInv eq a))
+  i .leftInv f = funExt ans
+    where
+    ans : (a : A) -> substᵉ C (eqSec eq a) (f (eqFun eq (eqInv eq a))) == f a
+    ans a = transP-sym p1 p2
+      where
+      p1 : PathP (\i -> C (eqSec eq a (~ i))) (substᵉ C (eqSec eq a) (f (eqFun eq (eqInv eq a))))
+                                              (f (eqFun eq (eqInv eq a)))
+      p1 = symP (subst-filler C (eqSec eq a) (f (eqFun eq (eqInv eq a))))
+
+      p2 : PathP (\i -> C (eqSec eq a i)) (f (eqFun eq (eqInv eq a))) (f a)
+      p2 i = f (eqSec eq a i)
+
+
+  i .rightInv g = funExt ans
+    where
+    ans : (b : B) -> substᵉ C (eqSec eq (eqFun eq b)) (g (eqInv eq (eqFun eq b))) == g b
+    ans b = transP-sym p1 p2
+      where
+      p1 : PathP (\i -> C (eqSec eq (eqFun eq b) (~ i)))
+                 (substᵉ C (eqSec eq (eqFun eq b)) (g (eqInv eq (eqFun eq b))))
+                 (g (eqInv eq (eqFun eq b)))
+      p1 = symP (subst-filler C (eqSec eq (eqFun eq b)) (g (eqInv eq (eqFun eq b))))
+
+      pp : (cong (eqFun eq) (eqRet eq b)) == (eqSec eq (eqFun eq b))
+      pp = flip-square (slideSquare (eqComm eq b))
+
+      p2 : PathP (\i -> C (eqSec eq (eqFun eq b) i))
+                 (g (eqInv eq (eqFun eq b)))
+                 (g b)
+      p2 = subst (\P -> PathP (\i -> C (P i)) (g (eqInv eq (eqFun eq b))) (g b))
+                 pp (\i -> g (eqRet eq b i))
