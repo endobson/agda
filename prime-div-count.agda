@@ -181,6 +181,26 @@ prime-div-count-unique {p} {a} {n1} {n2} dc1 dc2 =
 prime-power-div-count : (p : Prime') (n : Nat) -> PrimeDivCount p (prime-power p n) n
 prime-power-div-count p n = OldPrimeDivCount div'-refl (Prime'.¬%1 p)
 
+relatively-prime-prime-div-count :
+  {a b : Nat} -> RelativelyPrime⁰ a b ->
+  (p : Prime') -> (PrimeDivCount p a 0) ⊎ (PrimeDivCount p b 0)
+relatively-prime-prime-div-count {a = zero}      {b}             rp p =
+  inj-r (¬div-prime-div-count (subst (\b -> ¬ (⟨ p ⟩ div' b)) (sym (rp-zero rp)) (Prime'.¬%1 p)))
+relatively-prime-prime-div-count {a = suc _}     {b = zero}      rp p =
+  inj-l (¬div-prime-div-count (subst (\a -> ¬ (⟨ p ⟩ div' a)) (sym (rp-zero (rp-sym rp))) (Prime'.¬%1 p)))
+relatively-prime-prime-div-count {a = a@(suc _)} {b = b@(suc _)} rp p =
+  handle (compute-prime-div-count p (a , tt)) (compute-prime-div-count p (b , tt))
+  where
+  handle : Σ[ n ∈ Nat ] (PrimeDivCount p a n) -> Σ[ n ∈ Nat ] (PrimeDivCount p b n) ->
+           (PrimeDivCount p a 0) ⊎ (PrimeDivCount p b 0)
+  handle (zero , dca)    _             = (inj-l dca)
+  handle (suc na , dca) (zero , dcb)   = (inj-r dcb)
+  handle (suc na , dca) (suc nb , dcb) =
+    bot-elim (Prime'.!=1 p (rp ⟨ p ⟩ (div'-trans (prime-power p na , *'-commute {_} {⟨ p ⟩})
+                                                 (PrimeDivCount.%a dca))
+                                     (div'-trans (prime-power p nb , *'-commute {_} {⟨ p ⟩})
+                                                 (PrimeDivCount.%a dcb))))
+
 
 *'-prime-div-count : {a b : Nat}
   -> {p : Prime'}
@@ -232,7 +252,7 @@ gcd-prime-div-count : {a b d : Nat}
   -> {nb : Nat} (db : PrimeDivCount p b nb)
   -> PrimeDivCount p d (min na nb)
 gcd-prime-div-count {a} {b} {d} g p {na} da {nb} db =
-  OldPrimeDivCount p^k%d ¬p%r
+  record { %a = p^k%d ; upper-bound = upper-bound }
   where
   module da = PrimeDivCount da
   module db = PrimeDivCount db
@@ -246,33 +266,11 @@ gcd-prime-div-count {a} {b} {d} g p {na} da {nb} db =
   p^k%d : (prime-power p k) div' d
   p^k%d = (GCD'.f g (prime-power p k) p^k%a p^k%b)
 
-  r = fst p^k%d
-  r-path = snd p^k%d
-
-  ¬p%r : ¬ (⟨ p ⟩ div' r)
-  ¬p%r p%r = handle (split-min na nb)
-    where
-    x = fst p%r
-    x-path = snd p%r
-
-    p^sk%d : (prime-power p (suc k)) div' d
-    p^sk%d = x , sym (*'-assoc {x} {⟨ p ⟩})
-                 >=> *'-left x-path
-                 >=> r-path
-
-    handle : ((k == na) ⊎ (k == nb)) -> Bot
-    handle (inj-l path) = irrefl-< (trans-<-= sk≤na (sym path))
-      where
-      p^sk%a : (prime-power p (suc k)) div' a
-      p^sk%a = (div'-trans p^sk%d (GCD'.%a g))
-      sk≤na : suc k ≤ na
-      sk≤na = da.upper-bound (suc k) p^sk%a
-    handle (inj-r path) = irrefl-< (trans-<-= sk≤nb (sym path))
-      where
-      p^sk%b : (prime-power p (suc k)) div' b
-      p^sk%b = (div'-trans p^sk%d (GCD'.%b g))
-      sk≤nb : suc k ≤ nb
-      sk≤nb = db.upper-bound (suc k) p^sk%b
+  upper-bound : (m : Nat) -> (prime-power p m) div' d -> m ≤ (min na nb)
+  upper-bound m pm%d =
+    ≤-min-greatest
+      (da.upper-bound m (div'-trans pm%d (GCD'.%a g)))
+      (db.upper-bound m (div'-trans pm%d (GCD'.%b g)))
 
 
 lcm-prime-div-count : {a b m : Nat}
@@ -282,23 +280,12 @@ lcm-prime-div-count : {a b m : Nat}
   -> {nb : Nat} (db : PrimeDivCount p b nb)
   -> PrimeDivCount p m (max na nb)
 lcm-prime-div-count {a} {b} {m} l p {na} da {nb} db =
-  OldPrimeDivCount p^k%m ¬p%r
+  record { %a = p^k%m ; upper-bound = upper-bound }
   where
   k = max na nb
 
   m-pos : Pos' m
   m-pos = LCM'.m-pos l (PrimeDivCount.a-pos da) (PrimeDivCount.a-pos db)
-
-
-  xa = fst (PrimeDivCount.%a da)
-  xa-path = snd (PrimeDivCount.%a da)
-  xb = fst (PrimeDivCount.%a db)
-  xb-path = snd (PrimeDivCount.%a db)
-
-  ya = fst (LCM'.a%m l)
-  ya-path = snd (LCM'.a%m l)
-  yb = fst (LCM'.b%m l)
-  yb-path = snd (LCM'.b%m l)
 
   p^k%m : (prime-power p k) div' m
   p^k%m = handle (split-max na nb)
@@ -310,62 +297,30 @@ lcm-prime-div-count {a} {b} {m} l p {na} da {nb} db =
     handle (inj-r path) = div'-trans (transport (\i -> (prime-power p (path (~ i))) div' b)
                                                 (PrimeDivCount.%a db))
                                      (LCM'.b%m l)
-  r = fst p^k%m
-  r-path = snd p^k%m
 
-  ¬p%r : ¬ (⟨ p ⟩ div' r)
-  ¬p%r p%r = Prime'.!=1 p (lcm-relatively-prime m-pos l ⟨ p ⟩ p%ya p%yb)
+  ya = fst (LCM'.a%m l)
+  ya-path = snd (LCM'.a%m l)
+  yb = fst (LCM'.b%m l)
+  yb-path = snd (LCM'.b%m l)
+
+  rp-ya-yb : RelativelyPrime⁰ ya yb
+  rp-ya-yb = (LCM'.rp-ar-br l m-pos)
+
+  dcs : PrimeDivCount p m na ⊎ PrimeDivCount p m nb
+  dcs = handle (relatively-prime-prime-div-count rp-ya-yb p)
     where
-    x = fst p%r
-    x-path = snd p%r
+    handle : PrimeDivCount p ya 0 ⊎ PrimeDivCount p yb 0 ->
+             PrimeDivCount p m na ⊎ PrimeDivCount p m nb
+    handle (inj-l dc) =
+      inj-l (transport (\i -> PrimeDivCount p (ya-path i) (+'-left-zero {na} i))
+                       (*'-prime-div-count dc da))
+    handle (inj-r dc) =
+      inj-r (transport (\i -> PrimeDivCount p (yb-path i) (+'-left-zero {nb} i))
+                       (*'-prime-div-count dc db))
 
-    p%ya : ⟨ p ⟩ div' ya
-    p%ya = euclids-lemma/rp p%prod (prime->relatively-prime p (PrimeDivCount.¬p%r da))
-      where
-      path : ((x *' ⟨ p ⟩) *' (prime-power p (nb -' (min na nb)))) *' (prime-power p na)
-              == (ya *' xa) *' (prime-power p na)
-      path =
-        *'-assoc {x *' ⟨ p ⟩} {prime-power p (nb -' min na nb)}
-        >=> *'-right {x *' ⟨ p ⟩} (sym (^'-distrib-power {⟨ p ⟩} {nb -' min na nb} {na}))
-        >=> (\i -> (x *' ⟨ p ⟩) *'
-                   (prime-power p ((+'-commute {nb -' (min na nb)} {na} >=> sym (max->min-path {na} {nb}))
-                                   i)))
-        >=> *'-left x-path
-        >=> r-path
-        >=> sym ya-path
-        >=> *'-right {ya} (sym xa-path)
-        >=> sym (*'-assoc {ya} {xa})
-
-      p%prod : ⟨ p ⟩ div' (xa *' ya)
-      p%prod = ((prime-power p (nb -' (min na nb))) *' x) ,
-               *'-assoc {prime-power p (nb -' (min na nb))} {x} {⟨ p ⟩}
-               >=> *'-commute {prime-power p (nb -' (min na nb))} {x *' ⟨ p ⟩}
-               >=> *'-right-injective (prime-power⁺ p na) path
-               >=> *'-commute {ya} {xa}
-
-
-    p%yb : ⟨ p ⟩ div' yb
-    p%yb = euclids-lemma/rp p%prod (prime->relatively-prime p (PrimeDivCount.¬p%r db))
-      where
-      path : ((x *' ⟨ p ⟩) *' (prime-power p (na -' (min nb na)))) *' (prime-power p nb)
-              == (yb *' xb) *' (prime-power p nb)
-      path =
-        *'-assoc {x *' ⟨ p ⟩} {prime-power p (na -' min nb na)}
-        >=> *'-right {x *' ⟨ p ⟩} (sym (^'-distrib-power {⟨ p ⟩} {na -' min nb na} {nb}))
-        >=> (\i -> (x *' ⟨ p ⟩) *'
-                   (prime-power p ((+'-commute {na -' (min nb na)} {nb}
-                                    >=> sym (max->min-path {nb} {na})
-                                    >=> max-commute {nb} {na})
-                                   i)))
-        >=> *'-left x-path
-        >=> r-path
-        >=> sym yb-path
-        >=> *'-right {yb} (sym xb-path)
-        >=> sym (*'-assoc {yb} {xb})
-
-      p%prod : ⟨ p ⟩ div' (xb *' yb)
-      p%prod = ((prime-power p (na -' (min nb na))) *' x) ,
-               *'-assoc {prime-power p (na -' (min nb na))} {x} {⟨ p ⟩}
-               >=> *'-commute {prime-power p (na -' (min nb na))} {x *' ⟨ p ⟩}
-               >=> *'-right-injective (prime-power⁺ p nb) path
-               >=> *'-commute {yb} {xb}
+  upper-bound : (n : Nat) -> (prime-power p n) div' m -> n ≤ (max na nb)
+  upper-bound n pn%m = handle dcs
+    where
+    handle : PrimeDivCount p m na ⊎ PrimeDivCount p m nb -> n ≤ (max na nb)
+    handle (inj-l dc) = trans-≤ (PrimeDivCount.upper-bound dc n pn%m) ≤-max-left
+    handle (inj-r dc) = trans-≤ (PrimeDivCount.upper-bound dc n pn%m) ≤-max-right

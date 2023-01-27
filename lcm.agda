@@ -3,9 +3,14 @@
 module lcm where
 
 open import base
+open import equality
 open import div
 open import gcd.propositional
 open import nat
+open import prime
+open import relatively-prime
+open import semiring
+open import semiring.instances.nat
 
 record LCM' (a : Nat) (b : Nat) (m : Nat) : Type₀ where
   field
@@ -20,6 +25,39 @@ record LCM' (a : Nat) (b : Nat) (m : Nat) : Type₀ where
     a%ab = b , *'-commute {b} {a}
     b%ab : b div' (a *' b)
     b%ab = a , refl
+
+  rp-ar-br : (Pos' m) -> RelativelyPrime⁰ ⟨ a%m ⟩ ⟨ b%m ⟩
+  rp-ar-br pm = no-shared-primes ar br g
+    where
+    ar = ⟨ a%m ⟩
+    br = ⟨ b%m ⟩
+    g : (p : Prime') -> ⟨ p ⟩ div' ar -> ⟨ p ⟩ div' br -> Bot
+    g p@(p' , _) (ar' , ar'-path) (br' , br'-path) =
+      Prime'.!=1 p (*'-right-injective (m , pm)
+                      (cong (p' *_) m=m2 >=> sym m-path >=> sym *-left-one))
+      where
+      m2 = ar' * a
+      m-path : m == p' * m2
+      m-path =
+        sym (snd a%m) >=>
+        cong (_* a) (sym ar'-path >=> *'-commute {ar'} {p'}) >=>
+        *'-assoc {p'} {ar'}
+      a%m2 : a div' m2
+      a%m2 = ar' , refl
+      b%m2 : b div' m2
+      b%m2 = br' , *'-left-injective (Prime'.nat⁺ p) path
+        where
+        path : p' * (br' * b) == p' * m2
+        path =
+          sym (*'-assoc {p'} {br'}) >=>
+          cong (_* b) (*'-commute {p'} {br'} >=> br'-path) >=>
+          snd b%m >=>
+          m-path
+      m%m2 : m div' m2
+      m%m2 = f m2 a%m2 b%m2
+      m2%m : m2 div' m
+      m2%m = p' , sym m-path
+      m=m2 = div'-antisym m%m2 m2%m
 
 LCM⁺ : Nat⁺ -> Nat⁺ -> Nat⁺ -> Type₀
 LCM⁺ (a , _) (b , _) (m , _) = LCM' a b m
