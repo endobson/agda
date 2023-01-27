@@ -4,70 +4,67 @@ module lattice where
 
 open import base
 open import relation
+open import order
+open import functions
 
 private
-  variable
-    ℓ : Level
-
-  Op₂ : Type ℓ -> Type ℓ
+  Op₂ : {ℓ : Level} -> Type ℓ -> Type ℓ
   Op₂ D = D -> D -> D
 
-record RawLattice (Domain : Type ℓ) : Type (ℓ-suc ℓ) where
+record MeetSemiLatticeStr {ℓD ℓ≤ : Level} {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) :
+                          Type (ℓ-max ℓD ℓ≤) where
+  private
+    module PO = PartialOrderStr PO
+
   field
-    _≼_ : Rel Domain ℓ
-    _∧_ : Op₂ Domain
-    _∨_ : Op₂ Domain
+    meet : Op₂ D
+    meet-≤-left  : {x y : D} -> meet x y PO.≤ x
+    meet-≤-right : {x y : D} -> meet x y PO.≤ y
+    meet-greatest-≤ : {x y z : D} -> z PO.≤ x -> z PO.≤ y -> z PO.≤ meet x y
 
+module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {PO : PartialOrderStr D ℓ≤}
+         {{ MS : MeetSemiLatticeStr PO }} where
+  open MeetSemiLatticeStr MS public
 
-module _ {Domain : Type ℓ} where
+  private
+    instance
+      IPO = PO
 
-  record Supremum (_≼_ : Rel Domain ℓ) (_∨_ : Op₂ Domain) : Type ℓ where
-    field
-      x≼x∨y : ∀ x y -> x ≼ (x ∨ y)
-      y≼x∨y : ∀ x y -> y ≼ (x ∨ y)
-      ∨-least : ∀ x y z -> x ≼ z -> y ≼ z -> (x ∨ y) ≼ z
+  meet-≤-path : {x y : D} -> x ≤ y -> meet x y == x
+  meet-≤-path x≤y = antisym-≤ meet-≤-left (meet-greatest-≤ refl-≤ x≤y)
 
-  record Infimum (_≼_ : Rel Domain ℓ) (_∧_ : Op₂ Domain) : Type ℓ where
-    field
-      x∧y≼x : ∀ x y -> (x ∧ y) ≼ x
-      x∧y≼y : ∀ x y -> (x ∧ y) ≼ y
-      ∧-greatest : ∀ x y z -> z ≼ x -> z ≼ y -> z ≼ (x ∧ y)
+  idempotent-meet : Idempotent meet
+  idempotent-meet = meet-≤-path refl-≤
 
+  meet-commute : {a b : D} -> meet a b == meet b a
+  meet-commute = antisym-≤ (meet-greatest-≤ meet-≤-right meet-≤-left)
+                           (meet-greatest-≤ meet-≤-right meet-≤-left)
 
-  record IsLattice (l : RawLattice Domain) : Type (ℓ-suc ℓ) where
-    open RawLattice l public
+record JoinSemiLatticeStr {ℓD ℓ≤ : Level} {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) :
+                          Type (ℓ-max ℓD ℓ≤) where
+  private
+    module PO = PartialOrderStr PO
 
-    field
-      partial-order : PartialOrder _≼_
-      supremum : Supremum _≼_ _∨_
-      infimum : Infimum _≼_ _∧_
+  field
+    join : Op₂ D
+    join-≤-left  : {x y : D} -> x PO.≤ join x y
+    join-≤-right : {x y : D} -> y PO.≤ join x y
+    join-least-≤ : {x y z : D} -> x PO.≤ z -> y PO.≤ z -> join x y PO.≤ z
 
-    antisym-≼ : Antisymmetric _≼_
-    antisym-≼ = proj₂ (proj₂ partial-order)
+module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {PO : PartialOrderStr D ℓ≤}
+         {{ JS : JoinSemiLatticeStr PO }} where
+  open JoinSemiLatticeStr JS public
 
-    refl-≼ : Reflexive _≼_
-    refl-≼ = proj₁ (proj₂ partial-order)
+  private
+    instance
+      IPO = PO
 
-    trans-≼ : Transitive _≼_
-    trans-≼ = proj₁ partial-order
+  join-≤-path : {x y : D} -> x ≤ y -> join x y == y
+  join-≤-path x≤y = antisym-≤ (join-least-≤ x≤y refl-≤) join-≤-right
 
-    open Supremum supremum public
-    open Infimum infimum public
+  idempotent-join : Idempotent join
+  idempotent-join = join-≤-path refl-≤
 
-
-  module Lattice (l : RawLattice Domain) {{isLattice : IsLattice l}} where
-    open IsLattice isLattice
-    private
-      D = Domain
-
-    ∧-idempotent : (a : D) -> a ∧ a == a
-    ∧-idempotent a = antisym-≼ (x∧y≼x a a) (∧-greatest a a a refl-≼ refl-≼)
-
-    ∨-idempotent : (a : D) -> a ∨ a == a
-    ∨-idempotent a = antisym-≼ (∨-least a a a refl-≼ refl-≼) (x≼x∨y a a)
-
-    ∧-∨-absorb : (a b : D) -> a ∧ (a ∨ b) == a
-    ∧-∨-absorb a b = antisym-≼ (x∧y≼x a (a ∨ b)) (∧-greatest a (a ∨ b) a refl-≼ (x≼x∨y a b))
-
-    ∨-∧-absorb : (a b : D) -> a ∨ (a ∧ b) == a
-    ∨-∧-absorb a b = antisym-≼ (∨-least a (a ∧ b) a refl-≼ (x∧y≼x a b)) (x≼x∨y a (a ∧ b))
+  join-commute : {a b : D} -> join a b == join b a
+  join-commute = antisym-≤ (join-least-≤ join-≤-right join-≤-left)
+                           (join-least-≤ join-≤-right join-≤-left)

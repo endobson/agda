@@ -49,6 +49,9 @@ LeftInverse f g = ∀ b -> (g (f b)) == b
 Involution : Pred (A -> A) _
 Involution f = ∀ {a} -> (f (f a)) == a
 
+Idempotent : Pred (A -> A -> A) _
+Idempotent f = ∀ {a} -> f a a == a
+
 -- Constant functions.
 -- 2-Constant is constant up to paths.
 2-Constant : (A -> B) -> Type _
