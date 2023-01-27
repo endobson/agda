@@ -337,6 +337,15 @@ abstract
       (\a b a<b -> (ℚ≤-cons (transport (sym ℚ≤-raw-eval) (weaken-ℚ'< (transport ℚ<-raw-eval a<b)))))
       a b a<b
 
+  convert-ℚ≮ : {a b : ℚ} -> ¬ (a ℚ< b) -> b ℚ≤ a
+  convert-ℚ≮ {a} {b} a≮b = handle (trichotomous-< _ _)
+    where
+    handle : Tri< a b -> b ≤ a
+    handle (tri< a<b _ _) = bot-elim (a≮b a<b)
+    handle (tri= _ a=b _) = path-≤ (sym a=b)
+    handle (tri> _ _ b<a) = weaken-ℚ< b<a
+
+
   strengthen-ℚ≤-≠ : {a b : ℚ} -> a ℚ≤ b -> a != b -> a < b
   strengthen-ℚ≤-≠ =
     ℚ≤-elim {P = \a b -> a != b -> a < b }
@@ -348,7 +357,7 @@ instance
   CompatibleOrderStr-ℚ :
     CompatibleOrderStr LinearOrderStr-ℚ PartialOrderStr-ℚ
   CompatibleOrderStr-ℚ = record
-    { weaken-< = weaken-ℚ<
+    { convert-≮ = convert-ℚ≮
     }
 
 

@@ -156,7 +156,7 @@ module _ {D : Type ℓD}
   record CompatibleOrderStr : Type (ℓ-max (ℓ-max ℓ≤ ℓ<) ℓD) where
     no-eta-equality
     field
-      weaken-< : {d1 d2 : D} -> d1 < d2 -> d1 ≤ d2
+      convert-≮ : {d1 d2 : D} -> d1 ≮ d2 -> d2 ≤ d1
 
 
 module _ {D : Type ℓD} (L : LinearOrderStr D ℓ<) where
@@ -175,7 +175,7 @@ module _ {D : Type ℓD} (L : LinearOrderStr D ℓ<) where
 
   CompatibleNegatedLinearOrder : CompatibleOrderStr L NegatedLinearOrder
   CompatibleNegatedLinearOrder = record
-    { weaken-< = asym-<
+    { convert-≮ = \x -> x
     }
 
 
@@ -188,15 +188,12 @@ module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {
 
   open CompatibleOrderStr S public
 
+  weaken-< : {d1 d2 : D} -> d1 < d2 -> d1 ≤ d2
+  weaken-< d1<d2 = convert-≮ (asym-< d1<d2)
+
   abstract
     strengthen-≤-≮ : {d1 d2 : D} -> d1 ≤ d2 -> d1 ≮ d2 -> d1 == d2
-    strengthen-≤-≮ {d1} {d2} d1≤d2 d1≮d2 = connected-< d1≮d2 d2≮d1
-      where
-      d2≮d1 : d2 ≮ d1
-      d2≮d1 d2<d1 = irrefl-< (subst (_< d1) d2=d1 d2<d1)
-        where
-        d2=d1 : d2 == d1
-        d2=d1 = antisym-≤ (weaken-< d2<d1) d1≤d2
+    strengthen-≤-≮ {d1} {d2} d1≤d2 d1≮d2 = antisym-≤ d1≤d2 (convert-≮ d1≮d2)
 
     trans-<-≤ : {d1 d2 d3 : D} -> d1 < d2 -> d2 ≤ d3 -> d1 < d3
     trans-<-≤ {d1} {d2} {d3} d1<d2 d2≤d3 =

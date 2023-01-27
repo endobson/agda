@@ -493,7 +493,7 @@ private
           bot-elim (<->!= n>1 (sym ((subst (RelativelyPrime⁰ n) path rp) n div'-refl div'-refl)))
         i .fun ((i , (suc j , path)) , rp) = (suc i , (j , +'-right-suc >=> path)) , rp
         i .inv ((zero  , lt) , rp) = bot-elim (<->!= n>1 (sym (rp-zero (rp-sym rp))))
-        i .inv ((suc i , lt) , rp) = (i , weaken-< lt) , rp
+        i .inv ((suc i , lt) , rp) = (i , pred-≤ (right-suc-≤ lt)) , rp
         i .rightInv ((zero  , lt) , rp) = bot-elim (<->!= n>1 (sym (rp-zero (rp-sym rp))))
         i .rightInv ((suc i , (j , path)) , rp) =
           ΣProp-path isProp-RelativelyPrime⁰ (fin-i-path refl)

@@ -57,6 +57,9 @@ private
   ... | inj-l lt = inj-l (suc-≤ lt)
   ... | inj-r lt = inj-r (suc-≤ lt)
 
+  convert-ℕ≮ : {m n : Nat} -> ¬ (m ℕ< n) -> n ℕ≤ m
+  convert-ℕ≮ = proj-¬l (split-ℕ< _ _)
+
   connected-ℕ< : Connected _ℕ<_
   connected-ℕ< x≮y y≮x =
     antisym-ℕ≤ (proj-¬l (split-ℕ< _ _) y≮x) (proj-¬l (split-ℕ< _ _) x≮y)
@@ -98,7 +101,7 @@ instance
   CompatibleOrderStr-ℕ :
     CompatibleOrderStr LinearOrderStr-ℕ PartialOrderStr-ℕ
   CompatibleOrderStr-ℕ = record
-    { weaken-< = weaken-ℕ<
+    { convert-≮ = convert-ℕ≮
     }
 
 private
