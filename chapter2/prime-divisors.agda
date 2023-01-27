@@ -19,6 +19,8 @@ open import isomorphism
 open import nat
 open import nat.bounded
 open import nat.order
+open import order
+open import order.instances.nat
 open import prime
 open import prime-div-count
 open import prime-div-count.computational
@@ -130,15 +132,15 @@ PrimeDivisor-prime-power-eq p n⁺@(n , _) = isoToEquiv i
 isProp-PrimeDivCount : {p : Prime'} {a : Nat} {n : Nat} -> isProp (PrimeDivCount p a n)
 isProp-PrimeDivCount {p} {a} {n} dc1 dc2 = (\i -> record
   { %a = %a-path i
-  ; ¬p%r = ¬p%r-path i
+  ; upper-bound = upper-bound-path i
   })
   where
   p' = ⟨ p ⟩
   %a-path : (PrimeDivCount.%a dc1) == (PrimeDivCount.%a dc2)
   %a-path = isPropDiv' (a , (PrimeDivCount.a-pos dc1)) _ _
-  ¬p%r-path : PathP (\i -> ¬ (p' div' ⟨ %a-path i ⟩))
-                    (PrimeDivCount.¬p%r dc1) (PrimeDivCount.¬p%r dc2)
-  ¬p%r-path = isProp->PathP (\_ -> isProp¬ _)
+
+  upper-bound-path : Path _ (PrimeDivCount.upper-bound dc1) (PrimeDivCount.upper-bound dc2)
+  upper-bound-path = isPropΠ2 (\_ _ -> isProp-≤) _ _
 
 
 PrimePowerFactor : Nat -> Type₀
@@ -183,16 +185,6 @@ PrimePowerFactor-prime-power-eq p n⁺@(n , _) = isoToEquiv i
 module _ (a b : Nat) where
   module _ (rp : RelativelyPrime⁰ a b) where
     private
-
-
-      prime-div-count-zero : (p : Prime') {a : Nat} -> ¬ (⟨ p ⟩ div' a) -> PrimeDivCount p a 0
-      prime-div-count-zero p {a} ¬p%a = record
-        { %a = a , *'-right-one
-        ; ¬p%r = ¬p%a
-        }
-
-
-
       inner-eq : (pe : (Prime' × Nat⁺)) ->
                  (PrimeDivCount (proj₁ pe) (a *' b) (fst (proj₂ pe))) ≃
                  ((PrimeDivCount (proj₁ pe) a (fst (proj₂ pe))) ⊎
@@ -220,7 +212,7 @@ module _ (a b : Nat) where
             dc-a = compute-prime-div-count p a⁺
 
             dc-b : PrimeDivCount p b 0
-            dc-b = prime-div-count-zero p ¬p%b
+            dc-b = ¬div-prime-div-count ¬p%b
 
             path : fst dc-a == e
             path = sym (+'-right-zero) >=>
@@ -239,7 +231,7 @@ module _ (a b : Nat) where
             dc-b = compute-prime-div-count p b⁺
 
             dc-a : PrimeDivCount p a 0
-            dc-a = prime-div-count-zero p ¬p%a
+            dc-a = ¬div-prime-div-count ¬p%a
 
             path : fst dc-b == e
             path = prime-div-count-unique (*'-prime-div-count dc-a (snd dc-b)) dc
@@ -249,7 +241,7 @@ module _ (a b : Nat) where
         backward : ((PrimeDivCount p a e) ⊎ (PrimeDivCount p b e)) -> (PrimeDivCount p (a *' b) e)
         backward (inj-l dc) =
           transport (\i -> PrimeDivCount p (a *' b) (+'-right-zero {e} i))
-                    (*'-prime-div-count dc (prime-div-count-zero p ¬p%b))
+                    (*'-prime-div-count dc (¬div-prime-div-count ¬p%b))
           where
           p%a : p' div' a
           p%a = (div'-trans (prime-power-div p e⁺) (PrimeDivCount.%a dc))
@@ -257,7 +249,7 @@ module _ (a b : Nat) where
           ¬p%b : ¬ (p' div' b)
           ¬p%b p%b = Prime'.!=1 p (rp _ p%a p%b)
 
-        backward (inj-r dc) = (*'-prime-div-count (prime-div-count-zero p ¬p%a) dc)
+        backward (inj-r dc) = (*'-prime-div-count (¬div-prime-div-count ¬p%a) dc)
           where
           p%b : p' div' b
           p%b = (div'-trans (prime-power-div p e⁺) (PrimeDivCount.%a dc))

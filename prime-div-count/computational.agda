@@ -29,25 +29,15 @@ prime-div-count-proof p a = snd (compute-prime-div-count p a)
 
 div-prime-div-count : {a b : Nat⁺} -> a div⁺ b -> (p : Prime')
                       -> prime-div-count p a ≤ prime-div-count p b
-div-prime-div-count {a} {b} a%b p = handle (split-< nb na)
-  where
-  na = prime-div-count p a
-  nb = prime-div-count p b
-  handle : (nb < na ⊎ na ≤ nb) -> na ≤ nb
-  handle (inj-r lt) = lt
-  handle (inj-l lt) =
-    bot-elim (PrimeDivCount.¬p^sn%a (prime-div-count-proof p b)
-               (div'-trans (div'-trans (div'-^' lt) (PrimeDivCount.%a (prime-div-count-proof p a)))
-                            a%b))
+div-prime-div-count {a} {b} a%b p =
+  PrimeDivCount.upper-bound
+    (prime-div-count-proof p b)
+    (prime-div-count p a)
+    (div'-trans (PrimeDivCount.%a (prime-div-count-proof p a)) a%b)
 
 zero-prime-div-count : {a : Nat⁺} -> (p : Prime') -> ¬ (⟨ p ⟩ div' ⟨ a ⟩) -> prime-div-count p a == 0
-zero-prime-div-count {a} p d = prime-div-count-unique (prime-div-count-proof p a) zp
-  where
-  zp : PrimeDivCount⁺ p a 0
-  zp = record
-    { %a = div'-one
-    ; ¬p%r = d
-    }
+zero-prime-div-count {a} p d =
+  prime-div-count-unique (prime-div-count-proof p a) (¬div-prime-div-count d)
 
 suc-prime-div-count : {a : Nat⁺} -> (p : Prime') -> (d : ⟨ p ⟩ div' ⟨ a ⟩)
                       -> prime-div-count p a ==

@@ -2,6 +2,8 @@
 
 module prime-div-count where
 
+open import additive-group
+open import additive-group.instances.nat
 open import base
 open import div
 open import equality
@@ -28,6 +30,7 @@ record PrimeDivCount (p : Prime') (a : Nat) (n : Nat)  : Type₀ where
 
   field
     %a : (prime-power p n) div' a
+    upper-bound : ∀ m -> (prime-power p m) div' a -> m ≤ n
 
   r : Nat
   r = ⟨ %a ⟩
@@ -35,32 +38,77 @@ record PrimeDivCount (p : Prime') (a : Nat) (n : Nat)  : Type₀ where
   r-path : r *' (prime-power p n) == a
   r-path = snd %a
 
-  field
-    ¬p%r : ¬ (⟨ p ⟩ div' r)
-
-  ¬p^sn%a : ¬ (prime-power p (suc n) div' a)
-  ¬p^sn%a (x , x-path) = ¬p%r (x , path')
+  ¬p%r : ¬ (⟨ p ⟩ div' r)
+  ¬p%r (x , x-path) = irrefl-< (upper-bound (suc n) (x , x-path2))
     where
-    path' : (x *' p') == r
-    path' = *'-right-injective (prime-power⁺ p n) (*'-assoc {x} {p'} >=> x-path >=> sym r-path)
+    x-path2 : x * (prime-power p (suc n)) == a
+    x-path2 =
+      sym (*'-assoc {x}) >=>
+      cong (_* (prime-power p n)) x-path >=>
+      r-path
+
 
   a-pos : Pos' a
-  a-pos = handle r refl
+  a-pos = handle a refl
     where
-    handle : (x : Nat) -> (x == r) -> Pos' a
-    handle zero    path = bot-elim (¬p%r (transport (cong (p' div'_) path) div'-zero))
-    handle (suc x) path = transport (cong Pos' r-path)
-                                    (*'-Pos'-Pos' (transport (cong Pos' path) tt)
-                                                             (snd (prime-power⁺ p n)))
+    handle : (x : Nat) -> (x == a) -> Pos' a
+    handle zero    path =
+      bot-elim (irrefl-< (upper-bound (suc n) (0 , *-left-zeroᵉ (prime-power p (suc n)) >=> path)))
+    handle (suc x) path = subst Pos' path tt
+
+
 PrimeDivCount⁺ : Prime' -> Nat⁺ -> Nat -> Type₀
 PrimeDivCount⁺ p (a , _) n = PrimeDivCount p a n
+
+private
+  OldPrimeDivCount : {p : Prime'} {a : Nat} {n : Nat} ->
+                     (%a : (prime-power p n) div' a) ->
+                     (¬ (⟨ p ⟩ div' ⟨ %a ⟩ )) -> PrimeDivCount p a n
+  OldPrimeDivCount {p} %a ¬p%r = record
+    { %a = %a
+    ; upper-bound = prime-div-count-upper-bound p %a ¬p%r
+    }
+    where
+    prime-div-count-upper-bound : (p : Prime') {a : Nat} {n : Nat} ->
+                                  (%a : (prime-power p n) div' a) ->
+                                  (¬ (⟨ p ⟩ div' ⟨ %a ⟩ )) ->
+                                  (∀ m -> (prime-power p m) div' a -> m ≤ n)
+    prime-div-count-upper-bound p {a} {n} %a ¬p%r m (x , x-path) = convert-≮ n≮m
+      where
+      p' = ⟨ p ⟩
+
+      r : Nat
+      r = ⟨ %a ⟩
+
+      r-path : r *' (prime-power p n) == a
+      r-path = snd %a
+
+      n≮m : n ≮ m
+      n≮m (i , i-path) = ¬p%r ((x * prime-power p i) , sym r-path2)
+        where
+        m-path : m == suc (i + n)
+        m-path = sym i-path >=> +'-right-suc
+
+        a-path : a == (x * (prime-power p (suc i))) * (prime-power p n)
+        a-path =
+          sym x-path >=>
+          cong (x *_) (cong (prime-power p) m-path >=>
+                       ^'-distrib-power {p'} {suc i} {n}) >=>
+          sym (*'-assoc {x} {prime-power p (suc i)})
+
+        r-path2 : r == (x * prime-power p i) * p'
+        r-path2 = *'-right-injective (prime-power⁺ p n) (r-path >=> a-path) >=>
+                  cong (x *_) (*'-commute {p'} {prime-power p i}) >=>
+                  sym (*'-assoc {x} {prime-power p i})
+
+
 
 
 prime-div-count-suc : {p : Prime'} {n : Nat} {a : Nat}
   -> PrimeDivCount p a n -> PrimeDivCount p (⟨ p ⟩ *' a) (suc n)
 prime-div-count-suc {p@(p' , _)} {n} {a} dc = record
   { %a = dc.r , path
-  ; ¬p%r = dc.¬p%r
+  ; upper-bound = upper-bound'
   }
   where
   module dc = PrimeDivCount dc
@@ -71,6 +119,19 @@ prime-div-count-suc {p@(p' , _)} {n} {a} dc = record
          >=> (*'-assoc {p'} {dc.r})
          >=> (*'-right {p'} dc.r-path)
 
+  upper-bound' : ∀ m -> (prime-power p m) div' (p' * a) -> m ≤ (suc n)
+  upper-bound' zero _ = zero-≤
+  upper-bound' (suc m) (x , x-path) =
+    suc-≤ (dc.upper-bound m (x , *'-left-injective (Prime'.nat⁺ p) (sym x-path2 >=> x-path)))
+    where
+    x-path2 : x *' (prime-power p (suc m)) == p' * (x *' (prime-power p m))
+    x-path2 = sym (*'-assoc {x} {p'}) >=>
+              cong (_* (prime-power p m)) (*'-commute {x} {p'}) >=>
+              (*'-assoc {p'} {x})
+
+¬div-prime-div-count : {p : Prime'} {a : Nat} -> ¬ (⟨ p ⟩ div' a) -> PrimeDivCount p a 0
+¬div-prime-div-count {p} {a} ¬p%a = OldPrimeDivCount (a , *'-right-one) ¬p%a
+
 private
   compute-prime-div-count' : (p : Prime') (a : Nat⁺) (bound : Nat)
                              -> (⟨ a ⟩ < bound)
@@ -79,7 +140,7 @@ private
   compute-prime-div-count' p@(p' , _) a@(a' , a-pos) (suc bound) a<sbound = handle (decide-div p' a')
     where
     handle : Dec (p' div' a') -> Σ[ n ∈ Nat ] (PrimeDivCount p a' n)
-    handle (no ¬p%a) = 0 , record { %a = (a' , *'-right-one) ; ¬p%r = ¬p%a}
+    handle (no ¬p%a) = 0 , ¬div-prime-div-count ¬p%a
     handle (yes p%a) = (suc n) , dc'
       where
       b = fst p%a
@@ -111,77 +172,23 @@ compute-prime-div-count p a = compute-prime-div-count' p a (suc (fst a)) refl-�
 prime-div-count-unique : {p : Prime'} {a n1 n2 : Nat}
                          -> PrimeDivCount p a n1 -> PrimeDivCount p a n2
                          -> n1 == n2
-prime-div-count-unique {p} {a} {zero} {zero} dc1 dc2 = refl
-prime-div-count-unique {p} {a} {n1@(suc _)} {zero} dc1 dc2 =
-  bot-elim (PrimeDivCount.¬p^sn%a dc2 p%a)
-  where
-  p%a : (prime-power p 1) div' a
-  p%a = div'-trans (div'-^' {1} {n1} {⟨ p ⟩} (suc-≤ zero-≤)) (PrimeDivCount.%a dc1)
-prime-div-count-unique {p} {a} {zero} {n2@(suc _)} dc1 dc2 =
-  bot-elim (PrimeDivCount.¬p^sn%a dc1 p%a)
-  where
-  p%a : (prime-power p 1) div' a
-  p%a = div'-trans (div'-^' {1} {n2} {⟨ p ⟩} (suc-≤ zero-≤)) (PrimeDivCount.%a dc2)
-prime-div-count-unique {p} {a} {suc n1} {suc n2} dc1 dc2 = cong suc path
+prime-div-count-unique {p} {a} {n1} {n2} dc1 dc2 =
+  antisym-≤ (dc2.upper-bound n1 dc1.%a) (dc1.upper-bound n2 dc2.%a)
   where
   module dc1 = PrimeDivCount dc1
   module dc2 = PrimeDivCount dc2
-  p' = ⟨ p ⟩
-
-  p%a : p' div' a
-  p%a = (prime-power p n1) *' dc1.r ,
-        *'-commute {(prime-power p n1) *' dc1.r} {p'}
-        >=> sym (*'-assoc {p'} {prime-power p n1})
-        >=> *'-commute {prime-power p (suc n1)} {dc1.r}
-        >=> dc1.r-path
-
-  a' : Nat
-  a' = fst p%a
-
-  dc1' : PrimeDivCount p a' n1
-  dc1' = record
-    { %a = dc1.r , *'-left-injective (Prime'.nat⁺ p) path
-    ; ¬p%r = dc1.¬p%r
-    }
-    where
-    path : p' *' (dc1.r *' (prime-power p n1)) == p' *' a'
-    path = sym (*'-assoc {p'} {dc1.r})
-           >=> *'-left (*'-commute {p'} {dc1.r})
-           >=> (*'-assoc {dc1.r} {p'})
-           >=> dc1.r-path
-           >=> sym (snd p%a ) >=> *'-commute {a'} {p'}
-
-  dc2' : PrimeDivCount p a' n2
-  dc2' = record
-    { %a = dc2.r , *'-left-injective (Prime'.nat⁺ p) path
-    ; ¬p%r = dc2.¬p%r
-    }
-    where
-    path : p' *' (dc2.r *' (prime-power p n2)) == p' *' a'
-    path = sym (*'-assoc {p'} {dc2.r})
-           >=> *'-left (*'-commute {p'} {dc2.r})
-           >=> (*'-assoc {dc2.r} {p'})
-           >=> dc2.r-path
-           >=> sym (snd p%a ) >=> *'-commute {a'} {p'}
-
-  path : n1 == n2
-  path = prime-div-count-unique {p} {a'} dc1' dc2'
 
 prime-power-div-count : (p : Prime') (n : Nat) -> PrimeDivCount p (prime-power p n) n
-prime-power-div-count p n = record
-  { %a = div'-refl
-  ; ¬p%r = Prime'.¬%1 p
-  }
+prime-power-div-count p n = OldPrimeDivCount div'-refl (Prime'.¬%1 p)
+
 
 *'-prime-div-count : {a b : Nat}
   -> {p : Prime'}
   -> {na : Nat} (da : PrimeDivCount p a na)
   -> {nb : Nat} (db : PrimeDivCount p b nb)
   -> PrimeDivCount p (a *' b) (na +' nb)
-*'-prime-div-count {a} {b} {p} {na} da {nb} db = record
-  { %a = da.r *' db.r , path
-  ; ¬p%r = ¬p%r
-  }
+*'-prime-div-count {a} {b} {p} {na} da {nb} db =
+  OldPrimeDivCount (da.r *' db.r , path) ¬p%r
   where
   module da = PrimeDivCount da
   module db = PrimeDivCount db
@@ -224,11 +231,11 @@ gcd-prime-div-count : {a b d : Nat}
   -> {na : Nat} (da : PrimeDivCount p a na)
   -> {nb : Nat} (db : PrimeDivCount p b nb)
   -> PrimeDivCount p d (min na nb)
-gcd-prime-div-count {a} {b} {d} g p {na} da {nb} db = record
-  { %a = p^k%d
-  ; ¬p%r = ¬p%r
-  }
+gcd-prime-div-count {a} {b} {d} g p {na} da {nb} db =
+  OldPrimeDivCount p^k%d ¬p%r
   where
+  module da = PrimeDivCount da
+  module db = PrimeDivCount db
   k = min na nb
 
   p^k%a : (prime-power p k) div' a
@@ -254,12 +261,19 @@ gcd-prime-div-count {a} {b} {d} g p {na} da {nb} db = record
                  >=> r-path
 
     handle : ((k == na) ⊎ (k == nb)) -> Bot
-    handle (inj-l path) =
-      PrimeDivCount.¬p^sn%a da (transport (\i -> (prime-power p (suc (path i))) div' a)
-                                          (div'-trans p^sk%d (GCD'.%a g)))
-    handle (inj-r path) =
-      PrimeDivCount.¬p^sn%a db (transport (\i -> (prime-power p (suc (path i))) div' b)
-                                          (div'-trans p^sk%d (GCD'.%b g)))
+    handle (inj-l path) = irrefl-< (trans-<-= sk≤na (sym path))
+      where
+      p^sk%a : (prime-power p (suc k)) div' a
+      p^sk%a = (div'-trans p^sk%d (GCD'.%a g))
+      sk≤na : suc k ≤ na
+      sk≤na = da.upper-bound (suc k) p^sk%a
+    handle (inj-r path) = irrefl-< (trans-<-= sk≤nb (sym path))
+      where
+      p^sk%b : (prime-power p (suc k)) div' b
+      p^sk%b = (div'-trans p^sk%d (GCD'.%b g))
+      sk≤nb : suc k ≤ nb
+      sk≤nb = db.upper-bound (suc k) p^sk%b
+
 
 lcm-prime-div-count : {a b m : Nat}
   -> LCM' a b m
@@ -267,10 +281,8 @@ lcm-prime-div-count : {a b m : Nat}
   -> {na : Nat} (da : PrimeDivCount p a na)
   -> {nb : Nat} (db : PrimeDivCount p b nb)
   -> PrimeDivCount p m (max na nb)
-lcm-prime-div-count {a} {b} {m} l p {na} da {nb} db = record
-  { %a = p^k%m
-  ; ¬p%r = ¬p%r
-  }
+lcm-prime-div-count {a} {b} {m} l p {na} da {nb} db =
+  OldPrimeDivCount p^k%m ¬p%r
   where
   k = max na nb
 

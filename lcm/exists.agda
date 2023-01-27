@@ -38,7 +38,7 @@ private
     mc⁺ = mc , LCM'.m-pos lc c-pos b-pos
 
     dc-c : PrimeDivCount p c 0
-    dc-c = record { %a = div'-one ; ¬p%r = ¬p%c }
+    dc-c = ¬div-prime-div-count ¬p%c
 
     dc-m : PrimeDivCount p mc n-b
     dc-m = lcm-prime-div-count lc p dc-c dc-b
@@ -163,7 +163,7 @@ private
                     (*'-prime-div-count dc-w dc-pnc)
 
         dc-r : PrimeDivCount p r 0
-        dc-r = record { %a = div'-one ; ¬p%r = PrimeDivCount.¬p%r dc-m }
+        dc-r = ¬div-prime-div-count (PrimeDivCount.¬p%r dc-m)
 
         dc-x2 : PrimeDivCount p x n-z
         dc-x2 =

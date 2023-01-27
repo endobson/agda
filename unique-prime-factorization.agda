@@ -5,10 +5,10 @@ module unique-prime-factorization where
 open import base
 open import div
 open import equality
+open import gcd.computational
+open import gcd.propositional
 open import hlevel
 open import isomorphism
-open import gcd.propositional
-open import gcd.computational
 open import nat
 open import nat.order
 open import order
@@ -20,6 +20,8 @@ open import prime-factorization
 open import prime-gcd
 open import relation
 open import relatively-prime
+open import semiring
+open import semiring.instances.nat
 open import sigma.base
 open import univalence
 open import unordered-list
@@ -41,6 +43,13 @@ private
 
     d⁺ : Nat⁺
     d⁺ = d , d-pos
+
+    upper-bound : (k2 : Nat) -> ((d ^' k2) div' n) -> k2 ≤ k
+    upper-bound k2 d^k2%n = convert-≮ k≮k2
+      where
+      k≮k2 : k ≮ k2
+      k≮k2 sk≤k2 = ¬d^[suc-k]%n (div'-trans (div'-^' sk≤k2) d^k2%n)
+
 
   division-count-suc : {d n : Nat} -> DivisionCount d n -> DivisionCount d (d *' n)
   division-count-suc {d} {n} dc@(division-count d-pos n-pos k (x , pr) f) = record
@@ -443,28 +452,18 @@ prime-div-count->division-count {p} {a} {n} dc = record
   ; n-pos = (PrimeDivCount.a-pos dc)
   ; k = n
   ; d^k%n        = (PrimeDivCount.%a dc)
-  ; ¬d^[suc-k]%n = (PrimeDivCount.¬p^sn%a dc)
+  ; ¬d^[suc-k]%n = \dsk%n -> irrefl-< (PrimeDivCount.upper-bound dc _ dsk%n)
   }
 
 division-count->prime-div-count :
   {p : Prime'} {a : Nat} -> (dc : DivisionCount ⟨ p ⟩ a) -> PrimeDivCount p a (DivisionCount.k dc)
-division-count->prime-div-count {p} {a} dc = record
+division-count->prime-div-count dc = record
   { %a = dc.d^k%n
-  ; ¬p%r = ¬p%r
+  ; upper-bound = dc.upper-bound
   }
   where
   module dc = DivisionCount dc
-  p' = ⟨ p ⟩
 
-  r = fst dc.d^k%n
-  r-path : r *' (prime-power p dc.k) == a
-  r-path = snd dc.d^k%n
-
-  ¬p%r : ¬ (p' div' r)
-  ¬p%r (x , x-path) = dc.¬d^[suc-k]%n p^sk%a
-    where
-    p^sk%a : (prime-power p (suc dc.k)) div' a
-    p^sk%a = x , sym (*'-assoc {x} {p'}) >=> *'-left x-path >=> r-path
 
 
 same-division-count : (a b : Nat⁺) ->
