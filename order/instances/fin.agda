@@ -16,6 +16,9 @@ open import truncation
 data Fin< {n : Nat} (i j : Fin n) : Type ℓ-zero where
   fin< : (Fin.i i) < (Fin.i j) -> Fin< i j
 
+fin<⁻ : {n : Nat} {i j : Fin n} -> Fin< i j -> Fin.i i < Fin.i j
+fin<⁻ (fin< lt) = lt
+
 private
   isProp-Fin< : {n : Nat} {i j : Fin n} -> isProp (Fin< i j)
   isProp-Fin< (fin< lt1) (fin< lt2) i = fin< (isProp-< lt1 lt2 i)
