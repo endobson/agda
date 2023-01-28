@@ -57,26 +57,14 @@ module _ where
   path->iso : A == B -> Iso A B
   fun (path->iso p) = transport p
   inv (path->iso p) = transport (sym p)
-  rightInv (path->iso p) b = fixed-path
-    where
-    initial-path : PathP (\i -> (sym p >=> p) i) b (transport p (transport (sym p) b))
-    initial-path = transP (transport-filler (sym p) b) (transport-filler p (transport (sym p) b))
-
-    fixed-path : (transport p (transport (sym p) b)) == b
-    fixed-path = sym (transport (\j -> PathP (\i -> (compPath-sym (sym p)) j i)
-                                     b
-                                     (transport p (transport (sym p) b)))
-                                initial-path)
-  leftInv (path->iso p) a = fixed-path
-    where
-    initial-path : PathP (\i -> (p >=> sym p) i) a (transport (sym p) (transport p a))
-    initial-path = transP (transport-filler p a) (transport-filler (sym p) (transport p a))
-
-    fixed-path : (transport (sym p) (transport p a)) == a
-    fixed-path = sym (transport (\j -> PathP (\i -> (compPath-sym p) j i)
-                                       a
-                                       (transport (sym p) (transport p a)))
-                                initial-path)
+  rightInv (path->iso p) b =
+    transport-twice p (sym p) b >=>
+    cong (\p -> transport p b) (compPath-sym (sym p)) >=>
+    transportRefl b
+  leftInv (path->iso p) a =
+    transport-twice (sym p) p a >=>
+    cong (\p -> transport p a) (compPath-sym p) >=>
+    transportRefl a
 
 module _ (iso : Iso A B) where
   open Iso iso renaming

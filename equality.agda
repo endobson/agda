@@ -132,6 +132,11 @@ abstract
     transport (\k -> PathP (\j -> (compPath-refl-left (\k -> A k) k) j) a0 b1)
               (transP p q)
 
+  transP-mid : {A : I -> Type ℓ} {a0 : A i0} {b0 : A i0} {b1 : A i1} {a1 : A i1}
+               (p : Path (A i0) a0 b0) (q : PathP A b0 b1) (r : Path (A i1) b1 a1) ->
+               PathP A a0 a1
+  transP-mid p q r = transP-right p (transP-left q r)
+
 -- Path reversal on PathP
 abstract
   symP : {A : I -> Type ℓ} -> {a0 : A i0} {a1 : A i1} -> PathP A a0 a1 -> PathP (\k -> A (~ k)) a1 a0

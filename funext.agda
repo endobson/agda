@@ -90,4 +90,4 @@ module _ {ℓa ℓb ℓc : Level} {A : Type ℓa} {B : A -> Type ℓb} {C : Type
 
   abstract
     funExtDep : PathP (\k -> (p k) -> C) f1 f2
-    funExtDep = transP-left (transP-right (sym f-path-left) f-path-t) f-path-right
+    funExtDep = transP-mid (sym f-path-left) f-path-t f-path-right

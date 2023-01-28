@@ -89,7 +89,7 @@ decodeSquareℕ n = transP-right step1 step3
   step3 i = (ℕ->ΩS1 n) >=>' step2 i
 
 decodeSquareℕ2 : (n : ℕ) -> PathP (\i -> base == loop i) (sym (ℕ->ΩS1 (suc n))) (sym (ℕ->ΩS1 n))
-decodeSquareℕ2 n = transP-right step3 (transP-left step4 step1)
+decodeSquareℕ2 n = transP-mid step3 step4 step1
   where
   step1 : (sym (ℕ->ΩS1 n) >=>' refl) == sym (ℕ->ΩS1 n)
   step1 = (compPath'-refl-right (sym (ℕ->ΩS1 n)))
