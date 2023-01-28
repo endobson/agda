@@ -6,6 +6,8 @@ open import base
 open import nat
 open import nat.order
 open import order
+open import order.minmax
+open import order.minmax.instances.nat
 open import order.instances.nat
 open import relation
 open import truncation
@@ -44,8 +46,8 @@ module _ {D : Type ℓ} where
   n , (\ m n≤m -> f1 m (trans-≤ n1≤n n≤m) , f2 m (trans-≤ n2≤n n≤m))
   where
   n = max n1 n2
-  n1≤n = ≤-max-left
-  n2≤n = ≤-max-right
+  n1≤n = max-≤-left
+  n2≤n = max-≤-right
 
 ∀Largeℕ-∩ : {ℓ₁ ℓ₂ : Level} {P₁ : Pred ℕ ℓ₁} {P₂ : Pred ℕ ℓ₂} ->
              ∀Largeℕ P₁ -> ∀Largeℕ P₂ -> ∀Largeℕ (P₁ ∩ P₂)

@@ -23,6 +23,8 @@ open import integral-domain.instances.real
 open import nat
 open import nat.order
 open import order
+open import order.minmax
+open import order.minmax.instances.nat
 open import order.instances.nat
 open import order.instances.rational
 open import order.instances.real
@@ -378,8 +380,8 @@ private
       f : (n m : ℕ) -> n ≥ n₀ -> (partial-sums (drop n s1) m ≤ partial-sums (drop n s2) m) ×
                                  (partial-sums (drop n s2) m ≤ partial-sums (drop n s3) m)
       f n m n≥n₀ =
-        f12 n m (trans-≤ ≤-max-left n≥n₀) ,
-        f23 n m (trans-≤ ≤-max-right n≥n₀)
+        f12 n m (trans-≤ max-≤-left n≥n₀) ,
+        f23 n m (trans-≤ max-≤-right n≥n₀)
 
   εI : ℚ⁺ -> Iℚ
   εI (ε , 0<ε) = Iℚ-cons (- ε) ε (weaken-< (trans-< (minus-flips-0< 0<ε) 0<ε))
@@ -420,13 +422,13 @@ private
                    (diff (partial-sums s2 m₁) (partial-sums s2 m₂)) < ℚ->ℝ ⟨ ε ⟩
           f-ans2 m₁ m₂ m₁≥n m₂≥n (d , d+m₁=m₂) = lt2
             where
-            m₁≥n-ps = trans-≤ ≤-max-left m₁≥n
+            m₁≥n-ps = trans-≤ max-≤-left m₁≥n
             m₁≥n-13 : m₁ ≥ max n₀-1 n₀-3
-            m₁≥n-13 = (trans-≤ (≤-max-right {n₀-ps}) m₁≥n)
+            m₁≥n-13 = (trans-≤ max-≤-right m₁≥n)
             m₁≥n-1 : m₁ ≥ n₀-1
-            m₁≥n-1 = trans-≤ ≤-max-left m₁≥n-13
+            m₁≥n-1 = trans-≤ max-≤-left m₁≥n-13
             m₁≥n-3 : m₁ ≥ n₀-3
-            m₁≥n-3 = trans-≤ ≤-max-right m₁≥n-13
+            m₁≥n-3 = trans-≤ max-≤-right m₁≥n-13
             p0 : m₂ == m₁ + d
             p0 = sym d+m₁=m₂ >=> +'-commute {d} {m₁}
             p1 : (diff (partial-sums s2 m₁) (partial-sums s2 m₂)) == partial-sums (drop m₁ s2) d
@@ -441,13 +443,13 @@ private
                    (- ℚ->ℝ ⟨ ε ⟩) < (diff (partial-sums s2 m₁) (partial-sums s2 m₂))
           f-ans3 m₁ m₂ m₁≥n m₂≥n (d , d+m₁=m₂) = lt2
             where
-            m₁≥n-ps = trans-≤ ≤-max-left m₁≥n
+            m₁≥n-ps = trans-≤ max-≤-left m₁≥n
             m₁≥n-13 : m₁ ≥ max n₀-1 n₀-3
-            m₁≥n-13 = (trans-≤ (≤-max-right {n₀-ps}) m₁≥n)
+            m₁≥n-13 = (trans-≤ max-≤-right m₁≥n)
             m₁≥n-1 : m₁ ≥ n₀-1
-            m₁≥n-1 = trans-≤ ≤-max-left m₁≥n-13
+            m₁≥n-1 = trans-≤ max-≤-left m₁≥n-13
             m₁≥n-3 : m₁ ≥ n₀-3
-            m₁≥n-3 = trans-≤ ≤-max-right m₁≥n-13
+            m₁≥n-3 = trans-≤ max-≤-right m₁≥n-13
             p0 : m₂ == m₁ + d
             p0 = sym d+m₁=m₂ >=> +'-commute {d} {m₁}
             p1 : (diff (partial-sums s2 m₁) (partial-sums s2 m₂)) == partial-sums (drop m₁ s2) d

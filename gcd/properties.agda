@@ -11,6 +11,10 @@ open import gcd.computational
 open import lcm
 open import lcm.exists
 open import nat
+open import order.minmax
+open import order.minmax.instances.nat
+open import ordered-semiring.instances.nat
+open import ordered-semiring.minmax
 open import prime
 open import prime-div-count
 open import prime-div-count.computational
@@ -40,7 +44,7 @@ private
                      -> PrimeDivCount p ⟨ right ⟩ dr
                      -> dl == dr
     same-div-count p {dl} {dr} l-dc r-dc =
-      dl-path >=> sum==min-max na nb >=> (+'-commute {min na nb} {max na nb}) >=> sym dr-path
+      dl-path >=> (sym min+max=sum) >=> (+'-commute {min na nb} {max na nb}) >=> sym dr-path
       where
       Σa-dc : Σ[ n ∈ Nat ] (PrimeDivCount p a' n)
       Σa-dc = compute-prime-div-count p a
@@ -103,7 +107,7 @@ lcm-distrib-gcd⁺ a b c = prime-same-division-count⁺ x y f
       max (ρ a) (ρ (gcd⁺ b c))
     ==< cong (max (ρ a)) (gcd-prime-div-count⁺ p b c) >
       max (ρ a) (min (ρ b) (ρ c))
-    ==< max-distrib-min (ρ a) (ρ b) (ρ c) >
+    ==< max-distrib-min >
       min (max (ρ a) (ρ b)) (max (ρ a) (ρ c))
     ==< (\i -> (min (lcm-prime-div-count⁺ p a b (~ i)) (lcm-prime-div-count⁺ p a c (~ i)))) >
       min (ρ (lcm⁺ a b)) (ρ (lcm⁺ a c))
@@ -127,7 +131,7 @@ gcd-distrib-lcm⁺ a b c = prime-same-division-count⁺ x y f
       min (ρ a) (ρ (lcm⁺ b c))
     ==< cong (min (ρ a)) (lcm-prime-div-count⁺ p b c) >
       min (ρ a) (max (ρ b) (ρ c))
-    ==< min-distrib-max (ρ a) (ρ b) (ρ c) >
+    ==< min-distrib-max >
       max (min (ρ a) (ρ b)) (min (ρ a) (ρ c))
     ==< (\i -> (max (gcd-prime-div-count⁺ p a b (~ i)) (gcd-prime-div-count⁺ p a c (~ i)))) >
       max (ρ (gcd⁺ a b)) (ρ (gcd⁺ a c))

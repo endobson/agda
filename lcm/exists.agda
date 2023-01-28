@@ -9,6 +9,8 @@ open import lcm
 open import nat
 open import nat.order
 open import order
+open import order.minmax
+open import order.minmax.instances.nat
 open import order.instances.nat
 open import prime-power-factorization
 open import prime-div-count
@@ -24,7 +26,7 @@ private
                       -> LCM' ⟨ c ⟩ ⟨ b ⟩ m
                       -> Σ[ m ∈ Nat ] (LCM' ((prime-power p ⟨ n ⟩) *' ⟨ c ⟩) ⟨ b ⟩ m)
   lcm-exists-helper {mc} p@(p' , _) n@(n' , _) c⁺@(c , c-pos) ¬p%c b@(b' , b-pos) lc =
-    handle (split-max n' n-b)
+    handle split-max
     where
 
     Σdc-b : Σ[ n ∈ Nat ] (PrimeDivCount p b' n)
@@ -41,7 +43,8 @@ private
     dc-c = ¬div-prime-div-count ¬p%c
 
     dc-m : PrimeDivCount p mc n-b
-    dc-m = lcm-prime-div-count lc p dc-c dc-b
+    dc-m = subst (PrimeDivCount p mc) (max-≤-path zero-≤)
+                 (lcm-prime-div-count lc p dc-c dc-b)
 
     handle : ((max n' n-b) == n') ⊎ ((max n' n-b) == n-b)
              -> Σ[ m ∈ Nat ] (LCM' ((prime-power p n') *' c) ⟨ b ⟩ m)
@@ -105,7 +108,7 @@ private
         mc%nb-r : mc div' ((prime-power p n-b) *' r)
         mc%nb-r = 1 , *'-left-one >=> (sym r-path) >=> *'-commute {r} {prime-power p n-b}
         n-b≤n' : n-b ≤ n'
-        n-b≤n' = transport (\i -> n-b ≤ n-path i) (≤-max-right {n'} {n-b})
+        n-b≤n' = transport (\i -> n-b ≤ n-path i) max-≤-right
 
 
         pp-r-div : ((prime-power p n-b) *' r) div' ((prime-power p n') *' r)
@@ -224,7 +227,7 @@ private
         p^n%y : (prime-power p n') div' y
         p^n%y =
           div'-trans (transport (\i -> (prime-power p n') div' (prime-power p (path i)))
-                               (div'-^' (≤-max-left {n'})))
+                                (div'-^' max-≤-left))
                      (PrimeDivCount.%a dc-y)
           where
           path : (max n' n-b) == n-y

@@ -10,6 +10,8 @@ open import hlevel
 open import nat
 open import nat.order
 open import order
+open import order.minmax
+open import order.minmax.instances.nat
 open import order.instances.nat
 open import order.instances.real
 open import ordered-ring
@@ -229,9 +231,9 @@ module _
         n = max n1 n2
         module sn = Real (s n)
         n≥n1 : n ≥ n1
-        n≥n1 = ≤-max-left
+        n≥n1 = max-≤-left
         n≥n2 : n ≥ n2
-        n≥n2 = ≤-max-right
+        n≥n2 = max-≤-right
         q<q+ε1 : q < (q + ε1)
         q<q+ε1 = trans-=-< (sym +-right-zero) (+₁-preserves-< 0<ε1)
         q-ε2<q = trans-<-= (+₁-preserves-< (minus-flips-0< 0<ε2)) +-right-zero

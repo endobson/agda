@@ -8,6 +8,8 @@ open import equality
 open import nat
 open import nat.order
 open import order
+open import order.minmax
+open import order.minmax.instances.nat
 open import order.instances.nat
 open import prime
 open import prime-div-count

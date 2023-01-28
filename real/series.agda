@@ -20,6 +20,8 @@ open import heyting-field
 open import nat
 open import nat.order
 open import order
+open import order.minmax
+open import order.minmax.instances.nat
 open import integral-domain.instances.real
 open import order.instances.nat
 open import order.instances.rational
@@ -111,8 +113,8 @@ isProp-isConvergentSeries = isProp-isConvergentSequence
                                                                  (f2 m (trans-≤ n2≤n m≥n)))) ∣
         where
         n = max n1 n2
-        n1≤n = ≤-max-left
-        n2≤n = ≤-max-right
+        n1≤n = max-≤-left
+        n2≤n = max-≤-right
 
 isLimit-constant-seq : (x : ℝ) -> isLimit (constant-seq x) x
 isLimit-constant-seq x = 

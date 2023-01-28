@@ -5,6 +5,8 @@ module nat.binary-strong-induction where
 open import base
 open import nat
 open import nat.order
+open import order.minmax
+open import order.minmax.instances.nat
 open import order
 open import order.instances.nat
 open import relation
@@ -180,7 +182,7 @@ module _ {P : Nat -> Nat -> Type ℓ}
       rec a2<b b2<b = sym-induction≤ y' (pred-≤ (trans-<-≤ a2<b b≤y)) (pred-≤ (trans-<-≤ b2<b b≤y))
 
   sym-binary-strong-induction : (x y : Nat) -> P x y
-  sym-binary-strong-induction x y = sym-induction≤ (max x y) ≤-max-left ≤-max-right
+  sym-binary-strong-induction x y = sym-induction≤ (max x y) max-≤-left max-≤-right
 
 
 module _ {P : Nat⁺ -> Nat⁺ -> Type ℓ}

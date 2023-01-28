@@ -172,50 +172,6 @@ Iso.leftInv  <-minus-iso _ = ΣProp-path (isSetNat _ _) refl
 <-minus-path : {m n p : Nat} -> ((m +' n) < p) == (m < (p -' n))
 <-minus-path = ua (isoToEquiv <-minus-iso)
 
--- ≤ and max/min
-
-≤-min-left : {m n : Nat} -> (min m n) ≤ m
-≤-min-left {zero}  {n}     = zero-≤
-≤-min-left {suc _} {zero}  = zero-≤
-≤-min-left {suc m} {suc n} = suc-≤ ≤-min-left
-
-≤-min-right : {m n : Nat} -> (min m n) ≤ n
-≤-min-right {zero}  {n}     = zero-≤
-≤-min-right {suc _} {zero}  = zero-≤
-≤-min-right {suc m} {suc n} = suc-≤ ≤-min-right
-
-≤-max-left : {m n : Nat} -> m ≤ (max m n)
-≤-max-left {zero}  {n}     = zero-≤
-≤-max-left {suc m} {zero}  = refl-≤
-≤-max-left {suc m} {suc n} = suc-≤ ≤-max-left
-
-≤-max-right : {m n : Nat} -> n ≤ (max m n)
-≤-max-right {zero}  {n}     = refl-≤
-≤-max-right {suc _} {zero}  = zero-≤
-≤-max-right {suc m} {suc n} = suc-≤ ≤-max-right
-
-≤-min-greatest : {m n x : Nat} -> x ≤ m -> x ≤ n -> x ≤ (min m n)
-≤-min-greatest {m}     {n}     {zero} x≤m x≤n = zero-≤
-≤-min-greatest {zero}  {n}     {suc x} x≤m x≤n = x≤m
-≤-min-greatest {suc _} {zero}  {suc x} x≤m x≤n = x≤n
-≤-min-greatest {suc m} {suc n} {suc x} x≤m x≤n =
-  suc-≤ (≤-min-greatest {m} {n} {x} (pred-≤ x≤m) (pred-≤ x≤n))
-
-≤-max-least : {m n x : Nat} -> m ≤ x -> n ≤ x -> (max m n) ≤ x
-≤-max-least {zero}  {n}     {x} m≤x n≤x = n≤x
-≤-max-least {suc _} {zero}  {x} m≤x n≤x = m≤x
-≤-max-least {suc m} {suc n} {zero}  m≤x n≤x = bot-elim (zero-≮ m≤x)
-≤-max-least {suc m} {suc n} {suc x} m≤x n≤x =
-  suc-≤ (≤-max-least {m} {n} {x} (pred-≤ m≤x) (pred-≤ n≤x))
-
-
-max-monotonic-≤ : {a b c d : Nat} -> a ≤ b -> c ≤ d -> max a c ≤ max b d
-max-monotonic-≤ a≤b c≤d = ≤-max-least a≤bd c≤bd
-  where
-  a≤bd = trans-≤ a≤b ≤-max-left
-  c≤bd = trans-≤ c≤d ≤-max-right
-
--- max-monotonic-≤ a1 a2 a1≤a2=
 
 -- Flipped ≤
 

@@ -12,6 +12,8 @@ open import lcm
 open import nat
 open import nat.order
 open import order
+open import order.minmax
+open import order.minmax.instances.nat
 open import order.instances.nat
 open import ordered-semiring
 open import ordered-semiring.instances.nat
@@ -259,16 +261,16 @@ gcd-prime-div-count {a} {b} {d} g p {na} da {nb} db =
   k = min na nb
 
   p^k%a : (prime-power p k) div' a
-  p^k%a = div'-trans (div'-^' (≤-min-left {na} {nb})) (PrimeDivCount.%a da)
+  p^k%a = div'-trans (div'-^' min-≤-left) (PrimeDivCount.%a da)
   p^k%b : (prime-power p k) div' b
-  p^k%b = div'-trans (div'-^' (≤-min-right {na} {nb})) (PrimeDivCount.%a db)
+  p^k%b = div'-trans (div'-^' min-≤-right) (PrimeDivCount.%a db)
 
   p^k%d : (prime-power p k) div' d
   p^k%d = (GCD'.f g (prime-power p k) p^k%a p^k%b)
 
   upper-bound : (m : Nat) -> (prime-power p m) div' d -> m ≤ (min na nb)
   upper-bound m pm%d =
-    ≤-min-greatest
+    min-greatest-≤
       (da.upper-bound m (div'-trans pm%d (GCD'.%a g)))
       (db.upper-bound m (div'-trans pm%d (GCD'.%b g)))
 
@@ -288,7 +290,7 @@ lcm-prime-div-count {a} {b} {m} l p {na} da {nb} db =
   m-pos = LCM'.m-pos l (PrimeDivCount.a-pos da) (PrimeDivCount.a-pos db)
 
   p^k%m : (prime-power p k) div' m
-  p^k%m = handle (split-max na nb)
+  p^k%m = handle split-max
     where
     handle : ((k == na) ⊎ (k == nb)) -> (prime-power p k) div' m
     handle (inj-l path) = div'-trans (transport (\i -> (prime-power p (path (~ i))) div' a)
@@ -322,5 +324,5 @@ lcm-prime-div-count {a} {b} {m} l p {na} da {nb} db =
   upper-bound n pn%m = handle dcs
     where
     handle : PrimeDivCount p m na ⊎ PrimeDivCount p m nb -> n ≤ (max na nb)
-    handle (inj-l dc) = trans-≤ (PrimeDivCount.upper-bound dc n pn%m) ≤-max-left
-    handle (inj-r dc) = trans-≤ (PrimeDivCount.upper-bound dc n pn%m) ≤-max-right
+    handle (inj-l dc) = trans-≤ (PrimeDivCount.upper-bound dc n pn%m) max-≤-left
+    handle (inj-r dc) = trans-≤ (PrimeDivCount.upper-bound dc n pn%m) max-≤-right

@@ -14,6 +14,8 @@ open import list
 open import nat
 open import nat.order
 open import order
+open import order.minmax
+open import order.minmax.instances.nat
 open import order.instances.nat
 open import relation
 open import sum
@@ -332,20 +334,20 @@ computeFreshBoundOfRenaming (m , _) = handle m
         where
         lt : v < v
         lt = (trans-<-≤
-               (suc-≤ ≤-max-right)
-               (trans-≤ (≤-max-left {suc (max k v)} {fst rec}) (trans-≤ ans≤a (path-≤ vp))))
+               (suc-≤ max-≤-right)
+               (trans-≤ max-≤-left (trans-≤ ans≤a (path-≤ vp))))
       case-k (k , has-kv-skip _ _ hkv) =
-        fst ((snd rec) a (trans-≤ ≤-max-right ans≤a)) (k , hkv)
+        fst ((snd rec) a (trans-≤ max-≤-right ans≤a)) (k , hkv)
 
       case-v : ¬ (Σ[ v ∈ Atom ] (HasKV' a v fm))
       case-v (_ , has-kv-here kp vp _) = irrefl-< lt
         where
         lt : k < k
         lt = (trans-<-≤
-               (suc-≤ ≤-max-left)
-               (trans-≤ (≤-max-left {suc (max k v)} {fst rec}) (trans-≤ ans≤a (path-≤ kp))))
+               (suc-≤ max-≤-left)
+               (trans-≤ max-≤-left (trans-≤ ans≤a (path-≤ kp))))
       case-v (v , has-kv-skip _ _ hkv) =
-        snd ((snd rec) a (trans-≤ ≤-max-right ans≤a)) (v , hkv)
+        snd ((snd rec) a (trans-≤ max-≤-right ans≤a)) (v , hkv)
 
 renaming-union : (r1 r2 : Renaming) -> CompatibleRenamings r1 r2 ->
                  Σ[ r3 ∈ Renaming ] (RenamingUnion r1 r2 r3)
