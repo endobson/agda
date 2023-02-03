@@ -3,6 +3,7 @@
 module order.instances.fint where
 
 open import base
+open import equality
 open import fin-algebra
 open import functions
 open import hlevel.base
@@ -53,4 +54,24 @@ instance
     ; trans-< = trans-FinT<
     ; connected-< = connected-FinT<
     ; comparison-< = comparison-FinT<
+    }
+
+private
+  trichotomous-FinT< : {n : Nat} -> Trichotomous (FinT< {n})
+  trichotomous-FinT< {zero} ()
+  trichotomous-FinT< {suc n} (inj-l _) (inj-l _) = tri=' refl
+  trichotomous-FinT< {suc n} (inj-l _) (inj-r _) = tri<' finT<-lr
+  trichotomous-FinT< {suc n} (inj-r _) (inj-l _) = tri>' finT<-lr
+  trichotomous-FinT< {suc n} (inj-r i) (inj-r j) = handle (trichotomous-FinT< i j)
+    where
+    handle : Tri< i j -> Tri< (inj-r i) (inj-r j)
+    handle (tri< i<j _ _) = tri<' (finT<-rr i<j)
+    handle (tri= _ i=j _) = tri=' (cong inj-r i=j)
+    handle (tri> _ _ j<i) = tri>' (finT<-rr j<i)
+
+instance
+  DecidableLinearOrderStr-FinT :
+    {n : Nat} -> DecidableLinearOrderStr (LinearOrderStr-FinT {n})
+  DecidableLinearOrderStr-FinT = record
+    { trichotomous-< = trichotomous-FinT<
     }
