@@ -546,8 +546,8 @@ Top-Fun A = ua (isoToEquiv i)
   i .rightInv (lift ())
   i .leftInv _ = squash _ _
 
-∥-Prop : {A : Type ℓ} -> isProp A -> ∥ A ∥ == A
-∥-Prop {A = A} isPropA = ua (isoToEquiv i)
+∥-Prop-eq : {A : Type ℓ} -> isProp A -> ∥ A ∥ ≃ A
+∥-Prop-eq {A = A} isPropA = (isoToEquiv i)
   where
   forward : ∥ A ∥ -> A
   forward ∣ a ∣ = a
@@ -558,6 +558,9 @@ Top-Fun A = ua (isoToEquiv i)
   i .inv a = ∣ a ∣
   i .rightInv _ = isPropA _ _
   i .leftInv _ = squash _ _
+
+∥-Prop : {A : Type ℓ} -> isProp A -> ∥ A ∥ == A
+∥-Prop {A = A} isPropA = ua (∥-Prop-eq isPropA)
 
 ∥-eq : {A : Type ℓ₁} {B : Type ℓ₂} -> A ≃ B -> ∥ A ∥ ≃ ∥ B ∥
 ∥-eq {A = A} {B} eq = (isoToEquiv i)
