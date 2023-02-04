@@ -141,8 +141,8 @@ instance
   i .leftInv (inj-l (lift ()))
 
 
-⊎-flip : {A : Type ℓ₁} {B : Type ℓ₂} -> (A ⊎ B) == (B ⊎ A)
-⊎-flip {A = A} {B} = ua (isoToEquiv i)
+⊎-flip-eq : {A : Type ℓ₁} {B : Type ℓ₂} -> (A ⊎ B) ≃ (B ⊎ A)
+⊎-flip-eq {A = A} {B} = (isoToEquiv i)
   where
   i : Iso (A ⊎ B) (B ⊎ A)
   i .fun (inj-l a) = inj-r a
@@ -153,6 +153,9 @@ instance
   i .rightInv (inj-r _) = refl
   i .leftInv  (inj-l _) = refl
   i .leftInv  (inj-r _) = refl
+
+⊎-flip : {A : Type ℓ₁} {B : Type ℓ₂} -> (A ⊎ B) == (B ⊎ A)
+⊎-flip {A = A} {B} = ua ⊎-flip-eq
 
 ⊎-Top-eq : (Top ⊎ A) ≃ Maybe A
 ⊎-Top-eq = isoToEquiv i
@@ -570,6 +573,22 @@ Top-Fun A = ua (isoToEquiv i)
   i .inv = ∥-map (eqInv eq)
   i .rightInv _ = squash _ _
   i .leftInv _ = squash _ _
+
+
+∥-⊎-left-eq : {A : Type ℓ₁} {B : Type ℓ₂}  -> (∥ (∥ A ∥) ⊎ B ∥) ≃ (∥ A ⊎ B ∥)
+∥-⊎-left-eq = isoToEquiv (isProp->iso (∥-bind forward) (∥-map backward) squash squash)
+  where
+  forward : (∥ A ∥) ⊎ B -> (∥ A ⊎ B ∥)
+  forward (inj-l a) = ∥-map inj-l a
+  forward (inj-r b) = ∣ inj-r b ∣
+
+  backward : (A ⊎ B) -> (∥ A ∥) ⊎ B
+  backward (inj-l a) = inj-l ∣ a ∣
+  backward (inj-r b) = inj-r b
+
+
+∥-⊎-right-eq : {A : Type ℓ₁} {B : Type ℓ₂}  -> (∥ A ⊎ (∥ B ∥) ∥) ≃ (∥ A ⊎ B ∥)
+∥-⊎-right-eq = ∥-eq ⊎-flip-eq >eq> ∥-⊎-left-eq >eq> ∥-eq ⊎-flip-eq
 
 
 Σ-distrib-⊎ : {A : Type ℓ₁} {B : A -> Type ℓ₂} {C : A -> Type ℓ₃} ->
