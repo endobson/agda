@@ -7,12 +7,14 @@ open import equality
 open import equivalence
 open import fin
 open import functions
+open import funext
 open import isomorphism
 open import maybe
 open import nat
 open import nat.order
 open import order
 open import order.instances.nat
+open import sum
 open import type-algebra
 open import univalence
 open import vec
@@ -155,10 +157,9 @@ FinT=Fin : (n : Nat) -> FinT n == Fin n
 FinT=Fin zero = sym Fin-Bot
 FinT=Fin (suc n) = cong (Top ⊎_) (FinT=Fin n) >=> sym (Fin-suc-⊎ n)
 
+FinT≃Fin : (n : Nat) -> FinT n ≃ Fin n
+FinT≃Fin zero = equiv⁻¹ Fin-Bot-eq
+FinT≃Fin (suc n) = ⊎-equiv (idEquiv Top) (FinT≃Fin n) >eq> equiv⁻¹ (Fin-suc-⊎-eq n)
 
---Fin-suc-Σ-eq : {n : Nat} -> {A : Fin (suc n) -> Type ℓ} ->
---            Σ (Fin (suc n)) A ≃ (A zero-fin ⊎ Σ (Fin n) (A ∘ suc-fin))
---Fin-suc-Σ-eq = isoToEquiv i
---  where
---  i : Iso (Σ (Fin (suc n)) A) (A zero-fin ⊎ Σ (Fin n) (A ∘ suc-fin))
---  i .fun (
+FinT-injective : Injective FinT
+FinT-injective = subst Injective (sym (funExt FinT=Fin)) Fin-injective
