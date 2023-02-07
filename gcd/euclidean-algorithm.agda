@@ -106,13 +106,15 @@ abstract
 
 -- GCD and linear combos convertible
 
-gcd'->linear-combo : {a b d : Nat} -> GCD' a b d -> LinearCombination' a b d
-gcd'->linear-combo {a} {b} {d} gcd-d =
-  transport (\i -> LinearCombination' a b ((gcd'-unique gcd-d' gcd-d) i)) lc
-  where
-  t = compute-euclidean-tree a b
-  lc = root-linear-combo t
-  gcd-d' = euclidean-tree->gcd t
+abstract
+  gcd'->linear-combo : {a b d : Nat} -> GCD' a b d -> LinearCombination' a b d
+  gcd'->linear-combo {a} {b} {d} gcd-d =
+    transport (\i -> LinearCombination' a b ((gcd'-unique gcd-d' gcd-d) i)) lc
+    where
+    module _ where
+      t = compute-euclidean-tree a b
+      lc = root-linear-combo t
+      gcd-d' = euclidean-tree->gcd t
 
 gcd->linear-combo : {a b d : Int} -> GCD a b d -> LinearCombination a b d
 gcd->linear-combo g = linear-combo-unabs _ _ _ (gcd'->linear-combo (gcd->gcd' g))
