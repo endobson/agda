@@ -9,11 +9,13 @@ open import hlevel
 open import isomorphism
 open import order
 open import order.instances.rational
-open import ordered-semiring
+open import order.minmax
+open import order.minmax.instances.rational
 open import ordered-ring
+open import ordered-semiring
 open import rational
-open import rational.order
 open import rational.minmax
+open import rational.order
 open import rational.proper-interval
 open import real
 open import real.order
@@ -157,7 +159,7 @@ private
     where
     dl = (diff l2 l1)
     du = (diff u1 u2)
-    ε = minℚ dl du
+    ε = min dl du
     0<dl : 0# < dl
     0<dl = trans-=-< (sym +-inverse) (+₂-preserves-< l2<l1)
     0<du : 0# < du
@@ -175,12 +177,12 @@ private
         where
         -dl≤-w : (diff l1 l2) ≤ -w
         -dl≤-w = subst2 _≤_ (sym diff-anticommute) (sym diff-anticommute)
-                        (minus-flips-≤ (trans-≤ w≤ε (minℚ-≤-left dl du)))
+                        (minus-flips-≤ (trans-≤ w≤ε min-≤-left))
       u3≤u2 : u3 ≤ u2
       u3≤u2 = subst2 _≤_ diff-step diff-step (+-preserves-≤ l3≤u1 w≤du)
         where
         w≤du : w ≤ du
-        w≤du = trans-≤ w≤ε (minℚ-≤-right dl du)
+        w≤du = trans-≤ w≤ε min-≤-right
 
 
 overlapping-ℝ∈Iℚs->path :

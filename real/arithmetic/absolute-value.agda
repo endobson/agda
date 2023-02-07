@@ -13,14 +13,16 @@ open import isomorphism
 open import order
 open import order.instances.rational
 open import order.instances.real
+open import order.minmax
+open import order.minmax.instances.rational
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import rational
+open import rational.minmax
 open import rational.proper-interval
 open import rational.proper-interval.abs
-open import rational.minmax
 open import rational.order using
  ( ℚ⁻
  ; ℚ⁺
@@ -295,7 +297,7 @@ abstract
           r2<q : r2 < q
           r2<q = subst2 _<_ +-right-zero diff-path (+₁-preserves-< (minus-flips-<0 r1<0))
 
-          s = maxℚ (- r1) r2
+          s = max (- r1) r2
           s<q : s < q
           s<q = maxℚ-property (- r1) r2 -r1<q r2<q
 
@@ -303,11 +305,11 @@ abstract
           xl--s = isLowerSet≤ x (- s) r1 lt xl-r1
             where
             lt : (- s) ≤ r1
-            lt = subst (_≤ r1) (sym (r--maxℚ (- r1) r2 >=> (cong2 minℚ minus-double-inverse refl)))
-                                (minℚ-≤-left r1 (- r2))
+            lt = subst (_≤ r1) (sym (r--maxℚ (- r1) r2 >=> (cong2 min minus-double-inverse refl)))
+                               min-≤-left
 
           xu-s : x.U s
-          xu-s = isUpperSet≤ x r2 s (maxℚ-≤-right (- r1) r2) xu-r2
+          xu-s = isUpperSet≤ x r2 s max-≤-right xu-r2
 
   absℝ-- : (x : ℝ) -> absℝ (- x) == absℝ x
   absℝ-- x = cong absℝ (ℝ--eval {x}) >=> LU-paths->path amx ax L-path U-path
@@ -395,38 +397,38 @@ abstract
       module x = Real x
       ax = (absℝ x)
       module ax = Real ax
-    axl-l0 : ax.L (maxℚ l 0r)
+    axl-l0 : ax.L (max l 0r)
     axl-l0 = handle (split-< l 0r)
       where
-      handle : (l < 0r) ⊎ (0r ≤ l) -> ax.L (maxℚ l 0r)
-      handle (inj-r 0≤l) = ∣ inj-l (subst x.L (sym (maxℚ-left l 0r 0≤l)) xl-l) ∣
+      handle : (l < 0r) ⊎ (0r ≤ l) -> ax.L (max l 0r)
+      handle (inj-r 0≤l) = ∣ inj-l (subst x.L (sym (max-≥-path 0≤l)) xl-l) ∣
       handle (inj-l l<0) = handle2 (split-< 0r u)
         where
-        l0=0 : (maxℚ l 0r) == 0r
-        l0=0 = maxℚ-right l 0r (weaken-< l<0)
+        l0=0 : (max l 0r) == 0r
+        l0=0 = max-<-path l<0
 
-        handle2 : (0r < u) ⊎ (u ≤ 0r) -> ax.L (maxℚ l 0r)
-        handle2 (inj-r u≤0) = isLowerSet≤ ax (maxℚ l 0r) (- u) l0≤-u axl--u
+        handle2 : (0r < u) ⊎ (u ≤ 0r) -> ax.L (max l 0r)
+        handle2 (inj-r u≤0) = isLowerSet≤ ax (max l 0r) (- u) l0≤-u axl--u
           where
           module _ where
-            l0≤-u : (maxℚ l 0r) ≤ (- u)
+            l0≤-u : (max l 0r) ≤ (- u)
             l0≤-u = subst (_≤ (- u)) (sym l0=0) (minus-flips-≤0 u≤0)
 
           axl--u : ax.L (- u)
           axl--u = ∣ inj-r (subst x.U (sym minus-double-inverse) xu-u) ∣
         handle2 (inj-l 0<u) = bot-elim (¬scz (<0-Neg l l<0 , 0<-Pos u 0<u))
 
-    axu--lu : ax.U (maxℚ (- l) u)
+    axu--lu : ax.U (max (- l) u)
     axu--lu = subst x.L (sym p) xl-l-u , xu--lu
       where
-      xu--lu : x.U (maxℚ (- l) u)
-      xu--lu = isUpperSet≤ x u (maxℚ (- l) u) (maxℚ-≤-right (- l) u) xu-u
+      xu--lu : x.U (max (- l) u)
+      xu--lu = isUpperSet≤ x u (max (- l) u) max-≤-right xu-u
 
-      p : (- (maxℚ (- l) u)) == minℚ l (- u)
-      p = (r--maxℚ (- l) u >=> (cong2 minℚ minus-double-inverse refl))
+      p : (- (max (- l) u)) == min l (- u)
+      p = (r--maxℚ (- l) u >=> (cong2 min minus-double-inverse refl))
 
-      xl-l-u : x.L (minℚ l (- u))
-      xl-l-u = isLowerSet≤ x (minℚ l (- u)) l (minℚ-≤-left l (- u)) xl-l
+      xl-l-u : x.L (min l (- u))
+      xl-l-u = isLowerSet≤ x (min l (- u)) l min-≤-left xl-l
 
   ℝ∈Iℚ-absℝ-dual : (x : ℝ) (a : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ x (i- a) ->
                    ℝ∈Iℚ (absℝ x) a

@@ -11,10 +11,12 @@ open import functions
 open import hlevel
 open import nat
 open import order
-open import order.instances.real
 open import order.instances.nat
-open import ordered-semiring
+open import order.instances.real
+open import order.minmax
+open import order.minmax.instances.rational
 open import ordered-ring
+open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import rational
@@ -22,17 +24,17 @@ open import rational.minmax
 open import rational.order
 open import rational.proper-interval
 open import real
-open import real.rational
-open import real.arithmetic.absolute-value
-open import real.order
-open import real.interval
 open import real.arithmetic
-open import real.sequence.limit
-open import real.sequence.cauchy
+open import real.arithmetic.absolute-value
 open import real.arithmetic.rational
+open import real.interval
+open import real.order
+open import real.rational
+open import real.sequence.cauchy
+open import real.sequence.limit
 open import ring.implementations.real
-open import sequence
 open import semiring
+open import sequence
 open import sigma.base
 open import subset
 open import truncation
@@ -168,7 +170,7 @@ isProp-ΣisLimitAt {S = S} {f = f} {x = x} (y1 , lim1) (y2 , lim2) = ΣProp-path
       handle2 ((ε1 , 0<ε1) , bound1) ((ε2 , 0<ε2) , bound2) limP = 
         ∥-bind handle3 (find-small-ℝ∈Iℚ x (ε , 0<ε))
         where
-        ε = minℚ ε1 ε2
+        ε = min ε1 ε2
         0<ε = minℚ-property ε1 ε2 0<ε1 0<ε2
         module limP = isLimitPoint' limP
         lim-seq = limP.isLimit-seq 
@@ -181,10 +183,10 @@ isProp-ΣisLimitAt {S = S} {f = f} {x = x} (y1 , lim1) (y2 , lim2) = ΣProp-path
             p = limP.seq n
             S-p = limP.S-seq n
             p∈qi = large-n n refl-≤
-            pb1 = bound1 p (weaken-εBounded (trans-≤ w-qi≤ε (minℚ-≤-left ε1 ε2))
+            pb1 = bound1 p (weaken-εBounded (trans-≤ w-qi≤ε min-≤-left)
                                             (diff p x) (ℝ∈Iℚ->εBounded-diff qi p x p∈qi x∈qi))
                          S-p
-            pb2 = bound2 p (weaken-εBounded (trans-≤ w-qi≤ε (minℚ-≤-right ε1 ε2))
+            pb2 = bound2 p (weaken-εBounded (trans-≤ w-qi≤ε min-≤-right)
                                             (diff p x) (ℝ∈Iℚ->εBounded-diff qi p x p∈qi x∈qi))
                          S-p
             pb3 : εBounded δ (diff y1 y2)
@@ -228,7 +230,7 @@ isProp-ΣisLimitAt {S = S} {f = f} {x = x} (y1 , lim1) (y2 , lim2) = ΣProp-path
       handle2 ((ε1 , 0<ε1) , bound1) ((ε2 , 0<ε2) , bound2) limP = 
         ∥-bind handle3 (find-small-ℝ∈Iℚ x (ε , 0<ε))
         where
-        ε = minℚ ε1 ε2
+        ε = min ε1 ε2
         0<ε = minℚ-property ε1 ε2 0<ε1 0<ε2
         module limP = isLimitPoint' limP
         lim-seq = limP.isLimit-seq 
@@ -241,10 +243,10 @@ isProp-ΣisLimitAt {S = S} {f = f} {x = x} (y1 , lim1) (y2 , lim2) = ΣProp-path
             p = limP.seq n
             S-p = limP.S-seq n
             p∈qi = large-n n refl-≤
-            pb1 = bound1 p (weaken-εBounded (trans-≤ w-qi≤ε (minℚ-≤-left ε1 ε2))
+            pb1 = bound1 p (weaken-εBounded (trans-≤ w-qi≤ε min-≤-left)
                                             (diff p x) (ℝ∈Iℚ->εBounded-diff qi p x p∈qi x∈qi))
                          S-p
-            pb2 = bound2 p (weaken-εBounded (trans-≤ w-qi≤ε (minℚ-≤-right ε1 ε2))
+            pb2 = bound2 p (weaken-εBounded (trans-≤ w-qi≤ε min-≤-right)
                                             (diff p x) (ℝ∈Iℚ->εBounded-diff qi p x p∈qi x∈qi))
                          S-p
             pb3 : εBounded δ (diff y2 y1)

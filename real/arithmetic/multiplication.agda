@@ -5,23 +5,25 @@ module real.arithmetic.multiplication where
 open import additive-group
 open import base
 open import equality
-open import isomorphism
 open import hlevel
+open import isomorphism
 open import order
-open import ordered-semiring
-open import ordered-ring
 open import order.instances.rational
+open import order.minmax
+open import order.minmax.instances.rational
+open import ordered-ring
+open import ordered-semiring
 open import rational
 open import rational.difference
-open import rational.order
 open import rational.minmax
+open import rational.order
 open import rational.proper-interval
 open import rational.proper-interval.maxabs-multiplication
 open import rational.proper-interval.multiplication-strict-cross-zero
 open import real
-open import real.rational
-open import real.order
 open import real.interval
+open import real.order
+open import real.rational
 open import real.sequence
 open import relation hiding (U)
 open import ring.implementations.rational
@@ -536,15 +538,15 @@ module _ (x : ℝ)
           where
 
 
-          l-1 : (Iℚ.l (i-scale 1i-l xi)) == (minℚ (1i-l r* xi-l) (1i-l r* xi-u))
+          l-1 : (Iℚ.l (i-scale 1i-l xi)) == (min (1i-l r* xi-l) (1i-l r* xi-u))
           l-1 = refl
 
 
-          u-1 : (Iℚ.l (i-scale 1i-u xi)) == (minℚ (1i-u r* xi-l) (1i-u r* xi-u))
+          u-1 : (Iℚ.l (i-scale 1i-u xi)) == (min (1i-u r* xi-l) (1i-u r* xi-u))
           u-1 = refl
 
 
-          check : q ℚ≤ (minℚ (Iℚ.l (i-scale 1i-l xi)) (Iℚ.l (i-scale 1i-u xi)))
+          check : q ℚ≤ (min (Iℚ.l (i-scale 1i-l xi)) (Iℚ.l (i-scale 1i-u xi)))
           check = q≤prod
 
           ans : q ℚ≤ xi-l
@@ -561,7 +563,7 @@ module _ (x : ℝ)
 
               p1 = (Iℚ.l (i-scale 1i-l xi))
               p2 = (Iℚ.l (i-scale 1i-u xi))
-              p0 = minℚ p1 p2
+              p0 = min p1 p2
               p3 = (1i-u r* xi-l)
               p4 = (1i-u r* xi-u)
 
@@ -569,10 +571,10 @@ module _ (x : ℝ)
               lt1 : (1i-u r* xi-l) < xi-l
               lt1 = subst ((1i-u r* xi-l) <_) (r*-left-one xi-l)
                           (*₂-flips-< (U->ℚ< 1<1i-u) n-xi-l)
-              lt2 : (minℚ p3 p4) ℚ≤ p3
-              lt2 = minℚ-≤-left p3 p4
-              lt3 : (minℚ p1 p2) ℚ≤ p2
-              lt3 = minℚ-≤-right p1 p2
+              lt2 : (min p3 p4) ℚ≤ p3
+              lt2 = min-≤-left
+              lt3 : (min p1 p2) ℚ≤ p2
+              lt3 = min-≤-right
             handle2 (inj-r 0≤xi-l) =
               trans-ℚ≤ {q} {p0} {xi-l} q≤prod
                 (trans-ℚ≤ {p0} {p1} {xi-l} lt3
@@ -584,17 +586,17 @@ module _ (x : ℝ)
 
               p1 = (Iℚ.l (i-scale 1i-l xi))
               p2 = (Iℚ.l (i-scale 1i-u xi))
-              p0 = minℚ p1 p2
+              p0 = min p1 p2
               p3 = (1i-l r* xi-l)
               p4 = (1i-l r* xi-u)
 
               lt1 : (1i-l r* xi-l) ℚ≤ xi-l
               lt1 = subst ((1i-l r* xi-l) ℚ≤_) (r*-left-one xi-l)
                           (*₂-preserves-≤ (weaken-< (L->ℚ< 1i-l<1)) (NonNeg-0≤ _ nn-xi-l))
-              lt2 : (minℚ p3 p4) ℚ≤ p3
-              lt2 = minℚ-≤-left p3 p4
-              lt3 : (minℚ p1 p2) ℚ≤ p1
-              lt3 = minℚ-≤-left p1 p2
+              lt2 : (min p3 p4) ℚ≤ p3
+              lt2 = min-≤-left
+              lt3 : (min p1 p2) ℚ≤ p1
+              lt3 = min-≤-left
 
 
     U-path : (q : ℚ) -> 1x.U q == x.U q
@@ -672,7 +674,7 @@ module _ (x : ℝ)
 
               p1 = (Iℚ.u (i-scale 1i-l xi))
               p2 = (Iℚ.u (i-scale 1i-u xi))
-              p0 = maxℚ p1 p2
+              p0 = max p1 p2
               p3 = (1i-l r* xi-l)
               p4 = (1i-l r* xi-u)
 
@@ -681,10 +683,10 @@ module _ (x : ℝ)
               lt1 = subst (_< (1i-l r* xi-u)) (r*-left-one xi-u)
                           (*₂-flips-< (L->ℚ< 1i-l<1) n-xi-u)
 
-              lt2 : p4 ℚ≤ (maxℚ p3 p4)
-              lt2 = maxℚ-≤-right p3 p4
-              lt3 : p1 ℚ≤ (maxℚ p1 p2)
-              lt3 = maxℚ-≤-left p1 p2
+              lt2 : p4 ℚ≤ (max p3 p4)
+              lt2 = max-≤-right
+              lt3 : p1 ℚ≤ (max p1 p2)
+              lt3 = max-≤-left
 
             handle2 (inj-r 0≤xi-u) =
               trans-ℚ≤ {xi-u} {p0} {q}
@@ -699,17 +701,17 @@ module _ (x : ℝ)
 
               p1 = (Iℚ.u (i-scale 1i-l xi))
               p2 = (Iℚ.u (i-scale 1i-u xi))
-              p0 = maxℚ p1 p2
+              p0 = max p1 p2
               p3 = (1i-u r* xi-l)
               p4 = (1i-u r* xi-u)
 
               lt1 : xi-u ℚ≤ (1i-u r* xi-u)
               lt1 = subst (_ℚ≤ (1i-u r* xi-u)) (r*-left-one xi-u)
                           (*₂-preserves-≤ (weaken-< (U->ℚ< 1<1i-u)) (NonNeg-0≤ _ nn-xi-u))
-              lt2 : p4 ℚ≤ (maxℚ p3 p4)
-              lt2 = maxℚ-≤-right p3 p4
-              lt3 : p2 ℚ≤ (maxℚ p1 p2)
-              lt3 = maxℚ-≤-right p1 p2
+              lt2 : p4 ℚ≤ (max p3 p4)
+              lt2 = max-≤-right
+              lt3 : p2 ℚ≤ (max p1 p2)
+              lt3 = max-≤-right
 
 
     ℝ*ᵉ-left-one : 1x == x
@@ -782,8 +784,7 @@ module _ (x : ℝ)
           m2 = i-maxabs (ir i* ix)
 
           -lb≤m2 : (r- lb) ℚ≤ m2
-          -lb≤m2 = trans-ℚ≤ {r- lb} {absℚ lb} {m2} (maxℚ-≤-right lb (r- lb))
-                                                   (maxℚ-≤-left (absℚ lb) (absℚ ub))
+          -lb≤m2 = trans-ℚ≤ {r- lb} {absℚ lb} {m2} max-≤-right max-≤-left
           -m2≤lb : (r- m2) ℚ≤ lb
           -m2≤lb = subst ((r- m2) ℚ≤_) minus-double-inverse
                          (minus-flips-≤ -lb≤m2)
@@ -792,9 +793,9 @@ module _ (x : ℝ)
           m2=m-ir*m = i-maxabs-i* ir ix
 
           m-ir=r : m-ir == (r- r)
-          m-ir=r = cong (maxℚ (absℚ r)) (cong (maxℚ (r- r)) minus-double-inverse >=>
-                                         maxℚ-commute) >=>
-                   maxℚ-same >=>
+          m-ir=r = cong (max (absℚ r)) (cong (max (r- r)) minus-double-inverse >=>
+                                        max-commute) >=>
+                   max-idempotent >=>
                    absℚ-NonPos (inj-l neg-r)
 
           mr*m=-q : (r- r) r* m == (r- q)
@@ -831,7 +832,7 @@ module _ (x : ℝ)
 
           p1 = (Iℚ.l (i-scale 0i-l xi))
           p2 = (Iℚ.l (i-scale 0i-u xi))
-          p0 = minℚ p1 p2
+          p0 = min p1 p2
 
           n-p0 : Neg p0
           n-p0 = fst (i*₁-StrictCrossZero 0i xi (n-l , p-u) (ℝ∈Iℚ->NonConstant x xi exi))
@@ -890,17 +891,16 @@ module _ (x : ℝ)
           m2 = i-maxabs (ir i* ix)
 
           ub≤m2 : ub ℚ≤ m2
-          ub≤m2 = trans-ℚ≤ {ub} {absℚ ub} {m2} (maxℚ-≤-left ub (r- ub))
-                                               (maxℚ-≤-right (absℚ lb) (absℚ ub))
+          ub≤m2 = trans-ℚ≤ {ub} {absℚ ub} {m2} max-≤-left max-≤-right
 
           m2=m-ir*m : m2 == m-ir r* m
           m2=m-ir*m = i-maxabs-i* ir ix
 
           m-ir=r : m-ir == r
-          m-ir=r = cong (\x -> (maxℚ x (absℚ r)))
-                        (cong (maxℚ (r- r)) minus-double-inverse >=>
-                         maxℚ-commute) >=>
-                   maxℚ-same >=>
+          m-ir=r = cong (\x -> (max x (absℚ r)))
+                        (cong (max (r- r)) minus-double-inverse >=>
+                         max-commute) >=>
+                   max-idempotent >=>
                    absℚ-NonNeg (inj-l pos-r)
 
           mr*m=q : r r* m == q
@@ -927,7 +927,7 @@ module _ (x : ℝ)
 
           p1 = (Iℚ.u (i-scale 0i-l xi))
           p2 = (Iℚ.u (i-scale 0i-u xi))
-          p0 = maxℚ p1 p2
+          p0 = max p1 p2
 
           p-p0 : Pos p0
           p-p0 = snd (i*₁-StrictCrossZero 0i xi (n-l , p-u) (ℝ∈Iℚ->NonConstant x xi exi))

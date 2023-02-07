@@ -6,9 +6,11 @@ open import base
 open import equality
 open import order
 open import order.instances.rational
+open import order.minmax
+open import order.minmax.instances.rational
 open import rational
-open import rational.order
 open import rational.minmax
+open import rational.order
 open import relation hiding (_⊆_)
 open import sign
 open import sign.instances.rational
@@ -48,7 +50,7 @@ _i∙_ : Iℚ -> Iℚ -> Iℚ
 _i∙_ (l1 , u1) (l2 , u2) = (l1 r* l2 , u1 r* u2)
 
 i-cross : Iℚ -> Iℚ -> Iℚ
-i-cross (l1 , u1) (l2 , u2) = minℚ (l1 r* u2) (l2 r* u1) , maxℚ (l1 r* l2) (u1 r* u2)
+i-cross (l1 , u1) (l2 , u2) = min (l1 r* u2) (l2 r* u1) , max (l1 r* l2) (u1 r* u2)
 
 
 NonNegI : Pred Iℚ ℓ-zero
@@ -172,7 +174,7 @@ i∙-left-zero (l , u) = cong2 _,_ (r*-left-zero l) (r*-left-zero u)
 
 
 i-cross-commute : (a b : Iℚ) -> i-cross a b == i-cross b a
-i-cross-commute a b = cong2 _,_ minℚ-commute (cong2 maxℚ (r*-commute _ _) (r*-commute _ _))
+i-cross-commute a b = cong2 _,_ min-commute (cong2 max (r*-commute _ _) (r*-commute _ _))
 
 -- Interval properties
 

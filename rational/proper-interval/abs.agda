@@ -7,6 +7,8 @@ open import base
 open import equality
 open import order
 open import order.instances.rational
+open import order.minmax
+open import order.minmax.instances.rational
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.rational
@@ -43,9 +45,7 @@ NonNegI->ImbalancedI a@(Iℚ-cons l u l≤u) nn-a = trans-≤ (trans-≤ -l≤0 
 
 i-maxabs≤->ImbalancedI : (a : Iℚ) -> (i-maxabs a ℚ≤ Iℚ.u a) -> ImbalancedI a
 i-maxabs≤->ImbalancedI (Iℚ-cons l u l≤u) ma≤au =
-  trans-ℚ≤ { - l}
-    (maxℚ-≤-right l (- l))
-    (trans-ℚ≤ {absℚ l} (maxℚ-≤-left (absℚ l) (absℚ u)) ma≤au)
+  trans-ℚ≤ { - l} max-≤-right (trans-ℚ≤ {absℚ l} max-≤-left ma≤au)
 
 ImbalancedI->0≤u : (a : Iℚ) -> ImbalancedI a -> (0r ≤ Iℚ.u a)
 ImbalancedI->0≤u (Iℚ-cons l u l≤u) -l≤u = NonNeg-0≤ u nn-u
@@ -59,7 +59,7 @@ ImbalancedI->0≤u (Iℚ-cons l u l≤u) -l≤u = NonNeg-0≤ u nn-u
 
 ImbalancedI->i-maxabs : (a : Iℚ) -> ImbalancedI a -> (i-maxabs a == Iℚ.u a)
 ImbalancedI->i-maxabs (Iℚ-cons l u l≤u) -l≤u =
-  maxℚ-right (absℚ l) (absℚ u) al≤au >=> au=u
+  max-≤-path al≤au >=> au=u
   where
   al≤u : absℚ l ℚ≤ u
   al≤u = maxℚ-property {P = _ℚ≤ u} l (- l) l≤u -l≤u
@@ -71,7 +71,7 @@ ImbalancedI->i-maxabs (Iℚ-cons l u l≤u) -l≤u =
   au=u = (absℚ-NonNeg nn-u)
 
   al≤au : absℚ l ℚ≤ absℚ u
-  al≤au = trans-ℚ≤ {absℚ l} al≤u (maxℚ-≤-left u (- u))
+  al≤au = trans-ℚ≤ {absℚ l} al≤u max-≤-left
 
 ImbalancedI-i- : (ai : Iℚ) -> ImbalancedI ai ⊎ ImbalancedI (i- ai)
 ImbalancedI-i- ai@(Iℚ-cons l u l≤u) = handle (split-< (- l) u)
@@ -82,13 +82,13 @@ ImbalancedI-i- ai@(Iℚ-cons l u l≤u) = handle (split-< (- l) u)
 
 
 i²-ImbalancedI : (ai : Iℚ) -> ImbalancedI ai -> Iℚ
-i²-ImbalancedI ai@(Iℚ-cons l u l≤u) -l≤u = (Iℚ-cons (minℚ (l * l) (l * u)) (u * u) lllu≤uu)
+i²-ImbalancedI ai@(Iℚ-cons l u l≤u) -l≤u = (Iℚ-cons (min (l * l) (l * u)) (u * u) lllu≤uu)
   where
   0≤u = ImbalancedI->0≤u ai -l≤u
   lu≤uu = *₂-preserves-≤ l≤u 0≤u
 
-  lllu≤uu : minℚ (l * l) (l * u) ≤ (u * u)
-  lllu≤uu = trans-≤ (minℚ-≤-right _ _) lu≤uu
+  lllu≤uu : min (l * l) (l * u) ≤ (u * u)
+  lllu≤uu = trans-≤ min-≤-right lu≤uu
 
 i²-ImbalancedI-path : (ai : Iℚ) -> (imb-ai : ImbalancedI ai) -> (i²-ImbalancedI ai imb-ai) == (ai i* ai)
 i²-ImbalancedI-path ai@(Iℚ-cons l u l≤u) -l≤u = Iℚ-bounds-path l-path u-path
@@ -113,16 +113,16 @@ i²-ImbalancedI-path ai@(Iℚ-cons l u l≤u) -l≤u = Iℚ-bounds-path l-path u
       where
       0≤-l = (minus-flips-≤0 (weaken-< l<0))
 
-  l-path : (minℚ (l * l) (l * u)) == l2
-  l-path = sym (cong (minℚ (minℚ (l * l) (l * u))) (minℚ-left _ _ ul≤uu >=> *-commute) >=>
-                minℚ-left _ _ (minℚ-≤-right _ _))
+  l-path : (min (l * l) (l * u)) == l2
+  l-path = sym (cong (min (min (l * l) (l * u))) (min-≤-path ul≤uu >=> *-commute) >=>
+                min-≤-path min-≤-right)
 
-  max-lllu≤uu : maxℚ (l * l) (l * u) ≤ (u * u)
+  max-lllu≤uu : max (l * l) (l * u) ≤ (u * u)
   max-lllu≤uu = maxℚ-property {P = _≤ (u * u)} (l * l) (l * u) ll≤uu lu≤uu
 
   u-path : (u * u) == u2
-  u-path = sym (cong (maxℚ (maxℚ (l * l) (l * u))) (maxℚ-right _ _ ul≤uu) >=>
-                maxℚ-right _ _ max-lllu≤uu)
+  u-path = sym (cong (max (max (l * l) (l * u))) (max-≤-path ul≤uu) >=>
+                max-≤-path max-lllu≤uu)
 
 
 i²-NonNegI : (ai : Iℚ) -> NonNegI ai -> Iℚ
@@ -151,12 +151,10 @@ i²-NonNegI-path ai@(Iℚ-cons l u l≤u) nn-ai = Iℚ-bounds-path l-path u-path
   lu≤uu = *₂-preserves-≤ l≤u 0≤u
 
   l-path : (l * l) == l2
-  l-path = sym (cong2 minℚ (minℚ-left _ _ ll≤lu) (minℚ-left _ _ ul≤uu) >=>
-                minℚ-left _ _ ll≤ul)
+  l-path = sym (cong2 min (min-≤-path ll≤lu) (min-≤-path ul≤uu) >=> min-≤-path ll≤ul)
 
   u-path : (u * u) == u2
-  u-path = sym (cong2 maxℚ (maxℚ-right _ _ ll≤lu) (maxℚ-right _ _ ul≤uu) >=>
-                maxℚ-right _ _ lu≤uu)
+  u-path = sym (cong2 max (max-≤-path ll≤lu) (max-≤-path ul≤uu) >=> max-≤-path lu≤uu)
 
 
 i²-BalancedI : (ai : Iℚ) -> BalancedI ai -> Iℚ
@@ -187,12 +185,12 @@ i²-BalancedI-path ai@(Iℚ-cons l u l≤u) bal-ai = Iℚ-bounds-path l-path u-p
 
 
   l-path : (l * u) == l2
-  l-path = sym (cong2 minℚ (minℚ-right _ _ lu≤ll) (minℚ-left _ _ ul≤uu) >=>
-                minℚ-left _ _ (path-≤ lu=ul))
+  l-path = sym (cong2 min (min-≥-path lu≤ll) (min-≤-path ul≤uu) >=>
+                min-≤-path (path-≤ lu=ul))
 
   u-path : (u * u) == u2
-  u-path = sym (cong2 maxℚ (maxℚ-left _ _ lu≤ll) (maxℚ-right _ _ ul≤uu) >=>
-                maxℚ-right _ _ (path-≤ ll=uu))
+  u-path = sym (cong2 max (max-≥-path lu≤ll) (max-≤-path ul≤uu) >=>
+                max-≤-path (path-≤ ll=uu))
 
 
 
@@ -220,8 +218,8 @@ naive-i² (Iℚ-cons l u l≤u) -l≤u = (Iℚ-cons (l * l) (u * u) ll≤uu)
 
 ℚ∈Iℚ-i∪₁ : (q : ℚ) (a b : Iℚ) -> ℚ∈Iℚ q a -> ℚ∈Iℚ q (a i∪ b)
 ℚ∈Iℚ-i∪₁ q (Iℚ-cons al au _) (Iℚ-cons bl bu _) (al≤q , q≤au) =
-  trans-ℚ≤ {minℚ al bl} (minℚ-≤-left al bl) al≤q ,
-  trans-ℚ≤ {q} q≤au (maxℚ-≤-left au bu)
+  trans-ℚ≤ {min al bl} min-≤-left al≤q ,
+  trans-ℚ≤ {q} q≤au max-≤-left
 
 ℚ∈Iℚ-i∪₂ : (q : ℚ) (a b : Iℚ) -> ℚ∈Iℚ q b -> ℚ∈Iℚ q (a i∪ b)
 ℚ∈Iℚ-i∪₂ q a b q∈b = subst (ℚ∈Iℚ q) (i∪-commute b a) (ℚ∈Iℚ-i∪₁ q b a q∈b)
@@ -431,20 +429,20 @@ i*-preserves-ImbalancedI a b imb-a imb-b = i-maxabs≤->ImbalancedI ab mab≤abu
 
 
 i-abs : Iℚ -> Iℚ
-i-abs (Iℚ-cons l u l≤u) = (Iℚ-cons (maxℚ l 0r) (maxℚ (- l) u) lt)
+i-abs (Iℚ-cons l u l≤u) = (Iℚ-cons (max l 0r) (max (- l) u) lt)
   where
-  LT = (maxℚ l 0r) ℚ≤ (maxℚ (- l) u)
+  LT = (max l 0r) ℚ≤ (max (- l) u)
   abstract
     lt : LT
     lt = handle (split-< l 0r)
       where
       handle : (l < 0r) ⊎ (0r ℚ≤ l) -> LT
       handle (inj-l l<0) =
-        subst (_ℚ≤ (maxℚ (- l) u))
-          (sym (maxℚ-right l 0r (weaken-< l<0)))
-          (trans-ℚ≤ {0r} (weaken-< (minus-flips-<0 l<0)) (maxℚ-≤-left (- l) u))
+        subst (_ℚ≤ (max (- l) u))
+          (sym (max-<-path l<0))
+          (trans-ℚ≤ {0r} (weaken-< (minus-flips-<0 l<0)) max-≤-left)
       handle (inj-r 0≤l) =
-        subst2 (_ℚ≤_) (sym (maxℚ-left l 0r 0≤l)) (sym (maxℚ-right (- l) u -l≤u)) l≤u
+        subst2 (_ℚ≤_) (sym (max-≥-path 0≤l)) (sym (max-≤-path -l≤u)) l≤u
         where
         -l≤0 : (- l) ℚ≤ 0r
         -l≤0 = (minus-flips-0≤ 0≤l)

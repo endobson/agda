@@ -8,6 +8,8 @@ open import equality
 open import hlevel
 open import order
 open import order.instances.rational
+open import order.minmax
+open import order.minmax.instances.rational
 open import ordered-integral-domain
 open import ordered-ring
 open import ordered-semiring
@@ -119,7 +121,7 @@ private
     handle : Σ[ ε² ∈ ℚ ] (isSquareℚ ε² × (0r < ε²) × (ε² < d/2)) -> Ans
     handle (ε² , (ε' , 0≤ε' , ε'ε'=ε²) , 0<ε² , ε²<d/2) = ans
       where
-      ε = minℚ ε' (d/2 * 1/2r)
+      ε = min ε' (d/2 * 1/2r)
 
       0!=ε' : 0r != ε'
       0!=ε' 0=ε' = irrefl-< (subst (_< ε²) (sym *-right-zero >=> *-right 0=ε' >=> ε'ε'=ε²) 0<ε²)
@@ -134,10 +136,10 @@ private
       0<2r = Pos-ℕ⁺->ℚ (2 , tt)
 
       c1-ε≤ : ε ≤ ((1/2r * (diffℚ 1r q)) * 1/2r)
-      c1-ε≤ = minℚ-≤-right _ _
+      c1-ε≤ = min-≤-right
 
       ε≤ε' : ε ≤ ε'
-      ε≤ε' = minℚ-≤-left _ _
+      ε≤ε' = min-≤-left
       εε≤ε'ε' : (ε * ε) ≤ (ε' * ε')
       εε≤ε'ε' = trans-≤ (*₁-preserves-≤ (weaken-< 0<ε) ε≤ε')
                         (*₂-preserves-≤ ε≤ε' 0≤ε')

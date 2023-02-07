@@ -5,10 +5,12 @@ module rational.interval.multiplication-base where
 open import base
 open import equality
 open import order.instances.rational
+open import order.minmax
+open import order.minmax.instances.rational
 open import rational
-open import rational.order
-open import rational.minmax
 open import rational.interval
+open import rational.minmax
+open import rational.order
 open import sign
 open import sign.instances.rational
 
@@ -91,15 +93,15 @@ module _ where
     Imul-za-path (imul-fz-nn _ _) = (i∙-left-zero _)
     Imul-za-path (imul-fz-np _ _) = (i∙-left-zero _)
     Imul-za-path (imul-fz-fz _ _) =
-      cong2 _,_ (cong2 minℚ (r*-left-zero _) (r*-right-zero _) >=> minℚ-same)
-                (cong2 maxℚ (r*-left-zero _) (r*-left-zero _) >=> maxℚ-same)
+      cong2 _,_ (cong2 min (r*-left-zero _) (r*-right-zero _) >=> min-idempotent)
+                (cong2 max (r*-left-zero _) (r*-left-zero _) >=> max-idempotent)
     Imul-za-path (imul-fz-bz _ _) = refl
     Imul-za-path (imul-bz-nn _ _) = (i∙-left-zero _)
     Imul-za-path (imul-bz-np _ _) = (i∙-left-zero _)
     Imul-za-path (imul-bz-fz _ _) = refl
     Imul-za-path (imul-bz-bz _ _) =
-      cong2 _,_ (cong2 maxℚ (r*-left-zero _) (r*-left-zero _) >=> maxℚ-same)
-                (cong2 minℚ (r*-left-zero _) (r*-right-zero _) >=> minℚ-same)
+      cong2 _,_ (cong2 max (r*-left-zero _) (r*-left-zero _) >=> max-idempotent)
+                (cong2 min (r*-left-zero _) (r*-right-zero _) >=> min-idempotent)
 
     Imul-zb-path : {a c : Iℚ} -> Imul a 0i c -> c == 0i
     Imul-zb-path (imul-nn-nn _ _) = (i∙-right-zero _)
@@ -113,15 +115,15 @@ module _ where
     Imul-zb-path (imul-fz-nn _ _) = (i∙-right-zero _)
     Imul-zb-path (imul-fz-np _ _) = (i∙-right-zero _)
     Imul-zb-path (imul-fz-fz _ _) =
-      cong2 _,_ (cong2 minℚ (r*-right-zero _) (r*-left-zero _) >=> minℚ-same)
-                (cong2 maxℚ (r*-right-zero _) (r*-right-zero _) >=> maxℚ-same)
+      cong2 _,_ (cong2 min (r*-right-zero _) (r*-left-zero _) >=> min-idempotent)
+                (cong2 max (r*-right-zero _) (r*-right-zero _) >=> max-idempotent)
     Imul-zb-path (imul-fz-bz _ _) = refl
     Imul-zb-path (imul-bz-nn _ _) = (i∙-right-zero _)
     Imul-zb-path (imul-bz-np _ _) = (i∙-right-zero _)
     Imul-zb-path (imul-bz-fz _ _) = refl
     Imul-zb-path (imul-bz-bz _ _) =
-      cong2 _,_ (cong2 maxℚ (r*-right-zero _) (r*-right-zero _) >=> maxℚ-same)
-                (cong2 minℚ (r*-right-zero _) (r*-left-zero _) >=> minℚ-same)
+      cong2 _,_ (cong2 max (r*-right-zero _) (r*-right-zero _) >=> max-idempotent)
+                (cong2 min (r*-right-zero _) (r*-left-zero _) >=> min-idempotent)
 
     za-case : {a b c d : Iℚ} -> a == 0i -> Imul a b c -> Imul a b d -> c == d
     za-case {a} {b} {c} {d} p i1 i2 =
@@ -149,65 +151,65 @@ module _ where
         nn-al-bl = r*-NonPos-NonPos np-al np-bl
         nn-au-bu = r*-NonNeg-NonNeg nn-au nn-bu
 
-        min-side = minℚ (al r* bu) (bl r* au)
-        max-side = maxℚ (al r* bl) (au r* bu)
+        min-side = min (al r* bu) (bl r* au)
+        max-side = max (al r* bl) (au r* bu)
 
         min-al : (al == 0r) -> min-side == (bl r* au)
-        min-al z = minℚ-right _ _ (NonPos≤NonNeg np-bl-au
-                                    (inj-r (subst Zero (sym (r*-left-zero' z)) Zero-0r)))
+        min-al z = min-≥-path (NonPos≤NonNeg np-bl-au
+                                (inj-r (subst Zero (sym (r*-left-zero' z)) Zero-0r)))
 
         min-bu : (bu == 0r) -> min-side == (bl r* au)
-        min-bu z = minℚ-right _ _ (NonPos≤NonNeg np-bl-au
-                                    (inj-r (subst Zero (sym (r*-right-zero' z)) Zero-0r)))
+        min-bu z = min-≥-path (NonPos≤NonNeg np-bl-au
+                                (inj-r (subst Zero (sym (r*-right-zero' z)) Zero-0r)))
 
         min-bl : (bl == 0r) -> min-side == (al r* bu)
-        min-bl z = minℚ-left _ _ (NonPos≤NonNeg np-al-bu
-                                   (inj-r (subst Zero (sym (r*-left-zero' z)) Zero-0r)))
+        min-bl z = min-≤-path (NonPos≤NonNeg np-al-bu
+                                (inj-r (subst Zero (sym (r*-left-zero' z)) Zero-0r)))
 
         min-au : (au == 0r) -> min-side == (al r* bu)
-        min-au z = minℚ-left _ _ (NonPos≤NonNeg np-al-bu
-                                   (inj-r (subst Zero (sym (r*-right-zero' z)) Zero-0r)))
+        min-au z = min-≤-path (NonPos≤NonNeg np-al-bu
+                                (inj-r (subst Zero (sym (r*-right-zero' z)) Zero-0r)))
 
         max-al : (al == 0r) -> max-side == (au r* bu)
-        max-al z = maxℚ-right _ _ (NonPos≤NonNeg
-                                    (inj-r (subst Zero (sym (r*-left-zero' z)) Zero-0r))
-                                    nn-au-bu)
+        max-al z = max-≤-path (NonPos≤NonNeg
+                                (inj-r (subst Zero (sym (r*-left-zero' z)) Zero-0r))
+                                nn-au-bu)
         max-bl : (bl == 0r) -> max-side == (au r* bu)
-        max-bl z = maxℚ-right _ _ (NonPos≤NonNeg
-                                    (inj-r (subst Zero (sym (r*-right-zero' z)) Zero-0r))
-                                    nn-au-bu)
+        max-bl z = max-≤-path (NonPos≤NonNeg
+                                (inj-r (subst Zero (sym (r*-right-zero' z)) Zero-0r))
+                                nn-au-bu)
         max-au : (au == 0r) -> max-side == (al r* bl)
-        max-au z = maxℚ-left _ _ (NonPos≤NonNeg
-                                   (inj-r (subst Zero (sym (r*-left-zero' z)) Zero-0r))
-                                   nn-al-bl)
+        max-au z = max-≥-path (NonPos≤NonNeg
+                                (inj-r (subst Zero (sym (r*-left-zero' z)) Zero-0r))
+                                nn-al-bl)
         max-bu : (bu == 0r) -> max-side == (al r* bl)
-        max-bu z = maxℚ-left _ _ (NonPos≤NonNeg
-                                   (inj-r (subst Zero (sym (r*-right-zero' z)) Zero-0r))
-                                   nn-al-bl)
+        max-bu z = max-≥-path (NonPos≤NonNeg
+                                (inj-r (subst Zero (sym (r*-right-zero' z)) Zero-0r))
+                                nn-al-bl)
 
         min-l : (al == 0r) -> (bl == 0r) -> min-side == 0r
-        min-l za zb = (cong2 minℚ (r*-left-zero' za) (r*-left-zero' zb) >=> minℚ-same)
+        min-l za zb = (cong2 min (r*-left-zero' za) (r*-left-zero' zb) >=> min-idempotent)
 
         min-u : (au == 0r) -> (bu == 0r) -> min-side == 0r
-        min-u za zb = (cong2 minℚ (r*-right-zero' zb) (r*-right-zero' za) >=> minℚ-same)
+        min-u za zb = (cong2 min (r*-right-zero' zb) (r*-right-zero' za) >=> min-idempotent)
 
         min-a : (a == 0i) -> min-side == 0r
-        min-a z = (cong2 minℚ (r*-left-zero' (cong Iℚ-l z)) (r*-right-zero' (cong Iℚ-u z)) >=> minℚ-same)
+        min-a z = (cong2 min (r*-left-zero' (cong Iℚ-l z)) (r*-right-zero' (cong Iℚ-u z)) >=> min-idempotent)
 
         min-b : (b == 0i) -> min-side == 0r
-        min-b z = (cong2 minℚ (r*-right-zero' (cong Iℚ-u z)) (r*-left-zero' (cong Iℚ-l z)) >=> minℚ-same)
+        min-b z = (cong2 min (r*-right-zero' (cong Iℚ-u z)) (r*-left-zero' (cong Iℚ-l z)) >=> min-idempotent)
 
         max-fs : (al == 0r) -> (bu == 0r) -> max-side == 0r
-        max-fs za zb = (cong2 maxℚ (r*-left-zero' za) (r*-right-zero' zb) >=> maxℚ-same)
+        max-fs za zb = (cong2 max (r*-left-zero' za) (r*-right-zero' zb) >=> max-idempotent)
 
         max-bs : (au == 0r) -> (bl == 0r) -> max-side == 0r
-        max-bs za zb = (cong2 maxℚ (r*-right-zero' zb) (r*-left-zero' za) >=> maxℚ-same)
+        max-bs za zb = (cong2 max (r*-right-zero' zb) (r*-left-zero' za) >=> max-idempotent)
 
         max-a : (a == 0i) -> max-side == 0r
-        max-a z = (cong2 maxℚ (r*-left-zero' (cong Iℚ-l z)) (r*-left-zero' (cong Iℚ-u z)) >=> maxℚ-same)
+        max-a z = (cong2 max (r*-left-zero' (cong Iℚ-l z)) (r*-left-zero' (cong Iℚ-u z)) >=> max-idempotent)
 
         max-b : (b == 0i) -> max-side == 0r
-        max-b z = (cong2 maxℚ (r*-right-zero' (cong Iℚ-l z)) (r*-right-zero' (cong Iℚ-u z)) >=> maxℚ-same)
+        max-b z = (cong2 max (r*-right-zero' (cong Iℚ-l z)) (r*-right-zero' (cong Iℚ-u z)) >=> max-idempotent)
 
 
 
@@ -305,65 +307,65 @@ module _ where
         nn-al-bl = r*-NonNeg-NonNeg nn-al nn-bl
         nn-au-bu = r*-NonPos-NonPos np-au np-bu
 
-        min-side = minℚ (al r* bu) (bl r* au)
-        max-side = maxℚ (al r* bl) (au r* bu)
+        min-side = min (al r* bu) (bl r* au)
+        max-side = max (al r* bl) (au r* bu)
 
         min-al : (al == 0r) -> min-side == (bl r* au)
-        min-al z = minℚ-right _ _ (NonPos≤NonNeg np-bl-au
-                                    (inj-r (subst Zero (sym (r*-left-zero' z)) Zero-0r)))
+        min-al z = min-≥-path (NonPos≤NonNeg np-bl-au
+                                (inj-r (subst Zero (sym (r*-left-zero' z)) Zero-0r)))
 
         min-bu : (bu == 0r) -> min-side == (bl r* au)
-        min-bu z = minℚ-right _ _ (NonPos≤NonNeg np-bl-au
-                                    (inj-r (subst Zero (sym (r*-right-zero' z)) Zero-0r)))
+        min-bu z = min-≥-path (NonPos≤NonNeg np-bl-au
+                                (inj-r (subst Zero (sym (r*-right-zero' z)) Zero-0r)))
 
         min-bl : (bl == 0r) -> min-side == (al r* bu)
-        min-bl z = minℚ-left _ _ (NonPos≤NonNeg np-al-bu
-                                   (inj-r (subst Zero (sym (r*-left-zero' z)) Zero-0r)))
+        min-bl z = min-≤-path (NonPos≤NonNeg np-al-bu
+                                (inj-r (subst Zero (sym (r*-left-zero' z)) Zero-0r)))
 
         min-au : (au == 0r) -> min-side == (al r* bu)
-        min-au z = minℚ-left _ _ (NonPos≤NonNeg np-al-bu
-                                   (inj-r (subst Zero (sym (r*-right-zero' z)) Zero-0r)))
+        min-au z = min-≤-path (NonPos≤NonNeg np-al-bu
+                                (inj-r (subst Zero (sym (r*-right-zero' z)) Zero-0r)))
 
         max-al : (al == 0r) -> max-side == (au r* bu)
-        max-al z = maxℚ-right _ _ (NonPos≤NonNeg
-                                    (inj-r (subst Zero (sym (r*-left-zero' z)) Zero-0r))
-                                    nn-au-bu)
+        max-al z = max-≤-path (NonPos≤NonNeg
+                                (inj-r (subst Zero (sym (r*-left-zero' z)) Zero-0r))
+                                nn-au-bu)
         max-bl : (bl == 0r) -> max-side == (au r* bu)
-        max-bl z = maxℚ-right _ _ (NonPos≤NonNeg
-                                    (inj-r (subst Zero (sym (r*-right-zero' z)) Zero-0r))
-                                    nn-au-bu)
+        max-bl z = max-≤-path (NonPos≤NonNeg
+                                (inj-r (subst Zero (sym (r*-right-zero' z)) Zero-0r))
+                                nn-au-bu)
         max-au : (au == 0r) -> max-side == (al r* bl)
-        max-au z = maxℚ-left _ _ (NonPos≤NonNeg
-                                   (inj-r (subst Zero (sym (r*-left-zero' z)) Zero-0r))
-                                   nn-al-bl)
+        max-au z = max-≥-path (NonPos≤NonNeg
+                                (inj-r (subst Zero (sym (r*-left-zero' z)) Zero-0r))
+                                nn-al-bl)
         max-bu : (bu == 0r) -> max-side == (al r* bl)
-        max-bu z = maxℚ-left _ _ (NonPos≤NonNeg
-                                   (inj-r (subst Zero (sym (r*-right-zero' z)) Zero-0r))
-                                   nn-al-bl)
+        max-bu z = max-≥-path (NonPos≤NonNeg
+                                (inj-r (subst Zero (sym (r*-right-zero' z)) Zero-0r))
+                                nn-al-bl)
 
         min-l : (al == 0r) -> (bl == 0r) -> min-side == 0r
-        min-l za zb = (cong2 minℚ (r*-left-zero' za) (r*-left-zero' zb) >=> minℚ-same)
+        min-l za zb = (cong2 min (r*-left-zero' za) (r*-left-zero' zb) >=> min-idempotent)
 
         min-u : (au == 0r) -> (bu == 0r) -> min-side == 0r
-        min-u za zb = (cong2 minℚ (r*-right-zero' zb) (r*-right-zero' za) >=> minℚ-same)
+        min-u za zb = (cong2 min (r*-right-zero' zb) (r*-right-zero' za) >=> min-idempotent)
 
         min-a : (a == 0i) -> min-side == 0r
-        min-a z = (cong2 minℚ (r*-left-zero' (cong Iℚ-l z)) (r*-right-zero' (cong Iℚ-u z)) >=> minℚ-same)
+        min-a z = (cong2 min (r*-left-zero' (cong Iℚ-l z)) (r*-right-zero' (cong Iℚ-u z)) >=> min-idempotent)
 
         min-b : (b == 0i) -> min-side == 0r
-        min-b z = (cong2 minℚ (r*-right-zero' (cong Iℚ-u z)) (r*-left-zero' (cong Iℚ-l z)) >=> minℚ-same)
+        min-b z = (cong2 min (r*-right-zero' (cong Iℚ-u z)) (r*-left-zero' (cong Iℚ-l z)) >=> min-idempotent)
 
         max-fs : (al == 0r) -> (bu == 0r) -> max-side == 0r
-        max-fs za zb = (cong2 maxℚ (r*-left-zero' za) (r*-right-zero' zb) >=> maxℚ-same)
+        max-fs za zb = (cong2 max (r*-left-zero' za) (r*-right-zero' zb) >=> max-idempotent)
 
         max-bs : (au == 0r) -> (bl == 0r) -> max-side == 0r
-        max-bs za zb = (cong2 maxℚ (r*-right-zero' zb) (r*-left-zero' za) >=> maxℚ-same)
+        max-bs za zb = (cong2 max (r*-right-zero' zb) (r*-left-zero' za) >=> max-idempotent)
 
         max-a : (a == 0i) -> max-side == 0r
-        max-a z = (cong2 maxℚ (r*-left-zero' (cong Iℚ-l z)) (r*-left-zero' (cong Iℚ-u z)) >=> maxℚ-same)
+        max-a z = (cong2 max (r*-left-zero' (cong Iℚ-l z)) (r*-left-zero' (cong Iℚ-u z)) >=> max-idempotent)
 
         max-b : (b == 0i) -> max-side == 0r
-        max-b z = (cong2 maxℚ (r*-right-zero' (cong Iℚ-l z)) (r*-right-zero' (cong Iℚ-u z)) >=> maxℚ-same)
+        max-b z = (cong2 max (r*-right-zero' (cong Iℚ-l z)) (r*-right-zero' (cong Iℚ-u z)) >=> max-idempotent)
 
 
       Imul-BZ-BZ-path : Imul a b c -> c == i-conj (i-cross a b)

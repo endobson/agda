@@ -4,60 +4,51 @@ module rational.proper-interval.multiplication-distributive where
 
 open import base
 open import equality
-open import ordered-semiring
 open import order.instances.rational
+open import order.minmax
+open import order.minmax.instances.rational
+open import ordered-semiring
 open import rational
-open import rational.order
 open import rational.minmax
+open import rational.order
 open import rational.proper-interval
 open import ring.implementations.rational
 open import semiring
 open import sign.instances.rational
 
 private
-  minℚ-r+-swap : (a b c d : ℚ) -> (minℚ a b r+ minℚ c d) ℚ≤ minℚ (a r+ c) (b r+ d)
+  minℚ-r+-swap : (a b c d : ℚ) -> (min a b r+ min c d) ℚ≤ min (a r+ c) (b r+ d)
   minℚ-r+-swap a b c d =
-    minℚ-property {P = (minℚ a b r+ minℚ c d) ℚ≤_} (a r+ c) (b r+ d) abcd≤ac abcd≤bd
+    minℚ-property {P = (min a b r+ min c d) ℚ≤_} (a r+ c) (b r+ d) abcd≤ac abcd≤bd
     where
-    ab≤a = minℚ-≤-left a b
-    ab≤b = minℚ-≤-right a b
-    cd≤c = minℚ-≤-left c d
-    cd≤d = minℚ-≤-right c d
+    abcd≤ac = +-preserves-≤ min-≤-left min-≤-left
+    abcd≤bd = +-preserves-≤ min-≤-right min-≤-right
 
-    abcd≤ac = +-preserves-≤ ab≤a cd≤c
-    abcd≤bd = +-preserves-≤ ab≤b cd≤d
-
-
-  maxℚ-r+-swap : (a b c d : ℚ) -> maxℚ (a r+ c) (b r+ d) ℚ≤ (maxℚ a b r+ maxℚ c d)
+  maxℚ-r+-swap : (a b c d : ℚ) -> max (a r+ c) (b r+ d) ℚ≤ (max a b r+ max c d)
   maxℚ-r+-swap a b c d =
-    maxℚ-property {P = _ℚ≤ (maxℚ a b r+ maxℚ c d)} (a r+ c) (b r+ d) ac≤abcd bd≤abcd
+    maxℚ-property {P = _ℚ≤ (max a b r+ max c d)} (a r+ c) (b r+ d) ac≤abcd bd≤abcd
     where
-    a≤ab = maxℚ-≤-left a b
-    b≤ab = maxℚ-≤-right a b
-    c≤cd = maxℚ-≤-left c d
-    d≤cd = maxℚ-≤-right c d
-
-    ac≤abcd = +-preserves-≤ a≤ab c≤cd
-    bd≤abcd = +-preserves-≤ b≤ab d≤cd
+    ac≤abcd = +-preserves-≤ max-≤-left max-≤-left
+    bd≤abcd = +-preserves-≤ max-≤-right max-≤-right
 
 i-scale-distrib-r+ : (k1 k2 : ℚ) (a : Iℚ) -> i-scale (k1 r+ k2) a i⊆ (i-scale k1 a i+ i-scale k2 a)
 i-scale-distrib-r+ k1 k2 a@(Iℚ-cons al au al≤au) = (i⊆-cons lt1 lt2)
   where
-  case1 : Iℚ.l (i-scale (k1 r+ k2) a) == minℚ ((k1 r* al) r+ (k2 r* al)) ((k1 r* au) r+ (k2 r* au))
-  case1 = cong2 minℚ *-distrib-+-right *-distrib-+-right
+  case1 : Iℚ.l (i-scale (k1 r+ k2) a) == min ((k1 r* al) r+ (k2 r* al)) ((k1 r* au) r+ (k2 r* au))
+  case1 = cong2 min *-distrib-+-right *-distrib-+-right
 
   case2 : Iℚ.l ((i-scale k1 a) i+ (i-scale k2 a)) ==
-          (minℚ (k1 r* al) (k1 r* au)) r+ (minℚ (k2 r* al) (k2 r* au))
+          (min (k1 r* al) (k1 r* au)) r+ (min (k2 r* al) (k2 r* au))
   case2 = refl
 
   lt1 : Iℚ.l ((i-scale k1 a) i+ (i-scale k2 a)) ℚ≤ Iℚ.l (i-scale (k1 r+ k2) a)
   lt1 = subst2 _ℚ≤_ (sym case2) (sym case1) (minℚ-r+-swap _ _ _ _)
 
-  case3 : Iℚ.u (i-scale (k1 r+ k2) a) == maxℚ ((k1 r* al) r+ (k2 r* al)) ((k1 r* au) r+ (k2 r* au))
-  case3 = cong2 maxℚ *-distrib-+-right *-distrib-+-right
+  case3 : Iℚ.u (i-scale (k1 r+ k2) a) == max ((k1 r* al) r+ (k2 r* al)) ((k1 r* au) r+ (k2 r* au))
+  case3 = cong2 max *-distrib-+-right *-distrib-+-right
 
   case4 : Iℚ.u ((i-scale k1 a) i+ (i-scale k2 a)) ==
-          (maxℚ (k1 r* al) (k1 r* au)) r+ (maxℚ (k2 r* al) (k2 r* au))
+          (max (k1 r* al) (k1 r* au)) r+ (max (k2 r* al) (k2 r* au))
   case4 = refl
 
   lt2 : Iℚ.u (i-scale (k1 r+ k2) a) ℚ≤ Iℚ.u ((i-scale k1 a) i+ (i-scale k2 a))

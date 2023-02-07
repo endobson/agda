@@ -8,6 +8,8 @@ open import equality
 open import hlevel
 open import order
 open import order.instances.rational
+open import order.minmax
+open import order.minmax.instances.rational
 open import ordered-ring
 open import ordered-semiring
 open import rational
@@ -112,37 +114,37 @@ i+-right-zero : (a : Iℚ) -> a i+ 0i == a
 i+-right-zero (Iℚ-cons l u _) = Iℚ-bounds-path (r+-right-zero l) (r+-right-zero u)
 
 _i∪_ : Iℚ -> Iℚ -> Iℚ
-_i∪_ a b = (Iℚ-cons (minℚ a.l b.l) (maxℚ a.u b.u) abs.lt)
+_i∪_ a b = (Iℚ-cons (min a.l b.l) (max a.u b.u) abs.lt)
   where
   module a = Iℚ a
   module b = Iℚ b
   module abs where
     LT = _≤_
     abstract
-      lt : LT (minℚ a.l b.l) (maxℚ a.u b.u)
-      lt = (trans-≤ (trans-≤ (minℚ-≤-left a.l b.l) a.l≤u) (maxℚ-≤-left a.u b.u))
+      lt : LT (min a.l b.l) (max a.u b.u)
+      lt = (trans-≤ (trans-≤ min-≤-left a.l≤u) max-≤-left)
 
 i∪-commute : (a b : Iℚ) -> a i∪ b == b i∪ a
-i∪-commute a b = Iℚ-bounds-path minℚ-commute maxℚ-commute
+i∪-commute a b = Iℚ-bounds-path min-commute max-commute
 
 i∪-assoc : (a b c : Iℚ) -> (a i∪ b) i∪ c == a i∪ (b i∪ c)
-i∪-assoc a b c = Iℚ-bounds-path (minℚ-assoc _ _ _) (maxℚ-assoc _ _ _)
+i∪-assoc a b c = Iℚ-bounds-path min-assoc max-assoc
 
 i∪-same : (a : Iℚ) -> a i∪ a == a
-i∪-same a = Iℚ-bounds-path minℚ-same maxℚ-same
+i∪-same a = Iℚ-bounds-path min-idempotent max-idempotent
 
 i-scale : ℚ -> Iℚ -> Iℚ
 i-scale k a =
-  Iℚ-cons min max abs.lt
+  Iℚ-cons min' max' abs.lt
   where
   module a = Iℚ a
-  min = minℚ (k * a.l) (k * a.u)
-  max = maxℚ (k * a.l) (k * a.u)
+  min' = min (k * a.l) (k * a.u)
+  max' = max (k * a.l) (k * a.u)
   module abs where
     LT = _≤_
     abstract
-      lt : LT min max
-      lt = (trans-≤ (minℚ-≤-left (k * a.l) (k * a.u)) (maxℚ-≤-left (k * a.l) (k * a.u)))
+      lt : LT min' max'
+      lt = trans-≤ min-≤-left max-≤-left
 
 i-scale-NN : ℚ⁰⁺ -> Iℚ -> Iℚ
 i-scale-NN (k , nn-k) a =
@@ -159,22 +161,20 @@ i-scale-NP (k , np-k) a =
 i-scale-NN-path : (k : ℚ⁰⁺) -> (a : Iℚ) -> i-scale-NN k a == i-scale ⟨ k ⟩ a
 i-scale-NN-path (k , nn-k) (Iℚ-cons l u l≤u) = Iℚ-bounds-path (sym lp) (sym up)
   where
-  lp-1 : _
-  lp-1 = (NonNeg-0≤ _ nn-k)
-  lp-2 : _
-  lp-2 = (*₁-preserves-≤ lp-1 l≤u)
-  lp : minℚ (k * l) (k * u) == k * l
-  lp = minℚ-left _ _ lp-2
-  up : maxℚ (k * l) (k * u) == k * u
-  up = maxℚ-right _ _ (*₁-preserves-≤ (NonNeg-0≤ _ nn-k) l≤u)
+  kl≤ku : (k * l) ≤ (k * u)
+  kl≤ku = (*₁-preserves-≤ (NonNeg-0≤ _ nn-k) l≤u)
+  lp : min (k * l) (k * u) == k * l
+  lp = min-≤-path kl≤ku
+  up : max (k * l) (k * u) == k * u
+  up = max-≤-path kl≤ku
 
 i-scale-NP-path : (k : ℚ⁰⁻) -> (a : Iℚ) -> i-scale-NP k a == i-scale ⟨ k ⟩ a
 i-scale-NP-path (k , np-k) (Iℚ-cons l u l≤u) = Iℚ-bounds-path (sym lp) (sym up)
   where
-  lp : minℚ (k * l) (k * u) == k * u
-  lp = minℚ-right _ _ (*₁-flips-≤ (NonPos-≤0 _ np-k) l≤u)
-  up : maxℚ (k * l) (k * u) == k * l
-  up = maxℚ-left _ _ (*₁-flips-≤ (NonPos-≤0 _ np-k) l≤u)
+  lp : min (k * l) (k * u) == k * u
+  lp = min-≥-path (*₁-flips-≤ (NonPos-≤0 _ np-k) l≤u)
+  up : max (k * l) (k * u) == k * l
+  up = max-≥-path (*₁-flips-≤ (NonPos-≤0 _ np-k) l≤u)
 
 i-scale-1 : (a : Iℚ) -> i-scale 1r a == a
 i-scale-1 a = sym (i-scale-NN-path (1r , inj-l Pos-1r) a) >=>
@@ -199,10 +199,8 @@ i*-NN a b nn-al nn-bl = Iℚ-cons (a.l * b.l) (a.u * b.u) abs.lt
 i*-NN-path : (a b : Iℚ) -> (nn-a : (NonNegI a)) -> (nn-b : (NonNegI b)) ->
              i*-NN a b nn-a nn-b == (a i* b)
 i*-NN-path a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-a nn-b =
-  Iℚ-bounds-path (sym (minℚ-left (al * bl) (au * bl)
-                                  (*₂-preserves-≤ al≤au (NonNeg-0≤ _ nn-bl))))
-                 (sym (maxℚ-right (al * bu) (au * bu)
-                                  (*₂-preserves-≤ al≤au (NonNeg-0≤ _ nn-bu)))) >=>
+  Iℚ-bounds-path (sym (min-≤-path (*₂-preserves-≤ al≤au (NonNeg-0≤ _ nn-bl))))
+                 (sym (max-≤-path (*₂-preserves-≤ al≤au (NonNeg-0≤ _ nn-bu)))) >=>
   cong2 _i∪_ (i-scale-NN-path (al , nn-al) b) (i-scale-NN-path (au , nn-au) b)
   where
   nn-al = nn-a
@@ -213,24 +211,24 @@ i*-NN-path a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-a nn-b =
 i*-commute : (a b : Iℚ) -> a i* b == b i* a
 i*-commute (Iℚ-cons al au _) (Iℚ-cons bl bu _) = Iℚ-bounds-path l-path u-path
   where
-  l-path : minℚ (minℚ (al * bl) (al * bu)) (minℚ (au * bl) (au * bu)) ==
-           minℚ (minℚ (bl * al) (bl * au)) (minℚ (bu * al) (bu * au))
-  l-path = minℚ-assoc _ _ _ >=>
-           cong (minℚ _) (sym (minℚ-assoc _ _ _) >=>
-                          cong (\x -> minℚ x _) minℚ-commute >=>
-                          minℚ-assoc _ _ _) >=>
-           sym (minℚ-assoc _ _ _) >=>
-           cong2 minℚ (cong2 minℚ *-commute *-commute)
-                      (cong2 minℚ *-commute *-commute)
-  u-path : maxℚ (maxℚ (al * bl) (al * bu)) (maxℚ (au * bl) (au * bu)) ==
-           maxℚ (maxℚ (bl * al) (bl * au)) (maxℚ (bu * al) (bu * au))
-  u-path = maxℚ-assoc _ _ _ >=>
-           cong (maxℚ _) (sym (maxℚ-assoc _ _ _) >=>
-                          cong (\x -> maxℚ x _) maxℚ-commute >=>
-                          maxℚ-assoc _ _ _) >=>
-           sym (maxℚ-assoc _ _ _) >=>
-           cong2 maxℚ (cong2 maxℚ *-commute *-commute)
-                      (cong2 maxℚ *-commute *-commute)
+  l-path : min (min (al * bl) (al * bu)) (min (au * bl) (au * bu)) ==
+           min (min (bl * al) (bl * au)) (min (bu * al) (bu * au))
+  l-path = min-assoc >=>
+           cong (min _) (sym min-assoc >=>
+                          cong (\x -> min x _) min-commute >=>
+                          min-assoc) >=>
+           sym min-assoc >=>
+           cong2 min (cong2 min *-commute *-commute)
+                     (cong2 min *-commute *-commute)
+  u-path : max (max (al * bl) (al * bu)) (max (au * bl) (au * bu)) ==
+           max (max (bl * al) (bl * au)) (max (bu * al) (bu * au))
+  u-path = max-assoc >=>
+           cong (max _) (sym max-assoc >=>
+                          cong (\x -> max x _) max-commute >=>
+                          max-assoc) >=>
+           sym max-assoc >=>
+           cong2 max (cong2 max *-commute *-commute)
+                     (cong2 max *-commute *-commute)
 
 i--scale : (a : Iℚ) -> i- a == i-scale (r- 1r) a
 i--scale a@(Iℚ-cons l u l≤u) = Iℚ-bounds-path lp up
@@ -239,14 +237,14 @@ i--scale a@(Iℚ-cons l u l≤u) = Iℚ-bounds-path lp up
   mu≤ml = *₁-flips-≤ (weaken-< (r--flips-sign _ pos-sign Pos-1r)) l≤u
 
 
-  lp : (r- u) == minℚ ((r- 1r) * l) ((r- 1r) * u)
+  lp : (r- u) == min ((r- 1r) * l) ((r- 1r) * u)
   lp = cong r-_ (sym *-left-one) >=>
        sym minus-extract-left >=>
-       sym (minℚ-right ((r- 1r) * l) ((r- 1r) * u) mu≤ml)
-  up : (r- l) == maxℚ ((r- 1r) * l) ((r- 1r) * u)
+       sym (min-≥-path mu≤ml)
+  up : (r- l) == max ((r- 1r) * l) ((r- 1r) * u)
   up = cong r-_ (sym *-left-one) >=>
        sym minus-extract-left >=>
-       sym (maxℚ-left ((r- 1r) * l) ((r- 1r) * u) mu≤ml)
+       sym (max-≥-path mu≤ml)
 
 
 i-scale-distrib-∪ : (k : ℚ) (a b : Iℚ) ->
@@ -263,9 +261,9 @@ i-scale-distrib-∪ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) = 
         where
         k⁺ : ℚ⁰⁺
         k⁺ = k , nn-k
-        lp : k r* (minℚ al bl) == minℚ (k r* al) (k r* bl)
+        lp : k r* (min al bl) == min (k r* al) (k r* bl)
         lp = r*₁-distrib-min k⁺ al bl
-        up : k r* (maxℚ au bu) == maxℚ (k r* au) (k r* bu)
+        up : k r* (max au bu) == max (k r* au) (k r* bu)
         up = r*₁-distrib-max k⁺ au bu
 
       np-case : NonPos k -> i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
@@ -276,9 +274,9 @@ i-scale-distrib-∪ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) = 
         where
         k⁻ : ℚ⁰⁻
         k⁻ = k , np-k
-        lp : k r* (minℚ al bl) == maxℚ (k r* al) (k r* bl)
+        lp : k r* (min al bl) == max (k r* al) (k r* bl)
         lp = r*₁-flip-distrib-min k⁻ al bl
-        up : k r* (maxℚ au bu) == minℚ (k r* au) (k r* bu)
+        up : k r* (max au bu) == min (k r* au) (k r* bu)
         up = r*₁-flip-distrib-max k⁻ au bu
 
       handle : Σ[ s ∈ Sign ] isSign s k ->
@@ -415,7 +413,7 @@ i-scale-width k a@(Iℚ-cons l u l≤u)  = handle (decide-sign k)
   where
   nn-case : NonNeg k -> i-width (i-scale k a) == absℚ k r* (i-width a)
   nn-case nn-k =
-    cong2 diffℚ (minℚ-left _ _ kl≤ku) (maxℚ-right _ _ kl≤ku) >=>
+    cong2 diffℚ (min-≤-path kl≤ku) (max-≤-path kl≤ku) >=>
     sym (r*-distrib-diffℚ k l u) >=>
     cong (_r* (diffℚ l u)) (sym (absℚ-NonNeg nn-k))
 
@@ -425,7 +423,7 @@ i-scale-width k a@(Iℚ-cons l u l≤u)  = handle (decide-sign k)
 
   n-case : Neg k -> i-width (i-scale k a) == absℚ k r* (i-width a)
   n-case n-k =
-    cong2 diffℚ (minℚ-right _ _ ku≤kl) (maxℚ-left _ _ ku≤kl) >=>
+    cong2 diffℚ (min-≥-path ku≤kl) (max-≥-path ku≤kl) >=>
     sym (r*-distrib-diffℚ k u l) >=>
     sym minus-double-inverse >=>
     cong r-_ (sym (r*-minus-extract-right _ _)) >=>
@@ -447,29 +445,29 @@ i∪₁-width-≤ : (a b : Iℚ) -> i-width a ℚ≤ i-width (a i∪ b)
 i∪₁-width-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
   +-preserves-≤ lt1 lt2
   where
-  lt1 : au ℚ≤ (maxℚ au bu)
-  lt1 = maxℚ-≤-left au bu
-  lt2 : (r- al) ℚ≤ (r- (minℚ al bl))
-  lt2 = minus-flips-≤ (minℚ-≤-left al bl)
+  lt1 : au ℚ≤ (max au bu)
+  lt1 = max-≤-left
+  lt2 : (r- al) ℚ≤ (r- (min al bl))
+  lt2 = minus-flips-≤ min-≤-left
 
 i∪₂-width-≤ : (a b : Iℚ) -> i-width b ℚ≤ i-width (a i∪ b)
 i∪₂-width-≤ a b = subst (\x -> i-width b ℚ≤ i-width x) (i∪-commute b a) (i∪₁-width-≤ b a)
 
 i-maxabs : Iℚ -> ℚ
-i-maxabs (Iℚ-cons l u _) = maxℚ (absℚ l) (absℚ u)
+i-maxabs (Iℚ-cons l u _) = max (absℚ l) (absℚ u)
 
 
 i-maxabs-NonNeg : (a : Iℚ) -> NonNegI a -> i-maxabs a == Iℚ.u a
 i-maxabs-NonNeg (Iℚ-cons l u l≤u) nn-l =
-  cong2 maxℚ (absℚ-NonNeg nn-l) (absℚ-NonNeg nn-u) >=>
-  maxℚ-right l u l≤u
+  cong2 max (absℚ-NonNeg nn-l) (absℚ-NonNeg nn-u) >=>
+  max-≤-path l≤u
   where
   nn-u = NonNeg-≤ l u nn-l l≤u
 
 i-maxabs-NonPos : (a : Iℚ) -> NonPosI a -> i-maxabs a == (r- (Iℚ.l a))
 i-maxabs-NonPos (Iℚ-cons l u l≤u) np-u =
-  cong2 maxℚ (absℚ-NonPos np-l) (absℚ-NonPos np-u) >=>
-  maxℚ-left (r- l) (r- u) (minus-flips-≤ l≤u)
+  cong2 max (absℚ-NonPos np-l) (absℚ-NonPos np-u) >=>
+  max-≥-path (minus-flips-≤ l≤u)
   where
   np-l = NonPos-≤ l u np-u l≤u
 
@@ -479,8 +477,8 @@ i-maxabs-CrossZero a@(Iℚ-cons l u l≤u) (np-l , nn-u) =
   where
   m = i-maxabs a
   w = i-width a
-  pm : m == maxℚ (r- l) u
-  pm = cong2 maxℚ (absℚ-NonPos np-l) (absℚ-NonNeg nn-u)
+  pm : m == max (r- l) u
+  pm = cong2 max (absℚ-NonPos np-l) (absℚ-NonNeg nn-u)
 
   l-lt : (r- l) ℚ≤ w
   l-lt = subst (_ℚ≤ w) (r+-left-zero (r- l)) (+₂-preserves-≤ (NonNeg-0≤ _ nn-u))
@@ -494,11 +492,11 @@ i-maxabs-Zero a@(Iℚ-cons al au _) zm = Iℚ-bounds-path zl zu
   where
   np-aal : NonPos (absℚ al)
   np-aal =
-    ≤0-NonPos _ ((subst ((absℚ al) ℚ≤_) (Zero-path _ zm) (maxℚ-≤-left (absℚ al) (absℚ au))))
+    ≤0-NonPos _ ((subst ((absℚ al) ℚ≤_) (Zero-path _ zm) max-≤-left))
 
   np-aau : NonPos (absℚ au)
   np-aau =
-    ≤0-NonPos _ ((subst ((absℚ au) ℚ≤_) (Zero-path _ zm) (maxℚ-≤-right (absℚ al) (absℚ au))))
+    ≤0-NonPos _ ((subst ((absℚ au) ℚ≤_) (Zero-path _ zm) max-≤-right))
 
   zl : al == 0r
   zl = Zero-path al (absℚ-Zero (NonNeg-NonPos->Zero (NonNeg-absℚ al) np-aal))
@@ -518,16 +516,16 @@ i-width-bound a@(Iℚ-cons l u l≤u) =
   subst2 _ℚ≤_ (diffℚ-trans l 0r u) (2r-path (i-maxabs a)) lt1
   where
   dl≤absl : diffℚ l 0r ℚ≤ absℚ l
-  dl≤absl = subst (_ℚ≤ absℚ l) (sym (r+-left-zero (r- l))) (maxℚ-≤-right l (r- l))
+  dl≤absl = subst (_ℚ≤ absℚ l) (sym (r+-left-zero (r- l))) max-≤-right
   absl≤maxabs : absℚ l ℚ≤ i-maxabs a
-  absl≤maxabs = maxℚ-≤-left _ _
+  absl≤maxabs = max-≤-left
   dl≤maxabs = trans-ℚ≤ {diffℚ l 0r} {absℚ l} {i-maxabs a} dl≤absl absl≤maxabs
 
   du≤absu : diffℚ 0r u ℚ≤ absℚ u
   du≤absu = subst (_ℚ≤ absℚ u) (sym (r+-right-zero u) >=> +-right (sym minus-zero))
-                  (maxℚ-≤-left u (r- u))
+                  max-≤-left
   absu≤maxabs : absℚ u ℚ≤ i-maxabs a
-  absu≤maxabs = maxℚ-≤-right _ _
+  absu≤maxabs = max-≤-right
   du≤maxabs = trans-ℚ≤ {diffℚ 0r u} {absℚ u} {i-maxabs a} du≤absu absu≤maxabs
 
   dp : diffℚ l 0r r+ diffℚ 0r u == diffℚ l u
@@ -562,23 +560,23 @@ i*-width-NNNN a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al nn-b
 
   i1 = i-scale al b
   i1lp : Iℚ.l i1 == al r* bl
-  i1lp = minℚ-left _ _ albl≤albu
+  i1lp = min-≤-path albl≤albu
   i1up : Iℚ.u i1 == al r* bu
-  i1up = maxℚ-right _ _ albl≤albu
+  i1up = max-≤-path albl≤albu
   i2 = i-scale au b
   i2lp : Iℚ.l i2 == au r* bl
-  i2lp = minℚ-left _ _ aubl≤aubu
+  i2lp = min-≤-path aubl≤aubu
   i2up : Iℚ.u i2 == au r* bu
-  i2up = maxℚ-right _ _ aubl≤aubu
+  i2up = max-≤-path aubl≤aubu
 
 
   l = Iℚ.l (a i* b)
   lp : l == al r* bl
-  lp = cong2 minℚ i1lp i2lp >=> minℚ-left _ _ albl≤aubl
+  lp = cong2 min i1lp i2lp >=> min-≤-path albl≤aubl
 
   u = Iℚ.u (a i* b)
   up : u == au r* bu
-  up = cong2 maxℚ i1up i2up >=> maxℚ-right _ _ albu≤aubu
+  up = cong2 max i1up i2up >=> max-≤-path albu≤aubu
 
   wp : i-width (a i* b) == (au r* bu) r+ (r- (al r* bl))
   wp = cong2 diffℚ lp up
@@ -630,23 +628,23 @@ i*-width-NNNP a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al np-b
 
   i1 = i-scale al b
   i1lp : Iℚ.l i1 == al r* bl
-  i1lp = minℚ-left _ _ albl≤albu
+  i1lp = min-≤-path albl≤albu
   i1up : Iℚ.u i1 == al r* bu
-  i1up = maxℚ-right _ _ albl≤albu
+  i1up = max-≤-path albl≤albu
   i2 = i-scale au b
   i2lp : Iℚ.l i2 == au r* bl
-  i2lp = minℚ-left _ _ aubl≤aubu
+  i2lp = min-≤-path aubl≤aubu
   i2up : Iℚ.u i2 == au r* bu
-  i2up = maxℚ-right _ _ aubl≤aubu
+  i2up = max-≤-path aubl≤aubu
 
 
   l = Iℚ.l (a i* b)
   lp : l == au r* bl
-  lp = cong2 minℚ i1lp i2lp >=> minℚ-right _ _ aubl≤albl
+  lp = cong2 min i1lp i2lp >=> min-≥-path aubl≤albl
 
   u = Iℚ.u (a i* b)
   up : u == al r* bu
-  up = cong2 maxℚ i1up i2up >=> maxℚ-left _ _ aubu≤albu
+  up = cong2 max i1up i2up >=> max-≥-path aubu≤albu
 
   wp : i-width (a i* b) == (al r* bu) r+ (r- (au r* bl))
   wp = cong2 diffℚ lp up
@@ -688,23 +686,23 @@ i*-width-NNCZ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al (np-
 
   i1 = i-scale al b
   i1lp : Iℚ.l i1 == al r* bl
-  i1lp = minℚ-left _ _ albl≤albu
+  i1lp = min-≤-path albl≤albu
   i1up : Iℚ.u i1 == al r* bu
-  i1up = maxℚ-right _ _ albl≤albu
+  i1up = max-≤-path albl≤albu
   i2 = i-scale au b
   i2lp : Iℚ.l i2 == au r* bl
-  i2lp = minℚ-left _ _ aubl≤aubu
+  i2lp = min-≤-path aubl≤aubu
   i2up : Iℚ.u i2 == au r* bu
-  i2up = maxℚ-right _ _ aubl≤aubu
+  i2up = max-≤-path aubl≤aubu
 
 
   l = Iℚ.l (a i* b)
   lp : l == au r* bl
-  lp = cong2 minℚ i1lp i2lp >=> minℚ-right _ _ aubl≤albl
+  lp = cong2 min i1lp i2lp >=> min-≥-path aubl≤albl
 
   u = Iℚ.u (a i* b)
   up : u == au r* bu
-  up = cong2 maxℚ i1up i2up >=> maxℚ-right _ _ albu≤aubu
+  up = cong2 max i1up i2up >=> max-≤-path albu≤aubu
 
   wp : i-width (a i* b) == au r* (diffℚ bl bu)
   wp = cong2 diffℚ lp up >=> sym (r*-distrib-diffℚ au bl bu)
@@ -740,23 +738,23 @@ i*-width-NPNP a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au np-b
 
   i1 = i-scale al b
   i1lp : Iℚ.l i1 == al r* bu
-  i1lp = minℚ-right _ _ albu≤albl
+  i1lp = min-≥-path albu≤albl
   i1up : Iℚ.u i1 == al r* bl
-  i1up = maxℚ-left _ _ albu≤albl
+  i1up = max-≥-path albu≤albl
   i2 = i-scale au b
   i2lp : Iℚ.l i2 == au r* bu
-  i2lp = minℚ-right _ _ aubu≤aubl
+  i2lp = min-≥-path aubu≤aubl
   i2up : Iℚ.u i2 == au r* bl
-  i2up = maxℚ-left _ _ aubu≤aubl
+  i2up = max-≥-path aubu≤aubl
 
 
   l = Iℚ.l (a i* b)
   lp : l == au r* bu
-  lp = cong2 minℚ i1lp i2lp >=> minℚ-right _ _ aubu≤albu
+  lp = cong2 min i1lp i2lp >=> min-≥-path aubu≤albu
 
   u = Iℚ.u (a i* b)
   up : u == al r* bl
-  up = cong2 maxℚ i1up i2up >=> maxℚ-left _ _ aubl≤albl
+  up = cong2 max i1up i2up >=> max-≥-path aubl≤albl
 
   wp : i-width (a i* b) == (al r* bl) r+ (r- (au r* bu))
   wp = cong2 diffℚ lp up
@@ -807,23 +805,23 @@ i*-width-NPCZ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au (np-
 
   i1 = i-scale al b
   i1lp : Iℚ.l i1 == al r* bu
-  i1lp = minℚ-right _ _ albu≤albl
+  i1lp = min-≥-path albu≤albl
   i1up : Iℚ.u i1 == al r* bl
-  i1up = maxℚ-left _ _ albu≤albl
+  i1up = max-≥-path albu≤albl
   i2 = i-scale au b
   i2lp : Iℚ.l i2 == au r* bu
-  i2lp = minℚ-right _ _ aubu≤aubl
+  i2lp = min-≥-path aubu≤aubl
   i2up : Iℚ.u i2 == au r* bl
-  i2up = maxℚ-left _ _ aubu≤aubl
+  i2up = max-≥-path aubu≤aubl
 
 
   l = Iℚ.l (a i* b)
   lp : l == al r* bu
-  lp = cong2 minℚ i1lp i2lp >=> minℚ-left _ _ albu≤aubu
+  lp = cong2 min i1lp i2lp >=> min-≤-path albu≤aubu
 
   u = Iℚ.u (a i* b)
   up : u == al r* bl
-  up = cong2 maxℚ i1up i2up >=> maxℚ-left _ _ aubl≤albl
+  up = cong2 max i1up i2up >=> max-≥-path aubl≤albl
 
   wp : i-width (a i* b) == (r- al) r* wb
   wp = cong2 diffℚ lp up >=> sym (r*-distrib-diffℚ al bu bl) >=>
@@ -868,20 +866,20 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
 
   i1 = i-scale al b
   i1lp : Iℚ.l i1 == al r* bu
-  i1lp = minℚ-right _ _ albu≤albl
+  i1lp = min-≥-path albu≤albl
   i1up : Iℚ.u i1 == al r* bl
-  i1up = maxℚ-left _ _ albu≤albl
+  i1up = max-≥-path albu≤albl
   i2 = i-scale au b
   i2lp : Iℚ.l i2 == au r* bl
-  i2lp = minℚ-left _ _ aubl≤aubu
+  i2lp = min-≤-path aubl≤aubu
   i2up : Iℚ.u i2 == au r* bu
-  i2up = maxℚ-right _ _ aubl≤aubu
+  i2up = max-≤-path aubl≤aubu
 
   mal≤m : (r- al) ℚ≤ ma
-  mal≤m = subst (_ℚ≤ ma) (absℚ-NonPos np-al) (maxℚ-≤-left (absℚ al) (absℚ au))
+  mal≤m = subst (_ℚ≤ ma) (absℚ-NonPos np-al) max-≤-left
 
   mbl≤m : (r- bl) ℚ≤ mb
-  mbl≤m = subst (_ℚ≤ mb) (absℚ-NonPos np-bl) (maxℚ-≤-left (absℚ bl) (absℚ bu))
+  mbl≤m = subst (_ℚ≤ mb) (absℚ-NonPos np-bl) max-≤-left
 
   m≤al : (r- ma) ℚ≤ al
   m≤al = subst ((r- ma) ℚ≤_) minus-double-inverse
@@ -892,10 +890,10 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
                (minus-flips-≤ mbl≤m)
 
   au≤m : au ℚ≤ ma
-  au≤m = subst (_ℚ≤ ma) (absℚ-NonNeg nn-au) (maxℚ-≤-right (absℚ al) (absℚ au))
+  au≤m = subst (_ℚ≤ ma) (absℚ-NonNeg nn-au) max-≤-right
 
   bu≤m : bu ℚ≤ mb
-  bu≤m = subst (_ℚ≤ mb) (absℚ-NonNeg nn-bu) (maxℚ-≤-right (absℚ bl) (absℚ bu))
+  bu≤m = subst (_ℚ≤ mb) (absℚ-NonNeg nn-bu) max-≤-right
 
   mm≤albu : (r- (ma r* mb)) ℚ≤ (al r* bu)
   mm≤albu =
@@ -928,8 +926,8 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
 
 
   l = Iℚ.l (a i* b)
-  lp : l == minℚ (al r* bu) (au r* bl)
-  lp = cong2 minℚ i1lp i2lp
+  lp : l == min (al r* bu) (au r* bl)
+  lp = cong2 min i1lp i2lp
 
   mm≤l : (r- (ma r* mb)) ℚ≤ l
   mm≤l = subst ((r- (ma r* mb)) ℚ≤_) (sym lp)
@@ -940,8 +938,8 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
 
 
   u = Iℚ.u (a i* b)
-  up : u == maxℚ (al r* bl) (au r* bu)
-  up = cong2 maxℚ i1up i2up
+  up : u == max (al r* bl) (au r* bu)
+  up = cong2 max i1up i2up
 
   u≤mm : u ℚ≤ (ma r* mb)
   u≤mm = subst (_ℚ≤ (ma r* mb)) (sym up)
@@ -1257,13 +1255,13 @@ split-Overlap a@(Iℚ-cons al au _) b@(Iℚ-cons bl bu _) =
 
 i-intersect : (a b : Iℚ) -> Overlap a b -> Iℚ
 i-intersect a b (bl≤au , al≤bu) =
-  Iℚ-cons (maxℚ a.l b.l) (minℚ a.u b.u) ls≤us
+  Iℚ-cons (max a.l b.l) (min a.u b.u) ls≤us
   where
   module a = Iℚ a
   module b = Iℚ b
 
-  ls = maxℚ a.l b.l
-  us = minℚ a.u b.u
+  ls = max a.l b.l
+  us = min a.u b.u
   ls≤au : ls ℚ≤ a.u
   ls≤au = maxℚ-property {P = _≤ a.u} a.l b.l a.l≤u bl≤au
 
@@ -1286,10 +1284,10 @@ trans-i⊆ {Iℚ-cons al au _} {Iℚ-cons bl bu _} {Iℚ-cons cl cu _} a⊆b b�
   }
 
 i-intersect-⊆₁ : (a b : Iℚ) -> (o : Overlap a b) -> i-intersect a b o i⊆ a
-i-intersect-⊆₁ a b _ = i⊆-cons (maxℚ-≤-left _ _) (minℚ-≤-left (Iℚ.u a) _)
+i-intersect-⊆₁ a b _ = i⊆-cons max-≤-left min-≤-left
 
 i-intersect-⊆₂ : (a b : Iℚ) -> (o : Overlap a b) -> i-intersect a b o i⊆ b
-i-intersect-⊆₂ a b _ = i⊆-cons (maxℚ-≤-right _ _) (minℚ-≤-right _ (Iℚ.u b))
+i-intersect-⊆₂ a b _ = i⊆-cons max-≤-right min-≤-right
 
 i-scale-preserves-⊆ : (k : ℚ) {a b : Iℚ} -> a i⊆ b -> (i-scale k a) i⊆ (i-scale k b)
 i-scale-preserves-⊆ k {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (i⊆-cons l u) =
@@ -1301,17 +1299,17 @@ i-scale-preserves-⊆ k {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤b
                        (subst2 _ℚ≤_ (sym maxa-path) (sym maxb-path)
                                     (*₁-preserves-≤ (NonNeg-0≤ _ nn) u))
     where
-    minb-path : minℚ (k r* bl) (k r* bu) == k r* bl
-    minb-path = minℚ-left _ _ (*₁-preserves-≤ (NonNeg-0≤ _ nn) bl≤bu)
+    minb-path : min (k r* bl) (k r* bu) == k r* bl
+    minb-path = min-≤-path (*₁-preserves-≤ (NonNeg-0≤ _ nn) bl≤bu)
 
-    mina-path : minℚ (k r* al) (k r* au) == k r* al
-    mina-path = minℚ-left _ _ (*₁-preserves-≤ (NonNeg-0≤ _ nn) al≤au)
+    mina-path : min (k r* al) (k r* au) == k r* al
+    mina-path = min-≤-path (*₁-preserves-≤ (NonNeg-0≤ _ nn) al≤au)
 
-    maxb-path : maxℚ (k r* bl) (k r* bu) == k r* bu
-    maxb-path = maxℚ-right _ _ (*₁-preserves-≤ (NonNeg-0≤ _ nn) bl≤bu)
+    maxb-path : max (k r* bl) (k r* bu) == k r* bu
+    maxb-path = max-≤-path (*₁-preserves-≤ (NonNeg-0≤ _ nn) bl≤bu)
 
-    maxa-path : maxℚ (k r* al) (k r* au) == k r* au
-    maxa-path = maxℚ-right _ _ (*₁-preserves-≤ (NonNeg-0≤ _ nn) al≤au)
+    maxa-path : max (k r* al) (k r* au) == k r* au
+    maxa-path = max-≤-path (*₁-preserves-≤ (NonNeg-0≤ _ nn) al≤au)
 
   np-case : NonPos k -> (i-scale k a) i⊆ (i-scale k b)
   np-case np = i⊆-cons (subst2 _ℚ≤_ (sym minb-path) (sym mina-path)
@@ -1319,17 +1317,17 @@ i-scale-preserves-⊆ k {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤b
                        (subst2 _ℚ≤_ (sym maxa-path) (sym maxb-path)
                                     (*₁-flips-≤ (NonPos-≤0 _ np) l))
     where
-    minb-path : minℚ (k r* bl) (k r* bu) == k r* bu
-    minb-path = minℚ-right _ _ (*₁-flips-≤ (NonPos-≤0 _ np) bl≤bu)
+    minb-path : min (k r* bl) (k r* bu) == k r* bu
+    minb-path = min-≥-path (*₁-flips-≤ (NonPos-≤0 _ np) bl≤bu)
 
-    mina-path : minℚ (k r* al) (k r* au) == k r* au
-    mina-path = minℚ-right _ _ (*₁-flips-≤ (NonPos-≤0 _ np) al≤au)
+    mina-path : min (k r* al) (k r* au) == k r* au
+    mina-path = min-≥-path (*₁-flips-≤ (NonPos-≤0 _ np) al≤au)
 
-    maxb-path : maxℚ (k r* bl) (k r* bu) == k r* bl
-    maxb-path = maxℚ-left _ _ (*₁-flips-≤ (NonPos-≤0 _ np) bl≤bu)
+    maxb-path : max (k r* bl) (k r* bu) == k r* bl
+    maxb-path = max-≥-path (*₁-flips-≤ (NonPos-≤0 _ np) bl≤bu)
 
-    maxa-path : maxℚ (k r* al) (k r* au) == k r* al
-    maxa-path = maxℚ-left _ _ (*₁-flips-≤ (NonPos-≤0 _ np) al≤au)
+    maxa-path : max (k r* al) (k r* au) == k r* al
+    maxa-path = max-≥-path (*₁-flips-≤ (NonPos-≤0 _ np) al≤au)
 
   handle : Σ[ s ∈ Sign ] isSign s k -> (i-scale k a) i⊆ (i-scale k b)
   handle (pos-sign  , pk) = nn-case (inj-l pk)
@@ -1338,9 +1336,7 @@ i-scale-preserves-⊆ k {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤b
 
 
 i∪₁-preserves-⊆ : (a : Iℚ) {b c : Iℚ} -> b i⊆ c -> (a i∪ b) i⊆ (a i∪ c)
-i∪₁-preserves-⊆ a {b} {c} (i⊆-cons l u) =
-  i⊆-cons (minℚ₁-preserves-≤ (Iℚ.l a) (Iℚ.l c) (Iℚ.l b) l)
-          (maxℚ₁-preserves-≤ (Iℚ.u a) (Iℚ.u b) (Iℚ.u c) u)
+i∪₁-preserves-⊆ a (i⊆-cons l u) = i⊆-cons (min₁-preserves-≤ l) (max₁-preserves-≤ u)
 
 i∪₂-preserves-⊆ : {a b : Iℚ} -> a i⊆ b -> (c : Iℚ) -> (a i∪ c) i⊆ (b i∪ c)
 i∪₂-preserves-⊆ {a} {b} a⊆b c =
@@ -1351,10 +1347,10 @@ i∪-preserves-⊆ {a} {b} {c} {d} a⊆b c⊆d =
   trans-i⊆ (i∪₁-preserves-⊆ a c⊆d) (i∪₂-preserves-⊆ a⊆b d)
 
 i∪₁-⊆ : (a b : Iℚ) -> a i⊆ (a i∪ b)
-i∪₁-⊆ (Iℚ-cons al au _) (Iℚ-cons bl bu _) = i⊆-cons (minℚ-≤-left al bl) (maxℚ-≤-left au bu)
+i∪₁-⊆ (Iℚ-cons al au _) (Iℚ-cons bl bu _) = i⊆-cons min-≤-left max-≤-left
 
 i∪₂-⊆ : (a b : Iℚ) -> b i⊆ (a i∪ b)
-i∪₂-⊆ (Iℚ-cons al au _) (Iℚ-cons bl bu _) = i⊆-cons (minℚ-≤-right al bl) (maxℚ-≤-right au bu)
+i∪₂-⊆ (Iℚ-cons al au _) (Iℚ-cons bl bu _) = i⊆-cons min-≤-right max-≤-right
 
 i*₁-preserves-⊆ : (a : Iℚ) {b c : Iℚ} -> b i⊆ c -> (a i* b) i⊆ (a i* c)
 i*₁-preserves-⊆ (Iℚ-cons al au _) b⊆c =
@@ -1387,25 +1383,25 @@ i-maxabs-⊆ {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (i⊆-c
   maxℚ-property {P = _ℚ≤ i-maxabs b} (absℚ al) (absℚ au) aal≤mb aau≤mb
   where
   abs≤ : (q : ℚ) -> q ℚ≤ absℚ q
-  abs≤ q = maxℚ-≤-left q (r- q)
+  abs≤ q = max-≤-left
   mabs≤ : (q : ℚ) -> (r- q) ℚ≤ absℚ q
-  mabs≤ q = maxℚ-≤-right q (r- q)
+  mabs≤ q = max-≤-right
 
   point : (q : ℚ) -> (bl ℚ≤ q) -> (q ℚ≤ bu) -> absℚ q ℚ≤ i-maxabs b
-  point q bl≤q q≤bu = handle (split-maxℚ q (r- q))
+  point q bl≤q q≤bu = handle split-max
     where
     handle : (absℚ q == q ⊎ absℚ q == (r- q)) -> absℚ q ℚ≤ i-maxabs b
     handle (inj-l p) =
       subst (_ℚ≤ i-maxabs b) (sym p)
             (trans-ℚ≤ {q} {bu} {i-maxabs b}
                       q≤bu (trans-ℚ≤ {bu} {absℚ bu} {i-maxabs b}
-                                     (abs≤ bu) (maxℚ-≤-right (absℚ bl) (absℚ bu))))
+                                     (abs≤ bu) max-≤-right))
     handle (inj-r p) =
       subst (_ℚ≤ i-maxabs b) (sym p)
             (trans-ℚ≤ {(r- q)} {(r- bl)} {i-maxabs b}
                       (minus-flips-≤ bl≤q)
                       (trans-ℚ≤ {(r- bl)} {absℚ bl} {i-maxabs b}
-                                (mabs≤ bl) (maxℚ-≤-left (absℚ bl) (absℚ bu))))
+                                (mabs≤ bl) max-≤-left))
 
   al≤bu = trans-ℚ≤ {al} {au} {bu} al≤au au≤bu
   bl≤au = trans-ℚ≤ {bl} {al} {au} bl≤al al≤au
@@ -1458,32 +1454,32 @@ i-scale-preserves-⊂ {k} {(Iℚ-cons al au al≤au)} {(Iℚ-cons bl bu bl≤bu)
   i⊂-cons (subst2 _<_ (sym minb-path) (sym mina-path) (*₁-preserves-< pk bl<al))
           (subst2 _<_ (sym maxa-path) (sym maxb-path) (*₁-preserves-< pk au<bu))
   where
-  minb-path : minℚ (k r* bl) (k r* bu) == k r* bl
-  minb-path = minℚ-left _ _ (*₁-preserves-≤ (weaken-< pk) bl≤bu)
+  minb-path : min (k r* bl) (k r* bu) == k r* bl
+  minb-path = min-≤-path (*₁-preserves-≤ (weaken-< pk) bl≤bu)
 
-  mina-path : minℚ (k r* al) (k r* au) == k r* al
-  mina-path = minℚ-left _ _ (*₁-preserves-≤ (weaken-< pk) al≤au)
+  mina-path : min (k r* al) (k r* au) == k r* al
+  mina-path = min-≤-path (*₁-preserves-≤ (weaken-< pk) al≤au)
 
-  maxb-path : maxℚ (k r* bl) (k r* bu) == k r* bu
-  maxb-path = maxℚ-right _ _ (*₁-preserves-≤ (weaken-< pk) bl≤bu)
+  maxb-path : max (k r* bl) (k r* bu) == k r* bu
+  maxb-path = max-≤-path (*₁-preserves-≤ (weaken-< pk) bl≤bu)
 
-  maxa-path : maxℚ (k r* al) (k r* au) == k r* au
-  maxa-path = maxℚ-right _ _ (*₁-preserves-≤ (weaken-< pk) al≤au)
+  maxa-path : max (k r* al) (k r* au) == k r* au
+  maxa-path = max-≤-path (*₁-preserves-≤ (weaken-< pk) al≤au)
 i-scale-preserves-⊂ {k} {(Iℚ-cons al au al≤au)} {(Iℚ-cons bl bu bl≤bu)} (inj-r nk) (i⊂-cons bl<al au<bu) =
   i⊂-cons (subst2 _<_ (sym minb-path) (sym mina-path) (*₁-flips-< nk au<bu))
           (subst2 _<_ (sym maxa-path) (sym maxb-path) (*₁-flips-< nk bl<al))
   where
-  minb-path : minℚ (k r* bl) (k r* bu) == k r* bu
-  minb-path = minℚ-right _ _ (*₁-flips-≤ (weaken-< nk) bl≤bu)
+  minb-path : min (k r* bl) (k r* bu) == k r* bu
+  minb-path = min-≥-path (*₁-flips-≤ (weaken-< nk) bl≤bu)
 
-  mina-path : minℚ (k r* al) (k r* au) == k r* au
-  mina-path = minℚ-right _ _ (*₁-flips-≤ (weaken-< nk) al≤au)
+  mina-path : min (k r* al) (k r* au) == k r* au
+  mina-path = min-≥-path (*₁-flips-≤ (weaken-< nk) al≤au)
 
-  maxb-path : maxℚ (k r* bl) (k r* bu) == k r* bl
-  maxb-path = maxℚ-left _ _ (*₁-flips-≤ (weaken-< nk) bl≤bu)
+  maxb-path : max (k r* bl) (k r* bu) == k r* bl
+  maxb-path = max-≥-path (*₁-flips-≤ (weaken-< nk) bl≤bu)
 
-  maxa-path : maxℚ (k r* al) (k r* au) == k r* al
-  maxa-path = maxℚ-left _ _ (*₁-flips-≤ (weaken-< nk) al≤au)
+  maxa-path : max (k r* al) (k r* au) == k r* al
+  maxa-path = max-≥-path (*₁-flips-≤ (weaken-< nk) al≤au)
 
 i*₁-preserves-⊂ : (a : Iℚ) -> (¬ (ZeroEndedI a)) -> {b c : Iℚ} -> b i⊂ c -> (a i* b) i⊂ (a i* c)
 i*₁-preserves-⊂ a@(Iℚ-cons al au _) ¬za {b} {c} b⊂c =
@@ -1774,16 +1770,16 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     hbl = 1/2r r* bl
     hbu = 1/2r r* bu
 
-    al' = minℚ al hbl
-    au' = maxℚ au hbu
+    al' = min al hbl
+    au' = max au hbu
 
     n-al' : Neg al'
     n-al' = Neg-≤ al' hbl (r*₁-preserves-sign (1/2r , Pos-1/ℕ (2 , _)) _ {neg-sign} n-bl)
-                          (minℚ-≤-right al hbl)
+                          min-≤-right
 
     p-au' : Pos au'
     p-au' = Pos-≤ hbu au' (r*₁-preserves-sign (1/2r , Pos-1/ℕ (2 , _)) _ {pos-sign} p-bu)
-                          (maxℚ-≤-right au hbu)
+                          max-≤-right
 
     bl<al' : bl < al'
     bl<al' = minℚ-property {P = bl <_} al hbl bl<al
@@ -1821,7 +1817,7 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     1<ku = subst (_< ku) (r*-commute au' 1/au' >=> r1/-inverse au' au'-inv)
                  (*₂-preserves-< au'<bu p-1/au')
 
-    k = minℚ kl ku
+    k = min kl ku
 
     p-k : Pos k
     p-k = minℚ-property {P = Pos} kl ku p-kl p-ku
@@ -1848,14 +1844,14 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
              >=> r*-right-one bu
 
     al'≤al : al' ℚ≤ al
-    al'≤al = minℚ-≤-left al hbl
+    al'≤al = min-≤-left
     au≤au' : au  ℚ≤ au'
-    au≤au' = maxℚ-≤-left au hbu
+    au≤au' = max-≤-left
 
     k≤kl : k ℚ≤ kl
-    k≤kl = minℚ-≤-left kl ku
+    k≤kl = min-≤-left
     k≤ku : k ℚ≤ ku
-    k≤ku = minℚ-≤-right kl ku
+    k≤ku = min-≤-right
 
 
     bl≤pl : bl ℚ≤ pl

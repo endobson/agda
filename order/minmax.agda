@@ -48,6 +48,9 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO :
     connected-< (\xy<x -> irrefl-< (min-greatest-< xy<x (trans-< xy<x x<y)))
                 min-≮-left
 
+  min->-path : {x y : D} -> x > y -> min x y == y
+  min->-path x>y = min-commute >=> min-<-path x>y
+
   min-<-right-path : {x y : D} -> min x y < y -> min x y == x
   min-<-right-path xy<y =
     connected-< (\xy<x -> irrefl-< (min-greatest-< xy<x xy<y))
@@ -75,6 +78,9 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO :
     handle (inj-l xy<z) (inj-r x<xz) = bot-elim (min-≮-left x<xz)
     handle (inj-l xy<z) (inj-l xy<x) =
        trans-=-< (sym (min-<-left-path xy<x)) xy<z
+
+  min₂-reflects-< : {x y z : D} -> min x y < min z y -> x < z
+  min₂-reflects-< xy<zy = min₁-reflects-< (subst2 _<_ min-commute min-commute xy<zy)
 
 
 record MaxOperationStr {ℓD ℓ< : Level} {D : Type ℓD} (LO : LinearOrderStr D ℓ<) :
@@ -113,6 +119,9 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO :
     connected-< max-≮-right
                 (\y<xy -> irrefl-< (max-least-< (trans-< x<y y<xy) y<xy))
 
+  max->-path : {x y : D} -> x > y -> max x y == x
+  max->-path x>y = max-commute >=> max-<-path x>y
+
   max-<-right-path : {x y : D} -> y < max x y -> max x y == x
   max-<-right-path y<xy =
     connected-< max-≮-left (\x<xy -> irrefl-< (max-least-< x<xy y<xy))
@@ -138,6 +147,9 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO :
     handle (inj-r y<xz) (inj-l xy<x) = bot-elim (max-≮-left xy<x)
     handle (inj-r y<xz) (inj-r x<xz) =
       trans-<-= y<xz (max-<-left-path x<xz)
+
+  max₂-reflects-< : {x y z : D} -> max x y < max z y -> x < z
+  max₂-reflects-< xy<zy = max₁-reflects-< (subst2 _<_ max-commute max-commute xy<zy)
 
 
 module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {PO : PartialOrderStr D ℓ≤}
@@ -165,6 +177,9 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
 
   max-≤-path : {x y : D} -> x ≤ y -> max x y == y
   max-≤-path x≤y = antisym-≤ (max-least-≤ x≤y refl-≤) max-≤-right
+
+  max-≥-path : {x y : D} -> x ≥ y -> max x y == x
+  max-≥-path x≥y = max-commute >=> max-≤-path x≥y
 
   max₁-preserves-≤ : {x y z : D} -> y ≤ z -> max x y ≤ max x z
   max₁-preserves-≤ y≤z = max-least-≤ max-≤-left (trans-≤ y≤z max-≤-right)
@@ -199,11 +214,43 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
   min-≤-path : {x y : D} -> x ≤ y -> min x y == x
   min-≤-path x≤y = antisym-≤ min-≤-left (min-greatest-≤ refl-≤ x≤y)
 
+  min-≥-path : {x y : D} -> x ≥ y -> min x y == y
+  min-≥-path x≥y = min-commute >=> min-≤-path x≥y
+
   min₁-preserves-≤ : {x y z : D} -> y ≤ z -> min x y ≤ min x z
   min₁-preserves-≤ y≤z = min-greatest-≤ min-≤-left (trans-≤ min-≤-right y≤z)
 
   min₂-preserves-≤ : {x y z : D} -> x ≤ y -> min x z ≤ min y z
   min₂-preserves-≤ x≤y = min-greatest-≤ (trans-≤ min-≤-left x≤y) min-≤-right
+
+
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO : MinOperationStr LO }} where
+  private
+    instance
+      ILO = LO
+      IPO = NegatedLinearOrder LO
+      CPO = CompatibleNegatedLinearOrder LO
+
+  min-assoc : {x y z : D} -> min (min x y) z == min x (min y z)
+  min-assoc =
+    antisym-≤ (min-greatest-≤ (trans-≤ min-≤-left min-≤-left)
+                              (min₂-preserves-≤ min-≤-right))
+              (min-greatest-≤ (min₁-preserves-≤ min-≤-left)
+                              (trans-≤ min-≤-right min-≤-right))
+
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO : MaxOperationStr LO }} where
+  private
+    instance
+      ILO = LO
+      IPO = NegatedLinearOrder LO
+      CPO = CompatibleNegatedLinearOrder LO
+
+  max-assoc : {x y z : D} -> max (max x y) z == max x (max y z)
+  max-assoc =
+    antisym-≤ (max-least-≤ (max₁-preserves-≤ max-≤-left)
+                           (trans-≤ max-≤-right max-≤-right))
+              (max-least-≤ (trans-≤ max-≤-left max-≤-left)
+                           (max₂-preserves-≤ max-≤-right))
 
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}

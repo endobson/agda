@@ -10,22 +10,24 @@ open import hlevel
 open import order
 open import order.instances.rational
 open import order.instances.real
+open import order.minmax
+open import order.minmax.instances.rational
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import rational
+open import rational.minmax
+open import rational.order
+open import rational.proper-interval
 open import rational.proper-interval.abs
 open import rational.proper-interval.multiplication-assoc
-open import rational.proper-interval
-open import rational.order
-open import rational.minmax
 open import rational.squares
 open import real
 open import real.arithmetic
-open import real.arithmetic.sqrt.base
-open import real.arithmetic.multiplication
 open import real.arithmetic.absolute-value
+open import real.arithmetic.multiplication
+open import real.arithmetic.sqrt.base
 open import real.interval
 open import real.order
 open import real.rational
@@ -56,12 +58,12 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
 ℚ∈Iℚ-i-intersect₁ : (q : ℚ) (a b : Iℚ) -> (o : Overlap a b) ->
                     ℚ∈Iℚ q (i-intersect a b o) -> ℚ∈Iℚ q a
 ℚ∈Iℚ-i-intersect₁ q a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) o (il≤q , q≤iu) =
-  trans-≤ (maxℚ-≤-left al bl) il≤q , trans-≤ q≤iu (minℚ-≤-left au bu)
+  trans-≤ max-≤-left il≤q , trans-≤ q≤iu min-≤-left
 
 ℚ∈Iℚ-i-intersect₂ : (q : ℚ) (a b : Iℚ) -> (o : Overlap a b) ->
                     ℚ∈Iℚ q (i-intersect a b o) -> ℚ∈Iℚ q b
 ℚ∈Iℚ-i-intersect₂ q a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) o (il≤q , q≤iu) =
-  trans-≤ (maxℚ-≤-right al bl) il≤q , trans-≤ q≤iu (minℚ-≤-right au bu)
+  trans-≤ max-≤-right il≤q , trans-≤ q≤iu min-≤-right
 
 
 private

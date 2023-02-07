@@ -8,22 +8,24 @@ open import apartness
 open import base
 open import equality
 open import integral-domain
+open import order.minmax
+open import order.minmax.instances.rational
 open import ordered-integral-domain
+open import ordered-semiring
 open import rational
 open import rational.integral-domain
-open import rational.order
 open import rational.minmax
+open import rational.order
 open import real
-open import ring.implementations.real
+open import real.arithmetic.multiplication.inverse
 open import real.derivative
 open import real.order
 open import real.rational
-open import real.arithmetic.multiplication.inverse
+open import real.sequence.cauchy
 open import real.sequence.harmonic
 open import real.sequence.limit-point
-open import real.sequence.cauchy
+open import ring.implementations.real
 open import semiring
-open import ordered-semiring
 open import truncation
 
 isDerivative-+ : {f f' g g' : ℝ -> ℝ} -> isDerivative f f' -> isDerivative g g' ->
@@ -51,7 +53,7 @@ isDerivative-+ {f} {f'} {g} {g'} isD-f isD-g x .isLimitAt.δε δ =
                         (sz : z # 0#) -> εBounded ⟨ δ ⟩ (diff (rise-over-run fg x (z , sz)) (f' x + g' x)))
   handle ((εf , 0<εf) , bf) ((εg , 0<εg) , bg) = (εfg , 0<εfg) , bfg
     where
-    εfg = minℚ εf εg
+    εfg = min εf εg
     0<εfg = minℚ-property εf εg 0<εf 0<εg
     bfg : (z : ℝ) -> εBounded εfg (diff z 0#) ->
           (sz : z # 0#) -> εBounded ⟨ δ ⟩ (diff (rise-over-run fg x (z , sz)) (f' x + g' x))
@@ -59,8 +61,8 @@ isDerivative-+ {f} {f'} {g} {g'} isD-f isD-g x .isLimitAt.δε δ =
       subst2 εBounded (1/2r-path' ⟨ δ ⟩) ror-path (εBounded-+ _ _ δ/2-ror-f δ/2-ror-g)
       where
       dz = diff z 0#
-      εf-dz = weaken-εBounded (minℚ-≤-left εf εg) dz εfg-dz
-      εg-dz = weaken-εBounded (minℚ-≤-right εf εg) dz εfg-dz
+      εf-dz = weaken-εBounded min-≤-left dz εfg-dz
+      εg-dz = weaken-εBounded min-≤-right dz εfg-dz
       δ/2-ror-f = bf z εf-dz z#0
       δ/2-ror-g = bg z εg-dz z#0
       ror-path : (diff (rise-over-run f x (z , z#0)) (f' x)) +
