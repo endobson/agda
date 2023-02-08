@@ -316,7 +316,7 @@ module _ (p : Prime') where
       qpn<psn : (q *' (prime-power p n)) < (p' *' (prime-power p n))
       qpn<psn = trans-≤ qpn<k k≤psn
       q<p : q < p'
-      q<p = *₂-reflects-< qpn<psn (Pos'->< (snd (prime-power⁺ p n)))
+      q<p = *₂-reflects-< qpn<psn (asym-< (Pos'->< (snd (prime-power⁺ p n))))
 
       rp : RelativelyPrime⁰ r' (prime-power p n)
       rp a a%r a%pn = Totient.rp t a a%k a%psn

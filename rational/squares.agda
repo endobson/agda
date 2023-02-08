@@ -5,6 +5,7 @@ module rational.squares where
 open import additive-group
 open import base
 open import equality
+open import functions
 open import hlevel
 open import order
 open import order.instances.rational
@@ -32,12 +33,9 @@ isSquareℚ q = Σ[ r ∈ ℚ ] ((0r ≤ r) × r * r == q)
 
 private
   *₁-reflects-<' : {a b c : ℚ} -> (0r ≤ a) -> ((a * b) < (a * c)) -> b < c
-  *₁-reflects-<' {a} {b} {c} 0≤a ab<ac = *₁-reflects-< 0<a ab<ac
+  *₁-reflects-<' {a} {b} {c} 0≤a ab<ac = *₁-reflects-< a≮0 ab<ac
     where
-    0!=a : 0r != a
-    0!=a 0=a = irrefl-< (subst2 _<_ (*-left (sym 0=a) >=> *-left-zero)
-                                    (*-left (sym 0=a) >=> *-left-zero) ab<ac)
-    0<a = strengthen-ℚ≤-≠ 0≤a 0!=a
+    a≮0 = irrefl-< ∘ trans-≤-< 0≤a
 
   *₂-reflects-<' : {a b c : ℚ} -> (0r ≤ c) -> ((a * c) < (b * c)) -> a < b
   *₂-reflects-<' 0≤c ac<bc = *₁-reflects-<' 0≤c (subst2 _<_ *-commute *-commute ac<bc)

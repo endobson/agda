@@ -533,7 +533,7 @@ DirectionOfVector'-vector->direction {v} v#0 =
   0vl<1/vl*vl : (0# * vl) < (1/vl * vl)
   0vl<1/vl*vl = subst2 _<_ (sym *-left-zero) (sym (ℝ1/-inverse vl vl-inv)) 0<1
   0<1/vl : 0# < 1/vl
-  0<1/vl = *₂-reflects-< 0vl<1/vl*vl 0<vl
+  0<1/vl = *₂-reflects-< 0vl<1/vl*vl (asym-< 0<vl)
 
 
 

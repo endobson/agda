@@ -118,21 +118,21 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
                           (b < c × 0# < a) ⊎ (c < b × a < 0#)
     *₁-fully-reflects-< = SLOS.*₁-fully-reflects-<
 
-    *₁-reflects-< : {a b c : D} -> (0# < a) -> (a * b) < (a * c) -> (b < c)
-    *₁-reflects-< 0<a ab<ac =
-      proj₁ (proj-¬r (*₁-fully-reflects-< ab<ac) (\ (c<b , a<0) -> asym-< a<0 0<a))
+    *₁-reflects-< : {a b c : D} -> (a ≮ 0#) -> (a * b) < (a * c) -> (b < c)
+    *₁-reflects-< a≮0 ab<ac =
+      proj₁ (proj-¬r (*₁-fully-reflects-< ab<ac) (\ (c<b , a<0) -> a≮0 a<0))
 
-    *₂-reflects-< : {a b c : D} -> (a * c) < (b * c) -> (0# < c) -> (a < b)
-    *₂-reflects-< {a} {b} {c} ac<bc 0<c =
-      *₁-reflects-< 0<c (subst2 _<_ *-commute *-commute ac<bc)
+    *₂-reflects-< : {a b c : D} -> (a * c) < (b * c) -> (c ≮ 0#) -> (a < b)
+    *₂-reflects-< {a} {b} {c} ac<bc c≮0 =
+      *₁-reflects-< c≮0 (subst2 _<_ *-commute *-commute ac<bc)
 
-    *₁-reflects-0< : {a b : D} -> (0# < a) -> 0# < (a * b) -> (0# < b)
-    *₁-reflects-0< {a} {b} 0<a 0<ab =
-      *₁-reflects-< 0<a (subst (_< (a * b)) (sym *-right-zero) 0<ab)
+    *₁-reflects-0< : {a b : D} -> (a ≮ 0#) -> 0# < (a * b) -> (0# < b)
+    *₁-reflects-0< {a} {b} a≮0 0<ab =
+      *₁-reflects-< a≮0 (subst (_< (a * b)) (sym *-right-zero) 0<ab)
 
-    *₂-reflects-0< : {a b : D} -> 0# < (a * b) -> (0# < b) -> (0# < a)
-    *₂-reflects-0< {a} {b} 0<ab 0<b =
-      *₂-reflects-< (subst (_< (a * b)) (sym *-left-zero) 0<ab) 0<b
+    *₂-reflects-0< : {a b : D} -> 0# < (a * b) -> (b ≮ 0#) -> (0# < a)
+    *₂-reflects-0< {a} {b} 0<ab b≮0 =
+      *₂-reflects-< (subst (_< (a * b)) (sym *-left-zero) 0<ab) b≮0
 
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : PartialOrderStr D ℓ≤) where

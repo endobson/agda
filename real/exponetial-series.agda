@@ -85,7 +85,7 @@ private
 
 
   inverse-preserves-0< : {a b : ℚ} -> areInverses a b -> 0# < a -> 0# < b
-  inverse-preserves-0< ab=1 0<a = *₁-reflects-0< 0<a (subst (0# <_) (sym ab=1) 0<1)
+  inverse-preserves-0< ab=1 0<a = *₁-reflects-0< (asym-< 0<a) (subst (0# <_) (sym ab=1) 0<1)
 
   inverse-flips-< : {a b c d : ℚ} -> areInverses a b -> areInverses c d ->
                     0# < a -> 0# < c -> a < c -> d < b
