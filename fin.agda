@@ -131,6 +131,18 @@ abstract
   fin-elim {P = P} z s (suc i , lt) =
     transport (cong P (fin-i-path refl)) (s (i , pred-≤ lt))
 
+  fin-rec-reduce : {ℓ : Level} {A : Type ℓ} {n : Nat} -> (f : (Fin (suc n) -> A))
+                   -> fin-rec (f zero-fin) (f ∘ suc-fin) == f
+  fin-rec-reduce f i (0 , lt) = cong f i-path i
+    where
+    i-path : zero-fin == (0 , lt)
+    i-path = fin-i-path refl
+  fin-rec-reduce {n = n} f i (suc j , lt) = cong f i-path i
+    where
+    i-path : Path (Fin (suc n)) (suc j , (suc-≤ (pred-≤ lt))) (suc j , lt)
+    i-path = fin-i-path refl
+
+
 -- Naturals in a range
 
 isInRange : Nat -> Nat -> Nat -> Type₀
