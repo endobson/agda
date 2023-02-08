@@ -282,8 +282,30 @@ module _ {D : Type ℓD} {ℓ< : Level} (<-Str : LinearOrderStr D ℓ<) where
 
   record DecidableLinearOrderStr : Type (ℓ-max ℓ< ℓD) where
     no-eta-equality
+    pattern
     field
       trichotomous-< : Trichotomous _<_
+
+abstract
+  isProp-DecidableLinearOrderStr :
+    {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} ->
+    isProp (DecidableLinearOrderStr LO)
+  isProp-DecidableLinearOrderStr {LO = LO} dlo1@(record {}) dlo2@(record {}) i = ans
+    where
+    module _ where
+      private
+        instance
+          ILO : LinearOrderStr _ _
+          ILO = LO
+      ans : (DecidableLinearOrderStr LO)
+      ans = record
+        { trichotomous-< =
+            isPropΠ2 (\x y -> isProp-Tri<)
+              (DecidableLinearOrderStr.trichotomous-< dlo1)
+              (DecidableLinearOrderStr.trichotomous-< dlo2)
+              i
+        }
+
 
 module _ {D : Type ℓD} {ℓ< : Level} {<-Str : LinearOrderStr D ℓ<}
          {{S : DecidableLinearOrderStr <-Str}} where
