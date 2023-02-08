@@ -68,7 +68,7 @@ isSectionOf : (f : A -> B) -> Pred (B -> A) _
 isSectionOf f g = ∀ b -> f (g b) == b
 
 isRetractionOf : (f : A -> B) -> Pred (B -> A) _
-isRetractionOf f g = ∀ b -> g (f b) == b
+isRetractionOf f g = ∀ a -> g (f a) == a
 
 Section : Pred (A -> B) _
 Section {A = A} {B = B} f = Σ (B -> A) (isSectionOf f)

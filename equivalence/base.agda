@@ -48,7 +48,7 @@ private
   isSectionOf f g = ∀ b -> f (g b) == b
 
   isRetractionOf : (A -> B) -> (B -> A) -> Type _
-  isRetractionOf f g = ∀ b -> g (f b) == b
+  isRetractionOf f g = ∀ a -> g (f a) == a
 
 
 module _ {f : A1 -> A2} (eq-f : isEquiv f) where
