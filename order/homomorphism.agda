@@ -84,3 +84,34 @@ LinearOrderʰ-∘ h₁₂ h₂₃ = record { preserves-< = h₂₃.preserves-< �
   where
   module h₁₂ = LinearOrderʰ h₁₂
   module h₂₃ = LinearOrderʰ h₂₃
+
+
+record PartialOrderʰᵉ
+  {ℓD₁ ℓD₂ ℓ≤₁ ℓ≤₂ : Level}
+  {D₁ : Type ℓD₁} {D₂ : Type ℓD₂}
+  (O₁ : PartialOrderStr D₁ ℓ≤₁) (O₂ : PartialOrderStr D₂ ℓ≤₂)
+  (f : D₁ -> D₂) : Type (ℓ-max* 4 ℓD₁ ℓD₂ (ℓ-suc ℓ≤₁) (ℓ-suc ℓ≤₂))
+  where
+  private
+    _≤₁_ = PartialOrderStr._≤_ O₁
+    _≤₂_ = PartialOrderStr._≤_ O₂
+
+  field
+    preserves-≤ : ∀ {x y} -> x ≤₁ y -> f x ≤₂ f y
+
+PartialOrderʰ :
+  {ℓD₁ ℓD₂ ℓ≤₁ ℓ≤₂ : Level}
+  {D₁ : Type ℓD₁} {D₂ : Type ℓD₂}
+  {{ O₁ : PartialOrderStr D₁ ℓ≤₁ }} {{ O₂ : PartialOrderStr D₂ ℓ≤₂ }}
+  (f : D₁ -> D₂) ->
+  Type (ℓ-max* 4 ℓD₁ ℓD₂ (ℓ-suc ℓ≤₁) (ℓ-suc ℓ≤₂))
+PartialOrderʰ {{O₁ = O₁}} {{O₂ = O₂}} f = PartialOrderʰᵉ O₁ O₂ f
+
+
+module PartialOrderʰ
+  {ℓD₁ ℓD₂ ℓ≤₁ ℓ≤₂ : Level}
+  {D₁ : Type ℓD₁} {D₂ : Type ℓD₂}
+  {O₁ : PartialOrderStr D₁ ℓ≤₁} {O₂ : PartialOrderStr D₂ ℓ≤₂}
+  {f : D₁ -> D₂} (h : PartialOrderʰᵉ O₁ O₂ f)
+  where
+  open PartialOrderʰᵉ h public

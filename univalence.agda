@@ -102,5 +102,8 @@ isoToPath f = ua (isoToEquiv f)
 isoToPath-id-iso : Path (A == A) (isoToPath id-iso) refl
 isoToPath-id-iso = cong ua isoToEquiv-id-iso >=> uaIdEquiv
 
+transport-ua : (e : A1 ≃ A2) -> transport (ua e) == ⟨ e ⟩
+transport-ua (f , _) j x = transportRefl (f x) j
+
 transport-isoToPath : (i : Iso A1 A2) -> transport (isoToPath i) == Iso.fun i
-transport-isoToPath i j x = transportRefl (Iso.fun i x) j -- (Iso.fun i x) j
+transport-isoToPath i j x = transportRefl (Iso.fun i x) j

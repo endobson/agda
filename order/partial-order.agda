@@ -81,6 +81,7 @@ isProp-isPartialOrder _ O1@(record {}) O2@(record {}) = \i -> record
 
 record PartialOrderStr (D : Type ℓD) (ℓ≤ : Level) : Type (ℓ-max (ℓ-suc ℓ≤) ℓD) where
   no-eta-equality
+  pattern
   field
     _≤_ : D -> D -> Type ℓ≤
     isPartialOrder-≤ : isPartialOrder _≤_
