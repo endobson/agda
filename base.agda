@@ -131,3 +131,6 @@ private
 -- Implicits
 useⁱ : {ℓ : Level} -> {A : Type ℓ} -> {{a : A}} -> A
 useⁱ {{a = a}} = a
+
+getⁱ : {ℓ : Level} -> (A : Type ℓ) -> {{a : A}} -> A
+getⁱ _ = useⁱ

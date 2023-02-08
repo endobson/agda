@@ -10,6 +10,7 @@ open import fint.list.sorted
 open import fint.list.sorted-order
 open import functions
 open import hlevel
+open import lattice
 open import isomorphism
 open import order
 open import order.homomorphism
@@ -173,3 +174,28 @@ module _ {ℓA ℓ< : Level} {A : Type ℓA} {LO : LinearOrderStr A ℓ<}
   sorted-merge : (l1 l2 : SortedList A) ->
                  ∃![ l3 ∈ SortedList A ] (∀ a -> (a sl∈ l3) ≃ (∥ a sl∈ l1 ⊎ a sl∈ l2 ∥))
   sorted-merge l1 l2 = multi-insert' l1 l2 , isProp-merged l1 l2 _
+
+
+  sorted-join : JoinSemiLatticeStr (getⁱ (PartialOrderStr (SortedList A) ℓA))
+  sorted-join = record
+    { join = \l1 l2 -> ∃!-val (sorted-merge l1 l2)
+    ; is-join = record
+      { join-≤-left = \{l1} {l2} -> 1≤3 l1 l2
+      ; join-≤-right = \{l1} {l2} -> 2≤3 l1 l2
+      ; join-least-≤ = \{l1} {l2} -> least3 l1 l2
+      }
+    }
+    where
+    module _ (l1 l2 : SortedList A) where
+      ∃!l3 = sorted-merge l1 l2
+      l3 = ∃!-val ∃!l3
+      1≤3 : l1 ≤ l3
+      1≤3 = Contains->Sorted≼ (\ a a∈l1 -> eqInv (∃!-prop ∃!l3 a) ∣ inj-l a∈l1 ∣)
+      2≤3 : l2 ≤ l3
+      2≤3 = Contains->Sorted≼ (\ a a∈l2 -> eqInv (∃!-prop ∃!l3 a) ∣ inj-r a∈l2 ∣)
+      least3 : {l4 : SortedList A} -> l1 ≤ l4 -> l2 ≤ l4 -> l3 ≤ l4
+      least3 {l4} 1≤4 2≤4 = Contains->Sorted≼ (\a a∈l3 -> ∥-bind handle (eqFun (∃!-prop ∃!l3 a) a∈l3))
+        where
+        handle : {a : A} -> (a sl∈ l1 ⊎ a sl∈ l2) -> a sl∈ l4
+        handle (inj-l a∈l1) = Sorted≼.preserves-∈ 1≤4 a∈l1
+        handle (inj-r a∈l2) = Sorted≼.preserves-∈ 2≤4 a∈l2

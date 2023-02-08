@@ -73,7 +73,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓ<}}  whe
           p2 : f1 j == f2 (g' j)
           p2 = snd (g j)
 
-  record Sorted≼ (s1 s2 : SortedList D) : Type (ℓ-max ℓ-one ℓD) where
+  record Sorted≼ (s1 s2 : SortedList D) : Type ℓD where
     private
       l1 = ⟨ s1 ⟩
       l2 = ⟨ s2 ⟩
@@ -178,7 +178,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓ<}}  whe
         l1=l2 = \i -> n-path i , element-paths->vector-path n-path f-paths i
 
   instance
-    PartialOrderStr-SortedList : PartialOrderStr (SortedList D) _
+    PartialOrderStr-SortedList : PartialOrderStr (SortedList D) ℓD
     PartialOrderStr-SortedList = record
       { _≤_ = Sorted≼
       ; isPartialOrder-≤ = record
