@@ -12,7 +12,6 @@ open import order.minmax.instances.rational
 open import ordered-integral-domain
 open import ordered-semiring
 open import rational
-open import rational.difference
 open import rational.integral-domain
 open import rational.minmax
 open import rational.order
@@ -55,7 +54,7 @@ private
     where
     Ans = ∃[ s ∈ ℚ ] (isSquareℚ s × 1r < s × s < q)
     pos-d = Pos-diffℚ _ _ 1<q
-    d/2 = (1/2r * (diffℚ 1r q))
+    d/2 = (1/2r * (diff 1r q))
     pos-d/2 = *-preserves-0< Pos-1/2r pos-d
 
     handle : Σ[ ε² ∈ ℚ ] (isSquareℚ ε² × (0r < ε²) × (ε² < d/2)) -> Ans
@@ -75,7 +74,7 @@ private
       0<2r : 0r < 2r
       0<2r = Pos-ℕ⁺->ℚ (2 , tt)
 
-      c1-ε≤ : ε ≤ ((1/2r * (diffℚ 1r q)) * 1/2r)
+      c1-ε≤ : ε ≤ ((1/2r * (diff 1r q)) * 1/2r)
       c1-ε≤ = min-≤-right
 
       ε≤ε' : ε ≤ ε'
@@ -84,18 +83,18 @@ private
       εε≤ε'ε' = trans-≤ (*₁-preserves-≤ (weaken-< 0<ε) ε≤ε')
                         (*₂-preserves-≤ ε≤ε' 0≤ε')
 
-      c2-ε< : (ε * ε) < (1/2r * (diffℚ 1r q))
+      c2-ε< : (ε * ε) < (1/2r * (diff 1r q))
       c2-ε< = trans-≤-< εε≤ε'ε' (subst2 _<_ (sym ε'ε'=ε²) refl ε²<d/2)
 
-      c1-2qε≤ : (2r * ε) ≤ (1/2r * (diffℚ 1r q))
+      c1-2qε≤ : (2r * ε) ≤ (1/2r * (diff 1r q))
       c1-2qε≤ = subst2 _≤_ *-commute p (*₂-preserves-≤ c1-ε≤ (weaken-< 0<2r))
         where
         p = *-assoc >=> *-right (*-commute >=> 2r-1/2r-path) >=> *-right-one
 
-      2qε-ε²≤ : ((2r * ε) + (ε * ε)) < (diffℚ 1r q)
+      2qε-ε²≤ : ((2r * ε) + (ε * ε)) < (diff 1r q)
       2qε-ε²≤ = subst2 _<_ refl (1/2r-path' _) (+-preserves-≤-< c1-2qε≤ c2-ε<)
       1-2qε-ε²≤ : (1r + ((2r * ε) + (ε * ε))) < q
-      1-2qε-ε²≤ = subst2 _<_ refl (diffℚ-step 1r q) (+₁-preserves-< 2qε-ε²≤)
+      1-2qε-ε²≤ = subst2 _<_ refl diff-step (+₁-preserves-< 2qε-ε²≤)
 
       s = (1r + ((2r * ε) + (ε * ε)))
       1<s : 1r < s

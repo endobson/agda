@@ -22,7 +22,6 @@ open import ordered-semiring.ring
 open import ordered-semiring.decidable
 open import ordered-ring
 open import rational
-open import rational.difference
 open import relation
 open import ring
 open import ring.implementations.rational
@@ -591,7 +590,7 @@ abstract
     f< : {a : ℚ} -> 0r < a -> (a * b) ≤ (a * c)
     f< {a} 0<a =
       subst2 _≤_ +-right-zero
-        (+-right (r*-distrib-diffℚ _ _ _ >=> +-commute) >=>
+        (+-right (*-distrib-diff-left >=> +-commute) >=>
          sym +-assoc >=>
          +-left +-inverse >=>
          +-left-zero)
@@ -841,21 +840,21 @@ abstract
     subst2 _<_ (sym (1/2ℕ-path n)) (r*-left-one (1/ℕ n))
           (*₂-preserves-< 1/2r<1r (Pos-1/ℕ n))
 
-  NonNeg-diffℚ : (a b : ℚ) -> a ≤ b -> NonNeg (diffℚ a b)
+  NonNeg-diffℚ : (a b : ℚ) -> a ≤ b -> NonNeg (diff a b)
   NonNeg-diffℚ a b a≤b =
-    0≤-NonNeg _ (subst (_≤ (diffℚ a b)) +-inverse (+₂-preserves-≤ a≤b))
+    0≤-NonNeg _ (subst (_≤ (diff a b)) +-inverse (+₂-preserves-≤ a≤b))
 
-  NonNeg-diffℚ⁻ : (a b : ℚ) -> NonNeg (diffℚ a b) -> a ≤ b
+  NonNeg-diffℚ⁻ : (a b : ℚ) -> NonNeg (diff a b) -> a ≤ b
   NonNeg-diffℚ⁻ a b nn =
-    subst2 _≤_ +-right-zero (diffℚ-step a b) (+₁-preserves-≤ (NonNeg-0≤ _ nn))
+    subst2 _≤_ +-right-zero diff-step (+₁-preserves-≤ (NonNeg-0≤ _ nn))
 
-  Pos-diffℚ : (a b : ℚ) -> a < b -> Pos (diffℚ a b)
+  Pos-diffℚ : (a b : ℚ) -> a < b -> Pos (diff a b)
   Pos-diffℚ a b a<b =
-    subst (_< (diffℚ a b)) +-inverse (+₂-preserves-< a<b)
+    subst (_< (diff a b)) +-inverse (+₂-preserves-< a<b)
 
-  Pos-diffℚ⁻ : (a b : ℚ) -> Pos (diffℚ a b) -> a < b
+  Pos-diffℚ⁻ : (a b : ℚ) -> Pos (diff a b) -> a < b
   Pos-diffℚ⁻ a b p =
-    subst2 _<_ +-right-zero (diffℚ-step a b) (+₁-preserves-< p)
+    subst2 _<_ +-right-zero diff-step (+₁-preserves-< p)
 
 
   dense-< : Dense _ℚ<_
@@ -1024,7 +1023,7 @@ abstract
                     (r1/ ⟨ b ⟩ (Pos->Inv (snd b))) ℚ≤ (r1/ ⟨ a ⟩ (Pos->Inv (snd a)))
   r1/-Pos-flips-≤ a@(a' , pos-a') b@(b' , pos-b') a≤b = handle (NonNeg-diffℚ a' b' a≤b)
     where
-    handle : NonNeg (diffℚ a' b') -> (r1/ b' (Pos->Inv pos-b')) ℚ≤ (r1/ a' (Pos->Inv pos-a'))
+    handle : NonNeg (diff a' b') -> (r1/ b' (Pos->Inv pos-b')) ℚ≤ (r1/ a' (Pos->Inv pos-a'))
     handle (inj-l pd) = weaken-< (r1/-Pos-flips-order a b (Pos-diffℚ⁻ a' b' pd))
     handle (inj-r zd) = path-≤ (sym path)
       where
@@ -1173,24 +1172,24 @@ small-1/2^ℕ q@(q' , _) = ∥-map handle (small-1/2^ℕ-step1 q)
 seperate-< : (a b : ℚ) -> a < b -> Σ[ ε ∈ ℚ⁺ ] (a r+ ⟨ ε ⟩) < (b r+ (r- ⟨ ε ⟩))
 seperate-< a b a<b = ε , Pos-diffℚ⁻ (a r+ ε') (b r+ (r- ε')) pos-diff
   where
-  ε' = 1/2r r* (1/2r r* (diffℚ a b))
+  ε' = 1/2r r* (1/2r r* (diff a b))
   ε : ℚ⁺
   ε = ε' , r*-preserves-Pos 1/2r _ Pos-1/2r
-                            (r*-preserves-Pos 1/2r (diffℚ a b) Pos-1/2r (Pos-diffℚ a b a<b))
+                            (r*-preserves-Pos 1/2r (diff a b) Pos-1/2r (Pos-diffℚ a b a<b))
 
-  path : (diffℚ (a r+ ε') (b r+ (r- ε'))) == 1/2r r* (diffℚ a b)
+  path : (diff (a r+ ε') (b r+ (r- ε'))) == 1/2r r* (diff a b)
   path =
-    sym (r+-swap-diffℚ a b ε' (r- ε')) >=>
+    sym +-swap-diff >=>
     cong2 _r+_
-          (sym (r*-left-one (diffℚ a b)))
+          (sym (r*-left-one (diff a b)))
           (sym minus-distrib-plus >=>
-           cong r-_ (1/2r-path' (1/2r r* (diffℚ a b))) >=>
+           cong r-_ (1/2r-path' (1/2r r* (diff a b))) >=>
            sym minus-extract-left) >=>
-    sym (*-distrib-+-right {_} {_} {_} {1r} {r- 1/2r} {diffℚ a b}) >=>
-    cong (_r* (diffℚ a b)) (cong (_r+ (r- 1/2r)) (sym (1/2r-path 1r) >=>
+    sym (*-distrib-+-right {_} {_} {_} {1r} {r- 1/2r} {diff a b}) >=>
+    cong (_r* (diff a b)) (cong (_r+ (r- 1/2r)) (sym (1/2r-path 1r) >=>
                                                   cong2 _+_ (r*-left-one 1/2r) (r*-left-one 1/2r)) >=>
                             r+-assoc 1/2r 1/2r (r- 1/2r) >=>
-                            diffℚ-step 1/2r 1/2r)
+                            diff-step)
 
-  pos-diff : Pos (diffℚ (a r+ ε') (b r+ (r- ε')))
-  pos-diff = subst Pos (sym path) (r*-preserves-Pos 1/2r (diffℚ a b) (Pos-1/ℕ 2⁺) (Pos-diffℚ a b a<b))
+  pos-diff : Pos (diff (a r+ ε') (b r+ (r- ε')))
+  pos-diff = subst Pos (sym path) (r*-preserves-Pos 1/2r (diff a b) (Pos-1/ℕ 2⁺) (Pos-diffℚ a b a<b))

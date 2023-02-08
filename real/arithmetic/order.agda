@@ -9,7 +9,6 @@ open import base
 open import equality
 open import rational
 open import rational.proper-interval
-open import rational.difference
 open import rational.order
 open import real
 open import real.arithmetic
@@ -41,7 +40,7 @@ private
       handle2 : Σ[ r ∈ ℚ ] (r < q × b.U r) -> Ans
       handle2 (r , r<q , bu-r) = ∥-bind handle3 (find-open-ball a d⁺)
         where
-        d = diffℚ r q
+        d = diff r q
         d⁺ : ℚ⁺
         d⁺ = d , Pos-diffℚ r q r<q
 
@@ -51,13 +50,13 @@ private
                                (∣ s1 , q , al-s1 , cl-q , sum-path ∣) ∣
           where
           sum-path : s1 + q == s2 + r
-          sum-path = +-left (sym (diffℚ-step s2 s1) >=>
-                             +-right (diffℚ-anticommute s2 s1 >=>
+          sum-path = +-left (sym diff-step >=>
+                             +-right (diff-anticommute >=>
                                       cong r-_ sd-path >=>
-                                      sym (diffℚ-anticommute q r))) >=>
+                                      sym diff-anticommute)) >=>
                      +-assoc >=>
                      +-right (+-commute >=>
-                              diffℚ-step q r)
+                              diff-step)
 
 
 abstract

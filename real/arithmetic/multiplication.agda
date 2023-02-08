@@ -14,7 +14,6 @@ open import order.minmax.instances.rational
 open import ordered-ring
 open import ordered-semiring
 open import rational
-open import rational.difference
 open import rational.minmax
 open import rational.order
 open import rational.proper-interval
@@ -237,7 +236,7 @@ module _ (x y : ℝ)
     located a b a<b = ∥-bind4 initial-bound x.Inhabited-L x.Inhabited-U y.Inhabited-L y.Inhabited-U
       where
       Ans = ∥ L a ⊎ U b ∥
-      d = diffℚ a b
+      d = diff a b
 
       initial-bound : Σ ℚ x.L -> Σ ℚ x.U -> Σ ℚ y.L -> Σ ℚ y.U -> Ans
       initial-bound (xb1' , xbl') (xb2' , xbu') (yb1' , ybl') (yb2' , ybu') =
@@ -391,7 +390,7 @@ module _ (x y : ℝ)
           handle2 (inj-r l≤a) = ∣ inj-r ∣ (mxi , myi , emxi , emyi , u≤b) ∣ ∣
             where
             u≤b : u ℚ≤ b
-            u≤b = subst2 _ℚ≤_ (diffℚ-step l u) (diffℚ-step a b) (+-preserves-≤ l≤a w≤d)
+            u≤b = subst2 _ℚ≤_ diff-step diff-step (+-preserves-≤ l≤a w≤d)
 
   _ℝ*ᵉ_ : ℝ
   _ℝ*ᵉ_ = record
@@ -618,8 +617,8 @@ module _ (x : ℝ)
 
            s'<s : s' < s
            s'<s =
-             Pos-diffℚ⁻ _ _ (subst Pos (sym (diffℚ-step s 1r) >=>
-                                        cong (s r+_) (diffℚ-anticommute s 1r))
+             Pos-diffℚ⁻ _ _ (subst Pos (sym diff-step >=>
+                                        cong (s r+_) diff-anticommute)
                                        Pos-1r)
 
            s<r : s < r

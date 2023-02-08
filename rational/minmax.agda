@@ -13,7 +13,6 @@ open import order.minmax.instances.rational
 open import ordered-ring
 open import ordered-semiring
 open import rational
-open import rational.difference
 open import rational.order
 open import relation
 open import sign
@@ -236,7 +235,7 @@ absℚ : ℚ -> ℚ
 absℚ x = max x (r- x)
 
 abs-diffℚ : ℚ -> ℚ -> ℚ
-abs-diffℚ x y = absℚ (diffℚ x y)
+abs-diffℚ x y = absℚ (diff x y)
 
 abstract
   maxℚ-weaken-<₁ : (x y z : ℚ) -> (max x y < z) -> x < z
