@@ -106,11 +106,13 @@ instance
   LinearOrderStr-PartitionBoundary : {n : Nat} -> LinearOrderStr (PartitionBoundary n) ℓ-zero
   LinearOrderStr-PartitionBoundary = record
     { _<_ = PartitionBoundary<
-    ; isProp-< = isProp-PartitionBoundary<
-    ; irrefl-< = irrefl-PartitionBoundary<
-    ; trans-< = trans-PartitionBoundary<
-    ; connected-< = connected-PartitionBoundary<
-    ; comparison-< = comparison-PartitionBoundary<
+    ; isLinearOrder-< = record
+      { isProp-< = isProp-PartitionBoundary<
+      ; irrefl-< = irrefl-PartitionBoundary<
+      ; trans-< = trans-PartitionBoundary<
+      ; connected-< = connected-PartitionBoundary<
+      ; comparison-< = comparison-PartitionBoundary<
+      }
     }
 
   PartialOrderStr-PartitionBoundary : {n : Nat} -> PartialOrderStr (PartitionBoundary n) ℓ-zero

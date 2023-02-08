@@ -49,11 +49,13 @@ instance
   LinearOrderStr-FinT : {n : Nat} -> LinearOrderStr (FinT n) ℓ-zero
   LinearOrderStr-FinT {n} = record
     { _<_ = FinT<
-    ; isProp-< = isProp-FinT<
-    ; irrefl-< = irrefl-FinT<
-    ; trans-< = trans-FinT<
-    ; connected-< = connected-FinT<
-    ; comparison-< = comparison-FinT<
+    ; isLinearOrder-< = record
+      { isProp-< = isProp-FinT<
+      ; irrefl-< = irrefl-FinT<
+      ; trans-< = trans-FinT<
+      ; connected-< = connected-FinT<
+      ; comparison-< = comparison-FinT<
+      }
     }
 
 private

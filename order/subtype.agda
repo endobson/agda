@@ -14,11 +14,13 @@ module _ {ℓA ℓS : Level} {A : Type ℓA} (S : Subtype A ℓS) where
   LinearOrderStr-Subtype : {ℓ< : Level} -> LinearOrderStr A ℓ< -> LinearOrderStr (∈-Subtype S) ℓ<
   LinearOrderStr-Subtype o = record
     { _<_ = S<
-    ; isProp-< = o.isProp-<
-    ; irrefl-< = o.irrefl-<
-    ; trans-< = o.trans-<
-    ; connected-< = connected-S<
-    ; comparison-< = comparison-S<
+    ; isLinearOrder-< = record
+      { isProp-< = o.isProp-<
+      ; irrefl-< = o.irrefl-<
+      ; trans-< = o.trans-<
+      ; connected-< = connected-S<
+      ; comparison-< = comparison-S<
+      }
     }
     where
     module o = LinearOrderStr o
@@ -35,10 +37,12 @@ module _ {ℓA ℓS : Level} {A : Type ℓA} (S : Subtype A ℓS) where
   PartialOrderStr-Subtype : {ℓ≤ : Level} -> PartialOrderStr A ℓ≤ -> PartialOrderStr (∈-Subtype S) ℓ≤
   PartialOrderStr-Subtype o = record
     { _≤_ = S≤
-    ; isProp-≤ = o.isProp-≤
-    ; refl-≤ = o.refl-≤
-    ; trans-≤ = o.trans-≤
-    ; antisym-≤ = antisym-S≤
+    ; isPartialOrder-≤ = record
+      { isProp-≤ = o.isProp-≤
+      ; refl-≤ = o.refl-≤
+      ; trans-≤ = o.trans-≤
+      ; antisym-≤ = antisym-S≤
+      }
     }
     where
     module o = PartialOrderStr o

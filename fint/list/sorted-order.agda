@@ -181,10 +181,12 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓ<}}  whe
     PartialOrderStr-SortedList : PartialOrderStr (SortedList D) _
     PartialOrderStr-SortedList = record
       { _≤_ = Sorted≼
-      ; isProp-≤ = isProp-Sorted≼
-      ; refl-≤ = refl-Sorted≼
-      ; trans-≤ = trans-Sorted≼
-      ; antisym-≤ = antisym-Sorted≼
+      ; isPartialOrder-≤ = record
+        { isProp-≤ = isProp-Sorted≼
+        ; refl-≤ = refl-Sorted≼
+        ; trans-≤ = trans-Sorted≼
+        ; antisym-≤ = antisym-Sorted≼
+        }
       }
 
   empty-Sorted≼ : {l : SortedList D} -> sortedlist-empty ≤ l

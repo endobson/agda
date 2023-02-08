@@ -75,11 +75,13 @@ instance
   LinearOrderStr-ℕ : LinearOrderStr Nat ℓ-zero
   LinearOrderStr-ℕ = record
     { _<_ = _ℕ<_
-    ; isProp-< = isProp-ℕ≤
-    ; irrefl-< = irrefl-ℕ<
-    ; trans-< = trans-ℕ<
-    ; connected-< = connected-ℕ<
-    ; comparison-< = comparison-ℕ<
+    ; isLinearOrder-< = record
+      { isProp-< = isProp-ℕ≤
+      ; irrefl-< = irrefl-ℕ<
+      ; trans-< = trans-ℕ<
+      ; connected-< = connected-ℕ<
+      ; comparison-< = comparison-ℕ<
+      }
     }
 
 private
@@ -91,10 +93,12 @@ instance
   PartialOrderStr-ℕ : PartialOrderStr Nat ℓ-zero
   PartialOrderStr-ℕ = record
     { _≤_ = _ℕ≤_
-    ; isProp-≤ = isProp-ℕ≤
-    ; refl-≤ = refl-ℕ≤
-    ; trans-≤ = trans-ℕ≤
-    ; antisym-≤ = antisym-ℕ≤
+    ; isPartialOrder-≤ = record
+      { isProp-≤ = isProp-ℕ≤
+      ; refl-≤ = refl-ℕ≤
+      ; trans-≤ = trans-ℕ≤
+      ; antisym-≤ = antisym-ℕ≤
+      }
     }
 
 instance

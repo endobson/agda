@@ -12,14 +12,16 @@ open import relation
 open import sum
 open import truncation
 
+open import order.partial-order public
+
 private
   variable
     ℓD ℓ< ℓ≤ : Level
 
-record LinearOrderStr (D : Type ℓD) (ℓ< : Level) : Type (ℓ-max (ℓ-suc ℓ<) ℓD) where
+record isLinearOrder {D : Type ℓD} (_<_ : Rel D ℓ<)  : Type (ℓ-max ℓ< ℓD) where
   no-eta-equality
+  pattern
   field
-    _<_ : D -> D -> Type ℓ<
     isProp-< : {x y : D} -> isProp (x < y)
     irrefl-< : Irreflexive _<_
     trans-< : Transitive _<_
@@ -41,9 +43,40 @@ record LinearOrderStr (D : Type ℓD) (ℓ< : Level) : Type (ℓ-max (ℓ-suc �
   irrefl-path-< : IrreflexivePath _<_
   irrefl-path-< = Irreflexive->IrreflexivePath _<_ irrefl-<
 
+  isSet-D : isSet D
+  isSet-D = Stable==->isSet Stable==
+    where
+    Stable== : (x y : D) -> Stable (x == y)
+    Stable== x y ¬¬x=y = connected-< (\x<y -> ¬¬x=y (\x=y -> irrefl-path-< x=y x<y))
+                                     (\y<x -> ¬¬x=y (\x=y -> irrefl-path-< (sym x=y) y<x))
+
+isProp-isLinearOrder : {D : Type ℓD} (_<_ : Rel D ℓ<) -> isProp (isLinearOrder _<_)
+isProp-isLinearOrder _ O1@(record {}) O2@(record {}) = \i -> record
+  { isProp-< = isProp-isProp O1.isProp-< O2.isProp-< i
+  ; irrefl-< = isProp¬ _ O1.irrefl-< O2.irrefl-<  i
+  ; trans-< = isPropΠ2 (\_ _ -> O1.isProp-<) O1.trans-< O2.trans-< i
+  ; comparison-< = isPropΠ4 (\_ _ _ _ -> squash) O1.comparison-< O2.comparison-< i
+  ; connected-< = isPropΠ2 (\_ _ -> O1.isSet-D _ _) O1.connected-< O2.connected-< i
+  }
+  where
+  module O1 = isLinearOrder O1
+  module O2 = isLinearOrder O2
+
+
+record LinearOrderStr (D : Type ℓD) (ℓ< : Level) : Type (ℓ-max (ℓ-suc ℓ<) ℓD) where
+  no-eta-equality
+  field
+    _<_ : D -> D -> Type ℓ<
+    isLinearOrder-< : isLinearOrder _<_
+
+  open module isLinearOrder-< = isLinearOrder isLinearOrder-< public
+
 
 module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
-  open LinearOrderStr S public
+  open LinearOrderStr S public hiding
+    ( isLinearOrder-<
+    ; isSet-D
+    )
 
   abstract
     trans-≮ : Transitive _≮_
@@ -86,6 +119,9 @@ module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
   tri=' : {x y : D} -> x == y -> Tri< x y
   tri=' x=y = tri= (irrefl-path-< x=y) x=y (irrefl-path-< (sym x=y))
 
+  isProp-Tri< : {x y : D} -> isProp (Tri< x y)
+  isProp-Tri< = isProp-Tri isProp-< (LinearOrderStr.isSet-D useⁱ _ _) isProp-<
+
 
 module _ {D : Type ℓD} (A : TightApartnessStr D) (O : LinearOrderStr D ℓ<) where
   private
@@ -103,21 +139,14 @@ module _ {D : Type ℓD} {A : TightApartnessStr D} {O : LinearOrderStr D ℓ<}
          {{AO : ApartLinearOrderStr A O}} where
   open ApartLinearOrderStr AO public
 
-record PartialOrderStr (D : Type ℓD) (ℓ≤ : Level) : Type (ℓ-max (ℓ-suc ℓ≤) ℓD) where
-  no-eta-equality
-  field
-    _≤_ : D -> D -> Type ℓ≤
-    isProp-≤ : {x y : D} -> isProp (x ≤ y)
-    refl-≤ : Reflexive _≤_
-    trans-≤ : Transitive _≤_
-    antisym-≤ : Antisymmetric _≤_
 
-  _≥_ : D -> D -> Type ℓ≤
-  x ≥ y = y ≤ x
 
 
 module _ {D : Type ℓD} {{S : PartialOrderStr D ℓ<}} where
-  open PartialOrderStr S public
+  open PartialOrderStr S public hiding
+    ( isPartialOrder-≤
+    ; isSet-D
+    )
 
   abstract
     path-≤ : {d1 d2 : D} -> d1 == d2 -> d1 ≤ d2
@@ -167,10 +196,12 @@ module _ {D : Type ℓD} (L : LinearOrderStr D ℓ<) where
   NegatedLinearOrder : PartialOrderStr D ℓ<
   NegatedLinearOrder = record
     { _≤_ = _≯_
-    ; refl-≤ = irrefl-<
-    ; trans-≤ = \a≤b b≤c -> trans-≮ b≤c a≤b
-    ; antisym-≤ = \a≤b b≤a -> connected-< b≤a a≤b
-    ; isProp-≤ = isProp¬ _
+    ; isPartialOrder-≤ = record
+      { refl-≤ = irrefl-<
+      ; trans-≤ = \a≤b b≤c -> trans-≮ b≤c a≤b
+      ; antisym-≤ = \a≤b b≤a -> connected-< b≤a a≤b
+      ; isProp-≤ = isProp¬ _
+      }
     }
 
   CompatibleNegatedLinearOrder : CompatibleOrderStr L NegatedLinearOrder

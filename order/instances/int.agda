@@ -14,11 +14,13 @@ instance
   LinearOrderStr-ℤ : LinearOrderStr ℤ ℓ-zero
   LinearOrderStr-ℤ = record
     { _<_ = io._<_
-    ; isProp-< = io.isProp-<
-    ; irrefl-< = \{x} -> io.irrefl-< {x}
-    ; trans-< = \{x} {y} {z} -> io.trans-< {x} {y} {z}
-    ; connected-< = io.connected-<
-    ; comparison-< = \i j k i<k -> ∣ io.comparison-< i<k j ∣
+    ; isLinearOrder-< = record
+      { isProp-< = io.isProp-<
+      ; irrefl-< = \{x} -> io.irrefl-< {x}
+      ; trans-< = \{x} {y} {z} -> io.trans-< {x} {y} {z}
+      ; connected-< = io.connected-<
+      ; comparison-< = \i j k i<k -> ∣ io.comparison-< i<k j ∣
+      }
     }
 
 
@@ -26,10 +28,12 @@ instance
   PartialOrderStr-ℤ : PartialOrderStr ℤ ℓ-zero
   PartialOrderStr-ℤ = record
     { _≤_ = io._≤_
-    ; isProp-≤ = io.isProp-≤
-    ; refl-≤ = \{x} -> io.refl-≤ {x}
-    ; trans-≤ = \{x} {y} {z} -> io.trans-≤ {x} {y} {z}
-    ; antisym-≤ = io.antisym-≤
+    ; isPartialOrder-≤ = record
+      { isProp-≤ = io.isProp-≤
+      ; refl-≤ = \{x} -> io.refl-≤ {x}
+      ; trans-≤ = \{x} {y} {z} -> io.trans-≤ {x} {y} {z}
+      ; antisym-≤ = io.antisym-≤
+      }
     }
 
 private

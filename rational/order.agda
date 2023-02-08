@@ -252,21 +252,25 @@ instance
   LinearOrderStr-ℚ : LinearOrderStr ℚ ℓ-zero
   LinearOrderStr-ℚ = record
     { _<_ = _ℚ<_
-    ; isProp-< = isProp-ℚ<
-    ; irrefl-< = irrefl-ℚ<
-    ; trans-< = trans-ℚ<
-    ; connected-< = connected-ℚ<
-    ; comparison-< = comparison-ℚ<
+    ; isLinearOrder-< = record
+      { isProp-< = isProp-ℚ<
+      ; irrefl-< = irrefl-ℚ<
+      ; trans-< = trans-ℚ<
+      ; connected-< = connected-ℚ<
+      ; comparison-< = comparison-ℚ<
+      }
     }
 
 
   PartialOrderStr-ℚ : PartialOrderStr ℚ ℓ-zero
   PartialOrderStr-ℚ = record
     { _≤_ = _ℚ≤_
-    ; isProp-≤ = isProp-ℚ≤
-    ; refl-≤ = refl-ℚ≤
-    ; trans-≤ = \{a} {b} {c} -> trans-ℚ≤ {a} {b} {c}
-    ; antisym-≤ = antisym-ℚ≤
+    ; isPartialOrder-≤ = record
+      { isProp-≤ = isProp-ℚ≤
+      ; refl-≤ = refl-ℚ≤
+      ; trans-≤ = \{a} {b} {c} -> trans-ℚ≤ {a} {b} {c}
+      ; antisym-≤ = antisym-ℚ≤
+      }
     }
 
   TotalOrderStr-ℚ : TotalOrderStr PartialOrderStr-ℚ
@@ -279,14 +283,11 @@ abstract
   trichotomous-ℚ< a b =
     ℚ-elimProp2
       {C2 = (\a b -> Tri< a b)}
-      isProp-Tri<
+      (\_ _ -> isProp-Tri<)
       f a b
 
     where
     module _ where
-      isProp-Tri< : (x y : ℚ) -> isProp (Tri< x y)
-      isProp-Tri< x y = isProp-Tri isProp-ℚ< (isSetRational x y) isProp-ℚ<
-
       f : (a b : ℚ') -> Tri< (ℚ'->ℚ a) (ℚ'->ℚ b)
       f a b = handle (trichotomous~-ℚ'< a b)
         where
