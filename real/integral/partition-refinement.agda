@@ -5,6 +5,7 @@ module real.integral.partition-refinement where
 open import base
 open import equality
 open import fin
+open import fin.list.sorted
 open import order
 open import order.instances.nat
 open import order.instances.rational
@@ -20,7 +21,10 @@ record Partition≼ {a b : ℝ} (p1 p2 : Partition a b) : Type₀ where
     module p2 = Partition p2
 
   field
-    indexes : ∀ (i : Fin (suc p1.n)) -> Σ[ j ∈ Fin (suc p2.n) ] (p1.u i == p2.u j)
+    refines : p1.points ≤ p2.points
+
+  indexes : ∀ (i : Fin (suc p1.n)) -> Σ[ j ∈ Fin (suc p2.n) ] (p1.u i == p2.u j)
+  indexes = Sorted≼.indexes refines
 
   u0≤ : p2.u zero-fin ≤ p1.u zero-fin
   u0≤ = handle (indexes zero-fin)

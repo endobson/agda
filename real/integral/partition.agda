@@ -8,6 +8,7 @@ open import additive-group.instances.real
 open import base
 open import equality
 open import fin
+open import fin.list.sorted
 open import nat
 open import nat.order.base
 open import order
@@ -144,6 +145,9 @@ record Partition (a : ℝ) (b : ℝ) : Type₀ where
     0<width pi-low = trans-=-< (sym +-inverse) (+₂-preserves-< a<u0)
     0<width (pi-mid i) = trans-=-< (sym +-inverse) (+₂-preserves-< (uℝ<uℝ i))
     0<width pi-high = trans-=-< (sym +-inverse) (+₂-preserves-< un<b)
+
+  points : SortedList ℚ
+  points = (suc n , u) , record { preserves-< = u-preserves-< }
 
 partition->< : {a b : ℝ} -> Partition a b -> a < b
 partition->< p =

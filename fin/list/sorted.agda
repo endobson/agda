@@ -44,7 +44,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓ<}}  whe
   Sorted≼ : Rel (SortedList D) (ℓ-max ℓ-zero ℓD)
   Sorted≼ = ordered-set.glist.Sorted≼ Fin-Indices
 
-  module Sorted≼ = ordered-set.glist.Sorted≼ {Idxs = Fin-Indices}
+  module Sorted≼ = ordered-set.glist.Sorted≼ {Idxs = Fin-Indices} {{LO = LO}}
 
   module _ {s1 s2 : SortedList D} where
     private
