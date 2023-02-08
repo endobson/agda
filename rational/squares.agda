@@ -5,83 +5,25 @@ module rational.squares where
 open import additive-group
 open import base
 open import equality
-open import functions
 open import hlevel
 open import order
-open import order.instances.rational
 open import order.minmax
 open import order.minmax.instances.rational
 open import ordered-integral-domain
-open import ordered-ring
 open import ordered-semiring
-open import ordered-semiring.instances.rational
 open import rational
 open import rational.difference
 open import rational.integral-domain
 open import rational.minmax
 open import rational.order
-open import relation hiding (U)
-open import ring
+open import relation
 open import semiring
 open import sign
-open import sign.instances.rational
 open import truncation
 
 
 isSquareℚ : Pred ℚ ℓ-zero
 isSquareℚ q = Σ[ r ∈ ℚ ] ((0r ≤ r) × r * r == q)
-
-private
-  *₁-reflects-<' : {a b c : ℚ} -> (0r ≤ a) -> ((a * b) < (a * c)) -> b < c
-  *₁-reflects-<' {a} {b} {c} 0≤a ab<ac = *₁-reflects-< a≮0 ab<ac
-    where
-    a≮0 = irrefl-< ∘ trans-≤-< 0≤a
-
-  *₂-reflects-<' : {a b c : ℚ} -> (0r ≤ c) -> ((a * c) < (b * c)) -> a < b
-  *₂-reflects-<' 0≤c ac<bc = *₁-reflects-<' 0≤c (subst2 _<_ *-commute *-commute ac<bc)
-
-
-abstract
-  squares-ordered⁺ : {q r : ℚ} -> (0r ≤ q) -> (q < r) -> (q * q) < (r * r)
-  squares-ordered⁺ {q} {r} 0≤q q<r =
-    trans-≤-< (*₁-preserves-≤ 0≤q (weaken-< q<r)) (*₂-preserves-< q<r 0<r)
-    where
-    module _ where
-      0<r = trans-≤-< 0≤q q<r
-
-  squares-ordered : {q r : ℚ} -> (0r ≤ q) -> (0r ≤ r) -> (q * q) < (r * r) -> q < r
-  squares-ordered {q} {r} 0≤q 0≤r qq<rr =
-    unsquash isProp-< (∥-map handle (comparison-< qq qr rr qq<rr))
-    where
-    module _ where
-      qq = (q * q)
-      qr = (q * r)
-      rr = (r * r)
-
-      r≮q : r ≮ q
-      r≮q r<q = asym-< qq<rr (squares-ordered⁺ 0≤r r<q)
-
-      handle : (qq < qr) ⊎ (qr < rr) -> q < r
-      handle (inj-l qq<qr) = *₁-reflects-<' 0≤q qq<qr
-      handle (inj-r qr<rr) = *₂-reflects-<' 0≤r qr<rr
-
-  squares-ordered-< : {q r : ℚ} -> (0r ≤ r) -> (q * q) < (r * r) -> q < r
-  squares-ordered-< {q} {r} 0≤r qq<rr = handle (split-< q 0r)
-    where
-    handle : (q < 0r ⊎ 0r ≤ q) -> q < r
-    handle (inj-l q<0) = trans-<-≤ q<0 0≤r
-    handle (inj-r 0≤q) = squares-ordered 0≤q 0≤r qq<rr
-
-
-  squares-ordered-≤ : {q r : ℚ} -> (0r ≤ r) -> (q * q) ≤ (r * r) -> q ≤ r
-  squares-ordered-≤ {q} {r} 0≤r qq≤rr =
-    handle (split-< r q)
-    where
-
-    handle : (r < q) ⊎ (q ≤ r) -> q ≤ r
-    handle (inj-r q≤r) = q≤r
-    handle (inj-l r<q) = bot-elim (irrefl-< (trans-<-≤ (squares-ordered⁺ 0≤r r<q) qq≤rr))
-
 
 private
   +-preserves-≤-< : {a b c d : ℚ} -> a ≤ b -> c < d -> (a + c) < (b + d)

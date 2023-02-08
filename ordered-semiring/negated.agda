@@ -9,8 +9,8 @@ open import ordered-semiring
 open import semiring
 open import sum
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM}
-         {LO : LinearOrderStr D ℓ<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM)
+         (LO : LinearOrderStr D ℓ<)
          where
   private
     instance

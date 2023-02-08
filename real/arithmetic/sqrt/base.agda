@@ -9,9 +9,11 @@ open import equality
 open import hlevel
 open import order
 open import order.instances.real
+open import order.instances.rational
 open import ordered-integral-domain
 open import ordered-ring
 open import ordered-semiring
+open import ordered-semiring.squares
 open import rational
 open import rational.integral-domain
 open import rational.order
@@ -111,7 +113,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#)
               where
               handle3 : _ -> Σ[ r ∈ ℚ ] (r < q × U r)
               handle3 (s , (t , 0≤t , tt=s) , r<s , s<qq) =
-                t , (squares-ordered 0≤t 0≤q tt<qq)
+                t , (squares-ordered-< (convert-≤ 0≤q) tt<qq)
                   , 0≤t , subst x.U (sym tt=s) (x.isUpperSet-U r s r<s xu-r)
                 where
                 tt<qq : (t * t) < (q * q)
@@ -133,25 +135,26 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#)
             where
             handle2 : _ -> Σ[ r ∈ ℚ ] (q < r × L r)
             handle2 (s , (t , 0≤t , tt=s) , qq<s , s<r) =
-              t , (squares-ordered 0≤q 0≤t (subst2 _<_ refl (sym tt=s) qq<s)) ,
+              t , (squares-ordered-< (convert-≤ 0≤t) (subst2 _<_ refl (sym tt=s) qq<s)) ,
               inj-r (0≤t , subst x.L (sym tt=s) (x.isLowerSet-L s r s<r xl-r))
 
       located : (q r : ℚ) -> q < r -> ∥ L q ⊎ U r ∥
-      located q r q<r = handle (split-< q 0r)
+      located q r q<r = handle (decide-< q 0r)
         where
-        handle : (q < 0r ⊎ 0r ≤ q) -> ∥ L q ⊎ U r ∥
-        handle (inj-l q<0) = ∣ inj-l (inj-l q<0) ∣
-        handle (inj-r 0≤q) = ∥-map handle2 (x.located qq rr qq<rr)
+        handle : Dec (q < 0r) -> ∥ L q ⊎ U r ∥
+        handle (yes q<0) = ∣ inj-l (inj-l q<0) ∣
+        handle (no q≮0) = ∥-map handle2 (x.located qq rr qq<rr)
           where
           module _ where
             qq = (q * q)
             rr = (r * r)
 
+            0≤q = (convert-≮ q≮0)
             0<r = trans-≤-< 0≤q q<r
             0≤r = weaken-< 0<r
 
             qq<rr : qq < rr
-            qq<rr = squares-ordered⁺ 0≤q q<r
+            qq<rr = squares-ordered⁺ q≮0 q<r
 
             handle2 : x.L qq ⊎ x.U rr -> L q ⊎ U r
             handle2 (inj-l xl-qq) = inj-l (inj-r (0≤q , xl-qq))

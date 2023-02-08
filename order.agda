@@ -217,6 +217,9 @@ module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {
         d2=d1 : d2 == d1
         d2=d1 = antisym-≤ (weaken-< d2<d1) d1≤d2
 
+    convert-≤ : {d1 d2 : D} -> d1 ≤ d2 -> d2 ≮ d1
+    convert-≤ d1≤d2 d2<d1 = irrefl-< (trans-≤-< d1≤d2 d2<d1)
+
 
 module _ {D : Type ℓD}
          {L : LinearOrderStr D ℓ<}

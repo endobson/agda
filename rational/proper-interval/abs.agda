@@ -12,12 +12,12 @@ open import order.minmax.instances.rational
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.rational
+open import ordered-semiring.squares
 open import rational
 open import rational.minmax
 open import rational.order
 open import rational.proper-interval
 open import rational.proper-interval.maxabs-multiplication
-open import rational.squares
 open import relation
 open import ring
 open import ring.implementations.rational
