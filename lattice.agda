@@ -5,11 +5,60 @@ module lattice where
 open import base
 open import relation
 open import order
+open import hlevel.base
 open import functions
+open import funext
 
 private
   Op₂ : {ℓ : Level} -> Type ℓ -> Type ℓ
   Op₂ D = D -> D -> D
+
+record isMeet {ℓD ℓ≤ : Level} {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) (meet : Op₂ D) :
+               Type (ℓ-max ℓD ℓ≤) where
+  private
+    module PO = PartialOrderStr PO
+
+  field
+    meet-≤-left  : {x y : D} -> meet x y PO.≤ x
+    meet-≤-right : {x y : D} -> meet x y PO.≤ y
+    meet-greatest-≤ : {x y z : D} -> z PO.≤ x -> z PO.≤ y -> z PO.≤ meet x y
+
+
+record isJoin {ℓD ℓ≤ : Level} {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) (join : Op₂ D) :
+               Type (ℓ-max ℓD ℓ≤) where
+  private
+    module PO = PartialOrderStr PO
+
+  field
+    join-≤-left  : {x y : D} -> x PO.≤ join x y
+    join-≤-right : {x y : D} -> y PO.≤ join x y
+    join-least-≤ : {x y z : D} -> x PO.≤ z -> y PO.≤ z -> join x y PO.≤ z
+
+module _ {ℓD ℓ≤ : Level} {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) (op : Op₂ D) where
+  private
+    instance
+      IPO = PO
+
+  isProp-isMeet : isProp (isMeet PO op)
+  isProp-isMeet im1 im2 i = record
+    { meet-≤-left  = isProp-≤ im1.meet-≤-left im2.meet-≤-left i
+    ; meet-≤-right = isProp-≤ im1.meet-≤-right im2.meet-≤-right i
+    ; meet-greatest-≤ = isPropΠ2 (\_ _ -> isProp-≤) im1.meet-greatest-≤ im2.meet-greatest-≤ i
+    }
+    where
+    module im1 = isMeet im1
+    module im2 = isMeet im2
+
+  isProp-isJoin : isProp (isJoin PO op)
+  isProp-isJoin ij1 ij2 i = record
+    { join-≤-left  = isProp-≤ ij1.join-≤-left ij2.join-≤-left i
+    ; join-≤-right = isProp-≤ ij1.join-≤-right ij2.join-≤-right i
+    ; join-least-≤ = isPropΠ2 (\_ _ -> isProp-≤) ij1.join-least-≤ ij2.join-least-≤ i
+    }
+    where
+    module ij1 = isJoin ij1
+    module ij2 = isJoin ij2
+
 
 record MeetSemiLatticeStr {ℓD ℓ≤ : Level} {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) :
                           Type (ℓ-max ℓD ℓ≤) where
@@ -18,13 +67,37 @@ record MeetSemiLatticeStr {ℓD ℓ≤ : Level} {D : Type ℓD} (PO : PartialOrd
 
   field
     meet : Op₂ D
-    meet-≤-left  : {x y : D} -> meet x y PO.≤ x
-    meet-≤-right : {x y : D} -> meet x y PO.≤ y
-    meet-greatest-≤ : {x y z : D} -> z PO.≤ x -> z PO.≤ y -> z PO.≤ meet x y
+    is-meet : isMeet PO meet
+
+  open module is-meet = isMeet is-meet public
+
+module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {PO : PartialOrderStr D ℓ≤} where
+  private
+    instance
+      IPO = PO
+
+  isProp-MeetSemiLatticeStr : isProp (MeetSemiLatticeStr PO)
+  isProp-MeetSemiLatticeStr m1 m2 i = record
+    { meet = path i
+    ; is-meet = isProp->PathPᵉ (\i -> isProp-isMeet PO (path i)) m1.is-meet m2.is-meet i
+    }
+    where
+    module m1 = MeetSemiLatticeStr m1
+    module m2 = MeetSemiLatticeStr m2
+
+    path' : (x y : D) -> m1.meet x y == m2.meet x y
+    path' x y = antisym-≤ (m2.meet-greatest-≤ m1.meet-≤-left m1.meet-≤-right)
+                          (m1.meet-greatest-≤ m2.meet-≤-left m2.meet-≤-right)
+
+    path : m1.meet == m2.meet
+    path = funExt (\x -> (funExt (\y -> path' x y)))
+
 
 module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {PO : PartialOrderStr D ℓ≤}
          {{ MS : MeetSemiLatticeStr PO }} where
-  open MeetSemiLatticeStr MS public
+  open MeetSemiLatticeStr MS public hiding
+    ( is-meet
+    )
 
   private
     instance
@@ -47,13 +120,38 @@ record JoinSemiLatticeStr {ℓD ℓ≤ : Level} {D : Type ℓD} (PO : PartialOrd
 
   field
     join : Op₂ D
-    join-≤-left  : {x y : D} -> x PO.≤ join x y
-    join-≤-right : {x y : D} -> y PO.≤ join x y
-    join-least-≤ : {x y z : D} -> x PO.≤ z -> y PO.≤ z -> join x y PO.≤ z
+    is-join : isJoin PO join
+
+  open module is-join = isJoin is-join public
+
+module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {PO : PartialOrderStr D ℓ≤} where
+  private
+    instance
+      IPO = PO
+
+  isProp-JoinSemiLatticeStr : isProp (JoinSemiLatticeStr PO)
+  isProp-JoinSemiLatticeStr j1 j2 i = record
+    { join = path i
+    ; is-join = isProp->PathPᵉ (\i -> isProp-isJoin PO (path i)) j1.is-join j2.is-join i
+    }
+    where
+    module j1 = JoinSemiLatticeStr j1
+    module j2 = JoinSemiLatticeStr j2
+
+    path' : (x y : D) -> j1.join x y == j2.join x y
+    path' x y = antisym-≤ (j1.join-least-≤ j2.join-≤-left j2.join-≤-right)
+                          (j2.join-least-≤ j1.join-≤-left j1.join-≤-right)
+
+
+    path : j1.join == j2.join
+    path = funExt (\x -> (funExt (\y -> path' x y)))
+
 
 module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {PO : PartialOrderStr D ℓ≤}
          {{ JS : JoinSemiLatticeStr PO }} where
-  open JoinSemiLatticeStr JS public
+  open JoinSemiLatticeStr JS public hiding
+    ( is-join
+    )
 
   private
     instance
