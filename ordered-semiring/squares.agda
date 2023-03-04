@@ -3,6 +3,7 @@
 module ordered-semiring.squares where
 
 open import additive-group
+open import equality
 open import ordered-semiring
 open import ordered-semiring.negated
 open import equivalence
@@ -52,6 +53,13 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : S
         handle2 : (q < r × 0# < q) ⊎ (r < q × q < 0#) -> q < r
         handle2 (inj-l (q<r , _)) = q<r
         handle2 (inj-r (r<q , _)) = bot-elim (r≮q r<q)
+
+  square-≮0 : {x : D} -> (x * x) ≮ 0#
+  square-≮0 {x} xx<0 = handle (*₁-fully-reflects-< (trans-<-= xx<0 (sym *-right-zero)))
+    where
+    handle : (x < 0# × 0# < x) ⊎ (0# < x × x < 0#) -> Bot
+    handle (inj-l (x<0 , 0<x)) = asym-< x<0 0<x
+    handle (inj-r (0<x , x<0)) = asym-< x<0 0<x
 
 module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
          {LO : LinearOrderStr D ℓ<} {PO : PartialOrderStr D ℓ≤}

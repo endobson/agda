@@ -70,6 +70,14 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
     *₂-flips-< a<b c<0 =
       subst2 _<_ *-commute *-commute (*₁-flips-< c<0 a<b)
 
+    *₁-preserves-<0 : {a b : D} -> 0# < a -> b < 0# -> (a * b) < 0#
+    *₁-preserves-<0 0<a b<0 =
+      trans-<-= (*₂-flips-< 0<a b<0) *-left-zero
+
+    *₂-preserves-<0 : {a b : D} -> a < 0# -> 0# < b -> (a * b) < 0#
+    *₂-preserves-<0 a<0 0<b =
+      trans-<-= (*₁-flips-< a<0 0<b) *-right-zero
+
     *-flips-<0 : {a b : D} -> a < 0# -> b < 0# -> 0# < (a * b)
     *-flips-<0 {a} {b} a<0 b<0 = subst (_< (a * b)) *-left-zero (*₂-flips-< a<0 b<0)
 
@@ -122,17 +130,47 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
     *₁-reflects-< a≮0 ab<ac =
       proj₁ (proj-¬r (*₁-fully-reflects-< ab<ac) (\ (c<b , a<0) -> a≮0 a<0))
 
+    *₁-flip-reflects-< : {a b c : D} -> (a ≯ 0#) -> (a * b) < (a * c) -> (c < b)
+    *₁-flip-reflects-< a≯0 ab<ac =
+      proj₁ (proj-¬l (*₁-fully-reflects-< ab<ac) (\ (c<b , a>0) -> a≯0 a>0))
+
     *₂-reflects-< : {a b c : D} -> (a * c) < (b * c) -> (c ≮ 0#) -> (a < b)
     *₂-reflects-< {a} {b} {c} ac<bc c≮0 =
       *₁-reflects-< c≮0 (subst2 _<_ *-commute *-commute ac<bc)
+
+    *₂-flip-reflects-< : {a b c : D} -> (a * c) < (b * c) -> (c ≯ 0#) -> (b < a)
+    *₂-flip-reflects-< {a} {b} {c} ac<bc c≯0 =
+      *₁-flip-reflects-< c≯0 (subst2 _<_ *-commute *-commute ac<bc)
 
     *₁-reflects-0< : {a b : D} -> (a ≮ 0#) -> 0# < (a * b) -> (0# < b)
     *₁-reflects-0< {a} {b} a≮0 0<ab =
       *₁-reflects-< a≮0 (subst (_< (a * b)) (sym *-right-zero) 0<ab)
 
+    *₁-flip-reflects-0< : {a b : D} -> (a ≯ 0#) -> 0# < (a * b) -> (b < 0#)
+    *₁-flip-reflects-0< {a} {b} a≯0 0<ab =
+      *₁-flip-reflects-< a≯0 (subst (_< (a * b)) (sym *-right-zero) 0<ab)
+
     *₂-reflects-0< : {a b : D} -> 0# < (a * b) -> (b ≮ 0#) -> (0# < a)
     *₂-reflects-0< {a} {b} 0<ab b≮0 =
       *₂-reflects-< (subst (_< (a * b)) (sym *-left-zero) 0<ab) b≮0
+
+    *₂-flip-reflects-0< : {a b : D} -> 0# < (a * b) -> (b ≯ 0#) -> (a < 0#)
+    *₂-flip-reflects-0< {a} {b} 0<ab b≯0 =
+      *₂-flip-reflects-< (subst (_< (a * b)) (sym *-left-zero) 0<ab) b≯0
+
+    *-reflects-<>0 : {a b : D} -> (a * b) <> 0# -> (a <> 0# × b <> 0#)
+    *-reflects-<>0 {a} {b} (inj-l ab<0) =
+      handle (*₁-fully-reflects-< (subst ((a * b) <_) (sym *-right-zero) ab<0))
+      where
+      handle : (b < 0# × 0# < a) ⊎ (0# < b × a < 0#) -> (a <> 0# × b <> 0#)
+      handle (inj-l (b<0 , 0<a)) = inj-r 0<a , inj-l b<0
+      handle (inj-r (0<b , a<0)) = inj-l a<0 , inj-r 0<b
+    *-reflects-<>0 {a} {b} (inj-r 0<ab) =
+      handle (*₁-fully-reflects-< (subst (_< (a * b)) (sym *-right-zero) 0<ab))
+      where
+      handle : (0# < b × 0# < a) ⊎ (b < 0# × a < 0#) -> (a <> 0# × b <> 0#)
+      handle (inj-l (0<b , 0<a)) = inj-r 0<a , inj-r 0<b
+      handle (inj-r (b<0 , a<0)) = inj-l a<0 , inj-l b<0
 
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : PartialOrderStr D ℓ≤) where
