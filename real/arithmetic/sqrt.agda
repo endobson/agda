@@ -131,7 +131,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
         handle2 : Σ[ s ∈ ℚ ] (isSquareℚ s × 0r < s × s < q) -> 0# ℝ<' sxᵉ
         handle2 (s , (t , 0≤t , tt=s) , 0<s , s<q) =
           ℝ<'-cons t (ℚ<->U (strengthen-ℚ≤-≠ 0≤t 0!=t))
-                     (inj-r (0≤t , (subst x.L (sym tt=s) (x.isLowerSet-L s q s<q xL-q))))
+                     (inj-r (0≤t , (subst x.L (sym tt=s) (x.isLowerSet-L s<q xL-q))))
           where
           0!=t : 0r != t
           0!=t 0=t = <->!= 0<s (sym *-right-zero >=> *-right 0=t >=> tt=s)
@@ -322,7 +322,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
         ∈yi = ℚ∈Iℚ-i-intersect₂ xyi-u xi yi xyi-o (xyi-l≤u , refl-≤)
 
       x-u2 : x.U xiyi-u
-      x-u2 = isUpperSet≤ x (xyi-u * xyi-u) xiyi-u (snd xyi-u²∈xiyi) x-u1
+      x-u2 = isUpperSet≤ x (snd xyi-u²∈xiyi) x-u1
 
       x-l1 : x.L xiyi-l
       x-l1 = handle (fst sx∈xi) (fst sx∈yi)
@@ -356,7 +356,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
           xiyi-l<0 = trans-≤-< xiyi-l≤xuyl xuyl<0
 
         handle (inj-r (0≤xl , xL-xl²)) (inj-r (0≤yl , xL-yl²)) =
-          isLowerSet≤ x xiyi-l (xyi-l * xyi-l) (fst xyi-l²∈xiyi) x-l2
+          isLowerSet≤ x (fst xyi-l²∈xiyi) x-l2
           where
 
           x-l2 : x.L (xyi-l * xyi-l)
@@ -383,8 +383,8 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
                  Σ[ zi ∈ Iℚ ] Σ[ wi ∈ Iℚ ] (ℝ∈Iℚ sx zi × ℝ∈Iℚ sx wi × i-Upper (zi i* wi) u) ->
                  ℝ∈Iℚ x a
         handle (xi , yi , sx∈xi , sx∈yi , l≤xyi) (zi , wi , sx∈zi , sx∈wi , zwi≤u) =
-          isLowerSet≤ x l (Iℚ.l xyi) l≤xyi (fst x∈xyi) ,
-          isUpperSet≤ x (Iℚ.u zwi) u zwi≤u (snd x∈zwi)
+          isLowerSet≤ x l≤xyi (fst x∈xyi) ,
+          isUpperSet≤ x zwi≤u (snd x∈zwi)
           where
           xyi = xi i* yi
           x∈xyi : ℝ∈Iℚ x xyi
@@ -418,7 +418,7 @@ split-ℝ∈Iℚ-0≤ x ai@(Iℚ-cons l u l≤u) x∈ai 0≤x = handle (split-< 
   0<u = proj-¬r (split-< 0r u) ¬u≤0
     where
     ¬u≤0 : ¬ (u ≤ 0r)
-    ¬u≤0 u≤0 = ℝ≮0-¬U0 x 0≤x (isUpperSet≤ x u 0r u≤0 (snd x∈ai))
+    ¬u≤0 u≤0 = ℝ≮0-¬U0 x 0≤x (isUpperSet≤ x u≤0 (snd x∈ai))
 
   Ans = Σ[ bi ∈ Iℚ ] (ℝ∈Iℚ x bi × bi i⊆ ai × (BalancedI bi ⊎ NonNegI bi))
   Ans' = ∥ Ans ∥

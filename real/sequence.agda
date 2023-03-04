@@ -170,7 +170,7 @@ center-ball z q1 q2 Lq Uq =
 
 weaken-centered-ball : (x : ℝ) (ε₁ ε₂ : ℚ) -> (ε₁ < ε₂) -> CenteredBall x ε₁ -> CenteredBall x ε₂
 weaken-centered-ball x e1 e2 e1<e2 (q , lq , uq) =
-  (q , x.isLowerSet-L _ _ q-e2<q-e1 lq , x.isUpperSet-U _ _ q+e1<q+e2 uq)
+  (q , x.isLowerSet-L q-e2<q-e1 lq , x.isUpperSet-U q+e1<q+e2 uq)
   where
   module x = Real x
   q-e2<q-e1 : (q r+ (r- e2)) < (q r+ (r- e1))

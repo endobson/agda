@@ -81,12 +81,12 @@ private
       0<u = U->ℚ< 0U-u
       0<-l = minus-flips-<0 l<0
       handle : (u < (- l)) ⊎ ((- l) ≤ u) -> ℝ∈Iℚ x qi
-      handle (inj-l u<-l) = Real.isLowerSet-L x _ _ l<-u (proj₁ x∈u) , proj₂ x∈u
+      handle (inj-l u<-l) = Real.isLowerSet-L x l<-u (proj₁ x∈u) , proj₂ x∈u
         where
         l<-u = trans-=-< (sym minus-double-inverse) (minus-flips-< u<-l)
         x∈u = εB (u , 0<u)
       handle (inj-r -l≤u) = subst (Real.L x) minus-double-inverse (proj₁ x∈-l) ,
-                            isUpperSet≤ x _ _ -l≤u (proj₂ x∈-l)
+                            isUpperSet≤ x -l≤u (proj₂ x∈-l)
         where
         x∈-l = εB (- l , 0<-l)
 

@@ -168,21 +168,21 @@ module _
 
 
     isLowerSet-L : isLowerSet L
-    isLowerSet-L q r q<r r-L = ∥-map handle r-L
+    isLowerSet-L {q} {r} q<r r-L = ∥-map handle r-L
       where
       handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.L (s m) (r + ⟨ ε ⟩)) ->
                Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.L (s m) (q + ⟨ ε ⟩))
       handle (n , ε⁺ , f) =
-        (n , ε⁺ , (\ m m≥n -> Real.isLowerSet-L (s m) _ _ (+₂-preserves-< q<r) (f m m≥n)))
+        (n , ε⁺ , (\ m m≥n -> Real.isLowerSet-L (s m) (+₂-preserves-< q<r) (f m m≥n)))
 
 
     isUpperSet-U : isUpperSet U
-    isUpperSet-U q r q<r q-U = ∥-map handle q-U
+    isUpperSet-U {q} {r} q<r q-U = ∥-map handle q-U
       where
       handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.U (s m) (q + (- ⟨ ε ⟩))) ->
                Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.U (s m) (r + (- ⟨ ε ⟩)))
       handle (n , ε⁺ , f) =
-        (n , ε⁺ , (\ m m≥n -> Real.isUpperSet-U (s m) _ _ (+₂-preserves-< q<r) (f m m≥n)))
+        (n , ε⁺ , (\ m m≥n -> Real.isUpperSet-U (s m) (+₂-preserves-< q<r) (f m m≥n)))
 
 
     isUpperOpen-L : isUpperOpen L
@@ -225,8 +225,8 @@ module _
                Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.U (s m) (q + (- ⟨ ε ⟩))) ->
                Bot
       handle (n1 , (ε1 , 0<ε1) , f1) (n2 , (ε2 , 0<ε2) , f2) =
-        sn.disjoint q (sn.isLowerSet-L _ _ q<q+ε1 (f1 n n≥n1) ,
-                       sn.isUpperSet-U _ _ q-ε2<q (f2 n n≥n2))
+        sn.disjoint q (sn.isLowerSet-L q<q+ε1 (f1 n n≥n1) ,
+                       sn.isUpperSet-U q-ε2<q (f2 n n≥n2))
         where
         n = max n1 n2
         module sn = Real (s n)
@@ -356,7 +356,7 @@ module _
     handle (n , (ε , 0<ε) , f) = (n , g)
       where
       g : (m : Nat) -> m ≥ n -> Real.L (s m) q
-      g m m≥n = Real.isLowerSet-L (s m) _ _ (trans-=-< (sym +-right-zero) (+₁-preserves-< 0<ε))
+      g m m≥n = Real.isLowerSet-L (s m) (trans-=-< (sym +-right-zero) (+₁-preserves-< 0<ε))
                                   (f m m≥n)
 
   isLimit-CauchySeq->ℝ .isLimit.upper q = ∥-map handle
@@ -366,8 +366,8 @@ module _
     handle (n , (ε , 0<ε) , f) = (n , g)
       where
       g : (m : Nat) -> m ≥ n -> Real.U (s m) q
-      g m m≥n = Real.isUpperSet-U (s m) _ _ (trans-<-= (+₁-preserves-< (minus-flips-0< 0<ε))
-                                                       +-right-zero)
+      g m m≥n = Real.isUpperSet-U (s m) (trans-<-= (+₁-preserves-< (minus-flips-0< 0<ε))
+                                                    +-right-zero)
                                   (f m m≥n)
 
   Cauchy->isConvergentSequence : isConvergentSequence s

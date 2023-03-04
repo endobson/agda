@@ -62,17 +62,17 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#)
           handle (q , xu-q) = handle2 (split-< q 1r)
             where
             handle2 : (q < 1r ⊎ 1r ≤ q) -> Σ ℚ U
-            handle2 (inj-l q<1) = 1r , (0≤1 , x.isUpperSet-U q _ q<1*1 xu-q)
+            handle2 (inj-l q<1) = 1r , (0≤1 , x.isUpperSet-U q<1*1 xu-q)
               where
               q<1*1 = subst (q <_) (sym *-right-one) q<1
-            handle2 (inj-r 1≤q) = q , (0≤q , (isUpperSet≤ x q _ q<q*q xu-q))
+            handle2 (inj-r 1≤q) = q , (0≤q , (isUpperSet≤ x q<q*q xu-q))
               where
               0≤q = trans-≤ 0≤1 1≤q
               q<q*q = subst (_≤ (q * q)) *-right-one (*₁-preserves-≤ 0≤q 1≤q)
 
       isUpperSet-U : isUpperSet U
-      isUpperSet-U q r q<r (0≤q , xu-qq) =
-        (weaken-< 0<r , x.isUpperSet-U (q * q) (r * r) qq<rr xu-qq)
+      isUpperSet-U {q} {r} q<r (0≤q , xu-qq) =
+        (weaken-< 0<r , x.isUpperSet-U qq<rr xu-qq)
         where
         module _ where
           0<r = trans-≤-< 0≤q q<r
@@ -80,13 +80,13 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#)
           qq<rr = trans-≤-< (*₁-preserves-≤ 0≤q (weaken-< q<r)) (*₂-preserves-< q<r 0<r)
 
       isLowerSet-L : isLowerSet L
-      isLowerSet-L q r q<r (inj-l r<0) = (inj-l (trans-< q<r r<0))
-      isLowerSet-L q r q<r (inj-r (0≤r , xu-rr)) = handle (split-< q 0r)
+      isLowerSet-L q<r (inj-l r<0) = (inj-l (trans-< q<r r<0))
+      isLowerSet-L {q} {r} q<r (inj-r (0≤r , xu-rr)) = handle (split-< q 0r)
         where
         module _ where
           handle : (q < 0r ⊎ 0r ≤ q) -> L q
           handle (inj-l q<0) = (inj-l q<0)
-          handle (inj-r 0≤q) = (inj-r (0≤q , isLowerSet≤ x (q * q) (r * r) qq≤rr xu-rr))
+          handle (inj-r 0≤q) = (inj-r (0≤q , isLowerSet≤ x qq≤rr xu-rr))
             where
             q≤r = weaken-< q<r
             qq≤rr : (q * q) ≤ (r * r)
@@ -114,7 +114,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#)
               handle3 : _ -> Σ[ r ∈ ℚ ] (r < q × U r)
               handle3 (s , (t , 0≤t , tt=s) , r<s , s<qq) =
                 t , (squares-ordered-< (convert-≤ 0≤q) tt<qq)
-                  , 0≤t , subst x.U (sym tt=s) (x.isUpperSet-U r s r<s xu-r)
+                  , 0≤t , subst x.U (sym tt=s) (x.isUpperSet-U r<s xu-r)
                 where
                 tt<qq : (t * t) < (q * q)
                 tt<qq = subst (_< (q * q)) (sym tt=s) s<qq
@@ -136,7 +136,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#)
             handle2 : _ -> Σ[ r ∈ ℚ ] (q < r × L r)
             handle2 (s , (t , 0≤t , tt=s) , qq<s , s<r) =
               t , (squares-ordered-< (convert-≤ 0≤t) (subst2 _<_ refl (sym tt=s) qq<s)) ,
-              inj-r (0≤t , subst x.L (sym tt=s) (x.isLowerSet-L s r s<r xl-r))
+              inj-r (0≤t , subst x.L (sym tt=s) (x.isLowerSet-L s<r xl-r))
 
       located : (q r : ℚ) -> q < r -> ∥ L q ⊎ U r ∥
       located q r q<r = handle (decide-< q 0r)

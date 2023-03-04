@@ -109,7 +109,7 @@ isProp-ℝ∈Iℚ z (Iℚ-cons l u _) = isProp× (Real.isProp-L z l) (Real.isPro
 
 ℝ∈Iℚ-⊆ : (x : ℝ) {a b : Iℚ} -> a i⊆ b -> ℝ∈Iℚ x a -> ℝ∈Iℚ x b
 ℝ∈Iℚ-⊆ x {a} {b} (i⊆-cons bl≤al au≤bu) (xl-a , xu-a) =
-  isLowerSet≤ x _ _ bl≤al xl-a , isUpperSet≤ x _ _ au≤bu xu-a
+  isLowerSet≤ x bl≤al xl-a , isUpperSet≤ x au≤bu xu-a
 
 ℝ∈Iℚ-Pos : (x : ℝ) -> 0ℝ ℝ< x -> ∃[ b ∈ Iℚ ] (ℝ∈Iℚ x b × PosI b)
 ℝ∈Iℚ-Pos x 0<x = ∥-map2 handle (x.isUpperOpen-L 0r (ℝ<->L 0r x 0<x)) x.Inhabited-U

@@ -41,15 +41,15 @@ module _ (a b : ℝ) where
       where
       handle : Σ ℚ a.U -> Σ ℚ b.U -> Σ ℚ U
       handle (q1 , aU-q1) (q2 , bU-q2) =
-        max q1 q2 , (isUpperSet≤ a _ _ max-≤-left aU-q1 , isUpperSet≤ b _ _ max-≤-right bU-q2)
+        max q1 q2 , (isUpperSet≤ a max-≤-left aU-q1 , isUpperSet≤ b max-≤-right bU-q2)
 
     isUpperSet-U : isUpperSet U
-    isUpperSet-U q r q<r (aU-q , bU-q) =
-      (a.isUpperSet-U q r q<r aU-q , b.isUpperSet-U q r q<r bU-q)
+    isUpperSet-U q<r (aU-q , bU-q) =
+      (a.isUpperSet-U q<r aU-q , b.isUpperSet-U q<r bU-q)
 
     isLowerSet-L : isLowerSet L
-    isLowerSet-L q r q<r =
-      ∥-map (⊎-map (a.isLowerSet-L _ _ q<r) (b.isLowerSet-L _ _ q<r))
+    isLowerSet-L q<r =
+      ∥-map (⊎-map (a.isLowerSet-L q<r) (b.isLowerSet-L q<r))
 
 
     isLowerOpen-U : isLowerOpen U
@@ -60,8 +60,8 @@ module _ (a b : ℝ) where
                Σ[ r ∈ ℚ ] (r < q × U r)
       handle (r1 , r1<q , aU-r1) (r2 , r2<q , bU-r2) =
         max r1 r2 , (max-least-< r1<q r2<q ,
-                     (isUpperSet≤ a _ _ max-≤-left aU-r1 ,
-                      isUpperSet≤ b _ _ max-≤-right bU-r2))
+                     (isUpperSet≤ a max-≤-left aU-r1 ,
+                      isUpperSet≤ b max-≤-right bU-r2))
 
     isUpperOpen-L : isUpperOpen L
     isUpperOpen-L q = ∥-bind handle
@@ -126,5 +126,5 @@ abstract
       ∥-map handle2 (connex-≤ q1 q2)
       where
       handle2 : (q1 ≤ q2) ⊎ (q2 ≤ q1) -> maxℝ x y ℝ<' z
-      handle2 (inj-l q1≤q2) = ℝ<'-cons q2 (isUpperSet≤ x _ _ q1≤q2 xU-q1 , yU-q2) zL-q2
-      handle2 (inj-r q2≤q1) = ℝ<'-cons q1 (xU-q1 , isUpperSet≤ y _ _ q2≤q1 yU-q2) zL-q1
+      handle2 (inj-l q1≤q2) = ℝ<'-cons q2 (isUpperSet≤ x q1≤q2 xU-q1 , yU-q2) zL-q2
+      handle2 (inj-r q2≤q1) = ℝ<'-cons q1 (xU-q1 , isUpperSet≤ y q2≤q1 yU-q2) zL-q1

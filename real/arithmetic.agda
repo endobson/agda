@@ -57,11 +57,11 @@ module _ (x y : ℝ) where
         (r1 r+ r2 , ∣ (r1 , r2 , u-r1 , u-r2 , refl) ∣)
 
     isLowerSet-L : isLowerSet L
-    isLowerSet-L a b a<b = ∥-map handle
+    isLowerSet-L {a} {b} a<b = ∥-map handle
       where
       handle : L' b -> L' a
       handle (r1 , r2 , l-r1 , l-r2 , r-path) =
-        (r1 , r3 , l-r1 , y.isLowerSet-L r3 r2 r3<r2 l-r2 , r3-path)
+        (r1 , r3 , l-r1 , y.isLowerSet-L r3<r2 l-r2 , r3-path)
         where
         r3 = r2 r+ (diff b a)
         r3<r2 : r3 < r2
@@ -77,11 +77,11 @@ module _ (x y : ℝ) where
           r+-left-zero a
 
     isUpperSet-U : isUpperSet U
-    isUpperSet-U a b a<b = ∥-map handle
+    isUpperSet-U {a} {b} a<b = ∥-map handle
       where
       handle : U' a -> U' b
       handle (r1 , r2 , l-r1 , l-r2 , r-path) =
-        (r1 , r3 , l-r1 , y.isUpperSet-U r2 r3 r2<r3 l-r2 , r3-path)
+        (r1 , r3 , l-r1 , y.isUpperSet-U r2<r3 l-r2 , r3-path)
         where
         r3 = r2 r+ (diff a b)
         r2<r3 : r2 < r3
@@ -109,11 +109,11 @@ module _ (x y : ℝ) where
         handle2 (tri< _ _ _) (tri= _ r2==r4 _) =
           y.disjoint r4 ((subst y.L r2==r4 l-r2) , u-r4)
         handle2 (tri< _ _ _) (tri> _ _ r4<r2) =
-          y.disjoint r4 ((y.isLowerSet-L r4 r2 r4<r2 l-r2) , u-r4)
+          y.disjoint r4 ((y.isLowerSet-L r4<r2 l-r2) , u-r4)
         handle2 (tri= _ r1==r3 _) _ =
           x.disjoint r3 ((subst x.L r1==r3 l-r1) , u-r3)
         handle2 (tri> _ _ r3<r1) _ =
-          x.disjoint r3 ((x.isLowerSet-L r3 r1 r3<r1 l-r1) , u-r3)
+          x.disjoint r3 ((x.isLowerSet-L r3<r1 l-r1) , u-r3)
 
     located : (a b : ℚ) -> a < b -> ∥ L a ⊎ U b ∥
     located a b a<b = ∥-bind handle (find-centered-ball x ε)
@@ -378,7 +378,7 @@ module _ (x : ℝ) where
       i .fun 0xl-q = unsquash (x.isProp-L q) (∥-map handle 0xl-q)
         where
         handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (0ℝ.L a × x.L b × a r+ b == q) -> x.L q
-        handle (a , b , 0l-a , xl-b , p) = x.isLowerSet-L q b q<b xl-b
+        handle (a , b , 0l-a , xl-b , p) = x.isLowerSet-L q<b xl-b
           where
           q<b : q < b
           q<b = subst2 _<_ p (r+-left-zero b) (+₂-preserves-< (L->ℚ< 0l-a))
@@ -403,7 +403,7 @@ module _ (x : ℝ) where
       i .fun 0xu-q = unsquash (x.isProp-U q) (∥-map handle 0xu-q)
         where
         handle : Σ[ a ∈ ℚ ] Σ[ b ∈ ℚ ] (0ℝ.U a × x.U b × a r+ b == q) -> x.U q
-        handle (a , b , 0u-a , xu-b , p) = x.isUpperSet-U b q b<q xu-b
+        handle (a , b , 0u-a , xu-b , p) = x.isUpperSet-U b<q xu-b
           where
           b<q : b < q
           b<q = subst2 _<_ (r+-left-zero b) p (+₂-preserves-< (U->ℚ< 0u-a))
@@ -437,9 +437,9 @@ module _ (x : ℝ) where
       handle (q , lq) = (r- q) , subst x.L (sym minus-double-inverse) lq
 
     isLowerSet-L : isLowerSet L
-    isLowerSet-L a b a<b = x.isUpperSet-U (r- b) (r- a) (minus-flips-< a<b)
+    isLowerSet-L a<b = x.isUpperSet-U (minus-flips-< a<b)
     isUpperSet-U : isUpperSet U
-    isUpperSet-U a b a<b = x.isLowerSet-L (r- b) (r- a) (minus-flips-< a<b)
+    isUpperSet-U a<b = x.isLowerSet-L (minus-flips-< a<b)
 
     isUpperOpen-L : isUpperOpen L
     isUpperOpen-L q lq = ∥-map handle (x.isLowerOpen-U (r- q) lq)

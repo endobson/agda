@@ -114,18 +114,18 @@ module _ (x y : ℝ)
         q = Iℚ.u (ab i* cd)
 
     isLowerSet-L : isLowerSet L
-    isLowerSet-L a b a<b = ∥-map handle
+    isLowerSet-L {a} {b} a<b = ∥-map handle
       where
       handle : L' x y b -> L' x y a
       handle (xi , yi , exi , eyi , lt) =
-        (xi , yi , exi , eyi , weaken-< (trans-<-≤ {d1 = a} {b} {Iℚ.l (xi i* yi)} a<b lt))
+        (xi , yi , exi , eyi , weaken-< (trans-<-≤ a<b lt))
 
     isUpperSet-U : isUpperSet U
-    isUpperSet-U a b a<b = ∥-map handle
+    isUpperSet-U {a} {b} a<b = ∥-map handle
       where
       handle : U' x y a -> U' x y b
       handle (xi , yi , exi , eyi , lt) =
-        (xi , yi , exi , eyi , weaken-< (trans-≤-< {d1 = Iℚ.u (xi i* yi)} {a} {b} lt a<b))
+        (xi , yi , exi , eyi , weaken-< (trans-≤-< lt a<b))
 
 
     isUpperOpen-L : isUpperOpen L
@@ -533,7 +533,7 @@ module _ (x : ℝ)
         handle : L' 1ℝ x q -> x.L q
         handle ((Iℚ-cons 1i-l 1i-u 1i-l≤u) , xi@(Iℚ-cons xi-l xi-u xi-l≤u) ,
                  (1i-l<1 , 1<1i-u) , exi , q≤prod) =
-          isLowerSet≤ x q xi-l ans (fst exi)
+          isLowerSet≤ x ans (fst exi)
           where
 
 
@@ -654,7 +654,7 @@ module _ (x : ℝ)
         handle : U' 1ℝ x q -> x.U q
         handle ((Iℚ-cons 1i-l 1i-u 1i-l≤u) , xi@(Iℚ-cons xi-l xi-u xi-l≤u) ,
                  (1i-l<1 , 1<1i-u) , exi , prod≤q) =
-          isUpperSet≤ x xi-u q ans (snd exi)
+          isUpperSet≤ x ans (snd exi)
           where
 
           ans : xi-u ℚ≤ q

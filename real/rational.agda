@@ -30,8 +30,8 @@ abstract
     ; isProp-U = \q2 -> isProp-<
     ; Inhabited-L = Inhabited-L
     ; Inhabited-U = Inhabited-U
-    ; isLowerSet-L = \q2 q3 q2<q3 q3<q1 -> trans-< {_} {_} {_} {q2} {q3} {q1} q2<q3 q3<q1
-    ; isUpperSet-U = \q2 q3 q2<q3 q1<q2 -> trans-< {_} {_} {_} {q1} {q2} {q3} q1<q2 q2<q3
+    ; isLowerSet-L = \q2<q3 q3<q1 -> trans-< q2<q3 q3<q1
+    ; isUpperSet-U = \q2<q3 q1<q2 -> trans-< q1<q2 q2<q3
     ; isUpperOpen-L = isUpperOpen-L
     ; isLowerOpen-U = isLowerOpen-U
     ; disjoint = \q2 (l , u) -> asym-< {_} {_} {_} {q2} {q1} l u
@@ -108,7 +108,7 @@ abstract
     where
     module x = Real x
     handle : x ℝ<' (ℚ->ℝ q) -> Real.U x q
-    handle (ℝ<'-cons r xu-r r<q) = x.isUpperSet-U r q r<q xu-r
+    handle (ℝ<'-cons r xu-r r<q) = x.isUpperSet-U r<q xu-r
 
 
   ℝ<->L : (q : ℚ) (x : ℝ) -> (ℚ->ℝ q) ℝ< x -> Real.L x q
@@ -116,7 +116,7 @@ abstract
     where
     module x = Real x
     handle : (ℚ->ℝ q) ℝ<' x -> Real.L x q
-    handle (ℝ<'-cons r q<r xl-r) = x.isLowerSet-L q r q<r xl-r
+    handle (ℝ<'-cons r q<r xl-r) = x.isLowerSet-L q<r xl-r
 
   L->ℝ< : {x : ℝ} {q : ℚ} -> Real.L x q -> (ℚ->ℝ q) ℝ< x
   L->ℝ< {x} {q} q<x = ∥-bind handle (Real.isUpperOpen-L x _ q<x)

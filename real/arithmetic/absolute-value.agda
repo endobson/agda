@@ -97,24 +97,24 @@ module _ (x : ℝ)
         handle2 : Tri (q < (r- r)) (q == (r- r)) ((r- r) < q) -> Σ ℚ U
         handle2 (tri< q<-r _ _) =
           (r- q) , (subst x.L (sym minus-double-inverse) xl-q) ,
-                   (x.isUpperSet-U r (r- q) r<-q xu-r)
+                   (x.isUpperSet-U r<-q xu-r)
           where
           r<-q : r < (r- q)
           r<-q = Pos-diffℚ⁻ r (- q) (subst Pos (r+-commute (r- r) (r- q)) (Pos-diffℚ q (- r) q<-r))
         handle2 (tri= _ q=-r _ ) = r , (subst x.L q=-r xl-q) , xu-r
-        handle2 (tri> _ _ -r<q) = r , (x.isLowerSet-L (r- r) q -r<q xl-q) , xu-r
+        handle2 (tri> _ _ -r<q) = r , (x.isLowerSet-L -r<q xl-q) , xu-r
 
     isLowerSet-L : isLowerSet L
-    isLowerSet-L q r q<r = ∥-map handle
+    isLowerSet-L {q} {r} q<r = ∥-map handle
       where
       handle : L' r -> L' q
-      handle (inj-l xl-r) = inj-l (x.isLowerSet-L q r q<r xl-r)
-      handle (inj-r xu-r) = inj-r (x.isUpperSet-U (r- r) (r- q) (minus-flips-< q<r) xu-r)
+      handle (inj-l xl-r) = inj-l (x.isLowerSet-L q<r xl-r)
+      handle (inj-r xu-r) = inj-r (x.isUpperSet-U (minus-flips-< q<r) xu-r)
 
     isUpperSet-U : isUpperSet U
-    isUpperSet-U q r q<r (xl-q , xu-q) =
-      (x.isLowerSet-L (r- r) (r- q) (minus-flips-< q<r) xl-q) ,
-      (x.isUpperSet-U q r q<r xu-q)
+    isUpperSet-U {q} {r} q<r (xl-q , xu-q) =
+      (x.isLowerSet-L (minus-flips-< q<r) xl-q) ,
+      (x.isUpperSet-U q<r xu-q)
 
     isUpperOpen-L : isUpperOpen L
     isUpperOpen-L q = ∥-bind handle
@@ -141,7 +141,7 @@ module _ (x : ℝ)
                   Σ[ r3 ∈ ℚ ] (r3 < q × U r3)
         handle2 (tri< r1<-r2 _ _) =
           (r- r1) , -r1<q , (subst x.L (sym minus-double-inverse) xl-r1) ,
-                            (x.isUpperSet-U r2 (r- r1) r2<-r1 xu-r2)
+                            (x.isUpperSet-U r2<-r1 xu-r2)
           where
           r2<-r1 : r2 < (r- r1)
           r2<-r1 = Pos-diffℚ⁻ r2 (- r1) (subst Pos (r+-commute (r- r2) (r- r1))
@@ -154,7 +154,7 @@ module _ (x : ℝ)
         handle2 (tri= _ r1=-r2 _) =
           r2 , r2<q , (subst x.L r1=-r2 xl-r1) , xu-r2
         handle2 (tri> _ _ -r2<r1) =
-          r2 , r2<q , (x.isLowerSet-L (r- r2) r1 -r2<r1 xl-r1) , xu-r2
+          r2 , r2<q , (x.isLowerSet-L -r2<r1 xl-r1) , xu-r2
 
 
     disjoint : Universal (Comp (L ∩ U))
@@ -302,14 +302,14 @@ abstract
           s<q = maxℚ-property (- r1) r2 -r1<q r2<q
 
           xl--s : x.L (- s)
-          xl--s = isLowerSet≤ x (- s) r1 lt xl-r1
+          xl--s = isLowerSet≤ x lt xl-r1
             where
             lt : (- s) ≤ r1
             lt = subst (_≤ r1) (sym (r--maxℚ (- r1) r2 >=> (cong2 min minus-double-inverse refl)))
                                min-≤-left
 
           xu-s : x.U s
-          xu-s = isUpperSet≤ x r2 s max-≤-right xu-r2
+          xu-s = isUpperSet≤ x max-≤-right xu-r2
 
   absℝ-- : (x : ℝ) -> absℝ (- x) == absℝ x
   absℝ-- x = cong absℝ (ℝ--eval {x}) >=> LU-paths->path amx ax L-path U-path
@@ -408,7 +408,7 @@ abstract
         l0=0 = max-<-path l<0
 
         handle2 : (0r < u) ⊎ (u ≤ 0r) -> ax.L (max l 0r)
-        handle2 (inj-r u≤0) = isLowerSet≤ ax (max l 0r) (- u) l0≤-u axl--u
+        handle2 (inj-r u≤0) = isLowerSet≤ ax l0≤-u axl--u
           where
           module _ where
             l0≤-u : (max l 0r) ≤ (- u)
@@ -422,13 +422,13 @@ abstract
     axu--lu = subst x.L (sym p) xl-l-u , xu--lu
       where
       xu--lu : x.U (max (- l) u)
-      xu--lu = isUpperSet≤ x u (max (- l) u) max-≤-right xu-u
+      xu--lu = isUpperSet≤ x max-≤-right xu-u
 
       p : (- (max (- l) u)) == min l (- u)
       p = (r--maxℚ (- l) u >=> (cong2 min minus-double-inverse refl))
 
       xl-l-u : x.L (min l (- u))
-      xl-l-u = isLowerSet≤ x (min l (- u)) l min-≤-left xl-l
+      xl-l-u = isLowerSet≤ x min-≤-left xl-l
 
   ℝ∈Iℚ-absℝ-dual : (x : ℝ) (a : Iℚ) -> ℝ∈Iℚ x a -> ℝ∈Iℚ x (i- a) ->
                    ℝ∈Iℚ (absℝ x) a
@@ -437,7 +437,7 @@ abstract
 
   ℝ∈Iℚ-absℝ-NonNegI : (x : ℝ) (a : Iℚ) -> NonNegI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) a
   ℝ∈Iℚ-absℝ-NonNegI x (Iℚ-cons l u l≤u) nn-l (xl-l , xu-u) =
-    ∣ inj-l xl-l ∣ , (isLowerSet≤ x (- u) l -u≤l xl-l , xu-u)
+    ∣ inj-l xl-l ∣ , (isLowerSet≤ x -u≤l xl-l , xu-u)
     where
     module _ where
       0≤l : 0r ≤ l
@@ -448,7 +448,7 @@ abstract
   ℝ∈Iℚ-absℝ-NonPosI : (x : ℝ) (a : Iℚ) -> NonPosI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) (i- a)
   ℝ∈Iℚ-absℝ-NonPosI x (Iℚ-cons l u l≤u) np-u (xl-l , xu-u) =
     ∣ inj-r (subst x.U (sym minus-double-inverse) xu-u) ∣ ,
-    ( subst x.L (sym minus-double-inverse) xl-l , isUpperSet≤ x u (- l) u≤-l xu-u)
+    ( subst x.L (sym minus-double-inverse) xl-l , isUpperSet≤ x u≤-l xu-u)
     where
     module _ where
       module x = Real x
@@ -460,7 +460,7 @@ abstract
 
   ℝ∈Iℚ-absℝ-ImbalancedI : (x : ℝ) (a : Iℚ) -> ImbalancedI a -> ℝ∈Iℚ x a -> ℝ∈Iℚ (absℝ x) a
   ℝ∈Iℚ-absℝ-ImbalancedI x (Iℚ-cons l u l≤u) -l≤u (xl-l , xu-u) =
-    ∣ inj-l xl-l ∣ , (isLowerSet≤ x (- u) l -u≤l xl-l , xu-u)
+    ∣ inj-l xl-l ∣ , (isLowerSet≤ x -u≤l xl-l , xu-u)
     where
     module _ where
       -u≤l : (- u) ≤ l

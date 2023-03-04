@@ -24,10 +24,10 @@ private
 
 
 isLowerSet : Pred Rational ℓ -> Type ℓ
-isLowerSet L = (x y : Rational) -> x < y -> L y -> L x
+isLowerSet L = {x y : Rational} -> x < y -> L y -> L x
 
 isUpperSet : Pred Rational ℓ -> Type ℓ
-isUpperSet U = (x y : Rational) -> x < y -> U x -> U y
+isUpperSet U = {x y : Rational} -> x < y -> U x -> U y
 
 isLowerOpen : Pred Rational ℓ -> Type ℓ
 isLowerOpen U = (x : Rational) -> U x -> ∃[ y ∈ Rational ] (y < x × U y)
@@ -65,7 +65,7 @@ module _ (x : ℝ) where
       where
       handle2 : (0r < q) ⊎ (q ℚ≤ 0r) -> Σ[ q ∈ ℚ⁺ ] (x.U ⟨ q ⟩)
       handle2 (inj-l 0<q) = (q , 0<q) , uq
-      handle2 (inj-r q≤0) = (1r , Pos-1r) , x.isUpperSet-U q 1r q<1r uq
+      handle2 (inj-r q≤0) = (1r , Pos-1r) , x.isUpperSet-U q<1r uq
         where
         q<1r : q < 1r
         q<1r = (trans-≤-< {d1 = q} {0r} {1r} q≤0 (Pos-0< 1r Pos-1r))
@@ -86,24 +86,24 @@ module _ (x : ℝ) where
         Neg-q : Negℚ q
         Neg-q = subst Negℚ (+-right minus-zero >=> r+-right-zero q) Neg-d
       handle2 (inj-r 0≤q) = ((r- 1r) , (r--flips-sign _ pos-sign Pos-1r)) ,
-                            x.isLowerSet-L (r- 1r) q -1r<q lq
+                            x.isLowerSet-L -1r<q lq
         where
         -1r<q : (r- 1r) < q
         -1r<q = trans-<-≤ {d1 = r- 1r} {0r} {q}
                   (minus-flips-0< Pos-1r)
                   0≤q
 
-  isLowerSet≤ : (q r : ℚ) -> (q ℚ≤ r) -> x.L r -> x.L q
-  isLowerSet≤ q r q≤r lr = unsquash (x.isProp-L q) (∥-map handle (x.isUpperOpen-L r lr))
+  isLowerSet≤ : {q r : ℚ} -> (q ℚ≤ r) -> x.L r -> x.L q
+  isLowerSet≤ {q} {r} q≤r lr = unsquash (x.isProp-L q) (∥-map handle (x.isUpperOpen-L r lr))
     where
     handle : Σ[ s ∈ ℚ ] (r < s × x.L s) -> x.L q
-    handle (s , r<s , ls) = x.isLowerSet-L q s (trans-≤-< {d1 = q} {r} {s} q≤r r<s) ls
+    handle (s , r<s , ls) = x.isLowerSet-L (trans-≤-< q≤r r<s) ls
 
-  isUpperSet≤ : (q r : ℚ) -> (q ℚ≤ r) -> x.U q -> x.U r
-  isUpperSet≤ q r q≤r uq = unsquash (x.isProp-U r) (∥-map handle (x.isLowerOpen-U q uq))
+  isUpperSet≤ : {q r : ℚ} -> (q ℚ≤ r) -> x.U q -> x.U r
+  isUpperSet≤ {q} {r} q≤r uq = unsquash (x.isProp-U r) (∥-map handle (x.isLowerOpen-U q uq))
     where
     handle : Σ[ s ∈ ℚ ] (s < q × x.U s) -> x.U r
-    handle (s , s<q , us) = x.isUpperSet-U s r (trans-<-≤ {d1 = s} {q} {r} s<q q≤r) us
+    handle (s , s<q , us) = x.isUpperSet-U (trans-<-≤ s<q q≤r) us
 
 
   LowerOpen-Pos : (q : ℚ⁺) -> (x.U ⟨ q ⟩) -> ∃[ r ∈ ℚ⁺ ] (⟨ r ⟩ < ⟨ q ⟩ × x.U ⟨ r ⟩)
@@ -123,7 +123,7 @@ module _ (x : ℝ) where
 
       handle2 : (q/2 < r) ⊎ (r ℚ≤ q/2) ->  Σ[ r ∈ ℚ⁺ ] (⟨ r ⟩ < q × x.U ⟨ r ⟩)
       handle2 (inj-l q/2<r) = (r , Pos-< q/2 r (inj-l pos-q/2) q/2<r) , r<q , xu-r
-      handle2 (inj-r r≤q/2) = (q/2 , pos-q/2) , q/2<q , isUpperSet≤ r q/2 r≤q/2 xu-r
+      handle2 (inj-r r≤q/2) = (q/2 , pos-q/2) , q/2<q , isUpperSet≤ r≤q/2 xu-r
 
 
 abstract
@@ -168,9 +168,9 @@ abstract
                                   (Real.isProp-U x q) (Real.isProp-U y q) i
 
     isProp-isLowerSet : (i : I) -> isProp (isLowerSet (lp' i))
-    isProp-isLowerSet i = isPropΠ4 (\q _ _ _ -> isProp-L i q)
+    isProp-isLowerSet i = isPropΠⁱ2 (\q _ -> isPropΠ2 (\_ _ -> isProp-L i q))
     isProp-isUpperSet : (i : I) -> isProp (isUpperSet (up' i))
-    isProp-isUpperSet i = isPropΠ4 (\_ q _ _ -> isProp-U i q)
+    isProp-isUpperSet i = isPropΠⁱ2 (\_ q -> isPropΠ2 (\_ _ -> isProp-U i q))
 
     isProp-isLowerOpen : (i : I) -> isProp (isLowerOpen (up' i))
     isProp-isLowerOpen i = isPropΠ2 (\_ _ -> squash)
@@ -220,8 +220,8 @@ private
   isProp-isGoodCut {c = c} g1 g2 = (\i -> record
     { Inhabited-L = squash g1.Inhabited-L g2.Inhabited-L i
     ; Inhabited-U = squash g1.Inhabited-U g2.Inhabited-U i
-    ; isLowerSet-L = isPropΠ4 (\x _ _ _ -> c.isProp-L x) g1.isLowerSet-L g2.isLowerSet-L i
-    ; isUpperSet-U = isPropΠ4 (\_ y _ _ -> c.isProp-U y) g1.isUpperSet-U g2.isUpperSet-U i
+    ; isLowerSet-L = isPropΠ2 (\_ _ -> c.isProp-L _) g1.isLowerSet-L g2.isLowerSet-L i
+    ; isUpperSet-U = isPropΠ2 (\_ _ -> c.isProp-U _) g1.isUpperSet-U g2.isUpperSet-U i
     ; isUpperOpen-L = isPropΠ2 (\_ _ -> squash) g1.isUpperOpen-L g2.isUpperOpen-L i
     ; isLowerOpen-U = isPropΠ2 (\_ _ -> squash) g1.isLowerOpen-U g2.isLowerOpen-U i
     ; disjoint = isPropΠ2 (\_ _ -> isPropBot) g1.disjoint g2.disjoint i

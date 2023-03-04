@@ -48,6 +48,9 @@ abstract
   isPropΠⁱ : ((x : A) -> isProp (B x)) -> isProp ({x : A} -> (B x))
   isPropΠⁱ = isOfHLevelΠⁱ 1
 
+  isPropΠⁱ2 : ((x : A) -> (y : B x) -> isProp (C x y)) -> isProp ({x : A} -> {y : B x} -> C x y)
+  isPropΠⁱ2 h = isPropΠⁱ (\a -> isPropΠⁱ (h a))
+
   isSetΠⁱ : ((x : A) -> isSet (B x)) -> isSet ({x : A} -> (B x))
   isSetΠⁱ = isOfHLevelΠⁱ 2
 

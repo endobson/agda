@@ -89,20 +89,19 @@ private
       Inhabited-L = ∣ 0r , L-nonpos (inj-r Zero-0r) ∣
 
       isLowerSet-L : isLowerSet L
-      isLowerSet-L q r q<r (L-nonpos np-r) = (L-nonpos (NonPos-≤ q r np-r (weaken-< q<r)))
-      isLowerSet-L q r q<r (L-pos p-r xu-1/r) = handle (decide-sign q)
+      isLowerSet-L {q} {r} q<r (L-nonpos np-r) = (L-nonpos (NonPos-≤ q r np-r (weaken-< q<r)))
+      isLowerSet-L {q} {r} q<r (L-pos p-r xu-1/r) = handle (decide-sign q)
         where
         handle : Σ[ s ∈ Sign ] (isSign s q) -> L q
         handle (pos-sign  , p-q) =
-          L-pos p-q (x.isUpperSet-U (r1/ r (Pos->Inv p-r)) (r1/ q (Pos->Inv p-q))
-                                    (r1/-Pos-flips-order (q , p-q) (r , p-r) q<r) xu-1/r)
+          L-pos p-q (x.isUpperSet-U (r1/-Pos-flips-order (q , p-q) (r , p-r) q<r) xu-1/r)
         handle (zero-sign , z-q) = L-nonpos (inj-r z-q)
         handle (neg-sign  , n-q) = L-nonpos (inj-l n-q)
 
 
       isUpperSet-U : isUpperSet U
-      isUpperSet-U q r q<r (U-pos pos-q xl-1/q) =
-        U-pos pos-r (x.isLowerSet-L r' q' (r1/-Pos-flips-order (q , pos-q) (r , pos-r) q<r) xl-1/q)
+      isUpperSet-U {q} {r} q<r (U-pos pos-q xl-1/q) =
+        U-pos pos-r (x.isLowerSet-L (r1/-Pos-flips-order (q , pos-q) (r , pos-r) q<r) xl-1/q)
         where
         pos-r = (Pos-≤ q r pos-q (weaken-< q<r))
         inv-q = (Pos->Inv pos-q)

@@ -38,19 +38,19 @@ module _ (a b : ℝ) where
       handle (q1 , aL-q1) (q2 , bL-q2) = ∥-map handle2 (connex-≤ q1 q2)
         where
         handle2 : (q1 ≤ q2) ⊎ (q2 ≤ q1) -> Σ ℚ L
-        handle2 (inj-l q1≤q2) = q1 , (aL-q1 , isLowerSet≤ b _ _ q1≤q2 bL-q2)
-        handle2 (inj-r q2≤q1) = q2 , (isLowerSet≤ a _ _ q2≤q1 aL-q1 , bL-q2)
+        handle2 (inj-l q1≤q2) = q1 , (aL-q1 , isLowerSet≤ b q1≤q2 bL-q2)
+        handle2 (inj-r q2≤q1) = q2 , (isLowerSet≤ a q2≤q1 aL-q1 , bL-q2)
 
     isLowerSet-L : isLowerSet L
-    isLowerSet-L q r q<r (aL-r , bL-r) =
-      (a.isLowerSet-L q r q<r aL-r , b.isLowerSet-L q r q<r bL-r)
+    isLowerSet-L q<r (aL-r , bL-r) =
+      (a.isLowerSet-L q<r aL-r , b.isLowerSet-L q<r bL-r)
 
     isUpperSet-U : isUpperSet U
-    isUpperSet-U q r q<r = ∥-map handle
+    isUpperSet-U {q} {r} q<r = ∥-map handle
       where
       handle : U' q -> U' r
-      handle (inj-l aU-q) = inj-l (a.isUpperSet-U q r q<r aU-q)
-      handle (inj-r bU-q) = inj-r (b.isUpperSet-U q r q<r bU-q)
+      handle (inj-l aU-q) = inj-l (a.isUpperSet-U q<r aU-q)
+      handle (inj-r bU-q) = inj-r (b.isUpperSet-U q<r bU-q)
 
     isUpperOpen-L : isUpperOpen L
     isUpperOpen-L q (aL-q , bL-q) =
@@ -61,8 +61,8 @@ module _ (a b : ℝ) where
       handle (r1 , q<r1 , aL-r1) (r2 , q<r2 , bL-r2) = ∥-map handle2 (connex-≤ r1 r2)
         where
         handle2 : (r1 ≤ r2) ⊎ (r2 ≤ r1) -> Σ[ r ∈ ℚ ] (q < r × L r)
-        handle2 (inj-l r1≤r2) = r1 , q<r1 , aL-r1 , isLowerSet≤ b _ _ r1≤r2 bL-r2
-        handle2 (inj-r r2≤r1) = r2 , q<r2 , isLowerSet≤ a _ _ r2≤r1 aL-r1 , bL-r2
+        handle2 (inj-l r1≤r2) = r1 , q<r1 , aL-r1 , isLowerSet≤ b r1≤r2 bL-r2
+        handle2 (inj-r r2≤r1) = r2 , q<r2 , isLowerSet≤ a r2≤r1 aL-r1 , bL-r2
 
 
     isLowerOpen-U : isLowerOpen U
@@ -128,5 +128,5 @@ abstract
       ∥-map handle2 (connex-≤ q1 q2)
       where
       handle2 : (q1 ≤ q2) ⊎ (q2 ≤ q1) -> z ℝ<' minℝ x y
-      handle2 (inj-l q1≤q2) = ℝ<'-cons q1 zU-q1 (xL-q1 , isLowerSet≤ y _ _ q1≤q2 yL-q2)
-      handle2 (inj-r q2≤q1) = ℝ<'-cons q2 zU-q2 (isLowerSet≤ x _ _ q2≤q1 xL-q1 , yL-q2)
+      handle2 (inj-l q1≤q2) = ℝ<'-cons q1 zU-q1 (xL-q1 , isLowerSet≤ y q1≤q2 yL-q2)
+      handle2 (inj-r q2≤q1) = ℝ<'-cons q2 zU-q2 (isLowerSet≤ x q2≤q1 xL-q1 , yL-q2)

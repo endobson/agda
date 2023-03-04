@@ -46,7 +46,7 @@ abstract
     handle : Tri (q1 < q2) (q1 == q2) (q2 < q1) -> q1 < q2
     handle (tri< lt _ _ ) = lt
     handle (tri= _  p _ ) = bot-elim (Real.disjoint x q1 (l , (subst (Real.U x) (sym p) u)))
-    handle (tri> _  _ lt) = bot-elim (Real.disjoint x q1 (l , (Real.isUpperSet-U x q2 q1 lt u)))
+    handle (tri> _  _ lt) = bot-elim (Real.disjoint x q1 (l , (Real.isUpperSet-U x lt u)))
 
   ℝ-bounds->¬ℚ≤ : (x : ℝ) {q1 q2 : ℚ} -> (Real.L x q1) -> (Real.U x q2) -> ¬ (q2 ≤ q1)
   ℝ-bounds->¬ℚ≤ x lq1 uq2 q2≤q1 =
@@ -62,7 +62,7 @@ abstract
         q1<q2 : q1 < q2
         q1<q2 = ℝ-bounds->ℚ< y ly-q1 uy-q2
         lz-q1 : Real.L z q1
-        lz-q1 = Real.isLowerSet-L z q1 q2 q1<q2 lz-q2
+        lz-q1 = Real.isLowerSet-L z q1<q2 lz-q2
 
   asym-ℝ< : Asymmetric _ℝ<_
   asym-ℝ< {x} {y} x<y y<x = irrefl-ℝ< {x} (trans-ℝ< {x} {y} {x} x<y y<x)
@@ -129,7 +129,7 @@ trans-L-ℝ< : {q : ℚ} {x y : ℝ} -> Real.L x q -> x ℝ< y -> Real.L y q
 trans-L-ℝ< {q} {x} {y} q<x x<y = unsquash (Real.isProp-L y q) (∥-map handle x<y)
   where
   handle : x ℝ<' y -> Real.L y q
-  handle (ℝ<'-cons r x<r r<y) = Real.isLowerSet-L y q r q<r r<y
+  handle (ℝ<'-cons r x<r r<y) = Real.isLowerSet-L y q<r r<y
     where
     q<r : q < r
     q<r = ℝ-bounds->ℚ< x q<x x<r
@@ -138,7 +138,7 @@ trans-ℝ<-U : {q : ℚ} {x y : ℝ} -> x ℝ< y -> Real.U y q -> Real.U x q
 trans-ℝ<-U {q} {x} {y} x<y y<q = unsquash (Real.isProp-U x q) (∥-map handle x<y)
   where
   handle : x ℝ<' y -> Real.U x q
-  handle (ℝ<'-cons r x<r r<y) = Real.isUpperSet-U x r q r<q x<r
+  handle (ℝ<'-cons r x<r r<y) = Real.isUpperSet-U x r<q x<r
     where
     r<q : r < q
     r<q = ℝ-bounds->ℚ< y r<y y<q
