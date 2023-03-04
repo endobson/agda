@@ -24,7 +24,7 @@ open import truncation
 open import univalence
 
 module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         {R : Ring S AG} {A : TightApartnessStr D} (ID : IntegralDomain R A) where
+         {R : Ring S AG} {A : TightApartnessStr D ℓ} (ID : IntegralDomain R A) where
   private
     module R = Ring R
     module ID = IntegralDomain ID
@@ -596,7 +596,7 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
       TightApartness-q# : TightApartness _q#_
       TightApartness-q# = tight-q# , apartness-q#
 
-    TightApartnessStr-Q : TightApartnessStr Q
+    TightApartnessStr-Q : TightApartnessStr Q ℓ
     TightApartnessStr-Q = record
       { _#_ = _q#_
       ; TightApartness-# = TightApartness-q#
@@ -605,7 +605,7 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
 
     private
       instance
-        ITightApartnessStr-Q : TightApartnessStr Q
+        ITightApartnessStr-Q : TightApartnessStr Q ℓ
         ITightApartnessStr-Q = TightApartnessStr-Q
 
     1q#0 : 1# q# 0#

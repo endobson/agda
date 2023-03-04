@@ -41,8 +41,9 @@ module _ {ℓD ℓS : Level} {D : Type ℓD} (S : Subtype D ℓS) where
   isFullSubtype : Type (ℓ-max ℓD ℓS)
   isFullSubtype = ∀ (d : D) -> ⟨ S d ⟩
 
-module _ {ℓD ℓS : Level} {D : Type ℓD} {{AD : TightApartnessStr D}} (S : Subtype D ℓS) where
-  isOpenSubtype : Type (ℓ-max ℓD ℓS)
+module _ {ℓD ℓS ℓ# : Level} {D : Type ℓD} {{AD : TightApartnessStr D ℓ#}}
+         (S : Subtype D ℓS) where
+  isOpenSubtype : Type (ℓ-max* 3 ℓD ℓS ℓ#)
   isOpenSubtype = ∀ {d1 : D} -> ⟨ S d1 ⟩ -> (d2 : D) -> (⟨ S d2 ⟩ ⊎ (d1 # d2))
 
 abstract

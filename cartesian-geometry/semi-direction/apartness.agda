@@ -179,7 +179,7 @@ private
       diff=0 = tight-# (¬sd1#sd2 ∘ sd#-cons)
 
 instance
-  TightApartnessStr-SemiDirection : TightApartnessStr SemiDirection
+  TightApartnessStr-SemiDirection : TightApartnessStr SemiDirection ℓ-one
   TightApartnessStr-SemiDirection .TightApartnessStr._#_ = _sd#_
   TightApartnessStr-SemiDirection .TightApartnessStr.TightApartness-# =
     tight-sd# , (irrefl-sd# , sym-sd# , comparison-sd#)

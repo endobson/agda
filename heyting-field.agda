@@ -22,7 +22,7 @@ private
 record Field {ℓ : Level} {D : Type ℓ}
              {ACM : AdditiveCommMonoid D}
              {S : Semiring ACM} {AG : AdditiveGroup ACM} (R : Ring S AG)
-             (A : TightApartnessStr D)
+             (A : TightApartnessStr D ℓ)
   : Type (ℓ-suc ℓ) where
   private
     module R = Ring R
@@ -56,7 +56,7 @@ record Field {ℓ : Level} {D : Type ℓ}
   1#0 : 1# # 0#
   1#0 = subst (\z -> z 1# 0#) f#-path 1#0'
 
-  TightApartnessStr-f# : TightApartnessStr D
+  TightApartnessStr-f# : TightApartnessStr D ℓ
   TightApartnessStr-f# = record
     { _#_ = _f#_
     ; TightApartness-# = TightApartness-f#

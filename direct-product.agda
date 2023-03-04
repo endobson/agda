@@ -137,7 +137,7 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} (G : GroupStr D) (I : Type ℓI) wh
     ; ∙-left-inverse = dp∙-left-inverse
     }
 
-module _ {ℓD ℓI : Level} {D : Type ℓD} (TD : TightApartnessStr D) (I : Type ℓI) where
+module _ {ℓD ℓI ℓ# : Level} {D : Type ℓD} (TD : TightApartnessStr D ℓ#) (I : Type ℓI) where
   private
     instance
       ITD = TD
@@ -171,7 +171,7 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} (TD : TightApartnessStr D) (I : Typ
             (comparison-# (unwrap-dp a i) (unwrap-dp b i) (unwrap-dp c i) ai#ci)
 
 
-  TightApartnessStr-DirectProduct : TightApartnessStr (DP D I)
+  TightApartnessStr-DirectProduct : TightApartnessStr (DP D I) (ℓ-max ℓI ℓ#)
   TightApartnessStr-DirectProduct = record
     { _#_ = _dp#_
     ; TightApartness-# = (tight-dp# , (irrefl-dp# , sym-dp# , comparison-dp#))
@@ -205,9 +205,9 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {ACM : AdditiveCommMonoid K}
     }
 
 
-module _ {ℓK ℓI : Level} {K : Type ℓK}
+module _ {ℓK ℓI ℓ# : Level} {K : Type ℓK}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
-         {TA : TightApartnessStr K} (AAG : ApartAdditiveGroup AG TA) (I : Type ℓI) where
+         {TA : TightApartnessStr K ℓ#} (AAG : ApartAdditiveGroup AG TA) (I : Type ℓI) where
   private
     instance
       IACM = ACM
@@ -235,7 +235,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
 
 module _ {ℓK ℓI : Level} {K : Type ℓK}
          {ACM : AdditiveCommMonoid K} {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         (R : Ring S AG) (TK : TightApartnessStr K) (I : Type ℓI) where
+         (R : Ring S AG) (TK : TightApartnessStr K ℓK) (I : Type ℓI) where
   private
     module R = Ring R
     instance
@@ -271,7 +271,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
 
 module _ {ℓK ℓI : Level} {K : Type ℓK}
          {ACM : AdditiveCommMonoid K} {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         {R : Ring S AG} {A : TightApartnessStr K} (F : Field R A) (I : Type ℓI) where
+         {R : Ring S AG} {A : TightApartnessStr K ℓK} (F : Field R A) (I : Type ℓI) where
   private
     instance
       IACM = ACM

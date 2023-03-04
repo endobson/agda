@@ -24,7 +24,7 @@ private
 module _ {ℓK ℓV : Level} {K : Type ℓK}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
          {S : Semiring ACM} {R : Ring S AG}
-         {A : TightApartnessStr K} {F : Field R A} {V : Type ℓV}
+         {A : TightApartnessStr K ℓK} {F : Field R A} {V : Type ℓV}
          (VS : VectorSpaceStr F V) where
 
   private

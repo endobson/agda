@@ -199,21 +199,21 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : Additi
     +-swap-diffᵉ : (a b c d : D) -> ((diff a b) + (diff c d)) == (diff (a + c) (b + d))
     +-swap-diffᵉ _ _ _ _ = +-swap-diff
 
-module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
-         (AG : AdditiveGroup ACM) (A : TightApartnessStr D) where
+module _ {ℓ ℓ# : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
+         (AG : AdditiveGroup ACM) (A : TightApartnessStr D ℓ#) where
   private
     instance
       IACM = ACM
       IAG = AG
       IA = A
 
-  record ApartAdditiveGroup : Type ℓ where
+  record ApartAdditiveGroup : Type (ℓ-max ℓ ℓ#) where
     no-eta-equality
     field
       +-reflects-# : {d1 d2 d3 d4 : D} -> (d1 + d2) # (d3 + d4) -> ∥ (d1 # d3) ⊎ (d2 # d4) ∥
 
-module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
-         {AG : AdditiveGroup ACM} {A : TightApartnessStr D}
+module _ {ℓ ℓ# : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
+         {AG : AdditiveGroup ACM} {A : TightApartnessStr D ℓ#}
          {{AAG : ApartAdditiveGroup AG A}} where
   private
     instance

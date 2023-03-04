@@ -16,7 +16,7 @@ open import order.partial-order public
 
 private
   variable
-    ℓD ℓ< ℓ≤ : Level
+    ℓD ℓ< ℓ≤ ℓ# : Level
 
 record isLinearOrder {D : Type ℓD} (_<_ : Rel D ℓ<)  : Type (ℓ-max ℓ< ℓD) where
   no-eta-equality
@@ -124,19 +124,19 @@ module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
   isProp-Tri< = isProp-Tri isProp-< (LinearOrderStr.isSet-D useⁱ _ _) isProp-<
 
 
-module _ {D : Type ℓD} (A : TightApartnessStr D) (O : LinearOrderStr D ℓ<) where
+module _ {D : Type ℓD} (A : TightApartnessStr D ℓ#) (O : LinearOrderStr D ℓ<) where
   private
     instance
      IO = O
      IA = A
 
-  record ApartLinearOrderStr : Type (ℓ-max ℓ< ℓD) where
+  record ApartLinearOrderStr : Type (ℓ-max* 3 ℓ# ℓ< ℓD) where
     no-eta-equality
     field
       <>-equiv-# : {a b : D} -> (a <> b) ≃ (a # b)
 
 
-module _ {D : Type ℓD} {A : TightApartnessStr D} {O : LinearOrderStr D ℓ<}
+module _ {D : Type ℓD} {A : TightApartnessStr D ℓ#} {O : LinearOrderStr D ℓ<}
          {{AO : ApartLinearOrderStr A O}} where
   open ApartLinearOrderStr AO public
 
@@ -256,7 +256,7 @@ module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {
 module _ {D : Type ℓD}
          {L : LinearOrderStr D ℓ<}
          {P : PartialOrderStr D ℓ≤}
-         {A : TightApartnessStr D}
+         {A : TightApartnessStr D ℓ#}
          {{LA : ApartLinearOrderStr A L}}
          {{CO : CompatibleOrderStr L P}} where
   private

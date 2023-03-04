@@ -38,7 +38,8 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
           ; preserves-∙ = \_ _ -> *-distrib-+-left
           }
 
-  module _ {AG : AdditiveGroup ACM} {A : TightApartnessStr D} {{AAG : ApartAdditiveGroup AG A}}  where
+  module _ {ℓ# : Level} {AG : AdditiveGroup ACM} {A : TightApartnessStr D ℓ#}
+           {{AAG : ApartAdditiveGroup AG A}}  where
     private
       instance
         IA = A

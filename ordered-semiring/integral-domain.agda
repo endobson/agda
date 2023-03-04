@@ -19,7 +19,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : 
          {O : LinearOrderStr D ℓ<} {{LOS : LinearlyOrderedSemiringStr S O}}
          {AG : AdditiveGroup ACM}
          {R : Ring S AG}
-         {A : TightApartnessStr D}
+         {A : TightApartnessStr D ℓD}
          {{ALO : ApartLinearOrderStr A O}}
          {{IntD : IntegralDomain R A}}  where
   private

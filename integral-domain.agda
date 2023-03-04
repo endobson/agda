@@ -15,9 +15,9 @@ open import semiring
 open import sigma
 
 
-module _ {ℓ : Level} {D : Type ℓ}
+module _ {ℓ ℓ# : Level} {D : Type ℓ}
          {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         (R : Ring S AG) (A : TightApartnessStr D) where
+         (R : Ring S AG) (A : TightApartnessStr D ℓ#) where
   private
     instance
       IS = S
@@ -26,16 +26,16 @@ module _ {ℓ : Level} {D : Type ℓ}
       IR = R
       IA = A
 
-  record IntegralDomain : Type (ℓ-suc ℓ) where
+  record IntegralDomain : Type (ℓ-suc (ℓ-max ℓ ℓ#)) where
     field
       1#0 : 1# # 0#
       diff-#-equiv : {a b : D} -> (a # b) ≃ (diff a b # 0#)
       *-#0-equiv : {a b : D} -> ((a # 0#) × (b # 0#)) ≃ (a * b) # 0#
 
 
-module _ {ℓ : Level} {D : Type ℓ}
+module _ {ℓ ℓ# : Level} {D : Type ℓ}
          {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         {R : Ring S AG} {A : TightApartnessStr D} {{IntD : IntegralDomain R A}} where
+         {R : Ring S AG} {A : TightApartnessStr D ℓ#} {{IntD : IntegralDomain R A}} where
   private
     instance
       IACM = ACM

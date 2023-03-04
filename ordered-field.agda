@@ -21,7 +21,7 @@ private
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {AG : AdditiveGroup ACM}
          {S : Semiring ACM} {O : LinearOrderStr D ℓ<}
-         {R : Ring S AG} {A : TightApartnessStr D}
+         {R : Ring S AG} {A : TightApartnessStr D ℓD}
          {{LOS : LinearlyOrderedSemiringStr S O}}
          {{F : Field R A}}
          {{AL : ApartLinearOrderStr A O}}

@@ -16,12 +16,12 @@ open import semiring
 
 private
   variable
-    ℓD ℓ< ℓ≤ : Level
+    ℓD ℓ< ℓ≤ ℓ# : Level
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
          {S : Semiring ACM} {AG : AdditiveGroup ACM}
          {O : LinearOrderStr D ℓ<}
-         {R : Ring S AG} {A : TightApartnessStr D}
+         {R : Ring S AG} {A : TightApartnessStr D ℓ#}
          {{LOS : LinearlyOrderedSemiringStr S O}}
          {{ALO : ApartLinearOrderStr A O}}
          {{ID : IntegralDomain R A}}
@@ -51,7 +51,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
          {S : Semiring ACM} {AG : AdditiveGroup ACM}
          {O : LinearOrderStr D ℓ<}
          {PO : PartialOrderStr D ℓ<}
-         {R : Ring S AG} {A : TightApartnessStr D}
+         {R : Ring S AG} {A : TightApartnessStr D ℓ#}
          {{LOS : LinearlyOrderedSemiringStr S O}}
          {{POS : PartiallyOrderedSemiringStr S PO}}
          {{COS : CompatibleOrderStr O PO}}

@@ -488,7 +488,7 @@ tight-r# {r1} {r2} ¬r1#r2 = ans
         r+-right-zero r2
 
 instance
-  TightApartnessStr-Rotation : TightApartnessStr Rotation
+  TightApartnessStr-Rotation : TightApartnessStr Rotation ℓ-one
   TightApartnessStr-Rotation .TightApartnessStr._#_ = _r#_
   TightApartnessStr-Rotation .TightApartnessStr.TightApartness-# =
     tight-r# , (irrefl-r# , sym-r# , comparison-r#)

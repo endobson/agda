@@ -35,7 +35,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {ACM : AdditiveCommMonoid K}
   record ModuleStr : Type (ℓ-max ℓK (ℓ-suc ℓV)) where
     field
       GroupStr-V : GroupStr V
-      TightApartnessStr-V : TightApartnessStr V
+      TightApartnessStr-V : TightApartnessStr V ℓV
 
     _v#_ = TightApartnessStr._#_ TightApartnessStr-V
 
@@ -202,7 +202,7 @@ module _  {ℓK ℓV : Level} {K : Type ℓK}
 module _ {ℓK ℓV : Level} {K : Type ℓK}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
          {S : Semiring ACM} {R : Ring S AG}
-         {A : TightApartnessStr K}
+         {A : TightApartnessStr K ℓK}
          (F : Field R A) (V : Type ℓV)  where
   private
     instance
@@ -228,7 +228,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
 module _ {ℓK ℓV : Level} {K : Type ℓK}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
          {S : Semiring ACM} {R : Ring S AG}
-         {A : TightApartnessStr K} {F : Field R A} {V : Type ℓV}
+         {A : TightApartnessStr K ℓK} {F : Field R A} {V : Type ℓV}
          {{VS : VectorSpaceStr F V}} where
   open VectorSpaceStr VS public using
     ( v*-apart-zero
@@ -262,7 +262,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
 module _ {ℓK ℓV : Level} {K : Type ℓK}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
          {S : Semiring ACM} {R : Ring S AG}
-         {A : TightApartnessStr K} {F : Field R A} {V : Type ℓV}
+         {A : TightApartnessStr K ℓK} {F : Field R A} {V : Type ℓV}
          {{VS : VectorSpaceStr F V}} where
 
   private
@@ -310,7 +310,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
 module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
          {S : Semiring ACM} {R : Ring S AG}
-         {A : TightApartnessStr K} {F : Field R A} {V1 : Type ℓV1} {V2 : Type ℓV2}
+         {A : TightApartnessStr K ℓK} {F : Field R A} {V1 : Type ℓV1} {V2 : Type ℓV2}
          {{VS1 : VectorSpaceStr F V1}} {{VS2 : VectorSpaceStr F V2}} where
   private
     instance

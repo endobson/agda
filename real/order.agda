@@ -177,7 +177,7 @@ private
   TightApartness-ℝ# = tight-ℝ# , (\{x} -> irrefl-ℝ# {x}) , (\{x} {y} -> sym-ℝ# {x} {y}) , comparison-ℝ#
 
 instance
-  TightApartnessStr-ℝ : TightApartnessStr ℝ
+  TightApartnessStr-ℝ : TightApartnessStr ℝ ℓ-one
   TightApartnessStr-ℝ = record
     { _#_ = _ℝ#_
     ; TightApartness-# = TightApartness-ℝ#

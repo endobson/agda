@@ -205,7 +205,7 @@ abstract
   Discrete-ℚ = Discrete-SetQuotient isProp-r~ isEquivRel-r~ Decidable2-r~
 
 instance
-  TightApartnessStr-ℚ : TightApartnessStr ℚ
+  TightApartnessStr-ℚ : TightApartnessStr ℚ ℓ-zero
   TightApartnessStr-ℚ = TightApartnessStr-Discrete Discrete-ℚ
 
 _r+'ᵉ_ : Rational' -> Rational' -> Rational'

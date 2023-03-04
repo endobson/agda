@@ -9,9 +9,9 @@ open import relation
 open import truncation
 
 -- TODO: Figure out the right way to make this level polymorphic.
-record TightApartnessStr {ℓD : Level} (D : Type ℓD) : Type (ℓ-suc ℓD) where
+record TightApartnessStr {ℓD : Level} (D : Type ℓD) (ℓ# : Level) : Type (ℓ-max ℓD (ℓ-suc ℓ#)) where
   field
-    _#_ : Rel D ℓD
+    _#_ : Rel D ℓ#
     TightApartness-# : TightApartness _#_
     isProp-# : isPropValued _#_
 
@@ -31,7 +31,7 @@ record TightApartnessStr {ℓD : Level} (D : Type ℓD) : Type (ℓ-suc ℓD) wh
   comparison-# = snd (snd (snd TightApartness-#))
 
 
-module _ {ℓD : Level} {D : Type ℓD} {{TA : TightApartnessStr D}} where
+module _ {ℓD ℓ# : Level} {D : Type ℓD} {{TA : TightApartnessStr D ℓ#}} where
   open TightApartnessStr TA public using
     ( _#_
     ; tight-#
@@ -45,15 +45,16 @@ module _ {ℓD : Level} {D : Type ℓD} {{TA : TightApartnessStr D}} where
   isProp-# = TightApartnessStr.isProp-# TA _ _
 
 
-module _ {ℓD1 ℓD2 : Level} {D1 : Type ℓD1} {D2 : Type ℓD2}
-         {{TA1 : TightApartnessStr D1}} {{TA2 : TightApartnessStr D2}}
+module _ {ℓD1 ℓD2 ℓ#1 ℓ#2 : Level} {D1 : Type ℓD1} {D2 : Type ℓD2}
+         {{TA1 : TightApartnessStr D1 ℓ#1}} {{TA2 : TightApartnessStr D2 ℓ#2}}
   where
 
-  StronglyInjective : Pred (D1 -> D2) (ℓ-max ℓD1 ℓD2)
+  StronglyInjective : Pred (D1 -> D2) (ℓ-max* 3 ℓD1 ℓ#1 ℓ#2)
   StronglyInjective f = {a b : D1} -> a # b -> f a # f b
 
-module _ {ℓD1 ℓD2 ℓD3 : Level} {D1 : Type ℓD1} {D2 : Type ℓD2} {D3 : Type ℓD3}
-         {{TA1 : TightApartnessStr D1}} {{TA2 : TightApartnessStr D2}} {{TA3 : TightApartnessStr D3}}
+module _ {ℓD1 ℓD2 ℓD3 ℓ#1 ℓ#2 ℓ#3 : Level} {D1 : Type ℓD1} {D2 : Type ℓD2} {D3 : Type ℓD3}
+         {{TA1 : TightApartnessStr D1 ℓ#1}} {{TA2 : TightApartnessStr D2 ℓ#2}}
+         {{TA3 : TightApartnessStr D3 ℓ#3}}
   where
 
   ∘-StronglyInjective : {f : D2 -> D3} {g : D1 -> D2} -> StronglyInjective f -> StronglyInjective g ->
