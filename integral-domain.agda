@@ -83,6 +83,9 @@ module _ {ℓ ℓ# : Level} {D : Type ℓ}
     *₁-reflects-# : {a b c : D} -> (a * b) # (a * c) -> b # c
     *₁-reflects-# = snd ∘ eqInv *-#-equiv
 
+    *₁-fully-reflects-# : {a b c : D} -> (a * b) # (a * c) -> (a # 0#) × (b # c)
+    *₁-fully-reflects-# = eqInv *-#-equiv
+
     *₁-reflects-= : {a b c : D} -> a # 0# -> (a * b) == (a * c) -> b == c
     *₁-reflects-= {a} {b} {c} a#0 ab=ac = tight-# ¬b#c
       where

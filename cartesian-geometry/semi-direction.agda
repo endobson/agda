@@ -15,7 +15,9 @@ open import hlevel
 open import integral-domain
 open import integral-domain.instances.real
 open import order
+open import order.minmax.instances.real
 open import ordered-ring
+open import ordered-ring.absolute-value
 open import ordered-semiring.instances.real
 open import real
 open import real.arithmetic.absolute-value
@@ -138,7 +140,7 @@ private
     SameSemiDirection d1 d2
   in-span->same-semi-direction d1@(v1 , d1p) d2@(v2 , d2p) (k , p) = handle k-cases
     where
-    ak=1 : absℝ k == 1#
+    ak=1 : abs k == 1#
     ak=1 =
       sym *-right-one >=>
       *-right (sym d1p) >=>
@@ -147,7 +149,7 @@ private
       d2p
 
     k-cases : (k == 1#) ⊎ (k == (- 1#))
-    k-cases = absℝ-cases k 1# (IntegralDomain.1#0 IntegralDomain-ℝ)  ak=1
+    k-cases = abs-cases k 1# (IntegralDomain.1#0 IntegralDomain-ℝ)  ak=1
 
     handle : (k == 1#) ⊎ (k == (- 1#)) -> SameSemiDirection d1 d2
     handle (inj-l k=1) =

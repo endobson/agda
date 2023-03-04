@@ -37,6 +37,8 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{Max 
   abs : D -> D
   abs x = max x (- x)
 
+  abs-minus : {x : D} -> abs (- x) == abs x
+  abs-minus {x} = cong (max (- x)) minus-double-inverse >=> max-commute
 
   module _ {{OS : LinearlyOrderedSemiringStr S LO}} where
     abs-<0-path : {x : D} -> x < 0# -> abs x == - x
@@ -83,6 +85,19 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{Max 
       backward : (abs x == 0#) -> (x == 0#)
       backward p = connected-< (irrefl-path-< (sym p) ∘ eqFun abs-#0-eq ∘ inj-l)
                                (irrefl-path-< (sym p) ∘ eqFun abs-#0-eq ∘ inj-r)
+
+    abs-cases : (x y : D) -> (y <> 0#) -> abs x == y -> (x == y) ⊎ (x == (- y))
+    abs-cases x y y<>0 ax=y =
+      ⊎-map (\ 0<x -> sym (abs-0<-path 0<x) >=> ax=y)
+            (\ x<0 -> sym minus-double-inverse >=> cong -_ (sym (abs-<0-path x<0) >=> ax=y))
+            (⊎-swap x<>0)
+      where
+      0<ax : 0# < abs x
+      0<ax = proj-¬l (subst (_<> 0#) (sym ax=y) y<>0) abs-≮0
+
+      x<>0 : x <> 0#
+      x<>0 = eqInv abs-#0-eq 0<ax
+
 
 
   module _ {{OS : LinearlyOrderedSemiringStr S LO}}

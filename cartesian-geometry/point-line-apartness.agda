@@ -17,7 +17,11 @@ open import functions
 open import funext
 open import hlevel
 open import order
+open import ordered-ring.absolute-value
+open import ordered-semiring.instances.real
+open import ordered-semiring.instances.real-strong
 open import order.instances.real
+open import order.minmax.instances.real
 open import real
 open import real.arithmetic.absolute-value
 open import real.arithmetic.sqrt
@@ -29,6 +33,7 @@ open import semiring
 open import set-quotient
 open import sigma.base
 open import subset
+open import sum
 open import truncation
 open import vector-space
 open import vector-space.finite
@@ -94,14 +99,13 @@ private
 
 
   semi-direction-distance : (d : Direction) (v : Vector) -> ℝ
-  semi-direction-distance d v =
-    absℝ (direction-signed-distance d v)
+  semi-direction-distance d v = abs (direction-signed-distance d v)
 
 
   semi-direction-distance-v- : (d : Direction) -> {v1 v2 : Vector} -> v1 == (v- v2) ->
     semi-direction-distance d v1 == semi-direction-distance d v2
   semi-direction-distance-v- d {v1} {v2} v1=-v2 =
-    cong absℝ (dec1=-dec2 y-axis) >=> absℝ-- _
+    cong abs (dec1=-dec2 y-axis) >=> abs-minus
     where
 
     dec1 : Axis -> ℝ
@@ -121,12 +125,11 @@ private
        cong (\v -> vector-index v a) p >=>
        cong -_ (sym (direction-basis-decomposition d v2 a)))
 
-
   sym-semi-direction-distance :
     (d1 d2 : Direction) ->
     semi-direction-distance d1 ⟨ d2 ⟩ == semi-direction-distance d2 ⟨ d1 ⟩
   sym-semi-direction-distance d1 d2 =
-    cong absℝ dec1=-dec2 >=> absℝ-- _
+    cong abs dec1=-dec2 >=> abs-minus
     where
     v1 = ⟨ d1 ⟩
     v2 = ⟨ d2 ⟩
@@ -170,7 +173,7 @@ private
     semi-direction-distance0->0y :
       (d : Direction) (v : Vector) -> semi-direction-distance d v == 0# ->
       basis-decomposition (isBasis-direction-basis d) v y-axis == 0#
-    semi-direction-distance0->0y d v dis0 = absℝ-zero dis0
+    semi-direction-distance0->0y d v dis0 = eqInv abs-zero-eq dis0
 
   semi-direction-distance0->direction-span :
     (d : Direction) (v : Vector) -> semi-direction-distance d v == 0# -> direction-span' d v
@@ -214,8 +217,8 @@ private
     ans2 : c y-axis == 0#
     ans2 = cong (\f -> f y-axis) (sym (basis-decomposition-unique b scaled-sum-path))
 
-    ans : absℝ (c y-axis) == 0#
-    ans = cong absℝ ans2 >=> absℝ-NonNeg-idem 0# refl-≤
+    ans : abs (c y-axis) == 0#
+    ans = cong abs ans2 >=> abs-≮0-path refl-≤
 
 
   isProp-semi-direction-distance0 : (d : Direction) (v : Vector) ->
@@ -237,7 +240,8 @@ private
     semi-direction-distance#0->y#0 :
       (d : Direction) (v : Vector) -> semi-direction-distance d v # 0# ->
       basis-decomposition (isBasis-direction-basis d) v y-axis # 0#
-    semi-direction-distance#0->y#0 d v dis#0 = (absℝ-reflects-#0 dis#0)
+    semi-direction-distance#0->y#0 d v dis#0 =
+      eqInv abs-#0-eq (proj-¬l dis#0 abs-≮0)
 
 
     semi-direction-distance#0->v#0 :
@@ -273,7 +277,7 @@ private
   same-semi-direction-distance d1 d2 (same-semi-direction-flipped p) = funExt f
     where
     f : (v : Vector) -> semi-direction-distance d1 v == semi-direction-distance d2 v
-    f v = cong absℝ dec1=-dec2 >=> absℝ-- _
+    f v = cong abs dec1=-dec2 >=> abs-minus
       where
       d1=-d2 : d1 == (d- d2)
       d1=-d2 = direction-ext p
@@ -304,10 +308,13 @@ private
     SemiDirectionElim.rec (isSetΠ \_ -> isSet-ℝ) semi-direction-distance same-semi-direction-distance
 
   0≤semi-direction-distance' : (sd : SemiDirection) -> (v : Vector) -> 0# ≤ semi-direction-distance' sd v
-  0≤semi-direction-distance' sd v = SemiDirectionElim.elimProp prop (\d -> absℝ-≮0) sd
+  0≤semi-direction-distance' sd v = SemiDirectionElim.elimProp prop 0≤d sd
     where
     prop : (sd : SemiDirection) -> isProp (0# ≤ semi-direction-distance' sd v)
-    prop sd = isProp-≤
+    prop sd lt1 lt2 = isProp-≤ {x = 0#} {y = semi-direction-distance' sd v} lt1 lt2
+    0≤d : (d : Direction) -> (0# ≤ semi-direction-distance' [ d ] v)
+    0≤d _ = abs-≮0
+
 
 
   semi-direction-distance'-v- : {v1 v2 : Vector} (sd : SemiDirection) -> v1 == (v- v2) ->
@@ -366,18 +373,21 @@ private
     semi-direction-distance d v1 == 0# ->
     semi-direction-distance d (v1 v+ v2) == semi-direction-distance d v2
   semi-direction-distance-cancel0 d v1 v2 p =
-    cong absℝ (direction-signed-distance-distrib-v+ d v1 v2 >=>
-               +-left (absℝ-zero p) >=> +-left-zero)
+    cong abs (direction-signed-distance-distrib-v+ d v1 v2 >=>
+              +-left (eqInv abs-zero-eq p) >=> +-left-zero)
 
   semi-direction-distance'-cancel0 : (sd : SemiDirection) (v1 v2 : Vector) ->
     semi-direction-distance' sd v1 == 0# ->
     semi-direction-distance' sd (v1 v+ v2) == semi-direction-distance' sd v2
   semi-direction-distance'-cancel0 sd v1 v2 =
-    SemiDirectionElim.elimProp
-      (\sd -> (isPropΠ \(_ : semi-direction-distance' sd v1 == 0#) ->
-                         isSet-ℝ (semi-direction-distance' sd (v1 v+ v2))
-                                 (semi-direction-distance' sd v2)))
-      (\d -> semi-direction-distance-cancel0 d v1 v2) sd
+    SemiDirectionElim.elimProp isProp-C (\d -> semi-direction-distance-cancel0 d v1 v2) sd
+    where
+    C : Pred SemiDirection _
+    C sd = semi-direction-distance' sd v1 == 0# ->
+           semi-direction-distance' sd (v1 v+ v2) == semi-direction-distance' sd v2
+    isProp-C : ∀ sd -> isProp (C sd)
+    isProp-C _ = isPropΠ (\_ -> isSet-ℝ _ _)
+
 
   point-line'-distance : Point -> Line' -> ℝ
   point-line'-distance p (lp , sd) = semi-direction-distance' sd (P-diff lp p)
@@ -507,22 +517,24 @@ private
       ((p : Point) -> ⟨ OnLine l2 p ⟩ -> point-line-distance p [ l1 ] == d))
   ParallelLines'-∃!distance l1'@(p1 , _) l2 par = val , prop val
     where
+    P1 : Pred ℝ _
+    P1 d = (p : Point) -> ⟨ OnLine [ l1' ] p ⟩ -> point-line-distance p l2 == d
+    P2 : Pred ℝ _
+    P2 d = (p : Point) -> ⟨ OnLine l2 p ⟩ -> point-line-distance p [ l1' ] == d
+
+    val : Σ[ d ∈ ℝ ] (P1 d × P2 d)
     val =
      point-line-distance p1 l2 ,
       ((\p ol -> ParallelLines-same-line-same-distance [ l1' ] l2 par p p1 ol (OnLine'-self l1')) ,
        (\p ol -> sym (ParallelLines-different-lines-same-distance
                        [ l1' ] l2 par p1 p (OnLine'-self l1') ol)))
-    f : (d1 d2 : ℝ) ->
-        (((p : Point) -> ⟨ OnLine [ l1' ] p ⟩ -> point-line-distance p l2 == d1) × _) ->
-        (((p : Point) -> ⟨ OnLine [ l1' ] p ⟩ -> point-line-distance p l2 == d2) × _) ->
-        d1 == d2
+    f : (d1 d2 : ℝ) -> (P1 d1 × P2 d1) -> (P1 d2 × P2 d2) -> d1 == d2
     f d1 d2 g1 g2 = sym ((fst g1) p1 (OnLine'-self l1')) >=> ((fst g2) p1 (OnLine'-self l1'))
 
-    prop : isProp (Σ[ d ∈ ℝ ] (
-                    ((p : Point) -> ⟨ OnLine [ l1' ] p ⟩ -> point-line-distance p l2 == d) ×
-                    ((p : Point) -> ⟨ OnLine l2 p ⟩ -> point-line-distance p [ l1' ] == d)))
+    prop : isProp (Σ[ d ∈ ℝ ] (P1 d × P2 d))
     prop = uniqueProp->isPropΣ f
-             (\d -> isProp× (isPropΠ2 (\_ _ ->  (isSet-ℝ _ _))) (isPropΠ2 (\_ _ ->  (isSet-ℝ _ _))))
+             (\d -> isProp× (isPropΠ2 (\p _ -> (isSet-ℝ (point-line-distance p l2) d)))
+                            (isPropΠ2 (\p _ -> (isSet-ℝ (point-line-distance p [ l1' ]) d))))
 
 
   ParallelLines-∃!distance :

@@ -46,6 +46,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
       CPO = CompatibleNegatedLinearOrder LO
       LOA = LinearOrderTightApartnessStr LO
       TALO = TrivialApartLinearOrderStr LO
+      POS = PartiallyOrderedSemiringStr-Negated S LO
 
     isSet-D : isSet D
     isSet-D = Semiring.isSet-Domain S
@@ -72,11 +73,20 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
 
 
   isSqrt-0< : {x y : D} -> (isSqrt x y) -> 0# < x -> 0# < y
-  isSqrt-0< {x} {y} (0≤y , yy=x) 0<x =
+  isSqrt-0< (0≤y , yy=x) 0<x =
     proj-¬l (proj₁ (*-reflects-<>0 (inj-r (trans-<-= 0<x (sym yy=x))))) 0≤y
 
   isSqrt-0≤ : {x y : D} -> (isSqrt x y) -> 0# ≤ y
-  isSqrt-0≤ {x} {y} (0≤y , yy=x) = 0≤y
+  isSqrt-0≤ (0≤y , yy=x) = 0≤y
+
+  isSqrt-* : {x y sx sy : D} -> isSqrt x sx -> isSqrt y sy -> isSqrt (x * y) (sx * sy)
+  isSqrt-* {x} {y} {sx} {sy} (0≤sx , sxsx=x) (0≤sy , sysy=y) = 0≤sxsy , path
+    where
+    0≤sxsy : 0# ≤ (sx * sy)
+    0≤sxsy = *-preserves-0≤ 0≤sx 0≤sy
+
+    path : (sx * sy) * (sx * sy) == x * y
+    path = *-swap >=> cong2 _*_ sxsx=x sysy=y
 
   module _ {{Max : MaxOperationStr LO}} {{AG : AdditiveGroup ACM}} where
 

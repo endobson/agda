@@ -161,29 +161,3 @@ instance
       +-reflects-ℝ# : {a b c d : ℝ} -> (a + b) # (c + d) -> ∥ (a # c) ⊎ (b # d) ∥
       +-reflects-ℝ# (inj-l ab<cd) = ∥-map (⊎-map inj-l inj-l) (+-reflects-ℝ< ab<cd)
       +-reflects-ℝ# (inj-r ab>cd) = ∥-map (⊎-map inj-r inj-r) (+-reflects-ℝ< ab>cd)
-
--- Here because we need the apartness
-module _ (x y : ℝ) where
-  private
-    mx = (- x)
-    ax = absℝ x
-    module x = Real x
-    module mx = Real mx
-    module ax = Real ax
-    module y = Real y
-    AP = _#_
-
-  abstract
-    absℝ-cases : (y # 0#) -> absℝ x == y -> (x == y) ⊎ (x == (- y))
-    absℝ-cases y#0 ax=y = handle x#0
-      where
-      x#0 : AP x 0#
-      x#0 = absℝ-reflects-#0 (subst (_# 0#) (sym ax=y) y#0)
-
-      handle : x # 0# -> (x == y) ⊎ (x == (- y))
-      handle (inj-l x<0) = inj-r (sym minus-double-inverse >=> cong -_ -x=y)
-        where
-        module _ where
-          -x=y = (sym (absℝ-NonPos-minus x (weaken-< x<0)) >=> ax=y)
-      handle (inj-r 0<x) =
-        inj-l (sym (absℝ-NonNeg-idem x (weaken-< 0<x)) >=> ax=y)

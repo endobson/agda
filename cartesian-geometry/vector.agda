@@ -26,7 +26,9 @@ open import integral-domain.instances.real
 open import isomorphism
 open import order
 open import order.instances.real
+open import order.minmax.instances.real
 open import ordered-ring
+open import ordered-ring.absolute-value
 open import ordered-semiring
 open import ordered-semiring.squares
 open import ordered-semiring.instances.real
@@ -210,7 +212,7 @@ isUnitVector'-equiv v =
 
     path : vector-length v == 1#
     path = cong2-dep sqrtℝ p2 (isProp->PathP (\i -> isProp-≤)) >=>
-           sqrt-square 1# >=> absℝ-NonNeg-idem 1# 0≤1
+           sqrt-square 1# >=> abs-≮0-path 0≤1
 
   backward : isUnitVector v -> isUnitVector' v
   backward p = sym (vector-length-squared-path v) >=> *-cong p p >=> *-left-one
@@ -298,23 +300,23 @@ vector-length²-* k v = p
   p = cong2 _+_ (swap-* x) (swap-* y) >=>
       sym *-distrib-+-left
 
-vector-length-* : (k : ℝ) (v : Vector) -> vector-length (k v* v) == (absℝ k) * vector-length v
+vector-length-* : (k : ℝ) (v : Vector) -> vector-length (k v* v) == (abs k) * vector-length v
 vector-length-* k v = p6
   where
   l2kv = vector-length² (k v* v)
   l2v = vector-length² v
   lkv = vector-length (k v* v)
   lv = vector-length v
-  aklv = (absℝ k * lv)
+  aklv = (abs k * lv)
   0≤l2kv = vector-length²≮0 (k v* v)
   0≤l2v = vector-length²≮0 v
   0≤lv = vector-length≮0 v
-  0≤aklv = *-preserves-0≤ absℝ-≮0 0≤lv
+  0≤aklv = *-preserves-0≤ abs-≮0 0≤lv
 
   p2 : l2v == lv * lv
   p2 = sym (sqrt² l2v 0≤l2v)
   p4 : (k * k) * (lv * lv) == aklv * aklv
-  p4 = *-left (absℝ-square k) >=>
+  p4 = *-left abs-square >=>
        *-assoc >=> *-right (sym *-assoc >=> *-left *-commute >=> *-assoc) >=> sym *-assoc
   p3 : l2kv == aklv * aklv
   p3 = vector-length²-* k v >=> *-right p2 >=> p4
@@ -323,7 +325,7 @@ vector-length-* k v = p6
   p5 = cong2-dep sqrtℝ p3 (isProp->PathP (\i -> isProp-≤))
 
   p6 : lkv == aklv
-  p6 = p5 >=> sqrt-square aklv >=> absℝ-NonNeg-idem aklv 0≤aklv
+  p6 = p5 >=> sqrt-square aklv >=> abs-≮0-path 0≤aklv
 
 vector-length²-v- : (v : Vector) -> vector-length² (v- v) == vector-length² v
 vector-length²-v- v =
@@ -383,8 +385,8 @@ normalize-vector-v*-Pos v v#0 k 0<k kv#0 =
   kv = k v* v
   nv = normalize-vector v v#0
   nkv = normalize-vector kv kv#0
-  abs-k-path : absℝ k == k
-  abs-k-path = absℝ-NonNeg-idem k (weaken-< 0<k)
+  abs-k-path : abs k == k
+  abs-k-path = abs-≮0-path (weaken-< 0<k)
 
   p : (ℝ1/ k k-inv * ℝ1/ vl vl-inv) * (vector-length (k v* v)) == 1#
   p = *-right (vector-length-* k v >=> *-left abs-k-path) >=>
@@ -448,7 +450,7 @@ vector->direction v v#0 = normalize-vector v v#0 , a.path
                        (subst2 _<_ (ℝ1/-inverse vl vl-inv) (*-right-zero {m = k})
                                    (*₁-flips-< k<0 0<vl))
       path : vector-length (k v* v) == 1#
-      path = vector-length-* k v >=> *-left (absℝ-NonNeg-idem k 0≤k) >=> ℝ1/-inverse vl vl-inv
+      path = vector-length-* k v >=> *-left (abs-≮0-path 0≤k) >=> ℝ1/-inverse vl vl-inv
 
 record DirectionOfVector' (v : Vector) (d : Direction) : Type₁ where
   constructor direction-of-vector-cons
@@ -478,9 +480,9 @@ isProp-DirectionOfVector' {v} {d} (direction-of-vector-cons k1 0≤k1 path1)
     *-right (sym d-l >=>
              cong vector-length (sym path2) >=>
              vector-length-* k2 v >=>
-             *-left (absℝ-NonNeg-idem k2 0≤k2)) >=>
+             *-left (abs-≮0-path 0≤k2)) >=>
     sym *-assoc >=> *-left *-commute >=> *-assoc >=>
-    *-right (*-left (sym (absℝ-NonNeg-idem k1 0≤k1)) >=>
+    *-right (*-left (sym (abs-≮0-path 0≤k1)) >=>
              sym (vector-length-* k1 v) >=>
              cong vector-length path1 >=>
              d-l) >=>
@@ -505,9 +507,9 @@ isProp-DirectionOfVector {v} (d1 , (direction-of-vector-cons k1 0≤k1 path1))
     *-right (sym d2-l >=>
              cong vector-length (sym path2) >=>
              vector-length-* k2 v >=>
-             *-left (absℝ-NonNeg-idem k2 0≤k2)) >=>
+             *-left (abs-≮0-path 0≤k2)) >=>
     sym *-assoc >=> *-left *-commute >=> *-assoc >=>
-    *-right (*-left (sym (absℝ-NonNeg-idem k1 0≤k1)) >=>
+    *-right (*-left (sym (abs-≮0-path 0≤k1)) >=>
              sym (vector-length-* k1 v) >=>
              cong vector-length path1 >=>
              d1-l) >=>
