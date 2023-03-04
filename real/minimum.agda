@@ -42,7 +42,7 @@ module _ (a b : ℝ) where
         handle2 (inj-r q2≤q1) = q2 , (isLowerSet≤ a _ _ q2≤q1 aL-q1 , bL-q2)
 
     isLowerSet-L : isLowerSet L
-    isLowerSet-L q r q<r (aL-r , bL-r) = 
+    isLowerSet-L q r q<r (aL-r , bL-r) =
       (a.isLowerSet-L q r q<r aL-r , b.isLowerSet-L q r q<r bL-r)
 
     isUpperSet-U : isUpperSet U
@@ -53,7 +53,7 @@ module _ (a b : ℝ) where
       handle (inj-r bU-q) = inj-r (b.isUpperSet-U q r q<r bU-q)
 
     isUpperOpen-L : isUpperOpen L
-    isUpperOpen-L q (aL-q , bL-q) = 
+    isUpperOpen-L q (aL-q , bL-q) =
       ∥-bind2 handle (a.isUpperOpen-L q aL-q) (b.isUpperOpen-L q bL-q)
       where
       handle : Σ[ r1 ∈ ℚ ] (q < r1 × a.L r1) -> Σ[ r2 ∈ ℚ ] (q < r2 × b.L r2) ->
@@ -90,53 +90,43 @@ module _ (a b : ℝ) where
       handle (inj-l aU) = a.disjoint q (aL , aU)
       handle (inj-r bU) = b.disjoint q (bL , bU)
 
-  minℝ : ℝ
-  minℝ = record 
-    { L = L
-    ; U = U
-    ; isProp-L = \q -> isProp× (a.isProp-L q) (b.isProp-L q)
-    ; isProp-U = \_ -> squash
-    ; Inhabited-L = Inhabited-L
-    ; Inhabited-U = ∥-map (\(q , u) -> q , ∣ inj-l u ∣) a.Inhabited-U
-    ; isLowerSet-L = isLowerSet-L
-    ; isUpperSet-U = isUpperSet-U
-    ; isUpperOpen-L = isUpperOpen-L
-    ; isLowerOpen-U = isLowerOpen-U
-    ; located = located
-    ; disjoint = disjoint
-    }
+  abstract
+    minℝ : ℝ
+    minℝ = record
+      { L = L
+      ; U = U
+      ; isProp-L = \q -> isProp× (a.isProp-L q) (b.isProp-L q)
+      ; isProp-U = \_ -> squash
+      ; Inhabited-L = Inhabited-L
+      ; Inhabited-U = ∥-map (\(q , u) -> q , ∣ inj-l u ∣) a.Inhabited-U
+      ; isLowerSet-L = isLowerSet-L
+      ; isUpperSet-U = isUpperSet-U
+      ; isUpperOpen-L = isUpperOpen-L
+      ; isLowerOpen-U = isLowerOpen-U
+      ; located = located
+      ; disjoint = disjoint
+      }
 
-
-minℝ-commute : (x y : ℝ) -> minℝ x y == minℝ y x
-minℝ-commute x y = ℝ∈Iℚ->path (minℝ x y) (minℝ y x) f
-  where
-  f-L : (q : ℚ) -> Real.L (minℝ x y) q -> Real.L (minℝ y x) q
-  f-L _ (xL , yL) = (yL , xL)
-  f-U : (q : ℚ) -> Real.U (minℝ x y) q -> Real.U (minℝ y x) q
-  f-U _ = ∥-map ⊎-swap
-  f : (qi : Iℚ) -> ℝ∈Iℚ (minℝ x y) qi -> ℝ∈Iℚ (minℝ y x) qi
-  f (Iℚ-cons l u _) (L , U) = f-L l L , f-U u U
-
-minℝ-≤-left : (x y : ℝ) -> minℝ x y ≤ x
-minℝ-≤-left x y x<xy = unsquash isPropBot (∥-map handle x<xy)
-  where
-  handle : ¬ (x ℝ<' minℝ x y)
-  handle (ℝ<'-cons q xU-q (xL-q , _)) = Real.disjoint x q (xL-q , xU-q)
-
-minℝ-≤-right : (x y : ℝ) -> minℝ x y ≤ y
-minℝ-≤-right x y x<xy = unsquash isPropBot (∥-map handle x<xy)
-  where
-  handle : ¬ (y ℝ<' minℝ x y)
-  handle (ℝ<'-cons q yU-q (_ , yL-q)) = Real.disjoint y q (yL-q , yU-q)
-
-minℝ-<-both : {z x y : ℝ} -> z < x -> z < y -> z < minℝ x y
-minℝ-<-both {z} {x} {y} z<x z<y = ∥-bind2 handle z<x z<y
-  where
-  handle : (z ℝ<' x) -> (z ℝ<' y) -> (z < minℝ x y)
-  handle (ℝ<'-cons q1 zU-q1 xL-q1) (ℝ<'-cons q2 zU-q2 yL-q2) =
-    ∥-map handle2 (connex-≤ q1 q2)
+abstract
+  minℝ-≤-left : (x y : ℝ) -> minℝ x y ≤ x
+  minℝ-≤-left x y x<xy = unsquash isPropBot (∥-map handle x<xy)
     where
-    handle2 : (q1 ≤ q2) ⊎ (q2 ≤ q1) -> z ℝ<' minℝ x y
-    handle2 (inj-l q1≤q2) = ℝ<'-cons q1 zU-q1 (xL-q1 , isLowerSet≤ y _ _ q1≤q2 yL-q2)
-    handle2 (inj-r q2≤q1) = ℝ<'-cons q2 zU-q2 (isLowerSet≤ x _ _ q2≤q1 xL-q1 , yL-q2)
+    handle : ¬ (x ℝ<' minℝ x y)
+    handle (ℝ<'-cons q xU-q (xL-q , _)) = Real.disjoint x q (xL-q , xU-q)
 
+  minℝ-≤-right : (x y : ℝ) -> minℝ x y ≤ y
+  minℝ-≤-right x y x<xy = unsquash isPropBot (∥-map handle x<xy)
+    where
+    handle : ¬ (y ℝ<' minℝ x y)
+    handle (ℝ<'-cons q yU-q (_ , yL-q)) = Real.disjoint y q (yL-q , yU-q)
+
+  minℝ-<-both : {z x y : ℝ} -> z < x -> z < y -> z < minℝ x y
+  minℝ-<-both {z} {x} {y} z<x z<y = ∥-bind2 handle z<x z<y
+    where
+    handle : (z ℝ<' x) -> (z ℝ<' y) -> (z < minℝ x y)
+    handle (ℝ<'-cons q1 zU-q1 xL-q1) (ℝ<'-cons q2 zU-q2 yL-q2) =
+      ∥-map handle2 (connex-≤ q1 q2)
+      where
+      handle2 : (q1 ≤ q2) ⊎ (q2 ≤ q1) -> z ℝ<' minℝ x y
+      handle2 (inj-l q1≤q2) = ℝ<'-cons q1 zU-q1 (xL-q1 , isLowerSet≤ y _ _ q1≤q2 yL-q2)
+      handle2 (inj-r q2≤q1) = ℝ<'-cons q2 zU-q2 (isLowerSet≤ x _ _ q2≤q1 xL-q1 , yL-q2)

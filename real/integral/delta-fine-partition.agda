@@ -14,6 +14,8 @@ open import nat.order
 open import order
 open import order.instances.nat
 open import order.instances.real
+open import order.minmax
+open import order.minmax.instances.real
 open import ordered-integral-domain
 open import ordered-ring
 open import ordered-semiring
@@ -28,7 +30,6 @@ open import real.heyting-field
 open import real.integral.partition
 open import real.integral.partition-index
 open import real.interval
-open import real.minimum
 open import real.order
 open import real.rational
 open import ring
@@ -142,9 +143,9 @@ private
     0<ab : 0# < diff a b
     0<ab = trans-=-< (sym +-inverse) (+₂-preserves-< a<b)
 
-    δ2 = minℝ ab/2 δ
+    δ2 = min ab/2 δ
     0<δ2 : 0# < δ2
-    0<δ2 = minℝ-<-both (*-preserves-0< 0<ab 0<1/2ℝ) 0<δ
+    0<δ2 = min-greatest-< (*-preserves-0< 0<ab 0<1/2ℝ) 0<δ
 
     handle : (0# ℝ<' δ2) -> ∃ (Partition a b) (isδFine δ)
     handle (ℝ<'-cons δ2' 0U-δ2' δ2L-δ2') =
@@ -171,7 +172,7 @@ private
                                         (trans-=-≤ (sym ℚ->ℝ-preserves-diff)
                                                    (trans-≤ (ℚ->ℝ-preserves-≤ _ _ w-ai≤δ2')
                                                             (trans-≤ (weaken-< (L->ℝ< δ2L-δ2'))
-                                                                     (minℝ-≤-right ab/2 _)))))
+                                                                     min-≤-right))))
                          +-left-zero)
 
           diff-blb≤δ : diff (ℚ->ℝ bl) b ≤ δ
@@ -180,7 +181,7 @@ private
               (trans-≤-= (+-preserves-≤ (trans-=-≤ (sym ℚ->ℝ-preserves-diff)
                                                    (trans-≤ (ℚ->ℝ-preserves-≤ _ _ w-bi≤δ2')
                                                             (trans-≤ (weaken-< (L->ℝ< δ2L-δ2'))
-                                                                     (minℝ-≤-right ab/2 _))))
+                                                                     min-≤-right)))
                                         (weaken-< diff-bub<0))
                          +-right-zero)
 
@@ -206,7 +207,7 @@ private
 
 
               δ2'<ab/2 : ℚ->ℝ δ2' ≤ ab/2
-              δ2'<ab/2 = weaken-< (trans-<-≤ (L->ℝ< δ2L-δ2') (minℝ-≤-left _ δ))
+              δ2'<ab/2 = weaken-< (trans-<-≤ (L->ℝ< δ2L-δ2') min-≤-left)
 
               albu≤diff-ab : ℚ->ℝ (diff al bu) ≤ diff a b
               albu≤diff-ab =

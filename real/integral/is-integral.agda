@@ -19,6 +19,8 @@ open import nat.order
 open import order
 open import order.instances.nat
 open import order.instances.real
+open import order.minmax
+open import order.minmax.instances.real
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.rational
@@ -31,7 +33,6 @@ open import real.integral.delta-fine-partition
 open import real.integral.partition
 open import real.integral.tagged-partition
 open import real.interval
-open import real.minimum
 open import real.rational
 open import real.sequence.cauchy
 open import real.sequence.limit-point
@@ -119,15 +120,15 @@ private
       handle ((δ1 , 0<δ1) , tp1-f) ((δ2 , 0<δ2) , tp2-f) =
         ∥-map handle2 (∃δFinePartition a<b (δ , 0<δ))
         where
-        δ = minℝ δ1 δ2
-        0<δ = minℝ-<-both 0<δ1 0<δ2
+        δ = min δ1 δ2
+        0<δ = min-greatest-< 0<δ1 0<δ2
 
         handle2 : Σ (Partition a b) (isδFine δ) -> εBounded ε (diff v1 v2)
         handle2 (p , δ-p) = εB
           where
           t = left-tagging p
-          εB1 = tp1-f (p , t) (weaken-isδFine (minℝ-≤-left δ1 δ2) p δ-p)
-          εB2 = tp2-f (p , t) (weaken-isδFine (minℝ-≤-right δ1 δ2) p δ-p)
+          εB1 = tp1-f (p , t) (weaken-isδFine min-≤-left p δ-p)
+          εB2 = tp2-f (p , t) (weaken-isδFine min-≤-right p δ-p)
           εB1' = subst (εBounded ε/2) (sym diff-anticommute)
                    (εBounded-- (diff (riemann-sum f (p , t)) v1) εB1)
           εB = subst2 εBounded (1/2r-path' ε) diff-trans
