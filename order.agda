@@ -7,6 +7,7 @@ open import base
 open import cubical
 open import equality
 open import equivalence
+open import functions
 open import hlevel
 open import relation
 open import sum
@@ -140,6 +141,37 @@ module _ {D : Type ℓD} {A : TightApartnessStr D ℓ#} {O : LinearOrderStr D �
          {{AO : ApartLinearOrderStr A O}} where
   open ApartLinearOrderStr AO public
 
+module _ {D : Type ℓD} (L : LinearOrderStr D ℓ<) where
+  private
+    instance
+      IL = L
+
+    tight-<> : Tight _<>_
+    tight-<> ¬<> =
+      connected-< (¬<> ∘ inj-l) (¬<> ∘ inj-r)
+
+    irrefl-<> : Irreflexive _<>_
+    irrefl-<> = either irrefl-< irrefl-<
+
+    sym-<> : Symmetric _<>_
+    sym-<> = ⊎-swap
+
+    comparison-<> : Comparison _<>_
+    comparison-<> x y z =
+      either (∥-map (⊎-map inj-l inj-l) ∘ comparison-< x y z)
+             (∥-map (⊎-swap ∘ ⊎-map inj-r inj-r) ∘ comparison-< z y x)
+
+  LinearOrderTightApartnessStr : TightApartnessStr D ℓ<
+  LinearOrderTightApartnessStr = record
+    { _#_ = _<>_
+    ; TightApartness-# = tight-<> , irrefl-<> , sym-<> , comparison-<>
+    ; isProp-# = \_ _ -> isProp-<>
+    }
+
+  TrivialApartLinearOrderStr : ApartLinearOrderStr LinearOrderTightApartnessStr L
+  TrivialApartLinearOrderStr = record
+    { <>-equiv-# = idEquiv _
+    }
 
 
 
