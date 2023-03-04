@@ -411,7 +411,7 @@ r-ᵉ-preserves-NonTrivial r@(rotation-cons coords _) =
   handle : Σ[ a ∈ Axis ] (vector-index v a # vector-index xaxis-vector a) ->
            Σ[ a ∈ Axis ] (vector-index c a # vector-index xaxis-vector a)
   handle (x-axis , vx#1) = (x-axis , vx#1)
-  handle (y-axis , vy#0) = (y-axis , subst (cy #_) minus-zero (minus-reflects-# vy#0))
+  handle (y-axis , vy#0) = (y-axis , subst (cy #_) minus-zero (minus-preserves-# vy#0))
 
 r--preserves-NonTrivial : (r : Rotation) -> NonTrivialRotation r -> NonTrivialRotation (r- r)
 r--preserves-NonTrivial r nt =

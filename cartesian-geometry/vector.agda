@@ -655,7 +655,7 @@ v--preserves-# {v1} {v2} = ∥-map handle
   where
   handle : Σ[ a ∈ Axis ] (direct-product-index v1 a) # (direct-product-index v2 a) ->
            Σ[ a ∈ Axis ] (direct-product-index (v- v1) a) # (direct-product-index (v- v2) a)
-  handle (a , cv1#cv2) = (a , minus-reflects-# cv1#cv2)
+  handle (a , cv1#cv2) = (a , minus-preserves-# cv1#cv2)
 
 
 d--double-inverse : (d : Direction) -> (d- (d- d)) == d

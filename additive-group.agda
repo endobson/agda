@@ -246,8 +246,8 @@ module _ {ℓ ℓ# : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
     +-reflects-#0 : {a b : D} -> (a + b) # 0# -> ∥ (a # 0#) ⊎ (b # 0#) ∥
     +-reflects-#0 {a} {b} ab#0 = +-reflects-# (subst ((a + b) #_) (sym +-right-zero) ab#0)
 
-    minus-reflects-# : {a b : D} -> a # b -> (- a) # (- b)
-    minus-reflects-# a#b =
+    minus-preserves-# : {a b : D} -> a # b -> (- a) # (- b)
+    minus-preserves-# a#b =
       subst2 _#_ (+-left +-commute >=> +-assoc >=> +-right (+-commute >=> +-inverse) >=> +-right-zero)
                  (+-assoc >=> +-right (+-commute >=> +-inverse) >=> +-right-zero)
                  (+₁-preserves-# (sym-# a#b))
