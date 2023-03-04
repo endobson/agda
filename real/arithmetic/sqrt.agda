@@ -16,6 +16,8 @@ open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
+open import ordered-semiring.instances.real-strong
+open import ordered-semiring.squares
 open import rational
 open import rational.minmax
 open import rational.order
@@ -95,11 +97,8 @@ private
           uu<0 = trans-≤-< (trans-≤ (snd uu∈ai*bi) abi≤q) (L->ℚ< q<0)
 
 abstract
-  ≮0-square : (x : ℝ) -> (x * x) ≮ 0#
-  ≮0-square x = subst (_≮ 0#) (sym (ℝ*-eval {x} {x})) (≮0-squareᵉ x)
-
   absℝ-square : (x : ℝ) -> x * x == absℝ x * absℝ x
-  absℝ-square x = sym (absℝ-NonNeg-idem (x * x) (≮0-square x)) >=> absℝ-distrib-* x x
+  absℝ-square x = sym (absℝ-NonNeg-idem (x * x) square-≮0) >=> absℝ-distrib-* x x
 
   absℝ-zero : {x : ℝ} -> absℝ x == 0# -> x == 0#
   absℝ-zero {x} p = sym (absℝ-NonNeg-idem x 0≤x) >=> p
@@ -270,9 +269,9 @@ module _ (x : ℝ) where
             s-x-x∈bi = (ℝ∈Iℚ-sqrt⁺ mx -x-x≮0 bi imb-bi -x∈bi)
 
   abstract
-    sqrt-square : sqrtℝ (x * x) (≮0-square x) == absℝ x
+    sqrt-square : sqrtℝ (x * x) square-≮0 == absℝ x
     sqrt-square =
-      sqrtℝ-eval (x * x) (≮0-square x) >=>
+      sqrtℝ-eval (x * x) square-≮0 >=>
       cong2-dep sqrtℝᵉ (ℝ*-eval {x} {x}) (isProp->PathP (\_ -> (isProp¬ _))) >=>
       sqrt-*ᵉ (≮0-squareᵉ x)
 

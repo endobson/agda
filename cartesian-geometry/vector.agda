@@ -28,6 +28,7 @@ open import order
 open import order.instances.real
 open import ordered-ring
 open import ordered-semiring
+open import ordered-semiring.squares
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
 open import ordered-integral-domain
@@ -172,7 +173,7 @@ vector-length² : Vector -> ℝ
 vector-length² v = axis-dot-product (vector-index v) (vector-index v)
 
 vector-length²≮0 : (v : Vector) -> (vector-length² v ≮ 0#)
-vector-length²≮0 v = +-preserves-≮0 (≮0-square x) (≮0-square y)
+vector-length²≮0 v = +-preserves-≮0 square-≮0 square-≮0
   where
   x = (direct-product-index v x-axis)
   y = (direct-product-index v y-axis)
@@ -248,7 +249,7 @@ vector-length>0 v v#0 = unsquash isProp-< (∥-map handle v#0)
     0<xx : 0# < xx
     0<xx = 0<-square x x#0
     0≤yy : 0# ≤ yy
-    0≤yy = ≮0-square y
+    0≤yy = square-≮0
     xx≤xxyy : xx ≤ xxyy
     xx≤xxyy = subst (_≤ xxyy) +-right-zero (+₁-preserves-≤ 0≤yy)
   handle (y-axis , y#0) = handle-vl²>0 (trans-<-≤ 0<yy yy≤xxyy)
@@ -256,7 +257,7 @@ vector-length>0 v v#0 = unsquash isProp-< (∥-map handle v#0)
     0<yy : 0# < yy
     0<yy = 0<-square y y#0
     0≤xx : 0# ≤ xx
-    0≤xx = ≮0-square x
+    0≤xx = square-≮0
     yy≤xxyy : yy ≤ xxyy
     yy≤xxyy = subst (_≤ xxyy) +-left-zero (+₂-preserves-≤ 0≤xx)
 
@@ -318,7 +319,7 @@ vector-length-* k v = p6
   p3 : l2kv == aklv * aklv
   p3 = vector-length²-* k v >=> *-right p2 >=> p4
 
-  p5 : lkv == sqrtℝ (aklv * aklv) (≮0-square aklv)
+  p5 : lkv == sqrtℝ (aklv * aklv) square-≮0
   p5 = cong2-dep sqrtℝ p3 (isProp->PathP (\i -> isProp-≤))
 
   p6 : lkv == aklv

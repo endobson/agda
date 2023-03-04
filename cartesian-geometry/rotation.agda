@@ -25,9 +25,10 @@ open import order.instances.real
 open import ordered-integral-domain
 open import ordered-ring
 open import ordered-semiring
+open import ordered-semiring.squares
 open import ordered-semiring.instances.real
+open import ordered-semiring.instances.real-strong
 open import real
-open import real.arithmetic.sqrt
 open import real.arithmetic.sqrt.base
 open import real.heyting-field
 open import real.order
@@ -835,7 +836,7 @@ abstract
       where
       module _ where
         0≤yy : 0# ≤ (y * y)
-        0≤yy = ≮0-square y
+        0≤yy = square-≮0
 
         0<xx : 0# < (x * x)
         0<xx = handle2 x#0

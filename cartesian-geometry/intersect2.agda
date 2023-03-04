@@ -22,7 +22,9 @@ open import order
 open import order.instances.real
 open import ordered-ring
 open import ordered-semiring
+open import ordered-semiring.squares
 open import ordered-semiring.instances.real
+open import ordered-semiring.instances.real-strong
 open import real
 open import real.arithmetic.sqrt
 open import real.heyting-field
@@ -83,7 +85,7 @@ private
           handle (x-axis , a#b) = (inj-r 0<left-val)
             where
             0≤cd : 0# ≤ ((diff c d) * (diff c d))
-            0≤cd = ≮0-square (diff c d)
+            0≤cd = square-≮0
 
             ba#0 : diff b a # 0#
             ba#0 = subst2 _#_ refl +-inverse (+₂-preserves-# a#b)
@@ -102,7 +104,7 @@ private
           handle (y-axis , c#d) = (inj-r 0<left-val)
             where
             0≤ba : 0# ≤ ((diff b a) * (diff b a))
-            0≤ba = ≮0-square (diff b a)
+            0≤ba = square-≮0
 
             cd#0 : diff c d # 0#
             cd#0 = subst2 _#_ refl +-inverse (+₂-preserves-# (sym-# c#d))
@@ -128,7 +130,7 @@ private
           handle (x-axis , a#-b) = inj-r 0<right-val
             where
             0≤dc : 0# ≤ ((d + c) * (d + c))
-            0≤dc = ≮0-square (d + c)
+            0≤dc = square-≮0
 
             ab#0 : (a + b) # 0#
             ab#0 = subst2 _#_ +-commute +-inverse (+₁-preserves-# a#-b)
@@ -147,7 +149,7 @@ private
           handle (y-axis , c#-d) = inj-r 0<right-val
             where
             0≤ab : 0# ≤ ((a + b) * (a + b))
-            0≤ab = ≮0-square (a + b)
+            0≤ab = square-≮0
 
             dc#0 : (d + c) # 0#
             dc#0 = subst2 _#_ refl +-inverse (+₁-preserves-# c#-d)
