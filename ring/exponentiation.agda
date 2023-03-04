@@ -17,13 +17,13 @@ open import semiring
 open import sigma.base
 
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
-         {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         {{R : Ring S AG}} where
+         {{S : Semiring ACM}} {{AG : AdditiveGroup ACM}}
+         where
   private
     instance
       IACM = ACM
-      IAG = AG
-      IS = S
+    R : Ring S AG
+    R = record {}
     module R = Ring R
     Unit = R.Unit
     1u = R.1u

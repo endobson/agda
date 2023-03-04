@@ -194,13 +194,13 @@ record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
     ; ∙-left-inverse = u1/-left-inverse
     }
 
-module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         {{R : Ring S AG}} where
+module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} {{AG : AdditiveGroup ACM}}
+         where
   private
     instance
-      IS = S
       IACM = ACM
-      IAG = AG
+    R : Ring S AG
+    R = record {}
     module R = Ring R
 
   abstract

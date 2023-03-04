@@ -10,9 +10,9 @@ open import ordered-semiring
 open import semiring
 open import ring
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {AG : AdditiveGroup ACM}
-         {{O : LinearOrderStr D ℓ<}} {{R : Ring S AG}} where
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
+         {{AG : AdditiveGroup ACM}}
+         {{O : LinearOrderStr D ℓ<}} where
   private
     instance
       IACM = ACM

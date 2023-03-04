@@ -19,19 +19,17 @@ private
     ℓD ℓ< ℓ≤ : Level
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
-         {S : Semiring ACM} {AG : AdditiveGroup ACM}
+         {S : Semiring ACM} {{AG : AdditiveGroup ACM}}
          {O : LinearOrderStr D ℓ<}
          {{LOS : LinearlyOrderedSemiringStr S O}}
-         {{R : Ring S AG}} where
+         where
   private
-    module R = Ring R
     instance
       ILOS = LOS
       IACM = ACM
       IAG = AG
       IS = S
       IO = O
-      IR = R
 
   abstract
     minus-flips-< : {a b : D} -> (a < b) -> (- b) < (- a)
@@ -111,18 +109,16 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
         -1<0 = subst2 _<_ *-left-one *-left-one (*₁-flips-< 1<0 0<-1)
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
-         {S : Semiring ACM} {AG : AdditiveGroup ACM}
+         {S : Semiring ACM} {{AG : AdditiveGroup ACM}}
          {O : PartialOrderStr D ℓ<}
          {{POS : PartiallyOrderedSemiringStr S O}}
-         {{R : Ring S AG}} where
+         where
   private
     instance
       IPOS = POS
       IACM = ACM
-      IAG = AG
       IS = S
       IO = O
-      IR = R
 
   abstract
     minus-flips-≤ : {a b : D} -> (a ≤ b) -> (- b) ≤ (- a)
@@ -153,11 +149,11 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       subst2 _≤_ *-commute *-commute (*₁-flips-≤ c≤0 a≤b)
 
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : AdditiveGroup ACM}
+module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {{AG : AdditiveGroup ACM}}
          {O : PartialOrderStr D ℓ≤}
          {{TO : TotalOrderStr O}}
          {{POS : PartiallyOrderedSemiringStr S O}}
-         {{R : Ring S AG}} where
+         where
   private
     instance
       IPOS = POS
@@ -165,7 +161,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : A
       IACM = ACM
       IS = S
       IO = O
-      IR = R
 
   abstract
     0≤-square : {a : D} -> 0# ≤ (a * a)

@@ -32,6 +32,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {AG : AdditiveGroup ACM}
     instance
       ILOS = LOS
       IACM = ACM
+      IAG = AG
       IS = S
       IO = O
       IR = R

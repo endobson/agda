@@ -17,13 +17,11 @@ open import truncation
 module ring.initial-integers where
 
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
-         {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         {{R : Ring S AG}} where
+         {{S : Semiring ACM}} {{AG : AdditiveGroup ACM}}
+         where
   private
     instance
       IACM = ACM
-      IAG = AG
-      IS = S
 
   private
     lift-nat : Nat -> D
@@ -156,7 +154,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
         (lift-int (int.neg (suc x) int.* y))
       end
 
-    Ringʰ-lift-int : Ringʰ lift-int
+    Ringʰ-lift-int : {{R : Ring S AG}} -> Ringʰ lift-int
     Ringʰ-lift-int = record
       { preserves-0# = refl
       ; preserves-1# = +-right-zero
@@ -167,7 +165,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
 
 
 
-    module _ (f g : ℤ -> D) (fʰ : Ringʰ f) (gʰ : Ringʰ g) where
+    module _ {{R : Ring S AG}} (f g : ℤ -> D) (fʰ : Ringʰ f) (gʰ : Ringʰ g) where
       private
         P : ℤ -> Type ℓD
         P x = f x == g x
@@ -198,6 +196,6 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       unique-homo-path = funExt (int.IntElim-ℕminus-elim nat-case minus-case)
 
 
-  ∃!ℤ->Ring : ∃! (ℤ -> D) Ringʰ
+  ∃!ℤ->Ring : {{R : Ring S AG}} -> ∃! (ℤ -> D) Ringʰ
   ∃!ℤ->Ring = (lift-int , Ringʰ-lift-int) ,
               \(f , fʰ) -> ΣProp-path isProp-Ringʰ (unique-homo-path _ f Ringʰ-lift-int fʰ)

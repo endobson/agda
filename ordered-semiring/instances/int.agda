@@ -2,6 +2,7 @@
 
 module ordered-semiring.instances.int where
 
+open import additive-group.instances.int
 open import base
 open import equality
 open import nat.arithmetic

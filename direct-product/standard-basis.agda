@@ -74,8 +74,8 @@ module _ {ℓI ℓK : Level} {I : Type ℓI} {K : Type ℓK}
 
 module _ {ℓK ℓI : Level} {K : Type ℓK}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
-         {{S : Semiring ACM}}
-         {{R : Ring S AG}} {{A : TightApartnessStr K}} (F : Field R A) (I : Type ℓI)
+         {S : Semiring ACM}
+         {R : Ring S AG} {A : TightApartnessStr K} (F : Field R A) (I : Type ℓI)
          {{FI : FinSetStr I}}  where
   private
     isFinSet-I = FinSetStr.isFin FI
@@ -94,6 +94,8 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
     V = (DP K I)
 
     instance
+      IS = S
+      IA = A
       IACM = ACM
       IMS = MS
       IVS = VS

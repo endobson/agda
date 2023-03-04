@@ -3,6 +3,7 @@
 module real.integral.partition-refinement-delta-fine where
 
 open import base
+open import additive-group.instances.real
 open import equality
 open import fin
 open import finset

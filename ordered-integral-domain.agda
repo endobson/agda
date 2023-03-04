@@ -32,6 +32,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       IR = R
       IO = O
       IACM = ACM
+      IAG = AG
       IA = A
     module ID = IntegralDomain ID
 
