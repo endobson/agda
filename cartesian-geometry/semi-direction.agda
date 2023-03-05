@@ -21,7 +21,6 @@ open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
 open import real
-open import real.arithmetic.absolute-value
 open import real.heyting-field
 open import relation
 open import ring.implementations.real

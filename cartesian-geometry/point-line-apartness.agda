@@ -24,7 +24,6 @@ open import ordered-semiring.instances.real-strong
 open import order.instances.real
 open import order.minmax.instances.real
 open import real
-open import real.arithmetic.absolute-value
 open import real.arithmetic.sqrt
 open import real.heyting-field
 open import real.order

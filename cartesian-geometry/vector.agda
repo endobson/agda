@@ -38,7 +38,6 @@ open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
 open import ordered-integral-domain
 open import real
-open import real.arithmetic.absolute-value
 open import real.arithmetic.multiplication.inverse
 open import real.arithmetic.sqrt
 open import real.arithmetic.sqrt.base

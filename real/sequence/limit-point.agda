@@ -27,7 +27,6 @@ open import rational.order
 open import rational.proper-interval
 open import real
 open import real.arithmetic
-open import real.arithmetic.absolute-value
 open import real.arithmetic.rational
 open import real.epsilon-bounded.base
 open import real.interval

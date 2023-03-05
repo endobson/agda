@@ -31,7 +31,6 @@ open import rational.proper-interval.multiplication-assoc
 open import rational.squares
 open import real
 open import real.arithmetic
-open import real.arithmetic.absolute-value
 open import real.arithmetic.multiplication
 open import real.arithmetic.sqrt.base
 open import real.heyting-field

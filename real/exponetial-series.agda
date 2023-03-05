@@ -25,14 +25,17 @@ open import nat.order
 open import order
 open import order.minmax
 open import order.minmax.instances.nat
+open import order.minmax.instances.real
 open import order.instances.nat
 open import order.instances.rational
 open import order.instances.real
 open import ordered-additive-group
+open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.nat
 open import ordered-additive-group.instances.real
 open import ordered-integral-domain
 open import ordered-ring
+open import ordered-ring.absolute-value
 open import ordered-semiring
 open import ordered-semiring.instances.nat
 open import ordered-semiring.instances.rational
@@ -44,7 +47,6 @@ open import rational.order
 open import rational.proper-interval
 open import real
 open import real.arithmetic
-open import real.arithmetic.absolute-value
 open import real.arithmetic.rational
 open import real.epsilon-bounded.base
 open import real.heyting-field
@@ -241,14 +243,14 @@ private
   ∀Largeℕ2' P = Σ[ n ∈ ℕ ] ((m1 m2 : ℕ) -> m1 ≥ n -> m2 ≥ n -> P m1 m2)
 
   EventuallyClose0-abs : Pred Seq ℓ-one
-  EventuallyClose0-abs s = (ε : ℚ⁺) -> ∀Largeℕ (\m -> absℝ (s m) < ℚ->ℝ ⟨ ε ⟩)
+  EventuallyClose0-abs s = (ε : ℚ⁺) -> ∀Largeℕ (\m -> abs (s m) < ℚ->ℝ ⟨ ε ⟩)
 
   1/2r⁺ : ℚ⁺
   1/2r⁺ = 1/2r , Pos-1/ℕ (2 , tt)
 
   module _
-    (absℝ-distrib-+ : {x y : ℝ} -> absℝ (x + y) ≤ (absℝ x + absℝ y))
-    (absℝ-≤ : {x : ℝ} -> x ≤ absℝ x)
+    (abs-distrib-+ : {x y : ℝ} -> abs (x + y) ≤ (abs x + abs y))
+    (abs-≤ : {x : ℝ} -> x ≤ abs x)
     where
     EventuallyClose0-abs->Cauchy' :
       (s : Seq) -> EventuallyClose0-abs s -> Cauchy' s
@@ -256,21 +258,21 @@ private
       where
       ε/2 : ℚ⁺
       ε/2 = 1/2r * ε , *-preserves-0< (snd 1/2r⁺) 0<ε
-      handle : ∀Largeℕ' (\m -> absℝ (s m) < ℚ->ℝ ⟨ ε/2 ⟩) ->
+      handle : ∀Largeℕ' (\m -> abs (s m) < ℚ->ℝ ⟨ ε/2 ⟩) ->
                ∀Largeℕ2' (\m1 m2 -> (diff (s m1) (s m2) < ℚ->ℝ ε))
       handle (n , g) = (n , g2)
         where
         g2 : (m1 m2 : ℕ) -> m1 ≥ n -> m2 ≥ n -> (diff (s m1) (s m2) < ℚ->ℝ ε)
         g2 m1 m2 m1≥n m2≥n = d<ε
           where
-          -sm1<ε/2 : absℝ (- (s m1)) < ℚ->ℝ ⟨ ε/2 ⟩
-          -sm1<ε/2 = subst2 _<_ (sym (absℝ-- (s m1))) refl (g m1 m1≥n)
-          sm2<ε/2 : absℝ (s m2) < ℚ->ℝ ⟨ ε/2 ⟩
+          -sm1<ε/2 : abs (- (s m1)) < ℚ->ℝ ⟨ ε/2 ⟩
+          -sm1<ε/2 = subst2 _<_ (sym abs-minus) refl (g m1 m1≥n)
+          sm2<ε/2 : abs (s m2) < ℚ->ℝ ⟨ ε/2 ⟩
           sm2<ε/2 = g m2 m2≥n
           d<ε : (diff (s m1) (s m2)) < ℚ->ℝ ε
           d<ε =
             trans-≤-<
-              (trans-≤ absℝ-≤ absℝ-distrib-+)
+              (trans-≤ abs-≤ abs-distrib-+)
               (subst2 _<_ refl (sym ℚ->ℝ-preserves-+ >=>
                                 cong ℚ->ℝ (1/2r-path' ε))
                      (+-preserves-< sm2<ε/2 -sm1<ε/2))
