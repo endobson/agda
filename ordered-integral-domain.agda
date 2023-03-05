@@ -9,6 +9,7 @@ open import equality
 open import equivalence
 open import integral-domain
 open import order
+open import ordered-additive-group
 open import ordered-ring
 open import ordered-semiring
 open import ring
@@ -22,6 +23,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
          {S : Semiring ACM} {AG : AdditiveGroup ACM}
          {O : LinearOrderStr D ℓ<}
          {R : Ring S AG} {A : TightApartnessStr D ℓ#}
+         {{LOA : LinearlyOrderedAdditiveStr ACM O}}
          {{LOS : LinearlyOrderedSemiringStr S O}}
          {{ALO : ApartLinearOrderStr A O}}
          {{ID : IntegralDomain R A}}
@@ -52,8 +54,8 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
          {O : LinearOrderStr D ℓ<}
          {PO : PartialOrderStr D ℓ<}
          {R : Ring S AG} {A : TightApartnessStr D ℓ#}
+         {{LOA : LinearlyOrderedAdditiveStr ACM O}}
          {{LOS : LinearlyOrderedSemiringStr S O}}
-         {{POS : PartiallyOrderedSemiringStr S PO}}
          {{COS : CompatibleOrderStr O PO}}
          {{ALO : ApartLinearOrderStr A O}}
          {{ID : IntegralDomain R A}}

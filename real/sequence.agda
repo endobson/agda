@@ -2,29 +2,30 @@
 
 module real.sequence where
 
-open import base
 open import additive-group
+open import base
 open import equality
 open import hlevel
 open import nat
-open import rational
-open import rational.order
-open import rational.minmax
-open import relation hiding (U)
-open import ring
-open import ring.implementations.rational
-open import real
-open import real.order
-open import real.rational
-open import semiring
-open import truncation
 open import order
 open import order.instances.nat
 open import order.instances.rational
-open import ordered-semiring
+open import ordered-additive-group
 open import ordered-ring
+open import ordered-semiring
+open import rational
+open import rational.minmax
+open import rational.order
+open import real
+open import real.order
+open import real.rational
+open import relation hiding (U)
+open import ring
+open import ring.implementations.rational
+open import semiring
 open import sign
 open import sign.instances.rational
+open import truncation
 
 private
   variable

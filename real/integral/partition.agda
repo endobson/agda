@@ -16,8 +16,9 @@ open import order.instances.fin
 open import order.instances.nat
 open import order.instances.rational
 open import order.instances.real
+open import ordered-additive-group
+open import ordered-additive-group.instances.real
 open import ordered-semiring
-open import ordered-semiring.instances.real
 open import rational
 open import real
 open import real.integral.partition-index

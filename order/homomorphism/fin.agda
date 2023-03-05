@@ -16,8 +16,8 @@ open import order
 open import order.homomorphism
 open import order.instances.fin
 open import order.instances.nat
-open import ordered-semiring
-open import ordered-semiring.instances.nat
+open import ordered-additive-group
+open import ordered-additive-group.instances.nat
 open import relation
 open import sigma.base
 open import sum

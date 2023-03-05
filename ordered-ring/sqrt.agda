@@ -11,6 +11,8 @@ open import hlevel
 open import isomorphism
 open import order
 open import order.minmax
+open import ordered-additive-group
+open import ordered-additive-group.absolute-value
 open import ordered-ring.absolute-value
 open import ordered-semiring
 open import ordered-semiring.negated
@@ -35,6 +37,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓ<}}
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
          {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+         {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{SOS : StronglyLinearlyOrderedSemiringStr S LO}} where
   private
@@ -44,7 +47,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
       IACM = ACM
       PO = NegatedLinearOrder LO
       CPO = CompatibleNegatedLinearOrder LO
-      LOA = LinearOrderTightApartnessStr LO
+      LOTA = LinearOrderTightApartnessStr LO
       TALO = TrivialApartLinearOrderStr LO
       POS = PartiallyOrderedSemiringStr-Negated S LO
 

@@ -10,6 +10,7 @@ open import order
 open import order.minmax
 open import order.minmax.instances.rational
 open import ordered-integral-domain
+open import ordered-additive-group
 open import ordered-semiring
 open import rational
 open import rational.integral-domain

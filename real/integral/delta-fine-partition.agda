@@ -16,6 +16,8 @@ open import order.instances.nat
 open import order.instances.real
 open import order.minmax
 open import order.minmax.instances.real
+open import ordered-additive-group
+open import ordered-additive-group.instances.real
 open import ordered-integral-domain
 open import ordered-ring
 open import ordered-semiring

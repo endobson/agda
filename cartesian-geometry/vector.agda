@@ -27,6 +27,9 @@ open import isomorphism
 open import order
 open import order.instances.real
 open import order.minmax.instances.real
+open import ordered-additive-group
+open import ordered-additive-group.absolute-value
+open import ordered-additive-group.instances.real
 open import ordered-ring
 open import ordered-ring.absolute-value
 open import ordered-semiring

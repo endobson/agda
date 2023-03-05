@@ -9,7 +9,7 @@ open import equality-path
 open import hlevel
 open import isomorphism
 open import order
-open import ordered-ring
+open import ordered-additive-group
 open import ordered-semiring
 open import rational
 open import rational.order

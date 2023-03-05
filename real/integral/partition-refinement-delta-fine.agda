@@ -2,8 +2,8 @@
 
 module real.integral.partition-refinement-delta-fine where
 
-open import base
 open import additive-group.instances.real
+open import base
 open import equality
 open import fin
 open import finset
@@ -12,9 +12,10 @@ open import finset.optimize
 open import order
 open import order.instances.real
 open import order.subtype
+open import ordered-additive-group
+open import ordered-additive-group.instances.real
 open import ordered-ring
 open import ordered-semiring
-open import ordered-semiring.instances.real
 open import rational
 open import real
 open import real.integral.partition

@@ -31,6 +31,8 @@ open import nat.bounded
 open import nat.order
 open import order
 open import order.instances.nat
+open import ordered-additive-group
+open import ordered-additive-group.instances.nat
 open import ordered-semiring
 open import ordered-semiring.instances.nat
 open import prime

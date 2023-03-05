@@ -17,7 +17,8 @@ open import functions
 open import funext
 open import hlevel
 open import order
-open import ordered-ring.absolute-value
+open import ordered-additive-group.absolute-value
+open import ordered-additive-group.instances.real
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
 open import order.instances.real

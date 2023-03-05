@@ -2,51 +2,53 @@
 
 module real.series where
 
-open import apartness
 open import additive-group
 open import additive-group.instances.reader
 open import additive-group.instances.real
+open import apartness
 open import base
 open import equality
 open import fin
-open import funext
+open import finite-commutative-monoid.instances
 open import finset.instances
 open import finsum
 open import finsum.arithmetic
 open import functions
-open import finite-commutative-monoid.instances
-open import hlevel
+open import funext
 open import heyting-field
+open import hlevel
+open import integral-domain.instances.real
 open import nat
 open import nat.order
 open import order
-open import order.minmax
-open import order.minmax.instances.nat
-open import integral-domain.instances.real
 open import order.instances.nat
 open import order.instances.rational
 open import order.instances.real
-open import ordered-semiring
-open import ordered-ring
+open import order.minmax
+open import order.minmax.instances.nat
+open import ordered-additive-group
+open import ordered-additive-group.instances.real
 open import ordered-integral-domain
+open import ordered-ring
+open import ordered-semiring
 open import ordered-semiring.instances.real
-open import semiring
-open import sequence
-open import sequence.partial-sums
 open import rational
 open import rational.proper-interval
 open import real
-open import real.rational
-open import real.heyting-field
 open import real.arithmetic
+open import real.heyting-field
 open import real.interval
 open import real.order
+open import real.rational
 open import real.sequence hiding (Cauchy)
 open import real.sequence.limit
 open import relation
 open import ring
 open import ring.implementations.rational
 open import ring.implementations.real
+open import semiring
+open import sequence
+open import sequence.partial-sums
 open import truncation
 
 private

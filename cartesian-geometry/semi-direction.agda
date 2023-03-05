@@ -16,9 +16,9 @@ open import integral-domain
 open import integral-domain.instances.real
 open import order
 open import order.minmax.instances.real
-open import ordered-ring
-open import ordered-ring.absolute-value
-open import ordered-semiring.instances.real
+open import ordered-additive-group
+open import ordered-additive-group.absolute-value
+open import ordered-additive-group.instances.real
 open import real
 open import real.arithmetic.absolute-value
 open import real.heyting-field

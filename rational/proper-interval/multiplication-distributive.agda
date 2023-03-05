@@ -7,6 +7,7 @@ open import equality
 open import order.instances.rational
 open import order.minmax
 open import order.minmax.instances.rational
+open import ordered-additive-group
 open import ordered-semiring
 open import rational
 open import rational.minmax

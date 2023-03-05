@@ -13,8 +13,8 @@ open import lcm.exists
 open import nat
 open import order.minmax
 open import order.minmax.instances.nat
-open import ordered-semiring.instances.nat
-open import ordered-semiring.minmax
+open import ordered-additive-group.instances.nat
+open import ordered-additive-group.minmax
 open import prime
 open import prime-div-count
 open import prime-div-count.computational

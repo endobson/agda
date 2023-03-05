@@ -9,6 +9,7 @@ open import equality
 open import equivalence
 open import integral-domain
 open import order
+open import ordered-additive-group
 open import ordered-semiring
 open import ring
 open import semiring
@@ -16,7 +17,9 @@ open import truncation
 
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM}
-         {O : LinearOrderStr D ℓ<} {{LOS : LinearlyOrderedSemiringStr S O}}
+         {O : LinearOrderStr D ℓ<}
+         {{LOA : LinearlyOrderedAdditiveStr ACM O}}
+         {{LOS : LinearlyOrderedSemiringStr S O}}
          {AG : AdditiveGroup ACM}
          {R : Ring S AG}
          {A : TightApartnessStr D ℓD}
@@ -32,17 +35,9 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : 
 
   StronglyLinearlyOrderedSemiringStr-IntegralDomain : StronglyLinearlyOrderedSemiringStr S O
   StronglyLinearlyOrderedSemiringStr-IntegralDomain = record
-    { +₁-reflects-< = +₁-reflects-<'
-    ; *₁-fully-reflects-< = *₁-fully-reflects-<'
+    { *₁-fully-reflects-< = *₁-fully-reflects-<'
     }
     where
-
-    +₁-reflects-<' : {a b c : D} -> (a + b) < (a + c) -> (b < c)
-    +₁-reflects-<' {a} ab<ac = subst2 _<_ p p (+₁-preserves-< ab<ac)
-      where
-      p : {x : D} -> (- a + (a + x)) == x
-      p = sym +-assoc >=> +-left (+-commute >=> +-inverse) >=> +-left-zero
-
     *₁-fully-reflects-<' : {a b c : D} -> (a * b) < (a * c) ->
         (b < c × 0# < a) ⊎ (c < b × a < 0#)
     *₁-fully-reflects-<' {a} {b} {c} ab<ac =

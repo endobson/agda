@@ -10,8 +10,8 @@ open import hlevel
 open import order
 open import order.instances.real
 open import order.instances.rational
+open import ordered-additive-group
 open import ordered-integral-domain
-open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.squares
 open import rational

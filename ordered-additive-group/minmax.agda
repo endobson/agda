@@ -1,22 +1,21 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module ordered-semiring.minmax where
+module ordered-additive-group.minmax where
 
 open import additive-group
 open import base
 open import equality
 open import order
 open import order.minmax
-open import ordered-semiring
-open import semiring
+open import ordered-additive-group
 open import truncation
 open import hlevel.base
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
          {LO : LinearOrderStr D ℓ<}
          {{Min : MinOperationStr LO}}
          {{Max : MaxOperationStr LO}}
-         {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}}
+         {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
   where
   private
     instance

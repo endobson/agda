@@ -13,18 +13,16 @@ open import commutative-monoid.subtype
 open import commutative-monoid.binary-product
 open import base
 open import additive-group
-open import semiring
 open import order
-open import ordered-semiring
+open import ordered-additive-group
 
 module _ {ℓD ℓ≤ : Level} {D : Type ℓD}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : PartialOrderStr D ℓ≤}
-         {{POS : PartiallyOrderedSemiringStr S O}} where
+         {ACM : AdditiveCommMonoid D} {O : PartialOrderStr D ℓ≤}
+         {{POA : PartiallyOrderedAdditiveStr ACM O}} where
   private
     CM = AdditiveCommMonoid.comm-monoid ACM
     instance
       IACM = ACM
-      IS = S
       IO = O
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where

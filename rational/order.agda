@@ -17,6 +17,8 @@ open import nat.order using (2^n-large)
 open import order
 open import order.instances.int
 open import order.instances.nat
+open import ordered-additive-group
+open import ordered-additive-group.decidable
 open import ordered-semiring
 open import ordered-semiring.ring
 open import ordered-semiring.decidable
@@ -528,9 +530,12 @@ abstract
                          (r*'₁-preserves-< a b c (transport ℚ<-raw-eval 0<a) (transport ℚ<-raw-eval b<c)))
 
 instance
+  LinearlyOrderedAdditiveStr-ℚ : LinearlyOrderedAdditiveStr useⁱ LinearOrderStr-ℚ
+  LinearlyOrderedAdditiveStr-ℚ =
+    LinearlyOrderedAdditiveStr-Dec< (r+₁-preserves-< _ _ _)
+
   LinearlyOrderedSemiringStr-ℚ : LinearlyOrderedSemiringStr RationalSemiring LinearOrderStr-ℚ
   LinearlyOrderedSemiringStr-ℚ = LinearlyOrderedSemiringStr-Ring
-    (r+₁-preserves-< _ _ _)
     (r*₁-preserves-< _ _ _)
 
   StronglyLinearlyOrderedSemiringStr-ℚ : StronglyLinearlyOrderedSemiringStr _ _
@@ -609,10 +614,14 @@ abstract
 
 
 instance
+  PartiallyOrderedAdditiveStr-ℚ : PartiallyOrderedAdditiveStr useⁱ PartialOrderStr-ℚ
+  PartiallyOrderedAdditiveStr-ℚ = record
+    { +₁-preserves-≤ = r+₁-preserves-≤ _ _ _
+    }
+
   PartiallyOrderedSemiringStr-ℚ : PartiallyOrderedSemiringStr RationalSemiring PartialOrderStr-ℚ
   PartiallyOrderedSemiringStr-ℚ = record
-    { +₁-preserves-≤ = r+₁-preserves-≤ _ _ _
-    ; *₁-preserves-≤ = r*₁-preserves-≤ _ _ _
+    { *₁-preserves-≤ = r*₁-preserves-≤ _ _ _
     }
 
 

@@ -5,6 +5,7 @@ module ordered-semiring where
 open import additive-group
 open import base
 open import equality
+open import functions
 open import order
 open import semiring
 open import sum
@@ -14,6 +15,7 @@ private
   variable
     ℓD ℓ< ℓ≤ : Level
 
+-- TODO rename this to just about the multiplicative structure
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : LinearOrderStr D ℓ<) where
   private
     instance
@@ -24,7 +26,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : Li
   record LinearlyOrderedSemiringStr : Type (ℓ-max (ℓ-suc ℓ<) ℓD) where
     no-eta-equality
     field
-      +₁-preserves-< : {a b c : D} -> b < c -> (a + b) < (a + c)
       *₁-preserves-< : {a b c : D} -> 0# < a -> b < c -> (a * b) < (a * c)
       *₁-flips-< : {a b c : D} -> a < 0# -> b < c -> (a * c) < (a * b)
 
@@ -39,20 +40,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
       IO = O
 
   abstract
-    +₁-preserves-< : {a b c : D} -> b < c -> (a + b) < (a + c)
-    +₁-preserves-< = LOS.+₁-preserves-<
-
-    +₂-preserves-< : {a b c : D} -> a < b -> (a + c) < (b + c)
-    +₂-preserves-< a<b = subst2 _<_ +-commute +-commute (+₁-preserves-< a<b)
-
-    +-preserves-< : {a b c d : D} -> a < b -> c < d -> (a + c) < (b + d)
-    +-preserves-< a<b c<d =
-      trans-< (+₁-preserves-< c<d) (+₂-preserves-< a<b)
-
-    +-preserves-0< : {a b : D} -> 0# < a -> 0# < b -> 0# < (a + b)
-    +-preserves-0< {a} {b} 0<a 0<b =
-      subst (_< (a + b)) +-right-zero (+-preserves-< 0<a 0<b)
-
     *₁-preserves-< : {a b c : D} -> 0# < a -> b < c -> (a * b) < (a * c)
     *₁-preserves-< = LOS.*₁-preserves-<
 
@@ -81,6 +68,41 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
     *-flips-<0 : {a b : D} -> a < 0# -> b < 0# -> 0# < (a * b)
     *-flips-<0 {a} {b} a<0 b<0 = subst (_< (a * b)) *-left-zero (*₂-flips-< a<0 b<0)
 
+  private
+    case-≮' : (x y x' y' : D) -> (x < y -> y' ≮ x') -> (x == y -> x' == y') -> (y ≮ x -> y' ≮ x')
+    case-≮' x y x' y' f< f= y≮x y'<x' = irrefl-< (subst (y' <_) x'==y' y'<x')
+      where
+      x≮y : x ≮ y
+      x≮y x<y = f< x<y y'<x'
+
+      x==y : x == y
+      x==y = connected-< x≮y y≮x
+
+      x'==y' : x' == y'
+      x'==y' = f= x==y
+
+    case-≮ : (x y x' y' : D) -> (x < y -> x' < y') -> (x == y -> x' == y') -> (y ≮ x -> y' ≮ x')
+    case-≮ x y x' y' f< = case-≮' x y x' y' (asym-< ∘ f<)
+
+    *₁-preserves-≮' : {a b c : D} -> (0# < a) -> (b ≮ c) -> (a * b) ≮ (a * c)
+    *₁-preserves-≮' {a} {b} {c} 0<a = case-≮ c b (a * c) (a * b) (*₁-preserves-< 0<a) (cong (a *_))
+
+  abstract
+    *₁-preserves-≮ : {a b c : D} -> (a ≮ 0#) -> (b ≮ c) -> (a * b) ≮ (a * c)
+    *₁-preserves-≮ {a} {b} {c} a≮0 b≮c = case-≮' 0# a (a * c) (a * b) f< f= a≮0
+      where
+      f= : (0# == a) -> a * c == a * b
+      f= p = *-left (sym p) >=> *-left-zero >=> (sym *-left-zero) >=> *-left p
+
+      f< : (0# < a) -> (a * b) ≮ (a * c)
+      f< 0<a = *₁-preserves-≮' 0<a b≮c
+
+    *₂-preserves-≮ : {a b c : D} -> (a ≮ b) -> (c ≮ 0#) -> (a * c) ≮ (b * c)
+    *₂-preserves-≮ {a} {b} {c} a≮b c≮0 =
+      subst2 _≮_ *-commute *-commute (*₁-preserves-≮ c≮0 a≮b)
+
+    *-preserves-≮0 : {a b : D} -> (a ≮ 0#) -> (b ≮ 0#) -> (a * b) ≮ 0#
+    *-preserves-≮0 {a} {b} a≮0 b≮0 = subst ((a * b) ≮_) *-right-zero (*₁-preserves-≮ a≮0 b≮0)
 
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : LinearOrderStr D ℓ<) where
@@ -93,7 +115,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : Li
   record StronglyLinearlyOrderedSemiringStr : Type (ℓ-max (ℓ-suc ℓ<) ℓD) where
     no-eta-equality
     field
-      +₁-reflects-< : {a b c : D} -> (a + b) < (a + c) -> b < c
       *₁-fully-reflects-< : {a b c : D} -> (a * b) < (a * c) ->
         (b < c × 0# < a) ⊎ (c < b × a < 0#)
 
@@ -107,21 +128,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
       IO = O
 
   abstract
-    +₁-reflects-< : {a b c : D} -> (a + b) < (a + c) -> b < c
-    +₁-reflects-< = SLOS.+₁-reflects-<
-
-    +₂-reflects-< : {a b c : D} -> (a + c) < (b + c) -> a < b
-    +₂-reflects-< ac<bc = +₁-reflects-< (subst2 _<_ +-commute +-commute ac<bc)
-
-    +-reflects-< : {a b c d : D} -> (a + b) < (c + d) -> ∥ (a < c) ⊎ (b < d) ∥
-    +-reflects-< {a} {b} {c} {d} ab<cd = ∥-map handle (comparison-< _ (c + b) _ ab<cd)
-      where
-      handle : ((a + b) < (c + b)) ⊎ ((c + b) < (c + d)) -> (a < c) ⊎ (b < d)
-      handle = ⊎-map +₂-reflects-< +₁-reflects-<
-
-    +-reflects-0< : {a b : D} -> 0# < (a + b) -> ∥ (0# < a) ⊎ (0# < b) ∥
-    +-reflects-0< {a} {b} 0<ab = +-reflects-< (subst (_< (a + b)) (sym +-right-zero) 0<ab)
-
     *₁-fully-reflects-< : {a b c : D} -> (a * b) < (a * c) ->
                           (b < c × 0# < a) ⊎ (c < b × a < 0#)
     *₁-fully-reflects-< = SLOS.*₁-fully-reflects-<
@@ -183,7 +189,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : Pa
   record PartiallyOrderedSemiringStr : Type (ℓ-max (ℓ-suc ℓ≤) ℓD) where
     no-eta-equality
     field
-      +₁-preserves-≤ : {a b c : D} -> b ≤ c -> (a + b) ≤ (a + c)
       *₁-preserves-≤ : {a b c : D} -> 0# ≤ a -> b ≤ c -> (a * b) ≤ (a * c)
 
 
@@ -199,19 +204,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : Pa
       IO = O
 
   abstract
-    +₁-preserves-≤ : {a b c : D} -> b ≤ c -> (a + b) ≤ (a + c)
-    +₁-preserves-≤ = POS.+₁-preserves-≤
-
-    +₂-preserves-≤ : {a b c : D} -> a ≤ b -> (a + c) ≤ (b + c)
-    +₂-preserves-≤ a≤b = subst2 _≤_ +-commute +-commute (+₁-preserves-≤ a≤b)
-
-    +-preserves-≤ : {a b c d : D} -> a ≤ b -> c ≤ d -> (a + c) ≤ (b + d)
-    +-preserves-≤ a≤b c≤d = trans-≤ (+₁-preserves-≤ c≤d) (+₂-preserves-≤ a≤b)
-
-    +-preserves-0≤ : {a b : D} -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a + b)
-    +-preserves-0≤ {a} {b} 0≤a 0≤b =
-      subst (_≤ (a + b)) +-right-zero (+-preserves-≤ 0≤a 0≤b)
-
     *-preserves-0≤ : {a b : D} -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a * b)
     *-preserves-0≤ 0≤a 0≤b = trans-=-≤ (sym *-right-zero) (POS.*₁-preserves-≤ 0≤a 0≤b)
 
@@ -236,7 +228,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
   record StronglyPartiallyOrderedSemiringStr : Type (ℓ-max* 3 ℓ< ℓ≤ ℓD) where
     no-eta-equality
     field
-      +₁-reflects-≤ : {a b c : D} -> (a + b) ≤ (a + c) -> b ≤ c
       *₁-reflects-≤ : {a b c : D} -> 0# < a -> (a * b) ≤ (a * c) -> b ≤ c
       *₁-flip-reflects-≤ : {a b c : D} -> a < 0# -> (a * b) ≤ (a * c) -> c ≤ b
 
@@ -253,12 +244,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
       ILO = LO
 
   abstract
-    +₁-reflects-≤ : {a b c : D} -> (a + b) ≤ (a + c) -> b ≤ c
-    +₁-reflects-≤ = SPOS.+₁-reflects-≤
-
-    +₂-reflects-≤ : {a b c : D} -> (a + c) ≤ (b + c) -> a ≤ b
-    +₂-reflects-≤ ac≤bc = +₁-reflects-≤ (subst2 _≤_ +-commute +-commute ac≤bc)
-
     *₁-reflects-≤ : {a b c : D} -> (0# < a) -> (a * b) ≤ (a * c) -> (b ≤ c)
     *₁-reflects-≤ = SPOS.*₁-reflects-≤
 

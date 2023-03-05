@@ -6,8 +6,8 @@ open import additive-group
 open import additive-group.instances.real
 open import apartness
 open import base
-open import cartesian-geometry.vector
 open import cartesian-geometry.matrix
+open import cartesian-geometry.vector
 open import commutative-monoid
 open import direct-product
 open import equality
@@ -22,12 +22,14 @@ open import isomorphism
 open import monoid
 open import order
 open import order.instances.real
+open import ordered-additive-group
+open import ordered-additive-group.instances.real
 open import ordered-integral-domain
 open import ordered-ring
 open import ordered-semiring
-open import ordered-semiring.squares
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
+open import ordered-semiring.squares
 open import real
 open import real.arithmetic.sqrt.base
 open import real.heyting-field

@@ -22,18 +22,9 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : 
 
   StronglyLinearlyOrderedSemiringStr-Dec< : StronglyLinearlyOrderedSemiringStr S O
   StronglyLinearlyOrderedSemiringStr-Dec< = record
-    { +₁-reflects-< = \ab<ac -> stable-< (+₁-reflects-<' ab<ac)
-    ; *₁-fully-reflects-< = *₁-fully-reflects-<'
+    { *₁-fully-reflects-< = *₁-fully-reflects-<'
     }
     where
-    +₁-reflects-<' : {a b c : D} -> (a + b) < (a + c) -> ¬ (¬ (b < c))
-    +₁-reflects-<' {a} {b} {c} ab<ac b≮c = irrefl-path-< (cong (a +_) b=c) ab<ac
-      where
-      c≮b : c ≮ b
-      c≮b c<b = asym-< ab<ac (+₁-preserves-< c<b)
-      b=c : b == c
-      b=c = connected-< b≮c c≮b
-
     *₁-fully-reflects-<' : {a b c : D} -> (a * b) < (a * c) ->
         (b < c × 0# < a) ⊎ (c < b × a < 0#)
     *₁-fully-reflects-<' {a} {b} {c} ab<ac =
@@ -71,15 +62,10 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
 
   StronglyPartiallyOrderedSemiringStr-Dec< : StronglyPartiallyOrderedSemiringStr S LO PO
   StronglyPartiallyOrderedSemiringStr-Dec< = record
-    { +₁-reflects-≤ = +₁-reflects-≤'
-    ; *₁-reflects-≤ = *₁-reflects-≤'
+    { *₁-reflects-≤ = *₁-reflects-≤'
     ; *₁-flip-reflects-≤ = *₁-flip-reflects-≤'
     }
     where
-    +₁-reflects-≤' : {a b c : D} -> (a + b) ≤ (a + c) -> b ≤ c
-    +₁-reflects-≤' {a} {b} {c} ab≤ac =
-      proj-¬l (split-< c b) (\c<b -> irrefl-< (trans-<-≤ (+₁-preserves-< c<b) ab≤ac))
-
     *₁-reflects-≤' : {a b c : D} -> 0# < a -> (a * b) ≤ (a * c) -> b ≤ c
     *₁-reflects-≤' {a} {b} {c} 0<a ab≤ac =
       proj-¬l (split-< c b) (\c<b -> irrefl-< (trans-<-≤ (*₁-preserves-< 0<a c<b) ab≤ac))

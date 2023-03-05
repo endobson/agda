@@ -10,6 +10,7 @@ open import order
 open import order.instances.rational
 open import order.minmax
 open import order.minmax.instances.rational
+open import ordered-additive-group
 open import ordered-ring
 open import ordered-semiring
 open import rational

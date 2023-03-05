@@ -20,6 +20,8 @@ open import integral-domain
 open import integral-domain.instances.real
 open import order
 open import order.instances.real
+open import ordered-additive-group
+open import ordered-additive-group.instances.real
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.squares

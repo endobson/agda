@@ -13,8 +13,9 @@ open import order.instances.real
 open import order.minmax
 open import order.minmax.instances.rational
 open import order.minmax.instances.real
+open import ordered-additive-group.absolute-value
+open import ordered-additive-group.instances.real
 open import ordered-ring
-open import ordered-ring.absolute-value
 open import ordered-ring.sqrt
 open import ordered-semiring
 open import ordered-semiring.instances.rational

@@ -13,16 +13,11 @@ open import functions
 open import funext
 open import nat
 open import order
-open import ordered-semiring
-open import semiring
+open import ordered-additive-group
 open import sequence
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
-         {{S : Semiring ACM}} where
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}  where
   private
-    instance
-      IACM = ACM
-
     Seq : Type ℓD
     Seq = Sequence D
 
@@ -51,13 +46,13 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     +-right (sym (finiteMerge-FinSuc _ _))
 
 module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
-         {S : Semiring ACM} {PO : PartialOrderStr D ℓ≤}
-         {{POS : PartiallyOrderedSemiringStr S PO}} where
+         {PO : PartialOrderStr D ℓ≤}
+         {{POA : PartiallyOrderedAdditiveStr ACM PO}}
+          where
   private
     instance
       IACM = ACM
       IPO = PO
-      IS = S
 
     Seq : Type ℓD
     Seq = Sequence D

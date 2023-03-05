@@ -9,6 +9,7 @@ open import equality
 open import equivalence
 open import heyting-field
 open import order
+open import ordered-additive-group
 open import ordered-semiring
 open import ordered-ring
 open import ring
@@ -22,6 +23,7 @@ private
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {AG : AdditiveGroup ACM}
          {S : Semiring ACM} {O : LinearOrderStr D ℓ<}
          {R : Ring S AG} {A : TightApartnessStr D ℓD}
+         {{LOA : LinearlyOrderedAdditiveStr ACM O}}
          {{LOS : LinearlyOrderedSemiringStr S O}}
          {{F : Field R A}}
          {{AL : ApartLinearOrderStr A O}}

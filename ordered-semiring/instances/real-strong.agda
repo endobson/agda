@@ -4,6 +4,7 @@ module ordered-semiring.instances.real-strong where
 
 open import integral-domain.instances.real
 open import order.instances.real
+open import ordered-additive-group.instances.real
 open import ordered-semiring
 open import ordered-semiring.instances.real
 open import ordered-semiring.integral-domain
