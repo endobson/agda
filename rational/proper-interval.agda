@@ -92,6 +92,9 @@ StrictCrossZeroI a = Neg (Iℚ.l a) × Pos (Iℚ.u a)
 ConstantI : Pred Iℚ ℓ-zero
 ConstantI a = (Iℚ.l a) == (Iℚ.u a)
 
+SymI : Pred Iℚ ℓ-zero
+SymI a = (Iℚ.l a) == (- (Iℚ.u a))
+
 ℚ∈Iℚ : ℚ -> Pred Iℚ ℓ-zero
 ℚ∈Iℚ q a = (Iℚ.l a ≤ q) × (q ≤ Iℚ.u a)
 
@@ -180,6 +183,22 @@ i-scale-1 : (a : Iℚ) -> i-scale 1r a == a
 i-scale-1 a = sym (i-scale-NN-path (1r , inj-l Pos-1r) a) >=>
               Iℚ-bounds-path *-left-one *-left-one
 
+i-scale-SymI : (k : ℚ) -> (a : Iℚ) -> SymI a -> i-scale (- k) a == i-scale k a
+i-scale-SymI k (Iℚ-cons l u l≤u) l=-u =
+  Iℚ-bounds-path p1 p2
+  where
+  -kl=ku = (*-right l=-u >=> minus-extract-both)
+  -ku=kl = (minus-extract-left >=>
+            sym minus-extract-right >=>
+            *-right (sym l=-u))
+  p1 : min (- k * l) (- k * u) == min (k * l) (k * u)
+  p1 = cong2 min -kl=ku -ku=kl >=> min-commute
+
+  p2 : max (- k * l) (- k * u) == max (k * l) (k * u)
+  p2 = cong2 max -kl=ku -ku=kl >=> max-commute
+
+
+
 _i*_ : Iℚ -> Iℚ -> Iℚ
 _i*_ (Iℚ-cons l1 u1 _) i2 = (i-scale l1 i2) i∪ (i-scale u1 i2)
 
@@ -207,6 +226,63 @@ i*-NN-path a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-a nn-b =
   nn-au = NonNeg-≤ al au nn-al al≤au
   nn-bl = nn-b
   nn-bu = NonNeg-≤ bl bu nn-bl bl≤bu
+
+i*-SymI : (a b : Iℚ) -> (SymI a) -> (SymI b) -> Iℚ
+i*-SymI a b al=-au bl=-bu = Iℚ-cons (- (a.u * b.u)) (a.u * b.u) abs.lt
+  where
+  module a = Iℚ a
+  module b = Iℚ b
+  0≤au : 0# ≤ a.u
+  0≤au = convert-≮ au≮0
+    where
+    au≮0 : a.u ≮ 0#
+    au≮0 au<0 = asym-< au<0 (trans-<-≤ 0<al a.l≤u)
+      where
+      0<al = trans-<-= (minus-flips-<0 au<0) (sym al=-au)
+
+  module abs where
+    LT = _≤_
+    abstract
+      lt : LT (- (a.u * b.u)) (a.u * b.u)
+      lt = trans-=-≤ (sym minus-extract-right >=> *-right (sym bl=-bu))
+                     (*₁-preserves-≤ 0≤au b.l≤u)
+
+i*-SymI-path : (a b : Iℚ) -> (sym-a : (SymI a)) -> (sym-b : (SymI b)) ->
+               i*-SymI a b sym-a sym-b == (a i* b)
+i*-SymI-path a@(Iℚ-cons _ _ _) b al=-au bl=-bu = Iℚ-bounds-path (sym p1) (sym p2)
+  where
+  module a = Iℚ a
+  module b = Iℚ b
+
+  0≤au : 0# ≤ a.u
+  0≤au = convert-≮ au≮0
+    where
+    au≮0 : a.u ≮ 0#
+    au≮0 au<0 = asym-< au<0 (trans-<-≤ 0<al a.l≤u)
+      where
+      0<al = trans-<-= (minus-flips-<0 au<0) (sym al=-au)
+
+
+  p0 : a i* b == i-scale a.u b
+  p0 = (cong (_i∪ (i-scale a.u b))
+                       ((\ i -> i-scale (al=-au i) b) >=>
+                        i-scale-SymI a.u b bl=-bu) >=>
+                  i∪-same (i-scale a.u b))
+
+  p15 : Iℚ.l (i-scale a.u b) == a.u * b.l
+  p15 = minℚ-r*₁-NonNeg a.u b.l b.u (0≤-NonNeg _ 0≤au) >=>
+        *-right (min-≤-path b.l≤u)
+
+  p1 : Iℚ.l ((i-scale a.l b) i∪ (i-scale a.u b)) == - (a.u * b.u)
+  p1 = cong Iℚ.l p0 >=> p15 >=> *-right bl=-bu >=> minus-extract-right
+
+  p25 : Iℚ.u (i-scale a.u b) == a.u * b.u
+  p25 = maxℚ-r*₁-NonNeg a.u b.l b.u (0≤-NonNeg _ 0≤au) >=>
+        *-right (max-≤-path b.l≤u)
+
+  p2 : Iℚ.u ((i-scale a.l b) i∪ (i-scale a.u b)) == (a.u * b.u)
+  p2 = cong Iℚ.u p0 >=> p25
+
 
 i*-commute : (a b : Iℚ) -> a i* b == b i* a
 i*-commute (Iℚ-cons al au _) (Iℚ-cons bl bu _) = Iℚ-bounds-path l-path u-path
