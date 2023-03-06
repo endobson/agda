@@ -37,6 +37,7 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
       instance
         FinSetStr-B : {z : Fin 0} -> FinSetStr (B z)
         FinSetStr-B {z} = record {isFin = snd (FB z)}
+        FinSetStr-ΣB = FinSetStr-Σ (Fin 0) B
 
     abstract
 
@@ -84,6 +85,7 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
       instance
         FinSetStr-B : {i : Fin (suc n)} -> FinSetStr (B i)
         FinSetStr-B {i} = record {isFin = snd (FB i)}
+        FinSetStr-ΣB' = FinSetStr-Σ (Fin n) (B ∘ suc-fin)
 
       g : {i : Fin (suc n)} -> B i -> D
       g {i} b = f (i , b)
@@ -110,6 +112,7 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
         FinSetStr-A = record {isFin = finA}
         FinSetStr-B : {a : A} -> FinSetStr (B a)
         FinSetStr-B {a} = record {isFin = snd (FB a)}
+        FinSetStr-ΣAB = FinSetStr-Σ A B
 
     abstract
       finiteMerge-Σ : (f : (Σ ⟨ FA ⟩ (fst ∘ FB)) -> D) ->

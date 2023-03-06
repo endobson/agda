@@ -235,12 +235,11 @@ FinSet-Σ S B = (Σ[ s ∈ ⟨ S ⟩ ] ⟨ B s ⟩) , isFinSet-Σ S B
 FinSet-× : {ℓ₁ ℓ₂ : Level} (A : FinSet ℓ₁) (B : FinSet ℓ₂) -> FinSet _
 FinSet-× A B = FinSet-Σ A (\_ -> B)
 
-instance
-  FinSetStr-Σ : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : A -> Type ℓ₂} {{FA : FinSetStr A}}
-                {{FB : {a : A} -> FinSetStr (B a)}} -> FinSetStr (Σ A B)
-  FinSetStr-Σ {A = A} {B = B} {{FA = FA}} {{FB = FB}} = record
-    { isFin = isFinSet-Σ (_ , FinSetStr.isFin FA) (\a -> B a , FinSetStr.isFin (FB {a}))
-    }
+FinSetStr-Σ : {ℓ₁ ℓ₂ : Level} (A : Type ℓ₁) (B : A -> Type ℓ₂) {{FA : FinSetStr A}}
+              {{FB : {a : A} -> FinSetStr (B a)}} -> FinSetStr (Σ A B)
+FinSetStr-Σ A B {{FA = FA}} {{FB = FB}} = record
+  { isFin = isFinSet-Σ (_ , FinSetStr.isFin FA) (\a -> B a , FinSetStr.isFin (FB {a}))
+  }
 
 
 cardinality-⊎ : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Type ℓ₂}
