@@ -16,7 +16,6 @@ open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import ordered-semiring.squares
 open import rational
-open import rational.minmax
 open import rational.order
 open import rational.proper-interval
 open import rational.proper-interval.maxabs-multiplication
@@ -53,7 +52,7 @@ ImbalancedI->0≤u : (a : Iℚ) -> ImbalancedI a -> (0r ≤ Iℚ.u a)
 ImbalancedI->0≤u (Iℚ-cons l u l≤u) -l≤u = NonNeg-0≤ u nn-u
   where
   al≤u : abs l ≤ u
-  al≤u = maxℚ-property {P = _≤ u} l (- l) l≤u -l≤u
+  al≤u = max-property {P = _≤ u} l (- l) l≤u -l≤u
 
   nn-u : NonNeg u
   nn-u = NonNeg-≤ (abs l) u (0≤-NonNeg _ abs-0≤) al≤u
@@ -64,7 +63,7 @@ ImbalancedI->i-maxabs (Iℚ-cons l u l≤u) -l≤u =
   max-≤-path al≤au >=> au=u
   where
   al≤u : abs l ≤ u
-  al≤u = maxℚ-property {P = _ℚ≤ u} l (- l) l≤u -l≤u
+  al≤u = max-property {P = _ℚ≤ u} l (- l) l≤u -l≤u
 
   nn-u : NonNeg u
   nn-u = NonNeg-≤ (abs l) u (0≤-NonNeg _ abs-0≤) al≤u
@@ -120,7 +119,7 @@ i²-ImbalancedI-path ai@(Iℚ-cons l u l≤u) -l≤u = Iℚ-bounds-path l-path u
                 min-≤-path min-≤-right)
 
   max-lllu≤uu : max (l * l) (l * u) ≤ (u * u)
-  max-lllu≤uu = maxℚ-property {P = _≤ (u * u)} (l * l) (l * u) ll≤uu lu≤uu
+  max-lllu≤uu = max-property {P = _≤ (u * u)} (l * l) (l * u) ll≤uu lu≤uu
 
   u-path : (u * u) == u2
   u-path = sym (cong (max (max (l * l) (l * u))) (max-≤-path ul≤uu) >=>
@@ -283,8 +282,8 @@ naive-i² (Iℚ-cons l u l≤u) -l≤u = (Iℚ-cons (l * l) (u * u) ll≤uu)
   rau∈ab = subst ∈ab *-commute aur∈ab
 
   ra⊆ab : i-scale r a i⊆ ab
-  ra⊆ab = i⊆-cons (minℚ-property {P = abl ℚ≤_} (r * al) (r * au) (fst ral∈ab) (fst rau∈ab))
-                  (maxℚ-property {P = _ℚ≤ abu} (r * al) (r * au) (snd ral∈ab) (snd rau∈ab))
+  ra⊆ab = i⊆-cons (min-property {P = abl ℚ≤_} (r * al) (r * au) (fst ral∈ab) (fst rau∈ab))
+                  (max-property {P = _ℚ≤ abu} (r * al) (r * au) (snd ral∈ab) (snd rau∈ab))
 
   rq∈ra : ℚ∈Iℚ (r * q) (i-scale r a)
   rq∈ra = ℚ∈Iℚ-i-scale r q a q∈a

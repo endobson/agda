@@ -15,8 +15,8 @@ open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-ring
 open import ordered-semiring
+open import ordered-semiring.minmax
 open import rational
-open import rational.minmax
 open import rational.order
 open import relation hiding (_⊆_)
 open import ring
@@ -272,19 +272,18 @@ i*-SymI-path a@(Iℚ-cons _ _ _) b al=-au bl=-bu = Iℚ-bounds-path (sym p1) (sy
                   i∪-same (i-scale a.u b))
 
   p15 : Iℚ.l (i-scale a.u b) == a.u * b.l
-  p15 = minℚ-r*₁-NonNeg a.u b.l b.u (0≤-NonNeg _ 0≤au) >=>
+  p15 = sym (*-distrib-min-left 0≤au) >=>
         *-right (min-≤-path b.l≤u)
 
   p1 : Iℚ.l ((i-scale a.l b) i∪ (i-scale a.u b)) == - (a.u * b.u)
   p1 = cong Iℚ.l p0 >=> p15 >=> *-right bl=-bu >=> minus-extract-right
 
   p25 : Iℚ.u (i-scale a.u b) == a.u * b.u
-  p25 = maxℚ-r*₁-NonNeg a.u b.l b.u (0≤-NonNeg _ 0≤au) >=>
+  p25 = sym (*-distrib-max-left 0≤au) >=>
         *-right (max-≤-path b.l≤u)
 
   p2 : Iℚ.u ((i-scale a.l b) i∪ (i-scale a.u b)) == (a.u * b.u)
   p2 = cong Iℚ.u p0 >=> p25
-
 
 i*-commute : (a b : Iℚ) -> a i* b == b i* a
 i*-commute (Iℚ-cons al au _) (Iℚ-cons bl bu _) = Iℚ-bounds-path l-path u-path
@@ -340,9 +339,9 @@ i-scale-distrib-∪ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) = 
         k⁺ : ℚ⁰⁺
         k⁺ = k , nn-k
         lp : k r* (min al bl) == min (k r* al) (k r* bl)
-        lp = r*₁-distrib-min k⁺ al bl
+        lp = *-distrib-min-left (NonNeg-0≤ _ nn-k)
         up : k r* (max au bu) == max (k r* au) (k r* bu)
-        up = r*₁-distrib-max k⁺ au bu
+        up = *-distrib-max-left (NonNeg-0≤ _ nn-k)
 
       np-case : NonPos k -> i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
       np-case np-k =
@@ -353,9 +352,9 @@ i-scale-distrib-∪ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) = 
         k⁻ : ℚ⁰⁻
         k⁻ = k , np-k
         lp : k r* (min al bl) == max (k r* al) (k r* bl)
-        lp = r*₁-flip-distrib-min k⁻ al bl
+        lp = *-distrib-flip-min-left (NonPos-≤0 _ np-k)
         up : k r* (max au bu) == min (k r* au) (k r* bu)
-        up = r*₁-flip-distrib-max k⁻ au bu
+        up = *-distrib-flip-max-left (NonPos-≤0 _ np-k)
 
       handle : Σ[ s ∈ Sign ] isSign s k ->
                i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
@@ -472,10 +471,10 @@ i-Upper : Iℚ -> Pred ℚ ℓ-zero
 i-Upper a q = (Iℚ.u a) ℚ≤ q
 
 i∪-Lower : {q : ℚ} -> (a b : Iℚ) -> i-Lower a q -> i-Lower b q -> i-Lower (a i∪ b) q
-i∪-Lower {q} a b q≤al q≤bl = minℚ-property {P = q ≤_} (Iℚ.l a) (Iℚ.l b) q≤al q≤bl
+i∪-Lower {q} a b q≤al q≤bl = min-property {P = q ≤_} (Iℚ.l a) (Iℚ.l b) q≤al q≤bl
 
 i∪-Upper : {q : ℚ} -> (a b : Iℚ) -> i-Upper a q -> i-Upper b q -> i-Upper (a i∪ b) q
-i∪-Upper {q} a b au≤q bu≤q = maxℚ-property {P = _≤ q} (Iℚ.u a) (Iℚ.u b) au≤q bu≤q
+i∪-Upper {q} a b au≤q bu≤q = max-property {P = _≤ q} (Iℚ.u a) (Iℚ.u b) au≤q bu≤q
 
 LowerUpper->Constant : {q : ℚ} -> (a : Iℚ) -> i-Lower a q -> i-Upper a q -> ConstantI a
 LowerUpper->Constant {q} (Iℚ-cons l u l≤u)  q≤l u≤q = antisym-ℚ≤ l≤u (trans-ℚ≤ {u} {q} {l} u≤q q≤l)
@@ -551,7 +550,7 @@ i-maxabs-NonPos (Iℚ-cons l u l≤u) np-u =
 
 i-maxabs-CrossZero : (a : Iℚ) -> CrossZeroI a -> i-maxabs a ℚ≤ i-width a
 i-maxabs-CrossZero a@(Iℚ-cons l u l≤u) (np-l , nn-u) =
-  subst (_ℚ≤ w) (sym pm) (maxℚ-property {P = (_ℚ≤ w)} (r- l) u l-lt u-lt)
+  subst (_ℚ≤ w) (sym pm) (max-property {P = (_≤ w)} (r- l) u l-lt u-lt)
   where
   m = i-maxabs a
   w = i-width a
@@ -586,7 +585,7 @@ i-maxabs-Zero a@(Iℚ-cons al au _) zm = Iℚ-bounds-path zl zu
 
 NonNeg-i-maxabs : (a : Iℚ) -> NonNeg (i-maxabs a)
 NonNeg-i-maxabs (Iℚ-cons l u _) =
-  0≤-NonNeg _ (maxℚ-property {P = 0# ≤_} (abs l) (abs u) abs-0≤ abs-0≤)
+  0≤-NonNeg _ (max-property {P = 0# ≤_} (abs l) (abs u) abs-0≤ abs-0≤)
 
 
 i-width-bound : (a : Iℚ) -> i-width a ℚ≤ (2r r* (i-maxabs a))
@@ -1009,7 +1008,7 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
 
   mm≤l : (r- (ma r* mb)) ℚ≤ l
   mm≤l = subst ((r- (ma r* mb)) ℚ≤_) (sym lp)
-         (minℚ-property {P = ((r- (ma r* mb)) ℚ≤_)} (al r* bu) (au r* bl) mm≤albu mm≤aubl)
+         (min-property {P = ((r- (ma r* mb)) ≤_)} (al r* bu) (au r* bl) mm≤albu mm≤aubl)
 
   ml≤mm : (r- l) ℚ≤ (ma r* mb)
   ml≤mm = subst ((r- l) ℚ≤_) minus-double-inverse (minus-flips-≤ mm≤l)
@@ -1021,7 +1020,7 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
 
   u≤mm : u ℚ≤ (ma r* mb)
   u≤mm = subst (_ℚ≤ (ma r* mb)) (sym up)
-         (maxℚ-property {P = (_ℚ≤ (ma r* mb))} (al r* bl) (au r* bu) albl≤mm aubu≤mm)
+         (max-property {P = (_≤ (ma r* mb))} (al r* bl) (au r* bu) albl≤mm aubu≤mm)
 
   mm≤wm : (ma r* mb) ℚ≤ (wa r* mb)
   mm≤wm = *₂-preserves-≤ ma≤wa (NonNeg-0≤ _ nn-mb)
@@ -1341,13 +1340,13 @@ i-intersect a b (bl≤au , al≤bu) =
   ls = max a.l b.l
   us = min a.u b.u
   ls≤au : ls ℚ≤ a.u
-  ls≤au = maxℚ-property {P = _≤ a.u} a.l b.l a.l≤u bl≤au
+  ls≤au = max-property {P = _≤ a.u} a.l b.l a.l≤u bl≤au
 
   ls≤bu : ls ℚ≤ b.u
-  ls≤bu = maxℚ-property {P = _≤ b.u} a.l b.l al≤bu b.l≤u
+  ls≤bu = max-property {P = _≤ b.u} a.l b.l al≤bu b.l≤u
 
   ls≤us : ls ℚ≤ us
-  ls≤us = minℚ-property {P = ls ℚ≤_} a.u b.u ls≤au ls≤bu
+  ls≤us = min-property {P = ls ≤_} a.u b.u ls≤au ls≤bu
 
 i⊆-Lower : {a b : Iℚ} -> a i⊆ b -> (q : ℚ) -> i-Lower b q -> i-Lower a q
 i⊆-Lower {a} {b} (i⊆-cons bl≤al _) q q≤bl = trans-ℚ≤ {q} {Iℚ.l b} {Iℚ.l a} q≤bl bl≤al
@@ -1458,7 +1457,7 @@ i-width-⊆ {Iℚ-cons al au _} {Iℚ-cons bl bu _} (i⊆-cons l u) = +-preserve
 
 i-maxabs-⊆ : {a b : Iℚ} -> a i⊆ b -> i-maxabs a ℚ≤ i-maxabs b
 i-maxabs-⊆ {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (i⊆-cons bl≤al au≤bu) =
-  maxℚ-property {P = _≤ i-maxabs b} (abs al) (abs au) aal≤mb aau≤mb
+  max-property {P = _≤ i-maxabs b} (abs al) (abs au) aal≤mb aau≤mb
   where
   abs≤ : (q : ℚ) -> q ≤ abs q
   abs≤ q = max-≤-left
@@ -1855,13 +1854,13 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
                           max-≤-right
 
     bl<al' : bl < al'
-    bl<al' = minℚ-property {P = bl <_} al hbl bl<al
-                           (subst (_< hbl) (r*-left-one bl)
-                                  (*₂-flips-< 1/2r<1r n-bl))
+    bl<al' = min-property {P = bl <_} al hbl bl<al
+                          (subst (_< hbl) (r*-left-one bl)
+                                 (*₂-flips-< 1/2r<1r n-bl))
     au'<bu : au' < bu
-    au'<bu = maxℚ-property {P = _< bu} au hbu au<bu
-                           (subst (hbu <_) (r*-left-one bu)
-                                  (*₂-preserves-< 1/2r<1r p-bu))
+    au'<bu = max-property {P = _< bu} au hbu au<bu
+                          (subst (hbu <_) (r*-left-one bu)
+                                 (*₂-preserves-< 1/2r<1r p-bu))
 
     al'-inv : ℚInv al'
     al'-inv = Neg->Inv n-al'
@@ -1893,10 +1892,10 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     k = min kl ku
 
     p-k : Pos k
-    p-k = minℚ-property {P = Pos} kl ku p-kl p-ku
+    p-k = min-property {P = Pos} kl ku p-kl p-ku
 
     1<k : 1r < k
-    1<k = minℚ-property {P = 1r <_} kl ku 1<kl 1<ku
+    1<k = min-property {P = 1r <_} kl ku 1<kl 1<ku
 
     p = i-scale-NN (k , inj-l p-k) a
     pl = Iℚ.l p

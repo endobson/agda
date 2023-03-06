@@ -358,6 +358,13 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
     handle (tri= _ x=y _) = inj-l ((\i -> max x (x=y (~ i))) >=> max-idempotent)
     handle (tri> _ _ x>y) = inj-l (max-commute >=> max-<-path x>y)
 
+  max-property : {ℓ : Level} {P : Pred D ℓ} -> (q r : D) -> P q -> P r -> P (max q r)
+  max-property {P = P} q r pq pr = handle split-max
+    where
+    handle : (max q r == q) ⊎ (max q r == r) -> P (max q r)
+    handle (inj-l m=q) = subst P (sym m=q) pq
+    handle (inj-r m=r) = subst P (sym m=r) pr
+
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
          {{DLO : DecidableLinearOrderStr LO}}  {{MO : MinOperationStr LO}} where
   private
@@ -371,6 +378,14 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
     handle (tri< x<y _ _) = inj-l (min-<-path x<y)
     handle (tri= _ x=y _) = inj-l ((\i -> min x (x=y (~ i))) >=> min-idempotent)
     handle (tri> _ _ x>y) = inj-r (min-commute >=> min-<-path x>y)
+
+  min-property : {ℓ : Level} {P : Pred D ℓ} -> (q r : D) -> P q -> P r -> P (min q r)
+  min-property {P = P} q r pq pr = handle split-min
+    where
+    handle : (min q r == q) ⊎ (min q r == r) -> P (min q r)
+    handle (inj-l m=q) = subst P (sym m=q) pq
+    handle (inj-r m=r) = subst P (sym m=r) pr
+
 
 module _ {ℓD : Level} {D : Type ℓD} {ℓ< : Level} {{LO : LinearOrderStr D ℓ<}} where
   record isMax (d1 d2 d3 : D) : Type (ℓ-max ℓD ℓ<) where

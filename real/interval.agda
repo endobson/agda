@@ -15,7 +15,6 @@ open import ordered-additive-group
 open import ordered-ring
 open import ordered-semiring
 open import rational
-open import rational.minmax
 open import rational.order
 open import rational.proper-interval
 open import real
@@ -35,8 +34,8 @@ open import univalence
 ℝ∈Iℚ-intersect : (z : ℝ) (a b : Iℚ) -> (ea : ℝ∈Iℚ z a) -> (eb : ℝ∈Iℚ z b) ->
                  ℝ∈Iℚ z (i-intersect a b (ℝ∈Iℚ->Overlap z a b ea eb))
 ℝ∈Iℚ-intersect z a b (al , au) (bl , bu) =
-  maxℚ-property {P = Real.L z} _ _ al bl ,
-  minℚ-property {P = Real.U z} _ _ au bu
+  max-property {P = Real.L z} _ _ al bl ,
+  min-property {P = Real.U z} _ _ au bu
 
 ℝ∈Iℚ->¬Constant : (z : ℝ) (a : Iℚ) -> ℝ∈Iℚ z a -> ¬ (ConstantI a)
 ℝ∈Iℚ->¬Constant z a (al , au) p =
@@ -166,7 +165,7 @@ private
     0<du : 0# < du
     0<du = trans-=-< (sym +-inverse) (+₂-preserves-< u1<u2)
     0<ε : 0# < ε
-    0<ε = minℚ-property {P = 0# <_} dl du 0<dl 0<du
+    0<ε = min-property {P = 0# <_} dl du 0<dl 0<du
 
     f : (qi3 : Iℚ) -> i-width qi3 ≤ ε -> Overlap qi3 qi1 -> qi3 i⊆ qi2
     f qi3@(Iℚ-cons l3 u3 _) w≤ε (l1≤u3 , l3≤u1) = i⊆-cons l2≤l3 u3≤u2

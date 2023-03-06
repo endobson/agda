@@ -9,7 +9,6 @@ open import order.instances.rational
 open import order.minmax
 open import order.minmax.instances.rational
 open import rational
-open import rational.minmax
 open import rational.order
 open import relation hiding (_⊆_)
 open import sign

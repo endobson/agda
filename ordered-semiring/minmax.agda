@@ -29,8 +29,6 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       IACM = ACM
       IS = S
 
-  -- TODO (add similar proofs for min)
-
   module _ {{Max : MaxOperationStr LO}} where
     abstract
       *-distrib-max-left : {a b c : D} -> 0# ≤ a -> a * max b c == max (a * b) (a * c)
@@ -60,6 +58,39 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
           c<bc : c < max b c
           c<bc = *₁-reflects-< a≮0 ac<abc
 
+      *-distrib-max-right : {a b c : D} -> 0# ≤ a -> max b c * a == max (b * a) (c * a)
+      *-distrib-max-right 0≤a =
+        *-commute >=> *-distrib-max-left 0≤a >=> cong2 max *-commute *-commute
+
+  module _ {{Min : MinOperationStr LO}} where
+    abstract
+      *-distrib-min-left : {a b c : D} -> 0# ≤ a -> a * min b c == min (a * b) (a * c)
+      *-distrib-min-left {a} {b} {c} 0≤a = antisym-≤ abc≤abac (convert-≮ abc≮abac)
+        where
+        bc≤b : min b c ≤ b
+        bc≤b = min-≤-left
+        bc≤c : min b c ≤ c
+        bc≤c = min-≤-right
+        abc≤ab : (a * min b c) ≤ (a * b)
+        abc≤ab = *₁-preserves-≤ 0≤a bc≤b
+        abc≤ac : (a * min b c) ≤ (a * c)
+        abc≤ac = *₁-preserves-≤ 0≤a bc≤c
+        abc≤abac : (a * min b c) ≤ (min (a * b) (a * c))
+        abc≤abac = min-greatest-≤ abc≤ab abc≤ac
+        abc≮abac : (a * min b c) ≮ (min (a * b) (a * c))
+        abc≮abac abc<abac = irrefl-< (min-greatest-< bc<b bc<c)
+          where
+          abc<ab : (a * (min b c)) < (a * b)
+          abc<ab = trans-<-≤ abc<abac min-≤-left
+          abc<ac : (a * (min b c)) < (a * c)
+          abc<ac = trans-<-≤ abc<abac min-≤-right
+          a≮0 : a ≮ 0#
+          a≮0 = convert-≤ 0≤a
+          bc<b : min b c < b
+          bc<b = *₁-reflects-< a≮0 abc<ab
+          bc<c : min b c < c
+          bc<c = *₁-reflects-< a≮0 abc<ac
+
   module _ {{Max : MaxOperationStr LO}} {{Min : MinOperationStr LO}} where
     abstract
       *-distrib-flip-max-left : {a b c : D} -> a ≤ 0# -> a * max b c == min (a * b) (a * c)
@@ -88,3 +119,30 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
           b<bc = *₁-flip-reflects-< 0≮a abc<ab
           c<bc : c < max b c
           c<bc = *₁-flip-reflects-< 0≮a abc<ac
+
+      *-distrib-flip-min-left : {a b c : D} -> a ≤ 0# -> a * min b c == max (a * b) (a * c)
+      *-distrib-flip-min-left {a} {b} {c} a≤0 = antisym-≤ (convert-≮ abac≮abc) abac≤abc
+        where
+        bc≤b : min b c ≤ b
+        bc≤b = min-≤-left
+        bc≤c : min b c ≤ c
+        bc≤c = min-≤-right
+        ab≤abc : (a * b) ≤ (a * min b c)
+        ab≤abc = *₁-flips-≤ a≤0 bc≤b
+        ac≤abc : (a * c) ≤ (a * min b c)
+        ac≤abc = *₁-flips-≤ a≤0 bc≤c
+        abac≤abc : max (a * b) (a * c) ≤ (a * min b c)
+        abac≤abc = max-least-≤ ab≤abc ac≤abc
+        abac≮abc : max (a * b) (a * c) ≮ (a * min b c)
+        abac≮abc abac<abc = irrefl-< (min-greatest-< bc<b bc<c)
+          where
+          ab<abc : (a * b) < (a * (min b c))
+          ab<abc = trans-≤-< max-≤-left abac<abc
+          ac<abc : (a * c) < (a * (min b c))
+          ac<abc = trans-≤-< max-≤-right abac<abc
+          0≮a : 0# ≮ a
+          0≮a = convert-≤ a≤0
+          bc<b : min b c < b
+          bc<b = *₁-flip-reflects-< 0≮a ab<abc
+          bc<c : min b c < c
+          bc<c = *₁-flip-reflects-< 0≮a ac<abc

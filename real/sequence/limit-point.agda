@@ -22,7 +22,6 @@ open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import rational
-open import rational.minmax
 open import rational.order
 open import rational.proper-interval
 open import real
@@ -163,7 +162,7 @@ isProp-ΣisLimitAt {S = S} {f = f} {x = x} (y1 , lim1) (y2 , lim2) = ΣProp-path
         ∥-bind handle3 (find-small-ℝ∈Iℚ x (ε , 0<ε))
         where
         ε = min ε1 ε2
-        0<ε = minℚ-property ε1 ε2 0<ε1 0<ε2
+        0<ε = min-property ε1 ε2 0<ε1 0<ε2
         module limP = isLimitPoint' limP
         lim-seq = limP.isLimit-seq
         handle3 : Σ[ qi ∈ Iℚ ] (ℝ∈Iℚ x qi × i-width qi ≤ ε) -> ∥ Overlap qi1 qi2 ∥
@@ -223,7 +222,7 @@ isProp-ΣisLimitAt {S = S} {f = f} {x = x} (y1 , lim1) (y2 , lim2) = ΣProp-path
         ∥-bind handle3 (find-small-ℝ∈Iℚ x (ε , 0<ε))
         where
         ε = min ε1 ε2
-        0<ε = minℚ-property ε1 ε2 0<ε1 0<ε2
+        0<ε = min-property ε1 ε2 0<ε1 0<ε2
         module limP = isLimitPoint' limP
         lim-seq = limP.isLimit-seq
         handle3 : Σ[ qi ∈ Iℚ ] (ℝ∈Iℚ x qi × i-width qi ≤ ε) -> ∥ Overlap qi1 qi2 ∥

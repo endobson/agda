@@ -15,7 +15,6 @@ open import ordered-integral-domain
 open import ordered-semiring
 open import rational
 open import rational.integral-domain
-open import rational.minmax
 open import rational.order
 open import real
 open import real.arithmetic.multiplication.inverse
@@ -54,7 +53,7 @@ isDerivative-+ {f} {f'} {g} {g'} isD-f isD-g x .isLimitAt.δε δ =
   handle ((εf , 0<εf) , bf) ((εg , 0<εg) , bg) = (εfg , 0<εfg) , bfg
     where
     εfg = min εf εg
-    0<εfg = minℚ-property εf εg 0<εf 0<εg
+    0<εfg = min-property εf εg 0<εf 0<εg
     bfg : (z : ℝ) -> εBounded εfg (diff z 0#) ->
           (sz : z # 0#) -> εBounded ⟨ δ ⟩ (diff (rise-over-run fg x (z , sz)) (f' x + g' x))
     bfg z εfg-dz z#0 =

@@ -11,7 +11,6 @@ open import order.minmax.instances.rational
 open import ordered-ring
 open import ordered-semiring
 open import rational
-open import rational.minmax
 open import rational.order
 open import rational.proper-interval
 open import sign

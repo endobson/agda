@@ -17,7 +17,6 @@ open import ordered-additive-group.absolute-value
 open import ordered-ring
 open import ordered-semiring
 open import rational
-open import rational.minmax
 open import rational.order
 open import real
 open import real.order

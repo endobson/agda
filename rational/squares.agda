@@ -14,7 +14,6 @@ open import ordered-additive-group
 open import ordered-semiring
 open import rational
 open import rational.integral-domain
-open import rational.minmax
 open import rational.order
 open import relation
 open import semiring
@@ -70,7 +69,7 @@ private
       0<ε' = strengthen-ℚ≤-≠ 0≤ε' 0!=ε'
 
       0<ε : 0r < ε
-      0<ε = minℚ-property {P = (0r <_)} _ _ 0<ε' (r*-preserves-Pos _ _ pos-d/2 Pos-1/2r)
+      0<ε = min-property {P = (0r <_)} _ _ 0<ε' (r*-preserves-Pos _ _ pos-d/2 Pos-1/2r)
 
       0<2r : 0r < 2r
       0<2r = Pos-ℕ⁺->ℚ (2 , tt)

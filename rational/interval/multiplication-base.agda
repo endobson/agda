@@ -9,7 +9,6 @@ open import order.minmax
 open import order.minmax.instances.rational
 open import rational
 open import rational.interval
-open import rational.minmax
 open import rational.order
 open import sign
 open import sign.instances.rational

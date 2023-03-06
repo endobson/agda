@@ -11,8 +11,8 @@ open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.minmax
 open import ordered-ring.absolute-value
+open import ordered-semiring.minmax
 open import rational
-open import rational.minmax
 open import rational.order
 open import rational.proper-interval
 open import sign
@@ -26,14 +26,14 @@ private
     nn-case nn-k =
       cong i-maxabs (sym (i-scale-NN-path (k , nn-k) a)) >=>
       cong2 max abs-distrib-* abs-distrib-* >=>
-      maxℚ-r*₁-NonNeg (abs k) (abs al) (abs au) (0≤-NonNeg _ abs-0≤)
+      sym (*-distrib-max-left abs-0≤)
 
     np-case : NonPos k -> i-maxabs (i-scale k a) == (abs k) r* (i-maxabs a)
     np-case np-k =
       cong i-maxabs (sym (i-scale-NP-path (k , np-k) a)) >=>
       max-commute >=>
       cong2 max abs-distrib-* abs-distrib-* >=>
-      maxℚ-r*₁-NonNeg (abs k) (abs al) (abs au) (0≤-NonNeg _ abs-0≤)
+      sym (*-distrib-max-left abs-0≤)
 
     handle : Σ[ s ∈ Sign ] isSign s k -> i-maxabs (i-scale k a) == (abs k) r* (i-maxabs a)
     handle (pos-sign  , p-k) = nn-case (inj-l p-k)
@@ -77,4 +77,4 @@ abstract
   i-maxabs-i* a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
     i-maxabs-i∪ (i-scale al b) (i-scale au b) >=>
     cong2 max (i-maxabs-i-scale al b) (i-maxabs-i-scale au b) >=>
-    maxℚ-r*₂-NonNeg (abs al) (abs au) (i-maxabs b) (NonNeg-i-maxabs b)
+    sym (*-distrib-max-right (NonNeg-0≤ _ (NonNeg-i-maxabs b)))

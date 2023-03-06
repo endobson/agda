@@ -20,7 +20,6 @@ open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
 open import ordered-semiring.squares
 open import rational
-open import rational.minmax
 open import rational.order
 open import rational.proper-interval
 open import rational.proper-interval.abs
@@ -143,7 +142,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
           where
 
           x-l2 : x.L (xyi-l * xyi-l)
-          x-l2 = maxℚ-property {P = \z -> x.L (z * z)} xl yl xL-xl² xL-yl²
+          x-l2 = max-property {P = \z -> x.L (z * z)} xl yl xL-xl² xL-yl²
 
           xyi-l²∈xiyi : ℚ∈Iℚ (xyi-l * xyi-l) xiyi
           xyi-l²∈xiyi = ℚ∈Iℚ-* xyi-l xyi-l xi yi ∈xi ∈yi

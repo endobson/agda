@@ -10,7 +10,6 @@ open import order.minmax.instances.rational
 open import ordered-additive-group
 open import ordered-semiring
 open import rational
-open import rational.minmax
 open import rational.order
 open import rational.proper-interval
 open import ring.implementations.rational
@@ -20,14 +19,14 @@ open import sign.instances.rational
 private
   minℚ-r+-swap : (a b c d : ℚ) -> (min a b r+ min c d) ℚ≤ min (a r+ c) (b r+ d)
   minℚ-r+-swap a b c d =
-    minℚ-property {P = (min a b r+ min c d) ℚ≤_} (a r+ c) (b r+ d) abcd≤ac abcd≤bd
+    min-property {P = (min a b r+ min c d) ℚ≤_} (a r+ c) (b r+ d) abcd≤ac abcd≤bd
     where
     abcd≤ac = +-preserves-≤ min-≤-left min-≤-left
     abcd≤bd = +-preserves-≤ min-≤-right min-≤-right
 
   maxℚ-r+-swap : (a b c d : ℚ) -> max (a r+ c) (b r+ d) ℚ≤ (max a b r+ max c d)
   maxℚ-r+-swap a b c d =
-    maxℚ-property {P = _ℚ≤ (max a b r+ max c d)} (a r+ c) (b r+ d) ac≤abcd bd≤abcd
+    max-property {P = _ℚ≤ (max a b r+ max c d)} (a r+ c) (b r+ d) ac≤abcd bd≤abcd
     where
     ac≤abcd = +-preserves-≤ max-≤-left max-≤-left
     bd≤abcd = +-preserves-≤ max-≤-right max-≤-right
