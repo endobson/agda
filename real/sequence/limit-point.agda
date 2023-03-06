@@ -29,10 +29,10 @@ open import real
 open import real.arithmetic
 open import real.arithmetic.absolute-value
 open import real.arithmetic.rational
+open import real.epsilon-bounded.base
 open import real.interval
 open import real.order
 open import real.rational
-open import real.sequence.cauchy
 open import real.sequence.limit
 open import ring.implementations.real
 open import semiring
@@ -105,13 +105,6 @@ isProp-isLimitAt l1 l2 i .isLimitAt.δε =
   L : (ℚ->ℝ (- (diff l u))) < diff x y
   L = subst2 _<_ (sym ℚ->ℝ-preserves--) (sym diff-anticommute) (minus-flips-< U2)
 
-
-weaken-εBounded : {ε1 ε2 : ℚ} -> ε1 ≤ ε2 -> (x : ℝ) -> εBounded ε1 x -> εBounded ε2 x
-weaken-εBounded ε1≤ε2 x (l , u) =
-  isLowerSet≤ x -ε2≤-ε1 l ,
-  isUpperSet≤ x ε1≤ε2 u
-  where
-  -ε2≤-ε1 = minus-flips-≤ ε1≤ε2
 
 εBounded-+ : {ε1 ε2 : ℚ} (x y : ℝ) -> εBounded ε1 x -> εBounded ε2 y -> εBounded (ε1 + ε2) (x + y)
 εBounded-+ {ε1} {ε2} x y ε1-x ε2-y =

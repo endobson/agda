@@ -5,10 +5,13 @@ module ordered-additive-group where
 open import additive-group
 open import base
 open import equality
+open import equivalence
+open import functions
 open import hlevel.base
 open import order
 open import sum
 open import truncation
+open import isomorphism
 
 private
   variable
@@ -159,7 +162,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
                       (sym +-assoc >=> (+-left (+-commute >=> +-inverse)) >=> +-left-zero)
                       (+₁-preserves-< ab<ac))
 
-
     +-preserves-≮0 : {a b : D} -> a ≮ 0# -> b ≮ 0# -> (a + b) ≮ 0#
     +-preserves-≮0 {a} {b} a≮0 b≮0 ab<0 = unsquash isPropBot (∥-map handle (comparison-< ab a 0# ab<0))
       where
@@ -170,6 +172,34 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       handle (inj-l ab<a) =
         b≮0 (subst2 _<_ (sym +-assoc >=> +-left (+-commute >=> +-inverse) >=> +-left-zero)
                         (+-commute >=> +-inverse) (+₁-preserves-< ab<a))
+
+    diff-0<⁺ : {a b : D} -> a < b -> 0# < diff a b
+    diff-0<⁺ a<b = trans-=-< (sym +-inverse) (+₂-preserves-< a<b)
+
+    diff-0<⁻ : {a b : D} -> 0# < (diff a b) -> a < b
+    diff-0<⁻ {a} {b} 0<ab = subst2 _<_ path1 path2 (+₂-preserves-< 0<ab)
+      where
+      path1 : 0# + a == a
+      path1 = +-left-zero
+      path2 : (diff a b) + a == b
+      path2 = +-commute >=> diff-step
+
+    diff-<0⁺ : {a b : D} -> b < a -> (diff a b) < 0#
+    diff-<0⁺ b<a =
+      (trans-=-< diff-anticommute (minus-flips-0< (diff-0<⁺ b<a)))
+
+    diff-<0⁻ : {a b : D} -> (diff a b) < 0# -> b < a
+    diff-<0⁻ ab<0 =
+      diff-0<⁻ (trans-<-= (minus-flips-<0 ab<0) (sym diff-anticommute))
+
+    diff-<>-equiv : {a b : D} -> (a <> b) ≃ (diff a b <> 0#)
+    diff-<>-equiv {a} {b} = isoToEquiv (isProp->iso forward backward isProp-<> isProp-<>)
+      where
+      forward : a <> b -> diff a b <> 0#
+      forward = ⊎-swap ∘ ⊎-map diff-0<⁺ diff-<0⁺
+      backward : diff a b <> 0# -> a <> b
+      backward = ⊎-swap ∘ ⊎-map diff-<0⁻ diff-0<⁻
+
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
          {{AG : AdditiveGroup ACM}}

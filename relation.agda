@@ -123,6 +123,10 @@ data WeakTri (A : Type ℓ₁) (B : Type ℓ₂) (C : Type ℓ₃) : Type (ℓ-m
 WeakTrichotomous : Rel A ℓ₁ -> Type _
 WeakTrichotomous _<_ = ∀ x y -> WeakTri (x < y) (x == y) (y < x)
 
+data Tri⊎ (A : Type ℓ₁) (B : Type ℓ₂) (C : Type ℓ₃) : Type (ℓ-max ℓ₁ (ℓ-max ℓ₂ ℓ₃)) where
+  tri⊎-< : (a  :   A) -> Tri⊎ A B C
+  tri⊎-= : (b  :   B) -> Tri⊎ A B C
+  tri⊎-> : (c  :   C) -> Tri⊎ A B C
 
 
 Decidable2 : Rel A ℓ -> Type _

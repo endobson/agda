@@ -23,6 +23,7 @@ open import rational
 open import rational.order
 open import real
 open import real.arithmetic.rational
+open import real.epsilon-bounded.base
 open import real.rational
 open import real.sequence.limit
 open import relation hiding (U)
@@ -31,26 +32,13 @@ open import semiring
 open import sequence
 open import truncation
 
-
-εBounded : ℚ -> ℝ -> Type₀
-εBounded ε x = Real.L x (- ε) × Real.U x ε
-
-εBounded-0 : (ε : ℚ⁺) -> εBounded ⟨ ε ⟩ 0#
-εBounded-0 (ε , 0<ε) = (ℚ<->L (minus-flips-0< 0<ε) , ℚ<->U 0<ε)
-
 private
   Seq : Type₁
   Seq = Sequence ℝ
 
-
-
 Cauchy : Pred Seq ℓ-zero
 Cauchy s = (ε : ℚ⁺) -> ∃[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> n ≤ m₂ ->
                                      εBounded ⟨ ε ⟩ (diff (s m₁) (s m₂)))
-
-
-isProp-εBounded : (ε : ℚ) -> (x : ℝ) -> isProp (εBounded ε x)
-isProp-εBounded ε x = isProp× (Real.isProp-L x (- ε)) (Real.isProp-U x ε)
 
 isProp-Cauchy : {s : Seq} -> isProp (Cauchy s)
 isProp-Cauchy = isPropΠ (\ _ -> squash)

@@ -29,12 +29,12 @@ open import rational
 open import rational.order
 open import rational.proper-interval
 open import real
+open import real.epsilon-bounded.base
 open import real.integral.delta-fine-partition
 open import real.integral.partition
 open import real.integral.tagged-partition
 open import real.interval
 open import real.rational
-open import real.sequence.cauchy
 open import real.sequence.limit-point
 open import relation
 open import ring.implementations.rational
@@ -69,31 +69,6 @@ private
     isProp-< (isOrderedIntegral'.a<b i1) (isOrderedIntegral'.a<b i2) i
   isProp-isOrderedIntegral' i1 i2 i .isOrderedIntegral'.δε ε =
     squash (isOrderedIntegral'.δε i1 ε) (isOrderedIntegral'.δε i2 ε) i
-
-
-  εBounded->zero-path : (x : ℝ) -> ((ε : ℚ⁺) -> εBounded ⟨ ε ⟩ x) -> x == 0#
-  εBounded->zero-path x εB = sym (ℝ∈Iℚ->path 0# x f)
-    where
-    f : (qi : Iℚ) -> ℝ∈Iℚ 0# qi -> ℝ∈Iℚ x qi
-    f qi@(Iℚ-cons l u _) (0L-l , 0U-u) = handle (split-< u (- l))
-      where
-      l<0 = L->ℚ< 0L-l
-      0<u = U->ℚ< 0U-u
-      0<-l = minus-flips-<0 l<0
-      handle : (u < (- l)) ⊎ ((- l) ≤ u) -> ℝ∈Iℚ x qi
-      handle (inj-l u<-l) = Real.isLowerSet-L x l<-u (proj₁ x∈u) , proj₂ x∈u
-        where
-        l<-u = trans-=-< (sym minus-double-inverse) (minus-flips-< u<-l)
-        x∈u = εB (u , 0<u)
-      handle (inj-r -l≤u) = subst (Real.L x) minus-double-inverse (proj₁ x∈-l) ,
-                            isUpperSet≤ x -l≤u (proj₂ x∈-l)
-        where
-        x∈-l = εB (- l , 0<-l)
-
-  εBounded-diff->path : (x y : ℝ) -> ((ε : ℚ⁺) -> εBounded ⟨ ε ⟩ (diff x y)) -> x == y
-  εBounded-diff->path x y εB =
-    sym (sym diff-step >=> cong (x +_) (εBounded->zero-path (diff x y) εB) >=> +-right-zero)
-
 
   isProp-ΣisOrderedIntegral' : {a b : ℝ} {f : ℝ -> ℝ} -> isProp (Σ ℝ (isOrderedIntegral' a b f))
   isProp-ΣisOrderedIntegral' {a} {b} {f} (v1 , i1) (v2 , i2) =
@@ -134,8 +109,6 @@ private
           εB = subst2 εBounded (1/2r-path' ε) diff-trans
                  (εBounded-+ (diff v1 (riemann-sum f (p , t)))
                              (diff (riemann-sum f (p , t)) v2) εB1' εB2)
-
-
 
 
 isProp-isIntegral : {a b : ℝ} {f : ℝ -> ℝ} {v : ℝ} -> isProp (isIntegral a b f v)
