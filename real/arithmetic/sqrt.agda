@@ -6,7 +6,6 @@ open import additive-group
 open import additive-group.instances.real
 open import base
 open import equality
-open import hlevel
 open import order
 open import order.instances.rational
 open import order.instances.real
@@ -15,10 +14,8 @@ open import order.minmax.instances.rational
 open import order.minmax.instances.real
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
-open import ordered-ring
 open import ordered-ring.sqrt
 open import ordered-semiring
-open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
 open import ordered-semiring.squares
@@ -27,23 +24,13 @@ open import rational.minmax
 open import rational.order
 open import rational.proper-interval
 open import rational.proper-interval.abs
-open import rational.proper-interval.multiplication-assoc
-open import rational.squares
 open import real
-open import real.arithmetic
 open import real.arithmetic.multiplication
 open import real.arithmetic.sqrt.base
-open import real.heyting-field
 open import real.interval
-open import real.order
 open import real.rational
-open import relation hiding (U)
-open import ring
-open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
-open import sign.instances.rational
-open import sum
 open import truncation
 
 private
@@ -54,9 +41,9 @@ private
       s = (sqrtℝᵉ x x≮0)
       module s = Real s
       module x = Real x
-      sU-0 : s.U 0r
-      sU-0 = ℝ<->U s 0r s<0
-      xU-0 : x.U 0r
+      sU-0 : s.U 0#
+      sU-0 = ℝ<->U s 0# s<0
+      xU-0 : x.U 0#
       xU-0 = subst x.U *-right-zero (snd (sU-0))
 
     ≮0-sqrt : (sqrtℝ x x≮0) ≮ 0#
@@ -133,7 +120,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
           yu∈yi : ℚ∈Iℚ yu yi
           yu∈yi = yl≤yu , refl-≤
           xlyu<0 : (xl * yu) < 0r
-          xlyu<0 = r*-Neg-Pos xl<0 0<yu
+          xlyu<0 = *₂-preserves-<0 xl<0 0<yu
 
           xiyi-l≤xlyu : xiyi-l ≤ (xl * yu)
           xiyi-l≤xlyu = fst (ℚ∈Iℚ-* xl yu xi yi xl∈xi yu∈yi)
@@ -145,7 +132,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
           yl∈yi : ℚ∈Iℚ yl yi
           yl∈yi = refl-≤ , yl≤yu
           xuyl<0 : (xu * yl) < 0r
-          xuyl<0 = r*-Pos-Neg 0<xu yl<0
+          xuyl<0 = *₁-preserves-<0 0<xu yl<0
 
           xiyi-l≤xuyl : xiyi-l ≤ (xu * yl)
           xiyi-l≤xuyl = fst (ℚ∈Iℚ-* xu yl xi yi xu∈xi yl∈yi)
