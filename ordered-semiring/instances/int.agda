@@ -11,6 +11,7 @@ open import order.instances.int
 open import ordered-additive-group.instances.int
 open import ordered-semiring
 open import ordered-semiring.ring
+open import ordered-ring
 open import ring.implementations
 open import semiring
 
@@ -23,5 +24,5 @@ abstract
       (\ 0<a b<c -> io.*₁-Pos-preserves-<⁺ b<c (io.>0->Pos 0<a))
 
     PartiallyOrderedSemiringStr-ℤ : PartiallyOrderedSemiringStr IntSemiring useⁱ
-    PartiallyOrderedSemiringStr-ℤ .PartiallyOrderedSemiringStr.*₁-preserves-≤ 0≤a b≤c =
-      io.*₁-NonNeg-preserves-≤⁺ b≤c (io.≥0->NonNeg 0≤a)
+    PartiallyOrderedSemiringStr-ℤ = PartiallyOrderedSemiringStr-Ring
+      (\ 0≤a b≤c -> io.*₁-NonNeg-preserves-≤⁺ b≤c (io.≥0->NonNeg 0≤a))

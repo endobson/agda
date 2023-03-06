@@ -90,6 +90,9 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
     *₁-preserves-≮' : {a b c : D} -> (0# < a) -> (b ≮ c) -> (a * b) ≮ (a * c)
     *₁-preserves-≮' {a} {b} {c} 0<a = case-≮ c b (a * c) (a * b) (*₁-preserves-< 0<a) (cong (a *_))
 
+    *₁-flips-≮' : {a b c : D} -> (a < 0#) -> (b ≮ c) -> (a * c) ≮ (a * b)
+    *₁-flips-≮' {a} {b} {c} a<0 = case-≮ c b (a * b) (a * c) (*₁-flips-< a<0) (cong (a *_) ∘ sym)
+
   abstract
     *₁-preserves-≮ : {a b c : D} -> (a ≮ 0#) -> (b ≮ c) -> (a * b) ≮ (a * c)
     *₁-preserves-≮ {a} {b} {c} a≮0 b≮c = case-≮' 0# a (a * c) (a * b) f< f= a≮0
@@ -107,6 +110,14 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
     *-preserves-≮0 : {a b : D} -> (a ≮ 0#) -> (b ≮ 0#) -> (a * b) ≮ 0#
     *-preserves-≮0 {a} {b} a≮0 b≮0 = subst ((a * b) ≮_) *-right-zero (*₁-preserves-≮ a≮0 b≮0)
 
+    *₁-flips-≮ : {a b c : D} -> (0# ≮ a) -> (b ≮ c) -> (a * c) ≮ (a * b)
+    *₁-flips-≮ {a} {b} {c} 0≮a b≮c = case-≮' a 0# (a * b) (a * c) f< f= 0≮a
+      where
+      f= : (a == 0#) -> a * b == a * c
+      f= p = *-left p >=> *-left-zero >=> (sym *-left-zero) >=> *-left (sym p)
+
+      f< : (a < 0#) -> (a * c) ≮ (a * b)
+      f< 0<a = *₁-flips-≮' 0<a b≮c
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : LinearOrderStr D ℓ<) where
   private
@@ -213,7 +224,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : Pa
     no-eta-equality
     field
       *₁-preserves-≤ : {a b c : D} -> 0# ≤ a -> b ≤ c -> (a * b) ≤ (a * c)
-
+      *₁-flips-≤ : {a b c : D} -> a ≤ 0# -> b ≤ c -> (a * c) ≤ (a * b)
 
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : PartialOrderStr D ℓ<}
@@ -237,6 +248,12 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : Pa
     *₂-preserves-≤ {a} {b} {c} a≤b 0≤c =
       subst2 _≤_ *-commute *-commute (*₁-preserves-≤ 0≤c a≤b)
 
+    *₁-flips-≤ : {a b c : D} -> (a ≤ 0#) -> (b ≤ c) -> (a * c) ≤ (a * b)
+    *₁-flips-≤ = POS.*₁-flips-≤
+
+    *₂-flips-≤ : {a b c : D} -> (a ≤ b) -> (c ≤ 0#) -> (b * c) ≤ (a * c)
+    *₂-flips-≤ {a} {b} {c} a≤b c≤0 =
+      subst2 _≤_ *-commute *-commute (*₁-flips-≤ c≤0 a≤b)
 
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}

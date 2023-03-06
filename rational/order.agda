@@ -620,9 +620,8 @@ instance
     }
 
   PartiallyOrderedSemiringStr-ℚ : PartiallyOrderedSemiringStr RationalSemiring PartialOrderStr-ℚ
-  PartiallyOrderedSemiringStr-ℚ = record
-    { *₁-preserves-≤ = r*₁-preserves-≤ _ _ _
-    }
+  PartiallyOrderedSemiringStr-ℚ =
+    PartiallyOrderedSemiringStr-Ring (r*₁-preserves-≤ _ _ _)
 
 
 -- Compatibility functions

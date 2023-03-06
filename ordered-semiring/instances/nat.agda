@@ -45,6 +45,10 @@ abstract
     PartiallyOrderedSemiringStr-ℕ : PartiallyOrderedSemiringStr NatSemiring PartialOrderStr-ℕ
     PartiallyOrderedSemiringStr-ℕ .PartiallyOrderedSemiringStr.*₁-preserves-≤ {a} 0≤a =
       *-left-≤⁺ a
+    PartiallyOrderedSemiringStr-ℕ .PartiallyOrderedSemiringStr.*₁-flips-≤ {zero} a≤0 _ =
+      refl-≤
+    PartiallyOrderedSemiringStr-ℕ .PartiallyOrderedSemiringStr.*₁-flips-≤ {suc a} a≤0 _ =
+      bot-elim (zero-≮ a≤0)
 
     StronglyPartiallyOrderedSemiringStr-ℕ :
       StronglyPartiallyOrderedSemiringStr NatSemiring useⁱ useⁱ

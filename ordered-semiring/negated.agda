@@ -25,6 +25,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : S
     PartiallyOrderedSemiringStr-Negated : PartiallyOrderedSemiringStr S PO
     PartiallyOrderedSemiringStr-Negated = record
       { *₁-preserves-≤ = *₁-preserves-≮
+      ; *₁-flips-≤ = *₁-flips-≮
       }
 
     StronglyPartiallyOrderedSemiringStr-Negated : StronglyPartiallyOrderedSemiringStr S LO PO

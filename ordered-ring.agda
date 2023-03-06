@@ -39,34 +39,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
         -1<0 = subst2 _<_ *-left-one *-left-one (*₁-flips-< 1<0 0<-1)
 
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
-         {S : Semiring ACM} {{AG : AdditiveGroup ACM}}
-         {O : PartialOrderStr D ℓ<}
-         {{POA : PartiallyOrderedAdditiveStr ACM O}}
-         {{POS : PartiallyOrderedSemiringStr S O}}
-         where
-  private
-    instance
-      IACM = ACM
-      IS = S
-      IO = O
-
-  abstract
-    *₁-flips-≤ : {a b c : D} -> (a ≤ 0#) -> (b ≤ c) -> (a * c) ≤ (a * b)
-    *₁-flips-≤ {a} {b} {c} a≤0 b≤c =
-      subst2 _≤_ (cong -_ minus-extract-left >=> minus-double-inverse)
-                 (cong -_ minus-extract-left >=> minus-double-inverse)
-                 (minus-flips-≤ (*₁-preserves-≤ 0≤-a b≤c))
-      where
-      module _ where
-        0≤-a : 0# ≤ (- a)
-        0≤-a = (minus-flips-≤0 a≤0)
-
-    *₂-flips-≤ : {a b c : D} -> (a ≤ b) -> (c ≤ 0#) -> (b * c) ≤ (a * c)
-    *₂-flips-≤ {a} {b} {c} a≤b c≤0 =
-      subst2 _≤_ *-commute *-commute (*₁-flips-≤ c≤0 a≤b)
-
-
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {{AG : AdditiveGroup ACM}}
          {O : PartialOrderStr D ℓ≤}
          {{TO : TotalOrderStr O}}
