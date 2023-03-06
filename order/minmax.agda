@@ -187,6 +187,9 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
   max₂-preserves-≤ : {x y z : D} -> x ≤ y -> max x z ≤ max y z
   max₂-preserves-≤ x≤y = max-least-≤ (trans-≤ x≤y max-≤-left) max-≤-right
 
+  max-preserves-≤ : {w x y z : D} -> w ≤ x -> y ≤ z -> max w y ≤ max x z
+  max-preserves-≤ w≤x y≤z = trans-≤ (max₂-preserves-≤ w≤x) (max₁-preserves-≤ y≤z)
+
 
 module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {PO : PartialOrderStr D ℓ≤}
          {{CO : CompatibleOrderStr LO PO}} {{MO : MinOperationStr LO}} where
@@ -223,6 +226,9 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
   min₂-preserves-≤ : {x y z : D} -> x ≤ y -> min x z ≤ min y z
   min₂-preserves-≤ x≤y = min-greatest-≤ (trans-≤ min-≤-left x≤y) min-≤-right
 
+  min-preserves-≤ : {w x y z : D} -> w ≤ x -> y ≤ z -> min w y ≤ min x z
+  min-preserves-≤ w≤x y≤z = trans-≤ (min₂-preserves-≤ w≤x) (min₁-preserves-≤ y≤z)
+
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO : MinOperationStr LO }} where
   private
@@ -238,6 +244,17 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO :
               (min-greatest-≤ (min₁-preserves-≤ min-≤-left)
                               (trans-≤ min-≤-right min-≤-right))
 
+  min-preserves-< : {w x y z : D} -> w < x -> y < z -> min w y < min x z
+  min-preserves-< {w} {x} {y} {z} w<x y<z =
+    unsquash isProp-< (∥-map handle (comparison-< _ x _ y<z))
+    where
+    handle : (y < x) ⊎ (x < z) -> min w y < min x z
+    handle (inj-l y<x) =
+      trans-≤-< min-≤-right (min-greatest-< y<x y<z)
+    handle (inj-r x<z) =
+      trans-<-= (trans-≤-< min-≤-left w<x) (sym (min-<-path x<z))
+
+
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO : MaxOperationStr LO }} where
   private
     instance
@@ -251,6 +268,16 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO :
                            (trans-≤ max-≤-right max-≤-right))
               (max-least-≤ (trans-≤ max-≤-left max-≤-left)
                            (max₂-preserves-≤ max-≤-right))
+
+  max-preserves-< : {w x y z : D} -> w < x -> y < z -> max w y < max x z
+  max-preserves-< {w} {x} {y} {z} w<x y<z =
+    unsquash isProp-< (∥-map handle (comparison-< _ y _ w<x))
+    where
+    handle : (w < y) ⊎ (y < x) -> max w y < max x z
+    handle (inj-l w<y) =
+      trans-=-< (max-<-path w<y) (trans-<-≤ y<z max-≤-right)
+    handle (inj-r y<x) =
+      trans-<-≤ (max-least-< w<x y<x) max-≤-left
 
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}

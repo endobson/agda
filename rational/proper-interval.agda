@@ -1519,9 +1519,8 @@ weaken-i⊂ {a} {b} (i⊂-cons l u) = (i⊆-cons (weaken-< {d1 = Iℚ.l b} l) (w
 
 
 i∪-preserves-⊂ : {a b c d : Iℚ} -> a i⊂ b -> c i⊂ d -> (a i∪ c) i⊂ (b i∪ d)
-i∪-preserves-⊂ {a@(Iℚ-cons al au _)} {b@(Iℚ-cons bl bu _)} {c@(Iℚ-cons cl cu _)} {d@(Iℚ-cons dl du _)}
-               (i⊂-cons bl<al au<bu) (i⊂-cons dl<cl cu<du) =
-  i⊂-cons (minℚ-preserves-< bl al dl cl bl<al dl<cl) (maxℚ-preserves-< au bu cu du au<bu cu<du)
+i∪-preserves-⊂ (i⊂-cons bl<al au<bu) (i⊂-cons dl<cl cu<du) =
+  i⊂-cons (min-preserves-< bl<al dl<cl) (max-preserves-< au<bu cu<du)
 
 i-scale-preserves-⊂ : {k : ℚ} {a b : Iℚ} -> NonZero k -> a i⊂ b -> (i-scale k a) i⊂ (i-scale k b)
 i-scale-preserves-⊂ {k} {(Iℚ-cons al au al≤au)} {(Iℚ-cons bl bu bl≤bu)} (inj-l pk) (i⊂-cons bl<al au<bu) =

@@ -99,59 +99,6 @@ abstract
     handle (inj-r m=r) = subst P (sym m=r) pr
 
 
-  minℚ₁-preserves-≤ : (a : ℚ) (b c : ℚ) -> (b ℚ≤ c) -> min a b ℚ≤ min a c
-  minℚ₁-preserves-≤ a b c b≤c = handle (split-< a b)
-    where
-    handle : (a < b) ⊎ (b ℚ≤ a) -> min a b ℚ≤ min a c
-    handle (inj-l a<b) =
-      subst2 _ℚ≤_ (sym (min-<-path a<b))
-                  (sym (min-<-path (trans-<-≤ a<b b≤c)))
-             refl-≤
-    handle (inj-r b≤a) =
-      subst (_ℚ≤ (min a c)) (sym (min-≥-path b≤a)) (minℚ-property a c b≤a b≤c)
-
-
-  maxℚ₁-preserves-≤ : (a : ℚ) (b c : ℚ) -> (b ℚ≤ c) -> max a b ℚ≤ max a c
-  maxℚ₁-preserves-≤ a b c b≤c = handle (split-< a b)
-    where
-    handle : (a < b) ⊎ (b ℚ≤ a) -> max a b ℚ≤ max a c
-    handle (inj-l a<b) =
-      subst (_ℚ≤ (max a c)) (sym (max-<-path a<b))
-                            (trans-ℚ≤ {b} {c} {max a c} b≤c max-≤-right)
-    handle (inj-r b≤a) =
-      subst (_ℚ≤ (max a c)) (sym (max-≥-path b≤a)) max-≤-left
-
-  minℚ-preserves-< : (a b c d : ℚ) -> (a < b) -> (c < d) -> min a c < min b d
-  minℚ-preserves-< a b c d a<b c<d = handle (split-< a c)
-    where
-    handle : (a < c ⊎ c ℚ≤ a) -> min a c < min b d
-    handle (inj-l a<c) = subst (_< min b d) (sym (min-<-path a<c))
-                               (minℚ-property b d a<b (trans-< {_} {_} {_} {a} {c} {d} a<c c<d))
-    handle (inj-r c≤a) = subst (_< min b d) (sym (min-≥-path c≤a))
-                               (minℚ-property b d (trans-≤-< {d1 = c} {a} {b} c≤a a<b) c<d)
-
-  maxℚ-preserves-< : (a b c d : ℚ) -> (a < b) -> (c < d) -> max a c < max b d
-  maxℚ-preserves-< a b c d a<b c<d = handle (split-< b d)
-    where
-    handle : (b < d ⊎ d ℚ≤ b) -> (max a c < max b d)
-    handle (inj-l b<d) = subst (max a c <_) (sym (max-<-path b<d))
-                               (maxℚ-property a c (trans-< a<b b<d) c<d)
-    handle (inj-r d≤b) = subst (max a c <_) (sym (max-≥-path d≤b))
-                               (maxℚ-property a c a<b (trans-<-≤ c<d d≤b))
-
-
-  maxℚ-preserves-≤ : (a b c d : ℚ) -> (a ℚ≤ b) -> (c ℚ≤ d) -> max a c ℚ≤ max b d
-  maxℚ-preserves-≤ a b c d a≤b c≤d = handle (split-< b d)
-    where
-    handle : (b < d ⊎ d ℚ≤ b) -> max a c ℚ≤ max b d
-    handle (inj-l b<d) =
-      subst (max a c ℚ≤_) (sym (max-<-path b<d))
-            (maxℚ-property {P = _ℚ≤ d} a c (weaken-< {d1 = a} (trans-≤-< {d1 = a} {b} {d} a≤b b<d)) c≤d)
-    handle (inj-r d≤b) =
-      subst (max a c ℚ≤_) (sym (max-≥-path d≤b))
-            (maxℚ-property {P = _ℚ≤ b} a c a≤b (trans-ℚ≤ {c} {d} {b} c≤d d≤b))
-
-
   maxℚ-r*₁-NonNeg : (a b c : ℚ) -> (NonNeg a) -> max (a r* b) (a r* c) == a r* (max b c)
   maxℚ-r*₁-NonNeg a b c nn-a = handle (split-< b c)
     where
@@ -207,25 +154,3 @@ abstract
     handle (inj-r c≤b) =
       min-≤-path (*₁-flips-≤ (NonPos-≤0 a np-a) c≤b) >=>
       cong (a r*_) (sym (max-≥-path c≤b))
-
-  r--maxℚ : (a b : ℚ) -> r- (max a b) == min (r- a) (r- b)
-  r--maxℚ a b = handle (split-< a b)
-    where
-    handle : (a < b) ⊎ (b ℚ≤ a) -> r- (max a b) == min (r- a) (r- b)
-    handle (inj-l a<b) =
-      cong r-_ (max-<-path a<b) >=>
-      sym (min->-path (minus-flips-< a<b))
-    handle (inj-r b≤a) =
-      cong r-_ (max-≥-path b≤a) >=>
-      sym (min-≤-path (minus-flips-≤ b≤a))
-
-  r--minℚ : (a b : ℚ) -> r- (min a b) == max (r- a) (r- b)
-  r--minℚ a b = handle (split-< a b)
-    where
-    handle : (a < b) ⊎ (b ℚ≤ a) -> r- (min a b) == max (r- a) (r- b)
-    handle (inj-l a<b) =
-      cong r-_ (min-<-path a<b) >=>
-      sym (max->-path (minus-flips-< a<b))
-    handle (inj-r b≤a) =
-      cong r-_ (min-≥-path b≤a) >=>
-      sym (max-≤-path (minus-flips-≤ b≤a))

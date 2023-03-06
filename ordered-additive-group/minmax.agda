@@ -8,6 +8,7 @@ open import equality
 open import order
 open import order.minmax
 open import ordered-additive-group
+open import ordered-additive-group.negated
 open import truncation
 open import hlevel.base
 
@@ -21,6 +22,9 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     instance
       IACM = ACM
       ILO = LO
+      IPO = NegatedLinearOrder LO
+      CPO = CompatibleNegatedLinearOrder LO
+      POA = PartiallyOrderedAdditiveStr-Negated ACM LO
 
   min+max=sum : {a b : D} -> (min a b) + (max a b) == a + b
   min+max=sum {a} {b} = connected-< case1 case2
@@ -58,3 +62,54 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
 
         min=b : min a b == b
         min=b = min-commute >=> min-<-path b<a
+
+  module _ {{AG : AdditiveGroup ACM}} where
+    minus-max-path : {a b : D} -> - (max a b) == min (- a) (- b)
+    minus-max-path {a} {b} = antisym-≤ case1 case2
+      where
+      case1 : (- max a b) ≤ min (- a) (- b)
+      case1 = min-greatest-≤ max≤-a max≤-b
+        where
+        max≤-a : (- max a b) ≤ (- a)
+        max≤-a = minus-flips-≤ max-≤-left
+        max≤-b : (- max a b) ≤ (- b)
+        max≤-b = minus-flips-≤ max-≤-right
+
+      case2 : min (- a) (- b) ≤ (- max a b)
+      case2 = trans-=-≤ (sym minus-double-inverse) (minus-flips-≤ max≤-min)
+        where
+        min≤-a : min (- a) (- b) ≤ (- a)
+        min≤-a = min-≤-left
+        min≤-b : min (- a) (- b) ≤ (- b)
+        min≤-b = min-≤-right
+        a≤-min : a ≤ (- (min (- a) (- b)))
+        a≤-min = trans-=-≤ (sym minus-double-inverse) (minus-flips-≤ min≤-a)
+        b≤-min : b ≤ (- (min (- a) (- b)))
+        b≤-min = trans-=-≤ (sym minus-double-inverse) (minus-flips-≤ min≤-b)
+        max≤-min : max a b ≤ (- (min (- a) (- b)))
+        max≤-min = max-least-≤ a≤-min b≤-min
+
+    minus-min-path : {a b : D} -> - (min a b) == max (- a) (- b)
+    minus-min-path {a} {b} = antisym-≤ case1 case2
+      where
+      case1 : (- min a b) ≤ max (- a) (- b)
+      case1 = trans-≤-= (minus-flips-≤ min≤-max) minus-double-inverse
+        where
+        -a≤max : (- a) ≤ max (- a) (- b)
+        -a≤max = max-≤-left
+        -b≤max : (- b) ≤ max (- a) (- b)
+        -b≤max = max-≤-right
+        max≤a : (- (max (- a) (- b))) ≤ a
+        max≤a = trans-≤-= (minus-flips-≤ -a≤max) minus-double-inverse
+        max≤b : (- (max (- a) (- b))) ≤ b
+        max≤b = trans-≤-= (minus-flips-≤ -b≤max) minus-double-inverse
+        min≤-max : (- (max (- a) (- b))) ≤ min a b
+        min≤-max = min-greatest-≤ max≤a max≤b
+
+      case2 : max (- a) (- b) ≤ (- min a b)
+      case2 = max-least-≤ -a≤min -b≤min
+        where
+        -a≤min : (- a) ≤ (- min a b)
+        -a≤min = minus-flips-≤ min-≤-left
+        -b≤min : (- b) ≤ (- min a b)
+        -b≤min = minus-flips-≤ min-≤-right

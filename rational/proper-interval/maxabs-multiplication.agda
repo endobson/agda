@@ -9,6 +9,7 @@ open import order.minmax
 open import order.minmax.instances.rational
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
+open import ordered-additive-group.minmax
 open import ordered-ring.absolute-value
 open import rational
 open import rational.minmax
@@ -58,7 +59,7 @@ private
     p1 = maxℚ-swap _ _ _ _ >=>
          cong2 max (max-≤-path albl≤aubu)
                    (max-≥-path (minus-flips-≤ albl≤aubu)) >=>
-         cong (max (max au bu)) (r--minℚ al bl)
+         cong (max (max au bu)) minus-min-path
 
 
     p2 : max (i-maxabs a) (i-maxabs b) ==
