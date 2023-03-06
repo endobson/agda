@@ -144,11 +144,6 @@ private
     handle = ⊎-map +₂-reflects-ℝ< +₁-reflects-ℝ<
 
 instance
-  ApartLinearOrderStr-ℝ : ApartLinearOrderStr TightApartnessStr-ℝ LinearOrderStr-ℝ
-  ApartLinearOrderStr-ℝ = record
-    { <>-equiv-# = idEquiv _
-    }
-
   ℝField : Field ℝRing TightApartnessStr-ℝ
   ℝField = record
     { f#-path = (sym (funExt2 (\x y -> (ua (ℝ#≃diff# x y)))))

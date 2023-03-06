@@ -9,9 +9,9 @@ open import base
 open import equality
 open import funext
 open import hlevel
+open import order.instances.real
 open import real
 open import real.arithmetic.multiplication.inverse
-open import real.order
 open import real.sequence.limit-point
 open import relation
 open import ring.implementations.real

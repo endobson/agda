@@ -2,7 +2,9 @@
 
 module order.instances.real where
 
+open import apartness
 open import base
+open import equivalence
 open import order
 open import real
 open import real.order
@@ -25,3 +27,11 @@ instance
 
   CompatibleOrderStr-ℝ : CompatibleOrderStr LinearOrderStr-ℝ PartialOrderStr-ℝ
   CompatibleOrderStr-ℝ = CompatibleNegatedLinearOrder LinearOrderStr-ℝ
+
+  TightApartnessStr-ℝ : TightApartnessStr ℝ ℓ-one
+  TightApartnessStr-ℝ = LinearOrderTightApartnessStr LinearOrderStr-ℝ
+
+  ApartLinearOrderStr-ℝ : ApartLinearOrderStr TightApartnessStr-ℝ LinearOrderStr-ℝ
+  ApartLinearOrderStr-ℝ = record
+    { <>-equiv-# = idEquiv _
+    }

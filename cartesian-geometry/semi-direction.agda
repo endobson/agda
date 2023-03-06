@@ -6,8 +6,8 @@ open import additive-group
 open import additive-group.instances.real
 open import apartness
 open import base
-open import cartesian-geometry.vector
 open import cartesian-geometry.rotation
+open import cartesian-geometry.vector
 open import equality
 open import equivalence
 open import functions
@@ -15,6 +15,7 @@ open import hlevel
 open import integral-domain
 open import integral-domain.instances.real
 open import order
+open import order.instances.real
 open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
@@ -22,7 +23,6 @@ open import ordered-additive-group.instances.real
 open import real
 open import real.arithmetic.absolute-value
 open import real.heyting-field
-open import real.order
 open import relation
 open import ring.implementations.real
 open import semiring

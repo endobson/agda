@@ -8,6 +8,7 @@ open import apartness
 open import base
 open import equality
 open import integral-domain
+open import order.instances.real
 open import order.minmax
 open import order.minmax.instances.rational
 open import ordered-integral-domain
@@ -19,7 +20,6 @@ open import rational.order
 open import real
 open import real.arithmetic.multiplication.inverse
 open import real.derivative
-open import real.order
 open import real.rational
 open import real.sequence.cauchy
 open import real.sequence.harmonic

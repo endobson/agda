@@ -5,8 +5,8 @@ module cartesian-geometry where
 open import additive-group
 open import additive-group.instances.real
 open import apartness
-open import cartesian-geometry.vector
 open import base
+open import cartesian-geometry.vector
 open import direct-product
 open import equality
 open import equivalence
@@ -14,10 +14,10 @@ open import functions
 open import hlevel
 open import integral-domain
 open import integral-domain.instances.real
+open import order.instances.real
 open import real
 open import real.arithmetic
 open import real.heyting-field
-open import real.order
 open import relation
 open import sum
 open import truncation

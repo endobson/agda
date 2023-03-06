@@ -29,8 +29,6 @@ x ℝ< y = ∥ x ℝ<' y ∥
 
 
 abstract
-
-
   isProp-ℝ< : (x y : ℝ) -> isProp (x ℝ< y)
   isProp-ℝ< x y = squash
 
@@ -142,44 +140,3 @@ trans-ℝ<-U {q} {x} {y} x<y y<q = unsquash (Real.isProp-U x q) (∥-map handle 
     where
     r<q : r < q
     r<q = ℝ-bounds->ℚ< y r<y y<q
-
-private
-  _ℝ#_ : ℝ -> ℝ -> Type₁
-  x ℝ# y = (x ℝ< y) ⊎ (y ℝ< x)
-
-  isProp-ℝ# : (x y : ℝ) -> isProp (x ℝ# y)
-  isProp-ℝ# x y = isProp⊎ (isProp-ℝ< x y) (isProp-ℝ< y x) (asym-ℝ< {x} {y})
-
-  irrefl-ℝ# : Irreflexive _ℝ#_
-  irrefl-ℝ# {x} (inj-l x<x) = irrefl-ℝ< {x} x<x
-  irrefl-ℝ# {x} (inj-r x<x) = irrefl-ℝ< {x} x<x
-
-  sym-ℝ# : Symmetric _ℝ#_
-  sym-ℝ# {x} (inj-l x<y) = (inj-r x<y)
-  sym-ℝ# {x} (inj-r y<x) = (inj-l y<x)
-
-  comparison-ℝ# : Comparison _ℝ#_
-  comparison-ℝ# x y z (inj-l x<z) = ∥-map handle (comparison-ℝ< x y z x<z)
-    where
-    handle : (x ℝ< y) ⊎ (y ℝ< z) → (x ℝ# y) ⊎ (y ℝ# z)
-    handle (inj-l lt) = (inj-l (inj-l lt))
-    handle (inj-r lt) = (inj-r (inj-l lt))
-  comparison-ℝ# x y z (inj-r z<x) = ∥-map handle (comparison-ℝ< z y x z<x)
-    where
-    handle : (z ℝ< y) ⊎ (y ℝ< x) → (x ℝ# y) ⊎ (y ℝ# z)
-    handle (inj-l lt) = (inj-r (inj-r lt))
-    handle (inj-r lt) = (inj-l (inj-r lt))
-
-  tight-ℝ# : Tight _ℝ#_
-  tight-ℝ# {x} {y} p = connected-ℝ< x y (p ∘ inj-l) (p ∘ inj-r)
-
-  TightApartness-ℝ# : TightApartness _ℝ#_
-  TightApartness-ℝ# = tight-ℝ# , (\{x} -> irrefl-ℝ# {x}) , (\{x} {y} -> sym-ℝ# {x} {y}) , comparison-ℝ#
-
-instance
-  TightApartnessStr-ℝ : TightApartnessStr ℝ ℓ-one
-  TightApartnessStr-ℝ = record
-    { _#_ = _ℝ#_
-    ; TightApartness-# = TightApartness-ℝ#
-    ; isProp-# = isProp-ℝ#
-    }

@@ -8,19 +8,19 @@ open import apartness
 open import base
 open import equality
 open import integral-domain
+open import order.instances.real
 open import ordered-integral-domain
 open import rational
 open import rational.integral-domain
 open import rational.order
 open import real
-open import ring.implementations.real
-open import real.derivative
-open import real.order
-open import real.rational
 open import real.arithmetic.multiplication.inverse
+open import real.derivative
+open import real.rational
+open import real.sequence.cauchy
 open import real.sequence.harmonic
 open import real.sequence.limit-point
-open import real.sequence.cauchy
+open import ring.implementations.real
 open import semiring
 open import truncation
 

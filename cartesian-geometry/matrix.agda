@@ -17,9 +17,9 @@ open import heyting-field
 open import hlevel
 open import integral-domain
 open import integral-domain.instances.real
+open import order.instances.real
 open import real
 open import real.heyting-field
-open import real.order
 open import ring
 open import ring.implementations.real
 open import semiring
