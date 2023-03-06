@@ -100,3 +100,30 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{Max 
 
       x<>0 : x <> 0#
       x<>0 = eqInv abs-#0-eq 0<ax
+
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{Max : MaxOperationStr LO}}
+         {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}}
+         where
+  private
+    instance
+      ILO = LO
+      IACM = ACM
+
+  module _ {ℓ≤ : Level}
+    {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
+    {PO : PartialOrderStr D ℓ≤}
+    {{POA : PartiallyOrderedAdditiveStr ACM PO}}
+    {{CO : CompatibleOrderStr LO PO}}
+    where
+    private
+      instance
+        IPO = PO
+
+    abs-≤0-path : {x : D} -> x ≤ 0# -> abs x == - x
+    abs-≤0-path x≤0 = abs-0≮-path (\ 0<x -> irrefl-< (trans-<-≤ 0<x x≤0))
+
+    abs-0≤-path : {x : D} -> 0# ≤ x -> abs x == x
+    abs-0≤-path 0≤x = abs-≮0-path (\ x<0 -> irrefl-< (trans-<-≤ x<0 0≤x))
+
+    abs-0≤ : {x : D} -> 0# ≤ abs x
+    abs-0≤ = convert-≮ abs-≮0

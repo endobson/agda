@@ -11,6 +11,7 @@ open import order.instances.rational
 open import order.minmax
 open import order.minmax.instances.rational
 open import ordered-additive-group
+open import ordered-additive-group.absolute-value
 open import ordered-ring
 open import ordered-semiring
 open import rational
@@ -232,67 +233,9 @@ abstract
 
 -- Absolute value
 
-absℚ : ℚ -> ℚ
-absℚ x = max x (r- x)
-
 abs-diffℚ : ℚ -> ℚ -> ℚ
-abs-diffℚ x y = absℚ (diff x y)
+abs-diffℚ x y = abs (diff x y)
 
 abstract
   maxℚ-weaken-<₁ : (x y z : ℚ) -> (max x y < z) -> x < z
   maxℚ-weaken-<₁ x y z lt = max₂-reflects-< (trans-<-≤ lt max-≤-left)
-
-  absℚ-NonNeg : {q : ℚ} -> NonNeg q -> absℚ q == q
-  absℚ-NonNeg {q} (inj-l pq) =
-    max-≥-path (NonPos≤NonNeg (inj-l (r--flips-sign _ pos-sign pq)) (inj-l pq))
-  absℚ-NonNeg {q} (inj-r zq) =
-    max-≥-path (NonPos≤NonNeg (inj-r (r--flips-sign _ zero-sign zq)) (inj-r zq))
-
-  absℚ-NonPos : {q : ℚ} -> NonPos q -> absℚ q == (r- q)
-  absℚ-NonPos {q} (inj-l nq) =
-    max-≤-path (NonPos≤NonNeg (inj-l nq) (inj-l (r--flips-sign _ neg-sign nq)))
-  absℚ-NonPos {q} (inj-r zq) =
-    max-≤-path (NonPos≤NonNeg (inj-r zq) (inj-r (r--flips-sign _ zero-sign zq)))
-
-  absℚ-Zero : {q : ℚ} -> Zero (absℚ q) -> Zero q
-  absℚ-Zero {q} zaq = handle (decide-sign q)
-    where
-    handle : Σ[ s ∈ Sign ] (isSign s q) -> Zero q
-    handle (pos-sign  , pq) = subst Zero (absℚ-NonNeg (inj-l pq)) zaq
-    handle (zero-sign , zq) = zq
-    handle (neg-sign  , nq) =
-      subst Zero (cong r-_ (absℚ-NonPos (inj-l nq)) >=>
-                  minus-double-inverse) (r--flips-sign _ zero-sign zaq)
-
-  NonNeg-absℚ : (q : ℚ) -> NonNeg (absℚ q)
-  NonNeg-absℚ q = handle (decide-sign q)
-    where
-    handle : Σ[ s ∈ Sign ] (isSign s q) -> NonNeg (absℚ q)
-    handle (pos-sign  , pq) = subst NonNeg (sym (absℚ-NonNeg (inj-l pq))) (inj-l pq)
-    handle (zero-sign , zq) = subst NonNeg (sym (absℚ-NonNeg (inj-r zq))) (inj-r zq)
-    handle (neg-sign  , nq) = subst NonNeg (sym (absℚ-NonPos (inj-l nq))) (r--NonPos (inj-l nq))
-
-  absℚ-r*₁-NonNeg : (a b : ℚ) -> (NonNeg a) -> absℚ (a r* b) == a r* absℚ b
-  absℚ-r*₁-NonNeg a b nn-a =
-    cong (max (a r* b)) (sym (r*-minus-extract-right a b)) >=>
-    maxℚ-r*₁-NonNeg a b (r- b) nn-a
-
-  absℚ-r*₁-NonPos : (a b : ℚ) -> (NonPos a) -> absℚ (a r* b) == (r- a) r* absℚ b
-  absℚ-r*₁-NonPos a b np-a =
-    cong (max (a r* b)) (sym (r*-minus-extract-right a b)) >=>
-    maxℚ-r*₁-NonPos a b (r- b) np-a >=>
-    cong (\x -> (a r* (min x (r- b)))) (sym minus-double-inverse) >=>
-    cong (a r*_) (sym (r--maxℚ (r- b) b) >=> cong r-_ max-commute) >=>
-    r*-minus-extract-right a (absℚ b) >=>
-    sym (r*-minus-extract-left a (absℚ b))
-
-  absℚ-r* : (a b : ℚ) -> absℚ (a r* b) == absℚ a r* absℚ b
-  absℚ-r* a b = handle (decide-sign a)
-    where
-    handle : Σ[ s ∈ Sign ] isSign s a -> absℚ (a r* b) == absℚ a r* absℚ b
-    handle (pos-sign  , p-a) = absℚ-r*₁-NonNeg a b (inj-l p-a) >=>
-                                 cong (_r* absℚ b) (sym (absℚ-NonNeg (inj-l p-a)))
-    handle (zero-sign , z-a) = absℚ-r*₁-NonNeg a b (inj-r z-a) >=>
-                                 cong (_r* absℚ b) (sym (absℚ-NonNeg (inj-r z-a)))
-    handle (neg-sign  , n-a) = absℚ-r*₁-NonPos a b (inj-l n-a) >=>
-                                 cong (_r* absℚ b) (sym (absℚ-NonPos (inj-l n-a)))

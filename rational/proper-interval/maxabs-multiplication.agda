@@ -8,6 +8,8 @@ open import order.instances.rational
 open import order.minmax
 open import order.minmax.instances.rational
 open import ordered-additive-group
+open import ordered-additive-group.absolute-value
+open import ordered-ring.absolute-value
 open import rational
 open import rational.minmax
 open import rational.order
@@ -16,23 +18,23 @@ open import sign
 open import sign.instances.rational
 
 private
-  i-maxabs-i-scale : (k : ℚ) (a : Iℚ) -> i-maxabs (i-scale k a) == (absℚ k) r* (i-maxabs a)
+  i-maxabs-i-scale : (k : ℚ) (a : Iℚ) -> i-maxabs (i-scale k a) == (abs k) r* (i-maxabs a)
   i-maxabs-i-scale k a@(Iℚ-cons al au al≤au) = handle (decide-sign k)
     where
-    nn-case : NonNeg k -> i-maxabs (i-scale k a) == (absℚ k) r* (i-maxabs a)
+    nn-case : NonNeg k -> i-maxabs (i-scale k a) == (abs k) r* (i-maxabs a)
     nn-case nn-k =
       cong i-maxabs (sym (i-scale-NN-path (k , nn-k) a)) >=>
-      cong2 max (absℚ-r* k al) (absℚ-r* k au) >=>
-      maxℚ-r*₁-NonNeg (absℚ k) (absℚ al) (absℚ au) (NonNeg-absℚ k)
+      cong2 max abs-distrib-* abs-distrib-* >=>
+      maxℚ-r*₁-NonNeg (abs k) (abs al) (abs au) (0≤-NonNeg _ abs-0≤)
 
-    np-case : NonPos k -> i-maxabs (i-scale k a) == (absℚ k) r* (i-maxabs a)
+    np-case : NonPos k -> i-maxabs (i-scale k a) == (abs k) r* (i-maxabs a)
     np-case np-k =
       cong i-maxabs (sym (i-scale-NP-path (k , np-k) a)) >=>
       max-commute >=>
-      cong2 max (absℚ-r* k al) (absℚ-r* k au) >=>
-      maxℚ-r*₁-NonNeg (absℚ k) (absℚ al) (absℚ au) (NonNeg-absℚ k)
+      cong2 max abs-distrib-* abs-distrib-* >=>
+      maxℚ-r*₁-NonNeg (abs k) (abs al) (abs au) (0≤-NonNeg _ abs-0≤)
 
-    handle : Σ[ s ∈ Sign ] isSign s k -> i-maxabs (i-scale k a) == (absℚ k) r* (i-maxabs a)
+    handle : Σ[ s ∈ Sign ] isSign s k -> i-maxabs (i-scale k a) == (abs k) r* (i-maxabs a)
     handle (pos-sign  , p-k) = nn-case (inj-l p-k)
     handle (zero-sign , z-k) = nn-case (inj-r z-k)
     handle (neg-sign  , n-k) = np-case (inj-l n-k)
@@ -74,4 +76,4 @@ abstract
   i-maxabs-i* a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) =
     i-maxabs-i∪ (i-scale al b) (i-scale au b) >=>
     cong2 max (i-maxabs-i-scale al b) (i-maxabs-i-scale au b) >=>
-    maxℚ-r*₂-NonNeg (absℚ al) (absℚ au) (i-maxabs b) (NonNeg-i-maxabs b)
+    maxℚ-r*₂-NonNeg (abs al) (abs au) (i-maxabs b) (NonNeg-i-maxabs b)

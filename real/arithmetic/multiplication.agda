@@ -12,6 +12,7 @@ open import order.instances.rational
 open import order.minmax
 open import order.minmax.instances.rational
 open import ordered-additive-group
+open import ordered-additive-group.absolute-value
 open import ordered-ring
 open import ordered-semiring
 open import rational
@@ -783,20 +784,20 @@ module _ (x : ℝ)
           ub = Iℚ.u (ir i* ix)
           m2 = i-maxabs (ir i* ix)
 
-          -lb≤m2 : (r- lb) ℚ≤ m2
-          -lb≤m2 = trans-ℚ≤ {r- lb} {absℚ lb} {m2} max-≤-right max-≤-left
-          -m2≤lb : (r- m2) ℚ≤ lb
-          -m2≤lb = subst ((r- m2) ℚ≤_) minus-double-inverse
+          -lb≤m2 : (r- lb) ≤ m2
+          -lb≤m2 = trans-≤ max-≤-right max-≤-left
+          -m2≤lb : (r- m2) ≤ lb
+          -m2≤lb = subst ((r- m2) ≤_) minus-double-inverse
                          (minus-flips-≤ -lb≤m2)
 
           m2=m-ir*m : m2 == m-ir r* m
           m2=m-ir*m = i-maxabs-i* ir ix
 
           m-ir=r : m-ir == (r- r)
-          m-ir=r = cong (max (absℚ r)) (cong (max (r- r)) minus-double-inverse >=>
-                                        max-commute) >=>
+          m-ir=r = cong (max (abs r)) (cong (max (r- r)) minus-double-inverse >=>
+                                       max-commute) >=>
                    max-idempotent >=>
-                   absℚ-NonPos (inj-l neg-r)
+                   (abs-<0-path neg-r)
 
           mr*m=-q : (r- r) r* m == (r- q)
           mr*m=-q = cong (_r* m) (sym (r*-minus-extract-left q 1/m)) >=>
@@ -890,18 +891,18 @@ module _ (x : ℝ)
           ub = Iℚ.u (ir i* ix)
           m2 = i-maxabs (ir i* ix)
 
-          ub≤m2 : ub ℚ≤ m2
-          ub≤m2 = trans-ℚ≤ {ub} {absℚ ub} {m2} max-≤-left max-≤-right
+          ub≤m2 : ub ≤ m2
+          ub≤m2 = trans-≤ max-≤-left max-≤-right
 
           m2=m-ir*m : m2 == m-ir r* m
           m2=m-ir*m = i-maxabs-i* ir ix
 
           m-ir=r : m-ir == r
-          m-ir=r = cong (\x -> (max x (absℚ r)))
+          m-ir=r = cong (\x -> (max x (abs r)))
                         (cong (max (r- r)) minus-double-inverse >=>
                          max-commute) >=>
                    max-idempotent >=>
-                   absℚ-NonNeg (inj-l pos-r)
+                   (abs-0<-path pos-r)
 
           mr*m=q : r r* m == q
           mr*m=q = r*-assoc q 1/m m >=>

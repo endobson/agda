@@ -10,6 +10,7 @@ open import order.instances.rational
 open import order.minmax
 open import order.minmax.instances.rational
 open import ordered-additive-group
+open import ordered-additive-group.absolute-value
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.rational
@@ -46,33 +47,33 @@ NonNegI->ImbalancedI a@(Iℚ-cons l u l≤u) nn-a = trans-≤ (trans-≤ -l≤0 
 
 i-maxabs≤->ImbalancedI : (a : Iℚ) -> (i-maxabs a ℚ≤ Iℚ.u a) -> ImbalancedI a
 i-maxabs≤->ImbalancedI (Iℚ-cons l u l≤u) ma≤au =
-  trans-ℚ≤ { - l} max-≤-right (trans-ℚ≤ {absℚ l} max-≤-left ma≤au)
+  trans-≤ max-≤-right (trans-≤ max-≤-left ma≤au)
 
 ImbalancedI->0≤u : (a : Iℚ) -> ImbalancedI a -> (0r ≤ Iℚ.u a)
 ImbalancedI->0≤u (Iℚ-cons l u l≤u) -l≤u = NonNeg-0≤ u nn-u
   where
-  al≤u : absℚ l ℚ≤ u
-  al≤u = maxℚ-property {P = _ℚ≤ u} l (- l) l≤u -l≤u
+  al≤u : abs l ≤ u
+  al≤u = maxℚ-property {P = _≤ u} l (- l) l≤u -l≤u
 
   nn-u : NonNeg u
-  nn-u = NonNeg-≤ (absℚ l) u (NonNeg-absℚ l) al≤u
+  nn-u = NonNeg-≤ (abs l) u (0≤-NonNeg _ abs-0≤) al≤u
 
 
 ImbalancedI->i-maxabs : (a : Iℚ) -> ImbalancedI a -> (i-maxabs a == Iℚ.u a)
 ImbalancedI->i-maxabs (Iℚ-cons l u l≤u) -l≤u =
   max-≤-path al≤au >=> au=u
   where
-  al≤u : absℚ l ℚ≤ u
+  al≤u : abs l ≤ u
   al≤u = maxℚ-property {P = _ℚ≤ u} l (- l) l≤u -l≤u
 
   nn-u : NonNeg u
-  nn-u = NonNeg-≤ (absℚ l) u (NonNeg-absℚ l) al≤u
+  nn-u = NonNeg-≤ (abs l) u (0≤-NonNeg _ abs-0≤) al≤u
 
-  au=u : absℚ u == u
-  au=u = (absℚ-NonNeg nn-u)
+  au=u : abs u == u
+  au=u = abs-0≤-path (NonNeg-0≤ _ nn-u)
 
-  al≤au : absℚ l ℚ≤ absℚ u
-  al≤au = trans-ℚ≤ {absℚ l} al≤u max-≤-left
+  al≤au : abs l ≤ abs u
+  al≤au = trans-≤ al≤u max-≤-left
 
 ImbalancedI-i- : (ai : Iℚ) -> ImbalancedI ai ⊎ ImbalancedI (i- ai)
 ImbalancedI-i- ai@(Iℚ-cons l u l≤u) = handle (split-< (- l) u)
