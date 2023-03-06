@@ -65,8 +65,6 @@ record isLimitAt
   no-eta-equality
   field
     limit-point : isLimitPoint S x
-    -- δε : (δ : ℝ⁺) -> ∃[ ε ∈ ℝ⁺ ]
-    --   ((z : ℝ) -> absℝ (diff z x) < ⟨ ε ⟩ -> (sz : ⟨ S z ⟩) -> absℝ (diff (f (z , sz)) y) < ⟨ δ ⟩)
     δε : (δ : ℚ⁺) -> ∃[ ε ∈ ℚ⁺ ]
       ((z : ℝ) -> εBounded ⟨ ε ⟩ (diff z x) -> (sz : ⟨ S z ⟩) -> εBounded ⟨ δ ⟩ (diff (f (z , sz)) y))
 
