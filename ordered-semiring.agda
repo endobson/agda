@@ -5,7 +5,10 @@ module ordered-semiring where
 open import additive-group
 open import base
 open import equality
+open import equivalence
 open import functions
+open import hlevel.sigma
+open import isomorphism
 open import order
 open import semiring
 open import sum
@@ -177,6 +180,26 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
       handle : (0# < b × 0# < a) ⊎ (b < 0# × a < 0#) -> (a <> 0# × b <> 0#)
       handle (inj-l (0<b , 0<a)) = inj-r 0<a , inj-r 0<b
       handle (inj-r (b<0 , a<0)) = inj-l a<0 , inj-l b<0
+
+module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : LinearOrderStr D ℓ<}
+         {{LOS : LinearlyOrderedSemiringStr S O}}
+         {{SLOS : StronglyLinearlyOrderedSemiringStr S O}} where
+  private
+    instance
+      IACM = ACM
+      IS = S
+      IO = O
+
+  *-<>0-equiv : {a b : D} -> ((a <> 0#) × (b <> 0#)) ≃ (a * b) <> 0#
+  *-<>0-equiv {a} {b} =
+    isoToEquiv (isProp->iso *-preserves-<>0 *-reflects-<>0 (isProp× isProp-<> isProp-<>) isProp-<>)
+    where
+    *-preserves-<>0 : ((a <> 0#) × (b <> 0#)) -> (a * b) <> 0#
+    *-preserves-<>0 (inj-l a<0 , inj-l b<0) = inj-r (*-flips-<0 a<0 b<0)
+    *-preserves-<>0 (inj-l a<0 , inj-r 0<b) = inj-l (*₂-preserves-<0 a<0 0<b)
+    *-preserves-<>0 (inj-r 0<a , inj-l b<0) = inj-l (*₁-preserves-<0 0<a b<0)
+    *-preserves-<>0 (inj-r 0<a , inj-r 0<b) = inj-r (*-preserves-0< 0<a 0<b)
+
 
 
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : PartialOrderStr D ℓ≤) where

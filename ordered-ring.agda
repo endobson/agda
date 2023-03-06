@@ -26,9 +26,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
          where
   private
     instance
-      ILOS = LOS
       IACM = ACM
-      IAG = AG
       IS = S
       IO = O
 
@@ -40,6 +38,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
         0<-1 = minus-flips-<0 1<0
         -1<0 = subst2 _<_ *-left-one *-left-one (*₁-flips-< 1<0 0<-1)
 
+
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
          {S : Semiring ACM} {{AG : AdditiveGroup ACM}}
          {O : PartialOrderStr D ℓ<}
@@ -48,7 +47,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
          where
   private
     instance
-      IPOS = POS
       IACM = ACM
       IS = S
       IO = O
@@ -77,8 +75,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {{AG : 
          where
   private
     instance
-      IPOS = POS
-      ITO = TO
       IACM = ACM
       IS = S
       IO = O
