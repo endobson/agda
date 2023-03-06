@@ -29,14 +29,6 @@ record isLinearOrder {D : Type ℓD} (_<_ : Rel D ℓ<)  : Type (ℓ-max ℓ< �
     comparison-< : Comparison _<_
     connected-< : Connected _<_
 
-  _>_ : D -> D -> Type ℓ<
-  x > y = y < x
-
-  _≮_ : D -> D -> Type ℓ<
-  x ≮ y = ¬ (x < y)
-
-  _≯_ : D -> D -> Type ℓ<
-  x ≯ y = ¬ (x > y)
 
   asym-< : Asymmetric _<_
   asym-< x<y y<x = irrefl-< (trans-< x<y y<x)
@@ -79,6 +71,15 @@ module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
     ( isLinearOrder-<
     ; isSet-D
     )
+
+  _>_ : D -> D -> Type ℓ<
+  x > y = y < x
+
+  _≮_ : D -> D -> Type ℓ<
+  x ≮ y = ¬ (x < y)
+
+  _≯_ : D -> D -> Type ℓ<
+  x ≯ y = ¬ (x > y)
 
   abstract
     trans-≮ : Transitive _≮_
