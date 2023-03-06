@@ -229,13 +229,3 @@ abstract
     handle (inj-r b≤a) =
       cong r-_ (min-≥-path b≤a) >=>
       sym (max-≤-path (minus-flips-≤ b≤a))
-
-
--- Absolute value
-
-abs-diffℚ : ℚ -> ℚ -> ℚ
-abs-diffℚ x y = abs (diff x y)
-
-abstract
-  maxℚ-weaken-<₁ : (x y z : ℚ) -> (max x y < z) -> x < z
-  maxℚ-weaken-<₁ x y z lt = max₂-reflects-< (trans-<-≤ lt max-≤-left)
