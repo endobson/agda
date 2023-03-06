@@ -49,19 +49,6 @@ OpenEventualLowerBound s q = ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> 
 
 
 private
-  diff-swap : (a b c : ℚ) -> (a r+ (r- b)) < c -> (a r+ (r- c)) < b
-  diff-swap a b c d<c = Pos-diffℚ⁻ (diff c a) b (subst Pos path (Pos-diffℚ (diff b a) c d<c))
-    where
-    path : c r+ (r- (a r+ (r- b))) == b r+ (r- (a r+ (r- c)))
-    path =
-      cong (c r+_) (minus-distrib-plus >=>
-                    cong ((r- a) r+_) minus-double-inverse >=>
-                    (r+-commute (r- a) b)) >=>
-      r+-commute c (b r+ (r- a)) >=>
-      cong ((b r+ (r- a)) r+_) (sym minus-double-inverse) >=>
-      r+-assoc b (r- a) (r- (r- c)) >=>
-      cong (b r+_) (sym minus-distrib-plus)
-
   ε-weaken-< : (q r : ℚ) -> (ε : ℚ⁺) -> (q r+ ⟨ ε ⟩) < r -> q < r
   ε-weaken-< q r ε⁺@(ε , _) lt =
     trans-< {_} {_} {_} {q} {q r+ ε} {r} (r+-Pos->order q ε⁺) lt
