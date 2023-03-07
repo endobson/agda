@@ -86,8 +86,7 @@ instance
 
 private
   refl-ℕ≤ : {n : Nat} -> n ℕ≤ n
-  refl-ℕ≤ {zero} = zero-≤
-  refl-ℕ≤ {suc n} = suc-≤ refl-ℕ≤
+  refl-ℕ≤ = 0 , +'-left-zero
 
 instance
   PartialOrderStr-ℕ : PartialOrderStr Nat ℓ-zero

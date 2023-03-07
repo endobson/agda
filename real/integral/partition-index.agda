@@ -8,6 +8,7 @@ open import equivalence
 open import fin
 open import fin-algebra
 open import finset
+open import finset.detachable
 open import functions
 open import hlevel.base
 open import isomorphism
@@ -21,6 +22,7 @@ open import relation
 open import sum
 open import truncation
 open import type-algebra
+open import sigma.base
 
 data PartitionIndex (n : Nat) : Type₀ where
   pi-low : PartitionIndex n
@@ -41,6 +43,51 @@ HighPartitionBoundary : {n : Nat} -> PartitionBoundary n -> Type₀
 HighPartitionBoundary pb-low     = Bot
 HighPartitionBoundary (pb-mid i) = Top
 HighPartitionBoundary pb-high    = Top
+
+isProp-LowPartitionBoundary :
+  {n : Nat} -> (pb : PartitionBoundary n) -> isProp (LowPartitionBoundary pb)
+isProp-LowPartitionBoundary pb-low     = isPropTop
+isProp-LowPartitionBoundary (pb-mid i) = isPropTop
+isProp-LowPartitionBoundary pb-high    = isPropBot
+
+isProp-HighPartitionBoundary :
+  {n : Nat} -> (pb : PartitionBoundary n) -> isProp (HighPartitionBoundary pb)
+isProp-HighPartitionBoundary pb-low     = isPropBot
+isProp-HighPartitionBoundary (pb-mid i) = isPropTop
+isProp-HighPartitionBoundary pb-high    = isPropTop
+
+Decidable-LowPartitionBoundary :
+ {n : Nat} -> (pb : PartitionBoundary n) -> Dec (LowPartitionBoundary pb)
+Decidable-LowPartitionBoundary pb-low     = yes tt
+Decidable-LowPartitionBoundary (pb-mid i) = yes tt
+Decidable-LowPartitionBoundary pb-high    = no (\x -> x)
+
+Decidable-HighPartitionBoundary :
+  {n : Nat} -> (pb : PartitionBoundary n) -> Dec (HighPartitionBoundary pb)
+Decidable-HighPartitionBoundary pb-low     = no (\x -> x)
+Decidable-HighPartitionBoundary (pb-mid i) = yes tt
+Decidable-HighPartitionBoundary pb-high    = yes tt
+
+isContr-Σ¬LowPartitionBoundary :
+  {n : Nat} -> isContr (Σ (PartitionBoundary n) (Comp LowPartitionBoundary))
+isContr-Σ¬LowPartitionBoundary {n} = ctr , contr
+  where
+  ctr = (pb-high , (\x -> x))
+  contr : (x : Σ (PartitionBoundary n) (Comp LowPartitionBoundary)) -> ctr == x
+  contr (pb-low , f) = bot-elim (f tt)
+  contr (pb-mid _ , f) = bot-elim (f tt)
+  contr (pb-high , f) = ΣProp-path (isPropΠ (\_ -> isPropBot)) refl
+
+isContr-Σ¬HighPartitionBoundary :
+  {n : Nat} -> isContr (Σ (PartitionBoundary n) (Comp HighPartitionBoundary))
+isContr-Σ¬HighPartitionBoundary {n} = ctr , contr
+  where
+  ctr = (pb-low , (\x -> x))
+  contr : (x : Σ (PartitionBoundary n) (Comp HighPartitionBoundary)) -> ctr == x
+  contr (pb-low , f) = ΣProp-path (isPropΠ (\_ -> isPropBot)) refl
+  contr (pb-mid _ , f) = bot-elim (f tt)
+  contr (pb-high , f) = bot-elim (f tt)
+
 
 data PartitionBoundary< {n : Nat} : Rel (PartitionBoundary n) ℓ-zero where
   pb<-low-mid : (i : Fin (suc n)) -> PartitionBoundary< pb-low (pb-mid i)
@@ -163,6 +210,47 @@ index->high-boundary : {n : Nat} -> PartitionIndex n -> Σ (PartitionBoundary n)
 index->high-boundary pi-low     = pb-mid zero-fin  , tt
 index->high-boundary (pi-mid i) = pb-mid (suc-fin i) , tt
 index->high-boundary pi-high    = pb-high , tt
+
+index->low-boundary-eq : {n : Nat} -> PartitionIndex n ≃ Σ (PartitionBoundary n) LowPartitionBoundary
+index->low-boundary-eq {n} =
+  isoToEquiv (iso index->low-boundary low-boundary->index inv1 inv2)
+  where
+  low-boundary->index : Σ (PartitionBoundary n) LowPartitionBoundary -> PartitionIndex n
+  low-boundary->index (pb-low , _) = pi-low
+  low-boundary->index (pb-mid (i , (0 , p)) , _) = pi-high
+  low-boundary->index (pb-mid (i , (suc j , p)) , _) = pi-mid (i , (j , cong pred p))
+
+  inv1 : (b : Σ (PartitionBoundary n) LowPartitionBoundary) ->
+         (index->low-boundary (low-boundary->index b)) == b
+  inv1 (pb-low , _) = refl
+  inv1 (pb-mid (i , (0 , p)) , _) = cong (\j -> pb-mid j , tt) (fin-i-path (cong pred (sym p)))
+  inv1 (pb-mid (i , (suc _ , p)) , _) = cong (\j -> pb-mid j , tt) (fin-i-path refl)
+
+  inv2 : (i : PartitionIndex n) -> (low-boundary->index (index->low-boundary i)) == i
+  inv2 pi-low = refl
+  inv2 (pi-mid i) = cong pi-mid (fin-i-path refl)
+  inv2 pi-high = refl
+
+index->high-boundary-eq : {n : Nat} -> PartitionIndex n ≃ Σ (PartitionBoundary n) HighPartitionBoundary
+index->high-boundary-eq {n} =
+  isoToEquiv (iso index->high-boundary high-boundary->index inv1 inv2)
+  where
+  high-boundary->index : Σ (PartitionBoundary n) HighPartitionBoundary -> PartitionIndex n
+  high-boundary->index (pb-high , _) = pi-high
+  high-boundary->index (pb-mid (0 , lt) , _) = pi-low
+  high-boundary->index (pb-mid (suc i , lt) , _) = pi-mid (i , pred-≤ lt)
+
+  inv1 : (b : Σ (PartitionBoundary n) HighPartitionBoundary) ->
+         (index->high-boundary (high-boundary->index b)) == b
+  inv1 (pb-high , _) = refl
+  inv1 (pb-mid (0 , lt) , _) = cong (\j -> pb-mid j , tt) (fin-i-path refl)
+  inv1 (pb-mid (suc i , lt) , _) = cong (\j -> pb-mid j , tt) (fin-i-path refl)
+
+  inv2 : (i : PartitionIndex n) -> (high-boundary->index (index->high-boundary i)) == i
+  inv2 pi-low = refl
+  inv2 (pi-mid i) = cong pi-mid (fin-i-path refl)
+  inv2 pi-high = refl
+
 
 low-boundary<high-boundary : {n : Nat} -> (i : PartitionIndex n) ->
   ⟨ index->low-boundary i ⟩ < ⟨ index->high-boundary i ⟩
@@ -308,5 +396,54 @@ private
       i .rightInv (just nothing) = refl
       i .rightInv (just (just idx)) = refl
 
-FinSet-PartitionBoundary : (n : Nat) -> FinSet _
+FinSet-PartitionBoundary : (n : Nat) -> FinSet ℓ-zero
 FinSet-PartitionBoundary n = (PartitionBoundary n) , ∣ _ , PartitionBoundary≃Fin ∣
+
+FinSet-ΣLowPartitionBoundary : (n : Nat) -> FinSet ℓ-zero
+FinSet-ΣLowPartitionBoundary n =
+  FinSet-Detachable
+    (FinSet-PartitionBoundary n)
+    (\ pb -> LowPartitionBoundary pb , isProp-LowPartitionBoundary pb)
+    Decidable-LowPartitionBoundary
+
+FinSet-Σ¬LowPartitionBoundary : (n : Nat) -> FinSet ℓ-zero
+FinSet-Σ¬LowPartitionBoundary n =
+  FinSet-DetachableComp
+    (FinSet-PartitionBoundary n)
+    (\ pb -> LowPartitionBoundary pb , isProp-LowPartitionBoundary pb)
+    Decidable-LowPartitionBoundary
+
+FinSet-ΣHighPartitionBoundary : (n : Nat) -> FinSet ℓ-zero
+FinSet-ΣHighPartitionBoundary n =
+  FinSet-Detachable
+    (FinSet-PartitionBoundary n)
+    (\ pb -> HighPartitionBoundary pb , isProp-HighPartitionBoundary pb)
+    Decidable-HighPartitionBoundary
+
+FinSet-Σ¬HighPartitionBoundary : (n : Nat) -> FinSet ℓ-zero
+FinSet-Σ¬HighPartitionBoundary n =
+  FinSet-DetachableComp
+    (FinSet-PartitionBoundary n)
+    (\ pb -> HighPartitionBoundary pb , isProp-HighPartitionBoundary pb)
+    Decidable-HighPartitionBoundary
+
+
+instance
+  FinSetStr-PartitionBoundary : {n : Nat} -> FinSetStr (PartitionBoundary n)
+  FinSetStr-PartitionBoundary {n} .FinSetStr.isFin = snd (FinSet-PartitionBoundary n)
+
+  FinSetStr-ΣLowPartitionBoundary :
+    {n : Nat} -> FinSetStr (Σ (PartitionBoundary n) LowPartitionBoundary)
+  FinSetStr-ΣLowPartitionBoundary {n} .FinSetStr.isFin = snd (FinSet-ΣLowPartitionBoundary n)
+
+  FinSetStr-Σ¬LowPartitionBoundary :
+    {n : Nat} -> FinSetStr (Σ (PartitionBoundary n) (Comp LowPartitionBoundary))
+  FinSetStr-Σ¬LowPartitionBoundary {n} .FinSetStr.isFin = snd (FinSet-Σ¬LowPartitionBoundary n)
+
+  FinSetStr-ΣHighPartitionBoundary :
+    {n : Nat} -> FinSetStr (Σ (PartitionBoundary n) HighPartitionBoundary)
+  FinSetStr-ΣHighPartitionBoundary {n} .FinSetStr.isFin = snd (FinSet-ΣHighPartitionBoundary n)
+
+  FinSetStr-Σ¬HighPartitionBoundary :
+    {n : Nat} -> FinSetStr (Σ (PartitionBoundary n) (Comp HighPartitionBoundary))
+  FinSetStr-Σ¬HighPartitionBoundary {n} .FinSetStr.isFin = snd (FinSet-Σ¬HighPartitionBoundary n)
