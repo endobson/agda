@@ -76,6 +76,8 @@ record Partition (a : ℝ) (b : ℝ) : Type₀ where
     a<ui : (i : Fin (suc n)) -> a < uℝ i
     a<ui i = trans-<-≤ a<u0 (ℚ->ℝ-preserves-≤ _ _ (u0≤ui i))
 
+    aU-ui : (i : Fin (suc n)) -> Real.U a (u i)
+    aU-ui i = ℝ<->U a (u i) (a<ui i)
 
     ui≤un : (i : Fin (suc n)) -> u i ≤ u (n , refl-≤)
     ui≤un (i , j , path) = handle i j path
@@ -89,6 +91,9 @@ record Partition (a : ℝ) (b : ℝ) : Type₀ where
 
     ui<b : (i : Fin (suc n)) -> uℝ i < b
     ui<b i = trans-≤-< (ℚ->ℝ-preserves-≤ _ _ (ui≤un i)) un<b
+
+    bL-ui : (i : Fin (suc n)) -> Real.L b (u i)
+    bL-ui i = ℝ<->L (u i) b (ui<b i)
 
     a<b : a < b
     a<b = (trans-< (a<ui zero-fin) (ui<b zero-fin))

@@ -3,14 +3,16 @@
 module fin.list where
 
 open import base
-open import fin
 open import equality
+open import fin
+open import functions
+open import funext
 open import nat
 open import nat.order.base
 open import order
 open import order.instances.nat
-open import functions
-open import funext
+open import relation
+open import truncation
 
 private
   variable
@@ -19,6 +21,12 @@ private
 
 FinList : Type ℓ -> Type ℓ
 FinList A = Σ[ n ∈ Nat ] (Fin n -> A)
+
+_l∈'_ : REL A (FinList A) (levelOf A)
+a l∈' (n , f) = Σ[ i ∈ Fin n ] (f i == a)
+
+_l∈_ : REL A (FinList A) (levelOf A)
+a l∈ (n , f) = ∃[ i ∈ Fin n ] (f i == a)
 
 abstract
   element-paths->fin-list-path :

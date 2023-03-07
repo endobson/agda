@@ -10,6 +10,7 @@ open import univalence
 open import fin.list
 open import equality
 open import hlevel
+open import hlevel.order
 open import nat
 open import nat.order.base
 open import order
@@ -34,8 +35,22 @@ module _ {ℓD ℓ< : Level} (D : Type ℓD) {{LO : LinearOrderStr D ℓ<}}  whe
   SortedList : Type (ℓ-max ℓD (ℓ-suc ℓ<))
   SortedList = Σ (FinList D) Sorted
 
+module _ {ℓB ℓB< : Level} {B : Type ℓB} {{LO : LinearOrderStr B ℓB<}} where
+  _sl∈_ : REL B (SortedList B) ℓB
+  b sl∈ (l , s) = b l∈ l
+
+  _sl∈'_ : REL B (SortedList B) ℓB
+  b sl∈' (l , s) = b l∈' l
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓ<}}  where
+
+  isProp-sl∈' : (d : D) (l : SortedList D) -> isProp (d sl∈' l)
+  isProp-sl∈' d (l , s) (i1 , p1) (i2 , p2) =
+    ΣProp-path (isSet-LinearlyOrdered D _ _)
+      (connected-< (\i1<i2 -> irrefl-path-< (p1 >=> sym p2) (s.preserves-< i1<i2))
+                   (\i2<i1 -> irrefl-path-< (p2 >=> sym p1) (s.preserves-< i2<i1)))
+    where
+    module s = LinearOrderʰ s
 
   private
     Fin-Indices : ordered-set.glist.Indices ℓ-zero ℓ-zero ℓ-zero
