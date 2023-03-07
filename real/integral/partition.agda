@@ -96,7 +96,7 @@ record Partition (a : ℝ) (b : ℝ) : Type₀ where
     a≤uB : (i : PartitionBoundary n) -> a ≤ uB i
     a≤uB pb-low = refl-≤
     a≤uB (pb-mid i) = weaken-< (a<ui i)
-    a≤uB pb-high = weaken-< a<b 
+    a≤uB pb-high = weaken-< a<b
 
     uB≤b : (i : PartitionBoundary n) -> uB i ≤ b
     uB≤b pb-low = weaken-< a<b
@@ -114,8 +114,8 @@ record Partition (a : ℝ) (b : ℝ) : Type₀ where
     u-preserves-< : {i j : Fin (suc n)} -> i < j -> u i < u j
     u-preserves-< {i , i<n} {j , j<n} (fin< (k , kp)) = handle i j i<n j<n k kp
       where
-      handle : (i j : Nat) -> (i<sn : i < (suc n)) -> (j<sn : j < (suc n)) -> 
-               (k : Nat) -> (k + (suc i) == j) -> 
+      handle : (i j : Nat) -> (i<sn : i < (suc n)) -> (j<sn : j < (suc n)) ->
+               (k : Nat) -> (k + (suc i) == j) ->
                u (i , i<sn) < u (j , j<sn)
       handle i zero     _ _ k kp = bot-elim (zero-≮ (k , kp))
       handle i (suc j') _ j<sn zero kp =
@@ -139,7 +139,7 @@ record Partition (a : ℝ) (b : ℝ) : Type₀ where
       handle (tri< i<j _ _) = asym-< (uB-preserves-< i<j) uBj<uBi
       handle (tri= _ i=j _) = irrefl-< (trans-<-= uBj<uBi (cong uB i=j))
       handle (tri> _ _ j<i) = i≤j j<i
-      
+
 
 
     0<width : (i : PartitionIndex n) -> 0# < width i
