@@ -204,8 +204,8 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
         extended-scale-up : (i : I) -> V
         extended-scale-up i = extend i v* (standard-basis i)
 
-        extended-scale-up-no-support : Path (∉-Subtype SubS -> V) (extended-scale-up ∘ fst) (\_ -> 0v)
-        extended-scale-up-no-support = funExt (\ (i , ¬s) -> path i ¬s)
+        extended-scale-up-no-support : (i : ∉-Subtype SubS) -> (extended-scale-up (fst i)) == 0v
+        extended-scale-up-no-support (i , ¬s) =  path i ¬s
           where
           path : (i : I) -> ¬(ΣS' i) -> extended-scale-up i == 0v
           path i ¬s = cong (_v* (standard-basis i)) (extend-no-support i ¬s) >=> v*-left-zero
@@ -247,8 +247,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
         sum2 = finiteMerge-Detachable _ SubS detachable-S extended-scale-up
 
         sum3 : vector-sum (extended-scale-up ∘ fst) == 0v
-        sum3 = cong vector-sum extended-scale-up-no-support >=>
-               finiteMerge-ε _
+        sum3 = finiteMerge-ε _ extended-scale-up-no-support
 
         sum4 : vector-sum (extended-scale-up ∘ fst) == vector-sum scale-up
         sum4 = cong vector-sum extended-scale-up-support >=>
@@ -334,8 +333,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
                   extend i
           sum11 = sum8 >=>
                   cong2 _+_ (cong (finiteMerge CM-K+) (funExt path10))
-                            (cong (finiteMerge CM-K+) (funExt path9) >=>
-                             finiteMerge-ε CM-K+)
+                            (finiteMerge-ε CM-K+ path9)
                   >=> +-right-zero
                   >=> finiteMerge-isContr CM-K+ isContr-ΣIP (\_ -> extend i)
 

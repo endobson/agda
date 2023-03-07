@@ -184,11 +184,15 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
         >=> finiteMerge-ε'
 
     abstract
-      finiteMerge-ε : finiteMerge' (\(_ : B) -> ε) == ε
-      finiteMerge-ε = unsquash (isSet-Domain _ _) (∥-map handle finB)
+      finiteMerge-ε : {f : B -> D} -> (∀ (b : B) -> f b == ε) ->
+                      finiteMerge' f == ε
+      finiteMerge-ε {f} paths = unsquash (isSet-Domain _ _) (∥-map handle finB)
         where
-        handle : Σ[ n ∈ Nat ] (B ≃ Fin n) -> finiteMerge' (\(_ : B) -> ε) == ε
-        handle (n , eq) = finiteMerge-convert' (equiv⁻¹ eq) _ >=> finiteMerge-ε'
+        handle : Σ[ n ∈ Nat ] (B ≃ Fin n) -> finiteMerge' f == ε
+        handle (n , eq) =
+          cong (finiteMerge _) (funExt paths) >=>
+          finiteMerge-convert' (equiv⁻¹ eq) _ >=>
+          finiteMerge-ε'
 
       finiteMerge-split : {f g : B -> D} ->
         finiteMerge' (\b -> (f b) ∙ (g b)) == finiteMerge' f ∙ finiteMerge' g
@@ -205,7 +209,7 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
 
     finiteMergeʰ : CommMonoidʰᵉ (CommMonoidStr-Π (\_ -> CM)) CM finiteMerge'
     finiteMergeʰ = record
-      { preserves-ε = finiteMerge-ε
+      { preserves-ε = finiteMerge-ε (\_ -> refl)
       ; preserves-∙ = \f g -> finiteMerge-split {f} {g}
       }
 

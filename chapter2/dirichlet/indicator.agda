@@ -73,14 +73,10 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
            *-right (cong f (ΣProp-path isPropPos' refl)) >=>
            *-left-one
 
-      p2' : Path (¬D1' -> D) (g ∘ fst) (\_ -> 0#)
-      p2' = funExt p2'-paths
-        where
-        p2'-paths : (d : ¬D1') -> (g (fst d)) == 0#
-        p2'-paths ((zero , 0|n) , ¬1) = bot-elim (div'-pos->pos 0|n (snd n))
-        p2'-paths ((suc zero , _) , ¬1) = bot-elim (¬1 refl)
-        p2'-paths ((suc (suc _) , _) , _) = *-left-zero
+      p2'-paths : (d : ¬D1') -> (g (fst d)) == 0#
+      p2'-paths ((zero , 0|n) , ¬1) = bot-elim (div'-pos->pos 0|n (snd n))
+      p2'-paths ((suc zero , _) , ¬1) = bot-elim (¬1 refl)
+      p2'-paths ((suc (suc _) , _) , _) = *-left-zero
 
       p2 : finiteMergeᵉ CM (¬D1' , _) (g ∘ fst) == 0#
-      p2 = cong (finiteMergeᵉ CM (¬D1' , _)) p2' >=>
-           finiteMerge-ε CM {{FB = _}}
+      p2 = finiteMerge-ε CM {{FB = _}} p2'-paths
