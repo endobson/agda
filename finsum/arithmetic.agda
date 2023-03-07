@@ -38,6 +38,17 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
           ; preserves-∙ = \_ _ -> *-distrib-+-left
           }
 
+      module _ {{AG : AdditiveGroup ACM}}  where
+        finiteSum-- : {f : I -> D} -> finiteSum (\i -> - (f i)) == - (finiteSum f)
+        finiteSum-- = finiteMerge-homo-inject -ʰ
+          where
+          -ʰ : CommMonoidʰᵉ S.+-CommMonoid S.+-CommMonoid -_
+          -ʰ = record
+            { preserves-ε = minus-zero
+            ; preserves-∙ = minus-distrib-plusᵉ
+            }
+
+
   module _ {ℓ# : Level} {AG : AdditiveGroup ACM} {A : TightApartnessStr D ℓ#}
            {{AAG : ApartAdditiveGroup AG A}}  where
     private
