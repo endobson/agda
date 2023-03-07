@@ -27,7 +27,7 @@ open import rational.proper-interval
 open import real
 open import real.arithmetic
 open import real.arithmetic.rational
-open import real.epsilon-bounded.base
+open import real.epsilon-bounded
 open import real.interval
 open import real.order
 open import real.rational
@@ -75,9 +75,6 @@ isProp-isLimitAt l1 l2 i .isLimitAt.δε =
   isPropΠ (\δ -> squash) (l1 .isLimitAt.δε) (l2 .isLimitAt.δε) i
 
 
-εI : ℚ⁺ -> Iℚ
-εI (ε , 0<ε) = Iℚ-cons (- ε) ε (weaken-< (trans-< (minus-flips-0< 0<ε) 0<ε))
-
 ℝ∈Iℚ->εBounded-diff : (qi : Iℚ) -> (x y : ℝ) -> ℝ∈Iℚ x qi -> ℝ∈Iℚ y qi ->
                       εBounded (i-width qi) (diff x y)
 ℝ∈Iℚ->εBounded-diff qi@(Iℚ-cons l u l≤u) x y (l<x , x<u) (l<y , y<u) =
@@ -100,26 +97,6 @@ isProp-isLimitAt l1 l2 i .isLimitAt.δε =
 
   L : (ℚ->ℝ (- (diff l u))) < diff x y
   L = subst2 _<_ (sym ℚ->ℝ-preserves--) (sym diff-anticommute) (minus-flips-< U2)
-
-
-εBounded-+ : {ε1 ε2 : ℚ} (x y : ℝ) -> εBounded ε1 x -> εBounded ε2 y -> εBounded (ε1 + ε2) (x + y)
-εBounded-+ {ε1} {ε2} x y ε1-x ε2-y =
-  subst (Real.L (x + y)) (sym minus-distrib-plus) (proj₁ both) ,
-  proj₂ both
-  where
-  both = ℝ∈Iℚ-+ x y (curry (ℝ-bounds->Iℚ x) ε1-x) (curry (ℝ-bounds->Iℚ y) ε2-y) ε1-x ε2-y
-
-
-εBounded-- : {ε : ℚ} (x : ℝ) -> εBounded ε x -> εBounded ε (- x)
-εBounded-- {ε} x ε-x = l , subst (Real.U (- x)) minus-double-inverse u
-  where
-  b : ℝ∈Iℚ (- x) (i- (curry (ℝ-bounds->Iℚ x) ε-x))
-  b = ℝ∈Iℚ-- x (curry (ℝ-bounds->Iℚ x) ε-x) ε-x
-  l : Real.L (- x) (- ε)
-  l = proj₁ b
-  u : Real.U (- x) (- (- ε))
-  u = proj₂ b
-
 
 isProp-ΣisLimitAt : {ℓS : Level} {S : Subtype ℝ ℓS} {f : ∈-Subtype S -> ℝ} {x : ℝ} ->
                     isProp (Σ ℝ (isLimitAt S f x))

@@ -21,6 +21,7 @@ open import real.arithmetic.rational
 open import real.interval
 open import real.rational
 open import relation
+open import sum
 open import truncation
 
 private
@@ -105,3 +106,21 @@ abstract
     where
     module _ where
       -ε2≤-ε1 = minus-flips-≤ ε1≤ε2
+
+εBounded->0<ε : {ε : ℚ} (x : ℝ) -> εBounded ε x -> 0# < ε
+εBounded->0<ε {ε} x (-ε<x , x<ε) = proj-¬r (split-< 0# ε) ¬ε≤0
+  where
+  -ε<ε : ℚ->ℝ (- ε) < ℚ->ℝ ε
+  -ε<ε = trans-< (L->ℝ< {x = x} -ε<x) (U->ℝ< x<ε)
+  ¬ε≤0 : ¬ (ε ≤ 0#)
+  ¬ε≤0 ε≤0 = irrefl-< (trans-<-≤ -ε<ε (ℚ->ℝ-preserves-≤ _ _ (trans-≤ ε≤0 (minus-flips-≤0 ε≤0))))
+
+
+εBounded->Iℚ : {ε : ℚ} (x : ℝ) -> εBounded ε x -> Iℚ
+εBounded->Iℚ {ε} x εB = Iℚ-cons (- ε) ε (weaken-< (trans-< (minus-flips-0< 0<ε) 0<ε))
+  where
+  0<ε : 0# < ε
+  0<ε = (εBounded->0<ε x εB)
+
+εBounded->ℝ∈Iℚ : {ε : ℚ} (x : ℝ) -> (εB : εBounded ε x) -> ℝ∈Iℚ x (εBounded->Iℚ x εB)
+εBounded->ℝ∈Iℚ x εB = εB

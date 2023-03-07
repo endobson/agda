@@ -19,7 +19,7 @@ open import rational.order
 open import real
 open import real.arithmetic.multiplication.inverse
 open import real.derivative
-open import real.epsilon-bounded.base
+open import real.epsilon-bounded
 open import real.rational
 open import real.sequence.harmonic
 open import real.sequence.limit-point

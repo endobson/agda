@@ -15,54 +15,23 @@ open import ordered-additive-group
 open import ordered-additive-group.instances.real
 open import ordered-semiring
 open import rational
-open import rational.proper-interval
 open import rational.order
+open import rational.proper-interval
 open import real
-open import real.arithmetic.multiplication.inverse
 open import real.arithmetic.multiplication
+open import real.arithmetic.multiplication.inverse
 open import real.arithmetic.order
-open import real.rational
+open import real.epsilon-bounded
 open import real.interval
-open import real.epsilon-bounded.base
+open import real.rational
 open import relation
 open import ring.implementations.real
 open import semiring
-open import sum
 open import truncation
 
 
 private
   open ℝRing using (is-unit)
-
-  εBounded->0<ε : {ε : ℚ} (x : ℝ) -> εBounded ε x -> 0# < ε
-  εBounded->0<ε {ε} x (-ε<x , x<ε) = proj-¬r (split-< 0# ε) ¬ε≤0
-    where
-    -ε<ε : ℚ->ℝ (- ε) < ℚ->ℝ ε
-    -ε<ε = trans-< (L->ℝ< {x = x} -ε<x) (U->ℝ< x<ε)
-    ¬ε≤0 : ¬ (ε ≤ 0#)
-    ¬ε≤0 ε≤0 = irrefl-< (trans-<-≤ -ε<ε (ℚ->ℝ-preserves-≤ _ _ (trans-≤ ε≤0 (minus-flips-≤0 ε≤0))))
-
-
-  εBounded->Iℚ : {ε : ℚ} (x : ℝ) -> εBounded ε x -> Iℚ
-  εBounded->Iℚ {ε} x εB = Iℚ-cons (- ε) ε (weaken-< (trans-< (minus-flips-0< 0<ε) 0<ε))
-    where
-    0<ε : 0# < ε
-    0<ε = (εBounded->0<ε x εB)
-
-  εBounded->ℝ∈Iℚ : {ε : ℚ} (x : ℝ) -> (εB : εBounded ε x) -> ℝ∈Iℚ x (εBounded->Iℚ x εB)
-  εBounded->ℝ∈Iℚ x εB = εB
-
-  εBounded-* : {ε1 ε2 : ℚ} (x y : ℝ) -> εBounded ε1 x -> εBounded ε2 y -> εBounded (ε1 * ε2) (x * y)
-  εBounded-* {ε1} {ε2} x y ε1-x ε2-y =
-    subst (ℝ∈Iℚ (x * y)) (sym (i*-SymI-path iε1 iε2 refl refl)) ℝ∈Iℚ-xy
-    where
-    iε1 : Iℚ
-    iε1 = εBounded->Iℚ x ε1-x
-    iε2 : Iℚ
-    iε2 = εBounded->Iℚ y ε2-y
-    ℝ∈Iℚ-xy : ℝ∈Iℚ (x * y) (iε1 i* iε2)
-    ℝ∈Iℚ-xy = ℝ∈Iℚ-* x y iε1 iε2 (εBounded->ℝ∈Iℚ x ε1-x) (εBounded->ℝ∈Iℚ y ε2-y)
-
 
 
   split-small-inv : (x : ℝ) -> (ε : ℚ⁺) -> ∥ (εBounded ⟨ ε ⟩ x) ⊎ ℝInv x ∥

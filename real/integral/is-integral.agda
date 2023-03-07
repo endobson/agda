@@ -29,7 +29,7 @@ open import rational
 open import rational.order
 open import rational.proper-interval
 open import real
-open import real.epsilon-bounded.base
+open import real.epsilon-bounded
 open import real.integral.delta-fine-partition
 open import real.integral.partition
 open import real.integral.tagged-partition
