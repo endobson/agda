@@ -5,6 +5,7 @@ module real.integral.is-integral where
 open import additive-group
 open import additive-group.instances.nat
 open import additive-group.instances.real
+open import apartness
 open import base
 open import equality
 open import fin
@@ -30,6 +31,7 @@ open import rational.order
 open import rational.proper-interval
 open import real
 open import real.epsilon-bounded
+open import real.heyting-field
 open import real.integral.delta-fine-partition
 open import real.integral.partition
 open import real.integral.tagged-partition
@@ -55,13 +57,11 @@ record isOrderedIntegral' (a : ℝ) (b : ℝ) (f : ℝ -> ℝ) (v : ℝ) : Type�
            (p : TaggedPartition a b) -> isδFine ⟨ δ ⟩ ⟨ p ⟩ ->
            εBounded ⟨ ε ⟩ (diff (riemann-sum f p) v))
 
-data isIntegral' (a : ℝ) (b : ℝ) (f : ℝ -> ℝ) (v : ℝ) : Type₁ where
-  isIntegral'-<-cons : a < b -> isOrderedIntegral' a b f v -> isIntegral' a b f v
-  isIntegral'->-cons : a > b -> isOrderedIntegral' b a f (- v) -> isIntegral' a b f v
-  isIntegral'-=-cons : a == b -> v == 0# -> isIntegral' a b f v
-
-isIntegral : (a : ℝ) (b : ℝ) (f : ℝ -> ℝ) (v : ℝ) -> Type₁
-isIntegral a b f v = ∥ isIntegral' a b f v ∥
+record isIntegral (a : ℝ) (b : ℝ) (f : ℝ -> ℝ) (v : ℝ) : Type₁ where
+  field
+    <-case : a < b -> isOrderedIntegral' a b f v
+    >-case : a > b -> isOrderedIntegral' b a f (- v)
+    ε-case : ∃[ k ∈ ℚ⁺ ] (∀ (ε : ℚ⁺) -> εBounded ⟨ ε ⟩ (diff a b) -> εBounded (⟨ k ⟩ * ⟨ ε ⟩) v)
 
 private
   isProp-isOrderedIntegral' : {a b : ℝ} {f : ℝ -> ℝ} {v : ℝ} -> isProp (isOrderedIntegral' a b f v)
@@ -112,24 +112,64 @@ private
 
 
 isProp-isIntegral : {a b : ℝ} {f : ℝ -> ℝ} {v : ℝ} -> isProp (isIntegral a b f v)
-isProp-isIntegral = squash
+isProp-isIntegral i1 i2 j = record
+  { <-case = isPropΠ (\_ -> isProp-isOrderedIntegral') i1.<-case i2.<-case j
+  ; >-case = isPropΠ (\_ -> isProp-isOrderedIntegral') i1.>-case i2.>-case j
+  ; ε-case = squash i1.ε-case i2.ε-case j
+  }
+  where
+  module i1 = isIntegral i1
+  module i2 = isIntegral i2
 
 
 isProp-ΣisIntegral : {a b : ℝ} {f : ℝ -> ℝ} -> isProp (Σ ℝ (isIntegral a b f))
 isProp-ΣisIntegral {a} {b} {f} (v1 , i1) (v2 , i2) =
-  ΣProp-path isProp-isIntegral (unsquash (isSet-ℝ v1 v2) (∥-map2 handle i1 i2))
+  ΣProp-path isProp-isIntegral (tight-# ¬v1#v2)
   where
-  handle : isIntegral' a b f v1 -> isIntegral' a b f v2 -> v1 == v2
-  handle (isIntegral'-<-cons _ oi1) (isIntegral'-<-cons _ oi2) =
-    cong fst (isProp-ΣisOrderedIntegral' (v1 , oi1) (v2 , oi2))
-  handle (isIntegral'->-cons _ oi1) (isIntegral'->-cons _ oi2) =
-    sym minus-double-inverse >=>
-    cong -_ (cong fst (isProp-ΣisOrderedIntegral' (- v1 , oi1) (- v2 , oi2))) >=>
-    minus-double-inverse
-  handle (isIntegral'-=-cons _ v1=0) (isIntegral'-=-cons _ v2=0) = v1=0 >=> sym v2=0
-  handle (isIntegral'-<-cons a<b oi1) (isIntegral'->-cons b<a oi2) = bot-elim (asym-< a<b b<a)
-  handle (isIntegral'->-cons b<a oi1) (isIntegral'-<-cons a<b oi2) = bot-elim (asym-< a<b b<a)
-  handle (isIntegral'-=-cons a=b _) (isIntegral'-<-cons a<b _) = bot-elim (irrefl-path-< a=b a<b)
-  handle (isIntegral'-=-cons a=b _) (isIntegral'->-cons b<a _) = bot-elim (irrefl-path-< (sym a=b) b<a)
-  handle (isIntegral'-<-cons a<b _) (isIntegral'-=-cons a=b _) = bot-elim (irrefl-path-< a=b a<b)
-  handle (isIntegral'->-cons b<a _) (isIntegral'-=-cons a=b _) = bot-elim (irrefl-path-< (sym a=b) b<a)
+  module i1 = isIntegral i1
+  module i2 = isIntegral i2
+  ¬v1#v2 : ¬ (v1 # v2)
+  ¬v1#v2 v1#v2 = unsquash isPropBot (∥-bind3 handle i1.ε-case i2.ε-case (¬εBounded-# v1#v2))
+    where
+    handle : Σ[ k1 ∈ ℚ⁺ ] (∀ (ε : ℚ⁺) -> εBounded ⟨ ε ⟩ (diff a b) -> εBounded (⟨ k1 ⟩ * ⟨ ε ⟩) v1) ->
+             Σ[ k2 ∈ ℚ⁺ ] (∀ (ε : ℚ⁺) -> εBounded ⟨ ε ⟩ (diff a b) -> εBounded (⟨ k2 ⟩ * ⟨ ε ⟩) v2) ->
+             Σ[ ε ∈ ℚ⁺ ] ¬ (εBounded ⟨ ε ⟩ (diff v1 v2)) ->
+             ∥ Bot ∥
+    handle ((k1 , 0<k1) , εB1) ((k2 , 0<k2) , εB2) ((ε' , 0<ε') , ¬ε'v1v2) =
+      (∥-map handle2 (trichotomous-εBounded-diff (ε , 0<ε) a b))
+      where
+      0<k12 = +-preserves-0< 0<k1 0<k2
+      k12-inv = (\ k12=0 -> irrefl-path-< (sym k12=0) 0<k12)
+      ε = (r1/ (k1 + k2) k12-inv) * ε'
+      0<ε = *-preserves-0< (r1/-preserves-Pos _ k12-inv 0<k12) 0<ε'
+      ε⁺ : ℚ⁺
+      ε⁺ = ε , 0<ε
+      ε-path : (k1 * ε + k2 * ε) == ε'
+      ε-path =
+        sym *-distrib-+-right >=>
+        sym *-assoc >=>
+        *-left (*-commute >=> r1/-inverse _ k12-inv) >=>
+        *-left-one
+
+
+      handle2 : Tri⊎ (a < b) (εBounded ε (diff a b)) (b < a) -> Bot
+      handle2 (tri⊎-< a<b) = irrefl-path-# v1=v2 v1#v2
+        where
+        v1=v2 : v1 == v2
+        v1=v2 = cong fst (isProp-ΣisOrderedIntegral' (v1 , i1.<-case a<b) (v2 , i2.<-case a<b))
+      handle2 (tri⊎-> b<a) = irrefl-path-# v1=v2 (minus-preserves-# v1#v2)
+        where
+        v1=v2 : (- v1) == (- v2)
+        v1=v2 = cong fst (isProp-ΣisOrderedIntegral' (- v1 , i1.>-case b<a) (- v2 , i2.>-case b<a))
+      handle2 (tri⊎-= εab) =
+        ¬ε'v1v2 (subst (\ε -> εBounded ε (diff v1 v2)) ε-path εv1v2)
+        where
+        εv1 : εBounded (k1 * ε) v1
+        εv1 = εB1 ε⁺ εab
+        εv2 : εBounded (k2 * ε) v2
+        εv2 = εB2 ε⁺ εab
+        εv1v2 : εBounded (k1 * ε + k2 * ε) (diff v1 v2)
+        εv1v2 = εBounded-diff εv1 εv2
+
+IntegralOf : REL (ℝ -> ℝ) (ℝ -> ℝ -> ℝ) ℓ-one
+IntegralOf f g = ∀ a b -> (isIntegral a b f (g a b))
