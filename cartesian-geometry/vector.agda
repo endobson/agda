@@ -30,13 +30,13 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
+open import ordered-integral-domain
 open import ordered-ring
 open import ordered-ring.absolute-value
 open import ordered-semiring
-open import ordered-semiring.squares
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
-open import ordered-integral-domain
+open import ordered-semiring.squares
 open import real
 open import real.arithmetic.multiplication.inverse
 open import real.arithmetic.sqrt

@@ -148,7 +148,7 @@ private
       d2p
 
     k-cases : (k == 1#) ⊎ (k == (- 1#))
-    k-cases = abs-cases k 1# (IntegralDomain.1#0 IntegralDomain-ℝ)  ak=1
+    k-cases = abs-cases k 1# (IntegralDomain.1#0 IntegralDomain-ℝ) ak=1
 
     handle : (k == 1#) ⊎ (k == (- 1#)) -> SameSemiDirection d1 d2
     handle (inj-l k=1) =
