@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --exact-split #-}
+{-# OPTIONS --cubical --safe --exact-split -W noUnsupportedIndexedMatch #-}
 
 module type-algebra where
 

@@ -34,8 +34,7 @@ open import Agda.Primitive.Cubical public
            )
 
 open import Agda.Builtin.Cubical.Sub public
-  renaming ( inc        to inS
-           ; primSubOut to outS
+  renaming (  primSubOut to outS
            )
 
 open import Agda.Builtin.Sigma
