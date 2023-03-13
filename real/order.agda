@@ -14,6 +14,7 @@ open import order.instances.rational
 open import real
 open import relation hiding (U)
 open import truncation
+open import sum
 open import univalence
 
 record _ℝ<'_ (x y : ℝ) : Type₁ where
@@ -123,20 +124,40 @@ abstract
         handle3 (inj-l ly-r) = ∣ inj-l (∣ ℝ<'-cons r ux-r ly-r ∣) ∣
         handle3 (inj-r uy-q) = ∣ inj-r (∣ ℝ<'-cons q uy-q lz-q ∣) ∣
 
-trans-L-ℝ< : {q : ℚ} {x y : ℝ} -> Real.L x q -> x ℝ< y -> Real.L y q
-trans-L-ℝ< {q} {x} {y} q<x x<y = unsquash (Real.isProp-L y q) (∥-map handle x<y)
-  where
-  handle : x ℝ<' y -> Real.L y q
-  handle (ℝ<'-cons r x<r r<y) = Real.isLowerSet-L y q<r r<y
+  trans-L-ℝ< : {q : ℚ} {x y : ℝ} -> Real.L x q -> x ℝ< y -> Real.L y q
+  trans-L-ℝ< {q} {x} {y} q<x x<y = unsquash (Real.isProp-L y q) (∥-map handle x<y)
     where
-    q<r : q < r
-    q<r = ℝ-bounds->ℚ< x q<x x<r
+    handle : x ℝ<' y -> Real.L y q
+    handle (ℝ<'-cons r x<r r<y) = Real.isLowerSet-L y q<r r<y
+      where
+      q<r : q < r
+      q<r = ℝ-bounds->ℚ< x q<x x<r
 
-trans-ℝ<-U : {q : ℚ} {x y : ℝ} -> x ℝ< y -> Real.U y q -> Real.U x q
-trans-ℝ<-U {q} {x} {y} x<y y<q = unsquash (Real.isProp-U x q) (∥-map handle x<y)
-  where
-  handle : x ℝ<' y -> Real.U x q
-  handle (ℝ<'-cons r x<r r<y) = Real.isUpperSet-U x r<q x<r
+  trans-L-ℝ≤ : {q : ℚ} {x y : ℝ} -> Real.L x q -> ¬ (y ℝ< x) -> Real.L y q
+  trans-L-ℝ≤ {q} {x} {y} q<x y≮x =
+    unsquash (Real.isProp-L y q) (∥-bind handle (Real.isUpperOpen-L x q q<x))
     where
-    r<q : r < q
-    r<q = ℝ-bounds->ℚ< y r<y y<q
+    handle : Σ[ r ∈ ℚ ] (q < r × Real.L x r) -> ∥ Real.L y q ∥
+    handle (r , q<r , r<x) = ∥-map handle2 (Real.located y q r q<r)
+      where
+      handle2 : Real.L y q ⊎ Real.U y r -> Real.L y q
+      handle2 s = proj-¬r s (\y<r -> y≮x ∣ (ℝ<'-cons r y<r r<x) ∣)
+
+  trans-ℝ<-U : {q : ℚ} {x y : ℝ} -> x ℝ< y -> Real.U y q -> Real.U x q
+  trans-ℝ<-U {q} {x} {y} x<y y<q = unsquash (Real.isProp-U x q) (∥-map handle x<y)
+    where
+    handle : x ℝ<' y -> Real.U x q
+    handle (ℝ<'-cons r x<r r<y) = Real.isUpperSet-U x r<q x<r
+      where
+      r<q : r < q
+      r<q = ℝ-bounds->ℚ< y r<y y<q
+
+  trans-ℝ≤-U : {q : ℚ} {x y : ℝ} -> ¬ (y ℝ< x) -> Real.U y q -> Real.U x q
+  trans-ℝ≤-U {q} {x} {y} y≮x y<q =
+    unsquash (Real.isProp-U x q) (∥-bind handle (Real.isLowerOpen-U y q y<q))
+    where
+    handle : Σ[ r ∈ ℚ ] (r < q × Real.U y r) -> ∥ Real.U x q ∥
+    handle (r , r<q , y<r) = ∥-map handle2 (Real.located x r q r<q)
+      where
+      handle2 : Real.L x r ⊎ Real.U x q -> Real.U x q
+      handle2 s = proj-¬l s (\r<x -> y≮x ∣ (ℝ<'-cons r y<r r<x) ∣)
