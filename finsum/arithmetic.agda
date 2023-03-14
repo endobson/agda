@@ -2,23 +2,42 @@
 
 module finsum.arithmetic where
 
-open import apartness
 open import additive-group
+open import apartness
 open import base
 open import commutative-monoid
 open import equality
 open import equivalence
+open import fin
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
 open import finset
 open import finset.instances
 open import finsum
-open import fin
 open import functions
 open import isomorphism
 open import semiring
 open import sigma
 open import truncation
+
+
+module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}}
+  where
+  private
+    instance
+      IACM = ACM
+    module ACM = AdditiveCommMonoid ACM
+
+  module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
+    abstract
+      finiteSum-- : {f : I -> D} -> finiteSum (\i -> - (f i)) == - (finiteSum f)
+      finiteSum-- = finiteMerge-homo-inject -ʰ
+        where
+        -ʰ : CommMonoidʰᵉ ACM.comm-monoid ACM.comm-monoid -_
+        -ʰ = record
+          { preserves-ε = minus-zero
+          ; preserves-∙ = minus-distrib-plusᵉ
+          }
 
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
   where
@@ -37,17 +56,6 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
           { preserves-ε = *-right-zero
           ; preserves-∙ = \_ _ -> *-distrib-+-left
           }
-
-      module _ {{AG : AdditiveGroup ACM}}  where
-        finiteSum-- : {f : I -> D} -> finiteSum (\i -> - (f i)) == - (finiteSum f)
-        finiteSum-- = finiteMerge-homo-inject -ʰ
-          where
-          -ʰ : CommMonoidʰᵉ S.+-CommMonoid S.+-CommMonoid -_
-          -ʰ = record
-            { preserves-ε = minus-zero
-            ; preserves-∙ = minus-distrib-plusᵉ
-            }
-
 
   module _ {ℓ# : Level} {AG : AdditiveGroup ACM} {A : TightApartnessStr D ℓ#}
            {{AAG : ApartAdditiveGroup AG A}}  where
