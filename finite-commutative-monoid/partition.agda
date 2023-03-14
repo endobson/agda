@@ -14,6 +14,7 @@ open import finite-commutative-monoid.sigma
 open import finset
 open import finset.partition
 open import finset.instances
+open import finset.detachable
 open import finsum
 open import functions
 open import subset
@@ -103,3 +104,18 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
         finiteMerge-partition FB partition f >=>
         finiteMergeᵉ-convert CM _ _ (equiv⁻¹ (snd bin-partition)) _ >=>
         finiteMerge-Boolean CM (\k -> (finiteMergeᵉ' (FP' k) (f ∘ fst)))
+
+  module _ {ℓI ℓS : Level} (FI : FinSet ℓI) (S : Subtype ⟨ FI ⟩ ℓS) (DetS : Detachable S) where
+    private
+      I = fst FI
+
+    abstract
+      finiteMerge-detachable :
+        (f : I -> D) ->
+        finiteMergeᵉ' FI f ==
+        (finiteMergeᵉ' (FinSet-Detachable FI S DetS) (f ∘ fst)) ∙
+        (finiteMergeᵉ' (FinSet-DetachableComp FI S DetS) (f ∘ fst))
+      finiteMerge-detachable f =
+        finiteMerge-binary-partition FI (Detachable->BinaryPartition S DetS) f >=>
+        cong2 (\fs1 fs2 -> finiteMergeᵉ' (_ , fs1) (f ∘ fst) ∙ finiteMergeᵉ' (_ , fs2) (f ∘ fst))
+              (isProp-isFinSet _ _) (isProp-isFinSet _ _)

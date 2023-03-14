@@ -109,6 +109,9 @@ record FinSetStr (A : Type ℓ) : Type ℓ where
   field
     isFin : isFinSet A
 
+isFinSetⁱ : {A : Type ℓ} {{FA : FinSetStr A}} -> isFinSet A
+isFinSetⁱ {{FA}} = FinSetStr.isFin FA
+
 cardinalityⁱ : (A : Type ℓ) {{fs : FinSetStr A}} -> Nat
 cardinalityⁱ A {{fs}} = cardinality (A , FinSetStr.isFin fs)
 
