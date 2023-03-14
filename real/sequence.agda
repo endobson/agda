@@ -39,16 +39,6 @@ private
 private
   Seq = ℚSequence
 
-Cauchy : Pred Seq ℓ-zero
-Cauchy s = (ε : ℚ⁺) -> ∃[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ≥ n -> m₂ ≥ n ->
-                                     (abs (diff (s m₁) (s m₂))) < ⟨ ε ⟩)
-
-OpenEventualUpperBound : Seq -> Pred ℚ ℓ-zero
-OpenEventualUpperBound s q = ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> (s m r+ ⟨ ε ⟩) < q)
-
-OpenEventualLowerBound : Seq -> Pred ℚ ℓ-zero
-OpenEventualLowerBound s q = ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> (q r+ ⟨ ε ⟩) < s m)
-
 
 private
   ε-weaken-< : (q r : ℚ) -> (ε : ℚ⁺) -> (q r+ ⟨ ε ⟩) < r -> q < r

@@ -36,12 +36,12 @@ private
   Seq : Type₁
   Seq = Sequence ℝ
 
-Cauchy : Pred Seq ℓ-zero
-Cauchy s = (ε : ℚ⁺) -> ∃[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> n ≤ m₂ ->
-                                     εBounded ⟨ ε ⟩ (diff (s m₁) (s m₂)))
+isCauchy : Pred Seq ℓ-zero
+isCauchy s = (ε : ℚ⁺) -> ∃[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> n ≤ m₂ ->
+                                       εBounded ⟨ ε ⟩ (diff (s m₁) (s m₂)))
 
-isProp-Cauchy : {s : Seq} -> isProp (Cauchy s)
-isProp-Cauchy = isPropΠ (\ _ -> squash)
+isProp-isCauchy : {s : Seq} -> isProp (isCauchy s)
+isProp-isCauchy = isPropΠ (\ _ -> squash)
 
 private
   OpenEventualUpperBound : Seq -> Pred ℚ ℓ-zero
@@ -53,7 +53,7 @@ private
     ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.L (s m) (q r+ ⟨ ε ⟩))
 
 module _
-  {s : Seq} (cauchy : Cauchy s)
+  {s : Seq} (cauchy : isCauchy s)
   where
 
   private
@@ -338,27 +338,28 @@ module _
     ; located = located
     }
 
-  isLimit-CauchySeq->ℝ : isLimit s CauchySeq->ℝ
-  isLimit-CauchySeq->ℝ .isLimit.lower q = ∥-map handle
-    where
-    handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.L (s m) (q r+ ⟨ ε ⟩)) ->
-             Σ[ n ∈ ℕ ] ((m : Nat) -> m ≥ n -> Real.L (s m) q)
-    handle (n , (ε , 0<ε) , f) = (n , g)
+  private
+    isLimit-CauchySeq->ℝ : isLimit s CauchySeq->ℝ
+    isLimit-CauchySeq->ℝ .isLimit.lower q = ∥-map handle
       where
-      g : (m : Nat) -> m ≥ n -> Real.L (s m) q
-      g m m≥n = Real.isLowerSet-L (s m) (trans-=-< (sym +-right-zero) (+₁-preserves-< 0<ε))
-                                  (f m m≥n)
+      handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.L (s m) (q r+ ⟨ ε ⟩)) ->
+               Σ[ n ∈ ℕ ] ((m : Nat) -> m ≥ n -> Real.L (s m) q)
+      handle (n , (ε , 0<ε) , f) = (n , g)
+        where
+        g : (m : Nat) -> m ≥ n -> Real.L (s m) q
+        g m m≥n = Real.isLowerSet-L (s m) (trans-=-< (sym +-right-zero) (+₁-preserves-< 0<ε))
+                                    (f m m≥n)
 
-  isLimit-CauchySeq->ℝ .isLimit.upper q = ∥-map handle
-    where
-    handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.U (s m) (q r+ (- ⟨ ε ⟩))) ->
-             Σ[ n ∈ ℕ ] ((m : Nat) -> m ≥ n -> Real.U (s m) q)
-    handle (n , (ε , 0<ε) , f) = (n , g)
+    isLimit-CauchySeq->ℝ .isLimit.upper q = ∥-map handle
       where
-      g : (m : Nat) -> m ≥ n -> Real.U (s m) q
-      g m m≥n = Real.isUpperSet-U (s m) (trans-<-= (+₁-preserves-< (minus-flips-0< 0<ε))
-                                                    +-right-zero)
-                                  (f m m≥n)
+      handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.U (s m) (q r+ (- ⟨ ε ⟩))) ->
+               Σ[ n ∈ ℕ ] ((m : Nat) -> m ≥ n -> Real.U (s m) q)
+      handle (n , (ε , 0<ε) , f) = (n , g)
+        where
+        g : (m : Nat) -> m ≥ n -> Real.U (s m) q
+        g m m≥n = Real.isUpperSet-U (s m) (trans-<-= (+₁-preserves-< (minus-flips-0< 0<ε))
+                                                      +-right-zero)
+                                    (f m m≥n)
 
-  Cauchy->isConvergentSequence : isConvergentSequence s
-  Cauchy->isConvergentSequence = _ , isLimit-CauchySeq->ℝ
+  isCauchy->isConvergentSequence : isConvergentSequence s
+  isCauchy->isConvergentSequence = _ , isLimit-CauchySeq->ℝ

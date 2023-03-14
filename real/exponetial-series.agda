@@ -53,7 +53,7 @@ open import real.heyting-field
 open import real.interval
 open import real.order
 open import real.rational
-open import real.sequence hiding (Cauchy)
+open import real.sequence
 open import real.sequence.cauchy
 open import real.sequence.limit
 open import real.series
@@ -220,12 +220,12 @@ private
 
 
 
-  Cauchy' : Pred Seq ℓ-one
-  Cauchy' s = (ε : ℚ⁺) -> ∃[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ≥ n -> m₂ ≥ n ->
+  isCauchy' : Pred Seq ℓ-one
+  isCauchy' s = (ε : ℚ⁺) -> ∃[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ≥ n -> m₂ ≥ n ->
                                         (diff (s m₁) (s m₂)) < ℚ->ℝ ⟨ ε ⟩)
 
-  Cauchy'->Cauchy : {s : Seq} -> Cauchy' s -> Cauchy s
-  Cauchy'->Cauchy {s} f ε = ∥-map handle (f ε)
+  isCauchy'->isCauchy : {s : Seq} -> isCauchy' s -> isCauchy s
+  isCauchy'->isCauchy {s} f ε = ∥-map handle (f ε)
     where
     handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ≥ n -> m₂ ≥ n ->
                            (diff (s m₁) (s m₂)) < ℚ->ℝ ⟨ ε ⟩) ->
@@ -253,7 +253,7 @@ private
     (abs-≤ : {x : ℝ} -> x ≤ abs x)
     where
     EventuallyClose0-abs->Cauchy' :
-      (s : Seq) -> EventuallyClose0-abs s -> Cauchy' s
+      (s : Seq) -> EventuallyClose0-abs s -> isCauchy' s
     EventuallyClose0-abs->Cauchy' s f (ε , 0<ε) = ∥-map handle (f ε/2)
       where
       ε/2 : ℚ⁺
@@ -405,9 +405,9 @@ private
       isConvergentSeries s3 ->
       isConvergentSeries s2
     squeeze-ConvergentSeries s1 s2 s3 s1<s2 s2<s3 CS-s1 CS-s3 =
-      Cauchy->isConvergentSequence (Cauchy'->Cauchy f)
+      isCauchy->isConvergentSequence (isCauchy'->isCauchy f)
       where
-      f : Cauchy' (partial-sums s2)
+      f : isCauchy' (partial-sums s2)
       f ε = ∥-bind3 handle
               (squeeze-partial-sums s1 s2 s3 s1<s2 s2<s3)
               (ConvergentSeries->small-partial-sums s1 CS-s1 ε)
