@@ -18,27 +18,6 @@ private
   variable
     ℓD ℓ< ℓ≤ : Level
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
-         {S : Semiring ACM} {{AG : AdditiveGroup ACM}}
-         {O : LinearOrderStr D ℓ<}
-         {{LOA : LinearlyOrderedAdditiveStr ACM O}}
-         {{LOS : LinearlyOrderedSemiringStr S O}}
-         where
-  private
-    instance
-      IACM = ACM
-      IS = S
-      IO = O
-
-  abstract
-    1≮0 : 1# ≮ 0#
-    1≮0 1<0 = irrefl-< (trans-< -1<0 0<-1)
-      where
-      module _ where
-        0<-1 = minus-flips-<0 1<0
-        -1<0 = subst2 _<_ *-left-one *-left-one (*₁-flips-< 1<0 0<-1)
-
-
 module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {{AG : AdditiveGroup ACM}}
          {O : PartialOrderStr D ℓ≤}
          {{TO : TotalOrderStr O}}

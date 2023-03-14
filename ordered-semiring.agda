@@ -71,6 +71,9 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
     *-flips-<0 : {a b : D} -> a < 0# -> b < 0# -> 0# < (a * b)
     *-flips-<0 {a} {b} a<0 b<0 = subst (_< (a * b)) *-left-zero (*₂-flips-< a<0 b<0)
 
+    1≮0 : 1# ≮ 0#
+    1≮0 1<0 = asym-< (trans-<-= (*-flips-<0 1<0 1<0) *-left-one) 1<0
+
   private
     case-≮' : (x y x' y' : D) -> (x < y -> y' ≮ x') -> (x == y -> x' == y') -> (y ≮ x -> y' ≮ x')
     case-≮' x y x' y' f< f= y≮x y'<x' = irrefl-< (subst (y' <_) x'==y' y'<x')
