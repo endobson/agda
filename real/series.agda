@@ -26,7 +26,9 @@ open import order.instances.rational
 open import order.instances.real
 open import order.minmax
 open import order.minmax.instances.nat
+open import order.minmax.instances.real
 open import ordered-additive-group
+open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
 open import ordered-integral-domain
 open import ordered-ring
@@ -40,7 +42,7 @@ open import real.heyting-field
 open import real.interval
 open import real.order
 open import real.rational
-open import real.sequence hiding (Cauchy)
+open import real.sequence
 open import real.sequence.limit
 open import relation
 open import ring
@@ -70,6 +72,9 @@ isProp-isInfiniteSum = isProp-isLimit
 
 isConvergentSeries : Pred Seq ℓ-one
 isConvergentSeries s = isConvergentSequence (partial-sums s)
+
+isAbsConvergentSeries : Pred Seq ℓ-one
+isAbsConvergentSeries s = isConvergentSeries (abs ∘ s)
 
 isProp-isConvergentSeries : {s : Seq} -> isProp (isConvergentSeries s)
 isProp-isConvergentSeries = isProp-isConvergentSequence
