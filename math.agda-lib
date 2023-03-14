@@ -1,0 +1,4 @@
+name: math
+depend: standard-library
+include: .
+flags: --auto-inline
