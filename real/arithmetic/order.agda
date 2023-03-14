@@ -71,8 +71,8 @@ private
   ℝ*ᵉ-preserves-0< : (a b : ℝ) -> 0ℝ ℝ< a -> 0ℝ ℝ< b -> 0ℝ ℝ< (a ℝ*ᵉ b)
   ℝ*ᵉ-preserves-0< a b 0<a 0<b = (∥-map2 handle (ℝ∈Iℚ-Pos a 0<a) (ℝ∈Iℚ-Pos b 0<b))
     where
-    al-0 = ℝ<->L 0r a 0<a
-    bl-0 = ℝ<->L 0r b 0<b
+    al-0 = ℝ<->L 0<a
+    bl-0 = ℝ<->L 0<b
     handle : Σ[ ia ∈ Iℚ ] (ℝ∈Iℚ a ia × PosI ia) -> Σ[ ib ∈ Iℚ ] (ℝ∈Iℚ b ib × PosI ib) ->
              0ℝ ℝ<' (a ℝ*ᵉ b)
     handle (ia , a∈ia , pos-ia) (ib , b∈ib , pos-ib) =

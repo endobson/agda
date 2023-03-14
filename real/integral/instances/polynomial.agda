@@ -184,7 +184,7 @@ IntegralOf-constant k a b = record
 
         kB : εBounded (- k') k
         kB = subst (Real.L k) (sym minus-double-inverse) Lk' ,
-             Real.isUpperSet-U k 0<-k' (ℝ<->U _ _ k<0)
+             Real.isUpperSet-U k 0<-k' (ℝ<->U k<0)
     handle (tri⊎-> 0<k) = ∥-map handle2 (Real.Inhabited-U k)
       where
       handle2 : Σ[ k' ∈ ℚ ] (Real.U k k') -> Ans
@@ -194,5 +194,5 @@ IntegralOf-constant k a b = record
         -k'<0 = minus-flips-0< 0<k'
 
         kB : εBounded k' k
-        kB = Real.isLowerSet-L k -k'<0 (ℝ<->L _ _ 0<k) , Uk'
+        kB = Real.isLowerSet-L k -k'<0 (ℝ<->L 0<k) , Uk'
     handle (tri⊎-= kB) = ∣ ((1# , 0<1) , \ (ε , _) εB -> εBounded-* _ _ kB εB) ∣

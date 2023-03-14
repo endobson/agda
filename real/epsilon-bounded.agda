@@ -116,12 +116,12 @@ abstract
     w : ℚ
     w = diff l u
     Ld : Real.L (diff x y) (- w)
-    Ld = ℝ<->L (- w) (diff x y)
+    Ld = ℝ<->L
           (trans-=-< ℚ->ℝ-preserves--
             (trans-<-= (minus-flips-< (trans-<-= (+-preserves-< (U->ℝ< Ux) (minus-flips-< (L->ℝ< Ly)))
                                                  (sym ℚ->ℝ-preserves-diff)))
                (sym diff-anticommute)))
     Ud : Real.U (diff x y) w
-    Ud = ℝ<->U (diff x y) w
+    Ud = ℝ<->U
           (trans-<-= (+-preserves-< (U->ℝ< Uy) (minus-flips-< (L->ℝ< Lx)))
                                                (sym ℚ->ℝ-preserves-diff))

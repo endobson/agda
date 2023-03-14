@@ -42,7 +42,7 @@ isLimit-harmonic-sequence = close->isLimit f
     handle ((m@(suc m') , _) , 1/m<u) = m' , g
       where
       g : (n : ℕ) -> (m' ≤ n) -> ℝ∈Iℚ (harmonic-sequence n) qi
-      g n m'≤n = ℝ<->L l (harmonic-sequence n) (trans-< (L->ℝ< l<0) (0<harmonic-sequence n)) ,
-                 ℝ<->U (harmonic-sequence n) u 
-                   (ℚ->ℝ-preserves-< _ _ (trans-≤-< (1/ℕ-flips-≤ (suc m' , _) (suc n , _) (no.suc-≤ m'≤n))
-                                                    1/m<u))
+      g n m'≤n =
+        ℝ<->L (trans-< (L->ℝ< l<0) (0<harmonic-sequence n)) ,
+        ℝ<->U (ℚ->ℝ-preserves-< _ _ (trans-≤-< (1/ℕ-flips-≤ (suc m' , _) (suc n , _) (no.suc-≤ m'≤n))
+                                               1/m<u))

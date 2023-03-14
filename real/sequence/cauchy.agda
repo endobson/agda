@@ -106,7 +106,7 @@ module _
 
 
             q+1/2<sm : Real.L (s m) (q + 1/2r)
-            q+1/2<sm = ℝ<->L _ _ q+1/2r<sm
+            q+1/2<sm = ℝ<->L q+1/2r<sm
               where
               q+1/2r<sm : ℚ->ℝ (q + 1/2r) < s m
               q+1/2r<sm =
@@ -148,7 +148,7 @@ module _
             sm<ub-1/2' = trans-<-= sm<ub-1/2 (+-right (sym ℚ->ℝ-preserves--))
 
             sm<q-1/2 : Real.U (s m) (q + (- 1/2r))
-            sm<q-1/2 = ℝ<->U _ _ sm<q-1/2r
+            sm<q-1/2 = ℝ<->U sm<q-1/2r
               where
               sm<q-1/2r : s m < ℚ->ℝ (q + (- 1/2r))
               sm<q-1/2r =
@@ -296,7 +296,7 @@ module _
         handle2 (inj-l mid1<sn) = inj-l ∣ n , ε⁺ , g ∣
           where
           g : (m : Nat) -> m ≥ n -> Real.L (s m) (q + ε)
-          g m m≥n = ℝ<->L _ _ q+ε<sm
+          g m m≥n = ℝ<->L q+ε<sm
             where
             -ε<d : ℚ->ℝ (- ε) < (diff (s n) (s m))
             -ε<d = L->ℝ< (proj₁ (f n m refl-≤ m≥n))
@@ -310,7 +310,7 @@ module _
         handle2 (inj-r sn<mid2) = inj-r ∣ n , ε⁺ , g ∣
           where
           g : (m : Nat) -> m ≥ n -> Real.U (s m) (r + (- ε))
-          g m m≥n = ℝ<->U _ _ sm<r-ε
+          g m m≥n = ℝ<->U sm<r-ε
             where
             d<ε : (diff (s n) (s m)) < (ℚ->ℝ ε)
             d<ε = U->ℝ< (proj₂ (f n m refl-≤ m≥n))

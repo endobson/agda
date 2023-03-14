@@ -41,7 +41,7 @@ private
       module s = Real s
       module x = Real x
       sU-0 : s.U 0#
-      sU-0 = ℝ<->U s 0# s<0
+      sU-0 = ℝ<->U s<0
       xU-0 : x.U 0#
       xU-0 = subst x.U *-right-zero (snd (sU-0))
 

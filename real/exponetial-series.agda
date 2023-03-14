@@ -235,9 +235,9 @@ private
       where
       g2 : (m₁ m₂ : Nat) -> m₁ ≥ n -> m₂ ≥ n -> εBounded ⟨ ε ⟩ (diff (s m₁) (s m₂))
       g2 m₁ m₂ m₁≥n m₂≥n =
-        ℝ<->L _ _ (subst2 _<_ (sym ℚ->ℝ-preserves--) (sym diff-anticommute)
-                          (minus-flips-< (g m₂ m₁ m₂≥n m₁≥n))) ,
-        ℝ<->U _ _ (g m₁ m₂ m₁≥n m₂≥n)
+        ℝ<->L (subst2 _<_ (sym ℚ->ℝ-preserves--) (sym diff-anticommute)
+                      (minus-flips-< (g m₂ m₁ m₂≥n m₁≥n))) ,
+        ℝ<->U (g m₁ m₂ m₁≥n m₂≥n)
 
   ∀Largeℕ2' : {ℓ : Level} -> ((m1 m2 : ℕ) -> Type ℓ) -> Type ℓ
   ∀Largeℕ2' P = Σ[ n ∈ ℕ ] ((m1 m2 : ℕ) -> m1 ≥ n -> m2 ≥ n -> P m1 m2)

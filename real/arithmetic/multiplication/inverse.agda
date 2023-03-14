@@ -265,8 +265,8 @@ private
 
 module _ (x : ℝ)  where
   ℝ1/ᵉ : (xinv : ℝInv x) -> ℝ
-  ℝ1/ᵉ (inj-l x<0) = ℝ1/-Neg x (ℝ<->U x 0r x<0)
-  ℝ1/ᵉ (inj-r 0<x) = ℝ1/-Pos x (ℝ<->L 0r x 0<x)
+  ℝ1/ᵉ (inj-l x<0) = ℝ1/-Neg x (ℝ<->U x<0)
+  ℝ1/ᵉ (inj-r 0<x) = ℝ1/-Pos x (ℝ<->L 0<x)
 
   abstract
     ℝ1/ : (xinv : ℝInv x) -> ℝ
@@ -276,8 +276,8 @@ module _ (x : ℝ)  where
     ℝ1/-eval _ = refl
 
     ℝ1/-preserves-ℝInv : (xinv : ℝInv x) -> ℝInv (ℝ1/ xinv)
-    ℝ1/-preserves-ℝInv (inj-l x<0) = inj-l (ℝ1/-Neg<0 x (ℝ<->U x 0r x<0))
-    ℝ1/-preserves-ℝInv (inj-r 0<x) = inj-r (0<ℝ1/-Pos x (ℝ<->L 0r x 0<x))
+    ℝ1/-preserves-ℝInv (inj-l x<0) = inj-l (ℝ1/-Neg<0 x (ℝ<->U x<0))
+    ℝ1/-preserves-ℝInv (inj-r 0<x) = inj-r (0<ℝ1/-Pos x (ℝ<->L 0<x))
 
 
 ℝ--preserves-ℝInv : (x : ℝ) -> ℝInv x -> ℝInv (ℝ- x)
@@ -306,9 +306,9 @@ module _ (x : ℝ)  where
       p1 = ℝ-ᵉ-double-inverse x
 
       L0 : Real.L (ℝ-ᵉ -x) 0r
-      L0 = subst (Real.U -x) (sym minus-zero) (ℝ<->U -x 0r -x<0)
+      L0 = subst (Real.U -x) (sym minus-zero) (ℝ<->U -x<0)
 
-      p2 : (ℝ1/-Pos (ℝ-ᵉ -x) L0) == (ℝ1/-Pos x (ℝ<->L 0r x 0<x))
+      p2 : (ℝ1/-Pos (ℝ-ᵉ -x) L0) == (ℝ1/-Pos x (ℝ<->L 0<x))
       p2 = cong2-dep ℝ1/-Pos p1 (isProp->PathP (\i -> (Real.isProp-L (p1 i) 0r)))
 
     ℝ-ᵉ-ℝ1/ᵉ-commute' xinv@(inj-l x<0) -xinv@(inj-r 0<-x) =
@@ -316,7 +316,7 @@ module _ (x : ℝ)  where
       cong (ℝ1/-Pos -x) (x.isProp-U (- 0r) _ _)
       where
       L0 : Real.L -x 0r
-      L0 = subst x.U (sym minus-zero) (ℝ<->U x 0r x<0)
+      L0 = subst x.U (sym minus-zero) (ℝ<->U x<0)
 
     ℝ-ᵉ-ℝ1/ᵉ-commute' (inj-r 0<x) (inj-r 0<-x) = bot-elim (asym-ℝ< {0#} {x} 0<x x<0)
       where
@@ -458,8 +458,8 @@ private
 
 module _ (x : ℝ)  where
   ℝ1/ᵉ-inverse : (xinv : ℝInv x) -> ℝ1/ᵉ x xinv ℝ* x == 1ℝ
-  ℝ1/ᵉ-inverse (inj-l x<0) = 1/ℝ-Neg-inverse x (ℝ<->U x 0r x<0)
-  ℝ1/ᵉ-inverse (inj-r 0<x) = 1/ℝ-Pos-inverse x (ℝ<->L 0r x 0<x)
+  ℝ1/ᵉ-inverse (inj-l x<0) = 1/ℝ-Neg-inverse x (ℝ<->U x<0)
+  ℝ1/ᵉ-inverse (inj-r 0<x) = 1/ℝ-Pos-inverse x (ℝ<->L 0<x)
 
   abstract
     ℝ1/-inverse : (xinv : ℝInv x) -> ℝ1/ x xinv ℝ* x == 1ℝ

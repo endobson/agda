@@ -48,7 +48,7 @@ abstract
     forward : εBounded ε x -> εBounded' (ℚ->ℝ ε) x
     forward (l , u) = (subst (_< x) ℚ->ℝ-preserves-- (L->ℝ< l)) , (U->ℝ< u)
     backward : εBounded' (ℚ->ℝ ε) x -> εBounded ε x
-    backward (-ε<x , x<ε) = ℝ<->L _ _ (subst (_< x) (sym ℚ->ℝ-preserves--) -ε<x) , (ℝ<->U _ _ x<ε)
+    backward (-ε<x , x<ε) = ℝ<->L (subst (_< x) (sym ℚ->ℝ-preserves--) -ε<x) , (ℝ<->U x<ε)
 
   εBounded-zero : (ε : ℚ⁺) -> εBounded ⟨ ε ⟩ 0#
   εBounded-zero (ε , 0<ε) = (ℚ<->L (minus-flips-0< 0<ε) , ℚ<->U 0<ε)

@@ -262,22 +262,21 @@ module _
                        (Real.isLowerOpen-U x 1# xU-1)
         where
         xU-1 : Real.U x 1#
-        xU-1 = ℝ<->U x 1# x<1
+        xU-1 = ℝ<->U x<1
         handle : Σ[ n ∈ Nat ] (ℚ->ℝ u < (ℚ->ℝ (ℕ->ℚ n) * (1# + - x))) -> 
                  Σ[ q ∈ ℚ ] (q < 1# × Real.U x q) ->
                  ∃[ n ∈ ℕ ] ((m : ℕ) -> m ≥ n -> ℝ∈Iℚ (geometric-sequence x m) qi)
         handle _ (q , q<1 , xU-q) = ∥-bind handle2 (Archimedian-ℚ' 0<u 0<q q<1)
           where
           0<u = U->ℚ< U-u
-          0<q = ℝ-bounds->ℚ< x (ℝ<->L 0# x 0<x) xU-q
+          0<q = ℝ-bounds->ℚ< x (ℝ<->L 0<x) xU-q
           handle2 : Σ[ n ∈ Nat ] ((geometric-ℚ-sequence q n) < u) ->
                     ∃[ n ∈ ℕ ] ((m : ℕ) -> m ≥ n -> ℝ∈Iℚ (geometric-sequence x m) qi)
           handle2 (n , q^n<u) = ∣ n , g ∣
             where
             g : (m : ℕ) -> m ≥ n -> ℝ∈Iℚ (geometric-sequence x m) qi
-            g m m≥n = ℝ<->L l (geometric-sequence x m) 
-                            (trans-<-≤ (L->ℝ< L-l) (geometric-sequence-0≤ (weaken-< 0<x) m)) ,
-                      ℝ<->U (geometric-sequence x m) u x^m<u
+            g m m≥n = ℝ<->L (trans-<-≤ (L->ℝ< L-l) (geometric-sequence-0≤ (weaken-< 0<x) m)) ,
+                      ℝ<->U x^m<u
               where
               x^m≤q^m : (geometric-sequence x m) ≤ (geometric-sequence (ℚ->ℝ q) m)
               x^m≤q^m = (geometric-sequence-≤ (weaken-< 0<x) (weaken-< (U->ℝ< xU-q)) m)

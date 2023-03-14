@@ -104,16 +104,15 @@ abstract
   U->ℚ< : {q r : ℚ} -> Real.U (ℚ->ℝ q) r -> q < r
   U->ℚ< q<r = q<r
 
-  ℝ<->U : (x : ℝ) (q : ℚ) -> x ℝ< (ℚ->ℝ q) -> Real.U x q
-  ℝ<->U x q x<q = unsquash (x.isProp-U q) (∥-map handle x<q)
+  ℝ<->U : {x : ℝ} {q : ℚ} -> x ℝ< (ℚ->ℝ q) -> Real.U x q
+  ℝ<->U {x} {q} x<q = unsquash (x.isProp-U q) (∥-map handle x<q)
     where
     module x = Real x
     handle : x ℝ<' (ℚ->ℝ q) -> Real.U x q
     handle (ℝ<'-cons r xu-r r<q) = x.isUpperSet-U r<q xu-r
 
-
-  ℝ<->L : (q : ℚ) (x : ℝ) -> (ℚ->ℝ q) ℝ< x -> Real.L x q
-  ℝ<->L q x q<x = unsquash (x.isProp-L q) (∥-map handle q<x)
+  ℝ<->L : {q : ℚ} {x : ℝ} -> (ℚ->ℝ q) ℝ< x -> Real.L x q
+  ℝ<->L {q} {x} q<x = unsquash (x.isProp-L q) (∥-map handle q<x)
     where
     module x = Real x
     handle : (ℚ->ℝ q) ℝ<' x -> Real.L x q
