@@ -109,3 +109,19 @@ abstract
       path : (ε : ℚ⁺) -> (εBounded ⟨ ε ⟩ (diff b a)) == (εBounded ⟨ ε ⟩ (diff a b))
       path ε = (ua (εBounded-minus-eq (diff b a))) >=>
                cong (εBounded ⟨ ε ⟩) (sym diff-anticommute)
+
+  ℝ∈Iℚ->εBounded-diff : (i : Iℚ) (x y : ℝ) -> (ℝ∈Iℚ x i) -> (ℝ∈Iℚ y i) -> εBounded (i-width i) (diff x y)
+  ℝ∈Iℚ->εBounded-diff i@(Iℚ-cons l u _) x y (Lx , Ux) (Ly , Uy) = Ld , Ud
+    where
+    w : ℚ
+    w = diff l u
+    Ld : Real.L (diff x y) (- w)
+    Ld = ℝ<->L (- w) (diff x y)
+          (trans-=-< ℚ->ℝ-preserves--
+            (trans-<-= (minus-flips-< (trans-<-= (+-preserves-< (U->ℝ< Ux) (minus-flips-< (L->ℝ< Ly)))
+                                                 (sym ℚ->ℝ-preserves-diff)))
+               (sym diff-anticommute)))
+    Ud : Real.U (diff x y) w
+    Ud = ℝ<->U (diff x y) w
+          (trans-<-= (+-preserves-< (U->ℝ< Uy) (minus-flips-< (L->ℝ< Lx)))
+                                               (sym ℚ->ℝ-preserves-diff))
