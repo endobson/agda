@@ -112,16 +112,9 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
         f*-left-one a@(frac _ _ _) = nd-path (1f f* a) a *-left-one *-left-one
 
         f+-assoc : (a b c : F) -> (a f+ b) f+ c == a f+ (b f+ c)
-        f+-assoc a@(frac _ _ _) b@(frac _ _ _) c@(frac _ _ _) =
+        f+-assoc a@(frac na da _) b@(frac nb db _) c@(frac nc dc _) =
           nd-path ((a f+ b) f+ c) (a f+ (b f+ c)) p *-assoc
           where
-          module _ where
-            na = F.n a
-            nb = F.n b
-            nc = F.n c
-            da = F.d a
-            db = F.d b
-            dc = F.d c
           p : (na * db + nb * da) * dc + nc * (da * db) == na * (db * dc) + (nb * dc + nc * db) * da
           p = +-left *-distrib-+-right >=>
               +-left (+-left *-assoc) >=>
@@ -136,16 +129,8 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
 
 
         f*-distrib-+-right : (a b c : F) -> ((a f+ b) f* c) ~ ((a f* c) f+ (b f* c))
-        f*-distrib-+-right a@(frac _ _ _) b@(frac _ _ _) c@(frac _ _ _) = same-fraction p
+        f*-distrib-+-right (frac na da _) (frac nb db _) (frac nc dc _) = same-fraction p
           where
-          module _ where
-            na = F.n a
-            nb = F.n b
-            nc = F.n c
-            da = F.d a
-            db = F.d b
-            dc = F.d c
-
           p3 : ((na * db) * nc) * dc == (na * nc) * (db * dc)
           p3 = *-left (*-assoc >=> *-right *-commute >=> sym *-assoc) >=> *-assoc
 
@@ -168,15 +153,8 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
           p = *-right p2 >=> sym *-assoc >=> *-left p1
 
         +₁-preserves-~ : (a b c : F) -> b ~ c -> (a f+ b) ~ (a f+ c)
-        +₁-preserves-~ a@(frac _ _ _) b@(frac _ _ _) c@(frac _ _ _) (same-fraction b~c) = same-fraction p
+        +₁-preserves-~ (frac na da _) (frac nb db _) (frac nc dc _) (same-fraction b~c) = same-fraction p
           where
-          module _ where
-            na = F.n a
-            nb = F.n b
-            nc = F.n c
-            da = F.d a
-            db = F.d b
-            dc = F.d c
 
           p1 : (na * db) * (da * dc) == (na * dc) * (da * db)
           p1 = *-right *-commute >=> *-assoc >=>
@@ -195,17 +173,9 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
         +₂-preserves-~ a b c a~b =
           subst2 _~_ (f+-commute c a) (f+-commute c b) (+₁-preserves-~ c a b a~b)
 
-
         *₁-preserves-~ : (a b c : F) -> b ~ c -> (a f* b) ~ (a f* c)
-        *₁-preserves-~ a@(frac _ _ _) b@(frac _ _ _) c@(frac _ _ _) (same-fraction b~c) = (same-fraction p)
+        *₁-preserves-~ (frac na da _) (frac nb db _) (frac nc dc _) (same-fraction b~c) = (same-fraction p)
           where
-          module _ where
-            na = F.n a
-            nb = F.n b
-            nc = F.n c
-            da = F.d a
-            db = F.d b
-            dc = F.d c
 
           p : (na * nb) * (da * dc) == (na * nc) * (da * db)
           p = *-right *-commute >=> *-assoc >=>
@@ -255,18 +225,10 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
         irrefl-f# a (f#-cons a#a) = irrefl-# a#a
 
         comparison-f# : Comparison _f#_
-        comparison-f# a@(frac _ _ _) b@(frac _ _ _) c@(frac _ _ _) (f#-cons a#c) =
+        comparison-f# a@(frac na da _) b@(frac nb db _) c@(frac nc dc _) (f#-cons a#c) =
           ∥-map (⊎-map (f#-cons ∘ case1) (f#-cons ∘ case2)) (comparison-# _ _ _ ans3)
           where
           module _ where
-            na = F.n a
-            nb = F.n b
-            nc = F.n c
-            da = F.d a
-            db = F.d b
-            dc = F.d c
-
-
             ans3 : (db * (na * dc)) # (db * (nc * da))
             ans3 = *₁-preserves-# (F.d#0 b) a#c
 
@@ -284,19 +246,9 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
               p2 = sym *-assoc >=> *-commute >=> *-right *-commute
 
         #₁-~-forward : (a b c : F) -> b ~ c -> (a f# b) -> (a f# c)
-        #₁-~-forward a b c (same-fraction b~c) (f#-cons a#b) = (f#-cons ans)
+        #₁-~-forward (frac na da _) (frac nb db _) c@(frac nc dc _) (same-fraction b~c) (f#-cons a#b) = (f#-cons ans)
           where
           module _ where
-            na = F.n a
-            nb = F.n b
-            nc = F.n c
-            da = F.d a
-            db = F.d b
-            dc = F.d c
-
-            check2 : (na * db) # (nb * da)
-            check2 = a#b
-
             ans5 : (dc * diff (na * db) (nb * da)) # 0#
             ans5 = eqFun ID.*-#0-equiv (F.d#0 c , eqFun ID.diff-#-equiv a#b)
 
@@ -362,17 +314,10 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
             na#0 = subst2 _#_ *-right-one *-left-zero a#0
 
         f*₁-preserves-# : (a b c : F) -> a f# 0f -> b f# c -> (a f* b) f# (a f* c)
-        f*₁-preserves-# a@(frac _ _ _) b@(frac _ _ _) c@(frac _ _ _) (f#-cons a#0) (f#-cons b#c) =
+        f*₁-preserves-# a@(frac na da _) (frac nb db _) c@(frac nc dc _) (f#-cons a#0) (f#-cons b#c) =
           (f#-cons ans)
           where
           module _ where
-            na = F.n a
-            nb = F.n b
-            nc = F.n c
-            da = F.d a
-            db = F.d b
-            dc = F.d c
-
             da#0 = F.d#0 a
             na#0 : na # 0#
             na#0 = subst2 _#_ *-right-one *-left-zero a#0
@@ -387,16 +332,9 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
               p2 = *-assoc >=> *-right (sym *-assoc >=> *-left *-commute >=> *-assoc) >=> sym *-assoc
 
         f*₁-reflects-# : (a b c : F) -> (a f* b) f# (a f* c) -> b f# c
-        f*₁-reflects-# a@(frac _ _ _) b@(frac _ _ _) c@(frac _ _ _) (f#-cons ab#ac) = (f#-cons ans)
+        f*₁-reflects-# (frac na da _) (frac nb db _) (frac nc dc _) (f#-cons ab#ac) = (f#-cons ans)
           where
           module _ where
-            na = F.n a
-            nb = F.n b
-            nc = F.n c
-            da = F.d a
-            db = F.d b
-            dc = F.d c
-
             apart1 : ((na * da) * (nb * dc)) # ((na * da) * (nc * db))
             apart1 = subst2 _#_ (sym p1) (sym p2) ab#ac
               where
@@ -407,15 +345,10 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
             ans = *₁-reflects-# apart1
 
         diff-f#-equiv : (a b : F) -> (a f# b) ≃ ((b f+ (f- a)) f# 0f)
-        diff-f#-equiv a@(frac _ _ _) b@(frac _ _ _) =
+        diff-f#-equiv a@(frac na da _) b@(frac nb db _) =
           isoToEquiv (isProp->iso forward backward isProp-f# isProp-f#)
           where
           module _ where
-            na = F.n a
-            nb = F.n b
-            da = F.d a
-            db = F.d b
-
             forward : (a f# b) -> (b f+ (f- a)) f# 0f
             forward (f#-cons a#b) = (f#-cons ans)
               where
@@ -644,6 +577,7 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
         compute-inverse : (a : F) -> (a f# 0f) -> Σ[ b ∈ Q ] ([ a ] * b == 1#)
         compute-inverse a a#0 = [ fst inv ] , eq/ _ _ (snd inv)
           where
+          inv : Σ[ b ∈ F ] (SameFraction (a f* b) 1f)
           inv = #0->inverse a a#0
 
         isProp-inverse : (a : Q) -> a # 0q -> (i1 i2 : Σ[ b ∈ Q ] (a * b == 1#)) -> i1 == i2
