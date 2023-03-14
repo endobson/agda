@@ -5,21 +5,23 @@ module chapter2.mobius where
 open import additive-group
 open import additive-group.instances.int
 open import base
-open import chapter2.square-free
 open import chapter2.divisors
 open import chapter2.indicator
 open import chapter2.multiplicative
+open import chapter2.square-free
 open import commutative-monoid
 open import div
 open import equality
 open import equivalence
-open import functions
-open import funext
+open import fin-algebra
+open import finite-commutative-monoid.instances
+open import finset
+open import finset.instances
 open import finsum
 open import finsum.arithmetic
 open import finsum.sigma
-open import finset
-open import finset.instances
+open import functions
+open import funext
 open import isomorphism
 open import int using (Int ; int ; neg ; _^_ ; zero-int ; ^-right-zero ; ^-right-one
                       ; +-eval ; add-minus-zero)
@@ -34,11 +36,10 @@ open import prime-factorization
 open import prime-power-factorization
 open import relation
 open import relatively-prime
-open import ring.lists
 open import ring.implementations
+open import ring.lists
 open import semiring
 open import sigma.base
-open import fin-algebra
 open import unique-prime-factorization
 
 import unordered-list as ul
@@ -431,7 +432,7 @@ private
     ==< finiteSumᵉ-convert _ _ (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n)) _ >
       finiteSumᵉ (FinSet-Maybe (FinSet-Divisor pn))
          ((μ ∘ divisor->nat⁺ psn) ∘ (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))))
-    ==< finiteSum-Maybe (snd (FinSet-Divisor pn))
+    ==< finiteMerge-Maybe _ {{_}}
          ((μ ∘ divisor->nat⁺ psn) ∘ (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n)))) >
       μ (prime-power p (suc n) , _) +
       finiteSumᵉ (FinSet-Divisor pn) ((μ ∘ divisor->nat⁺ psn) ∘

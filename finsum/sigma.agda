@@ -13,6 +13,7 @@ open import fin-algebra
 open import equality
 open import equivalence
 open import finsum
+open import finite-commutative-monoid.instances
 open import finset.instances
 open import finset.instances.base
 open import fin
@@ -90,7 +91,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
             (equiv⁻¹ (reindexΣ (equiv⁻¹ (Fin-Maybe-eq n)) B >eq> Σ-Maybe-eq)) _ >
         finiteSumᵉ (FinSet-⊎ (FB zero-fin)
                             (FinSet-Σ (FinSet-Fin n) (FB ∘ suc-fin))) _
-      ==< finiteSum-⊎ _ _ _ >
+      ==< finiteMerge-⊎ _ {{_}} {{_}} _ >
         finiteSumᵉ (FB zero-fin) _ +
         finiteSumᵉ (FinSet-Σ (FinSet-Fin n) (FB ∘ suc-fin)) _
       ==< cong (finiteSumᵉ (FB zero-fin) _ +_) (finiteSum-Σ' _) >
@@ -119,7 +120,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
       path2 =
         finiteSumᵉ-convert (FinSet-Fin (suc n)) (FinSet-Maybe (FinSet-Fin n))
                           (equiv⁻¹ (Fin-Maybe-eq n)) f'
-        >=> finiteSum-Maybe _ _
+        >=> finiteMerge-Maybe _ _
 
   finiteSum-Σ : {ℓA ℓB : Level} -> (FA : FinSet ℓA) -> (FB : ⟨ FA ⟩ -> FinSet ℓB)
                 (f : (Σ ⟨ FA ⟩ (fst ∘ FB)) -> D) ->
