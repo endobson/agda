@@ -1,4 +1,4 @@
-{-# OPTIONS --cubical --safe --exact-split -W noUnsupportedIndexedMatch #-}
+{-# OPTIONS --cubical --safe --exact-split #-}
 
 module div where
 
@@ -8,11 +8,17 @@ open import commutative-monoid
 open import equality
 open import hlevel
 open import int
+open import fin
 open import nat
 open import nat.order
 open import order
 open import order.instances.nat
 open import quotient hiding (remainder)
+open import quotient-remainder using
+  ( QuotientRemainder
+  ; quotient-remainder
+  ; isContr-QuotientRemainder
+  )
 open import relation hiding (acc)
 open import ring.implementations
 open import sigma.base
@@ -333,190 +339,29 @@ no-small-dividends {d} {n} n<d n!=0 d!=0 (x , pr) with x
   n<n = trans-<-≤ n<d d≤n
 
 -- remainder d n a = exists x => a + x * d == n
-data Remainder : Nat -> Nat -> Nat -> Type₀ where
-  remainder : (d n a x : Nat) -> a < d -> (a +' x *' d == n) -> Remainder d n a
-
-remainder->div : {d n : Nat} -> Remainder d n 0 -> d div' n
-remainder->div (remainder d n zero x _ pr) = x , pr
-
-
-div->remainder : {d n : Nat} -> d div' n -> d != 0 -> Remainder d n 0
-div->remainder {zero}        _        d!=0 = bot-elim (d!=0 refl)
-div->remainder d@{suc _} {n} (x , pr) d!=0 = (remainder d n 0 x zero-< pr)
-
-
-
-private
-  -- ModStep d n b x a
-  -- d == (suc d')
-  -- a + b == d'
-  -- n == a + x * d
-  data ModStep : Nat -> Nat -> Nat -> Nat -> Nat -> Type₀ where
-    mod-base : (d' : Nat) -> ModStep (suc d') 0 d' 0 0
-    mod-small-step : {d n b x a : Nat}
-                     -> ModStep d n (suc b) x a
-                     -> ModStep d (suc n) b x (suc a)
-    mod-large-step : {d n b x : Nat}
-                     -> ModStep d n zero x b
-                     -> ModStep d (suc n) b (suc x) zero
-
-  ¬mod-step-zero : {n b x a : Nat} -> ¬ (ModStep zero n b x a)
-  ¬mod-step-zero (mod-small-step step) = ¬mod-step-zero step
-  ¬mod-step-zero (mod-large-step step) = ¬mod-step-zero step
-
-  mod-step->remainder : {d n b x a : Nat} -> ModStep d n b x a -> Remainder d n a
-  mod-step->remainder {d@(suc d')} {n} {b} {x} {a} step =
-    remainder d n a x a<d (eq-step step)
-    where
-    ab=d' : {n b x a : Nat} -> ModStep d n b x a -> (a +' b) == d'
-    ab=d' (mod-base d') = refl
-    ab=d' (mod-small-step {d} {n} {b} {x} {a} step) = (sym (+'-right-suc {a} {b})) >=> ab=d' step
-    ab=d' (mod-large-step {d} {n} {b} step) = (sym (+'-right-zero {b})) >=> ab=d' step
-
-    a<d : a < d
-    a<d = suc-≤ (≤'->≤ (b , (ab=d' step)))
-
-    eq-step : {n b x a : Nat} -> ModStep d n b x a -> a +' x *' d == n
-    eq-step (mod-base d') = refl
-    eq-step (mod-small-step step) = cong suc (eq-step step)
-    eq-step (mod-large-step {d} {n} {a} {x} step) =
-      begin
-        (suc x) *' d
-      ==<>
-        suc (d' +' x *' d)
-      ==< cong suc (+'-left (sym (ab=d' step))) >
-        suc ((a +' 0) +' x *' d)
-      ==< cong suc (+'-left (+'-right-zero {a})) >
-        suc (a +' x *' d)
-      ==< cong suc (eq-step step) >
-        (suc n)
-      end
-  mod-step->remainder {zero} step = bot-elim (¬mod-step-zero step)
-
-  private
-    data ModEqProof : Nat -> Nat -> Nat -> Nat -> Nat -> Nat -> Type₀ where
-      mod-eq-proof : {b1 b2 x1 x2 a1 a2 : Nat}
-                     -> b1 == b2
-                     -> x1 == x2
-                     -> a1 == a2
-                     -> ModEqProof b1 b2 x1 x2 a1 a2
-
-  unique-mod-step : {d' n b1 b2 x1 x2 a1 a2 : Nat}
-                    -> ModStep (suc d') n b1 x1 a1
-                    -> ModStep (suc d') n b2 x2 a2 -> ModEqProof b1 b2 x1 x2 a1 a2
-  unique-mod-step (mod-base _) (mod-base _) = mod-eq-proof refl refl refl
-  unique-mod-step (mod-small-step step1) (mod-small-step step2)
-    with (unique-mod-step step1 step2)
-  ...  | (mod-eq-proof pb px pa) = (mod-eq-proof (suc-injective pb) px (cong suc pa))
-  unique-mod-step (mod-large-step step1) (mod-large-step step2)
-    with (unique-mod-step step1 step2)
-  ...  | (mod-eq-proof pb px pa) = (mod-eq-proof pa (cong suc px) pb)
-  unique-mod-step (mod-small-step step1) (mod-large-step step2)
-    with (unique-mod-step step1 step2)
-  ...  | (mod-eq-proof p _ _) = zero-suc-absurd (sym p)
-  unique-mod-step (mod-large-step step1) (mod-small-step step2)
-    with (unique-mod-step step1 step2)
-  ...  | (mod-eq-proof p _ _) = zero-suc-absurd p
-
-
-  -- Existential for indices in mod
-  data ModOutput : Nat -> Nat -> Type₀ where
-    mod-output : {d n b x : Nat} (a : Nat) -> (step : ModStep d n b x a) -> ModOutput d n
-
-  mod : (d : Nat) -> d != 0 -> (n : Nat) -> ModOutput d n
-  mod zero d!=0 = bot-elim (d!=0 refl)
-  mod d@(suc d') d!=0 n =
-    (rec n 0 d' 0 0 (mod-base d') (+'-right-zero {n}))
-    where
-    rec : (i : Nat) (j : Nat) (b : Nat) (x : Nat) (a : Nat)
-          -> ModStep d j b x a
-          -> (i +' j == n)
-          -> ModOutput d n
-    rec zero j b x a step p = transport (\i -> ModOutput d (p i)) (mod-output a step)
-    rec (suc i) j zero x acc step p =
-      rec i (suc j) acc (suc x) zero (mod-large-step step) (+'-right-suc {i} >=> p)
-    rec (suc i) j (suc acc2) x acc1 step p =
-      rec i (suc j)  acc2 x (suc acc1) (mod-small-step step) (+'-right-suc {i} >=> p)
-
-exists-remainder : (d : Nat) -> d != 0 -> (n : Nat) -> Σ[ r ∈ Nat ] (Remainder d n r)
-exists-remainder d pr n with (mod d pr n)
-... | (mod-output a step) = a , (mod-step->remainder step)
-
-
-private
-  data ExistsModStep : Nat -> Nat -> Nat -> Type₀ where
-    exists-mod-step : {d n b x a : Nat} (step : ModStep d n b x a) -> ExistsModStep d n a
-
-  data ModStep' : Nat -> Nat -> Nat -> Nat -> Type₀ where
-    mod-base' : (d' : Nat) -> ModStep' (suc d') 0 0 0
-    mod-small-step' : {d' n x a : Nat}
-                      -> ModStep' (suc d') n x a
-                      -> ModStep' (suc d') (suc n) x (suc a)
-    mod-large-step' : {d' n x : Nat}
-                      -> ModStep' (suc d') n x d'
-                      -> ModStep' (suc d') (suc n) (suc x) zero
-
-
-  mod'->mod : {d n x a : Nat} -> ModStep' d n x a -> a < d -> ExistsModStep d n a
-  mod'->mod step (b , pr) = exists-mod-step (rec step (sym (+'-commute {b}) >=> pr))
-    where
-    rec : {d n b x a : Nat} -> ModStep' d n x a -> suc (a +' b) == d -> ModStep d n b x a
-    rec {d} (mod-base' d') p =
-      transport (\i -> ModStep d 0 (cong pred p (~ i)) 0 0)
-                (mod-base d')
-    rec {d} {n} {b} {x} {a} (mod-small-step' step) pr =
-      mod-small-step (rec step ((+'-right-suc {a} {b}) >=> pr))
-    rec {suc d'} {suc n} {b} {suc x} {a} (mod-large-step' step) p =
-      mod-large-step (rec tstep path)
-      where
-      path : (suc b +' 0) == suc d'
-      path = cong suc (+'-right-zero {b}) >=> p
-
-      tstep : ModStep' (suc d') n x b
-      tstep = transport (\i -> ModStep' (suc d' ) n x (cong pred p (~ i))) step
-
-
-
-  remainder->mod-step : {d n a : Nat} -> Remainder d n a -> ExistsModStep d n a
-  remainder->mod-step {zero} (remainder _ _ _ _ a<d _) = bot-elim (zero-≮ a<d)
-  remainder->mod-step d@{suc d'} (remainder _ n a x a<d pr) =
-      (mod'->mod (rec n a x a<d pr) a<d)
-    where
-    rec : (n a x : Nat) -> a < d -> (a +' x *' d == n) -> ModStep' d n x a
-    rec zero zero zero _ refl = (mod-base' d')
-    rec (suc n) (suc a) x a<d pr =
-      (mod-small-step' (rec n a x (right-suc-< (pred-≤ a<d)) (suc-injective pr)))
-    rec (suc n) zero (suc x) _ pr =
-      (mod-large-step' (rec n d' x (add1-< d') (suc-injective pr)))
-
-    rec zero    zero    (suc x) a<d pr = zero-suc-absurd (sym pr)
-    rec zero    (suc a) (suc x) a<d pr = zero-suc-absurd (sym pr)
-    rec zero    (suc a) zero    a<d pr = zero-suc-absurd (sym pr)
-    rec (suc n) zero    zero    a<d pr = zero-suc-absurd pr
-
-unique-remainder : {d n a1 a2 : Nat} -> Remainder d n a1 -> Remainder d n a2 -> a1 == a2
-unique-remainder {zero} (remainder _ _ _ _ a<d _) = bot-elim (zero-≮ a<d)
-unique-remainder {suc _} rem1 rem2
- with (remainder->mod-step rem1) | (remainder->mod-step rem2)
-... | (exists-mod-step {d} {n} step1) | (exists-mod-step {d} {n} step2)
- with (unique-mod-step step1 step2)
-... | (mod-eq-proof _ _ pr) = pr
-
-remainder->¬div : {d n a : Nat} -> Remainder d n (suc a) -> ¬(d div' n)
-remainder->¬div {zero} (remainder _ _ _ _ lt _) = bot-elim (zero-≮ lt)
-remainder->¬div {suc _} rem dn =
-  (zero-suc-absurd (sym (unique-remainder rem (div->remainder dn (\p -> bot-elim (zero-suc-absurd (sym p)))))))
-
+data Remainder (d n a : Nat) : Type₀ where
+  remainder : (x : Nat) -> a < d -> (a +' x *' d == n) -> Remainder d n a
 
 decide-div : (d n : Nat) -> Dec (d div' n)
-decide-div _ zero = yes div'-zero
+decide-div zero zero    = yes div'-zero
 decide-div zero (suc d) = no f
   where
   f : (x : zero div' (suc d)) -> Bot
   f z-div = zero-suc-absurd (sym (div'-zero->zero z-div))
-decide-div d@(suc d') n@(suc _) with (exists-remainder d (\ d=z -> zero-suc-absurd (sym d=z)) n)
-... | (zero , rem) = yes (remainder->div rem)
-... | ((suc a) , rem) = no (remainder->¬div rem)
+decide-div d@(suc d') n = handle (quotient-remainder (d , tt) n)
+  where
+  handle : QuotientRemainder (d , tt) n -> Dec (d div' n)
+  handle (record { q = q ; r = (zero , _)      ; path = path }) =
+    yes (q , sym +'-right-zero >=> path )
+  handle qr@(record { q = q ; r = (r@(suc _) , _) ; path = path }) = no f
+    where
+    f : ¬ (d div' n)
+    f (q' , p') =
+      zero-suc-absurd (cong Fin.i (cong QuotientRemainder.r
+        (isContr->isProp isContr-QuotientRemainder qr' qr)))
+      where
+      qr' : QuotientRemainder (d , tt) n
+      qr' = record { q = q' ; r = (zero , zero-<) ; path = +'-right-zero >=> p' }
 
 
 isPropDiv₁ : {d n : Int} -> (NonZero d) -> isProp (d div n)
