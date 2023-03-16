@@ -1177,28 +1177,3 @@ small-1/2^ℕ q@(q' , _) = ∥-map handle (small-1/2^ℕ-step1 q)
     where
     lt2 : ((1/2r r^ℕ⁰ m) r* q1') < (q3' r* q1')
     lt2 = *₂-preserves-< lt pos-q1
-
-seperate-< : (a b : ℚ) -> a < b -> Σ[ ε ∈ ℚ⁺ ] (a r+ ⟨ ε ⟩) < (b r+ (r- ⟨ ε ⟩))
-seperate-< a b a<b = ε , Pos-diffℚ⁻ (a r+ ε') (b r+ (r- ε')) pos-diff
-  where
-  ε' = 1/2r r* (1/2r r* (diff a b))
-  ε : ℚ⁺
-  ε = ε' , r*-preserves-Pos 1/2r _ Pos-1/2r
-                            (r*-preserves-Pos 1/2r (diff a b) Pos-1/2r (Pos-diffℚ a b a<b))
-
-  path : (diff (a r+ ε') (b r+ (r- ε'))) == 1/2r r* (diff a b)
-  path =
-    sym +-swap-diff >=>
-    cong2 _r+_
-          (sym (r*-left-one (diff a b)))
-          (sym minus-distrib-plus >=>
-           cong r-_ (1/2r-path' (1/2r r* (diff a b))) >=>
-           sym minus-extract-left) >=>
-    sym (*-distrib-+-right {_} {_} {_} {1r} {r- 1/2r} {diff a b}) >=>
-    cong (_r* (diff a b)) (cong (_r+ (r- 1/2r)) (sym (1/2r-path 1r) >=>
-                                                  cong2 _+_ (r*-left-one 1/2r) (r*-left-one 1/2r)) >=>
-                            r+-assoc 1/2r 1/2r (r- 1/2r) >=>
-                            diff-step)
-
-  pos-diff : Pos (diff (a r+ ε') (b r+ (r- ε')))
-  pos-diff = subst Pos (sym path) (r*-preserves-Pos 1/2r (diff a b) (Pos-1/ℕ 2⁺) (Pos-diffℚ a b a<b))

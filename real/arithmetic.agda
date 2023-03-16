@@ -22,6 +22,7 @@ open import real.rational
 open import real.sequence
 open import relation hiding (U)
 open import ring.implementations.rational
+open import semiring
 open import sign
 open import sign.instances.rational
 open import sum
@@ -117,42 +118,30 @@ module _ (x y : ℝ) where
           x.disjoint r3 ((x.isLowerSet-L r3<r1 l-r1) , u-r3)
 
     located : (a b : ℚ) -> a < b -> ∥ L a ⊎ U b ∥
-    located a b a<b = ∥-bind handle (find-centered-ball x ε)
+    located a b a<b = ∥-map2 handle (find-open-ball x ε⁺) (find-open-ball y ε⁺)
       where
-      s = seperate-< a b a<b
-      ε : ℚ⁺
-      ε = fst s
-      ε' : ℚ
-      ε' = fst ε
-      aε<bε : (a r+ ε') < (b r+ (r- ε'))
-      aε<bε = snd s
-
-      handle : Σ[ c ∈ ℚ ] (x.L (c r+ (r- ε')) × x.U (c r+ ε')) -> ∥ L a ⊎ U b ∥
-      handle (c , Lc⁻ , Uc⁺) = ∥-map handle2 (y.located d e d<e)
+      d = diff a b
+      0<d = diff-0<⁺ a<b
+      ε = 1/2r * (1/2r * d)
+      0<ε = *-preserves-0< Pos-1/2r (*-preserves-0< Pos-1/2r 0<d)
+      ε⁺ = ε , 0<ε
+      εε<d : (ε + ε) < diff a b
+      εε<d = trans-=-< (1/2r-path' _) (trans-<-= (*₂-preserves-< 1/2r<1r 0<d) *-left-one)
+      handle : OpenBall x ε -> OpenBall y ε -> L a ⊎ U b
+      handle (xl , xu , xL , xU , xd-p) (yl , yu , yL , yU , yd-p) = handle2 (split-< a (xl + yl))
         where
-        c⁻ = c r+ (r- ε')
-        c⁺ = c r+ ε'
-
-        d = a r+ (r- c⁻)
-        e = b r+ (r- c⁺)
-        d<e : d < e
-        d<e = subst2 _<_ path1 path2 (+₂-preserves-< aε<bε)
+        handle2 : (a < (xl + yl)) ⊎ ((xl + yl) ≤ a) -> L a ⊎ U b
+        handle2 (inj-l a<xlyl) = inj-l (isLowerSet-L a<xlyl ∣ (xl , yl , xL , yL , refl) ∣)
+        handle2 (inj-r xlyl≤a) = inj-r (isUpperSet-U lt ∣ (xu , yu , xU , yU , refl) ∣)
           where
-          path1 : (a r+ ε') r+ (r- c) == d
-          path1 = r+-assoc a ε' (r- c) >=> cong (a r+_) diff-anticommute
-          path2 : (b r+ (r- ε')) r+ (r- c) == e
-          path2 = r+-assoc b (r- ε') (r- c) >=>
-                  cong (b r+_) (sym minus-distrib-plus >=>
-                                cong r-_ (r+-commute ε' c))
+          lt' : ((xl + yl) + (ε + ε)) ≤ (a + (ε + ε))
+          lt' = +₂-preserves-≤ (xlyl≤a)
+          lt : (xu + yu) < b
+          lt = trans-=-<
+                 (+-cong (sym diff-step >=> +-right xd-p) (sym diff-step >=> +-right yd-p) >=> +-swap)
+                 (trans-≤-< lt' (trans-<-= (+₁-preserves-< εε<d) diff-step))
 
-        d-path : c⁻ r+ d == a
-        d-path = diff-step
-        e-path : c⁺ r+ e == b
-        e-path = diff-step
 
-        handle2 : y.L d ⊎ y.U e -> L a ⊎ U b
-        handle2 (inj-l Ld) = inj-l ∣ c⁻ , d , Lc⁻ , Ld , d-path ∣
-        handle2 (inj-r Ue) = inj-r ∣ c⁺ , e , Uc⁺ , Ue , e-path ∣
 
     isUpperOpen-L : isUpperOpen L
     isUpperOpen-L q = ∥-bind handle
