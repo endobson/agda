@@ -4,15 +4,16 @@ module order.minmax where
 
 open import base
 open import equality
+open import functions
 open import hlevel.base
 open import order
 open import relation
 open import sum
 open import truncation
 
-
 record MinOperationStr {ℓD ℓ< : Level} {D : Type ℓD} (LO : LinearOrderStr D ℓ<) :
                        Type (ℓ-max ℓ< ℓD) where
+  no-eta-equality
   private
     _<'_ = LinearOrderStr._<_ LO
 
@@ -42,6 +43,21 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO :
       handle (inj-l xy<x) (inj-r y<yx) = min-≮-left y<yx
       handle (inj-l xy<x) (inj-l xy<y) = irrefl-< (min-greatest-< xy<x xy<y)
 
+  min-greatest-≮ : {x y z : D} -> x ≮ z -> y ≮ z -> min x y ≮ z
+  min-greatest-≮ {x} {y} {z} x≮z y≮z =
+    (\xy<z -> unsquash isPropBot (∥-map2 handle (comparison-< _ _ _ xy<z)
+                                                (comparison-< _ _ _ xy<z)))
+    where
+    handle : (min x y < x ⊎ x < z) -> (min x y < y ⊎ y < z) -> Bot
+    handle (inj-r x<z)  _            = x≮z x<z
+    handle (inj-l xy<x) (inj-r y<z)  = y≮z y<z
+    handle (inj-l xy<x) (inj-l xy<y) = irrefl-< (min-greatest-< xy<x xy<y)
+
+  min-≮-path : {x y : D} -> x ≮ y -> min x y == y
+  min-≮-path x≮y = connected-< (min-greatest-≮ x≮y irrefl-<) min-≮-right
+
+  min-≯-path : {x y : D} -> x ≯ y -> min x y == x
+  min-≯-path x≯y = min-commute >=> min-≮-path x≯y
 
   min-<-path : {x y : D} -> x < y -> min x y == x
   min-<-path x<y =
@@ -85,6 +101,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO :
 
 record MaxOperationStr {ℓD ℓ< : Level} {D : Type ℓD} (LO : LinearOrderStr D ℓ<) :
                        Type (ℓ-max ℓ< ℓD) where
+  no-eta-equality
   private
     _<'_ = LinearOrderStr._<_ LO
 
@@ -113,6 +130,23 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO :
       handle (inj-l xy<x) _            = max-≮-left xy<x
       handle (inj-r x<yx) (inj-l xy<y) = max-≮-right xy<y
       handle (inj-r x<yx) (inj-r y<yx) = irrefl-< (max-least-< y<yx x<yx)
+
+  max-least-≮ : {x y z : D} -> z ≮ x -> z ≮ y -> z ≮ max x y
+  max-least-≮ {x} {y} {z} z≮x z≮y =
+    (\z<xy -> unsquash isPropBot (∥-map2 handle (comparison-< _ _ _ z<xy)
+                                                (comparison-< _ _ _ z<xy)))
+    where
+    handle : (z < x ⊎ x < max x y) -> (z < y ⊎ y < max x y) -> Bot
+    handle (inj-l z<x)  _            = z≮x z<x
+    handle (inj-r x<xy) (inj-l z<y)  = z≮y z<y
+    handle (inj-r x<xy) (inj-r y<xy) = irrefl-< (max-least-< x<xy y<xy)
+
+  max-≮-path : {x y : D} -> x ≮ y -> max x y == x
+  max-≮-path x≮y = connected-< max-≮-left (max-least-≮ irrefl-< x≮y)
+
+  max-≯-path : {x y : D} -> x ≯ y -> max x y == y
+  max-≯-path x≯y = max-commute >=> max-≮-path x≯y
+
 
   max-<-path : {x y : D} -> x < y -> max x y == y
   max-<-path x<y =
@@ -166,20 +200,13 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
   max-≤-right = convert-≮ max-≮-right
 
   max-least-≤ : {x y z : D} -> x ≤ z -> y ≤ z -> max x y ≤ z
-  max-least-≤ {x} {y} {z} x≤z y≤z =
-    convert-≮ (\z<xy -> unsquash isPropBot (∥-map2 handle (comparison-< _ _ _ z<xy)
-                                                          (comparison-< _ _ _ z<xy)))
-    where
-    handle : (z < x ⊎ x < max x y) -> (z < y ⊎ y < max x y) -> Bot
-    handle (inj-l z<x)  _            = irrefl-< (trans-≤-< x≤z z<x)
-    handle (inj-r x<xy) (inj-l z<y)  = irrefl-< (trans-≤-< y≤z z<y)
-    handle (inj-r x<xy) (inj-r y<xy) = irrefl-< (max-least-< x<xy y<xy)
+  max-least-≤ {x} {y} {z} x≤z y≤z = convert-≮ (max-least-≮ (convert-≤ x≤z) (convert-≤ y≤z))
 
   max-≤-path : {x y : D} -> x ≤ y -> max x y == y
-  max-≤-path x≤y = antisym-≤ (max-least-≤ x≤y refl-≤) max-≤-right
+  max-≤-path = max-≯-path ∘ convert-≤
 
   max-≥-path : {x y : D} -> x ≥ y -> max x y == x
-  max-≥-path x≥y = max-commute >=> max-≤-path x≥y
+  max-≥-path = max-≮-path ∘ convert-≤
 
   max₁-preserves-≤ : {x y z : D} -> y ≤ z -> max x y ≤ max x z
   max₁-preserves-≤ y≤z = max-least-≤ max-≤-left (trans-≤ y≤z max-≤-right)
@@ -205,20 +232,13 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
   min-≤-right = convert-≮ min-≮-right
 
   min-greatest-≤ : {x y z : D} -> z ≤ x -> z ≤ y -> z ≤ min x y
-  min-greatest-≤ {x} {y} {z} z≤x z≤y =
-    convert-≮ (\xy<z -> unsquash isPropBot (∥-map2 handle (comparison-< _ _ _ xy<z)
-                                                          (comparison-< _ _ _ xy<z)))
-    where
-    handle : (min x y < x ⊎ x < z) -> (min x y < y ⊎ y < z) -> Bot
-    handle (inj-r x<z)  _            = irrefl-< (trans-≤-< z≤x x<z)
-    handle (inj-l xy<x) (inj-r y<z)  = irrefl-< (trans-≤-< z≤y y<z)
-    handle (inj-l xy<x) (inj-l xy<y) = irrefl-< (min-greatest-< xy<x xy<y)
+  min-greatest-≤ {x} {y} {z} z≤x z≤y = convert-≮ (min-greatest-≮ (convert-≤ z≤x) (convert-≤ z≤y))
 
   min-≤-path : {x y : D} -> x ≤ y -> min x y == x
-  min-≤-path x≤y = antisym-≤ min-≤-left (min-greatest-≤ refl-≤ x≤y)
+  min-≤-path = min-≯-path ∘ convert-≤
 
   min-≥-path : {x y : D} -> x ≥ y -> min x y == y
-  min-≥-path x≥y = min-commute >=> min-≤-path x≥y
+  min-≥-path = min-≮-path ∘ convert-≤
 
   min₁-preserves-≤ : {x y z : D} -> y ≤ z -> min x y ≤ min x z
   min₁-preserves-≤ y≤z = min-greatest-≤ min-≤-left (trans-≤ min-≤-right y≤z)
@@ -416,3 +436,31 @@ module _ {ℓD : Level} {D : Type ℓD} {ℓ< : Level} {{LO : LinearOrderStr D �
     ; max-≮-right = isMax.right (snd (max' _ _))
     ; max-least-< = isMax.least (snd (max' _ _))
     }
+
+----- Global operations
+
+record GlobalMinOperationStr {ℓD ℓ< : Level} {D : Type ℓD} (LO : LinearOrderStr D ℓ<) :
+                             Type (ℓ-max ℓ< ℓD) where
+  no-eta-equality
+  private
+    _<'_ = LinearOrderStr._<_ LO
+
+  field
+    global-min : D
+    global-min-≮  : {x : D} -> ¬ (x <' global-min)
+
+record GlobalMaxOperationStr {ℓD ℓ< : Level} {D : Type ℓD} (LO : LinearOrderStr D ℓ<) :
+                             Type (ℓ-max ℓ< ℓD) where
+  no-eta-equality
+  private
+    _<'_ = LinearOrderStr._<_ LO
+
+  field
+    global-max : D
+    global-max-≮  : {x : D} -> ¬ (x <' global-max)
+
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{GMO : GlobalMinOperationStr LO }} where
+  open GlobalMinOperationStr GMO public
+
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{GMO : GlobalMaxOperationStr LO }} where
+  open GlobalMaxOperationStr GMO public
