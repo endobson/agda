@@ -60,6 +60,9 @@ isFinSet-WithoutPoint {A = A} fsA a =
 FinSet-WithoutPoint : (A : FinSet ℓ) (a : ⟨ A ⟩) -> FinSet ℓ
 FinSet-WithoutPoint (A , fsA) a = WithoutPoint A a , isFinSet-WithoutPoint fsA a
 
+FinSetStr-WithoutPoint : {A : Type ℓ} {{FA : FinSetStr A}} {a : A} -> FinSetStr (WithoutPoint A a)
+FinSetStr-WithoutPoint = record { isFin = isFinSet-WithoutPoint isFinSetⁱ _ }
+
 cardinality-WithoutPoint : (A : FinSet ℓ) -> (a : ⟨ A ⟩) -> 
                            cardinality (FinSet-WithoutPoint A a) == pred (cardinality A)
 cardinality-WithoutPoint FA@(A , fsA) a = 
