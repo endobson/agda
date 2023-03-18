@@ -18,6 +18,7 @@ open import order.instances.real
 open import order.minmax
 open import order.minmax.instances.real
 open import ordered-additive-group
+open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
 open import ordered-ring
 open import ordered-semiring
@@ -88,6 +89,24 @@ abstract
     iε2 = εBounded->Iℚ y ε2-y
     ℝ∈Iℚ-xy : ℝ∈Iℚ (x * y) (iε1 i* iε2)
     ℝ∈Iℚ-xy = ℝ∈Iℚ-* x y iε1 iε2 (εBounded->ℝ∈Iℚ x ε1-x) (εBounded->ℝ∈Iℚ y ε2-y)
+
+  εBounded-abs≤ : {ε : ℚ} {x y : ℝ} -> abs x ≤ y -> εBounded ε y -> εBounded ε x
+  εBounded-abs≤ {ε} {x} {y} ax≤y εy =
+    ℝ<->L -ε<x ,
+    trans-ℝ≤-U (trans-≤ abs-≤ ax≤y) (proj₂ εy)
+    where
+    ε-y : εBounded ε (- y)
+    ε-y = εBounded-- y εy
+    -x≤y : (- x) ≤ y
+    -x≤y = trans-≤ max-≤-right ax≤y
+    y<ε : y < ℚ->ℝ ε
+    y<ε = U->ℝ< (proj₂ εy)
+    -x<ε : (- x) < ℚ->ℝ ε
+    -x<ε = trans-≤-< -x≤y y<ε
+
+    -ε<x : (ℚ->ℝ (- ε)) < x
+    -ε<x = trans-=-< ℚ->ℝ-preserves-- (trans-<-= (minus-flips-< -x<ε) minus-double-inverse)
+
 
   ¬εBounded-< : {a b : ℝ} -> a < b -> ∃[ ε ∈ ℚ⁺ ] ¬ (εBounded ⟨ ε ⟩ (diff a b))
   ¬εBounded-< {a} {b} a<b = ∥-map handle 0<ab

@@ -2,6 +2,8 @@
 
 module sequence where
 
+open import additive-group
+open import additive-group.instances.nat
 open import base
 open import nat
 open import nat.order
@@ -33,6 +35,9 @@ module _ {D : Type ℓ} where
 
   drop1 : Seq -> Seq
   drop1 s n = s (suc n)
+
+  dropN : Nat -> Seq -> Seq
+  dropN n s i = s (n + i)
 
 ∀Largeℕ' : {ℓP : Level} -> Pred ℕ ℓP -> Type ℓP
 ∀Largeℕ' P = Σ[ n ∈ ℕ ] ((m : ℕ) -> n ≤ m -> P m)

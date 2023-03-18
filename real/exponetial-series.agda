@@ -187,7 +187,7 @@ private
         (+-left (sym minus-double-inverse) >=>
          sym minus-distrib-plus >=>
          cong -_ (+-commute >=>
-                  +-left (partial-sum-split s n >=> +-commute) >=>
+                  +-left (partial-sums-split s n >=> +-commute) >=>
                   +-assoc >=>
                   +-right (+-right (cong -_ (cong s +-right-zero)) >=> +-inverse) >=>
                   +-right-zero))
@@ -216,7 +216,7 @@ private
          (v + - (partial-sums s (suc n)))
     p2 = +-assoc >=>
          +-right (sym minus-distrib-plus >=>
-                  cong -_ (+-right p1 >=> +-commute >=> (sym (partial-sum-split s n))))
+                  cong -_ (+-right p1 >=> +-commute >=> (sym (partial-sums-split s n))))
 
 
 
@@ -297,9 +297,9 @@ private
         subst2 _≤_ (sym p1) (sym p2) (+-preserves-≤ lt-e (f4 m zero-≤))
         where
         p1 : partial-sums (drop n s1) (suc m) == s1 (n + m) + partial-sums (drop n s1) m
-        p1 = partial-sum-split (drop n s1) m >=> +-left (drop-+ n m s1)
+        p1 = partial-sums-split (drop n s1) m >=> +-left (drop-+ n m s1)
         p2 : partial-sums (drop n s2) (suc m) == s2 (n + m) + partial-sums (drop n s2) m
-        p2 = partial-sum-split (drop n s2) m >=> +-left (drop-+ n m s2)
+        p2 = partial-sums-split (drop n s2) m >=> +-left (drop-+ n m s2)
         lt-e : s1 (n + m) ≤ s2 (n + m)
         lt-e = f (n + m) (subst2 _≤_ +-right-zero refl (+-preserves-≤ refl-≤ zero-≤))
 
@@ -326,9 +326,9 @@ private
         subst2 _≤_ (sym p1) (sym p2) (+-preserves-≤ lt-e (f2 n m n≥n₀ zero-≤))
         where
         p1 : partial-sums (drop n s1) (suc m) == s1 (n + m) + partial-sums (drop n s1) m
-        p1 = partial-sum-split (drop n s1) m >=> +-left (drop-+ n m s1)
+        p1 = partial-sums-split (drop n s1) m >=> +-left (drop-+ n m s1)
         p2 : partial-sums (drop n s2) (suc m) == s2 (n + m) + partial-sums (drop n s2) m
-        p2 = partial-sum-split (drop n s2) m >=> +-left (drop-+ n m s2)
+        p2 = partial-sums-split (drop n s2) m >=> +-left (drop-+ n m s2)
         lt-e : s1 (n + m) ≤ s2 (n + m)
         lt-e = f (n + m) (subst2 _≤_ +-right-zero refl (+-preserves-≤ n≥n₀ zero-≤))
 
@@ -355,9 +355,9 @@ private
         subst2 _≤_ (sym p1) (sym p2) (+-preserves-≤ lt-e (f2 n m n≥n₀))
         where
         p1 : partial-sums (drop n s1) (suc m) == s1 (n + m) + partial-sums (drop n s1) m
-        p1 = partial-sum-split (drop n s1) m >=> +-left (drop-+ n m s1)
+        p1 = partial-sums-split (drop n s1) m >=> +-left (drop-+ n m s1)
         p2 : partial-sums (drop n s2) (suc m) == s2 (n + m) + partial-sums (drop n s2) m
-        p2 = partial-sum-split (drop n s2) m >=> +-left (drop-+ n m s2)
+        p2 = partial-sums-split (drop n s2) m >=> +-left (drop-+ n m s2)
         lt-e : s1 (n + m) ≤ s2 (n + m)
         lt-e = f (n + m) (subst2 _≤_ +-right-zero refl (+-preserves-≤ n≥n₀ zero-≤))
 
@@ -545,7 +545,7 @@ private
           p : (n : ℕ) -> partial-sums (constant-seq 0#) n == 0#
           p zero = finiteMerge-Fin0 _ _
           p (suc n) =
-            partial-sum-split (constant-seq 0#) n >=>
+            partial-sums-split (constant-seq 0#) n >=>
             +-left-zero >=>
             p n
 
