@@ -23,7 +23,7 @@ open import rational
 open import rational.order
 open import real
 open import real.arithmetic.rational
-open import real.epsilon-bounded.base
+open import real.epsilon-bounded
 open import real.rational
 open import real.sequence.limit
 open import relation hiding (U)
@@ -322,44 +322,73 @@ module _
             sm<r-ε = subst (s m <_) (sym ℚ->ℝ-preserves-+ >=> cong ℚ->ℝ mid2+ε=r-ε)
                            sm<mid2+ε
 
-  CauchySeq->ℝ : ℝ
-  CauchySeq->ℝ = record
-    { L = L
-    ; U = U
-    ; isProp-L = \_ -> squash
-    ; isProp-U = \_ -> squash
-    ; Inhabited-L = Inhabited-L
-    ; Inhabited-U = Inhabited-U
-    ; isLowerSet-L = isLowerSet-L
-    ; isUpperSet-U = isUpperSet-U
-    ; isUpperOpen-L = isUpperOpen-L
-    ; isLowerOpen-U = isLowerOpen-U
-    ; disjoint = disjoint
-    ; located = located
-    }
+  abstract
+    CauchySeq->ℝ : ℝ
+    CauchySeq->ℝ = record
+      { L = L
+      ; U = U
+      ; isProp-L = \_ -> squash
+      ; isProp-U = \_ -> squash
+      ; Inhabited-L = Inhabited-L
+      ; Inhabited-U = Inhabited-U
+      ; isLowerSet-L = isLowerSet-L
+      ; isUpperSet-U = isUpperSet-U
+      ; isUpperOpen-L = isUpperOpen-L
+      ; isLowerOpen-U = isLowerOpen-U
+      ; disjoint = disjoint
+      ; located = located
+      }
 
-  private
-    isLimit-CauchySeq->ℝ : isLimit s CauchySeq->ℝ
-    isLimit-CauchySeq->ℝ .isLimit.lower q = ∥-map handle
-      where
-      handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.L (s m) (q r+ ⟨ ε ⟩)) ->
-               Σ[ n ∈ ℕ ] ((m : Nat) -> m ≥ n -> Real.L (s m) q)
-      handle (n , (ε , 0<ε) , f) = (n , g)
+    private
+      isLimit-CauchySeq->ℝ : isLimit s CauchySeq->ℝ
+      isLimit-CauchySeq->ℝ .isLimit.lower q = ∥-map handle
         where
-        g : (m : Nat) -> m ≥ n -> Real.L (s m) q
-        g m m≥n = Real.isLowerSet-L (s m) (trans-=-< (sym +-right-zero) (+₁-preserves-< 0<ε))
-                                    (f m m≥n)
+        handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.L (s m) (q r+ ⟨ ε ⟩)) ->
+                 Σ[ n ∈ ℕ ] ((m : Nat) -> m ≥ n -> Real.L (s m) q)
+        handle (n , (ε , 0<ε) , f) = (n , g)
+          where
+          g : (m : Nat) -> m ≥ n -> Real.L (s m) q
+          g m m≥n = Real.isLowerSet-L (s m) (trans-=-< (sym +-right-zero) (+₁-preserves-< 0<ε))
+                                      (f m m≥n)
 
-    isLimit-CauchySeq->ℝ .isLimit.upper q = ∥-map handle
-      where
-      handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.U (s m) (q r+ (- ⟨ ε ⟩))) ->
-               Σ[ n ∈ ℕ ] ((m : Nat) -> m ≥ n -> Real.U (s m) q)
-      handle (n , (ε , 0<ε) , f) = (n , g)
+      isLimit-CauchySeq->ℝ .isLimit.upper q = ∥-map handle
         where
-        g : (m : Nat) -> m ≥ n -> Real.U (s m) q
-        g m m≥n = Real.isUpperSet-U (s m) (trans-<-= (+₁-preserves-< (minus-flips-0< 0<ε))
-                                                      +-right-zero)
-                                    (f m m≥n)
+        handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.U (s m) (q r+ (- ⟨ ε ⟩))) ->
+                 Σ[ n ∈ ℕ ] ((m : Nat) -> m ≥ n -> Real.U (s m) q)
+        handle (n , (ε , 0<ε) , f) = (n , g)
+          where
+          g : (m : Nat) -> m ≥ n -> Real.U (s m) q
+          g m m≥n = Real.isUpperSet-U (s m) (trans-<-= (+₁-preserves-< (minus-flips-0< 0<ε))
+                                                        +-right-zero)
+                                      (f m m≥n)
 
   isCauchy->isConvergentSequence : isConvergentSequence s
   isCauchy->isConvergentSequence = _ , isLimit-CauchySeq->ℝ
+
+abstract
+  isConvergentSequence->isCauchy : {s : Seq} -> isConvergentSequence s -> isCauchy s
+  isConvergentSequence->isCauchy {s} (lim , L) ε⁺@(ε , 0<ε) = ∥-map handle (isLimit.εBounded-diff L ε/2⁺)
+    where
+    ε/2 : ℚ
+    ε/2 = 1/2r * ε
+    0<ε/2 : 0# < ε/2
+    0<ε/2 = *-preserves-0< Pos-1/2r 0<ε
+    ε/2⁺ : ℚ⁺
+    ε/2⁺ = ε/2 , 0<ε/2
+
+    handle : ∀Largeℕ' (\m -> εBounded ε/2 (diff lim (s m))) ->
+             Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> n ≤ m₂ ->
+                           εBounded ε (diff (s m₁) (s m₂)))
+    handle (N , f) = (N , \m₁ m₂ n≤m₁ n≤m₂ -> handle2 (f m₁ n≤m₁) (f m₂ n≤m₂))
+      where
+      handle2 : {m₁ m₂ : Nat} -> (εBounded ε/2 (diff lim (s m₁))) -> (εBounded ε/2 (diff lim (s m₂))) ->
+                (εBounded ε (diff (s m₁) (s m₂)))
+      handle2 {m₁} {m₂} εB1 εB2 = subst2 εBounded l-path r-path εBd
+        where
+        εBd : εBounded (ε/2 + ε/2) (diff (diff lim (s m₁)) (diff lim (s m₂)))
+        εBd = εBounded-diff εB1 εB2
+
+        r-path : (diff (diff lim (s m₁)) (diff lim (s m₂))) == diff (s m₁) (s m₂)
+        r-path = +-right (sym diff-anticommute) >=> +-commute >=> diff-trans
+        l-path : (ε/2 + ε/2) == ε
+        l-path = 1/2r-path' ε
