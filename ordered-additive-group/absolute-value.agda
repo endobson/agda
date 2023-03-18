@@ -55,6 +55,8 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{Max 
     abs-≮0-path : {x : D} -> x ≮ 0# -> abs x == x
     abs-≮0-path x≮0 = max-≥-path (trans-≤ (minus-flips-0≤ x≮0) x≮0)
 
+    abs-≮ : {x : D} -> abs x ≮ x
+    abs-≮ = max-≮-left
 
     abs-#0-eq : {x : D} -> (x <> 0#) ≃ (0# < abs x)
     abs-#0-eq {x} = isoToEquiv (isProp->iso forward backward isProp-<> isProp-<)
@@ -127,3 +129,6 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{Max 
 
     abs-0≤ : {x : D} -> 0# ≤ abs x
     abs-0≤ = convert-≮ abs-≮0
+
+    abs-≤ : {x : D} -> x ≤ abs x
+    abs-≤ = convert-≮ abs-≮
