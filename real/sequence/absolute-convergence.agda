@@ -61,9 +61,9 @@ private
   Seq = Sequence ℝ
 
 abstract
-  AbsConvergentSeries->ConvergentSeries :
+  isAbsConvergentSeries->isConvergentSeries :
     {s : Seq} -> isAbsConvergentSeries s -> isConvergentSeries s
-  AbsConvergentSeries->ConvergentSeries {s} isConv =
+  isAbsConvergentSeries->isConvergentSeries {s} isConv =
     isCauchy->isConvergentSequence
       (\ε -> (∥-map (\{ (n , f) -> ans ε n f }) (isConvergentSequence->isCauchy isConv ε)))
     where
@@ -519,3 +519,20 @@ abstract
                  (εBounded-+ (diff l1 (finiteSum (\ ((k , _) : Fin N) -> (s k))))
                              (finiteSum (\ (k : Fin M2) -> indicator S3 DetS3 k * s (Fin.i k)))
                              (εBounded-sums N max-≤-right) εB2)
+
+private
+  isAbsConvergentSeries-abs :
+    {s : Sequence ℝ} ->
+    isAbsConvergentSeries s ->
+    isAbsConvergentSeries (abs ∘ s)
+  isAbsConvergentSeries-abs =
+    subst isConvergentSeries (funExt (\i -> sym (abs-0≤-path abs-0≤)))
+
+abstract
+  permute-preserves-isAbsConvergentSeries :
+    {s : Sequence ℝ} ->
+    (p : Iso ℕ ℕ) ->
+    isAbsConvergentSeries s ->
+    isAbsConvergentSeries (permute-seq p s)
+  permute-preserves-isAbsConvergentSeries p (LA , isLimA) =
+    (LA , permute-preserves-limit-partial-sums p (isAbsConvergentSeries-abs (LA , isLimA)) isLimA)

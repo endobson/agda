@@ -54,6 +54,15 @@ unsquash h (squash a b i) = h (unsquash h a) (unsquash h b) i
 ∥-bind4 : (A -> B -> C -> D -> ∥ E ∥) -> ∥ A ∥ -> ∥ B ∥ -> ∥ C ∥ -> ∥ D ∥ -> ∥ E ∥
 ∥-bind4 f a b c d = unsquash squash (∥-map4 f a b c d)
 
+∥-elim : {B : (a : ∥ A ∥) -> Type ℓ} ->
+         ((a : ∥ A ∥) -> isProp (B a)) ->
+         ((a : A) -> B ∣ a ∣) ->
+         (a : ∥ A ∥) -> B a
+∥-elim isPropB f (∣ a ∣) = f a
+∥-elim isPropB f (squash a1 a2 i) =
+  isProp->PathPᵉ (\i -> isPropB (squash a1 a2 i))
+    (∥-elim isPropB f a1) (∥-elim isPropB f a2) i
+
 
 private
   module rec (BSet : isSet B) where
