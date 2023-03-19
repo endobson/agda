@@ -151,6 +151,7 @@ connected-< {i} {j} i≮j j≮i =
 
 
 -- Positivity is preserved by by basic operations
+-- TODO change names to standard ordering
 
 >0-preserved-by-+ : {i j : Int} -> (int 0) < i -> (int 0) < j -> (int 0) < (i + j)
 >0-preserved-by-+ {i} {j} 0<i 0<j = trans-< 0<i (subst (_< (i + j)) +-right-zero (+₁-preserves-< i 0<j))

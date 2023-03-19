@@ -11,7 +11,10 @@ open import hlevel
 open import isomorphism
 open import order
 open import order.instances.real
+open import order.minmax
+open import order.minmax.instances.rational
 open import ordered-additive-group
+open import ordered-additive-group.minmax
 open import ordered-additive-group.instances.real
 open import rational
 open import rational.order
@@ -19,6 +22,7 @@ open import rational.proper-interval
 open import real
 open import real.arithmetic.rational
 open import real.interval
+open import real.order
 open import real.rational
 open import relation
 open import sum
@@ -106,6 +110,25 @@ abstract
     where
     module _ where
       -ε2≤-ε1 = minus-flips-≤ ε1≤ε2
+
+  ∃εBounded : (x : ℝ) -> ∃[ ε ∈ ℚ⁺ ] (εBounded ⟨ ε ⟩ x)
+  ∃εBounded x = ∥-map2 handle (Real.Inhabited-L x) (Real.Inhabited-U x)
+    where
+    handle : Σ ℚ (Real.L x) -> Σ ℚ (Real.U x) -> Σ[ ε ∈ ℚ⁺ ] (εBounded ⟨ ε ⟩ x)
+    handle (l , L) (u , U) =
+      (max (- l) u , 0<ε) ,
+      (isLowerSet≤ x (trans-=-≤ minus-max-path (trans-≤-= min-≤-left minus-double-inverse)) L ,
+       isUpperSet≤ x max-≤-right U)
+      where
+      l<u : l < u
+      l<u = ℝ-bounds->ℚ< x L U
+      0<ε : 0# < max (- l) u
+      0<ε = unsquash isProp-< (∥-map handle2 (comparison-< _ _ _ l<u))
+        where
+        handle2 : (l < 0#) ⊎ (0# < u) -> 0# < max (- l) u
+        handle2 (inj-l l<0) = trans-<-≤ (minus-flips-<0 l<0) max-≤-left
+        handle2 (inj-r 0<u) = trans-<-≤ 0<u max-≤-right
+
 
 εBounded->0<ε : {ε : ℚ} (x : ℝ) -> εBounded ε x -> 0# < ε
 εBounded->0<ε {ε} x (-ε<x , x<ε) = proj-¬r (split-< 0# ε) ¬ε≤0

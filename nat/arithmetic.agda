@@ -324,3 +324,21 @@ _^⁺_ : Nat⁺ -> Nat -> Nat⁺
 
 2⁺ : Nat⁺
 2⁺ = 2 , tt
+
+Nat⁺Elim-1+ :
+  {ℓ : Level}
+  {P : Nat⁺ -> Type ℓ} ->
+  P 1⁺ -> (∀ a b -> P a -> P b -> P (a +⁺ b)) ->
+  (m : Nat⁺) -> P m
+Nat⁺Elim-1+ {ℓ} {P} p1 p+ = \ (m , pm) -> NatElim-01+ p'0 p'1 p'+ m pm
+  where
+  P' : Nat -> Type ℓ
+  P' n = (p : Pos' n) -> P (n , p)
+  p'0 : P' 0
+  p'0 ()
+  p'1 : P' 1
+  p'1 tt = p1
+  p'+ : ∀ a b -> P' a -> P' b -> P' (a +' b)
+  p'+ zero    b       pa pb = pb
+  p'+ (suc a) zero    pa pb = subst P' (sym +'-right-zero) pa
+  p'+ (suc a) (suc b) pa pb _ = p+ _ _ (pa tt) (pb tt)

@@ -87,6 +87,47 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
   ℕ->Semiring : ℕ -> D
   ℕ->Semiring = ∃!-val ∃!ℕ->Semiring
 
+  module _ {ℓP : Level} {P : D -> Type ℓP} where
+    abstract
+      ℕ->Semiring-elim :
+        (P 0#) -> (P 1#) ->
+        (∀ a b -> P a -> P b -> P (a + b)) ->
+        ∀ n -> P (ℕ->Semiring n)
+      ℕ->Semiring-elim p0 p1 p+ = NatElim-01+ p'0 p'1 p'+
+        where
+        module h = Semiringʰ (∃!-prop ∃!ℕ->Semiring)
+        p'0 : P (ℕ->Semiring 0)
+        p'0 = subst P (sym h.preserves-0#) p0
+        p'1 : P (ℕ->Semiring 1)
+        p'1 = subst P (sym h.preserves-1#) p1
+        p'+ : ∀ a b -> P (ℕ->Semiring a) -> P (ℕ->Semiring b) -> P (ℕ->Semiring (a + b))
+        p'+ a b p'a p'b = subst P (sym (h.preserves-+ a b)) (p+ _ _ p'a p'b)
+
+  module _ {ℓP : Level} {P : D -> D -> Type ℓP} where
+    abstract
+      ℕ->Semiring-elim2 :
+        (P 0# 0#) -> (P 0# 1#) -> (P 1# 0#) ->
+        (∀ a b c d -> P a b -> P c d -> P (a + c) (b + d)) ->
+        ∀ n m -> P (ℕ->Semiring n) (ℕ->Semiring m)
+      ℕ->Semiring-elim2 p00 p01 p10 p+ =
+        (\n m -> subst2 P  +-right-zero +-left-zero (p+ _ _ _ _ (∀P-0 n) (∀P0- m)))
+        where
+        module h = Semiringʰ (∃!-prop ∃!ℕ->Semiring)
+        P0- : D -> Type ℓP
+        P0- d = P 0# d
+        P-0 : D -> Type ℓP
+        P-0 d = P d 0#
+        ∀P0- : ∀ n -> P0- (ℕ->Semiring n)
+        ∀P0- = ℕ->Semiring-elim p00 p01 p'+
+          where
+          p'+ : (∀ a b -> P0- a -> P0- b -> P0- (a + b))
+          p'+ a b p'a p'b = subst2 P (+-left-zero) refl (p+ _ _ _ _ p'a p'b)
+        ∀P-0 : ∀ n -> P-0 (ℕ->Semiring n)
+        ∀P-0 = ℕ->Semiring-elim p00 p10 p'+
+          where
+          p'+ : (∀ a b -> P-0 a -> P-0 b -> P-0 (a + b))
+          p'+ a b p'a p'b = subst2 P refl (+-left-zero) (p+ _ _ _ _ p'a p'b)
+
 abstract
   ℕ->Semiring-ℕ-path : ∀ n -> ℕ->Semiring n == n
   ℕ->Semiring-ℕ-path n = (\i -> ∃!-unique ∃!ℕ->Semiring id-f idʰ i n)

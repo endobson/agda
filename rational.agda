@@ -24,6 +24,7 @@ open import ring.implementations.int
 open import semiring
 open import set-quotient
 open import sigma.base
+open import truncation
 open import univalence
 
 import solver
@@ -520,6 +521,7 @@ abstract
     RationalElim.elimProp3 (\a b c -> isSetRational _ _)
                            (\a b c -> (eq/ _ _ (r*'-distrib-r+'-right a b c)))
 
+
 r-' : Rational' -> Rational'
 r-' a = record
   { numerator = - (Rational'.numerator a)
@@ -774,6 +776,52 @@ abstract
   ℤ->ℚ-preserves-+ y (- x) >=> +-right (ℤ->ℚ-preserves-minus x)
 
 private
+  ℚ'->split-ℤ : (q' : ℚ') -> Σ[ n ∈ ℤ ] Σ[ d ∈ ℤ ] (NonZero d × (ℤ->ℚ' n r~ (q' r*' ℤ->ℚ' d)))
+  ℚ'->split-ℤ (ℚ'-cons n d nz-d) = n , d , (nz-d , sym *-assoc)
+
+  private
+    Pos'-abs'-d : {d : ℤ} -> NonZero d -> Pos' (abs' d)
+    Pos'-abs'-d {nonneg zero}    (inj-l ())
+    Pos'-abs'-d {nonneg zero}    (inj-r ())
+    Pos'-abs'-d {nonneg (suc n)} _ = tt
+    Pos'-abs'-d {neg n}          _ = tt
+
+
+  ℚ'->split-ℤℕ⁺ : (q' : ℚ') -> Σ[ n ∈ ℤ ] Σ[ d ∈ Nat⁺ ] ((ℤ->ℚ' n r~ (q' r*' ℕ->ℚ' ⟨ d ⟩)))
+  ℚ'->split-ℤℕ⁺ (ℚ'-cons n d nz@(inj-l pos-d)) =
+    n , (abs' d , Pos'-abs'-d nz) , *-right (*-left (nonneg-abs' d (inj-l pos-d))) >=> sym *-assoc
+  ℚ'->split-ℤℕ⁺ (ℚ'-cons n d nz@(inj-r neg-d)) = - n , (abs' d , Pos'-abs'-d nz) , p
+    where
+    p = minus-extract-left >=>
+        sym minus-extract-right >=>
+        *-right (sym minus-extract-left >=>
+                 *-left (cong -_ (nonpos-abs' d (inj-l neg-d)) >=>
+                         minus-double-inverse)) >=>
+        sym *-assoc
+
+abstract
+  ℚ->split-ℤ : (q : ℚ) -> ∃[ n ∈ ℤ ] Σ[ d ∈ ℤ ] (NonZero d × (ℤ->ℚ n == q * ℤ->ℚ d))
+  ℚ->split-ℤ =
+    ℚ-elimProp (\_ -> squash) (\q' -> ∣ handle (ℚ'->split-ℤ q') ∣)
+    where
+    handle : {q' : ℚ'} ->
+        (Σ[ n ∈ ℤ ] Σ[ d ∈ ℤ ] (NonZero d × (ℤ->ℚ' n r~ (q' r*' ℤ->ℚ' d)))) ->
+        (Σ[ n ∈ ℤ ] Σ[ d ∈ ℤ ] (NonZero d × (ℤ->ℚ n == ℚ'->ℚ q' * ℤ->ℚ d)))
+    handle (n , d , (nz-d , p)) = n , d , (nz-d , (r~->path _ _ p) >=> (sym r*-eval))
+
+  ℚ->split-ℤℕ⁺ : (q : ℚ) -> ∃[ n ∈ ℤ ] Σ[ d ∈ Nat⁺ ] (ℤ->ℚ n == q * ℕ->ℚ ⟨ d ⟩)
+  ℚ->split-ℤℕ⁺ =
+    ℚ-elimProp (\_ -> squash) (\q' -> ∣ handle (ℚ'->split-ℤℕ⁺ q') ∣)
+    where
+    handle : {q' : ℚ'} ->
+        (Σ[ n ∈ ℤ ] Σ[ d ∈ Nat⁺ ] (ℤ->ℚ' n r~ (q' r*' ℕ->ℚ' ⟨ d ⟩))) ->
+        (Σ[ n ∈ ℤ ] Σ[ d ∈ Nat⁺ ] (ℤ->ℚ n == ℚ'->ℚ q' * ℕ->ℚ ⟨ d ⟩))
+    handle (n , d , p) = n , d , (r~->path _ _ p) >=> (sym r*-eval)
+
+
+
+
+private
   abstract
     isNonZeroℚ' : ℚ -> hProp ℓ-zero
     isNonZeroℚ' =
@@ -911,6 +959,8 @@ abstract
   1/2r-path' : (q : ℚ) -> (1/2r r* q) r+ (1/2r r* q) == q
   1/2r-path' q = cong2 _r+_ (r*-commute 1/2r q) (r*-commute 1/2r q) >=> 1/2r-path q
 
+  1/2r-1/2r-path : 1/2r + 1/2r == 1r
+  1/2r-1/2r-path = +-cong (sym (*-left-oneᵉ 1/2r)) (sym (*-left-oneᵉ 1/2r)) >=> 1/2r-path 1r
 
   1/2ℕ'-r~ : (n : Nat⁺) -> (1/ℕ' (2⁺ *⁺ n)) r~ (1/2r' r*' 1/ℕ' n)
   1/2ℕ'-r~ n =
@@ -930,6 +980,24 @@ abstract
   1/2^ℕ-path : (n : Nat) -> 1/ℕ (2⁺ ^⁺ n) == 1/2r r^ℕ⁰ n
   1/2^ℕ-path zero = refl
   1/2^ℕ-path (suc n) = 1/2ℕ-path (2⁺ ^⁺ n) >=> cong (1/2r r*_) (1/2^ℕ-path n)
+
+abstract
+  ℚ->split-ℤ/ℕ : (q : ℚ) -> ∃[ n ∈ ℤ ] Σ[ d ∈ Nat⁺ ] (q == ℤ->ℚ n * 1/ℕ d)
+  ℚ->split-ℤ/ℕ q = ∥-map handle (ℚ->split-ℤℕ⁺ q)
+    where
+    handle :
+        Σ[ n ∈ ℤ ] Σ[ d ∈ Nat⁺ ] (ℤ->ℚ n == q * ℕ->ℚ ⟨ d ⟩) ->
+        Σ[ n ∈ ℤ ] Σ[ d ∈ Nat⁺ ] (q == ℤ->ℚ n * 1/ℕ d)
+    handle (n , d , p) = n , d , p'
+      where
+      module _ where
+        p' : (q == ℤ->ℚ n * 1/ℕ d)
+        p' = sym (cong (_* 1/ℕ d) p >=>
+                  *-assoc >=>
+                  *-right (*-commute >=> 1/ℕ-ℕ-path d) >=>
+                  *-right-one)
+
+
 
 
 midℚ : ℚ -> ℚ -> ℚ

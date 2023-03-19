@@ -8,6 +8,7 @@ open import additive-group.instances.nat
 open import additive-group.instances.reader
 open import base
 open import commutative-monoid
+open import monoid
 open import equality
 open import hlevel
 open import int
@@ -15,6 +16,8 @@ open import nat
 open import ring
 open import semiring
 open import semiring.instances.nat
+open import semiring.initial
+open import truncation
 
 instance
   IntSemiring : Semiring AdditiveCommMonoid-Int
@@ -109,3 +112,7 @@ module _ where
     { +ʰ = CommMonoidʰ.monoidʰ int-+ʰ
     ; *ʰ = CommMonoidʰ.monoidʰ int-*ʰ
     }
+
+abstract
+  ℕ->Semiring-ℤ-path : (n : ℕ) -> ℕ->Semiring n == ℕ->ℤ n
+  ℕ->Semiring-ℤ-path n = (\i -> ∃!-unique ∃!ℕ->Semiring ℕ->ℤ Semiringʰ-ℕ->ℤ i n)

@@ -65,3 +65,11 @@ module _ {D : Type ℓ} where
 ∀Largeℕ-map : {ℓ₁ ℓ₂ : Level} {P₁ : Pred ℕ ℓ₁} {P₂ : Pred ℕ ℓ₂} ->
               ({m : ℕ} -> P₁ m -> P₂ m) -> ∀Largeℕ P₁ -> ∀Largeℕ P₂
 ∀Largeℕ-map f = ∥-map (∀Largeℕ'-map f)
+
+∀Largeℕ'-bind : {ℓ₁ ℓ₂ : Level} {P₁ : Pred ℕ ℓ₁} {P₂ : Pred ℕ ℓ₂} ->
+               ({m : ℕ} -> P₁ m -> ∀Largeℕ' P₂) -> ∀Largeℕ' P₁ -> ∀Largeℕ' P₂
+∀Largeℕ'-bind f (n , g) = f (g n refl-≤)
+
+∀Largeℕ-bind : {ℓ₁ ℓ₂ : Level} {P₁ : Pred ℕ ℓ₁} {P₂ : Pred ℕ ℓ₂} ->
+              ({m : ℕ} -> P₁ m -> ∀Largeℕ P₂) -> ∀Largeℕ P₁ -> ∀Largeℕ P₂
+∀Largeℕ-bind f = ∥-bind (\(n , g) -> f (g n refl-≤))

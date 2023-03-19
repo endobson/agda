@@ -6,7 +6,9 @@ open import additive-group
 open import apartness
 open import base
 open import equality
+open import functions
 open import hlevel
+open import nat
 open import order
 open import order.instances.real
 open import ordered-additive-group
@@ -129,6 +131,9 @@ abstract
     where
     handle : Σ[ r ∈ ℚ ] (r < q × Real.U x r) -> x ℝ< (ℚ->ℝ q)
     handle (r , r<q , x<r) = ∣ ℝ<'-cons r x<r r<q ∣
+
+ℕ->ℝ : ℕ -> ℝ
+ℕ->ℝ = ℚ->ℝ ∘ ℕ->ℚ
 
 -- Constants
 
