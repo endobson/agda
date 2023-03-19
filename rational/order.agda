@@ -13,7 +13,7 @@ open import fraction.order
 open import functions
 open import hlevel
 open import isomorphism
-open import nat using (ℕ ; Nat⁺; 2⁺ ; _*⁺_; _^⁺_)
+open import nat using (ℕ ; Nat⁺; 1⁺ ; 2⁺ ; _*⁺_; _^⁺_)
 open import nat.order using (2^n-large)
 open import order
 open import order.instances.int
@@ -39,7 +39,7 @@ open import univalence
 
 import int as i
 
-private
+module _ where
   module _ where
     private
       val : ℚ' -> ℚ' -> hProp ℓ-zero
@@ -936,6 +936,7 @@ abstract
     subst (_> (a + b)) +-right-zero (+₁-preserves-< neg-b)
 
 
+-- TODO remove index args
 abstract
   ℕ->ℚ-preserves-order : (a b : Nat) -> a < b -> (ℕ->ℚ a) < (ℕ->ℚ b)
   ℕ->ℚ-preserves-order a b a<b =
@@ -990,6 +991,9 @@ abstract
 
       ab*≤ : (ab r* (ℕ->ℚ a')) ≤ (ab r* (ℕ->ℚ b'))
       ab*≤ = *₁-preserves-≤ (weaken-< pos-ab) (ℕ->ℚ-preserves-≤ a' b' lt)
+
+  1/ℕ≤1 : (a : Nat⁺) -> 1/ℕ a ≤ 1#
+  1/ℕ≤1 a@(suc _ , _) = 1/ℕ-flips-≤ 1⁺ a nat.order.zero-<
 
   private
     zero-diff->path : (x y : Rational) -> Zeroℚ (y r+ (r- x)) -> x == y
@@ -1155,6 +1159,14 @@ small-1/2^ℕ q@(q' , _) = ∥-map handle (small-1/2^ℕ-step1 q)
   handle : Σ[ m ∈ Nat⁺ ] (1/ℕ (2⁺ ^⁺ ⟨ m ⟩) < q') ->
            Σ[ m ∈ Nat ] ((1/2r r^ℕ⁰ m) < q')
   handle ((m , _) , lt) = m , subst (_< q') (1/2^ℕ-path m) lt
+
+
+small-1/2^ℕ' : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] ((1/2r r^ℕ⁰ ⟨ m ⟩) < ⟨ q ⟩)
+small-1/2^ℕ' q@(q' , _) = ∥-map handle (small-1/2^ℕ-step1 q)
+  where
+  handle : Σ[ m ∈ Nat⁺ ] (1/ℕ (2⁺ ^⁺ ⟨ m ⟩) < q') ->
+           Σ[ m ∈ Nat⁺ ] ((1/2r r^ℕ⁰ ⟨ m ⟩) < q')
+  handle (m⁺@(m , _) , lt) = m⁺ , subst (_< q') (1/2^ℕ-path m) lt
 
 
 ℚ-archimedian : (q1 q2 : ℚ⁺) -> ∃[ n ∈ Nat ] (((1/2r r^ℕ⁰ n) r* ⟨ q1 ⟩) < ⟨ q2 ⟩)

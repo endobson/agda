@@ -7,9 +7,10 @@ open import base
 open import equality
 open import equivalence
 open import functions
-open import hlevel.sigma
+open import hlevel
 open import isomorphism
 open import order
+open import order.homomorphism
 open import semiring
 open import sum
 open import truncation
@@ -293,3 +294,68 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
     *₂-reflects-≤ : {a b c : D} -> (a * c) ≤ (b * c) -> (0# < c) -> (a ≤ b)
     *₂-reflects-≤ {a} {b} {c} ac≤bc 0<c =
       *₁-reflects-≤ 0<c (subst2 _≤_ *-commute *-commute ac≤bc)
+
+record LinearlyOrderedSemiringʰᵉ
+    {ℓ₁ ℓ₂ ℓ<₁ ℓ<₂ : Level}
+    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+    {ACM₁ : AdditiveCommMonoid D₁}
+    {ACM₂ : AdditiveCommMonoid D₂}
+    {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
+    {LO₁ : LinearOrderStr D₁ ℓ<₁} {LO₂ : LinearOrderStr D₂ ℓ<₂}
+    (LOS₁ : LinearlyOrderedSemiringStr S₁ LO₁)
+    (LOS₂ : LinearlyOrderedSemiringStr S₂ LO₂)
+    (f : D₁ -> D₂) : Type (ℓ-max* 4 ℓ₁ ℓ₂ (ℓ-suc ℓ<₁) (ℓ-suc ℓ<₂))
+    where
+  private
+    module LO₁ = LinearOrderStr LO₁
+    module LO₂ = LinearOrderStr LO₂
+
+  field
+    semiringʰ : Semiringʰᵉ S₁ S₂ f
+    <ʰ : LinearOrderʰᵉ LO₁ LO₂ f
+
+  open Semiringʰ semiringʰ public
+  open LinearOrderʰ <ʰ public
+
+LinearlyOrderedSemiringʰ :
+  {ℓ₁ ℓ₂ ℓ<₁ ℓ<₂ : Level}
+  {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+  {ACM₁ : AdditiveCommMonoid D₁}
+  {ACM₂ : AdditiveCommMonoid D₂}
+  {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
+  {LO₁ : LinearOrderStr D₁ ℓ<₁} {LO₂ : LinearOrderStr D₂ ℓ<₂}
+  {{LOS₁ : LinearlyOrderedSemiringStr S₁ LO₁}}
+  {{LOS₂ : LinearlyOrderedSemiringStr S₂ LO₂}}
+  (f : D₁ -> D₂) -> Type (ℓ-max* 4 ℓ₁ ℓ₂ (ℓ-suc ℓ<₁) (ℓ-suc ℓ<₂))
+LinearlyOrderedSemiringʰ {{LOS₁ = LOS₁}} {{LOS₂ = LOS₂}} f =
+  LinearlyOrderedSemiringʰᵉ LOS₁ LOS₂ f
+
+module LinearlyOrderedSemiringʰ
+  {ℓ₁ ℓ₂ ℓ<₁ ℓ<₂ : Level}
+  {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+  {ACM₁ : AdditiveCommMonoid D₁}
+  {ACM₂ : AdditiveCommMonoid D₂}
+  {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
+  {LO₁ : LinearOrderStr D₁ ℓ<₁} {LO₂ : LinearOrderStr D₂ ℓ<₂}
+  {LOS₁ : LinearlyOrderedSemiringStr S₁ LO₁}
+  {LOS₂ : LinearlyOrderedSemiringStr S₂ LO₂}
+  {f : D₁ -> D₂} (h : LinearlyOrderedSemiringʰᵉ LOS₁ LOS₂ f) where
+  open LinearlyOrderedSemiringʰᵉ h public
+
+
+module _
+    {ℓ₁ ℓ₂ ℓ<₁ ℓ<₂ : Level}
+    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+    {ACM₁ : AdditiveCommMonoid D₁}
+    {ACM₂ : AdditiveCommMonoid D₂}
+    {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
+    {LO₁ : LinearOrderStr D₁ ℓ<₁} {LO₂ : LinearOrderStr D₂ ℓ<₂}
+    {LOS₁ : LinearlyOrderedSemiringStr S₁ LO₁}
+    {LOS₂ : LinearlyOrderedSemiringStr S₂ LO₂}
+    {f : D₁ -> D₂} where
+  abstract
+    isProp-LinearlyOrderedSemiringʰ : isProp (LinearlyOrderedSemiringʰᵉ LOS₁ LOS₂ f)
+    isProp-LinearlyOrderedSemiringʰ h1 h2 i .LinearlyOrderedSemiringʰ.semiringʰ =
+      isProp-Semiringʰ (LinearlyOrderedSemiringʰ.semiringʰ h1) (LinearlyOrderedSemiringʰ.semiringʰ h2) i
+    isProp-LinearlyOrderedSemiringʰ h1 h2 i .LinearlyOrderedSemiringʰ.<ʰ =
+      isProp-LinearOrderʰ (LinearlyOrderedSemiringʰ.<ʰ h1) (LinearlyOrderedSemiringʰ.<ʰ h2) i

@@ -197,7 +197,7 @@ length0->[] {as = as} = UListElim.prop PProp []* _::*_ as
   (a ::* _) p = bot-elim (zero-suc-absurd (sym p))
 
 ++-left-id->[] : {as bs : UList A} -> as ++ bs == bs -> as == []
-++-left-id->[] {as = as} {bs = bs} p =
+++-left-id->[] {A = A} {as = as} {bs = bs} p =
   length0->[] (transport (sym (+'-right-path _)) (sym (preserves-∙ as bs) >=> (cong length p)))
   where
   open CommMonoidʰ lengthʰ

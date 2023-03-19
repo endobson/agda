@@ -96,3 +96,11 @@ module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     partial-sums-0≤ s 0≤s (suc n) =
       subst (0# ≤_) (sym (partial-sums-split s n))
             (+-preserves-0≤ (0≤s n) (partial-sums-0≤ s 0≤s n))
+
+    partial-sums-≤ :
+      {s1 s2 : Seq} -> ((n : ℕ) -> s1 n ≤ s2 n) -> (n : ℕ) -> partial-sums s1 n ≤ partial-sums s2 n
+    partial-sums-≤ s1≤s2 zero =
+      path-≤ (finiteMerge-Fin0 _ _ >=> sym (finiteMerge-Fin0 _ _))
+    partial-sums-≤ {s1} {s2} s1≤s2 (suc n) =
+      subst2 _≤_ (sym (partial-sums-split s1 n)) (sym (partial-sums-split s2 n))
+        (+-preserves-≤ (s1≤s2 n) (partial-sums-≤ s1≤s2 n))

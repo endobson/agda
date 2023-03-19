@@ -4,16 +4,19 @@ module real.sequence.limit where
 
 open import additive-group
 open import additive-group.instances.real
+open import additive-group.instances.nat
 open import base
 open import equality
 open import hlevel
 open import nat
+open import nat.order
 open import order
 open import order.instances.nat
 open import order.instances.rational
 open import order.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.real
+open import ordered-additive-group.instances.nat
 open import rational
 open import rational.order
 open import rational.proper-interval
@@ -140,6 +143,57 @@ abstract
         lt3 : (s i) < (ℚ->ℝ u)
         lt3 = subst2 _<_ diff-step diff-step lt2
 
+  -- TODO put version of this for general properties of ∀Largeℕ
+  dropN-reflects-limit : {s : Seq} {v : ℝ} {n : ℕ} -> isLimit (dropN n s) v -> isLimit s v
+  dropN-reflects-limit {s} {v} {n} lim .isLimit.lower q Lq =
+    ∥-map (\ (N , f) -> ((n + N) , g f)) (isLimit.lower lim q Lq)
+    where
+    module _ {N : ℕ} (f : ∀ m -> N ≤ m -> Real.L (dropN n s m) q) where
+      g : (m : ℕ) -> (n + N) ≤ m -> Real.L (s m) q
+      g m (i , p) =
+        subst (\x -> Real.L x q)
+          (cong s (sym (+-assocᵉ n i N) >=> (+-left (+-commuteᵉ n i)) >=> (+-assocᵉ i n N) >=> p))
+          (f (i + N) (+₂-preserves-≤ zero-≤))
+  dropN-reflects-limit {s} {v} {n} lim .isLimit.upper q Uq =
+    ∥-map (\ (N , f) -> ((n + N) , g f)) (isLimit.upper lim q Uq)
+    where
+    module _ {N : ℕ} (f : ∀ m -> N ≤ m -> Real.U (dropN n s m) q) where
+      g : (m : ℕ) -> (n + N) ≤ m -> Real.U (s m) q
+      g m (i , p) =
+        subst (\x -> Real.U x q)
+          (cong s (sym (+-assocᵉ n i N) >=> (+-left (+-commuteᵉ n i)) >=> (+-assocᵉ i n N) >=> p))
+          (f (i + N) (+₂-preserves-≤ zero-≤))
+
+  dropN-preserves-limit : {s : Seq} {v : ℝ} {n : ℕ} -> isLimit s v -> isLimit (dropN n s) v
+  dropN-preserves-limit {s} {v} {n} lim .isLimit.lower q Lq =
+    ∥-map (\ (N , f) -> (N , g f)) (isLimit.lower lim q Lq)
+    where
+    module _ {N : ℕ} (f : ∀ m -> N ≤ m -> Real.L (s m) q) where
+      g : (m : ℕ) -> N ≤ m -> Real.L (dropN n s m) q
+      g m N≤m = f (n + m) (trans-≤ N≤m (+₂-preserves-≤ zero-≤))
+  dropN-preserves-limit {s} {v} {n} lim .isLimit.upper q Uq =
+    ∥-map (\ (N , f) -> (N , g f)) (isLimit.upper lim q Uq)
+    where
+    module _ {N : ℕ} (f : ∀ m -> N ≤ m -> Real.U (s m) q) where
+      g : (m : ℕ) -> N ≤ m -> Real.U (dropN n s m) q
+      g m N≤m = f (n + m) (trans-≤ N≤m (+₂-preserves-≤ zero-≤))
+
+
+  squeeze-isLimit : {s1 s2 s3 : Seq} {v : ℝ} ->
+    ∀Largeℕ (\n -> s1 n ≤ s2 n) ->
+    ∀Largeℕ (\n -> s2 n ≤ s3 n) ->
+    isLimit s1 v -> isLimit s3 v -> isLimit s2 v
+  squeeze-isLimit ∀s1≤s2 ∀s2≤s3 lim1 lim3 .isLimit.lower q Lq =
+    ∀Largeℕ-map (\(Lq' , s1≤s2) -> trans-L-ℝ≤ Lq' s1≤s2)
+      (∀Largeℕ-∩ (isLimit.lower lim1 q Lq) ∀s1≤s2)
+  squeeze-isLimit ∀s1≤s2 ∀s2≤s3 lim1 lim3 .isLimit.upper q Uq =
+    ∀Largeℕ-map (\(Uq' , s1≤s2) -> trans-ℝ≤-U s1≤s2 Uq')
+      (∀Largeℕ-∩ (isLimit.upper lim3 q Uq) ∀s2≤s3)
+
+isLimit-constant-seq : (x : ℝ) -> isLimit (constant-seq x) x
+isLimit-constant-seq x =
+  close->isLimit (\qi x∈qi -> ∣ 0 , (\_ _ -> x∈qi) ∣)
+
 isConvergentSequence : Pred Seq ℓ-one
 isConvergentSequence s = Σ ℝ (isLimit s)
 
@@ -176,3 +230,17 @@ abstract
           bot-elim (unsquash isPropBot
                      (∥-map2 (handle2 u2<l1) (isLimit.lower lim1 l1 l1<v1)
                                              (isLimit.upper lim2 u2 v2<u2)))
+
+record isUniformLimit' {ℓ : Level} {A : Type ℓ} (seq : Sequence (A -> ℝ)) (lim : A -> ℝ) :
+                      Type (ℓ-max ℓ ℓ-one) where
+  field
+    εBounded-diff : (ε : ℚ⁺) -> ∀Largeℕ (\i -> ∀ a -> εBounded ⟨ ε ⟩ (diff (lim a) (seq i a)))
+
+
+record isUniformLimit {ℓ : Level} {A : Type ℓ} (seq : Sequence (A -> ℝ)) (lim : A -> ℝ) :
+                      Type (ℓ-max ℓ ℓ-one) where
+  field
+    lower : (q : ℚ) -> ∀Largeℕ (\m -> ∀ a -> Real.L (lim a) q -> Real.L (seq m a) q)
+    upper : (q : ℚ) -> ∀Largeℕ (\m -> ∀ a -> Real.U (lim a) q -> Real.U (seq m a) q)
+
+    -- εBounded-diff : (ε : ℚ⁺) -> ∀Largeℕ (\i -> ∀ a -> εBounded ⟨ ε ⟩ (diff (lim a) (seq i a)))

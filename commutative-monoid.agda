@@ -75,6 +75,5 @@ module _
     isProp-CommMonoidʰ h1 h2 i .CommMonoidʰ.monoidʰ =
       isProp-Monoidʰ (CommMonoidʰ.monoidʰ h1) (CommMonoidʰ.monoidʰ h2) i
 
-
 CommMonoidT : (ℓ : Level) -> Type (ℓ-suc ℓ)
 CommMonoidT ℓ = Σ[ D ∈ Type ℓ ] (CommMonoid D)

@@ -1247,3 +1247,10 @@ IntElim-ℕminus-elim : {ℓ : Level} {P : Int -> Type ℓ}
                       (n : Int) -> P n
 IntElim-ℕminus-elim f-ℕ f-minus (nonneg n) = f-ℕ n
 IntElim-ℕminus-elim f-ℕ f-minus (neg n) = (f-minus _ (f-ℕ (suc n)))
+
+IntElim-ℕminus'-elim : {ℓ : Level} {P : Int -> Type ℓ}
+                       (f-ℕ : (n : Nat) -> P (int n))
+                       (f-minus : (n : Nat) -> P (int n) -> P (- (int n)))
+                       (n : Int) -> P n
+IntElim-ℕminus'-elim f-ℕ f-minus (nonneg n) = f-ℕ n
+IntElim-ℕminus'-elim f-ℕ f-minus (neg n) = (f-minus _ (f-ℕ (suc n)))

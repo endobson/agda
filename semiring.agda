@@ -40,6 +40,12 @@ record Semiring {ℓ : Level} {Domain : Type ℓ} (ACM : AdditiveCommMonoid Doma
     *-right-one {m} = (*-commute {m} {1#}) >=> (*-left-one {m})
 
   instance
+    +-CommMonoid : CommMonoid Domain
+    +-CommMonoid = AdditiveCommMonoid.comm-monoid ACM
+
+    +-Monoid : Monoid Domain
+    +-Monoid = CommMonoid.monoid +-CommMonoid
+
     +-InfinityMonoid : InfinityMonoid Domain
     +-InfinityMonoid = record
       { ε = 0#
@@ -48,22 +54,6 @@ record Semiring {ℓ : Level} {Domain : Type ℓ} (ACM : AdditiveCommMonoid Doma
       ; ∙-left-ε = +-left-zero
       ; ∙-right-ε = +-right-zero
       }
-
-    +-CommMonoid : CommMonoid Domain
-    +-CommMonoid = AdditiveCommMonoid.comm-monoid ACM
-
-    +-Monoid : Monoid Domain
-    +-Monoid = CommMonoid.monoid +-CommMonoid
-
-    *-InfinityMonoid : InfinityMonoid Domain
-    *-InfinityMonoid = record
-      { ε = 1#
-      ; _∙_ = _*_
-      ; ∙-assoc = *-assoc
-      ; ∙-left-ε = *-left-one
-      ; ∙-right-ε = *-right-one
-      }
-
 
     *-CommMonoid : CommMonoid Domain
     *-CommMonoid = record
@@ -80,6 +70,15 @@ record Semiring {ℓ : Level} {Domain : Type ℓ} (ACM : AdditiveCommMonoid Doma
 
     *-Monoid : Monoid Domain
     *-Monoid = CommMonoid.monoid *-CommMonoid
+
+    *-InfinityMonoid : InfinityMonoid Domain
+    *-InfinityMonoid = record
+      { ε = 1#
+      ; _∙_ = _*_
+      ; ∙-assoc = *-assoc
+      ; ∙-left-ε = *-left-one
+      ; ∙-right-ε = *-right-one
+      }
 
 
 
@@ -156,6 +155,9 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
 
     *-distrib-+-leftᵉ : (m n o : D) -> m * (n + o) == (m * n) + (m * o)
     *-distrib-+-leftᵉ _ _ _ = *-distrib-+-left
+
+    *-commuteᵉ : (m n : D) -> (m * n) == (n * m)
+    *-commuteᵉ _ _ = *-commute
 
     *-assocᵉ : (m n o : D) -> (m * n) * o == m * (n * o)
     *-assocᵉ _ _ _ = *-assoc

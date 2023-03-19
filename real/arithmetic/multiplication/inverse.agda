@@ -31,6 +31,7 @@ open import ring.implementations.real
 open import semiring
 open import sign
 open import sign.instances.rational
+open import sum
 open import truncation
 
 private
@@ -275,9 +276,17 @@ module _ (x : ℝ)  where
     ℝ1/-eval : (xinv : ℝInv x) -> ℝ1/ xinv == ℝ1/ᵉ xinv
     ℝ1/-eval _ = refl
 
+    ℝ1/-preserves-0< : (xinv : ℝInv x) -> (0# < x) -> 0# < (ℝ1/ xinv)
+    ℝ1/-preserves-0< (inj-l x<0) 0<x = bot-elim (asym-< x<0 0<x)
+    ℝ1/-preserves-0< (inj-r 0<x) _   = 0<ℝ1/-Pos x (ℝ<->L 0<x)
+
+    ℝ1/-preserves-<0 : (xinv : ℝInv x) -> (x < 0#) -> (ℝ1/ xinv) < 0#
+    ℝ1/-preserves-<0 (inj-l x<0) _   = ℝ1/-Neg<0 x (ℝ<->U x<0)
+    ℝ1/-preserves-<0 (inj-r 0<x) x<0 = bot-elim (asym-< x<0 0<x)
+
     ℝ1/-preserves-ℝInv : (xinv : ℝInv x) -> ℝInv (ℝ1/ xinv)
-    ℝ1/-preserves-ℝInv (inj-l x<0) = inj-l (ℝ1/-Neg<0 x (ℝ<->U x<0))
-    ℝ1/-preserves-ℝInv (inj-r 0<x) = inj-r (0<ℝ1/-Pos x (ℝ<->L 0<x))
+    ℝ1/-preserves-ℝInv xinv =
+      ⊎-map (ℝ1/-preserves-<0 xinv) (ℝ1/-preserves-0< xinv) xinv
 
 
 ℝ--preserves-ℝInv : (x : ℝ) -> ℝInv x -> ℝInv (ℝ- x)

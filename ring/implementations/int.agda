@@ -8,6 +8,7 @@ open import additive-group.instances.nat
 open import additive-group.instances.reader
 open import base
 open import commutative-monoid
+open import monoid
 open import equality
 open import hlevel
 open import int

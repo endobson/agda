@@ -5,6 +5,7 @@ module real.series where
 open import additive-group
 open import additive-group.instances.reader
 open import additive-group.instances.real
+open import additive-group.instances.nat
 open import apartness
 open import base
 open import equality
@@ -30,12 +31,15 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
+open import ordered-additive-group.instances.nat
 open import ordered-integral-domain
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.real
 open import rational
+open import rational.order
 open import rational.proper-interval
+open import real.epsilon-bounded
 open import real
 open import real.arithmetic
 open import real.heyting-field
@@ -43,7 +47,9 @@ open import real.interval
 open import real.order
 open import real.rational
 open import real.sequence
+open import real.sequence.cauchy
 open import real.sequence.limit
+open import real.sequence.limit.arithmetic
 open import relation
 open import ring
 open import ring.implementations.rational
@@ -91,33 +97,6 @@ isProp-isInfiniteSum = isProp-isLimit
 ℝ∈Iℚ-+⁻ x y a x+y∈a =
   ℝ∈Iℚ-+ᵉ⁻ x y a (subst (\z -> ℝ∈Iℚ z a) ℝ+-eval x+y∈a)
 
-+-preserves-limit : {s1 s2 : Seq} -> {v1 v2 : ℝ} ->
-                    isLimit s1 v1 -> isLimit s2 v2 -> isLimit (s1 + s2) (v1 + v2)
-+-preserves-limit {s1} {s2} {v1} {v2} l1 l2 = close->isLimit f
-  where
-  f : (qi : Iℚ) -> (ℝ∈Iℚ (v1 + v2) qi) -> ∃[ n ∈ ℕ ] ((m : ℕ) -> m ≥ n -> ℝ∈Iℚ ((s1 + s2) m) qi)
-  f qi v12∈qi = ∥-bind handle (ℝ∈Iℚ-+⁻ v1 v2 qi v12∈qi)
-    where
-    Ans = ∃[ n ∈ ℕ ] ((m : ℕ) -> m ≥ n -> ℝ∈Iℚ ((s1 + s2) m) qi)
-    handle : Σ[ qi1 ∈ Iℚ ] Σ[ qi2 ∈ Iℚ ] (ℝ∈Iℚ v1 qi1 × ℝ∈Iℚ v2 qi2 × (qi1 i+ qi2) i⊆ qi) -> Ans
-    handle (qi1 , qi2 , v1∈qi1 , v2∈qi2 , qi1+qi2⊆qi) =
-      ∥-bind2 handle2 (isLimit.close l1 qi1 v1∈qi1) (isLimit.close l2 qi2 v2∈qi2)
-      where
-      handle2 : Σ[ n ∈ ℕ ] ((m : ℕ) -> m ≥ n -> ℝ∈Iℚ (s1 m) qi1) ->
-                Σ[ n ∈ ℕ ] ((m : ℕ) -> m ≥ n -> ℝ∈Iℚ (s2 m) qi2) ->
-                Ans
-      handle2 (n1 , f1) (n2 , f2) =
-        ∣ n , (\m m≥n -> ℝ∈Iℚ-⊆ ((s1 + s2) m) qi1+qi2⊆qi (ℝ∈Iℚ-+ (s1 m) (s2 m) qi1 qi2
-                                                                 (f1 m (trans-≤ n1≤n m≥n))
-                                                                 (f2 m (trans-≤ n2≤n m≥n)))) ∣
-        where
-        n = max n1 n2
-        n1≤n = max-≤-left
-        n2≤n = max-≤-right
-
-isLimit-constant-seq : (x : ℝ) -> isLimit (constant-seq x) x
-isLimit-constant-seq x = 
-  close->isLimit (\qi x∈qi -> ∣ 0 , (\_ _ -> x∈qi) ∣)
 
 isLimit-seq-cons : (x : ℝ) (s : Seq) (v : ℝ) -> isLimit s v -> isLimit (seq-cons x s) v
 isLimit-seq-cons x s v l = close->isLimit f
@@ -133,171 +112,72 @@ isLimit-seq-cons x s v l = close->isLimit f
       h zero sn≤z = bot-elim (zero-≮ sn≤z)
       h (suc m) sn≤sm = g m (pred-≤ sn≤sm)
 
-
-geometric-sequence : ℝ -> Seq
-geometric-sequence x zero = 1#
-geometric-sequence x (suc n) = x * geometric-sequence x n
-
-geometric-series : ℝ -> Seq
-geometric-series x = partial-sums (geometric-sequence x)
-
-geometric-series-path : 
-  (x : ℝ) (n : ℕ) -> (geometric-series x n) * (1# + (- x)) == 1# + - (geometric-sequence x n)
-geometric-series-path x zero =
-  *-left (finiteMerge-Fin0 _ _) >=>
-  *-left-zero >=>
-  sym +-inverse
-geometric-series-path x (suc n) = ans
+isConvergentSeries->zero-limit : {s : Seq} -> isConvergentSeries s -> isLimit s 0#
+isConvergentSeries->zero-limit {s} (l , lim-partial) =
+  subst2 isLimit (funExt diff-path) +-inverse lim-diff
   where
-  expand : (geometric-series x (suc n)) == 1# + x * geometric-series x n
-  expand =
-    finiteMerge-FinSuc _ _ >=>
-    +-right finiteSum-*
+  lim-diff : isLimit (diff (partial-sums s) (dropN 1 (partial-sums s))) (diff l l)
+  lim-diff = diff-preserves-limit lim-partial (dropN-preserves-limit lim-partial)
 
-  ans : (geometric-series x (suc n)) * (1# + (- x)) == 1# + - (geometric-sequence x (suc n))
-  ans =
-   *-left expand >=>
-   *-distrib-+-right >=>
-   +-right (*-assoc >=> 
-            *-right (geometric-series-path x n) >=>
-            *-distrib-+-left >=>
-            +-cong *-right-one minus-extract-right) >=>
-   +-left (*-left-one >=> +-commute) >=>
-   +-swap >=>
-   +-left (+-commute >=> +-inverse) >=>
-   +-left-zero
+  diff-path : ∀ n -> (diff (partial-sums s n) (dropN 1 (partial-sums s) n)) == s n
+  diff-path n = cong (diff (partial-sums s n)) (partial-sums-split s n) >=>
+                +-assoc >=> +-right +-inverse >=> +-right-zero
 
-geometric-sequence-1 : (n : ℕ) -> geometric-sequence 1# n == 1#
-geometric-sequence-1 zero = refl
-geometric-sequence-1 (suc n) = *-left-one >=> geometric-sequence-1 n
+-- TODO add isConvergentSequence-const
+isConvergentSeries-zero-seq : isConvergentSeries (\_ -> 0#)
+isConvergentSeries-zero-seq =
+  subst isConvergentSequence (funExt (\n -> sym (finiteMerge-ε _ (\_ -> refl))))
+    (0# , isLimit-constant-seq 0#)
 
 
-geometric-Iℚ-sequence : Iℚ -> ℕ -> Iℚ
-geometric-Iℚ-sequence qi zero    = (Iℚ-cons 1# 1# refl-≤)
-geometric-Iℚ-sequence qi (suc n) = qi i* (geometric-Iℚ-sequence qi n)
-
-geometric-ℚ-sequence : ℚ -> ℕ -> ℚ
-geometric-ℚ-sequence q zero    = 1#
-geometric-ℚ-sequence q (suc n) = q * (geometric-ℚ-sequence q n)
-
-geometric-sequence-0≤ : {x : ℝ} -> 0# ≤ x -> (n : ℕ) -> 0# ≤ geometric-sequence x n 
-geometric-sequence-0≤ {x} 0≤x zero = 0≤1
-geometric-sequence-0≤ {x} 0≤x (suc n) = *-preserves-0≤ 0≤x (geometric-sequence-0≤ 0≤x n)
-
-
-geometric-sequence-≤ : {x y : ℝ} -> 0# ≤ x -> x ≤ y -> (n : ℕ) ->
-                       (geometric-sequence x n) ≤ (geometric-sequence y n)
-geometric-sequence-≤ 0≤x x≤y zero = refl-≤
-geometric-sequence-≤ 0≤x x≤y (suc n) = 
-  trans-≤ (*₁-preserves-≤ 0≤x (geometric-sequence-≤ 0≤x x≤y n))
-          (*₂-preserves-≤ x≤y (geometric-sequence-0≤ (trans-≤ 0≤x x≤y) n))
-
-
-geometric-sequence-≤1' : {x : ℝ} -> 0# ≤ x -> x ≤ 1# -> (n : ℕ) ->
-                        (geometric-sequence x n) ≤ 1#
-geometric-sequence-≤1' 0≤x x≤1 n = 
-  subst2 _≤_ refl (geometric-sequence-1 n) (geometric-sequence-≤ 0≤x x≤1 n)
-
-
-geometric-sequence-≤1 : {x : ℝ} -> 0# ≤ x -> x ≤ 1# -> (n m : ℕ) -> n ≤ m ->
-                        (geometric-sequence x m) ≤ (geometric-sequence x n)
-geometric-sequence-≤1 0≤x x≤1 zero m _ = 
-  geometric-sequence-≤1' 0≤x x≤1 m
-geometric-sequence-≤1 0≤x x≤1 (suc n) zero = bot-elim ∘ zero-≮
-geometric-sequence-≤1 0≤x x≤1 (suc n) (suc m) sn≤sm =
-  *₁-preserves-≤ 0≤x (geometric-sequence-≤1 0≤x x≤1 n m (pred-≤ sn≤sm))
-
-
-
--- geometric-sequence-ℝ∈Iℚ : (x : ℝ) (qi : Iℚ) -> (ℝ∈Iℚ x qi) -> 
---                           (n : ℕ) -> ℝ∈Iℚ (geometric-sequence x n) (geometric-Iℚ-sequence qi n)
--- geometric-sequence-ℝ∈Iℚ = ? 
-
-module _
-  (*-preserves-limit : {s1 s2 : Seq} -> {v1 v2 : ℝ} ->
-                       isLimit s1 v1 -> isLimit s2 v2 -> isLimit (\n -> s1 n * s2 n) (v1 * v2))
-  (minus-preserves-limit : {s : Seq} -> {v : ℝ} ->
-                           isLimit s v -> isLimit (-_ ∘ s) (- v))
-  (ℚ->ℝ-preserves-* : {q r : ℚ} -> ℚ->ℝ (q * r) == ℚ->ℝ q * ℚ->ℝ r)
-
-  (Archimedian-ℝ : {a b : ℝ} -> (0# < b) -> ∃[ n ∈ Nat ] (a < (ℚ->ℝ (ℕ->ℚ n) * b)))
-  (Archimedian-ℚ : {a b : ℚ} -> (0# < b) -> ∃[ n ∈ Nat ] (a < ((ℕ->ℚ n) * b)))
-  (Archimedian-ℚ' : {a b : ℚ} -> (0# < a) -> (0# < b) -> (b < 1#) ->
-                    ∃[ n ∈ Nat ] ((geometric-ℚ-sequence b n) < a))
-
+squeeze-isConvergentSeries :
+  {s1 s2 s3 : Seq} ->
+  (∀Largeℕ (\ m -> s1 m ≤ s2 m)) ->
+  (∀Largeℕ (\ m -> s2 m ≤ s3 m)) ->
+  isConvergentSeries s1 ->
+  isConvergentSeries s3 ->
+  isConvergentSeries s2
+squeeze-isConvergentSeries {s1} {s2} {s3} ∀s1≤s2 ∀s2≤s3 (l1 , lim-part1) (l3 , lim-part3) =
+  isCauchy->isConvergentSequence (oneSidedCauchy->isCauchy cauchy)
   where
+  cauchy1 : isCauchy (partial-sums s1)
+  cauchy1 = isConvergentSequence->isCauchy (l1 , lim-part1)
+  cauchy3 : isCauchy (partial-sums s3)
+  cauchy3 = isConvergentSequence->isCauchy (l3 , lim-part3)
 
-  ℚ->ℝ-geometric-sequence : (q : ℚ) -> (n : ℕ) -> 
-                            ℚ->ℝ (geometric-ℚ-sequence q n) == (geometric-sequence (ℚ->ℝ q) n)
-  ℚ->ℝ-geometric-sequence q zero    = refl
-  ℚ->ℝ-geometric-sequence q (suc n) = 
-    ℚ->ℝ-preserves-* >=> *-right (ℚ->ℝ-geometric-sequence q n)
-
-
-  module _ (x : ℝ) (0<x : 0# < x) (x<1 : x < 1#) where
-    private
-      0<1-x : 0# < (1# + - x)
-      0<1-x = (subst2 _<_ +-inverse refl (+₂-preserves-< x<1))
-      1-x#0 : (1# + - x) # 0#
-      1-x#0 = inj-r 0<1-x
-      isUnit-1-x = Field.#0->isUnit ℝField 1-x#0
-      y = Ring.isUnit.inv isUnit-1-x
-      y-path : (1# + (- x)) * y == 1#
-      y-path = Ring.isUnit.path isUnit-1-x
-
-    isLimit-geometric-sequence : isLimit (geometric-sequence x) 0#
-    isLimit-geometric-sequence = close->isLimit f
+  cauchy : (ε : ℚ⁺) -> ∃[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> m₁ ≤ m₂ ->
+                                     εBounded ⟨ ε ⟩ (diff (partial-sums s2 m₁) (partial-sums s2 m₂)))
+  cauchy ε⁺@(ε , _) = ∥-map4 handle (cauchy1 ε⁺) (cauchy3 ε⁺) ∀s1≤s2 ∀s2≤s3
+    where
+    handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> n ≤ m₂ ->
+                           εBounded ε (diff (partial-sums s1 m₁) (partial-sums s1 m₂))) ->
+             Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> n ≤ m₂ ->
+                           εBounded ε (diff (partial-sums s3 m₁) (partial-sums s3 m₂))) ->
+             ∀Largeℕ' (\m -> s1 m ≤ s2 m) ->
+             ∀Largeℕ' (\m -> s2 m ≤ s3 m) ->
+             Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> m₁ ≤ m₂ ->
+                           εBounded ε (diff (partial-sums s2 m₁) (partial-sums s2 m₂)))
+    handle (n1 , f1) (n3 , f3) (n12 , f12) (n23 , f23) = max (max n1 n3) (max n12 n23) , g
       where
-      f : (qi : Iℚ) -> (ℝ∈Iℚ 0# qi) -> ∃[ n ∈ ℕ ] ((m : ℕ) -> m ≥ n -> ℝ∈Iℚ (geometric-sequence x m) qi)
-      f qi@(Iℚ-cons l u _) (L-l , U-u) =
-        ∥-bind2 handle (Archimedian-ℝ 0<1-x) 
-                       (Real.isLowerOpen-U x 1# xU-1)
+      g : (m₁ m₂ : Nat) -> max (max n1 n3) (max n12 n23) ≤ m₁ -> m₁ ≤ m₂ ->
+          εBounded ε (diff (partial-sums s2 m₁) (partial-sums s2 m₂))
+      g m₁ m₂ max≤m₁ m₁≤m₂@(i , _) =
+        subst (εBounded ε) (sym (diff-partial-sums s2 m₁ m₂ m₁≤m₂)) (lower , upper)
         where
-        xU-1 : Real.U x 1#
-        xU-1 = ℝ<->U x<1
-        handle : Σ[ n ∈ Nat ] (ℚ->ℝ u < (ℚ->ℝ (ℕ->ℚ n) * (1# + - x))) -> 
-                 Σ[ q ∈ ℚ ] (q < 1# × Real.U x q) ->
-                 ∃[ n ∈ ℕ ] ((m : ℕ) -> m ≥ n -> ℝ∈Iℚ (geometric-sequence x m) qi)
-        handle _ (q , q<1 , xU-q) = ∥-bind handle2 (Archimedian-ℚ' 0<u 0<q q<1)
-          where
-          0<u = U->ℚ< U-u
-          0<q = ℝ-bounds->ℚ< x (ℝ<->L 0<x) xU-q
-          handle2 : Σ[ n ∈ Nat ] ((geometric-ℚ-sequence q n) < u) ->
-                    ∃[ n ∈ ℕ ] ((m : ℕ) -> m ≥ n -> ℝ∈Iℚ (geometric-sequence x m) qi)
-          handle2 (n , q^n<u) = ∣ n , g ∣
-            where
-            g : (m : ℕ) -> m ≥ n -> ℝ∈Iℚ (geometric-sequence x m) qi
-            g m m≥n = ℝ<->L (trans-<-≤ (L->ℝ< L-l) (geometric-sequence-0≤ (weaken-< 0<x) m)) ,
-                      ℝ<->U x^m<u
-              where
-              x^m≤q^m : (geometric-sequence x m) ≤ (geometric-sequence (ℚ->ℝ q) m)
-              x^m≤q^m = (geometric-sequence-≤ (weaken-< 0<x) (weaken-< (U->ℝ< xU-q)) m)
-              q^m≤q^n : (geometric-sequence (ℚ->ℝ q) m) ≤ (geometric-sequence (ℚ->ℝ q) n)
-              q^m≤q^n = geometric-sequence-≤1 (weaken-< (ℚ->ℝ-preserves-< _ _ 0<q)) 
-                                              (weaken-< (ℚ->ℝ-preserves-< _ _ q<1)) n m m≥n
-              q^n=q^n : (geometric-sequence (ℚ->ℝ q) n) == ℚ->ℝ (geometric-ℚ-sequence q n)
-              q^n=q^n = sym (ℚ->ℝ-geometric-sequence q n)
-              x^m<u : (geometric-sequence x m) < (ℚ->ℝ u)
-              x^m<u = trans-≤-< (trans-≤ x^m≤q^m q^m≤q^n) 
-                                (subst2 _<_ (sym q^n=q^n) refl (ℚ->ℝ-preserves-< _ _ q^n<u))
+        n1≤m₁ = trans-≤ max-≤-left (trans-≤ max-≤-left max≤m₁)
+        n3≤m₁ = trans-≤ max-≤-right (trans-≤ max-≤-left max≤m₁)
+        n12≤m₁ = trans-≤ max-≤-left (trans-≤ max-≤-right max≤m₁)
+        n23≤m₁ = trans-≤ max-≤-right (trans-≤ max-≤-right max≤m₁)
+        p1 : (partial-sums (dropN m₁ s1) i) ≤ (partial-sums (dropN m₁ s2) i)
+        p1 = partial-sums-≤ (\n -> f12 (m₁ + n) (trans-=-≤ (sym +-right-zero)
+                                                           (+-preserves-≤ n12≤m₁ zero-≤))) i
+        p3 : (partial-sums (dropN m₁ s2) i) ≤ (partial-sums (dropN m₁ s3) i)
+        p3 = partial-sums-≤ (\n -> f23 (m₁ + n) (trans-=-≤ (sym +-right-zero)
+                                                           (+-preserves-≤ n23≤m₁ zero-≤))) i
 
-                        
-
-      
-    isLimit-geometric-series : isLimit (geometric-series x) y
-    isLimit-geometric-series = 
-      subst2 isLimit 
-        (sym (funExt gs-path')) (*-left (+-right minus-zero >=> +-right-zero) >=> *-left-one)
-        (*-preserves-limit (+-preserves-limit
-                             (isLimit-constant-seq 1#)
-                             (minus-preserves-limit isLimit-geometric-sequence))
-                           (isLimit-constant-seq y))
-                                             
-      where
-    
-      gs-path' : (n : ℕ) -> geometric-series x n == (1# + (- geometric-sequence x n)) * y
-      gs-path' n = 
-        sym *-right-one >=>
-        *-right (sym y-path) >=>
-        sym *-assoc >=>
-        *-left (geometric-series-path x n)
+        lower : Real.L (partial-sums (dropN m₁ s2) i) (r- ε)
+        lower = trans-L-ℝ≤ (proj₁ (f1 m₁ m₂ n1≤m₁ (trans-≤ n1≤m₁ m₁≤m₂)))
+                           (trans-=-≤ (diff-partial-sums s1 m₁ m₂ m₁≤m₂) p1)
+        upper : Real.U (partial-sums (dropN m₁ s2) i) ε
+        upper = trans-ℝ≤-U (trans-≤-= p3 (sym (diff-partial-sums s3 m₁ m₂ m₁≤m₂)))
+                           (proj₂ (f3 m₁ m₂ n3≤m₁ (trans-≤ n3≤m₁ m₁≤m₂)))

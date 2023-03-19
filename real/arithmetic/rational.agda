@@ -6,6 +6,7 @@ open import additive-group
 open import additive-group.instances.real
 open import base
 open import equality
+open import nat
 open import order
 open import order.instances.rational
 open import order.instances.real
@@ -23,7 +24,10 @@ open import real.arithmetic.multiplication
 open import real.interval
 open import real.rational
 open import ring.implementations.real
+open import ring.implementations.rational
 open import semiring
+open import semiring.instances.nat
+open import semiring.initial
 open import truncation
 
 
@@ -92,6 +96,25 @@ private
         q∈b = ℝ∈Iℚ->ℚ∈Iℚ b q'∈b
         r∈c = ℝ∈Iℚ->ℚ∈Iℚ c r'∈c
         qr∈bc = ℚ∈Iℚ-* q r b c q∈b r∈c
+
+Semiringʰ-ℚ->ℝ : Semiringʰ ℚ->ℝ
+Semiringʰ-ℚ->ℝ = record
+  { +ʰ = record
+    { preserves-ε = refl
+    ; preserves-∙ = \_ _ -> ℚ->ℝ-preserves-+
+    }
+  ; *ʰ = record
+    { preserves-ε = refl
+    ; preserves-∙ = \_ _ -> ℚ->ℝ-preserves-*
+    }
+  }
+
+Semiringʰ-ℕ->ℝ : Semiringʰ ℕ->ℝ
+Semiringʰ-ℕ->ℝ = Semiringʰ-∘ Semiringʰ-ℚ->ℝ Semiringʰ-ℕ->ℚ
+
+abstract
+  ℕ->Semiring-ℝ-path : ∀ n -> ℕ->Semiring n == ℕ->ℝ n
+  ℕ->Semiring-ℝ-path n = (\i -> ∃!-unique ∃!ℕ->Semiring ℕ->ℝ Semiringʰ-ℕ->ℝ i n)
 
 -- 1/2. Usefule now that we have shown that ℚ->ℝ-preserves-+
 1/2ℝ : ℝ

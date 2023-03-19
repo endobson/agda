@@ -148,6 +148,12 @@ nonneg-abs' (nonneg _) _ = refl
 nonneg-abs' (neg _) (inj-l ())
 nonneg-abs' (neg _) (inj-r ())
 
+nonpos-abs' : (m : Int) -> (NonPos m) -> m == - int (abs' m)
+nonpos-abs' (nonneg (suc n)) (inj-l ())
+nonpos-abs' (nonneg zero)    _ = refl
+nonpos-abs' (neg _)          _ = refl
+
+
 abs'-inject-add1 : {m : Int} -> (NonNeg m) -> abs' (add1 m) == suc (abs' m)
 abs'-inject-add1 {nonneg _} _ = refl
 abs'-inject-add1 {neg _} (inj-l ())

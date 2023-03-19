@@ -224,3 +224,6 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
 
     minus-flips-≤0 : {a : D} -> (a ≤ 0#) -> 0# ≤ (- a)
     minus-flips-≤0 {a} a≤0 = subst (_≤ (- a)) minus-zero (minus-flips-≤ a≤0)
+
+    diff-0≤⁺ : {a b : D} -> a ≤ b -> 0# ≤ diff a b
+    diff-0≤⁺ a≤b = trans-=-≤ (sym +-inverse) (+₂-preserves-≤ a≤b)

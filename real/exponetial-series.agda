@@ -103,6 +103,7 @@ private
     0<b = inverse-preserves-0< ab=1 0<a
     0<d = inverse-preserves-0< cd=1 0<c
 
+  -- Replace with more general version in real/sequence/limit.agda
   drop-preserves-limit :
     {s : Seq} {v : ℝ} -> (n : ℕ) -> isLimit s v -> isLimit (drop n s) v
   drop-preserves-limit {s} {v} zero    l = l

@@ -255,6 +255,14 @@ module _
       preserves-* : ∀ x y -> f (x S₁.* y) == f x S₂.* f y
       preserves-minus : ∀ x -> f (- x) == - (f x)
 
+    +ʰ : Monoidʰᵉ S₁.+-Monoid S₂.+-Monoid f
+    +ʰ = record { preserves-ε = preserves-0# ; preserves-∙ = preserves-+ }
+    *ʰ : Monoidʰᵉ S₁.*-Monoid S₂.*-Monoid f
+    *ʰ = record { preserves-ε = preserves-1# ; preserves-∙ = preserves-* }
+
+    semiringʰ : Semiringʰᵉ S₁ S₂ f
+    semiringʰ = record { +ʰ = +ʰ ; *ʰ = *ʰ }
+
 
 Ringʰ :
     {ℓ₁ ℓ₂ : Level}

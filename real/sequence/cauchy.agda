@@ -52,6 +52,30 @@ private
   OpenEventualLowerBound s q =
     ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.L (s m) (q r+ ⟨ ε ⟩))
 
+oneSidedCauchy->isCauchy :
+  {s : Seq} ->
+  ((ε : ℚ⁺) -> ∃[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> m₁ ≤ m₂ ->
+                             εBounded ⟨ ε ⟩ (diff (s m₁) (s m₂)))) ->
+  isCauchy s
+oneSidedCauchy->isCauchy {s} oneSided ε = ∥-map handle (oneSided ε)
+  where
+  handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> m₁ ≤ m₂ ->
+                         εBounded ⟨ ε ⟩ (diff (s m₁) (s m₂))) ->
+           Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> n ≤ m₂ ->
+                         εBounded ⟨ ε ⟩ (diff (s m₁) (s m₂)))
+  handle (n , f) = n , g
+    where
+    g : ((m₁ m₂ : Nat) -> n ≤ m₁ -> n ≤ m₂ ->
+         εBounded ⟨ ε ⟩ (diff (s m₁) (s m₂)))
+    g m₁ m₂ n≤m₁ n≤m₂ = handle2 (split-< m₁ m₂)
+      where
+      handle2 : (m₁ < m₂) ⊎ (m₂ ≤ m₁) -> εBounded ⟨ ε ⟩ (diff (s m₁) (s m₂))
+      handle2 (inj-l m₁<m₂) = f m₁ m₂ n≤m₁ (weaken-< m₁<m₂)
+      handle2 (inj-r m₂≤m₁) =
+        subst (εBounded ⟨ ε ⟩) (sym diff-anticommute)
+              (εBounded-- _ (f m₂ m₁ n≤m₂ m₂≤m₁))
+
+
 module _
   {s : Seq} (cauchy : isCauchy s)
   where
