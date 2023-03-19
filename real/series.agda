@@ -53,6 +53,8 @@ open import sequence
 open import sequence.partial-sums
 open import truncation
 
+open import real.series.base public
+
 private
   Seq : Type₁
   Seq = Sequence ℝ
@@ -69,16 +71,6 @@ isInfiniteSum s r = isLimit (partial-sums s) r
 
 isProp-isInfiniteSum : ∀ {s} {r} -> isProp (isInfiniteSum s r)
 isProp-isInfiniteSum = isProp-isLimit
-
-isConvergentSeries : Pred Seq ℓ-one
-isConvergentSeries s = isConvergentSequence (partial-sums s)
-
-isAbsConvergentSeries : Pred Seq ℓ-one
-isAbsConvergentSeries s = isConvergentSeries (abs ∘ s)
-
-isProp-isConvergentSeries : {s : Seq} -> isProp (isConvergentSeries s)
-isProp-isConvergentSeries = isProp-isConvergentSequence
-
 
 ℝ∈Iℚ-+ᵉ⁻ : (x y : ℝ) (a : Iℚ) -> ℝ∈Iℚ (x ℝ+ᵉ y) a ->
            ∃[ qi1 ∈ Iℚ ] Σ[ qi2 ∈ Iℚ ] (ℝ∈Iℚ x qi1 × ℝ∈Iℚ y qi2 × (qi1 i+ qi2) i⊆ a)
