@@ -16,7 +16,9 @@ open import finset.instances
 open import finsum
 open import finsum.absolute-value
 open import finsum.indicator
+open import finsum.order
 open import functions
+open import funext
 open import hlevel
 open import isomorphism
 open import nat
@@ -27,6 +29,7 @@ open import order.minmax.instances.real
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
 open import ordered-semiring
+open import ordered-semiring.instances.real
 open import rational
 open import rational.order
 open import real
@@ -37,11 +40,13 @@ open import real.series
 open import ring.implementations.real
 open import semiring
 open import sequence
+open import sequence.permutation
 open import sequence.partial-sums
 open import sigma.base
 open import subset
 open import subset.indicator
 open import truncation
+open import type-algebra
 
 private
   Seq : Type₁
@@ -180,3 +185,74 @@ private
                   (finiteSum (\ (k : Fin n) -> indicator S DetS k * s (Fin.i k)))
           path5 = cong (diff (partial-sums s N)) (path2 >=> +-cong path3 path4) >=>
                   +-assoc >=> +-right +-inverse >=> +-right-zero
+
+  permuted-partial-sums-abs-bounded-below :
+    {s : Seq} -> (p : Iso ℕ ℕ)  ->
+    (∀ i -> Σ[ j ∈ ℕ ] (partial-sums (abs ∘ s) i ≤ partial-sums (abs ∘ permute-seq p s) j))
+  permuted-partial-sums-abs-bounded-below {s} p i =
+    j , trans-=-≤ (path2 >=> path3) lt1
+    where
+    Σlwm : Σ ℕ (isLowWaterMark p i)
+    Σlwm = find-LowWaterMark p i
+    j = fst Σlwm
+
+    S : Subtype (Fin i) ℓ-zero
+    S (k , _) = (Iso.inv p k) < j , isProp-<
+    S' : Subtype (Fin j) ℓ-zero
+    S' (k , _) = (Iso.fun p k) < i , isProp-<
+
+    DetS : Detachable S
+    DetS (k , _) = decide-< _ _
+    DetS' : Detachable S'
+    DetS' (k , _) = decide-< _ _
+
+    instance
+      FinSetStr-S' : FinSetStr (∈-Subtype S')
+      FinSetStr-S' .FinSetStr.isFin =
+        isFinSet-Detachable S' (FinSetStr.isFin useⁱ) DetS'
+      FinSetStr-S : FinSetStr (∈-Subtype S)
+      FinSetStr-S .FinSetStr.isFin =
+        isFinSet-Detachable S (FinSetStr.isFin useⁱ) DetS
+
+      FinSetStr-¬S : FinSetStr (∉-Subtype S)
+      FinSetStr-¬S .FinSetStr.isFin =
+        isFinSet-DetachableComp S (FinSetStr.isFin useⁱ) DetS
+
+    isTotal-S : (k : Fin i) -> ⟨ S k ⟩
+    isTotal-S (k , k<i) = proj₂ (snd Σlwm) (Iso.inv p k) (trans-=-< (Iso.rightInv p k) k<i)
+
+    Fin-i≃∈S : Fin i ≃ ∈-Subtype S
+    Fin-i≃∈S = Σ-isContr-eq (\k -> isTotal-S k , snd (S k) _)
+
+    ∈S≃∈S' : ∈-Subtype S ≃ ∈-Subtype S'
+    ∈S≃∈S' = isoToEquiv (iso f g fg gf)
+      where
+      f : ∈-Subtype S -> ∈-Subtype S'
+      f ((k , k<i) , k'<j) = (Iso.inv p k , k'<j) , (trans-=-< (Iso.rightInv p k) k<i)
+      g : ∈-Subtype S' -> ∈-Subtype S
+      g ((k , k<j) , k'<i) = (Iso.fun p k , k'<i) , (trans-=-< (Iso.leftInv p k) k<j)
+      fg : ∀ k -> f (g k) == k
+      fg k = ΣProp-path (\{k} -> (snd (S' k))) (fin-i-path (Iso.leftInv p _))
+      gf : ∀ k -> g (f k) == k
+      gf k = ΣProp-path (\{k} -> (snd (S k))) (fin-i-path (Iso.rightInv p _))
+
+    path2 : finiteSum (\ ((k , _) : Fin i) -> abs (s k)) ==
+            finiteSum (\ (((k , _) , _) : (∈-Subtype S')) -> abs (permute-seq p s k))
+    path2 = finiteMerge-convert _ (equiv⁻¹ (Fin-i≃∈S >eq> ∈S≃∈S')) _
+
+    path3 : finiteSum (\ (((k , _) , _) : (∈-Subtype S')) -> abs (permute-seq p s k)) ==
+            finiteSum (\ (k : Fin j) -> (indicator S' DetS' k * abs (permute-seq p s (Fin.i k))))
+    path3 = finiteSum-indicator S' DetS'
+
+    lt1 : finiteSum (\ (k : Fin j) -> (indicator S' DetS' k * abs (permute-seq p s (Fin.i k)))) ≤
+          finiteSum (\ (k : Fin j) -> (abs (permute-seq p s (Fin.i k))))
+    lt1 = finiteSum-preserves-≤ (\k -> trans-≤-= (*₂-preserves-≤ (indicator-≤1 S' DetS' k) abs-0≤)
+                                                  *-left-one)
+
+  permuted-partial-sums-abs-bounded-above :
+    {s : Seq} -> (p : Iso ℕ ℕ)  ->
+    (∀ i -> Σ[ j ∈ ℕ ] (partial-sums (abs ∘ permute-seq p s) i ≤ partial-sums (abs ∘ s) j))
+  permuted-partial-sums-abs-bounded-above {s} p i =
+    subst (\s' -> Σ[ j ∈ ℕ ] (partial-sums (abs ∘ permute-seq p s) i ≤ partial-sums (abs ∘ s') j))
+          (funExt (\k ii -> s (Iso.rightInv p k ii)))
+          (permuted-partial-sums-abs-bounded-below (iso⁻¹ p) i)
