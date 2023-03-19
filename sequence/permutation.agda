@@ -4,7 +4,9 @@ module sequence.permutation where
 
 open import base
 open import equality
+open import equivalence
 open import fin
+open import finite-commutative-monoid.maximum
 open import finset.instances
 open import finset.search
 open import functions
@@ -13,6 +15,7 @@ open import isomorphism
 open import nat
 open import order
 open import order.instances.nat
+open import order.minmax.instances.nat
 open import relation
 open import sequence
 open import truncation
@@ -41,10 +44,10 @@ abstract
     isProp× (isPropΠ2 (\_ _ -> isProp-≤)) (isPropΠ2 (\_ _ -> isProp-≤))
 
 private
-  RawLowWaterMark-path : (p : Iso ℕ ℕ) (i j : ℕ) -> isRawLowWaterMark p i j == isLowWaterMark p i j
-  RawLowWaterMark-path p i j =
-    ua (isoToEquiv (isProp->iso expand proj₁ (isProp-isRawLowWaterMark p i j)
-                                             (isProp-isLowWaterMark p i j)))
+  RawLowWaterMark-eq : (p : Iso ℕ ℕ) (i j : ℕ) -> isRawLowWaterMark p i j ≃ isLowWaterMark p i j
+  RawLowWaterMark-eq p i j =
+    (isoToEquiv (isProp->iso expand proj₁ (isProp-isRawLowWaterMark p i j)
+                                          (isProp-isLowWaterMark p i j)))
     where
     expand : isRawLowWaterMark p i j -> isLowWaterMark p i j
     expand f = f , g
@@ -83,4 +86,19 @@ private
 abstract
   Decidable-isLowWaterMark : (p : Iso ℕ ℕ) (i : ℕ) -> Decidable (isLowWaterMark p i)
   Decidable-isLowWaterMark p i j =
-    subst Dec (RawLowWaterMark-path p i j) (Decidable-isRawLowWaterMark p i j)
+    subst Dec (ua (RawLowWaterMark-eq p i j)) (Decidable-isRawLowWaterMark p i j)
+
+  find-LowWaterMark : (p : Iso ℕ ℕ) -> (i : ℕ) -> Σ ℕ (isLowWaterMark p i)
+  find-LowWaterMark p i = suc m , eqFun (RawLowWaterMark-eq p i (suc m)) (\j m<j -> g m<j (split-< _ _))
+    where
+    p' : Fin i -> ℕ
+    p' (k , _) = Iso.inv p k
+    m : ℕ
+    m = finiteMax p'
+    f : {k : ℕ} -> (k < i) -> Iso.inv p k ≤ m
+    f {k} k<i = finiteMax-≤ p' (k , k<i)
+
+    g : {j : ℕ} -> m < j -> (Iso.fun p j < i ⊎ i ≤ Iso.fun p j) -> i ≤ Iso.fun p j
+    g m<j (inj-r i≤pj) = i≤pj
+    g m<j (inj-l pj<i) =
+      bot-elim (irrefl-< (trans-≤-< (trans-=-≤ (sym (Iso.leftInv p _)) (f pj<i)) m<j))
