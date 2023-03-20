@@ -3,6 +3,7 @@
 module monoid.binary-product where
 
 open import base
+open import hlevel.sigma
 open import equality
 open import monoid
 
@@ -14,6 +15,7 @@ MonoidStr-× M₁ M₂ = record
   ; ∙-assoc = cong2 _,_ M₁.∙-assoc M₂.∙-assoc
   ; ∙-left-ε = cong2 _,_ M₁.∙-left-ε M₂.∙-left-ε
   ; ∙-right-ε = cong2 _,_ M₁.∙-right-ε M₂.∙-right-ε
+  ; isSet-Domain = isSet× M₁.isSet-Domain M₂.isSet-Domain
   }
   where
   module M₁ = Monoid M₁

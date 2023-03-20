@@ -7,16 +7,17 @@ open import cubical
 open import equality-path
 open import equivalence
 open import functions
+open import funext
 open import hlevel
+open import infinity-monoid
 open import isomorphism
 open import maybe
 open import monoid
-open import sum
 open import sigma.base
+open import sum
 open import truncation
 open import univalence
 open import vec
-open import funext
 
 open Iso
 
@@ -99,19 +100,14 @@ private
   i .leftInv _ = refl
 
 instance
-  ×-Monoid : Monoid (Type ℓ-zero)
-  ×-Monoid = record
+  ×-InfinityMonoid : InfinityMonoid (Type ℓ-zero)
+  ×-InfinityMonoid = record
     { ε = Top
     ; _∙_ = _×_
     ; ∙-assoc = \{A B C} -> ×-assoc A B C
     ; ∙-left-ε = \{A} -> ×-Top A
     ; ∙-right-ε = \{A} -> ×-flip >=> ×-Top A
     }
-
-  -- ×-CommMonoid : CommMonoid (Type ℓ-zero)
-  -- ×-CommMonoid = record
-  --   { ∙-commute = ×-flip
-  --   }
 
 -- Disjoint Sum
 
@@ -395,19 +391,14 @@ instance
 ⊎-assoc A B C = ua (⊎-assoc-eq A B C)
 
 instance
-  ⊎-Monoid : Monoid (Type ℓ-zero)
-  ⊎-Monoid = record
+  ⊎-InfinityMonoid : InfinityMonoid (Type ℓ-zero)
+  ⊎-InfinityMonoid = record
     { ε = Bot
     ; _∙_ = _⊎_
     ; ∙-assoc = \{A B C} -> ⊎-assoc A B C
     ; ∙-left-ε = \{A} -> ⊎-Bot A
     ; ∙-right-ε = \{A} -> ⊎-flip >=> ⊎-Bot A
     }
-
-  -- ⊎-CommMonoid : CommMonoid (Type ℓ-zero)
-  -- ⊎-CommMonoid = record
-  --   { ∙-commute = ⊎-flip
-  --   }
 
 ×-distrib-⊎ : {A B C : Type ℓ} -> ((A ⊎ B) × C) == ((A × C) ⊎ (B × C))
 ×-distrib-⊎ {A = A} {B} {C} = ua (isoToEquiv i)

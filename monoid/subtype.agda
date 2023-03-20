@@ -3,6 +3,7 @@
 module monoid.subtype where
 
 open import base
+open import hlevel
 open import monoid
 open import relation
 open import sigma.base
@@ -19,4 +20,5 @@ module _ {ℓ₁ ℓ₂ : Level} {D : Type ℓ₁} {P : Pred D ℓ₂}
     ; ∙-assoc = ΣProp-path (isProp-P _) M.∙-assoc
     ; ∙-left-ε = ΣProp-path (isProp-P _) M.∙-left-ε
     ; ∙-right-ε = ΣProp-path (isProp-P _) M.∙-right-ε
+    ; isSet-Domain = isSetΣ M.isSet-Domain (\x -> isProp->isSet (isProp-P x))
     }

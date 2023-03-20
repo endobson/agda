@@ -4,8 +4,13 @@ module list where
 
 open import base
 open import equality-path
+open import equivalence
+open import fin.list
 open import functions
-open import monoid
+open import hlevel
+open import list.fin-list-eq
+open import infinity-monoid
+import monoid
 open import nat
 open import nat.order
 open import order
@@ -43,39 +48,52 @@ map-preserves-length : {f : A -> B} (as : List A) -> length (map f as) == length
 map-preserves-length [] = refl
 map-preserves-length (a :: as) = cong suc (map-preserves-length as)
 
+isSet-List : (isSet A) -> isSet (List A)
+isSet-List hA = ≃-isSet (equiv⁻¹ List≃FinList) (isSet-FinList hA)
+
+
 instance
-  ListMonoid : Monoid (List A)
-  ListMonoid {A} = record {
-    ε = [];
-    _∙_ = _++_;
-    ∙-assoc = \ {m} {n} {o} -> ++-assoc {a = m} {n} {o};
-    ∙-left-ε = ++-left-[];
-    ∙-right-ε = ++-right-[]
+  ListMonoid : {{sA : isSet' A}} -> monoid.Monoid (List A)
+  ListMonoid {{sA = sA}} = record
+    { ε = []
+    ; _∙_ = _++_
+    ; ∙-assoc = \ {m} {n} {o} -> ++-assoc {a = m} {n} {o}
+    ; ∙-left-ε = ++-left-[]
+    ; ∙-right-ε = ++-right-[]
+    ; isSet-Domain = isSet-List (isSet'.f sA)
     }
 
+  ListInfinityMonoid : InfinityMonoid (List A)
+  ListInfinityMonoid = record
+    { ε = []
+    ; _∙_ = _++_
+    ; ∙-assoc = \ {m} {n} {o} -> ++-assoc {a = m} {n} {o}
+    ; ∙-left-ε = ++-left-[]
+    ; ∙-right-ε = ++-right-[]
+    }
 
-mapʰ : (f : A -> B) -> Monoidʰ (map f)
+mapʰ : (f : A -> B) -> InfinityMonoidʰ (map f)
 mapʰ f = record {
   preserves-ε = refl ;
   preserves-∙ = (\ x y -> map-inject-++ f {x} {y})
   }
 
-concat : {{M : Monoid A}} -> List A -> A
-concat {{M = M}} [] = Monoid.ε M
-concat {{M = M}} (a :: l) = (Monoid._∙_ M) a (concat l)
+concat : {{M : InfinityMonoid A}} -> List A -> A
+concat {{M = M}} [] = InfinityMonoid.ε M
+concat {{M = M}} (a :: l) = (InfinityMonoid._∙_ M) a (concat l)
 
-concatʰ : {{M : Monoid A}} -> Monoidʰ (concat {{M}})
+concatʰ : {{M : InfinityMonoid A}} -> InfinityMonoidʰ (concat {{M}})
 concatʰ {A = A} {{M = M}} = record
   { preserves-ε = refl
   ; preserves-∙ = preserves-∙
   }
   where
-  open Monoid M
+  open InfinityMonoid M
   preserves-∙ : (x y : List A) -> concat (x ++ y) == (concat x) ∙ (concat y)
   preserves-∙ [] y = sym ∙-left-ε
   preserves-∙ (a :: l) y = cong (a ∙_) (preserves-∙ l y) >=> sym ∙-assoc
 
-lengthʰ : Monoidʰ {D₁ = List A} length
+lengthʰ : InfinityMonoidʰ {D₁ = List A} {{M₂ = Monoid->InfinityMonoid useⁱ}} length
 lengthʰ = record
   { preserves-ε = refl
   ; preserves-∙ = preserves-∙

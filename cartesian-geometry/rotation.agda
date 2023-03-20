@@ -264,13 +264,13 @@ private
     ; ∙-assoc = \{r1} {r2} {r3} -> r+-assoc r1 r2 r3
     ; ∙-left-ε = \{r} -> r+-left-zero r
     ; ∙-right-ε = \{r} -> r+-right-zero r
+    ; isSet-Domain = isSet-Rotation
     }
 
   CommMonoid-Rotation : CommMonoid Rotation
   CommMonoid-Rotation = record
     { monoid = Monoid-Rotation
     ; ∙-commute = \{r1} {r2} -> r+-commute r1 r2
-    ; isSet-Domain = isSet-Rotation
     }
 
 instance

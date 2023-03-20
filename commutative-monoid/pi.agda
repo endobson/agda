@@ -13,7 +13,6 @@ CommMonoidStr-Π : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {D : A -> Type ℓ�
 CommMonoidStr-Π M = record
   { monoid = MonoidStr-Π (\a -> CommMonoid.monoid (M a))
   ; ∙-commute = funExt (\a -> (CommMonoid.∙-commute (M a)))
-  ; isSet-Domain = isSetΠ (\a -> CommMonoid.isSet-Domain (M a))
   }
 
 CommMonoid-Π : {ℓ₁ ℓ₂ : Level} (A : Type ℓ₁) -> (A -> CommMonoidT ℓ₂) -> CommMonoidT (ℓ-max ℓ₁ ℓ₂)

@@ -10,7 +10,7 @@ open import list.filter
 open import list.sorted
 open import list.unordered
 open import list.discrete
-open import monoid
+open import infinity-monoid
 open import nat
 open import nat.bounded
 open import nat.order
@@ -311,7 +311,7 @@ clopen-range-++ {m} {n} {p} m≤n@(k1 , k1-path) n≤p@(k2 , k2-path) = full-pat
       map (m +'_) (clopen-range 0 k3)
     ==< cong (map (m +'_)) (clopen-range0-++ (k2 , refl)) >
       map (m +'_) ((clopen-range k1 k3) ++ clopen-range 0 k1)
-    ==< Monoidʰ.preserves-∙ (mapʰ (m +'_)) (clopen-range k1 k3) (clopen-range 0 k1) >
+    ==< InfinityMonoidʰ.preserves-∙ (mapʰ (m +'_)) (clopen-range k1 k3) (clopen-range 0 k1) >
       map (m +'_) (clopen-range k1 k3) ++
       map (m +'_) (clopen-range 0 k1)
     ==< (\i -> (clopen-range-+-left m k1 k3 (~ i)) ++

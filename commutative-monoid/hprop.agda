@@ -22,11 +22,10 @@ module _ where
     ΣProp-path isProp-isProp (×-LiftTop T)
   ∧MonoidStr-hProp ℓ .∙-right-ε {(T , PT)} =
     ΣProp-path isProp-isProp (×-flip >=> ×-LiftTop T)
-
+  ∧MonoidStr-hProp ℓ .isSet-Domain = isSet-hProp
 
 ∧CommMonoidStr-hProp : (ℓ : Level) -> CommMonoid (hProp ℓ)
 ∧CommMonoidStr-hProp ℓ = record
   { monoid = ∧MonoidStr-hProp ℓ
   ; ∙-commute = ΣProp-path isProp-isProp ×-flip
-  ; isSet-Domain = isSet-hProp
   }

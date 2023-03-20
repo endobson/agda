@@ -19,7 +19,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
       ; ∙-left-ε = max-≯-path global-min-≮
       ; ∙-right-ε = max-≮-path global-min-≮
       ; ∙-assoc = max-assoc
+      ; isSet-Domain = LinearOrderStr.isSet-D LO
       }
     ; ∙-commute = max-commute
-    ; isSet-Domain = LinearOrderStr.isSet-D LO
     }

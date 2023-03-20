@@ -85,6 +85,7 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} (M : Monoid D) (I : Type ℓI) wher
     ; ∙-assoc = dp∙-assoc
     ; ∙-left-ε = dp∙-left-ε
     ; ∙-right-ε = dp∙-right-ε
+    ; isSet-Domain = isSet-DirectProduct M.isSet-Domain
     }
 
   Monoidʰ-direct-product-index :
@@ -108,7 +109,6 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} (M : CommMonoid D) (I : Type ℓI) 
   CommMonoid-DirectProduct = record
     { monoid = MDP
     ; ∙-commute = dp∙-commute
-    ; isSet-Domain = isSet-DirectProduct M.isSet-Domain
     }
 
   CommMonoidʰ-direct-product-index :

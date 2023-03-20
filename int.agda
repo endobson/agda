@@ -1139,20 +1139,24 @@ isSetInt = Discrete->isSet discreteInt
 
 -- TODO move these to the monoid files
 IntMonoid+ : Monoid Int
-IntMonoid+ = record {
-  ε = (int 0);
-  _∙_ = _+_;
-  ∙-assoc = \ {m} {n} {o} -> +-assoc {m} {n} {o};
-  ∙-left-ε = +-left-zero;
-  ∙-right-ε = +-right-zero }
+IntMonoid+ = record
+  { ε = (int 0)
+  ; _∙_ = _+_
+  ; ∙-assoc = \ {m} {n} {o} -> +-assoc {m} {n} {o}
+  ; ∙-left-ε = +-left-zero
+  ; ∙-right-ε = +-right-zero
+  ; isSet-Domain = isSetInt
+  }
 
 IntMonoid* : Monoid Int
-IntMonoid* = record {
-  ε = (int 1);
-  _∙_ = _*_;
-  ∙-assoc = \ {m} {n} {o} -> *-assoc {m} {n} {o};
-  ∙-left-ε = *-left-one;
-  ∙-right-ε = *-right-one }
+IntMonoid* = record
+  { ε = (int 1)
+  ; _∙_ = _*_
+  ; ∙-assoc = \ {m} {n} {o} -> *-assoc {m} {n} {o}
+  ; ∙-left-ε = *-left-one
+  ; ∙-right-ε = *-right-one
+  ; isSet-Domain = isSetInt
+  }
 
 
 -- Nat minus -> Integer minus

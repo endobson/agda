@@ -1,13 +1,14 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module monoid where
+module infinity-monoid where
 
 open import base
 open import equality
 open import functions
 open import hlevel.base
+import monoid
 
-record Monoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
+record InfinityMonoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   infixl 6 _∙_
 
   field
@@ -16,7 +17,6 @@ record Monoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     ∙-assoc : {m n o : Domain} -> (m ∙ n) ∙ o == m ∙ (n ∙ o)
     ∙-left-ε : {m : Domain} -> (ε ∙ m) == m
     ∙-right-ε : {m : Domain} -> (m ∙ ε) == m
-    isSet-Domain : isSet Domain
 
   ∙-right : {m n o : Domain} -> (n == o) -> m ∙ n == m ∙ o
   ∙-right {m} p i = m ∙ p i
@@ -25,49 +25,49 @@ record Monoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   ∙-left {m} p i = p i ∙ m
 
 
-record Monoidʰᵉ
+record InfinityMonoidʰᵉ
     {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    (M₁ : Monoid D₁) (M₂ : Monoid D₂)
+    (M₁ : InfinityMonoid D₁) (M₂ : InfinityMonoid D₂)
     (f : D₁ -> D₂) : Type (ℓ-max ℓ₁ ℓ₂)
     where
-  module M₁ = Monoid M₁
-  module M₂ = Monoid M₂
+  module M₁ = InfinityMonoid M₁
+  module M₂ = InfinityMonoid M₂
 
   field
     preserves-ε : f M₁.ε == M₂.ε
     preserves-∙ : ∀ x y -> f (x M₁.∙ y) == (f x) M₂.∙ (f y)
 
-Monoidʰ :
+InfinityMonoidʰ :
     {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {{M₁ : Monoid D₁}} {{M₂ : Monoid D₂}}
+    {{M₁ : InfinityMonoid D₁}} {{M₂ : InfinityMonoid D₂}}
     (f : D₁ -> D₂)
     -> Type (ℓ-max ℓ₁ ℓ₂)
-Monoidʰ {{M₁ = M₁}} {{M₂ = M₂}} f = Monoidʰᵉ M₁ M₂ f
+InfinityMonoidʰ {{M₁ = M₁}} {{M₂ = M₂}} f = InfinityMonoidʰᵉ M₁ M₂ f
 
-module Monoidʰ {ℓ₁ ℓ₂ : Level}
+module InfinityMonoidʰ {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {M₁ : Monoid D₁} {M₂ : Monoid D₂}
+    {M₁ : InfinityMonoid D₁} {M₂ : InfinityMonoid D₂}
     {f : D₁ -> D₂}
-    (cm : Monoidʰᵉ M₁ M₂ f) where
-  open Monoidʰᵉ cm public
+    (cm : InfinityMonoidʰᵉ M₁ M₂ f) where
+  open InfinityMonoidʰᵉ cm public
 
 
 _∘ʰ_ :
   {ℓ₁ ℓ₂ ℓ₃ : Level}
   {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} {D₃ : Type ℓ₃}
-  {M₁ : Monoid D₁} {M₂ : Monoid D₂} {M₃ : Monoid D₃}
+  {M₁ : InfinityMonoid D₁} {M₂ : InfinityMonoid D₂} {M₃ : InfinityMonoid D₃}
   {f : D₂ -> D₃} {g : D₁ -> D₂}
-  -> (Monoidʰᵉ M₂ M₃ f)
-  -> (Monoidʰᵉ M₁ M₂ g)
-  -> (Monoidʰᵉ M₁ M₃ (f ∘ g))
+  -> (InfinityMonoidʰᵉ M₂ M₃ f)
+  -> (InfinityMonoidʰᵉ M₁ M₂ g)
+  -> (InfinityMonoidʰᵉ M₁ M₃ (f ∘ g))
 _∘ʰ_ {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res
   where
-  module M₁ = Monoid M₁
-  module M₃ = Monoid M₃
-  module f' = Monoidʰ f'
-  module g' = Monoidʰ g'
+  module M₁ = InfinityMonoid M₁
+  module M₃ = InfinityMonoid M₃
+  module f' = InfinityMonoidʰ f'
+  module g' = InfinityMonoidʰ g'
 
   preserves-ε : (f ∘ g) M₁.ε == M₃.ε
   preserves-ε = (cong f g'.preserves-ε) >=> f'.preserves-ε
@@ -75,11 +75,17 @@ _∘ʰ_ {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res
   preserves-∙ : ∀ x y -> (f ∘ g) (x M₁.∙ y) == ((f ∘ g) x) M₃.∙ ((f ∘ g) y)
   preserves-∙ x y = (cong f (g'.preserves-∙ x y)) >=> f'.preserves-∙ (g x) (g y)
 
-  res : (Monoidʰᵉ M₁ M₃ (f ∘ g))
+  res : (InfinityMonoidʰᵉ M₁ M₃ (f ∘ g))
   res = record {
     preserves-ε = preserves-ε ;
     preserves-∙ = preserves-∙
     }
 
-MonoidT : (ℓ : Level) -> Type (ℓ-suc ℓ)
-MonoidT ℓ = Σ[ D ∈ Type ℓ ] (Monoid D)
+Monoid->InfinityMonoid : {ℓ : Level} -> {D : Type ℓ} -> monoid.Monoid D -> InfinityMonoid D
+Monoid->InfinityMonoid M = record
+  { ε         = monoid.Monoid.ε M
+  ; _∙_       = monoid.Monoid._∙_ M
+  ; ∙-assoc   = monoid.Monoid.∙-assoc M
+  ; ∙-left-ε  = monoid.Monoid.∙-left-ε M
+  ; ∙-right-ε = monoid.Monoid.∙-right-ε M
+  }

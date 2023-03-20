@@ -19,9 +19,9 @@ instance
         ; ∙-assoc = \ {x} {y} {z} -> ℝ+-assoc x y z
         ; ∙-left-ε = \ {x} -> ℝ+-left-zero x
         ; ∙-right-ε = \ {x} -> ℝ+-commute x 0ℝ >=> ℝ+-left-zero x
+        ; isSet-Domain = isSet-ℝ
         }
       ; ∙-commute = \ {x} {y} -> ℝ+-commute x y
-      ; isSet-Domain = isSet-ℝ
       }
     }
 

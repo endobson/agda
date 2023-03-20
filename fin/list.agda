@@ -7,6 +7,9 @@ open import equality
 open import fin
 open import functions
 open import funext
+open import hlevel.base
+open import hlevel.pi
+open import hlevel.sigma
 open import nat
 open import nat.order.base
 open import order
@@ -90,3 +93,6 @@ abstract
 
     fp' : PathP (\i -> Fin (np' i) -> A) f1 f2
     fp' i = snd (lp i)
+
+isSet-FinList : (isSet A) -> isSet (FinList A)
+isSet-FinList hA = isSetΣ isSetNat (\a -> isSetΠ (\ _ -> hA))

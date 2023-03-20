@@ -352,13 +352,13 @@ module _ {n : Nat} where
     ; ∙-assoc = \{x} {y} {z} -> z*-assoc x y z
     ; ∙-left-ε = \{x} -> z*-left-one x
     ; ∙-right-ε = \{x} -> z*-commute x 1#  >=> z*-left-one x
+    ; isSet-Domain = isSet-ℤ/nℤ
     }
 
   CommMonoidStr-ℤ/nℤ-* : CommMonoid (ℤ/nℤ n)
   CommMonoidStr-ℤ/nℤ-* = record
     { monoid = MonoidStr-ℤ/nℤ-*
     ; ∙-commute = \{x} {y} -> z*-commute x y
-    ; isSet-Domain = isSet-ℤ/nℤ
     }
 
 

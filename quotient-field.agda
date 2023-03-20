@@ -460,9 +460,9 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
             ; ∙-assoc = \{a} {b} {c} -> q+-assoc a b c
             ; ∙-left-ε = \{a} -> q+-left-zero a
             ; ∙-right-ε = \{a} -> q+-commute a 0q >=> q+-left-zero a
+            ; isSet-Domain = isSet-Q
             }
           ; ∙-commute = \{a} {b} -> q+-commute a b
-          ; isSet-Domain = isSet-Q
           }
         }
 

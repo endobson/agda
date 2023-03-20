@@ -114,13 +114,13 @@ module _ where
       ; ∙-assoc = \{sr1} {sr2} {sr3} -> sr+-assoc sr1 sr2 sr3
       ; ∙-left-ε = \{sr} -> sr+-left-zero sr
       ; ∙-right-ε = \{sr} -> sr+-right-zero sr
+      ; isSet-Domain = isSet-SemiRotation
       }
 
     CommMonoid-SemiRotation : CommMonoid SemiRotation
     CommMonoid-SemiRotation = record
       { monoid = Monoid-SemiRotation
       ; ∙-commute = \{r1} {r2} -> sr+-commute r1 r2
-      ; isSet-Domain = isSet-SemiRotation
       }
 
   instance

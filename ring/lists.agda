@@ -8,6 +8,11 @@ module ring.lists {ℓD : Level} {Domain : Type ℓD} {ACM : AdditiveCommMonoid 
                   (S : Semiring ACM) where
 
 open import equality
+open import hlevel.base
+open import infinity-monoid using
+  ( InfinityMonoidʰ
+  ; InfinityMonoidʰᵉ
+  )
 
 import commutative-monoid
 import list
@@ -32,13 +37,18 @@ module _ where
   open list
   open monoid
 
-  sum : List Domain -> Domain
-  sum = concat {{S.+-Monoid}}
+  private
+    instance
+      isSet'-Domain : isSet' Domain
+      isSet'-Domain .isSet'.f = S.isSet-Domain
 
-  sumʰ : Monoidʰ {{M₁ = ListMonoid}} {{M₂ = S.+-Monoid}} sum
-  sumʰ = concatʰ {{S.+-Monoid}}
+  sum : List Domain -> Domain
+  sum = concat {{S.+-InfinityMonoid}}
+
+  sumʰ : InfinityMonoidʰᵉ ListInfinityMonoid S.+-InfinityMonoid sum
+  sumʰ = concatʰ {{M = S.+-InfinityMonoid}}
   module sumʰ where
-    open Monoidʰ sumʰ public
+    open InfinityMonoidʰ sumʰ public
     preserves-+ = preserves-∙
 
   sum-inject-++ : {a b : List Domain} -> sum (a ++ b) == sum a + sum b
@@ -46,7 +56,7 @@ module _ where
 
   sum-map-inject-++ : (f : A -> Domain) {a1 a2 : List A}
                       -> (sum (map f (a1 ++ a2))) == (sum (map f a1)) + (sum (map f a2))
-  sum-map-inject-++ f {a1} {a2} = Monoidʰ.preserves-∙ (sumʰ ∘ʰ (mapʰ f)) a1 a2
+  sum-map-inject-++ f {a1} {a2} = InfinityMonoidʰ.preserves-∙ (sumʰ infinity-monoid.∘ʰ (mapʰ f)) a1 a2
 
   sum-map-Permutation : {as1 as2 : (List A)} -> (f : A -> Domain) -> (Permutation A as1 as2)
                        -> (sum (map f as1)) == (sum (map f as2))
@@ -98,13 +108,13 @@ module _ where
 
 
   product : List Domain -> Domain
-  product = concat {{S.*-Monoid}}
+  product = concat {{S.*-InfinityMonoid}}
 
 
-  productʰ : Monoidʰ {{M₂ = S.*-Monoid}} product
+  productʰ : InfinityMonoidʰᵉ ListInfinityMonoid S.*-InfinityMonoid product
   productʰ = concatʰ
   module productʰ where
-    open Monoidʰ productʰ public
+    open InfinityMonoidʰ productʰ public
     preserves-* = preserves-∙
 
   product-inject-++ : {a b : List Domain} -> product (a ++ b) == product a * product b
@@ -112,7 +122,7 @@ module _ where
 
   product-map-inject-++ : (f : A -> Domain) {a1 a2 : List A}
     -> (product (map f (a1 ++ a2))) == (product (map f a1)) * (product (map f a2))
-  product-map-inject-++ f {a1} {a2} = Monoidʰ.preserves-∙ (productʰ ∘ʰ (mapʰ f)) a1 a2
+  product-map-inject-++ f {a1} {a2} = InfinityMonoidʰ.preserves-∙ (productʰ infinity-monoid.∘ʰ (mapʰ f)) a1 a2
 
   product-map-Permutation : {as1 as2 : (List A)} -> (f : A -> Domain) -> (Permutation A as1 as2)
                             -> (product (map f as1)) == (product (map f as2))

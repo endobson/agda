@@ -611,9 +611,9 @@ instance
         ; ∙-assoc = \ {m} {n} {o} -> r+-assoc m n o
         ; ∙-left-ε = \ {n} -> r+-left-zero n
         ; ∙-right-ε = \ {n} -> r+-right-zero n
+        ; isSet-Domain = isSetRational
         }
       ; ∙-commute = \ {m} {n} -> r+-commute m n
-      ; isSet-Domain = isSetRational
       }
     }
 

@@ -8,6 +8,7 @@ open import commutative-monoid
 open import equality
 open import hlevel
 open import monoid
+open import infinity-monoid
 
 private
   variable
@@ -38,8 +39,8 @@ record Semiring {ℓ : Level} {Domain : Type ℓ} (ACM : AdditiveCommMonoid Doma
     *-right-one {m} = (*-commute {m} {1#}) >=> (*-left-one {m})
 
   instance
-    +-Monoid : Monoid Domain
-    +-Monoid = record
+    +-InfinityMonoid : InfinityMonoid Domain
+    +-InfinityMonoid = record
       { ε = 0#
       ; _∙_ = _+_
       ; ∙-assoc = +-assoc
@@ -47,8 +48,27 @@ record Semiring {ℓ : Level} {Domain : Type ℓ} (ACM : AdditiveCommMonoid Doma
       ; ∙-right-ε = +-right-zero
       }
 
+    +-Monoid : Monoid Domain
+    +-Monoid = record
+      { ε = 0#
+      ; _∙_ = _+_
+      ; ∙-assoc = +-assoc
+      ; ∙-left-ε = +-left-zero
+      ; ∙-right-ε = +-right-zero
+      ; isSet-Domain = isSet-Domain
+      }
+
     +-CommMonoid : CommMonoid Domain
     +-CommMonoid = AdditiveCommMonoid.comm-monoid ACM
+
+    *-InfinityMonoid : InfinityMonoid Domain
+    *-InfinityMonoid = record
+      { ε = 1#
+      ; _∙_ = _*_
+      ; ∙-assoc = *-assoc
+      ; ∙-left-ε = *-left-one
+      ; ∙-right-ε = *-right-one
+      }
 
     *-Monoid : Monoid Domain
     *-Monoid = record
@@ -57,12 +77,12 @@ record Semiring {ℓ : Level} {Domain : Type ℓ} (ACM : AdditiveCommMonoid Doma
       ; ∙-assoc = *-assoc
       ; ∙-left-ε = *-left-one
       ; ∙-right-ε = *-right-one
+      ; isSet-Domain = isSet-Domain
       }
 
     *-CommMonoid : CommMonoid Domain
     *-CommMonoid = record
       { ∙-commute = *-commute
-      ; isSet-Domain = isSet-Domain
       }
 
 

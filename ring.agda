@@ -178,13 +178,13 @@ record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
     ; ∙-assoc = ΣProp-path isProp-isUnit *-assoc
     ; ∙-left-ε = ΣProp-path isProp-isUnit *-left-one
     ; ∙-right-ε = ΣProp-path isProp-isUnit *-right-one
+    ; isSet-Domain = isSet-Unit
     }
 
   CommMonoid-u* : CommMonoid Unit
   CommMonoid-u* = record
     { monoid = Monoid-u*
     ; ∙-commute = ΣProp-path isProp-isUnit *-commute
-    ; isSet-Domain = isSet-Unit
     }
 
   GroupStr-u* : GroupStr Unit

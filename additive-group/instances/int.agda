@@ -16,9 +16,9 @@ instance
         ; ∙-assoc = \ {m} {n} {o} -> int.+-assoc {m} {n} {o}
         ; ∙-left-ε = int.+-left-zero
         ; ∙-right-ε = int.+-right-zero
+        ; isSet-Domain = int.isSetInt
         }
       ; ∙-commute = \ {m} {n} -> int.+-commute {m} {n}
-      ; isSet-Domain = int.isSetInt
       }
     }
 

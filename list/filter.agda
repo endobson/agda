@@ -6,7 +6,7 @@ open import base
 open import relation
 open import equality
 open import list
-open import monoid
+open import infinity-monoid
 open import nat
 open import nat.order
 open import order
@@ -122,13 +122,13 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
       >=> (filter'-++ as1 as2)
       >=> (\i -> (filter'-drops as1 p (~ i)) ++ (filter' as2))
 
-  filterʰ : Monoidʰ {D₁ = List A} filter
+  filterʰ : InfinityMonoidʰ {D₁ = List A} filter
   filterʰ = record
     { preserves-ε = refl
     ; preserves-∙ = filter-++
     }
 
-  filter'ʰ : Monoidʰ {D₁ = List A} filter'
+  filter'ʰ : InfinityMonoidʰ {D₁ = List A} filter'
   filter'ʰ = record
     { preserves-ε = refl
     ; preserves-∙ = filter'-++

@@ -12,4 +12,5 @@ Monoid-ℤ+ = record
   ; ∙-assoc = +-assoc
   ; ∙-left-ε = +-left-zero
   ; ∙-right-ε = +-right-zero
+  ; isSet-Domain = isSetInt
   }

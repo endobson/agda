@@ -22,9 +22,9 @@ module _ {ℓ : Level} {D : Type ℓ} (ACM : AdditiveCommMonoid D) where
         ; ∙-assoc = funExt (\_ -> +-assoc)
         ; ∙-left-ε = funExt (\_ -> +-left-zero)
         ; ∙-right-ε = funExt (\_ -> +-right-zero)
+        ; isSet-Domain = isSetΠ (\_ -> AdditiveCommMonoid.isSet-Domain ACM)
         }
       ; ∙-commute = funExt (\_ -> +-commute)
-      ; isSet-Domain = isSetΠ (\_ -> AdditiveCommMonoid.isSet-Domain ACM)
       }
     }
 

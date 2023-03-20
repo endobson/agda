@@ -16,8 +16,8 @@ instance
         ; ∙-assoc = \ {m} {n} {o} -> +'-assoc {m} {n} {o}
         ; ∙-left-ε = refl
         ; ∙-right-ε = +'-right-zero
+        ; isSet-Domain = isSetNat
         }
       ; ∙-commute = \ {m} {n} -> +'-commute {m} {n}
-      ; isSet-Domain = isSetNat
       }
     }
