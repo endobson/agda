@@ -26,7 +26,7 @@ open import rational
 open import rational-prime
 open import ring
 open import ring.exponentiation
-open import ring.implementations
+open import ring.implementations.int
 open import ring.implementations.rational
 open import semiring
 open import semiring.instances.nat
@@ -102,7 +102,7 @@ module _ where
               finiteProduct FA (\a -> (ℕ->ℚ (f a))) == ℕ->ℚ (finiteProduct FA f)
     assum1' FA = finiteProduct-homo-inject FA CM
       where
-      CM : CommMonoidʰ ℕ->ℚ
+      CM : CommMonoidʰᵉ _ _ ℕ->ℚ
       CM = record
         { monoidʰ = record
           { preserves-ε = (Semiringʰ.preserves-1# Semiringʰ-ℕ->ℚ)

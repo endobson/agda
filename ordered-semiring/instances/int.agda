@@ -12,7 +12,7 @@ open import ordered-additive-group.instances.int
 open import ordered-semiring
 open import ordered-semiring.ring
 open import ordered-ring
-open import ring.implementations
+open import ring.implementations.int
 open import semiring
 
 import int.order as io

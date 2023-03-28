@@ -16,7 +16,7 @@ open import nat
 open import nat.order
 open import prime-gcd
 open import ring
-open import ring.implementations
+open import ring.implementations.int
 open import ring.initial-integers
 open import solver
 open import truncation

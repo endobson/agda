@@ -9,7 +9,7 @@ open import equality
 open import hlevel.base
 open import nat
 open import rational
-open import ring.implementations
+open import ring.implementations.int
 open import semiring
 open import sign
 open import sign.instances.int

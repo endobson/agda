@@ -14,7 +14,6 @@ open import nat
 open import nat.order
 open import order
 open import order.instances.nat
-open import ring.implementations
 open import semiring.instances.nat
 open import sigma.base
 open import unordered-list.base
@@ -358,7 +357,7 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
 
 -- Monoid homomorphism for count
 
-countʰ : (x : A) -> CommMonoidʰ (count x)
+countʰ : (x : A) -> CommMonoidʰᵉ _ _ (count x)
 countʰ x = CommMonoidʰ-∘ unordered-sumʰ mapʰ
 
 

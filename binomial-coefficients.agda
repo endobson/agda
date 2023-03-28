@@ -7,7 +7,6 @@ open import additive-group.instances.nat
 open import base
 open import equality
 open import nat
-open import ring.implementations
 open import semiring
 open import semiring.instances.nat
 

@@ -34,7 +34,7 @@ open import prime-gcd
 open import quotient
 open import relation
 open import relatively-prime
-open import ring.implementations
+open import ring.implementations.int
 open import sigma
 open import sigma.base
 open import sum

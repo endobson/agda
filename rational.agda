@@ -19,7 +19,7 @@ open import nat.order
 open import quotient-remainder-int
 open import relation
 open import ring
-open import ring.implementations
+open import ring.implementations.int
 open import semiring
 open import set-quotient
 open import sigma.base

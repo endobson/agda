@@ -36,7 +36,7 @@ open import prime-factorization
 open import prime-power-factorization
 open import relation
 open import relatively-prime
-open import ring.implementations
+open import ring.implementations.int
 open import ring.lists
 open import semiring
 open import sigma.base

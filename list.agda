@@ -2,6 +2,8 @@
 
 module list where
 
+open import additive-group
+open import additive-group.instances.nat
 open import base
 open import equality-path
 open import equivalence
@@ -17,7 +19,7 @@ open import order
 open import order.instances.nat
 open import quotient
 open import relation hiding (acc)
-open import ring.implementations
+open import ring.implementations.int
 open import sigma.base
 open import sum
 
@@ -93,7 +95,7 @@ concatʰ {A = A} {{M = M}} = record
   preserves-∙ [] y = sym ∙-left-ε
   preserves-∙ (a :: l) y = cong (a ∙_) (preserves-∙ l y) >=> sym ∙-assoc
 
-lengthʰ : InfinityMonoidʰ {D₁ = List A} {{M₂ = Monoid->InfinityMonoid useⁱ}} length
+lengthʰ : InfinityMonoidʰ {D₁ = List A} {{M₂ = Monoid->InfinityMonoid (Monoid-+ ℕ)}} length
 lengthʰ = record
   { preserves-ε = refl
   ; preserves-∙ = preserves-∙

@@ -13,7 +13,7 @@ open import prime
 open import prime-div-count.computational
 open import rational
 open import ring
-open import ring.implementations
+open import ring.implementations.int
 open import ring.implementations.rational
 open import semiring
 open import semiring.instances.nat

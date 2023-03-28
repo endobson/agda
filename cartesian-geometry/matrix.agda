@@ -27,6 +27,9 @@ open import subset
 open import truncation
 open import vector-space
 
+private
+  module ℝRing = Ring (Ringⁱ ℝ)
+
 -- Matrix : Row × Column
 record Matrix : Type₁ where
   no-eta-equality ; pattern

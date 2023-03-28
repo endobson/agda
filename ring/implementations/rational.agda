@@ -7,7 +7,7 @@ open import additive-group.instances.nat
 open import base
 open import rational
 open import ring
-open import ring.implementations
+open import ring.implementations.int
 open import semiring
 open import semiring.instances.nat
 
@@ -29,8 +29,6 @@ Semiringʰ-ℤ->ℚ = record
     }
   }
 
-
-
 Ringʰ-ℤ->ℚ : Ringʰ ℤ->ℚ
 Ringʰ-ℤ->ℚ = record
   { preserves-0# = refl
@@ -39,7 +37,6 @@ Ringʰ-ℤ->ℚ = record
   ; preserves-* = ℤ->ℚ-preserves-*
   ; preserves-minus = ℤ->ℚ-preserves-minus
   }
-
 
 Semiringʰ-ℕ->ℚ : Semiringʰ ℕ->ℚ
 Semiringʰ-ℕ->ℚ = Semiringʰ-∘ Semiringʰ-ℤ->ℚ Semiringʰ-ℕ->ℤ

@@ -20,7 +20,7 @@ open import quotient-remainder using
   ; isContr-QuotientRemainder
   )
 open import relation hiding (acc)
-open import ring.implementations
+open import ring.implementations.int
 open import sigma.base
 
 _div_ : Int -> Int -> Type₀

@@ -12,7 +12,7 @@ open import order.instances.int
 open import order.instances.nat
 open import rational
 open import relation
-open import ring.implementations
+open import ring.implementations.int
 open import semiring
 open import sign
 open import sign.instances.int

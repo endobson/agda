@@ -26,8 +26,8 @@ open import ordered-ring
 open import rational
 open import relation
 open import ring
+open import ring.implementations.int
 open import ring.implementations.rational
-open import ring.implementations
 open import semiring
 open import sigma.base
 open import sign

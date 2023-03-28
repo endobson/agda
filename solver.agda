@@ -14,7 +14,8 @@ open import nat
 open import nat.order
 open import relation hiding (acc)
 open import ring
-open import ring.implementations
+open import ring.implementations.int
+open import ring.implementations.reader
 open import ring.initial-integers
 open import semiring
 open import semiring.instances.nat

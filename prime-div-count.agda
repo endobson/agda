@@ -21,7 +21,7 @@ open import prime
 open import prime-gcd
 open import relation
 open import relatively-prime
-open import ring.implementations
+open import ring.implementations.int
 open import semiring
 open import semiring.instances.nat
 

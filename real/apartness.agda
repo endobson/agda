@@ -25,12 +25,14 @@ open import real.epsilon-bounded
 open import real.interval
 open import real.rational
 open import relation
+open import ring
 open import ring.implementations.real
 open import semiring
 open import truncation
 
 
 private
+  module ℝRing = Ring (Ringⁱ ℝ)
   open ℝRing using (is-unit)
 
 

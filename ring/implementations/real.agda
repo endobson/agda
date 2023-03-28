@@ -9,9 +9,7 @@ open import real.arithmetic.multiplication.associative
 open import real.arithmetic.multiplication.distributive
 open import real.rational
 open import ring
-open import ring.implementations
 open import semiring
-
 
 instance
   ℝSemiring : Semiring AdditiveCommMonoid-ℝ
@@ -25,10 +23,7 @@ instance
     ; *-distrib-+-right = (\ {m} {n} {o} -> ℝ*-distrib-ℝ+-right m n o)
     ; isSet-Domain = isSet-ℝ
     }
-module ℝSemiring = Semiring ℝSemiring
-
 
 instance
   ℝRing : Ring ℝSemiring AdditiveGroup-ℝ
   ℝRing = record {}
-module ℝRing = Ring ℝRing

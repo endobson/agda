@@ -2,6 +2,8 @@
 
 module unordered-list.operations where
 
+open import additive-group
+open import additive-group.instances.nat
 open import base
 open import commutative-monoid
 open import equality
@@ -13,7 +15,7 @@ open import nat.order
 open import order
 open import order.instances.nat
 open import relation
-open import ring.implementations
+open import ring.implementations.int
 open import unordered-list.base
 
 private
@@ -160,7 +162,7 @@ mapʰ {A = A} {f = f} = record
              -> (map f (x :: (xs ++ ys))) == (map f (x :: xs)) ++ (map f ys)
     (x ::* p) i = (f x) :: p i
 
-lengthʰ : CommMonoidʰ {D₁ = UList A} length
+lengthʰ : CommMonoidʰᵉ {D₁ = UList A} useⁱ (CommMonoid-+ ℕ) length
 lengthʰ = record
   { monoidʰ = record
     { preserves-ε = refl

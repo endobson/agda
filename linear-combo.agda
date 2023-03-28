@@ -9,7 +9,7 @@ open import functions
 open import int
 open import nat
 open import commutative-monoid
-open import ring.implementations
+open import ring.implementations.int
 
 
 record LinearCombination (a : Int) (b : Int) (d : Int) : Set where

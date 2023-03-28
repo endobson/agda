@@ -9,7 +9,7 @@ open import functions
 open import int using (ℤ)
 open import ring
 open import funext
-open import ring.implementations
+open import ring.implementations.int
 open import semiring
 open import sigma.base
 open import truncation

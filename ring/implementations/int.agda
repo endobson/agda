@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module ring.implementations where
+module ring.implementations.int where
 
 open import additive-group
 open import additive-group.instances.int
@@ -15,8 +15,6 @@ open import ring
 open import semiring
 open import semiring.instances.nat
 
-
-module NatSemiring = Semiring NatSemiring
 
 import int
 open int using
@@ -43,11 +41,13 @@ instance
     ; *-distrib-+-right = (\ {m} {n} {o} -> int.*-distrib-+ {m} {n} {o})
     ; isSet-Domain = int.isSetInt
     }
-module IntSemiring = Semiring IntSemiring
-
 instance
   IntRing : Ring IntSemiring AdditiveGroup-Int
   IntRing = record  {}
+
+private
+  module NatSemiring = Semiring NatSemiring
+  module IntSemiring = Semiring IntSemiring
 
 ^'ʰ : (x : Nat) -> CommMonoidʰᵉ NatSemiring.+-CommMonoid NatSemiring.*-CommMonoid (x ^'_)
 ^'ʰ x = record
@@ -122,31 +122,3 @@ module _ where
     { +ʰ = CommMonoidʰ.monoidʰ int-+ʰ
     ; *ʰ = CommMonoidʰ.monoidʰ int-*ʰ
     }
-
-
-
-ReaderSemiring : {ℓ₁ ℓ₂ : Level} {Domain : Type ℓ₁} {ACM : AdditiveCommMonoid Domain} ->
-                 (A : Type ℓ₂) -> Semiring ACM ->
-                 Semiring (AdditiveCommMonoid-Reader ACM A)
-ReaderSemiring {Domain = Domain} {ACM = ACM} A S = res
-  where
-  private
-    module S = Semiring S
-
-  res : Semiring (AdditiveCommMonoid-Reader ACM A)
-  res = record
-    { 1# = \a -> S.1#
-    ; _*_ = (\ x y a -> (x a S.* y a))
-    ; *-assoc = (\ {m} {n} {o} i a -> (S.*-assoc {m a} {n a} {o a} i))
-    ; *-commute = (\ {m} {n} i a -> (S.*-commute {m a} {n a} i))
-    ; *-left-zero = (\ {m} i a -> (S.*-left-zero {m a} i))
-    ; *-left-one = (\ {m} i a -> (S.*-left-one {m a} i))
-    ; *-distrib-+-right = (\ {m} {n} {o} i a -> (S.*-distrib-+-right {m a} {n a} {o a} i))
-    ; isSet-Domain = isSetΠ (\ _ -> S.isSet-Domain)
-    }
-
-
-ReaderRing : {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain} {S : Semiring ACM}
-             {AG : AdditiveGroup ACM} ->
-             (A : Type ℓ) -> Ring S AG -> Ring (ReaderSemiring A S) (AdditiveGroup-Reader AG A)
-ReaderRing {Domain = Domain} {ACM} {S} {AG} A R = record {}

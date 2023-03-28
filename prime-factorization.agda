@@ -14,7 +14,6 @@ open import order
 open import order.instances.nat
 open import prime
 open import relation
-open import ring.implementations
 open import semiring.instances.nat
 open import unordered-list
 
@@ -26,7 +25,7 @@ open import ring.lists NatSemiring
 prime-product : UList Prime' -> Nat
 prime-product = unordered-product ∘ (map fst)
 
-prime-productʰ : CommMonoidʰ prime-product
+prime-productʰ : CommMonoidʰᵉ _ _ prime-product
 prime-productʰ = CommMonoidʰ-∘ unordered-productʰ mapʰ
 
 isPrimeFactorization : UList Prime' -> Nat -> Type₀
