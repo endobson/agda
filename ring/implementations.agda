@@ -51,8 +51,10 @@ instance
 
 ^'ʰ : (x : Nat) -> CommMonoidʰᵉ NatSemiring.+-CommMonoid NatSemiring.*-CommMonoid (x ^'_)
 ^'ʰ x = record
-  { preserves-ε = refl
-  ; preserves-∙ = preserves-∙
+  { monoidʰ = record
+    { preserves-ε = refl
+    ; preserves-∙ = preserves-∙
+    }
   }
   where
   preserves-∙ : (a b : Nat) -> (x ^' (a +' b)) == (x ^' a) *' (x ^' b)
@@ -64,8 +66,10 @@ instance
 module _ where
   ^ʰ : (x : Int) -> CommMonoidʰᵉ NatSemiring.+-CommMonoid IntSemiring.*-CommMonoid (x ^_)
   ^ʰ x = record
-    { preserves-ε = ^-right-zero
-    ; preserves-∙ = preserves-∙
+    { monoidʰ = record
+      { preserves-ε = ^-right-zero
+      ; preserves-∙ = preserves-∙
+      }
     }
     where
     preserves-∙ : (a b : Nat) -> (x ^ (a +' b)) == (x ^ a) * (x ^ b)
@@ -79,8 +83,10 @@ module _ where
 
   int-+ʰ : CommMonoidʰᵉ NatSemiring.+-CommMonoid IntSemiring.+-CommMonoid  int
   int-+ʰ = record
-    { preserves-ε = refl
-    ; preserves-∙ = preserves-∙
+    { monoidʰ = record
+      { preserves-ε = refl
+      ; preserves-∙ = preserves-∙
+      }
     }
     where
     preserves-∙ : (a b : Nat) -> (int (a +' b)) == (int a) + (int b)
@@ -90,8 +96,10 @@ module _ where
 
   int-*ʰ : CommMonoidʰᵉ NatSemiring.*-CommMonoid IntSemiring.*-CommMonoid  int
   int-*ʰ = record
-    { preserves-ε = refl
-    ; preserves-∙ = preserves-∙
+    { monoidʰ = record
+      { preserves-ε = refl
+      ; preserves-∙ = preserves-∙
+      }
     }
     where
     preserves-∙ : (a b : Nat) -> (int (a *' b)) == (int a) * (int b)
@@ -111,9 +119,8 @@ module _ where
 
   Semiringʰ-ℕ->ℤ : Semiringʰ ℕ->ℤ
   Semiringʰ-ℕ->ℤ = record
-    { preserves-1# = CommMonoidʰ.preserves-ε int-*ʰ
-    ; preserves-+ = CommMonoidʰ.preserves-∙ int-+ʰ
-    ; preserves-* = CommMonoidʰ.preserves-∙ int-*ʰ
+    { +ʰ = CommMonoidʰ.monoidʰ int-+ʰ
+    ; *ʰ = CommMonoidʰ.monoidʰ int-*ʰ
     }
 
 

@@ -2,12 +2,13 @@
 
 module ring.implementations.rational where
 
-open import base
-open import additive-group.instances.nat
 open import additive-group.instances.int
+open import additive-group.instances.nat
+open import base
 open import rational
 open import ring
 open import ring.implementations
+open import semiring
 open import semiring.instances.nat
 
 open rational public using
@@ -18,10 +19,17 @@ open rational public using
 
 Semiringʰ-ℤ->ℚ : Semiringʰ ℤ->ℚ
 Semiringʰ-ℤ->ℚ = record
-  { preserves-1# = refl
-  ; preserves-+ = ℤ->ℚ-preserves-+
-  ; preserves-* = ℤ->ℚ-preserves-*
+  { +ʰ = record
+    { preserves-ε = refl
+    ; preserves-∙ = ℤ->ℚ-preserves-+
+    }
+  ; *ʰ = record
+    { preserves-ε = refl
+    ; preserves-∙ = ℤ->ℚ-preserves-*
+    }
   }
+
+
 
 Ringʰ-ℤ->ℚ : Ringʰ ℤ->ℚ
 Ringʰ-ℤ->ℚ = record

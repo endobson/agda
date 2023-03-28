@@ -114,8 +114,7 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} (M : CommMonoid D) (I : Type ℓI) 
   CommMonoidʰ-direct-product-index :
     (i : I) -> CommMonoidʰᵉ CommMonoid-DirectProduct M (\dp -> direct-product-index dp i)
   CommMonoidʰ-direct-product-index i = record
-    { preserves-ε = refl
-    ; preserves-∙ = \x y -> refl
+    { monoidʰ = Monoidʰ-direct-product-index M.monoid I i
     }
 
 

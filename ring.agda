@@ -221,65 +221,6 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} {{AG :
     *-distrib-diff-right : {x y z : D} -> (diff x y) * z == diff (x * z) (y * z)
     *-distrib-diff-right = *-distrib-+-right >=> +-right minus-extract-left
 
-
-
-module _ {ℓ₁ ℓ₂ : Level}
-         {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-         {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
-         (S₁ : Semiring ACM₁) (S₂ : Semiring ACM₂)
-         (f : D₁ -> D₂) where
-  private
-    instance
-      IACM₁ = ACM₁
-      IACM₂ = ACM₂
-    module S₁ = Semiring S₁
-    module S₂ = Semiring S₂
-
-  record Semiringʰᵉ  : Type (ℓ-max ℓ₁ ℓ₂) where
-    field
-      preserves-1# : f S₁.1# == S₂.1#
-      preserves-+ : ∀ x y -> f (x + y) == f x + f y
-      preserves-* : ∀ x y -> f (x S₁.* y) == f x S₂.* f y
-
-Semiringʰ :
-    {ℓ₁ ℓ₂ : Level}
-    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
-    {{S₁ : Semiring ACM₁}} {{S₂ : Semiring ACM₂}}
-    (f : D₁ -> D₂) -> Type (ℓ-max ℓ₁ ℓ₂)
-Semiringʰ {{S₁ = S₁}} {{S₂ = S₂}} f = Semiringʰᵉ S₁ S₂ f
-
-module Semiringʰ
-    {ℓ₁ ℓ₂ : Level}
-    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
-    {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
-    {f : D₁ -> D₂}
-    (s : Semiringʰᵉ S₁ S₂ f) where
-  open Semiringʰᵉ s public
-
-Semiringʰ-∘ :
-  {ℓ₁ ℓ₂ ℓ₃ : Level}
-  {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} {D₃ : Type ℓ₃}
-  {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂} {ACM₃ : AdditiveCommMonoid D₃}
-  {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂} {S₃ : Semiring ACM₃}
-  {f : D₂ -> D₃} {g : D₁ -> D₂} ->
-  (Semiringʰᵉ S₂ S₃ f) ->
-  (Semiringʰᵉ S₁ S₂ g) ->
-  (Semiringʰᵉ S₁ S₃ (f ∘ g))
-Semiringʰ-∘ {S₁ = S₁} {S₂} {S₃} {f} {g} f' g' = record
-  { preserves-1# = (cong f g'.preserves-1#) >=> f'.preserves-1#
-  ; preserves-+ =
-    (\x y -> (cong f (g'.preserves-+ x y)) >=> f'.preserves-+ (g x) (g y))
-  ; preserves-* =
-    (\x y -> (cong f (g'.preserves-* x y)) >=> f'.preserves-* (g x) (g y))
-  }
-  where
-  module f' = Semiringʰ f'
-  module g' = Semiringʰ g'
-
-
-
 module _
     {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}

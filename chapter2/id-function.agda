@@ -15,6 +15,7 @@ open import rational
 open import ring
 open import ring.implementations
 open import ring.implementations.rational
+open import semiring
 open import semiring.instances.nat
 
 N : Nat⁺ -> Nat⁺

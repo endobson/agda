@@ -5,6 +5,7 @@ module commutative-monoid.binary-product where
 open import base
 open import equality
 open import hlevel.sigma
+open import monoid
 open import monoid.binary-product
 open import commutative-monoid
 
@@ -21,14 +22,14 @@ CommMonoidStr-× M₁ M₂ = record
 CommMonoidʰ-proj₁ : {ℓ₁ ℓ₂ : Level} {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} ->
                     (CM₁ : CommMonoid D₁) (CM₂ : CommMonoid D₂) ->
                     CommMonoidʰᵉ (CommMonoidStr-× CM₁ CM₂) CM₁ proj₁
-CommMonoidʰ-proj₁ _ _ .CommMonoidʰ.preserves-ε = refl
-CommMonoidʰ-proj₁ _ _ .CommMonoidʰ.preserves-∙ x y = refl
+CommMonoidʰ-proj₁ _ _ .CommMonoidʰ.monoidʰ .Monoidʰ.preserves-ε = refl
+CommMonoidʰ-proj₁ _ _ .CommMonoidʰ.monoidʰ .Monoidʰ.preserves-∙ x y = refl
 
 CommMonoidʰ-proj₂ : {ℓ₁ ℓ₂ : Level} {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} ->
                     (CM₁ : CommMonoid D₁) (CM₂ : CommMonoid D₂) ->
                     CommMonoidʰᵉ (CommMonoidStr-× CM₁ CM₂) CM₂ proj₂
-CommMonoidʰ-proj₂ _ _ .CommMonoidʰ.preserves-ε = refl
-CommMonoidʰ-proj₂ _ _ .CommMonoidʰ.preserves-∙ x y = refl
+CommMonoidʰ-proj₂ _ _ .CommMonoidʰ.monoidʰ .Monoidʰ.preserves-ε = refl
+CommMonoidʰ-proj₂ _ _ .CommMonoidʰ.monoidʰ .Monoidʰ.preserves-∙ x y = refl
 
 
 CommMonoid-× : {ℓ₁ ℓ₂ : Level} -> CommMonoidT ℓ₁ -> CommMonoidT ℓ₂ -> CommMonoidT (ℓ-max ℓ₁ ℓ₂)

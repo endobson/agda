@@ -54,7 +54,7 @@ module Monoidʰ {ℓ₁ ℓ₂ : Level}
   open Monoidʰᵉ cm public
 
 
-_∘ʰ_ :
+Monoidʰ-∘ :
   {ℓ₁ ℓ₂ ℓ₃ : Level}
   {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} {D₃ : Type ℓ₃}
   {M₁ : Monoid D₁} {M₂ : Monoid D₂} {M₃ : Monoid D₃}
@@ -62,7 +62,7 @@ _∘ʰ_ :
   -> (Monoidʰᵉ M₂ M₃ f)
   -> (Monoidʰᵉ M₁ M₂ g)
   -> (Monoidʰᵉ M₁ M₃ (f ∘ g))
-_∘ʰ_ {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res
+Monoidʰ-∘ {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res
   where
   module M₁ = Monoid M₁
   module M₃ = Monoid M₃
@@ -80,6 +80,21 @@ _∘ʰ_ {M₁ = M₁} {M₃ = M₃} {f = f} {g = g} f' g' = res
     preserves-ε = preserves-ε ;
     preserves-∙ = preserves-∙
     }
+
+module _
+    {ℓ₁ ℓ₂ : Level}
+    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+    {M₁ : Monoid D₁} {M₂ : Monoid D₂}
+    {f : D₁ -> D₂}
+    where
+  private
+    isSetD = Monoid.isSet-Domain M₂
+  abstract
+    isProp-Monoidʰ : isProp (Monoidʰᵉ M₁ M₂ f)
+    isProp-Monoidʰ h1 h2 i .Monoidʰ.preserves-ε =
+      isSetD _ _ (Monoidʰ.preserves-ε h1) (Monoidʰ.preserves-ε h2) i
+    isProp-Monoidʰ h1 h2 i .Monoidʰ.preserves-∙ x y =
+      isSetD _ _ (Monoidʰ.preserves-∙ h1 x y) (Monoidʰ.preserves-∙ h2 x y) i
 
 MonoidT : (ℓ : Level) -> Type (ℓ-suc ℓ)
 MonoidT ℓ = Σ[ D ∈ Type ℓ ] (Monoid D)

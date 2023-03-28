@@ -359,7 +359,7 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
 -- Monoid homomorphism for count
 
 countʰ : (x : A) -> CommMonoidʰ (count x)
-countʰ x = unordered-sumʰ ∘ʰ mapʰ
+countʰ x = CommMonoidʰ-∘ unordered-sumʰ mapʰ
 
 
 -- If A is Discrete then (contains a as) is a proposition

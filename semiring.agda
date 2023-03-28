@@ -6,6 +6,7 @@ open import base
 open import additive-group
 open import commutative-monoid
 open import equality
+open import functions
 open import hlevel
 open import monoid
 open import infinity-monoid
@@ -48,18 +49,11 @@ record Semiring {ℓ : Level} {Domain : Type ℓ} (ACM : AdditiveCommMonoid Doma
       ; ∙-right-ε = +-right-zero
       }
 
-    +-Monoid : Monoid Domain
-    +-Monoid = record
-      { ε = 0#
-      ; _∙_ = _+_
-      ; ∙-assoc = +-assoc
-      ; ∙-left-ε = +-left-zero
-      ; ∙-right-ε = +-right-zero
-      ; isSet-Domain = isSet-Domain
-      }
-
     +-CommMonoid : CommMonoid Domain
     +-CommMonoid = AdditiveCommMonoid.comm-monoid ACM
+
+    +-Monoid : Monoid Domain
+    +-Monoid = CommMonoid.monoid +-CommMonoid
 
     *-InfinityMonoid : InfinityMonoid Domain
     *-InfinityMonoid = record
@@ -70,20 +64,22 @@ record Semiring {ℓ : Level} {Domain : Type ℓ} (ACM : AdditiveCommMonoid Doma
       ; ∙-right-ε = *-right-one
       }
 
-    *-Monoid : Monoid Domain
-    *-Monoid = record
-      { ε = 1#
-      ; _∙_ = _*_
-      ; ∙-assoc = *-assoc
-      ; ∙-left-ε = *-left-one
-      ; ∙-right-ε = *-right-one
-      ; isSet-Domain = isSet-Domain
-      }
 
     *-CommMonoid : CommMonoid Domain
     *-CommMonoid = record
-      { ∙-commute = *-commute
+      { monoid = record
+        { ε = 1#
+        ; _∙_ = _*_
+        ; ∙-assoc = *-assoc
+        ; ∙-left-ε = *-left-one
+        ; ∙-right-ε = *-right-one
+        ; isSet-Domain = isSet-Domain
+        }
+      ; ∙-commute = *-commute
       }
+
+    *-Monoid : Monoid Domain
+    *-Monoid = CommMonoid.monoid *-CommMonoid
 
 
 
@@ -146,3 +142,83 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
 
     *-right-zeroᵉ : (m : D) -> (m * 0#) == 0#
     *-right-zeroᵉ _ = *-right-zero
+
+record Semiringʰᵉ
+    {ℓ₁ ℓ₂ : Level}
+    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+    {ACM₁ : AdditiveCommMonoid D₁}
+    {ACM₂ : AdditiveCommMonoid D₂}
+    (S₁ : Semiring ACM₁) (S₂ : Semiring ACM₂)
+    (f : D₁ -> D₂) : Type (ℓ-max ℓ₁ ℓ₂)
+    where
+  private
+    module S₁ = Semiring S₁
+    module S₂ = Semiring S₂
+    module M+₁ = Monoid S₁.+-Monoid
+    module M+₂ = Monoid S₂.+-Monoid
+    module M*₁ = Monoid S₁.*-Monoid
+    module M*₂ = Monoid S₂.*-Monoid
+
+  field
+    +ʰ : monoid.Monoidʰᵉ S₁.+-Monoid S₂.+-Monoid f
+    *ʰ : monoid.Monoidʰᵉ S₁.*-Monoid S₂.*-Monoid f
+
+  preserves-0# : f M+₁.ε == M+₂.ε
+  preserves-0# = Monoidʰ.preserves-ε +ʰ
+  preserves-+ : ∀ x y -> f (x M+₁.∙ y) == (f x) M+₂.∙ (f y)
+  preserves-+ = Monoidʰ.preserves-∙ +ʰ
+  preserves-1# : f M*₁.ε == M*₂.ε
+  preserves-1# = Monoidʰ.preserves-ε *ʰ
+  preserves-* : ∀ x y -> f (x M*₁.∙ y) == (f x) M*₂.∙ (f y)
+  preserves-* = Monoidʰ.preserves-∙ *ʰ
+
+Semiringʰ :
+  {ℓ₁ ℓ₂ : Level}
+  {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+  {ACM₁ : AdditiveCommMonoid D₁}
+  {ACM₂ : AdditiveCommMonoid D₂}
+  {{S₁ : Semiring ACM₁}} {{S₂ : Semiring ACM₂}}
+  (f : D₁ -> D₂) -> Type (ℓ-max ℓ₁ ℓ₂)
+Semiringʰ {{S₁ = S₁}} {{S₂ = S₂}} f = Semiringʰᵉ S₁ S₂ f
+
+module Semiringʰ
+  {ℓ₁ ℓ₂ : Level}
+  {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+  {ACM₁ : AdditiveCommMonoid D₁}
+  {ACM₂ : AdditiveCommMonoid D₂}
+  {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
+  {f : D₁ -> D₂} (h : Semiringʰᵉ S₁ S₂ f)
+  where
+  open Semiringʰᵉ h public
+
+module _
+    {ℓ₁ ℓ₂ : Level}
+    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+    {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
+    {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
+    {f : D₁ -> D₂}
+    where
+  abstract
+    isProp-Semiringʰ : isProp (Semiringʰᵉ S₁ S₂ f)
+    isProp-Semiringʰ h1 h2 i .Semiringʰ.+ʰ =
+      isProp-Monoidʰ (Semiringʰ.+ʰ h1) (Semiringʰ.+ʰ h2) i
+    isProp-Semiringʰ h1 h2 i .Semiringʰ.*ʰ =
+      isProp-Monoidʰ (Semiringʰ.*ʰ h1) (Semiringʰ.*ʰ h2) i
+
+
+Semiringʰ-∘ :
+  {ℓ₁ ℓ₂ ℓ₃ : Level}
+  {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} {D₃ : Type ℓ₃}
+  {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂} {ACM₃ : AdditiveCommMonoid D₃}
+  {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂} {S₃ : Semiring ACM₃}
+  {f : D₂ -> D₃} {g : D₁ -> D₂} ->
+  (Semiringʰᵉ S₂ S₃ f) ->
+  (Semiringʰᵉ S₁ S₂ g) ->
+  (Semiringʰᵉ S₁ S₃ (f ∘ g))
+Semiringʰ-∘ f g = record
+  { +ʰ = Monoidʰ-∘ f.+ʰ g.+ʰ
+  ; *ʰ = Monoidʰ-∘ f.*ʰ g.*ʰ
+  }
+  where
+  module f = Semiringʰ f
+  module g = Semiringʰ g

@@ -349,6 +349,8 @@ module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK}
           CM-V2+ = GroupStr.comm-monoid (ModuleStr.GroupStr-V (VectorSpaceStr.module-str VS2))
         h : CommMonoidʰ f
         h = record
-          { preserves-∙ = lt-preserves-+ lt
-          ; preserves-ε = lt-preserves-0v lt
+          { monoidʰ = record
+            { preserves-∙ = lt-preserves-+ lt
+            ; preserves-ε = lt-preserves-0v lt
+            }
           }

@@ -27,7 +27,7 @@ prime-product : UList Prime' -> Nat
 prime-product = unordered-product ∘ (map fst)
 
 prime-productʰ : CommMonoidʰ prime-product
-prime-productʰ = unordered-productʰ ∘ʰ mapʰ
+prime-productʰ = CommMonoidʰ-∘ unordered-productʰ mapʰ
 
 isPrimeFactorization : UList Prime' -> Nat -> Type₀
 isPrimeFactorization primes n = prime-product primes == n

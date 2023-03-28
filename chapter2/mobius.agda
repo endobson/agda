@@ -104,7 +104,7 @@ relatively-prime-μ {a} {b} rp = handle (decide-square-free a) (decide-square-fr
       μ (a *⁺ b)
     ==< square-free-μ sf-ab pf-ab >
       (- (int 1)) ^ (ul.length (primes-a ul.++ primes-b))
-    ==< CommMonoidʰ.preserves-∙ (^ʰ (- (int 1)) ∘ʰ ul.lengthʰ) primes-a primes-b >
+    ==< CommMonoidʰ.preserves-∙ (CommMonoidʰ-∘ (^ʰ (- (int 1))) ul.lengthʰ) primes-a primes-b >
       (- (int 1)) ^ (ul.length primes-a) * (- (int 1)) ^ (ul.length primes-b)
     ==< *-left (sym (square-free-μ sf-a pf-a)) >
       μ a * (- (int 1)) ^ (ul.length primes-b)

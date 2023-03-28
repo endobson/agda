@@ -35,8 +35,10 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{AG : Addi
         where
         -ʰ : CommMonoidʰᵉ ACM.comm-monoid ACM.comm-monoid -_
         -ʰ = record
-          { preserves-ε = minus-zero
-          ; preserves-∙ = minus-distrib-plusᵉ
+          { monoidʰ = record
+            { preserves-ε = minus-zero
+            ; preserves-∙ = minus-distrib-plusᵉ
+            }
           }
 
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
@@ -53,8 +55,10 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
         where
         k*ʰ : {k : D} -> CommMonoidʰᵉ S.+-CommMonoid S.+-CommMonoid (k *_)
         k*ʰ {k} = record
-          { preserves-ε = *-right-zero
-          ; preserves-∙ = \_ _ -> *-distrib-+-left
+          { monoidʰ = record
+            { preserves-ε = *-right-zero
+            ; preserves-∙ = \_ _ -> *-distrib-+-left
+            }
           }
 
   module _ {ℓ# : Level} {AG : AdditiveGroup ACM} {A : TightApartnessStr D ℓ#}

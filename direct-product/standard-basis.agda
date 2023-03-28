@@ -112,8 +112,10 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
 
     unwrap-dpʰ : CommMonoidʰᵉ CM-V CM-ΠK+ unwrap-dp
     unwrap-dpʰ = record
-      { preserves-ε = refl
-      ; preserves-∙ = \x y -> refl
+      { monoidʰ = record
+        { preserves-ε = refl
+        ; preserves-∙ = \x y -> refl
+        }
       }
 
   -- The family of vectors that are the standard basis.

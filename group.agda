@@ -21,8 +21,10 @@ record GroupStr {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   abstract
     inverse-CMʰ : CommMonoidʰᵉ comm-monoid comm-monoid inverse
     inverse-CMʰ = record
-      { preserves-ε = sym ∙-right-ε >=> ∙-left-inverse
-      ; preserves-∙ = preserves-∙
+      { monoidʰ = record
+        { preserves-ε = sym ∙-right-ε >=> ∙-left-inverse
+        ; preserves-∙ = preserves-∙
+        }
       }
       where
       preserves-∙ : (x y : Domain) -> inverse (x ∙ y) == (inverse x) ∙ (inverse y)

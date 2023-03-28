@@ -28,6 +28,7 @@ open import ring
 open import ring.exponentiation
 open import ring.implementations
 open import ring.implementations.rational
+open import semiring
 open import semiring.instances.nat
 
 φℚ : Nat⁺ -> Rational
@@ -103,8 +104,10 @@ module _ where
       where
       CM : CommMonoidʰ ℕ->ℚ
       CM = record
-        { preserves-ε = (Semiringʰ.preserves-1# Semiringʰ-ℕ->ℚ)
-        ; preserves-∙ = (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ)
+        { monoidʰ = record
+          { preserves-ε = (Semiringʰ.preserves-1# Semiringʰ-ℕ->ℚ)
+          ; preserves-∙ = (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ)
+          }
         }
 
     φℚ-finiteProduct-step2 : {n : Nat⁺} ->

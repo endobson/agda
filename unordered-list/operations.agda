@@ -128,8 +128,10 @@ concat {A = A} {{M = M}} h =
 concatʰ : {{M : CommMonoid A}} -> {h : isSet A}
   -> CommMonoidʰ (concat {{M}} h)
 concatʰ {A = A} {{M = M}} {h} = record
-  { preserves-ε = refl
-  ; preserves-∙ = preserves-∙
+  { monoidʰ = record
+    { preserves-ε = refl
+    ; preserves-∙ = preserves-∙
+    }
   }
   where
   open CommMonoid M
@@ -144,8 +146,10 @@ concatʰ {A = A} {{M = M}} {h} = record
 
 mapʰ : {f : A -> B} -> CommMonoidʰ (map f)
 mapʰ {A = A} {f = f} = record
-  { preserves-ε = refl
-  ; preserves-∙ = preserves-∙
+  { monoidʰ = record
+    { preserves-ε = refl
+    ; preserves-∙ = preserves-∙
+    }
   }
   where
   preserves-∙ : (xs ys : UList A) -> map f (xs ++ ys) == (map f xs) ++ (map f ys)
@@ -158,9 +162,12 @@ mapʰ {A = A} {f = f} = record
 
 lengthʰ : CommMonoidʰ {D₁ = UList A} length
 lengthʰ = record
-  { preserves-ε = refl
-  ; preserves-∙ = preserves-∙
+  { monoidʰ = record
+    { preserves-ε = refl
+    ; preserves-∙ = preserves-∙
+    }
   }
+
   where
   preserves-∙ : (xs ys : UList A) -> length (xs ++ ys) == (length xs) +' (length ys)
   preserves-∙ {A = A} xs ys = UListElim.prop (isSetNat _ _) refl _::*_ xs

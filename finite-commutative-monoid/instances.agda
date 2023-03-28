@@ -209,8 +209,10 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
 
     finiteMergeʰ : CommMonoidʰᵉ (CommMonoidStr-Π (\_ -> CM)) CM finiteMerge'
     finiteMergeʰ = record
-      { preserves-ε = finiteMerge-ε (\_ -> refl)
-      ; preserves-∙ = \f g -> finiteMerge-split {f} {g}
+      { monoidʰ = record
+        { preserves-ε = finiteMerge-ε (\_ -> refl)
+        ; preserves-∙ = \f g -> finiteMerge-split {f} {g}
+        }
       }
 
 
