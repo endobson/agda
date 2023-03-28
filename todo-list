@@ -11,6 +11,7 @@ Remove bounds on operations that never need to provide them
 
 Move midℚ to a rational directory.
 
+Make MultiplicativeStr and have semirings just be the distributative law
 
 Add structures for ℕ≤
 -- Apartness

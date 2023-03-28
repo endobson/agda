@@ -137,11 +137,26 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
     *-swap : {m n o p : D} -> (m * n) * (o * p) == (m * o) * (n * p)
     *-swap = *-assoc >=> *-right (sym *-assoc >=> *-left *-commute >=> *-assoc) >=> sym *-assoc
 
+    -- Explicit versions when implicts don't infer well
+
     *-left-zeroᵉ : (m : D) -> (0# * m) == 0#
     *-left-zeroᵉ _ = *-left-zero
 
     *-right-zeroᵉ : (m : D) -> (m * 0#) == 0#
     *-right-zeroᵉ _ = *-right-zero
+
+    *-left-oneᵉ : (m : D) -> (1# * m) == m
+    *-left-oneᵉ _ = *-left-one
+
+    *-right-oneᵉ : (m : D) -> (m * 1#) == m
+    *-right-oneᵉ _ = *-right-one
+
+    *-distrib-+-rightᵉ : (m n o : D) -> (m + n) * o == (m * o) + (n * o)
+    *-distrib-+-rightᵉ _ _ _ = *-distrib-+-right
+
+    *-distrib-+-leftᵉ : (m n o : D) -> m * (n + o) == (m * n) + (m * o)
+    *-distrib-+-leftᵉ _ _ _ = *-distrib-+-left
+
 
 record Semiringʰᵉ
     {ℓ₁ ℓ₂ : Level}

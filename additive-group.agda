@@ -4,10 +4,11 @@ module additive-group where
 
 open import apartness
 open import base
-open import equality
 open import commutative-monoid
+open import equality
 open import group
 open import hlevel
+open import monoid
 open import truncation
 
 record AdditiveCommMonoid {ℓ : Level} (D : Type ℓ) : Type ℓ where
@@ -18,9 +19,16 @@ record AdditiveCommMonoid {ℓ : Level} (D : Type ℓ) : Type ℓ where
   isSet-Domain : isSet D
   isSet-Domain = CommMonoid.isSet-Domain comm-monoid
 
+module _ {ℓ : Level} (D : Type ℓ) {{ACM : AdditiveCommMonoid D}} where
+  CommMonoid-+ : CommMonoid D
+  CommMonoid-+ = AdditiveCommMonoid.comm-monoid ACM
+
+  Monoid-+ : Monoid D
+  Monoid-+ = CommMonoid.monoid CommMonoid-+
+
 module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} where
   private
-    module CM = CommMonoid (AdditiveCommMonoid.comm-monoid ACM)
+    module CM = CommMonoid (CommMonoid-+ D)
   infixl 6 _+_
 
   _+_ : D -> D -> D

@@ -296,6 +296,15 @@ induction {P = P} z f zero = z
 induction {P = P} z f (suc m) = f (induction {P = P} z f m)
 
 
+NatElim-01+ :
+  {ℓ : Level}
+  {P : Nat -> Type ℓ} ->
+  P 0 -> P 1 -> (∀ a b -> P a -> P b -> P (a +' b)) ->
+  (m : Nat) -> P m
+NatElim-01+ p0 p1 p+ = induction p0 (\{m} pm -> p+ 1 m p1 pm)
+
+
+
 -- Arithmetic on Nat⁺ for simpler signatures
 
 
