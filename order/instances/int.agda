@@ -3,6 +3,7 @@
 module order.instances.int where
 
 open import base
+open import equality
 open import int
 open import order
 open import relation
@@ -49,4 +50,23 @@ instance
   DecidableLinearOrderStr-ℤ : DecidableLinearOrderStr LinearOrderStr-ℤ
   DecidableLinearOrderStr-ℤ = record
     { trichotomous-< = trichotomous-ℤ<
+    }
+
+
+private
+  weaken-ℤ< : {m n : ℤ} -> (m < n) -> m ≤ n
+  weaken-ℤ< ((i , _) , p) = (i , p)
+
+  convert-ℤ≮ : {m n : ℤ} -> ¬ (m < n) -> n ≤ m
+  convert-ℤ≮ {m} {n} m≮n = case (trichotomous-< m n) of
+    \{ (tri< m<n _ _) -> bot-elim (m≮n m<n)
+     ; (tri= _ m=n _) -> path-≤ (sym m=n)
+     ; (tri> _ _ m>n) -> weaken-ℤ< m>n
+     }
+
+instance
+  CompatibleOrderStr-ℤ :
+    CompatibleOrderStr LinearOrderStr-ℤ PartialOrderStr-ℤ
+  CompatibleOrderStr-ℤ = record
+    { convert-≮ = convert-ℤ≮
     }
