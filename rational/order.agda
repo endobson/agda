@@ -4,6 +4,7 @@ module rational.order where
 
 open import apartness
 open import additive-group
+open import additive-group.instances.int
 open import base
 open import equality
 open import equivalence
@@ -1087,7 +1088,7 @@ private
     find-rep (record { numerator = (i.zero-int) ; denominator = (i.neg d') }) p =
       bot-elim (i.NonPos->¬Pos (i.*-NonNeg-NonPos (inj-r tt) (inj-l tt)) (isSignℚ'.v p))
     find-rep (record { numerator = (i.neg n') ; denominator = (i.neg d') }) _ =
-      ((suc n' , tt) , (suc d' , tt) , i.minus-extract-right >=> sym i.minus-extract-left )
+      ((suc n' , tt) , (suc d' , tt) , minus-extract-right >=> sym minus-extract-left )
     find-rep (record { denominator = i.zero-int ; NonZero-denominator = inj-l ()})
     find-rep (record { denominator = i.zero-int ; NonZero-denominator = inj-r ()})
 
@@ -1109,8 +1110,8 @@ private
     x1 = same-denom-r+' (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d))
     x2 = ((n⁺d⁺->ℚ' n d) r+' (r-' (1/ℕ' d)))
 
-    NonNeg-numer : i.NonNeg (int n' i.+ (i.- (int 1)))
-    NonNeg-numer = subst i.NonNeg (sym i.+-eval >=> i.+-commute) (i.NonNeg-nonneg n'')
+    NonNeg-numer : i.NonNeg (int n' + (- (int 1)))
+    NonNeg-numer = subst i.NonNeg (sym i.+-eval >=> +-commute) (i.NonNeg-nonneg n'')
 
     ans2 : NonNeg (same-denom-r+' (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d)))
     ans2 = NonNeg-nd->ℚ' (i.*-NonNeg-NonNeg NonNeg-numer (i.Pos->NonNeg (i.Pos'->Pos pos-d)))

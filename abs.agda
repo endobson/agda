@@ -2,10 +2,15 @@
 
 module abs where
 
-open import equality
+open import additive-group
+open import additive-group.instances.int
 open import base
-open import nat
+open import equality
 open import int
+open import nat
+open import ring
+open import ring.implementations.int
+open import semiring
 
 
 data NonNegIntRec : Int -> Set where
@@ -73,7 +78,7 @@ abs-inject-*/non-neg {_} {n} mp np = rec (non-neg-int-rec mp)
       abs (n + m * n)
     ==< abs-inject-+ np (*-NonNeg-NonNeg mp np) >
       abs n + abs (m * n)
-    ==< +-right {abs n} (rec m-rec) >
+    ==< +-right (rec m-rec) >
       abs n + abs m * abs n
     ==< sym (add1-extract-* {abs m} {abs n}) >
       add1 (abs m) * abs n
@@ -95,7 +100,7 @@ abs-inject-* {pos m} {pos n} = abs-inject-*/non-neg {pos m} {pos n} (inj-l tt) (
 abs-inject-* {pos m} {neg n} =
   begin
     abs (pos m * neg n)
-  ==< cong abs (minus-extract-right {pos m} {pos n}) >
+  ==< cong abs minus-extract-right >
     abs (- (pos m * pos n))
   ==< abs-cancel-minus {pos m * pos n}>
     abs (pos m * pos n)
@@ -105,7 +110,7 @@ abs-inject-* {pos m} {neg n} =
 abs-inject-* {neg m} {pos n} =
   begin
     abs (neg m * pos n)
-  ==< cong abs (minus-extract-left {pos m} {pos n}) >
+  ==< cong abs minus-extract-left >
     abs (- (pos m * pos n))
   ==< abs-cancel-minus {pos m * pos n}>
     abs (pos m * pos n)
@@ -115,9 +120,9 @@ abs-inject-* {neg m} {pos n} =
 abs-inject-* {neg m} {neg n} =
   begin
     abs (neg m * neg n)
-  ==< cong abs (minus-extract-left {pos m} {neg n}) >
+  ==< cong abs minus-extract-left >
     abs (- (pos m * neg n))
-  ==< cong abs (cong minus (minus-extract-right {pos m} {pos n})) >
+  ==< cong abs (cong minus minus-extract-right) >
     abs (- (- (pos m * pos n)))
   ==< abs-cancel-minus { - (pos m * pos n)}>=> abs-cancel-minus {pos m * pos n} >
     abs (pos m * pos n)
@@ -203,7 +208,7 @@ abs'-inject-* {pos m} {pos n} = abs'-inject-*/non-neg {pos m} {pos n} (inj-l tt)
 abs'-inject-* {pos m} {neg n} =
   begin
     abs' (pos m * neg n)
-  ==< cong abs' (minus-extract-right {pos m} {pos n}) >
+  ==< cong abs' minus-extract-right >
     abs' (- (pos m * pos n))
   ==< abs'-cancel-minus {pos m * pos n} >
     abs' (pos m * pos n)
@@ -213,7 +218,7 @@ abs'-inject-* {pos m} {neg n} =
 abs'-inject-* {neg m} {pos n} =
   begin
     abs' (neg m * pos n)
-  ==< cong abs' (minus-extract-left {pos m} {pos n}) >
+  ==< cong abs' minus-extract-left >
     abs' (- (pos m * pos n))
   ==< abs'-cancel-minus {pos m * pos n} >
     abs' (pos m * pos n)
@@ -223,9 +228,9 @@ abs'-inject-* {neg m} {pos n} =
 abs'-inject-* {neg m} {neg n} =
   begin
     abs' (neg m * neg n)
-  ==< cong abs' (minus-extract-left {pos m} {neg n}) >
+  ==< cong abs' minus-extract-left >
     abs' (- (pos m * neg n))
-  ==< cong abs' (cong minus (minus-extract-right {pos m} {pos n})) >
+  ==< cong abs' (cong minus minus-extract-right) >
     abs' (- (- (pos m * pos n)))
   ==< abs'-cancel-minus { - (pos m * pos n)} >=> abs'-cancel-minus {pos m * pos n} >
     abs' (pos m * pos n)
@@ -265,7 +270,7 @@ int-inject-*' {suc m} {n} =
     int (n +' (m *' n))
   ==< int-inject-+' {n} >
     int n + int (m *' n)
-  ==< +-right {int n} (int-inject-*' {m} {n}) >
+  ==< +-right (int-inject-*' {m} {n}) >
     int n + int m * int n
   ==< sym (add1-extract-* {int m} {int n}) >
     add1 (int m) * int n

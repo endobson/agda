@@ -2,23 +2,28 @@
 
 module modular-integers.binary-product where
 
-open import base
-open import isomorphism
-open import modular-integers
-open import nat
-open import relatively-prime
-open import set-quotient
-open import int
 open import abs
-open import sigma
+open import additive-group hiding (0#)
+open import additive-group.instances.int
+open import base
 open import div
-open import fin
 open import equality
 open import equivalence
-open import linear-combo
+open import fin
 open import gcd.euclidean-algorithm
-open import prime-gcd
 open import hlevel
+open import int
+open import isomorphism
+open import linear-combo
+open import modular-integers
+open import nat
+open import prime-gcd
+open import relatively-prime
+open import ring
+open import ring.implementations.int
+open import semiring hiding (1#)
+open import set-quotient
+open import sigma
 
 
 --shrink*-z* : (n : Nat) (n2⁺ : Nat⁺) -> ℤ/nℤ ( n *' ⟨ n2⁺ ⟩) -> ℤ/nℤ n
@@ -128,7 +133,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
       n% : (int (n1 *' n2)) div (lc.y * (z1 * (int n2)) + - (lc.y * (z2 * (int n2))))
       n% = lc.y * d ,
            (*-right int-inject-*' >=> *-assoc >=> *-right (sym *-assoc >=> *-left p)) >=>
-           *-right (*-distrib-+ >=> +-right minus-extract-left) >=>
+           *-right (*-distrib-+-right >=> +-right minus-extract-left) >=>
            (*-distrib-+-left >=> +-right minus-extract-right)
 
   lift*-z*₂ : ℤ/nℤ n2 -> ℤ/nℤ (n1 *' n2)
@@ -141,7 +146,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
       n% : (int (n1 *' n2)) div (lc.x * (z1 * (int n1)) + - (lc.x * (z2 * (int n1))))
       n% = lc.x * d ,
            (*-right (int-inject-*' >=> *-commute) >=> *-assoc >=> *-right (sym *-assoc >=> *-left p)) >=>
-           *-right (*-distrib-+ >=> +-right minus-extract-left) >=>
+           *-right (*-distrib-+-right >=> +-right minus-extract-left) >=>
            (*-distrib-+-left >=> +-right minus-extract-right)
 
   private
@@ -177,7 +182,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
         path : lc.x * (x * m1) + lc.y * (x * m2) == x
         path = cong2 _+_ (sym *-assoc >=> *-left *-commute >=> *-assoc >=> *-commute)
                          (sym *-assoc >=> *-left *-commute >=> *-assoc >=> *-commute) >=>
-               sym *-distrib-+ >=> *-left lc.path >=> *-left-one
+               sym *-distrib-+-right >=> *-left lc.path >=> *-left-one
 
     z*2-inv-path2 : (x : ℤ) (y : ℤ/nℤ n2) -> (z*2-inv₂ (z*2 [ x ] y)) == y
     z*2-inv-path2 x = ℤ/nℤElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) handle
@@ -193,7 +198,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
 
         path : lc.x * (y * m1) + lc.y * (x * m2) == y + ((- y * lc.y) + (lc.y * x)) * m2
         path = +-left path1 >=> +-right (sym *-assoc) >=>
-               +-assoc >=> +-right (sym *-distrib-+)
+               +-assoc >=> +-right (sym *-distrib-+-right)
 
         path2 : lc.x * (y * m1) + lc.y * (x * m2) + - y == ((- y * lc.y) + (lc.y * x)) * m2
         path2 = +-left (path >=> +-commute) >=> +-assoc >=> +-right add-minus-zero >=> +-right-zero
@@ -221,7 +226,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
 
         path : lc.x * (y * m1) + lc.y * (x * m2) == x + ((- x * lc.x) + (lc.x * y)) * m1
         path = +-right path1 >=> +-commute >=> +-assoc >=>
-               +-right (+-right (sym *-assoc) >=> sym *-distrib-+)
+               +-right (+-right (sym *-assoc) >=> sym *-distrib-+-right)
 
         path2 : (lc.x * (y * m1) + lc.y * (x * m2)) + - x == ((- x * lc.x) + (lc.x * y)) * m1
         path2 = +-left (path >=> +-commute) >=> +-assoc >=> +-right add-minus-zero >=> +-right-zero
@@ -261,7 +266,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
       t8 = (lc.y * (x1 * m2)) * (lc.y * (x2 * m2))
 
       p1 : t3 * t4 == (t5 + t6) + (t7 + t8)
-      p1 = *-distrib-+-left >=> cong2 _+_ *-distrib-+ *-distrib-+
+      p1 = *-distrib-+-left >=> cong2 _+_ *-distrib-+-right *-distrib-+-right
 
       t5-2 = t1 * (lc.x * m1)
       pt5-2 : t5 == t5-2

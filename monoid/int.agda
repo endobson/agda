@@ -5,12 +5,13 @@ module monoid.int where
 open import int
 open import monoid
 
+--TODO remove
 Monoid-ℤ+ : Monoid ℤ
 Monoid-ℤ+ = record
-  { _∙_ = _+_
+  { _∙_ = _ℤ+_
   ; ε = (int 0)
-  ; ∙-assoc = +-assoc
-  ; ∙-left-ε = +-left-zero
-  ; ∙-right-ε = +-right-zero
+  ; ∙-assoc = ℤ+-assoc
+  ; ∙-left-ε = ℤ+-left-zero
+  ; ∙-right-ε = ℤ+-right-zero
   ; isSet-Domain = isSetInt
   }

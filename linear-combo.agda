@@ -3,13 +3,17 @@
 module linear-combo where
 
 open import abs
+open import additive-group
+open import additive-group.instances.int
 open import base
+open import commutative-monoid
 open import equality
 open import functions
 open import int
 open import nat
-open import commutative-monoid
+open import ring
 open import ring.implementations.int
+open import semiring
 
 
 record LinearCombination (a : Int) (b : Int) (d : Int) : Set where
@@ -29,7 +33,7 @@ linear-combo-refl {n} =
 
 linear-combo-sym : {a b d : Int} -> LinearCombination a b d -> LinearCombination b a d
 linear-combo-sym {a} {b} {d} (linear-combo x y p) =
-  (linear-combo y x (+-commute {y * b} >=> p))
+  (linear-combo y x (+-commute >=> p))
 
 linear-combo-zero : {n : Int}  -> LinearCombination n zero-int n
 linear-combo-zero {n} =
@@ -45,7 +49,7 @@ linear-combo-negate {a} {b} {d} (linear-combo x y p) =
     proof =
       begin
         x * a + (- y * - b)
-      ==< +-right {x * a} (minus-extract-both {y} {b}) >
+      ==< +-right minus-extract-both >
         x * a + y * b
       ==< p >
         d
@@ -60,9 +64,9 @@ linear-combo-negate-result {a} {b} {d} (linear-combo x y p) =
     proof =
       begin
         - x * a + - y * b
-      ==< +-left (minus-extract-left {x}) >
+      ==< +-left minus-extract-left >
         - (x * a) + - y * b
-      ==< +-right { - (x * a)} (minus-extract-left {y}) >
+      ==< +-right minus-extract-left >
         - (x * a) + - (y * b)
       ==< sym (minus-distrib-+ {x * a}) >
         - ((x * a) + (y * b))
@@ -104,22 +108,21 @@ linear-combo-+' {a} {b} {d} (linear-combo x y p) =
     path =
       begin
         (x + (- y)) * (int a) + y * (int (a +' b))
-      ==< +-left (*-distrib-+ {x} {(- y)} {int a}) >
+      ==< +-left *-distrib-+-right >
         ((x * (int a)) + ((- y) * (int a))) + y * (int (a +' b))
       ==< (\i  -> ((x * (int a)) + ((- y) * (int a))) + y * (CommMonoidʰ.preserves-∙ int-+ʰ a b i)) >
         ((x * (int a)) + ((- y) * (int a))) + y * ((int a) + (int b))
-      ==< (\i  -> ((x * (int a)) + ((- y) * (int a))) + (*-distrib-+-left {y} {int a} {int b} i)) >
+      ==< cong (\c -> ((x * (int a)) + ((- y) * (int a))) + c) *-distrib-+-left >
         ((x * (int a)) + ((- y) * (int a))) + ((y * (int a)) + (y * (int b)))
-      ==< +-assoc {x * (int a)} {(- y) * (int a)} >
+      ==< +-assoc >
         (x * (int a)) + (((- y) * (int a)) + ((y * (int a)) + (y * (int b))))
-      ==< +-right {x * (int a)} (sym (+-assoc {(- y) * (int a)} {y * (int a)})) >
+      ==< +-right (sym +-assoc) >
         (x * (int a)) + ((((- y) * (int a)) + (y * (int a))) + (y * (int b)))
-      ==< +-right {x * (int a)} (+-left (sym (*-distrib-+ {(- y)} {y} {int a}))) >
+      ==< +-right (+-left (sym (*-distrib-+-right))) >
         (x * (int a)) + ((((- y) + y) * (int a)) + (y * (int b)))
-      ==< +-right {x * (int a)} (+-left (*-left (+-commute {(- y)} {y} >=> add-minus-zero {y})
-                                         >=> *-left-zero)) >
+      ==< +-right (+-left (*-left (+-commute >=> add-minus-zero) >=> *-left-zero)) >
         x * (int a) + (int 0 + y * (int b))
-      ==< +-right {x * (int a)} +-left-zero >
+      ==< +-right +-left-zero >
         x * (int a) + y * (int b)
       ==< p >
         (int d)

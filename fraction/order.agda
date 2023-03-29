@@ -3,6 +3,7 @@
 open import abs
 open import additive-group
 open import additive-group.instances.int
+open import additive-group.instances.nat
 open import base
 open import equality
 open import fraction.sign
@@ -12,6 +13,7 @@ open import order.instances.int
 open import order.instances.nat
 open import rational
 open import relation
+open import ring
 open import ring.implementations.int
 open import semiring
 open import sign
@@ -104,7 +106,7 @@ abstract
                 (r*'-distrib-r+'-left _ _ _)
 
     s7 : (r-' (a r*' b)) r~ (a r*' (r-' b))
-    s7 = *-left (sym int.minus-extract-right)
+    s7 = *-left (sym minus-extract-right)
 
 
 
@@ -243,7 +245,7 @@ private
     n = Rational'.numerator diffᵉ-v
     zpath : n == (int.int 0)
     zpath = +-left (sym q~r) >=>
-            +-right int.minus-extract-left >=>
+            +-right minus-extract-left >=>
             int.add-minus-zero
     zn : Zero (Rational'.numerator diff-v)
     zn = subst Zero (sym zpath >=> cong Rational'.numerator (sym r+'-eval)) tt
@@ -266,9 +268,9 @@ private
       begin
         nq * dr
       ==< sym +-right-zero >=> +-right ((sym znᵉ) >=> +-commute) >
-        (nq * dr) + (((int.- nq) * dr) + nr * dq)
-      ==< +-right (+-left int.minus-extract-left) >
-        (nq * dr) + (int.- (nq * dr) + nr * dq)
+        (nq * dr) + (((- nq) * dr) + nr * dq)
+      ==< +-right (+-left minus-extract-left) >
+        (nq * dr) + (- (nq * dr) + nr * dq)
       ==< sym +-assoc >=> +-left int.add-minus-zero >=> +-left-zero >
         nr * dq
       end
@@ -318,13 +320,13 @@ trichotomous~-ℚ'< q r = handle (decide-sign d')
 
     r~q : r r~ q
     r~q =
-      sym int.+-right-zero >=>
-      int.+-right (sym int.add-minus-zero >=>
-                   int.+-commute >=>
-                   +-left (sym int.minus-extract-left)) >=>
-      sym int.+-assoc >=>
-      int.+-left (cong Rational'.numerator (sym r+'-eval) >=> n-path) >=>
-      int.+-left-zero
+      sym +-right-zero >=>
+      +-right (sym int.add-minus-zero >=>
+               +-commute >=>
+               +-left (sym minus-extract-left)) >=>
+      sym +-assoc >=>
+      +-left (cong Rational'.numerator (sym r+'-eval) >=> n-path) >=>
+      +-left-zero
 
   handle (neg-sign  , nd) =
     tri> (\ (ℚ'<-cons pd) -> NonPos->¬Pos (Neg->NonPos nd) (isSignℚ'.v pd))
@@ -438,15 +440,15 @@ antisym~-ℚ'≤ {a} {b} a≤b b≤a = handle (trichotomous~-ℚ'< a b)
   sd~diff : sd r~ diff-v
   sd~diff = same-denom-r+'-r~ (ℕ->ℚ' b) (r-' (ℕ->ℚ' a)) refl
 
-  path2 : int (c nat.+' suc a) i.+ (i.- (int a)) == i.pos c
-  path2 = i.+-left (cong int nat.+'-right-suc) >=>
-          i.+-left (int-inject-+' {suc c} {a}) >=>
-          i.+-assoc >=>
-          i.+-right i.add-minus-zero >=>
-          i.+-right-zero
+  path2 : int (c + suc a) + (- (int a)) == i.pos c
+  path2 = +-left (cong int nat.+'-right-suc) >=>
+          +-left (int-inject-+' {suc c} {a}) >=>
+          +-assoc >=>
+          +-right i.add-minus-zero >=>
+          +-right-zero
 
-  Pos-b-a : i.Pos ((int b) i.+ (i.- (int a)))
-  Pos-b-a = subst i.Pos (sym path2 >=> cong (\x -> (int x i.+ (i.- (int a)))) path) tt
+  Pos-b-a : i.Pos ((int b) + (- (int a)))
+  Pos-b-a = subst i.Pos (sym path2 >=> cong (\x -> (int x + (- (int a)))) path) tt
 
   Pos-sd : Pos sd
   Pos-sd = is-signℚ' (int.*-Pos-Pos Pos-b-a tt)

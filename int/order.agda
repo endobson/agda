@@ -2,6 +2,8 @@
 
 module int.order where
 
+open import additive-group
+open import additive-group.instances.int
 open import abs
 open import base
 open import equality
@@ -12,6 +14,8 @@ open import nat.properties
 open import relation
 open import sigma.base
 open import truncation
+open import semiring
+open import ring.implementations.int
 
 import nat.order as n
 
@@ -175,7 +179,7 @@ NonNeg->≥0 {neg i} (inj-r ())
 
 *₂-Pos-preserves-<⁺ : {a b c : Int} -> (a < b) -> Pos c -> (a * c) < (b * c)
 *₂-Pos-preserves-<⁺ {c = nonneg (suc c)} (x , path) _ =
-  x *⁺ (suc c , tt) , +-left int-inject-*' >=> sym *-distrib-+ >=> *-left path
+  x *⁺ (suc c , tt) , +-left int-inject-*' >=> sym *-distrib-+-right >=> *-left path
 
 *₁-Pos-preserves-<⁺ : {a b c : Int} -> (a < b) -> Pos c -> (c * a) < (c * b)
 *₁-Pos-preserves-<⁺ {c = nonneg (suc c)} (x , path) _ =
@@ -183,7 +187,7 @@ NonNeg->≥0 {neg i} (inj-r ())
 
 *₂-NonNeg-preserves-≤⁺ : {a b c : Int} -> (a ≤ b) -> NonNeg c -> (a * c) ≤ (b * c)
 *₂-NonNeg-preserves-≤⁺ {c = nonneg c} (x , path) _ =
-  x *' c , +-left int-inject-*' >=> sym *-distrib-+ >=> *-left path
+  x *' c , +-left int-inject-*' >=> sym *-distrib-+-right >=> *-left path
 *₂-NonNeg-preserves-≤⁺ {c = neg c} (x , path) (inj-l ())
 *₂-NonNeg-preserves-≤⁺ {c = neg c} (x , path) (inj-r ())
 

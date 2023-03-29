@@ -10,36 +10,23 @@ open import base
 open import commutative-monoid
 open import equality
 open import hlevel
+open import int
 open import nat
 open import ring
 open import semiring
 open import semiring.instances.nat
 
-
-import int
-open int using
- ( Int
- ; int
- ; ℕ->ℤ
- ; _^_
- ; ^-right-zero
- ; ^-right-suc
- ; add1
- ; add1-extract-left
- ; add1-extract-*
- )
-
 instance
   IntSemiring : Semiring AdditiveCommMonoid-Int
   IntSemiring = record
-    { 1# = (int.int 1)
-    ; _*_ = int._*_
-    ; *-assoc = (\ {m} {n} {o} -> (int.*-assoc {m} {n} {o}))
-    ; *-commute = (\ {m} {n} -> (int.*-commute {m} {n}))
-    ; *-left-zero = int.*-left-zero
-    ; *-left-one = int.*-left-one
-    ; *-distrib-+-right = (\ {m} {n} {o} -> int.*-distrib-+ {m} {n} {o})
-    ; isSet-Domain = int.isSetInt
+    { 1# = (int 1)
+    ; _*_ = _ℤ*_
+    ; *-assoc = ℤ*-assoc
+    ; *-commute = ℤ*-commute
+    ; *-left-zero = ℤ*-left-zero
+    ; *-left-one = ℤ*-left-one
+    ; *-distrib-+-right = ℤ*-distrib-+-right
+    ; isSet-Domain = isSetInt
     }
 instance
   IntRing : Ring IntSemiring AdditiveGroup-Int
@@ -77,7 +64,7 @@ module _ where
     preserves-∙ (suc a) b =
       ^-right-suc
       >=> cong (x *_) (preserves-∙ a b)
-      >=> sym (int.*-assoc {x} {x ^ a} {x ^ b})
+      >=> sym *-assoc
       >=> sym (cong (_* _) ^-right-suc)
 
 

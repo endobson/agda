@@ -4,7 +4,7 @@ module rational-prime where
 
 open import base
 open import equality
-open import int hiding (_*_)
+open import int
 open import prime
 open import rational
 open import ring.exponentiation

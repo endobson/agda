@@ -7,9 +7,10 @@ open import equality
 open import group
 open import commutative-monoid.int
 
+-- TODO remove
 GroupStr-ℤ+ : GroupStr ℤ
 GroupStr-ℤ+ = record
   { comm-monoid = CommMonoid-ℤ+
-  ; inverse = -_
-  ; ∙-left-inverse = +-commute >=> add-minus-zero
+  ; inverse = ℤ-_
+  ; ∙-left-inverse = ℤ+-commute >=> add-minus-zero
   }

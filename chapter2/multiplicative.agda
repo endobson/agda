@@ -4,11 +4,13 @@ module chapter2.multiplicative where
 
 open import additive-group using (AdditiveCommMonoid)
 open import base
-open import int hiding (_*_)
+open import int
 open import nat
 open import rational
 open import relatively-prime
 open import semiring
+open import ring.implementations.int
+open import ring.implementations.rational
 
 private
   variable
@@ -27,10 +29,10 @@ instance
   Nat⁺Multiplication = record { mult = _*⁺_; 1# = 1⁺ }
 
   IntMultiplication : Multiplication Int
-  IntMultiplication = record { mult = int._*_; 1# = (int 1) }
+  IntMultiplication = record { mult = _*_; 1# = 1# }
 
   RationalMultiplication : Multiplication Rational
-  RationalMultiplication = record { mult = _r*_; 1# = (ℕ->ℚ 1) }
+  RationalMultiplication = record { mult = _*_; 1# = 1# }
 
 SemiringMultiplication : {D : Type ℓ} -> {ACM : AdditiveCommMonoid D} ->
                          (S : Semiring ACM) -> Multiplication D

@@ -3,6 +3,8 @@
 module gcd.propositional where
 
 open import abs
+open import additive-group
+open import additive-group.instances.int
 open import base
 open import equality
 open import div
@@ -47,8 +49,7 @@ gcd-negate {a} {b} {d} (gcd non-neg d-div-a d-div-b f) =
   (gcd non-neg d-div-a (div-negate d-div-b) g)
   where
   g : (x : Int) -> x div a -> x div (- b) -> x div d
-  g x xa xb = f x xa
-    (transport (\i -> x div (minus-double-inverse {b} i)) (div-negate xb))
+  g x xa xb = f x xa (subst (\i -> x div i) minus-double-inverse (div-negate xb))
 
 gcd-remove-abs : {a b d : Int} -> GCD a (abs b) d -> GCD a b d
 gcd-remove-abs {b = (nonneg _)} g = g

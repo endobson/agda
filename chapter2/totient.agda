@@ -22,7 +22,7 @@ open import finsum.cardinality
 open import gcd.computational
 open import gcd.propositional hiding (gcd'-unique)
 open import hlevel
-open import int using (int)
+open import int
 open import isomorphism
 open import modular-integers
 open import modular-integers.binary-product
@@ -174,7 +174,7 @@ module _ (p : Prime') where
       open Iso
       i : Iso (Totatives p') (Fin1 (pred p'))
       i .fun (x , t) = ((x , Totient.pos-k t) , pred-≤ (Totient.k<n t (Prime'.>1 p)))
-      i .inv ((x , pos) , lt) = x , totient-prime pos (pos-pred-≤ (Prime'.pos p) lt)
+      i .inv ((x , pos-x) , lt) = x , totient-prime pos-x (pos-pred-≤ (Prime'.pos p) lt)
       i .rightInv _ = ΣProp-path isProp-≤ (ΣProp-path isPropPos' refl)
       i .leftInv _ = ΣProp-path isProp-isTotativeOf refl
 

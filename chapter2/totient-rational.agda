@@ -2,7 +2,7 @@
 
 module chapter2.totient-rational where
 
-open import additive-group using (-_)
+open import additive-group
 open import additive-group.instances.int
 open import additive-group.instances.nat
 open import base
@@ -15,7 +15,7 @@ open import equality
 open import finite-product
 open import finset
 open import funext
-open import int hiding (-_)
+open import int
 open import nat
 open import nat.order
 open import order

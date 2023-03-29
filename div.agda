@@ -3,12 +3,14 @@
 module div where
 
 open import abs
+open import additive-group
+open import additive-group.instances.int
 open import base
 open import commutative-monoid
 open import equality
+open import fin
 open import hlevel
 open import int
-open import fin
 open import nat
 open import nat.order
 open import order
@@ -20,7 +22,9 @@ open import quotient-remainder using
   ; isContr-QuotientRemainder
   )
 open import relation hiding (acc)
+open import ring
 open import ring.implementations.int
+open import semiring
 open import sigma.base
 
 _div_ : Int -> Int -> Type₀
@@ -46,7 +50,7 @@ div'-refl = 1 , *'-left-one
 
 div-trans : {d m n : Int} -> d div m -> m div n -> d div n
 div-trans {d} (a , a*d=m) (b , b*m=n) =
-  (b * a) , ((*-assoc {b} {a} {d}) >=> (*-right {b} a*d=m) >=> b*m=n)
+  (b * a) , (*-assoc >=> (*-right a*d=m) >=> b*m=n)
 
 div'-trans : {d m n : Nat} -> d div' m -> m div' n -> d div' n
 div'-trans {d} (a , a*d=m) (b , b*m=n) =
@@ -54,11 +58,11 @@ div'-trans {d} (a , a*d=m) (b , b*m=n) =
 
 div-mult : {d n : Int} -> d div n -> (a : Int) -> d div (a * n)
 div-mult (c , pr) a =
-  (a * c) , (*-assoc {a} >=> *-right {a} pr)
+  (a * c) , (*-assoc >=> *-right pr)
 
 div-mult' : {d n : Int} -> d div n -> (a : Int) -> d div (n * a)
 div-mult' (c , pr) a =
-  (a * c) , (*-assoc {a} >=> *-right {a} pr) >=> *-commute
+  (a * c) , (*-assoc >=> *-right pr) >=> *-commute
 
 div'-mult : {d n : Nat} -> d div' n -> (a : Nat) -> d div' (a *' n)
 div'-mult (c , pr) a =
@@ -104,21 +108,21 @@ div'-^' {k1} {k2} {d} (i , path) = (d ^' i , path')
 
 div-negate : {d a : Int} -> d div a -> d div (- a)
 div-negate (d-div-a , pr) =
-  (- d-div-a) , ((minus-extract-left {d-div-a}) >=> (cong minus pr))
+  (- d-div-a) , (minus-extract-left >=> (cong minus pr))
 div-negate-left : {d a : Int} -> d div a -> (- d) div a
 div-negate-left         (d-div-a , _ ) .fst = - d-div-a
 div-negate-left {d} {a} (d-div-a , pr) .snd =
   begin
     (- d-div-a) * (- d)
-  ==< minus-extract-left {d-div-a} >
+  ==< minus-extract-left  >
     - (d-div-a * (- d))
-  ==< cong minus (*-commute {d-div-a}) >
+  ==< cong minus *-commute >
     - (- d * d-div-a )
-  ==< cong minus (minus-extract-left {d}) >
+  ==< cong minus minus-extract-left >
     - - (d * d-div-a)
-  ==< minus-double-inverse {d * d-div-a} >
+  ==< minus-double-inverse >
     (d * d-div-a)
-  ==< *-commute {d} >
+  ==< *-commute >
     d-div-a * d
   ==< pr >
     a
@@ -177,11 +181,11 @@ private
   Unit (neg (suc _)) = Bot
 
 *-unit-abs : {m n : Int} -> (Unit m) -> abs (m * n) == abs n
-*-unit-abs {pos zero} {n} _ = (cong abs (*-left-one {n}))
+*-unit-abs {pos zero} {n} _ = (cong abs *-left-one)
 *-unit-abs {neg zero} {n} _ =
  (cong abs sub1-extract-*)
  >=> (cong (\x -> abs ((- n) + x)) *-left-zero)
- >=> (cong abs (+-right-zero { - n}))
+ >=> (cong abs +-right-zero)
  >=> (abs-cancel-minus {n})
 
 abs-one-implies-unit : {m : Int} -> abs' m == 1 -> Unit m
@@ -226,7 +230,7 @@ div-same-abs d1@{pos _} d2@{pos _} (x , pr1) (y , pr2) = proof
  rewritten : x * (y * d2) == d2
  rewritten = (\i -> x * pr2 i) >=> pr1
  unit : Unit y
- unit = *-one-implies-unit {x} {y} (*-left-id (inj-l tt) (*-assoc {x} {y} {d2} >=> rewritten))
+ unit = *-one-implies-unit {x} {y} (*-left-id (inj-l tt) (*-assoc >=> rewritten))
  proof : abs d1 == abs d2
  proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
 div-same-abs d1@{pos _} d2@{neg _} (x , pr1) (y , pr2) = proof
@@ -234,7 +238,7 @@ div-same-abs d1@{pos _} d2@{neg _} (x , pr1) (y , pr2) = proof
  rewritten : x * (y * d2) == d2
  rewritten = (\i -> x * pr2 i) >=> pr1
  unit : Unit y
- unit = *-one-implies-unit {x} {y} (*-left-id (inj-r tt) (*-assoc {x} {y} {d2} >=> rewritten))
+ unit = *-one-implies-unit {x} {y} (*-left-id (inj-r tt) (*-assoc >=> rewritten))
  proof : abs d1 == abs d2
  proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
 div-same-abs d1@{neg _} d2@{pos _} (x , pr1) (y , pr2) = proof
@@ -242,7 +246,7 @@ div-same-abs d1@{neg _} d2@{pos _} (x , pr1) (y , pr2) = proof
  rewritten : x * (y * d2) == d2
  rewritten = (\i -> x * pr2 i) >=> pr1
  unit : Unit y
- unit = *-one-implies-unit {x} {y} (*-left-id (inj-l tt) (*-assoc {x} {y} {d2} >=> rewritten))
+ unit = *-one-implies-unit {x} {y} (*-left-id (inj-l tt) (*-assoc >=> rewritten))
  proof : abs d1 == abs d2
  proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
 div-same-abs d1@{neg _} d2@{neg _} (x , pr1) (y , pr2) = proof
@@ -250,7 +254,7 @@ div-same-abs d1@{neg _} d2@{neg _} (x , pr1) (y , pr2) = proof
  rewritten : x * (y * d2) == d2
  rewritten = (\i -> x * pr2 i) >=> pr1
  unit : Unit y
- unit = *-one-implies-unit {x} {y} (*-left-id (inj-r tt) (*-assoc {x} {y} {d2} >=> rewritten))
+ unit = *-one-implies-unit {x} {y} (*-left-id (inj-r tt) (*-assoc >=> rewritten))
  proof : abs d1 == abs d2
  proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
 
@@ -265,26 +269,24 @@ div-one->one nn (m , p) = nonneg-unit->one nn (*-one-implies-unit p)
 
 
 div-sum : {d a b : Int} -> d div a -> d div b -> d div (a + b)
-div-sum             (d-div-a , _ ) (d-div-b , _ ) .fst = (d-div-a + d-div-b)
-div-sum {d} {a} {b} (d-div-a , pa) (d-div-b , pb) .snd =
-  (*-distrib-+ {d-div-a})
-  >=> (+-left pa)
-  >=> (+-right {a} pb)
+div-sum (d-div-a , _ ) (d-div-b , _ ) .fst = (d-div-a + d-div-b)
+div-sum (d-div-a , pa) (d-div-b , pb) .snd =
+  *-distrib-+-right >=> +-cong pa pb
 
 div-linear : {d a b : Int} -> d div a -> d div b -> {m n : Int} -> d div (m * a + n * b)
 div-linear {d} {a} {b} (d-div-a , pa) (d-div-b , pb) {m} {n} .fst = (m * d-div-a + n * d-div-b)
 div-linear {d} {a} {b} (d-div-a , pa) (d-div-b , pb) {m} {n} .snd =
   begin
     (m * d-div-a + n * d-div-b) * d
-  ==< *-distrib-+ {m * d-div-a} >
+  ==< *-distrib-+-right >
     (m * d-div-a) * d + (n * d-div-b) * d
-  ==< +-left (*-assoc {m}) >
+  ==< +-left *-assoc >
     m * (d-div-a * d) + (n * d-div-b) * d
-  ==< +-left (*-right {m} pa) >
+  ==< +-left (*-right  pa) >
     m * a + (n * d-div-b) * d
-  ==< +-right {m * a} (*-assoc {n}) >
+  ==< +-right *-assoc >
     m * a + n * (d-div-b * d)
-  ==< +-right {m * a} (*-right {n} pb) >
+  ==< +-right (*-right  pb) >
     m * a + n * b
   end
 
@@ -293,11 +295,11 @@ div-+-left {d} {a} {b} d%a d%ab =
   transport (\i -> d div (path i)) (div-sum (div-negate d%a) d%ab)
   where
   path : (- a + (a + b)) == b
-  path = sym (+-assoc { - a} {a} {b}) >=> (cong (_+ b) (+-commute { - a} {a} >=> add-minus-zero {a}))
+  path = sym +-assoc >=> (cong (_+ b) (+-commute >=> add-minus-zero {a}))
          >=> +-left-zero
 
 div-+-right : {d a b : Int} -> d div b -> d div (a + b) -> d div a
-div-+-right {d} {a} {b} d%b (x , path) = div-+-left d%b (x , path >=> +-commute {a} {b})
+div-+-right {d} {a} {b} d%b (x , path) = div-+-left d%b (x , path >=> +-commute)
 
 div'-+'-right : {d a b : Nat} -> d div' b -> d div' (a +' b) -> d div' a
 div'-+'-right {d} {a} {b} d%b d%ab =

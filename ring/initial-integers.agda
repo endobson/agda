@@ -6,7 +6,7 @@ open import additive-group.instances.nat
 open import base
 open import equality
 open import functions
-open import int using (ℤ)
+open import int
 open import ring
 open import funext
 open import ring.implementations.int
@@ -29,24 +29,24 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     lift-nat (suc n) = (1# + (lift-nat n))
 
     lift-int : ℤ -> D
-    lift-int (int.nonneg x) = lift-nat x
-    lift-int (int.neg x) = - lift-nat (suc x)
+    lift-int (nonneg x) = lift-nat x
+    lift-int (neg x) = - lift-nat (suc x)
 
     minus-lift-int : (x : ℤ) -> - (lift-int x) == lift-int (- x)
-    minus-lift-int (int.zero-int) = minus-zero
-    minus-lift-int (int.pos x) = refl
-    minus-lift-int (int.neg x) = minus-double-inverse
+    minus-lift-int (zero-int) = minus-zero
+    minus-lift-int (pos x) = refl
+    minus-lift-int (neg x) = minus-double-inverse
 
     +-lift-nat : {x y : Nat} -> (lift-nat x) + (lift-nat y) == (lift-nat (x + y))
     +-lift-nat {zero} = +-left-zero
     +-lift-nat {suc n} =  +-assoc >=> (+-right (+-lift-nat {n}))
 
-    +-lift-add1 : ∀ x -> (lift-int (int.add1 x)) == 1# + (lift-int x)
-    +-lift-add1 (int.nonneg x) = refl
-    +-lift-add1 (int.neg zero) = sym (+-right (cong -_ +-right-zero) >=> +-inverse)
-    +-lift-add1 (int.neg (suc x)) = sym
+    +-lift-add1 : ∀ x -> (lift-int (add1 x)) == 1# + (lift-int x)
+    +-lift-add1 (nonneg x) = refl
+    +-lift-add1 (neg zero) = sym (+-right (cong -_ +-right-zero) >=> +-inverse)
+    +-lift-add1 (neg (suc x)) = sym
       (begin
-         1# + (lift-int (int.neg (suc x)))
+         1# + (lift-int (neg (suc x)))
        ==<>
          1# + - (1# + (lift-nat (suc x)))
        ==< +-right minus-distrib-plus >
@@ -56,66 +56,66 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
        ==< +-left +-inverse >
          0# + - (lift-nat (suc x))
        ==< +-left-zero >
-         (lift-int (int.neg x))
+         (lift-int (neg x))
        end)
 
-    +-lift-sub1 : ∀ x -> (lift-int (int.sub1 x)) == - 1# + (lift-int x)
-    +-lift-sub1 (int.neg x) = minus-distrib-plus
-    +-lift-sub1 (int.nonneg zero) =
+    +-lift-sub1 : ∀ x -> (lift-int (sub1 x)) == - 1# + (lift-int x)
+    +-lift-sub1 (neg x) = minus-distrib-plus
+    +-lift-sub1 (nonneg zero) =
       sym( +-right-zero >=> cong -_ (sym +-right-zero))
-    +-lift-sub1 (int.nonneg (suc x)) = sym
+    +-lift-sub1 (nonneg (suc x)) = sym
       (begin
-         - 1# + (lift-int (int.nonneg (suc x)))
+         - 1# + (lift-int (nonneg (suc x)))
        ==<>
-         - 1# + (1# + (lift-int (int.nonneg x)))
+         - 1# + (1# + (lift-int (nonneg x)))
        ==< sym +-assoc >
-         (- 1# + 1#) + (lift-int (int.nonneg x))
+         (- 1# + 1#) + (lift-int (nonneg x))
        ==< +-left +-commute >
-         (1# + - 1#) + (lift-int (int.nonneg x))
+         (1# + - 1#) + (lift-int (nonneg x))
        ==< +-left +-inverse >
-         0# + (lift-int (int.nonneg x))
+         0# + (lift-int (nonneg x))
        ==< +-left-zero >
-         (lift-int (int.nonneg x))
+         (lift-int (nonneg x))
        end)
 
-    +-lift-int : {x y : int.Int} -> (lift-int x) + (lift-int y) == (lift-int (x int.+ y))
-    +-lift-int {int.nonneg zero} = +-left-zero >=> cong lift-int (sym int.+-left-zero)
-    +-lift-int {int.nonneg (suc x)} {y} =
+    +-lift-int : {x y : Int} -> (lift-int x) + (lift-int y) == (lift-int (x + y))
+    +-lift-int {nonneg zero} = +-left-zero >=> cong lift-int (sym +-left-zero)
+    +-lift-int {nonneg (suc x)} {y} =
       +-assoc
-      >=> +-right (+-lift-int {int.nonneg x} {y})
-      >=> sym (+-lift-add1 ((int.nonneg x) int.+ y))
-      >=> cong lift-int (sym int.add1-extract-left)
-    +-lift-int {int.neg zero} {y} =
+      >=> +-right (+-lift-int {nonneg x} {y})
+      >=> sym (+-lift-add1 ((nonneg x) + y))
+      >=> cong lift-int (sym add1-extract-left)
+    +-lift-int {neg zero} {y} =
       +-left (cong -_ +-right-zero)
       >=> sym (+-lift-sub1 y)
-      >=> cong (lift-int ∘ int.sub1) (sym int.+-left-zero)
-      >=> cong lift-int (sym int.sub1-extract-left)
-    +-lift-int {int.neg (suc x)} {y} =
-      +-left minus-distrib-plus >=> +-assoc >=> +-right (+-lift-int {int.neg x} {y})
-      >=> sym (+-lift-sub1 ((int.neg x) int.+ y))
-      >=> cong lift-int (sym int.sub1-extract-left)
+      >=> cong (lift-int ∘ sub1) (sym +-left-zero)
+      >=> cong lift-int (sym sub1-extract-left)
+    +-lift-int {neg (suc x)} {y} =
+      +-left minus-distrib-plus >=> +-assoc >=> +-right (+-lift-int {neg x} {y})
+      >=> sym (+-lift-sub1 ((neg x) + y))
+      >=> cong lift-int (sym sub1-extract-left)
 
-    *-lift-int : {x y : int.Int} -> (lift-int x) * (lift-int y) == (lift-int (x int.* y))
-    *-lift-int {int.nonneg zero} = *-left-zero >=> cong lift-int (sym int.*-left-zero)
-    *-lift-int {int.nonneg (suc x)} {y} =
+    *-lift-int : {x y : Int} -> (lift-int x) * (lift-int y) == (lift-int (x * y))
+    *-lift-int {nonneg zero} = *-left-zero >=> cong lift-int (sym *-left-zero)
+    *-lift-int {nonneg (suc x)} {y} =
       begin
-        (lift-int (int.nonneg (suc x))) * (lift-int y)
+        (lift-int (nonneg (suc x))) * (lift-int y)
       ==<>
-        (1# + (lift-int (int.nonneg x))) * (lift-int y)
+        (1# + (lift-int (nonneg x))) * (lift-int y)
       ==< *-distrib-+-right >
-        1# * (lift-int y) + (lift-int (int.nonneg x)) * (lift-int y)
+        1# * (lift-int y) + (lift-int (nonneg x)) * (lift-int y)
       ==< +-left *-left-one >
-        (lift-int y) + (lift-int (int.nonneg x)) * (lift-int y)
-      ==< +-right (*-lift-int {int.nonneg x} {y}) >
-        (lift-int y) + (lift-int ((int.nonneg x) int.* y))
-      ==< +-lift-int {y} {(int.nonneg x) int.* y} >
-        (lift-int (y int.+ (int.nonneg x) int.* y))
-      ==< cong lift-int (sym int.add1-extract-*) >
-        (lift-int (int.nonneg (suc x) int.* y))
+        (lift-int y) + (lift-int (nonneg x)) * (lift-int y)
+      ==< +-right (*-lift-int {nonneg x} {y}) >
+        (lift-int y) + (lift-int ((nonneg x) * y))
+      ==< +-lift-int {y} {(nonneg x) * y} >
+        (lift-int (y + (nonneg x) * y))
+      ==< cong lift-int (sym add1-extract-*) >
+        (lift-int (nonneg (suc x) * y))
       end
-    *-lift-int {int.neg zero} {y} =
+    *-lift-int {neg zero} {y} =
       begin
-        (lift-int (int.neg zero)) * (lift-int y)
+        (lift-int (neg zero)) * (lift-int y)
       ==<>
         - (1# + 0#) * (lift-int y)
       ==< *-left (cong -_ +-right-zero) >
@@ -123,35 +123,35 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       ==< *-left-minus-one >
         - (lift-int y)
       ==< (minus-lift-int y) >
-        (lift-int (int.- y))
-      ==< cong lift-int (cong int.-_ (sym (int.+-right-zero {y}))) >
-        (lift-int (int.- (y int.+ int.zero-int)))
-      ==< cong lift-int (cong int.-_ (int.+-right-zero {y}) >=> sym int.+-right-zero) >
-        (lift-int ((int.- y) int.+ int.zero-int))
-      ==< cong (\x -> (lift-int ((int.- y) int.+ x))) (sym (int.*-left-zero)) >
-        (lift-int ((int.- y) int.+ (int.zero-int int.* y)))
-      ==< cong lift-int (sym (int.sub1-extract-*)) >
-        (lift-int ((int.neg zero) int.* y))
+        (lift-int (- y))
+      ==< cong lift-int (cong -_ (sym +-right-zero)) >
+        (lift-int (- (y + zero-int)))
+      ==< cong lift-int (cong -_ (ℤ+-right-zero {y}) >=> sym +-right-zero) >
+        (lift-int ((- y) + zero-int))
+      ==< cong (\x -> (lift-int ((- y) + x))) (sym (*-left-zero)) >
+        (lift-int ((- y) + (zero-int * y)))
+      ==< cong lift-int (sym (sub1-extract-*)) >
+        (lift-int ((neg zero) * y))
       end
-    *-lift-int {int.neg (suc x)} {y} =
+    *-lift-int {neg (suc x)} {y} =
       begin
-        (lift-int (int.neg (suc x))) * (lift-int y)
+        (lift-int (neg (suc x))) * (lift-int y)
       ==<>
         - (1# + (lift-nat (suc x))) * (lift-int y)
       ==< *-left minus-distrib-plus >
-       (- 1# + (lift-int (int.neg x))) * (lift-int y)
+       (- 1# + (lift-int (neg x))) * (lift-int y)
       ==< *-distrib-+-right >
-        - 1# * (lift-int y) + (lift-int (int.neg x)) * (lift-int y)
+        - 1# * (lift-int y) + (lift-int (neg x)) * (lift-int y)
       ==< +-left *-left-minus-one >
-        - (lift-int y) + (lift-int (int.neg x)) * (lift-int y)
+        - (lift-int y) + (lift-int (neg x)) * (lift-int y)
       ==< +-left (minus-lift-int y) >
-        (lift-int (int.- y)) + (lift-int (int.neg x)) * (lift-int y)
-      ==< +-right (*-lift-int {int.neg x} {y}) >
-        (lift-int (int.- y)) + (lift-int ((int.neg x) int.* y))
-      ==< +-lift-int {int.- y} {(int.neg x) int.* y} >
-        (lift-int ((int.- y) int.+ (int.neg x) int.* y))
-      ==< cong lift-int (sym int.sub1-extract-*) >
-        (lift-int (int.neg (suc x) int.* y))
+        (lift-int (- y)) + (lift-int (neg x)) * (lift-int y)
+      ==< +-right (*-lift-int {neg x} {y}) >
+        (lift-int (- y)) + (lift-int ((neg x) * y))
+      ==< +-lift-int { - y} {(neg x) * y} >
+        (lift-int ((- y) + (neg x) * y))
+      ==< cong lift-int (sym sub1-extract-*) >
+        (lift-int (neg (suc x) * y))
       end
 
     Ringʰ-lift-int : {{R : Ring S AG}} -> Ringʰ lift-int
@@ -170,21 +170,21 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
         P : ℤ -> Type ℓD
         P x = f x == g x
 
-        nat-case : (n : Nat) -> P (int.int n)
+        nat-case : (n : Nat) -> P (int n)
         nat-case zero =
           Ringʰ.preserves-0# fʰ >=>
           sym (Ringʰ.preserves-0# gʰ)
         nat-case (suc n) =
           cong f sn-path >=>
-          Ringʰ.preserves-+ fʰ 1# (int.int n) >=>
+          Ringʰ.preserves-+ fʰ 1# (int n) >=>
           cong2 _+_ (Ringʰ.preserves-1# fʰ >=> sym (Ringʰ.preserves-1# gʰ))
                     (nat-case n) >=>
-          sym (Ringʰ.preserves-+ gʰ 1# (int.int n)) >=>
+          sym (Ringʰ.preserves-+ gʰ 1# (int n)) >=>
           cong g (sym sn-path)
 
           where
-          sn-path : (int.int (suc n)) == (1# + int.int n)
-          sn-path = sym int.+-eval
+          sn-path : (int (suc n)) == (1# + int n)
+          sn-path = sym +-eval
 
         minus-case : (x : ℤ) -> P x -> P (- x)
         minus-case x fx=gx =
@@ -193,7 +193,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
           sym (Ringʰ.preserves-minus gʰ x)
 
       unique-homo-path : f == g
-      unique-homo-path = funExt (int.IntElim-ℕminus-elim nat-case minus-case)
+      unique-homo-path = funExt (IntElim-ℕminus-elim nat-case minus-case)
 
 
   ∃!ℤ->Ring : {{R : Ring S AG}} -> ∃! (ℤ -> D) Ringʰ

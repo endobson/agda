@@ -4,12 +4,13 @@ module ring.exponentiation where
 
 open import additive-group
 open import additive-group.instances.nat
+open import additive-group.instances.int
 open import base
 open import commutative-monoid
 open import equality
 open import group
 open import group.int
-open import int using (ℤ)
+open import int
 open import monoid
 open import nat
 open import ring
@@ -86,43 +87,43 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     cong u1/_ (u^ℤ-add1 u (int.int (suc n))) >=> R.u1/-distrib-u*
 
   private
-    u^ℤ-preserves-inverse : {b : Unit} {x : ℤ} -> (b u^ℤ (int.- x)) == u1/ (b u^ℤ x)
+    u^ℤ-preserves-inverse : {b : Unit} {x : ℤ} -> (b u^ℤ (- x)) == u1/ (b u^ℤ x)
     u^ℤ-preserves-inverse {x = int.zero-int} = ΣProp-path R.isProp-isUnit refl
     u^ℤ-preserves-inverse {x = int.pos x} = refl
     u^ℤ-preserves-inverse {x = int.neg x} = ΣProp-path R.isProp-isUnit refl
 
     u^ℤ-distrib-+-NonNeg : {b : Unit} {x y : ℤ} -> int.NonNeg x ->
-                           b u^ℤ (x int.+ y) == (b u^ℤ x) u* (b u^ℤ y)
+                           b u^ℤ (x + y) == (b u^ℤ x) u* (b u^ℤ y)
     u^ℤ-distrib-+-NonNeg {b} {int.zero-int} _ =
-      cong (b u^ℤ_) int.+-left-zero >=> sym (Monoid.∙-left-ε R.Monoid-u*)
+      cong (b u^ℤ_) +-left-zero >=> sym (Monoid.∙-left-ε R.Monoid-u*)
     u^ℤ-distrib-+-NonNeg {b} {int.nonneg (suc x)} {y} _ =
       cong (b u^ℤ_) int.add1-extract-left
-      >=> u^ℤ-add1 b ((int.int x) int.+ y)
+      >=> u^ℤ-add1 b ((int.int x) + y)
       >=> cong (b u*_) (u^ℤ-distrib-+-NonNeg {b} {int.nonneg x} {y} (int.NonNeg-nonneg x))
       >=> sym (Monoid.∙-assoc R.Monoid-u*)
       >=> cong (_u* (b u^ℤ y)) (sym (u^ℤ-add1 b (int.int x)))
     u^ℤ-distrib-+-NonNeg {b} {int.neg x} (inj-l ())
     u^ℤ-distrib-+-NonNeg {b} {int.neg x} (inj-r ())
 
-    u^ℤ-distrib-+ : {b : Unit} {x y : ℤ} -> b u^ℤ (x int.+ y) == (b u^ℤ x) u* (b u^ℤ y)
+    u^ℤ-distrib-+ : {b : Unit} {x y : ℤ} -> b u^ℤ (x + y) == (b u^ℤ x) u* (b u^ℤ y)
     u^ℤ-distrib-+ {b} {x} {y} = int.IntElim-add1sub1-elim z add1-case sub1-case x
       where
       P : ℤ -> Type ℓD
-      P x = b u^ℤ (x int.+ y) == (b u^ℤ x) u* (b u^ℤ y)
+      P x = b u^ℤ (x + y) == (b u^ℤ x) u* (b u^ℤ y)
 
       z : P (int.int 0)
-      z = cong (b u^ℤ_) (int.+-left-zero) >=> sym (Monoid.∙-left-ε R.Monoid-u*)
+      z = cong (b u^ℤ_) +-left-zero >=> sym (Monoid.∙-left-ε R.Monoid-u*)
       add1-case : (x : ℤ) -> (P x) -> (P (int.add1 x))
       add1-case x p =
         cong (b u^ℤ_) (int.add1-extract-left) >=>
-        u^ℤ-add1 b (x int.+ y) >=> cong (b u*_) p >=>
+        u^ℤ-add1 b (x + y) >=> cong (b u*_) p >=>
         sym (Monoid.∙-assoc R.Monoid-u*) >=>
         cong (_u* (b u^ℤ y)) (sym (u^ℤ-add1 b x))
 
       sub1-case : (x : ℤ) -> (P x) -> (P (int.sub1 x))
       sub1-case x p =
         cong (b u^ℤ_) (int.sub1-extract-left) >=>
-        u^ℤ-sub1 b (x int.+ y) >=> cong ((u1/ b) u*_) p >=>
+        u^ℤ-sub1 b (x + y) >=> cong ((u1/ b) u*_) p >=>
         sym (Monoid.∙-assoc R.Monoid-u*) >=>
         cong (_u* (b u^ℤ y)) (sym (u^ℤ-sub1 b x))
 
@@ -133,7 +134,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       ; preserves-inverse = preserves-inverse
       }
       where
-      preserves-∙ : (x y : ℤ) -> (base u^ℤ (x int.+ y)) == (base u^ℤ x) u* (base u^ℤ y)
+      preserves-∙ : (x y : ℤ) -> (base u^ℤ (x + y)) == (base u^ℤ x) u* (base u^ℤ y)
       preserves-∙ x y = u^ℤ-distrib-+ {base} {x} {y}
-      preserves-inverse : (x : ℤ) -> (base u^ℤ (int.- x)) == (u1/ (base u^ℤ x))
+      preserves-inverse : (x : ℤ) -> (base u^ℤ (- x)) == (u1/ (base u^ℤ x))
       preserves-inverse x = u^ℤ-preserves-inverse {base} {x}

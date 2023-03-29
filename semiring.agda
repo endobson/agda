@@ -157,6 +157,10 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
     *-distrib-+-leftᵉ : (m n o : D) -> m * (n + o) == (m * n) + (m * o)
     *-distrib-+-leftᵉ _ _ _ = *-distrib-+-left
 
+    *-assocᵉ : (m n o : D) -> (m * n) * o == m * (n * o)
+    *-assocᵉ _ _ _ = *-assoc
+
+
 
 record Semiringʰᵉ
     {ℓ₁ ℓ₂ : Level}

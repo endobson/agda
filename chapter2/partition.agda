@@ -21,7 +21,7 @@ open import functions
 open import gcd.euclidean-algorithm
 open import gcd.propositional
 open import hlevel
-open import int using (int)
+open import int
 open import isomorphism
 open import linear-combo
 open import nat

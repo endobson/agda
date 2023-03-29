@@ -23,8 +23,7 @@ open import finsum.sigma
 open import functions
 open import funext
 open import isomorphism
-open import int using (Int ; int ; neg ; _^_ ; zero-int ; ^-right-zero ; ^-right-one
-                      ; +-eval ; add-minus-zero)
+open import int
 open import list
 open import maybe
 open import nat

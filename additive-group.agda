@@ -47,8 +47,14 @@ module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} where
     +-left-zero : {m : D} -> (0# + m) == m
     +-left-zero = CM.∙-left-ε
 
+    +-left-zeroᵉ : (m : D) -> (0# + m) == m
+    +-left-zeroᵉ _ = CM.∙-left-ε
+
     +-right-zero : {m : D} -> (m + 0#) == m
     +-right-zero = CM.∙-right-ε
+
+    +-right-zeroᵉ : (m : D) -> (m + 0#) == m
+    +-right-zeroᵉ _ = CM.∙-right-ε
 
     +-commute : {m n : D} -> (m + n) == (n + m)
     +-commute = CM.∙-commute

@@ -2,62 +2,64 @@
 
 module modular-integers where
 
+open import additive-group hiding (0#)
+open import additive-group.instances.int
 open import base
+open import commutative-monoid
+open import commutative-monoid.subtype
+open import div
 open import equality
 open import equivalence
-open import isomorphism
-open import div
-open import hlevel
-open import nat
 open import fin
-open import relatively-prime
-open import sigma.base
-open import linear-combo
 open import gcd.euclidean-algorithm
+open import group
+open import hlevel
+open import int
+open import isomorphism
+open import linear-combo
+open import monoid
+open import nat
 open import prime-gcd
 open import quotient-remainder-int
-open import univalence
 open import relation
-open import monoid
-open import commutative-monoid
-open import group
-open import commutative-monoid.subtype
+open import relatively-prime
+open import ring
+open import ring.implementations.int
+open import semiring hiding (1#)
 open import set-quotient renaming ([_] to s[_])
+open import sigma.base
+open import univalence
 
-import int
 import solver
-
-open int using (int ; Int ; ℤ )
-  renaming (_*_ to _i*_ ; _+_ to _i+_ ; -_ to i-_ )
 open solver using (_⊗_ ; _⊕_ ; ⊖_)
 
 record CongruentMod (n : Nat) (a b : Int) : Type₀ where
   constructor congruent-mod
   field
-    n%ab : (int n) div (a i+ (i- b))
+    n%ab : (int n) div (a + (- b))
 
 module _ {n : Nat} where
   private
     _~_ = CongruentMod n
 
   refl-~ : Reflexive _~_
-  refl-~ {x} = (congruent-mod ((int 0) , int.*-left-zero >=> sym int.add-minus-zero))
+  refl-~ {x} = (congruent-mod ((int 0) , *-left-zero >=> sym int.add-minus-zero))
 
   sym-~ : Symmetric _~_
   sym-~ {x} {y} (congruent-mod n%xy) = congruent-mod (subst (_ div_) p (div-negate n%xy))
      where
-     p : (i- (x i+ (i- y))) == (y i+ (i- x))
-     p = int.minus-distrib-+ >=> int.+-right int.minus-double-inverse >=> int.+-commute
+     p : (- (x + (- y))) == (y + (- x))
+     p = int.minus-distrib-+ >=> +-right minus-double-inverse >=> +-commute
 
   trans-~ : Transitive _~_
   trans-~ {x} {y} {z} (congruent-mod (d1 , p1)) (congruent-mod (d2 , p2)) = congruent-mod n%xz
     where
-    n%xz : (int n) div (x i+ (i- z))
-    n%xz = d1 i+ d2 ,
-           int.*-distrib-+ >=> cong2 _i+_ p1 p2 >=> int.+-assoc >=>
-           int.+-right (sym int.+-assoc >=>
-                        int.+-left (int.+-commute >=> int.add-minus-zero) >=>
-                        int.+-left-zero)
+    n%xz : (int n) div (x + (- z))
+    n%xz = d1 + d2 ,
+           *-distrib-+-right >=> cong2 _+_ p1 p2 >=> +-assoc >=>
+           +-right (sym +-assoc >=>
+                    +-left (+-commute >=> int.add-minus-zero) >=>
+                    +-left-zero)
 
   isEquivRel-~ : isEquivRel _~_
   isEquivRel-~ = (equivRel refl-~ sym-~ trans-~)
@@ -82,30 +84,30 @@ module _ {n : Nat} where
 
   private
     _z+'_ : ℤ -> ℤ -> ℤ/nℤ n
-    _z+'_ x y = [ x i+ y ]
+    _z+'_ x y = [ x + y ]
 
-    i+-~₁ : (y x1 x2 : ℤ) -> (x1 ~ x2) -> (x1 i+ y) ~ (x2 i+ y)
+    i+-~₁ : (y x1 x2 : ℤ) -> (x1 ~ x2) -> (x1 + y) ~ (x2 + y)
     i+-~₁ y x1 x2 (congruent-mod n%ab) = (congruent-mod d)
       where
-      path : (x1 i+ (i- x2)) == ((x1 i+ y) i+ (i- (x2 i+ y)))
+      path : (x1 + (- x2)) == ((x1 + y) + (- (x2 + y)))
       path = solver.IntSolver.solve 3
              (\ y x1 x2 ->
                 (x1 ⊕ (⊖ x2)) ,
                 ((x1 ⊕ y) ⊕ (⊖ (x2 ⊕ y))))
              refl y x1 x2
 
-      d : (int n) div ((x1 i+ y) i+ (i- (x2 i+ y)))
+      d : (int n) div ((x1 + y) + (- (x2 + y)))
       d = subst ((int n) div_) path n%ab
 
-    i+-~₂ : (x y1 y2 : ℤ) -> (y1 ~ y2) -> (x i+ y1) ~ (x i+ y2)
+    i+-~₂ : (x y1 y2 : ℤ) -> (y1 ~ y2) -> (x + y1) ~ (x + y2)
     i+-~₂ y x1 x2 c =
-      subst2 _~_ int.+-commute int.+-commute (i+-~₁ y x1 x2 c)
+      subst2 _~_ +-commute +-commute (i+-~₁ y x1 x2 c)
 
 
-    z+'-~₁ : (x1 x2 y : ℤ) -> (x1 ~ x2) -> [ x1 i+ y ] == [ x2 i+ y ]
+    z+'-~₁ : (x1 x2 y : ℤ) -> (x1 ~ x2) -> [ x1 + y ] == [ x2 + y ]
     z+'-~₁ x1 x2 y c = eq/ _ _ (i+-~₁ y x1 x2 c)
 
-    z+'-~₂ : (x y1 y2 : ℤ) -> (y1 ~ y2) -> [ x i+ y1 ] == [ x i+ y2 ]
+    z+'-~₂ : (x y1 y2 : ℤ) -> (y1 ~ y2) -> [ x + y1 ] == [ x + y2 ]
     z+'-~₂ x y1 y2 c = eq/ _ _ (i+-~₂ x y1 y2 c)
 
   _z+_ : ℤ/nℤ n -> ℤ/nℤ n -> ℤ/nℤ n
@@ -113,33 +115,33 @@ module _ {n : Nat} where
 
   private
     _z*'_ : ℤ -> ℤ -> ℤ/nℤ n
-    _z*'_ x y = [ x i* y ]
+    _z*'_ x y = [ x * y ]
 
-    i*-~₁ : (y x1 x2 : ℤ) -> (x1 ~ x2) -> (x1 i* y) ~ (x2 i* y)
+    i*-~₁ : (y x1 x2 : ℤ) -> (x1 ~ x2) -> (x1 * y) ~ (x2 * y)
     i*-~₁ y x1 x2 (congruent-mod n%ab) = (congruent-mod d)
       where
-      path : ((x1 i+ (i- x2)) i* y) == ((x1 i* y) i+ (i- (x2 i* y)))
+      path : ((x1 + (- x2)) * y) == ((x1 * y) + (- (x2 * y)))
       path = solver.IntSolver.solve 3
              (\ y x1 x2 ->
                 ((x1 ⊕ (⊖ x2)) ⊗ y) ,
                 ((x1 ⊗ y) ⊕ (⊖ (x2 ⊗ y))))
              refl y x1 x2
 
-      d2 : (int n) div ((x1 i+ (i- x2)) i* y)
+      d2 : (int n) div ((x1 + (- x2)) * y)
       d2 = div-mult' n%ab y
 
-      d : (int n) div ((x1 i* y) i+ (i- (x2 i* y)))
+      d : (int n) div ((x1 * y) + (- (x2 * y)))
       d = subst ((int n) div_) path d2
 
-    i*-~₂ : (x y1 y2 : ℤ) -> (y1 ~ y2) -> (x i* y1) ~ (x i* y2)
+    i*-~₂ : (x y1 y2 : ℤ) -> (y1 ~ y2) -> (x * y1) ~ (x * y2)
     i*-~₂ y x1 x2 c =
-      subst2 _~_ int.*-commute int.*-commute (i*-~₁ y x1 x2 c)
+      subst2 _~_ *-commute *-commute (i*-~₁ y x1 x2 c)
 
 
-    z*'-~₁ : (x1 x2 y : ℤ) -> (x1 ~ x2) -> [ x1 i* y ] == [ x2 i* y ]
+    z*'-~₁ : (x1 x2 y : ℤ) -> (x1 ~ x2) -> [ x1 * y ] == [ x2 * y ]
     z*'-~₁ x1 x2 y c = eq/ _ _ (i*-~₁ y x1 x2 c)
 
-    z*'-~₂ : (x y1 y2 : ℤ) -> (y1 ~ y2) -> [ x i* y1 ] == [ x i* y2 ]
+    z*'-~₂ : (x y1 y2 : ℤ) -> (y1 ~ y2) -> [ x * y1 ] == [ x * y2 ]
     z*'-~₂ x y1 y2 c = eq/ _ _ (i*-~₂ x y1 y2 c)
 
   _z*_ : ℤ/nℤ n -> ℤ/nℤ n -> ℤ/nℤ n
@@ -147,23 +149,23 @@ module _ {n : Nat} where
 
   private
     z-'_ : ℤ -> ℤ/nℤ n
-    z-'_ x = [ i- x ]
+    z-'_ x = [ - x ]
 
-    i--~ : (x1 x2 : ℤ) -> (x1 ~ x2) -> (i- x1) ~ (i- x2)
+    i--~ : (x1 x2 : ℤ) -> (x1 ~ x2) -> (- x1) ~ (- x2)
     i--~ x1 x2 (congruent-mod n%ab) = (congruent-mod d)
       where
-      path : (i- (x1 i+ (i- x2))) == ((i- x1) i+ (i- (i- x2)))
+      path : (- (x1 + (- x2))) == ((- x1) + (- (- x2)))
       path = solver.IntSolver.solve 2
              (\ x1 x2 ->
                 (⊖ (x1 ⊕ (⊖ x2))) ,
                 ((⊖ x1) ⊕ (⊖ (⊖ x2))))
              refl x1 x2
 
-      d : (int n) div ((i- x1) i+ (i- (i- x2)))
+      d : (int n) div ((- x1) + (- (- x2)))
       d = subst ((int n) div_) path (div-negate n%ab)
 
 
-    z-'-~ : (x1 x2 : ℤ) -> (x1 ~ x2) -> [ i- x1 ] == [ i- x2 ]
+    z-'-~ : (x1 x2 : ℤ) -> (x1 ~ x2) -> [ - x1 ] == [ - x2 ]
     z-'-~ x1 x2 c = eq/ _ _ (i--~ x1 x2 c)
 
   z-_ : ℤ/nℤ n -> ℤ/nℤ n
@@ -189,29 +191,29 @@ module _ (n⁺ : Nat⁺) where
     module qry = QuotientRemainder qry
     ni = int n
 
-    check-p : d i* ni == x i+ (i- y)
+    check-p : d * ni == x + (- y)
     check-p = p
 
-    x-path : qrx.q i* ni i+ qrx.ri == x
+    x-path : qrx.q * ni + qrx.ri == x
     x-path = qrx.path
 
-    y-path : qry.q i* ni i+ qry.ri == y
+    y-path : qry.q * ni + qry.ri == y
     y-path = qry.path
 
-    x-path2 : (d i+ qry.q) i* ni i+ qry.ri == x
+    x-path2 : (d + qry.q) * ni + qry.ri == x
     x-path2 =
       begin
-        (d i+ qry.q) i* ni i+ qry.ri
-      ==< int.+-left int.*-distrib-+ >=> int.+-assoc >
-        (d i* ni) i+ ((qry.q i* ni) i+ qry.ri)
-      ==< cong2 _i+_ p y-path >
-        (x i+ (i- y)) i+ y
-      ==< int.+-assoc >=> int.+-right (int.+-commute >=> int.add-minus-zero) >=> int.+-right-zero >
+        (d + qry.q) * ni + qry.ri
+      ==< +-left *-distrib-+-right >=> +-assoc >
+        (d * ni) + ((qry.q * ni) + qry.ri)
+      ==< cong2 _+_ p y-path >
+        (x + (- y)) + y
+      ==< +-assoc >=> +-right (+-commute >=> int.add-minus-zero) >=> +-right-zero >
         x
       end
 
     qrx2 : QuotientRemainder n⁺ x
-    qrx2 = record { q = d i+ qry.q ; r = qry.r ; path = x-path2 }
+    qrx2 = record { q = d + qry.q ; r = qry.r ; path = x-path2 }
 
     ans : qrx.r == qry.r
     ans = cong QuotientRemainder.r (isProp-QuotientRemainder qrx qrx2)
@@ -227,7 +229,7 @@ module _ (n⁺ : Nat⁺) where
     rep->ℤ/nℤ->rep i = cong QuotientRemainder.r (isContr-QuotientRemainder .snd qr)
       where
       qr : QuotientRemainder n⁺ (int (Fin.i i))
-      qr = record { q = (int 0) ; r = i ; path = int.+-left int.*-left-zero >=> int.+-left-zero }
+      qr = record { q = (int 0) ; r = i ; path = +-left *-left-zero >=> +-left-zero }
 
     ℤ/nℤ->rep->ℤ/nℤ : (i : ℤ/nℤ n) -> (representative->ℤ/nℤ (ℤ/nℤ->representative i)) == i
     ℤ/nℤ->rep->ℤ/nℤ = ℤ/nℤElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) handle
@@ -238,8 +240,8 @@ module _ (n⁺ : Nat⁺) where
         module qr = QuotientRemainder (quotient-remainder n⁺ i)
         r : i ~ (int (Fin.i qr.r))
         r = congruent-mod (qr.q ,
-              sym int.+-right-zero >=> int.+-right (sym (int.add-minus-zero)) >=>
-              sym int.+-assoc >=> int.+-left qr.path)
+              sym +-right-zero >=> +-right (sym (int.add-minus-zero)) >=>
+              sym +-assoc >=> +-left qr.path)
 
   ℤ/nℤ-Fin-eq : ℤ/nℤ n ≃ Fin n
   ℤ/nℤ-Fin-eq = isoToEquiv i
@@ -284,25 +286,25 @@ module _ {n : Nat} where
     [_] = s[_]
 
   z+-left-zero : (i : ℤ/nℤ n) -> 0# z+ i == i
-  z+-left-zero = ℤ/nℤElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) (\_ -> cong [_] int.+-left-zero)
+  z+-left-zero = ℤ/nℤElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) (\_ -> cong [_] +-left-zero)
 
   z*-left-zero : (i : ℤ/nℤ n) -> 0# z* i == 0#
-  z*-left-zero = ℤ/nℤElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) (\_ -> cong [_] int.*-left-zero)
+  z*-left-zero = ℤ/nℤElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) (\_ -> cong [_] *-left-zero)
 
   z*-left-one : (i : ℤ/nℤ n) -> 1# z* i == i
-  z*-left-one = ℤ/nℤElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) (\_ -> cong [_] int.*-left-one)
+  z*-left-one = ℤ/nℤElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) (\_ -> cong [_] *-left-one)
 
   z+-assoc : (i j k : ℤ/nℤ n) -> (i z+ j) z+ k == i z+ (j z+ k)
-  z+-assoc = ℤ/nℤElim.elimProp3 (\_ _ _ -> isSet-ℤ/nℤ _ _) (\_ _ _ -> cong [_] int.+-assoc)
+  z+-assoc = ℤ/nℤElim.elimProp3 (\_ _ _ -> isSet-ℤ/nℤ _ _) (\_ _ _ -> cong [_] +-assoc)
 
   z+-commute : (i j : ℤ/nℤ n) -> i z+ j == j z+ i
-  z+-commute = ℤ/nℤElim.elimProp2 (\_ _ -> isSet-ℤ/nℤ _ _) (\_ _ -> cong [_] int.+-commute)
+  z+-commute = ℤ/nℤElim.elimProp2 (\_ _ -> isSet-ℤ/nℤ _ _) (\_ _ -> cong [_] +-commute)
 
   z*-assoc : (i j k : ℤ/nℤ n) -> (i z* j) z* k == i z* (j z* k)
-  z*-assoc = ℤ/nℤElim.elimProp3 (\_ _ _ -> isSet-ℤ/nℤ _ _) (\_ _ _ -> cong [_] int.*-assoc)
+  z*-assoc = ℤ/nℤElim.elimProp3 (\_ _ _ -> isSet-ℤ/nℤ _ _) (\_ _ _ -> cong [_] *-assoc)
 
   z*-commute : (i j : ℤ/nℤ n) -> i z* j == j z* i
-  z*-commute = ℤ/nℤElim.elimProp2 (\_ _ -> isSet-ℤ/nℤ _ _) (\_ _ -> cong [_] int.*-commute)
+  z*-commute = ℤ/nℤElim.elimProp2 (\_ _ -> isSet-ℤ/nℤ _ _) (\_ _ -> cong [_] *-commute)
 
   Unit : ℤ/nℤ n -> Type₀
   Unit x = Σ[ y ∈ ℤ/nℤ n ] ((x z* y) == 1#)
@@ -446,13 +448,13 @@ module _ (n⁺ : Nat⁺) where
     rp-f : (x y : ℤ) -> (x ~ y) -> RelativelyPrime (int n) x -> RelativelyPrime (int n) y
     rp-f x y (congruent-mod n%xy) rp-x d nn-d d%n d%y = rp-x d nn-d d%n d%x
       where
-      d%xyy : d div ((x i+ (i- y)) i+ y)
+      d%xyy : d div ((x + (- y)) + y)
       d%xyy = div-sum (div-trans d%n n%xy) d%y
       d%x : d div x
       d%x = subst (d div_)
-            (int.+-assoc >=>
-             int.+-right (int.+-commute >=> int.add-minus-zero) >=>
-             int.+-right-zero)
+            (+-assoc >=>
+             +-right (+-commute >=> int.add-minus-zero) >=>
+             +-right-zero)
             d%xyy
 
 
@@ -477,21 +479,21 @@ module _ (n⁺ : Nat⁺) where
     unit->coprime' : (x y : ℤ/nℤ n) -> (x z* y == 1#) -> (CoprimeN x)
     unit->coprime' = ℤ/nℤElim.elimProp2 (\x y -> (isPropΠ (\_ -> isProp-CoprimeN {x}))) handle
       where
-      handle : (x y : ℤ) -> ([ x i* y ] == 1#) -> (CoprimeN [ x ])
+      handle : (x y : ℤ) -> ([ x * y ] == 1#) -> (CoprimeN [ x ])
       handle x y p d nn-d d%n d%x = div-one->one nn-d d%1
         where
-        c : (int 1) ~ (x i* y)
+        c : (int 1) ~ (x * y)
         c = sym-~ (ℤ/nℤElim.pathRec isPropValued-~ isEquivRel-~ _ _ p)
 
-        d%1-xy : d div ((int 1) i+ (i- (x i* y)))
+        d%1-xy : d div ((int 1) + (- (x * y)))
         d%1-xy = div-trans d%n (CongruentMod.n%ab c)
 
-        d%xy : d div (x i* y)
+        d%xy : d div (x * y)
         d%xy = div-mult' d%x y
 
-        xy-path : ((int 1) i+ (i- (x i* y))) i+ (x i* y) == (int 1)
-        xy-path = int.+-assoc >=> int.+-right (int.+-commute >=> int.add-minus-zero) >=>
-                  int.+-right-zero
+        xy-path : ((int 1) + (- (x * y))) + (x * y) == (int 1)
+        xy-path = +-assoc >=> +-right (+-commute >=> int.add-minus-zero) >=>
+                  +-right-zero
 
         d%1 : d div (int 1)
         d%1 = subst (d div_) xy-path (div-sum d%1-xy d%xy)
@@ -501,24 +503,24 @@ module _ (n⁺ : Nat⁺) where
 
 
     lc->unit : {x : ℤ} -> LinearCombination (int n) x (int 1) -> Unit [ x ]
-    lc->unit {x} lc = [ y ] , eq/ (x i* y) (int 1) (congruent-mod n%xy-1)
+    lc->unit {x} lc = [ y ] , eq/ (x * y) (int 1) (congruent-mod n%xy-1)
       where
       module lc = LinearCombination lc
 
       y : Int
       y = lc.y
 
-      path : (i- lc.x) i* (int n) == x i* lc.y i+ (i- (int 1))
+      path : (- lc.x) * (int n) == x * lc.y + (- (int 1))
       path = minus-extract-left >=>
-             cong -_ (sym +-right-zero >=> +-right (sym (add-minus-zero {lc.y i* x})) >=>
+             cong -_ (sym +-right-zero >=> +-right (sym (add-minus-zero {lc.y * x})) >=>
                       sym +-assoc >=> +-left lc.path >=> +-commute) >=>
              minus-distrib-+ >=> +-left minus-double-inverse >=>
              +-left *-commute
         where
         open int
 
-      n%xy-1 : (int n) div (x i* y i+ (i- (int 1)))
-      n%xy-1 = (i- lc.x) , path
+      n%xy-1 : (int n) div (x * y + (- (int 1)))
+      n%xy-1 = (- lc.x) , path
 
     coprime->unit : (x : ℤ/nℤ n) -> (CoprimeN x) -> (Unit x)
     coprime->unit = ℤ/nℤElim.elimProp (\x -> (isPropΠ (\_ -> isProp-Unit {x = x}))) handle
@@ -534,24 +536,24 @@ module _ (n⁺ : Nat⁺) where
 
 
     lc->unit' : {x : ℤ} -> LinearCombination (int n) x (int 1) -> Unit' [ x ]
-    lc->unit' {x} lc = unit' [ x ] [ y ] (eq/ (x i* y) (int 1) (congruent-mod n%xy-1))
+    lc->unit' {x} lc = unit' [ x ] [ y ] (eq/ (x * y) (int 1) (congruent-mod n%xy-1))
       where
       module lc = LinearCombination lc
 
       y : Int
       y = lc.y
 
-      path : (i- lc.x) i* (int n) == x i* lc.y i+ (i- (int 1))
+      path : (- lc.x) * (int n) == x * lc.y + (- (int 1))
       path = minus-extract-left >=>
-             cong -_ (sym +-right-zero >=> +-right (sym (add-minus-zero {lc.y i* x})) >=>
+             cong -_ (sym +-right-zero >=> +-right (sym (add-minus-zero {lc.y * x})) >=>
                       sym +-assoc >=> +-left lc.path >=> +-commute) >=>
              minus-distrib-+ >=> +-left minus-double-inverse >=>
              +-left *-commute
         where
         open int
 
-      n%xy-1 : (int n) div (x i* y i+ (i- (int 1)))
-      n%xy-1 = (i- lc.x) , path
+      n%xy-1 : (int n) div (x * y + (- (int 1)))
+      n%xy-1 = (- lc.x) , path
 
     coprime->unit' : (x : ℤ/nℤ n) -> (CoprimeN x) -> (Unit' x)
     coprime->unit' = ℤ/nℤElim.elimProp (\x -> (isPropΠ (\_ -> isProp-Unit'))) handle

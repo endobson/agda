@@ -2,6 +2,8 @@
 
 module gcd.euclidean-algorithm where
 
+open import additive-group
+open import additive-group.instances.int
 open import abs
 open import base
 open import equality
@@ -15,6 +17,8 @@ open import nat.binary-strong-induction
 open import order
 open import order.instances.nat
 open import relation
+open import semiring
+open import ring.implementations.int
 
 
 linear-combo->gcd : {a b d : Int} -> LinearCombination a b d -> d div a -> d div b -> GCD a b (abs d)
@@ -139,15 +143,15 @@ euclids-lemma {a} {b} {c} a%bc ab-gcd = handle (gcd->linear-combo ab-gcd)
         (int 1) * c
       ==< *-left (sym pr) >
         (x * a + y * b) * c
-      ==< *-distrib-+ {x * a}  >
+      ==< *-distrib-+-right >
         x * a * c + y * b * c
-      ==< +-left (*-assoc {x}) >
+      ==< +-left *-assoc >
         x * (a * c) + y * b * c
-      ==< +-left (*-right {x} (*-commute {a} {c})) >
+      ==< +-left (*-right *-commute) >
         x * (c * a) + y * b * c
-      ==< sym (+-left (*-assoc {x})) >
+      ==< sym (+-left *-assoc) >
         x * c * a + y * b * c
-      ==< (+-right {x * c * a} (*-assoc {y})) >
+      ==< +-right *-assoc >
         x * c * a + y * (b * c)
       end
     a%stuff : a div (x * c * a + y * (b * c))

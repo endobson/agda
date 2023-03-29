@@ -9,6 +9,7 @@ open import additive-group.instances.reader
 open import base
 open import equality
 open import fin
+open import int
 open import list
 open import nat
 open import nat.order
@@ -21,7 +22,6 @@ open import semiring
 open import semiring.instances.nat
 open import truncation
 
-import int
 import ring.lists
 
 data Syntax (n : Nat) : Type₀ where
@@ -224,7 +224,7 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
         (term (m1 int.*ᵉ m2) (insertion-sort fin< (vs1 ++ vs2)))
 
       minus-one-term : Term
-      minus-one-term = (term (int.- (int.int 1)) [])
+      minus-one-term = (term (- (int.int 1)) [])
 
       term-- : Term -> Term
       term-- = term-* minus-one-term
@@ -342,7 +342,7 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
         ==<>
           (lift-int (m1 int.+ᵉ m2)) * ⟦ vars1 ⟧vars
         ==< *-left (cong lift-int (sym int.+-eval)) >
-          (lift-int (m1 int.+ m2)) * ⟦ vars1 ⟧vars
+          (lift-int (m1 int.ℤ+ m2)) * ⟦ vars1 ⟧vars
         ==< *-left (Ringʰ.preserves-+ (∃!-prop ∃!ℤ->Ring) _ _) >
           ((lift-int m1) + (lift-int m2)) * ⟦ vars1 ⟧vars
         ==< *-distrib-+-right >
@@ -459,11 +459,11 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
         ==<>
           (lift-int (m1 int.*ᵉ m2)) * ⟦ (insertion-sort fin< (vs1 ++ vs2)) ⟧vars
         ==< *-left (cong lift-int (sym int.*-eval)) >
-          (lift-int (m1 int.* m2)) * ⟦ (insertion-sort fin< (vs1 ++ vs2)) ⟧vars
+          (lift-int (m1 int.ℤ* m2)) * ⟦ (insertion-sort fin< (vs1 ++ vs2)) ⟧vars
         ==< *-right (insertion-sort-vars≈ (vs1 ++ vs2)) >
-          (lift-int (m1 int.* m2)) * ⟦ (vs1 ++ vs2) ⟧vars
+          (lift-int (m1 int.ℤ* m2)) * ⟦ (vs1 ++ vs2) ⟧vars
         ==< *-right (++-vars≈ vs1 vs2) >
-          (lift-int (m1 int.* m2)) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars)
+          (lift-int (m1 int.ℤ* m2)) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars)
         ==< *-left (Ringʰ.preserves-* (∃!-prop ∃!ℤ->Ring) _ _) >
           ((lift-int m1) * (lift-int m2)) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars)
         ==< *-assoc >
@@ -570,9 +570,9 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
         begin
           ⟦ minus-one-term ⟧term
         ==<>
-          ⟦ (term (int.- (int.int 1)) []) ⟧term
+          ⟦ (term (- (int.int 1)) []) ⟧term
         ==< *-right-one >
-          (lift-int (int.- (int.int 1)))
+          (lift-int (- (int.int 1)))
         ==< cong -_ +-right-zero >
           - 1#
         end
@@ -936,8 +936,6 @@ module examples where
                                                (a ⊗ b) ⊕ (c ⊗ d) ⊕ (c ⊗ b) ⊕ (a ⊗ d)) refl
 
   module full where
-    open int using (Int ; int)
-
     example1 : (a b c d : Int) -> (a + c) * (b + d) == a * b + c * d + c * b + a * d
     example1 = IntSolver.solve 4 (\ a b c d -> ((a ⊕ c) ⊗ (b ⊕ d)) ,
                                                (a ⊗ b) ⊕ (c ⊗ d) ⊕ (c ⊗ b) ⊕ (a ⊗ d)) refl

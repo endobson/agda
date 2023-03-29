@@ -2,15 +2,15 @@
 
 module chapter1 where
 
-open import additive-group using (-_)
-open import additive-group.instances.int
 open import abs
+open import additive-group
+open import additive-group.instances.int
 open import base
 open import div
 open import equality
-open import gcd.propositional
 open import gcd.euclidean-algorithm
-open import int hiding (-_ ; minus-extract-left)
+open import gcd.propositional
+open import int
 open import linear-combo
 open import nat
 open import nat.order
@@ -18,6 +18,7 @@ open import prime-gcd
 open import ring
 open import ring.implementations.int
 open import ring.initial-integers
+open import semiring
 open import solver
 open import truncation
 
@@ -89,7 +90,7 @@ ex1-4' {a} {b} {n} rp (gcd _ n%a+b n%a-b f) = handle (gcd->linear-combo rp)
             (© (int 2)) ⊗ (x ⊗ a ⊕ y ⊗ b))
           refl x y a b >
         (lift-int (int 2)) * (x * a + y * b)
-      ==< *-right {lift-int (int 2)} proof >
+      ==< *-right proof >
         (lift-int (int 2)) * (int 1)
       ==< *-right-one >
         (lift-int (int 2))
@@ -127,7 +128,7 @@ ex1-6 {a} {b} {d} (gcd _ _ _ f) d%a+b =
   f-a x x%a x%d = (f x x%a x%b)
     where
     p : - a + ( a + b) == b
-    p = (sym (+-assoc { - a})) >=> (+-left (+-commute { - a} {a})) >=> (+-left (add-minus-zero {a}))
+    p = (sym +-assoc) >=> (+-left +-commute) >=> (+-left (add-minus-zero {a}))
         >=> +-left-zero
     x%b : x div b
     x%b = transport (\i -> x div (p i)) (div-sum (div-negate x%a) (div-trans x%d d%a+b))
@@ -136,19 +137,19 @@ ex1-6 {a} {b} {d} (gcd _ _ _ f) d%a+b =
   f-b x x%b x%d = (f x x%a x%b)
     where
     p : - b + ( a + b) == a
-    p = (+-right { - b} (+-commute {a} {b})) >=>
-        (sym (+-assoc { - b})) >=> (+-left (+-commute { - b} {b})) >=> (+-left (add-minus-zero {b}))
+    p = (+-right +-commute) >=>
+        (sym +-assoc) >=> (+-left +-commute) >=> (+-left (add-minus-zero {b}))
         >=> +-left-zero
     x%a : x div a
     x%a = transport (\i -> x div (p i)) (div-sum (div-negate x%b) (div-trans x%d d%a+b))
 
 ex1-5-arith-type : Set
-ex1-5-arith-type = ∀ a b -> ((a + b) * (a + b) +  - (a * a + - (a * b) + b * b))
-                            == ((a * b) * (∃!-val ∃!ℤ->Ring (int 3)))
+ex1-5-arith-type = ∀ (a b : ℤ) -> ((a + b) * (a + b) +  - (a * a + - (a * b) + b * b))
+                                  == ((a * b) * (∃!-val ∃!ℤ->Ring (int 3)))
 
 ex1-5-arith-type' : Set
-ex1-5-arith-type' = ∀ a b -> ((a + b) * (a + b) +  - (a * a + - (a * b) + b * b))
-                             == ((a * b) * (int 3))
+ex1-5-arith-type' = ∀ (a b : ℤ) -> ((a + b) * (a + b) +  - (a * a + - (a * b) + b * b))
+                                   == ((a * b) * (int 3))
 
 ex1-5-arith : ex1-5-arith-type
 ex1-5-arith a b =
@@ -170,13 +171,13 @@ private
       proof =
         begin
           (k * a + b) + (- k * a)
-        ==< +-commute {k * a + b} >
+        ==< +-commute >
           (- k * a) + (k * a + b)
-        ==< sym (+-assoc { - k * a}) >
+        ==< sym +-assoc >
           (- k * a + k * a) + b
         ==< +-left (+-left minus-extract-left) >
           (- (k * a) + k * a) + b
-        ==< +-left (+-commute { - (k * a) }) >
+        ==< +-left +-commute >
           (k * a + - (k * a)) + b
         ==< +-left (add-minus-zero {k * a}) >
           (int 0) + b

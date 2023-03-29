@@ -7,30 +7,25 @@ open import additive-group.instances.int
 open import base
 open import equality
 open import hlevel.base
+open import int hiding (
+  NonZero ; isSign ; isProp-isSign ; isSign-unique ; NonNeg ; Pos->NonNeg ;
+  Zero->NonNeg ; NonNeg->¬Neg ; Zero ; NonZero->¬Zero ; Pos
+  )
+open import int.order
 open import nat
 open import rational
+open import ring
 open import ring.implementations.int
 open import semiring
 open import sign
 open import sign.instances.int
 
-import int.order
-
-open import int using
-  ( Int
-  ; ℤ
-  ; *-Pos-Pos
-  ; *-Pos-Neg
-  ; *-Neg-Pos
-  ; *-Neg-Neg
-  ; +-Pos-Pos
-  ; +-Neg-Neg
-  )
-
 private
   module i where
-    open int.order public
-    open int public
+    open int public using (
+       isSign-self ; NonZero->NonZeroSign ; isSign-unique ; Zero-path ;
+       *-NonZero-NonZero ; Pos->PosSign ; isSign ; minus-isSign
+       )
 
 private
   numer : Rational' -> Int
@@ -91,7 +86,7 @@ r~-preserves-sign {q1} {q2} {s} v p = is-signℚ' ans
   S = sign
 
   inner-path : S n1 s* S d2 == S n2 s* S d1
-  inner-path = sym i.int->sign-preserves-* >=> cong S p >=> i.int->sign-preserves-*
+  inner-path = sym int->sign-preserves-* >=> cong S p >=> int->sign-preserves-*
 
   path : (S n1) s* (S d1) == (S n2) s* (S d2)
   path =
@@ -111,7 +106,7 @@ r~-preserves-sign {q1} {q2} {s} v p = is-signℚ' ans
   expand-s = i.isSign-unique (isSignℚ'.v v) (i.isSign-self (n1 * d1))
 
   end-path : s == S (n2 * d2)
-  end-path = expand-s >=> i.int->sign-preserves-* >=> path >=> (sym i.int->sign-preserves-*)
+  end-path = expand-s >=> int->sign-preserves-* >=> path >=> (sym int->sign-preserves-*)
 
   ans : isSign s (n2 * d2)
   ans = subst (\s -> isSign s (n2 * d2)) (sym end-path) (i.isSign-self (n2 * d2))
@@ -131,7 +126,7 @@ Zero-r~ {q1} (is-signℚ' p) = *-right-one >=> p2 >=> sym (*-left-zero)
   d = denom q1
 
   p2 : n == 0#
-  p2 = i.*-right-injective (rNonZero q1) (i.Zero-path _ p >=> sym *-left-zero)
+  p2 = *-right-injective (rNonZero q1) (i.Zero-path _ p >=> sym *-left-zero)
 
 Zero-0r' : Zero 0r'
 Zero-0r' = is-signℚ' (subst Zero (sym *-left-zero) tt)
@@ -156,7 +151,7 @@ private
     s1 = sign (numer q)
     s2 = sign (denom q)
     path : s1 == s2
-    path = handle s1 s2 (subst isPosSign i.int->sign-preserves-* (i.Pos->PosSign (isSignℚ'.v p)))
+    path = handle s1 s2 (subst isPosSign int->sign-preserves-* (i.Pos->PosSign (isSignℚ'.v p)))
       where
       handle : (x y : Sign) -> isPosSign (x s* y) -> x == y
       handle pos-sign pos-sign _ = refl
@@ -174,10 +169,10 @@ private
 same-sign-ℤ->ℚ' : (i : ℤ) -> (s : Sign) -> isSign s i -> isSign s (ℤ->ℚ' i)
 same-sign-ℤ->ℚ' i s si =
   subst (\x -> isSign x (ℤ->ℚ' i)) s*-pos-right-identity
-        (is-signℚ' (int.*-isSign {s} {pos-sign} {i} {i.int 1} si tt))
+        (is-signℚ' (int.*-isSign {s} {pos-sign} {i} {int 1} si tt))
 
 Pos-ℕ⁺->ℚ' : (i : Nat⁺) -> Pos (ℕ->ℚ' ⟨ i ⟩)
-Pos-ℕ⁺->ℚ' (i@(suc _) , _) = same-sign-ℤ->ℚ' (i.int i) pos-sign tt
+Pos-ℕ⁺->ℚ' (i@(suc _) , _) = same-sign-ℤ->ℚ' (int i) pos-sign tt
 
 abstract
   r+'-preserves-Pos : {q1 q2 : Rational'} -> Pos q1 -> Pos q2 -> Pos (q1 r+' q2)
@@ -258,8 +253,8 @@ abstract
   r-'-flips-sign : (q : ℚ') (s : Sign) -> (isSign s q) -> (isSign (s⁻¹ s) (r-' q))
   r-'-flips-sign q s qs =
     is-signℚ'
-      (subst (i.isSign (s⁻¹ s)) (sym i.minus-extract-left)
-             (i.minus-isSign {numer q i.* denom q} {s} (isSignℚ'.v qs)))
+      (subst (i.isSign (s⁻¹ s)) (sym minus-extract-left)
+             (i.minus-isSign {numer q * denom q} {s} (isSignℚ'.v qs)))
 
 abstract
   r+'-preserves-NonNeg : {q1 q2 : Rational'} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r+' q2)
