@@ -45,10 +45,10 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
   equivProduct : {n : Nat} -> (A ≃ Fin n) -> (A -> D)  -> D
   equivProduct = equivMerge CM
 
-  abstract
-    finiteProduct : {ℓ : Level} -> (s : FinSet ℓ) -> (⟨ s ⟩ -> D) -> D
-    finiteProduct = finiteProductᵉ
+  finiteProduct : {ℓ : Level} -> (s : FinSet ℓ) -> (⟨ s ⟩ -> D) -> D
+  finiteProduct = finiteProductᵉ
 
+  abstract
     finiteProductᵉ-path : {ℓ : Level} -> {s : FinSet ℓ} -> {f : ⟨ s ⟩ -> D} ->
                           finiteProduct s f == finiteProductᵉ s f
     finiteProductᵉ-path = refl

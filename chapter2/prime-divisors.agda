@@ -1,8 +1,9 @@
-{-# OPTIONS --cubical --safe --exact-split #-}
+{-# OPTIONS --cubical --safe --exact-split -W noUnsupportedIndexedMatch #-}
 
 module chapter2.prime-divisors where
 
-open import additive-group using (AdditiveCommMonoid)
+open import additive-group
+open import additive-group.instances.nat
 open import base
 open import chapter2.divisors
 open import chapter2.multiplicative
@@ -15,6 +16,7 @@ open import finset.instances.base
 open import finsubset
 open import finsum
 open import hlevel
+open import relation
 open import isomorphism
 open import nat
 open import nat.bounded
@@ -29,6 +31,7 @@ open import prime-gcd
 open import prime-power-factorization
 open import relatively-prime
 open import semiring
+open import semiring.instances.nat
 open import sigma
 open import sigma.base
 open import type-algebra
@@ -63,12 +66,23 @@ private
     i .rightInv _ = refl
     i .leftInv _ = refl
 
-  abstract
-    isFinSet-PrimeDivisor : (n : Nat⁺) -> isFinSet (PrimeDivisor n)
-    isFinSet-PrimeDivisor n = isFinSet-equiv (PrimeDivisor'-eq n) (isFinSet-PrimeDivisor' n)
+abstract
+  isFinSet-PrimeDivisor : (n : Nat⁺) -> isFinSet (PrimeDivisor n)
+  isFinSet-PrimeDivisor n = isFinSet-equiv (PrimeDivisor'-eq n) (isFinSet-PrimeDivisor' n)
 
 FinSet-PrimeDivisor : Nat⁺ -> FinSet ℓ-zero
 FinSet-PrimeDivisor n = PrimeDivisor n , isFinSet-PrimeDivisor n
+
+abstract
+  Discrete-PrimeDivisor : (n : Nat⁺) -> Discrete (PrimeDivisor n)
+  Discrete-PrimeDivisor n pd1@((p1 , isP1) , d1) pd2@((p2 , isP2) , d2) =
+    handle (decide-nat p1 p2)
+    where
+    handle : Dec (p1 == p2) -> Dec (pd1 == pd2)
+    handle (yes path) = yes (ΣProp-path (isPropDiv' n) (ΣProp-path isPropIsPrime' path))
+    handle (no ¬path) = no (\path -> ¬path (cong fst (cong fst path)))
+
+
 
 module _ (a b : Nat⁺) where
   private
@@ -128,6 +142,42 @@ PrimeDivisor-prime-power-eq p n⁺@(n , _) = isoToEquiv i
   i .rightInv _ = refl
   i .leftInv d@(p2 , p2%pn) =
     ΣProp-path (isPropDiv' (prime-power⁺ p n)) (sym (prime-power-prime-divisor p2 p n p2%pn))
+
+isContr-PrimeDivisor-prime-power :
+  (p : Prime') (n : Nat⁺) -> isContr (PrimeDivisor (prime-power⁺ p ⟨ n ⟩))
+isContr-PrimeDivisor-prime-power p n⁺@(n , _) =
+  (p , prime-power-div p n⁺) ,
+  \ (p2 , p2%pn) ->
+    ΣProp-path (isPropDiv' (prime-power⁺ p n)) (sym (prime-power-prime-divisor p2 p n p2%pn))
+
+isContr-PrimeDivisor->prime-power :
+  (n : Nat⁺) -> (c : isContr (PrimeDivisor n)) -> Σ[ i ∈ ℕ ] (prime-power ⟨ ⟨ c ⟩ ⟩ i == ⟨ n ⟩)
+isContr-PrimeDivisor->prime-power (zero , ())
+isContr-PrimeDivisor->prime-power (suc zero , _) _ = 0 , refl
+isContr-PrimeDivisor->prime-power n@(suc (suc _) , _) (pd@(p , _) , pd-unique) =
+  handle-tree pft div'-refl
+  where
+  pft : PrimeFactorizationTree ⟨ n ⟩
+  pft = compute-prime-factorization-tree (suc-≤ (suc-≤ zero-≤))
+
+  handle-tree : {m : ℕ} -> PrimeFactorizationTree m -> m div' ⟨ n ⟩ ->
+                Σ[ i ∈ ℕ ] (prime-power p i == m)
+  handle-tree (prime-factorization-tree-prime p2) p2∣n =
+    1 , *-right-one >=> cong fst p=p2
+    where
+    p=p2 : p == p2
+    p=p2 = cong fst (pd-unique (p2 , p2∣n))
+  handle-tree (prime-factorization-tree-composite {m1} {m2} t1 t2) (x , xm1m2=n) =
+    fst rec1 + fst rec2 ,
+    ^'-distrib-power {⟨ p ⟩} {fst rec1} {fst rec2} >=>
+    *-cong (snd rec1) (snd rec2)
+    where
+    rec1 : Σ[ i ∈ ℕ ] (prime-power p i == m1)
+    rec1 = handle-tree t1 (x * m2 , *-assocᵉ x m2 m1 >=>
+                                    cong (x *_) (*-commuteᵉ m2 m1) >=> xm1m2=n)
+    rec2 : Σ[ i ∈ ℕ ] (prime-power p i == m2)
+    rec2 = handle-tree t2 (x * m1 , *-assocᵉ x m1 m2 >=> xm1m2=n)
+
 
 isProp-PrimeDivCount : {p : Prime'} {a : Nat} {n : Nat} -> isProp (PrimeDivCount p a n)
 isProp-PrimeDivCount {p} {a} {n} dc1 dc2 = (\i -> record

@@ -385,15 +385,16 @@ module _ {ℓA ℓB ℓD : Level} {A : Type ℓA} {B : Type ℓB} {D : Type ℓD
           >=> cong f ((sym (finiteMerge-Maybe CM-B _)) >=>
                       (sym (finiteMerge-convert CM-B (equiv⁻¹ (Fin-Maybe-eq n)) g)))
 
-      finiteMerge-homo-inject : {g : A -> B} ->
-        finiteMerge CM-D (f ∘ g) ==
-        f (finiteMerge CM-B g)
-      finiteMerge-homo-inject {g} = unsquash (CM-D.isSet-Domain _ _) (∥-map handle (FinSetStr.isFin FA))
-        where
-        handle : Σ[ n ∈ Nat ] (A ≃ Fin n) ->
-                 finiteMerge CM-D (f ∘ g) ==
-                 f (finiteMerge CM-B g)
-        handle (n , eq) =
-         finiteMerge-convert CM-D (equiv⁻¹ eq) _
-         >=> finiteMerge-homo-inject'
-         >=> cong f (sym (finiteMerge-convert CM-B (equiv⁻¹ eq) _))
+      abstract
+        finiteMerge-homo-inject : {g : A -> B} ->
+          finiteMerge CM-D (f ∘ g) ==
+          f (finiteMerge CM-B g)
+        finiteMerge-homo-inject {g} = unsquash (CM-D.isSet-Domain _ _) (∥-map handle (FinSetStr.isFin FA))
+          where
+          handle : Σ[ n ∈ Nat ] (A ≃ Fin n) ->
+                   finiteMerge CM-D (f ∘ g) ==
+                   f (finiteMerge CM-B g)
+          handle (n , eq) =
+           finiteMerge-convert CM-D (equiv⁻¹ eq) _
+           >=> finiteMerge-homo-inject'
+           >=> cong f (sym (finiteMerge-convert CM-B (equiv⁻¹ eq) _))
