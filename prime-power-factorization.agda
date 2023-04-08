@@ -15,6 +15,7 @@ open import prime-gcd
 open import prime-factorization
 open import relation
 open import relatively-prime
+open import sigma.base
 
 private
   RP = RelativelyPrime⁰
@@ -97,6 +98,24 @@ compute-ppf n>1 = pft->ppf (compute-prime-factorization-tree n>1)
 ppf->pos : {a : Nat} -> PPF a -> Pos' a
 ppf->pos (ppf-base p n) = (snd (prime-power⁺ p ⟨ n ⟩))
 ppf->pos (ppf-combine ppf-a ppf-b _) = *'-Pos'-Pos' (ppf->pos ppf-a) (ppf->pos ppf-b)
+
+
+abstract
+  PPFElim : {ℓP : Level} (P : Nat⁺ -> Type ℓP) ->
+            (∀ p n -> P (prime-power⁺ p n)) ->
+            ((a b : Nat⁺) -> (RelativelyPrime⁺ a b) -> P a -> P b -> P (a *⁺ b)) ->
+            (a : Nat⁺) -> P a
+  PPFElim P P-prime P-coprime (zero , ())
+  PPFElim P P-prime P-coprime (suc zero , _) = (P-prime (2 , 2-is-prime) 0)
+  PPFElim P P-prime P-coprime (suc (suc n) , _) = handle (compute-ppf (suc-≤ (suc-≤ zero-≤)))
+    where
+    handle : ∀ {n} -> PrimePowerFactorization ⟨ n ⟩ -> P n
+    handle (ppf-base p n) = subst P (ΣProp-path isPropPos' refl) (P-prime p ⟨ n ⟩)
+    handle (ppf-combine fa fb coprime) =
+     subst P (ΣProp-path isPropPos' refl)
+      (P-coprime (_ , ppf->pos fa) (_ , ppf->pos fb) coprime (handle fa) (handle fb))
+
+
 
 
 data OrderedPrimePowerFactorization : Nat -> Type₀ where

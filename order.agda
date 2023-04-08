@@ -192,6 +192,10 @@ module _ {D : Type ℓD} {{S : PartialOrderStr D ℓ<}} where
     trans-=-≤ : {d1 d2 d3 : D} -> d1 == d2 -> d2 ≤ d3 -> d1 ≤ d3
     trans-=-≤ {d3 = d3} d1=d2 d2≤d3 = subst (_≤ d3) (sym d1=d2) d2≤d3
 
+    refl-≤ᵉ : (d : D) -> d ≤ d
+    refl-≤ᵉ _ = refl-≤
+
+
 
 
 module _ {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) where

@@ -14,6 +14,7 @@ open import fin
 open import fin-algebra
 open import finset
 open import finset.instances
+open import finset.cardinality
 open import finset.instances.base
 open import finsubset
 open import finsum
@@ -609,3 +610,13 @@ Multiplicative-φ .snd a b rp =
   b' = ⟨ b ⟩
   path1 : (FinSet-Totatives (a' *' b')) == (FinSet-× (FinSet-Totatives a') (FinSet-Totatives b'))
   path1 = ΣProp-path isProp-isFinSet (ua (Totatives-rp-eq a b rp))
+
+φ-0< : (n : Nat⁺) -> 0 < φ n
+φ-0< (n , n-pos) = eqFun (inhabited-0<cardinality (FinSet-Totatives n)) ∣ 1 , t ∣
+  where
+  t : Totient n 1
+  t = record
+    { pos-k = tt
+    ; k≤n = Pos'->< n-pos
+    ; rp = rp-sym rp-one
+    }
