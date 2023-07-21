@@ -133,6 +133,10 @@ Decidable2 : Rel A ℓ -> Type _
 Decidable2 _~_ = ∀ x y -> Dec (x ~ y)
 
 
+data ReflexiveClosure {A : Type ℓ₁} (r : Rel A ℓ₂) : Rel A (ℓ-max ℓ₁ ℓ₂) where
+  rc-rel : {a b : A} -> r a b -> ReflexiveClosure r a b
+  rc-refl : {a : A} -> ReflexiveClosure r a a
+
 data TransitiveReflexiveClosure {A : Type ℓ₁} (r : Rel A ℓ₂) : Rel A (ℓ-max ℓ₁ ℓ₂) where
   trc-rel : {a b : A} -> r a b -> TransitiveReflexiveClosure r a b
   trc-refl : {a : A} -> TransitiveReflexiveClosure r a a
@@ -140,6 +144,11 @@ data TransitiveReflexiveClosure {A : Type ℓ₁} (r : Rel A ℓ₂) : Rel A (�
               TransitiveReflexiveClosure r a b ->
               TransitiveReflexiveClosure r b c ->
               TransitiveReflexiveClosure r a c
+
+data SymmetricClosure {A : Type ℓ₁} (r : Rel A ℓ₂) : Rel A (ℓ-max ℓ₁ ℓ₂) where
+  sc-rel : {a b : A} -> r a b -> SymmetricClosure r a b
+  sc-sym : {a b : A} -> SymmetricClosure r a b -> SymmetricClosure r b a
+
 
 data SymmetricTransitiveReflexiveClosure {A : Type ℓ₁} (r : Rel A ℓ₂) : Rel A (ℓ-max ℓ₁ ℓ₂) where
   strc-rel : {a b : A} -> r a b -> SymmetricTransitiveReflexiveClosure r a b

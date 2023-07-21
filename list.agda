@@ -12,6 +12,7 @@ open import functions
 open import hlevel
 open import list.fin-list-eq
 open import infinity-monoid
+open import maybe
 import monoid
 open import nat
 open import nat.order
@@ -125,6 +126,11 @@ safe-head x (a :: as) = a
 ++-injective-left {as = (a :: as)} p = (++-injective-left (::-injective p))
 
 -- AtIndex and Contains
+
+list-ref : (List A) -> Nat -> Maybe A
+list-ref []        _       = nothing
+list-ref (a :: as) zero    = just a
+list-ref (a :: as) (suc i) = list-ref as i
 
 AtIndex : Nat -> List A -> A -> Type (levelOf A)
 AtIndex n       []        x = Lift _ Bot
@@ -889,3 +895,7 @@ count-uniqueness (count'-== _ cm) (count'-== _ cn) = cong suc (count-uniqueness 
 count-uniqueness (count'-!= _ cm) (count'-!= _ cn) = (count-uniqueness cm cn)
 count-uniqueness (count'-!= ¬p _) (count'-== p  _) = bot-elim (¬p p)
 count-uniqueness (count'-== p  _) (count'-!= ¬p _) = bot-elim (¬p p)
+
+foldr : List A -> (A -> B -> B) -> B -> B
+foldr []        f b = b
+foldr (a :: as) f b = f a (foldr as f b)

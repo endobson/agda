@@ -108,13 +108,14 @@ instance
     }
 
 private
-  trichotomous-ℕ< : Trichotomous _<_
-  trichotomous-ℕ< x y = handle (split-ℕ< x y) (split-ℕ< y x)
-    where
-    handle : (x < y ⊎ y ≤ x) -> (y < x ⊎ x ≤ y) -> Tri< x y
-    handle (inj-l x<y) _            = tri<' x<y
-    handle (inj-r y≤x) (inj-l y<x) = tri>' y<x
-    handle (inj-r y≤x) (inj-r x≤y) = tri=' (antisym-≤ x≤y y≤x)
+  abstract
+    trichotomous-ℕ< : Trichotomous _<_
+    trichotomous-ℕ< x y = handle (split-ℕ< x y) (split-ℕ< y x)
+      where
+      handle : (x < y ⊎ y ≤ x) -> (y < x ⊎ x ≤ y) -> Tri< x y
+      handle (inj-l x<y) _            = tri<' x<y
+      handle (inj-r y≤x) (inj-l y<x) = tri>' y<x
+      handle (inj-r y≤x) (inj-r x≤y) = tri=' (antisym-≤ x≤y y≤x)
 
 instance
   DecidableLinearOrderStr-ℕ : DecidableLinearOrderStr LinearOrderStr-ℕ

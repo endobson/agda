@@ -170,3 +170,6 @@ A ↠ B = Σ (A -> B) isSurjection
 
 Image : (A -> B) -> Type _
 Image {B = B} f = Σ[ b ∈ B ] ∥ fiber f b ∥
+
+TotalFunctional : Rel A ℓ -> Type _
+TotalFunctional {A = A} R = (a : A) -> ∃! A (R a)

@@ -56,6 +56,7 @@ open import real.rational
 open import real.sequence
 open import real.sequence.cauchy
 open import real.sequence.limit
+open import real.sequence.limit.arithmetic
 open import real.series
 open import relation
 open import ring
@@ -479,7 +480,7 @@ private
                      (minus-flips-< (f-ans3 m₂ m₁ m₂≥n m₁≥n m₂≤m₁))
 
 
-
+{-
     module _
       (ℚ->ℝ-preserves-* : {q r : ℚ} -> ℚ->ℝ (q * r) == ℚ->ℝ q * ℚ->ℝ r)
       (1/ℕ-preserves-* : {m n : Nat⁺} -> 1/ℕ (m *⁺ n) == 1/ℕ m * 1/ℕ n)
@@ -492,7 +493,7 @@ private
       (Archimedian-ℝ : {a b : ℝ} -> (0# < b) -> ∃[ n ∈ Nat ] (a < (ℚ->ℝ (ℕ->ℚ n) * b)))
       (Archimedian-ℚ : {a b : ℚ} -> (0# < b) -> ∃[ n ∈ Nat ] (a < ((ℕ->ℚ n) * b)))
       (Archimedian-ℚ' : {a b : ℚ} -> (0# < a) -> (0# < b) -> (b < 1#) ->
-                        ∃[ n ∈ Nat ] ((geometric-ℚ-sequence b n) < a))
+                        ∃[ n ∈ Nat ] ((b r^ℕ b n) < a))
 
       where
       1/2^n=1/2ℝ^n : (n : Nat) -> ℚ->ℝ (1/ℕ (2 ^' n , ^'-Pos' tt n)) == geometric-sequence 1/2ℝ n
@@ -563,3 +564,4 @@ private
 
         eulers-number : ℝ
         eulers-number = fst isConvergentSeries-exponential-sequence1
+-}
