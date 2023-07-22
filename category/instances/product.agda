@@ -38,7 +38,7 @@ module _ {ℓC1o ℓC1m ℓD1o ℓD1m ℓC2o ℓC2m ℓD2o ℓD2m : Level}
     module G = Functor G
 
   product-functor : Functor (ProductCat C1 C2) (ProductCat D1 D2)
-  product-functor .F-obj (c1 , c2) = (F.F-obj c1 , G.F-obj c2)
-  product-functor .F-mor (f1 , f2) = (F.F-mor f1 , G.F-mor f2)
-  product-functor .F-id (c1 , c2) i =  F.F-id c1 i , G.F-id c2 i
-  product-functor .F-⋆ (f1 , f2) (g1 , g2) i =  F.F-⋆ f1 g1 i , G.F-⋆ f2 g2 i
+  product-functor .F-obj (c1 , c2) = (F.obj c1 , G.obj c2)
+  product-functor .F-mor (f1 , f2) = (F.mor f1 , G.mor f2)
+  product-functor .F-id (c1 , c2) i =  F.id c1 i , G.id c2 i
+  product-functor .F-⋆ (f1 , f2) (g1 , g2) i =  F.⋆ f1 g1 i , G.⋆ f2 g2 i

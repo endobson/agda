@@ -14,10 +14,10 @@ module _ {ℓAo ℓAm ℓBo ℓBm ℓCo ℓCm : Level}
          (F : Functor A B) (G : Functor B C) where
   functor-compose : Functor A C
   functor-compose = record
-    { F-obj = \o -> G.F-obj (F.F-obj o)
-    ; F-mor = \m -> G.F-mor (F.F-mor m)
-    ; F-id = \m -> cong G.F-mor (F.F-id m) >=> G.F-id _
-    ; F-⋆ = \f g -> cong G.F-mor (F.F-⋆ f g) >=> G.F-⋆ _ _
+    { obj = \o -> G.obj (F.obj o)
+    ; mor = \m -> G.mor (F.mor m)
+    ; id = \m -> cong G.mor (F.id m) >=> G.id _
+    ; ⋆ = \f g -> cong G.mor (F.⋆ f g) >=> G.⋆ _ _
     }
     where
     module F = Functor F
@@ -26,10 +26,10 @@ module _ {ℓAo ℓAm ℓBo ℓBm ℓCo ℓCm : Level}
 module _ {ℓo ℓm : Level} (C : PreCategory ℓo ℓm) where
   id-functor : Functor C C
   id-functor = record
-    { F-obj = \o -> o
-    ; F-mor = \m -> m
-    ; F-id = \_ -> refl
-    ; F-⋆ = \_ _ -> refl
+    { obj = \o -> o
+    ; mor = \m -> m
+    ; id = \_ -> refl
+    ; ⋆ = \_ _ -> refl
     }
 
 
@@ -67,20 +67,20 @@ module _ (ℓo ℓm : Level) where
         module H = Functor H
 
       Cat-⋆-assoc : (Cat-⋆ (Cat-⋆ F G) H) == (Cat-⋆ F (Cat-⋆ G H))
-      Cat-⋆-assoc i .F-obj = \o -> H.F-obj (G.F-obj (F.F-obj o))
-      Cat-⋆-assoc i .F-mor = \m -> H.F-mor (G.F-mor (F.F-mor m))
+      Cat-⋆-assoc i .F-obj = \o -> H.obj (G.obj (F.obj o))
+      Cat-⋆-assoc i .F-mor = \m -> H.mor (G.mor (F.mor m))
       Cat-⋆-assoc i .F-id x = ans i
         where
-        ans : (cong H.F-mor (cong G.F-mor (F.F-id _) >=> G.F-id _) >=> H.F-id _) ==
-              (cong (\m -> H.F-mor (G.F-mor m)) (F.F-id _) >=> (cong H.F-mor (G.F-id _) >=> H.F-id _))
-        ans = (cong (_>=> H.F-id _) (sym (cong-trans H.F-mor _ _))) >=> 
+        ans : (cong H.mor (cong G.mor (F.id _) >=> G.id _) >=> H.id _) ==
+              (cong (\m -> H.mor (G.mor m)) (F.id _) >=> (cong H.mor (G.id _) >=> H.id _))
+        ans = (cong (_>=> H.id _) (sym (cong-trans H.mor _ _))) >=>
               (compPath-assoc _ _ _)
 
       Cat-⋆-assoc i .F-⋆ f g = ans i
         where
-        ans : (cong H.F-mor (cong G.F-mor (F.F-⋆ _ _) >=> G.F-⋆ _ _) >=> H.F-⋆ _ _) ==
-              (cong (\m -> H.F-mor (G.F-mor m)) (F.F-⋆ _ _) >=> (cong H.F-mor (G.F-⋆ _ _) >=> H.F-⋆ _ _))
-        ans = (cong (_>=> H.F-⋆ _ _) (sym (cong-trans H.F-mor _ _))) >=> 
+        ans : (cong H.mor (cong G.mor (F.⋆ _ _) >=> G.⋆ _ _) >=> H.⋆ _ _) ==
+              (cong (\m -> H.mor (G.mor m)) (F.⋆ _ _) >=> (cong H.mor (G.⋆ _ _) >=> H.⋆ _ _))
+        ans = (cong (_>=> H.⋆ _ _) (sym (cong-trans H.mor _ _))) >=>
               (compPath-assoc _ _ _)
 
   CatC : PreCategory (ℓ-suc ℓ) ℓ

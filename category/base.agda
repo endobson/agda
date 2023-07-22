@@ -153,13 +153,18 @@ record Functor {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
                Type (ℓ-max* 4 ℓObjC ℓObjD ℓMorC ℓMorD) where
   no-eta-equality
   field
-    F-obj : Obj C -> Obj D
-    F-mor : {x y : Obj C} -> C [ x , y ] -> D [ F-obj x , F-obj y ]
-    F-id : (x : Obj C) -> (F-mor (idᵉ C x)) == (id D)
-    F-⋆ : {x y z : Obj C} -> (f : C [ x , y ]) -> (g : C [ y , z ]) ->
-          F-mor (f ⋆⟨ C ⟩ g) == (F-mor f ⋆⟨ D ⟩ F-mor g)
+    obj : Obj C -> Obj D
+    mor : {x y : Obj C} -> C [ x , y ] -> D [ obj x , obj y ]
+    id : (x : Obj C) -> (mor (idᵉ C x)) == (id D)
+    ⋆ : {x y z : Obj C} -> (f : C [ x , y ]) -> (g : C [ y , z ]) ->
+         mor (f ⋆⟨ C ⟩ g) == (mor f ⋆⟨ D ⟩ mor g)
 
-open Functor public
+open Functor public renaming
+  ( obj to F-obj
+  ; mor to F-mor
+  ; id to F-id
+  ; ⋆ to F-⋆
+  )
 
 -- Natural Transformations
 
@@ -194,6 +199,3 @@ module _
   module _ {{isCat-D : isCategory D}} where
     isProp-isNaturalIso : {nt : NaturalTransformation F G} -> isProp (isNaturalIso nt)
     isProp-isNaturalIso = isPropΠ (\_ -> isProp-isIso)
-
-
-

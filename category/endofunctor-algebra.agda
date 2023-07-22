@@ -18,4 +18,4 @@ record Algebra (C : PreCategory ℓObj ℓMor) (F : EndoFunctor C) : Type (ℓ-m
   module F = Functor F
   field
     carrier : C.Obj
-    value : C [ F.F-obj carrier , carrier ]
+    value : C [ F.obj carrier , carrier ]

@@ -30,17 +30,17 @@ module _ {ℓ : Level} (Q : Quiver ℓ) where
   private
     module Q = Functor Q
     V' : hSet ℓ
-    V' = Q.F-obj wq-vertices
+    V' = Q.obj wq-vertices
     V : Type ℓ
     V = ⟨ V' ⟩
     E' : hSet ℓ
-    E' = Q.F-obj wq-edges
+    E' = Q.obj wq-edges
     E : Type ℓ
     E = ⟨ E' ⟩
     source : E -> V
-    source = SetFunction.f (Q.F-mor wq-source)
+    source = SetFunction.f (Q.mor wq-source)
     target : E -> V
-    target = SetFunction.f (Q.F-mor wq-source)
+    target = SetFunction.f (Q.mor wq-source)
 
   data Edge : V -> V -> Type ℓ where
     edge : (e : E) -> Edge (source e) (target e)

@@ -23,10 +23,10 @@ module _ {ℓ : Level} (C : PreCategory ℓ ℓ) {{isCat-C : isCategory C}} wher
 
   hom-functor : Functor C2 (SetC ℓ)
   hom-functor = record
-    { F-obj = homObj
-    ; F-mor = homMor
-    ; F-id = homId
-    ; F-⋆ = hom⋆
+    { obj = homObj
+    ; mor = homMor
+    ; id = homId
+    ; ⋆ = hom⋆
     }
     where
     homObj : Obj C2 -> Obj (SetC ℓ)
@@ -55,11 +55,11 @@ module _ {ℓ : Level} (C : PreCategory ℓ ℓ) {{isCat-C : isCategory C}} wher
   hom-functor-source o = functor-compose raise hom-functor
     where
     raise : Functor C C2
-    raise = record 
-      { F-obj = \x -> o , x
-      ; F-mor = \m -> id C , m
-      ; F-id = \x -> refl
-      ; F-⋆ = \f g -> cong2 _,_ (sym (C.⋆-left-id _)) refl
+    raise = record
+      { obj = \x -> o , x
+      ; mor = \m -> id C , m
+      ; id = \x -> refl
+      ; ⋆ = \f g -> cong2 _,_ (sym (C.⋆-left-id _)) refl
       }
 
 
@@ -68,10 +68,10 @@ module _ {ℓ : Level} (C : PreCategory ℓ ℓ) {{isCat-C : isCategory C}} wher
     where
     raise : Functor (OpCat C) C2
     raise = record 
-      { F-obj = \x -> x , o
-      ; F-mor = \m -> m , id C
-      ; F-id = \x -> refl
-      ; F-⋆ = \f g -> cong2 _,_ refl (sym (C.⋆-left-id _))
+      { obj = \x -> x , o
+      ; mor = \m -> m , id C
+      ; id = \x -> refl
+      ; ⋆ = \f g -> cong2 _,_ refl (sym (C.⋆-left-id _))
       }
 
 

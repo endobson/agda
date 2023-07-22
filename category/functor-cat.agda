@@ -11,10 +11,10 @@ open import hlevel
 
 private
   idF : {ℓObjC ℓMorC : Level} (C : PreCategory ℓObjC ℓMorC) -> Functor C C
-  idF _ .Functor.F-obj x = x
-  idF _ .Functor.F-mor f = f
-  idF _ .Functor.F-id _ = refl
-  idF _ .Functor.F-⋆ f g = refl
+  idF _ .F-obj x = x
+  idF _ .F-mor f = f
+  idF _ .F-id _ = refl
+  idF _ .F-⋆ f g = refl
 
 module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
          (C : PreCategory ℓObjC ℓMorC) (D : PreCategory ℓObjD ℓMorD)

@@ -30,10 +30,10 @@ module _ {ℓCo ℓCm ℓDo ℓDm : Level} {C : PreCategory ℓCo ℓCm} {D : Pr
     module F = Functor F
 
   op-functor : Functor (OpCat C) (OpCat D)
-  op-functor .F-obj o = F.F-obj o
-  op-functor .F-mor f = F.F-mor f
-  op-functor .F-id o = F.F-id o
-  op-functor .F-⋆ f g = F.F-⋆ g f
+  op-functor .F-obj o = F.obj o
+  op-functor .F-mor f = F.mor f
+  op-functor .F-id o = F.id o
+  op-functor .F-⋆ f g = F.⋆ g f
 
 
 private
