@@ -1,13 +1,15 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module category.order where
+module category.instances.order where
 
 open import base
 open import category.base
 open import equality-path
 open import hlevel
 open import isomorphism
+open import nat
 open import order
+open import order.instances.nat
 
 private
   variable
@@ -57,3 +59,15 @@ module _ (D : Type ℓObj) {{PO : PartialOrderStr D ℓMor}} where
       antisym-≤ (CatIso.mor c) (CatIso.inv c)
     Iso-pathToCatIso .Iso.leftInv _ = isSet-D _ _ _ _
     Iso-pathToCatIso .Iso.rightInv _ = isProp-CatIso _ _
+
+-- Particular examples
+
+ℕ≤C : PreCategory ℓ-zero ℓ-zero
+ℕ≤C = PartialOrderC ℕ
+
+instance
+  isThin-ℕ≤C : isThin ℕ≤C
+  isThin-ℕ≤C = isThin-PartialOrderC ℕ
+
+  isUnivalent-ℕ≤C : isUnivalent ℕ≤C
+  isUnivalent-ℕ≤C = isUnivalent-PartialOrderC ℕ isSetNat

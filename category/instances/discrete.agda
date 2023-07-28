@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module category.discrete where
+module category.instances.discrete where
 
 open import base
 open import category.base

@@ -8,7 +8,7 @@ open import hlevel
 open import category.base
 open import category.instances.quiver
 open import category.instances.free
-open import category.set
+open import category.instances.set
 open import truncation
 open import relation
 

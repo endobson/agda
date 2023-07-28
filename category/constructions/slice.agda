@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module category.slice where
+module category.constructions.slice where
 
 open import base
 open import category.base

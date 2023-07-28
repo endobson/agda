@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module category.functor-cat where
+module category.constructions.functor-cat where
 
 open import base
 open import category.base

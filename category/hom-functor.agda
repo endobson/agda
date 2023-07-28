@@ -3,10 +3,10 @@
 open import base
 open import equality-path
 open import category.base
-open import category.instances.product
-open import category.instances.opposite
+open import category.constructions.product
+open import category.constructions.opposite
 open import category.instances.small
-open import category.set
+open import category.instances.set
 open import hlevel
 open import funext
 
@@ -42,13 +42,13 @@ module _ {ℓ : Level} (C : PreCategory ℓ ℓ) where
            homMor (f ⋆⟨ C2 ⟩ g) == (homMor f ⋆⟨ SetC ℓ ⟩ homMor g)
     hom⋆ (f1 , f2) (g1 , g2) = cong set-function (funExt ans)
       where
-      ans : ∀ h -> ((g1 ⋆⟨ C ⟩ f1) ⋆⟨ C ⟩ h ⋆⟨ C ⟩ (f2 ⋆⟨ C ⟩ g2)) == 
+      ans : ∀ h -> ((g1 ⋆⟨ C ⟩ f1) ⋆⟨ C ⟩ h ⋆⟨ C ⟩ (f2 ⋆⟨ C ⟩ g2)) ==
                    (g1 ⋆⟨ C ⟩ (f1 ⋆⟨ C ⟩ h ⋆⟨ C ⟩ f2) ⋆⟨ C ⟩ g2)
-      ans h = sym (C.⋆-assoc _ _ _) >=> 
-              cong (\f -> f ⋆⟨ C ⟩ g2) 
-                   (C.⋆-assoc _ _ _ >=> 
-                    C.⋆-assoc _ _ _ >=> 
-                    cong (\f -> g1 ⋆⟨ C ⟩ f) 
+      ans h = sym (C.⋆-assoc _ _ _) >=>
+              cong (\f -> f ⋆⟨ C ⟩ g2)
+                   (C.⋆-assoc _ _ _ >=>
+                    C.⋆-assoc _ _ _ >=>
+                    cong (\f -> g1 ⋆⟨ C ⟩ f)
                          (sym (C.⋆-assoc _ _ _)))
 
   hom-functor-source : Obj C -> Functor C (SetC ℓ)
@@ -67,7 +67,7 @@ module _ {ℓ : Level} (C : PreCategory ℓ ℓ) where
   hom-functor-target o = functor-compose raise hom-functor
     where
     raise : Functor (OpCat C) C2
-    raise = record 
+    raise = record
       { obj = \x -> x , o
       ; mor = \m -> m , id C
       ; id = \x -> refl

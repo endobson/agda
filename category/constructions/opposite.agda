@@ -4,7 +4,7 @@ open import base
 open import category.base
 open import equality-path
 
-module category.instances.opposite where
+module category.constructions.opposite where
 
 module _ {ℓo ℓm : Level} (C : PreCategory ℓo ℓm) where
   private

@@ -5,7 +5,7 @@ open import additive-group.instances.nat
 open import base
 open import category.base
 open import category.instances.quiver
-open import category.set
+open import category.instances.set
 open import cubical
 open import equality-path
 open import equivalence

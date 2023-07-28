@@ -4,7 +4,7 @@ open import base
 open import category.base
 open import hlevel
 
-module category.instances.product where
+module category.constructions.product where
 
 module _ {ℓCo ℓCm ℓDo ℓDm : Level} (C : PreCategory ℓCo ℓCm) (D : PreCategory ℓDo ℓDm) where
   private

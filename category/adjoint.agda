@@ -2,10 +2,10 @@
 
 open import base
 open import category.base
-open import category.instances.product
-open import category.instances.opposite
+open import category.constructions.product
+open import category.constructions.opposite
+open import category.instances.set
 open import category.instances.small
-open import category.set
 open import category.hom-functor
 
 module category.adjoint where
