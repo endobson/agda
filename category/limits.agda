@@ -40,10 +40,10 @@ ConeFactorsThrough {C = C} c1 c2 f = ∀ j -> c1.component j == f ⋆⟨ C ⟩ c
 
 isProp-ConeFactorsThrough :
   {ℓOJ ℓMJ ℓOC ℓMC : Level} {J : PreCategory ℓOJ ℓMJ} {C : PreCategory ℓOC ℓMC}
-  {{_ : isCategory C}} {D : Diagram J C} {v1 v2 : Obj C}
+  {D : Diagram J C} {v1 v2 : Obj C}
   (cone1 : Cone D v1) (cone2 : Cone D v2) {f : C [ v1 , v2 ]} ->
   isProp (ConeFactorsThrough cone1 cone2 f)
-isProp-ConeFactorsThrough _ _ = isPropΠ (\_ -> isSet-Mor _ _)
+isProp-ConeFactorsThrough {C = C} _ _ = isPropΠ (\_ -> isSet-Mor C _ _)
 
 
 isLimitCone : {ℓOJ ℓMJ ℓOC ℓMC : Level} {J : PreCategory ℓOJ ℓMJ} {C : PreCategory ℓOC ℓMC}

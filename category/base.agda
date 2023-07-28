@@ -22,6 +22,7 @@ record PreCategory (ℓObj ℓMor : Level) : Type (ℓ-suc (ℓ-max ℓObj ℓMo
     ⋆-right-id : {s t : Obj} -> (f : Mor s t) -> f ⋆ id == f
     ⋆-assoc : {s t u v : Obj} -> (f : Mor s t) -> (g : Mor t u) -> (h : Mor u v) ->
               (f ⋆ g) ⋆ h == f ⋆ (g ⋆ h)
+    isSet-Mor : {s t : Obj} -> isSet (Mor s t)
 
   _∘_ : {s t u : Obj} -> Mor t u -> Mor s t -> Mor s u
   f ∘ g = g ⋆ f
@@ -38,7 +39,7 @@ record PreCategory (ℓObj ℓMor : Level) : Type (ℓ-suc (ℓ-max ℓObj ℓMo
            m1 == m2 -> m3 == m4 -> m1 ⋆ m3 == m2 ⋆ m4
   ⋆-cong p12 p34 i = p12 i ⋆ p34 i
 
-open PreCategory public using (Obj ; id)
+open PreCategory public using (Obj ; id ; isSet-Mor)
 
 _[_,_] : (C : PreCategory ℓObj ℓMor) -> (x y : C .Obj) -> Type ℓMor
 _[_,_] = PreCategory.Mor
@@ -57,14 +58,6 @@ syntax comp' C g f = g ∘⟨ C ⟩ f
 
 idᵉ : (C : PreCategory ℓObj ℓMor) -> (x : Obj C) -> C [ x , x ]
 idᵉ C _ = id C
-
-record isCategory (C : PreCategory ℓObj ℓMor) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
-  field
-    isSet-Mor : {x y : C .Obj} -> isSet (C [ x , y ])
-
-isSet-Mor : {C : PreCategory ℓObj ℓMor} {{isCat : isCategory C}} ->
-            {x y : C .Obj} -> isSet (C [ x , y ])
-isSet-Mor {{isCat}} = isCategory.isSet-Mor isCat
 
 record CatIso (C : PreCategory ℓObj ℓMor) (x y : C .Obj) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
   field
@@ -104,6 +97,7 @@ module _ (C : PreCategory ℓObj ℓMor) where
   _^op .PreCategory.⋆-left-id = C.∘-left-id
   _^op .PreCategory.⋆-right-id = C.∘-right-id
   _^op .PreCategory.⋆-assoc = C.∘-assoc
+  _^op .PreCategory.isSet-Mor = C.isSet-Mor
 
 
 record isIso (C : PreCategory ℓObj ℓMor) {x y : C .Obj} (mor : C [ x , y ]) : Type ℓMor where
@@ -113,7 +107,7 @@ record isIso (C : PreCategory ℓObj ℓMor) {x y : C .Obj} (mor : C [ x , y ]) 
     sec : inv ⋆⟨ C ⟩ mor == C .id
     ret : mor ⋆⟨ C ⟩ inv == C .id
 
-isProp-isIso : {C : PreCategory ℓObj ℓMor} -> {{isCategory C}} -> {x y : C .Obj} {mor : C [ x , y ]} ->
+isProp-isIso : {C : PreCategory ℓObj ℓMor} -> {x y : C .Obj} {mor : C [ x , y ]} ->
                isProp (isIso C mor)
 isProp-isIso {C = C} {x} {y} {mor} i1 i2 = (\i -> record
     { inv = ip i
@@ -135,12 +129,12 @@ isProp-isIso {C = C} {x} {y} {mor} i1 i2 = (\i -> record
   ret-line : I -> Type _
   ret-line i = mor ⋆⟨ C ⟩ ip i == C.id
   ans-ret : PathP ret-line i1.ret i2.ret
-  ans-ret = isProp->PathP (\i -> (isSet-Mor _ _))
+  ans-ret = isProp->PathP (\i -> (C.isSet-Mor _ _))
 
   sec-line : I -> Type _
   sec-line i = ip i ⋆⟨ C ⟩ mor == C.id
   ans-sec : PathP sec-line i1.sec i2.sec
-  ans-sec = isProp->PathP (\i -> (isSet-Mor _ _))
+  ans-sec = isProp->PathP (\i -> (C.isSet-Mor _ _))
 
 record isThin (C : PreCategory ℓObj ℓMor) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
   field
@@ -165,6 +159,7 @@ open Functor public renaming
   ; id to F-id
   ; ⋆ to F-⋆
   )
+
 
 -- Natural Transformations
 
@@ -196,6 +191,5 @@ module _
   isNaturalIso : NaturalTransformation F G -> Type _
   isNaturalIso nt = ∀ c -> isIso D (NT-obj nt c)
 
-  module _ {{isCat-D : isCategory D}} where
-    isProp-isNaturalIso : {nt : NaturalTransformation F G} -> isProp (isNaturalIso nt)
-    isProp-isNaturalIso = isPropΠ (\_ -> isProp-isIso)
+  isProp-isNaturalIso : {nt : NaturalTransformation F G} -> isProp (isNaturalIso nt)
+  isProp-isNaturalIso = isPropΠ (\_ -> isProp-isIso)

@@ -15,7 +15,7 @@ import functions
 module category.hom-functor where
 
 
-module _ {ℓ : Level} (C : PreCategory ℓ ℓ) {{isCat-C : isCategory C}} where
+module _ {ℓ : Level} (C : PreCategory ℓ ℓ) where
   private
     C2 : PreCategory ℓ ℓ
     C2 = (ProductCat (OpCat C) C)
@@ -30,7 +30,7 @@ module _ {ℓ : Level} (C : PreCategory ℓ ℓ) {{isCat-C : isCategory C}} wher
     }
     where
     homObj : Obj C2 -> Obj (SetC ℓ)
-    homObj (a , b) = C [ a , b ] , isSet-Mor
+    homObj (a , b) = C [ a , b ] , isSet-Mor C
 
     homMor : {a b : Obj C2} -> C2 [ a , b ] -> (SetC ℓ) [ homObj a , homObj b ]
     homMor (f , g) = set-function (\h -> (f ⋆⟨ C ⟩ h ⋆⟨ C ⟩ g))

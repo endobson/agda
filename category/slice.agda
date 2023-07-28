@@ -13,7 +13,7 @@ private
   variable
     ℓObj ℓMor : Level
 
-module _ (C : PreCategory ℓObj ℓMor) {{isCat : isCategory C}} (c : C .Obj) where
+module _ (C : PreCategory ℓObj ℓMor) (c : C .Obj) where
   private
     module C = PreCategory C
 
@@ -31,12 +31,9 @@ module _ (C : PreCategory ℓObj ℓMor) {{isCat : isCategory C}} (c : C .Obj) w
   SliceC .PreCategory._⋆_ (f , p) (g , q) =
     (f ⋆⟨ C ⟩ g , C.⋆-assoc _ _ _ >=> cong (f C.⋆_) q >=> p)
   SliceC .PreCategory.⋆-left-id (f , _) =
-    ΣProp-path (isSet-Mor _ _) (C.⋆-left-id f)
+    ΣProp-path (isSet-Mor C _ _) (C.⋆-left-id f)
   SliceC .PreCategory.⋆-right-id (f , _) =
-    ΣProp-path (isSet-Mor _ _) (C.⋆-right-id f)
+    ΣProp-path (isSet-Mor C _ _) (C.⋆-right-id f)
   SliceC .PreCategory.⋆-assoc (f , _) (g , _) (h , _) =
-    ΣProp-path (isSet-Mor _ _) (C.⋆-assoc f g h)
-
-  abstract
-    isCategory-SliceC : isCategory SliceC
-    isCategory-SliceC .isCategory.isSet-Mor = isSetΣ isSet-Mor (\h -> isProp->isSet (isSet-Mor _ _))
+    ΣProp-path (isSet-Mor C _ _) (C.⋆-assoc f g h)
+  SliceC .PreCategory.isSet-Mor = isSetΣ (isSet-Mor C) (\h -> isProp->isSet (isSet-Mor C _ _))

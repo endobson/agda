@@ -2,6 +2,7 @@
 
 open import base
 open import category.base
+open import hlevel
 
 module category.instances.product where
 
@@ -21,6 +22,7 @@ module _ {ℓCo ℓCm ℓDo ℓDm : Level} (C : PreCategory ℓCo ℓCm) (D : Pr
     ; ⋆-left-id = \ (f , g) i -> C.⋆-left-id f i , D.⋆-left-id g i
     ; ⋆-right-id = \ (f , g) i -> C.⋆-right-id f i , D.⋆-right-id g i
     ; ⋆-assoc = \ (cf , df) (cg , dg) (ch , dh) i -> C.⋆-assoc cf cg ch i , D.⋆-assoc df dg dh i
+    ; isSet-Mor = isSet× (isSet-Mor C) (isSet-Mor D)
     }
     where
     ProductObj : Type ℓo

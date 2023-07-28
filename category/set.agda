@@ -26,7 +26,6 @@ isSet-SetFunction {y = y} =
   isSet-Retract SetFunction.f set-function (\_ -> refl) (isSetΠ (\_ -> snd y))
 
 
-
 SetC : (ℓ : Level) -> PreCategory (ℓ-suc ℓ) ℓ
 SetC ℓ .PreCategory.Obj = hSet ℓ
 SetC ℓ .PreCategory.Mor x y = SetFunction x y
@@ -35,12 +34,7 @@ SetC ℓ .PreCategory._⋆_ (set-function f) (set-function g) = (set-function (\
 SetC ℓ .PreCategory.⋆-left-id f = refl
 SetC ℓ .PreCategory.⋆-right-id f = refl
 SetC ℓ .PreCategory.⋆-assoc f g h = refl
-
-abstract
-  instance
-    isCategory-SetC : isCategory (SetC ℓ)
-    isCategory-SetC .isCategory.isSet-Mor = isSet-SetFunction
-
+SetC ℓ .PreCategory.isSet-Mor = isSet-SetFunction
 
 private
   CatIso->Iso : {x y : hSet ℓ} -> CatIso (SetC ℓ) x y -> Iso ⟨ x ⟩ ⟨ y ⟩
@@ -56,7 +50,7 @@ private
   CatIso->Iso-path : (x : hSet ℓ) -> isoToPath (CatIso->Iso (idCatIso (SetC ℓ) x)) == refl
   CatIso->Iso-path x = cong isoToPath (CatIso->Iso-id x) >=> isoToPath-id-iso
 
-  CatIso-mor-path : {ℓObj ℓMor : Level} (C : PreCategory ℓObj ℓMor) -> {{isCategory C}} ->
+  CatIso-mor-path : {ℓObj ℓMor : Level} (C : PreCategory ℓObj ℓMor) ->
                     (x y : C .Obj) -> (c1 c2 : CatIso C x y) ->
                     CatIso.mor c1 == CatIso.mor c2 -> c1 == c2
   CatIso-mor-path {ℓMor = ℓ} C x y c1 c2 mp = (\i -> record
@@ -80,12 +74,12 @@ private
     ret-line : I -> Type ℓ
     ret-line i = mp i ⋆⟨ C ⟩ ip i == C.id
     ans-ret : PathP ret-line c1.ret c2.ret
-    ans-ret = isProp->PathP (\i -> (isSet-Mor _ _))
+    ans-ret = isProp->PathP (\i -> (C.isSet-Mor _ _))
 
     sec-line : I -> Type ℓ
     sec-line i = ip i ⋆⟨ C ⟩ mp i == C.id
     ans-sec : PathP sec-line c1.sec c2.sec
-    ans-sec = isProp->PathP (\i -> (isSet-Mor _ _))
+    ans-sec = isProp->PathP (\i -> (C.isSet-Mor _ _))
 
 
 

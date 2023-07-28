@@ -19,6 +19,7 @@ module _ {ℓo ℓm : Level} (C : PreCategory ℓo ℓm) where
     ; ⋆-left-id = \f -> C.⋆-right-id f
     ; ⋆-right-id = \f -> C.⋆-left-id f
     ; ⋆-assoc = \ f g h -> sym (C.⋆-assoc h g f)
+    ; isSet-Mor = C.isSet-Mor
     }
     where
     OpMor : (s t : C.Obj) -> Type ℓm

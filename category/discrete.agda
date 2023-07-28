@@ -21,12 +21,11 @@ module _ {D : Type ℓObj} (isSet-D : isSet D) where
   DiscreteC .PreCategory.⋆-left-id f = isSet-D _ _ _ _
   DiscreteC .PreCategory.⋆-right-id f = isSet-D _ _ _ _
   DiscreteC .PreCategory.⋆-assoc f g h = isSet-D _ _ _ _
+  DiscreteC .PreCategory.isSet-Mor = isProp->isSet (isSet-D _ _)
 
   isThin-DiscreteC : isThin DiscreteC
   isThin-DiscreteC .isThin.isProp-Mor = isSet-D _ _
 
-  isCategory-DiscreteC : isCategory DiscreteC
-  isCategory-DiscreteC .isCategory.isSet-Mor = isProp->isSet (isSet-D _ _)
 
   isUnivalent-DiscreteC : isUnivalent DiscreteC
   isUnivalent-DiscreteC .isUnivalent.isEquiv-pathToCatIso x y =

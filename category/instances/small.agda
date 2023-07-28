@@ -83,13 +83,14 @@ module _ (ℓo ℓm : Level) where
         ans = (cong (_>=> H.⋆ _ _) (sym (cong-trans H.mor _ _))) >=>
               (compPath-assoc _ _ _)
 
-  CatC : PreCategory (ℓ-suc ℓ) ℓ
-  CatC = record
-    { Obj = CatObj
-    ; Mor = CatMor
-    ; id = Cat-id _
-    ; _⋆_ = Cat-⋆
-    ; ⋆-left-id = Cat-⋆-left-id
-    ; ⋆-right-id = Cat-⋆-right-id
-    ; ⋆-assoc = Cat-⋆-assoc
-    }
+  -- CatC : PreCategory (ℓ-suc ℓ) ℓ
+  -- CatC = record
+  --   { Obj = CatObj
+  --   ; Mor = CatMor
+  --   ; id = Cat-id _
+  --   ; _⋆_ = Cat-⋆
+  --   ; ⋆-left-id = Cat-⋆-left-id
+  --   ; ⋆-right-id = Cat-⋆-right-id
+  --   ; ⋆-assoc = Cat-⋆-assoc
+  --   ; isSet-Mor = isSet-Functor
+  --   }

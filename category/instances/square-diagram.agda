@@ -88,6 +88,7 @@ SquareDiagramCat = record
   ; ⋆-left-id = sq-left-id
   ; ⋆-right-id = sq-right-id
   ; ⋆-assoc = sq-assoc
+  ; isSet-Mor = isSet-SquareDiagramMor
   }
   where
 
@@ -126,8 +127,3 @@ SquareDiagramCat = record
   sq-assoc sq-diagonal (sq-id _) _ = refl
   sq-assoc sq-left sq-bottom (sq-id _) = refl
   sq-assoc sq-top sq-right (sq-id _) = refl
-
-instance
-  isCategory-SquareDiagramCat : isCategory SquareDiagramCat
-  isCategory-SquareDiagramCat = record { isSet-Mor = isSet-SquareDiagramMor }
-

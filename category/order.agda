@@ -22,12 +22,10 @@ module _ (D : Type ℓObj) {{PO : PartialOrderStr D ℓMor}} where
   PartialOrderC .PreCategory.⋆-left-id f = isProp-≤ _ _
   PartialOrderC .PreCategory.⋆-right-id f = isProp-≤ _ _
   PartialOrderC .PreCategory.⋆-assoc f g h = isProp-≤ _ _
+  PartialOrderC .PreCategory.isSet-Mor = isProp->isSet isProp-≤
 
   isThin-PartialOrderC : isThin PartialOrderC
   isThin-PartialOrderC .isThin.isProp-Mor = isProp-≤
-
-  isCategory-PartialOrderC : isCategory PartialOrderC
-  isCategory-PartialOrderC .isCategory.isSet-Mor = isProp->isSet isProp-≤
 
   isUnivalent-PartialOrderC : isSet D -> isUnivalent PartialOrderC
   isUnivalent-PartialOrderC isSet-D .isUnivalent.isEquiv-pathToCatIso x y =

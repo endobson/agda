@@ -124,16 +124,6 @@ module _ {ℓ : Level} (Q : Quiver ℓ) where
     compose-EPath-assoc (edge-path e ep1) ep2 ep3 = 
       cong (edge-path e) (compose-EPath-assoc ep1 ep2 ep3)
 
-  FreeCat : PreCategory ℓ ℓ
-  FreeCat = record
-    { Obj = V
-    ; Mor = EPath
-    ; id = id-EPath
-    ; _⋆_ = compose-EPath
-    ; ⋆-left-id = compose-EPath-leftId
-    ; ⋆-right-id = compose-EPath-rightId
-    ; ⋆-assoc = compose-EPath-assoc
-    }
   private
     
   
@@ -227,7 +217,14 @@ module _ {ℓ : Level} (Q : Quiver ℓ) where
         (≃-isSet (equiv⁻¹ EPath'≃ΣEPath'N) 
           (isSetΣ isSetNat isSet-EPath'N))
     
-module _ {ℓ : Level} {Q : Quiver ℓ} where
-  instance
-    isCategory-FreeCat : isCategory (FreeCat Q)
-    isCategory-FreeCat .isCategory.isSet-Mor = isSet-EPath Q
+  FreeCat : PreCategory ℓ ℓ
+  FreeCat = record
+    { Obj = V
+    ; Mor = EPath
+    ; id = id-EPath
+    ; _⋆_ = compose-EPath
+    ; ⋆-left-id = compose-EPath-leftId
+    ; ⋆-right-id = compose-EPath-rightId
+    ; ⋆-assoc = compose-EPath-assoc
+    ; isSet-Mor = isSet-EPath
+    }

@@ -1,8 +1,12 @@
-{-# OPTIONS --cubical --safe --exact-split #-}
+{-# OPTIONS --cubical --safe --exact-split -W noUnsupportedIndexedMatch #-}
 
 open import base
+open import boolean
 open import category.base
 open import category.set
+open import equality
+open import hlevel
+open import relation
 
 module category.instances.quiver where
 
@@ -15,6 +19,25 @@ data WalkingQuiverMor : WalkingQuiverObj -> WalkingQuiverObj -> Type ℓ-zero wh
   wq-source : WalkingQuiverMor wq-edges wq-vertices
   wq-target : WalkingQuiverMor wq-edges wq-vertices
 
+private
+  WalkingQuiverMor->Bool : ∀ {s t} -> WalkingQuiverMor s t -> Boolean
+  WalkingQuiverMor->Bool (wq-id _) = true
+  WalkingQuiverMor->Bool wq-source = true
+  WalkingQuiverMor->Bool wq-target = false
+
+Discrete-WalkingQuiverMor : ∀ {s t} -> Discrete (WalkingQuiverMor s t)
+Discrete-WalkingQuiverMor {wq-vertices} {wq-vertices} (wq-id _) (wq-id _) = yes refl
+Discrete-WalkingQuiverMor {wq-edges} {wq-edges} (wq-id _) (wq-id _) = (yes refl)
+Discrete-WalkingQuiverMor wq-source wq-target =
+  no (\st -> true!=false (cong WalkingQuiverMor->Bool st))
+Discrete-WalkingQuiverMor wq-source wq-source = yes refl
+Discrete-WalkingQuiverMor wq-target wq-source =
+  no (\ts -> true!=false (cong WalkingQuiverMor->Bool (sym ts)))
+Discrete-WalkingQuiverMor wq-target wq-target = yes refl
+
+isSet-WalkingQuiverMor : ∀ {s t} -> isSet (WalkingQuiverMor s t)
+isSet-WalkingQuiverMor = Discrete->isSet Discrete-WalkingQuiverMor
+
 WalkingQuiverCat : PreCategory ℓ-zero ℓ-zero
 WalkingQuiverCat = record
   { Obj = WalkingQuiverObj
@@ -24,6 +47,7 @@ WalkingQuiverCat = record
   ; ⋆-left-id = wq-left-id
   ; ⋆-right-id = wq-right-id
   ; ⋆-assoc = wq-assoc
+  ; isSet-Mor = isSet-WalkingQuiverMor
   }
   where
 

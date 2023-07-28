@@ -15,8 +15,5 @@ instance
   isThin-ℕ≤C : isThin ℕ≤C
   isThin-ℕ≤C = isThin-PartialOrderC ℕ
 
-  isCategory-ℕ≤C : isCategory ℕ≤C
-  isCategory-ℕ≤C = isCategory-PartialOrderC ℕ
-
   isUnivalent-ℕ≤C : isUnivalent ℕ≤C
   isUnivalent-ℕ≤C = isUnivalent-PartialOrderC ℕ isSetNat
