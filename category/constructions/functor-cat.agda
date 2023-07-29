@@ -121,3 +121,20 @@ module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
   FunctorC .PreCategory.⋆-right-id = compose-NT-right-id
   FunctorC .PreCategory.⋆-assoc = compose-NT-assoc
   FunctorC .PreCategory.isSet-Mor = isSet-NaturalTransformation
+
+  constantF : (x : Obj D) -> Functor C D
+  constantF x .Functor.obj = \_ -> x
+  constantF x .Functor.mor = \_ -> id D
+  constantF x .Functor.id  = \_ -> refl
+  constantF x .Functor.⋆  = \_ _ -> sym (D.⋆-left-id _)
+
+  diagonal-functor : Functor D FunctorC
+  diagonal-functor = record
+    { obj = constantF
+    ; mor = \f -> record
+      { NT-obj = \_ -> f
+      ; NT-mor = \_ -> D.⋆-right-id _ >=> sym (D.⋆-left-id _)
+      }
+    ; id = \_ -> natural-transformation-path _ _ refl
+    ; ⋆ = \_ _ -> natural-transformation-path _ _ refl
+    }

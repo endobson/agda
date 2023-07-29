@@ -12,9 +12,6 @@ open import category.instances.set
 open import truncation
 open import relation
 
-private
-  Diagram = Functor
-
 record Cone {ℓOJ ℓMJ ℓOC ℓMC : Level} {J : PreCategory ℓOJ ℓMJ} {C : PreCategory ℓOC ℓMC}
             (D : Diagram J C) (v : Obj C) :
             Type (ℓ-max* 4 ℓOJ ℓMJ ℓOC ℓMC) where

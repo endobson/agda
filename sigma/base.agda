@@ -49,6 +49,10 @@ module _ where
         ((a : A) -> B a -> C a) -> Σ A B -> Σ A C
 Σ-map f (a , b) = (a , f a b)
 
+Σ-path : {ℓA ℓB : Level} {A : Type ℓA} {B : A -> Type ℓB} {s1 s2 : Σ A B} ->
+         (p : fst s1 == fst s2) -> (PathP (\i -> B (p i)) (snd s1) (snd s2)) ->
+         s1 == s2
+Σ-path p q i = p i , q i
 
 ¬exists->forall : ¬ (Σ[ a ∈ A ] (B a)) -> (a : A) -> ¬ (B a)
 ¬exists->forall ne a b = ne (a , b)

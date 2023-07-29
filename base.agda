@@ -134,3 +134,9 @@ useⁱ {{a = a}} = a
 
 getⁱ : {ℓ : Level} -> (A : Type ℓ) -> {{a : A}} -> A
 getⁱ _ = useⁱ
+
+
+-- Magic Type
+-- This is useful to get things to typecheck but not show up as a goal yet
+Magic : Level.Setω
+Magic = {ℓ : Level} {A : Type ℓ} -> A

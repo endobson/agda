@@ -64,6 +64,14 @@ module _ {f g : {a : A} -> B a} where
 funExt2 : {f g : (a : A) -> (b : B a) -> C a b} -> ((a : A) -> (b : B a) -> f a b == g a b) -> f == g
 funExt2 p i a b = p a b i
 
+module _ {ℓa ℓb : Level} {A : Type ℓa} {B : I -> A -> Type ℓb}
+         {f1 : ∀ a -> (B i0 a)}
+         {f2 : ∀ a -> (B i1 a)} where
+  funExtP : (p : ∀ a -> PathP (\i -> B i a) (f1 a) (f2 a)) ->
+            PathP (\i -> (a : A) -> B i a) f1 f2
+  funExtP p i a = p a i
+
+
 module _ {ℓa ℓb ℓc : Level} {A : Type ℓa} {B : A -> Type ℓb} {C : Type ℓc}
          (a1 a2 : A)
          {f1 : (B a1) -> C}

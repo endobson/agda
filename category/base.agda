@@ -1,6 +1,7 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
 open import base
+open import relation
 open import cubical using (I)
 open import equality-path
 open import equivalence.base using (isEquiv)
@@ -160,6 +161,9 @@ open Functor public renaming
   ; ⋆ to F-⋆
   )
 
+-- Add an alias for Diagrams.
+Diagram = Functor
+
 
 -- Natural Transformations
 
@@ -175,12 +179,30 @@ module _
                     obj x ⋆⟨ D ⟩ F-mor G f == F-mor F f ⋆⟨ D ⟩ obj y
 
   record NaturalTransformation : Type (ℓ-max* 4 ℓObjC ℓObjD ℓMorC ℓMorD) where
-    no-eta-equality
     field
       NT-obj : NT-obj-Type
       NT-mor : NT-mor-Type NT-obj
 
 open NaturalTransformation public
+
+module _
+  {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
+  {C : PreCategory ℓObjC ℓMorC} {D : PreCategory ℓObjD ℓMorD}
+  {F G : Functor C D}
+  (nt1 nt2 : NaturalTransformation F G) where
+
+  natural-transformation-path :
+    NaturalTransformation.NT-obj nt1 == NaturalTransformation.NT-obj nt2 ->
+    nt1 == nt2
+  natural-transformation-path op i = record
+    { NT-obj = op i
+    ; NT-mor = sq i
+    }
+    where
+    sq : PathP (\i -> NT-mor-Type F G (op i))
+               (NaturalTransformation.NT-mor nt1)
+               (NaturalTransformation.NT-mor nt2)
+    sq = isProp->PathP (\i -> isPropΠⁱ2 (\x y -> isPropΠ (\f -> isSet-Mor D _ _)))
 
 
 module _
@@ -193,3 +215,43 @@ module _
 
   isProp-isNaturalIso : {nt : NaturalTransformation F G} -> isProp (isNaturalIso nt)
   isProp-isNaturalIso = isPropΠ (\_ -> isProp-isIso)
+
+-- Helpers for defining new categorys
+
+record CategorySorts (ℓObj ℓMor : Level) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
+  field
+    Obj : Type ℓObj
+    Mor : Rel Obj ℓMor
+
+record CategoryOps {ℓObj ℓMor : Level} (S : CategorySorts ℓObj ℓMor) : Type (ℓ-max ℓObj ℓMor) where
+  private
+    module S = CategorySorts S
+
+  field
+    id : {s : S.Obj} -> S.Mor s s
+    _⋆_ : {s t u : S.Obj} -> S.Mor s t -> S.Mor t u -> S.Mor s u
+
+record CategoryLaws {ℓObj ℓMor : Level} {S : CategorySorts ℓObj ℓMor}
+                    (O : CategoryOps S) : Type (ℓ-max ℓObj ℓMor) where
+  private
+    module S = CategorySorts S
+    module O = CategoryOps O
+
+  field
+    ⋆-left-id : {s t : S.Obj} -> (f : S.Mor s t) -> O.id O.⋆ f == f
+    ⋆-right-id : {s t : S.Obj} -> (f : S.Mor s t) -> f O.⋆ O.id == f
+    ⋆-assoc : {s t u v : S.Obj} -> (f : S.Mor s t) -> (g : S.Mor t u) -> (h : S.Mor u v) ->
+              (f O.⋆ g) O.⋆ h == f O.⋆ (g O.⋆ h)
+    isSet-Mor : {s t : S.Obj} -> isSet (S.Mor s t)
+
+Laws->Category :
+  {ℓObj ℓMor : Level} {S : CategorySorts ℓObj ℓMor}
+  {O : CategoryOps S} -> (CategoryLaws O) -> PreCategory ℓObj ℓMor
+Laws->Category {S = S} {O = O} L .PreCategory.Obj = CategorySorts.Obj S
+Laws->Category {S = S} {O = O} L .PreCategory.Mor = CategorySorts.Mor S
+Laws->Category {S = S} {O = O} L .PreCategory.id = CategoryOps.id O
+Laws->Category {S = S} {O = O} L .PreCategory._⋆_ = CategoryOps._⋆_ O
+Laws->Category {S = S} {O = O} L .PreCategory.⋆-left-id = CategoryLaws.⋆-left-id L
+Laws->Category {S = S} {O = O} L .PreCategory.⋆-right-id = CategoryLaws.⋆-right-id L
+Laws->Category {S = S} {O = O} L .PreCategory.⋆-assoc = CategoryLaws.⋆-assoc L
+Laws->Category {S = S} {O = O} L .PreCategory.isSet-Mor = CategoryLaws.isSet-Mor L
