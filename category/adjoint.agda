@@ -10,7 +10,7 @@ open import category.hom-functor
 
 module category.adjoint where
 
-module _ {ℓ : Level} {C : PreCategory ℓ ℓ} {D : PreCategory ℓ ℓ} 
+module _ {ℓ : Level} {C : PreCategory ℓ ℓ} {D : PreCategory ℓ ℓ}
          (L : Functor C D) (R : Functor D C) where
   private
     H1 : Functor (ProductCat (OpCat C) D) (SetC ℓ)

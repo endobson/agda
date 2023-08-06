@@ -51,7 +51,7 @@ WalkingQuiverCat = record
   }
   where
 
-  wq-compose : {a b c : WalkingQuiverObj} -> 
+  wq-compose : {a b c : WalkingQuiverObj} ->
                WalkingQuiverMor a b -> WalkingQuiverMor b c -> WalkingQuiverMor a c
   wq-compose (wq-id _) f = f
   wq-compose wq-source (wq-id _) = wq-source
@@ -65,10 +65,10 @@ WalkingQuiverCat = record
   wq-right-id wq-source = refl
   wq-right-id wq-target = refl
 
-  wq-assoc : {s t u v : WalkingQuiverObj} -> 
-             (f : WalkingQuiverMor s t) -> 
-             (g : WalkingQuiverMor t u) -> 
-             (h : WalkingQuiverMor u v) -> 
+  wq-assoc : {s t u v : WalkingQuiverObj} ->
+             (f : WalkingQuiverMor s t) ->
+             (g : WalkingQuiverMor t u) ->
+             (h : WalkingQuiverMor u v) ->
              wq-compose (wq-compose f g) h == wq-compose f (wq-compose g h)
   wq-assoc (wq-id _) _         _ = refl
   wq-assoc wq-source (wq-id _) _ = refl

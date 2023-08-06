@@ -30,7 +30,7 @@ data SquareDiagramMor : SquareDiagramObj -> SquareDiagramObj -> Type ℓ-zero wh
 
 private
   Discrete-SquareDiagramObj : Discrete SquareDiagramObj
-  Discrete-SquareDiagramObj = 
+  Discrete-SquareDiagramObj =
     subst Discrete (sym (ua fin-eq >=> FinT=Fin 4)) discreteFin
     where
     fin-eq : SquareDiagramObj ≃ FinT 4
@@ -53,7 +53,7 @@ private
       fg (inj-r (inj-l tt))                 = refl
       fg (inj-r (inj-r (inj-l tt)))         = refl
       fg (inj-r (inj-r (inj-r (inj-l tt)))) = refl
-      
+
       gf : ∀ x -> g (f x) == x
       gf sq-upper-left  = refl
       gf sq-upper-right = refl
@@ -92,7 +92,7 @@ SquareDiagramCat = record
   }
   where
 
-  sq-compose : {a b c : SquareDiagramObj} -> 
+  sq-compose : {a b c : SquareDiagramObj} ->
                SquareDiagramMor a b -> SquareDiagramMor b c -> SquareDiagramMor a c
   sq-compose (sq-id p)   g         = g
   sq-compose sq-left     (sq-id _) = sq-left
@@ -114,10 +114,10 @@ SquareDiagramCat = record
   sq-right-id sq-bottom   = refl
   sq-right-id sq-diagonal = refl
 
-  sq-assoc : {s t u v : SquareDiagramObj} -> 
-             (f : SquareDiagramMor s t) -> 
-             (g : SquareDiagramMor t u) -> 
-             (h : SquareDiagramMor u v) -> 
+  sq-assoc : {s t u v : SquareDiagramObj} ->
+             (f : SquareDiagramMor s t) ->
+             (g : SquareDiagramMor t u) ->
+             (h : SquareDiagramMor u v) ->
              sq-compose (sq-compose f g) h == sq-compose f (sq-compose g h)
   sq-assoc (sq-id _) _ _ = refl
   sq-assoc sq-left (sq-id _) _ = refl
