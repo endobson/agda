@@ -2,10 +2,12 @@
 
 open import base
 open import relation
+open import sigma.base
 open import cubical using (I)
 open import equality-path
-open import equivalence.base using (isEquiv)
+open import equivalence
 open import hlevel
+open import isomorphism
 
 module category.base where
 
@@ -61,6 +63,7 @@ idᵉ : (C : PreCategory ℓObj ℓMor) -> (x : Obj C) -> C [ x , x ]
 idᵉ C _ = id C
 
 record CatIso (C : PreCategory ℓObj ℓMor) (x y : C .Obj) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
+  constructor cat-iso
   field
     mor : C [ x , y ]
     inv : C [ y , x ]
@@ -136,6 +139,27 @@ isProp-isIso {C = C} {x} {y} {mor} i1 i2 = (\i -> record
   sec-line i = ip i ⋆⟨ C ⟩ mor == C.id
   ans-sec : PathP sec-line i1.sec i2.sec
   ans-sec = isProp->PathP (\i -> (C.isSet-Mor _ _))
+
+module _ {C : PreCategory ℓObj ℓMor} {x y : C .Obj} where
+  ΣIso≃CatIso : Σ (C [ x , y ]) (isIso C) ≃ CatIso C x y
+  ΣIso≃CatIso = isoToEquiv i
+    where
+    i : Iso (Σ (C [ x , y ]) (isIso C)) (CatIso C x y)
+    i .Iso.fun (mor , (is-iso inv sec ret)) = (cat-iso mor inv sec ret)
+    i .Iso.inv (cat-iso mor inv sec ret) = (mor , (is-iso inv sec ret))
+    i .Iso.leftInv _ = refl
+    i .Iso.rightInv _ = refl
+
+  cat-iso-path : {i1 i2 : CatIso C x y} ->
+    CatIso.mor i1 == CatIso.mor i2 -> i1 == i2
+  cat-iso-path {i1} {i2} mor-path =
+    sym (eqSec ΣIso≃CatIso i1) >=> cong (eqFun ΣIso≃CatIso) p1 >=> (eqSec ΣIso≃CatIso i2)
+    where
+    Σi1 = eqInv ΣIso≃CatIso i1
+    Σi2 = eqInv ΣIso≃CatIso i2
+    p1 : Σi1 == Σi2
+    p1 = ΣProp-path (isProp-isIso) mor-path
+
 
 record isThin (C : PreCategory ℓObj ℓMor) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
   field
