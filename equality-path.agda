@@ -246,12 +246,12 @@ id->path refl-=== = refl
 
 -- Squares
 
-SquareP : {ℓ : Level} {A : I -> I -> Type ℓ}
+SquareP : {ℓ : Level} (A : I -> I -> Type ℓ)
           {a₀₀ : A i0 i0} {a₀₁ : A i0 i1} (a₀₋ : PathP (\i -> A i0 i) a₀₀ a₀₁)
           {a₁₀ : A i1 i0} {a₁₁ : A i1 i1} (a₁₋ : PathP (\i -> A i1 i) a₁₀ a₁₁)
           (a₋₀ : PathP (\i -> A i i0) a₀₀ a₁₀)
           (a₋₁ : PathP (\i -> A i i1) a₀₁ a₁₁) -> Type ℓ
-SquareP {A = A} a₀₋ a₁₋ a₋₀ a₋₁ = PathP (\i -> PathP (\j -> A i j) (a₋₀ i) (a₋₁ i)) a₀₋ a₁₋
+SquareP A a₀₋ a₁₋ a₋₀ a₋₁ = PathP (\i -> PathP (\j -> A i j) (a₋₀ i) (a₋₁ i)) a₀₋ a₁₋
 
 -- Square l r b t : i j -> A
 -- Organized like cartesian plane
@@ -263,11 +263,11 @@ SquareP {A = A} a₀₋ a₁₋ a₋₀ a₋₁ = PathP (\i -> PathP (\j -> A i 
 --         b
 
 Square : {ℓ : Level} {A : Type ℓ}
-          {a₀₀ : A} {a₀₁ : A} (a₀₋ : Path A a₀₀ a₀₁)
-          {a₁₀ : A} {a₁₁ : A} (a₁₋ : Path A a₁₀ a₁₁)
-          (a₋₀ : Path A a₀₀ a₁₀)
-          (a₋₁ : Path A a₀₁ a₁₁) -> Type ℓ
-Square {A = A} a₀₋ a₁₋ a₋₀ a₋₁ = SquareP {A = (\ _ _ -> A)} a₀₋ a₁₋ a₋₀ a₋₁
+         {a₀₀ : A} {a₀₁ : A} (a₀₋ : Path A a₀₀ a₀₁)
+         {a₁₀ : A} {a₁₁ : A} (a₁₋ : Path A a₁₀ a₁₁)
+         (a₋₀ : Path A a₀₀ a₁₀)
+         (a₋₁ : Path A a₀₁ a₁₁) -> Type ℓ
+Square {A = A} a₀₋ a₁₋ a₋₀ a₋₁ = SquareP (\ _ _ -> A) a₀₋ a₁₋ a₋₀ a₋₁
 
 ConstantSquare : {ℓ : Level} {A : Type ℓ} (a : A) -> Type ℓ
 ConstantSquare a = Square {a₀₀ = a} refl refl refl refl

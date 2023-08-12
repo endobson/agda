@@ -87,32 +87,6 @@ abstract
   isProp-Tri ha hb hc (tri> _ _ c) (tri< _ _ ¬c) = bot-elim (¬c c)
   isProp-Tri ha hb hc (tri> _ _ c) (tri= _ _ ¬c) = bot-elim (¬c c)
 
-  -- Sets make any square
-
-  isSet->Square : {ℓ : Level} {A : Type ℓ}
-                  {a₀₀ : A} {a₀₁ : A} {a₀₋ : Path A a₀₀ a₀₁}
-                  {a₁₀ : A} {a₁₁ : A} {a₁₋ : Path A a₁₀ a₁₁}
-                  {a₋₀ : Path A a₀₀ a₁₀}
-                  {a₋₁ : Path A a₀₁ a₁₁} -> isSet A -> Square a₀₋ a₁₋ a₋₀ a₋₁
-  isSet->Square h = isProp->PathP (\ k -> (h _ _))
-
-  isSet->Squareᵉ : {ℓ : Level} {A : Type ℓ}
-                   -> isSet A ->
-                   {a₀₀ : A} {a₀₁ : A} (a₀₋ : Path A a₀₀ a₀₁)
-                   {a₁₀ : A} {a₁₁ : A} (a₁₋ : Path A a₁₀ a₁₁)
-                   (a₋₀ : Path A a₀₀ a₁₀)
-                   (a₋₁ : Path A a₀₁ a₁₁) -> Square a₀₋ a₁₋ a₋₀ a₋₁
-  isSet->Squareᵉ h _ _ _ _ = isProp->PathP (\ k -> (h _ _))
-
-
-  isProp->Square : {ℓ : Level} {A : Type ℓ}
-                  {a₀₀ : A} {a₀₁ : A} {a₀₋ : Path A a₀₀ a₀₁}
-                  {a₁₀ : A} {a₁₁ : A} {a₁₋ : Path A a₁₀ a₁₁}
-                  {a₋₀ : Path A a₀₀ a₁₀}
-                  {a₋₁ : Path A a₀₁ a₁₁} -> isProp A -> Square a₀₋ a₁₋ a₋₀ a₋₁
-  isProp->Square h = isProp->PathP (\ _ -> (isProp->isSet h _ _))
-
-
   -- h-level for function property types
 
   isPropInjective : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Type ℓ₂} {f : A -> B} ->
@@ -162,7 +136,7 @@ abstract
     where
     f-path : f1 == f2
     f-path = funExt (\x -> pA2 _ _)
-  
+
   isProp-≃-left : (isProp A₁) -> (isProp (A₁ ≃ A₂))
   isProp-≃-left pA1 e1 e2 = isProp-≃-right (isProp-Retract (eqInv e1) (eqFun e1) (eqSec e1) pA1) e1 e2
 
@@ -233,10 +207,58 @@ abstract
     ≃-isOfHLevel (equiv⁻¹ PathP≃transport) n
       (isOfHLevelPath' n (h i1) (transport (\k -> A k) x) y)
 
--- Acc/WellFounded 
+-- Sets make any square
+
+abstract
+  isSet->Square : {ℓ : Level} {A : Type ℓ}
+                  {a₀₀ : A} {a₀₁ : A} {a₀₋ : Path A a₀₀ a₀₁}
+                  {a₁₀ : A} {a₁₁ : A} {a₁₋ : Path A a₁₀ a₁₁}
+                  {a₋₀ : Path A a₀₀ a₁₀}
+                  {a₋₁ : Path A a₀₁ a₁₁} -> isSet A -> Square a₀₋ a₁₋ a₋₀ a₋₁
+  isSet->Square h = isProp->PathP (\ k -> (h _ _))
+
+  isSet->Squareᵉ : {ℓ : Level} {A : Type ℓ}
+                   -> isSet A ->
+                   {a₀₀ : A} {a₀₁ : A} (a₀₋ : Path A a₀₀ a₀₁)
+                   {a₁₀ : A} {a₁₁ : A} (a₁₋ : Path A a₁₀ a₁₁)
+                   (a₋₀ : Path A a₀₀ a₁₀)
+                   (a₋₁ : Path A a₀₁ a₁₁) -> Square a₀₋ a₁₋ a₋₀ a₋₁
+  isSet->Squareᵉ h _ _ _ _ = isProp->PathP (\ k -> (h _ _))
+
+
+  isProp->Square : {ℓ : Level} {A : Type ℓ}
+                  {a₀₀ : A} {a₀₁ : A} {a₀₋ : Path A a₀₀ a₀₁}
+                  {a₁₀ : A} {a₁₁ : A} {a₁₋ : Path A a₁₀ a₁₁}
+                  {a₋₀ : Path A a₀₀ a₁₀}
+                  {a₋₁ : Path A a₀₁ a₁₁} -> isProp A -> Square a₀₋ a₁₋ a₋₀ a₋₁
+  isProp->Square h = isProp->PathP (\ _ -> (isProp->isSet h _ _))
+
+  isSet->SquareP : {ℓ : Level} {A : I -> I -> Type ℓ} ->
+                   (∀ i j -> isSet (A i j)) ->
+                   {a₀₀ : A i0 i0} {a₀₁ : A i0 i1}
+                   {a₀₋ : PathP (A i0) a₀₀ a₀₁}
+                   {a₁₀ : A i1 i0} {a₁₁ : A i1 i1}
+                   {a₁₋ : PathP (A i1) a₁₀ a₁₁}
+                   {a₋₀ : PathP (\i -> A i i0) a₀₀ a₁₀}
+                   {a₋₁ : PathP (\i -> A i i1) a₀₁ a₁₁} ->
+                   SquareP A a₀₋ a₁₋ a₋₀ a₋₁
+  isSet->SquareP h = isProp->PathP (\i -> isOfHLevelPathP' 1 (h i) _ _)
+
+  isSet->SquarePᵉ : {ℓ : Level} {A : I -> I -> Type ℓ} ->
+                    (∀ i j -> isSet (A i j)) ->
+                    {a₀₀ : A i0 i0} {a₀₁ : A i0 i1}
+                    (a₀₋ : PathP (A i0) a₀₀ a₀₁)
+                    {a₁₀ : A i1 i0} {a₁₁ : A i1 i1}
+                    (a₁₋ : PathP (A i1) a₁₀ a₁₁)
+                    (a₋₀ : PathP (\i -> A i i0) a₀₀ a₁₀)
+                    (a₋₁ : PathP (\i -> A i i1) a₀₁ a₁₁) ->
+                    SquareP A a₀₋ a₁₋ a₋₀ a₋₁
+  isSet->SquarePᵉ h _ _ _ _ = isSet->SquareP h
+
+-- Acc/WellFounded
 
 isProp-Acc : (R : Rel A ℓ) -> (a : A) -> isProp (Acc R a)
-isProp-Acc R a (acc f) (acc g) i = 
+isProp-Acc R a (acc f) (acc g) i =
   acc (\y yRa -> isProp-Acc R y (f y yRa) (g y yRa) i)
 
 isProp-WellFounded : (R : Rel A ℓ) -> isProp (WellFounded R)
@@ -245,4 +267,4 @@ isProp-WellFounded R = isPropΠ (\a -> isProp-Acc R a)
 -- Lift
 
 isProp-Lift : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} -> isProp A -> isProp (Lift ℓ₂ A)
-isProp-Lift = ≃-isProp (equiv⁻¹ (liftEquiv _ _)) 
+isProp-Lift = ≃-isProp (equiv⁻¹ (liftEquiv _ _))
