@@ -5,6 +5,7 @@ module hlevel where
 open import base
 open import cubical
 open import equality-path
+open import equality.pathp-iso
 open import equivalence
 open import functions
 open import funext
@@ -204,6 +205,11 @@ abstract
     where
     open Iso i
 
+  iso-isOfHLevel : Iso A₁ A₂ -> (n : Nat) -> isOfHLevel n A₁ -> isOfHLevel n A₂
+  iso-isOfHLevel i n = isOfHLevel-Retract n inv fun rightInv
+    where
+    open Iso i
+
   ≃-isContr : A₁ ≃ A₂ -> isContr A₁ -> isContr A₂
   ≃-isContr eq = iso-isContr (equivToIso eq)
 
@@ -212,6 +218,20 @@ abstract
 
   ≃-isSet : A₁ ≃ A₂ -> isSet A₁ -> isSet A₂
   ≃-isSet eq = iso-isSet (equivToIso eq)
+
+  ≃-isOfHLevel : A₁ ≃ A₂ -> (n : Nat) -> isOfHLevel n A₁ -> isOfHLevel n A₂
+  ≃-isOfHLevel eq = iso-isOfHLevel (equivToIso eq)
+
+-- h-level for PathP
+
+abstract
+  isOfHLevelPathP' : (n : Nat) -> {A : I -> Type ℓ} ->
+    ((i : I) -> isOfHLevel (suc n) (A i)) ->
+    (x : A i0) (y : A i1) ->
+    isOfHLevel n (PathP A x y)
+  isOfHLevelPathP' n {A} h x y =
+    ≃-isOfHLevel (equiv⁻¹ PathP≃transport) n
+      (isOfHLevelPath' n (h i1) (transport (\k -> A k) x) y)
 
 -- Acc/WellFounded 
 

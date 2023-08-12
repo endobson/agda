@@ -32,14 +32,14 @@ abstract
                   })
       (g (hl (f x) (f y) (cong f p1) (cong f p2) i j))
 
-  isOfHLevelRetract : (n : Nat)
+  isOfHLevel-Retract : (n : Nat)
     (f : A₁ -> A₂) (g : A₂ -> A₁)
     (h : (x : A₁) -> g (f x) ≡ x) ->
     isOfHLevel n A₂ -> isOfHLevel n A₁
-  isOfHLevelRetract 0 = isContr-Retract
-  isOfHLevelRetract 1 = isProp-Retract
-  isOfHLevelRetract (suc (suc n)) f g h hl x y =
-    isOfHLevelRetract (suc n) (cong f) g' h' (hl (f x) (f y))
+  isOfHLevel-Retract 0 = isContr-Retract
+  isOfHLevel-Retract 1 = isProp-Retract
+  isOfHLevel-Retract (suc (suc n)) f g h hl x y =
+    isOfHLevel-Retract (suc n) (cong f) g' h' (hl (f x) (f y))
     where
     g' : (f x == f y) -> x == y
     g' fp i =
