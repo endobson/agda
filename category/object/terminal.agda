@@ -1,6 +1,5 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-
 module category.object.terminal where
 
 open import base

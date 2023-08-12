@@ -80,6 +80,19 @@ Quiv C = Functor WalkingQuiverCat C
 Quiver : (ℓ : Level) -> Type (ℓ-suc ℓ)
 Quiver ℓ = Quiv (SetC ℓ)
 
+ΣQuiver : {ℓ : Level} -> (V : hSet ℓ) -> (E : ⟨ V ⟩ -> ⟨ V ⟩ -> hSet ℓ) -> Quiver ℓ
+ΣQuiver V E .Functor.obj wq-vertices = V
+ΣQuiver V E .Functor.obj wq-edges =
+  (Σ[ v1 ∈ ⟨ V ⟩ ] Σ[ v2 ∈ ⟨ V ⟩ ] ⟨ E v1 v2 ⟩) ,
+  isSetΣ (snd V) (\v1 -> isSetΣ (snd V) (\v2 -> (snd (E v1 v2))))
+ΣQuiver V E .Functor.mor (wq-id _) = set-function (\x -> x)
+ΣQuiver V E .Functor.mor wq-source = set-function (\ (s , t , e) -> s)
+ΣQuiver V E .Functor.mor wq-target = set-function (\ (s , t , e) -> t)
+ΣQuiver V E .Functor.id _ = refl
+ΣQuiver V E .Functor.⋆ (wq-id _) _         = refl
+ΣQuiver V E .Functor.⋆ wq-source (wq-id _) = refl
+ΣQuiver V E .Functor.⋆ wq-target (wq-id _) = refl
+
 cons-Quiver : {ℓ : Level} -> (V : hSet ℓ) -> (E : hSet ℓ) -> (s t : ⟨ E ⟩ -> ⟨ V ⟩) -> Quiver ℓ
 cons-Quiver V E s t .Functor.obj wq-vertices = V
 cons-Quiver V E s t .Functor.obj wq-edges = E

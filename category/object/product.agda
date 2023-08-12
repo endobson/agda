@@ -2,11 +2,11 @@
 
 module category.object.product where
 
-open import category.base
-open import truncation
 open import base
+open import category.base
 open import equality
 open import hlevel
+open import truncation
 
 module _ {ℓO ℓM} (C : PreCategory ℓO ℓM) where
   record Product (a b : Obj C) : Type (ℓ-max ℓO ℓM) where
