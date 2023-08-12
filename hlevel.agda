@@ -16,6 +16,7 @@ open import sum
 
 open import hlevel.base public
 open import hlevel.pi public
+open import hlevel.retract public
 open import hlevel.sigma public
 
 private
@@ -154,51 +155,6 @@ abstract
 
   isProp-≃ : (isProp A₁) -> (isProp A₂) -> (isProp (A₁ ≃ A₂))
   isProp-≃ = isOfHLevel-≃ 1
-
-  isContr-Retract : (f : A₁ -> A₂) (g : A₂ -> A₁) (h : ∀ a -> g (f a) == a) -> isContr A₂ -> isContr A₁
-  isContr-Retract f g h (a2 , p) = (g a2 , \a1 -> cong g (p (f a1)) >=> h a1)
-
-  isProp-Retract : (f : A₁ -> A₂) (g : A₂ -> A₁) (h : ∀ a -> g (f a) == a) -> isProp A₂ -> isProp A₁
-  isProp-Retract f g h p a1 a2 = sym (h a1) >=> (cong g (p (f a1) (f a2))) >=> h a2
-
-  isSet-Retract : (f : A₁ -> A₂) (g : A₂ -> A₁) (h : ∀ a -> g (f a) == a) -> isSet A₂ -> isSet A₁
-  isSet-Retract f g h hl x y p1 p2 = q10
-    where
-    module _ where
-      retract-p : I -> Type _
-      retract-p i = h x i == h y i
-
-      retract-p2 : _
-      retract-p2 = (sym (\i -> retract-p i) >=> (\i -> retract-p i))
-
-    q3 : (f x) == (f y)
-    q3 = cong f p1
-
-    q4 : (f x) == (f y)
-    q4 = cong f p2
-
-    q5 : q3 == q4
-    q5 = hl (f x) (f y) q3 q4
-
-    q6 : (cong g q3) == (cong g q4)
-    q6 i = (cong g (q5 i))
-
-
-
-    q7 : PathP retract-p (cong g (cong f p1)) p1
-    q7 i j = h (p1 j) i
-
-    q8 : PathP retract-p (cong g (cong f p2)) p2
-    q8 i j = h (p2 j) i
-
-    q9 : PathP (\j -> retract-p2 j) p1 p2
-    q9 = transP (symP (transP-right (sym q6) q7)) q8
-
-    q10 : p1 == p2
-    q10 = subst (\x -> PathP (\i -> x i) p1 p2) q11 q9
-      where
-      q11 : retract-p2 == refl
-      q11 = compPath-sym (sym (\i -> retract-p i))
 
   isProp-≃-right : (isProp A₂) -> (isProp (A₁ ≃ A₂))
   isProp-≃-right pA2 (f1 , e1) (f2 , e2) = ΣProp-path (isProp-isEquiv) f-path
