@@ -15,6 +15,7 @@ open import funext
 open import hlevel
 open import isomorphism
 open import relation
+open import sigma.base
 
 private
   ℓO : Level
@@ -104,3 +105,55 @@ private
 
 ConeC : PreCategory ℓO ℓM
 ConeC = Laws->Category ConeLaws
+
+-- Paths for cones and related objects
+
+cone-str-pathp :
+  {o1 o2 : Obj C} {s1 : ConeStr o1} {s2 : ConeStr o2} ->
+  (op : o1 == o2) ->
+  (cps : ∀ j -> PathP (\i -> C [ op i , F-obj D j ])
+                (ConeStr.component s1 j)
+                (ConeStr.component s2 j)) ->
+  PathP (\i -> ConeStr (op i)) s1 s2
+cone-str-pathp op cps i .ConeStr.component j = cps j i
+cone-str-pathp {s1 = s1} {s2} op cps i .ConeStr.component-compose {j1} {j2} m = ans i
+  where
+  ans : PathP (\i -> cps j1 i ⋆⟨ C ⟩ F-mor D m == cps j2 i)
+              (ConeStr.component-compose s1 m)
+              (ConeStr.component-compose s2 m)
+  ans = isProp->PathP (\i -> isSet-Mor C _ _)
+
+cone-str-path : {o : Obj C} -> {s1 s2 : ConeStr o} ->
+                (∀ j -> ConeStr.component s1 j == ConeStr.component s2 j) ->
+                s1 == s2
+cone-str-path = cone-str-pathp refl
+
+cone-path : {c1 c2 : Cone} ->
+  (op : fst c1 == fst c2) ->
+  (cps : ∀ j -> PathP (\i -> C [ op i , F-obj D j ])
+                (ConeStr.component (snd c1) j)
+                (ConeStr.component (snd c2) j)) ->
+  c1 == c2
+cone-path op cps = Σ-path op (cone-str-pathp op cps)
+
+abstract
+  isSet-ConeStr : {o : Obj C} -> isSet (ConeStr o)
+  isSet-ConeStr s1 s2 p1 p2 =
+    \i j -> record { component = cp i j ; component-compose = ccp i j }
+    where
+    module _ where
+      cp = isSet->Square (isSetΠ (\j -> isSet-Mor C))
+
+      ccp = isSet->SquarePᵉ
+              (\i k -> isSetΠⁱ (\j1 -> (isSetΠⁱ (\j2 -> isSetΠ (\f -> isProp->isSet
+                       (isSet-Mor C (cp i k j1 ⋆⟨ C ⟩ (F-mor D f)) (cp i k j2)))))))
+            (cong ConeStr.component-compose p1) (cong ConeStr.component-compose p2)
+            refl refl
+
+cone-path-path : {c1 c2 : Cone} -> (p1 p2 : c1 == c2) ->
+                 (cong fst p1) == (cong fst p2) ->
+                 p1 == p2
+cone-path-path {c1} {c2} p1 p2 op i j .fst = op i j
+cone-path-path {c1} {c2} p1 p2 op i j .snd =
+  isSet->SquarePᵉ (\i j -> isSet-ConeStr {op i j})
+    (cong snd p1) (cong snd p2) (\i -> (snd c1)) (\i -> (snd c2)) i j
