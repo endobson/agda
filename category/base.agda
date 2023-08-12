@@ -27,6 +27,9 @@ record PreCategory (ℓObj ℓMor : Level) : Type (ℓ-suc (ℓ-max ℓObj ℓMo
               (f ⋆ g) ⋆ h == f ⋆ (g ⋆ h)
     isSet-Mor : {s t : Obj} -> isSet (Mor s t)
 
+  ⋆-id² : {s : Obj} -> Path (Mor s s) (id ⋆ id) id
+  ⋆-id² = ⋆-left-id id
+
   _∘_ : {s t u : Obj} -> Mor t u -> Mor s t -> Mor s u
   f ∘ g = g ⋆ f
 
@@ -188,6 +191,13 @@ open Functor public renaming
 -- Add an alias for Diagrams.
 Diagram = Functor
 
+-- Identity Functor
+
+idF : {ℓObjC ℓMorC : Level} (C : PreCategory ℓObjC ℓMorC) -> Functor C C
+idF _ .F-obj x = x
+idF _ .F-mor f = f
+idF _ .F-id _ = refl
+idF _ .F-⋆ f g = refl
 
 -- Natural Transformations
 
@@ -239,6 +249,9 @@ module _
 
   isProp-isNaturalIso : {nt : NaturalTransformation F G} -> isProp (isNaturalIso nt)
   isProp-isNaturalIso = isPropΠ (\_ -> isProp-isIso)
+
+  NaturalIsomorphism : Type _
+  NaturalIsomorphism = Σ (NaturalTransformation F G) isNaturalIso
 
 -- Helpers for defining new categorys
 

@@ -9,13 +9,6 @@ open import equality-path
 open import funext
 open import hlevel
 
-private
-  idF : {ℓObjC ℓMorC : Level} (C : PreCategory ℓObjC ℓMorC) -> Functor C C
-  idF _ .F-obj x = x
-  idF _ .F-mor f = f
-  idF _ .F-id _ = refl
-  idF _ .F-⋆ f g = refl
-
 module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
          (C : PreCategory ℓObjC ℓMorC) (D : PreCategory ℓObjD ℓMorD) where
   private
