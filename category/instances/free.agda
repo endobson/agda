@@ -14,7 +14,6 @@ open import fin-algebra
 open import functions
 open import hlevel
 open import isomorphism
-open import list
 open import maybe
 open import nat
 open import order
@@ -40,7 +39,7 @@ module _ {ℓ : Level} (Q : Quiver ℓ) where
     source : E -> V
     source = SetFunction.f (Q.mor wq-source)
     target : E -> V
-    target = SetFunction.f (Q.mor wq-source)
+    target = SetFunction.f (Q.mor wq-target)
 
   data Edge : V -> V -> Type ℓ where
     edge : (e : E) -> Edge (source e) (target e)
@@ -228,3 +227,36 @@ module _ {ℓ : Level} (Q : Quiver ℓ) where
     ; ⋆-assoc = compose-EPath-assoc
     ; isSet-Mor = isSet-EPath
     }
+
+module _ {ℓQ ℓO ℓM : Level} (Q : Quiver ℓQ) (C : PreCategory ℓO ℓM) where
+  private
+    V : Type ℓQ
+    V = ⟨ F-obj Q wq-vertices ⟩
+    E : Type ℓQ
+    E = ⟨ F-obj Q wq-edges ⟩
+  free-diagram-on-Quiver :
+    (objs : V -> Obj C) ->
+    (edges : ( e : E ) ->
+             C [ objs (SetFunction.f (F-mor Q wq-source) e) ,
+                 objs (SetFunction.f (F-mor Q wq-target) e) ]) ->
+    Diagram (FreeCat Q) C
+  free-diagram-on-Quiver vertices edges = record
+    { obj = vertices
+    ; mor = path->Mor
+    ; id = \_ -> refl
+    ; ⋆ = composes
+    }
+    where
+    path->Mor : {o1 o2 : V} -> EPath Q o1 o2 -> C [ vertices o1 , vertices o2 ]
+    path->Mor empty-path = id C
+    path->Mor (edge-path (edge e) p) = (edges e) ⋆⟨ C ⟩ (path->Mor p)
+
+    composes : {o1 o2 o3 : V} ->
+               (e1 : EPath Q o1 o2) ->
+               (e2 : EPath Q o2 o3) ->
+               path->Mor (e1 ⋆⟨ FreeCat Q ⟩ e2) ==
+               (path->Mor e1) ⋆⟨ C ⟩ (path->Mor e2)
+    composes empty-path _ = sym (PreCategory.⋆-left-id C _)
+    composes (edge-path (edge e) p1) p2 =
+      cong (\m -> (edges e) ⋆⟨ C ⟩ m) (composes p1 p2) >=>
+      sym (PreCategory.⋆-assoc C (edges e) (path->Mor p1) (path->Mor p2))
