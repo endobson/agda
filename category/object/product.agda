@@ -21,17 +21,36 @@ module _ {ℓO ℓM} (C : PreCategory ℓO ℓM) where
     ×⟨_,_⟩ : {c : Obj C} (f : C [ c , a ]) (g : C [ c , b ]) -> C [ c , obj ]
     ×⟨ f , g ⟩ = ∃!-val (universal f g)
 
-    π₁-reduce : {c : Obj C} {f : C [ c , a ]} {g : C [ c , b ]} ->
-                ×⟨ f , g ⟩ ⋆⟨ C ⟩ π₁ == f
-    π₁-reduce = proj₁ (∃!-prop (universal _ _))
-    π₂-reduce : {c : Obj C} {f : C [ c , a ]} {g : C [ c , b ]} ->
-                ×⟨ f , g ⟩ ⋆⟨ C ⟩ π₂ == g
-    π₂-reduce = proj₂ (∃!-prop (universal _ _))
+    abstract
+      unique : {c : Obj C} {f : C [ c , a ]} {g : C [ c , b ]} {h : C [ c , obj ]} ->
+        h ⋆⟨ C ⟩ π₁ == f ->
+        h ⋆⟨ C ⟩ π₂ == g ->
+        ×⟨ f , g ⟩ == h
+      unique {f = f} {g} {h} p1 p2 = ∃!-unique (universal f g) h (p1 , p2)
+
+      unique₂ : {c : Obj C} {f : C [ c , obj ]} {g : C [ c , obj ]} ->
+        f ⋆⟨ C ⟩ π₁ == g ⋆⟨ C ⟩ π₁ ->
+        f ⋆⟨ C ⟩ π₂ == g ⋆⟨ C ⟩ π₂ ->
+        f == g
+      unique₂ p1 p2 = sym (unique p1 p2) >=> unique refl refl
+
+      π₁-reduce : {c : Obj C} {f : C [ c , a ]} {g : C [ c , b ]} ->
+                  ×⟨ f , g ⟩ ⋆⟨ C ⟩ π₁ == f
+      π₁-reduce = proj₁ (∃!-prop (universal _ _))
+      π₂-reduce : {c : Obj C} {f : C [ c , a ]} {g : C [ c , b ]} ->
+                  ×⟨ f , g ⟩ ⋆⟨ C ⟩ π₂ == g
+      π₂-reduce = proj₂ (∃!-prop (universal _ _))
 
 
 module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} where
   private
     module C = PreCategory C
+
+  module _ {a b : Obj C}  where
+    _×⟨_,_⟩ : (p : Product C a b) {c : Obj C} (f : C [ c , a ]) (g : C [ c , b ]) ->
+              C [ c , Product.obj p ]
+    _×⟨_,_⟩ = Product.×⟨_,_⟩
+
 
   module _ {a b : Obj C} {p1 p2 : Product C a b} where
     product-path : (op : Product.obj p1 == Product.obj p2) ->
