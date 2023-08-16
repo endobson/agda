@@ -11,20 +11,20 @@ open import relation
 open import sum
 open import truncation
 
-record MinOperationStr {ℓD ℓ< : Level} {D : Type ℓD} (LO : LinearOrderStr D ℓ<) :
+record MinOperationStr {ℓD ℓ< : Level} {D : Type ℓD} {_<_ : Rel D ℓ<}
+                       (LO : isLinearOrder _<_) :
                        Type (ℓ-max ℓ< ℓD) where
   no-eta-equality
-  private
-    _<'_ = LinearOrderStr._<_ LO
 
   field
     min : D -> D -> D
-    min-≮-left  : {x y : D} -> ¬ (x <' min x y)
-    min-≮-right : {x y : D} -> ¬ (y <' min x y)
-    min-greatest-< : {x y z : D} -> z <' x -> z <' y -> z <' min x y
+    min-≮-left  : {x y : D} -> ¬ (x < min x y)
+    min-≮-right : {x y : D} -> ¬ (y < min x y)
+    min-greatest-< : {x y z : D} -> z < x -> z < y -> z < min x y
 
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO : MinOperationStr LO }} where
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {LO : isLinearOrder D<} {{MO : MinOperationStr LO }} where
   open MinOperationStr MO public
 
   private
@@ -99,20 +99,20 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO :
   min₂-reflects-< xy<zy = min₁-reflects-< (subst2 _<_ min-commute min-commute xy<zy)
 
 
-record MaxOperationStr {ℓD ℓ< : Level} {D : Type ℓD} (LO : LinearOrderStr D ℓ<) :
+record MaxOperationStr {ℓD ℓ< : Level} {D : Type ℓD} {_<_ : Rel D ℓ<}
+                       (LO : isLinearOrder _<_) :
                        Type (ℓ-max ℓ< ℓD) where
   no-eta-equality
-  private
-    _<'_ = LinearOrderStr._<_ LO
 
   field
     max : D -> D -> D
-    max-≮-left  : {x y : D} -> ¬ (max x y <' x)
-    max-≮-right : {x y : D} -> ¬ (max x y <' y)
-    max-least-< : {x y z : D} -> x <' z -> y <' z -> max x y <' z
+    max-≮-left  : {x y : D} -> ¬ (max x y < x)
+    max-≮-right : {x y : D} -> ¬ (max x y < y)
+    max-least-< : {x y z : D} -> x < z -> y < z -> max x y < z
 
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO : MaxOperationStr LO }} where
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {LO : isLinearOrder D<} {{MO : MaxOperationStr LO }} where
   open MaxOperationStr MO public
 
   private
@@ -186,7 +186,8 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO :
   max₂-reflects-< xy<zy = max₁-reflects-< (subst2 _<_ max-commute max-commute xy<zy)
 
 
-module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {PO : PartialOrderStr D ℓ≤}
+module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
          {{CO : CompatibleOrderStr LO PO}} {{MO : MaxOperationStr LO}} where
   private
     instance
@@ -218,7 +219,8 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
   max-preserves-≤ w≤x y≤z = trans-≤ (max₂-preserves-≤ w≤x) (max₁-preserves-≤ y≤z)
 
 
-module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {PO : PartialOrderStr D ℓ≤}
+module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
          {{CO : CompatibleOrderStr LO PO}} {{MO : MinOperationStr LO}} where
   private
     instance
@@ -250,11 +252,12 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
   min-preserves-≤ w≤x y≤z = trans-≤ (min₂-preserves-≤ w≤x) (min₁-preserves-≤ y≤z)
 
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO : MinOperationStr LO }} where
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {LO : isLinearOrder D<} {{MO : MinOperationStr LO }} where
   private
     instance
       ILO = LO
-      IPO = NegatedLinearOrder LO
+      IPO = isLinearOrder->isPartialOrder-≯ LO
       CPO = CompatibleNegatedLinearOrder LO
 
   min-assoc : {x y z : D} -> min (min x y) z == min x (min y z)
@@ -275,11 +278,12 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO :
       trans-<-= (trans-≤-< min-≤-left w<x) (sym (min-<-path x<z))
 
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO : MaxOperationStr LO }} where
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {LO : isLinearOrder D<} {{MO : MaxOperationStr LO }} where
   private
     instance
       ILO = LO
-      IPO = NegatedLinearOrder LO
+      IPO = isLinearOrder->isPartialOrder-≯ LO
       CPO = CompatibleNegatedLinearOrder LO
 
   max-assoc : {x y z : D} -> max (max x y) z == max x (max y z)
@@ -300,12 +304,12 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{MO :
       trans-<-≤ (max-least-< w<x y<x) max-≤-left
 
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
          {{MinO : MinOperationStr LO }} {{MaxO : MaxOperationStr LO }} where
   private
     instance
       ILO = LO
-      PO = NegatedLinearOrder LO
+      PO = isLinearOrder->isPartialOrder-≯ LO
       CO = CompatibleNegatedLinearOrder LO
 
   max-distrib-min : {a b c : D} -> max a (min b c) == min (max a b) (max a c)
@@ -364,7 +368,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
 
 
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
          {{DLO : DecidableLinearOrderStr LO}}  {{MO : MaxOperationStr LO}} where
   private
     instance
@@ -385,7 +389,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
     handle (inj-l m=q) = subst P (sym m=q) pq
     handle (inj-r m=r) = subst P (sym m=r) pr
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
          {{DLO : DecidableLinearOrderStr LO}}  {{MO : MinOperationStr LO}} where
   private
     instance
@@ -407,7 +411,8 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
     handle (inj-r m=r) = subst P (sym m=r) pr
 
 
-module _ {ℓD : Level} {D : Type ℓD} {ℓ< : Level} {{LO : LinearOrderStr D ℓ<}} where
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}} where
+
   record isMax (d1 d2 d3 : D) : Type (ℓ-max ℓD ℓ<) where
     field
       left  : d3 ≮ d1
@@ -439,28 +444,28 @@ module _ {ℓD : Level} {D : Type ℓD} {ℓ< : Level} {{LO : LinearOrderStr D �
 
 ----- Global operations
 
-record GlobalMinOperationStr {ℓD ℓ< : Level} {D : Type ℓD} (LO : LinearOrderStr D ℓ<) :
-                             Type (ℓ-max ℓ< ℓD) where
+record GlobalMinOperationStr
+  {ℓD ℓ< : Level} {D : Type ℓD} {_<_ : Rel D ℓ<} (LO : isLinearOrder _<_) :
+  Type (ℓ-max ℓ< ℓD) where
   no-eta-equality
-  private
-    _<'_ = LinearOrderStr._<_ LO
 
   field
     global-min : D
-    global-min-≮  : {x : D} -> ¬ (x <' global-min)
+    global-min-≮  : {x : D} -> ¬ (x < global-min)
 
-record GlobalMaxOperationStr {ℓD ℓ< : Level} {D : Type ℓD} (LO : LinearOrderStr D ℓ<) :
-                             Type (ℓ-max ℓ< ℓD) where
+record GlobalMaxOperationStr
+  {ℓD ℓ< : Level} {D : Type ℓD} {_<_ : Rel D ℓ<} (LO : isLinearOrder _<_) :
+  Type (ℓ-max ℓ< ℓD) where
   no-eta-equality
-  private
-    _<'_ = LinearOrderStr._<_ LO
 
   field
     global-max : D
-    global-max-≮  : {x : D} -> ¬ (x <' global-max)
+    global-max-≮  : {x : D} -> ¬ (x < global-max)
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{GMO : GlobalMinOperationStr LO }} where
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
+         {{GMO : GlobalMinOperationStr LO }} where
   open GlobalMinOperationStr GMO public
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{GMO : GlobalMaxOperationStr LO }} where
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
+         {{GMO : GlobalMaxOperationStr LO }} where
   open GlobalMaxOperationStr GMO public

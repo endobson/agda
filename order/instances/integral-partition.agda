@@ -98,13 +98,10 @@ private
         }
 
 instance
-  PartialOrderStr-Partition : {a b : ℝ} -> PartialOrderStr (Partition a b) ℓ-zero
-  PartialOrderStr-Partition = record
-    { _≤_ = Partition≼
-    ; isPartialOrder-≤ = record
-      { isProp-≤ = isProp-≼
-      ; refl-≤ = refl-≼
-      ; trans-≤ = trans-≼
-      ; antisym-≤ = antisym-≼
-      }
+  isPartialOrder-Partition≼ : {a b : ℝ} -> isPartialOrder (Partition≼ {a} {b})
+  isPartialOrder-Partition≼ = record
+    { isProp-≤ = isProp-≼
+    ; refl-≤ = refl-≼
+    ; trans-≤ = trans-≼
+    ; antisym-≤ = antisym-≼
     }

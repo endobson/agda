@@ -27,11 +27,10 @@ open import univalence
 import ordered-set.glist
 
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓ<}}  where
-
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}  where
   private
     FinT-Indices : ordered-set.glist.Indices ℓ-zero ℓ-zero ℓ-zero
-    FinT-Indices = Nat , \n -> (FinT n , useⁱ) , useⁱ
+    FinT-Indices = Nat , \n -> (FinT n , record {isLinearOrder-< = useⁱ}) , useⁱ
 
   Sorted≼ : Rel (SortedList D) (ℓ-max ℓ-zero ℓD)
   Sorted≼ = ordered-set.glist.Sorted≼ FinT-Indices
@@ -110,9 +109,10 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓ<}}  whe
         l1=l2 = \i -> n-path i , element-paths->vector-path n-path f-paths i
 
   instance
-    PartialOrderStr-SortedList : PartialOrderStr (SortedList D) ℓD
-    PartialOrderStr-SortedList =
-      ordered-set.glist.PartialOrderStr-SortedList FinT-Indices antisym-Sorted≼
+    isPartialOrder-SortedList : isPartialOrder _
+    isPartialOrder-SortedList =
+      PartialOrderStr.isPartialOrder-≤
+        (ordered-set.glist.PartialOrderStr-SortedList FinT-Indices antisym-Sorted≼)
 
   empty-Sorted≼ : {l : SortedList D} -> sortedlist-empty ≤ l
   empty-Sorted≼ .Sorted≼.indexes ()

@@ -11,8 +11,9 @@ open import semiring
 open import sum
 open import relation
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM}
-         {O : LinearOrderStr D ℓ<} {{LOS : LinearlyOrderedSemiringStr S O}}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D}  {S : Semiring ACM}
+         {O : isLinearOrder D<} {{LOS : LinearlyOrderedSemiringStr S O}}
          {{DLO : DecidableLinearOrderStr O}} where
   private
     instance
@@ -46,8 +47,9 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : 
         bot-elim (asym-< ab<ac (*₁-preserves-< 0<a c<b))
 
 
-module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM}
-         {LO : LinearOrderStr D ℓ<} {PO : PartialOrderStr D ℓ≤}
+module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
          {{CO : CompatibleOrderStr LO PO}}
          {{POS : PartiallyOrderedSemiringStr S PO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}

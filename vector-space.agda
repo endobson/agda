@@ -15,6 +15,7 @@ open import group
 open import heyting-field
 open import hlevel
 open import ring
+open import relation
 open import semiring
 open import subset
 open import truncation
@@ -35,11 +36,11 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {ACM : AdditiveCommMonoid K}
   record ModuleStr : Type (ℓ-max ℓK (ℓ-suc ℓV)) where
     field
       GroupStr-V : GroupStr V
-      TightApartnessStr-V : TightApartnessStr V ℓV
+      _v#_ : Rel V ℓV
+      isTightApartness-v# : isTightApartness _v#_
 
-    _v#_ = TightApartnessStr._#_ TightApartnessStr-V
 
-    isProp-v# = TightApartnessStr.isProp-# TightApartnessStr-V
+    isProp-v# = isTightApartness.isProp-# isTightApartness-v#
 
     _v+_ = GroupStr._∙_ GroupStr-V
     0v = GroupStr.ε GroupStr-V
@@ -199,10 +200,10 @@ module _  {ℓK ℓV : Level} {K : Type ℓK}
 
 
 
-module _ {ℓK ℓV : Level} {K : Type ℓK}
+module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
          {S : Semiring ACM} {R : Ring S AG}
-         {A : TightApartnessStr K ℓK}
+         {A : isTightApartness K#}
          (F : Field R A) (V : Type ℓV)  where
   private
     instance
@@ -225,10 +226,10 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
                       (k1 MS.v* v1) MS.v# (k2 MS.v* v2) ->
                       ∥ (k1 # k2) ⊎ (v1 MS.v# v2) ∥
 
-module _ {ℓK ℓV : Level} {K : Type ℓK}
+module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
          {S : Semiring ACM} {R : Ring S AG}
-         {A : TightApartnessStr K ℓK} {F : Field R A} {V : Type ℓV}
+         {A : isTightApartness K#} {F : Field R A} {V : Type ℓV}
          {{VS : VectorSpaceStr F V}} where
   open VectorSpaceStr VS public using
     ( v*-apart-zero
@@ -246,7 +247,6 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
       IS = S
       IA = A
       IF = F
-      IVA = ModuleStr.TightApartnessStr-V IM
 
   abstract
     v*-#0 : {k : K} -> {v : V} -> k # 0# -> v v# 0v -> (k v* v) v# 0v
@@ -259,10 +259,10 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
         k'kv#0 = subst (_v# 0v) (sym v*-left-one >=> v*-left (sym kk'=1 >=> *-commute) >=> v*-assoc) v#0
 
 
-module _ {ℓK ℓV : Level} {K : Type ℓK}
+module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
          {S : Semiring ACM} {R : Ring S AG}
-         {A : TightApartnessStr K ℓK} {F : Field R A} {V : Type ℓV}
+         {A : isTightApartness K#} {F : Field R A} {V : Type ℓV}
          {{VS : VectorSpaceStr F V}} where
 
   private
@@ -307,10 +307,10 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
 
 
 
-module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK}
+module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK} {K# : Rel K ℓK}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
          {S : Semiring ACM} {R : Ring S AG}
-         {A : TightApartnessStr K ℓK} {F : Field R A} {V1 : Type ℓV1} {V2 : Type ℓV2}
+         {A : isTightApartness K#} {F : Field R A} {V1 : Type ℓV1} {V2 : Type ℓV2}
          {{VS1 : VectorSpaceStr F V1}} {{VS2 : VectorSpaceStr F V2}} where
   private
     instance

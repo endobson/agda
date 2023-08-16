@@ -7,10 +7,12 @@ open import base
 open import equality
 open import order
 open import ordered-additive-group
+open import relation
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D}
          {{AG : AdditiveGroup ACM}}
-         {{O : LinearOrderStr D ℓ<}} where
+         {{O : isLinearOrder D<}} where
   private
     instance
       IACM = ACM

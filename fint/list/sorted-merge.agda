@@ -21,7 +21,7 @@ open import sum
 open import truncation
 open import type-algebra
 
-module _ {ℓA ℓ< : Level} {A : Type ℓA} {LO : LinearOrderStr A ℓ<}
+module _ {ℓA ℓ< : Level} {A : Type ℓA} {A< : Rel A ℓ<} {LO : isLinearOrder A<}
          {{DLO : DecidableLinearOrderStr LO}} where
   private
     instance
@@ -176,7 +176,7 @@ module _ {ℓA ℓ< : Level} {A : Type ℓA} {LO : LinearOrderStr A ℓ<}
   sorted-merge l1 l2 = multi-insert' l1 l2 , isProp-merged l1 l2 _
 
 
-  sorted-join : JoinSemiLatticeStr (getⁱ (PartialOrderStr (SortedList A) ℓA))
+  sorted-join : JoinSemiLatticeStr (getⁱ (isPartialOrder {D = (SortedList A)} _))
   sorted-join = record
     { join = \l1 l2 -> ∃!-val (sorted-merge l1 l2)
     ; is-join = record

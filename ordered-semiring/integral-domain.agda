@@ -11,18 +11,20 @@ open import integral-domain
 open import order
 open import ordered-additive-group
 open import ordered-semiring
+open import relation
 open import ring
 open import semiring
 open import truncation
 
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM}
-         {O : LinearOrderStr D ℓ<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D}  {S : Semiring ACM}
+         {O : isLinearOrder D<}
          {{LOA : LinearlyOrderedAdditiveStr ACM O}}
          {{LOS : LinearlyOrderedSemiringStr S O}}
          {AG : AdditiveGroup ACM}
          {R : Ring S AG}
-         {A : TightApartnessStr D ℓD}
+         {A : isTightApartness D#}
          {{ALO : ApartLinearOrderStr A O}}
          {{IntD : IntegralDomain R A}}  where
   private

@@ -34,28 +34,28 @@ module _ {ℓA ℓS : Level} {A : Type ℓA} (S : Subtype A ℓS) where
     comparison-S< : Comparison S<
     comparison-S< (x , sx) (y , sy) (z , sz) x<z = (o.comparison-< x y z x<z)
 
-  PartialOrderStr-Subtype : {ℓ≤ : Level} -> PartialOrderStr A ℓ≤ -> PartialOrderStr (∈-Subtype S) ℓ≤
-  PartialOrderStr-Subtype o = record
-    { _≤_ = S≤
-    ; isPartialOrder-≤ = record
-      { isProp-≤ = o.isProp-≤
-      ; refl-≤ = o.refl-≤
-      ; trans-≤ = o.trans-≤
+
+  module _ {ℓ≤ : Level} {A≤ : Rel A ℓ≤} (PO : isPartialOrder A≤) where
+    private
+      instance
+        IPO = PO
+      S≤ : Rel (∈-Subtype S) _
+      S≤ (x , _) (y , _) = x ≤ y
+
+    isPartialOrder->isPartialOrder-Subtype≤ : isPartialOrder S≤
+    isPartialOrder->isPartialOrder-Subtype≤ = record
+      { isProp-≤ = isProp-≤
+      ; refl-≤ = refl-≤
+      ; trans-≤ = trans-≤
       ; antisym-≤ = antisym-S≤
       }
-    }
-    where
-    module o = PartialOrderStr o
-
-    S≤ : Rel (∈-Subtype S) _
-    S≤ (x , _) (y , _) = x o.≤ y
-
-    antisym-S≤ : Antisymmetric S≤
-    antisym-S≤ x≤y y≤x = ΣProp-path (\{x} -> snd (S x)) (o.antisym-≤ x≤y y≤x)
+      where
+      antisym-S≤ : Antisymmetric S≤
+      antisym-S≤ x≤y y≤x = ΣProp-path (\{x} -> snd (S x)) (antisym-≤ x≤y y≤x)
 
   TotalOrderStr-Subtype :
-    {ℓ≤ : Level} {PO : PartialOrderStr A ℓ≤} ->
-    (TotalOrderStr PO) -> TotalOrderStr (PartialOrderStr-Subtype PO)
+    {ℓ≤ : Level} {A≤ : Rel A ℓ≤} {PO : isPartialOrder A≤} ->
+    (TotalOrderStr PO) -> TotalOrderStr (isPartialOrder->isPartialOrder-Subtype≤ PO)
   TotalOrderStr-Subtype o = record { connex-≤ = \(x , _) (y , _) -> o.connex-≤ x y }
     where
     module o = TotalOrderStr o

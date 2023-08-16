@@ -65,7 +65,7 @@ module _ (x y : ℝ)
         handle2 (zero-sign , zr) = ∥-bind handle3 (Real.isUpperOpen-L z r lr)
           where
           handle3 : Σ[ r2 ∈ ℚ ] (r < r2 × Real.L z r2) -> Ans
-          handle3 (r2 , r<r2 , lr2) = ∣ r2 , inj-l pr2 , trans-< {_} {_} {_} {q} {r} {r2} q<r r<r2 , lr2 ∣
+          handle3 (r2 , r<r2 , lr2) = ∣ r2 , inj-l pr2 , trans-< q<r r<r2 , lr2 ∣
             where
             pr2 : Pos r2
             pr2 = 0<-Pos r2 (subst (_< r2) (Zero-path r zr) r<r2)
@@ -83,7 +83,7 @@ module _ (x y : ℝ)
         handle2 (zero-sign , zr) = ∥-bind handle3 (Real.isLowerOpen-U z r ur)
           where
           handle3 : Σ[ r2 ∈ ℚ ] (r2 < r × Real.U z r2) -> Ans
-          handle3 (r2 , r2<r , ur2) = ∣ r2 , inj-r nr2 , trans-< {_} {_} {_} {r2} {r} {q} r2<r r<q , ur2 ∣
+          handle3 (r2 , r2<r , ur2) = ∣ r2 , inj-r nr2 , trans-< r2<r r<q , ur2 ∣
             where
             nr2 : Neg r2
             nr2 = <0-Neg r2 (subst (r2 <_) (Zero-path r zr) r2<r)
@@ -505,7 +505,7 @@ module _ (x : ℝ)
            r<s = ℝ-bounds->ℚ< x xl-r xu-s
 
            q<s' : q < s'
-           q<s' = trans-< {_} {_} {_} {q} {r} {s'} q<r (trans-< {_} {_} {_} {r} {s} {s'} r<s s<s')
+           q<s' = trans-< q<r (trans-< r<s s<s')
 
            rs : Iℚ
            rs = Iℚ-cons r s (weaken-< r<s)
@@ -522,7 +522,7 @@ module _ (x : ℝ)
            handle2 (kl , p-kl , kl<1 , scale-kl) (ku , p-ku , 1<ku , scale-ku) =
              ∣ k , rs , (ℚ<->L kl<1 , ℚ<->U 1<ku) , (xl-r , xu-s) , _i⊆_.l prod-⊆ ∣
              where
-             kl<ku = trans-< {_} {_} {_} {kl} {1r} {ku} kl<1 1<ku
+             kl<ku = trans-< kl<1 1<ku
              k : Iℚ
              k = (Iℚ-cons kl ku (weaken-< kl<ku))
 
@@ -626,7 +626,7 @@ module _ (x : ℝ)
            s<r = ℝ-bounds->ℚ< x xl-s xu-r
 
            s'<q : s' < q
-           s'<q = trans-< {_} {_} {_} {s'} {r} {q} (trans-< {_} {_} {_} {s'} {s} {r} s'<s s<r) r<q
+           s'<q = trans-< (trans-< s'<s s<r) r<q
 
            sr : Iℚ
            sr = Iℚ-cons s r (weaken-< s<r)
@@ -643,7 +643,7 @@ module _ (x : ℝ)
            handle2 (kl , p-kl , kl<1 , scale-kl) (ku , p-ku , 1<ku , scale-ku) =
              ∣ k , sr , (ℚ<->L kl<1 , ℚ<->U 1<ku) , (xl-s , xu-r) , _i⊆_.u prod-⊆ ∣
              where
-             kl<ku = trans-< {_} {_} {_} {kl} {1r} {ku} kl<1 1<ku
+             kl<ku = trans-< kl<1 1<ku
              k : Iℚ
              k = (Iℚ-cons kl ku (weaken-< kl<ku))
 

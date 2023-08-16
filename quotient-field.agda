@@ -23,8 +23,9 @@ open import sum
 open import truncation
 open import univalence
 
-module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         {R : Ring S AG} {A : TightApartnessStr D ℓ} (ID : IntegralDomain R A) where
+module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid D}
+         {S : Semiring ACM} {AG : AdditiveGroup ACM}
+         {R : Ring S AG} {A : isTightApartness D#} (ID : IntegralDomain R A) where
   private
     module R = Ring R
     module ID = IntegralDomain ID
@@ -529,17 +530,15 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
       TightApartness-q# : TightApartness _q#_
       TightApartness-q# = tight-q# , apartness-q#
 
-    TightApartnessStr-Q : TightApartnessStr Q ℓ
-    TightApartnessStr-Q = record
-      { _#_ = _q#_
-      ; TightApartness-# = TightApartness-q#
-      ; isProp-# = isProp-q#
-      }
-
-    private
-      instance
-        ITightApartnessStr-Q : TightApartnessStr Q ℓ
-        ITightApartnessStr-Q = TightApartnessStr-Q
+    instance
+      isTightApartness-q# : isTightApartness _q#_
+      isTightApartness-q# = record
+        { tight-# = tight-q#
+        ; irrefl-# = \{a} -> irrefl-q# {a}
+        ; sym-# = \{a} {b} -> sym-q# {a} {b}
+        ; comparison-# = comparison-q#
+        ; isProp-# = \{a} {b} -> isProp-q# a b
+        }
 
     1q#0 : 1# q# 0#
     1q#0 = 1f#0
@@ -614,5 +613,5 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {S : Semiring
     field#-q#-path : (\x y -> Ring-Q.isUnit (diff x y)) == _q#_
     field#-q#-path = funExt (\x -> (funExt (\y -> (ua (isUnit-q#-equiv x y)))))
 
-    Field-Q : Field Ring-Q TightApartnessStr-Q
+    Field-Q : Field Ring-Q isTightApartness-q#
     Field-Q = record { f#-path = field#-q#-path }

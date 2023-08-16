@@ -10,14 +10,15 @@ open import equality
 open import equivalence
 open import functions
 open import isomorphism
+open import relation
 open import ring
 open import semiring
 open import sigma
 
 
-module _ {ℓ ℓ# : Level} {D : Type ℓ}
+module _ {ℓ ℓ# : Level} {D : Type ℓ} {D# : Rel D ℓ#}
          {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         (R : Ring S AG) (A : TightApartnessStr D ℓ#) where
+         (R : Ring S AG) (A : isTightApartness D#) where
   private
     instance
       IS = S
@@ -33,9 +34,9 @@ module _ {ℓ ℓ# : Level} {D : Type ℓ}
       *-#0-equiv : {a b : D} -> ((a # 0#) × (b # 0#)) ≃ (a * b) # 0#
 
 
-module _ {ℓ ℓ# : Level} {D : Type ℓ}
+module _ {ℓ ℓ# : Level} {D : Type ℓ} {D# : Rel D ℓ#}
          {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         {R : Ring S AG} {A : TightApartnessStr D ℓ#} {{IntD : IntegralDomain R A}} where
+         {R : Ring S AG} {A : isTightApartness D#} {{IntD : IntegralDomain R A}} where
   private
     instance
       IACM = ACM

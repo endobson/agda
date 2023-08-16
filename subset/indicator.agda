@@ -55,9 +55,9 @@ module _ {ℓD : Level} {D : Type ℓD}
     indicator : I -> D
     indicator = ∃!-val ∃!indicator
 
-  module _ {ℓ< ℓ≤ : Level}
-           {LO : LinearOrderStr D ℓ<}
-           {PO : PartialOrderStr D ℓ≤}
+  module _ {ℓ< ℓ≤ : Level} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+           {LO : isLinearOrder D<}
+           {PO : isPartialOrder D≤}
            {{LOS : LinearlyOrderedSemiringStr S LO}}
            {{CO : CompatibleOrderStr LO PO}}
            where

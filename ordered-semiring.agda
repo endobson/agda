@@ -11,6 +11,7 @@ open import hlevel
 open import isomorphism
 open import order
 open import order.homomorphism
+open import relation
 open import semiring
 open import sum
 open import truncation
@@ -20,20 +21,22 @@ private
     ℓD ℓ< ℓ≤ : Level
 
 -- TODO rename this to just about the multiplicative structure
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : LinearOrderStr D ℓ<) where
+module _ {D : Type ℓD} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : isLinearOrder D<) where
   private
     instance
       IACM = ACM
       IS = S
       IO = O
 
-  record LinearlyOrderedSemiringStr : Type (ℓ-max (ℓ-suc ℓ<) ℓD) where
+  record LinearlyOrderedSemiringStr : Type (ℓ-max ℓ< ℓD) where
     no-eta-equality
     field
       *₁-preserves-< : {a b c : D} -> 0# < a -> b < c -> (a * b) < (a * c)
       *₁-flips-< : {a b c : D} -> a < 0# -> b < c -> (a * c) < (a * b)
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : LinearOrderStr D ℓ<}
+module _ {D : Type ℓD} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : isLinearOrder D<}
          {{LOS : LinearlyOrderedSemiringStr S O}} where
 
   private
@@ -123,7 +126,8 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
       f< : (a < 0#) -> (a * c) ≮ (a * b)
       f< 0<a = *₁-flips-≮' 0<a b≮c
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : LinearOrderStr D ℓ<) where
+module _ {D : Type ℓD} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : isLinearOrder D<) where
   private
     instance
       IACM = ACM
@@ -136,7 +140,8 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : Li
       *₁-fully-reflects-< : {a b c : D} -> (a * b) < (a * c) ->
         (b < c × 0# < a) ⊎ (c < b × a < 0#)
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : LinearOrderStr D ℓ<}
+module _ {D : Type ℓD} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : isLinearOrder D<}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S O}} where
   private
     module SLOS = StronglyLinearlyOrderedSemiringStr SLOS
@@ -196,7 +201,8 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
       handle (inj-l (0<b , 0<a)) = inj-r 0<a , inj-r 0<b
       handle (inj-r (b<0 , a<0)) = inj-l a<0 , inj-l b<0
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : LinearOrderStr D ℓ<}
+module _ {D : Type ℓD} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : isLinearOrder D<}
          {{LOS : LinearlyOrderedSemiringStr S O}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S O}} where
   private
@@ -217,7 +223,8 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : L
 
 
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : PartialOrderStr D ℓ≤) where
+module _ {D : Type ℓD} {D≤ : Rel D ℓ≤}
+         {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : isPartialOrder D≤) where
   private
     instance
       IACM = ACM
@@ -231,7 +238,8 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : Pa
       *₁-flips-≤ : {a b c : D} -> a ≤ 0# -> b ≤ c -> (a * c) ≤ (a * b)
 
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : PartialOrderStr D ℓ<}
+module _ {D : Type ℓD} {D≤ : Rel D ℓ≤}
+         {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : isPartialOrder D≤}
          {{POS : PartiallyOrderedSemiringStr S O}} where
 
   private
@@ -260,8 +268,8 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : Pa
       subst2 _≤_ *-commute *-commute (*₁-flips-≤ c≤0 a≤b)
 
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
-         (S : Semiring ACM) (LO : LinearOrderStr D ℓ<) (PO : PartialOrderStr D ℓ≤) where
+module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤} {ACM : AdditiveCommMonoid D}
+         (S : Semiring ACM) (LO : isLinearOrder D<) (PO : isPartialOrder D≤) where
   private
     instance
       IACM = ACM
@@ -275,8 +283,9 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       *₁-reflects-≤ : {a b c : D} -> 0# < a -> (a * b) ≤ (a * c) -> b ≤ c
       *₁-flip-reflects-≤ : {a b c : D} -> a < 0# -> (a * b) ≤ (a * c) -> c ≤ b
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {LO : LinearOrderStr D ℓ<} {PO : PartialOrderStr D ℓ≤}
+module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
          {{SPOS : StronglyPartiallyOrderedSemiringStr S LO PO}} where
 
   private
@@ -298,17 +307,15 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
 record LinearlyOrderedSemiringʰᵉ
     {ℓ₁ ℓ₂ ℓ<₁ ℓ<₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+    {<₁ : Rel D₁ ℓ<₁} {<₂ : Rel D₂ ℓ<₂}
     {ACM₁ : AdditiveCommMonoid D₁}
     {ACM₂ : AdditiveCommMonoid D₂}
     {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
-    {LO₁ : LinearOrderStr D₁ ℓ<₁} {LO₂ : LinearOrderStr D₂ ℓ<₂}
+    {LO₁ : isLinearOrder <₁} {LO₂ : isLinearOrder <₂}
     (LOS₁ : LinearlyOrderedSemiringStr S₁ LO₁)
     (LOS₂ : LinearlyOrderedSemiringStr S₂ LO₂)
-    (f : D₁ -> D₂) : Type (ℓ-max* 4 ℓ₁ ℓ₂ (ℓ-suc ℓ<₁) (ℓ-suc ℓ<₂))
+    (f : D₁ -> D₂) : Type (ℓ-max* 4 ℓ₁ ℓ₂ ℓ<₁ ℓ<₂)
     where
-  private
-    module LO₁ = LinearOrderStr LO₁
-    module LO₂ = LinearOrderStr LO₂
 
   field
     semiringʰ : Semiringʰᵉ S₁ S₂ f
@@ -320,23 +327,25 @@ record LinearlyOrderedSemiringʰᵉ
 LinearlyOrderedSemiringʰ :
   {ℓ₁ ℓ₂ ℓ<₁ ℓ<₂ : Level}
   {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+  {<₁ : Rel D₁ ℓ<₁} {<₂ : Rel D₂ ℓ<₂}
   {ACM₁ : AdditiveCommMonoid D₁}
   {ACM₂ : AdditiveCommMonoid D₂}
   {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
-  {LO₁ : LinearOrderStr D₁ ℓ<₁} {LO₂ : LinearOrderStr D₂ ℓ<₂}
+  {LO₁ : isLinearOrder <₁} {LO₂ : isLinearOrder <₂}
   {{LOS₁ : LinearlyOrderedSemiringStr S₁ LO₁}}
   {{LOS₂ : LinearlyOrderedSemiringStr S₂ LO₂}}
-  (f : D₁ -> D₂) -> Type (ℓ-max* 4 ℓ₁ ℓ₂ (ℓ-suc ℓ<₁) (ℓ-suc ℓ<₂))
+  (f : D₁ -> D₂) -> Type (ℓ-max* 4 ℓ₁ ℓ₂ ℓ<₁ ℓ<₂)
 LinearlyOrderedSemiringʰ {{LOS₁ = LOS₁}} {{LOS₂ = LOS₂}} f =
   LinearlyOrderedSemiringʰᵉ LOS₁ LOS₂ f
 
 module LinearlyOrderedSemiringʰ
   {ℓ₁ ℓ₂ ℓ<₁ ℓ<₂ : Level}
   {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+  {<₁ : Rel D₁ ℓ<₁} {<₂ : Rel D₂ ℓ<₂}
   {ACM₁ : AdditiveCommMonoid D₁}
   {ACM₂ : AdditiveCommMonoid D₂}
   {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
-  {LO₁ : LinearOrderStr D₁ ℓ<₁} {LO₂ : LinearOrderStr D₂ ℓ<₂}
+  {LO₁ : isLinearOrder <₁} {LO₂ : isLinearOrder <₂}
   {LOS₁ : LinearlyOrderedSemiringStr S₁ LO₁}
   {LOS₂ : LinearlyOrderedSemiringStr S₂ LO₂}
   {f : D₁ -> D₂} (h : LinearlyOrderedSemiringʰᵉ LOS₁ LOS₂ f) where
@@ -346,10 +355,11 @@ module LinearlyOrderedSemiringʰ
 module _
     {ℓ₁ ℓ₂ ℓ<₁ ℓ<₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+    {<₁ : Rel D₁ ℓ<₁} {<₂ : Rel D₂ ℓ<₂}
     {ACM₁ : AdditiveCommMonoid D₁}
     {ACM₂ : AdditiveCommMonoid D₂}
     {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
-    {LO₁ : LinearOrderStr D₁ ℓ<₁} {LO₂ : LinearOrderStr D₂ ℓ<₂}
+    {LO₁ : isLinearOrder <₁} {LO₂ : isLinearOrder <₂}
     {LOS₁ : LinearlyOrderedSemiringStr S₁ LO₁}
     {LOS₂ : LinearlyOrderedSemiringStr S₂ LO₂}
     {f : D₁ -> D₂} where

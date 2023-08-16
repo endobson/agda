@@ -93,10 +93,10 @@ private
     inUpperT = pb-high , p2.uB≤b pb-ih
 
     instance
-      PO-LowerT : PartialOrderStr _ _
-      PO-LowerT = PartialOrderStr-Subtype lower-bound useⁱ
-      PO-UpperT : PartialOrderStr _ _
-      PO-UpperT = PartialOrderStr-Subtype upper-bound useⁱ
+      PO-LowerT : isPartialOrder _
+      PO-LowerT = isPartialOrder->isPartialOrder-Subtype≤ lower-bound useⁱ
+      PO-UpperT : isPartialOrder _
+      PO-UpperT = isPartialOrder->isPartialOrder-Subtype≤ upper-bound useⁱ
 
     maxLowerT : ∃[ v ∈ LowerT ] (∀ (v2 : LowerT) -> v2 ≤ v)
     maxLowerT = handle (finite-argmax FinSet-LowerT fst)

@@ -23,7 +23,10 @@ open import truncation
 open import univalence
 
 Indices : (ℓS ℓI ℓ< : Level) -> Type _
-Indices ℓS ℓI ℓ< = Σ[ S ∈ Type ℓS ] (S -> Σ[ LO ∈ LOSet ℓI ℓ< ] (DecidableLinearOrderStr (snd LO)))
+Indices ℓS ℓI ℓ< =
+  Σ[ S ∈ Type ℓS ]
+    (S -> Σ[ LO ∈ LOSet ℓI ℓ< ]
+            (DecidableLinearOrderStr (LinearOrderStr.isLinearOrder-< (snd LO))))
 
 Container : {ℓS ℓI ℓA : Level} {S : Type ℓS} -> (S -> Type ℓI) -> Type ℓA -> Type (ℓ-max* 3 ℓI ℓA ℓS)
 Container {S = S} I A = Σ[ s ∈ S ] (I s -> A)
@@ -37,7 +40,9 @@ List (S , I) A = Σ[ s ∈ S ] (Vector ⟨ I s ⟩ A)
 SubSequence : {ℓS ℓI ℓ< ℓA : Level} {A : Type ℓA} -> (I : Indices ℓS ℓI ℓ<) -> Rel (List I A) _
 SubSequence (S , I) (s1 , f1) (s2 , f2) =
   ∃[ g ∈ (I' s1 -> I' s2) ] (
-    LinearOrderʰᵉ (snd (fst (I s1))) (snd (fst (I s2))) g ×
+    LinearOrderʰᵉ (LinearOrderStr.isLinearOrder-< (snd (fst (I s1))))
+                  (LinearOrderStr.isLinearOrder-< (snd (fst (I s2))))
+                  g × -- (snd (fst (I s1))) (snd (fst (I s2))) g ×
     ∀ i -> (f1 i) == (f2 (g i)))
   where
   I' = fst ∘ fst ∘ I
@@ -50,15 +55,17 @@ _l∈_ : {ℓS ℓI ℓA : Level} {S : Type ℓS} {I : S -> Type ℓI} {A : Type
        REL A (Container I A) _
 _l∈_ a l = ∥ a l∈' l ∥
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓ<}}  where
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}  where
   Sorted : {ℓS ℓI ℓI< : Level} -> (I : Indices ℓS ℓI ℓI<) -> Pred (List I D) _
-  Sorted (_ , I) (s , f) = LinearOrderʰᵉ (snd (fst (I s))) useⁱ f
+  Sorted (_ , I) (s , f) =
+    LinearOrderʰᵉ (LinearOrderStr.isLinearOrder-< (snd (fst (I s)))) useⁱ f
 
 module _ where
   SortedList : {ℓS ℓI ℓI< : Level} -> (I : Indices ℓS ℓI ℓI<) ->
-               {ℓD ℓD< : Level} (D : Type ℓD) {{LO : LinearOrderStr D ℓD<}} ->
+               {ℓD ℓD< : Level} (D : Type ℓD) {D< : Rel D ℓD<}
+               {{LO : isLinearOrder D<}} ->
                Type _
-  SortedList I D = Σ (List I D) (Sorted I)
+  SortedList I D {D<} = Σ (List I D) (Sorted I)
 
 
 module _ {ℓS ℓI ℓI< : Level} (Idxs : Indices ℓS ℓI ℓI<) where
@@ -70,14 +77,15 @@ module _ {ℓS ℓI ℓI< : Level} (Idxs : Indices ℓS ℓI ℓI<) where
     I : S -> Type ℓI
     I s = ⟨ I' s ⟩
     instance
-      LO-I : {s : S} -> LinearOrderStr (I s) ℓI<
-      LO-I {s} = snd (fst (snd Idxs s))
-      DLO-I : {s : S} -> DecidableLinearOrderStr (LO-I {s})
+      LO-I : {s : S} -> isLinearOrder (LinearOrderStr._<_ (snd (I' s)))
+      LO-I {s} = LinearOrderStr.isLinearOrder-< (snd (fst (snd Idxs s)))
+      LOS-I : {s : S} -> LinearOrderStr _ _
+      LOS-I {s} = (snd (fst (snd Idxs s)))
+      DLO-I : {s : S} -> DecidableLinearOrderStr _
       DLO-I {s} = snd (snd Idxs s)
 
-  module _ {ℓD ℓD< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓD<}}  where
+  module _ {ℓD ℓD< : Level} {D : Type ℓD} {D< : Rel D ℓD<} {{LO : isLinearOrder D<}}  where
     private
-
       SubSequenceIndexes : Rel (List Idxs D) _
       SubSequenceIndexes (s1 , f1) (s2 , f2) =
         ∀ (x : I s1) -> Σ[ y ∈ I s2 ] f1 x == f2 y

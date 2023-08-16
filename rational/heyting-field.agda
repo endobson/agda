@@ -49,7 +49,7 @@ private
                                 (inj-r (r--flips-sign _ pos-sign (Pos-diffℚ y x y<x)))) Zero-0r
 
 instance
-  RationalField : Field RationalRing TightApartnessStr-ℚ
+  RationalField : Field RationalRing isTightApartness-ℚ#
   RationalField = record
     { f#-path = funExt2 (\x y -> f#-path-ℚ)
     }

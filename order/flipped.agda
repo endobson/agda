@@ -4,40 +4,37 @@ module order.flipped where
 
 open import base
 open import order
+open import relation
 open import sum
 open import truncation
 
 LinearOrderStr-Flipped :
-  {ℓA ℓ< : Level} {A : Type ℓA} -> LinearOrderStr A ℓ< -> LinearOrderStr A ℓ<
-LinearOrderStr-Flipped o = record
-  { _<_ = \x y -> y o.< x
-  ; isLinearOrder-< = record
-    { isProp-< = o.isProp-<
-    ; irrefl-< = o.irrefl-<
-    ; trans-< = \lt1 lt2 -> (o.trans-< lt2 lt1)
-    ; connected-< = \ ¬lt1 ¬lt2 -> o.connected-< ¬lt2 ¬lt1
-    ; comparison-< = \a b c lt -> ∥-map ⊎-swap (o.comparison-< c b a lt)
-    }
+  {ℓA ℓ< : Level} {A : Type ℓA} {A< : Rel A ℓ<} -> isLinearOrder A< -> isLinearOrder (\x y -> A< y x)
+LinearOrderStr-Flipped LO = record
+  { isProp-< = isProp-<
+  ; irrefl-< = irrefl-<
+  ; trans-< = \lt1 lt2 -> trans-< lt2 lt1
+  ; connected-< = \ ¬lt1 ¬lt2 -> connected-< ¬lt2 ¬lt1
+  ; comparison-< = \a b c lt -> ∥-map ⊎-swap (comparison-< c b a lt)
   }
   where
-  module o = LinearOrderStr o
+  instance
+    ILO = LO
 
 PartialOrderStr-Flipped :
-  {ℓA ℓ≤ : Level} {A : Type ℓA} -> PartialOrderStr A ℓ≤ -> PartialOrderStr A ℓ≤
-PartialOrderStr-Flipped o = record
-  { _≤_ = \x y -> y o.≤ x
-  ; isPartialOrder-≤ = record
-    { isProp-≤ = o.isProp-≤
-    ; refl-≤ = o.refl-≤
-    ; trans-≤ = \lt1 lt2 -> (o.trans-≤ lt2 lt1)
-    ; antisym-≤ = \lt1 lt2 -> o.antisym-≤ lt2 lt1
-    }
+  {ℓA ℓ≤ : Level} {A : Type ℓA} {A≤ : Rel A ℓ≤} -> isPartialOrder A≤ -> isPartialOrder (\x y -> A≤ y x)
+PartialOrderStr-Flipped PO = record
+  { isProp-≤ = isProp-≤
+  ; refl-≤ = refl-≤
+  ; trans-≤ = \lt1 lt2 -> trans-≤ lt2 lt1
+  ; antisym-≤ = \lt1 lt2 -> antisym-≤ lt2 lt1
   }
   where
-  module o = PartialOrderStr o
+  instance
+    IPO = PO
 
 TotalOrderStr-Flipped :
-  {ℓA ℓ≤ : Level} {A : Type ℓA} {PO : PartialOrderStr A ℓ≤} ->
+  {ℓA ℓ≤ : Level} {A : Type ℓA} {A≤ : Rel A ℓ≤} {PO : isPartialOrder A≤} ->
   TotalOrderStr PO -> TotalOrderStr (PartialOrderStr-Flipped PO)
 TotalOrderStr-Flipped o = record { connex-≤ = \lt1 lt2 -> o.connex-≤ lt2 lt1 }
   where

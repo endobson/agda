@@ -167,8 +167,7 @@ private
 
 abstract
   instance
-    JoinSemiLatticeStr-Partition≼ : {a b : ℝ} ->
-      JoinSemiLatticeStr (getⁱ (PartialOrderStr (Partition a b) _))
+    JoinSemiLatticeStr-Partition≼ : {a b : ℝ} -> JoinSemiLatticeStr {D = Partition a b} useⁱ
     JoinSemiLatticeStr-Partition≼ {a} {b} = record
       { join = join-partition a b
       ; is-join = record

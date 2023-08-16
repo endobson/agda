@@ -380,8 +380,11 @@ abstract
         >=> +-left-zero
 
 instance
-  TightApartnessStr-SemiRotation : TightApartnessStr SemiRotation ℓ-one
-  TightApartnessStr-SemiRotation .TightApartnessStr._#_ = _sr#_
-  TightApartnessStr-SemiRotation .TightApartnessStr.TightApartness-# =
-    tight-sr# , (irrefl-sr# , sym-sr# , comparison-sr#)
-  TightApartnessStr-SemiRotation .TightApartnessStr.isProp-# = \x y -> isProp-sr#
+  isTightApartness-sr# : isTightApartness _sr#_
+  isTightApartness-sr# = record
+    { tight-# = tight-sr#
+    ; irrefl-# = irrefl-sr#
+    ; sym-# = sym-sr#
+    ; comparison-# = comparison-sr#
+    ; isProp-# = isProp-sr#
+    }

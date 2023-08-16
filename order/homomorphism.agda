@@ -12,12 +12,10 @@ open import hlevel.base
 record LinearOrderʰᵉ
   {ℓD₁ ℓD₂ ℓ<₁ ℓ<₂ : Level}
   {D₁ : Type ℓD₁} {D₂ : Type ℓD₂}
-  (O₁ : LinearOrderStr D₁ ℓ<₁) (O₂ : LinearOrderStr D₂ ℓ<₂)
-  (f : D₁ -> D₂) : Type (ℓ-max* 4 ℓD₁ ℓD₂ (ℓ-suc ℓ<₁) (ℓ-suc ℓ<₂))
+  {_<₁_ : Rel D₁ ℓ<₁} {_<₂_ : Rel D₂ ℓ<₂}
+  (O₁ : isLinearOrder _<₁_) (O₂ : isLinearOrder _<₂_)
+  (f : D₁ -> D₂) : Type (ℓ-max* 4 ℓD₁ ℓD₂ ℓ<₁ ℓ<₂)
   where
-  private
-    _<₁_ = LinearOrderStr._<_ O₁
-    _<₂_ = LinearOrderStr._<_ O₂
 
   field
     preserves-< : ∀ {x y} -> x <₁ y -> f x <₂ f y
@@ -46,15 +44,17 @@ record LinearOrderʰᵉ
 LinearOrderʰ :
   {ℓD₁ ℓD₂ ℓ<₁ ℓ<₂ : Level}
   {D₁ : Type ℓD₁} {D₂ : Type ℓD₂}
-  {{ O₁ : LinearOrderStr D₁ ℓ<₁ }} {{ O₂ : LinearOrderStr D₂ ℓ<₂ }}
+  {_<₁_ : Rel D₁ ℓ<₁} {_<₂_ : Rel D₂ ℓ<₂}
+  {{O₁ : isLinearOrder _<₁_}} {{O₂ : isLinearOrder _<₂_}}
   (f : D₁ -> D₂) ->
-  Type (ℓ-max* 4 ℓD₁ ℓD₂ (ℓ-suc ℓ<₁) (ℓ-suc ℓ<₂))
+  Type (ℓ-max* 4 ℓD₁ ℓD₂ ℓ<₁ ℓ<₂)
 LinearOrderʰ {{O₁ = O₁}} {{O₂ = O₂}} f = LinearOrderʰᵉ O₁ O₂ f
 
 isProp-LinearOrderʰ :
   {ℓD₁ ℓD₂ ℓ<₁ ℓ<₂ : Level}
   {D₁ : Type ℓD₁} {D₂ : Type ℓD₂}
-  {O₁ : LinearOrderStr D₁ ℓ<₁} {O₂ : LinearOrderStr D₂ ℓ<₂}
+  {_<₁_ : Rel D₁ ℓ<₁} {_<₂_ : Rel D₂ ℓ<₂}
+  {O₁ : isLinearOrder _<₁_} {O₂ : isLinearOrder _<₂_}
   {f : D₁ -> D₂} ->
   isProp (LinearOrderʰᵉ O₁ O₂ f)
 isProp-LinearOrderʰ {O₂ = O₂} h1 h2 i .LinearOrderʰᵉ.preserves-< lt =
@@ -68,7 +68,8 @@ isProp-LinearOrderʰ {O₂ = O₂} h1 h2 i .LinearOrderʰᵉ.preserves-< lt =
 module LinearOrderʰ
   {ℓD₁ ℓD₂ ℓ<₁ ℓ<₂ : Level}
   {D₁ : Type ℓD₁} {D₂ : Type ℓD₂}
-  {O₁ : LinearOrderStr D₁ ℓ<₁} {O₂ : LinearOrderStr D₂ ℓ<₂}
+  {_<₁_ : Rel D₁ ℓ<₁} {_<₂_ : Rel D₂ ℓ<₂}
+  {O₁ : isLinearOrder _<₁_} {O₂ : isLinearOrder _<₂_}
   {f : D₁ -> D₂} (h : LinearOrderʰᵉ O₁ O₂ f)
   where
   open LinearOrderʰᵉ h public
@@ -76,7 +77,8 @@ module LinearOrderʰ
 LinearOrderʰ-∘ :
   {ℓD₁ ℓD₂ ℓD₃ ℓ<₁ ℓ<₂ ℓ<₃ : Level}
   {D₁ : Type ℓD₁} {D₂ : Type ℓD₂} {D₃ : Type ℓD₃}
-  {O₁ : LinearOrderStr D₁ ℓ<₁} {O₂ : LinearOrderStr D₂ ℓ<₂} {O₃ : LinearOrderStr D₃ ℓ<₃}
+  {_<₁_ : Rel D₁ ℓ<₁} {_<₂_ : Rel D₂ ℓ<₂} {_<₃_ : Rel D₃ ℓ<₃}
+  {O₁ : isLinearOrder _<₁_} {O₂ : isLinearOrder _<₂_} {O₃ : isLinearOrder _<₃_}
   {f₁₂ : D₁ -> D₂} {f₂₃ : D₂ -> D₃}
   (h₁₂ : LinearOrderʰᵉ O₁ O₂ f₁₂) (h₂₃ : LinearOrderʰᵉ O₂ O₃ f₂₃) ->
   LinearOrderʰᵉ O₁ O₃ (f₂₃ ∘ f₁₂)

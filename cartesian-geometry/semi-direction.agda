@@ -95,7 +95,7 @@ private
           p2 : normalize-vector (v- (k v* v)) v-kv#0 == v- (normalize-vector (k v* v) kv#0)
           p2 = normalize-vector-v- (k v* v) kv#0 v-kv#0
           p3 : normalize-vector (v- (k v* v)) v-kv#0 == normalize-vector ((- k) v* v) -kv#0
-          p3 = cong2-dep normalize-vector v-p1 (isProp->PathPᵉ (\i -> isProp-v# (v-p1 i) _) v-kv#0 -kv#0)
+          p3 = cong2-dep normalize-vector v-p1 (isProp->PathPᵉ (\i -> isProp-v#) v-kv#0 -kv#0)
 
           p : normalize-vector (k v* v) kv#0 == v- (normalize-vector v v#0)
           p = sym v--double-inverse >=> cong v-_ (sym p2 >=> p3 >=> p1)

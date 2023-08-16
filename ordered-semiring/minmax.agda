@@ -5,18 +5,20 @@ module ordered-semiring.minmax where
 open import additive-group
 open import base
 open import equality
+open import hlevel.base
 open import order
 open import order.minmax
-open import truncation
-open import hlevel.base
-open import semiring
-open import ordered-semiring
 open import ordered-ring
+open import ordered-semiring
+open import relation
+open import semiring
+open import truncation
 
-module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         {ACM : AdditiveCommMonoid D}
          {S : Semiring ACM}
-         {LO : LinearOrderStr D ℓ<}
-         {PO : PartialOrderStr D ℓ≤}
+         {LO : isLinearOrder D<}
+         {PO : isPartialOrder D≤}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}}
          {{POS : PartiallyOrderedSemiringStr S PO}}

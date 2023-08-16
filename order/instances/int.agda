@@ -12,29 +12,21 @@ open import truncation
 import int.order as io
 
 instance
-  LinearOrderStr-ℤ : LinearOrderStr ℤ ℓ-zero
-  LinearOrderStr-ℤ = record
-    { _<_ = io._<_
-    ; isLinearOrder-< = record
-      { isProp-< = io.isProp-<
-      ; irrefl-< = \{x} -> io.irrefl-< {x}
-      ; trans-< = \{x} {y} {z} -> io.trans-< {x} {y} {z}
-      ; connected-< = io.connected-<
-      ; comparison-< = \i j k i<k -> ∣ io.comparison-< i<k j ∣
-      }
+  isLinearOrder-ℤ< : isLinearOrder io._<_
+  isLinearOrder-ℤ< = record
+    { isProp-< = io.isProp-<
+    ; irrefl-< = \{x} -> io.irrefl-< {x}
+    ; trans-< = \{x} {y} {z} -> io.trans-< {x} {y} {z}
+    ; connected-< = io.connected-<
+    ; comparison-< = \i j k i<k -> ∣ io.comparison-< i<k j ∣
     }
 
-
-instance
-  PartialOrderStr-ℤ : PartialOrderStr ℤ ℓ-zero
-  PartialOrderStr-ℤ = record
-    { _≤_ = io._≤_
-    ; isPartialOrder-≤ = record
-      { isProp-≤ = io.isProp-≤
-      ; refl-≤ = \{x} -> io.refl-≤ {x}
-      ; trans-≤ = \{x} {y} {z} -> io.trans-≤ {x} {y} {z}
-      ; antisym-≤ = io.antisym-≤
-      }
+  isPartialOrder-ℤ≤ : isPartialOrder io._≤_
+  isPartialOrder-ℤ≤ = record
+    { isProp-≤ = io.isProp-≤
+    ; refl-≤ = \{x} -> io.refl-≤ {x}
+    ; trans-≤ = \{x} {y} {z} -> io.trans-≤ {x} {y} {z}
+    ; antisym-≤ = io.antisym-≤
     }
 
 private
@@ -47,7 +39,7 @@ private
     handle (inj-r j≤i) (inj-r i≤j) = tri=' (io.antisym-≤ i≤j j≤i)
 
 instance
-  DecidableLinearOrderStr-ℤ : DecidableLinearOrderStr LinearOrderStr-ℤ
+  DecidableLinearOrderStr-ℤ : DecidableLinearOrderStr useⁱ
   DecidableLinearOrderStr-ℤ = record
     { trichotomous-< = trichotomous-ℤ<
     }
@@ -65,8 +57,7 @@ private
      }
 
 instance
-  CompatibleOrderStr-ℤ :
-    CompatibleOrderStr LinearOrderStr-ℤ PartialOrderStr-ℤ
+  CompatibleOrderStr-ℤ : CompatibleOrderStr useⁱ useⁱ
   CompatibleOrderStr-ℤ = record
     { convert-≮ = convert-ℤ≮
     }

@@ -33,16 +33,16 @@ private
 
 abstract
   instance
-    LinearlyOrderedSemiringStr-ℕ : LinearlyOrderedSemiringStr NatSemiring LinearOrderStr-ℕ
+    LinearlyOrderedSemiringStr-ℕ : LinearlyOrderedSemiringStr NatSemiring useⁱ
     LinearlyOrderedSemiringStr-ℕ .LinearlyOrderedSemiringStr.*₁-preserves-< =
       *-left-<⁺
     LinearlyOrderedSemiringStr-ℕ .LinearlyOrderedSemiringStr.*₁-flips-< a<0 =
       bot-elim (zero-≮ a<0)
 
-    StronglyLinearlyOrderedSemiringStr-ℕ : StronglyLinearlyOrderedSemiringStr NatSemiring LinearOrderStr-ℕ
+    StronglyLinearlyOrderedSemiringStr-ℕ : StronglyLinearlyOrderedSemiringStr NatSemiring useⁱ
     StronglyLinearlyOrderedSemiringStr-ℕ = StronglyLinearlyOrderedSemiringStr-Dec<
 
-    PartiallyOrderedSemiringStr-ℕ : PartiallyOrderedSemiringStr NatSemiring PartialOrderStr-ℕ
+    PartiallyOrderedSemiringStr-ℕ : PartiallyOrderedSemiringStr NatSemiring useⁱ
     PartiallyOrderedSemiringStr-ℕ .PartiallyOrderedSemiringStr.*₁-preserves-≤ {a} 0≤a =
       *-left-≤⁺ a
     PartiallyOrderedSemiringStr-ℕ .PartiallyOrderedSemiringStr.*₁-flips-≤ {zero} a≤0 _ =

@@ -2,22 +2,23 @@
 
 module finsum.order where
 
-open import finsum
+open import additive-group
+open import base
+open import commutative-monoid
+open import commutative-monoid.binary-product
+open import commutative-monoid.subtype
 open import equality
-open import functions
-open import finset
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
-open import commutative-monoid
-open import commutative-monoid.subtype
-open import commutative-monoid.binary-product
-open import base
-open import additive-group
+open import finset
+open import finsum
+open import functions
 open import order
 open import ordered-additive-group
+open import relation
 
-module _ {ℓD ℓ≤ : Level} {D : Type ℓD}
-         {ACM : AdditiveCommMonoid D} {O : PartialOrderStr D ℓ≤}
+module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤}
+         {ACM : AdditiveCommMonoid D} {O : isPartialOrder D≤}
          {{POA : PartiallyOrderedAdditiveStr ACM O}} where
   private
     CM = AdditiveCommMonoid.comm-monoid ACM

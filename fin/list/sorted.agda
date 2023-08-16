@@ -27,23 +27,22 @@ open import sigma.base
 
 import ordered-set.glist
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓ<}}  where
-  Sorted : Pred (FinList D) (ℓ-max ℓD (ℓ-suc ℓ<))
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}  where
+  Sorted : Pred (FinList D) (ℓ-max ℓD ℓ<)
   Sorted (n , f) = LinearOrderʰ f
 
-module _ {ℓD ℓ< : Level} (D : Type ℓD) {{LO : LinearOrderStr D ℓ<}}  where
-  SortedList : Type (ℓ-max ℓD (ℓ-suc ℓ<))
+module _ {ℓD ℓ< : Level} (D : Type ℓD) {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}  where
+  SortedList : Type (ℓ-max ℓD ℓ<)
   SortedList = Σ (FinList D) Sorted
 
-module _ {ℓB ℓB< : Level} {B : Type ℓB} {{LO : LinearOrderStr B ℓB<}} where
+module _ {ℓB ℓB< : Level} {B : Type ℓB} {B< : Rel B ℓB<} {{LO : isLinearOrder B<}} where
   _sl∈_ : REL B (SortedList B) ℓB
   b sl∈ (l , s) = b l∈ l
 
   _sl∈'_ : REL B (SortedList B) ℓB
   b sl∈' (l , s) = b l∈' l
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓ<}}  where
-
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}  where
   isProp-sl∈' : (d : D) (l : SortedList D) -> isProp (d sl∈' l)
   isProp-sl∈' d (l , s) (i1 , p1) (i2 , p2) =
     ΣProp-path (isSet-LinearlyOrdered D _ _)
@@ -54,7 +53,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓ<}}  whe
 
   private
     Fin-Indices : ordered-set.glist.Indices ℓ-zero ℓ-zero ℓ-zero
-    Fin-Indices = Nat , \n -> (Fin n , useⁱ) , useⁱ
+    Fin-Indices = Nat , \n -> (Fin n , record { isLinearOrder-< = useⁱ }) , useⁱ
 
   Sorted≼ : Rel (SortedList D) (ℓ-max ℓ-zero ℓD)
   Sorted≼ = ordered-set.glist.Sorted≼ Fin-Indices
@@ -137,6 +136,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓ<}}  whe
       l1=l2 = \i -> n-path i , element-paths->vector-path n-path f-paths i
 
   instance
-    PartialOrderStr-SortedList : PartialOrderStr (SortedList D) _
-    PartialOrderStr-SortedList =
-      ordered-set.glist.PartialOrderStr-SortedList Fin-Indices antisym-Sorted≼
+    isPartialOrder-SortedList : isPartialOrder _
+    isPartialOrder-SortedList =
+      PartialOrderStr.isPartialOrder-≤
+        (ordered-set.glist.PartialOrderStr-SortedList Fin-Indices antisym-Sorted≼)

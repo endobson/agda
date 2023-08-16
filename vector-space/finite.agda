@@ -27,10 +27,10 @@ private
   variable
     ℓ : Level
 
-module _ {ℓK ℓV : Level} {K : Type ℓK}
+module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
          {S : Semiring ACM} {R : Ring S AG}
-         {A : TightApartnessStr K ℓK} {F : Field R A} {V : Type ℓV}
+         {A : isTightApartness K#} {F : Field R A} {V : Type ℓV}
          {{VS : VectorSpaceStr F V}} where
 
 
@@ -42,7 +42,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
       IA = A
       IM = VS.module-str
       IACM = ACM
-      IVA = ModuleStr.TightApartnessStr-V IM
+      IVA = ModuleStr.isTightApartness-v# IM
 
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
@@ -117,10 +117,10 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
     isBasis = isSpanning × LinearlyIndependent
 
 
-module _ {ℓK ℓV : Level} {K : Type ℓK}
+module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
          {S : Semiring ACM} {R : Ring S AG}
-         {A : TightApartnessStr K ℓK} {F : Field R A} {V : Type ℓV}
+         {A : isTightApartness K#} {F : Field R A} {V : Type ℓV}
          {{VS : VectorSpaceStr F V}}
          where
   private
@@ -187,10 +187,10 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
 
 
 
-module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK}
+module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK} {K# : Rel K ℓK}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
          {S : Semiring ACM} {R : Ring S AG}
-         {A : TightApartnessStr K ℓK} {F : Field R A} {V1 : Type ℓV1} {V2 : Type ℓV2}
+         {A : isTightApartness K#} {F : Field R A} {V1 : Type ℓV1} {V2 : Type ℓV2}
          {{VS1 : VectorSpaceStr F V1}} {{VS2 : VectorSpaceStr F V2}}
          where
 
@@ -200,8 +200,8 @@ module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK}
       IM1 = VectorSpaceStr.module-str VS1
       IM2 = VectorSpaceStr.module-str VS2
       IACM = ACM
-      IVA1 = ModuleStr.TightApartnessStr-V IM1
-      IVA2 = ModuleStr.TightApartnessStr-V IM2
+      IVA1 = ModuleStr.isTightApartness-v# IM1
+      IVA2 = ModuleStr.isTightApartness-v# IM2
 
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where

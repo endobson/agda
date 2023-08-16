@@ -12,6 +12,7 @@ open import order
 open import ordered-additive-group
 open import ordered-ring
 open import ordered-semiring
+open import relation
 open import ring
 open import semiring
 
@@ -19,10 +20,11 @@ private
   variable
     ℓD ℓ< ℓ≤ ℓ# : Level
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {D : Type ℓD} {D# : Rel D ℓ#} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D}
          {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         {O : LinearOrderStr D ℓ<}
-         {R : Ring S AG} {A : TightApartnessStr D ℓ#}
+         {O : isLinearOrder D<}
+         {R : Ring S AG} {A : isTightApartness D#}
          {{LOA : LinearlyOrderedAdditiveStr ACM O}}
          {{LOS : LinearlyOrderedSemiringStr S O}}
          {{ALO : ApartLinearOrderStr A O}}
@@ -49,11 +51,12 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       handle (inj-r 0<1) = 0<1
 
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {D : Type ℓD} {D# : Rel D ℓ#} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         {ACM : AdditiveCommMonoid D}
          {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         {O : LinearOrderStr D ℓ<}
-         {PO : PartialOrderStr D ℓ<}
-         {R : Ring S AG} {A : TightApartnessStr D ℓ#}
+         {O : isLinearOrder D<}
+         {PO : isPartialOrder D≤}
+         {R : Ring S AG} {A : isTightApartness D#}
          {{LOA : LinearlyOrderedAdditiveStr ACM O}}
          {{LOS : LinearlyOrderedSemiringStr S O}}
          {{COS : CompatibleOrderStr O PO}}

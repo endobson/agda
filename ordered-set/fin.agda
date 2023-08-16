@@ -18,10 +18,10 @@ open import ordered-set
 open import ordered-set.glist
 
 LOSet-Fin : Nat -> LOSet ℓ-zero ℓ-zero
-LOSet-Fin n = Fin n , useⁱ
+LOSet-Fin n = Fin n , record { isLinearOrder-< = useⁱ }
 
 LOSet-FinT : Nat -> LOSet ℓ-zero ℓ-zero
-LOSet-FinT n = FinT n , useⁱ
+LOSet-FinT n = FinT n , record { isLinearOrder-< = useⁱ }
 
 private
   same-< : (n : Nat) (i j : FinT n) -> i < j ≃ (eqFun (FinT≃Fin n) i < eqFun (FinT≃Fin n) j)
@@ -66,5 +66,7 @@ Indices-FinT=Fin = \i -> Nat , (\n -> (lo-path n i , dlo-path n i))
   lo-path : (n : Nat) -> (LOSet-FinT n == LOSet-Fin n)
   lo-path n = LOSet≃->path (LOSet≃-FinT-Fin n)
 
-  dlo-path : (n : Nat) -> PathP (\i -> DecidableLinearOrderStr (snd (lo-path n i))) useⁱ useⁱ
+  dlo-path : (n : Nat) ->
+    PathP (\i -> DecidableLinearOrderStr (LinearOrderStr.isLinearOrder-< (snd (lo-path n i))))
+      useⁱ useⁱ
   dlo-path n = isProp->PathP (\_ -> isProp-DecidableLinearOrderStr)

@@ -19,10 +19,10 @@ private
   variable
     ℓ : Level
 
-record Field {ℓ : Level} {D : Type ℓ}
+record Field {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ}
              {ACM : AdditiveCommMonoid D}
              {S : Semiring ACM} {AG : AdditiveGroup ACM} (R : Ring S AG)
-             (A : TightApartnessStr D ℓ)
+             (A : isTightApartness D#)
   : Type (ℓ-suc ℓ) where
   private
     module R = Ring R
@@ -37,17 +37,17 @@ record Field {ℓ : Level} {D : Type ℓ}
   x f# y = R.isUnit (y + (- x))
 
   field
-    f#-path : _f#_ == (TightApartnessStr._#_ A)
+    f#-path : _f#_ == D#
 
 
-  TightApartness-f# : TightApartness _f#_
-  TightApartness-f# = subst TightApartness (sym f#-path) (TightApartnessStr.TightApartness-# A)
+  isTightApartness-f# : isTightApartness _f#_
+  isTightApartness-f# = subst isTightApartness (sym f#-path) A
 
   sym-f# : Symmetric _f#_
-  sym-f# = fst (snd (snd TightApartness-f#))
+  sym-f# = isTightApartness.sym-# isTightApartness-f#
 
   comparison-f# : Comparison _f#_
-  comparison-f# = snd (snd (snd TightApartness-f#))
+  comparison-f# = isTightApartness.comparison-# isTightApartness-f#
 
   private
     1#0' : 1# f# 0#
@@ -55,13 +55,6 @@ record Field {ℓ : Level} {D : Type ℓ}
 
   1#0 : 1# # 0#
   1#0 = subst (\z -> z 1# 0#) f#-path 1#0'
-
-  TightApartnessStr-f# : TightApartnessStr D ℓ
-  TightApartnessStr-f# = record
-    { _#_ = _f#_
-    ; TightApartness-# = TightApartness-f#
-    ; isProp-# = (\_ _ -> R.isProp-isUnit)
-    }
 
   f#-equiv : {x y : D} -> (x f# y) ≃ (x # y)
   f#-equiv {x} {y} = subst (\op -> (x f# y) ≃ op x y) f#-path (idEquiv (x f# y))

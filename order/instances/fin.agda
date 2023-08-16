@@ -38,16 +38,13 @@ private
     ∥-map (⊎-map fin< fin<) (comparison-< (Fin.i a) (Fin.i b) (Fin.i c) a<c)
 
 instance
-  LinearOrderStr-Fin : {n : Nat} -> LinearOrderStr (Fin n) ℓ-zero
-  LinearOrderStr-Fin = record
-    { _<_ = Fin<
-    ; isLinearOrder-< = record
-      { isProp-< = isProp-Fin<
-      ; irrefl-< = irrefl-Fin<
-      ; trans-< = trans-Fin<
-      ; connected-< = connected-Fin<
-      ; comparison-< = comparison-Fin<
-      }
+  isLinearOrder-Fin< : {n : Nat} -> isLinearOrder (Fin< {n})
+  isLinearOrder-Fin< = record
+    { isProp-< = isProp-Fin<
+    ; irrefl-< = irrefl-Fin<
+    ; trans-< = trans-Fin<
+    ; connected-< = connected-Fin<
+    ; comparison-< = comparison-Fin<
     }
 
 private
@@ -63,7 +60,7 @@ private
 
 instance
   DecidableLinearOrderStr-Fin :
-    {n : Nat} -> DecidableLinearOrderStr (LinearOrderStr-Fin {n})
+    {n : Nat} -> DecidableLinearOrderStr (isLinearOrder-Fin< {n})
   DecidableLinearOrderStr-Fin = record
     { trichotomous-< = trichotomous-Fin<
     }

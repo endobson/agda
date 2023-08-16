@@ -21,15 +21,15 @@ LOSet≃ (A , OA) (B , OB) =
   Σ[ e ∈ (A ≃ B) ] (LinearOrderʰ (eqFun e) × LinearOrderʰ (eqInv e))
   where
   instance
-    I-OA = OA
-    I-OB = OB
+    I-OA = LinearOrderStr.isLinearOrder-< OA
+    I-OB = LinearOrderStr.isLinearOrder-< OB
 
 
 module _ {ℓD ℓ< : Level} {S : LOSet ℓD ℓ<} {T : LOSet ℓD ℓ<} where
   private
     instance
-      I-OS = snd S
-      I-OT = snd T
+      I-OS = LinearOrderStr.isLinearOrder-< (snd S)
+      I-OT = LinearOrderStr.isLinearOrder-< (snd T)
     S' = ⟨ S ⟩
     T' = ⟨ T ⟩
 
@@ -60,9 +60,9 @@ module _ {ℓD ℓ< : Level} {S : LOSet ℓD ℓ<} {T : LOSet ℓD ℓ<} where
 
 
 LOSet≃->path : {ℓD ℓ< : Level} {S : LOSet ℓD ℓ<} {T : LOSet ℓD ℓ<} -> (LOSet≃ S T) -> S == T
-LOSet≃->path {S = (_ , S-str@(record {}))} {T = (_ , T-str@(record {}))} e = \i -> fst paths i , O-path i
+LOSet≃->path {S = S@(S' , S-str@(record {}))} {T = T@(T' , T-str@(record {}))} e = \i -> fst paths i , O-path i
   where
-  paths = LOSet≃->paths e
+  paths = LOSet≃->paths {S = S} {T = T} e
 
   O-path : PathP (\i -> LinearOrderStr (fst paths i) _) S-str T-str
   O-path i = record
@@ -89,8 +89,8 @@ POSet≃ (A , OA) (B , OB) =
 module _ {ℓD ℓ≤ : Level} {S : POSet ℓD ℓ≤} {T : POSet ℓD ℓ≤} where
   private
     instance
-      I-OS = snd S
-      I-OT = snd T
+      I-OS = PartialOrderStr.isPartialOrder-≤ (snd S)
+      I-OT = PartialOrderStr.isPartialOrder-≤ (snd T)
     S' = ⟨ S ⟩
     T' = ⟨ T ⟩
 

@@ -10,12 +10,14 @@ open import isomorphism
 open import nat
 open import order
 open import order.instances.nat
+open import relation
 
 private
   variable
     ℓObj ℓMor : Level
 
-module _ (D : Type ℓObj) {{PO : PartialOrderStr D ℓMor}} where
+module _ (D : Type ℓObj) {D< : Rel D ℓMor} {{PO : isPartialOrder D<}} where
+
   PartialOrderC : PreCategory ℓObj ℓMor
   PartialOrderC .PreCategory.Obj = D
   PartialOrderC .PreCategory.Mor x y = x ≤ y

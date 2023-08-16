@@ -77,12 +77,14 @@ private
                                y = tight-# (¬p# ∘ p#-cons ∘ ∣_∣ ∘ inj-r) i }
 
 instance
-  TightApartnessStr-Point : TightApartnessStr Point ℓ-one
-  TightApartnessStr-Point .TightApartnessStr._#_ = _p#_
-  TightApartnessStr-Point .TightApartnessStr.TightApartness-# =
-    tight-p# , (irrefl-p# , sym-p# , comparison-p#)
-  TightApartnessStr-Point .TightApartnessStr.isProp-# = \x y -> isProp-p#
-
+  isTightApartness-p# : isTightApartness _p#_
+  isTightApartness-p# = record
+    { tight-# = tight-p#
+    ; irrefl-# = irrefl-p#
+    ; sym-# = sym-p#
+    ; comparison-# = comparison-p#
+    ; isProp-# = isProp-p#
+    }
 
 _P+_ : Point -> Point -> Point
 p1 P+ p2 = record

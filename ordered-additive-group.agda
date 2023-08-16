@@ -8,16 +8,17 @@ open import equality
 open import equivalence
 open import functions
 open import hlevel.base
+open import isomorphism
 open import order
+open import relation
 open import sum
 open import truncation
-open import isomorphism
 
 private
   variable
     ℓD ℓ< ℓ≤ : Level
 
-module _ {D : Type ℓD} (ACM : AdditiveCommMonoid D) (O : LinearOrderStr D ℓ<) where
+module _ {D : Type ℓD} {D< : Rel D ℓ<} (ACM : AdditiveCommMonoid D) (O : isLinearOrder D<) where
   private
     instance
       IACM = ACM
@@ -29,7 +30,7 @@ module _ {D : Type ℓD} (ACM : AdditiveCommMonoid D) (O : LinearOrderStr D ℓ<
       +₁-preserves-< : {a b c : D} -> b < c -> (a + b) < (a + c)
       +₁-reflects-< : {a b c : D} -> (a + b) < (a + c) -> b < c
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {O : LinearOrderStr D ℓ<}
+module _ {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D} {O : isLinearOrder D<}
          {{LOA : LinearlyOrderedAdditiveStr ACM O}} where
 
   private
@@ -69,7 +70,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {O : LinearOrderStr D ℓ<
     +-reflects-0< {a} {b} 0<ab = +-reflects-< (subst (_< (a + b)) (sym +-right-zero) 0<ab)
 
 
-module _ {D : Type ℓD} (ACM : AdditiveCommMonoid D) (O : PartialOrderStr D ℓ≤) where
+module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} (ACM : AdditiveCommMonoid D) (O : isPartialOrder D≤) where
   private
     instance
       IACM = ACM
@@ -81,7 +82,7 @@ module _ {D : Type ℓD} (ACM : AdditiveCommMonoid D) (O : PartialOrderStr D ℓ
       +₁-preserves-≤ : {a b c : D} -> b ≤ c -> (a + b) ≤ (a + c)
 
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {O : PartialOrderStr D ℓ<}
+module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {ACM : AdditiveCommMonoid D} {O : isPartialOrder D≤}
          {{POA : PartiallyOrderedAdditiveStr ACM O}} where
 
   private
@@ -104,7 +105,7 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {O : PartialOrderStr D ℓ
     +-preserves-0≤ {a} {b} 0≤a 0≤b =
       subst (_≤ (a + b)) +-right-zero (+-preserves-≤ 0≤a 0≤b)
 
-module _ {D : Type ℓD} (ACM : AdditiveCommMonoid D) (PO : PartialOrderStr D ℓ≤) where
+module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} (ACM : AdditiveCommMonoid D) (PO : isPartialOrder D≤) where
   private
     instance
       IACM = ACM
@@ -115,7 +116,7 @@ module _ {D : Type ℓD} (ACM : AdditiveCommMonoid D) (PO : PartialOrderStr D �
     field
       +₁-reflects-≤ : {a b c : D} -> (a + b) ≤ (a + c) -> b ≤ c
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {PO : PartialOrderStr D ℓ≤}
+module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {ACM : AdditiveCommMonoid D} {PO : isPartialOrder D≤}
          {{SPOA : StronglyPartiallyOrderedAdditiveStr ACM PO}} where
 
   private
@@ -132,9 +133,9 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {PO : PartialOrderStr D �
     +₂-reflects-≤ ac≤bc = +₁-reflects-≤ (subst2 _≤_ +-commute +-commute ac≤bc)
 
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D}
          {{AG : AdditiveGroup ACM}}
-         {O : LinearOrderStr D ℓ<}
+         {O : isLinearOrder D<}
          {{LOA : LinearlyOrderedAdditiveStr ACM O}}
          where
   private
@@ -201,9 +202,9 @@ module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       backward = ⊎-swap ∘ ⊎-map diff-<0⁻ diff-0<⁻
 
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {ACM : AdditiveCommMonoid D}
          {{AG : AdditiveGroup ACM}}
-         {O : PartialOrderStr D ℓ<}
+         {O : isPartialOrder D≤}
          {{POA : PartiallyOrderedAdditiveStr ACM O}}
          where
   private

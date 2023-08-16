@@ -136,7 +136,8 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} (G : GroupStr D) (I : Type ℓI) wh
     ; ∙-left-inverse = dp∙-left-inverse
     }
 
-module _ {ℓD ℓI ℓ# : Level} {D : Type ℓD} (TD : TightApartnessStr D ℓ#) (I : Type ℓI) where
+module _ {ℓD ℓI ℓ# : Level} {D : Type ℓD} {D# : Rel D ℓ#}
+         (TD : isTightApartness D#) (I : Type ℓI) where
   private
     instance
       ITD = TD
@@ -169,14 +170,14 @@ module _ {ℓD ℓI ℓ# : Level} {D : Type ℓD} (TD : TightApartnessStr D ℓ#
             (⊎-map (\a#b -> ∣ i , a#b ∣) (\b#c -> ∣ i , b#c ∣))
             (comparison-# (unwrap-dp a i) (unwrap-dp b i) (unwrap-dp c i) ai#ci)
 
-
-  TightApartnessStr-DirectProduct : TightApartnessStr (DP D I) (ℓ-max ℓI ℓ#)
-  TightApartnessStr-DirectProduct = record
-    { _#_ = _dp#_
-    ; TightApartness-# = (tight-dp# , (irrefl-dp# , sym-dp# , comparison-dp#))
-    ; isProp-# = \_ _ -> squash
+  isTightApartness-DirectProduct : isTightApartness _dp#_
+  isTightApartness-DirectProduct = record
+    { tight-# = tight-dp#
+    ; irrefl-# = irrefl-dp#
+    ; sym-# = sym-dp#
+    ; comparison-# = comparison-dp#
+    ; isProp-# = squash
     }
-
 
 module _ {ℓK ℓI : Level} {K : Type ℓK} (ACM : AdditiveCommMonoid K) (I : Type ℓI) where
   AdditiveCommMonoid-DirectProduct : AdditiveCommMonoid (DP K I)
@@ -204,9 +205,9 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {ACM : AdditiveCommMonoid K}
     }
 
 
-module _ {ℓK ℓI ℓ# : Level} {K : Type ℓK}
+module _ {ℓK ℓI ℓ# : Level} {K : Type ℓK} {K# : Rel K ℓ#}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
-         {TA : TightApartnessStr K ℓ#} (AAG : ApartAdditiveGroup AG TA) (I : Type ℓI) where
+         {TA : isTightApartness K#} (AAG : ApartAdditiveGroup AG TA) (I : Type ℓI) where
   private
     instance
       IACM = ACM
@@ -214,7 +215,7 @@ module _ {ℓK ℓI ℓ# : Level} {K : Type ℓK}
       ITA = TA
       ACM-DP = AdditiveCommMonoid-DirectProduct ACM I
       AAG-DP = AdditiveGroup-DirectProduct AG I
-      TA-DP = TightApartnessStr-DirectProduct TA I
+      TA-DP = isTightApartness-DirectProduct TA I
 
 
     dp+-reflects-# : {v1 v2 v3 v4 : DP K I} -> (v1 + v2) # (v3 + v4) -> ∥ (v1 # v3) ⊎ (v2 # v4) ∥
@@ -232,9 +233,9 @@ module _ {ℓK ℓI ℓ# : Level} {K : Type ℓK}
 
 
 
-module _ {ℓK ℓI : Level} {K : Type ℓK}
+module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
          {ACM : AdditiveCommMonoid K} {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         (R : Ring S AG) (TK : TightApartnessStr K ℓK) (I : Type ℓI) where
+         (R : Ring S AG) (TK : isTightApartness K#) (I : Type ℓI) where
   private
     module R = Ring R
     instance
@@ -260,7 +261,8 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
   ModuleStr-DirectProduct : ModuleStr R (DP K I)
   ModuleStr-DirectProduct = record
     { GroupStr-V = GroupStr-DP
-    ; TightApartnessStr-V = (TightApartnessStr-DirectProduct TK I)
+    ; _v#_ = _
+    ; isTightApartness-v# = isTightApartness-DirectProduct TK I
     ; _v*_ = _dp*_
     ; v*-distrib-v+ = dp*-distrib-dp+
     ; v*-distrib-+ = dp*-distrib-+
@@ -268,18 +270,18 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
     ; v*-left-one = dp*-left-one
     }
 
-module _ {ℓK ℓI : Level} {K : Type ℓK}
+module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
          {ACM : AdditiveCommMonoid K} {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         {R : Ring S AG} {A : TightApartnessStr K ℓK} (F : Field R A) (I : Type ℓI) where
+         {R : Ring S AG} {A : isTightApartness K#} (F : Field R A) (I : Type ℓI) where
   private
     instance
       IACM = ACM
       IS = S
       IR = R
       IA = A
-      IVA = TightApartnessStr-DirectProduct IA I
+      IVA = isTightApartness-DirectProduct A I
 
-    MS = ModuleStr-DirectProduct R IA I
+    MS = ModuleStr-DirectProduct R A I
     module MS = ModuleStr MS
     module R = Ring R
     module F = Field F

@@ -12,6 +12,7 @@ open import functions
 open import hlevel
 open import order
 open import order.flipped
+open import relation
 open import sigma
 open import sum
 open import truncation
@@ -19,7 +20,8 @@ open import type-algebra
 
 private
 
-  module _ {ℓT ℓ< : Level} {T : Type ℓT} {PO : PartialOrderStr T ℓ<} (TO : TotalOrderStr PO) where
+  module _ {ℓT ℓ< : Level} {T : Type ℓT} {T< : Rel T ℓ<}
+           {PO : isPartialOrder T<} (TO : TotalOrderStr PO) where
     private
       instance
         IPO = PO
@@ -68,7 +70,8 @@ private
 
 private
   module _
-    {ℓS ℓT ℓ< : Level} {T : Type ℓT} {PO : PartialOrderStr T ℓ<} (TOS : TotalOrderStr PO)
+    {ℓS ℓT ℓ< : Level} {T : Type ℓT} {T< : Rel T ℓ<}
+    {PO : isPartialOrder T<} (TOS : TotalOrderStr PO)
     (S : FinSet ℓS) (f : ⟨ S ⟩ -> T) where
 
     private
@@ -109,7 +112,8 @@ private
 
 
 module _
-  {ℓS ℓT ℓ< : Level} {T : Type ℓT} {PO : PartialOrderStr T ℓ<} {{TOS : TotalOrderStr PO}}
+  {ℓS ℓT ℓ< : Level} {T : Type ℓT} {T< : Rel T ℓ<}
+  {PO : isPartialOrder T<} {{TOS : TotalOrderStr PO}}
   (S : FinSet ℓS) (f : ⟨ S ⟩ -> T) where
 
   private

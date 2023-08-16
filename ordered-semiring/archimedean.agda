@@ -2,18 +2,19 @@
 
 module ordered-semiring.archimedean where
 
-open import base
 open import additive-group
-open import semiring
-open import semiring.initial
+open import base
+open import nat
 open import order
 open import ordered-semiring
+open import relation
+open import semiring
+open import semiring.initial
 open import truncation
-open import nat
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
-         {S : Semiring ACM}
-         {LO : LinearOrderStr D ℓ<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+         {LO : isLinearOrder D<}
           where
   private
     instance
@@ -33,9 +34,9 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     archimedean-property : ArchimedeanProperty LOS
     archimedean-property = ArchimedeanSemiring.prop useⁱ
 
-module _ {ℓD ℓ< : Level} (D : Type ℓD) {ACM : AdditiveCommMonoid D}
+module _ {ℓD ℓ< : Level} (D : Type ℓD) {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D}
          {S : Semiring ACM}
-         {LO : LinearOrderStr D ℓ<}
+         {LO : isLinearOrder D<}
          {{LOS : LinearlyOrderedSemiringStr S LO}} where
   ArchimedeanSemiringⁱ : Type (ℓ-max ℓD ℓ<)
   ArchimedeanSemiringⁱ = ArchimedeanSemiring LOS

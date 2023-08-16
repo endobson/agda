@@ -6,17 +6,16 @@ open import additive-group
 open import base
 open import order
 open import ordered-additive-group
+open import relation
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} (ACM : AdditiveCommMonoid D)
-         (LO : LinearOrderStr D ℓ<)
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} (ACM : AdditiveCommMonoid D)
+         (LO : isLinearOrder D<)
          where
   private
     instance
       IACM = ACM
       ILO = LO
-
-      PO : PartialOrderStr D ℓ<
-      PO = NegatedLinearOrder LO
+      PO = isLinearOrder->isPartialOrder-≯ LO
 
   module _ {{LOA : LinearlyOrderedAdditiveStr ACM LO}} where
 

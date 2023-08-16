@@ -9,7 +9,8 @@ open import order.minmax
 open import relation
 
 
-module _ {ℓD : Level} (D : Type ℓD) {ℓ< : Level} {LO : LinearOrderStr D ℓ<} {{DLO : DecidableLinearOrderStr LO}}
+module _ {ℓD ℓ< : Level} (D : Type ℓD) {D< : Rel D ℓ<}
+         {LO : isLinearOrder D<} {{DLO : DecidableLinearOrderStr LO}}
   where
   private
     instance

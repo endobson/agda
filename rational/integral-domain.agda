@@ -8,5 +8,5 @@ open import rational
 open import rational.heyting-field
 
 instance
-  IntegralDomain-ℚ : IntegralDomain RationalRing TightApartnessStr-ℚ
+  IntegralDomain-ℚ : IntegralDomain RationalRing isTightApartness-ℚ#
   IntegralDomain-ℚ = IntegralDomain-Field

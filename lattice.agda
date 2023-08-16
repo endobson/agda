@@ -13,28 +13,24 @@ private
   Op₂ : {ℓ : Level} -> Type ℓ -> Type ℓ
   Op₂ D = D -> D -> D
 
-record isMeet {ℓD ℓ≤ : Level} {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) (meet : Op₂ D) :
-               Type (ℓ-max ℓD ℓ≤) where
-  private
-    module PO = PartialOrderStr PO
-
+record isMeet {ℓD ℓ≤ : Level} {D : Type ℓD} {_≤_ : Rel D ℓ≤}
+              (PO : isPartialOrder _≤_) (meet : Op₂ D) :
+              Type (ℓ-max ℓD ℓ≤) where
   field
-    meet-≤-left  : {x y : D} -> meet x y PO.≤ x
-    meet-≤-right : {x y : D} -> meet x y PO.≤ y
-    meet-greatest-≤ : {x y z : D} -> z PO.≤ x -> z PO.≤ y -> z PO.≤ meet x y
+    meet-≤-left  : {x y : D} -> meet x y ≤ x
+    meet-≤-right : {x y : D} -> meet x y ≤ y
+    meet-greatest-≤ : {x y z : D} -> z ≤ x -> z ≤ y -> z ≤ meet x y
 
 
-record isJoin {ℓD ℓ≤ : Level} {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) (join : Op₂ D) :
-               Type (ℓ-max ℓD ℓ≤) where
-  private
-    module PO = PartialOrderStr PO
-
+record isJoin {ℓD ℓ≤ : Level} {D : Type ℓD} {_≤_ : Rel D ℓ≤}
+              (PO : isPartialOrder _≤_) (join : Op₂ D) :
+              Type (ℓ-max ℓD ℓ≤) where
   field
-    join-≤-left  : {x y : D} -> x PO.≤ join x y
-    join-≤-right : {x y : D} -> y PO.≤ join x y
-    join-least-≤ : {x y z : D} -> x PO.≤ z -> y PO.≤ z -> join x y PO.≤ z
+    join-≤-left  : {x y : D} -> x ≤ join x y
+    join-≤-right : {x y : D} -> y ≤ join x y
+    join-least-≤ : {x y z : D} -> x ≤ z -> y ≤ z -> join x y ≤ z
 
-module _ {ℓD ℓ≤ : Level} {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) (op : Op₂ D) where
+module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} (PO : isPartialOrder D≤) (op : Op₂ D) where
   private
     instance
       IPO = PO
@@ -60,18 +56,15 @@ module _ {ℓD ℓ≤ : Level} {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) (
     module ij2 = isJoin ij2
 
 
-record MeetSemiLatticeStr {ℓD ℓ≤ : Level} {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) :
+record MeetSemiLatticeStr {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} (PO : isPartialOrder D≤) :
                           Type (ℓ-max ℓD ℓ≤) where
-  private
-    module PO = PartialOrderStr PO
-
   field
     meet : Op₂ D
     is-meet : isMeet PO meet
 
   open module is-meet = isMeet is-meet public
 
-module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {PO : PartialOrderStr D ℓ≤} where
+module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {PO : isPartialOrder D≤} where
   private
     instance
       IPO = PO
@@ -93,7 +86,7 @@ module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {PO : PartialOrderStr D ℓ≤} w
     path = funExt (\x -> (funExt (\y -> path' x y)))
 
 
-module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {PO : PartialOrderStr D ℓ≤}
+module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {PO : isPartialOrder D≤}
          {{ MS : MeetSemiLatticeStr PO }} where
   open MeetSemiLatticeStr MS public hiding
     ( is-meet
@@ -113,18 +106,15 @@ module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {PO : PartialOrderStr D ℓ≤}
   meet-commute = antisym-≤ (meet-greatest-≤ meet-≤-right meet-≤-left)
                            (meet-greatest-≤ meet-≤-right meet-≤-left)
 
-record JoinSemiLatticeStr {ℓD ℓ≤ : Level} {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) :
+record JoinSemiLatticeStr {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} (PO : isPartialOrder D≤) :
                           Type (ℓ-max ℓD ℓ≤) where
-  private
-    module PO = PartialOrderStr PO
-
   field
     join : Op₂ D
     is-join : isJoin PO join
 
   open module is-join = isJoin is-join public
 
-module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {PO : PartialOrderStr D ℓ≤} where
+module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {PO : isPartialOrder D≤} where
   private
     instance
       IPO = PO
@@ -147,7 +137,7 @@ module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {PO : PartialOrderStr D ℓ≤} w
     path = funExt (\x -> (funExt (\y -> path' x y)))
 
 
-module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {PO : PartialOrderStr D ℓ≤}
+module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {PO : isPartialOrder D≤}
          {{ JS : JoinSemiLatticeStr PO }} where
   open JoinSemiLatticeStr JS public hiding
     ( is-join

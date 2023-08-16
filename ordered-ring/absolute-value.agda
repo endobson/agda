@@ -14,19 +14,21 @@ open import ordered-additive-group.negated
 open import ordered-semiring
 open import ordered-semiring.negated
 open import ordered-semiring.squares
+open import relation
 open import ring
 open import semiring
 open import sum
 open import truncation
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{Max : MaxOperationStr LO}}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {LO : isLinearOrder D<} {{Max : MaxOperationStr LO}}
          {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}} {{S : Semiring ACM}}
          where
   private
     instance
       ILO = LO
       IACM = ACM
-      PO = NegatedLinearOrder LO
+      PO = isLinearOrder->isPartialOrder-≯ LO
       CPO = CompatibleNegatedLinearOrder LO
 
   module _

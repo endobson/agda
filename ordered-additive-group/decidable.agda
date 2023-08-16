@@ -10,8 +10,9 @@ open import ordered-additive-group
 open import sum
 open import relation
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
-         {O : LinearOrderStr D ℓ<} {{DLO : DecidableLinearOrderStr O}} where
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {{ACM : AdditiveCommMonoid D}}
+         {O : isLinearOrder D<} {{DLO : DecidableLinearOrderStr O}} where
   private
     instance
       IO = O
@@ -33,8 +34,9 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
       b=c : b == c
       b=c = connected-< b≮c c≮b
 
-module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
-         {LO : LinearOrderStr D ℓ<} {PO : PartialOrderStr D ℓ≤}
+module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         {ACM : AdditiveCommMonoid D}
+         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
          {{CO : CompatibleOrderStr LO PO}}
          {{LOS : LinearlyOrderedAdditiveStr ACM LO}}
          {{DLO : DecidableLinearOrderStr LO}}

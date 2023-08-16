@@ -21,10 +21,10 @@ private
   variable
     ℓ : Level
 
-module _ {ℓK ℓV : Level} {K : Type ℓK}
+module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
          {S : Semiring ACM} {R : Ring S AG}
-         {A : TightApartnessStr K ℓK} {F : Field R A} {V : Type ℓV}
+         {A : isTightApartness K#} {F : Field R A} {V : Type ℓV}
          (VS : VectorSpaceStr F V) where
 
   private
@@ -36,8 +36,8 @@ module _ {ℓK ℓV : Level} {K : Type ℓK}
       IACM = ACM
       IS = S
       IF = F
-      IVA = ModuleStr.TightApartnessStr-V IM
-      IFA = Field.TightApartnessStr-f# F
+      IVA = ModuleStr.isTightApartness-v# IM
+      IFA = Field.isTightApartness-f# F
       IVS = VS
 
 

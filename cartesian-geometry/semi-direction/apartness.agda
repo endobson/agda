@@ -179,11 +179,14 @@ private
       diff=0 = tight-# (¬sd1#sd2 ∘ sd#-cons)
 
 instance
-  TightApartnessStr-SemiDirection : TightApartnessStr SemiDirection ℓ-one
-  TightApartnessStr-SemiDirection .TightApartnessStr._#_ = _sd#_
-  TightApartnessStr-SemiDirection .TightApartnessStr.TightApartness-# =
-    tight-sd# , (irrefl-sd# , sym-sd# , comparison-sd#)
-  TightApartnessStr-SemiDirection .TightApartnessStr.isProp-# = \x y -> isProp-sd#
+  isTightApartness-sd# : isTightApartness _sd#_
+  isTightApartness-sd# = record
+    { tight-# = tight-sd#
+    ; irrefl-# = irrefl-sd#
+    ; sym-# = sym-sd#
+    ; comparison-# = comparison-sd#
+    ; isProp-# = isProp-sd#
+    }
 
 module _ {d1 d2 : Direction} where
   private

@@ -2,33 +2,35 @@
 
 module finite-product.arithmetic where
 
-open import semiring
-open import equality
-open import ordered-semiring
-open import ordered-semiring.negated
-open import ordered-ring.absolute-value
-open import ordered-additive-group
-open import ordered-additive-group.negated
-open import ordered-additive-group.absolute-value
-open import order
-open import commutative-monoid
-open import order.minmax
-open import finset
-open import finite-product
-open import finite-commutative-monoid
-open import finite-commutative-monoid.without-point
-open import finite-commutative-monoid.instances
 open import additive-group
 open import base
-open import hlevel
-open import without-point
-open import finset.without-point
+open import commutative-monoid
 open import commutative-monoid.subtype
+open import equality
+open import finite-commutative-monoid
+open import finite-commutative-monoid.instances
+open import finite-commutative-monoid.without-point
+open import finite-product
+open import finset
+open import finset.without-point
+open import hlevel
+open import order
+open import order.minmax
+open import ordered-additive-group
+open import ordered-additive-group.absolute-value
+open import ordered-additive-group.negated
+open import ordered-ring.absolute-value
+open import ordered-semiring
+open import ordered-semiring.negated
+open import relation
+open import semiring
+open import without-point
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D}
          {{AG : AdditiveGroup ACM}}
          {S : Semiring ACM}
-         {LO : LinearOrderStr D ℓ<}
+         {LO : isLinearOrder D<}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}}
@@ -39,7 +41,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       IACM = ACM
       IAG = AG
       ILO = LO
-      PO = NegatedLinearOrder LO
+      PO = isLinearOrder->isPartialOrder-≯ LO
       CO = CompatibleNegatedLinearOrder LO
       POA = PartiallyOrderedAdditiveStr-Negated ACM LO
       POS = PartiallyOrderedSemiringStr-Negated S LO

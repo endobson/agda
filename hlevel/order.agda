@@ -8,7 +8,7 @@ open import hlevel
 open import order
 open import relation
 
-module _ {ℓA ℓ< : Level} (A : Type ℓA) {{LO : LinearOrderStr A ℓ<}} where
+module _ {ℓA ℓ< : Level} (A : Type ℓA) {A< : Rel A ℓ<} {{LO : isLinearOrder A<}} where
   private
     Stable== : (x y : A) -> Stable (x == y)
     Stable== x y ¬¬x=y = connected-< (\x<y -> ¬¬x=y (\x=y -> irrefl-path-< x=y x<y))

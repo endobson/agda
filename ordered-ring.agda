@@ -9,6 +9,7 @@ open import hlevel
 open import order
 open import ordered-additive-group
 open import ordered-semiring
+open import relation
 open import ring
 open import semiring
 open import sum
@@ -18,8 +19,9 @@ private
   variable
     ℓD ℓ< ℓ≤ : Level
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {{AG : AdditiveGroup ACM}}
-         {O : PartialOrderStr D ℓ≤}
+module _ {D : Type ℓD} {D≤ : Rel D ℓ≤}
+         {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {{AG : AdditiveGroup ACM}}
+         {O : isPartialOrder D≤}
          {{TO : TotalOrderStr O}}
          {{POA : PartiallyOrderedAdditiveStr ACM O}}
          {{POS : PartiallyOrderedSemiringStr S O}}

@@ -37,7 +37,7 @@ abstract
     ; isUpperSet-U = \q2<q3 q1<q2 -> trans-< q1<q2 q2<q3
     ; isUpperOpen-L = isUpperOpen-L
     ; isLowerOpen-U = isLowerOpen-U
-    ; disjoint = \q2 (l , u) -> asym-< {_} {_} {_} {q2} {q1} l u
+    ; disjoint = \q2 (l , u) -> asym-< l u
     ; located = located
     }
     where
@@ -69,10 +69,10 @@ abstract
         handle (z , q2<z , z<q3) = handle2 (decide-< q1 z) (decide-< z q1)
           where
           handle2 : Dec (q1 < z) -> Dec (z < q1) -> q2 < q1 ⊎ q1 < q3
-          handle2 (yes lt) _        = inj-r (trans-< {_} {_} {_} {q1} {z} {q3} lt z<q3)
-          handle2 (no _)   (yes lt) = inj-l (trans-< {_} {_} {_} {q2} {z} {q1} q2<z lt)
+          handle2 (yes lt) _        = inj-r (trans-< lt z<q3)
+          handle2 (no _)   (yes lt) = inj-l (trans-< q2<z lt)
           handle2 (no q1≮z) (no z≮q1) =
-            inj-l (subst (q2 <_) (connected-< {_} {_} {_} {z} {q1} z≮q1 q1≮z) q2<z)
+            inj-l (subst (q2 <_) (connected-< z≮q1 q1≮z) q2<z)
 
       isUpperOpen-L : (q2 : ℚ) -> L q2 -> ∃[ q3 ∈ ℚ ] (q2 < q3 × L q3)
       isUpperOpen-L q2 q2<q1 = dense-< {q2} {q1} q2<q1

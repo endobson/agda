@@ -72,16 +72,13 @@ private
     handle (inj-r y≤x) = ∣ inj-r (trans-ℕ≤-ℕ< y≤x x<z) ∣
 
 instance
-  LinearOrderStr-ℕ : LinearOrderStr Nat ℓ-zero
-  LinearOrderStr-ℕ = record
-    { _<_ = _ℕ<_
-    ; isLinearOrder-< = record
-      { isProp-< = isProp-ℕ≤
-      ; irrefl-< = irrefl-ℕ<
-      ; trans-< = trans-ℕ<
-      ; connected-< = connected-ℕ<
-      ; comparison-< = comparison-ℕ<
-      }
+  isLinearOrder-ℕ< : isLinearOrder _ℕ<_
+  isLinearOrder-ℕ< = record
+    { isProp-< = isProp-ℕ≤
+    ; irrefl-< = irrefl-ℕ<
+    ; trans-< = trans-ℕ<
+    ; connected-< = connected-ℕ<
+    ; comparison-< = comparison-ℕ<
     }
 
 private
@@ -89,20 +86,17 @@ private
   refl-ℕ≤ = 0 , +'-left-zero
 
 instance
-  PartialOrderStr-ℕ : PartialOrderStr Nat ℓ-zero
-  PartialOrderStr-ℕ = record
-    { _≤_ = _ℕ≤_
-    ; isPartialOrder-≤ = record
-      { isProp-≤ = isProp-ℕ≤
-      ; refl-≤ = refl-ℕ≤
-      ; trans-≤ = trans-ℕ≤
-      ; antisym-≤ = antisym-ℕ≤
-      }
+  isPartialOrder-ℕ≤ : isPartialOrder _ℕ≤_
+  isPartialOrder-ℕ≤ = record
+    { isProp-≤ = isProp-ℕ≤
+    ; refl-≤ = refl-ℕ≤
+    ; trans-≤ = trans-ℕ≤
+    ; antisym-≤ = antisym-ℕ≤
     }
 
 instance
   CompatibleOrderStr-ℕ :
-    CompatibleOrderStr LinearOrderStr-ℕ PartialOrderStr-ℕ
+    CompatibleOrderStr isLinearOrder-ℕ< isPartialOrder-ℕ≤
   CompatibleOrderStr-ℕ = record
     { convert-≮ = convert-ℕ≮
     }
@@ -118,9 +112,9 @@ private
       handle (inj-r y≤x) (inj-r x≤y) = tri=' (antisym-≤ x≤y y≤x)
 
 instance
-  DecidableLinearOrderStr-ℕ : DecidableLinearOrderStr LinearOrderStr-ℕ
+  DecidableLinearOrderStr-ℕ : DecidableLinearOrderStr isLinearOrder-ℕ<
   DecidableLinearOrderStr-ℕ = record
     { trichotomous-< = trichotomous-ℕ<
     }
-  TotalOrderStr-ℕ : TotalOrderStr PartialOrderStr-ℕ
+  TotalOrderStr-ℕ : TotalOrderStr isPartialOrder-ℕ≤
   TotalOrderStr-ℕ = TotalOrderStr-LinearOrder

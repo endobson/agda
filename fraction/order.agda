@@ -128,10 +128,11 @@ _ℚ'≥_ : ℚ' -> ℚ' -> Type₀
 q ℚ'≥ r = r ℚ'≤ q
 
 isProp-ℚ'< : {q r : ℚ'} -> isProp (q ℚ'< r)
-isProp-ℚ'< (ℚ'<-cons p1) (ℚ'<-cons p2) = cong ℚ'<-cons (isProp-Pos _ p1 p2)
+isProp-ℚ'< (ℚ'<-cons p1) (ℚ'<-cons p2) = cong ℚ'<-cons (isProp-Pos {D = ℚ'} _ p1 p2)
 
 isProp-ℚ'≤ : {q r : ℚ'} -> isProp (q ℚ'≤ r)
-isProp-ℚ'≤ (ℚ'≤-cons p1) (ℚ'≤-cons p2) = cong ℚ'≤-cons (isProp-NonNeg _ p1 p2)
+isProp-ℚ'≤ (ℚ'≤-cons p1) (ℚ'≤-cons p2) = cong ℚ'≤-cons (isProp-NonNeg {D = ℚ'} _ p1 p2)
+
 
 r~-preserves-<₁ : {q1 q2 r : Rational'} -> q1 ℚ'< r -> q1 r~ q2 -> q2 ℚ'< r
 r~-preserves-<₁ {q1} {q2} {r} (ℚ'<-cons pos-diff) q1~q2 =
@@ -176,7 +177,7 @@ r*'₁-preserves-< a b c (ℚ'<-cons pos-a-diff) (ℚ'<-cons pos-bc-diff) =
 
 
 irrefl-ℚ'< : Irreflexive _ℚ'<_
-irrefl-ℚ'< {a} (ℚ'<-cons pos-diff) = (NonPos->¬Pos (Zero->NonPos zero-diff) pos-diff)
+irrefl-ℚ'< {a} (ℚ'<-cons pos-diff) = (NonPos->¬Pos {D = ℚ'} (Zero->NonPos {D = ℚ'} zero-diff) pos-diff)
   where
   zero-diff : Zero (a r+' (r-' a))
   zero-diff = r~-preserves-sign Zero-0r' (sym (r+'-inverse a))
@@ -220,11 +221,13 @@ decide-ℚ'< x y = handle (decide-sign z')
   z' = Rational'.numerator z * Rational'.denominator z
   handle : Σ[ s ∈ Sign ] (isSign s z') -> Dec (x ℚ'< y)
   handle (pos-sign  , pz) = yes (ℚ'<-cons (is-signℚ' pz))
-  handle (zero-sign , zz) = no (\ (ℚ'<-cons pz) -> NonPos->¬Pos (Zero->NonPos zz) (isSignℚ'.v pz))
-  handle (neg-sign  , nz) = no (\ (ℚ'<-cons pz) -> NonPos->¬Pos (Neg->NonPos nz) (isSignℚ'.v pz))
+  handle (zero-sign , zz) =
+    no (\ (ℚ'<-cons pz) -> NonPos->¬Pos {D = i.Int} (Zero->NonPos {D = i.Int} zz) (isSignℚ'.v pz))
+  handle (neg-sign  , nz) =
+    no (\ (ℚ'<-cons pz) -> NonPos->¬Pos {D = i.Int} (Neg->NonPos {D = i.Int} nz) (isSignℚ'.v pz))
 
 asym-ℚ'< : Asymmetric _ℚ'<_
-asym-ℚ'< {q} {r} (ℚ'<-cons pos-d1) (ℚ'<-cons pos-d2) = NonPos->¬Pos (inj-l neg-d2) pos-d2
+asym-ℚ'< {q} {r} (ℚ'<-cons pos-d1) (ℚ'<-cons pos-d2) = NonPos->¬Pos {D = ℚ'} (inj-l neg-d2) pos-d2
   where
   d1 = r r+' (r-' q)
   d2 = q r+' (r-' r)
@@ -277,7 +280,7 @@ private
 
 
   ℚ'<-¬r~ : {q r : ℚ'} -> q ℚ'< r -> ¬ (q r~ r)
-  ℚ'<-¬r~ {q} {r} (ℚ'<-cons pos-diff) q~r = NonPos->¬Pos (inj-r (r~->zero-diff q~r)) pos-diff
+  ℚ'<-¬r~ {q} {r} (ℚ'<-cons pos-diff) q~r = NonPos->¬Pos {D = ℚ'} (inj-r (r~->zero-diff q~r)) pos-diff
 
 
 ℚ'≤-elim : {ℓ : Level} {P : ℚ' -> ℚ' -> Type ℓ} ->
@@ -306,10 +309,10 @@ trichotomous~-ℚ'< q r = handle (decide-sign d')
     where
     q<r = (ℚ'<-cons (is-signℚ' pd))
   handle (zero-sign , zd) =
-    tri= (\ (ℚ'<-cons pd) -> NonPos->¬Pos (Zero->NonPos zd) (isSignℚ'.v pd))
+    tri= (\ (ℚ'<-cons pd) -> NonPos->¬Pos {D = i.Int} (Zero->NonPos {D = i.Int} zd) (isSignℚ'.v pd))
          (sym r~q)
          (\ (ℚ'<-cons pd2) ->
-           NonZero->¬Zero (inj-l pd2)
+           NonZero->¬Zero {D = ℚ'} (inj-l pd2)
              (subst Zero -d==d2 (r-'-flips-sign _ zero-sign (is-signℚ' zd))))
     where
     d'-path : d' == (int.int 0)
@@ -329,7 +332,7 @@ trichotomous~-ℚ'< q r = handle (decide-sign d')
       +-left-zero
 
   handle (neg-sign  , nd) =
-    tri> (\ (ℚ'<-cons pd) -> NonPos->¬Pos (Neg->NonPos nd) (isSignℚ'.v pd))
+    tri> (\ (ℚ'<-cons pd) -> NonPos->¬Pos {D = i.Int} (Neg->NonPos {D = i.Int} nd) (isSignℚ'.v pd))
          (\ q~r -> ℚ'<-¬r~ r<q (sym q~r))
          r<q
     where

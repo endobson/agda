@@ -29,10 +29,10 @@ private
   RelStream : {ℓA ℓR : Level} {A : Type ℓA} (R : Rel A ℓR) -> Type (ℓ-max ℓA ℓR)
   RelStream {A = A} R = Σ[ As ∈ (Nat -> A) ] ∀ n -> R (As n) (As (suc n))
 
-  DescStream : {ℓA ℓ< : Level} (A : Type ℓA) -> {{LinearOrderStr A ℓ<}} -> Type _
+  DescStream : {ℓA ℓ< : Level} (A : Type ℓA) {A< : Rel A ℓ<} -> {{isLinearOrder A<}} -> Type _
   DescStream A = RelStream {A = A} _>_
 
-  AscStream : {ℓA ℓ< : Level} (A : Type ℓA) -> {{LinearOrderStr A ℓ<}} -> Type _
+  AscStream : {ℓA ℓ< : Level} (A : Type ℓA) {A< : Rel A ℓ<} -> {{isLinearOrder A<}} -> Type _
   AscStream A = RelStream {A = A} _<_
 
   ¬DescStreamNat : ¬ (DescStream Nat)

@@ -5,15 +5,16 @@ module ordered-additive-group.minmax where
 open import additive-group
 open import base
 open import equality
+open import hlevel.base
 open import order
 open import order.minmax
 open import ordered-additive-group
 open import ordered-additive-group.negated
+open import relation
 open import truncation
-open import hlevel.base
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
-         {LO : LinearOrderStr D ℓ<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D}
+         {LO : isLinearOrder D<}
          {{Min : MinOperationStr LO}}
          {{Max : MaxOperationStr LO}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
@@ -22,7 +23,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     instance
       IACM = ACM
       ILO = LO
-      IPO = NegatedLinearOrder LO
+      IPO = isLinearOrder->isPartialOrder-≯ LO
       CPO = CompatibleNegatedLinearOrder LO
       POA = PartiallyOrderedAdditiveStr-Negated ACM LO
 

@@ -16,6 +16,7 @@ open import nat
 open import order
 open import order.instances.nat
 open import ordered-additive-group
+open import relation
 open import sequence
 
 module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}  where
@@ -76,8 +77,8 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}  where
 
 
 
-module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
-         {PO : PartialOrderStr D ℓ≤}
+module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {ACM : AdditiveCommMonoid D}
+         {PO : isPartialOrder D≤}
          {{POA : PartiallyOrderedAdditiveStr ACM PO}}
           where
   private

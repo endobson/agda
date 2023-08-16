@@ -9,11 +9,13 @@ open import order
 open import ordered-additive-group
 open import ordered-semiring
 open import semiring
+open import relation
 open import ring
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
          {{AG : AdditiveGroup ACM}}
-         {O : LinearOrderStr D ℓ<}
+         {O : isLinearOrder D<}
          {{LOA : LinearlyOrderedAdditiveStr ACM O}}
          where
   private
@@ -39,9 +41,10 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : 
         0<-a : 0# < (- a)
         0<-a = trans-=-< (sym minus-zero) (minus-flips-< a<0)
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
-         {{S : Semiring ACM}} {{AG : AdditiveGroup ACM}}
-         {O : PartialOrderStr D ℓ<}
+module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤}
+         {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
+         {{AG : AdditiveGroup ACM}}
+         {O : isPartialOrder D≤}
          {{POA : PartiallyOrderedAdditiveStr ACM O}}
          where
   private

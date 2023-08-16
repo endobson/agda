@@ -6,20 +6,20 @@ open import additive-group
 open import base
 open import order
 open import ordered-semiring
+open import relation
 open import semiring
 open import sum
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} (S : Semiring ACM)
-         (LO : LinearOrderStr D ℓ<)
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D} (S : Semiring ACM)
+         (LO : isLinearOrder D<)
          where
   private
     instance
       IACM = ACM
       IS = S
       ILO = LO
-
-      PO : PartialOrderStr D ℓ<
-      PO = NegatedLinearOrder LO
+      PO = isLinearOrder->isPartialOrder-≯ LO
 
   module _ {{LOS : LinearlyOrderedSemiringStr S LO}} where
     PartiallyOrderedSemiringStr-Negated : PartiallyOrderedSemiringStr S PO

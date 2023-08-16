@@ -26,15 +26,15 @@ import fint.list.sorted-merge
 import ordered-set.glist as glist
 
 
-module _ {ℓA ℓ< : Level} {A : Type ℓA} {LO : LinearOrderStr A ℓ<}
+module _ {ℓA ℓ< : Level} {A : Type ℓA} {A< : Rel A ℓ<} {LO : isLinearOrder A<}
          {{DLO : DecidableLinearOrderStr LO}} where
   private
     instance
       ILO = LO
 
     indices-path : Path (glist.Indices ℓ-zero ℓ-zero ℓ-zero)
-                    (Nat , (\n -> (FinT n , useⁱ) , useⁱ))
-                    (Nat , (\n -> (Fin n , useⁱ) , useⁱ))
+                    (Nat , (\n -> (FinT n , record { isLinearOrder-< = useⁱ }) , useⁱ))
+                    (Nat , (\n -> (Fin n , record { isLinearOrder-< = useⁱ }) , useⁱ))
     indices-path = Indices-FinT=Fin
 
     type-path : (fint.list.sorted.SortedList A) == (SortedList A)
@@ -53,28 +53,28 @@ module _ {ℓA ℓ< : Level} {A : Type ℓA} {LO : LinearOrderStr A ℓ<}
             fint.list.sorted-merge.sorted-merge
 
     instance
-      sorted-join : JoinSemiLatticeStr (getⁱ (PartialOrderStr (SortedList A) ℓA))
+      sorted-join : JoinSemiLatticeStr (getⁱ (isPartialOrder {D = (SortedList A)} _))
       sorted-join = subst hasJoin path fint.list.sorted-merge.sorted-join
         where
         module _ where
           <-path : PathP (\i -> (type-path i) -> (type-path i) -> _) _≤_ _≤_
           <-path = (\i -> glist.Sorted≼ (indices-path i))
 
-          po-path : PathP (\i -> isPartialOrder (<-path i))
-                          (PartialOrderStr.isPartialOrder-≤ useⁱ)
-                          (PartialOrderStr.isPartialOrder-≤ useⁱ)
+          po-path : PathP (\i -> isPartialOrder (<-path i)) useⁱ useⁱ
           po-path = isProp->PathP (\i -> isProp-isPartialOrder _)
 
-          order-path : PathP (\i -> PartialOrderStr (type-path i) _) useⁱ useⁱ
+          order-path : PathP (\i -> PartialOrderStr (type-path i) _)
+                        (record { isPartialOrder-≤ = useⁱ })
+                        (record { isPartialOrder-≤ = useⁱ })
           order-path i = record
             { _≤_ = <-path i
             ; isPartialOrder-≤ = po-path i
             }
 
-          path : Path (POSet (ℓ-max ℓA (ℓ-suc ℓ<)) ℓA)
-                      ((fint.list.sorted.SortedList A) , useⁱ)
-                      ((SortedList A) , useⁱ)
+          path : Path (POSet (ℓ-max ℓA ℓ<) ℓA)
+                      ((fint.list.sorted.SortedList A) , (order-path i0))
+                      ((SortedList A) , (order-path i1))
           path i = type-path i , order-path i
 
           hasJoin : {ℓA ℓ< : Level} -> Pred (POSet ℓA ℓ<) (ℓ-max ℓA ℓ<)
-          hasJoin (_ , PO) = JoinSemiLatticeStr PO
+          hasJoin (_ , PO) = JoinSemiLatticeStr (PartialOrderStr.isPartialOrder-≤ PO)

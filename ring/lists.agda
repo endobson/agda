@@ -112,7 +112,8 @@ module _ where
 
 
   productʰ : InfinityMonoidʰᵉ ListInfinityMonoid S.*-InfinityMonoid product
-  productʰ = concatʰ
+  productʰ = concatʰ {{S.*-InfinityMonoid}}
+
   module productʰ where
     open InfinityMonoidʰ productʰ public
     preserves-* = preserves-∙
@@ -145,11 +146,11 @@ module _ where
   unordered-sum : UList Domain -> Domain
   unordered-sum = concat {{S.+-CommMonoid}} S.isSet-Domain
 
-  unordered-sumʰ : CommMonoidʰ unordered-sum
+  unordered-sumʰ : CommMonoidʰᵉ _ _ unordered-sum
   unordered-sumʰ = concatʰ {{S.+-CommMonoid}}
 
   unordered-product : UList Domain -> Domain
   unordered-product = concat {{S.*-CommMonoid}} S.isSet-Domain
 
-  unordered-productʰ : CommMonoidʰ unordered-product
+  unordered-productʰ : CommMonoidʰᵉ _ _ unordered-product
   unordered-productʰ = concatʰ {{S.*-CommMonoid}}

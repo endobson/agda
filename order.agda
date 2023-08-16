@@ -65,12 +65,13 @@ record LinearOrderStr (D : Type ℓD) (ℓ< : Level) : Type (ℓ-max (ℓ-suc �
 
   open module isLinearOrder-< = isLinearOrder isLinearOrder-< public
 
-
-module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
-  open LinearOrderStr S public hiding
-    ( isLinearOrder-<
-    ; isSet-D
+module _ {D : Type ℓD} {lt : Rel D ℓ<} {{S : isLinearOrder lt}} where
+  open isLinearOrder S public hiding
+    (  isSet-D
     )
+
+  _<_ : D -> D -> Type ℓ<
+  x < y = lt x y
 
   _>_ : D -> D -> Type ℓ<
   x > y = y < x
@@ -123,10 +124,11 @@ module _ {D : Type ℓD} {{S : LinearOrderStr D ℓ<}} where
   tri=' x=y = tri= (irrefl-path-< x=y) x=y (irrefl-path-< (sym x=y))
 
   isProp-Tri< : {x y : D} -> isProp (Tri< x y)
-  isProp-Tri< = isProp-Tri isProp-< (LinearOrderStr.isSet-D useⁱ _ _) isProp-<
+  isProp-Tri< = isProp-Tri isProp-< (isLinearOrder.isSet-D useⁱ _ _) isProp-<
 
 
-module _ {D : Type ℓD} (A : TightApartnessStr D ℓ#) (O : LinearOrderStr D ℓ<) where
+module _ {D : Type ℓD} {D# : Rel D ℓ#} {D< : Rel D ℓ<}
+         (A : isTightApartness D#) (O : isLinearOrder D<) where
   private
     instance
      IO = O
@@ -138,11 +140,12 @@ module _ {D : Type ℓD} (A : TightApartnessStr D ℓ#) (O : LinearOrderStr D �
       <>-equiv-# : {a b : D} -> (a <> b) ≃ (a # b)
 
 
-module _ {D : Type ℓD} {A : TightApartnessStr D ℓ#} {O : LinearOrderStr D ℓ<}
+module _ {D : Type ℓD} {D# : Rel D ℓ#} {D< : Rel D ℓ<}
+         {A : isTightApartness D#} {O : isLinearOrder D<}
          {{AO : ApartLinearOrderStr A O}} where
   open ApartLinearOrderStr AO public
 
-module _ {D : Type ℓD} (L : LinearOrderStr D ℓ<) where
+module _ {D : Type ℓD} {D< : Rel D ℓ<} (L : isLinearOrder D<) where
   private
     instance
       IL = L
@@ -162,25 +165,27 @@ module _ {D : Type ℓD} (L : LinearOrderStr D ℓ<) where
       either (∥-map (⊎-map inj-l inj-l) ∘ comparison-< x y z)
              (∥-map (⊎-swap ∘ ⊎-map inj-r inj-r) ∘ comparison-< z y x)
 
-  LinearOrderTightApartnessStr : TightApartnessStr D ℓ<
-  LinearOrderTightApartnessStr = record
-    { _#_ = _<>_
-    ; TightApartness-# = tight-<> , irrefl-<> , sym-<> , comparison-<>
-    ; isProp-# = \_ _ -> isProp-<>
+  isLinearOrder->isTightApartness-<> : isTightApartness _<>_
+  isLinearOrder->isTightApartness-<> = record
+    { tight-# = tight-<>
+    ; irrefl-# = irrefl-<>
+    ; sym-# = sym-<>
+    ; comparison-# = comparison-<>
+    ; isProp-# = isProp-<>
     }
 
-  TrivialApartLinearOrderStr : ApartLinearOrderStr LinearOrderTightApartnessStr L
+  TrivialApartLinearOrderStr : ApartLinearOrderStr isLinearOrder->isTightApartness-<> IL
   TrivialApartLinearOrderStr = record
     { <>-equiv-# = idEquiv _
     }
 
-
-
-module _ {D : Type ℓD} {{S : PartialOrderStr D ℓ<}} where
-  open PartialOrderStr S public hiding
-    ( isPartialOrder-≤
-    ; isSet-D
+module _ {D : Type ℓD} {le : Rel D ℓ≤} {{S : isPartialOrder le}} where
+  open isPartialOrder S public hiding
+    ( isSet-D
     )
+
+  _≤_ : Rel D ℓ≤
+  _≤_ = le
 
   abstract
     path-≤ : {d1 d2 : D} -> d1 == d2 -> d1 ≤ d2
@@ -198,7 +203,7 @@ module _ {D : Type ℓD} {{S : PartialOrderStr D ℓ<}} where
 
 
 
-module _ {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) where
+module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} (PO : isPartialOrder D≤) where
   private
     instance
       IPO = PO
@@ -209,12 +214,12 @@ module _ {D : Type ℓD} (PO : PartialOrderStr D ℓ≤) where
       connex-≤ : Connex _≤_
 
 
-module _ {D : Type ℓD} {P : PartialOrderStr D ℓ<} {{T : TotalOrderStr P}} where
+module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {P : isPartialOrder D≤} {{T : TotalOrderStr P}} where
   open TotalOrderStr T public
 
-module _ {D : Type ℓD}
-         (<-Str : LinearOrderStr D ℓ<)
-         (≤-Str : PartialOrderStr D ℓ≤) where
+module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         (<-Str : isLinearOrder D<)
+         (≤-Str : isPartialOrder D≤) where
   private
     instance
       <-Str-I = <-Str
@@ -226,29 +231,27 @@ module _ {D : Type ℓD}
       convert-≮ : {d1 d2 : D} -> d1 ≮ d2 -> d2 ≤ d1
 
 
-module _ {D : Type ℓD} (L : LinearOrderStr D ℓ<) where
+module _ {D : Type ℓD} {D< : Rel D ℓ<} (L : isLinearOrder D<) where
   private
     instance
       IL = L
 
-  NegatedLinearOrder : PartialOrderStr D ℓ<
-  NegatedLinearOrder = record
-    { _≤_ = _≯_
-    ; isPartialOrder-≤ = record
-      { refl-≤ = irrefl-<
-      ; trans-≤ = \a≤b b≤c -> trans-≮ b≤c a≤b
-      ; antisym-≤ = \a≤b b≤a -> connected-< b≤a a≤b
-      ; isProp-≤ = isProp¬ _
-      }
+  isLinearOrder->isPartialOrder-≯ : isPartialOrder _≯_
+  isLinearOrder->isPartialOrder-≯ = record
+    { refl-≤ = irrefl-<
+    ; trans-≤ = \a≤b b≤c -> trans-≮ b≤c a≤b
+    ; antisym-≤ = \a≤b b≤a -> connected-< b≤a a≤b
+    ; isProp-≤ = isProp¬ _
     }
 
-  CompatibleNegatedLinearOrder : CompatibleOrderStr L NegatedLinearOrder
+  CompatibleNegatedLinearOrder : CompatibleOrderStr L isLinearOrder->isPartialOrder-≯
   CompatibleNegatedLinearOrder = record
     { convert-≮ = \x -> x
     }
 
 
-module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {≤-Str : PartialOrderStr D ℓ≤}
+module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         {<-Str : isLinearOrder D<} {≤-Str : isPartialOrder D≤}
          {{S : CompatibleOrderStr <-Str ≤-Str}} where
   private
     instance
@@ -290,10 +293,10 @@ module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {
     convert-≤ d1≤d2 d2<d1 = irrefl-< (trans-≤-< d1≤d2 d2<d1)
 
 
-module _ {D : Type ℓD}
-         {L : LinearOrderStr D ℓ<}
-         {P : PartialOrderStr D ℓ≤}
-         {A : TightApartnessStr D ℓ#}
+module _ {D : Type ℓD} {D# : Rel D ℓ#} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         {L : isLinearOrder D<}
+         {P : isPartialOrder D≤}
+         {A : isTightApartness D#}
          {{LA : ApartLinearOrderStr A L}}
          {{CO : CompatibleOrderStr L P}} where
   private
@@ -312,7 +315,7 @@ module _ {D : Type ℓD}
 
 
 
-module _ {D : Type ℓD} {ℓ< : Level} (<-Str : LinearOrderStr D ℓ<) where
+module _ {D : Type ℓD} {D< : Rel D ℓ<} (<-Str : isLinearOrder D<) where
   private
     instance
       <-Str-I = <-Str
@@ -325,14 +328,14 @@ module _ {D : Type ℓD} {ℓ< : Level} (<-Str : LinearOrderStr D ℓ<) where
 
 abstract
   isProp-DecidableLinearOrderStr :
-    {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} ->
+    {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<} ->
     isProp (DecidableLinearOrderStr LO)
   isProp-DecidableLinearOrderStr {LO = LO} dlo1@(record {}) dlo2@(record {}) i = ans
     where
     module _ where
       private
         instance
-          ILO : LinearOrderStr _ _
+          ILO : isLinearOrder _
           ILO = LO
       ans : (DecidableLinearOrderStr LO)
       ans = record
@@ -344,7 +347,7 @@ abstract
         }
 
 
-module _ {D : Type ℓD} {ℓ< : Level} {<-Str : LinearOrderStr D ℓ<}
+module _ {D : Type ℓD} {D< : Rel D ℓ<} {<-Str : isLinearOrder D<}
          {{S : DecidableLinearOrderStr <-Str}} where
   open DecidableLinearOrderStr S public
 
@@ -362,7 +365,8 @@ module _ {D : Type ℓD} {ℓ< : Level} {<-Str : LinearOrderStr D ℓ<}
       handle (tri> ¬d1<d2 _ _) = bot-elim (¬¬d1<d2 ¬d1<d2)
 
 
-module _ {D : Type ℓD} {ℓ< ℓ≤ : Level} {<-Str : LinearOrderStr D ℓ<} {≤-Str : PartialOrderStr D ℓ≤}
+module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         {<-Str : isLinearOrder D<} {≤-Str : isPartialOrder D≤}
          {{S : CompatibleOrderStr <-Str ≤-Str}} {{DS : DecidableLinearOrderStr <-Str}} where
   private
     instance

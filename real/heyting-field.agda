@@ -21,13 +21,13 @@ open import truncation
 open import univalence
 
 instance
-  ℝField : Field ℝRing TightApartnessStr-ℝ
+  ℝField : Field ℝRing isTightApartness-ℝ#
   ℝField = record
     { f#-path = (sym (funExt2 (\x y -> (ua (ℝ#≃diff# x y)))))
     }
 
   abstract
-    ApartAdditiveGroup-ℝ : ApartAdditiveGroup AdditiveGroup-ℝ TightApartnessStr-ℝ
+    ApartAdditiveGroup-ℝ : ApartAdditiveGroup AdditiveGroup-ℝ isTightApartness-ℝ#
     ApartAdditiveGroup-ℝ = record
       { +-reflects-# = +-reflects-ℝ#
       }

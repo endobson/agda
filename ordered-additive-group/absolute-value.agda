@@ -13,17 +13,19 @@ open import order
 open import order.minmax
 open import ordered-additive-group
 open import ordered-additive-group.negated
+open import relation
 open import sum
 open import truncation
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{Max : MaxOperationStr LO}}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {LO : isLinearOrder D<} {{Max : MaxOperationStr LO}}
          {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}}
          where
   private
     instance
       ILO = LO
       IACM = ACM
-      PO = NegatedLinearOrder LO
+      PO = isLinearOrder->isPartialOrder-≯ LO
       POA = PartiallyOrderedAdditiveStr-Negated ACM LO
       CPO = CompatibleNegatedLinearOrder LO
 
@@ -103,7 +105,8 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{Max 
       x<>0 : x <> 0#
       x<>0 = eqInv abs-#0-eq 0<ax
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{Max : MaxOperationStr LO}}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {LO : isLinearOrder D<} {{Max : MaxOperationStr LO}}
          {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}}
          where
   private
@@ -111,9 +114,9 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<} {{Max 
       ILO = LO
       IACM = ACM
 
-  module _ {ℓ≤ : Level}
+  module _ {ℓ≤ : Level} {D≤ : Rel D ℓ≤}
     {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
-    {PO : PartialOrderStr D ℓ≤}
+    {PO : isPartialOrder D≤}
     {{POA : PartiallyOrderedAdditiveStr ACM PO}}
     {{CO : CompatibleOrderStr LO PO}}
     where

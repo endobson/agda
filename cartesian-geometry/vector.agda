@@ -132,8 +132,8 @@ instance
   VectorSpaceStr-Vector : VectorSpaceStr ℝField Vector
   VectorSpaceStr-Vector = VectorSpaceStr-DirectProduct ℝField Axis
   ModuleSpaceStr-Vector = VectorSpaceStr.module-str VectorSpaceStr-Vector
-  TightApartnessStr-Vector = ModuleStr.TightApartnessStr-V ModuleSpaceStr-Vector
-  ApartAdditiveGroup-Vector : ApartAdditiveGroup AdditiveGroup-Vector TightApartnessStr-Vector
+  isTightApartness-Vector# = ModuleStr.isTightApartness-v# ModuleSpaceStr-Vector
+  ApartAdditiveGroup-Vector : ApartAdditiveGroup AdditiveGroup-Vector isTightApartness-Vector#
   ApartAdditiveGroup-Vector = ApartAdditiveGroup-DirectProduct ApartAdditiveGroup-ℝ Axis
 
 abstract
@@ -266,7 +266,7 @@ vector-length>0 v v#0 = unsquash isProp-< (∥-map handle v#0)
     yy≤xxyy = subst (_≤ xxyy) +-left-zero (+₂-preserves-≤ 0≤xx)
 
 vector-length>0-#0 : (v : Vector) -> (vector-length v > 0#) -> (v v# 0v)
-vector-length>0-#0 v l>0 = unsquash (isProp-v# v 0v) (∥-map handle (+-reflects-#0 vl²#0))
+vector-length>0-#0 v l>0 = unsquash isProp-v# (∥-map handle (+-reflects-#0 vl²#0))
   where
   vl = vector-length v
   vl² = vector-length² v

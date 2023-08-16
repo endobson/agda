@@ -3,19 +3,21 @@
 module ordered-semiring.squares where
 
 open import additive-group
+open import base
 open import equality
+open import equivalence
+open import functions
+open import order
 open import ordered-semiring
 open import ordered-semiring.negated
-open import equivalence
-open import semiring
+open import relation
 open import ring
-open import order
-open import base
+open import semiring
 open import truncation
-open import functions
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {LO : LinearOrderStr D ℓ<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+         {LO : isLinearOrder D<}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}} where
   private
@@ -23,7 +25,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : S
       IACM = ACM
       ILO = LO
       IS = S
-      PO = NegatedLinearOrder LO
+      PO = isLinearOrder->isPartialOrder-≯ LO
       CPO = CompatibleNegatedLinearOrder LO
       POS = PartiallyOrderedSemiringStr-Negated S LO
 
@@ -62,8 +64,9 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : S
       handle (inj-l (x<0 , 0<x)) = asym-< x<0 0<x
       handle (inj-r (0<x , x<0)) = asym-< x<0 0<x
 
-module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {LO : LinearOrderStr D ℓ<} {PO : PartialOrderStr D ℓ≤}
+module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
          {{COS : CompatibleOrderStr LO PO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}} where

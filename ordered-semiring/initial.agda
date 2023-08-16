@@ -4,27 +4,28 @@ module ordered-semiring.initial where
 
 open import additive-group
 open import additive-group.instances.nat
-open import semiring
-open import semiring.initial
+open import base
+open import equality
+open import functions
+open import nat
+open import nat.order
 open import order
-open import ordered-semiring
+open import order.instances.nat
 open import ordered-additive-group
-open import ordered-additive-group.negated
 open import ordered-additive-group.instances.nat
+open import ordered-additive-group.negated
+open import ordered-semiring
 open import ordered-semiring.instances.nat
 open import ordered-semiring.negated
+open import relation
+open import semiring
+open import semiring.initial
 open import semiring.instances.nat
-open import order.instances.nat
-open import truncation
-open import equality
-open import nat
-open import functions
-open import nat.order
-open import base
 open import sigma.base
+open import truncation
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
-         {S : Semiring ACM} {LO : LinearOrderStr D ℓ<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D}
+         {S : Semiring ACM} {LO : isLinearOrder D<}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}} where
   private
@@ -32,12 +33,10 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       IACM = ACM
       IS = S
       ILO = LO
-      IPO = NegatedLinearOrder LO
+      IPO = isLinearOrder->isPartialOrder-≯ LO
       IPOA = PartiallyOrderedAdditiveStr-Negated ACM LO
       IPOS = PartiallyOrderedSemiringStr-Negated S LO
       ICO = CompatibleNegatedLinearOrder LO
-
-    module LO = LinearOrderStr LO
 
     ℕ->D : ℕ -> D
     ℕ->D = ℕ->Semiring
@@ -46,7 +45,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     semiʰ = ∃!-prop ∃!ℕ->Semiring
     module semiʰ = Semiringʰ semiʰ
 
-  module _ (0<1 : 0# LO.< 1#) where
+  module _ (0<1 : D< 0# 1#) where
     private
       ℕ->D-suc< : (n : ℕ) -> ℕ->D n < ℕ->D (suc n)
       ℕ->D-suc< zero = subst2 _<_ (sym semiʰ.preserves-0#) (sym semiʰ.preserves-1#) 0<1

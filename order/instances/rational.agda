@@ -3,9 +3,9 @@
 module order.instances.rational where
 
 open import rational.order public using
- ( LinearOrderStr-ℚ
+ ( isLinearOrder-ℚ<
  ; DecidableLinearOrderStr-ℚ
- ; PartialOrderStr-ℚ
+ ; isPartialOrder-ℚ≤
  ; TotalOrderStr-ℚ
  ; CompatibleOrderStr-ℚ
  )

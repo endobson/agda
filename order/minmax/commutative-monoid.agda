@@ -6,8 +6,9 @@ open import base
 open import commutative-monoid
 open import order
 open import order.minmax
+open import relation
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
          {{Max : MaxOperationStr LO}}
          {{Min : GlobalMinOperationStr LO}} where
 
@@ -19,7 +20,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
       ; ∙-left-ε = max-≯-path global-min-≮
       ; ∙-right-ε = max-≮-path global-min-≮
       ; ∙-assoc = max-assoc
-      ; isSet-Domain = LinearOrderStr.isSet-D LO
+      ; isSet-Domain = isLinearOrder.isSet-D LO
       }
     ; ∙-commute = max-commute
     }

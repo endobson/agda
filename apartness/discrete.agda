@@ -33,9 +33,11 @@ module _ {ℓD : Level} {D : Type ℓD} (disc : Discrete D) where
       handle (yes a=b) (no b!=c) = ∣ (inj-r b!=c) ∣
       handle (yes a=b) (yes b=c) = bot-elim (a#c (a=b >=> b=c))
 
-  TightApartnessStr-Discrete : TightApartnessStr D ℓD
-  TightApartnessStr-Discrete = record
-    { _#_ = _d#_
-    ; TightApartness-# = tight-d# , (irrefl-d# , sym-d# , comparison-d#)
-    ; isProp-# = \_ _ -> isProp¬ _
+  isTightApartness-!= : isTightApartness _!=_
+  isTightApartness-!= = record
+    { tight-# = tight-d#
+    ; irrefl-# = irrefl-d#
+    ; sym-# = sym-d#
+    ; comparison-# = comparison-d#
+    ; isProp-# = isProp¬ _
     }

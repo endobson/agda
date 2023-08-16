@@ -15,9 +15,11 @@ open import order
 open import order.minmax
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
+open import relation
 
-module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}}
-         {LO : LinearOrderStr D ℓ<} {PO : PartialOrderStr D ℓ≤}
+module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}}
+         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
          {{Max : MaxOperationStr LO}} {{CO : CompatibleOrderStr LO PO}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {{POA : PartiallyOrderedAdditiveStr ACM PO}}

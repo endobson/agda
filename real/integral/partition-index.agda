@@ -150,25 +150,23 @@ private
 
 
 instance
-  LinearOrderStr-PartitionBoundary : {n : Nat} -> LinearOrderStr (PartitionBoundary n) ℓ-zero
-  LinearOrderStr-PartitionBoundary = record
-    { _<_ = PartitionBoundary<
-    ; isLinearOrder-< = record
-      { isProp-< = isProp-PartitionBoundary<
-      ; irrefl-< = irrefl-PartitionBoundary<
-      ; trans-< = trans-PartitionBoundary<
-      ; connected-< = connected-PartitionBoundary<
-      ; comparison-< = comparison-PartitionBoundary<
-      }
+  isLinearOrder-PartitionBoundary< : {n : Nat} -> isLinearOrder (PartitionBoundary< {n})
+  isLinearOrder-PartitionBoundary< = record
+    { isProp-< = isProp-PartitionBoundary<
+    ; irrefl-< = irrefl-PartitionBoundary<
+    ; trans-< = trans-PartitionBoundary<
+    ; connected-< = connected-PartitionBoundary<
+    ; comparison-< = comparison-PartitionBoundary<
     }
 
-  PartialOrderStr-PartitionBoundary : {n : Nat} -> PartialOrderStr (PartitionBoundary n) ℓ-zero
-  PartialOrderStr-PartitionBoundary =
-    NegatedLinearOrder LinearOrderStr-PartitionBoundary
+  isPartialOrder-PartitionBoundary≤ :
+    {n : Nat} -> isPartialOrder (\x y -> (¬ (PartitionBoundary< {n} y x)))
+  isPartialOrder-PartitionBoundary≤ =
+    isLinearOrder->isPartialOrder-≯ isLinearOrder-PartitionBoundary<
 
-  CompatibleOrderStr-PartitionBoundary : {n : Nat} -> CompatibleOrderStr _ _
+  CompatibleOrderStr-PartitionBoundary : {n : Nat} -> CompatibleOrderStr useⁱ useⁱ
   CompatibleOrderStr-PartitionBoundary {n} =
-    CompatibleNegatedLinearOrder (LinearOrderStr-PartitionBoundary {n})
+    CompatibleNegatedLinearOrder (isLinearOrder-PartitionBoundary< {n})
 
 private
   abstract
@@ -190,14 +188,13 @@ private
 
 instance
 
-  DecidableLinearOrderStr-PartitionBoundary :
-    {n : Nat} -> DecidableLinearOrderStr (LinearOrderStr-PartitionBoundary {n})
-  DecidableLinearOrderStr-PartitionBoundary = record
-    { trichotomous-< = trichotomous-PartitionBoundary<
+  DecidableLinearOrderStr-PartitionBoundary : {n : Nat} -> DecidableLinearOrderStr useⁱ
+  DecidableLinearOrderStr-PartitionBoundary {n} = record
+    { trichotomous-< = trichotomous-PartitionBoundary< {n}
     }
 
   TotalOrderStr-PartitionBoundary :
-    {n : Nat} -> TotalOrderStr (PartialOrderStr-PartitionBoundary {n})
+    {n : Nat} -> TotalOrderStr (isPartialOrder-PartitionBoundary≤ {n})
   TotalOrderStr-PartitionBoundary = TotalOrderStr-LinearOrder
 
 
@@ -267,7 +264,7 @@ low-boundary<high-boundary {n} pi-high = low<high (index->low-boundary pi-high)
   low<high (pb-low , _) = pb<-low-high
   low<high (pb-mid i , _) = pb<-mid-high i
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓ<}} where
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}} where
   SuccessorOf : Rel D (ℓ-max ℓD ℓ<)
   SuccessorOf x y = x < y × ∀ z -> ¬ (x < z × z < y)
 

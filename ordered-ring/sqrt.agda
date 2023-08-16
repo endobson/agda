@@ -17,6 +17,7 @@ open import ordered-ring.absolute-value
 open import ordered-semiring
 open import ordered-semiring.negated
 open import ordered-semiring.squares
+open import relation
 open import ring
 open import semiring
 open import sigma.base
@@ -24,7 +25,7 @@ open import sum
 open import truncation
 
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓ<}}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}
          {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
   private
     instance
@@ -35,7 +36,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {{LO : LinearOrderStr D ℓ<}}
 
 
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
          {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
@@ -45,9 +46,8 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {LO : LinearOrderStr D ℓ<}
       ILO = LO
       IS = S
       IACM = ACM
-      PO = NegatedLinearOrder LO
+      PO = isLinearOrder->isPartialOrder-≯ LO
       CPO = CompatibleNegatedLinearOrder LO
-      LOTA = LinearOrderTightApartnessStr LO
       TALO = TrivialApartLinearOrderStr LO
       POS = PartiallyOrderedSemiringStr-Negated S LO
 

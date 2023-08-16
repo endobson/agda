@@ -23,11 +23,11 @@ private
 
 abstract
   instance
-    LinearlyOrderedAdditiveStr-ℕ : LinearlyOrderedAdditiveStr useⁱ LinearOrderStr-ℕ
+    LinearlyOrderedAdditiveStr-ℕ : LinearlyOrderedAdditiveStr useⁱ useⁱ
     LinearlyOrderedAdditiveStr-ℕ =
       LinearlyOrderedAdditiveStr-Dec< (+-left-<⁺ _)
 
-    PartiallyOrderedAdditiveStr-ℕ : PartiallyOrderedAdditiveStr useⁱ PartialOrderStr-ℕ
+    PartiallyOrderedAdditiveStr-ℕ : PartiallyOrderedAdditiveStr useⁱ useⁱ
     PartiallyOrderedAdditiveStr-ℕ .PartiallyOrderedAdditiveStr.+₁-preserves-≤ =
       +-left-≤⁺ _
 

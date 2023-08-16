@@ -19,7 +19,7 @@ open import semiring
 open import sum
 
 instance
-  StronglyLinearlyOrderedSemiringStr-ℝ : StronglyLinearlyOrderedSemiringStr ℝSemiring LinearOrderStr-ℝ
+  StronglyLinearlyOrderedSemiringStr-ℝ : StronglyLinearlyOrderedSemiringStr ℝSemiring useⁱ
   StronglyLinearlyOrderedSemiringStr-ℝ = record
     { *₁-fully-reflects-< = *₁-fully-reflects-ℝ<
     }

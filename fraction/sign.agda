@@ -115,9 +115,9 @@ r~-preserves-NonNeg : {q1 q2 : Rational'} -> NonNeg q1 -> q1 r~ q2 -> NonNeg q2
 r~-preserves-NonNeg {q1} {q2} nn-q1 r = handle (decide-sign q1)
   where
   handle : Σ[ s ∈ Sign ] isSign s q1 -> NonNeg q2
-  handle (pos-sign  , p-q1) = Pos->NonNeg (r~-preserves-sign p-q1 r)
-  handle (zero-sign , z-q1) = Zero->NonNeg (r~-preserves-sign z-q1 r)
-  handle (neg-sign  , n-q1)  = bot-elim (NonNeg->¬Neg nn-q1 n-q1)
+  handle (pos-sign  , p-q1) = Pos->NonNeg {D = Rational'} (r~-preserves-sign p-q1 r)
+  handle (zero-sign , z-q1) = Zero->NonNeg {D = Rational'} (r~-preserves-sign z-q1 r)
+  handle (neg-sign  , n-q1)  = bot-elim (NonNeg->¬Neg {D = Rational'} nn-q1 n-q1)
 
 Zero-r~ : {q1 : Rational'} -> Zero q1 -> q1 r~ 0r'
 Zero-r~ {q1} (is-signℚ' p) = *-right-one >=> p2 >=> sym (*-left-zero)
@@ -129,17 +129,18 @@ Zero-r~ {q1} (is-signℚ' p) = *-right-one >=> p2 >=> sym (*-left-zero)
   p2 = *-right-injective (rNonZero q1) (i.Zero-path _ p >=> sym *-left-zero)
 
 Zero-0r' : Zero 0r'
-Zero-0r' = is-signℚ' (subst Zero (sym *-left-zero) tt)
+Zero-0r' = is-signℚ' (subst (Zero {D = ℤ}) (sym *-left-zero) tt)
+
 
 Zero->Zero-numer : {q : ℚ'} -> Zero q -> Zero (numer q)
 Zero->Zero-numer {q} (is-signℚ' zq) = handle (decide-sign (numer q))
   where
   handle : Σ[ s ∈ Sign ] isSign s (numer q) -> Zero (numer q)
   handle (pos-sign  , p-nq) =
-    bot-elim (NonZero->¬Zero (i.*-NonZero-NonZero (inj-l p-nq) (rNonZero q)) zq)
+    bot-elim (NonZero->¬Zero {D = ℤ} (i.*-NonZero-NonZero (inj-l p-nq) (rNonZero q)) zq)
   handle (zero-sign , z-nq) = z-nq
   handle (neg-sign  , n-nq)  =
-    bot-elim (NonZero->¬Zero (i.*-NonZero-NonZero (inj-r n-nq) (rNonZero q)) zq)
+    bot-elim (NonZero->¬Zero {D = ℤ} (i.*-NonZero-NonZero (inj-r n-nq) (rNonZero q)) zq)
 
 
 private
@@ -186,9 +187,9 @@ abstract
 
     helper : (s1 s2 : Sign) -> isSign s1 n1 -> isSign s1 d1 -> isSign s2 n2 -> isSign s2 d2 ->
              Pos ((n1 * d2 + n2 * d1) * (d1 * d2))
-    helper zero-sign s2        sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero (rNonZero q1) sd1)
-    helper pos-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero (rNonZero q2) sd2)
-    helper neg-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero (rNonZero q2) sd2)
+    helper zero-sign s2        sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero {D = ℤ} (rNonZero q1) sd1)
+    helper pos-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero {D = ℤ} (rNonZero q2) sd2)
+    helper neg-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero {D = ℤ} (rNonZero q2) sd2)
     helper pos-sign  pos-sign  sn1 sd1 sn2 sd2 =
       *-Pos-Pos (+-Pos-Pos (*-Pos-Pos sn1 sd2) (*-Pos-Pos sn2 sd1)) (*-Pos-Pos sd1 sd2)
     helper pos-sign  neg-sign  sn1 sd1 sn2 sd2 =
@@ -225,9 +226,9 @@ abstract
 
     helper : (s1 s2 : Sign) -> isSign s1 n1 -> isSign s1 d1 -> isSign s2 n2 -> isSign s2 d2 ->
              Pos ((n1 * n2) * (d1 * d2))
-    helper zero-sign s2        sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero (rNonZero q1) sd1)
-    helper pos-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero (rNonZero q2) sd2)
-    helper neg-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero (rNonZero q2) sd2)
+    helper zero-sign s2        sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero {D = ℤ} (rNonZero q1) sd1)
+    helper pos-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero {D = ℤ} (rNonZero q2) sd2)
+    helper neg-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero {D = ℤ} (rNonZero q2) sd2)
     helper pos-sign  pos-sign  sn1 sd1 sn2 sd2 =
       *-Pos-Pos (*-Pos-Pos sn1 sn2) (*-Pos-Pos sd1 sd2)
     helper pos-sign  neg-sign  sn1 sd1 sn2 sd2 =

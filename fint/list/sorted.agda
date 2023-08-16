@@ -22,20 +22,20 @@ private
     ℓ ℓ< : Level
     A : Type ℓ
 
-Sorted : {ℓ ℓ< : Level} {A : Type ℓ} -> {{LinearOrderStr A ℓ<}} -> Pred (FinList A) _
+Sorted : {ℓ ℓ< : Level} {A : Type ℓ} {A< : Rel A ℓ<} -> {{LO : isLinearOrder A<}} -> Pred (FinList A) _
 Sorted (n , f) = LinearOrderʰ f
 
-SortedList : {ℓ ℓ< : Level} (A : Type ℓ) -> {{LinearOrderStr A ℓ<}} -> Type _
+SortedList : {ℓ ℓ< : Level} (A : Type ℓ) {A< : Rel A ℓ<} -> {{LO : isLinearOrder A<}} -> Type _
 SortedList A = Σ (FinList A) Sorted
 
-module _ {ℓB ℓB< : Level} {B : Type ℓB} {{LO : LinearOrderStr B ℓB<}} where
+module _ {ℓB ℓB< : Level} {B : Type ℓB} {B< : Rel B ℓB<} {{LO : isLinearOrder B<}} where
   _sl∈_ : REL B (SortedList B) ℓB
   b sl∈ (l , s) = b l∈ l
 
   _sl∈'_ : REL B (SortedList B) ℓB
   b sl∈' (l , s) = b l∈' l
 
-module _ {ℓA ℓ< : Level} {A : Type ℓA} {{LO : LinearOrderStr A ℓ<}} where
+module _ {ℓA ℓ< : Level} {A : Type ℓA} {A< : Rel A ℓ<} {{LO : isLinearOrder A<}} where
 
   LowerBound< : FinList A -> Pred A _
   LowerBound< l a = {a2 : A} -> a2 l∈ l -> a < a2
@@ -66,7 +66,7 @@ module _ {ℓA ℓ< : Level} {A : Type ℓA} {{LO : LinearOrderStr A ℓ<}} wher
     SortedList-Ind {ℓP} P pE pC (l , s) =
       FinList-Ind P' p'E p'C l s
       where
-      P' : FinList A -> Type (ℓ-max* 3 ℓA (ℓ-suc ℓ<) ℓP)
+      P' : FinList A -> Type (ℓ-max* 3 ℓA ℓ< ℓP)
       P' l = ∀ s -> P (l , s)
 
       p'E : P' finlist-empty

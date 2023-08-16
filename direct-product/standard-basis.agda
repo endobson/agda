@@ -72,10 +72,10 @@ module _ {ℓI ℓK : Level} {I : Type ℓI} {K : Type ℓK}
         cong indicator' (isProp->PathPᵉ (\_ -> isPropDec (isSet-I i1 i2)) (discrete-I i1 i2) d)
 
 
-module _ {ℓK ℓI : Level} {K : Type ℓK}
+module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
          {S : Semiring ACM}
-         {R : Ring S AG} {A : TightApartnessStr K ℓK} (F : Field R A) (I : Type ℓI)
+         {R : Ring S AG} {A : isTightApartness K#} (F : Field R A) (I : Type ℓI)
          {{FI : FinSetStr I}}  where
   private
     isFinSet-I = FinSetStr.isFin FI
@@ -383,7 +383,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK}
       cong (\v -> unwrap-dp v i) (sym (standard-basis-sum a) >=> path)
 
   LinearlyFree-standard-basis : vsf.LinearlyFree standard-basis
-  LinearlyFree-standard-basis a = unsquash (isProp-v# _ _) ∘ ∥-map handle
+  LinearlyFree-standard-basis a = unsquash isProp-v# ∘ ∥-map handle
     where
     handle : Σ[ i ∈ I ] (a i # 0#) -> vsf.scaled-vector-sum a standard-basis v# 0v
     handle (i , ai#0) = ∣ i , subst (_# 0#) (sym path) ai#0 ∣

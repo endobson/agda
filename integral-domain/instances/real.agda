@@ -13,5 +13,5 @@ open import ring.implementations.real
 open import real.rational
 
 instance
-  IntegralDomain-ℝ : IntegralDomain ℝRing TightApartnessStr-ℝ
+  IntegralDomain-ℝ : IntegralDomain ℝRing isTightApartness-ℝ#
   IntegralDomain-ℝ = IntegralDomain-LinearOrderStr _ _ 0ℝ<1ℝ

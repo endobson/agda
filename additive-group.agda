@@ -9,6 +9,7 @@ open import equality
 open import group
 open import hlevel
 open import monoid
+open import relation
 open import truncation
 
 record AdditiveCommMonoid {ℓ : Level} (D : Type ℓ) : Type ℓ where
@@ -213,8 +214,8 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : Additi
     +-swap-diffᵉ : (a b c d : D) -> ((diff a b) + (diff c d)) == (diff (a + c) (b + d))
     +-swap-diffᵉ _ _ _ _ = +-swap-diff
 
-module _ {ℓ ℓ# : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
-         (AG : AdditiveGroup ACM) (A : TightApartnessStr D ℓ#) where
+module _ {ℓ ℓ# : Level} {D : Type ℓ} {D# : Rel D ℓ#} {ACM : AdditiveCommMonoid D}
+         (AG : AdditiveGroup ACM) (A : isTightApartness D#) where
   private
     instance
       IACM = ACM
@@ -226,8 +227,8 @@ module _ {ℓ ℓ# : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
     field
       +-reflects-# : {d1 d2 d3 d4 : D} -> (d1 + d2) # (d3 + d4) -> ∥ (d1 # d3) ⊎ (d2 # d4) ∥
 
-module _ {ℓ ℓ# : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
-         {AG : AdditiveGroup ACM} {A : TightApartnessStr D ℓ#}
+module _ {ℓ ℓ# : Level} {D : Type ℓ} {D# : Rel D ℓ#} {ACM : AdditiveCommMonoid D}
+         {AG : AdditiveGroup ACM} {A : isTightApartness D#}
          {{AAG : ApartAdditiveGroup AG A}} where
   private
     instance

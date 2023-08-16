@@ -43,7 +43,7 @@ private
 private
   ε-weaken-< : (q r : ℚ) -> (ε : ℚ⁺) -> (q r+ ⟨ ε ⟩) < r -> q < r
   ε-weaken-< q r ε⁺@(ε , _) lt =
-    trans-< {_} {_} {_} {q} {q r+ ε} {r} (r+-Pos->order q ε⁺) lt
+    trans-< (r+-Pos->order q ε⁺) lt
 
   abs-diff-weaken-< : (x y z : ℚ) -> (abs (diff x y)) < z -> (diff x y) < z
   abs-diff-weaken-< x y z lt = trans-≤-< max-≤-left lt

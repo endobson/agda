@@ -16,6 +16,7 @@ open import finset.instances
 open import finsum
 open import functions
 open import isomorphism
+open import relation
 open import semiring
 open import sigma
 open import truncation
@@ -61,7 +62,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
             }
           }
 
-  module _ {ℓ# : Level} {AG : AdditiveGroup ACM} {A : TightApartnessStr D ℓ#}
+  module _ {ℓ# : Level} {D# : Rel D ℓ#} {AG : AdditiveGroup ACM} {A : isTightApartness D#}
            {{AAG : ApartAdditiveGroup AG A}}  where
     private
       instance

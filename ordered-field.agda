@@ -16,6 +16,7 @@ open import ordered-additive-group
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.integral-domain
+open import relation
 open import ring
 open import semiring
 open import sigma.base
@@ -26,9 +27,10 @@ private
   variable
     ℓD ℓ< : Level
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {AG : AdditiveGroup ACM}
-         {S : Semiring ACM} {O : LinearOrderStr D ℓ<}
-         {R : Ring S AG} {A : TightApartnessStr D ℓD}
+module _ {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D} {AG : AdditiveGroup ACM}
+         {S : Semiring ACM} {O : isLinearOrder D<}
+         {R : Ring S AG} {A : isTightApartness D#}
          {{LOA : LinearlyOrderedAdditiveStr ACM O}}
          {{LOS : LinearlyOrderedSemiringStr S O}}
          {{F : Field R A}}

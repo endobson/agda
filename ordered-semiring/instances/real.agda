@@ -14,9 +14,9 @@ open import real.arithmetic.order
 open import ring.implementations.real
 
 instance
-  LinearlyOrderedSemiringStr-ℝ : LinearlyOrderedSemiringStr ℝSemiring LinearOrderStr-ℝ
+  LinearlyOrderedSemiringStr-ℝ : LinearlyOrderedSemiringStr ℝSemiring useⁱ
   LinearlyOrderedSemiringStr-ℝ = LinearlyOrderedSemiringStr-Ring
     (ℝ*₁-preserves-< _ _ _)
 
-  PartiallyOrderedSemiringStr-ℝ : PartiallyOrderedSemiringStr ℝSemiring PartialOrderStr-ℝ
+  PartiallyOrderedSemiringStr-ℝ : PartiallyOrderedSemiringStr ℝSemiring useⁱ
   PartiallyOrderedSemiringStr-ℝ = PartiallyOrderedSemiringStr-Negated _ _

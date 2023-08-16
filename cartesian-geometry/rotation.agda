@@ -491,11 +491,14 @@ tight-r# {r1} {r2} ¬r1#r2 = ans
         r+-right-zero r2
 
 instance
-  TightApartnessStr-Rotation : TightApartnessStr Rotation ℓ-one
-  TightApartnessStr-Rotation .TightApartnessStr._#_ = _r#_
-  TightApartnessStr-Rotation .TightApartnessStr.TightApartness-# =
-    tight-r# , (irrefl-r# , sym-r# , comparison-r#)
-  TightApartnessStr-Rotation .TightApartnessStr.isProp-# = \x y -> isProp-r#
+  isTightApartness-r# : isTightApartness _r#_
+  isTightApartness-r# = record
+    { tight-# = tight-r#
+    ; irrefl-# = irrefl-r#
+    ; sym-# = sym-r#
+    ; comparison-# = comparison-r#
+    ; isProp-# = isProp-r#
+    }
 
 private
   AP = _#_

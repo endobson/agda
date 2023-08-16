@@ -22,11 +22,11 @@ module _ (q r : ℚ) (q≤r : q ℚ≤ r)
     handle (inj-r lt)  _           = (inj-l lt)
     handle (inj-l _)   (inj-r lt)  = (inj-r lt)
     handle (inj-l c<a) (inj-l d<b) =
-      bot-elim (irrefl-< {_} {_} {_} {r} (trans-<-≤ {d1 = r} {q} {r} r<q q≤r))
+      bot-elim (irrefl-< (trans-<-≤ r<q q≤r))
       where
       cd<cb : (c r* d) < (c r* b)
       cd<cb = *₁-preserves-< pc d<b
       cb<ab : (c r* b) < (a r* b)
       cb<ab = *₂-preserves-< c<a pb
       r<q : r < q
-      r<q = subst2 _<_ cd=r ab=q (trans-< {_} {_} {_} {c r* d} {c r* b} {a r* b} cd<cb cb<ab)
+      r<q = subst2 _<_ cd=r ab=q (trans-< cd<cb cb<ab)
