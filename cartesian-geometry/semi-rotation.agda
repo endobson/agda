@@ -388,3 +388,8 @@ instance
     ; comparison-# = comparison-sr#
     ; isProp-# = isProp-sr#
     }
+
+  ApartAdditiveGroup-SemiRotation : ApartAdditiveGroup {D = SemiRotation} useⁱ useⁱ
+  ApartAdditiveGroup-SemiRotation = record
+    { +-reflects-# = +-reflects-sr#
+    }

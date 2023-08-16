@@ -155,10 +155,11 @@ private
 
     irrefl-sd# : Irreflexive _sd#_
     irrefl-sd# {sd} (sd#-cons d#0) =
-      irrefl-# (subst2 _#_ (semi-direction-diff-self sd) refl d#0)
+      irrefl-# (transport (\i -> semi-direction-diff-self sd i # 0#) d#0)
 
     sym-sd# : Symmetric _sd#_
-    sym-sd# {sd1} {sd2} (sd#-cons d#0) = sd#-cons (subst2 _#_ p minus-zero (minus-preserves-sr# d#0))
+    sym-sd# {sd1} {sd2} (sd#-cons d#0) =
+      sd#-cons (transport (\i -> p i # minus-zero i) (minus-preserves-sr# d#0))
       where
       p : - (semi-direction-diff sd1 sd2) == (semi-direction-diff sd2 sd1)
       p = sym (semi-direction-diff-anticommute sd2 sd1)
@@ -166,7 +167,7 @@ private
     comparison-sd# : Comparison _sd#_
     comparison-sd# sd1 sd2 sd3 (sd#-cons d13#0) =
       ∥-map (⊎-map sd#-cons sd#-cons)
-        (+-reflects-sr#0 (subst (_# 0#) (sym (semi-direction-diff-trans sd1 sd2 sd3)) d13#0))
+        (+-reflects-#0 (transport (\i -> (semi-direction-diff-trans sd1 sd2 sd3 (~ i)) # 0#) d13#0))
 
     tight-sd# : Tight _sd#_
     tight-sd# {sd1} {sd2} ¬sd1#sd2 =
