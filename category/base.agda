@@ -28,6 +28,9 @@ record PreCategory (ℓObj ℓMor : Level) : Type (ℓ-suc (ℓ-max ℓObj ℓMo
     ⋆-assoc : {s t u v : Obj} -> (f : Mor s t) -> (g : Mor t u) -> (h : Mor u v) ->
               (f ⋆ g) ⋆ h == f ⋆ (g ⋆ h)
     isSet-Mor : {s t : Obj} -> isSet (Mor s t)
+ 
+  infixl 15 _⋆_
+  infixr 16 _∘_
 
   ⋆-id² : {s : Obj} -> Path (Mor s s) (id ⋆ id) id
   ⋆-id² = ⋆-left-id id

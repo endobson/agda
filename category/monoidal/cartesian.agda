@@ -9,11 +9,12 @@ open import category.constructions.triple-product
 open import category.monoidal.base
 open import category.object.product
 open import category.object.terminal
-open import equality
+open import equality hiding (begin_ ; _end)
 open import fin-algebra
 open import truncation
+open import category.zipper
 
-module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
+module _ {ℓO ℓM : Level} {C@(record {}) : PreCategory ℓO ℓM}
   (prod : ∀ x y -> Product C x y)
   (term : Terminal C)
   (magic : Magic) where
@@ -24,18 +25,21 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
     module C = PreCategory C
     module term = Terminal term
 
+    module _ {x y : Obj C} where
+      open Product (prod x y) 
+        using (π₁ ; π₂ ; π₁-reduce ; π₂-reduce ; ×⟨_,_⟩) 
+        renaming (unique₂ to prod-unique)
+        public
+    open PreCategory C using (_⋆_)
+
+
     _⊗₀_ : Obj C -> Obj C -> Obj C
     a ⊗₀ b = Product.obj (prod a b)
 
     _⊗₁_ : {a b c d : Obj C} ->
-         C [ a , b ] ->  C [ c , d ] ->
-         C [ a ⊗₀ c , b ⊗₀ d ]
-    _⊗₁_ {a} {b} {c} {d} f g =
-      bd ×⟨ (Product.π₁ ac) ⋆⟨ C ⟩ f , (Product.π₂ ac) ⋆⟨ C ⟩ g ⟩
-      where
-      bd = prod b d
-      ac = prod a c
-
+           C [ a , b ] ->  C [ c , d ] ->
+           C [ a ⊗₀ c , b ⊗₀ d ]
+    _⊗₁_ {a} {b} {c} {d} f g = ×⟨ π₁ ⋆ f , π₂ ⋆ g ⟩
 
 
     ⊗ : BiFunctor C C C
@@ -48,31 +52,39 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
       where
       id-proof : (a b : Obj C) -> (idᵉ C a) ⊗₁ (idᵉ C b) == (idᵉ C (a ⊗₀ b))
       id-proof a b =
-        ab.unique -- (ab.π₁ ⋆⟨ C ⟩ (id C)) (ab.π₂ ⋆⟨ C ⟩ (id C))
+        Product.unique (prod a b)
           (C.⋆-left-id _ >=> sym (C.⋆-right-id _))
           (C.⋆-left-id _ >=> sym (C.⋆-right-id _))
-        where
-        module ab = Product (prod a b)
 
       ⋆-proof : {a b c : Obj C × Obj C} ->
                 (f : C2 [ a , b ]) ->
                 (g : C2 [ b , c ]) ->
                 proj₁ (f ⋆⟨ C2 ⟩ g) ⊗₁ proj₂ (f ⋆⟨ C2 ⟩ g) ==
-                (proj₁ f ⊗₁ proj₂ f) ⋆⟨ C ⟩ (proj₁ g ⊗₁ proj₂ g)
+                (proj₁ f ⊗₁ proj₂ f) ⋆ (proj₁ g ⊗₁ proj₂ g)
       ⋆-proof {a1 , a2} {b1 , b2} {c1 , c2} f@(f1 , f2) g@(g1 , g2) = c.unique p1 p2
         where
         module a = Product (prod a1 a2)
         module b = Product (prod b1 b2)
         module c = Product (prod c1 c2)
-        p1 : (f1 ⊗₁ f2) ⋆⟨ C ⟩ (g1 ⊗₁ g2) ⋆⟨ C ⟩ c.π₁ == a.π₁ ⋆⟨ C ⟩ proj₁ (f ⋆⟨ C2 ⟩ g)
-        p1 =
+        -- p1' : (f1 ⊗₁ f2) ⋆⟨ C ⟩ (g1 ⊗₁ g2) ⋆⟨ C ⟩ c.π₁ == a.π₁ ⋆⟨ C ⟩ proj₁ (f ⋆⟨ C2 ⟩ g)
+        -- p1' = zrule C (
+        --   right⇒ >z>
+        --   shift⇐ >z>
+        --   z-cong c.π₁-reduce >z>
+        --   shift⇒ >z>
+        --   z-cong b.π₁-reduce >z>
+        --   shift⇐ >z>
+        --   left⇒)
+          
+        p1 : (f1 ⊗₁ f2) ⋆ (g1 ⊗₁ g2) ⋆ π₁ == π₁ ⋆ (f1 ⋆ g1)
+        p1 = 
           C.⋆-assocⁱ >=>
           C.⋆-right c.π₁-reduce >=>
           sym C.⋆-assocⁱ >=>
           C.⋆-left b.π₁-reduce >=>
           C.⋆-assocⁱ
 
-        p2 : (f1 ⊗₁ f2) ⋆⟨ C ⟩ (g1 ⊗₁ g2) ⋆⟨ C ⟩ c.π₂ == a.π₂ ⋆⟨ C ⟩ proj₂ (f ⋆⟨ C2 ⟩ g)
+        p2 : (f1 ⊗₁ f2) ⋆ (g1 ⊗₁ g2) ⋆ π₂ == π₂ ⋆ (f2 ⋆ g2)
         p2 =
           C.⋆-assocⁱ >=>
           C.⋆-right c.π₂-reduce >=>
@@ -85,112 +97,128 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
 
     unitorˡ : NaturalIsomorphism (appˡ ⊗ unit) (idF C)
     unitorˡ = record
-      { NT-obj = \c -> Product.π₂ (prod unit c)
-      ; NT-mor = \f -> sym (Product.π₂-reduce (prod unit _))
+      { NT-obj = \c -> π₂
+      ; NT-mor = \f -> sym π₂-reduce
       } ,
       niso
 
       where
       module _ (c : Obj C) where
-        module p = Product (prod unit c)
-        niso : isIso C p.π₂
-        niso .isIso.inv = p.×⟨ term.mor , id C ⟩
-        niso .isIso.sec = p.π₂-reduce
+        niso : isIso C π₂
+        niso .isIso.inv = ×⟨ term.mor , id C ⟩
+        niso .isIso.sec = π₂-reduce
         niso .isIso.ret =
-          sym (p.unique (term.unique₂ _ _)
-                        (C.⋆-assocⁱ >=> C.⋆-right p.π₂-reduce >=> C.⋆-right-id _)) >=>
-          (p.unique (C.⋆-left-id _) (C.⋆-left-id _))
+          prod-unique (term.unique₂ _ _)
+                      (C.⋆-assocⁱ >=> C.⋆-right π₂-reduce >=> 
+                       C.⋆-right-id _ >=> sym (C.⋆-left-id _))
 
     unitorʳ : NaturalIsomorphism (appʳ ⊗ unit) (idF C)
     unitorʳ = record
-      { NT-obj = \c -> Product.π₁ (prod c unit)
-      ; NT-mor = \f -> sym (Product.π₁-reduce (prod _ unit))
+      { NT-obj = \c -> π₁
+      ; NT-mor = \f -> sym π₁-reduce
       } ,
       niso
 
       where
       module _ (c : Obj C) where
-        module p = Product (prod c unit)
-        niso : isIso C p.π₁
-        niso .isIso.inv = p.×⟨ id C , term.mor ⟩
-        niso .isIso.sec = p.π₁-reduce
+        niso : isIso C π₁
+        niso .isIso.inv = ×⟨ id C , term.mor ⟩
+        niso .isIso.sec = π₁-reduce
         niso .isIso.ret =
-          p.unique₂ (C.⋆-assocⁱ >=> C.⋆-right p.π₁-reduce >=>
-                     C.⋆-right-id _ >=> sym (C.⋆-left-id _))
-                    (term.unique₂ _ _)
+          prod-unique (C.⋆-assocⁱ >=> C.⋆-right π₁-reduce >=>
+                       C.⋆-right-id _ >=> sym (C.⋆-left-id _))
+                      (term.unique₂ _ _)
 
 
     associator : NaturalIsomorphism (LeftBiasedDoubleApplicationFunctor ⊗)
                                     (RightBiasedDoubleApplicationFunctor ⊗)
     associator = record
       { NT-obj = nt-o
-      ; NT-mor = nt-mor
+      ; NT-mor = magic -- nt-mor
       } ,
       is-niso
       where
 
       module _ (o@(triple o0 o1 o2) : Obj C3) where
-        private
-          module p01 = Product (prod o0 o1)
-          module p12 = Product (prod o1 o2)
-          module p0-12 = Product (prod o0 p12.obj)
-          module p01-2 = Product (prod p01.obj o2)
 
         nt-o : C [ (o0 ⊗₀ o1) ⊗₀ o2 , o0 ⊗₀ (o1 ⊗₀ o2) ]
-        nt-o = p0-12.×⟨ (p01-2.π₁ ⋆⟨ C ⟩ p01.π₁) ,
-                        p12.×⟨ (p01-2.π₁ ⋆⟨ C ⟩ p01.π₂) , p01-2.π₂ ⟩ ⟩
+        nt-o = ×⟨ (π₁ ⋆ π₁) , ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⟩
 
         private
+          open ZReasoning C
+
           nt-inv : C [ o0 ⊗₀ (o1 ⊗₀ o2) , (o0 ⊗₀ o1) ⊗₀ o2 ]
-          nt-inv = p01-2.×⟨ p01.×⟨ p0-12.π₁ , p0-12.π₂ ⋆⟨ C ⟩ p12.π₁ ⟩ ,
-                            p0-12.π₂ ⋆⟨ C ⟩ p12.π₂ ⟩
+          nt-inv = ×⟨ ×⟨ π₁ , π₂ ⋆ π₁ ⟩ , π₂ ⋆ π₂ ⟩
 
           nt-sec : nt-inv ⋆⟨ C ⟩ nt-o == id C
-          nt-sec = p0-12.unique₂
-            (C.⋆-assocⁱ >=>
-             C.⋆-right p0-12.π₁-reduce >=>
-             sym C.⋆-assocⁱ >=>
-             C.⋆-left p01-2.π₁-reduce >=>
-             p01.π₁-reduce >=>
-             sym (C.⋆-left-id _))
-            (C.⋆-assocⁱ >=>
-             C.⋆-right p0-12.π₂-reduce >=>
-             (p12.unique₂
-               (C.⋆-assocⁱ >=>
-                C.⋆-right p12.π₁-reduce >=>
-                sym C.⋆-assocⁱ >=>
-                C.⋆-left p01-2.π₁-reduce >=>
-                p01.π₂-reduce)
-               (C.⋆-assocⁱ >=>
-                C.⋆-right p12.π₂-reduce >=>
-                p01-2.π₂-reduce)) >=>
-             sym (C.⋆-left-id _))
+          nt-sec = 
+            let 
+              lemma1 = 
+                prod-unique
+                  (begin
+                    [ []           , nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₁   ,       [] ]=< right⇒ >
+                    [ []           , nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩        , π₁ :: [] ]=< shift⇐ >
+                    [ [] :: nt-inv , ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₁            ,       [] ]=< z-cong π₁-reduce >
+                    [ [] :: nt-inv , π₁ ⋆ π₂                           ,       [] ]=< shift⇒ >
+                    [ []           , nt-inv ⋆ π₁                       , π₂ :: [] ]=< z-cong π₁-reduce >
+                    [ []           , ×⟨ π₁ , π₂ ⋆ π₁ ⟩                 , π₂ :: [] ]=< right⇐ >
+                    [ []           , ×⟨ π₁ , π₂ ⋆ π₁ ⟩ ⋆ π₂            ,       [] ]=< z-cong π₂-reduce >
+                    [ []           , π₂ ⋆ π₁                           ,       [] ]end)
+                  (begin
+                    [ []           , nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₂   ,       [] ]=< right⇒ >
+                    [ []           , nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩        , π₂ :: [] ]=< shift⇐ >
+                    [ [] :: nt-inv , ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₂            ,       [] ]=< z-cong π₂-reduce >
+                    [ [] :: nt-inv , π₂                                ,       [] ]=< left⇒ >
+                    [ []           , nt-inv ⋆ π₂                       ,       [] ]=< z-cong π₂-reduce >
+                    [ []           , π₂ ⋆ π₂                           ,       [] ]end) 
+            in
+            prod-unique
+            (begin
+             [ []           , (nt-inv ⋆ nt-o) ⋆ π₁   ,       [] ]=< right⇒ >
+             [ []           , nt-inv ⋆ nt-o          , π₁ :: [] ]=< left⇐ >
+             [ [] :: nt-inv , nt-o                   , π₁ :: [] ]=< right⇐ >
+             [ [] :: nt-inv , nt-o ⋆ π₁              ,       [] ]=< z-cong π₁-reduce >
+             [ [] :: nt-inv , π₁ ⋆ π₁                ,       [] ]=< shift⇒ >
+             [ []           , nt-inv ⋆ π₁            , π₁ :: [] ]=< z-cong π₁-reduce >
+             [ []           , ×⟨ π₁ , π₂ ⋆ π₁ ⟩      , π₁ :: [] ]=< right⇐ >
+             [ []           , ×⟨ π₁ , π₂ ⋆ π₁ ⟩ ⋆ π₁ ,       [] ]=< z-cong π₁-reduce >
+             [ []           , π₁                     ,       [] ]=< z-cong (sym (C.⋆-left-id _)) >
+             [ []           , id C ⋆ π₁              ,       [] ]end)
+            (begin
+             [ []           , (nt-inv ⋆ nt-o) ⋆ π₂       ,       [] ]=< right⇒ >
+             [ []           , (nt-inv ⋆ nt-o)            , π₂ :: [] ]=< shift⇐ >
+             [ [] :: nt-inv , nt-o ⋆ π₂                  ,       [] ]=< z-cong π₂-reduce >
+             [ [] :: nt-inv , ×⟨ π₁ ⋆ π₂ , π₂ ⟩          ,       [] ]=< left⇒ >
+             [ []           , nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ,       [] ]=< z-cong lemma1 >
+             [ []           , π₂                         ,       [] ]=< z-cong (sym (C.⋆-left-id _)) >
+             [ []           , id C ⋆ π₂                  ,       [] ]end)
 
           nt-ret : nt-o ⋆⟨ C ⟩ nt-inv == id C
-          nt-ret = p01-2.unique₂
+          nt-ret = prod-unique
             (C.⋆-assocⁱ >=>
-             C.⋆-right p01-2.π₁-reduce >=>
-             (p01.unique₂
+             C.⋆-right π₁-reduce >=>
+             (prod-unique
                (C.⋆-assocⁱ >=>
-                C.⋆-right p01.π₁-reduce >=>
-                p0-12.π₁-reduce)
+                C.⋆-right π₁-reduce >=>
+                π₁-reduce)
                (C.⋆-assocⁱ >=>
-                C.⋆-right p01.π₂-reduce >=>
+                C.⋆-right π₂-reduce >=>
                 sym C.⋆-assocⁱ >=>
-                C.⋆-left p0-12.π₂-reduce >=>
-                p12.π₁-reduce)) >=>
+                C.⋆-left π₂-reduce >=>
+                π₁-reduce)) >=>
              sym (C.⋆-left-id _))
             (C.⋆-assocⁱ >=>
-             C.⋆-right p01-2.π₂-reduce >=>
+             C.⋆-right π₂-reduce >=>
              sym C.⋆-assocⁱ >=>
-             C.⋆-left p0-12.π₂-reduce >=>
-             p12.π₂-reduce >=>
+             C.⋆-left π₂-reduce >=>
+             π₂-reduce >=>
              sym (C.⋆-left-id _))
 
         abstract
           is-niso : isIso C nt-o
           is-niso = record { inv = nt-inv ; sec = nt-sec ; ret = nt-ret }
 
+{-
       module _ {x@(triple x0 x1 x2) y@(triple y0 y1 y2) : Obj C3}
                (f@(triple f0 f1 f2) : C3 [ x , y ]) where
 
@@ -276,3 +304,4 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
     ; unitorʳ = unitorʳ
     ; associator = associator
     }
+-}
