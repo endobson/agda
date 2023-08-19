@@ -29,6 +29,8 @@ open import truncation
 open import type-algebra
 open import type-algebra.boolean
 
+open EqReasoning
+
 private
   variable
     ℓ : Level

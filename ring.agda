@@ -13,6 +13,7 @@ open import monoid
 open import sigma.base
 open import semiring
 
+open EqReasoning
 
 private
   variable

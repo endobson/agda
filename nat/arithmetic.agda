@@ -7,6 +7,8 @@ open import equality
 open import nat.properties
 open import sum
 
+open EqReasoning
+
 infixl 6 _+'_
 _+'_ : Nat -> Nat -> Nat
 zero +' n = n

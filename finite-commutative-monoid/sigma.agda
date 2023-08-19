@@ -19,6 +19,8 @@ open import sigma
 open import truncation
 open import type-algebra
 
+open EqReasoning
+
 module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
   open CommMonoid CM
 

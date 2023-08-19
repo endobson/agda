@@ -24,6 +24,8 @@ open import sigma.base
 open import div
 open import funext
 
+open EqReasoning
+
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
   private
     instance

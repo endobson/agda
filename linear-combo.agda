@@ -15,6 +15,7 @@ open import ring
 open import ring.implementations.int
 open import semiring
 
+open EqReasoning
 
 record LinearCombination (a : Int) (b : Int) (d : Int) : Set where
   constructor linear-combo

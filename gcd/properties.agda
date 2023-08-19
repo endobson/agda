@@ -23,6 +23,7 @@ open import relatively-prime
 open import sigma.base
 open import unique-prime-factorization
 
+open EqReasoning
 
 private
   lcm-gcd-prod-path'⁺ : {a b : Nat⁺} -> {m d : Nat}

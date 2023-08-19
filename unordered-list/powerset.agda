@@ -9,6 +9,8 @@ open import unordered-list.base
 open import unordered-list.operations
 open import nat
 
+open EqReasoning
+
 private
   variable
     ℓ : Level

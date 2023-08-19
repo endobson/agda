@@ -32,6 +32,7 @@ open import univalence
 
 import solver
 open solver using (_⊗_ ; _⊕_ ; ⊖_)
+open EqReasoning
 
 record CongruentMod (n : Nat) (a b : Int) : Type₀ where
   constructor congruent-mod

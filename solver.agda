@@ -23,6 +23,7 @@ open import semiring.instances.nat
 open import truncation
 
 import ring.lists
+open EqReasoning
 
 data Syntax (n : Nat) : Type₀ where
   _⊕_ : Syntax n -> Syntax n -> Syntax n

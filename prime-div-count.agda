@@ -25,6 +25,7 @@ open import ring.implementations.int
 open import semiring
 open import semiring.instances.nat
 
+open EqReasoning
 
 record PrimeDivCount (p : Prime') (a : Nat) (n : Nat)  : Type₀ where
   private

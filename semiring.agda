@@ -11,6 +11,8 @@ open import hlevel
 open import monoid
 open import infinity-monoid
 
+open EqReasoning
+
 private
   variable
     ℓ : Level

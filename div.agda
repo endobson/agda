@@ -27,6 +27,8 @@ open import ring.implementations.int
 open import semiring
 open import sigma.base
 
+open EqReasoning
+
 _div_ : Int -> Int -> Type₀
 a div b = Σ[ c ∈ Int ] (c * a == b)
 

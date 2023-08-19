@@ -27,6 +27,9 @@ import nat
 module i = int
 open i using (int)
 
+open EqReasoning
+
+
 module fraction.order where
 
 diffℚ' : ℚ' -> ℚ' -> ℚ'

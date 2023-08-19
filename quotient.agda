@@ -9,6 +9,7 @@ open import nat.order
 open import order
 open import order.instances.nat
 
+open EqReasoning
 
 quotient : (a : Nat) (b : Nat⁺) -> Nat
 

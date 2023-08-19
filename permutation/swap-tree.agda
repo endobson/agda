@@ -10,6 +10,8 @@ open import nat
 open import nat.order
 open import permutation.insert
 
+open EqReasoning
+
 data SwapTree : Nat -> Type₀ where
   id-swap-tree : {n : Nat} -> SwapTree n
   swap-swap-tree : {n : Nat} -> SwapTree (suc (suc n))

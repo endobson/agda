@@ -16,6 +16,8 @@ open import sign using (Sign ; s⁻¹_ ; _s*_ ; pos-sign ; zero-sign ; neg-sign 
 open import int.base public
 open import int.sign public
 
+open EqReasoning
+
 ℤ-_ : Int -> Int
 ℤ- zero-int = zero-int
 ℤ- (pos n) = neg n

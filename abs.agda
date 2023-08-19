@@ -12,6 +12,7 @@ open import ring
 open import ring.implementations.int
 open import semiring
 
+open EqReasoning
 
 data NonNegIntRec : Int -> Set where
   non-neg-zero : NonNegIntRec zero-int

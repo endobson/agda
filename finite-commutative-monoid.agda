@@ -16,6 +16,8 @@ open import nat.order
 open import permutation.swap
 open import truncation
 
+open EqReasoning
+
 private
   variable
     ℓ : Level

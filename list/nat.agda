@@ -20,6 +20,7 @@ open import relation
 open import sum
 open import truncation
 
+open EqReasoning
 
 private
   variable

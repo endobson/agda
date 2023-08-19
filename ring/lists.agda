@@ -20,6 +20,8 @@ import monoid
 import unordered-list.base
 import unordered-list.operations
 
+open EqReasoning
+
 private
   variable
     ℓ : Level

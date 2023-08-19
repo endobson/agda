@@ -48,6 +48,8 @@ open import truncation
 open import type-algebra
 open import univalence
 
+open EqReasoning
+
 record Totient (n : Nat) (k : Nat) : Type₀ where
   field
     pos-k : Pos' k

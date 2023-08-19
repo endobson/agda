@@ -22,6 +22,8 @@ open import semiring
 import quotient-remainder as qr
 import hit-int as h
 
+open EqReasoning
+
 record QuotientRemainder (d : Nat⁺) (n : Int) : Type₀ where
   private
     d' = ⟨ d ⟩

@@ -19,6 +19,8 @@ open import semiring.instances.nat
 open import semiring.initial
 open import truncation
 
+open EqReasoning
+
 instance
   IntSemiring : Semiring AdditiveCommMonoid-Int
   IntSemiring = record

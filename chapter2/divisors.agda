@@ -43,6 +43,7 @@ open import unique-prime-factorization
 
 
 import unordered-list as ul
+open EqReasoning
 
 private
   variable

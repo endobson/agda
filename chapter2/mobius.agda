@@ -42,6 +42,7 @@ open import sigma.base
 open import unique-prime-factorization
 
 import unordered-list as ul
+open EqReasoning
 
 μ-inner : (n : Nat⁺) -> Dec (SquareFree n) -> Int
 μ-inner n (yes _) =

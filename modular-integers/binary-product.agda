@@ -25,6 +25,7 @@ open import semiring hiding (1#)
 open import set-quotient
 open import sigma
 
+open EqReasoning
 
 --shrink*-z* : (n : Nat) (n2⁺ : Nat⁺) -> ℤ/nℤ ( n *' ⟨ n2⁺ ⟩) -> ℤ/nℤ n
 --shrink*-z* n n2⁺@(n2 , pos-n2) = ℤ/nℤElim.rec isSet-ℤ/nℤ val handle

@@ -20,6 +20,8 @@ open import fin
 open import semiring
 open import truncation
 
+open EqReasoning
+
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
   private
     module S = Semiring S

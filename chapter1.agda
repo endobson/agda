@@ -22,6 +22,8 @@ open import semiring
 open import solver
 open import truncation
 
+open EqReasoning
+
 ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)
 ex1-1 {a} {b} {c} {d} (gcd _ _ _ gcd-f) c-div-a d-div-b =
   gcd (inj-l tt) div-one div-one

@@ -27,6 +27,8 @@ open import univalence
 open import unordered-list
 open import unordered-list.discrete
 
+open EqReasoning
+
 private
   record DivisionCount (d : Nat) (n : Nat) : Type₀ where
     constructor division-count

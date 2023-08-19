@@ -105,6 +105,8 @@ module _ {ℓ : Level} {D : Type ℓ} (ACM : AdditiveCommMonoid D) where
 
 module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}} where
   open AdditiveGroup AG public using (-_)
+  open EqReasoning
+
   private
     module AG = AdditiveGroup AG
 

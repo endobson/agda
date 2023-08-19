@@ -13,6 +13,8 @@ open import list.unordered
 open import sum
 open import truncation
 
+open EqReasoning
+
 private
   Sorted = Sorted' _≤_
   SemiSorted = SemiSorted' _≤_

@@ -12,6 +12,8 @@ open import nat.order
 open import permutation.swap-tree
 open import permutation.insert
 
+open EqReasoning
+
 data Swap : Nat -> Type₀ where
   swap      : {n : Nat} -> Swap (suc (suc n))
   swap-skip : {n : Nat} -> Swap n -> Swap (suc n)

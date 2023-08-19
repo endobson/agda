@@ -41,6 +41,7 @@ open import sigma.base
 open import truncation
 open import univalence
 
+open EqReasoning
 
 module _ {ℓ₁ : Level} {D : Type ℓ₁} {{ACM : AdditiveCommMonoid D}} where
   private

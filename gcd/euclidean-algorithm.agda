@@ -20,6 +20,7 @@ open import relation
 open import semiring
 open import ring.implementations.int
 
+open EqReasoning
 
 linear-combo->gcd : {a b d : Int} -> LinearCombination a b d -> d div a -> d div b -> GCD a b (abs d)
 linear-combo->gcd {d = d} (linear-combo x y p) da db =

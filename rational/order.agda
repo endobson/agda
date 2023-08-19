@@ -38,6 +38,7 @@ open import truncation
 open import univalence
 
 import int as i
+open EqReasoning
 
 module _ where
   module _ where

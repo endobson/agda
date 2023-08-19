@@ -14,6 +14,8 @@ open import semiring
 open import sigma.base
 open import truncation
 
+open EqReasoning
+
 module ring.initial-integers where
 
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}

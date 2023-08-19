@@ -226,7 +226,7 @@ abstract
     slideSquare sq i j = hcomp (slideSquareFaces i j) (sq i j)
 
 
-abstract
+module EqReasoning where
   -- Equational reasoning
   infix  1 begin_
   infixr 2 _==<>_ _==<_>_

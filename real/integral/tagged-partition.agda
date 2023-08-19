@@ -24,6 +24,8 @@ open import real.integral.partition-index
 open import ring.implementations.real
 open import semiring
 
+open EqReasoning
+
 record Tagging {a b : ℝ} (p : Partition a b) : Type₁ where
   no-eta-equality
   private

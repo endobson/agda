@@ -20,6 +20,8 @@ open import semiring
 open import sign
 open import sign.instances.int
 
+open EqReasoning
+
 private
   module i where
     open int public using (

@@ -17,6 +17,8 @@ open import subset
 open import subset.indicator
 open import truncation
 
+open EqReasoning
+
 module _ {ℓD : Level} {D : Type ℓD}
          {ACM : AdditiveCommMonoid D}
          {{S : Semiring ACM}}

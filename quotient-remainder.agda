@@ -11,6 +11,8 @@ open import nat.order
 open import order
 open import order.instances.nat
 
+open EqReasoning
+
 record QuotientRemainder (d : Nat⁺) (n : Nat) : Type₀ where
   private
     d' = ⟨ d ⟩
