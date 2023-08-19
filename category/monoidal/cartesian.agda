@@ -5,10 +5,10 @@ module category.monoidal.cartesian where
 open import base
 open import category.base
 open import category.constructions.product
+open import category.constructions.triple-product
 open import category.monoidal.base
 open import category.object.product
 open import category.object.terminal
-open import category.constructions.power
 open import equality
 open import fin-algebra
 open import truncation
@@ -19,7 +19,7 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
   (magic : Magic) where
   private
     C2 = ProductCat C C
-    C3 = PowerCat C 3
+    C3 = TripleCat C C C
 
     module C = PreCategory C
     module term = Terminal term
@@ -129,19 +129,8 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
       is-niso
       where
 
-      i0 : FinT 3
-      i0 = inj-l tt
-      i1 : FinT 3
-      i1 = inj-r (inj-l tt)
-      i2 : FinT 3
-      i2 = inj-r (inj-r (inj-l tt))
-
-      module _ (o : Obj C3) where
+      module _ (o@(triple o0 o1 o2) : Obj C3) where
         private
-          o0 = o i0
-          o1 = o i1
-          o2 = o i2
-
           module p01 = Product (prod o0 o1)
           module p12 = Product (prod o1 o2)
           module p0-12 = Product (prod o0 p12.obj)
@@ -202,16 +191,8 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
           is-niso : isIso C nt-o
           is-niso = record { inv = nt-inv ; sec = nt-sec ; ret = nt-ret }
 
-      module _ {x y : Obj C3} (f : C3 [ x , y ]) where
-        x0 = x i0
-        x1 = x i1
-        x2 = x i2
-        y0 = y i0
-        y1 = y i1
-        y2 = y i2
-        f0 = f i0
-        f1 = f i1
-        f2 = f i2
+      module _ {x@(triple x0 x1 x2) y@(triple y0 y1 y2) : Obj C3}
+               (f@(triple f0 f1 f2) : C3 [ x , y ]) where
 
         module px01 = Product (prod x0 x1)
         module px12 = Product (prod x1 x2)

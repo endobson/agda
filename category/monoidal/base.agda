@@ -7,7 +7,7 @@ open import equality
 open import category.base
 open import fin-algebra
 open import category.constructions.product
-open import category.constructions.power
+open import category.constructions.triple-product
 
 module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (⊗ : BiFunctor C C C) where
   private
@@ -27,22 +27,21 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (⊗ : BiFunctor C C C)
     i2 : FinT 3
     i2 = inj-r (inj-r (inj-l tt))
 
-  LeftBiasedDoubleApplicationFunctor : Functor (PowerCat C 3) C
+  LeftBiasedDoubleApplicationFunctor : Functor (TripleCat C C C) C
   LeftBiasedDoubleApplicationFunctor = record
-    { obj = \os -> (os i0 ⊗₀ os i1) ⊗₀ os i2
-    ; mor = \ms -> (ms i0 ⊗₁ ms i1) ⊗₁ ms i2
+    { obj = \(triple o1 o2 o3) -> (o1 ⊗₀ o2 ) ⊗₀ o3
+    ; mor = \(triple m1 m2 m3) -> (m1 ⊗₁ m2 ) ⊗₁ m3
     ; id = \_ -> cong (_⊗₁ id C) (⊗.id _) >=> (⊗.id _)
     ; ⋆ = \f g -> cong (_⊗₁ _) (⊗.⋆ _ _) >=> (⊗.⋆ _ _)
     }
 
-  RightBiasedDoubleApplicationFunctor : Functor (PowerCat C 3) C
+  RightBiasedDoubleApplicationFunctor : Functor (TripleCat C C C) C
   RightBiasedDoubleApplicationFunctor = record
-    { obj = \os -> os i0 ⊗₀ (os i1 ⊗₀ os i2)
-    ; mor = \ms -> ms i0 ⊗₁ (ms i1 ⊗₁ ms i2)
+    { obj = \(triple o1 o2 o3) -> o1 ⊗₀ (o2 ⊗₀ o3)
+    ; mor = \(triple m1 m2 m3) -> m1 ⊗₁ (m2 ⊗₁ m3)
     ; id = \_ -> cong (id C ⊗₁_) (⊗.id _) >=> (⊗.id _)
     ; ⋆ = \f g -> cong (_ ⊗₁_) (⊗.⋆ _ _) >=> (⊗.⋆ _ _)
     }
-
 
 module _ {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
   private
