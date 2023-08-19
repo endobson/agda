@@ -20,13 +20,8 @@ module _ {ℓO ℓM} (C : PreCategory ℓO ℓM) where
     IsoSorts .CategorySorts.Mor a b = Σ (C [ a , b ]) (isIso C)
 
     IsoOps : CategoryOps IsoSorts
-    IsoOps .CategoryOps.id = id C , is-iso (id C) ⋆-id² ⋆-id²
-    IsoOps .CategoryOps._⋆_
-      (f₁ , is-iso i₁ sec₁ ret₁) (f₂ , is-iso i₂ sec₂ ret₂) =
-      (f₁ ⋆ f₂ , is-iso (i₂ ⋆ i₁) sec ret)
-      where
-      sec = ⋆-assoc >=> ⋆-right (sym ⋆-assoc >=> ⋆-left sec₁ >=> ⋆-left-id) >=> sec₂
-      ret = ⋆-assoc >=> ⋆-right (sym ⋆-assoc >=> ⋆-left ret₂ >=> ⋆-left-id) >=> ret₁
+    IsoOps .CategoryOps.id = id C , isIso-id C
+    IsoOps .CategoryOps._⋆_ (f₁ , i₁) (f₂ , i₂) = f₁ ⋆ f₂ , isIso-⋆ i₁ i₂
 
     IsoLaws : CategoryLaws IsoOps
     IsoLaws .CategoryLaws.⋆-left-id f =
