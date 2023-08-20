@@ -140,7 +140,6 @@ module _ {ℓO ℓM : Level} {C@(record {}) : PreCategory ℓO ℓM}
       where
 
       module _ (o@(triple o0 o1 o2) : Obj C3) where
-
         nt-o : C [ (o0 ⊗₀ o1) ⊗₀ o2 , o0 ⊗₀ (o1 ⊗₀ o2) ]
         nt-o = ×⟨ (π₁ ⋆ π₁) , ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⟩
 
@@ -150,28 +149,68 @@ module _ {ℓO ℓM : Level} {C@(record {}) : PreCategory ℓO ℓM}
           nt-inv : C [ o0 ⊗₀ (o1 ⊗₀ o2) , (o0 ⊗₀ o1) ⊗₀ o2 ]
           nt-inv = ×⟨ ×⟨ π₁ , π₂ ⋆ π₁ ⟩ , π₂ ⋆ π₂ ⟩
 
+
+          sub1 : nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₁ == π₂ ⋆ π₁
+          sub1 = 
+            (begin
+              [ []           , nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₁   ,       [] ]=< right⇒ >
+              [ []           , nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩        , π₁ :: [] ]=< shift⇐ >
+              [ [] :: nt-inv , ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₁            ,       [] ]=< z-cong π₁-reduce >
+              [ [] :: nt-inv , π₁ ⋆ π₂                           ,       [] ]=< shift⇒ >
+              [ []           , nt-inv ⋆ π₁                       , π₂ :: [] ]=< z-cong π₁-reduce >
+              [ []           , ×⟨ π₁ , π₂ ⋆ π₁ ⟩                 , π₂ :: [] ]=< right⇐ >
+              [ []           , ×⟨ π₁ , π₂ ⋆ π₁ ⟩ ⋆ π₂            ,       [] ]=< z-cong π₂-reduce >
+              [ []           , π₂ ⋆ π₁                           ,       [] ]end)
+          sub1' : nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₁ == π₂ ⋆ π₁
+          sub1' = 
+            (begin
+              [ []           , _                                  ,       [] ]=< right⇒ >
+              [ []           , _                                  , π₁ :: [] ]=< shift⇐ >
+              [ [] :: nt-inv , _                                  ,       [] ]=< z-cong π₁-reduce >
+              [ [] :: nt-inv , _                                  ,       [] ]=< shift⇒ >
+              [ []           , _                                  , π₂ :: [] ]=< z-cong π₁-reduce >
+              [ []           , _                                  , π₂ :: [] ]=< right⇐ >
+              [ []           , _                                  ,       [] ]=< z-cong π₂-reduce >
+              [ []           , _                                  ,       [] ]end)
+
+          sub1'' : nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₁ == π₂ ⋆ π₁
+          sub1'' = 
+            (begin
+              []=< right⇒ >
+              []=< shift⇐ >
+              []=< z-cong π₁-reduce >
+              []=< shift⇒ >
+              []=< z-cong π₁-reduce >
+              []=< right⇐ >
+              []=< z-cong π₂-reduce >
+              []end)
+
+          sub1-no-zip : nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₁ == π₂ ⋆ π₁
+          sub1-no-zip = 
+             (C.⋆-assocⁱ >=>
+              C.⋆-right π₁-reduce >=>
+              sym C.⋆-assocⁱ >=>
+              C.⋆-left π₁-reduce >=>
+              π₂-reduce)
+
+
+          sub2 : nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₂ == π₂ ⋆ π₂
+          sub2 = 
+            (begin
+              [ []           , nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₂   ,       [] ]=< right⇒ >
+              [ []           , nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩        , π₂ :: [] ]=< shift⇐ >
+              [ [] :: nt-inv , ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₂            ,       [] ]=< z-cong π₂-reduce >
+              [ [] :: nt-inv , π₂                                ,       [] ]=< left⇒ >
+              [ []           , nt-inv ⋆ π₂                       ,       [] ]=< z-cong π₂-reduce >
+              [ []           , π₂ ⋆ π₂                           ,       [] ]end) 
+
+
+          lemma1 : nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩ == π₂
+          lemma1 = prod-unique sub1 sub2
+
+
           nt-sec : nt-inv ⋆⟨ C ⟩ nt-o == id C
           nt-sec = 
-            let 
-              lemma1 = 
-                prod-unique
-                  (begin
-                    [ []           , nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₁   ,       [] ]=< right⇒ >
-                    [ []           , nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩        , π₁ :: [] ]=< shift⇐ >
-                    [ [] :: nt-inv , ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₁            ,       [] ]=< z-cong π₁-reduce >
-                    [ [] :: nt-inv , π₁ ⋆ π₂                           ,       [] ]=< shift⇒ >
-                    [ []           , nt-inv ⋆ π₁                       , π₂ :: [] ]=< z-cong π₁-reduce >
-                    [ []           , ×⟨ π₁ , π₂ ⋆ π₁ ⟩                 , π₂ :: [] ]=< right⇐ >
-                    [ []           , ×⟨ π₁ , π₂ ⋆ π₁ ⟩ ⋆ π₂            ,       [] ]=< z-cong π₂-reduce >
-                    [ []           , π₂ ⋆ π₁                           ,       [] ]end)
-                  (begin
-                    [ []           , nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₂   ,       [] ]=< right⇒ >
-                    [ []           , nt-inv ⋆ ×⟨ π₁ ⋆ π₂ , π₂ ⟩        , π₂ :: [] ]=< shift⇐ >
-                    [ [] :: nt-inv , ×⟨ π₁ ⋆ π₂ , π₂ ⟩ ⋆ π₂            ,       [] ]=< z-cong π₂-reduce >
-                    [ [] :: nt-inv , π₂                                ,       [] ]=< left⇒ >
-                    [ []           , nt-inv ⋆ π₂                       ,       [] ]=< z-cong π₂-reduce >
-                    [ []           , π₂ ⋆ π₂                           ,       [] ]end) 
-            in
             prod-unique
             (begin
              [ []           , (nt-inv ⋆ nt-o) ⋆ π₁   ,       [] ]=< right⇒ >

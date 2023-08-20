@@ -109,7 +109,6 @@ module _ {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
 
 
 module ZReasoning {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
-
   infix  1 begin_
   infixr 2 [_,_,_]=<_>_
   infix  3 [_,_,_]end
@@ -123,13 +122,25 @@ module ZReasoning {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
                  ZipperRule (zipper l m r) z3
   [ l , m , r ]=< p > p2 = p >z> p2
 
+  -- zstep : {a a' b' b : Obj C} (l : CPathˡ C a a') (m : C [ a' , b' ]) (r : CPathʳ C b' b) ->
+  --         {z2 z3 : Zipper C a b} -> ZipperRule z2 z3 -> ZipperRule (zipper l m r) z2 -> 
+  --         ZipperRule (zipper l m r) z3
+  -- zstep _ _ _ p2 p1 = p1 >z> p2
+
+  -- syntax zstep l m r p2 p1 = [ l , m , r ]=< p1 > p2
+
+
+  []=<_>_ : {a b : Obj C} 
+            {z1 z2 z3 : Zipper C a b} -> ZipperRule z1 z2 -> ZipperRule z2 z3 ->
+            ZipperRule z1 z3
+  []=< p > p2 = p >z> p2
 
   [_,_,_]end : {a a' b' b : Obj C} (l : CPathˡ C a a') (m : C [ a' , b' ]) (r : CPathʳ C b' b) ->
                ZipperRule (zipper l m r) (zipper l m r)
   [ _ , _ , _ ]end = z-cong refl
 
-
-
+  []end : {a b : Obj C} {z1 : Zipper C a b} -> ZipperRule z1 z1
+  []end = z-cong refl
 
 
 
