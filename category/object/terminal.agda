@@ -28,7 +28,7 @@ module _ {ℓO ℓM} (C : PreCategory ℓO ℓM) where
     unique₂ = isContr->isProp (universal _)
 
 module TerminalHelpers {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
-                      (T : Terminal C) where
+                       (T : Terminal C) where
   open Terminal T
     renaming ( obj to 1C
              ; mor to !

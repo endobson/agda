@@ -10,11 +10,14 @@ open import relation
 module _ {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
   data CPathˡ (a : Obj C) : Obj C -> Type (ℓ-max ℓO ℓM) where
     [] : CPathˡ a a
-    _::_ : {b c : Obj C} -> CPathˡ a b -> C [ b , c ] -> CPathˡ a c
+    _<:_ : {b c : Obj C} -> CPathˡ a b -> C [ b , c ] -> CPathˡ a c
 
   data CPathʳ' (a : Obj C) : Obj C -> Type (ℓ-max ℓO ℓM) where
     [] : CPathʳ' a a
-    _::_ : {b c : Obj C} -> C [ b , c ] -> CPathʳ' a c -> CPathʳ' a b
+    _:>_ : {b c : Obj C} -> C [ b , c ] -> CPathʳ' a c -> CPathʳ' a b
+
+  infixr 20 _:>_
+  infixl 20 _<:_
 
   CPathʳ : Rel (Obj C) (ℓ-max ℓO ℓM)
   CPathʳ a b = CPathʳ' b a
@@ -34,16 +37,16 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} where
   data ZipperRule {a b : Obj C} : Zipper C a b -> Zipper C a b -> Type (ℓ-max ℓO ℓM) where
     left⇒ : {a' c b' : Obj C}
             {l : CPathˡ C a a'} {m1 : C [ a' , c ]} {m2 : C [ c , b' ]} {r : CPathʳ C b' b} ->
-            ZipperRule (zipper (l :: m1) m2 r) (zipper l (m1 ⋆ m2) r)
+            ZipperRule (zipper (l <: m1) m2 r) (zipper l (m1 ⋆ m2) r)
     left⇐ : {a' c b' : Obj C}
             {l : CPathˡ C a a'} {m1 : C [ a' , c ]} {m2 : C [ c , b' ]} {r : CPathʳ C b' b} ->
-            ZipperRule (zipper l (m1 ⋆ m2) r) (zipper (l :: m1) m2 r)
+            ZipperRule (zipper l (m1 ⋆ m2) r) (zipper (l <: m1) m2 r)
     right⇒ : {a' c b' : Obj C}
              {l : CPathˡ C a a'} {m1 : C [ a' , c ]} {m2 : C [ c , b' ]} {r : CPathʳ C b' b} ->
-             ZipperRule (zipper l (m1 ⋆ m2) r) (zipper l m1 (m2 :: r))
+             ZipperRule (zipper l (m1 ⋆ m2) r) (zipper l m1 (m2 :> r))
     right⇐ : {a' c b' : Obj C}
              {l : CPathˡ C a a'} {m1 : C [ a' , c ]} {m2 : C [ c , b' ]} {r : CPathʳ C b' b} ->
-             ZipperRule (zipper l m1 (m2 :: r)) (zipper l (m1 ⋆ m2) r)
+             ZipperRule (zipper l m1 (m2 :> r)) (zipper l (m1 ⋆ m2) r)
     _>z>_ : {z1 z2 z3 : Zipper C a b} -> ZipperRule z1 z2 -> ZipperRule z2 z3 ->
             ZipperRule z1 z3
     z-cong : {a' b' : Obj C}
@@ -54,13 +57,13 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} where
   shift⇐ : {a a' c1 c2 b' b : Obj C}
            {l : CPathˡ C a a'} {m1 : C [ a' , c1 ]} {m2 : C [ c1 , c2 ]} {m3 : C [ c2 , b' ]}
            {r : CPathʳ C b' b} ->
-           ZipperRule (zipper l (m1 ⋆ m2) (m3 :: r)) (zipper (l :: m1) (m2 ⋆ m3) r)
+           ZipperRule (zipper l (m1 ⋆ m2) (m3 :> r)) (zipper (l <: m1) (m2 ⋆ m3) r)
   shift⇐ = left⇐ >z> right⇐
 
   shift⇒ : {a a' c1 c2 b' b : Obj C}
            {l : CPathˡ C a a'} {m1 : C [ a' , c1 ]} {m2 : C [ c1 , c2 ]} {m3 : C [ c2 , b' ]}
            {r : CPathʳ C b' b} ->
-           ZipperRule  (zipper (l :: m1) (m2 ⋆ m3) r) (zipper l (m1 ⋆ m2) (m3 :: r))
+           ZipperRule  (zipper (l <: m1) (m2 ⋆ m3) r) (zipper l (m1 ⋆ m2) (m3 :> r))
   shift⇒ = right⇒ >z> left⇒
 
 
@@ -69,11 +72,11 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} where
 
   cpathˡ->mor : {a b : Obj C} -> CPathˡ C a b -> C [ a , b ]
   cpathˡ->mor [] = id C
-  cpathˡ->mor (p :: f) = cpathˡ->mor p ⋆ f
+  cpathˡ->mor (p <: f) = cpathˡ->mor p ⋆ f
 
   cpathʳ->mor : {a b : Obj C} -> CPathʳ C a b -> C [ a , b ]
   cpathʳ->mor [] = id C
-  cpathʳ->mor (f :: p) = f ⋆ cpathʳ->mor p
+  cpathʳ->mor (f :> p) = f ⋆ cpathʳ->mor p
 
   zipper->mor : {a b : Obj C} -> Zipper C a b -> C [ a , b ]
   zipper->mor (zipper l m r) = cpathˡ->mor l ⋆ m ⋆ cpathʳ->mor r
