@@ -45,15 +45,16 @@ module _ {ℓO ℓM} (C : PreCategory ℓO ℓM) where
                   ×⟨ f , g ⟩ ⋆⟨ C ⟩ π₂ == g
       π₂-reduce = proj₂ (∃!-prop (universal _ _))
 
+module ProductHelpers {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} {a b : Obj C}
+                      (P : Product C a b) where
+  open Product P
+    using ( π₁ ; π₂ ; π₁-reduce ; π₂-reduce ; ×⟨_,_⟩ )
+    renaming (unique₂ to prod-unique)
+    public
+
 
 module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} where
   open CategoryHelpers C
-
-  module _ {a b : Obj C}  where
-    _×⟨_,_⟩ : (p : Product C a b) {c : Obj C} (f : C [ c , a ]) (g : C [ c , b ]) ->
-              C [ c , Product.obj p ]
-    _×⟨_,_⟩ = Product.×⟨_,_⟩
-
 
   module _ {a b : Obj C} {p1 p2 : Product C a b} where
     product-path : (op : Product.obj p1 == Product.obj p2) ->

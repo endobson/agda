@@ -27,6 +27,18 @@ module _ {ℓO ℓM} (C : PreCategory ℓO ℓM) where
     unique₂ : {c : Obj C} -> isProp (C [ c , obj ])
     unique₂ = isContr->isProp (universal _)
 
+module TerminalHelpers {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
+                      (T : Terminal C) where
+  open Terminal T
+    renaming ( obj to 1C
+             ; mor to !
+             ; unique₂ to !-uniqueᵉ )
+    public
+
+  !-unique : {c : Obj C} -> {f g : C [ c , 1C ]} -> f == g
+  !-unique = Terminal.unique₂ T _ _
+
+
 
 module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} where
   private

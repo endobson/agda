@@ -12,23 +12,19 @@ open import category.object.terminal
 open import equality
 open import fin-algebra
 open import truncation
+open import category.zipper
 
 module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
   (prod : ∀ x y -> Product C x y)
-  (term : Terminal C)
-  (magic : Magic) where
+  (term : Terminal C) where
   private
     C2 = ProductCat C C
     C3 = TripleCat C C C
 
     open CategoryHelpers C
-    module term = Terminal term
-
+    open TerminalHelpers term
     module _ {x y : Obj C} where
-      open Product (prod x y)
-        using (π₁ ; π₂ ; π₁-reduce ; π₂-reduce ; ×⟨_,_⟩)
-        renaming (unique₂ to prod-unique)
-        public
+      open ProductHelpers (prod x y) public
 
     _⊗₀_ : Obj C -> Obj C -> Obj C
     a ⊗₀ b = Product.obj (prod a b)
@@ -78,7 +74,7 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
             ⋆-assoc
 
     unit : Obj C
-    unit = Terminal.obj term
+    unit = 1C
 
     unitorˡ : NaturalIsomorphism (appˡ ⊗ unit) (idF C)
     unitorˡ = record
@@ -90,10 +86,10 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
       where
       module _ (c : Obj C) where
         niso : isIso C π₂
-        niso .isIso.inv = ×⟨ term.mor , id C ⟩
+        niso .isIso.inv = ×⟨ ! , id C ⟩
         niso .isIso.sec = π₂-reduce
         niso .isIso.ret =
-          prod-unique (term.unique₂ _ _)
+          prod-unique !-unique
                       (⋆-assoc >=> ⋆-right π₂-reduce >=>
                        ⋆-right-id >=> sym ⋆-left-id)
 
@@ -107,12 +103,12 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
       where
       module _ (c : Obj C) where
         niso : isIso C π₁
-        niso .isIso.inv = ×⟨ id C , term.mor ⟩
+        niso .isIso.inv = ×⟨ id C , ! ⟩
         niso .isIso.sec = π₁-reduce
         niso .isIso.ret =
           prod-unique (⋆-assoc >=> ⋆-right π₁-reduce >=>
                        ⋆-right-id >=> sym ⋆-left-id)
-                      (term.unique₂ _ _)
+                      !-unique
 
 
     associator : NaturalIsomorphism (LeftBiasedDoubleApplicationFunctor ⊗)
