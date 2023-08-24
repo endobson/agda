@@ -44,8 +44,8 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (⊗ : BiFunctor C C C)
     }
 
 module _ {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
-  private
-    module C = PreCategory C
+  open CategoryHelpers C
+
   record MonoidalStr : Type (ℓ-max ℓO ℓM) where
     field
       ⊗ : BiFunctor C C C
@@ -54,3 +54,53 @@ module _ {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
       unitorʳ : NaturalIsomorphism (appʳ ⊗ unit) (idF C)
       associator : NaturalIsomorphism (LeftBiasedDoubleApplicationFunctor ⊗)
                                       (RightBiasedDoubleApplicationFunctor ⊗)
+
+    _⊗₀_ : Obj C -> Obj C -> Obj C
+    c1 ⊗₀ c2 = F-obj ⊗ (c1 , c2)
+
+    _⊗₁_ : {x y z w : Obj C} -> C [ x , y ] -> C [ z , w ] -> C [ (x ⊗₀ z) , (y ⊗₀ w) ]
+    f ⊗₁ g = F-mor ⊗ (f , g)
+
+    α⇒ : {a b c : Obj C} -> C [ ( a ⊗₀ b) ⊗₀ c , a ⊗₀ (b ⊗₀ c) ]
+    α⇒ {a} {b} {c} = NT-obj (fst associator) (triple a b c)
+
+    λ⇒ : {a : Obj C} -> C [ unit ⊗₀ a , a ]
+    λ⇒ {a} = NT-obj (fst unitorˡ) a
+
+    ρ⇒ : {a : Obj C} -> C [ a ⊗₀ unit , a ]
+    ρ⇒ {a} = NT-obj (fst unitorʳ) a
+
+
+module MonoidalStrHelpers {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
+                          (M : MonoidalStr C) where
+  open MonoidalStr M public
+  open CategoryHelpers C
+
+  ⊗-distrib-⋆ :
+    {a b c d e f : Obj C}
+    {f-ab : C [ a , b ]} {f-bc : C [ b , c ]}
+    {f-de : C [ d , e ]} {f-ef : C [ e , f ]} ->
+    (f-ab ⋆ f-bc) ⊗₁ (f-de ⋆ f-ef) ==
+    (f-ab ⊗₁ f-de) ⋆ (f-bc ⊗₁ f-ef)
+  ⊗-distrib-⋆ = F-⋆ ⊗ _ _
+
+  α⇐ : {a b c : Obj C} -> C [ a ⊗₀ (b ⊗₀ c) , ( a ⊗₀ b) ⊗₀ c ]
+  α⇐ {a} {b} {c} = isIso.inv (snd associator (triple a b c))
+  λ⇐ : {a : Obj C} -> C [ a , unit ⊗₀ a ]
+  λ⇐ {a} = isIso.inv (snd unitorˡ a)
+  ρ⇐ : {a : Obj C} -> C [ a , a ⊗₀ unit ]
+  ρ⇐ {a} = isIso.inv (snd unitorʳ a)
+
+  α⇒-swap : {a₁ a₂ b₁ b₂ c₁ c₂ : Obj C}
+            {f : C [ a₁ , a₂ ]} {g : C [ b₁ , b₂ ]} {h : C [ c₁ , c₂ ]} ->
+            Path (C [ ( a₁ ⊗₀ b₁) ⊗₀ c₁ , a₂ ⊗₀ (b₂ ⊗₀ c₂) ])
+              (α⇒ ⋆ (f ⊗₁ (g ⊗₁ h))) (((f ⊗₁ g) ⊗₁ h) ⋆ α⇒)
+  α⇒-swap = NT-mor (fst associator) (triple _ _ _)
+
+  λ⇒-swap : {a b : Obj C} {f : C [ a , b ]} ->
+            Path (C [ unit ⊗₀ a , b ]) (λ⇒ ⋆ f) ((id C ⊗₁ f) ⋆ λ⇒)
+  λ⇒-swap = NT-mor (fst unitorˡ) _
+
+  ρ⇒-swap : {a b : Obj C} {f : C [ a , b ]} ->
+            Path (C [ a ⊗₀ unit , b ]) (ρ⇒ ⋆ f) ((f ⊗₁ id C) ⋆ ρ⇒)
+  ρ⇒-swap = NT-mor (fst unitorʳ) _
