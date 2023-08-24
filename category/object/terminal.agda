@@ -4,16 +4,19 @@ module category.object.terminal where
 
 open import base
 open import category.base
-open import hlevel
-open import truncation
 open import equivalence.base
+open import hlevel
+open import relation
+open import truncation
 
 module _ {ℓO ℓM} (C : PreCategory ℓO ℓM) where
+  isTerminal : Pred (Obj C) _
+  isTerminal obj = (c : Obj C) -> isContr (C [ c , obj ])
+
   record Terminal : Type (ℓ-max ℓO ℓM) where
     field
       obj : Obj C
-
-      universal : (c : Obj C) -> isContr (C [ c , obj ])
+      universal : isTerminal obj
 
     mor : {c : Obj C} -> C [ c , obj ]
     mor = fst (universal _)

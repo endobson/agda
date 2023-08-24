@@ -9,14 +9,18 @@ open import hlevel
 open import truncation
 
 module _ {ℓO ℓM} (C : PreCategory ℓO ℓM) where
+  isProduct : (a b : Obj C) (p : Obj C) (π₁ : C [ p , a ]) (π₁ : C [ p , b ]) -> Type _
+  isProduct a b p π₁ π₂ =
+    {c : Obj C} (f : C [ c , a ]) (g : C [ c , b ]) ->
+       ∃![ h ∈ C [ c , p ] ] (h ⋆⟨ C ⟩ π₁ == f × h ⋆⟨ C ⟩ π₂ == g)
+
+
   record Product (a b : Obj C) : Type (ℓ-max ℓO ℓM) where
     field
       obj : Obj C
       π₁ : C [ obj , a ]
       π₂ : C [ obj , b ]
-
-      universal : {c : Obj C} (f : C [ c , a ]) (g : C [ c , b ]) ->
-                  ∃![ h ∈ C [ c , obj ] ] (h ⋆⟨ C ⟩ π₁ == f × h ⋆⟨ C ⟩ π₂ == g)
+      universal : isProduct a b obj π₁ π₂
 
     ×⟨_,_⟩ : {c : Obj C} (f : C [ c , a ]) (g : C [ c , b ]) -> C [ c , obj ]
     ×⟨ f , g ⟩ = ∃!-val (universal f g)
