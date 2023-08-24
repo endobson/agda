@@ -241,6 +241,149 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
               ⋆-right π₂-reduce >=>
               π₂-reduce
 
+    private
+      α⇒ : {a b c : Obj C} -> C [ ( a ⊗₀ b) ⊗₀ c , a ⊗₀ (b ⊗₀ c) ]
+      α⇒ {a} {b} {c} = NT-obj (fst associator) (triple a b c)
+
+      λ⇒ : {a : Obj C} -> C [ unit ⊗₀ a , a ]
+      λ⇒ {a} = NT-obj (fst unitorˡ) a
+
+      ρ⇒ : {a : Obj C} -> C [ a ⊗₀ unit , a ]
+      ρ⇒ {a} = NT-obj (fst unitorʳ) a
+
+    triangle : ∀ {a b} -> Path (C [ (a ⊗₀ unit) ⊗₀ b , a ⊗₀ b ])
+      (α⇒ ⋆⟨ C ⟩ (id C ⊗₁ λ⇒)) (ρ⇒ ⊗₁ id C)
+    triangle {a} {b} =
+      prod-unique
+        (⋆-assoc >=>
+         ⋆-right (π₁-reduce >=> ⋆-right-id) >=>
+         π₁-reduce >=>
+         sym π₁-reduce)
+        (⋆-assoc >=>
+         ⋆-right (π₂-reduce) >=>
+         sym ⋆-assoc >=>
+         ⋆-left (π₂-reduce) >=>
+         (π₂-reduce) >=>
+         sym ⋆-right-id >=>
+         sym π₂-reduce)
+
+    pentagon : ∀ {a b c d} -> Path (C [ (((a ⊗₀ b) ⊗₀ c) ⊗₀ d) , (a ⊗₀ (b ⊗₀ (c ⊗₀ d))) ])
+      (α⇒ ⋆⟨ C ⟩ α⇒)
+      ((α⇒ ⊗₁ id C) ⋆⟨ C ⟩ α⇒ ⋆⟨ C ⟩ (id C ⊗₁ α⇒))
+    pentagon {a} {b} {c} {d} =
+      prod-unique (a⇒ >=> sym a⇐)
+        (prod-unique (b⇒ >=> sym b⇐)
+          (prod-unique (c⇒ >=> sym c⇐)
+                       (d⇒ >=> sym d⇐)))
+      where
+
+      resˡ = (α⇒ ⋆ α⇒)
+      resʳ = ((α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ α⇒))
+
+      α₁ : {x y z : Obj C} -> Path (C [ ((x ⊗₀ y) ⊗₀ z) , x ]) (α⇒ ⋆ π₁) (π₁ ⋆ π₁)
+      α₁ = π₁-reduce
+      α₂ : {x y z : Obj C} -> Path (C [ ((x ⊗₀ y) ⊗₀ z) , y ]) (α⇒ ⋆ (π₂ ⋆ π₁)) (π₁ ⋆ π₂)
+      α₂ = sym ⋆-assoc >=> (⋆-left π₂-reduce) >=> π₁-reduce
+      α₃ : {x y z : Obj C} -> Path (C [ ((x ⊗₀ y) ⊗₀ z) , z ]) (α⇒ ⋆ (π₂ ⋆ π₂)) π₂
+      α₃ = sym ⋆-assoc >=> (⋆-left π₂-reduce) >=> π₂-reduce
+
+      a⇒ : Path (C [ (((a ⊗₀ b) ⊗₀ c) ⊗₀ d) , a ]) (resˡ ⋆ π₁) (π₁ ⋆ π₁ ⋆ π₁)
+      a⇒ = ⋆-assoc >=> ⋆-right α₁ >=> sym ⋆-assoc >=> ⋆-left α₁
+
+      a⇐ : Path (C [ (((a ⊗₀ b) ⊗₀ c) ⊗₀ d) , a ]) (resʳ ⋆ π₁) (π₁ ⋆ π₁ ⋆ π₁)
+      a⇐ = ⋆-assoc >=> ⋆-assoc >=>
+           ⋆-right (⋆-right (π₁-reduce >=> ⋆-right-id) >=>
+                      α₁) >=>
+           sym ⋆-assoc >=>
+           ⋆-left π₁-reduce >=>
+           ⋆-assoc >=>
+           ⋆-right π₁-reduce >=>
+           sym ⋆-assoc
+
+      b⇒ : Path (C [ (((a ⊗₀ b) ⊗₀ c) ⊗₀ d) , b ]) (resˡ ⋆ π₂ ⋆ π₁) (π₁ ⋆ π₁ ⋆ π₂)
+      b⇒ = ⋆-assoc >=> ⋆-assoc >=>
+           ⋆-right α₂ >=>
+           sym ⋆-assoc >=>
+           ⋆-left α₁
+
+      b⇐ : Path (C [ (((a ⊗₀ b) ⊗₀ c) ⊗₀ d) , b ]) (resʳ ⋆ π₂ ⋆ π₁) (π₁ ⋆ π₁ ⋆ π₂)
+      b⇐ = ⋆-left (⋆-assoc >=> ⋆-assoc >=> ⋆-right (⋆-right π₂-reduce)) >=>
+           ⋆-assoc >=>
+           ⋆-right (⋆-assoc >=> (⋆-right (⋆-assoc >=> ⋆-right α₁ >=>
+                                                  sym ⋆-assoc)) >=>
+                      sym ⋆-assoc) >=>
+           ⋆-right (⋆-left α₂ >=> ⋆-assoc) >=>
+           sym ⋆-assoc >=>
+           ⋆-left π₁-reduce >=>
+           ⋆-assoc >=>
+           ⋆-right α₂ >=>
+           sym ⋆-assoc
+
+
+      c⇒ : Path (C [ (((a ⊗₀ b) ⊗₀ c) ⊗₀ d) , c ]) (resˡ ⋆ π₂ ⋆ π₂ ⋆ π₁) (π₁ ⋆ π₂)
+      c⇒ = begin
+        [ [] , (α⇒ ⋆ α⇒) ⋆ π₂ ⋆ π₂ ⋆ π₁ , [] ]=<
+          right⇒ >z> right⇒ >
+        [ [] , (α⇒ ⋆ α⇒) ⋆ π₂ , π₂ :> π₁ :> [] ]=<
+          z-cong ⋆-assoc >z> left⇐ >
+        [ [] <: α⇒ , α⇒ ⋆ π₂ , π₂ :> π₁ :> [] ]=<
+          right⇐ >z> z-cong (⋆-assoc >=> α₃) >
+        [ [] <: α⇒ , π₂ , π₁ :> [] ]=<
+          right⇐ >z> left⇒ >z> z-cong α₂ >
+        [ [] , π₁ ⋆ π₂ , [] ]end
+        where
+        open ZReasoning C
+
+      c⇐ : Path (C [ (((a ⊗₀ b) ⊗₀ c) ⊗₀ d) , c ]) (resʳ ⋆ π₂ ⋆ π₂ ⋆ π₁) (π₁ ⋆ π₂)
+      c⇐ = begin
+       [ [] , ((α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ α⇒)) ⋆ π₂ ⋆ π₂ ⋆ π₁ , [] ]=<
+         right⇒ >z> right⇒ >z> right⇒ >z> right⇒ >z> shift⇐ >z> shift⇐ >
+       [ [] <: (α⇒ ⊗₁ id C) <: α⇒ , (id C ⊗₁ α⇒) ⋆ π₂ , π₂ :> π₁ :> [] ]=<
+         z-cong π₂-reduce >
+       [ [] <: (α⇒ ⊗₁ id C) <: α⇒ , π₂ ⋆ α⇒ , π₂ :> π₁ :> [] ]=<
+         shift⇐ >z> right⇐ >z> z-cong (⋆-assoc >=> α₂) >
+       [ [] <: (α⇒ ⊗₁ id C) <: α⇒ <: π₂ , π₁ ⋆ π₂ , [] ]=<
+         shift⇒ >z> left⇒ >z> z-cong α₂ >
+       [ [] <: (α⇒ ⊗₁ id C) , π₁ ⋆ π₂ , π₂ :> [] ]=<
+         shift⇒ >z> z-cong π₁-reduce >
+       [ [] , π₁ ⋆ α⇒ , π₂ :> π₂ :> [] ]=<
+         shift⇐ >z> shift⇐ >z> left⇒ >z> z-cong α₃ >z> left⇒ >
+       [ [] , π₁ ⋆ π₂ , [] ]end
+       where
+       open ZReasoning C
+
+
+      d⇒ : Path (C [ (((a ⊗₀ b) ⊗₀ c) ⊗₀ d) , d ]) (resˡ ⋆ π₂ ⋆ π₂ ⋆ π₂) π₂
+      d⇒ = begin
+        [ [] , (α⇒ ⋆ α⇒) ⋆ π₂ ⋆ π₂ ⋆ π₂ , [] ]=<
+          right⇒ >z> right⇒ >
+        [ [] , (α⇒ ⋆ α⇒) ⋆ π₂ , π₂ :> π₂ :> [] ]=<
+          z-cong ⋆-assoc >z> left⇐ >
+        [ [] <: α⇒ , α⇒ ⋆ π₂ , π₂ :> π₂ :> [] ]=<
+          right⇐ >z> z-cong (⋆-assoc >=> α₃) >
+        [ [] <: α⇒ , π₂ , π₂ :> [] ]=<
+          right⇐ >z> left⇒ >z> z-cong α₃ >
+        [ [] , π₂ , [] ]end
+        where
+        open ZReasoning C
+
+      d⇐ : Path (C [ (((a ⊗₀ b) ⊗₀ c) ⊗₀ d) , d ]) (resʳ ⋆ π₂ ⋆ π₂ ⋆ π₂) π₂
+      d⇐ = begin
+        [ [] , ((α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ α⇒)) ⋆ π₂ ⋆ π₂ ⋆ π₂ , [] ]=<
+          right⇒ >z> right⇒ >z> right⇒ >z> right⇒ >z> shift⇐ >z> shift⇐ >
+        [ [] <: (α⇒ ⊗₁ id C) <: α⇒ , (id C ⊗₁ α⇒) ⋆ π₂ , π₂ :> π₂ :> [] ]=<
+          z-cong π₂-reduce >
+        [ [] <: (α⇒ ⊗₁ id C) <: α⇒ , π₂ ⋆ α⇒ , π₂ :> π₂ :> [] ]=<
+          shift⇐ >z> right⇐ >z> z-cong (⋆-assoc >=> α₃) >
+        [ [] <: (α⇒ ⊗₁ id C) <: α⇒ <: π₂ , π₂ , [] ]=<
+          left⇒ >z> left⇒ >z> z-cong α₃ >
+        [ [] <: (α⇒ ⊗₁ id C) , π₂ , [] ]=<
+          left⇒ >z> z-cong (π₂-reduce >=> ⋆-right-id) >
+        [ [] , π₂ , [] ]end
+        where
+        open ZReasoning C
+
+
   CartesianMonoidalStr : MonoidalStr C
   CartesianMonoidalStr = record
     { ⊗ = ⊗
@@ -248,4 +391,6 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
     ; unitorˡ = unitorˡ
     ; unitorʳ = unitorʳ
     ; associator = associator
+    ; triangle = triangle
+    ; pentagon = pentagon
     }

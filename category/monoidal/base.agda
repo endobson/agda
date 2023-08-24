@@ -70,6 +70,13 @@ module _ {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
     ρ⇒ : {a : Obj C} -> C [ a ⊗₀ unit , a ]
     ρ⇒ {a} = NT-obj (fst unitorʳ) a
 
+    field
+      triangle :
+        ∀ {a b} -> Path (C [ (a ⊗₀ unit) ⊗₀ b , a ⊗₀ b ]) (α⇒ ⋆ (id C ⊗₁ λ⇒)) (ρ⇒ ⊗₁ id C)
+      pentagon :
+        ∀ {a b c d} -> Path (C [ (((a ⊗₀ b) ⊗₀ c) ⊗₀ d) , (a ⊗₀ (b ⊗₀ (c ⊗₀ d))) ])
+           (α⇒ ⋆ α⇒)
+           ((α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ α⇒))
 
 module MonoidalStrHelpers {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
                           (M : MonoidalStr C) where
