@@ -68,7 +68,11 @@ idᵉ C _ = id C
 module CategoryHelpers {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
   private
     module C = PreCategory C
-  open C using (_⋆_) public
+  open C
+    using (_⋆_ ; ⋆-id²)
+    renaming ( ⋆-left-id to ⋆-left-idᵉ
+             ; ⋆-right-id to ⋆-right-idᵉ )
+    public
 
   ⋆-left-id : {s t : Obj C} {f : C [ s , t ]} -> id C ⋆ f == f
   ⋆-left-id = C.⋆-left-id _
