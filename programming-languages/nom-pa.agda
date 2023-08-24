@@ -23,7 +23,7 @@ abstract
 
   empty-world : World
   empty-world = empty-world'
-  
+
 
 
   data Name : World -> Type₀ where
@@ -33,7 +33,7 @@ abstract
   ¬Name-empty-world : ¬ (Name empty-world)
   ¬Name-empty-world ()
 
-  name : {w : World} -> (b : Binder) -> Name (world-cons b w) 
+  name : {w : World} -> (b : Binder) -> Name (world-cons b w)
   name = name'
 
   name-skip : {w : World} -> (b : Binder) -> Name w -> Name (world-cons b w)
@@ -90,14 +90,14 @@ abstract
     W⊆-refl' : {w : World} -> w W⊆ w
     W⊆-trans : {w1 w2 w3 : World} -> w1 W⊆ w2 -> w2 W⊆ w3 -> w1 W⊆ w3
     W⊆-empty : {w : World} -> empty-world W⊆ w
-    W⊆-cons' : {w1 w2 : World} (b : Binder) -> w1 W⊆ w2 -> 
+    W⊆-cons' : {w1 w2 : World} (b : Binder) -> w1 W⊆ w2 ->
                (world-cons b w1) W⊆ (world-cons b w2)
     W⊆-#' : {w : World} (b : Binder) -> b # w -> w W⊆ (world-cons b w)
 
   W⊆-refl : {w : World} -> w W⊆ w
   W⊆-refl = W⊆-refl'
 
-  W⊆-cons : {w1 w2 : World} (b : Binder) -> w1 W⊆ w2 -> 
+  W⊆-cons : {w1 w2 : World} (b : Binder) -> w1 W⊆ w2 ->
             (world-cons b w1) W⊆ (world-cons b w2)
   W⊆-cons = W⊆-cons'
 
@@ -108,10 +108,10 @@ abstract
   coerce-name : {w1 w2 : World} -> w1 W⊆ w2 -> Name w1 -> Name w2
   coerce-name (W⊆-refl') n = n
   coerce-name (W⊆-trans w⊆1 w⊆2) = (coerce-name w⊆2) ∘ (coerce-name w⊆1)
-  coerce-name (W⊆-empty) = bot-elim ∘ ¬Name-empty-world 
+  coerce-name (W⊆-empty) = bot-elim ∘ ¬Name-empty-world
   coerce-name (W⊆-cons' b w⊆) (name' b) = (name' b)
   coerce-name (W⊆-cons' b w⊆) (name-skip' b n) = name-skip' b (coerce-name w⊆ n)
-  coerce-name (W⊆-#' b b#w) = name-skip b 
+  coerce-name (W⊆-#' b b#w) = name-skip b
 
 
 data Tm (w : World) : Type₀ where
@@ -123,7 +123,7 @@ data Tm (w : World) : Type₀ where
 --   field
 --     trName : {w1 w2 : World} -> Env w1 w2 -> Name w1 -> Res w2
 --     trBinder : {w1 w2 : World} -> Env w1 w2 -> Binder -> Binder
---     extEnv : {w1 w2 : World} -> (b : Binder) -> (e : Env w1 w2) -> 
+--     extEnv : {w1 w2 : World} -> (b : Binder) -> (e : Env w1 w2) ->
 
 
 
@@ -134,7 +134,7 @@ module _ where
 
     --record Env (w : World) (res : Type ℓ) : Type ℓ where
     --  fields
-    --    lookup 
+    --    lookup
 
     record Supply (w : World) : Type₀ where
       field

@@ -22,7 +22,7 @@ open import truncation
 open import without-point
 
 private
-  incr-size : {ℓB : Level} {B : Type ℓB} -> (b : B) -> isFinSet (WithoutPoint B b) -> 
+  incr-size : {ℓB : Level} {B : Type ℓB} -> (b : B) -> isFinSet (WithoutPoint B b) ->
               Discrete B -> isFinSet B
   incr-size {B = B} b fs discB = ∥-map handle fs
     where
@@ -65,14 +65,14 @@ private
 
 
 
-  FinT-sur-dec : {ℓB : Level} {B : Type ℓB} 
+  FinT-sur-dec : {ℓB : Level} {B : Type ℓB}
                  (n : Nat) -> (f : FinT n -> B) -> isSurjection f -> Discrete B ->
                  isFinSet B
   FinT-sur-dec {B = B} zero f sur-f discB = isFinSet-Uninhabited ¬B
     where
     ¬B : ¬ B
     ¬B b = unsquash isPropBot (∥-map fst (sur-f b))
-  FinT-sur-dec {B = B} (suc n) f sur-f discB = 
+  FinT-sur-dec {B = B} (suc n) f sur-f discB =
     either (unsquash isProp-isFinSet ∘ ∥-map point-case) avoid-case search-res
     where
     b = f (inj-l tt)
@@ -81,7 +81,7 @@ private
     f' = f ∘ inj-r
 
     search-res : ∃[ i ∈ FinT n ] (f' i == b) ⊎ ∀ i -> f' i != b
-    search-res = 
+    search-res =
       finite-search-dec (FinSet-FinT n) (\i -> discB (f' i) b)
 
     module _ (f'-avoid : ∀ i -> f' i != b) where
@@ -91,7 +91,7 @@ private
       sur-g : isSurjection g
       sur-g b2'@(b2 , b2!=b) = ∥-map sur-handle (sur-f b2)
         where
-        sur-handle : Σ[ i ∈ FinT (suc n) ] (f i == b2) -> 
+        sur-handle : Σ[ i ∈ FinT (suc n) ] (f i == b2) ->
                      Σ[ i ∈ FinT n ] (g i == b2')
         sur-handle (inj-l tt , p) = bot-elim (b2!=b (sym p))
         sur-handle (inj-r i , p) = i , ΣProp-path (isProp¬ _) p
@@ -106,33 +106,33 @@ private
       sur-f' : isSurjection f'
       sur-f' b2 = ∥-map sur-handle (sur-f b2)
         where
-        sur-handle : Σ[ i ∈ FinT (suc n) ] (f i == b2) -> 
+        sur-handle : Σ[ i ∈ FinT (suc n) ] (f i == b2) ->
                      Σ[ i ∈ FinT n ] (f' i == b2)
-        sur-handle (inj-l tt , p) = 
+        sur-handle (inj-l tt , p) =
           fst other-point , snd other-point >=> p
         sur-handle (inj-r i , p) = i , p
 
       point-case : isFinSet B
       point-case = FinT-sur-dec n f' sur-f' discB
 
-  Fin-sur-dec : {ℓB : Level} {B : Type ℓB} 
+  Fin-sur-dec : {ℓB : Level} {B : Type ℓB}
                 (n : Nat) -> (f : Fin n -> B) -> isSurjection f -> Discrete B ->
                 isFinSet B
-  Fin-sur-dec {B = B} n = 
+  Fin-sur-dec {B = B} n =
     subst (\F -> (f : F -> B) -> isSurjection f -> Discrete B -> isFinSet B)
           (FinT=Fin n) (FinT-sur-dec n)
 
 
 module _ {ℓA ℓB : Level} (FA : FinSet ℓA) {B : Type ℓB} (f : ⟨ FA ⟩ -> B)
          (sur-f : isSurjection f) (discB : Discrete B) where
-  private 
+  private
     A = fst FA
     module _ (ΣeqA : Σ[ n ∈ Nat ] (A ≃ Fin n)) where
       n = fst ΣeqA
       eqA = snd ΣeqA
 
       g : Fin n -> B
-      g = f ∘ eqInv eqA 
+      g = f ∘ eqInv eqA
 
       sur-g : isSurjection g
       sur-g b = ∥-map convert (sur-f b)

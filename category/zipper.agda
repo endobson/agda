@@ -34,34 +34,34 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} where
   open PreCategory C using (_⋆_)
 
   data ZipperRule {a b : Obj C} : Zipper C a b -> Zipper C a b -> Type (ℓ-max ℓO ℓM) where
-    left⇒ : {a' c b' : Obj C} 
-            {l : CPathˡ C a a'} {m1 : C [ a' , c ]} {m2 : C [ c , b' ]} {r : CPathʳ C b' b} -> 
+    left⇒ : {a' c b' : Obj C}
+            {l : CPathˡ C a a'} {m1 : C [ a' , c ]} {m2 : C [ c , b' ]} {r : CPathʳ C b' b} ->
             ZipperRule (zipper (l :: m1) m2 r) (zipper l (m1 ⋆ m2) r)
-    left⇐ : {a' c b' : Obj C} 
-            {l : CPathˡ C a a'} {m1 : C [ a' , c ]} {m2 : C [ c , b' ]} {r : CPathʳ C b' b} -> 
-            ZipperRule (zipper l (m1 ⋆ m2) r) (zipper (l :: m1) m2 r) 
-    right⇒ : {a' c b' : Obj C} 
-             {l : CPathˡ C a a'} {m1 : C [ a' , c ]} {m2 : C [ c , b' ]} {r : CPathʳ C b' b} -> 
+    left⇐ : {a' c b' : Obj C}
+            {l : CPathˡ C a a'} {m1 : C [ a' , c ]} {m2 : C [ c , b' ]} {r : CPathʳ C b' b} ->
+            ZipperRule (zipper l (m1 ⋆ m2) r) (zipper (l :: m1) m2 r)
+    right⇒ : {a' c b' : Obj C}
+             {l : CPathˡ C a a'} {m1 : C [ a' , c ]} {m2 : C [ c , b' ]} {r : CPathʳ C b' b} ->
              ZipperRule (zipper l (m1 ⋆ m2) r) (zipper l m1 (m2 :: r))
-    right⇐ : {a' c b' : Obj C} 
-             {l : CPathˡ C a a'} {m1 : C [ a' , c ]} {m2 : C [ c , b' ]} {r : CPathʳ C b' b} -> 
-             ZipperRule (zipper l m1 (m2 :: r)) (zipper l (m1 ⋆ m2) r) 
+    right⇐ : {a' c b' : Obj C}
+             {l : CPathˡ C a a'} {m1 : C [ a' , c ]} {m2 : C [ c , b' ]} {r : CPathʳ C b' b} ->
+             ZipperRule (zipper l m1 (m2 :: r)) (zipper l (m1 ⋆ m2) r)
     _>z>_ : {z1 z2 z3 : Zipper C a b} -> ZipperRule z1 z2 -> ZipperRule z2 z3 ->
             ZipperRule z1 z3
-    z-cong : {a' b' : Obj C} 
-             {l : CPathˡ C a a'} {m1 : C [ a' , b' ]} {m2 : C [ a' , b' ]} {r : CPathʳ C b' b} -> 
+    z-cong : {a' b' : Obj C}
+             {l : CPathˡ C a a'} {m1 : C [ a' , b' ]} {m2 : C [ a' , b' ]} {r : CPathʳ C b' b} ->
              m1 == m2 ->
              ZipperRule (zipper l m1 r) (zipper l m2 r)
 
-  shift⇐ : {a a' c1 c2 b' b : Obj C} 
-           {l : CPathˡ C a a'} {m1 : C [ a' , c1 ]} {m2 : C [ c1 , c2 ]} {m3 : C [ c2 , b' ]} 
-           {r : CPathʳ C b' b} -> 
+  shift⇐ : {a a' c1 c2 b' b : Obj C}
+           {l : CPathˡ C a a'} {m1 : C [ a' , c1 ]} {m2 : C [ c1 , c2 ]} {m3 : C [ c2 , b' ]}
+           {r : CPathʳ C b' b} ->
            ZipperRule (zipper l (m1 ⋆ m2) (m3 :: r)) (zipper (l :: m1) (m2 ⋆ m3) r)
   shift⇐ = left⇐ >z> right⇐
 
-  shift⇒ : {a a' c1 c2 b' b : Obj C} 
-           {l : CPathˡ C a a'} {m1 : C [ a' , c1 ]} {m2 : C [ c1 , c2 ]} {m3 : C [ c2 , b' ]} 
-           {r : CPathʳ C b' b} -> 
+  shift⇒ : {a a' c1 c2 b' b : Obj C}
+           {l : CPathˡ C a a'} {m1 : C [ a' , c1 ]} {m2 : C [ c1 , c2 ]} {m3 : C [ c2 , b' ]}
+           {r : CPathʳ C b' b} ->
            ZipperRule  (zipper (l :: m1) (m2 ⋆ m3) r) (zipper l (m1 ⋆ m2) (m3 :: r))
   shift⇒ = right⇒ >z> left⇒
 
@@ -80,9 +80,9 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} where
   zipper->mor : {a b : Obj C} -> Zipper C a b -> C [ a , b ]
   zipper->mor (zipper l m r) = cpathˡ->mor l ⋆ m ⋆ cpathʳ->mor r
 
-  zrule->path : {a b : Obj C} (z1 z2 : Zipper C a b) -> 
+  zrule->path : {a b : Obj C} (z1 z2 : Zipper C a b) ->
                 ZipperRule z1 z2 -> zipper->mor z1 == zipper->mor z2
-  zrule->path (zipper l m1 r) (zipper l m2 r) (z-cong p) = 
+  zrule->path (zipper l m1 r) (zipper l m2 r) (z-cong p) =
     (\i -> cpathˡ->mor l ⋆ p i ⋆ cpathʳ->mor r)
   zrule->path (zipper l1 m1 r1) (zipper l2 m2 r2) (p1 >z> p2) =
     zrule->path _ _ p1 >=> zrule->path _ _ p2
@@ -101,9 +101,9 @@ module _ {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
 
   zrule : {a b : Obj C} -> {m1 m2 : C [ a , b ]} ->
           ZipperRule {C = C} (zipper [] m1 []) (zipper [] m2 []) -> m1 == m2
-  zrule r = 
-    sym (C.⋆-left-id _) >=> sym (C.⋆-right-id _) >=> 
-    zrule->path _ _ r >=> 
+  zrule r =
+    sym (C.⋆-left-id _) >=> sym (C.⋆-right-id _) >=>
+    zrule->path _ _ r >=>
     C.⋆-right-id _ >=> C.⋆-left-id _
 
 

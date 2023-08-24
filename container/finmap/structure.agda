@@ -14,7 +14,7 @@ open import truncation
 
 
 --record MapStructure {ℓK ℓV ℓM : Level}
---       (K : Type ℓK) (V : Type ℓV) (M : Type ℓM) (ℓS : Level) : 
+--       (K : Type ℓK) (V : Type ℓV) (M : Type ℓM) (ℓS : Level) :
 --       Type (ℓ-max (ℓ-max* 3 ℓK ℓV ℓM) (ℓ-suc ℓS)) where
 --  field
 --    Support : M -> K -> Type ℓS
@@ -22,7 +22,7 @@ open import truncation
 --
 --
 --record FinMapStructure {ℓK ℓV ℓM : Level}
---       (K : Type ℓK) (V : Type ℓV) (M : Type ℓM) (ℓS : Level) : 
+--       (K : Type ℓK) (V : Type ℓV) (M : Type ℓM) (ℓS : Level) :
 --       Type (ℓ-max (ℓ-max* 3 ℓK ℓV ℓM) (ℓ-suc ℓS)) where
 --  field
 --    Support : M -> K -> hProp ℓS
@@ -36,21 +36,21 @@ open import truncation
 --
 --
 --
---module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} 
---         {{disc'K : Discrete' K}} 
---         {{isSet'V : isSet' V}} 
+--module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV}
+--         {{disc'K : Discrete' K}}
+--         {{isSet'V : isSet' V}}
 --         where
 --  private
 --    module FMS = FinMapStructure
 --    ℓKV : Level
 --    ℓKV = ℓ-max ℓK ℓV
---    
+--
 --  instance
 --    FinMapStructure-FinMapUK : FinMapStructure K V (FinMapUK K V) ℓKV
---    FinMapStructure-FinMapUK .FMS.Support m k = 
+--    FinMapStructure-FinMapUK .FMS.Support m k =
 --      HasKey-UK k m , isProp-HasKey-UK m
 --    FinMapStructure-FinMapUK .FMS.lookup m k (v , _) = v
---    FinMapStructure-FinMapUK .FMS.finite-support (m' , _) = 
+--    FinMapStructure-FinMapUK .FMS.finite-support (m' , _) =
 --      isFinSet-AllEntries m'
 --
 --
@@ -61,6 +61,6 @@ open import truncation
 --      FinMapElim.elimProp (\_ -> isProp-isFinSet) isFinSet-entries
 --      where
 --      module FinMapElim = SetQuotientElim (FinMapUK K V) FinMapEq
---      isFinSet-entries : (m : FinMapUK K V) -> 
+--      isFinSet-entries : (m : FinMapUK K V) ->
 --        isFinSet (Σ[ k ∈ K ] (Σ[ v ∈ V ] (∥ HasKV-UK k v m ∥)))
 --      isFinSet-entries = ?

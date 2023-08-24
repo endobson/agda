@@ -61,7 +61,7 @@ abstract
   isSet× sA₁ sA₂ = isSetΣ sA₁ (\_ -> sA₂)
 
   isPropΣ⁻ : isSet A -> isProp (Σ A B) -> (a : A) -> isProp (B a)
-  isPropΣ⁻ {A = A} {B = B} sA pAB a b1 b2 = 
+  isPropΣ⁻ {A = A} {B = B} sA pAB a b1 b2 =
     transport (\j -> PathP (\i -> B (pa=refl j i)) b1 b2) (cong snd pab)
     where
     pab : Path (Σ A B) (a , b1) (a , b2)
@@ -72,7 +72,7 @@ abstract
     pa=refl = sA a a pa refl
 
   isSetΣ⁻ : isOfHLevel 3 A -> isSet (Σ A B) -> (a : A) -> isSet (B a)
-  isSetΣ⁻ {A = A} {B = B} gA sAB a b1 b2 p1 p2 = 
+  isSetΣ⁻ {A = A} {B = B} gA sAB a b1 b2 p1 p2 =
     transport (\k -> PathP (\i -> PathP (\j -> B (sqa=refl k i j)) b1 b2) p1 p2) (\i j -> snd (sqab i j))
     where
     sqab : Path (Path (Σ A B) (a , b1) (a , b2)) (\i -> a , p1 i) (\i -> a , p2 i)

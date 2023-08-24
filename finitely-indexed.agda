@@ -42,13 +42,13 @@ KFinSet⁻ ℓ₁  = Σ[ A ∈ (Type ℓ₁) ] (isKFinSet⁻ A)
 KFinListing' : Type ℓ -> (ℓ₂ : Level) -> Type (ℓ-max ℓ (ℓ-suc ℓ₂))
 KFinListing' A ℓ₂ = Σ[ B ∈ (FinSet ℓ₂) ] (∃ (⟨ B ⟩ -> A) isSurjection)
 
-isIndexable : Type ℓ -> Nat -> Type ℓ 
+isIndexable : Type ℓ -> Nat -> Type ℓ
 isIndexable A n = ∃ (FinT n -> A) isSurjection
 
-isListableΣ : Type ℓ -> Type ℓ 
+isListableΣ : Type ℓ -> Type ℓ
 isListableΣ A = Σ Nat (isIndexable A)
 
-isListable : Type ℓ -> Type ℓ 
+isListable : Type ℓ -> Type ℓ
 isListable A = ∥ isListableΣ A ∥
 
 --
@@ -63,8 +63,8 @@ isKFinSet⁻-eq {A = A} = isoToEquiv (isProp->iso g f squash squash)
     handle ((B , fsB) , (f , sur-f)) = ∥-map handle2 fsB
       where
       handle2 : Σ[ n ∈ Nat ] (B ≃ Fin n) -> isKFinSetΣ⁻ A
-      handle2 (n , eqB) = 
-        n , f ∘ eqInv eqB , 
+      handle2 (n , eqB) =
+        n , f ∘ eqInv eqB ,
         (\b -> ∥-map (\{(i , p) -> eqFun eqB i , cong f (eqRet eqB i) >=> p}) (sur-f b))
 
 
@@ -72,7 +72,7 @@ isKFinSet⁻-eq {A = A} = isoToEquiv (isProp->iso g f squash squash)
   g bfs = ∥-map handle bfs
     where
     handle : isKFinSetΣ⁻ A -> isKFinSetΣ A _
-    handle (n , f , sur-f) = 
+    handle (n , f , sur-f) =
       FinSet-Lift _ (FinSet-Fin n) , f ∘ Lift.lower ,
       (\b -> ∥-map (\x -> _ , (snd x)) (sur-f b))
 

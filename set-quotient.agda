@@ -175,7 +175,7 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
     a1a1=a1a2 : R a1 a1 == R a1 a2
     a1a1=a1a2 = cong fst (cong path p)
 
-  pathRecSTRC : (a1 a2 : A) -> Path (A / R) [ a1 ] [ a2 ] -> 
+  pathRecSTRC : (a1 a2 : A) -> Path (A / R) [ a1 ] [ a2 ] ->
                 ∥ SymmetricTransitiveReflexiveClosure R a1 a2 ∥
   pathRecSTRC a1 a2 p = transport a1a1=a1a2 ∣ strc-refl ∣
     where
@@ -201,9 +201,9 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
     a1a1=a1a2 = cong fst (cong props p)
 
 
-  path≃STRC : (a1 a2 : A) -> (Path (A / R) [ a1 ] [ a2 ]) ≃ 
+  path≃STRC : (a1 a2 : A) -> (Path (A / R) [ a1 ] [ a2 ]) ≃
                              ∥ SymmetricTransitiveReflexiveClosure R a1 a2 ∥
-  path≃STRC a1 a2 = isoToEquiv (isProp->iso (pathRecSTRC a1 a2) 
+  path≃STRC a1 a2 = isoToEquiv (isProp->iso (pathRecSTRC a1 a2)
                                (\c -> unsquash (squash/ _ _) (∥-map strc->path c))
                                (squash/ _ _) squash)
     where

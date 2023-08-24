@@ -34,39 +34,39 @@ isSingletonFinSet : {ℓ : Level} -> Pred (FinSetΣ ℓ) ℓ-zero
 isSingletonFinSet fs = cardinalityΣ fs == 1
 
 module _ {ℓ : Level} where
-  NonEmptyFinSet-Topℓ : NonEmptyFinSet ℓ 
+  NonEmptyFinSet-Topℓ : NonEmptyFinSet ℓ
   NonEmptyFinSet-Topℓ =
     (Lift ℓ Top , (1 , ∣ liftEquiv _ _ >eq> (equiv⁻¹ Fin-Top-eq) ∣)) , zero-<
 
-  NonEmptyFinSet-Finℓ : (n : Nat) -> NonEmptyFinSet ℓ 
+  NonEmptyFinSet-Finℓ : (n : Nat) -> NonEmptyFinSet ℓ
   NonEmptyFinSet-Finℓ n =
     (Lift ℓ (Fin (suc n)) , (suc n , ∣ (liftEquiv _ _) ∣)) , zero-<
 
 
   NonEmptyFinSet-⊎ : NonEmptyFinSet ℓ -> NonEmptyFinSet ℓ -> NonEmptyFinSet ℓ
-  NonEmptyFinSet-⊎ ((t1 , fs1) , 0<c1) ((t2 , fs2) , 0<c2) = 
+  NonEmptyFinSet-⊎ ((t1 , fs1) , 0<c1) ((t2 , fs2) , 0<c2) =
     ((t1 ⊎ t2) , isFinSetΣ-⊎ fs1 fs2) , (+-preserves-0< 0<c1 0<c2)
 
-  split-NonEmptyFinSet : 
+  split-NonEmptyFinSet :
     (fs : NonEmptyFinSet ℓ) ->
-    isSingletonFinSet (fst fs) ⊎ 
-    (∥ (Σ[ fs1 ∈ NonEmptyFinSet ℓ ] (Σ[ fs2 ∈ NonEmptyFinSet ℓ ] 
+    isSingletonFinSet (fst fs) ⊎
+    (∥ (Σ[ fs1 ∈ NonEmptyFinSet ℓ ] (Σ[ fs2 ∈ NonEmptyFinSet ℓ ]
          (fs == NonEmptyFinSet-⊎ fs1 fs2) )) ∥)
   split-NonEmptyFinSet ((T , (0 , eq)) , 0<c) = bot-elim (irrefl-< 0<c)
   split-NonEmptyFinSet ((T , (1 , eq)) , _) = inj-l refl
-  split-NonEmptyFinSet fs@((T , ((suc (suc n)) , eq)) , _) = 
+  split-NonEmptyFinSet fs@((T , ((suc (suc n)) , eq)) , _) =
     inj-r (∥-map handle eq)
     where
-    handle : T ≃ Fin (suc (suc n)) -> 
-             (Σ[ fs1 ∈ NonEmptyFinSet ℓ ] (Σ[ fs2 ∈ NonEmptyFinSet ℓ ] 
+    handle : T ≃ Fin (suc (suc n)) ->
+             (Σ[ fs1 ∈ NonEmptyFinSet ℓ ] (Σ[ fs2 ∈ NonEmptyFinSet ℓ ]
                (fs == NonEmptyFinSet-⊎ fs1 fs2) ))
-    handle eq = 
+    handle eq =
       NonEmptyFinSet-Topℓ ,
-      NonEmptyFinSet-Finℓ n , 
+      NonEmptyFinSet-Finℓ n ,
       (ΣProp-path isProp-< (ΣProp-path isProp-isFinSetΣ (ua eq')))
       where
       eq' : T ≃ (Lift ℓ Top ⊎ Lift ℓ (Fin (suc n)))
-      eq' = eq >eq> Fin-suc-⊎-eq (suc n) >eq> 
+      eq' = eq >eq> Fin-suc-⊎-eq (suc n) >eq>
             (⊎-equiv (equiv⁻¹ (liftEquiv _ _)) (equiv⁻¹ (liftEquiv _ _)))
 
   --module _ {ℓP : Level} {P : Pred (NonEmptyFinSet ℓ) ℓP} where
@@ -83,12 +83,12 @@ module _ {ℓ : Level} where
   --    handle (suc (suc n)) 0<ssn T ∣eq∣ = unsquash (prop _) (∥-map handle2 ∣eq∣)
   --      where
   --      handle2 : T ≃ Fin (suc (suc n)) -> P ((T , ((suc (suc n)) , ∣eq∣)) , 0<ssn)
-  --      handle2 eq = 
-  --        branch-case _ 
+  --      handle2 eq =
+  --        branch-case _
   --          NonEmptyFinSet-Topℓ (NonEmptyFinSet-Finℓ n)
   --          (handle _ _ _ _) (handle _ _ _ _)
   --          (ΣProp-path isProp-< (ΣProp-path isProp-isFinSetΣ (ua eq')))
   --        where
   --        eq' : T ≃ (Lift ℓ Top ⊎ Lift ℓ (Fin (suc n)))
-  --        eq' = eq >eq> Fin-suc-⊎-eq (suc n) >eq> 
+  --        eq' = eq >eq> Fin-suc-⊎-eq (suc n) >eq>
   --              (⊎-equiv (equiv⁻¹ (liftEquiv _ _)) (equiv⁻¹ (liftEquiv _ _)))

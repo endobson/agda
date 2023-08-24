@@ -64,7 +64,7 @@ invert-renaming' r@((m , fin) , inv) = ans , center-ans
   ans = (((m' , fin') , invertible-m') , inverse-m')
 
   center-ans : ∀ (r' : (Σ Renaming (InverseRenamings r))) -> ans == r'
-  center-ans (((m2 , fin2) , invertible2) , inverse2) i = 
+  center-ans (((m2 , fin2) , invertible2) , inverse2) i =
     ((m-path i , fin-path i) , invertible-path i) , snd (path i)
     where
     path : (m' , inverse-m') == (m2 , inverse2)
@@ -91,7 +91,7 @@ apply-renaming/Atom (((m , l) , _) , _) a with (l a)
 
 -- Overt : {ℓ : Level} -> Dominance ℓ -> Type ℓ -> Type (ℓ-suc ℓ)
 -- Overt {ℓ} (D , _) T = ∀ (F : T -> Type ℓ) -> ((t : T) -> D (F t)) -> D (∃ T F)
---     
+--
 --   (invert-renaming'P : ∀ r -> isProp (Σ Renaming (InverseRenamings r)))
 --   (Overt-Dec-FinΣ : ∀ {ℓ : Level} (I : FinSetΣ ℓ) -> Overt Dominance-Dec ⟨ I ⟩)
 
@@ -99,14 +99,14 @@ apply-renaming/Atom (((m , l) , _) , _) a with (l a)
 
 
   -- invert-renaming' : ∀ r -> isContr (Σ Renaming (InverseRenamings r))
-  -- invert-renaming' r@(((R1 , D1) , F1) , Rename1) = 
+  -- invert-renaming' r@(((R1 , D1) , F1) , Rename1) =
   --   ((((R2 , D2) , F2) , ? ) , inverse) , invert-renaming'P r _
-  -- 
-  --   
+  --
+  --
   --   where
   --   R2 : Rel Atom ℓ-zero
   --   R2 y x = R1 x y
-  -- 
+  --
   --   D2 : ∀ y -> ⟨ Dominance-Dec ⟩ (Σ Atom (R2 y))
   --   D2 y = subst ⟨ DDec ⟩ eq use-overt
   --     where
@@ -136,14 +136,14 @@ apply-renaming/Atom (((m , l) , _) , _) a with (l a)
   --          (Σ Atom (R2 y))
   --     eq =  -- cong ∥_∥ eq1 >=> ∥-Prop (Rename1 y)
 
-  -- 
+  --
   --   F2 : isFinREL R2
   --   F2 = fst F1 , ∥-map (Σ-swap-eq >eq>_) (snd F1)
 
-  -- 
+  --
   --   --Rename2 : isRenamingRel R2
   --   --Rename2 x = proj₁ (D1 x)
-  -- 
+  --
   --   inverse : InverseRelations R1 R2
   --   inverse x y = idEquiv _
-  
+

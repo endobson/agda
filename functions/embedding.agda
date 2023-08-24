@@ -24,7 +24,7 @@ hasPropFibers f = ∀ b -> isProp (fiber f b)
 
 private
   inhabited-isContr-eq : (A -> isContr A) ≃ isProp A
-  inhabited-isContr-eq = 
+  inhabited-isContr-eq =
     isoToEquiv (isProp->iso forward backward (isPropΠ (\_ -> isProp-isContr)) isProp-isProp)
     where
     forward : (A -> isContr A) -> isProp A
@@ -45,9 +45,9 @@ isEmbedding-eq-hasPropFibers {A = A} {B = B} {f = f} =
 
   flip-Σpath : (a : A) -> (Σ[ a2 ∈ A ] (f a == f a2)) == (Σ[ a2 ∈ A ] (f a2 == f a))
   flip-Σpath a = cong (Σ A) (\i a2 -> flip-path (f a) (f a2) i)
-  
+
   emb==contr-fib-fa : isEmbedding f == (∀ a -> isContr (fiber f (f a)))
-  emb==contr-fib-fa i = ∀ a -> (ua (fundamental-id (f' a)) >=> 
+  emb==contr-fib-fa i = ∀ a -> (ua (fundamental-id (f' a)) >=>
                                 cong isContr (flip-Σpath a)) i
 
   switch-fibers : (∀ a -> isContr (fiber f (f a))) == (∀ b -> fiber f b -> isContr (fiber f b))
@@ -55,8 +55,8 @@ isEmbedding-eq-hasPropFibers {A = A} {B = B} {f = f} =
     where
     switch-fibers2 : (∀ a -> isContr (fiber f (f a))) ==
                      (∀ a b (p : f a == b) -> isContr (fiber f (f a)))
-    switch-fibers2 = 
-      ua (isoToEquiv (isProp->iso sf-forward sf-backward 
+    switch-fibers2 =
+      ua (isoToEquiv (isProp->iso sf-forward sf-backward
                                  (isPropΠ (\_ -> isProp-isContr))
                                  (isPropΠ3 (\_ _ _ -> isProp-isContr))))
       where
@@ -74,7 +74,7 @@ isEmbedding-eq-hasPropFibers {A = A} {B = B} {f = f} =
                      (∀ b -> fiber f b -> isContr (fiber f b))
     switch-fibers4 = ua (isoToEquiv (iso sf-forward sf-backward (\_ -> refl) (\_ -> refl)))
       where
-      sf-forward : (∀ a b (p : f a == b) -> isContr (fiber f b)) -> 
+      sf-forward : (∀ a b (p : f a == b) -> isContr (fiber f b)) ->
                    (∀ b -> fiber f b -> isContr (fiber f b))
       sf-forward c b (a , p) = c a b p
       sf-backward : (∀ b -> fiber f b -> isContr (fiber f b)) ->

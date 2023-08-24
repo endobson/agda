@@ -35,7 +35,7 @@ private
 
 
   combine : (n m : Nat) -> (FinT n ↠ A) -> (FinT m ↪ A) -> m ≤ n
-  combine {A = A} n m (f , sur-f) (g , emb-g) = 
+  combine {A = A} n m (f , sur-f) (g , emb-g) =
     unsquash isProp-≤ (∥-map handle search-res)
     where
     search-res : ∃[ h ∈ (FinT m -> FinT n) ] (∀ j -> f (h j) == g j)
@@ -46,7 +46,7 @@ private
     handle (h , p) = Injective->FinSet≤ (FinSet-FinT m) (FinSet-FinT n) h inj-h
       where
       inj-h : Injective h
-      inj-h {a1 = a1} {a2 = a2} ha1=ha2 = 
+      inj-h {a1 = a1} {a2 = a2} ha1=ha2 =
         isEqInv (emb-g a1 a2) (sym (p a1) >=> cong f ha1=ha2 >=> p a2)
 
 

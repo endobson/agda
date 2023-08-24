@@ -108,7 +108,7 @@ compPath'-refl-right p = compPath'==compPath p refl >=> compPath-refl-right p
 
 compPath'-refl-left : {x y : A} (p : x == y) -> (refl >=>' p) == p
 compPath'-refl-left p = compPath'==compPath refl p >=> compPath-refl-left p
-  
+
 
 
 
@@ -152,10 +152,10 @@ transP-mid p q r = transP-right p (transP-left q r)
 
 
 transP-sym : {A : I -> Type ℓ} {a : A i0} {b : A i1} {c : A i0}
-             (p : PathP (\i -> A i)     a b) 
+             (p : PathP (\i -> A i)     a b)
              (q : PathP (\i -> A (~ i)) b c) ->
              Path (A i0) a c
-transP-sym {ℓ} {A} {a} {b} {c} p q = 
+transP-sym {ℓ} {A} {a} {b} {c} p q =
   transport (\i -> PathP (\j -> (pA=refl i) j) a c) (transP p q)
   where
   pA : Path (Type ℓ) (A i0) (A i0)
@@ -185,7 +185,7 @@ compPath-assoc {A = A} {x} {y} {z} {w} p q r = \i -> (t1 i) >=> (t2 (~ i))
 compPath'-assoc : {ℓ : Level} {A : Type ℓ} {x y z w : A} ->
                   (p : x == y) (q : y == z) (r : z == w) ->
                   (p >=>' q) >=>' r == p >=>' (q >=>' r)
-compPath'-assoc p q r = 
+compPath'-assoc p q r =
   cong (_>=>' r) (compPath'==compPath p q) >=>
   compPath'==compPath (p >=> q) r >=>
   compPath-assoc p q r >=>
@@ -202,10 +202,10 @@ cong-trans f p1 p2 = part2
           cong f (p1 >=> p2) >=> cong f refl
   part1 i = cong f (p1 >=> (\j -> p2 (i ∧ j))) >=> cong f (\j -> p2 (i ∨ j))
   part2 : cong f p1 >=> cong f p2 == cong f (p1 >=> p2)
-  part2 = (\i -> cong f (compPath-refl-right p1 (~ i)) >=> cong f p2) >=> 
+  part2 = (\i -> cong f (compPath-refl-right p1 (~ i)) >=> cong f p2) >=>
           part1 >=>
           (compPath-refl-right (cong f (p1 >=> p2)))
-           
+
 
 
 -- Substitution

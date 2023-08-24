@@ -14,8 +14,8 @@ module _ (Discrete-String : Discrete String) where
   data STLCType : Type₀ where
     nat-type : STLCType
     fun-type : STLCType -> STLCType -> STLCType
-  
-  
+
+
   data RawTerm : Type₀ where
     nat : Nat -> RawTerm
     var : String -> RawTerm
@@ -40,14 +40,14 @@ module _ (Discrete-String : Discrete String) where
   fill-context (if0-1 c t f) rt = if0 (fill-context c rt) t f
   fill-context (if0-2 c t f) rt = if0 c (fill-context t rt) f
   fill-context (if0-3 c t f) rt = if0 c t (fill-context f rt)
-  
+
 
   string-swap : String -> String -> String -> String
   string-swap s1 s2 v = handle (Discrete-String s1 v) (Discrete-String s2 v)
       where
       handle : Dec (s1 == v) -> Dec (s2 == v) -> String
-      handle (yes _) _ = s2 
-      handle (no _) (yes _) = s1 
+      handle (yes _) _ = s2
+      handle (no _) (yes _) = s1
       handle (no _) (no _) = v
 
   name-swap : String -> String -> RawTerm -> RawTerm
@@ -82,10 +82,10 @@ module _ (Discrete-String : Discrete String) where
   data α-equiv : RawTerm -> RawTerm -> Type₀ where
     nat-α : {n : Nat} -> α-equiv (nat n) (nat n)
     var-α : {s : String} -> α-equiv (var s) (var s)
-    app-α : {f1 f2 a1 a2 : RawTerm} -> α-equiv f1 f2 -> α-equiv a1 a2 -> 
+    app-α : {f1 f2 a1 a2 : RawTerm} -> α-equiv f1 f2 -> α-equiv a1 a2 ->
             α-equiv (app f1 a1) (app f2 a2)
-    if0-α : {c1 c2 t1 t2 f1 f2 : RawTerm} -> 
-            α-equiv c1 c2 -> α-equiv t1 t2 ->  α-equiv f1 f2 -> 
+    if0-α : {c1 c2 t1 t2 f1 f2 : RawTerm} ->
+            α-equiv c1 c2 -> α-equiv t1 t2 ->  α-equiv f1 f2 ->
             α-equiv (if0 c1 t1 f1) (if0 c2 t2 f2)
     lam-α : {s1 s2 : String} {b1 b2 : RawTerm} -> α-equiv b1 (name-swap s1 s2 b2) ->
             α-equiv (lam s1 b1) (lam s2 b2)
@@ -103,9 +103,9 @@ module _ (Discrete-String : Discrete String) where
   βδ-Step : Rel RawTerm ℓ-zero
   βδ-Step a b = β-Step a b ⊎ δ-Step a b
 
-  
+
   data βδ-Reduce₁ : Rel RawTerm ℓ-zero where
-    βδ-reduce : {a b : RawTerm} (c : Context) (r : βδ-Step a b) -> 
+    βδ-reduce : {a b : RawTerm} (c : Context) (r : βδ-Step a b) ->
                 βδ-Reduce₁ (fill-context c a) (fill-context c b)
 
 

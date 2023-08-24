@@ -15,20 +15,20 @@ private
     A B C : Type ℓ
 
 Injective-2of3₃ : {f : B -> C} {g : A -> B} {h : A -> C} ->
-                  isComposition f g h -> 
+                  isComposition f g h ->
                   Injective f -> Injective g -> Injective h
 Injective-2of3₃ c inj-f inj-g p = inj-g (inj-f (c _ >=> p >=> sym (c _)))
 
 
 Injective-2of3₂ : {f : B -> C} {g : A -> B} {h : A -> C} ->
-                  isComposition f g h -> 
+                  isComposition f g h ->
                   Injective f -> Injective h -> Injective g
 Injective-2of3₂ {f = f} c inj-f inj-h p = inj-h (sym (c _) >=> cong f p >=> c _)
 
 
 ¬Injective-2of3₁ : ¬ ({A : Type₀} {B : Type₀} {C : Type₀}
                       {f : B -> C} {g : A -> B} {h : A -> C} ->
-                      isComposition f g h -> 
+                      isComposition f g h ->
                       Injective g -> Injective h -> Injective f)
 ¬Injective-2of3₁ inj-f = ¬inj-f (inj-f c inj-g inj-h)
   where

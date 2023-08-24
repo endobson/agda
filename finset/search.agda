@@ -32,7 +32,7 @@ abstract
     finite-search-Fin : {ℓ₁ ℓ₂ : Level} (n : Nat) {P : Pred (Fin n) ℓ₁} {Q : Pred (Fin n) ℓ₂}
                         -> (Universal (P ∪ Q))
                         -> (Satisfiable P) ⊎ (Universal Q)
-    finite-search-Fin {ℓ₁} {ℓ₂} n = 
+    finite-search-Fin {ℓ₁} {ℓ₂} n =
       subst (\F -> ∀ {P : Pred F ℓ₁} {Q : Pred F ℓ₂}
                      -> (Universal (P ∪ Q))
                      -> (Satisfiable P) ⊎ (Universal Q))
@@ -88,7 +88,7 @@ abstract
       extract2 (inj-r ∀s-Right) = inj-r (\s -> proj-r (p s) (∀s-Right s))
 
 
-  finite-search-dec : {ℓS ℓ₁ : Level} (S : FinSet ℓS) {P : Pred ⟨ S ⟩ ℓ₁} 
+  finite-search-dec : {ℓS ℓ₁ : Level} (S : FinSet ℓS) {P : Pred ⟨ S ⟩ ℓ₁}
                       -> (Decidable P)
                       -> (Inhabited P) ⊎ (Universal (Comp P))
   finite-search-dec S {P} dec = finite-search S (\s -> split (dec s))
@@ -97,7 +97,7 @@ abstract
     split (yes p) = inj-l p
     split (no ¬p) = inj-r ¬p
 
-  finite-search-dec' : {ℓS ℓ₁ : Level} (S : FinSet ℓS) {P : Pred ⟨ S ⟩ ℓ₁} 
+  finite-search-dec' : {ℓS ℓ₁ : Level} (S : FinSet ℓS) {P : Pred ⟨ S ⟩ ℓ₁}
                        -> (Decidable P)
                        -> (Inhabited (Comp P)) ⊎ (Universal P)
   finite-search-dec' S {P} dec = finite-search S (\s -> split (dec s))
@@ -110,12 +110,12 @@ abstract
     private
       A = fst FA
       B = fst FB
-  
+
     private
-  
+
       module _ (b : B) where
         find-fiber : (∀ a -> f a != b) ⊎ ∥ (fiber f b) ∥
         find-fiber = ⊎-swap (finite-search-dec FA (\a -> isFinSet->Discrete (snd FB) (f a) b))
-  
+
     find-section : (∃[ b ∈ B ] (∀ a -> f a != b)) ⊎ ∥(Section f)∥
     find-section = ⊎-map-right (finite-choice FB) (finite-search FB find-fiber)

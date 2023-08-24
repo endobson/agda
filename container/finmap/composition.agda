@@ -14,17 +14,17 @@ module _ {ℓV : Level} {V : Type ℓV}  where
   record FinMapComposition' (left right result : FinMap' V V) : Type ℓV where
     field
       forward : {v1 v2 v3 : V} -> HasKV' v1 v2 left -> HasKV' v2 v3 right -> HasKV' v1 v3 result
-      backward : {v1 v3 : V} -> HasKV' v1 v3 result -> 
+      backward : {v1 v3 : V} -> HasKV' v1 v3 result ->
                  Σ[ v2 ∈ V ] (HasKV' v1 v2 left × HasKV' v2 v3 right)
 
-  open FinMapComposition' 
+  open FinMapComposition'
 
-  FinMapComposition'-empty-left : 
+  FinMapComposition'-empty-left :
     {m : FinMap' V V} -> FinMapComposition' [] m []
   FinMapComposition'-empty-left .forward ()
   FinMapComposition'-empty-left .backward ()
 
-  FinMapComposition'-empty-right : 
+  FinMapComposition'-empty-right :
     {m : FinMap' V V} -> FinMapComposition' m [] []
   FinMapComposition'-empty-right .forward _ ()
   FinMapComposition'-empty-right .backward ()
@@ -78,7 +78,7 @@ module _ {ℓV : Level} {V : Type ℓV} {{disc'V : Discrete' V}} where
     ... | (yes _) = refl
     ... | (no ¬v23) = bot-elim (¬v23 refl)
 
-    f-backward : (v1 v2 v3 v4 v5 v6 : V) -> f v1 v2 v3 v4 == just (v5 , v6) -> 
+    f-backward : (v1 v2 v3 v4 v5 v6 : V) -> f v1 v2 v3 v4 == just (v5 , v6) ->
                  v1 == v5 × v2 == v3 × v4 == v6
     f-backward v1 v2 v3 v4 v5 v6 p with (discV v2 v3)
     ... | (yes p23) = cong fst (just-injective p) , p23 , cong snd (just-injective p)
@@ -90,32 +90,32 @@ module _ {ℓV : Level} {V : Type ℓV} {{disc'V : Discrete' V}} where
 
   finmap'-compose : FinMap' V V -> FinMap' V V -> FinMap' V V
   finmap'-compose [] m = []
-  finmap'-compose (fm-cons v1 v2 m) m2 = 
+  finmap'-compose (fm-cons v1 v2 m) m2 =
     fm'-union (pre-compose-once-finmap' v1 v2 m2)
               (finmap'-compose m m2)
 
 
-  HasKey-pre-compose-once-finmap' : {v1 v2 v3 : V} {m : FinMap' V V} -> 
+  HasKey-pre-compose-once-finmap' : {v1 v2 v3 : V} {m : FinMap' V V} ->
     HasKV' v2 v3 m -> HasKV' v1 v3 (pre-compose-once-finmap' v1 v2 m)
   HasKey-pre-compose-once-finmap' {v1} {v2} {v3} {m} hkv =
     HasKey-finmap'-filter-map (f v1 v2) (v2 , v3 , hkv , f-refl v1 v2 v3)
-    
 
 
-  HasKey-finmap'-compose-forward : 
+
+  HasKey-finmap'-compose-forward :
     {v1 v2 v3 : V} {m1 m2 : FinMap' V V} ->
     HasKV' v1 v2 m1 -> HasKV' v2 v3 m2 -> HasKV' v1 v3 (finmap'-compose m1 m2)
   HasKey-finmap'-compose-forward {v1} {v2} {v3} {fm-cons k v m} {m2} (has-kv-skip _ _ hkv1) hkv2 =
     HasKV-fm'-union/right (HasKey-finmap'-compose-forward hkv1 hkv2)
   HasKey-finmap'-compose-forward {v1} {v2} {v3} {fm-cons k v m} {m2} (has-kv-here kp vp _) hkv2 =
-    HasKV-fm'-union/left (subst2 (\ik iv -> HasKV' v1 v3 (pre-compose-once-finmap' ik iv m2)) 
+    HasKV-fm'-union/left (subst2 (\ik iv -> HasKV' v1 v3 (pre-compose-once-finmap' ik iv m2))
                                  kp vp
                                  (HasKey-pre-compose-once-finmap' hkv2))
 
-  HasKey-pre-compose-once-finmap'-backward : {v1 v1' v2 v3 : V} {m : FinMap' V V} -> 
+  HasKey-pre-compose-once-finmap'-backward : {v1 v1' v2 v3 : V} {m : FinMap' V V} ->
     HasKV' v1 v3 (pre-compose-once-finmap' v1' v2 m) -> (v1 == v1' × HasKV' v2 v3 m)
   HasKey-pre-compose-once-finmap'-backward {v1} {v1'} {v2} {v3} {m} hkv =
-    sym (fst paths) , 
+    sym (fst paths) ,
     subst2 (\k v -> HasKV' k v m) (sym (fst (snd paths))) (snd (snd paths)) (fst (snd (snd res)))
 
     where
@@ -125,10 +125,10 @@ module _ {ℓV : Level} {V : Type ℓV} {{disc'V : Discrete' V}} where
 
 
 
-  HasKey-finmap'-compose-backward : 
+  HasKey-finmap'-compose-backward :
     {v1 v3 : V} {m1 m2 : FinMap' V V} ->
     HasKV' v1 v3 (finmap'-compose m1 m2) -> Σ[ v2 ∈ V ] (HasKV' v1 v2 m1 × HasKV' v2 v3 m2)
-  HasKey-finmap'-compose-backward {v1} {v3} m1@{fm-cons k v m1'} {m2} hkv = 
+  HasKey-finmap'-compose-backward {v1} {v3} m1@{fm-cons k v m1'} {m2} hkv =
     handle (discV v1 k)
            (HasKV-fm'-union/split (pre-compose-once-finmap' k v m2) (finmap'-compose m1' m2) hkv)
     where
@@ -144,11 +144,11 @@ module _ {ℓV : Level} {V : Type ℓV} {{disc'V : Discrete' V}} where
       handle2 : (v1 == k × HasKV' v v3 m2) ->
                 Σ[ v2 ∈ V ] (HasKV' v1 v2 m1 × HasKV' v2 v3 m2)
       handle2 (kp , hkv) = v , has-kv-here kp refl m1' , hkv
-                
 
-  FinMapComposition'-finmap-compose' : 
+
+  FinMapComposition'-finmap-compose' :
     {m1 m2 : FinMap' V V} -> FinMapComposition' m1 m2 (finmap'-compose m1 m2)
   FinMapComposition'-finmap-compose' .FinMapComposition'.forward =
-    HasKey-finmap'-compose-forward 
+    HasKey-finmap'-compose-forward
   FinMapComposition'-finmap-compose' .FinMapComposition'.backward =
-    HasKey-finmap'-compose-backward 
+    HasKey-finmap'-compose-backward

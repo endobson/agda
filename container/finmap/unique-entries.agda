@@ -31,7 +31,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
     A->U m = All->Unique {m}
 
     sur-All->Unique : {m : FinMap' K V} -> isSurjection (A->U m)
-    sur-All->Unique (k , v , mhkv) = 
+    sur-All->Unique (k , v , mhkv) =
       ∥-map (\hkv -> (k , v , hkv) , (\i -> k , v , squash ∣ hkv ∣ mhkv i)) mhkv
 
   isKFinSet-UniqueEntries : (m : FinMap' K V) -> isKFinSet (UniqueEntries m) ℓKV
@@ -62,16 +62,16 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
         e : Maybe (UniqueEntries m1)
         e = (just (k , v , ∣ hkv ∣))
         handle2 : fiber (l f) e -> ∥ HasKV' k v m2 ∥
-        handle2 ((k2 , v2 , hkv2) , p) = 
+        handle2 ((k2 , v2 , hkv2) , p) =
           subst2 (\k v -> ∥ HasKV' k v m2 ∥) kp vp hkv2
           where
           kp : k2 == k
-          kp with (f k2 v2 hkv2) 
+          kp with (f k2 v2 hkv2)
           ... | (just hkv') = cong fst (just-injective p)
           ... | (nothing) = bot-elim (just!=nothing (sym p))
 
           vp : v2 == v
-          vp with (f k2 v2 hkv2) 
+          vp with (f k2 v2 hkv2)
           ... | (just hkv') = \ i -> fst (snd (just-injective p i))
           ... | (nothing) = bot-elim (just!=nothing (sym p))
 
@@ -80,10 +80,10 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
 --      KFinSet< (KFinSet-UniqueEntries m1) (KFinSet-UniqueEntries m2)
 --    fm⊂3'->UniqueEntries< m1⊂m2 n idx-U2 = (∥-bind handle m1⊂m2)
 --      where
---      handle : Σ[ f ∈ F ] isSurjection (l f) -> 
+--      handle : Σ[ f ∈ F ] isSurjection (l f) ->
 --               ∃[ m ∈ Nat ] (m < n × isIndexable (UniqueEntries m1) m)
 --      handle (f , sur-lf) = ?
-                
+
 
 
 --  private
@@ -91,7 +91,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
 --      (m1 m2 : FinMap' K V) ->
 --      m1 fm⊂ m2 ->
 --      KFinSet< (KFinSet-UniqueEntries m1) (KFinSet-UniqueEntries m2)
---    fm⊂->UniqueEntries< m1 m2 m1<m2 zero ind-U2 = 
+--    fm⊂->UniqueEntries< m1 m2 m1<m2 zero ind-U2 =
 --      bot-elim (eqFun U2≃Bot e)
 --      where
 --      U2≃Bot : UniqueEntries m2 ≃ Bot

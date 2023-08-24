@@ -20,17 +20,17 @@ module _ {ℓK : Level} {ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
     finmap'-entry-map = finmap'-filter-map f'
 
     HasKey-finmap'-entry-map :
-      {k : K} {v : V} {m : FinMap' K V} -> 
-      HasKV' k v m  -> 
+      {k : K} {v : V} {m : FinMap' K V} ->
+      HasKV' k v m  ->
       HasKV' (fst (f k v)) (snd (f k v)) (finmap'-entry-map m)
     HasKey-finmap'-entry-map hkv = HasKey-finmap'-filter-map f' (_ , _ , hkv , refl)
 
 
     HasKey-finmap'-entry-map-backward :
-      {k2 : K2} {v2 : V2} {m : FinMap' K V} -> 
-      HasKV' k2 v2 (finmap'-entry-map m) -> 
+      {k2 : K2} {v2 : V2} {m : FinMap' K V} ->
+      HasKV' k2 v2 (finmap'-entry-map m) ->
       Σ[ k ∈ K ] Σ[ v ∈ V ] (HasKV' k v m × (f k v) == (k2 , v2))
-    HasKey-finmap'-entry-map-backward hkv = 
-      case (HasKey-finmap'-filter-map-backward f' hkv) of 
+    HasKey-finmap'-entry-map-backward hkv =
+      case (HasKey-finmap'-filter-map-backward f' hkv) of
         (\{ (k , v , hkv , p) -> k , v , hkv , just-injective p})
 

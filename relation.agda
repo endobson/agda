@@ -140,7 +140,7 @@ data ReflexiveClosure {A : Type ℓ₁} (r : Rel A ℓ₂) : Rel A (ℓ-max ℓ�
 data TransitiveReflexiveClosure {A : Type ℓ₁} (r : Rel A ℓ₂) : Rel A (ℓ-max ℓ₁ ℓ₂) where
   trc-rel : {a b : A} -> r a b -> TransitiveReflexiveClosure r a b
   trc-refl : {a : A} -> TransitiveReflexiveClosure r a a
-  trc-trans : {a b c : A} -> 
+  trc-trans : {a b c : A} ->
               TransitiveReflexiveClosure r a b ->
               TransitiveReflexiveClosure r b c ->
               TransitiveReflexiveClosure r a c
@@ -153,9 +153,9 @@ data SymmetricClosure {A : Type ℓ₁} (r : Rel A ℓ₂) : Rel A (ℓ-max ℓ�
 data SymmetricTransitiveReflexiveClosure {A : Type ℓ₁} (r : Rel A ℓ₂) : Rel A (ℓ-max ℓ₁ ℓ₂) where
   strc-rel : {a b : A} -> r a b -> SymmetricTransitiveReflexiveClosure r a b
   strc-refl : {a : A} -> SymmetricTransitiveReflexiveClosure r a a
-  strc-sym : {a b : A} -> SymmetricTransitiveReflexiveClosure r a b 
+  strc-sym : {a b : A} -> SymmetricTransitiveReflexiveClosure r a b
                        -> SymmetricTransitiveReflexiveClosure r b a
-  strc-trans : {a b c : A} -> 
+  strc-trans : {a b c : A} ->
                SymmetricTransitiveReflexiveClosure r a b ->
                SymmetricTransitiveReflexiveClosure r b c ->
                SymmetricTransitiveReflexiveClosure r a c

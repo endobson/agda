@@ -37,7 +37,7 @@ BFinSet ℓ₁ ℓ₂ = Σ[ A ∈ (Type ℓ₁) ] (isBFinSet A ℓ₂)
 BFinSet⁻ : (ℓ₁ : Level) -> Type (ℓ-suc ℓ₁)
 BFinSet⁻ ℓ₁  = Σ[ A ∈ (Type ℓ₁) ] (isBFinSet⁻ A)
 
--- 
+--
 
 isBFinSet⁻-eq : {ℓ₂ : Level} {A : Type ℓ} -> isBFinSet⁻ A ≃ isBFinSet A ℓ₂
 isBFinSet⁻-eq {A = A} = isoToEquiv (isProp->iso g f squash squash)
@@ -49,14 +49,14 @@ isBFinSet⁻-eq {A = A} = isoToEquiv (isProp->iso g f squash squash)
     handle ((B , fsB) , (f , inj-f)) = ∥-map handle2 fsB
       where
       handle2 : Σ[ n ∈ Nat ] (B ≃ Fin n) -> isBFinSetΣ⁻ A
-      handle2 (n , eqB) = n , (eqFun eqB ∘ f) , 
+      handle2 (n , eqB) = n , (eqFun eqB ∘ f) ,
                           (∘-Injective (Retraction->Injective (eqInv eqB , eqRet eqB)) inj-f)
 
   g : isBFinSet⁻ A -> isBFinSet A _
   g bfs = ∥-map handle bfs
     where
     handle : isBFinSetΣ⁻ A -> isBFinSetΣ A _
-    handle (n , f , inj-f) = 
+    handle (n , f , inj-f) =
       FinSet-Lift _ (FinSet-Fin n) , lift ∘ f ,
       (∘-Injective (Retraction->Injective (Lift.lower , \_ -> refl)) inj-f)
 

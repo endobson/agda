@@ -34,7 +34,7 @@ module _ {ℓ : Level} {K V : Type ℓ} where
 
   isFinREL : Pred (REL K V ℓ) ℓ
   isFinREL R = isFinSetΣ (TotalSpace R)
-  
+
 private
   DecPartialMap : {ℓ : Level} -> (K V : Type ℓ) -> Type (ℓ-suc ℓ)
   DecPartialMap K V = (PartialMap Dominance-Dec K V)
@@ -43,7 +43,7 @@ isFinMap : {ℓ : Level} -> {K V : Type ℓ} -> Pred (DecPartialMap K V) ℓ
 isFinMap (R , _)= isFinREL R
 
 FinMap : {ℓ : Level} -> (K V : Type ℓ) -> Type (ℓ-suc ℓ)
-FinMap K V = Σ (DecPartialMap K V) isFinMap 
+FinMap K V = Σ (DecPartialMap K V) isFinMap
 
 private
   module _ {ℓ : Level} {K V : Type ℓ} where
@@ -66,7 +66,7 @@ module _ {ℓ : Level} {K V : Type ℓ} where
     R : K -> V -> Type ℓ
     R = (\_ _ -> Botℓ)
 
-    D : Type ℓ -> Type ℓ 
+    D : Type ℓ -> Type ℓ
     D X = isProp X × Dec X
 
     DVBot : D (Σ V (\_ -> Botℓ))
@@ -92,7 +92,7 @@ module _ {ℓ : Level} {K V : Type ℓ} where
     empty-finmap-size = refl
 
   isProp-empty-finmap : isProp (Σ[ m ∈ FinMap K V ] (finmap-size m == 0))
-  isProp-empty-finmap (((r1 , v1) , f1) , s1) (((r2 , v2) , f2) , s2) = 
+  isProp-empty-finmap (((r1 , v1) , f1) , s1) (((r2 , v2) , f2) , s2) =
     ΣProp-path (isSetNat _ _) (lift-Rel-path r-path)
     where
     f1' : ∥ TotalSpace r1 ≃ Fin 0 ∥
@@ -100,9 +100,9 @@ module _ {ℓ : Level} {K V : Type ℓ} where
     f2' : ∥ TotalSpace r2 ≃ Fin 0 ∥
     f2' = subst (\ s -> ∥ TotalSpace r2 ≃ Fin s ∥) s2 (snd f2)
 
-    r1->Bot : ∀ {x y} -> r1 x y -> Bot 
+    r1->Bot : ∀ {x y} -> r1 x y -> Bot
     r1->Bot r = unsquash isPropBot (∥-map (\eq -> ¬fin-zero (eqFun eq (_ , _ , r))) f1')
-    r2->Bot : ∀ {x y} -> r2 x y -> Bot 
+    r2->Bot : ∀ {x y} -> r2 x y -> Bot
     r2->Bot r = unsquash isPropBot (∥-map (\eq -> ¬fin-zero (eqFun eq (_ , _ , r))) f2')
 
     r-eq : ∀ x y -> r1 x y ≃ r2 x y
@@ -116,11 +116,11 @@ module _ {ℓ : Level} {K V : Type ℓ} where
 
 module _ {ℓ : Level} {K V : Type ℓ} where
   MapDisjointUnion : (A B C : DecPartialMap K V) -> Type ℓ
-  MapDisjointUnion (AR , AD) (BR , BD) (CR , CD) = 
+  MapDisjointUnion (AR , AD) (BR , BD) (CR , CD) =
     ∀ x y -> (AR x y ⊎ BR x y) ≃ CR x y
   FinMapDisjointUnion : (A B C : FinMap K V) -> Type ℓ
   FinMapDisjointUnion (AM , _) (BM , _) (CM , _) = MapDisjointUnion AM BM CM
-  
+
 
 module _ {ℓ : Level} {K V : Type ℓ} where
   isInvertibleFinMap : Pred (FinMap K V) (ℓ-suc ℓ)
@@ -131,7 +131,7 @@ module _ {ℓ : Level} {A B : Type ℓ} where
   InverseFinMaps (m1 , _) (m2 , _) = InversePartialMaps Dominance-Dec m1 m2
 
 inverse-isFinMap : ∀ {ℓ : Level} {X Y : Type ℓ}
-                     (m1 : PartialMap Dominance-Dec X Y) -> 
+                     (m1 : PartialMap Dominance-Dec X Y) ->
                      (m2 : PartialMap Dominance-Dec Y X) ->
                      InversePartialMaps Dominance-Dec m1 m2 ->
                      isFinMap m1 -> isFinMap m2
@@ -140,6 +140,6 @@ inverse-isFinMap (R1 , m1) (R2 , m2) inv (n , ∣eq∣) = n , ∥-map handle ∣
   same-space : (TotalSpace R1) ≃ (TotalSpace R2)
   same-space = Σ-swap-eq >eq> (existential-eq (\ y -> existential-eq (\ x -> inv x y)))
 
-  handle : (TotalSpace R1) ≃ Fin n -> (TotalSpace R2) ≃ Fin n 
+  handle : (TotalSpace R1) ≃ Fin n -> (TotalSpace R2) ≃ Fin n
   handle eq = equiv⁻¹ same-space >eq> eq
 

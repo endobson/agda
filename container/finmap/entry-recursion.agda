@@ -34,7 +34,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
   private
     R : Rel (FinMap' K V) (ℓ-max ℓK ℓV)
     R = _fm⊂'_
-    
+
     R< : Rel (FinMap' K V) (ℓ-max ℓK ℓV)
     R< = _fm⊂_
 
@@ -66,17 +66,17 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
     --  handle : (m2 : FinMap' K V) -> m2 fm⊂' m -> Acc R m2
     --  handle m2 m2<m = ?
 
-      
+
     -- Acc1 : ∀ n m -> fm'-size m ≤ n -> Acc R< m
     -- Acc1 zero [] _ = ?
 
-  module _ (R1 R2 : Rel (FinMap' K V) (ℓ-max ℓK ℓV)) 
+  module _ (R1 R2 : Rel (FinMap' K V) (ℓ-max ℓK ℓV))
            (R1->R2 : ∀ m1 m2 -> R1 m1 m2 -> R2 m1 m2) where
     AccR2->AccR1 : ∀ m -> Acc R2 m -> Acc R1 m
     AccR2->AccR1 m1 (acc f) = acc (\m2 r1 -> (AccR2->AccR1 m2 (f m2 (R1->R2 m2 m1 r1))))
-    
 
-  module _ {ℓA ℓAR ℓB ℓBR : Level} (A : Type ℓA) (B : Type ℓB) 
+
+  module _ {ℓA ℓAR ℓB ℓBR : Level} (A : Type ℓA) (B : Type ℓB)
            (f : A -> B)
            (RA : Rel A ℓAR) (RB : Rel B ℓBR)
            (RA->RB : ∀ a1 a2 -> RA a1 a2 -> RB (f a1) (f a2)) where
@@ -116,30 +116,30 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
       inj-l tt
     Iso-AllEntries-FinT (fm-cons _ _ m) .fun (k , v , (has-kv-skip _ _ hkv)) =
       inj-r (Iso-AllEntries-FinT m .fun (k , v , hkv))
-    Iso-AllEntries-FinT (fm-cons k v m) .inv (inj-l tt) = 
+    Iso-AllEntries-FinT (fm-cons k v m) .inv (inj-l tt) =
       k , v , has-kv-here refl refl m
     Iso-AllEntries-FinT (fm-cons _ _ m) .inv (inj-r i) =
       case (Iso-AllEntries-FinT m .inv i) of (\{(k , v , hkv) -> k , v , has-kv-skip _ _ hkv})
-    Iso-AllEntries-FinT (fm-cons k1 v1 m) .leftInv (k2 , v2 , (has-kv-here kp vp m)) = 
+    Iso-AllEntries-FinT (fm-cons k1 v1 m) .leftInv (k2 , v2 , (has-kv-here kp vp m)) =
       (\i -> kp (~ i) , (vp (~ i)) , (has-kv-here (kp' i) (vp' i) m))
       where
       kp' : PathP (\i -> (kp (~ i)) == k1) refl kp
       kp' = isProp->PathP (\_ -> Discrete->isSet discK _ _)
       vp' : PathP (\i -> (vp (~ i)) == v1) refl vp
       vp' = isProp->PathP (\_ -> Discrete->isSet discV _ _)
-    Iso-AllEntries-FinT (fm-cons k1 v1 m) .leftInv (k2 , v2 , (has-kv-skip k3 v3 hkv)) = 
+    Iso-AllEntries-FinT (fm-cons k1 v1 m) .leftInv (k2 , v2 , (has-kv-skip k3 v3 hkv)) =
       \i -> case (rec i) of (\{(k , v , hkv) -> k , v , has-kv-skip _ _ hkv})
       where
       rec : (Iso-AllEntries-FinT m .inv
                      (Iso-AllEntries-FinT m .fun (k2 , v2 , hkv))) == (k2 , v2 , hkv)
       rec = Iso-AllEntries-FinT m .leftInv (k2 , v2 , hkv)
-     
+
     Iso-AllEntries-FinT (fm-cons _ _ m) .rightInv (inj-l tt) = refl
     Iso-AllEntries-FinT (fm-cons _ _ m) .rightInv (inj-r i) =
       cong inj-r (Iso-AllEntries-FinT m .rightInv i)
 
     isFinSet-AllEntries : (m : FinMap' K V) -> isFinSet (AllEntries m)
-    isFinSet-AllEntries m = ∣ fm'-size m , isoToEquiv (Iso-AllEntries-FinT m) >eq> 
+    isFinSet-AllEntries m = ∣ fm'-size m , isoToEquiv (Iso-AllEntries-FinT m) >eq>
                                            pathToEquiv (FinT=Fin _) ∣
 
     FinSet-AllEntries : (m : FinMap' K V) -> FinSet (ℓ-max ℓK ℓV)
@@ -149,7 +149,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
               (fst e1) == (fst e2) ->
               (fst (snd e1)) == (fst (snd e2)) -> e1 == e2
     UE-path pk pv = (\i -> pk i , pv i , pe i)
-      where 
+      where
       pe : PathP (\i -> ∥ HasKV' (pk i) (pv i) _ ∥) _ _
       pe = isProp->PathP (\i -> squash)
 
@@ -160,8 +160,8 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
     ... | (no ¬pk) | _ = (no (\p -> ¬pk (\i -> fst (p i))))
 
     isFinSet-UniqueEntries : (m : FinMap' K V) -> isFinSet (UniqueEntries m)
-    isFinSet-UniqueEntries m = 
-      FinitelyIndexed-Discrete->isFinSet (FinSet-AllEntries m) 
+    isFinSet-UniqueEntries m =
+      FinitelyIndexed-Discrete->isFinSet (FinSet-AllEntries m)
         A->U isSurjection-A->U Discrete-UniqueEntries
 
     FinSet-UniqueEntries : (m : FinMap' K V) -> FinSet (ℓ-max ℓK ℓV)
@@ -176,7 +176,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
         inj-U p = UE-path (cong fst p) (\i -> fst (snd (p i)))
 
         ¬sur-U : ¬ (isSurjection Um1->Um2)
-        ¬sur-U sur-U = 
+        ¬sur-U sur-U =
           unsquash isPropBot (∥-bind handle (sur-U (k , v , ∣ hkv2 ∣)))
           where
           k = fst (proj₂ m1⊂m2)
@@ -185,7 +185,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
           hkv2 = snd (snd (snd (proj₂ m1⊂m2)))
 
           handle : (fiber Um1->Um2 (k , v , ∣ hkv2 ∣)) -> ∥ Bot ∥
-          handle ((k2 , v2 , e2) , p) = 
+          handle ((k2 , v2 , e2) , p) =
             ∥-map ¬hkv1 (∥-map (subst2 (\k v -> HasKV' k v m1) kp vp) e2)
             where
             kp : k2 == k
@@ -194,17 +194,17 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
             vp i = fst (snd (p i))
 
       fm⊂->FinSet<-U : FinSet< (FinSet-UniqueEntries m1) (FinSet-UniqueEntries m2)
-      fm⊂->FinSet<-U = 
+      fm⊂->FinSet<-U =
         Injective-¬Surjective->FinSet< (FinSet-UniqueEntries m1) (FinSet-UniqueEntries m2)
           Um1->Um2 inj-U ¬sur-U
 
 
     WellFounded-fm⊂ : WellFounded (_fm⊂_ {K = K} {V = V})
     WellFounded-fm⊂ m =
-      AccRB->AccRA (FinMap' K V) (FinSet _) FinSet-UniqueEntries _fm⊂_ 
-                   FinSet< fm⊂->FinSet<-U m 
+      AccRB->AccRA (FinMap' K V) (FinSet _) FinSet-UniqueEntries _fm⊂_
+                   FinSet< fm⊂->FinSet<-U m
                    (WellFounded-FinSet< (FinSet-UniqueEntries m))
 
-    
+
 
 

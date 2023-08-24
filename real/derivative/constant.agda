@@ -25,27 +25,27 @@ open import truncation
 
 private
   module _ (k : ℝ) where
-    const : ℝ -> ℝ 
+    const : ℝ -> ℝ
     const _ = k
-  
+
     isDerivativeAt-const : (x : ℝ) -> isDerivativeAt const x 0#
     isDerivativeAt-const x .isLimitAt.limit-point = ∣ lim-point ∣
       where
       lim-point : isLimitPoint' (\h -> h # 0# , isProp-#) 0#
       lim-point .isLimitPoint'.seq n = ℚ->ℝ (1/ℕ (suc n , tt))
-      lim-point .isLimitPoint'.S-seq n = 
+      lim-point .isLimitPoint'.S-seq n =
         inj-r (ℚ->ℝ-preserves-< _ _ (Pos-1/ℕ _))
-      lim-point .isLimitPoint'.seq-#x n = 
+      lim-point .isLimitPoint'.seq-#x n =
         inj-r (ℚ->ℝ-preserves-< _ _ (Pos-1/ℕ _))
       lim-point .isLimitPoint'.isLimit-seq = isLimit-harmonic-sequence
     isDerivativeAt-const x .isLimitAt.δε δ = ∣ (1# , 0<1) , g ∣
       where
-      g : (z : ℝ) -> εBounded 1# (diff z 0#) -> (z#0 : z # 0#) -> 
+      g : (z : ℝ) -> εBounded 1# (diff z 0#) -> (z#0 : z # 0#) ->
           εBounded ⟨ δ ⟩ (diff (rise-over-run const x (z , z#0)) 0#)
       g z _ z#0 = subst (εBounded ⟨ δ ⟩) (sym d=0) (εBounded-zero δ)
         where
         d=0 : (diff (rise-over-run const x (z , z#0)) 0#) == 0#
-        d=0 = 
+        d=0 =
           +-left-zero >=>
           cong -_ (*-left +-inverse >=> *-left-zero) >=>
           minus-zero

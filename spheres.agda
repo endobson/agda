@@ -48,7 +48,7 @@ loopsℕ = ℕ->ΩS1
 private
   loops-commute : ∀ n -> loopsℕ n >=>' loop == loop >=>' loopsℕ n
   loops-commute zero = compPath'-refl-left loop >=> sym (compPath'-refl-right loop)
-  loops-commute (suc n) = 
+  loops-commute (suc n) =
     cong (_>=>' loop) (loops-commute n) >=>
     compPath'-assoc loop (loopsℕ n) loop
 
@@ -105,7 +105,7 @@ decodeSquareℕ2 n = transP-mid step3 step4 step1
 
 
 decodeSquare : (n : ℤ) -> PathP (\i -> base == loop i) (ℤ->ΩS1 (sub1 n)) (ℤ->ΩS1 n)
-decodeSquare (nonneg (suc x)) = decodeSquareℕ x  
+decodeSquare (nonneg (suc x)) = decodeSquareℕ x
 decodeSquare (nonneg 0) = decodeSquareℕ2 0
 decodeSquare (same-zero i) = decodeSquareℕ2 0
 decodeSquare (nonpos x) = decodeSquareℕ2 x
@@ -119,13 +119,13 @@ decode : ∀ pt -> helix pt -> base == pt
 decode base z = ℤ->ΩS1 z
 decode (loop i) y = ans
   where
-  y' : Glue ℤ (\{ (i = i0) -> (ℤ , add1Equiv) ; (i = i1) -> (ℤ , idEquiv ℤ) }) 
+  y' : Glue ℤ (\{ (i = i0) -> (ℤ , add1Equiv) ; (i = i1) -> (ℤ , idEquiv ℤ) })
   y' = y
 
   n : ℤ
   n = unglue (i ∨ ~ i) y
 
-   
+
   s : PathP (\i -> base == loop i) (ℤ->ΩS1 (sub1 n)) (ℤ->ΩS1 n)
   s = decodeSquare n
 
@@ -149,8 +149,8 @@ decode-encode pt = J (\pt path -> decode pt (encode pt path) == path) (\_ -> ref
 ΩS1≃ℤ = isoToEquiv (iso ΩS1->ℤ ℤ->ΩS1 ℤ->ΩS1->ℤ ΩS1->ℤ->ΩS1)
 
 
--- 
--- 
+--
+--
 -- square-s1-ex1 : Square refl loop refl refl
 -- square-s1-ex1 = ?
 
@@ -162,21 +162,21 @@ decode-encode pt = J (\pt path -> decode pt (encode pt path) == path) (\_ -> ref
 -- private
 --   -- Top↪S1 : Top ↪ S1
 --   -- Top↪S1 = f , isEmbed-f
---   --   where 
+--   --   where
 --   --   f : Top -> S1
 --   --   f tt = base
--- 
+--
 --   --   isEmbed-f : isEmbedding f
 --   --   isEmbed-f tt tt .equiv-proof path = fib , ?
 --   --     where
 --   --     fib : fiber (cong f) path
 --   --     fib = refl , ?
--- 
--- 
+--
+--
 --   ¬Top↪S1 : ¬ (Top ↪ S1)
 --   ¬Top↪S1 (f , isEmbed-f) = ?
 --     where
 --     contr : isContr (fiber (cong f) refl)
 --     contr = isEmbed-f tt tt .equiv-proof refl
 
-    
+

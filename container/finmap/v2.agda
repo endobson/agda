@@ -18,7 +18,7 @@ private
     A B C K V : Type ℓ
 
 
-record Map (K : Type ℓK) (V : Type ℓV) (ℓ : Level) 
+record Map (K : Type ℓK) (V : Type ℓV) (ℓ : Level)
   : Type (ℓ-max* 3 ℓK ℓV (ℓ-suc ℓ)) where
   field
     Index : Type ℓ
@@ -48,7 +48,7 @@ Map-compose {A = A} {B = B} {C = C} m1 m2 = record
     pfibers' = eqFun isEmbedding-eq-hasPropFibers (snd m1.keyAt)
 
     pfibers : ∀ (a : A) -> isProp (fiber keyAt' a)
-    pfibers a ((j11 , j21 , p1) , q1) ((j12 , j22 , p2) , q2) = 
+    pfibers a ((j11 , j21 , p1) , q1) ((j12 , j22 , p2) , q2) =
       (\i -> ((j1-path i , j2-path i , p-path i) , q-path i))
       where
       check : (j11 , q1) == (j12 , q2)
@@ -97,7 +97,7 @@ isFinMap m = isFinSet (Map.Index m)
 FinMap : (K : Type ℓK) (V : Type ℓV) (ℓ : Level) -> Type (ℓ-max* 3 ℓK ℓV (ℓ-suc ℓ))
 FinMap K V ℓ = Σ (Map K V ℓ) isFinMap
 
--- FinMap-compose : 
+-- FinMap-compose :
 
 -- FinMap-compose : FinMap A B ℓ -> FinMap B C ℓ -> FinMap A C (ℓ-max ℓ (levelOf B))
 -- FinMap-compose _ = ?

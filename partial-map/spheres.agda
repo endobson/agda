@@ -30,7 +30,7 @@ R x y = x == y
 add-loop : (a : S1) -> a == base -> a == base
 add-loop a p = p >=>' loop
 
--- loop-commute : (p : S1) (p2 : S1) -> p1 == p2 -> 
+-- loop-commute : (p : S1) (p2 : S1) -> p1 == p2 ->
 
 --loop-commute : (p : base == base) -> (loop ∙∙ p ∙∙ refl) == (refl ∙∙ p ∙∙ loop)
 --loop-commute p i j =
@@ -45,9 +45,9 @@ add-loop a p = p >=>' loop
 --  i0-case = ?
 --  i1-case : Square refl (sym loop) p (refl ∙∙ p ∙∙ loop)
 --  i1-case = ?
---  j0-case : Square (sym loop) refl refl refl 
+--  j0-case : Square (sym loop) refl refl refl
 --  j0-case = ?
---  j1-case : Square refl (sym loop) refl refl 
+--  j1-case : Square refl (sym loop) refl refl
 --  j1-case = ?
 
 
@@ -68,8 +68,8 @@ add-loop a p = p >=>' loop
 --
 --  ans' : S1
 --  ans' = (hcomp (\k -> \{ (i = i0) -> ?
---                        ; (i = i1) -> ? 
---                        ; (j = i0) -> ? 
+--                        ; (i = i1) -> ?
+--                        ; (j = i0) -> ?
 --                        ; (j = i1) -> base
 --                        })
 --                  (p j))
@@ -78,12 +78,12 @@ add-loop a p = p >=>' loop
 
   -- ans : Sub S1 φ spec
   -- ans = inS (hcomp (\k -> \{ (i = i0) -> ?
-  --                          ; (i = i1) -> ? 
-  --                          ; (j = i0) -> ? 
+  --                          ; (i = i1) -> ?
+  --                          ; (j = i0) -> ?
   --                          ; (j = i1) -> loop (~ k ∨ i)
   --                          })
   --                  (p j))
-  
+
 
 --add-loop' : (a b : S1) -> a == b -> a == b
 --add-loop' base     b p = loop >=>' p
@@ -100,8 +100,8 @@ add-loop a p = p >=>' loop
 --  ans = ?
 --
 --  module _ (k : I) where
---    ans-back : Sub S1 (~ i ∧ (~ k ∨ k ∨ j ∨ ~ j) 
---                (\{ (i = i0) (k = i1) -> (loop >=>' p) j 
+--    ans-back : Sub S1 (~ i ∧ (~ k ∨ k ∨ j ∨ ~ j)
+--                (\{ (i = i0) (k = i1) -> (loop >=>' p) j
 --                  ; (i = i0) (k = i0) -> p j
 --                  })
 --    ans-back = ?
@@ -135,5 +135,5 @@ add-loop a p = p >=>' loop
 --  where
 --  f : a == b -> b == a
 --  f p = ?
- 
+
 

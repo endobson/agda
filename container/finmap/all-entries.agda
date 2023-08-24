@@ -38,9 +38,9 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
     index->entry (fm-cons k v m) (inj-r i) = entry-skip k v (index->entry m i)
 
     ie-ei : (m : FinMap' K V) -> (e : AllEntries m) -> index->entry m (entry->index e) == e
-    ie-ei (fm-cons k v m) (k2 , v2 , has-kv-here kp vp m) i = 
+    ie-ei (fm-cons k v m) (k2 , v2 , has-kv-here kp vp m) i =
       kp (~ i) , vp (~ i) , has-kv-here (\j -> kp (j ∨ (~ i))) (\j -> vp (j ∨ (~ i))) m
-    ie-ei (fm-cons k v m) (k2 , v2 , has-kv-skip kp vp hkv) = 
+    ie-ei (fm-cons k v m) (k2 , v2 , has-kv-skip kp vp hkv) =
       cong (entry-skip k v) (ie-ei m (k2 , v2 , hkv))
 
     ei-ie : (m : FinMap' K V) -> (i : FinT (fm'-size m)) -> entry->index (index->entry m i) == i

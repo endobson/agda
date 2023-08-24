@@ -101,7 +101,7 @@ isAscChain R c = (n : Nat) -> (i1 : ValidIndex c n) -> (i2 : ValidIndex c (suc n
 isDescChain : Rel A ℓ₁ -> Pred (CoList A) _
 isDescChain R c = (n : Nat) -> (i1 : ValidIndex c n) -> (i2 : ValidIndex c (suc n)) ->
                                (R (colist-index c (suc n) i2) (colist-index c n i1))
-                          
+
 isDescChain-colist-rest :
   (R : Rel A ℓ₁) -> (c : CoList A) -> isDescChain R c -> isDescChain R (colist-rest c)
 isDescChain-colist-rest R c desc n = desc (suc n)
@@ -129,9 +129,9 @@ isFiniteCoList-colist-rest c = ∥-map handle
 --   handle true bz=t = ∣ zero , bz=t ∣
 --   handle false bz=f = Acc->DCC (f zero bz=f) (acc-f (f zero bz=f)) c (bz=f , refl) desc
 --     where
---     Acc->DCC : (a : A) -> Acc R a -> (c : CoList A) -> NonEmptyCoList a c -> 
+--     Acc->DCC : (a : A) -> Acc R a -> (c : CoList A) -> NonEmptyCoList a c ->
 --                 isDescChain R c -> isFiniteCoList c
---     Acc->DCC a (acc acc-f) c@(b , f) (iz , fz=a) desc = handle2 (⟨ b ⟩ (suc zero)) refl 
+--     Acc->DCC a (acc acc-f) c@(b , f) (iz , fz=a) desc = handle2 (⟨ b ⟩ (suc zero)) refl
 --       where
 --       handle2 : (v1 : Boolean) -> (⟨ b ⟩ (suc zero) == v1) -> isFiniteCoList c
 --       handle2 true bo=t = ∣ suc zero , bo=t ∣
@@ -140,6 +140,6 @@ isFiniteCoList-colist-rest c = ∥-map handle
 --         acc2 = acc-f (f (suc zero) bo=f) (subst2 R refl fz=a (desc zero iz bo=f))
 --         c2 = colist-rest c
 --         rec : isFiniteCoList c2
---         rec = Acc->DCC (colist-index c (suc zero) bo=f) acc2 c2 
+--         rec = Acc->DCC (colist-index c (suc zero) bo=f) acc2 c2
 --                        (bo=f , refl)
 --                        (isDescChain-colist-rest R c desc)
