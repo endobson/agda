@@ -15,8 +15,6 @@ private
   variable
     ℓObj ℓMor : Level
 
--- TODO try to make ⋆-left-id and others not take in an object
-
 record PreCategory (ℓObj ℓMor : Level) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
   field
     Obj : Type ℓObj
@@ -46,21 +44,6 @@ record PreCategory (ℓObj ℓMor : Level) : Type (ℓ-suc (ℓ-max ℓObj ℓMo
             (f ∘ g) ∘ h == f ∘ (g ∘ h)
   ∘-assoc f g h i = ⋆-assoc h g f (~ i)
 
-  ⋆-cong : {s t u : Obj} {m1 m2 : Mor s t} {m3 m4 : Mor t u} ->
-           m1 == m2 -> m3 == m4 -> m1 ⋆ m3 == m2 ⋆ m4
-  ⋆-cong p12 p34 i = p12 i ⋆ p34 i
-
-  ⋆-left : {s t u : Obj} {m1 m2 : Mor s t} {m3 : Mor t u} ->
-           m1 == m2 -> m1 ⋆ m3 == m2 ⋆ m3
-  ⋆-left {m3 = m3} p12 i = p12 i ⋆ m3
-
-  ⋆-right : {s t u : Obj} {m1 : Mor s t} {m2 m3 : Mor t u} ->
-           m2 == m3 -> m1 ⋆ m2 == m1 ⋆ m3
-  ⋆-right {m1 = m1} p23 i = m1 ⋆ p23 i
-
-  ⋆-assocⁱ : {s t u v : Obj} -> {f : Mor s t} -> {g : Mor t u} -> {h : Mor u v} ->
-             (f ⋆ g) ⋆ h == f ⋆ (g ⋆ h)
-  ⋆-assocⁱ = ⋆-assoc _ _ _
 
 open PreCategory public using (Obj ; id ; isSet-Mor)
 
@@ -81,6 +64,33 @@ syntax comp' C g f = g ∘⟨ C ⟩ f
 
 idᵉ : (C : PreCategory ℓObj ℓMor) -> (x : Obj C) -> C [ x , x ]
 idᵉ C _ = id C
+
+module CategoryHelpers {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
+  private
+    module C = PreCategory C
+  open C using (_⋆_) public
+
+  ⋆-left-id : {s t : Obj C} {f : C [ s , t ]} -> id C ⋆ f == f
+  ⋆-left-id = C.⋆-left-id _
+  ⋆-right-id : {s t : Obj C} {f : C [ s , t ]} -> f ⋆ id C == f
+  ⋆-right-id = C.⋆-right-id _
+
+  ⋆-assoc : {s t u v : Obj C} {f : C [ s , t ]} {g : C [ t , u ]} {h : C [ u , v ]} ->
+            (f ⋆ g) ⋆ h == f ⋆ (g ⋆ h)
+  ⋆-assoc = C.⋆-assoc _ _ _
+
+  ⋆-cong : {s t u : Obj C} {m1 m2 : C [ s , t ]} {m3 m4 : C [ t , u ]} ->
+           m1 == m2 -> m3 == m4 -> m1 ⋆ m3 == m2 ⋆ m4
+  ⋆-cong p12 p34 i = p12 i ⋆ p34 i
+
+  ⋆-left : {s t u : Obj C} {m1 m2 : C [ s , t ]} {m3 : C [ t , u ]} ->
+           m1 == m2 -> m1 ⋆ m3 == m2 ⋆ m3
+  ⋆-left {m3 = m3} p12 i = p12 i ⋆ m3
+
+  ⋆-right : {s t u : Obj C} {m1 : C [ s , t ]} {m2 m3 : C [ t , u ]} ->
+           m2 == m3 -> m1 ⋆ m2 == m1 ⋆ m3
+  ⋆-right {m1 = m1} p23 i = m1 ⋆ p23 i
+
 
 record CatIso (C : PreCategory ℓObj ℓMor) (x y : C .Obj) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
   constructor cat-iso

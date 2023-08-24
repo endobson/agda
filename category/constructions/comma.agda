@@ -24,6 +24,8 @@ private
   ℓM = ℓ-max* 3 ℓMA ℓMB ℓMC
 
 private
+  open CategoryHelpers C
+
   CommaSorts : CategorySorts ℓO ℓM
   CommaSorts .CategorySorts.Obj =
     Σ[ a ∈ Obj A ] Σ[ b ∈ Obj B ] C [ S.obj a , T.obj b ]
@@ -33,21 +35,21 @@ private
 
   CommaOps : CategoryOps CommaSorts
   CommaOps .CategoryOps.id = (id A , id B ,
-     C.⋆-cong (S.id _) refl >=>
-     C.⋆-left-id _ >=> sym (C.⋆-right-id _) >=>
-     C.⋆-cong refl (sym (T.id _)))
+     ⋆-left (S.id _) >=>
+     ⋆-left-id >=> sym ⋆-right-id >=>
+     ⋆-right (sym (T.id _)))
   CommaOps .CategoryOps._⋆_ {a1 , b1 , h1} {a2 , b2 , h2} {a3 , b3 , h3}
                             (f1 , g1 , p1) (f2 , g2 , p2) =
     (f1 ⋆⟨ A ⟩ f2 , g1 ⋆⟨ B ⟩ g2 , p)
     where
     p =
-      C.⋆-cong (S.⋆ f1 f2) refl >=>
-      C.⋆-assoc _ _ _ >=>
-      C.⋆-cong refl p2 >=>
-      sym (C.⋆-assoc _ _ _) >=>
-      C.⋆-cong p1 refl >=>
-      C.⋆-assoc _ _ _ >=>
-      C.⋆-cong refl (sym (T.⋆ g1 g2))
+      ⋆-cong (S.⋆ f1 f2) refl >=>
+      ⋆-assoc >=>
+      ⋆-right p2 >=>
+      sym ⋆-assoc >=>
+      ⋆-left p1 >=>
+      ⋆-assoc >=>
+      ⋆-right (sym (T.⋆ g1 g2))
   private
     module O = CategoryOps CommaOps
 
@@ -61,11 +63,11 @@ private
 
   CommaLaws : CategoryLaws CommaOps
   CommaLaws .CategoryLaws.⋆-left-id _ =
-   ΣΣ-path (A.⋆-left-id _) (B.⋆-left-id _) (isProp->PathP (\i -> isSet-Mor C _ _))
+    ΣΣ-path (A.⋆-left-id _) (B.⋆-left-id _) (isProp->PathP (\i -> C.isSet-Mor _ _))
   CommaLaws .CategoryLaws.⋆-right-id _ =
-   ΣΣ-path (A.⋆-right-id _) (B.⋆-right-id _) (isProp->PathP (\i -> isSet-Mor C _ _))
+    ΣΣ-path (A.⋆-right-id _) (B.⋆-right-id _) (isProp->PathP (\i -> C.isSet-Mor _ _))
   CommaLaws .CategoryLaws.⋆-assoc _ _ _ =
-   ΣΣ-path (A.⋆-assoc _ _ _) (B.⋆-assoc _ _ _) (isProp->PathP (\i -> isSet-Mor C _ _))
+    ΣΣ-path (A.⋆-assoc _ _ _) (B.⋆-assoc _ _ _) (isProp->PathP (\i -> C.isSet-Mor _ _))
   CommaLaws .CategoryLaws.isSet-Mor =
     isSetΣ A.isSet-Mor (\a -> isSetΣ B.isSet-Mor (\b -> isProp->isSet (C.isSet-Mor _ _)))
 

@@ -33,11 +33,13 @@ module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
       ans : (NT-obj nt1 x ⋆⟨ D ⟩ NT-obj nt2 x) ⋆⟨ D ⟩ F-mor H f ==
             F-mor F f ⋆⟨ D ⟩ (NT-obj nt1 y ⋆⟨ D ⟩ NT-obj nt2 y)
       ans =
-        D.⋆-assoc _ _ _ >=>
-        D.⋆-cong refl (NT-mor nt2 _) >=>
-        sym (D.⋆-assoc _ _ _) >=>
-        D.⋆-cong (NT-mor nt1 _) refl >=>
-        D.⋆-assoc _ _ _
+        ⋆-assoc >=>
+        ⋆-cong refl (NT-mor nt2 _) >=>
+        sym ⋆-assoc >=>
+        ⋆-cong (NT-mor nt1 _) refl >=>
+        ⋆-assoc
+        where
+        open CategoryHelpers D
 
     extend-NT-obj-path : {F G : Functor C D} {nt1 nt2 : NaturalTransformation F G} ->
                          NT-obj nt1 == NT-obj nt2 -> nt1 == nt2

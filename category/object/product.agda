@@ -43,8 +43,7 @@ module _ {ℓO ℓM} (C : PreCategory ℓO ℓM) where
 
 
 module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} where
-  private
-    module C = PreCategory C
+  open CategoryHelpers C
 
   module _ {a b : Obj C}  where
     _×⟨_,_⟩ : (p : Product C a b) {c : Obj C} (f : C [ c , a ]) (g : C [ c , b ]) ->
@@ -63,8 +62,8 @@ module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} where
     product-path op pp1 pp2 i .Product.universal f g =
       isProp->PathPᵉ
         (\i -> isProp-isContr {A = Σ[ h ∈ (C [ _ , op i ]) ]
-                                     (h ⋆⟨ C ⟩ pp1 i == f ×
-                                      h ⋆⟨ C ⟩ pp2 i == g)})
+                                     (h ⋆ pp1 i == f ×
+                                      h ⋆ pp2 i == g)})
         (Product.universal p1 f g) (Product.universal p2 f g) i
 
 
@@ -78,31 +77,31 @@ module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} where
     products->iso .CatIso.inv = p1.×⟨ p2.π₁ , p2.π₂ ⟩
     products->iso .CatIso.sec =
       cong fst (isContr->isProp (p2.universal p2.π₁ p2.π₂)
-                                (_ , ans1 , ans2) (_ , C.⋆-left-id _ , C.⋆-left-id _))
+                                (_ , ans1 , ans2) (_ , ⋆-left-id , ⋆-left-id))
       where
-      ans1 : p1.×⟨ p2.π₁ , p2.π₂ ⟩ ⋆⟨ C ⟩ p2.×⟨ p1.π₁ , p1.π₂ ⟩ ⋆⟨ C ⟩ p2.π₁ == p2.π₁
+      ans1 : p1.×⟨ p2.π₁ , p2.π₂ ⟩ ⋆ p2.×⟨ p1.π₁ , p1.π₂ ⟩ ⋆ p2.π₁ == p2.π₁
       ans1 =
-        C.⋆-assoc _ _ _ >=>
-        C.⋆-cong refl p2.π₁-reduce >=>
+        ⋆-assoc >=>
+        ⋆-cong refl p2.π₁-reduce >=>
         p1.π₁-reduce
 
-      ans2 : p1.×⟨ p2.π₁ , p2.π₂ ⟩ ⋆⟨ C ⟩ p2.×⟨ p1.π₁ , p1.π₂ ⟩ ⋆⟨ C ⟩ p2.π₂ == p2.π₂
+      ans2 : p1.×⟨ p2.π₁ , p2.π₂ ⟩ ⋆ p2.×⟨ p1.π₁ , p1.π₂ ⟩ ⋆ p2.π₂ == p2.π₂
       ans2 =
-        C.⋆-assoc _ _ _ >=>
-        C.⋆-cong refl p2.π₂-reduce >=>
+        ⋆-assoc >=>
+        ⋆-cong refl p2.π₂-reduce >=>
         p1.π₂-reduce
     products->iso .CatIso.ret =
       cong fst (isContr->isProp (p1.universal p1.π₁ p1.π₂)
-                                (_ , ans1 , ans2) (_ , C.⋆-left-id _ , C.⋆-left-id _))
+                                (_ , ans1 , ans2) (_ , ⋆-left-id , ⋆-left-id))
       where
-      ans1 : p2.×⟨ p1.π₁ , p1.π₂ ⟩ ⋆⟨ C ⟩ p1.×⟨ p2.π₁ , p2.π₂ ⟩ ⋆⟨ C ⟩ p1.π₁ == p1.π₁
+      ans1 : p2.×⟨ p1.π₁ , p1.π₂ ⟩ ⋆ p1.×⟨ p2.π₁ , p2.π₂ ⟩ ⋆ p1.π₁ == p1.π₁
       ans1 =
-        C.⋆-assoc _ _ _ >=>
-        C.⋆-cong refl p1.π₁-reduce >=>
+        ⋆-assoc >=>
+        ⋆-cong refl p1.π₁-reduce >=>
         p2.π₁-reduce
 
-      ans2 : p2.×⟨ p1.π₁ , p1.π₂ ⟩ ⋆⟨ C ⟩ p1.×⟨ p2.π₁ , p2.π₂ ⟩ ⋆⟨ C ⟩ p1.π₂ == p1.π₂
+      ans2 : p2.×⟨ p1.π₁ , p1.π₂ ⟩ ⋆ p1.×⟨ p2.π₁ , p2.π₂ ⟩ ⋆ p1.π₂ == p1.π₂
       ans2 =
-        C.⋆-assoc _ _ _ >=>
-        C.⋆-cong refl p1.π₂-reduce >=>
+        ⋆-assoc >=>
+        ⋆-cong refl p1.π₂-reduce >=>
         p2.π₂-reduce

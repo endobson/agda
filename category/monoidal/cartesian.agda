@@ -21,7 +21,7 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
     C2 = ProductCat C C
     C3 = TripleCat C C C
 
-    module C = PreCategory C
+    open CategoryHelpers C
     module term = Terminal term
 
     module _ {x y : Obj C} where
@@ -29,7 +29,6 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
         using (π₁ ; π₂ ; π₁-reduce ; π₂-reduce ; ×⟨_,_⟩)
         renaming (unique₂ to prod-unique)
         public
-    open PreCategory C using (_⋆_)
 
     _⊗₀_ : Obj C -> Obj C -> Obj C
     a ⊗₀ b = Product.obj (prod a b)
@@ -51,8 +50,8 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
         id-proof : (a b : Obj C) -> (idᵉ C a) ⊗₁ (idᵉ C b) == (idᵉ C (a ⊗₀ b))
         id-proof a b =
           Product.unique (prod a b)
-            (C.⋆-left-id _ >=> sym (C.⋆-right-id _))
-            (C.⋆-left-id _ >=> sym (C.⋆-right-id _))
+            (⋆-left-id >=> sym ⋆-right-id)
+            (⋆-left-id >=> sym ⋆-right-id)
 
         ⋆-proof : {a b c : Obj C × Obj C} ->
                   (f : C2 [ a , b ]) ->
@@ -64,19 +63,19 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
 
           p1 : (f1 ⊗₁ f2) ⋆ (g1 ⊗₁ g2) ⋆ π₁ == π₁ ⋆ (f1 ⋆ g1)
           p1 =
-            C.⋆-assocⁱ >=>
-            C.⋆-right π₁-reduce >=>
-            sym C.⋆-assocⁱ >=>
-            C.⋆-left π₁-reduce >=>
-            C.⋆-assocⁱ
+            ⋆-assoc >=>
+            ⋆-right π₁-reduce >=>
+            sym ⋆-assoc >=>
+            ⋆-left π₁-reduce >=>
+            ⋆-assoc
 
           p2 : (f1 ⊗₁ f2) ⋆ (g1 ⊗₁ g2) ⋆ π₂ == π₂ ⋆ (f2 ⋆ g2)
           p2 =
-            C.⋆-assocⁱ >=>
-            C.⋆-right π₂-reduce >=>
-            sym C.⋆-assocⁱ >=>
-            C.⋆-left π₂-reduce >=>
-            C.⋆-assocⁱ
+            ⋆-assoc >=>
+            ⋆-right π₂-reduce >=>
+            sym ⋆-assoc >=>
+            ⋆-left π₂-reduce >=>
+            ⋆-assoc
 
     unit : Obj C
     unit = Terminal.obj term
@@ -95,8 +94,8 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
         niso .isIso.sec = π₂-reduce
         niso .isIso.ret =
           prod-unique (term.unique₂ _ _)
-                      (C.⋆-assocⁱ >=> C.⋆-right π₂-reduce >=>
-                       C.⋆-right-id _ >=> sym (C.⋆-left-id _))
+                      (⋆-assoc >=> ⋆-right π₂-reduce >=>
+                       ⋆-right-id >=> sym ⋆-left-id)
 
     unitorʳ : NaturalIsomorphism (appʳ ⊗ unit) (idF C)
     unitorʳ = record
@@ -111,8 +110,8 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
         niso .isIso.inv = ×⟨ id C , term.mor ⟩
         niso .isIso.sec = π₁-reduce
         niso .isIso.ret =
-          prod-unique (C.⋆-assocⁱ >=> C.⋆-right π₁-reduce >=>
-                       C.⋆-right-id _ >=> sym (C.⋆-left-id _))
+          prod-unique (⋆-assoc >=> ⋆-right π₁-reduce >=>
+                       ⋆-right-id >=> sym ⋆-left-id)
                       (term.unique₂ _ _)
 
 
@@ -136,45 +135,45 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
 
           nt-sec : nt-inv ⋆⟨ C ⟩ nt-o == id C
           nt-sec = prod-unique
-            (C.⋆-assocⁱ >=>
-             C.⋆-right π₁-reduce >=>
-             sym C.⋆-assocⁱ >=>
-             C.⋆-left π₁-reduce >=>
+            (⋆-assoc >=>
+             ⋆-right π₁-reduce >=>
+             sym ⋆-assoc >=>
+             ⋆-left π₁-reduce >=>
              π₁-reduce >=>
-             sym (C.⋆-left-id _))
-            (C.⋆-assocⁱ >=>
-             C.⋆-right π₂-reduce >=>
+             sym ⋆-left-id)
+            (⋆-assoc >=>
+             ⋆-right π₂-reduce >=>
              (prod-unique
-               (C.⋆-assocⁱ >=>
-                C.⋆-right π₁-reduce >=>
-                sym C.⋆-assocⁱ >=>
-                C.⋆-left π₁-reduce >=>
+               (⋆-assoc >=>
+                ⋆-right π₁-reduce >=>
+                sym ⋆-assoc >=>
+                ⋆-left π₁-reduce >=>
                 π₂-reduce)
-               (C.⋆-assocⁱ >=>
-                C.⋆-right π₂-reduce >=>
+               (⋆-assoc >=>
+                ⋆-right π₂-reduce >=>
                 π₂-reduce)) >=>
-             sym (C.⋆-left-id _))
+             sym ⋆-left-id)
 
           nt-ret : nt-o ⋆⟨ C ⟩ nt-inv == id C
           nt-ret = prod-unique
-            (C.⋆-assocⁱ >=>
-             C.⋆-right π₁-reduce >=>
+            (⋆-assoc >=>
+             ⋆-right π₁-reduce >=>
              (prod-unique
-               (C.⋆-assocⁱ >=>
-                C.⋆-right π₁-reduce >=>
+               (⋆-assoc >=>
+                ⋆-right π₁-reduce >=>
                 π₁-reduce)
-               (C.⋆-assocⁱ >=>
-                C.⋆-right π₂-reduce >=>
-                sym C.⋆-assocⁱ >=>
-                C.⋆-left π₂-reduce >=>
+               (⋆-assoc >=>
+                ⋆-right π₂-reduce >=>
+                sym ⋆-assoc >=>
+                ⋆-left π₂-reduce >=>
                 π₁-reduce)) >=>
-             sym (C.⋆-left-id _))
-            (C.⋆-assocⁱ >=>
-             C.⋆-right π₂-reduce >=>
-             sym C.⋆-assocⁱ >=>
-             C.⋆-left π₂-reduce >=>
+             sym ⋆-left-id)
+            (⋆-assoc >=>
+             ⋆-right π₂-reduce >=>
+             sym ⋆-assoc >=>
+             ⋆-left π₂-reduce >=>
              π₂-reduce >=>
-             sym (C.⋆-left-id _))
+             sym ⋆-left-id)
 
         abstract
           is-niso : isIso C nt-o
@@ -193,57 +192,57 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
             where
             s0x : side-l ⋆ π₁ == π₁ ⋆ π₁ ⋆ f0
             s0x =
-              C.⋆-assocⁱ >=>
-              C.⋆-right π₁-reduce >=>
-              sym C.⋆-assocⁱ >=>
-              C.⋆-left π₁-reduce
+              ⋆-assoc >=>
+              ⋆-right π₁-reduce >=>
+              sym ⋆-assoc >=>
+              ⋆-left π₁-reduce
 
             s1x : side-l ⋆ π₂ ⋆ π₁ == π₁ ⋆ π₂ ⋆ f1
             s1x =
-              C.⋆-left (C.⋆-assocⁱ >=> C.⋆-right π₂-reduce) >=>
-              C.⋆-assocⁱ >=>
-              C.⋆-right (C.⋆-assocⁱ >=> C.⋆-right π₁-reduce) >=>
-              sym C.⋆-assocⁱ >=>
-              C.⋆-left π₂-reduce >=>
-              sym C.⋆-assocⁱ >=>
-              C.⋆-left π₁-reduce
+              ⋆-left (⋆-assoc >=> ⋆-right π₂-reduce) >=>
+              ⋆-assoc >=>
+              ⋆-right (⋆-assoc >=> ⋆-right π₁-reduce) >=>
+              sym ⋆-assoc >=>
+              ⋆-left π₂-reduce >=>
+              sym ⋆-assoc >=>
+              ⋆-left π₁-reduce
 
             s2x : side-l ⋆ π₂ ⋆ π₂ == π₂ ⋆ f2
             s2x =
-              C.⋆-left (C.⋆-assocⁱ >=> C.⋆-right π₂-reduce) >=>
-              C.⋆-assocⁱ >=>
-              C.⋆-right (C.⋆-assocⁱ >=> C.⋆-right π₂-reduce) >=>
-              sym C.⋆-assocⁱ >=>
-              C.⋆-left π₂-reduce >=>
-              sym C.⋆-assocⁱ >=>
-              C.⋆-left π₂-reduce
+              ⋆-left (⋆-assoc >=> ⋆-right π₂-reduce) >=>
+              ⋆-assoc >=>
+              ⋆-right (⋆-assoc >=> ⋆-right π₂-reduce) >=>
+              sym ⋆-assoc >=>
+              ⋆-left π₂-reduce >=>
+              sym ⋆-assoc >=>
+              ⋆-left π₂-reduce
 
             s0y : side-r ⋆ π₁ == π₁ ⋆ π₁ ⋆ f0
             s0y =
-              C.⋆-assocⁱ >=>
-              C.⋆-right π₁-reduce >=>
-              sym C.⋆-assocⁱ >=>
-              C.⋆-left π₁-reduce >=>
-              C.⋆-assocⁱ >=>
-              C.⋆-right π₁-reduce >=>
-              sym C.⋆-assocⁱ
+              ⋆-assoc >=>
+              ⋆-right π₁-reduce >=>
+              sym ⋆-assoc >=>
+              ⋆-left π₁-reduce >=>
+              ⋆-assoc >=>
+              ⋆-right π₁-reduce >=>
+              sym ⋆-assoc
 
             s1y : side-r ⋆ π₂ ⋆ π₁ == π₁ ⋆ π₂ ⋆ f1
             s1y =
-              C.⋆-left (C.⋆-assocⁱ >=> C.⋆-right π₂-reduce) >=>
-              C.⋆-assocⁱ >=>
-              C.⋆-right π₁-reduce >=>
-              sym C.⋆-assocⁱ >=>
-              C.⋆-left π₁-reduce >=>
-              C.⋆-assocⁱ >=>
-              C.⋆-right π₂-reduce >=>
-              sym C.⋆-assocⁱ
+              ⋆-left (⋆-assoc >=> ⋆-right π₂-reduce) >=>
+              ⋆-assoc >=>
+              ⋆-right π₁-reduce >=>
+              sym ⋆-assoc >=>
+              ⋆-left π₁-reduce >=>
+              ⋆-assoc >=>
+              ⋆-right π₂-reduce >=>
+              sym ⋆-assoc
 
             s2y : side-r ⋆ π₂ ⋆ π₂ == π₂ ⋆ f2
             s2y =
-              C.⋆-left (C.⋆-assocⁱ >=> C.⋆-right π₂-reduce) >=>
-              C.⋆-assocⁱ >=>
-              C.⋆-right π₂-reduce >=>
+              ⋆-left (⋆-assoc >=> ⋆-right π₂-reduce) >=>
+              ⋆-assoc >=>
+              ⋆-right π₂-reduce >=>
               π₂-reduce
 
   CartesianMonoidalStr : MonoidalStr C

@@ -29,9 +29,7 @@ module _ {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
       right : CPathʳ b' b
 
 module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} where
-  private
-    module C = PreCategory C
-  open PreCategory C using (_⋆_)
+  open CategoryHelpers C
 
   data ZipperRule {a b : Obj C} : Zipper C a b -> Zipper C a b -> Type (ℓ-max ℓO ℓM) where
     left⇒ : {a' c b' : Obj C}
@@ -86,14 +84,14 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} where
     (\i -> cpathˡ->mor l ⋆ p i ⋆ cpathʳ->mor r)
   zrule->path (zipper l1 m1 r1) (zipper l2 m2 r2) (p1 >z> p2) =
     zrule->path _ _ p1 >=> zrule->path _ _ p2
-  zrule->path (zipper (l1 :: m1) m2 r1) (zipper l2 m3 r2) left⇒ =
-    C.⋆-left C.⋆-assocⁱ
+  zrule->path (zipper l1 m2 r1) (zipper l2 m3 r2) left⇒ =
+    ⋆-left ⋆-assoc
   zrule->path (zipper l1 m1 r1) (zipper l2 m2 r2) left⇐ =
-    C.⋆-left (sym C.⋆-assocⁱ)
+    ⋆-left (sym ⋆-assoc)
   zrule->path (zipper l1 m1 r1) (zipper l2 m2 r2) right⇐ =
-    C.⋆-assocⁱ >=> C.⋆-right (sym C.⋆-assocⁱ) >=> sym C.⋆-assocⁱ
+    ⋆-assoc >=> ⋆-right (sym ⋆-assoc) >=> sym ⋆-assoc
   zrule->path (zipper l1 m1 r1) (zipper l2 m2 r2) right⇒ =
-    C.⋆-assocⁱ >=> C.⋆-right C.⋆-assocⁱ >=> sym C.⋆-assocⁱ
+    ⋆-assoc >=> ⋆-right ⋆-assoc >=> sym ⋆-assoc
 
 module _ {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
   private
