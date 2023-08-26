@@ -3,11 +3,12 @@
 module category.monoidal.base where
 
 open import base
-open import equality
 open import category.base
-open import fin-algebra
 open import category.constructions.product
 open import category.constructions.triple-product
+open import category.zipper
+open import equality
+open import fin-algebra
 
 module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (⊗ : BiFunctor C C C) where
   private
@@ -111,3 +112,70 @@ module MonoidalStrHelpers {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
   ρ⇒-swap : {a b : Obj C} {f : C [ a , b ]} ->
             Path (C [ a ⊗₀ unit , b ]) (ρ⇒ ⋆ f) ((f ⊗₁ id C) ⋆ ρ⇒)
   ρ⇒-swap = NT-mor (fst unitorʳ) _
+
+  open ZReasoning C
+
+  ⊗₁-left : {a₁ a₂ b₁ b₂ : Obj C} -> {f g : C [ a₁ , b₁ ]} {h : C [ a₂ , b₂ ]} ->
+            f == g -> Path (C [ a₁ ⊗₀ a₂ , b₁ ⊗₀ b₂ ]) (f ⊗₁ h) (g ⊗₁ h)
+  ⊗₁-left {h = h} p i = (p i) ⊗₁ h
+
+  ⊗₁-right : {a₁ a₂ b₁ b₂ : Obj C} -> {f : C [ a₁ , b₁ ]} {g h : C [ a₂ , b₂ ]} ->
+             g == h -> Path (C [ a₁ ⊗₀ a₂ , b₁ ⊗₀ b₂ ]) (f ⊗₁ g) (f ⊗₁ h)
+  ⊗₁-right {f = f} p i = f ⊗₁ (p i)
+
+  -- Took names of helpers from Categories library.
+  -- Splits out serial composition over multiple tensor compositions
+
+  serialize₁₂ : {a₁ a₂ b₁ b₂ : Obj C} {f : C [ a₁ , b₁ ]} {g : C [ a₂ , b₂ ]} ->
+                Path (C [ a₁ ⊗₀ a₂ , b₁ ⊗₀ b₂ ]) (f ⊗₁ g) ((f ⊗₁ id C) ⋆ (id C ⊗₁ g))
+  serialize₁₂ = cong2 _⊗₁_ (sym ⋆-right-id) (sym ⋆-left-id) >=> ⊗-distrib-⋆
+
+  serialize₂₁ : {a₁ a₂ b₁ b₂ : Obj C} {f : C [ a₁ , b₁ ]} {g : C [ a₂ , b₂ ]} ->
+                Path (C [ a₁ ⊗₀ a₂ , b₁ ⊗₀ b₂ ]) (f ⊗₁ g) ((id C ⊗₁ g) ⋆ (f ⊗₁ id C))
+  serialize₂₁ =  cong2 _⊗₁_ (sym ⋆-left-id) (sym ⋆-right-id) >=> ⊗-distrib-⋆
+
+  split₁ˡ : {a₁ a₂ b₁ c₁ c₂ : Obj C}
+            {f : C [ a₁ , b₁ ]} {g : C [ b₁ , c₁ ]} {h : C [ a₂ , c₂ ]} ->
+            (f ⋆ g) ⊗₁ h == (f ⊗₁ h) ⋆ (g ⊗₁ id C)
+  split₁ˡ = ⊗₁-right (sym ⋆-right-id) >=> ⊗-distrib-⋆
+
+  split₁ʳ : {a₁ a₂ b₁ c₁ c₂ : Obj C}
+            {f : C [ a₁ , b₁ ]} {g : C [ b₁ , c₁ ]} {h : C [ a₂ , c₂ ]} ->
+            (f ⋆ g) ⊗₁ h == (f ⊗₁ id C) ⋆ (g ⊗₁ h)
+  split₁ʳ = ⊗₁-right (sym ⋆-left-id) >=> ⊗-distrib-⋆
+
+  split₂ˡ : {a₁ a₂ b₂ c₁ c₂ : Obj C}
+            {f : C [ a₁ , c₁ ]} {g : C [ a₂ , b₂ ]} {h : C [ b₂ , c₂ ]} ->
+            f ⊗₁ (g ⋆ h) == (f ⊗₁ g) ⋆ (id C ⊗₁ h)
+  split₂ˡ = ⊗₁-left (sym ⋆-right-id) >=> ⊗-distrib-⋆
+
+  split₂ʳ : {a₁ a₂ b₂ c₁ c₂ : Obj C}
+            {f : C [ a₁ , c₁ ]} {g : C [ a₂ , b₂ ]} {h : C [ b₂ , c₂ ]} ->
+            f ⊗₁ (g ⋆ h) == (id C ⊗₁ g) ⋆ (f ⊗₁ h)
+  split₂ʳ = ⊗₁-left (sym ⋆-left-id) >=> ⊗-distrib-⋆
+
+  retract-unit⊗ : {x y : Obj C} -> {f g : C [ x , y ]} ->
+                  Path (C [ unit ⊗₀ x , unit ⊗₀ y ]) (id C ⊗₁ f) (id C ⊗₁ g) -> f == g
+  retract-unit⊗ p =
+    sym ⋆-left-id >=>
+    ⋆-left (sym (isIso.sec ((snd unitorˡ) _))) >=>
+    ⋆-assoc >=>
+    ⋆-right λ⇒-swap >=>
+    (\ i -> λ⇐ ⋆ (p i ⋆ λ⇒)) >=>
+    ⋆-right (sym λ⇒-swap) >=>
+    sym ⋆-assoc >=>
+    ⋆-left (isIso.sec ((snd unitorˡ) _)) >=>
+    ⋆-left-id
+
+  retract-⊗unit : {x y : Obj C} -> {f g : C [ x , y ]} ->
+                  Path (C [ x ⊗₀ unit , y ⊗₀ unit ]) (f ⊗₁ id C) (g ⊗₁ id C) -> f == g
+  retract-⊗unit p =
+    sym ⋆-left-id >=>
+    ⋆-left (sym (isIso.sec ((snd unitorʳ) _))) >=>
+    ⋆-assoc >=>
+    ⋆-right ρ⇒-swap >=>
+    (\ i -> ρ⇐ ⋆ (p i ⋆ ρ⇒)) >=>
+    ⋆-right (sym ρ⇒-swap) >=>
+    sym ⋆-assoc >=>
+    ⋆-left (isIso.sec ((snd unitorʳ) _)) >=>
+    ⋆-left-id
