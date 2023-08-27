@@ -3,6 +3,7 @@
 open import base
 open import category.base
 open import equality-path
+open import hlevel
 
 module category.instances.small where
 
@@ -82,6 +83,8 @@ module _ (ℓo ℓm : Level) where
               (cong (\m -> H.mor (G.mor m)) (F.⋆ _ _) >=> (cong H.mor (G.⋆ _ _) >=> H.⋆ _ _))
         ans = (cong (_>=> H.⋆ _ _) (sym (cong-trans H.mor _ _))) >=>
               (compPath-assoc _ _ _)
+
+
 
   -- CatC : PreCategory (ℓ-suc ℓ) ℓ
   -- CatC = record
