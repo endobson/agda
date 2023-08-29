@@ -136,12 +136,9 @@ data BasicMor : WObj -> WObj -> Type₀ where
   _⊗ˡ'_ : {a b : WObj} -> BasicMor a b -> (c : WObj) -> BasicMor (a ⊗ c) (b ⊗ c)
   _⊗ʳ'_ : (a : WObj) -> {b c : WObj} -> BasicMor b c -> BasicMor (a ⊗ b) (a ⊗ c)
 
-data BasicPath' (a : WObj) : WObj -> Type₀ where
-  [] : BasicPath' a a
-  _::_ : {c b : WObj} -> BasicMor c b -> BasicPath' a b -> BasicPath' a c
-
-BasicPath : WObj -> WObj -> Type₀
-BasicPath s t = BasicPath' t s
+data BasicPath (s t : WObj) : Type₀ where
+  empty : (s == t) -> BasicPath s t
+  _::_ : {m : WObj} -> BasicMor s m -> BasicPath m t -> BasicPath s t
 
 data isDirectedMor : Boolean -> {a b : WObj} -> BasicMor a b -> Type₀ where
   α⇒' : (a b c : WObj) -> isDirectedMor true (α⇒' a b c)
@@ -154,12 +151,9 @@ data isDirectedMor : Boolean -> {a b : WObj} -> BasicMor a b -> Type₀ where
 DirectedMor : (d : Boolean) -> WObj -> WObj -> Type₀
 DirectedMor d a b = Σ (BasicMor a b) (isDirectedMor d)
 
-data DirectedPath' (d : Boolean) (a : WObj) : WObj -> Type₀ where
-  [] : DirectedPath' d a a
-  _::_ : {c b : WObj} -> DirectedMor d c b -> DirectedPath' d a b -> DirectedPath' d a c
-
-DirectedPath : Boolean -> WObj -> WObj -> Type₀
-DirectedPath d s t = DirectedPath' d t s
+data DirectedPath (d : Boolean) (s t : WObj) : Type₀ where
+  empty : (s == t) -> DirectedPath d s t
+  _::_ : {m : WObj} -> DirectedMor d s m -> DirectedPath d m t -> DirectedPath d s t
 
 
 isTrivial : WObj -> Type₀
@@ -367,18 +361,18 @@ assoc-rank< o1 o2 o3 = (b o1) , +'-right-suc >=> (sym branch-path)
       end
 
 dirpath-to-canon' : {n : Nat} -> (o : WObj) -> WObj-rank o ≤ n -> DirectedPath true o (canon o)
-dirpath-to-canon' ε _ = []
-dirpath-to-canon' var _ = []
+dirpath-to-canon' ε _ = empty refl
+dirpath-to-canon' var _ = empty refl
 dirpath-to-canon' (var ⊗ o) lt = lift-path (dirpath-to-canon' o lt)
   where
   lift-path : ∀ {o1 o2} -> DirectedPath true o1 o2 -> DirectedPath true (var ⊗ o1) (var ⊗ o2)
-  lift-path [] = []
+  lift-path (empty path) = (empty (cong (var ⊗_) path))
   lift-path ((m , d) :: p) = (var ⊗ʳ' m , var ⊗ʳ' d) :: lift-path p
 
 dirpath-to-canon' (ε ⊗ o) lt = lift-path (dirpath-to-canon' o lt)
   where
   lift-path : ∀ {o1 o2} -> DirectedPath true o1 o2 -> DirectedPath true (ε ⊗ o1) (ε ⊗ o2)
-  lift-path [] = []
+  lift-path (empty path) = (empty (cong (ε ⊗_) path))
   lift-path ((m , d) :: p) = (ε ⊗ʳ' m , ε ⊗ʳ' d) :: lift-path p
 
 dirpath-to-canon' {zero} o@((o1 ⊗ o2) ⊗ o3) lt = bot-elim (zero-≮ (trans-<-≤ (assoc-rank< o1 o2 o3) lt))
@@ -421,5 +415,5 @@ dirmor->rank< {a ⊗ o1} {a ⊗ o2} (a ⊗ʳ' m , a ⊗ʳ' dm) =
   rec = dirmor->rank< (m , dm)
 
 dirpath->rank≤ : {o1 o2 : WObj} -> DirectedPath true o1 o2 -> WObj-rank o2 ≤ WObj-rank o1
-dirpath->rank≤ [] = refl-≤
+dirpath->rank≤ (empty p) = path-≤ (cong WObj-rank (sym p))
 dirpath->rank≤ (dm :: dp) = trans-≤ (dirpath->rank≤ dp) (weaken-< (dirmor->rank< dm))
