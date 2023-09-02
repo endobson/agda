@@ -1,40 +1,29 @@
 {-# OPTIONS --cubical --safe --exact-split -WnoUnsupportedIndexedMatch #-}
 
-module category.monoidal.formal2 where
+module category.monoidal.formal.directed where
 
 open import additive-group
 open import additive-group.instances.nat
 open import base
-open import cubical
+open import boolean
 open import category.base
 open import category.constructions.product
 open import category.constructions.triple-product
 open import category.monoidal.base
+open import category.monoidal.formal.base
+open import cubical
 open import equality-path
 open import hlevel
 open import nat
 open import nat.order
-open import boolean
-open import truncation
+open import order
+open import order.instances.nat
+open import ordered-additive-group
+open import ordered-additive-group.instances.nat
 open import relation
 open import sigma.base
 open import sum
-open import order
-open import ordered-additive-group
-open import ordered-additive-group.instances.nat
-open import order.instances.nat
-
-open import category.monoidal.formal-base hiding
-  ( canon
-  ; dirpath-to-canon'
-  ; isDirectedMor
-  ; DirectedMor
-  ; DirectedPath
-  ; dirpath-to-canon
-  ; dirmor->branches=
-  ; dirmor->rank<
-  ; dirpath->rank≤
-  )
+open import truncation
 
 isDirectedMor : {a b : WObj} -> Pred (BasicMor a b) ℓ-zero
 isDirectedMor (α⇒' a b c) = Top
@@ -56,21 +45,6 @@ isDirectedPath (m :: p) = isDirectedMor m × isDirectedPath p
 DirectedPath : WObj -> WObj -> Type₀
 DirectedPath a b = Σ (BasicPath a b) isDirectedPath
 
-isεFree : Pred WObj ℓ-zero
-isεFree ε = Bot
-isεFree var = Top
-isεFree (a ⊗ b) = isεFree a × isεFree b
-
-isVar : Pred WObj ℓ-zero
-isVar ε = Bot
-isVar var = Top
-isVar (_ ⊗ _) = Bot
-
-is⊗ : Pred WObj ℓ-zero
-is⊗ ε = Bot
-is⊗ var = Bot
-is⊗ (_ ⊗ _) = Top
-
 isRTree : Pred WObj ℓ-zero
 isRTree ε = Bot
 isRTree var = Top
@@ -80,11 +54,6 @@ isCanon : Pred WObj ℓ-zero
 isCanon ε = Top
 isCanon m@var = isRTree m
 isCanon m@(_ ⊗ _) = isRTree m
-
-isProp-isVar : (o : WObj) -> isProp (isVar o)
-isProp-isVar ε = isPropBot
-isProp-isVar var = isPropTop
-isProp-isVar (_ ⊗ _) = isPropBot
 
 isProp-isRTree : (o : WObj) -> isProp (isRTree o)
 isProp-isRTree ε = isPropBot
@@ -96,73 +65,9 @@ isProp-isCanon ε = isPropTop
 isProp-isCanon m@var = isProp-isRTree m
 isProp-isCanon m@(_ ⊗ _) = isProp-isRTree m
 
-rank-induction : {ℓ : Level}
-  {P : Pred WObj ℓ} ->
-  (rec : (o1 : WObj) -> ((o2 : WObj) -> WObj-rank o2 < WObj-rank o1 -> P o2) -> P o1)
-  (o : WObj) -> P o
-rank-induction {ℓ} {P} rec = \o -> strong-induction' rec' _ o refl-≤
-  where
-  P' : Pred Nat ℓ
-  P' n = (o : WObj) -> (WObj-rank o < n) -> P o
-  rec' : {m : Nat} -> ({n : Nat} -> n < m -> P' n) -> P' m
-  rec' hyp o1 r1<m = rec o1 (hyp r1<m)
-
-length-induction : {ℓ : Level}
-  {P : Pred WObj ℓ} ->
-  (rec : (o1 : WObj) -> ((o2 : WObj) -> WObj-length o2 < WObj-length o1 -> P o2) -> P o1)
-  (o : WObj) -> P o
-length-induction {ℓ} {P} rec = \o -> strong-induction' rec' _ o refl-≤
-  where
-  P' : Pred Nat ℓ
-  P' n = (o : WObj) -> (WObj-length o < n) -> P o
-  rec' : {m : Nat} -> ({n : Nat} -> n < m -> P' n) -> P' m
-  rec' hyp o1 r1<m = rec o1 (hyp r1<m)
-
-rank-length-induction : {ℓ : Level}
-  {P : Pred WObj ℓ} ->
-  (rec : (o1 : WObj) -> ((o2 : WObj) -> ((WObj-length o2 < WObj-length o1) ⊎
-                                         ((WObj-rank o2 < WObj-rank o1) ×
-                                          (WObj-length o1 == WObj-length o2))) -> P o2) ->
-         P o1)
-  (o : WObj) -> P o
-rank-length-induction {ℓ} {P} rec = rec3
-  where
-  P2' : Pred WObj _
-  P2' o1 = (o2 : WObj) ->
-           (WObj-length o2 < WObj-length o1) ->
-           P o2
-
-  Q2' : Rel WObj _
-  Q2' o1 o2 = (WObj-length o2 < WObj-length o1) -> P o2
-
-  rec2 : (o : WObj) -> P2' o
-  rec2 = length-induction rec1-inner
-    where
-    rec1-inner : (o1 : WObj) -> ((ot : WObj) -> WObj-length ot < WObj-length o1 -> P2' ot) -> P2' o1
-    rec1-inner o1 lhyp =
-      rank-induction rec2-inner
-      where
-      rec2-inner : (o2 : WObj) -> ((ot : WObj) -> WObj-rank ot < WObj-rank o2 -> Q2' o1 ot) -> Q2' o1 o2
-      rec2-inner o2 rhyp l2<l1 =
-        rec o2 (\{ o3 (inj-l l3<l2) -> lhyp o2 l2<l1 o3 l3<l2
-                 ; o3 (inj-r (r3<r2 , l2=l3)) ->
-                   rhyp o3 r3<r2 (trans-=-< (sym l2=l3) l2<l1)
-                 })
-
-  rec3 : (o : WObj) -> P o
-  rec3 = rank-induction rec3-inner
-    where
-    rec3-inner : (o1 : WObj) -> ((ot : WObj) -> WObj-rank ot < WObj-rank o1 -> P ot) -> P o1
-    rec3-inner o1 rhyp =
-      rec o1 (\{ o2 (inj-l l2<l1) -> rec2 o1 o2 l2<l1
-               ; o2 (inj-r (r2<r1 , l1=l2)) -> rhyp o2 r2<r1
-               })
-
-
 isRTree->isεFree : (o : WObj) -> isRTree o -> isεFree o
 isRTree->isεFree var tt = tt
 isRTree->isεFree (var ⊗ o) (tt , rt) = tt , (isRTree->isεFree o rt)
-
 
 εF-0<length : (o : WObj) -> (εF : isεFree o) -> 0 < WObj-length o
 εF-0<length var _ = zero-<
@@ -171,7 +76,6 @@ isRTree->isεFree (var ⊗ o) (tt , rt) = tt , (isRTree->isεFree o rt)
 
 isRTree-0<length : (o : WObj) -> (rt : isRTree o) -> 0 < WObj-length o
 isRTree-0<length o rt = εF-0<length o (isRTree->isεFree o rt)
-
 
 ∃!canon : (n : Nat) -> ∃![ o ∈ WObj ] (WObj-length o == n × isCanon o)
 ∃!canon = \n -> val n , isProp' _
@@ -226,7 +130,6 @@ isRTree-0<length o rt = εF-0<length o (isRTree->isεFree o rt)
   isProp' s1 s2 = ΣProp-path (\{o} -> isProp× (isSetNat _ _) (isProp-isCanon o))
                   (val-path s1 s2)
 
-
 canon : (n : Nat) -> WObj
 canon n = ∃!-val (∃!canon n)
 
@@ -253,10 +156,6 @@ canon-εF-full = \o1 εF ->
   rec ((o1 ⊗ o2) ⊗ o3) hyp ((εF1 , εF2) , εF3) =
     let (oR , pR , rR , cR) = hyp (o1 ⊗ (o2 ⊗ o3)) (assoc-rank< o1 o2 o3) (εF1 , (εF2 , εF3)) in
     (oR , pR >=> (sym (+-assocᵉ (WObj-length o1) (WObj-length o2) (WObj-length o3))) , rR , cR)
-
-
-  -- rec ((o1 ⊗ o2) ⊗ o3) hyp ((εF1 , εF2) , εF3) =
-  --   hyp (o1 ⊗ (o2 ⊗ o3)) (assoc-rank< o1 o2 o3) (εF1 , (εF2 , εF3))
 
 canon-εF : (o : WObj) -> isεFree o -> WObj
 canon-εF o εF = fst (canon-εF-full o εF)
@@ -386,48 +285,8 @@ _dp++_ (m :: p , dm , dp) p2 =
   let (rp , rdp) = (p , dp) dp++ p2 in
   (m :: rp , dm , rdp)
 
-WObj-left : (o : WObj) -> is⊗ o -> WObj
-WObj-left (l ⊗ r) _ = l
-
-WObj-right : (o : WObj) -> is⊗ o -> WObj
-WObj-right (l ⊗ r) _ = r
-
 cons-dirmor : {a b c : WObj} -> DirectedMor a b -> DirectedPath b c -> DirectedPath a c
 cons-dirmor (m , dm) (p , dp) = m :: p , dm , dp
-
-module _ where
-  private
-    encode : WObj -> Nat
-    encode ε = 0
-    encode var = 1
-    encode (_ ⊗ _) = 2
-
-    WObj-left' : WObj -> WObj
-    WObj-left' ε = ε
-    WObj-left' var = var
-    WObj-left' (l ⊗ r) = l
-
-    WObj-right' : WObj -> WObj
-    WObj-right' ε = ε
-    WObj-right' var = var
-    WObj-right' (l ⊗ r) = r
-
-  Discrete-WObj : Discrete WObj
-  Discrete-WObj ε ε       = yes refl
-  Discrete-WObj ε var     = no (\p -> zero-suc-absurd (cong encode p))
-  Discrete-WObj ε (_ ⊗ _) = no (\p -> zero-suc-absurd (cong encode p))
-  Discrete-WObj var ε       = no (\p -> zero-suc-absurd (cong encode (sym p)))
-  Discrete-WObj var var     = yes refl
-  Discrete-WObj var (_ ⊗ _) = no (\p -> zero-suc-absurd (cong pred (cong encode p)))
-  Discrete-WObj (_ ⊗ _) ε = no (\p -> zero-suc-absurd (cong encode (sym p)))
-  Discrete-WObj (_ ⊗ _) var = no (\p -> zero-suc-absurd (cong pred (cong encode (sym p))))
-  Discrete-WObj (l1 ⊗ r1) (l2 ⊗ r2) with (Discrete-WObj l1 l2) | (Discrete-WObj r1 r2)
-  ... | (no ¬pl) | _        = no (\p -> ¬pl (cong WObj-left' p))
-  ... | (yes pl) | (no ¬pr) = no (\p -> ¬pr (cong WObj-right' p))
-  ... | (yes pl) | (yes pr) = yes (cong2 _⊗_ pl pr)
-
-isSet-WObj : isSet WObj
-isSet-WObj = Discrete->isSet Discrete-WObj
 
 dm-cases : {ℓ : Level} {P : {o1 o2 : WObj} -> (DirectedMor o1 o2) -> Type ℓ} ->
            (∀ a b c -> (P (α⇒' a b c , tt))) ->
@@ -443,26 +302,7 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (MC : MonoidalStr C)
          (obj : Obj C) where
   open CategoryHelpers C
   open MonoidalStrHelpers MC renaming (⊗ to ⊗F)
-
-  inj₀ : WObj -> Obj C
-  inj₀ var = obj
-  inj₀ ε = unit
-  inj₀ (l ⊗ r) = (inj₀ l) ⊗₀ (inj₀ r)
-
-  basic-mor->mor : {a b : WObj} -> BasicMor a b -> C [ inj₀ a , inj₀ b ]
-  basic-mor->mor (α⇒' _ _ _) = α⇒
-  basic-mor->mor (α⇐' _ _ _) = α⇐
-  basic-mor->mor (λ⇒' _) = λ⇒
-  basic-mor->mor (λ⇐' _) = λ⇐
-  basic-mor->mor (ρ⇒' _) = ρ⇒
-  basic-mor->mor (ρ⇐' _) = ρ⇐
-  basic-mor->mor (m ⊗ˡ' w) = basic-mor->mor m ⊗₁ id C
-  basic-mor->mor (w ⊗ʳ' m) = id C ⊗₁ basic-mor->mor m
-
-  basic-path->mor : {a b : WObj} -> BasicPath a b -> C [ inj₀ a , inj₀ b ]
-  basic-path->mor {a} {b} (empty p) =
-    transp (\i -> C [ inj₀ a , inj₀ (p i) ]) i0 (id C)
-  basic-path->mor (m :: p) = basic-mor->mor m ⋆ basic-path->mor p
+  open InMonoidal MC obj
 
   directed-path->mor : {a b : WObj} -> DirectedPath a b -> C [ inj₀ a , inj₀ b ]
   directed-path->mor (p , _) = basic-path->mor p
@@ -513,8 +353,6 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (MC : MonoidalStr C)
   sym-ss : {os ol or : WObj} {m1 : DirectedMor os ol} {m2 : DirectedMor os or} ->
            SubSolution m1 m2 -> SubSolution m2 m1
   sym-ss (sub-solution p1 p2 p) = sub-solution p2 p1 (sym p)
-
-
 
   opaque
     lr-case : {w1 w2 ol' or' : WObj} ->
