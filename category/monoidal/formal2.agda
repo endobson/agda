@@ -326,40 +326,6 @@ dirpath-to-isCanon o1 o2 εF c2 lp =
 
 
 
-{-
-dirpath-to-canon : (o : WObj) -> (isRTree o) -> DirectedPath o (canon (WObj-length o))
-dirpath-to-canon = \ o rtree -> strong-induction' rec _ o refl-≤ rtree
-  where
-  P : Pred Nat _
-  P n = (o : WObj) -> WObj-rank o ≤ n -> (isRTree o) -> DirectedPath o (canon (WObj-length o))
-
-  rec : {bound : Nat} -> ({n : Nat} -> n < bound -> P n) -> P bound
-  rec hyp ε lt _ = (empty refl) , tt
-  rec hyp (var ⊗ o) lt (_ , rtree) = lift-path rec-res
-    where
-    rec-res : DirectedPath o (canon (WObj-length o))
-    rec-res = rec hyp o lt rtree
-
-    lift-path : {o1 o2 : WObj} -> DirectedPath o1 o2 -> DirectedPath (var ⊗ o1) (var ⊗ o2)
-    lift-path (empty p , _) = (empty (cong (var ⊗_) p) , tt)
-    lift-path (m :: p , (dm , dp)) =
-      let (p2 , dp2) = lift-path (p , dp) in
-      ((var ⊗ʳ' m) :: p2) , dm , dp2
-  rec hyp ((o1 ⊗ o2) ⊗ o3) lt ((εfree1 , εfree2) , rtree) =
-    let (p , dp) = rec-res' in
-    (α⇒' o1 o2 o3) :: p , tt , dp
-    where
-    rec-res : DirectedPath (o1 ⊗ (o2 ⊗ o3)) (canon (WObj-length (o1 ⊗ (o2 ⊗ o3))))
-    rec-res = hyp (trans-<-≤ (assoc-rank< o1 o2 o3) lt) _ refl-≤ (εfree1 , (εfree2 , rtree))
-
-    rec-res' : DirectedPath (o1 ⊗ (o2 ⊗ o3)) (canon (WObj-length ((o1 ⊗ o2) ⊗ o3)))
-    rec-res' =
-      transport (\i -> DirectedPath (o1 ⊗ (o2 ⊗ o3))
-                                    (canon (+-assocᵉ (WObj-length o1) (WObj-length o2) (WObj-length o3)
-                                                     (~ i))))
-                rec-res
--}
-
 data DirectedMor' : WObj -> WObj -> Type₀ where
   α⇒' : (a b c : WObj) -> DirectedMor' ((a ⊗ b) ⊗ c) (a ⊗ (b ⊗ c))
   _⊗ˡ'_ : {a b : WObj} -> DirectedMor' a b -> (c : WObj) -> DirectedMor' (a ⊗ c) (b ⊗ c)
@@ -517,10 +483,18 @@ module _ where
 isSet-WObj : isSet WObj
 isSet-WObj = Discrete->isSet Discrete-WObj
 
+dm-cases : {ℓ : Level} {P : {o1 o2 : WObj} -> (DirectedMor o1 o2) -> Type ℓ} ->
+           (∀ a b c -> (P (α⇒' a b c , tt))) ->
+           (∀ {o1 o2} (m : DirectedMor o1 o2) -> (w : WObj) -> (P (fst m ⊗ˡ' w , snd m))) ->
+           (∀ {o1 o2} (m : DirectedMor o1 o2) -> (w : WObj) -> (P (w ⊗ʳ' fst m , snd m))) ->
+           {o1 o2 : WObj} (m : DirectedMor o1 o2) -> P m
+dm-cases f1 f2 f3 (α⇒' a b c , _) = f1 a b c
+dm-cases f1 f2 f3 (m ⊗ˡ' w , dm) = f2 (m , dm) w
+dm-cases f1 f2 f3 (w ⊗ʳ' m , dm) = f3 (m , dm) w
 
 
 module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (MC : MonoidalStr C)
-         (obj : Obj C) (magic : Magic) where
+         (obj : Obj C) where
   open CategoryHelpers C
   open MonoidalStrHelpers MC renaming (⊗ to ⊗F)
 
@@ -550,6 +524,9 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (MC : MonoidalStr C)
   dm'->mor : {a b : WObj} -> DirectedMor' a b -> C [ inj₀ a , inj₀ b ]
   dm'->mor m = basic-mor->mor (dm'->bm m)
 
+  dm->mor : {a b : WObj} -> DirectedMor a b -> C [ inj₀ a , inj₀ b ]
+  dm->mor (m , _)= basic-mor->mor m
+
   directed-path->mor-dp++ : {a b c : WObj} -> (p1 : DirectedPath a b) (p2 : DirectedPath b c) ->
     directed-path->mor (p1 dp++ p2) == directed-path->mor p1 ⋆ directed-path->mor p2
   directed-path->mor-dp++ {a} {b} {c} (empty p , _) p2 =
@@ -561,359 +538,406 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (MC : MonoidalStr C)
     ⋆-right (directed-path->mor-dp++ (p , dp) p2) >=>
     (sym ⋆-assoc)
 
+
   private
     P : Pred WObj _
     P o1 = (o2 : WObj) -> (isεFree o1) -> (isCanon o2) ->
            (m1 m2 : DirectedPath o1 o2) ->
            (directed-path->mor m1 == directed-path->mor m2)
+    Hyp : Pred WObj _
+    Hyp o = (o2 : WObj) -> (WObj-length o2 < WObj-length o ⊎
+                            (WObj-rank o2 < WObj-rank o ×
+                             WObj-length o == WObj-length o2)) -> P o2
 
-    rec : (o1 : WObj) -> ((o3 : WObj) -> (WObj-length o3 < WObj-length o1 ⊎
-                                          (WObj-rank o3 < WObj-rank o1 ×
-                                           WObj-length o1 == WObj-length o3) -> P o3)) -> P o1
-    rec o1 hyp o2 _ _ (m1@(empty p1) , _) (m2@(empty p2) , _) =
-      cong basic-path->mor m1=m2
+
+  SubSolution1 : {os ol or : WObj} ->
+                 DirectedMor os ol -> DirectedMor os or ->
+                 Type _
+  SubSolution1 {os} {ol} {or} m1 m2 =
+    Σ[ os' ∈ WObj ]
+    Σ[ m1' ∈ DirectedMor ol os' ]
+    Σ[ m2' ∈ DirectedMor or os' ]
+    ((dm->mor m1 ⋆ dm->mor m1') == (dm->mor m2 ⋆ dm->mor m2'))
+
+
+  record SubSolution' {os ol or : WObj} (m1 : DirectedMor os ol) (m2 : DirectedMor os or) : Type ℓM where
+    constructor sub-solution
+    field
+      {os'} : WObj
+      p1 : DirectedPath ol os'
+      p2 : DirectedPath or os'
+      path : (dm->mor m1 ⋆ directed-path->mor p1) == (dm->mor m2 ⋆ directed-path->mor p2)
+
+  SubSolution : {os ol or : WObj} ->
+                DirectedMor os ol -> DirectedMor os or ->
+                Type _
+  SubSolution {os} {ol} {or} m1 m2 =
+    Σ[ os' ∈ WObj ]
+    Σ[ p1 ∈ DirectedPath ol os' ]
+    Σ[ p2 ∈ DirectedPath or os' ]
+    ((dm->mor m1 ⋆ directed-path->mor p1) == (dm->mor m2 ⋆ directed-path->mor p2))
+
+  opaque
+    lr-case : {w1 w2 ol' or' : WObj} ->
+              (m1 : DirectedMor w2 ol') (m2 : DirectedMor w1 or') ->
+              SubSolution1 (fst m1 ⊗ˡ' w1 , snd m1) (w2 ⊗ʳ' fst m2 , snd m2)
+    lr-case {w1} {w2} {ol'} {or'} m1 m2 = ss1
       where
-      m1=m2 : m1 == m2
-      m1=m2 i = empty (isSet-WObj _ _ p1 p2 i)
-    rec o1 hyp o2 _ _ ((m1 :: p1) , (dm1 , dp1)) ((empty q2) , _) =
-      bot-elim (irrefl-path-< (sym (cong WObj-rank q2)) r2<r1)
+      m1F : DirectedMor (w2 ⊗ w1) (ol' ⊗ w1)
+      m1F = (fst m1 ⊗ˡ' w1 , snd m1)
+      m2F : DirectedMor (w2 ⊗ w1) (w2 ⊗ or')
+      m2F = (w2 ⊗ʳ' fst m2 , snd m2)
+
+      os' : WObj
+      os' = (ol' ⊗ or')
+
+      m1' : DirectedMor (w2 ⊗ or') os'
+      m1' = fst m1 ⊗ˡ' or' , snd m1
+      m2' : DirectedMor (ol' ⊗ w1) os'
+      m2' = ol' ⊗ʳ' fst m2 , snd m2
+
+      ss1 : SubSolution1 m1F m2F
+      ss1 = os' , m2' , m1' , (sym serialize₁₂ >=> serialize₂₁)
+
+    ar-case : {w1 w2 w3 or' : WObj} ->
+              (m : DirectedMor w3 or') ->
+              SubSolution1 (α⇒' w1 w2 w3 , tt) ((w1 ⊗ w2) ⊗ʳ' fst m , snd m)
+    ar-case {w1} {w2} {w3} {or'} (m , dm) =
+      (w1 ⊗ (w2 ⊗ or')) , (w1 ⊗ʳ' (w2 ⊗ʳ' m) , dm) , (α⇒' w1 w2 or' , tt) ,
+      α⇒-swap >=> ⋆-left (⊗₁-left (F-id ⊗F _))
+
+
+    all-case : {w1 w2 w3 or' : WObj} ->
+               (m : DirectedMor w1 or') ->
+               SubSolution1 (α⇒' w1 w2 w3 , tt) ((fst m ⊗ˡ' w2) ⊗ˡ' w3 , snd m)
+    all-case {w1} {w2} {w3} {or'} (m , dm) =
+      (or' ⊗ (w2 ⊗ w3)) , (m ⊗ˡ' (w2 ⊗ w3) , dm) , (α⇒' or' w2 w3 , tt) ,
+      ⋆-right (⊗₁-right (sym (F-id ⊗F _))) >=> α⇒-swap
+
+    alr-case : {w1 w2 w3 or' : WObj} ->
+               (m : DirectedMor w2 or') ->
+               SubSolution1 (α⇒' w1 w2 w3 , tt) ((w1 ⊗ʳ' fst m) ⊗ˡ' w3 , snd m)
+    alr-case {w1} {w2} {w3} {or'} (m , dm) =
+      (w1 ⊗ (or' ⊗ w3)) , (w1 ⊗ʳ' (m ⊗ˡ' w3) , dm) , (α⇒' w1 or' w3 , tt) ,
+      α⇒-swap
+
+    aa-case : {w1 w2 w3 w4 : WObj} ->
+              SubSolution (α⇒' (w1 ⊗ w2) w3  w4 , tt) ((α⇒' w1 w2 w3) ⊗ˡ' w4 , tt)
+    aa-case {w1} {w2} {w3} {w4} =
+      (w1 ⊗ (w2 ⊗ (w3 ⊗ w4))) ,
+      cons-dirmor (α⇒' w1 w2 (w3 ⊗ w4) , tt) (empty refl , _) ,
+      cons-dirmor (α⇒' w1 (w2 ⊗ w3) w4 , tt)
+        (cons-dirmor (w1 ⊗ʳ' (α⇒' w2 w3 w4) , tt) (empty refl , _)) ,
+      sym ⋆-assoc >=>
+      ⋆-left pentagon >=>
+      ⋆-assoc >=>
+      ⋆-assoc
+
+    a-case : (o1 o2 o3 : WObj) -> SubSolution (α⇒' o1 o2 o3 , tt) (α⇒' o1 o2 o3 , tt)
+    a-case o1 o2 o3 =
+      (o1 ⊗ (o2 ⊗ o3)) , (empty refl , tt) , (empty refl , tt) , refl
+
+    rr-case : {os w1 w2 ol' or' : WObj} ->
+              Hyp os ->
+              (m1 : DirectedMor w2 ol') ->
+              (m2 : DirectedMor w2 or') ->
+              isεFree w1 ->
+              isεFree w2 ->
+              w1 ⊗ w2 == os ->
+              SubSolution (w1 ⊗ʳ' fst m1 , snd m1) (w1 ⊗ʳ' fst m2 , snd m2)
+    rr-case {os} {w1} {w2} {ol'} {or'} hyp m1 m2 εF-w1 εF-w2 w1⊗w2=os =
+      w1 ⊗ (canon' w2) ,
+      lift-path p1' ,
+      lift-path p2' ,
+      same-path
       where
-      r2<r1 : WObj-rank o2 < WObj-rank o1
-      r2<r1 = trans-≤-< (dirpath->rank≤ (p1 , dp1)) (dirmor->rank< (m1 , dm1))
-    rec o1 hyp o2 _ _ ((empty q1) , _) ((m2 :: p2) , (dm2 , dp2)) =
-      bot-elim (irrefl-path-< (sym (cong WObj-rank q1)) r2<r1)
+      ot' : WObj
+      ot' = (canon' w2)
+      c-ot' : isCanon ot'
+      c-ot' = proj₂ (∃!-prop (∃!canon (WObj-length w2)))
+      lp-ot' : WObj-length ot' == WObj-length w2
+      lp-ot' = proj₁ (∃!-prop (∃!canon (WObj-length w2)))
+      p1' : DirectedPath ol' ot'
+      p1' = dirpath-to-isCanon ol' ot' (dirmor-preserves-isεFree m1 εF-w2)
+              c-ot' (sym (lp-ot' >=> dirmor->length= m1))
+      p2' : DirectedPath or' ot'
+      p2' = dirpath-to-isCanon or' ot' (dirmor-preserves-isεFree m2 εF-w2)
+              c-ot' (sym (lp-ot' >=> dirmor->length= m2))
+
+      l1<l12 : WObj-length w2 < WObj-length os
+      l1<l12 =
+        trans-<-= (trans-=-< (sym +'-left-zero) (+₂-preserves-< (εF-0<length w1 εF-w1)))
+                  (cong WObj-length w1⊗w2=os)
+
+      sub-ans : directed-path->mor (cons-dirmor m1 p1') ==
+                directed-path->mor (cons-dirmor m2 p2')
+      sub-ans =
+        hyp w2 (inj-l l1<l12) ot' εF-w2 c-ot'
+          (cons-dirmor m1 p1') (cons-dirmor m2 p2')
+
+      lift-path : {o1 o2 : WObj} -> DirectedPath o1 o2 -> DirectedPath (w1 ⊗ o1) (w1 ⊗ o2)
+      lift-path (empty p , _) = (empty (cong (w1 ⊗_) p) , tt)
+      lift-path (m :: p , (dm , dp)) =
+        let (p2 , dp2) = lift-path (p , dp) in
+        ((w1 ⊗ʳ' m) :: p2) , dm , dp2
+
+      directed-path->mor-lift-path : {o1 o2 : WObj} -> (p : DirectedPath o1 o2) ->
+        directed-path->mor (lift-path p) == id C ⊗₁ (directed-path->mor p)
+      directed-path->mor-lift-path {o1} {o2} ep@(empty p , _) = ans2
+        where
+        ans2 : transport (\i -> C [ inj₀ (w1 ⊗ o1) , inj₀ (w1 ⊗ p i) ]) (id C) ==
+               F-mor ⊗F (id C , directed-path->mor ep)
+        ans2 =
+          transP-sym
+            (symP (transport-filler (\i -> C [ inj₀ (w1 ⊗ o1) , inj₀ (w1 ⊗ p i) ]) (id C)))
+            (transP-right
+              (sym (F-id ⊗F (inj₀ w1 , inj₀ o1)))
+              (\i -> F-mor ⊗F (id C ,
+                               transport-filler (\j -> C [ inj₀ o1 , inj₀ (p j) ]) (id C) i)))
+      directed-path->mor-lift-path (m :: p , dm , dp) =
+        ⋆-right (directed-path->mor-lift-path (p , dp)) >=>
+        sym split₂ˡ
+
+      same-path : directed-path->mor (lift-path (cons-dirmor m1 p1')) ==
+                  directed-path->mor (lift-path (cons-dirmor m2 p2'))
+      same-path =
+        ⋆-right (directed-path->mor-lift-path p1') >=>
+        sym split₂ˡ >=>
+        ⊗₁-right sub-ans >=>
+        split₂ˡ >=>
+        sym (⋆-right (directed-path->mor-lift-path p2'))
+
+
+    ll-case : {os w1 w2 ol' or' : WObj} ->
+              (Hyp os) ->
+              (m1 : DirectedMor w1 ol') ->
+              (m2 : DirectedMor w1 or') ->
+              isεFree w1 ->
+              isεFree w2 ->
+              w1 ⊗ w2 == os ->
+              SubSolution (fst m1 ⊗ˡ' w2 , snd m1) (fst m2 ⊗ˡ' w2 , snd m2)
+    ll-case {os} {w1} {w2} {ol'} {or'} hyp m1 m2 εF-w1 εF-w2 w1⊗w2=os =
+      (canon' w1) ⊗ w2 ,
+      lift-path p1' ,
+      lift-path p2' ,
+      same-path
       where
-      r2<r1 : WObj-rank o2 < WObj-rank o1
-      r2<r1 = trans-≤-< (dirpath->rank≤ (p2 , dp2)) (dirmor->rank< (m2 , dm2))
+      ot' : WObj
+      ot' = (canon' w1)
+      c-ot' : isCanon ot'
+      c-ot' = proj₂ (∃!-prop (∃!canon (WObj-length w1)))
+      lp-ot' : WObj-length ot' == WObj-length w1
+      lp-ot' = proj₁ (∃!-prop (∃!canon (WObj-length w1)))
+      p1' : DirectedPath ol' ot'
+      p1' = dirpath-to-isCanon ol' ot' (dirmor-preserves-isεFree m1 εF-w1)
+              c-ot' (sym (lp-ot' >=> dirmor->length= m1))
+      p2' : DirectedPath or' ot'
+      p2' = dirpath-to-isCanon or' ot' (dirmor-preserves-isεFree m2 εF-w1)
+              c-ot' (sym (lp-ot' >=> dirmor->length= m2))
 
-    rec os hyp ot εF-os c-ot ((_::_ {ol} m1 p1) , (dm1 , dp1))
-                             ((_::_ {or} m2 p2) , (dm2 , dp2)) =
-      cases (m1 , dm1) (m2 , dm2)
+      l1<l12 : WObj-length w1 < WObj-length os
+      l1<l12 =
+        trans-<-= (trans-=-< (sym +'-right-zero) (+₁-preserves-< (εF-0<length w2 εF-w2)))
+                  (cong WObj-length w1⊗w2=os)
+
+      sub-ans : directed-path->mor (cons-dirmor m1 p1') ==
+                directed-path->mor (cons-dirmor m2 p2')
+      sub-ans =
+        hyp w1 (inj-l l1<l12) ot' εF-w1 c-ot'
+          (cons-dirmor m1 p1') (cons-dirmor m2 p2')
+
+      lift-path : {o1 o2 : WObj} -> DirectedPath o1 o2 -> DirectedPath (o1 ⊗ w2) (o2 ⊗ w2)
+      lift-path (empty p , _) = (empty (cong (_⊗ w2) p) , tt)
+      lift-path (m :: p , (dm , dp)) =
+        let (p2 , dp2) = lift-path (p , dp) in
+        ((m ⊗ˡ' w2) :: p2) , dm , dp2
+
+      directed-path->mor-lift-path : {o1 o2 : WObj} -> (p : DirectedPath o1 o2) ->
+        directed-path->mor (lift-path p) == (directed-path->mor p) ⊗₁ id C
+      directed-path->mor-lift-path {o1} {o2} ep@(empty p , _) = ans2
+        where
+        ans2 : transport (\i -> C [ inj₀ (o1 ⊗ w2) , inj₀ (p i ⊗ w2) ]) (id C) ==
+               F-mor ⊗F (directed-path->mor ep , id C)
+        ans2 =
+          transP-sym
+            (symP (transport-filler (\i -> C [ inj₀ (o1 ⊗ w2) , inj₀ (p i ⊗ w2) ]) (id C)))
+            (transP-right
+              (sym (F-id ⊗F (inj₀ o1 , inj₀ w2)))
+              (\i -> F-mor ⊗F (transport-filler (\j -> C [ inj₀ o1 , inj₀ (p j) ]) (id C) i ,
+                               id C)))
+      directed-path->mor-lift-path (m :: p , dm , dp) =
+        ⋆-right (directed-path->mor-lift-path (p , dp)) >=>
+        sym split₁ˡ
+
+      same-path : directed-path->mor (lift-path (cons-dirmor m1 p1')) ==
+                  directed-path->mor (lift-path (cons-dirmor m2 p2'))
+      same-path =
+        ⋆-right (directed-path->mor-lift-path p1') >=>
+        sym split₁ˡ >=>
+        ⊗₁-left sub-ans >=>
+        split₁ˡ >=>
+        sym (⋆-right (directed-path->mor-lift-path p2'))
+
+  ss1->ss : {os ol or : WObj} (m1 : DirectedMor os ol) (m2 : DirectedMor os or) ->
+            SubSolution1 m1 m2 -> SubSolution m1 m2
+  ss1->ss {os} {ol} {or} _ _ (os' , m1 , m2 , p) =
+    os' ,
+    (cons-dirmor m1 (empty refl , _)) ,
+    (cons-dirmor m2 (empty refl , _)) ,
+    (sym ⋆-assoc >=> (⋆-left p) >=> ⋆-assoc)
+
+  sym-ss1 : {os ol or : WObj} (m1 : DirectedMor os ol) (m2 : DirectedMor os or) ->
+            SubSolution1 m1 m2 -> SubSolution1 m2 m1
+  sym-ss1 _ _ (os' , m1' , m2' , p) = os' , m2' , m1' , sym p
+
+  sym-ss : {os ol or : WObj} (m1 : DirectedMor os ol) (m2 : DirectedMor os or) ->
+           SubSolution m1 m2 -> SubSolution m2 m1
+  sym-ss _ _ (os' , p1 , p2 , p) = os' , p2 , p1 , sym p
+
+  use-subsolution :
+    {os ot ol or : WObj} ->
+    (Hyp os) ->
+    (m1 : DirectedMor os ol) -> (m2 : DirectedMor os or) ->
+    (p1 : DirectedPath ol ot) -> (p2 : DirectedPath or ot) ->
+    isεFree os ->
+    isCanon ot ->
+    SubSolution m1 m2 ->
+    directed-path->mor (cons-dirmor m1 p1) ==
+    directed-path->mor (cons-dirmor m2 p2)
+  use-subsolution {os} {ot} {ol} {or} hyp m1 m2 (p1 , dp1) (p2 , dp2)
+                  εF-os c-ot
+                  (os' , q1 , q2 , m-path) =
+    (\i -> (dm->mor m1) ⋆ rec-l i) >=>
+    sym ⋆-assoc >=>
+    ⋆-left m-path >=>
+    ⋆-assoc >=>
+    (\i -> (dm->mor m2) ⋆ rec-r (~ i))
+    where
+
+    εF-os' : isεFree os'
+    εF-os' =
+      dirpath-preserves-isεFree q1 (dirmor-preserves-isεFree m1 εF-os)
+
+    os'->ot : DirectedPath os' ot
+    os'->ot = dirpath-to-isCanon os' ot εF-os' c-ot lp
       where
+      lp : WObj-length os' == WObj-length ot
+      lp = sym (dirpath->length= q1) >=> dirpath->length= (p1 , dp1)
 
-      SubSolution1 : {os ol or : WObj} ->
-                     DirectedMor' os ol -> DirectedMor' os or ->
-                     Type _
-      SubSolution1 {os} {ol} {or} m1 m2 =
-        Σ[ os' ∈ WObj ]
-        Σ[ m1' ∈ DirectedMor' ol os' ]
-        Σ[ m2' ∈ DirectedMor' or os' ]
-        ((dm'->mor m1 ⋆ dm'->mor m1') == (dm'->mor m2 ⋆ dm'->mor m2'))
+    rec-l : basic-path->mor p1 ==
+            directed-path->mor q1 ⋆ directed-path->mor os'->ot
+    rec-l = hyp ol (inj-r (dirmor->rank< m1 , dirmor->length= m1)) ot
+                   (dirmor-preserves-isεFree m1 εF-os) c-ot
+                   (p1 , dp1) (q1 dp++ os'->ot) >=>
+            directed-path->mor-dp++ q1 os'->ot
 
-      SubSolution : {os ol or : WObj} ->
-                    DirectedMor' os ol -> DirectedMor' os or ->
-                    Type _
-      SubSolution {os} {ol} {or} m1 m2 =
-        Σ[ os' ∈ WObj ]
-        Σ[ p1 ∈ DirectedPath ol os' ]
-        Σ[ p2 ∈ DirectedPath or os' ]
-        ((dm'->mor m1 ⋆ directed-path->mor p1) == (dm'->mor m2 ⋆ directed-path->mor p2))
+    rec-r : basic-path->mor p2 ==
+            directed-path->mor q2 ⋆ directed-path->mor os'->ot
+    rec-r = hyp or (inj-r (dirmor->rank< m2 , dirmor->length= m2)) ot
+                   (dirmor-preserves-isεFree m2 εF-os) c-ot
+                   (p2 , dp2) (q2 dp++ os'->ot) >=>
+            directed-path->mor-dp++ q2 os'->ot
 
-      ss1->ss : {os ol or : WObj} (m1 : DirectedMor' os ol) (m2 : DirectedMor' os or) ->
-                SubSolution1 m1 m2 -> SubSolution m1 m2
-      ss1->ss {os} {ol} {or} _ _ (os' , m1 , m2 , p) =
-        os' ,
-        (cons-dirmor (dm'->dm m1) (empty refl , _)) ,
-        (cons-dirmor (dm'->dm m2) (empty refl , _)) ,
-        (sym ⋆-assoc >=> (⋆-left p) >=> ⋆-assoc)
+  a-cases : {or : WObj} (o1 o2 o3 : WObj) ->
+            (m2 : DirectedMor ((o1 ⊗ o2) ⊗ o3) or) ->
+            SubSolution (α⇒' o1 o2 o3 , tt) m2
+  a-cases o1 o2 o3 =
+    \{ m2F@(α⇒' o1 o2 o3 , _)      -> (a-case o1 o2 o3)
+     ; m2F@(_ ⊗ʳ' m , dm)          -> (ss1->ss m1F m2F (ar-case (m , dm)))
+     ; m2F@((m ⊗ˡ' _) ⊗ˡ' _ , dm)  -> (ss1->ss m1F m2F (all-case (m , dm)))
+     ; m2F@((_ ⊗ʳ' m) ⊗ˡ' _ , dm)  -> (ss1->ss m1F m2F (alr-case (m , dm)))
+     ; m2F@((α⇒' _ _ _) ⊗ˡ' _ , _) -> aa-case
+     }
+    where
+    m1F : DirectedMor ((o1 ⊗ o2) ⊗ o3) (o1 ⊗ (o2 ⊗ o3))
+    m1F = (α⇒' o1 o2 o3 , tt)
 
-      sym-ss1 : {os ol or : WObj} (m1 : DirectedMor' os ol) (m2 : DirectedMor' os or) ->
-                SubSolution1 m1 m2 -> SubSolution1 m2 m1
-      sym-ss1 _ _ (os' , m1' , m2' , p) = os' , m2' , m1' , sym p
+  l-cases : {os' ol' or : WObj}
+            (m1 : DirectedMor os' ol') (w1 : WObj) ->
+            (Hyp (os' ⊗ w1)) ->
+            isεFree os' -> isεFree w1 ->
+            (m2 : DirectedMor (os' ⊗ w1) or) ->
+            SubSolution (fst m1 ⊗ˡ' w1 , snd m1) m2
+  l-cases {os'} {ol'} {or} (m1 , dm1) w1 hyp εF-os' εF-w1 =
+    \{ m2F@(w2 ⊗ʳ' m2 , dm2) -> (ss1->ss m1F m2F (lr-case (m1 , dm1) (m2 , dm2)))
+     ; m2F@(m2 ⊗ˡ' w , dm2)  -> (ll-case hyp (m1 , dm1) (m2 , dm2)
+                                  εF-os' εF-w1 refl)
+     ; m2F@(α⇒' o1 o2 o3 , _) ->
+       case (m1 , dm1)
+       return (\ (x : DirectedMor _ _) -> SubSolution (fst x ⊗ˡ' w1 , snd x) m2F)
+       of
+       \{ (m ⊗ˡ' w2 , dm)         -> (ss1->ss ((m ⊗ˡ' w2) ⊗ˡ' w1 , dm) m2F
+                                       (sym-ss1 m2F ((m ⊗ˡ' w2) ⊗ˡ' w1 , dm) (all-case (m , dm))))
+        ; (w2 ⊗ʳ' m , dm)         -> (ss1->ss ((w2 ⊗ʳ' m) ⊗ˡ' w1 , dm) m2F
+                                       (sym-ss1 m2F ((w2 ⊗ʳ' m) ⊗ˡ' w1 , dm) (alr-case (m , dm))))
+        ; (m@(α⇒' o1 o2 o3) , dm) -> (sym-ss m2F (m ⊗ˡ' w1 , dm) aa-case)
+        }
+     }
+    where
+    m1F : DirectedMor (os' ⊗ w1) (ol' ⊗ w1)
+    m1F = (m1 ⊗ˡ' w1 , dm1)
 
-      sym-ss : {os ol or : WObj} (m1 : DirectedMor' os ol) (m2 : DirectedMor' os or) ->
-               SubSolution m1 m2 -> SubSolution m2 m1
-      sym-ss _ _ (os' , p1 , p2 , p) = os' , p2 , p1 , sym p
+  r-cases : {os' ol or' : WObj}
+            (w1 : WObj) (m1 : DirectedMor os' or') ->
+            (Hyp (w1 ⊗ os')) ->
+            isεFree os' -> isεFree w1 ->
+            (m2 : DirectedMor (w1 ⊗ os') ol) ->
+            SubSolution (w1 ⊗ʳ' fst m1 , snd m1) m2
+  r-cases {os'} {ol} {or'} w1 (m1 , dm1) hyp εF-os' εF-w1 =
+    \{ m2F@(α⇒' o1 o2 o3 , _) ->
+       (ss1->ss m1F m2F (sym-ss1 m2F m1F (ar-case (m1 , dm1))))
+     ; m2F@(m2 ⊗ˡ' w2 , dm2) ->
+       (ss1->ss m1F m2F (sym-ss1 m2F m1F (lr-case (m2 , dm2) (m1 , dm1))))
+     ; m2F@(w ⊗ʳ' m2 , dm2) ->
+       (rr-case hyp (m1 , dm1) (m2 , dm2) εF-w1 εF-os' refl)
+     }
+    where
+    m1F : DirectedMor (w1 ⊗ os') (w1 ⊗ or')
+    m1F = (w1 ⊗ʳ' m1 , dm1)
 
-      use-subsolution :
-        {ol or : WObj}
-        (m1 : DirectedMor' os ol) -> (m2 : DirectedMor' os or) ->
-        (p1 : DirectedPath ol ot) -> (p2 : DirectedPath or ot) ->
-        SubSolution m1 m2 ->
-        basic-path->mor (dm'->bm m1 :: (fst p1)) ==
-        basic-path->mor (dm'->bm m2 :: (fst p2))
-      use-subsolution {ol} {or} m1 m2 (p1 , dp1) (p2 , dp2)
-                       (os' , q1 , q2 , m-path) =
-        (\i -> basic-mor->mor (dm'->bm m1) ⋆ rec-l i) >=>
-        sym ⋆-assoc >=>
-        ⋆-left m-path >=>
-        ⋆-assoc >=>
-        (\i -> basic-mor->mor (dm'->bm m2) ⋆ rec-r (~ i))
+  private
+    opaque
+      rec : (o1 : WObj) -> (Hyp o1) -> P o1
+      rec o1 hyp o2 _ _ (m1@(empty p1) , _) (m2@(empty p2) , _) =
+        cong basic-path->mor m1=m2
         where
-
-        εF-os' : isεFree os'
-        εF-os' =
-          dirpath-preserves-isεFree q1 (dm'-preserves-isεFree m1 εF-os)
-
-        os'->ot : DirectedPath os' ot
-        os'->ot = dirpath-to-isCanon os' ot εF-os' c-ot lp
-          where
-          lp : WObj-length os' == WObj-length ot
-          lp = sym (dirpath->length= q1) >=> dirpath->length= (p1 , dp1)
-
-        rec-l : basic-path->mor p1 ==
-                directed-path->mor q1 ⋆ directed-path->mor os'->ot
-        rec-l = hyp ol (inj-r (dm'->rank< m1 , dm'->length= m1)) ot (dm'-preserves-isεFree m1 εF-os) c-ot
-                       (p1 , dp1) (q1 dp++ os'->ot) >=>
-                directed-path->mor-dp++ q1 os'->ot
-
-        rec-r : basic-path->mor p2 ==
-                directed-path->mor q2 ⋆ directed-path->mor os'->ot
-        rec-r = hyp or (inj-r (dm'->rank< m2 , dm'->length= m2)) ot (dm'-preserves-isεFree m2 εF-os) c-ot
-                       (p2 , dp2) (q2 dp++ os'->ot) >=>
-                directed-path->mor-dp++ q2 os'->ot
-
-      use-ss :
-        (m1 : DirectedMor' os ol) -> (m2 : DirectedMor' os or) ->
-        SubSolution m1 m2 ->
-        basic-path->mor (dm'->bm m1 :: p1) ==
-        basic-path->mor (dm'->bm m2 :: p2)
-      use-ss m1 m2 = use-subsolution m1 m2 (p1 , dp1) (p2 , dp2)
-
-      use-ss1 :
-        (m1 : DirectedMor' os ol) -> (m2 : DirectedMor' os or) ->
-        SubSolution1 m1 m2 ->
-        basic-path->mor (dm'->bm m1 :: p1) ==
-        basic-path->mor (dm'->bm m2 :: p2)
-      use-ss1 m1 m2 ss1 = use-ss m1 m2 (ss1->ss m1 m2 ss1)
-
-
-
-      lr-case : {w1 w2 ol' or' : WObj} ->
-                (m1 : DirectedMor' w2 ol') (m2 : DirectedMor' w1 or') ->
-                SubSolution1 (m1 ⊗ˡ' w1) (w2 ⊗ʳ' m2)
-      lr-case {w1} {w2} {ol'} {or'} m1 m2 = ss1
+        m1=m2 : m1 == m2
+        m1=m2 i = empty (isSet-WObj _ _ p1 p2 i)
+      rec o1 hyp o2 _ _ ((m1 :: p1) , (dm1 , dp1)) ((empty q2) , _) =
+        bot-elim (irrefl-path-< (sym (cong WObj-rank q2)) r2<r1)
         where
-        m1F = (m1 ⊗ˡ' w1)
-        m2F = (w2 ⊗ʳ' m2)
-
-        os' : WObj
-        os' = (ol' ⊗ or')
-
-        m1' : DirectedMor (w2 ⊗ or') os'
-        m1' = dm'->dm (m1 ⊗ˡ' or')
-        m2' : DirectedMor (ol' ⊗ w1) os'
-        m2' = dm'->dm (ol' ⊗ʳ' m2)
-
-        ss1 : SubSolution1 m1F m2F
-        ss1 = os' , (ol' ⊗ʳ' m2) , (m1 ⊗ˡ' or') , (sym serialize₁₂ >=> serialize₂₁)
-
-      ar-case : {w1 w2 w3 or' : WObj} ->
-                (m : DirectedMor' w3 or') ->
-                SubSolution1 (α⇒' w1 w2 w3) ((w1 ⊗ w2) ⊗ʳ' m)
-      ar-case {w1} {w2} {w3} {or'} m =
-        (w1 ⊗ (w2 ⊗ or')) , (w1 ⊗ʳ' (w2 ⊗ʳ' m)) , α⇒' w1 w2 or' ,
-        α⇒-swap >=> ⋆-left (⊗₁-left (F-id ⊗F _))
-
-
-      all-case : {w1 w2 w3 or' : WObj} ->
-                 (m : DirectedMor' w1 or') ->
-                 SubSolution1 (α⇒' w1 w2 w3) ((m ⊗ˡ' w2) ⊗ˡ' w3)
-      all-case {w1} {w2} {w3} {or'} m =
-        (or' ⊗ (w2 ⊗ w3)) , (m ⊗ˡ' (w2 ⊗ w3)) , α⇒' or' w2 w3 ,
-        ⋆-right (⊗₁-right (sym (F-id ⊗F _))) >=> α⇒-swap
-
-      alr-case : {w1 w2 w3 or' : WObj} ->
-                 (m : DirectedMor' w2 or') ->
-                 SubSolution1 (α⇒' w1 w2 w3) ((w1 ⊗ʳ' m) ⊗ˡ' w3)
-      alr-case {w1} {w2} {w3} {or'} m =
-        (w1 ⊗ (or' ⊗ w3)) , (w1 ⊗ʳ' (m ⊗ˡ' w3)) , α⇒' w1 or' w3 ,
-        α⇒-swap
-
-      aa-case : {w1 w2 w3 w4 : WObj} ->
-                SubSolution (α⇒' (w1 ⊗ w2) w3  w4) ((α⇒' w1 w2 w3) ⊗ˡ' w4)
-      aa-case {w1} {w2} {w3} {w4} =
-        (w1 ⊗ (w2 ⊗ (w3 ⊗ w4))) ,
-        cons-dirmor (dm'->dm (α⇒' w1 w2 (w3 ⊗ w4))) (empty refl , _) ,
-        cons-dirmor (dm'->dm (α⇒' w1 (w2 ⊗ w3) w4))
-          (cons-dirmor (dm'->dm (w1 ⊗ʳ' (α⇒' w2 w3 w4))) (empty refl , _)) ,
-        sym ⋆-assoc >=>
-        ⋆-left pentagon >=>
-        ⋆-assoc >=>
-        ⋆-assoc
-
-      ll-case : {w1 w2 ol' or' : WObj} ->
-                (m1 : DirectedMor' w1 ol') ->
-                (m2 : DirectedMor' w1 or') ->
-                isεFree w1 ->
-                isεFree w2 ->
-                w1 ⊗ w2 == os ->
-                SubSolution (m1 ⊗ˡ' w2) (m2 ⊗ˡ' w2)
-      ll-case {w1} {w2} {ol'} {or'} m1 m2 εF-w1 εF-w2 w1⊗w2=os =
-        (canon' w1) ⊗ w2 ,
-        lift-path p1' ,
-        lift-path p2' ,
-        same-path
+        r2<r1 : WObj-rank o2 < WObj-rank o1
+        r2<r1 = trans-≤-< (dirpath->rank≤ (p1 , dp1)) (dirmor->rank< (m1 , dm1))
+      rec o1 hyp o2 _ _ ((empty q1) , _) ((m2 :: p2) , (dm2 , dp2)) =
+        bot-elim (irrefl-path-< (sym (cong WObj-rank q1)) r2<r1)
         where
-        ot' = (canon' w1)
-        c-ot' = proj₂ (∃!-prop (∃!canon (WObj-length w1)))
-        lp-ot' = proj₁ (∃!-prop (∃!canon (WObj-length w1)))
-        p1' : DirectedPath ol' ot'
-        p1' = dirpath-to-isCanon ol' ot' (dm'-preserves-isεFree m1 εF-w1)
-                c-ot' (sym (lp-ot' >=> dm'->length= m1))
-        p2' : DirectedPath or' ot'
-        p2' = dirpath-to-isCanon or' ot' (dm'-preserves-isεFree m2 εF-w1)
-                c-ot' (sym (lp-ot' >=> dm'->length= m2))
+        r2<r1 : WObj-rank o2 < WObj-rank o1
+        r2<r1 = trans-≤-< (dirpath->rank≤ (p2 , dp2)) (dirmor->rank< (m2 , dm2))
 
-        l1<l12 : WObj-length w1 < WObj-length os
-        l1<l12 =
-          trans-<-= (trans-=-< (sym +'-right-zero) (+₁-preserves-< (εF-0<length w2 εF-w2)))
-                    (cong WObj-length w1⊗w2=os)
-
-        sub-ans : directed-path->mor (cons-dirmor (dm'->dm m1) p1') ==
-                  directed-path->mor (cons-dirmor (dm'->dm m2) p2')
-        sub-ans =
-          hyp w1 (inj-l l1<l12) ot' εF-w1 c-ot'
-            (cons-dirmor (dm'->dm m1) p1') (cons-dirmor (dm'->dm m2) p2')
-
-        lift-path : {o1 o2 : WObj} -> DirectedPath o1 o2 -> DirectedPath (o1 ⊗ w2) (o2 ⊗ w2)
-        lift-path (empty p , _) = (empty (cong (_⊗ w2) p) , tt)
-        lift-path (m :: p , (dm , dp)) =
-          let (p2 , dp2) = lift-path (p , dp) in
-          ((m ⊗ˡ' w2) :: p2) , dm , dp2
-
-        directed-path->mor-lift-path : {o1 o2 : WObj} -> (p : DirectedPath o1 o2) ->
-          directed-path->mor (lift-path p) == (directed-path->mor p) ⊗₁ id C
-        directed-path->mor-lift-path {o1} {o2} ep@(empty p , _) = ans2
-          where
-          ans2 : transport (\i -> C [ inj₀ (o1 ⊗ w2) , inj₀ (p i ⊗ w2) ]) (id C) ==
-                 F-mor ⊗F (directed-path->mor ep , id C)
-          ans2 =
-            transP-sym
-              (symP (transport-filler (\i -> C [ inj₀ (o1 ⊗ w2) , inj₀ (p i ⊗ w2) ]) (id C)))
-              (transP-right
-                (sym (F-id ⊗F (inj₀ o1 , inj₀ w2)))
-                (\i -> F-mor ⊗F (transport-filler (\j -> C [ inj₀ o1 , inj₀ (p j) ]) (id C) i ,
-                                 id C)))
-        directed-path->mor-lift-path (m :: p , dm , dp) =
-          ⋆-right (directed-path->mor-lift-path (p , dp)) >=>
-          sym split₁ˡ
-
-        same-path : directed-path->mor (lift-path (cons-dirmor (dm'->dm m1) p1')) ==
-                    directed-path->mor (lift-path (cons-dirmor (dm'->dm m2) p2'))
-        same-path =
-          ⋆-right (directed-path->mor-lift-path p1') >=>
-          sym split₁ˡ >=>
-          ⊗₁-left sub-ans >=>
-          split₁ˡ >=>
-          sym (⋆-right (directed-path->mor-lift-path p2'))
-
-      rr-case : {w1 w2 ol' or' : WObj} ->
-                (m1 : DirectedMor' w2 ol') ->
-                (m2 : DirectedMor' w2 or') ->
-                isεFree w1 ->
-                isεFree w2 ->
-                w1 ⊗ w2 == os ->
-                SubSolution (w1 ⊗ʳ' m1) (w1 ⊗ʳ' m2)
-      rr-case {w1} {w2} {ol'} {or'} m1 m2 εF-w1 εF-w2 w1⊗w2=os =
-        w1 ⊗ (canon' w2) ,
-        lift-path p1' ,
-        lift-path p2' ,
-        same-path
+      rec os hyp ot εF-os c-ot ((_::_ {ol} m1 p1) , (dm1 , dp1))
+                               ((_::_ {or} m2 p2) , (dm2 , dp2)) =
+        use-ss m1F m2F (cases m1F m2F)
         where
-        ot' = (canon' w2)
-        c-ot' = proj₂ (∃!-prop (∃!canon (WObj-length w2)))
-        lp-ot' = proj₁ (∃!-prop (∃!canon (WObj-length w2)))
-        p1' : DirectedPath ol' ot'
-        p1' = dirpath-to-isCanon ol' ot' (dm'-preserves-isεFree m1 εF-w2)
-                c-ot' (sym (lp-ot' >=> dm'->length= m1))
-        p2' : DirectedPath or' ot'
-        p2' = dirpath-to-isCanon or' ot' (dm'-preserves-isεFree m2 εF-w2)
-                c-ot' (sym (lp-ot' >=> dm'->length= m2))
+        m1F : DirectedMor os ol
+        m1F = (m1 , dm1)
+        m2F : DirectedMor os or
+        m2F = (m2 , dm2)
+        use-ss :
+          (m1 : DirectedMor os ol) -> (m2 : DirectedMor os or) ->
+          SubSolution m1 m2 ->
+          basic-path->mor (fst m1 :: p1) ==
+          basic-path->mor (fst m2 :: p2)
+        use-ss m1 m2 = use-subsolution hyp m1 m2 (p1 , dp1) (p2 , dp2) εF-os c-ot
 
-        l1<l12 : WObj-length w2 < WObj-length os
-        l1<l12 =
-          trans-<-= (trans-=-< (sym +'-left-zero) (+₂-preserves-< (εF-0<length w1 εF-w1)))
-                    (cong WObj-length w1⊗w2=os)
-
-        sub-ans : directed-path->mor (cons-dirmor (dm'->dm m1) p1') ==
-                  directed-path->mor (cons-dirmor (dm'->dm m2) p2')
-        sub-ans =
-          hyp w2 (inj-l l1<l12) ot' εF-w2 c-ot'
-            (cons-dirmor (dm'->dm m1) p1') (cons-dirmor (dm'->dm m2) p2')
-
-        lift-path : {o1 o2 : WObj} -> DirectedPath o1 o2 -> DirectedPath (w1 ⊗ o1) (w1 ⊗ o2)
-        lift-path (empty p , _) = (empty (cong (w1 ⊗_) p) , tt)
-        lift-path (m :: p , (dm , dp)) =
-          let (p2 , dp2) = lift-path (p , dp) in
-          ((w1 ⊗ʳ' m) :: p2) , dm , dp2
-
-        directed-path->mor-lift-path : {o1 o2 : WObj} -> (p : DirectedPath o1 o2) ->
-          directed-path->mor (lift-path p) == id C ⊗₁ (directed-path->mor p)
-        directed-path->mor-lift-path {o1} {o2} ep@(empty p , _) = ans2
-          where
-          ans2 : transport (\i -> C [ inj₀ (w1 ⊗ o1) , inj₀ (w1 ⊗ p i) ]) (id C) ==
-                 F-mor ⊗F (id C , directed-path->mor ep)
-          ans2 =
-            transP-sym
-              (symP (transport-filler (\i -> C [ inj₀ (w1 ⊗ o1) , inj₀ (w1 ⊗ p i) ]) (id C)))
-              (transP-right
-                (sym (F-id ⊗F (inj₀ w1 , inj₀ o1)))
-                (\i -> F-mor ⊗F (id C ,
-                                 transport-filler (\j -> C [ inj₀ o1 , inj₀ (p j) ]) (id C) i)))
-        directed-path->mor-lift-path (m :: p , dm , dp) =
-          ⋆-right (directed-path->mor-lift-path (p , dp)) >=>
-          sym split₂ˡ
-
-        same-path : directed-path->mor (lift-path (cons-dirmor (dm'->dm m1) p1')) ==
-                    directed-path->mor (lift-path (cons-dirmor (dm'->dm m2) p2'))
-        same-path =
-          ⋆-right (directed-path->mor-lift-path p1') >=>
-          sym split₂ˡ >=>
-          ⊗₁-right sub-ans >=>
-          split₂ˡ >=>
-          sym (⋆-right (directed-path->mor-lift-path p2'))
-
-
-
-
-      cases' : (m1 : DirectedMor' os ol) (m2 : DirectedMor' os or) ->
-               basic-path->mor (dm'->bm m1 :: p1) == basic-path->mor (dm'->bm m2 :: p2)
-      cases' m1@(α⇒' o1 o2 o3) m2@(α⇒' o1 o2 o3) =
-        cong (α⇒ ⋆_) p1=p2
-        where
-        p1=p2 : basic-path->mor p1 == basic-path->mor p2
-        p1=p2 =
-          let ((εF1 , εF2) , εF3) = εF-os in
-          hyp ol (inj-r (dm'->rank< m1 , dm'->length= m1)) ot
-              (εF1 , (εF2 , εF3)) c-ot (p1 , dp1) (p2 , dp2)
-
-      cases' m1F@(m1 ⊗ˡ' w1) m2F@(w2 ⊗ʳ' m2) =
-        use-ss1 m1F m2F (lr-case m1 m2)
-      cases' m1F@(w1 ⊗ʳ' m1) m2F@(m2 ⊗ˡ' w2) =
-        use-ss1 m1F m2F (sym-ss1 m2F m1F (lr-case m2 m1))
-      cases' m1F@(α⇒' o1 o2 o3) m2F@(_ ⊗ʳ' m)      =
-        use-ss1 m1F m2F (ar-case m)
-      cases' m1F@(_ ⊗ʳ' m)      m2F@(α⇒' o1 o2 o3) =
-        use-ss1 m1F m2F (sym-ss1 m2F m1F (ar-case m))
-      cases' m1F@(α⇒' o1 o2 o3)     m2F@((m ⊗ˡ' _) ⊗ˡ' _) =
-        use-ss1 m1F m2F (all-case m)
-      cases' m1F@((m ⊗ˡ' _) ⊗ˡ' _)  m2F@(α⇒' o1 o2 o3)    =
-        use-ss1 m1F m2F (sym-ss1 m2F m1F (all-case m))
-      cases' m1F@(α⇒' o1 o2 o3) m2F@((_ ⊗ʳ' m) ⊗ˡ' _)      =
-        use-ss1 m1F m2F (alr-case m)
-      cases' m1F@((_ ⊗ʳ' m) ⊗ˡ' _)      m2F@(α⇒' o1 o2 o3) =
-        use-ss1 m1F m2F (sym-ss1 m2F m1F (alr-case m))
-
-      cases' m1F@(α⇒' o1 o2 o3) m2F@((α⇒' _ _ _) ⊗ˡ' _)    =
-        use-ss m1F m2F aa-case
-      cases' m1F@((α⇒' _ _ _) ⊗ˡ' _)    m2F@(α⇒' o1 o2 o3) =
-        use-ss m1F m2F (sym-ss m2F m1F aa-case)
-
-      cases' m1F@(m1 ⊗ˡ' w) m2F@(m2 ⊗ˡ' w) =
-        use-ss m1F m2F (ll-case m1 m2 (proj₁ εF-os) (proj₂ εF-os) refl)
-      cases' m1F@(w ⊗ʳ' m1) m2F@(w ⊗ʳ' m2) =
-        use-ss m1F m2F (rr-case m1 m2 (proj₁ εF-os) (proj₂ εF-os) refl)
-
-      cases : {o : WObj} (m1 : DirectedMor o ol) (m2 : DirectedMor o or) ->
-              basic-path->mor (fst m1 :: p1) == basic-path->mor (fst m2 :: p2)
-      cases {o} (α⇒' a b c , _) = magic
-        -- where
-        -- sub : (m2 : DirectedMor o or) -> basic-path->mor ((α⇒' a b c) :: p1) ==
-        --                                  basic-path->mor (fst m2 :: p2)
-        -- sub = magic
-      cases {o} (m ⊗ˡ' w2 , _) = magic
-      cases {o} (w1 ⊗ʳ' m , _) = magic
+        cases : (m1 : DirectedMor os ol) (m2 : DirectedMor os or) -> SubSolution m1 m2
+        cases m =
+          dm-cases {P = \{os} {ol} m -> (Hyp os) -> isεFree os ->
+                                        (m2 : DirectedMor _ _) ->
+                                        SubSolution m m2}
+          (\o1 o2 o3 _ _ -> a-cases o1 o2 o3)
+          (\ m w1 hyp εF-os -> l-cases m w1 hyp (proj₁ εF-os) (proj₂ εF-os))
+          (\ m w1 hyp εF-os -> r-cases w1 m hyp (proj₂ εF-os) (proj₁ εF-os))
+          m hyp εF-os
 
     parallel-dirpaths-to-canon : ∀ o -> P o
     parallel-dirpaths-to-canon = rank-length-induction rec
