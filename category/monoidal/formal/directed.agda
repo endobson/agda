@@ -664,5 +664,5 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (MC : MonoidalStr C)
           (\ m w1 hyp εF-os -> r-cases w1 m hyp (proj₂ εF-os) (proj₁ εF-os))
           m hyp εF-os
 
-    parallel-dirpaths-to-canon : ∀ o -> P o
-    parallel-dirpaths-to-canon = rank-length-induction rec
+  parallel-dirpaths-to-canon : ∀ o -> P o
+  parallel-dirpaths-to-canon = rank-length-induction rec

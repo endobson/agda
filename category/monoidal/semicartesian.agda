@@ -169,25 +169,25 @@ module CartesianHelpers
     λ⇒=ρ⇒' = sym α⇒λ⇒-reduce >=> ⋆-right λ⇒-reduce1 >=> triangle
 
 
-  α⇐ρ⇒-reduce : {x y : Obj C} ->
-    Path (C [ x ⊗₀ (y ⊗₀ unit) , (x ⊗₀ y) ])
-    (α⇐ ⋆ ρ⇒) (id C ⊗₁ ρ⇒)
-  α⇐ρ⇒-reduce {x} {y} = ?
-    where
+  -- α⇐ρ⇒-reduce : {x y : Obj C} ->
+  --   Path (C [ x ⊗₀ (y ⊗₀ unit) , (x ⊗₀ y) ])
+  --   (α⇐ ⋆ ρ⇒) (id C ⊗₁ ρ⇒)
+  -- α⇐ρ⇒-reduce {x} {y} = ?
+  --   where
 
-    full-path' : Path (C [ x ⊗₀ (y ⊗₀ (unit ⊗₀ unit)) , ((x ⊗₀ y) ⊗₀ unit)])
-                ((id C ⊗₁ α⇐) ⋆ α⇐ ⋆ ((α⇐ ⋆ ρ⇒) ⊗₁ id C))
-                ((id C ⊗₁ α⇐) ⋆ α⇐ ⋆ ((id C ⊗₁ ρ⇒) ⊗₁ id C))
-    full-path' = ?
+  --   full-path' : Path (C [ x ⊗₀ (y ⊗₀ (unit ⊗₀ unit)) , ((x ⊗₀ y) ⊗₀ unit)])
+  --               ((id C ⊗₁ α⇐) ⋆ α⇐ ⋆ ((α⇐ ⋆ ρ⇒) ⊗₁ id C))
+  --               ((id C ⊗₁ α⇐) ⋆ α⇐ ⋆ ((id C ⊗₁ ρ⇒) ⊗₁ id C))
+  --   full-path' = ?
 
 
-    full-path : Path (C [ (((x ⊗₀ y) ⊗₀ unit) ⊗₀ unit) , ((x ⊗₀ y) ⊗₀ unit)])
-                ((α⇒ ⊗₁ id C) ⋆ ((α⇐ ⋆ ρ⇒) ⊗₁ id C))
-                -- (ρ⇒ ⊗₁ id C)
-                -- (α⇒ ⋆ (id C ⊗₁ λ⇒))
-                -- (α⇒ ⋆ (id C ⊗₁ ρ⇒))
-                ((α⇒ ⊗₁ id C) ⋆ ((id C ⊗₁ ρ⇒) ⊗₁ id C))
-    full-path = ?
+  --   full-path : Path (C [ (((x ⊗₀ y) ⊗₀ unit) ⊗₀ unit) , ((x ⊗₀ y) ⊗₀ unit)])
+  --               ((α⇒ ⊗₁ id C) ⋆ ((α⇐ ⋆ ρ⇒) ⊗₁ id C))
+  --               -- (ρ⇒ ⊗₁ id C)
+  --               -- (α⇒ ⋆ (id C ⊗₁ λ⇒))
+  --               -- (α⇒ ⋆ (id C ⊗₁ ρ⇒))
+  --               ((α⇒ ⊗₁ id C) ⋆ ((id C ⊗₁ ρ⇒) ⊗₁ id C))
+  --   full-path = ?
 
 
 
