@@ -262,6 +262,11 @@ dirmor-preserves-isεFree (α⇒' a b c , tt) ((εF1 , εF2) , εF3) = εF1 , (�
 dirmor-preserves-isεFree (m ⊗ˡ' w , dm) (εF1 , εF2) = dirmor-preserves-isεFree (m , dm) εF1 , εF2
 dirmor-preserves-isεFree (w ⊗ʳ' m , dm) (εF1 , εF2) = εF1 , dirmor-preserves-isεFree (m , dm) εF2
 
+dirmor-reflects-isεFree : {a b : WObj} -> DirectedMor a b -> isεFree b -> isεFree a
+dirmor-reflects-isεFree (α⇒' a b c , tt) (εF1 , (εF2 , εF3)) = ((εF1 , εF2) , εF3)
+dirmor-reflects-isεFree (m ⊗ˡ' w , dm) (εF1 , εF2) = dirmor-reflects-isεFree (m , dm) εF1 , εF2
+dirmor-reflects-isεFree (w ⊗ʳ' m , dm) (εF1 , εF2) = εF1 , dirmor-reflects-isεFree (m , dm) εF2
+
 dirpath-preserves-isεFree : {a b : WObj} -> DirectedPath a b -> isεFree a -> isεFree b
 dirpath-preserves-isεFree (empty p , _) = transport (\i -> isεFree (p i))
 dirpath-preserves-isεFree (m :: p , dm , dp) εF =
@@ -298,7 +303,7 @@ dm-cases f1 f2 f3 (m ⊗ˡ' w , dm) = f2 (m , dm) w
 dm-cases f1 f2 f3 (w ⊗ʳ' m , dm) = f3 (m , dm) w
 
 
-module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (MC : MonoidalStr C)
+module InMonoidalDir {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (MC : MonoidalStr C)
          (obj : Obj C) where
   open CategoryHelpers C
   open MonoidalStrHelpers MC renaming (⊗ to ⊗F)

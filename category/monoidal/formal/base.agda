@@ -5,16 +5,17 @@ module category.monoidal.formal.base where
 open import additive-group
 open import additive-group.instances.nat
 open import base
-open import equality
+open import category.base
+open import category.constructions.triple-product
+open import category.monoidal.base
 open import cubical
+open import equality
 open import hlevel
 open import nat
 open import nat.order
 open import order
 open import order.instances.nat
 open import relation
-open import category.base
-open import category.monoidal.base
 
 data WObj : Type₀ where
   var : WObj
@@ -173,6 +174,16 @@ data BasicPath (s t : WObj) : Type₀ where
   empty : (s == t) -> BasicPath s t
   _::_ : {m : WObj} -> BasicMor s m -> BasicPath m t -> BasicPath s t
 
+invert-bm : {o1 o2 : WObj} -> BasicMor o1 o2 -> BasicMor o2 o1
+invert-bm (α⇒' a b c) = (α⇐' a b c)
+invert-bm (α⇐' a b c) = (α⇒' a b c)
+invert-bm (λ⇒' a) = (λ⇐' a)
+invert-bm (λ⇐' a) = (λ⇒' a)
+invert-bm (ρ⇒' a) = (ρ⇐' a)
+invert-bm (ρ⇐' a) = (ρ⇒' a)
+invert-bm (l ⊗ˡ' w) = (invert-bm l ⊗ˡ' w)
+invert-bm (w ⊗ʳ' r) = (w ⊗ʳ' invert-bm r)
+
 assoc-rank< : (o1 o2 o3 : WObj) -> WObj-rank (o1 ⊗ (o2 ⊗ o3)) < WObj-rank ((o1 ⊗ o2) ⊗ o3)
 assoc-rank< o1 o2 o3 = (b o1) , +'-right-suc >=> (sym branch-path)
   where
@@ -218,6 +229,21 @@ assoc-rank< o1 o2 o3 = (b o1) , +'-right-suc >=> (sym branch-path)
         b o1 + (r o1 + (b o2 + (r o2 + r o3)))
       end
 
+AreInverses : {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) -> {a b : Obj C} ->
+              (m1 : C [ a , b ]) (m2 : C [ b , a ]) -> Type _
+AreInverses C m1 m2 = (m1 ⋆⟨ C ⟩ m2 == id C) × (m2 ⋆⟨ C ⟩ m1 == id C)
+
+isIso->AreInverses :
+  {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} -> {a b : Obj C} -> {m : C [ a , b ]} ->
+  (i : isIso C m) -> AreInverses C m (isIso.inv i)
+isIso->AreInverses (is-iso inv sec ret) = ret , sec
+
+sym-AreInverses :
+  {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) {a b : Obj C} {m1 : C [ a , b ]} {m2 : C [ b , a ]} ->
+  AreInverses C m1 m2 -> AreInverses C m2 m1
+sym-AreInverses _ (p1 , p2) = (p2 , p1)
+
+
 module InMonoidal
   {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (MC : MonoidalStr C) (obj : Obj C) where
   open CategoryHelpers C
@@ -242,3 +268,26 @@ module InMonoidal
   basic-path->mor {a} {b} (empty p) =
     transp (\i -> C [ inj₀ a , inj₀ (p i) ]) i0 (id C)
   basic-path->mor (m :: p) = basic-mor->mor m ⋆ basic-path->mor p
+
+  AreInverses-invert-bm : {a b : WObj} -> (m : BasicMor a b) ->
+                          AreInverses C (basic-mor->mor m) (basic-mor->mor (invert-bm m))
+  AreInverses-invert-bm (α⇒' a b c) =
+    isIso->AreInverses (snd associator (triple (inj₀ a) (inj₀ b) (inj₀ c)))
+  AreInverses-invert-bm (α⇐' a b c) =
+    sym-AreInverses C (isIso->AreInverses (snd associator (triple (inj₀ a) (inj₀ b) (inj₀ c))))
+  AreInverses-invert-bm (λ⇒' a) =
+    isIso->AreInverses (snd unitorˡ (inj₀ a))
+  AreInverses-invert-bm (λ⇐' a) =
+    sym-AreInverses C (isIso->AreInverses (snd unitorˡ (inj₀ a)))
+  AreInverses-invert-bm (ρ⇒' a) =
+    isIso->AreInverses (snd unitorʳ (inj₀ a))
+  AreInverses-invert-bm (ρ⇐' a) =
+    sym-AreInverses C (isIso->AreInverses (snd unitorʳ (inj₀ a)))
+  AreInverses-invert-bm (m ⊗ˡ' w) =
+    let (p1 , p2) = (AreInverses-invert-bm m) in
+    (sym split₁ˡ >=> ⊗₁-left p1 >=> F-id ⊗F _ ,
+     sym split₁ˡ >=> ⊗₁-left p2 >=> F-id ⊗F _)
+  AreInverses-invert-bm (w ⊗ʳ' m) =
+    let (p1 , p2) = (AreInverses-invert-bm m) in
+    (sym split₂ˡ >=> ⊗₁-right p1 >=> F-id ⊗F _ ,
+     sym split₂ˡ >=> ⊗₁-right p2 >=> F-id ⊗F _)
