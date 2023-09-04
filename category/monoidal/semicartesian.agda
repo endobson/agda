@@ -22,6 +22,70 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (M : MonoidalStr C) whe
     term : Terminal C
     term = record { universal = isTerminal-unit }
 
+-- TODO move to a better home
+module MonoidalStrHelpers2 {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (M : MonoidalStr C)
+  where
+  open MonoidalStrHelpers M
+  open CategoryHelpers C
+  open ZReasoning C
+
+  α⇒λ⇒-reduce : {x y : Obj C} ->
+    Path (C [ (unit ⊗₀ x) ⊗₀ y , (x ⊗₀ y) ])
+    (α⇒ ⋆ λ⇒) (λ⇒ ⊗₁ id C)
+  α⇒λ⇒-reduce {x} {y} = retract-unit⊗ (isIso->isEpi isIso-αα full-path)
+    where
+    isIso-αα : isIso C ((α⇒ ⊗₁ id C) ⋆ α⇒)
+    isIso-αα =
+      snd (((α⇒ ⊗₁ id C) , (functor-preserves-isIso (appʳ ⊗ y) (iso-α⇒ {unit} {unit} {x})))
+           ⋆⟨ D ⟩
+           (α⇒ , iso-α⇒))
+      where
+      D = IsoC C
+      iso-α⇒ : {a b c : Obj C} -> isIso C (α⇒ {a} {b} {c})
+      iso-α⇒ {a} {b} {c} = (snd associator) _
+
+    full-path : Path (C [ ((unit ⊗₀ unit) ⊗₀ x) ⊗₀ y , unit ⊗₀ (x ⊗₀ y) ])
+                ((α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ (α⇒ ⋆ λ⇒)))
+                ((α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ (λ⇒ ⊗₁ id C)))
+    full-path = begin
+     [ [] , (α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ (α⇒ ⋆ λ⇒)) , [] ]=<
+       left⇐ >
+     [ [] <: ((α⇒ ⊗₁ id C) ⋆ α⇒) , (id C ⊗₁ (α⇒ ⋆ λ⇒)) , [] ]=<
+       z-cong split₂ˡ >z> shift⇒ >
+     [ [] , (α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ α⇒) , (id C ⊗₁ λ⇒) :> [] ]=<
+       z-cong (sym pentagon) >
+     [ [] , α⇒ ⋆ α⇒ , (id C ⊗₁ λ⇒) :> [] ]=<
+       shift⇐ >z> z-cong triangle >
+     [ [] <: α⇒ , ρ⇒ ⊗₁ id C , [] ]=<
+       z-cong (⊗₁-right (sym (F-id ⊗ _))) >
+     [ [] <: α⇒ , (ρ⇒ ⊗₁ (id C ⊗₁ id C)) , [] ]=<
+       left⇒ >z> z-cong α⇒-swap >z> right⇒ >
+     [ [] , (ρ⇒ ⊗₁ id C) ⊗₁ id C , α⇒ :> [] ]=<
+       z-cong (⊗₁-left (sym triangle)) >
+     [ [] , (α⇒ ⋆ (id C ⊗₁ λ⇒)) ⊗₁ id C , α⇒ :> [] ]=<
+       z-cong split₁ˡ >z> shift⇐ >
+     [ [] <: (α⇒ ⊗₁ id C) , ((id C ⊗₁ λ⇒) ⊗₁ id C) ⋆ α⇒ , [] ]=<
+       z-cong (sym α⇒-swap) >
+     [ [] <: (α⇒ ⊗₁ id C) , α⇒ ⋆ (id C ⊗₁ (λ⇒ ⊗₁ id C)) , [] ]=<
+       shift⇒ >z> right⇐ >
+     [ [] , (α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ (λ⇒ ⊗₁ id C)) , [] ]end
+
+  λ⇒=ρ⇒ : Path (C [ unit ⊗₀ unit , unit ]) λ⇒ ρ⇒
+  λ⇒=ρ⇒ = retract-⊗unit λ⇒=ρ⇒'
+    where
+    λ⇒-reduce1 : {a : Obj C} -> Path (C [ unit ⊗₀ (unit ⊗₀ a) , unit ⊗₀ a ]) λ⇒ (id C ⊗₁ λ⇒)
+    λ⇒-reduce1 =
+      sym ⋆-right-id >=>
+      ⋆-right (sym (isIso.ret (snd unitorˡ _))) >=>
+      sym ⋆-assoc >=>
+      ⋆-left λ⇒-swap >=>
+      ⋆-assoc >=>
+      ⋆-right (isIso.ret (snd unitorˡ _)) >=>
+      ⋆-right-id
+
+    λ⇒=ρ⇒' : Path (C [ (unit ⊗₀ unit) ⊗₀ unit , unit ⊗₀ unit ]) (λ⇒ ⊗₁ id C) (ρ⇒ ⊗₁ id C)
+    λ⇒=ρ⇒' = sym α⇒λ⇒-reduce >=> ⋆-right λ⇒-reduce1 >=> triangle
+
 module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} {M : MonoidalStr C}
          (SC : isSemiCartesian M) where
   open MonoidalStrHelpers M
@@ -46,6 +110,7 @@ module CartesianHelpers
   {SC : isSemiCartesian M} (Cart : isCartesian SC) where
 
   open MonoidalStrHelpers M
+  open MonoidalStrHelpers2 M
   open CategoryHelpers C
   open TerminalHelpers (isSemiCartesian.term SC)
   module _ {x y : Obj C} where
@@ -109,64 +174,6 @@ module CartesianHelpers
     [ [] <: (id C ⊗₁ !) , ρ⇒ ⋆ π₁ , [] ]=<
       shift⇒ >z> right⇐ >
     [ [] , π₁ ⋆ π₁ , [] ]end
-
-  α⇒λ⇒-reduce : {x y : Obj C} ->
-    Path (C [ (unit ⊗₀ x) ⊗₀ y , (x ⊗₀ y) ])
-    (α⇒ ⋆ λ⇒) (λ⇒ ⊗₁ id C)
-  α⇒λ⇒-reduce {x} {y} = retract-unit⊗ (isIso->isEpi isIso-αα full-path)
-    where
-    isIso-αα : isIso C ((α⇒ ⊗₁ id C) ⋆ α⇒)
-    isIso-αα =
-      snd (((α⇒ ⊗₁ id C) , (functor-preserves-isIso (appʳ ⊗ y) (iso-α⇒ {unit} {unit} {x})))
-           ⋆⟨ D ⟩
-           (α⇒ , iso-α⇒))
-      where
-      D = IsoC C
-      iso-α⇒ : {a b c : Obj C} -> isIso C (α⇒ {a} {b} {c})
-      iso-α⇒ {a} {b} {c} = (snd associator) _
-
-    full-path : Path (C [ ((unit ⊗₀ unit) ⊗₀ x) ⊗₀ y , unit ⊗₀ (x ⊗₀ y) ])
-                ((α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ (α⇒ ⋆ λ⇒)))
-                ((α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ (λ⇒ ⊗₁ id C)))
-    full-path = begin
-     [ [] , (α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ (α⇒ ⋆ λ⇒)) , [] ]=<
-       left⇐ >
-     [ [] <: ((α⇒ ⊗₁ id C) ⋆ α⇒) , (id C ⊗₁ (α⇒ ⋆ λ⇒)) , [] ]=<
-       z-cong split₂ˡ >z> shift⇒ >
-     [ [] , (α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ α⇒) , (id C ⊗₁ λ⇒) :> [] ]=<
-       z-cong (sym pentagon) >
-     [ [] , α⇒ ⋆ α⇒ , (id C ⊗₁ λ⇒) :> [] ]=<
-       shift⇐ >z> z-cong triangle >
-     [ [] <: α⇒ , ρ⇒ ⊗₁ id C , [] ]=<
-       z-cong (⊗₁-right (sym (F-id ⊗ _))) >
-     [ [] <: α⇒ , (ρ⇒ ⊗₁ (id C ⊗₁ id C)) , [] ]=<
-       left⇒ >z> z-cong α⇒-swap >z> right⇒ >
-     [ [] , (ρ⇒ ⊗₁ id C) ⊗₁ id C , α⇒ :> [] ]=<
-       z-cong (⊗₁-left (sym triangle)) >
-     [ [] , (α⇒ ⋆ (id C ⊗₁ λ⇒)) ⊗₁ id C , α⇒ :> [] ]=<
-       z-cong split₁ˡ >z> shift⇐ >
-     [ [] <: (α⇒ ⊗₁ id C) , ((id C ⊗₁ λ⇒) ⊗₁ id C) ⋆ α⇒ , [] ]=<
-       z-cong (sym α⇒-swap) >
-     [ [] <: (α⇒ ⊗₁ id C) , α⇒ ⋆ (id C ⊗₁ (λ⇒ ⊗₁ id C)) , [] ]=<
-       shift⇒ >z> right⇐ >
-     [ [] , (α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ (λ⇒ ⊗₁ id C)) , [] ]end
-
-
-  λ⇒=ρ⇒ : Path (C [ unit ⊗₀ unit , unit ]) λ⇒ ρ⇒
-  λ⇒=ρ⇒ = retract-⊗unit λ⇒=ρ⇒'
-    where
-    λ⇒-reduce1 : {a : Obj C} -> Path (C [ unit ⊗₀ (unit ⊗₀ a) , unit ⊗₀ a ]) λ⇒ (id C ⊗₁ λ⇒)
-    λ⇒-reduce1 =
-      sym ⋆-right-id >=>
-      ⋆-right (sym (isIso.ret (snd unitorˡ _))) >=>
-      sym ⋆-assoc >=>
-      ⋆-left λ⇒-swap >=>
-      ⋆-assoc >=>
-      ⋆-right (isIso.ret (snd unitorˡ _)) >=>
-      ⋆-right-id
-
-    λ⇒=ρ⇒' : Path (C [ (unit ⊗₀ unit) ⊗₀ unit , unit ⊗₀ unit ]) (λ⇒ ⊗₁ id C) (ρ⇒ ⊗₁ id C)
-    λ⇒=ρ⇒' = sym α⇒λ⇒-reduce >=> ⋆-right λ⇒-reduce1 >=> triangle
 
 
   -- α⇐ρ⇒-reduce : {x y : Obj C} ->

@@ -36,7 +36,7 @@ assoc-path->length= (m :: p , (am , ap)) =
   assoc-mor->length= (m , am) >=> assoc-path->length= (p , ap)
 
 
-module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (MC : MonoidalStr C)
+module InMonoidalAssoc {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (MC : MonoidalStr C)
          (obj : Obj C) where
   open CategoryHelpers C
   open MonoidalStrHelpers MC renaming (⊗ to ⊗F)
