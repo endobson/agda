@@ -42,6 +42,22 @@ isεFree ε = Bot
 isεFree var = Top
 isεFree (a ⊗ b) = isεFree a × isεFree b
 
+isOnlyε : Pred WObj ℓ-zero
+isOnlyε ε = Top
+isOnlyε var = Bot
+isOnlyε (a ⊗ b) = isOnlyε a × isOnlyε b
+
+isProp-isOnlyε : (o : WObj) -> isProp (isOnlyε o)
+isProp-isOnlyε ε = isPropTop
+isProp-isOnlyε var = isPropBot
+isProp-isOnlyε (a ⊗ b) = isProp× (isProp-isOnlyε a) (isProp-isOnlyε b)
+
+
+isε : Pred WObj ℓ-zero
+isε ε = Top
+isε var = Bot
+isε (_ ⊗ _) = Bot
+
 isVar : Pred WObj ℓ-zero
 isVar ε = Bot
 isVar var = Top
