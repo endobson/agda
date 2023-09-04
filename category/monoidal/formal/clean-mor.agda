@@ -102,7 +102,7 @@ module _ (magic : Magic) where
     dm-cons (λ⇐' _ , tt) (dp-lift-⊗ (isOnlyε->dirty-path _ oε) (clean⁺->dirty-path c))
   clean⁺->dirty-path (c ⊗ε oε) =
     dm-cons (ρ⇐' _ , tt) (dp-lift-⊗ (clean⁺->dirty-path c) (isOnlyε->dirty-path _ oε))
-  clean⁺->dirty-path (clean-⊗ _ _ c1 c2) =
+  clean⁺->dirty-path (c1 ⊗ c2) =
     dp-lift-⊗ (clean⁺->dirty-path c1) (clean⁺->dirty-path c2)
 
 -- clean-mor-preserves-Clean⁺ : {a b c : WObj} -> CleanMor a b -> Clean⁺ a c -> Clean⁺ b c

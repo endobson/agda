@@ -80,9 +80,7 @@ data Clean⁺ : WObj -> WObj -> Type₀ where
   var : Clean⁺ var var
   _ε⊗_ : {a b c : WObj} -> isOnlyε a -> Clean⁺ b c -> Clean⁺ (a ⊗ b) c
   _⊗ε_ : {a b c : WObj} -> Clean⁺ a c -> isOnlyε b -> Clean⁺ (a ⊗ b) c
-  clean-⊗ : {a b c d : WObj} -> VarLocations a -> VarLocations c ->
-            Clean⁺ a b -> Clean⁺ c d ->
-            Clean⁺ (a ⊗ c) (b ⊗ d)
+  _⊗_ : {a b c d : WObj} -> Clean⁺ a b -> Clean⁺ c d -> Clean⁺ (a ⊗ c) (b ⊗ d)
 
 data Clean : WObj -> WObj -> Type₀ where
   clean-zero : {a : WObj} -> isOnlyε a -> Clean a ε
@@ -93,7 +91,7 @@ Clean⁺->VarLocations : ∀ {o1 o2} -> Clean⁺ o1 o2 -> VarLocations o1
 Clean⁺->VarLocations var = var
 Clean⁺->VarLocations (oε ε⊗ c) = oε ε⊗ Clean⁺->VarLocations c
 Clean⁺->VarLocations (c ⊗ε oε) = Clean⁺->VarLocations c ⊗ε oε
-Clean⁺->VarLocations (clean-⊗ _ _ c1 c2) =
+Clean⁺->VarLocations (c1 ⊗ c2) =
   Clean⁺->VarLocations c1 ⊗ Clean⁺->VarLocations c2
 
 
@@ -102,39 +100,38 @@ Clean⁺->isεFree : ∀ {o1 o2} -> Clean⁺ o1 o2 -> isεFree o2
 Clean⁺->isεFree var = tt
 Clean⁺->isεFree (_ ε⊗ c) = Clean⁺->isεFree c
 Clean⁺->isεFree (c ⊗ε _) = Clean⁺->isεFree c
-Clean⁺->isεFree (clean-⊗ _ _ c1 c2) = Clean⁺->isεFree c1 , Clean⁺->isεFree c2
+Clean⁺->isεFree (c1 ⊗ c2) = Clean⁺->isεFree c1 , Clean⁺->isεFree c2
 
 
 Clean⁺->¬isOnlyε : ∀ {o1 o2} -> Clean⁺ o1 o2 -> isOnlyε o1 -> Bot
 Clean⁺->¬isOnlyε var ()
 Clean⁺->¬isOnlyε (_ ε⊗ c) (_ , oε) = Clean⁺->¬isOnlyε c oε
 Clean⁺->¬isOnlyε (c ⊗ε _) (oε , _) = Clean⁺->¬isOnlyε c oε
-Clean⁺->¬isOnlyε (clean-⊗ _ _ c _) (oε , _) = Clean⁺->¬isOnlyε c oε
+Clean⁺->¬isOnlyε (c ⊗ _) (oε , _) = Clean⁺->¬isOnlyε c oε
 
 
 
 
 isProp-Clean⁺ : ∀ {o1 o2} -> isProp (Clean⁺ o1 o2)
 isProp-Clean⁺ var var = refl
-isProp-Clean⁺ (vl-l1 ⊗ε oε-r1) (vl-l2 ⊗ε oε-r2) =
-  cong2 _⊗ε_ (isProp-Clean⁺ vl-l1 vl-l2) (isProp-isOnlyε _ oε-r1 oε-r2)
-isProp-Clean⁺ (_ ⊗ε oε-r) (_ ε⊗ vl-r) =
-  bot-elim (Clean⁺->¬isOnlyε vl-r oε-r)
-isProp-Clean⁺ (_ ⊗ε oε-r) (clean-⊗ _ vl-r _ _) =
-  bot-elim (VarLocations->¬isOnlyε vl-r oε-r)
-isProp-Clean⁺ (oε-l ε⊗ _) (vl-l ⊗ε _) =
-  bot-elim (Clean⁺->¬isOnlyε vl-l oε-l)
-isProp-Clean⁺ (oε-l1 ε⊗ vl-r1) (oε-l2 ε⊗ vl-r2) =
-  cong2 _ε⊗_ (isProp-isOnlyε _ oε-l1 oε-l2) (isProp-Clean⁺ vl-r1 vl-r2)
-isProp-Clean⁺ (oε-l ε⊗ _) (clean-⊗ vl-l _ _ _) =
-  bot-elim (VarLocations->¬isOnlyε vl-l oε-l)
-isProp-Clean⁺ (clean-⊗ _ vl-r _ _) (_ ⊗ε oε-r) =
-  bot-elim (VarLocations->¬isOnlyε vl-r oε-r)
-isProp-Clean⁺ (clean-⊗ vl-l _ _ _) (oε-l ε⊗ _) =
-  bot-elim (VarLocations->¬isOnlyε vl-l oε-l)
-isProp-Clean⁺ (clean-⊗ vl-l1 vl-r1 c-l1 c-r1) (clean-⊗ vl-l2 vl-r2 c-l2 c-r2) =
-  \i -> clean-⊗ (isProp-VarLocations vl-l1 vl-l2 i) (isProp-VarLocations vl-r1 vl-r2 i)
-                (isProp-Clean⁺ c-l1 c-l2 i) (isProp-Clean⁺ c-r1 c-r2 i)
+isProp-Clean⁺ (c-l1 ⊗ε oε-r1) (c-l2 ⊗ε oε-r2) =
+  cong2 _⊗ε_ (isProp-Clean⁺ c-l1 c-l2) (isProp-isOnlyε _ oε-r1 oε-r2)
+isProp-Clean⁺ (_ ⊗ε oε-r) (_ ε⊗ c-r) =
+  bot-elim (Clean⁺->¬isOnlyε c-r oε-r)
+isProp-Clean⁺ (_ ⊗ε oε-r) (_ ⊗ c-r) =
+  bot-elim (Clean⁺->¬isOnlyε c-r oε-r)
+isProp-Clean⁺ (oε-l ε⊗ _) (c-l ⊗ε _) =
+  bot-elim (Clean⁺->¬isOnlyε c-l oε-l)
+isProp-Clean⁺ (oε-l1 ε⊗ c-r1) (oε-l2 ε⊗ c-r2) =
+  cong2 _ε⊗_ (isProp-isOnlyε _ oε-l1 oε-l2) (isProp-Clean⁺ c-r1 c-r2)
+isProp-Clean⁺ (oε-l ε⊗ _) (c-l ⊗ _) =
+  bot-elim (Clean⁺->¬isOnlyε c-l oε-l)
+isProp-Clean⁺ (_ ⊗ c-r) (_ ⊗ε oε-r) =
+  bot-elim (Clean⁺->¬isOnlyε c-r oε-r)
+isProp-Clean⁺ (c-l ⊗ _) (oε-l ε⊗ _) =
+  bot-elim (Clean⁺->¬isOnlyε c-l oε-l)
+isProp-Clean⁺ (c-l1 ⊗ c-r1) (c-l2 ⊗ c-r2) =
+  \i -> (isProp-Clean⁺ c-l1 c-l2 i) ⊗ (isProp-Clean⁺ c-r1 c-r2 i)
 
 isProp-ΣClean⁺ : ∀ o1 -> (a b : Σ WObj (Clean⁺ o1)) -> a == b
 isProp-ΣClean⁺ o1 a b = ΣProp-path isProp-Clean⁺ (isProp-ΣClean⁺' o1 a b)
@@ -149,15 +146,15 @@ isProp-ΣClean⁺ o1 a b = ΣProp-path isProp-Clean⁺ (isProp-ΣClean⁺' o1 a 
     isProp-ΣClean⁺' _  (_ , l1) (_ , l2)
   isProp-ΣClean⁺' (a ⊗ b) (_ , (l1 ⊗ε r1)) (_ , (l2 ε⊗ r2)) =
     bot-elim (Clean⁺->¬isOnlyε l1 l2)
-  isProp-ΣClean⁺' (a ⊗ b) (_ , (clean-⊗ _ _ l1 r1)) (_ , (l2 ⊗ε r2)) =
+  isProp-ΣClean⁺' (a ⊗ b) (_ , (l1 ⊗ r1)) (_ , (l2 ⊗ε r2)) =
     bot-elim (Clean⁺->¬isOnlyε r1 r2)
-  isProp-ΣClean⁺' (a ⊗ b) (_ , (clean-⊗ _ _ l1 r1)) (_ , (l2 ε⊗ r2)) =
+  isProp-ΣClean⁺' (a ⊗ b) (_ , (l1 ⊗ r1)) (_ , (l2 ε⊗ r2)) =
     bot-elim (Clean⁺->¬isOnlyε l1 l2)
-  isProp-ΣClean⁺' (a ⊗ b) (_ , (l1 ⊗ε r1)) (_ , (clean-⊗ _ _ l2 r2))  =
+  isProp-ΣClean⁺' (a ⊗ b) (_ , (l1 ⊗ε r1)) (_ , (l2 ⊗ r2))  =
     bot-elim (Clean⁺->¬isOnlyε r2 r1)
-  isProp-ΣClean⁺' (a ⊗ b) (_ , (l1 ε⊗ r1)) (_ , (clean-⊗ _ _ l2 r2))  =
+  isProp-ΣClean⁺' (a ⊗ b) (_ , (l1 ε⊗ r1)) (_ , (l2 ⊗ r2))  =
     bot-elim (Clean⁺->¬isOnlyε l2 l1)
-  isProp-ΣClean⁺' (a ⊗ b) (_ , (clean-⊗ _ _ l1 r1)) (_ , (clean-⊗ _ _ l2 r2))  =
+  isProp-ΣClean⁺' (a ⊗ b) (_ , (l1 ⊗ r1)) (_ , (l2 ⊗ r2))  =
     cong2 _⊗_ (isProp-ΣClean⁺' _ (_ , l1) (_ , l2)) (isProp-ΣClean⁺' _ (_ , r1) (_ , r2))
 
 isProp-ΣClean : ∀ o1 -> (a b : Σ WObj (Clean o1)) -> a == b
@@ -182,7 +179,7 @@ opaque
   clean⁺ (vl-l ⊗ vl-r) =
     let (ol , cl) = clean⁺ vl-l in
     let (or , cr) = clean⁺ vl-r in
-    (ol ⊗ or) , (clean-⊗ vl-l vl-r cl cr)
+    (ol ⊗ or) , (cl ⊗ cr)
 
   Σclean : ∀ o -> (Σ WObj (Clean o))
   Σclean v with dec-VarLocations v
