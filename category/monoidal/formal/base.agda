@@ -9,13 +9,15 @@ open import category.base
 open import category.constructions.triple-product
 open import category.monoidal.base
 open import cubical
-open import equality
+open import equality hiding (transport) -- TODO fix
+open import equality-path using (transport)
 open import hlevel
 open import nat
 open import nat.order
 open import order
 open import order.instances.nat
 open import relation
+
 
 data WObj : Type₀ where
   var : WObj
@@ -136,6 +138,18 @@ length-induction {ℓ} {P} rec = \o -> strong-induction' rec' _ o refl-≤
   rec' : {m : Nat} -> ({n : Nat} -> n < m -> P' n) -> P' m
   rec' hyp o1 r1<m = rec o1 (hyp r1<m)
 
+branch-induction : {ℓ : Level}
+  {P : Pred WObj ℓ} ->
+  (rec : (o1 : WObj) -> ((o2 : WObj) -> WObj-branches o2 < WObj-branches o1 -> P o2) -> P o1)
+  (o : WObj) -> P o
+branch-induction {ℓ} {P} rec = \o -> strong-induction' rec' _ o refl-≤
+  where
+  P' : Pred Nat ℓ
+  P' n = (o : WObj) -> (WObj-branches o < n) -> P o
+  rec' : {m : Nat} -> ({n : Nat} -> n < m -> P' n) -> P' m
+  rec' hyp o1 r1<m = rec o1 (hyp r1<m)
+
+
 rank-length-induction : {ℓ : Level}
   {P : Pred WObj ℓ} ->
   (rec : (o1 : WObj) -> ((o2 : WObj) -> ((WObj-length o2 < WObj-length o1) ⊎
@@ -199,6 +213,35 @@ invert-bm (ρ⇒' a) = (ρ⇐' a)
 invert-bm (ρ⇐' a) = (ρ⇒' a)
 invert-bm (l ⊗ˡ' w) = (invert-bm l ⊗ˡ' w)
 invert-bm (w ⊗ʳ' r) = (w ⊗ʳ' invert-bm r)
+
+-- data PathInverseInd {s t : WObj} (p1 : BasicPath s t) :
+--                     {u : WObj} (p2 : BasicPath u t) (p3 : BasicPath u s) -> Type₀ where
+--   path-inv-ind-start : PathInverseInd p1 p1 (empty refl)
+--   path-inv-ind-step :
+--     {u1 u2 : WObj} -> (m : BasicMor u1 u2) ->
+--     (p2 : BasicPath u2 t) -> (p3 : BasicPath u1 s) ->
+--     PathInverseInd p1 (m :: p2) p3 ->
+--     PathInverseInd p1 p2 (invert-bm m :: p3)
+
+_bp++_ : {o1 o2 o3 : WObj} -> BasicPath o1 o2 -> BasicPath o2 o3 -> BasicPath o1 o3
+_bp++_ {o3 = o3} (empty p) = transport (\i -> BasicPath (p (~ i)) o3)
+_bp++_ (m :: p)  p2 = m :: (p bp++ p2)
+
+bm-snoc : {o1 o2 o3 : WObj} -> BasicPath o1 o2 -> BasicMor o2 o3 -> BasicPath o1 o3
+bm-snoc p m = p bp++ (m :: (empty refl))
+
+invert-bp : {o1 o2 : WObj} -> BasicPath o1 o2 -> BasicPath o2 o1
+invert-bp {o1} {o2} p = rec p (empty refl)
+  where
+  rec : {o3 : WObj} -> BasicPath o3 o2 -> BasicPath o3 o1 -> BasicPath o2 o1
+  rec (empty p) = transport (\i -> BasicPath (p i) o1)
+  rec (m :: p) p2 = rec p (invert-bm m :: p2)
+
+invert-bp' : {o1 o2 : WObj} -> BasicPath o1 o2 -> BasicPath o2 o1
+invert-bp' (empty p) = (empty (sym p))
+invert-bp' (m :: p) = bm-snoc (invert-bp' p) (invert-bm m)
+
+
 
 assoc-rank< : (o1 o2 o3 : WObj) -> WObj-rank (o1 ⊗ (o2 ⊗ o3)) < WObj-rank ((o1 ⊗ o2) ⊗ o3)
 assoc-rank< o1 o2 o3 = (b o1) , +'-right-suc >=> (sym branch-path)
@@ -307,3 +350,14 @@ module InMonoidal
     let (p1 , p2) = (AreInverses-invert-bm m) in
     (sym split₂ˡ >=> ⊗₁-right p1 >=> F-id ⊗F _ ,
      sym split₂ˡ >=> ⊗₁-right p2 >=> F-id ⊗F _)
+
+  basic-path->mor-bp++ : {a b c : WObj} -> (p1 : BasicPath a b) (p2 : BasicPath b c) ->
+    basic-path->mor (p1 bp++ p2) == basic-path->mor p1 ⋆ basic-path->mor p2
+  basic-path->mor-bp++ {a} {b} {c} (empty p) p2 =
+    sym ⋆-left-id >=>
+    (\j ->
+      (transp (\i -> C [ inj₀ a , inj₀ (p (i ∧ j)) ]) (~ j) (id C)) ⋆
+      (basic-path->mor (transp (\i -> BasicPath (p ((~ i) ∨ j)) c) j p2)))
+  basic-path->mor-bp++ {a} {b} {c} (m :: p) p2 =
+    ⋆-right (basic-path->mor-bp++ p p2) >=>
+    (sym ⋆-assoc)
