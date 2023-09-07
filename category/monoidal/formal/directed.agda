@@ -256,6 +256,11 @@ dirmor->rank< {a ⊗ o1} {a ⊗ o2} (a ⊗ʳ' m , dm) =
   rec : WObj-rank o2 < WObj-rank o1
   rec = dirmor->rank< (m , dm)
 
+dirmor->is⊗₂ : {a b : WObj} -> DirectedMor a b -> is⊗ b
+dirmor->is⊗₂ (α⇒' a b c , tt) = tt
+dirmor->is⊗₂ (m ⊗ˡ' w , _) = tt
+dirmor->is⊗₂ (w ⊗ʳ' m , _) = tt
+
 
 dirmor-preserves-isεFree : {a b : WObj} -> DirectedMor a b -> isεFree a -> isεFree b
 dirmor-preserves-isεFree (α⇒' a b c , tt) ((εF1 , εF2) , εF3) = εF1 , (εF2 , εF3)
@@ -292,6 +297,12 @@ _dp++_ (m :: p , dm , dp) p2 =
 
 cons-dirmor : {a b c : WObj} -> DirectedMor a b -> DirectedPath b c -> DirectedPath a c
 cons-dirmor (m , dm) (p , dp) = m :: p , dm , dp
+
+dirmor-lift-⊗ˡ : {o1 o2 : WObj} -> DirectedMor o1 o2 -> (o3 : WObj) -> DirectedMor (o1 ⊗ o3) (o2 ⊗ o3)
+dirmor-lift-⊗ˡ (m , dm) o = (m ⊗ˡ' o , dm)
+
+dirmor-lift-⊗ʳ : (o1 : WObj) {o2 o3 : WObj} -> DirectedMor o2 o3  -> DirectedMor (o1 ⊗ o2) (o1 ⊗ o3)
+dirmor-lift-⊗ʳ o (m , dm) = (o ⊗ʳ' m , dm)
 
 dm-cases : {ℓ : Level} {P : {o1 o2 : WObj} -> (DirectedMor o1 o2) -> Type ℓ} ->
            (∀ a b c -> (P (α⇒' a b c , tt))) ->

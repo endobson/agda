@@ -86,6 +86,32 @@ module MonoidalStrHelpers2 {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (M : 
     λ⇒=ρ⇒' : Path (C [ (unit ⊗₀ unit) ⊗₀ unit , unit ⊗₀ unit ]) (λ⇒ ⊗₁ id C) (ρ⇒ ⊗₁ id C)
     λ⇒=ρ⇒' = sym α⇒λ⇒-reduce >=> ⋆-right λ⇒-reduce1 >=> triangle
 
+  α⇒ρ⇒-reduce : {x y : Obj C} ->
+    Path (C [ (x ⊗₀ y) ⊗₀ unit , (x ⊗₀ y) ])
+    (α⇒ ⋆ (id C ⊗₁ ρ⇒)) ρ⇒
+  α⇒ρ⇒-reduce {x} {y} = retract-⊗unit (isIso->isMono iso-α⇒ full-path)
+    where
+    iso-α⇒ : {a b c : Obj C} -> isIso C (α⇒ {a} {b} {c})
+    iso-α⇒ {a} {b} {c} = (snd associator) _
+
+    full-path : Path (C [ ((x ⊗₀ y) ⊗₀ unit) ⊗₀ unit , x ⊗₀ (y ⊗₀ unit) ])
+                (((α⇒ ⋆ (id C ⊗₁ ρ⇒)) ⊗₁ id C) ⋆ α⇒)
+                ((ρ⇒ ⊗₁ id C) ⋆ α⇒)
+    full-path = begin
+     [ [] , ((α⇒ ⋆ (id C ⊗₁ ρ⇒)) ⊗₁ id C) ⋆ α⇒ , [] ]=<
+       right⇒ >z> z-cong split₁ˡ >z> shift⇐ >
+     [ [] <: (α⇒ ⊗₁ id C) , ((id C ⊗₁ ρ⇒) ⊗₁ id C) ⋆ α⇒ , [] ]=<
+       z-cong (sym α⇒-swap) >z> left⇐ >
+     [ [] <: (α⇒ ⊗₁ id C) <: α⇒ , (id C ⊗₁ (ρ⇒ ⊗₁ id C)) , [] ]=<
+       z-cong (⊗₁-right (sym triangle) >=> split₂ˡ) >
+     [ [] <: (α⇒ ⊗₁ id C) <: α⇒ , (id C ⊗₁ α⇒) ⋆ (id C ⊗₁ (id C ⊗₁ λ⇒)) , [] ]=<
+       shift⇒ >z> shift⇒ >z> right⇐ >z> z-cong (sym pentagon) >
+     [ [] , α⇒ ⋆ α⇒ , (id C ⊗₁ (id C ⊗₁ λ⇒)) :> [] ]=<
+       shift⇐ >z> z-cong α⇒-swap >z> right⇒ >
+     [ [] <: α⇒ , (id C ⊗₁ id C) ⊗₁ λ⇒ , α⇒ :> [] ]=<
+       z-cong (⊗₁-left (F-id ⊗ _)) >z> left⇒ >z> z-cong triangle >z> right⇐ >
+     [ [] , (ρ⇒ ⊗₁ id C) ⋆ α⇒ , [] ]end
+
 module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} {M : MonoidalStr C}
          (SC : isSemiCartesian M) where
   open MonoidalStrHelpers M
