@@ -69,6 +69,11 @@ isRTree->isεFree : (o : WObj) -> isRTree o -> isεFree o
 isRTree->isεFree var tt = tt
 isRTree->isεFree (var ⊗ o) (tt , rt) = tt , (isRTree->isεFree o rt)
 
+split-isCanon : (o : WObj) -> isCanon o -> isε o ⊎ isRTree o
+split-isCanon ε x = inj-l x
+split-isCanon var x = inj-r x
+split-isCanon (_ ⊗ _) x = inj-r x
+
 εF-0<length : (o : WObj) -> (εF : isεFree o) -> 0 < WObj-length o
 εF-0<length var _ = zero-<
 εF-0<length (a ⊗ b) (εFa , εFb) =
@@ -276,6 +281,26 @@ dirpath-preserves-isεFree : {a b : WObj} -> DirectedPath a b -> isεFree a -> i
 dirpath-preserves-isεFree (empty p , _) = transport (\i -> isεFree (p i))
 dirpath-preserves-isεFree (m :: p , dm , dp) εF =
   dirpath-preserves-isεFree (p , dp) (dirmor-preserves-isεFree (m , dm) εF)
+
+dirpath-reflects-isεFree : {a b : WObj} -> DirectedPath a b -> isεFree b -> isεFree a
+dirpath-reflects-isεFree (empty p , _) = transport (\i -> isεFree (p (~ i)))
+dirpath-reflects-isεFree (m :: p , dm , dp) εF =
+  dirmor-reflects-isεFree (m , dm) (dirpath-reflects-isεFree (p , dp) εF)
+
+dirpath-preserves-isε : {a b : WObj} -> DirectedPath a b -> isε a -> isε b
+dirpath-preserves-isε (empty p , _) = transport (\i -> isε (p i))
+dirpath-preserves-isε ((α⇒' _ _ _) :: p , dm , dp) iε = bot-elim iε
+dirpath-preserves-isε ((_ ⊗ˡ' _) :: p , dm , dp) iε = bot-elim iε
+dirpath-preserves-isε ((_ ⊗ʳ' _) :: p , dm , dp) iε = bot-elim iε
+
+dirpath-reflects-isε : {a b : WObj} -> DirectedPath a b -> isε b -> isε a
+dirpath-reflects-isε (empty p , _) = transport (\i -> isε (p (~ i)))
+dirpath-reflects-isε ((α⇒' _ _ _) :: p , dm , dp) iε =
+  dirpath-reflects-isε (p , dp) iε
+dirpath-reflects-isε ((_ ⊗ˡ' _) :: p , dm , dp) iε =
+  dirpath-reflects-isε (p , dp) iε
+dirpath-reflects-isε ((_ ⊗ʳ' _) :: p , dm , dp) iε =
+  dirpath-reflects-isε (p , dp) iε
 
 
 dirpath->rank≤ : {o1 o2 : WObj} -> DirectedPath o1 o2 -> WObj-rank o2 ≤ WObj-rank o1

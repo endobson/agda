@@ -110,6 +110,20 @@ Clean⁺->¬isOnlyε (c ⊗ε _) (oε , _) = Clean⁺->¬isOnlyε c oε
 Clean⁺->¬isOnlyε (c ⊗ _) (oε , _) = Clean⁺->¬isOnlyε c oε
 
 
+Clean⁺-isεFree->path : ∀ {o1 o2} -> Clean⁺ o1 o2 -> isεFree o1 -> o1 == o2
+Clean⁺-isεFree->path var _ = refl
+Clean⁺-isεFree->path (oε ε⊗ _) (εF , _) = bot-elim (isOnlyε->¬isεFree _ oε εF)
+Clean⁺-isεFree->path (_ ⊗ε oε) (_ , εF) = bot-elim (isOnlyε->¬isεFree _ oε εF)
+Clean⁺-isεFree->path (l ⊗ r) (l-εF , r-εF) =
+  cong2 _⊗_ (Clean⁺-isεFree->path l l-εF) (Clean⁺-isεFree->path r r-εF)
+
+Clean-isεFree->path : ∀ {o1 o2} -> Clean o1 o2 -> isεFree o1 -> o1 == o2
+Clean-isεFree->path (clean-zero oε) εF = bot-elim (isOnlyε->¬isεFree _ oε εF)
+Clean-isεFree->path (clean-suc c) = Clean⁺-isεFree->path c
+
+Clean-preserves-isεFree : ∀ {o1 o2} -> Clean o1 o2 -> isεFree o1 -> isεFree o2
+Clean-preserves-isεFree (clean-zero oε) εF = bot-elim (isOnlyε->¬isεFree _ oε εF)
+Clean-preserves-isεFree (clean-suc c) _ = Clean⁺->isεFree c
 
 
 isProp-Clean⁺ : ∀ {o1 o2} -> isProp (Clean⁺ o1 o2)

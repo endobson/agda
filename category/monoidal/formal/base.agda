@@ -81,6 +81,11 @@ WObj-left (l ⊗ r) _ = l
 WObj-right : (o : WObj) -> is⊗ o -> WObj
 WObj-right (l ⊗ r) _ = r
 
+isOnlyε->¬isεFree : (a : WObj) -> isOnlyε a -> isεFree a -> Bot
+isOnlyε->¬isεFree var bot _ = bot
+isOnlyε->¬isεFree ε _ bot = bot
+isOnlyε->¬isεFree (l ⊗ _) (oε , _) (εF , _) = isOnlyε->¬isεFree l oε εF
+
 module _ where
   private
     encode : WObj -> Nat
