@@ -26,6 +26,13 @@ module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} {D : PreCategory ℓO ℓM} whe
         F.id _
       }
 
+module _ {ℓO ℓM} (C : PreCategory ℓO ℓM) where
+  open CategoryHelpers C
+
+  isIso-id : {a : Obj C} -> isIso C (idᵉ C a)
+  isIso-id = is-iso (id C) ⋆-id² ⋆-id²
+
+
 module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} where
   open CategoryHelpers C
 
@@ -48,3 +55,13 @@ module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} where
     ⋆-assoc >=>
     (\i -> g₂ ⋆ ret i) >=>
     ⋆-right-id
+
+  sym-isIso : {a b : Obj C} {m : C [ a , b ]} -> (i : isIso C m) -> isIso C (isIso.inv i)
+  sym-isIso {m = m} (is-iso inv sec ret) = (is-iso m ret sec)
+
+  isIso-⋆ : {a b c : Obj C} {m1 : C [ a , b ]} {m2 : C [ b , c ]} ->
+            isIso C m1 -> isIso C m2 -> isIso C (m1 ⋆ m2)
+  isIso-⋆ (is-iso i₁ sec₁ ret₁) (is-iso i₂ sec₂ ret₂) = is-iso (i₂ ⋆ i₁) sec ret
+    where
+    sec = ⋆-assoc >=> ⋆-right (sym ⋆-assoc >=> ⋆-left sec₁ >=> ⋆-left-id) >=> sec₂
+    ret = ⋆-assoc >=> ⋆-right (sym ⋆-assoc >=> ⋆-left ret₂ >=> ⋆-left-id) >=> ret₁

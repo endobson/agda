@@ -125,6 +125,10 @@ Clean-preserves-isεFree : ∀ {o1 o2} -> Clean o1 o2 -> isεFree o1 -> isεFree
 Clean-preserves-isεFree (clean-zero oε) εF = bot-elim (isOnlyε->¬isεFree _ oε εF)
 Clean-preserves-isεFree (clean-suc c) _ = Clean⁺->isεFree c
 
+Clean->isε⊎isεFree : ∀ {o1 o2} -> Clean o1 o2 -> isε o2 ⊎ isεFree o2
+Clean->isε⊎isεFree (clean-zero _) = inj-l tt
+Clean->isε⊎isεFree (clean-suc c) = inj-r (Clean⁺->isεFree c)
+
 
 isProp-Clean⁺ : ∀ {o1 o2} -> isProp (Clean⁺ o1 o2)
 isProp-Clean⁺ var var = refl

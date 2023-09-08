@@ -53,6 +53,9 @@ split-isForwardMor (α⇐' _ _ _) ()
 split-isForwardMor (λ⇐' _) ()
 split-isForwardMor (ρ⇐' _) ()
 
+cons-forward-mor : {a b c : WObj} -> ForwardMor a b -> ForwardPath b c -> ForwardPath a c
+cons-forward-mor (m , fm) (p , fp) = m :: p , fm , fp
+
 module InMonoidalFactor {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (MC : MonoidalStr C)
          (obj : Obj C) where
   open CategoryHelpers C

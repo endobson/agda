@@ -228,6 +228,13 @@ dirpath-to-isCanon o1 o2 εF c2 lp =
   c=o2 : canon' o1 == o2
   c=o2 = cong fst (snd (∃!canon (WObj-length o1)) (o2 , sym lp , c2))
 
+dirpath-to-isCanon-ε : (o1 o2 : WObj) -> (isε o1) -> (isCanon o2) ->
+                       (WObj-length o1 == WObj-length o2) ->
+                       DirectedPath o1 o2
+dirpath-to-isCanon-ε ε ε _ _ _ = empty refl , tt
+dirpath-to-isCanon-ε ε var _ _ p = zero-suc-absurd p
+dirpath-to-isCanon-ε ε (var ⊗ _) _ _ p = zero-suc-absurd p
+
 dirmor->branches= : {o1 o2 : WObj} -> DirectedMor o1 o2 -> WObj-branches o1 == WObj-branches o2
 dirmor->branches= (α⇒' a b c , _) =
   cong suc (cong suc (+-assocᵉ (WObj-branches a) (WObj-branches b) (WObj-branches c)) >=>
