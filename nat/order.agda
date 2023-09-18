@@ -226,11 +226,11 @@ total-order-≥ = flip-total-order total-order-≤
 
 module _ where
   private
-    module _ {P : Nat -> Set}
+    module _ {ℓ : Level} {P : Nat -> Type ℓ}
              (p0 : P zero)
              (psuc : {m : Nat} -> ({n : Nat} -> (n ≤s m) -> P n) -> P (suc m))
              where
-      InnerP : Nat -> Type₀
+      InnerP : Nat -> Type ℓ
       InnerP m = ({n : Nat} -> (n ≤s m) -> P n)
 
       inner-zero : InnerP 0
@@ -247,16 +247,16 @@ module _ where
       strong-induction-≤s : (m : Nat) -> P m
       strong-induction-≤s m = inner m refl-≤s
 
-  strong-induction : {P : Nat -> Set}
+  strong-induction : {ℓ : Level} {P : Nat -> Type ℓ}
                      (p0 : P zero)
                      (psuc : {m : Nat} -> ({n : Nat} -> (n ≤ m) -> P n) -> P (suc m))
                      -> (m : Nat) -> P m
   strong-induction p0 psuc m = strong-induction-≤s p0 (\f -> psuc (f ∘ ≤->≤s)) m
 
-  strong-induction' : {P : Nat -> Set}
+  strong-induction' : {ℓ : Level} {P : Nat -> Type ℓ}
                       (p : {m : Nat} -> ({n : Nat} -> (n < m) -> P n) -> P m)
                       -> (m : Nat) -> P m
-  strong-induction' {P} p m = strong-induction-≤s p0 (\f -> p (f ∘ ≤->≤s ∘ pred-≤)) m
+  strong-induction' {P = P} p m = strong-induction-≤s p0 (\f -> p (f ∘ ≤->≤s ∘ pred-≤)) m
     where
     p0 : P 0
     p0 = p (bot-elim ∘ zero-≮)

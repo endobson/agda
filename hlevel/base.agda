@@ -29,6 +29,9 @@ isProp A = (x y : A) -> x == y
 isSet : Type ℓ -> Type ℓ
 isSet A = (x y : A) -> isProp (x == y)
 
+isGroupoid : Type ℓ -> Type ℓ
+isGroupoid A = (x y : A) -> isSet (x == y)
+
 isOfHLevel : Nat -> Type ℓ -> Type ℓ
 isOfHLevel 0 A = isContr A
 isOfHLevel 1 A = isProp A

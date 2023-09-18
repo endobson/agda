@@ -165,6 +165,13 @@ transP-sym {ℓ} {A} {a} {b} {c} p q =
   pA=refl = compPath-sym (\i -> A i)
 
 
+transP-sides : {A : I -> Type ℓ} {a : A i0} {b1 : A i1} {b2 : A i1} {c : A i0}
+               (p : PathP (\i -> A i)     a  b1)
+               (q : Path (A i1)           b1 b2)
+               (r : PathP (\i -> A (~ i)) b2 c) ->
+               Path (A i0) a c
+transP-sides p q r = transP-sym (transP-left p q) r
+
 
 -- Path reversal on PathP
 symP : {A : I -> Type ℓ} -> {a0 : A i0} {a1 : A i1} -> PathP A a0 a1 -> PathP (\k -> A (~ k)) a1 a0

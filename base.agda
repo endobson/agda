@@ -56,6 +56,9 @@ _==_ {A = A} = Path A
 refl : {x : A} → Path A x x
 refl {x = x} = \ i -> x
 
+reflᵉ : (x : A) → Path A x x
+reflᵉ x = \ i -> x
+
 levelOf : {ℓ : Level} -> Type ℓ -> Level
 levelOf {ℓ} _ = ℓ
 
