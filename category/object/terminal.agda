@@ -4,6 +4,7 @@ module category.object.terminal where
 
 open import base
 open import category.base
+open import category.univalent
 open import equivalence.base
 open import hlevel
 open import relation

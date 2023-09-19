@@ -5,6 +5,8 @@ module category.monoidal.base where
 open import base
 open import equality
 open import category.base
+open import category.isomorphism
+open import category.natural-isomorphism
 open import fin-algebra
 open import category.constructions.product
 open import category.constructions.triple-product

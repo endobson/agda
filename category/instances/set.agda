@@ -4,6 +4,7 @@ module category.instances.set where
 
 open import base
 open import category.base
+open import category.univalent
 open import cubical using (I)
 open import equality-path
 open import funext

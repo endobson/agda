@@ -4,6 +4,7 @@ module category.object.product where
 
 open import base
 open import category.base
+open import category.univalent
 open import equality
 open import hlevel
 open import truncation

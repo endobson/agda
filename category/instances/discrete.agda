@@ -4,6 +4,7 @@ module category.instances.discrete where
 
 open import base
 open import category.base
+open import category.univalent
 open import equality-path
 open import hlevel
 open import isomorphism

@@ -1,5 +1,7 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
+module category.base where
+
 open import base
 open import relation
 open import sigma.base
@@ -8,8 +10,6 @@ open import equality-path
 open import equivalence
 open import hlevel
 open import isomorphism
-
-module category.base where
 
 private
   variable
@@ -95,34 +95,6 @@ module CategoryHelpers {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
            m2 == m3 -> m1 ⋆ m2 == m1 ⋆ m3
   ⋆-right {m1 = m1} p23 i = m1 ⋆ p23 i
 
-
-record CatIso (C : PreCategory ℓObj ℓMor) (x y : C .Obj) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
-  constructor cat-iso
-  field
-    mor : C [ x , y ]
-    inv : C [ y , x ]
-    sec : inv ⋆⟨ C ⟩ mor == C .id
-    ret : mor ⋆⟨ C ⟩ inv == C .id
-
-idCatIso : (C : PreCategory ℓObj ℓMor) (x : C .Obj) -> CatIso C x x
-idCatIso C x = record
-  { mor = C .id
-  ; inv = C .id
-  ; sec = PreCategory.⋆-left-id C _
-  ; ret = PreCategory.⋆-left-id C _
-  }
-
-pathToCatIso : (C : PreCategory ℓObj ℓMor) (x y : C .Obj) -> x == y -> CatIso C x y
-pathToCatIso C x _ = J (\ y _ -> CatIso C x y) (idCatIso C x)
-
-pathToCatIso-refl : (C : PreCategory ℓObj ℓMor) (x : C .Obj) ->
-                    pathToCatIso C x x refl == idCatIso C x
-pathToCatIso-refl C x = JRefl (\ y _ -> CatIso C x y) (idCatIso C x)
-
-record isUnivalent (C : PreCategory ℓObj ℓMor) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
-  field
-    isEquiv-pathToCatIso : (x y : C .Obj) -> isEquiv (pathToCatIso C x y)
-
 module _ (C : PreCategory ℓObj ℓMor) where
   private
     module C = PreCategory C
@@ -136,63 +108,6 @@ module _ (C : PreCategory ℓObj ℓMor) where
   _^op .PreCategory.⋆-right-id = C.∘-right-id
   _^op .PreCategory.⋆-assoc = C.∘-assoc
   _^op .PreCategory.isSet-Mor = C.isSet-Mor
-
-
-record isIso (C : PreCategory ℓObj ℓMor) {x y : C .Obj} (mor : C [ x , y ]) : Type ℓMor where
-  constructor is-iso
-  field
-    inv : C [ y , x ]
-    sec : inv ⋆⟨ C ⟩ mor == C .id
-    ret : mor ⋆⟨ C ⟩ inv == C .id
-
-isProp-isIso : {C : PreCategory ℓObj ℓMor} -> {x y : C .Obj} {mor : C [ x , y ]} ->
-               isProp (isIso C mor)
-isProp-isIso {C = C} {x} {y} {mor} i1 i2 = (\i -> record
-    { inv = ip i
-    ; sec = ans-sec i
-    ; ret = ans-ret i
-    })
-  where
-  module C = PreCategory C
-  module i1 = isIso i1
-  module i2 = isIso i2
-
-  ip : i1.inv == i2.inv
-  ip = sym (C.⋆-left-id _) >=>
-       cong (C._⋆ i1.inv) (sym i2.sec) >=>
-       C.⋆-assoc i2.inv mor i1.inv >=>
-       cong (i2.inv C.⋆_) i1.ret >=>
-       (C.⋆-right-id i2.inv)
-
-  ret-line : I -> Type _
-  ret-line i = mor ⋆⟨ C ⟩ ip i == C.id
-  ans-ret : PathP ret-line i1.ret i2.ret
-  ans-ret = isProp->PathP (\i -> (C.isSet-Mor _ _))
-
-  sec-line : I -> Type _
-  sec-line i = ip i ⋆⟨ C ⟩ mor == C.id
-  ans-sec : PathP sec-line i1.sec i2.sec
-  ans-sec = isProp->PathP (\i -> (C.isSet-Mor _ _))
-
-module _ {C : PreCategory ℓObj ℓMor} {x y : C .Obj} where
-  ΣIso≃CatIso : Σ (C [ x , y ]) (isIso C) ≃ CatIso C x y
-  ΣIso≃CatIso = isoToEquiv i
-    where
-    i : Iso (Σ (C [ x , y ]) (isIso C)) (CatIso C x y)
-    i .Iso.fun (mor , (is-iso inv sec ret)) = (cat-iso mor inv sec ret)
-    i .Iso.inv (cat-iso mor inv sec ret) = (mor , (is-iso inv sec ret))
-    i .Iso.leftInv _ = refl
-    i .Iso.rightInv _ = refl
-
-  cat-iso-path : {i1 i2 : CatIso C x y} ->
-    CatIso.mor i1 == CatIso.mor i2 -> i1 == i2
-  cat-iso-path {i1} {i2} mor-path =
-    sym (eqSec ΣIso≃CatIso i1) >=> cong (eqFun ΣIso≃CatIso) p1 >=> (eqSec ΣIso≃CatIso i2)
-    where
-    Σi1 = eqInv ΣIso≃CatIso i1
-    Σi2 = eqInv ΣIso≃CatIso i2
-    p1 : Σi1 == Σi2
-    p1 = ΣProp-path (isProp-isIso) mor-path
 
 
 record isThin (C : PreCategory ℓObj ℓMor) : Type (ℓ-suc (ℓ-max ℓObj ℓMor)) where
@@ -269,20 +184,6 @@ module _
                (NaturalTransformation.NT-mor nt2)
     sq = isProp->PathP (\i -> isPropΠⁱ2 (\x y -> isPropΠ (\f -> isSet-Mor D _ _)))
 
-
-module _
-  {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
-  {C : PreCategory ℓObjC ℓMorC} {D : PreCategory ℓObjD ℓMorD}
-  (F G : Functor C D) where
-
-  isNaturalIso : NaturalTransformation F G -> Type _
-  isNaturalIso nt = ∀ c -> isIso D (NT-obj nt c)
-
-  isProp-isNaturalIso : {nt : NaturalTransformation F G} -> isProp (isNaturalIso nt)
-  isProp-isNaturalIso = isPropΠ (\_ -> isProp-isIso)
-
-  NaturalIsomorphism : Type _
-  NaturalIsomorphism = Σ (NaturalTransformation F G) isNaturalIso
 
 -- Helpers for defining new categorys
 

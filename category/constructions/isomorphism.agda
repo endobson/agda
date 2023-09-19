@@ -2,6 +2,7 @@
 
 open import base
 open import category.base
+open import category.isomorphism
 open import equality
 open import sigma
 open import sigma.base

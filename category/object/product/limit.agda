@@ -10,6 +10,7 @@ open import category.instances.quiver
 open import category.limits2
 open import category.object.product
 open import category.object.terminal
+open import category.univalent
 open import equality-path
 open import hlevel
 open import isomorphism
