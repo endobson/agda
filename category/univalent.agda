@@ -6,7 +6,9 @@ open import base
 open import category.base
 open import category.isomorphism
 open import equality-path
+open import equality.identity-system
 open import equivalence
+open import funext
 open import isomorphism
 open import sigma.base
 
@@ -60,3 +62,26 @@ pathToCatIso-refl C x = JRefl (\ y _ -> CatIso C x y) (idCatIso C x)
 record isUnivalent (C : PreCategory ℓO ℓM) : Type (ℓ-max ℓO ℓM) where
   field
     isEquiv-pathToCatIso : (x y : C .Obj) -> isEquiv (pathToCatIso C x y)
+
+isUnivalent' : {ℓO ℓM : Level} -> PreCategory ℓO ℓM -> Type (ℓ-max ℓO ℓM)
+isUnivalent' C = isIdentitySystem (CatIso C) (idCatIso C)
+
+isUnivalent->isUnivalent' : {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} ->
+  isUnivalent C -> isUnivalent' C
+isUnivalent->isUnivalent' {C = C} univ =
+  transport (\i -> isIdentitySystem (CatIso C) (\a -> pathToCatIso-refl C a i)) ids
+  where
+  ids : isIdentitySystem (CatIso C) (\a -> pathToCatIso C a a refl)
+  ids = isIdentitySystem-Equiv (_ , isUnivalent.isEquiv-pathToCatIso univ _ _)
+
+isUnivalent'->isUnivalent : {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} ->
+  isUnivalent' C -> isUnivalent C
+isUnivalent'->isUnivalent {C = C} univ .isUnivalent.isEquiv-pathToCatIso x y =
+  rightInverse-isEquiv to-path (pathToCatIso C x y) (funExt p')
+    (isIdentitySystem->isEquiv univ)
+  where
+  open isIdentitySystem univ
+  p' : ∀ {x y} (p : x == y) -> to-path (pathToCatIso C x y p) == p
+  p' {x} {y} = J (\y p -> to-path (pathToCatIso C x y p) == p)
+                 (cong to-path (pathToCatIso-refl C x) >=>
+                  Ids-refl univ x)
