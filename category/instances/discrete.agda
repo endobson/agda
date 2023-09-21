@@ -5,7 +5,9 @@ module category.instances.discrete where
 open import base
 open import category.base
 open import category.univalent
+open import cubical
 open import equality-path
+open import equality.identity-system
 open import hlevel
 open import isomorphism
 
@@ -28,32 +30,11 @@ module _ {D : Type ℓObj} (isSet-D : isSet D) where
   isThin-DiscreteC .isThin.isProp-Mor = isSet-D _ _
 
 
-  isUnivalent-DiscreteC : isUnivalent DiscreteC
-  isUnivalent-DiscreteC .isUnivalent.isEquiv-pathToCatIso x y =
-    isoToIsEquiv Iso-pathToCatIso
-    where
-    isProp-CatIso : isProp (CatIso DiscreteC x y)
-    isProp-CatIso c1 c2 = (\i -> record
-      { mor = mor-path i
-      ; inv = inv-path i
-      ; sec = sec-path i
-      ; ret = ret-path i
-      })
-      where
-      mor-path : (CatIso.mor c1) == (CatIso.mor c2)
-      mor-path i = isSet-D x y (CatIso.mor c1) (CatIso.mor c2) i
-      inv-path : (CatIso.inv c1) == (CatIso.inv c2)
-      inv-path i = isSet-D y x (CatIso.inv c1) (CatIso.inv c2) i
-      sec-path : PathP (\i -> inv-path i ⋆⟨ DiscreteC ⟩ mor-path i == refl)
-                       (CatIso.sec c1) (CatIso.sec c2)
-      sec-path = isProp->PathP (\i -> isProp->isSet (isSet-D _ _) _ _)
-      ret-path : PathP (\i -> mor-path i ⋆⟨ DiscreteC ⟩ inv-path i == refl)
-                       (CatIso.ret c1) (CatIso.ret c2)
-      ret-path = isProp->PathP (\i -> isProp->isSet (isSet-D _ _) _ _)
-
-
-    Iso-pathToCatIso : Iso (x == y) (CatIso DiscreteC x y)
-    Iso-pathToCatIso .Iso.fun = pathToCatIso DiscreteC x y
-    Iso-pathToCatIso .Iso.inv c = CatIso.mor c
-    Iso-pathToCatIso .Iso.leftInv _ = isSet-D _ _ _ _
-    Iso-pathToCatIso .Iso.rightInv _ = isProp-CatIso _ _
+  module _ where
+    open isIdentitySystem
+    isUnivalent'-DiscreteC : isUnivalent' DiscreteC
+    isUnivalent'-DiscreteC .to-path (cat-iso p _ _ _) = p
+    isUnivalent'-DiscreteC .to-path-over {a} {b} (cat-iso p _ _ _) =
+      transP-left
+        (transport-filler (\i -> CatIso DiscreteC a (p i)) (idCatIso DiscreteC a))
+        (cat-iso-path (\j -> transp (\i -> a == (p (i ∨ j))) j (\i -> p (i ∧ j))))
