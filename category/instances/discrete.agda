@@ -8,27 +8,23 @@ open import category.univalent
 open import cubical
 open import equality-path
 open import equality.identity-system
+open import equality.inductive-data
 open import hlevel
-open import isomorphism
 
 private
   variable
     ℓObj ℓMor : Level
 
-module _ {D : Type ℓObj} (isSet-D : isSet D) where
+module _ {D : Type ℓObj} (isGroupoid-D : isGroupoid D) where
   DiscreteC : PreCategory ℓObj ℓObj
   DiscreteC .PreCategory.Obj = D
   DiscreteC .PreCategory.Mor x y = x == y
   DiscreteC .PreCategory.id = refl
   DiscreteC .PreCategory._⋆_ = _>=>_
-  DiscreteC .PreCategory.⋆-left-id f = isSet-D _ _ _ _
-  DiscreteC .PreCategory.⋆-right-id f = isSet-D _ _ _ _
-  DiscreteC .PreCategory.⋆-assoc f g h = isSet-D _ _ _ _
-  DiscreteC .PreCategory.isSet-Mor = isProp->isSet (isSet-D _ _)
-
-  isThin-DiscreteC : isThin DiscreteC
-  isThin-DiscreteC .isThin.isProp-Mor = isSet-D _ _
-
+  DiscreteC .PreCategory.⋆-left-id = compPath-refl-left
+  DiscreteC .PreCategory.⋆-right-id = compPath-refl-right
+  DiscreteC .PreCategory.⋆-assoc = compPath-assoc
+  DiscreteC .PreCategory.isSet-Mor = isGroupoid-D _ _
 
   module _ where
     open isIdentitySystem
@@ -38,3 +34,14 @@ module _ {D : Type ℓObj} (isSet-D : isSet D) where
       transP-left
         (transport-filler (\i -> CatIso DiscreteC a (p i)) (idCatIso DiscreteC a))
         (cat-iso-path (\j -> transp (\i -> a == (p (i ∨ j))) j (\i -> p (i ∧ j))))
+
+module _ {D : Type ℓObj} (isGroupoid-D : isGroupoid D) where
+  DiscreteC' : PreCategory ℓObj ℓObj
+  DiscreteC' .PreCategory.Obj = D
+  DiscreteC' .PreCategory.Mor x y = x === y
+  DiscreteC' .PreCategory.id = refl-===
+  DiscreteC' .PreCategory._⋆_ = trans-===
+  DiscreteC' .PreCategory.⋆-left-id refl-=== = refl
+  DiscreteC' .PreCategory.⋆-right-id refl-=== = refl
+  DiscreteC' .PreCategory.⋆-assoc refl-=== refl-=== refl-=== = refl
+  DiscreteC' .PreCategory.isSet-Mor {s} {t} = ≃-isSet Path≃Eq (isGroupoid-D _ _)
