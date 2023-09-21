@@ -56,3 +56,20 @@ equiv⁻¹ f = isoToEquiv (iso⁻¹ (equivToIso f))
 infixl 20 _>eq>_
 _>eq>_ : A ≃ B -> B ≃ C -> A ≃ C
 _>eq>_ f g = ∘-equiv g f
+
+
+rightInverse-isEquiv : (f : A -> B) (g : B -> A) -> f ∘ g == idfun B -> isEquiv f -> isEquiv g
+rightInverse-isEquiv f g id isEq = isoToIsEquiv (iso g f inv (\b i -> id i b))
+  where
+  inv : ∀ a -> g (f a) == a
+  inv a = sym (isEqRet isEq (g (f a))) >=>
+          (\i -> isEqInv isEq (id i (f a))) >=>
+          isEqRet isEq a
+
+leftInverse-isEquiv : (f : A -> B) (g : B -> A) -> f ∘ g == idfun B -> isEquiv g -> isEquiv f
+leftInverse-isEquiv f g id isEq = isoToIsEquiv (iso f g (\a i -> id i a) inv)
+  where
+  inv : ∀ a -> g (f a) == a
+  inv a = (\i -> g (f (isEqSec isEq a (~ i)))) >=>
+          (\i -> g (id i (isEqInv isEq a))) >=>
+          (isEqSec isEq a)
