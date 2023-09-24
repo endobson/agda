@@ -11,10 +11,10 @@ open import category.monoidal.base
 open import category.natural-isomorphism
 open import category.object.product
 open import category.object.terminal
+open import category.zipper
 open import equality
 open import fin-algebra
 open import truncation
-open import category.zipper
 
 module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
   (prod : ∀ x y -> Product C x y)

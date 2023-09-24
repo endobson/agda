@@ -1,14 +1,14 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
 open import base
-open import equality-path
 open import category.base
-open import category.constructions.product
 open import category.constructions.opposite
-open import category.instances.small
+open import category.constructions.product
 open import category.instances.set
-open import hlevel
+open import category.instances.small
+open import equality-path
 open import funext
+open import hlevel
 
 import functions
 

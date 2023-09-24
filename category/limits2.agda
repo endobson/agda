@@ -2,8 +2,8 @@
 
 module category.limits2 where
 
-open import category.base
 open import base
+open import category.base
 open import category.constructions.cone
 open import category.object.terminal
 

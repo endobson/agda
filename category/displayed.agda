@@ -1,8 +1,8 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
 open import base
-open import equality-path
 open import category.base
+open import equality-path
 open import hlevel.base
 open import hlevel.sigma
 

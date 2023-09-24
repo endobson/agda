@@ -4,13 +4,13 @@ module category.limits where
 
 open import base
 open import boolean
-open import hlevel
 open import category.base
-open import category.instances.quiver
 open import category.instances.free
+open import category.instances.quiver
 open import category.instances.set
-open import truncation
+open import hlevel
 open import relation
+open import truncation
 
 record Cone {ℓOJ ℓMJ ℓOC ℓMC : Level} {J : PreCategory ℓOJ ℓMJ} {C : PreCategory ℓOC ℓMC}
             (D : Diagram J C) (v : Obj C) :

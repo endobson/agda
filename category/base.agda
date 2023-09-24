@@ -3,13 +3,13 @@
 module category.base where
 
 open import base
-open import relation
-open import sigma.base
 open import cubical using (I)
 open import equality-path
 open import equivalence
 open import hlevel
 open import isomorphism
+open import relation
+open import sigma.base
 
 private
   variable

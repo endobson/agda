@@ -3,11 +3,11 @@
 module category.constructions.union where
 
 open import base
-open import hlevel
-open import equality
 open import category.base
-open import category.instances.discrete
 open import category.displayed
+open import category.instances.discrete
+open import equality
+open import hlevel
 
 module _ {ℓI ℓO ℓM : Level} {Idx : Type ℓI}
          (isGroupoid-Idx : isGroupoid Idx)
