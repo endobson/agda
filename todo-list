@@ -43,3 +43,7 @@ isProp⊎ -> isProp-⊎
 
 Get Better script for unused imports:
 for name in `find . -name '*.agda'`; do echo $name >> unused; agda-unused $name | grep -Ev 'unused variable|instances|ring.implementations|real.heyting-field' | grep 'unused import' -B 1 >> unused; done
+
+
+Categories:
+  * Reaming things away from Helpers (maybe to Reasoning)
