@@ -82,8 +82,8 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
 
     unitorˡ : NaturalIsomorphism (appˡ ⊗ unit) (idF C)
     unitorˡ = record
-      { NT-obj = \c -> π₂
-      ; NT-mor = \f -> sym π₂-reduce
+      { obj = \c -> π₂
+      ; mor = \f -> sym π₂-reduce
       } ,
       niso
 
@@ -99,8 +99,8 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
 
     unitorʳ : NaturalIsomorphism (appʳ ⊗ unit) (idF C)
     unitorʳ = record
-      { NT-obj = \c -> π₁
-      ; NT-mor = \f -> sym π₁-reduce
+      { obj = \c -> π₁
+      ; mor = \f -> sym π₁-reduce
       } ,
       niso
 
@@ -118,8 +118,8 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
     associator : NaturalIsomorphism (LeftBiasedDoubleApplicationFunctor ⊗)
                                     (RightBiasedDoubleApplicationFunctor ⊗)
     associator = record
-      { NT-obj = nt-o
-      ; NT-mor = nt-mor
+      { obj = nt-o
+      ; mor = nt-mor
       } ,
       is-niso
       where

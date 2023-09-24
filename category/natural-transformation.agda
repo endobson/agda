@@ -30,10 +30,13 @@ module _
 
   record NaturalTransformation : Type (ℓ-max* 4 ℓObjC ℓObjD ℓMorC ℓMorD) where
     field
-      NT-obj : NT-obj-Type F G
-      NT-mor : NT-mor-Type F G NT-obj
+      obj : NT-obj-Type F G
+      mor : NT-mor-Type F G obj
 
-open NaturalTransformation public
+open NaturalTransformation public renaming
+  ( obj to NT-obj
+  ; mor to NT-mor
+  )
 
 module _
   {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
@@ -42,16 +45,16 @@ module _
 
   natural-transformation-path :
     {nt1 nt2 : NaturalTransformation F G} ->
-    NaturalTransformation.NT-obj nt1 == NaturalTransformation.NT-obj nt2 ->
+    NaturalTransformation.obj nt1 == NaturalTransformation.obj nt2 ->
     nt1 == nt2
   natural-transformation-path {nt1} {nt2} op i = record
-    { NT-obj = op i
-    ; NT-mor = sq i
+    { obj = op i
+    ; mor = sq i
     }
     where
     sq : PathP (\i -> NT-mor-Type F G (op i))
-               (NaturalTransformation.NT-mor nt1)
-               (NaturalTransformation.NT-mor nt2)
+               (NaturalTransformation.mor nt1)
+               (NaturalTransformation.mor nt2)
     sq = isProp->PathP (\i -> isPropΠⁱ2 (\x y -> isPropΠ (\f -> isSet-Mor D _ _)))
 
 
@@ -91,5 +94,5 @@ module _
     p1=p2' i = natural-transformation-path (op1=op2' i)
 
     p1=p2 : p1 == p2
-    p1=p2 i j .NaturalTransformation.NT-obj = op1=op2 i j
-    p1=p2 i j .NaturalTransformation.NT-mor = mp1=mp2 i j
+    p1=p2 i j .NaturalTransformation.obj = op1=op2 i j
+    p1=p2 i j .NaturalTransformation.mor = mp1=mp2 i j

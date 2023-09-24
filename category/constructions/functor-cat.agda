@@ -17,8 +17,8 @@ module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
     module D = PreCategory D
 
   id-NT : (F : Functor C D) -> NaturalTransformation F F
-  id-NT F .NaturalTransformation.NT-obj x = id D
-  id-NT F .NaturalTransformation.NT-mor f =
+  id-NT F .NaturalTransformation.obj x = id D
+  id-NT F .NaturalTransformation.mor f =
     D.⋆-left-id _ >=> sym (D.⋆-right-id _)
 
   -- Vertical composition
@@ -26,9 +26,9 @@ module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
           NaturalTransformation F G ->
           NaturalTransformation G H ->
           NaturalTransformation F H
-  _⋆NT_ nt1 nt2 .NaturalTransformation.NT-obj x =
+  _⋆NT_ nt1 nt2 .NaturalTransformation.obj x =
     NT-obj nt1 x ⋆⟨ D ⟩ NT-obj nt2 x
-  _⋆NT_ {F} {G} {H} nt1 nt2 .NaturalTransformation.NT-mor {x} {y} f = ans
+  _⋆NT_ {F} {G} {H} nt1 nt2 .NaturalTransformation.mor {x} {y} f = ans
     where
     opaque
       ans : (NT-obj nt1 x ⋆⟨ D ⟩ NT-obj nt2 x) ⋆⟨ D ⟩ F-mor H f ==
@@ -81,8 +81,8 @@ module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
   diagonal-functor = record
     { obj = \d -> constantF C D d
     ; mor = \f -> record
-      { NT-obj = \_ -> f
-      ; NT-mor = \_ -> D.⋆-right-id _ >=> sym (D.⋆-left-id _)
+      { obj = \_ -> f
+      ; mor = \_ -> D.⋆-right-id _ >=> sym (D.⋆-left-id _)
       }
     ; id = \_ -> natural-transformation-path refl
     ; ⋆ = \_ _ -> natural-transformation-path refl
