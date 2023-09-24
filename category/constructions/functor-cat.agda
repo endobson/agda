@@ -53,11 +53,11 @@ module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
   private
     ⋆NT-left-id : {F G : Functor C D} -> (nt : NaturalTransformation F G) ->
                   (id-NT F) ⋆NT nt == nt
-    ⋆NT-left-id nt = natural-transformation-path (funExt (\x -> (D.⋆-left-id (NT-obj nt x))))
+    ⋆NT-left-id nt = natural-transformation-path (\x -> (D.⋆-left-id (NT-obj nt x)))
 
     ⋆NT-right-id : {F G : Functor C D} -> (nt : NaturalTransformation F G) ->
                    nt ⋆NT (id-NT G) == nt
-    ⋆NT-right-id nt = natural-transformation-path (funExt (\x -> (D.⋆-right-id (NT-obj nt x))))
+    ⋆NT-right-id nt = natural-transformation-path (\x -> (D.⋆-right-id (NT-obj nt x)))
 
     ⋆NT-assoc :
       {F G H I : Functor C D} ->
@@ -65,7 +65,7 @@ module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
       (nt2 : NaturalTransformation G H) ->
       (nt3 : NaturalTransformation H I) ->
       (nt1 ⋆NT nt2) ⋆NT nt3 == nt1 ⋆NT (nt2 ⋆NT nt3)
-    ⋆NT-assoc nt1 nt2 nt3 = natural-transformation-path (funExt (\x -> (D.⋆-assoc _ _ _)))
+    ⋆NT-assoc nt1 nt2 nt3 = natural-transformation-path (\x -> (D.⋆-assoc _ _ _))
 
   FunctorC : PreCategory ℓF ℓF
   FunctorC .PreCategory.Obj = Functor C D
@@ -84,6 +84,6 @@ module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
       { obj = \_ -> f
       ; mor = \_ -> D.⋆-right-id _ >=> sym (D.⋆-left-id _)
       }
-    ; id = \_ -> natural-transformation-path refl
-    ; ⋆ = \_ _ -> natural-transformation-path refl
+    ; id = \_ -> natural-transformation-path (\_ -> refl)
+    ; ⋆ = \_ _ -> natural-transformation-path (\_ -> refl)
     }

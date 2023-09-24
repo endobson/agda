@@ -45,14 +45,14 @@ module _
 
   natural-transformation-path :
     {nt1 nt2 : NaturalTransformation F G} ->
-    NaturalTransformation.obj nt1 == NaturalTransformation.obj nt2 ->
+    ((c : Obj C) -> NaturalTransformation.obj nt1 c == NaturalTransformation.obj nt2 c) ->
     nt1 == nt2
   natural-transformation-path {nt1} {nt2} op i = record
-    { obj = op i
+    { obj = \c -> op c i
     ; mor = sq i
     }
     where
-    sq : PathP (\i -> NT-mor-Type F G (op i))
+    sq : PathP (\i -> NT-mor-Type F G (\c -> op c i))
                (NaturalTransformation.mor nt1)
                (NaturalTransformation.mor nt2)
     sq = isProp->PathP (\i -> isPropΠⁱ2 (\x y -> isPropΠ (\f -> isSet-Mor D _ _)))
@@ -87,11 +87,8 @@ module _
     mp1=mp2 : PathP (\i -> PathP (\j -> NT-mor-Type F G (op1=op2 i j)) m1 m2) mp1 mp2
     mp1=mp2 = isOfHLevel->isOfHLevelDep 2 isSet-NT-mor m1 m2 mp1 mp2 op1=op2
 
-    op1=op2' : (i : I) -> (op1 i) == (op2 i)
-    op1=op2' i j = op1=op2 j i
-
     p1=p2' : (i : I) -> (p1 i) == (p2 i)
-    p1=p2' i = natural-transformation-path (op1=op2' i)
+    p1=p2' i = natural-transformation-path (\c j -> op1=op2 j i c)
 
     p1=p2 : p1 == p2
     p1=p2 i j .NaturalTransformation.obj = op1=op2 i j
