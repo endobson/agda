@@ -35,6 +35,15 @@ idF _ .F-mor f = f
 idF _ .F-id _ = refl
 idF _ .F-⋆ f g = refl
 
+-- Constant Functor
+constantF : {ℓOC ℓMC ℓOD ℓMD : Level} (C : PreCategory ℓOC ℓMC) (D : PreCategory ℓOD ℓMD)
+            (x : Obj D) -> Functor C D
+constantF C D x .Functor.obj = \_ -> x
+constantF C D x .Functor.mor = \_ -> id D
+constantF C D x .Functor.id  = \_ -> refl
+constantF C D x .Functor.⋆  = \_ _ -> sym (CategoryHelpers.⋆-id² D)
+
+
 module _ {ℓO ℓM : Level}
          {C : PreCategory ℓO ℓM} {D : PreCategory ℓO ℓM}
          {F G : Functor C D} where
