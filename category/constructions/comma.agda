@@ -1,6 +1,7 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
 open import category.base
+open import category.functor
 
 module category.constructions.comma
   {ℓOA ℓMA ℓOB ℓMB ℓOC ℓMC}

@@ -3,6 +3,7 @@
 open import base
 open import boolean
 open import category.base
+open import category.functor
 open import category.instances.set
 open import equality
 open import hlevel

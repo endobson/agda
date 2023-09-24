@@ -4,7 +4,9 @@ module category.natural-isomorphism where
 
 open import base
 open import category.base
+open import category.functor
 open import category.isomorphism
+open import category.natural-transformation
 open import hlevel.base
 
 module _

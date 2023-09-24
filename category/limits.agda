@@ -5,6 +5,7 @@ module category.limits where
 open import base
 open import boolean
 open import category.base
+open import category.functor
 open import category.instances.free
 open import category.instances.quiver
 open import category.instances.set

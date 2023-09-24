@@ -5,6 +5,7 @@ module category.limits2 where
 open import base
 open import category.base
 open import category.constructions.cone
+open import category.functor
 open import category.object.terminal
 
 -- TODO replace old limits file with this.

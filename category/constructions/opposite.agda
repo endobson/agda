@@ -2,6 +2,7 @@
 
 open import base
 open import category.base
+open import category.functor
 open import equality-path
 
 module category.constructions.opposite where

@@ -4,6 +4,7 @@ module category.constructions.cone.univalent where
 
 open import base
 open import category.base
+open import category.functor
 open import category.univalent
 open import equality-path renaming (J to eqJ)
 open import equivalence

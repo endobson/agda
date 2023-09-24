@@ -6,8 +6,10 @@ open import base
 open import category.base
 open import category.constructions.product
 open import category.constructions.triple-product
+open import category.functor
 open import category.isomorphism
 open import category.natural-isomorphism
+open import category.natural-transformation
 open import equality
 open import fin-algebra
 

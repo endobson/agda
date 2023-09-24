@@ -4,6 +4,7 @@ module category.isomorphism where
 
 open import base
 open import category.base
+open import category.functor
 open import category.morphism
 open import cubical hiding (i0 ; i1)
 open import equality

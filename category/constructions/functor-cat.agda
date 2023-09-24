@@ -4,10 +4,43 @@ module category.constructions.functor-cat where
 
 open import base
 open import category.base
+open import category.functor
+open import category.natural-transformation
 open import cubical
 open import equality-path
 open import funext
 open import hlevel
+
+module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
+         {C : PreCategory ℓObjC ℓMorC} {D : PreCategory ℓObjD ℓMorD} where
+  private
+    module D = PreCategory D
+
+  id-NT : (F : Functor C D) -> NaturalTransformation F F
+  id-NT F .NaturalTransformation.NT-obj x = id D
+  id-NT F .NaturalTransformation.NT-mor f =
+    D.⋆-left-id _ >=> sym (D.⋆-right-id _)
+
+
+  _⋆NT_ : {F G H : Functor C D} ->
+          NaturalTransformation F G ->
+          NaturalTransformation G H ->
+          NaturalTransformation F H
+  _⋆NT_ nt1 nt2 .NaturalTransformation.NT-obj x =
+    NT-obj nt1 x ⋆⟨ D ⟩ NT-obj nt2 x
+  _⋆NT_ {F} {G} {H} nt1 nt2 .NaturalTransformation.NT-mor {x} {y} f = ans
+    where
+    ans : (NT-obj nt1 x ⋆⟨ D ⟩ NT-obj nt2 x) ⋆⟨ D ⟩ F-mor H f ==
+          F-mor F f ⋆⟨ D ⟩ (NT-obj nt1 y ⋆⟨ D ⟩ NT-obj nt2 y)
+    ans =
+      ⋆-assoc >=>
+      ⋆-cong refl (NT-mor nt2 _) >=>
+      sym ⋆-assoc >=>
+      ⋆-cong (NT-mor nt1 _) refl >=>
+      ⋆-assoc
+      where
+      open CategoryHelpers D
+
 
 module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
          (C : PreCategory ℓObjC ℓMorC) (D : PreCategory ℓObjD ℓMorD) where
@@ -16,10 +49,7 @@ module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
     module D = PreCategory D
     ℓF = (ℓ-max* 4 ℓObjC ℓObjD ℓMorC ℓMorD)
 
-    id-NT : (F : Functor C D) -> NaturalTransformation F F
-    id-NT F .NaturalTransformation.NT-obj x = id D
-    id-NT F .NaturalTransformation.NT-mor f =
-      D.⋆-left-id _ >=> sym (D.⋆-right-id _)
+  private
 
     -- Vertical composition
     compose-NT : {F G H : Functor C D} ->
@@ -41,24 +71,16 @@ module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
         where
         open CategoryHelpers D
 
-    extend-NT-obj-path : {F G : Functor C D} {nt1 nt2 : NaturalTransformation F G} ->
-                         NT-obj nt1 == NT-obj nt2 -> nt1 == nt2
-    extend-NT-obj-path op i .NaturalTransformation.NT-obj = op i
-    extend-NT-obj-path {F} {G} {nt1} {nt2} op i .NaturalTransformation.NT-mor {x} {y} f = ans i
-      where
-      ans : PathP (\j -> op j x ⋆⟨ D ⟩ F-mor G f == F-mor F f ⋆⟨ D ⟩ op j y)
-                  (NT-mor nt1 f) (NT-mor nt2 f)
-      ans = isProp->PathP (\ j -> isSet-Mor D _ _)
 
     compose-NT-left-id : {F G : Functor C D} ->
                          (nt : NaturalTransformation F G) ->
                          compose-NT (id-NT F) nt == nt
-    compose-NT-left-id nt = extend-NT-obj-path (funExt (\x -> (D.⋆-left-id (NT-obj nt x))))
+    compose-NT-left-id nt = natural-transformation-path (funExt (\x -> (D.⋆-left-id (NT-obj nt x))))
 
     compose-NT-right-id : {F G : Functor C D} ->
                           (nt : NaturalTransformation F G) ->
                           compose-NT nt (id-NT G) == nt
-    compose-NT-right-id nt = extend-NT-obj-path (funExt (\x -> (D.⋆-right-id (NT-obj nt x))))
+    compose-NT-right-id nt = natural-transformation-path (funExt (\x -> (D.⋆-right-id (NT-obj nt x))))
 
     compose-NT-assoc :
       {F G H I : Functor C D} ->
@@ -66,7 +88,7 @@ module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
       (nt2 : NaturalTransformation G H) ->
       (nt3 : NaturalTransformation H I) ->
       compose-NT (compose-NT nt1 nt2) nt3 == compose-NT nt1 (compose-NT nt2 nt3)
-    compose-NT-assoc nt1 nt2 nt3 = extend-NT-obj-path (funExt (\x -> (D.⋆-assoc _ _ _)))
+    compose-NT-assoc nt1 nt2 nt3 = natural-transformation-path (funExt (\x -> (D.⋆-assoc _ _ _)))
 
     isSet-NaturalTransformation : {F G : Functor C D} -> isSet (NaturalTransformation F G)
     isSet-NaturalTransformation {F} {G} nt1 nt2 p1 p2 = p1=p2
@@ -101,7 +123,7 @@ module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
       op1=op2' i j = op1=op2 j i
 
       p1=p2' : (i : I) -> (p1 i) == (p2 i)
-      p1=p2' i = extend-NT-obj-path (op1=op2' i)
+      p1=p2' i = natural-transformation-path (op1=op2' i)
 
       p1=p2 : p1 == p2
       p1=p2 i j .NaturalTransformation.NT-obj = op1=op2 i j
@@ -130,6 +152,6 @@ module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
       { NT-obj = \_ -> f
       ; NT-mor = \_ -> D.⋆-right-id _ >=> sym (D.⋆-left-id _)
       }
-    ; id = \_ -> natural-transformation-path _ _ refl
-    ; ⋆ = \_ _ -> natural-transformation-path _ _ refl
+    ; id = \_ -> natural-transformation-path refl
+    ; ⋆ = \_ _ -> natural-transformation-path refl
     }

@@ -5,6 +5,7 @@ module category.constructions.full where
 open import base
 open import category.base
 open import category.displayed
+open import category.functor
 open import category.univalent
 open import equality.identity-system
 open import hlevel

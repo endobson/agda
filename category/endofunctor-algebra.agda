@@ -2,6 +2,7 @@
 
 open import base
 open import category.base
+open import category.functor
 
 module category.endofunctor-algebra where
 

@@ -4,6 +4,7 @@ open import base
 open import category.base
 open import category.constructions.opposite
 open import category.constructions.product
+open import category.functor
 open import category.instances.set
 open import category.instances.small
 open import equality-path

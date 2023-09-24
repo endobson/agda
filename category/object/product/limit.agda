@@ -5,6 +5,7 @@ open import boolean
 open import category.base
 open import category.constructions.cone
 open import category.constructions.cone.univalent
+open import category.functor
 open import category.instances.free
 open import category.instances.quiver
 open import category.limits2
