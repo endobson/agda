@@ -93,3 +93,114 @@ module _
     p1=p2 : p1 == p2
     p1=p2 i j .NaturalTransformation.obj = op1=op2 i j
     p1=p2 i j .NaturalTransformation.mor = mp1=mp2 i j
+
+
+module _ {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
+         {C : PreCategory ℓObjC ℓMorC} {D : PreCategory ℓObjD ℓMorD} where
+  private
+    module D = PreCategory D
+
+  id-NT : (F : Functor C D) -> NaturalTransformation F F
+  id-NT F .NaturalTransformation.obj x = id D
+  id-NT F .NaturalTransformation.mor f =
+    D.⋆-left-id _ >=> sym (D.⋆-right-id _)
+
+  -- Vertical composition
+  _⋆NT_ : {F G H : Functor C D} -> NaturalTransformation F G ->
+          NaturalTransformation G H -> NaturalTransformation F H
+  _⋆NT_ nt1 nt2 .NaturalTransformation.obj x =
+    NT-obj nt1 x ⋆⟨ D ⟩ NT-obj nt2 x
+  _⋆NT_ {F} {G} {H} nt1 nt2 .NaturalTransformation.mor {x} {y} f = ans
+    where
+    opaque
+      ans : (NT-obj nt1 x ⋆⟨ D ⟩ NT-obj nt2 x) ⋆⟨ D ⟩ F-mor H f ==
+            F-mor F f ⋆⟨ D ⟩ (NT-obj nt1 y ⋆⟨ D ⟩ NT-obj nt2 y)
+      ans =
+        ⋆-assoc >=>
+        ⋆-cong refl (NT-mor nt2 _) >=>
+        sym ⋆-assoc >=>
+        ⋆-cong (NT-mor nt1 _) refl >=>
+        ⋆-assoc
+        where
+        open CategoryHelpers D
+
+  ⋆NT-left-id : {F G : Functor C D} -> (nt : NaturalTransformation F G) ->
+                (id-NT F) ⋆NT nt == nt
+  ⋆NT-left-id nt = natural-transformation-path (\x -> (D.⋆-left-id (NT-obj nt x)))
+
+  ⋆NT-right-id : {F G : Functor C D} -> (nt : NaturalTransformation F G) ->
+                 nt ⋆NT (id-NT G) == nt
+  ⋆NT-right-id nt = natural-transformation-path (\x -> (D.⋆-right-id (NT-obj nt x)))
+
+  ⋆NT-assoc :
+    {F G H I : Functor C D} ->
+    (nt1 : NaturalTransformation F G) ->
+    (nt2 : NaturalTransformation G H) ->
+    (nt3 : NaturalTransformation H I) ->
+    (nt1 ⋆NT nt2) ⋆NT nt3 == nt1 ⋆NT (nt2 ⋆NT nt3)
+  ⋆NT-assoc nt1 nt2 nt3 = natural-transformation-path (\x -> (D.⋆-assoc _ _ _))
+
+module _ {ℓOC ℓMC ℓOD ℓMD ℓOE ℓME : Level}
+         {C : PreCategory ℓOC ℓMC}
+         {D : PreCategory ℓOD ℓMD}
+         {E : PreCategory ℓOE ℓME}
+         {f1 : Functor C D}
+         {f2 : Functor C D}
+         {f3 : Functor D E}
+         {f4 : Functor D E} where
+  _⋆NTʰ_ : NaturalTransformation f1 f2 ->
+           NaturalTransformation f3 f4 ->
+           NaturalTransformation (f1 ⋆F f3) (f2 ⋆F f4)
+  _⋆NTʰ_ nt12 nt34 = record
+    { obj = \ c -> nt34.obj (F-obj f1 c) ⋆⟨ E ⟩ F-mor f4 (nt12.obj c)
+    ; mor = mor
+    }
+    where
+    module f3 = Functor f3
+    module E = CategoryHelpers E
+    module nt12 = NaturalTransformation nt12
+    module nt34 = NaturalTransformation nt34
+    opaque
+      mor : {x y : Obj C} (m : C [ x , y ]) -> _
+      mor m =
+        E.⋆-left (nt34.mor (nt12.obj _)) >=>
+        E.⋆-assoc >=>
+        E.⋆-right (nt34.mor _) >=>
+        sym E.⋆-assoc >=>
+        E.⋆-left (sym (f3.⋆ _ _) >=> cong f3.mor (nt12.mor _) >=>
+                   f3.⋆ _ _) >=>
+        E.⋆-assoc >=>
+        E.⋆-right (sym (nt34.mor _))
+
+module _ {ℓOC ℓMC ℓOD ℓMD ℓOE ℓME : Level}
+         {C : PreCategory ℓOC ℓMC}
+         {D : PreCategory ℓOD ℓMD}
+         {E : PreCategory ℓOE ℓME}
+         {f1 : Functor C D}
+         {f2 : Functor C D}
+         {f3 : Functor C D}
+         {f4 : Functor D E}
+         {f5 : Functor D E}
+         {f6 : Functor D E}
+         where
+  ⋆NTʰ-⋆NT : (nt12 : NaturalTransformation f1 f2)
+             (nt45 : NaturalTransformation f4 f5)
+             (nt23 : NaturalTransformation f2 f3)
+             (nt56 : NaturalTransformation f5 f6) ->
+             (nt12 ⋆NT nt23) ⋆NTʰ (nt45 ⋆NT nt56) ==
+             (nt12 ⋆NTʰ nt45) ⋆NT (nt23 ⋆NTʰ nt56)
+  ⋆NTʰ-⋆NT nt12 nt45 nt23 nt56 = natural-transformation-path ans
+    where
+    opaque
+      ans : ∀ c ->
+        (NT-obj nt45 (F-obj f1 c) ⋆⟨ E ⟩ NT-obj nt56 (F-obj f1 c)) ⋆⟨ E ⟩
+        (F-mor f6 ((NT-obj nt12 c) ⋆⟨ D ⟩ (NT-obj nt23 c))) ==
+        (NT-obj nt45 (F-obj f1 c) ⋆⟨ E ⟩ F-mor f5 (NT-obj nt12 c)) ⋆⟨ E ⟩
+        (NT-obj nt56 (F-obj f2 c) ⋆⟨ E ⟩ F-mor f6 (NT-obj nt23 c))
+      ans c =
+        ⋆-right (F-⋆ f6 _ _) >=>
+        sym ⋆-assoc >=>
+        ⋆-left (⋆-assoc >=> ⋆-right (NT-mor nt56 _) >=> sym ⋆-assoc) >=>
+        ⋆-assoc
+        where
+        open CategoryHelpers E
