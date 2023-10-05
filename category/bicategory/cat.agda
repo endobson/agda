@@ -41,18 +41,8 @@ private
       { obj = \(F , G) -> F ⋆F G
       ; mor = \(nt1 , nt2) -> nt1 ⋆NTʰ nt2
       ; id = \(F , G) -> ⋆NTʰ-id F G
-      ; ⋆ = \(nt1 , nt2) (nt3 , nt4) -> ⋆NTʰ-⋆F nt1 nt2 nt3 nt4
+      ; ⋆ = \(nt1 , nt2) (nt3 , nt4) -> ⋆NTʰ-⋆NT nt1 nt2 nt3 nt4
       }
-
-
-  module _ {ℓO ℓM : Level}
-           {A : PreCategory ℓO ℓM}
-           {B : PreCategory ℓO ℓM} where
-
-    ⋆F-left-id : (f : Functor A B) -> (idF A) ⋆F f == f
-    ⋆F-left-id f = functor-path (\c -> refl) (\m -> refl)
-    ⋆F-right-id : (f : Functor A B) -> f ⋆F (idF B) == f
-    ⋆F-right-id f = functor-path (\c -> refl) (\m -> refl)
 
   module _ {ℓO ℓM : Level}
            {A : PreCategory ℓO ℓM}

@@ -41,22 +41,36 @@ open NaturalTransformation public renaming
 module _
   {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
   {C : PreCategory ℓObjC ℓMorC} {D : PreCategory ℓObjD ℓMorD}
+  {F1 F2 G1 G2 : Functor C D}
+  {pF : F1 == F2} {pG : G1 == G2} where
+
+  natural-transformation-pathp :
+    {nt1 : NaturalTransformation F1 G1} ->
+    {nt2 : NaturalTransformation F2 G2} ->
+    ((c : Obj C) ->
+      PathP (\i -> D [ F-obj (pF i) c , F-obj (pG i) c ])
+        (NaturalTransformation.obj nt1 c) (NaturalTransformation.obj nt2 c)) ->
+    PathP (\i -> NaturalTransformation (pF i) (pG i)) nt1 nt2
+  natural-transformation-pathp {nt1} {nt2} op i = record
+    { obj = \c -> op c i
+    ; mor = sq i
+    }
+    where
+    sq : PathP (\i -> NT-mor-Type (pF i) (pG i) (\c -> op c i))
+               (NaturalTransformation.mor nt1)
+               (NaturalTransformation.mor nt2)
+    sq = isProp->PathP (\i -> isPropΠⁱ2 (\x y -> isPropΠ (\f -> isSet-Mor D _ _)))
+
+module _
+  {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
+  {C : PreCategory ℓObjC ℓMorC} {D : PreCategory ℓObjD ℓMorD}
   {F G : Functor C D} where
 
   natural-transformation-path :
     {nt1 nt2 : NaturalTransformation F G} ->
     ((c : Obj C) -> NaturalTransformation.obj nt1 c == NaturalTransformation.obj nt2 c) ->
     nt1 == nt2
-  natural-transformation-path {nt1} {nt2} op i = record
-    { obj = \c -> op c i
-    ; mor = sq i
-    }
-    where
-    sq : PathP (\i -> NT-mor-Type F G (\c -> op c i))
-               (NaturalTransformation.mor nt1)
-               (NaturalTransformation.mor nt2)
-    sq = isProp->PathP (\i -> isPropΠⁱ2 (\x y -> isPropΠ (\f -> isSet-Mor D _ _)))
-
+  natural-transformation-path = natural-transformation-pathp
 
   isSet-NaturalTransformation : isSet (NaturalTransformation F G)
   isSet-NaturalTransformation nt1 nt2 p1 p2 = p1=p2
@@ -204,3 +218,54 @@ module _ {ℓOC ℓMC ℓOD ℓMD ℓOE ℓME : Level}
         ⋆-assoc
         where
         open CategoryHelpers E
+
+module _ {ℓOC ℓMC ℓOD ℓMD ℓOE ℓME : Level}
+         {C : PreCategory ℓOC ℓMC}
+         {D : PreCategory ℓOD ℓMD}
+         {E : PreCategory ℓOE ℓME} where
+  open CategoryHelpers E
+
+  _NT▶_ : {f1 f2 : Functor C D} -> NaturalTransformation f1 f2 -> (f3 : Functor D E) ->
+          NaturalTransformation (f1 ⋆F f3) (f2 ⋆F f3)
+  _NT▶_ nt f3 = record
+    { obj = \c -> F-mor f3 (NT-obj nt c)
+    ; mor = \m -> sym (F-⋆ f3 _ _) >=> cong (F-mor f3) (NT-mor nt _) >=> (F-⋆ f3 _ _)
+    }
+
+  _NT◀_ : (f1 : Functor C D) -> {f2 f3 : Functor D E} -> NaturalTransformation f2 f3 ->
+          NaturalTransformation (f1 ⋆F f2) (f1 ⋆F f3)
+  _NT◀_ f1 nt = record
+    { obj = \c -> (NT-obj nt (F-obj f1 c))
+    ; mor = \m -> (NT-mor nt _)
+    }
+
+  -- Version of NT▶ and NT◀ that match up with ⋆NTʰ.
+  _NT▶'_ : {f1 f2 : Functor C D} -> NaturalTransformation f1 f2 -> (f3 : Functor D E) ->
+           NaturalTransformation (f1 ⋆F f3) (f2 ⋆F f3)
+  _NT▶'_ nt f3 = nt ⋆NTʰ (id-NT f3)
+
+  _NT◀'_ : (f1 : Functor C D) -> {f2 f3 : Functor D E} -> NaturalTransformation f2 f3 ->
+           NaturalTransformation (f1 ⋆F f2) (f1 ⋆F f3)
+  _NT◀'_ f1 nt = (id-NT f1) ⋆NTʰ nt
+
+  NT▶'-path : {f1 f2 : Functor C D} (nt : NaturalTransformation f1 f2) (f3 : Functor D E) ->
+              (nt NT▶' f3) == (nt NT▶ f3)
+  NT▶'-path nt f3 = natural-transformation-path (\c -> ⋆-left-id)
+
+  NT◀'-path : (f1 : Functor C D) {f2 f3 : Functor D E} (nt : NaturalTransformation f2 f3)  ->
+              (f1 NT◀' nt) == (f1 NT◀ nt)
+  NT◀'-path f1 {f2} {f3} nt =
+    natural-transformation-path (\c -> ⋆-right (F-id f3 _) >=> ⋆-right-id)
+
+module _ {ℓOC ℓMC ℓOD ℓMD : Level}
+         {C : PreCategory ℓOC ℓMC}
+         {D : PreCategory ℓOD ℓMD} where
+  NT▶-id : {f1 f2 : Functor C D} -> (nt : NaturalTransformation f1 f2) ->
+           PathP (\ i -> NaturalTransformation (⋆F-right-id f1 i) (⋆F-right-id f2 i))
+             (nt NT▶ idF D) nt
+  NT▶-id nt = (natural-transformation-pathp (\c -> refl))
+
+  NT◀-id : {f1 f2 : Functor C D} -> (nt : NaturalTransformation f1 f2) ->
+           PathP (\ i -> NaturalTransformation (⋆F-left-id f1 i) (⋆F-left-id f2 i))
+             (idF C NT◀ nt) nt
+  NT◀-id nt = (natural-transformation-pathp (\c -> refl))

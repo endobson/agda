@@ -86,3 +86,12 @@ module _ {ℓAo ℓAm ℓBo ℓBm ℓCo ℓCm : Level}
     where
     module F = Functor F
     module G = Functor G
+
+module _ {ℓAo ℓAm ℓBo ℓBm : Level}
+         {A : PreCategory ℓAo ℓAm}
+         {B : PreCategory ℓBo ℓBm} where
+
+  ⋆F-left-id : (f : Functor A B) -> (idF A) ⋆F f == f
+  ⋆F-left-id f = functor-path (\c -> refl) (\m -> refl)
+  ⋆F-right-id : (f : Functor A B) -> f ⋆F (idF B) == f
+  ⋆F-right-id f = functor-path (\c -> refl) (\m -> refl)
