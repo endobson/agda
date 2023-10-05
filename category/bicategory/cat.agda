@@ -16,22 +16,6 @@ open import equality-path
 open import funext
 
 private
-  module _ {ℓAo ℓAm ℓBo ℓBm ℓCo ℓCm : Level}
-           {A : PreCategory ℓAo ℓAm}
-           {B : PreCategory ℓBo ℓBm}
-           {C : PreCategory ℓCo ℓCm}
-           (F : Functor A B) (G : Functor B C) where
-    _⋆F_ : Functor A C
-    _⋆F_ = record
-      { obj = \o -> G.obj (F.obj o)
-      ; mor = \m -> G.mor (F.mor m)
-      ; id = \m -> cong G.mor (F.id m) >=> G.id _
-      ; ⋆ = \f g -> cong G.mor (F.⋆ f g) >=> G.⋆ _ _
-      }
-      where
-      module F = Functor F
-      module G = Functor G
-
   module _ {ℓOC ℓMC ℓOD ℓMD ℓOE ℓME : Level}
            {C : PreCategory ℓOC ℓMC}
            {D : PreCategory ℓOD ℓMD}

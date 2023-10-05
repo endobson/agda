@@ -70,3 +70,19 @@ module _ {ℓOC ℓMC ℓOD ℓMD : Level}
     functor-path i .Functor.mor m = mp m i
     functor-path i .Functor.id c = id-p c i
     functor-path i .Functor.⋆ m1 m2 = ⋆-p m1 m2 i
+
+module _ {ℓAo ℓAm ℓBo ℓBm ℓCo ℓCm : Level}
+         {A : PreCategory ℓAo ℓAm}
+         {B : PreCategory ℓBo ℓBm}
+         {C : PreCategory ℓCo ℓCm}
+         (F : Functor A B) (G : Functor B C) where
+  _⋆F_ : Functor A C
+  _⋆F_ = record
+    { obj = \o -> G.obj (F.obj o)
+    ; mor = \m -> G.mor (F.mor m)
+    ; id = \m -> cong G.mor (F.id m) >=> G.id _
+    ; ⋆ = \f g -> cong G.mor (F.⋆ f g) >=> G.⋆ _ _
+    }
+    where
+    module F = Functor F
+    module G = Functor G
