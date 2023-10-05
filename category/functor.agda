@@ -44,8 +44,8 @@ constantF C D x .Functor.id  = \_ -> refl
 constantF C D x .Functor.⋆  = \_ _ -> sym (CategoryHelpers.⋆-id² D)
 
 
-module _ {ℓO ℓM : Level}
-         {C : PreCategory ℓO ℓM} {D : PreCategory ℓO ℓM}
+module _ {ℓOC ℓMC ℓOD ℓMD : Level}
+         {C : PreCategory ℓOC ℓMC} {D : PreCategory ℓOD ℓMD}
          {F G : Functor C D} where
   private
     module F = Functor F
