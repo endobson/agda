@@ -16,7 +16,44 @@ open import equality-path
 open import equivalence
 open import funext
 
+
 private
+
+  module _ {ℓOC ℓMC ℓOD ℓMD ℓOE ℓME : Level}
+           {C : PreCategory ℓOC ℓMC}
+           {D : PreCategory ℓOD ℓMD}
+           {E : PreCategory ℓOE ℓME}
+           {f1 : Functor C D}
+           {f2 : Functor C D}
+           {f3 : Functor C D}
+           {f4 : Functor D E}
+           {f5 : Functor D E}
+           {f6 : Functor D E}
+           where
+
+    ⋆NTʰ-⋆F : (nt12 : NaturalTransformation f1 f2)
+              (nt45 : NaturalTransformation f4 f5)
+              (nt23 : NaturalTransformation f2 f3)
+              (nt56 : NaturalTransformation f5 f6) ->
+              (nt12 ⋆NT nt23) ⋆NTʰ (nt45 ⋆NT nt56) ==
+              (nt12 ⋆NTʰ nt45) ⋆NT (nt23 ⋆NTʰ nt56)
+    ⋆NTʰ-⋆F nt12 nt45 nt23 nt56 = natural-transformation-path ans
+      where
+      opaque
+        ans : ∀ c ->
+          (NT-obj nt45 (F-obj f1 c) ⋆⟨ E ⟩ NT-obj nt56 (F-obj f1 c)) ⋆⟨ E ⟩
+          (F-mor f6 ((NT-obj nt12 c) ⋆⟨ D ⟩ (NT-obj nt23 c))) ==
+          (NT-obj nt45 (F-obj f1 c) ⋆⟨ E ⟩ F-mor f5 (NT-obj nt12 c)) ⋆⟨ E ⟩
+          (NT-obj nt56 (F-obj f2 c) ⋆⟨ E ⟩ F-mor f6 (NT-obj nt23 c))
+        ans c =
+          ⋆-right (F-⋆ f6 _ _) >=>
+          sym ⋆-assoc >=>
+          ⋆-left (⋆-assoc >=> ⋆-right (NT-mor nt56 _) >=> sym ⋆-assoc) >=>
+          ⋆-assoc
+          where
+          open CategoryHelpers E
+
+
   module _ {ℓOC ℓMC ℓOD ℓMD ℓOE ℓME : Level}
            {C : PreCategory ℓOC ℓMC}
            {D : PreCategory ℓOD ℓMD}
@@ -45,52 +82,53 @@ private
       ; ⋆ = \(nt1 , nt2) (nt3 , nt4) -> ⋆NTʰ-⋆NT nt1 nt2 nt3 nt4
       }
 
-  module _ {ℓO ℓM : Level}
-           {A : PreCategory ℓO ℓM}
-           {B : PreCategory ℓO ℓM} where
-    open CategoryHelpers B
+-- TODO make this more level polymorphic
+module _ {ℓO ℓM : Level}
+         {A : PreCategory ℓO ℓM}
+         {B : PreCategory ℓO ℓM} where
+  open CategoryHelpers B
 
-    unitorˡ-NT : NaturalTransformation (appˡ ⊗Cat (idF A)) (idF (FunctorC A B))
-    unitorˡ-NT = record
-      { obj = \f -> record
-        { obj = \a -> id B
-        ; mor = \m -> ⋆-left-id >=> sym ⋆-right-id
-        }
-      ; mor = \{f1} {f2} m -> natural-transformation-path (\a ->
-         ⋆-left-id >=>
-         sym ⋆-right-id >=>
-         sym (⋆-right (F-id f2 a)) >=>
-         sym ⋆-right-id)
+  unitorˡ-NT : NaturalTransformation (appˡ ⊗Cat (idF A)) (idF (FunctorC A B))
+  unitorˡ-NT = record
+    { obj = \f -> record
+      { obj = \a -> id B
+      ; mor = \m -> ⋆-left-id >=> sym ⋆-right-id
       }
+    ; mor = \{f1} {f2} m -> natural-transformation-path (\a ->
+       ⋆-left-id >=>
+       sym ⋆-right-id >=>
+       sym (⋆-right (F-id f2 a)) >=>
+       sym ⋆-right-id)
+    }
 
-    unitorˡ-isNI : isNaturalIso _ _ unitorˡ-NT
-    unitorˡ-isNI f = record
-      { inv = record
-        { obj = \a -> id B
-        ; mor = \m -> ⋆-left-id >=> sym ⋆-right-id
-        }
-      ; sec = natural-transformation-path (\a -> ⋆-left-id)
-      ; ret = natural-transformation-path (\a -> ⋆-left-id)
+  unitorˡ-isNI : isNaturalIso _ _ unitorˡ-NT
+  unitorˡ-isNI f = record
+    { inv = record
+      { obj = \a -> id B
+      ; mor = \m -> ⋆-left-id >=> sym ⋆-right-id
       }
+    ; sec = natural-transformation-path (\a -> ⋆-left-id)
+    ; ret = natural-transformation-path (\a -> ⋆-left-id)
+    }
 
-    unitorʳ-NT : NaturalTransformation (appʳ ⊗Cat (idF B)) (idF (FunctorC A B))
-    unitorʳ-NT = record
-      { obj = \f -> record
-        { obj = \a -> id B
-        ; mor = \m -> ⋆-left-id >=> sym ⋆-right-id
-        }
-      ; mor = \f -> natural-transformation-path (\m -> sym ⋆-right-id)
+  unitorʳ-NT : NaturalTransformation (appʳ ⊗Cat (idF B)) (idF (FunctorC A B))
+  unitorʳ-NT = record
+    { obj = \f -> record
+      { obj = \a -> id B
+      ; mor = \m -> ⋆-left-id >=> sym ⋆-right-id
       }
+    ; mor = \f -> natural-transformation-path (\m -> sym ⋆-right-id)
+    }
 
-    unitorʳ-isNI : isNaturalIso _ _ unitorʳ-NT
-    unitorʳ-isNI f = record
-      { inv = record
-        { obj = \a -> id B
-        ; mor = \m -> ⋆-left-id >=> sym ⋆-right-id
-        }
-      ; sec = natural-transformation-path (\_ -> ⋆-right-id)
-      ; ret = natural-transformation-path (\_ -> ⋆-right-id)
+  unitorʳ-isNI : isNaturalIso _ _ unitorʳ-NT
+  unitorʳ-isNI f = record
+    { inv = record
+      { obj = \a -> id B
+      ; mor = \m -> ⋆-left-id >=> sym ⋆-right-id
       }
+    ; sec = natural-transformation-path (\_ -> ⋆-right-id)
+    ; ret = natural-transformation-path (\_ -> ⋆-right-id)
+    }
 
 module _ {ℓOC ℓMC ℓOD ℓMD ℓOE ℓME ℓOF ℓMF : Level}
          {C : PreCategory ℓOC ℓMC}
@@ -159,6 +197,11 @@ private
       ; ret = natural-transformation-path (\_ -> ⋆-right-id)
       }
 
+    associator-NT' : NaturalTransformation rF lF
+    associator-NT' = fst (flip-NI (associator-NT , associator-isNI))
+
+
+private
   module _ {ℓO ℓM : Level}
            {A : PreCategory ℓO ℓM}
            {B : PreCategory ℓO ℓM}
