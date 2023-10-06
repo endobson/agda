@@ -6,7 +6,6 @@ open import category.constructions.opposite
 open import category.constructions.product
 open import category.functor
 open import category.instances.set
-open import category.instances.small
 open import equality-path
 open import funext
 open import hlevel
@@ -53,7 +52,7 @@ module _ {ℓ : Level} (C : PreCategory ℓ ℓ) where
                          (sym (C.⋆-assoc _ _ _)))
 
   hom-functor-source : Obj C -> Functor C (SetC ℓ)
-  hom-functor-source o = functor-compose raise hom-functor
+  hom-functor-source o = raise ⋆F hom-functor
     where
     raise : Functor C C2
     raise = record
@@ -65,7 +64,7 @@ module _ {ℓ : Level} (C : PreCategory ℓ ℓ) where
 
 
   hom-functor-target : Obj C -> Functor (OpCat C) (SetC ℓ)
-  hom-functor-target o = functor-compose raise hom-functor
+  hom-functor-target o = raise ⋆F hom-functor
     where
     raise : Functor (OpCat C) C2
     raise = record

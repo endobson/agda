@@ -7,7 +7,6 @@ open import category.constructions.product
 open import category.functor
 open import category.hom-functor
 open import category.instances.set
-open import category.instances.small
 open import category.natural-transformation
 
 module category.adjoint where
@@ -16,10 +15,10 @@ module _ {ℓ : Level} {C : PreCategory ℓ ℓ} {D : PreCategory ℓ ℓ}
          (L : Functor C D) (R : Functor D C) where
   private
     H1 : Functor (ProductCat (OpCat C) D) (SetC ℓ)
-    H1 = functor-compose (product-functor (op-functor L) (id-functor D)) (hom-functor D)
+    H1 = (product-functor (op-functor L) (idF D)) ⋆F (hom-functor D)
 
     H2 : Functor (ProductCat (OpCat C) D) (SetC ℓ)
-    H2 = functor-compose (product-functor (id-functor (OpCat C)) R) (hom-functor C)
+    H2 = (product-functor (idF (OpCat C)) R) ⋆F (hom-functor C)
 
   record isAdjointPair : Type (ℓ-suc ℓ) where
     field
