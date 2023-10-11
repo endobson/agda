@@ -55,15 +55,15 @@ module _ {ℓOC ℓMC ℓOD ℓMD : Level}
            (mp : ∀ {c1 c2} (m : C [ c1 , c2 ]) ->
                    PathP (\i -> D [ op c1 i , op c2 i ]) (F.mor m) (G.mor m))
     where
+    private
+      opaque
+        id-p : ∀ c -> PathP (\i -> (mp (idᵉ C c) i) == (id D)) (F.id c) (G.id c)
+        id-p _ = isSet->SquareP (\i j -> isSet-Mor D)
 
-    opaque
-      id-p : ∀ c -> PathP (\i -> (mp (idᵉ C c) i) == (id D)) (F.id c) (G.id c)
-      id-p _ = isSet->SquareP (\i j -> isSet-Mor D)
-
-      ⋆-p : ∀ {c1 c2 c3} (m1 : C [ c1 , c2 ]) (m2 : C [ c2 , c3 ]) ->
-            PathP (\i -> (mp (m1 ⋆⟨ C ⟩ m2) i) == (mp m1 i) ⋆⟨ D ⟩ (mp m2 i))
-              (F.⋆ m1 m2) (G.⋆ m1 m2)
-      ⋆-p _ _ = isSet->SquareP (\i j -> isSet-Mor D)
+        ⋆-p : ∀ {c1 c2 c3} (m1 : C [ c1 , c2 ]) (m2 : C [ c2 , c3 ]) ->
+              PathP (\i -> (mp (m1 ⋆⟨ C ⟩ m2) i) == (mp m1 i) ⋆⟨ D ⟩ (mp m2 i))
+                (F.⋆ m1 m2) (G.⋆ m1 m2)
+        ⋆-p _ _ = isSet->SquareP (\i j -> isSet-Mor D)
 
     functor-path : F == G
     functor-path i .Functor.obj c = op c i
