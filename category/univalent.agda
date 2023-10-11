@@ -9,6 +9,7 @@ open import equality-path
 open import equality.identity-system
 open import equivalence
 open import funext
+open import hlevel
 open import isomorphism
 open import sigma.base
 
@@ -42,15 +43,36 @@ module _ {C : PreCategory ℓO ℓM} {x y : C .Obj} where
     i .Iso.leftInv _ = refl
     i .Iso.rightInv _ = refl
 
+module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} {x1 x2 y1 y2 : C .Obj} where
+  opaque
+    cat-iso-pathp : (px : x1 == x2) (py : y1 == y2)
+                    {i1 : CatIso C x1 y1} {i2 : CatIso C x2 y2}
+                    (pm : PathP (\i -> C [ px i , py i ]) (CatIso.mor i1) (CatIso.mor i2)) ->
+                    PathP (\i -> CatIso C (px i) (py i)) i1 i2
+    cat-iso-pathp px py {i1} {i2} mor-path =
+      transP-mid
+        (sym (eqSec ΣIso≃CatIso i1))
+        (\i -> (eqFun ΣIso≃CatIso) (mor-path i , inner-p i))
+        (eqSec ΣIso≃CatIso i2)
+      where
+      Σi1 : Σ (C [ x1 , y1 ]) (isIso C)
+      Σi1 = eqInv ΣIso≃CatIso i1
+      Σi2 : Σ (C [ x2 , y2 ]) (isIso C)
+      Σi2 = eqInv ΣIso≃CatIso i2
+      inner-p : PathP (\i -> (isIso C (mor-path i))) (snd Σi1) (snd Σi2)
+      inner-p = isProp->PathP (\_ -> isProp-isIso)
+
+module _ {C : PreCategory ℓO ℓM} {x y : C .Obj} where
   cat-iso-path : {i1 i2 : CatIso C x y} ->
     CatIso.mor i1 == CatIso.mor i2 -> i1 == i2
-  cat-iso-path {i1} {i2} mor-path =
-    sym (eqSec ΣIso≃CatIso i1) >=> cong (eqFun ΣIso≃CatIso) p1 >=> (eqSec ΣIso≃CatIso i2)
-    where
-    Σi1 = eqInv ΣIso≃CatIso i1
-    Σi2 = eqInv ΣIso≃CatIso i2
-    p1 : Σi1 == Σi2
-    p1 = ΣProp-path (isProp-isIso) mor-path
+  cat-iso-path mp = cat-iso-pathp refl refl mp
+
+  flip-CatIso : CatIso C x y -> CatIso C y x
+  flip-CatIso (cat-iso mor inv sec ret) .CatIso.mor = inv
+  flip-CatIso (cat-iso mor inv sec ret) .CatIso.inv = mor
+  flip-CatIso (cat-iso mor inv sec ret) .CatIso.sec = ret
+  flip-CatIso (cat-iso mor inv sec ret) .CatIso.ret = sec
+
 
 pathToCatIso : (C : PreCategory ℓO ℓM) (x y : C .Obj) -> x == y -> CatIso C x y
 pathToCatIso C x _ = J (\ y _ -> CatIso C x y) (idCatIso C x)
