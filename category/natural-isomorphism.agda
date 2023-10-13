@@ -68,3 +68,55 @@ module _
       isoToEquiv (isProp->iso isNaturalIso'->isNaturalIso isNaturalIso->isNaturalIso'
                    isProp-isIso
                    (isPropΠ (\_ -> isProp-isIso)))
+
+module _
+  {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
+  {C : PreCategory ℓObjC ℓMorC} {D : PreCategory ℓObjD ℓMorD}
+  (F : Functor C D) where
+
+  id-NI : NaturalIsomorphism F F
+  id-NI = id-NT F , \c -> record
+    { inv = id D
+    ; sec = ⋆-id²
+    ; ret = ⋆-id²
+    }
+    where
+    open CategoryHelpers D
+
+module _
+  {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
+  {C : PreCategory ℓObjC ℓMorC} {D : PreCategory ℓObjD ℓMorD}
+  {F G : Functor C D} where
+
+  flip-NI : NaturalIsomorphism F G -> NaturalIsomorphism G F
+  flip-NI (nt , isNI) = record
+    { obj = obj
+    ; mor = mor
+    } , \c -> record
+    { inv = NaturalTransformation.obj nt c
+    ; sec = isIso.ret (isNI c)
+    ; ret = isIso.sec (isNI c)
+    }
+    where
+    module nt = NaturalTransformation nt
+    module _ (c : Obj C) where
+      module isNI = isIso (isNI c)
+
+    obj : (c : Obj C) -> D [ F-obj G c , F-obj F c ]
+    obj = \c -> isIso.inv (isNI c)
+
+    opaque
+      mor : {c1 c2 : Obj C} -> (m : C [ c1 , c2 ]) ->
+            obj c1 ⋆⟨ D ⟩ F-mor F m == F-mor G m ⋆⟨ D ⟩ obj c2
+      mor {c1} {c2} m =
+        sym ⋆-right-id >=>
+        ⋆-right (sym (isNI.ret c2)) >=>
+        ⋆-assoc >=>
+        ⋆-right (sym ⋆-assoc) >=>
+        ⋆-right (⋆-left (sym (nt.mor m))) >=>
+        ⋆-right (⋆-assoc) >=>
+        sym ⋆-assoc >=>
+        ⋆-left (isNI.sec c1) >=>
+        ⋆-left-id
+        where
+        open CategoryHelpers D
