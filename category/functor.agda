@@ -10,7 +10,6 @@ open import hlevel
 record Functor {ℓObjC ℓObjD ℓMorC ℓMorD : Level}
                (C : PreCategory ℓObjC ℓMorC) (D : PreCategory ℓObjD ℓMorD) :
                Type (ℓ-max* 4 ℓObjC ℓObjD ℓMorC ℓMorD) where
-  no-eta-equality
   field
     obj : Obj C -> Obj D
     mor : {x y : Obj C} -> C [ x , y ] -> D [ obj x , obj y ]
