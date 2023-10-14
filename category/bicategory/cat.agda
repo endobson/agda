@@ -13,6 +13,7 @@ open import category.functor
 open import category.natural-isomorphism
 open import category.natural-transformation
 open import equality-path
+open import equivalence
 open import funext
 
 private
@@ -91,6 +92,41 @@ private
       ; ret = natural-transformation-path (\_ -> ⋆-right-id)
       }
 
+module _ {ℓOC ℓMC ℓOD ℓMD ℓOE ℓME ℓOF ℓMF : Level}
+         {C : PreCategory ℓOC ℓMC}
+         {D : PreCategory ℓOD ℓMD}
+         {E : PreCategory ℓOE ℓME}
+         {F : PreCategory ℓOF ℓMF}
+         where
+  open CategoryHelpers F
+
+  ⋆F-assoc-NT : (f1 : Functor C D) (f2 : Functor D E) (f3 : Functor E F) ->
+                NaturalTransformation ((f1 ⋆F f2) ⋆F f3) (f1 ⋆F (f2 ⋆F f3))
+  ⋆F-assoc-NT f1 f2 f3 = record
+    { obj = \a -> id F
+    ; mor = \m -> ⋆-left-id >=> sym ⋆-right-id
+    }
+
+  ⋆F-assoc-NT' : (f1 : Functor C D) (f2 : Functor D E) (f3 : Functor E F) ->
+                 NaturalTransformation (f1 ⋆F (f2 ⋆F f3)) ((f1 ⋆F f2) ⋆F f3)
+  ⋆F-assoc-NT' f1 f2 f3 = record
+    { obj = \a -> id F
+    ; mor = \m -> ⋆-left-id >=> sym ⋆-right-id
+    }
+
+  ⋆F-assoc-NI : (f1 : Functor C D) (f2 : Functor D E) (f3 : Functor E F) ->
+                NaturalIsomorphism ((f1 ⋆F f2) ⋆F f3) (f1 ⋆F (f2 ⋆F f3))
+  ⋆F-assoc-NI f1 f2 f3 =
+    ⋆F-assoc-NT f1 f2 f3 , eqFun (isNaturalIso'≃isNaturalIso _ _) inner
+    where
+    inner : isNaturalIso' _ _ (⋆F-assoc-NT f1 f2 f3)
+    inner = record
+      { inv = ⋆F-assoc-NT' f1 f2 f3
+      ; sec = natural-transformation-path (\_ -> ⋆-id²)
+      ; ret = natural-transformation-path (\_ -> ⋆-id²)
+      }
+
+private
   module _ {ℓO ℓM : Level}
            {A : PreCategory ℓO ℓM}
            {B : PreCategory ℓO ℓM}
@@ -108,10 +144,7 @@ private
             (⊗Cat {C = A} {D = B} {E = D})
     associator-NT : NaturalTransformation lF rF
     associator-NT = record
-      { obj = \tf -> record
-        { obj = \a -> id D
-        ; mor = \m -> ⋆-left-id >=> sym ⋆-right-id
-        }
+      { obj = \{ (triple f1 f2 f3) -> ⋆F-assoc-NT f1 f2 f3 }
       ; mor = \{tf1} {tf2} m -> natural-transformation-path (\a ->
           ⋆-left-id >=>
           ⋆-assoc >=>
@@ -120,11 +153,8 @@ private
       }
 
     associator-isNI : isNaturalIso _ _ associator-NT
-    associator-isNI f = record
-      { inv = record
-        { obj = \a -> id D
-        ; mor = \m -> ⋆-left-id >=> sym ⋆-right-id
-        }
+    associator-isNI (triple f1 f2 f3) = record
+      { inv = ⋆F-assoc-NT' f1 f2 f3
       ; sec = natural-transformation-path (\_ -> ⋆-right-id)
       ; ret = natural-transformation-path (\_ -> ⋆-right-id)
       }

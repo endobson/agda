@@ -31,37 +31,38 @@ module _
   isNaturalIso' nt = isIso (FunctorC C D) nt
 
   module _ {nt : NaturalTransformation F G} where
-    isNaturalIso'->isNaturalIso : isNaturalIso' nt -> isNaturalIso nt
-    isNaturalIso'->isNaturalIso (record { inv = inv ; sec = sec ; ret = ret }) c = record
-      { inv = NT-obj inv c
-      ; sec = \i -> NT-obj (sec i) c
-      ; ret = \i -> NT-obj (ret i) c
-      }
+    private
+      isNaturalIso'->isNaturalIso : isNaturalIso' nt -> isNaturalIso nt
+      isNaturalIso'->isNaturalIso (record { inv = inv ; sec = sec ; ret = ret }) c = record
+        { inv = NT-obj inv c
+        ; sec = \i -> NT-obj (sec i) c
+        ; ret = \i -> NT-obj (ret i) c
+        }
 
-    isNaturalIso->isNaturalIso' : isNaturalIso nt -> isNaturalIso' nt
-    isNaturalIso->isNaturalIso' isos = record
-      { inv = inv
-      ; sec = natural-transformation-path (\c -> isIso.sec (isos c))
-      ; ret = natural-transformation-path (\c -> isIso.ret (isos c))
-      }
-      where
-      inv : NaturalTransformation G F
-      inv = record
-        { obj = \c -> isIso.inv (isos c)
-        ; mor = mor
+      isNaturalIso->isNaturalIso' : isNaturalIso nt -> isNaturalIso' nt
+      isNaturalIso->isNaturalIso' isos = record
+        { inv = inv
+        ; sec = natural-transformation-path (\c -> isIso.sec (isos c))
+        ; ret = natural-transformation-path (\c -> isIso.ret (isos c))
         }
         where
-        open CategoryHelpers D
-        mor : {c1 c2 : Obj C} -> (m : C [ c1 , c2 ]) ->
-              isIso.inv (isos c1) ⋆ F-mor F m == F-mor G m ⋆ isIso.inv (isos c2)
-        mor {c1} {c2} m =
-          sym ⋆-right-id >=>
-          ⋆-right (sym (isIso.ret (isos c2))) >=>
-          ⋆-assoc >=>
-          ⋆-right (sym ⋆-assoc >=> ⋆-left (sym (NT-mor nt m)) >=> ⋆-assoc) >=>
-          sym ⋆-assoc >=>
-          ⋆-left (isIso.sec (isos c1)) >=>
-          ⋆-left-id
+        inv : NaturalTransformation G F
+        inv = record
+          { obj = \c -> isIso.inv (isos c)
+          ; mor = mor
+          }
+          where
+          open CategoryHelpers D
+          mor : {c1 c2 : Obj C} -> (m : C [ c1 , c2 ]) ->
+                isIso.inv (isos c1) ⋆ F-mor F m == F-mor G m ⋆ isIso.inv (isos c2)
+          mor {c1} {c2} m =
+            sym ⋆-right-id >=>
+            ⋆-right (sym (isIso.ret (isos c2))) >=>
+            ⋆-assoc >=>
+            ⋆-right (sym ⋆-assoc >=> ⋆-left (sym (NT-mor nt m)) >=> ⋆-assoc) >=>
+            sym ⋆-assoc >=>
+            ⋆-left (isIso.sec (isos c1)) >=>
+            ⋆-left-id
 
     isNaturalIso'≃isNaturalIso : isNaturalIso' nt ≃ isNaturalIso nt
     isNaturalIso'≃isNaturalIso =
