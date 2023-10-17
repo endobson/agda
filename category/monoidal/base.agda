@@ -6,11 +6,13 @@ open import base
 open import category.base
 open import category.constructions.product
 open import category.constructions.triple-product
+open import category.constructions.isomorphism
 open import category.functor
 open import category.isomorphism
 open import category.natural-isomorphism
 open import category.natural-transformation
 open import equality
+open import category.zipper
 open import fin-algebra
 
 module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (⊗ : BiFunctor C C C) where
@@ -181,3 +183,89 @@ module MonoidalStrHelpers {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
       sym ⋆-assoc >=>
       ⋆-left (isIso.sec ((snd unitorʳ) _)) >=>
       ⋆-left-id
+
+    open ZReasoning C
+
+    α⇒λ⇒-reduce : {x y : Obj C} ->
+      Path (C [ (unit ⊗₀ x) ⊗₀ y , (x ⊗₀ y) ])
+      (α⇒ ⋆ λ⇒) (λ⇒ ⊗₁ id C)
+    α⇒λ⇒-reduce {x} {y} = retract-unit⊗ (isIso->isEpi isIso-αα full-path)
+      where
+      isIso-αα : isIso C ((α⇒ ⊗₁ id C) ⋆ α⇒)
+      isIso-αα =
+        snd (((α⇒ ⊗₁ id C) , (functor-preserves-isIso (appʳ ⊗ y) (iso-α⇒ {unit} {unit} {x})))
+             ⋆⟨ D ⟩
+             (α⇒ , iso-α⇒))
+        where
+        D : PreCategory ℓO ℓM
+        D = IsoC C
+        iso-α⇒ : {a b c : Obj C} -> isIso C (α⇒ {a} {b} {c})
+        iso-α⇒ {a} {b} {c} = (snd associator) _
+
+      full-path : Path (C [ ((unit ⊗₀ unit) ⊗₀ x) ⊗₀ y , unit ⊗₀ (x ⊗₀ y) ])
+                  ((α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ (α⇒ ⋆ λ⇒)))
+                  ((α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ (λ⇒ ⊗₁ id C)))
+      full-path = begin
+       [ [] , (α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ (α⇒ ⋆ λ⇒)) , [] ]=<
+         left⇐ >
+       [ [] <: ((α⇒ ⊗₁ id C) ⋆ α⇒) , (id C ⊗₁ (α⇒ ⋆ λ⇒)) , [] ]=<
+         z-cong split₂ˡ >z> shift⇒ >
+       [ [] , (α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ α⇒) , (id C ⊗₁ λ⇒) :> [] ]=<
+         z-cong (sym pentagon) >
+       [ [] , α⇒ ⋆ α⇒ , (id C ⊗₁ λ⇒) :> [] ]=<
+         shift⇐ >z> z-cong triangle >
+       [ [] <: α⇒ , ρ⇒ ⊗₁ id C , [] ]=<
+         z-cong (⊗₁-right (sym (F-id ⊗ _))) >
+       [ [] <: α⇒ , (ρ⇒ ⊗₁ (id C ⊗₁ id C)) , [] ]=<
+         left⇒ >z> z-cong α⇒-swap >z> right⇒ >
+       [ [] , (ρ⇒ ⊗₁ id C) ⊗₁ id C , α⇒ :> [] ]=<
+         z-cong (⊗₁-left (sym triangle)) >
+       [ [] , (α⇒ ⋆ (id C ⊗₁ λ⇒)) ⊗₁ id C , α⇒ :> [] ]=<
+         z-cong split₁ˡ >z> shift⇐ >
+       [ [] <: (α⇒ ⊗₁ id C) , ((id C ⊗₁ λ⇒) ⊗₁ id C) ⋆ α⇒ , [] ]=<
+         z-cong (sym α⇒-swap) >
+       [ [] <: (α⇒ ⊗₁ id C) , α⇒ ⋆ (id C ⊗₁ (λ⇒ ⊗₁ id C)) , [] ]=<
+         shift⇒ >z> right⇐ >
+       [ [] , (α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ (λ⇒ ⊗₁ id C)) , [] ]end
+
+    λ⇒=ρ⇒ : Path (C [ unit ⊗₀ unit , unit ]) λ⇒ ρ⇒
+    λ⇒=ρ⇒ = retract-⊗unit λ⇒=ρ⇒'
+      where
+      λ⇒-reduce1 : {a : Obj C} -> Path (C [ unit ⊗₀ (unit ⊗₀ a) , unit ⊗₀ a ]) λ⇒ (id C ⊗₁ λ⇒)
+      λ⇒-reduce1 =
+        sym ⋆-right-id >=>
+        ⋆-right (sym (isIso.ret (snd unitorˡ _))) >=>
+        sym ⋆-assoc >=>
+        ⋆-left λ⇒-swap >=>
+        ⋆-assoc >=>
+        ⋆-right (isIso.ret (snd unitorˡ _)) >=>
+        ⋆-right-id
+
+      λ⇒=ρ⇒' : Path (C [ (unit ⊗₀ unit) ⊗₀ unit , unit ⊗₀ unit ]) (λ⇒ ⊗₁ id C) (ρ⇒ ⊗₁ id C)
+      λ⇒=ρ⇒' = sym α⇒λ⇒-reduce >=> ⋆-right λ⇒-reduce1 >=> triangle
+
+    α⇒ρ⇒-reduce : {x y : Obj C} ->
+      Path (C [ (x ⊗₀ y) ⊗₀ unit , (x ⊗₀ y) ])
+      (α⇒ ⋆ (id C ⊗₁ ρ⇒)) ρ⇒
+    α⇒ρ⇒-reduce {x} {y} = retract-⊗unit (isIso->isMono iso-α⇒ full-path)
+      where
+      iso-α⇒ : {a b c : Obj C} -> isIso C (α⇒ {a} {b} {c})
+      iso-α⇒ {a} {b} {c} = (snd associator) _
+
+      full-path : Path (C [ ((x ⊗₀ y) ⊗₀ unit) ⊗₀ unit , x ⊗₀ (y ⊗₀ unit) ])
+                  (((α⇒ ⋆ (id C ⊗₁ ρ⇒)) ⊗₁ id C) ⋆ α⇒)
+                  ((ρ⇒ ⊗₁ id C) ⋆ α⇒)
+      full-path = begin
+       [ [] , ((α⇒ ⋆ (id C ⊗₁ ρ⇒)) ⊗₁ id C) ⋆ α⇒ , [] ]=<
+         right⇒ >z> z-cong split₁ˡ >z> shift⇐ >
+       [ [] <: (α⇒ ⊗₁ id C) , ((id C ⊗₁ ρ⇒) ⊗₁ id C) ⋆ α⇒ , [] ]=<
+         z-cong (sym α⇒-swap) >z> left⇐ >
+       [ [] <: (α⇒ ⊗₁ id C) <: α⇒ , (id C ⊗₁ (ρ⇒ ⊗₁ id C)) , [] ]=<
+         z-cong (⊗₁-right (sym triangle) >=> split₂ˡ) >
+       [ [] <: (α⇒ ⊗₁ id C) <: α⇒ , (id C ⊗₁ α⇒) ⋆ (id C ⊗₁ (id C ⊗₁ λ⇒)) , [] ]=<
+         shift⇒ >z> shift⇒ >z> right⇐ >z> z-cong (sym pentagon) >
+       [ [] , α⇒ ⋆ α⇒ , (id C ⊗₁ (id C ⊗₁ λ⇒)) :> [] ]=<
+         shift⇐ >z> z-cong α⇒-swap >z> right⇒ >
+       [ [] <: α⇒ , (id C ⊗₁ id C) ⊗₁ λ⇒ , α⇒ :> [] ]=<
+         z-cong (⊗₁-left (F-id ⊗ _)) >z> left⇒ >z> z-cong triangle >z> right⇐ >
+       [ [] , (ρ⇒ ⊗₁ id C) ⋆ α⇒ , [] ]end
