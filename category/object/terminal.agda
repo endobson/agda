@@ -3,6 +3,7 @@
 module category.object.terminal where
 
 open import base
+open import equality.identity-system
 open import category.base
 open import category.univalent
 open import equivalence.base
@@ -66,6 +67,5 @@ module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} where
     isProp->PathPᵉ (\i -> isProp-isContr {A = C [ c , op i ]})
     (Terminal.universal t1 c) (Terminal.universal t2 c) i
 
-  isProp-Terminal : isUnivalent C -> isProp (Terminal C)
-  isProp-Terminal univ t1 t2 =
-    terminal-path (isEqInv (isUnivalent.isEquiv-pathToCatIso univ _ _) (terminals->iso t1 t2))
+  isProp-Terminal : isUnivalent' C -> isProp (Terminal C)
+  isProp-Terminal univ t1 t2 = terminal-path (univ .isIdentitySystem.to-path (terminals->iso t1 t2))

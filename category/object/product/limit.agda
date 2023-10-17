@@ -110,4 +110,5 @@ module _ {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
   abstract
     isProp-Product : isUnivalent C -> {x y : Obj C} -> isProp (Product C x y)
     isProp-Product univ =
-      iso-isProp (limit<->product _ _) (isProp-Terminal (isUnivalent-ConeC _ univ))
+      iso-isProp (limit<->product _ _)
+        (isProp-Terminal (isUnivalent->isUnivalent' (isUnivalent-ConeC _ univ)))
