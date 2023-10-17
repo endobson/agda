@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module category.monoidal.cartesian where
+module category.monoidal.constructions.cartesian where
 
 open import base
 open import category.base
