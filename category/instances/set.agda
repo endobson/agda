@@ -4,7 +4,10 @@ module category.instances.set where
 
 open import base
 open import category.base
+open import category.object.product
+open import category.object.terminal
 open import category.univalent
+open import cubical
 open import cubical using (I)
 open import equality-path
 open import equality.identity-system
@@ -12,6 +15,7 @@ open import funext
 open import hlevel
 open import isomorphism
 open import sigma.base
+open import truncation
 open import univalence
 
 private
@@ -58,3 +62,37 @@ module _ {ℓ : Level} where
   isUnivalent'-SetC .to-path c = isIdentitySystem-Iso .to-path (CatIso->Iso c)
   isUnivalent'-SetC .to-path-over {a} {b} c i =
     Iso->CatIso (isIdentitySystem-Iso .to-path-over {a} {b} (CatIso->Iso c) i)
+
+hasProducts-SetC : {ℓ : Level} -> hasProducts (SetC ℓ)
+hasProducts-SetC {ℓ} sA@(A , hA) sB@(B , hB) = record
+  { obj = obj
+  ; π₁ = π₁
+  ; π₂ = π₂
+  ; universal = universal
+  }
+  where
+  C = SetC ℓ
+  obj = (A × B) , isSet× hA hB
+  π₁ = set-function proj₁
+  π₂ = set-function proj₂
+  universal : ∀ {sX} (f : SetFunction sX sA) (g : SetFunction sX sB) ->
+              ∃![ h ∈ (SetFunction sX obj) ] (h ⋆⟨ C ⟩ π₁ == f × h ⋆⟨ C ⟩ π₂ == g)
+  universal (set-function f) (set-function g) =
+    (set-function (\x -> f x , g x) , (refl , refl)) ,
+    (\(h2 , p1 , p2) i ->
+      (set-function (\x -> SetFunction.f (p1 (~ i)) x , SetFunction.f (p2 (~ i)) x)) ,
+      (\j -> set-function (\x -> SetFunction.f (p1 ((~ i) ∨ j)) x)) ,
+      (\j -> set-function (\x -> SetFunction.f (p2 ((~ i) ∨ j)) x)))
+
+Terminal-SetC : {ℓ : Level} -> Terminal (SetC ℓ)
+Terminal-SetC {ℓ} = record
+  { obj = T
+  ; universal = universal
+  }
+  where
+  C = SetC ℓ
+  T : Obj C
+  T = Lift ℓ Top , isSet-Lift (isProp->isSet isPropTop)
+  universal : (S : Obj C) -> isContr (C [ S , T ])
+  universal (S , isSet-S)  =
+    set-function (\_ -> lift tt) , (\f i -> (set-function (\x -> lift tt)))

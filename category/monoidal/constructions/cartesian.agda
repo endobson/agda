@@ -19,7 +19,7 @@ open import fin-algebra
 open import truncation
 
 module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
-  (prod : ∀ x y -> Product C x y)
+  (prod : hasProducts C)
   (term : Terminal C) where
   private
     C2 = ProductCat C C

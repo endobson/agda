@@ -49,6 +49,9 @@ module _ {ℓO ℓM} (C : PreCategory ℓO ℓM) where
                   ×⟨ f , g ⟩ ⋆⟨ C ⟩ π₂ == g
       π₂-reduce = proj₂ (∃!-prop (universal _ _))
 
+  hasProducts : Type (ℓ-max ℓO ℓM)
+  hasProducts = ∀ a b -> Product a b
+
 module ProductHelpers {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} {a b : Obj C}
                       (P : Product C a b) where
   open Product P
