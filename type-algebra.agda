@@ -250,6 +250,7 @@ instance
            (f-Left : (f (inj-l tt)) == (inj-r b-base))
            {a-base : A}
            (g-Left : (g (inj-l tt)) == (inj-r a-base)) where
+    open EqReasoning
 
     f'-base : (Top ⊎ B) -> B
     f'-base (inj-l _) = b-base

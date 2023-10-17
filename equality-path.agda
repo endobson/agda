@@ -314,23 +314,23 @@ module _ {ℓ : Level} {A : Type ℓ}
   slideSquare sq i j = hcomp (slideSquareFaces i j) (sq i j)
 
 
--- Equational reasoning
+module EqReasoning where
+  -- Equational reasoning
+  infix  1 begin_
+  infixr 2 _==<>_ _==<_>_
+  infix  3 _end
 
-infix  1 begin_
-infixr 2 _==<>_ _==<_>_
-infix  3 _end
+  begin_ : {x y : A} -> x == y -> x == y
+  begin x==y  =  x==y
 
-begin_ : {x y : A} -> x == y -> x == y
-begin x==y  =  x==y
+  _==<>_ : (x : A) {y : A} -> x == y -> x == y
+  x ==<> x==y  =  x==y
 
-_==<>_ : (x : A) {y : A} -> x == y -> x == y
-x ==<> x==y  =  x==y
+  _==<_>_ : (x : A) {y z : A} -> x == y -> y == z -> x == z
+  x ==< x==y > y==z  =  trans x==y y==z
 
-_==<_>_ : (x : A) {y z : A} -> x == y -> y == z -> x == z
-x ==< x==y > y==z  =  trans x==y y==z
-
-_end : (x : A) -> x == x
-x end  =  refl
+  _end : (x : A) -> x == x
+  x end  =  refl
 
 _!=_ : A -> A -> Type _
 x != y = ¬ (x == y)

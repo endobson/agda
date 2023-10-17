@@ -28,6 +28,8 @@ open import list.append public
 open import list.base public
 open import list.permutation public
 
+open EqReasoning
+
 private
   variable
     ℓ : Level

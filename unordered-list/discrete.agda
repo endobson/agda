@@ -412,6 +412,7 @@ private
       handle (yes p) = bot-elim (¬c-a-as (as , (cong (_:: as) p)))
       handle (no ¬p) = check-f (remove1 a as' , path')
         where
+        open EqReasoning
         path' : x :: (remove1 a as') == as ++ as2
         path' =
           begin

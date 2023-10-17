@@ -100,6 +100,7 @@ private
             end
             where
             open C
+            open EqReasoning
 
       module _ {R1 R2 : Functor D C} (a1 : Adjunction L R1) (a2 : Adjunction L R2) where
         private
@@ -169,6 +170,7 @@ private
           end
           where
           open C
+          open EqReasoning
 
 
 private
@@ -383,6 +385,7 @@ module _ {ℓOC ℓMC ℓOD ℓMD : Level} {C : PreCategory ℓOC ℓMC} {D : Pr
               end
               where
               open CategoryHelpers C
+              open EqReasoning
 
             path : NT-obj c1.nt d == NT-obj c2.nt d
             path =
