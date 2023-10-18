@@ -7,23 +7,12 @@ open import category.base
 open import category.monoidal.base
 open import category.monoidal.cartesian
 open import category.natural-transformation
+open import category.object.monoid
 open import category.object.product
 open import category.object.terminal
 open import cubical
 open import equality
 open import hlevel
-
-module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} (M : MonoidalStr C) where
-  open MonoidalStrHelpers M
-  open CategoryHelpers C
-
-  module _ (g : Obj C) (op : C [ g ⊗₀ g , g ]) where
-    isAssociative : Type ℓM
-    isAssociative = α⇒ ⋆ (id C ⊗₁ op) ⋆ op == (op ⊗₁ id C) ⋆ op
-
-  isProp-isAssociative : ∀ {g op} -> isProp (isAssociative g op)
-  isProp-isAssociative = isSet-Mor C _ _
-
 
 module _ {ℓO ℓM} {C : PreCategory ℓO ℓM}
          {M : MonoidalStr C} (Cart : isCartesian M) where

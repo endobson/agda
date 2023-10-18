@@ -8,6 +8,7 @@ open import category.constructions.product
 open import category.constructions.triple-product
 open import category.constructions.isomorphism
 open import category.functor
+open import category.morphism
 open import category.isomorphism
 open import category.natural-isomorphism
 open import category.natural-transformation
@@ -118,6 +119,25 @@ module MonoidalStrHelpers {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
     ρ⇒-swap : {a b : Obj C} {f : C [ a , b ]} ->
               Path (C [ a ⊗₀ unit , b ]) (ρ⇒ ⋆ f) ((f ⊗₁ id C) ⋆ ρ⇒)
     ρ⇒-swap = NT-mor (fst unitorʳ) _
+
+    -- The unitors are isomorphisms
+    λ⇒λ⇐-reduce : {a : Obj C} -> Path (C [ unit ⊗₀ a , unit ⊗₀ a ]) (λ⇒ ⋆ λ⇐) (id C)
+    λ⇒λ⇐-reduce = isIso.ret (snd unitorˡ _)
+    λ⇐λ⇒-reduce : {a : Obj C} -> Path (C [ a , a ]) (λ⇐ ⋆ λ⇒) (id C)
+    λ⇐λ⇒-reduce = isIso.sec (snd unitorˡ _)
+    ρ⇒ρ⇐-reduce : {a : Obj C} -> Path (C [ a ⊗₀ unit , a ⊗₀ unit ]) (ρ⇒ ⋆ ρ⇐) (id C)
+    ρ⇒ρ⇐-reduce = isIso.ret (snd unitorʳ _)
+    ρ⇐ρ⇒-reduce : {a : Obj C} -> Path (C [ a , a ]) (ρ⇐ ⋆ ρ⇒) (id C)
+    ρ⇐ρ⇒-reduce = isIso.sec (snd unitorʳ _)
+
+    isEpi-λ⇒ : {a : Obj C} -> isEpi C (λ⇒ {a})
+    isEpi-λ⇒ = isIso->isEpi (snd unitorˡ _)
+    isMono-λ⇒ : {a : Obj C} -> isMono C (λ⇒ {a})
+    isMono-λ⇒ = isIso->isMono (snd unitorˡ _)
+    isEpi-ρ⇒ : {a : Obj C} -> isEpi C (ρ⇒ {a})
+    isEpi-ρ⇒ = isIso->isEpi (snd unitorʳ _)
+    isMono-ρ⇒ : {a : Obj C} -> isMono C (ρ⇒ {a})
+    isMono-ρ⇒ = isIso->isMono (snd unitorʳ _)
 
     ⊗₁-left : {a₁ a₂ b₁ b₂ : Obj C} -> {f g : C [ a₁ , b₁ ]} {h : C [ a₂ , b₂ ]} ->
               f == g -> Path (C [ a₁ ⊗₀ a₂ , b₁ ⊗₀ b₂ ]) (f ⊗₁ h) (g ⊗₁ h)
