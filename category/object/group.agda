@@ -20,113 +20,39 @@ module _ {ℓO ℓM} {C : PreCategory ℓO ℓM}
   open CategoryHelpers C
   open CartesianHelpers Cart
 
-  record isUnital (g : Obj C) (op : C [ g ⊗₀ g , g ]) : Type ℓM where
-    field
-      ε : C [ unit , g ]
+  module isUnital-CartesianHelpers
+    {g : Obj C} {op : C [ g ⊗₀ g , g ]} (isUnital-op : isUnital M g op) where
+    open isUnital isUnital-op
 
     ε' : {x : Obj C} -> C [ x , g ]
     ε' = ! ⋆ ε
 
-    field
-      ε-left-id' : (Δ ⋆ (ε' ⊗₁ id C)) ⋆ op == id C
-      ε-right-id' : (Δ ⋆ (id C ⊗₁ ε')) ⋆ op == id C
-
     opaque
-      ε-left-id : ∀ {x : Obj C} {f : C [ x , g ]} -> (Δ ⋆ (ε' ⊗₁ f)) ⋆ op == f
-      ε-left-id {f = f} =
-        ⋆-left (⋆-right (⊗₁-left (⋆-left (!-uniqueᵉ ! (f ⋆ !)) >=> ⋆-assoc) >=>
-                         split₁ˡ) >=>
-                sym ⋆-assoc >=>
-                ⋆-left Δ-swap >=>
-                ⋆-assoc) >=>
-        ⋆-assoc >=>
-        ⋆-right ε-left-id' >=>
-        ⋆-right-id
+      ε'-left-reduce' : ∀ {x : Obj C} -> Path (C [ x ⊗₀ g , g ]) ((ε' ⊗₁ id C) ⋆ op) π₂
+      ε'-left-reduce' = ⋆-left split₁ˡ >=> ⋆-assoc >=> ⋆-right ε-left-reduce'
 
-      ε-right-id : ∀ {x : Obj C} {f : C [ x , g ]} -> (Δ ⋆ (f ⊗₁ ε')) ⋆ op == f
-      ε-right-id {f = f} =
-        ⋆-left (⋆-right (⊗₁-right (⋆-left (!-uniqueᵉ ! (f ⋆ !)) >=> ⋆-assoc) >=>
-                         split₂ˡ) >=>
-                sym ⋆-assoc >=>
-                ⋆-left Δ-swap >=>
-                ⋆-assoc) >=>
-        ⋆-assoc >=>
-        ⋆-right ε-right-id' >=>
-        ⋆-right-id
+      ε'-right-reduce' : ∀ {x : Obj C} -> Path (C [ g ⊗₀ x , g ]) ((id C ⊗₁ ε') ⋆ op) π₁
+      ε'-right-reduce' = ⋆-left split₂ˡ >=> ⋆-assoc >=> ⋆-right ε-right-reduce'
 
-      ε-left-reduce' : ∀ {x : Obj C} -> Path (C [ x ⊗₀ g , g ]) ((ε' ⊗₁ id C) ⋆ op) π₂
-      ε-left-reduce' =
-        ⋆-left split₁ˡ >=>
-        ⋆-assoc >=>
-        ⋆-right (sym ⋆-left-id >=>
-                 ⋆-left (sym π₂Δ!-id) >=>
-                 ⋆-assoc >=>
-                 ⋆-right (sym ⋆-assoc >=> ⋆-left (sym split₁ˡ)) >=>
-                 ⋆-assoc >=>
-                 ⋆-right (sym ⋆-assoc >=> ε-left-id') >=>
-                 ⋆-right-id) >=>
-        ⊗π₂-reduce >=>
-        ⋆-right-id
-
-      ε-left-reduce : ∀ {x y : Obj C} {f : C [ y , g ]} ->
+      ε'-left-reduce : ∀ {x y : Obj C} {f : C [ y , g ]} ->
         Path (C [ x ⊗₀ y , g ]) ((ε' ⊗₁ f) ⋆ op) (π₂ ⋆ f)
-      ε-left-reduce {f = f} =
+      ε'-left-reduce {f = f} =
         ⋆-left (⊗₁-right (sym ⋆-right-id) >=> split₂ʳ) >=>
         ⋆-assoc >=>
-        ⋆-right ε-left-reduce' >=>
+        ⋆-right ε'-left-reduce' >=>
         sym π₂-swap
 
-      ε-right-reduce' : ∀ {x : Obj C} -> Path (C [ g ⊗₀ x , g ]) ((id C ⊗₁ ε') ⋆ op) π₁
-      ε-right-reduce' =
-        ⋆-left split₂ˡ >=>
-        ⋆-assoc >=>
-        ⋆-right (sym ⋆-left-id >=>
-                 ⋆-left (sym π₁Δ!-id) >=>
-                 ⋆-assoc >=>
-                 ⋆-right (sym ⋆-assoc >=> ⋆-left (sym split₂ˡ)) >=>
-                 ⋆-assoc >=>
-                 ⋆-right (sym ⋆-assoc >=> ε-right-id') >=>
-                 ⋆-right-id) >=>
-        ⊗π₁-reduce >=>
-        ⋆-right-id
-
-      ε-right-reduce : ∀ {x y : Obj C} {f : C [ x , g ]} ->
+      ε'-right-reduce : ∀ {x y : Obj C} {f : C [ x , g ]} ->
         Path (C [ x ⊗₀ y , g ]) ((f ⊗₁ ε') ⋆ op) (π₁ ⋆ f)
-      ε-right-reduce {f = f} =
+      ε'-right-reduce {f = f} =
         ⋆-left (⊗₁-left (sym ⋆-right-id) >=> split₁ʳ) >=>
         ⋆-assoc >=>
-        ⋆-right ε-right-reduce' >=>
+        ⋆-right ε'-right-reduce' >=>
         sym π₁-swap
 
-  opaque
-    isProp-isUnital : ∀ {g op} -> isProp (isUnital g op)
-    isProp-isUnital {g} {op}
-      u₁@(record { ε = ε₁ ; ε-left-id' = ε₁-left-id' ; ε-right-id' = ε₁-right-id' })
-      u₂@(record { ε = ε₂ ; ε-left-id' = ε₂-left-id' ; ε-right-id' = ε₂-right-id' }) =
-      \i -> record
-        { ε = ε-path i
-        ; ε-left-id' = isProp->PathPᵉ (\i -> isSet-Mor C (l-path i) _) ε₁-left-id' ε₂-left-id' i
-        ; ε-right-id' = isProp->PathPᵉ (\i -> isSet-Mor C (r-path i) _) ε₁-right-id' ε₂-right-id' i
-        }
-      where
-      ε₁'-path : isUnital.ε' u₁ == ε₁
-      ε₁'-path = ⋆-left !-unique >=> ⋆-left-id
-      ε₂'-path : isUnital.ε' u₂ == ε₂
-      ε₂'-path = ⋆-left !-unique >=> ⋆-left-id
 
-      ε-path : ε₁ == ε₂
-      ε-path =
-        sym (isUnital.ε-right-id u₂) >=>
-        (\ i -> Δ ⋆ (ε₁'-path (~ i) ⊗₁ ε₂'-path i) ⋆ op) >=>
-        isUnital.ε-left-id u₁
-
-      l-path : (ε₁-left-id' i0) == (ε₂-left-id' i0)
-      l-path i = Δ ⋆ ((! ⋆ ε-path i) ⊗₁ (id C))  ⋆ op
-      r-path : (ε₁-right-id' i0) == (ε₂-right-id' i0)
-      r-path i = Δ ⋆ ((id C) ⊗₁ (! ⋆ ε-path i )) ⋆ op
-
-  module _ {g : Obj C} {op : C [ g ⊗₀ g , g ]} (isUnital-op : isUnital g op) where
-    open isUnital isUnital-op
+  module _ {g : Obj C} {op : C [ g ⊗₀ g , g ]} (isUnital-op : isUnital M g op) where
+    open isUnital-CartesianHelpers isUnital-op
 
     record hasInverse : Type ℓM where
       field
@@ -147,6 +73,23 @@ module _ {ℓO ℓM} {C : PreCategory ℓO ℓM}
           ; inv-right = isProp->PathPᵉ (\i -> isSet-Mor C (r-path i) ε') inv₁-right inv₂-right i
           }
         where
+
+        ε-left-id : ∀ {x : Obj C} {f : C [ x , g ]} -> (Δ ⋆ (ε' ⊗₁ f)) ⋆ op == f
+        ε-left-id {f = f} =
+          ⋆-assoc >=>
+          ⋆-right ε'-left-reduce >=>
+          sym ⋆-assoc >=>
+          ⋆-left Δπ₂-reduce >=>
+          ⋆-left-id
+
+        ε-right-id : ∀ {x : Obj C} {f : C [ x , g ]} -> (Δ ⋆ (f ⊗₁ ε')) ⋆ op == f
+        ε-right-id {f = f} =
+          ⋆-assoc >=>
+          ⋆-right ε'-right-reduce >=>
+          sym ⋆-assoc >=>
+          ⋆-left Δπ₁-reduce >=>
+          ⋆-left-id
+
 
         lemma1 : Δ ⋆ ( inv₁ ⊗₁ (Δ ⋆ (id C ⊗₁ inv₂) ⋆ op)) ⋆ op == inv₁
         lemma1 = (\i -> (Δ ⋆ (inv₁ ⊗₁ inv₂-right i) ⋆ op)) >=> ε-right-id
@@ -186,10 +129,10 @@ module _ {ℓO ℓM} {C : PreCategory ℓO ℓM}
   record isGroupObject (g : Obj C) (op : C [ (g ⊗₀ g) , g ]) : Type ℓM where
     field
       isAssoc-op : isAssociative M g op
-      isUnital-op : isUnital g op
+      isUnital-op : isUnital M g op
       hasInverse-op : hasInverse isUnital-op
 
-    open isUnital isUnital-op public
+    open isUnital-CartesianHelpers isUnital-op public
     open hasInverse hasInverse-op public
 
   opaque
