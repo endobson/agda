@@ -6,6 +6,9 @@ open import base
 open import category.base
 open import category.object.product
 open import category.object.terminal
+open import category.monoidal.base
+open import category.monoidal.cartesian
+open import category.monoidal.constructions.cartesian
 open import category.univalent
 open import cubical
 open import cubical using (I)
@@ -96,3 +99,9 @@ Terminal-SetC {ℓ} = record
   universal : (S : Obj C) -> isContr (C [ S , T ])
   universal (S , isSet-S)  =
     set-function (\_ -> lift tt) , (\f i -> (set-function (\x -> lift tt)))
+
+Set×-MC : (ℓ : Level) -> MonoidalCategory (ℓ-suc ℓ) ℓ
+Set×-MC ℓ = SetC ℓ , CartesianMonoidalStr hasProducts-SetC Terminal-SetC
+
+isCartesian-Set×-MC : {ℓ : Level} -> isCartesian (Set×-MC ℓ)
+isCartesian-Set×-MC = isCartesian-CartesianMonoidalStr hasProducts-SetC Terminal-SetC

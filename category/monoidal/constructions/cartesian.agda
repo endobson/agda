@@ -9,6 +9,7 @@ open import category.constructions.triple-product
 open import category.functor
 open import category.isomorphism
 open import category.monoidal.base
+open import category.monoidal.cartesian
 open import category.natural-isomorphism
 open import category.natural-transformation
 open import category.object.product
@@ -398,3 +399,18 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
     ; triangle = triangle
     ; pentagon = pentagon
     }
+
+
+  isCartesian-CartesianMonoidalStr : isCartesian (C , CartesianMonoidalStr)
+  isCartesian-CartesianMonoidalStr = record
+    { isTerminal-unit = Terminal.universal term
+    ; isProduct-⊗ =
+      \a b -> subst2 (isProduct C a b (a ⊗₀ b)) (p1 a b) (p2 a b)
+                     (Product.universal (prod a b))
+    }
+    where
+    module _ (a b : Obj C) where
+      p1 : π₁ == ((id C ⊗₁ !) ⋆ π₁)
+      p1 = sym ⋆-right-id >=> sym π₁-reduce
+      p2 : π₂ == ((! ⊗₁ id C) ⋆ π₂)
+      p2 = sym ⋆-right-id >=> sym π₂-reduce
