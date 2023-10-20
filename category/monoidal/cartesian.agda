@@ -11,7 +11,7 @@ open import category.object.terminal
 open import category.zipper
 open import equality-path
 
-module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (M : MonoidalStr C) where
+module _ {ℓO ℓM : Level} (MC@(C , M) : MonoidalCategory ℓO ℓM) where
   open MonoidalStrHelpers M
   open CategoryHelpers C
 
@@ -37,8 +37,8 @@ module _ {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} (M : MonoidalStr C) whe
     prod x y = record { universal = isProduct-⊗ x y }
 
 module CartesianHelpers
-  {ℓO ℓM : Level} {C : PreCategory ℓO ℓM} {M : MonoidalStr C}
-  (Cart : isCartesian M) where
+  {ℓO ℓM : Level} {MC@(C , M) : MonoidalCategory ℓO ℓM}
+  (Cart : isCartesian MC) where
 
   open CategoryHelpers C
   open MonoidalStrHelpers M

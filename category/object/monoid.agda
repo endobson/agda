@@ -9,31 +9,46 @@ open import category.monoidal.base
 open import hlevel
 open import equality-path
 
-module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} (M : MonoidalStr C) where
+module _ {ℓO ℓM} ((C , M) : MonoidalCategory ℓO ℓM) where
+  open MonoidalStrHelpers M
+
+  record Magma : Type (ℓ-max ℓO ℓM) where
+    constructor magma
+    field
+      obj : Obj C
+      op : C [ obj ⊗₀ obj , obj ]
+
+  magmaᵉ : (obj : Obj C) -> C [ obj ⊗₀ obj , obj ] -> Magma
+  magmaᵉ = magma
+
+module _ {ℓO ℓM} {MC@(C , M) : MonoidalCategory ℓO ℓM} ((magma g op) : Magma MC) where
   open MonoidalStrHelpers M
   open CategoryHelpers C
 
-  record isUnital (g : Obj C) (op : C [ g ⊗₀ g , g ]) : Type ℓM where
+  record isUnital : Type ℓM where
     field
       ε : C [ unit , g ]
       ε-left-reduce' : (ε ⊗₁ id C) ⋆ op == λ⇒
       ε-right-reduce' : (id C ⊗₁ ε) ⋆ op == ρ⇒
 
-  module _ (g : Obj C) (op : C [ g ⊗₀ g , g ]) where
-    isAssociative : Type ℓM
-    isAssociative = α⇒ ⋆ (id C ⊗₁ op) ⋆ op == (op ⊗₁ id C) ⋆ op
 
-  isProp-isAssociative : ∀ {g op} -> isProp (isAssociative g op)
-  isProp-isAssociative = isSet-Mor C _ _
+  record isAssociative : Type ℓM where
+    field
+      op-assoc : α⇒ ⋆ (id C ⊗₁ op) ⋆ op == (op ⊗₁ id C) ⋆ op
 
-
-module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} {M : MonoidalStr C} where
+module _ {ℓO ℓM} {MC@(C , M) : MonoidalCategory ℓO ℓM} where
   open MonoidalStrHelpers M
   open CategoryHelpers C
 
   opaque
-    isProp-isUnital : ∀ {g op} -> isProp (isUnital M g op)
-    isProp-isUnital {g} {op}
+    isProp-isAssociative : ∀ {m : Magma MC} -> isProp (isAssociative m)
+    isProp-isAssociative {magma g op}
+      a₁@(record { op-assoc = op-assoc₁ })
+      a₂@(record { op-assoc = op-assoc₂ }) =
+      \i -> record { op-assoc = isSet-Mor C _ _ op-assoc₁ op-assoc₂ i }
+
+    isProp-isUnital : ∀ {m : Magma MC} -> isProp (isUnital m)
+    isProp-isUnital {magma g op}
       u₁@(record { ε = ε₁ ; ε-left-reduce' = ε₁-left-reduce' ; ε-right-reduce' = ε₁-right-reduce' })
       u₂@(record { ε = ε₂ ; ε-left-reduce' = ε₂-left-reduce' ; ε-right-reduce' = ε₂-right-reduce' }) =
       \i -> record
@@ -64,14 +79,11 @@ module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} {M : MonoidalStr C} where
       r-path : (ε₁-right-reduce' i0) == (ε₂-right-reduce' i0)
       r-path i = (id C ⊗₁ ε-path i) ⋆ op
 
-
-module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} (M : MonoidalStr C) where
-  open MonoidalStrHelpers M
-  open CategoryHelpers C
-
-  record isMonoid (g : Obj C) (op : C [ (g ⊗₀ g) , g ]) : Type ℓM where
+module _ {ℓO ℓM} {MC : MonoidalCategory ℓO ℓM} where
+  record isMonoid (m : Magma MC)  : Type ℓM where
     field
-      isAssoc-op : isAssociative M g op
-      isUnital-op : isUnital M g op
+      isAssociative-magma : isAssociative m
+      isUnital-magma : isUnital m
 
-    open isUnital isUnital-op public
+    open isUnital isUnital-magma public
+    open isAssociative isAssociative-magma public

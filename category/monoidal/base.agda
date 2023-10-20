@@ -85,6 +85,9 @@ module _ {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
            (α⇒ ⋆ α⇒)
            ((α⇒ ⊗₁ id C) ⋆ α⇒ ⋆ (id C ⊗₁ α⇒))
 
+MonoidalCategory : (ℓO ℓM : Level) -> Type (ℓ-suc (ℓ-max ℓO ℓM))
+MonoidalCategory ℓO ℓM = Σ (PreCategory ℓO ℓM) MonoidalStr
+
 module MonoidalStrHelpers {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
                           (M : MonoidalStr C) where
   open MonoidalStr M public

@@ -14,15 +14,14 @@ open import cubical
 open import equality
 open import hlevel
 
-module _ {ℓO ℓM} {C : PreCategory ℓO ℓM}
-         {M : MonoidalStr C} (Cart : isCartesian M) where
+module _ {ℓO ℓM} {MC@(C , M) : MonoidalCategory ℓO ℓM} (Cart : isCartesian MC) where
   open MonoidalStrHelpers M
   open CategoryHelpers C
   open CartesianHelpers Cart
 
   module isUnital-CartesianHelpers
-    {g : Obj C} {op : C [ g ⊗₀ g , g ]} (isUnital-op : isUnital M g op) where
-    open isUnital isUnital-op
+    {m@(magma g op) : Magma MC} (isUnital-m : isUnital m) where
+    open isUnital isUnital-m
 
     ε' : {x : Obj C} -> C [ x , g ]
     ε' = ! ⋆ ε
@@ -51,8 +50,8 @@ module _ {ℓO ℓM} {C : PreCategory ℓO ℓM}
         sym π₁-swap
 
 
-  module _ {g : Obj C} {op : C [ g ⊗₀ g , g ]} (isUnital-op : isUnital M g op) where
-    open isUnital-CartesianHelpers isUnital-op
+  module _ {m@(magma g op) : Magma MC} (isUnital-m : isUnital m) where
+    open isUnital-CartesianHelpers isUnital-m
 
     record hasInverse : Type ℓM where
       field
@@ -62,7 +61,7 @@ module _ {ℓO ℓM} {C : PreCategory ℓO ℓM}
         inv-right : (Δ ⋆ (id C ⊗₁ inv)) ⋆ op == ε'
 
 
-    module _ (op-assoc : isAssociative M g op) where
+    module _ (m-assoc : isAssociative m) where
       isProp-hasInverse : isProp hasInverse
       isProp-hasInverse
         s₁@(record { inv = inv₁ ; inv-left = inv₁-left ; inv-right = inv₁-right })
@@ -114,7 +113,7 @@ module _ {ℓO ℓM} {C : PreCategory ℓO ℓM}
           lemma3a =
             ⋆-left (⋆-right split₂ˡ >=> sym ⋆-assoc >=> ⋆-left α⇒-swap) >=>
             ⋆-assoc >=> ⋆-assoc >=>
-            ⋆-right (sym ⋆-assoc >=> op-assoc) >=>
+            ⋆-right (sym ⋆-assoc >=> isAssociative.op-assoc m-assoc) >=>
             sym ⋆-assoc >=>
             ⋆-left (sym split₁ˡ)
 
@@ -126,18 +125,19 @@ module _ {ℓO ℓM} {C : PreCategory ℓO ℓM}
         r-path : inv₁-right i0 == inv₂-right i0
         r-path i = Δ ⋆ (id C ⊗₁ inv-path i) ⋆ op
 
-  record isGroupObject (g : Obj C) (op : C [ (g ⊗₀ g) , g ]) : Type ℓM where
-    field
-      isAssoc-op : isAssociative M g op
-      isUnital-op : isUnital M g op
-      hasInverse-op : hasInverse isUnital-op
+  module _ (mag : Magma MC) where
+    record isGroupObject : Type ℓM where
+      field
+        isAssoc-op : isAssociative mag
+        isUnital-op : isUnital mag
+        hasInverse-op : hasInverse isUnital-op
 
-    open isUnital-CartesianHelpers isUnital-op public
-    open hasInverse hasInverse-op public
+      open isUnital-CartesianHelpers isUnital-op public
+      open hasInverse hasInverse-op public
 
   opaque
-    isProp-isGroupObject : {g : Obj C} {op : C [ (g ⊗₀ g) , g ]} -> isProp (isGroupObject g op)
-    isProp-isGroupObject {g} {op}
+    isProp-isGroupObject : {m : Magma MC} -> isProp (isGroupObject m)
+    isProp-isGroupObject
       (record { isAssoc-op = a1 ; isUnital-op = u1 ; hasInverse-op = inv1 })
       (record { isAssoc-op = a2 ; isUnital-op = u2 ; hasInverse-op = inv2 }) =
       \i -> record
@@ -147,28 +147,28 @@ module _ {ℓO ℓM} {C : PreCategory ℓO ℓM}
         }
       where
       ap : a1 == a2
-      ap = isProp-isAssociative M a1 a2
+      ap = isProp-isAssociative a1 a2
       up : u1 == u2
       up = isProp-isUnital u1 u2
       invp : PathP (\i -> hasInverse (up i)) inv1 inv2
       invp = isProp->PathP (\i -> isProp-hasInverse (up i) (ap i))
 
   GroupObject : Type (ℓ-max ℓO ℓM)
-  GroupObject = Σ[ g ∈ Obj C ] Σ[ op ∈ C [ (g ⊗₀ g) , g ] ] (isGroupObject g op)
+  GroupObject = Σ (Magma MC) isGroupObject
 
-module _ {ℓO ℓM} {C : PreCategory ℓO ℓM}
-         {M : MonoidalStr C} {Cart : isCartesian M} where
+
+module _ {ℓO ℓM} {MC@(C , M) : MonoidalCategory ℓO ℓM} {Cart : isCartesian MC} where
   open MonoidalStrHelpers M
   open CategoryHelpers C
   open CartesianHelpers Cart
 
-  module _ ((g1 , op1 , isGroup1) (g2 , op2 , isGroup2) : GroupObject Cart) where
+  module _ (((magma g1 op1) , _) ((magma g2 op2) , _) : GroupObject Cart) where
     record GroupHomomorphism : Type ℓM where
       field
         mor : C [ g1 , g2 ]
         commutes : op1 ⋆ mor == (mor ⊗₁ mor) ⋆ op2
 
-  module _ {G1@(g1 , op1 , isGroup1) G2@(g2 , op2 , isGroup2) : GroupObject Cart} where
+  module _ {G1@((magma g1 op1) , _) G2@((magma g2 op2) , _) : GroupObject Cart} where
     group-homomorphism-path : {h1 h2 : GroupHomomorphism G1 G2} ->
                               (GroupHomomorphism.mor h1) == (GroupHomomorphism.mor h2) ->
                               h1 == h2
