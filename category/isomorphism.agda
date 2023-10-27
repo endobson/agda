@@ -21,33 +21,34 @@ record isIso (C : PreCategory ℓO ℓM) {x y : C .Obj} (mor : C [ x , y ]) : Ty
     sec : inv ⋆⟨ C ⟩ mor == C .id
     ret : mor ⋆⟨ C ⟩ inv == C .id
 
-isProp-isIso : {C : PreCategory ℓO ℓM} -> {x y : C .Obj} {mor : C [ x , y ]} -> isProp (isIso C mor)
-isProp-isIso {C = C} {x} {y} {mor} i1 i2 = (\i -> record
-    { inv = ip i
-    ; sec = ans-sec i
-    ; ret = ans-ret i
-    })
-  where
-  module C = PreCategory C
-  module i1 = isIso i1
-  module i2 = isIso i2
+opaque
+  isProp-isIso : {C : PreCategory ℓO ℓM} -> {x y : C .Obj} {mor : C [ x , y ]} -> isProp (isIso C mor)
+  isProp-isIso {C = C} {x} {y} {mor} i1 i2 = (\i -> record
+      { inv = ip i
+      ; sec = ans-sec i
+      ; ret = ans-ret i
+      })
+    where
+    module C = PreCategory C
+    module i1 = isIso i1
+    module i2 = isIso i2
 
-  ip : i1.inv == i2.inv
-  ip = sym (C.⋆-left-id _) >=>
-       cong (C._⋆ i1.inv) (sym i2.sec) >=>
-       C.⋆-assoc i2.inv mor i1.inv >=>
-       cong (i2.inv C.⋆_) i1.ret >=>
-       (C.⋆-right-id i2.inv)
+    ip : i1.inv == i2.inv
+    ip = sym (C.⋆-left-id _) >=>
+         cong (C._⋆ i1.inv) (sym i2.sec) >=>
+         C.⋆-assoc i2.inv mor i1.inv >=>
+         cong (i2.inv C.⋆_) i1.ret >=>
+         (C.⋆-right-id i2.inv)
 
-  ret-line : I -> Type _
-  ret-line i = mor ⋆⟨ C ⟩ ip i == C.id
-  ans-ret : PathP ret-line i1.ret i2.ret
-  ans-ret = isProp->PathP (\i -> (C.isSet-Mor _ _))
+    ret-line : I -> Type _
+    ret-line i = mor ⋆⟨ C ⟩ ip i == C.id
+    ans-ret : PathP ret-line i1.ret i2.ret
+    ans-ret = isProp->PathP (\i -> (C.isSet-Mor _ _))
 
-  sec-line : I -> Type _
-  sec-line i = ip i ⋆⟨ C ⟩ mor == C.id
-  ans-sec : PathP sec-line i1.sec i2.sec
-  ans-sec = isProp->PathP (\i -> (C.isSet-Mor _ _))
+    sec-line : I -> Type _
+    sec-line i = ip i ⋆⟨ C ⟩ mor == C.id
+    ans-sec : PathP sec-line i1.sec i2.sec
+    ans-sec = isProp->PathP (\i -> (C.isSet-Mor _ _))
 
 module _ {ℓOC ℓMC ℓOD ℓMD} {C : PreCategory ℓOC ℓMC} {D : PreCategory ℓOD ℓMD} where
   module _ (F : Functor C D) where
@@ -106,3 +107,6 @@ module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} where
     where
     sec = ⋆-assoc >=> ⋆-right (sym ⋆-assoc >=> ⋆-left sec₁ >=> ⋆-left-id) >=> sec₂
     ret = ⋆-assoc >=> ⋆-right (sym ⋆-assoc >=> ⋆-left ret₂ >=> ⋆-left-id) >=> ret₁
+
+  flip-Iso : {a b : Obj C} -> Σ (C [ a , b ]) (isIso C) -> Σ (C [ b , a ]) (isIso C)
+  flip-Iso (mor , (is-iso inv sec ret)) = inv , (is-iso mor ret sec)
