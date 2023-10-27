@@ -38,7 +38,7 @@ module TerminalHelpers {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
     public
 
   !-unique : {c : Obj C} -> {f g : C [ c , 1C ]} -> f == g
-  !-unique = Terminal.unique₂ T _ _
+  !-unique = !-uniqueᵉ _ _
 
 
 

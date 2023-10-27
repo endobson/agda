@@ -36,6 +36,9 @@ module _ {ℓO ℓM : Level} (MC@(C , M) : MonoidalCategory ℓO ℓM) where
     prod : (x y : Obj C) -> Product C x y
     prod x y = record { universal = isProduct-⊗ x y }
 
+CartesianMonoidalCategory : (ℓO ℓM : Level) -> Type (ℓ-suc (ℓ-max ℓO ℓM))
+CartesianMonoidalCategory ℓO ℓM = Σ (Σ (PreCategory ℓO ℓM) MonoidalStr) isCartesian
+
 module CartesianHelpers
   {ℓO ℓM : Level} {MC@(C , M) : MonoidalCategory ℓO ℓM}
   (Cart : isCartesian MC) where

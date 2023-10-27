@@ -103,5 +103,5 @@ Terminal-SetC {ℓ} = record
 Set×-MC : (ℓ : Level) -> MonoidalCategory (ℓ-suc ℓ) ℓ
 Set×-MC ℓ = SetC ℓ , CartesianMonoidalStr hasProducts-SetC Terminal-SetC
 
-isCartesian-Set×-MC : {ℓ : Level} -> isCartesian (Set×-MC ℓ)
-isCartesian-Set×-MC = isCartesian-CartesianMonoidalStr hasProducts-SetC Terminal-SetC
+Set×-CMC : (ℓ : Level) -> CartesianMonoidalCategory (ℓ-suc ℓ) ℓ
+Set×-CMC ℓ = Set×-MC ℓ , isCartesian-CartesianMonoidalStr hasProducts-SetC Terminal-SetC

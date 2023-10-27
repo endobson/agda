@@ -14,7 +14,7 @@ open import cubical
 open import equality
 open import hlevel
 
-module _ {ℓO ℓM} {MC@(C , M) : MonoidalCategory ℓO ℓM} (Cart : isCartesian MC) where
+module _ {ℓO ℓM} ((MC@(C , M) , Cart) : CartesianMonoidalCategory ℓO ℓM) where
   open MonoidalStrHelpers M
   open CategoryHelpers C
   open CartesianHelpers Cart
@@ -128,22 +128,22 @@ module _ {ℓO ℓM} {MC@(C , M) : MonoidalCategory ℓO ℓM} (Cart : isCartesi
   module _ (mag : Magma MC) where
     record isGroupObject : Type ℓM where
       field
-        isAssoc-op : isAssociative mag
-        isUnital-op : isUnital mag
-        hasInverse-op : hasInverse isUnital-op
+        isAssociative-magma : isAssociative mag
+        isUnital-magma : isUnital mag
+        hasInverse-magma : hasInverse isUnital-magma
 
-      open isUnital-CartesianHelpers isUnital-op public
-      open hasInverse hasInverse-op public
+      open isUnital-CartesianHelpers isUnital-magma public
+      open hasInverse hasInverse-magma public
 
   opaque
     isProp-isGroupObject : {m : Magma MC} -> isProp (isGroupObject m)
     isProp-isGroupObject
-      (record { isAssoc-op = a1 ; isUnital-op = u1 ; hasInverse-op = inv1 })
-      (record { isAssoc-op = a2 ; isUnital-op = u2 ; hasInverse-op = inv2 }) =
+      (record { isAssociative-magma = a1 ; isUnital-magma = u1 ; hasInverse-magma = inv1 })
+      (record { isAssociative-magma = a2 ; isUnital-magma = u2 ; hasInverse-magma = inv2 }) =
       \i -> record
-        { isAssoc-op = ap i
-        ; isUnital-op = up i
-        ; hasInverse-op = invp i
+        { isAssociative-magma = ap i
+        ; isUnital-magma = up i
+        ; hasInverse-magma = invp i
         }
       where
       ap : a1 == a2
@@ -157,18 +157,18 @@ module _ {ℓO ℓM} {MC@(C , M) : MonoidalCategory ℓO ℓM} (Cart : isCartesi
   GroupObject = Σ (Magma MC) isGroupObject
 
 
-module _ {ℓO ℓM} {MC@(C , M) : MonoidalCategory ℓO ℓM} {Cart : isCartesian MC} where
+module _ {ℓO ℓM} {CMC@(MC@(C , M) , Cart) : CartesianMonoidalCategory ℓO ℓM} where
   open MonoidalStrHelpers M
   open CategoryHelpers C
   open CartesianHelpers Cart
 
-  module _ (((magma g1 op1) , _) ((magma g2 op2) , _) : GroupObject Cart) where
+  module _ (((magma g1 op1) , _) ((magma g2 op2) , _) : GroupObject CMC) where
     record GroupHomomorphism : Type ℓM where
       field
         mor : C [ g1 , g2 ]
         commutes : op1 ⋆ mor == (mor ⊗₁ mor) ⋆ op2
 
-  module _ {G1@((magma g1 op1) , _) G2@((magma g2 op2) , _) : GroupObject Cart} where
+  module _ {G1@((magma g1 op1) , _) G2@((magma g2 op2) , _) : GroupObject CMC} where
     group-homomorphism-path : {h1 h2 : GroupHomomorphism G1 G2} ->
                               (GroupHomomorphism.mor h1) == (GroupHomomorphism.mor h2) ->
                               h1 == h2
