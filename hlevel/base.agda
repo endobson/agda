@@ -212,10 +212,16 @@ abstract
   isPropTop : isProp Top
   isPropTop tt tt = refl
 
+  isSetTop : isSet Top
+  isSetTop = isProp->isSet isPropTop
+
   -- h-level for Bot and ¬
 
   isPropBot : isProp Bot
   isPropBot x _ = bot-elim x
+
+  isSetBot : isSet Bot
+  isSetBot = isProp->isSet isPropBot
 
   isProp¬ : (A : Type ℓ) -> isProp (¬ A)
   isProp¬ _ ¬x ¬y i x = isPropBot (¬x x) (¬y x) i
