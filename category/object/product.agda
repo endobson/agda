@@ -6,6 +6,7 @@ open import base
 open import category.base
 open import category.univalent
 open import equality
+open import equality.identity-system
 open import hlevel
 open import truncation
 
@@ -117,3 +118,24 @@ module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} where
         ⋆-assoc >=>
         ⋆-cong refl p1.π₂-reduce >=>
         p2.π₂-reduce
+
+
+    module _ (univ : isUnivalent' C) where
+      private
+        iso : CatIso C p1.obj p2.obj
+        iso = products->iso
+
+        p : Path (Obj C) p1.obj p2.obj
+        p = isIdentitySystem.to-path univ iso
+
+        pp : PathP (\i -> CatIso C p1.obj (p i)) (idCatIso C p1.obj) iso
+        pp = isIdentitySystem.to-path-over univ iso
+
+        pp-π₁ : PathP (\i -> C [ (p i) , a ]) p1.π₁ p2.π₁
+        pp-π₁ = transP-mid (sym ⋆-left-id) (\i -> CatIso.inv (pp i) ⋆ p1.π₁) p1.π₁-reduce
+        pp-π₂ : PathP (\i -> C [ (p i) , b ]) p1.π₂ p2.π₂
+        pp-π₂ = transP-mid (sym ⋆-left-id) (\i -> CatIso.inv (pp i) ⋆ p1.π₂) p1.π₂-reduce
+
+      opaque
+        isProp-Product : p1 == p2
+        isProp-Product = product-path p pp-π₁ pp-π₂
