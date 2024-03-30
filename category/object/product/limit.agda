@@ -8,7 +8,7 @@ open import category.constructions.cone.univalent
 open import category.functor
 open import category.instances.free
 open import category.instances.quiver
-open import category.limits2
+open import category.limits
 open import category.object.product
 open import category.object.terminal
 open import category.univalent
@@ -108,7 +108,7 @@ module _ {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
     limit<->product .Iso.leftInv _ = terminal-path (bp-cone-path refl refl refl)
 
   abstract
-    isProp-Product : isUnivalent C -> {x y : Obj C} -> isProp (Product C x y)
-    isProp-Product univ =
+    isProp-Product' : isUnivalent C -> {x y : Obj C} -> isProp (Product C x y)
+    isProp-Product' univ =
       iso-isProp (limit<->product _ _)
         (isProp-Terminal (isUnivalent->isUnivalent' (isUnivalent-ConeC _ univ)))
