@@ -212,3 +212,14 @@ isIdentitySystem->isEquiv {A = A} {R = R} {r = refl'}
     check : transport (\i -> R a (to-path (refl' a) i)) (refl' a) == (refl' a)
     check = (\j -> transport (\i -> R a (refl-case {a} j i)) (refl' a)) >=>
             transportRefl (refl' a)
+
+
+module _
+  {ℓA ℓR} {A : Type ℓA} {R : Rel A ℓR} {r : (a : A) -> R a a}
+  (idSys : isIdentitySystem R r) where
+
+  opaque
+    idSys-isOfHLevel : (n : Nat) -> ((a1 a2 : A) -> isOfHLevel n (R a1 a2)) ->
+                       (a1 a2 : A) -> isOfHLevel n (a1 == a2)
+    idSys-isOfHLevel n hR a1 a2 =
+      ≃-isOfHLevel (_ , isIdentitySystem->isEquiv idSys) n (hR a1 a2)
