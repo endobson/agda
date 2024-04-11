@@ -73,9 +73,7 @@ module _ {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
         ConeMor-iso .Iso.inv cm =
           ConeMor.f cm , sym (ConeMor.component cm true) , sym (ConeMor.component cm false)
         ConeMor-iso .Iso.leftInv _ = refl
-        ConeMor-iso .Iso.rightInv cm ii .ConeMor.f = ConeMor.f cm
-        ConeMor-iso .Iso.rightInv cm ii .ConeMor.component true = ConeMor.component cm true
-        ConeMor-iso .Iso.rightInv cm ii .ConeMor.component false = ConeMor.component cm false
+        ConeMor-iso .Iso.rightInv cm = cone-mor-path _ refl
 
       module _ (p : Product C x y) where
         private

@@ -41,6 +41,9 @@ module TerminalHelpers {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
   !-unique = !-uniqueᵉ _ _
 
 
+module _ {ℓO ℓM} (C : PreCategory ℓO ℓM) where
+  isProp-isTerminal : {o : Obj C} -> isProp (isTerminal C o)
+  isProp-isTerminal = isPropΠ (\_ -> isProp-isContr)
 
 module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} where
   private

@@ -109,6 +109,15 @@ ConeC = Laws->Category ConeLaws
 
 -- Paths for cones and related objects
 
+module _ {c1 c2 : Cone} {m1 m2 : ConeC [ c1 , c2 ]} where
+  cone-mor-path : ConeMor.f m1 == ConeMor.f m2 -> m1 == m2
+  cone-mor-path fp i .ConeMor.f = fp i
+  cone-mor-path fp i .ConeMor.component j =
+    isProp->PathPᵉ
+      (\i -> isSet-Mor C (ConeStr.component (snd c1) j)
+                         (fp i ⋆⟨ C ⟩ ConeStr.component (snd c2) j))
+      (ConeMor.component m1 j) (ConeMor.component m2 j) i
+
 cone-str-pathp :
   {o1 o2 : Obj C} {s1 : ConeStr o1} {s2 : ConeStr o2} ->
   (op : o1 == o2) ->

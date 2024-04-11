@@ -101,15 +101,6 @@ module _ {ℓOJ ℓMJ ℓOC ℓMC}
             cong (isEqInv (isUnivalent.isEquiv-pathToCatIso univ _ _)) ans2 >=>
             isEqRet (isUnivalent.isEquiv-pathToCatIso univ _ _) (cong fst p)
 
-        cone-mor-path : {c1 c2 : Obj ConeC} -> {f g : ConeC [ c1 , c2 ]} ->
-                        ConeMor.f f == ConeMor.f g ->
-                        f == g
-        cone-mor-path p i .ConeMor.f = p i
-        cone-mor-path {c1} {c2} {f} {g} p i .ConeMor.component j =
-          isProp->PathPᵉ (\i -> isSet-Mor C (ConeStr.component (snd c1) j)
-                                            (p i ⋆⟨ C ⟩ (ConeStr.component (snd c2) j)))
-            (ConeMor.component f j) (ConeMor.component g j) i
-
         catIsoToPath-inv2 : (c1 c2 : Obj ConeC) -> (ciso : CatIso ConeC c1 c2) ->
                             pathToCatIso ConeC _ _ (catIsoToPath c1 c2 ciso) == ciso
         catIsoToPath-inv2 c1 c2 ciso =
