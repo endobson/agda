@@ -3,11 +3,12 @@
 module category.object.terminal where
 
 open import base
-open import equality.identity-system
 open import category.base
 open import category.univalent
+open import equality.identity-system
 open import equivalence.base
 open import hlevel
+open import isomorphism
 open import relation
 open import truncation
 
@@ -44,6 +45,13 @@ module TerminalHelpers {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
 module _ {ℓO ℓM} (C : PreCategory ℓO ℓM) where
   isProp-isTerminal : {o : Obj C} -> isProp (isTerminal C o)
   isProp-isTerminal = isPropΠ (\_ -> isProp-isContr)
+
+  ΣisTerminal<->Terminal : Iso (Σ (Obj C) (isTerminal C)) (Terminal C)
+  ΣisTerminal<->Terminal .Iso.fun (o , t) = record { obj = o ; universal = t }
+  ΣisTerminal<->Terminal .Iso.inv (record { obj = o ; universal = t }) = o , t
+  ΣisTerminal<->Terminal .Iso.rightInv _ = refl
+  ΣisTerminal<->Terminal .Iso.leftInv _ = refl
+
 
 module _ {ℓO ℓM} {C : PreCategory ℓO ℓM} where
   private
