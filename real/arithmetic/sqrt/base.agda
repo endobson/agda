@@ -176,9 +176,6 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#)
     ; located = located
     }
 
-  abstract
+  opaque
     sqrtℝ : ℝ
     sqrtℝ = sqrtℝᵉ
-
-    sqrtℝ-eval : sqrtℝ == sqrtℝᵉ
-    sqrtℝ-eval = refl

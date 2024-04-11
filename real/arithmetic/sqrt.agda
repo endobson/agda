@@ -45,8 +45,11 @@ private
       xU-0 : x.U 0#
       xU-0 = subst x.U *-right-zero (snd (sU-0))
 
-    ≮0-sqrt : (sqrtℝ x x≮0) ≮ 0#
-    ≮0-sqrt = subst (_≮ 0#) (sym (sqrtℝ-eval x x≮0)) ≮0-sqrtᵉ
+    opaque
+      unfolding sqrtℝ
+
+      ≮0-sqrt : (sqrtℝ x x≮0) ≮ 0#
+      ≮0-sqrt = ≮0-sqrtᵉ
 
   ℚ∈Iℚ-i-intersect₁ : (q : ℚ) (a b : Iℚ) -> (o : Overlap a b) ->
                       ℚ∈Iℚ q (i-intersect a b o) -> ℚ∈Iℚ q a
@@ -176,11 +179,11 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
           x∈zwi : ℝ∈Iℚ x (zi i* wi)
           x∈zwi = ℝ∈Iℚ-sqrtᵉ⁻ zi wi sx∈zi sx∈wi
 
-  abstract
+  opaque
+    unfolding sqrtℝ
+
     sqrt² : (sqrtℝ x x≮0) * (sqrtℝ x x≮0) == x
-    sqrt² = cong2 _ℝ*_ (sqrtℝ-eval x x≮0) (sqrtℝ-eval x x≮0) >=>
-            ℝ*-eval {sx} {sx} >=>
-            *-sqrtᵉ
+    sqrt² = ℝ*-eval >=> *-sqrtᵉ
 
 ∃!sqrt : (x : ℝ) -> (0# ≤ x) -> ∃![ y ∈ ℝ ] (0# ≤ y × (y * y == x))
 ∃!sqrt x 0≤x = (sqrtℝ x 0≤x , ≮0-sqrt x 0≤x , sqrt² x 0≤x) , isProp-Σsqrt _
