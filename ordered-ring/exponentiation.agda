@@ -112,8 +112,8 @@ module _
       wf-0<diff n = acc-0<diff (WellFounded-Nat< n)
 
 
-  x<y<->x^n<y<^n : (n : Nat) -> Odd n -> (x y : D) -> Iso (x < y) ((x ^ℕ n) < (y ^ℕ n))
-  x<y<->x^n<y<^n (suc n) osn x y =
+  x<y<->x^n<y^n : (n : Nat) -> Odd n -> (x y : D) -> Iso (x < y) ((x ^ℕ n) < (y ^ℕ n))
+  x<y<->x^n<y^n (suc n) osn x y =
     same-lt x y n osn (\x<>y -> (all-ones-eval-0< x y n (transform x<>y) osn))
     where
     to-<>0 : x <> y -> ∥ (x <> 0#) ⊎ (y <> 0#) ∥
