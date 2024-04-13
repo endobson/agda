@@ -90,12 +90,15 @@ FinSet-DetachableComp : {ℓA ℓS : Level} -> (FA : FinSet ℓA) -> (S : Subtyp
                         FinSet (ℓ-max ℓA ℓS)
 FinSet-DetachableComp FA S d-S = (∉-Subtype S) , isFinSet-DetachableComp S (snd FA) d-S
 
-FinSetStr-Detachable : {ℓA ℓS : Level} {A : Type ℓA} {{FA : FinSetStr A}} ->
-                       (S : Subtype A ℓS) -> Detachable S -> FinSetStr (∈-Subtype S)
-FinSetStr-Detachable S d-S =
-  record { isFin = isFinSet-Detachable S isFinSetⁱ d-S }
+module FinSetStr-DetachableInstances
+  {ℓA ℓS : Level} {A : Type ℓA} {{FA : FinSetStr A}}
+  (S : Subtype A ℓS) (d-S : Detachable S) where
 
-FinSetStr-DetachableComp : {ℓA ℓS : Level} {A : Type ℓA} {{FA : FinSetStr A}} ->
-                           (S : Subtype A ℓS) -> Detachable S -> FinSetStr (∉-Subtype S)
-FinSetStr-DetachableComp S d-S =
-  record { isFin = isFinSet-DetachableComp S isFinSetⁱ d-S }
+  instance
+    FinSetStr-Detachable : FinSetStr (∈-Subtype S)
+    FinSetStr-Detachable =
+      record { isFin = isFinSet-Detachable S isFinSetⁱ d-S }
+
+    FinSetStr-DetachableComp : FinSetStr (∉-Subtype S)
+    FinSetStr-DetachableComp =
+      record { isFin = isFinSet-DetachableComp S isFinSetⁱ d-S }

@@ -33,11 +33,7 @@ module _ {ℓD : Level} {D : Type ℓD}
       f' : ∈-Subtype S -> D
       f' = f ∘ fst
 
-      instance
-        FinSetStr-S : FinSetStr (∈-Subtype S)
-        FinSetStr-S = FinSetStr-Detachable S DetS
-        FinSetStr-¬S : FinSetStr (∉-Subtype S)
-        FinSetStr-¬S = FinSetStr-DetachableComp S DetS
+      open FinSetStr-DetachableInstances S DetS
 
     abstract
       finiteSum-indicator : finiteSum f' == finiteSum (\i -> indicator S DetS i * f i)
