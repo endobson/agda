@@ -155,14 +155,7 @@ private
           DetS : Detachable S
           DetS = DetLateTerm N n
 
-          instance
-            FinSetStr-S : FinSetStr (∈-Subtype S)
-            FinSetStr-S .FinSetStr.isFin =
-              isFinSet-Detachable S (FinSetStr.isFin useⁱ) DetS
-
-            FinSetStr-¬S : FinSetStr (∉-Subtype S)
-            FinSetStr-¬S .FinSetStr.isFin =
-              isFinSet-DetachableComp S (FinSetStr.isFin useⁱ) DetS
+          open FinSetStr-DetachableInstances S DetS
 
           ∉S≃FinN : (∉-Subtype S) ≃ Fin N
           ∉S≃FinN = isoToEquiv (iso f g fg gf)
@@ -179,7 +172,7 @@ private
           path2 : (partial-sums s n) ==
                   (finiteSum (\ (((k , _) , _) : (∈-Subtype S)) -> s k)) +
                   (finiteSum (\ (((k , _) , _) : (∉-Subtype S)) -> s k))
-          path2 = finiteMerge-detachable _ (FinSet-Fin n) S DetS _
+          path2 = finiteMerge-detachable _ S DetS _
 
           path3 : (finiteSum (\ (((k , _) , _) : (∈-Subtype S)) -> s k)) ==
                   (finiteSum (\ (k : Fin n) -> indicator S DetS k * s (Fin.i k)))
@@ -214,17 +207,8 @@ private
     DetS' : Detachable S'
     DetS' (k , _) = decide-< _ _
 
-    instance
-      FinSetStr-S' : FinSetStr (∈-Subtype S')
-      FinSetStr-S' .FinSetStr.isFin =
-        isFinSet-Detachable S' (FinSetStr.isFin useⁱ) DetS'
-      FinSetStr-S : FinSetStr (∈-Subtype S)
-      FinSetStr-S .FinSetStr.isFin =
-        isFinSet-Detachable S (FinSetStr.isFin useⁱ) DetS
-
-      FinSetStr-¬S : FinSetStr (∉-Subtype S)
-      FinSetStr-¬S .FinSetStr.isFin =
-        isFinSet-DetachableComp S (FinSetStr.isFin useⁱ) DetS
+    open FinSetStr-DetachableInstances S DetS
+    open FinSetStr-DetachableInstances S' DetS'
 
     isTotal-S : (k : Fin i) -> ⟨ S k ⟩
     isTotal-S (k , k<i) = proj₂ (snd Σlwm) (Iso.inv p k) (trans-=-< (Iso.rightInv p k) k<i)
@@ -403,19 +387,9 @@ abstract
              DetS3 : Detachable S3
              DetS3 = Decidable-∩ (\_ -> decide-≤ _ _) (\_ -> decide-≤ _ _)
 
-             instance
-               FinSetStr-S1 : FinSetStr (∈-Subtype S1)
-               FinSetStr-S1 .FinSetStr.isFin =
-                 isFinSet-Detachable S1 (FinSetStr.isFin useⁱ) DetS1
-               FinSetStr-¬S1 : FinSetStr (∉-Subtype S1)
-               FinSetStr-¬S1 .FinSetStr.isFin =
-                 isFinSet-DetachableComp S1 (FinSetStr.isFin useⁱ) DetS1
-               FinSetStr-S2 : FinSetStr (∈-Subtype S2)
-               FinSetStr-S2 .FinSetStr.isFin =
-                 isFinSet-Detachable S2 (FinSetStr.isFin useⁱ) DetS2
-               FinSetStr-S3 : FinSetStr (∈-Subtype S3)
-               FinSetStr-S3 .FinSetStr.isFin =
-                 isFinSet-Detachable S3 (FinSetStr.isFin useⁱ) DetS3
+             open FinSetStr-DetachableInstances S1 DetS1
+             open FinSetStr-DetachableInstances S2 DetS2
+             open FinSetStr-DetachableInstances S3 DetS3
 
              eq1 : Fin M1' ≃ (∈-Subtype S1 ⊎ ∉-Subtype S1)
              eq1 = Detachable-eq S1 DetS1
@@ -465,7 +439,7 @@ abstract
              path1 : finiteSum (\ ((k , _) : Fin M1') -> (permute-seq p s k)) ==
                      finiteSum (\ (((k , _) , _) : (∈-Subtype S1)) -> (permute-seq p s k)) +
                      finiteSum (\ (((k , _) , _) : (∉-Subtype S1)) -> (permute-seq p s k))
-             path1 = finiteMerge-detachable _ (FinSet-Fin M1') S1 DetS1 (permute-seq p s ∘ Fin.i)
+             path1 = finiteMerge-detachable _ S1 DetS1 (permute-seq p s ∘ Fin.i)
 
 
              path2 : finiteSum (\ (((k , _) , _) : (∈-Subtype S1)) -> (permute-seq p s k)) ==

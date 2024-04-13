@@ -45,7 +45,7 @@ module _ {ℓD : Level} {D : Type ℓD}
         ==< (\i -> finiteSum (f'=if i) + finiteSum (z'=if i)) >
           finiteSum (\(i , s) -> indicator S DetS i * f i) +
           finiteSum (\(i , ¬s) -> indicator S DetS i * f i)
-        ==< sym (finiteMerge-detachable _ _ S DetS _) >
+        ==< sym (finiteMerge-detachable _ S DetS _) >
           finiteSum (\i -> indicator S DetS i * f i)
         end
         where

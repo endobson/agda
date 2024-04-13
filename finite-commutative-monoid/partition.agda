@@ -14,6 +14,7 @@ open import finite-commutative-monoid.sigma
 open import finset
 open import finset.partition
 open import finset.instances
+open import finset.instances.boolean
 open import finset.detachable
 open import finsum
 open import functions
@@ -29,16 +30,11 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
     finiteMergeᵉ' = finiteMergeᵉ CM
     finiteMerge' = finiteMerge CM
 
-  module _ {ℓB ℓS ℓP : Level} (FB : FinSet ℓB) (partition : FinitePartition ⟨ FB ⟩ ℓS ℓP) where
+  module _ {ℓB ℓS ℓP : Level} {B : Type ℓB} {{FinSetStr-B : FinSetStr B}}
+           (partition : FinitePartition B ℓS ℓP) where
     private
-      B = fst FB
-      isFinSet-B = snd FB
-
-      instance
-        FinSetStr-B : FinSetStr B
-        FinSetStr-B = record {isFin = isFinSet-B}
-
-
+      FB : FinSet ℓB
+      FB = B , isFinSetⁱ
       fS = fst partition
       S = fst fS
 
@@ -79,15 +75,14 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
         finiteMergeᵉ-convert CM FB (FinSet-Σ fS FP) (equiv⁻¹ (B≃ΣP-rev >eq> ΣP-rev≃ΣP)) f >=>
         finiteMerge-Σ CM fS FP (\x -> f (fst (snd x)))
 
-  module _ {ℓB ℓS ℓP : Level} (FB : FinSet ℓB) (bin-partition : BinaryPartition ⟨ FB ⟩ ℓS ℓP) where
+  module _ {ℓB ℓS ℓP : Level}
+           {B : Type ℓB} {{FinSetStr-B : FinSetStr B}}
+           (bin-partition : BinaryPartition B ℓS ℓP)
+           (f : B -> D)
+           where
     private
-      B = fst FB
-      isFinSet-B = snd FB
-
-      instance
-        FinSetStr-B : FinSetStr B
-        FinSetStr-B = record {isFin = isFinSet-B}
-
+      FB : FinSet ℓB
+      FB = B , isFinSetⁱ
       partition = fst bin-partition
       FS = fst partition
       S = fst FS
@@ -95,27 +90,41 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
       FP' : (b : Boolean) -> FinSet (ℓ-max* 2 ℓB ℓP)
       FP' b = FinSet-partition FB partition (eqInv (snd bin-partition) b)
 
+      f₁ : ⟨ FP' true ⟩ -> D
+      f₁ (i , _) = f i
+      f₂ : ⟨ FP' false ⟩ -> D
+      f₂ (i , _) = f i
+
+      instance
+        iFS : FinSetStr S
+        iFS = record {isFin = snd FS}
+
     abstract
       finiteMerge-binary-partition :
-        (f : B -> D) ->
         finiteMerge' f ==
-        (finiteMergeᵉ' (FP' true) (f ∘ fst)) ∙ (finiteMergeᵉ' (FP' false) (f ∘ fst))
-      finiteMerge-binary-partition f =
-        finiteMerge-partition FB partition f >=>
-        finiteMergeᵉ-convert CM _ _ (equiv⁻¹ (snd bin-partition)) _ >=>
+        (finiteMergeᵉ' (FP' true) f₁) ∙ (finiteMergeᵉ' (FP' false) f₂)
+      finiteMerge-binary-partition =
+        finiteMerge-partition partition f >=>
+        finiteMerge-convert CM (equiv⁻¹ (snd bin-partition)) _ >=>
         finiteMerge-Boolean CM (\k -> (finiteMergeᵉ' (FP' k) (f ∘ fst)))
 
-  module _ {ℓI ℓS : Level} (FI : FinSet ℓI) (S : Subtype ⟨ FI ⟩ ℓS) (DetS : Detachable S) where
+  module _ {ℓI ℓS : Level} {I : Type ℓI} {{FinSetStr-I : FinSetStr I}}
+           (S : Subtype I ℓS) (DetS : Detachable S)
+           {{FinSetStr-∈ : FinSetStr (∈-Subtype S)}}
+           {{FinSetStr-∉ : FinSetStr (∉-Subtype S)}}
+           (f : I -> D) where
     private
-      I = fst FI
+      FI : FinSet ℓI
+      FI = I , isFinSetⁱ
+
+      f₁ : (∈-Subtype S) -> D
+      f₁ (i , _) = f i
+      f₂ : (∉-Subtype S) -> D
+      f₂ (i , _) = f i
 
     abstract
-      finiteMerge-detachable :
-        (f : I -> D) ->
-        finiteMergeᵉ' FI f ==
-        (finiteMergeᵉ' (FinSet-Detachable FI S DetS) (f ∘ fst)) ∙
-        (finiteMergeᵉ' (FinSet-DetachableComp FI S DetS) (f ∘ fst))
-      finiteMerge-detachable f =
-        finiteMerge-binary-partition FI (Detachable->BinaryPartition S DetS) f >=>
-        cong2 (\fs1 fs2 -> finiteMergeᵉ' (_ , fs1) (f ∘ fst) ∙ finiteMergeᵉ' (_ , fs2) (f ∘ fst))
+      finiteMerge-detachable : finiteMerge' f == finiteMerge' f₁ ∙ finiteMerge' f₂
+      finiteMerge-detachable =
+        finiteMerge-binary-partition (Detachable->BinaryPartition S DetS) f >=>
+        cong2 (\fs1 fs2 -> finiteMergeᵉ' (_ , fs1) f₁ ∙ finiteMergeᵉ' (_ , fs2) f₂)
               (isProp-isFinSet _ _) (isProp-isFinSet _ _)
