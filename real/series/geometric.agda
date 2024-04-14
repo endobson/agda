@@ -8,7 +8,6 @@ open import additive-group.instances.nat
 open import apartness
 open import base
 open import equality
-open import finite-commutative-monoid.instances
 open import finset.instances
 open import funext
 open import functions
@@ -188,15 +187,13 @@ abstract
   geometric-series-path :
     (x : ℝ) (n : ℕ) -> (geometric-series x n) * (1# + (- x)) == 1# + - (x ^ℕ n)
   geometric-series-path x zero =
-    *-left (finiteMerge-Fin0 _ _) >=>
+    *-left partial-sums-zero >=>
     *-left-zero >=>
     sym +-inverse
   geometric-series-path x (suc n) = ans
     where
     expand : (geometric-series x (suc n)) == 1# + x * geometric-series x n
-    expand =
-      finiteMerge-FinSuc _ _ >=>
-      +-right finiteSum-*
+    expand = partial-sums-suc >=> +-right finiteSum-*
 
     ans : (geometric-series x (suc n)) * (1# + (- x)) == 1# + - (x ^ℕ (suc n))
     ans =

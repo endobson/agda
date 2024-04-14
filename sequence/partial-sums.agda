@@ -27,18 +27,17 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}  where
   partial-sums : Seq -> Seq
   partial-sums s n = finiteSum (\ ((i , _) : Fin n) -> s i)
 
-private
-  module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}  where
-    private
-      Seq : Type ℓD
-      Seq = Sequence D
-    partial-sums-zero : {s : Seq} -> partial-sums s 0 == 0#
-    partial-sums-zero = finiteMerge-Fin0 _ _
-    partial-sums-one : {s : Seq} -> partial-sums s 1 == s 0
-    partial-sums-one = finiteMerge-Fin1 _ _
-    partial-sums-suc : {s : Seq} {n : Nat} ->
-      partial-sums s (suc n) == s 0 + partial-sums (drop1 s) n
-    partial-sums-suc = finiteMerge-FinSuc _ _
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}  where
+  private
+    Seq : Type ℓD
+    Seq = Sequence D
+  partial-sums-zero : {s : Seq} -> partial-sums s 0 == 0#
+  partial-sums-zero = finiteMerge-Fin0 _ _
+  partial-sums-one : {s : Seq} -> partial-sums s 1 == s 0
+  partial-sums-one = finiteMerge-Fin1 _ _
+  partial-sums-suc : {s : Seq} {n : Nat} ->
+    partial-sums s (suc n) == s 0 + partial-sums (drop1 s) n
+  partial-sums-suc = finiteMerge-FinSuc _ _
 
 module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}  where
   private
