@@ -193,7 +193,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
   private
     sx = ∃!-val (∃!sqrt x x≮0)
 
-  abstract
+  opaque
     sqrt-0< : (0<x : 0# < x) -> 0# < sx
     sqrt-0< 0<x = isSqrt-0< (∃!-prop (∃!sqrt x x≮0)) 0<x
 
@@ -201,7 +201,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
     sqrt-0≤ = isSqrt-0≤ (∃!-prop (∃!sqrt x x≮0))
 
 module _ (x : ℝ) where
-  abstract
+  opaque
     sqrt-square : sqrtℝ (x * x) square-≮0 == abs x
     sqrt-square = isSqrt-square (∃!-prop (∃!sqrt (x * x) square-≮0))
 
@@ -216,6 +216,7 @@ module _ (x : ℝ) (y : ℝ) (x≮0 : x ≮ 0#) (y≮0 : y ≮ 0#)
     sxy = (sqrtℝ xy 0≤xy)
     sxsy = sx ℝ* sy
 
-  sqrt-* : sxy == sxsy
-  sqrt-* = ∃!-unique (∃!sqrt (x * y) 0≤xy) sxsy (isSqrt-* (∃!-prop (∃!sqrt x x≮0))
-                                                          (∃!-prop (∃!sqrt y y≮0)))
+  opaque
+    sqrt-* : sxy == sxsy
+    sqrt-* = ∃!-unique (∃!sqrt (x * y) 0≤xy) sxsy (isSqrt-* (∃!-prop (∃!sqrt x x≮0))
+                                                            (∃!-prop (∃!sqrt y y≮0)))

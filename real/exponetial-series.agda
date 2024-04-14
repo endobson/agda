@@ -126,23 +126,6 @@ private
   --   isInfiniteSum (seq-cons x s) (x + v)
   -- isInfiniteSum-cons = ?
 
-
-  partial-sums-drop1 : (s : Seq) (n : ℕ) ->
-    partial-sums (drop 1 s) n == partial-sums s (suc n) + - s zero
-  partial-sums-drop1 s n =
-    sym +-right-zero >=>
-    +-right (sym +-inverse) >=>
-    sym +-assoc >=>
-    +-left (+-commute >=> sym p >=> (\i -> partial-sums (s'=s i) (suc n)))
-    where
-    s' = seq-cons (s zero) (s ∘ suc)
-    s'=s : s' == s
-    s'=s = funExt (\{ zero -> refl ; (suc n) -> refl })
-    p : partial-sums s' (suc n) == (s zero) + partial-sums (s ∘ suc) n
-    p = partial-sums-cons (s zero) (s ∘ suc) n
-
-
-
   isInfiniteSum-drop1 :
     {s : Seq} {v : ℝ} -> isInfiniteSum s v ->
     isInfiniteSum (drop 1 s) (v + - (s zero))

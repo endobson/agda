@@ -188,8 +188,9 @@ vector-length v = sqrtℝ (vector-length² v) (vector-length²≮0 v)
 vector-length≮0 : (v : Vector) -> (vector-length v ≮ 0#)
 vector-length≮0 v = sqrt-0≤ (vector-length² v) (vector-length²≮0 v)
 
-vector-length-squared-path : (v : Vector) -> (vector-length v) * (vector-length v) == (vector-length² v)
-vector-length-squared-path v = sqrt² (vector-length² v) (vector-length²≮0 v)
+opaque
+  vector-length-squared-path : (v : Vector) -> (vector-length v) * (vector-length v) == (vector-length² v)
+  vector-length-squared-path v = sqrt² (vector-length² v) (vector-length²≮0 v)
 
 isUnitVector : Pred Vector ℓ-one
 isUnitVector v = vector-length v == 1#
@@ -234,56 +235,66 @@ isSet-Direction = isSetΣ isSet-Vector (\v -> isProp->isSet (isProp-isUnitVector
 0<-square x (inj-l x<0) = subst (_< (x * x)) *-right-zero (*₁-flips-< x<0 x<0)
 0<-square x (inj-r 0<x) = subst (_< (x * x)) *-right-zero (*₁-preserves-< 0<x 0<x)
 
-vector-length>0 : (v : Vector) -> (v v# 0v) -> (vector-length v > 0#)
-vector-length>0 v v#0 = unsquash isProp-< (∥-map handle v#0)
-  where
-  x = (direct-product-index v x-axis)
-  y = (direct-product-index v y-axis)
-  xx = x * x
-  yy = y * y
-  xxyy = xx + yy
-
-  handle-vl²>0 : (vector-length² v > 0#) -> (vector-length v > 0#)
-  handle-vl²>0 = sqrt-0< (vector-length² v) (vector-length²≮0 v)
-
-
-  handle : Σ[ a ∈ Axis ] (direct-product-index v a) # 0# -> (vector-length v > 0#)
-  handle (x-axis , x#0) = handle-vl²>0 (trans-<-≤ 0<xx xx≤xxyy)
+opaque
+  vector-length>0 : (v : Vector) -> (v v# 0v) -> (vector-length v > 0#)
+  vector-length>0 v v#0 = unsquash isProp-< (∥-map handle v#0)
     where
-    0<xx : 0# < xx
-    0<xx = 0<-square x x#0
-    0≤yy : 0# ≤ yy
-    0≤yy = square-≮0
-    xx≤xxyy : xx ≤ xxyy
-    xx≤xxyy = subst (_≤ xxyy) +-right-zero (+₁-preserves-≤ 0≤yy)
-  handle (y-axis , y#0) = handle-vl²>0 (trans-<-≤ 0<yy yy≤xxyy)
+    x : ℝ
+    x = (direct-product-index v x-axis)
+    y : ℝ
+    y = (direct-product-index v y-axis)
+    xx : ℝ
+    xx = x * x
+    yy : ℝ
+    yy = y * y
+    xxyy : ℝ
+    xxyy = xx + yy
+
+    handle-vl²>0 : (vector-length² v > 0#) -> (vector-length v > 0#)
+    handle-vl²>0 = sqrt-0< (vector-length² v) (vector-length²≮0 v)
+
+
+    handle : Σ[ a ∈ Axis ] (direct-product-index v a) # 0# -> (vector-length v > 0#)
+    handle (x-axis , x#0) = handle-vl²>0 (trans-<-≤ 0<xx xx≤xxyy)
+      where
+      0<xx : 0# < xx
+      0<xx = 0<-square x x#0
+      0≤yy : 0# ≤ yy
+      0≤yy = square-≮0
+      xx≤xxyy : xx ≤ xxyy
+      xx≤xxyy = subst (_≤ xxyy) +-right-zero (+₁-preserves-≤ 0≤yy)
+    handle (y-axis , y#0) = handle-vl²>0 (trans-<-≤ 0<yy yy≤xxyy)
+      where
+      0<yy : 0# < yy
+      0<yy = 0<-square y y#0
+      0≤xx : 0# ≤ xx
+      0≤xx = square-≮0
+      yy≤xxyy : yy ≤ xxyy
+      yy≤xxyy = subst (_≤ xxyy) +-left-zero (+₂-preserves-≤ 0≤xx)
+
+  vector-length>0-#0 : (v : Vector) -> (vector-length v > 0#) -> (v v# 0v)
+  vector-length>0-#0 v l>0 = unsquash isProp-v# (∥-map handle (+-reflects-#0 vl²#0))
     where
-    0<yy : 0# < yy
-    0<yy = 0<-square y y#0
-    0≤xx : 0# ≤ xx
-    0≤xx = square-≮0
-    yy≤xxyy : yy ≤ xxyy
-    yy≤xxyy = subst (_≤ xxyy) +-left-zero (+₂-preserves-≤ 0≤xx)
+    vl : ℝ
+    vl = vector-length v
+    vl² : ℝ
+    vl² = vector-length² v
+    x : ℝ
+    x = (direct-product-index v x-axis)
+    y : ℝ
+    y = (direct-product-index v y-axis)
 
-vector-length>0-#0 : (v : Vector) -> (vector-length v > 0#) -> (v v# 0v)
-vector-length>0-#0 v l>0 = unsquash isProp-v# (∥-map handle (+-reflects-#0 vl²#0))
-  where
-  vl = vector-length v
-  vl² = vector-length² v
-  x = (direct-product-index v x-axis)
-  y = (direct-product-index v y-axis)
+    vl#0 : vl # 0#
+    vl#0 = inj-r l>0
+    vl²#0 : vl² # 0#
+    vl²#0 = subst (_# 0#) (vector-length-squared-path v) (*-preserves-#0 vl#0 vl#0)
 
-  vl#0 : vl # 0#
-  vl#0 = inj-r l>0
-  vl²#0 : vl² # 0#
-  vl²#0 = subst (_# 0#) (vector-length-squared-path v) (*-preserves-#0 vl#0 vl#0)
+    handle : ((x * x) # 0#) ⊎ ((y * y) # 0#) -> v v# 0v
+    handle (inj-l xx#0) = ∣ x-axis , *₁-reflects-#0 xx#0 ∣
+    handle (inj-r yy#0) = ∣ y-axis , *₁-reflects-#0 yy#0 ∣
 
-  handle : ((x * x) # 0#) ⊎ ((y * y) # 0#) -> v v# 0v
-  handle (inj-l xx#0) = ∣ x-axis , *₁-reflects-#0 xx#0 ∣
-  handle (inj-r yy#0) = ∣ y-axis , *₁-reflects-#0 yy#0 ∣
-
-direction-#0 : (d : Direction) -> ⟨ d ⟩ v# 0v
-direction-#0 (dv , dp) = vector-length>0-#0 dv (subst (0# <_) (sym dp) 0<1)
+  direction-#0 : (d : Direction) -> ⟨ d ⟩ v# 0v
+  direction-#0 (dv , dp) = vector-length>0-#0 dv (subst (0# <_) (sym dp) 0<1)
 
 
 
@@ -448,9 +459,12 @@ vector->direction v v#0 = normalize-vector v v#0 , a.path
   module a where
     abstract
       0≤k : 0# ≤ k
-      0≤k k<0 = asym-< 0<1
-                       (subst2 _<_ (ℝ1/-inverse vl vl-inv) (*-right-zero {m = k})
-                                   (*₁-flips-< k<0 0<vl))
+      0≤k k<0 = asym-< 0<1 1<0
+        where
+        1<0 : 1# < 0#
+        1<0 = trans-=-< (sym (ℝ1/-inverse vl vl-inv) )
+               (trans-<-= (*₁-flips-< k<0 0<vl) *-right-zero)
+
       path : vector-length (k v* v) == 1#
       path = vector-length-* k v >=> *-left (abs-≮0-path 0≤k) >=> ℝ1/-inverse vl vl-inv
 
