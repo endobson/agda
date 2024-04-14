@@ -7,6 +7,7 @@ open import additive-group.instances.nat
 open import base
 open import equality
 open import fin
+open import finite-commutative-monoid.small
 open import finite-commutative-monoid.instances
 open import finset.instances
 open import finsum
@@ -18,6 +19,7 @@ open import order.instances.nat
 open import ordered-additive-group
 open import relation
 open import sequence
+open import sequence.drop
 
 module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}  where
   private
@@ -124,9 +126,30 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     Seq = Sequence D
 
   partial-sums-drop1 : (s : Seq) (n : ℕ) ->
-    partial-sums (drop1 s) n == partial-sums s (suc n) + - s zero
+    partial-sums (drop1 s) n == diff (s zero) (partial-sums s (suc n))
   partial-sums-drop1 s n =
     sym +-right-zero >=>
     +-right (sym +-inverse) >=>
     sym +-assoc >=>
     +-left (+-commute >=> sym partial-sums-suc)
+
+  partial-sums-drop : (s : Seq) (n m : ℕ) ->
+    partial-sums (drop n s) m == diff (partial-sums s n) (partial-sums s (n + m))
+  partial-sums-drop s n zero =
+    partial-sums-zero >=>
+    sym (+-left (cong (partial-sums s) +-right-zero) >=> +-inverse)
+  partial-sums-drop s n (suc m) =
+    partial-sums-suc >=>
+    +-cong (drop-+ n zero s) (partial-sums-drop s (suc n) m) >=>
+    +-right +-commute >=>
+    sym +-assoc >=>
+    +-commute >=>
+    +-cong
+      (cong (partial-sums s) (sym +'-right-suc))
+      (+-left (sym minus-double-inverse) >=>
+       sym minus-distrib-plus >=>
+       cong -_ (+-commute >=>
+                +-left (partial-sums-split s n >=> +-commute) >=>
+                +-assoc >=>
+                +-right (+-right (cong -_ (cong s +-right-zero)) >=> +-inverse) >=>
+                +-right-zero))

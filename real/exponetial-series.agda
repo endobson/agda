@@ -11,7 +11,6 @@ open import base
 open import equality
 open import factorial
 open import fin
-open import finite-commutative-monoid.instances
 open import finset.instances
 open import finsum
 open import finsum.arithmetic
@@ -143,40 +142,6 @@ private
     p1 : (n : ℕ) -> partial-sums s (suc n) + - s zero == partial-sums (drop 1 s) n
     p1 n = sym (partial-sums-drop1 s n)
 
-  drop-suc : (m : ℕ) (s : Seq) -> (drop (suc m) s) == drop m (s ∘ suc)
-  drop-suc zero    s = refl
-  drop-suc (suc n) s = cong (_∘ suc) (drop-suc n s)
-
-
-  drop-+ : (m n : ℕ) (s : Seq) -> (drop m s n) == s (m +' n)
-  drop-+ zero    n s = refl
-  drop-+ (suc m) n s = (drop-+ m (suc n) s) >=> cong s +'-right-suc
-
-
-  partial-sums-drop : (s : Seq) (n m : ℕ) ->
-    partial-sums (drop n s) m == partial-sums s (n + m) + - partial-sums s n
-  partial-sums-drop s n zero =
-    finiteMerge-Fin0 _ _ >=>
-    sym (+-left (cong (partial-sums s) +-right-zero) >=> +-inverse)
-  partial-sums-drop s n (suc m) = ans
-    where
-    ans : partial-sums (drop n s) (suc m) == partial-sums s (n + (suc m)) + - partial-sums s n
-    ans =
-      finiteMerge-FinSuc _ _ >=>
-      +-cong (drop-+ n zero s) (partial-sums-drop s (suc n) m) >=>
-      +-right +-commute >=>
-      sym +-assoc >=>
-      +-commute >=>
-      +-cong
-        (cong (partial-sums s) (sym +'-right-suc))
-        (+-left (sym minus-double-inverse) >=>
-         sym minus-distrib-plus >=>
-         cong -_ (+-commute >=>
-                  +-left (partial-sums-split s n >=> +-commute) >=>
-                  +-assoc >=>
-                  +-right (+-right (cong -_ (cong s +-right-zero)) >=> +-inverse) >=>
-                  +-right-zero))
-
   isInfiniteSum-drop :
     {s : Seq} {v : ℝ} -> (n : ℕ) -> isInfiniteSum s v ->
     isInfiniteSum (drop n s) (v + - (partial-sums s n))
@@ -184,7 +149,7 @@ private
     where
     path = sym +-right-zero >=>
            +-right (sym minus-zero >=>
-                    cong -_ (sym (finiteMerge-Fin0 _ _)))
+                    cong -_ (sym partial-sums-zero))
   isInfiniteSum-drop {s} {v} (suc n) sum1 =
     subst (isInfiniteSum (drop (suc n) s)) p2 sum3
     where
@@ -265,64 +230,9 @@ private
   bound-partial-sums :
     (s1 s2 : Seq) ->
     ∀Largeℕ (\m -> s1 m ≤ s2 m) ->
-    ∃[ n ∈ ℕ ] (∀Largeℕ' (\m -> partial-sums (drop n s1) m ≤ partial-sums (drop n s2) m))
-  bound-partial-sums s1 s2 = ∥-map handle
-    where
-    handle : ∀Largeℕ' (\m -> s1 m ≤ s2 m) ->
-             Σ[ n ∈ ℕ ] (∀Largeℕ' (\m -> partial-sums (drop n s1) m ≤ partial-sums (drop n s2) m))
-    handle (n , f) = n , 0# , f4
-      where
-      f4 : (m : ℕ) -> m ≥ 0# -> partial-sums (drop n s1) m ≤ partial-sums (drop n s2) m
-      f4 zero m≥0 =
-        subst2 _≤_
-               (finiteMerge-Fin0 _ _ >=>
-                sym (finiteMerge-Fin0 _ _))
-               refl refl-≤
-      f4 (suc m) m≥0 =
-        subst2 _≤_ (sym p1) (sym p2) (+-preserves-≤ lt-e (f4 m zero-≤))
-        where
-        p1 : partial-sums (drop n s1) (suc m) == s1 (n + m) + partial-sums (drop n s1) m
-        p1 = partial-sums-split (drop n s1) m >=> +-left (drop-+ n m s1)
-        p2 : partial-sums (drop n s2) (suc m) == s2 (n + m) + partial-sums (drop n s2) m
-        p2 = partial-sums-split (drop n s2) m >=> +-left (drop-+ n m s2)
-        lt-e : s1 (n + m) ≤ s2 (n + m)
-        lt-e = f (n + m) (subst2 _≤_ +-right-zero refl (+-preserves-≤ refl-≤ zero-≤))
-
-  bound-partial-sums' :
-    (s1 s2 : Seq) ->
-    ∀Largeℕ (\m -> s1 m ≤ s2 m) ->
-    ∃[ n₀ ∈ ℕ ] Σ[ m₀ ∈ ℕ ] ((n m : ℕ) -> n ≥ n₀ -> m ≥ m₀ ->
-                             partial-sums (drop n s1) m ≤ partial-sums (drop n s2) m)
-  bound-partial-sums' s1 s2 = ∥-map handle
-    where
-    handle : ∀Largeℕ' (\m -> s1 m ≤ s2 m) ->
-             Σ[ n₀ ∈ ℕ ] Σ[ m₀ ∈ ℕ ] ((n m : ℕ) -> n ≥ n₀ -> m ≥ m₀ ->
-                                      partial-sums (drop n s1) m ≤ partial-sums (drop n s2) m)
-    handle (n₀ , f) = n₀ , 0 , f2
-      where
-      f2 : (n m : ℕ) -> n ≥ n₀ -> m ≥ 0 ->
-           partial-sums (drop n s1) m ≤ partial-sums (drop n s2) m
-      f2 n zero n≥n₀ _ =
-        subst2 _≤_
-               (finiteMerge-Fin0 _ _ >=>
-                sym (finiteMerge-Fin0 _ _))
-               refl refl-≤
-      f2 n (suc m) n≥n₀ _ =
-        subst2 _≤_ (sym p1) (sym p2) (+-preserves-≤ lt-e (f2 n m n≥n₀ zero-≤))
-        where
-        p1 : partial-sums (drop n s1) (suc m) == s1 (n + m) + partial-sums (drop n s1) m
-        p1 = partial-sums-split (drop n s1) m >=> +-left (drop-+ n m s1)
-        p2 : partial-sums (drop n s2) (suc m) == s2 (n + m) + partial-sums (drop n s2) m
-        p2 = partial-sums-split (drop n s2) m >=> +-left (drop-+ n m s2)
-        lt-e : s1 (n + m) ≤ s2 (n + m)
-        lt-e = f (n + m) (subst2 _≤_ +-right-zero refl (+-preserves-≤ n≥n₀ zero-≤))
-
-  bound-partial-sums'2 :
-    (s1 s2 : Seq) ->
-    ∀Largeℕ (\m -> s1 m ≤ s2 m) ->
     ∃[ n₀ ∈ ℕ ] ((n m : ℕ) -> n ≥ n₀ ->
                  partial-sums (drop n s1) m ≤ partial-sums (drop n s2) m)
-  bound-partial-sums'2 s1 s2 = ∥-map handle
+  bound-partial-sums s1 s2 = ∥-map handle
     where
     handle : ∀Largeℕ' (\m -> s1 m ≤ s2 m) ->
              Σ[ n₀ ∈ ℕ ] ((n m : ℕ) -> n ≥ n₀ ->
@@ -331,11 +241,7 @@ private
       where
       f2 : (n m : ℕ) -> n ≥ n₀ ->
            partial-sums (drop n s1) m ≤ partial-sums (drop n s2) m
-      f2 n zero n≥n₀ =
-        subst2 _≤_
-               (finiteMerge-Fin0 _ _ >=>
-                sym (finiteMerge-Fin0 _ _))
-               refl refl-≤
+      f2 n zero n≥n₀ = path-≤ (partial-sums-zero >=> sym partial-sums-zero)
       f2 n (suc m) n≥n₀ =
         subst2 _≤_ (sym p1) (sym p2) (+-preserves-≤ lt-e (f2 n m n≥n₀))
         where
@@ -355,7 +261,7 @@ private
                  partial-sums (drop n s1) m ≤ partial-sums (drop n s2) m ×
                  partial-sums (drop n s2) m ≤ partial-sums (drop n s3) m)
   squeeze-partial-sums s1 s2 s3 s1≤s2 s2≤s3 =
-    ∥-map2 handle (bound-partial-sums'2 s1 s2 s1≤s2) (bound-partial-sums'2 s2 s3 s2≤s3)
+    ∥-map2 handle (bound-partial-sums s1 s2 s1≤s2) (bound-partial-sums s2 s3 s2≤s3)
     where
     handle :
       Σ[ n₀ ∈ ℕ ] ((n m : ℕ) -> n ≥ n₀ ->
@@ -528,11 +434,8 @@ private
           0# , subst (\s -> isLimit s 0#) (sym (funExt p)) (isLimit-constant-seq 0#)
           where
           p : (n : ℕ) -> partial-sums (constant-seq 0#) n == 0#
-          p zero = finiteMerge-Fin0 _ _
-          p (suc n) =
-            partial-sums-split (constant-seq 0#) n >=>
-            +-left-zero >=>
-            p n
+          p zero = partial-sums-zero
+          p (suc n) = partial-sums-suc >=> +-left-zero >=> p n
 
         isConvergentSeries-1/2^n : isConvergentSeries (geometric-sequence 1/2ℝ)
         isConvergentSeries-1/2^n =

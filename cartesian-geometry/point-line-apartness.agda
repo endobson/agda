@@ -182,7 +182,7 @@ private
     v*-right x-path >=>
     sym v+-right-zero >=>
     v+-right (sym v*-left-zero >=> v*-left (sym y0)) >=>
-    sym (axis-merge _) >=>
+    sym (finiteMerge-Axis _ _) >=>
     basis-decomposition-path b
     where
     b = isBasis-direction-basis d
@@ -212,7 +212,7 @@ private
     c2 y-axis = 0#
 
     scaled-sum-path : scaled-vector-sum c2 b' == v
-    scaled-sum-path = axis-merge _ >=> v+-right v*-left-zero >=> v+-right-zero >=> kx-path
+    scaled-sum-path = finiteMerge-Axis _ _ >=> v+-right v*-left-zero >=> v+-right-zero >=> kx-path
 
     ans2 : c y-axis == 0#
     ans2 = cong (\f -> f y-axis) (sym (basis-decomposition-unique b scaled-sum-path))

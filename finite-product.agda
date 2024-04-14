@@ -11,6 +11,7 @@ open import equality
 open import equivalence
 open import fin
 open import finite-commutative-monoid
+open import finite-commutative-monoid.small
 open import finite-commutative-monoid.instances
 open import finset
 open import finset.instances

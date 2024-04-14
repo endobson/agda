@@ -72,9 +72,9 @@ matrix-mv*-ext {m1} {m2} vp = matrix-ext f
   m-path : (m : Matrix) (a1 a2 : Axis) ->
     matrix-index m a1 a2 == vector-index (m mv* (axis-basis a2)) a1
   m-path m _ x-axis =
-    sym (axis-merge _ >=> +-cong *-right-one *-right-zero >=> +-right-zero)
+    sym (finiteMerge-Axis _ _ >=> +-cong *-right-one *-right-zero >=> +-right-zero)
   m-path m _ y-axis =
-    sym (axis-merge _ >=> +-cong *-right-zero *-right-one >=> +-left-zero)
+    sym (finiteMerge-Axis _ _ >=> +-cong *-right-zero *-right-one >=> +-left-zero)
 
 
   f : (a1 a2 : Axis) -> (matrix-index m1 a1 a2 == matrix-index m2 a1 a2)

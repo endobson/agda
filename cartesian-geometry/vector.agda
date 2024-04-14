@@ -15,6 +15,7 @@ open import fin
 open import fin-algebra
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
+open import finite-commutative-monoid.small
 open import finset
 open import finset.instances.base
 open import finset.instances.sum
@@ -24,6 +25,7 @@ open import hlevel
 open import integral-domain
 open import integral-domain.instances.real
 open import isomorphism
+open import nat.order
 open import order
 open import order.instances.real
 open import order.minmax.instances.real
@@ -85,6 +87,20 @@ private
     bf x-axis = refl
     bf y-axis = refl
 
+  Axis<->Fin2 : Iso Axis (Fin 2)
+  Axis<->Fin2 .Iso.fun x-axis = zero-fin
+  Axis<->Fin2 .Iso.fun y-axis = suc-fin zero-fin
+  Axis<->Fin2 .Iso.inv (zero        , _)  = x-axis
+  Axis<->Fin2 .Iso.inv (suc zero    , _)  = y-axis
+  Axis<->Fin2 .Iso.inv (suc (suc n) , lt) = bot-elim (zero-≮ (pred-≤ (pred-≤ lt)))
+  Axis<->Fin2 .Iso.leftInv x-axis = refl
+  Axis<->Fin2 .Iso.leftInv y-axis = refl
+  Axis<->Fin2 .Iso.rightInv (zero        , _)  = fin-i-path refl
+  Axis<->Fin2 .Iso.rightInv (suc zero    , _)  = fin-i-path refl
+  Axis<->Fin2 .Iso.rightInv (suc (suc n) , lt) = bot-elim (zero-≮ (pred-≤ (pred-≤ lt)))
+
+
+
 isFinSet-Axis : isFinSet Axis
 isFinSet-Axis = ∣ 2 , eq2 ∣
   where
@@ -104,10 +120,7 @@ axis-dot-product f1 f2 = (f1 x-axis * f2 x-axis) + (f1 y-axis * f2 y-axis)
 
 finiteMerge-Axis : {ℓ : Level} {D : Type ℓ} (CM : CommMonoid D) (f : Axis -> D) ->
                    finiteMerge CM f == (CommMonoid._∙_ CM) (f x-axis) (f y-axis)
-finiteMerge-Axis CM f =
-  finiteMerge-convert-iso CM (iso⁻¹ Axis-iso-Top⊎Top) f >=>
-  finiteMerge-⊎ CM _ >=>
-  cong2 (CommMonoid._∙_ CM) (finiteMerge-Top CM _) (finiteMerge-Top CM _)
+finiteMerge-Axis CM f = finiteMerge-2elem CM Axis<->Fin2 f
 
 Vector : Type₁
 Vector = DirectProduct ℝ Axis
@@ -137,25 +150,6 @@ instance
   ApartAdditiveGroup-Vector = ApartAdditiveGroup-DirectProduct ApartAdditiveGroup-ℝ Axis
 
 abstract
-  axis-merge : {ℓ : Level} {D : Type ℓ} {CM : CommMonoid D} (f : Axis -> D) ->
-               finiteMerge CM f == CommMonoid._∙_ CM (f x-axis) (f y-axis)
-  axis-merge {CM = CM} f =
-    finiteMerge-convert-iso CM (iso⁻¹ i) f >=>
-    finiteMerge-⊎ CM _ >=>
-    cong2 CM._∙_ (finiteMerge-Top CM _) (finiteMerge-Top CM _)
-    where
-    module CM = CommMonoid CM
-    open Iso
-    i : Iso Axis (Top ⊎ Top)
-    i .fun x-axis = inj-l tt
-    i .fun y-axis = inj-r tt
-    i .inv (inj-l _) = x-axis
-    i .inv (inj-r _) = y-axis
-    i .rightInv (inj-l _) = refl
-    i .rightInv (inj-r _) = refl
-    i .leftInv x-axis = refl
-    i .leftInv y-axis = refl
-
   AdditiveCommMonoidʰ-vector-index :
     (a : Axis) -> AdditiveCommMonoidʰ (\v -> vector-index v a)
   AdditiveCommMonoidʰ-vector-index = CommMonoidʰ-direct-product-index _ _
