@@ -11,6 +11,7 @@ open import direct-product
 open import equality hiding (J)
 open import fin
 open import finite-commutative-monoid
+open import finite-commutative-monoid.small
 open import finite-commutative-monoid.instances
 open import finite-commutative-monoid.partition
 open import finset

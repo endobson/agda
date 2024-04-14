@@ -2,17 +2,21 @@
 
 module finite-commutative-monoid.small where
 
-open import finite-commutative-monoid
-open import commutative-monoid
 open import base
+open import commutative-monoid
+open import equality
+open import equivalence
+open import fin
+open import fin-algebra
+open import fin-algebra
+open import finite-commutative-monoid
 open import finset
 open import finset.instances
+open import type-algebra
+open import type-algebra.boolean
+open import finset.instances.boolean
 open import finset.instances.base
 open import isomorphism
-open import equivalence
-open import fin-algebra
-open import fin
-open import equality
 
 module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
   open CommMonoid CM
@@ -42,21 +46,35 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
                                                (f zero-fin) ∙ (f (suc-fin zero-fin))
       finiteMerge-Fin2 f = eval (idEquiv _) f >=> sym ∙-assoc >=> ∙-right-ε
 
+      finiteMerge-Boolean : (f : Boolean -> D) -> finiteMerge' f == (f true) ∙ (f false)
+      finiteMerge-Boolean f = eval (equiv⁻¹ Fin2≃Boolean) f >=> sym ∙-assoc >=> ∙-right-ε
 
   module _ {ℓA : Level} {A : Type ℓA} {{fsA : FinSetStr A}} where
-    finiteMerge-0elem : (Iso A (Fin 0)) -> (f : A -> D) -> finiteMerge CM f == ε
-    finiteMerge-0elem i f =
-      finiteMerge-convert-iso CM (iso⁻¹ i) f >=>
-      finiteMerge-Fin0 _
+    -- Zero elements
+    finiteMerge-Uninhabited : (¬ A) -> (f : A -> D) -> finiteMerge' f == ε
+    finiteMerge-Uninhabited ¬a f =
+      finiteMerge-convert' (equiv⁻¹ (¬-Bot-eq ¬a)) f >=>
+      finiteMerge-Bot _
 
-    finiteMerge-1elem : (i : Iso A (Fin 1)) -> (f : A -> D) ->
-                        finiteMerge CM f == f (Iso.inv i zero-fin)
-    finiteMerge-1elem i f =
-      finiteMerge-convert-iso CM (iso⁻¹ i) f >=>
-      finiteMerge-Fin1 _
+    -- One element
+    finiteMerge-isContr :
+      (isContr-A : isContr A) -> (f : A -> D) -> finiteMerge' f == f ⟨ isContr-A ⟩
+    finiteMerge-isContr isContr-A f = path
+      where
+      a : A
+      a = fst (isContr-A)
 
-    finiteMerge-2elem : (i : Iso A (Fin 2)) -> (f : A -> D) ->
-                        finiteMerge CM f == f (Iso.inv i zero-fin) ∙ f (Iso.inv i (suc-fin zero-fin))
+      A≃Top : A ≃ Top
+      A≃Top = Contr-Top-eq isContr-A
+
+      path : finiteMerge' f == f a
+      path =
+        finiteMerge-convert' (equiv⁻¹ A≃Top) f >=>
+        finiteMerge-Top (\_ -> f a)
+
+    -- Two elements
+    finiteMerge-2elem : (i : Iso A Boolean) -> (f : A -> D) ->
+                        finiteMerge CM f == f (Iso.inv i true) ∙ f (Iso.inv i false)
     finiteMerge-2elem i f =
       finiteMerge-convert-iso CM (iso⁻¹ i) f >=>
-      finiteMerge-Fin2 _
+      finiteMerge-Boolean _

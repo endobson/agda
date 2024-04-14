@@ -9,7 +9,7 @@ open import equivalence
 open import isomorphism
 open import fin
 open import finite-commutative-monoid
-open import finite-commutative-monoid.instances
+open import finite-commutative-monoid.small
 open import finite-commutative-monoid.sigma
 open import finset
 open import finset.partition
@@ -105,8 +105,7 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
         (finiteMergeᵉ' (FP' true) f₁) ∙ (finiteMergeᵉ' (FP' false) f₂)
       finiteMerge-binary-partition =
         finiteMerge-partition partition f >=>
-        finiteMerge-convert CM (equiv⁻¹ (snd bin-partition)) _ >=>
-        finiteMerge-Boolean CM (\k -> (finiteMergeᵉ' (FP' k) (f ∘ fst)))
+        finiteMerge-2elem CM (equivToIso (snd bin-partition)) _
 
   module _ {ℓI ℓS : Level} {I : Type ℓI} {{FinSetStr-I : FinSetStr I}}
            (S : Subtype I ℓS) (DetS : Detachable S)

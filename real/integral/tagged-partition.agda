@@ -13,6 +13,7 @@ open import finset.instances
 open import finset
 open import finsum.arithmetic
 open import finite-commutative-monoid
+open import finite-commutative-monoid.small
 open import finite-commutative-monoid.instances
 open import finite-commutative-monoid.partition
 open import order

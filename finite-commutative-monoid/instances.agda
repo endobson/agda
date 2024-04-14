@@ -48,39 +48,10 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
     finiteMerge-FinSuc f =
       eval (idEquiv _) f >=> cong (f zero-fin ∙_) (sym (eval (idEquiv _) (f ∘ suc-fin)))
 
-    finiteMerge-Boolean : (f : Boolean -> D) -> finiteMerge' f == (f true) ∙ (f false)
-    finiteMerge-Boolean f = eval (equiv⁻¹ Fin2≃Boolean) f >=> sym ∙-assoc >=> ∙-right-ε
-
 
   module _ {ℓB : Level} {B : Type ℓB} {{FB : FinSetStr B}} where
     private
       finB = FinSetStr.isFin FB
-
-
-    abstract
-      finiteMerge-isContr :
-        (isContr-B : isContr B) -> (f : B -> D) -> finiteMerge' f == f ⟨ isContr-B ⟩
-      finiteMerge-isContr isContr-B f = path
-        where
-        b : B
-        b = fst (isContr-B)
-
-        B≃Top : B ≃ Top
-        B≃Top = Contr-Top-eq isContr-B
-
-        path : finiteMerge' f == f b
-        path =
-          finiteMerge-convert' (equiv⁻¹ B≃Top) f >=>
-          finiteMerge-Top CM (\_ -> f b)
-
-      finiteMerge-isProp : (isProp B) -> (b : B) -> (f : B -> D) -> finiteMerge' f == f b
-      finiteMerge-isProp isProp-B b f = finiteMerge-isContr (b , isProp-B b) f
-
-      finiteMerge-Uninhabited : (¬ B) -> (f : B -> D) -> finiteMerge' f == ε
-      finiteMerge-Uninhabited ¬b f =
-        finiteMerge-convert' (equiv⁻¹ (¬-Bot-eq ¬b)) f >=>
-        finiteMerge-Bot CM _
-
 
     abstract
       finiteMerge-Maybe :

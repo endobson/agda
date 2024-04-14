@@ -11,7 +11,7 @@ open import div
 open import equality
 open import equivalence
 open import finite-commutative-monoid
-open import finite-commutative-monoid.instances
+open import finite-commutative-monoid.small
 open import finite-commutative-monoid.without-point
 open import finite-product
 open import finite-product.arithmetic

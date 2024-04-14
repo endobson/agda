@@ -87,17 +87,15 @@ private
     bf x-axis = refl
     bf y-axis = refl
 
-  Axis<->Fin2 : Iso Axis (Fin 2)
-  Axis<->Fin2 .Iso.fun x-axis = zero-fin
-  Axis<->Fin2 .Iso.fun y-axis = suc-fin zero-fin
-  Axis<->Fin2 .Iso.inv (zero        , _)  = x-axis
-  Axis<->Fin2 .Iso.inv (suc zero    , _)  = y-axis
-  Axis<->Fin2 .Iso.inv (suc (suc n) , lt) = bot-elim (zero-≮ (pred-≤ (pred-≤ lt)))
-  Axis<->Fin2 .Iso.leftInv x-axis = refl
-  Axis<->Fin2 .Iso.leftInv y-axis = refl
-  Axis<->Fin2 .Iso.rightInv (zero        , _)  = fin-i-path refl
-  Axis<->Fin2 .Iso.rightInv (suc zero    , _)  = fin-i-path refl
-  Axis<->Fin2 .Iso.rightInv (suc (suc n) , lt) = bot-elim (zero-≮ (pred-≤ (pred-≤ lt)))
+  Axis<->Boolean : Iso Axis Boolean
+  Axis<->Boolean .Iso.fun x-axis = true
+  Axis<->Boolean .Iso.fun y-axis = false
+  Axis<->Boolean .Iso.inv true  = x-axis
+  Axis<->Boolean .Iso.inv false = y-axis
+  Axis<->Boolean .Iso.leftInv x-axis = refl
+  Axis<->Boolean .Iso.leftInv y-axis = refl
+  Axis<->Boolean .Iso.rightInv true  = refl
+  Axis<->Boolean .Iso.rightInv false = refl
 
 
 
@@ -120,7 +118,7 @@ axis-dot-product f1 f2 = (f1 x-axis * f2 x-axis) + (f1 y-axis * f2 y-axis)
 
 finiteMerge-Axis : {ℓ : Level} {D : Type ℓ} (CM : CommMonoid D) (f : Axis -> D) ->
                    finiteMerge CM f == (CommMonoid._∙_ CM) (f x-axis) (f y-axis)
-finiteMerge-Axis CM f = finiteMerge-2elem CM Axis<->Fin2 f
+finiteMerge-Axis CM f = finiteMerge-2elem CM Axis<->Boolean f
 
 Vector : Type₁
 Vector = DirectProduct ℝ Axis
