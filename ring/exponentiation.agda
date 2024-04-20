@@ -13,10 +13,34 @@ open import group.int
 open import int
 open import monoid
 open import nat
+open import nat.even-odd
 open import ring
 open import semiring
 open import semiring.exponentiation
 open import sigma.base
+
+
+module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+         {{S : Semiring ACM}} {{AG : AdditiveGroup ACM}}
+         where
+  private
+    instance
+      IACM = ACM
+
+  minus-^ℕ-odd : (x : D) (n : Nat) -> (Odd n) -> (- x) ^ℕ n == - (x ^ℕ n)
+  minus-^ℕ-odd x (suc zero) _ = *-right-one >=> cong -_ (sym *-right-one)
+  minus-^ℕ-odd x (suc (suc i)) oi =
+    sym *-assoc >=> *-left minus-extract-both >=>
+    *-right (minus-^ℕ-odd x i oi) >=>
+    minus-extract-right >=>
+    cong -_ *-assoc
+
+  minus-^ℕ-even : (x : D) (n : Nat) -> (Even n) -> (- x) ^ℕ n == x ^ℕ n
+  minus-^ℕ-even x zero _ = refl
+  minus-^ℕ-even x (suc (suc i)) ei =
+    sym *-assoc >=> *-left minus-extract-both >=>
+    *-right (minus-^ℕ-even x i ei) >=>
+    *-assoc
 
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
          {{S : Semiring ACM}} {{AG : AdditiveGroup ACM}}
