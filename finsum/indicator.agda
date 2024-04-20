@@ -57,7 +57,7 @@ module _ {ℓD : Level} {D : Type ℓD}
         z' _ = 0#
 
         f'=if : f' == (\(i , s) -> indicator S DetS i * f i)
-        f'=if = funExt (\s -> sym *-left-one >=> *-left (sym (proj₁ (∃!-prop (∃!indicator S DetS)) s)))
+        f'=if = funExt (\(_ , s) -> sym *-left-one >=> *-left (sym (indicator-=1 s)))
 
         z'=if : z' == (\(i , ¬s) -> indicator S DetS i * f i)
-        z'=if = funExt (\ ¬s -> sym *-left-zero >=> *-left (sym (proj₂ (∃!-prop (∃!indicator S DetS)) ¬s)))
+        z'=if = funExt (\(_ , ¬s) -> sym *-left-zero >=> *-left (sym (indicator-=0 ¬s)))

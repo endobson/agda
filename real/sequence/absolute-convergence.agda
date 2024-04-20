@@ -254,7 +254,7 @@ private
 
     lt1 : finiteSum (\ (k : Fin j) -> (indicator S' DetS' k * abs (permute-seq p s (Fin.i k)))) ≤
           finiteSum (\ (k : Fin j) -> (abs (permute-seq p s (Fin.i k))))
-    lt1 = finiteSum-preserves-≤ (\k -> trans-≤-= (*₂-preserves-≤ (indicator-≤1 S' DetS' k) abs-0≤)
+    lt1 = finiteSum-preserves-≤ (\k -> trans-≤-= (*₂-preserves-≤ indicator-≤1 abs-0≤)
                                                   *-left-one)
 
   permuted-partial-sums-abs-bounded-above :
@@ -494,9 +494,7 @@ abstract
 
                ind≤ : (k : Fin M2) -> (abs (indicator S3 DetS3 k)) ≤
                                       (indicator (LateTerm N1 M2) (DetLateTerm N1 M2) k)
-               ind≤ k =
-                 trans-=-≤ (abs-0≤-path (indicator-0≤ S3 DetS3 k))
-                   (indicator-≤ S3 DetS3 (LateTerm N1 M2) (DetLateTerm N1 M2) S3->LateTerm k)
+               ind≤ k = trans-=-≤ (abs-0≤-path indicator-0≤) (indicator-≤ S3->LateTerm)
 
                inner-≤ : (k : Fin M2) ->
                  abs (indicator S3 DetS3 k * (s (Fin.i k))) ≤

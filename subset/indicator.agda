@@ -27,7 +27,7 @@ module _ {ℓD : Level} {D : Type ℓD}
     isSet-D = Semiring.isSet-Domain S
 
   module _ {ℓI ℓS : Level} {I : Type ℓI} (S : Subtype I ℓS) (DetS : Detachable S) where
-    abstract
+    opaque
       ∃!indicator : ∃![ f ∈ (I -> D) ]
                      ((∀ (s : ∈-Subtype S) -> f (fst s) == 1#) ×
                       (∀ (s : ∉-Subtype S) -> f (fst s) == 0#))
@@ -55,6 +55,23 @@ module _ {ℓD : Level} {D : Type ℓD}
     indicator : I -> D
     indicator = ∃!-val ∃!indicator
 
+  module _ {ℓI ℓS : Level} {I : Type ℓI} {S : Subtype I ℓS} {DetS : Detachable S} where
+    opaque
+      indicator-=1 : {i : I} -> ⟨ S i ⟩ -> indicator S DetS i == 1#
+      indicator-=1 s = proj₁ (∃!-prop (∃!indicator S DetS)) (_ , s)
+
+      indicator-=0 : {i : I} -> ¬ ⟨ S i ⟩ -> indicator S DetS i == 0#
+      indicator-=0 s = proj₂ (∃!-prop (∃!indicator S DetS)) (_ , s)
+
+      indicator-= : {i j : I} ->
+        (⟨ S i ⟩ -> ⟨ S j ⟩) ->
+        (⟨ S j ⟩ -> ⟨ S i ⟩) ->
+        indicator S DetS i == indicator S DetS j
+      indicator-= {i} {j} Si->Sj Sj->Si = case (DetS i) of
+        \{ (yes s) -> indicator-=1 s >=> sym (indicator-=1 (Si->Sj s))
+         ; (no s) -> indicator-=0 s >=> sym (indicator-=0 (\s' -> s (Sj->Si s')))
+         }
+
   module _ {ℓ< ℓ≤ : Level} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
            {LO : isLinearOrder D<}
            {PO : isPartialOrder D≤}
@@ -66,35 +83,32 @@ module _ {ℓD : Level} {D : Type ℓD}
         ILO = LO
         IPO = PO
 
-    module _ {ℓI ℓS : Level} {I : Type ℓI} (S : Subtype I ℓS) (DetS : Detachable S)
+    module _ {ℓI ℓS : Level} {I : Type ℓI} {S : Subtype I ℓS} {DetS : Detachable S}
       where
-      abstract
-        indicator-≤1 : ∀ (i : I) -> indicator S DetS i ≤ 1#
-        indicator-≤1 i = case (DetS i) of
-          \{ (yes s) -> path-≤ (proj₁ (∃!-prop (∃!indicator S DetS)) (i , s))
-           ; (no ¬s) -> trans-=-≤ (proj₂ (∃!-prop (∃!indicator S DetS)) (i , ¬s)) (convert-≮ 1≮0)
+      opaque
+        indicator-≤1 : ∀ {i : I} -> indicator S DetS i ≤ 1#
+        indicator-≤1 {i} = case (DetS i) of
+          \{ (yes s) -> path-≤ (indicator-=1 s)
+           ; (no ¬s) -> trans-=-≤ (indicator-=0 ¬s) (convert-≮ 1≮0)
            }
 
-        indicator-0≤ : ∀ (i : I) -> 0# ≤ indicator S DetS i
-        indicator-0≤ i = case (DetS i) of
-          \{ (yes s) -> trans-≤-= (convert-≮ 1≮0) (sym (proj₁ (∃!-prop (∃!indicator S DetS)) (i , s)))
-           ; (no ¬s) -> path-≤ (sym (proj₂ (∃!-prop (∃!indicator S DetS)) (i , ¬s)))
+        indicator-0≤ : ∀ {i : I} -> 0# ≤ indicator S DetS i
+        indicator-0≤ {i} = case (DetS i) of
+          \{ (yes s) -> trans-≤-= (convert-≮ 1≮0) (sym (indicator-=1 s))
+           ; (no ¬s) -> path-≤ (sym (indicator-=0 ¬s))
            }
-
 
     module _ {ℓI ℓS1 ℓS2 : Level} {I : Type ℓI}
-             (S1 : Subtype I ℓS1) (DetS1 : Detachable S1)
-             (S2 : Subtype I ℓS2) (DetS2 : Detachable S2)
+             {S1 : Subtype I ℓS1} {DetS1 : Detachable S1}
+             {S2 : Subtype I ℓS2} {DetS2 : Detachable S2}
              where
-      abstract
-        indicator-≤ : (∀ i -> ⟨ S1 i ⟩ -> ⟨ S2 i ⟩) -> (i : I) ->
+      opaque
+        indicator-≤ : (∀ i -> ⟨ S1 i ⟩ -> ⟨ S2 i ⟩) -> {i : I} ->
                       indicator S1 DetS1 i ≤ indicator S2 DetS2 i
-        indicator-≤ S1->S2 i = handle (DetS1 i)
+        indicator-≤ S1->S2 {i} = handle (DetS1 i)
           where
           handle : Dec ⟨ S1 i ⟩ -> indicator S1 DetS1 i ≤ indicator S2 DetS2 i
           handle (yes s1) =
-            path-≤ ((proj₁ (∃!-prop (∃!indicator S1 DetS1)) (i , s1)) >=>
-                    sym (proj₁ (∃!-prop (∃!indicator S2 DetS2)) (i , (S1->S2 i s1))))
+            path-≤ (indicator-=1 s1 >=> sym (indicator-=1(S1->S2 i s1)))
           handle (no ¬s1) =
-            trans-=-≤ (proj₂ (∃!-prop (∃!indicator S1 DetS1)) (i , ¬s1))
-                      (indicator-0≤ S2 DetS2 i)
+            trans-=-≤ (indicator-=0 ¬s1) indicator-0≤
