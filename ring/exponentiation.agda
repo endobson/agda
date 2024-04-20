@@ -3,8 +3,8 @@
 module ring.exponentiation where
 
 open import additive-group
-open import additive-group.instances.nat
 open import additive-group.instances.int
+open import additive-group.instances.nat
 open import base
 open import commutative-monoid
 open import equality
@@ -15,6 +15,7 @@ open import monoid
 open import nat
 open import ring
 open import semiring
+open import semiring.exponentiation
 open import sigma.base
 
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
@@ -23,6 +24,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
   private
     instance
       IACM = ACM
+
     R : Ring S AG
     R = record {}
     module R = Ring R
@@ -32,17 +34,9 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     u1/_ = R.u1/_
 
   private
-    _^ℕ_ : D -> ℕ -> D
-    x ^ℕ zero = 1#
-    x ^ℕ (suc n) = x * (x ^ℕ n)
-
-    ^ℕ-one : {x : D} -> (x ^ℕ 1) == x
-    ^ℕ-one = *-right-one
-
     _u^ℕ_ : Unit -> ℕ -> Unit
     a u^ℕ zero = 1u
     a u^ℕ (suc n) = a u* (a u^ℕ n)
-
 
     u^ℕ-one : {x : Unit} -> (x u^ℕ 1) == x
     u^ℕ-one = ΣProp-path R.isProp-isUnit *-right-one
@@ -53,6 +47,12 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     u^ℕ-distrib-+ {b} {suc x} {y} =
       cong (b u*_) (u^ℕ-distrib-+ {b} {x} {y}) >=> sym (Monoid.∙-assoc R.Monoid-u*)
 
+
+  record is^ℤ (f : Unit -> ℤ -> Unit) : Type ℓD where
+    field
+      one : ∀ x -> f x (int 1) == x
+      *ʰ : ∀ n -> Groupʰᵉ R.GroupStr-u* R.GroupStr-u* (\x -> f x n)
+      +ʰ : ∀ x -> Groupʰᵉ GroupStr-ℤ+ R.GroupStr-u* (\n -> f x n)
 
   _u^ℤ_ : Unit -> ℤ -> Unit
   a u^ℤ (int.nonneg n) = a u^ℕ n
