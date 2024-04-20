@@ -44,16 +44,19 @@ isProp-Odd zero = isPropBot
 isProp-Odd (suc n) = isProp-Even n
 
 Even->¬Odd : (n : Nat) -> Even n -> ¬ (Odd n)
-Even->¬Odd n en on =
-  inj-l!=inj-r (isContr->isProp (isContr-OddEven n) (inj-l on) (inj-r en))
+Even->¬Odd (suc n) en on = Even->¬Odd n on en
 
 Odd->¬Even : (n : Nat) -> Odd n -> ¬ (Even n)
 Odd->¬Even n on en = Even->¬Odd n en on
 
+¬Odd->Even : (n : Nat) -> (¬ (Odd n)) -> Even n
 ¬Even->Odd : (n : Nat) -> (¬ (Even n)) -> Odd n
-¬Even->Odd zero          ¬e = bot-elim (¬e tt)
-¬Even->Odd (suc zero)    _  = tt
-¬Even->Odd (suc (suc n)) ¬e = ¬Even->Odd n ¬e
+
+¬Odd->Even zero    _   = tt
+¬Odd->Even (suc i) ¬ei = ¬Even->Odd i ¬ei
+
+¬Even->Odd zero    ¬e  = (¬e tt)
+¬Even->Odd (suc i) ¬oi = ¬Odd->Even i ¬oi
 
 Odd≃¬Even : (n : Nat) -> Odd n ≃ ¬ (Even n)
 Odd≃¬Even n = isoToEquiv (isProp->iso (Odd->¬Even n) (¬Even->Odd n) (isProp-Odd n) (isProp¬ _))
@@ -76,3 +79,18 @@ Even≃div' {n} = isoToEquiv (isProp->iso Even->div' div'->Even (isProp-Even n) 
 
 Odd≃¬div' : {n : Nat} -> Odd n ≃ ¬ (2 div' n)
 Odd≃¬div' {n} = subst (\x -> Odd n ≃ ¬ x) (ua Even≃div') (Odd≃¬Even n)
+
+sum-Odd-iso : (i j : Nat) -> Iso (Odd (i + j)) ((Odd i × Even j) ⊎ (Even i × Odd j))
+sum-Even-iso : (i j : Nat) -> Iso (Even (i + j)) ((Even i × Even j) ⊎ (Odd i × Odd j))
+
+sum-Odd-iso zero    j .Iso.fun oj                     = inj-r (tt , oj)
+sum-Odd-iso zero    j .Iso.inv (inj-r (tt , oj))      = oj
+sum-Odd-iso zero    j .Iso.leftInv  _                 = refl
+sum-Odd-iso zero    j .Iso.rightInv (inj-r (tt , oj)) = refl
+sum-Odd-iso (suc i) j = sum-Even-iso i j
+
+sum-Even-iso zero    j .Iso.fun ej                     = inj-l (tt , ej)
+sum-Even-iso zero    j .Iso.inv (inj-l (tt , ej))      = ej
+sum-Even-iso zero    j .Iso.leftInv  _                 = refl
+sum-Even-iso zero    j .Iso.rightInv (inj-l (tt , ej)) = refl
+sum-Even-iso (suc i) j = sum-Odd-iso i j
