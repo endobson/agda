@@ -6,10 +6,11 @@ open import additive-group.instances.nat
 open import base
 open import equality
 open import finset
-open import nat
-open import finsum.arithmetic
-open import finsum
 open import finset.instances
+open import finset.instances.sigma
+open import finsum
+open import finsum.arithmetic
+open import nat
 open import semiring.instances.nat
 
 cardinality-× : {ℓ : Level} (S₁ S₂ : FinSet ℓ) ->

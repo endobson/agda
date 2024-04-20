@@ -12,8 +12,8 @@ open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
 open import finset
 open import finset.instances
+open import finset.instances.sigma
 open import finset.instances.sum
-open import finsum
 open import functions
 open import isomorphism
 open import sigma

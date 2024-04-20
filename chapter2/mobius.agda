@@ -17,6 +17,7 @@ open import fin-algebra
 open import finite-commutative-monoid.instances
 open import finset
 open import finset.instances
+open import finset.instances.sigma
 open import finsum
 open import finsum.arithmetic
 open import finsum.sigma

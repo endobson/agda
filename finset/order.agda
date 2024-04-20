@@ -15,6 +15,7 @@ open import finset.order.base
 open import finset.cardinality
 open import finset.detachable
 open import finset.instances
+open import finset.instances.sigma
 open import finset.search
 open import finset.without-point
 open import finsum

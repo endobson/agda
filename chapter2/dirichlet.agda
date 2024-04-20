@@ -13,6 +13,7 @@ open import finset
 open import nat
 open import order
 open import order.instances.nat
+open import finset.instances.sigma
 open import finsum
 open import finsum.sigma
 open import finsum.arithmetic

@@ -15,8 +15,8 @@ open import finset
 open import finset.partition
 open import finset.instances
 open import finset.instances.boolean
+open import finset.instances.sigma
 open import finset.detachable
-open import finsum
 open import functions
 open import subset
 open import type-algebra

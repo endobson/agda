@@ -15,6 +15,7 @@ open import equivalence
 open import fin
 open import finset
 open import finset.instances
+open import finset.instances.sigma
 open import finsubset
 open import finsum
 open import functions

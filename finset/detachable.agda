@@ -10,7 +10,7 @@ open import relation
 open import fin
 open import finset
 open import finset.instances.base
-open import finsum
+open import finset.instances.sigma
 open import fin-algebra
 open import functions
 open import sigma
