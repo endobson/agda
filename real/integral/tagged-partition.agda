@@ -14,6 +14,7 @@ open import finset
 open import finsum.arithmetic
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
+open import finite-commutative-monoid.partition
 open import order
 open import order.instances.nat
 open import order.instances.real
@@ -121,14 +122,14 @@ module _ {a b : ℝ} (p : Partition a b) where
 
       split-sum-low : finiteSum f == finiteSum fl + finiteSum f¬l
       split-sum-low =
-        finiteMerge-Detachable _
+        finiteMerge-detachable _
           (\pb -> LowPartitionBoundary pb , isProp-LowPartitionBoundary pb)
           Decidable-LowPartitionBoundary
           f
 
       split-sum-high : finiteSum f == finiteSum fh + finiteSum f¬h
       split-sum-high =
-        finiteMerge-Detachable _
+        finiteMerge-detachable _
           (\pb -> HighPartitionBoundary pb , isProp-HighPartitionBoundary pb)
           Decidable-HighPartitionBoundary
           f

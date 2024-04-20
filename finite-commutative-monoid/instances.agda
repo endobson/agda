@@ -5,14 +5,12 @@ module finite-commutative-monoid.instances where
 open import base
 open import commutative-monoid
 open import commutative-monoid.pi
-open import cubical
 open import equality
 open import equivalence
 open import fin
 open import fin-algebra
 open import finite-commutative-monoid
 open import finset
-open import finset.detachable
 open import finset.instances
 open import finset.instances.base
 open import finset.instances.boolean
@@ -20,10 +18,7 @@ open import finsum
 open import functions
 open import funext
 open import hlevel
-open import isomorphism
 open import maybe
-open import nat.order
-open import subset
 open import sum
 open import truncation
 open import type-algebra
@@ -338,30 +333,6 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
                (sym (finiteMerge-convert' (equiv⁻¹ eq) (f ∘ inj-l))) >
             (finiteMerge' (f ∘ inj-l)) ∙ (finiteMerge' (f ∘ inj-r))
           end
-
-  module _ {ℓA ℓS : Level} {A : Type ℓA} {{FA : FinSetStr A}} (S : Subtype A ℓS) (d-S : Detachable S)
-            where
-    private
-      fs-A = FinSetStr.isFin FA
-      fs-S = isFinSet-Detachable S fs-A d-S
-      fs-S' = isFinSet-DetachableComp S fs-A d-S
-      FS : FinSet (ℓ-max ℓA ℓS)
-      FS = ∈-Subtype S , fs-S
-      FS' : FinSet(ℓ-max ℓA ℓS)
-      FS' = ∉-Subtype S , fs-S'
-
-      instance
-        FinSetStr-S : FinSetStr (∈-Subtype S)
-        FinSetStr-S = record { isFin = fs-S }
-        FinSetStr-S' : FinSetStr (∉-Subtype S)
-        FinSetStr-S' = record { isFin = fs-S' }
-
-    finiteMerge-Detachable : (f : A -> D) ->
-      finiteMerge CM f == (finiteMergeᵉ CM FS (f ∘ fst)) ∙ (finiteMergeᵉ CM FS' (f ∘ fst))
-    finiteMerge-Detachable f =
-      finiteMerge-convert' (equiv⁻¹ (Detachable-eq S d-S)) f
-      >=> finiteMerge-⊎ (f ∘ eqFun (equiv⁻¹ (Detachable-eq S d-S)))
-
 
 
 module _ {ℓA ℓB ℓD : Level} {A : Type ℓA} {B : Type ℓB} {D : Type ℓD}

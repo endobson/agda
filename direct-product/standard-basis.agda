@@ -12,6 +12,7 @@ open import equality hiding (J)
 open import fin
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
+open import finite-commutative-monoid.partition
 open import finset
 open import finset.detachable
 open import finset.search
@@ -246,7 +247,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
         sum2 : vector-sum extended-scale-up ==
                vector-sum (extended-scale-up ∘ fst) v+
                vector-sum (extended-scale-up ∘ fst)
-        sum2 = finiteMerge-Detachable _ SubS detachable-S extended-scale-up
+        sum2 = finiteMerge-detachable _ SubS detachable-S extended-scale-up
 
         sum3 : vector-sum (extended-scale-up ∘ fst) == 0v
         sum3 = finiteMerge-ε _ extended-scale-up-no-support
@@ -302,7 +303,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
                               (app-to i ∘ unwrap-dp ∘ extended-scale-up ∘ fst) +
                  finiteMergeᵉ CM-K+ (_ , fs-ΣIP')
                               (app-to i ∘ unwrap-dp ∘ extended-scale-up ∘ fst)
-          sum8 = finiteMerge-Detachable CM-K+ P detachable-P
+          sum8 = finiteMerge-detachable CM-K+ P detachable-P
                    (app-to i ∘ unwrap-dp ∘ extended-scale-up)
 
 
