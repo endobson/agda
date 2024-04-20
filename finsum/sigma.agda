@@ -4,21 +4,22 @@ module finsum.sigma where
 
 open import additive-group
 open import base
-open import finset
-open import functions
-open import sigma
-open import isomorphism
-open import type-algebra
-open import fin-algebra
 open import equality
 open import equivalence
-open import finsum
+open import fin
+open import fin-algebra
 open import finite-commutative-monoid.instances
+open import finset
 open import finset.instances
 open import finset.instances.base
-open import fin
+open import finset.instances.sum
+open import finsum
+open import functions
+open import isomorphism
 open import semiring
+open import sigma
 open import truncation
+open import type-algebra
 
 open EqReasoning
 

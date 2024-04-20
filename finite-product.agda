@@ -4,22 +4,22 @@ module finite-product where
 
 open import additive-group using (AdditiveCommMonoid)
 open import base
-open import cubical
-open import equality
 open import commutative-monoid
 open import commutative-monoid.pi
-open import functions
+open import cubical
+open import equality
 open import equivalence
-open import isomorphism
+open import fin
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
 open import finset
-open import finsum
 open import finset.instances
 open import finset.instances.base
-open import fin
-open import semiring
+open import finset.instances.sum
+open import functions
+open import isomorphism
 open import maybe
+open import semiring
 
 private
   variable

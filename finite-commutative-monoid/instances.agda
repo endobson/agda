@@ -14,7 +14,7 @@ open import finset
 open import finset.instances
 open import finset.instances.base
 open import finset.instances.boolean
-open import finsum
+open import finset.instances.sum
 open import functions
 open import funext
 open import hlevel

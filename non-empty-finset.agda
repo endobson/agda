@@ -10,7 +10,7 @@ open import fin
 open import hlevel
 open import fin-algebra
 open import finset
-open import finsum
+open import finset.instances.sum
 open import isomorphism
 open import nat
 open import nat.order

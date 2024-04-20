@@ -5,18 +5,18 @@ module finsum where
 open import additive-group
 open import additive-group.instances.nat
 open import base
+open import cubical
 open import equality-path
 open import equivalence
-open import cubical
 open import fin
 open import fin-algebra
-open import finset
 open import finite-commutative-monoid
+open import finset
 open import finset.instances
 open import finset.instances.base
+open import finset.instances.sum
 open import functions
 open import isomorphism
-open import maybe
 open import nat
 open import nat.order
 open import order
@@ -26,9 +26,7 @@ open import sigma
 open import sigma.base
 open import sum
 open import truncation
-open import type-algebra
 open import univalence
-open import funext
 
 private
   variable
@@ -159,30 +157,6 @@ finiteSum-one n = finiteSumᵉ-eval _ (idEquiv _) (\i -> 1) >=> i<nSum-one {n}
   i .leftInv ((0 , lt) , p) = bf-zero lt p
   i .leftInv ((suc i , lt) , p) = bf-suc i lt p
 
-
-
-
-isFinSetΣ-⊎ : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Type ℓ₂} -> isFinSetΣ A -> isFinSetΣ B
-              -> isFinSetΣ (A ⊎ B)
-isFinSetΣ-⊎ {A = A} {B} (na , eq-a) (nb , eq-b) = (na +' nb , ∥-map2 handle eq-a eq-b)
-  where
-  handle : (A ≃ Fin na) -> (B ≃ Fin nb) -> (A ⊎ B) ≃ Fin (na +' nb)
-  handle eq-a eq-b = ∘-equiv (pathToEquiv (\i -> (sym (Fin-+ na nb)) i)) (⊎-equiv eq-a eq-b)
-
-abstract
-  isFinSet-⊎ : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Type ℓ₂} -> isFinSet A -> isFinSet B
-               -> isFinSet (A ⊎ B)
-  isFinSet-⊎ FA FB = isFinSetΣ->isFinSet (isFinSetΣ-⊎ (isFinSet->isFinSetΣ FA) (isFinSet->isFinSetΣ FB))
-
-FinSet-⊎ : {ℓ₁ ℓ₂ : Level} -> (A : FinSet ℓ₁) -> (B : FinSet ℓ₂) -> FinSet (ℓ-max ℓ₁ ℓ₂)
-FinSet-⊎ (A , finA) (B , finB) = (A ⊎ B) , isFinSet-⊎ finA finB
-
-instance
-  FinSetStr-⊎ : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Type ℓ₂} {{FA : FinSetStr A}}
-                {{FB : FinSetStr B}} -> FinSetStr (A ⊎ B)
-  FinSetStr-⊎ {{FA = FA}} {{FB = FB}} = record
-    { isFin = isFinSet-⊎ (FinSetStr.isFin FA) (FinSetStr.isFin FB)
-    }
 
 isFinSetΣ-Σ' : {ℓ : Level} {n : Nat} (B : Fin n -> FinSet ℓ) -> isFinSetΣ (Σ[ i ∈ Fin n ] ⟨ B i ⟩)
 isFinSetΣ-Σ' {ℓ} {zero} FB = 0 , ∣ isoToEquiv i ∣

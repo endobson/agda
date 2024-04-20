@@ -13,10 +13,9 @@ open import equivalence
 open import finite-product
 open import finset
 open import finset.instances.base
+open import finset.instances.sum
 open import finsubset
-open import finsum
 open import hlevel
-open import relation
 open import isomorphism
 open import nat
 open import nat.bounded
@@ -29,6 +28,7 @@ open import prime-div-count.computational
 open import prime-factorization
 open import prime-gcd
 open import prime-power-factorization
+open import relation
 open import relatively-prime
 open import semiring
 open import semiring.instances.nat
