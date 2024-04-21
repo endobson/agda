@@ -221,6 +221,13 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<}
     *-preserves-<>0 (inj-r 0<a , inj-l b<0) = inj-l (*₁-preserves-<0 0<a b<0)
     *-preserves-<>0 (inj-r 0<a , inj-r 0<b) = inj-r (*-preserves-0< 0<a 0<b)
 
+  opaque
+    non-trivial-0<1 : {a b : D} -> a < b -> 0# < 1#
+    non-trivial-0<1 {a} {b} a<b =
+      proj₂ (proj-¬r (*₁-fully-reflects-< 1a<1b) (\ (_ , 1<0) -> 1≮0 1<0))
+      where
+      1a<1b : (1# * a) < (1# * b)
+      1a<1b = trans-=-< *-left-one (trans-<-= a<b (sym *-left-one))
 
 
 module _ {D : Type ℓD} {D≤ : Rel D ℓ≤}
