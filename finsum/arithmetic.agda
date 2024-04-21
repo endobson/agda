@@ -43,6 +43,11 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{AG : Addi
             }
           }
 
+      finiteSum-diff : {f g : I -> D} -> finiteSum (\i -> diff (f i) (g i)) ==
+                                         diff (finiteSum f) (finiteSum g)
+      finiteSum-diff = finiteMerge-split _ >=> +-right finiteSum--
+
+
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
   where
   private
