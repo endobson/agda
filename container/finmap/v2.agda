@@ -6,6 +6,7 @@ open import base
 open import finset
 open import hlevel
 open import equality-path
+open import equality.square
 open import functions
 open import functions.embedding
 open import equivalence

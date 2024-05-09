@@ -5,6 +5,7 @@ module isomorphism where
 open import base
 open import cubical
 open import equality-path
+open import equality.square
 open import equivalence.base
 open import functions
 open import hlevel.base

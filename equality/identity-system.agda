@@ -5,6 +5,7 @@ module equality.identity-system where
 open import base
 open import cubical
 open import equality-path
+open import equality.square
 open import equivalence
 open import hlevel
 open import isomorphism

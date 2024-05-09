@@ -6,6 +6,7 @@ open import base
 open import cubical
 open import equality-path
 open import equality.pathp-iso
+open import equality.square
 open import equivalence
 open import functions
 open import funext

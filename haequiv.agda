@@ -5,6 +5,7 @@ module haequiv where
 open import base
 open import cubical
 open import equality-path
+open import equality.square
 open import equivalence
 
 private
@@ -78,4 +79,4 @@ equiv->isHAEquiv : (eq : A ≃ B) -> isHAEquiv ⟨ eq ⟩
 equiv->isHAEquiv eq .isHAEquiv.inv      = eqInv eq
 equiv->isHAEquiv eq .isHAEquiv.rightInv = eqSec eq
 equiv->isHAEquiv eq .isHAEquiv.leftInv  = eqRet eq
-equiv->isHAEquiv eq .isHAEquiv.comm a   = flip-square (slideSquare (eqComm eq a))
+equiv->isHAEquiv eq .isHAEquiv.comm a   = rotate-square-ABCR->CARB (eqComm eq a)

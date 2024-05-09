@@ -7,6 +7,7 @@ module hlevel.sigma where
 open import base
 open import cubical
 open import equality-path
+open import equality.square
 open import hlevel.base
 open import relation
 open import sigma

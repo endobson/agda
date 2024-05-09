@@ -5,6 +5,7 @@ module type-algebra where
 open import base
 open import cubical
 open import equality-path
+open import equality.square
 open import equivalence
 open import functions
 open import funext
@@ -695,7 +696,7 @@ reindexΠ {A = A} {B} eq C = isoToEquiv i
       p1 = symP (subst-filler C (eqSec eq (eqFun eq b)) (g (eqInv eq (eqFun eq b))))
 
       pp : (cong (eqFun eq) (eqRet eq b)) == (eqSec eq (eqFun eq b))
-      pp = flip-square (slideSquare (eqComm eq b))
+      pp = rotate-square-ABCR->CARB (eqComm eq b)
 
       p2 : PathP (\i -> C (eqSec eq (eqFun eq b) i))
                  (g (eqInv eq (eqFun eq b)))

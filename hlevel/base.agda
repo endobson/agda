@@ -5,6 +5,7 @@ module hlevel.base where
 open import base
 open import cubical
 open import equality
+open import equality.square
 open import equivalence.base
 
 private
@@ -113,11 +114,11 @@ abstract
       vlines-i1 : vlines i1 == refl
       vlines-i1 = isContr->isProp (isProp->isContrPath (h i1) y y) _ _
 
-      vlines2 : SquareP {A = \i j -> A j} p p2 (vlines i0) (vlines i1)
+      vlines2 : SquareP (\i j -> A j) p p2 (vlines i0) (vlines i1)
       vlines2 i j = vlines j i
 
-      vlines2-refl : SquareP {A = \i j -> A j} p p2 refl refl
-      vlines2-refl = subst2 (SquareP p p2) vlines-i0 vlines-i1 vlines2
+      vlines2-refl : SquareP (\i j -> A j) p p2 refl refl
+      vlines2-refl = subst2 (SquareP (\i j -> A j) p p2) vlines-i0 vlines-i1 vlines2
 
 
 
