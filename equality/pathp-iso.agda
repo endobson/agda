@@ -7,6 +7,7 @@ open import cubical
 open import isomorphism
 open import equivalence
 open import equality-path
+open import functions
 
 -- Taken from GroupoidLaws in cubical stdlib
 
@@ -99,3 +100,37 @@ module _ {ℓ : Level} {A : I -> Type ℓ} {x : A i0} {y : A i1} where
   abstract
     PathP≃transport : (PathP A x y) ≃ (transport (\i -> A i) x == y)
     PathP≃transport = isoToEquiv (iso forward backward fb bf)
+
+-- Much simpler proof
+module _ {ℓ : Level} {A : I -> Type ℓ} {x : A i0} {y : A i1} where
+  PathP==transport : (PathP A x y) == (transport (\i -> A i) x == y)
+  PathP==transport i =
+    PathP (\j -> A (i ∨ j)) (transport-filler (\j -> A j) x i) y
+
+
+module _ {ℓ : Level} {A B C D : Type ℓ}
+         (p1 : A == C) (p2 : B == D)
+         (f-ab : A -> B) (f-cd : C -> D)
+         where
+  opaque
+    private
+      t1 : PathP (\k -> p1 (~ k) -> p1 i1) (\x -> x) (\x -> transport p1 x)
+      t1 k x = transp (\j -> p1 (~ k ∨ j)) (~ k) x
+
+      t2 : PathP (\k -> p2 i0 -> p2 k) (\x -> x) (\x -> transport p2 x)
+      t2 k x = transp (\j -> p2 (k ∧ j)) (~ k) x
+
+    function-pathp==commuting-squareᵉ :
+      (PathP (\i -> p1 i -> p2 i) f-ab f-cd) ==
+      ((transport p2) ∘ f-ab == f-cd ∘ (transport p1))
+    function-pathp==commuting-squareᵉ i =
+      PathP (\j -> p1 (~ i ∧ j) -> p2 (i ∨ j)) ((t2 i) ∘ f-ab) (f-cd ∘ (t1 i))
+
+module _ {ℓ : Level} {A B C D : Type ℓ}
+         {p1 : A == C} {p2 : B == D}
+         {f-ab : A -> B} {f-cd : C -> D}
+         where
+  function-pathp==commuting-square :
+    (PathP (\i -> p1 i -> p2 i) f-ab f-cd) ==
+    ((transport p2) ∘ f-ab == f-cd ∘ (transport p1))
+  function-pathp==commuting-square = function-pathp==commuting-squareᵉ p1 p2 f-ab f-cd

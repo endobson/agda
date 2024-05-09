@@ -198,13 +198,13 @@ abstract
 
 -- h-level for PathP
 
-abstract
+opaque
   isOfHLevelPathP' : (n : Nat) -> {A : I -> Type ℓ} ->
     ((i : I) -> isOfHLevel (suc n) (A i)) ->
     (x : A i0) (y : A i1) ->
     isOfHLevel n (PathP A x y)
   isOfHLevelPathP' n {A} h x y =
-    ≃-isOfHLevel (equiv⁻¹ PathP≃transport) n
+    transport (cong (isOfHLevel n) (sym PathP==transport))
       (isOfHLevelPath' n (h i1) (transport (\k -> A k) x) y)
 
 -- Sets make any square
