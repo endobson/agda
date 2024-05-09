@@ -131,46 +131,42 @@ transP {A = A} {a0 = a0} {B = B} p q i =
                  ; (i = i1) -> q j}))
        (p i)
 
+transP-mid : {A : I -> Type ℓ} {a0 : A i0} {b0 : A i0} {b1 : A i1} {a1 : A i1}
+             (p : Path (A i0) a0 b0) (q : PathP A b0 b1) (r : Path (A i1) b1 a1) ->
+             PathP A a0 a1
+transP-mid p q r i =
+  hcomp (\k -> \{ (i = i0) -> p (~ k)
+                ; (i = i1) -> r k
+                })
+        (q i)
+
 transP-left : {A : I -> Type ℓ} {a0 : A i0} {a1 : A i1} {b1 : A i1}
               (p : PathP A a0 a1) (q : Path (A i1) a1 b1)
               -> PathP A a0 b1
-transP-left {A = A} {a0} {a1} {b1} p q =
-  transport (\k -> PathP (\j -> (compPath-refl-right (\k -> A k) k) j) a0 b1)
-            (transP p q)
+transP-left p q = transP-mid refl p q
 
 transP-right : {A : I -> Type ℓ} {a0 : A i0} {b0 : A i0} {b1 : A i1}
                (p : Path (A i0) a0 b0) (q : PathP A b0 b1)
                -> PathP A a0 b1
-transP-right {A = A} {a0} {b0} {b1} p q =
-  transport (\k -> PathP (\j -> (compPath-refl-left (\k -> A k) k) j) a0 b1)
-            (transP p q)
-
-transP-mid : {A : I -> Type ℓ} {a0 : A i0} {b0 : A i0} {b1 : A i1} {a1 : A i1}
-             (p : Path (A i0) a0 b0) (q : PathP A b0 b1) (r : Path (A i1) b1 a1) ->
-             PathP A a0 a1
-transP-mid p q r = transP-right p (transP-left q r)
-
-
-transP-sym : {A : I -> Type ℓ} {a : A i0} {b : A i1} {c : A i0}
-             (p : PathP (\i -> A i)     a b)
-             (q : PathP (\i -> A (~ i)) b c) ->
-             Path (A i0) a c
-transP-sym {ℓ} {A} {a} {b} {c} p q =
-  transport (\i -> PathP (\j -> (pA=refl i) j) a c) (transP p q)
-  where
-  pA : Path (Type ℓ) (A i0) (A i0)
-  pA = (\i -> A i) ∙ (\i -> A (~ i))
-
-  pA=refl : pA == refl
-  pA=refl = compPath-sym (\i -> A i)
-
+transP-right p q = transP-mid p q refl
 
 transP-sides : {A : I -> Type ℓ} {a : A i0} {b1 : A i1} {b2 : A i1} {c : A i0}
                (p : PathP (\i -> A i)     a  b1)
                (q : Path (A i1)           b1 b2)
                (r : PathP (\i -> A (~ i)) b2 c) ->
                Path (A i0) a c
-transP-sides p q r = transP-sym (transP-left p q) r
+transP-sides {A = A} p q r i =
+  comp (\k -> A (~ k))
+       (\k -> \{ (i = i0) -> p (~ k)
+               ; (i = i1) -> r k
+               })
+       (q i)
+
+transP-sym : {A : I -> Type ℓ} {a : A i0} {b : A i1} {c : A i0}
+             (p : PathP (\i -> A i)     a b)
+             (q : PathP (\i -> A (~ i)) b c) ->
+             Path (A i0) a c
+transP-sym p q = transP-sides p refl q
 
 
 -- Path reversal on PathP
