@@ -120,6 +120,11 @@ transport-twice p q x =
   >=> (\i -> transport (\j -> p (i ∨ j)) (transport (q >=> (\j -> p (i ∧ j))) x))
   >=> transportRefl (transport (q >=> p) x)
 
+transport-sym : (p : A1 == A2) (x : A1) ->
+                transport (sym p) (transport p x) == x
+transport-sym p x i =
+  transp (\j -> p (~ j ∧ ~ i)) i (transp (\j -> p (j ∧ ~ i)) i x)
+
 -- Path composition on PathP
 
 transP : {A : I -> Type ℓ} {a0 : A i0} {a1 : A i1} {B_i1 : Type ℓ} {B : A i1 == B_i1}
