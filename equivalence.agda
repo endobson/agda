@@ -6,7 +6,9 @@ open import base
 open import cubical
 open import equality-path
 open import functions
+open import hlevel.base
 open import isomorphism
+open import sigma.base
 
 open import Agda.Builtin.Cubical.Glue
   using ()
@@ -35,6 +37,8 @@ module _ (e : A1 ≃ A2) where
   eqCtrPath : (a : A2) -> (f : fiber (eqFun e) a) -> (eqCtr a) == f
   eqCtrPath a = e .snd .equiv-proof a .snd
 
+equiv-path : {eq₁ eq₂ : A1 ≃ A2} -> eqFun eq₁ == eqFun eq₂ -> eq₁ == eq₂
+equiv-path p = ΣProp-path isProp-isEquiv p
 
 pathToEquiv : A1 == A2 -> A1 ≃ A2
 pathToEquiv p = lineToEquiv (\i -> p i)
