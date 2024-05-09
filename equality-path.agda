@@ -214,10 +214,9 @@ cong-trans f p1 p2 = part2
           (compPath-refl-right (cong f (p1 >=> p2)))
 
 
-
 -- Substitution
 substᵉ : {x y : A} -> (P : A → Type ℓ) -> x == y -> P x -> P y
-substᵉ P path = transport (\ i -> (P (path i)))
+substᵉ P path = transport (\i -> (P (path i)))
 
 abstract
   subst : {x y : A} -> (P : A → Type ℓ) -> x == y -> P x -> P y
@@ -232,15 +231,12 @@ subst-filler : {x y : A} -> (Q : A -> Type ℓ) -> (p : x == y) -> (qx : (Q x))
 subst-filler Q p qx = transport-filler (cong Q p) qx
 
 abstract
-
   subst-filler2 :  {x y : A} -> (Q : A -> Type ℓ) (p1 p2 : x == y) (pp : p1 == p2)
                    (qx : Q x) -> PathP (\k -> Q (p1 k)) qx (substᵉ Q p2 qx)
   subst-filler2 Q p1 p2 pp qx = transP-left (subst-filler Q p1 qx) (\k -> subst Q (pp k) qx)
 
-
-private
-  funExt2 : {f g : (a : A) -> (b : B a) -> C a b} -> ((a : A) -> (b : B a) -> f a b == g a b) -> f == g
-  funExt2 p i a b = p a b i
+  subst-refl : {x : A} -> {P : A → Type ℓ} -> {px : P x} -> subst P refl px == px
+  subst-refl {px = px} = transportRefl px
 
 
 -- True identity

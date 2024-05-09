@@ -162,6 +162,9 @@ abstract
                    (qx : Q x) -> PathP (\k -> Q (p1 k)) qx (substᵉ Q p2 qx)
   subst-filler2 Q p1 p2 pp qx = transP-left (subst-filler Q p1 qx) (\k -> subst Q (pp k) qx)
 
+  subst-refl : {x : A} -> {P : A → Type ℓ} -> {px : P x} -> subst P refl px == px
+  subst-refl {px = px} = transportRefl px
+
 -- True identity
 
 path->id : {x y : A} -> x == y -> x === y
