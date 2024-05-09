@@ -166,3 +166,5 @@ Decidable-∩ {P = P} {Q} decP decQ a = handle (decP a) (decQ a)
 isContr-singleton : (a : A) -> isContr (Σ A (a ==_))
 isContr-singleton a = (a , refl) , \{ (b , p) i -> p i , (\j -> p (j ∧ i)) }
 
+isContr-singleton' : (a : A) -> isContr (Σ A (_== a))
+isContr-singleton' a = (a , refl) , \{ (b , p) i -> p (~ i) , (\j -> p (j ∨ (~ i))) }
