@@ -157,8 +157,8 @@ isContr-ΣR≃isIdentitySystem {A = A} R refl' = isoToEquiv (iso f b fb bf)
 
         AB-path : AB'1 == AB'2
         AB-path =
-          cong-trans (\ap -> PathP (\j -> R a (ap j)) (refl' a) (refl' a))
-            (Ids-refl ids2 a) (sym (Ids-refl ids a))
+          sym (cong-trans (\ap -> PathP (\j -> R a (ap j)) (refl' a) (refl' a))
+                (Ids-refl ids2 a) (sym (Ids-refl ids a)))
 
         p1' : PathP (\i -> AB'1 i) (ids2.to-path-over (refl' a)) (ids.to-path-over (refl' a))
         p1' = transP (Ids-refl-over ids2 a) (symP (Ids-refl-over ids a))

@@ -63,6 +63,10 @@ doubleCompPath-filler p q r j i =
                    ; (i = i1) -> r j }))
         (inS (q i)) j
 
+module _ {ℓ : Level} {A : Type ℓ} {x : A} where
+  ∙∙-refl : Path (x == x) (refl ∙∙ refl ∙∙ refl) refl
+  ∙∙-refl i = (doubleCompPath-filler refl refl refl) (~ i)
+
 trans : {x y z : A} -> x == y -> y == z -> x == z
 trans p1 p2 = p1 ∙∙ refl ∙∙ p2
 
@@ -180,17 +184,26 @@ compPath-assoc {A = A} {x} {y} {z} {w} p q r = \i -> (t1 i) >=> (t2 (~ i))
 
 
 -- congruence rules
-cong-trans : {x y z : A1} (f : A1 -> A2) (p1 : x == y) (p2 : y == z) ->
-             (cong f p1 >=> cong f p2) == cong f (p1 >=> p2)
-cong-trans f p1 p2 = part2
-  where
-  part1 : (cong f (p1 >=> refl) >=> cong f p2) ==
-          cong f (p1 >=> p2) >=> cong f refl
-  part1 i = cong f (p1 >=> (\j -> p2 (i ∧ j))) >=> cong f (\j -> p2 (i ∨ j))
-  part2 : cong f p1 >=> cong f p2 == cong f (p1 >=> p2)
-  part2 = (\i -> cong f (compPath-refl-right p1 (~ i)) >=> cong f p2) >=>
-          part1 >=>
-          (compPath-refl-right (cong f (p1 >=> p2)))
+module _ {ℓA1 ℓA2 : Level} {A1 : Type ℓA1} {A2 : Type ℓA2} (f : A1 -> A2) where
+  private
+    P : {x y z : A1} -> (p1 : x == y) (p2 : y == z) -> Type ℓA2
+    P p1 p2 = cong f (p1 >=> p2) == (cong f p1 >=> cong f p2)
+
+    refl-P : (x : A1) -> P (reflᵉ x) (reflᵉ x)
+    refl-P _ = cong (cong f) ∙∙-refl >=> sym ∙∙-refl
+
+  opaque
+    cong-trans : {x y z : A1} (p1 : x == y) (p2 : y == z) -> P p1 p2
+    cong-trans p1 =
+      J (\ _ p2 -> (P p1 p2))
+        (J (\_ p1 -> (P p1 refl))
+           (refl-P _)
+           p1)
+
+    cong-trans-refl-refl : (x : A1) -> cong-trans (reflᵉ x) (reflᵉ x) == refl-P x
+    cong-trans-refl-refl x =
+      JRefl (\_ p2 -> (P refl p2)) _ >=>
+      JRefl (\_ p1 -> (P p1 refl)) _
 
 
 -- Substitution
