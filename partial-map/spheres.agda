@@ -28,7 +28,7 @@ R : Rel S1 ℓ-zero
 R x y = x == y
 
 add-loop : (a : S1) -> a == base -> a == base
-add-loop a p = p >=>' loop
+add-loop a p = p >=> loop
 
 -- loop-commute : (p : S1) (p2 : S1) -> p1 == p2 ->
 
@@ -53,15 +53,15 @@ add-loop a p = p >=>' loop
 
 
 --add-loop' : (a : S1) -> a == a -> a == a
---add-loop' base p = p >=>' loop
+--add-loop' base p = p >=> loop
 --add-loop' (loop i) p j = ? -- outS ans
 --  where
 --  φ : I
 --  φ = (i ∨ ~ i ∨ j ∨ ~ j)
 --
 --  spec : Partial φ S1
---  spec = (\{ (i = i0) -> (p >=>' loop) j
---           ; (i = i1) -> (p >=>' loop) j
+--  spec = (\{ (i = i0) -> (p >=> loop) j
+--           ; (i = i1) -> (p >=> loop) j
 --           ; (j = i0) -> loop i
 --           ; (j = i1) -> loop i
 --           })
@@ -86,12 +86,12 @@ add-loop a p = p >=>' loop
 
 
 --add-loop' : (a b : S1) -> a == b -> a == b
---add-loop' base     b p = loop >=>' p
+--add-loop' base     b p = loop >=> p
 --add-loop' (loop i) b p j = outS ans
 --  where
 --  spec : Partial (i ∨ ~ i ∨ j ∨ ~ j) S1
---  spec = (\{ (i = i0) -> (loop >=>' p) j
---           ; (i = i1) -> (loop >=>' p) j
+--  spec = (\{ (i = i0) -> (loop >=> p) j
+--           ; (i = i1) -> (loop >=> p) j
 --           ; (j = i0) -> loop i
 --           ; (j = i1) -> b
 --           })
@@ -101,12 +101,12 @@ add-loop a p = p >=>' loop
 --
 --  module _ (k : I) where
 --    ans-back : Sub S1 (~ i ∧ (~ k ∨ k ∨ j ∨ ~ j)
---                (\{ (i = i0) (k = i1) -> (loop >=>' p) j
+--                (\{ (i = i0) (k = i1) -> (loop >=> p) j
 --                  ; (i = i0) (k = i0) -> p j
 --                  })
 --    ans-back = ?
 --    ans-front : Sub S1 (i ∧ (~ k ∨ k))
---                 (\{ (i = i1) (k = i1) -> (loop >=>' p) j ; (i = i1) (k = i0) -> p j})
+--                 (\{ (i = i1) (k = i1) -> (loop >=> p) j ; (i = i1) (k = i0) -> p j})
 --    ans-front = ?
 --    ans-left : Sub S1 (~ j ∧ (~ k ∨ k))
 --                 (\{ (j = i0) (k = i1) -> loop i ; (j = i0) (k = i0) -> loop i})

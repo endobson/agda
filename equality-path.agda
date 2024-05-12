@@ -64,22 +64,23 @@ doubleCompPath-filler p q r j i =
         (inS (q i)) j
 
 trans : {x y z : A} -> x == y -> y == z -> x == z
-trans p1 p2 = refl ∙∙ p1 ∙∙ p2
+trans p1 p2 = p1 ∙∙ refl ∙∙ p2
 
 infixl 20 _>=>_
-infixl 20 _>=>'_
 _>=>_ : {x y z : A} -> x == y -> y == z -> x == z
 p1 >=> p2 = trans p1 p2
-_>=>'_ : {x y z : A} -> x == y -> y == z -> x == z
-p1 >=>' p2 = p1 ∙∙ refl ∙∙ p2
 
 
 private
   _∙_ = trans
 
 compPath-filler : {x y z : A} (p : x == y) (q : y == z) -> PathP (\i -> x == (q i)) p (p ∙ q)
-compPath-filler p q = doubleCompPath-filler refl p q
-
+compPath-filler p q i j =
+  hcomp (\ k -> \ { (i = i0) -> p (j ∨ ~ k)
+                  ; (j = i0) -> p (~ k)
+                  ; (j = i1) -> q (i ∧ k)
+                  })
+        (p i1)
 
 
 -- Path identies with refl
@@ -97,19 +98,6 @@ compPath-sym p = contract >=> compPath-refl-right refl
   where
   contract : (p >=> sym p) == (refl >=> refl)
   contract j = (\i -> p (i ∧ (~ j))) >=> (\i -> p (~ i ∧ (~ j)))
-
-
-
-compPath'==compPath : {x y z : A} -> (p1 : x == y) -> (p2 : y == z) -> p1 >=>' p2 == p1 >=> p2
-compPath'==compPath p1 p2 i = (\j -> p1 (j ∧ (~ i))) ∙∙ (\j -> p1 (j ∨ (~ i))) ∙∙ p2
-
-compPath'-refl-right : {x y : A} (p : x == y) -> (p >=>' refl) == p
-compPath'-refl-right p = compPath'==compPath p refl >=> compPath-refl-right p
-
-compPath'-refl-left : {x y : A} (p : x == y) -> (refl >=>' p) == p
-compPath'-refl-left p = compPath'==compPath refl p >=> compPath-refl-left p
-
-
 
 
 -- Path composition with transport
@@ -189,16 +177,6 @@ compPath-assoc {A = A} {x} {y} {z} {w} p q r = \i -> (t1 i) >=> (t2 (~ i))
 
   t2 : PathP (\ i -> q i == w ) (q >=> r) r
   t2 = transP-left (\ i -> (\j -> q (i ∨ j)) >=> r) (compPath-refl-left r)
-
-compPath'-assoc : {ℓ : Level} {A : Type ℓ} {x y z w : A} ->
-                  (p : x == y) (q : y == z) (r : z == w) ->
-                  (p >=>' q) >=>' r == p >=>' (q >=>' r)
-compPath'-assoc p q r =
-  cong (_>=>' r) (compPath'==compPath p q) >=>
-  compPath'==compPath (p >=> q) r >=>
-  compPath-assoc p q r >=>
-  sym (compPath'==compPath p (q >=> r)) >=>
-  cong (p >=>'_) (sym (compPath'==compPath q r))
 
 
 -- congruence rules

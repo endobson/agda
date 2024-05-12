@@ -25,18 +25,18 @@ data S1 : Type₀ where
 
 loopsℕ : ℕ -> ΩS1
 loopsℕ zero = refl
-loopsℕ (suc n) = loop >=>' loopsℕ n
+loopsℕ (suc n) = loop >=> loopsℕ n
 
 loopsℤ : ℤ -> ΩS1
 loopsℤ (nonneg n) = loopsℕ n
 loopsℤ (nonpos n) = sym (loopsℕ n)
 loopsℤ (same-zero i) = refl
 
-loopsℕ-commute : ∀ n -> loop >=>' loopsℕ n == loopsℕ n >=>' loop
-loopsℕ-commute zero i = (\j -> loop (~ i ∧ j)) >=>' (\j -> loop (~ i ∨ j))
+loopsℕ-commute : ∀ n -> loop >=> loopsℕ n == loopsℕ n >=> loop
+loopsℕ-commute zero i = (\j -> loop (~ i ∧ j)) >=> (\j -> loop (~ i ∨ j))
 loopsℕ-commute (suc n) =
-  cong (loop >=>'_) (loopsℕ-commute n) >=>
-       sym (compPath'-assoc loop (loopsℕ n) loop)
+  cong (loop >=>_) (loopsℕ-commute n) >=>
+       sym (compPath-assoc loop (loopsℕ n) loop)
 
 add1Equiv : ℤ ≃ ℤ
 add1Equiv = (isoToEquiv (iso add1 sub1 add1-sub1 sub1-add1))
@@ -72,16 +72,16 @@ base-s : (z : ℤ) -> PathP (\i -> base == loop i) (loopsℤ (sub1 z)) (loopsℤ
 base-s (nonneg 0) = base-s (nonpos 0)
 base-s (same-zero i) = base-s (nonpos 0)
 base-s (nonneg (suc n)) =
-  transP-mid (sym (compPath'-refl-right (loopsℕ n)))
+  transP-mid (sym (compPath-refl-right (loopsℕ n)))
              ans
              (sym (loopsℕ-commute n))
   where
-  ans : PathP (\i -> base == loop i) (loopsℕ n >=>' refl) (loopsℕ n >=>' loop)
-  ans i = loopsℕ n >=>' (\j -> loop (j ∧ i))
-base-s (nonpos n) = transP-left ans' (compPath'-refl-right (sym (loopsℕ n)))
+  ans : PathP (\i -> base == loop i) (loopsℕ n >=> refl) (loopsℕ n >=> loop)
+  ans i = loopsℕ n >=> (\j -> loop (j ∧ i))
+base-s (nonpos n) = transP-left ans' (compPath-refl-right (sym (loopsℕ n)))
   where
-  ans' : PathP (\i -> base == loop i) (sym (loopsℕ n) >=>' sym loop) (sym (loopsℕ n) >=>' refl)
-  ans' i = sym (loopsℕ n) >=>' (\j -> loop (~ j ∨ i))
+  ans' : PathP (\i -> base == loop i) (sym (loopsℕ n) >=> sym loop) (sym (loopsℕ n) >=> refl)
+  ans' i = sym (loopsℕ n) >=> (\j -> loop (~ j ∨ i))
 
 
 sub-ans : (i : I) (z : helix (loop i)) ->

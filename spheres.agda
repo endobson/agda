@@ -40,17 +40,17 @@ encode pt path = substᵉ helix path (int 0)
 
 ℕ->ΩS1 : ℕ -> ΩS1
 ℕ->ΩS1 zero = refl
-ℕ->ΩS1 (suc n) = (ℕ->ΩS1 n) >=>' loop
+ℕ->ΩS1 (suc n) = (ℕ->ΩS1 n) >=> loop
 
 loopsℕ : ℕ -> ΩS1
 loopsℕ = ℕ->ΩS1
 
 private
-  loops-commute : ∀ n -> loopsℕ n >=>' loop == loop >=>' loopsℕ n
-  loops-commute zero = compPath'-refl-left loop >=> sym (compPath'-refl-right loop)
+  loops-commute : ∀ n -> loopsℕ n >=> loop == loop >=> loopsℕ n
+  loops-commute zero = compPath-refl-left loop >=> sym (compPath-refl-right loop)
   loops-commute (suc n) =
-    cong (_>=>' loop) (loops-commute n) >=>
-    compPath'-assoc loop (loopsℕ n) loop
+    cong (_>=> loop) (loops-commute n) >=>
+    compPath-assoc loop (loopsℕ n) loop
 
 
 ℤ->ΩS1 : ℤ -> ΩS1
@@ -66,7 +66,7 @@ winding-loopsℕ⁻ : ∀ n -> ΩS1->ℤ (sym (loopsℕ n)) == nonpos n
 winding-loopsℕ⁻ zero = same-zero
 winding-loopsℕ⁻ (suc n) = sym (reorder n) >=> cong sub1 (winding-loopsℕ⁻ n)
   where
-  reorder : (n : ℕ) -> ΩS1->ℤ (sym (loop >=>' (loopsℕ n))) == ΩS1->ℤ (sym (loopsℕ n >=>' loop))
+  reorder : (n : ℕ) -> ΩS1->ℤ (sym (loop >=> (loopsℕ n))) == ΩS1->ℤ (sym (loopsℕ n >=> loop))
   reorder n i = ΩS1->ℤ (sym (loops-commute n (~ i)))
 
 
@@ -79,29 +79,29 @@ winding-loopsℕ⁻ (suc n) = sym (reorder n) >=> cong sub1 (winding-loopsℕ⁻
 decodeSquareℕ : (n : ℕ) -> PathP (\i -> base == loop i) (ℕ->ΩS1 n) (ℕ->ΩS1 (suc n))
 decodeSquareℕ n = transP-right step1 step3
   where
-  step1 : (ℕ->ΩS1 n) == ((ℕ->ΩS1 n) >=>' refl)
-  step1 = sym (compPath'-refl-right (ℕ->ΩS1 n))
+  step1 : (ℕ->ΩS1 n) == ((ℕ->ΩS1 n) >=> refl)
+  step1 = sym (compPath-refl-right (ℕ->ΩS1 n))
 
   step2 : PathP (\i -> base == loop i) refl loop
   step2 i j = loop (i ∧ j)
 
-  step3 : PathP (\i -> base == loop i) ((ℕ->ΩS1 n) >=>' refl) ((ℕ->ΩS1 n) >=>' loop)
-  step3 i = (ℕ->ΩS1 n) >=>' step2 i
+  step3 : PathP (\i -> base == loop i) ((ℕ->ΩS1 n) >=> refl) ((ℕ->ΩS1 n) >=> loop)
+  step3 i = (ℕ->ΩS1 n) >=> step2 i
 
 decodeSquareℕ2 : (n : ℕ) -> PathP (\i -> base == loop i) (sym (ℕ->ΩS1 (suc n))) (sym (ℕ->ΩS1 n))
 decodeSquareℕ2 n = transP-mid step3 step4 step1
   where
-  step1 : (sym (ℕ->ΩS1 n) >=>' refl) == sym (ℕ->ΩS1 n)
-  step1 = (compPath'-refl-right (sym (ℕ->ΩS1 n)))
+  step1 : (sym (ℕ->ΩS1 n) >=> refl) == sym (ℕ->ΩS1 n)
+  step1 = (compPath-refl-right (sym (ℕ->ΩS1 n)))
 
   step2 : PathP (\i -> base == loop i) (sym loop) refl
   step2 i j = loop (i ∨ (~ j))
 
-  step3 : ((sym loop) >=>' sym (ℕ->ΩS1 n)) == (sym (loopsℕ n) >=>' sym loop)
+  step3 : ((sym loop) >=> sym (ℕ->ΩS1 n)) == (sym (loopsℕ n) >=> sym loop)
   step3 = cong sym (loops-commute n)
 
-  step4 : PathP (\i -> base == loop i) (sym (loopsℕ n) >=>' sym loop) (sym (loopsℕ n) >=>' refl)
-  step4 i = sym (loopsℕ n) >=>' step2 i
+  step4 : PathP (\i -> base == loop i) (sym (loopsℕ n) >=> sym loop) (sym (loopsℕ n) >=> refl)
+  step4 i = sym (loopsℕ n) >=> step2 i
 
 
 decodeSquare : (n : ℤ) -> PathP (\i -> base == loop i) (ℤ->ΩS1 (sub1 n)) (ℤ->ΩS1 n)
