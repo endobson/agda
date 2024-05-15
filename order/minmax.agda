@@ -24,7 +24,7 @@ record MinOperationStr {ℓD ℓ< : Level} {D : Type ℓD} {_<_ : Rel D ℓ<}
 
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {LO : isLinearOrder D<} {{MO : MinOperationStr LO }} where
+         {LO : isLinearOrder D<} {{MO : MinOperationStr LO}} where
   open MinOperationStr MO public
 
   private
@@ -112,7 +112,7 @@ record MaxOperationStr {ℓD ℓ< : Level} {D : Type ℓD} {_<_ : Rel D ℓ<}
 
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {LO : isLinearOrder D<} {{MO : MaxOperationStr LO }} where
+         {LO : isLinearOrder D<} {{MO : MaxOperationStr LO}} where
   open MaxOperationStr MO public
 
   private
