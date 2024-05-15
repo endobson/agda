@@ -55,6 +55,23 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
     isContinuous-+₂ x =
       subst isContinuous (funExt (\y -> +-commute)) (isContinuous-+₁ x)
 
+  opaque
+    isContinuous-minus : isContinuous (-_)
+    isContinuous-minus x i@(oi {l} {u} l<u) fx∈i@(l<-x , -x<u) =
+      ∣ (oi (minus-flips-< l<u)) , (-u<x , x<-l) , g ∣
+      where
+      module i = OI i
+      -u<x : (- i.u) < x
+      -u<x = trans-<-= (minus-flips-< -x<u) minus-double-inverse
+      x<-l : x < (- i.l)
+      x<-l = trans-=-< (sym minus-double-inverse) (minus-flips-< l<-x)
+      g : ∀ y -> y ∈OI _ -> (- y) ∈OI i
+      g y (-u<y , y<-l) = (l<-y , -y<u)
+        where
+        l<-y : i.l < (- y)
+        l<-y = trans-=-< (sym minus-double-inverse) (minus-flips-< y<-l)
+        -y<u : (- y) < i.u
+        -y<u = trans-<-= (minus-flips-< -u<y) minus-double-inverse
 
   module _ (ε⁺@(ε , 0<ε) : D⁺) (x : D) where
     εBall-at : OI D
