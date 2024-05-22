@@ -8,7 +8,6 @@ open import additive-group.instances.real
 open import base
 open import equality
 open import fin
-open import integral-domain.instances.real
 open import nat
 open import nat.order
 open import order
@@ -18,7 +17,6 @@ open import order.minmax
 open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.real
-open import ordered-integral-domain
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.real

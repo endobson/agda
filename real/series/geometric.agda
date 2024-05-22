@@ -3,49 +3,51 @@
 module real.series.geometric where
 
 open import additive-group
-open import additive-group.instances.real
 open import additive-group.instances.nat
+open import additive-group.instances.real
 open import apartness
 open import base
 open import equality
 open import finset.instances
-open import funext
-open import functions
 open import finsum.arithmetic
+open import functions
+open import funext
 open import heyting-field
 open import nat
 open import nat.order
 open import order
-open import order.instances.real
 open import order.instances.nat
 open import order.instances.rational
+open import order.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.nat
+open import ordered-additive-group.instances.real
 open import ordered-semiring
-open import ordered-semiring.instances.rational
-open import ordered-semiring.instances.real
 open import ordered-semiring.archimedean
 open import ordered-semiring.archimedean.instances.rational
-open import ordered-additive-group.instances.real
+open import ordered-semiring.instances.rational
+open import ordered-semiring.instances.real
+open import ordered-semiring.non-trivial
+open import ordered-semiring.non-trivial.instances.real
 open import rational
 open import rational.order
 open import real
-open import real.arithmetic.rational
 open import real.arithmetic.multiplication.inverse
+open import real.arithmetic.rational
 open import real.epsilon-bounded
 open import real.heyting-field
 open import real.order
-open import real.sequence.limit.arithmetic
 open import real.rational
-open import real.series
 open import real.sequence.limit
+open import real.sequence.limit.arithmetic
+open import real.series
 open import ring
-open import ring.solver-equations
-open import ring.implementations.real
 open import ring.implementations.rational
+open import ring.implementations.real
+open import ring.solver-equations
 open import semiring
-open import semiring.instances.nat
 open import semiring.initial
+open import semiring.instances.nat
 open import sequence
 open import sequence.partial-sums
 open import truncation
@@ -118,11 +120,11 @@ geometric-sequence-1 (suc n) = *-left-one >=> geometric-sequence-1 n
 
 
 geometric-sequence-0≤ : {x : ℝ} -> 0# ≤ x -> (n : ℕ) -> 0# ≤ geometric-sequence x n
-geometric-sequence-0≤ 0≤x zero = weaken-< 0ℝ<1ℝ
+geometric-sequence-0≤ 0≤x zero = weaken-< 0<1
 geometric-sequence-0≤ 0≤x (suc n) = *-preserves-0≤ 0≤x (geometric-sequence-0≤ 0≤x n)
 
 geometric-sequence-0< : {x : ℝ} -> 0# < x -> (n : ℕ) -> 0# < geometric-sequence x n
-geometric-sequence-0< 0<x zero = 0ℝ<1ℝ
+geometric-sequence-0< 0<x zero = 0<1
 geometric-sequence-0< 0<x (suc n) = *-preserves-0< 0<x (geometric-sequence-0< 0<x n)
 
 

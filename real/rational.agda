@@ -12,11 +12,9 @@ open import nat
 open import order
 open import order.instances.real
 open import ordered-additive-group
-open import ordered-integral-domain
 open import ordered-ring
 open import ordered-semiring
 open import rational
-open import rational.integral-domain
 open import rational.order
 open import real
 open import real.order
@@ -149,9 +147,6 @@ abstract
 
 1ℝ : ℝ
 1ℝ = ℚ->ℝ 1r
-
-0ℝ<1ℝ : 0ℝ ℝ< 1ℝ
-0ℝ<1ℝ = ℚ->ℝ-preserves-< 0r 1r 0<1
 
 -- Properties with the constants
 

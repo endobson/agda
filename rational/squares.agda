@@ -9,11 +9,11 @@ open import hlevel
 open import order
 open import order.minmax
 open import order.minmax.instances.rational
-open import ordered-integral-domain
 open import ordered-additive-group
 open import ordered-semiring
+open import ordered-semiring.non-trivial
+open import ordered-semiring.non-trivial.instances.rational
 open import rational
-open import rational.integral-domain
 open import rational.order
 open import relation
 open import semiring

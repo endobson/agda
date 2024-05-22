@@ -7,11 +7,10 @@ open import additive-group.instances.real
 open import apartness
 open import base
 open import equality
-open import integral-domain
 open import order.instances.real
-open import ordered-integral-domain
+open import ordered-semiring.non-trivial
+open import ordered-semiring.non-trivial.instances.rational
 open import rational
-open import rational.integral-domain
 open import rational.order
 open import real
 open import real.derivative

@@ -10,7 +10,6 @@ open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
 open import finsum.arithmetic
 open import funext
-open import integral-domain.instances.real
 open import order
 open import order.instances.real
 open import order.minmax.instances.rational
@@ -18,11 +17,12 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
-open import ordered-integral-domain
 open import ordered-ring.absolute-value
 open import ordered-semiring.instances.real
+open import ordered-semiring.non-trivial
+open import ordered-semiring.non-trivial.instances.real
+open import ordered-semiring.non-trivial.instances.rational
 open import rational
-open import rational.integral-domain
 open import rational.order
 open import real
 open import real.epsilon-bounded

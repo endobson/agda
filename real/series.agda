@@ -18,7 +18,6 @@ open import functions
 open import funext
 open import heyting-field
 open import hlevel
-open import integral-domain.instances.real
 open import nat
 open import nat.order
 open import order
@@ -32,7 +31,6 @@ open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
 open import ordered-additive-group.instances.nat
-open import ordered-integral-domain
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.real

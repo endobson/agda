@@ -19,13 +19,15 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
-open import ordered-integral-domain
 open import ordered-semiring.archimedean
 open import ordered-ring.absolute-value
 open import ordered-semiring
 open import ordered-semiring.archimedean.instances.real
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
+open import ordered-semiring.non-trivial
+open import ordered-semiring.non-trivial.instances.rational
+open import ordered-semiring.non-trivial.instances.real
 open import rational
 open import rational.integral-domain
 open import rational.order
@@ -121,7 +123,7 @@ isLimit-exponential-ratio x = εBounded-diff->isLimit f
 
 isAbsConvergentSeries-exponential : (x : ℝ) -> isAbsConvergentSeries (exponential-sequence x)
 isAbsConvergentSeries-exponential x =
-  ratio-test (isRatioSeq-exponential x) (isLimit-exponential-ratio x) refl-≤ 0ℝ<1ℝ
+  ratio-test (isRatioSeq-exponential x) (isLimit-exponential-ratio x) refl-≤ 0<1
 
 exp : ℝ -> ℝ
 exp x = fst (isAbsConvergentSeries-exponential x)

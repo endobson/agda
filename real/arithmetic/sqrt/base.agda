@@ -11,11 +11,11 @@ open import order
 open import order.instances.real
 open import order.instances.rational
 open import ordered-additive-group
-open import ordered-integral-domain
 open import ordered-semiring
+open import ordered-semiring.non-trivial
+open import ordered-semiring.non-trivial.instances.rational
 open import ordered-semiring.squares
 open import rational
-open import rational.integral-domain
 open import rational.order
 open import rational.squares
 open import real

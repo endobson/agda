@@ -23,6 +23,8 @@ open import order.instances.int
 open import order.instances.nat
 open import ordered-additive-group
 open import ordered-semiring
+open import ordered-semiring.non-trivial
+open import ordered-semiring.non-trivial.instances.int
 open import ordered-semiring.archimedean
 open import ordered-semiring.archimedean.instances.int
 open import ordered-semiring.instances.rational
@@ -74,9 +76,6 @@ private
     trans-<-= (trans-=-< (sym +-left-zero) (+₂-preserves-< (ℕ->ℚ-preserves-order 0 (suc i) zero-<)))
               (sym (ℤ->ℚ-preserves-+ _ _) >=> cong ℤ->ℚ p)
 
-  ℤ-0<1 : 0# int.order.< 1#
-  ℤ-0<1 = (1 , tt) , +-right-zero
-
   ℚFinite : (q : ℚ) -> ∃[ n ∈ ℕ ] (q < ℕ->ℚ n)
   ℚFinite q = ∥-bind handle (ℚ->split-ℤ/ℕ q)
     where
@@ -90,7 +89,7 @@ private
                                                                  (weaken-< (Pos-1/ℕ d)))
                                                  *-left-zero)
                                       Pos-1r) ∣
-      handle2 (inj-l 0<n) = ∥-map handle3 (archimedean-property 0<n ℤ-0<1)
+      handle2 (inj-l 0<n) = ∥-map handle3 (archimedean-property 0<n 0<1)
         where
         handle3 : Σ[ m ∈ ℕ ] (n < (ℕ->Semiring m * 1#)) ->
                   Σ[ m ∈ ℕ ] (q < ℕ->ℚ m)
