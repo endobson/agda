@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module rational.interval where
+module rational.non-standard-interval.base where
 
 open import base
 open import equality

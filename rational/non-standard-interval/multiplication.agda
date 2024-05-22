@@ -1,13 +1,13 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module rational.interval.multiplication where
+module rational.non-standard-interval.multiplication where
 
 open import base
 open import equality
 open import order.instances.rational
 open import rational.order
-open import rational.interval
-open import rational.interval.multiplication-base
+open import rational.non-standard-interval.base
+open import rational.non-standard-interval.multiplication-base
 open import sign
 open import sign.instances.rational
 
