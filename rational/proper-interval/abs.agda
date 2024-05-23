@@ -46,7 +46,7 @@ NonNegI->ImbalancedI a@(Iℚ-cons l u l≤u) nn-a = trans-≤ (trans-≤ -l≤0 
 
 i-maxabs≤->ImbalancedI : (a : Iℚ) -> (i-maxabs a ℚ≤ Iℚ.u a) -> ImbalancedI a
 i-maxabs≤->ImbalancedI (Iℚ-cons l u l≤u) ma≤au =
-  trans-≤ max-≤-right (trans-≤ max-≤-left ma≤au)
+  trans-≤ max-≤-left ma≤au
 
 ImbalancedI->0≤u : (a : Iℚ) -> ImbalancedI a -> (0r ≤ Iℚ.u a)
 ImbalancedI->0≤u (Iℚ-cons l u l≤u) -l≤u = NonNeg-0≤ u nn-u
@@ -59,20 +59,7 @@ ImbalancedI->0≤u (Iℚ-cons l u l≤u) -l≤u = NonNeg-0≤ u nn-u
 
 
 ImbalancedI->i-maxabs : (a : Iℚ) -> ImbalancedI a -> (i-maxabs a == Iℚ.u a)
-ImbalancedI->i-maxabs (Iℚ-cons l u l≤u) -l≤u =
-  max-≤-path al≤au >=> au=u
-  where
-  al≤u : abs l ≤ u
-  al≤u = max-property {P = _ℚ≤ u} l (- l) l≤u -l≤u
-
-  nn-u : NonNeg u
-  nn-u = NonNeg-≤ (abs l) u (0≤-NonNeg _ abs-0≤) al≤u
-
-  au=u : abs u == u
-  au=u = abs-0≤-path (NonNeg-0≤ _ nn-u)
-
-  al≤au : abs l ≤ abs u
-  al≤au = trans-≤ al≤u max-≤-left
+ImbalancedI->i-maxabs a -l≤u = max-≤-path -l≤u
 
 ImbalancedI-i- : (ai : Iℚ) -> ImbalancedI ai ⊎ ImbalancedI (i- ai)
 ImbalancedI-i- ai@(Iℚ-cons l u l≤u) = handle (split-< (- l) u)

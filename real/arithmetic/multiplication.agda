@@ -784,7 +784,7 @@ module _ (x : ℝ)
           m2 = i-maxabs (ir i* ix)
 
           -lb≤m2 : (r- lb) ≤ m2
-          -lb≤m2 = trans-≤ max-≤-right max-≤-left
+          -lb≤m2 = max-≤-left
           -m2≤lb : (r- m2) ≤ lb
           -m2≤lb = subst ((r- m2) ≤_) minus-double-inverse
                          (minus-flips-≤ -lb≤m2)
@@ -793,10 +793,7 @@ module _ (x : ℝ)
           m2=m-ir*m = i-maxabs-i* ir ix
 
           m-ir=r : m-ir == (r- r)
-          m-ir=r = cong (max (abs r)) (cong (max (r- r)) minus-double-inverse >=>
-                                       max-commute) >=>
-                   max-idempotent >=>
-                   (abs-<0-path neg-r)
+          m-ir=r = max-idempotent
 
           mr*m=-q : (r- r) r* m == (r- q)
           mr*m=-q = cong (_r* m) (sym (r*-minus-extract-left q 1/m)) >=>
@@ -891,17 +888,14 @@ module _ (x : ℝ)
           m2 = i-maxabs (ir i* ix)
 
           ub≤m2 : ub ≤ m2
-          ub≤m2 = trans-≤ max-≤-left max-≤-right
+          ub≤m2 = max-≤-right
 
           m2=m-ir*m : m2 == m-ir r* m
           m2=m-ir*m = i-maxabs-i* ir ix
 
           m-ir=r : m-ir == r
-          m-ir=r = cong (\x -> (max x (abs r)))
-                        (cong (max (r- r)) minus-double-inverse >=>
-                         max-commute) >=>
-                   max-idempotent >=>
-                   (abs-0<-path pos-r)
+          m-ir=r = cong (\x -> max x r) minus-double-inverse >=>
+                   max-idempotent
 
           mr*m=q : r r* m == q
           mr*m=q = r*-assoc q 1/m m >=>

@@ -531,31 +531,35 @@ i∪₂-width-≤ : (a b : Iℚ) -> i-width b ℚ≤ i-width (a i∪ b)
 i∪₂-width-≤ a b = subst (\x -> i-width b ℚ≤ i-width x) (i∪-commute b a) (i∪₁-width-≤ b a)
 
 i-maxabs : Iℚ -> ℚ
-i-maxabs (Iℚ-cons l u _) = max (abs l) (abs u)
+i-maxabs a = max (- (Iℚ.l a)) (Iℚ.u a)
+
+i-maxabs' : Iℚ -> ℚ
+i-maxabs' a = max (abs (Iℚ.l a)) (abs (Iℚ.u a))
+
+i-maxabs'-path : (a : Iℚ) -> i-maxabs' a == i-maxabs a
+i-maxabs'-path (Iℚ-cons l u l≤u) =
+  max-swap >=> max-commute >=> cong2 max (max-≥-path (minus-flips-≤ l≤u)) (max-≤-path l≤u)
+
 
 
 i-maxabs-NonNeg : (a : Iℚ) -> NonNegI a -> i-maxabs a == Iℚ.u a
 i-maxabs-NonNeg (Iℚ-cons l u l≤u) nn-l =
-  cong2 max (abs-0≤-path (NonNeg-0≤ _ nn-l)) (abs-0≤-path (NonNeg-0≤ _ nn-u)) >=>
-  max-≤-path l≤u
+  max-≤-path (trans-≤ (trans-≤ (minus-flips-0≤ 0≤l) 0≤l) l≤u)
   where
-  nn-u = NonNeg-≤ l u nn-l l≤u
+  0≤l = (NonNeg-0≤ _ nn-l)
 
 i-maxabs-NonPos : (a : Iℚ) -> NonPosI a -> i-maxabs a == (r- (Iℚ.l a))
 i-maxabs-NonPos (Iℚ-cons l u l≤u) np-u =
-  cong2 max (abs-≤0-path (NonPos-≤0 _ np-l)) (abs-≤0-path (NonPos-≤0 _ np-u)) >=>
-  max-≥-path (minus-flips-≤ l≤u)
+  max-≥-path (trans-≤ (trans-≤ u≤0 (minus-flips-≤0 u≤0)) (minus-flips-≤ l≤u))
   where
-  np-l = NonPos-≤ l u np-u l≤u
+  u≤0 = (NonPos-≤0 _ np-u)
 
 i-maxabs-CrossZero : (a : Iℚ) -> CrossZeroI a -> i-maxabs a ℚ≤ i-width a
 i-maxabs-CrossZero a@(Iℚ-cons l u l≤u) (np-l , nn-u) =
-  subst (_ℚ≤ w) (sym pm) (max-property {P = (_≤ w)} (r- l) u l-lt u-lt)
+  max-property {P = (_≤ w)} (r- l) u l-lt u-lt
   where
   m = i-maxabs a
   w = i-width a
-  pm : m == max (r- l) u
-  pm = cong2 max (abs-≤0-path (NonPos-≤0 _ np-l)) (abs-0≤-path (NonNeg-0≤ _ nn-u))
 
   l-lt : (r- l) ℚ≤ w
   l-lt = subst (_ℚ≤ w) (r+-left-zero (r- l)) (+₂-preserves-≤ (NonNeg-0≤ _ nn-u))
@@ -565,48 +569,35 @@ i-maxabs-CrossZero a@(Iℚ-cons l u l≤u) (np-l , nn-u) =
 
 
 i-maxabs-Zero : (a : Iℚ) -> Zero (i-maxabs a) -> a == 0i
-i-maxabs-Zero a@(Iℚ-cons al au _) zm = Iℚ-bounds-path zl zu
+i-maxabs-Zero a@(Iℚ-cons al au al≤au) zm = Iℚ-bounds-path zl zu
   where
-  np-aal : NonPos (abs al)
-  np-aal =
-    ≤0-NonPos _ ((subst ((abs al) ≤_) zm max-≤-left))
+  0≤al : 0# ≤ al
+  0≤al = trans-≤-= (minus-flips-≤0 (trans-≤-= max-≤-left zm)) minus-double-inverse
 
-  np-aau : NonPos (abs au)
-  np-aau =
-    ≤0-NonPos _ ((subst ((abs au) ≤_) zm max-≤-right))
+  au≤0 : au ≤ 0#
+  au≤0 = trans-≤-= max-≤-right zm
 
   zl : al == 0r
-  zl = eqInv abs-zero-eq (antisym-≤ (NonPos-≤0 _ np-aal) abs-0≤)
+  zl = antisym-≤ (trans-≤ al≤au au≤0) 0≤al
   zu : au == 0r
-  zu = eqInv abs-zero-eq (antisym-≤ (NonPos-≤0 _ np-aau) abs-0≤)
-
+  zu = antisym-≤ au≤0 (trans-≤ 0≤al al≤au)
 
 
 
 NonNeg-i-maxabs : (a : Iℚ) -> NonNeg (i-maxabs a)
-NonNeg-i-maxabs (Iℚ-cons l u _) =
-  0≤-NonNeg _ (max-property {P = 0# ≤_} (abs l) (abs u) abs-0≤ abs-0≤)
-
+NonNeg-i-maxabs a@(Iℚ-cons l u _) =
+  subst NonNeg (i-maxabs'-path  a)
+    (0≤-NonNeg _ (max-property {P = 0# ≤_} (abs l) (abs u) abs-0≤ abs-0≤))
 
 i-width-bound : (a : Iℚ) -> i-width a ℚ≤ (2r r* (i-maxabs a))
 i-width-bound a@(Iℚ-cons l u l≤u) =
-  subst2 _ℚ≤_ diff-trans (2r-path (i-maxabs a)) lt1
+  subst2 _≤_ diff-trans (2r-path (i-maxabs a)) lt1
   where
-  dl≤absl : diff l 0r ≤ abs l
-  dl≤absl = subst (_≤ abs l) (sym (r+-left-zero (r- l))) max-≤-right
-  absl≤maxabs : abs l ℚ≤ i-maxabs a
-  absl≤maxabs = max-≤-left
-  dl≤maxabs = trans-≤ dl≤absl absl≤maxabs
+  dl≤maxabs : diff l 0# ≤ i-maxabs a
+  dl≤maxabs = trans-=-≤ +-left-zero max-≤-left
+  du≤maxabs : diff 0# u ≤ i-maxabs a
+  du≤maxabs = trans-=-≤ (+-right minus-zero >=> +-right-zero) max-≤-right
 
-  du≤absu : diff 0r u ≤ abs u
-  du≤absu = subst (_≤ abs u) (sym (r+-right-zero u) >=> +-right (sym minus-zero))
-                  max-≤-left
-  absu≤maxabs : abs u ≤ i-maxabs a
-  absu≤maxabs = max-≤-right
-  du≤maxabs = trans-≤  du≤absu absu≤maxabs
-
-  dp : diff l 0r r+ diff 0r u == diff l u
-  dp = diff-trans
 
   lt1 : (diff l 0r r+ diff 0r u) ℚ≤ (i-maxabs a r+ i-maxabs a)
   lt1 = +-preserves-≤ dl≤maxabs du≤maxabs
@@ -953,10 +944,10 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
   i2up = max-≤-path aubl≤aubu
 
   mal≤m : (r- al) ℚ≤ ma
-  mal≤m = subst (_ℚ≤ ma) (abs-≤0-path (NonPos-≤0 _ np-al)) max-≤-left
+  mal≤m = max-≤-left
 
   mbl≤m : (r- bl) ℚ≤ mb
-  mbl≤m = subst (_ℚ≤ mb) (abs-≤0-path (NonPos-≤0 _ np-bl)) max-≤-left
+  mbl≤m = max-≤-left
 
   m≤al : (r- ma) ℚ≤ al
   m≤al = subst ((r- ma) ℚ≤_) minus-double-inverse
@@ -967,10 +958,10 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
                (minus-flips-≤ mbl≤m)
 
   au≤m : au ℚ≤ ma
-  au≤m = subst (_ℚ≤ ma) (abs-0≤-path (NonNeg-0≤ _ nn-au)) max-≤-right
+  au≤m = max-≤-right
 
   bu≤m : bu ℚ≤ mb
-  bu≤m = subst (_ℚ≤ mb) (abs-0≤-path (NonNeg-0≤ _ nn-bu)) max-≤-right
+  bu≤m = max-≤-right
 
   mm≤albu : (r- (ma r* mb)) ℚ≤ (al r* bu)
   mm≤albu =
@@ -1457,30 +1448,7 @@ i-width-⊆ {Iℚ-cons al au _} {Iℚ-cons bl bu _} (i⊆-cons l u) = +-preserve
 
 i-maxabs-⊆ : {a b : Iℚ} -> a i⊆ b -> i-maxabs a ℚ≤ i-maxabs b
 i-maxabs-⊆ {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (i⊆-cons bl≤al au≤bu) =
-  max-property {P = _≤ i-maxabs b} (abs al) (abs au) aal≤mb aau≤mb
-  where
-  abs≤ : (q : ℚ) -> q ≤ abs q
-  abs≤ q = max-≤-left
-  mabs≤ : (q : ℚ) -> (r- q) ≤ abs q
-  mabs≤ q = max-≤-right
-
-  point : (q : ℚ) -> (bl ≤ q) -> (q ≤ bu) -> abs q ≤ i-maxabs b
-  point q bl≤q q≤bu = handle split-max
-    where
-    handle : (abs q == q ⊎ abs q == (r- q)) -> abs q ≤ i-maxabs b
-    handle (inj-l p) =
-      subst (_ℚ≤ i-maxabs b) (sym p)
-            (trans-≤ q≤bu (trans-≤ (abs≤ bu) max-≤-right))
-    handle (inj-r p) =
-      subst (_≤ i-maxabs b) (sym p)
-            (trans-≤ (minus-flips-≤ bl≤q)
-                      (trans-≤ (mabs≤ bl) max-≤-left))
-
-  al≤bu = trans-≤ al≤au au≤bu
-  bl≤au = trans-≤ bl≤al al≤au
-
-  aal≤mb = point al bl≤al al≤bu
-  aau≤mb = point au bl≤au au≤bu
+  max-preserves-≤ (minus-flips-≤ bl≤al) au≤bu
 
 i⊆-preserves-PosI : {a b : Iℚ} -> a i⊆ b -> PosI b -> PosI a
 i⊆-preserves-PosI (i⊆-cons bl≤al _) pos-bl = Pos-≤ _ _ pos-bl bl≤al

@@ -267,6 +267,13 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
               (min-greatest-≤ (min₁-preserves-≤ min-≤-left)
                               (trans-≤ min-≤-right min-≤-right))
 
+  min-swap : {w x y z : D} -> min (min w x) (min y z) == min (min w y) (min x z)
+  min-swap {w} {x} {y} {z} =
+    min-assoc >=>
+    cong (min w) (sym min-assoc >=> (cong (\x -> min x z) min-commute) >=>
+                  min-assoc) >=>
+    sym min-assoc
+
   min-preserves-< : {w x y z : D} -> w < x -> y < z -> min w y < min x z
   min-preserves-< {w} {x} {y} {z} w<x y<z =
     unsquash isProp-< (∥-map handle (comparison-< _ x _ y<z))
@@ -292,6 +299,13 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
                            (trans-≤ max-≤-right max-≤-right))
               (max-least-≤ (trans-≤ max-≤-left max-≤-left)
                            (max₂-preserves-≤ max-≤-right))
+
+  max-swap : {w x y z : D} -> max (max w x) (max y z) == max (max w y) (max x z)
+  max-swap {w} {x} {y} {z} =
+    max-assoc >=>
+    cong (max w) (sym max-assoc >=> (cong (\x -> max x z) max-commute) >=>
+                  max-assoc) >=>
+    sym max-assoc
 
   max-preserves-< : {w x y z : D} -> w < x -> y < z -> max w y < max x z
   max-preserves-< {w} {x} {y} {z} w<x y<z =
