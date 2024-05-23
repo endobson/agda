@@ -8,7 +8,6 @@ open import hlevel
 open import truncation
 open import relation hiding (U)
 open import rational
-open import rational.proper-interval
 open import rational.order
 open import real.interval
 open import real.rational
