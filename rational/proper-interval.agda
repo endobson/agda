@@ -338,9 +338,9 @@ i-scale-distrib-∪ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) = 
         where
         k⁺ : ℚ⁰⁺
         k⁺ = k , nn-k
-        lp : k r* (min al bl) == min (k r* al) (k r* bl)
+        lp : k * (min al bl) == min (k * al) (k * bl)
         lp = *-distrib-min-left (NonNeg-0≤ _ nn-k)
-        up : k r* (max au bu) == max (k r* au) (k r* bu)
+        up : k * (max au bu) == max (k * au) (k * bu)
         up = *-distrib-max-left (NonNeg-0≤ _ nn-k)
 
       np-case : NonPos k -> i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
@@ -351,9 +351,9 @@ i-scale-distrib-∪ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) = 
         where
         k⁻ : ℚ⁰⁻
         k⁻ = k , np-k
-        lp : k r* (min al bl) == max (k r* al) (k r* bl)
+        lp : k * (min al bl) == max (k * al) (k * bl)
         lp = *-distrib-flip-min-left (NonPos-≤0 _ np-k)
-        up : k r* (max au bu) == min (k r* au) (k r* bu)
+        up : k * (max au bu) == min (k * au) (k * bu)
         up = *-distrib-flip-max-left (NonPos-≤0 _ np-k)
 
       handle : Σ[ s ∈ Sign ] isSign s k ->
@@ -365,38 +365,38 @@ i-scale-distrib-∪ k a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) = 
       path : i-scale k (a i∪ b) == (i-scale k a) i∪ (i-scale k b)
       path = handle (decide-sign k)
 
-i-scale-twice : (k1 k2 : ℚ) (a : Iℚ) -> i-scale k1 (i-scale k2 a) == i-scale (k1 r* k2) a
+i-scale-twice : (k1 k2 : ℚ) (a : Iℚ) -> i-scale k1 (i-scale k2 a) == i-scale (k1 * k2) a
 i-scale-twice k1 k2 a =
   handle (fst (decide-sign k1)) (fst (decide-sign k2)) (snd (decide-sign k1)) (snd (decide-sign k2))
   where
-  Ans = i-scale k1 (i-scale k2 a) == i-scale (k1 r* k2) a
+  Ans = i-scale k1 (i-scale k2 a) == i-scale (k1 * k2) a
 
   nnnn-case : NonNeg k1 -> NonNeg k2 -> Ans
   nnnn-case nn-k1 nn-k2 =
     cong (i-scale k1) (sym (i-scale-NN-path (k2 , nn-k2) a)) >=>
     sym (i-scale-NN-path (k1 , nn-k1) (i-scale-NN (k2 , nn-k2) a)) >=>
-    Iℚ-bounds-path (sym (r*-assoc _ _ _)) (sym (r*-assoc _ _ _)) >=>
+    Iℚ-bounds-path (sym *-assoc) (sym *-assoc) >=>
     i-scale-NN-path (_ , r*-NonNeg-NonNeg nn-k1 nn-k2) a
 
   nnnp-case : NonNeg k1 -> NonPos k2 -> Ans
   nnnp-case nn-k1 np-k2 =
     cong (i-scale k1) (sym (i-scale-NP-path (k2 , np-k2) a)) >=>
     sym (i-scale-NN-path (k1 , nn-k1) (i-scale-NP (k2 , np-k2) a)) >=>
-    Iℚ-bounds-path (sym (r*-assoc _ _ _)) (sym (r*-assoc _ _ _)) >=>
+    Iℚ-bounds-path (sym *-assoc) (sym *-assoc) >=>
     i-scale-NP-path (_ , r*-NonNeg-NonPos nn-k1 np-k2) a
 
   npnn-case : NonPos k1 -> NonNeg k2 -> Ans
   npnn-case np-k1 nn-k2 =
     cong (i-scale k1) (sym (i-scale-NN-path (k2 , nn-k2) a)) >=>
     sym (i-scale-NP-path (k1 , np-k1) (i-scale-NN (k2 , nn-k2) a)) >=>
-    Iℚ-bounds-path (sym (r*-assoc _ _ _)) (sym (r*-assoc _ _ _)) >=>
+    Iℚ-bounds-path (sym *-assoc) (sym *-assoc) >=>
     i-scale-NP-path (_ , r*-NonPos-NonNeg np-k1 nn-k2) a
 
   npnp-case : NonPos k1 -> NonPos k2 -> Ans
   npnp-case np-k1 np-k2 =
     cong (i-scale k1) (sym (i-scale-NP-path (k2 , np-k2) a)) >=>
     sym (i-scale-NP-path (k1 , np-k1) (i-scale-NP (k2 , np-k2) a)) >=>
-    Iℚ-bounds-path (sym (r*-assoc _ _ _)) (sym (r*-assoc _ _ _)) >=>
+    Iℚ-bounds-path (sym *-assoc) (sym *-assoc) >=>
     i-scale-NN-path (_ , r*-NonPos-NonPos np-k1 np-k2) a
 
   handle : (s1 s2 : Sign) -> (isSign s1 k1) -> (isSign s2 k2) -> Ans
@@ -485,35 +485,35 @@ i-width (Iℚ-cons l u _) = diff l u
 NonNeg-i-width : (a : Iℚ) -> NonNeg (i-width a)
 NonNeg-i-width (Iℚ-cons l u l≤u) = NonNeg-diffℚ l u l≤u
 
-i-scale-width : (k : ℚ) (a : Iℚ) -> i-width (i-scale k a) == abs k r* (i-width a)
+i-scale-width : (k : ℚ) (a : Iℚ) -> i-width (i-scale k a) == abs k * (i-width a)
 i-scale-width k a@(Iℚ-cons l u l≤u)  = handle (decide-sign k)
   where
-  nn-case : NonNeg k -> i-width (i-scale k a) == abs k r* (i-width a)
+  nn-case : NonNeg k -> i-width (i-scale k a) == abs k * (i-width a)
   nn-case nn-k =
     cong2 diff (min-≤-path kl≤ku) (max-≤-path kl≤ku) >=>
     sym *-distrib-diff-left >=>
-    cong (_r* (diff l u)) (sym (abs-0≤-path (NonNeg-0≤ _ nn-k)))
+    cong (_* (diff l u)) (sym (abs-0≤-path (NonNeg-0≤ _ nn-k)))
 
     where
-    kl≤ku : (k r* l) ≤ (k r* u)
+    kl≤ku : (k * l) ≤ (k * u)
     kl≤ku = *₁-preserves-≤ (NonNeg-0≤ _ nn-k) l≤u
 
-  n-case : Neg k -> i-width (i-scale k a) == abs k r* (i-width a)
+  n-case : Neg k -> i-width (i-scale k a) == abs k * (i-width a)
   n-case n-k =
     cong2 diff (min-≥-path ku≤kl) (max-≥-path ku≤kl) >=>
     sym *-distrib-diff-left >=>
     sym minus-double-inverse >=>
-    cong r-_ (sym (r*-minus-extract-right _ _)) >=>
-    (sym (r*-minus-extract-left _ _)) >=>
-    cong2 _r*_ (sym (abs-<0-path n-k))
-               (sym diff-anticommute)
+    cong r-_ (sym minus-extract-right) >=>
+    (sym minus-extract-left) >=>
+    cong2 _*_ (sym (abs-<0-path n-k))
+              (sym diff-anticommute)
 
     where
-    ku≤kl : (k r* u) ≤ (k r* l)
+    ku≤kl : (k * u) ≤ (k * l)
     ku≤kl = *₁-flips-≤ (weaken-< n-k) l≤u
 
 
-  handle : Σ[ s ∈ Sign ] isSign s k -> i-width (i-scale k a) == abs k r* (i-width a)
+  handle : Σ[ s ∈ Sign ] isSign s k -> i-width (i-scale k a) == abs k * (i-width a)
   handle (pos-sign  , pos-k)  = nn-case (inj-l pos-k)
   handle (zero-sign , zero-k) = nn-case (inj-r zero-k)
   handle (neg-sign  , neg-k)  = n-case neg-k
@@ -589,7 +589,7 @@ NonNeg-i-maxabs a@(Iℚ-cons l u _) =
   subst NonNeg (i-maxabs'-path  a)
     (0≤-NonNeg _ (max-property {P = 0# ≤_} (abs l) (abs u) abs-0≤ abs-0≤))
 
-i-width-bound : (a : Iℚ) -> i-width a ≤ (2r r* (i-maxabs a))
+i-width-bound : (a : Iℚ) -> i-width a ≤ (2r * (i-maxabs a))
 i-width-bound a@(Iℚ-cons l u l≤u) =
   subst2 _≤_ diff-trans (2r-path (i-maxabs a)) lt1
   where
@@ -605,7 +605,7 @@ i-width-bound a@(Iℚ-cons l u l≤u) =
 
 i*-width-NNNN : (a b : Iℚ) -> NonNegI a -> NonNegI b ->
                 i-width (a i* b) ==
-                (i-width a r* (Iℚ.l b)) r+ (Iℚ.u a r* (i-width b))
+                (i-width a * (Iℚ.l b)) r+ (Iℚ.u a * (i-width b))
 i*-width-NNNN a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al nn-bl =
   wp2 >=> delta-p
   where
@@ -616,62 +616,62 @@ i*-width-NNNN a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al nn-b
   wa = i-width a
   wb = i-width b
 
-  albl≤albu : (al r* bl) ≤ (al r* bu)
+  albl≤albu : (al * bl) ≤ (al * bu)
   albl≤albu = *₁-preserves-≤ (NonNeg-0≤ _ nn-al) bl≤bu
-  aubl≤aubu : (au r* bl) ≤ (au r* bu)
+  aubl≤aubu : (au * bl) ≤ (au * bu)
   aubl≤aubu = *₁-preserves-≤ (NonNeg-0≤ _ nn-au) bl≤bu
 
-  albl≤aubl : (al r* bl) ≤ (au r* bl)
+  albl≤aubl : (al * bl) ≤ (au * bl)
   albl≤aubl = *₂-preserves-≤ al≤au (NonNeg-0≤ _ nn-bl)
-  albu≤aubu : (al r* bu) ≤ (au r* bu)
+  albu≤aubu : (al * bu) ≤ (au * bu)
   albu≤aubu = *₂-preserves-≤ al≤au (NonNeg-0≤ _ nn-bu)
 
   i1 = i-scale al b
-  i1lp : Iℚ.l i1 == al r* bl
+  i1lp : Iℚ.l i1 == al * bl
   i1lp = min-≤-path albl≤albu
-  i1up : Iℚ.u i1 == al r* bu
+  i1up : Iℚ.u i1 == al * bu
   i1up = max-≤-path albl≤albu
   i2 = i-scale au b
-  i2lp : Iℚ.l i2 == au r* bl
+  i2lp : Iℚ.l i2 == au * bl
   i2lp = min-≤-path aubl≤aubu
-  i2up : Iℚ.u i2 == au r* bu
+  i2up : Iℚ.u i2 == au * bu
   i2up = max-≤-path aubl≤aubu
 
 
   l = Iℚ.l (a i* b)
-  lp : l == al r* bl
+  lp : l == al * bl
   lp = cong2 min i1lp i2lp >=> min-≤-path albl≤aubl
 
   u = Iℚ.u (a i* b)
-  up : u == au r* bu
+  up : u == au * bu
   up = cong2 max i1up i2up >=> max-≤-path albu≤aubu
 
-  wp : i-width (a i* b) == (au r* bu) r+ (r- (al r* bl))
+  wp : i-width (a i* b) == (au * bu) r+ (r- (al * bl))
   wp = cong2 diff lp up
 
-  delta = ((wa r* bl) r+ ((al r* wb) r+ (wa r* wb)))
+  delta = ((wa * bl) r+ ((al * wb) r+ (wa * wb)))
 
-  abup : (au r* bu) == delta r+ (al r* bl)
-  abup = cong2 _r*_ (sym diff-step) (sym diff-step) >=>
+  abup : (au * bu) == delta r+ (al * bl)
+  abup = cong2 _*_ (sym diff-step) (sym diff-step) >=>
          *-distrib-+-left >=>
          cong2 _r+_ *-distrib-+-right *-distrib-+-right >=>
-         r+-assoc (al r* bl) (wa r* bl) ((al r* wb) r+ (wa r* wb)) >=>
-         r+-commute (al r* bl) ((wa r* bl) r+ ((al r* wb) r+ (wa r* wb)))
+         r+-assoc (al * bl) (wa * bl) ((al * wb) r+ (wa * wb)) >=>
+         r+-commute (al * bl) ((wa * bl) r+ ((al * wb) r+ (wa * wb)))
 
   wp2 : i-width (a i* b) == delta
-  wp2 = wp >=> (cong (_r+ (r- (al r* bl))) abup) >=>
-        r+-assoc delta (al r* bl) (r- (al r* bl)) >=>
-        cong (delta r+_) (r+-inverse (al r* bl)) >=>
+  wp2 = wp >=> (cong (_r+ (r- (al * bl))) abup) >=>
+        r+-assoc delta (al * bl) (r- (al * bl)) >=>
+        cong (delta r+_) (r+-inverse (al * bl)) >=>
         r+-right-zero delta
 
-  delta-p : delta == (wa r* bl) r+ (au r* wb)
+  delta-p : delta == (wa * bl) r+ (au * wb)
   delta-p =
-    cong ((wa r* bl) r+_) (sym *-distrib-+-right >=>
-                           cong (_r* wb) diff-step)
+    cong ((wa * bl) r+_) (sym *-distrib-+-right >=>
+                           cong (_* wb) diff-step)
 
 i*-width-NNNP : (a b : Iℚ) -> NonNegI a -> NonPosI b ->
                 i-width (a i* b) ==
-                (i-width a r* (r- (Iℚ.l b))) r+ (Iℚ.l a r* (i-width b))
+                (i-width a * (r- (Iℚ.l b))) r+ (Iℚ.l a * (i-width b))
 i*-width-NNNP a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al np-bu =
   wp >=> path
   where
@@ -684,56 +684,56 @@ i*-width-NNNP a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al np-b
   wa = i-width a
   wb = i-width b
 
-  albl≤albu : (al r* bl) ≤ (al r* bu)
+  albl≤albu : (al * bl) ≤ (al * bu)
   albl≤albu = *₁-preserves-≤ (NonNeg-0≤ _ nn-al) bl≤bu
-  aubl≤aubu : (au r* bl) ≤ (au r* bu)
+  aubl≤aubu : (au * bl) ≤ (au * bu)
   aubl≤aubu = *₁-preserves-≤ (NonNeg-0≤ _ nn-au) bl≤bu
 
-  aubl≤albl : (au r* bl) ≤ (al r* bl)
+  aubl≤albl : (au * bl) ≤ (al * bl)
   aubl≤albl = *₂-flips-≤ al≤au (NonPos-≤0 _ np-bl)
-  aubu≤albu : (au r* bu) ≤ (al r* bu)
+  aubu≤albu : (au * bu) ≤ (al * bu)
   aubu≤albu = *₂-flips-≤ al≤au (NonPos-≤0 _ np-bu)
 
   i1 = i-scale al b
-  i1lp : Iℚ.l i1 == al r* bl
+  i1lp : Iℚ.l i1 == al * bl
   i1lp = min-≤-path albl≤albu
-  i1up : Iℚ.u i1 == al r* bu
+  i1up : Iℚ.u i1 == al * bu
   i1up = max-≤-path albl≤albu
   i2 = i-scale au b
-  i2lp : Iℚ.l i2 == au r* bl
+  i2lp : Iℚ.l i2 == au * bl
   i2lp = min-≤-path aubl≤aubu
-  i2up : Iℚ.u i2 == au r* bu
+  i2up : Iℚ.u i2 == au * bu
   i2up = max-≤-path aubl≤aubu
 
 
   l = Iℚ.l (a i* b)
-  lp : l == au r* bl
+  lp : l == au * bl
   lp = cong2 min i1lp i2lp >=> min-≥-path aubl≤albl
 
   u = Iℚ.u (a i* b)
-  up : u == al r* bu
+  up : u == al * bu
   up = cong2 max i1up i2up >=> max-≥-path aubu≤albu
 
-  wp : i-width (a i* b) == (al r* bu) r+ (r- (au r* bl))
+  wp : i-width (a i* b) == (al * bu) r+ (r- (au * bl))
   wp = cong2 diff lp up
 
-  path : (al r* bu) r+ (r- (au r* bl)) == (wa r* (r- bl)) r+ (al r* wb)
-  path = cong2 _r+_ (cong (al r*_) (sym diff-step) >=>
+  path : (al * bu) r+ (r- (au * bl)) == (wa * (r- bl)) r+ (al * wb)
+  path = cong2 _r+_ (cong (al *_) (sym diff-step) >=>
                      *-distrib-+-left >=>
-                     r+-commute (al r* bl) (al r* wb))
-                    (sym (r*-minus-extract-right au bl) >=>
-                     cong (_r* (r- bl)) (sym diff-step) >=>
+                     r+-commute (al * bl) (al * wb))
+                    (sym minus-extract-right >=>
+                     cong (_* (r- bl)) (sym diff-step) >=>
                      *-distrib-+-right) >=>
-         r+-assoc (al r* wb) (al r* bl) ((al r* (r- bl)) r+ (wa r* (r- bl))) >=>
-         cong ((al r* wb) r+_) (sym (r+-assoc (al r* bl) (al r* (r- bl)) (wa r* (r- bl))) >=>
-                                cong (_r+ (wa r* (r- bl)))
-                                     (cong ((al r* bl) r+_) (r*-minus-extract-right al bl) >=>
-                                      r+-inverse (al r* bl)) >=>
-                                r+-left-zero (wa r* (r- bl))) >=>
-         r+-commute (al r* wb) (wa r* (r- bl))
+         r+-assoc (al * wb) (al * bl) ((al * (r- bl)) r+ (wa * (r- bl))) >=>
+         cong ((al * wb) r+_) (sym (r+-assoc (al * bl) (al * (r- bl)) (wa * (r- bl))) >=>
+                                cong (_r+ (wa * (r- bl)))
+                                     (cong ((al * bl) r+_) minus-extract-right >=>
+                                      r+-inverse (al * bl)) >=>
+                                r+-left-zero (wa * (r- bl))) >=>
+         r+-commute (al * wb) (wa * (r- bl))
 
 i*-width-NNCZ : (a b : Iℚ) -> NonNegI a -> CrossZeroI b ->
-                i-width (a i* b) == (Iℚ.u a r* (i-width b))
+                i-width (a i* b) == (Iℚ.u a * (i-width b))
 i*-width-NNCZ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al (np-bl , nn-bu) = wp
   where
   nn-au : NonNeg au
@@ -742,43 +742,43 @@ i*-width-NNCZ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al (np-
   wa = i-width a
   wb = i-width b
 
-  albl≤albu : (al r* bl) ≤ (al r* bu)
+  albl≤albu : (al * bl) ≤ (al * bu)
   albl≤albu = *₁-preserves-≤ (NonNeg-0≤ _ nn-al) bl≤bu
-  aubl≤aubu : (au r* bl) ≤ (au r* bu)
+  aubl≤aubu : (au * bl) ≤ (au * bu)
   aubl≤aubu = *₁-preserves-≤ (NonNeg-0≤ _ nn-au)bl≤bu
 
-  aubl≤albl : (au r* bl) ≤ (al r* bl)
+  aubl≤albl : (au * bl) ≤ (al * bl)
   aubl≤albl = *₂-flips-≤ al≤au (NonPos-≤0 _  np-bl)
-  albu≤aubu : (al r* bu) ≤ (au r* bu)
+  albu≤aubu : (al * bu) ≤ (au * bu)
   albu≤aubu = *₂-preserves-≤ al≤au (NonNeg-0≤ _  nn-bu)
 
   i1 = i-scale al b
-  i1lp : Iℚ.l i1 == al r* bl
+  i1lp : Iℚ.l i1 == al * bl
   i1lp = min-≤-path albl≤albu
-  i1up : Iℚ.u i1 == al r* bu
+  i1up : Iℚ.u i1 == al * bu
   i1up = max-≤-path albl≤albu
   i2 = i-scale au b
-  i2lp : Iℚ.l i2 == au r* bl
+  i2lp : Iℚ.l i2 == au * bl
   i2lp = min-≤-path aubl≤aubu
-  i2up : Iℚ.u i2 == au r* bu
+  i2up : Iℚ.u i2 == au * bu
   i2up = max-≤-path aubl≤aubu
 
 
   l = Iℚ.l (a i* b)
-  lp : l == au r* bl
+  lp : l == au * bl
   lp = cong2 min i1lp i2lp >=> min-≥-path aubl≤albl
 
   u = Iℚ.u (a i* b)
-  up : u == au r* bu
+  up : u == au * bu
   up = cong2 max i1up i2up >=> max-≤-path albu≤aubu
 
-  wp : i-width (a i* b) == au r* (diff bl bu)
+  wp : i-width (a i* b) == au * (diff bl bu)
   wp = cong2 diff lp up >=> sym *-distrib-diff-left
 
 
 i*-width-NPNP : (a b : Iℚ) -> NonPosI a -> NonPosI b ->
                 i-width (a i* b) ==
-                (i-width a r* (r- (Iℚ.l b))) r+ ((r- (Iℚ.u a)) r* (i-width b))
+                (i-width a * (r- (Iℚ.l b))) r+ ((r- (Iℚ.u a)) * (i-width b))
 i*-width-NPNP a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au np-bu =
   wp2 >=> delta-p
   where
@@ -794,64 +794,64 @@ i*-width-NPNP a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au np-b
   wa = i-width a
   wb = i-width b
 
-  albu≤albl : (al r* bu) ≤ (al r* bl)
+  albu≤albl : (al * bu) ≤ (al * bl)
   albu≤albl = *₁-flips-≤ (NonPos-≤0 _ np-al) bl≤bu
-  aubu≤aubl : (au r* bu) ≤ (au r* bl)
+  aubu≤aubl : (au * bu) ≤ (au * bl)
   aubu≤aubl = *₁-flips-≤ (NonPos-≤0 _ np-au) bl≤bu
 
-  aubl≤albl : (au r* bl) ≤ (al r* bl)
+  aubl≤albl : (au * bl) ≤ (al * bl)
   aubl≤albl = *₂-flips-≤ al≤au (NonPos-≤0 _ np-bl)
-  aubu≤albu : (au r* bu) ≤ (al r* bu)
+  aubu≤albu : (au * bu) ≤ (al * bu)
   aubu≤albu = *₂-flips-≤ al≤au (NonPos-≤0 _ np-bu)
 
   i1 = i-scale al b
-  i1lp : Iℚ.l i1 == al r* bu
+  i1lp : Iℚ.l i1 == al * bu
   i1lp = min-≥-path albu≤albl
-  i1up : Iℚ.u i1 == al r* bl
+  i1up : Iℚ.u i1 == al * bl
   i1up = max-≥-path albu≤albl
   i2 = i-scale au b
-  i2lp : Iℚ.l i2 == au r* bu
+  i2lp : Iℚ.l i2 == au * bu
   i2lp = min-≥-path aubu≤aubl
-  i2up : Iℚ.u i2 == au r* bl
+  i2up : Iℚ.u i2 == au * bl
   i2up = max-≥-path aubu≤aubl
 
 
   l = Iℚ.l (a i* b)
-  lp : l == au r* bu
+  lp : l == au * bu
   lp = cong2 min i1lp i2lp >=> min-≥-path aubu≤albu
 
   u = Iℚ.u (a i* b)
-  up : u == al r* bl
+  up : u == al * bl
   up = cong2 max i1up i2up >=> max-≥-path aubl≤albl
 
-  wp : i-width (a i* b) == (al r* bl) r+ (r- (au r* bu))
+  wp : i-width (a i* b) == (al * bl) r+ (r- (au * bu))
   wp = cong2 diff lp up
 
-  delta = ((wa r* bl) r+ ((al r* wb) r+ (wa r* wb)))
+  delta = ((wa * bl) r+ ((al * wb) r+ (wa * wb)))
 
-  abup : (au r* bu) == (al r* bl) r+ delta
-  abup = cong2 _r*_ (sym diff-step) (sym diff-step) >=>
+  abup : (au * bu) == (al * bl) r+ delta
+  abup = cong2 _*_ (sym diff-step) (sym diff-step) >=>
          *-distrib-+-left >=>
          cong2 _r+_ *-distrib-+-right *-distrib-+-right >=>
-         r+-assoc (al r* bl) (wa r* bl) ((al r* wb) r+ (wa r* wb))
+         r+-assoc (al * bl) (wa * bl) ((al * wb) r+ (wa * wb))
 
   wp2 : i-width (a i* b) == (r- delta)
-  wp2 = wp >=> (cong ((al r* bl) r+_)
+  wp2 = wp >=> (cong ((al * bl) r+_)
                      (cong r-_ abup >=> minus-distrib-plus)) >=>
-        sym (r+-assoc (al r* bl) (r- (al r* bl)) (r- delta)) >=>
-        cong (_r+ (r- delta)) (r+-inverse (al r* bl)) >=>
+        sym (r+-assoc (al * bl) (r- (al * bl)) (r- delta)) >=>
+        cong (_r+ (r- delta)) (r+-inverse (al * bl)) >=>
         r+-left-zero (r- delta)
 
-  delta-p : (r- delta) == (wa r* (r- bl)) r+ ((r- au) r* wb)
+  delta-p : (r- delta) == (wa * (r- bl)) r+ ((r- au) * wb)
   delta-p =
     cong r-_
-      (cong ((wa r* bl) r+_) (sym *-distrib-+-right >=>
-                              cong (_r* wb) diff-step)) >=>
+      (cong ((wa * bl) r+_) (sym *-distrib-+-right >=>
+                              cong (_* wb) diff-step)) >=>
     minus-distrib-plus >=>
-    cong2 _r+_ (sym (r*-minus-extract-right wa bl)) (sym (r*-minus-extract-left au wb))
+    cong2 _r+_ (sym minus-extract-right) (sym minus-extract-left)
 
 i*-width-NPCZ : (a b : Iℚ) -> NonPosI a -> CrossZeroI b ->
-                i-width (a i* b) == (r- (Iℚ.l a)) r* (i-width b)
+                i-width (a i* b) == (r- (Iℚ.l a)) * (i-width b)
 i*-width-NPCZ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au (np-bl , nn-bu) = wp
   where
   np-al : NonPos al
@@ -861,45 +861,45 @@ i*-width-NPCZ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au (np-
   wa = i-width a
   wb = i-width b
 
-  albu≤albl : (al r* bu) ≤ (al r* bl)
+  albu≤albl : (al * bu) ≤ (al * bl)
   albu≤albl = *₁-flips-≤ (NonPos-≤0 _ np-al) bl≤bu
-  aubu≤aubl : (au r* bu) ≤ (au r* bl)
+  aubu≤aubl : (au * bu) ≤ (au * bl)
   aubu≤aubl = *₁-flips-≤ (NonPos-≤0 _ np-au) bl≤bu
 
-  aubl≤albl : (au r* bl) ≤ (al r* bl)
+  aubl≤albl : (au * bl) ≤ (al * bl)
   aubl≤albl = *₂-flips-≤ al≤au (NonPos-≤0 _ np-bl)
-  albu≤aubu : (al r* bu) ≤ (au r* bu)
+  albu≤aubu : (al * bu) ≤ (au * bu)
   albu≤aubu = *₂-preserves-≤ al≤au (NonNeg-0≤ _ nn-bu)
 
   i1 = i-scale al b
-  i1lp : Iℚ.l i1 == al r* bu
+  i1lp : Iℚ.l i1 == al * bu
   i1lp = min-≥-path albu≤albl
-  i1up : Iℚ.u i1 == al r* bl
+  i1up : Iℚ.u i1 == al * bl
   i1up = max-≥-path albu≤albl
   i2 = i-scale au b
-  i2lp : Iℚ.l i2 == au r* bu
+  i2lp : Iℚ.l i2 == au * bu
   i2lp = min-≥-path aubu≤aubl
-  i2up : Iℚ.u i2 == au r* bl
+  i2up : Iℚ.u i2 == au * bl
   i2up = max-≥-path aubu≤aubl
 
 
   l = Iℚ.l (a i* b)
-  lp : l == al r* bu
+  lp : l == al * bu
   lp = cong2 min i1lp i2lp >=> min-≤-path albu≤aubu
 
   u = Iℚ.u (a i* b)
-  up : u == al r* bl
+  up : u == al * bl
   up = cong2 max i1up i2up >=> max-≥-path aubl≤albl
 
-  wp : i-width (a i* b) == (r- al) r* wb
+  wp : i-width (a i* b) == (r- al) * wb
   wp = cong2 diff lp up >=> sym *-distrib-diff-left >=>
-       cong (al r*_) diff-anticommute >=>
-       r*-minus-extract-right al wb >=>
-       sym (r*-minus-extract-left al wb)
+       cong (al *_) diff-anticommute >=>
+       minus-extract-right >=>
+       sym minus-extract-left
 
 
 i*-width-CZCZ-≤ : (a b : Iℚ) -> CrossZeroI a -> CrossZeroI b ->
-                  (i-width (a i* b)) ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+                  (i-width (a i* b)) ≤ (((i-width a) * (i-maxabs b)) r+ ((i-maxabs a) * (i-width b)))
 i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al , nn-au) (np-bl , nn-bu) =
   d≤wmmw
   where
@@ -922,25 +922,25 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
   mb≤wb : mb ≤ wb
   mb≤wb = i-maxabs-CrossZero b (np-bl , nn-bu)
 
-  albu≤albl : (al r* bu) ≤ (al r* bl)
+  albu≤albl : (al * bu) ≤ (al * bl)
   albu≤albl = *₁-flips-≤ (NonPos-≤0 _ np-al) bl≤bu
-  aubl≤aubu : (au r* bl) ≤ (au r* bu)
+  aubl≤aubu : (au * bl) ≤ (au * bu)
   aubl≤aubu = *₁-preserves-≤ (NonNeg-0≤ _ nn-au) bl≤bu
 
-  aubl≤albl : (au r* bl) ≤ (al r* bl)
+  aubl≤albl : (au * bl) ≤ (al * bl)
   aubl≤albl = *₂-flips-≤ al≤au (NonPos-≤0 _ np-bl)
-  albu≤aubu : (al r* bu) ≤ (au r* bu)
+  albu≤aubu : (al * bu) ≤ (au * bu)
   albu≤aubu = *₂-preserves-≤ al≤au (NonNeg-0≤ _ nn-bu)
 
   i1 = i-scale al b
-  i1lp : Iℚ.l i1 == al r* bu
+  i1lp : Iℚ.l i1 == al * bu
   i1lp = min-≥-path albu≤albl
-  i1up : Iℚ.u i1 == al r* bl
+  i1up : Iℚ.u i1 == al * bl
   i1up = max-≥-path albu≤albl
   i2 = i-scale au b
-  i2lp : Iℚ.l i2 == au r* bl
+  i2lp : Iℚ.l i2 == au * bl
   i2lp = min-≤-path aubl≤aubu
-  i2up : Iℚ.u i2 == au r* bu
+  i2up : Iℚ.u i2 == au * bu
   i2up = max-≤-path aubl≤aubu
 
   mal≤m : (r- al) ≤ ma
@@ -963,64 +963,62 @@ i*-width-CZCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) (np-al
   bu≤m : bu ≤ mb
   bu≤m = max-≤-right
 
-  mm≤albu : (r- (ma r* mb)) ≤ (al r* bu)
+  mm≤albu : (r- (ma * mb)) ≤ (al * bu)
   mm≤albu =
-    subst (_≤ (al r* bu)) (r*-minus-extract-left ma mb)
+    subst (_≤ (al * bu)) minus-extract-left
     (trans-≤ (*₂-preserves-≤ m≤al (NonNeg-0≤ _ nn-mb))
              (*₁-flips-≤ (NonPos-≤0 _ np-al) bu≤m))
 
-  mm≤aubl : (r- (ma r* mb)) ≤ (au r* bl)
+  mm≤aubl : (r- (ma * mb)) ≤ (au * bl)
   mm≤aubl =
-    subst (_≤ (au r* bl)) (r*-minus-extract-right ma mb)
+    subst (_≤ (au * bl)) minus-extract-right
     (trans-≤ (*₁-preserves-≤ (NonNeg-0≤ _ nn-ma) m≤bl)
              (*₂-flips-≤ au≤m (NonPos-≤0 _ np-bl)))
 
-  albl≤mm : (al r* bl) ≤ (ma r* mb)
+  albl≤mm : (al * bl) ≤ (ma * mb)
   albl≤mm =
-    subst ((al r* bl) ≤_) (r*-minus-extract-right (r- ma) mb >=>
-                           cong r-_ (r*-minus-extract-left ma mb) >=>
-                            minus-double-inverse)
+    subst ((al * bl) ≤_) minus-extract-both
     (trans-≤ (*₂-flips-≤ m≤al (NonPos-≤0 _ np-bl))
              (*₁-flips-≤ (NonPos-≤0 _ (r--NonNeg nn-ma)) m≤bl))
 
-  aubu≤mm : (au r* bu) ≤ (ma r* mb)
+  aubu≤mm : (au * bu) ≤ (ma * mb)
   aubu≤mm =
     (trans-≤ (*₂-preserves-≤ au≤m (NonNeg-0≤ _ nn-bu))
              (*₁-preserves-≤ (NonNeg-0≤ _ nn-ma)bu≤m))
 
 
   l = Iℚ.l (a i* b)
-  lp : l == min (al r* bu) (au r* bl)
+  lp : l == min (al * bu) (au * bl)
   lp = cong2 min i1lp i2lp
 
-  mm≤l : (r- (ma r* mb)) ≤ l
-  mm≤l = subst ((r- (ma r* mb)) ≤_) (sym lp)
-         (min-property {P = ((r- (ma r* mb)) ≤_)} (al r* bu) (au r* bl) mm≤albu mm≤aubl)
+  mm≤l : (r- (ma * mb)) ≤ l
+  mm≤l = subst ((r- (ma * mb)) ≤_) (sym lp)
+         (min-property {P = ((r- (ma * mb)) ≤_)} (al * bu) (au * bl) mm≤albu mm≤aubl)
 
-  ml≤mm : (r- l) ≤ (ma r* mb)
+  ml≤mm : (r- l) ≤ (ma * mb)
   ml≤mm = subst ((r- l) ≤_) minus-double-inverse (minus-flips-≤ mm≤l)
 
 
   u = Iℚ.u (a i* b)
-  up : u == max (al r* bl) (au r* bu)
+  up : u == max (al * bl) (au * bu)
   up = cong2 max i1up i2up
 
-  u≤mm : u ≤ (ma r* mb)
-  u≤mm = subst (_≤ (ma r* mb)) (sym up)
-         (max-property {P = (_≤ (ma r* mb))} (al r* bl) (au r* bu) albl≤mm aubu≤mm)
+  u≤mm : u ≤ (ma * mb)
+  u≤mm = subst (_≤ (ma * mb)) (sym up)
+         (max-property {P = (_≤ (ma * mb))} (al * bl) (au * bu) albl≤mm aubu≤mm)
 
-  mm≤wm : (ma r* mb) ≤ (wa r* mb)
+  mm≤wm : (ma * mb) ≤ (wa * mb)
   mm≤wm = *₂-preserves-≤ ma≤wa (NonNeg-0≤ _ nn-mb)
 
-  mm≤mw : (ma r* mb) ≤ (ma r* wb)
+  mm≤mw : (ma * mb) ≤ (ma * wb)
   mm≤mw = *₁-preserves-≤ (NonNeg-0≤ _ nn-ma) mb≤wb
 
-  d≤wmmw : (diff l u) ≤ ((wa r* mb) r+ (ma r* wb))
+  d≤wmmw : (diff l u) ≤ ((wa * mb) r+ (ma * wb))
   d≤wmmw = +-preserves-≤ (trans-≤ u≤mm mm≤wm) (trans-≤ ml≤mm mm≤mw)
 
 
 i*-width-NNNN-≤ : (a b : Iℚ) -> NonNegI a -> NonNegI b ->
-                  (i-width (a i* b)) ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+                  (i-width (a i* b)) ≤ (((i-width a) * (i-maxabs b)) r+ ((i-maxabs a) * (i-width b)))
 i*-width-NNNN-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al nn-bl =
   subst2 _≤_ (sym (i*-width-NNNN a b nn-al nn-bl)) p lt
 
@@ -1031,15 +1029,15 @@ i*-width-NNNN-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al 
   nn-wa : NonNeg wa
   nn-wa = NonNeg-i-width a
 
-  lt : ((wa r* bl) r+ (au r* wb)) ≤ ((wa r* bu) r+ (au r* wb))
+  lt : ((wa * bl) r+ (au * wb)) ≤ ((wa * bu) r+ (au * wb))
   lt = +₂-preserves-≤ (*₁-preserves-≤ (NonNeg-0≤ _ nn-wa) bl≤bu)
 
-  p : ((wa r* bu) r+ (au r* wb)) == ((wa r* (i-maxabs b)) r+ ((i-maxabs a) r* wb))
-  p i = (wa r* (i-maxabs-NonNeg b nn-bl (~ i))) r+ ((i-maxabs-NonNeg a nn-al (~ i)) r* wb)
+  p : ((wa * bu) r+ (au * wb)) == ((wa * (i-maxabs b)) r+ ((i-maxabs a) * wb))
+  p i = (wa * (i-maxabs-NonNeg b nn-bl (~ i))) r+ ((i-maxabs-NonNeg a nn-al (~ i)) * wb)
 
 
 i*-width-NNNP-≤ : (a b : Iℚ) -> NonNegI a -> NonPosI b ->
-                  (i-width (a i* b)) ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+                  (i-width (a i* b)) ≤ (((i-width a) * (i-maxabs b)) r+ ((i-maxabs a) * (i-width b)))
 i*-width-NNNP-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al np-bu =
   subst2 _≤_ (sym (i*-width-NNNP a b nn-al np-bu)) p lt
   where
@@ -1049,24 +1047,23 @@ i*-width-NNNP-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al 
   nn-wb : NonNeg wb
   nn-wb = NonNeg-i-width b
 
-  lt : ((wa r* (r- bl)) r+ (al r* wb)) ≤ ((wa r* (r- bl)) r+ (au r* wb))
+  lt : ((wa * (r- bl)) r+ (al * wb)) ≤ ((wa * (r- bl)) r+ (au * wb))
   lt = +₁-preserves-≤ (*₂-preserves-≤ al≤au (NonNeg-0≤ _ nn-wb))
 
-  p : ((wa r* (r- bl)) r+ (au r* wb)) == ((wa r* (i-maxabs b)) r+ ((i-maxabs a) r* wb))
-  p i = (wa r* (i-maxabs-NonPos b np-bu (~ i))) r+ ((i-maxabs-NonNeg a nn-al (~ i)) r* wb)
+  p : ((wa * (r- bl)) r+ (au * wb)) == ((wa * (i-maxabs b)) r+ ((i-maxabs a) * wb))
+  p i = (wa * (i-maxabs-NonPos b np-bu (~ i))) r+ ((i-maxabs-NonNeg a nn-al (~ i)) * wb)
 
 
 i*-width-NPNN-≤ : (a b : Iℚ) -> NonPosI a -> NonNegI b ->
-                  (i-width (a i* b)) ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+                  (i-width (a i* b)) ≤ (((i-width a) * (i-maxabs b)) r+ ((i-maxabs a) * (i-width b)))
 i*-width-NPNN-≤ a b np-a nn-b =
   subst2 _≤_ (cong i-width (i*-commute b a))
-              (\i -> r+-commute (r*-commute (i-width b) (i-maxabs a) i)
-                                (r*-commute (i-maxabs b) (i-width a) i) i)
+             (+-cong *-commute *-commute >=> +-commute)
          (i*-width-NNNP-≤ b a nn-b np-a)
 
 
 i*-width-NPNP-≤ : (a b : Iℚ) -> NonPosI a -> NonPosI b ->
-                  (i-width (a i* b)) ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+                  (i-width (a i* b)) ≤ (((i-width a) * (i-maxabs b)) r+ ((i-maxabs a) * (i-width b)))
 i*-width-NPNP-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au np-bu =
   subst2 _≤_ (sym (i*-width-NPNP a b np-au np-bu)) p lt
   where
@@ -1076,15 +1073,15 @@ i*-width-NPNP-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au 
   nn-wb : NonNeg wb
   nn-wb = NonNeg-i-width b
 
-  lt : ((wa r* (r- bl)) r+ ((r- au) r* wb)) ≤ ((wa r* (r- bl)) r+ ((r- al) r* wb))
+  lt : ((wa * (r- bl)) r+ ((r- au) * wb)) ≤ ((wa * (r- bl)) r+ ((r- al) * wb))
   lt = +₁-preserves-≤ (*₂-preserves-≤ (minus-flips-≤ al≤au) (NonNeg-0≤ _ nn-wb))
 
-  p : ((wa r* (r- bl)) r+ ((r- al) r* wb)) == ((wa r* (i-maxabs b)) r+ ((i-maxabs a) r* wb))
-  p i = (wa r* (i-maxabs-NonPos b np-bu (~ i))) r+ ((i-maxabs-NonPos a np-au (~ i)) r* wb)
+  p : ((wa * (r- bl)) r+ ((r- al) * wb)) == ((wa * (i-maxabs b)) r+ ((i-maxabs a) * wb))
+  p i = (wa * (i-maxabs-NonPos b np-bu (~ i))) r+ ((i-maxabs-NonPos a np-au (~ i)) * wb)
 
 
 i*-width-NNCZ-≤ : (a b : Iℚ) -> NonNegI a -> CrossZeroI b ->
-                  (i-width (a i* b)) ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+                  (i-width (a i* b)) ≤ (((i-width a) * (i-maxabs b)) r+ ((i-maxabs a) * (i-width b)))
 i*-width-NNCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al (np-bl , nn-bu) =
   subst2 _≤_ (sym (i*-width-NNCZ a b nn-al (np-bl , nn-bu))) p lt
 
@@ -1099,25 +1096,24 @@ i*-width-NNCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) nn-al 
   nn-mb : NonNeg mb
   nn-mb = NonNeg-i-maxabs b
 
-  lt : (au r* wb) ≤ ((wa r* mb) r+ (au r* wb))
-  lt = subst (_≤ ((wa r* mb) r+ (au r* wb)))
-             (r+-left-zero (au r* wb))
+  lt : (au * wb) ≤ ((wa * mb) r+ (au * wb))
+  lt = subst (_≤ ((wa * mb) r+ (au * wb)))
+             (r+-left-zero (au * wb))
              (+₂-preserves-≤ (NonNeg-0≤ _ (r*-NonNeg-NonNeg nn-wa nn-mb)))
 
-  p : ((wa r* mb) r+ (au r* wb)) == ((wa r* mb) r+ (ma r* wb))
-  p i = (wa r* mb) r+ ((i-maxabs-NonNeg a nn-al (~ i)) r* wb)
+  p : ((wa * mb) r+ (au * wb)) == ((wa * mb) r+ (ma * wb))
+  p i = (wa * mb) r+ ((i-maxabs-NonNeg a nn-al (~ i)) * wb)
 
 
 i*-width-CZNN-≤ : (a b : Iℚ) -> CrossZeroI a -> NonNegI b ->
-                  (i-width (a i* b)) ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+                  (i-width (a i* b)) ≤ (((i-width a) * (i-maxabs b)) r+ ((i-maxabs a) * (i-width b)))
 i*-width-CZNN-≤ a b cz-a nn-b =
   subst2 _≤_ (cong i-width (i*-commute b a))
-              (\i -> r+-commute (r*-commute (i-width b) (i-maxabs a) i)
-                                (r*-commute (i-maxabs b) (i-width a) i) i)
+             (+-cong *-commute *-commute >=> +-commute)
          (i*-width-NNCZ-≤ b a nn-b cz-a)
 
 i*-width-NPCZ-≤ : (a b : Iℚ) -> NonPosI a -> CrossZeroI b ->
-                  (i-width (a i* b)) ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+                  (i-width (a i* b)) ≤ (((i-width a) * (i-maxabs b)) r+ ((i-maxabs a) * (i-width b)))
 i*-width-NPCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au (np-bl , nn-bu) =
   subst2 _≤_ (sym (i*-width-NPCZ a b np-au (np-bl , nn-bu))) p lt
 
@@ -1132,21 +1128,20 @@ i*-width-NPCZ-≤ a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) np-au 
   nn-mb : NonNeg mb
   nn-mb = NonNeg-i-maxabs b
 
-  lt : ((r- al) r* wb) ≤ ((wa r* mb) r+ ((r- al) r* wb))
-  lt = subst (_≤ ((wa r* mb) r+ ((r- al) r* wb)))
-             (r+-left-zero ((r- al) r* wb))
+  lt : ((r- al) * wb) ≤ ((wa * mb) r+ ((r- al) * wb))
+  lt = subst (_≤ ((wa * mb) r+ ((r- al) * wb)))
+             (r+-left-zero ((r- al) * wb))
              (+₂-preserves-≤ (NonNeg-0≤ _ (r*-NonNeg-NonNeg nn-wa nn-mb)))
 
-  p : ((wa r* mb) r+ ((r- al) r* wb)) == ((wa r* mb) r+ (ma r* wb))
-  p i = (wa r* mb) r+ ((i-maxabs-NonPos a np-au (~ i)) r* wb)
+  p : ((wa * mb) r+ ((r- al) * wb)) == ((wa * mb) r+ (ma * wb))
+  p i = (wa * mb) r+ ((i-maxabs-NonPos a np-au (~ i)) * wb)
 
 
 i*-width-CZNP-≤ : (a b : Iℚ) -> CrossZeroI a -> NonPosI b ->
-                  (i-width (a i* b)) ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+                  (i-width (a i* b)) ≤ (((i-width a) * (i-maxabs b)) r+ ((i-maxabs a) * (i-width b)))
 i*-width-CZNP-≤ a b cz-a np-b =
   subst2 _≤_ (cong i-width (i*-commute b a))
-              (\i -> r+-commute (r*-commute (i-width b) (i-maxabs a) i)
-                                (r*-commute (i-maxabs b) (i-width a) i) i)
+             (+-cong *-commute *-commute >=> +-commute)
          (i*-width-NPCZ-≤ b a np-b cz-a)
 
 private
@@ -1203,11 +1198,11 @@ private
 
 
 i*-width-≤ : (a b : Iℚ) ->
-             (i-width (a i* b)) ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+             (i-width (a i* b)) ≤ (((i-width a) * (i-maxabs b)) r+ ((i-maxabs a) * (i-width b)))
 i*-width-≤ a b = handle (classify a) (classify b)
   where
   handle : Class a -> Class b ->
-           (i-width (a i* b)) ≤ (((i-width a) r* (i-maxabs b)) r+ ((i-maxabs a) r* (i-width b)))
+           (i-width (a i* b)) ≤ (((i-width a) * (i-maxabs b)) r+ ((i-maxabs a) * (i-width b)))
   handle (nn-c pa) (nn-c pb) = i*-width-NNNN-≤ a b pa pb
   handle (nn-c pa) (np-c pb) = i*-width-NNNP-≤ a b pa pb
   handle (nn-c pa) (cz-c pb) = i*-width-NNCZ-≤ a b pa pb
@@ -1362,16 +1357,16 @@ i-scale-preserves-⊆ k {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤b
                        (subst2 _≤_ (sym maxa-path) (sym maxb-path)
                                    (*₁-preserves-≤ (NonNeg-0≤ _ nn) u))
     where
-    minb-path : min (k r* bl) (k r* bu) == k r* bl
+    minb-path : min (k * bl) (k * bu) == k * bl
     minb-path = min-≤-path (*₁-preserves-≤ (NonNeg-0≤ _ nn) bl≤bu)
 
-    mina-path : min (k r* al) (k r* au) == k r* al
+    mina-path : min (k * al) (k * au) == k * al
     mina-path = min-≤-path (*₁-preserves-≤ (NonNeg-0≤ _ nn) al≤au)
 
-    maxb-path : max (k r* bl) (k r* bu) == k r* bu
+    maxb-path : max (k * bl) (k * bu) == k * bu
     maxb-path = max-≤-path (*₁-preserves-≤ (NonNeg-0≤ _ nn) bl≤bu)
 
-    maxa-path : max (k r* al) (k r* au) == k r* au
+    maxa-path : max (k * al) (k * au) == k * au
     maxa-path = max-≤-path (*₁-preserves-≤ (NonNeg-0≤ _ nn) al≤au)
 
   np-case : NonPos k -> (i-scale k a) i⊆ (i-scale k b)
@@ -1380,16 +1375,16 @@ i-scale-preserves-⊆ k {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤b
                        (subst2 _≤_ (sym maxa-path) (sym maxb-path)
                                    (*₁-flips-≤ (NonPos-≤0 _ np) l))
     where
-    minb-path : min (k r* bl) (k r* bu) == k r* bu
+    minb-path : min (k * bl) (k * bu) == k * bu
     minb-path = min-≥-path (*₁-flips-≤ (NonPos-≤0 _ np) bl≤bu)
 
-    mina-path : min (k r* al) (k r* au) == k r* au
+    mina-path : min (k * al) (k * au) == k * au
     mina-path = min-≥-path (*₁-flips-≤ (NonPos-≤0 _ np) al≤au)
 
-    maxb-path : max (k r* bl) (k r* bu) == k r* bl
+    maxb-path : max (k * bl) (k * bu) == k * bl
     maxb-path = max-≥-path (*₁-flips-≤ (NonPos-≤0 _ np) bl≤bu)
 
-    maxa-path : max (k r* al) (k r* au) == k r* al
+    maxa-path : max (k * al) (k * au) == k * al
     maxa-path = max-≥-path (*₁-flips-≤ (NonPos-≤0 _ np) al≤au)
 
   handle : Σ[ s ∈ Sign ] isSign s k -> (i-scale k a) i⊆ (i-scale k b)
@@ -1489,31 +1484,31 @@ i-scale-preserves-⊂ {k} {(Iℚ-cons al au al≤au)} {(Iℚ-cons bl bu bl≤bu)
   i⊂-cons (subst2 _<_ (sym minb-path) (sym mina-path) (*₁-preserves-< pk bl<al))
           (subst2 _<_ (sym maxa-path) (sym maxb-path) (*₁-preserves-< pk au<bu))
   where
-  minb-path : min (k r* bl) (k r* bu) == k r* bl
+  minb-path : min (k * bl) (k * bu) == k * bl
   minb-path = min-≤-path (*₁-preserves-≤ (weaken-< pk) bl≤bu)
 
-  mina-path : min (k r* al) (k r* au) == k r* al
+  mina-path : min (k * al) (k * au) == k * al
   mina-path = min-≤-path (*₁-preserves-≤ (weaken-< pk) al≤au)
 
-  maxb-path : max (k r* bl) (k r* bu) == k r* bu
+  maxb-path : max (k * bl) (k * bu) == k * bu
   maxb-path = max-≤-path (*₁-preserves-≤ (weaken-< pk) bl≤bu)
 
-  maxa-path : max (k r* al) (k r* au) == k r* au
+  maxa-path : max (k * al) (k * au) == k * au
   maxa-path = max-≤-path (*₁-preserves-≤ (weaken-< pk) al≤au)
 i-scale-preserves-⊂ {k} {(Iℚ-cons al au al≤au)} {(Iℚ-cons bl bu bl≤bu)} (inj-r nk) (i⊂-cons bl<al au<bu) =
   i⊂-cons (subst2 _<_ (sym minb-path) (sym mina-path) (*₁-flips-< nk au<bu))
           (subst2 _<_ (sym maxa-path) (sym maxb-path) (*₁-flips-< nk bl<al))
   where
-  minb-path : min (k r* bl) (k r* bu) == k r* bu
+  minb-path : min (k * bl) (k * bu) == k * bu
   minb-path = min-≥-path (*₁-flips-≤ (weaken-< nk) bl≤bu)
 
-  mina-path : min (k r* al) (k r* au) == k r* au
+  mina-path : min (k * al) (k * au) == k * au
   mina-path = min-≥-path (*₁-flips-≤ (weaken-< nk) al≤au)
 
-  maxb-path : max (k r* bl) (k r* bu) == k r* bl
+  maxb-path : max (k * bl) (k * bu) == k * bl
   maxb-path = max-≥-path (*₁-flips-≤ (weaken-< nk) bl≤bu)
 
-  maxa-path : max (k r* al) (k r* au) == k r* al
+  maxa-path : max (k * al) (k * au) == k * al
   maxa-path = max-≥-path (*₁-flips-≤ (weaken-< nk) al≤au)
 
 i*₁-preserves-⊂ : (a : Iℚ) -> (¬ (ZeroEndedI a)) -> {b c : Iℚ} -> b i⊂ c -> (a i* b) i⊂ (a i* c)
@@ -1561,7 +1556,7 @@ find-shrink-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     1/al = (r1/ al al-inv)
     pos-1/al = (r1/-preserves-Pos al al-inv al-pos)
 
-    k = bl r* 1/al
+    k = bl * 1/al
 
     k<1 : k < 1r
     k<1 = subst (k <_) (*-commute >=> r1/-inverse al al-inv)
@@ -1584,15 +1579,13 @@ find-shrink-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     p-path = i-scale-NN-path (k , nn-k) a
 
     pl-path : pl == bl
-    pl-path = r*-assoc bl 1/al al
-              >=> (cong (bl r*_) (r1/-inverse al al-inv))
-              >=> r*-right-one bl
+    pl-path = *-assoc >=> *-right (r1/-inverse al al-inv) >=> *-right-one
 
     bl≤pl : bl ≤ pl
     bl≤pl = path-≤ (sym pl-path)
 
     pu≤au : pu ≤ au
-    pu≤au = subst (pu ≤_) (r*-left-one au)
+    pu≤au = subst (pu ≤_) *-left-one
                           (*₂-preserves-≤ (weaken-< k<1) (NonNeg-0≤ _ nn-au))
 
     pu≤bu : pu ≤ bu
@@ -1612,7 +1605,7 @@ find-shrink-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     1/au = (r1/ au au-inv)
     neg-1/au = (r1/-preserves-Neg au au-inv n-au)
 
-    k = bu r* 1/au
+    k = bu * 1/au
 
     k<1 : k < 1r
     k<1 = subst (k <_) (*-commute >=> r1/-inverse au au-inv)
@@ -1635,9 +1628,7 @@ find-shrink-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     p-path = i-scale-NN-path (k , nn-k) a
 
     pu-path : pu == bu
-    pu-path = r*-assoc bu 1/au au
-              >=> (cong (bu r*_) (r1/-inverse au au-inv))
-              >=> r*-right-one bu
+    pu-path = *-assoc >=> *-right (r1/-inverse au au-inv) >=> *-right-one
 
     pu≤bu : pu ≤ bu
     pu≤bu = path-≤ pu-path
@@ -1663,21 +1654,21 @@ find-shrink-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     p-path : p == p'
     p-path = i-scale-NN-path (1/2r , (inj-l (Pos-1/ℕ (2 , _)))) a
 
-    1/2bu≤bu : (1/2r r* bu) ≤ bu
-    1/2bu≤bu = subst ((1/2r r* bu) ≤_) (r*-left-one bu)
+    1/2bu≤bu : (1/2r * bu) ≤ bu
+    1/2bu≤bu = subst ((1/2r * bu) ≤_) *-left-one
                      (*₂-preserves-≤ (weaken-< 1/2r<1r) (NonNeg-0≤ _ nn-bu))
 
-    pu≤1/2bu : pu ≤ (1/2r r* bu)
+    pu≤1/2bu : pu ≤ (1/2r * bu)
     pu≤1/2bu = *₁-preserves-≤ (weaken-< (Pos-1/ℕ (2 , _))) (weaken-< au<bu)
 
     pu≤bu : pu ≤ bu
     pu≤bu = trans-≤ pu≤1/2bu 1/2bu≤bu
 
-    bl≤1/2bl : bl ≤ (1/2r r* bl)
-    bl≤1/2bl = subst (_≤ (1/2r r* bl)) (r*-left-one bl)
+    bl≤1/2bl : bl ≤ (1/2r * bl)
+    bl≤1/2bl = subst (_≤ (1/2r * bl)) *-left-one
                      (*₂-flips-≤ (weaken-< 1/2r<1r) (NonPos-≤0 _ np-bl))
 
-    1/2bl≤pl : (1/2r r* bl) ≤ pl
+    1/2bl≤pl : (1/2r * bl) ≤ pl
     1/2bl≤pl = *₁-preserves-≤ (weaken-< (Pos-1/ℕ (2 , _))) (weaken-< bl<al)
 
     bl≤pl : bl ≤ pl
@@ -1707,10 +1698,10 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     1/au = (r1/ au au-inv)
     pos-1/au = (r1/-preserves-Pos au au-inv p-au)
 
-    k = bu r* 1/au
+    k = bu * 1/au
 
     1<k : 1r < k
-    1<k = subst (_< k) (r*-commute au 1/au >=> r1/-inverse au au-inv)
+    1<k = subst (_< k) (*-commute >=> r1/-inverse au au-inv)
                 (*₂-preserves-< au<bu pos-1/au)
 
     p-bu = Pos-≤ au bu p-au (weaken-< au<bu)
@@ -1732,9 +1723,7 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     p-path = i-scale-NN-path (k , nn-k) a
 
     pu-path : pu == bu
-    pu-path = r*-assoc bu 1/au au
-              >=> (cong (bu r*_) (r1/-inverse au au-inv))
-              >=> r*-right-one bu
+    pu-path = *-assoc >=> *-right (r1/-inverse au au-inv) >=> *-right-one
 
     pu≤bu : pu ≤ bu
     pu≤bu = path-≤ pu-path
@@ -1758,10 +1747,10 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     1/al = (r1/ al al-inv)
     neg-1/al = (r1/-preserves-Neg al al-inv n-al)
 
-    k = bl r* 1/al
+    k = bl * 1/al
 
     1<k : 1r < k
-    1<k = subst (_< k) (r*-commute al 1/al >=> r1/-inverse al al-inv)
+    1<k = subst (_< k) (*-commute >=> r1/-inverse al al-inv)
                 (*₂-flips-< bl<al neg-1/al)
 
     n-bl = Neg-≤ bl al n-al (weaken-< bl<al)
@@ -1783,15 +1772,13 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     p-path = i-scale-NN-path (k , nn-k) a
 
     pl-path : pl == bl
-    pl-path = r*-assoc bl 1/al al
-              >=> (cong (bl r*_) (r1/-inverse al al-inv))
-              >=> r*-right-one bl
+    pl-path = *-assoc >=> *-right (r1/-inverse al al-inv) >=> *-right-one
 
     bl≤pl : bl ≤ pl
     bl≤pl = path-≤ (sym pl-path)
 
     pu≤au : pu ≤ au
-    pu≤au = subst (pu ≤_) (r*-left-one au)
+    pu≤au = subst (pu ≤_) *-left-one
                   (*₂-flips-≤ (weaken-< 1<k) (NonPos-≤0 _ np-au))
 
     pu≤bu : pu ≤ bu
@@ -1802,8 +1789,8 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
   cz-case : StrictCrossZeroI b -> Ans
   cz-case (n-bl , p-bu) = k , p-k , 1<k  , subst (_i⊆ b) p-path (i⊆-cons bl≤pl pu≤bu)
     where
-    hbl = 1/2r r* bl
-    hbu = 1/2r r* bu
+    hbl = 1/2r * bl
+    hbu = 1/2r * bu
 
     al' = min al hbl
     au' = max au hbu
@@ -1818,11 +1805,11 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
 
     bl<al' : bl < al'
     bl<al' = min-property {P = bl <_} al hbl bl<al
-                          (subst (_< hbl) (r*-left-one bl)
+                          (subst (_< hbl) *-left-one
                                  (*₂-flips-< 1/2r<1r n-bl))
     au'<bu : au' < bu
     au'<bu = max-property {P = _< bu} au hbu au<bu
-                          (subst (hbu <_) (r*-left-one bu)
+                          (subst (hbu <_) *-left-one
                                  (*₂-preserves-< 1/2r<1r p-bu))
 
     al'-inv : ℚInv al'
@@ -1834,8 +1821,8 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     1/al' = (r1/ al' al'-inv)
     1/au' = (r1/ au' au'-inv)
 
-    kl = bl r* 1/al'
-    ku = bu r* 1/au'
+    kl = bl * 1/al'
+    ku = bu * 1/au'
 
     n-1/al' = r1/-preserves-Neg al' al'-inv n-al'
     p-1/au' = r1/-preserves-Pos au' au'-inv p-au'
@@ -1846,10 +1833,10 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     p-ku = r*₁-preserves-sign (bu , p-bu) _ {pos-sign} p-1/au'
 
     1<kl : 1r < kl
-    1<kl = subst (_< kl) (r*-commute al' 1/al' >=> r1/-inverse al' al'-inv)
+    1<kl = subst (_< kl) (*-commute >=> r1/-inverse al' al'-inv)
                  (*₂-flips-< bl<al' n-1/al')
     1<ku : 1r < ku
-    1<ku = subst (_< ku) (r*-commute au' 1/au' >=> r1/-inverse au' au'-inv)
+    1<ku = subst (_< ku) (*-commute >=> r1/-inverse au' au'-inv)
                  (*₂-preserves-< au'<bu p-1/au')
 
     k = min kl ku
@@ -1868,15 +1855,11 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
     p-path : p == p'
     p-path = i-scale-NN-path (k , inj-l p-k) a
 
-    l-path : kl r* al' == bl
-    l-path = r*-assoc bl 1/al' al'
-             >=> (cong (bl r*_) (r1/-inverse al' al'-inv))
-             >=> r*-right-one bl
+    l-path : kl * al' == bl
+    l-path = *-assoc >=> *-right (r1/-inverse al' al'-inv) >=> *-right-one
 
-    u-path : ku r* au' == bu
-    u-path = r*-assoc bu 1/au' au'
-             >=> (cong (bu r*_) (r1/-inverse au' au'-inv))
-             >=> r*-right-one bu
+    u-path : ku * au' == bu
+    u-path = *-assoc >=> *-right (r1/-inverse au' au'-inv) >=> *-right-one
 
     al'≤al : al' ≤ al
     al'≤al = min-≤-left
