@@ -12,7 +12,7 @@ split up rational/proper-interval
 add rational/raw-interval
 stop using subst and use trans-=-≤
 max-property should not be implicit
-
+reduce usages of sign to order functions
 
 
 ---

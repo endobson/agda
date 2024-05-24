@@ -15,6 +15,8 @@ open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-ring
 open import ordered-semiring
+open import ordered-semiring.non-trivial
+open import ordered-semiring.non-trivial.instances.rational
 open import rational
 open import rational.order
 open import rational.proper-interval
@@ -40,6 +42,23 @@ private
 
     U' : Pred ℚ ℓ-zero
     U' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Upper (xi i* yi) q)
+
+
+private
+  opaque
+    0<i-maxabs : (i : Iℚ) (x : ℝ) -> (ℝ∈Iℚ x i) -> 0# < i-maxabs i
+    0<i-maxabs i x (xl , xu) = handle (split-< 0# m)
+      where
+      m : ℚ
+      m = (i-maxabs i)
+      handle : (0# < m ⊎ m ≤ 0#) -> 0# < m
+      handle (inj-l 0<m) = 0<m
+      handle (inj-r m≤0) =
+        bot-elim (Real.disjoint x 0r (subst (Real.L x) (cong Iℚ.l zp) xl ,
+                                      subst (Real.U x) (cong Iℚ.u zp) xu))
+        where
+        zp : i == 0i
+        zp = i-maxabs-Zero i (antisym-≤ m≤0 (0≤i-maxabs i))
 
 module _ (x y : ℝ)
   where
@@ -67,8 +86,8 @@ module _ (x y : ℝ)
           handle3 : Σ[ r2 ∈ ℚ ] (r < r2 × Real.L z r2) -> Ans
           handle3 (r2 , r<r2 , lr2) = ∣ r2 , inj-l pr2 , trans-< q<r r<r2 , lr2 ∣
             where
-            pr2 : Pos r2
-            pr2 = 0<-Pos r2 (subst (_< r2) (Zero-path r zr) r<r2)
+            pr2 : 0# < r2
+            pr2 = trans-=-< (sym zr) r<r2
 
     NonZero-LowerOpen : (z : ℝ) (q : ℚ) (l : Real.U z q) -> ∃[ r ∈ ℚ ] (NonZero r × r < q × Real.U z r)
     NonZero-LowerOpen z q uq = ∥-bind handle (Real.isLowerOpen-U z q uq)
@@ -85,8 +104,8 @@ module _ (x y : ℝ)
           handle3 : Σ[ r2 ∈ ℚ ] (r2 < r × Real.U z r2) -> Ans
           handle3 (r2 , r2<r , ur2) = ∣ r2 , inj-r nr2 , trans-< r2<r r<q , ur2 ∣
             where
-            nr2 : Neg r2
-            nr2 = <0-Neg r2 (subst (r2 <_) (Zero-path r zr) r2<r)
+            nr2 : r2 < 0#
+            nr2 = trans-<-= r2<r zr
 
     Inhabited-L : Inhabited L
     Inhabited-L = ∥-map4 handle x.Inhabited-L x.Inhabited-U y.Inhabited-L y.Inhabited-U
@@ -238,6 +257,7 @@ module _ (x y : ℝ)
       where
       Ans = ∥ L a ⊎ U b ∥
       d = diff a b
+      0<d = diff-0<⁺ a<b
 
       initial-bound : Σ ℚ x.L -> Σ ℚ x.U -> Σ ℚ y.L -> Σ ℚ y.U -> Ans
       initial-bound (xb1' , xbl') (xb2' , xbu') (yb1' , ybl') (yb2' , ybu') =
@@ -258,41 +278,24 @@ module _ (x y : ℝ)
         eyi' : ℝ∈Iℚ y yi'
         eyi' = ybl' , ybu'
 
-        pos-m-xi' : Pos m-xi'
-        pos-m-xi' = handle (0≤-NonNeg _ (0≤i-maxabs xi'))
-          where
-          handle : NonNeg m-xi' -> Pos m-xi'
-          handle (inj-l p) = p
-          handle (inj-r z) = bot-elim (x.disjoint 0r (subst x.L (cong Iℚ.l zp) xbl' ,
-                                                      subst x.U (cong Iℚ.u zp) xbu'))
-            where
-            zp = i-maxabs-Zero xi' z
+        0<m-xi' : 0# < m-xi'
+        0<m-xi' = 0<i-maxabs xi' x exi'
 
-        pos-m-yi' : Pos m-yi'
-        pos-m-yi' = handle (0≤-NonNeg _ (0≤i-maxabs yi'))
-          where
-          handle : NonNeg m-yi' -> Pos m-yi'
-          handle (inj-l p) = p
-          handle (inj-r z) = bot-elim (y.disjoint 0r (subst y.L (cong Iℚ.l zp) ybl' ,
-                                                      subst y.U (cong Iℚ.u zp) ybu'))
-            where
-            zp = i-maxabs-Zero yi' z
+        0<m-yi' : 0# < m-yi'
+        0<m-yi' = 0<i-maxabs yi' y eyi'
 
 
         sm = (m-yi' r+ m-xi')
-        pos-sm = r+-preserves-Pos _ _ pos-m-yi' pos-m-xi'
-
-        nn-sm = r+-NonNeg-NonNeg
+        0<sm = +-preserves-0< 0<m-yi' 0<m-xi'
 
         sm-inv : ℚInv sm
-        sm-inv z-sm =
-          NonPos->¬Pos (inj-r (subst Zero (sym z-sm) Zero-0r)) pos-sm
+        sm-inv z-sm = irrefl-< (trans-<-= 0<sm z-sm)
 
         ε = (d r* (r1/ sm sm-inv))
 
         ε⁺ : ℚ⁺
-        ε⁺ = ε , (r*₁-preserves-sign (d , Pos-diffℚ _ _ a<b) _ {pos-sign}
-                                     (r1/-preserves-Pos sm sm-inv pos-sm))
+        ε⁺ = ε , (r*₁-preserves-sign (d , 0<d) _ {pos-sign}
+                                     (r1/-preserves-Pos sm sm-inv 0<sm))
 
         ε-path : (ε r* (m-yi' r+ m-xi')) == d
         ε-path = r*-assoc _ _ _ >=>
@@ -493,13 +496,10 @@ module _ (x : ℝ)
            where
 
            s' : ℚ
-           s' = 1r r+ s
+           s' = 1r + s
 
            s<s' : s < s'
-           s<s' = Pos-diffℚ⁻ _ _
-                   (subst Pos (sym (r+-right-zero 1r) >=>
-                              cong (1r r+_) (sym (r+-inverse s)) >=>
-                              sym (r+-assoc 1r s (r- s))) Pos-1r)
+           s<s' = trans-=-< (sym +-left-zero) (+₂-preserves-< 0<1)
 
            r<s : r < s
            r<s = ℝ-bounds->ℚ< x xl-r xu-s
@@ -516,8 +516,8 @@ module _ (x : ℝ)
            rs⊂qs' : rs i⊂ qs'
            rs⊂qs' = i⊂-cons q<r s<s'
 
-           handle2 : Σ[ kl ∈ ℚ ] (Pos kl × kl < 1r × i-scale kl rs i⊆ qs') ->
-                     Σ[ ku ∈ ℚ ] (Pos ku × 1r < ku × i-scale ku rs i⊆ qs') ->
+           handle2 : Σ[ kl ∈ ℚ ] (0# < kl × kl < 1r × i-scale kl rs i⊆ qs') ->
+                     Σ[ ku ∈ ℚ ] (0# < ku × 1r < ku × i-scale ku rs i⊆ qs') ->
                      1x.L q
            handle2 (kl , p-kl , kl<1 , scale-kl) (ku , p-ku , 1<ku , scale-ku) =
              ∣ k , rs , (ℚ<->L kl<1 , ℚ<->U 1<ku) , (xl-r , xu-s) , _i⊆_.l prod-⊆ ∣
@@ -558,9 +558,6 @@ module _ (x : ℝ)
                 (trans-ℚ≤ {p0} {p2} {xi-l} lt3
                   (trans-ℚ≤ {p2} {p3} {xi-l} lt2 (weaken-< lt1)))
               where
-              n-xi-l : Neg xi-l
-              n-xi-l = <0-Neg xi-l xi-l<0
-
               p1 = (Iℚ.l (i-scale 1i-l xi))
               p2 = (Iℚ.l (i-scale 1i-u xi))
               p0 = min p1 p2
@@ -570,7 +567,7 @@ module _ (x : ℝ)
 
               lt1 : (1i-u r* xi-l) < xi-l
               lt1 = subst ((1i-u r* xi-l) <_) (r*-left-one xi-l)
-                          (*₂-flips-< (U->ℚ< 1<1i-u) n-xi-l)
+                          (*₂-flips-< (U->ℚ< 1<1i-u) xi-l<0)
               lt2 : (min p3 p4) ℚ≤ p3
               lt2 = min-≤-left
               lt3 : (min p1 p2) ℚ≤ p2
@@ -580,10 +577,6 @@ module _ (x : ℝ)
                 (trans-ℚ≤ {p0} {p1} {xi-l} lt3
                   (trans-ℚ≤ {p1} {p3} {xi-l} lt2 lt1))
               where
-              nn-xi-l : NonNeg xi-l
-              nn-xi-l = 0≤-NonNeg xi-l 0≤xi-l
-
-
               p1 = (Iℚ.l (i-scale 1i-l xi))
               p2 = (Iℚ.l (i-scale 1i-u xi))
               p0 = min p1 p2
@@ -592,7 +585,7 @@ module _ (x : ℝ)
 
               lt1 : (1i-l r* xi-l) ℚ≤ xi-l
               lt1 = subst ((1i-l r* xi-l) ℚ≤_) (r*-left-one xi-l)
-                          (*₂-preserves-≤ (weaken-< (L->ℚ< 1i-l<1)) (NonNeg-0≤ _ nn-xi-l))
+                          (*₂-preserves-≤ (weaken-< (L->ℚ< 1i-l<1)) 0≤xi-l)
               lt2 : (min p3 p4) ℚ≤ p3
               lt2 = min-≤-left
               lt3 : (min p1 p2) ℚ≤ p1
@@ -617,10 +610,7 @@ module _ (x : ℝ)
            s' = s r+ (r- 1r)
 
            s'<s : s' < s
-           s'<s =
-             Pos-diffℚ⁻ _ _ (subst Pos (sym diff-step >=>
-                                        cong (s r+_) diff-anticommute)
-                                       Pos-1r)
+           s'<s = trans-<-= (+₁-preserves-< (minus-flips-0< 0<1)) +-right-zero
 
            s<r : s < r
            s<r = ℝ-bounds->ℚ< x xl-s xu-r
@@ -637,8 +627,8 @@ module _ (x : ℝ)
            sr⊂s'q : sr i⊂ s'q
            sr⊂s'q = i⊂-cons s'<s r<q
 
-           handle2 : Σ[ kl ∈ ℚ ] (Pos kl × kl < 1r × i-scale kl sr i⊆ s'q) ->
-                     Σ[ ku ∈ ℚ ] (Pos ku × 1r < ku × i-scale ku sr i⊆ s'q) ->
+           handle2 : Σ[ kl ∈ ℚ ] (0# < kl × kl < 1r × i-scale kl sr i⊆ s'q) ->
+                     Σ[ ku ∈ ℚ ] (0# < ku × 1r < ku × i-scale ku sr i⊆ s'q) ->
                      1x.U q
            handle2 (kl , p-kl , kl<1 , scale-kl) (ku , p-ku , 1<ku , scale-ku) =
              ∣ k , sr , (ℚ<->L kl<1 , ℚ<->U 1<ku) , (xl-s , xu-r) , _i⊆_.u prod-⊆ ∣
@@ -669,9 +659,6 @@ module _ (x : ℝ)
                   lt3)
                 prod≤q
               where
-              n-xi-u : Neg xi-u
-              n-xi-u = <0-Neg xi-u xi-u<0
-
               p1 = (Iℚ.u (i-scale 1i-l xi))
               p2 = (Iℚ.u (i-scale 1i-u xi))
               p0 = max p1 p2
@@ -681,7 +668,7 @@ module _ (x : ℝ)
 
               lt1 : xi-u < (1i-l r* xi-u)
               lt1 = subst (_< (1i-l r* xi-u)) (r*-left-one xi-u)
-                          (*₂-flips-< (L->ℚ< 1i-l<1) n-xi-u)
+                          (*₂-flips-< (L->ℚ< 1i-l<1) xi-u<0)
 
               lt2 : p4 ℚ≤ (max p3 p4)
               lt2 = max-≤-right
@@ -695,10 +682,6 @@ module _ (x : ℝ)
                   lt3)
                 prod≤q
               where
-              nn-xi-u : NonNeg xi-u
-              nn-xi-u = 0≤-NonNeg xi-u 0≤xi-u
-
-
               p1 = (Iℚ.u (i-scale 1i-l xi))
               p2 = (Iℚ.u (i-scale 1i-u xi))
               p0 = max p1 p2
@@ -707,7 +690,7 @@ module _ (x : ℝ)
 
               lt1 : xi-u ℚ≤ (1i-u r* xi-u)
               lt1 = subst (_ℚ≤ (1i-u r* xi-u)) (r*-left-one xi-u)
-                          (*₂-preserves-≤ (weaken-< (U->ℚ< 1<1i-u)) (NonNeg-0≤ _ nn-xi-u))
+                          (*₂-preserves-≤ (weaken-< (U->ℚ< 1<1i-u)) 0≤xi-u)
               lt2 : p4 ℚ≤ (max p3 p4)
               lt2 = max-≤-right
               lt3 : p2 ℚ≤ (max p1 p2)
@@ -742,38 +725,30 @@ module _ (x : ℝ)
         where
         handle : Σ ℚ x.L -> Σ ℚ x.U -> 0x.L q
         handle (p1 , xl-p1) (p2 , xu-p2) =
-          ∣ ir , ix , (ℚ<->L (Neg-<0 r neg-r) , ℚ<->U (Pos-0< mr pos-mr)) , (xl-p1 , xu-p2) , ans ∣
+          ∣ ir , ix , (ℚ<->L r<0 , ℚ<->U 0<mr) , (xl-p1 , xu-p2) , ans ∣
           where
           ix : Iℚ
           ix = ℝ-bounds->Iℚ x xl-p1 xu-p2
 
           m = i-maxabs ix
 
-          pos-m : Pos m
-          pos-m = handle2 (0≤-NonNeg _ (0≤i-maxabs ix))
-            where
-            handle2 : NonNeg m -> Pos m
-            handle2 (inj-l p) = p
-            handle2 (inj-r z) = bot-elim (x.disjoint 0r (subst x.L (cong Iℚ.l zp) xl-p1 ,
-                                                         subst x.U (cong Iℚ.u zp) xu-p2))
-              where
-              zp = i-maxabs-Zero ix z
+          0<m : 0# < m
+          0<m = 0<i-maxabs ix x (xl-p1 , xu-p2)
 
-          inv-m = Pos->Inv pos-m
+          inv-m = Pos->Inv 0<m
           1/m = (r1/ m inv-m)
-          pos-1/m = r1/-preserves-Pos m inv-m pos-m
+          0<1/m = r1/-preserves-Pos m inv-m 0<m
 
           r = q r* 1/m
 
-          neg-q = <0-Neg q (L->ℚ< 0ℝl-q)
+          q<0 = L->ℚ< 0ℝl-q
 
-          neg-r = r*₁-flips-sign (q , neg-q) 1/m {pos-sign} pos-1/m
+          r<0 = *₂-preserves-<0 q<0 0<1/m
 
           mr = r- r
 
-
-          pos-mr = r--flips-sign r neg-sign neg-r
-          r≤mr = NonPos≤NonNeg (inj-l neg-r) (inj-l pos-mr)
+          0<mr = minus-flips-<0 r<0
+          r≤mr = weaken-< (trans-< r<0 0<mr)
 
           ir = Iℚ-cons r mr r≤mr
 
@@ -819,20 +794,19 @@ module _ (x : ℝ)
         where
         handle : L' 0ℝ x q -> 0ℝ.L q
         handle (0i@(Iℚ-cons 0i-l 0i-u 0i-l≤u) , xi@(Iℚ-cons xi-l xi-u xi-l≤u) ,
-                (0i-ll , 0i-uu) , exi , q≤prod) =
-          ℚ<->L (Neg-<0 q (Neg-≤ q p0 n-p0 q≤prod))
+                (0i-ll , 0i-uu) , exi , q≤prod) = ℚ<->L (trans-≤-< q≤prod p0<0)
           where
-          n-l : Neg 0i-l
-          n-l = <0-Neg 0i-l (L->ℚ< 0i-ll)
-          p-u : Pos 0i-u
-          p-u = 0<-Pos 0i-u (U->ℚ< 0i-uu)
+          l<0 : 0i-l < 0#
+          l<0 = L->ℚ< 0i-ll
+          0<u : 0# < 0i-u
+          0<u = U->ℚ< 0i-uu
 
           p1 = (Iℚ.l (i-scale 0i-l xi))
           p2 = (Iℚ.l (i-scale 0i-u xi))
           p0 = min p1 p2
 
-          n-p0 : Neg p0
-          n-p0 = fst (i*₁-StrictCrossZero 0i xi (n-l , p-u) (ℝ∈Iℚ->NonConstant x xi exi))
+          p0<0 : p0 < 0#
+          p0<0 = fst (i*₁-StrictCrossZero 0i xi (l<0 , 0<u) (ℝ∈Iℚ->NonConstant x xi exi))
 
 
     U-path : (q : ℚ) -> 0x.U q == 0ℝ.U q
@@ -846,38 +820,30 @@ module _ (x : ℝ)
         where
         handle : Σ ℚ x.L -> Σ ℚ x.U -> 0x.U q
         handle (p1 , xl-p1) (p2 , xu-p2) =
-          ∣ ir , ix , (ℚ<->L (Neg-<0 mr neg-mr) , ℚ<->U (Pos-0< r pos-r)) , (xl-p1 , xu-p2) , ub≤q ∣
+          ∣ ir , ix , (ℚ<->L mr<0 , ℚ<->U 0<r) , (xl-p1 , xu-p2) , ub≤q ∣
           where
           ix : Iℚ
           ix = ℝ-bounds->Iℚ x xl-p1 xu-p2
 
           m = i-maxabs ix
 
-          pos-m : Pos m
-          pos-m = handle2 (0≤-NonNeg _ (0≤i-maxabs ix))
-            where
-            handle2 : NonNeg m -> Pos m
-            handle2 (inj-l p) = p
-            handle2 (inj-r z) = bot-elim (x.disjoint 0r (subst x.L (cong Iℚ.l zp) xl-p1 ,
-                                                         subst x.U (cong Iℚ.u zp) xu-p2))
-              where
-              zp = i-maxabs-Zero ix z
+          0<m : 0# < m
+          0<m = 0<i-maxabs ix x (xl-p1 , xu-p2)
 
-          inv-m = Pos->Inv pos-m
+          inv-m = Pos->Inv 0<m
           1/m = (r1/ m inv-m)
-          pos-1/m = r1/-preserves-Pos m inv-m pos-m
+          0<1/m = r1/-preserves-Pos m inv-m 0<m
 
           r = q r* 1/m
 
-          pos-q = 0<-Pos q (U->ℚ< 0ℝu-q)
+          0<q = U->ℚ< 0ℝu-q
 
-          pos-r = r*₁-preserves-sign (q , pos-q) 1/m {pos-sign} pos-1/m
+          0<r = *-preserves-0< 0<q 0<1/m
 
           mr = r- r
 
-
-          neg-mr = r--flips-sign r pos-sign pos-r
-          mr≤r = NonPos≤NonNeg (inj-l neg-mr) (inj-l pos-r)
+          mr<0 = minus-flips-0< 0<r
+          mr≤r = weaken-< (trans-< mr<0 0<r)
 
           ir = Iℚ-cons mr r mr≤r
 
@@ -911,20 +877,19 @@ module _ (x : ℝ)
         where
         handle : U' 0ℝ x q -> 0ℝ.U q
         handle (0i@(Iℚ-cons 0i-l 0i-u 0i-l≤u) , xi@(Iℚ-cons xi-l xi-u xi-l≤u) ,
-                (0i-ll , 0i-uu) , exi , prod≤q) =
-          ℚ<->U (Pos-0< q (Pos-≤ p0 q p-p0 prod≤q))
+                (0i-ll , 0i-uu) , exi , prod≤q) = ℚ<->U (trans-<-≤ 0<p0 prod≤q)
           where
-          n-l : Neg 0i-l
-          n-l = <0-Neg 0i-l (L->ℚ< 0i-ll)
-          p-u : Pos 0i-u
-          p-u = 0<-Pos 0i-u (U->ℚ< 0i-uu)
+          l<0 : 0i-l < 0#
+          l<0 = L->ℚ< 0i-ll
+          0<u : 0# < 0i-u
+          0<u = U->ℚ< 0i-uu
 
           p1 = (Iℚ.u (i-scale 0i-l xi))
           p2 = (Iℚ.u (i-scale 0i-u xi))
           p0 = max p1 p2
 
-          p-p0 : Pos p0
-          p-p0 = snd (i*₁-StrictCrossZero 0i xi (n-l , p-u) (ℝ∈Iℚ->NonConstant x xi exi))
+          0<p0 : 0# < p0
+          0<p0 = snd (i*₁-StrictCrossZero 0i xi (l<0 , 0<u) (ℝ∈Iℚ->NonConstant x xi exi))
 
     ℝ*ᵉ-left-zero : 0x == 0ℝ
     ℝ*ᵉ-left-zero = LU-paths->path 0x 0ℝ L-path U-path
