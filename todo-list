@@ -8,6 +8,7 @@ remove Rational Sign formations in rational proper-interval
 Rename rational/proper-interval to rational/closed-interval
 split up rational/proper-interval
 add rational/raw-interval
+stop using subst and use trans-=-≤
 
 
 
