@@ -39,9 +39,8 @@ BalancedI->ImbalancedI : (a : Iℚ) -> BalancedI a -> ImbalancedI a
 BalancedI->ImbalancedI a = path-≤
 
 NonNegI->ImbalancedI : (a : Iℚ) -> NonNegI a -> ImbalancedI a
-NonNegI->ImbalancedI a@(Iℚ-cons l u l≤u) nn-a = trans-≤ (trans-≤ -l≤0 0≤l) l≤u
+NonNegI->ImbalancedI a@(Iℚ-cons l u l≤u) 0≤l = trans-≤ (trans-≤ -l≤0 0≤l) l≤u
   where
-  0≤l = NonNeg-0≤ _ nn-a
   -l≤0 = minus-flips-0≤ 0≤l
 
 i-maxabs≤->ImbalancedI : (a : Iℚ) -> (i-maxabs a ℚ≤ Iℚ.u a) -> ImbalancedI a
@@ -114,10 +113,8 @@ i²-ImbalancedI-path ai@(Iℚ-cons l u l≤u) -l≤u = Iℚ-bounds-path l-path u
 
 
 i²-NonNegI : (ai : Iℚ) -> NonNegI ai -> Iℚ
-i²-NonNegI ai@(Iℚ-cons l u l≤u)  nn-ai = (Iℚ-cons (l * l) (u * u) ll≤uu)
+i²-NonNegI ai@(Iℚ-cons l u l≤u) 0≤l = (Iℚ-cons (l * l) (u * u) ll≤uu)
   where
-  0≤l = NonNeg-0≤ l nn-ai
-
   ll≤uu : (l * l) ≤ (u * u)
   ll≤uu =
     trans-≤ (*₁-preserves-≤ 0≤l l≤u)
@@ -125,9 +122,8 @@ i²-NonNegI ai@(Iℚ-cons l u l≤u)  nn-ai = (Iℚ-cons (l * l) (u * u) ll≤uu
 
 
 i²-NonNegI-path : (ai : Iℚ) -> (nn-ai : NonNegI ai) -> i²-NonNegI ai nn-ai == (ai i* ai)
-i²-NonNegI-path ai@(Iℚ-cons l u l≤u) nn-ai = Iℚ-bounds-path l-path u-path
+i²-NonNegI-path ai@(Iℚ-cons l u l≤u) 0≤l = Iℚ-bounds-path l-path u-path
   where
-  0≤l = NonNeg-0≤ l nn-ai
   0≤u = trans-≤ 0≤l l≤u
 
   l2 = Iℚ.l (ai i* ai)
@@ -216,23 +212,16 @@ naive-i² (Iℚ-cons l u l≤u) -l≤u = (Iℚ-cons (l * l) (u * u) ll≤uu)
 ℚ∈Iℚ-i-scale k q a@(Iℚ-cons l u l≤u) (l≤q , q≤u) = handle (split-< k 0r)
   where
   handle : (k < 0r ⊎ 0r ℚ≤ k) -> ℚ∈Iℚ (k * q) (i-scale k a)
-  handle (inj-l k<0) = subst (ℚ∈Iℚ (k * q)) (i-scale-NP-path (k , np-k) a) kq∈ka'
+  handle (inj-l k<0) = subst (ℚ∈Iℚ (k * q)) (i-scale-≤0-path (k , k≤0) a) kq∈ka'
     where
-    np-k : NonPos k
-    np-k = ≤0-NonPos k (weaken-< k<0)
+    k≤0 = weaken-< k<0
+    kq∈ka' : ℚ∈Iℚ (k * q) (i-scale-≤0 (k , k≤0) a)
+    kq∈ka' = *₁-flips-≤ k≤0 q≤u , *₁-flips-≤ k≤0 l≤q
 
-    kq∈ka' : ℚ∈Iℚ (k * q) (i-scale-NP (k , np-k) a)
-    kq∈ka' = *₁-flips-≤ (weaken-< k<0) q≤u ,
-             *₁-flips-≤ (weaken-< k<0) l≤q
-
-  handle (inj-r 0≤k) = subst (ℚ∈Iℚ (k * q)) (i-scale-NN-path (k , nn-k) a) kq∈ka'
+  handle (inj-r 0≤k) = subst (ℚ∈Iℚ (k * q)) (i-scale-0≤-path (k , 0≤k) a) kq∈ka'
     where
-    nn-k : NonNeg k
-    nn-k = 0≤-NonNeg k 0≤k
-
-    kq∈ka' : ℚ∈Iℚ (k * q) (i-scale-NN (k , nn-k) a)
-    kq∈ka' = *₁-preserves-≤ 0≤k l≤q ,
-             *₁-preserves-≤ 0≤k q≤u
+    kq∈ka' : ℚ∈Iℚ (k * q) (i-scale-0≤ (k , 0≤k) a)
+    kq∈ka' = *₁-preserves-≤ 0≤k l≤q , *₁-preserves-≤ 0≤k q≤u
 
 ℚ∈Iℚ-⊆ : (q : ℚ) -> {a b : Iℚ} -> (a i⊆ b) -> ℚ∈Iℚ q a -> ℚ∈Iℚ q b
 ℚ∈Iℚ-⊆ q {_} {b} (i⊆-cons bl≤al au≤bu) (al≤q , q≤au) =
@@ -302,40 +291,37 @@ naive-i²-⊆-* a@(Iℚ-cons l u l≤u) i@-l≤u = a²⊆aa
 
 i*-i⊆-square-NonNegI⁻ : (ai bi : Iℚ) -> NonNegI ai -> NonNegI bi ->
                         (ai i* ai) i⊆ (bi i* bi) -> ai i⊆ bi
-i*-i⊆-square-NonNegI⁻ ai@(Iℚ-cons al au al≤au) bi@(Iℚ-cons bl bu bl≤bu) nn-al nn-bl
+i*-i⊆-square-NonNegI⁻ ai@(Iℚ-cons al au al≤au) bi@(Iℚ-cons bl bu bl≤bu) 0≤al 0≤bl
                       (i⊆-cons b²l≤a²l  a²u≤b²u) = i⊆-cons bl≤al au≤bu
   where
-  0≤al = NonNeg-0≤ al nn-al
-  0≤bl = NonNeg-0≤ bl nn-bl
   0≤au = trans-≤ 0≤al al≤au
   0≤bu = trans-≤ 0≤bl bl≤bu
 
   blbl≤alal : (bl * bl) ≤ (al * al)
-  blbl≤alal = subst2 _≤_ (cong Iℚ.l (sym (i²-NonNegI-path bi nn-bl)))
-                         (cong Iℚ.l (sym (i²-NonNegI-path ai nn-al))) b²l≤a²l
+  blbl≤alal = subst2 _≤_ (cong Iℚ.l (sym (i²-NonNegI-path bi 0≤bl)))
+                         (cong Iℚ.l (sym (i²-NonNegI-path ai 0≤al))) b²l≤a²l
 
   bl≤al : bl ≤ al
   bl≤al = squares-ordered-≤ 0≤al blbl≤alal
 
   auau≤bubu : (au * au) ≤ (bu * bu)
-  auau≤bubu = subst2 _≤_ (cong Iℚ.u (sym (i²-NonNegI-path ai nn-al)))
-                         (cong Iℚ.u (sym (i²-NonNegI-path bi nn-bl))) a²u≤b²u
+  auau≤bubu = subst2 _≤_ (cong Iℚ.u (sym (i²-NonNegI-path ai 0≤al)))
+                         (cong Iℚ.u (sym (i²-NonNegI-path bi 0≤bl))) a²u≤b²u
 
   au≤bu : au ≤ bu
   au≤bu = squares-ordered-≤ 0≤bu auau≤bubu
 
 i*-i⊆-square-NonNegI2⁻ : (ai bi : Iℚ) -> ImbalancedI ai -> NonNegI bi ->
                          (ai i* ai) i⊆ (bi i* bi) -> ai i⊆ bi
-i*-i⊆-square-NonNegI2⁻ ai@(Iℚ-cons al au al≤au) bi@(Iℚ-cons bl bu bl≤bu) imb-ai nn-bi
+i*-i⊆-square-NonNegI2⁻ ai@(Iℚ-cons al au al≤au) bi@(Iℚ-cons bl bu bl≤bu) imb-ai 0≤bl
                        aiai⊆bibi@(i⊆-cons b²l≤a²l  a²u≤b²u) =
-  i*-i⊆-square-NonNegI⁻ ai bi nn-ai nn-bi aiai⊆bibi
+  i*-i⊆-square-NonNegI⁻ ai bi (convert-≮ al≮0) 0≤bl aiai⊆bibi
   where
   0≤au = ImbalancedI->0≤u ai imb-ai
-  0≤bl = NonNeg-0≤ bl nn-bi
   0≤blbl = *-preserves-0≤ 0≤bl 0≤bl
   a²l≤alau = fst (ℚ∈Iℚ-* _ _ ai ai (ℚ∈Iℚ-l ai) (ℚ∈Iℚ-u ai))
   b²l≤alau = trans-≤ b²l≤a²l a²l≤alau
-  blbl≤alau = subst (_≤ (al * au)) (cong Iℚ.l (sym (i²-NonNegI-path bi nn-bi)))  b²l≤alau
+  blbl≤alau = subst (_≤ (al * au)) (cong Iℚ.l (sym (i²-NonNegI-path bi 0≤bl)))  b²l≤alau
   0≤alau = trans-≤ 0≤blbl blbl≤alau
 
   al≮0 : al ≮ 0r
@@ -344,9 +330,6 @@ i*-i⊆-square-NonNegI2⁻ ai@(Iℚ-cons al au al≤au) bi@(Iℚ-cons bl bu bl�
     0<-al = minus-flips-<0 al<0
     0<au = trans-<-≤ 0<-al imb-ai
     alau<0 = subst ((al * au) <_) *-left-zero (*₂-preserves-< al<0 0<au)
-
-  nn-ai : NonNegI ai
-  nn-ai = 0≤-NonNeg al (proj-¬l (split-< al 0r) al≮0)
 
 
 

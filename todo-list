@@ -11,6 +11,7 @@ Rename rational/proper-interval to rational/closed-interval
 split up rational/proper-interval
 add rational/raw-interval
 stop using subst and use trans-=-≤
+max-property should not be implicit
 
 
 

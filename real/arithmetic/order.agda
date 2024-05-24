@@ -79,8 +79,8 @@ private
       ℝ<'-cons l (ℚ<->U 0<l) (∣ ia , ib , a∈ia , b∈ib , subst (\x -> i-Lower x l) iab-path refl-ℚ≤ ∣)
       where
       iab = ia i* ib
-      iab' = i*-NN ia ib (inj-l pos-ia) (inj-l pos-ib)
-      iab-path = i*-NN-path ia ib (inj-l pos-ia) (inj-l pos-ib)
+      iab' = i*-NN ia ib (weaken-< pos-ia) (weaken-< pos-ib)
+      iab-path = i*-NN-path ia ib (weaken-< pos-ia) (weaken-< pos-ib)
 
       l = Iℚ.l iab'
       pos-l = r*-preserves-Pos _ _ pos-ia pos-ib

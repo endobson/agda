@@ -431,9 +431,9 @@ private
             1<dueu = subst2 _<_ (r1/-inverse du (Pos->Inv pos-du)) *-commute
                             (*₂-preserves-< 1/du<eu pos-du)
 
-            de' = i*-NN d e (inj-l pos-dl) (inj-l pos-el)
+            de' = i*-NN d e (weaken-< pos-dl) (weaken-< pos-el)
             de'==de : de' == (d i* e)
-            de'==de = i*-NN-path d e (inj-l pos-dl) (inj-l pos-el)
+            de'==de = i*-NN-path d e (weaken-< pos-dl) (weaken-< pos-el)
 
             1∈de' : ℝ∈Iℚ 1ℝ de'
             1∈de' = ℚ<->L dlel<1 , ℚ<->U 1<dueu

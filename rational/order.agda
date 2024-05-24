@@ -488,9 +488,9 @@ abstract
 ℚ⁻ = Σ ℚ Neg
 
 ℚ⁰⁺ : Type₀
-ℚ⁰⁺ = Σ ℚ NonNeg
+ℚ⁰⁺ = Σ ℚ (0# ≤_)
 ℚ⁰⁻ : Type₀
-ℚ⁰⁻ = Σ ℚ NonPos
+ℚ⁰⁻ = Σ ℚ (_≤ 0#)
 
 
 abstract

@@ -259,7 +259,7 @@ module _ (x y : ℝ)
         eyi' = ybl' , ybu'
 
         pos-m-xi' : Pos m-xi'
-        pos-m-xi' = handle (NonNeg-i-maxabs xi')
+        pos-m-xi' = handle (0≤-NonNeg _ (0≤i-maxabs xi'))
           where
           handle : NonNeg m-xi' -> Pos m-xi'
           handle (inj-l p) = p
@@ -269,7 +269,7 @@ module _ (x y : ℝ)
             zp = i-maxabs-Zero xi' z
 
         pos-m-yi' : Pos m-yi'
-        pos-m-yi' = handle (NonNeg-i-maxabs yi')
+        pos-m-yi' = handle (0≤-NonNeg _ (0≤i-maxabs yi'))
           where
           handle : NonNeg m-yi' -> Pos m-yi'
           handle (inj-l p) = p
@@ -340,11 +340,11 @@ module _ (x y : ℝ)
           m-mxi = i-maxabs mxi
           m-myi = i-maxabs myi
 
-          nn-w-mxi = NonNeg-i-width mxi
-          nn-w-myi = NonNeg-i-width myi
+          0≤w-mxi = 0≤i-width mxi
+          0≤w-myi = 0≤i-width myi
 
-          nn-m-xi' = NonNeg-i-maxabs xi'
-          nn-m-yi' = NonNeg-i-maxabs yi'
+          0≤m-xi' = 0≤i-maxabs xi'
+          0≤m-yi' = 0≤i-maxabs yi'
 
           w-xi = i-width xi
           w-yi = i-width yi
@@ -359,14 +359,14 @@ module _ (x y : ℝ)
 
           wm-xy-≤ : (w-mxi r* m-myi) ℚ≤ (ε r* m-yi')
           wm-xy-≤ = trans-ℚ≤ {(w-mxi r* m-myi)} {(w-mxi r* m-yi')} {(ε r* m-yi')}
-                             (*₁-preserves-≤ (NonNeg-0≤ _ nn-w-mxi) m-myi≤m-yi')
-                             (*₂-preserves-≤ w-mxi≤ε (NonNeg-0≤ _  nn-m-yi'))
+                             (*₁-preserves-≤ 0≤w-mxi m-myi≤m-yi')
+                             (*₂-preserves-≤ w-mxi≤ε 0≤m-yi')
 
           mw-xy-≤ : (m-mxi r* w-myi) ℚ≤ (ε r* m-xi')
           mw-xy-≤ = trans-ℚ≤ {(m-mxi r* w-myi)} {(m-xi' r* w-myi)} {(ε r* m-xi')}
-                             (*₂-preserves-≤ m-mxi≤m-xi' (NonNeg-0≤ _ nn-w-myi))
+                             (*₂-preserves-≤ m-mxi≤m-xi' 0≤w-myi)
                              (subst ((m-xi' r* w-myi) ℚ≤_) (r*-commute m-xi' ε)
-                                    (*₁-preserves-≤ (NonNeg-0≤ _ nn-m-xi') w-myi≤ε))
+                                    (*₁-preserves-≤ 0≤m-xi' w-myi≤ε))
 
           wmmw = ((w-mxi r* m-myi) r+ (m-mxi r* w-myi))
           wmmw≤d : wmmw ℚ≤ d
@@ -750,7 +750,7 @@ module _ (x : ℝ)
           m = i-maxabs ix
 
           pos-m : Pos m
-          pos-m = handle2 (NonNeg-i-maxabs ix)
+          pos-m = handle2 (0≤-NonNeg _ (0≤i-maxabs ix))
             where
             handle2 : NonNeg m -> Pos m
             handle2 (inj-l p) = p
@@ -854,7 +854,7 @@ module _ (x : ℝ)
           m = i-maxabs ix
 
           pos-m : Pos m
-          pos-m = handle2 (NonNeg-i-maxabs ix)
+          pos-m = handle2 (0≤-NonNeg _ (0≤i-maxabs ix))
             where
             handle2 : NonNeg m -> Pos m
             handle2 (inj-l p) = p

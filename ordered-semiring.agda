@@ -274,6 +274,17 @@ module _ {D : Type ℓD} {D≤ : Rel D ℓ≤}
     *₂-flips-≤ {a} {b} {c} a≤b c≤0 =
       subst2 _≤_ *-commute *-commute (*₁-flips-≤ c≤0 a≤b)
 
+    *₁-preserves-≤0 : {a b : D} -> 0# ≤ a -> b ≤ 0# -> (a * b) ≤ 0#
+    *₁-preserves-≤0 0≤a b≤0 =
+      trans-≤-= (*₂-flips-≤ 0≤a b≤0) *-left-zero
+
+    *₂-preserves-≤0 : {a b : D} -> a ≤ 0# -> 0# ≤ b -> (a * b) ≤ 0#
+    *₂-preserves-≤0 a≤0 0≤b =
+      trans-≤-= (*₁-flips-≤ a≤0 0≤b) *-right-zero
+
+    *-flips-≤0 : {a b : D} -> a ≤ 0# -> b ≤ 0# -> 0# ≤ (a * b)
+    *-flips-≤0 {a} {b} a≤0 b≤0 = subst (_≤ (a * b)) *-left-zero (*₂-flips-≤ a≤0 b≤0)
+
 
 module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤} {ACM : AdditiveCommMonoid D}
          (S : Semiring ACM) (LO : isLinearOrder D<) (PO : isPartialOrder D≤) where
