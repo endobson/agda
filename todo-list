@@ -5,6 +5,7 @@ remove Rational specific functions in rational proper-interval
 - r*
 - 2r
 rational intervals shouldn't have to pattern match to evaluate
+- i-width
 remove Rational Sign formations in rational proper-interval
 Rename rational/proper-interval to rational/closed-interval
 split up rational/proper-interval
