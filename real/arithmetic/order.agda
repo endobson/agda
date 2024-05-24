@@ -8,12 +8,12 @@ open import apartness
 open import base
 open import equality
 open import rational
-open import rational.proper-interval
+open import rational.open-interval
 open import rational.order
 open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication
-open import real.interval
+open import real.open-interval
 open import real.order
 open import real.rational
 open import real.sequence

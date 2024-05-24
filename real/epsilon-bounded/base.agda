@@ -18,10 +18,10 @@ open import ordered-additive-group.minmax
 open import ordered-additive-group.instances.real
 open import rational
 open import rational.order
-open import rational.proper-interval
+open import rational.open-interval
 open import real
 open import real.arithmetic.rational
-open import real.interval
+open import real.open-interval
 open import real.order
 open import real.rational
 open import relation
@@ -140,7 +140,7 @@ abstract
 
 
 εBounded->Iℚ : {ε : ℚ} (x : ℝ) -> εBounded ε x -> Iℚ
-εBounded->Iℚ {ε} x εB = Iℚ-cons (- ε) ε (weaken-< (trans-< (minus-flips-0< 0<ε) 0<ε))
+εBounded->Iℚ {ε} x εB = Iℚ-cons (- ε) ε (trans-< (minus-flips-0< 0<ε) 0<ε)
   where
   0<ε : 0# < ε
   0<ε = (εBounded->0<ε x εB)

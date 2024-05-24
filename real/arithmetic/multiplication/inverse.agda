@@ -17,11 +17,11 @@ open import ordered-semiring
 open import ordered-semiring.instances.real
 open import rational
 open import rational.order
-open import rational.proper-interval
+open import rational.open-interval
 open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication
-open import real.interval
+open import real.open-interval
 open import real.order
 open import real.rational
 open import relation hiding (U)
@@ -407,12 +407,12 @@ private
           where
           handle2 : Σ[ d ∈ Iℚ ] (d i⊆ b × ℝ∈Iℚ 1/x d × PosI d) ->
                     Σ[ e ∈ Iℚ ] (e i⊆ c × ℝ∈Iℚ x e × PosI e) -> ℝ∈Iℚ 1ℝ a
-          handle2 (d@(Iℚ-cons dl du dl≤du) , d⊆b , (1/xl-dl , 1/xu-du) , pos-dl)
-                  (e@(Iℚ-cons el eu el≤eu) , e⊆c , (xl-el , xu-eu) , pos-el) =
+          handle2 (d@(Iℚ-cons dl du dl<du) , d⊆b , (1/xl-dl , 1/xu-du) , pos-dl)
+                  (e@(Iℚ-cons el eu el<eu) , e⊆c , (xl-el , xu-eu) , pos-el) =
             ℝ∈Iℚ-⊆ 1ℝ de⊆a 1∈de
             where
-            pos-du = Pos-≤ dl du pos-dl dl≤du
-            pos-eu = Pos-≤ el eu pos-el el≤eu
+            pos-du = Pos-≤ dl du pos-dl (weaken-< dl<du)
+            pos-eu = Pos-≤ el eu pos-el (weaken-< el<eu)
             1/dl = (r1/ dl (Pos->Inv pos-dl))
             1/du = (r1/ du (Pos->Inv pos-du))
 

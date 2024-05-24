@@ -42,13 +42,13 @@ open import ordered-semiring.non-trivial.instances.rational
 open import rational
 open import rational.heyting-field
 open import rational.order
-open import rational.proper-interval
+open import rational.open-interval
 open import real
 open import real.arithmetic
 open import real.arithmetic.rational
 open import real.epsilon-bounded.base
 open import real.heyting-field
-open import real.interval
+open import real.open-interval
 open import real.order
 open import real.rational
 open import real.sequence
@@ -280,7 +280,7 @@ private
         f23 n m (trans-≤ max-≤-right n≥n₀)
 
   εI : ℚ⁺ -> Iℚ
-  εI (ε , 0<ε) = Iℚ-cons (- ε) ε (weaken-< (trans-< (minus-flips-0< 0<ε) 0<ε))
+  εI (ε , 0<ε) = Iℚ-cons (- ε) ε (trans-< (minus-flips-0< 0<ε) 0<ε)
 
   module _
     (ConvergentSeries->small-partial-sums :

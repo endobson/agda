@@ -26,12 +26,12 @@ open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import rational
 open import rational.order
-open import rational.proper-interval
+open import rational.open-interval
 open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication
 open import real.arithmetic.rational
-open import real.interval
+open import real.open-interval
 open import real.order
 open import real.rational
 open import real.sequence

@@ -16,12 +16,12 @@ open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import rational
 open import rational.order
-open import rational.proper-interval
-open import rational.proper-interval.containment
+open import rational.open-interval
+open import rational.open-interval.containment
 open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication
-open import real.interval
+open import real.open-interval
 open import real.rational
 open import ring.implementations.real
 open import ring.implementations.rational
@@ -68,12 +68,12 @@ open import truncation
 
 private
   ℝ∈Iℚ->ℚ∈Iℚ : {q : ℚ} (qi : Iℚ) -> ℝ∈Iℚ (ℚ->ℝ q) qi -> ℚ∈Iℚ q qi
-  ℝ∈Iℚ->ℚ∈Iℚ qi (L , U) = weaken-< (L->ℚ< L) , weaken-< (U->ℚ< U)
+  ℝ∈Iℚ->ℚ∈Iℚ qi (L , U) = (L->ℚ< L) , (U->ℚ< U)
 
   ℚ∈Iℚ->ℝ∈Iℚ : {q : ℚ} {a b : Iℚ} -> a i⊂ b -> ℚ∈Iℚ q a -> ℝ∈Iℚ (ℚ->ℝ q) b
-  ℚ∈Iℚ->ℝ∈Iℚ (i⊂-cons bl<al au<bu) (al≤q , q≤au) =
-    ℚ<->L (trans-<-≤ bl<al al≤q) ,
-    ℚ<->U (trans-≤-< q≤au au<bu)
+  ℚ∈Iℚ->ℝ∈Iℚ (i⊂-cons bl<al au<bu) (al<q , q<au) =
+    ℚ<->L (trans-< bl<al al<q) ,
+    ℚ<->U (trans-< q<au au<bu)
 
 ℚ->ℝ-preserves-* : {q r : ℚ} -> ℚ->ℝ (q * r) == ℚ->ℝ q * ℚ->ℝ r
 ℚ->ℝ-preserves-* {q} {r} = sym (ℝ∈Iℚ->path _ _ f)

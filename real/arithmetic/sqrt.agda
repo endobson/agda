@@ -21,13 +21,12 @@ open import ordered-semiring.instances.real-strong
 open import ordered-semiring.squares
 open import rational
 open import rational.order
-open import rational.proper-interval
-open import rational.proper-interval.containment
-open import rational.proper-interval.multiplication-inclusion
+open import rational.open-interval
+open import rational.open-interval.multiplication-inclusion
 open import real
 open import real.arithmetic.multiplication
 open import real.arithmetic.sqrt.base
-open import real.interval
+open import real.open-interval
 open import real.rational
 open import ring.implementations.real
 open import semiring

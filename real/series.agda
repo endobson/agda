@@ -36,12 +36,12 @@ open import ordered-semiring
 open import ordered-semiring.instances.real
 open import rational
 open import rational.order
-open import rational.proper-interval
+open import rational.open-interval
 open import real.epsilon-bounded
 open import real
 open import real.arithmetic
 open import real.heyting-field
-open import real.interval
+open import real.open-interval
 open import real.order
 open import real.rational
 open import real.sequence

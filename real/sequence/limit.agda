@@ -19,11 +19,11 @@ open import ordered-additive-group.instances.real
 open import ordered-additive-group.instances.nat
 open import rational
 open import rational.order
-open import rational.proper-interval
+open import rational.open-interval
 open import real
 open import real.arithmetic.rational
 open import real.epsilon-bounded hiding (εBounded-diff)
-open import real.interval
+open import real.open-interval
 open import real.order
 open import real.rational
 open import relation
@@ -208,12 +208,12 @@ abstract
       f qi1@(Iℚ-cons l1 u1 _) qi2@(Iℚ-cons l2 u2 _) (l1<v1 , v1<u1) (l2<v2 , v2<u2) =
         handle (split-Overlap qi1 qi2)
         where
-        handle2 : {l u : ℚ} -> u < l ->
+        handle2 : {l u : ℚ} -> u ≤ l ->
                   ∀Largeℕ' (\m -> Real.L (seq m) l) ->
                   ∀Largeℕ' (\m -> Real.U (seq m) u) ->
                   Bot
-        handle2 {l} {u} u<l ∀Lℕ-l ∀Lℕ-u =
-          asym-< u<l (ℝ-bounds->ℚ< (seq n) (proj₁ (LU n refl-≤)) (proj₂ (LU n refl-≤)))
+        handle2 {l} {u} u≤l ∀Lℕ-l ∀Lℕ-u =
+          irrefl-< (trans-≤-< u≤l (ℝ-bounds->ℚ< (seq n) (proj₁ (LU n refl-≤)) (proj₂ (LU n refl-≤))))
           where
           module _ where
             ∀Lℕ = (∀Largeℕ'-∩ ∀Lℕ-l ∀Lℕ-u)

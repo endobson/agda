@@ -7,10 +7,10 @@ open import additive-group.instances.real
 open import base
 open import rational
 open import rational.order
-open import rational.proper-interval
+open import rational.open-interval
 open import real
 open import nat.properties
-open import real.interval
+open import real.open-interval
 open import real.rational
 open import real.sequence.limit
 open import sequence

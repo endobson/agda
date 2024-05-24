@@ -19,12 +19,12 @@ open import ordered-semiring.non-trivial
 open import ordered-semiring.non-trivial.instances.rational
 open import rational
 open import rational.order
-open import rational.proper-interval
-open import rational.proper-interval.maxabs-multiplication
-open import rational.proper-interval.multiplication-inclusion
-open import rational.proper-interval.multiplication-strict-cross-zero
+open import rational.open-interval
+open import rational.open-interval.maxabs-multiplication
+open import rational.open-interval.multiplication-inclusion
+open import rational.open-interval.multiplication-strict-cross-zero
 open import real
-open import real.interval
+open import real.open-interval
 open import real.order
 open import real.rational
 open import real.sequence
@@ -44,22 +44,6 @@ private
     U' : Pred ℚ ℓ-zero
     U' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Upper (xi i* yi) q)
 
-
-private
-  opaque
-    0<i-maxabs : (i : Iℚ) (x : ℝ) -> (ℝ∈Iℚ x i) -> 0# < i-maxabs i
-    0<i-maxabs i x (xl , xu) = handle (split-< 0# m)
-      where
-      m : ℚ
-      m = (i-maxabs i)
-      handle : (0# < m ⊎ m ≤ 0#) -> 0# < m
-      handle (inj-l 0<m) = 0<m
-      handle (inj-r m≤0) =
-        bot-elim (Real.disjoint x 0r (subst (Real.L x) (cong Iℚ.l zp) xl ,
-                                      subst (Real.U x) (cong Iℚ.u zp) xu))
-        where
-        zp : i == 0i
-        zp = i-maxabs-Zero i (antisym-≤ m≤0 (0≤i-maxabs i))
 
 module _ (x y : ℝ)
   where
@@ -198,7 +182,7 @@ module _ (x y : ℝ)
       where
       handle : L' x y q -> U' x y q -> Bot
       handle (xi1 , yi1 , exi1 , eyi1 , l1) (xi2 , yi2 , exi2 , eyi2 , u2) =
-        handle2 (i*-Constant xi3 yi3 Constant-p3)
+        ¬LowerUpper p3 l3 u3
         where
         xi3 : Iℚ
         xi3 = i-intersect xi1 xi2 (ℝ∈Iℚ->Overlap x xi1 xi2 exi1 exi2)
@@ -230,13 +214,6 @@ module _ (x y : ℝ)
         u3 : i-Upper p3 q
         u3 = i⊆-Upper p3⊆p2 q u2
 
-        Constant-p3 : ConstantI p3
-        Constant-p3 = LowerUpper->Constant {q} p3 l3 u3
-
-        handle2 : ConstantI xi3 ⊎ ConstantI yi3 -> Bot
-        handle2 (inj-l cx3) = ℝ∈Iℚ->¬Constant x xi3 (ℝ∈Iℚ-intersect x xi1 xi2 exi1 exi2) cx3
-        handle2 (inj-r cy3) = ℝ∈Iℚ->¬Constant y yi3 (ℝ∈Iℚ-intersect y yi1 yi2 eyi1 eyi2) cy3
-
     located : (a b : ℚ) -> a < b -> ∥ L a ⊎ U b ∥
     located a b a<b = ∥-bind4 initial-bound x.Inhabited-L x.Inhabited-U y.Inhabited-L y.Inhabited-U
       where
@@ -264,10 +241,10 @@ module _ (x y : ℝ)
         eyi' = ybl' , ybu'
 
         0<m-xi' : 0# < m-xi'
-        0<m-xi' = 0<i-maxabs xi' x exi'
+        0<m-xi' = 0<i-maxabs xi'
 
         0<m-yi' : 0# < m-yi'
-        0<m-yi' = 0<i-maxabs yi' y eyi'
+        0<m-yi' = 0<i-maxabs yi'
 
 
         sm = (m-yi' r+ m-xi')
@@ -328,11 +305,11 @@ module _ (x y : ℝ)
           m-mxi = i-maxabs mxi
           m-myi = i-maxabs myi
 
-          0≤w-mxi = 0≤i-width mxi
-          0≤w-myi = 0≤i-width myi
+          0≤w-mxi = weaken-< (0<i-width mxi)
+          0≤w-myi = weaken-< (0<i-width myi)
 
-          0≤m-xi' = 0≤i-maxabs xi'
-          0≤m-yi' = 0≤i-maxabs yi'
+          0≤m-xi' = weaken-< (0<i-maxabs xi')
+          0≤m-yi' = weaken-< (0<i-maxabs yi')
 
           w-xi = i-width xi
           w-yi = i-width yi
@@ -493,26 +470,30 @@ module _ (x : ℝ)
            q<s' = trans-< q<r (trans-< r<s s<s')
 
            rs : Iℚ
-           rs = Iℚ-cons r s (weaken-< r<s)
+           rs = Iℚ-cons r s r<s
 
            qs' : Iℚ
-           qs' = Iℚ-cons q s' (weaken-< q<s')
+           qs' = Iℚ-cons q s' q<s'
 
            rs⊂qs' : rs i⊂ qs'
            rs⊂qs' = i⊂-cons q<r s<s'
 
-           handle2 : Σ[ kl ∈ ℚ ] (0# < kl × kl < 1r × i-scale kl rs i⊆ qs') ->
-                     Σ[ ku ∈ ℚ ] (0# < ku × 1r < ku × i-scale ku rs i⊆ qs') ->
+           handle2 : Σ[ kl⁺@(kl , _) ∈ ℚ⁺ ] (kl < 1r × i-scale⁺ kl⁺ rs i⊆ qs') ->
+                     Σ[ ku⁺@(ku , _) ∈ ℚ⁺ ] (1r < ku × i-scale⁺ ku⁺ rs i⊆ qs') ->
                      1x.L q
-           handle2 (kl , p-kl , kl<1 , scale-kl) (ku , p-ku , 1<ku , scale-ku) =
+           handle2 (kl⁺@(kl , p-kl) , kl<1 , scale-kl) (ku⁺@(ku , p-ku) , 1<ku , scale-ku) =
              ∣ k , rs , (ℚ<->L kl<1 , ℚ<->U 1<ku) , (xl-r , xu-s) , _i⊆_.l prod-⊆ ∣
              where
              kl<ku = trans-< kl<1 1<ku
              k : Iℚ
-             k = (Iℚ-cons kl ku (weaken-< kl<ku))
+             k = Iℚ-cons kl ku kl<ku
+
+             *-path : (i-scale⁺ kl⁺ rs i∪ i-scale⁺ ku⁺ rs) == (k i* rs)
+             *-path = cong2 _i∪_ (i-scale⁺-path kl⁺ rs) (i-scale⁺-path ku⁺ rs) >=>
+                      Iℚ-bounds-path refl refl
 
              prod-⊆ : (k i* rs) i⊆ qs'
-             prod-⊆ = subst ((k i* rs) i⊆_) (i∪-same qs') (i∪-preserves-⊆ scale-kl scale-ku)
+             prod-⊆ = subst2 (_i⊆_) *-path (i∪-same qs') (i∪-preserves-⊆ scale-kl scale-ku)
 
       i .fun 1xl-q = unsquash (x.isProp-L q) (∥-map handle 1xl-q)
         where
@@ -522,33 +503,21 @@ module _ (x : ℝ)
           isLowerSet≤ x ans (fst exi)
           where
 
-
-          l-1 : (Iℚ.l (i-scale 1i-l xi)) == (min (1i-l r* xi-l) (1i-l r* xi-u))
-          l-1 = refl
-
-
-          u-1 : (Iℚ.l (i-scale 1i-u xi)) == (min (1i-u r* xi-l) (1i-u r* xi-u))
-          u-1 = refl
-
-
-          check : q ℚ≤ (min (Iℚ.l (i-scale 1i-l xi)) (Iℚ.l (i-scale 1i-u xi)))
-          check = q≤prod
-
           ans : q ℚ≤ xi-l
           ans = handle2 (split-< xi-l 0r)
             where
+            p1 = min (1i-l * xi-l) (1i-l * xi-u)
+            p2 = min (1i-u * xi-l) (1i-u * xi-u)
+            p0 = min p1 p2
+
             handle2 : (xi-l < 0r) ⊎ (0r ℚ≤ xi-l) -> q ℚ≤ xi-l
             handle2 (inj-l xi-l<0) =
               trans-ℚ≤ {q} {p0} {xi-l} q≤prod
                 (trans-ℚ≤ {p0} {p2} {xi-l} lt3
                   (trans-ℚ≤ {p2} {p3} {xi-l} lt2 (weaken-< lt1)))
               where
-              p1 = (Iℚ.l (i-scale 1i-l xi))
-              p2 = (Iℚ.l (i-scale 1i-u xi))
-              p0 = min p1 p2
               p3 = (1i-u r* xi-l)
               p4 = (1i-u r* xi-u)
-
 
               lt1 : (1i-u r* xi-l) < xi-l
               lt1 = subst ((1i-u r* xi-l) <_) (r*-left-one xi-l)
@@ -562,9 +531,6 @@ module _ (x : ℝ)
                 (trans-ℚ≤ {p0} {p1} {xi-l} lt3
                   (trans-ℚ≤ {p1} {p3} {xi-l} lt2 lt1))
               where
-              p1 = (Iℚ.l (i-scale 1i-l xi))
-              p2 = (Iℚ.l (i-scale 1i-u xi))
-              p0 = min p1 p2
               p3 = (1i-l r* xi-l)
               p4 = (1i-l r* xi-u)
 
@@ -604,26 +570,30 @@ module _ (x : ℝ)
            s'<q = trans-< (trans-< s'<s s<r) r<q
 
            sr : Iℚ
-           sr = Iℚ-cons s r (weaken-< s<r)
+           sr = Iℚ-cons s r s<r
 
            s'q : Iℚ
-           s'q = Iℚ-cons s' q (weaken-< s'<q)
+           s'q = Iℚ-cons s' q s'<q
 
            sr⊂s'q : sr i⊂ s'q
            sr⊂s'q = i⊂-cons s'<s r<q
 
-           handle2 : Σ[ kl ∈ ℚ ] (0# < kl × kl < 1r × i-scale kl sr i⊆ s'q) ->
-                     Σ[ ku ∈ ℚ ] (0# < ku × 1r < ku × i-scale ku sr i⊆ s'q) ->
+           handle2 : Σ[ kl⁺@(kl , _) ∈ ℚ⁺ ] (kl < 1r × i-scale⁺ kl⁺ sr i⊆ s'q) ->
+                     Σ[ ku⁺@(ku , _) ∈ ℚ⁺ ] (1r < ku × i-scale⁺ ku⁺ sr i⊆ s'q) ->
                      1x.U q
-           handle2 (kl , p-kl , kl<1 , scale-kl) (ku , p-ku , 1<ku , scale-ku) =
+           handle2 (kl⁺@(kl , p-kl) , kl<1 , scale-kl) (ku⁺@(ku , p-ku) , 1<ku , scale-ku) =
              ∣ k , sr , (ℚ<->L kl<1 , ℚ<->U 1<ku) , (xl-s , xu-r) , _i⊆_.u prod-⊆ ∣
              where
              kl<ku = trans-< kl<1 1<ku
              k : Iℚ
-             k = (Iℚ-cons kl ku (weaken-< kl<ku))
+             k = Iℚ-cons kl ku kl<ku
+
+             *-path : (i-scale⁺ kl⁺ sr i∪ i-scale⁺ ku⁺ sr) == (k i* sr)
+             *-path = cong2 _i∪_ (i-scale⁺-path kl⁺ sr) (i-scale⁺-path ku⁺ sr) >=>
+                      Iℚ-bounds-path refl refl
 
              prod-⊆ : (k i* sr) i⊆ s'q
-             prod-⊆ = subst ((k i* sr) i⊆_) (i∪-same s'q) (i∪-preserves-⊆ scale-kl scale-ku)
+             prod-⊆ = subst2 (_i⊆_) *-path (i∪-same s'q) (i∪-preserves-⊆ scale-kl scale-ku)
 
       i .fun 1xu-q = unsquash (x.isProp-U q) (∥-map handle 1xu-q)
         where
@@ -636,6 +606,11 @@ module _ (x : ℝ)
           ans : xi-u ℚ≤ q
           ans = (handle2 (split-< xi-u 0r))
             where
+            p1 = max (1i-l * xi-l) (1i-l * xi-u)
+            p2 = max (1i-u * xi-l) (1i-u * xi-u)
+            p0 = max p1 p2
+
+
             handle2 : (xi-u < 0r) ⊎ (0r ℚ≤ xi-u) -> xi-u ℚ≤ q
             handle2 (inj-l xi-u<0) =
               trans-ℚ≤ {xi-u} {p0} {q}
@@ -644,9 +619,6 @@ module _ (x : ℝ)
                   lt3)
                 prod≤q
               where
-              p1 = (Iℚ.u (i-scale 1i-l xi))
-              p2 = (Iℚ.u (i-scale 1i-u xi))
-              p0 = max p1 p2
               p3 = (1i-l r* xi-l)
               p4 = (1i-l r* xi-u)
 
@@ -667,9 +639,6 @@ module _ (x : ℝ)
                   lt3)
                 prod≤q
               where
-              p1 = (Iℚ.u (i-scale 1i-l xi))
-              p2 = (Iℚ.u (i-scale 1i-u xi))
-              p0 = max p1 p2
               p3 = (1i-u r* xi-l)
               p4 = (1i-u r* xi-u)
 
@@ -718,7 +687,7 @@ module _ (x : ℝ)
           m = i-maxabs ix
 
           0<m : 0# < m
-          0<m = 0<i-maxabs ix x (xl-p1 , xu-p2)
+          0<m = 0<i-maxabs ix
 
           inv-m = Pos->Inv 0<m
           1/m = (r1/ m inv-m)
@@ -733,9 +702,10 @@ module _ (x : ℝ)
           mr = r- r
 
           0<mr = minus-flips-<0 r<0
-          r≤mr = weaken-< (trans-< r<0 0<mr)
+          r<mr = (trans-< r<0 0<mr)
+          r≤mr = weaken-< r<mr
 
-          ir = Iℚ-cons r mr r≤mr
+          ir = Iℚ-cons r mr r<mr
 
           m-ir = i-maxabs ir
 
@@ -786,12 +756,12 @@ module _ (x : ℝ)
           0<u : 0# < 0i-u
           0<u = U->ℚ< 0i-uu
 
-          p1 = (Iℚ.l (i-scale 0i-l xi))
-          p2 = (Iℚ.l (i-scale 0i-u xi))
+          p1 = min (0i-l * xi-l) (0i-l * xi-u)
+          p2 = min (0i-u * xi-l) (0i-u * xi-u)
           p0 = min p1 p2
 
           p0<0 : p0 < 0#
-          p0<0 = fst (i*₁-StrictCrossZero 0i xi (l<0 , 0<u) (ℝ∈Iℚ->NonConstant x xi exi))
+          p0<0 = fst (i*₁-StrictCrossZero 0i xi (l<0 , 0<u))
 
 
     U-path : (q : ℚ) -> 0x.U q == 0ℝ.U q
@@ -813,7 +783,7 @@ module _ (x : ℝ)
           m = i-maxabs ix
 
           0<m : 0# < m
-          0<m = 0<i-maxabs ix x (xl-p1 , xu-p2)
+          0<m = 0<i-maxabs ix
 
           inv-m = Pos->Inv 0<m
           1/m = (r1/ m inv-m)
@@ -828,9 +798,10 @@ module _ (x : ℝ)
           mr = r- r
 
           mr<0 = minus-flips-0< 0<r
-          mr≤r = weaken-< (trans-< mr<0 0<r)
+          mr<r = trans-< mr<0 0<r
+          mr≤r = weaken-< mr<r
 
-          ir = Iℚ-cons mr r mr≤r
+          ir = Iℚ-cons mr r mr<r
 
           m-ir = i-maxabs ir
 
@@ -869,12 +840,12 @@ module _ (x : ℝ)
           0<u : 0# < 0i-u
           0<u = U->ℚ< 0i-uu
 
-          p1 = (Iℚ.u (i-scale 0i-l xi))
-          p2 = (Iℚ.u (i-scale 0i-u xi))
+          p1 = max (0i-l * xi-l) (0i-l * xi-u)
+          p2 = max (0i-u * xi-l) (0i-u * xi-u)
           p0 = max p1 p2
 
           0<p0 : 0# < p0
-          0<p0 = snd (i*₁-StrictCrossZero 0i xi (l<0 , 0<u) (ℝ∈Iℚ->NonConstant x xi exi))
+          0<p0 = snd (i*₁-StrictCrossZero 0i xi (l<0 , 0<u))
 
     ℝ*ᵉ-left-zero : 0x == 0ℝ
     ℝ*ᵉ-left-zero = LU-paths->path 0x 0ℝ L-path U-path

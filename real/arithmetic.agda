@@ -14,9 +14,9 @@ open import ordered-ring
 open import ordered-semiring
 open import rational
 open import rational.order
-open import rational.proper-interval
+open import rational.open-interval
 open import real
-open import real.interval
+open import real.open-interval
 open import real.order
 open import real.rational
 open import real.sequence

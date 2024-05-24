@@ -23,12 +23,12 @@ open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import rational
 open import rational.order
-open import rational.proper-interval
+open import rational.open-interval
 open import real
 open import real.arithmetic
 open import real.arithmetic.rational
 open import real.epsilon-bounded
-open import real.interval
+open import real.open-interval
 open import real.order
 open import real.rational
 open import real.sequence.limit
@@ -80,14 +80,14 @@ abstract
   isProp-ΣisLimitAt {S = S} {f = f} {x = x} (y1 , lim1) (y2 , lim2) = ΣProp-path isProp-isLimitAt y1=y2
     where
     module _ where
-      g : (qi1 qi2 : Iℚ) -> ℝ∈Iℚ y1 qi1 -> ℝ∈Iℚ y2 qi2 -> Overlap qi1 qi2
+      g : (qi1 qi2 : Iℚ) -> ℝ∈Iℚ y1 qi1 -> ℝ∈Iℚ y2 qi2 -> Touching qi1 qi2
       g qi1@(Iℚ-cons l1 u1 _) qi2@(Iℚ-cons l2 u2 _) y1∈qi1 y2∈qi2 =
-        handle (split-Overlap qi1 qi2)
+        handle (split-Separated qi1 qi2)
         where
-        handle : (Overlap qi1 qi2 ⊎ NonOverlap qi1 qi2) -> Overlap qi1 qi2
+        handle : (Touching qi1 qi2 ⊎ Separated qi1 qi2) -> Touching qi1 qi2
         handle (inj-l over) = over
         handle (inj-r (inj-l u1<l2)) =
-          unsquash (isProp-Overlap qi1 qi2)
+          unsquash (isProp-Touching qi1 qi2)
                    (∥-bind3 handle2 (isLimitAt.δε lim1 δ/2⁺) (isLimitAt.δε lim2 δ/2⁺)
                                     (isLimitAt.limit-point lim1))
           where
@@ -115,7 +115,7 @@ abstract
            Σ[ ε ∈ ℚ⁺ ] ((z : ℝ) -> εBounded ⟨ ε ⟩ (diff z x) -> (sz : ⟨ S z ⟩) ->
                         εBounded δ/2 (diff (f (z , sz)) y2)) ->
            isLimitPoint' S x ->
-           ∥ Overlap qi1 qi2 ∥
+           ∥ Touching qi1 qi2 ∥
           handle2 ((ε1 , 0<ε1) , bound1) ((ε2 , 0<ε2) , bound2) limP =
             ∥-bind handle3 (find-small-ℝ∈Iℚ x (ε , 0<ε))
             where
@@ -126,10 +126,10 @@ abstract
             module limP = isLimitPoint' limP
             lim-seq : isLimit limP.seq x
             lim-seq = limP.isLimit-seq
-            handle3 : Σ[ qi ∈ Iℚ ] (ℝ∈Iℚ x qi × i-width qi ≤ ε) -> ∥ Overlap qi1 qi2 ∥
+            handle3 : Σ[ qi ∈ Iℚ ] (ℝ∈Iℚ x qi × i-width qi ≤ ε) -> ∥ Touching qi1 qi2 ∥
             handle3 (qi , x∈qi , w-qi≤ε) = ∥-bind handle4 (isLimit.close limP.isLimit-seq qi x∈qi)
               where
-              handle4 : ∀Largeℕ' (\m -> ℝ∈Iℚ (limP.seq m) qi) -> ∥ Overlap qi1 qi2 ∥
+              handle4 : ∀Largeℕ' (\m -> ℝ∈Iℚ (limP.seq m) qi) -> ∥ Touching qi1 qi2 ∥
               handle4 (n , large-n) = bot-elim (asym-< d<δ δ<d)
                 where
                 p = limP.seq n
@@ -153,7 +153,7 @@ abstract
                 d<δ : (diff y1 y2) < ℚ->ℝ δ
                 d<δ = U->ℝ< (proj₂ pb3)
         handle (inj-r (inj-r u2<l1)) =
-          unsquash (isProp-Overlap qi1 qi2)
+          unsquash (isProp-Touching qi1 qi2)
                    (∥-bind3 handle2 (isLimitAt.δε lim1 δ/2⁺) (isLimitAt.δε lim2 δ/2⁺)
                                     (isLimitAt.limit-point lim1))
           where
@@ -178,7 +178,7 @@ abstract
            Σ[ ε ∈ ℚ⁺ ] ((z : ℝ) -> εBounded ⟨ ε ⟩ (diff z x) -> (sz : ⟨ S z ⟩) ->
                         εBounded δ/2 (diff (f (z , sz)) y2)) ->
            isLimitPoint' S x ->
-           ∥ Overlap qi1 qi2 ∥
+           ∥ Touching qi1 qi2 ∥
           handle2 ((ε1 , 0<ε1) , bound1) ((ε2 , 0<ε2) , bound2) limP =
             ∥-bind handle3 (find-small-ℝ∈Iℚ x (ε , 0<ε))
             where
@@ -186,10 +186,10 @@ abstract
             0<ε = min-property ε1 ε2 0<ε1 0<ε2
             module limP = isLimitPoint' limP
             lim-seq = limP.isLimit-seq
-            handle3 : Σ[ qi ∈ Iℚ ] (ℝ∈Iℚ x qi × i-width qi ≤ ε) -> ∥ Overlap qi1 qi2 ∥
+            handle3 : Σ[ qi ∈ Iℚ ] (ℝ∈Iℚ x qi × i-width qi ≤ ε) -> ∥ Touching qi1 qi2 ∥
             handle3 (qi , x∈qi , w-qi≤ε) = ∥-bind handle4 (isLimit.close limP.isLimit-seq qi x∈qi)
               where
-              handle4 : ∀Largeℕ' (\m -> ℝ∈Iℚ (limP.seq m) qi) -> ∥ Overlap qi1 qi2 ∥
+              handle4 : ∀Largeℕ' (\m -> ℝ∈Iℚ (limP.seq m) qi) -> ∥ Touching qi1 qi2 ∥
               handle4 (n , large-n) = bot-elim (asym-< d<δ δ<d)
                 where
                 p = limP.seq n
@@ -214,4 +214,4 @@ abstract
                 d<δ = U->ℝ< (proj₂ pb3)
 
     y1=y2 : y1 == y2
-    y1=y2 = overlapping-ℝ∈Iℚs->path y1 y2 g
+    y1=y2 = touching-ℝ∈Iℚs->path y1 y2 g
