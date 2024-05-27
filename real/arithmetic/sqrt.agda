@@ -23,6 +23,7 @@ open import rational
 open import rational.order
 open import rational.proper-interval
 open import rational.proper-interval.containment
+open import rational.proper-interval.multiplication-inclusion
 open import real
 open import real.arithmetic.multiplication
 open import real.arithmetic.sqrt.base
@@ -51,16 +52,6 @@ private
       ≮0-sqrt : (sqrtℝ x x≮0) ≮ 0#
       ≮0-sqrt = ≮0-sqrtᵉ
 
-  ℚ∈Iℚ-i-intersect₁ : (q : ℚ) (a b : Iℚ) -> (o : Overlap a b) ->
-                      ℚ∈Iℚ q (i-intersect a b o) -> ℚ∈Iℚ q a
-  ℚ∈Iℚ-i-intersect₁ q a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) o (il≤q , q≤iu) =
-    trans-≤ max-≤-left il≤q , trans-≤ q≤iu min-≤-left
-
-  ℚ∈Iℚ-i-intersect₂ : (q : ℚ) (a b : Iℚ) -> (o : Overlap a b) ->
-                      ℚ∈Iℚ q (i-intersect a b o) -> ℚ∈Iℚ q b
-  ℚ∈Iℚ-i-intersect₂ q a@(Iℚ-cons al au al≤au) b@(Iℚ-cons bl bu bl≤bu) o (il≤q , q≤iu) =
-    trans-≤ max-≤-right il≤q , trans-≤ q≤iu min-≤-right
-
 module _ (x : ℝ) (x≮0 : x ≮ 0#) where
   private
     sx = (sqrtℝᵉ x x≮0)
@@ -69,92 +60,59 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
     module sx = Real sx
 
     ℝ∈Iℚ-sqrtᵉ⁻ : (xi yi : Iℚ) -> ℝ∈Iℚ sx xi -> ℝ∈Iℚ sx yi -> ℝ∈Iℚ x (xi i* yi)
-    ℝ∈Iℚ-sqrtᵉ⁻ xi@(Iℚ-cons xl xu xl≤xu) yi@(Iℚ-cons yl yu yl≤yu)
-                sx∈xi@(sx-lx , sx-ux) sx∈yi@(sx-ly , sx-uy) = x-l1 , x-u2
+    ℝ∈Iℚ-sqrtᵉ⁻ xi@(Iℚ-cons xl xu xl<xu) yi@(Iℚ-cons yl yu yl<yu)
+                sx∈xi@(sx-lx , sx-ux) sx∈yi@(sx-ly , sx-uy) =
+      unsquash (isProp-ℝ∈Iℚ x (xi i* yi))
+        (∥-map (\(ti , ti⊂xyi , sx∈ti) -> x-l ti ti⊂xyi sx∈ti , x-u ti ti⊂xyi sx∈ti)
+          (tighter-ℝ∈Iℚ sx xyi sx∈xyi))
       where
       xyi-o = ℝ∈Iℚ->Overlap sx xi yi sx∈xi sx∈yi
       xyi = i-intersect xi yi xyi-o
+      sx∈xyi : ℝ∈Iℚ sx xyi
       sx∈xyi = ℝ∈Iℚ-intersect sx xi yi sx∈xi sx∈yi
-      xyi-l = Iℚ.l xyi
-      xyi-u = Iℚ.u xyi
-      xyi-l≤u = Iℚ.l≤u xyi
 
-      xiyi = xi i* yi
-      xiyi-l = Iℚ.l xiyi
-      xiyi-u = Iℚ.u xiyi
+      xyi⊆xi : xyi i⊆ xi
+      xyi⊆xi = i-intersect-⊆₁ xi yi xyi-o
+      xyi⊆yi : xyi i⊆ yi
+      xyi⊆yi = i-intersect-⊆₂ xi yi xyi-o
 
-      0<xu : 0r < xu
-      0<xu = strengthen-ℚ≤-≠ (fst sx-ux) 0!=xu
-        where
-        0!=xu : 0r != xu
-        0!=xu 0=xu = ℝ≮0-¬U0 sx (≮0-sqrtᵉ x x≮0) (subst sx.U (sym 0=xu) sx-ux)
+      module _ (ti@(Iℚ-cons til tiu til<tiu) : Iℚ)
+               (ti⊂xyi@(i⊂-cons xyi-l<til tiu<xyi-u) : ti i⊂ xyi)
+               (sx∈ti : ℝ∈Iℚ sx ti) where
+        xiyi = xi i* yi
+        xiyi-l = Iℚ.l xiyi
+        xiyi-u = Iℚ.u xiyi
 
-      0<yu : 0r < yu
-      0<yu = strengthen-ℚ≤-≠ (fst sx-uy) 0!=yu
-        where
-        0!=yu : 0r != yu
-        0!=yu 0=yu = ℝ≮0-¬U0 sx (≮0-sqrtᵉ x x≮0) (subst sx.U (sym 0=yu) sx-uy)
+        0≤tiu : 0# ≤ tiu
+        0≤tiu = (fst (snd sx∈ti))
 
-      x-u1 : x.U (xyi-u * xyi-u)
-      x-u1 = snd (snd sx∈xyi)
+        ti⊂xi : ti i⊂ xi
+        ti⊂xi = trans-i⊂-i⊆ ti⊂xyi xyi⊆xi
+        ti⊂yi : ti i⊂ yi
+        ti⊂yi = trans-i⊂-i⊆ ti⊂xyi xyi⊆yi
 
-      xyi-u²∈xiyi : ℚ∈Iℚ (xyi-u * xyi-u) xiyi
-      xyi-u²∈xiyi = ℚ∈Iℚ-* xi yi ∈xi ∈yi
-        where
-        ∈xi : ℚ∈Iℚ xyi-u xi
-        ∈xi = ℚ∈Iℚ-i-intersect₁ xyi-u xi yi xyi-o (xyi-l≤u , refl-≤)
-        ∈yi : ℚ∈Iℚ xyi-u yi
-        ∈yi = ℚ∈Iℚ-i-intersect₂ xyi-u xi yi xyi-o (xyi-l≤u , refl-≤)
+        ti²⊂xiyi : (ti i* ti) i⊂ xiyi
+        ti²⊂xiyi = i*-preserves-⊂ ti⊂xi ti⊂yi
 
-      x-u2 : x.U xiyi-u
-      x-u2 = isUpperSet≤ x (snd xyi-u²∈xiyi) x-u1
+        x-u : x.U xiyi-u
+        x-u =
+          x.isUpperSet-U
+            (trans-≤-< (trans-≤ max-≤-right max-≤-right) (_i⊂_.u ti²⊂xiyi))
+            (snd (snd sx∈ti))
 
-      x-l1 : x.L xiyi-l
-      x-l1 = handle (fst sx∈xi) (fst sx∈yi)
-        where
-        handle : (xl < 0r ⊎ ((0r ≤ xl) × (x.L (xl * xl)))) ->
-                 (yl < 0r ⊎ ((0r ≤ yl) × (x.L (yl * yl)))) ->
-                 x.L xiyi-l
-        handle (inj-l xl<0) _ = ℝ≮0-L∀<0 x x≮0 xiyi-l<0
+        x-l : x.L xiyi-l
+        x-l = handle (fst sx∈ti)
           where
-          xl∈xi : ℚ∈Iℚ xl xi
-          xl∈xi = refl-≤ , xl≤xu
-          yu∈yi : ℚ∈Iℚ yu yi
-          yu∈yi = yl≤yu , refl-≤
-          xlyu<0 : (xl * yu) < 0r
-          xlyu<0 = *₂-preserves-<0 xl<0 0<yu
-
-          xiyi-l≤xlyu : xiyi-l ≤ (xl * yu)
-          xiyi-l≤xlyu = fst (ℚ∈Iℚ-* xi yi xl∈xi yu∈yi)
-          xiyi-l<0 = trans-≤-< xiyi-l≤xlyu xlyu<0
-        handle (inj-r _) (inj-l yl<0) = ℝ≮0-L∀<0 x x≮0 xiyi-l<0
-          where
-          xu∈xi : ℚ∈Iℚ xu xi
-          xu∈xi = xl≤xu , refl-≤
-          yl∈yi : ℚ∈Iℚ yl yi
-          yl∈yi = refl-≤ , yl≤yu
-          xuyl<0 : (xu * yl) < 0r
-          xuyl<0 = *₁-preserves-<0 0<xu yl<0
-
-          xiyi-l≤xuyl : xiyi-l ≤ (xu * yl)
-          xiyi-l≤xuyl = fst (ℚ∈Iℚ-* xi yi xu∈xi yl∈yi)
-          xiyi-l<0 = trans-≤-< xiyi-l≤xuyl xuyl<0
-
-        handle (inj-r (0≤xl , xL-xl²)) (inj-r (0≤yl , xL-yl²)) =
-          isLowerSet≤ x (fst xyi-l²∈xiyi) x-l2
-          where
-
-          x-l2 : x.L (xyi-l * xyi-l)
-          x-l2 = max-property {P = \z -> x.L (z * z)} xl yl xL-xl² xL-yl²
-
-          xyi-l²∈xiyi : ℚ∈Iℚ (xyi-l * xyi-l) xiyi
-          xyi-l²∈xiyi = ℚ∈Iℚ-* xi yi ∈xi ∈yi
+          handle : (til < 0r ⊎ ((0r ≤ til) × (x.L (til * til)))) -> x.L xiyi-l
+          handle (inj-l til<0) = ℝ≮0-L∀<0 x x≮0 xiyi-l<0
             where
-            ∈xi : ℚ∈Iℚ xyi-l xi
-            ∈xi = ℚ∈Iℚ-i-intersect₁ xyi-l xi yi xyi-o (refl-≤ , xyi-l≤u)
-            ∈yi : ℚ∈Iℚ xyi-l yi
-            ∈yi = ℚ∈Iℚ-i-intersect₂ xyi-l xi yi xyi-o (refl-≤ , xyi-l≤u)
-
+            tiul≤0 : (tiu * til) ≤ 0#
+            tiul≤0 = *₁-preserves-≤0 0≤tiu (weaken-< til<0)
+            xiyi-l<0 : xiyi-l < 0#
+            xiyi-l<0 = trans-<-≤ (_i⊂_.l ti²⊂xiyi) (trans-≤ (trans-≤ min-≤-right min-≤-left) tiul≤0)
+          handle (inj-r (_ , xL-til²)) =
+            x.isLowerSet-L (trans-<-≤ (_i⊂_.l ti²⊂xiyi) (trans-≤ min-≤-left min-≤-left))
+              xL-til²
 
 
     *-sqrtᵉ : sxsx == x
