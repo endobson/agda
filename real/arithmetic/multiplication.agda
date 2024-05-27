@@ -21,6 +21,7 @@ open import rational
 open import rational.order
 open import rational.proper-interval
 open import rational.proper-interval.maxabs-multiplication
+open import rational.proper-interval.multiplication-inclusion
 open import rational.proper-interval.multiplication-strict-cross-zero
 open import real
 open import real.interval
@@ -147,64 +148,48 @@ module _ (x y : ℝ)
       handle (xi , yi , exi , eyi , lt) =
         (xi , yi , exi , eyi , weaken-< (trans-≤-< lt a<b))
 
-
     isUpperOpen-L : isUpperOpen L
     isUpperOpen-L q = ∥-bind handle
       where
       handle : L' x y q -> ∃[ r ∈ ℚ ] (q < r × L r)
-      handle (xi@(Iℚ-cons a b _) , yi@(Iℚ-cons c d _) , (xl , xu) , (yl , yu) , lt) =
-        ∥-map4 handle2 (NonZero-UpperOpen x _ xl) (NonZero-LowerOpen x _ xu)
-                       (y.isUpperOpen-L _ yl) (y.isLowerOpen-U _ yu)
+      handle (xi , yi , x∈xi , y∈yi , lt) =
+        ∥-map2 handle2 (tighter-ℝ∈Iℚ x xi x∈xi) (tighter-ℝ∈Iℚ y yi y∈yi)
         where
-        handle2 : Σ[ a' ∈ ℚ ] (NonZero a' × a < a' × x.L a') ->
-                  Σ[ b' ∈ ℚ ] (NonZero b' × b' < b × x.U b') ->
-                  Σ[ c' ∈ ℚ ] (c < c' × y.L c') ->
-                  Σ[ d' ∈ ℚ ] (d' < d × y.U d') -> Σ[ r ∈ ℚ ] (q < r × L r)
-        handle2 (a' , nza' , a<a' , la') (b' , nzb' , b'<b , ub') (c' , c<c' , lc') (d' , d'<d , ud') =
-          r , q<r , ∣ xi' , yi' , (la' , ub') , (lc' , ud') , refl-ℚ≤ {r} ∣
+        handle2 : Σ[ xi' ∈ Iℚ ] (xi' i⊂ xi × ℝ∈Iℚ x xi') ->
+                  Σ[ yi' ∈ Iℚ ] (yi' i⊂ yi × ℝ∈Iℚ y yi') ->
+                  Σ[ r ∈ ℚ ] (q < r × L r)
+        handle2 (xi' , xi'⊂xi , x∈xi') (yi' , yi'⊂yi , y∈yi') =
+          r , q<r , ∣ xi' , yi' , x∈xi' , y∈yi' , refl-≤ ∣
           where
-          xi' = ℝ-bounds->Iℚ x la' ub'
-          yi' = ℝ-bounds->Iℚ y lc' ud'
           r = Iℚ.l (xi' i* yi')
 
-          nz-xi' : ¬ (ZeroEndedI xi')
-          nz-xi' (inj-l za') = NonZero->¬Zero nza' za'
-          nz-xi' (inj-r zb') = NonZero->¬Zero nzb' zb'
-
           p'⊂p : (xi' i* yi') i⊂ (xi i* yi)
-          p'⊂p = i*-preserves-⊂ {xi'} {xi} {yi'} {yi} (i⊂-cons a<a' b'<b) (i⊂-cons c<c' d'<d) nz-xi'
+          p'⊂p = i*-preserves-⊂ xi'⊂xi yi'⊂yi
 
           q<r : q < r
-          q<r = trans-≤-< {d1 = q} {Iℚ.l (xi i* yi)} {r} lt (_i⊂_.l p'⊂p)
+          q<r = trans-≤-< lt (_i⊂_.l p'⊂p)
+
 
     isLowerOpen-U : isLowerOpen U
     isLowerOpen-U q = ∥-bind handle
       where
       handle : U' x y q -> ∃[ r ∈ ℚ ] (r < q × U r)
-      handle (xi@(Iℚ-cons a b _) , yi@(Iℚ-cons c d _) , (xl , xu) , (yl , yu) , lt) =
-        ∥-map4 handle2 (NonZero-UpperOpen x _ xl) (NonZero-LowerOpen x _ xu)
-                       (y.isUpperOpen-L _ yl) (y.isLowerOpen-U _ yu)
+      handle (xi , yi , x∈xi , y∈yi , lt) =
+        ∥-map2 handle2 (tighter-ℝ∈Iℚ x xi x∈xi) (tighter-ℝ∈Iℚ y yi y∈yi)
         where
-        handle2 : Σ[ a' ∈ ℚ ] (NonZero a' × a < a' × x.L a') ->
-                  Σ[ b' ∈ ℚ ] (NonZero b' × b' < b × x.U b') ->
-                  Σ[ c' ∈ ℚ ] (c < c' × y.L c') ->
-                  Σ[ d' ∈ ℚ ] (d' < d × y.U d') -> Σ[ r ∈ ℚ ] (r < q × U r)
-        handle2 (a' , nza' , a<a' , la') (b' , nzb' , b'<b , ub') (c' , c<c' , lc') (d' , d'<d , ud') =
-          r , r<q , ∣ xi' , yi' , (la' , ub') , (lc' , ud') , refl-ℚ≤ {r} ∣
+        handle2 : Σ[ xi' ∈ Iℚ ] (xi' i⊂ xi × ℝ∈Iℚ x xi') ->
+                  Σ[ yi' ∈ Iℚ ] (yi' i⊂ yi × ℝ∈Iℚ y yi') ->
+                  Σ[ r ∈ ℚ ] (r < q × U r)
+        handle2 (xi' , xi'⊂xi , x∈xi') (yi' , yi'⊂yi , y∈yi') =
+          r , r<q , ∣ xi' , yi' , x∈xi' , y∈yi' , refl-≤ ∣
           where
-          xi' = ℝ-bounds->Iℚ x la' ub'
-          yi' = ℝ-bounds->Iℚ y lc' ud'
           r = Iℚ.u (xi' i* yi')
 
-          nz-xi' : ¬ (ZeroEndedI xi')
-          nz-xi' (inj-l za') = NonZero->¬Zero nza' za'
-          nz-xi' (inj-r zb') = NonZero->¬Zero nzb' zb'
-
           p'⊂p : (xi' i* yi') i⊂ (xi i* yi)
-          p'⊂p = i*-preserves-⊂ {xi'} {xi} {yi'} {yi} (i⊂-cons a<a' b'<b) (i⊂-cons c<c' d'<d) nz-xi'
+          p'⊂p = i*-preserves-⊂ xi'⊂xi yi'⊂yi
 
           r<q : r < q
-          r<q = trans-<-≤ {d1 = r} {Iℚ.u (xi i* yi)} {q} (_i⊂_.u p'⊂p) lt
+          r<q = trans-<-≤ (_i⊂_.u p'⊂p) lt
 
 
 

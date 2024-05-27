@@ -1379,15 +1379,9 @@ i*₁-preserves-⊂ a@(Iℚ-cons al au _) ¬za {b} {c} b⊂c =
   handle pos-sign  zero-sign _   zau = bot-elim (¬za (inj-r zau))
   handle neg-sign  zero-sign _   zau = bot-elim (¬za (inj-r zau))
 
-
 i*₂-preserves-⊂ : {a b : Iℚ} -> a i⊂ b -> (c : Iℚ) -> (¬ (ZeroEndedI c)) -> (a i* c) i⊂ (b i* c)
 i*₂-preserves-⊂ {a} {b} a⊂b c ¬zc =
   subst2 _i⊂_ (i*-commute c a) (i*-commute c b) (i*₁-preserves-⊂ c ¬zc a⊂b)
-
-i*-preserves-⊂ : {a b c d : Iℚ} -> a i⊂ b -> c i⊂ d ->
-                 (¬ (ZeroEndedI a)) -> (a i* c) i⊂ (b i* d)
-i*-preserves-⊂ {a} {b} {c} {d} a⊂b c⊂d ¬za =
-  trans-i⊂-i⊆ (i*₁-preserves-⊂ a ¬za c⊂d) (i*₂-preserves-⊆ (weaken-i⊂ a⊂b) d)
 
 
 find-shrink-factor : {a b : Iℚ} -> a i⊂ b -> Σ[ k ∈ ℚ ] (Pos k × k < 1r × i-scale k a i⊆ b)
