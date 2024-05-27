@@ -114,3 +114,29 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCo
         -a≤min = minus-flips-≤ min-≤-left
         -b≤min : (- b) ≤ (- min a b)
         -b≤min = minus-flips-≤ min-≤-right
+
+
+module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤} {ACM : AdditiveCommMonoid D}
+         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{Min : MinOperationStr LO}}
+         {{Max : MaxOperationStr LO}}
+         {{COS : CompatibleOrderStr LO PO}}
+         {{POA : PartiallyOrderedAdditiveStr ACM PO}}
+  where
+  private
+    instance
+      IACM = ACM
+      ILO = LO
+      IPO = PO
+
+  min-+-swap : {a b c d : D} -> (min a b + min c d) ≤ min (a + c) (b + d)
+  min-+-swap = min-greatest-≤ abcd≤ac abcd≤bd
+    where
+    abcd≤ac = +-preserves-≤ min-≤-left min-≤-left
+    abcd≤bd = +-preserves-≤ min-≤-right min-≤-right
+
+  max-+-swap : {a b c d : D} -> max (a + c) (b + d) ≤ (max a b + max c d)
+  max-+-swap = max-least-≤ abcd≤ac abcd≤bd
+    where
+    abcd≤ac = +-preserves-≤ max-≤-left max-≤-left
+    abcd≤bd = +-preserves-≤ max-≤-right max-≤-right
