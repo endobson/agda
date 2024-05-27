@@ -153,9 +153,9 @@ find-small-ℝ∈Iℚ x ε = ∥-map handle (find-open-ball x ε)
     subst2 _≤_ refl diff=ε refl-≤
 
 private
-  tighter-ε : (x : ℝ) (qi1 qi2 : Iℚ) -> (qi1 i⊂ qi2) ->
+  tighter-ε : (qi1 qi2 : Iℚ) -> (qi1 i⊂ qi2) ->
               Σ[ ε ∈ ℚ⁺ ] ((qi3 : Iℚ) -> i-width qi3 ≤ ⟨ ε ⟩ -> Overlap qi3 qi1 -> qi3 i⊆ qi2)
-  tighter-ε x qi1@(Iℚ-cons l1 u1 _) qi2@(Iℚ-cons l2 u2 _) (i⊂-cons l2<l1 u1<u2) = (ε , 0<ε) , f
+  tighter-ε qi1@(Iℚ-cons l1 u1 _) qi2@(Iℚ-cons l2 u2 _) (i⊂-cons l2<l1 u1<u2) = (ε , 0<ε) , f
     where
     dl = (diff l2 l1)
     du = (diff u1 u2)
@@ -195,7 +195,7 @@ overlapping-ℝ∈Iℚs->path x y f = ℝ∈Iℚ->path x y g
   g qi x∈qi = unsquash (isProp-ℝ∈Iℚ y qi) (∥-bind handle (tighter-ℝ∈Iℚ x qi x∈qi))
     where
     handle : Σ[ qi2 ∈ Iℚ ] ((qi2 i⊂ qi) × ℝ∈Iℚ x qi2) -> ∥ ℝ∈Iℚ y qi ∥
-    handle (qi2 , qi2⊂qi , x∈qi2) = handle2 (tighter-ε x qi2 qi qi2⊂qi)
+    handle (qi2 , qi2⊂qi , x∈qi2) = handle2 (tighter-ε qi2 qi qi2⊂qi)
       where
       handle2 : Σ[ ε ∈ ℚ⁺ ] ((qi3 : Iℚ) -> i-width qi3 ≤ ⟨ ε ⟩ -> Overlap qi3 qi2 -> qi3 i⊆ qi) ->
                 ∥ ℝ∈Iℚ y qi ∥

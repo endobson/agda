@@ -27,6 +27,7 @@ open import semiring
 open import sign
 open import sign.instances.rational
 open import sum
+open import truncation
 
 open import rational.proper-interval.base public
 
@@ -153,7 +154,8 @@ i-scale-SymI k (Iℚ-cons l u l≤u) l=-u =
 
 
 _i*_ : Iℚ -> Iℚ -> Iℚ
-_i*_ (Iℚ-cons l1 u1 _) i2 = (i-scale l1 i2) i∪ (i-scale u1 i2)
+_i*_ i1 i2 = (i-scale (Iℚ.l i1) i2) i∪ (i-scale (Iℚ.u i1) i2)
+
 
 i*-NN : (a b : Iℚ) -> (NonNegI a) -> (NonNegI b) -> Iℚ
 i*-NN a b 0≤al 0≤bl = Iℚ-cons (a.l * b.l) (a.u * b.u) lt
@@ -410,7 +412,7 @@ LowerUpper->Constant : {q : ℚ} -> (a : Iℚ) -> i-Lower a q -> i-Upper a q -> 
 LowerUpper->Constant {q} (Iℚ-cons l u l≤u) q≤l u≤q = antisym-≤ l≤u (trans-≤ u≤q q≤l)
 
 i-width : Iℚ -> ℚ
-i-width (Iℚ-cons l u _) = diff l u
+i-width i = diff (Iℚ.l i) (Iℚ.u i)
 
 0≤i-width : (a : Iℚ) -> 0# ≤ (i-width a)
 0≤i-width (Iℚ-cons l u l≤u) = diff-0≤⁺ l≤u
@@ -1092,6 +1094,15 @@ i∪₁-Constant a@(Iℚ-cons l u l≤u) b const = (antisym-≤ l≤u u≤l)
 i∪₂-Constant : (a b : Iℚ) -> ConstantI (a i∪ b) -> ConstantI b
 i∪₂-Constant a b const = i∪₁-Constant b a (subst ConstantI (i∪-commute a b) const)
 
+i∪₁-NonConstant : (a b : Iℚ) -> NonConstantI a -> NonConstantI (a i∪ b)
+i∪₁-NonConstant a b al<au =
+  trans-≤-< min-≤-left (trans-<-≤ al<au max-≤-left)
+
+i∪₂-NonConstant : (a b : Iℚ) -> NonConstantI b -> NonConstantI (a i∪ b)
+i∪₂-NonConstant a b nc =
+  subst NonConstantI (i∪-commute b a) (i∪₁-NonConstant b a nc)
+
+
 i*-Constant : (a b : Iℚ) -> ConstantI (a i* b) -> ConstantI a ⊎ ConstantI b
 i*-Constant a@(Iℚ-cons al au _) b const =
   handle (r*-ZeroFactor z1) (r*-ZeroFactor z2)
@@ -1115,6 +1126,26 @@ i*-Constant a@(Iℚ-cons al au _) b const =
     pl = eqInv abs-zero-eq zal
     pu : au == 0r
     pu = eqInv abs-zero-eq zau
+
+i*-NonConstant : (a b : Iℚ) -> NonConstantI a -> NonConstantI b -> NonConstantI (a i* b)
+i*-NonConstant a b al<au bl<bu =
+  unsquash isProp-< (∥-map handle (comparison-< a.l 0# a.u al<au))
+  where
+  module a = Iℚ a
+  handle : ((a.l < 0#) ⊎ (0# < a.u)) -> NonConstantI (a i* b)
+  handle (inj-l al<0) = i∪₁-NonConstant (i-scale a.l b) (i-scale a.u b) (diff-0<⁻ 0<w)
+    where
+    0<w : 0# < i-width (i-scale a.l b)
+    0<w = trans-<-= (*-preserves-0< (trans-<-≤ (minus-flips-<0 al<0) max-≤-right) (diff-0<⁺ bl<bu))
+                    (sym (i-scale-width a.l b))
+
+  handle (inj-r 0<au) = i∪₂-NonConstant (i-scale a.l b) (i-scale a.u b) (diff-0<⁻ 0<w)
+    where
+    0<w : 0# < i-width (i-scale a.u b)
+    0<w = trans-<-= (*-preserves-0< (trans-<-≤ 0<au max-≤-left) (diff-0<⁺ bl<bu))
+                    (sym (i-scale-width a.u b))
+
+
 
 i*-left-one : (a : Iℚ) -> 1i i* a == a
 i*-left-one a = cong2 _i∪_ (i-scale-1 a) (i-scale-1 a) >=> (i∪-same a)
@@ -1292,7 +1323,7 @@ i-maxabs-⊆ {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (i⊆-c
   max-preserves-≤ (minus-flips-≤ bl≤al) au≤bu
 
 i⊆-preserves-PosI : {a b : Iℚ} -> a i⊆ b -> PosI b -> PosI a
-i⊆-preserves-PosI (i⊆-cons bl≤al _) pos-bl = Pos-≤ _ _ pos-bl bl≤al
+i⊆-preserves-PosI (i⊆-cons bl≤al _) 0<bl = trans-<-≤ 0<bl bl≤al
 
 
 
