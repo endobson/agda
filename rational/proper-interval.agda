@@ -19,7 +19,8 @@ open import ordered-semiring
 open import ordered-semiring.minmax
 open import rational
 open import rational.order
-open import relation hiding (_⊆_)
+open import rational.proper-interval.classify
+open import relation
 open import ring
 open import ring.implementations.rational
 open import semiring
@@ -27,17 +28,7 @@ open import sign
 open import sign.instances.rational
 open import sum
 
-private
-  variable
-    ℓ : Level
-
-record Iℚ : Type₀ where
-  no-eta-equality ; pattern
-  constructor Iℚ-cons
-  field
-    l : ℚ
-    u : ℚ
-    l≤u : l ≤ u
+open import rational.proper-interval.base public
 
 _i+_ : Iℚ -> Iℚ -> Iℚ
 _i+_ a b = Iℚ-cons (a.l + b.l) (a.u + b.u) abs.lt
@@ -50,17 +41,6 @@ _i+_ a b = Iℚ-cons (a.l + b.l) (a.u + b.u) abs.lt
       lt : LT (a.l + b.l) (a.u + b.u)
       lt = (+-preserves-≤ a.l≤u b.l≤u)
 
-
-Iℚ-bounds-path : {a b : Iℚ} -> (Iℚ.l a == Iℚ.l b) -> (Iℚ.u a == Iℚ.u b) -> a == b
-Iℚ-bounds-path {a@(Iℚ-cons _ _ _)} {b@(Iℚ-cons _ _ _)} pl pu = a.path
-  where
-  module a where
-    abstract
-      p≤ : PathP (\i -> (pl i) ≤ (pu i)) (Iℚ.l≤u a) (Iℚ.l≤u b)
-      p≤ = isProp->PathP (\i -> isProp-≤)
-
-      path : a == b
-      path i = Iℚ-cons (pl i) (pu i) (p≤ i)
 
 i-_ : Iℚ -> Iℚ
 i-_ a = Iℚ-cons (- a.u) (- a.l) (minus-flips-≤ a.l≤u)
@@ -78,37 +58,6 @@ i--double-inverse {Iℚ-cons l u l≤u} = Iℚ-bounds-path minus-double-inverse 
 
 1i : Iℚ
 1i = ℚ->Iℚ 1r
-
-NonNegI : Pred Iℚ ℓ-zero
-NonNegI a = 0# ≤ Iℚ.l a
-NonPosI : Pred Iℚ ℓ-zero
-NonPosI a = Iℚ.u a ≤ 0#
-CrossZeroI : Pred Iℚ ℓ-zero
-CrossZeroI a =  (Iℚ.l a) ≤ 0# × 0# ≤ (Iℚ.u a)
-
-PosI : Pred Iℚ ℓ-zero
-PosI a = Pos (Iℚ.l a)
-NegI : Pred Iℚ ℓ-zero
-NegI a = Neg (Iℚ.u a)
-StrictCrossZeroI : Pred Iℚ ℓ-zero
-StrictCrossZeroI a = Neg (Iℚ.l a) × Pos (Iℚ.u a)
-
-ConstantI : Pred Iℚ ℓ-zero
-ConstantI a = (Iℚ.l a) == (Iℚ.u a)
-
-SymI : Pred Iℚ ℓ-zero
-SymI a = (Iℚ.l a) == (- (Iℚ.u a))
-
-ℚ∈Iℚ : ℚ -> Pred Iℚ ℓ-zero
-ℚ∈Iℚ q a = (Iℚ.l a ≤ q) × (q ≤ Iℚ.u a)
-
-NonConstantI : Pred Iℚ ℓ-zero
-NonConstantI a = Iℚ.l a < Iℚ.u a
-
-ZeroEndedI : Pred Iℚ ℓ-zero
-ZeroEndedI a = Zero (Iℚ.l a) ⊎ Zero (Iℚ.u a)
-
-
 
 i+-commute : (a b : Iℚ) -> a i+ b == b i+ a
 i+-commute _ _ = Iℚ-bounds-path +-commute +-commute
@@ -1097,51 +1046,6 @@ i*-width-CZNP-≤ a b cz-a np-b =
   subst2 _≤_ (cong i-width (i*-commute b a))
              (+-cong *-commute *-commute >=> +-commute)
          (i*-width-NPCZ-≤ b a np-b cz-a)
-
-private
-  data Class (i : Iℚ) : Type₀ where
-    nn-c : NonNegI i    -> Class i
-    np-c : NonPosI i    -> Class i
-    cz-c : CrossZeroI i -> Class i
-
-
-  data StrictClass (i : Iℚ) : Type₀ where
-    p-c  : PosI i       -> StrictClass i
-    n-c  : NegI i       -> StrictClass i
-    cz-c : CrossZeroI i -> StrictClass i
-
-  data StrictClass' (i : Iℚ) : Type₀ where
-    nn-c : NonNegI i         -> StrictClass' i
-    np-c : NonPosI i         -> StrictClass' i
-    cz-c : StrictCrossZeroI i -> StrictClass' i
-
-  classify : (i : Iℚ) -> Class i
-  classify i@(Iℚ-cons l u _) =
-    handle (split-< l 0#) (split-< u 0#)
-    where
-    handle : (l < 0# ⊎ 0# ≤ l) -> (u < 0# ⊎ 0# ≤ u) -> Class i
-    handle (inj-r 0≤l) _           = nn-c 0≤l
-    handle (inj-l l<0) (inj-r 0≤u) = cz-c (weaken-< l<0 , 0≤u)
-    handle (inj-l l<0) (inj-l u<0) = np-c (weaken-< u<0)
-
-
-  strict-classify : (i : Iℚ) -> StrictClass i
-  strict-classify i@(Iℚ-cons l u _) =
-    handle (split-< 0# l) (split-< u 0#)
-    where
-    handle : (0# < l ⊎ l ≤ 0#) -> (u < 0# ⊎ 0# ≤ u) -> StrictClass i
-    handle (inj-l 0<l) _           = p-c 0<l
-    handle (inj-r l≤0) (inj-l u<0) = n-c u<0
-    handle (inj-r l≤0) (inj-r 0≤u) = cz-c (l≤0 , 0≤u)
-
-  strict-classify' : (i : Iℚ) -> StrictClass' i
-  strict-classify' i@(Iℚ-cons l u _) =
-    handle (split-< l 0#) (split-< 0# u)
-    where
-    handle : (l < 0# ⊎ 0# ≤ l) -> (0# < u ⊎ u ≤ 0#) -> StrictClass' i
-    handle (inj-r 0≤l) _           = nn-c 0≤l
-    handle (inj-l l<0) (inj-r u≤0) = np-c u≤0
-    handle (inj-l l<0) (inj-l 0<u) = cz-c (l<0 , 0<u)
 
 
 
