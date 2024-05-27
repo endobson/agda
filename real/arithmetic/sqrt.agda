@@ -22,7 +22,7 @@ open import ordered-semiring.squares
 open import rational
 open import rational.order
 open import rational.proper-interval
-open import rational.proper-interval.abs
+open import rational.proper-interval.containment
 open import real
 open import real.arithmetic.multiplication
 open import real.arithmetic.sqrt.base
@@ -99,7 +99,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
       x-u1 = snd (snd sx∈xyi)
 
       xyi-u²∈xiyi : ℚ∈Iℚ (xyi-u * xyi-u) xiyi
-      xyi-u²∈xiyi = ℚ∈Iℚ-* xyi-u xyi-u xi yi ∈xi ∈yi
+      xyi-u²∈xiyi = ℚ∈Iℚ-* xi yi ∈xi ∈yi
         where
         ∈xi : ℚ∈Iℚ xyi-u xi
         ∈xi = ℚ∈Iℚ-i-intersect₁ xyi-u xi yi xyi-o (xyi-l≤u , refl-≤)
@@ -125,7 +125,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
           xlyu<0 = *₂-preserves-<0 xl<0 0<yu
 
           xiyi-l≤xlyu : xiyi-l ≤ (xl * yu)
-          xiyi-l≤xlyu = fst (ℚ∈Iℚ-* xl yu xi yi xl∈xi yu∈yi)
+          xiyi-l≤xlyu = fst (ℚ∈Iℚ-* xi yi xl∈xi yu∈yi)
           xiyi-l<0 = trans-≤-< xiyi-l≤xlyu xlyu<0
         handle (inj-r _) (inj-l yl<0) = ℝ≮0-L∀<0 x x≮0 xiyi-l<0
           where
@@ -137,7 +137,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
           xuyl<0 = *₁-preserves-<0 0<xu yl<0
 
           xiyi-l≤xuyl : xiyi-l ≤ (xu * yl)
-          xiyi-l≤xuyl = fst (ℚ∈Iℚ-* xu yl xi yi xu∈xi yl∈yi)
+          xiyi-l≤xuyl = fst (ℚ∈Iℚ-* xi yi xu∈xi yl∈yi)
           xiyi-l<0 = trans-≤-< xiyi-l≤xuyl xuyl<0
 
         handle (inj-r (0≤xl , xL-xl²)) (inj-r (0≤yl , xL-yl²)) =
@@ -148,7 +148,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
           x-l2 = max-property {P = \z -> x.L (z * z)} xl yl xL-xl² xL-yl²
 
           xyi-l²∈xiyi : ℚ∈Iℚ (xyi-l * xyi-l) xiyi
-          xyi-l²∈xiyi = ℚ∈Iℚ-* xyi-l xyi-l xi yi ∈xi ∈yi
+          xyi-l²∈xiyi = ℚ∈Iℚ-* xi yi ∈xi ∈yi
             where
             ∈xi : ℚ∈Iℚ xyi-l xi
             ∈xi = ℚ∈Iℚ-i-intersect₁ xyi-l xi yi xyi-o (refl-≤ , xyi-l≤u)

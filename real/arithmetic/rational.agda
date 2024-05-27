@@ -17,7 +17,7 @@ open import ordered-semiring.instances.rational
 open import rational
 open import rational.order
 open import rational.proper-interval
-open import rational.proper-interval.abs
+open import rational.proper-interval.containment
 open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication
@@ -95,7 +95,7 @@ private
         where
         q∈b = ℝ∈Iℚ->ℚ∈Iℚ b q'∈b
         r∈c = ℝ∈Iℚ->ℚ∈Iℚ c r'∈c
-        qr∈bc = ℚ∈Iℚ-* q r b c q∈b r∈c
+        qr∈bc = ℚ∈Iℚ-* b c q∈b r∈c
 
 Semiringʰ-ℚ->ℝ : Semiringʰ ℚ->ℝ
 Semiringʰ-ℚ->ℝ = record

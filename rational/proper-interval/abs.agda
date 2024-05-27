@@ -18,6 +18,7 @@ open import ordered-semiring.squares
 open import rational
 open import rational.order
 open import rational.proper-interval
+open import rational.proper-interval.containment
 open import rational.proper-interval.maxabs-multiplication
 open import relation
 open import ring
@@ -199,94 +200,14 @@ naive-i² (Iℚ-cons l u l≤u) -l≤u = (Iℚ-cons (l * l) (u * u) ll≤uu)
       -l-l=ll = minus-extract-left >=> cong -_ minus-extract-right >=> minus-double-inverse
 
 
-
-ℚ∈Iℚ-i∪₁ : (q : ℚ) (a b : Iℚ) -> ℚ∈Iℚ q a -> ℚ∈Iℚ q (a i∪ b)
-ℚ∈Iℚ-i∪₁ q (Iℚ-cons al au _) (Iℚ-cons bl bu _) (al≤q , q≤au) =
-  trans-ℚ≤ {min al bl} min-≤-left al≤q ,
-  trans-ℚ≤ {q} q≤au max-≤-left
-
-ℚ∈Iℚ-i∪₂ : (q : ℚ) (a b : Iℚ) -> ℚ∈Iℚ q b -> ℚ∈Iℚ q (a i∪ b)
-ℚ∈Iℚ-i∪₂ q a b q∈b = subst (ℚ∈Iℚ q) (i∪-commute b a) (ℚ∈Iℚ-i∪₁ q b a q∈b)
-
-ℚ∈Iℚ-i-scale : (k q : ℚ) (a : Iℚ) -> ℚ∈Iℚ q a -> ℚ∈Iℚ (k * q) (i-scale k a)
-ℚ∈Iℚ-i-scale k q a@(Iℚ-cons l u l≤u) (l≤q , q≤u) = handle (split-< k 0r)
-  where
-  handle : (k < 0r ⊎ 0r ℚ≤ k) -> ℚ∈Iℚ (k * q) (i-scale k a)
-  handle (inj-l k<0) = subst (ℚ∈Iℚ (k * q)) (i-scale-≤0-path (k , k≤0) a) kq∈ka'
-    where
-    k≤0 = weaken-< k<0
-    kq∈ka' : ℚ∈Iℚ (k * q) (i-scale-≤0 (k , k≤0) a)
-    kq∈ka' = *₁-flips-≤ k≤0 q≤u , *₁-flips-≤ k≤0 l≤q
-
-  handle (inj-r 0≤k) = subst (ℚ∈Iℚ (k * q)) (i-scale-0≤-path (k , 0≤k) a) kq∈ka'
-    where
-    kq∈ka' : ℚ∈Iℚ (k * q) (i-scale-0≤ (k , 0≤k) a)
-    kq∈ka' = *₁-preserves-≤ 0≤k l≤q , *₁-preserves-≤ 0≤k q≤u
-
-ℚ∈Iℚ-⊆ : (q : ℚ) -> {a b : Iℚ} -> (a i⊆ b) -> ℚ∈Iℚ q a -> ℚ∈Iℚ q b
-ℚ∈Iℚ-⊆ q {_} {b} (i⊆-cons bl≤al au≤bu) (al≤q , q≤au) =
-  trans-ℚ≤ {Iℚ.l b} bl≤al al≤q , trans-ℚ≤ {q} q≤au au≤bu
-
-ℚ∈Iℚ-* : (q r : ℚ) (a b : Iℚ) -> ℚ∈Iℚ q a -> ℚ∈Iℚ r b -> ℚ∈Iℚ (q * r) (a i* b)
-ℚ∈Iℚ-* q r a@(Iℚ-cons al au al≤au) b q∈a r∈b =
-  subst ∈ab *-commute rq∈ab
-  where
-  ab = (a i* b)
-  abl = Iℚ.l ab
-  abu = Iℚ.u ab
-
-  ∈ab : Pred ℚ ℓ-zero
-  ∈ab q = ℚ∈Iℚ q ab
-
-
-  alr∈alb : ℚ∈Iℚ (al * r) (i-scale al b)
-  alr∈alb = ℚ∈Iℚ-i-scale al r b r∈b
-
-  alr∈ab : ℚ∈Iℚ (al * r) ab
-  alr∈ab = ℚ∈Iℚ-i∪₁ (al * r) (i-scale al b) (i-scale au b) alr∈alb
-
-  ral∈ab : ℚ∈Iℚ (r * al) ab
-  ral∈ab = subst ∈ab *-commute alr∈ab
-
-  aur∈aub : ℚ∈Iℚ (au * r) (i-scale au b)
-  aur∈aub = ℚ∈Iℚ-i-scale au r b r∈b
-
-  aur∈ab : ℚ∈Iℚ (au * r) ab
-  aur∈ab = ℚ∈Iℚ-i∪₂ (au * r) (i-scale al b) (i-scale au b) aur∈aub
-
-  rau∈ab : ℚ∈Iℚ (r * au) ab
-  rau∈ab = subst ∈ab *-commute aur∈ab
-
-  ra⊆ab : i-scale r a i⊆ ab
-  ra⊆ab = i⊆-cons (min-property {P = abl ℚ≤_} (r * al) (r * au) (fst ral∈ab) (fst rau∈ab))
-                  (max-property {P = _ℚ≤ abu} (r * al) (r * au) (snd ral∈ab) (snd rau∈ab))
-
-  rq∈ra : ℚ∈Iℚ (r * q) (i-scale r a)
-  rq∈ra = ℚ∈Iℚ-i-scale r q a q∈a
-
-  rq∈ab : ℚ∈Iℚ (r * q) ab
-  rq∈ab = ℚ∈Iℚ-⊆ (r * q) ra⊆ab rq∈ra
-
-
-
-
-
-ℚ∈Iℚ-l : (a : Iℚ) -> (ℚ∈Iℚ (Iℚ.l a) a)
-ℚ∈Iℚ-l (Iℚ-cons l u l≤u) = refl-ℚ≤ , l≤u
-
-ℚ∈Iℚ-u : (a : Iℚ) -> (ℚ∈Iℚ (Iℚ.u a) a)
-ℚ∈Iℚ-u (Iℚ-cons l u l≤u) = l≤u , refl-ℚ≤
-
-
-
 naive-i²-⊆-* : (a : Iℚ) -> (i : ImbalancedI a) -> (naive-i² a i) i⊆ (a i* a)
 naive-i²-⊆-* a@(Iℚ-cons l u l≤u) i@-l≤u = a²⊆aa
   where
   a² = (naive-i² a i)
   aa = a i* a
   a²⊆aa : a² i⊆ aa
-  a²⊆aa = i⊆-cons (fst (ℚ∈Iℚ-* l l a a (ℚ∈Iℚ-l a) (ℚ∈Iℚ-l a)))
-                  (snd (ℚ∈Iℚ-* u u a a (ℚ∈Iℚ-u a) (ℚ∈Iℚ-u a)))
+  a²⊆aa = i⊆-cons (fst (ℚ∈Iℚ-* a a (ℚ∈Iℚ-l a) (ℚ∈Iℚ-l a)))
+                  (snd (ℚ∈Iℚ-* a a (ℚ∈Iℚ-u a) (ℚ∈Iℚ-u a)))
 
 
 i*-i⊆-square-NonNegI⁻ : (ai bi : Iℚ) -> NonNegI ai -> NonNegI bi ->
@@ -319,7 +240,7 @@ i*-i⊆-square-NonNegI2⁻ ai@(Iℚ-cons al au al≤au) bi@(Iℚ-cons bl bu bl�
   where
   0≤au = ImbalancedI->0≤u ai imb-ai
   0≤blbl = *-preserves-0≤ 0≤bl 0≤bl
-  a²l≤alau = fst (ℚ∈Iℚ-* _ _ ai ai (ℚ∈Iℚ-l ai) (ℚ∈Iℚ-u ai))
+  a²l≤alau = fst (ℚ∈Iℚ-* ai ai (ℚ∈Iℚ-l ai) (ℚ∈Iℚ-u ai))
   b²l≤alau = trans-≤ b²l≤a²l a²l≤alau
   blbl≤alau = subst (_≤ (al * au)) (cong Iℚ.l (sym (i²-NonNegI-path bi 0≤bl)))  b²l≤alau
   0≤alau = trans-≤ 0≤blbl blbl≤alau
@@ -350,9 +271,9 @@ i*-i⊆-square-BalancedI⁻ ai@(Iℚ-cons al au al≤au) bi@(Iℚ-cons bl bu bl�
   u2≤bubu = subst (u2 ≤_) (cong Iℚ.u (sym (i²-BalancedI-path bi bal-bi))) a²u≤b²u
 
   auau≤u2 : (au * au) ≤ u2
-  auau≤u2 = snd (ℚ∈Iℚ-* _ _ ai ai (ℚ∈Iℚ-u ai) (ℚ∈Iℚ-u ai))
+  auau≤u2 = snd (ℚ∈Iℚ-* ai ai (ℚ∈Iℚ-u ai) (ℚ∈Iℚ-u ai))
   alal≤u2 : (al * al) ≤ u2
-  alal≤u2 = snd (ℚ∈Iℚ-* _ _ ai ai (ℚ∈Iℚ-l ai) (ℚ∈Iℚ-l ai))
+  alal≤u2 = snd (ℚ∈Iℚ-* ai ai (ℚ∈Iℚ-l ai) (ℚ∈Iℚ-l ai))
 
   auau≤bubu : (au * au) ≤ (bu * bu)
   auau≤bubu = trans-≤ auau≤u2 u2≤bubu
@@ -367,10 +288,6 @@ i*-i⊆-square-BalancedI⁻ ai@(Iℚ-cons al au al≤au) bi@(Iℚ-cons bl bu bl�
   bl≤al = subst2 _≤_ minus-double-inverse minus-double-inverse (minus-flips-≤ mal≤mbl)
 
 
-
-
-
-
 i*-preserves-ImbalancedI : (a b : Iℚ) -> ImbalancedI a -> ImbalancedI b -> ImbalancedI (a i* b)
 i*-preserves-ImbalancedI a b imb-a imb-b = i-maxabs≤->ImbalancedI ab mab≤abu
   where
@@ -383,7 +300,7 @@ i*-preserves-ImbalancedI a b imb-a imb-b = i-maxabs≤->ImbalancedI ab mab≤abu
   abu = Iℚ.u ab
 
   aubu≤abu : (au * bu) ℚ≤ abu
-  aubu≤abu = snd (ℚ∈Iℚ-* au bu a b (ℚ∈Iℚ-u a) (ℚ∈Iℚ-u b))
+  aubu≤abu = snd (ℚ∈Iℚ-* a b (ℚ∈Iℚ-u a) (ℚ∈Iℚ-u b))
 
 
   ma=au : ma == au
