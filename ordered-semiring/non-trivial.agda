@@ -5,6 +5,7 @@ module ordered-semiring.non-trivial where
 open import additive-group
 open import base
 open import order
+open import ordered-additive-group
 open import ordered-semiring
 open import relation
 open import semiring
@@ -30,6 +31,11 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
   module _ {LOS : LinearlyOrderedSemiringStr S LO} {{NTS : NonTrivialLinearlyOrderedSemiringStr LOS}}
     where
     open NonTrivialLinearlyOrderedSemiringStr NTS public
+
+    module _ {{LOAS : LinearlyOrderedAdditiveStr ACM LO}} where
+      opaque
+        0<2 : 0# < 2#
+        0<2 = +-preserves-0< 0<1 0<1
 
 module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤}
          {ACM : AdditiveCommMonoid D} {S : Semiring ACM}

@@ -92,6 +92,9 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
 
   open Semiring S public using (1# ; _*_)
 
+  2# : D
+  2# = 1# + 1#
+
   abstract
     *-assoc : {m n o : D} -> (m * n) * o == m * (n * o)
     *-assoc = S.*-assoc
