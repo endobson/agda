@@ -167,6 +167,11 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
     *-assocᵉ : (m n o : D) -> (m * n) * o == m * (n * o)
     *-assocᵉ _ _ _ = *-assoc
 
+    2*-pathᵉ : (x : D) -> 2# * x == x + x
+    2*-pathᵉ _ = *-distrib-+-right >=> +-cong *-left-one *-left-one
+
+    2*-path : {x : D} -> 2# * x == x + x
+    2*-path = 2*-pathᵉ _
 
 
 record Semiringʰᵉ
