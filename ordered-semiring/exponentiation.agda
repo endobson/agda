@@ -4,6 +4,7 @@ module ordered-semiring.exponentiation where
 
 open import additive-group
 open import base
+open import equality
 open import equivalence
 open import nat.even-odd
 open import order
@@ -59,6 +60,19 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Re
     ^ℕ-even-0≤ x zero          _ = 0≤1
     ^ℕ-even-0≤ x (suc (suc n)) e =
       trans-≤-= (*-preserves-0≤ (convert-≮ square-≮0) (^ℕ-even-0≤ x n e)) *-assoc
+
+    ^ℕ-odd-≤0 : {x : D} -> x ≤ 0# -> (n : Nat) -> Odd n -> (x ^ℕ n) ≤ 0#
+    ^ℕ-odd-≤0 {x} x≤0 (suc n) en = *₂-preserves-≤0 x≤0 (^ℕ-even-0≤ x n en)
+
+    ^ℕ-1≤ : {x : D} -> 1# ≤ x -> (n : Nat) -> 1# ≤ (x ^ℕ n)
+    ^ℕ-1≤ 1≤x n = trans-=-≤ (sym (^ℕ-preserves-1# n)) (^ℕ-0≤-preserves-≤ 0≤1 1≤x n)
+
+    ^ℕ-odd-1≤ : {x : D} -> 1# ≤ x -> (n : Nat) -> Odd n -> x ≤ (x ^ℕ n)
+    ^ℕ-odd-1≤ {x} 1≤x (suc n) _ =
+      trans-=-≤ (sym *-right-one) (*₁-preserves-≤ 0≤x (^ℕ-1≤ 1≤x n))
+      where
+      0≤x : 0# ≤ x
+      0≤x = trans-≤ 0≤1 1≤x
 
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}

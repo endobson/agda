@@ -5,21 +5,28 @@ module real.arithmetic.nth-root where
 open import additive-group
 open import base
 open import equality
+open import functions
 open import isomorphism
 open import nat.even-odd
 open import order
+open import order.instances.nat
 open import order.instances.rational
 open import ordered-additive-group
 open import ordered-ring.exponentiation
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import rational
+open import rational.open-interval
+open import rational.open-interval.containment
+open import rational.open-interval.sequence
 open import rational.order
 open import real
+open import real.arithmetic.nth-root.bound-sequence
 open import relation hiding (U)
 open import ring.implementations.real
 open import semiring
 open import semiring.exponentiation
+open import sequence
 open import truncation
 
 isNthRoot : (n : Nat) (x : ℝ) (y : ℝ) -> Type₁
@@ -29,14 +36,49 @@ module _
   (n : Nat)
   (odd-n : Odd n)
   (x : ℝ)
-  (magic : Magic)
   where
 
   private
     module x = Real x
 
     ^ℕ-isDense : ∀ {q r : ℚ} -> q < r -> ∃[ a ∈ ℚ ] (q < (a ^ℕ n) × (a ^ℕ n) < r)
-    ^ℕ-isDense = magic
+    ^ℕ-isDense {q} {r} q<r = ∥-bind handle-mid (dense-< q<r)
+      where
+      Ans : Type₀
+      Ans = ∃[ a ∈ ℚ ] (q < (a ^ℕ n) × (a ^ℕ n) < r)
+      module _ ((m , q<m , m<r) : Σ[ m ∈ ℚ ] (q < m × m < r)) where
+        i1 : Iℚ
+        i1 = Iℚ-cons q r (trans-< q<m m<r)
+        s : Sequence Iℚ
+        s = Root-seq (n , odd-n) m
+
+        root-bound : ∀ i -> Σ[ l ∈ ℚ ] (l ^ℕ n == Iℚ.l (s i))
+        root-bound = Root-root-bound (n , odd-n) m
+
+        m∈s : ∀ n -> ℚ∈Iℚ m (s n)
+        m∈s = Root-q∈s (n , odd-n) m
+        small-s : ArbitrarilySmall (i-width ∘ s)
+        small-s = Root-small-s (n , odd-n) m
+
+        s⊂i1 : ∀Largeℕ (\n -> s n i⊂ i1)
+        s⊂i1 = ArbitrarilySmall->i⊂ s small-s m∈s i1 (q<m , m<r)
+
+        module _ (idx : Nat) (si⊂i1 : s idx i⊂ i1)
+          where
+          module si⊂i1 = _i⊂_ si⊂i1
+
+          Σroot-lsi : Σ[ l ∈ ℚ ] (l ^ℕ n == Iℚ.l (s idx))
+          Σroot-lsi = root-bound idx
+
+          handle-idx : Ans
+          handle-idx =
+            ∣ fst Σroot-lsi ,
+              trans-<-= si⊂i1.l (sym (snd Σroot-lsi)) ,
+              trans-=-< (snd Σroot-lsi) (trans-< (Iℚ.l<u (s idx)) si⊂i1.u) ∣
+
+        handle-mid : Ans
+        handle-mid = ∥-bind (\(i , f) -> handle-idx i (f i refl-≤)) s⊂i1
+
 
     ^ℕ-preserves-< : ∀ {q r : ℚ} -> q < r -> (q ^ℕ n) < (r ^ℕ n)
     ^ℕ-preserves-< = Iso.fun (x<y<->x^n<y^n n odd-n _ _)

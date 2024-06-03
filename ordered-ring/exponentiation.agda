@@ -64,10 +64,8 @@ module _
   {{SOS : StronglyLinearlyOrderedSemiringStr S LO}}
   where
   private
-    CM = AdditiveCommMonoid.comm-monoid ACM
     instance
       ILO = LO
-      IAG = AG
       IACM = ACM
       IS = S
       PO = isLinearOrder->isPartialOrder-≯ LO
@@ -133,3 +131,32 @@ module _
 
     transform : x <> y -> 0# < ((y ^ℕ n) + ((- x) ^ℕ n))
     transform x<>y = unsquash isProp-< (∥-map from-<>0 (to-<>0 x<>y))
+
+
+
+module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+         {{AG : AdditiveGroup ACM}}
+         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{COS : CompatibleOrderStr LO PO}}
+         {{POA : PartiallyOrderedAdditiveStr ACM PO}}
+         {{LOS : LinearlyOrderedSemiringStr S LO}}
+         {{POS : PartiallyOrderedSemiringStr S PO}}
+         {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}} where
+  private
+    instance
+      ILO = LO
+      IPO = PO
+      IACM = ACM
+      IS = S
+
+  ^ℕ-odd-≤-1 : {x : D} -> x ≤ (- 1#) -> (n : Nat) -> Odd n -> (x ^ℕ n) ≤ x
+  ^ℕ-odd-≤-1 {x} x≤-1 (suc n) en =
+    trans-≤-= (*₁-flips-≤ x≤0 1≤x^n) *-right-one
+    where
+    1≤-x : 1# ≤ (- x)
+    1≤-x = trans-=-≤ (sym minus-double-inverse) (minus-flips-≤ x≤-1)
+    1≤x^n : 1# ≤ (x ^ℕ n)
+    1≤x^n = trans-≤-= (^ℕ-1≤ 1≤-x n) (minus-^ℕ-even x n en)
+    x≤0 : x ≤ 0#
+    x≤0 = trans-≤ x≤-1 (minus-flips-0≤ (convert-≮ 1≮0))

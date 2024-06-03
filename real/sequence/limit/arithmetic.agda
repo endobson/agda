@@ -36,6 +36,7 @@ open import ring
 open import ring.solver-equations
 open import ring.implementations.real
 open import semiring
+open import semiring.exponentiation
 open import sequence
 open import truncation
 
@@ -222,3 +223,11 @@ private
       subst (εBounded ε) (sym diff-*-expand)
         (weaken-εBounded (snd Σε') ((d1 i + d2 i) + d3 i)
           (εBounded-+ _ _ (εBounded-+ _ _ B1 B2) B3))
+
+
+opaque
+  ^ℕ-preserves-limit : {s : Seq} -> {v : ℝ} ->
+                       isLimit s v -> (n : ℕ) -> isLimit (\i -> s i ^ℕ n) (v ^ℕ n)
+  ^ℕ-preserves-limit lim zero = isLimit-constant-seq 1#
+  ^ℕ-preserves-limit lim (suc n) =
+    *-preserves-limit lim (^ℕ-preserves-limit lim n)
