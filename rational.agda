@@ -78,7 +78,7 @@ r~->r~' {a} {b} v = record { path = v }
 
 module RationalElim = SetQuotientElim ℚ' _r~_
 
-abstract
+opaque
   ℚ : Type₀
   ℚ = ℚᵉ
 
@@ -183,7 +183,9 @@ nd-paths->path a b pn pd = (\i -> record
 isSet-ℚᵉ : isSet ℚᵉ
 isSet-ℚᵉ = squash/
 
-abstract
+opaque
+  unfolding ℚ
+
   isSetℚ : isSet ℚ
   isSetℚ = isSet-ℚᵉ
 
@@ -201,7 +203,7 @@ a r+'ᵉ b = record
   ; NonZero-denominator = int.*-NonZero-NonZero (rNonZero a) (rNonZero b)
   }
 
-abstract
+opaque
   _r+'_ : ℚ' -> ℚ' -> ℚ'
   a r+' b = a r+'ᵉ b
 
@@ -211,13 +213,14 @@ abstract
   r+'-commute : (a b : ℚ') -> a r+' b == b r+' a
   r+'-commute a b = nd-paths->path ab ba n-p d-p
     where
-    module _ where
-      ab = a r+' b
-      ba = b r+' a
-      na = numer a
-      nb = numer b
-      da = denom a
-      db = denom b
+    ab ba : ℚ'
+    na nb da db : ℤ
+    ab = a r+' b
+    ba = b r+' a
+    na = numer a
+    nb = numer b
+    da = denom a
+    db = denom b
 
     n-p : numer ab == numer ba
     n-p = +-commute -- {na * db} {nb * da}
@@ -275,7 +278,9 @@ same-denom-r+' a b = record
   ; NonZero-denominator = rNonZero a
   }
 
-abstract
+opaque
+  unfolding _r+'_
+
   same-denom-r+'-r~ : (a b : ℚ') -> denom a == denom b -> same-denom-r+' a b r~ (a r+' b)
   same-denom-r+'-r~ a b p =
    *-distrib-+-right >=>
@@ -291,14 +296,15 @@ _r+ᵉ_ = RationalElim.rec2 squash/
           (\a b1 b2 r -> eq/ _ _ (r+'-preserves-r~₂ a b1 b2 r))
 
 
-abstract
+opaque
+  unfolding ℚ
+
   _r+_ : ℚ -> ℚ -> ℚ
   _r+_ = _r+ᵉ_
 
   r+-eval : {a b : ℚ'} -> (ℚ'->ℚ a) r+ (ℚ'->ℚ b) == (ℚ'->ℚ (a r+' b))
   r+-eval = refl
 
-abstract
   r+-commute : (a b : ℚ) -> (a r+ b) == (b r+ a)
   r+-commute = RationalElim.elimProp2 (\a b -> isSetℚ _ _) (\a b -> cong [_] (r+'-commute a b))
 
@@ -309,14 +315,17 @@ abstract
   ; NonZero-denominator = (inj-l tt)
   }
 
-abstract
+opaque
+  unfolding _r+'_
+
   r+'-left-zero : (a : ℚ') -> (0r' r+' a) == a
   r+'-left-zero a = nd-paths->path 0a a pn pd
     where
-    module _ where
-      na = numer a
-      da = denom a
-      0a = (0r' r+' a)
+    na da : ℤ
+    na = numer a
+    da = denom a
+    0a : ℚ'
+    0a = (0r' r+' a)
 
 
     pn' : ((int 0) * (denom a)) + ((numer a) * (int 1)) == (numer a)
@@ -336,7 +345,9 @@ abstract
 0r : ℚ
 0r = ℚ'->ℚ 0r'
 
-abstract
+opaque
+  unfolding _r+_
+
   r+-left-zero : (a : ℚ) -> (0r r+ a) == a
   r+-left-zero = RationalElim.elimProp (\a -> isSetℚ _ _) (\a -> cong [_] (r+'-left-zero a))
 
@@ -401,7 +412,9 @@ _r*ᵉ_ = RationalElim.rec2 squash/
           (\a1 a2 b r -> eq/ _ _ (r*'-preserves-r~₁ b a1 a2 r))
           (\a b1 b2 r -> eq/ _ _ (r*'-preserves-r~₂ a b1 b2 r))
 
-abstract
+opaque
+  unfolding ℚ
+
   _r*_ : ℚ -> ℚ -> ℚ
   _r*_ = _r*ᵉ_
 
@@ -435,7 +448,9 @@ private
   r*'-left-one : (a : ℚ') -> (1r' r*' a) == a
   r*'-left-one a = nd-paths->path _ _ (*-left-oneᵉ (numer a)) (*-left-oneᵉ (denom a))
 
-abstract
+opaque
+  unfolding _r*_
+
   r*-left-one : (a : ℚ) -> (1r r* a) == a
   r*-left-one = RationalElim.elimProp (\a -> isSetℚ _ _) (\a -> cong [_] (r*'-left-one a))
 
@@ -447,21 +462,25 @@ private
   r*'-assoc a b c = nd-paths->path _ _ (*-assocᵉ (numer a) (numer b) (numer c))
                                        (*-assocᵉ (denom a) (denom b) (denom c))
 
-abstract
+opaque
+  unfolding _r*_
+
   r*-assoc : (a b c : ℚ) -> ((a r* b) r* c) == (a r* (b r* c))
   r*-assoc = RationalElim.elimProp3 (\a b c -> isSetℚ _ _) (\a b c -> cong [_] (r*'-assoc a b c))
 
-abstract
+opaque
+  unfolding _r+'_
+
   r+'-assoc : {a b c : ℚ'} -> ((a r+' b) r+' c) r~ (a r+' (b r+' c))
   r+'-assoc {a} {b} {c} = path
     where
-    module _ where
-      na = numer a
-      nb = numer b
-      nc = numer c
-      da = denom a
-      db = denom b
-      dc = denom c
+    na nb nc da db dc : ℤ
+    na = numer a
+    nb = numer b
+    nc = numer c
+    da = denom a
+    db = denom b
+    dc = denom c
 
     path : ((((na * db) + (nb * da)) * dc) + (nc * (da * db)))
            * (da * (db * dc))
@@ -477,28 +496,34 @@ abstract
   r+'-assoc' : {a b c : ℚ'} -> ((a r+' b) r+' c) r~' (a r+' (b r+' c))
   r+'-assoc' {a} {b} {c} = r~->r~' (r+'-assoc {a} {b} {c})
 
-abstract
+opaque
+  unfolding _r+_
+
   r+-assoc : (a b c : ℚ) -> ((a r+ b) r+ c) == (a r+ (b r+ c))
   r+-assoc = RationalElim.elimProp3
                (\a b c -> isSetℚ ((a r+ b) r+ c) (a r+ (b r+ c)))
                (\a b c -> (eq/ ((a r+' b) r+' c) (a r+' (b r+' c)) (r+'-assoc {a} {b} {c})))
 
-abstract
+opaque
+  unfolding _r+'_
+
   r*'-distrib-r+'-right : (a b c : ℚ') -> ((a r+' b) r*' c) r~ ((a r*' c) r+' (b r*' c))
   r*'-distrib-r+'-right a b c = path
     where
-    module _ where
-      ab = a r+' b
-      ac = a r*' c
-      bc = b r*' c
-      ab-c = ab r*' c
-      ac-bc = ac r+' bc
-      na = numer a
-      nb = numer b
-      nc = numer c
-      da = denom a
-      db = denom b
-      dc = denom c
+    ab ac bc ab-c ac-bc : ℚ'
+    na nb nc da db dc : ℤ
+
+    ab = a r+' b
+    ac = a r*' c
+    bc = b r*' c
+    ab-c = ab r*' c
+    ac-bc = ac r+' bc
+    na = numer a
+    nb = numer b
+    nc = numer c
+    da = denom a
+    db = denom b
+    dc = denom c
 
     path : (((na * db) + (nb * da)) * nc) * ((da * dc) * (db * dc))
            == (((na * nc) * (db * dc)) + ((nb * nc) * (da * dc))) * ((da * db) * dc)
@@ -508,7 +533,9 @@ abstract
               (((na ⊗ nc) ⊗ (db ⊗ dc)) ⊕ ((nb ⊗ nc) ⊗ (da ⊗ dc))) ⊗ ((da ⊗ db) ⊗ dc))
            refl na da nb db nc dc
 
-abstract
+opaque
+  unfolding _r*_ _r+_
+
   r*-distrib-r+-right : (a b c : ℚ) -> ((a r+ b) r* c) == ((a r* c) r+ (b r* c))
   r*-distrib-r+-right =
     RationalElim.elimProp3 (\a b c -> isSetℚ _ _)
@@ -522,25 +549,28 @@ r-' a = record
   ; NonZero-denominator = ℚ'.NonZero-denominator a
   }
 
-abstract
+opaque
   r-'-preserves-r~ : (a1 a2 : ℚ') -> a1 r~ a2 -> (r-' a1) r~ (r-' a2)
   r-'-preserves-r~ a1 a2 r =
     minus-extract-left >=> cong -_ r >=> sym minus-extract-left
     where
-    module _ where
-      na1 = numer a1
-      da1 = denom a1
-      na2 = numer a2
-      da2 = denom a2
+    na1 da1 na2 da2 : ℤ
+    na1 = numer a1
+    da1 = denom a1
+    na2 = numer a2
+    da2 = denom a2
+
+opaque
+  unfolding _r+'_
 
   r-'-distrib-r+' : (a b : ℚ') -> r-' (a r+' b) == (r-' a) r+' (r-' b)
   r-'-distrib-r+' a b = nd-paths->path _ _ path refl
     where
-    module _ where
-      na = numer a
-      da = denom a
-      nb = numer b
-      db = denom b
+    na da nb db : ℤ
+    na = numer a
+    da = denom a
+    nb = numer b
+    db = denom b
     path : (- ((na * db) + (nb * da))) == (((- na) * db) + ((- nb) * da))
     path = int.minus-distrib-+ >=> cong2 _+_ (sym minus-extract-left) (sym minus-extract-left)
 
@@ -548,7 +578,9 @@ abstract
   r-'-double-inverse _ = nd-paths->path _ _ minus-double-inverse refl
 
 
-abstract
+opaque
+  unfolding _r+'_
+
   r+'-inverse : (a : ℚ') -> (a r+' (r-' a)) r~ 0r'
   r+'-inverse a =
     *-right-one
@@ -557,9 +589,9 @@ abstract
     >=> *-left-zero
     >=> sym *-left-zero
     where
-    module _ where
-      na = numer a
-      da = denom a
+    na da : ℤ
+    na = numer a
+    da = denom a
 
 
 r-ᵉ_ : ℚᵉ -> ℚᵉ
@@ -567,14 +599,22 @@ r-ᵉ_ = RationalElim.rec isSet-ℚᵉ
        (\a -> [ r-' a ])
        (\a1 a2 r -> eq/ _ _ (r-'-preserves-r~ a1 a2 r))
 
-abstract
+opaque
+  unfolding ℚ
+
   r-_ : ℚ -> ℚ
   r- x = r-ᵉ x
+
+opaque
+  unfolding _r+_ r-_
 
   r+-inverse : (a : ℚ) -> (a r+ (r- a)) == 0r
   r+-inverse = RationalElim.elimProp
                (\_ -> isSetℚ _ _)
                (\a -> eq/ _ _ (r+'-inverse a))
+
+opaque
+  unfolding _r*_ r-_
 
   r*-minus-extract-left : (a1 a2 : ℚ) -> (r- a1) r* a2 == r- (a1 r* a2)
   r*-minus-extract-left =
@@ -637,7 +677,7 @@ r1/' a i = record
   ; NonZero-denominator = i
   }
 
-abstract
+opaque
   r1/'-preserves-r~ : (a1 a2 : ℚ') -> (i1 : ℚInv' a1) -> (i2 : ℚInv' a2) -> a1 r~ a2 ->
                       (r1/' a1 i1) r~ (r1/' a2 i2)
   r1/'-preserves-r~ a1 a2 _ _ r = *-commute >=> sym r >=> *-commute
@@ -661,7 +701,9 @@ isProp-ℚInv : {a : ℚ} -> isProp (ℚInv a)
 isProp-ℚInv = isProp¬ _
 
 
-abstract
+opaque
+  unfolding ℚ
+
   ℚInv->ℚInv' : (a : ℚ') -> ℚInv (ℚ'->ℚ a) -> ℚInv' a
   ℚInv->ℚInv' a i = handle (numer a) refl
     where
@@ -675,7 +717,9 @@ abstract
 
 
 -- TODO get this back to computing
-abstract
+opaque
+  unfolding ℚ
+
   r1/ᵉ : (a : ℚ) -> (ℚInv a) -> ℚ
   r1/ᵉ = RationalElim.elim
            (\_ -> isSetΠ (\_ -> isSetℚ))
@@ -688,7 +732,9 @@ abstract
     g a i = ℚ'->ℚ (r1/' a (ℚInv->ℚInv' a i))
 
 
-abstract
+opaque
+  unfolding ℚ r1/ᵉ _r*_
+
   r1/ : (a : ℚ) -> (ℚInv a) -> ℚ
   r1/ = r1/ᵉ
 
@@ -739,7 +785,9 @@ r1/-distrib-* a b ai bi abi =
 ℕ->ℚ n = ℤ->ℚ (ℕ->ℤ n)
 
 
-abstract
+opaque
+  unfolding _r+_ _r+'_
+
   ℤ->ℚ-preserves-+ : (x y : Int) -> ℤ->ℚ (x + y) == ℤ->ℚ x r+ ℤ->ℚ y
   ℤ->ℚ-preserves-+ x y = eq/ _ _ r
     where
@@ -752,11 +800,16 @@ abstract
     r : (x + y) * ((int 1) * (int 1)) == ((x * (int 1)) + (y * (int 1))) * (int 1)
     r = r1 >=> sym r2
 
+opaque
+  unfolding _r*_
+
   ℤ->ℚ-preserves-* : (x y : Int) -> ℤ->ℚ (x * y) == ℤ->ℚ x r* ℤ->ℚ y
   ℤ->ℚ-preserves-* x y = cong [_] (nd-paths->path _ _ refl (sym *-left-one))
 
 
-abstract
+opaque
+  unfolding r-_
+
   ℤ->ℚ-preserves-minus : (x : Int) -> ℤ->ℚ (- x) == r- (ℤ->ℚ x)
   ℤ->ℚ-preserves-minus x = cong [_] refl
 
@@ -788,7 +841,7 @@ private
                          minus-double-inverse)) >=>
         sym *-assoc
 
-abstract
+opaque
   ℚ->split-ℤ : (q : ℚ) -> ∃[ n ∈ ℤ ] Σ[ d ∈ ℤ ] (NonZero d × (ℤ->ℚ n == q * ℤ->ℚ d))
   ℚ->split-ℤ =
     ℚ-elimProp (\_ -> squash) (\q' -> ∣ handle (ℚ'->split-ℤ q') ∣)
@@ -810,8 +863,9 @@ abstract
 
 
 
-private
-  abstract
+opaque
+  unfolding ℚ
+  private
     isNonZeroℚ' : ℚ -> hProp ℓ-zero
     isNonZeroℚ' =
       RationalElim.elim (\_ -> isSet-hProp) val preserved
@@ -829,12 +883,14 @@ private
         i .rightInv _ = int.isPropNonZero _ _
         i .leftInv _ = int.isPropNonZero _ _
 
-isNonZeroℚ : ℚ -> Type₀
-isNonZeroℚ r = fst (isNonZeroℚ' r)
-isProp-isNonZeroℚ : (r : ℚ) -> isProp (isNonZeroℚ r)
-isProp-isNonZeroℚ r = snd (isNonZeroℚ' r)
+  isNonZeroℚ : ℚ -> Type₀
+  isNonZeroℚ r = fst (isNonZeroℚ' r)
+  isProp-isNonZeroℚ : (r : ℚ) -> isProp (isNonZeroℚ r)
+  isProp-isNonZeroℚ r = snd (isNonZeroℚ' r)
 
-abstract
+opaque
+  unfolding isNonZeroℚ
+
   ¬isNonZeroℚ-0r : ¬ (isNonZeroℚ 0r)
   ¬isNonZeroℚ-0r b = int.NonZero->¬Zero b tt
 
@@ -847,18 +903,24 @@ abstract
 isNonZeroℚ->ℚInv : {r : ℚ} -> isNonZeroℚ r -> ℚInv r
 isNonZeroℚ->ℚInv nz p = ¬isNonZeroℚ-0r (subst isNonZeroℚ p nz)
 
-abstract
+opaque
+  unfolding isNonZeroℚ
+
   Pos'->NonZeroℚ : {n : Nat} -> Pos' n -> isNonZeroℚ (ℕ->ℚ n)
   Pos'->NonZeroℚ {n = (suc _)} _ = inj-l tt
 
-abstract
+opaque
+  unfolding isNonZeroℚ _r*_
+
   r*-isNonZeroℚ-isNonZeroℚ : (a b : ℚ) -> isNonZeroℚ a -> isNonZeroℚ b -> isNonZeroℚ (a r* b)
   r*-isNonZeroℚ-isNonZeroℚ =
     RationalElim.elimProp2 {C2 = \a b -> isNonZeroℚ a -> isNonZeroℚ b -> isNonZeroℚ (a r* b)}
       (\a b -> isPropΠ2 (\_ _ -> isProp-isNonZeroℚ (a r* b)))
       (\a b nza nzb -> int.*-NonZero-NonZero nza nzb)
 
-abstract
+opaque
+  unfolding isNonZeroℚ r1/
+
   r1/-isNonZeroℚ : (a : ℚ) -> (nz : isNonZeroℚ a) -> isNonZeroℚ (r1/ a (isNonZeroℚ->ℚInv nz))
   r1/-isNonZeroℚ =
     RationalElim.elimProp {C = \a -> (nz : isNonZeroℚ a) -> isNonZeroℚ (r1/ a (isNonZeroℚ->ℚInv nz))}
@@ -912,7 +974,9 @@ a r^ℤ (neg n) = r1/ (fst rec) (isNonZeroℚ->ℚInv (snd rec)) , r1/-isNonZero
 2r : ℚ
 2r = ℚ'->ℚ 2r'
 
-abstract
+opaque
+  unfolding _r+_
+
   2r-path-base : 1r r+ 1r == 2r
   2r-path-base = cong [_] (nd-paths->path _ _ n-path d-path)
     where
@@ -930,11 +994,17 @@ abstract
     sym (r*-distrib-r+-right 1r 1r q) >=>
     cong (_r* q) 2r-path-base
 
+opaque
+  unfolding _r*_
+
   2r-1/2r-path : 2r r* 1/2r == 1r
   2r-1/2r-path = eq/ (2r' r*' 1/2r') 1r' path
     where
     path : (((int 2) * (int 1)) * (int 1)) == (int 1) * ((int 1) * (int 2))
     path = *-commute >=> cong ((int 1) *_) *-commute
+
+opaque
+  unfolding _r*_ _r+_
 
   1/2r-path : (q : ℚ) -> (q r* 1/2r) r+ (q r* 1/2r) == q
   1/2r-path q = 2r-path (q r* 1/2r) >=> r*-commute 2r (q r* 1/2r) >=>
@@ -973,7 +1043,7 @@ abstract
     1/ℕ'-preserves-*-r~ =
       *-cong (sym *-left-one) (sym (Semiringʰ.preserves-* Semiringʰ-ℕ->ℤ ⟨ m ⟩ ⟨ n ⟩))
 
-abstract
+opaque
   ℚ->split-ℤ/ℕ : (q : ℚ) -> ∃[ n ∈ ℤ ] Σ[ d ∈ Nat⁺ ] (q == ℤ->ℚ n * 1/ℕ d)
   ℚ->split-ℤ/ℕ q = ∥-map handle (ℚ->split-ℤℕ⁺ q)
     where
@@ -1068,7 +1138,7 @@ private
   quotientℤ-multiple-path (int.neg _ , _) _ (int.zero-int , inj-l ())
   quotientℤ-multiple-path (int.neg _ , _) _ (int.zero-int , inj-r ())
 
-abstract
+opaque
   remainderℤ-NonNeg : (n : ℤ) (d : ℤ*) -> int.Pos ⟨ d ⟩ -> int.NonNeg (remainderℤ n d)
   remainderℤ-NonNeg n (int.pos _ , _) _ = int.NonNeg-nonneg _
 
@@ -1081,7 +1151,7 @@ abstract
 floor' : ℚ' -> ℤ
 floor' r = quotientℤ (numer r) (denom r , rNonZero r)
 
-abstract
+opaque
   floor'-r~ : (x y : ℚ') -> (x r~ y) -> floor' x == floor' y
   floor'-r~ x y r =
     quotientℤ-multiple-path dy* nx dx* >=>
@@ -1089,11 +1159,11 @@ abstract
     >=> sym (quotientℤ-multiple-path dx* ny dy*)
 
     where
-    module _ where
-      nx = numer x
-      ny = numer y
-      dx = denom x
-      dy = denom y
+    nx ny dx dy : ℤ
+    nx = numer x
+    ny = numer y
+    dx = denom x
+    dy = denom y
     dx* : ℤ*
     dx* = denom x , rNonZero x
     dy* : ℤ*
@@ -1112,7 +1182,7 @@ fractional-part' r = record
   ; NonZero-denominator = (rNonZero r)
   }
 
-abstract
+opaque
   fractional-part'-r+' : (q : ℚ') -> ℤ->ℚ' (floor' q) r+' (fractional-part' q) == q
   fractional-part'-r+' q = (\i -> record
     { numerator = np i
@@ -1135,11 +1205,11 @@ abstract
                                   (fractional-part' a r~ fractional-part' b)
   fractional-part'-preserves-r~ a b r = ans
     where
-    module _ where
-      na = numer a
-      nb = numer b
-      da = denom a
-      db = denom b
+    na nb da db : ℤ
+    na = numer a
+    nb = numer b
+    da = denom a
+    db = denom b
     da* : ℤ*
     da* = (da , rNonZero a)
     db* : ℤ*
@@ -1175,7 +1245,9 @@ abstract
     ans = *-left r-path-a >=> mid-path >=> *-left (sym r-path-b)
 
 
-abstract
+opaque
+  unfolding ℚ
+
   floor : ℚ -> ℤ
   floor = RationalElim.rec int.isSetInt floor' floor'-r~
 
@@ -1187,7 +1259,9 @@ abstract
                       (\a -> [ fractional-part' a ])
                       (\a b r -> eq/ _ _ (fractional-part'-preserves-r~ a b r))
 
-abstract
+opaque
+  unfolding _r+_ floor
+
   fractional-part-r+ : (q : ℚ) -> floorℚ q r+ (fractional-part q) == q
   fractional-part-r+ = RationalElim.elimProp (\_ -> (isSetℚ _ _))
                         (\q -> cong [_] (fractional-part'-r+' q))
