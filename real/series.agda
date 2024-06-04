@@ -136,15 +136,14 @@ squeeze-isConvergentSeries :
   isConvergentSeries s3 ->
   isConvergentSeries s2
 squeeze-isConvergentSeries {s1} {s2} {s3} ∀s1≤s2 ∀s2≤s3 (l1 , lim-part1) (l3 , lim-part3) =
-  isCauchy->isConvergentSequence (oneSidedCauchy->isCauchy cauchy)
+  isCauchy->isConvergentSequence (isCauchy'->isCauchy cauchy)
   where
   cauchy1 : isCauchy (partial-sums s1)
   cauchy1 = isConvergentSequence->isCauchy (l1 , lim-part1)
   cauchy3 : isCauchy (partial-sums s3)
   cauchy3 = isConvergentSequence->isCauchy (l3 , lim-part3)
 
-  cauchy : (ε : ℚ⁺) -> ∃[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> m₁ ≤ m₂ ->
-                                     εBounded ⟨ ε ⟩ (diff (partial-sums s2 m₁) (partial-sums s2 m₂)))
+  cauchy : isCauchy' (partial-sums s2)
   cauchy ε⁺@(ε , _) = ∥-map4 handle (cauchy1 ε⁺) (cauchy3 ε⁺) ∀s1≤s2 ∀s2≤s3
     where
     handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> n ≤ m₂ ->
@@ -153,13 +152,13 @@ squeeze-isConvergentSeries {s1} {s2} {s3} ∀s1≤s2 ∀s2≤s3 (l1 , lim-part1)
                            εBounded ε (diff (partial-sums s3 m₁) (partial-sums s3 m₂))) ->
              ∀Largeℕ' (\m -> s1 m ≤ s2 m) ->
              ∀Largeℕ' (\m -> s2 m ≤ s3 m) ->
-             Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> m₁ ≤ m₂ ->
-                           εBounded ε (diff (partial-sums s2 m₁) (partial-sums s2 m₂)))
+             ∀Largeℕ' (\m₁ -> (m₂ : Nat) -> m₁ ≤ m₂ ->
+                              εBounded ε (diff (partial-sums s2 m₁) (partial-sums s2 m₂)))
     handle (n1 , f1) (n3 , f3) (n12 , f12) (n23 , f23) = max (max n1 n3) (max n12 n23) , g
       where
-      g : (m₁ m₂ : Nat) -> max (max n1 n3) (max n12 n23) ≤ m₁ -> m₁ ≤ m₂ ->
+      g : (m₁ : Nat) -> max (max n1 n3) (max n12 n23) ≤ m₁ -> (m₂ : Nat) -> m₁ ≤ m₂ ->
           εBounded ε (diff (partial-sums s2 m₁) (partial-sums s2 m₂))
-      g m₁ m₂ max≤m₁ m₁≤m₂@(i , _) =
+      g m₁ max≤m₁ m₂ m₁≤m₂@(i , _) =
         subst (εBounded ε) (sym (diff-partial-sums s2 m₁ m₂ m₁≤m₂)) (lower , upper)
         where
         n1≤m₁ = trans-≤ max-≤-left (trans-≤ max-≤-left max≤m₁)
