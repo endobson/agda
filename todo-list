@@ -13,6 +13,7 @@ add rational/raw-interval
 stop using subst and use trans-=-≤
 max-property should not be implicit
 reduce usages of sign to order functions
+move ℚ-archimedian to better location/change name
 
 
 ---
@@ -24,8 +25,9 @@ Remove gcd constructor from GCD
 
 Change ℚ< and Posℚ to order2's version.
 -- Cleanup {_}s from that
+
 Remove bounds on operations that never need to provide them
--- ℚ->ℝ-preserves-≤
+-- Nothing currently
 
 Move midℚ to a rational directory.
 
