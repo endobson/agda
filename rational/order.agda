@@ -30,6 +30,7 @@ open import ring
 open import ring.implementations.int
 open import ring.implementations.rational
 open import semiring
+open import semiring.exponentiation
 open import sigma.base
 open import sign
 open import sign.instances.fraction
@@ -1146,23 +1147,23 @@ private
       m , trans-< -- {_} {_} {_} {1/ℕ (2⁺ ^⁺ m')} {1/ℕ m} {q'}
             (1/ℕ-flips-order m (2⁺ ^⁺ m') (2^n-large m')) lt
 
-small-1/2^ℕ : (q : ℚ⁺) -> ∃[ m ∈ Nat ] ((1/2r r^ℕ⁰ m) < ⟨ q ⟩)
+small-1/2^ℕ : (q : ℚ⁺) -> ∃[ m ∈ Nat ] ((1/2r ^ℕ m) < ⟨ q ⟩)
 small-1/2^ℕ q@(q' , _) = ∥-map handle (small-1/2^ℕ-step1 q)
   where
   handle : Σ[ m ∈ Nat⁺ ] (1/ℕ (2⁺ ^⁺ ⟨ m ⟩) < q') ->
-           Σ[ m ∈ Nat ] ((1/2r r^ℕ⁰ m) < q')
+           Σ[ m ∈ Nat ] ((1/2r ^ℕ m) < q')
   handle ((m , _) , lt) = m , subst (_< q') (1/2^ℕ-path m) lt
 
 
-small-1/2^ℕ' : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] ((1/2r r^ℕ⁰ ⟨ m ⟩) < ⟨ q ⟩)
+small-1/2^ℕ' : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] ((1/2r ^ℕ ⟨ m ⟩) < ⟨ q ⟩)
 small-1/2^ℕ' q@(q' , _) = ∥-map handle (small-1/2^ℕ-step1 q)
   where
   handle : Σ[ m ∈ Nat⁺ ] (1/ℕ (2⁺ ^⁺ ⟨ m ⟩) < q') ->
-           Σ[ m ∈ Nat⁺ ] ((1/2r r^ℕ⁰ ⟨ m ⟩) < q')
+           Σ[ m ∈ Nat⁺ ] ((1/2r ^ℕ ⟨ m ⟩) < q')
   handle (m⁺@(m , _) , lt) = m⁺ , subst (_< q') (1/2^ℕ-path m) lt
 
 
-ℚ-archimedian : (q1 q2 : ℚ⁺) -> ∃[ n ∈ Nat ] (((1/2r r^ℕ⁰ n) r* ⟨ q1 ⟩) < ⟨ q2 ⟩)
+ℚ-archimedian : (q1 q2 : ℚ⁺) -> ∃[ n ∈ Nat ] (((1/2r ^ℕ n) r* ⟨ q1 ⟩) < ⟨ q2 ⟩)
 ℚ-archimedian q1@(q1' , pos-q1) q2@(q2' , pos-q2) = ∥-map handle (small-1/2^ℕ q3)
   where
   iq1 : ℚInv q1'
@@ -1177,9 +1178,9 @@ small-1/2^ℕ' q@(q' , _) = ∥-map handle (small-1/2^ℕ-step1 q)
             cong (q2' r*_) (r1/-inverse q1' iq1) >=>
             r*-right-one q2'
 
-  handle : Σ[ m ∈ Nat ] ((1/2r r^ℕ⁰ m) < q3') ->
-           Σ[ m ∈ Nat ] (((1/2r r^ℕ⁰ m) r* q1') < q2')
-  handle (m , lt) = m , subst (((1/2r r^ℕ⁰ m) r* q1') <_) q3-path lt2
+  handle : Σ[ m ∈ Nat ] ((1/2r ^ℕ m) < q3') ->
+           Σ[ m ∈ Nat ] (((1/2r ^ℕ m) r* q1') < q2')
+  handle (m , lt) = m , subst (((1/2r ^ℕ m) r* q1') <_) q3-path lt2
     where
-    lt2 : ((1/2r r^ℕ⁰ m) r* q1') < (q3' r* q1')
+    lt2 : ((1/2r ^ℕ m) r* q1') < (q3' r* q1')
     lt2 = *₂-preserves-< lt pos-q1

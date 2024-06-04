@@ -381,7 +381,7 @@ private
       (Archimedian-ℝ : {a b : ℝ} -> (0# < b) -> ∃[ n ∈ Nat ] (a < (ℚ->ℝ (ℕ->ℚ n) * b)))
       (Archimedian-ℚ : {a b : ℚ} -> (0# < b) -> ∃[ n ∈ Nat ] (a < ((ℕ->ℚ n) * b)))
       (Archimedian-ℚ' : {a b : ℚ} -> (0# < a) -> (0# < b) -> (b < 1#) ->
-                        ∃[ n ∈ Nat ] ((b r^ℕ b n) < a))
+                        ∃[ n ∈ Nat ] ((b ^ℕ b n) < a))
 
       where
       1/2^n=1/2ℝ^n : (n : Nat) -> ℚ->ℝ (1/ℕ (2 ^' n , ^'-Pos' tt n)) == geometric-sequence 1/2ℝ n

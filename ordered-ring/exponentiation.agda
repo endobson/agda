@@ -126,10 +126,10 @@ module _
 
     from-<>0 : (x <> 0#) ⊎ (y <> 0#) -> 0# < ((y ^ℕ n) + ((- x) ^ℕ n))
     from-<>0 (inj-l x<>0) =
-      trans-<-≤ (trans-<-= (^ℕ-even-0< x<>0 n osn) (sym (minus-^ℕ-even x n osn) >=> sym +-left-zero))
+      trans-<-≤ (trans-<-= (^ℕ-<>0-even-0< x<>0 n osn) (sym (minus-^ℕ-even x n osn) >=> sym +-left-zero))
                 (+₂-preserves-≤ (^ℕ-even-0≤ y n osn))
     from-<>0 (inj-r y<>0) =
-      trans-<-≤ (trans-<-= (^ℕ-even-0< y<>0 n osn) (sym +-right-zero))
+      trans-<-≤ (trans-<-= (^ℕ-<>0-even-0< y<>0 n osn) (sym +-right-zero))
                 (+₁-preserves-≤ (^ℕ-even-0≤ (- x) n osn))
 
     transform : x <> y -> 0# < ((y ^ℕ n) + ((- x) ^ℕ n))

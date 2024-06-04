@@ -12,16 +12,16 @@ open import integral-domain.instances.real
 open import nat
 open import nat.order
 open import order
+open import order.instances.nat
 open import order.instances.rational
 open import order.instances.real
-open import order.instances.nat
 open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
-open import ordered-semiring.archimedean
 open import ordered-ring.absolute-value
 open import ordered-semiring
+open import ordered-semiring.archimedean
 open import ordered-semiring.archimedean.instances.real
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
@@ -32,31 +32,28 @@ open import rational
 open import rational.integral-domain
 open import rational.order
 open import real
-open import real.epsilon-bounded
 open import real.arithmetic.rational
+open import real.epsilon-bounded
 open import real.rational
-open import real.series
-open import real.sequence.ratio-test
 open import real.sequence.absolute-convergence
 open import real.sequence.limit
+open import real.sequence.ratio-test
+open import real.series
 open import ring.implementations.real
 open import semiring
-open import sigma.base
+open import semiring.exponentiation
 open import semiring.initial
 open import sequence
 open import sequence.partial-sums
+open import sigma.base
 open import truncation
 
 private
   Seq : Type₁
   Seq = Sequence ℝ
 
-  ℝ^ℕ : ℝ -> ℕ -> ℝ
-  ℝ^ℕ x zero = 1#
-  ℝ^ℕ x (suc n) = x * (ℝ^ℕ x n)
-
   exponential-sequence : ℝ -> Seq
-  exponential-sequence x n = (ℝ^ℕ x n) * ℚ->ℝ (1/ℕ (factorial⁺ n))
+  exponential-sequence x n = (x ^ℕ n) * ℚ->ℝ (1/ℕ (factorial⁺ n))
 
   exponential-ratios : ℝ -> Seq
   exponential-ratios x n = x * ℚ->ℝ (1/ℕ (suc n , tt))

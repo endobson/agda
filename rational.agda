@@ -22,6 +22,7 @@ open import relation
 open import ring
 open import ring.implementations.int
 open import semiring
+open import semiring.exponentiation
 open import set-quotient
 open import sigma.base
 open import truncation
@@ -879,10 +880,6 @@ abstract
 NonZeroℚ : Type₀
 NonZeroℚ = Σ ℚ isNonZeroℚ
 
-_r^ℕ⁰_ : ℚ -> ℕ -> ℚ
-a r^ℕ⁰ zero = 1r
-a r^ℕ⁰ (suc n) = a r* (a r^ℕ⁰ n)
-
 _r^ℕ_ : NonZeroℚ -> ℕ -> NonZeroℚ
 a r^ℕ zero = 1r , isNonZeroℚ-1r
 a r^ℕ (suc n) = (fst a) r* (fst rec) , r*-isNonZeroℚ-isNonZeroℚ (fst a) (fst rec) (snd a) (snd rec)
@@ -977,7 +974,7 @@ abstract
   1/ℕ-ℕ-path : (n : Nat⁺) -> (1/ℕ n) r* (ℕ->ℚ ⟨ n ⟩) == 1r
   1/ℕ-ℕ-path n = eq/ _ _ (1/ℕ-ℕ-r~ n)
 
-  1/2^ℕ-path : (n : Nat) -> 1/ℕ (2⁺ ^⁺ n) == 1/2r r^ℕ⁰ n
+  1/2^ℕ-path : (n : Nat) -> 1/ℕ (2⁺ ^⁺ n) == 1/2r ^ℕ n
   1/2^ℕ-path zero = refl
   1/2^ℕ-path (suc n) = 1/2ℕ-path (2⁺ ^⁺ n) >=> cong (1/2r r*_) (1/2^ℕ-path n)
 

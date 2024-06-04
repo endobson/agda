@@ -20,6 +20,7 @@ open import order.instances.nat
 open import order.minmax.instances.real
 open import ordered-additive-group.absolute-value
 open import ordered-semiring
+open import ordered-semiring.exponentiation
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
 open import ordered-ring.absolute-value
@@ -37,6 +38,7 @@ open import real.sequence.absolute-convergence
 open import real.sequence.limit.arithmetic
 open import ring.implementations.real
 open import semiring
+open import semiring.exponentiation
 open import sum
 open import sequence
 open import truncation
@@ -47,10 +49,6 @@ private
   Seq = Sequence ℝ
   ℝ⁺ : Type₁
   ℝ⁺ = Σ ℝ (0# <_)
-
-private
-  _ℝ^ℕ_ : ℝ -> ℕ -> ℝ
-  _ℝ^ℕ_ = geometric-sequence
 
 record isRatioSeq (s1 s2 : Seq) : Type₁ where
   field
@@ -70,9 +68,9 @@ module _ where
       ∥-map handle2 (Archimedean-ℚ' (ε' , U->ℚ< 0U-ε') y (weaken-< (U->ℚ< (trans-ℝ≤-U 0≤x xU-y)))
                                     (L->ℚ< 1L-y))
       where
-      handle2 : Σ[ m ∈ ℕ ] (y ℚ^ℕ m) < ε' -> Σ[ m ∈ ℕ ] (geometric-sequence x m) < ε
+      handle2 : Σ[ m ∈ ℕ ] (y ^ℕ m) < ε' -> Σ[ m ∈ ℕ ] (geometric-sequence x m) < ε
       handle2 (m , y^m<ε') = m ,
-        trans-≤-< (trans-≤-= (ℝ^ℕ-preserves-≤ 0≤x (weaken-< (U->ℝ< xU-y)) m)
+        trans-≤-< (trans-≤-= (^ℕ-0≤-preserves-≤ 0≤x (weaken-< (U->ℝ< xU-y)) m)
                              (sym (ℚ^ℕ-ℝ^ℕ-path m)))
                   (trans-< (ℚ->ℝ-preserves-< _ _ y^m<ε') (L->ℝ< εL-ε'))
 
@@ -112,7 +110,7 @@ module _ where
         handle : ∀Largeℕ' (\i -> abs (s2 i) < l2) -> ∀Largeℕ (\i -> abs (s1 i) ≤ upperSeq i)
         handle (n , as2<l2) = p9
           where
-          p1 : (m : ℕ) -> (lt : n ≤ m) -> abs (s1 m) ≤ (abs (s1 n) * l2 ℝ^ℕ ⟨ lt ⟩)
+          p1 : (m : ℕ) -> (lt : n ≤ m) -> abs (s1 m) ≤ (abs (s1 n) * l2 ^ℕ ⟨ lt ⟩)
           p1 m (zero , path) = path-≤ (cong (abs ∘ s1) (sym path) >=> sym *-right-one)
           p1 zero (suc n , path) = zero-suc-absurd (sym path)
           p1 (suc m) (suc i , path) =
@@ -144,7 +142,7 @@ module _ where
           asn : ℝ
           asn = abs (s1 n)
           ln : ℝ
-          ln = (l' ℝ^ℕ n)
+          ln = (l' ^ℕ n)
           0<ln : 0# < ln
           0<ln = geometric-sequence-0< 0<l' n
           1/ln = ℝ1/ ln (inj-r 0<ln)
@@ -152,37 +150,37 @@ module _ where
           k : ℝ
           k = asn * 1/ln
 
-          l2-r-path : (i : ℕ) -> l2 ℝ^ℕ i == l' ℝ^ℕ i * r ℝ^ℕ i
+          l2-r-path : (i : ℕ) -> l2 ^ℕ i == l' ^ℕ i * r ^ℕ i
           l2-r-path i =
-            cong (_ℝ^ℕ i) (sym *-right-one >=> *-right (sym (ℝ1/-inverse l' (inj-r 0<l'))) >=>
+            cong (_^ℕ i) (sym *-right-one >=> *-right (sym (ℝ1/-inverse l' (inj-r 0<l'))) >=>
                            sym *-assoc >=> *-commute) >=>
             (ℝ^ℕ-distrib-*-right i)
 
           asnl2-path : (m : ℕ) -> (lt : n ≤ m) ->
-                       (abs (s1 n) * l2 ℝ^ℕ ⟨ lt ⟩) == (k * r ℝ^ℕ ⟨ lt ⟩) * (l' ℝ^ℕ m)
+                       (abs (s1 n) * l2 ^ℕ ⟨ lt ⟩) == (k * r ^ℕ ⟨ lt ⟩) * (l' ^ℕ m)
           asnl2-path m (i , p) =
             *-cong (sym *-right-one >=> *-right (sym (ℝ1/-inverse ln (inj-r 0<ln))) >=>
                     sym *-assoc)
                    (l2-r-path i >=> *-commute) >=>
             *-swap >=>
             *-right (*-commute >=> sym (ℝ^ℕ-distrib-+-left i n) >=>
-                     cong (l' ℝ^ℕ_) p)
+                     cong (l' ^ℕ_) p)
 
-          p2 : (m : ℕ) -> (lt : n ≤ m) -> abs (s1 m) ≤ ((k * r ℝ^ℕ ⟨ lt ⟩) * (l' ℝ^ℕ m))
+          p2 : (m : ℕ) -> (lt : n ≤ m) -> abs (s1 m) ≤ ((k * r ^ℕ ⟨ lt ⟩) * (l' ^ℕ m))
           p2 m lt = trans-≤-= (p1 m lt) (asnl2-path m lt)
 
 
           module _ (0<k : 0# < k) where
             k-inv = (inj-r 0<k)
             1/k = ℝ1/ k k-inv
-            module _ (ri : ℕ) (r< : (r ℝ^ℕ ri) < 1/k) where
-              p3 : (m : ℕ) -> (n≤m : n ≤ m) (ri≤i : ri ≤ ⟨ n≤m ⟩) -> (k * r ℝ^ℕ ⟨ n≤m ⟩) < 1#
+            module _ (ri : ℕ) (r< : (r ^ℕ ri) < 1/k) where
+              p3 : (m : ℕ) -> (n≤m : n ≤ m) (ri≤i : ri ≤ ⟨ n≤m ⟩) -> (k * r ^ℕ ⟨ n≤m ⟩) < 1#
               p3 m (i , p) ri≤i =
                 trans-≤-< (*₁-preserves-≤ (weaken-< 0<k)
                              (geometric-sequence-≤1 (weaken-< 0<r) (weaken-< r<1) _ _ ri≤i))
                           (trans-<-= (*₁-preserves-< 0<k r<) (*-commute >=> ℝ1/-inverse k k-inv))
 
-              p4 : (m : ℕ) -> (ri+n≤m : (ri + n) ≤ m) -> abs (s1 m) ≤ (l' ℝ^ℕ m)
+              p4 : (m : ℕ) -> (ri+n≤m : (ri + n) ≤ m) -> abs (s1 m) ≤ (l' ^ℕ m)
               p4 m (i , p) =
                 weaken-<
                   (trans-≤-<
@@ -195,20 +193,20 @@ module _ where
                 ri≤i' : ri ≤ ⟨ n≤m ⟩
                 ri≤i' = i , refl
 
-              p5 : ∀Largeℕ (\i -> abs (s1 i) ≤ (l' ℝ^ℕ i))
+              p5 : ∀Largeℕ (\i -> abs (s1 i) ≤ (l' ^ℕ i))
               p5 = ∣ ri + n , p4 ∣
 
-            p6 : ∀Largeℕ (\i -> abs (s1 i) ≤ (l' ℝ^ℕ i))
+            p6 : ∀Largeℕ (\i -> abs (s1 i) ≤ (l' ^ℕ i))
             p6 = ∥-bind handle-p6 (Archimedean-ℝ' (1/k , ℝ1/-preserves-0< k k-inv 0<k)
                                                   r (weaken-< 0<r) r<1)
               where
               -- TODO add uncurry and use it here
               handle-p6 : Σ[ m ∈ ℕ ] (geometric-sequence r m) < 1/k ->
-                          ∀Largeℕ (\i -> abs (s1 i) ≤ (l' ℝ^ℕ i))
+                          ∀Largeℕ (\i -> abs (s1 i) ≤ (l' ^ℕ i))
               handle-p6 (i , r^i<1/k) = p5 i r^i<1/k
 
           module _ (k<1 : k < 1#) where
-            p7 : (m : ℕ) -> (lt : n ≤ m) -> abs (s1 m) ≤ (l' ℝ^ℕ m)
+            p7 : (m : ℕ) -> (lt : n ≤ m) -> abs (s1 m) ≤ (l' ^ℕ m)
             p7 m n≤m@(i , _) =
               weaken-<
                 (trans-≤-< (p2 m n≤m)
@@ -218,10 +216,10 @@ module _ where
                                  (trans-=-≤ *-left-one (geometric-sequence-≤1' 0≤r r≤1 i)))
                       (geometric-sequence-0< 0<l' m))
                     *-left-one))
-            p8 : ∀Largeℕ (\i -> abs (s1 i) ≤ (l' ℝ^ℕ i))
+            p8 : ∀Largeℕ (\i -> abs (s1 i) ≤ (l' ^ℕ i))
             p8 = ∣ n , p7 ∣
 
-          p9 : ∀Largeℕ (\i -> abs (s1 i) ≤ (l' ℝ^ℕ i))
+          p9 : ∀Largeℕ (\i -> abs (s1 i) ≤ (l' ^ℕ i))
           p9 = ∥-bind (either p6 p8) (comparison-< _ k _ (ℚ->ℝ-preserves-< _ _ Pos-1r))
 
       p10 : isAbsConvergentSeries s1

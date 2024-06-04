@@ -20,6 +20,31 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Re
          {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
          {{COS : CompatibleOrderStr LO PO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
+         {{POS : PartiallyOrderedSemiringStr S PO}} where
+  private
+    instance
+      IACM = ACM
+      ILO = LO
+      IPO = PO
+      IS = S
+
+  opaque
+    ^ℕ-preserves-0≤ : {x : D} -> 0# ≤ x -> (n : Nat) -> 0# ≤ (x ^ℕ n)
+    ^ℕ-preserves-0≤ 0≤x zero = 0≤1
+    ^ℕ-preserves-0≤ 0≤x (suc n) = *-preserves-0≤ 0≤x (^ℕ-preserves-0≤ 0≤x n)
+
+    ^ℕ-0≤-preserves-≤ : {x y : D} -> 0# ≤ x -> x ≤ y -> (n : Nat) -> (x ^ℕ n) ≤ (y ^ℕ n)
+    ^ℕ-0≤-preserves-≤ 0≤x x≤y zero = refl-≤
+    ^ℕ-0≤-preserves-≤ 0≤x x≤y (suc n) =
+      trans-≤ (*₁-preserves-≤ 0≤x (^ℕ-0≤-preserves-≤ 0≤x x≤y n))
+              (*₂-preserves-≤ x≤y (^ℕ-preserves-0≤ (trans-≤ 0≤x x≤y) n))
+
+
+module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{COS : CompatibleOrderStr LO PO}}
+         {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{POS : PartiallyOrderedSemiringStr S PO}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}} where
   private
@@ -29,10 +54,12 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Re
       IPO = PO
       IS = S
 
-  ^ℕ-even-0≤ : (x : D) (n : Nat) -> Even n -> 0# ≤ (x ^ℕ n)
-  ^ℕ-even-0≤ x zero          _ = 0≤1
-  ^ℕ-even-0≤ x (suc (suc n)) e =
-    trans-≤-= (*-preserves-0≤ (convert-≮ square-≮0) (^ℕ-even-0≤ x n e)) *-assoc
+  opaque
+    ^ℕ-even-0≤ : (x : D) (n : Nat) -> Even n -> 0# ≤ (x ^ℕ n)
+    ^ℕ-even-0≤ x zero          _ = 0≤1
+    ^ℕ-even-0≤ x (suc (suc n)) e =
+      trans-≤-= (*-preserves-0≤ (convert-≮ square-≮0) (^ℕ-even-0≤ x n e)) *-assoc
+
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
          {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
@@ -45,11 +72,16 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
       ILO = LO
       IS = S
 
-  ^ℕ-preserves-<>0 : {x : D} -> x <> 0# -> (n : Nat) -> (x ^ℕ n) <> 0#
-  ^ℕ-preserves-<>0 x<>0 (suc n) =
-    eqFun *-<>0-equiv (x<>0 , ^ℕ-preserves-<>0 x<>0 n)
-  ^ℕ-preserves-<>0 (inj-l x<0) zero = inj-r (non-trivial-0<1 x<0)
-  ^ℕ-preserves-<>0 (inj-r 0<x) zero = inj-r (non-trivial-0<1 0<x)
+  opaque
+    ^ℕ-preserves-0< : {x : D} -> 0# < x -> (n : Nat) -> 0# < (x ^ℕ n)
+    ^ℕ-preserves-0< 0<x zero = non-trivial-0<1 0<x
+    ^ℕ-preserves-0< 0<x (suc n) = *-preserves-0< 0<x (^ℕ-preserves-0< 0<x n)
+
+    ^ℕ-preserves-<>0 : {x : D} -> x <> 0# -> (n : Nat) -> (x ^ℕ n) <> 0#
+    ^ℕ-preserves-<>0 x<>0 (suc n) =
+      eqFun *-<>0-equiv (x<>0 , ^ℕ-preserves-<>0 x<>0 n)
+    ^ℕ-preserves-<>0 (inj-l x<0) zero = inj-r (non-trivial-0<1 x<0)
+    ^ℕ-preserves-<>0 (inj-r 0<x) zero = inj-r (non-trivial-0<1 0<x)
 
   module _ where
     private
@@ -58,12 +90,14 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
         CPO = CompatibleNegatedLinearOrder LO
         POS = PartiallyOrderedSemiringStr-Negated S LO
 
-    ^ℕ-even-0< : {x : D} -> x <> 0# -> (n : Nat) -> Even n -> 0# < (x ^ℕ n)
-    ^ℕ-even-0< x<>0 n en =
-      proj-¬l (^ℕ-preserves-<>0 x<>0 n) (convert-≤ (^ℕ-even-0≤ _ n en))
+    opaque
+      ^ℕ-<>0-even-0< : {x : D} -> x <> 0# -> (n : Nat) -> Even n -> 0# < (x ^ℕ n)
+      ^ℕ-<>0-even-0< x<>0 n en =
+        proj-¬l (^ℕ-preserves-<>0 x<>0 n) (convert-≤ (^ℕ-even-0≤ _ n en))
 
-  ^ℕ-odd-0< : {x : D} -> 0# < x -> (n : Nat) -> Odd n -> 0# < (x ^ℕ n)
-  ^ℕ-odd-0< 0<x (suc n) on = *-preserves-0< 0<x (^ℕ-even-0< (inj-r 0<x) n on)
+      ^ℕ-<0-even-0< : {x : D} -> x < 0# -> (n : Nat) -> Even n -> 0# < (x ^ℕ n)
+      ^ℕ-<0-even-0< x<0 = ^ℕ-<>0-even-0< (inj-l x<0)
 
-  ^ℕ-odd-<0 : {x : D} -> x < 0# -> (n : Nat) -> Odd n -> (x ^ℕ n) < 0#
-  ^ℕ-odd-<0 x<0 (suc n) on = *₂-preserves-<0 x<0 (^ℕ-even-0< (inj-l x<0) n on)
+  opaque
+    ^ℕ-<0-odd-<0 : {x : D} -> x < 0# -> (n : Nat) -> Odd n -> (x ^ℕ n) < 0#
+    ^ℕ-<0-odd-<0 x<0 (suc n) on = *₂-preserves-<0 x<0 (^ℕ-<0-even-0< x<0 n on)

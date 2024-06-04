@@ -25,6 +25,7 @@ open import relation hiding (U)
 open import ring
 open import ring.implementations.rational
 open import semiring
+open import semiring.exponentiation
 open import sign
 open import sign.instances.rational
 open import truncation
@@ -207,14 +208,14 @@ strengthen-centered-ball x e b@(q , l-p1 , u-p5) =
 
 private
   repeated-strengthen-centered-ball :
-    (x : ℝ) (ε : ℚ) (n : ℕ) -> CenteredBall x ε -> ∥ CenteredBall x ((1/2r r^ℕ⁰ n) r* ε) ∥
+    (x : ℝ) (ε : ℚ) (n : ℕ) -> CenteredBall x ε -> ∥ CenteredBall x ((1/2r ^ℕ n) r* ε) ∥
   repeated-strengthen-centered-ball x e zero b = ∣ subst (CenteredBall x) (sym (r*-left-one e)) b ∣
   repeated-strengthen-centered-ball x e (suc n) b =
     ∥-bind handle (repeated-strengthen-centered-ball x e n b)
     where
-    handle : CenteredBall x ((1/2r r^ℕ⁰ n) r* e) -> ∥ CenteredBall x ((1/2r r^ℕ⁰ (suc n)) r* e) ∥
+    handle : CenteredBall x ((1/2r ^ℕ n) r* e) -> ∥ CenteredBall x ((1/2r ^ℕ (suc n)) r* e) ∥
     handle b = subst (\z -> ∥ (CenteredBall x z) ∥)
-                 (sym (r*-assoc 1/2r (1/2r r^ℕ⁰ n) e))
+                 (sym (r*-assoc 1/2r (1/2r ^ℕ n) e))
                  (strengthen-centered-ball x _ b)
 
   initial-centered-ball : (x : ℝ) -> ∃[ ε ∈ ℚ ] (CenteredBall x ε)
@@ -232,10 +233,10 @@ find-centered-ball x e1⁺@(e1 , _) = ∥-bind handle (initial-centered-ball x)
   handle : Σ[ e2 ∈ ℚ ] (CenteredBall x e2) -> ∥ CenteredBall x e1 ∥
   handle (e2 , b) = ∥-bind handle2 (ℚ-archimedian (e2 , centered-ball->Pos-ε x e2 b) e1⁺)
     where
-    handle2 : (Σ[ n ∈ Nat ] (((1/2r r^ℕ⁰ n) r* e2) < e1)) -> ∥ CenteredBall x e1 ∥
+    handle2 : (Σ[ n ∈ Nat ] (((1/2r ^ℕ n) r* e2) < e1)) -> ∥ CenteredBall x e1 ∥
     handle2 (n , lt) = ∥-map handle3 (repeated-strengthen-centered-ball x e2 n b)
       where
-      handle3 : CenteredBall x ((1/2r r^ℕ⁰ n) r* e2) -> CenteredBall x e1
+      handle3 : CenteredBall x ((1/2r ^ℕ n) r* e2) -> CenteredBall x e1
       handle3 b2 = weaken-centered-ball x _ _ lt b2
 
 find-open-ball : (x : ℝ) -> (ε : ℚ⁺) -> ∥ OpenBall x ⟨ ε ⟩ ∥
