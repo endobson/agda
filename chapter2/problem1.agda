@@ -34,6 +34,7 @@ open import order.instances.nat
 open import order.instances.rational
 open import prime
 open import rational
+open import rational.integer
 open import rational.order
 open import rational-prime
 open import ring
