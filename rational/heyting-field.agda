@@ -17,6 +17,7 @@ open import order.instances.rational
 open import rational
 open import rational.order
 open import relation
+open import ring
 open import semiring
 open import sign
 open import sign.instances.rational
@@ -25,7 +26,7 @@ open import truncation
 open import univalence
 
 private
-  open RationalRing using (isUnit ; is-unit ; isProp-isUnit)
+  open Ring Ring-ℚ using (isUnit ; is-unit ; isProp-isUnit)
 
   f#-path-ℚ : {x y : ℚ} -> (isUnit (diff x y)) == (x # y)
   f#-path-ℚ {x} {y} = isoToPath (isProp->iso forward backward isProp-isUnit isProp-#)
@@ -49,7 +50,7 @@ private
                                 (inj-r (r--flips-sign _ pos-sign (Pos-diffℚ y x y<x)))) Zero-0r
 
 instance
-  RationalField : Field RationalRing isTightApartness-ℚ#
+  RationalField : Field Ring-ℚ isTightApartness-ℚ#
   RationalField = record
     { f#-path = funExt2 (\x y -> f#-path-ℚ)
     }

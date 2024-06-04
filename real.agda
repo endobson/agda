@@ -23,23 +23,23 @@ private
     ℓ : Level
 
 
-isLowerSet : Pred Rational ℓ -> Type ℓ
-isLowerSet L = {x y : Rational} -> x < y -> L y -> L x
+isLowerSet : Pred ℚ ℓ -> Type ℓ
+isLowerSet L = {x y : ℚ} -> x < y -> L y -> L x
 
-isUpperSet : Pred Rational ℓ -> Type ℓ
-isUpperSet U = {x y : Rational} -> x < y -> U x -> U y
+isUpperSet : Pred ℚ ℓ -> Type ℓ
+isUpperSet U = {x y : ℚ} -> x < y -> U x -> U y
 
-isLowerOpen : Pred Rational ℓ -> Type ℓ
-isLowerOpen U = (x : Rational) -> U x -> ∃[ y ∈ Rational ] (y < x × U y)
+isLowerOpen : Pred ℚ ℓ -> Type ℓ
+isLowerOpen U = (x : ℚ) -> U x -> ∃[ y ∈ ℚ ] (y < x × U y)
 
-isUpperOpen : Pred Rational ℓ -> Type ℓ
-isUpperOpen L = (x : Rational) -> L x -> ∃[ y ∈ Rational ] (x < y × L y)
+isUpperOpen : Pred ℚ ℓ -> Type ℓ
+isUpperOpen L = (x : ℚ) -> L x -> ∃[ y ∈ ℚ ] (x < y × L y)
 
 record Real (ℓ : Level) : Type (ℓ-suc ℓ) where
   no-eta-equality ; pattern
   field
-    L : Pred Rational ℓ
-    U : Pred Rational ℓ
+    L : Pred ℚ ℓ
+    U : Pred ℚ ℓ
     isProp-L : isPropValuedPred L
     isProp-U : isPropValuedPred U
     Inhabited-L : Inhabited L
@@ -49,7 +49,7 @@ record Real (ℓ : Level) : Type (ℓ-suc ℓ) where
     isUpperOpen-L : isUpperOpen L
     isLowerOpen-U : isLowerOpen U
     disjoint : Universal (Comp (L ∩ U))
-    located : (x y : Rational) -> x < y -> ∥ L x ⊎ U y ∥
+    located : (x y : ℚ) -> x < y -> ∥ L x ⊎ U y ∥
 
 ℝ = Real ℓ-zero
 
@@ -149,10 +149,10 @@ abstract
     ; isLowerOpen-U =
       isProp->PathPᵉ isProp-isLowerOpen (Real.isLowerOpen-U x) (Real.isLowerOpen-U y) i
     ; disjoint =
-      isProp->PathPᵉ {B = \i -> (q : Rational) -> (lp q i) × (up q i) -> Bot}
+      isProp->PathPᵉ {B = \i -> (q : ℚ) -> (lp q i) × (up q i) -> Bot}
         (\i -> isPropΠ2 (\ _ _ -> isPropBot)) (Real.disjoint x) (Real.disjoint y) i
     ; located =
-      isProp->PathPᵉ {B = \i -> (q r : Rational) -> (q < r) -> ∥ lp q i ⊎ up r i ∥}
+      isProp->PathPᵉ {B = \i -> (q r : ℚ) -> (q < r) -> ∥ lp q i ⊎ up r i ∥}
         (\i -> isPropΠ3 (\ _ _ _ -> squash)) (Real.located x) (Real.located y) i
     })
     where

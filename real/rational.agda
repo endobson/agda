@@ -60,7 +60,7 @@ abstract
         lt2 : (q1 r+ 1r) > q1
         lt2 = subst ((q1 r+ 1r) >_) (r+-right-zero q1) lt1
 
-      located : (q2 q3 : Rational) -> q2 < q3 -> ∥ q2 < q1 ⊎ q1 < q3 ∥
+      located : (q2 q3 : ℚ) -> q2 < q3 -> ∥ q2 < q1 ⊎ q1 < q3 ∥
       located q2 q3 lt = ∥-map handle (dense-< {q2} {q3} lt)
         where
         handle : Σ[ z ∈ ℚ ] (q2 < z × z < q3) -> q2 < q1 ⊎ q1 < q3

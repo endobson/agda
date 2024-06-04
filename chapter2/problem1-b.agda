@@ -2,36 +2,39 @@
 
 module chapter2.problem1-b where
 
+open import base
+open import chapter2.prime-divisors
+open import chapter2.totient
+open import chapter2.totient-rational
+open import div
+open import equality
+open import equivalence
+open import finite-commutative-monoid
+open import finite-product
+open import functions
+open import int
+open import isomorphism
 open import nat
+open import nat.even-odd
 open import nat.order
 open import order
 open import order.instances.nat
 open import ordered-semiring
 open import ordered-semiring.instances.nat
-open import equality
-open import isomorphism
-open import base
-open import div
-open import equivalence
-open import relatively-prime
 open import prime
 open import prime-gcd
-open import finite-product
-open import finite-commutative-monoid
 open import rational
-open import functions
-open import int
 open import rational-prime
-open import semiring
-open import sigma
-open import semiring.instances.nat
+open import relatively-prime
+open import ring
 open import ring.implementations.rational
-open import nat.even-odd
-open import chapter2.totient
-open import chapter2.totient-rational
-open import chapter2.prime-divisors
+open import semiring
+open import semiring.instances.nat
+open import sigma
 
 private
+  module Ring-ℚ = Ring Ring-ℚ
+
   Injective-ℕ->ℚ : Injective ℕ->ℚ
   Injective-ℕ->ℚ = ∘-Injective Injective-ℤ->ℚ nonneg-injective
 
@@ -73,9 +76,9 @@ problem1-b n⁺@(n , _) =
     p1 = existential-eq same-pdivs
 
     p2 : (finiteProduct (FinSet-PrimeDivisor (2⁺ *⁺ n⁺))
-           (\(p , _) -> (1r r+ (r- (fst (RationalRing.u1/ (ℚUnit-prime p))))))) ==
+           (\(p , _) -> (1r r+ (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime p))))))) ==
          (finiteProduct (FinSet-PrimeDivisor n⁺)
-           (\(p , _) -> (1r r+ (r- (fst (RationalRing.u1/ (ℚUnit-prime p)))))))
+           (\(p , _) -> (1r r+ (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime p)))))))
     p2 = finiteMergeᵉ-convert _ _ _ (equiv⁻¹ p1) _
 
     p3 : φℚ (2⁺ *⁺ n⁺) == 2r * φℚ n⁺

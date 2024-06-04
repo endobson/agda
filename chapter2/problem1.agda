@@ -43,6 +43,8 @@ open import semiring.instances.nat
 open import sigma.base
 open import without-point
 
+private
+  module Ring-ℚ = Ring Ring-ℚ
 
 problem1-a : (n : Nat⁺) -> (φ (2⁺ *⁺ n) == ⟨ n ⟩) ≃ (Σ[ i ∈ ℕ ] (2⁺ ^⁺ i == n))
 problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat _ _) isProp-Σ2^i)
@@ -80,16 +82,16 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
     handle zero (suc j)    p = bot-elim (2i!=1 (2 ^' j) (sym p))
     handle (suc i) (suc j) p = cong suc (handle i j (*'-left-injective 2⁺ p))
 
-  path-half : (fst (RationalRing.u1/ (ℚUnit-prime (2 , 2-is-prime)))) == 1/2r
+  path-half : (fst (Ring-ℚ.u1/ (ℚUnit-prime (2 , 2-is-prime)))) == 1/2r
   path-half =
     sym *-right-one >=>
     *-right (sym 2r-1/2r-path) >=>
     sym *-assoc >=>
-    *-left (cong fst (RationalRing.u1/-left-inverse {x = (ℚUnit-prime (2 , 2-is-prime))})) >=>
+    *-left (cong fst (Ring-ℚ.u1/-left-inverse {x = (ℚUnit-prime (2 , 2-is-prime))})) >=>
     *-left-one
 
   path-half2 :
-    (1r + (r- (fst (RationalRing.u1/ (ℚUnit-prime (2 , 2-is-prime)))))) == 1/2r
+    (1r + (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime (2 , 2-is-prime)))))) == 1/2r
   path-half2 =
     +-cong (sym 1/2r-1/2r-path) (cong -_ path-half) >=>
     +-assoc >=> +-right +-inverse >=> +-right-zero
@@ -125,7 +127,7 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
   φℚ-path3 : φℚ (2⁺ *⁺ n⁺) ==
              (ℕ->ℚ n) *
              (finiteProduct (FinSet-WithoutPoint (FinSet-PrimeDivisor (2⁺ *⁺ n⁺)) PrimeDivisor2n-2)
-               (\((p , _) , _) -> (1r r+ (r- (fst (RationalRing.u1/ (ℚUnit-prime p)))))))
+               (\((p , _) , _) -> (1r r+ (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime p)))))))
   φℚ-path3 =
     φℚ-finiteProduct >=>
     *-cong (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ 2 n)
@@ -137,16 +139,16 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
   forward : (φ (2⁺ *⁺ n⁺) == n) -> (Σ[ i ∈ ℕ ] (2⁺ ^⁺ i == n⁺))
   forward path1 = adjust-prime-power-path prime-power-path
     where
-    unit-path : (p : Prime') -> (fst (RationalRing.u1/ (ℚUnit-prime p))) == 1/ℕ (Prime'.nat⁺ p)
+    unit-path : (p : Prime') -> (fst (Ring-ℚ.u1/ (ℚUnit-prime p))) == 1/ℕ (Prime'.nat⁺ p)
     unit-path p =
-      cong (fst ∘ RationalRing.u1/_) (\i -> ℕ->ℚ ⟨ p ⟩ , isUnit-path i)
+      cong (fst ∘ Ring-ℚ.u1/_) (\i -> ℕ->ℚ ⟨ p ⟩ , isUnit-path i)
       where
       isUnit-path : snd (ℚUnit-prime p) ==
-                    RationalRing.is-unit (1/ℕ (Prime'.nat⁺ p)) (*-commute >=> 1/ℕ-ℕ-path (Prime'.nat⁺ p))
-      isUnit-path = RationalRing.isProp-isUnit _ _
+                    Ring-ℚ.is-unit (1/ℕ (Prime'.nat⁺ p)) (*-commute >=> 1/ℕ-ℕ-path (Prime'.nat⁺ p))
+      isUnit-path = Ring-ℚ.isProp-isUnit _ _
 
     f : PrimeDivisor (2⁺ *⁺ n⁺) -> ℚ
-    f (p , _) = 1r r+ (r- (fst (RationalRing.u1/ (ℚUnit-prime p))))
+    f (p , _) = 1r r+ (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime p))))
 
     f' : WithoutPoint (PrimeDivisor (2⁺ *⁺ n⁺)) PrimeDivisor2n-2  -> ℚ
     f' (pd , _) = f pd

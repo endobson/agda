@@ -31,8 +31,8 @@ instance
   IntMultiplication : Multiplication Int
   IntMultiplication = record { mult = _*_; 1# = 1# }
 
-  RationalMultiplication : Multiplication Rational
-  RationalMultiplication = record { mult = _*_; 1# = 1# }
+  Multiplication-ℚ : Multiplication ℚ
+  Multiplication-ℚ = record { mult = _*_; 1# = 1# }
 
 SemiringMultiplication : {D : Type ℓ} -> {ACM : AdditiveCommMonoid D} ->
                          (S : Semiring ACM) -> Multiplication D

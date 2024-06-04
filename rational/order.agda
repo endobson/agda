@@ -157,11 +157,11 @@ module _ where
 
 
 abstract
-  isProp-ℚ< : {a b : Rational} -> isProp (a ℚ< b)
+  isProp-ℚ< : {a b : ℚ} -> isProp (a ℚ< b)
   isProp-ℚ< {a} {b} (ℚ<-cons a<b1) (ℚ<-cons a<b2) =
     cong ℚ<-cons (isProp-ℚ<-raw a b a<b1 a<b2)
 
-  isProp-ℚ≤ : {a b : Rational} -> isProp (a ℚ≤ b)
+  isProp-ℚ≤ : {a b : ℚ} -> isProp (a ℚ≤ b)
   isProp-ℚ≤ {a} {b} (ℚ≤-cons a≤b1) (ℚ≤-cons a≤b2) =
     cong ℚ≤-cons (isProp-ℚ≤-raw a b a≤b1 a≤b2)
 
@@ -191,7 +191,7 @@ abstract
   connected-ℚ< {a} {b} ¬a<b ¬b<a =
     ℚ-elimProp2
       {C2 = (\a b -> ¬ (ℚ<-raw a b) -> ¬ (ℚ<-raw b a) -> a == b)}
-      (\_ _ -> isPropΠ2 (\_ _ -> isSetRational _ _))
+      (\_ _ -> isPropΠ2 (\_ _ -> isSetℚ _ _))
       (\a b ¬a<b ¬b<a ->
         r~->path _ _ (connected~-ℚ'< (¬a<b ∘ (transport (sym ℚ<-raw-eval)))
                                      (¬b<a ∘ (transport (sym ℚ<-raw-eval)))))
@@ -236,7 +236,7 @@ abstract
   antisym-ℚ≤ {a} {b} (ℚ≤-cons a≤b) (ℚ≤-cons b≤a) =
     ℚ-elimProp2
       {C2 = (\a b -> (ℚ≤-raw a b) -> (ℚ≤-raw b a) -> a == b)}
-      (\_ _ -> isPropΠ2 (\_ _ -> isSetRational _ _))
+      (\_ _ -> isPropΠ2 (\_ _ -> isSetℚ _ _))
       (\a b a≤b b≤a -> r~->path _ _ (antisym~-ℚ'≤ (transport ℚ≤-raw-eval a≤b)
                                                   (transport ℚ≤-raw-eval b≤a)))
       a b a≤b b≤a
@@ -375,7 +375,7 @@ private
   abstract
     isProp-isSignℚ : (s : Sign) (q : ℚ) -> isProp (isSignℚ s q)
     isProp-isSignℚ pos-sign _ = isProp-<
-    isProp-isSignℚ zero-sign _ = isSetRational _ _
+    isProp-isSignℚ zero-sign _ = isSetℚ _ _
     isProp-isSignℚ neg-sign _ = isProp-<
 
     isSignℚ-unique : (q : ℚ) (s1 s2 : Sign) -> (isSignℚ s1 q) -> (isSignℚ s2 q) -> s1 == s2
@@ -399,7 +399,7 @@ instance
 
 private
   abstract
-    decide-signℚ : (q : Rational) -> Σ[ s ∈ Sign ] (isSign s q)
+    decide-signℚ : (q : ℚ) -> Σ[ s ∈ Sign ] (isSign s q)
     decide-signℚ q = handle (trichotomous-< q 0r)
       where
         handle : Tri (q ℚ< 0r) (q == 0r) (0r ℚ< q) -> Σ[ s ∈ Sign ] (isSign s q)
@@ -438,7 +438,7 @@ abstract
     q~0r : q r~ 0r'
     q~0r = Zero-r~ zq
 
-  NonNeg-ℚ'->ℚ : {q : Rational'} -> NonNeg q -> NonNeg (ℚ'->ℚ q)
+  NonNeg-ℚ'->ℚ : {q : ℚ'} -> NonNeg q -> NonNeg (ℚ'->ℚ q)
   NonNeg-ℚ'->ℚ (inj-l p) = inj-l (same-sign-ℚ' _ _ p)
   NonNeg-ℚ'->ℚ (inj-r p) = inj-r (same-sign-ℚ' _ _ p)
 
@@ -529,7 +529,7 @@ instance
   LinearlyOrderedAdditiveStr-ℚ =
     LinearlyOrderedAdditiveStr-Dec< (r+₁-preserves-< _ _ _)
 
-  LinearlyOrderedSemiringStr-ℚ : LinearlyOrderedSemiringStr RationalSemiring useⁱ
+  LinearlyOrderedSemiringStr-ℚ : LinearlyOrderedSemiringStr Semiring-ℚ useⁱ
   LinearlyOrderedSemiringStr-ℚ = LinearlyOrderedSemiringStr-Ring
     (r*₁-preserves-< _ _ _)
 
@@ -614,7 +614,7 @@ instance
     { +₁-preserves-≤ = r+₁-preserves-≤ _ _ _
     }
 
-  PartiallyOrderedSemiringStr-ℚ : PartiallyOrderedSemiringStr RationalSemiring useⁱ
+  PartiallyOrderedSemiringStr-ℚ : PartiallyOrderedSemiringStr Semiring-ℚ useⁱ
   PartiallyOrderedSemiringStr-ℚ =
     PartiallyOrderedSemiringStr-Ring (r*₁-preserves-≤ _ _ _)
 
@@ -622,10 +622,10 @@ instance
 -- Compatibility functions
 
 abstract
-  Zero-path : (q : Rational) -> Zeroℚ q -> q == 0r
+  Zero-path : (q : ℚ) -> Zeroℚ q -> q == 0r
   Zero-path _ p = p
 
-  r--flips-sign : (q : Rational) (s : Sign) -> (isSignℚ s q) -> (isSignℚ (s⁻¹ s) (r- q))
+  r--flips-sign : (q : ℚ) (s : Sign) -> (isSignℚ s q) -> (isSignℚ (s⁻¹ s) (r- q))
   r--flips-sign q pos-sign 0<q = minus-flips-0< 0<q
   r--flips-sign q zero-sign q=0 = cong -_ q=0 >=> minus-zero
   r--flips-sign q neg-sign q<0 = minus-flips-<0 q<0
@@ -638,34 +638,34 @@ abstract
   r--NonPos (inj-l s) = (inj-l (r--flips-sign _ neg-sign s))
   r--NonPos (inj-r s) = (inj-r (r--flips-sign _ zero-sign s))
 
-  NonNeg-0≤ : (q : Rational) -> NonNeg q -> 0r ≤ q
+  NonNeg-0≤ : (q : ℚ) -> NonNeg q -> 0r ≤ q
   NonNeg-0≤ _ (inj-l pq) = weaken-ℚ< pq
   NonNeg-0≤ q (inj-r zq) = subst (_ℚ≤ q) zq (refl-≤ {D = ℚ})
 
-  NonPos-≤0 : (q : Rational) -> NonPos q -> q ≤ 0r
+  NonPos-≤0 : (q : ℚ) -> NonPos q -> q ≤ 0r
   NonPos-≤0 _ (inj-l nq) = weaken-ℚ< nq
   NonPos-≤0 q (inj-r zq) = subst (q ℚ≤_) zq (refl-≤ {D = ℚ})
 
-  0≤-NonNeg : (q : Rational) -> 0r ≤ q -> NonNeg q
+  0≤-NonNeg : (q : ℚ) -> 0r ≤ q -> NonNeg q
   0≤-NonNeg q 0≤q = ℚ0≤-elim (isProp-NonNeg {D = ℚ} _) inj-l (inj-r ∘ sym) q 0≤q
 
-  ≤0-NonPos : (q : Rational) -> q ≤ 0r -> NonPos q
+  ≤0-NonPos : (q : ℚ) -> q ≤ 0r -> NonPos q
   ≤0-NonPos q q≤0 =
     subst (NonPos {D = ℚ}) minus-double-inverse (r--NonNeg (0≤-NonNeg (r- q) (minus-flips-≤0 q≤0)))
 
-  Pos-0< : (q : Rational) -> Pos q -> 0r < q
+  Pos-0< : (q : ℚ) -> Pos q -> 0r < q
   Pos-0< q 0<q = 0<q
 
-  Neg-<0 : (q : Rational) -> Neg q -> q < 0r
+  Neg-<0 : (q : ℚ) -> Neg q -> q < 0r
   Neg-<0 q q<0 = q<0
 
-  0<-Pos : (q : Rational) -> 0r < q -> Pos q
+  0<-Pos : (q : ℚ) -> 0r < q -> Pos q
   0<-Pos q 0<q = 0<q
 
-  <0-Neg : (q : Rational) -> q < 0r -> Neg q
+  <0-Neg : (q : ℚ) -> q < 0r -> Neg q
   <0-Neg q q<0 = q<0
 
-  NonPos≤NonNeg : {q r : Rational} -> NonPos q -> NonNeg r -> q ℚ≤ r
+  NonPos≤NonNeg : {q r : ℚ} -> NonPos q -> NonNeg r -> q ℚ≤ r
   NonPos≤NonNeg np-q nn-r = trans-≤ {D = ℚ} (NonPos-≤0 _ np-q) (NonNeg-0≤ _ nn-r)
 
   NonNeg-≤ : (a b : ℚ) -> NonNeg a -> a ℚ≤ b -> NonNeg b
@@ -733,7 +733,7 @@ abstract
     (subst ((q1 + q2) ≤_) +-left-zero (+-preserves-≤ (NonPos-≤0 q1 np1) (NonPos-≤0 q2 np2)))
 
 
-  r*-preserves-Pos : (q1 q2 : Rational) -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r* q2)
+  r*-preserves-Pos : (q1 q2 : ℚ) -> Posℚ q1 -> Posℚ q2 -> Posℚ (q1 r* q2)
   r*-preserves-Pos _ _ = r*-Pos-Pos
 
 
@@ -775,18 +775,18 @@ abstract
         0<p = subst (_< (q1 * q2)) *-right-zero (*₁-flips-< n1 n2)
 
 
-  r*₁-preserves-sign : (q : ℚ⁺) (r : Rational) {s : Sign} -> isSignℚ s r -> isSignℚ s (⟨ q ⟩ r* r)
+  r*₁-preserves-sign : (q : ℚ⁺) (r : ℚ) {s : Sign} -> isSignℚ s r -> isSignℚ s (⟨ q ⟩ r* r)
   r*₁-preserves-sign (q , pq) r {pos-sign} pr = *-preserves-0< pq pr
   r*₁-preserves-sign (q , pq) r {zero-sign} zr = *-right zr >=> *-right-zero
   r*₁-preserves-sign (q , pq) r {neg-sign} nr = r*-Pos-Neg pq nr
 
-  r*₁-flips-sign : (q : ℚ⁻) (r : Rational) {s : Sign} -> isSignℚ s r -> isSignℚ (s⁻¹ s) (⟨ q ⟩ r* r)
+  r*₁-flips-sign : (q : ℚ⁻) (r : ℚ) {s : Sign} -> isSignℚ s r -> isSignℚ (s⁻¹ s) (⟨ q ⟩ r* r)
   r*₁-flips-sign (q , nq) r {pos-sign} pr = r*-Neg-Pos nq pr
   r*₁-flips-sign (q , nq) r {zero-sign} zr = *-right zr >=> *-right-zero
   r*₁-flips-sign (q , nq) r {neg-sign} nr = r*-Neg-Neg nq nr
 
 
-  r1/-preserves-Pos : (q : Rational) -> (i : ℚInv q) -> Pos q -> Pos (r1/ q i)
+  r1/-preserves-Pos : (q : ℚ) -> (i : ℚInv q) -> Pos q -> Pos (r1/ q i)
   r1/-preserves-Pos q i pq = handle (decide-sign qi)
     where
     module _ where
@@ -804,7 +804,7 @@ abstract
 
 
 
-  r1/-preserves-Neg : (q : Rational) -> (i : ℚInv q) -> Neg q -> Neg (r1/ q i)
+  r1/-preserves-Neg : (q : ℚ) -> (i : ℚInv q) -> Neg q -> Neg (r1/ q i)
   r1/-preserves-Neg q i nq = handle (decide-sign qi)
     where
     module _ where
@@ -989,7 +989,7 @@ abstract
   1/ℕ≤1 a@(suc _ , _) = 1/ℕ-flips-≤ 1⁺ a nat.order.zero-<
 
   private
-    zero-diff->path : (x y : Rational) -> Zeroℚ (y r+ (r- x)) -> x == y
+    zero-diff->path : (x y : ℚ) -> Zeroℚ (y r+ (r- x)) -> x == y
     zero-diff->path x y zyx = sym p
       where
       p : y == x

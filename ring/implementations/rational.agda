@@ -14,9 +14,9 @@ open import semiring.instances.nat
 open import truncation
 
 open rational public using
-  ( RationalRing
-  ; RationalSemiring
-  ; AdditiveCommMonoid-Rational
+  ( Ring-ℚ
+  ; Semiring-ℚ
+  ; AdditiveCommMonoid-ℚ
   )
 
 Semiringʰ-ℤ->ℚ : Semiringʰ ℤ->ℚ

@@ -24,7 +24,7 @@ N x = x
 N⁰ : Nat⁺ -> Nat
 N⁰ (x , _) = x
 
-Nℚ : Nat⁺ -> Rational
+Nℚ : Nat⁺ -> ℚ
 Nℚ (x , _) = ℕ->ℚ x
 
 Multiplicative-N : Multiplicative N

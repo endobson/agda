@@ -73,7 +73,7 @@ module _ (a b : ℝ) where
       handle (inj-r bU-q) =
         ∥-map (\ (r , r<q , bU-r) -> r , r<q , ∣ inj-r bU-r ∣) (b.isLowerOpen-U q bU-q)
 
-    located : (x y : Rational) -> x < y -> ∥ L x ⊎ U y ∥
+    located : (x y : ℚ) -> x < y -> ∥ L x ⊎ U y ∥
     located x y x<y = ∥-map2 handle (a.located x y x<y) (b.located x y x<y)
       where
       handle : (a.L x ⊎ a.U y) -> (b.L x ⊎ b.U y) -> (L x ⊎ U y)

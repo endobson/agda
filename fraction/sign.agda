@@ -30,25 +30,25 @@ private
        )
 
 private
-  numer : Rational' -> Int
-  numer = Rational'.numerator
-  denom : Rational' -> Int
-  denom = Rational'.denominator
-  rNonZero : (r : Rational') -> NonZero (denom r)
-  rNonZero = Rational'.NonZero-denominator
+  numer : ℚ' -> Int
+  numer = ℚ'.numerator
+  denom : ℚ' -> Int
+  denom = ℚ'.denominator
+  rNonZero : (r : ℚ') -> NonZero (denom r)
+  rNonZero = ℚ'.NonZero-denominator
 
-record isSignℚ' (s : Sign) (q : Rational') : Type₀ where
+record isSignℚ' (s : Sign) (q : ℚ') : Type₀ where
   constructor is-signℚ'
   field
     v : isSign s (numer q * denom q)
 
 private
   abstract
-    isProp-isSignℚ' : (s : Sign) (q : Rational') -> isProp (isSignℚ' s q)
+    isProp-isSignℚ' : (s : Sign) (q : ℚ') -> isProp (isSignℚ' s q)
     isProp-isSignℚ' s q a b =
       cong is-signℚ' (isProp-isSign s (numer q * denom q) (isSignℚ'.v a) (isSignℚ'.v b) )
 
-    isSignℚ'-unique : (q : Rational') (s1 s2 : Sign) ->
+    isSignℚ'-unique : (q : ℚ') (s1 s2 : Sign) ->
                       (isSignℚ' s1 q) -> (isSignℚ' s2 q) -> s1 == s2
     isSignℚ'-unique q s1 s2 p1 p2 = isSign-unique (numer q * denom q) s1 s2 (isSignℚ'.v p1) (isSignℚ'.v p2)
 
@@ -62,10 +62,10 @@ instance
 
 private
   abstract
-    ℚ'->sign : Rational' -> Sign
+    ℚ'->sign : ℚ' -> Sign
     ℚ'->sign q = sign (numer q * denom q)
 
-    isSign'-self : (q : Rational') -> isSign (ℚ'->sign q) q
+    isSign'-self : (q : ℚ') -> isSign (ℚ'->sign q) q
     isSign'-self q = is-signℚ' (i.isSign-self (numer q * denom q))
 
 instance
@@ -94,11 +94,11 @@ r~-preserves-sign {q1} {q2} {s} v p = is-signℚ' ans
   path =
     begin
       (S n1) s* (S d1)
-    ==< sym (s*₁-NonZero-order2 (i.NonZero->NonZeroSign (Rational'.NonZero-denominator q2))) >
+    ==< sym (s*₁-NonZero-order2 (i.NonZero->NonZeroSign (ℚ'.NonZero-denominator q2))) >
       (S d2) s* ((S d2) s* ((S n1) s* (S d1)))
     ==< cong (S d2 s*_) (sym s*-assoc >=> (cong (_s* (S d1)) (s*-commute >=> inner-path))) >
       (S d2) s* (((S n2) s* (S d1)) s* (S d1))
-    ==< cong (S d2 s*_) (s*₂-NonZero-order2 (i.NonZero->NonZeroSign (Rational'.NonZero-denominator q1))) >
+    ==< cong (S d2 s*_) (s*₂-NonZero-order2 (i.NonZero->NonZeroSign (ℚ'.NonZero-denominator q1))) >
       (S d2) s* (S n2)
     ==< s*-commute >
       (S n2) s* (S d2)
@@ -113,15 +113,15 @@ r~-preserves-sign {q1} {q2} {s} v p = is-signℚ' ans
   ans : isSign s (n2 * d2)
   ans = subst (\s -> isSign s (n2 * d2)) (sym end-path) (i.isSign-self (n2 * d2))
 
-r~-preserves-NonNeg : {q1 q2 : Rational'} -> NonNeg q1 -> q1 r~ q2 -> NonNeg q2
+r~-preserves-NonNeg : {q1 q2 : ℚ'} -> NonNeg q1 -> q1 r~ q2 -> NonNeg q2
 r~-preserves-NonNeg {q1} {q2} nn-q1 r = handle (decide-sign q1)
   where
   handle : Σ[ s ∈ Sign ] isSign s q1 -> NonNeg q2
-  handle (pos-sign  , p-q1) = Pos->NonNeg {D = Rational'} (r~-preserves-sign p-q1 r)
-  handle (zero-sign , z-q1) = Zero->NonNeg {D = Rational'} (r~-preserves-sign z-q1 r)
-  handle (neg-sign  , n-q1)  = bot-elim (NonNeg->¬Neg {D = Rational'} nn-q1 n-q1)
+  handle (pos-sign  , p-q1) = Pos->NonNeg {D = ℚ'} (r~-preserves-sign p-q1 r)
+  handle (zero-sign , z-q1) = Zero->NonNeg {D = ℚ'} (r~-preserves-sign z-q1 r)
+  handle (neg-sign  , n-q1)  = bot-elim (NonNeg->¬Neg {D = ℚ'} nn-q1 n-q1)
 
-Zero-r~ : {q1 : Rational'} -> Zero q1 -> q1 r~ 0r'
+Zero-r~ : {q1 : ℚ'} -> Zero q1 -> q1 r~ 0r'
 Zero-r~ {q1} (is-signℚ' p) = *-right-one >=> p2 >=> sym (*-left-zero)
   where
   n = numer q1
@@ -147,7 +147,7 @@ Zero->Zero-numer {q} (is-signℚ' zq) = handle (decide-sign (numer q))
 
 private
   Pos->same-sign :
-    (q : Rational') -> Pos q -> Σ[ s ∈ Sign ] (isSign s (numer q) × isSign s (denom q))
+    (q : ℚ') -> Pos q -> Σ[ s ∈ Sign ] (isSign s (numer q) × isSign s (denom q))
   Pos->same-sign q p = s1 , (i.isSign-self (numer q) ,
                              subst (\x -> isSign x (denom q)) (sym path) (i.isSign-self (denom q)))
     where
@@ -164,7 +164,7 @@ private
       handle neg-sign  zero-sign ()
 
   same-sign->Pos :
-    (q : Rational') -> (s : Sign) -> isSign s (numer q) -> isSign s (denom q) -> Pos q
+    (q : ℚ') -> (s : Sign) -> isSign s (numer q) -> isSign s (denom q) -> Pos q
   same-sign->Pos q s@pos-sign sn sd = is-signℚ' (int.*-isSign {s} {s} {numer q} {denom q} sn sd)
   same-sign->Pos q s@neg-sign sn sd = is-signℚ' (int.*-isSign {s} {s} {numer q} {denom q} sn sd)
   same-sign->Pos q zero-sign sn sd = bot-elim (int.NonZero->¬Zero (rNonZero q) sd)
@@ -178,7 +178,7 @@ Pos-ℕ⁺->ℚ' : (i : Nat⁺) -> Pos (ℕ->ℚ' ⟨ i ⟩)
 Pos-ℕ⁺->ℚ' (i@(suc _) , _) = same-sign-ℤ->ℚ' (int i) pos-sign tt
 
 abstract
-  r+'-preserves-Pos : {q1 q2 : Rational'} -> Pos q1 -> Pos q2 -> Pos (q1 r+' q2)
+  r+'-preserves-Pos : {q1 q2 : ℚ'} -> Pos q1 -> Pos q2 -> Pos (q1 r+' q2)
   r+'-preserves-Pos {q1} {q2} p1 p2 = ans2
     where
     module _ where
@@ -217,7 +217,7 @@ abstract
     ans2 : Pos (q1 r+' q2)
     ans2 = subst Pos (sym r+'-eval) (is-signℚ' ans)
 
-  r*'-preserves-Pos : {q1 q2 : Rational'} -> Pos q1 -> Pos q2 -> Pos (q1 r*' q2)
+  r*'-preserves-Pos : {q1 q2 : ℚ'} -> Pos q1 -> Pos q2 -> Pos (q1 r*' q2)
   r*'-preserves-Pos {q1} {q2} p1 p2 = is-signℚ' ans
     where
     module _ where
@@ -260,7 +260,7 @@ abstract
              (i.minus-isSign {numer q * denom q} {s} (isSignℚ'.v qs)))
 
 abstract
-  r+'-preserves-NonNeg : {q1 q2 : Rational'} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r+' q2)
+  r+'-preserves-NonNeg : {q1 q2 : ℚ'} -> NonNeg q1 -> NonNeg q2 -> NonNeg (q1 r+' q2)
   r+'-preserves-NonNeg {q1} {q2} (inj-r z1) nn2 = (r~-preserves-NonNeg NonNeg-0q2 0q2~q1q2)
     where
     q2~0q2 : q2 r~ (0r' r+' q2)

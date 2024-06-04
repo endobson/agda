@@ -84,7 +84,7 @@ abstract
     where
 
 
-    r*'-distrib-r+'-left : (a b c : Rational') -> (a r*' (b r+' c)) r~ ((a r*' b) r+' (a r*' c))
+    r*'-distrib-r+'-left : (a b c : ℚ') -> (a r*' (b r+' c)) r~ ((a r*' b) r+' (a r*' c))
     r*'-distrib-r+'-left a b c =
       r~'->r~ (s2 >~> r~->r~' (r*'-distrib-r+'-right _ _ _) >~> s5 >~> s6)
       where
@@ -137,21 +137,21 @@ isProp-ℚ'≤ : {q r : ℚ'} -> isProp (q ℚ'≤ r)
 isProp-ℚ'≤ (ℚ'≤-cons p1) (ℚ'≤-cons p2) = cong ℚ'≤-cons (isProp-NonNeg {D = ℚ'} _ p1 p2)
 
 
-r~-preserves-<₁ : {q1 q2 r : Rational'} -> q1 ℚ'< r -> q1 r~ q2 -> q2 ℚ'< r
+r~-preserves-<₁ : {q1 q2 r : ℚ'} -> q1 ℚ'< r -> q1 r~ q2 -> q2 ℚ'< r
 r~-preserves-<₁ {q1} {q2} {r} (ℚ'<-cons pos-diff) q1~q2 =
   ℚ'<-cons (r~-preserves-sign pos-diff
              (r+'-preserves-r~₂ r (r-' q1) (r-' q2) (r-'-preserves-r~ q1 q2 q1~q2)))
 
-r~-preserves-<₂ : {q r1 r2 : Rational'} -> q ℚ'< r1 -> r1 r~ r2 -> q ℚ'< r2
+r~-preserves-<₂ : {q r1 r2 : ℚ'} -> q ℚ'< r1 -> r1 r~ r2 -> q ℚ'< r2
 r~-preserves-<₂ {q} {r1} {r2} (ℚ'<-cons pos-diff) r1~r2 =
   ℚ'<-cons (r~-preserves-sign pos-diff (r+'-preserves-r~₁ (r-' q) r1 r2 r1~r2))
 
-r~-preserves-≤₁ : {q1 q2 r : Rational'} -> q1 ℚ'≤ r -> q1 r~ q2 -> q2 ℚ'≤ r
+r~-preserves-≤₁ : {q1 q2 r : ℚ'} -> q1 ℚ'≤ r -> q1 r~ q2 -> q2 ℚ'≤ r
 r~-preserves-≤₁ {q1} {q2} {r} (ℚ'≤-cons nn-diff) q1~q2 =
   ℚ'≤-cons (r~-preserves-NonNeg nn-diff
              (r+'-preserves-r~₂ r (r-' q1) (r-' q2) (r-'-preserves-r~ q1 q2 q1~q2)))
 
-r~-preserves-≤₂ : {q r1 r2 : Rational'} -> q ℚ'≤ r1 -> r1 r~ r2 -> q ℚ'≤ r2
+r~-preserves-≤₂ : {q r1 r2 : ℚ'} -> q ℚ'≤ r1 -> r1 r~ r2 -> q ℚ'≤ r2
 r~-preserves-≤₂ {q} {r1} {r2} (ℚ'≤-cons nn-diff) r1~r2 =
   ℚ'≤-cons (r~-preserves-NonNeg nn-diff (r+'-preserves-r~₁ (r-' q) r1 r2 r1~r2))
 
@@ -221,7 +221,7 @@ decide-ℚ'< : Decidable2 _ℚ'<_
 decide-ℚ'< x y = handle (decide-sign z')
   where
   z = y r+' (r-' x)
-  z' = Rational'.numerator z * Rational'.denominator z
+  z' = ℚ'.numerator z * ℚ'.denominator z
   handle : Σ[ s ∈ Sign ] (isSign s z') -> Dec (x ℚ'< y)
   handle (pos-sign  , pz) = yes (ℚ'<-cons (is-signℚ' pz))
   handle (zero-sign , zz) =
@@ -248,26 +248,26 @@ private
     where
     diff-v = (r r+' (r-' q))
     diffᵉ-v = (r r+'ᵉ (r-' q))
-    n = Rational'.numerator diffᵉ-v
+    n = ℚ'.numerator diffᵉ-v
     zpath : n == (int.int 0)
     zpath = +-left (sym q~r) >=>
             +-right minus-extract-left >=>
             int.add-minus-zero
-    zn : Zero (Rational'.numerator diff-v)
-    zn = subst Zero (sym zpath >=> cong Rational'.numerator (sym r+'-eval)) tt
+    zn : Zero (ℚ'.numerator diff-v)
+    zn = subst Zero (sym zpath >=> cong ℚ'.numerator (sym r+'-eval)) tt
     zd = is-signℚ' (int.*-Zero₁ zn)
 
   zero-diff->r~ : {q r : ℚ'} -> Zero (r r+' (r-' q)) -> (q r~ r)
   zero-diff->r~ {q} {r} z = q~r
     where
     diffᵉ = (r r+'ᵉ (r-' q))
-    nq = Rational'.numerator q
-    dq = Rational'.denominator q
-    nr = Rational'.numerator r
-    dr = Rational'.denominator r
+    nq = ℚ'.numerator q
+    dq = ℚ'.denominator q
+    nr = ℚ'.numerator r
+    dr = ℚ'.denominator r
 
-    znᵉ : (Rational'.numerator diffᵉ) == (int.int 0)
-    znᵉ = cong Rational'.numerator (sym r+'-eval) >=> int.Zero-path _ (Zero->Zero-numer z)
+    znᵉ : (ℚ'.numerator diffᵉ) == (int.int 0)
+    znᵉ = cong ℚ'.numerator (sym r+'-eval) >=> int.Zero-path _ (Zero->Zero-numer z)
 
     q~r : nq * dr == nr * dq
     q~r =
@@ -305,7 +305,7 @@ trichotomous~-ℚ'< q r = handle (decide-sign d')
            cong ((r-' r) r+'_) (r-'-double-inverse q) >=>
            r+'-commute (r-' r) q
 
-  d' = Rational'.numerator d * Rational'.denominator d
+  d' = ℚ'.numerator d * ℚ'.denominator d
   handle : Σ[ s ∈ Sign ] (isSign s d') -> Tri (q ℚ'< r) (q r~ r) (r ℚ'< q)
   handle (pos-sign  , pd) =
     tri< q<r (ℚ'<-¬r~ q<r) (asym-ℚ'< q<r)
@@ -320,9 +320,9 @@ trichotomous~-ℚ'< q r = handle (decide-sign d')
     where
     d'-path : d' == (int.int 0)
     d'-path = int.Zero-path d' zd
-    n = Rational'.numerator d
+    n = ℚ'.numerator d
     n-path : n == (int.int 0)
-    n-path = int.*-left-zero-eq (Rational'.NonZero-denominator d) d'-path
+    n-path = int.*-left-zero-eq (ℚ'.NonZero-denominator d) d'-path
 
     r~q : r r~ q
     r~q =
@@ -331,7 +331,7 @@ trichotomous~-ℚ'< q r = handle (decide-sign d')
                +-commute >=>
                +-left (sym minus-extract-left)) >=>
       sym +-assoc >=>
-      +-left (cong Rational'.numerator (sym r+'-eval) >=> n-path) >=>
+      +-left (cong ℚ'.numerator (sym r+'-eval) >=> n-path) >=>
       +-left-zero
 
   handle (neg-sign  , nd) =
@@ -437,10 +437,10 @@ antisym~-ℚ'≤ {a} {b} a≤b b≤a = handle (trichotomous~-ℚ'< a b)
 ℕ->ℚ'-preserves-< {a} {b} (c , path) = ℚ'<-cons ans
   where
 
-  sd : Rational'
+  sd : ℚ'
   sd = (same-denom-r+' (ℕ->ℚ' b) (r-' (ℕ->ℚ' a)))
 
-  diff-v : Rational'
+  diff-v : ℚ'
   diff-v = (ℕ->ℚ' b r+' (r-' (ℕ->ℚ' a)))
 
   sd~diff : sd r~ diff-v

@@ -197,7 +197,7 @@ private
       disjoint q (L-nonpos q-nonpos , U-pos q-pos _) = NonPos->¬Pos q-nonpos q-pos
 
 
-      located : (q r : Rational) -> (q < r) -> ∥ L q ⊎ U r ∥
+      located : (q r : ℚ) -> (q < r) -> ∥ L q ⊎ U r ∥
       located q r q<r = handle (decide-sign q)
         where
         handle : Σ[ s ∈ Sign ] isSign s q -> ∥ L q ⊎ U r ∥

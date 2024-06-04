@@ -7,11 +7,12 @@ open import equality
 open import int
 open import prime
 open import rational
+open import ring
 open import ring.exponentiation
 open import ring.implementations.rational
 open import semiring
 
-module rr = RationalRing
+module rr = Ring Ring-ℚ
 
 module _ (p : Prime') where
   private
