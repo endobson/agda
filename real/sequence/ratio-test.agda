@@ -154,7 +154,7 @@ module _ where
           l2-r-path i =
             cong (_^ℕ i) (sym *-right-one >=> *-right (sym (ℝ1/-inverse l' (inj-r 0<l'))) >=>
                            sym *-assoc >=> *-commute) >=>
-            (ℝ^ℕ-distrib-*-right i)
+            (^ℕ-distrib-*-right i)
 
           asnl2-path : (m : ℕ) -> (lt : n ≤ m) ->
                        (abs (s1 n) * l2 ^ℕ ⟨ lt ⟩) == (k * r ^ℕ ⟨ lt ⟩) * (l' ^ℕ m)
@@ -163,7 +163,7 @@ module _ where
                     sym *-assoc)
                    (l2-r-path i >=> *-commute) >=>
             *-swap >=>
-            *-right (*-commute >=> sym (ℝ^ℕ-distrib-+-left i n) >=>
+            *-right (*-commute >=> sym (^ℕ-distrib-+-left i n) >=>
                      cong (l' ^ℕ_) p)
 
           p2 : (m : ℕ) -> (lt : n ≤ m) -> abs (s1 m) ≤ ((k * r ^ℕ ⟨ lt ⟩) * (l' ^ℕ m))

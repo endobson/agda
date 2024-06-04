@@ -63,36 +63,10 @@ private
 geometric-sequence : ℝ -> Seq
 geometric-sequence = _^ℕ_
 
-private
-  ℚ^ℕ-distrib-+₂ : {q : ℚ} (n1 n2 : ℕ) -> q ^ℕ (n1 + n2) == (q ^ℕ n1) * (q ^ℕ n2)
-  ℚ^ℕ-distrib-+₂ zero     n2 = sym *-left-one
-  ℚ^ℕ-distrib-+₂ {q} (suc n1) n2 =
-    cong (q *_) (ℚ^ℕ-distrib-+₂ n1 n2) >=>
-    sym *-assoc
-
-  ℚ^ℕ-one : {q : ℚ} -> q ^ℕ 1 == q
-  ℚ^ℕ-one = *-right-one
-
-  ℚ^ℕ⁺-distrib-*₂ : {q : ℚ} (n1 n2 : Nat⁺) ->
-                    q ^ℕ (⟨ n1 ⟩ * ⟨ n2 ⟩) == (q ^ℕ ⟨ n1 ⟩) ^ℕ ⟨ n2 ⟩
-  ℚ^ℕ⁺-distrib-*₂ {q} n1 n2 = cong (q ^ℕ_) (*-commuteᵉ ⟨ n1 ⟩ ⟨ n2 ⟩) >=> ℚ^ℕ⁺-distrib-*₂' n2 n1
-    where
-    ℚ^ℕ⁺-distrib-*₂' : (n1 n2 : Nat⁺) ->
-                      q ^ℕ (⟨ n1 ⟩ * ⟨ n2 ⟩) == (q ^ℕ ⟨ n2 ⟩) ^ℕ ⟨ n1 ⟩
-    ℚ^ℕ⁺-distrib-*₂' (suc zero , _) n2 =
-      cong (q ^ℕ_) (*-left-oneᵉ ⟨ n2 ⟩) >=> (sym ℚ^ℕ-one)
-    ℚ^ℕ⁺-distrib-*₂' (suc (suc n) , tt) n2@(n2' , _) =
-      (ℚ^ℕ-distrib-+₂ n2' ((suc n) * n2')) >=>
-      (*-right (ℚ^ℕ⁺-distrib-*₂' (suc n , tt) n2)) >=>
-      (*-left (sym ℚ^ℕ-one)) >=>
-      sym (ℚ^ℕ-distrib-+₂ 1 (suc n))
-
 ℚ^ℕ-ℝ^ℕ-path : {q : ℚ} (n : ℕ) -> ℚ->ℝ (q ^ℕ n) == (ℚ->ℝ q) ^ℕ n
 ℚ^ℕ-ℝ^ℕ-path zero = refl
 ℚ^ℕ-ℝ^ℕ-path (suc n) =
   ℚ->ℝ-preserves-* >=> *-right (ℚ^ℕ-ℝ^ℕ-path n)
-
-
 
 geometric-sequence-1 : (n : ℕ) -> geometric-sequence 1# n == 1#
 geometric-sequence-1 zero = refl
@@ -122,14 +96,6 @@ geometric-sequence-≤1 0≤x x≤1 (suc n) zero = bot-elim ∘ zero-≮
 geometric-sequence-≤1 0≤x x≤1 (suc n) (suc m) sn≤sm =
   *₁-preserves-≤ 0≤x (geometric-sequence-≤1 0≤x x≤1 n m (pred-≤ sn≤sm))
 
-ℝ^ℕ-distrib-*-right : {x y : ℝ} -> (n : ℕ) -> (x * y) ^ℕ n == (x ^ℕ n) * (y ^ℕ n)
-ℝ^ℕ-distrib-*-right zero = sym *-left-one
-ℝ^ℕ-distrib-*-right (suc n) = *-right (ℝ^ℕ-distrib-*-right n) >=> *-swap
-
-ℝ^ℕ-distrib-+-left : {x : ℝ} -> (m n : ℕ) -> x ^ℕ (m + n) == (x ^ℕ m) * (x ^ℕ n)
-ℝ^ℕ-distrib-+-left zero    n = sym *-left-one
-ℝ^ℕ-distrib-+-left (suc m) n = *-right (ℝ^ℕ-distrib-+-left m n) >=> sym *-assoc
-
 geometric-sequence-<1 : {x : ℝ} -> 0# < x -> x < 1# -> {m n : ℕ} -> m < n ->
                         (geometric-sequence x n) < (geometric-sequence x m)
 geometric-sequence-<1 {x} 0<x x<1 {m} {n} (i , p) =
@@ -137,7 +103,7 @@ geometric-sequence-<1 {x} 0<x x<1 {m} {n} (i , p) =
   where
   p1 : geometric-sequence x n == (x ^ℕ (suc i)) * (x ^ℕ m)
   p1 = cong (geometric-sequence x) (sym p >=> +'-right-suc) >=>
-       ℝ^ℕ-distrib-+-left (suc i) m
+       ^ℕ-distrib-+-left (suc i) m
 
   p2 : (x ^ℕ suc i) < 1#
   p2 = trans-<-≤ (*₂-preserves-< x<1 (^ℕ-preserves-0< 0<x i))
@@ -275,7 +241,7 @@ private
       3≤n = suc-≤ (suc-≤ (suc-≤ zero-≤))
 
       p2 : ((1# + (- (1/ℕ n⁺))) ^ℕ (3 * m)) == ((1# + (- (1/ℕ n⁺))) ^ℕ 3) ^ℕ m
-      p2 = ℚ^ℕ⁺-distrib-*₂ (3 , tt) m⁺
+      p2 = ^ℕ-distrib-*-left 3 m
 
       p3 : ((1# + (- (1/ℕ n⁺))) ^ℕ 3) ≤ (1# + (- (1/ℕ (n' , tt))))
       p3 = weaken-< (trans-<-≤ (lemma4 n⁺ 3≤n) (lemma5 (n' , _)) )
@@ -294,7 +260,7 @@ private
              Σ[ m ∈ ℕ ] ((1# + (- (1/ℕ n))) ^ℕ m) < ⟨ ε ⟩
     handle (m1⁺ , 1/2^m1<ε) =
       ⟨ m2⁺ *⁺ m1⁺ ⟩ ,
-      trans-=-< (ℚ^ℕ⁺-distrib-*₂ m2⁺ m1⁺)
+      trans-=-< (^ℕ-distrib-*-left m2 m1)
                 (trans-≤-< (^ℕ-0≤-preserves-≤ (^ℕ-preserves-0≤ (0≤1-1/n n) m2) (snd Σm2) m1)
                            1/2^m1<ε)
       where

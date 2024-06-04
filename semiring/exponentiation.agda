@@ -13,6 +13,7 @@ open import monoid
 open import nat
 open import nat.monoid-homomorphism
 open import semiring
+open import semiring.instances.nat
 open import sigma.base
 open import truncation
 
@@ -93,3 +94,24 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
 
   ∃!^ℕ : ∃! (D -> ℕ -> D) is^ℕ
   ∃!^ℕ = (_^ℕ_ , is^ℕ-^ℕ) , isProp-Σis^ℕ _
+
+  opaque
+    ^ℕ-one : {x : D} -> x ^ℕ 1 == x
+    ^ℕ-one = *-right-one
+
+    ^ℕ-distrib-+-left : {x : D} (n1 n2 : ℕ) -> x ^ℕ (n1 + n2) == (x ^ℕ n1) * (x ^ℕ n2)
+    ^ℕ-distrib-+-left {x} n1 n2 = (Monoidʰ.preserves-∙ (is^ℕ.+ʰ (∃!-prop ∃!^ℕ) x) n1 n2)
+
+    ^ℕ-distrib-*-right : {x y : D} (n : Nat) -> (x * y) ^ℕ n == (x ^ℕ n) * (y ^ℕ n)
+    ^ℕ-distrib-*-right {x} {y} n = (Monoidʰ.preserves-∙ (is^ℕ.*ʰ (∃!-prop ∃!^ℕ) n) x y)
+
+    ^ℕ-distrib-*-left : {x : D} (n1 n2 : Nat) -> x ^ℕ (n1 * n2) == (x ^ℕ n1) ^ℕ n2
+    ^ℕ-distrib-*-left {x} n1 n2 = cong (x ^ℕ_) (*-commuteᵉ n1 n2) >=> ^ℕ-distrib-*' n2 n1
+      where
+      ^ℕ-distrib-*' : (n1 n2 : Nat) -> x ^ℕ (n1 * n2) == (x ^ℕ n2) ^ℕ n1
+      ^ℕ-distrib-*' zero n2 = refl
+      ^ℕ-distrib-*' (suc n) n2 =
+        (^ℕ-distrib-+-left n2 (n * n2)) >=>
+        (*-right (^ℕ-distrib-*' n n2)) >=>
+        (*-left (sym ^ℕ-one)) >=>
+        sym (^ℕ-distrib-+-left 1 n)

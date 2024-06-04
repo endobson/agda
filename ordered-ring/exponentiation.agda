@@ -99,8 +99,7 @@ module _
                         (+₂-preserves-≤ square-≮0)
 
           double-path : {z : D} -> (z ^ℕ m) * (z ^ℕ m) == (z ^ℕ (m + m))
-          double-path {z} =
-            sym (Monoidʰ.preserves-∙ (is^ℕ.+ʰ (∃!-prop ∃!^ℕ) z) m m)
+          double-path  = sym (^ℕ-distrib-+-left m m)
 
         handle (odd-case m em) =
           (trans-<-= (diff-0<⁺ (Iso.fun (same-lt x y m em (\_ -> 0<all-ones)) x<y))
