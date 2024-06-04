@@ -126,6 +126,22 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<}
       f< : (a < 0#) -> (a * c) ≮ (a * b)
       f< 0<a = *₁-flips-≮' 0<a b≮c
 
+module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{C : CompatibleOrderStr LO PO}}
+         {{LOS : LinearlyOrderedSemiringStr S LO}} where
+  private
+    instance
+      IACM = ACM
+      IS = S
+      ILO = LO
+      IPO = PO
+
+  0≤1 : 0# ≤ 1#
+  0≤1 = convert-≮ 1≮0
+
+
 module _ {D : Type ℓD} {D< : Rel D ℓ<}
          {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : isLinearOrder D<) where
   private

@@ -14,7 +14,3 @@ instance
   NonTrivalLinearlyOrderedSemiringStr-ℤ :
     NonTrivialLinearlyOrderedSemiringStr LinearlyOrderedSemiringStr-ℤ
   NonTrivalLinearlyOrderedSemiringStr-ℤ = record { 0<1 = ( 1 , tt) , +-right-zero }
-
-  NonTrivalPartiallyOrderedSemiringStr-ℤ :
-    NonTrivialPartiallyOrderedSemiringStr PartiallyOrderedSemiringStr-ℤ
-  NonTrivalPartiallyOrderedSemiringStr-ℤ = record { 0≤1 = weaken-< 0<1 }

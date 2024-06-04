@@ -30,7 +30,7 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Re
       IS = S
 
   ^ℕ-even-0≤ : (x : D) (n : Nat) -> Even n -> 0# ≤ (x ^ℕ n)
-  ^ℕ-even-0≤ x zero          _ = convert-≮ 1≮0
+  ^ℕ-even-0≤ x zero          _ = 0≤1
   ^ℕ-even-0≤ x (suc (suc n)) e =
     trans-≤-= (*-preserves-0≤ (convert-≮ square-≮0) (^ℕ-even-0≤ x n e)) *-assoc
 

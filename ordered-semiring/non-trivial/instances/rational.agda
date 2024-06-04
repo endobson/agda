@@ -12,7 +12,3 @@ instance
   NonTrivalLinearlyOrderedSemiringStr-ℚ :
     NonTrivialLinearlyOrderedSemiringStr LinearlyOrderedSemiringStr-ℚ
   NonTrivalLinearlyOrderedSemiringStr-ℚ = record { 0<1 = Pos-0< 1# Pos-1r }
-
-  NonTrivalPartiallyOrderedSemiringStr-ℚ :
-    NonTrivialPartiallyOrderedSemiringStr PartiallyOrderedSemiringStr-ℚ
-  NonTrivalPartiallyOrderedSemiringStr-ℚ = record { 0≤1 = weaken-< 0<1 }

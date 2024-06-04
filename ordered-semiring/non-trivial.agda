@@ -36,24 +36,3 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
       opaque
         0<2 : 0# < 2#
         0<2 = +-preserves-0< 0<1 0<1
-
-module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {PO : isPartialOrder D≤}
-  where
-  private
-    instance
-      IACM = ACM
-      IPO = PO
-      IS = S
-
-  record NonTrivialPartiallyOrderedSemiringStr (POS : PartiallyOrderedSemiringStr S PO) :
-      Type (ℓ-max ℓD ℓ≤)
-    where
-    no-eta-equality
-    field
-      0≤1 : 0# ≤ 1#
-
-  module _ {POS : PartiallyOrderedSemiringStr S PO} {{NTS : NonTrivialPartiallyOrderedSemiringStr POS}}
-    where
-    open NonTrivialPartiallyOrderedSemiringStr NTS public

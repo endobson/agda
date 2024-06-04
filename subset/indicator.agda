@@ -89,12 +89,12 @@ module _ {ℓD : Level} {D : Type ℓD}
         indicator-≤1 : ∀ {i : I} -> indicator S DetS i ≤ 1#
         indicator-≤1 {i} = case (DetS i) of
           \{ (yes s) -> path-≤ (indicator-=1 s)
-           ; (no ¬s) -> trans-=-≤ (indicator-=0 ¬s) (convert-≮ 1≮0)
+           ; (no ¬s) -> trans-=-≤ (indicator-=0 ¬s) 0≤1
            }
 
         indicator-0≤ : ∀ {i : I} -> 0# ≤ indicator S DetS i
         indicator-0≤ {i} = case (DetS i) of
-          \{ (yes s) -> trans-≤-= (convert-≮ 1≮0) (sym (indicator-=1 s))
+          \{ (yes s) -> trans-≤-= 0≤1 (sym (indicator-=1 s))
            ; (no ¬s) -> path-≤ (sym (indicator-=0 ¬s))
            }
 

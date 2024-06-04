@@ -72,13 +72,13 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
       f' i = f i , f≯ i
 
       a1≤1 : abs 1# ≤ 1#
-      a1≤1 = path-≤ (abs-≮0-path 1≮0)
+      a1≤1 = path-≤ (abs-0≤-path 0≤1)
 
       p : {d1 d2 : D} -> (abs d1 ≤ 1#) -> (abs d2 ≤ 1#) -> (abs (d1 * d2) ≤ 1#)
       p ad1≤1 ad2≤1 =
         trans-=-≤ abs-distrib-*
           (trans-≤ (*₁-preserves-≤ abs-0≤ ad2≤1)
-            (trans-≤-= (*₂-preserves-≤ ad1≤1 1≮0) *-left-one))
+            (trans-≤-= (*₂-preserves-≤ ad1≤1 0≤1) *-left-one))
 
       CM-D' : CommMonoid D'
       CM-D' = SubCommMonoidStr (\_ -> isProp-≤) CM* a1≤1 p
@@ -105,7 +105,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
       p1 = finiteMerge-WithoutPoint _ i f
 
       p2 : 1# == abs (f i) * abs (finiteProduct (FinSet-WithoutPoint FI i) f')
-      p2 = sym (abs-0≤-path 1≮0) >=> cong abs (sym f*=1 >=> p1) >=> abs-distrib-*
+      p2 = sym (abs-0≤-path 0≤1) >=> cong abs (sym f*=1 >=> p1) >=> abs-distrib-*
 
       p3 : 1# ≤ abs (f i)
       p3 = trans-=-≤ p2 (trans-≤-= (*₁-preserves-≤ abs-0≤ (finiteProductᵉ-abs≯1 _ f'≯)) *-right-one)
