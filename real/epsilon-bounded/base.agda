@@ -136,7 +136,7 @@ abstract
   -ε<ε : ℚ->ℝ (- ε) < ℚ->ℝ ε
   -ε<ε = trans-< (L->ℝ< {x = x} -ε<x) (U->ℝ< x<ε)
   ¬ε≤0 : ¬ (ε ≤ 0#)
-  ¬ε≤0 ε≤0 = irrefl-< (trans-<-≤ -ε<ε (ℚ->ℝ-preserves-≤ _ _ (trans-≤ ε≤0 (minus-flips-≤0 ε≤0))))
+  ¬ε≤0 ε≤0 = irrefl-< (trans-<-≤ -ε<ε (ℚ->ℝ-preserves-≤ (trans-≤ ε≤0 (minus-flips-≤0 ε≤0))))
 
 
 εBounded->Iℚ : {ε : ℚ} (x : ℝ) -> εBounded ε x -> Iℚ

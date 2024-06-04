@@ -30,7 +30,7 @@ harmonic-sequence : Seq
 harmonic-sequence n = ℚ->ℝ (1/ℕ (suc n , tt))
 
 0<harmonic-sequence : (n : ℕ) -> 0# < harmonic-sequence n
-0<harmonic-sequence n = ℚ->ℝ-preserves-< _ _ (Pos-1/ℕ (suc n , tt))
+0<harmonic-sequence n = ℚ->ℝ-preserves-< (Pos-1/ℕ (suc n , tt))
 
 isLimit-harmonic-sequence : isLimit harmonic-sequence 0#
 isLimit-harmonic-sequence = close->isLimit f
@@ -44,5 +44,5 @@ isLimit-harmonic-sequence = close->isLimit f
       g : (n : ℕ) -> (m' ≤ n) -> ℝ∈Iℚ (harmonic-sequence n) qi
       g n m'≤n =
         ℝ<->L (trans-< (L->ℝ< l<0) (0<harmonic-sequence n)) ,
-        ℝ<->U (ℚ->ℝ-preserves-< _ _ (trans-≤-< (1/ℕ-flips-≤ (suc m' , _) (suc n , _) (no.suc-≤ m'≤n))
-                                               1/m<u))
+        ℝ<->U (ℚ->ℝ-preserves-< (trans-≤-< (1/ℕ-flips-≤ (suc m' , _) (suc n , _) (no.suc-≤ m'≤n))
+                                           1/m<u))

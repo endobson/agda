@@ -80,14 +80,14 @@ abstract
         ∥-map (\ (q3 , q1<q3 , q3<q2) -> q3 , q3<q2 , q1<q3) (dense-< {q1} {q2} q1<q2)
 
 abstract
-  ℚ->ℝ-preserves-< : (q1 q2 : ℚ) -> (q1 < q2) -> (ℚ->ℝ q1) ℝ< (ℚ->ℝ q2)
-  ℚ->ℝ-preserves-< q1 q2 lt = ∥-map handle (dense-< {q1} {q2} lt)
+  ℚ->ℝ-preserves-< : {q1 q2 : ℚ} -> (q1 < q2) -> (ℚ->ℝ q1) ℝ< (ℚ->ℝ q2)
+  ℚ->ℝ-preserves-< {q1} {q2} q1<q2 = ∥-map handle (dense-< q1<q2)
     where
     handle : Σ[ q ∈ ℚ ] (q1 < q × q < q2) -> (ℚ->ℝ q1) ℝ<' (ℚ->ℝ q2)
     handle (q , l , u) = ℝ<'-cons q l u
 
-  ℚ->ℝ-preserves-≤ : (q1 q2 : ℚ) -> (q1 ≤ q2) -> (ℚ->ℝ q1) ≤ (ℚ->ℝ q2)
-  ℚ->ℝ-preserves-≤ q1 q2 q1≤q2 q2<q1 = unsquash isPropBot (∥-map handle q2<q1)
+  ℚ->ℝ-preserves-≤ : {q1 q2 : ℚ} -> (q1 ≤ q2) -> (ℚ->ℝ q1) ≤ (ℚ->ℝ q2)
+  ℚ->ℝ-preserves-≤ {q1} {q2} q1≤q2 q2<q1 = unsquash isPropBot (∥-map handle q2<q1)
     where
     handle : (ℚ->ℝ q2) ℝ<' (ℚ->ℝ q1) -> Bot
     handle (ℝ<'-cons q q2<q q<q1) = irrefl-< (trans-< q<q1 (trans-≤-< q1≤q2 q2<q))

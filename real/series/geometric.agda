@@ -327,22 +327,22 @@ module _ (x : ℝ) (0≤x : 0# ≤ x) (x<1 : x < 1#) where
         x<q = U->ℝ< xU-q
         0<q : 0# < q
         0<q = U->ℚ< (trans-ℝ≤-U 0≤x xU-q)
-        0≤q = weaken-< (ℚ->ℝ-preserves-< _ _ 0<q)
-        q≤1 = weaken-< (ℚ->ℝ-preserves-< _ _ q<1)
+        0≤q = weaken-< (ℚ->ℝ-preserves-< 0<q)
+        q≤1 = weaken-< (ℚ->ℝ-preserves-< q<1)
         handle2 : Σ[ m ∈ ℕ ] (q ^ℕ m) < ε ->
                   ∀Largeℕ (\n -> εBounded ε (diff 0# (geometric-sequence x n)))
         handle2 (m , q^m<ε) = ∣ m , g ∣
           where
           g : (n : ℕ) -> m ≤ n -> εBounded ε (diff 0# (geometric-sequence x n))
           g n m≤n = subst (εBounded ε) (sym diff-step >=> +-left-zero)
-                      (ℝ<->L (trans-<-≤ (ℚ->ℝ-preserves-< _ _ -ε<0)
+                      (ℝ<->L (trans-<-≤ (ℚ->ℝ-preserves-< -ε<0)
                                         (geometric-sequence-0≤ 0≤x n)) ,
                        ℝ<->U (trans-≤-<
                                (trans-≤-=
                                  (trans-≤ (^ℕ-0≤-preserves-≤ 0≤x (weaken-< x<q) n)
                                           (geometric-sequence-≤1 0≤q q≤1 m n m≤n))
                                  (sym (ℚ^ℕ-ℝ^ℕ-path m)))
-                               (ℚ->ℝ-preserves-< _ _ q^m<ε)))
+                               (ℚ->ℝ-preserves-< q^m<ε)))
 
 
   isLimit-geometric-series : isLimit (geometric-series x) y

@@ -15,4 +15,4 @@ open import semiring
 instance
   NonTrivalLinearlyOrderedSemiringStr-ℝ :
     NonTrivialLinearlyOrderedSemiringStr LinearlyOrderedSemiringStr-ℝ
-  NonTrivalLinearlyOrderedSemiringStr-ℝ = record { 0<1 = ℚ->ℝ-preserves-< 0# 1# 0<1 }
+  NonTrivalLinearlyOrderedSemiringStr-ℝ = record { 0<1 = ℚ->ℝ-preserves-< 0<1 }

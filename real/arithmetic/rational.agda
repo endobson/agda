@@ -126,4 +126,4 @@ abstract
   cong ℚ->ℝ (+-cong (sym *-right-one) (sym *-right-one) >=> 1/2r-path' 1#)
 
 0<1/2ℝ : 0# < 1/2ℝ
-0<1/2ℝ = ℚ->ℝ-preserves-< _ _ Pos-1/2r
+0<1/2ℝ = ℚ->ℝ-preserves-< Pos-1/2r

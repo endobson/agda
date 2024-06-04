@@ -129,10 +129,10 @@ private
               (trans-<
                 (trans-=-<
                    (sym ℚ->ℝ-preserves-diff >=> cong ℚ->ℝ (udiff n i))
-                   (ℚ->ℝ-preserves-< _ _ (trans-<-= (*₂-preserves-< 1/n<δ2 0<diff-a'b')
-                                                    (*-assoc >=>
-                                                     *-right (r1/-inverse _ _) >=>
-                                                     *-right-one))))
+                   (ℚ->ℝ-preserves-< (trans-<-= (*₂-preserves-< 1/n<δ2 0<diff-a'b')
+                                                (*-assoc >=>
+                                                 *-right (r1/-inverse _ _) >=>
+                                                 *-right-one))))
                 (L->ℝ< δL-δ'))
 
   ∃δFinePartition' : {a b : ℝ} -> a < b -> (δ : ℝ⁺) -> ∃ (Partition a b) (isδFine ⟨ δ ⟩)
@@ -170,7 +170,7 @@ private
             trans-=-≤ (sym diff-trans)
               (trans-≤-= (+-preserves-≤ (weaken-< diff-aal<0)
                                         (trans-=-≤ (sym ℚ->ℝ-preserves-diff)
-                                                   (trans-≤ (ℚ->ℝ-preserves-≤ _ _ w-ai≤δ2')
+                                                   (trans-≤ (ℚ->ℝ-preserves-≤ w-ai≤δ2')
                                                             (trans-≤ (weaken-< (L->ℝ< δ2L-δ2'))
                                                                      min-≤-right))))
                          +-left-zero)
@@ -179,7 +179,7 @@ private
           diff-blb≤δ =
             trans-=-≤ (sym diff-trans)
               (trans-≤-= (+-preserves-≤ (trans-=-≤ (sym ℚ->ℝ-preserves-diff)
-                                                   (trans-≤ (ℚ->ℝ-preserves-≤ _ _ w-bi≤δ2')
+                                                   (trans-≤ (ℚ->ℝ-preserves-≤ w-bi≤δ2')
                                                             (trans-≤ (weaken-< (L->ℝ< δ2L-δ2'))
                                                                      min-≤-right)))
                                         (weaken-< diff-bub<0))
@@ -211,7 +211,7 @@ private
 
               albu≤diff-ab : ℚ->ℝ (diff al bu) ≤ diff a b
               albu≤diff-ab =
-                trans-≤ (ℚ->ℝ-preserves-≤ _ _ albu≤)
+                trans-≤ (ℚ->ℝ-preserves-≤ albu≤)
                   (trans-=-≤ ℚ->ℝ-preserves-+ (trans-≤-= (+-preserves-≤ δ2'<ab/2 δ2'<ab/2)
                                                          (sym *-distrib-+-left >=>
                                                           *-right 1/2ℝ-1-path >=> *-right-one)))

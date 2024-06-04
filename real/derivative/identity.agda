@@ -34,9 +34,9 @@ private
       lim-point : isLimitPoint' (\h -> h # 0# , isProp-#) 0#
       lim-point .isLimitPoint'.seq n = ℚ->ℝ (1/ℕ (suc n , tt))
       lim-point .isLimitPoint'.S-seq n =
-        inj-r (ℚ->ℝ-preserves-< _ _ (Pos-1/ℕ _))
+        inj-r (ℚ->ℝ-preserves-< (Pos-1/ℕ _))
       lim-point .isLimitPoint'.seq-#x n =
-        inj-r (ℚ->ℝ-preserves-< _ _ (Pos-1/ℕ _))
+        inj-r (ℚ->ℝ-preserves-< (Pos-1/ℕ _))
       lim-point .isLimitPoint'.isLimit-seq = isLimit-harmonic-sequence
 
   isDerivativeAt-id x .isLimitAt.δε δ = ∣ (1# , 0<1) , g ∣

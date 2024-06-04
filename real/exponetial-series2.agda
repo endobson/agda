@@ -80,7 +80,7 @@ isLimit-exponential-ratio : (x : ℝ) -> isLimit (abs ∘ exponential-ratios x) 
 isLimit-exponential-ratio x = εBounded-diff->isLimit f
   where
   f : (ε : ℚ⁺) -> ∀Largeℕ (\n -> εBounded ⟨ ε ⟩ (diff 0# (abs (exponential-ratios x n))))
-  f (ε , 0<ε) = ∥-map handle (strong-archimedean-property (ℚ->ℝ-preserves-< _ _ 0<ε))
+  f (ε , 0<ε) = ∥-map handle (strong-archimedean-property (ℚ->ℝ-preserves-< 0<ε))
     where
     handle : Σ[ n ∈ ℕ ] (abs x < (ℕ->Semiring n * (ℚ->ℝ ε))) ->
              ∀Largeℕ' (\n -> εBounded ε (diff 0# (abs (exponential-ratios x n))))
@@ -89,11 +89,11 @@ isLimit-exponential-ratio x = εBounded-diff->isLimit f
       ax/n<ε : (abs x * ℚ->ℝ (1/ℕ (suc n , tt))) < ℚ->ℝ ε
       ax/n<ε =
         trans-=-< (*-commute)
-          (trans-<-= (*₁-preserves-< (ℚ->ℝ-preserves-< _ _ (Pos-1/ℕ (suc n , tt)))
+          (trans-<-= (*₁-preserves-< (ℚ->ℝ-preserves-< (Pos-1/ℕ (suc n , tt)))
                                      (trans-< (trans-<-= ax<nε (*-left (ℕ->Semiring-ℝ-path n)))
                                               (*₂-preserves-<
-                                                (ℚ->ℝ-preserves-< _ _ (ℕ->ℚ-preserves-order _ _ refl-≤))
-                                                (ℚ->ℝ-preserves-< _ _ 0<ε))))
+                                                (ℚ->ℝ-preserves-< (ℕ->ℚ-preserves-order _ _ refl-≤))
+                                                (ℚ->ℝ-preserves-< 0<ε))))
                      εp)
         where
         εp : (ℚ->ℝ (1/ℕ (suc n , tt)) * (ℕ->ℝ (suc n) * ℚ->ℝ ε)) == ℚ->ℝ ε
@@ -108,12 +108,12 @@ isLimit-exponential-ratio x = εBounded-diff->isLimit f
 
 
         -ε<abs-ratio : (ℚ->ℝ (- ε)) < abs (exponential-ratios x m)
-        -ε<abs-ratio = trans-<-≤ (ℚ->ℝ-preserves-< _ _ (minus-flips-0< 0<ε)) abs-0≤
+        -ε<abs-ratio = trans-<-≤ (ℚ->ℝ-preserves-< (minus-flips-0< 0<ε)) abs-0≤
         abs-ratio<ε : abs (exponential-ratios x m) < (ℚ->ℝ ε)
         abs-ratio<ε =
           trans-=-< (abs-distrib-* >=>
-                     *-right (abs-0<-path (ℚ->ℝ-preserves-< _ _ (Pos-1/ℕ (suc m , tt)))))
-                    (trans-≤-< (*₁-preserves-≤ abs-0≤ (ℚ->ℝ-preserves-≤ _ _
+                     *-right (abs-0<-path (ℚ->ℝ-preserves-< (Pos-1/ℕ (suc m , tt)))))
+                    (trans-≤-< (*₁-preserves-≤ abs-0≤ (ℚ->ℝ-preserves-≤
                                                         (1/ℕ-flips-≤ (suc n , tt) (suc m , tt)
                                                           (suc-≤ n≤m))))
                                 ax/n<ε)

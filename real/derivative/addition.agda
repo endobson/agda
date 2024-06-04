@@ -31,9 +31,9 @@ isDerivative-+ isD-f isD-g x .isLimitAt.limit-point = ∣ lim-point ∣
   lim-point : isLimitPoint' (\h -> h # 0# , isProp-#) 0#
   lim-point .isLimitPoint'.seq n = ℚ->ℝ (1/ℕ (suc n , tt))
   lim-point .isLimitPoint'.S-seq n =
-    inj-r (ℚ->ℝ-preserves-< _ _ (Pos-1/ℕ _))
+    inj-r (ℚ->ℝ-preserves-< (Pos-1/ℕ _))
   lim-point .isLimitPoint'.seq-#x n =
-    inj-r (ℚ->ℝ-preserves-< _ _ (Pos-1/ℕ _))
+    inj-r (ℚ->ℝ-preserves-< (Pos-1/ℕ _))
   lim-point .isLimitPoint'.isLimit-seq = isLimit-harmonic-sequence
 isDerivative-+ {f} {f'} {g} {g'} isD-f isD-g x .isLimitAt.δε δ =
   ∥-map2 handle (isD-f x .isLimitAt.δε δ/2) (isD-g x .isLimitAt.δε δ/2)

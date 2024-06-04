@@ -50,7 +50,7 @@ record Partition (a : ℝ) (b : ℝ) : Type₀ where
   un<b = L->ℝ< bL-un
 
   uℝ<uℝ : (i : Fin n) -> uℝ (inc-fin i) < uℝ (suc-fin i)
-  uℝ<uℝ i = ℚ->ℝ-preserves-< _ _ (u<u i)
+  uℝ<uℝ i = ℚ->ℝ-preserves-< (u<u i)
 
   interval-low : (i : PartitionIndex n) -> ℝ
   interval-low i = uB (fst (index->low-boundary i))
@@ -74,7 +74,7 @@ record Partition (a : ℝ) (b : ℝ) : Type₀ where
 
 
     a<ui : (i : Fin (suc n)) -> a < uℝ i
-    a<ui i = trans-<-≤ a<u0 (ℚ->ℝ-preserves-≤ _ _ (u0≤ui i))
+    a<ui i = trans-<-≤ a<u0 (ℚ->ℝ-preserves-≤ (u0≤ui i))
 
     aU-ui : (i : Fin (suc n)) -> Real.U a (u i)
     aU-ui i = ℝ<->U (a<ui i)
@@ -90,7 +90,7 @@ record Partition (a : ℝ) (b : ℝ) : Type₀ where
                 (handle (suc i) j (+'-right-suc >=> path))
 
     ui<b : (i : Fin (suc n)) -> uℝ i < b
-    ui<b i = trans-≤-< (ℚ->ℝ-preserves-≤ _ _ (ui≤un i)) un<b
+    ui<b i = trans-≤-< (ℚ->ℝ-preserves-≤ (ui≤un i)) un<b
 
     bL-ui : (i : Fin (suc n)) -> Real.L b (u i)
     bL-ui i = ℝ<->L (ui<b i)
@@ -135,7 +135,7 @@ record Partition (a : ℝ) (b : ℝ) : Type₀ where
     uB-preserves-< (pb<-low-mid i)  = a<high-boundary _
     uB-preserves-< (pb<-low-high)   = a<b
     uB-preserves-< (pb<-mid-high i) = low-boundary<b _
-    uB-preserves-< (pb<-mid-mid i j lt) = ℚ->ℝ-preserves-< _ _ (u-preserves-< lt)
+    uB-preserves-< (pb<-mid-mid i j lt) = ℚ->ℝ-preserves-< (u-preserves-< lt)
 
     uB-preserves-≤ : {i j : PartitionBoundary n} -> i ≤ j -> uB i ≤ uB j
     uB-preserves-≤ {i} {j} i≤j uBj<uBi = handle (trichotomous-< i j)

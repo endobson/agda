@@ -72,7 +72,7 @@ module _ where
       handle2 (m , y^m<ε') = m ,
         trans-≤-< (trans-≤-= (^ℕ-0≤-preserves-≤ 0≤x (weaken-< (U->ℝ< xU-y)) m)
                              (sym (ℚ^ℕ-ℝ^ℕ-path m)))
-                  (trans-< (ℚ->ℝ-preserves-< _ _ y^m<ε') (L->ℝ< εL-ε'))
+                  (trans-< (ℚ->ℝ-preserves-< y^m<ε') (L->ℝ< εL-ε'))
 
   -- TODO remove 0≤l argument
   ratio-test : {s1 s2 : Seq} {l : ℝ} -> isRatioSeq s1 s2 -> isLimit (abs ∘ s2) l -> 0# ≤ l -> l < 1# ->
@@ -220,7 +220,7 @@ module _ where
             p8 = ∣ n , p7 ∣
 
           p9 : ∀Largeℕ (\i -> abs (s1 i) ≤ (l' ^ℕ i))
-          p9 = ∥-bind (either p6 p8) (comparison-< _ k _ (ℚ->ℝ-preserves-< _ _ Pos-1r))
+          p9 = ∥-bind (either p6 p8) (comparison-< _ k _ (ℚ->ℝ-preserves-< Pos-1r))
 
       p10 : isAbsConvergentSeries s1
       p10 = squeeze-isConvergentSeries lower≤ upper≤ isConvergentLower isConvergentUpper

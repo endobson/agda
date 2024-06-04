@@ -42,9 +42,9 @@ private
         trans-<-=
           (trans-<-≤
             (trans-< (U->ℝ< aU-a')
-                     (trans-<-= (ℚ->ℝ-preserves-< _ _ (trans-<-= a'<nb' (*-left (ℕ->Semiring-ℚ-path n))))
+                     (trans-<-= (ℚ->ℝ-preserves-< (trans-<-= a'<nb' (*-left (ℕ->Semiring-ℚ-path n))))
                                 ℚ->ℝ-preserves-*))
-            (*₁-preserves-≤ (ℚ->ℝ-preserves-≤ _ _ (ℕ->ℚ-preserves-≤ 0 n zero-≤))
+            (*₁-preserves-≤ (ℚ->ℝ-preserves-≤ (ℕ->ℚ-preserves-≤ 0 n zero-≤))
                             (weaken-< (L->ℝ< bL-b'))))
           (*-left (sym (ℕ->Semiring-ℝ-path n)))
 
