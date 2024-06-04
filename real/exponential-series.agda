@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module real.exponetial-series2 where
+module real.exponential-series where
 
 open import additive-group
 open import additive-group.instances.real
