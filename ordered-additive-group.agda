@@ -54,6 +54,10 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D} {O : isL
     +-preserves-0< {a} {b} 0<a 0<b =
       subst (_< (a + b)) +-right-zero (+-preserves-< 0<a 0<b)
 
+    +-preserves-<0 : {a b : D} -> a < 0# -> b < 0# -> (a + b) < 0#
+    +-preserves-<0 {a} {b} 0<a 0<b =
+      subst ((a + b) <_) +-right-zero (+-preserves-< 0<a 0<b)
+
     +₁-reflects-< : {a b c : D} -> (a + b) < (a + c) -> b < c
     +₁-reflects-< = LOA.+₁-reflects-<
 
@@ -228,3 +232,15 @@ module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {ACM : AdditiveCommMonoid D}
 
     diff-0≤⁺ : {a b : D} -> a ≤ b -> 0# ≤ diff a b
     diff-0≤⁺ a≤b = trans-=-≤ (sym +-inverse) (+₂-preserves-≤ a≤b)
+
+    diff-0≤⁻ : {a b : D} -> 0# ≤ (diff a b) -> a ≤ b
+    diff-0≤⁻ 0≤ab =
+      trans-=-≤ (sym +-right-zero) (trans-≤-= (+₁-preserves-≤ 0≤ab) diff-step)
+
+    diff-≤0⁺ : {a b : D} -> b ≤ a -> diff a b ≤ 0#
+    diff-≤0⁺ a≤b =
+      trans-=-≤ diff-anticommute (minus-flips-0≤ (diff-0≤⁺ a≤b))
+
+    diff-≤0⁻ : {a b : D} -> (diff a b) ≤ 0# -> b ≤ a
+    diff-≤0⁻ 0≤ab =
+     diff-0≤⁻ (trans-≤-= (minus-flips-≤0 0≤ab) (sym diff-anticommute))
