@@ -930,15 +930,14 @@ abstract
     subst (_> (a + b)) +-right-zero (+₁-preserves-< neg-b)
 
 
--- TODO remove index args
 abstract
-  ℕ->ℚ-preserves-order : (a b : Nat) -> a < b -> (ℕ->ℚ a) < (ℕ->ℚ b)
-  ℕ->ℚ-preserves-order a b a<b =
-    ℚ<-cons (transport (sym ℚ<-raw-eval) (ℕ->ℚ'-preserves-order a b a<b))
+  ℕ->ℚ-preserves-< : {a b : Nat} -> a < b -> (ℕ->ℚ a) < (ℕ->ℚ b)
+  ℕ->ℚ-preserves-< a<b =
+    ℚ<-cons (transport (sym ℚ<-raw-eval) (ℕ->ℚ'-preserves-< a<b))
 
-  ℕ->ℚ-preserves-≤ : (a b : Nat) -> a ≤ b -> (ℕ->ℚ a) ≤ (ℕ->ℚ b)
-  ℕ->ℚ-preserves-≤ a b a≤b =
-    ℚ≤-cons (transport (sym ℚ≤-raw-eval) (ℕ->ℚ'-preserves-≤ a b a≤b))
+  ℕ->ℚ-preserves-≤ : {a b : Nat} -> a ≤ b -> (ℕ->ℚ a) ≤ (ℕ->ℚ b)
+  ℕ->ℚ-preserves-≤ a≤b =
+    ℚ≤-cons (transport (sym ℚ≤-raw-eval) (ℕ->ℚ'-preserves-≤ a≤b))
 
   1/ℕ-flips-order : (a b : Nat⁺) -> ⟨ a ⟩ < ⟨ b ⟩ -> 1/ℕ b < 1/ℕ a
   1/ℕ-flips-order a@(a' , _) b@(b' , _) lt = subst2 _<_ b-path a-path ab*<
@@ -961,7 +960,7 @@ abstract
         r*-right-one (1/ℕ b)
 
       ab*< : (ab r* (ℕ->ℚ a')) < (ab r* (ℕ->ℚ b'))
-      ab*< = *₁-preserves-< pos-ab (ℕ->ℚ-preserves-order a' b' lt)
+      ab*< = *₁-preserves-< pos-ab (ℕ->ℚ-preserves-< lt)
 
   1/ℕ-flips-≤ : (a b : Nat⁺) -> ⟨ a ⟩ ≤ ⟨ b ⟩ -> 1/ℕ b ≤ 1/ℕ a
   1/ℕ-flips-≤ a@(a' , _) b@(b' , _) lt = subst2 _≤_ b-path a-path ab*≤
@@ -984,7 +983,7 @@ abstract
         r*-right-one (1/ℕ b)
 
       ab*≤ : (ab r* (ℕ->ℚ a')) ≤ (ab r* (ℕ->ℚ b'))
-      ab*≤ = *₁-preserves-≤ (weaken-< pos-ab) (ℕ->ℚ-preserves-≤ a' b' lt)
+      ab*≤ = *₁-preserves-≤ (weaken-< pos-ab) (ℕ->ℚ-preserves-≤ lt)
 
   1/ℕ≤1 : (a : Nat⁺) -> 1/ℕ a ≤ 1#
   1/ℕ≤1 a@(suc _ , _) = 1/ℕ-flips-≤ 1⁺ a nat.order.zero-<

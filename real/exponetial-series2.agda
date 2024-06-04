@@ -92,7 +92,7 @@ isLimit-exponential-ratio x = εBounded-diff->isLimit f
           (trans-<-= (*₁-preserves-< (ℚ->ℝ-preserves-< (Pos-1/ℕ (suc n , tt)))
                                      (trans-< (trans-<-= ax<nε (*-left (ℕ->Semiring-ℝ-path n)))
                                               (*₂-preserves-<
-                                                (ℚ->ℝ-preserves-< (ℕ->ℚ-preserves-order _ _ refl-≤))
+                                                (ℚ->ℝ-preserves-< (ℕ->ℚ-preserves-< refl-≤))
                                                 (ℚ->ℝ-preserves-< 0<ε))))
                      εp)
         where

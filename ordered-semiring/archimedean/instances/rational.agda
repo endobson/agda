@@ -50,7 +50,7 @@ private
     (i , nonneg-injective (CommMonoidʰ.preserves-∙ int-+ʰ i a >=> p))
 
   ℤ->ℚ-preserves-0≤ : (a : ℤ) -> 0# ≤ a -> 0# ≤ (ℤ->ℚ a)
-  ℤ->ℚ-preserves-0≤ (nonneg a) 0≤a = ℕ->ℚ-preserves-≤ _ _ (int-reflects-≤ 0≤a)
+  ℤ->ℚ-preserves-0≤ (nonneg a) 0≤a = ℕ->ℚ-preserves-≤ (int-reflects-≤ 0≤a)
   ℤ->ℚ-preserves-0≤ (neg a) 0≤a =
     bot-elim (int.NonNeg->¬Neg {neg a} (≥0->NonNeg 0≤a) Neg-a)
     where
@@ -58,7 +58,7 @@ private
     Neg-a = tt
 
   ℤ->ℚ-preserves-0< : (a : ℤ) -> 0# < a -> 0# < (ℤ->ℚ a)
-  ℤ->ℚ-preserves-0< (nonneg a) 0<a = ℕ->ℚ-preserves-order _ _ (int-reflects-< 0<a)
+  ℤ->ℚ-preserves-0< (nonneg a) 0<a = ℕ->ℚ-preserves-< (int-reflects-< 0<a)
   ℤ->ℚ-preserves-0< (neg a) 0<a =
     bot-elim (int.NonNeg->¬Neg {neg a} (≥0->NonNeg (weaken-< 0<a)) Neg-a)
     where
@@ -68,12 +68,12 @@ private
 
   ℤ->ℚ-preserves-≤ : (a b : ℤ) -> a ≤ b -> (ℤ->ℚ a) ≤ (ℤ->ℚ b)
   ℤ->ℚ-preserves-≤ a b (i , p) =
-    trans-≤-= (trans-=-≤ (sym +-left-zero) (+₂-preserves-≤ (ℕ->ℚ-preserves-≤ 0 i zero-≤)))
+    trans-≤-= (trans-=-≤ (sym +-left-zero) (+₂-preserves-≤ (ℕ->ℚ-preserves-≤ zero-≤)))
               (sym (ℤ->ℚ-preserves-+ _ _) >=> cong ℤ->ℚ p)
 
   ℤ->ℚ-preserves-< : (a b : ℤ) -> a < b -> (ℤ->ℚ a) < (ℤ->ℚ b)
   ℤ->ℚ-preserves-< a b ((suc i , _) , p) =
-    trans-<-= (trans-=-< (sym +-left-zero) (+₂-preserves-< (ℕ->ℚ-preserves-order 0 (suc i) zero-<)))
+    trans-<-= (trans-=-< (sym +-left-zero) (+₂-preserves-< (ℕ->ℚ-preserves-< zero-<)))
               (sym (ℤ->ℚ-preserves-+ _ _) >=> cong ℤ->ℚ p)
 
   ℚFinite : (q : ℚ) -> ∃[ n ∈ ℕ ] (q < ℕ->ℚ n)

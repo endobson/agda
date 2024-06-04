@@ -44,7 +44,7 @@ private
             (trans-< (U->ℝ< aU-a')
                      (trans-<-= (ℚ->ℝ-preserves-< (trans-<-= a'<nb' (*-left (ℕ->Semiring-ℚ-path n))))
                                 ℚ->ℝ-preserves-*))
-            (*₁-preserves-≤ (ℚ->ℝ-preserves-≤ (ℕ->ℚ-preserves-≤ 0 n zero-≤))
+            (*₁-preserves-≤ (ℚ->ℝ-preserves-≤ (ℕ->ℚ-preserves-≤ zero-≤))
                             (weaken-< (L->ℝ< bL-b'))))
           (*-left (sym (ℕ->Semiring-ℝ-path n)))
 

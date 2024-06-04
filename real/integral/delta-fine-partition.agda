@@ -97,7 +97,7 @@ private
         u<u _ =
           +₂-preserves-< (*₂-preserves-<
             (*₂-preserves-<
-              (ℕ->ℚ-preserves-order _ _ refl-≤)
+              (ℕ->ℚ-preserves-< refl-≤)
               (Pos-1/ℕ n⁺))
             0<diff-a'b')
 

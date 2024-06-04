@@ -144,8 +144,8 @@ private
   lemma1 n 3≤n = trans-≤-< 0≤n²-3n (trans-=-< (sym +-right-zero) (+₁-preserves-< Pos-1r))
     where
     0≤n²-3n : 0# ≤ ((ℕ->ℚ n * ℕ->ℚ n) + (- ((ℕ->ℚ 3) * (ℕ->ℚ n))))
-    0≤n²-3n = trans-≤-= (*-preserves-0≤ (diff-0≤⁺ (ℕ->ℚ-preserves-≤ 3 n 3≤n))
-                                        (ℕ->ℚ-preserves-≤ 0 n zero-≤))
+    0≤n²-3n = trans-≤-= (*-preserves-0≤ (diff-0≤⁺ (ℕ->ℚ-preserves-≤ 3≤n))
+                                        (ℕ->ℚ-preserves-≤ zero-≤))
                         (*-distrib-+-right >=> +-right minus-extract-left)
 
   lemma2 : (n : Nat⁺) -> 3 ≤ ⟨ n ⟩ -> 0# < (1# + (- ((ℕ->ℚ 3) * 1/ℕ n)) + (1/ℕ n * 1/ℕ n))
@@ -206,7 +206,7 @@ private
     p3 = trans-=-≤ (sym (1/2ℕ-path n⁺)) p2
     p4 : (1/ℕ n⁺) ≤ (ℕ->ℚ 2 * (1/ℕ (suc n , tt)))
     p4 = trans-=-≤ (sym *-left-one >=> *-left (sym 2r-1/2r-path) >=> *-assoc)
-                   (*₁-preserves-≤ (ℕ->ℚ-preserves-≤ _ _ zero-≤) p3)
+                   (*₁-preserves-≤ (ℕ->ℚ-preserves-≤ zero-≤) p3)
 
   0≤1-1/n : (n : Nat⁺) -> 0# ≤ (1# + (- (1/ℕ n)))
   0≤1-1/n n = diff-0≤⁺ (1/ℕ≤1 n)
