@@ -9,6 +9,7 @@ open import nat.order
 open import order
 open import order.instances.nat
 open import ordered-ring
+open import ordered-additive-group.instances.nat
 open import ordered-semiring
 open import ordered-semiring.instances.nat
 open import semiring
@@ -42,5 +43,3 @@ factorial⁺ n = factorial n , <->Pos' (0<factorial n)
   where
   2<sn+4 : 2 < sn+4
   2<sn+4 = suc-≤ (suc-≤ (suc-≤ zero-≤))
-  0<2 : 0 < 2
-  0<2 = (suc-≤ zero-≤)

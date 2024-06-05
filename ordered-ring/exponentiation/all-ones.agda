@@ -250,11 +250,4 @@ module _
   all-ones-eval-0< x y (suc (suc n)) 0<powers en =
     all-ones-pif-0< x y n en (trans-<-= 0<powers (+-right (minus-^ℕ-even x (suc (suc n)) en)))
   all-ones-eval-0< x y zero 0<powers _ =
-    trans-<-= 0<1 (sym (eval-all-ones-zero x y))
-    where
-    0<1 : 0# < 1#
-    0<1 = unsquash isProp-< (∥-map handle (+-reflects-0< 0<powers))
-      where
-      handle : (0# < 1#) ⊎ (0# < 1#) -> 0# < 1#
-      handle (inj-l lt) = lt
-      handle (inj-r lt) = lt
+    trans-<-= (non-trivial-0<1 0<powers) (sym (eval-all-ones-zero x y))

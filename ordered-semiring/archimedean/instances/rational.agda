@@ -23,10 +23,9 @@ open import order.instances.int
 open import order.instances.nat
 open import ordered-additive-group
 open import ordered-semiring
-open import ordered-semiring.non-trivial
-open import ordered-semiring.non-trivial.instances.int
 open import ordered-semiring.archimedean
 open import ordered-semiring.archimedean.instances.int
+open import ordered-semiring.instances.int
 open import ordered-semiring.instances.rational
 open import rational
 open import rational.order

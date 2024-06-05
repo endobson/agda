@@ -8,8 +8,8 @@ open import apartness
 open import base
 open import equality
 open import order.instances.real
-open import ordered-semiring.non-trivial
-open import ordered-semiring.non-trivial.instances.rational
+open import ordered-semiring
+open import ordered-semiring.instances.rational
 open import rational
 open import rational.order
 open import real

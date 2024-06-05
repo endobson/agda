@@ -53,3 +53,7 @@ abstract
     StronglyPartiallyOrderedSemiringStr-ℕ :
       StronglyPartiallyOrderedSemiringStr NatSemiring useⁱ useⁱ
     StronglyPartiallyOrderedSemiringStr-ℕ = StronglyPartiallyOrderedSemiringStr-Dec<
+
+    NonTrivalLinearlyOrderedSemiringStr-ℕ :
+      NonTrivialLinearlyOrderedSemiringStr LinearlyOrderedSemiringStr-ℕ
+    NonTrivalLinearlyOrderedSemiringStr-ℕ = record { 0<1 = refl-≤ }

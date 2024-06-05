@@ -18,7 +18,6 @@ open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.initial
 open import ordered-semiring.integral-domain
-open import ordered-semiring.non-trivial
 open import relation
 open import ring
 open import semiring

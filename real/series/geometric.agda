@@ -29,8 +29,6 @@ open import ordered-semiring.exponentiation
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
-open import ordered-semiring.non-trivial
-open import ordered-semiring.non-trivial.instances.real
 open import rational
 open import rational.order
 open import real

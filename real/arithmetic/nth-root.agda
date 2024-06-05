@@ -11,8 +11,8 @@ open import order
 open import order.instances.rational
 open import ordered-additive-group
 open import ordered-ring.exponentiation
-open import ordered-semiring.non-trivial
-open import ordered-semiring.non-trivial.instances.rational
+open import ordered-semiring
+open import ordered-semiring.instances.rational
 open import rational
 open import rational.order
 open import real

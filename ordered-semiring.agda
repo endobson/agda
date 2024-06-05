@@ -11,6 +11,7 @@ open import hlevel
 open import isomorphism
 open import order
 open import order.homomorphism
+open import ordered-additive-group
 open import relation
 open import semiring
 open import sum
@@ -403,3 +404,29 @@ module _
       isProp-Semiringʰ (LinearlyOrderedSemiringʰ.semiringʰ h1) (LinearlyOrderedSemiringʰ.semiringʰ h2) i
     isProp-LinearlyOrderedSemiringʰ h1 h2 i .LinearlyOrderedSemiringʰ.<ʰ =
       isProp-LinearOrderʰ (LinearlyOrderedSemiringʰ.<ʰ h1) (LinearlyOrderedSemiringʰ.<ʰ h2) i
+
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+         {LO : isLinearOrder D<}
+  where
+  private
+    instance
+      IACM = ACM
+      ILO = LO
+      IS = S
+
+  record NonTrivialLinearlyOrderedSemiringStr (LOS : LinearlyOrderedSemiringStr S LO) :
+      Type (ℓ-max ℓD ℓ<)
+    where
+    no-eta-equality
+    field
+      0<1 : 0# < 1#
+
+  module _ {LOS : LinearlyOrderedSemiringStr S LO} {{NTS : NonTrivialLinearlyOrderedSemiringStr LOS}}
+    where
+    open NonTrivialLinearlyOrderedSemiringStr NTS public
+
+    module _ {{LOAS : LinearlyOrderedAdditiveStr ACM LO}} where
+      opaque
+        0<2 : 0# < 2#
+        0<2 = +-preserves-0< 0<1 0<1

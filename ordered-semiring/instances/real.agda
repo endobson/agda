@@ -8,9 +8,11 @@ open import order.instances.real
 open import ordered-additive-group.instances.real
 open import ordered-ring
 open import ordered-semiring
+open import ordered-semiring.instances.rational
 open import ordered-semiring.negated
 open import ordered-semiring.ring
 open import real.arithmetic.order
+open import real.rational
 open import ring.implementations.real
 
 instance
@@ -20,3 +22,7 @@ instance
 
   PartiallyOrderedSemiringStr-ℝ : PartiallyOrderedSemiringStr ℝSemiring useⁱ
   PartiallyOrderedSemiringStr-ℝ = PartiallyOrderedSemiringStr-Negated _ _
+
+  NonTrivalLinearlyOrderedSemiringStr-ℝ :
+    NonTrivialLinearlyOrderedSemiringStr LinearlyOrderedSemiringStr-ℝ
+  NonTrivalLinearlyOrderedSemiringStr-ℝ = record { 0<1 = ℚ->ℝ-preserves-< 0<1 }

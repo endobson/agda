@@ -18,10 +18,9 @@ open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
 open import ordered-ring.absolute-value
+open import ordered-semiring
+open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
-open import ordered-semiring.non-trivial
-open import ordered-semiring.non-trivial.instances.real
-open import ordered-semiring.non-trivial.instances.rational
 open import rational
 open import rational.order
 open import real
