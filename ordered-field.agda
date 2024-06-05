@@ -67,9 +67,7 @@ module _ {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
       0<iℕ (suc n , _) =
         trans-=-<
           (sym (Semiringʰ.preserves-0# (∃!-prop ∃!ℕ->Semiring)))
-          (LinearlyOrderedSemiringʰ.preserves-<
-            (∃!-prop (∃!ℕ->LinearlyOrderedSemiring 0<1))
-            zero-<)
+          (ℕ->Semiring-preserves-< zero-<)
 
   opaque
     ∃!1/ℕ : (n : Nat⁺) -> ∃![ d ∈ D ] (iℕ ⟨ n ⟩ * d == 1#)
