@@ -18,6 +18,7 @@ open import finite-product.arithmetic
 open import finset
 open import finset.without-point
 open import functions
+open import heyting-field.instances.rational
 open import hlevel
 open import int
 open import isomorphism
@@ -30,8 +31,10 @@ open import order.instances.rational
 open import order.minmax.instances.rational
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
+open import ordered-field hiding (1/ℕ)
 open import ordered-semiring
 open import ordered-semiring.instances.nat
+open import ordered-semiring.instances.rational
 open import prime
 open import rational
 open import rational-prime
@@ -42,8 +45,10 @@ open import ring
 open import ring.implementations.rational
 open import semiring
 open import semiring.exponentiation
+open import semiring.initial
 open import semiring.instances.nat
 open import sigma.base
+open import truncation
 open import without-point
 
 private
@@ -85,20 +90,25 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
     handle zero (suc j)    p = bot-elim (2i!=1 (2 ^ℕ j) (sym p))
     handle (suc i) (suc j) p = cong suc (handle i j (*'-left-injective 2⁺ p))
 
-  path-half : (fst (Ring-ℚ.u1/ (ℚUnit-prime (2 , 2-is-prime)))) == 1/2r
-  path-half =
-    sym *-right-one >=>
-    *-right (sym 2r-1/2r-path) >=>
-    sym *-assoc >=>
-    *-left (cong fst (Ring-ℚ.u1/-left-inverse {x = (ℚUnit-prime (2 , 2-is-prime))})) >=>
-    *-left-one
+
+  path-half : (fst (Ring-ℚ.u1/ (ℚUnit-prime (2 , 2-is-prime)))) == 1/2
+  path-half = sym (∃!-unique (∃!1/ℕ (2 , tt)) _ path)
+    where
+    open Ring-ℚ
+    u : Unit
+    u = (ℚUnit-prime (2 , 2-is-prime))
+
+    u-path : u u* (u1/ u) == Ring-ℚ.1u
+    u-path = u1/-right-inverse
+
+    path : (ℕ->Semiring 2) * (fst (Ring-ℚ.u1/ u)) == 1#
+    path = *-left (ℕ->Semiring-ℚ-path 2) >=> (cong fst u-path)
 
   path-half2 :
-    (1r + (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime (2 , 2-is-prime)))))) == 1/2r
+    (1r + (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime (2 , 2-is-prime)))))) == 1/2
   path-half2 =
-    +-cong (sym 1/2r-1/2r-path) (cong -_ path-half) >=>
+    +-cong (sym 1/2-+-path) (cong -_ path-half) >=>
     +-assoc >=> +-right +-inverse >=> +-right-zero
-
 
   instance
     FinSetStr-PrimeDivisor : {n : Nat⁺} -> FinSetStr (PrimeDivisor n)
@@ -114,7 +124,11 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
     *-right path-half2 >=>
     *-commute >=>
     *-right (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ _ _) >=>
-    sym *-assoc >=> *-left (*-commute >=> 2r-1/2r-path) >=>
+    sym *-assoc >=>
+    *-left (*-commute >=>
+            *-left (sym (ℕ->Semiring-ℚ-path 2) >=>
+                    ℕ->Semiring-preserves-2#) >=>
+            2*1/2-path) >=>
     *-left-one
 
   φ-path2 : (i : ℕ) -> φ (2⁺ *⁺ (2⁺ ^⁺ i)) == (2 ^ℕ i)
@@ -136,7 +150,9 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
     *-cong (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ 2 n)
            (finiteMerge-WithoutPoint _ PrimeDivisor2n-2 _ >=> *-left path-half2) >=>
     *-swap >=>
-    *-left 2r-1/2r-path >=>
+    *-left (*-left (sym (ℕ->Semiring-ℚ-path 2) >=>
+                    ℕ->Semiring-preserves-2#) >=>
+            2*1/2-path) >=>
     *-left-one
 
   forward : (φ (2⁺ *⁺ n⁺) == n) -> (Σ[ i ∈ ℕ ] (2⁺ ^⁺ i == n⁺))
