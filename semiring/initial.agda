@@ -87,6 +87,22 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
   ℕ->Semiring : ℕ -> D
   ℕ->Semiring = ∃!-val ∃!ℕ->Semiring
 
+  opaque
+    ℕ->Semiring-preserves-0# : ℕ->Semiring 0 == 0#
+    ℕ->Semiring-preserves-0# =
+      Semiringʰ.preserves-0# (∃!-prop ∃!ℕ->Semiring)
+
+    ℕ->Semiring-preserves-1# : ℕ->Semiring 1 == 1#
+    ℕ->Semiring-preserves-1# =
+      Semiringʰ.preserves-1# (∃!-prop ∃!ℕ->Semiring)
+
+    ℕ->Semiring-preserves-2# : ℕ->Semiring 2 == 2#
+    ℕ->Semiring-preserves-2# =
+      h.preserves-+ 1 1 >=>
+      +-cong h.preserves-1# h.preserves-1#
+      where
+      module h = Semiringʰ (∃!-prop ∃!ℕ->Semiring)
+
   module _ {ℓP : Level} {P : D -> Type ℓP} where
     abstract
       ℕ->Semiring-elim :

@@ -65,7 +65,7 @@ module _ {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
       0<iℕ : (n : Nat⁺) -> 0# < iℕ ⟨ n ⟩
       0<iℕ (suc n , _) =
         trans-=-<
-          (sym (Semiringʰ.preserves-0# (∃!-prop ∃!ℕ->Semiring)))
+          (sym ℕ->Semiring-preserves-0#)
           (ℕ->Semiring-preserves-< zero-<)
 
   opaque
