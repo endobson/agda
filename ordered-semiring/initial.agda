@@ -35,10 +35,6 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCo
       IS = S
       ILO = LO
       ILOS = LOS
-      IPO = isLinearOrder->isPartialOrder-≯ LO
-      IPOA = PartiallyOrderedAdditiveStr-Negated ACM LO
-      IPOS = PartiallyOrderedSemiringStr-Negated S LO
-      ICO = CompatibleNegatedLinearOrder LO
 
     ℕ->D : ℕ -> D
     ℕ->D = ℕ->Semiring
@@ -54,12 +50,23 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCo
       subst2 _<_ (sym (semiʰ.preserves-+ _ _)) (sym (semiʰ.preserves-+ _ _))
                  (+₁-preserves-< (ℕ->D-suc< n))
 
-    ℕ->D-0≤ : (n : ℕ) -> 0# ≤ ℕ->D n
-    ℕ->D-0≤ = ℕ->Semiring-elim refl-≤ 0≤1 p+
-      where
-      p+ : (a b : D) -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a + b)
-      p+ _ _ = +-preserves-0≤
+  module _ {ℓ≤ : Level} {D≤ : Rel D ℓ≤} {PO : isPartialOrder D≤}
+           {{POA : PartiallyOrderedAdditiveStr ACM PO}}
+           {{CO : CompatibleOrderStr LO PO}} where
+    private
+      instance
+        IPO = PO
+      ℕ->D-0≤ : (n : ℕ) -> 0# ≤ ℕ->D n
+      ℕ->D-0≤ = ℕ->Semiring-elim refl-≤ 0≤1 p+
+        where
+        p+ : (a b : D) -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a + b)
+        p+ _ _ = +-preserves-0≤
 
+    ℕ->Semiring-preserves-≤ : {a b : ℕ} -> a ≤ b -> ℕ->D a ≤ ℕ->D b
+    ℕ->Semiring-preserves-≤ {a} {b} (i , p) =
+      trans-=-≤ (sym +-left-zero)
+        (trans-≤-= (+₂-preserves-≤ (ℕ->D-0≤ i))
+                   ((sym (semiʰ.preserves-+ _ _)) >=> cong ℕ->D p))
   opaque
     ℕ->Semiring-preserves-0< : {n : ℕ} -> 0 < n -> 0# < ℕ->D n
     ℕ->Semiring-preserves-0< 0<n = Nat⁺Elim-1+ p1 p+ (_ , <->Pos' 0<n)
@@ -69,14 +76,14 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCo
       p+ : (a b : Nat⁺) -> 0# < (ℕ->D ⟨ a ⟩) -> 0# < (ℕ->D ⟨ b ⟩) -> 0# < (ℕ->D ⟨ (a +⁺ b) ⟩)
       p+ _ _ 0<a 0<b = trans-<-= (+-preserves-0< 0<a 0<b) (sym (semiʰ.preserves-+ _ _))
 
-    ℕ->Semiring-preserves-≤ : {a b : ℕ} -> a ≤ b -> ℕ->D a ≤ ℕ->D b
-    ℕ->Semiring-preserves-≤ {a} {b} (i , p) =
-      trans-=-≤ (sym +-left-zero)
-        (trans-≤-= (+₂-preserves-≤ (ℕ->D-0≤ i))
-                   ((sym (semiʰ.preserves-+ _ _)) >=> cong ℕ->D p))
-
-    ℕ->Semiring-preserves-< : {a b : ℕ} -> a < b -> ℕ->D a < ℕ->D b
-    ℕ->Semiring-preserves-< sa≤b = trans-<-≤ (ℕ->D-suc< _) (ℕ->Semiring-preserves-≤ sa≤b)
+  module _ where
+    private
+      instance
+        IPOA = PartiallyOrderedAdditiveStr-Negated ACM LO
+        ICO = CompatibleNegatedLinearOrder LO
+    opaque
+      ℕ->Semiring-preserves-< : {a b : ℕ} -> a < b -> ℕ->D a < ℕ->D b
+      ℕ->Semiring-preserves-< sa≤b = trans-<-≤ (ℕ->D-suc< _) (ℕ->Semiring-preserves-≤ sa≤b)
 
 
   ∃!ℕ->LinearlyOrderedSemiring : ∃! (ℕ -> D) LinearlyOrderedSemiringʰ
