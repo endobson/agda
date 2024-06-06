@@ -7,12 +7,14 @@ open import apartness
 open import base
 open import equality
 open import equivalence
+open import functions
 open import heyting-field
 open import hlevel
 open import integral-domain.instances.heyting-field
 open import nat
 open import nat.order
 open import order
+open import order.instances.nat
 open import ordered-additive-group
 open import ordered-ring
 open import ordered-semiring
@@ -32,13 +34,13 @@ private
 
 module _ {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
          {ACM : AdditiveCommMonoid D} {AG : AdditiveGroup ACM}
-         {S : Semiring ACM} {O : isLinearOrder D<}
+         {S : Semiring ACM} {LO : isLinearOrder D<}
          {R : Ring S AG} {A : isTightApartness D#}
-         {{LOA : LinearlyOrderedAdditiveStr ACM O}}
-         {LOS : LinearlyOrderedSemiringStr S O}
+         {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
+         {LOS : LinearlyOrderedSemiringStr S LO}
          {{NTO : NonTrivialLinearlyOrderedSemiringStr LOS}}
          {{F : Field R A}}
-         {{AL : ApartLinearOrderStr A O}}
+         {{AL : ApartLinearOrderStr A LO}}
          where
   private
     module F = Field F
@@ -48,7 +50,7 @@ module _ {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
       IACM = ACM
       IAG = AG
       IS = S
-      IO = O
+      ILO = LO
       IR = R
       IA = A
       IID = IntegralDomain-Field
@@ -90,11 +92,74 @@ module _ {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
     0<1/ℕ : (n : Nat⁺) -> 0# < 1/ℕ n
     0<1/ℕ n = *₁-reflects-0< (asym-< (0<iℕ n)) (trans-<-= 0<1 (sym (∃!-prop (∃!1/ℕ n))))
 
+  opaque
+    1/ℕ-flips-< : (a b : Nat⁺) -> ⟨ a ⟩ < ⟨ b ⟩ -> 1/ℕ b < 1/ℕ a
+    1/ℕ-flips-< a⁺@(a' , _) b⁺@(b' , _) a'<b' =
+      subst2 _<_ (sym *-assoc >=> *-left (∃!-prop (∃!1/ℕ a⁺)) >=> *-left-one)
+                 (*-right *-commute >=> sym *-assoc >=> *-left (∃!-prop (∃!1/ℕ b⁺)) >=> *-left-one)
+            a/ab<b/ab
+      where
+      a<b : iℕ a' < iℕ b'
+      a<b = ℕ->Semiring-preserves-<  a'<b'
+      1/a 1/b 1/ab : D
+      1/a = 1/ℕ a⁺
+      1/b = 1/ℕ b⁺
+      1/ab = 1/a * 1/b
+      0<1/ab : 0# < (1/a * 1/b)
+      0<1/ab = *-preserves-0< (0<1/ℕ a⁺) (0<1/ℕ b⁺)
+      a/ab<b/ab : (iℕ a' * (1/a * 1/b)) < (iℕ b' * (1/a * 1/b))
+      a/ab<b/ab = *₂-preserves-< a<b 0<1/ab
+
+  module _ {ℓ≤ : Level} {D≤ : Rel D ℓ≤} {PO : isPartialOrder D≤}
+           {{POA : PartiallyOrderedAdditiveStr ACM PO}}
+           {{POS : PartiallyOrderedSemiringStr S PO}}
+           {{CO : CompatibleOrderStr LO PO}} where
+    private
+      instance
+        IPO = PO
+
+    opaque
+      1/ℕ-flips-≤ : (a b : Nat⁺) -> ⟨ a ⟩ ≤ ⟨ b ⟩ -> 1/ℕ b ≤ 1/ℕ a
+      1/ℕ-flips-≤ a⁺@(a' , _) b⁺@(b' , _) a'≤b' =
+        subst2 _≤_ (sym *-assoc >=> *-left (∃!-prop (∃!1/ℕ a⁺)) >=> *-left-one)
+                   (*-right *-commute >=> sym *-assoc >=> *-left (∃!-prop (∃!1/ℕ b⁺)) >=> *-left-one)
+              a/ab≤b/ab
+        where
+        a≤b : iℕ a' ≤ iℕ b'
+        a≤b = ℕ->Semiring-preserves-≤ a'≤b'
+        1/a 1/b 1/ab : D
+        1/a = 1/ℕ a⁺
+        1/b = 1/ℕ b⁺
+        1/ab = 1/a * 1/b
+        0<1/ab : 0# < (1/a * 1/b)
+        0<1/ab = *-preserves-0< (0<1/ℕ a⁺) (0<1/ℕ b⁺)
+        a/ab≤b/ab : (iℕ a' * (1/a * 1/b)) ≤ (iℕ b' * (1/a * 1/b))
+        a/ab≤b/ab = *₂-preserves-≤ a≤b (weaken-< 0<1/ab)
+
+
+  opaque
+    1/ℕ-preserves-* : (a b : Nat⁺) -> 1/ℕ ( a *⁺ b ) == 1/ℕ a * 1/ℕ b
+    1/ℕ-preserves-* a b = ∃!-unique (∃!1/ℕ (a *⁺ b)) (1/ℕ a * 1/ℕ b) path
+      where
+      path : iℕ (⟨ a *⁺ b ⟩) * (1/ℕ a * 1/ℕ b) == 1#
+      path = *-left (Semiringʰ.preserves-* (∃!-prop ∃!ℕ->Semiring) ⟨ a ⟩ ⟨ b ⟩) >=>
+             *-swap >=>
+             *-cong (∃!-prop (∃!1/ℕ a)) (∃!-prop (∃!1/ℕ b)) >=>
+             *-right-one
+
+
+
   1/2 : D
   1/2 = 1/ℕ (2 , tt)
 
   0<1/2 : 0# < 1/2
   0<1/2 = 0<1/ℕ (2 , tt)
+
+  opaque
+    1/2<1 : 1/2 < 1#
+    1/2<1 = trans-<-= (1/ℕ-flips-< (1 , tt) (2 , tt) refl-≤)
+                      (sym *-left-one >=> *-left (sym ℕ->Semiring-preserves-1#) >=>
+                       (∃!-prop (∃!1/ℕ (1 , tt))))
 
   opaque
     1/2-+-path : 1/2 + 1/2 == 1#
@@ -109,3 +174,41 @@ module _ {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
 
     2*1/2-path : 2# * 1/2 == 1#
     2*1/2-path = 2*-path >=> 1/2-+-path
+
+
+module _ {ℓD₁ ℓD₂ ℓ<₁ ℓ<₂ : Level}
+         {D₁ : Type ℓD₁} {D₁# : Rel D₁ ℓD₁} {D₁< : Rel D₁ ℓ<₁}
+         {ACM₁ : AdditiveCommMonoid D₁} {AG₁ : AdditiveGroup ACM₁}
+         {S₁ : Semiring ACM₁} {LO₁ : isLinearOrder D₁<}
+         {R₁ : Ring S₁ AG₁} {A₁ : isTightApartness D₁#}
+         {{LOA₁ : LinearlyOrderedAdditiveStr ACM₁ LO₁}}
+         {LOS₁ : LinearlyOrderedSemiringStr S₁ LO₁}
+         {{NTO₁ : NonTrivialLinearlyOrderedSemiringStr LOS₁}}
+         {{F₁ : Field R₁ A₁}}
+         {{AL₁ : ApartLinearOrderStr A₁ LO₁}}
+         {D₂ : Type ℓD₂} {D₂# : Rel D₂ ℓD₂} {D₂< : Rel D₂ ℓ<₂}
+         {ACM₂ : AdditiveCommMonoid D₂} {AG₂ : AdditiveGroup ACM₂}
+         {S₂ : Semiring ACM₂} {LO₂ : isLinearOrder D₂<}
+         {R₂ : Ring S₂ AG₂} {A₂ : isTightApartness D₂#}
+         {{LOA₂ : LinearlyOrderedAdditiveStr ACM₂ LO₂}}
+         {LOS₂ : LinearlyOrderedSemiringStr S₂ LO₂}
+         {{NTO₂ : NonTrivialLinearlyOrderedSemiringStr LOS₂}}
+         {{F₂ : Field R₂ A₂}}
+         {{AL₂ : ApartLinearOrderStr A₂ LO₂}}
+         where
+  private
+    instance
+      IS₁ = S₁
+      IS₂ = S₂
+
+  Semiringʰ-preserves-1/ℕ : {f : D₁ -> D₂} ->
+    Semiringʰ f -> (n : Nat⁺) -> f (1/ℕ n) == 1/ℕ n
+  Semiringʰ-preserves-1/ℕ {f} h n@(n' , _) = sym (∃!-unique (∃!1/ℕ n) (f (1/ℕ n)) path2)
+    where
+    path1 : ℕ->Semiring == f ∘ ℕ->Semiring
+    path1 = ∃!-unique ∃!ℕ->Semiring (f ∘ ℕ->Semiring) (Semiringʰ-∘ h (∃!-prop ∃!ℕ->Semiring))
+    path2 : ℕ->Semiring n' * (f (1/ℕ n)) == 1#
+    path2 = *-left (\i -> path1 i n') >=>
+            sym (Semiringʰ.preserves-* h _ _) >=>
+            cong f (∃!-prop (∃!1/ℕ n)) >=>
+            (Semiringʰ.preserves-1# h)
