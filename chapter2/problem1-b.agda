@@ -24,8 +24,8 @@ open import ordered-semiring.instances.nat
 open import prime
 open import prime-gcd
 open import rational
-open import rational.integer
 open import rational-prime
+open import rational.integer
 open import relatively-prime
 open import ring
 open import ring.implementations.rational

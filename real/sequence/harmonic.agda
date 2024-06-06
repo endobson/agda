@@ -5,20 +5,20 @@ module real.sequence.harmonic where
 open import additive-group
 open import additive-group.instances.real
 open import base
-open import rational
-open import rational.order
-open import rational.open-interval
-open import real
 open import nat.properties
+open import order
+open import order.instances.nat
+open import order.instances.rational
+open import order.instances.real
+open import rational
+open import rational.open-interval
+open import rational.order
+open import real
 open import real.open-interval
 open import real.rational
 open import real.sequence.limit
 open import sequence
 open import truncation
-open import order
-open import order.instances.nat
-open import order.instances.rational
-open import order.instances.real
 
 import nat.order as no
 
