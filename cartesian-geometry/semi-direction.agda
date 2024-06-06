@@ -11,6 +11,7 @@ open import cartesian-geometry.vector
 open import equality
 open import equivalence
 open import functions
+open import heyting-field.instances.real
 open import hlevel
 open import integral-domain
 open import integral-domain.instances.real
@@ -21,7 +22,6 @@ open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
 open import real
-open import real.heyting-field
 open import relation
 open import ring.implementations.real
 open import semiring

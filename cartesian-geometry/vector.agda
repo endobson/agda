@@ -21,6 +21,7 @@ open import finset.instances.base
 open import finset.instances.sum
 open import functions
 open import funext
+open import heyting-field.instances.real
 open import hlevel
 open import integral-domain
 open import integral-domain.instances.real
@@ -42,7 +43,6 @@ open import real
 open import real.arithmetic.multiplication.inverse
 open import real.arithmetic.sqrt
 open import real.arithmetic.sqrt.base
-open import real.heyting-field
 open import real.order
 open import relation
 open import ring

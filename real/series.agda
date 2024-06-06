@@ -17,6 +17,7 @@ open import finsum.arithmetic
 open import functions
 open import funext
 open import heyting-field
+open import heyting-field.instances.real
 open import hlevel
 open import nat
 open import nat.order
@@ -40,7 +41,6 @@ open import rational.open-interval
 open import real.epsilon-bounded
 open import real
 open import real.arithmetic
-open import real.heyting-field
 open import real.open-interval
 open import real.order
 open import real.rational

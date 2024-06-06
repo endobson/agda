@@ -15,6 +15,7 @@ open import equivalence
 open import functions
 open import funext
 open import group
+open import heyting-field.instances.real
 open import hlevel
 open import integral-domain
 open import integral-domain.instances.real
@@ -31,7 +32,6 @@ open import ordered-semiring.instances.real-strong
 open import ordered-semiring.squares
 open import real
 open import real.arithmetic.sqrt.base
-open import real.heyting-field
 open import real.order
 open import relation
 open import ring

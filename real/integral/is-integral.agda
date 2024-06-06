@@ -14,6 +14,7 @@ open import finite-commutative-monoid.instances
 open import finset.instances
 open import finsum
 open import funext
+open import heyting-field.instances.real
 open import hlevel
 open import nat
 open import nat.order
@@ -31,7 +32,6 @@ open import rational.order
 open import rational.proper-interval
 open import real
 open import real.epsilon-bounded
-open import real.heyting-field
 open import real.integral.delta-fine-partition
 open import real.integral.partition
 open import real.integral.tagged-partition

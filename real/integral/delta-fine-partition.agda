@@ -8,6 +8,7 @@ open import additive-group.instances.real
 open import base
 open import equality
 open import fin
+open import heyting-field.instances.real
 open import nat
 open import nat.order
 open import order
@@ -26,7 +27,6 @@ open import rational.proper-interval
 open import real
 open import real.arithmetic.multiplication.inverse
 open import real.arithmetic.rational
-open import real.heyting-field
 open import real.integral.partition
 open import real.integral.partition-index
 open import real.interval

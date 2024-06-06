@@ -11,13 +11,13 @@ open import direct-product
 open import equality
 open import equivalence
 open import functions
+open import heyting-field.instances.real
 open import hlevel
 open import integral-domain
 open import integral-domain.instances.real
 open import order.instances.real
 open import real
 open import real.arithmetic
-open import real.heyting-field
 open import relation
 open import sum
 open import truncation

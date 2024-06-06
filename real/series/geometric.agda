@@ -13,6 +13,7 @@ open import finsum.arithmetic
 open import functions
 open import funext
 open import heyting-field
+open import heyting-field.instances.real
 open import nat
 open import nat.order
 open import order
@@ -35,7 +36,6 @@ open import real
 open import real.arithmetic.multiplication.inverse
 open import real.arithmetic.rational
 open import real.epsilon-bounded
-open import real.heyting-field
 open import real.order
 open import real.rational
 open import real.sequence.limit

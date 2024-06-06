@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module real.heyting-field where
+module heyting-field.instances.real where
 
 open import additive-group
 open import additive-group.instances.real
@@ -9,7 +9,6 @@ open import base
 open import equality
 open import funext
 open import heyting-field
-open import order
 open import order.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.real

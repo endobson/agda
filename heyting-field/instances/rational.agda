@@ -1,28 +1,21 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module rational.heyting-field where
+module heyting-field.instances.rational where
 
 open import additive-group
 open import apartness
 open import base
-open import cubical
 open import equality
-open import functions
 open import funext
 open import isomorphism
 open import heyting-field
-open import hlevel
 open import order
-open import order.instances.rational
+open import ordered-additive-group
 open import rational
 open import rational.order
 open import relation
 open import ring
 open import semiring
-open import sign
-open import sign.instances.rational
-open import sum
-open import truncation
 open import univalence
 
 private
@@ -41,16 +34,13 @@ private
       d!=0 : d != 0#
       d!=0 d=0 = handle (trichotomous-< x y)
         where
-        handle : Tri (x < y) (x == y) (y < x) -> Bot
-        handle (tri< x<y _ _) =
-          NonZero->¬Zero (subst NonZero d=0 (inj-l (Pos-diffℚ x y x<y))) Zero-0r
+        handle : Tri< x y -> Bot
+        handle (tri< x<y _ _) = irrefl-< (trans-<-= (diff-0<⁺ x<y) d=0)
         handle (tri= _ x=y _) = (x!=y x=y)
-        handle (tri> _ _ y<x) =
-          NonZero->¬Zero (subst NonZero (sym diff-anticommute >=> d=0)
-                                (inj-r (r--flips-sign _ pos-sign (Pos-diffℚ y x y<x)))) Zero-0r
+        handle (tri> _ _ y<x) = irrefl-< (trans-<-= (diff-<0⁺ y<x) (sym d=0))
 
 instance
-  RationalField : Field Ring-ℚ isTightApartness-ℚ#
-  RationalField = record
+  Field-ℚ : Field Ring-ℚ isTightApartness-ℚ#
+  Field-ℚ = record
     { f#-path = funExt2 (\x y -> f#-path-ℚ)
     }
