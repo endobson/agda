@@ -11,9 +11,11 @@ open import isomorphism
 open import order
 open import ordered-additive-group
 open import ordered-semiring
+open import ordered-semiring.instances.rational
 open import rational
 open import rational.order
 open import relation hiding (U)
+open import semiring
 open import sign
 open import truncation
 open import univalence
@@ -61,45 +63,36 @@ module _ (x : ℝ) where
   ℝ->Pos-U = ∥-map handle x.Inhabited-U
     where
     handle : Σ[ q ∈ ℚ ] (x.U q) -> Σ[ q ∈ ℚ⁺ ] (x.U ⟨ q ⟩)
-    handle (q , uq) = handle2 (split-< 0r q)
+    handle (q , uq) = handle2 (split-< 0# q)
       where
-      handle2 : (0r < q) ⊎ (q ℚ≤ 0r) -> Σ[ q ∈ ℚ⁺ ] (x.U ⟨ q ⟩)
+      handle2 : (0# < q) ⊎ (q ≤ 0#) -> Σ[ q ∈ ℚ⁺ ] (x.U ⟨ q ⟩)
       handle2 (inj-l 0<q) = (q , 0<q) , uq
-      handle2 (inj-r q≤0) = (1r , Pos-1r) , x.isUpperSet-U q<1r uq
+      handle2 (inj-r q≤0) = (1# , 0<1) , x.isUpperSet-U q<1 uq
         where
-        q<1r : q < 1r
-        q<1r = (trans-≤-< {d1 = q} {0r} {1r} q≤0 (Pos-0< 1r Pos-1r))
+        q<1 : q < 1#
+        q<1 = (trans-≤-< q≤0 0<1)
 
   ℝ->Neg-L : ∃[ q ∈ ℚ⁻ ] (x.L ⟨ q ⟩)
   ℝ->Neg-L = ∥-map handle x.Inhabited-L
     where
     handle : Σ[ q ∈ ℚ ] (x.L q) -> Σ[ q ∈ ℚ⁻ ] (x.L ⟨ q ⟩)
-    handle (q , lq) = handle2 (split-< q 0r)
+    handle (q , lq) = handle2 (split-< q 0#)
       where
-      handle2 : (q < 0r) ⊎ (0r ℚ≤ q) -> Σ[ q ∈ ℚ⁻ ] (x.L ⟨ q ⟩)
-      handle2 (inj-l q<0) = (q , Neg-q) , lq
+      handle2 : (q < 0#) ⊎ (0# ≤ q) -> Σ[ q ∈ ℚ⁻ ] (x.L ⟨ q ⟩)
+      handle2 (inj-l q<0) = (q , q<0) , lq
+      handle2 (inj-r 0≤q) = ((- 1#) , -1<0) , x.isLowerSet-L -1<q lq
         where
-        Neg-d : Negℚ (diff 0r q)
-        Neg-d = subst Negℚ (sym diff-anticommute)
-                           (r--flips-sign _ pos-sign (Pos-diffℚ q 0r q<0))
+        -1<0 = (minus-flips-0< 0<1)
+        -1<q : (- 1#) < q
+        -1<q = trans-<-≤ -1<0 0≤q
 
-        Neg-q : Negℚ q
-        Neg-q = subst Negℚ (+-right minus-zero >=> r+-right-zero q) Neg-d
-      handle2 (inj-r 0≤q) = ((r- 1r) , (r--flips-sign _ pos-sign Pos-1r)) ,
-                            x.isLowerSet-L -1r<q lq
-        where
-        -1r<q : (r- 1r) < q
-        -1r<q = trans-<-≤ {d1 = r- 1r} {0r} {q}
-                  (minus-flips-0< Pos-1r)
-                  0≤q
-
-  isLowerSet≤ : {q r : ℚ} -> (q ℚ≤ r) -> x.L r -> x.L q
+  isLowerSet≤ : {q r : ℚ} -> (q ≤ r) -> x.L r -> x.L q
   isLowerSet≤ {q} {r} q≤r lr = unsquash (x.isProp-L q) (∥-map handle (x.isUpperOpen-L r lr))
     where
     handle : Σ[ s ∈ ℚ ] (r < s × x.L s) -> x.L q
     handle (s , r<s , ls) = x.isLowerSet-L (trans-≤-< q≤r r<s) ls
 
-  isUpperSet≤ : {q r : ℚ} -> (q ℚ≤ r) -> x.U q -> x.U r
+  isUpperSet≤ : {q r : ℚ} -> (q ≤ r) -> x.U q -> x.U r
   isUpperSet≤ {q} {r} q≤r uq = unsquash (x.isProp-U r) (∥-map handle (x.isLowerOpen-U q uq))
     where
     handle : Σ[ s ∈ ℚ ] (s < q × x.U s) -> x.U r
@@ -107,7 +100,7 @@ module _ (x : ℝ) where
 
 
   LowerOpen-Pos : (q : ℚ⁺) -> (x.U ⟨ q ⟩) -> ∃[ r ∈ ℚ⁺ ] (⟨ r ⟩ < ⟨ q ⟩ × x.U ⟨ r ⟩)
-  LowerOpen-Pos (q , pos-q) xu-q = ∥-map handle (x.isLowerOpen-U q xu-q)
+  LowerOpen-Pos (q , 0<q) xu-q = ∥-map handle (x.isLowerOpen-U q xu-q)
     where
     handle : Σ[ r ∈ ℚ ] (r < q × x.U r) -> Σ[ r ∈ ℚ⁺ ] (⟨ r ⟩ < q × x.U ⟨ r ⟩)
     handle (r , r<q , xu-r) = handle2 (split-< q/2 r)
@@ -116,14 +109,14 @@ module _ (x : ℝ) where
       q/2 = 1/2r r* q
 
       q/2<q : q/2 < q
-      q/2<q = subst (q/2 <_) (r*-left-one q) (*₂-preserves-< 1/2r<1r pos-q)
+      q/2<q = trans-<-= (*₂-preserves-< 1/2r<1r 0<q) *-left-one
 
-      pos-q/2 : Posℚ q/2
-      pos-q/2 = r*₁-preserves-sign (1/2r , Pos-1/ℕ _) q {pos-sign} pos-q
+      0<q/2 : 0# < q/2
+      0<q/2 = *-preserves-0< (Pos-1/ℕ _) 0<q
 
-      handle2 : (q/2 < r) ⊎ (r ℚ≤ q/2) ->  Σ[ r ∈ ℚ⁺ ] (⟨ r ⟩ < q × x.U ⟨ r ⟩)
-      handle2 (inj-l q/2<r) = (r , Pos-< q/2 r (inj-l pos-q/2) q/2<r) , r<q , xu-r
-      handle2 (inj-r r≤q/2) = (q/2 , pos-q/2) , q/2<q , isUpperSet≤ r≤q/2 xu-r
+      handle2 : (q/2 < r) ⊎ (r ≤ q/2) ->  Σ[ r ∈ ℚ⁺ ] (⟨ r ⟩ < q × x.U ⟨ r ⟩)
+      handle2 (inj-l q/2<r) = (r , trans-< 0<q/2 q/2<r) , r<q , xu-r
+      handle2 (inj-r r≤q/2) = (q/2 , 0<q/2) , q/2<q , isUpperSet≤ r≤q/2 xu-r
 
 
 abstract
