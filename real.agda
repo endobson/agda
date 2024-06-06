@@ -6,10 +6,12 @@ open import additive-group
 open import base
 open import cubical
 open import equality-path
+open import heyting-field.instances.rational
 open import hlevel
 open import isomorphism
 open import order
 open import ordered-additive-group
+open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import rational
@@ -106,13 +108,13 @@ module _ (x : ℝ) where
     handle (r , r<q , xu-r) = handle2 (split-< q/2 r)
       where
       q/2 : ℚ
-      q/2 = 1/2r r* q
+      q/2 = 1/2 * q
 
       q/2<q : q/2 < q
-      q/2<q = trans-<-= (*₂-preserves-< 1/2r<1r 0<q) *-left-one
+      q/2<q = trans-<-= (*₂-preserves-< 1/2<1 0<q) *-left-one
 
       0<q/2 : 0# < q/2
-      0<q/2 = *-preserves-0< (Pos-1/ℕ _) 0<q
+      0<q/2 = *-preserves-0< 0<1/2 0<q
 
       handle2 : (q/2 < r) ⊎ (r ≤ q/2) ->  Σ[ r ∈ ℚ⁺ ] (⟨ r ⟩ < q × x.U ⟨ r ⟩)
       handle2 (inj-l q/2<r) = (r , trans-< 0<q/2 q/2<r) , r<q , xu-r
