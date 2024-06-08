@@ -5,16 +5,19 @@ module real.arithmetic where
 open import additive-group
 open import base
 open import equality
+open import heyting-field.instances.rational
 open import hlevel
 open import isomorphism
 open import order
 open import order.instances.rational
 open import ordered-additive-group
+open import ordered-field
 open import ordered-ring
 open import ordered-semiring
+open import ordered-semiring.instances.rational
 open import rational
-open import rational.order
 open import rational.open-interval
+open import rational.order
 open import real
 open import real.open-interval
 open import real.order
@@ -122,11 +125,11 @@ module _ (x y : ℝ) where
       where
       d = diff a b
       0<d = diff-0<⁺ a<b
-      ε = 1/2r * (1/2r * d)
-      0<ε = *-preserves-0< Pos-1/2r (*-preserves-0< Pos-1/2r 0<d)
+      ε = 1/2 * (1/2 * d)
+      0<ε = *-preserves-0< 0<1/2 (*-preserves-0< 0<1/2 0<d)
       ε⁺ = ε , 0<ε
       εε<d : (ε + ε) < diff a b
-      εε<d = trans-=-< (1/2r-path' _) (trans-<-= (*₂-preserves-< 1/2r<1r 0<d) *-left-one)
+      εε<d = trans-=-< 1/2-path (trans-<-= (*₂-preserves-< 1/2<1 0<d) *-left-one)
       handle : OpenBall x ε -> OpenBall y ε -> L a ⊎ U b
       handle (xl , xu , xL , xU , xd-p) (yl , yu , yL , yU , yd-p) = handle2 (split-< a (xl + yl))
         where

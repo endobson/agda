@@ -6,18 +6,21 @@ open import additive-group
 open import additive-group.instances.real
 open import base
 open import equality
+open import heyting-field.instances.rational
 open import hlevel
 open import order
 open import order.instances.rational
 open import order.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.real
+open import ordered-field
 open import ordered-ring
 open import ordered-semiring
+open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import rational
-open import rational.order
 open import rational.open-interval
+open import rational.order
 open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication
@@ -135,11 +138,11 @@ private
 
           xu-1/r : x.U 1/r
           xu-1/r = subst x.U (sym (r1/-double-inverse r' inv-r' inv-r)) xu-r'
-      isUpperOpen-L q (L-nonpos (inj-l neg-q)) = ∣ q/2 , q<q/2 , (L-nonpos (inj-l neg-q/2)) ∣
+      isUpperOpen-L q (L-nonpos (inj-l q<0)) = ∣ q/2 , q<q/2 , (L-nonpos (inj-l q/2<0)) ∣
         where
-        q/2 = 1/2r r* q
-        neg-q/2 = r*₁-preserves-sign (1/2r , Pos-1/ℕ _) q {neg-sign} neg-q
-        q<q/2 = subst (_< q/2) (r*-left-one q) (*₂-flips-< 1/2r<1r neg-q)
+        q/2 = 1/2 r* q
+        q/2<0 = *₁-preserves-<0 0<1/2 q<0
+        q<q/2 = trans-=-< (sym *-left-one) (*₂-flips-< 1/2<1 q<0)
 
       isUpperOpen-L q (L-nonpos (inj-r zero-q)) = ∥-map handle (ℝ->Pos-U x)
         where

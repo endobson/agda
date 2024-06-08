@@ -14,6 +14,7 @@ open import finite-commutative-monoid.instances
 open import finset.instances
 open import finsum
 open import funext
+open import heyting-field.instances.rational
 open import heyting-field.instances.real
 open import hlevel
 open import nat
@@ -25,6 +26,7 @@ open import order.minmax
 open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-semiring
+open import ordered-field
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import rational
@@ -82,8 +84,8 @@ private
         (∥-bind2 handle (isOrderedIntegral'.δε i1 (ε/2 , 0<ε/2))
                         (isOrderedIntegral'.δε i2 (ε/2 , 0<ε/2)))
       where
-      ε/2 = 1/2r * ε
-      0<ε/2 = *-preserves-0< Pos-1/2r 0<ε
+      ε/2 = 1/2 * ε
+      0<ε/2 = *-preserves-0< 0<1/2 0<ε
 
       handle : Σ[ δ ∈ ℝ⁺ ] (
                  (p : TaggedPartition a b) -> isδFine ⟨ δ ⟩ ⟨ p ⟩ ->
@@ -106,7 +108,7 @@ private
           εB2 = tp2-f (p , t) (weaken-isδFine min-≤-right p δ-p)
           εB1' = subst (εBounded ε/2) (sym diff-anticommute)
                    (εBounded-- (diff (riemann-sum f (p , t)) v1) εB1)
-          εB = subst2 εBounded (1/2r-path' ε) diff-trans
+          εB = subst2 εBounded 1/2-path diff-trans
                  (εBounded-+ (diff v1 (riemann-sum f (p , t)))
                              (diff (riemann-sum f (p , t)) v2) εB1' εB2)
 

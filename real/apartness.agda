@@ -8,12 +8,15 @@ open import apartness
 open import base
 open import equality
 open import equivalence
+open import heyting-field.instances.rational
 open import isomorphism
 open import order
 open import order.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.real
+open import ordered-field
 open import ordered-semiring
+open import ordered-semiring.instances.rational
 open import rational
 open import rational.order
 open import rational.proper-interval
@@ -52,11 +55,12 @@ private
   diff#->ℝ# {x} {y} (is-unit i path) =
     unsquash isProp-# (∥-map2 handle (split-small-inv d ε) (split-small-inv i ε))
     where
-    ε' = 1/2r
+    ε' : ℚ
+    ε' = 1/2
     0<ε : 0# < ε'
-    0<ε = Pos-1/ℕ (2 , tt)
+    0<ε = 0<1/2
     ε<1 : ε' < 1#
-    ε<1 = 1/2r<1r
+    ε<1 = 1/2<1
     ε : ℚ⁺
     ε = ε' , 0<ε
 

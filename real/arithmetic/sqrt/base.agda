@@ -6,11 +6,13 @@ open import additive-group
 open import additive-group.instances.real
 open import base
 open import equality
+open import heyting-field.instances.rational
 open import hlevel
 open import order
-open import order.instances.real
 open import order.instances.rational
+open import order.instances.real
 open import ordered-additive-group
+open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import ordered-semiring.squares
@@ -119,11 +121,11 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#)
                 tt<qq = subst (_< (q * q)) (sym tt=s) s<qq
 
       isUpperOpen-L : isUpperOpen L
-      isUpperOpen-L q (inj-l q<0) = ∣ 1/2r * q , q<1/2q , inj-l 1/2q<0 ∣
+      isUpperOpen-L q (inj-l q<0) = ∣ 1/2 * q , q<1/2q , inj-l 1/2q<0 ∣
         where
         module _ where
-          q<1/2q = subst2 _<_ *-left-one refl (*₂-flips-< 1/2r<1r q<0)
-          1/2q<0 = subst2 _<_ refl *-right-zero (*₁-preserves-< Pos-1/2r q<0)
+          q<1/2q = subst2 _<_ *-left-one refl (*₂-flips-< 1/2<1 q<0)
+          1/2q<0 = subst2 _<_ refl *-right-zero (*₁-preserves-< 0<1/2 q<0)
 
       isUpperOpen-L q (inj-r (0≤q , xl-qq)) = ∥-bind handle (x.isUpperOpen-L qq xl-qq)
         where
