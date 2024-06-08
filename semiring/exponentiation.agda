@@ -99,6 +99,10 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
     ^ℕ-one : {x : D} -> x ^ℕ 1 == x
     ^ℕ-one = *-right-one
 
+    ^ℕ-preserves-1# : (n : ℕ) -> 1# ^ℕ n == 1#
+    ^ℕ-preserves-1# zero = refl
+    ^ℕ-preserves-1# (suc n) = *-left-one >=> ^ℕ-preserves-1# n
+
     ^ℕ-distrib-+-left : {x : D} (n1 n2 : ℕ) -> x ^ℕ (n1 + n2) == (x ^ℕ n1) * (x ^ℕ n2)
     ^ℕ-distrib-+-left {x} n1 n2 = (Monoidʰ.preserves-∙ (is^ℕ.+ʰ (∃!-prop ∃!^ℕ) x) n1 n2)
 
@@ -115,3 +119,17 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
         (*-right (^ℕ-distrib-*' n n2)) >=>
         (*-left (sym ^ℕ-one)) >=>
         sym (^ℕ-distrib-+-left 1 n)
+
+module _ {ℓ₁ ℓ₂ : Level} {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+         {ACM₁ : AdditiveCommMonoid D₁}
+         {ACM₂ : AdditiveCommMonoid D₂}
+         {{S₁ : Semiring ACM₁}}
+         {{S₂ : Semiring ACM₂}}
+         where
+  module _ {f : D₁ -> D₂} (h : Semiringʰ f) where
+    private
+      module h = Semiringʰ h
+    Semiringʰ-preserves-^ℕ : {x : D₁} (n : Nat) -> f (x ^ℕ n) == f x ^ℕ n
+    Semiringʰ-preserves-^ℕ     zero = h.preserves-1#
+    Semiringʰ-preserves-^ℕ {x} (suc n) =
+      h.preserves-* x (x ^ℕ n) >=> *-right (Semiringʰ-preserves-^ℕ n)
