@@ -10,12 +10,13 @@ open import heyting-field.instances.rational
 open import hlevel
 open import isomorphism
 open import order
+open import order.instances.rational
 open import ordered-additive-group
+open import ordered-additive-group.instances.rational
 open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import rational
-open import rational.order
 open import relation hiding (U)
 open import semiring
 open import sign

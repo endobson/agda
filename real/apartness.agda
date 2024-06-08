@@ -11,14 +11,15 @@ open import equivalence
 open import heyting-field.instances.rational
 open import isomorphism
 open import order
+open import order.instances.rational
 open import order.instances.real
 open import ordered-additive-group
+open import ordered-additive-group.instances.rational
 open import ordered-additive-group.instances.real
 open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import rational
-open import rational.order
 open import rational.proper-interval
 open import real
 open import real.arithmetic.multiplication

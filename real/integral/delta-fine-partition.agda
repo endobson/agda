@@ -14,6 +14,7 @@ open import nat
 open import nat.order
 open import order
 open import order.instances.nat
+open import order.instances.rational
 open import order.instances.real
 open import order.minmax
 open import order.minmax.instances.real
