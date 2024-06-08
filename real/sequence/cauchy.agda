@@ -6,6 +6,8 @@ open import additive-group
 open import additive-group.instances.real
 open import base
 open import equality
+open import heyting-field.instances.rational
+open import heyting-field.instances.real
 open import hlevel
 open import nat
 open import nat.order
@@ -16,8 +18,10 @@ open import order.instances.nat
 open import order.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.real
+open import ordered-field
 open import ordered-ring
 open import ordered-semiring
+open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import rational
 open import rational.order
@@ -91,89 +95,93 @@ module _
     1r⁺ : ℚ⁺
     1r⁺ = 1r , Pos-1/ℕ (1 , tt)
 
+    1/2=1/2 : ℚ->ℝ 1/2 == 1/2
+    1/2=1/2 = Semiringʰ-preserves-1/ℕ Semiringʰ-ℚ->ℝ (2 , tt)
+
     Inhabited-L : Inhabited L
-    Inhabited-L = ∥-bind handle (cauchy 1/2r⁺)
+    Inhabited-L = ∥-bind handle (cauchy (1/2 , 0<1/2))
       where
       handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ≥ n -> m₂ ≥ n ->
-                             εBounded 1/2r (diff (s m₁) (s m₂))) ->
+                             εBounded 1/2 (diff (s m₁) (s m₂))) ->
                ∃ ℚ L
       handle (n , f) = ∥-bind handle2 (Real.Inhabited-L lb)
         where
         lb = s n + (- 1#)
-        lb-1/2-path : lb + 1/2ℝ == s n + (- 1/2ℝ)
+        lb-1/2-path : lb + 1/2 == s n + (- 1/2)
         lb-1/2-path =
           +-assoc >=>
           +-right (+-commute >=>
-                   +-right (cong -_ (sym 1/2ℝ-1-path) >=> minus-distrib-plus) >=>
+                   +-right (cong -_ (sym 1/2-+-path) >=> minus-distrib-plus) >=>
                    sym +-assoc >=>
                    +-left +-inverse >=>
                    +-left-zero)
 
         handle2 : (Σ ℚ (Real.L lb)) -> ∃ ℚ L
-        handle2 (q , q<lb) = ∣ q , ∣ n , 1/2r⁺ , q+1/2<sm ∣ ∣
+        handle2 (q , q<lb) = ∣ q , ∣ n , (1/2 , 0<1/2) , q+1/2<sm ∣ ∣
           where
           module _ (m : Nat) (m≥n : m ≥ n) where
-            lb+1/2<sm : (lb + 1/2ℝ) < s m
+            lb+1/2<sm : (lb + 1/2) < s m
             lb+1/2<sm =
               subst2 _<_ (sym lb-1/2-path) (+-assoc >=> +-right +-inverse >=> +-right-zero)
                      (+₂-preserves-< sn<sm+1/2)
               where
-              diffU : Real.U (diff (s m) (s n)) 1/2r
-              diffU = proj₂ (f m n m≥n refl-≤)
 
-              d<1/2 : diff (s m) (s n) < 1/2ℝ
-              d<1/2 = U->ℝ< diffU
+              diffU : Real.U (diff (s m) (s n)) 1/2
+              diffU = (proj₂ (f m n m≥n refl-≤))
 
-              sn<sm+1/2 : s n < (s m + 1/2ℝ)
+              d<1/2 : diff (s m) (s n) < 1/2
+              d<1/2 = trans-<-= (U->ℝ< diffU) 1/2=1/2
+
+              sn<sm+1/2 : s n < (s m + 1/2)
               sn<sm+1/2 = trans-=-< (sym diff-step) (+₁-preserves-< d<1/2)
 
 
-            q+1/2<sm : Real.L (s m) (q + 1/2r)
+            q+1/2<sm : Real.L (s m) (q + 1/2)
             q+1/2<sm = ℝ<->L q+1/2r<sm
               where
-              q+1/2r<sm : ℚ->ℝ (q + 1/2r) < s m
+              q+1/2r<sm : ℚ->ℝ (q + 1/2) < s m
               q+1/2r<sm =
-                subst (_< s m) (sym ℚ->ℝ-preserves-+)
-                      (trans-< (+₂-preserves-< (L->ℝ< q<lb)) lb+1/2<sm)
+                trans-=-< ℚ->ℝ-preserves-+
+                  (trans-< (trans-<-= (+₂-preserves-< (L->ℝ< q<lb)) (+-right 1/2=1/2)) lb+1/2<sm)
 
     Inhabited-U : Inhabited U
-    Inhabited-U = ∥-bind handle (cauchy 1/2r⁺)
+    Inhabited-U = ∥-bind handle (cauchy (1/2 , 0<1/2))
       where
       handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> m₁ ≥ n -> m₂ ≥ n ->
-                             εBounded 1/2r (diff (s m₁) (s m₂))) ->
+                             εBounded 1/2 (diff (s m₁) (s m₂))) ->
                ∃ ℚ U
       handle (n , f) = ∥-bind handle2 (Real.Inhabited-U ub)
         where
         ub = s n + 1#
-        ub-1/2-path : ub + (- 1/2ℝ) == s n + 1/2ℝ
+        ub-1/2-path : ub + (- 1/2) == s n + 1/2
         ub-1/2-path =
           +-assoc >=>
-          +-right (+-left (sym 1/2ℝ-1-path) >=>
+          +-right (+-left (sym 1/2-+-path) >=>
                    +-assoc >=>
                    +-right +-inverse >=>
                    +-right-zero)
 
         handle2 : (Σ ℚ (Real.U ub)) -> ∃ ℚ U
-        handle2 (q , ub<q) = ∣ q , ∣ n , 1/2r⁺ , sm<q-1/2 ∣ ∣
+        handle2 (q , ub<q) = ∣ q , ∣ n , (1/2 , 0<1/2) , sm<q-1/2 ∣ ∣
           where
           module _ (m : Nat) (m≥n : m ≥ n) where
-            sm<ub-1/2 : s m < (ub + (- 1/2ℝ))
+            sm<ub-1/2 : s m < (ub + (- 1/2))
             sm<ub-1/2 =
               subst2 _<_ diff-step (sym ub-1/2-path) (+₁-preserves-< d<1/2)
               where
-              diffU : Real.U (diff (s n) (s m)) 1/2r
+              diffU : Real.U (diff (s n) (s m)) 1/2
               diffU = proj₂ (f n m refl-≤ m≥n)
 
-              d<1/2 : diff (s n) (s m) < 1/2ℝ
-              d<1/2 = U->ℝ< diffU
+              d<1/2 : diff (s n) (s m) < 1/2
+              d<1/2 = trans-<-= (U->ℝ< diffU) 1/2=1/2
 
-            sm<ub-1/2' : s m < (ub + (ℚ->ℝ (- 1/2r)))
-            sm<ub-1/2' = trans-<-= sm<ub-1/2 (+-right (sym ℚ->ℝ-preserves--))
+            sm<ub-1/2' : s m < (ub + (ℚ->ℝ (- 1/2)))
+            sm<ub-1/2' = trans-<-= sm<ub-1/2 (+-right (sym (ℚ->ℝ-preserves-- >=> cong -_ 1/2=1/2)))
 
-            sm<q-1/2 : Real.U (s m) (q + (- 1/2r))
+            sm<q-1/2 : Real.U (s m) (q + (- 1/2))
             sm<q-1/2 = ℝ<->U sm<q-1/2r
               where
-              sm<q-1/2r : s m < ℚ->ℝ (q + (- 1/2r))
+              sm<q-1/2r : s m < ℚ->ℝ (q + (- 1/2))
               sm<q-1/2r =
                 trans-<-=
                   (trans-< sm<ub-1/2' (+₂-preserves-< (U->ℝ< ub<q)))

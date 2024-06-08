@@ -8,6 +8,7 @@ open import additive-group.instances.real
 open import base
 open import equality
 open import fin
+open import heyting-field.instances.rational
 open import heyting-field.instances.real
 open import nat
 open import nat.order
@@ -18,11 +19,16 @@ open import order.minmax
 open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.real
+open import ordered-field
+open import ordered-field.archimedean
 open import ordered-ring
 open import ordered-semiring
+open import ordered-semiring.archimedean.instances.rational
+open import ordered-semiring.initial
+open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
-open import rational
-open import rational.order
+open import rational hiding (1/ℕ)
+open import rational.order hiding (small-1/ℕ)
 open import rational.proper-interval
 open import real
 open import real.arithmetic.multiplication.inverse
@@ -35,6 +41,7 @@ open import real.rational
 open import ring
 open import ring.implementations.real
 open import semiring
+open import semiring.initial
 open import truncation
 
 import int
@@ -50,16 +57,18 @@ private
           n = fst n⁺
 
         u : Fin (suc n) -> ℚ
-        u (i , _) = (ℕ->ℚ i * 1/ℕ n⁺) * (diff a' b') + a'
+        u (i , _) = (ℕ->Semiring i * 1/ℕ n⁺) * (diff a' b') + a'
 
 
         u0=a' : u zero-fin == a'
         u0=a' =
-          +-left (*-left *-left-zero >=> *-left-zero) >=> +-left-zero
+          +-left (*-left (*-left ℕ->Semiring-preserves-0# >=> *-left-zero) >=>
+                  *-left-zero) >=>
+          +-left-zero
 
         un=b' : u (n , refl-≤) == b'
         un=b' =
-          +-left (*-left (*-commute >=> (1/ℕ-ℕ-path n⁺)) >=>
+          +-left (*-left (∃!-prop (∃!1/ℕ n⁺)) >=>
                   *-left-one) >=>
           +-commute >=>
           diff-step
@@ -74,10 +83,15 @@ private
                   *-left i-path >=>
                   *-left-one)
           where
-          i-path : diff (ℕ->ℚ (Fin.i (inc-fin i)))
-                        (ℕ->ℚ (Fin.i (suc-fin i))) == 1#
-          i-path = sym (ℤ->ℚ-preserves-diff _ _) >=>
-                   cong ℤ->ℚ (int.add1-extract-left >=> cong int.add1 +-inverse)
+          i-path : diff (ℕ->Semiring (Fin.i (inc-fin i)))
+                        (ℕ->Semiring (Fin.i (suc-fin i))) == 1#
+          i-path =
+            +-left (h.preserves-+ 1 (Fin.i i)) >=> +-assoc >=>
+            +-right +-inverse >=>
+            +-right-zero >=>
+            h.preserves-1#
+            where
+            module h = Semiringʰ (∃!-prop ∃!ℕ->Semiring)
 
       0<diff-a'b' : 0# < diff a' b'
       0<diff-a'b' = trans-=-< (sym +-inverse) (+₂-preserves-< a'<b')
@@ -97,8 +111,8 @@ private
         u<u _ =
           +₂-preserves-< (*₂-preserves-<
             (*₂-preserves-<
-              (ℕ->ℚ-preserves-< refl-≤)
-              (Pos-1/ℕ n⁺))
+              (ℕ->Semiring-preserves-< refl-≤)
+              (0<1/ℕ n⁺))
             0<diff-a'b')
 
     rational-bounds->∃δFinePartition :
@@ -138,14 +152,14 @@ private
   ∃δFinePartition' : {a b : ℝ} -> a < b -> (δ : ℝ⁺) -> ∃ (Partition a b) (isδFine ⟨ δ ⟩)
   ∃δFinePartition' {a} {b} a<b (δ , 0<δ) = ∥-bind handle 0<δ2
     where
-    ab/2 = (diff a b) * 1/2ℝ
+    ab/2 = (diff a b) * 1/2
 
     0<ab : 0# < diff a b
     0<ab = trans-=-< (sym +-inverse) (+₂-preserves-< a<b)
 
     δ2 = min ab/2 δ
     0<δ2 : 0# < δ2
-    0<δ2 = min-greatest-< (*-preserves-0< 0<ab 0<1/2ℝ) 0<δ
+    0<δ2 = min-greatest-< (*-preserves-0< 0<ab 0<1/2) 0<δ
 
     handle : (0# ℝ<' δ2) -> ∃ (Partition a b) (isδFine δ)
     handle (ℝ<'-cons δ2' 0U-δ2' δ2L-δ2') =
@@ -214,7 +228,7 @@ private
                 trans-≤ (ℚ->ℝ-preserves-≤ albu≤)
                   (trans-=-≤ ℚ->ℝ-preserves-+ (trans-≤-= (+-preserves-≤ δ2'<ab/2 δ2'<ab/2)
                                                          (sym *-distrib-+-left >=>
-                                                          *-right 1/2ℝ-1-path >=> *-right-one)))
+                                                          *-right 1/2-+-path >=> *-right-one)))
 
               diff-ab-path : diff a b == diff a (ℚ->ℝ al) + (ℚ->ℝ (diff al bu) + diff (ℚ->ℝ bu) b)
               diff-ab-path =

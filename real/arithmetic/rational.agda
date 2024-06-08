@@ -115,15 +115,3 @@ Semiringʰ-ℕ->ℝ = Semiringʰ-∘ Semiringʰ-ℚ->ℝ Semiringʰ-ℕ->ℚ
 abstract
   ℕ->Semiring-ℝ-path : ∀ n -> ℕ->Semiring n == ℕ->ℝ n
   ℕ->Semiring-ℝ-path n = (\i -> ∃!-unique ∃!ℕ->Semiring ℕ->ℝ Semiringʰ-ℕ->ℝ i n)
-
--- 1/2. Usefule now that we have shown that ℚ->ℝ-preserves-+
-1/2ℝ : ℝ
-1/2ℝ = ℚ->ℝ 1/2r
-
-1/2ℝ-1-path : 1/2ℝ + 1/2ℝ == 1#
-1/2ℝ-1-path =
-  sym ℚ->ℝ-preserves-+ >=>
-  cong ℚ->ℝ (+-cong (sym *-right-one) (sym *-right-one) >=> 1/2r-path' 1#)
-
-0<1/2ℝ : 0# < 1/2ℝ
-0<1/2ℝ = ℚ->ℝ-preserves-< Pos-1/2r
