@@ -19,6 +19,8 @@ open import relatively-prime
 open import ring
 open import ring.implementations.int
 open import semiring
+open import semiring.exponentiation
+open import semiring.instances.nat
 
 private
   RP = RelativelyPrime⁰
@@ -88,7 +90,6 @@ relatively-prime-*' {zero} b@{suc _} c@{suc _} rp-b rp-c
   path : b == b *' c
   path = b==1 >=> (\i -> (sym b==1 i) *' (sym c==1 i))
 
-relatively-prime-^' : {a b : Nat} -> RP a b -> (k : Nat) -> RP a (b ^' k)
-relatively-prime-^' {a} {b} g zero    = rp-one
-relatively-prime-^'     {b} g (suc k) =
-  relatively-prime-*' g (relatively-prime-^' g k)
+relatively-prime-^ℕ : {a b : Nat} -> RP a b -> (k : Nat) -> RP a (b ^ℕ k)
+relatively-prime-^ℕ g zero    = rp-one
+relatively-prime-^ℕ g (suc k) = relatively-prime-*' g (relatively-prime-^ℕ g k)

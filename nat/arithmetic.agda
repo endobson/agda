@@ -248,27 +248,6 @@ suc m *' n = n +' (m *' n)
     (m *' n) +' (m *' p)
   end
 
-
-
-
-_^'_ : Nat -> Nat -> Nat
-a ^' zero = 1
-a ^' (suc b) = a *' a ^' b
-
-^'-right-one : {a : Nat} -> a ^' 1 == a
-^'-right-one = *'-right-one
-
-^'-Pos' : {a : Nat} -> .(Pos' a) -> (b : Nat) -> Pos' (a ^' b)
-^'-Pos' _ zero = tt
-^'-Pos' p (suc n) = *'-Pos'-Pos' p (^'-Pos' p n)
-
-^'-distrib-power : {x a b : Nat} -> x ^' (a +' b) == (x ^' a) *' (x ^' b)
-^'-distrib-power {x} {zero} {b} = sym *'-left-one
-^'-distrib-power {x} {suc a} {b} =
-  *'-right {x} (^'-distrib-power {x} {a} {b})
-  >=> sym (*'-assoc {x} {x ^' a})
-
-
 iter : {ℓ : Level} {A : Type ℓ} (n : Nat) (f : A -> A) -> A -> A
 iter zero _ a = a
 iter (suc n) f a = f (iter n f a)
@@ -317,9 +296,6 @@ _+⁺_ : Nat⁺ -> Nat⁺ -> Nat⁺
 infixl 7 _*⁺_
 _*⁺_ : Nat⁺ -> Nat⁺ -> Nat⁺
 (a , ap) *⁺ (b , bp) = (a *' b , *'-Pos'-Pos' ap bp)
-
-_^⁺_ : Nat⁺ -> Nat -> Nat⁺
-(a , pos-a) ^⁺ b = a ^' b , ^'-Pos' pos-a b
 
 1⁺ : Nat⁺
 1⁺ = 1 , tt

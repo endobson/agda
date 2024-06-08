@@ -39,6 +39,8 @@ open import relatively-prime
 open import ring.implementations.int
 open import ring.lists
 open import semiring
+open import semiring.exponentiation
+open import semiring.instances.nat
 open import sigma.base
 open import unique-prime-factorization
 
@@ -238,7 +240,7 @@ divisor-sum-μ-prime-power p (suc zero) n>0 =
   transport (\i -> divisor-sum-μ (path (~ i)) == (int 0)) (divisor-sum-μ-prime p)
   where
   path : (prime-power⁺ p 1) == (Prime'.nat⁺ p)
-  path = ΣProp-path isPropPos' ^'-right-one
+  path = ΣProp-path isPropPos' ^ℕ-one
 divisor-sum-μ-prime-power p (suc n@(suc n')) _ =
   begin
     (divisor-sum-μ (prime-power⁺ p (suc n)))
@@ -424,7 +426,7 @@ private
     transport (\i -> divisorSum-μ (path (~ i)) == (int 0)) (divisorSum-μ-prime p)
     where
     path : (prime-power⁺ p 1) == (Prime'.nat⁺ p)
-    path = ΣProp-path isPropPos' ^'-right-one
+    path = ΣProp-path isPropPos' ^ℕ-one
   divisorSum-μ-prime-power p ((suc n@(suc n')) , _) =
     begin
       divisorSum-μ psn

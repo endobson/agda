@@ -31,6 +31,7 @@ open import prime-power-factorization
 open import relation
 open import relatively-prime
 open import semiring
+open import semiring.exponentiation
 open import semiring.instances.nat
 open import sigma
 open import sigma.base
@@ -169,7 +170,7 @@ isContr-PrimeDivisor->prime-power n@(suc (suc _) , _) (pd@(p , _) , pd-unique) =
     p=p2 = cong fst (pd-unique (p2 , p2∣n))
   handle-tree (prime-factorization-tree-composite {m1} {m2} t1 t2) (x , xm1m2=n) =
     fst rec1 + fst rec2 ,
-    ^'-distrib-power {⟨ p ⟩} {fst rec1} {fst rec2} >=>
+    ^ℕ-distrib-+-left (fst rec1) (fst rec2) >=>
     *-cong (snd rec1) (snd rec2)
     where
     rec1 : Σ[ i ∈ ℕ ] (prime-power p i == m1)

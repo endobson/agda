@@ -7,13 +7,13 @@ open import div hiding (remainder)
 open import equality
 open import equivalence
 open import fin
-open import finset
 open import fin-algebra
+open import finset
 open import finsubset
 open import functions
+open import gcd.computational
 open import gcd.properties
 open import gcd.propositional using (GCD'; GCD⁺)
-open import gcd.computational
 open import hlevel
 open import isomorphism
 open import lcm
@@ -35,6 +35,8 @@ open import quotient
 open import relation
 open import relatively-prime
 open import ring.implementations.int
+open import semiring.exponentiation
+open import semiring.instances.nat
 open import sigma
 open import sigma.base
 open import sum
@@ -406,11 +408,11 @@ module _ (p : Prime') where
 
   divisors-of-prime-power : Nat -> List Nat
   divisors-of-prime-power zero       = 1 :: []
-  divisors-of-prime-power n@(suc n') = (p' ^' n) :: (divisors-of-prime-power n')
+  divisors-of-prime-power n@(suc n') = (p' ^ℕ n) :: (divisors-of-prime-power n')
 
   private
     contains-only-divisors-of-prime-power : (n : Nat) ->
-      ContainsOnly (_div' (p' ^' n)) (divisors-of-prime-power n)
+      ContainsOnly (_div' (p' ^ℕ n)) (divisors-of-prime-power n)
     contains-only-divisors-of-prime-power zero    (0 , path) =
       (1 , *'-left-one >=> path)
     contains-only-divisors-of-prime-power (suc n) (0 , path) =
@@ -423,31 +425,31 @@ module _ (p : Prime') where
     sorted>-divisors-of-prime-power (suc n) =
       (>all , sorted>-divisors-of-prime-power n)
       where
-      >all : ContainsOnly (_< (p' *' (p' ^' n))) (divisors-of-prime-power n)
+      >all : ContainsOnly (_< (p' *' (p' ^ℕ n))) (divisors-of-prime-power n)
       >all {x} c = trans-≤-< x-lt p-lt
         where
-        x-div : x div' (p' ^' n)
+        x-div : x div' (p' ^ℕ n)
         x-div = contains-only-divisors-of-prime-power n c
-        x-lt : x ≤ (p' ^' n)
-        x-lt = div'->≤ x-div {^'-Pos' (Prime'.pos p) n}
-        p-lt : (p' ^' n) < (p' ^' (suc n))
+        x-lt : x ≤ (p' ^ℕ n)
+        x-lt = div'->≤ x-div {snd (prime-power⁺ p n)}
+        p-lt : (p' ^ℕ n) < (p' ^ℕ (suc n))
         p-lt = ^-suc-< (Prime'.>1 p) n
 
 
   divisors-of-prime-power-canonical :
-    (n : Nat) -> CanonicalList≥ (_div' (p' ^' n)) (divisors-of-prime-power n)
+    (n : Nat) -> CanonicalList≥ (_div' (p' ^ℕ n)) (divisors-of-prime-power n)
   divisors-of-prime-power-canonical zero = divisors-of-one-canonical
   divisors-of-prime-power-canonical (suc n) = ((c-o , c-a) , nd) , sorted
     where
     c-o = contains-only-divisors-of-prime-power (suc n)
-    c-a : ContainsAll (_div' (p' *' (p' ^' n))) (divisors-of-prime-power (suc n))
+    c-a : ContainsAll (_div' (p' *' (p' ^ℕ n))) (divisors-of-prime-power (suc n))
     c-a {d} dp = handle (split-prime-power-divisor n d dp)
       where
-      handle : (d == (⟨ p ⟩ *' (⟨ p ⟩ ^' n)) ⊎ d div' (⟨ p ⟩ ^' n))
+      handle : (d == (⟨ p ⟩ *' (⟨ p ⟩ ^ℕ n)) ⊎ d div' (⟨ p ⟩ ^ℕ n))
                -> contains d (divisors-of-prime-power (suc n))
       handle (inj-l path) = (0 , path)
       handle (inj-r rec) =
-        cons-contains (⟨ p ⟩ *' (⟨ p ⟩ ^' n))
+        cons-contains (⟨ p ⟩ *' (⟨ p ⟩ ^ℕ n))
                       (canonical-contains-all (divisors-of-prime-power-canonical n) rec)
 
     nd : NoDuplicates (divisors-of-prime-power (suc n))

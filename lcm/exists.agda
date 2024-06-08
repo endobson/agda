@@ -15,6 +15,8 @@ open import order.instances.nat
 open import prime-power-factorization
 open import prime-div-count
 open import prime
+open import semiring.exponentiation
+open import semiring.instances.nat
 
 private
   OPPF = OrderedPrimePowerFactorization
@@ -112,7 +114,7 @@ private
 
 
         pp-r-div : ((prime-power p n-b) *' r) div' ((prime-power p n') *' r)
-        pp-r-div = div'-mult-both (div'-^' n-b≤n') div'-refl
+        pp-r-div = div'-mult-both (div'-^ℕ n-b≤n') div'-refl
 
       b%m : b' div' ((prime-power p n') *' r)
       b%m = div'-trans (LCM'.b%m lc) mc%m
@@ -185,7 +187,7 @@ private
           path =
             *'-assoc {z-r} {prime-power p n-w}
             >=> *'-right {z-r} (sym (*'-assoc {prime-power p n-w} {prime-power p n'} {r}))
-            >=> *'-right {z-r} (*'-left (sym (^'-distrib-power {p'} {n-w} {n'})))
+            >=> *'-right {z-r} (*'-left (sym (^ℕ-distrib-+-left n-w n')))
             >=> (\i -> z-r *' ((prime-power p (n-z-path (~ i))) *' r))
             >=> sym (*'-assoc {z-r} {prime-power p n-z})
             >=> *'-left (PrimeDivCount.r-path dc-z)
@@ -227,7 +229,7 @@ private
         p^n%y : (prime-power p n') div' y
         p^n%y =
           div'-trans (transport (\i -> (prime-power p n') div' (prime-power p (path i)))
-                                (div'-^' max-≤-left))
+                                (div'-^ℕ max-≤-left))
                      (PrimeDivCount.%a dc-y)
           where
           path : (max n' n-b) == n-y

@@ -21,6 +21,7 @@ open import prime-gcd
 open import relation
 open import relatively-prime
 open import semiring
+open import semiring.exponentiation
 open import semiring.instances.nat
 open import sigma.base
 open import univalence
@@ -37,8 +38,8 @@ private
       d-pos : Pos' d
       n-pos : Pos' n
       k : Nat
-      d^k%n : (d ^' k) div' n
-      ¬d^[suc-k]%n : ¬ ((d ^' (suc k)) div' n)
+      d^k%n : (d ^ℕ k) div' n
+      ¬d^[suc-k]%n : ¬ ((d ^ℕ (suc k)) div' n)
 
     n⁺ : Nat⁺
     n⁺ = n , n-pos
@@ -46,11 +47,11 @@ private
     d⁺ : Nat⁺
     d⁺ = d , d-pos
 
-    upper-bound : (k2 : Nat) -> ((d ^' k2) div' n) -> k2 ≤ k
+    upper-bound : (k2 : Nat) -> ((d ^ℕ k2) div' n) -> k2 ≤ k
     upper-bound k2 d^k2%n = convert-≮ k≮k2
       where
       k≮k2 : k ≮ k2
-      k≮k2 sk≤k2 = ¬d^[suc-k]%n (div'-trans (div'-^' sk≤k2) d^k2%n)
+      k≮k2 sk≤k2 = ¬d^[suc-k]%n (div'-trans (div'-^ℕ sk≤k2) d^k2%n)
 
 
   division-count-suc : {d n : Nat} -> DivisionCount d n -> DivisionCount d (d *' n)
@@ -62,34 +63,34 @@ private
     ; ¬d^[suc-k]%n = negative
     }
     where
-    d^k = d ^' k
+    d^k = d ^ℕ k
 
     d⁺ = DivisionCount.d⁺ dc
 
-    positive : (d ^' (suc k)) div' (d *' n)
+    positive : (d ^ℕ (suc k)) div' (d *' n)
     positive = (x , adjusted-proof)
       where
       adjusted-proof : x *' (d *' d^k) == d *' n
       adjusted-proof = (sym (*'-assoc {x} {d})) >=> (*'-left (*'-commute {x} {d})) >=> (*'-assoc {d} {x})
                        >=> (cong (d *'_) pr)
-    negative : ¬ ((d ^' (suc (suc k))) div' (d *' n))
+    negative : ¬ ((d ^ℕ (suc (suc k))) div' (d *' n))
     negative (x , pr) = f d^sk%n
       where
-      adjusted-proof : x *' d ^' (suc k) == n
+      adjusted-proof : x *' d ^ℕ (suc k) == n
       adjusted-proof = *'-left-injective d⁺
         (begin
-           d *' (x *' (d ^' (suc k)))
+           d *' (x *' (d ^ℕ (suc k)))
          ==< (sym (*'-assoc {d} {x})) >
-           (d *' x) *' (d ^' (suc k))
+           (d *' x) *' (d ^ℕ (suc k))
          ==< (*'-left (*'-commute {d} {x})) >
-           (x *' d) *' (d ^' (suc k))
+           (x *' d) *' (d ^ℕ (suc k))
          ==< (*'-assoc {x} {d}) >
-           x *' (d *' (d ^' (suc k)))
+           x *' (d *' (d ^ℕ (suc k)))
          ==< pr >
            d *' n
          end)
 
-      d^sk%n : (d ^' (suc k)) div' n
+      d^sk%n : (d ^ℕ (suc k)) div' n
       d^sk%n = x , adjusted-proof
 
   compute-division-count' : (d : Nat) (n : Nat⁺) (bound : Nat) -> 1 < d -> ⟨ n ⟩ < bound
@@ -146,58 +147,58 @@ private
         (isProp->PathPᵉ (\i -> isPropPos') d-pos1 d-pos2 i)
         (isProp->PathPᵉ (\i -> isPropPos') n-pos1 n-pos2 i)
         (p-k i)
-        (isProp->PathPᵉ (\i -> isPropDiv' {d ^' (p-k i)} n1⁺) div-k1 div-k2 i)
-        (isProp->PathPᵉ (\i -> isProp¬ ((d ^' (suc (p-k i))) div' n)) ¬div-sk1 ¬div-sk2 i))
+        (isProp->PathPᵉ (\i -> isPropDiv' {d ^ℕ (p-k i)} n1⁺) div-k1 div-k2 i)
+        (isProp->PathPᵉ (\i -> isProp¬ ((d ^ℕ (suc (p-k i))) div' n)) ¬div-sk1 ¬div-sk2 i))
     where
       n1⁺ = DivisionCount.n⁺ dc1
 
-      lesser-power : ∀ {k1 k2 n} -> ¬ ((d ^' suc k1) div' n) -> (d ^' k2) div' n -> k2 ≤ k1
+      lesser-power : ∀ {k1 k2 n} -> ¬ ((d ^ℕ suc k1) div' n) -> (d ^ℕ k2) div' n -> k2 ≤ k1
       lesser-power {k1}     {zero}   {n} _    _ = zero-≤
       lesser-power {suc k1} {suc k2} {n} ¬div (x , pr) =
          suc-≤ (lesser-power ¬div-next div-next)
         where
         n' : Nat
-        n' = x *' d ^' k2
+        n' = x *' d ^ℕ k2
 
-        div-next : (d ^' k2) div' n'
+        div-next : (d ^ℕ k2) div' n'
         div-next = x , refl
 
-        ¬div-next : ¬ ((d ^' (suc k1)) div' n')
+        ¬div-next : ¬ ((d ^ℕ (suc k1)) div' n')
         ¬div-next (y , pr2) = ¬div proof
           where
-          inner-pr : y *' (d ^' (suc (suc k1))) == n
+          inner-pr : y *' (d ^ℕ (suc (suc k1))) == n
           inner-pr =
             begin
-              y *' (d ^' (suc (suc k1)))
+              y *' (d ^ℕ (suc (suc k1)))
             ==< (sym (*'-assoc {y} {d})) >
-              (y *' d) *' (d ^' (suc k1))
+              (y *' d) *' (d ^ℕ (suc k1))
             ==< (*'-left (*'-commute {y})) >
-              (d *' y) *' (d ^' (suc k1))
+              (d *' y) *' (d ^ℕ (suc k1))
             ==< (*'-assoc {d}) >
-              d *' (y *' (d ^' (suc k1)))
+              d *' (y *' (d ^ℕ (suc k1)))
             ==< (cong (d *'_) pr2) >
-              d *' (x *' d ^' k2)
+              d *' (x *' d ^ℕ k2)
             ==< sym (*'-assoc {d}) >
-              (d *' x) *' d ^' k2
+              (d *' x) *' d ^ℕ k2
             ==< *'-left (*'-commute {d}) >
-              (x *' d) *' d ^' k2
+              (x *' d) *' d ^ℕ k2
             ==< *'-assoc {x}  >
-              x *' (d *' d ^' k2)
+              x *' (d *' d ^ℕ k2)
             ==< pr >
               n
             end
 
-          proof : ((d ^' (suc (suc k1))) div' n)
+          proof : ((d ^ℕ (suc (suc k1))) div' n)
           proof = y , inner-pr
 
 
       lesser-power {zero}   {suc k2} {n} ¬div (x , pr) = bot-elim (¬d-div d-div)
         where
-        d-proof : (x *' (d ^' k2)) *' d == n
-        d-proof = (*'-assoc {x}) >=> (*'-right {x} (*'-commute {d ^' k2})) >=> pr
+        d-proof : (x *' (d ^ℕ k2)) *' d == n
+        d-proof = (*'-assoc {x}) >=> (*'-right {x} (*'-commute {d ^ℕ k2})) >=> pr
 
         d-div : (d div' n)
-        d-div = (x *' (d ^' k2)) , d-proof
+        d-div = (x *' (d ^ℕ k2)) , d-proof
 
         ¬d-div : ¬ (d div' n)
         ¬d-div = (transport (\i -> ¬ ((*'-right-one {d} i) div' n)) ¬div)
@@ -249,7 +250,7 @@ private
       ; n-pos        = tt
       ; k            = 0
       ; d^k%n        = (1 , refl)
-      ; ¬d^[suc-k]%n = transport (\i -> ¬(^'-right-one {pv} (~ i) div' 1)) no-divides
+      ; ¬d^[suc-k]%n = transport (\i -> ¬(^ℕ-one {x = pv} (~ i) div' 1)) no-divides
       }
       where
       no-divides : ¬ (pv div' 1)
@@ -290,10 +291,10 @@ private
       rp' : RelativelyPrime⁰ pv p2v
       rp' = distinct-primes->relatively-prime ¬path
 
-      rp : RelativelyPrime⁰ (pv ^' (suc k)) p2v
-      rp = (rp-sym (relatively-prime-^' (rp-sym rp') (suc k)))
+      rp : RelativelyPrime⁰ (pv ^ℕ (suc k)) p2v
+      rp = (rp-sym (relatively-prime-^ℕ (rp-sym rp') (suc k)))
 
-      no-divides : ¬ ((pv ^' (suc k)) div' (p2v *' n))
+      no-divides : ¬ ((pv ^ℕ (suc k)) div' (p2v *' n))
       no-divides p^sk%p2*n = ¬d^sk%n (euclids-lemma/rp p^sk%p2*n rp)
 
 

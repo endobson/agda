@@ -11,10 +11,12 @@ open import nat.order
 open import order
 open import order.instances.nat
 open import prime
-open import prime-gcd
 open import prime-factorization
+open import prime-gcd
 open import relation
 open import relatively-prime
+open import semiring.exponentiation
+open import semiring.instances.nat
 open import sigma.base
 
 private
@@ -32,7 +34,7 @@ private
   PPF = PrimePowerFactorization
 
   prime->ppf : (p : Prime') -> PPF ⟨ p ⟩
-  prime->ppf p@(p' , _) = transport (cong PPF ^'-right-one) (ppf-base p 1⁺)
+  prime->ppf p@(p' , _) = transport (cong PPF ^ℕ-one) (ppf-base p 1⁺)
 
   ppf-prime-merge : {n : Nat} (p : Prime')  -> PPF n -> PPF (⟨ p ⟩ *' n)
   ppf-prime-merge {m} p@(p' , _) ppf@(ppf-base p2@(p2' , _) (n , _)) =
@@ -48,7 +50,7 @@ private
       distinct = ¬path ∘ (cong fst)
 
       rp : RP p' (prime-power p2 n)
-      rp = relatively-prime-^' (distinct-primes->relatively-prime distinct) n
+      rp = relatively-prime-^ℕ (distinct-primes->relatively-prime distinct) n
   ppf-prime-merge p@(p' , _) (ppf-combine {a} {b} t1 t2 rp) =
     handle (decide-div p' a) (decide-div p' b)
     where

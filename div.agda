@@ -25,6 +25,8 @@ open import relation hiding (acc)
 open import ring
 open import ring.implementations.int
 open import semiring
+open import semiring.exponentiation
+open import semiring.instances.nat
 open import sigma.base
 
 open EqReasoning
@@ -101,11 +103,11 @@ div'-+' {d} {n1} {n2} (x1 , path1) (x2 , path2) = (x1 +' x2 , path')
   path' : (x1 +' x2) *' d == n1 +' n2
   path' = *'-distrib-+' {x1} {x2} {d} >=> (\i -> (path1 i) +' (path2 i))
 
-div'-^' : {k1 k2 d : Nat} -> k1 ≤ k2 -> (d ^' k1) div' (d ^' k2)
-div'-^' {k1} {k2} {d} (i , path) = (d ^' i , path')
+div'-^ℕ : {k1 k2 d : Nat} -> k1 ≤ k2 -> (d ^ℕ k1) div' (d ^ℕ k2)
+div'-^ℕ {k1} {k2} {d} (i , path) = (d ^ℕ i , path')
   where
-  path' : (d ^' i) *' (d ^' k1) == (d ^' k2)
-  path' = sym (^'-distrib-power {d} {i} {k1}) >=> (cong (d ^'_) path)
+  path' : (d ^ℕ i) *' (d ^ℕ k1) == (d ^ℕ k2)
+  path' = sym (^ℕ-distrib-+-left i k1) >=> (cong (d ^ℕ_) path)
 
 
 div-negate : {d a : Int} -> d div a -> d div (- a)

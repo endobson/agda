@@ -22,6 +22,7 @@ open import hlevel
 open import int
 open import isomorphism
 open import nat
+open import nat.exponentiation
 open import nat.order
 open import order
 open import order.instances.nat
@@ -40,6 +41,7 @@ open import relation
 open import ring
 open import ring.implementations.rational
 open import semiring
+open import semiring.exponentiation
 open import semiring.instances.nat
 open import sigma.base
 open import without-point
@@ -77,10 +79,10 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
     2i!=1 zero    p = zero-suc-absurd p
     2i!=1 (suc i) p = zero-suc-absurd (sym (cong pred (*-commuteᵉ (suc i) 2 >=> p)))
 
-    handle : (i j : ℕ) -> (2 ^' i == 2 ^' j) -> i == j
+    handle : (i j : ℕ) -> (2 ^ℕ i == 2 ^ℕ j) -> i == j
     handle zero    zero    _ = refl
-    handle (suc i) zero    p = bot-elim (2i!=1 (2 ^' i) p)
-    handle zero (suc j)    p = bot-elim (2i!=1 (2 ^' j) (sym p))
+    handle (suc i) zero    p = bot-elim (2i!=1 (2 ^ℕ i) p)
+    handle zero (suc j)    p = bot-elim (2i!=1 (2 ^ℕ j) (sym p))
     handle (suc i) (suc j) p = cong suc (handle i j (*'-left-injective 2⁺ p))
 
   path-half : (fst (Ring-ℚ.u1/ (ℚUnit-prime (2 , 2-is-prime)))) == 1/2r
@@ -103,7 +105,7 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
     FinSetStr-PrimeDivisor {n} = record { isFin = isFinSet-PrimeDivisor n }
 
   φℚ-path2 : (i : ℕ) -> ℕ->ℚ (φ (2⁺ *⁺ (2⁺ ^⁺ i))) ==
-                        ℕ->ℚ (2 ^' i)
+                        ℕ->ℚ (2 ^ℕ i)
   φℚ-path2 i =
     φℚ-finiteProduct >=>
     *-right (finiteMerge-isContr (Semiring.*-CommMonoid useⁱ)
@@ -115,7 +117,7 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
     sym *-assoc >=> *-left (*-commute >=> 2r-1/2r-path) >=>
     *-left-one
 
-  φ-path2 : (i : ℕ) -> φ (2⁺ *⁺ (2⁺ ^⁺ i)) == (2 ^' i)
+  φ-path2 : (i : ℕ) -> φ (2⁺ *⁺ (2⁺ ^⁺ i)) == (2 ^ℕ i)
   φ-path2 i = Injective-ℕ->ℚ (φℚ-path2 i)
 
   backward : (Σ[ i ∈ ℕ ] (2⁺ ^⁺ i == n⁺)) -> (φ (2⁺ *⁺ n⁺) == n)
@@ -189,10 +191,10 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
       handle (yes path) = sym path
       handle (no ¬path) = bot-elim (¬wp (_ , ¬path))
 
-    prime-power-path : Σ[ i ∈ ℕ ] (2 ^' i == (2 * n))
+    prime-power-path : Σ[ i ∈ ℕ ] (2 ^ℕ i == (2 * n))
     prime-power-path = isContr-PrimeDivisor->prime-power (2⁺ *⁺ n⁺) isContr-PD
 
-    adjust-prime-power-path : Σ[ i ∈ ℕ ] (2 ^' i == (2 * n)) -> Σ[ i ∈ ℕ ] (2⁺ ^⁺ i == n⁺)
+    adjust-prime-power-path : Σ[ i ∈ ℕ ] (2 ^ℕ i == (2 * n)) -> Σ[ i ∈ ℕ ] (2⁺ ^⁺ i == n⁺)
     adjust-prime-power-path (zero , 1=2n) = bot-elim (irrefl-path-< 1=2n 1<2n)
       where
       1<2 : 1 < 2

@@ -23,6 +23,7 @@ open import relation
 open import relatively-prime
 open import ring.implementations.int
 open import semiring
+open import semiring.exponentiation
 open import semiring.instances.nat
 
 open EqReasoning
@@ -96,7 +97,7 @@ private
         a-path =
           sym x-path >=>
           cong (x *_) (cong (prime-power p) m-path >=>
-                       ^'-distrib-power {p'} {suc i} {n}) >=>
+                       ^ℕ-distrib-+-left {x = ⟨ p ⟩} (suc i) n) >=>
           sym (*'-assoc {x} {prime-power p (suc i)})
 
         r-path2 : r == (x * prime-power p i) * p'
@@ -221,7 +222,7 @@ relatively-prime-prime-div-count {a = a@(suc _)} {b = b@(suc _)} rp p =
   path =
     begin
       (da.r *' db.r) *' (prime-power p (na +' nb))
-    ==<  *'-right {da.r *' db.r} (^'-distrib-power {p'} {na} {nb})  >
+    ==<  *'-right {da.r *' db.r} (^ℕ-distrib-+-left na nb) >
       (da.r *' db.r) *' ((prime-power p na) *' (prime-power p nb))
     ==< *'-assoc {da.r} {db.r} >
       da.r *' (db.r *' ((prime-power p na) *' (prime-power p nb)))
@@ -262,9 +263,9 @@ gcd-prime-div-count {a} {b} {d} g p {na} da {nb} db =
   k = min na nb
 
   p^k%a : (prime-power p k) div' a
-  p^k%a = div'-trans (div'-^' min-≤-left) (PrimeDivCount.%a da)
+  p^k%a = div'-trans (div'-^ℕ min-≤-left) (PrimeDivCount.%a da)
   p^k%b : (prime-power p k) div' b
-  p^k%b = div'-trans (div'-^' min-≤-right) (PrimeDivCount.%a db)
+  p^k%b = div'-trans (div'-^ℕ min-≤-right) (PrimeDivCount.%a db)
 
   p^k%d : (prime-power p k) div' d
   p^k%d = (GCD'.f g (prime-power p k) p^k%a p^k%b)

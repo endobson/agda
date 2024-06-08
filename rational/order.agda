@@ -13,7 +13,8 @@ open import fraction.order
 open import functions
 open import hlevel
 open import isomorphism
-open import nat using (ℕ ; Nat⁺; 1⁺ ; 2⁺ ; _*⁺_; _^⁺_)
+open import nat using (ℕ ; Nat⁺; 1⁺ ; 2⁺ ; _*⁺_)
+open import nat.exponentiation
 open import nat.order using (2^n-large)
 open import order
 open import order.instances.int

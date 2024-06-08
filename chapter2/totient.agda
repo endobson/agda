@@ -42,6 +42,7 @@ open import prime-gcd
 open import quotient-remainder
 open import relation
 open import relatively-prime
+open import semiring.exponentiation
 open import semiring.instances.nat
 open import sigma
 open import sigma.base
@@ -395,7 +396,7 @@ module _ (p : Prime') where
     end
     where
     p^1=p : (prime-power⁺ p 1) == p⁺
-    p^1=p = (ΣProp-path isPropPos' (^'-right-one))
+    p^1=p = ΣProp-path isPropPos' ^ℕ-one
 
   φ-prime-power (suc n@(suc _) , _) =
     begin

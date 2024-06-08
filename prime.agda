@@ -8,10 +8,13 @@ open import equality
 open import functions
 open import hlevel
 open import nat
+open import nat.exponentiation
 open import nat.order
 open import order
 open import order.instances.nat
 open import relation
+open import semiring.exponentiation
+open import semiring.instances.nat
 open import sigma.base
 
 record IsPrime' (p : Nat) : Type₀ where
@@ -131,10 +134,10 @@ open PrimeUpTo
 -- Prime powers
 
 prime-power : Prime' -> Nat -> Nat
-prime-power (p , _) n = p ^' n
+prime-power (p , _) n = p ^ℕ n
 
 prime-power⁺ : Prime' -> Nat -> Nat⁺
-prime-power⁺ p n = (prime-power p n , ^'-Pos' (Prime'.pos p) n)
+prime-power⁺ pp@(p , _) n = (p , Prime'.pos pp) ^⁺ n
 
 prime-power-div : (p : Prime') -> (n : Nat⁺) -> ⟨ p ⟩ div' (prime-power p ⟨ n ⟩)
 prime-power-div p@(p' , _) (suc n' , _) = (prime-power p n') , *'-commute {prime-power p n'} {p'}

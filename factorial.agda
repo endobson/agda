@@ -13,6 +13,7 @@ open import ordered-additive-group.instances.nat
 open import ordered-semiring
 open import ordered-semiring.instances.nat
 open import semiring
+open import semiring.exponentiation
 open import semiring.instances.nat
 
 factorial : ℕ -> ℕ
@@ -29,7 +30,7 @@ factorial⁺ n = factorial n , <->Pos' (0<factorial n)
 
 -- 1 2 4 8 16 32
 -- 1 1 2 6 24 120
-2^n<factorial : (n : ℕ) -> n ≥ 4 ->  (2 ^' n) < factorial n
+2^n<factorial : (n : ℕ) -> n ≥ 4 ->  (2 ^ℕ n) < factorial n
 2^n<factorial zero                   0≥4 = bot-elim (zero-≮ 0≥4)
 2^n<factorial (suc zero)             1≥4 = bot-elim (zero-≮ (pred-≤ 1≥4))
 2^n<factorial (suc (suc zero))       2≥4 = bot-elim (zero-≮ (pred-≤ (pred-≤ 2≥4)))

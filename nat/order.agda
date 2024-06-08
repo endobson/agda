@@ -9,11 +9,13 @@ open import hlevel
 open import isomorphism
 open import nat.arithmetic
 open import nat.properties
-open import ordered-semiring
-open import ordered-semiring.instances.nat
 open import order
 open import order.instances.nat
+open import ordered-semiring
+open import ordered-semiring.instances.nat
 open import relation
+open import semiring.exponentiation
+open import semiring.instances.nat
 open import sigma.base
 open import sum
 open import truncation
@@ -86,16 +88,16 @@ suc-≤-== = ua (isoToEquiv suc-≤-iso)
 
 -- Helpers for exponentiation and ≤
 
-^-suc-≤ : {m : Nat} -> m ≥ 1 -> (n : Nat) ->  (m ^' n) ≤ (m ^' (suc n))
-^-suc-≤     (x , path) zero    = (x , path >=> (sym ^'-right-one))
+^-suc-≤ : {m : Nat} -> m ≥ 1 -> (n : Nat) ->  (m ^ℕ n) ≤ (m ^ℕ (suc n))
+^-suc-≤     (x , path) zero    = (x , path >=> (sym ^ℕ-one))
 ^-suc-≤ {m} m≥1        (suc n) = *₁-preserves-≤ (trans-≤ zero-≤ m≥1) (^-suc-≤ m≥1 n)
 
-^-suc-< : {m : Nat} -> m > 1 -> (n : Nat) ->  (m ^' n) < (m ^' (suc n))
-^-suc-<     (x , path) zero    = (x , path >=> (sym ^'-right-one))
+^-suc-< : {m : Nat} -> m > 1 -> (n : Nat) ->  (m ^ℕ n) < (m ^ℕ (suc n))
+^-suc-<     (x , path) zero    = (x , path >=> (sym ^ℕ-one))
 ^-suc-< {m} m>1        (suc n) = *₁-preserves-< (weaken-< m>1) (^-suc-< m>1 n)
 
 private
-  2^n-large' : (n m : Nat) -> n == m -> n < (2 ^' n)
+  2^n-large' : (n m : Nat) -> n == m -> n < (2 ^ℕ n)
   2^n-large' zero _ _ = zero-<
   2^n-large' (suc zero) _ _ = suc-< zero-<
   2^n-large' (suc n@(suc n')) zero p = zero-suc-absurd (sym p)
@@ -103,11 +105,11 @@ private
     where
     lt1 : (suc n) ≤ (2 *' n)
     lt1 = n' , +'-right-suc >=> +'-right {suc n'} (sym *'-left-one)
-    lt2 : (2 *' n) < (2 ^' (suc n))
+    lt2 : (2 *' n) < (2 ^ℕ (suc n))
     lt2 = *₁-preserves-< (zero-< {1}) (2^n-large' n m (cong pred p))
 
 
-2^n-large : (n : Nat) -> n < (2 ^' n)
+2^n-large : (n : Nat) -> n < (2 ^ℕ n)
 2^n-large n = 2^n-large' n n refl
 
 

@@ -41,20 +41,6 @@ private
   module NatSemiring = Semiring NatSemiring
   module IntSemiring = Semiring IntSemiring
 
-^'ʰ : (x : Nat) -> CommMonoidʰᵉ NatSemiring.+-CommMonoid NatSemiring.*-CommMonoid (x ^'_)
-^'ʰ x = record
-  { monoidʰ = record
-    { preserves-ε = refl
-    ; preserves-∙ = preserves-∙
-    }
-  }
-  where
-  preserves-∙ : (a b : Nat) -> (x ^' (a +' b)) == (x ^' a) *' (x ^' b)
-  preserves-∙ zero    b = sym *'-left-one
-  preserves-∙ (suc a) b =
-    cong (x *'_) (preserves-∙ a b)
-    >=> sym (*'-assoc {x} {x ^' a} {x ^' b})
-
 module _ where
   ^ʰ : (x : Int) -> CommMonoidʰᵉ NatSemiring.+-CommMonoid IntSemiring.*-CommMonoid (x ^_)
   ^ʰ x = record

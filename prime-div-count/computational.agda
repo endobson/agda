@@ -5,16 +5,18 @@ module prime-div-count.computational where
 open import base
 open import div
 open import equality
+open import gcd.computational
+open import lcm.exists
 open import nat
 open import nat.order
 open import order
+open import order.instances.nat
 open import order.minmax
 open import order.minmax.instances.nat
-open import order.instances.nat
 open import prime
 open import prime-div-count
-open import gcd.computational
-open import lcm.exists
+open import semiring.exponentiation
+open import semiring.instances.nat
 open import sigma.base
 
 prime-div-count : Prime' -> Nat⁺ -> Nat
@@ -84,7 +86,7 @@ prime-div->prime-div-count p a d@(x , path) =
   prime-div-count p (x , (div'-pos->pos' d (snd a))) ,
   +'-right
     (prime-div-count-unique
-      (subst (\x -> PrimeDivCount p x 1) ^'-right-one (prime-power-div-count p 1))
+      (subst (\x -> PrimeDivCount p x 1) ^ℕ-one (prime-power-div-count p 1))
       (prime-div-count-proof p (Prime'.nat⁺ p))) >=>
   sym (*'-prime-div-count⁺ p (x , (div'-pos->pos' d (snd a))) (Prime'.nat⁺ p))
   >=> cong (prime-div-count p) (ΣProp-path isPropPos' path)
