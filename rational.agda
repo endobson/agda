@@ -1058,9 +1058,3 @@ opaque
                   *-assoc >=>
                   *-right (*-commute >=> 1/ℕ-ℕ-path d) >=>
                   *-right-one)
-
-
-
-
-midℚ : ℚ -> ℚ -> ℚ
-midℚ x y = 1/2r r* (x r+ y)

@@ -29,8 +29,6 @@ Change ℚ< and Posℚ to order2's version.
 Remove bounds on operations that never need to provide them
 -- Nothing currently
 
-Move midℚ to a rational directory.
-
 Make MultiplicativeStr and have semirings just be the distributative law
 
 Add structures for ℕ≤
