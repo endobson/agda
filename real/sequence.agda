@@ -23,7 +23,7 @@ open import ordered-semiring
 open import ordered-semiring.archimedean.instances.rational
 open import ordered-semiring.instances.rational
 open import rational
-open import rational.order hiding (small-1/2^ℕ)
+open import rational.order
 open import real
 open import real.order
 open import real.rational

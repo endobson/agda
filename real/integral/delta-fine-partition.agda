@@ -29,7 +29,7 @@ open import ordered-semiring.initial
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import rational hiding (1/ℕ)
-open import rational.order hiding (small-1/ℕ)
+open import rational.order
 open import rational.proper-interval
 open import real
 open import real.arithmetic.multiplication.inverse

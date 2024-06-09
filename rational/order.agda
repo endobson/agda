@@ -805,27 +805,6 @@ abstract
   Pos-1/ℕ : (n : Nat⁺) -> Pos (1/ℕ n)
   Pos-1/ℕ n = subst Pos (sym (1/ℕ-inv-path n)) (r1/-preserves-Pos (ℕ->ℚ ⟨ n ⟩) _ (Pos-ℕ⁺->ℚ n))
 
-  Pos-1/2r : Pos 1/2r
-  Pos-1/2r = Pos-1/ℕ (2 , tt)
-
-
-  --
-
-  1/2r<1r : 1/2r < 1r
-  1/2r<1r = subst2 _<_ (r+-left-zero 1/2r) (2r-path 1/2r >=> 2r-1/2r-path)  0r+1/2r<1/2r+1/2r
-    where
-    module _ where
-      0<1/2r : 0r < 1/2r
-      0<1/2r = (Pos-1/ℕ (2 , tt))
-
-      0r+1/2r<1/2r+1/2r : (0r r+ 1/2r) < (1/2r r+ 1/2r)
-      0r+1/2r<1/2r+1/2r = +₂-preserves-< 0<1/2r
-
-  1/2ℕ<1/ℕ : (n : Nat⁺) -> 1/ℕ (2⁺ *⁺ n) < 1/ℕ n
-  1/2ℕ<1/ℕ n =
-    subst2 _<_ (sym (1/2ℕ-path n)) (r*-left-one (1/ℕ n))
-          (*₂-preserves-< 1/2r<1r (Pos-1/ℕ n))
-
   NonNeg-diffℚ : (a b : ℚ) -> a ≤ b -> NonNeg (diff a b)
   NonNeg-diffℚ a b a≤b =
     0≤-NonNeg _ (subst (_≤ (diff a b)) +-inverse (+₂-preserves-≤ a≤b))
@@ -1112,56 +1091,3 @@ private
       handle : (n d : Nat⁺) -> Σ[ m ∈ Nat⁺ ] (1/ℕ' m ℚ'≤ (n⁺d⁺->ℚ' n d)) ->
                Σ[ m ∈ Nat⁺ ] (1/ℕ m ℚ≤ (n⁺d⁺->ℚ n d))
       handle n d (m , p) = m , (ℚ≤-cons (transport (sym ℚ≤-raw-eval) p))
-
-small-1/ℕ : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] (1/ℕ m < ⟨ q ⟩)
-small-1/ℕ q = ∥-map handle (1/ℕ-<-step3 q)
-  where
-  handle : Σ[ m ∈ Nat⁺ ] (1/ℕ m ℚ≤ ⟨ q ⟩) -> Σ[ m ∈ Nat⁺ ] (1/ℕ m < ⟨ q ⟩)
-  handle (m , m≤) = (2⁺ *⁺ m) , trans-<-≤ {d1 = 1/ℕ (2⁺ *⁺ m)} {1/ℕ m} {⟨ q ⟩} (1/2ℕ<1/ℕ m) m≤
-
-private
-  small-1/2^ℕ-step1 : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] (1/ℕ (2⁺ ^⁺ ⟨ m ⟩) < ⟨ q ⟩)
-  small-1/2^ℕ-step1 q@(q' , _) = ∥-map handle (small-1/ℕ q)
-    where
-    handle : Σ[ m ∈ Nat⁺ ] (1/ℕ m < q') -> Σ[ m ∈ Nat⁺ ] (1/ℕ (2⁺ ^⁺ ⟨ m ⟩) < q')
-    handle (m@(m' , _) , lt) =
-      m , trans-< -- {_} {_} {_} {1/ℕ (2⁺ ^⁺ m')} {1/ℕ m} {q'}
-            (1/ℕ-flips-order m (2⁺ ^⁺ m') (2^n-large m')) lt
-
-small-1/2^ℕ : (q : ℚ⁺) -> ∃[ m ∈ Nat ] ((1/2r ^ℕ m) < ⟨ q ⟩)
-small-1/2^ℕ q@(q' , _) = ∥-map handle (small-1/2^ℕ-step1 q)
-  where
-  handle : Σ[ m ∈ Nat⁺ ] (1/ℕ (2⁺ ^⁺ ⟨ m ⟩) < q') ->
-           Σ[ m ∈ Nat ] ((1/2r ^ℕ m) < q')
-  handle ((m , _) , lt) = m , subst (_< q') (1/2^ℕ-path m) lt
-
-
-small-1/2^ℕ' : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] ((1/2r ^ℕ ⟨ m ⟩) < ⟨ q ⟩)
-small-1/2^ℕ' q@(q' , _) = ∥-map handle (small-1/2^ℕ-step1 q)
-  where
-  handle : Σ[ m ∈ Nat⁺ ] (1/ℕ (2⁺ ^⁺ ⟨ m ⟩) < q') ->
-           Σ[ m ∈ Nat⁺ ] ((1/2r ^ℕ ⟨ m ⟩) < q')
-  handle (m⁺@(m , _) , lt) = m⁺ , subst (_< q') (1/2^ℕ-path m) lt
-
-
-ℚ-archimedian : (q1 q2 : ℚ⁺) -> ∃[ n ∈ Nat ] (((1/2r ^ℕ n) r* ⟨ q1 ⟩) < ⟨ q2 ⟩)
-ℚ-archimedian q1@(q1' , pos-q1) q2@(q2' , pos-q2) = ∥-map handle (small-1/2^ℕ q3)
-  where
-  iq1 : ℚInv q1'
-  iq1 p = (NonZero->¬Zero {D = ℚ} (Pos->NonZero {D = ℚ} pos-q1) (subst Zero (sym p) Zero-0r))
-
-  q3' = q2' r* (r1/ q1' iq1)
-  q3 : ℚ⁺
-  q3 = q3' , r*-preserves-Pos _ _ pos-q2 (r1/-preserves-Pos q1' iq1 pos-q1)
-
-  q3-path : q3' r* q1' == q2'
-  q3-path = r*-assoc q2' (r1/ q1' iq1) q1' >=>
-            cong (q2' r*_) (r1/-inverse q1' iq1) >=>
-            r*-right-one q2'
-
-  handle : Σ[ m ∈ Nat ] ((1/2r ^ℕ m) < q3') ->
-           Σ[ m ∈ Nat ] (((1/2r ^ℕ m) r* q1') < q2')
-  handle (m , lt) = m , subst (((1/2r ^ℕ m) r* q1') <_) q3-path lt2
-    where
-    lt2 : ((1/2r ^ℕ m) r* q1') < (q3' r* q1')
-    lt2 = *₂-preserves-< lt pos-q1

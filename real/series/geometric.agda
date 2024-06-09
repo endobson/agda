@@ -37,7 +37,7 @@ open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
 open import rational hiding (1/ℕ ; 1/ℕ-preserves-*)
-open import rational.order hiding (1/ℕ-flips-≤ ; small-1/2^ℕ ; small-1/ℕ)
+open import rational.order hiding (1/ℕ-flips-≤)
 open import real
 open import real.arithmetic.multiplication.inverse
 open import real.arithmetic.rational
