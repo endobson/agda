@@ -3,44 +3,68 @@
 module real.arithmetic.nth-root.odd where
 
 open import additive-group
+open import additive-group.instances.real
 open import base
 open import equality
 open import functions
+open import hlevel
 open import isomorphism
 open import nat.even-odd
 open import order
 open import order.instances.nat
 open import order.instances.rational
+open import order.instances.real
 open import ordered-additive-group
+open import ordered-additive-group.instances.rational
+open import ordered-additive-group.instances.real
 open import ordered-ring.exponentiation
 open import ordered-semiring
+open import ordered-semiring.exponentiation
 open import ordered-semiring.instances.rational
+open import ordered-semiring.instances.real
+open import ordered-semiring.instances.real-strong
 open import rational
 open import rational.open-interval
 open import rational.open-interval.containment
 open import rational.open-interval.sequence
 open import rational.order
 open import real
+open import real.rational
+open import real.open-interval
+open import real.arithmetic.rational
 open import real.arithmetic.nth-root.bound-sequence
+open import real.arithmetic.nth-root.base
 open import relation hiding (U)
 open import ring.implementations.real
 open import semiring
 open import semiring.exponentiation
 open import sequence
+open import sigma.base
 open import truncation
 
-isNthRoot : (n : Nat) (x : ℝ) (y : ℝ) -> Type₁
-isNthRoot n x y = x ^ℕ n == y
-
-module _
-  (n : Nat)
-  (odd-n : Odd n)
-  (x : ℝ)
-  where
-
+module _ ((n , odd-n) : Σ Nat Odd) (x : ℝ) where
   private
     module x = Real x
 
+    ℝ^ℕ-preserves-< : ∀ {x y : ℝ} -> x < y -> (x ^ℕ n) < (y ^ℕ n)
+    ℝ^ℕ-preserves-< = Iso.fun (x<y<->x^n<y^n n odd-n _ _)
+    ℝ^ℕ-reflects-< : ∀ {x y : ℝ} -> (x ^ℕ n) < (y ^ℕ n) -> x < y
+    ℝ^ℕ-reflects-< = Iso.inv (x<y<->x^n<y^n n odd-n _ _)
+
+  opaque
+    isProp-ΣisOddNthRoot : isProp (Σ ℝ (isNthRoot n x))
+    isProp-ΣisOddNthRoot (y1 , y1^n=x) (y2 , y2^n=x) =
+      ΣProp-path (isSet-ℝ _ _) (antisym-≤ y1≤y2 y2≤y1)
+      where
+      y1^n=y2^n : y1 ^ℕ n == y2 ^ℕ n
+      y1^n=y2^n = y1^n=x >=> sym y2^n=x
+
+      y1≤y2 : y1 ≤ y2
+      y1≤y2 = path-≤ y1^n=y2^n ∘ ℝ^ℕ-preserves-<
+      y2≤y1 : y2 ≤ y1
+      y2≤y1 = path-≤ (sym y1^n=y2^n) ∘ ℝ^ℕ-preserves-<
+
+  private
     ^ℕ-isDense : ∀ {q r : ℚ} -> q < r -> ∃[ a ∈ ℚ ] (q < (a ^ℕ n) × (a ^ℕ n) < r)
     ^ℕ-isDense {q} {r} q<r = ∥-bind handle-mid (dense-< q<r)
       where
@@ -148,8 +172,9 @@ module _
     located _ _ q<r = x.located _ _ (^ℕ-preserves-< q<r)
 
 
-    nthRoot : ℝ
-    nthRoot = record
+  opaque
+    oddNthRoot : ℝ
+    oddNthRoot = record
       { L = L
       ; U = U
       ; isProp-L = \_ -> x.isProp-L _
@@ -163,3 +188,67 @@ module _
       ; disjoint = disjoint
       ; located = located
       }
+
+    isNthRoot-oddNthRoot : isNthRoot n x oddNthRoot
+    isNthRoot-oddNthRoot = ℝ∈Iℚ->path (oddNthRoot ^ℕ n) x handle
+      where
+      o : ℝ
+      o = oddNthRoot
+      o^n : ℝ
+      o^n = o ^ℕ n
+
+      handle : (i : Iℚ) -> ℝ∈Iℚ (oddNthRoot ^ℕ n) i -> ℝ∈Iℚ x i
+      handle i@(Iℚ-cons l u l<u) (l<o^n , o^n<u) =
+        unsquash (isProp-ℝ∈Iℚ x i)
+          (∥-bind2 handle2
+            (Real.isUpperOpen-L o^n l l<o^n)
+            (Real.isLowerOpen-U o^n u o^n<u))
+        where
+
+        handle2 : Σ[ l2 ∈ ℚ ] (l < l2 × Real.L o^n l2) ->
+                  Σ[ u2 ∈ ℚ ] (u2 < u × Real.U o^n u2) ->
+                  ∥ ℝ∈Iℚ x i ∥
+        handle2 (l2 , l<l2 , l2<o^n) (u2 , u2<u , o^n<u2) =
+          ∥-map2 handle3 (^ℕ-isDense l<l2) (^ℕ-isDense u2<u)
+          where
+          handle3 : Σ[ l' ∈ ℚ ] (l < (l' ^ℕ n) × (l' ^ℕ n) < l2) ->
+                    Σ[ u' ∈ ℚ ] (u2 < (u' ^ℕ n) × (u' ^ℕ n) < u) ->
+                    ℝ∈Iℚ x i
+          handle3 (l' , l<l'^n , l'^n<l2) (u' , u2<u'^n , u'^n<u) =
+            ℝ<->L (trans-< (ℚ->ℝ-preserves-< l<l'^n) l'^n<x) ,
+            ℝ<->U (trans-< x<u'^n (ℚ->ℝ-preserves-< u'^n<u))
+            where
+            l'^n<o^n : ℚ->ℝ (l' ^ℕ n) < (o ^ℕ n)
+            l'^n<o^n = trans-< (ℚ->ℝ-preserves-< l'^n<l2) (L->ℝ< l2<o^n)
+            l'<o : ℚ->ℝ l' < o
+            l'<o = ℝ^ℕ-reflects-< (trans-=-< (sym (Semiringʰ-preserves-^ℕ Semiringʰ-ℚ->ℝ n)) l'^n<o^n)
+            l'^n<x : ℚ->ℝ (l' ^ℕ n) < x
+            l'^n<x = L->ℝ< (ℝ<->L l'<o)
+
+            o^n<u'^n : (o ^ℕ n) < ℚ->ℝ (u' ^ℕ n)
+            o^n<u'^n = trans-< (U->ℝ< o^n<u2) (ℚ->ℝ-preserves-< u2<u'^n)
+            o<u' : o < ℚ->ℝ u'
+            o<u' = ℝ^ℕ-reflects-< (trans-<-= o^n<u'^n (Semiringʰ-preserves-^ℕ Semiringʰ-ℚ->ℝ n))
+            x<u'^n : x < ℚ->ℝ (u' ^ℕ n)
+            x<u'^n = U->ℝ< (ℝ<->U o<u')
+
+  ∃!OddNthRoot : ∃! ℝ (isNthRoot n x)
+  ∃!OddNthRoot = (oddNthRoot , isNthRoot-oddNthRoot) ,
+                 (isProp-ΣisOddNthRoot _)
+
+  oddNthRoot-preserves-0≤ : 0# ≤ x -> 0# ≤ oddNthRoot
+  oddNthRoot-preserves-0≤ 0≤x o<0 = 0≤x x<0
+    where
+    0^n≤0 : (0# ^ℕ n) ≤ 0#
+    0^n≤0 = ^ℕ-odd-≤0 refl-≤ n odd-n
+    x<0 : x < 0#
+    x<0 = trans-<-≤ (trans-=-< (sym isNthRoot-oddNthRoot) (ℝ^ℕ-preserves-< o<0)) 0^n≤0
+
+  oddNthRoot-preserves-0< : 0# < x -> 0# < oddNthRoot
+  oddNthRoot-preserves-0< 0<x = 0<o
+    where
+    0^n≤0 : (0# ^ℕ n) ≤ 0#
+    0^n≤0 = ^ℕ-odd-≤0 refl-≤ n odd-n
+
+    0<o : 0# < oddNthRoot
+    0<o = ℝ^ℕ-reflects-< (trans-≤-< 0^n≤0 (trans-<-= 0<x (sym isNthRoot-oddNthRoot)))
