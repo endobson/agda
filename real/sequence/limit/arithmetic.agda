@@ -7,6 +7,7 @@ open import additive-group.instances.reader
 open import additive-group.instances.real
 open import base
 open import equality
+open import heyting-field.instances.rational
 open import nat
 open import order
 open import order.instances.nat
@@ -17,7 +18,10 @@ open import order.minmax.instances.nat
 open import order.minmax.instances.rational
 open import order.minmax.instances.real
 open import ordered-additive-group
+open import ordered-additive-group.instances.rational
+open import ordered-field
 open import ordered-semiring
+open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import rational
 open import rational.order
@@ -50,12 +54,12 @@ private
   εB+ : (ε : ℚ⁺) -> ∀Largeℕ (\i -> εBounded ⟨ ε ⟩ (diff (v1 + v2) ((s1 i) + (s2 i))))
   εB+ (ε , 0<ε) = ∀Largeℕ-map f (∀Largeℕ-∩ (εB1 (ε' , 0<ε')) (εB2 (ε' , 0<ε')))
     where
-    ε' = 1/2r * ε
-    0<ε' = *-preserves-0< Pos-1/2r 0<ε
+    ε' = 1/2 * ε
+    0<ε' = *-preserves-0< 0<1/2 0<ε
     f : {m : ℕ} -> (εBounded ε' (diff v1 (s1 m)) × εBounded ε' (diff v2 (s2 m))) ->
                    εBounded ε (diff (v1 + v2) ((s1 m) + (s2 m)))
     f {m} (εB1 , εB2) =
-      subst2 εBounded (1/2r-path' ε) +-swap-diff
+      subst2 εBounded 1/2-path +-swap-diff
              (εBounded-+ (diff v1 (s1 m)) (diff v2 (s2 m)) εB1 εB2)
 
 minus-preserves-limit : {s : Seq} -> {v : ℝ} ->
@@ -141,12 +145,12 @@ private
     where
     εB : (ε : ℚ⁺) -> ∀Largeℕ (\i -> εBounded ⟨ ε ⟩ (diff v3 (v1 i i)))
     εB (ε , 0<ε) =
-      ∀Largeℕ-map (\{i} (fεB , εB) -> subst2 εBounded (1/2r-path' ε) diff-trans
+      ∀Largeℕ-map (\{i} (fεB , εB) -> subst2 εBounded 1/2-path diff-trans
                                              (εBounded-+ _ _ εB (fεB i)))
                   (∀Largeℕ-∩ large1 large2)
       where
-      ε' = 1/2r * ε
-      0<ε' = *-preserves-0< Pos-1/2r 0<ε
+      ε' = 1/2 * ε
+      0<ε' = *-preserves-0< 0<1/2 0<ε
       large1 : ∀Largeℕ (\i -> ∀ a -> εBounded ε' (diff (v2 a) (v1 i a)))
       large1 = isUniformLimit'.εBounded-diff isLim1 (ε' , 0<ε')
       large2 : ∀Largeℕ (\i -> εBounded ε' (diff v3 (v2 i)))
@@ -170,18 +174,18 @@ private
     where
     Σε' : Σ[ ε' ∈ ℚ⁺ ] ((⟨ ε' ⟩ + ⟨ ε' ⟩) + (⟨ ε' ⟩ * ⟨ ε' ⟩)) ≤ ε
     Σε' =
-      (ε' , 0<ε') , trans-≤-= (+-preserves-≤ lt-left lt-right) (1/2r-path' ε)
+      (ε' , 0<ε') , trans-≤-= (+-preserves-≤ lt-left lt-right) 1/2-path
       where
       ε' : ℚ
-      ε' = 1/2r * (1/2r * (min ε 1#))
+      ε' = 1/2 * (1/2 * (min ε 1#))
       0<m : 0# < (min ε 1#)
       0<m = (min-greatest-< 0<ε Pos-1r)
       0<ε' : 0# < ε'
-      0<ε' = *-preserves-0< Pos-1/2r (*-preserves-0< Pos-1/2r 0<m)
-      lt-left : (ε' + ε') ≤ (1/2r * ε)
-      lt-left = trans-≤ (path-≤ (1/2r-path' (1/2r * (min ε 1#))))
-                        (*₁-preserves-≤ (weaken-< Pos-1/2r) min-≤-left)
-      lt-right : (ε' * ε') ≤ (1/2r * ε)
+      0<ε' = *-preserves-0< 0<1/2 (*-preserves-0< 0<1/2 0<m)
+      lt-left : (ε' + ε') ≤ (1/2 * ε)
+      lt-left = trans-≤ (path-≤ 1/2-path)
+                        (*₁-preserves-≤ (weaken-< 0<1/2) min-≤-left)
+      lt-right : (ε' * ε') ≤ (1/2 * ε)
       lt-right = trans-≤ (*₁-preserves-≤ (weaken-< 0<ε') lt1)
                          (*₂-preserves-≤ lt2 (weaken-< 0<ε))
         where
@@ -189,19 +193,19 @@ private
         lt1 =
           trans-≤-=
             (trans-≤
-              (*₂-preserves-≤ (weaken-< 1/2r<1r)
-                              (weaken-< (*-preserves-0< Pos-1/2r 0<m)))
-              (*₁-preserves-≤ (weaken-< Pos-1r)
-                (trans-≤ (weaken-< (trans-<-= (*₂-preserves-< 1/2r<1r 0<m) *-left-one))
+              (*₂-preserves-≤ (weaken-< 1/2<1)
+                              (weaken-< (*-preserves-0< 0<1/2 0<m)))
+              (*₁-preserves-≤ 0≤1
+                (trans-≤ (weaken-< (trans-<-= (*₂-preserves-< 1/2<1 0<m) *-left-one))
                          min-≤-left)))
             *-left-one
-        lt2 : ε' ≤ 1/2r
+        lt2 : ε' ≤ 1/2
         lt2 =
           trans-≤-=
-            (*₁-preserves-≤ (weaken-< Pos-1/2r)
-                            (trans-≤ (trans-≤-= (*₁-preserves-≤ (weaken-< Pos-1/2r) min-≤-right)
+            (*₁-preserves-≤ (weaken-< 0<1/2)
+                            (trans-≤ (trans-≤-= (*₁-preserves-≤ (weaken-< 0<1/2) min-≤-right)
                                                 *-right-one)
-                                     (weaken-< 1/2r<1r)))
+                                     (weaken-< 1/2<1)))
             *-right-one
     ε' = fst Σε'
 
