@@ -5,13 +5,16 @@ module rational.squares where
 open import additive-group
 open import base
 open import equality
+open import heyting-field.instances.rational
 open import hlevel
 open import order
+open import order.instances.rational
 open import order.minmax
 open import order.minmax.instances.rational
 open import ordered-additive-group
 open import ordered-semiring
 open import ordered-semiring.instances.rational
+open import ordered-field
 open import rational
 open import rational.order
 open import relation
@@ -30,36 +33,39 @@ private
 
 abstract
   squares-dense-0 : {q : ℚ} -> (0r < q) -> ∃[ s ∈ ℚ ] (isSquareℚ s × 0r < s × s < q)
-  squares-dense-0 {q} 0<q = ∥-map handle (comparison-< 1/4r q 1r 1/4<1)
+  squares-dense-0 {q} 0<q = ∥-map handle (comparison-< 1/4 q 1# 1/4<1)
     where
     module _ where
-      1/4r = 1/2r * 1/2r
-      1/4<1 : 1/4r < 1r
-      1/4<1 = trans-< (subst (1/4r <_) *-right-one (*₁-preserves-< Pos-1/2r 1/2r<1r)) 1/2r<1r
+      1/4 = 1/2 * 1/2
+      1/4<1 : 1/4 < 1#
+      1/4<1 = trans-< (trans-<-= (*₁-preserves-< 0<1/2 1/2<1) *-right-one) 1/2<1
 
-      handle : (1/4r < q) ⊎ (q < 1r) -> Σ[ s ∈ ℚ ] (isSquareℚ s × 0r < s × s < q)
-      handle (inj-l 1/4<q) = 1/4r , (1/2r , weaken-< Pos-1/2r , refl) ,
-                             *-preserves-0< Pos-1/2r Pos-1/2r , 1/4<q
+      handle : (1/4 < q) ⊎ (q < 1#) -> Σ[ s ∈ ℚ ] (isSquareℚ s × 0r < s × s < q)
+      handle (inj-l 1/4<q) = 1/4 , (1/2 , weaken-< 0<1/2 , refl) ,
+                             *-preserves-0< 0<1/2 0<1/2 , 1/4<q
       handle (inj-r q<1) = (q * q) , (q , weaken-< 0<q , refl) , 0<qq , qq<q
         where
-        0<qq = r*-Pos-Pos 0<q 0<q
-        qq<q = (subst ((q * q) <_) *-right-one (*₁-preserves-< 0<q q<1))
+        0<qq : 0# < (q * q)
+        0<qq = *-preserves-0< 0<q 0<q
+        qq<q : (q * q) < q
+        qq<q = trans-<-= (*₁-preserves-< 0<q q<1) *-right-one
 
 private
 
-  squares-dense-1 : {q : ℚ} -> (1r < q) ->
-                    ∃[ s ∈ ℚ ] (isSquareℚ s × 1r < s × s < q)
-  squares-dense-1 {q} 1<q = ∥-bind handle (squares-dense-0 pos-d/2)
+  squares-dense-1 : {q : ℚ} -> (1# < q) ->
+                    ∃[ s ∈ ℚ ] (isSquareℚ s × 1# < s × s < q)
+  squares-dense-1 {q} 1<q = ∥-bind handle (squares-dense-0 0<d/2)
     where
-    Ans = ∃[ s ∈ ℚ ] (isSquareℚ s × 1r < s × s < q)
-    pos-d = Pos-diffℚ _ _ 1<q
-    d/2 = (1/2r * (diff 1r q))
-    pos-d/2 = *-preserves-0< Pos-1/2r pos-d
+    Ans = ∃[ s ∈ ℚ ] (isSquareℚ s × 1# < s × s < q)
+    0<d : 0# < (diff 1# q)
+    0<d = diff-0<⁺ 1<q
+    d/2 = (1/2 * (diff 1# q))
+    0<d/2 = *-preserves-0< 0<1/2 0<d
 
     handle : Σ[ ε² ∈ ℚ ] (isSquareℚ ε² × (0r < ε²) × (ε² < d/2)) -> Ans
     handle (ε² , (ε' , 0≤ε' , ε'ε'=ε²) , 0<ε² , ε²<d/2) = ans
       where
-      ε = min ε' (d/2 * 1/2r)
+      ε = min ε' (d/2 * 1/2)
 
       0!=ε' : 0r != ε'
       0!=ε' 0=ε' = irrefl-< (subst (_< ε²) (sym *-right-zero >=> *-right 0=ε' >=> ε'ε'=ε²) 0<ε²)
@@ -68,12 +74,9 @@ private
       0<ε' = strengthen-ℚ≤-≠ 0≤ε' 0!=ε'
 
       0<ε : 0r < ε
-      0<ε = min-property {P = (0r <_)} _ _ 0<ε' (r*-preserves-Pos _ _ pos-d/2 Pos-1/2r)
+      0<ε = min-greatest-< 0<ε' (*-preserves-0< 0<d/2 0<1/2)
 
-      0<2r : 0r < 2r
-      0<2r = Pos-ℕ⁺->ℚ (2 , tt)
-
-      c1-ε≤ : ε ≤ ((1/2r * (diff 1r q)) * 1/2r)
+      c1-ε≤ : ε ≤ ((1/2 * (diff 1# q)) * 1/2)
       c1-ε≤ = min-≤-right
 
       ε≤ε' : ε ≤ ε'
@@ -82,27 +85,27 @@ private
       εε≤ε'ε' = trans-≤ (*₁-preserves-≤ (weaken-< 0<ε) ε≤ε')
                         (*₂-preserves-≤ ε≤ε' 0≤ε')
 
-      c2-ε< : (ε * ε) < (1/2r * (diff 1r q))
+      c2-ε< : (ε * ε) < (1/2 * (diff 1# q))
       c2-ε< = trans-≤-< εε≤ε'ε' (subst2 _<_ (sym ε'ε'=ε²) refl ε²<d/2)
 
-      c1-2qε≤ : (2r * ε) ≤ (1/2r * (diff 1r q))
-      c1-2qε≤ = subst2 _≤_ *-commute p (*₂-preserves-≤ c1-ε≤ (weaken-< 0<2r))
+      c1-2qε≤ : (2# * ε) ≤ (1/2 * (diff 1# q))
+      c1-2qε≤ = subst2 _≤_ *-commute p (*₂-preserves-≤ c1-ε≤ (weaken-< 0<2))
         where
-        p = *-assoc >=> *-right (*-commute >=> 2r-1/2r-path) >=> *-right-one
+        p = *-assoc >=> *-right (*-commute >=> 2*1/2-path) >=> *-right-one
 
-      2qε-ε²≤ : ((2r * ε) + (ε * ε)) < (diff 1r q)
-      2qε-ε²≤ = subst2 _<_ refl (1/2r-path' _) (+-preserves-≤-< c1-2qε≤ c2-ε<)
-      1-2qε-ε²≤ : (1r + ((2r * ε) + (ε * ε))) < q
+      2qε-ε²≤ : ((2# * ε) + (ε * ε)) < (diff 1# q)
+      2qε-ε²≤ = subst2 _<_ refl 1/2-path (+-preserves-≤-< c1-2qε≤ c2-ε<)
+      1-2qε-ε²≤ : (1# + ((2# * ε) + (ε * ε))) < q
       1-2qε-ε²≤ = subst2 _<_ refl diff-step (+₁-preserves-< 2qε-ε²≤)
 
-      s = (1r + ((2r * ε) + (ε * ε)))
-      1<s : 1r < s
+      s = (1# + ((2# * ε) + (ε * ε)))
+      1<s : 1# < s
       1<s = subst2 _<_ +-right-zero refl (+₁-preserves-< pos)
         where
-        pos = (r+-preserves-Pos _ _ (*-preserves-0< 0<2r 0<ε) (*-preserves-0< 0<ε 0<ε))
+        pos = +-preserves-0< (*-preserves-0< 0<2 0<ε) (*-preserves-0< 0<ε 0<ε)
 
-      r = (1r + ε)
-      0<r = r+-preserves-Pos _ _ 0<1 0<ε
+      r = (1# + ε)
+      0<r = +-preserves-0< 0<1 0<ε
 
 
       r²=s : (r * r) == s
@@ -112,9 +115,9 @@ private
              +-left *-right-one >=>
              +-right (sym +-assoc >=>
                       +-left (cong2 _+_ *-left-one *-right-one >=>
-                              2r-path ε))
+                              sym 2*-path))
 
-      ans : ∃[ s ∈ ℚ ] (isSquareℚ s × 1r < s × s < q)
+      ans : ∃[ s ∈ ℚ ] (isSquareℚ s × 1# < s × s < q)
       ans = ∣ s , (r , weaken-< 0<r , r²=s) , 1<s , 1-2qε-ε²≤ ∣
 
 
@@ -122,25 +125,25 @@ private
     {q : ℚ} -> (0r < q) -> (r : ℚ) -> ((q * q) < r) -> ∃[ s ∈ ℚ ] (isSquareℚ s × (q * q) < s × s < r)
   squares-dense-lower-square-0< {q} 0<q r qq<r = ∥-map handle (squares-dense-1 1<r/qq)
     where
-    pos-qq = (*-preserves-0< 0<q 0<q)
+    0<qq = (*-preserves-0< 0<q 0<q)
     1/qq : ℚ
-    1/qq = r1/ (q * q) (Pos->Inv pos-qq)
-    pos-1/qq : Pos 1/qq
-    pos-1/qq = r1/-preserves-Pos _ _ pos-qq
+    1/qq = r1/ (q * q) (Pos->Inv 0<qq)
+    0<1/qq : 0# < 1/qq
+    0<1/qq = r1/-preserves-Pos _ _ 0<qq
 
-    1<r/qq : 1r < (r * 1/qq)
-    1<r/qq = subst2 _<_ (r1/-inverse _ _) *-commute (*₁-preserves-< pos-1/qq qq<r)
+    1<r/qq : 1# < (r * 1/qq)
+    1<r/qq = subst2 _<_ (r1/-inverse _ _) *-commute (*₁-preserves-< 0<1/qq qq<r)
 
-    handle : Σ[ s ∈ ℚ ] (isSquareℚ s × 1r < s × s < (r * 1/qq)) ->
+    handle : Σ[ s ∈ ℚ ] (isSquareℚ s × 1# < s × s < (r * 1/qq)) ->
              Σ[ s ∈ ℚ ] (isSquareℚ s × (q * q) < s × s < r)
     handle (s , (t , 0≤t , tt=s) , 1<s , s<r/qq) =
       (s * (q * q) , (t * q , tq≤0 , tqtq=sqq) , qq<sqq , sqq<r)
       where
       tq≤0 = *-preserves-0≤ 0≤t (weaken-< 0<q)
       tqtq=sqq = *-assoc >=> *-right (*-commute >=> *-assoc) >=> sym *-assoc >=> *-left tt=s
-      qq<sqq = subst2 _<_ *-left-one refl (*₂-preserves-< 1<s pos-qq)
+      qq<sqq = subst2 _<_ *-left-one refl (*₂-preserves-< 1<s 0<qq)
       sqq<r = subst2 _<_ refl (*-assoc >=> *-right (r1/-inverse _ _) >=> *-right-one)
-                     (*₂-preserves-< s<r/qq pos-qq)
+                     (*₂-preserves-< s<r/qq 0<qq)
 
   squares-dense-lower-square-0= :
     {q : ℚ} -> (0r == q) -> (r : ℚ) -> ((q * q) < r) -> ∃[ s ∈ ℚ ] (isSquareℚ s × (q * q) < s × s < r)
