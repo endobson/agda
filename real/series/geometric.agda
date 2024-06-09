@@ -21,7 +21,9 @@ open import order
 open import order.instances.nat
 open import order.instances.rational
 open import order.instances.real
+open import order.minmax.instances.real
 open import ordered-additive-group
+open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.nat
 open import ordered-additive-group.instances.real
 open import ordered-semiring
@@ -43,6 +45,7 @@ open import real.epsilon-bounded
 open import real.order
 open import real.rational
 open import real.sequence.limit
+open import real.sequence.limit.zero
 open import real.sequence.limit.arithmetic
 open import real.series
 open import ring
@@ -318,8 +321,40 @@ Archimedean-ℚ' ε q 0≤q q<1 = ∥-bind handle (small-1/ℕ (r , 0<r))
       m , trans-≤-< (^ℕ-0≤-preserves-≤ 0≤q q≤1-1/n m) 1-1/n^m<ε
 
 
-
 module _ (x : ℝ) (0≤x : 0# ≤ x) (x<1 : x < 1#) where
+  private
+    ∀Largeℕ-abs-geometric-sequence<ε :
+      ((ε , _) : ℚ⁺) -> ∀Largeℕ (\i -> (abs (geometric-sequence x i)) < ℚ->ℝ ε)
+    ∀Largeℕ-abs-geometric-sequence<ε ε⁺@(ε , _) =
+      ∥-bind handle (Real.isLowerOpen-U x 1# (ℝ<->U x<1))
+      where
+      handle : Σ[ q ∈ ℚ ] (q < 1# × Real.U x q) ->
+               ∀Largeℕ (\i -> (abs (geometric-sequence x i)) < ℚ->ℝ ε)
+      handle (q , q<1 , xU-q) = ∥-bind handle2 (Archimedean-ℚ' ε⁺ q (weaken-< 0<q) q<1)
+        where
+        0<q : 0# < q
+        0<q = U->ℚ< (trans-ℝ≤-U 0≤x xU-q)
+        handle2 : Σ[ n ∈ ℕ ] (q ^ℕ n) < ε ->
+                  ∀Largeℕ (\i -> (abs (geometric-sequence x i)) < ℚ->ℝ ε)
+        handle2 (n , q^n<ε) = ∣ n , lt ∣
+          where
+          lt : (m : ℕ) -> n ≤ m -> (abs (geometric-sequence x m)) < ℚ->ℝ ε
+          lt m n≤m =
+            trans-≤-<
+              (trans-=-≤
+                (abs-0≤-path (geometric-sequence-0≤ 0≤x m))
+                (trans-≤
+                  (geometric-sequence-≤1 0≤x (weaken-< x<1) n m n≤m)
+                  (^ℕ-0≤-preserves-≤ 0≤x (weaken-< (U->ℝ< xU-q)) n)))
+              (trans-=-<
+                (sym (Semiringʰ-preserves-^ℕ Semiringʰ-ℚ->ℝ n))
+                (ℚ->ℝ-preserves-< q^n<ε))
+
+  opaque
+    isLimit-geometric-sequence : isLimit (geometric-sequence x) 0#
+    isLimit-geometric-sequence = abs<ε->isLimit0 ∀Largeℕ-abs-geometric-sequence<ε
+
+
   private
     x≤1 : x ≤ 1#
     x≤1 = weaken-< x<1
@@ -332,40 +367,6 @@ module _ (x : ℝ) (0≤x : 0# ≤ x) (x<1 : x < 1#) where
     y = ℝ1/ (diff x 1#) 1-x#0
     y-path : (1# + (- x)) * y == 1#
     y-path = *-commute >=> ℝ1/-inverse (diff x 1#) 1-x#0
-
-  isLimit-geometric-sequence : isLimit (geometric-sequence x) 0#
-  isLimit-geometric-sequence = εBounded-diff->isLimit f
-    where
-    f : (ε : ℚ⁺) -> ∀Largeℕ (\n -> εBounded ⟨ ε ⟩ (diff 0# (geometric-sequence x n)))
-    f (ε , 0<ε) = ∥-bind handle (Real.isLowerOpen-U x 1# (ℝ<->U x<1))
-      where
-      -ε<0 : (- ε) < 0#
-      -ε<0 = minus-flips-0< 0<ε
-      handle : Σ[ q ∈ ℚ ] (q < 1# × Real.U x q) ->
-               ∀Largeℕ (\n -> εBounded ε (diff 0# (geometric-sequence x n)))
-      handle (q , (q<1 , xU-q)) = ∥-bind handle2 (Archimedean-ℚ' (ε , 0<ε) q (weaken-< 0<q) q<1)
-        where
-        x<q : x < ℚ->ℝ q
-        x<q = U->ℝ< xU-q
-        0<q : 0# < q
-        0<q = U->ℚ< (trans-ℝ≤-U 0≤x xU-q)
-        0≤q = weaken-< (ℚ->ℝ-preserves-< 0<q)
-        q≤1 = weaken-< (ℚ->ℝ-preserves-< q<1)
-        handle2 : Σ[ m ∈ ℕ ] (q ^ℕ m) < ε ->
-                  ∀Largeℕ (\n -> εBounded ε (diff 0# (geometric-sequence x n)))
-        handle2 (m , q^m<ε) = ∣ m , g ∣
-          where
-          g : (n : ℕ) -> m ≤ n -> εBounded ε (diff 0# (geometric-sequence x n))
-          g n m≤n = subst (εBounded ε) (sym diff-step >=> +-left-zero)
-                      (ℝ<->L (trans-<-≤ (ℚ->ℝ-preserves-< -ε<0)
-                                        (geometric-sequence-0≤ 0≤x n)) ,
-                       ℝ<->U (trans-≤-<
-                               (trans-≤-=
-                                 (trans-≤ (^ℕ-0≤-preserves-≤ 0≤x (weaken-< x<q) n)
-                                          (geometric-sequence-≤1 0≤q q≤1 m n m≤n))
-                                 (sym (ℚ^ℕ-ℝ^ℕ-path m)))
-                               (ℚ->ℝ-preserves-< q^m<ε)))
-
 
   isLimit-geometric-series : isLimit (geometric-series x) y
   isLimit-geometric-series =
