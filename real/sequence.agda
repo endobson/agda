@@ -34,6 +34,7 @@ open import semiring
 open import semiring.exponentiation
 open import sign
 open import sign.instances.rational
+open import sum
 open import truncation
 
 private
@@ -62,28 +63,22 @@ OpenBall : ℝ -> ℚ -> Type₀
 OpenBall x ε = Σ[ q1 ∈ ℚ ] Σ[ q2 ∈ ℚ ] (Real.L x q1 × Real.U x q2 × diff q1 q2 == ε)
 
 
-centered-ball->Pos-ε : (x : ℝ) (ε : ℚ) -> CenteredBall x ε -> Pos ε
-centered-ball->Pos-ε x e (q , lq , uq) = subst Pos 1/2-2e==e Pos-1/2-2e
+centered-ball->0<ε : (x : ℝ) (ε : ℚ) -> CenteredBall x ε -> 0# < ε
+centered-ball->0<ε x ε (q , lq , uq) = 0<ε
   where
-  q-e<q+e : (q r+ (r- e)) < (q r+ e)
-  q-e<q+e = ℝ-bounds->ℚ< x lq uq
+  q-ε<q+ε : (q + (- ε)) < (q + ε)
+  q-ε<q+ε = ℝ-bounds->ℚ< x lq uq
 
-  path : diff (q r+ (r- e)) (q r+ e) == 2r r* e
+  path : diff (q + (- ε)) (q + ε) == ε + ε
   path = sym +-swap-diff >=>
-         cong2 _r+_ (r+-inverse q) (cong (e r+_) minus-double-inverse) >=>
-         r+-left-zero (e r+ e) >=>
-         2r-path e
+         +-cong +-inverse (cong (ε +_) minus-double-inverse) >=>
+         +-left-zero
 
-  Pos-2e : Pos (2r r* e)
-  Pos-2e = subst Pos path (Pos-diffℚ (q r+ (r- e)) (q r+ e) q-e<q+e)
+  0<2ε : 0# < (ε + ε)
+  0<2ε = trans-<-= (diff-0<⁺ q-ε<q+ε) path
 
-  Pos-1/2-2e : Pos (1/2r r* (2r r* e))
-  Pos-1/2-2e = r*-preserves-Pos 1/2r _ (Pos-1/ℕ _) Pos-2e
-
-  1/2-2e==e : (1/2r r* (2r r* e)) == e
-  1/2-2e==e = sym (r*-assoc 1/2r 2r e) >=>
-              cong (_r* e) (r*-commute 1/2r 2r >=> 2r-1/2r-path) >=>
-              r*-left-one e
+  0<ε : 0# < ε
+  0<ε = unsquash isProp-< (∥-map (either (\x -> x) (\x -> x)) (+-reflects-0< 0<2ε))
 
 
 center-ball :
@@ -115,8 +110,8 @@ strengthen-centered-ball x e b@(q , l-p1 , u-p5) =
   p2 = mean p1 p3
   p4 = mean p3 p5
 
-  Pos-e : Pos e
-  Pos-e = centered-ball->Pos-ε x e b
+  0<e : 0# < e
+  0<e = centered-ball->0<ε x e b
 
   diff-p1p3 : diff p1 p3 == e
   diff-p1p3 = cong (p3 r+_) (sym diff-anticommute) >=> diff-step
@@ -124,9 +119,9 @@ strengthen-centered-ball x e b@(q , l-p1 , u-p5) =
   diff-p3p5 = r+-assoc q e (r- q) >=> diff-step
 
   p3<p5 : p3 < p5
-  p3<p5 = Pos-diffℚ⁻ p3 p5 (subst Pos (sym diff-p3p5) Pos-e)
+  p3<p5 = trans-=-< (sym +-right-zero) (+₁-preserves-< 0<e)
   p1<p3 : p1 < p3
-  p1<p3 = Pos-diffℚ⁻ p1 p3 (subst Pos (sym diff-p1p3) Pos-e)
+  p1<p3 = trans-<-= (+₁-preserves-< (minus-flips-0< 0<e)) +-right-zero
 
   p2<p3 : p2 < p3
   p2<p3 = mean-<₂ p1<p3
@@ -177,7 +172,7 @@ private
       q1<q2 = ℝ-bounds->ℚ< x lq1 uq2
 
 find-centered-ball : (x : ℝ) -> (ε : ℚ⁺) -> ∥ CenteredBall x ⟨ ε ⟩ ∥
-find-centered-ball x e1⁺@(e1 , 0<e1) = ∥-bind handle (initial-centered-ball x)
+find-centered-ball x (e1 , 0<e1) = ∥-bind handle (initial-centered-ball x)
   where
   handle : Σ[ (e2 , _) ∈ ℚ⁺ ] (CenteredBall x e2) -> ∥ CenteredBall x e1 ∥
   handle ((e2 , 0<e2) , b) = ∥-bind handle2 (small-1/2^ℕ (e1/e2 , 0<e1/e2))
