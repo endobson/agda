@@ -19,25 +19,29 @@ open import finsum.indicator
 open import finsum.order
 open import functions
 open import funext
+open import heyting-field.instances.rational
 open import hlevel
 open import isomorphism
 open import nat
 open import nat.order
 open import order
 open import order.instances.nat
+open import order.instances.rational
 open import order.instances.real
 open import order.minmax
 open import order.minmax.instances.nat
 open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
+open import ordered-additive-group.instances.rational
 open import ordered-additive-group.instances.real
+open import ordered-field
 open import ordered-ring.absolute-value
 open import ordered-semiring
+open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
 open import rational
-open import rational.order
 open import real
 open import real.epsilon-bounded
 open import real.order
@@ -119,9 +123,9 @@ private
   ConvergentSeries->εBounded-LateTerms {s} (L , isLim) ε⁺@(ε , 0<ε) = εB-dropped-sums
     where
     ε' : ℚ
-    ε' = 1/2r * ε
+    ε' = 1/2 * ε
     0<ε' : 0# < ε'
-    0<ε' = *-preserves-0< Pos-1/2r 0<ε
+    0<ε' = *-preserves-0< 0<1/2 0<ε
     ε'⁺ : ℚ⁺
     ε'⁺ = ε' , 0<ε'
     εB-sums : ∀Largeℕ (\i -> εBounded ε' (diff L (partial-sums s i)))
@@ -148,7 +152,7 @@ private
           path1 = +-right (sym diff-anticommute) >=> +-commute >=> diff-trans
 
           εB1 : εBounded ε (diff (partial-sums s N) (partial-sums s n))
-          εB1 = subst2 εBounded (1/2r-path' ε) path1 (εBounded-diff sums2 sums1)
+          εB1 = subst2 εBounded 1/2-path path1 (εBounded-diff sums2 sums1)
 
           S : Subtype (Fin n) ℓ-zero
           S = LateTerm N n
@@ -334,9 +338,9 @@ abstract
       ε = fst ε⁺
       0<ε = snd ε⁺
       ε' : ℚ
-      ε' = 1/2r * ε
+      ε' = 1/2 * ε
       0<ε' : 0# < ε'
-      0<ε' = *-preserves-0< Pos-1/2r 0<ε
+      0<ε' = *-preserves-0< 0<1/2 0<ε
       ε'⁺ : ℚ⁺
       ε'⁺ = ε' , 0<ε'
 
@@ -487,7 +491,7 @@ abstract
 
              εB3 : εBounded ε (diff l1 (finiteSum (\ ((k , _) : Fin M1') -> (permute-seq p s k))))
              εB3 =
-               subst2 εBounded (1/2r-path' ε) (sym path5)
+               subst2 εBounded 1/2-path (sym path5)
                  (εBounded-+ (diff l1 (finiteSum (\ ((k , _) : Fin N) -> (s k))))
                              (finiteSum (\ (k : Fin M2) -> indicator S3 DetS3 k * s (Fin.i k)))
                              (εBounded-sums N max-≤-right) εB2)

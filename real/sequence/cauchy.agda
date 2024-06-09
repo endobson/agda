@@ -91,11 +91,6 @@ module _
     U : Pred ℚ ℓ-zero
     U = OpenEventualUpperBound s
 
-    1/2r⁺ : ℚ⁺
-    1/2r⁺ = 1/2r , Pos-1/ℕ (2 , tt)
-    1r⁺ : ℚ⁺
-    1r⁺ = 1r , Pos-1/ℕ (1 , tt)
-
     1/2=1/2 : ℚ->ℝ 1/2 == 1/2
     1/2=1/2 = Semiringʰ-preserves-1/ℕ Semiringʰ-ℚ->ℝ (2 , tt)
 
@@ -138,10 +133,10 @@ module _
 
 
             q+1/2<sm : Real.L (s m) (q + 1/2)
-            q+1/2<sm = ℝ<->L q+1/2r<sm
+            q+1/2<sm = ℝ<->L q+1/2<sm'
               where
-              q+1/2r<sm : ℚ->ℝ (q + 1/2) < s m
-              q+1/2r<sm =
+              q+1/2<sm' : ℚ->ℝ (q + 1/2) < s m
+              q+1/2<sm' =
                 trans-=-< ℚ->ℝ-preserves-+
                   (trans-< (trans-<-= (+₂-preserves-< (L->ℝ< q<lb)) (+-right 1/2=1/2)) lb+1/2<sm)
 
@@ -180,10 +175,10 @@ module _
             sm<ub-1/2' = trans-<-= sm<ub-1/2 (+-right (sym (ℚ->ℝ-preserves-- >=> cong -_ 1/2=1/2)))
 
             sm<q-1/2 : Real.U (s m) (q + (- 1/2))
-            sm<q-1/2 = ℝ<->U sm<q-1/2r
+            sm<q-1/2 = ℝ<->U sm<q-1/2'
               where
-              sm<q-1/2r : s m < ℚ->ℝ (q + (- 1/2))
-              sm<q-1/2r =
+              sm<q-1/2' : s m < ℚ->ℝ (q + (- 1/2))
+              sm<q-1/2' =
                 trans-<-=
                   (trans-< sm<ub-1/2' (+₂-preserves-< (U->ℝ< ub<q)))
                   (sym ℚ->ℝ-preserves-+)
@@ -215,11 +210,11 @@ module _
                            ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.L (s m) (r + ⟨ ε ⟩)))
       handle (n , (ε , 0<ε) , f) = (q + 1/2ε , q<q+1/2ε , ∣ n , (1/2ε , 0<1/2ε) , g ∣)
         where
-        1/2ε = 1/2r * ε
-        0<1/2ε = *-preserves-0< Pos-1/2r 0<ε
+        1/2ε = 1/2 * ε
+        0<1/2ε = *-preserves-0< 0<1/2 0<ε
         q<q+1/2ε = trans-=-< (sym +-right-zero) (+₁-preserves-< 0<1/2ε)
         g : (m : Nat) -> m ≥ n -> Real.L (s m) ((q + 1/2ε) + 1/2ε)
-        g m m≥n = subst (Real.L (s m)) (+-right (sym (1/2r-path' ε)) >=> sym +-assoc) (f m m≥n)
+        g m m≥n = subst (Real.L (s m)) (+-right (sym 1/2-path) >=> sym +-assoc) (f m m≥n)
 
     isLowerOpen-U : isLowerOpen U
     isLowerOpen-U q q-U = ∥-map handle q-U
@@ -229,8 +224,8 @@ module _
                            ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.U (s m) (r + (- ⟨ ε ⟩))))
       handle (n , (ε , 0<ε) , f) = (q + - 1/2ε , q-1/2ε<q , ∣ n , (1/2ε , 0<1/2ε) , g ∣)
         where
-        1/2ε = 1/2r * ε
-        0<1/2ε = *-preserves-0< Pos-1/2r 0<ε
+        1/2ε = 1/2 * ε
+        0<1/2ε = *-preserves-0< 0<1/2 0<ε
         q-1/2ε<q = trans-<-= (+₁-preserves-< (minus-flips-0< 0<1/2ε)) +-right-zero
 
         g : (m : Nat) -> m ≥ n -> Real.U (s m) ((q + (- 1/2ε)) + (- 1/2ε))
@@ -238,7 +233,7 @@ module _
           where
           path = +-assoc >=>
                  +-right (sym minus-distrib-plus >=>
-                          cong -_ (1/2r-path' ε))
+                          cong -_ 1/2-path)
 
     disjoint : (q : ℚ) -> ¬ (L q × U q)
     disjoint q (L-q , U-q) = unsquash isPropBot (∥-map2 handle L-q U-q)
@@ -265,29 +260,29 @@ module _
       where
       0<r-q = trans-=-< (sym +-inverse) (+₂-preserves-< q<r)
       d = (diff q r)
-      1/4r = (1/2r * 1/2r)
-      0<1/4r = (*-preserves-0< Pos-1/2r Pos-1/2r)
-      1/8r = (1/2r * 1/4r)
-      0<1/8r = *-preserves-0< Pos-1/2r 0<1/4r
+      1/4 = (1/2 * 1/2)
+      0<1/4 = (*-preserves-0< 0<1/2 0<1/2)
+      1/8 = (1/2 * 1/4)
+      0<1/8 = *-preserves-0< 0<1/2 0<1/4
 
-      1/2d = 1/2r * d
-      0<1/2d = *-preserves-0< Pos-1/2r 0<r-q
-      1/4d = 1/4r * d
-      0<1/4d = *-preserves-0< 0<1/4r 0<r-q
-      1/8d = 1/8r * d
-      0<1/8d = *-preserves-0< 0<1/8r 0<r-q
+      1/2d = 1/2 * d
+      0<1/2d = *-preserves-0< 0<1/2 0<r-q
+      1/4d = 1/4 * d
+      0<1/4d = *-preserves-0< 0<1/4 0<r-q
+      1/8d = 1/8 * d
+      0<1/8d = *-preserves-0< 0<1/8 0<r-q
 
       ε = 1/8d
       0<ε = 0<1/8d
       ε⁺ = ε , 0<ε
-      mid1 = q + 1/4r * d
-      mid2 = r + (- (1/4r * d))
+      mid1 = q + 1/4 * d
+      mid2 = r + (- (1/4 * d))
 
       1/2d+1/4d=d-1/4d : 1/2d + 1/4d == d + - 1/4d
       1/2d+1/4d=d-1/4d =
-        sym (+-left (sym (1/2r-path' d)) >=>
+        sym (+-left (sym 1/2-path) >=>
              +-assoc >=>
-             +-right (+-left (sym (1/2r-path' 1/2d)) >=>
+             +-right (+-left (sym 1/2-path) >=>
                       +-left (+-cong (sym *-assoc) (sym *-assoc)) >=>
                       +-assoc >=>
                       +-right +-inverse >=>
@@ -295,7 +290,7 @@ module _
 
       1/8d=1/4d-1/8d : 1/8d == 1/4d + - 1/8d
       1/8d=1/4d-1/8d =
-        sym (+-left (sym (1/2r-path' 1/4d)) >=>
+        sym (+-left (sym 1/2-path) >=>
              +-left (+-cong (sym *-assoc) (sym *-assoc)) >=>
              +-assoc >=>
              +-right +-inverse >=>
@@ -310,7 +305,7 @@ module _
         +-left diff-step
 
       mid1<mid2 : mid1 < mid2
-      mid1<mid2 = subst2 _<_ +-right-zero mid1+1/2d=mid2 (+₁-preserves-< (*-preserves-0< Pos-1/2r 0<r-q))
+      mid1<mid2 = subst2 _<_ +-right-zero mid1+1/2d=mid2 (+₁-preserves-< (*-preserves-0< 0<1/2 0<r-q))
 
       q+ε=mid1-ε : (q + ε) == mid1 + (- ε)
       q+ε=mid1-ε = +-right 1/8d=1/4d-1/8d >=> sym +-assoc
@@ -402,9 +397,9 @@ abstract
   isConvergentSequence->isCauchy {s} (lim , L) ε⁺@(ε , 0<ε) = ∥-map handle (isLimit.εBounded-diff L ε/2⁺)
     where
     ε/2 : ℚ
-    ε/2 = 1/2r * ε
+    ε/2 = 1/2 * ε
     0<ε/2 : 0# < ε/2
-    0<ε/2 = *-preserves-0< Pos-1/2r 0<ε
+    0<ε/2 = *-preserves-0< 0<1/2 0<ε
     ε/2⁺ : ℚ⁺
     ε/2⁺ = ε/2 , 0<ε/2
 
@@ -423,4 +418,4 @@ abstract
         r-path : (diff (diff lim (s m₁)) (diff lim (s m₂))) == diff (s m₁) (s m₂)
         r-path = +-right (sym diff-anticommute) >=> +-commute >=> diff-trans
         l-path : (ε/2 + ε/2) == ε
-        l-path = 1/2r-path' ε
+        l-path = 1/2-path
