@@ -147,6 +147,10 @@ module _ {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
              *-cong (∃!-prop (∃!1/ℕ a)) (∃!-prop (∃!1/ℕ b)) >=>
              *-right-one
 
+  1/1-path : 1/ℕ 1⁺ == 1#
+  1/1-path = sym *-left-one >=>
+             *-left (sym ℕ->Semiring-preserves-1#) >=>
+             (∃!-prop (∃!1/ℕ 1⁺))
 
 
   1/2 : D
@@ -157,9 +161,7 @@ module _ {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
 
   opaque
     1/2<1 : 1/2 < 1#
-    1/2<1 = trans-<-= (1/ℕ-flips-< (1 , tt) (2 , tt) refl-≤)
-                      (sym *-left-one >=> *-left (sym ℕ->Semiring-preserves-1#) >=>
-                       (∃!-prop (∃!1/ℕ (1 , tt))))
+    1/2<1 = trans-<-= (1/ℕ-flips-< (1 , tt) (2 , tt) refl-≤) 1/1-path
 
   opaque
     1/2-+-path : 1/2 + 1/2 == 1#
