@@ -7,6 +7,7 @@ open import base
 open import equality
 open import equivalence
 open import functions
+open import heyting-field.instances.rational
 open import hlevel
 open import order
 open import order.instances.rational
@@ -14,8 +15,10 @@ open import order.minmax
 open import order.minmax.instances.rational
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
+open import ordered-field
 open import ordered-ring
 open import ordered-semiring
+open import ordered-semiring.instances.rational
 open import ordered-semiring.minmax
 open import rational
 open import rational.order
@@ -1514,32 +1517,32 @@ find-shrink-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
 
   cz-case : CrossZeroI b -> Ans
   cz-case (bl≤0 , 0≤bu) =
-    1/2r , Pos-1/ℕ (2 , _) , 1/2r<1r , subst (_i⊆ b) p-path (i⊆-cons bl≤pl pu≤bu)
+    1/2 , 0<1/2 , 1/2<1 , subst (_i⊆ b) p-path (i⊆-cons bl≤pl pu≤bu)
     where
-    0≤1/2 : 0# ≤ 1/2r
-    0≤1/2 = weaken-< (Pos-1/ℕ (2 , _))
+    0≤1/2 : 0# ≤ 1/2
+    0≤1/2 = weaken-< 0<1/2
 
-    p = i-scale-0≤ (1/2r , 0≤1/2) a
+    p = i-scale-0≤ (1/2 , 0≤1/2) a
     pl = Iℚ.l p
     pu = Iℚ.u p
-    p' = i-scale 1/2r a
+    p' = i-scale 1/2 a
 
     p-path : p == p'
-    p-path = i-scale-0≤-path (1/2r , 0≤1/2) a
+    p-path = i-scale-0≤-path (1/2 , 0≤1/2) a
 
-    1/2bu≤bu : (1/2r * bu) ≤ bu
-    1/2bu≤bu = trans-≤-= (*₂-preserves-≤ (weaken-< 1/2r<1r) 0≤bu) *-left-one
+    1/2bu≤bu : (1/2 * bu) ≤ bu
+    1/2bu≤bu = trans-≤-= (*₂-preserves-≤ (weaken-< 1/2<1) 0≤bu) *-left-one
 
-    pu≤1/2bu : pu ≤ (1/2r * bu)
+    pu≤1/2bu : pu ≤ (1/2 * bu)
     pu≤1/2bu = *₁-preserves-≤ 0≤1/2 (weaken-< au<bu)
 
     pu≤bu : pu ≤ bu
     pu≤bu = trans-≤ pu≤1/2bu 1/2bu≤bu
 
-    bl≤1/2bl : bl ≤ (1/2r * bl)
-    bl≤1/2bl = trans-=-≤ (sym *-left-one) (*₂-flips-≤ (weaken-< 1/2r<1r) bl≤0)
+    bl≤1/2bl : bl ≤ (1/2 * bl)
+    bl≤1/2bl = trans-=-≤ (sym *-left-one) (*₂-flips-≤ (weaken-< 1/2<1) bl≤0)
 
-    1/2bl≤pl : (1/2r * bl) ≤ pl
+    1/2bl≤pl : (1/2 * bl) ≤ pl
     1/2bl≤pl = *₁-preserves-≤ 0≤1/2 (weaken-< bl<al)
 
     bl≤pl : bl ≤ pl
@@ -1657,26 +1660,26 @@ find-growth-factor {a@(Iℚ-cons al au al≤au)} {b@(Iℚ-cons bl bu bl≤bu)} (
   cz-case : StrictCrossZeroI b -> Ans
   cz-case (n-bl , p-bu) = k , p-k , 1<k  , subst (_i⊆ b) p-path (i⊆-cons bl≤pl pu≤bu)
     where
-    hbl = 1/2r * bl
-    hbu = 1/2r * bu
+    hbl = 1/2 * bl
+    hbu = 1/2 * bu
 
     al' = min al hbl
     au' = max au hbu
 
     n-al' : Neg al'
-    n-al' = Neg-≤ al' hbl (r*₁-preserves-sign (1/2r , Pos-1/ℕ (2 , _)) _ {neg-sign} n-bl)
+    n-al' = Neg-≤ al' hbl (r*₁-preserves-sign (1/2 , 0<1/2) _ {neg-sign} n-bl)
                           min-≤-right
 
     p-au' : Pos au'
-    p-au' = Pos-≤ hbu au' (r*₁-preserves-sign (1/2r , Pos-1/ℕ (2 , _)) _ {pos-sign} p-bu)
+    p-au' = Pos-≤ hbu au' (r*₁-preserves-sign (1/2 , 0<1/2) _ {pos-sign} p-bu)
                           max-≤-right
 
     bl<al' : bl < al'
     bl<al' = min-property {P = bl <_} al hbl bl<al
-                          (trans-=-< (sym *-left-one) (*₂-flips-< 1/2r<1r n-bl))
+                          (trans-=-< (sym *-left-one) (*₂-flips-< 1/2<1 n-bl))
     au'<bu : au' < bu
     au'<bu = max-property {P = _< bu} au hbu au<bu
-                          (trans-<-= (*₂-preserves-< 1/2r<1r p-bu) *-left-one)
+                          (trans-<-= (*₂-preserves-< 1/2<1 p-bu) *-left-one)
 
     al'-inv : ℚInv al'
     al'-inv = Neg->Inv n-al'
