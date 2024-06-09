@@ -62,6 +62,9 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCo
         p+ : (a b : D) -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a + b)
         p+ _ _ = +-preserves-0≤
 
+    ℕ->Semiring-preserves-0≤ : {n : ℕ} -> 0 ≤ n -> 0# ≤ ℕ->D n
+    ℕ->Semiring-preserves-0≤ {n} _ = ℕ->D-0≤ n
+
     ℕ->Semiring-preserves-≤ : {a b : ℕ} -> a ≤ b -> ℕ->D a ≤ ℕ->D b
     ℕ->Semiring-preserves-≤ {a} {b} (i , p) =
       trans-=-≤ (sym +-left-zero)
