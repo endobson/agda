@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module real.arithmetic.nth-root where
+module real.arithmetic.nth-root.odd where
 
 open import additive-group
 open import base
