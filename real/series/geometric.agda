@@ -85,7 +85,7 @@ geometric-sequence-0< = ^ℕ-preserves-0<
 
 geometric-sequence-≤ : {x y : ℝ} -> 0# ≤ x -> x ≤ y -> (n : ℕ) ->
                        (geometric-sequence x n) ≤ (geometric-sequence y n)
-geometric-sequence-≤ = ^ℕ-0≤-preserves-≤
+geometric-sequence-≤ 0≤x x≤y n = ^ℕ-0≤-preserves-≤ 0≤x n x≤y
 
 geometric-sequence-≤1' : {x : ℝ} -> 0# ≤ x -> x ≤ 1# -> (n : ℕ) ->
                         (geometric-sequence x n) ≤ 1#
@@ -278,7 +278,7 @@ private
         p4 = ^ℕ-preserves-0≤ (0≤αn n⁺) 3
 
         p5 : (α n⁺ ^ℕ (3 * m)) ≤ 1/2
-        p5 = trans-≤ (trans-=-≤ p2 (^ℕ-0≤-preserves-≤ p4 p3 m)) p1
+        p5 = trans-≤ (trans-=-≤ p2 (^ℕ-0≤-preserves-≤ p4 m p3)) p1
 
 
   opaque
@@ -290,7 +290,7 @@ private
       handle (m1 , 1/2^m1<ε) =
         m2 * m1 ,
         trans-=-< (^ℕ-distrib-*-left m2 m1)
-                  (trans-≤-< (^ℕ-0≤-preserves-≤ (^ℕ-preserves-0≤ (0≤αn n) m2) (snd Σm2) m1)
+                  (trans-≤-< (^ℕ-0≤-preserves-≤ (^ℕ-preserves-0≤ (0≤αn n) m2) m1 (snd Σm2))
                              1/2^m1<ε)
         where
         Σm2 : Σ[ m ∈ Nat⁺ ] (α n ^ℕ ⟨ m ⟩) ≤ 1/2
@@ -318,7 +318,7 @@ Archimedean-ℚ' ε q 0≤q q<1 = ∥-bind handle (small-1/ℕ (r , 0<r))
     handle2 : Σ[ m ∈ ℕ ] ((1# + (- (1/ℕ n))) ^ℕ m) < ⟨ ε ⟩ ->
               Σ[ m ∈ ℕ ] (q ^ℕ m) < ⟨ ε ⟩
     handle2 (m , 1-1/n^m<ε) =
-      m , trans-≤-< (^ℕ-0≤-preserves-≤ 0≤q q≤1-1/n m) 1-1/n^m<ε
+      m , trans-≤-< (^ℕ-0≤-preserves-≤ 0≤q m q≤1-1/n) 1-1/n^m<ε
 
 
 module _ (x : ℝ) (0≤x : 0# ≤ x) (x<1 : x < 1#) where
@@ -345,7 +345,7 @@ module _ (x : ℝ) (0≤x : 0# ≤ x) (x<1 : x < 1#) where
                 (abs-0≤-path (geometric-sequence-0≤ 0≤x m))
                 (trans-≤
                   (geometric-sequence-≤1 0≤x (weaken-< x<1) n m n≤m)
-                  (^ℕ-0≤-preserves-≤ 0≤x (weaken-< (U->ℝ< xU-q)) n)))
+                  (^ℕ-0≤-preserves-≤ 0≤x n (weaken-< (U->ℝ< xU-q)))))
               (trans-=-<
                 (sym (Semiringʰ-preserves-^ℕ Semiringʰ-ℚ->ℝ n))
                 (ℚ->ℝ-preserves-< q^n<ε))

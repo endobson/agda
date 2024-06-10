@@ -70,7 +70,7 @@ module _ where
       where
       handle2 : Σ[ m ∈ ℕ ] (y ^ℕ m) < ε' -> Σ[ m ∈ ℕ ] (geometric-sequence x m) < ε
       handle2 (m , y^m<ε') = m ,
-        trans-≤-< (trans-≤-= (^ℕ-0≤-preserves-≤ 0≤x (weaken-< (U->ℝ< xU-y)) m)
+        trans-≤-< (trans-≤-= (^ℕ-0≤-preserves-≤ 0≤x m (weaken-< (U->ℝ< xU-y)))
                              (sym (ℚ^ℕ-ℝ^ℕ-path m)))
                   (trans-< (ℚ->ℝ-preserves-< y^m<ε') (L->ℝ< εL-ε'))
 
