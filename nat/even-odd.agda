@@ -80,6 +80,13 @@ Even≃div' {n} = isoToEquiv (isProp->iso Even->div' div'->Even (isProp-Even n) 
 Odd≃¬div' : {n : Nat} -> Odd n ≃ ¬ (2 div' n)
 Odd≃¬div' {n} = subst (\x -> Odd n ≃ ¬ x) (ua Even≃div') (Odd≃¬Even n)
 
+opaque
+  twice->Even : (n : Nat) -> Even (n + n)
+  twice->Even zero = tt
+  twice->Even (suc n) =
+    subst Even (cong suc (sym (+'-right-suc {n}))) (twice->Even n)
+
+
 sum-Odd-iso : (i j : Nat) -> Iso (Odd (i + j)) ((Odd i × Even j) ⊎ (Even i × Odd j))
 sum-Even-iso : (i j : Nat) -> Iso (Even (i + j)) ((Even i × Even j) ⊎ (Odd i × Odd j))
 

@@ -10,6 +10,7 @@ open import equality
 open import isomorphism
 open import monoid
 open import nat.even-odd
+open import nat.half-induction
 open import nat.order
 open import order
 open import order.instances.nat
@@ -28,32 +29,6 @@ open import semiring
 open import semiring.exponentiation
 open import semiring.instances.nat
 open import truncation
-
-private
-  data Case : Nat -> Type₀ where
-    zero-case : Case zero
-    even-case : (m : Nat) -> (m < (m + m)) -> Case (m + m)
-    odd-case : (m : Nat) -> Even m -> Case (suc m)
-
-  make-case : (n : Nat) -> Case n
-  make-case zero = zero-case
-  make-case (suc n) = handle n (fst (isContr-OddEven n))
-    where
-    handle : (n : Nat) -> OddEven n -> Case (suc n)
-    handle n (inj-r en) = odd-case n en
-    handle n (inj-l on) = handle2 (Even->div' {suc n} on)
-      where
-      handle2 : _ -> _
-      handle2 m%sn@(m , p) = subst Case (m+m=2m >=> p) (even-case m m<2m)
-        where
-        0<m : 0# < m
-        0<m = Pos'->< (div'-pos->pos' m%sn tt)
-
-        m+m=2m : m + m == (m * 2)
-        m+m=2m = cong (m +_) (sym *-left-one) >=> *-commuteᵉ 2 m
-
-        m<2m : m < (m + m)
-        m<2m = trans-=-< (sym (+-left-zero {m = m})) (+₂-preserves-< 0<m)
 
 module _
   {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
@@ -77,12 +52,15 @@ module _
     module _ {x y : D} (x<y : x < y) where
 
       acc-0<diff : {n : Nat} -> (Acc _<_ n) -> 0# < ((y ^ℕ n) + ((- x) ^ℕ n))
-      acc-0<diff {n} (acc f) = handle (make-case n)
+      acc-0<diff {n} (acc f) = handle (half-ind-case n)
         where
-        handle : (Case n) -> 0# < ((y ^ℕ n) + ((- x) ^ℕ n))
-        handle zero-case = +-preserves-0< (non-trivial-0<1 x<y) (non-trivial-0<1 x<y)
-        handle (even-case m m<m+m) =
-          trans-<-= (handle2 (acc-0<diff (f m m<m+m))) (+-cong double-path double-path)
+        handle : (HalfIndCase n) -> 0# < ((y ^ℕ n) + ((- x) ^ℕ n))
+        handle (zero-case p) =
+          trans-<-=
+            (+-preserves-0< (non-trivial-0<1 x<y) (non-trivial-0<1 x<y))
+            (+-cong (cong (y ^ℕ_) (sym p)) (cong ((- x) ^ℕ_) (sym p)))
+        handle (even-case m _ m<n n=m+m _) =
+          trans-<-= (handle2 (acc-0<diff (f m m<n))) (+-cong double-path double-path)
           where
           handle2 : (0# < ((y ^ℕ m) + ((- x) ^ℕ m))) -> _
           handle2 0<y^m+-x^m = unsquash isProp-< (∥-map handle3 (+-reflects-0< 0<y^m+-x^m))
@@ -96,14 +74,20 @@ module _
               trans-<-≤ (trans-<-= (*-preserves-0< 0<-x^m 0<-x^m) (sym +-left-zero))
                         (+₂-preserves-≤ square-≮0)
 
-          double-path : {z : D} -> (z ^ℕ m) * (z ^ℕ m) == (z ^ℕ (m + m))
-          double-path  = sym (^ℕ-distrib-+-left m m)
+          double-path : {z : D} -> (z ^ℕ m) * (z ^ℕ m) == (z ^ℕ n)
+          double-path {z} = sym (^ℕ-distrib-+-left m m) >=> (cong (z ^ℕ_) (sym n=m+m))
 
-        handle (odd-case m em) =
-          (trans-<-= (diff-0<⁺ (Iso.fun (same-lt x y m em (\_ -> 0<all-ones)) x<y))
-                     (+-right (sym (minus-^ℕ-odd x (suc m) em))))
+        handle (odd-case m _ m<n n=sm+m on) =
+          trans-<-= (diff-0<⁺ (Iso.fun (same-lt x y 2m em (\_ -> 0<all-ones)) x<y))
+                    (+-cong
+                      (cong (y ^ℕ_) (sym n=sm+m))
+                      (cong (\i -> (- (x ^ℕ i))) (sym n=sm+m) >=>
+                       sym (minus-^ℕ-odd x n on)))
           where
-          0<all-ones = all-ones-eval-0< x y m (acc-0<diff (f m refl-≤)) em
+          2m = m + m
+          em : Even 2m
+          em = (subst Odd n=sm+m on)
+          0<all-ones = all-ones-eval-0< x y 2m (acc-0<diff (f 2m (path-≤ (sym n=sm+m)))) em
 
       wf-0<diff : (n : Nat) -> 0# < ((y ^ℕ n) + ((- x) ^ℕ n))
       wf-0<diff n = acc-0<diff (WellFounded-Nat< n)
