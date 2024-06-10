@@ -80,6 +80,38 @@ module _ {ℓ : Level} {A :  Type ℓ}
                   })
           (s i j)
 
+module _
+  {a₀₀ a₀₁ a₁₀ a₁₁ a₂₀ a₂₁ : A}
+  {p₀₋ : Path A a₀₀ a₀₁} {p₁₋ : Path A a₁₀ a₁₁}
+  {p₋₀ : Path A a₀₀ a₁₀} {p₋₁ : Path A a₀₁ a₁₁}
+  {q₂₋ : Path A a₂₀ a₂₁}
+  {q₋₀ : Path A a₁₀ a₂₀} {q₋₁ : Path A a₁₁ a₂₁}
+  where
+  square-side-append : Square p₀₋ p₁₋ p₋₀ p₋₁ -> Square p₁₋ q₂₋ q₋₀ q₋₁ ->
+                       Square p₀₋ q₂₋ (p₋₀ >=> q₋₀) (p₋₁ >=> q₋₁)
+  square-side-append s1 s2 i j =
+    hcomp (\k -> \{ (i = i0) -> s1 (~ k) j
+                  ; (i = i1) -> s2 k j
+                  })
+          (p₁₋ j)
+
+module _
+  {a₀₀ a₀₁ a₁₀ c a₁₁ : A}
+  {p₀₋ : Path A a₀₀ a₀₁} {p₁₋ : Path A a₁₀ c}
+  {p₋₀ : Path A a₀₀ a₁₀} {p₋₁ : Path A a₀₁ c}
+  {q₂₋ : Path A a₁₀ a₁₁} {q₋₂ : Path A a₀₁ a₁₁}
+  where
+  square-corner-append :
+    Square p₀₋ p₁₋ p₋₀ p₋₁ -> Square (sym p₋₁) q₂₋ (sym p₁₋) q₋₂ ->
+    Square p₀₋ q₂₋ p₋₀ q₋₂
+  square-corner-append s1 s2 i j =
+    hcomp (\k -> \{ (i = i0) -> s1 (~ k) (~ k ∨ j)
+                  ; (i = i1) -> s2 k (k ∧ j)
+                  ; (j = i0) -> s1 (~ k ∨ i) (~ k)
+                  ; (j = i1) -> s2 (k ∧ i) k
+                  })
+      c
+
 -- Shows that going one way around the square is the same as going the other way
 module _ {ℓ : Level} {A :  Type ℓ}
          {a₀₀ : A} {a₀₁ : A} {a₁₀ : A} {a₁₁ : A}
