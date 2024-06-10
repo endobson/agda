@@ -182,16 +182,12 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D}
     diff-0<⁺ a<b = trans-=-< (sym +-inverse) (+₂-preserves-< a<b)
 
     diff-0<⁻ : {a b : D} -> 0# < (diff a b) -> a < b
-    diff-0<⁻ {a} {b} 0<ab = subst2 _<_ path1 path2 (+₂-preserves-< 0<ab)
-      where
-      path1 : 0# + a == a
-      path1 = +-left-zero
-      path2 : (diff a b) + a == b
-      path2 = +-commute >=> diff-step
+    diff-0<⁻ 0<ab =
+      trans-=-< (sym +-right-zero) (trans-<-= (+₁-preserves-< 0<ab) diff-step)
 
     diff-<0⁺ : {a b : D} -> b < a -> (diff a b) < 0#
     diff-<0⁺ b<a =
-      (trans-=-< diff-anticommute (minus-flips-0< (diff-0<⁺ b<a)))
+      trans-=-< diff-anticommute (minus-flips-0< (diff-0<⁺ b<a))
 
     diff-<0⁻ : {a b : D} -> (diff a b) < 0# -> b < a
     diff-<0⁻ ab<0 =
