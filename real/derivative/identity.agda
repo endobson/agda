@@ -31,7 +31,7 @@ isDerivative-id : isDerivative id (\_ -> 1#)
 isDerivative-id = isDerivative-cons handle
   where
   module _ (x : ℝ) (δ : ℚ⁺) where
-    g : (z : ℝ) -> εBounded 1# (diff z 0#) -> (z#0 : z # 0#) ->
+    g : (z : ℝ) -> εBounded 1# z -> (z#0 : z # 0#) ->
         εBounded ⟨ δ ⟩ (diff (rise-over-run id x (z , z#0)) 1#)
     g z _ z#0 = subst (εBounded ⟨ δ ⟩) (sym d=0) (εBounded-zero δ)
       where

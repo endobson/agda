@@ -41,18 +41,20 @@ isDerivative-+ {f} {f'} {g} {g'} isD-f isD-g = isDerivative-cons handle'
                    (sz : z # 0#) -> εBounded δ/2 (diff (rise-over-run f x (z , sz)) (f' x))) ->
       Σ[ ε ∈ ℚ⁺ ] ((z : ℝ) -> εBounded ⟨ ε ⟩ (diff z 0#) ->
                    (sz : z # 0#) -> εBounded δ/2 (diff (rise-over-run g x (z , sz)) (g' x))) ->
-      Σ[ ε ∈ ℚ⁺ ] ((z : ℝ) -> εBounded ⟨ ε ⟩ (diff z 0#) ->
+      Σ[ ε ∈ ℚ⁺ ] ((z : ℝ) -> εBounded ⟨ ε ⟩ z ->
                    (sz : z # 0#) -> εBounded δ (diff (rise-over-run fg x (z , sz)) (f' x + g' x)))
     handle ((εf , 0<εf) , bf) ((εg , 0<εg) , bg) = (εfg , 0<εfg) , bfg
       where
       εfg = min εf εg
       0<εfg = min-property εf εg 0<εf 0<εg
-      bfg : (z : ℝ) -> εBounded εfg (diff z 0#) ->
+      bfg : (z : ℝ) -> εBounded εfg z ->
             (sz : z # 0#) -> εBounded δ (diff (rise-over-run fg x (z , sz)) (f' x + g' x))
-      bfg z εfg-dz z#0 =
+      bfg z εfg-z z#0 =
         subst2 εBounded 1/2-path ror-path (εBounded-+ _ _ δ/2-ror-f δ/2-ror-g)
         where
         dz = diff z 0#
+        εfg-dz : εBounded εfg dz
+        εfg-dz = subst (εBounded εfg) (sym +-left-zero) (εBounded-- z εfg-z)
         εf-dz = weaken-εBounded min-≤-left dz εfg-dz
         εg-dz = weaken-εBounded min-≤-right dz εfg-dz
         δ/2-ror-f = bf z εf-dz z#0

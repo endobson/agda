@@ -15,6 +15,7 @@ open import rational.order
 open import real
 open import real.arithmetic.multiplication.inverse
 open import real.epsilon-bounded.base
+open import real.epsilon-bounded
 open import real.rational
 open import real.sequence.harmonic
 open import real.sequence.limit-point
@@ -54,19 +55,30 @@ opaque
   isDerivative-cons :
     {f : ℝ -> ℝ} {d : ℝ -> ℝ} ->
     (δε : (x : ℝ) -> (δ : ℚ⁺) -> ∃[ ε ∈ ℚ⁺ ]
-      ((z : ℝ) -> εBounded ⟨ ε ⟩ (diff z 0#) ->
+      ((z : ℝ) -> εBounded ⟨ ε ⟩ z ->
        (z#0 : z # 0#) -> εBounded ⟨ δ ⟩ (diff (rise-over-run f x (z , z#0)) (d x)))) ->
     isDerivative f d
-  isDerivative-cons {f} {d} δε x = isDerivativeAt-cons {f} {x} {d x} (δε x)
+  isDerivative-cons {f} {d} δε x = isDerivativeAt-cons (d x) (δε x)
     where
     isDerivativeAt-cons :
-      {f : ℝ -> ℝ} {x : ℝ} {d : ℝ} ->
+      (d : ℝ) ->
       (δε : (δ : ℚ⁺) -> ∃[ ε ∈ ℚ⁺ ]
-        ((z : ℝ) -> εBounded ⟨ ε ⟩ (diff z 0#) ->
+        ((z : ℝ) -> εBounded ⟨ ε ⟩ z ->
          (z#0 : z # 0#) -> εBounded ⟨ δ ⟩ (diff (rise-over-run f x (z , z#0)) d))) ->
       isDerivativeAt f x d
-    isDerivativeAt-cons δε .isLimitAt.δε = δε
-    isDerivativeAt-cons δε .isLimitAt.limit-point = 0-lim-point
+    isDerivativeAt-cons d δε .isLimitAt.δε = δε'
+      where
+      δε' : (δ : ℚ⁺) -> ∃[ ε ∈ ℚ⁺ ]
+               ((z : ℝ) -> εBounded ⟨ ε ⟩ (diff z 0#) ->
+                (z#0 : z # 0#) -> εBounded ⟨ δ ⟩ (diff (rise-over-run f x (z , z#0)) d))
+      δε' δ = ∥-map (\ (ε , f) -> (ε , (\ z zb -> f z (bound-convert z zb)))) (δε δ)
+        where
+        bound-convert : {ε : ℚ} -> (z : ℝ) -> εBounded ε (diff z 0#) -> εBounded ε z
+        bound-convert {ε} z zb = subst (εBounded ε) bound-path (εBounded-- (diff z 0#) zb)
+          where
+          bound-path : - (diff z 0#) == z
+          bound-path = sym diff-anticommute >=> sym +-left-zero >=> diff-step
+    isDerivativeAt-cons d δε .isLimitAt.limit-point = 0-lim-point
       where
       0-lim-point : isLimitPoint (\x -> x # 0# , isProp-#) 0#
       0-lim-point = ∣ lim-point ∣
