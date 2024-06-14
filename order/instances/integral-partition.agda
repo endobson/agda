@@ -12,7 +12,7 @@ open import fin.list.sorted
 open import hlevel.base
 open import isomorphism
 open import nat
-open import order
+open import order hiding (_≼_ ; refl-≼ ; trans-≼ ; isProp-≼)
 open import order.homomorphism
 open import order.homomorphism.fin
 open import order.instances.fin

@@ -9,7 +9,7 @@ open import equality
 open import hlevel
 open import nat
 open import nat.order
-open import order
+open import order hiding (_≼_ ; trans-≼ ; refl-≼)
 open import order.instances.nat
 open import unordered-list.base
 open import unordered-list.operations
