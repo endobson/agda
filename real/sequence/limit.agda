@@ -3,8 +3,8 @@
 module real.sequence.limit where
 
 open import additive-group
-open import additive-group.instances.real
 open import additive-group.instances.nat
+open import additive-group.instances.real
 open import base
 open import equality
 open import hlevel
@@ -15,11 +15,11 @@ open import order.instances.nat
 open import order.instances.rational
 open import order.instances.real
 open import ordered-additive-group
-open import ordered-additive-group.instances.real
 open import ordered-additive-group.instances.nat
+open import ordered-additive-group.instances.real
 open import rational
-open import rational.order
 open import rational.open-interval
+open import rational.order
 open import real
 open import real.arithmetic.rational
 open import real.epsilon-bounded hiding (εBounded-diff)
