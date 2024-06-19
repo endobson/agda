@@ -44,10 +44,6 @@ open import univalence
 
 open import real.epsilon-bounded.base public
 
-private
-  ℝ⁺ : Type₁
-  ℝ⁺ = Σ ℝ (0# <_)
-
 abstract
   εBounded-+ : {ε1 ε2 : ℚ} (x y : ℝ) -> εBounded ε1 x -> εBounded ε2 y -> εBounded (ε1 + ε2) (x + y)
   εBounded-+ {ε1} {ε2} x y ε1-x ε2-y =

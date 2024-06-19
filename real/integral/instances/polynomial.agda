@@ -39,10 +39,6 @@ open import ring.implementations.real
 open import semiring
 open import truncation
 
-private
-  ℝ⁺ : Type₁
-  ℝ⁺ = Σ ℝ (0# <_)
-
 
 IntegralOf-zero : IntegralOf (\_ -> 0#) (\_ _ -> 0#)
 IntegralOf-zero a b = record

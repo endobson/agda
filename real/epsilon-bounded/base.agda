@@ -28,10 +28,6 @@ open import relation
 open import sum
 open import truncation
 
-private
-  ℝ⁺ : Type₁
-  ℝ⁺ = Σ ℝ (0# <_)
-
 εBounded : ℚ -> ℝ -> Type₀
 εBounded ε x = Real.L x (- ε) × Real.U x ε
 

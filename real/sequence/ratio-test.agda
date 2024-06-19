@@ -47,8 +47,6 @@ open import relation
 private
   Seq : Type₁
   Seq = Sequence ℝ
-  ℝ⁺ : Type₁
-  ℝ⁺ = Σ ℝ (0# <_)
 
 record isRatioSeq (s1 s2 : Seq) : Type₁ where
   field

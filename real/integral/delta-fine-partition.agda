@@ -48,9 +48,6 @@ open import truncation
 import int
 
 private
-  ℝ⁺ : Type₁
-  ℝ⁺ = Σ ℝ (0# <_)
-
   module _ {a b : ℝ} (a' b' : ℚ) (aU-a' : Real.U a a') (bL-b' : Real.L b b') (a'<b' :  a' < b') where
     private
       module _ (n⁺ : Nat⁺) where

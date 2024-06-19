@@ -56,10 +56,6 @@ isLimitPoint S x = ∥ isLimitPoint' S x ∥
 isProp-isLimitPoint : {ℓS : Level} {S : Subtype ℝ ℓS} {x : ℝ} -> isProp (isLimitPoint S x)
 isProp-isLimitPoint = squash
 
-private
-  ℝ⁺ : Type₁
-  ℝ⁺ = Σ ℝ (0# <_)
-
 record isLimitAt
   {ℓS : Level} (S : Subtype ℝ ℓS) (f : ∈-Subtype S -> ℝ) (x : ℝ) (y : ℝ) : Type (ℓ-max ℓS ℓ-one)
   where
