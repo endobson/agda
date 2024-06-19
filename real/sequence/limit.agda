@@ -14,6 +14,8 @@ open import order
 open import order.instances.nat
 open import order.instances.rational
 open import order.instances.real
+open import order.minmax
+open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.nat
 open import ordered-additive-group.instances.real
@@ -22,6 +24,7 @@ open import rational.open-interval
 open import rational.order
 open import real
 open import real.arithmetic.rational
+open import real.continuous
 open import real.epsilon-bounded hiding (εBounded-diff)
 open import real.open-interval
 open import real.order
@@ -70,6 +73,19 @@ record isLimit (seq : Seq) (lim : ℝ) : Type ℓ-one where
         ∀Largeℕ-map (\{i} si∈qi -> weaken-εBounded wqi≤ε (diff lim (seq i))
                                      (ℝ∈Iℚ->εBounded-diff qi lim (seq i) lim∈qi si∈qi))
                     (close qi lim∈qi)
+
+    distance<ε : ((ε , _) : ℝ⁺) -> ∀Largeℕ (\i -> distance lim (seq i) < ε)
+    distance<ε (ε , 0<ε) = ∥-bind handle 0<ε
+      where
+      handle : 0# ℝ<' ε -> ∀Largeℕ (\i -> distance lim (seq i) < ε)
+      handle (ℝ<'-cons q 0Uq εLq) = ∀Largeℕ-map handle2 (εBounded-diff (q , U->ℚ< 0Uq))
+        where
+        handle2 : {i : ℕ} -> εBounded q (diff lim (seq i)) -> distance lim (seq i) < ε
+        handle2 (dL-q , dUq) =
+          max-least-< (trans-< (U->ℝ< dUq) (L->ℝ< εLq))
+                      (trans-< (minus-flips-< (L->ℝ< dL-q))
+                        (trans-=-< (cong -_ ℚ->ℝ-preserves-- >=> minus-double-inverse)
+                          (L->ℝ< εLq)))
 
 abstract
   close->isLimit :
@@ -189,6 +205,22 @@ abstract
   squeeze-isLimit ∀s1≤s2 ∀s2≤s3 lim1 lim3 .isLimit.upper q Uq =
     ∀Largeℕ-map (\(Uq' , s1≤s2) -> trans-ℝ≤-U s1≤s2 Uq')
       (∀Largeℕ-∩ (isLimit.upper lim3 q Uq) ∀s2≤s3)
+
+  distance<ε->isLimit : {s : Seq} {v : ℝ} ->
+    (∀ ((ε , _) : ℝ⁺) -> ∀Largeℕ (\i -> distance v (s i) < ε)) ->
+    isLimit s v
+  distance<ε->isLimit {s} {v} f = εBounded-diff->isLimit bounded
+    where
+    bounded : (ε : ℚ⁺) -> ∀Largeℕ (\i -> εBounded ⟨ ε ⟩ (diff v (s i)))
+    bounded (ε , 0<ε) = ∀Largeℕ-map handle (f (ℚ->ℝ ε , ℚ->ℝ-preserves-< 0<ε))
+      where
+      handle : {i : Nat} -> distance v (s i) < ℚ->ℝ ε -> εBounded ε (diff v (s i))
+      handle {i} dis<ε = ℝ<->L -ε<diff , ℝ<->U (trans-≤-< max-≤-left dis<ε)
+        where
+        -ε<diff : ℚ->ℝ (- ε) < (diff v (s i))
+        -ε<diff =
+          trans-=-< ℚ->ℝ-preserves--
+            (trans-<-= (minus-flips-< (trans-≤-< max-≤-right dis<ε)) minus-double-inverse)
 
 isLimit-constant-seq : (x : ℝ) -> isLimit (constant-seq x) x
 isLimit-constant-seq x =
