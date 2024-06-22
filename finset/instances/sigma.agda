@@ -35,63 +35,63 @@ private
 
 opaque
   ΣFin-suc-eq' : (n : Nat) (P : (Fin (suc n)) -> Type ℓ) ->
-                 (Σ[ i ∈ Fin (suc n) ] (P i)) ≃ (P zero-fin ⊎  Σ[ i ∈ Fin n ] (P (suc-fin i)))
+                 (Σ[ i ∈ Fin (suc n) ] (P i)) ≃ (P zero-fin ⊎ Σ[ i ∈ Fin n ] (P (suc-fin i)))
   ΣFin-suc-eq' n P = (isoToEquiv i)
     where
+    module _ where
+      forward : (Σ[ i ∈ Fin (suc n) ] (P i)) -> (P zero-fin ⊎ Σ[ i ∈ Fin n ] (P (suc-fin i)))
+      forward ((0 , lt) , p) = inj-l (substᵉ P (fin-i-path refl) p)
+      forward ((suc i , lt) , p) = inj-r ((i , pred-≤ lt) , (substᵉ P (fin-i-path refl) p))
 
-    forward : (Σ[ i ∈ Fin (suc n) ] (P i)) -> (P zero-fin ⊎ Σ[ i ∈ Fin n ] (P (suc-fin i)))
-    forward ((0 , lt) , p) = inj-l (substᵉ P (fin-i-path refl) p)
-    forward ((suc i , lt) , p) = inj-r ((i , pred-≤ lt) , (substᵉ P (fin-i-path refl) p))
+      backward : (P zero-fin ⊎ Σ[ i ∈ Fin n ] (P (suc-fin i))) -> (Σ[ i ∈ Fin (suc n) ] (P i))
+      backward (inj-l p) = (zero-fin , p)
+      backward (inj-r (i , p)) = (suc-fin i , p)
 
-    backward : (P zero-fin ⊎ Σ[ i ∈ Fin n ] (P (suc-fin i))) -> (Σ[ i ∈ Fin (suc n) ] (P i))
-    backward (inj-l p) = (zero-fin , p)
-    backward (inj-r (i , p)) = (suc-fin i , p)
+      module _ (i : Fin n) (p : (P (suc-fin i))) where
+        fst-path : fst (proj-r (forward (backward (inj-r (i , p)))) tt) == i
+        fst-path = fin-i-path refl
 
-    module _ (i : Fin n) (p : (P (suc-fin i))) where
-      fst-path : fst (proj-r (forward (backward (inj-r (i , p)))) tt) == i
-      fst-path = fin-i-path refl
+        x : Fin (suc n)
+        x = suc-fin i
+        y : Fin (suc n)
+        y = suc-fin (fst-path i0)
+        p1 p2 : x == y
+        p1 = sym (cong suc-fin fst-path)
+        p2 = (fin-i-path refl)
 
-      x : Fin (suc n)
-      x = suc-fin i
-      y : Fin (suc n)
-      y = suc-fin (fst-path i0)
-      p1 p2 : x == y
-      p1 = sym (cong suc-fin fst-path)
-      p2 = (fin-i-path refl)
+        fb-r-snd : PathP (\k -> P (p1 (~ k))) (substᵉ P p2 p) p
+        fb-r-snd = symP (subst-filler2 P p1 p2 (isSetFin x y p1 p2) p)
 
-      fb-r-snd : PathP (\k -> P (p1 (~ k))) (substᵉ P p2 p) p
-      fb-r-snd = symP (subst-filler2 P p1 p2 (isSetFin x y p1 p2) p)
+        fb-r : forward (backward (inj-r (i , p))) == inj-r (i , p)
+        fb-r k = inj-r (fst-path k , fb-r-snd k)
 
-      fb-r : forward (backward (inj-r (i , p))) == inj-r (i , p)
-      fb-r k = inj-r (fst-path k , fb-r-snd k)
+      module _ (p : (P zero-fin)) where
+        fb-l : forward (backward (inj-l p)) == inj-l p
+        fb-l = cong inj-l path
+          where
+          path-i : zero-fin == zero-fin
+          path-i = fin-i-path refl
 
-    module _ (p : (P zero-fin)) where
-      fb-l : forward (backward (inj-l p)) == inj-l p
-      fb-l = cong inj-l path
+          path : (substᵉ P path-i p) == p
+          path = sym (subst-filler2 P refl path-i (isSetFin _ _ _ _) p)
+
+      bf-zero : (lt : 0 < (suc n)) (p : P (0 , lt)) ->
+                backward (forward ((0 , lt) , p)) == ((0 , lt) , p)
+      bf-zero lt p = (\i -> path1 (~ i) , path2 (~ i))
         where
-        path-i : zero-fin == zero-fin
-        path-i = fin-i-path refl
+        path1 : (0 , lt) == zero-fin
+        path1 = fin-i-path refl
+        path2 : PathP (\i -> P (path1 i)) p (substᵉ P path1 p)
+        path2 = subst-filler P path1 p
 
-        path : (substᵉ P path-i p) == p
-        path = sym (subst-filler2 P refl path-i (isSetFin _ _ _ _) p)
-
-    bf-zero : (lt : 0 < (suc n)) (p : P (0 , lt)) ->
-              backward (forward ((0 , lt) , p)) == ((0 , lt) , p)
-    bf-zero lt p = (\i -> path1 (~ i) , path2 (~ i))
-      where
-      path1 : (0 , lt) == zero-fin
-      path1 = fin-i-path refl
-      path2 : PathP (\i -> P (path1 i)) p (substᵉ P path1 p)
-      path2 = subst-filler P path1 p
-
-    bf-suc : (i : Nat) (lt : (suc i) < (suc n)) (p : P (suc i , lt)) ->
-              backward (forward ((suc i , lt) , p)) == ((suc i , lt) , p)
-    bf-suc i lt p = (\i -> path1 (~ i) , path2 (~ i))
-      where
-      path1 : (suc i , lt) == _
-      path1 = fin-i-path refl
-      path2 : PathP (\i -> P (path1 i)) p (substᵉ P path1 p)
-      path2 = subst-filler P path1 p
+      bf-suc : (i : Nat) (lt : (suc i) < (suc n)) (p : P (suc i , lt)) ->
+                backward (forward ((suc i , lt) , p)) == ((suc i , lt) , p)
+      bf-suc i lt p = (\i -> path1 (~ i) , path2 (~ i))
+        where
+        path1 : (suc i , lt) == (suc i , _)
+        path1 = fin-i-path refl
+        path2 : PathP (\i -> P (path1 i)) p (substᵉ P path1 p)
+        path2 = subst-filler P path1 p
 
 
     open Iso

@@ -68,7 +68,9 @@ opaque
                 distance x y < ℚ->ℝ δ -> distance (f x∈) (f y∈) < ε
     handle ((δ1 , 0<δ1) , δ1-close) = ∥-map handle2 0<δ1
       where
-      handle2 : 0# ℝ<' δ1 -> _
+      handle2 : 0# ℝ<' δ1 ->
+                Σ[ (δ , _) ∈ ℚ⁺ ] ∀ (y∈@(y , _) : ∈-Subtype S) ->
+                   distance x y < ℚ->ℝ δ -> distance (f x∈) (f y∈) < ε
       handle2 (ℝ<'-cons δ2 0U-δ2 δ1L-δ2) = (δ2 , U->ℚ< 0U-δ2) , δ2-close
         where
         δ2-close : ∀ (y∈@(y , _) : ∈-Subtype S) -> distance x y < ℚ->ℝ δ2 -> distance (f x∈) (f y∈) < ε

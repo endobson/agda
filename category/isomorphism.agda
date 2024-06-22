@@ -23,7 +23,7 @@ record isIso (C : PreCategory ℓO ℓM) {x y : C .Obj} (mor : C [ x , y ]) : Ty
 
 opaque
   isProp-isIso : {C : PreCategory ℓO ℓM} -> {x y : C .Obj} {mor : C [ x , y ]} -> isProp (isIso C mor)
-  isProp-isIso {C = C} {x} {y} {mor} i1 i2 = (\i -> record
+  isProp-isIso {ℓM = ℓM} {C = C} {x} {y} {mor} i1 i2 = (\i -> record
       { inv = ip i
       ; sec = ans-sec i
       ; ret = ans-ret i
@@ -40,12 +40,12 @@ opaque
          cong (i2.inv C.⋆_) i1.ret >=>
          (C.⋆-right-id i2.inv)
 
-    ret-line : I -> Type _
+    ret-line : I -> Type ℓM
     ret-line i = mor ⋆⟨ C ⟩ ip i == C.id
     ans-ret : PathP ret-line i1.ret i2.ret
     ans-ret = isProp->PathP (\i -> (C.isSet-Mor _ _))
 
-    sec-line : I -> Type _
+    sec-line : I -> Type ℓM
     sec-line i = ip i ⋆⟨ C ⟩ mor == C.id
     ans-sec : PathP sec-line i1.sec i2.sec
     ans-sec = isProp->PathP (\i -> (C.isSet-Mor _ _))

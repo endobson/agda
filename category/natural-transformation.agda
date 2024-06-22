@@ -166,7 +166,7 @@ module _ {ℓOC ℓMC ℓOD ℓMD ℓOE ℓME : Level}
            NaturalTransformation f3 f4 ->
            NaturalTransformation (f1 ⋆F f3) (f2 ⋆F f4)
   _⋆NTʰ_ nt12 nt34 = record
-    { obj = \ c -> nt34.obj (F-obj f1 c) ⋆⟨ E ⟩ F-mor f4 (nt12.obj c)
+    { obj = obj
     ; mor = mor
     }
     where
@@ -174,8 +174,10 @@ module _ {ℓOC ℓMC ℓOD ℓMD ℓOE ℓME : Level}
     module E = CategoryHelpers E
     module nt12 = NaturalTransformation nt12
     module nt34 = NaturalTransformation nt34
+    obj : NT-obj-Type (f1 ⋆F f3) (f2 ⋆F f4)
+    obj = \ c -> nt34.obj (F-obj f1 c) ⋆⟨ E ⟩ F-mor f4 (nt12.obj c)
     opaque
-      mor : {x y : Obj C} (m : C [ x , y ]) -> _
+      mor : NT-mor-Type (f1 ⋆F f3) (f2 ⋆F f4) obj
       mor m =
         E.⋆-left (nt34.mor (nt12.obj _)) >=>
         E.⋆-assoc >=>

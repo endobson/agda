@@ -22,11 +22,11 @@ module _ {ℓO ℓM : Level} (C : PreCategory ℓO ℓM) where
 
     ArrowOps : CategoryOps ArrowSorts
     ArrowOps .CategoryOps.id = id C , id C , ⋆-left-id >=> sym ⋆-right-id
-    ArrowOps .CategoryOps._⋆_ (m1 , m2 , s1) (m3 , m4 , s2) =
+    ArrowOps .CategoryOps._⋆_ {(_ , _ , mx)} {(_ , _ , my)} {(_ , _ , mz)} (m1 , m2 , s1) (m3 , m4 , s2) =
       m1 ⋆ m3 , m2 ⋆ m4 , p
       where
       opaque
-        p : (m1 ⋆ m3) ⋆ _ == _ ⋆ (m2 ⋆ m4)
+        p : (m1 ⋆ m3) ⋆ mz == mx ⋆ (m2 ⋆ m4)
         p = ⋆-assoc >=>
             ⋆-right s2 >=>
             sym ⋆-assoc >=>

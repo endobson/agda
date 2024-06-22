@@ -105,7 +105,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
     squares-sum-0< {q} {r} q<r =
       unsquash isProp-< (∥-map handle (comparison-< q 0# r q<r))
       where
-      handle : (q < 0#) ⊎ (0# < r) -> _
+      handle : (q < 0#) ⊎ (0# < r) -> 0# < (q * q + r * r)
       handle (inj-l q<0) =
         trans-<-≤ (*-flips-<0 q<0 q<0) (trans-=-≤ (sym +-right-zero) (+₁-preserves-≤ square-≮0))
       handle (inj-r 0<r) =

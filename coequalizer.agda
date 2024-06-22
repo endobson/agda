@@ -171,12 +171,12 @@ module _ {ℓ : Level} {A : Type ℓ} {R : Rel A ℓ} {a₀ : A} where
       isoToEquiv (iso (\p -> p >=> glue r) (\p -> p >=> sym (glue r)) unglue-glue glue-unglue)
       where
       opaque
-        glue-unglue : ∀ p -> ((p >=> glue r) >=> sym (glue r)) == p
+        glue-unglue : ∀ (p : Path (A // R) [ a₀ ] [ b ]) -> ((p >=> glue r) >=> sym (glue r)) == p
         glue-unglue p =
           compPath-assoc p (glue r) (sym (glue r)) >=>
           cong (p >=>_) (compPath-sym (glue r)) >=>
           compPath-refl-right p
-        unglue-glue : ∀ p -> ((p >=> sym (glue r)) >=> (glue r)) == p
+        unglue-glue : ∀ (p : Path (A // R) [ a₀ ] [ c ]) -> ((p >=> sym (glue r)) >=> (glue r)) == p
         unglue-glue p =
           compPath-assoc p (sym (glue r)) (glue r) >=>
           cong (p >=>_) (compPath-sym (sym (glue r))) >=>

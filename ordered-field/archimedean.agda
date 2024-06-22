@@ -61,10 +61,8 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D# : Rel D ℓD}
         m2 = suc m
         m2⁺ : Nat⁺
         m2⁺ = m2 , tt
-        m<m2 : ℕ->Semiring m < ℕ->Semiring m2
-        m<m2 = ℕ->Semiring-preserves-< refl-≤
         1<m2x : 1# < (ℕ->Semiring m2 * x)
-        1<m2x = trans-< 1<mx (*₂-preserves-< m<m2 0<x)
+        1<m2x = trans-< 1<mx (*₂-preserves-< (ℕ->Semiring-preserves-< refl-≤) 0<x)
         1/m2<x : 1/ℕ m2⁺ < x
         1/m2<x =
           trans-=-< (sym *-right-one)

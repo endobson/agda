@@ -179,7 +179,7 @@ private
       p2 = minus-extract-left >=>
            cong -_ (*-swap >=> *-right n-inv >=> *-right-one)
 
-      p3 : 1# * (1/ℕ n * 1/ℕ n) == (1/ℕ n * 1/ℕ n)
+      p3 : Path ℚ (1# * (1/ℕ n * 1/ℕ n)) (1/ℕ n * 1/ℕ n)
       p3 = *-left-one
 
       p4 : (((ℕ->S n' * ℕ->S n') + (- ((ℕ->S 3) * (ℕ->S n')))) + 1#) * (1/ℕ n * 1/ℕ n) ==
@@ -221,17 +221,18 @@ private
     lemma5 : (n : Nat⁺) -> (1# + (- (2# * 1/ℕ (suc ⟨ n ⟩ , tt)))) ≤ α n
     lemma5 n⁺@(suc n' , _) = +₁-preserves-≤ (minus-flips-≤ p3)
       where
-      n : Nat
-      n = ⟨ n⁺ ⟩
-      p1 : suc n ≤ (2 * n)
-      p1 = suc-≤ (trans-≤-= (suc-≤ (trans-=-≤ (sym +-right-zero) (+₁-preserves-≤ zero-≤)))
-                            (+-commuteᵉ (suc n') n' >=> cong (n' +_) (sym *-left-one)))
+      module _ where
+        n : Nat
+        n = ⟨ n⁺ ⟩
+        p1 : suc n ≤ (2 * n)
+        p1 = suc-≤ (trans-≤-= (suc-≤ (trans-=-≤ (sym +-right-zero) (+₁-preserves-≤ zero-≤)))
+                              (+-commuteᵉ (suc n') n' >=> cong (n' +_) (sym *-left-one)))
 
-      p2 : (1/2 * (1/ℕ n⁺)) ≤ 1/ℕ (suc n , tt)
-      p2 = trans-=-≤ (sym (1/ℕ-preserves-* 2⁺ n⁺)) (1/ℕ-flips-≤ _ _ p1)
-      p3 : (1/ℕ n⁺) ≤ (2# * (1/ℕ (suc n , tt)))
-      p3 = trans-=-≤ (sym *-left-one >=> *-left (sym 2*1/2-path) >=> *-assoc)
-                     (*₁-preserves-≤ (weaken-< 0<2) p2)
+        p2 : (1/2 * (1/ℕ n⁺)) ≤ 1/ℕ (suc n , tt)
+        p2 = trans-=-≤ (sym (1/ℕ-preserves-* 2⁺ n⁺)) (1/ℕ-flips-≤ _ _ p1)
+        p3 : (1/ℕ n⁺) ≤ (2# * (1/ℕ (suc n , tt)))
+        p3 = trans-=-≤ (sym *-left-one >=> *-left (sym 2*1/2-path) >=> *-assoc)
+                       (*₁-preserves-≤ (weaken-< 0<2) p2)
 
 
 

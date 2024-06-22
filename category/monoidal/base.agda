@@ -214,11 +214,11 @@ module MonoidalStrHelpers {ℓO ℓM : Level} {C : PreCategory ℓO ℓM}
       (α⇒ ⋆ λ⇒) (λ⇒ ⊗₁ id C)
     α⇒λ⇒-reduce {x} {y} = retract-unit⊗ (isIso->isEpi isIso-αα full-path)
       where
-      isIso-αα : isIso C ((α⇒ ⊗₁ id C) ⋆ α⇒)
+      isIso-αα : isIso C ((α⇒ {unit} {unit} {x} ⊗₁ idᵉ C y) ⋆ α⇒ {unit} {unit ⊗₀ x} {y})
       isIso-αα =
         snd (((α⇒ ⊗₁ id C) , (functor-preserves-isIso (appʳ ⊗ y) (iso-α⇒ {unit} {unit} {x})))
              ⋆⟨ D ⟩
-             (α⇒ , iso-α⇒))
+             (α⇒ , (iso-α⇒ {unit} {unit ⊗₀ x} {y})))
         where
         D : PreCategory ℓO ℓM
         D = IsoC C

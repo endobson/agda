@@ -65,7 +65,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
       -u<x = trans-<-= (minus-flips-< -x<u) minus-double-inverse
       x<-l : x < (- i.l)
       x<-l = trans-=-< (sym minus-double-inverse) (minus-flips-< l<-x)
-      g : ∀ y -> y ∈OI _ -> (- y) ∈OI i
+      g : ∀ y -> y ∈OI (oi (minus-flips-< l<u)) -> (- y) ∈OI i
       g y (-u<y , y<-l) = (l<-y , -y<u)
         where
         l<-y : i.l < (- y)

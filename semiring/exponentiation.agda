@@ -88,7 +88,7 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
         +ʰ x .Monoidʰᵉ.preserves-ε = refl
         +ʰ x .Monoidʰᵉ.preserves-∙ = f
           where
-          f : (x y : ℕ) -> _
+          f : (n1 n2 : ℕ) -> x ^ℕ (n1 + n2) == x ^ℕ n1 * x ^ℕ n2
           f zero    n2 = sym *-left-one
           f (suc n) n2 = *-right (f n n2) >=> sym *-assoc
 
