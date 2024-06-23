@@ -41,23 +41,21 @@ open import real.integral.tagged-partition
 open import real.interval
 open import real.rational
 open import real.sequence.limit-point
+open import real.subspace
 open import relation
 open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
 open import sigma.base
+open import subset.subspace
 open import truncation
-
-private
-  ℝ⁺ : Type₁
-  ℝ⁺ = Σ ℝ (0# <_)
 
 record isOrderedIntegral' (a : ℝ) (b : ℝ) (f : ℝ -> ℝ) (v : ℝ) : Type₁ where
   no-eta-equality
   field
     a<b : a < b
-    δε : (ε : ℚ⁺) -> ∃[ δ ∈ ℝ⁺ ] (
-           (p : TaggedPartition a b) -> isδFine ⟨ δ ⟩ ⟨ p ⟩ ->
+    δε : (ε : ℚ⁺) -> ∃[ (δ , _) ∈ ℝ⁺ ] (
+           (p : TaggedPartition a b) -> isδFine δ ⟨ p ⟩ ->
            εBounded ⟨ ε ⟩ (diff (riemann-sum f p) v))
 
 record isIntegral (a : ℝ) (b : ℝ) (f : ℝ -> ℝ) (v : ℝ) : Type₁ where
@@ -88,11 +86,11 @@ private
       ε/2 = 1/2 * ε
       0<ε/2 = *-preserves-0< 0<1/2 0<ε
 
-      handle : Σ[ δ ∈ ℝ⁺ ] (
-                 (p : TaggedPartition a b) -> isδFine ⟨ δ ⟩ ⟨ p ⟩ ->
+      handle : Σ[ (δ , _) ∈ ℝ⁺ ] (
+                 (p : TaggedPartition a b) -> isδFine δ ⟨ p ⟩ ->
                  εBounded ε/2 (diff (riemann-sum f p) v1)) ->
-               Σ[ δ ∈ ℝ⁺ ] (
-                 (p : TaggedPartition a b) -> isδFine ⟨ δ ⟩ ⟨ p ⟩ ->
+               Σ[ (δ , _) ∈ ℝ⁺ ] (
+                 (p : TaggedPartition a b) -> isδFine δ ⟨ p ⟩ ->
                  εBounded ε/2 (diff (riemann-sum f p) v2)) ->
                ∥ εBounded ε (diff v1 v2) ∥
       handle ((δ1 , 0<δ1) , tp1-f) ((δ2 , 0<δ2) , tp2-f) =

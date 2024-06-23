@@ -30,9 +30,11 @@ open import real.epsilon-bounded hiding (εBounded-diff)
 open import real.open-interval
 open import real.order
 open import real.rational
+open import real.subspace
 open import relation
 open import sequence
 open import sigma.base
+open import subset.subspace
 open import truncation
 
 private

@@ -3,46 +3,48 @@
 module real.sequence.ratio-test where
 
 open import additive-group
-open import additive-group.instances.real
 open import additive-group.instances.nat
+open import additive-group.instances.real
 open import base
 open import equality
-open import hlevel
-open import real
-open import nat
-open import functions
-open import finsum.arithmetic
 open import finset.instances
+open import finsum.arithmetic
+open import functions
 open import funext
+open import hlevel
+open import nat
 open import order
-open import order.instances.real
 open import order.instances.nat
+open import order.instances.real
 open import order.minmax.instances.real
 open import ordered-additive-group.absolute-value
+open import ordered-additive-group.instances.real
+open import ordered-ring.absolute-value
 open import ordered-semiring
 open import ordered-semiring.exponentiation
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
-open import ordered-ring.absolute-value
-open import ordered-additive-group.instances.real
-open import real.sequence.limit
-open import real.series.base
-open import real.arithmetic.multiplication.inverse
-open import real.rational
-open import rational.order
 open import rational
+open import rational.order
+open import real
+open import real.arithmetic.multiplication.inverse
 open import real.order
-open import real.series
-open import real.series.geometric
+open import real.rational
 open import real.sequence.absolute-convergence
+open import real.sequence.limit
 open import real.sequence.limit.arithmetic
+open import real.series
+open import real.series.base
+open import real.series.geometric
+open import real.subspace
+open import relation
 open import ring.implementations.real
 open import semiring
 open import semiring.exponentiation
-open import sum
 open import sequence
+open import subset.subspace
+open import sum
 open import truncation
-open import relation
 
 private
   Seq : Type₁
@@ -58,7 +60,8 @@ isProp-isRatioSeq {s1} {s2} r1 r2 i .isRatioSeq.f =
 
 
 module _ where
-  Archimedean-ℝ' : (ε : ℝ⁺) (x : ℝ) -> 0# ≤ x -> x < 1# -> ∃[ m ∈ ℕ ] (geometric-sequence x m) < ⟨ ε ⟩
+  Archimedean-ℝ' : ((ε , _) : ℝ⁺) (x : ℝ) -> 0# ≤ x -> x < 1# ->
+                   ∃[ m ∈ ℕ ] (geometric-sequence x m) < ε
   Archimedean-ℝ' (ε , 0<ε) x 0≤x x<1 = ∥-bind2 handle 0<ε x<1
     where
     handle : 0# ℝ<' ε -> x ℝ<' 1# -> ∃[ m ∈ ℕ ] (geometric-sequence x m) < ε

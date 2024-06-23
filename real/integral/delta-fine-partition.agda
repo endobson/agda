@@ -39,10 +39,12 @@ open import real.integral.partition-index
 open import real.interval
 open import real.order
 open import real.rational
+open import real.subspace
 open import ring
 open import ring.implementations.real
 open import semiring
 open import semiring.initial
+open import subset.subspace
 open import truncation
 
 import int
@@ -114,8 +116,8 @@ private
             0<diff-a'b')
 
     rational-bounds->∃δFinePartition :
-      (δ : ℝ⁺) -> diff a (ℚ->ℝ a') ≤ ⟨ δ ⟩ -> diff (ℚ->ℝ b') b ≤ ⟨ δ ⟩ ->
-      ∃ (Partition a b) (isδFine ⟨ δ ⟩)
+      ((δ , _) : ℝ⁺) -> diff a (ℚ->ℝ a') ≤ δ -> diff (ℚ->ℝ b') b ≤ δ ->
+      ∃ (Partition a b) (isδFine δ)
     rational-bounds->∃δFinePartition (δ , 0<δ) da≤δ db≤δ =
       ∥-bind handle 0<δ
       where
@@ -147,7 +149,7 @@ private
                                                  *-right-one))))
                 (L->ℝ< δL-δ'))
 
-  ∃δFinePartition' : {a b : ℝ} -> a < b -> (δ : ℝ⁺) -> ∃ (Partition a b) (isδFine ⟨ δ ⟩)
+  ∃δFinePartition' : {a b : ℝ} -> a < b -> ((δ , _) : ℝ⁺) -> ∃ (Partition a b) (isδFine δ)
   ∃δFinePartition' {a} {b} a<b (δ , 0<δ) = ∥-bind handle 0<δ2
     where
     ab/2 = (diff a b) * 1/2
@@ -240,5 +242,5 @@ private
                              (+-left-zero >=> +-right-zero))
 
 abstract
-  ∃δFinePartition : {a b : ℝ} -> a < b -> (δ : ℝ⁺) -> ∃ (Partition a b) (isδFine ⟨ δ ⟩)
+  ∃δFinePartition : {a b : ℝ} -> a < b -> ((δ , _) : ℝ⁺) -> ∃ (Partition a b) (isδFine δ)
   ∃δFinePartition = ∃δFinePartition'

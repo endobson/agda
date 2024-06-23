@@ -15,7 +15,9 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.real
 open import real
+open import real.subspace
 open import relation
+open import subset.subspace
 open import truncation
 
 opaque

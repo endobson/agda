@@ -15,6 +15,8 @@ open import order.instances.real
 open import ordered-additive-group.instances.real
 open import real.order
 open import real.rational
+open import real.subspace
+open import subset.subspace
 open import truncation
 
 module _ {ℓ : Level} {D : Type ℓ} {{MS : MetricSpaceStr D}} where

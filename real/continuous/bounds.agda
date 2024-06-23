@@ -15,6 +15,7 @@ open import ordered-additive-group
 open import ordered-additive-group.instances.real
 open import real
 open import real.distance
+open import real.subspace
 open import subset
 open import subset.subspace
 open import truncation

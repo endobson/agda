@@ -32,11 +32,13 @@ open import real.integral.partition-index
 open import real.integral.tagged-partition
 open import real.order
 open import real.rational
+open import real.subspace
 open import relation
 open import ring
 open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
+open import subset.subspace
 open import truncation
 
 
@@ -66,8 +68,8 @@ IntegralOf-zero a b = record
     ; δε = δε
     }
     where
-    δε : (ε : ℚ⁺) -> ∃[ δ ∈ ℝ⁺ ] (
-           (p : TaggedPartition a b) -> isδFine ⟨ δ ⟩ ⟨ p ⟩ ->
+    δε : (ε : ℚ⁺) -> ∃[ (δ , _) ∈ ℝ⁺ ] (
+           (p : TaggedPartition a b) -> isδFine δ ⟨ p ⟩ ->
            εBounded ⟨ ε ⟩ (diff (riemann-sum f p) 0#))
     -- TODO Move 0<1 to general location
     δε ε⁺@(ε , 0<ε) = ∣ (1# , 0<1) , εB ∣
@@ -87,8 +89,8 @@ IntegralOf-zero a b = record
     ; δε = δε
     }
     where
-    δε : (ε : ℚ⁺) -> ∃[ δ ∈ ℝ⁺ ] (
-           (p : TaggedPartition b a) -> isδFine ⟨ δ ⟩ ⟨ p ⟩ ->
+    δε : (ε : ℚ⁺) -> ∃[ (δ , _) ∈ ℝ⁺ ] (
+           (p : TaggedPartition b a) -> isδFine δ ⟨ p ⟩ ->
            εBounded ⟨ ε ⟩ (diff (riemann-sum f p) (- 0#)))
     δε ε⁺@(ε , 0<ε) = ∣ (1# , 0<1) , εB ∣
       where
@@ -129,8 +131,8 @@ IntegralOf-constant k a b = record
     ; δε = δε
     }
     where
-    δε : (ε : ℚ⁺) -> ∃[ δ ∈ ℝ⁺ ] (
-           (p : TaggedPartition a b) -> isδFine ⟨ δ ⟩ ⟨ p ⟩ ->
+    δε : (ε : ℚ⁺) -> ∃[ (δ , _) ∈ ℝ⁺ ] (
+           (p : TaggedPartition a b) -> isδFine δ ⟨ p ⟩ ->
            εBounded ⟨ ε ⟩ (diff (riemann-sum f p) (k * (diff a b))))
     δε ε⁺@(ε , 0<ε) = ∣ (1# , 0<1) , εB ∣
       where
@@ -147,8 +149,8 @@ IntegralOf-constant k a b = record
     ; δε = δε
     }
     where
-    δε : (ε : ℚ⁺) -> ∃[ δ ∈ ℝ⁺ ] (
-           (p : TaggedPartition b a) -> isδFine ⟨ δ ⟩ ⟨ p ⟩ ->
+    δε : (ε : ℚ⁺) -> ∃[ (δ , _) ∈ ℝ⁺ ] (
+           (p : TaggedPartition b a) -> isδFine δ ⟨ p ⟩ ->
            εBounded ⟨ ε ⟩ (diff (riemann-sum f p) (- (k * (diff a b)))))
     δε ε⁺@(ε , 0<ε) = ∣ (1# , 0<1) , εB ∣
       where

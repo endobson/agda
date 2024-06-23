@@ -12,9 +12,8 @@ open import ordered-additive-group.group
 open import ordered-additive-group.negated
 open import real
 open import real.arithmetic.order
-
-ℝ⁺ : Type ℓ-one
-ℝ⁺ = Σ ℝ (0# <_)
+open import subset
+open import subset.subspace
 
 instance
   LinearlyOrderedAdditiveStr-ℝ : LinearlyOrderedAdditiveStr {D = ℝ} useⁱ useⁱ
