@@ -8,6 +8,8 @@ open import additive-group.instances.real
 open import base
 open import equality
 open import hlevel
+open import metric-space
+open import metric-space.instances.real
 open import nat
 open import nat.order
 open import order
@@ -24,7 +26,6 @@ open import rational.open-interval
 open import rational.order
 open import real
 open import real.arithmetic.rational
-open import real.continuous
 open import real.epsilon-bounded hiding (εBounded-diff)
 open import real.open-interval
 open import real.order
