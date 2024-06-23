@@ -63,9 +63,9 @@ instance
   MetricSpaceStr-ℝ : MetricSpaceStr ℝ
   MetricSpaceStr-ℝ = record
     { distance = disℝ
-    ; 0≤distance = abs-0≤
-    ; distance-commute = disℝ-commute
-    ; distance-triangle = disℝ-triangle
+    ; 0≤distanceᵉ = \_ _ -> abs-0≤
+    ; distance-commuteᵉ = \_ _ -> disℝ-commute
+    ; distance-triangleᵉ = \_ _ _ -> disℝ-triangle
     ; path->zero-distance = path->zero-disℝ
     ; isEquiv-path->zero-distance = isEquiv-path->zero-disℝ
     }
