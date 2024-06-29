@@ -77,6 +77,20 @@ module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
           δ2-close : ∀ (y : A) -> εℚClose δ2⁺ x y -> εClose ε (f x) (f y)
           δ2-close y d<δ2 = δ1-close y (trans-< d<δ2 (L->ℝ< δ1L-δ2))
 
+  record isUniformlyContinuous (f : A -> B) : Type (ℓ-max ℓA ℓ-one) where
+    constructor isUniformlyContinuous-cons
+    field
+      close : ∀ (ε : ℝ⁺) -> ∃[ δ ∈ ℝ⁺ ] (∀ (a a2 : A) -> εClose δ a a2 -> εClose ε (f a) (f a2))
+
+  record isLUContinuous (f : A -> B) : Type (ℓ-max ℓA ℓ-one) where
+    constructor isLUContinuous-cons
+    field
+      close : ∀ (a : A) -> ∃[ δ1 ∈ ℝ⁺ ] ∀ (ε : ℝ⁺) -> ∃[ δ2 ∈ ℝ⁺ ]
+        (∀ (a2 a3 : A) -> εClose δ1 a a2 -> εClose δ1 a a3 -> εClose δ2 a2 a3 ->
+                          εClose ε (f a2) (f a3))
+
+
+
 module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
          {{MS-A : MetricSpaceStr A}} {{MS-B : MetricSpaceStr B}} where
   opaque

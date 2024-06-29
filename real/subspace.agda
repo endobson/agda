@@ -45,3 +45,9 @@ x ≤≥ a = ∥ (x ≤ a) ⊎ (a ≤ x) ∥
 
 ℝ# : ℝ -> Type₁
 ℝ# a = Subspace (ℝ#S a)
+
+ℝ#S' : ℝ -> Subtype ℝ ℓ-one
+ℝ#S' a x = (a # x) , isProp-#
+
+ℝ#' : ℝ -> Type₁
+ℝ#' a = Subspace (ℝ#S' a)

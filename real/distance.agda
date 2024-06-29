@@ -53,6 +53,14 @@ opaque
     0<diff-ca =
       subst2 _<_ (diff-trans >=> +-inverse) diff-trans (+₂-preserves-< diff-ab<diff-cb)
 
+  distance0-<⁻ : {x y : ℝ} -> distance 0# x < y -> x < y
+  distance0-<⁻ d0x<y = trans-≤-< (trans-=-≤ (sym diff-step >=> +-left-zero) max-≤-left) d0x<y
+
+  distance0-<⁺ : {x y : ℝ} -> 0# ≤ x -> x < y -> distance 0# x < y
+  distance0-<⁺ 0≤x x<y =
+    trans-=-< (abs-0≤-path (trans-≤-= 0≤x (sym diff-step >=> +-left-zero)) >=>
+               sym +-left-zero >=> diff-step) x<y
+
   distance-+-swap : {a b c d : ℝ} -> distance (a + b) (c + d) ≤ (distance a c + distance b d)
   distance-+-swap {a} {b} {c} {d} =
     trans-≤-= (distance-triangleᵉ (a + b) (c + b) (c + d)) (+-cong d1 d2)

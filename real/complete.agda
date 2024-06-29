@@ -46,15 +46,18 @@ private
   ℚ->ℝ-preserves-1/2 : _
   ℚ->ℝ-preserves-1/2 = Semiringʰ-preserves-1/ℕ Semiringʰ-ℚ->ℝ 2⁺
 
-module _ where
+opaque
   isComplete₀-ℝ : isComplete₀ ℝ
   isComplete₀-ℝ N cauchy = x , isLimit-x
     where
     module N = Net N
+    I : Type₀
     I = N.I
+    f : I -> ℝ
     f = N.f
     instance
       -- TODO add accessor for this
+      IPO : isPreOrder N.≼
       IPO = DirectedSet.isPreOrder-R (N.directed-set)
 
     L' : Pred ℚ ℓ-zero
@@ -68,12 +71,14 @@ module _ where
     U q = ∥ U' q ∥
 
     Inhabited-L : Inhabited L
-    Inhabited-L = ∥-bind handle (cauchy (1# , 0<1))
+    Inhabited-L = ∥-bind handle (cauchy ε)
       where
-      handle : _ -> _
+      ε : ℝ⁺
+      ε = (1# , 0<1)
+      handle : Σ[ i ∈ I ] (∀ i2 i3 -> i ≼ i2 -> i ≼ i3 -> εClose ε (f i2) (f i3)) -> Inhabited L
       handle (i , close) = ∥-bind handle2 (Real.Inhabited-L (f i))
         where
-        handle2 : _ -> _
+        handle2 : Σ ℚ (Real.L (f i)) -> Inhabited L
         handle2 (q , fiL-q) = ∣ (q + (- 1#)) + (- 1#) , ∣ q + (- 1#) , q-2<q-1 , ∣ i , close-L' ∣ ∣ ∣
           where
           q-1<q : (q + (- 1#)) < q
@@ -94,12 +99,14 @@ module _ where
             -1<diff = trans-<-= (minus-flips-< diff<1) (sym diff-anticommute)
 
     Inhabited-U : Inhabited U
-    Inhabited-U = ∥-bind handle (cauchy (1# , 0<1))
+    Inhabited-U = ∥-bind handle (cauchy ε)
       where
-      handle : _ -> _
+      ε : ℝ⁺
+      ε = (1# , 0<1)
+      handle : Σ[ i ∈ I ] (∀ i2 i3 -> i ≼ i2 -> i ≼ i3 -> εClose ε (f i2) (f i3)) -> Inhabited U
       handle (i , close) = ∥-bind handle2 (Real.Inhabited-U (f i))
         where
-        handle2 : _ -> _
+        handle2 : Σ ℚ (Real.U (f i)) -> Inhabited U
         handle2 (q , fiU-q) = ∣ (q + 1#) + 1# , ∣ q + 1# , q+1<q+2 , ∣ i , close-U' ∣ ∣ ∣
           where
           q<q+1 : q < (q + 1#)
@@ -121,11 +128,11 @@ module _ where
     disjoint : Universal (Comp (L ∩ U))
     disjoint q (Lq , Uq) = unsquash isPropBot (∥-bind2 handle Lq Uq)
       where
-      handle : _ -> _ -> _
+      handle : L' q -> U' q -> ∥ Bot ∥
       handle (q1 , q<q1 , q1-close) (q2 , q2<q , q2-close) =
         ∥-map handle2 (isEventually-∩ N (\x -> Real.L x q1) (\x -> Real.U x q2) q1-close q2-close)
         where
-        handle2 : isEventuallyΣ N (\x -> Real.L x q1 × Real.U x q2) -> _
+        handle2 : isEventuallyΣ N (\x -> Real.L x q1 × Real.U x q2) -> Bot
         handle2 (i , q12-close) = handle3 (q12-close i N.refl-≼)
           where
           handle3 : Real.L (f i) q1 × Real.U (f i) q2 -> Bot
@@ -140,12 +147,18 @@ module _ where
 
 
     located : (q r : ℚ) -> q < r -> ∥ L q ⊎ U r ∥
-    located q r q<r = ∥-bind handle (cauchy (ℚ->ℝ d/8 , ℚ->ℝ-preserves-< 0<d/8))
+    located q r q<r = ∥-bind handle (cauchy d/8⁺)
       where
+      d : ℚ
       d = diff q r
+      0<d : 0# < d
       0<d = diff-0<⁺ q<r
+      d/8 : ℚ
       d/8 = 1/2 * (1/2 * (1/2 * d))
+      0<d/8 : 0# < d/8
       0<d/8 = *-preserves-0< 0<1/2 (*-preserves-0< 0<1/2 (*-preserves-0< 0<1/2 0<d))
+      d/8⁺ : ℝ⁺
+      d/8⁺ = (ℚ->ℝ d/8 , ℚ->ℝ-preserves-< 0<d/8)
       m q' r' l u : ℚ
       m = mean q r
       q' = mean q m
@@ -186,10 +199,10 @@ module _ where
       d/8=r'u = diff-mean' >=> cong (1/2 *_) d/4=r'r
 
 
-      handle : _ -> _
+      handle : Σ[ i ∈ I ] (∀ i2 i3 -> i ≼ i2 -> i ≼ i3 -> εClose d/8⁺ (f i2) (f i3)) -> ∥ L q ⊎ U r ∥
       handle (i , d/8-close) = ∥-bind handle2 (Real.located (f i) q' r' q'<r')
         where
-        handle2 : _ -> _
+        handle2 : Real.L (f i) q' ⊎ Real.U (f i) r' -> ∥ L q ⊎ U r ∥
         handle2 (inj-l fiL-q') =
           ∣ inj-l (∣ l  , q<l , (∣ i , lbound ∣) ∣) ∣
           where
@@ -300,7 +313,7 @@ module _ where
             unsquash isProp-< (∥-map handle3
               (find-open-ball (f i2) (ε' + ε' , +-preserves-0< 0<ε' 0<ε')))
             where
-            handle3 : _ -> εClose ε⁺ x (f i2)
+            handle3 : OpenBall (f i2) (ε' + ε') -> εClose ε⁺ x (f i2)
             handle3 (l , u , fi2L-l , fi2U-u , dlu=2ε') =
               max-least-< d1<ε (trans-=-< (sym diff-anticommute) d2<ε)
               where
@@ -308,6 +321,7 @@ module _ where
               l<fi2 = L->ℝ< fi2L-l
               fi2<u : f i2 < ℚ->ℝ u
               fi2<u = U->ℝ< fi2U-u
+              u' u'' l' l'' : ℚ
               u' = u + ε'
               u'' = u' + ε'
               l' = l + (- ε')

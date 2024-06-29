@@ -44,6 +44,10 @@ module _ {ℓD ℓS : Level} {D : Type ℓD} (S : Subtype D ℓS) where
 UnivS : {ℓD : Level} -> (D : Type ℓD) -> Subtype D ℓ-zero
 UnivS D _ = Top , isPropTop
 
+UnivS' : {ℓD : Level} -> (D : Type ℓD) (ℓS : Level) -> Subtype D ℓS
+UnivS' D ℓS _ = Lift ℓS Top , isProp-Lift isPropTop
+
+
 module _ {ℓD ℓ# ℓS : Level} {D : Type ℓD} {#D : Rel D ℓ#} {{AD : isTightApartness #D}}
          (S : Subtype D ℓS) where
   isOpenSubtype : Type (ℓ-max* 3 ℓD ℓ# ℓS)

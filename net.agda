@@ -6,6 +6,7 @@ open import base
 open import relation
 open import hlevel.base
 open import truncation
+open import functions
 open import subset
 open import order hiding (refl-≼ ; trans-≼)
 
@@ -57,6 +58,7 @@ record Net {ℓD : Level} (D : Type ℓD) (ℓI ℓ≼ : Level) : Type (ℓ-max*
   field
     f : I -> D
 
+-- TODO make these keep the indices
 module _ {ℓD ℓI ℓ≼ ℓS : Level} {D : Type ℓD} where
 
   isEventuallyΣ : Net D ℓI ℓ≼ -> Pred D ℓS -> Type (ℓ-max* 3 ℓI ℓ≼ ℓS)
@@ -73,6 +75,12 @@ module _ {ℓD ℓI ℓ≼ ℓS : Level} {D : Type ℓD} where
     where
     module N = Net N
 
+module _ {ℓA ℓB ℓI ℓ≼ : Level} {A : Type ℓA} {B : Type ℓB} where
+
+  Net-map : (A -> B) -> Net A ℓI ℓ≼ -> Net B ℓI ℓ≼
+  Net-map f n .Net.directed-set = Net.directed-set n
+  Net-map f n .Net.f = f ∘ Net.f n
+
 module _ {ℓD ℓI ℓ≼ ℓS1 ℓS2 : Level} {D : Type ℓD} where
   opaque
     isEventually-∩ : (N : Net D ℓI ℓ≼) (P1 : Pred D ℓS1) (P2 : Pred D ℓS2) ->
@@ -87,3 +95,11 @@ module _ {ℓD ℓI ℓ≼ ℓS1 ℓS2 : Level} {D : Type ℓD} where
         handle2 (i3 , i1≼i3 , i2≼i3) =
           ∣ i3 , (\i4 i3≼i4 -> e1 i4 (N.trans-≼ i1≼i3 i3≼i4) ,
                                e2 i4 (N.trans-≼ i2≼i3 i3≼i4)) ∣
+
+    isEventually-map : (N : Net D ℓI ℓ≼) (P1 : Pred D ℓS1) (P2 : Pred D ℓS2) ->
+      (∀ d -> P1 d -> P2 d) -> isEventually N P1 -> isEventually N P2
+    isEventually-map N P1 P2 f = ∥-map handle
+      where
+      module N = Net N
+      handle : isEventuallyΣ N P1 -> isEventuallyΣ N P2
+      handle (i1 , e1) = (i1 , \i2 i1≼i2 -> f (N.f i2) (e1 i2 i1≼i2))
