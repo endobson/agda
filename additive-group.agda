@@ -204,6 +204,9 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : Additi
     diff-zero : {x y : D} -> diff x y == 0# -> x == y
     diff-zero p = sym +-right-zero >=> +-right (sym p) >=> diff-step
 
+    diff0-path : {x : D} -> diff 0# x == x
+    diff0-path = sym +-left-zero >=> diff-step
+
     +-swap-diff : {a b c d : D} -> ((diff a b) + (diff c d)) == (diff (a + c) (b + d))
     +-swap-diff {a} {b} {c} {d} =
       +-assoc >=>
@@ -215,6 +218,15 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : Additi
 
     +-swap-diffᵉ : (a b c d : D) -> ((diff a b) + (diff c d)) == (diff (a + c) (b + d))
     +-swap-diffᵉ _ _ _ _ = +-swap-diff
+
+    +₁-preserves-diff : {a b c : D} -> diff a b == diff (c + a) (c + b)
+    +₁-preserves-diff =
+      sym +-left-zero >=> +-left (sym +-inverse) >=> +-swap-diff
+
+    +₂-preserves-diff : {a b c : D} -> diff a b == diff (a + c) (b + c)
+    +₂-preserves-diff =
+      +₁-preserves-diff >=> cong2 diff +-commute +-commute
+
 
 module _ {ℓ ℓ# : Level} {D : Type ℓ} {D# : Rel D ℓ#} {ACM : AdditiveCommMonoid D}
          (AG : AdditiveGroup ACM) (A : isTightApartness D#) where
