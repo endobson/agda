@@ -29,27 +29,26 @@ open import truncation
 open import univalence
 
 private
-  isProp-≼ : {a b : ℝ} {p1 p2 : Partition a b} -> isProp (Partition≼ p1 p2)
-  isProp-≼ {p2 = p2} r1 r2 i .Partition≼.refines = isProp-≤ r1.refines r2.refines i
+  isProp-P≼ : {a b : ℝ} {p1 p2 : Partition a b} -> isProp (Partition≼ p1 p2)
+  isProp-P≼ {p2 = p2} r1 r2 i .Partition≼.refines = isProp-≤ r1.refines r2.refines i
     where
     module r1 = Partition≼ r1
     module r2 = Partition≼ r2
 
-  refl-≼ : {a b : ℝ} {p : Partition a b} -> (Partition≼ p p)
-  refl-≼  .Partition≼.refines = refl-≤
+  refl-P≼ : {a b : ℝ} {p : Partition a b} -> (Partition≼ p p)
+  refl-P≼ .Partition≼.refines = refl-≤
 
-
-  trans-≼ : {a b : ℝ} {p1 p2 p3 : Partition a b} (r1 : Partition≼ p1 p2) (r2 : Partition≼ p2 p3) ->
+  trans-P≼ : {a b : ℝ} {p1 p2 p3 : Partition a b} (r1 : Partition≼ p1 p2) (r2 : Partition≼ p2 p3) ->
             Partition≼ p1 p3
-  trans-≼ r1 r2 .Partition≼.refines = trans-≤ r1.refines r2.refines
+  trans-P≼ r1 r2 .Partition≼.refines = trans-≤ r1.refines r2.refines
     where
     module r1 = Partition≼ r1
     module r2 = Partition≼ r2
 
   abstract
-    antisym-≼ : {a b : ℝ} {p1 p2 : Partition a b} (r1 : Partition≼ p1 p2) (r2 : Partition≼ p2 p1) ->
+    antisym-P≼ : {a b : ℝ} {p1 p2 : Partition a b} (r1 : Partition≼ p1 p2) (r2 : Partition≼ p2 p1) ->
                 p1 == p2
-    antisym-≼ {a} {b} {p1@(record {})} {p2@(record {})} r1 r2 = full-path
+    antisym-P≼ {a} {b} {p1@(record {})} {p2@(record {})} r1 r2 = full-path
       where
       module p1 = Partition p1
       module p2 = Partition p2
@@ -100,8 +99,8 @@ private
 instance
   isPartialOrder-Partition≼ : {a b : ℝ} -> isPartialOrder (Partition≼ {a} {b})
   isPartialOrder-Partition≼ = record
-    { isProp-≤ = isProp-≼
-    ; refl-≤ = refl-≼
-    ; trans-≤ = trans-≼
-    ; antisym-≤ = antisym-≼
+    { isProp-≤ = isProp-P≼
+    ; refl-≤ = refl-P≼
+    ; trans-≤ = trans-P≼
+    ; antisym-≤ = antisym-P≼
     }

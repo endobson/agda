@@ -404,3 +404,17 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
   TotalOrderStr-LinearOrder = record
    { connex-≤ = \x y -> ∣ (⊎-map weaken-< (\x -> x)) (split-< x y) ∣
    }
+
+module _ {ℓ≼ ℓD : Level} {D : Type ℓD} (_≼_ : Rel D ℓ≼) where
+  record isPreOrder : Type (ℓ-max ℓ≼ ℓD) where
+    no-eta-equality
+    field
+      isProp-≼ : {x y : D} -> isProp (x ≼ y)
+      refl-≼ : Reflexive _≼_
+      trans-≼ : Transitive _≼_
+
+module _ {ℓ≼ ℓD : Level} {D : Type ℓD} {le : Rel D ℓ≼} {{PO : isPreOrder le}} where
+  open isPreOrder PO public
+
+  _≼_ : Rel D ℓ≼
+  _≼_ = le
