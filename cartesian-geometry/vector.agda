@@ -44,12 +44,14 @@ open import real.arithmetic.multiplication.inverse
 open import real.arithmetic.sqrt
 open import real.arithmetic.sqrt.base
 open import real.order
+open import real.subspace
 open import relation
 open import ring
 open import ring.implementations.real
 open import semiring
 open import sigma.base
 open import subset
+open import subset.subspace
 open import truncation
 open import vector-space
 open import vector-space.finite
@@ -355,15 +357,12 @@ d-_ (v , vl=1) = v- v , a.vl-=1
       vl-=1 = vector-length-v- v >=> vl=1
 
 normalize-vector : (v : Vector) -> v v# 0v -> Vector
-normalize-vector v v#0 = (ℝ1/ (vector-length v) (inj-r (vector-length>0 v v#0))) v* v
+normalize-vector v v#0 = (ℝ1/ (vector-length v , inj-r (vector-length>0 v v#0))) v* v
 
 normalize-vector-path : (v : Vector) -> (v#0 : v v# 0v) ->
                         v == (vector-length v) v* (normalize-vector v v#0)
 normalize-vector-path v v#0 =
-  sym (sym v*-assoc >=> cong (_v* v) (*-commute >=> (ℝ1/-inverse vl vl-inv)) >=> v*-left-one)
-  where
-  vl = (vector-length v)
-  vl-inv = (inj-r (vector-length>0 v v#0))
+  sym (sym v*-assoc >=> cong (_v* v) (*-commute >=> ℝ1/-inverse) >=> v*-left-one)
 
 normalize-vector-v*-Pos :
   (v : Vector) -> (v#0 : v v# 0v) -> (k : ℝ) -> (0# < k) -> (kv#0 : (k v* v) v# 0v) ->
@@ -371,32 +370,32 @@ normalize-vector-v*-Pos :
 normalize-vector-v*-Pos v v#0 k 0<k kv#0 =
   sym (sym v*-left-one >=>
        (cong (_v* nv) (sym *-left-one >=>
-                       *-cong (sym (ℝ1/-inverse k k-inv)) (sym (ℝ1/-inverse vl vl-inv)) >=>
+                       *-cong (sym ℝ1/-inverse) (sym ℝ1/-inverse) >=>
                        sym *-assoc >=>
                        *-left (*-commute >=> sym *-assoc >=> *-left *-commute))) >=>
        v*-assoc >=>
-       (cong (((ℝ1/ k k-inv * ℝ1/ vl vl-inv) * k) v*_) (sym (normalize-vector-path v v#0))) >=>
+       (cong (((ℝ1/ k∈ * ℝ1/ vl∈) * k) v*_) (sym (normalize-vector-path v v#0))) >=>
        v*-assoc >=>
-       (cong ((ℝ1/ k k-inv * ℝ1/ vl vl-inv) v*_) (normalize-vector-path kv kv#0)) >=>
+       (cong ((ℝ1/ k∈ * ℝ1/ vl∈) v*_) (normalize-vector-path kv kv#0)) >=>
        sym v*-assoc >=>
        cong (_v* nkv) p >=>
        v*-left-one)
 
   where
-  vl = (vector-length v)
-  vl-inv = (inj-r (vector-length>0 v v#0))
-  k-inv = (inj-r 0<k)
+  k∈ vl∈ : ℝ# 0#
+  vl∈ = (vector-length v) , (inj-r (vector-length>0 v v#0))
+  k∈ = k , (inj-r 0<k)
   kv = k v* v
   nv = normalize-vector v v#0
   nkv = normalize-vector kv kv#0
   abs-k-path : abs k == k
   abs-k-path = abs-≮0-path (weaken-< 0<k)
 
-  p : (ℝ1/ k k-inv * ℝ1/ vl vl-inv) * (vector-length (k v* v)) == 1#
+  p : (ℝ1/ k∈ * ℝ1/ vl∈) * (vector-length (k v* v)) == 1#
   p = *-right (vector-length-* k v >=> *-left abs-k-path) >=>
       *-left *-commute >=>
-      *-assoc >=> *-right (sym *-assoc >=> *-left (ℝ1/-inverse k k-inv) >=> *-left-one) >=>
-      ℝ1/-inverse vl vl-inv
+      *-assoc >=> *-right (sym *-assoc >=> *-left ℝ1/-inverse >=> *-left-one) >=>
+      ℝ1/-inverse
 
 
 normalize-vector-v- :
@@ -405,23 +404,23 @@ normalize-vector-v- :
 normalize-vector-v- v v#0 -v#0 =
   sym (sym v*-left-minus-one >=>
        (cong (_v* nv) (sym *-right-one >=>
-                       *-right (sym (ℝ1/-inverse vl vl-inv)) >=>
+                       *-right (sym ℝ1/-inverse) >=>
                        sym *-assoc >=>
                        *-left *-commute)) >=>
        v*-assoc >=>
-       cong (((ℝ1/ vl vl-inv) * (- 1#)) v*_) (sym (normalize-vector-path v v#0)) >=>
+       cong (((ℝ1/ vl∈) * (- 1#)) v*_) (sym (normalize-vector-path v v#0)) >=>
        v*-assoc >=>
-       cong ((ℝ1/ vl vl-inv) v*_) (v*-left-minus-one >=> normalize-vector-path -v -v#0 >=>
-                                   cong (_v* n-v) (vector-length-v- v)) >=>
+       cong ((ℝ1/ vl∈) v*_) (v*-left-minus-one >=> normalize-vector-path -v -v#0 >=>
+                             cong (_v* n-v) (vector-length-v- v)) >=>
        sym v*-assoc >=>
-       (cong (_v* n-v) (ℝ1/-inverse vl vl-inv)) >=>
+       (cong (_v* n-v) ℝ1/-inverse) >=>
        v*-left-one)
   where
   -v = v- v
   nv = (normalize-vector v v#0)
   n-v = (normalize-vector -v -v#0)
-  vl = (vector-length v)
-  vl-inv = (inj-r (vector-length>0 v v#0))
+  vl∈ : ℝ# 0#
+  vl∈ = vector-length v , inj-r (vector-length>0 v v#0)
 
 normalize-vector-v-' :
    (v1 : Vector) -> (v1#0 : v1 v# 0v) ->
@@ -443,21 +442,21 @@ normalize-vector-v-' v1 v1#0 v2 v2#0 v1=-v2 =
 vector->direction : (v : Vector) -> v v# 0v -> Direction
 vector->direction v v#0 = normalize-vector v v#0 , a.path
   where
-  vl = (vector-length v)
   0<vl = (vector-length>0 v v#0)
-  vl-inv = (inj-r 0<vl)
-  k = (ℝ1/ vl vl-inv)
+  vl∈ : ℝ# 0#
+  vl∈ = vector-length v , inj-r 0<vl
+  k = ℝ1/ vl∈
   module a where
     abstract
       0≤k : 0# ≤ k
       0≤k k<0 = asym-< 0<1 1<0
         where
         1<0 : 1# < 0#
-        1<0 = trans-=-< (sym (ℝ1/-inverse vl vl-inv) )
+        1<0 = trans-=-< (sym ℝ1/-inverse)
                (trans-<-= (*₁-flips-< k<0 0<vl) *-right-zero)
 
       path : vector-length (k v* v) == 1#
-      path = vector-length-* k v >=> *-left (abs-≮0-path 0≤k) >=> ℝ1/-inverse vl vl-inv
+      path = vector-length-* k v >=> *-left (abs-≮0-path 0≤k) >=> ℝ1/-inverse
 
 record DirectionOfVector' (v : Vector) (d : Direction) : Type₁ where
   constructor direction-of-vector-cons
@@ -532,18 +531,16 @@ DirectionOfVector'-vector->direction {v} v#0 =
     (asym-< 0<1/vl)
     (cong (1/vl v*_) (normalize-vector-path v v#0) >=>
      sym v*-assoc >=>
-     cong (_v* (normalize-vector v v#0)) (ℝ1/-inverse vl vl-inv) >=>
+     cong (_v* (normalize-vector v v#0)) ℝ1/-inverse >=>
      v*-left-one))
   where
-  vl = vector-length v
   0<vl = (vector-length>0 v v#0)
-  vl-inv = (inj-r 0<vl)
-  1/vl = (ℝ1/ vl vl-inv)
+  vl∈ : ℝ# 0#
+  vl∈ = vector-length v , inj-r 0<vl
+  1/vl = ℝ1/ vl∈
 
-  0vl<1/vl*vl : (0# * vl) < (1/vl * vl)
-  0vl<1/vl*vl = subst2 _<_ (sym *-left-zero) (sym (ℝ1/-inverse vl vl-inv)) 0<1
   0<1/vl : 0# < 1/vl
-  0<1/vl = *₂-reflects-< 0vl<1/vl*vl (asym-< 0<vl)
+  0<1/vl = ℝ1/-preserves-0< 0<vl
 
 
 

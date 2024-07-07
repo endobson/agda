@@ -39,7 +39,7 @@ isDerivative-id = isDerivative-cons handle
       d=0 =
         +-right (cong -_ (*-left (+-left +-commute >=> +-assoc >=>
                                   +-right +-inverse >=> +-right-zero) >=>
-                          *-commute >=> ℝ1/-inverse z z#0)) >=>
+                          *-commute >=> ℝ1/-inverse)) >=>
         +-inverse
     handle : _
     handle = ∣ (1# , 0<1) , g ∣

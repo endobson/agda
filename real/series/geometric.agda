@@ -58,6 +58,7 @@ open import semiring.initial
 open import semiring.instances.nat
 open import sequence
 open import sequence.partial-sums
+open import subset.subspace
 open import truncation
 
 private
@@ -365,9 +366,9 @@ module _ (x : ℝ) (0≤x : 0# ≤ x) (x<1 : x < 1#) where
     1-x#0 = inj-r 0<1-x
     isUnit-1-x = Field.#0->isUnit ℝField 1-x#0
     y : ℝ
-    y = ℝ1/ (diff x 1#) 1-x#0
+    y = ℝ1/ (diff x 1# , 1-x#0)
     y-path : (1# + (- x)) * y == 1#
-    y-path = *-commute >=> ℝ1/-inverse (diff x 1#) 1-x#0
+    y-path = *-commute >=> ℝ1/-inverse
 
   isLimit-geometric-series : isLimit (geometric-series x) y
   isLimit-geometric-series =

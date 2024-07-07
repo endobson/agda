@@ -32,6 +32,7 @@ open import relation
 open import ring
 open import ring.implementations.real
 open import semiring
+open import subset.subspace
 open import truncation
 
 
@@ -67,16 +68,16 @@ private
 
     d = y + (- x)
 
-    Inv-i->path : (inv : ℝInv i) -> ℝ1/ i inv == d
+    Inv-i->path : (inv : ℝInv i) -> ℝ1/ (i , inv) == d
     Inv-i->path inv =
       sym *-left-one >=>
       *-left (sym path) >=>
       *-assoc >=>
-      *-right (*-commute >=> ℝ1/-inverse i inv) >=>
+      *-right (*-commute >=> ℝ1/-inverse) >=>
       *-right-one
 
     Inv-i->Inv-d : ℝInv i -> ℝInv d
-    Inv-i->Inv-d inv = subst ℝInv (Inv-i->path inv) (ℝ1/-preserves-ℝInv i inv)
+    Inv-i->Inv-d inv = subst ℝInv (Inv-i->path inv) ℝ1/-#0
 
     module _ where
       private
@@ -110,7 +111,7 @@ private
 
 
   ℝ#->diff# : {x y : ℝ} -> x # y -> diff# x y
-  ℝ#->diff# {x} {y} x#y = is-unit (ℝ1/ d inv) (*-commute >=> ℝ1/-inverse d inv)
+  ℝ#->diff# {x} {y} x#y = is-unit (ℝ1/ (d , inv)) (*-commute >=> ℝ1/-inverse)
     where
     d = (y + (- x))
     inv : ℝInv d

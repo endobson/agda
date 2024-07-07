@@ -129,12 +129,12 @@ module _ where
             n≤m = (i , cong pred path)
 
           r : ℝ
-          r = l2 * (ℝ1/ l' (inj-r 0<l'))
+          r = l2 * (ℝ1/ (l' , (inj-r 0<l')))
           0<r : 0# < r
-          0<r = *-preserves-0< 0<l2 (ℝ1/-preserves-0< l' (inj-r 0<l') 0<l')
+          0<r = *-preserves-0< 0<l2 (ℝ1/-preserves-0< 0<l')
           r<1 : r < 1#
-          r<1 = trans-<-= (*₂-preserves-< l2<l' (ℝ1/-preserves-0< l' (inj-r 0<l') 0<l'))
-                          (*-commute >=> ℝ1/-inverse l' (inj-r 0<l'))
+          r<1 = trans-<-= (*₂-preserves-< l2<l' (ℝ1/-preserves-0< 0<l'))
+                          (*-commute >=> ℝ1/-inverse)
           0≤r : 0# ≤ r
           0≤r = weaken-< 0<r
           r≤1 : r ≤ 1#
@@ -146,21 +146,21 @@ module _ where
           ln = (l' ^ℕ n)
           0<ln : 0# < ln
           0<ln = geometric-sequence-0< 0<l' n
-          1/ln = ℝ1/ ln (inj-r 0<ln)
+          1/ln = ℝ1/ (ln , (inj-r 0<ln))
 
           k : ℝ
           k = asn * 1/ln
 
           l2-r-path : (i : ℕ) -> l2 ^ℕ i == l' ^ℕ i * r ^ℕ i
           l2-r-path i =
-            cong (_^ℕ i) (sym *-right-one >=> *-right (sym (ℝ1/-inverse l' (inj-r 0<l'))) >=>
-                           sym *-assoc >=> *-commute) >=>
+            cong (_^ℕ i) (sym *-right-one >=> *-right (sym ℝ1/-inverse) >=>
+                          sym *-assoc >=> *-commute) >=>
             (^ℕ-distrib-*-right i)
 
           asnl2-path : (m : ℕ) -> (lt : n ≤ m) ->
                        (abs (s1 n) * l2 ^ℕ ⟨ lt ⟩) == (k * r ^ℕ ⟨ lt ⟩) * (l' ^ℕ m)
           asnl2-path m (i , p) =
-            *-cong (sym *-right-one >=> *-right (sym (ℝ1/-inverse ln (inj-r 0<ln))) >=>
+            *-cong (sym *-right-one >=> *-right (sym ℝ1/-inverse) >=>
                     sym *-assoc)
                    (l2-r-path i >=> *-commute) >=>
             *-swap >=>
@@ -172,14 +172,13 @@ module _ where
 
 
           module _ (0<k : 0# < k) where
-            k-inv = (inj-r 0<k)
-            1/k = ℝ1/ k k-inv
+            1/k = ℝ1/ (k , (inj-r 0<k))
             module _ (ri : ℕ) (r< : (r ^ℕ ri) < 1/k) where
               p3 : (m : ℕ) -> (n≤m : n ≤ m) (ri≤i : ri ≤ ⟨ n≤m ⟩) -> (k * r ^ℕ ⟨ n≤m ⟩) < 1#
               p3 m (i , p) ri≤i =
                 trans-≤-< (*₁-preserves-≤ (weaken-< 0<k)
                              (geometric-sequence-≤1 (weaken-< 0<r) (weaken-< r<1) _ _ ri≤i))
-                          (trans-<-= (*₁-preserves-< 0<k r<) (*-commute >=> ℝ1/-inverse k k-inv))
+                          (trans-<-= (*₁-preserves-< 0<k r<) (*-commute >=> ℝ1/-inverse))
 
               p4 : (m : ℕ) -> (ri+n≤m : (ri + n) ≤ m) -> abs (s1 m) ≤ (l' ^ℕ m)
               p4 m (i , p) =
@@ -198,7 +197,7 @@ module _ where
               p5 = ∣ ri + n , p4 ∣
 
             p6 : ∀Largeℕ (\i -> abs (s1 i) ≤ (l' ^ℕ i))
-            p6 = ∥-bind handle-p6 (Archimedean-ℝ' (1/k , ℝ1/-preserves-0< k k-inv 0<k)
+            p6 = ∥-bind handle-p6 (Archimedean-ℝ' (1/k , ℝ1/-preserves-0< 0<k)
                                                   r (weaken-< 0<r) r<1)
               where
               -- TODO add uncurry and use it here

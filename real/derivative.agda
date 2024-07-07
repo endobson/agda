@@ -23,11 +23,12 @@ open import relation
 open import ring.implementations.real
 open import semiring
 open import sigma.base
+open import subset.subspace
 open import truncation
 
 -- Rise over run at point x with distance h
 rise-over-run : (f : ℝ -> ℝ) (x : ℝ) (h : Σ ℝ (_# 0#)) -> ℝ
-rise-over-run f x (h , h#0) = diff (f x) (f (x + h)) * ℝ1/ h h#0
+rise-over-run f x (h , h#0) = diff (f x) (f (x + h)) * ℝ1/ (h , h#0)
 
 isDerivativeAt : (f : ℝ -> ℝ) (x : ℝ) (d : ℝ) -> Type₁
 isDerivativeAt f x d = isLimitAt (\h -> h # 0# , isProp-#) (rise-over-run f x) 0# d
