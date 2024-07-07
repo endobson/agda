@@ -280,3 +280,6 @@ module _ {ℓ ℓ# : Level} {D : Type ℓ} {D# : Rel D ℓ#} {ACM : AdditiveComm
       subst2 _#_ (+-left +-commute >=> +-assoc >=> +-right (+-commute >=> +-inverse) >=> +-right-zero)
                  (+-assoc >=> +-right (+-commute >=> +-inverse) >=> +-right-zero)
                  (+₁-preserves-# (sym-# a#b))
+
+    minus-preserves-#0 : {a : D} -> a # 0# -> (- a) # 0#
+    minus-preserves-#0 {a} a#0 = subst ((- a) #_) minus-zero (minus-preserves-# a#0)

@@ -288,12 +288,6 @@ opaque
   ℝ1/-#0 : {x : ℝ# 0#} -> ℝInv (ℝ1/ x)
   ℝ1/-#0 {_ , x#0} = ⊎-map ℝ1/-preserves-<0 ℝ1/-preserves-0< x#0
 
-
-private
-  ℝ--preserves-ℝInv : (x : ℝ) -> ℝInv x -> ℝInv (ℝ- x)
-  ℝ--preserves-ℝInv x (inj-l x<0) = inj-r (minus-flips-<0 x<0)
-  ℝ--preserves-ℝInv x (inj-r 0<x) = inj-l (minus-flips-0< 0<x)
-
 module _ (x : ℝ)  where
   private
     -x = ℝ-ᵉ x
@@ -342,12 +336,12 @@ module _ (x : ℝ)  where
 
 
   opaque
-    ℝ--ℝ1/-commute : (xinv : ℝInv x) -> ℝ- (ℝ1/ (x , xinv)) == ℝ1/ (ℝ- x , ℝ--preserves-ℝInv x xinv)
+    ℝ--ℝ1/-commute : (xinv : ℝInv x) -> ℝ- (ℝ1/ (x , xinv)) == ℝ1/ (ℝ- x , minus-preserves-#0 xinv)
     ℝ--ℝ1/-commute xinv =
       ℝ--eval >=> ℝ-ᵉ-ℝ1/-commute' xinv _ >=> cong ℝ1/ path
       where
-      path : Path (ℝ# 0#) (ℝ-ᵉ x , (subst ℝInv ℝ--eval (ℝ--preserves-ℝInv x xinv)))
-                          (ℝ- x , ℝ--preserves-ℝInv x xinv)
+      path : Path (ℝ# 0#) (ℝ-ᵉ x , (subst ℝInv ℝ--eval (minus-preserves-#0 xinv)))
+                          (ℝ- x , minus-preserves-#0 xinv)
       path = Subspace-path (sym ℝ--eval)
 
   module _ {xinv : ℝInv x} { -xinv : ℝInv (- x)} where
@@ -355,7 +349,7 @@ module _ (x : ℝ)  where
       ℝ--ℝ1/-commute' : ℝ- (ℝ1/ (x , xinv)) == ℝ1/ (- x , -xinv)
       ℝ--ℝ1/-commute' =
         ℝ--eval >=>
-        ℝ-ᵉ-ℝ1/-commute' xinv (subst ℝInv ℝ--eval (ℝ--preserves-ℝInv x xinv)) >=>
+        ℝ-ᵉ-ℝ1/-commute' xinv (subst ℝInv ℝ--eval (minus-preserves-#0 xinv)) >=>
         cong ℝ1/ (Subspace-path (sym ℝ--eval))
 
 
