@@ -46,28 +46,26 @@ module _ (f : (x : ℝ≤≥0) -> ℝ) (cont-f@(isContinuous-cons cf) : isContin
 
     0∈ = (ℚ->ℝ≤≥0 0#)
 
-    ef : Subspace (UnivS ℝ) -> ℝ
-    ef (x , _) = extend-≤≥0 f cont-f x
+    ef : ℝ -> ℝ
+    ef = extend-≤≥0 f cont-f
 
     opaque
-      isContinuous⁺ : {x : ℝ} -> 0# < x -> isContinuousAt ef (x , tt)
+      isContinuous⁺ : {x : ℝ} -> 0# < x -> isContinuousAt ef x
       isContinuous⁺ {x} 0<x ε⁺@(ε , 0<ε) = ∥-map handle (cf x∈ ε⁺)
         where
         x∈ : ℝ≤≥0
         x∈ = (x , ∣ inj-r (weaken-< 0<x) ∣)
-        handle : Σ[ (δ , _) ∈ ℝ⁺ ] (∀ (y∈@(y , _) : ℝ≤≥0) -> (distance x y < δ) ->
-                                      distance (f x∈) (f y∈) < ε) ->
-                 Σ[ (δ , _) ∈ ℝ⁺ ] (∀ (y∈@(y , _) : Subspace (UnivS ℝ)) -> (distance x y < δ) ->
-                                      distance (ef (x , tt)) (ef y∈) < ε)
+        handle :
+          Σ[ δ ∈ ℝ⁺ ] (∀ (y∈@(y , _) : ℝ≤≥0) -> (εClose δ x y) -> εClose ε⁺ (f x∈) (f y∈)) ->
+          Σ[ δ ∈ ℝ⁺ ] (∀ y -> εClose δ x y -> εClose ε⁺ (ef x) (ef y))
         handle ((δ , 0<δ) , δ-close) = ((δ2 , 0<δ2) , δ2-close)
           where
           δ2 : ℝ
           δ2 = min δ x
           0<δ2 : 0# < δ2
           0<δ2 = min-greatest-< 0<δ 0<x
-          δ2-close : (∀ (y∈@(y , _) : Subspace (UnivS ℝ)) -> (distance x y < δ2) ->
-                                      distance (ef (x , tt)) (ef y∈) < ε)
-          δ2-close (y , tt) dxy<δ2 = trans-=-< d-path dfxfy<ε
+          δ2-close : (∀ y -> (distance x y < δ2) -> distance (ef x) (ef y) < ε)
+          δ2-close y dxy<δ2 = trans-=-< d-path dfxfy<ε
             where
             δ2≤d0x : δ2 ≤ diff 0# x
             δ2≤d0x = trans-≤-= min-≤-right (sym diff-step >=> +-left-zero)
@@ -77,32 +75,30 @@ module _ (f : (x : ℝ≤≥0) -> ℝ) (cont-f@(isContinuous-cons cf) : isContin
             y∈ = (y , ∣ inj-r (weaken-< 0<y) ∣)
             dfxfy<ε : distance (f x∈) (f y∈) < ε
             dfxfy<ε = δ-close y∈ (trans-<-≤ dxy<δ2 min-≤-left)
-            fx-path : ef (x , tt) == (f x∈)
+            fx-path : ef x == (f x∈)
             fx-path = isExtension-extend-≤≥0 f cont-f x∈
-            fy-path : ef (y , tt) == (f y∈)
+            fy-path : ef y == (f y∈)
             fy-path = isExtension-extend-≤≥0 f cont-f y∈
-            d-path : distance (ef (x , tt)) (ef (y , tt)) == distance (f x∈) (f y∈)
+            d-path : distance (ef x) (ef y) == distance (f x∈) (f y∈)
             d-path = cong2 distance fx-path fy-path
 
     opaque
-      isContinuous⁻ : {x : ℝ} -> x < 0# -> isContinuousAt ef (x , tt)
+      isContinuous⁻ : {x : ℝ} -> x < 0# -> isContinuousAt ef x
       isContinuous⁻ {x} x<0 ε⁺@(ε , 0<ε) = ∥-map handle (cf x∈ ε⁺)
         where
         x∈ : ℝ≤≥0
         x∈ = (x , ∣ inj-l (weaken-< x<0) ∣)
-        handle : Σ[ (δ , _) ∈ ℝ⁺ ] (∀ (y∈@(y , _) : ℝ≤≥0) -> (distance x y < δ) ->
-                                      distance (f x∈) (f y∈) < ε) ->
-                 Σ[ (δ , _) ∈ ℝ⁺ ] (∀ (y∈@(y , _) : Subspace (UnivS ℝ)) -> (distance x y < δ) ->
-                                      distance (ef (x , tt)) (ef y∈) < ε)
+        handle :
+          Σ[ δ ∈ ℝ⁺ ] (∀ (y∈@(y , _) : ℝ≤≥0) -> (εClose δ x y) -> εClose ε⁺ (f x∈) (f y∈)) ->
+          Σ[ δ ∈ ℝ⁺ ] (∀ y -> εClose δ x y -> εClose ε⁺ (ef x) (ef y))
         handle ((δ , 0<δ) , δ-close) = ((δ2 , 0<δ2) , δ2-close)
           where
           δ2 : ℝ
           δ2 = min δ (- x)
           0<δ2 : 0# < δ2
           0<δ2 = min-greatest-< 0<δ (minus-flips-<0 x<0)
-          δ2-close : (∀ (y∈@(y , _) : Subspace (UnivS ℝ)) -> (distance x y < δ2) ->
-                                      distance (ef (x , tt)) (ef y∈) < ε)
-          δ2-close (y , tt) dxy<δ2 = trans-=-< d-path dfxfy<ε
+          δ2-close : (∀ y -> (distance x y < δ2) -> distance (ef x) (ef y) < ε)
+          δ2-close y dxy<δ2 = trans-=-< d-path dfxfy<ε
             where
             δ2≤dx0 : δ2 ≤ diff x 0#
             δ2≤dx0 = trans-≤-= min-≤-right (sym +-left-zero)
@@ -112,21 +108,20 @@ module _ (f : (x : ℝ≤≥0) -> ℝ) (cont-f@(isContinuous-cons cf) : isContin
             y∈ = (y , ∣ inj-l (weaken-< y<0) ∣)
             dfxfy<ε : distance (f x∈) (f y∈) < ε
             dfxfy<ε = δ-close y∈ (trans-<-≤ dxy<δ2 min-≤-left)
-            fx-path : ef (x , tt) == (f x∈)
+            fx-path : ef x == (f x∈)
             fx-path = isExtension-extend-≤≥0 f cont-f x∈
-            fy-path : ef (y , tt) == (f y∈)
+            fy-path : ef y == (f y∈)
             fy-path = isExtension-extend-≤≥0 f cont-f y∈
-            d-path : distance (ef (x , tt)) (ef (y , tt)) == distance (f x∈) (f y∈)
+            d-path : distance (ef x) (ef y) == distance (f x∈) (f y∈)
             d-path = cong2 distance fx-path fy-path
 
   opaque
     isContinuous-extend-≤≥0 : isContinuous ef
-    isContinuous-extend-≤≥0 .isContinuous.at x∈@(x , tt) ε⁺@(ε , 0<ε) =
+    isContinuous-extend-≤≥0 .isContinuous.at x ε⁺@(ε , 0<ε) =
       ∥-bind2 handle0 f0-ε/2<f0 f0<f0+ε/2
       where
       Ans : Type₁
-      Ans = ∃[ (δ , _) ∈ ℝ⁺ ] (∀ (y∈@(y , _) : Subspace (UnivS ℝ)) ->
-               distance x y < δ -> distance (ef x∈) (ef y∈) < ε)
+      Ans = ∃[ (δ , _) ∈ ℝ⁺ ] (∀ y -> distance x y < δ -> distance (ef x) (ef y) < ε)
 
       ε/2 : ℝ
       ε/2 = 1/2 * ε
@@ -183,14 +178,10 @@ module _ (f : (x : ℝ≤≥0) -> ℝ) (cont-f@(isContinuous-cons cf) : isContin
                 d0x<δ' : distance 0# x < ℚ->ℝ δ'
                 d0x<δ' = U->ℝ< d0xU-δ'
 
-                δ2-close : ∀ (y∈@(y , _) : Subspace (UnivS ℝ)) ->
-                             distance x y < ℚ->ℝ δ2 -> distance (ef x∈) (ef y∈) < ε
-                δ2-close y∈@(y , tt) dxy<δ2 = dxy<ε
+                δ2-close : ∀ y -> distance x y < ℚ->ℝ δ2 -> distance (ef x) (ef y) < ε
+                δ2-close y dxy<δ2 = dxy<ε
                   where
                   module _ (z : ℝ) (d0z<δ : distance 0# z < ℚ->ℝ δ) where
-                    z∈ : Subspace (UnivS ℝ)
-                    z∈ = z , tt
-
                     opaque
                       unfolding extend-≤≥0 isContinuous-extend-≤≥0
 
@@ -215,34 +206,34 @@ module _ (f : (x : ℝ≤≥0) -> ℝ) (cont-f@(isContinuous-cons cf) : isContin
                                                                  df0ft<ε')
                                                       min-≤-left)
 
-                      fzU-u : Real.U (ef z∈) u
+                      fzU-u : Real.U (ef z) u
                       fzU-u = ∣ tri⊎-= (u' , u'<u , (δ , 0<δ) , ℝ<->U d0z<δ ,
                                         u'-bound) ∣
 
-                      fzL-l : Real.L (ef z∈) l
+                      fzL-l : Real.L (ef z) l
                       fzL-l = ∣ tri⊎-= (l' , l<l' , (δ , 0<δ) , ℝ<->U d0z<δ ,
                                         l'-bound) ∣
 
 
-                    fz<f0+ε/2 : (ef z∈) < (f 0∈ + ε/2)
+                    fz<f0+ε/2 : (ef z) < (f 0∈ + ε/2)
                     fz<f0+ε/2 = ∣ ℝ<'-cons u fzU-u f0εL-u ∣
 
-                    f0-ε/2<fz : (f 0∈ + (- ε/2)) < (ef z∈)
+                    f0-ε/2<fz : (f 0∈ + (- ε/2)) < (ef z)
                     f0-ε/2<fz = ∣ ℝ<'-cons l f0εU-l fzL-l ∣
 
-                    dif0z<ε/2 : diff (f 0∈) (ef z∈) < ε/2
+                    dif0z<ε/2 : diff (f 0∈) (ef z) < ε/2
                     dif0z<ε/2 =
                       trans-<-= (+₂-preserves-< fz<f0+ε/2)
                                 (+-left +-commute >=> +-assoc >=> +-right +-inverse >=> +-right-zero)
 
-                    -dif0z<ε/2 : (- (diff (f 0∈) (ef z∈))) < ε/2
+                    -dif0z<ε/2 : (- (diff (f 0∈) (ef z))) < ε/2
                     -dif0z<ε/2 =
                       trans-=-< (sym diff-anticommute)
                         (trans-<-=
                           (+₁-preserves-< (minus-flips-< f0-ε/2<fz))
                           (+-right (sym diff-anticommute) >=> diff-step))
 
-                    d0z<ε/2 : distance (f 0∈) (ef z∈) < ε/2
+                    d0z<ε/2 : distance (f 0∈) (ef z) < ε/2
                     d0z<ε/2 = max-least-< dif0z<ε/2 -dif0z<ε/2
 
                   d0y<δ : distance 0# y < ℚ->ℝ δ
@@ -251,14 +242,14 @@ module _ (f : (x : ℝ≤≥0) -> ℝ) (cont-f@(isContinuous-cons cf) : isContin
                       (trans-<-= (+-preserves-< d0x<δ' dxy<δ2)
                         (sym ℚ->ℝ-preserves-+ >=> cong ℚ->ℝ diff-step))
 
-                  d0x<ε/2 : distance (f 0∈) (ef x∈) < ε/2
+                  d0x<ε/2 : distance (f 0∈) (ef x) < ε/2
                   d0x<ε/2 = d0z<ε/2 x d0x<δ
-                  d0y<ε/2 : distance (f 0∈) (ef y∈) < ε/2
+                  d0y<ε/2 : distance (f 0∈) (ef y) < ε/2
                   d0y<ε/2 = d0z<ε/2 y d0y<δ
 
-                  dxy<ε : distance (ef x∈) (ef y∈) < ε
+                  dxy<ε : distance (ef x) (ef y) < ε
                   dxy<ε =
-                    trans-≤-< (distance-triangleᵉ (ef x∈) _ (ef y∈))
-                      (trans-=-< (+-left (distance-commuteᵉ (ef x∈) (fℚ 0#)))
+                    trans-≤-< (distance-triangleᵉ (ef x) _ (ef y))
+                      (trans-=-< (+-left (distance-commuteᵉ (ef x) (fℚ 0#)))
                         (trans-<-= (+-preserves-< d0x<ε/2 d0y<ε/2)
                           1/2-path))
