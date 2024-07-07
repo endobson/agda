@@ -36,3 +36,6 @@ module _ {D : Type ℓ} {{MS : MetricSpaceStr D}} where
 
   distance-triangle : {x y z : D} -> distance x z ≤ (distance x y + distance y z)
   distance-triangle = distance-triangleᵉ _ _ _
+
+  zero-distance->path : {x y : D} -> distance x y == 0# -> x == y
+  zero-distance->path = isEqInv isEquiv-path->zero-distance
