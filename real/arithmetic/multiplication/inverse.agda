@@ -38,11 +38,6 @@ open import sum
 open import truncation
 
 private
-  abstract
-    ℝ--zero : ℝ- 0# == 0#
-    ℝ--zero = sym (+-left-zero) >=> +-inverse
-
-private
   module _ (x : ℝ) (0L : Real.L x 0r)
     where
     private
@@ -256,7 +251,7 @@ private
     ℝ1/-Neg = ℝ-ᵉ (ℝ1/-Pos -x -0L)
 
     ℝ1/-Neg<0 : ℝ1/-Neg < 0#
-    ℝ1/-Neg<0 = subst2 _<_ ℝ--eval ℝ--zero p2
+    ℝ1/-Neg<0 = subst2 _<_ ℝ--eval minus-zero p2
       where
       p : 0# < (ℝ1/-Pos -x -0L)
       p = 0<ℝ1/-Pos -x -0L
@@ -264,20 +259,11 @@ private
       p2 : (- (ℝ1/-Pos -x -0L)) < (- 0#)
       p2 = minus-flips-<  p
 
-
-
-
 module _ (x : ℝ)  where
-  ℝ1/ᵉ : (xinv : ℝInv x) -> ℝ
-  ℝ1/ᵉ (inj-l x<0) = ℝ1/-Neg x (ℝ<->U x<0)
-  ℝ1/ᵉ (inj-r 0<x) = ℝ1/-Pos x (ℝ<->L 0<x)
-
-  abstract
+  opaque
     ℝ1/ : (xinv : ℝInv x) -> ℝ
-    ℝ1/ = ℝ1/ᵉ
-
-    ℝ1/-eval : (xinv : ℝInv x) -> ℝ1/ xinv == ℝ1/ᵉ xinv
-    ℝ1/-eval _ = refl
+    ℝ1/ (inj-l x<0) = ℝ1/-Neg x (ℝ<->U x<0)
+    ℝ1/ (inj-r 0<x) = ℝ1/-Pos x (ℝ<->L 0<x)
 
     ℝ1/-preserves-0< : (xinv : ℝInv x) -> (0# < x) -> 0# < (ℝ1/ xinv)
     ℝ1/-preserves-0< (inj-l x<0) 0<x = bot-elim (asym-< x<0 0<x)
@@ -291,11 +277,10 @@ module _ (x : ℝ)  where
     ℝ1/-preserves-ℝInv xinv =
       ⊎-map (ℝ1/-preserves-<0 xinv) (ℝ1/-preserves-0< xinv) xinv
 
-
-ℝ--preserves-ℝInv : (x : ℝ) -> ℝInv x -> ℝInv (ℝ- x)
-ℝ--preserves-ℝInv x (inj-l x<0) = inj-r (minus-flips-<0 x<0)
-ℝ--preserves-ℝInv x (inj-r 0<x) = inj-l (minus-flips-0< 0<x)
-
+private
+  ℝ--preserves-ℝInv : (x : ℝ) -> ℝInv x -> ℝInv (ℝ- x)
+  ℝ--preserves-ℝInv x (inj-l x<0) = inj-r (minus-flips-<0 x<0)
+  ℝ--preserves-ℝInv x (inj-r 0<x) = inj-l (minus-flips-0< 0<x)
 
 
 module _ (x : ℝ)  where
@@ -304,56 +289,54 @@ module _ (x : ℝ)  where
     module x = Real x
     module -x = Real -x
 
-    ℝ-ᵉ-double-inverse : (z : ℝ) -> ℝ-ᵉ (ℝ-ᵉ z) == z
-    ℝ-ᵉ-double-inverse z =
-      LU-paths->path (ℝ-ᵉ (ℝ-ᵉ z)) z
-        (\q -> cong (Real.L z) minus-double-inverse)
-        (\q -> cong (Real.U z) minus-double-inverse)
+    opaque
+      ℝ-ᵉ-double-inverse : (z : ℝ) -> ℝ-ᵉ (ℝ-ᵉ z) == z
+      ℝ-ᵉ-double-inverse z =
+        (sym ℝ--eval) >=> cong -_ (sym ℝ--eval) >=> minus-double-inverse
 
+    opaque
+      unfolding ℝ1/
 
-    ℝ-ᵉ-ℝ1/ᵉ-commute' : (xinv : ℝInv x) -> (-xinv : ℝInv -x) -> ℝ-ᵉ (ℝ1/ᵉ x xinv) == ℝ1/ᵉ -x -xinv
-    ℝ-ᵉ-ℝ1/ᵉ-commute' xinv@(inj-r 0<x) -xinv@(inj-l -x<0) = cong ℝ-ᵉ_ (sym p2)
-      where
-      p1 : ℝ-ᵉ (ℝ-ᵉ x) == x
-      p1 = ℝ-ᵉ-double-inverse x
+      ℝ-ᵉ-ℝ1/-commute : (xinv : ℝInv x) -> (-xinv : ℝInv -x) -> ℝ-ᵉ (ℝ1/ x xinv) == ℝ1/ -x -xinv
+      ℝ-ᵉ-ℝ1/-commute xinv@(inj-r 0<x) -xinv@(inj-l -x<0) = cong ℝ-ᵉ_ (sym p2)
+        where
+        p1 : ℝ-ᵉ (ℝ-ᵉ x) == x
+        p1 = ℝ-ᵉ-double-inverse x
 
-      L0 : Real.L (ℝ-ᵉ -x) 0r
-      L0 = subst (Real.U -x) (sym minus-zero) (ℝ<->U -x<0)
+        L0 : Real.L (ℝ-ᵉ -x) 0r
+        L0 = subst (Real.U -x) (sym minus-zero) (ℝ<->U -x<0)
 
-      p2 : (ℝ1/-Pos (ℝ-ᵉ -x) L0) == (ℝ1/-Pos x (ℝ<->L 0<x))
-      p2 = cong2-dep ℝ1/-Pos p1 (isProp->PathP (\i -> (Real.isProp-L (p1 i) 0r)))
+        p2 : (ℝ1/-Pos (ℝ-ᵉ -x) L0) == (ℝ1/-Pos x (ℝ<->L 0<x))
+        p2 = cong2-dep ℝ1/-Pos p1 (isProp->PathP (\i -> (Real.isProp-L (p1 i) 0r)))
 
-    ℝ-ᵉ-ℝ1/ᵉ-commute' xinv@(inj-l x<0) -xinv@(inj-r 0<-x) =
-      ℝ-ᵉ-double-inverse (ℝ1/-Pos -x L0) >=>
-      cong (ℝ1/-Pos -x) (x.isProp-U (- 0r) _ _)
-      where
-      L0 : Real.L -x 0r
-      L0 = subst x.U (sym minus-zero) (ℝ<->U x<0)
+      ℝ-ᵉ-ℝ1/-commute xinv@(inj-l x<0) -xinv@(inj-r 0<-x) =
+        ℝ-ᵉ-double-inverse (ℝ1/-Pos -x L0) >=>
+        cong (ℝ1/-Pos -x) (x.isProp-U (- 0r) _ _)
+        where
+        L0 : Real.L -x 0r
+        L0 = subst x.U (sym minus-zero) (ℝ<->U x<0)
 
-    ℝ-ᵉ-ℝ1/ᵉ-commute' (inj-r 0<x) (inj-r 0<-x) = bot-elim (asym-ℝ< {0#} {x} 0<x x<0)
-      where
-      x<0 : x ℝ< 0#
-      x<0 = subst2 _ℝ<_ +-right-zero (+-right (sym ℝ--eval) >=> ℝ+-inverse x)
-                        (+₁-preserves-< 0<-x)
+      ℝ-ᵉ-ℝ1/-commute (inj-r 0<x) (inj-r 0<-x) = bot-elim (asym-ℝ< {0#} {x} 0<x x<0)
+        where
+        x<0 : x ℝ< 0#
+        x<0 = subst2 _ℝ<_ +-right-zero (+-right (sym ℝ--eval) >=> ℝ+-inverse x)
+                          (+₁-preserves-< 0<-x)
 
-    ℝ-ᵉ-ℝ1/ᵉ-commute' (inj-l x<0) (inj-l -x<0) = bot-elim (asym-ℝ< {0#} {x} 0<x x<0)
-      where
-      0<x : 0# < x
-      0<x = subst2 _<_ (+-right (sym ℝ--eval) >=> ℝ+-inverse x) +-right-zero
-                       (+₁-preserves-< -x<0)
+      ℝ-ᵉ-ℝ1/-commute (inj-l x<0) (inj-l -x<0) = bot-elim (asym-ℝ< {0#} {x} 0<x x<0)
+        where
+        0<x : 0# < x
+        0<x = subst2 _<_ (+-right (sym ℝ--eval) >=> ℝ+-inverse x) +-right-zero
+                         (+₁-preserves-< -x<0)
 
-
-  ℝ--ℝ1/-commute : (xinv : ℝInv x) -> ℝ- (ℝ1/ x xinv) == ℝ1/ (ℝ- x) (ℝ--preserves-ℝInv x xinv)
-  ℝ--ℝ1/-commute xinv =
-    ℝ--eval >=>
-    cong ℝ-ᵉ_ (ℝ1/-eval x xinv) >=>
-    ℝ-ᵉ-ℝ1/ᵉ-commute' xinv (subst ℝInv ℝ--eval (ℝ--preserves-ℝInv x xinv)) >=>
-    cong2-dep ℝ1/ᵉ (\i -> ℝ--eval (~ i)) (isProp->PathP (\i -> isProp-ℝInv (ℝ--eval {x} (~ i)))) >=>
-    sym (ℝ1/-eval (ℝ- x) (ℝ--preserves-ℝInv x xinv))
+  opaque
+    ℝ--ℝ1/-commute : (xinv : ℝInv x) -> ℝ- (ℝ1/ x xinv) == ℝ1/ (ℝ- x) (ℝ--preserves-ℝInv x xinv)
+    ℝ--ℝ1/-commute xinv =
+      ℝ--eval >=>
+      ℝ-ᵉ-ℝ1/-commute xinv (subst ℝInv ℝ--eval (ℝ--preserves-ℝInv x xinv)) >=>
+      cong2-dep ℝ1/ (\i -> ℝ--eval (~ i)) (isProp->PathP (\i -> isProp-ℝInv (ℝ--eval {x} (~ i))))
 
 
 private
-
   module _ (x y : ℝ) where
     L' : Pred ℚ ℓ-zero
     L' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Lower (xi i* yi) q)
@@ -469,10 +452,9 @@ private
 
 
 module _ (x : ℝ)  where
-  ℝ1/ᵉ-inverse : (xinv : ℝInv x) -> ℝ1/ᵉ x xinv ℝ* x == 1ℝ
-  ℝ1/ᵉ-inverse (inj-l x<0) = 1/ℝ-Neg-inverse x (ℝ<->U x<0)
-  ℝ1/ᵉ-inverse (inj-r 0<x) = 1/ℝ-Pos-inverse x (ℝ<->L 0<x)
+  opaque
+    unfolding ℝ1/
 
-  abstract
     ℝ1/-inverse : (xinv : ℝInv x) -> ℝ1/ x xinv ℝ* x == 1ℝ
-    ℝ1/-inverse = ℝ1/ᵉ-inverse
+    ℝ1/-inverse (inj-l x<0) = 1/ℝ-Neg-inverse x (ℝ<->U x<0)
+    ℝ1/-inverse (inj-r 0<x) = 1/ℝ-Pos-inverse x (ℝ<->L 0<x)
