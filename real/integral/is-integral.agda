@@ -26,6 +26,7 @@ open import order.instances.real
 open import order.minmax
 open import order.minmax.instances.real
 open import ordered-additive-group
+open import ordered-additive-group.instances.real
 open import ordered-semiring
 open import ordered-field
 open import ordered-semiring.instances.rational
