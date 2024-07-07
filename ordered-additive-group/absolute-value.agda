@@ -12,6 +12,7 @@ open import isomorphism
 open import order
 open import order.minmax
 open import ordered-additive-group
+open import ordered-additive-group.minmax
 open import ordered-additive-group.negated
 open import relation
 open import sum
@@ -135,3 +136,6 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
 
     abs-≤ : {x : D} -> x ≤ abs x
     abs-≤ = convert-≮ abs-≮
+
+    abs-distrib-+ : {x y : D} -> abs (x + y) ≤ (abs x + abs y)
+    abs-distrib-+ = trans-=-≤ (cong2 max refl minus-distrib-plus) max-+-swap
