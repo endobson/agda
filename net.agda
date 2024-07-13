@@ -35,6 +35,9 @@ record Net {ℓD : Level} (D : Type ℓD) (ℓI ℓ≼ : Level) : Type (ℓ-max*
   ≼ : Rel I ℓ≼
   ≼ = DirectedSet.R directed-set
 
+  isPreOrder-≼ : isPreOrder ≼
+  isPreOrder-≼ = DirectedSet.isPreOrder-R directed-set
+
   ∃upper-bound : (a b : I) -> ∃[ c ∈ I ] ((≼ a c) × (≼ b c))
   ∃upper-bound = isDirected.∃upper-bound (DirectedSet.isDirected-R directed-set)
 
