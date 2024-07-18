@@ -9,6 +9,7 @@ open import equality
 open import functions
 open import hlevel
 open import metric-space
+open import metric-space.instances.subspace
 open import order
 open import order.instances.rational
 open import order.instances.real
@@ -20,6 +21,7 @@ open import real.rational
 open import real.subspace
 open import ring.implementations.real
 open import semiring
+open import subset
 open import subset.subspace
 open import truncation
 
@@ -93,6 +95,15 @@ module _ {ℓA : Level} {A : Type ℓA} {{MS-A : MetricSpaceStr A}} where
     isContinuous-id .isContinuous.at a (ε , 0<ε) = ∣ (ε , 0<ε) , close ∣
       where
       close : (a2 : A) -> distance a a2 < ε -> distance a a2 < ε
+      close _ d<ε = d<ε
+
+module _ {ℓD ℓS : Level} {D : Type ℓD} {{MS-D : MetricSpaceStr D}}
+         {S : Subtype D ℓS} where
+  opaque
+    isContinuous-embed : isContinuous (\((x , _) : Subspace S) -> x)
+    isContinuous-embed .isContinuous.at x∈@(x , _) (ε , 0<ε) = ∣ (ε , 0<ε) , close ∣
+      where
+      close : (y∈@(y , _) : Subspace S) -> distance x y < ε -> distance x y < ε
       close _ d<ε = d<ε
 
 
