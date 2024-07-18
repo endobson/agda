@@ -85,3 +85,8 @@ opaque
   minus-preserves-distance0 : {y : ℝ} -> distance 0# y == distance 0# (- y)
   minus-preserves-distance0 {y} =
     minus-preserves-distance >=> cong2 distance minus-zero (reflᵉ (- y))
+
+  distance-shift : {x y : ℝ} -> distance x (x + y) == abs y
+  distance-shift =
+    cong2 distance (sym +-right-zero) refl >=>
+    cong abs (sym +₁-preserves-diff >=> diff0-path)

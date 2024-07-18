@@ -170,3 +170,7 @@ module _ {ℓA ℓB ℓS : Level} {A : Type ℓA} {B : Type ℓB}
                           (δ-close x∈ (trans-=-< (path->zero-distance (reflᵉ x)) 0<δ))
           lt2 : distance lim (f y∈) < ε'
           lt2 = δ-close y∈ dxy<δ
+
+module _ {ℓD : Level} {D : Type ℓD} {{MS-D : MetricSpaceStr D}} where
+  isCrowded : {ℓS : Level} (S : Subtype D ℓS) -> Type (ℓ-max* 3 ℓS ℓD ℓ-one)
+  isCrowded S = ∀ ((x , _) : Subspace S) -> isAccumulationPoint S x
