@@ -4,6 +4,7 @@ module real.arithmetic.multiplication.inverse where
 
 open import additive-group
 open import additive-group.instances.real
+open import apartness
 open import base
 open import equality
 open import heyting-field.instances.rational
@@ -407,9 +408,13 @@ private
 opaque
   unfolding ℝ1/
 
-  ℝ1/-inverse : {x∈@(x , _) : ℝ# 0#} -> ℝ1/ x∈ ℝ* x == 1ℝ
-  ℝ1/-inverse {x , (inj-l x<0)} = 1/ℝ-Neg-inverse x (ℝ<->U x<0)
-  ℝ1/-inverse {x , (inj-r 0<x)} = 1/ℝ-Pos-inverse x (ℝ<->L 0<x)
+  ℝ1/-inverseᵉ : (x∈@(x , _) : ℝ# 0#) -> ℝ1/ x∈ ℝ* x == 1ℝ
+  ℝ1/-inverseᵉ (x , (inj-l x<0)) = 1/ℝ-Neg-inverse x (ℝ<->U x<0)
+  ℝ1/-inverseᵉ (x , (inj-r 0<x)) = 1/ℝ-Pos-inverse x (ℝ<->L 0<x)
+
+ℝ1/-inverse : {x∈@(x , _) : ℝ# 0#} -> ℝ1/ x∈ ℝ* x == 1ℝ
+ℝ1/-inverse = ℝ1/-inverseᵉ _
+
 
 module _ (x : ℝ) {xinv : ℝInv x} { -xinv : ℝInv (- x)} where
   opaque
@@ -420,3 +425,49 @@ module _ (x : ℝ) {xinv : ℝInv x} { -xinv : ℝInv (- x)} where
       sym *-assoc >=>
       *-left (minus-extract-both >=> ℝ1/-inverse) >=>
       *-left-one
+
+
+opaque
+  ℝ1/⁺-flips-< : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> 0# < x -> x < y -> ℝ1/ y∈ < ℝ1/ x∈
+  ℝ1/⁺-flips-< {x∈@(x , x#0)} {y∈@(y , y#0)} 0<x x<y =
+    subst2 _<_
+      (*-left *-commute >=> *-assoc >=> *-right ℝ1/-inverse >=> *-right-one)
+      (*-assoc >=> *-right ℝ1/-inverse >=> *-right-one)
+      (*₁-preserves-< (*-preserves-0< 0<1/x 0<1/y) x<y)
+    where
+    0<y : 0# < y
+    0<y = trans-< 0<x x<y
+
+    0<1/x : 0# < ℝ1/ x∈
+    0<1/x = ℝ1/-preserves-0< 0<x
+    0<1/y : 0# < ℝ1/ y∈
+    0<1/y = ℝ1/-preserves-0< 0<y
+  ℝ1/⁻-flips-< : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> y < 0# -> x < y -> ℝ1/ y∈ < ℝ1/ x∈
+  ℝ1/⁻-flips-< {x∈@(x , x#0)} {y∈@(y , y#0)} y<0 x<y =
+    subst2 _<_
+      (*-left *-commute >=> *-assoc >=> *-right ℝ1/-inverse >=> *-right-one)
+      (*-assoc >=> *-right ℝ1/-inverse >=> *-right-one)
+      (*₁-preserves-< (*-flips-<0 1/x<0 1/y<0) x<y)
+
+    where
+    x<0 : x < 0#
+    x<0 = trans-< x<y y<0
+
+    1/x<0 : ℝ1/ x∈ < 0#
+    1/x<0 = ℝ1/-preserves-<0 x<0
+    1/y<0 : ℝ1/ y∈ < 0#
+    1/y<0 = ℝ1/-preserves-<0 y<0
+
+
+opaque
+  ℝ1/-distrib-* : {x y : ℝ} {xy#0 : (x * y) # 0#} {x#0 : x # 0#} {y#0 : y # 0#} ->
+                   ℝ1/ (x * y , xy#0) == (ℝ1/ (x , x#0) * ℝ1/ (y , y#0))
+  ℝ1/-distrib-* =
+    (sym *-right-one) >=>
+    (*-right (sym *-right-one >=>
+              *-cong (sym ℝ1/-inverse) (sym ℝ1/-inverse) >=>
+              *-swap)) >=>
+    *-right *-commute >=>
+    sym *-assoc >=>
+    *-left ℝ1/-inverse >=>
+    *-left-one
