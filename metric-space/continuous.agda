@@ -13,9 +13,13 @@ open import order
 open import order.instances.rational
 open import order.instances.real
 open import ordered-additive-group.instances.real
+open import ordered-semiring
+open import ordered-semiring.instances.real
 open import real.order
 open import real.rational
 open import real.subspace
+open import ring.implementations.real
+open import semiring
 open import subset.subspace
 open import truncation
 
@@ -39,8 +43,8 @@ module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
     field
       at : ∀ a -> isContinuousAt f a
 
-  isProp-isContinuousAt : {f : A -> B} {a : A} -> isProp (isContinuousAt f a)
-  isProp-isContinuousAt = isPropΠ (\_ -> squash)
+  isProp-isContinuousAt : (f : A -> B) {a : A} -> isProp (isContinuousAt f a)
+  isProp-isContinuousAt _ = isPropΠ (\_ -> squash)
 
   isProp-isContinuous : {f : A -> B} -> isProp (isContinuous f)
   isProp-isContinuous (isContinuous-cons c1) (isContinuous-cons c2) =
@@ -72,6 +76,24 @@ module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
           δ2⁺ = δ2 , U->ℚ< 0U-δ2
           δ2-close : ∀ (y : A) -> εℚClose δ2⁺ x y -> εClose ε (f x) (f y)
           δ2-close y d<δ2 = δ1-close y (trans-< d<δ2 (L->ℝ< δ1L-δ2))
+
+
+module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
+         {{MS-A : MetricSpaceStr A}} {{MS-B : MetricSpaceStr B}} where
+  opaque
+    isContinuous-const : ∀ (b : B) -> isContinuous (\(_ : A) -> b)
+    isContinuous-const b .isContinuous.at a (ε , 0<ε) = ∣ (1# , 0<1) , close ∣
+      where
+      close : (a2 : A) -> distance a a2 < 1# -> distance b b < ε
+      close _ _ = trans-=-< (path->zero-distance (reflᵉ b)) 0<ε
+
+module _ {ℓA : Level} {A : Type ℓA} {{MS-A : MetricSpaceStr A}} where
+  opaque
+    isContinuous-id : isContinuous (\(a : A) -> a)
+    isContinuous-id .isContinuous.at a (ε , 0<ε) = ∣ (ε , 0<ε) , close ∣
+      where
+      close : (a2 : A) -> distance a a2 < ε -> distance a a2 < ε
+      close _ d<ε = d<ε
 
 
 module _ {ℓA ℓB ℓC : Level} {A : Type ℓA} {B : Type ℓB} {C : Type ℓC}
