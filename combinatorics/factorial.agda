@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module factorial where
+module combinatorics.factorial where
 
 open import base
 open import equality

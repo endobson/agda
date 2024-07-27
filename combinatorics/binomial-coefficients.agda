@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module binomial-coefficients where
+module combinatorics.binomial-coefficients where
 
 open import additive-group
 open import additive-group.instances.nat

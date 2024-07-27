@@ -5,8 +5,8 @@ module real.exponential-series where
 open import additive-group
 open import additive-group.instances.real
 open import base
+open import combinatorics.factorial
 open import equality
-open import factorial
 open import functions
 open import integral-domain.instances.real
 open import nat
