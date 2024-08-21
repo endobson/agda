@@ -24,15 +24,15 @@ open import without-point
 
 private
   incr-size : {ℓB : Level} {B : Type ℓB} -> (b : B) -> isFinSet (WithoutPoint B b) ->
-              Discrete B -> isFinSet B
-  incr-size {B = B} b fs discB = ∥-map handle fs
+              {{DB : Discrete' B}} -> isFinSet B
+  incr-size {B = B} b fs = ∥-map handle fs
     where
     handle' : Σ[ n ∈ Nat ] (WithoutPoint B b ≃ FinT n) ->
               Σ[ n ∈ Nat ] (B ≃ FinT n)
     handle' (n , eqWb) = suc n , isoToEquiv (iso f g fg gf)
       where
       f : B -> FinT (suc n)
-      f b2 with discB b2 b
+      f b2 with decide-= b2 b
       ... | (yes _) = inj-l tt
       ... | (no ¬p) = inj-r (eqFun eqWb (b2 , ¬p))
 
@@ -41,16 +41,16 @@ private
       g (inj-r i) = WithoutPoint.value (eqInv eqWb i)
 
       fg : isSectionOf f g
-      fg (inj-l tt) with (discB b b)
+      fg (inj-l tt) with (decide-= b b)
       ... | (yes _) = refl
       ... | (no ¬p) = bot-elim (¬p refl)
-      fg i'@(inj-r i) with (discB (g i') b)
+      fg i'@(inj-r i) with (decide-= (g i') b)
       ... | (yes p) = bot-elim (WithoutPoint.¬point (eqInv eqWb i) p)
       ... | (no ¬p) = (cong inj-r (cong (eqFun eqWb) (WithoutPoint-path refl) >=>
                                    eqSec eqWb i))
 
       gf : isRetractionOf f g
-      gf b2 with (discB b2 b)
+      gf b2 with (decide-= b2 b)
       ... | (yes p) = sym p
       ... | (no ¬p) = cong WithoutPoint.value (eqRet eqWb (b2 , ¬p))
 
@@ -65,15 +65,14 @@ private
       path = (\i n -> FinT=Fin n i)
 
 
-
-  FinT-sur-dec : {ℓB : Level} {B : Type ℓB}
-                 (n : Nat) -> (f : FinT n -> B) -> isSurjection f -> Discrete B ->
+  FinT-sur-dec : {ℓB : Level} {B : Type ℓB} {{DB : Discrete' B}}
+                 (n : Nat) -> (f : FinT n -> B) -> isSurjection f ->
                  isFinSet B
-  FinT-sur-dec {B = B} zero f sur-f discB = isFinSet-Uninhabited ¬B
+  FinT-sur-dec {B = B} zero f sur-f = isFinSet-Uninhabited ¬B
     where
     ¬B : ¬ B
     ¬B b = unsquash isPropBot (∥-map fst (sur-f b))
-  FinT-sur-dec {B = B} (suc n) f sur-f discB =
+  FinT-sur-dec {B = B} (suc n) f sur-f =
     either (unsquash isProp-isFinSet ∘ ∥-map point-case) avoid-case search-res
     where
     b = f (inj-l tt)
@@ -83,7 +82,7 @@ private
 
     search-res : ∃[ i ∈ FinT n ] (f' i == b) ⊎ ∀ i -> f' i != b
     search-res =
-      finite-search-dec (FinSet-FinT n) (\i -> discB (f' i) b)
+      finite-search-dec (FinSet-FinT n) (\i -> decide-= (f' i) b)
 
     module _ (f'-avoid : ∀ i -> f' i != b) where
       g : FinT n -> WithoutPoint B b
@@ -98,10 +97,10 @@ private
         sur-handle (inj-r i , p) = i , WithoutPoint-path p
 
       rec-avoid : isFinSet (WithoutPoint B b)
-      rec-avoid = FinT-sur-dec n g sur-g (Discrete-WithoutPoint discB b)
+      rec-avoid = FinT-sur-dec n g sur-g
 
       avoid-case : isFinSet B
-      avoid-case = incr-size b rec-avoid discB
+      avoid-case = incr-size b rec-avoid
 
     module _ (other-point : Σ[ i ∈ FinT n ] (f' i == b)) where
       sur-f' : isSurjection f'
@@ -114,18 +113,18 @@ private
         sur-handle (inj-r i , p) = i , p
 
       point-case : isFinSet B
-      point-case = FinT-sur-dec n f' sur-f' discB
+      point-case = FinT-sur-dec n f' sur-f'
 
-  Fin-sur-dec : {ℓB : Level} {B : Type ℓB}
-                (n : Nat) -> (f : Fin n -> B) -> isSurjection f -> Discrete B ->
+  Fin-sur-dec : {ℓB : Level} {B : Type ℓB} {{DB : Discrete' B}}
+                (n : Nat) -> (f : Fin n -> B) -> isSurjection f ->
                 isFinSet B
   Fin-sur-dec {B = B} n =
-    subst (\F -> (f : F -> B) -> isSurjection f -> Discrete B -> isFinSet B)
+    subst (\F -> (f : F -> B) -> isSurjection f -> isFinSet B)
           (FinT=Fin n) (FinT-sur-dec n)
 
 
-module _ {ℓA ℓB : Level} (FA : FinSet ℓA) {B : Type ℓB} (f : ⟨ FA ⟩ -> B)
-         (sur-f : isSurjection f) (discB : Discrete B) where
+module _ {ℓA ℓB : Level} (FA : FinSet ℓA) {B : Type ℓB} {{DB : Discrete' B}} (f : ⟨ FA ⟩ -> B)
+         (sur-f : isSurjection f) where
   private
     A = fst FA
     module _ (ΣeqA : Σ[ n ∈ Nat ] (A ≃ Fin n)) where
@@ -142,7 +141,7 @@ module _ {ℓA ℓB : Level} (FA : FinSet ℓA) {B : Type ℓB} (f : ⟨ FA ⟩ 
         convert (a , p) = eqFun eqA a , cong f (eqRet eqA a) >=> p
 
       fsB : isFinSet B
-      fsB = Fin-sur-dec n g sur-g discB
+      fsB = Fin-sur-dec n g sur-g
 
   FinitelyIndexed-Discrete->isFinSet : isFinSet B
   FinitelyIndexed-Discrete->isFinSet =

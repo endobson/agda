@@ -133,16 +133,19 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
       pe : PathP (\i -> ∥ HasKV' (pk i) (pv i) _ ∥) _ _
       pe = isProp->PathP (\i -> squash)
 
-    Discrete-UniqueEntries : {m : FinMap' K V} -> Discrete (UniqueEntries m)
-    Discrete-UniqueEntries (k1 , v1 , e1) (k2 , v2 , e2) with (decide-= k1 k2) | (decide-= v1 v2)
-    ... | (yes pk) | (yes pv) = (yes (UE-path pk pv))
-    ... | (yes pk) | (no ¬pv) = (no (\p -> ¬pv (\i -> fst (snd (p i)))))
-    ... | (no ¬pk) | _ = (no (\p -> ¬pk (\i -> fst (p i))))
+    private
+      instance
+        Discrete'-UniqueEntries : {m : FinMap' K V} -> Discrete' (UniqueEntries m)
+        Discrete'-UniqueEntries .Discrete'.f (k1 , v1 , e1) (k2 , v2 , e2)
+          with (decide-= k1 k2) | (decide-= v1 v2)
+        ... | (yes pk) | (yes pv) = (yes (UE-path pk pv))
+        ... | (yes pk) | (no ¬pv) = (no (\p -> ¬pv (\i -> fst (snd (p i)))))
+        ... | (no ¬pk) | _ = (no (\p -> ¬pk (\i -> fst (p i))))
 
     isFinSet-UniqueEntries : (m : FinMap' K V) -> isFinSet (UniqueEntries m)
     isFinSet-UniqueEntries m =
       FinitelyIndexed-Discrete->isFinSet (FinSet-AllEntries m)
-        A->U isSurjection-A->U Discrete-UniqueEntries
+        A->U isSurjection-A->U
 
     FinSet-UniqueEntries : (m : FinMap' K V) -> FinSet (ℓ-max ℓK ℓV)
     FinSet-UniqueEntries m = _ , isFinSet-UniqueEntries m
