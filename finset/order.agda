@@ -284,7 +284,7 @@ module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : FinSet ℓB) (f : ⟨ FA �
       f' i = f i , bad-f i
 
       f'-inj : Injective f'
-      f'-inj p = inj-f (cong fst p)
+      f'-inj p = inj-f (cong WithoutPoint.value p)
 
       lt1 : FinSet≤ FA (FinSet-WithoutPoint FB b)
       lt1 = (Injective->FinSet≤ FA (FinSet-WithoutPoint FB b) f' f'-inj)

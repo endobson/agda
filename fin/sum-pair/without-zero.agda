@@ -23,5 +23,5 @@ fin-pair+-suc₁-Iso {n} .Iso.inv (fin-pair+ (suc i) j p , _) =
 fin-pair+-suc₁-Iso {n} .Iso.rightInv (fin-pair+ zero j p , ¬path) =
   bot-elim (¬path (FinPair+-path refl p))
 fin-pair+-suc₁-Iso {n} .Iso.rightInv (fin-pair+ (suc i) j p , _) =
-  ΣProp-path (isProp¬ _) (FinPair+-path refl refl)
+  WithoutPoint-path (FinPair+-path refl refl)
 fin-pair+-suc₁-Iso {n} .Iso.leftInv (fin-pair+ i j p) = FinPair+-path refl refl

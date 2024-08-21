@@ -32,10 +32,10 @@ private
   avoid-remove : (n : Nat) (b : FinT (suc n)) (i : WithoutPoint (FinT (suc n)) b) ->
                  avoid n b (remove n b i) == i
   avoid-remove _ (inj-l tt) (inj-l tt , p) = bot-elim (p refl)
-  avoid-remove (suc n) (inj-l tt) (inj-r j , _) = ΣProp-path (isProp¬ _) refl
-  avoid-remove (suc n) (inj-r i)  (inj-l tt , _) = ΣProp-path (isProp¬ _) refl
+  avoid-remove (suc n) (inj-l tt) (inj-r j , _) = WithoutPoint-path refl
+  avoid-remove (suc n) (inj-r i)  (inj-l tt , _) = WithoutPoint-path refl
   avoid-remove (suc n) (inj-r i) (inj-r j , _) =
-    ΣProp-path (isProp¬ _) (cong (inj-r ∘ fst) (avoid-remove n i (j , _)))
+    WithoutPoint-path (cong (inj-r ∘ WithoutPoint.value) (avoid-remove n i (j , _)))
 
   remove-avoid : (n : Nat) (b : FinT (suc n)) (i : FinT n) ->
                  remove n b (avoid n b i) == i
@@ -43,7 +43,7 @@ private
   remove-avoid (suc n) (inj-l tt) (inj-r j)  = refl
   remove-avoid (suc n) (inj-r i)  (inj-l tt) = refl
   remove-avoid (suc n) (inj-r i) (inj-r j) =
-    cong inj-r (cong (remove n i) (ΣProp-path (isProp¬ _) refl) >=>
+    cong inj-r (cong (remove n i) (WithoutPoint-path refl) >=>
                 remove-avoid n i j)
 
   RA-eq' : {n : Nat} -> (a : FinT (suc n)) -> (WithoutPoint (FinT (suc n)) a) ≃ FinT n

@@ -45,10 +45,10 @@ private
         g (i , p) = eqInv eq i , (p ∘ (\p -> sym (eqSec eq i) >=> p) ∘ cong (eqFun eq))
 
         fg : ∀ i -> f (g i) == i
-        fg i = ΣProp-path (isProp¬ _) (eqSec eq (fst i))
+        fg (x , _) = WithoutPoint-path (eqSec eq x)
 
         gf : ∀ a2 -> g (f a2) == a2
-        gf a2 = ΣProp-path (isProp¬ _) (eqRet eq (fst a2))
+        gf (x , _) = WithoutPoint-path (eqRet eq x)
 
       handle : WithoutPoint A a ≃ Fin (pred n)
       handle = (eq2 >eq> WithoutPoint-Fin-eq bad)

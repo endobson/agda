@@ -13,15 +13,26 @@ open import sigma
 open import sigma.base
 open import truncation
 
-WithoutPoint : {ℓ : Level} (A : Type ℓ) -> (a : A) -> Type ℓ
-WithoutPoint A a = Σ[ a2 ∈ A ] (a2 != a)
+record WithoutPoint {ℓ : Level} (A : Type ℓ) (point : A) : Type ℓ where
+  constructor _,_
+  field
+    value : A
+    ¬point : value != point
+
+WithoutPoint-path : {ℓ : Level} {A : Type ℓ} {a : A} {p1 p2 : WithoutPoint A a} ->
+  (WithoutPoint.value p1 == WithoutPoint.value p2) -> p1 == p2
+WithoutPoint-path {p1 = p1} {p2 = p2} path i =
+  (path i) ,
+  (isProp->PathPᵉ (\i -> isProp¬ (path i == _))
+    (WithoutPoint.¬point p1)
+    (WithoutPoint.¬point p2) i)
 
 abstract
   Discrete-WithoutPoint :
     {ℓ : Level} {A : Type ℓ} -> (Discrete A) -> (a : A) -> Discrete (WithoutPoint A a)
   Discrete-WithoutPoint discA _ (a2 , _) (a3 , _) with discA a2 a3
-  ... | (yes a2=a3) = yes (ΣProp-path (isProp¬ _) a2=a3)
-  ... | (no a2!=a3) = no (a2!=a3 ∘ cong fst)
+  ... | (yes a2=a3) = yes (WithoutPoint-path a2=a3)
+  ... | (no a2!=a3) = no (a2!=a3 ∘ cong WithoutPoint.value)
 
 MaybeWithoutPoint-eq : {ℓ : Level} (A : Type ℓ) -> (Discrete A) -> (a : A) ->
                        Maybe (WithoutPoint A a) ≃ A
@@ -32,7 +43,7 @@ MaybeWithoutPoint-eq A discA a =
   f (nothing) = a
   f (just (a2 , _)) = a2
 
-  abstract
+  opaque
     isProp-fibf : (a2 : A) -> isProp (fiber f a2)
     isProp-fibf a2 (nothing , p1) (nothing , p2) =
       ΣProp-path (Discrete->isSet discA _ _) refl
@@ -42,7 +53,7 @@ MaybeWithoutPoint-eq A discA a =
       bot-elim (¬p3 (p1 >=> sym p2))
     isProp-fibf a2 (just (a3 , ¬p3) , p1) (just (a4 , ¬p4) , p2) =
       ΣProp-path (Discrete->isSet discA _ _)
-        (cong just (ΣProp-path (isProp¬ _) (p1 >=> sym p2)))
+        (cong just (WithoutPoint-path (p1 >=> sym p2)))
 
     fibf : (a2 : A) -> fiber f a2
     fibf a2 = (g a2 (discA a a2))

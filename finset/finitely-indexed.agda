@@ -37,21 +37,21 @@ private
 
       g : FinT (suc n) -> B
       g (inj-l tt) = b
-      g (inj-r i) = fst (eqInv eqWb i)
+      g (inj-r i) = WithoutPoint.value (eqInv eqWb i)
 
       fg : isSectionOf f g
       fg (inj-l tt) with (discB b b)
       ... | (yes _) = refl
       ... | (no ¬p) = bot-elim (¬p refl)
       fg i'@(inj-r i) with (discB (g i') b)
-      ... | (yes p) = bot-elim (snd (eqInv eqWb i) p)
-      ... | (no ¬p) = (cong inj-r (cong (eqFun eqWb) (ΣProp-path (isProp¬ _) refl) >=>
+      ... | (yes p) = bot-elim (WithoutPoint.¬point (eqInv eqWb i) p)
+      ... | (no ¬p) = (cong inj-r (cong (eqFun eqWb) (WithoutPoint-path refl) >=>
                                    eqSec eqWb i))
 
       gf : isRetractionOf f g
       gf b2 with (discB b2 b)
       ... | (yes p) = sym p
-      ... | (no ¬p) = cong fst (eqRet eqWb (b2 , ¬p))
+      ... | (no ¬p) = cong WithoutPoint.value (eqRet eqWb (b2 , ¬p))
 
 
     handle : Σ[ n ∈ Nat ] (WithoutPoint B b ≃ Fin n) ->
@@ -94,7 +94,7 @@ private
         sur-handle : Σ[ i ∈ FinT (suc n) ] (f i == b2) ->
                      Σ[ i ∈ FinT n ] (g i == b2')
         sur-handle (inj-l tt , p) = bot-elim (b2!=b (sym p))
-        sur-handle (inj-r i , p) = i , ΣProp-path (isProp¬ _) p
+        sur-handle (inj-r i , p) = i , WithoutPoint-path p
 
       rec-avoid : isFinSet (WithoutPoint B b)
       rec-avoid = FinT-sur-dec n g sur-g (Discrete-WithoutPoint discB b)
