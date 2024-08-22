@@ -4,7 +4,8 @@ module hlevel.order where
 
 open import base
 open import equality
-open import hlevel
+open import hlevel.base
+open import hlevel.hedberg
 open import order
 open import relation
 

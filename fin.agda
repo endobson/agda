@@ -4,6 +4,7 @@ module fin where
 
 open import base
 open import cubical
+open import discrete
 open import equality
 open import functions
 open import hlevel

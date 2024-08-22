@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
 open import base
-open import relation
+open import discrete
 
 module unordered-list.count-extensionality {ℓ : Level} {A : Type ℓ} {{disc'A : Discrete' A}} where
 
@@ -11,14 +11,13 @@ open import nat
 open import nat.order
 open import order hiding (_≼_ ; trans-≼ ; refl-≼)
 open import order.instances.nat
+open import relation
 open import unordered-list.base
-open import unordered-list.operations
 open import unordered-list.discrete
+open import unordered-list.operations
 
 
 private
-  discA = Discrete'.f disc'A
-
   _≼_ : UList A -> UList A -> Type _
   as ≼ bs = (x : A) -> (count x as) ≤ (count x bs)
 
@@ -49,7 +48,7 @@ private
   refl-≼ a = refl-≤
 
   remove1-≼ : {as bs : UList A} -> (b : A) -> as ≼ bs -> (remove1 b as) ≼ (remove1 b bs)
-  remove1-≼ {as} {bs} b lt x with (discA x b)
+  remove1-≼ {as} {bs} b lt x with (decide-= x b)
   ... | (yes x==b) = transport (\i -> (remove1-count-pred as x==b (~ i)) ≤
                                       (remove1-count-pred bs x==b (~ i)))
                                (pred-≤ (lt x))
@@ -71,7 +70,7 @@ private
     zero-case count-zero = f bs≼as
       where
       bs≼as : bs ≼ as
-      bs≼as y with (discA x y)
+      bs≼as y with (decide-= x y)
       ...        | (yes x==y) = transport (\i -> (count-zero-y (~ i) ≤ (count y as))) zero-≤
         where
         count-zero-y : (count y bs == 0)
@@ -92,7 +91,7 @@ private
       bs'-path = remove1-count-suc count-n
 
       bs'≼as : bs' ≼ as
-      bs'≼as y with (discA x y)
+      bs'≼as y with (decide-= x y)
       ...         | (yes x==y) = proof-y
         where
         count-as-path : count x (x :: as) == suc (count x as)

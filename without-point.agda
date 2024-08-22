@@ -3,6 +3,7 @@
 module without-point where
 
 open import base
+open import discrete
 open import equality
 open import equivalence.base
 open import functions

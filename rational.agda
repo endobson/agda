@@ -8,6 +8,7 @@ open import additive-group.instances.int
 open import apartness
 open import apartness.discrete
 open import base
+open import discrete
 open import equality
 open import fin
 open import functions

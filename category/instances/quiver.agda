@@ -5,6 +5,7 @@ open import boolean
 open import category.base
 open import category.functor
 open import category.instances.set
+open import discrete
 open import equality
 open import hlevel
 open import relation

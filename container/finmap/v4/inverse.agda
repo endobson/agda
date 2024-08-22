@@ -4,9 +4,10 @@ module container.finmap.v4.inverse where
 
 open import base
 open import container.finmap.v4
-open import relation
-open import hlevel
+open import discrete
 open import functions
+open import hlevel
+open import relation
 open import sigma.base
 
 private
@@ -21,12 +22,6 @@ module _ {K : Type ℓK} {V : Type ℓV}
          {{isSet'V : isSet' V}}
          where
   private
-    disc-K : Discrete K
-    disc-K = Discrete'.f disc'K
-
-    disc-V : Discrete V
-    disc-V = Discrete'.f disc'V
-
     isSet-K : isSet K
     isSet-K = isSet'.f isSet'K
 

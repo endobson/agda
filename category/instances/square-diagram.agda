@@ -1,16 +1,17 @@
 {-# OPTIONS --cubical --safe --exact-split -W noUnsupportedIndexedMatch #-}
 
 open import base
-open import hlevel
-open import equality-path
 open import category.base
-open import relation
-open import fin-algebra
 open import cubical
+open import discrete
+open import equality-path
 open import equivalence
-open import univalence
-open import isomorphism
 open import fin
+open import fin-algebra
+open import hlevel
+open import isomorphism
+open import relation
+open import univalence
 
 module category.instances.square-diagram where
 

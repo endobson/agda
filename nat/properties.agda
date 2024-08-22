@@ -3,6 +3,7 @@
 module nat.properties where
 
 open import base
+open import discrete
 open import equality
 open import hlevel
 open import isomorphism

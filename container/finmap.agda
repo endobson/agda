@@ -4,6 +4,7 @@ module container.finmap where
 
 open import base
 open import cubical
+open import discrete
 open import fin
 open import functions
 open import nat
@@ -339,12 +340,9 @@ isBijective-fm⊆ inc (inj , fun) =
 
 module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}}
          where
-  private
-    discK = Discrete'.f disc'K
-
   lookup' : (k : K) (m : FinMap' K V) -> Dec (HasKey' k m)
   lookup' k [] = no (\())
-  lookup' k fm@(fm-cons k2 v2 m) = handle (discK k k2) (lookup' k m)
+  lookup' k fm@(fm-cons k2 v2 m) = handle (decide-= k k2) (lookup' k m)
     where
     handle : Dec (k == k2) -> Dec (HasKey' k m) -> Dec (HasKey' k fm)
     handle (yes p) _      = yes (v2 , has-kv-here p refl m)

@@ -4,6 +4,7 @@ module container.finmap.v4 where
 
 open import base
 open import cubical
+open import discrete
 open import equality-path
 open import equivalence
 open import finset
@@ -17,10 +18,10 @@ open import nat.order
 open import order
 open import order.instances.nat
 open import relation
-open import sigma.base
-open import sigma
-open import truncation
 open import set-quotient
+open import sigma
+open import sigma.base
+open import truncation
 open import univalence
 
 
@@ -141,11 +142,8 @@ private
 
 module _ {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} {{isSet'V : isSet' V}} where
   private
-    disc-K : Discrete K
-    disc-K = Discrete'.f disc'K
-
     isSet-K : isSet K
-    isSet-K = Discrete->isSet disc-K
+    isSet-K = Discrete->isSet decide-=
 
     isSet-V : isSet V
     isSet-V = isSet'.f isSet'V
@@ -166,7 +164,7 @@ module _ {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} {{isSet'V : is
     RawFinMap-HasKV-RemoveSteps : (m : RawFinMap K V) -> Ans m
     RawFinMap-HasKV-RemoveSteps (raw-finmap-empty) =
       raw-finmap-empty , trc-refl , \()
-    RawFinMap-HasKV-RemoveSteps m@(raw-finmap-cons k2 v2 m') = handle (disc-K k k2)
+    RawFinMap-HasKV-RemoveSteps m@(raw-finmap-cons k2 v2 m') = handle (decide-= k k2)
       where
       rec : Ans m'
       rec = RawFinMap-HasKV-RemoveSteps m'
@@ -205,21 +203,21 @@ module _ {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} {{isSet'V : is
 
   raw-finmap-remove : RawFinMap K V -> K -> RawFinMap K V
   raw-finmap-remove raw-finmap-empty k = raw-finmap-empty
-  raw-finmap-remove (raw-finmap-cons k2 v2 m) k with (disc-K k k2)
+  raw-finmap-remove (raw-finmap-cons k2 v2 m) k with (decide-= k k2)
   ... | (yes _) = raw-finmap-remove m k
   ... | (no _) = raw-finmap-cons k2 v2 (raw-finmap-remove m k)
 
   raw-finmap-remove-size≤ :
     (m : RawFinMap K V) (k : K) -> raw-finmap-size (raw-finmap-remove m k) ≤ raw-finmap-size m
   raw-finmap-remove-size≤ raw-finmap-empty k = refl-≤
-  raw-finmap-remove-size≤ (raw-finmap-cons k2 v2 m) k with (disc-K k k2)
+  raw-finmap-remove-size≤ (raw-finmap-cons k2 v2 m) k with (decide-= k k2)
   ... | (yes _) = right-suc-≤ (raw-finmap-remove-size≤ m k)
   ... | (no _) = suc-≤ (raw-finmap-remove-size≤ m k)
 
   raw-finmap-remove-¬HasKey :
     (m : RawFinMap K V) (k : K) -> ¬ (RawFinMap-HasKey (raw-finmap-remove m k) k)
   raw-finmap-remove-¬HasKey raw-finmap-empty k ()
-  raw-finmap-remove-¬HasKey (raw-finmap-cons k2 v2 m) k with (disc-K k k2)
+  raw-finmap-remove-¬HasKey (raw-finmap-cons k2 v2 m) k with (decide-= k k2)
   ... | (yes _) = raw-finmap-remove-¬HasKey m k
   ... | (no k!=k2) = ¬hk
     where
@@ -233,7 +231,7 @@ module _ {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} {{isSet'V : is
     (RawFinMap-HasKV m k2 v2) <->
     (RawFinMap-HasKV (raw-finmap-remove m k1) k2 v2)
   raw-finmap-remove-HasKV raw-finmap-empty ¬kp = (\()) , (\())
-  raw-finmap-remove-HasKV m@(raw-finmap-cons k3 v3 m') {k1} {k2} {v2} ¬k1=k2 with (disc-K k1 k3)
+  raw-finmap-remove-HasKV m@(raw-finmap-cons k3 v3 m') {k1} {k2} {v2} ¬k1=k2 with (decide-= k1 k3)
   ... | (yes k1=k3) = forward , backward
     where
     forward : (RawFinMap-HasKV m k2 v2) -> (RawFinMap-HasKV (raw-finmap-remove m' k1) k2 v2)
@@ -405,11 +403,8 @@ module _ {K : Type ℓK} {V : Type ℓV} where
 
 module _ {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} {{isSet'V : isSet' V}} where
   private
-    disc-K : Discrete K
-    disc-K = Discrete'.f disc'K
-
     isSet-K : isSet K
-    isSet-K = Discrete->isSet disc-K
+    isSet-K = Discrete->isSet decide-=
 
     isSet-V : isSet V
     isSet-V = isSet'.f isSet'V
@@ -542,7 +537,7 @@ module _ {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} {{isSet'V : is
     where
     f : (m : RawFinMap K V) -> Dec (RawFinMap-HasKey m k)
     f raw-finmap-empty = no \()
-    f (raw-finmap-cons k2 v m) = handle (disc-K k2 k)
+    f (raw-finmap-cons k2 v m) = handle (decide-= k2 k)
       where
       handle : Dec (k2 == k) -> Dec (RawFinMap-HasKey (raw-finmap-cons k2 v m) k)
       handle (yes k2=k) = yes (v , raw-finmap-haskv-head k2=k refl)

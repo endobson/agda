@@ -5,6 +5,7 @@ module container.finmap.composition where
 open import base
 open import container.finmap
 open import container.finmap.filter-map
+open import discrete
 open import equality
 open import hlevel
 open import maybe
@@ -64,23 +65,23 @@ module _ {ℓV : Level} {V : Type ℓV}  where
 
 module _ {ℓV : Level} {V : Type ℓV} {{disc'V : Discrete' V}} where
   private
-    discV = Discrete'.f disc'V
-    isSetV = Discrete->isSet discV
+    isSetV : isSet V
+    isSetV = Discrete->isSet decide-=
 
   private
     f : (v1 v2 v3 v4 : V) -> Maybe (V × V)
-    f v1 v2 v3 v4 = case (discV v2 v3) of (\{
+    f v1 v2 v3 v4 = case (decide-= v2 v3) of (\{
       (yes _) -> just (v1 , v4) ;
       (no _) -> nothing })
 
     f-refl : (v1 v23 v4 : V) -> f v1 v23 v23 v4 == just (v1 , v4)
-    f-refl v1 v23 v4 with (discV v23 v23)
+    f-refl v1 v23 v4 with (decide-= v23 v23)
     ... | (yes _) = refl
     ... | (no ¬v23) = bot-elim (¬v23 refl)
 
     f-backward : (v1 v2 v3 v4 v5 v6 : V) -> f v1 v2 v3 v4 == just (v5 , v6) ->
                  v1 == v5 × v2 == v3 × v4 == v6
-    f-backward v1 v2 v3 v4 v5 v6 p with (discV v2 v3)
+    f-backward v1 v2 v3 v4 v5 v6 p with (decide-= v2 v3)
     ... | (yes p23) = cong fst (just-injective p) , p23 , cong snd (just-injective p)
     ... | (no _) = bot-elim (just!=nothing (sym p))
 
@@ -129,7 +130,7 @@ module _ {ℓV : Level} {V : Type ℓV} {{disc'V : Discrete' V}} where
     {v1 v3 : V} {m1 m2 : FinMap' V V} ->
     HasKV' v1 v3 (finmap'-compose m1 m2) -> Σ[ v2 ∈ V ] (HasKV' v1 v2 m1 × HasKV' v2 v3 m2)
   HasKey-finmap'-compose-backward {v1} {v3} m1@{fm-cons k v m1'} {m2} hkv =
-    handle (discV v1 k)
+    handle (decide-= v1 k)
            (HasKV-fm'-union/split (pre-compose-once-finmap' k v m2) (finmap'-compose m1' m2) hkv)
     where
     handle : Dec (v1 == k) ->

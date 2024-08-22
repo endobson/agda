@@ -9,6 +9,7 @@ open import equality
 open import equivalence
 open import functions
 open import hlevel
+open import hlevel.hedberg
 open import relation
 open import sum
 open import truncation

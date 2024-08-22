@@ -5,14 +5,15 @@ module programming-languages.alpha-caml.single-swap where
 open import base
 open import container.finmap
 open import container.finmap.entry-map
+open import discrete
 open import equality
 open import functions
+open import funext
 open import programming-languages.alpha-caml
 open import programming-languages.renamings
 open import relation
 open import sigma.base
 open import sum
-open import funext
 
 private
   instance

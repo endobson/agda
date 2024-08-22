@@ -31,13 +31,6 @@ dec->⊎ : Dec A -> A ⊎ ¬ A
 dec->⊎ (yes a) = inj-l a
 dec->⊎ (no na) = inj-r na
 
-Discrete : Type ℓ -> Type ℓ
-Discrete A = (x y : A) -> Dec (x == y)
-
-record Discrete' (A : Type ℓ) : Type ℓ where
-  field
-    f : Discrete A
-
 -- Binary Relations
 
 REL : (Type ℓ₁) -> (Type ℓ₂) -> (ℓ : Level) -> Type _

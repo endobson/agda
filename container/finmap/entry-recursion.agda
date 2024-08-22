@@ -5,6 +5,7 @@ module container.finmap.entry-recursion where
 open import base
 open import cubical
 open import container.finmap
+open import discrete
 open import equality
 open import equivalence
 open import fin-algebra
@@ -54,22 +55,6 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
   Acc-fm⊂'-[] : Acc R []
   Acc-fm⊂'-[] = acc (\y r -> bot-elim (¬fm⊂'-[] y r))
 
-  module _ {{disc'K : Discrete' K}} where
-    private
-      discK = Discrete'.f disc'K
-
-    --Acc-fm⊂' : ∀ m -> Acc R m
-    --Acc-fm⊂' [] = Acc-fm⊂'-[]
-    --Acc-fm⊂' m@(fm-cons k v m') = acc handle
-    --  where
-    --  am' = Acc-fm⊂' m'
-    --  handle : (m2 : FinMap' K V) -> m2 fm⊂' m -> Acc R m2
-    --  handle m2 m2<m = ?
-
-
-    -- Acc1 : ∀ n m -> fm'-size m ≤ n -> Acc R< m
-    -- Acc1 zero [] _ = ?
-
   module _ (R1 R2 : Rel (FinMap' K V) (ℓ-max ℓK ℓV))
            (R1->R2 : ∀ m1 m2 -> R1 m1 m2 -> R2 m1 m2) where
     AccR2->AccR1 : ∀ m -> Acc R2 m -> Acc R1 m
@@ -101,11 +86,6 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
 
 
   module _ {{disc'K : Discrete' K}} {{disc'V : Discrete' V}} where
-    private
-      discK = Discrete'.f disc'K
-      discV = Discrete'.f disc'V
-
-
     open Iso
     Iso-AllEntries-FinT : ∀ m -> Iso (AllEntries m) (FinT (fm'-size m))
     Iso-AllEntries-FinT [] .fun (_ , _ , ())
@@ -124,9 +104,9 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
       (\i -> kp (~ i) , (vp (~ i)) , (has-kv-here (kp' i) (vp' i) m))
       where
       kp' : PathP (\i -> (kp (~ i)) == k1) refl kp
-      kp' = isProp->PathP (\_ -> Discrete->isSet discK _ _)
+      kp' = isProp->PathP (\_ -> Discrete->isSet decide-= _ _)
       vp' : PathP (\i -> (vp (~ i)) == v1) refl vp
-      vp' = isProp->PathP (\_ -> Discrete->isSet discV _ _)
+      vp' = isProp->PathP (\_ -> Discrete->isSet decide-= _ _)
     Iso-AllEntries-FinT (fm-cons k1 v1 m) .leftInv (k2 , v2 , (has-kv-skip k3 v3 hkv)) =
       \i -> case (rec i) of (\{(k , v , hkv) -> k , v , has-kv-skip _ _ hkv})
       where
@@ -154,7 +134,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
       pe = isProp->PathP (\i -> squash)
 
     Discrete-UniqueEntries : {m : FinMap' K V} -> Discrete (UniqueEntries m)
-    Discrete-UniqueEntries (k1 , v1 , e1) (k2 , v2 , e2) with (discK k1 k2) | (discV v1 v2)
+    Discrete-UniqueEntries (k1 , v1 , e1) (k2 , v2 , e2) with (decide-= k1 k2) | (decide-= v1 v2)
     ... | (yes pk) | (yes pv) = (yes (UE-path pk pv))
     ... | (yes pk) | (no ¬pv) = (no (\p -> ¬pv (\i -> fst (snd (p i)))))
     ... | (no ¬pk) | _ = (no (\p -> ¬pk (\i -> fst (p i))))

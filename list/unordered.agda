@@ -4,13 +4,14 @@ module list.unordered where
 
 open import additive-group
 open import base
+open import discrete
 open import equality
-open import relation
 open import list
 open import list.discrete
 open import nat
 open import order
 open import order.instances.nat
+open import relation
 open import semiring
 
 import ring.lists
@@ -42,13 +43,9 @@ unorder-contains {a = a} {a2 :: as} (suc n , p) =
   handle (bs , p) = (a2 ul.:: bs , (ul.swap a a2 bs) >=> (cong (a2 ul.::_) p))
 
 module _ {ℓA : Level} {A : Type ℓA} {{disc'A : Discrete' A}} where
-
-  private
-    discA = Discrete'.f disc'A
-
   unorder-count : (a : A) (l : List A) -> count a l == ul.count a (unorder l)
   unorder-count a [] = refl
-  unorder-count a (a2 :: as) = handle (discA a a2)
+  unorder-count a (a2 :: as) = handle (decide-= a a2)
     where
     handle : (Dec (a == a2)) -> count a (a2 :: as) == ul.count a (unorder (a2 :: as))
     handle (yes p) =

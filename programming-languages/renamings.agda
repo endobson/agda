@@ -6,20 +6,21 @@ open import base
 open import container.finmap
 open import container.finmap.composition
 open import container.finmap.remove
+open import discrete
 open import equality
 open import functions
-open import hlevel.base
 open import hlevel
+open import hlevel.base
 open import list
 open import nat
 open import nat.order
 open import order
+open import order.instances.nat
 open import order.minmax
 open import order.minmax.instances.nat
-open import order.instances.nat
 open import relation
-open import sum
 open import sigma.base
+open import sum
 
 private
   variable

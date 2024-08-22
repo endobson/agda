@@ -4,9 +4,9 @@ module finset where
 
 open import base
 open import cubical
+open import discrete
 open import equality
 open import equivalence
-open import univalence
 open import fin
 open import fin-algebra
 open import functions
@@ -16,6 +16,7 @@ open import nat
 open import relation
 open import sigma.base
 open import truncation
+open import univalence
 
 private
   variable

@@ -5,6 +5,7 @@ open import relation
 
 module list.sorted {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} (_≤_ : Rel A ℓ₂)  where
 
+open import discrete
 open import equality
 open import functions
 open import hlevel

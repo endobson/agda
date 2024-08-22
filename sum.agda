@@ -3,13 +3,14 @@
 module sum where
 
 open import base
+open import discrete
 open import equality-path
 open import equivalence
 open import functions
 open import hlevel.base
 open import isomorphism
-open import univalence
 open import relation
+open import univalence
 
 private
   variable

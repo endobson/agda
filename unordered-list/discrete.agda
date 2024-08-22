@@ -1,7 +1,7 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
 open import base
-open import relation
+open import discrete
 
 module unordered-list.discrete {ℓ : Level} {A : Type ℓ} {{disc'A : Discrete' A}} where
 
@@ -14,38 +14,36 @@ open import nat
 open import nat.order
 open import order
 open import order.instances.nat
+open import relation
 open import semiring.instances.nat
 open import sigma.base
 open import unordered-list.base
 open import unordered-list.operations
 
-
 open import ring.lists NatSemiring
 
 private
-  discA = Discrete'.f disc'A
-
   isPropDecA : {a b : A} -> isProp (Dec (a == b))
-  isPropDecA {a} {b} = isPropDec (Discrete->isSet discA a b)
+  isPropDecA {a} {b} = isPropDec (Discrete->isSet decide-= a b)
 
   indicator' : {a b : A} -> Dec (a == b) -> Nat
   indicator' (yes _) = 1
   indicator' (no _) = 0
 
   indicator : A -> A -> Nat
-  indicator x a = indicator' (discA x a)
+  indicator x a = indicator' (decide-= x a)
 
   indicator-1 : {a b : A} -> a == b -> indicator a b == 1
-  indicator-1 {a} {b} a=b = handle (discA a b) refl
+  indicator-1 {a} {b} a=b = handle (decide-= a b) refl
     where
-    handle : (dec : Dec (a == b)) -> discA a b == dec -> indicator a b == 1
+    handle : (dec : Dec (a == b)) -> decide-= a b == dec -> indicator a b == 1
     handle (yes _) p i = indicator' (p i)
     handle (no a!=b) p = bot-elim (a!=b a=b)
 
   indicator-0 : {a b : A} -> a != b -> indicator a b == 0
-  indicator-0 {a} {b} a!=b = handle (discA a b) refl
+  indicator-0 {a} {b} a!=b = handle (decide-= a b) refl
     where
-    handle : (dec : Dec (a == b)) -> discA a b == dec -> indicator a b == 0
+    handle : (dec : Dec (a == b)) -> decide-= a b == dec -> indicator a b == 0
     handle (yes a=b) p = bot-elim (a!=b a=b)
     handle (no _) p i = indicator' (p i)
 
@@ -59,7 +57,7 @@ count-!= : {x : A} {a : A} (as : UList A) -> x != a -> count x (a :: as) == (cou
 count-!= {x} {a} as x!=a i = (indicator-0 x!=a i) +' (count x as)
 
 count-≤ : (x : A) {a : A} (as : UList A) -> count x as ≤ count x (a :: as)
-count-≤ x {a} as = handle (discA x a)
+count-≤ x {a} as = handle (decide-= x a)
   where
   handle : (Dec (x == a)) -> count x as ≤ count x (a :: as)
   handle (yes x==a) = 1 , sym (count-== as x==a)
@@ -72,7 +70,7 @@ private
     Pair = (Σ[ a ∈ A ] (Dec (x == a)))
 
     pair : UList A -> UList Pair
-    pair = map (\a -> a , discA x a)
+    pair = map (\a -> a , decide-= x a)
 
     unpair : UList Pair -> UList A
     unpair = map fst
@@ -101,7 +99,7 @@ private
       path = (ΣProp-path isPropDecA (sym q2 >=> q1))
 
     pair-dec : {a : A} (as : UList A) (d : Dec (x == a)) -> pair (a :: as) == (a , d) :: pair as
-    pair-dec {a} as d i = (a , (isPropDecA (discA x a) d i)) :: pair as
+    pair-dec {a} as d i = (a , (isPropDecA (decide-= x a) d i)) :: pair as
 
 remove1 : (x : A) -> UList A -> UList A
 remove1 x = unpair x ∘ remove-match x ∘ pair x
@@ -125,7 +123,7 @@ remove1-count-pred-refl x = UListElim.prop (isSetNat _ _) []* _::*_
   []* = refl
 
   _::*_ : (a : A) -> {as : UList A} -> P as -> P (a :: as)
-  _::*_ a {as} p = handle (discA x a)
+  _::*_ a {as} p = handle (decide-= x a)
     where
     handle : Dec (x == a) -> P (a :: as)
     handle (yes x=a) =
@@ -155,7 +153,7 @@ remove1-count-ignore {x} {y} as x!=y = UListElim.prop (isSetNat _ _) []* _::*_ a
   []* = refl
 
   _::*_ : (a : A) -> {as : UList A} -> P as -> P (a :: as)
-  _::*_ a {as} p = handle (discA y a) (discA x a)
+  _::*_ a {as} p = handle (decide-= y a) (decide-= x a)
     where
     handle : Dec (y == a) -> Dec (x == a) -> P (a :: as)
     handle (yes y=a) _ =
@@ -189,7 +187,7 @@ remove1-count-zero {x} {as} = UListElim.prop PisProp []* _::*_ as
   []* p = refl
 
   _::*_ : (a : A) -> {as : UList A} -> P as -> P (a :: as)
-  _::*_ a {as} p with (discA x a)
+  _::*_ a {as} p with (decide-= x a)
   ...               | (yes _)     = (\ c -> bot-elim (zero-suc-absurd (sym c)))
   ...               | (no x!=a)   = (\ c i -> a :: p c i)
 
@@ -206,7 +204,7 @@ remove1-count-suc {x} {as} {n} = UListElim.prop PisProp []* _::*_ as
   []* count-p = bot-elim (zero-suc-absurd count-p)
 
   _::*_ : (a : A) -> {as : UList A} -> P as -> P (a :: as)
-  _::*_ a {as} f = handle (discA x a)
+  _::*_ a {as} f = handle (decide-= x a)
     where
     handle : (Dec (x == a)) -> P (a :: as)
     handle (yes x=a) c=sn i =
@@ -248,7 +246,7 @@ decide-no-duplicates = UListElim.prop {B = P} (\{ul} -> isPropP {ul}) []* ::*
   ... | (1 , p) = yes g
     where
     g : ((a2 : A) -> count a2 (a :: as) ≤ 1)
-    g a2 = handle (discA a2 a)
+    g a2 = handle (decide-= a2 a)
       where
       handle : Dec (a2 == a) -> count a2 (a :: as) ≤ 1
       handle (yes a-path) = (0 , count-path >=> count-path2)
@@ -268,7 +266,7 @@ decide-no-duplicates = UListElim.prop {B = P} (\{ul} -> isPropP {ul}) []* ::*
     ¬g g = ¬f f
       where
       f : (a2 : A) -> count a2 as ≤ 1
-      f a2 with (discA a2 a)
+      f a2 with (decide-= a2 a)
       ... | yes a-path = right-suc-≤ (pred-≤ (transport (\i -> count-path i ≤ 1) (g a2)))
         where
         count-path : count a2 (a :: as) == suc (count a2 as)
@@ -329,7 +327,7 @@ module _ {ℓ : Level} {P : A -> Type ℓ} (f : (a : A) -> Dec (P a)) where
     ::* : (a2 : A) {as : UList A}
           -> count a (filter f as) ≤ count a as
           -> count a (filter f (a2 :: as)) ≤ count a (a2 :: as)
-    ::* a2 {as} lt = handle (f a2) (discA a a2)
+    ::* a2 {as} lt = handle (f a2) (decide-= a a2)
       where
       handle : Dec (P a2) -> Dec (a == a2)
                -> count a (filter f (a2 :: as)) ≤ count a (a2 :: as)
@@ -397,7 +395,7 @@ private
     []* _ c = c
 
     ::* : (a : A) -> {as : UList A} -> P as -> P (a :: as)
-    ::* a {as} f ¬c-a-as (as' , path) = handle (discA x a)
+    ::* a {as} f ¬c-a-as (as' , path) = handle (decide-= x a)
       where
       ¬c-as : ¬ (contains x as)
       ¬c-as c-as = ¬c-a-as (contains-:: a c-as)

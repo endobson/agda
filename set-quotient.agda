@@ -3,16 +3,17 @@
 module set-quotient where
 
 open import base
+open import discrete
 open import equality-path
 open import equivalence
 open import functions
 open import funext
 open import hlevel
-open import sigma.base
-open import univalence
 open import isomorphism
 open import relation
+open import sigma.base
 open import truncation
+open import univalence
 
 data _/_ {ℓ₁ ℓ₂ : Level} (A : Type ℓ₁) (R : A -> A -> Type ℓ₂) : Type (ℓ-max ℓ₁ ℓ₂) where
   [_] : (a : A) -> A / R

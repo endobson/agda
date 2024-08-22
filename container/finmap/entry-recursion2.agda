@@ -5,19 +5,20 @@ module container.finmap.entry-recursion2 where
 open import base
 open import container.finmap
 open import cubical
+open import discrete
 open import equality-path
+open import equivalence
 open import fin-algebra
 open import finset
 open import finset.instances
 open import functions
 open import hlevel
+open import isomorphism
 open import relation
 open import subfinite
 open import subfinite.discrete
 open import sum
 open import truncation
-open import isomorphism
-open import equivalence
 
 
 -- doubleCompPath-refl-swap23 :

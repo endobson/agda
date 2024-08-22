@@ -3,6 +3,7 @@
 module prime where
 
 open import base
+open import discrete
 open import div
 open import equality
 open import functions

@@ -7,6 +7,7 @@ open import additive-group.instances.nat
 open import base
 open import chapter2.divisors
 open import chapter2.multiplicative
+open import discrete
 open import div hiding (remainder)
 open import equality
 open import equivalence

@@ -4,6 +4,7 @@ module apartness.discrete where
 
 open import apartness
 open import base
+open import discrete
 open import equality
 open import functions
 open import hlevel.base
