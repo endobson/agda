@@ -108,4 +108,4 @@ opaque
     ratio-test (isRatioSeq-exponential x) (isLimit-exponential-ratio x) refl-≤ 0<1
 
 exp : ℝ -> ℝ
-exp x = fst (isAbsConvergentSeries-exponential x)
+exp x = fst (isAbsConvergentSeries->isConvergentSeries (isAbsConvergentSeries-exponential x))
