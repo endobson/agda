@@ -97,8 +97,9 @@ module _ {ℓD : Level} {D : Type ℓD} {{MS : MetricSpaceStr D}} where
           akd=d' : abs k * distance (f x) (f y) == distance (k * f x) (k * f y)
           akd=d' = sym abs-distrib-* >=> cong abs *-distrib-diff-left
 
+  opaque
     isContinuousAt-*₁ : {f : D -> ℝ} {k : ℝ} {x : D} -> isContinuousAt f x ->
-                      isContinuousAt (\x -> k * f x) x
+                        isContinuousAt (\x -> k * f x) x
     isContinuousAt-*₁ {f} {k} {x} cf =
       unsquash (isProp-isContinuousAt (\x -> k * f x))
         (∥-map handle (split-distance<ε 0# k (1# , 0<1)))
@@ -110,13 +111,11 @@ module _ {ℓD : Level} {D : Type ℓD} {{MS : MetricSpaceStr D}} where
       handle (tri⊎-= d0k<1) = isContinuousAt-*₁-<1 (trans-=-< (cong abs (sym diff0-path)) d0k<1) cf
 
     isContinuousAt-*₂ : {f : D -> ℝ} {k : ℝ} {x : D} -> isContinuousAt f x ->
-                      isContinuousAt (\x -> f x * k) x
+                        isContinuousAt (\x -> f x * k) x
     isContinuousAt-*₂ cf =
       subst2 isContinuousAt (funExt (\x -> *-commute)) refl (isContinuousAt-*₁ cf)
 
 
-
-  opaque
     isContinuous-*₁ : {f : D -> ℝ} {k : ℝ} -> isContinuous f ->
                       isContinuous (\x -> k * f x)
     isContinuous-*₁ {f} {k} (isContinuous-cons cf) .isContinuous.at x = isContinuousAt-*₁ (cf x)

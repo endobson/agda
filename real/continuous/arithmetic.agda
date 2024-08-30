@@ -92,6 +92,10 @@ module _ {ℓD : Level} {D : Type ℓD} {{MS : MetricSpaceStr D}} where
     isContinuous-minus (isContinuous-cons cf) .isContinuous.at x = isContinuousAt-minus (cf x)
 
   opaque
+    isContinuousAt-diff : {f g : D -> ℝ} {x : D} -> isContinuousAt f x -> isContinuousAt g x ->
+                          isContinuousAt (\x -> diff (f x) (g x)) x
+    isContinuousAt-diff cf cg = isContinuousAt-+ cg (isContinuousAt-minus cf)
+
     isContinuous-diff : {f g : D -> ℝ} -> isContinuous f -> isContinuous g ->
                         isContinuous (\x -> diff (f x) (g x))
     isContinuous-diff cf cg = isContinuous-+ cg (isContinuous-minus cf)
