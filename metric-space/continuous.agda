@@ -113,16 +113,22 @@ module _ {ℓA ℓB ℓC : Level} {A : Type ℓA} {B : Type ℓB} {C : Type ℓC
          {{MS-C : MetricSpaceStr C}}
          where
   opaque
-    ∘-isContinuous :
-      {g : B -> C} -> {f : A -> B} ->
-      isContinuous g -> isContinuous f -> isContinuous (g ∘ f)
-    ∘-isContinuous {g} {f} (isContinuous-cons cg) (isContinuous-cons cf)
-        .isContinuous.at a ε = (∥-bind handle (cg (f a) ε))
+    isContinuousAt-∘ :
+      (g : B -> C) -> (f : A -> B) {a : A} ->
+      isContinuousAt g (f a) -> isContinuousAt f a -> isContinuousAt (g ∘ f) a
+    isContinuousAt-∘ g f {a} cg cf ε = (∥-bind handle (cg ε))
       where
       handle : Σ[ δ ∈ ℝ⁺ ] (∀ b -> εClose δ (f a) b -> εClose ε (g (f a)) (g b)) ->
                ∃[ γ ∈ ℝ⁺ ] (∀ a2 -> εClose γ a a2 -> εClose ε (g (f a)) (g (f a2)))
-      handle (δ , δ-close) = ∥-map handle2 (cf a δ)
+      handle (δ , δ-close) = ∥-map handle2 (cf δ)
         where
         handle2 : Σ[ γ ∈ ℝ⁺ ] (∀ a2 -> εClose γ a a2 -> εClose δ (f a) (f a2)) ->
                   Σ[ γ ∈ ℝ⁺ ] (∀ a2 -> εClose γ a a2 -> εClose ε (g (f a)) (g (f a2)))
         handle2 (γ , γ-close) = (γ , \a2 -> δ-close (f a2) ∘ (γ-close a2))
+
+
+    isContinuous-∘ :
+      {g : B -> C} -> {f : A -> B} ->
+      isContinuous g -> isContinuous f -> isContinuous (g ∘ f)
+    isContinuous-∘ {g} {f} (isContinuous-cons cg) (isContinuous-cons cf)
+        .isContinuous.at a = isContinuousAt-∘ g f (cg (f a)) (cf a)
