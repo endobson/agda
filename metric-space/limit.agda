@@ -6,6 +6,7 @@ open import additive-group
 open import additive-group.instances.real
 open import apartness
 open import base
+open import equality
 open import heyting-field.instances.real
 open import hlevel
 open import metric-space
@@ -85,10 +86,10 @@ module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
       isProp-isLimitAt l1 l2 i .isLimitAt.close =
         isPropΠ (\_ -> squash) (l1 .isLimitAt.close) (l2 .isLimitAt.close) i
 
-  module _ {ℓS : Level} {S : Subtype A ℓS} {f : Subspace S -> B} {x : A} {lim : B} where
+  module _ {ℓS : Level} {S : Subtype A ℓS} {f : Subspace S -> B} {x : A} where
     opaque
-      isProp-ΣisLimit : isProp (Σ B (isLimitAt f x))
-      isProp-ΣisLimit (l1 , isLim1) (l2 , isLim2) =
+      isProp-ΣisLimitAt : isProp (Σ B (isLimitAt f x))
+      isProp-ΣisLimitAt (l1 , isLim1) (l2 , isLim2) =
         ΣProp-path isProp-isLimitAt (zero-distance->path (tight-# ¬d#0))
         where
         ¬d#0 : ¬ (distance l1 l2 # 0#)
@@ -121,6 +122,69 @@ module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
               lt2 : distance (f y∈) l2 < (1/2 * (distance l1 l2))
               lt2 = trans-=-< (distance-commuteᵉ (f y∈) l2)
                               (δ2-close y∈ (trans-<-≤ dxy<δ3 min-≤-right))
+
+  module _ {ℓS : Level} {S : Subtype A ℓS} {f : Subspace S -> B} {x : A} {lim : B} where
+    opaque
+      isProp-isPuncturedLimitAt : isProp (isPuncturedLimitAt f x lim)
+      isProp-isPuncturedLimitAt l1 l2 i .isPuncturedLimitAt.limit-point =
+        isProp-isAccumulationPoint (l1 .isPuncturedLimitAt.limit-point)
+                                   (l2 .isPuncturedLimitAt.limit-point) i
+      isProp-isPuncturedLimitAt l1 l2 i .isPuncturedLimitAt.close =
+        isPropΠ (\_ -> squash) (l1 .isPuncturedLimitAt.close)
+                               (l2 .isPuncturedLimitAt.close) i
+
+  module _ {ℓS : Level} {S : Subtype A ℓS} {f : Subspace S -> B} {x : A} where
+    opaque
+      isProp-ΣisPuncturedLimitAt : isProp (Σ B (isPuncturedLimitAt f x))
+      isProp-ΣisPuncturedLimitAt (l1 , isLim1) (l2 , isLim2) =
+        ΣProp-path isProp-isPuncturedLimitAt (zero-distance->path (tight-# ¬d#0))
+        where
+        ¬d#0 : ¬ (distance l1 l2 # 0#)
+        ¬d#0 (inj-l d<0) = 0≤distanceᵉ l1 l2 d<0
+        ¬d#0 (inj-r 0<d) =
+          unsquash isPropBot (∥-bind2 handle (isPuncturedLimitAt.close isLim1 ε⁺)
+                                             (isPuncturedLimitAt.close isLim2 ε⁺))
+          where
+          ε⁺ : ℝ⁺
+          ε⁺ = _ , *-preserves-0< 0<1/2 0<d
+          handle :
+            Σ[ δ ∈ ℝ⁺ ] (∀ (y∈@(y , _) : Subspace S) -> 0# < distance x y ->
+                           εClose δ x y -> εClose ε⁺ l1 (f y∈)) ->
+            Σ[ δ ∈ ℝ⁺ ] (∀ (y∈@(y , _) : Subspace S) -> 0# < distance x y ->
+                           εClose δ x y -> εClose ε⁺ l2 (f y∈)) ->
+            ∥ Bot ∥
+          handle ((δ1 , 0<δ1) , δ1-close) ((δ2 , 0<δ2) , δ2-close) =
+            ∥-map handle2 (isAccumulationPoint.close
+                            (isPuncturedLimitAt.limit-point isLim1) (δ3 , 0<δ3))
+            where
+            δ3 : ℝ
+            δ3 = min δ1 δ2
+            0<δ3 : 0# < δ3
+            0<δ3 = min-greatest-< 0<δ1 0<δ2
+            δ3⁺ : ℝ⁺
+            δ3⁺ = δ3 , 0<δ3
+            handle2 : Σ[ (y , _) ∈ Subspace S ] (0# < distance x y × εClose δ3⁺ x y) -> Bot
+            handle2 (y∈ , (0<dxy , dxy<δ3)) =
+              irrefl-< (trans-≤-< (distance-triangleᵉ _ (f y∈) _)
+                                  (trans-<-= (+-preserves-< lt1 lt2) 1/2-path))
+              where
+              lt1 : distance l1 (f y∈) < (1/2 * (distance l1 l2))
+              lt1 = δ1-close y∈ 0<dxy (trans-<-≤ dxy<δ3 min-≤-left)
+              lt2 : distance (f y∈) l2 < (1/2 * (distance l1 l2))
+              lt2 = trans-=-< (distance-commuteᵉ (f y∈) l2)
+                              (δ2-close y∈ 0<dxy (trans-<-≤ dxy<δ3 min-≤-right))
+
+  module _ {ℓS : Level} {S : Subtype A ℓS} {f : Subspace S -> B} {x : A} {lim1 lim2 : B} where
+    isLimitAt=isPuncturedLimitAt : isLimitAt f x lim1 -> isPuncturedLimitAt f x lim2 -> lim1 == lim2
+    isLimitAt=isPuncturedLimitAt isLim1 isPLim2 =
+      cong fst (isProp-ΣisPuncturedLimitAt (lim1 , isPLim1) (lim2 , isPLim2))
+      where
+      isPLim1 : isPuncturedLimitAt f x lim1
+      isPLim1 .isPuncturedLimitAt.limit-point = isPuncturedLimitAt.limit-point isPLim2
+      isPLim1 .isPuncturedLimitAt.close ε =
+        ∥-map (\(δ , f) -> (δ , \y _ -> f y)) (isLimitAt.close isLim1 ε)
+
+
 
 
 module _ {ℓA ℓB ℓS : Level} {A : Type ℓA} {B : Type ℓB}
