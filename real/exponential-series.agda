@@ -28,9 +28,7 @@ open import ordered-semiring.initial
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
 open import real
-open import real.arithmetic.rational
 open import real.distance
-open import real.rational
 open import real.sequence.limit
 open import real.sequence.ratio-test
 open import real.series
@@ -65,15 +63,6 @@ opaque
     *-cong *-commute *-commute >=>
     *-left (sym (1/ℕ-preserves-* (suc n , tt) (factorial⁺ n)) >=>
             cong 1/ℕ (ΣProp-path isPropPos' refl))
-
-
-  strong-archimedean-property : ∀ {a b : ℝ} -> 0# < b -> ∃[ n ∈ ℕ ] (a < (ℕ->Semiring n * b))
-  strong-archimedean-property {a} {b} 0<b = ∥-bind handle (comparison-< _ a _ 0<b)
-    where
-    handle : (0# < a) ⊎ (a < b) -> ∃[ n ∈ ℕ ] (a < (ℕ->Semiring n * b))
-    handle (inj-l 0<a) = archimedean-property 0<a 0<b
-    handle (inj-r a<b) = ∣ 1 , trans-<-= a<b (sym *-left-one >=> *-left (sym (ℕ->Semiring-ℝ-path 1))) ∣
-
 
   isLimit-exponential-ratio : (x : ℝ) -> isLimit (abs ∘ exponential-ratios x) 0#
   isLimit-exponential-ratio x = distance<ε->isLimit f

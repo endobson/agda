@@ -4,6 +4,7 @@ module ordered-semiring.archimedean where
 
 open import additive-group
 open import base
+open import equality
 open import nat
 open import order
 open import ordered-semiring
@@ -33,6 +34,15 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
   module _ {LOS : LinearlyOrderedSemiringStr S LO} {{Arch : ArchimedeanSemiring LOS}} where
     archimedean-property : ArchimedeanProperty LOS
     archimedean-property = ArchimedeanSemiring.prop useⁱ
+
+    opaque
+      strong-archimedean-property : ∀ {a b : D} -> 0# < b -> ∃[ n ∈ ℕ ] (a < (ℕ->Semiring n * b))
+      strong-archimedean-property {a} {b} 0<b = ∥-bind handle (comparison-< _ a _ 0<b)
+        where
+        handle : (0# < a) ⊎ (a < b) -> ∃[ n ∈ ℕ ] (a < (ℕ->Semiring n * b))
+        handle (inj-l 0<a) = archimedean-property 0<a 0<b
+        handle (inj-r a<b) = ∣ 1 , trans-<-= a<b (sym (*-left ℕ->Semiring-preserves-1# >=> *-left-one)) ∣
+
 
 module _ {ℓD ℓ< : Level} (D : Type ℓD) {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D}
          {S : Semiring ACM}
