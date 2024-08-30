@@ -11,6 +11,7 @@ open import finite-commutative-monoid.instances
 open import finset.instances
 open import finsum.arithmetic
 open import funext
+open import funext
 open import nat.order
 open import order
 open import order.instances.nat
@@ -41,6 +42,12 @@ opaque
     subst isConvergentSequence (funExt (\n -> sym (finiteMerge-ε _ (\_ -> refl))))
       (0# , isLimit-constant-seq 0#)
 
+  isConvergentSeries-minus : {s : Sequence ℝ} -> isConvergentSeries s ->
+                             isConvergentSeries (\i -> - (s i))
+  isConvergentSeries-minus (l , isLim) =
+    - l , subst (\s -> isLimit s (- l)) (funExt (\n -> (sym finiteSum--)))
+                (minus-preserves-limit isLim)
+
 opaque
   isConvergentSeries->zero-limit : {s : Sequence ℝ} -> isConvergentSeries s -> isLimit s 0#
   isConvergentSeries->zero-limit {s} (l , lim-partial) =
@@ -53,6 +60,7 @@ opaque
     diff-path : ∀ n -> (diff (partial-sums s n) (dropN 1 (partial-sums s) n)) == s n
     diff-path n = cong (diff (partial-sums s n)) (partial-sums-split s n) >=>
                   +-assoc >=> +-right +-inverse >=> +-right-zero
+
 
 opaque
   squeeze-isConvergentSeries :
@@ -111,15 +119,23 @@ opaque
                              (proj₂ (f3 m₁ m₂ n3≤m₁ (trans-≤ n3≤m₁ m₁≤m₂)))
 
 opaque
+  squeeze-isAbsConvergentSeries :
+    {s1 s2 : Sequence ℝ} ->
+    (∀Largeℕ (\ m -> abs (s1 m) ≤ abs (s2 m))) ->
+    isAbsConvergentSeries s2 ->
+    isAbsConvergentSeries s1
+  squeeze-isAbsConvergentSeries {s1} {s2} large conv =
+    squeeze-isConvergentSeries lower large (isConvergentSeries-minus conv) conv
+    where
+    lower : ∀Largeℕ (\m -> (- (abs (s2 m))) ≤ abs (s1 m))
+    lower = ∀Largeℕ-map (\lt -> trans-≤ (minus-flips-0≤ abs-0≤) abs-0≤) large
+
+
+opaque
   isAbsConvergentSeries->isConvergentSeries :
     {s : Sequence ℝ} -> isAbsConvergentSeries s -> isConvergentSeries s
   isAbsConvergentSeries->isConvergentSeries {s} abs-conv@(l , isLim) =
     squeeze-isConvergentSeries
       (∣( 0 , \_ _ -> trans-≤-= (minus-flips-≤ max-≤-right) minus-double-inverse )∣)
       (∣( 0 , \_ _ -> max-≤-left )∣)
-      -abs-conv abs-conv
-    where
-    -abs-conv : isConvergentSeries (\i -> - (abs (s i)))
-    -abs-conv = - l , subst (\s -> isLimit s (- l))
-                            (funExt (\n -> (sym finiteSum--)))
-                            (minus-preserves-limit isLim)
+      (isConvergentSeries-minus abs-conv) abs-conv
