@@ -4,8 +4,10 @@ module real.distance where
 
 open import additive-group
 open import additive-group.instances.real
+open import apartness
 open import base
 open import equality
+open import equivalence
 open import metric-space
 open import metric-space.instances.real
 open import order
@@ -90,3 +92,9 @@ opaque
   distance-shift =
     cong2 distance (sym +-right-zero) refl >=>
     cong abs (sym +₁-preserves-diff >=> diff0-path)
+
+  metric#-># : {x y : ℝ} -> 0# < distance x y -> x # y
+  metric#-># = eqInv (diff-<>-equiv >eq> abs-#0-eq)
+
+  #->metric# : {x y : ℝ} -> x # y -> 0# < distance x y
+  #->metric# = eqFun (diff-<>-equiv >eq> abs-#0-eq)
