@@ -8,35 +8,33 @@ open import base
 open import combinatorics.factorial
 open import equality
 open import functions
-open import integral-domain.instances.real
+open import heyting-field.instances.real
+open import metric-space.continuous
+open import metric-space.instances.real
 open import nat
 open import nat.order
 open import order
 open import order.instances.nat
-open import order.instances.rational
 open import order.instances.real
 open import order.minmax.instances.real
-open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
+open import ordered-field
 open import ordered-ring.absolute-value
 open import ordered-semiring
 open import ordered-semiring.archimedean
 open import ordered-semiring.archimedean.instances.real
-open import ordered-semiring.instances.rational
+open import ordered-semiring.initial
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
-open import rational
-open import rational.integral-domain
-open import rational.order
 open import real
 open import real.arithmetic.rational
-open import real.epsilon-bounded
+open import real.distance
 open import real.rational
-open import real.sequence.absolute-convergence
 open import real.sequence.limit
 open import real.sequence.ratio-test
 open import real.series
+open import real.subspace
 open import ring.implementations.real
 open import semiring
 open import semiring.exponentiation
@@ -44,6 +42,7 @@ open import semiring.initial
 open import sequence
 open import sequence.partial-sums
 open import sigma.base
+open import subset.subspace
 open import truncation
 
 private
@@ -51,90 +50,73 @@ private
   Seq = Sequence ℝ
 
   exponential-sequence : ℝ -> Seq
-  exponential-sequence x n = (x ^ℕ n) * ℚ->ℝ (1/ℕ (factorial⁺ n))
+  exponential-sequence x n = (1/ℕ (factorial⁺ n)) * (x ^ℕ n)
 
   exponential-ratios : ℝ -> Seq
-  exponential-ratios x n = x * ℚ->ℝ (1/ℕ (suc n , tt))
+  exponential-ratios x n = (1/ℕ (suc n , tt)) * x
 
   exponential-series : ℝ -> Seq
   exponential-series x = partial-sums (exponential-sequence x)
 
-isRatioSeq-exponential : (x : ℝ) -> isRatioSeq (exponential-sequence x) (exponential-ratios x)
-isRatioSeq-exponential x .isRatioSeq.f n = *-swap >=> *-cong *-commute p
-  where
-  p = sym ℚ->ℝ-preserves-* >=>
-      cong ℚ->ℝ (*-commute >=> sym (1/ℕ-preserves-* (suc n , tt) (factorial⁺ n)) >=>
-                 cong 1/ℕ (ΣProp-path isPropPos' refl))
-
-strong-archimedean-property : ∀ {a b : ℝ} -> 0# < b -> ∃[ n ∈ ℕ ] (a < (ℕ->Semiring n * b))
-strong-archimedean-property {a} {b} 0<b = ∥-bind handle (comparison-< _ a _ 0<b)
-  where
-  handle : (0# < a) ⊎ (a < b) -> ∃[ n ∈ ℕ ] (a < (ℕ->Semiring n * b))
-  handle (inj-l 0<a) = archimedean-property 0<a 0<b
-  handle (inj-r a<b) = ∣ 1 , trans-<-= a<b (sym *-left-one >=> *-left (sym (ℕ->Semiring-ℝ-path 1))) ∣
+opaque
+  isRatioSeq-exponential : (x : ℝ) -> isRatioSeq (exponential-sequence x) (exponential-ratios x)
+  isRatioSeq-exponential x .isRatioSeq.f n =
+    *-swap >=>
+    *-cong *-commute *-commute >=>
+    *-left (sym (1/ℕ-preserves-* (suc n , tt) (factorial⁺ n)) >=>
+            cong 1/ℕ (ΣProp-path isPropPos' refl))
 
 
-isLimit-exponential-ratio : (x : ℝ) -> isLimit (abs ∘ exponential-ratios x) 0#
-isLimit-exponential-ratio x = εBounded-diff->isLimit f
-  where
-  f : (ε : ℚ⁺) -> ∀Largeℕ (\n -> εBounded ⟨ ε ⟩ (diff 0# (abs (exponential-ratios x n))))
-  f (ε , 0<ε) = ∥-map handle (strong-archimedean-property (ℚ->ℝ-preserves-< 0<ε))
+  strong-archimedean-property : ∀ {a b : ℝ} -> 0# < b -> ∃[ n ∈ ℕ ] (a < (ℕ->Semiring n * b))
+  strong-archimedean-property {a} {b} 0<b = ∥-bind handle (comparison-< _ a _ 0<b)
     where
-    handle : Σ[ n ∈ ℕ ] (abs x < (ℕ->Semiring n * (ℚ->ℝ ε))) ->
-             ∀Largeℕ' (\n -> εBounded ε (diff 0# (abs (exponential-ratios x n))))
-    handle (n , ax<nε) = n , g
+    handle : (0# < a) ⊎ (a < b) -> ∃[ n ∈ ℕ ] (a < (ℕ->Semiring n * b))
+    handle (inj-l 0<a) = archimedean-property 0<a 0<b
+    handle (inj-r a<b) = ∣ 1 , trans-<-= a<b (sym *-left-one >=> *-left (sym (ℕ->Semiring-ℝ-path 1))) ∣
+
+
+  isLimit-exponential-ratio : (x : ℝ) -> isLimit (abs ∘ exponential-ratios x) 0#
+  isLimit-exponential-ratio x = distance<ε->isLimit f
+    where
+    f : (ε : ℝ⁺) -> ∀Largeℕ (\n -> εClose ε  0# (abs (exponential-ratios x n)))
+    f ε⁺@(ε , 0<ε) = ∥-map handle (strong-archimedean-property 0<ε)
       where
-      ax/n<ε : (abs x * ℚ->ℝ (1/ℕ (suc n , tt))) < ℚ->ℝ ε
-      ax/n<ε =
-        trans-=-< (*-commute)
-          (trans-<-= (*₁-preserves-< (ℚ->ℝ-preserves-< (Pos-1/ℕ (suc n , tt)))
-                                     (trans-< (trans-<-= ax<nε (*-left (ℕ->Semiring-ℝ-path n)))
-                                              (*₂-preserves-<
-                                                (ℚ->ℝ-preserves-< (ℕ->ℚ-preserves-< refl-≤))
-                                                (ℚ->ℝ-preserves-< 0<ε))))
-                     εp)
+      handle : Σ[ n ∈ ℕ ] (abs x < (ℕ->Semiring n * ε)) ->
+               ∀Largeℕ' (\n -> εClose ε⁺ 0# (abs (exponential-ratios x n)))
+      handle (n , ax<nε) = suc n , g
         where
-        εp : (ℚ->ℝ (1/ℕ (suc n , tt)) * (ℕ->ℝ (suc n) * ℚ->ℝ ε)) == ℚ->ℝ ε
-        εp = (sym *-assoc >=>
-              *-left (sym ℚ->ℝ-preserves-* >=> (cong ℚ->ℝ (1/ℕ-ℕ-path (suc n , tt)))) >=>
-              *-left-one)
+        sn⁺ : Nat⁺
+        sn⁺ = suc n , tt
+        ax/sn<ε : ((1/ℕ (suc n , tt)) * abs x) < ε
+        ax/sn<ε = trans-<-= ax/sn<snε/sn simplify-snε
+          where
+          nℝ : ℝ
+          nℝ = ℕ->Semiring n
+          snℝ : ℝ
+          snℝ = ℕ->Semiring (suc n)
+          nε<snε : (nℝ * ε) < (snℝ * ε)
+          nε<snε = *₂-preserves-< (ℕ->Semiring-preserves-< refl-≤) 0<ε
+          ax/sn<snε/sn : ((1/ℕ sn⁺) * abs x) < ((1/ℕ sn⁺) * (snℝ * ε))
+          ax/sn<snε/sn = *₁-preserves-< (0<1/ℕ _) (trans-< ax<nε nε<snε)
+          simplify-snε : ((1/ℕ sn⁺) * (snℝ * ε)) == ε
+          simplify-snε = sym *-assoc >=> *-left (*-commute >=> (∃!-prop (∃!1/ℕ _))) >=> *-left-one
 
-      g : (m : ℕ) (n≤m : n ≤ m) -> εBounded ε (diff 0# (abs (exponential-ratios x m)))
-      g m n≤m = subst (εBounded ε) (sym diff-step >=> +-left-zero)
-                  (ℝ<->L -ε<abs-ratio , ℝ<->U abs-ratio<ε)
-        where
+        g : (m : ℕ) (sn≤m : suc n ≤ m) -> εClose ε⁺ 0# (abs (exponential-ratios x m))
+        g m sn≤m = distance0-<⁺ abs-0≤ abs-ratio<ε -- (max-least-< ratio<ε -ratio<ε)
+          where
+          abs-ratio<ε : abs (exponential-ratios x m) < ε
+          abs-ratio<ε = trans-≤-< abs-ratio≤ ax/sn<ε
+            where
+            abs-ratio≤ : abs (exponential-ratios x m) ≤ (1/ℕ (suc n , tt) * abs x)
+            abs-ratio≤ =
+              trans-=-≤ abs-distrib-*
+                (*₂-preserves-≤ (trans-=-≤ (abs-0≤-path (weaken-< (0<1/ℕ _)))
+                                           (weaken-< (1/ℕ-flips-< _ _ (suc-≤ sn≤m))))
+                                abs-0≤ )
 
-
-        -ε<abs-ratio : (ℚ->ℝ (- ε)) < abs (exponential-ratios x m)
-        -ε<abs-ratio = trans-<-≤ (ℚ->ℝ-preserves-< (minus-flips-0< 0<ε)) abs-0≤
-        abs-ratio<ε : abs (exponential-ratios x m) < (ℚ->ℝ ε)
-        abs-ratio<ε =
-          trans-=-< (abs-distrib-* >=>
-                     *-right (abs-0<-path (ℚ->ℝ-preserves-< (Pos-1/ℕ (suc m , tt)))))
-                    (trans-≤-< (*₁-preserves-≤ abs-0≤ (ℚ->ℝ-preserves-≤
-                                                        (1/ℕ-flips-≤ (suc n , tt) (suc m , tt)
-                                                          (suc-≤ n≤m))))
-                                ax/n<ε)
-
-isAbsConvergentSeries-exponential : (x : ℝ) -> isAbsConvergentSeries (exponential-sequence x)
-isAbsConvergentSeries-exponential x =
-  ratio-test (isRatioSeq-exponential x) (isLimit-exponential-ratio x) refl-≤ 0<1
+  isAbsConvergentSeries-exponential : (x : ℝ) -> isAbsConvergentSeries (exponential-sequence x)
+  isAbsConvergentSeries-exponential x =
+    ratio-test (isRatioSeq-exponential x) (isLimit-exponential-ratio x) refl-≤ 0<1
 
 exp : ℝ -> ℝ
 exp x = fst (isAbsConvergentSeries-exponential x)
-
-
-private
-  ℝFinite : (x : ℝ) -> ∃[ n ∈ ℕ ] (x < ℕ->ℝ n)
-  ℝFinite x = ∥-bind handle (Real.located x _ _ 0<1)
-    where
-    handle : (Real.L x 0# ⊎ Real.U x 1#) -> ∃[ n ∈ ℕ ] (x < ℕ->ℝ n)
-    handle (inj-r xU-1) = ∣ 1 , U->ℝ< xU-1 ∣
-    handle (inj-l xL-0) = ∥-map handle2 (archimedean-property (L->ℝ< xL-0) 0<1)
-      where
-      handle2 : Σ[ n ∈ ℕ ] (x < (ℕ->Semiring n * 1#)) -> Σ[ n ∈ ℕ ] (x < ℕ->ℝ n)
-      handle2 (n , x<n1) = n , trans-<-= x<n1 (*-right-one >=> ℕ->Semiring-ℝ-path n)
-
-  -- exponential-sequence<geometric-sequence : (x : ℝ) ->
-  --   ∀Largeℕ (\n -> exponential-sequence x n < geometric-sequence 1/2ℝ n)
-  -- exponential-sequence<geometric-sequence = ∥-map handle (archimedean-property
