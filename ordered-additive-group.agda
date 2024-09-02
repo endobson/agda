@@ -73,6 +73,8 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D} {O : isL
     +-reflects-0< : {a b : D} -> 0# < (a + b) -> ∥ (0# < a) ⊎ (0# < b) ∥
     +-reflects-0< {a} {b} 0<ab = +-reflects-< (subst (_< (a + b)) (sym +-right-zero) 0<ab)
 
+    +-reflects-<0 : {a b : D} -> (a + b) < 0# -> ∥ a < 0# ⊎ b < 0# ∥
+    +-reflects-<0 a+b<0 = +-reflects-< (trans-<-= a+b<0 (sym +-right-zero))
 
 module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} (ACM : AdditiveCommMonoid D) (O : isPartialOrder D≤) where
   private
