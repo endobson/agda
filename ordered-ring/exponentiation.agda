@@ -14,9 +14,12 @@ open import nat.half-induction
 open import nat.order
 open import order
 open import order.instances.nat
+open import order.minmax
 open import ordered-additive-group
+open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.nat
 open import ordered-additive-group.negated
+open import ordered-ring.absolute-value
 open import ordered-ring.exponentiation.all-ones
 open import ordered-ring.exponentiation.isomorphism
 open import ordered-semiring
@@ -144,3 +147,29 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Re
     1≤x^n = trans-≤-= (^ℕ-1≤ 1≤-x n) (minus-^ℕ-even x n en)
     x≤0 : x ≤ 0#
     x≤0 = trans-≤ x≤-1 (minus-flips-0≤ (convert-≮ 1≮0))
+
+module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
+         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{CO : CompatibleOrderStr LO PO}}
+         {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}}
+         {{Max : MaxOperationStr LO}} {S : Semiring ACM}
+         {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
+         {{LOS : LinearlyOrderedSemiringStr S LO}}
+         {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}}
+         {{POA : PartiallyOrderedAdditiveStr ACM PO}}
+         {{POS : PartiallyOrderedSemiringStr S PO}}
+
+  where
+  private
+    instance
+      IPO = PO
+      IS = S
+
+  opaque
+    ^ℕ-abs-≤ : {x : D} -> (n : Nat) -> (x ^ℕ n) ≤ (abs x ^ℕ n)
+    ^ℕ-abs-≤ zero = refl-≤
+    ^ℕ-abs-≤ (suc zero) = subst2 _≤_ (sym *-right-one) (sym *-right-one) abs-≤
+    ^ℕ-abs-≤ (suc (suc n)) =
+      trans-=-≤
+        (sym *-assoc >=> *-left abs-square >=> *-assoc)
+        (*₁-preserves-≤ abs-0≤ (*₁-preserves-≤ abs-0≤ (^ℕ-abs-≤ n)))
