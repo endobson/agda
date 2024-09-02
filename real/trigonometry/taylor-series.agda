@@ -52,8 +52,14 @@ cos-terms x n = cos-coeff n * (x ^ℕ n)
 exp-coeff : ℕ -> ℝ
 exp-coeff n = 1/ℕ (factorial⁺ n)
 
-exp-terms : ℝ -> ℕ -> ℝ
-exp-terms x n = exp-coeff n * (x ^ℕ n)
+-- 'exp-terms' is defined with the exponential. This checks that it is as expected.
+module _ where
+  private
+    exp-terms' : ℝ -> ℕ -> ℝ
+    exp-terms' x n = exp-coeff n * (x ^ℕ n)
+
+    check-exp-terms : exp-terms == exp-terms'
+    check-exp-terms = refl
 
 
 abs-sin-alt-coeff≤1 : ∀ (n : Nat) -> abs (sin-alt-coeff n) ≤ 1#

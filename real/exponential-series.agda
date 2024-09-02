@@ -43,21 +43,33 @@ open import sigma.base
 open import subset.subspace
 open import truncation
 
-private
-  Seq : Type₁
-  Seq = Sequence ℝ
-
-  exponential-sequence : ℝ -> Seq
-  exponential-sequence x n = (1/ℕ (factorial⁺ n)) * (x ^ℕ n)
-
-  exponential-ratios : ℝ -> Seq
-  exponential-ratios x n = (1/ℕ (suc n , tt)) * x
-
-  exponential-series : ℝ -> Seq
-  exponential-series x = partial-sums (exponential-sequence x)
+exp-terms : ℝ -> Sequence ℝ
+exp-terms x n = (1/ℕ (factorial⁺ n)) * (x ^ℕ n)
 
 opaque
-  isRatioSeq-exponential : (x : ℝ) -> isRatioSeq (exponential-sequence x) (exponential-ratios x)
+  -- Since (exp-terms z 1) doesn't 'remember' z, this formulation works with out having
+  -- to provide an explicit 'z'.
+  exp-term0 : (1/ℕ (factorial⁺ 0)) * 1# == 1#
+  exp-term0 = *-left (sym *-left-one >=>
+                       *-left (sym ℕ->Semiring-preserves-1#) >=>
+                       ∃!-prop (∃!1/ℕ (1 , tt))) >=>
+               *-left-one
+
+  exp-term1 : {z : ℝ} -> exp-terms z 1 == z
+  exp-term1 = *-left (sym *-left-one >=>
+                      *-left (sym ℕ->Semiring-preserves-1#) >=>
+                      ∃!-prop (∃!1/ℕ (1 , tt))) >=>
+              *-left-one >=> *-right-one
+
+private
+  exponential-ratios : ℝ -> Sequence ℝ
+  exponential-ratios x n = (1/ℕ (suc n , tt)) * x
+
+  exponential-series : ℝ -> Sequence ℝ
+  exponential-series x = partial-sums (exp-terms x)
+
+opaque
+  isRatioSeq-exponential : (x : ℝ) -> isRatioSeq (exp-terms x) (exponential-ratios x)
   isRatioSeq-exponential x .isRatioSeq.f n =
     *-swap >=>
     *-cong *-commute *-commute >=>
@@ -103,9 +115,12 @@ opaque
                                            (weaken-< (1/ℕ-flips-< _ _ (suc-≤ sn≤m))))
                                 abs-0≤ )
 
-  isAbsConvergentSeries-exponential : (x : ℝ) -> isAbsConvergentSeries (exponential-sequence x)
+  isAbsConvergentSeries-exponential : (x : ℝ) -> isAbsConvergentSeries (exp-terms x)
   isAbsConvergentSeries-exponential x =
     ratio-test (isRatioSeq-exponential x) (isLimit-exponential-ratio x) refl-≤ 0<1
 
 exp : ℝ -> ℝ
 exp x = fst (isAbsConvergentSeries->isConvergentSeries (isAbsConvergentSeries-exponential x))
+
+isLimit-exp : ∀ x -> isLimit (exponential-series x) (exp x)
+isLimit-exp x = snd (isAbsConvergentSeries->isConvergentSeries (isAbsConvergentSeries-exponential x))
