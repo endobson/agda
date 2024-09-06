@@ -30,7 +30,7 @@ private
     exp-abs-≤ {x} = isLimit-preserves-≤ (isLimit-exp x) (isLimit-exp (abs x)) seq≤
       where
       term≤ : (i : ℕ) -> (exp-terms x i) ≤ (exp-terms (abs x) i)
-      term≤ i = *₁-preserves-≤ (weaken-< (0<1/ℕ _)) (^ℕ-abs-≤ i)
+      term≤ i = *₁-preserves-≤ (weaken-< (0<1/ℕ _)) (trans-≤-= abs-≤ (abs-^ℕ-path i))
 
       seq≤ : (i : ℕ) -> partial-sums (exp-terms x) i ≤ partial-sums (exp-terms (abs x)) i
       seq≤ i = finiteSum-preserves-≤ (\(i , _) -> term≤ i)

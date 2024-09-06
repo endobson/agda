@@ -148,28 +148,23 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Re
     x≤0 : x ≤ 0#
     x≤0 = trans-≤ x≤-1 (minus-flips-0≤ (convert-≮ 1≮0))
 
-module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
-         {{CO : CompatibleOrderStr LO PO}}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {LO : isLinearOrder D<}
          {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}}
-         {{Max : MaxOperationStr LO}} {S : Semiring ACM}
+         {{Max : MaxOperationStr LO}}
+         {S : Semiring ACM}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}}
-         {{POA : PartiallyOrderedAdditiveStr ACM PO}}
-         {{POS : PartiallyOrderedSemiringStr S PO}}
 
   where
   private
     instance
-      IPO = PO
       IS = S
 
   opaque
-    ^ℕ-abs-≤ : {x : D} -> (n : Nat) -> (x ^ℕ n) ≤ (abs x ^ℕ n)
-    ^ℕ-abs-≤ zero = refl-≤
-    ^ℕ-abs-≤ (suc zero) = subst2 _≤_ (sym *-right-one) (sym *-right-one) abs-≤
-    ^ℕ-abs-≤ (suc (suc n)) =
-      trans-=-≤
-        (sym *-assoc >=> *-left abs-square >=> *-assoc)
-        (*₁-preserves-≤ abs-0≤ (*₁-preserves-≤ abs-0≤ (^ℕ-abs-≤ n)))
+    abs-^ℕ-path : {x : D} -> (n : Nat) -> abs (x ^ℕ n) == (abs x ^ℕ n)
+    abs-^ℕ-path zero = abs-≮0-path 1≮0
+    abs-^ℕ-path (suc zero) = cong abs *-right-one >=> sym *-right-one
+    abs-^ℕ-path (suc (suc n)) =
+      abs-distrib-* >=> *-right (abs-distrib-* >=> *-right (abs-^ℕ-path n))
