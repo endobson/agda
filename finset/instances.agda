@@ -8,6 +8,7 @@ open import equality
 open import equivalence
 open import fin
 open import finset
+open import finset.inhabited
 open import fin-algebra
 open import isomorphism
 open import maybe
@@ -35,6 +36,14 @@ FinSet-FinT : (n : Nat) -> FinSet ℓ-zero
 FinSet-FinT n = FinT n , isFinSet-FinT
 
 
+instance
+  Fin⁺SetStr-Fin : {n : Nat} -> Fin⁺SetStr (Fin (suc n))
+  Fin⁺SetStr-Fin = record
+    { isFin = isFinSet-Fin
+    ; inhabited = ∣ zero-fin ∣
+    }
+
+
 abstract
   isFinSet-Maybe : {ℓ : Level} {A : Type ℓ} -> isFinSet A -> isFinSet (Maybe A)
   isFinSet-Maybe {A = A} = ∥-map handle
@@ -49,6 +58,12 @@ FinSet-Maybe (A , finA) = Maybe A , isFinSet-Maybe finA
 instance
   FinSetStr-Maybe : {ℓ : Level} {A : Type ℓ} {{FA : FinSetStr A}} -> FinSetStr (Maybe A)
   FinSetStr-Maybe {{FA = FA}} = record { isFin = isFinSet-Maybe (FinSetStr.isFin FA) }
+
+  Fin⁺SetStr-Maybe : {ℓ : Level} {A : Type ℓ} {{FA : Fin⁺SetStr A}} -> Fin⁺SetStr (Maybe A)
+  Fin⁺SetStr-Maybe {{FA = FA}} = record
+    { isFin = isFinSet-Maybe (Fin⁺SetStr.isFin FA)
+    ; inhabited = ∣ nothing ∣
+    }
 
 abstract
   isFinSet-isContr : {A : Type ℓ} -> isContr A -> isFinSet A
