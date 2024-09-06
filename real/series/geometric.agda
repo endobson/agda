@@ -365,26 +365,31 @@ module _ (x : ℝ) (0≤x : 0# ≤ x) (x<1 : x < 1#) where
     1-x#0 : (1# + - x) # 0#
     1-x#0 = inj-r 0<1-x
     isUnit-1-x = Field.#0->isUnit ℝField 1-x#0
-    y : ℝ
-    y = ℝ1/ (diff x 1# , 1-x#0)
-    y-path : (1# + (- x)) * y == 1#
-    y-path = *-commute >=> ℝ1/-inverse
 
-  isLimit-geometric-series : isLimit (geometric-series x) y
-  isLimit-geometric-series =
-    subst2 isLimit
-      (sym (funExt gs-path')) (*-left (+-right minus-zero >=> +-right-zero) >=> *-left-one)
-      (*-preserves-limit (+-preserves-limit
-                           (isLimit-constant-seq 1#)
-                           (minus-preserves-limit isLimit-geometric-sequence))
-                         (isLimit-constant-seq y))
-    where
-    gs-path' : (n : ℕ) -> geometric-series x n == (1# + (- geometric-sequence x n)) * y
-    gs-path' n =
-      sym *-right-one >=>
-      *-right (sym y-path) >=>
-      sym *-assoc >=>
-      *-left (geometric-series-path x n)
+  opaque
+    geometric-series-limit : ℝ
+    geometric-series-limit = ℝ1/ (diff x 1# , 1-x#0)
+
+    geometric-series-limit-path : geometric-series-limit * (diff x 1#) == 1#
+    geometric-series-limit-path = ℝ1/-inverse
+
+
+    isLimit-geometric-series : isLimit (geometric-series x) geometric-series-limit
+    isLimit-geometric-series =
+      subst2 isLimit
+        (sym (funExt gs-path')) (*-left (+-right minus-zero >=> +-right-zero) >=> *-left-one)
+        (*-preserves-limit (+-preserves-limit
+                             (isLimit-constant-seq 1#)
+                             (minus-preserves-limit isLimit-geometric-sequence))
+                           (isLimit-constant-seq geometric-series-limit))
+      where
+      gs-path' : (n : ℕ) -> geometric-series x n ==
+                            (1# + (- geometric-sequence x n)) * geometric-series-limit
+      gs-path' n =
+        sym *-right-one >=>
+        *-right (sym (*-commute >=> geometric-series-limit-path)) >=>
+        sym *-assoc >=>
+        *-left (geometric-series-path x n)
 
   isConvergentSeries-geometric-sequence : isConvergentSeries (geometric-sequence x)
-  isConvergentSeries-geometric-sequence = y , isLimit-geometric-series
+  isConvergentSeries-geometric-sequence = geometric-series-limit , isLimit-geometric-series
