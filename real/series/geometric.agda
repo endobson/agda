@@ -26,13 +26,13 @@ open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.nat
 open import ordered-additive-group.instances.real
-open import ordered-semiring
 open import ordered-field
 open import ordered-field.archimedean
-open import ordered-semiring.initial
+open import ordered-semiring
 open import ordered-semiring.archimedean
 open import ordered-semiring.archimedean.instances.rational
 open import ordered-semiring.exponentiation
+open import ordered-semiring.initial
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
@@ -45,9 +45,10 @@ open import real.epsilon-bounded
 open import real.order
 open import real.rational
 open import real.sequence.limit
-open import real.sequence.limit.zero
 open import real.sequence.limit.arithmetic
+open import real.sequence.limit.zero
 open import real.series
+open import real.subspace
 open import ring
 open import ring.implementations.rational
 open import ring.implementations.real
@@ -325,9 +326,9 @@ Archimedean-ℚ' ε q 0≤q q<1 = ∥-bind handle (small-1/ℕ (r , 0<r))
 
 module _ (x : ℝ) (0≤x : 0# ≤ x) (x<1 : x < 1#) where
   private
-    ∀Largeℕ-abs-geometric-sequence<ε :
+    ∀Largeℕ-abs-geometric-sequence<ε-ℚ :
       ((ε , _) : ℚ⁺) -> ∀Largeℕ (\i -> (abs (geometric-sequence x i)) < ℚ->ℝ ε)
-    ∀Largeℕ-abs-geometric-sequence<ε ε⁺@(ε , _) =
+    ∀Largeℕ-abs-geometric-sequence<ε-ℚ ε⁺@(ε , _) =
       ∥-bind handle (Real.isLowerOpen-U x 1# (ℝ<->U x<1))
       where
       handle : Σ[ q ∈ ℚ ] (q < 1# × Real.U x q) ->
@@ -351,6 +352,15 @@ module _ (x : ℝ) (0≤x : 0# ≤ x) (x<1 : x < 1#) where
               (trans-=-<
                 (sym (Semiringʰ-preserves-^ℕ Semiringʰ-ℚ->ℝ n))
                 (ℚ->ℝ-preserves-< q^n<ε))
+
+    ∀Largeℕ-abs-geometric-sequence<ε :
+      ((ε , _) : ℝ⁺) -> ∀Largeℕ (\i -> (abs (geometric-sequence x i)) < ε)
+    ∀Largeℕ-abs-geometric-sequence<ε (ε , 0<ε) = ∥-bind handle 0<ε
+      where
+      handle : 0# ℝ<' ε -> ∀Largeℕ (\i -> (abs (geometric-sequence x i)) < ε)
+      handle (ℝ<'-cons x 0U-x εL-x) =
+        ∀Largeℕ-map (\s<x -> trans-< s<x (L->ℝ< εL-x))
+          (∀Largeℕ-abs-geometric-sequence<ε-ℚ (x , U->ℚ< 0U-x))
 
   opaque
     isLimit-geometric-sequence : isLimit (geometric-sequence x) 0#
