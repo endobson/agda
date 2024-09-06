@@ -18,7 +18,6 @@ open import finsum
 open import finsum.arithmetic
 open import finsum.sigma
 open import funext
--- open import hlevel
 open import nat
 open import power-series
 open import semiring
