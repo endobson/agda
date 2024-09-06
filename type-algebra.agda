@@ -611,6 +611,29 @@ Maybe-eq {A = A} {B = B} eq = isoToEquiv i
   i .leftInv nothing = refl
   i .leftInv (just a) = cong just (eqRet eq a)
 
+⊎-left-Maybe-eq : (Maybe A ⊎ B) ≃ Maybe (A ⊎ B)
+⊎-left-Maybe-eq = isoToEquiv (iso f b fb bf)
+  where
+  f : Maybe A ⊎ B -> Maybe (A ⊎ B)
+  f (inj-l nothing)  = nothing
+  f (inj-l (just a)) = (just (inj-l a))
+  f (inj-r b)        = (just (inj-r b))
+  b : Maybe (A ⊎ B) -> Maybe A ⊎ B
+  b nothing          = (inj-l nothing)
+  b (just (inj-l a)) = (inj-l (just a))
+  b (just (inj-r b)) = (inj-r b)
+  fb : ∀ x -> f (b x) == x
+  fb nothing          = refl
+  fb (just (inj-l a)) = refl
+  fb (just (inj-r b)) = refl
+  bf : ∀ x -> b (f x) == x
+  bf (inj-l nothing)  = refl
+  bf (inj-l (just a)) = refl
+  bf (inj-r b)        = refl
+
+⊎-right-Maybe-eq : (A ⊎ Maybe B) ≃ Maybe (A ⊎ B)
+⊎-right-Maybe-eq = ⊎-flip-eq >eq> ⊎-left-Maybe-eq >eq> Maybe-eq ⊎-flip-eq
+
 Σ-Bot-eq : {ℓ : Level} {A : Bot -> Type ℓ} ->
            Σ Bot A ≃ Bot
 Σ-Bot-eq {A = A} = isoToEquiv i
