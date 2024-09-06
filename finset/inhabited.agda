@@ -25,6 +25,10 @@ record Fin⁺SetStr (A : Type ℓ) : Type ℓ where
     isFin : isFinSet A
     inhabited : ∥ A ∥
 
+get-Fin⁺Setⁱ : {ℓ : Level} (I : Type ℓ) {{FI : Fin⁺SetStr I}} -> Fin⁺Set ℓ
+get-Fin⁺Setⁱ I {{FI = FI}} = I , Fin⁺SetStr.isFin FI , Fin⁺SetStr.inhabited FI
+
+
 -- Equivalence for Fin⁺Sets
 
 Fin⁺Set-eq : (A : Fin⁺Set ℓ) -> Σ[ n ∈ Nat ] ∥ ⟨ A ⟩ ≃ Fin (suc n) ∥
