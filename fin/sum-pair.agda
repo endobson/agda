@@ -6,6 +6,7 @@ open import additive-group
 open import additive-group.instances.nat
 open import base
 open import equality
+open import fin
 open import hlevel
 open import isomorphism
 open import nat
@@ -75,3 +76,9 @@ fin-pair+-suc₁ : {n : Nat} -> FinPair+ n -> FinPair+ (suc n)
 fin-pair+-suc₁ (fin-pair+ i j p) = fin-pair+ (suc i) j (cong suc p)
 fin-pair+-suc₂ : {n : Nat} -> FinPair+ n -> FinPair+ (suc n)
 fin-pair+-suc₂ (fin-pair+ i j p) = fin-pair+ i (suc j) (+'-right-suc >=> cong suc p)
+
+FinPair+-Fin-Iso : {n : Nat} -> Iso (FinPair+ n) (Fin (suc n))
+FinPair+-Fin-Iso {n} .Iso.fun (fin-pair+ i j p) = (i , j , +-commuteᵉ j (suc i) >=> cong suc p)
+FinPair+-Fin-Iso {n} .Iso.inv (i , j , p) = (fin-pair+ i j (cong pred (+-commuteᵉ (suc i) j >=> p)))
+FinPair+-Fin-Iso {n} .Iso.rightInv (i , j , p) = fin-i-path refl
+FinPair+-Fin-Iso {n} .Iso.leftInv (fin-pair+ i j p) = FinPair+-path refl refl
