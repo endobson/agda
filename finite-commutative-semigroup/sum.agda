@@ -57,8 +57,9 @@ module _ {ℓD : Level} {D : Type ℓD} (CS : CommutativeSemigroupStr D) where
                 finite⁺Merge CS (f ∘ suc-fin) ∙ finite⁺Merge CS g
         path3 = finite⁺Merge-sum-fin n (f ∘ suc-fin) g
 
-    module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
-             {{FA : Fin⁺SetStr A}} {{FB : Fin⁺SetStr B}} where
+  module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
+           {{FA : Fin⁺SetStr A}} {{FB : Fin⁺SetStr B}} where
+    private
       finite⁺Merge-⊎' :
         (f : A -> D) (g : B -> D) ->
         finite⁺Merge CS (either f g) ==
@@ -87,11 +88,11 @@ module _ {ℓD : Level} {D : Type ℓD} (CS : CommutativeSemigroupStr D) where
                  finite⁺Merge CS f ∙ finite⁺Merge CS g
           path = path1 >=> cong (finite⁺Merge CS) path2 >=> path3 >=> ∙-left (sym path4)
 
-      opaque
-        finite⁺Merge-⊎ :
-          (f : (A ⊎ B) -> D) ->
-          finite⁺Merge CS f ==
-          finite⁺Merge CS (f ∘ inj-l) ∙ finite⁺Merge CS (f ∘ inj-r)
-        finite⁺Merge-⊎ f =
-          cong (finite⁺Merge CS) (funExt (\{ (inj-l _) -> refl ; (inj-r _) -> refl })) >=>
-          finite⁺Merge-⊎' (f ∘ inj-l) (f ∘ inj-r)
+    opaque
+      finite⁺Merge-⊎ :
+        (f : (A ⊎ B) -> D) ->
+        finite⁺Merge CS f ==
+        finite⁺Merge CS (f ∘ inj-l) ∙ finite⁺Merge CS (f ∘ inj-r)
+      finite⁺Merge-⊎ f =
+        cong (finite⁺Merge CS) (funExt (\{ (inj-l _) -> refl ; (inj-r _) -> refl })) >=>
+        finite⁺Merge-⊎' (f ∘ inj-l) (f ∘ inj-r)
