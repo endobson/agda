@@ -2,6 +2,8 @@
 
 module fin where
 
+open import additive-group
+open import additive-group.instances.nat
 open import base
 open import cubical
 open import discrete
@@ -35,9 +37,20 @@ private
     q : PathP (\i -> p i < n) (Fin.i<n x) (Fin.i<n y)
     q = isProp->PathP (\i -> isProp-≤)
 
-abstract
+opaque
   fin-i-path : {n : Nat} {x y : Fin n} -> Fin.i x == Fin.i y -> x == y
   fin-i-path = fin-i-pathᵉ
+
+  fin-j-path : {n : Nat} {x y : Fin n} -> fst (Fin.i<n x) == fst (Fin.i<n y) -> x == y
+  fin-j-path {n} {xi , xj , xj+sxi=n} {yi , yj , yj+syi=n} xj=yj = fin-i-path xi=yi
+    where
+    p1 : yj + (suc xi) == yj + (suc yi)
+    p1 = +-left (sym xj=yj) >=> xj+sxi=n >=> sym (yj+syi=n)
+    p2 : (suc xi) == (suc yi)
+    p2 = +'-left-injective p1
+    xi=yi : xi == yi
+    xi=yi = cong pred p2
+
 
 zero-fin : {n : Nat} -> Fin (suc n)
 zero-fin = 0 , zero-<
