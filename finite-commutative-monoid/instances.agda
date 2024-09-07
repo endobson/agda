@@ -290,6 +290,22 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
             (finiteMerge' (f ∘ inj-l)) ∙ (finiteMerge' (f ∘ inj-r))
           end
 
+  module _ {ℓA ℓB : Level} (FA@(A , finA) : FinSet ℓA) (FB@(B , finB) : FinSet ℓB) where
+    private
+      instance
+        IFA : FinSetStr A
+        IFA = record { isFin = finA }
+        IFB : FinSetStr B
+        IFB = record { isFin = finB }
+
+    opaque
+      finiteMergeᵉ-⊎ :
+        (f : (A ⊎ B) -> D) ->
+        finiteMergeᵉ CM (FinSet-⊎ FA FB) f ==
+        (finiteMergeᵉ CM FA (f ∘ inj-l)) ∙ (finiteMergeᵉ CM FB (f ∘ inj-r))
+      finiteMergeᵉ-⊎ = finiteMerge-⊎
+
+
 
 module _ {ℓA ℓB ℓD : Level} {A : Type ℓA} {B : Type ℓB} {D : Type ℓD}
          {CM-B : CommMonoid B} {CM-D : CommMonoid D} {{FA : FinSetStr A}}
