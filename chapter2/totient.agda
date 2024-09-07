@@ -43,6 +43,7 @@ open import quotient-remainder
 open import relation
 open import relatively-prime
 open import semiring.exponentiation
+open import semiring.initial
 open import semiring.instances.nat
 open import sigma
 open import sigma.base
@@ -410,7 +411,8 @@ module _ (p : Prime') where
       finiteSumᵉ (FinSet-Fin p') (\_ -> ((prime-power p n) -' (prime-power p (pred n))) *' 1)
     ==< finiteSum-* {k = (prime-power p n) -' (prime-power p (pred n))} {f = \_ -> 1} >
       ((prime-power p n) -' (prime-power p (pred n))) *' finiteSumᵉ (FinSet-Fin p') (\_ -> 1)
-    ==< cong (((prime-power p n) -' (prime-power p (pred n))) *'_) (finiteSum-one p') >
+    ==< cong (((prime-power p n) -' (prime-power p (pred n))) *'_)
+             (finiteSum-one >=> ℕ->Semiring-ℕ-path p') >
       ((prime-power p n) -' (prime-power p (pred n))) *' p'
     ==< *'-distrib-minus {prime-power p n} {prime-power p (pred n)} {p'} >
       ((prime-power p n) *' p') -' (prime-power p (pred n) *' p')

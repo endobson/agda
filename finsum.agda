@@ -71,24 +71,6 @@ module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} where
     finiteSumᵉ-convert-iso = finiteMergeᵉ-convert-iso CM
 
 
-private
-  module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} where
-    i<nSum : (n : Nat) -> (f : Nat -> D) -> D
-    i<nSum n f = finSumDep n (\ (x , _) -> f x)
-
-
-  i<nSum-zero : {n : Nat} -> i<nSum n (\i -> 0) == 0
-  i<nSum-zero {n = zero}  = refl
-  i<nSum-zero {n = suc n} = i<nSum-zero {n}
-
-  i<nSum-one : {n : Nat} -> i<nSum n (\i -> 1) == n
-  i<nSum-one {n = zero}  = refl
-  i<nSum-one {n = suc n} = cong suc (i<nSum-one {n})
-
-finiteSum-one : (n : Nat) -> finiteSum (\ (i : Fin n)  -> 1) == n
-finiteSum-one n = finiteSumᵉ-eval _ (idEquiv _) (\i -> 1) >=> i<nSum-one {n}
-
-
 cardinality-⊎ : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Type ℓ₂}
                 (finA : isFinSet A) (finB : isFinSet B) ->
                 cardinality ((A ⊎ B) , isFinSet-⊎ finA finB) ==
@@ -152,13 +134,6 @@ cardinality-Σ3 {ℓ} S@(S' , fin) B = unsquash (isSetNat _ _) (∥-map handle f
     path4 : cardinality ((Σ[ i ∈ Fin n ] ⟨ B' i ⟩) , isFinSet-Σ' B') ==
             cardinality (FinSet-Σ S B)
     path4 = cong cardinality path3
-
-finiteSum'-one : {ℓ : Level} {S : FinSet ℓ} -> finiteSumᵉ S (\s -> 1) == cardinality S
-finiteSum'-one {S = S@(S' , FS)} = unsquash (isSetNat _ _) (∥-map handle FS)
-  where
-  handle : Σ[ n ∈ Nat ] (S' ≃ Fin n) -> finiteSumᵉ S (\s -> 1) == cardinality S
-  handle (n , eq) = finiteSumᵉ-convert S (FinSet-Fin n) (equiv⁻¹ eq) (\_ -> 1) >=>
-                    finiteSum-one n >=> sym (cardinality-path S (n , ∣ eq ∣))
 
 
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
