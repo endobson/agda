@@ -16,6 +16,8 @@ open import finsum.order
 open import functions
 open import funext
 open import heyting-field.instances.real
+open import metric-space
+open import metric-space.instances.real
 open import nat.order
 open import order
 open import order.instances.nat
@@ -33,11 +35,15 @@ open import ordered-semiring.initial
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
 open import real
+open import real.distance
 open import real.exponential-series
+open import real.exponential.order.increasing.base
+open import real.exponential.plus
 open import real.sequence.limit
 open import real.sequence.limit.arithmetic
 open import real.sequence.limit.order
 open import real.series.geometric
+open import relation
 open import ring.implementations.real
 open import semiring
 open import semiring.exponentiation
@@ -45,6 +51,7 @@ open import semiring.initial
 open import semiring.instances.nat
 open import sequence
 open import sequence.partial-sums
+open import subset.subspace
 open import truncation
 
 private
@@ -144,9 +151,9 @@ private
     subst2 isLimit (funExt (\n -> sym finiteSum-diff)) refl
       (diff-preserves-limit isLimit-1/4s isLimit-2seq)
 
-
-module _ {x : ℝ} (ax<1/4 : abs x < 1/4) where
-  private
+  small-abs-exp-0< : {x : ℝ} -> (abs x < 1/4) -> 0# < exp x
+  small-abs-exp-0< {x} ax<1/4 = trans-<-≤ 0<adj-lim adj-lim≤exp
+    where
     adj-seq≤exp-terms : ∀ n -> adj-seq n ≤ exp-terms x n
     adj-seq≤exp-terms zero =
       path-≤ (+-assoc >=> +-right +-inverse >=> +-right-zero >=> sym exp-term0)
@@ -175,6 +182,22 @@ module _ {x : ℝ} (ax<1/4 : abs x < 1/4) where
       isLimit-preserves-≤ isLimit-adj (isLimit-exp x)
         (\_ -> finiteSum-preserves-≤ (\(i , _) -> adj-seq≤exp-terms i))
 
-  opaque
-    small-abs-exp-0< : 0# < exp x
-    small-abs-exp-0< = trans-<-≤ 0<adj-lim adj-lim≤exp
+
+opaque
+  exp-0< : {x : ℝ} -> 0# < exp x
+  exp-0< {x} = unsquash isProp-< (∥-map handle (split-distance<ε 0# x (1/ℕ (4 , tt) , 0<1/ℕ _)))
+    where
+    0<exp0 : 0# < exp 0#
+    0<exp0 = small-abs-exp-0< (trans-=-< (abs-0≤-path refl-≤) (0<1/ℕ (4 , tt)))
+
+    pos-0< : {x : ℝ} -> 0# < x -> 0# < exp x
+    pos-0< 0<x = trans-< 0<exp0 (exp-0≤-preserves-< refl-≤  0<x)
+
+    handle : Tri⊎ (x < 0#) (distance 0# x < (1/ℕ (4 , tt))) (0# < x) -> 0# < exp x
+    handle (tri⊎-< x<0) =
+      *₂-reflects-< (subst2 _<_ (sym *-left-zero) (sym exp-minus-inverse) 0<1) e-x≮0
+      where
+      e-x≮0 : exp (- x) ≮ 0#
+      e-x≮0 = asym-< (pos-0< (minus-flips-<0 x<0))
+    handle (tri⊎-= d<1/4) = small-abs-exp-0< (trans-=-< (cong abs (sym diff0-path)) d<1/4)
+    handle (tri⊎-> 0<x) = pos-0< 0<x
