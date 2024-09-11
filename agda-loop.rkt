@@ -3,8 +3,10 @@
 
 (require
   racket/cmdline
+  racket/file
   racket/list
   racket/match
+  racket/port
   racket/system
   racket/hash
   json)
@@ -74,17 +76,26 @@
 
 (define command
   (format "IOTCM \"~a\" None Direct (Cmd_load \"~a\" [])\n" full-path full-path))
-;(define command2
-;  (format (string-append
-;            "IOTCM \"~a\" None Direct "
-;            "(Cmd_goal_type Normalised 0 noRange \"\")\n")
-;          full-path))
+
+(define (recurring-filesystem-change-evt path)
+   (wrap-evt
+     (filesystem-change-evt path)
+     (lambda (_) (recurring-filesystem-change-evt path))))
 
 (with-handlers ([exn:break? void])
-  (let loop ()
+  (define (wait-state fs-evt file-contents)
+    (sync (handle-evt (read-line-evt (current-input-port))
+            (lambda (line) (run-state)))
+          (handle-evt fs-evt
+            (lambda (evt)
+              (define new-contents (file->bytes full-path))
+              (if (equal? new-contents file-contents)
+                  (wait-state evt new-contents)
+                  (run-state evt new-contents))))))
+
+  (define (run-state [fs-evt (recurring-filesystem-change-evt full-path)]
+                     [file-contents (file->bytes full-path)])
     (write-string command agda-in)
     (flush-output agda-in)
-    ;(write-string command2 agda-in)
-    ;(flush-output agda-in)
-    (read-line)
-    (loop)))
+    (wait-state fs-evt file-contents))
+  (run-state))
