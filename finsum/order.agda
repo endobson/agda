@@ -8,14 +8,18 @@ open import commutative-monoid
 open import commutative-monoid.binary-product
 open import commutative-monoid.subtype
 open import equality
+open import equivalence
+open import fin
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
 open import finset
 open import finsum
 open import functions
+open import nat
 open import order
 open import ordered-additive-group
 open import relation
+open import truncation
 
 module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤}
          {ACM : AdditiveCommMonoid D} {O : isPartialOrder D≤}
@@ -67,3 +71,42 @@ module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤}
       path : finiteMerge CM-2D (\i -> f i , g i) ==
              fst (finiteMerge CM-2D⁺ fg)
       path = (finiteMerge-homo-inject CommMonoidʰ-fst)
+
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {ACM : AdditiveCommMonoid D} {LO : isLinearOrder D<}
+         {{LOA : LinearlyOrderedAdditiveStr ACM LO}} where
+  private
+    CM = AdditiveCommMonoid.comm-monoid ACM
+    instance
+      IACM = ACM
+      ILO = LO
+
+  private
+    finsum-reflects-< : (n : ℕ) (f g : Fin n -> D) -> finMergeDep CM n f < finMergeDep CM n g ->
+                        ∃[ i ∈ (Fin n) ] (f i < g i)
+    finsum-reflects-< zero f g fs<gs = bot-elim (irrefl-< fs<gs)
+    finsum-reflects-< (suc n) f g fs<gs = ∥-bind handle (+-reflects-< fs<gs)
+      where
+
+      handle : (f zero-fin < g zero-fin) ⊎
+               (finMergeDep CM n (f ∘ suc-fin) < finMergeDep CM n (g ∘ suc-fin)) ->
+               ∃[ i ∈ (Fin (suc n)) ] (f i < g i)
+      handle (inj-l fz<gz) = ∣ zero-fin , fz<gz ∣
+      handle (inj-r fs<gs) =
+        ∥-map (\(i , lt) -> suc-fin i , lt)
+              (finsum-reflects-< n (f ∘ suc-fin) (g ∘ suc-fin) fs<gs)
+
+  module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
+    opaque
+      finiteSum-reflects-< : {f g : I -> D} ->
+                             finiteSum f < finiteSum g ->
+                             ∃[ i ∈ I ] (f i < g i)
+      finiteSum-reflects-< {f} {g} fs<gs = ∥-bind handle isFinSetⁱ
+        where
+        handle : Σ[ n ∈ ℕ ] (I ≃ Fin n) -> ∃[ i ∈ I ] (f i < g i)
+        handle (n , eq) =
+          ∥-map (\(i , lt) -> eqInv eq i , lt)
+                (finsum-reflects-< n (f ∘ eqInv eq) (g ∘ eqInv eq) lt)
+          where
+          lt : equivMerge CM eq f < equivMerge CM eq g
+          lt = subst2 _<_ (finiteMerge-eval CM eq f) (finiteMerge-eval CM eq g) fs<gs
