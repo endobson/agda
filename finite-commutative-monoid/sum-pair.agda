@@ -16,9 +16,17 @@ open import functions
 module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
   open CommMonoid CM
 
-  finiteMerge-FinPair+-split₁ :
-    {n : Nat} (f : FinPair+ (suc n) -> D) ->
-    finiteMerge CM f == f fin-pair+-zero₁ ∙ finiteMerge CM (f ∘ fin-pair+-suc₁)
-  finiteMerge-FinPair+-split₁ f =
-    finiteMerge-WithoutPoint CM fin-pair+-zero₁ f >=>
-    ∙-right (finiteMerge-convert-iso CM fin-pair+-suc₁-Iso _)
+  opaque
+    finiteMerge-FinPair+-split₁ :
+      {n : Nat} (f : FinPair+ (suc n) -> D) ->
+      finiteMerge CM f == f fin-pair+-zero₁ ∙ finiteMerge CM (f ∘ fin-pair+-suc₁)
+    finiteMerge-FinPair+-split₁ f =
+      finiteMerge-WithoutPoint CM fin-pair+-zero₁ f >=>
+      ∙-right (finiteMerge-convert-iso CM fin-pair+-suc₁-Iso _)
+
+    finiteMerge-FinPair+-split₂ :
+      {n : Nat} (f : FinPair+ (suc n) -> D) ->
+      finiteMerge CM f == f fin-pair+-zero₂ ∙ finiteMerge CM (f ∘ fin-pair+-suc₂)
+    finiteMerge-FinPair+-split₂ f =
+      finiteMerge-WithoutPoint CM fin-pair+-zero₂ f >=>
+      ∙-right (finiteMerge-convert-iso CM fin-pair+-suc₂-Iso _)
