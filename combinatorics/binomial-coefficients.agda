@@ -18,6 +18,12 @@ binomial-coeff' (suc n) (suc k) =
   binomial-coeff' n (suc k) +
   binomial-coeff' (suc n) k
 
+binomial-coeff'-zero₁ : (j : ℕ) -> binomial-coeff' zero j == 1#
+binomial-coeff'-zero₁ _ = refl
+binomial-coeff'-zero₂ : (i : ℕ) -> binomial-coeff' i zero == 1#
+binomial-coeff'-zero₂ zero = refl
+binomial-coeff'-zero₂ (suc i) = refl
+
 sym-binomial-coeff' : (n k : ℕ) -> binomial-coeff' n k == binomial-coeff' k n
 sym-binomial-coeff' zero zero = refl
 sym-binomial-coeff' zero (suc k) = refl
