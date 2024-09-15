@@ -1,0 +1,35 @@
+* Limits
+  * Add max/abs
+* AbsolutelyConvergent power series
+  * Show that they are continuous near 1.
+* Exponential
+  * Show exponential function is continuous
+  * Show exponential function is its own derivative
+* Sin/Cos
+  * Show that they are continuous
+  * Show that they are related by derivatives
+  * Show identity: sin² + cos² = 1
+* π
+  * Define it.
+  * Show values of sin/cos at ratios
+  * Show shift of sin/cos
+  * Show minimum period of sin/cos
+  * Show irrationality
+  * Show transcendence
+* Natural Log
+  * Construct it
+  * Show exp/ln equivalence
+  * Show +/* homomorphism
+* Complex numbers
+  * Exponential on complex numbers
+  * Euler's formula
+* Multiplicative functions
+  * Liouville's function: -1 ^ (prime count)
+  * Divisor function
+* Angles
+  * AngleAt : Point -> Type
+  * Angle = Σ Point AngleAt
+* Triangles
+  * Triangle' = (A B C : Point) -> NonColinear A B C
+  * Triangle = UnorderedTriple of NonColinear Points
+  * Congruence : Isometry
