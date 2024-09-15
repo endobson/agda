@@ -415,6 +415,26 @@ opaque
 ℝ1/-inverse : {x∈@(x , _) : ℝ# 0#} -> ℝ1/ x∈ ℝ* x == 1ℝ
 ℝ1/-inverse = ℝ1/-inverseᵉ _
 
+opaque
+  ℝ1/-double-inverse : {x∈@(x , _) : ℝ# 0#} -> ℝ1/ (ℝ1/ x∈ , ℝ1/-#0) == x
+  ℝ1/-double-inverse x∈@{x , _} =
+    sym *-right-one >=>
+    *-right (sym ℝ1/-inverse) >=>
+    sym *-assoc >=>
+    *-left ℝ1/-inverse >=>
+    *-left-one
+
+
+opaque
+  ℝ1/-reflects-0< : {x∈@(x , _) : ℝ# 0#} -> 0# < (ℝ1/ x∈) -> 0# < x
+  ℝ1/-reflects-0< 0<1/x =
+    trans-<-= (ℝ1/-preserves-0< 0<1/x) ℝ1/-double-inverse
+
+  ℝ1/-reflects-<0 : {x∈@(x , _) : ℝ# 0#} -> (ℝ1/ x∈) < 0# -> (x < 0#)
+  ℝ1/-reflects-<0 1/x<0 =
+    trans-=-< (sym ℝ1/-double-inverse) (ℝ1/-preserves-<0 1/x<0)
+
+
 
 module _ (x : ℝ) {xinv : ℝInv x} { -xinv : ℝInv (- x)} where
   opaque
@@ -442,6 +462,18 @@ opaque
     0<1/x = ℝ1/-preserves-0< 0<x
     0<1/y : 0# < ℝ1/ y∈
     0<1/y = ℝ1/-preserves-0< 0<y
+
+  ℝ1/⁺-flip-reflects-< : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> 0# < ℝ1/ x∈ -> ℝ1/ x∈ < ℝ1/ y∈ -> y < x
+  ℝ1/⁺-flip-reflects-< 0<1/x 1/x<1/y =
+    subst2 _<_ ℝ1/-double-inverse ℝ1/-double-inverse (ℝ1/⁺-flips-< 0<1/x 1/x<1/y)
+
+  ℝ1/⁺-flips-≤ : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> 0# < x -> x ≤ y -> ℝ1/ y∈ ≤ ℝ1/ x∈
+  ℝ1/⁺-flips-≤ 0<x x≤y 1/x<1/y = x≤y (ℝ1/⁺-flip-reflects-< (ℝ1/-preserves-0< 0<x) 1/x<1/y)
+
+  ℝ1/⁺-flip-reflects-≤ : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> 0# < ℝ1/ x∈ -> ℝ1/ x∈ ≤ ℝ1/ y∈ -> y ≤ x
+  ℝ1/⁺-flip-reflects-≤ 0<1/x 1/x≤1/y x<y = 1/x≤1/y (ℝ1/⁺-flips-< (ℝ1/-reflects-0< 0<1/x) x<y)
+
+
   ℝ1/⁻-flips-< : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> y < 0# -> x < y -> ℝ1/ y∈ < ℝ1/ x∈
   ℝ1/⁻-flips-< {x∈@(x , x#0)} {y∈@(y , y#0)} y<0 x<y =
     subst2 _<_
@@ -457,6 +489,18 @@ opaque
     1/x<0 = ℝ1/-preserves-<0 x<0
     1/y<0 : ℝ1/ y∈ < 0#
     1/y<0 = ℝ1/-preserves-<0 y<0
+
+  ℝ1/⁻-flip-reflects-< : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> ℝ1/ y∈ < 0# -> ℝ1/ x∈ < ℝ1/ y∈ -> y < x
+  ℝ1/⁻-flip-reflects-< {x∈@(x , x#0)} {y∈@(y , y#0)} 1/y<0 1/x<1/y =
+    subst2 _<_ ℝ1/-double-inverse ℝ1/-double-inverse (ℝ1/⁻-flips-< 1/y<0 1/x<1/y)
+
+
+  ℝ1/⁻-flips-≤ : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> y < 0# -> x ≤ y -> ℝ1/ y∈ ≤ ℝ1/ x∈
+  ℝ1/⁻-flips-≤ y<0 x≤y 1/x<1/y = x≤y (ℝ1/⁻-flip-reflects-< (ℝ1/-preserves-<0 y<0) 1/x<1/y)
+
+  ℝ1/⁻-flip-reflects-≤ : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> y < 0# -> ℝ1/ x∈ ≤ ℝ1/ y∈ -> y ≤ x
+  ℝ1/⁻-flip-reflects-≤ y<0 1/x≤1/y x<y = 1/x≤1/y (ℝ1/⁻-flips-< y<0 x<y)
+
 
 
 opaque
