@@ -10,7 +10,7 @@ open import equality
 open import finite-commutative-monoid.instances
 open import finset.instances
 open import finsum.arithmetic
-open import funext
+open import functions
 open import funext
 open import nat.order
 open import order
@@ -61,6 +61,33 @@ opaque
     diff-path n = cong (diff (partial-sums s n)) (partial-sums-split s n) >=>
                   +-assoc >=> +-right +-inverse >=> +-right-zero
 
+
+opaque
+  dropN-preserves-isConvergentSeries : {s : Sequence ℝ} {n : Nat} ->
+    isConvergentSeries s -> isConvergentSeries (dropN n s)
+  dropN-preserves-isConvergentSeries {s} {n} (l , isLim-l) = (_ , isLim-drop)
+    where
+    isLim-drop : isLimit (partial-sums (dropN n s)) (diff (partial-sums s n) l)
+    isLim-drop =
+      subst2 isLimit (funExt p2) refl
+        (diff-preserves-limit
+          (isLimit-constant-seq (partial-sums s n))
+          (dropN-preserves-limit isLim-l))
+      where
+      p2 : ∀ m -> (diff (partial-sums s n) (dropN n (partial-sums s) m)) == (partial-sums (dropN n s) m)
+      p2 m =
+        +-left (sym (partial-sums-dropN s n m)) >=>
+        +-left +-commute >=> +-assoc >=> +-right +-inverse >=> +-right-zero
+
+  dropN-reflects-isConvergentSeries : {s : Sequence ℝ} {n : Nat} ->
+    isConvergentSeries (dropN n s) -> isConvergentSeries s
+  dropN-reflects-isConvergentSeries {s} {n} (l , isLim-l) = (_ , isLim-undrop)
+    where
+    isLim-undrop : isLimit (partial-sums s) (partial-sums s n + l)
+    isLim-undrop =
+      dropN-reflects-limit
+        (subst2 isLimit (funExt (\i -> partial-sums-dropN s n i)) refl
+          (+-preserves-limit (isLimit-constant-seq (partial-sums s n)) isLim-l))
 
 opaque
   squeeze-isConvergentSeries :
@@ -117,6 +144,33 @@ opaque
           upper : Real.U (partial-sums (dropN m₁ s2) i) ε
           upper = trans-ℝ≤-U (trans-≤-= p3 (sym (diff-partial-sums s3 m₁ m₂ m₁≤m₂)))
                              (proj₂ (f3 m₁ m₂ n3≤m₁ (trans-≤ n3≤m₁ m₁≤m₂)))
+
+opaque
+  squeeze-abs-isConvergentSeries :
+    {s1 s2 : Sequence ℝ} ->
+    (∀Largeℕ (\ m -> abs (s1 m) ≤ s2 m)) ->
+    isConvergentSeries s2 ->
+    isConvergentSeries s1
+  squeeze-abs-isConvergentSeries {s1} {s2} as1≤s2 conv-s2@(l2 , isLim-s2) =
+    squeeze-isConvergentSeries
+      -s2≤s1
+      s1≤s2
+      (- l2 , isLim-ms2)
+      conv-s2
+
+    where
+    s1≤s2 : ∀Largeℕ (\ m -> s1 m ≤ s2 m)
+    s1≤s2 = ∀Largeℕ-map (\as1≤s2 -> trans-≤ abs-≤ as1≤s2) as1≤s2
+
+    -s2≤s1 : ∀Largeℕ (\ m -> (- s2 m) ≤ s1 m)
+    -s2≤s1 =
+      ∀Largeℕ-map
+        (\as1≤s2 -> trans-≤-= (minus-flips-≤ (trans-≤ max-≤-right as1≤s2)) minus-double-inverse)
+        as1≤s2
+
+    isLim-ms2 : isLimit (partial-sums (-_ ∘ s2)) (- l2)
+    isLim-ms2 = subst2 isLimit (funExt (\_ -> (sym finiteSum--))) refl
+                  (minus-preserves-limit isLim-s2)
 
 opaque
   squeeze-isAbsConvergentSeries :
