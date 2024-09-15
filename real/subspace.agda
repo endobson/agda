@@ -8,6 +8,8 @@ open import apartness
 open import base
 open import order
 open import order.instances.real
+open import order.minmax.instances.real
+open import ordered-additive-group.absolute-value
 open import real
 open import subset
 open import subset.subspace
@@ -64,3 +66,9 @@ x ≤≥ a = ∥ (x ≤ a) ⊎ (a ≤ x) ∥
 
 ℝ#' : ℝ -> Type₁
 ℝ#' a = Subspace (ℝ#S' a)
+
+∣ℝ∣<S : ℝ -> Subtype ℝ ℓ-one
+∣ℝ∣<S ε x = abs x < ε , isProp-<
+
+∣ℝ∣< : ℝ -> Type₁
+∣ℝ∣< ε = Subspace (∣ℝ∣<S ε)
