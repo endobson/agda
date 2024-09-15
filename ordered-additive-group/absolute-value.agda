@@ -125,17 +125,27 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
       instance
         IPO = PO
 
-    abs-≤0-path : {x : D} -> x ≤ 0# -> abs x == - x
-    abs-≤0-path x≤0 = abs-0≮-path (\ 0<x -> irrefl-< (trans-<-≤ 0<x x≤0))
+    opaque
+      abs-≤0-path : {x : D} -> x ≤ 0# -> abs x == - x
+      abs-≤0-path x≤0 = abs-0≮-path (\ 0<x -> irrefl-< (trans-<-≤ 0<x x≤0))
 
-    abs-0≤-path : {x : D} -> 0# ≤ x -> abs x == x
-    abs-0≤-path 0≤x = abs-≮0-path (\ x<0 -> irrefl-< (trans-<-≤ x<0 0≤x))
+      abs-0≤-path : {x : D} -> 0# ≤ x -> abs x == x
+      abs-0≤-path 0≤x = abs-≮0-path (\ x<0 -> irrefl-< (trans-<-≤ x<0 0≤x))
 
-    abs-0≤ : {x : D} -> 0# ≤ abs x
-    abs-0≤ = convert-≮ abs-≮0
+      abs-0≤ : {x : D} -> 0# ≤ abs x
+      abs-0≤ = convert-≮ abs-≮0
 
-    abs-≤ : {x : D} -> x ≤ abs x
-    abs-≤ = convert-≮ abs-≮
+      abs-≤ : {x : D} -> x ≤ abs x
+      abs-≤ = convert-≮ abs-≮
 
-    abs-distrib-+ : {x y : D} -> abs (x + y) ≤ (abs x + abs y)
-    abs-distrib-+ = trans-=-≤ (cong2 max refl minus-distrib-plus) max-+-swap
+      abs-distrib-+ : {x y : D} -> abs (x + y) ≤ (abs x + abs y)
+      abs-distrib-+ = trans-=-≤ (cong2 max refl minus-distrib-plus) max-+-swap
+
+      diff-abs≤abs-diff : {x y : D} -> diff (abs x) (abs y) ≤ abs (diff x y)
+      diff-abs≤abs-diff {x} {y} = lt2
+        where
+        lt1 : abs y ≤ (abs x + abs (diff x y))
+        lt1 = trans-=-≤ (cong abs (sym diff-step)) abs-distrib-+
+        lt2 : diff (abs x) (abs y) ≤ abs (diff x y)
+        lt2 = trans-≤-= (+₂-preserves-≤ lt1)
+                        (+-left +-commute >=> +-assoc >=> +-right +-inverse >=> +-right-zero)
