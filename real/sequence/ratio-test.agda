@@ -75,15 +75,14 @@ module _ where
                              (sym (ℚ^ℕ-ℝ^ℕ-path m)))
                   (trans-< (ℚ->ℝ-preserves-< y^m<ε') (L->ℝ< εL-ε'))
 
-  -- TODO remove 0≤l argument
-  ratio-test : {s1 s2 : Seq} {l : ℝ} -> isRatioSeq s1 s2 -> isLimit (abs ∘ s2) l -> 0# ≤ l -> l < 1# ->
+  ratio-test : {s1 s2 : Seq} ((l , _) : ∣ℝ∣< 1#) -> isRatioSeq s1 s2 -> isLimit (abs ∘ s2) l ->
                isAbsConvergentSeries s1
-  ratio-test {s1} {s2} {l} isRatio isLim 0≤l l<1 = ans
+  ratio-test {s1} {s2} (l , al<1) isRatio isLim = ans
     where
-    module _ (l' : ℝ) (l<l' : l < l') (l'<1 : l' < 1#)
-             (l2 : ℝ) (l<l2 : l < l2) (l2<l' : l2 < l') where
+    module _ (l' : ℝ) (al<l' : abs l < l') (l'<1 : l' < 1#)
+             (l2 : ℝ) (al<l2 : abs l < l2) (l2<l' : l2 < l') where
       0≤l' : 0# ≤ l'
-      0≤l' = trans-≤ 0≤l (weaken-< l<l')
+      0≤l' = trans-≤ abs-0≤ (weaken-< al<l')
       lowerSeq : Seq
       lowerSeq _ = 0#
       upperSeq : Seq
@@ -99,15 +98,15 @@ module _ where
       lower≤ = ∣ (0 , \_ _ -> abs-0≤) ∣
 
       0<l' : 0# < l'
-      0<l' = (trans-≤-< 0≤l l<l')
+      0<l' = (trans-≤-< abs-0≤ al<l')
       0<l2 : 0# < l2
-      0<l2 = (trans-≤-< 0≤l l<l2)
+      0<l2 = (trans-≤-< abs-0≤ al<l2)
       0≤l2 : 0# ≤ l2
       0≤l2 = weaken-< 0<l2
 
 
       upper≤ : ∀Largeℕ (\i -> abs (s1 i) ≤ upperSeq i)
-      upper≤ = ∥-bind handle (isLimit.upperℝ isLim l<l2)
+      upper≤ = ∥-bind handle (isLimit.upperℝ isLim (trans-≤-< abs-≤ al<l2))
         where
         handle : ∀Largeℕ' (\i -> abs (s2 i) < l2) -> ∀Largeℕ (\i -> abs (s1 i) ≤ upperSeq i)
         handle (n , as2<l2) = p9
@@ -229,7 +228,7 @@ module _ where
     ans : isAbsConvergentSeries s1
     ans =
       unsquash isProp-isConvergentSequence
-        (∥-bind (\ (l' , (l<l' , l'<1)) ->
-                  (∥-map (\ (l2 , (l<l2 , l2<l')) -> p10 l' l<l' l'<1 l2 l<l2 l2<l')
-                         (dense-ℝ< l<l')))
-                (dense-ℝ< l<1))
+        (∥-bind (\ (l' , (al<l' , l'<1)) ->
+                  (∥-map (\ (l2 , (al<l2 , l2<l')) -> p10 l' al<l' l'<1 l2 al<l2 l2<l')
+                         (dense-ℝ< al<l')))
+                (dense-ℝ< al<1))

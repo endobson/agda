@@ -117,7 +117,8 @@ opaque
 
   isAbsConvergentSeries-exponential : (x : ℝ) -> isAbsConvergentSeries (exp-terms x)
   isAbsConvergentSeries-exponential x =
-    ratio-test (isRatioSeq-exponential x) (isLimit-exponential-ratio x) refl-≤ 0<1
+    ratio-test (_ , trans-=-< (abs-0≤-path refl-≤) 0<1)
+      (isRatioSeq-exponential x) (isLimit-exponential-ratio x)
 
 exp : ℝ -> ℝ
 exp x = fst (isAbsConvergentSeries->isConvergentSeries (isAbsConvergentSeries-exponential x))
