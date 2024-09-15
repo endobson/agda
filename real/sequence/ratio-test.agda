@@ -91,7 +91,7 @@ module _ where
 
       isConvergentUpper : isConvergentSeries upperSeq
       isConvergentUpper =
-        isConvergentSeries-geometric-sequence l' (trans-=-< (abs-0≤-path 0≤l') l'<1)
+        isConvergentSeries-geometric-sequence (l' , (trans-=-< (abs-0≤-path 0≤l') l'<1))
       isConvergentLower : isConvergentSeries lowerSeq
       isConvergentLower = isConvergentSeries-zero-seq
 

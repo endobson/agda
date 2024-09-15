@@ -43,6 +43,7 @@ open import semiring.exponentiation
 open import semiring.initial
 open import semiring.instances.nat
 open import sequence.partial-sums
+open import subset.subspace
 open import truncation
 
 private
@@ -112,9 +113,9 @@ private
       ∣1/2∣<1 : abs 1/2 < 1#
       ∣1/2∣<1 = (trans-=-< (abs-0≤-path (weaken-< 0<1/2)) 1/2<1)
       v : ℝ
-      v = geometric-series-limit 1/2 ∣1/2∣<1
+      v = geometric-series-limit (1/2 , ∣1/2∣<1)
       lim-geo : isLimit (partial-sums (1/2 ^ℕ_)) v
-      lim-geo = isLimit-geometric-series 1/2 ∣1/2∣<1
+      lim-geo = isLimit-geometric-series (1/2 , ∣1/2∣<1)
       d-path : diff 1/2 1# == 1/2
       d-path = +-left (sym 1/2-+-path) >=> +-assoc >=> +-right +-inverse >=> +-right-zero
       v=2 : v == 2#
@@ -122,7 +123,7 @@ private
         sym *-right-one >=>
         *-right (sym 2*1/2-path >=> *-commute) >=>
         sym *-assoc >=>
-        *-left (*-right (sym d-path) >=> geometric-series-limit-path _ _) >=>
+        *-left (*-right (sym d-path) >=> geometric-series-limit-path _) >=>
         *-left-one
 
       lim-geo2 : isLimit (\n -> 1# + partial-sums (1/2 ^ℕ_ ∘ suc) n) 2#

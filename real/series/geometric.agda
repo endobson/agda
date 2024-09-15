@@ -325,7 +325,7 @@ Archimedean-ℚ' ε q 0≤q q<1 = ∥-bind handle (small-1/ℕ (r , 0<r))
       m , trans-≤-< (^ℕ-0≤-preserves-≤ 0≤q m q≤1-1/n) 1-1/n^m<ε
 
 
-module _ (x : ℝ) (ax<1 : abs x < 1#) where
+module _ ((x , ax<1) : ∣ℝ∣< 1#) where
   private
     ∀Largeℕ-abs-geometric-sequence<ε-ℚ :
       ((ε , _) : ℚ⁺) -> ∀Largeℕ (\i -> (abs (geometric-sequence x i)) < ℚ->ℝ ε)

@@ -56,6 +56,7 @@ open import semiring.exponentiation
 open import sequence
 open import sign
 open import sign.instances.rational
+open import subset.subspace
 open import truncation
 
 isNthPower : (n : Nat) -> Pred ℚ ℓ-zero
@@ -263,7 +264,7 @@ module _ (n'@(n , odd-n) : Σ Nat Odd) (q : ℚ) where
                (cong (_^ℕ i) (Semiringʰ-preserves-1/ℕ Semiringʰ-ℚ->ℝ 2⁺)))
 
     lim1 : isLimit (\i -> 1/2 ^ℕ i) 0#
-    lim1 = isLimit-geometric-sequence 1/2 (trans-=-< (abs-0≤-path (weaken-< 0<1/2)) 1/2<1)
+    lim1 = isLimit-geometric-sequence (1/2 , (trans-=-< (abs-0≤-path (weaken-< 0<1/2)) 1/2<1))
 
     lim-width : isLimit widthℝ 0#
     lim-width =
