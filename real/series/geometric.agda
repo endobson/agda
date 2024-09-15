@@ -400,3 +400,10 @@ module _ ((x , ax<1) : ∣ℝ∣< 1#) where
 
   isConvergentSeries-geometric-sequence : isConvergentSeries (geometric-sequence x)
   isConvergentSeries-geometric-sequence = geometric-series-limit , isLimit-geometric-series
+
+module _ ((x , ax<1) : ∣ℝ∣< 1#) where
+  opaque
+    isAbsConvergentSeries-geometric-sequence : isAbsConvergentSeries (geometric-sequence x)
+    isAbsConvergentSeries-geometric-sequence =
+      subst isConvergentSeries (funExt (\n -> sym (abs-^ℕ-path n)))
+        (isConvergentSeries-geometric-sequence (abs x , (trans-=-< (abs-0≤-path abs-0≤) ax<1)))
