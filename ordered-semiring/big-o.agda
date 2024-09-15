@@ -9,6 +9,8 @@ open import order.minmax
 open import ordered-additive-group.absolute-value
 open import relation
 open import semiring
+open import subset
+open import subset.subspace
 open import truncation
 
 module _ {ℓI ℓD ℓI≤ ℓD≤ ℓD< : Level} {I : Type ℓI} {D : Type ℓD}
@@ -24,8 +26,14 @@ module _ {ℓI ℓD ℓI≤ ℓD≤ ℓD< : Level} {I : Type ℓI} {D : Type ℓ
       I-S = S
       I-ACM = ACM
 
+    D⁺S : Subtype D ℓD<
+    D⁺S d = 0# < d , isProp-<
+
+    D⁺ : Type (ℓ-max ℓD ℓD<)
+    D⁺ = Subspace D⁺S
+
   BigO' : (f g : I -> D) -> Type _
-  BigO' f g = Σ[ k ∈ D ] Σ[ n ∈ I ] (∀ i -> n ≤ i -> abs (f i) ≤ (k * g i))
+  BigO' f g = Σ[ (k , _) ∈ D⁺ ] Σ[ n ∈ I ] (∀ i -> n ≤ i -> abs (f i) ≤ (k * g i))
 
   BigO : (f g : I -> D) -> Type _
   BigO f g = ∥ BigO' f g ∥
