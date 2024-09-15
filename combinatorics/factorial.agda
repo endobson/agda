@@ -26,7 +26,11 @@ private
   0<factorial (suc n) = *-preserves-0< (zero-< {n}) (0<factorial n)
 
 factorial⁺ : ℕ -> Nat⁺
-factorial⁺ n = factorial n , <->Pos' (0<factorial n)
+factorial⁺ n = factorial n , pf n
+  where
+  pf : (n : ℕ) -> Pos' (factorial n)
+  pf zero = tt
+  pf (suc n) = *'-Pos'-Pos' {suc n} {factorial n} tt (pf n)
 
 opaque
   -- 1 2 4 8 16 32
