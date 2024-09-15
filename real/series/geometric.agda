@@ -28,6 +28,7 @@ open import ordered-additive-group.instances.nat
 open import ordered-additive-group.instances.real
 open import ordered-field
 open import ordered-field.archimedean
+open import ordered-ring.exponentiation
 open import ordered-semiring
 open import ordered-semiring.archimedean
 open import ordered-semiring.archimedean.instances.rational
@@ -324,19 +325,19 @@ Archimedean-ℚ' ε q 0≤q q<1 = ∥-bind handle (small-1/ℕ (r , 0<r))
       m , trans-≤-< (^ℕ-0≤-preserves-≤ 0≤q m q≤1-1/n) 1-1/n^m<ε
 
 
-module _ (x : ℝ) (0≤x : 0# ≤ x) (x<1 : x < 1#) where
+module _ (x : ℝ) (ax<1 : abs x < 1#) where
   private
     ∀Largeℕ-abs-geometric-sequence<ε-ℚ :
       ((ε , _) : ℚ⁺) -> ∀Largeℕ (\i -> (abs (geometric-sequence x i)) < ℚ->ℝ ε)
     ∀Largeℕ-abs-geometric-sequence<ε-ℚ ε⁺@(ε , _) =
-      ∥-bind handle (Real.isLowerOpen-U x 1# (ℝ<->U x<1))
+      ∥-bind handle (Real.isLowerOpen-U (abs x) 1# (ℝ<->U ax<1))
       where
-      handle : Σ[ q ∈ ℚ ] (q < 1# × Real.U x q) ->
+      handle : Σ[ q ∈ ℚ ] (q < 1# × Real.U (abs x) q) ->
                ∀Largeℕ (\i -> (abs (geometric-sequence x i)) < ℚ->ℝ ε)
-      handle (q , q<1 , xU-q) = ∥-bind handle2 (Archimedean-ℚ' ε⁺ q (weaken-< 0<q) q<1)
+      handle (q , q<1 , axU-q) = ∥-bind handle2 (Archimedean-ℚ' ε⁺ q (weaken-< 0<q) q<1)
         where
         0<q : 0# < q
-        0<q = U->ℚ< (trans-ℝ≤-U 0≤x xU-q)
+        0<q = U->ℚ< (trans-ℝ≤-U abs-0≤ axU-q)
         handle2 : Σ[ n ∈ ℕ ] (q ^ℕ n) < ε ->
                   ∀Largeℕ (\i -> (abs (geometric-sequence x i)) < ℚ->ℝ ε)
         handle2 (n , q^n<ε) = ∣ n , lt ∣
@@ -344,11 +345,10 @@ module _ (x : ℝ) (0≤x : 0# ≤ x) (x<1 : x < 1#) where
           lt : (m : ℕ) -> n ≤ m -> (abs (geometric-sequence x m)) < ℚ->ℝ ε
           lt m n≤m =
             trans-≤-<
-              (trans-=-≤
-                (abs-0≤-path (geometric-sequence-0≤ 0≤x m))
+              (trans-=-≤ (abs-^ℕ-path m)
                 (trans-≤
-                  (geometric-sequence-≤1 0≤x (weaken-< x<1) n m n≤m)
-                  (^ℕ-0≤-preserves-≤ 0≤x n (weaken-< (U->ℝ< xU-q)))))
+                  (geometric-sequence-≤1 abs-0≤ (weaken-< ax<1) n m n≤m)
+                  (^ℕ-0≤-preserves-≤ abs-0≤ n (weaken-< (U->ℝ< axU-q)))))
               (trans-=-<
                 (sym (Semiringʰ-preserves-^ℕ Semiringʰ-ℚ->ℝ n))
                 (ℚ->ℝ-preserves-< q^n<ε))
@@ -368,13 +368,10 @@ module _ (x : ℝ) (0≤x : 0# ≤ x) (x<1 : x < 1#) where
 
 
   private
-    x≤1 : x ≤ 1#
-    x≤1 = weaken-< x<1
     0<1-x : 0# < (1# + - x)
-    0<1-x = diff-0<⁺ x<1
+    0<1-x = diff-0<⁺ (trans-≤-< abs-≤ ax<1)
     1-x#0 : (1# + - x) # 0#
     1-x#0 = inj-r 0<1-x
-    isUnit-1-x = Field.#0->isUnit ℝField 1-x#0
 
   opaque
     geometric-series-limit : ℝ

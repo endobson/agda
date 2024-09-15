@@ -21,7 +21,9 @@ open import order.instances.rational
 open import order.instances.real
 open import order.minmax
 open import order.minmax.instances.rational
+open import order.minmax.instances.real
 open import ordered-additive-group
+open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
 open import ordered-field
 open import ordered-field.mean
@@ -261,7 +263,7 @@ module _ (n'@(n , odd-n) : Σ Nat Odd) (q : ℚ) where
                (cong (_^ℕ i) (Semiringʰ-preserves-1/ℕ Semiringʰ-ℚ->ℝ 2⁺)))
 
     lim1 : isLimit (\i -> 1/2 ^ℕ i) 0#
-    lim1 = isLimit-geometric-sequence 1/2 (weaken-< 0<1/2) 1/2<1
+    lim1 = isLimit-geometric-sequence 1/2 (trans-=-< (abs-0≤-path (weaken-< 0<1/2)) 1/2<1)
 
     lim-width : isLimit widthℝ 0#
     lim-width =

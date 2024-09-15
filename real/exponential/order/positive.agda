@@ -63,15 +63,17 @@ private
   0≤1/4 = weaken-< 0<1/4
   1/4<1 : 1/4 < 1#
   1/4<1 = trans-<-= (1/ℕ-flips-< _ _ (2 , refl)) 1/1-path
+  ∣1/4∣<1 : abs 1/4 < 1#
+  ∣1/4∣<1 = (trans-=-< (abs-0≤-path 0≤1/4) 1/4<1)
 
   1/4s : Sequence ℝ
   1/4s n = 1/4 ^ℕ n
   1/4-lim : ℝ
-  1/4-lim = geometric-series-limit 1/4 0≤1/4 1/4<1
+  1/4-lim = geometric-series-limit 1/4 ∣1/4∣<1
   1/4-lim-path : (1/4-lim * (diff 1/4 1#)) == 1#
-  1/4-lim-path = (geometric-series-limit-path 1/4 0≤1/4 1/4<1)
+  1/4-lim-path = (geometric-series-limit-path 1/4 ∣1/4∣<1)
   isLimit-1/4s : isLimit (partial-sums 1/4s) 1/4-lim
-  isLimit-1/4s = isLimit-geometric-series 1/4 0≤1/4 1/4<1
+  isLimit-1/4s = isLimit-geometric-series 1/4 ∣1/4∣<1
 
   0<1/4-lim : 0# < 1/4-lim
   0<1/4-lim = *₂-reflects-0< 0<1/4-lim*d 0≤d

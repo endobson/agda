@@ -90,7 +90,8 @@ module _ where
       upperSeq = (geometric-sequence l')
 
       isConvergentUpper : isConvergentSeries upperSeq
-      isConvergentUpper = isConvergentSeries-geometric-sequence l' 0≤l' l'<1
+      isConvergentUpper =
+        isConvergentSeries-geometric-sequence l' (trans-=-< (abs-0≤-path 0≤l') l'<1)
       isConvergentLower : isConvergentSeries lowerSeq
       isConvergentLower = isConvergentSeries-zero-seq
 

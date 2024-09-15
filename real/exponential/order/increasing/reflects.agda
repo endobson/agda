@@ -19,6 +19,7 @@ open import order.instances.real
 open import order.minmax
 open import order.minmax.instances.real
 open import ordered-additive-group
+open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
 open import ordered-field
 open import ordered-field.mean
@@ -108,10 +109,12 @@ private
     lim2 : isLimit (partial-sums (\i -> x * ((1/2 ^ℕ (suc i))))) x
     lim2 = lim-geo4
       where
+      ∣1/2∣<1 : abs 1/2 < 1#
+      ∣1/2∣<1 = (trans-=-< (abs-0≤-path (weaken-< 0<1/2)) 1/2<1)
       v : ℝ
-      v = geometric-series-limit 1/2 (weaken-< 0<1/2) 1/2<1
+      v = geometric-series-limit 1/2 ∣1/2∣<1
       lim-geo : isLimit (partial-sums (1/2 ^ℕ_)) v
-      lim-geo = isLimit-geometric-series 1/2 (weaken-< 0<1/2) 1/2<1
+      lim-geo = isLimit-geometric-series 1/2 ∣1/2∣<1
       d-path : diff 1/2 1# == 1/2
       d-path = +-left (sym 1/2-+-path) >=> +-assoc >=> +-right +-inverse >=> +-right-zero
       v=2 : v == 2#
@@ -119,7 +122,7 @@ private
         sym *-right-one >=>
         *-right (sym 2*1/2-path >=> *-commute) >=>
         sym *-assoc >=>
-        *-left (*-right (sym d-path) >=> geometric-series-limit-path _ _ _) >=>
+        *-left (*-right (sym d-path) >=> geometric-series-limit-path _ _) >=>
         *-left-one
 
       lim-geo2 : isLimit (\n -> 1# + partial-sums (1/2 ^ℕ_ ∘ suc) n) 2#
