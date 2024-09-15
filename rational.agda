@@ -1037,11 +1037,11 @@ opaque
   1/2^ℕ-path zero = refl
   1/2^ℕ-path (suc n) = 1/2ℕ-path (2⁺ ^⁺ n) >=> cong (1/2r r*_) (1/2^ℕ-path n)
 
-  1/ℕ-preserves-* : (m n : Nat⁺) -> 1/ℕ (m *⁺ n) == 1/ℕ m * 1/ℕ n
-  1/ℕ-preserves-* m n = eq/ _ _ 1/ℕ'-preserves-*-r~
+  1/ℕ-distrib-* : (m n : Nat⁺) -> 1/ℕ (m *⁺ n) == 1/ℕ m * 1/ℕ n
+  1/ℕ-distrib-* m n = eq/ _ _ 1/ℕ'-distrib-*-r~
     where
-    1/ℕ'-preserves-*-r~ : (1/ℕ' (m *⁺ n)) r~ (1/ℕ' m r*' 1/ℕ' n)
-    1/ℕ'-preserves-*-r~ =
+    1/ℕ'-distrib-*-r~ : (1/ℕ' (m *⁺ n)) r~ (1/ℕ' m r*' 1/ℕ' n)
+    1/ℕ'-distrib-*-r~ =
       *-cong (sym *-left-one) (sym (Semiringʰ.preserves-* Semiringʰ-ℕ->ℤ ⟨ m ⟩ ⟨ n ⟩))
 
 opaque

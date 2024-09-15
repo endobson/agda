@@ -56,7 +56,7 @@ module _ (x y : ℝ) where
             sym *-assoc >=>
             *-left (∃!-prop (∃!1/ℕ (factorial⁺ n))) >=>
             *-left-one >=>
-            1/ℕ-preserves-* (factorial⁺ i) (factorial⁺ j)) >=>
+            1/ℕ-distrib-* (factorial⁺ i) (factorial⁺ j)) >=>
           *-swap)
 
       lim1 : isLimit (partial-sums (cauchy-product (exp-terms x) (exp-terms y)))

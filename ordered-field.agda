@@ -138,8 +138,8 @@ module _ {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
 
 
   opaque
-    1/ℕ-preserves-* : (a b : Nat⁺) -> 1/ℕ ( a *⁺ b ) == 1/ℕ a * 1/ℕ b
-    1/ℕ-preserves-* a b = ∃!-unique (∃!1/ℕ (a *⁺ b)) (1/ℕ a * 1/ℕ b) path
+    1/ℕ-distrib-* : (a b : Nat⁺) -> 1/ℕ ( a *⁺ b ) == 1/ℕ a * 1/ℕ b
+    1/ℕ-distrib-* a b = ∃!-unique (∃!1/ℕ (a *⁺ b)) (1/ℕ a * 1/ℕ b) path
       where
       path : iℕ (⟨ a *⁺ b ⟩) * (1/ℕ a * 1/ℕ b) == 1#
       path = *-left (Semiringʰ.preserves-* (∃!-prop ∃!ℕ->Semiring) ⟨ a ⟩ ⟨ b ⟩) >=>

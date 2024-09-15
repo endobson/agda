@@ -73,8 +73,7 @@ opaque
   isRatioSeq-exponential x .isRatioSeq.f n =
     *-swap >=>
     *-cong *-commute *-commute >=>
-    *-left (sym (1/ℕ-preserves-* (suc n , tt) (factorial⁺ n)) >=>
-            cong 1/ℕ (ΣProp-path isPropPos' refl))
+    *-left (sym (1/ℕ-distrib-* (suc n , tt) (factorial⁺ n)))
 
   isLimit-exponential-ratio : (x : ℝ) -> isLimit (abs ∘ exponential-ratios x) 0#
   isLimit-exponential-ratio x = distance<ε->isLimit f

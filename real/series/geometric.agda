@@ -37,7 +37,7 @@ open import ordered-semiring.initial
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
-open import rational hiding (1/ℕ ; 1/ℕ-preserves-*)
+open import rational hiding (1/ℕ ; 1/ℕ-distrib-*)
 open import rational.order hiding (1/ℕ-flips-≤)
 open import real
 open import real.arithmetic.multiplication.inverse
@@ -232,7 +232,7 @@ private
                               (+-commuteᵉ (suc n') n' >=> cong (n' +_) (sym *-left-one)))
 
         p2 : (1/2 * (1/ℕ n⁺)) ≤ 1/ℕ (suc n , tt)
-        p2 = trans-=-≤ (sym (1/ℕ-preserves-* 2⁺ n⁺)) (1/ℕ-flips-≤ _ _ p1)
+        p2 = trans-=-≤ (sym (1/ℕ-distrib-* 2⁺ n⁺)) (1/ℕ-flips-≤ _ _ p1)
         p3 : (1/ℕ n⁺) ≤ (2# * (1/ℕ (suc n , tt)))
         p3 = trans-=-≤ (sym *-left-one >=> *-left (sym 2*1/2-path) >=> *-assoc)
                        (*₁-preserves-≤ (weaken-< 0<2) p2)

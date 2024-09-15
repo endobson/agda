@@ -120,7 +120,7 @@ private
 
     2/4=1/2 : ℕ->Semiring 2# * 1/4 == 1/2
     2/4=1/2 =
-      *-right (1/ℕ-preserves-* (2 , tt) (2 , tt)) >=>
+      *-right (1/ℕ-distrib-* (2 , tt) (2 , tt)) >=>
       sym *-assoc >=>
       *-left (*-left ℕ->Semiring-preserves-2# >=> 2*1/2-path) >=>
       *-left-one
