@@ -63,6 +63,15 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
       Path D (finiteSum (\(i : I) -> 1#)) (ℕ->Semiring (cardinalityⁱ I))
     finiteSum-one = finiteSumᵉ-one (_ , isFinSetⁱ)
 
+    finiteSum-constant : {ℓ : Level} {I : Type ℓ} {{FI : FinSetStr I}} {k : D} ->
+      (finiteSum (\(i : I) -> k)) == (ℕ->Semiring (cardinalityⁱ I)) * k
+    finiteSum-constant =
+      cong finiteSum (funExt (\_ -> (sym *-right-one))) >=>
+      finiteSum-* >=>
+      *-right finiteSum-one >=>
+      *-commute
+
+
 
 cardinality-× : {ℓ : Level} (S₁ S₂ : FinSet ℓ) ->
                 cardinality (FinSet-× S₁ S₂) == cardinality S₁ *' cardinality S₂
