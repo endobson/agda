@@ -11,7 +11,6 @@ open import fin
 open import finset.instances
 open import finsum.order
 open import heyting-field.instances.real
-open import nat
 open import order
 open import order.instances.real
 open import order.minmax.instances.real
@@ -19,7 +18,6 @@ open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
 open import ordered-field
-open import ordered-ring.exponentiation
 open import ordered-semiring
 open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
@@ -36,15 +34,6 @@ open import sequence.partial-sums
 open import truncation
 
 private
-  exp-abs-≤ : {x : ℝ} -> exp x ≤ exp (abs x)
-  exp-abs-≤ {x} = isLimit-preserves-≤ (isLimit-exp x) (isLimit-exp (abs x)) seq≤
-    where
-    term≤ : (i : ℕ) -> (exp-terms x i) ≤ (exp-terms (abs x) i)
-    term≤ i = *₁-preserves-≤ (weaken-< (0<1/ℕ _)) (trans-≤-= abs-≤ (abs-^ℕ-path i))
-
-    seq≤ : (i : ℕ) -> partial-sums (exp-terms x) i ≤ partial-sums (exp-terms (abs x)) i
-    seq≤ i = finiteSum-preserves-≤ (\(i , _) -> term≤ i)
-
   exp-<0-preserves-<' : {x : ℝ} -> x < 0# -> exp x < exp 0#
   exp-<0-preserves-<' {x} x<0 = ex<e0
     where
@@ -62,7 +51,6 @@ private
 
     ex<e0 : exp x < exp 0#
     ex<e0 = trans-<-= (*₂-reflects-< ex*emx<1*emx (asym-< 0<emx)) (sym exp0-path)
-
 
 opaque
   exp-preserves-< : {x y : ℝ} -> x < y -> exp x < exp y

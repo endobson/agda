@@ -227,6 +227,17 @@ module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} {{AG :
     *-distrib-diff-right : {x y z : D} -> (diff x y) * z == diff (x * z) (y * z)
     *-distrib-diff-right = *-distrib-+-right >=> +-right minus-extract-left
 
+  opaque
+    a+b*a-b-path : ∀ {a b : D} -> (a + b) * (a + (- b)) == (a * a + - (b * b))
+    a+b*a-b-path =
+      *-distrib-+-right >=>
+      +-cong *-distrib-+-left (*-distrib-+-left >=> +-commute) >=>
+      +-swap >=>
+      +-right (+-cong minus-extract-right *-commute >=> +-commute >=> +-inverse) >=>
+      +-right-zero >=>
+      +-right minus-extract-right
+
+
 module _
     {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}

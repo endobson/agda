@@ -12,14 +12,19 @@ open import finsum.order
 open import functions
 open import funext
 open import heyting-field.instances.real
+open import nat
 open import order
 open import order.instances.real
+open import order.minmax.instances.real
 open import ordered-additive-group
+open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
 open import ordered-field
+open import ordered-ring.exponentiation
 open import ordered-semiring
 open import ordered-semiring.exponentiation
 open import ordered-semiring.instances.real
+open import ordered-semiring.instances.real-strong
 open import real
 open import real.exponential-series
 open import real.sequence.limit
@@ -88,3 +93,12 @@ opaque
     exp-x<exp-y =
       subst2 _<_ diff-step diff-step
         (trans-<-≤ (+₂-preserves-< 1+x<1+y) (+₁-preserves-≤ px≤py))
+
+  exp-abs-≤ : {x : ℝ} -> exp x ≤ exp (abs x)
+  exp-abs-≤ {x} = isLimit-preserves-≤ (isLimit-exp x) (isLimit-exp (abs x)) seq≤
+    where
+    term≤ : (i : ℕ) -> (exp-terms x i) ≤ (exp-terms (abs x) i)
+    term≤ i = *₁-preserves-≤ (weaken-< (0<1/ℕ _)) (trans-≤-= abs-≤ (abs-^ℕ-path i))
+
+    seq≤ : (i : ℕ) -> partial-sums (exp-terms x) i ≤ partial-sums (exp-terms (abs x)) i
+    seq≤ i = finiteSum-preserves-≤ (\(i , _) -> term≤ i)

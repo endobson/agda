@@ -25,12 +25,20 @@ open import ordered-semiring
 open import ordered-semiring.exponentiation
 open import ordered-semiring.initial
 open import ordered-semiring.instances.real
+open import ordered-semiring.instances.real-strong
+open import ordered-semiring.squares
 open import real
+open import real.arithmetic.multiplication.inverse
 open import real.exponential-series
+open import real.exponential.order.positive
+open import real.exponential.order.increasing.base
+open import real.exponential.plus
 open import real.sequence.limit
 open import real.sequence.limit.arithmetic
 open import real.sequence.limit.order
 open import real.series.geometric
+open import real.subspace
+open import ring
 open import ring.implementations.real
 open import semiring
 open import semiring.exponentiation
@@ -138,3 +146,49 @@ opaque
     lt1 = isLimit-preserves-≤ lim1 lim2 ps
     lt2 : exp x ≤ (1# + 2# * x)
     lt2 = subst2 _≤_ diff-step (+-assoc >=> +-right (sym 2*-path)) (+₁-preserves-≤ lt1)
+
+  exp-≤1+2absx : {x : ℝ} -> abs x < 1# -> exp x ≤ (1# + 2# * abs x)
+  exp-≤1+2absx ax<1 = trans-≤ exp-abs-≤ (exp-0≤-≤1+2x abs-0≤ ax<1)
+
+private
+  1/exp-path : {x : ℝ} -> ℝ1/ (exp x , inj-r exp-0<) == exp (- x)
+  1/exp-path =
+    sym *-right-one >=>
+    *-right (sym exp-minus-inverse) >=>
+    sym *-assoc >=>
+    *-left ℝ1/-inverse >=>
+    *-left-one
+
+opaque
+  exp-≥1-2absx : {x : ℝ} -> abs x < 1# -> (1# + (- (2# * abs x))) ≤ exp x
+  exp-≥1-2absx {x} ax<1 = trans-≤ lt3 (trans-≤-= lt1 eq1)
+    where
+    a-x<1 : abs (- x) < 1#
+    a-x<1 = trans-=-< abs-minus ax<1
+    0<1+2ax : 0# < (1# + 2# * abs x)
+    0<1+2ax = trans-≤-< (*-preserves-0≤ (weaken-< 0<2) abs-0≤)
+                        (trans-=-< (sym +-left-zero) (+₂-preserves-< 0<1))
+
+    0<1+2a-x : 0# < (1# + 2# * abs (- x))
+    0<1+2a-x = trans-≤-< (*-preserves-0≤ (weaken-< 0<2) abs-0≤)
+                         (trans-=-< (sym +-left-zero) (+₂-preserves-< 0<1))
+
+    lt1 : (ℝ1/ (1# + 2# * abs x , inj-r 0<1+2ax)) ≤ (ℝ1/ (exp (- x) , inj-r exp-0<))
+    lt1 = trans-=-≤ (cong ℝ1/ abs-p) (ℝ1/⁺-flips-≤ exp-0< (exp-≤1+2absx a-x<1))
+      where
+      abs-p : Path (ℝ# 0#) (1# + 2# * abs x , inj-r 0<1+2ax) (1# + 2# * abs (- x) , inj-r 0<1+2a-x)
+      abs-p = (Subspace-path (+-right (*-right (sym abs-minus))))
+
+    eq1 : ℝ1/ (exp (- x) , inj-r exp-0<) == exp x
+    eq1 = 1/exp-path >=> cong exp minus-double-inverse
+
+    lt2 : ((1# + (- (2# * abs x))) * (1# + 2# * abs x)) ≤ 1#
+    lt2 =
+      trans-=-≤ (*-commute >=> a+b*a-b-path >=> +-left *-right-one)
+        (trans-≤-= (+₁-preserves-≤ (minus-flips-0≤ square-≮0))
+          +-right-zero)
+
+    lt3 : (1# + (- (2# * abs x))) ≤ (ℝ1/ (1# + 2# * abs x , inj-r 0<1+2ax))
+    lt3 = subst2 _≤_ (*-assoc >=> *-right (*-commute >=> ℝ1/-inverse) >=> *-right-one)
+                     *-left-one
+            (*₂-preserves-≤ lt2 (weaken-< (ℝ1/-preserves-0< 0<1+2ax)))
