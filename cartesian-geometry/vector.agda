@@ -169,21 +169,21 @@ conjugate-vector-double-inverse v = vector-ext (\{ x-axis -> refl ; y-axis -> mi
 vector-length² : Vector -> ℝ
 vector-length² v = axis-dot-product (vector-index v) (vector-index v)
 
-vector-length²≮0 : (v : Vector) -> (vector-length² v ≮ 0#)
-vector-length²≮0 v = +-preserves-≮0 square-≮0 square-≮0
+vector-length²-0≤ : (v : Vector) -> (0# ≤ vector-length² v)
+vector-length²-0≤ v = +-preserves-0≤ square-≮0 square-≮0
   where
   x = (direct-product-index v x-axis)
   y = (direct-product-index v y-axis)
 
 vector-length : Vector -> ℝ
-vector-length v = sqrtℝ (vector-length² v) (vector-length²≮0 v)
+vector-length v = sqrtℝ (vector-length² v , vector-length²-0≤ v)
 
-vector-length≮0 : (v : Vector) -> (vector-length v ≮ 0#)
-vector-length≮0 v = sqrt-0≤ (vector-length² v) (vector-length²≮0 v)
+vector-length-0≤ : (v : Vector) -> (0# ≤ vector-length v)
+vector-length-0≤ v = sqrt-0≤ (vector-length² v , vector-length²-0≤ v)
 
 opaque
   vector-length-squared-path : (v : Vector) -> (vector-length v) * (vector-length v) == (vector-length² v)
-  vector-length-squared-path v = sqrt² (vector-length² v) (vector-length²≮0 v)
+  vector-length-squared-path v = sqrt² (vector-length² v , vector-length²-0≤ v)
 
 isUnitVector : Pred Vector ℓ-one
 isUnitVector v = vector-length v == 1#
@@ -207,8 +207,8 @@ isUnitVector'-equiv v =
     p2 = p >=> sym *-left-one
 
     path : vector-length v == 1#
-    path = cong2-dep sqrtℝ p2 (isProp->PathP (\i -> isProp-≤)) >=>
-           sqrt-square 1# >=> abs-≮0-path 0≤1
+    path = cong sqrtℝ (Subspace-path p2) >=>
+           sqrt-square 1# >=> abs-0≤-path 0≤1
 
   backward : isUnitVector v -> isUnitVector' v
   backward p = sym (vector-length-squared-path v) >=> *-cong p p >=> *-left-one
@@ -229,8 +229,8 @@ isSet-Direction = isSetΣ isSet-Vector (\v -> isProp->isSet (isProp-isUnitVector
 0<-square x (inj-r 0<x) = subst (_< (x * x)) *-right-zero (*₁-preserves-< 0<x 0<x)
 
 opaque
-  vector-length>0 : (v : Vector) -> (v v# 0v) -> (vector-length v > 0#)
-  vector-length>0 v v#0 = unsquash isProp-< (∥-map handle v#0)
+  vector-length-0< : (v : Vector) -> (v v# 0v) -> (vector-length v > 0#)
+  vector-length-0< v v#0 = unsquash isProp-< (∥-map handle v#0)
     where
     x : ℝ
     x = (direct-product-index v x-axis)
@@ -244,7 +244,7 @@ opaque
     xxyy = xx + yy
 
     handle-vl²>0 : (vector-length² v > 0#) -> (vector-length v > 0#)
-    handle-vl²>0 = sqrt-0< (vector-length² v) (vector-length²≮0 v)
+    handle-vl²>0 = sqrt-0< (vector-length² v , vector-length²-0≤ v)
 
 
     handle : Σ[ a ∈ Axis ] (direct-product-index v a) # 0# -> (vector-length v > 0#)
@@ -314,21 +314,21 @@ vector-length-* k v = p6
   lkv = vector-length (k v* v)
   lv = vector-length v
   aklv = (abs k * lv)
-  0≤l2kv = vector-length²≮0 (k v* v)
-  0≤l2v = vector-length²≮0 v
-  0≤lv = vector-length≮0 v
-  0≤aklv = *-preserves-0≤ abs-≮0 0≤lv
+  0≤l2kv = vector-length²-0≤ (k v* v)
+  0≤l2v = vector-length²-0≤ v
+  0≤lv = vector-length-0≤ v
+  0≤aklv = *-preserves-0≤ abs-0≤ 0≤lv
 
   p2 : l2v == lv * lv
-  p2 = sym (sqrt² l2v 0≤l2v)
+  p2 = sym (sqrt² (l2v , 0≤l2v))
   p4 : (k * k) * (lv * lv) == aklv * aklv
   p4 = *-left abs-square >=>
        *-assoc >=> *-right (sym *-assoc >=> *-left *-commute >=> *-assoc) >=> sym *-assoc
   p3 : l2kv == aklv * aklv
   p3 = vector-length²-* k v >=> *-right p2 >=> p4
 
-  p5 : lkv == sqrtℝ (aklv * aklv) square-≮0
-  p5 = cong2-dep sqrtℝ p3 (isProp->PathP (\i -> isProp-≤))
+  p5 : lkv == sqrtℝ (aklv * aklv , square-≮0)
+  p5 = cong sqrtℝ (Subspace-path p3)
 
   p6 : lkv == aklv
   p6 = p5 >=> sqrt-square aklv >=> abs-≮0-path 0≤aklv
@@ -344,7 +344,7 @@ vector-length²-v- v =
   -v=-1v = sym v*-left-minus-one
 
 vector-length-v- : (v : Vector) -> vector-length (v- v) == vector-length v
-vector-length-v- v = cong2-dep sqrtℝ p (isProp->PathP (\i -> isProp-≤))
+vector-length-v- v = cong sqrtℝ (Subspace-path p)
   where
   p = vector-length²-v- v
 
@@ -357,7 +357,7 @@ d-_ (v , vl=1) = v- v , a.vl-=1
       vl-=1 = vector-length-v- v >=> vl=1
 
 normalize-vector : (v : Vector) -> v v# 0v -> Vector
-normalize-vector v v#0 = (ℝ1/ (vector-length v , inj-r (vector-length>0 v v#0))) v* v
+normalize-vector v v#0 = (ℝ1/ (vector-length v , inj-r (vector-length-0< v v#0))) v* v
 
 normalize-vector-path : (v : Vector) -> (v#0 : v v# 0v) ->
                         v == (vector-length v) v* (normalize-vector v v#0)
@@ -383,7 +383,7 @@ normalize-vector-v*-Pos v v#0 k 0<k kv#0 =
 
   where
   k∈ vl∈ : ℝ# 0#
-  vl∈ = (vector-length v) , (inj-r (vector-length>0 v v#0))
+  vl∈ = (vector-length v) , (inj-r (vector-length-0< v v#0))
   k∈ = k , (inj-r 0<k)
   kv = k v* v
   nv = normalize-vector v v#0
@@ -420,7 +420,7 @@ normalize-vector-v- v v#0 -v#0 =
   nv = (normalize-vector v v#0)
   n-v = (normalize-vector -v -v#0)
   vl∈ : ℝ# 0#
-  vl∈ = vector-length v , inj-r (vector-length>0 v v#0)
+  vl∈ = vector-length v , inj-r (vector-length-0< v v#0)
 
 normalize-vector-v-' :
    (v1 : Vector) -> (v1#0 : v1 v# 0v) ->
@@ -442,7 +442,7 @@ normalize-vector-v-' v1 v1#0 v2 v2#0 v1=-v2 =
 vector->direction : (v : Vector) -> v v# 0v -> Direction
 vector->direction v v#0 = normalize-vector v v#0 , a.path
   where
-  0<vl = (vector-length>0 v v#0)
+  0<vl = (vector-length-0< v v#0)
   vl∈ : ℝ# 0#
   vl∈ = vector-length v , inj-r 0<vl
   k = ℝ1/ vl∈
@@ -534,7 +534,7 @@ DirectionOfVector'-vector->direction {v} v#0 =
      cong (_v* (normalize-vector v v#0)) ℝ1/-inverse >=>
      v*-left-one))
   where
-  0<vl = (vector-length>0 v v#0)
+  0<vl = (vector-length-0< v v#0)
   vl∈ : ℝ# 0#
   vl∈ = vector-length v , inj-r 0<vl
   1/vl = ℝ1/ vl∈
@@ -562,7 +562,7 @@ conjugate-preserves-vector-length² v = +-right minus-extract-both
 conjugate-preserves-vector-length :
   (v : Vector) -> vector-length (conjugate-vector v) == vector-length v
 conjugate-preserves-vector-length v =
-  cong2-dep sqrtℝ p (isProp->PathP (\i -> isProp-≤))
+  cong sqrtℝ (Subspace-path p)
   where
   p = conjugate-preserves-vector-length² v
 

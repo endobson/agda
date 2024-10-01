@@ -22,14 +22,15 @@ open import rational.squares
 open import real
 open import real.order
 open import real.rational
+open import real.subspace
 open import relation hiding (U)
 open import semiring
 open import sign
+open import subset.subspace
 open import truncation
 
 
-module _ (x : ℝ) (x≮0 : x ≮ 0#)
-  where
+module _ ((x , 0≤x) : ℝ⁰⁺) where
   private
     module x = Real x
 
@@ -103,7 +104,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#)
           handle (r , (r<qq , xu-r)) = handle2 (split-< 0r r)
             where
             handle2 : (0r < r ⊎ r ≤ 0r) -> ∃[ r ∈ ℚ ] (r < q × U r)
-            handle2 (inj-r r≤0) = bot-elim (x≮0 x<0)
+            handle2 (inj-r r≤0) = bot-elim (0≤x x<0)
               where
               handle3 : Σ[ s ∈ ℚ ] (s < r × x.U s) -> x ℝ<' 0#
               handle3 (s , s<r , xu-s) = (ℝ<'-cons s xu-s (ℚ<->L (trans-<-≤ s<r r≤0)))

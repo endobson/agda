@@ -38,6 +38,7 @@ open import ring
 open import ring.implementations.real
 open import semiring
 open import solver
+open import subset.subspace
 open import sum
 open import truncation
 open import vector-space
@@ -697,7 +698,7 @@ rotate-vector-preserves-vector-length² (rotation-cons dv vl-d=1) v =
 rotate-preserves-vector-length :
   (r : Rotation) (v : Vector) -> vector-length (rotate-vector r v) == vector-length v
 rotate-preserves-vector-length r v =
-  cong2-dep sqrtℝ p (isProp->PathP (\i -> isProp-≤))
+  cong sqrtℝ (Subspace-path p)
   where
   p = rotate-vector-preserves-vector-length² r v
 

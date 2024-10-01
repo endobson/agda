@@ -142,9 +142,9 @@ module _ {ℓD : Level} {D : Type ℓD} {{MS : MetricSpaceStr D}} where
       ε/4⁺ : ℝ⁺
       ε/4⁺ = ε/4 , 0<ε/4
       sqrt-ε/2 : ℝ
-      sqrt-ε/2 = sqrtℝ ε/2 (weaken-< 0<ε/2)
+      sqrt-ε/2 = sqrtℝ (ε/2 , (weaken-< 0<ε/2))
       0<sqrt-ε/2 : 0# < sqrt-ε/2
-      0<sqrt-ε/2 = sqrt-0< ε/2 (weaken-< 0<ε/2) 0<ε/2
+      0<sqrt-ε/2 = sqrt-0< (ε/2 , weaken-< 0<ε/2) 0<ε/2
       sqrt-ε/2⁺ : ℝ⁺
       sqrt-ε/2⁺ = sqrt-ε/2 , 0<sqrt-ε/2
 
@@ -166,7 +166,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{MS : MetricSpaceStr D}} where
           trans-≤-< lt1
             (trans-<-=
               (+-preserves-< (+-preserves-< (δ1-close y dxy<δ1) (δ2-close y dxy<δ2)) lt-d*)
-              ((cong2 _+_ 1/2-path (sqrt² _ _)) >=> 1/2-path))
+              ((cong2 _+_ 1/2-path (sqrt² _)) >=> 1/2-path))
           where
           dxy<δ1 : distance x y < δ1
           dxy<δ1 = trans-<-≤ dxy<δ (trans-≤ min-≤-left min-≤-left)

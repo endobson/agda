@@ -20,40 +20,41 @@ open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
 open import ordered-semiring.squares
 open import rational
-open import rational.order
 open import rational.open-interval
 open import rational.open-interval.multiplication-inclusion
+open import rational.order
 open import real
 open import real.arithmetic.multiplication
 open import real.arithmetic.sqrt.base
 open import real.open-interval
 open import real.rational
+open import real.subspace
 open import ring.implementations.real
 open import semiring
+open import subset.subspace
 open import truncation
 
 private
-  module _ (x : ℝ) (x≮0 : x ≮ 0#) where
-    ≮0-sqrtᵉ : (sqrtℝᵉ x x≮0) ≮ 0#
-    ≮0-sqrtᵉ s<0 = ℝ≮0-¬U0 x x≮0 xU-0
-      where
-      s = (sqrtℝᵉ x x≮0)
-      module s = Real s
-      module x = Real x
-      sU-0 : s.U 0#
-      sU-0 = ℝ<->U s<0
-      xU-0 : x.U 0#
-      xU-0 = subst x.U *-right-zero (snd (sU-0))
-
+  module _ (x∈@(x , 0≤x) : ℝ⁰⁺) where
     opaque
       unfolding sqrtℝ
 
-      ≮0-sqrt : (sqrtℝ x x≮0) ≮ 0#
-      ≮0-sqrt = ≮0-sqrtᵉ
+      sqrt-0≤' : 0# ≤ (sqrtℝ x∈)
+      sqrt-0≤' s<0 = ℝ≮0-¬U0 x 0≤x xU-0
+        where
+        s : ℝ
+        s = (sqrtℝ x∈)
+        module s = Real s
+        module x = Real x
+        sU-0 : s.U 0#
+        sU-0 = ℝ<->U s<0
+        xU-0 : x.U 0#
+        xU-0 = subst x.U *-right-zero (snd (sU-0))
 
-module _ (x : ℝ) (x≮0 : x ≮ 0#) where
+
+module _ (x∈@(x , 0≤x) : ℝ⁰⁺) where
   private
-    sx = (sqrtℝᵉ x x≮0)
+    sx = (sqrtℝᵉ x∈)
     sxsx = sx ℝ*ᵉ sx
     module x = Real x
     module sx = Real sx
@@ -103,7 +104,7 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
         x-l = handle (fst sx∈ti)
           where
           handle : (til < 0r ⊎ ((0r ≤ til) × (x.L (til * til)))) -> x.L xiyi-l
-          handle (inj-l til<0) = ℝ≮0-L∀<0 x x≮0 xiyi-l<0
+          handle (inj-l til<0) = ℝ≮0-L∀<0 x 0≤x xiyi-l<0
             where
             tiul≤0 : (tiu * til) ≤ 0#
             tiul≤0 = *₁-preserves-≤0 0≤tiu (weaken-< til<0)
@@ -139,41 +140,40 @@ module _ (x : ℝ) (x≮0 : x ≮ 0#) where
   opaque
     unfolding sqrtℝ
 
-    sqrt² : (sqrtℝ x x≮0) * (sqrtℝ x x≮0) == x
+    sqrt² : (sqrtℝ x∈) * (sqrtℝ x∈) == x
     sqrt² = ℝ*-eval >=> *-sqrtᵉ
 
-∃!sqrt : (x : ℝ) -> (0# ≤ x) -> ∃![ y ∈ ℝ ] (0# ≤ y × (y * y == x))
-∃!sqrt x 0≤x = (sqrtℝ x 0≤x , ≮0-sqrt x 0≤x , sqrt² x 0≤x) , isProp-Σsqrt _
+∃!sqrt : (x∈@(x , _) : ℝ⁰⁺) -> ∃![ y ∈ ℝ ] (0# ≤ y × (y * y == x))
+∃!sqrt x∈ = (sqrtℝ x∈ , sqrt-0≤' x∈ , sqrt² x∈) , isProp-Σsqrt _
 
 
-module _ (x : ℝ) (x≮0 : x ≮ 0#) where
+module _ (x∈@(x , 0≤x) : ℝ⁰⁺) where
   private
-    sx = ∃!-val (∃!sqrt x x≮0)
+    sx = ∃!-val (∃!sqrt x∈)
 
   opaque
     sqrt-0< : (0<x : 0# < x) -> 0# < sx
-    sqrt-0< 0<x = isSqrt-0< (∃!-prop (∃!sqrt x x≮0)) 0<x
+    sqrt-0< 0<x = isSqrt-0< (∃!-prop (∃!sqrt x∈)) 0<x
 
     sqrt-0≤ : 0# ≤ sx
-    sqrt-0≤ = isSqrt-0≤ (∃!-prop (∃!sqrt x x≮0))
+    sqrt-0≤ = isSqrt-0≤ (∃!-prop (∃!sqrt x∈))
 
 module _ (x : ℝ) where
   opaque
-    sqrt-square : sqrtℝ (x * x) square-≮0 == abs x
-    sqrt-square = isSqrt-square (∃!-prop (∃!sqrt (x * x) square-≮0))
+    sqrt-square : sqrtℝ ((x * x) , square-≮0) == abs x
+    sqrt-square = isSqrt-square (∃!-prop (∃!sqrt (x * x , square-≮0)))
 
-module _ (x : ℝ) (y : ℝ) (x≮0 : x ≮ 0#) (y≮0 : y ≮ 0#)
-  where
+module _ (x∈@(x , 0≤x) : ℝ⁰⁺) (y∈@(y , 0≤y) : ℝ⁰⁺) where
   private
     xy = x * y
-    0≤xy : 0# ≤ xy
-    0≤xy = *-preserves-≮0 x≮0 y≮0
-    sx = (sqrtℝ x x≮0)
-    sy = (sqrtℝ y y≮0)
-    sxy = (sqrtℝ xy 0≤xy)
+    xy∈ : ℝ⁰⁺
+    xy∈ = xy , *-preserves-0≤ 0≤x 0≤y
+    sx = sqrtℝ x∈
+    sy = sqrtℝ y∈
+    sxy = sqrtℝ xy∈
     sxsy = sx ℝ* sy
 
   opaque
     sqrt-* : sxy == sxsy
-    sqrt-* = ∃!-unique (∃!sqrt (x * y) 0≤xy) sxsy (isSqrt-* (∃!-prop (∃!sqrt x x≮0))
-                                                            (∃!-prop (∃!sqrt y y≮0)))
+    sqrt-* = ∃!-unique (∃!sqrt xy∈) sxsy (isSqrt-* (∃!-prop (∃!sqrt x∈))
+                                                            (∃!-prop (∃!sqrt y∈)))
