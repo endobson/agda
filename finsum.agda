@@ -134,17 +134,3 @@ cardinality-Σ3 {ℓ} S@(S' , fin) B = unsquash (isSetNat _ _) (∥-map handle f
     path4 : cardinality ((Σ[ i ∈ Fin n ] ⟨ B' i ⟩) , isFinSet-Σ' B') ==
             cardinality (FinSet-Σ S B)
     path4 = cong cardinality path3
-
-
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
-  private
-    instance
-      IACM = ACM
-    module S = Semiring S
-
-  abstract
-    finiteSum-Bot : (f : Bot -> D) -> finiteSum f == 0#
-    finiteSum-Bot f = finiteSumᵉ-eval FinSet-Bot (equiv⁻¹ Fin-Bot-eq) f
-
-  finiteSum-Fin0 : (f : (Fin 0) -> D) -> finiteSum f == 0#
-  finiteSum-Fin0 f = finiteSumᵉ-eval (FinSet-Fin 0) (idEquiv _) f

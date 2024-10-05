@@ -9,6 +9,7 @@ open import equivalence
 open import fin
 open import fin-algebra
 open import finite-commutative-monoid.instances
+open import finite-commutative-monoid.small
 open import finset
 open import finset.instances
 open import finset.instances.base
@@ -63,20 +64,15 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
         path1 = finiteSumᵉ-convert-iso (FinSet-Σ (FinSet-Fin 0) FB) FinSet-Bot (iso⁻¹ iso1) f
 
         path2 : finiteSumᵉ FinSet-Bot (f ∘ iso1.inv) == 0#
-        path2 = finiteSum-Bot (f ∘ iso1.inv)
+        path2 = finiteMerge-Bot _ _
 
         path3 : 0# == finiteSumᵉ FinSet-Bot (g ∘ iso2.inv)
-        path3 = sym (finiteSum-Bot _)
+        path3 = sym (finiteMerge-Bot _ _)
 
         path4 : finiteSumᵉ FinSet-Bot (g ∘ iso2.inv)
                 == finiteSumᵉ (FinSet-Fin 0) g
         path4 = sym (finiteSumᵉ-convert-iso (FinSet-Fin 0) FinSet-Bot (iso⁻¹ iso2) g)
 
-
-  --module _ {ℓB : Level} {FB : {n : Nat} -> Fin n -> FinSet ℓB}  where
-  --  private
-  --    B : {n : Nat} -> Fin n -> Type ℓB
-  --    B = fst ∘ FB
 
   module _ {ℓB : Level}   where
     finiteSum-Σ' : {n : Nat}
