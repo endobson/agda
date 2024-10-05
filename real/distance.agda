@@ -98,3 +98,40 @@ opaque
 
   #->metric# : {x y : ℝ} -> x # y -> 0# < distance x y
   #->metric# = eqFun (diff-<>-equiv >eq> abs-#0-eq)
+
+  distance-diff-minmax : {a b : ℝ} -> distance a b == diff (min a b) (max a b)
+  distance-diff-minmax {a} {b} = antisym-≤ dis≤diff diff≤dis
+    where
+
+    dis≤diff : distance a b ≤ diff (min a b) (max a b)
+    dis≤diff = max-least-≤ lt1 lt2
+      where
+      lt1 : diff a b ≤ diff (min a b) (max a b)
+      lt1 = +-preserves-≤ max-≤-right (minus-flips-≤ min-≤-left)
+      lt2 : (- (diff a b)) ≤ diff (min a b) (max a b)
+      lt2 = trans-=-≤ (sym diff-anticommute) (+-preserves-≤ max-≤-left (minus-flips-≤ min-≤-right))
+
+    diff≤dis : diff (min a b) (max a b) ≤ distance a b
+    diff≤dis lt1 =
+      irrefl-path-<
+        (path->zero-distance a=b >=>
+         sym (cong2 diff (cong2 min a=b refl >=> min-idempotent)
+                         (cong2 max a=b refl >=> max-idempotent) >=>
+              +-inverse))
+        lt1
+      where
+      b≤a : b ≤ a
+      b≤a a<b = irrefl-path-< (sym p) lt1
+        where
+        p : diff (min a b) (max a b) == distance a b
+        p = cong2 diff (min-<-path a<b) (max-<-path a<b) >=>
+            sym (abs-0≤-path (diff-0≤⁺ (weaken-< a<b)))
+      a≤b : a ≤ b
+      a≤b b<a = irrefl-path-< (sym p) lt1
+        where
+        p : diff (min a b) (max a b) == distance a b
+        p = cong2 diff (min->-path b<a) (max->-path b<a) >=>
+            (sym (abs-0≤-path (diff-0≤⁺ (weaken-< b<a)))) >=>
+            distance-commuteᵉ b a
+      a=b : a == b
+      a=b = antisym-≤ a≤b b≤a

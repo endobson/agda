@@ -150,3 +150,58 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Re
     where
     abcd≤ac = +-preserves-≤ max-≤-left max-≤-left
     abcd≤bd = +-preserves-≤ max-≤-right max-≤-right
+
+
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D}
+         {LO : isLinearOrder D<}
+         {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
+  where
+  private
+    instance
+      IACM = ACM
+      ILO = LO
+      IPO = isLinearOrder->isPartialOrder-≯ LO
+      CPO = CompatibleNegatedLinearOrder LO
+      POA = PartiallyOrderedAdditiveStr-Negated ACM LO
+
+  module _ {{Max : MaxOperationStr LO}} where
+    opaque
+      +-distrib-max-right : {a b c : D} -> max a b + c == max (a + c) (b + c)
+      +-distrib-max-right {a} {b} {c} = antisym-≤ lt1 lt2
+        where
+        lt1 : (max a b + c) ≤ max (a + c) (b + c)
+        lt1 lt = irrefl-< ab<ab
+          where
+          a<ab : a < max a b
+          a<ab = +₂-reflects-< (trans-≤-< max-≤-left lt)
+          b<ab : b < max a b
+          b<ab = +₂-reflects-< (trans-≤-< max-≤-right lt)
+          ab<ab : max a b < max a b
+          ab<ab = max-least-< a<ab b<ab
+
+        lt2 : max (a + c) (b + c) ≤ (max a b + c)
+        lt2 = trans-≤-= max-+-swap (+-right max-idempotent)
+
+      +-distrib-max-left : {a b c : D} -> a + max b c == max (a + b) (a + c)
+      +-distrib-max-left = +-commute >=> +-distrib-max-right >=> cong2 max +-commute +-commute
+
+  module _ {{Min : MinOperationStr LO}} where
+    opaque
+      +-distrib-min-right : {a b c : D} -> min a b + c == min (a + c) (b + c)
+      +-distrib-min-right {a} {b} {c} = antisym-≤ lt2 lt1
+        where
+        lt1 : min (a + c) (b + c) ≤ (min a b + c)
+        lt1 lt = irrefl-< ab<ab
+          where
+          ab<a : min a b < a
+          ab<a = +₂-reflects-< (trans-<-≤ lt min-≤-left)
+          ab<b : min a b < b
+          ab<b = +₂-reflects-< (trans-<-≤ lt min-≤-right)
+          ab<ab : min a b < min a b
+          ab<ab = min-greatest-< ab<a ab<b
+
+        lt2 : (min a b + c) ≤ min (a + c) (b + c)
+        lt2 = trans-=-≤ (sym (+-right min-idempotent)) min-+-swap
+
+      +-distrib-min-left : {a b c : D} -> a + min b c == min (a + b) (a + c)
+      +-distrib-min-left = +-commute >=> +-distrib-min-right >=> cong2 min +-commute +-commute
