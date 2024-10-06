@@ -401,6 +401,25 @@ module _ ((x , ax<1) : ∣ℝ∣< 1#) where
   isConvergentSeries-geometric-sequence : isConvergentSeries (geometric-sequence x)
   isConvergentSeries-geometric-sequence = geometric-series-limit , isLimit-geometric-series
 
+opaque
+  unfolding geometric-series-limit
+
+  geometric-series-limit-preserves-≤ :
+    {x∈@(x , _) y∈@(y , _) : ∣ℝ∣< 1#} -> x ≤ y ->
+    geometric-series-limit x∈ ≤ geometric-series-limit y∈
+  geometric-series-limit-preserves-≤ {x , _} {y , ay<1} x≤y =
+    ℝ1/⁺-flips-≤ 0<1-y (+₁-preserves-≤ (minus-flips-≤ x≤y))
+    where
+    0<1-y : 0# < diff y 1#
+    0<1-y = diff-0<⁺ (trans-≤-< abs-≤ ay<1)
+
+  geometric-series-limit-0< : ∀ {x} -> 0# < geometric-series-limit x
+  geometric-series-limit-0< {x , ax<1} = ℝ1/-preserves-0< 0<1-x
+    where
+    0<1-x : 0# < diff x 1#
+    0<1-x = diff-0<⁺ (trans-≤-< abs-≤ ax<1)
+
+
 module _ ((x , ax<1) : ∣ℝ∣< 1#) where
   opaque
     isAbsConvergentSeries-geometric-sequence : isAbsConvergentSeries (geometric-sequence x)
