@@ -8,7 +8,9 @@ open import apartness
 open import base
 open import equality
 open import equivalence
+open import heyting-field.instances.real
 open import metric-space
+open import metric-space.continuous
 open import metric-space.instances.real
 open import order
 open import order.instances.real
@@ -17,6 +19,8 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
+open import ordered-field.mean
+open import ordered-semiring.instances.real
 open import real
 open import real.subspace
 open import relation
@@ -135,3 +139,28 @@ opaque
             distance-commuteᵉ b a
       a=b : a == b
       a=b = antisym-≤ a≤b b≤a
+
+  abs-shrinks-distance : ∀ {x y : ℝ} -> distance (abs x) (abs y) ≤ distance x y
+  abs-shrinks-distance {x} {y} = max-least-≤ lt1 lt2
+    where
+    lt1 : diff (abs x) (abs y) ≤ distance x y
+    lt1 = diff-abs≤abs-diff
+    lt2 : (- diff (abs x) (abs y)) ≤ distance x y
+    lt2 = subst2 _≤_ diff-anticommute (distance-commuteᵉ y x) diff-abs≤abs-diff
+
+  εClose->path : {x y : ℝ} -> ((ε : ℝ⁺) -> εClose ε x y) -> x == y
+  εClose->path {x} {y} close = tight-# handle
+    where
+    handle : ¬ (x # y)
+    handle x#y = asym-< m<d d<m
+      where
+      0<d : 0# < distance x y
+      0<d = #->metric# x#y
+      m : ℝ
+      m = mean 0# (distance x y)
+      0<m : 0# < m
+      0<m = mean-<₁ 0<d
+      m<d : m < distance x y
+      m<d = mean-<₂ 0<d
+      d<m : distance x y < m
+      d<m = close (m , 0<m)
