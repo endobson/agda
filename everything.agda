@@ -1,10 +1,8 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
--- Command to generate imports
--- find . -name '*.agda' | sed -E -e 's|^\./(.*)\.agda|\1|' -e 's|/|.|g' | grep -v 'everything' | sort | sed -E -e 's/(.*)/open import \1 using ()/' | pbcopy
-
 module everything where
 
+-- BEGIN IMPORTS
 open import abs using ()
 open import additive-group using ()
 open import additive-group.instances.int using ()
@@ -571,3 +569,4 @@ open import vector-space using ()
 open import vector-space.finite using ()
 open import vector-space.infinite using ()
 open import without-point using ()
+-- END IMPORTS
