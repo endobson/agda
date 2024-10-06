@@ -19,15 +19,23 @@ record FinPair+ (n : Nat) : Type₀ where
     j : Nat
     i+j=n : i + j == n
 
+
+FinPair+-pathp : {n1 n2 : Nat} {p1 : FinPair+ n1} {p2 : FinPair+ n2} ->
+                 (np : n1 == n2) ->
+                 (FinPair+.i p1 == FinPair+.i p2) ->
+                 (FinPair+.j p1 == FinPair+.j p2) ->
+                 PathP (\i -> FinPair+ (np i)) p1 p2
+FinPair+-pathp {n1} {n2} {p1} {p2} np q1 q2 = \i -> fin-pair+ (q1 i) (q2 i) (qp i)
+  where
+  opaque
+    qp : PathP (\i -> q1 i + q2 i == np i) (FinPair+.i+j=n p1) (FinPair+.i+j=n p2)
+    qp = isProp->PathP (\i -> isSetNat (q1 i + q2 i) (np i))
+
 FinPair+-path : {n : Nat} {p1 p2 : FinPair+ n} ->
                 (FinPair+.i p1 == FinPair+.i p2) ->
                 (FinPair+.j p1 == FinPair+.j p2) ->
                 p1 == p2
-FinPair+-path {n} {p1} {p2} q1 q2 = \i -> fin-pair+ (q1 i) (q2 i) (qp i)
-  where
-  opaque
-    qp : PathP (\i -> q1 i + q2 i == n) (FinPair+.i+j=n p1) (FinPair+.i+j=n p2)
-    qp = isProp->PathP (\i -> isSetNat (q1 i + q2 i) n)
+FinPair+-path = FinPair+-pathp _
 
 FinPair+-path₁ : {n : Nat} {p1 p2 : FinPair+ n} ->
                  (FinPair+.i p1 == FinPair+.i p2) ->
