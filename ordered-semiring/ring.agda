@@ -54,10 +54,12 @@ module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤}
       IO = O
 
   PartiallyOrderedSemiringStr-Ring :
+    (0≤1 : 0# ≤ 1#) ->
     (*₁-preserves-≤ : {a b c : D} -> 0# ≤ a -> b ≤ c -> (a * b) ≤ (a * c)) ->
     PartiallyOrderedSemiringStr S O
-  PartiallyOrderedSemiringStr-Ring *₁-preserves-≤ = record
-    { *₁-preserves-≤ = *₁-preserves-≤
+  PartiallyOrderedSemiringStr-Ring 0≤1 *₁-preserves-≤ = record
+    { 0≤1 = 0≤1
+    ; *₁-preserves-≤ = *₁-preserves-≤
     ; *₁-flips-≤ = *₁-flips-≤'
     }
     where

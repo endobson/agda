@@ -24,7 +24,8 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
   module _ {{LOS : LinearlyOrderedSemiringStr S LO}} where
     PartiallyOrderedSemiringStr-Negated : PartiallyOrderedSemiringStr S PO
     PartiallyOrderedSemiringStr-Negated = record
-      { *₁-preserves-≤ = *₁-preserves-≮
+      { 0≤1 = 1≮0
+      ; *₁-preserves-≤ = *₁-preserves-≮
       ; *₁-flips-≤ = *₁-flips-≮
       }
 

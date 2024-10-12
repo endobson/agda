@@ -57,7 +57,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCo
       instance
         IPO = PO
       ℕ->D-0≤ : (n : ℕ) -> 0# ≤ ℕ->D n
-      ℕ->D-0≤ = ℕ->Semiring-elim refl-≤ 0≤1 p+
+      ℕ->D-0≤ = ℕ->Semiring-elim refl-≤ (weaken-< 0<1) p+
         where
         p+ : (a b : D) -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a + b)
         p+ _ _ = +-preserves-0≤

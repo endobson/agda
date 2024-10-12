@@ -42,7 +42,12 @@ abstract
     StronglyLinearlyOrderedSemiringStr-ℕ : StronglyLinearlyOrderedSemiringStr NatSemiring useⁱ
     StronglyLinearlyOrderedSemiringStr-ℕ = StronglyLinearlyOrderedSemiringStr-Dec<
 
+    NonTrivalLinearlyOrderedSemiringStr-ℕ :
+      NonTrivialLinearlyOrderedSemiringStr LinearlyOrderedSemiringStr-ℕ
+    NonTrivalLinearlyOrderedSemiringStr-ℕ = record { 0<1 = refl-≤ }
+
     PartiallyOrderedSemiringStr-ℕ : PartiallyOrderedSemiringStr NatSemiring useⁱ
+    PartiallyOrderedSemiringStr-ℕ .PartiallyOrderedSemiringStr.0≤1 = weaken-< 0<1
     PartiallyOrderedSemiringStr-ℕ .PartiallyOrderedSemiringStr.*₁-preserves-≤ {a} 0≤a =
       *-left-≤⁺ a
     PartiallyOrderedSemiringStr-ℕ .PartiallyOrderedSemiringStr.*₁-flips-≤ {zero} a≤0 _ =
@@ -53,7 +58,3 @@ abstract
     StronglyPartiallyOrderedSemiringStr-ℕ :
       StronglyPartiallyOrderedSemiringStr NatSemiring useⁱ useⁱ
     StronglyPartiallyOrderedSemiringStr-ℕ = StronglyPartiallyOrderedSemiringStr-Dec<
-
-    NonTrivalLinearlyOrderedSemiringStr-ℕ :
-      NonTrivialLinearlyOrderedSemiringStr LinearlyOrderedSemiringStr-ℕ
-    NonTrivalLinearlyOrderedSemiringStr-ℕ = record { 0<1 = refl-≤ }

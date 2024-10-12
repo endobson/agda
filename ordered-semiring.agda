@@ -127,21 +127,6 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<}
       f< : (a < 0#) -> (a * c) ≮ (a * b)
       f< 0<a = *₁-flips-≮' 0<a b≮c
 
-module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
-         {{C : CompatibleOrderStr LO PO}}
-         {{LOS : LinearlyOrderedSemiringStr S LO}} where
-  private
-    instance
-      IACM = ACM
-      IS = S
-      ILO = LO
-      IPO = PO
-
-  0≤1 : 0# ≤ 1#
-  0≤1 = convert-≮ 1≮0
-
 
 module _ {D : Type ℓD} {D< : Rel D ℓ<}
          {ACM : AdditiveCommMonoid D} (S : Semiring ACM) (O : isLinearOrder D<) where
@@ -258,6 +243,7 @@ module _ {D : Type ℓD} {D≤ : Rel D ℓ≤}
   record PartiallyOrderedSemiringStr : Type (ℓ-max (ℓ-suc ℓ≤) ℓD) where
     no-eta-equality
     field
+      0≤1 : D≤ 0# 1#
       *₁-preserves-≤ : {a b c : D} -> 0# ≤ a -> b ≤ c -> (a * b) ≤ (a * c)
       *₁-flips-≤ : {a b c : D} -> a ≤ 0# -> b ≤ c -> (a * c) ≤ (a * b)
 
@@ -274,6 +260,9 @@ module _ {D : Type ℓD} {D≤ : Rel D ℓ≤}
       IO = O
 
   abstract
+    0≤1 : 0# ≤ 1#
+    0≤1 = POS.0≤1
+
     *-preserves-0≤ : {a b : D} -> 0# ≤ a -> 0# ≤ b -> 0# ≤ (a * b)
     *-preserves-0≤ 0≤a 0≤b = trans-=-≤ (sym *-right-zero) (POS.*₁-preserves-≤ 0≤a 0≤b)
 

@@ -72,15 +72,12 @@ module _ {ℓD : Level} {D : Type ℓD}
          ; (no s) -> indicator-=0 s >=> sym (indicator-=0 (\s' -> s (Sj->Si s')))
          }
 
-  module _ {ℓ< ℓ≤ : Level} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-           {LO : isLinearOrder D<}
+  module _ {ℓ≤ : Level} {D≤ : Rel D ℓ≤}
            {PO : isPartialOrder D≤}
-           {{LOS : LinearlyOrderedSemiringStr S LO}}
-           {{CO : CompatibleOrderStr LO PO}}
+           {{POS : PartiallyOrderedSemiringStr S PO}}
            where
     private
       instance
-        ILO = LO
         IPO = PO
 
     module _ {ℓI ℓS : Level} {I : Type ℓI} {S : Subtype I ℓS} {DetS : Detachable S}

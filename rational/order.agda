@@ -598,7 +598,7 @@ instance
 
   PartiallyOrderedSemiringStr-ℚ : PartiallyOrderedSemiringStr Semiring-ℚ useⁱ
   PartiallyOrderedSemiringStr-ℚ =
-    PartiallyOrderedSemiringStr-Ring (r*₁-preserves-≤ _ _ _)
+    PartiallyOrderedSemiringStr-Ring (weaken-< Pos-1r) (r*₁-preserves-≤ _ _ _)
 
 
 -- Compatibility functions
