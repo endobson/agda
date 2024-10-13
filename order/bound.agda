@@ -49,23 +49,24 @@ module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {{PO : isPartialOrder D≤}} wher
       ΣProp-path isProp-isGreatestLowerBound (antisym-≤ (glb2 (d1 , lb1)) (glb1 (d2 , lb2)))
 
 
-  module _ {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}
-           {{CO : CompatibleOrderStr LO PO}} where
-    isSupremum : REL (I -> D) D _
-    isSupremum {I = I} f d =
-      (∀ d2 -> d2 < d -> ∃[ i ∈ I ] (d2 < f i)) ×
-      (∀ i d2 -> d2 < f i -> d2 < d)
-    isInfimum : REL (I -> D) D _
-    isInfimum {I = I} f d =
-      (∀ d2 -> d < d2  -> ∃[ i ∈ I ] (f i < d2)) ×
-      (∀ i d2 -> f i < d2 -> d < d2)
+module _ {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}} where
+  isSupremum : REL (I -> D) D _
+  isSupremum {I = I} f d =
+    (∀ d2 -> d2 < d -> ∃[ i ∈ I ] (d2 < f i)) ×
+    (∀ i d2 -> d2 < f i -> d2 < d)
+  isInfimum : REL (I -> D) D _
+  isInfimum {I = I} f d =
+    (∀ d2 -> d < d2  -> ∃[ i ∈ I ] (f i < d2)) ×
+    (∀ i d2 -> f i < d2 -> d < d2)
 
+  opaque
+    isProp-isSupremum : ∀ {f : I -> D} {d} -> isProp (isSupremum f d)
+    isProp-isSupremum = isProp× (isPropΠ2 (\_ _ -> squash)) (isPropΠ3 (\_ _ _ -> isProp-<))
+    isProp-isInfimum : ∀ {f : I -> D} {d} -> isProp (isInfimum f d)
+    isProp-isInfimum = isProp× (isPropΠ2 (\_ _ -> squash)) (isPropΠ3 (\_ _ _ -> isProp-<))
+
+  module _ {D≤ : Rel D ℓ≤} {{PO : isPartialOrder D≤}} {{CO : CompatibleOrderStr LO PO}} where
     opaque
-      isProp-isSupremum : ∀ {f : I -> D} {d} -> isProp (isSupremum f d)
-      isProp-isSupremum = isProp× (isPropΠ2 (\_ _ -> squash)) (isPropΠ3 (\_ _ _ -> isProp-<))
-      isProp-isInfimum : ∀ {f : I -> D} {d} -> isProp (isInfimum f d)
-      isProp-isInfimum = isProp× (isPropΠ2 (\_ _ -> squash)) (isPropΠ3 (\_ _ _ -> isProp-<))
-
       isSupremum->isUpperBound : ∀ {f : I -> D} {d} -> isSupremum f d -> isUpperBound f d
       isSupremum->isUpperBound {d = d} sup i =
         convert-≮ (\d<fi -> irrefl-< (proj₂ sup i d d<fi))
@@ -84,6 +85,13 @@ module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {{PO : isPartialOrder D≤}} wher
         (\(d2 , lb-d2) -> convert-≮ (\d<d2 ->
           unsquash isPropBot (∥-map (\(i , fi<d2) -> convert-≤ (lb-d2 i) fi<d2) (proj₁ inf d2 d<d2))))
 
+  module _  where
+    private
+      instance
+        PO = isLinearOrder->isPartialOrder-≯ LO
+        CO = CompatibleNegatedLinearOrder LO
+
+    opaque
       isProp-ΣisSupremum : ∀ {f : I -> D} -> isProp (Σ D (isSupremum f))
       isProp-ΣisSupremum (d1 , s1) (d2 , s2) =
         ΣProp-path isProp-isSupremum
