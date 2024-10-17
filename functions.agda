@@ -60,7 +60,6 @@ Idempotent f = ∀ {a} -> f a a == a
 isEmbedding : Pred (A -> B) _
 isEmbedding f = ∀ x y -> isEquiv {A = x == y} (cong f)
 
-
 _↪_ : Type ℓ₁ -> Type ℓ₂ -> Type (ℓ-max ℓ₁ ℓ₂)
 A ↪ B = Σ (A -> B) isEmbedding
 
