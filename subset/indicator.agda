@@ -15,6 +15,58 @@ open import sigma.base
 open import subset
 open import truncation
 
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} where
+  private
+    isSet-D : isSet D
+    isSet-D = AdditiveCommMonoid.isSet-Domain ACM
+
+  module _ {ℓI ℓS : Level} {I : Type ℓI} (S : Subtype I ℓS) (DetS : Detachable S) (x : D) where
+    opaque
+      ∃!indicator' : ∃![ f ∈ (I -> D) ]
+                       ((∀ (s : ∈-Subtype S) -> f (fst s) == x) ×
+                        (∀ (s : ∉-Subtype S) -> f (fst s) == 0#))
+      ∃!indicator' = (f , ∈-case , ∉-case) , isProp-f _
+        where
+        dec-f : {i : I} -> Dec ⟨ S i ⟩ -> D
+        dec-f = dec-case (\_ -> x) (\_ -> 0#)
+        f : I -> D
+        f i = dec-f (DetS i)
+        ∈-case : (∀ (s : ∈-Subtype S) -> f (fst s) == x)
+        ∈-case (i , s) = cong dec-f (isPropDec (snd (S i)) (DetS i) (yes s))
+        ∉-case : (∀ (s : ∉-Subtype S) -> f (fst s) == 0#)
+        ∉-case (i , ¬s) = cong dec-f (isPropDec (snd (S i)) (DetS i) (no ¬s))
+
+        isProp-f : isProp (Σ[ f ∈ (I -> D) ]
+                            ((∀ (s : ∈-Subtype S) -> f (fst s) == x) ×
+                             (∀ (s : ∉-Subtype S) -> f (fst s) == 0#)))
+        isProp-f (f , ∈f , ∉f) (g , ∈g , ∉g) =
+          ΣProp-path (isProp× (isPropΠ \_ -> isSet-D _ _) (isPropΠ \_ -> isSet-D _ _))
+            (funExt \i -> case (DetS i) of
+              \{ (yes s) -> ∈f (i , s) >=> sym (∈g (i , s))
+               ; (no ¬s) -> ∉f (i , ¬s) >=> sym (∉g (i , ¬s))
+               })
+
+    indicator' : I -> D
+    indicator' = ∃!-val ∃!indicator'
+
+
+  module _ {ℓI ℓS : Level} {I : Type ℓI} {S : Subtype I ℓS} {DetS : Detachable S} {v : D} where
+    opaque
+      indicator'-=v : {i : I} -> ⟨ S i ⟩ -> indicator' S DetS v i == v
+      indicator'-=v s = proj₁ (∃!-prop (∃!indicator' S DetS v)) (_ , s)
+
+      indicator'-=0 : {i : I} -> ¬ ⟨ S i ⟩ -> indicator' S DetS v i == 0#
+      indicator'-=0 s = proj₂ (∃!-prop (∃!indicator' S DetS v)) (_ , s)
+
+      indicator'-= : {i j : I} ->
+        (⟨ S i ⟩ -> ⟨ S j ⟩) ->
+        (⟨ S j ⟩ -> ⟨ S i ⟩) ->
+        indicator' S DetS v i == indicator' S DetS v j
+      indicator'-= {i} {j} Si->Sj Sj->Si = case (DetS i) of
+        \{ (yes s) -> indicator'-=v s >=> sym (indicator'-=v (Si->Sj s))
+         ; (no s) -> indicator'-=0 s >=> sym (indicator'-=0 (\s' -> s (Sj->Si s')))
+         }
+
 module _ {ℓD : Level} {D : Type ℓD}
          {ACM : AdditiveCommMonoid D}
          {{S : Semiring ACM}}
@@ -27,50 +79,26 @@ module _ {ℓD : Level} {D : Type ℓD}
     isSet-D = Semiring.isSet-Domain S
 
   module _ {ℓI ℓS : Level} {I : Type ℓI} (S : Subtype I ℓS) (DetS : Detachable S) where
-    opaque
-      ∃!indicator : ∃![ f ∈ (I -> D) ]
-                     ((∀ (s : ∈-Subtype S) -> f (fst s) == 1#) ×
-                      (∀ (s : ∉-Subtype S) -> f (fst s) == 0#))
-      ∃!indicator = (f , ∈-case , ∉-case) , isProp-f _
-        where
-        decf : {i : I} -> Dec (⟨ S i ⟩) -> D
-        decf (yes _) = 1#
-        decf (no _) = 0#
-        f : I -> D
-        f i = decf (DetS i)
-        ∈-case : (∀ (s : ∈-Subtype S) -> f (fst s) == 1#)
-        ∈-case (i , s) = cong decf (isPropDec (snd (S i)) (DetS i) (yes s))
-        ∉-case : (∀ (s : ∉-Subtype S) -> f (fst s) == 0#)
-        ∉-case (i , ¬s) = cong decf (isPropDec (snd (S i)) (DetS i) (no ¬s))
-        isProp-f : isProp (Σ[ f ∈ (I -> D) ]
-                             ((∀ (s : ∈-Subtype S) -> f (fst s) == 1#) ×
-                             (∀ (s : ∉-Subtype S) -> f (fst s) == 0#)))
-        isProp-f (f , ∈f , ∉f) (g , ∈g , ∉g) =
-          ΣProp-path (isProp× (isPropΠ \_ -> isSet-D _ _) (isPropΠ \_ -> isSet-D _ _))
-            (funExt \i -> case (DetS i) of
-              \{ (yes s) -> ∈f (i , s) >=> sym (∈g (i , s))
-               ; (no ¬s) -> ∉f (i , ¬s) >=> sym (∉g (i , ¬s))
-               })
+    ∃!indicator : ∃![ f ∈ (I -> D) ]
+                   ((∀ (s : ∈-Subtype S) -> f (fst s) == 1#) ×
+                    (∀ (s : ∉-Subtype S) -> f (fst s) == 0#))
+    ∃!indicator = ∃!indicator' S DetS 1#
 
     indicator : I -> D
     indicator = ∃!-val ∃!indicator
 
   module _ {ℓI ℓS : Level} {I : Type ℓI} {S : Subtype I ℓS} {DetS : Detachable S} where
-    opaque
-      indicator-=1 : {i : I} -> ⟨ S i ⟩ -> indicator S DetS i == 1#
-      indicator-=1 s = proj₁ (∃!-prop (∃!indicator S DetS)) (_ , s)
+    indicator-=1 : {i : I} -> ⟨ S i ⟩ -> indicator S DetS i == 1#
+    indicator-=1 = indicator'-=v
 
-      indicator-=0 : {i : I} -> ¬ ⟨ S i ⟩ -> indicator S DetS i == 0#
-      indicator-=0 s = proj₂ (∃!-prop (∃!indicator S DetS)) (_ , s)
+    indicator-=0 : {i : I} -> ¬ ⟨ S i ⟩ -> indicator S DetS i == 0#
+    indicator-=0 = indicator'-=0
 
-      indicator-= : {i j : I} ->
-        (⟨ S i ⟩ -> ⟨ S j ⟩) ->
-        (⟨ S j ⟩ -> ⟨ S i ⟩) ->
-        indicator S DetS i == indicator S DetS j
-      indicator-= {i} {j} Si->Sj Sj->Si = case (DetS i) of
-        \{ (yes s) -> indicator-=1 s >=> sym (indicator-=1 (Si->Sj s))
-         ; (no s) -> indicator-=0 s >=> sym (indicator-=0 (\s' -> s (Sj->Si s')))
-         }
+    indicator-= : {i j : I} ->
+      (⟨ S i ⟩ -> ⟨ S j ⟩) ->
+      (⟨ S j ⟩ -> ⟨ S i ⟩) ->
+      indicator S DetS i == indicator S DetS j
+    indicator-= = indicator'-=
 
   module _ {ℓ≤ : Level} {D≤ : Rel D ℓ≤}
            {PO : isPartialOrder D≤}

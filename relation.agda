@@ -17,6 +17,10 @@ data Dec (A : Type ℓ) : Type ℓ where
   yes :   A -> Dec A
   no  : ¬ A -> Dec A
 
+dec-case : (A -> B) -> (¬ A -> B) -> Dec A -> B
+dec-case t f (yes a) = t a
+dec-case t f (no ¬a) = f ¬a
+
 Stable : Type ℓ -> Type ℓ
 Stable A = (¬ (¬ A)) -> A
 
