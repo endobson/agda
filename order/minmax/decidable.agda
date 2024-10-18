@@ -16,7 +16,7 @@ module _ {ℓD ℓ< : Level} (D : Type ℓD) {D< : Rel D ℓ<}
     instance
       ILO = LO
 
-    abstract
+    opaque
       minmax-tri : (d1 d2 : D) -> Tri< d1 d2 -> (Σ D (isMin d1 d2)) × (Σ D (isMax d1 d2))
       minmax-tri d1 d2 (tri< d1<d2 _ d2≮d1) = (d1 , min') , (d2 , max')
         where
@@ -55,7 +55,7 @@ module _ {ℓD ℓ< : Level} (D : Type ℓD) {D< : Rel D ℓ<}
       max' : (d1 d2 : D) -> (Σ D (isMax d1 d2))
       max' d1 d2 = proj₂ (minmax-tri d1 d2 (trichotomous-< d1 d2))
 
-  abstract
+  opaque
     MinOperationStr-Decidable : MinOperationStr LO
     MinOperationStr-Decidable = isMin->MinOperationStr min'
 

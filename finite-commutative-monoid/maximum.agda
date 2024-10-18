@@ -29,7 +29,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrd
       instance
         NLO = isLinearOrder->isPartialOrder-≯ LO
 
-    abstract
+    opaque
       finiteMax-≮ : (f : I -> D) -> (i : I) -> finiteMax f ≮ f i
       finiteMax-≮ f i = trans-≤-= max-≮-left (sym (finiteMerge-WithoutPoint _ i f))
 
@@ -39,6 +39,6 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrd
       instance
         IPO = PO
 
-    abstract
+    opaque
       finiteMax-≤ : (f : I -> D) -> (i : I) -> f i ≤ finiteMax f
       finiteMax-≤ f i = convert-≮ (finiteMax-≮ f i)

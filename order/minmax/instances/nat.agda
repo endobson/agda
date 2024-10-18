@@ -9,10 +9,11 @@ open import order.minmax
 open import order.minmax.decidable
 
 instance
-  MinOperationStr-ℕ : MinOperationStr useⁱ
-  MinOperationStr-ℕ = MinOperationStr-Decidable Nat
-  MaxOperationStr-ℕ : MaxOperationStr useⁱ
-  MaxOperationStr-ℕ = MaxOperationStr-Decidable Nat
+  opaque
+    MinOperationStr-ℕ : MinOperationStr useⁱ
+    MinOperationStr-ℕ = MinOperationStr-Decidable Nat
+    MaxOperationStr-ℕ : MaxOperationStr useⁱ
+    MaxOperationStr-ℕ = MaxOperationStr-Decidable Nat
   GlobalMinOperationStr-ℕ : GlobalMinOperationStr useⁱ
   GlobalMinOperationStr-ℕ = record
     { global-min = 0
