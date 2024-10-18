@@ -3,14 +3,15 @@
 module functions.embedding where
 
 open import base
-open import hlevel
-open import equality.fundamental
-open import relation
 open import cubical
-open import functions
-open import isomorphism
 open import equality-path
+open import equality.fundamental
 open import equivalence
+open import functions
+open import funext
+open import hlevel
+open import isomorphism
+open import relation
 open import univalence
 
 
@@ -95,3 +96,50 @@ opaque
     contr-prop : (∀ b -> fiber f b -> isContr (fiber f b)) ==
                  (∀ b -> isProp (fiber f b))
     contr-prop i = ∀ b -> ua (inhabited-isContr-eq {A = fiber f b}) i
+
+
+private
+  hasPropFibers-2of3₂ : {f : B -> C} {g : A -> B} {h : A -> C} ->
+                        isComposition f g h ->
+                        hasPropFibers f -> hasPropFibers h -> hasPropFibers g
+  hasPropFibers-2of3₂ {f = f} {g} {h} c prop-f prop-h b = prop-g
+    where
+    isEmbed-f : isEmbedding f
+    isEmbed-f = eqInv isEmbedding-eq-hasPropFibers prop-f
+
+    forward : fiber g b -> fiber h (f b)
+    forward (a , p) = a , sym (c a) >=> cong f p
+    backward : fiber h (f b) -> fiber g b
+    backward (a , p) = a , isEqInv (isEmbed-f (g a) b) (c a >=> p)
+
+    fb : ∀ x -> backward (forward x) == x
+    fb (a , p) = cong (a ,_) (cong (isEqInv eq) c-path >=> isEqRet eq p)
+      where
+      f' : g a == b -> f (g a) == f b
+      f' = cong f
+      eq : isEquiv f'
+      eq = (isEmbed-f (g a) b)
+
+      c-path : (c a >=> (sym (c a) >=> cong f p)) == cong f p
+      c-path =
+        sym (compPath-assoc _ _ _) >=>
+        cong (_>=> (cong f p)) (compPath-sym (c a)) >=>
+        compPath-refl-left (cong f p)
+
+    prop-g : isProp (fiber g b)
+    prop-g = isProp-Retract forward backward fb (prop-h (f b))
+
+opaque
+  isEmbedding-2of3₂ : {f : B -> C} {g : A -> B} {h : A -> C} ->
+                      isComposition f g h ->
+                      isEmbedding f -> isEmbedding h -> isEmbedding g
+  isEmbedding-2of3₂ c isEmbed-f isEmbed-h =
+    eqInv isEmbedding-eq-hasPropFibers (hasPropFibers-2of3₂ c
+      (eqFun isEmbedding-eq-hasPropFibers isEmbed-f)
+      (eqFun isEmbedding-eq-hasPropFibers isEmbed-h))
+
+  isEmbedding-2of3₃ : {f : B -> C} {g : A -> B} {h : A -> C} ->
+                    isComposition f g h ->
+                    isEmbedding f -> isEmbedding g -> isEmbedding h
+  isEmbedding-2of3₃ c isEmbed-f isEmbed-g =
+    subst isEmbedding (funExt c) (∘-isEmbedding isEmbed-f isEmbed-g)
