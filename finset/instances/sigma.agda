@@ -160,3 +160,8 @@ FinSetStr-Σ : {ℓ₁ ℓ₂ : Level} (A : Type ℓ₁) (B : A -> Type ℓ₂) 
 FinSetStr-Σ A B {{FA = FA}} {{FB = FB}} = record
   { isFin = isFinSet-Σ (_ , FinSetStr.isFin FA) (\a -> B a , FinSetStr.isFin (FB {a}))
   }
+
+instance
+  FinSetStr-× : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Type ℓ₂} -> {{FinSetStr A}} -> {{FinSetStr B}} ->
+    FinSetStr (A × B)
+  FinSetStr-× {A = A} {B = B} = FinSetStr-Σ A (\_ -> B)
