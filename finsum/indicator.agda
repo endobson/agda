@@ -19,10 +19,41 @@ open import truncation
 
 open EqReasoning
 
-module _ {ℓD : Level} {D : Type ℓD}
-         {ACM : AdditiveCommMonoid D}
-         {{S : Semiring ACM}}
-         where
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} where
+
+  module _ {ℓI ℓS : Level} {I : Type ℓI} (S : Subtype I ℓS) (DetS : Detachable S)
+           {{FI : FinSetStr I}} {f : I -> D} where
+    private
+      f' : ∈-Subtype S -> D
+      f' = f ∘ fst
+
+      open FinSetStr-DetachableInstances S DetS
+
+    opaque
+      finiteSum-indicator' : finiteSum f' == finiteSum (\i -> indicator' S DetS (f i) i)
+      finiteSum-indicator' =
+        begin
+          finiteSum f'
+        ==< sym +-right-zero >=> sym (+-right (finiteMerge-ε _ (\_ -> refl))) >
+          finiteSum f' + finiteSum z'
+        ==< (\i -> finiteSum (f'=if i) + finiteSum (z'=if i)) >
+          finiteSum (\(i , s) -> indicator' S DetS (f i) i) +
+          finiteSum (\(i , ¬s) -> indicator' S DetS (f i) i)
+        ==< sym (finiteMerge-detachable _ S DetS _) >
+          finiteSum (\i -> indicator' S DetS (f i) i)
+        end
+        where
+        z' : ∉-Subtype S -> D
+        z' _ = 0#
+
+        f'=if : f' == (\(i , s) -> indicator' S DetS (f i) i)
+        f'=if = funExt (\ (i , s) -> sym (indicator'-=v s))
+
+        z'=if : z' == (\(i , ¬s) -> indicator' S DetS (f i) i)
+        z'=if = funExt (\ (i , ¬s) -> sym (indicator'-=0 ¬s))
+
+
+module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
   private
     instance
       IACM = ACM
@@ -35,25 +66,8 @@ module _ {ℓD : Level} {D : Type ℓD}
 
       open FinSetStr-DetachableInstances S DetS
 
-    abstract
+    opaque
       finiteSum-indicator : finiteSum f' == finiteSum (\i -> indicator S DetS i * f i)
       finiteSum-indicator =
-        begin
-          finiteSum f'
-        ==< sym +-right-zero >=> sym (+-right (finiteMerge-ε _ (\_ -> refl))) >
-          finiteSum f' + finiteSum z'
-        ==< (\i -> finiteSum (f'=if i) + finiteSum (z'=if i)) >
-          finiteSum (\(i , s) -> indicator S DetS i * f i) +
-          finiteSum (\(i , ¬s) -> indicator S DetS i * f i)
-        ==< sym (finiteMerge-detachable _ S DetS _) >
-          finiteSum (\i -> indicator S DetS i * f i)
-        end
-        where
-        z' : ∉-Subtype S -> D
-        z' _ = 0#
-
-        f'=if : f' == (\(i , s) -> indicator S DetS i * f i)
-        f'=if = funExt (\(_ , s) -> sym *-left-one >=> *-left (sym (indicator-=1 s)))
-
-        z'=if : z' == (\(i , ¬s) -> indicator S DetS i * f i)
-        z'=if = funExt (\(_ , ¬s) -> sym *-left-zero >=> *-left (sym (indicator-=0 ¬s)))
+        finiteSum-indicator' S DetS >=>
+        cong finiteSum (funExt (\i -> indicator'-*-path))

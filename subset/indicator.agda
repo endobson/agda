@@ -100,6 +100,13 @@ module _ {ℓD : Level} {D : Type ℓD}
       indicator S DetS i == indicator S DetS j
     indicator-= = indicator'-=
 
+    indicator'-*-path : ∀ {v} {i} -> indicator' S DetS v i == indicator S DetS i * v
+    indicator'-*-path {v} {i} =
+      dec-case
+        (\ s -> indicator'-=v s >=> sym *-left-one >=> *-left (sym (indicator-=1 s)))
+        (\ ¬s -> indicator'-=0 ¬s >=> sym *-left-zero >=> *-left (sym (indicator-=0 ¬s)))
+        (DetS i)
+
   module _ {ℓ≤ : Level} {D≤ : Rel D ℓ≤}
            {PO : isPartialOrder D≤}
            {{POS : PartiallyOrderedSemiringStr S PO}}
