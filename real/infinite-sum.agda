@@ -14,6 +14,7 @@ open import nat
 open import real
 open import real.sequence.absolute-convergence
 open import real.sequence.limit
+open import real.series
 open import real.series.base
 open import sequence.partial-sums
 open import sequence.permutation

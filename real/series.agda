@@ -13,6 +13,9 @@ open import finsum.arithmetic
 open import functions
 open import funext
 open import nat.order
+open import metric-space
+open import metric-space.cauchy
+open import metric-space.instances.real
 open import order
 open import order.instances.nat
 open import order.instances.real
@@ -27,12 +30,13 @@ open import rational
 open import real
 open import real.epsilon-bounded
 open import real.order
-open import real.sequence.rational-cauchy
 open import real.sequence.limit
+open import real.sequence.cauchy
 open import real.sequence.limit.arithmetic
 open import sequence
 open import sequence.partial-sums
 open import truncation
+open import subset.subspace
 
 open import real.series.base public
 
@@ -109,19 +113,19 @@ opaque
     cauchy ε⁺@(ε , _) = ∥-map4 handle (cauchy1 ε⁺) (cauchy3 ε⁺) ∀s1≤s2 ∀s2≤s3
       where
       handle : Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> n ≤ m₂ ->
-                             εBounded ε (diff (partial-sums s1 m₁) (partial-sums s1 m₂))) ->
+                             εClose ε⁺ (partial-sums s1 m₁) (partial-sums s1 m₂)) ->
                Σ[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> n ≤ m₂ ->
-                             εBounded ε (diff (partial-sums s3 m₁) (partial-sums s3 m₂))) ->
+                             εClose ε⁺ (partial-sums s3 m₁) (partial-sums s3 m₂)) ->
                ∀Largeℕ' (\m -> s1 m ≤ s2 m) ->
                ∀Largeℕ' (\m -> s2 m ≤ s3 m) ->
                ∀Largeℕ' (\m₁ -> (m₂ : Nat) -> m₁ ≤ m₂ ->
-                                εBounded ε (diff (partial-sums s2 m₁) (partial-sums s2 m₂)))
+                                εClose ε⁺ (partial-sums s2 m₁) (partial-sums s2 m₂))
       handle (n1 , f1) (n3 , f3) (n12 , f12) (n23 , f23) = max (max n1 n3) (max n12 n23) , g
         where
         g : (m₁ : Nat) -> max (max n1 n3) (max n12 n23) ≤ m₁ -> (m₂ : Nat) -> m₁ ≤ m₂ ->
-            εBounded ε (diff (partial-sums s2 m₁) (partial-sums s2 m₂))
+            εClose ε⁺ (partial-sums s2 m₁) (partial-sums s2 m₂)
         g m₁ max≤m₁ m₂ m₁≤m₂@(i , _) =
-          subst (εBounded ε) (sym (diff-partial-sums s2 m₁ m₂ m₁≤m₂)) (lower , upper)
+          trans-=-< (cong abs (diff-partial-sums s2 m₁ m₂ m₁≤m₂)) bound3
           where
           n1≤m₁ : n1 ≤ m₁
           n1≤m₁ = trans-≤ max-≤-left (trans-≤ max-≤-left max≤m₁)
@@ -138,12 +142,25 @@ opaque
           p3 = partial-sums-≤ (\n -> f23 (m₁ + n) (trans-=-≤ (sym +-right-zero)
                                                              (+-preserves-≤ n23≤m₁ zero-≤))) i
 
-          lower : Real.L (partial-sums (dropN m₁ s2) i) (- ε)
-          lower = trans-L-ℝ≤ (proj₁ (f1 m₁ m₂ n1≤m₁ (trans-≤ n1≤m₁ m₁≤m₂)))
-                             (trans-=-≤ (diff-partial-sums s1 m₁ m₂ m₁≤m₂) p1)
-          upper : Real.U (partial-sums (dropN m₁ s2) i) ε
-          upper = trans-ℝ≤-U (trans-≤-= p3 (sym (diff-partial-sums s3 m₁ m₂ m₁≤m₂)))
-                             (proj₂ (f3 m₁ m₂ n3≤m₁ (trans-≤ n3≤m₁ m₁≤m₂)))
+          bound1 : (- (partial-sums (dropN m₁ s2) i)) < ε
+          bound1 = trans-≤-< (minus-flips-≤ p1) (trans-≤-< max-≤-right step1)
+            where
+            step1 : abs (partial-sums (dropN m₁ s1) i) < ε
+            step1 =
+             (trans-=-< (cong abs (sym (diff-partial-sums s1 m₁ m₂ m₁≤m₂)))
+                        (f1 m₁ m₂ n1≤m₁ (trans-≤ n1≤m₁ m₁≤m₂)))
+
+          bound2 : (partial-sums (dropN m₁ s2) i) < ε
+          bound2 = trans-≤-< p3 (trans-≤-< max-≤-left step1)
+            where
+            step1 : abs (partial-sums (dropN m₁ s3) i) < ε
+            step1 =
+             (trans-=-< (cong abs (sym (diff-partial-sums s3 m₁ m₂ m₁≤m₂)))
+                        (f3 m₁ m₂ n3≤m₁ (trans-≤ n3≤m₁ m₁≤m₂)))
+
+          bound3 : abs (partial-sums (dropN m₁ s2) i) < ε
+          bound3 = max-least-< bound2 bound1
+
 
 opaque
   squeeze-abs-isConvergentSeries :

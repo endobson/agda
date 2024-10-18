@@ -41,15 +41,15 @@ private
   Seq : Type₁
   Seq = Sequence ℝ
 
-isCauchy : Pred Seq ℓ-zero
-isCauchy s = (ε : ℚ⁺) -> ∃[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> n ≤ m₂ ->
-                                       εBounded ⟨ ε ⟩ (diff (s m₁) (s m₂)))
+isℚCauchy : Pred Seq ℓ-zero
+isℚCauchy s = (ε : ℚ⁺) -> ∃[ n ∈ Nat ] ((m₁ m₂ : Nat) -> n ≤ m₁ -> n ≤ m₂ ->
+                                        εBounded ⟨ ε ⟩ (diff (s m₁) (s m₂)))
 
-isCauchy' : Pred Seq ℓ-zero
-isCauchy' s = (ε : ℚ⁺) -> ∀Largeℕ (\n -> (m : Nat) -> n ≤ m -> εBounded ⟨ ε ⟩ (diff (s n) (s m)))
+isℚCauchy' : Pred Seq ℓ-zero
+isℚCauchy' s = (ε : ℚ⁺) -> ∀Largeℕ (\n -> (m : Nat) -> n ≤ m -> εBounded ⟨ ε ⟩ (diff (s n) (s m)))
 
-isProp-isCauchy : {s : Seq} -> isProp (isCauchy s)
-isProp-isCauchy = isPropΠ (\ _ -> squash)
+isProp-isℚCauchy : {s : Seq} -> isProp (isℚCauchy s)
+isProp-isℚCauchy = isPropΠ (\ _ -> squash)
 
 private
   OpenEventualUpperBound : Seq -> Pred ℚ ℓ-zero
@@ -60,8 +60,8 @@ private
   OpenEventualLowerBound s q =
     ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.L (s m) (q r+ ⟨ ε ⟩))
 
-isCauchy'->isCauchy : {s : Seq} -> isCauchy' s -> isCauchy s
-isCauchy'->isCauchy {s} oneSided ε = ∥-map handle (oneSided ε)
+isℚCauchy'->isℚCauchy : {s : Seq} -> isℚCauchy' s -> isℚCauchy s
+isℚCauchy'->isℚCauchy {s} oneSided ε = ∥-map handle (oneSided ε)
   where
   handle : Σ[ n ∈ Nat ] ((m₁ : Nat) -> n ≤ m₁ -> (m₂ : Nat) -> m₁ ≤ m₂ ->
                          εBounded ⟨ ε ⟩ (diff (s m₁) (s m₂))) ->
@@ -81,7 +81,7 @@ isCauchy'->isCauchy {s} oneSided ε = ∥-map handle (oneSided ε)
 
 
 module _
-  {s : Seq} (cauchy : isCauchy s)
+  {s : Seq} (cauchy : isℚCauchy s)
   where
 
   private
@@ -389,12 +389,12 @@ module _
                                                         +-right-zero)
                                       (f m m≥n)
 
-  isCauchy->isConvergentSequence : isConvergentSequence s
-  isCauchy->isConvergentSequence = _ , isLimit-CauchySeq->ℝ
+  isℚCauchy->isConvergentSequence : isConvergentSequence s
+  isℚCauchy->isConvergentSequence = _ , isLimit-CauchySeq->ℝ
 
 abstract
-  isConvergentSequence->isCauchy : {s : Seq} -> isConvergentSequence s -> isCauchy s
-  isConvergentSequence->isCauchy {s} (lim , L) ε⁺@(ε , 0<ε) = ∥-map handle (isLimit.εBounded-diff L ε/2⁺)
+  isConvergentSequence->isℚCauchy : {s : Seq} -> isConvergentSequence s -> isℚCauchy s
+  isConvergentSequence->isℚCauchy {s} (lim , L) ε⁺@(ε , 0<ε) = ∥-map handle (isLimit.εBounded-diff L ε/2⁺)
     where
     ε/2 : ℚ
     ε/2 = 1/2 * ε

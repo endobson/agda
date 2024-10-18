@@ -49,8 +49,8 @@ module _ (s : Sequence Iℚ)
     us : Sequence ℝ
     us = ℚ->ℝ ∘ Iℚ.u ∘ s
 
-    isCauchy'-ls : isCauchy' ls
-    isCauchy'-ls (ε , 0<ε) =
+    isℚCauchy'-ls : isℚCauchy' ls
+    isℚCauchy'-ls (ε , 0<ε) =
       ∀Largeℕ-map handle (isLimit.upper lim-width ε (ℚ<->U 0<ε))
       where
       -ε<0 = minus-flips-0< 0<ε
@@ -89,15 +89,15 @@ module _ (s : Sequence Iℚ)
           trans-=-≤ diff-path'
             (trans-≤-= (+-preserves-≤ (path-≤ dn=width-n) d2≤0) +-right-zero)
 
-    isCauchy-ls : isCauchy ls
-    isCauchy-ls = isCauchy'->isCauchy isCauchy'-ls
+    isℚCauchy-ls : isℚCauchy ls
+    isℚCauchy-ls = isℚCauchy'->isℚCauchy isℚCauchy'-ls
 
   opaque
     Iℚs->ℝ : ℝ
-    Iℚs->ℝ = fst (isCauchy->isConvergentSequence isCauchy-ls)
+    Iℚs->ℝ = fst (isℚCauchy->isConvergentSequence isℚCauchy-ls)
 
     Iℚs->ℝ-lower-limit : isLimit (\i -> ℚ->ℝ (Iℚ.l (s i))) Iℚs->ℝ
-    Iℚs->ℝ-lower-limit = snd (isCauchy->isConvergentSequence isCauchy-ls)
+    Iℚs->ℝ-lower-limit = snd (isℚCauchy->isConvergentSequence isℚCauchy-ls)
 
     Iℚs->ℝ-upper-limit : isLimit (\i -> ℚ->ℝ (Iℚ.u (s i))) Iℚs->ℝ
     Iℚs->ℝ-upper-limit =
