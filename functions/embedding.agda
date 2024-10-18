@@ -17,7 +17,7 @@ open import univalence
 private
   variable
     ℓ : Level
-    A B : Type ℓ
+    A B C : Type ℓ
 
 hasPropFibers : Pred (A -> B) _
 hasPropFibers f = ∀ b -> isProp (fiber f b)
@@ -32,6 +32,15 @@ private
 
     backward : isProp A -> (A -> isContr A)
     backward p a = a , p a
+
+opaque
+  ∘-isEmbedding : {f : B -> C} {g : A -> B} -> isEmbedding f -> isEmbedding g -> isEmbedding (f ∘ g)
+  ∘-isEmbedding {g = g} embed-f embed-g x1 x2 =
+    ∘-isEquiv (embed-f (g x1) (g x2)) (embed-g x1 x2)
+
+∘-Embedding : B ↪ C -> A ↪ B -> A ↪ C
+∘-Embedding (f , ef) (g , eg) = f ∘ g , ∘-isEmbedding ef eg
+
 
 opaque
   isEmbedding-eq-hasPropFibers : {f : A -> B} -> isEmbedding f ≃ hasPropFibers f
