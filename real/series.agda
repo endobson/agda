@@ -27,7 +27,7 @@ open import rational
 open import real
 open import real.epsilon-bounded
 open import real.order
-open import real.sequence.cauchy
+open import real.sequence.rational-cauchy
 open import real.sequence.limit
 open import real.sequence.limit.arithmetic
 open import sequence

@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module real.sequence.cauchy where
+module real.sequence.rational-cauchy where
 
 open import additive-group
 open import additive-group.instances.real
