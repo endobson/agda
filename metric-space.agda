@@ -7,8 +7,12 @@ open import additive-group.instances.real
 open import base
 open import equivalence.base
 open import order
+open import order.instances.rational
 open import order.instances.real
 open import real
+open import real.rational
+open import real.subspace
+open import subset.subspace
 
 private
   variable
@@ -39,3 +43,9 @@ module _ {D : Type ℓ} {{MS : MetricSpaceStr D}} where
 
   zero-distance->path : {x y : D} -> distance x y == 0# -> x == y
   zero-distance->path = isEqInv isEquiv-path->zero-distance
+
+  εClose : ℝ⁺ -> D -> D -> Type₁
+  εClose (ε , _) x y = (distance x y) < ε
+
+  εℚClose : ℚ⁺ -> D -> D -> Type₁
+  εℚClose (ε , _) x y = (distance x y) < ℚ->ℝ ε

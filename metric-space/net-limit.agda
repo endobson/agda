@@ -9,7 +9,6 @@ open import base
 open import heyting-field.instances.real
 open import hlevel
 open import metric-space
-open import metric-space.continuous
 open import metric-space.instances.subspace
 open import net
 open import order

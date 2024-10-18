@@ -10,7 +10,6 @@ open import equality
 open import equivalence
 open import heyting-field.instances.real
 open import metric-space
-open import metric-space.continuous
 open import metric-space.instances.real
 open import order
 open import order.instances.real

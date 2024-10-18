@@ -9,7 +9,7 @@ open import combinatorics.factorial
 open import equality
 open import functions
 open import heyting-field.instances.real
-open import metric-space.continuous
+open import metric-space
 open import metric-space.instances.real
 open import nat
 open import nat.order

@@ -10,7 +10,6 @@ open import heyting-field.instances.rational
 open import heyting-field.instances.real
 open import hlevel.base
 open import metric-space
-open import metric-space.continuous
 open import metric-space.instances.real
 open import metric-space.net-limit
 open import net

@@ -25,14 +25,6 @@ open import subset
 open import subset.subspace
 open import truncation
 
-module _ {ℓ : Level} {D : Type ℓ} {{MS : MetricSpaceStr D}} where
-  εClose : ℝ⁺ -> D -> D -> Type₁
-  εClose (ε , _) x y = (distance x y) < ε
-
-  εℚClose : ℚ⁺ -> D -> D -> Type₁
-  εℚClose (ε , _) x y = (distance x y) < ℚ->ℝ ε
-
-
 module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
          {{MS-A : MetricSpaceStr A}}
          {{MS-B : MetricSpaceStr B}} where
