@@ -143,6 +143,7 @@ module _ {ℓA ℓB : Level} (FA : FinSet ℓA) {B : Type ℓB} {{DB : Discrete'
       fsB : isFinSet B
       fsB = Fin-sur-dec n g sur-g
 
-  FinitelyIndexed-Discrete->isFinSet : isFinSet B
-  FinitelyIndexed-Discrete->isFinSet =
-    unsquash isProp-isFinSet (∥-map fsB (snd FA))
+  opaque
+    FinitelyIndexed-Discrete->isFinSet : isFinSet B
+    FinitelyIndexed-Discrete->isFinSet =
+      unsquash isProp-isFinSet (∥-map fsB (snd FA))
