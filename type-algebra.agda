@@ -79,7 +79,7 @@ private
   i .leftInv _ = refl
 
 
-×-flip-eq : {A B : Type ℓ} -> (A × B) ≃ (B × A)
+×-flip-eq : {A : Type ℓ₁} {B : Type ℓ₂} -> (A × B) ≃ (B × A)
 ×-flip-eq {A = A} {B} = (isoToEquiv i)
   where
   i : Iso (A × B) (B × A)
@@ -88,7 +88,7 @@ private
   i .rightInv _ = refl
   i .leftInv _ = refl
 
-×-flip : {A B : Type ℓ} -> (A × B) == (B × A)
+×-flip : {A : Type ℓ₁} {B : Type ℓ₂} -> (A × B) == (B × A)
 ×-flip {A = A} {B} = ua ×-flip-eq
 
 ×-assoc : (A B C : Type ℓ) -> ((A × B) × C) == (A × (B × C))

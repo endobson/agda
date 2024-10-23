@@ -149,6 +149,10 @@ opaque
       eqΣ : (Σ[ s ∈ S ] ⟨ FB s ⟩) ≃ (Σ[ i ∈ Fin n ] (fst (FB (eqFun eq' i))))
       eqΣ = reindexΣ eq' (\s -> ⟨ FB s ⟩)
 
+isFinSet-× : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Type ℓ₂} ->
+             isFinSet A -> isFinSet B -> isFinSet (A × B)
+isFinSet-× fsA fsB = isFinSet-Σ (_ , fsA) (\_ -> _ , fsB)
+
 FinSet-Σ : {ℓ₁ ℓ₂ : Level} (S : FinSet ℓ₁) (B : ⟨ S ⟩ -> FinSet ℓ₂) -> FinSet _
 FinSet-Σ S B = (Σ[ s ∈ ⟨ S ⟩ ] ⟨ B s ⟩) , isFinSet-Σ S B
 
