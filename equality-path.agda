@@ -147,17 +147,42 @@ transP-right : {A : I -> Type ℓ} {a0 : A i0} {b0 : A i0} {b1 : A i1}
                -> PathP A a0 b1
 transP-right p q = transP-mid p q refl
 
-transP-sides : {A : I -> Type ℓ} {a : A i0} {b1 : A i1} {b2 : A i1} {c : A i0}
-               (p : PathP (\i -> A i)     a  b1)
-               (q : Path (A i1)           b1 b2)
-               (r : PathP (\i -> A (~ i)) b2 c) ->
-               Path (A i0) a c
-transP-sides {A = A} p q r i =
-  comp (\k -> A (~ k))
-       (\k -> \{ (i = i0) -> p (~ k)
-               ; (i = i1) -> r k
-               })
-       (q i)
+module _ {ℓA : Level} {A : I -> Type ℓA}
+         {a : A i0} {b : A i1} {c : A i1} {d : A i0}
+         (p : PathP (\j -> A j) a b)
+         (q : Path (A i1) b c)
+         (r : PathP (\j -> A (~ j)) c d)
+  where
+
+  -- Diagram for transP-sides
+  --
+  --      i0    p>  i1
+  --  j0  +----------+
+  --      | a      b |
+  --  ans |          | q
+  --   V  |          | V
+  --      | d      c |
+  --  j1  +----------+
+  --           <r
+
+  private
+    module _ (i j : I) where
+      raw-transP-sides : A j
+      raw-transP-sides =
+        comp
+         (\k -> A (~ k ∨ j))
+         (\k -> \{ (i = i0) -> p (~ k ∨ j)
+                 ; (i = i1) -> r (k ∧ ~ j)
+                 ; (j = i1) -> q i
+                 })
+         (q i)
+
+  transP-sides : Path (A i0) a d
+  transP-sides i = raw-transP-sides i i0
+
+  transP-sides-filler : PathP (\j -> PathP (\i -> A j) (p j) (r (~ j))) transP-sides q
+  transP-sides-filler j i = raw-transP-sides i j
+
 
 transP-sym : {A : I -> Type ℓ} {a : A i0} {b : A i1} {c : A i0}
              (p : PathP (\i -> A i)     a b)
