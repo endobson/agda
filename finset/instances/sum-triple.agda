@@ -22,8 +22,8 @@ opaque
 
     isFinSet-TwoPair : isFinSet TwoPair
     isFinSet-TwoPair =
-      isFinSet-Σ (FinPair+ n , isFinSet-FinPair+)
-                 (\(fin-pair+ i jk _) -> (FinPair+ jk , isFinSet-FinPair+))
+      isFinSet-Σ isFinSet-FinPair+
+                 (\(fin-pair+ i jk _) -> isFinSet-FinPair+)
 
   instance
     FinSetStr-FinTriple+ : {n : Nat} -> FinSetStr (FinTriple+ n)

@@ -135,26 +135,29 @@ opaque
   isFinSet-Σ' : {ℓ : Level} {n : Nat} (B : Fin n -> FinSet ℓ) -> isFinSet (Σ[ i ∈ Fin n ] ⟨ B i ⟩)
   isFinSet-Σ' B = isFinSetΣ->isFinSet (isFinSetΣ-Σ' B)
 
-  isFinSet-Σ : {ℓ₁ ℓ₂ : Level} (S : FinSet ℓ₁) (B : ⟨ S ⟩ -> FinSet ℓ₂) ->
-               isFinSet (Σ[ s ∈ ⟨ S ⟩ ] ⟨ B s ⟩)
-  isFinSet-Σ {ℓ₁} {ℓ₂} (S , n-eq) FB = unsquash isProp-isFinSet (∥-map handle n-eq)
+
+  isFinSet-Σ :
+    {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : A -> Type ℓ₂} ->
+    isFinSet A -> ((a : A) -> isFinSet (B a)) ->
+    isFinSet (Σ A B)
+  isFinSet-Σ {A = A} {B = B} fs-A fs-B = unsquash isProp-isFinSet (∥-map handle fs-A)
     where
-    handle : Σ[ n ∈ Nat ] (S ≃ Fin n) -> isFinSet (Σ[ s ∈ S ] ⟨ FB s ⟩)
+    handle : Σ[ n ∈ Nat ] (A ≃ Fin n) -> isFinSet (Σ A B)
     handle (n , eq) = isFinSet-equiv (equiv⁻¹ eqΣ) inner
       where
-      eq' : Fin n ≃ S
+      eq' : Fin n ≃ A
       eq' = equiv⁻¹ eq
-      inner : isFinSet (Σ[ i ∈ Fin n ] (fst (FB (eqFun eq' i))))
-      inner = isFinSet-Σ' (\i -> (FB (eqFun eq' i)))
-      eqΣ : (Σ[ s ∈ S ] ⟨ FB s ⟩) ≃ (Σ[ i ∈ Fin n ] (fst (FB (eqFun eq' i))))
-      eqΣ = reindexΣ eq' (\s -> ⟨ FB s ⟩)
+      inner : isFinSet (Σ[ i ∈ Fin n ] (B (eqFun eq' i)))
+      inner = isFinSet-Σ' (\i -> (\ (a : A) -> (B a , fs-B a)) (eqFun eq' i))
+      eqΣ : (Σ A B) ≃ (Σ[ i ∈ Fin n ] (B (eqFun eq' i)))
+      eqΣ = reindexΣ eq' (\a -> B a)
 
 isFinSet-× : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Type ℓ₂} ->
              isFinSet A -> isFinSet B -> isFinSet (A × B)
-isFinSet-× fsA fsB = isFinSet-Σ (_ , fsA) (\_ -> _ , fsB)
+isFinSet-× fsA fsB = isFinSet-Σ fsA (\_ -> fsB)
 
 FinSet-Σ : {ℓ₁ ℓ₂ : Level} (S : FinSet ℓ₁) (B : ⟨ S ⟩ -> FinSet ℓ₂) -> FinSet _
-FinSet-Σ S B = (Σ[ s ∈ ⟨ S ⟩ ] ⟨ B s ⟩) , isFinSet-Σ S B
+FinSet-Σ S B = (Σ[ s ∈ ⟨ S ⟩ ] ⟨ B s ⟩) , isFinSet-Σ (snd S) (\s -> (snd (B s)))
 
 FinSet-× : {ℓ₁ ℓ₂ : Level} (A : FinSet ℓ₁) (B : FinSet ℓ₂) -> FinSet _
 FinSet-× A B = FinSet-Σ A (\_ -> B)
@@ -162,7 +165,7 @@ FinSet-× A B = FinSet-Σ A (\_ -> B)
 FinSetStr-Σ : {ℓ₁ ℓ₂ : Level} (A : Type ℓ₁) (B : A -> Type ℓ₂) {{FA : FinSetStr A}}
               {{FB : {a : A} -> FinSetStr (B a)}} -> FinSetStr (Σ A B)
 FinSetStr-Σ A B {{FA = FA}} {{FB = FB}} = record
-  { isFin = isFinSet-Σ (_ , FinSetStr.isFin FA) (\a -> B a , FinSetStr.isFin (FB {a}))
+  { isFin = isFinSet-Σ (FinSetStr.isFin FA) (\a -> FinSetStr.isFin (FB {a}))
   }
 
 instance
