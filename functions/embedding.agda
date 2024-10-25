@@ -8,10 +8,14 @@ open import equality-path
 open import equality.fundamental
 open import equivalence
 open import functions
+open import functions.fiber
 open import funext
 open import hlevel
 open import isomorphism
 open import relation
+open import sigma
+open import truncation
+open import type-algebra
 open import univalence
 
 
@@ -143,3 +147,10 @@ opaque
                     isEmbedding f -> isEmbedding g -> isEmbedding h
   isEmbedding-2of3₃ c isEmbed-f isEmbed-g =
     subst isEmbedding (funExt c) (∘-isEmbedding isEmbed-f isEmbed-g)
+
+
+opaque
+  isEmbedding-Image-eq : {f : A -> B} -> isEmbedding f -> A ≃ Image f
+  isEmbedding-Image-eq {A = A} {B = B} {f = f} embed-f =
+    equiv⁻¹ (Σfibers-eq f) >eq>
+    existential-eq (\b -> equiv⁻¹ (∥-Prop-eq (eqFun isEmbedding-eq-hasPropFibers embed-f b)))
