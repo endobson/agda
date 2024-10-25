@@ -7,8 +7,9 @@ open import additive-group.instances.nat
 open import base
 open import cubical
 open import discrete
-open import equality
+open import equality-path
 open import functions
+open import funext
 open import hlevel
 open import isomorphism
 open import nat
@@ -136,15 +137,6 @@ opaque
                 -> fin-rec e f ∘ suc-fin == f
   fin-rec-suc e f k i = fin-rec-suc-point e f i k
 
-  fin-elim : {ℓ : Level} {n : Nat} {P : Fin (suc n) -> Type ℓ}
-             -> P zero-fin
-             -> ((i : Fin n) -> P (suc-fin i))
-             -> (i : Fin (suc n)) -> P i
-  fin-elim {P = P} z s (0     , lt) =
-    transport (cong P (fin-i-path refl)) z
-  fin-elim {P = P} z s (suc i , lt) =
-    transport (cong P (fin-i-path refl)) (s (i , pred-≤ lt))
-
   fin-rec-reduce : {ℓ : Level} {A : Type ℓ} {n : Nat} -> (f : (Fin (suc n) -> A))
                    -> fin-rec (f zero-fin) (f ∘ suc-fin) == f
   fin-rec-reduce f i (0 , lt) = cong f i-path i
@@ -155,6 +147,60 @@ opaque
     where
     i-path : Path (Fin (suc n)) (suc j , (suc-≤ (pred-≤ lt))) (suc j , lt)
     i-path = fin-i-path refl
+
+opaque
+  fin-elim : {ℓ : Level} {n : Nat} {P : Fin (suc n) -> Type ℓ}
+             -> P zero-fin
+             -> ((i : Fin n) -> P (suc-fin i))
+             -> (i : Fin (suc n)) -> P i
+  fin-elim {P = P} z s (0     , lt) =
+    transport (cong P (fin-i-path refl)) z
+  fin-elim {P = P} z s (suc i , lt) =
+    transport (cong P (fin-i-path refl)) (s (i , pred-≤ lt))
+
+  fin-elim-reduce-zero :
+    {ℓ : Level} {n : Nat} {P : Fin (suc n) -> Type ℓ}
+    -> (P0 : P zero-fin)
+    -> (PS : ((i : Fin n) -> P (suc-fin i)))
+    -> fin-elim {P = P} P0 PS zero-fin == P0
+  fin-elim-reduce-zero {P = P} P0 PS =
+    cong (\p -> transport (cong P p) P0) (isSetFin _ _ _ _) >=>
+    transportRefl P0
+
+  fin-elim-reduce-suc :
+    {ℓ : Level} {n : Nat} {P : Fin (suc n) -> Type ℓ}
+    -> (P0 : P zero-fin)
+    -> (PS : ((i : Fin n) -> P (suc-fin i)))
+    -> ∀ (i : Fin n) -> fin-elim {P = P} P0 PS (suc-fin i) == PS i
+  fin-elim-reduce-suc {n = n} {P = P} P0 PS i = path
+    where
+    i' : Fin n
+    i' = Fin.i i , pred-≤ (suc-≤ (Fin.i<n i))
+
+    i'-path : i' == i
+    i'-path = fin-i-path refl
+
+    step1 : PathP (\ii -> P (suc-fin (i'-path (~ ii))))
+             (transport (cong (P ∘ suc-fin) i'-path) (PS i')) (PS i')
+    step1 = symP (transport-filler (cong (P ∘ suc-fin) i'-path) (PS i'))
+
+    step2 : PathP (\ii -> P (suc-fin (i'-path ii))) (PS i') (PS i)
+    step2 ii = PS (i'-path ii)
+
+    path : Path (P (suc-fin i)) (fin-elim {P = P} P0 PS (suc-fin i)) (PS i)
+    path = cong (\p -> transport (cong P p) (PS i')) (isSetFin _ _ _ _) >=>
+           (transP-sym step1 step2)
+
+  fin-elim-reduce :
+    {ℓ : Level} {n : Nat} {P : Fin (suc n) -> Type ℓ} ->
+    (f : (i : Fin (suc n)) -> P i) ->
+    fin-elim (f zero-fin) (f ∘ suc-fin) == f
+  fin-elim-reduce {n = n} {P} f = funExt path
+    where
+    path : ∀ (i : Fin (suc n)) -> fin-elim {P = P} (f zero-fin) (f ∘ suc-fin) i == f i
+    path = fin-elim (fin-elim-reduce-zero {P = P} (f zero-fin) (f ∘ suc-fin))
+                    (fin-elim-reduce-suc {P = P} (f zero-fin) (f ∘ suc-fin))
+
 
 
 -- Naturals in a range
