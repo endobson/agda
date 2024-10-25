@@ -19,6 +19,7 @@ open import finset.instances.sigma
 open import finset.search
 open import finset.without-point
 open import finsum
+open import finsum.cardinality
 open import functions
 open import functions.injective
 open import funext
@@ -137,7 +138,7 @@ private
                             (∀ i -> ∥ ⟨ A i ⟩  ∥) ->
                             n ≤ cardinality (FinSet-Σ (FinSet-Fin n) A)
   FinSet≤-Fin-Collection' n A inhabit =
-    subst (n ≤_) (sym (cardinality-Σ3 _ _)) (FinSet≤-Fin-Collection n A inhabit)
+    subst (n ≤_) (sym (cardinality-Σ _ _)) (FinSet≤-Fin-Collection n A inhabit)
 
 
   Surjective->FinSet≤-Fin : (n1 n2 : Nat) (f : Fin n1 -> Fin n2) -> (isSurjection f) -> n2 ≤ n1

@@ -11,15 +11,19 @@ open import equivalence
 open import fin
 open import finite-commutative-monoid.instances
 open import finset
+open import finset.cardinality
 open import finset.instances
 open import finset.instances.sigma
+open import finset.instances.sum
 open import finsum
 open import finsum.arithmetic
+open import functions
 open import funext
 open import nat
 open import semiring
 open import semiring.initial
 open import semiring.instances.nat
+open import sigma
 open import truncation
 
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
@@ -71,17 +75,78 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
       *-right finiteSum-one >=>
       *-commute
 
+opaque
+  cardinality-⊎ : {ℓA ℓB : Level}
+    (A : FinSet ℓA) (B : FinSet ℓB) -> cardinality (FinSet-⊎ A B) == cardinality A + cardinality B
+  cardinality-⊎ A@(_ , finA) B@(_ , finB) =
+    cardinality-path (FinSet-⊎ A B)
+                     (isFinSetΣ-⊎ (isFinSet->isFinSetΣ finA)
+                                  (isFinSet->isFinSetΣ finB))
+
+private
+  cardinalityΣ-Σ' : {ℓ : Level} {n : Nat} (B : Fin n -> FinSet ℓ) ->
+                    cardinalityΣ ((Σ[ i ∈ Fin n ] ⟨ B i ⟩) , isFinSetΣ-Σ' B) ==
+                    finSumDep n (\i -> cardinality (B i))
+  cardinalityΣ-Σ' {n = zero} FB = refl
+  cardinalityΣ-Σ' {n = suc n} FB = cong (cardinality (FB zero-fin) +'_) rec
+    where
+    rec : cardinalityΣ ((Σ[ i ∈ Fin n ] ⟨ FB (suc-fin i) ⟩) , isFinSetΣ-Σ' (FB ∘ suc-fin)) ==
+          finSumDep n (\i -> cardinality (FB (suc-fin i)))
+    rec = cardinalityΣ-Σ' (FB ∘ suc-fin)
+
+  cardinality-Σ' : {ℓ : Level} {n : Nat} (B : Fin n -> FinSet ℓ) ->
+                   cardinality ((Σ[ i ∈ Fin n ] ⟨ B i ⟩) , isFinSet-Σ' B) ==
+                   finSumDep n (\i -> cardinality (B i))
+  cardinality-Σ' {n = n} B =
+    cardinality-path ((Σ[ i ∈ Fin n ] ⟨ B i ⟩) , isFinSet-Σ' B) (isFinSetΣ-Σ' B)
+    >=> cardinalityΣ-Σ' B
+
+  cardinality-Σ2 : {ℓ : Level} {n : Nat} (B : Fin n -> FinSet ℓ) ->
+                   cardinality ((Σ[ i ∈ Fin n ] ⟨ B i ⟩) , isFinSet-Σ' B) ==
+                   (finiteSum (\i -> cardinality (B i)))
+  cardinality-Σ2 B =
+    cardinality-Σ' B >=> sym (finiteSumᵉ-eval (FinSet-Fin _) (idEquiv _) (\i -> cardinality (B i)))
+
+opaque
+  cardinality-Σ : {ℓS ℓB : Level} (S : FinSet ℓS) (B : ⟨ S ⟩ -> FinSet ℓB) ->
+                  cardinality (FinSet-Σ S B) == finiteSumᵉ S (\s -> cardinality (B s))
+  cardinality-Σ {ℓS} {ℓB} S@(S' , fin) B = unsquash (isSetNat _ _) (∥-map handle fin)
+    where
+    handle : (Σ[ n ∈ Nat ] (S' ≃ Fin n)) ->
+             cardinality (FinSet-Σ S B) == finiteSumᵉ S (\s -> cardinality (B s))
+    handle (n , eq) = sym path3 >=> path1 >=> path2
+      where
+      eq' : Fin n ≃ S'
+      eq' = equiv⁻¹ eq
+      B' : Fin n -> FinSet ℓB
+      B' i = B (eqFun eq' i)
+      BSet : S' -> Type ℓB
+      BSet = fst ∘ B
+
+      path1 : cardinality ((Σ[ i ∈ Fin n ] ⟨ B' i ⟩) , isFinSet-Σ' B') ==
+              (finiteSum (\i -> cardinality (B' i)))
+      path1 = cardinality-Σ2 B'
+
+      path2 : (finiteSum (\i -> cardinality (B' i))) ==
+              (finiteSumᵉ S (\s -> cardinality (B s)))
+      path2 = sym (finiteSumᵉ-convert S (FinSet-Fin n) eq' (\s -> cardinality (B s)))
+
+      path3 : cardinality ((Σ[ i ∈ Fin n ] ⟨ B' i ⟩) , isFinSet-Σ' B') ==
+              cardinality (FinSet-Σ S B)
+      path3 =
+        cardinality-≃-path ((Σ[ i ∈ Fin n ] ⟨ B' i ⟩) , isFinSet-Σ' B') (FinSet-Σ S B)
+          (equiv⁻¹ (reindexΣ eq' BSet))
 
 
-cardinality-× : {ℓ : Level} (S₁ S₂ : FinSet ℓ) ->
-                cardinality (FinSet-× S₁ S₂) == cardinality S₁ *' cardinality S₂
-cardinality-× S₁ S₂ =
-  cardinality-Σ3 S₁ (\_ -> S₂) >=>
-  cong (\x -> (finiteSumᵉ S₁ (\s -> x))) (sym *-right-one) >=>
-  finiteSum-* {k = cardinality S₂} >=>
-  cong (cardinality S₂ *_) (finiteSumᵉ-one S₁ >=> ℕ->Semiring-ℕ-path _) >=>
-  *-commuteᵉ (cardinality S₂) (cardinality S₁)
-  where
-  instance
-    FinSetStr-S₁ : FinSetStr (fst S₁)
-    FinSetStr-S₁ = record {isFin = snd S₁}
+  cardinality-× : {ℓ : Level} (S₁ S₂ : FinSet ℓ) ->
+                  cardinality (FinSet-× S₁ S₂) == cardinality S₁ *' cardinality S₂
+  cardinality-× S₁ S₂ =
+    cardinality-Σ S₁ (\_ -> S₂) >=>
+    cong (\x -> (finiteSumᵉ S₁ (\s -> x))) (sym *-right-one) >=>
+    finiteSum-* {k = cardinality S₂} >=>
+    cong (cardinality S₂ *_) (finiteSumᵉ-one S₁ >=> ℕ->Semiring-ℕ-path _) >=>
+    *-commuteᵉ (cardinality S₂) (cardinality S₁)
+    where
+    instance
+      FinSetStr-S₁ : FinSetStr (fst S₁)
+      FinSetStr-S₁ = record {isFin = snd S₁}

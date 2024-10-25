@@ -18,6 +18,7 @@ open import finset.instances
 open import finset.instances.sigma
 open import finsubset
 open import finsum
+open import finsum.cardinality
 open import functions
 open import gcd.euclidean-algorithm
 open import gcd.propositional
@@ -379,6 +380,6 @@ module _ (n⁺ : Nat⁺) where
 
   theorem2-2 : finiteSumᵉ FinSet-Divisors φ' == n
   theorem2-2 =
-    sym (cardinality-Σ3 FinSet-Divisors (\(d , _) -> FinSet-Totatives d))
+    sym (cardinality-Σ FinSet-Divisors (\(d , _) -> FinSet-Totatives d))
     >=> cong cardinality combined-path
     >=> cardinality-path (FinSet-Fin n) finΣ

@@ -6,15 +6,17 @@ open import base
 open import cubical
 open import equality
 open import equivalence
-open import isomorphism
 open import fin
+open import fin-algebra
 open import finset
 open import hlevel
+open import isomorphism
 open import nat
 open import nat.order
 open import order
 open import order.instances.nat
 open import truncation
+open import univalence
 
 private
   variable
@@ -64,3 +66,24 @@ inhabited-0<cardinality : (A : FinSet ℓ) -> ∥ ⟨ A ⟩ ∥ ≃ (0 < cardina
 inhabited-0<cardinality A =
   isoToEquiv (isProp->iso (inhabited-0<cardinality⁺ A) (inhabited-0<cardinality⁻ A)
                           squash isProp-<)
+
+opaque
+  cardinality-≃-path : {ℓA ℓB : Level} (A : FinSet ℓA) (B : FinSet ℓB) -> ⟨ A ⟩ ≃ ⟨ B ⟩ ->
+    cardinality A == cardinality B
+  cardinality-≃-path (A , fs-A) (B , fs-B) A≃B =
+    unsquash (isSetNat cA cB) (∥-map2 handle (snd fs-A') (snd fs-B'))
+    where
+    fs-A' : isFinSetΣ A
+    fs-A' = isFinSet->isFinSetΣ fs-A
+    fs-B' : isFinSetΣ B
+    fs-B' = isFinSet->isFinSetΣ fs-B
+    cA : ℕ
+    cA = fst fs-A'
+    cB : ℕ
+    cB = fst fs-B'
+
+    handle : (A ≃ Fin cA) -> (B ≃ Fin cB) -> cA == cB
+    handle A≃Fin B≃Fin = Fin-injective fin-path
+      where
+      fin-path : Fin cA == Fin cB
+      fin-path = ua (equiv⁻¹ A≃Fin >eq> A≃B >eq> B≃Fin)

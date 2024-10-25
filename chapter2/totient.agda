@@ -404,7 +404,7 @@ module _ (p : Prime') where
       φ (prime-power⁺ p (suc n))
     ==< cong cardinality fs-path >
       cardinality (FinSet-Σ (FinSet-Fin p') (\_ -> (FinSet-Totatives (prime-power p n))))
-    ==< cardinality-Σ3 (FinSet-Fin p') (\_ -> (FinSet-Totatives (prime-power p n))) >
+    ==< cardinality-Σ (FinSet-Fin p') (\_ -> (FinSet-Totatives (prime-power p n))) >
       finiteSumᵉ (FinSet-Fin p') (\_ -> cardinality (FinSet-Totatives (prime-power p n)))
     ==< cong (\x -> finiteSumᵉ (FinSet-Fin p') (\_ -> x))
              (φ-prime-power (n , tt) >=> sym *'-right-one) >
