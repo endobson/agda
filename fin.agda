@@ -89,7 +89,7 @@ isPropFin0 (x , lt) = bot-elim (zero-≮ lt)
 isContrFin1 : isContr (Fin 1)
 isContrFin1 = zero-fin , proof
   where
-  abstract
+  opaque
     proof : (i : Fin 1) -> zero-fin == i
     proof (0 , lt) = fin-i-path refl
     proof (suc i , lt) = bot-elim (zero-≮ (pred-≤ lt))
@@ -127,7 +127,7 @@ fin-rec : {ℓ : Level} {A : Type ℓ} {n : Nat} -> A -> (Fin n -> A) -> Fin (su
 fin-rec e f (0     , lt) = e
 fin-rec e f (suc i , lt) = f (i , pred-≤ lt)
 
-abstract
+opaque
   fin-rec-suc-point : {ℓ : Level} {A : Type ℓ} {n : Nat} -> (e : A) -> (f : (Fin n -> A)) -> (i : Fin n)
                       -> (fin-rec e f (suc-fin i)) == f i
   fin-rec-suc-point e f i = cong f (fin-i-path refl)
@@ -204,7 +204,7 @@ avoid-fin : {n : Nat} -> Fin (suc n) -> Fin n -> Fin (suc n)
 avoid-fin {zero}  _ = suc-fin
 avoid-fin {suc _}   = fin-rec (suc-fin) (\i -> fin-rec zero-fin (suc-fin ∘ avoid-fin i))
 
-abstract
+opaque
   avoid-fin-no-path : {n : Nat} {j : Fin n} (i : Fin (suc n))
                       -> avoid-fin i j != i
   avoid-fin-no-path {zero}  {j} = bot-elim (¬fin-zero j)
@@ -279,7 +279,7 @@ private
                        (j2 , (pred-≤ j2-lt)) (j2-np ∘ cong suc)
                        (suc-fin-injective p))
 
-abstract
+opaque
   remove-fin : {n : Nat} -> (i j : Fin (suc n)) -> i != j -> Fin n
   remove-fin i j np = remove-fin' i j (np ∘ fin-i-path)
 
@@ -371,7 +371,9 @@ private
     ans = (\k -> suc (Fin.i (remove-fin' pi (avoid-path k) (p ∘ cong suc))))
           >=> (cong suc rec)
 
-abstract
+opaque
+  unfolding remove-fin
+
   avoid-fin-remove-fin-path :
     {n : Nat} (i j : Fin (suc n)) (p : i != j)
     -> avoid-fin i (remove-fin i j p) == j
