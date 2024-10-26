@@ -24,6 +24,10 @@ private
     ℓ : Level
     A B C : Type ℓ
 
+isProp-isEmbedding : {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB} {f : A -> B} ->
+                     isProp (isEmbedding f)
+isProp-isEmbedding = isPropΠ2 (\_ _ -> isProp-isEquiv)
+
 hasPropFibers : Pred (A -> B) _
 hasPropFibers f = ∀ b -> isProp (fiber f b)
 
@@ -101,6 +105,13 @@ opaque
                  (∀ b -> isProp (fiber f b))
     contr-prop i = ∀ b -> ua (inhabited-isContr-eq {A = fiber f b}) i
 
+isEquiv->isEmbedding : {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
+                       {f : A -> B} -> isEquiv f -> isEmbedding f
+isEquiv->isEmbedding isEquiv-f =
+  eqInv isEmbedding-eq-hasPropFibers (\b -> isContr->isProp (isEquiv.equiv-proof isEquiv-f b))
+
+idEmbed : {ℓ : Level} -> (A : Type ℓ) -> (A ↪ A)
+idEmbed A = idfun A , isEquiv->isEmbedding (snd (idEquiv A))
 
 private
   hasPropFibers-2of3₂ : {f : B -> C} {g : A -> B} {h : A -> C} ->

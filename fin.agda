@@ -8,7 +8,9 @@ open import base
 open import cubical
 open import discrete
 open import equality-path
+open import equivalence
 open import functions
+open import functions.embedding
 open import funext
 open import hlevel
 open import isomorphism
@@ -431,3 +433,10 @@ opaque
     -> remove-fin i (avoid-fin i j) p == j
   remove-fin-avoid-fin-path i j p =
     fin-i-path (remove-fin'-avoid-fin-path i j (p ∘ fin-i-path))
+
+opaque
+  isEmbedding-Fin-i : {n : Nat} -> isEmbedding (Fin.i {n = n})
+  isEmbedding-Fin-i {m} = eqInv isEmbedding-eq-hasPropFibers fibs
+    where
+    fibs : ∀ n -> isProp (fiber (Fin.i {n = m}) n)
+    fibs n (_ , p1) (_ , p2) = ΣProp-path (isSetNat _ _) (fin-i-path (p1 >=> sym p2))

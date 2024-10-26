@@ -23,6 +23,14 @@ open import sigma
 open import truncation
 
 
+module _ {ℓI ℓD : Level} {I : Type ℓI} {D : Type ℓD}
+         {{FI : FinSetStr I}}
+         {{ACM : AdditiveCommMonoid D}} where
+  opaque
+    finiteSum-+ : {f g : I -> D} -> finiteSum (\i -> (f i) + (g i)) == finiteSum f + finiteSum g
+    finiteSum-+ = finiteMerge-split _
+
+
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}}
   where
   private
@@ -45,7 +53,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{AG : Addi
 
       finiteSum-diff : {f g : I -> D} -> finiteSum (\i -> diff (f i) (g i)) ==
                                          diff (finiteSum f) (finiteSum g)
-      finiteSum-diff = finiteMerge-split _ >=> +-right finiteSum--
+      finiteSum-diff = finiteSum-+ >=> +-right finiteSum--
 
 
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
