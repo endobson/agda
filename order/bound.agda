@@ -4,6 +4,8 @@ module order.bound where
 
 open import base
 open import equality
+open import equivalence
+open import functions
 open import hlevel
 open import order
 open import relation
@@ -102,3 +104,33 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}} where
         ΣProp-path isProp-isInfimum
           (cong fst (isProp-ΣisGreatestLowerBound (d1 , (isInfimum->isGreatestLowerBound s1))
                                                   (d2 , (isInfimum->isGreatestLowerBound s2))))
+
+
+module _ {ℓA ℓB ℓD ℓ< : Level} {A : Type ℓA} {B : Type ℓB} {D : Type ℓD}
+         {D< : Rel D ℓ<} {{LO : isLinearOrder D<}} where
+  opaque
+    equiv-preserves-isSupremum : {f : B -> D} {v : D} ((g , _) : A ≃ B) ->
+      isSupremum f v -> isSupremum (f ∘ g) v
+    equiv-preserves-isSupremum {f} {v} (g , isEq-g) (f-close , f-above) = fg-close , fg-above
+      where
+      fg-close : ∀ d -> d < v -> ∃[ a ∈ A ] (d < f (g a))
+      fg-close d d<v = ∥-map handle (f-close d d<v)
+        where
+        handle : Σ[ b ∈ B ] (d < f b) -> Σ[ a ∈ A ] (d < f (g a))
+        handle (b , d<fb) = isEqInv isEq-g b , trans-<-= d<fb (cong f (sym (isEqSec isEq-g b)))
+
+      fg-above : ∀ a d -> d < f (g a) -> d < v
+      fg-above a d d<fga = f-above (g a) d d<fga
+
+    equiv-preserves-isInfimum : {f : B -> D} {v : D} ((g , _) : A ≃ B) ->
+      isInfimum f v -> isInfimum (f ∘ g) v
+    equiv-preserves-isInfimum {f} {v} (g , isEq-g) (f-close , f-below) = fg-close , fg-below
+      where
+      fg-close : ∀ d -> v < d -> ∃[ a ∈ A ] (f (g a) < d)
+      fg-close d v<d = ∥-map handle (f-close d v<d)
+        where
+        handle : Σ[ b ∈ B ] (f b < d) -> Σ[ a ∈ A ] (f (g a) < d)
+        handle (b , fb<d) = isEqInv isEq-g b , trans-=-< (cong f (isEqSec isEq-g b)) fb<d
+
+      fg-below : ∀ a d -> f (g a) < d -> v < d
+      fg-below a d fga<d = f-below (g a) d fga<d
