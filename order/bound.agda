@@ -14,8 +14,96 @@ open import truncation
 
 private
   variable
-    ℓI ℓD ℓ< ℓ≤ : Level
+    ℓI ℓD ℓ< ℓ≤ ℓ≼ : Level
     I : Type ℓI
+
+module _ {D : Type ℓD} (D≤ : Rel D ℓ≤) where
+  record isMeet (x y z : D) : Type (ℓ-max ℓ≤ ℓD) where
+    constructor isMeet-cons
+    field
+      left : D≤ z x
+      right : D≤ z y
+      greatest : ∀ {z2} -> D≤ z2 x -> D≤ z2 y -> D≤ z2 z
+
+  record isJoin (x y z : D) : Type (ℓ-max ℓ≤ ℓD) where
+    constructor isJoin-cons
+    field
+      left : D≤ x z
+      right : D≤ y z
+      least : ∀ {z2} -> D≤ x z2 -> D≤ y z2 -> D≤ z z2
+
+module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} (isProp-D≤ : ∀ {x y} -> isProp (D≤ x y)) where
+  isProp-isJoin : {x y z : D} -> isProp (isJoin D≤ x y z)
+  isProp-isJoin (isJoin-cons l1 r1 le1) (isJoin-cons l2 r2 le2) i =
+    isJoin-cons (isProp-D≤ l1 l2 i) (isProp-D≤ r1 r2 i)
+                (isPropΠ2 (\_ _ -> isProp-D≤) le1 le2 i)
+
+  isProp-isMeet : {x y z : D} -> isProp (isMeet D≤ x y z)
+  isProp-isMeet (isMeet-cons l1 r1 le1) (isMeet-cons l2 r2 le2) i =
+    isMeet-cons (isProp-D≤ l1 l2 i) (isProp-D≤ r1 r2 i)
+                (isPropΠ2 (\_ _ -> isProp-D≤) le1 le2 i)
+
+
+module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {{PO : isPartialOrder D≤}} where
+  isMeet≤ : (x y z : D) -> Type (ℓ-max ℓ≤ ℓD)
+  isMeet≤ = isMeet _≤_
+  isJoin≤ : (x y z : D) -> Type (ℓ-max ℓ≤ ℓD)
+  isJoin≤ = isJoin _≤_
+
+  isProp-isJoin≤ : {x y z : D} -> isProp (isJoin D≤ x y z)
+  isProp-isJoin≤ = isProp-isJoin isProp-≤
+  isProp-isMeet≤ : {x y z : D} -> isProp (isMeet D≤ x y z)
+  isProp-isMeet≤ = isProp-isMeet isProp-≤
+
+  isProp-ΣisJoin≤ : {x y : D} -> isProp (Σ D (isJoin D≤ x y))
+  isProp-ΣisJoin≤ (v1 , j1) (v2 , j2) =
+    ΣProp-path isProp-isJoin≤
+      (antisym-≤ (j1.least j2.left j2.right) (j2.least j1.left j1.right))
+    where
+    module j1 = isJoin j1
+    module j2 = isJoin j2
+  isProp-ΣisMeet≤ : {x y : D} -> isProp (Σ D (isMeet D≤ x y))
+  isProp-ΣisMeet≤ (v1 , m1) (v2 , m2) =
+    ΣProp-path isProp-isMeet≤
+      (antisym-≤ (m2.greatest m1.left m1.right) (m1.greatest m2.left m2.right))
+    where
+    module m1 = isMeet m1
+    module m2 = isMeet m2
+
+module _ {D : Type ℓD} {D≼ : Rel D ℓ≼} {{PO : isPreOrder D≼}} where
+  isMeet≼ : (x y z : D) -> Type (ℓ-max ℓ≼ ℓD)
+  isMeet≼ = isMeet _≼_
+  isJoin≼ : (x y z : D) -> Type (ℓ-max ℓ≼ ℓD)
+  isJoin≼ = isJoin D≼
+
+module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {{PO : isPartialOrder D≤}} where
+  isTop≤ : Pred D (ℓ-max ℓ≤ ℓD)
+  isTop≤ d = ∀ d2 -> d2 ≤ d
+  isBot≤ : Pred D (ℓ-max ℓ≤ ℓD)
+  isBot≤ d = ∀ d2 -> d ≤ d2
+
+  isProp-isTop≤ : {d : D} -> isProp (isTop≤ d)
+  isProp-isTop≤ = isPropΠ (\_ -> isProp-≤)
+  isProp-isBot≤ : {d : D} -> isProp (isBot≤ d)
+  isProp-isBot≤ = isPropΠ (\_ -> isProp-≤)
+
+  isProp-ΣisTop≤ : isProp (Σ D isTop≤)
+  isProp-ΣisTop≤ (d1 , t1) (d2 , t2) = ΣProp-path isProp-isTop≤ (antisym-≤ (t2 d1) (t1 d2))
+  isProp-ΣisBot≤ : isProp (Σ D isBot≤)
+  isProp-ΣisBot≤ (d1 , b1) (d2 , b2) = ΣProp-path isProp-isBot≤ (antisym-≤ (b1 d2) (b2 d1))
+
+module _ {D : Type ℓD} {D≼ : Rel D ℓ≼} {{PO : isPreOrder D≼}} where
+  isTop≼ : Pred D (ℓ-max ℓ≼ ℓD)
+  isTop≼ d = ∀ d2 -> d2 ≼ d
+  isBot≼ : Pred D (ℓ-max ℓ≼ ℓD)
+  isBot≼ d = ∀ d2 -> d ≼ d2
+
+module _ {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}} where
+  isTop≮ : Pred D (ℓ-max ℓ< ℓD)
+  isTop≮ d = ∀ d2 -> d ≮ d2
+  isBot≮ : Pred D (ℓ-max ℓ< ℓD)
+  isBot≮ d = ∀ d2 -> d2 ≮ d
+
 
 module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {{PO : isPartialOrder D≤}} where
   isUpperBound : REL (I -> D) D _
