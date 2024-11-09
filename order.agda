@@ -419,3 +419,15 @@ module _ {ℓ≼ ℓD : Level} {D : Type ℓD} {le : Rel D ℓ≼} {{PO : isPreO
 
   _≼_ : Rel D ℓ≼
   _≼_ = le
+
+  refl-≼ᵉ : (d : D) -> d ≼ d
+  refl-≼ᵉ _ = refl-≼
+
+
+module _ {ℓ≤ ℓD : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} where
+  isPartialOrder->isPreOrder : isPartialOrder D≤ -> isPreOrder D≤
+  isPartialOrder->isPreOrder O = record
+    { isProp-≼ = isPartialOrder.isProp-≤ O
+    ; trans-≼ = isPartialOrder.trans-≤ O
+    ; refl-≼ = isPartialOrder.refl-≤ O
+    }

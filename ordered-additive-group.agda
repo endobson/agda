@@ -111,6 +111,11 @@ module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {ACM : AdditiveCommMonoid D} {O :
     +-preserves-0≤ {a} {b} 0≤a 0≤b =
       subst (_≤ (a + b)) +-right-zero (+-preserves-≤ 0≤a 0≤b)
 
+    +-preserves-≤0 : {a b : D} -> a ≤ 0# -> b ≤ 0# -> (a + b) ≤ 0#
+    +-preserves-≤0 {a} {b} a≤0 b≤0 =
+      subst ((a + b) ≤_) +-right-zero (+-preserves-≤ a≤0 b≤0)
+
+
 module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} (ACM : AdditiveCommMonoid D) (PO : isPartialOrder D≤) where
   private
     instance
