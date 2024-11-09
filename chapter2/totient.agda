@@ -13,11 +13,11 @@ open import equivalence
 open import fin
 open import fin-algebra
 open import finset
-open import finset.instances
 open import finset.cardinality
+open import finset.instances
 open import finset.instances.base
 open import finset.instances.sigma
-open import finsubset
+open import finset.subset
 open import finsum
 open import finsum.arithmetic
 open import finsum.cardinality

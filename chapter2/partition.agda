@@ -16,7 +16,7 @@ open import fin
 open import finset
 open import finset.instances
 open import finset.instances.sigma
-open import finsubset
+open import finset.subset
 open import finsum
 open import finsum.cardinality
 open import functions

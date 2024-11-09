@@ -15,7 +15,7 @@ open import finite-product
 open import finset
 open import finset.instances.base
 open import finset.instances.sum
-open import finsubset
+open import finset.subset
 open import hlevel
 open import isomorphism
 open import nat

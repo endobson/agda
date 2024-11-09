@@ -9,7 +9,7 @@ open import equivalence
 open import fin
 open import fin-algebra
 open import finset
-open import finsubset
+open import finset.subset
 open import functions
 open import gcd.computational
 open import gcd.properties

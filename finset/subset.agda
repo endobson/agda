@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module finsubset where
+module finset.subset where
 
 open import base
 open import cubical
