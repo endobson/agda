@@ -179,7 +179,7 @@ module _ {ℓA ℓ< : Level} {A : Type ℓA} {A< : Rel A ℓ<} {LO : isLinearOrd
   sorted-join : JoinSemiLatticeStr (getⁱ (isPartialOrder {D = (SortedList A)} _))
   sorted-join = record
     { join = \l1 l2 -> ∃!-val (sorted-merge l1 l2)
-    ; is-join = record
+    ; is-join-op = record
       { join-≤-left = \{l1} {l2} -> 1≤3 l1 l2
       ; join-≤-right = \{l1} {l2} -> 2≤3 l1 l2
       ; join-least-≤ = \{l1} {l2} -> least3 l1 l2

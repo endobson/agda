@@ -170,7 +170,7 @@ abstract
     JoinSemiLatticeStr-Partition≼ : {a b : ℝ} -> JoinSemiLatticeStr {D = Partition a b} useⁱ
     JoinSemiLatticeStr-Partition≼ {a} {b} = record
       { join = join-partition a b
-      ; is-join = record
+      ; is-join-op = record
         { join-≤-left  = p1≤join-partition a b _ _
         ; join-≤-right = p2≤join-partition a b _ _
         ; join-least-≤ = join-partition-least-≤ a b _ _ _
