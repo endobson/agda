@@ -91,8 +91,6 @@ private
       backward :  (∀ k -> ¬ (RawFinMap-HasKey m k)) -> (m == raw-finmap-empty)
       backward ¬hk = bot-elim (¬hk k (v , raw-finmap-haskv-head refl refl))
 
-    module FinMapElim = SetQuotientElim (RawFinMap K V) SameFinMap-Step
-
     SameFinMap-Steps : RawFinMap K V -> RawFinMap K V -> Type (ℓ-max ℓK ℓV)
     SameFinMap-Steps = TransitiveReflexiveClosure SameFinMap-Step
 
@@ -384,7 +382,7 @@ finmap-empty = [ raw-finmap-empty ]
 
 module _ {K : Type ℓK} {V : Type ℓV} where
   finmap-upsert : FinMap K V -> K -> V -> FinMap K V
-  finmap-upsert m k v = FinMapElim.rec squash/ f same m
+  finmap-upsert m k v = SetQuotientElim.rec squash/ f same m
     where
     f : RawFinMap K V -> FinMap K V
     f m = [ raw-finmap-cons k v m ]
@@ -444,7 +442,7 @@ module _ {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} {{isSet'V : is
         handle (va , hka) (vb , hkb)
 
   FinMap-HasKV' : FinMap K V -> K -> V -> hProp (ℓ-max ℓK ℓV)
-  FinMap-HasKV' m k v = FinMapElim.rec isSet-hProp f same m
+  FinMap-HasKV' m k v = SetQuotientElim.rec isSet-hProp f same m
     where
     f : RawFinMap K V -> hProp (ℓ-max ℓK ℓV)
     f m = RawFinMap-HasKV m k v , isProp-RawFinMap-HasKV m k v
@@ -526,14 +524,14 @@ module _ {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} {{isSet'V : is
 
   isProp-FinMap-HasKey : (m : FinMap K V)-> (k : K) -> isProp (FinMap-HasKey m k)
   isProp-FinMap-HasKey m k =
-    FinMapElim.elimProp
+    SetQuotientElim.elimProp
       {C = \m -> isProp (FinMap-HasKey m k)}
       (\_ -> isProp-isProp) (\m -> isProp-RawFinMap-HasKey m k) m
 
 
   finmap-contains : (m : FinMap K V) -> (k : K) -> Dec (FinMap-HasKey m k)
   finmap-contains m k =
-    FinMapElim.elimProp (\m -> (isPropDec (isProp-FinMap-HasKey m k))) f m
+    SetQuotientElim.elimProp (\m -> (isPropDec (isProp-FinMap-HasKey m k))) f m
     where
     f : (m : RawFinMap K V) -> Dec (RawFinMap-HasKey m k)
     f raw-finmap-empty = no \()
@@ -555,7 +553,7 @@ module _ {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} {{isSet'V : is
   --  FinMap-HasKV-path : (m1 m2 : FinMap K V) ->
   --                      (same : ∀ k v -> (FinMap-HasKV m1 k v) <-> (FinMap-HasKV m2 k v)) ->
   --                      m1 == m2
-  --  FinMap-HasKV-path =  FinMapElim.elimProp2 (\m1 m2 -> isPropΠ (\_ -> squash/ m1 m2)) f
+  --  FinMap-HasKV-path =  SetQuotientElim.elimProp2 (\m1 m2 -> isPropΠ (\_ -> squash/ m1 m2)) f
   --    where
   --    f : (m1 m2 : RawFinMap K V)
   --        (same : ∀ k v -> (RawFinMap-HasKV m1 k v) <-> (RawFinMap-HasKV m2 k v)) ->
@@ -566,7 +564,7 @@ module _ {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} {{isSet'V : is
 
 
 --  FinMap-HasKey' : FinMap K V -> K -> hProp (ℓ-max ℓK ℓV)
---  FinMap-HasKey' m k = FinMapElim.rec isSet-hProp f same m
+--  FinMap-HasKey' m k = SetQuotientElim.rec isSet-hProp f same m
 --    where
 --    f : RawFinMap K V -> hProp (ℓ-max ℓK ℓV)
 --    f m = RawFinMap-HasKey m k , isProp-RawFinMap-HasKey m k

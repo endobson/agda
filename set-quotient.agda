@@ -21,7 +21,7 @@ data _/_ {ℓ₁ ℓ₂ : Level} (A : Type ℓ₁) (R : A -> A -> Type ℓ₂) :
   -- squash/ : isSet (A / R)
   squash/ : (a b : A / R) -> (p q : a == b) -> p == q -- isSet (A / R)
 
-module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type ℓR) where
+module SetQuotientElimᵉ {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type ℓR) where
   private
     variable
       ℓ : Level
@@ -214,16 +214,19 @@ module SetQuotientElim {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Type �
     strc->path (strc-sym c) = sym (strc->path c)
     strc->path (strc-trans c1 c2) = strc->path c1 >=> strc->path c2
 
+module SetQuotientElim {ℓA ℓR : Level} {A : Type ℓA} {R : A -> A -> Type ℓR} where
+  open SetQuotientElimᵉ A R public
+
 
 
 module _ {ℓA ℓR : Level} {A : Type ℓA} {R : A -> A -> Type ℓR} where
   Discrete-SetQuotient : (isPropValued R) -> (isEquivRel R) -> (Decidable2 R) -> Discrete (A / R)
   Discrete-SetQuotient isProp-R isEquivRel-R decide-R =
-    SetQuotientElim.elimProp2 A R (\_ _ -> isPropDec (squash/ _ _)) f
+    SetQuotientElim.elimProp2 (\_ _ -> isPropDec (squash/ _ _)) f
     where
     f : (a1 a2 : A) -> Dec ([ a1 ] == [ a2 ])
     f a1 a2 = handle (decide-R a1 a2)
       where
       handle : Dec (R a1 a2) -> Dec ([ a1 ] == [ a2 ])
       handle (yes a1~a2) = yes (eq/ a1 a2 a1~a2)
-      handle (no ¬a1~a2) = no (¬a1~a2 ∘ SetQuotientElim.pathRec A R isProp-R isEquivRel-R a1 a2)
+      handle (no ¬a1~a2) = no (¬a1~a2 ∘ SetQuotientElim.pathRec isProp-R isEquivRel-R a1 a2)

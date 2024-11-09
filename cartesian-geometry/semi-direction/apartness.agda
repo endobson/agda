@@ -22,7 +22,7 @@ open import vector-space
 
 semi-direction-diff : (sd1 sd2 : SemiDirection) -> SemiRotation
 semi-direction-diff =
-  SemiDirectionElim.rec2 isSet-SemiRotation f a.f~₁ a.f~₂
+  SetQuotientElim.rec2 isSet-SemiRotation f a.f~₁ a.f~₂
   where
   f : Direction -> Direction -> SemiRotation
   f d1 d2 = [ direction-diff d1 d2 ]
@@ -64,7 +64,7 @@ semi-direction-diff =
 
 semi-direction-shift : SemiDirection -> SemiRotation -> SemiDirection
 semi-direction-shift =
-  SemiDirectionElim.rec (isSetΠ (\_ -> isSet-SemiDirection))
+  SetQuotientElim.rec (isSetΠ (\_ -> isSet-SemiDirection))
     (\d sr -> semi-rotate-direction sr d)
     (\d1 d2 ssd -> funExt (\sr -> a2.srd~ sr d1 d2 ssd))
   where
@@ -86,14 +86,14 @@ semi-direction-shift =
 
   semi-rotate-direction : SemiRotation -> Direction -> SemiDirection
   semi-rotate-direction =
-    SemiRotationElim.rec (isSetΠ (\_ -> isSet-SemiDirection)) f a.f~
+    SetQuotientElim.rec (isSetΠ (\_ -> isSet-SemiDirection)) f a.f~
 
   module a2 where
     abstract
       srd~ : (sr : SemiRotation) -> (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
              semi-rotate-direction sr d1 == semi-rotate-direction sr d2
       srd~ =
-        SemiRotationElim.elimProp (\sr -> isPropΠ3 (\_ _ _ -> isSet-SemiDirection _ _)) g
+        SetQuotientElim.elimProp (\sr -> isPropΠ3 (\_ _ _ -> isSet-SemiDirection _ _)) g
         where
         module _ where
           g : (r : Rotation) (d1 d2 : Direction) -> SameSemiDirection d1 d2 ->
@@ -112,26 +112,26 @@ semi-direction-shift =
 private
   semi-direction-shift-zero : (sd : SemiDirection) -> semi-direction-shift sd 0# == sd
   semi-direction-shift-zero =
-    SemiDirectionElim.elimProp (\_ -> isSet-SemiDirection _ _)
+    SetQuotientElim.elimProp (\_ -> isSet-SemiDirection _ _)
       (\d -> cong [_] (rotate-direction-zero-rotation d))
 
   semi-direction-diff-step : (sd1 sd2 : SemiDirection) ->
     semi-direction-shift sd1 (semi-direction-diff sd1 sd2) == sd2
   semi-direction-diff-step =
-    SemiDirectionElim.elimProp2 (\_ _ -> isSet-SemiDirection _ _)
+    SetQuotientElim.elimProp2 (\_ _ -> isSet-SemiDirection _ _)
       (\d1 d2 -> cong [_] (direction-diff-step d1 d2))
 
 
   semi-direction-diff-anticommute : (sd1 sd2 : SemiDirection) ->
     (semi-direction-diff sd1 sd2) == - (semi-direction-diff sd2 sd1)
   semi-direction-diff-anticommute =
-    SemiDirectionElim.elimProp2 (\_ _ -> isSet-SemiRotation _ _)
+    SetQuotientElim.elimProp2 (\_ _ -> isSet-SemiRotation _ _)
       (\d1 d2 -> cong [_] (direction-diff-anticommute d1 d2))
 
   semi-direction-diff-self : (sd : SemiDirection) ->
     (semi-direction-diff sd sd) == zero-semi-rotation
   semi-direction-diff-self =
-    SemiDirectionElim.elimProp (\_ -> isSet-SemiRotation _ _)
+    SetQuotientElim.elimProp (\_ -> isSet-SemiRotation _ _)
       (\d -> cong [_] (direction-diff-self d))
 
 
@@ -139,7 +139,7 @@ private
     (semi-direction-diff sd1 sd2) + (semi-direction-diff sd2 sd3) ==
     (semi-direction-diff sd1 sd3)
   semi-direction-diff-trans =
-    SemiDirectionElim.elimProp3 (\_ _ _ -> isSet-SemiRotation _ _)
+    SetQuotientElim.elimProp3 (\_ _ _ -> isSet-SemiRotation _ _)
       (\d1 d2 d3 -> cong [_] (direction-diff-trans d1 d2 d3))
 
 private

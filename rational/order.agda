@@ -32,6 +32,7 @@ open import ring.implementations.int
 open import ring.implementations.rational
 open import semiring
 open import semiring.exponentiation
+open import set-quotient
 open import sigma.base
 open import sign
 open import sign.instances.fraction
@@ -66,10 +67,14 @@ module _ where
         i .rightInv _ = isProp-ℚ'< _ _
         i .leftInv _ = isProp-ℚ'< _ _
 
-      ℚ<-full : ℚ -> ℚ -> hProp ℓ-zero
-      ℚ<-full = ℚ-rec2 isSet-hProp val preserved₁ preserved₂
+      opaque
+        unfolding ℚ
+        ℚ<-full : ℚ -> ℚ -> hProp ℓ-zero
+        ℚ<-full = SetQuotientElim.rec2 isSet-hProp val preserved₁ preserved₂
 
-    abstract
+    opaque
+      unfolding ℚ<-full
+
       ℚ<-raw : Rel ℚ ℓ-zero
       ℚ<-raw q r = ⟨ ℚ<-full q r ⟩
 
@@ -77,7 +82,7 @@ module _ where
       isProp-ℚ<-raw q r = snd (ℚ<-full q r)
 
       ℚ<-raw-eval : {q r : ℚ'} -> ℚ<-raw (ℚ'->ℚ q) (ℚ'->ℚ r) == q ℚ'< r
-      ℚ<-raw-eval {q} {r} = cong fst (ℚ-rec2-eval isSet-hProp val preserved₁ preserved₂ q r)
+      ℚ<-raw-eval {q} {r} = refl
 
   module _ where
     private
@@ -102,10 +107,14 @@ module _ where
         i .rightInv _ = isProp-ℚ'≤ _ _
         i .leftInv _ = isProp-ℚ'≤ _ _
 
-      ℚ≤-full : ℚ -> ℚ -> hProp ℓ-zero
-      ℚ≤-full = ℚ-rec2 isSet-hProp val preserved₁ preserved₂
+      opaque
+        unfolding ℚ
+        ℚ≤-full : ℚ -> ℚ -> hProp ℓ-zero
+        ℚ≤-full = SetQuotientElim.rec2 isSet-hProp val preserved₁ preserved₂
 
-    abstract
+    opaque
+      unfolding ℚ≤-full
+
       ℚ≤-raw : ℚ -> ℚ -> Type₀
       ℚ≤-raw q r = ⟨ ℚ≤-full q r ⟩
 
@@ -113,7 +122,7 @@ module _ where
       isProp-ℚ≤-raw q r = snd (ℚ≤-full q r)
 
       ℚ≤-raw-eval : {q r : ℚ'} -> ℚ≤-raw (ℚ'->ℚ q) (ℚ'->ℚ r) == q ℚ'≤ r
-      ℚ≤-raw-eval {q} {r} = cong fst (ℚ-rec2-eval isSet-hProp val preserved₁ preserved₂ q r)
+      ℚ≤-raw-eval {q} {r} = refl
 
 
 record _ℚ<_ (q : ℚ) (r : ℚ) : Type₀ where
@@ -131,14 +140,16 @@ record _ℚ≤_ (q : ℚ) (r : ℚ) : Type₀ where
 module _ where
   private
     module M where
-      abstract
+      opaque
+        unfolding ℚ
+
         ℚ≤-elim : {ℓ : Level} {P : ℚ -> ℚ -> Type ℓ} ->
                   ({q r : ℚ} -> isProp (P q r)) ->
                   ({q r : ℚ} -> q ℚ< r -> P q r) ->
                   ({q r : ℚ} -> q == r -> P q r) ->
                   (q r : ℚ) -> q ℚ≤ r -> P q r
         ℚ≤-elim {P = P} isProp-P f< f= q r (ℚ≤-cons q≤r) =
-          ℚ-elimProp2
+          SetQuotientElim.elimProp2
             {C2 = (\q r -> (ℚ≤-raw q r) -> P q r)}
             (\_ _ -> isPropΠ (\_ -> isProp-P))
             g≤ q r q≤r
@@ -157,7 +168,9 @@ module _ where
 
 
 
-abstract
+opaque
+  unfolding ℚ
+
   isProp-ℚ< : {a b : ℚ} -> isProp (a ℚ< b)
   isProp-ℚ< {a} {b} (ℚ<-cons a<b1) (ℚ<-cons a<b2) =
     cong ℚ<-cons (isProp-ℚ<-raw a b a<b1 a<b2)
@@ -169,7 +182,7 @@ abstract
 
   irrefl-ℚ< : Irreflexive _ℚ<_
   irrefl-ℚ< {a} (ℚ<-cons a<a) =
-    ℚ-elimProp
+    SetQuotientElim.elimProp
       {C = (\r -> ℚ<-raw r r -> Bot)}
       (\_ -> isPropΠ (\_ -> isPropBot))
       (\r r<r -> (irrefl-ℚ'< (transport ℚ<-raw-eval r<r))) a a<a
@@ -177,7 +190,7 @@ abstract
 
   trans-ℚ< : Transitive _ℚ<_
   trans-ℚ< {a} {b} {c} (ℚ<-cons a<b) (ℚ<-cons b<c) =
-    ℚ-elimProp3
+    SetQuotientElim.elimProp3
       {C3 = (\a b c -> ℚ<-raw a b -> ℚ<-raw b c -> a ℚ< c)}
       (\_ _ _ -> isPropΠ2 (\_ _ -> isProp-ℚ<))
       (\a b c a<b b<c -> ℚ<-cons
@@ -190,7 +203,7 @@ abstract
 
   connected-ℚ< : Connected _ℚ<_
   connected-ℚ< {a} {b} ¬a<b ¬b<a =
-    ℚ-elimProp2
+    SetQuotientElim.elimProp2
       {C2 = (\a b -> ¬ (ℚ<-raw a b) -> ¬ (ℚ<-raw b a) -> a == b)}
       (\_ _ -> isPropΠ2 (\_ _ -> isSetℚ _ _))
       (\a b ¬a<b ¬b<a ->
@@ -200,7 +213,7 @@ abstract
 
   comparison-ℚ< : Comparison _ℚ<_
   comparison-ℚ< a b c (ℚ<-cons a<c) =
-    ℚ-elimProp3
+    SetQuotientElim.elimProp3
       {C3 = (\a b c -> ℚ<-raw a c -> ∥ (a ℚ< b) ⊎ (b ℚ< c) ∥)}
       (\_ _ _ -> isPropΠ (\_ -> squash))
       compare
@@ -218,14 +231,14 @@ abstract
 
   refl-ℚ≤ : Reflexive _ℚ≤_
   refl-ℚ≤ {a} =
-    ℚ-elimProp
+    SetQuotientElim.elimProp
       {C = (\r -> r ℚ≤ r)}
       (\_ -> isProp-ℚ≤)
       (\r -> (ℚ≤-cons (transport (sym ℚ≤-raw-eval) (refl-ℚ'≤ {r})))) a
 
   trans-ℚ≤ : Transitive _ℚ≤_
   trans-ℚ≤ {a} {b} {c} (ℚ≤-cons a≤b) (ℚ≤-cons b≤c) =
-    ℚ-elimProp3
+    SetQuotientElim.elimProp3
       {C3 = (\a b c -> ℚ≤-raw a b -> ℚ≤-raw b c -> a ℚ≤ c)}
       (\_ _ _ -> isPropΠ2 (\_ _ -> isProp-ℚ≤))
       (\a b c a≤b b≤c ->
@@ -235,7 +248,7 @@ abstract
 
   antisym-ℚ≤ : Antisymmetric _ℚ≤_
   antisym-ℚ≤ {a} {b} (ℚ≤-cons a≤b) (ℚ≤-cons b≤a) =
-    ℚ-elimProp2
+    SetQuotientElim.elimProp2
       {C2 = (\a b -> (ℚ≤-raw a b) -> (ℚ≤-raw b a) -> a == b)}
       (\_ _ -> isPropΠ2 (\_ _ -> isSetℚ _ _))
       (\a b a≤b b≤a -> r~->path _ _ (antisym~-ℚ'≤ (transport ℚ≤-raw-eval a≤b)
@@ -244,7 +257,7 @@ abstract
 
   connex-ℚ≤ : Connex _ℚ≤_
   connex-ℚ≤ =
-    ℚ-elimProp2
+    SetQuotientElim.elimProp2
       {C2 = (\a b -> ∥ (a ℚ≤ b) ⊎ (b ℚ≤ a) ∥)}
       (\_ _ -> squash )
       (\a b -> ∥-map (⊎-map ℚ≤-cons ℚ≤-cons) (transport (sym path) (connex-ℚ'≤ a b)))
@@ -277,10 +290,12 @@ instance
     { connex-≤ = connex-ℚ≤
     }
 
-abstract
+opaque
+  unfolding ℚ
+
   trichotomous-ℚ< : Trichotomous _ℚ<_
   trichotomous-ℚ< a b =
-    ℚ-elimProp2
+    SetQuotientElim.elimProp2
       {C2 = (\a b -> Tri< a b)}
       (\_ _ -> isProp-Tri<)
       f a b
@@ -308,10 +323,12 @@ instance
     }
 
 
-abstract
+opaque
+  unfolding ℚ
+
   weaken-ℚ< : {a b : ℚ} -> a ℚ< b -> a ℚ≤ b
   weaken-ℚ< {a} {b} (ℚ<-cons a<b) =
-    ℚ-elimProp2
+    SetQuotientElim.elimProp2
       {C2 = (\a b -> (ℚ<-raw a b) -> (a ℚ≤ b))}
       (\_ _ -> isPropΠ (\_ -> isProp-ℚ≤))
       (\a b a<b -> (ℚ≤-cons (transport (sym ℚ≤-raw-eval) (weaken-ℚ'< (transport ℚ<-raw-eval a<b)))))
@@ -476,10 +493,12 @@ abstract
 ℚ⁰⁻ = Σ ℚ (_≤ 0#)
 
 
-abstract
+opaque
+  unfolding ℚ
+
   r+₁-preserves-< : (a b c : ℚ) -> b < c -> (a + b) < (a + c)
   r+₁-preserves-< a b c (ℚ<-cons b<c) =
-    ℚ-elimProp3
+    SetQuotientElim.elimProp3
       {C3 = \a b c -> ℚ<-raw b c -> (a + b) < (a + c)}
       (\_ _ _ -> isPropΠ (\_ -> isProp-<))
       convert
@@ -494,7 +513,7 @@ abstract
 
   r*₁-preserves-< : (a b c : ℚ) -> 0r < a -> b < c -> (a * b) < (a * c)
   r*₁-preserves-< a b c (ℚ<-cons 0<a) (ℚ<-cons b<c) =
-    ℚ-elimProp3
+    SetQuotientElim.elimProp3
       {C3 = \a b c -> ℚ<-raw 0r a -> ℚ<-raw b c -> (a * b) < (a * c)}
       (\_ _ _ -> isPropΠ2 (\_ _ -> isProp-<))
       convert
@@ -1027,39 +1046,46 @@ private
            same-sign-ℚ' pos-sign _ (is-signℚ' (i.*-Pos-Pos (i.Pos'->Pos (snd n)) (i.Pos'->Pos (snd d))))
 
 
-  ℚ⁺-elimProp :
-    {ℓ : Level} -> {P : Pred ℚ⁺ ℓ} -> ((q : ℚ⁺) -> isProp (P q)) ->
-    ((n d : Nat⁺) -> P (n⁺d⁺->ℚ⁺ n d)) ->
-    (q : ℚ⁺) -> P q
-  ℚ⁺-elimProp {P = P} isProp-P f (q , pos-q) =
-    ℚ-elimProp (\q -> isPropΠ (\pos-q -> isProp-P (q , pos-q))) handle q pos-q
-    where
-    find-rep : (q' : ℚ') -> (Pos q') -> Σ[ n ∈ Nat⁺ ] (Σ[ d ∈ Nat⁺ ] (n⁺d⁺->ℚ' n d r~ q'))
-    find-rep (record { numerator = (i.pos n') ; denominator = (i.pos d') }) _ =
-      ((suc n' , tt) , (suc d' , tt) , refl)
-    find-rep (record { numerator = (i.zero-int) ; denominator = (i.pos d') }) p =
-      bot-elim (i.NonPos->¬Pos (i.*-NonPos-NonNeg (inj-r tt) (inj-l tt)) (isSignℚ'.v p))
-    find-rep (record { numerator = (i.neg _) ; denominator = (i.pos d') }) p =
-      bot-elim (i.NonPos->¬Pos (i.*-NonPos-NonNeg (inj-l tt) (inj-l tt)) (isSignℚ'.v p))
-    find-rep (record { numerator = (i.pos _) ; denominator = (i.neg d') }) p =
-      bot-elim (i.NonPos->¬Pos (i.*-NonNeg-NonPos (inj-l tt) (inj-l tt)) (isSignℚ'.v p))
-    find-rep (record { numerator = (i.zero-int) ; denominator = (i.neg d') }) p =
-      bot-elim (i.NonPos->¬Pos (i.*-NonNeg-NonPos (inj-r tt) (inj-l tt)) (isSignℚ'.v p))
-    find-rep (record { numerator = (i.neg n') ; denominator = (i.neg d') }) _ =
-      ((suc n' , tt) , (suc d' , tt) , minus-extract-right >=> sym minus-extract-left )
-    find-rep (record { denominator = i.zero-int ; NonZero-denominator = inj-l ()})
-    find-rep (record { denominator = i.zero-int ; NonZero-denominator = inj-r ()})
+  opaque
+    unfolding ℚ
 
-    handle : (q' : ℚ') -> (pos-q : (Pos (ℚ'->ℚ q'))) -> P (ℚ'->ℚ q' , pos-q)
-    handle q' pos-q' = subst P path (f n d)
+    ℚ⁺-elimProp :
+      {ℓ : Level} -> {P : Pred ℚ⁺ ℓ} -> ((q : ℚ⁺) -> isProp (P q)) ->
+      ((n d : Nat⁺) -> P (n⁺d⁺->ℚ⁺ n d)) ->
+      (q : ℚ⁺) -> P q
+    ℚ⁺-elimProp {P = P} isProp-P f (q , pos-q) =
+      SetQuotientElim.elimProp (\q -> isPropΠ (\pos-q -> isProp-P (q , pos-q))) handle q pos-q
       where
-      rep = find-rep q' (same-sign-ℚ'⁻ _ _ pos-q')
-      n = fst rep
-      d = fst (snd rep)
-      nd~ = snd (snd rep)
+      find-rep : (q' : ℚ') -> (Pos q') -> Σ[ n ∈ Nat⁺ ] (Σ[ d ∈ Nat⁺ ] (n⁺d⁺->ℚ' n d r~ q'))
+      find-rep (record { numerator = (i.pos n') ; denominator = (i.pos d') }) _ =
+        ((suc n' , tt) , (suc d' , tt) , refl)
+      find-rep (record { numerator = (i.zero-int) ; denominator = (i.pos d') }) p =
+        bot-elim (i.NonPos->¬Pos (i.*-NonPos-NonNeg (inj-r tt) (inj-l tt)) (isSignℚ'.v p))
+      find-rep (record { numerator = (i.neg _) ; denominator = (i.pos d') }) p =
+        bot-elim (i.NonPos->¬Pos (i.*-NonPos-NonNeg (inj-l tt) (inj-l tt)) (isSignℚ'.v p))
+      find-rep (record { numerator = (i.pos _) ; denominator = (i.neg d') }) p =
+        bot-elim (i.NonPos->¬Pos (i.*-NonNeg-NonPos (inj-l tt) (inj-l tt)) (isSignℚ'.v p))
+      find-rep (record { numerator = (i.zero-int) ; denominator = (i.neg d') }) p =
+        bot-elim (i.NonPos->¬Pos (i.*-NonNeg-NonPos (inj-r tt) (inj-l tt)) (isSignℚ'.v p))
+      find-rep (record { numerator = (i.neg n') ; denominator = (i.neg d') }) _ =
+        ((suc n' , tt) , (suc d' , tt) , minus-extract-right >=> sym minus-extract-left )
+      find-rep (record { denominator = i.zero-int ; NonZero-denominator = inj-l ()})
+      find-rep (record { denominator = i.zero-int ; NonZero-denominator = inj-r ()})
 
-      path : (n⁺d⁺->ℚ⁺ n d) == (ℚ'->ℚ q' , pos-q')
-      path = ΣProp-path (\{x} -> isProp-Pos x) (r~->path _ _ nd~)
+      handle : (q' : ℚ') -> (pos-q : (Pos (ℚ'->ℚ q'))) -> P (ℚ'->ℚ q' , pos-q)
+      handle q' pos-q' = subst P path (f n d)
+        where
+        rep : Σ[ n ∈ Nat⁺ ] (Σ[ d ∈ Nat⁺ ] (n⁺d⁺->ℚ' n d r~ q'))
+        rep = find-rep q' (same-sign-ℚ'⁻ _ _ pos-q')
+        n : Nat⁺
+        n = fst rep
+        d : Nat⁺
+        d = fst (snd rep)
+        nd~ : n⁺d⁺->ℚ' n d r~ q'
+        nd~ = snd (snd rep)
+
+        path : (n⁺d⁺->ℚ⁺ n d) == (ℚ'->ℚ q' , pos-q')
+        path = ΣProp-path (\{x} -> isProp-Pos x) (r~->path _ _ nd~)
 
 
   1/ℕ-<-step1 : (n d : Nat⁺) -> (1/ℕ' d) ℚ'≤ (n⁺d⁺->ℚ' n d)

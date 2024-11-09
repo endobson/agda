@@ -436,7 +436,7 @@ private
       l2 : Line
       l2 = [ l2' ]
     ans4 : isContr (sd1 # sd2 -> Σ[ p ∈ Point ] (⟨ OnLine l1 p ⟩ × ⟨ OnLine l2 p ⟩))
-    ans4 = SemiDirectionElim.liftContr2
+    ans4 = SetQuotientElim.liftContr2
              {C2 = \sd1 sd2 -> (sd1 # sd2 -> Σ[ p ∈ Point ] (⟨ OnLine [ p1 , sd1 ] p ⟩ ×
                                                              ⟨ OnLine [ p2 , sd2 ] p ⟩))}
              (ans3 p1 p2) sd1 sd2
@@ -445,7 +445,7 @@ private
   ans5 : (l1 l2 : Line) ->
          isContr (ConvergentLines l1 l2 ->
                   Σ[ p ∈ Point ] (⟨ OnLine l1 p ⟩ × ⟨ OnLine l2 p ⟩))
-  ans5 = SetQuotientElim.liftContr2 Line' SameLine' ans4
+  ans5 = SetQuotientElim.liftContr2 ans4
 
   ans6 : (l1 l2 : Line) -> ConvergentLines l1 l2 ->
          isContr (Σ[ p ∈ Point ] (⟨ OnLine l1 p ⟩ × ⟨ OnLine l2 p ⟩))

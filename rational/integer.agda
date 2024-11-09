@@ -213,13 +213,13 @@ opaque
   unfolding ℚ
 
   floor : ℚ -> ℤ
-  floor = RationalElim.rec int.isSetInt floor' floor'-r~
+  floor = SetQuotientElim.rec int.isSetInt floor' floor'-r~
 
   floorℚ : ℚ -> ℚ
   floorℚ = ℤ->ℚ ∘ floor
 
   fractional-part : ℚ -> ℚ
-  fractional-part = RationalElim.rec isSetℚ
+  fractional-part = SetQuotientElim.rec isSetℚ
                       (\a -> [ fractional-part' a ])
                       (\a b r -> eq/ _ _ (fractional-part'-preserves-r~ a b r))
 
@@ -227,7 +227,7 @@ opaque
   unfolding _r+_ floor
 
   fractional-part-r+ : (q : ℚ) -> floorℚ q r+ (fractional-part q) == q
-  fractional-part-r+ = RationalElim.elimProp (\_ -> (isSetℚ _ _))
+  fractional-part-r+ = SetQuotientElim.elimProp (\_ -> (isSetℚ _ _))
                         (\q -> cong [_] (fractional-part'-r+' q))
 
 

@@ -70,9 +70,6 @@ module _ {n : Nat} where
 ℤ/nℤ : (n : Nat) -> Type₀
 ℤ/nℤ n = ℤ / (CongruentMod n)
 
-module ℤ/nℤElim {n : Nat} = SetQuotientElim ℤ (CongruentMod n)
-
-
 isSet-ℤ/nℤ : {n : Nat} -> isSet (ℤ/nℤ n)
 isSet-ℤ/nℤ = squash/
 
@@ -112,7 +109,7 @@ module _ {n : Nat} where
     z+'-~₂ x y1 y2 c = eq/ _ _ (i+-~₂ x y1 y2 c)
 
   _z+_ : ℤ/nℤ n -> ℤ/nℤ n -> ℤ/nℤ n
-  _z+_ = ℤ/nℤElim.rec2 isSet-ℤ/nℤ _z+'_ z+'-~₁ z+'-~₂
+  _z+_ = SetQuotientElim.rec2 isSet-ℤ/nℤ _z+'_ z+'-~₁ z+'-~₂
 
   private
     _z*'_ : ℤ -> ℤ -> ℤ/nℤ n
@@ -146,7 +143,7 @@ module _ {n : Nat} where
     z*'-~₂ x y1 y2 c = eq/ _ _ (i*-~₂ x y1 y2 c)
 
   _z*_ : ℤ/nℤ n -> ℤ/nℤ n -> ℤ/nℤ n
-  _z*_ = ℤ/nℤElim.rec2 isSet-ℤ/nℤ _z*'_ z*'-~₁ z*'-~₂
+  _z*_ = SetQuotientElim.rec2 isSet-ℤ/nℤ _z*'_ z*'-~₁ z*'-~₂
 
   private
     z-'_ : ℤ -> ℤ/nℤ n
@@ -170,7 +167,7 @@ module _ {n : Nat} where
     z-'-~ x1 x2 c = eq/ _ _ (i--~ x1 x2 c)
 
   z-_ : ℤ/nℤ n -> ℤ/nℤ n
-  z-_ = ℤ/nℤElim.rec isSet-ℤ/nℤ z-'_ z-'-~
+  z-_ = SetQuotientElim.rec isSet-ℤ/nℤ z-'_ z-'-~
 
 module _ (n⁺ : Nat⁺) where
   private
@@ -220,7 +217,7 @@ module _ (n⁺ : Nat⁺) where
     ans = cong QuotientRemainder.r (isProp-QuotientRemainder qrx qrx2)
 
   ℤ/nℤ->representative : ℤ/nℤ n -> Fin n
-  ℤ/nℤ->representative = ℤ/nℤElim.rec isSetFin repr repr~
+  ℤ/nℤ->representative = SetQuotientElim.rec isSetFin repr repr~
 
   representative->ℤ/nℤ : Fin n -> ℤ/nℤ n
   representative->ℤ/nℤ (i , _) = [ (int i) ]
@@ -233,7 +230,7 @@ module _ (n⁺ : Nat⁺) where
       qr = record { q = (int 0) ; r = i ; path = +-left *-left-zero >=> +-left-zero }
 
     ℤ/nℤ->rep->ℤ/nℤ : (i : ℤ/nℤ n) -> (representative->ℤ/nℤ (ℤ/nℤ->representative i)) == i
-    ℤ/nℤ->rep->ℤ/nℤ = ℤ/nℤElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) handle
+    ℤ/nℤ->rep->ℤ/nℤ = SetQuotientElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) handle
       where
       handle : (i : ℤ) -> (representative->ℤ/nℤ (ℤ/nℤ->representative [ i ])) == [ i ]
       handle i = sym (eq/ _ _ r)
@@ -287,25 +284,25 @@ module _ {n : Nat} where
     [_] = s[_]
 
   z+-left-zero : (i : ℤ/nℤ n) -> 0# z+ i == i
-  z+-left-zero = ℤ/nℤElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) (\_ -> cong [_] +-left-zero)
+  z+-left-zero = SetQuotientElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) (\_ -> cong [_] +-left-zero)
 
   z*-left-zero : (i : ℤ/nℤ n) -> 0# z* i == 0#
-  z*-left-zero = ℤ/nℤElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) (\_ -> cong [_] *-left-zero)
+  z*-left-zero = SetQuotientElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) (\_ -> cong [_] *-left-zero)
 
   z*-left-one : (i : ℤ/nℤ n) -> 1# z* i == i
-  z*-left-one = ℤ/nℤElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) (\_ -> cong [_] *-left-one)
+  z*-left-one = SetQuotientElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) (\_ -> cong [_] *-left-one)
 
   z+-assoc : (i j k : ℤ/nℤ n) -> (i z+ j) z+ k == i z+ (j z+ k)
-  z+-assoc = ℤ/nℤElim.elimProp3 (\_ _ _ -> isSet-ℤ/nℤ _ _) (\_ _ _ -> cong [_] +-assoc)
+  z+-assoc = SetQuotientElim.elimProp3 (\_ _ _ -> isSet-ℤ/nℤ _ _) (\_ _ _ -> cong [_] +-assoc)
 
   z+-commute : (i j : ℤ/nℤ n) -> i z+ j == j z+ i
-  z+-commute = ℤ/nℤElim.elimProp2 (\_ _ -> isSet-ℤ/nℤ _ _) (\_ _ -> cong [_] +-commute)
+  z+-commute = SetQuotientElim.elimProp2 (\_ _ -> isSet-ℤ/nℤ _ _) (\_ _ -> cong [_] +-commute)
 
   z*-assoc : (i j k : ℤ/nℤ n) -> (i z* j) z* k == i z* (j z* k)
-  z*-assoc = ℤ/nℤElim.elimProp3 (\_ _ _ -> isSet-ℤ/nℤ _ _) (\_ _ _ -> cong [_] *-assoc)
+  z*-assoc = SetQuotientElim.elimProp3 (\_ _ _ -> isSet-ℤ/nℤ _ _) (\_ _ _ -> cong [_] *-assoc)
 
   z*-commute : (i j : ℤ/nℤ n) -> i z* j == j z* i
-  z*-commute = ℤ/nℤElim.elimProp2 (\_ _ -> isSet-ℤ/nℤ _ _) (\_ _ -> cong [_] *-commute)
+  z*-commute = SetQuotientElim.elimProp2 (\_ _ -> isSet-ℤ/nℤ _ _) (\_ _ -> cong [_] *-commute)
 
   Unit : ℤ/nℤ n -> Type₀
   Unit x = Σ[ y ∈ ℤ/nℤ n ] ((x z* y) == 1#)
@@ -442,7 +439,7 @@ module _ (n⁺ : Nat⁺) where
 
 
   CoprimeN' : (x : ℤ/nℤ n) -> hProp ℓ-zero
-  CoprimeN' = ℤ/nℤElim.rec isSet-hProp
+  CoprimeN' = SetQuotientElim.rec isSet-hProp
                 (\ x -> RelativelyPrime (int n) x , isProp-RelativelyPrime)
                 (\ x y r -> ΣProp-path (isProp-isOfHLevel 1) (rp-eq x y r))
     where
@@ -478,13 +475,13 @@ module _ (n⁺ : Nat⁺) where
 
   module _ where
     unit->coprime' : (x y : ℤ/nℤ n) -> (x z* y == 1#) -> (CoprimeN x)
-    unit->coprime' = ℤ/nℤElim.elimProp2 (\x y -> (isPropΠ (\_ -> isProp-CoprimeN {x}))) handle
+    unit->coprime' = SetQuotientElim.elimProp2 (\x y -> (isPropΠ (\_ -> isProp-CoprimeN {x}))) handle
       where
       handle : (x y : ℤ) -> ([ x * y ] == 1#) -> (CoprimeN [ x ])
       handle x y p d nn-d d%n d%x = div-one->one nn-d d%1
         where
         c : (int 1) ~ (x * y)
-        c = sym-~ (ℤ/nℤElim.pathRec isPropValued-~ isEquivRel-~ _ _ p)
+        c = sym-~ (SetQuotientElim.pathRec isPropValued-~ isEquivRel-~ _ _ p)
 
         d%1-xy : d div ((int 1) + (- (x * y)))
         d%1-xy = div-trans d%n (CongruentMod.n%ab c)
@@ -524,7 +521,7 @@ module _ (n⁺ : Nat⁺) where
       n%xy-1 = (- lc.x) , path
 
     coprime->unit : (x : ℤ/nℤ n) -> (CoprimeN x) -> (Unit x)
-    coprime->unit = ℤ/nℤElim.elimProp (\x -> (isPropΠ (\_ -> isProp-Unit {x = x}))) handle
+    coprime->unit = SetQuotientElim.elimProp (\x -> (isPropΠ (\_ -> isProp-Unit {x = x}))) handle
       where
       handle : (x : ℤ) -> (RelativelyPrime (int n) x) -> (Unit [ x ])
       handle x rp = lc->unit (gcd->linear-combo (relatively-prime->gcdⁱ rp))
@@ -557,7 +554,7 @@ module _ (n⁺ : Nat⁺) where
       n%xy-1 = (- lc.x) , path
 
     coprime->unit' : (x : ℤ/nℤ n) -> (CoprimeN x) -> (Unit' x)
-    coprime->unit' = ℤ/nℤElim.elimProp (\x -> (isPropΠ (\_ -> isProp-Unit'))) handle
+    coprime->unit' = SetQuotientElim.elimProp (\x -> (isPropΠ (\_ -> isProp-Unit'))) handle
       where
       handle : (x : ℤ) -> (RelativelyPrime (int n) x) -> (Unit' [ x ])
       handle x rp = lc->unit' (gcd->linear-combo (relatively-prime->gcdⁱ rp))

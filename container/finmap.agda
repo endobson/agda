@@ -417,12 +417,9 @@ FinMap K V = FinMapUK K V / FinMapEq
 
 
 module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
-  private
-    module FinMapElim = SetQuotientElim (FinMapUK K V) FinMapEq
-
   HasKV-hProp : K -> V -> FinMap K V -> hProp (ℓ-max ℓK ℓV)
   HasKV-hProp k v =
-    FinMapElim.rec isSet-hProp (\m -> ∥ HasKV-UK k v m ∥ , squash) same
+    SetQuotientElim.rec isSet-hProp (\m -> ∥ HasKV-UK k v m ∥ , squash) same
     where
     same : (m1 m2 : FinMapUK K V) (eq : FinMapEq m1 m2) ->
            (∥ HasKV-UK k v m1 ∥ , squash) == (∥ HasKV-UK k v m2 ∥ , squash)
@@ -444,13 +441,12 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV}
          {{isSet'V : isSet' V}}
          where
   private
-    module FinMapElim = SetQuotientElim (FinMapUK K V) FinMapEq
     isSetV = isSet'.f isSet'V
 
   isUnique-HasKV : {k : K} {v1 v2 : V} (m : FinMap K V) ->
                    HasKV k v1 m -> HasKV k v2 m -> v1 == v2
   isUnique-HasKV =
-    FinMapElim.elimProp (\_ -> isPropΠ2 (\_ _ -> isSetV _ _))
+    SetQuotientElim.elimProp (\_ -> isPropΠ2 (\_ _ -> isSetV _ _))
       (\m hkv1 hkv2 -> unsquash (isSetV _ _) (∥-map2 (isUnique-HasKV2 m) hkv1 hkv2)) -- isUnique-HasKV2
 
   HasKey-hProp : K -> FinMap K V -> hProp (ℓ-max ℓK ℓV)

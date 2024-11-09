@@ -77,14 +77,12 @@ module _ {l1 l2 : Line'} where
 Line : Type ℓ-one
 Line = Line' / SameLine'
 
-module LineElim = SetQuotientElim Line' SameLine'
-
 isSet-Line : isSet Line
 isSet-Line = squash/
 
 line-semi-direction : Line -> SemiDirection
 line-semi-direction =
-  LineElim.rec isSet-SemiDirection
+  SetQuotientElim.rec isSet-SemiDirection
     line'-semi-direction
     (\_ _ (_ , _ , p) -> p)
 
@@ -114,13 +112,13 @@ OnLine'-SameLine' l1 l2 (p2∈l1 , p1∈l2 , s1=s2) =
     check3 = isLinearSubtype.closed-under-v+ (isLinearSubtype-semi-direction-span s2) check1 check2
 
 OnLine : Line -> Subtype Point ℓ-one
-OnLine = LineElim.rec isSet-Subtype OnLine' OnLine'-SameLine'
+OnLine = SetQuotientElim.rec isSet-Subtype OnLine' OnLine'-SameLine'
 
 
 abstract
   OnLine-path : {p : Point} {l : Line} -> ⟨ OnLine l p ⟩ -> l == [ p , (line-semi-direction l) ]
   OnLine-path {p} {l} =
-    LineElim.elimProp
+    SetQuotientElim.elimProp
       (\l -> (isPropΠ (\(_ : ⟨ OnLine l p ⟩) -> isSet-Line l [ p , (line-semi-direction l)])))
       (\l' ol' -> eq/ _ _ (simple-SameLine' ol' refl))
       l
@@ -192,14 +190,14 @@ flip-line-segment-path {p1} {p2} ls = eq/ _ _ sl
 
 line->line-segment : (l : Line) ->
   ∃[ p1 ∈ Point ] Σ[ p2 ∈ Point ] Σ[ ls ∈ LineSegment p1 p2 ] (line-segment->line ls == l)
-line->line-segment = LineElim.elimProp isProp-Ans f
+line->line-segment = SetQuotientElim.elimProp isProp-Ans f
   where
   Ans : Line -> Type ℓ-one
   Ans l = ∃[ p1 ∈ Point ] Σ[ p2 ∈ Point ] Σ[ ls ∈ LineSegment p1 p2 ] (line-segment->line ls == l)
   isProp-Ans : (l : Line) -> isProp (Ans l)
   isProp-Ans _ = squash
   f : (l : Line') -> Ans [ l ]
-  f l@(p1 , sd) = SemiDirectionElim.elimProp (\sd -> isProp-Ans [ (p1 , sd) ]) g sd
+  f l@(p1 , sd) = SetQuotientElim.elimProp (\sd -> isProp-Ans [ (p1 , sd) ]) g sd
     where
     g : (d : Direction) -> Ans [ (p1 , [ d ]) ]
     g d@(v , _) = ∣ p1 , p2 , line-segment-cons p1#p2 , line-path ∣

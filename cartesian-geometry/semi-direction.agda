@@ -39,8 +39,6 @@ data SameSemiDirection : Rel Direction ℓ-one where
 SemiDirection : Type ℓ-one
 SemiDirection = Direction / SameSemiDirection
 
-module SemiDirectionElim = SetQuotientElim Direction SameSemiDirection
-
 isSet-SemiDirection : isSet SemiDirection
 isSet-SemiDirection = squash/
 
@@ -163,11 +161,11 @@ private
 
 
 semi-direction-span : SemiDirection -> Subtype Vector ℓ-one
-semi-direction-span = SemiDirectionElim.rec isSet-Subtype direction-span same-semi-direction-span
+semi-direction-span = SetQuotientElim.rec isSet-Subtype direction-span same-semi-direction-span
 
 
 
 abstract
   isLinearSubtype-semi-direction-span : (s : SemiDirection) -> isLinearSubtype (semi-direction-span s)
   isLinearSubtype-semi-direction-span =
-    SemiDirectionElim.elimProp (\_ -> isProp-isLinearSubtype) isLinearSubtype-direction-span
+    SetQuotientElim.elimProp (\_ -> isProp-isLinearSubtype) isLinearSubtype-direction-span

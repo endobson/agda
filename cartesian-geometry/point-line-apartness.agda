@@ -305,10 +305,10 @@ private
 
   semi-direction-distance' : SemiDirection -> Vector -> ℝ
   semi-direction-distance' =
-    SemiDirectionElim.rec (isSetΠ \_ -> isSet-ℝ) semi-direction-distance same-semi-direction-distance
+    SetQuotientElim.rec (isSetΠ \_ -> isSet-ℝ) semi-direction-distance same-semi-direction-distance
 
   0≤semi-direction-distance' : (sd : SemiDirection) -> (v : Vector) -> 0# ≤ semi-direction-distance' sd v
-  0≤semi-direction-distance' sd v = SemiDirectionElim.elimProp prop 0≤d sd
+  0≤semi-direction-distance' sd v = SetQuotientElim.elimProp prop 0≤d sd
     where
     prop : (sd : SemiDirection) -> isProp (0# ≤ semi-direction-distance' sd v)
     prop sd lt1 lt2 = isProp-≤ {x = 0#} {y = semi-direction-distance' sd v} lt1 lt2
@@ -320,7 +320,7 @@ private
   semi-direction-distance'-v- : {v1 v2 : Vector} (sd : SemiDirection) -> v1 == (v- v2) ->
     semi-direction-distance' sd v1 == semi-direction-distance' sd v2
   semi-direction-distance'-v- {v1} {v2} =
-    SemiDirectionElim.elimProp
+    SetQuotientElim.elimProp
       (\_ -> (isPropΠ (\_ -> isSet-ℝ _ _)))
       (\d -> semi-direction-distance-v- d {v1} {v2})
 
@@ -328,7 +328,7 @@ private
   semi-direction-distance'#0->v#0 :
     (sd : SemiDirection) (v : Vector) -> semi-direction-distance' sd v # 0# -> v # 0v
   semi-direction-distance'#0->v#0 =
-    SemiDirectionElim.elimProp
+    SetQuotientElim.elimProp
       (\sd -> isPropΠ2 (\_ _ -> isProp-#))
       semi-direction-distance#0->v#0
 
@@ -354,7 +354,7 @@ private
   semi-direction-span=semi-direction-distance'0 : (sd : SemiDirection) ->
     semi-direction-span sd == semi-direction-distance'0-Subtype sd
   semi-direction-span=semi-direction-distance'0 sd =
-    SemiDirectionElim.elimProp
+    SetQuotientElim.elimProp
       (\sd -> isSet-Subtype (semi-direction-span sd) (semi-direction-distance'0-Subtype sd))
       (\d -> direction-span=semi-direction-distance0 d >=>
              funExt (\v -> ΣProp-path isProp-isProp refl))
@@ -366,7 +366,7 @@ private
     ⟨ semi-direction-span sd v ⟩ ->
     semi-direction-distance' sd v == 0#
   semi-direction-span->semi-direction-distance'0 =
-    SemiDirectionElim.elimProp (\_ -> (isPropΠ2 \_ _ -> isSet-ℝ _ _) )
+    SetQuotientElim.elimProp (\_ -> (isPropΠ2 \_ _ -> isSet-ℝ _ _) )
       direction-span->semi-direction-distance0
 
   semi-direction-distance-cancel0 : (d : Direction) (v1 v2 : Vector) ->
@@ -380,7 +380,7 @@ private
     semi-direction-distance' sd v1 == 0# ->
     semi-direction-distance' sd (v1 v+ v2) == semi-direction-distance' sd v2
   semi-direction-distance'-cancel0 sd v1 v2 =
-    SemiDirectionElim.elimProp isProp-C (\d -> semi-direction-distance-cancel0 d v1 v2) sd
+    SetQuotientElim.elimProp isProp-C (\d -> semi-direction-distance-cancel0 d v1 v2) sd
     where
     C : Pred SemiDirection _
     C sd = semi-direction-distance' sd v1 == 0# ->
@@ -419,13 +419,13 @@ private
 
   point-line-distance : Point -> Line -> ℝ
   point-line-distance p =
-    SetQuotientElim.rec Line' SameLine' isSet-ℝ
+    SetQuotientElim.rec isSet-ℝ
       (\ l -> point-line'-distance p l)
       (\ l1 l2 sl -> point-line'-distance-SameLine' p l1 l2 sl)
 
   0≤point-line-distance : (p : Point) -> (l : Line) -> 0# ≤ point-line-distance p l
   0≤point-line-distance p =
-    SetQuotientElim.elimProp Line' SameLine' (\l -> isProp-≤)
+    SetQuotientElim.elimProp (\l -> isProp-≤)
       (\(lp , sd) -> 0≤semi-direction-distance' sd (P-diff lp p))
 
   point-line-distance0-Subtype : (l : Line) -> Subtype Point ℓ-one
@@ -436,7 +436,7 @@ private
   OnLine=point-line-distance0 : (l : Line) ->
     OnLine l == point-line-distance0-Subtype l
   OnLine=point-line-distance0 =
-    SetQuotientElim.elimProp Line' SameLine' (\l -> isSet-Subtype _ _)
+    SetQuotientElim.elimProp (\l -> isSet-Subtype _ _)
       (\l -> funExt (f l))
     where
     f : (l : Line') (p : Point) -> OnLine' l p == point-line-distance0-Subtype [ l ] p
@@ -466,7 +466,7 @@ private
     ⟨ OnLine l1 p1 ⟩ -> ⟨ OnLine l2 p2 ⟩ ->
     point-line-distance p1 l2 == point-line-distance p2 l1
   ParallelLines-different-lines-same-distance l1 l2 sd1=sd2 p1 p2 =
-    SetQuotientElim.elimProp2 Line' SameLine'
+    SetQuotientElim.elimProp2
     (\l1 l2 -> isPropΠ3 (\(_ : line-semi-direction l1 == line-semi-direction l2)
                           (_ : ⟨ OnLine l1 p1 ⟩) (_ : ⟨ OnLine l2 p2 ⟩) ->
                           isSet-ℝ (point-line-distance p1 l2) (point-line-distance p2 l1)))
@@ -497,7 +497,7 @@ private
     ⟨ OnLine l1 p1 ⟩ -> ⟨ OnLine l1 p2 ⟩ ->
     point-line-distance p1 l2 == point-line-distance p2 l2
   ParallelLines-same-line-same-distance l1 l2 sd1=sd2 p1 p2 ol1 ol2 =
-    SetQuotientElim.elimProp Line' SameLine'
+    SetQuotientElim.elimProp
       (\l2 -> isPropΠ (\(_ : line-semi-direction l1 == line-semi-direction l2) ->
                         isSet-ℝ (point-line-distance p1 l2) (point-line-distance p2 l2)))
       f l2 sd1=sd2
@@ -542,7 +542,7 @@ private
     ∃![ d ∈ ℝ ] (((p : Point) -> ⟨ OnLine l1 p ⟩ -> point-line-distance p l2 == d) ×
                  ((p : Point) -> ⟨ OnLine l2 p ⟩ -> point-line-distance p l1 == d))
   ParallelLines-∃!distance l1 l2 =
-    SetQuotientElim.liftΠContr Line' SameLine'
+    SetQuotientElim.liftΠContr
       {C₁ = \l -> ParallelLines l l2}
       {C₂ = \l -> Σ[ d ∈ ℝ ] (((p : Point) -> ⟨ OnLine l p ⟩ -> point-line-distance p l2 == d) ×
                               ((p : Point) -> ⟨ OnLine l2 p ⟩ -> point-line-distance p l == d))}
@@ -569,7 +569,7 @@ module _
     line-path : (p : Point) (l : Line) -> ⟨ OnLine l p ⟩ ->
                 l == [ p , line-semi-direction l ]
     line-path p =
-      SetQuotientElim.elimProp Line' SameLine'
+      SetQuotientElim.elimProp
         (\l -> isPropΠ (\_ -> isSet-Line l [ p , line-semi-direction l ]))
         f
       where

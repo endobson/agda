@@ -77,8 +77,6 @@ r~->r~' {a} {b} v = record { path = v }
 ℚᵉ : Type₀
 ℚᵉ = ℚ' / _r~_
 
-module RationalElim = SetQuotientElim ℚ' _r~_
-
 opaque
   ℚ : Type₀
   ℚ = ℚᵉ
@@ -91,41 +89,6 @@ opaque
 
   r~->path : (a b : ℚ') -> (a r~ b) -> (ℚ'->ℚ a) == (ℚ'->ℚ b)
   r~->path a b r = eq/ a b r
-
-  ℚ-rec2 : {ℓ : Level} {A : Type ℓ} -> (isSetA : isSet A)
-           (f : ℚ' -> ℚ' -> A)
-           (f~₁ : (a1 a2 a3 : ℚ') (r : a1 r~ a2) -> (f a1 a3 == f a2 a3)) ->
-           (f~₂ : (a1 a2 a3 : ℚ') (r : a2 r~ a3) -> (f a1 a2 == f a1 a3)) ->
-           ℚ -> ℚ -> A
-  ℚ-rec2 = RationalElim.rec2
-
-
-  ℚ-rec2-eval : {ℓ : Level} {A : Type ℓ} -> (isSetA : isSet A)
-                (f : ℚ' -> ℚ' -> A)
-                (f~₁ : (a1 a2 a3 : ℚ') (r : a1 r~ a2) -> (f a1 a3 == f a2 a3)) ->
-                (f~₂ : (a1 a2 a3 : ℚ') (r : a2 r~ a3) -> (f a1 a2 == f a1 a3)) ->
-                (x y : ℚ') -> (ℚ-rec2 isSetA f f~₁ f~₂ (ℚ'->ℚ x) (ℚ'->ℚ y)) == f x y
-  ℚ-rec2-eval _ _ _ _ _ _ = refl
-
-  ℚ-elimProp : {ℓ : Level} {C : ℚ -> Type ℓ} ->
-                (isPropC : (q : ℚ) -> isProp (C q)) ->
-                (f : (q' : ℚ') -> C (ℚ'->ℚ q'))
-                (q : ℚ) -> C q
-  ℚ-elimProp = RationalElim.elimProp
-
-
-  ℚ-elimProp2 : {ℓ : Level} {C2 : ℚ -> ℚ -> Type ℓ} ->
-                (isPropC2 : (ar1 ar2 : ℚ) -> isProp (C2 ar1 ar2)) ->
-                (f : (a1 a2 : ℚ') -> C2 (ℚ'->ℚ a1) (ℚ'->ℚ a2)) ->
-                (ar1 ar2 : ℚ) -> C2 ar1 ar2
-  ℚ-elimProp2 = RationalElim.elimProp2
-
-  ℚ-elimProp3 : {ℓ : Level} {C3 : ℚ -> ℚ -> ℚ -> Type ℓ} ->
-                (isPropC3 : (q1 q2 q3 : ℚ) -> isProp (C3 q1 q2 q3)) ->
-                (f : (q1 q2 q3 : ℚ') -> C3 (ℚ'->ℚ q1) (ℚ'->ℚ q2) (ℚ'->ℚ q3)) ->
-                (q1 q2 q3 : ℚ) -> C3 q1 q2 q3
-  ℚ-elimProp3 = RationalElim.elimProp3
-
 
 trans-r~ : (a b c : ℚ') -> a r~ b -> b r~ c -> a r~ c
 trans-r~ a b c p1 p2 = int.*-right-injective (rNonZero b) p3
@@ -291,7 +254,7 @@ opaque
 
 
 _r+ᵉ_ : ℚᵉ -> ℚᵉ -> ℚᵉ
-_r+ᵉ_ = RationalElim.rec2 squash/
+_r+ᵉ_ = SetQuotientElim.rec2 squash/
           (\a b -> [ a r+' b ])
           (\a1 a2 b r -> eq/ _ _ (r+'-preserves-r~₁ b a1 a2 r))
           (\a b1 b2 r -> eq/ _ _ (r+'-preserves-r~₂ a b1 b2 r))
@@ -307,7 +270,7 @@ opaque
   r+-eval = refl
 
   r+-commute : (a b : ℚ) -> (a r+ b) == (b r+ a)
-  r+-commute = RationalElim.elimProp2 (\a b -> isSetℚ _ _) (\a b -> cong [_] (r+'-commute a b))
+  r+-commute = SetQuotientElim.elimProp2 (\a b -> isSetℚ _ _) (\a b -> cong [_] (r+'-commute a b))
 
 0r' : ℚ'
 0r' = record
@@ -350,7 +313,7 @@ opaque
   unfolding _r+_
 
   r+-left-zero : (a : ℚ) -> (0r r+ a) == a
-  r+-left-zero = RationalElim.elimProp (\a -> isSetℚ _ _) (\a -> cong [_] (r+'-left-zero a))
+  r+-left-zero = SetQuotientElim.elimProp (\a -> isSetℚ _ _) (\a -> cong [_] (r+'-left-zero a))
 
   r+-right-zero : (a : ℚ) -> (a r+ 0r) == a
   r+-right-zero a = r+-commute a 0r >=> r+-left-zero a
@@ -408,7 +371,7 @@ private
     transport (\i -> (r*'-commute b a1 i) r~ (r*'-commute b a2 i)) (r*'-preserves-r~₂ b a1 a2 r)
 
 _r*ᵉ_ : ℚᵉ -> ℚᵉ -> ℚᵉ
-_r*ᵉ_ = RationalElim.rec2 squash/
+_r*ᵉ_ = SetQuotientElim.rec2 squash/
           (\a b -> [ a r*' b ])
           (\a1 a2 b r -> eq/ _ _ (r*'-preserves-r~₁ b a1 a2 r))
           (\a b1 b2 r -> eq/ _ _ (r*'-preserves-r~₂ a b1 b2 r))
@@ -423,14 +386,14 @@ opaque
   r*-eval = refl
 
   r*-commute : (a b : ℚ) -> (a r* b) == (b r* a)
-  r*-commute = RationalElim.elimProp2 (\a b -> isSetℚ _ _) (\a b -> cong [_] (r*'-commute a b))
+  r*-commute = SetQuotientElim.elimProp2 (\a b -> isSetℚ _ _) (\a b -> cong [_] (r*'-commute a b))
 
   private
     r*'-left-zero : (a : ℚ') -> (0r' r*' a) r~ 0r'
     r*'-left-zero a = *-right-one >=> *-left-zero >=> sym (*-left-zero)
 
   r*-left-zero : (a : ℚ) -> (0r r* a) == 0r
-  r*-left-zero = RationalElim.elimProp (\a -> isSetℚ _ _) (\a -> eq/ _ _ (r*'-left-zero a))
+  r*-left-zero = SetQuotientElim.elimProp (\a -> isSetℚ _ _) (\a -> eq/ _ _ (r*'-left-zero a))
 
   r*-right-zero : (a : ℚ) -> (a r* 0r) == 0r
   r*-right-zero a = r*-commute a 0r >=> r*-left-zero a
@@ -453,7 +416,7 @@ opaque
   unfolding _r*_
 
   r*-left-one : (a : ℚ) -> (1r r* a) == a
-  r*-left-one = RationalElim.elimProp (\a -> isSetℚ _ _) (\a -> cong [_] (r*'-left-one a))
+  r*-left-one = SetQuotientElim.elimProp (\a -> isSetℚ _ _) (\a -> cong [_] (r*'-left-one a))
 
   r*-right-one : (a : ℚ) -> (a r* 1r) == a
   r*-right-one a = r*-commute a 1r >=> r*-left-one a
@@ -467,7 +430,7 @@ opaque
   unfolding _r*_
 
   r*-assoc : (a b c : ℚ) -> ((a r* b) r* c) == (a r* (b r* c))
-  r*-assoc = RationalElim.elimProp3 (\a b c -> isSetℚ _ _) (\a b c -> cong [_] (r*'-assoc a b c))
+  r*-assoc = SetQuotientElim.elimProp3 (\a b c -> isSetℚ _ _) (\a b c -> cong [_] (r*'-assoc a b c))
 
 opaque
   unfolding _r+'_
@@ -501,7 +464,7 @@ opaque
   unfolding _r+_
 
   r+-assoc : (a b c : ℚ) -> ((a r+ b) r+ c) == (a r+ (b r+ c))
-  r+-assoc = RationalElim.elimProp3
+  r+-assoc = SetQuotientElim.elimProp3
                (\a b c -> isSetℚ ((a r+ b) r+ c) (a r+ (b r+ c)))
                (\a b c -> (eq/ ((a r+' b) r+' c) (a r+' (b r+' c)) (r+'-assoc {a} {b} {c})))
 
@@ -539,7 +502,7 @@ opaque
 
   r*-distrib-r+-right : (a b c : ℚ) -> ((a r+ b) r* c) == ((a r* c) r+ (b r* c))
   r*-distrib-r+-right =
-    RationalElim.elimProp3 (\a b c -> isSetℚ _ _)
+    SetQuotientElim.elimProp3 (\a b c -> isSetℚ _ _)
                            (\a b c -> (eq/ _ _ (r*'-distrib-r+'-right a b c)))
 
 
@@ -596,7 +559,7 @@ opaque
 
 
 r-ᵉ_ : ℚᵉ -> ℚᵉ
-r-ᵉ_ = RationalElim.rec isSet-ℚᵉ
+r-ᵉ_ = SetQuotientElim.rec isSet-ℚᵉ
        (\a -> [ r-' a ])
        (\a1 a2 r -> eq/ _ _ (r-'-preserves-r~ a1 a2 r))
 
@@ -610,7 +573,7 @@ opaque
   unfolding _r+_ r-_
 
   r+-inverse : (a : ℚ) -> (a r+ (r- a)) == 0r
-  r+-inverse = RationalElim.elimProp
+  r+-inverse = SetQuotientElim.elimProp
                (\_ -> isSetℚ _ _)
                (\a -> eq/ _ _ (r+'-inverse a))
 
@@ -619,7 +582,7 @@ opaque
 
   r*-minus-extract-left : (a1 a2 : ℚ) -> (r- a1) r* a2 == r- (a1 r* a2)
   r*-minus-extract-left =
-    RationalElim.elimProp2
+    SetQuotientElim.elimProp2
       (\_ _ -> isSetℚ _ _)
       (\a1 a2 -> cong [_] (nd-paths->path _ _ minus-extract-left refl))
 
@@ -722,7 +685,7 @@ opaque
   unfolding ℚ
 
   r1/ᵉ : (a : ℚ) -> (ℚInv a) -> ℚ
-  r1/ᵉ = RationalElim.elim
+  r1/ᵉ = SetQuotientElim.elim
            (\_ -> isSetΠ (\_ -> isSetℚ))
            g
            (\a1 a2 r -> funExtDep a1 a2 (\i1 i2 ->
@@ -743,14 +706,14 @@ opaque
   r1/-eval = refl
 
   r1/-inverse : (a : ℚ) -> (i : ℚInv a) -> ((r1/ a i) r* a) == 1r
-  r1/-inverse = RationalElim.elimProp
+  r1/-inverse = SetQuotientElim.elimProp
                  (\_ -> isPropΠ (\_ -> isSetℚ _ _))
                  (\ a i -> eq/ _ _ (r1/'-inverse a (ℚInv->ℚInv' _ i)))
 
   r1/-double-inverse : (a : ℚ) -> (i1 : ℚInv a) -> (i2 : ℚInv (r1/ a i1)) ->
                        r1/ (r1/ a i1) i2 == a
   r1/-double-inverse =
-    RationalElim.elimProp
+    SetQuotientElim.elimProp
       (\_ -> isPropΠ2 (\_ _ -> isSetℚ _ _))
       (\ a i1 i2 -> cong [_] (r1/'-double-inverse a (ℚInv->ℚInv' _ i1) (ℚInv->ℚInv' _ i2)))
 
@@ -843,9 +806,11 @@ private
         sym *-assoc
 
 opaque
+  unfolding ℚ
+
   ℚ->split-ℤ : (q : ℚ) -> ∃[ n ∈ ℤ ] Σ[ d ∈ ℤ ] (NonZero d × (ℤ->ℚ n == q * ℤ->ℚ d))
   ℚ->split-ℤ =
-    ℚ-elimProp (\_ -> squash) (\q' -> ∣ handle (ℚ'->split-ℤ q') ∣)
+    SetQuotientElim.elimProp (\_ -> squash) (\q' -> ∣ handle (ℚ'->split-ℤ q') ∣)
     where
     handle : {q' : ℚ'} ->
         (Σ[ n ∈ ℤ ] Σ[ d ∈ ℤ ] (NonZero d × (ℤ->ℚ' n r~ (q' r*' ℤ->ℚ' d)))) ->
@@ -854,7 +819,7 @@ opaque
 
   ℚ->split-ℤℕ⁺ : (q : ℚ) -> ∃[ n ∈ ℤ ] Σ[ d ∈ Nat⁺ ] (ℤ->ℚ n == q * ℕ->ℚ ⟨ d ⟩)
   ℚ->split-ℤℕ⁺ =
-    ℚ-elimProp (\_ -> squash) (\q' -> ∣ handle (ℚ'->split-ℤℕ⁺ q') ∣)
+    SetQuotientElim.elimProp (\_ -> squash) (\q' -> ∣ handle (ℚ'->split-ℤℕ⁺ q') ∣)
     where
     handle : {q' : ℚ'} ->
         (Σ[ n ∈ ℤ ] Σ[ d ∈ Nat⁺ ] (ℤ->ℚ' n r~ (q' r*' ℕ->ℚ' ⟨ d ⟩))) ->
@@ -869,7 +834,7 @@ opaque
   private
     isNonZeroℚ' : ℚ -> hProp ℓ-zero
     isNonZeroℚ' =
-      RationalElim.elim (\_ -> isSet-hProp) val preserved
+      SetQuotientElim.elim (\_ -> isSet-hProp) val preserved
       where
       val : ℚ' -> hProp ℓ-zero
       val r = NonZero (numer r) , int.isPropNonZero
@@ -915,7 +880,7 @@ opaque
 
   r*-isNonZeroℚ-isNonZeroℚ : (a b : ℚ) -> isNonZeroℚ a -> isNonZeroℚ b -> isNonZeroℚ (a r* b)
   r*-isNonZeroℚ-isNonZeroℚ =
-    RationalElim.elimProp2 {C2 = \a b -> isNonZeroℚ a -> isNonZeroℚ b -> isNonZeroℚ (a r* b)}
+    SetQuotientElim.elimProp2 {C2 = \a b -> isNonZeroℚ a -> isNonZeroℚ b -> isNonZeroℚ (a r* b)}
       (\a b -> isPropΠ2 (\_ _ -> isProp-isNonZeroℚ (a r* b)))
       (\a b nza nzb -> int.*-NonZero-NonZero nza nzb)
 
@@ -924,7 +889,7 @@ opaque
 
   r1/-isNonZeroℚ : (a : ℚ) -> (nz : isNonZeroℚ a) -> isNonZeroℚ (r1/ a (isNonZeroℚ->ℚInv nz))
   r1/-isNonZeroℚ =
-    RationalElim.elimProp {C = \a -> (nz : isNonZeroℚ a) -> isNonZeroℚ (r1/ a (isNonZeroℚ->ℚInv nz))}
+    SetQuotientElim.elimProp {C = \a -> (nz : isNonZeroℚ a) -> isNonZeroℚ (r1/ a (isNonZeroℚ->ℚInv nz))}
       (\a -> isPropΠ (\ nz -> (isProp-isNonZeroℚ (r1/ a (isNonZeroℚ->ℚInv nz)))))
       (\a nz -> rNonZero a)
 

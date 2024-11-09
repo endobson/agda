@@ -99,16 +99,16 @@ module ℤ/nℤ×Elim {n1 : Nat} {n2 : Nat} where
              (f : (x y : ℤ) -> B [ x ] [ y ]) ->
              (x : ℤ/nℤ n1) -> (y : ℤ/nℤ n2) -> (B x y)
   elimProp isPropB f =
-    ℤ/nℤElim.elimProp
+    SetQuotientElim.elimProp
       (\x -> isPropΠ (\y -> isPropB x y))
-      (\x -> ℤ/nℤElim.elimProp (\y -> isPropB [ x ] y) (\y -> (f x y)))
+      (\x -> SetQuotientElim.elimProp (\y -> isPropB [ x ] y) (\y -> (f x y)))
 
 private
   UnitRec : {ℓ : Level} {P : Type ℓ} {n : Nat} (isPropP : isProp P) (x : ℤ/nℤ n) ->
             ((y : ℤ) -> (x z* [ y ] == 1#) -> P) -> (Unit x) -> P
   UnitRec {P = P} isPropP x f (y , path) =
-    ℤ/nℤElim.elimProp {C = \y -> x z* y == 1# -> P}
-                      (\_ -> isPropΠ (\_ -> isPropP)) f y path
+    SetQuotientElim.elimProp {C = \y -> x z* y == 1# -> P}
+                             (\_ -> isPropΠ (\_ -> isPropP)) f y path
 
 
 
@@ -125,7 +125,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
 
 
   lift*-z*₁ : ℤ/nℤ n1 -> ℤ/nℤ (n1 *' n2)
-  lift*-z*₁ = ℤ/nℤElim.rec isSet-ℤ/nℤ (\x -> [ lc.y * (x * (int n2)) ]) handle
+  lift*-z*₁ = SetQuotientElim.rec isSet-ℤ/nℤ (\x -> [ lc.y * (x * (int n2)) ]) handle
     where
     handle : (z1 z2 : ℤ) (r : CongruentMod n1 z1 z2) ->
              [ lc.y * (z1 * (int n2)) ] == [ lc.y * (z2 * (int n2)) ]
@@ -138,7 +138,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
            (*-distrib-+-left >=> +-right minus-extract-right)
 
   lift*-z*₂ : ℤ/nℤ n2 -> ℤ/nℤ (n1 *' n2)
-  lift*-z*₂ = ℤ/nℤElim.rec isSet-ℤ/nℤ (\x -> [ lc.x * (x * (int n1)) ]) handle
+  lift*-z*₂ = SetQuotientElim.rec isSet-ℤ/nℤ (\x -> [ lc.x * (x * (int n1)) ]) handle
     where
     handle : (z1 z2 : ℤ) (r : CongruentMod n2 z1 z2) ->
              [ lc.x * (z1 * (int n1)) ] == [ lc.x * (z2 * (int n1)) ]
@@ -155,7 +155,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
     z*2 x1 x2 = (lift*-z*₂ x2) z+ (lift*-z*₁ x1)
 
     z*2-inv₁ : ℤ/nℤ (n1 *' n2) -> ℤ/nℤ n1
-    z*2-inv₁ = ℤ/nℤElim.rec isSet-ℤ/nℤ (\x -> [ x ]) handle
+    z*2-inv₁ = SetQuotientElim.rec isSet-ℤ/nℤ (\x -> [ x ]) handle
       where
       handle : (x y : ℤ) -> (CongruentMod (n1 *' n2) x y) -> [ x ] == [ y ]
       handle x y c@(congruent-mod (d , p)) = eq/ _ _ (congruent-mod n1%)
@@ -165,7 +165,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
               *-assoc >=> *-right (*-commute >=> sym int-inject-*') >=> p
 
     z*2-inv₂ : ℤ/nℤ (n1 *' n2) -> ℤ/nℤ n2
-    z*2-inv₂ = ℤ/nℤElim.rec isSet-ℤ/nℤ (\x -> [ x ]) handle
+    z*2-inv₂ = SetQuotientElim.rec isSet-ℤ/nℤ (\x -> [ x ]) handle
       where
       handle : (x y : ℤ) -> (CongruentMod (n1 *' n2) x y) -> [ x ] == [ y ]
       handle x y c@(congruent-mod (d , p)) = eq/ _ _ (congruent-mod n2%)
@@ -175,7 +175,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
 
 
     z*2-inv-path1 : (x : ℤ/nℤ (n1 *' n2)) -> z*2 (z*2-inv₁ x) (z*2-inv₂ x) == x
-    z*2-inv-path1 = ℤ/nℤElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) handle
+    z*2-inv-path1 = SetQuotientElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) handle
       where
       handle : (x : ℤ) -> [ lc.x * (x * m1) + lc.y * (x * m2) ] == [ x ]
       handle x = cong [_] path
@@ -186,7 +186,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
                sym *-distrib-+-right >=> *-left lc.path >=> *-left-one
 
     z*2-inv-path2 : (x : ℤ) (y : ℤ/nℤ n2) -> (z*2-inv₂ (z*2 [ x ] y)) == y
-    z*2-inv-path2 x = ℤ/nℤElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) handle
+    z*2-inv-path2 x = SetQuotientElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) handle
       where
       handle : (y : ℤ) -> [ lc.x * (y * m1) + lc.y * (x * m2) ] == [ y ]
       handle y = eq/ _ _ (congruent-mod m2%diff)
@@ -209,10 +209,10 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
 
     z*2-inv-path2-full : (x : ℤ/nℤ n1) (y : ℤ/nℤ n2) -> (z*2-inv₂ (z*2 x y)) == y
     z*2-inv-path2-full =
-      ℤ/nℤElim.elimProp (\_ -> (isPropΠ (\_ -> isSet-ℤ/nℤ _ _))) z*2-inv-path2
+      SetQuotientElim.elimProp (\_ -> (isPropΠ (\_ -> isSet-ℤ/nℤ _ _))) z*2-inv-path2
 
     z*2-inv-path3 : (y : ℤ) (x : ℤ/nℤ n1) -> (z*2-inv₁ (z*2 x [ y ])) == x
-    z*2-inv-path3 y = ℤ/nℤElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) handle
+    z*2-inv-path3 y = SetQuotientElim.elimProp (\_ -> isSet-ℤ/nℤ _ _) handle
       where
       handle : (x : ℤ) -> [ lc.x * (y * m1) + lc.y * (x * m2) ] == [ x ]
       handle x = eq/ _ _ (congruent-mod m1%diff)
@@ -237,7 +237,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
 
     z*2-inv-path3-full : (y : ℤ/nℤ n2) (x : ℤ/nℤ n1) -> (z*2-inv₁ (z*2 x y)) == x
     z*2-inv-path3-full =
-      ℤ/nℤElim.elimProp (\_ -> (isPropΠ (\_ -> isSet-ℤ/nℤ _ _))) z*2-inv-path3
+      SetQuotientElim.elimProp (\_ -> (isPropΠ (\_ -> isSet-ℤ/nℤ _ _))) z*2-inv-path3
 
     ℤ/nℤ-×-eq : (ℤ/nℤ n1 × ℤ/nℤ n2) ≃ ℤ/nℤ (n1 *' n2)
     ℤ/nℤ-×-eq = isoToEquiv i
@@ -351,10 +351,10 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
     z*2-distrib-* : (x1 x2 : ℤ/nℤ n1) (y1 y2 : ℤ/nℤ n2) ->
                     (z*2 (x1 z* x2) (y1 z* y2)) == ((z*2 x1 y1) z* (z*2 x2 y2))
     z*2-distrib-* =
-      ℤ/nℤElim.elimProp2
+      SetQuotientElim.elimProp2
         (\ _ _ -> isPropΠ2 (\_ _ -> isSet-ℤ/nℤ _ _))
-        (\ x1 x2 -> ℤ/nℤElim.elimProp2 (\_ _ -> isSet-ℤ/nℤ _ _)
-                                       (\ y1 y2 -> (z*2-distrib-*' x1 x2 y1 y2)))
+        (\ x1 x2 -> SetQuotientElim.elimProp2 (\_ _ -> isSet-ℤ/nℤ _ _)
+                                              (\ y1 y2 -> (z*2-distrib-*' x1 x2 y1 y2)))
 
 
 

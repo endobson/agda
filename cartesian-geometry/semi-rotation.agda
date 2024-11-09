@@ -28,8 +28,6 @@ data SameSemiRotation (r1 r2 : Rotation) : Type₁ where
 SemiRotation : Type₁
 SemiRotation = Rotation / SameSemiRotation
 
-module SemiRotationElim = SetQuotientElim Rotation SameSemiRotation
-
 isSet-SemiRotation : isSet SemiRotation
 isSet-SemiRotation = squash/
 
@@ -39,7 +37,7 @@ module _ where
 
   private
     _sr+_ : SemiRotation -> SemiRotation -> SemiRotation
-    _sr+_ = SemiRotationElim.rec2 isSet-SemiRotation f a.f~₁ a.f~₂
+    _sr+_ = SetQuotientElim.rec2 isSet-SemiRotation f a.f~₁ a.f~₂
       where
       f : Rotation -> Rotation -> SemiRotation
       f a b = [ a + b ]
@@ -60,7 +58,7 @@ module _ where
           f~₂ r1 r2 r3 sr = cong [_] +-commute >=> f~₁ r2 r3 r1 sr >=> cong [_] +-commute
 
     sr-_ : SemiRotation -> SemiRotation
-    sr-_ = SemiRotationElim.rec isSet-SemiRotation f a.f~
+    sr-_ = SetQuotientElim.rec isSet-SemiRotation f a.f~
       where
       f : Rotation -> SemiRotation
       f a = [ - a ]
@@ -78,31 +76,31 @@ module _ where
 
     sr+-inverse : (sr : SemiRotation) -> (sr sr+ (sr- sr)) == zero-semi-rotation
     sr+-inverse =
-      SemiRotationElim.elimProp
+      SetQuotientElim.elimProp
         (\sr -> isSet-SemiRotation _ _)
         (\r -> cong [_] +-inverse)
 
     sr+-left-zero : (sr : SemiRotation) -> (zero-semi-rotation sr+ sr) == sr
     sr+-left-zero =
-      SemiRotationElim.elimProp
+      SetQuotientElim.elimProp
         (\sr -> isSet-SemiRotation _ _)
         (\r -> cong [_] +-left-zero)
 
     sr+-right-zero : (sr : SemiRotation) -> (sr sr+ zero-semi-rotation) == sr
     sr+-right-zero =
-      SemiRotationElim.elimProp
+      SetQuotientElim.elimProp
         (\sr -> isSet-SemiRotation _ _)
         (\r -> cong [_] +-right-zero)
 
     sr+-assoc : (sr1 sr2 sr3 : SemiRotation) -> ((sr1 sr+ sr2) sr+ sr3) == (sr1 sr+ (sr2 sr+ sr3))
     sr+-assoc =
-      SemiRotationElim.elimProp3
+      SetQuotientElim.elimProp3
         (\_ _ _ -> isSet-SemiRotation _ _)
         (\_ _ _ -> cong [_] +-assoc)
 
     sr+-commute : (sr1 sr2 : SemiRotation) -> (sr1 sr+ sr2) == (sr2 sr+ sr1)
     sr+-commute =
-      SemiRotationElim.elimProp2
+      SetQuotientElim.elimProp2
         (\_ _ -> isSet-SemiRotation _ _)
         (\_ _ -> cong [_] +-commute)
 
@@ -150,7 +148,7 @@ private
 
   NonTrivialSemiRotation-full : (sr : SemiRotation) -> hProp ℓ-one
   NonTrivialSemiRotation-full =
-    SemiRotationElim.rec isSet-hProp f a.preserved
+    SetQuotientElim.rec isSet-hProp f a.preserved
     where
     f : Rotation -> hProp ℓ-one
     f r = NonTrivialSemiRotation' r , isProp-NonTrivialSemiRotation'
@@ -204,7 +202,7 @@ private
   ¬NonTrivial->zero-semi-rotation :
     {sr : SemiRotation} -> ¬ (NonTrivialSemiRotation sr) -> (sr == zero-semi-rotation)
   ¬NonTrivial->zero-semi-rotation {sr} =
-    SemiRotationElim.elimProp
+    SetQuotientElim.elimProp
       (\sr -> isPropΠ (\(_ : ¬ (NonTrivialSemiRotation sr)) -> isSet-SemiRotation sr _))
       f sr
     where
@@ -232,7 +230,7 @@ private
     NonTrivialSemiRotation (sr1 + sr2) ->
     ∥ NonTrivialSemiRotation sr1 ⊎ NonTrivialSemiRotation sr2 ∥
   sr+-reflects-NonTrivial =
-    SemiRotationElim.elimProp2 (\sr1 sr2 -> isPropΠ (\_ -> squash)) f
+    SetQuotientElim.elimProp2 (\sr1 sr2 -> isPropΠ (\_ -> squash)) f
     where
     f : (r1 r2 : Rotation) -> NonTrivialSemiRotation' (r1 + r2) ->
        ∥ NonTrivialSemiRotation' r1 ⊎ NonTrivialSemiRotation' r2 ∥
@@ -291,7 +289,7 @@ private
   sr--preserves-NonTrivial :
     (sr : SemiRotation) -> NonTrivialSemiRotation sr -> NonTrivialSemiRotation (- sr)
   sr--preserves-NonTrivial =
-    SemiRotationElim.elimProp (\sr -> isPropΠ (\_ -> isProp-NonTrivialSemiRotation (- sr))) f
+    SetQuotientElim.elimProp (\sr -> isPropΠ (\_ -> isProp-NonTrivialSemiRotation (- sr))) f
     where
     f : (r : Rotation) -> NonTrivialSemiRotation' r -> NonTrivialSemiRotation' (r- r)
     f r (non-trivial-semi-rotation r#0 r#h) = (non-trivial-semi-rotation -r#0 -r#h)

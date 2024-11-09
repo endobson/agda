@@ -379,7 +379,6 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
   module QuotientField where
     private
       Q = QuotientField
-      module QElim = SetQuotientElim Fraction SameFraction
 
       isSet-Q : isSet Q
       isSet-Q = squash/
@@ -392,62 +391,62 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
     1q = [ 1f ]
 
     _q+_ : Q -> Q -> Q
-    _q+_ = QElim.rec2 isSet-Q (\a b -> [ a f+ b ])
-                      (\a b c a~b -> eq/ _ _ (+₂-preserves-~ a b c a~b))
-                      (\a b c b~c -> eq/ _ _ (+₁-preserves-~ a b c b~c))
+    _q+_ = SetQuotientElim.rec2 isSet-Q (\a b -> [ a f+ b ])
+             (\a b c a~b -> eq/ _ _ (+₂-preserves-~ a b c a~b))
+             (\a b c b~c -> eq/ _ _ (+₁-preserves-~ a b c b~c))
 
     _q*_ : Q -> Q -> Q
-    _q*_ = QElim.rec2 isSet-Q (\a b -> [ a f* b ])
-                      (\a b c a~b -> eq/ _ _ (*₂-preserves-~ a b c a~b))
-                      (\a b c b~c -> eq/ _ _ (*₁-preserves-~ a b c b~c))
+    _q*_ = SetQuotientElim.rec2 isSet-Q (\a b -> [ a f* b ])
+             (\a b c a~b -> eq/ _ _ (*₂-preserves-~ a b c a~b))
+             (\a b c b~c -> eq/ _ _ (*₁-preserves-~ a b c b~c))
 
     q-_ : Q -> Q
-    q-_ = QElim.rec isSet-Q (\a -> [ (f- a) ]) (\a b a~b -> eq/ _ _ (minus-preserves-~ a b a~b))
+    q-_ = SetQuotientElim.rec isSet-Q (\a -> [ (f- a) ]) (\a b a~b -> eq/ _ _ (minus-preserves-~ a b a~b))
 
     abstract
       q+-commute : (a b : Q) -> a q+ b == b q+ a
-      q+-commute = QElim.elimProp2 {C2 = \a b -> a q+ b == b q+ a}
+      q+-commute = SetQuotientElim.elimProp2 {C2 = \a b -> a q+ b == b q+ a}
                      (\a b -> isSet-Q (a q+ b) (b q+ a))
                      (\a b -> cong [_] (f+-commute a b))
 
       q*-commute : (a b : Q) -> a q* b == b q* a
-      q*-commute = QElim.elimProp2 {C2 = \a b -> a q* b == b q* a}
+      q*-commute = SetQuotientElim.elimProp2 {C2 = \a b -> a q* b == b q* a}
                      (\a b -> isSet-Q (a q* b) (b q* a))
                      (\a b -> cong [_] (f*-commute a b))
 
 
       q+-left-zero : (a : Q) -> 0q q+ a == a
-      q+-left-zero = QElim.elimProp {C = \a -> 0q q+ a == a}
+      q+-left-zero = SetQuotientElim.elimProp {C = \a -> 0q q+ a == a}
                        (\a -> isSet-Q (0q q+ a) a)
                        (\a -> cong [_] (f+-left-zero a))
 
       q*-left-zero : (a : Q) -> 0q q* a == 0q
-      q*-left-zero = QElim.elimProp {C = \a -> 0q q* a == 0q}
+      q*-left-zero = SetQuotientElim.elimProp {C = \a -> 0q q* a == 0q}
                        (\a -> isSet-Q (0q q* a) 0q)
                        (\a -> eq/ _ _ (f*-left-zero a))
 
       q*-left-one : (a : Q) -> 1q q* a == a
-      q*-left-one = QElim.elimProp {C = \a -> 1q q* a == a}
+      q*-left-one = SetQuotientElim.elimProp {C = \a -> 1q q* a == a}
                        (\a -> isSet-Q (1q q* a) a)
                        (\a -> cong [_] (f*-left-one a))
 
       q+-assoc : (a b c : Q) -> (a q+ b) q+ c == a q+ (b q+ c)
-      q+-assoc = QElim.elimProp3 {C3 = \a b c -> (a q+ b) q+ c == a q+ (b q+ c)}
+      q+-assoc = SetQuotientElim.elimProp3 {C3 = \a b c -> (a q+ b) q+ c == a q+ (b q+ c)}
                    (\a b c -> isSet-Q ((a q+ b) q+ c) (a q+ (b q+ c)))
                    (\a b c -> cong [_] (f+-assoc a b c))
 
       q*-assoc : (a b c : Q) -> (a q* b) q* c == a q* (b q* c)
-      q*-assoc = QElim.elimProp3 {C3 = \a b c -> (a q* b) q* c == a q* (b q* c)}
+      q*-assoc = SetQuotientElim.elimProp3 {C3 = \a b c -> (a q* b) q* c == a q* (b q* c)}
                    (\a b c -> isSet-Q ((a q* b) q* c) (a q* (b q* c)))
                    (\a b c -> cong [_] (f*-assoc a b c))
 
       q*-distrib-+-right : (a b c : Q) -> ((a q+ b) q* c) == ((a q* c) q+ (b q* c))
-      q*-distrib-+-right = QElim.elimProp3 {C3 = \a b c -> (a q+ b) q* c == (a q* c) q+ (b q* c)}
+      q*-distrib-+-right = SetQuotientElim.elimProp3 {C3 = \a b c -> (a q+ b) q* c == (a q* c) q+ (b q* c)}
                              (\a b c -> isSet-Q ((a q+ b) q* c) ((a q* c) q+ (b q* c)))
                              (\a b c -> eq/ _ _ (f*-distrib-+-right a b c))
 
       q+-inverse : (a : Q) -> a q+ (q- a) == 0q
-      q+-inverse = QElim.elimProp {C = \a -> a q+ (q- a)== 0q}
+      q+-inverse = SetQuotientElim.elimProp {C = \a -> a q+ (q- a)== 0q}
                      (\a -> isSet-Q (a q+ (q- a)) 0q)
                      (\a -> eq/ _ _ (f+-inverse a))
 
@@ -494,7 +493,7 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
         IRing-Q = Ring-Q
 
     _q#'_ : Q -> Q -> hProp ℓ
-    _q#'_ = QElim.rec2 isSet-hProp _f#'_ #'₂-~ #'₁-~
+    _q#'_ = SetQuotientElim.rec2 isSet-hProp _f#'_ #'₂-~ #'₁-~
 
     _q#_ : Rel Q ℓ
     _q#_ a b = fst (a q#' b)
@@ -504,17 +503,17 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
       isProp-q# a b = snd (_q#'_ a b)
 
       irrefl-q# : Irreflexive _q#_
-      irrefl-q# {a} = QElim.elimProp {C = \a -> ¬ (a q# a)} (\_ -> isProp¬ _) irrefl-f# a
+      irrefl-q# {a} = SetQuotientElim.elimProp {C = \a -> ¬ (a q# a)} (\_ -> isProp¬ _) irrefl-f# a
 
       sym-q# : Symmetric _q#_
       sym-q# {a} {b} =
-        QElim.elimProp2 {C2 = \a b -> a q# b -> b q# a}
+        SetQuotientElim.elimProp2 {C2 = \a b -> a q# b -> b q# a}
           (\a b -> isPropΠ (\_ -> isProp-q# b a))
           (\a b -> sym-f# a b) a b
 
       comparison-q# : Comparison _q#_
       comparison-q# =
-        QElim.elimProp3 {C3 = \a b c -> a q# c -> ∥ (a q# b) ⊎ (b q# c) ∥}
+        SetQuotientElim.elimProp3 {C3 = \a b c -> a q# c -> ∥ (a q# b) ⊎ (b q# c) ∥}
           (\a b c -> isPropΠ (\_ -> squash))
           comparison-f#
 
@@ -523,7 +522,7 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
 
       tight-q# : Tight _q#_
       tight-q# {a} {b} =
-        QElim.elimProp2 {C2 = \a b -> ¬ (a q# b) -> a == b}
+        SetQuotientElim.elimProp2 {C2 = \a b -> ¬ (a q# b) -> a == b}
           (\a b -> isPropΠ (\_ -> isSet-Q a b))
           (\a b ¬a#b -> eq/ a b (same-fraction (tight-# (¬a#b ∘ f#-cons)))) a b
 
@@ -545,19 +544,19 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
 
     q*₁-preserves-# : (a b c : Q) -> a # 0# -> b # c -> (a * b) # (a * c)
     q*₁-preserves-# =
-      QElim.elimProp3 {C3 = \a b c -> (a q# 0#) -> b q# c -> (a * b) # (a * c)}
+      SetQuotientElim.elimProp3 {C3 = \a b c -> (a q# 0#) -> b q# c -> (a * b) # (a * c)}
         (\a b c -> isPropΠ2 (\_ _ -> isProp-q# (a * b) (a * c)))
         f*₁-preserves-#
 
     q*₁-reflects-# : (a b c : Q) -> (a * b) # (a * c) -> b # c
     q*₁-reflects-# =
-      QElim.elimProp3 {C3 = \a b c -> (a * b) # (a * c) -> b q# c}
+      SetQuotientElim.elimProp3 {C3 = \a b c -> (a * b) # (a * c) -> b q# c}
         (\a b c -> isPropΠ (\_ -> isProp-q# b c))
         f*₁-reflects-#
 
     diff-q#-equiv : (a b : Q) -> (a # b) ≃ (diff a b # 0#)
     diff-q#-equiv =
-      QElim.elimProp2 {C2 = \a b -> (a # b) ≃ (diff a b # 0#)}
+      SetQuotientElim.elimProp2 {C2 = \a b -> (a # b) ≃ (diff a b # 0#)}
         (\a b -> isProp-≃ (isProp-q# a b) (isProp-q# (diff a b) 0#))
         diff-f#-equiv
 
@@ -569,7 +568,7 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
 
       inverse : Σ[ b ∈ Q ] (a * b == 1#)
       inverse =
-        QElim.elimProp {C = \a -> a q# 0# -> Σ[ b ∈ Q ] (a * b == 1#)}
+        SetQuotientElim.elimProp {C = \a -> a q# 0# -> Σ[ b ∈ Q ] (a * b == 1#)}
           (\a -> isPropΠ (\a#0 -> isProp-inverse a a#0))
           compute-inverse a a#0
         where
