@@ -11,6 +11,8 @@ open import hlevel
 open import nat
 open import relation
 open import set-quotient
+open import sigma.base
+open import univalence
 
 OrderedFinSubset : {ℓ : Level} -> Type ℓ -> Type ℓ
 OrderedFinSubset A = Σ[ n ∈ ℕ ] (Fin n ↪ A)
@@ -18,6 +20,12 @@ OrderedFinSubset A = Σ[ n ∈ ℕ ] (Fin n ↪ A)
 module _ {ℓA : Level} {A : Type ℓA} where
   OrderedFinSubsetContains : OrderedFinSubset A -> A -> Type ℓA
   OrderedFinSubsetContains (_ , f , _) a = fiber f a
+
+  opaque
+    isProp-OrderedFinSubsetContains :
+      (s : OrderedFinSubset A) (a : A) -> isProp (OrderedFinSubsetContains s a)
+    isProp-OrderedFinSubsetContains (_ , _ , e) a =
+      eqFun isEmbedding-eq-hasPropFibers e a
 
   OrderedFinSubset~ : Rel (OrderedFinSubset A) ℓA
   OrderedFinSubset~ s1 s2 = ∀ a -> OrderedFinSubsetContains s1 a ≃ OrderedFinSubsetContains s2 a
@@ -36,3 +44,17 @@ module _ {ℓA : Level} {A : Type ℓA} where
 module _ {ℓ : Level} (A : Type ℓ) where
   FinSubset : Type ℓ
   FinSubset = OrderedFinSubset A / OrderedFinSubset~
+
+module _ {ℓA : Level} {A : Type ℓA} where
+  private
+    FinSubsetContainsΣ : A -> FinSubset A -> hProp ℓA
+    FinSubsetContainsΣ a =
+      SetQuotientElim.rec isSet-hProp
+        (\as -> OrderedFinSubsetContains as a , isProp-OrderedFinSubsetContains as a)
+        (\as1 as2 as~ -> ΣProp-path isProp-isProp (ua (as~ a)))
+
+
+  FinSubsetContains : FinSubset A -> A -> Type ℓA
+  FinSubsetContains as a = fst (FinSubsetContainsΣ a as)
+  isProp-FinSubsetContains : (as : FinSubset A) -> (a : A) -> isProp (FinSubsetContains as a)
+  isProp-FinSubsetContains as a = snd (FinSubsetContainsΣ a as)
