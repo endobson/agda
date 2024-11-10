@@ -32,7 +32,7 @@ Discrete->isSet d = Stable==->isSet (\ x y -> Dec->Stable (d x y))
 isProp-Discrete : isProp (Discrete A)
 isProp-Discrete d1 = isPropΠ2 (\ a1 a2 -> isPropDec (Discrete->isSet d1 a1 a2)) d1
 
-Injective->Discrete : (f : A -> B) -> Injective f -> Discrete B -> Discrete A
-Injective->Discrete f inj-f discB a1 a2 with (discB (f a1) (f a2))
+isInjective->Discrete : (f : A -> B) -> isInjective f -> Discrete B -> Discrete A
+isInjective->Discrete f inj-f discB a1 a2 with (discB (f a1) (f a2))
 ... | (yes p) = yes (inj-f p)
 ... | (no ¬p) = no (\p -> ¬p (cong f p))

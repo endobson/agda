@@ -104,7 +104,7 @@ private
         step4 : ℕ->ℚ (n * n) == ℕ->ℚ (2# * (d * d))
         step4 = step1 >=> step2 >=> step3 d
         step5 : (n * n) == (2# * (d * d))
-        step5 = nonneg-injective (Injective-ℤ->ℚ step4)
+        step5 = nonneg-injective (isInjective-ℤ->ℚ step4)
 
 
       handle (nℤ@(neg n) , (d , pos-d) , n=a*d) =
@@ -126,7 +126,7 @@ private
         step4 : ℕ->ℚ (suc n * suc n) == ℕ->ℚ (2# * (d * d))
         step4 = step1 >=> step2 >=> step3 d
         step5 : (suc n * suc n) == (2# * (d * d))
-        step5 = nonneg-injective (Injective-ℤ->ℚ step4)
+        step5 = nonneg-injective (isInjective-ℤ->ℚ step4)
 
 isIrrational-sqrt2 : isIrrational (sqrtℝ (2# , (weaken-< 0<2)))
 isIrrational-sqrt2 q = handle (split-< q 0#) (trichotomous-< (q * q) 2#)

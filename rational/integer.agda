@@ -241,5 +241,5 @@ opaque
       ; path = +-right-zero >=> *-right-one
       }
 
-  Injective-ℤ->ℚ : Injective ℤ->ℚ
-  Injective-ℤ->ℚ p = sym (ℤ->ℚ-floor _) >=> cong floor p >=> (ℤ->ℚ-floor _)
+  isInjective-ℤ->ℚ : isInjective ℤ->ℚ
+  isInjective-ℤ->ℚ p = sym (ℤ->ℚ-floor _) >=> cong floor p >=> (ℤ->ℚ-floor _)

@@ -53,14 +53,14 @@ abstract
 
   -- h-level for function property types
 
-  isPropInjective : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Type ℓ₂} {f : A -> B} ->
-                    isSet A -> isProp (Injective f)
-  isPropInjective {A = A} {f = f} hA = isPropInj
+  isProp-isInjective : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} {B : Type ℓ₂} {f : A -> B} ->
+                    isSet A -> isProp (isInjective f)
+  isProp-isInjective {A = A} {f = f} hA = isPropInj
     where
     isPropInj' : isProp ((a1 a2 : A) -> f a1 == f a2 -> a1 == a2)
     isPropInj' = isPropΠ3 (\ _ _ _ -> hA _ _)
 
-    isPropInj : isProp (Injective f)
+    isPropInj : isProp (isInjective f)
     isPropInj g1 g2 i {x} {y} =
       isPropInj' (\a1 a2 p -> g1 {a1} {a2} p) (\a1 a2 p -> g2 {a1} {a2} p) i x y
 

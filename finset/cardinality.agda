@@ -83,7 +83,7 @@ opaque
     cB = fst fs-B'
 
     handle : (A ≃ Fin cA) -> (B ≃ Fin cB) -> cA == cB
-    handle A≃Fin B≃Fin = Fin-injective fin-path
+    handle A≃Fin B≃Fin = isInjective-Fin fin-path
       where
       fin-path : Fin cA == Fin cB
       fin-path = ua (equiv⁻¹ A≃Fin >eq> A≃B >eq> B≃Fin)

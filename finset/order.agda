@@ -48,11 +48,11 @@ WellFounded-FinSet< {ℓ} fs = Acc-FinSet< fs (WellFounded-Nat< (cardinality fs)
 
 
 private
-  Injective->FinSet≤-FinT : (n1 n2 : Nat) (f : FinT n1 -> FinT n2) -> (Injective f) -> n1 ≤ n2
-  Injective->FinSet≤-FinT zero _ f inj-f = zero-≤
-  Injective->FinSet≤-FinT (suc n1) zero f inj-f = bot-elim (f (inj-l tt))
-  Injective->FinSet≤-FinT (suc n1) (suc n2) f inj-f =
-    suc-≤ (Injective->FinSet≤-FinT n1 n2 f' inj-f')
+  isInjective->FinSet≤-FinT : (n1 n2 : Nat) (f : FinT n1 -> FinT n2) -> (isInjective f) -> n1 ≤ n2
+  isInjective->FinSet≤-FinT zero _ f inj-f = zero-≤
+  isInjective->FinSet≤-FinT (suc n1) zero f inj-f = bot-elim (f (inj-l tt))
+  isInjective->FinSet≤-FinT (suc n1) (suc n2) f inj-f =
+    suc-≤ (isInjective->FinSet≤-FinT n1 n2 f' inj-f')
     where
     x : FinT (suc n2)
     x = f (inj-l tt)
@@ -83,7 +83,7 @@ private
     f' : FinT n1 -> FinT n2
     f' i = shift-out n2 (f (inj-r i)) x (\i=j -> inj-l!=inj-r (sym (inj-f i=j)))
 
-    inj-f' : Injective f'
+    inj-f' : isInjective f'
     inj-f' {i1} {i2} f'i1=f'i2 =
       inj-r-injective (inj-f (shift-out-same n2 (f (inj-r i1)) (f (inj-r i2)) x
                                              (\i=j -> inj-l!=inj-r (sym (inj-f i=j)))
@@ -96,9 +96,9 @@ private
 
 
 
-  ¬Surjection-Fin : (n1 n2 : Nat) (f : Fin n1 -> Fin n2) -> ¬ (isSurjection f) ->
-                     ∃[ i ∈ Fin n2 ] (∀ j -> f j != i)
-  ¬Surjection-Fin n1 n2 f ¬sur-f =
+  ¬isSurjective-Fin : (n1 n2 : Nat) (f : Fin n1 -> Fin n2) -> ¬ (isSurjective f) ->
+                      ∃[ i ∈ Fin n2 ] (∀ j -> f j != i)
+  ¬isSurjective-Fin n1 n2 f ¬sur-f =
     handle (finite-search (FinSet-Fin n2) univPQ)
     where
     P : Fin n2 -> Type₀
@@ -141,8 +141,8 @@ private
     subst (n ≤_) (sym (cardinality-Σ _ _)) (FinSet≤-Fin-Collection n A inhabit)
 
 
-  Surjective->FinSet≤-Fin : (n1 n2 : Nat) (f : Fin n1 -> Fin n2) -> (isSurjection f) -> n2 ≤ n1
-  Surjective->FinSet≤-Fin n1 n2 f sur-f =
+  isSurjective->FinSet≤-Fin : (n1 n2 : Nat) (f : Fin n1 -> Fin n2) -> (isSurjective f) -> n2 ≤ n1
+  isSurjective->FinSet≤-Fin n1 n2 f sur-f =
     trans-≤-= (FinSet≤-Fin-Collection' n2 A sur-f) cA=n
     where
     A : Fin n2 -> FinSet ℓ-zero
@@ -184,7 +184,7 @@ module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : FinSet ℓB) where
   Retraction->FinSet≤ f (g , ret-g) = unsquash isProp-≤ (∥-map2 helper eqA' eqB')
     where
     helper : (A ≃ FinT nA) -> (B ≃ FinT nB) -> FinSet≤ FA FB
-    helper eqA eqB = Injective->FinSet≤-FinT nA nB f' inj-f'
+    helper eqA eqB = isInjective->FinSet≤-FinT nA nB f' inj-f'
       where
 
       f' : FinT nA -> FinT nB
@@ -199,20 +199,20 @@ module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : FinSet ℓB) where
         cong (eqFun eqA) (ret-g (eqInv eqA a)) >=>
         eqSec eqA a
 
-      inj-f' : Injective f'
+      inj-f' : isInjective f'
       inj-f' {a1} {a2} p = sym (ret-g' a1) >=> cong g' p >=> (ret-g' a2)
 
-  Injective->FinSet≤ : (f : A -> B) -> (Injective f) -> FinSet≤ FA FB
-  Injective->FinSet≤ f inj-f = unsquash isProp-≤ (∥-map2 helper eqA' eqB')
+  isInjective->FinSet≤ : (f : A -> B) -> (isInjective f) -> FinSet≤ FA FB
+  isInjective->FinSet≤ f inj-f = unsquash isProp-≤ (∥-map2 helper eqA' eqB')
     where
     helper : (A ≃ FinT nA) -> (B ≃ FinT nB) -> FinSet≤ FA FB
-    helper eqA eqB = Injective->FinSet≤-FinT nA nB f' inj-f'
+    helper eqA eqB = isInjective->FinSet≤-FinT nA nB f' inj-f'
       where
 
       f' : FinT nA -> FinT nB
       f' = eqFun eqB ∘ f ∘ eqInv eqA
 
-      inj-f' : Injective f'
+      inj-f' : isInjective f'
       inj-f' {a1} {a2} p =
         sym (eqSec eqA _) >=>
         cong (eqFun eqA) (inj-f (sym (eqRet eqB _) >=> (cong (eqInv eqB) p) >=> eqRet eqB _)) >=>
@@ -224,7 +224,7 @@ module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : FinSet ℓB) where
     unsquash isProp-≤ (∥-map2 helper (snd fsB) (snd fsA))
     where
     helper : (B ≃ Fin nB) -> (A ≃ Fin nA) -> FinSet≤ FB FA
-    helper eqB eqA = Surjective->FinSet≤-Fin nA nB f' sur-f'
+    helper eqB eqA = isSurjective->FinSet≤-Fin nA nB f' sur-f'
       where
 
       f' : Fin nA -> Fin nB
@@ -239,22 +239,22 @@ module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : FinSet ℓB) where
         cong (eqFun eqB) (sec-g (eqInv eqB b)) >=>
         eqSec eqB b
 
-      sur-f' : isSurjection f'
+      sur-f' : isSurjective f'
       sur-f' b = ∣ g' b , sec-f' b ∣
 
 
-  Surjective->FinSet≤ : (f : A -> B) -> (isSurjection f) -> FinSet≤ FB FA
-  Surjective->FinSet≤ f sur-f =
+  isSurjective->FinSet≤ : (f : A -> B) -> (isSurjective f) -> FinSet≤ FB FA
+  isSurjective->FinSet≤ f sur-f =
     unsquash isProp-≤ (∥-map2 helper (snd fsB) (snd fsA))
     where
     helper : (B ≃ Fin nB) -> (A ≃ Fin nA) -> FinSet≤ FB FA
-    helper eqB eqA = Surjective->FinSet≤-Fin nA nB f' sur-f'
+    helper eqB eqA = isSurjective->FinSet≤-Fin nA nB f' sur-f'
       where
 
       f' : Fin nA -> Fin nB
       f' = eqFun eqB ∘ f ∘ eqInv eqA
 
-      sur-f' : isSurjection f'
+      sur-f' : isSurjective f'
       sur-f' b =
         ∥-map (\{ (a , p) -> (eqFun eqA a) , cong (eqFun eqB) (cong f (eqRet eqA a) >=> p) >=>
                                              eqSec eqB b})
@@ -262,15 +262,15 @@ module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : FinSet ℓB) where
 
 private
   ¬surjection->missed-point : {ℓA ℓB : Level} (A : FinSet ℓA) (B : FinSet ℓB)
-                              (f : ⟨ A ⟩ -> ⟨ B ⟩) -> ¬ (isSurjection f) ->
+                              (f : ⟨ A ⟩ -> ⟨ B ⟩) -> ¬ (isSurjective f) ->
                               ∃[ b ∈ ⟨ B ⟩ ] (∀ a -> f a != b)
   ¬surjection->missed-point A B f ¬sur =
     proj-¬r (find-section A B f)
-      (\sec -> unsquash isPropBot (∥-map (¬sur ∘ Section->Surjection) sec))
+      (\sec -> unsquash isPropBot (∥-map (¬sur ∘ Section->isSurjective) sec))
 
 
 module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : FinSet ℓB) (f : ⟨ FA ⟩ -> ⟨ FB ⟩)
-         (inj-f : Injective f) (¬sur-f : ¬ (isSurjection f)) where
+         (inj-f : isInjective f) (¬sur-f : ¬ (isSurjective f)) where
   private
     A = ⟨ FA ⟩
     B = ⟨ FB ⟩
@@ -284,21 +284,21 @@ module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : FinSet ℓB) (f : ⟨ FA �
       f' : A -> WithoutPoint B b
       f' i = f i , bad-f i
 
-      f'-inj : Injective f'
+      f'-inj : isInjective f'
       f'-inj p = inj-f (cong WithoutPoint.value p)
 
       lt1 : FinSet≤ FA (FinSet-WithoutPoint FB b)
-      lt1 = (Injective->FinSet≤ FA (FinSet-WithoutPoint FB b) f' f'-inj)
+      lt1 = (isInjective->FinSet≤ FA (FinSet-WithoutPoint FB b) f' f'-inj)
 
       lt2 : FinSet< FA FB
       lt2 = trans-≤-< lt1 (FinSet<-WithoutPoint FB b)
 
-  Injective-¬Surjective->FinSet< : FinSet< FA FB
-  Injective-¬Surjective->FinSet< =
+  isInjective-¬isSurjective->FinSet< : FinSet< FA FB
+  isInjective-¬isSurjective->FinSet< =
     unsquash isProp-< (∥-map lt2 (¬surjection->missed-point FA FB f ¬sur-f))
 
 module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : FinSet ℓB) (f : ⟨ FA ⟩ -> ⟨ FB ⟩)
-         (¬inj-f : ¬ (Injective f)) (sur-f : isSurjection f) where
+         (¬inj-f : ¬ (isInjective f)) (sur-f : isSurjective f) where
   private
     A = ⟨ FA ⟩
     B = ⟨ FB ⟩
@@ -318,7 +318,7 @@ module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : FinSet ℓB) (f : ⟨ FA �
       f' : A' -> B
       f' (a , _) = f a
 
-      sur-f' : isSurjection f'
+      sur-f' : isSurjective f'
       sur-f' b = ∥-map convert-fiber (sur-f b)
         where
         convert-fiber : fiber f b -> fiber f' b
@@ -327,7 +327,7 @@ module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : FinSet ℓB) (f : ⟨ FA �
         ... | (no a!=a2) = (a , a!=a2) , fa=b
 
       lt1 : FinSet≤ FB (FinSet-WithoutPoint FA a2)
-      lt1 = Surjective->FinSet≤ (FinSet-WithoutPoint FA a2) FB f' sur-f'
+      lt1 = isSurjective->FinSet≤ (FinSet-WithoutPoint FA a2) FB f' sur-f'
 
       lt2 : FinSet< FB FA
       lt2 = trans-≤-< lt1 (FinSet<-WithoutPoint FA a2)

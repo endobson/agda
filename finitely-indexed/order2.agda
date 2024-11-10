@@ -43,9 +43,9 @@ private
 
     handle : Σ[ h ∈ (FinT m -> FinT n) ] (∀ j -> f (h j) == g j) ->
               m ≤ n
-    handle (h , p) = Injective->FinSet≤ (FinSet-FinT m) (FinSet-FinT n) h inj-h
+    handle (h , p) = isInjective->FinSet≤ (FinSet-FinT m) (FinSet-FinT n) h inj-h
       where
-      inj-h : Injective h
+      inj-h : isInjective h
       inj-h {a1 = a1} {a2 = a2} ha1=ha2 =
         isEqInv (emb-g a1 a2) (sym (p a1) >=> cong f ha1=ha2 >=> p a2)
 

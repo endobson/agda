@@ -25,17 +25,17 @@ curry f (a , b) = f a b
 isComposition : (f : B -> C) (g : A -> B) (h : A -> C) -> Type _
 isComposition f g h = ∀ a -> f (g a) == h a
 
-Injective : Pred (A -> B) _
-Injective f = ∀ {a1 a2} -> (f a1) == (f a2) -> a1 == a2
+isInjective : Pred (A -> B) _
+isInjective f = ∀ {a1 a2} -> (f a1) == (f a2) -> a1 == a2
 
-∘-Injective : {f : B -> C} {g : A -> B} -> Injective f -> Injective g -> Injective (f ∘ g)
-∘-Injective fi gi = gi ∘ fi
+∘-isInjective : {f : B -> C} {g : A -> B} -> isInjective f -> isInjective g -> isInjective (f ∘ g)
+∘-isInjective fi gi = gi ∘ fi
 
-∘-Injective⁻ : (f : B -> C) (g : A -> B) -> Injective (f ∘ g) -> Injective g
-∘-Injective⁻ f g fgi p = fgi (cong f p)
+∘-isInjective⁻ : (f : B -> C) (g : A -> B) -> isInjective (f ∘ g) -> isInjective g
+∘-isInjective⁻ f g fgi p = fgi (cong f p)
 
-Injective2 : Pred (A -> B -> C) _
-Injective2 f = ∀ {a1 b1 a2 b2} -> (f a1 b1) == (f a2 b2) -> (a1 == a2) × (b1 == b2)
+isInjective2 : Pred (A -> B -> C) _
+isInjective2 f = ∀ {a1 b1 a2 b2} -> (f a1 b1) == (f a2 b2) -> (a1 == a2) × (b1 == b2)
 
 Monotonic : Rel A ℓ₁ -> Rel B ℓ₂ -> Pred (A -> B) _
 Monotonic {A = A} {B = B} _≤a_ _≤b_ f = ∀ a1 a2 -> a1 ≤a a2 -> (f a1) ≤b (f a2)

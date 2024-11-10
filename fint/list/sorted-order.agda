@@ -55,7 +55,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOr
         module r21 = Sorted≼ r21
 
         n-path : n1 == n2
-        n-path = (FinT-injective (ua (isoToEquiv n-iso)))
+        n-path = (isInjective-FinT (ua (isoToEquiv n-iso)))
           where
           n-iso : Iso (FinT n1) (FinT n2)
           n-iso .Iso.fun i = fst (r12.indexes i)

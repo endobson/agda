@@ -57,5 +57,5 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
   FinSet-AllEntries m = AllEntries m , isFinSet-AllEntries m
 
   _fm⊂2_ : Rel (FinMap' K V) ℓKV
-  _fm⊂2_ m1 m2 = Σ (AllEntries m2 -> Maybe (AllEntries m1)) isSurjection
+  _fm⊂2_ m1 m2 = Σ (AllEntries m2 -> Maybe (AllEntries m1)) isSurjective
 

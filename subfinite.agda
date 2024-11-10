@@ -20,10 +20,10 @@ private
     A : Type ℓ
 
 isBFinSetΣ : Type ℓ -> (ℓ₂ : Level) -> Type (ℓ-max ℓ (ℓ-suc ℓ₂))
-isBFinSetΣ A ℓ₂ = Σ[ B ∈ (FinSet ℓ₂) ] (Σ (A -> ⟨ B ⟩) Injective)
+isBFinSetΣ A ℓ₂ = Σ[ B ∈ (FinSet ℓ₂) ] (Σ (A -> ⟨ B ⟩) isInjective)
 
 isBFinSetΣ⁻ : Type ℓ -> Type ℓ
-isBFinSetΣ⁻ A = Σ[ n ∈ Nat ] (Σ (A -> Fin n) Injective)
+isBFinSetΣ⁻ A = Σ[ n ∈ Nat ] (Σ (A -> Fin n) isInjective)
 
 isBFinSet : Type ℓ -> (ℓ₂ : Level) -> Type (ℓ-max ℓ (ℓ-suc ℓ₂))
 isBFinSet A ℓ = ∥ isBFinSetΣ A ℓ ∥
@@ -50,7 +50,7 @@ isBFinSet⁻-eq {A = A} = isoToEquiv (isProp->iso g f squash squash)
       where
       handle2 : Σ[ n ∈ Nat ] (B ≃ Fin n) -> isBFinSetΣ⁻ A
       handle2 (n , eqB) = n , (eqFun eqB ∘ f) ,
-                          (∘-Injective (Retraction->Injective (eqInv eqB , eqRet eqB)) inj-f)
+                          (∘-isInjective (Retraction->isInjective (eqInv eqB , eqRet eqB)) inj-f)
 
   g : isBFinSet⁻ A -> isBFinSet A _
   g bfs = ∥-map handle bfs
@@ -58,5 +58,5 @@ isBFinSet⁻-eq {A = A} = isoToEquiv (isProp->iso g f squash squash)
     handle : isBFinSetΣ⁻ A -> isBFinSetΣ A _
     handle (n , f , inj-f) =
       FinSet-Lift _ (FinSet-Fin n) , lift ∘ f ,
-      (∘-Injective (Retraction->Injective (Lift.lower , \_ -> refl)) inj-f)
+      (∘-isInjective (Retraction->isInjective (Lift.lower , \_ -> refl)) inj-f)
 

@@ -162,11 +162,11 @@ Apartness _#_ = (Irreflexive _#_ × Symmetric _#_ × Comparison _#_)
 TightApartness : Rel A ℓ -> Type _
 TightApartness _#_ = (Tight _#_ × Apartness _#_)
 
-isSurjection : Pred (A -> B) _
-isSurjection f = ∀ b -> ∥ fiber f b ∥
+isSurjective : Pred (A -> B) _
+isSurjective f = ∀ b -> ∥ fiber f b ∥
 
 _↠_ : Type ℓ₁ -> Type ℓ₂ -> Type (ℓ-max ℓ₁ ℓ₂)
-A ↠ B = Σ (A -> B) isSurjection
+A ↠ B = Σ (A -> B) isSurjective
 
 Image : (A -> B) -> Type _
 Image {B = B} f = Σ[ b ∈ B ] ∥ fiber f b ∥

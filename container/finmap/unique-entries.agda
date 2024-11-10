@@ -30,7 +30,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
     A->U : (m : FinMap' K V) -> AllEntries m -> UniqueEntries m
     A->U m = All->Unique {m}
 
-    sur-All->Unique : {m : FinMap' K V} -> isSurjection (A->U m)
+    sur-All->Unique : {m : FinMap' K V} -> isSurjective (A->U m)
     sur-All->Unique (k , v , mhkv) =
       ∥-map (\hkv -> (k , v , hkv) , (\i -> k , v , squash ∣ hkv ∣ mhkv i)) mhkv
 
@@ -51,12 +51,12 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
         l (k , v , hkv) = maybe-map (\hkv -> k , v , hkv) (f k v hkv)
 
     fm⊂3' : Type ℓKV
-    fm⊂3' = ∃[ f ∈ F ] isSurjection (l f)
+    fm⊂3' = ∃[ f ∈ F ] isSurjective (l f)
 
     fm⊂3'->HasKV : fm⊂3' -> {k : K} {v : V} -> HasKV' k v m1 -> ∥ HasKV' k v m2 ∥
     fm⊂3'->HasKV m1<m2 {k} {v} hkv = ∥-bind handle m1<m2
       where
-      handle : Σ[ f ∈ F ] isSurjection (l f) -> ∥ HasKV' k v m2 ∥
+      handle : Σ[ f ∈ F ] isSurjective (l f) -> ∥ HasKV' k v m2 ∥
       handle (f , sur-lf) = ∥-bind handle2 (sur-lf e)
         where
         e : Maybe (UniqueEntries m1)
@@ -80,7 +80,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
 --      KFinSet< (KFinSet-UniqueEntries m1) (KFinSet-UniqueEntries m2)
 --    fm⊂3'->UniqueEntries< m1⊂m2 n idx-U2 = (∥-bind handle m1⊂m2)
 --      where
---      handle : Σ[ f ∈ F ] isSurjection (l f) ->
+--      handle : Σ[ f ∈ F ] isSurjective (l f) ->
 --               ∃[ m ∈ Nat ] (m < n × isIndexable (UniqueEntries m1) m)
 --      handle (f , sur-lf) = ?
 

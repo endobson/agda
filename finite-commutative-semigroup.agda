@@ -66,7 +66,7 @@ module _ {D : Type ℓ} (CS : CommutativeSemigroupStr D) where
           finMergeDep-swap (swaps zero-fin) f >=>
           (finMergeDep-sperm' l (swaps ∘ suc-fin) (f ∘ (encode-swap (swaps zero-fin))))
 
-      finMergeDep-inj : {n : Nat} -> (s : Fin (suc n) -> Fin (suc n)) -> Injective s ->
+      finMergeDep-inj : {n : Nat} -> (s : Fin (suc n) -> Fin (suc n)) -> isInjective s ->
                         (f : (Fin (suc n)) -> D) ->
                         finMergeDep n f == finMergeDep n (f ∘ s)
       finMergeDep-inj {n} s inj-s f =
@@ -85,7 +85,7 @@ module _ {D : Type ℓ} (CS : CommutativeSemigroupStr D) where
       reindex : Fin (suc n) -> Fin (suc n)
       reindex = eqFun eq1 ∘ eqInv eq2
 
-      reindex-inj : Injective reindex
+      reindex-inj : isInjective reindex
       reindex-inj {x} {y} p = path2
         where
         path1 : (eqInv eq2 x) == (eqInv eq2 y)

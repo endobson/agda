@@ -65,7 +65,7 @@ module _ {n m : Nat} (f : Fin n -> Fin m) where
                      Σ[ g ∈ (Fin m -> Fin n) ] (∀ j -> f (g j) == j)
     finite-inverse = choiceΣ
 
-    convert-neverImage : Satisfiable neverImage -> ¬ (isSurjection f)
+    convert-neverImage : Satisfiable neverImage -> ¬ (isSurjective f)
     convert-neverImage (j , g) sur =
       unsquash isPropBot (∥-map (\{ (i , p) -> g i p }) (sur j))
 
@@ -74,7 +74,5 @@ module _ {n m : Nat} (f : Fin n -> Fin m) where
     find-right-inverse : (Satisfiable neverImage) ⊎ (Section f)
     find-right-inverse = ⊎-map-right finite-inverse cases
 
-    find-section : ¬ (isSurjection f) ⊎ (Section f)
+    find-section : ¬ (isSurjective f) ⊎ (Section f)
     find-section = ⊎-map convert-neverImage finite-inverse cases
-
-

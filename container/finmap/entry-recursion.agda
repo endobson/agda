@@ -80,8 +80,8 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
   private
     A->U = AllEntries->UniqueEntries
 
-  isSurjection-A->U : {m : FinMap' K V} -> isSurjection (A->U {m})
-  isSurjection-A->U (k , v , hkv) =
+  isSurjective-A->U : {m : FinMap' K V} -> isSurjective (A->U {m})
+  isSurjective-A->U (k , v , hkv) =
     ∥-map (\hkv -> (k , v , hkv) , cong (\p -> k , v , p) (squash _ _)) hkv
 
 
@@ -145,7 +145,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
     isFinSet-UniqueEntries : (m : FinMap' K V) -> isFinSet (UniqueEntries m)
     isFinSet-UniqueEntries m =
       FinitelyIndexed-Discrete->isFinSet (FinSet-AllEntries m)
-        A->U isSurjection-A->U
+        A->U isSurjective-A->U
 
     FinSet-UniqueEntries : (m : FinMap' K V) -> FinSet (ℓ-max ℓK ℓV)
     FinSet-UniqueEntries m = _ , isFinSet-UniqueEntries m
@@ -155,10 +155,10 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
         Um1->Um2 : UniqueEntries m1 -> UniqueEntries m2
         Um1->Um2 (k , v , hkv) = k , v , ∥-map (proj₁ m1⊂m2) hkv
 
-        inj-U : Injective Um1->Um2
+        inj-U : isInjective Um1->Um2
         inj-U p = UE-path (cong fst p) (\i -> fst (snd (p i)))
 
-        ¬sur-U : ¬ (isSurjection Um1->Um2)
+        ¬sur-U : ¬ (isSurjective Um1->Um2)
         ¬sur-U sur-U =
           unsquash isPropBot (∥-bind handle (sur-U (k , v , ∣ hkv2 ∣)))
           where
@@ -178,7 +178,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
 
       fm⊂->FinSet<-U : FinSet< (FinSet-UniqueEntries m1) (FinSet-UniqueEntries m2)
       fm⊂->FinSet<-U =
-        Injective-¬Surjective->FinSet< (FinSet-UniqueEntries m1) (FinSet-UniqueEntries m2)
+        isInjective-¬isSurjective->FinSet< (FinSet-UniqueEntries m1) (FinSet-UniqueEntries m2)
           Um1->Um2 inj-U ¬sur-U
 
 

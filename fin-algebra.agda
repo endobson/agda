@@ -89,13 +89,13 @@ Fin-Maybe-eq n = isoToEquiv i
   i .leftInv (suc i , p) = (fin-i-path refl)
 
 
-Fin-injective : Injective Fin
-Fin-injective {zero}  {zero}  path = refl
-Fin-injective {zero}  {suc n} path =
+isInjective-Fin : isInjective Fin
+isInjective-Fin {zero}  {zero}  path = refl
+isInjective-Fin {zero}  {suc n} path =
   bot-elim (transport (sym path >=> Fin-Bot) zero-fin)
-Fin-injective {suc m} {zero}  path =
+isInjective-Fin {suc m} {zero}  path =
   bot-elim (transport (path >=> Fin-Bot) zero-fin)
-Fin-injective {suc m} {suc n} path = cong suc (Fin-injective path')
+isInjective-Fin {suc m} {suc n} path = cong suc (isInjective-Fin path')
   where
   path' : Fin m == Fin n
   path' = ⊎-Top (sym (Fin-suc-⊎ m) >=> path >=> Fin-suc-⊎ n)
@@ -161,5 +161,5 @@ FinT≃Fin : (n : Nat) -> FinT n ≃ Fin n
 FinT≃Fin zero = equiv⁻¹ Fin-Bot-eq
 FinT≃Fin (suc n) = ⊎-equiv (idEquiv Top) (FinT≃Fin n) >eq> equiv⁻¹ (Fin-suc-⊎-eq n)
 
-FinT-injective : Injective FinT
-FinT-injective = subst Injective (sym (funExt FinT=Fin)) Fin-injective
+isInjective-FinT : isInjective FinT
+isInjective-FinT = subst isInjective (sym (funExt FinT=Fin)) isInjective-Fin

@@ -22,10 +22,10 @@ private
     A : Type ℓ
 
 isKFinSetΣ : Type ℓ -> (ℓ₂ : Level) -> Type (ℓ-max ℓ (ℓ-suc ℓ₂))
-isKFinSetΣ A ℓ₂ = Σ[ B ∈ (FinSet ℓ₂) ] (Σ (⟨ B ⟩ -> A) isSurjection)
+isKFinSetΣ A ℓ₂ = Σ[ B ∈ (FinSet ℓ₂) ] (Σ (⟨ B ⟩ -> A) isSurjective)
 
 isKFinSetΣ⁻ : Type ℓ -> Type ℓ
-isKFinSetΣ⁻ A = Σ[ n ∈ Nat ] (Σ (Fin n -> A) isSurjection)
+isKFinSetΣ⁻ A = Σ[ n ∈ Nat ] (Σ (Fin n -> A) isSurjective)
 
 isKFinSet : Type ℓ -> (ℓ₂ : Level) -> Type (ℓ-max ℓ (ℓ-suc ℓ₂))
 isKFinSet A ℓ = ∥ isKFinSetΣ A ℓ ∥
@@ -40,10 +40,10 @@ KFinSet⁻ : (ℓ₁ : Level) -> Type (ℓ-suc ℓ₁)
 KFinSet⁻ ℓ₁  = Σ[ A ∈ (Type ℓ₁) ] (isKFinSet⁻ A)
 
 KFinListing' : Type ℓ -> (ℓ₂ : Level) -> Type (ℓ-max ℓ (ℓ-suc ℓ₂))
-KFinListing' A ℓ₂ = Σ[ B ∈ (FinSet ℓ₂) ] (∃ (⟨ B ⟩ -> A) isSurjection)
+KFinListing' A ℓ₂ = Σ[ B ∈ (FinSet ℓ₂) ] (∃ (⟨ B ⟩ -> A) isSurjective)
 
 isIndexable : Type ℓ -> Nat -> Type ℓ
-isIndexable A n = ∃ (FinT n -> A) isSurjection
+isIndexable A n = ∃ (FinT n -> A) isSurjective
 
 isListableΣ : Type ℓ -> Type ℓ
 isListableΣ A = Σ Nat (isIndexable A)

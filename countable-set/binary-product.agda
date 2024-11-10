@@ -99,8 +99,8 @@ private
   UpperSquare-n (square-bottom n _) = n
   UpperSquare-n (square-side n _) = n
 
-  Injective-square : Injective (\(n : ℕ) -> n * n)
-  Injective-square {n} {m} p =
+  isInjective-square : isInjective (\(n : ℕ) -> n * n)
+  isInjective-square {n} {m} p =
     antisym-≤ (squares-ordered-≤ zero-≤ (path-≤ p))
               (squares-ordered-≤ zero-≤ (path-≤ (sym p)))
 
@@ -207,31 +207,31 @@ private
           1mm=mm1 : (1 + m + m) == (m + m + 1)
           1mm=mm1 = +-commuteᵉ (1 + m) m >=> +-right (+-commuteᵉ 1 m) >=> sym (+-assocᵉ m m 1)
 
-  Injective-UpperSquare'->ℕ : {n : Nat} -> Injective (\s -> UpperSquare2->ℕ (n , s))
-  Injective-UpperSquare'->ℕ {n} {full-square} {full-square} _ = refl
-  Injective-UpperSquare'->ℕ {n} {square-bottom i} {square-bottom j} p =
+  isInjective-UpperSquare'->ℕ : {n : Nat} -> isInjective (\s -> UpperSquare2->ℕ (n , s))
+  isInjective-UpperSquare'->ℕ {n} {full-square} {full-square} _ = refl
+  isInjective-UpperSquare'->ℕ {n} {square-bottom i} {square-bottom j} p =
     cong square-bottom (fin-i-path (cong pred (+'-right-injective {n * n} p)))
-  Injective-UpperSquare'->ℕ {n} {square-side _} {square-side _} p =
+  isInjective-UpperSquare'->ℕ {n} {square-side _} {square-side _} p =
     cong square-side (fin-i-path (cong pred (+'-right-injective {n} (+'-right-injective {n * n} p))))
-  Injective-UpperSquare'->ℕ {n} {square-bottom i} {full-square} p =
+  isInjective-UpperSquare'->ℕ {n} {square-bottom i} {full-square} p =
     zero-suc-absurd (sym (+'-right-injective {n * n} p))
-  Injective-UpperSquare'->ℕ {n} {full-square} {square-bottom j} p =
-    sym (Injective-UpperSquare'->ℕ (sym p))
-  Injective-UpperSquare'->ℕ {n} {square-side i} {full-square} p =
+  isInjective-UpperSquare'->ℕ {n} {full-square} {square-bottom j} p =
+    sym (isInjective-UpperSquare'->ℕ (sym p))
+  isInjective-UpperSquare'->ℕ {n} {square-side i} {full-square} p =
     zero-suc-absurd (sym (+'-right-injective {n * n} p))
-  Injective-UpperSquare'->ℕ {n} {full-square} {square-side j} p =
-    sym (Injective-UpperSquare'->ℕ (sym p))
-  Injective-UpperSquare'->ℕ {n} {square-bottom i} {square-side j} p =
+  isInjective-UpperSquare'->ℕ {n} {full-square} {square-side j} p =
+    sym (isInjective-UpperSquare'->ℕ (sym p))
+  isInjective-UpperSquare'->ℕ {n} {square-bottom i} {square-side j} p =
     bot-elim (convert-≤ n≤i (Fin.i<n i))
     where
     n≤i : n ≤ Fin.i i
     n≤i = Fin.i j , sym (cong pred (+'-right-injective {n * n} p))
-  Injective-UpperSquare'->ℕ {n} {square-side i} {square-bottom j} p =
-    sym (Injective-UpperSquare'->ℕ (sym p))
+  isInjective-UpperSquare'->ℕ {n} {square-side i} {square-bottom j} p =
+    sym (isInjective-UpperSquare'->ℕ (sym p))
 
 
-  Injective-UpperSquare2->ℕ : Injective UpperSquare2->ℕ
-  Injective-UpperSquare2->ℕ {n1 , s1} {n2 , s2} p = ns1=nt1 >=> (\i -> n2 , t1=s2 i)
+  isInjective-UpperSquare2->ℕ : isInjective UpperSquare2->ℕ
+  isInjective-UpperSquare2->ℕ {n1 , s1} {n2 , s2} p = ns1=nt1 >=> (\i -> n2 , t1=s2 i)
     where
     n1=n2 : n1 == n2
     n1=n2 = UpperSquare2->ℕ-same-n (n1 , s1) (n2 , s2) p
@@ -243,12 +243,12 @@ private
     ns1=nt1 i = n1=n2 i , subst-filler UpperSquare' n1=n2 s1 i
 
     t1=s2 : t1 == s2
-    t1=s2 = Injective-UpperSquare'->ℕ (cong UpperSquare2->ℕ (sym ns1=nt1) >=> p)
+    t1=s2 = isInjective-UpperSquare'->ℕ (cong UpperSquare2->ℕ (sym ns1=nt1) >=> p)
 
 
   isProp-fiber-ℕ->UpperSquare2 : (n : ℕ) -> isProp (fiber UpperSquare2->ℕ n)
   isProp-fiber-ℕ->UpperSquare2 n (s1 , p1) (s2 , p2) =
-    ΣProp-path (isSetNat _ _) (Injective-UpperSquare2->ℕ (p1 >=> sym p2))
+    ΣProp-path (isSetNat _ _) (isInjective-UpperSquare2->ℕ (p1 >=> sym p2))
 
   ℕ->UpperSquare2 : (n : ℕ) -> fiber UpperSquare2->ℕ n
   ℕ->UpperSquare2 n = case (handle (split-< i 1)) of (\ (s , p) -> (m , s) , p)
@@ -342,56 +342,58 @@ private
   UpperSquare2->ℕ×ℕ (n , square-side (i , _)) = i , n
 
 
-  Injective-UpperSquare'->ℕ×ℕ : {n : ℕ} -> Injective (\s -> UpperSquare2->ℕ×ℕ (n , s))
-  Injective-UpperSquare'->ℕ×ℕ {n} {full-square} {full-square} p = refl
-  Injective-UpperSquare'->ℕ×ℕ {n} {square-bottom i1} {square-bottom i2} p =
+  isInjective-UpperSquare'->ℕ×ℕ : {n : ℕ} -> isInjective (\s -> UpperSquare2->ℕ×ℕ (n , s))
+  isInjective-UpperSquare'->ℕ×ℕ {n} {full-square} {full-square} p = refl
+  isInjective-UpperSquare'->ℕ×ℕ {n} {square-bottom i1} {square-bottom i2} p =
     cong square-bottom (fin-i-path (cong proj₂ p))
-  Injective-UpperSquare'->ℕ×ℕ {n} {square-side i1} {square-side i2} p =
+  isInjective-UpperSquare'->ℕ×ℕ {n} {square-side i1} {square-side i2} p =
     cong square-side (fin-i-path (cong proj₁ p))
-  Injective-UpperSquare'->ℕ×ℕ {n} {full-square} {square-side (i , i<n)} p =
+  isInjective-UpperSquare'->ℕ×ℕ {n} {full-square} {square-side (i , i<n)} p =
     bot-elim (irrefl-path-< (sym (cong proj₁ p)) i<n)
-  Injective-UpperSquare'->ℕ×ℕ {n} {square-bottom _} {square-side (i , i<n)} p =
+  isInjective-UpperSquare'->ℕ×ℕ {n} {square-bottom _} {square-side (i , i<n)} p =
     bot-elim (irrefl-path-< (sym (cong proj₁ p)) i<n)
-  Injective-UpperSquare'->ℕ×ℕ {n} {square-side (i , i<n)} {full-square} p =
+  isInjective-UpperSquare'->ℕ×ℕ {n} {square-side (i , i<n)} {full-square} p =
     bot-elim (irrefl-path-< (cong proj₁ p) i<n)
-  Injective-UpperSquare'->ℕ×ℕ {n} {square-side (i , i<n)} {square-bottom _} p =
+  isInjective-UpperSquare'->ℕ×ℕ {n} {square-side (i , i<n)} {square-bottom _} p =
     bot-elim (irrefl-path-< (cong proj₁ p) i<n)
-  Injective-UpperSquare'->ℕ×ℕ {n} {square-bottom (i , i<n)} {full-square} p =
+  isInjective-UpperSquare'->ℕ×ℕ {n} {square-bottom (i , i<n)} {full-square} p =
     bot-elim (irrefl-path-< (cong proj₂ p) i<n)
-  Injective-UpperSquare'->ℕ×ℕ {n} {full-square} {square-bottom (i , i<n)} p =
+  isInjective-UpperSquare'->ℕ×ℕ {n} {full-square} {square-bottom (i , i<n)} p =
     bot-elim (irrefl-path-< (sym (cong proj₂ p)) i<n)
 
 
-  Injective-UpperSquare2->ℕ×ℕ-n-path : {n1 n2 : ℕ} ->
+  isInjective-UpperSquare2->ℕ×ℕ-n-path : {n1 n2 : ℕ} ->
     {s1 : UpperSquare' n1} {s2 : UpperSquare' n2} ->
     UpperSquare2->ℕ×ℕ (n1 , s1) == UpperSquare2->ℕ×ℕ (n2 , s2) ->
     n1 == n2
-  Injective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2} {full-square} {full-square} p =
+  isInjective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2} {full-square} {full-square} p =
     cong proj₁ p
-  Injective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2} {square-side _} {square-side _} p =
+  isInjective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2} {square-side _} {square-side _} p =
     cong proj₂ p
-  Injective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2} {square-bottom _} {square-bottom _} p =
+  isInjective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2} {square-bottom _} {square-bottom _} p =
     cong proj₁ p
-  Injective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2} {full-square} {square-side _} p =
+  isInjective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2} {full-square} {square-side _} p =
     cong proj₂ p
-  Injective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2} {full-square} {square-bottom _} p =
+  isInjective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2} {full-square} {square-bottom _} p =
     cong proj₁ p
-  Injective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2} {square-side _} {full-square} p =
+  isInjective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2} {square-side _} {full-square} p =
     cong proj₂ p
-  Injective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2} {square-bottom _} {full-square} p =
+  isInjective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2} {square-bottom _} {full-square} p =
     cong proj₁ p
-  Injective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2} {square-bottom (i1 , i1<n1)} {square-side (i2 , i2<n2)} p =
+  isInjective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2}
+    {square-bottom (i1 , i1<n1)} {square-side (i2 , i2<n2)} p =
     bot-elim (asym-< (trans-=-< (sym (cong proj₂ p)) i1<n1) (trans-=-< (cong proj₁ p) i2<n2))
-  Injective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2} {square-side (i1 , i1<n1)} {square-bottom (i2 , i2<n2)} p =
+  isInjective-UpperSquare2->ℕ×ℕ-n-path {n1} {n2}
+    {square-side (i1 , i1<n1)} {square-bottom (i2 , i2<n2)} p =
     bot-elim (asym-< (trans-=-< (sym (cong proj₁ p)) i1<n1) (trans-=-< (cong proj₂ p) i2<n2))
 
 
-  Injective-UpperSquare2->ℕ×ℕ : Injective (\s -> UpperSquare2->ℕ×ℕ s)
-  Injective-UpperSquare2->ℕ×ℕ {n1 , s1} {n2 , s2} p =
+  isInjective-UpperSquare2->ℕ×ℕ : isInjective (\s -> UpperSquare2->ℕ×ℕ s)
+  isInjective-UpperSquare2->ℕ×ℕ {n1 , s1} {n2 , s2} p =
     ns1=nt1 >=> (\i -> n2 , t1=s2 i)
     where
     n1=n2 : n1 == n2
-    n1=n2 = Injective-UpperSquare2->ℕ×ℕ-n-path p
+    n1=n2 = isInjective-UpperSquare2->ℕ×ℕ-n-path p
 
     t1 : UpperSquare' n2
     t1 = substᵉ UpperSquare' n1=n2 s1
@@ -400,11 +402,11 @@ private
     ns1=nt1 i = n1=n2 i , subst-filler UpperSquare' n1=n2 s1 i
 
     t1=s2 : t1 == s2
-    t1=s2 = Injective-UpperSquare'->ℕ×ℕ (cong UpperSquare2->ℕ×ℕ (sym ns1=nt1) >=> p)
+    t1=s2 = isInjective-UpperSquare'->ℕ×ℕ (cong UpperSquare2->ℕ×ℕ (sym ns1=nt1) >=> p)
 
   isProp-fiber-ℕ×ℕ->UpperSquare2 : (p : ℕ × ℕ) -> isProp (fiber UpperSquare2->ℕ×ℕ p)
   isProp-fiber-ℕ×ℕ->UpperSquare2 p (s1 , p1) (s2 , p2) =
-    ΣProp-path (isSet× isSetNat isSetNat _ _) (Injective-UpperSquare2->ℕ×ℕ (p1 >=> sym p2))
+    ΣProp-path (isSet× isSetNat isSetNat _ _) (isInjective-UpperSquare2->ℕ×ℕ (p1 >=> sym p2))
 
 
   ℕ×ℕ->UpperSquare2 : (p : ℕ × ℕ) -> fiber UpperSquare2->ℕ×ℕ p

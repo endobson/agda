@@ -126,8 +126,8 @@ Connected-S1 (loop i) = ans i
   ans : PathP (\i -> ∥ base == loop i ∥) (∣ loop ∣) (∣ loop ∣)
   ans = isProp->PathP (\i -> squash)
 
-Injective-Top->S1 : Σ[ f ∈ (Top -> S1) ] (Injective f)
-Injective-Top->S1 = (\_ -> base) , (\_ -> refl)
+isInjective-Top->S1 : Σ[ f ∈ (Top -> S1) ] (isInjective f)
+isInjective-Top->S1 = (\_ -> base) , (\_ -> refl)
 
 ¬Top↪S1 : ¬ (Top ↪ S1)
 ¬Top↪S1 (f , isEmbed-f) = unsquash isPropBot (∥-map handle (Connected-S1 pt))

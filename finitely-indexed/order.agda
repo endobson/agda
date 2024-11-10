@@ -78,4 +78,4 @@ WellFounded-KFinSet< {ℓ} KA@(A , isKFin-A) =
   where
   list-A : isListable A
   list-A =
-    ∥-map (\{ (n , f) -> n , ∣ subst (\F -> Σ (F -> A) isSurjection) (sym (FinT=Fin n)) f ∣}) isKFin-A
+    ∥-map (\{ (n , f) -> n , ∣ subst (\F -> Σ (F -> A) isSurjective) (sym (FinT=Fin n)) f ∣}) isKFin-A

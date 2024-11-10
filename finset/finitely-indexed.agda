@@ -66,7 +66,7 @@ private
 
 
   FinT-sur-dec : {ℓB : Level} {B : Type ℓB} {{DB : Discrete' B}}
-                 (n : Nat) -> (f : FinT n -> B) -> isSurjection f ->
+                 (n : Nat) -> (f : FinT n -> B) -> isSurjective f ->
                  isFinSet B
   FinT-sur-dec {B = B} zero f sur-f = isFinSet-Uninhabited ¬B
     where
@@ -88,7 +88,7 @@ private
       g : FinT n -> WithoutPoint B b
       g i = f' i , f'-avoid i
 
-      sur-g : isSurjection g
+      sur-g : isSurjective g
       sur-g b2'@(b2 , b2!=b) = ∥-map sur-handle (sur-f b2)
         where
         sur-handle : Σ[ i ∈ FinT (suc n) ] (f i == b2) ->
@@ -103,7 +103,7 @@ private
       avoid-case = incr-size b rec-avoid
 
     module _ (other-point : Σ[ i ∈ FinT n ] (f' i == b)) where
-      sur-f' : isSurjection f'
+      sur-f' : isSurjective f'
       sur-f' b2 = ∥-map sur-handle (sur-f b2)
         where
         sur-handle : Σ[ i ∈ FinT (suc n) ] (f i == b2) ->
@@ -116,15 +116,15 @@ private
       point-case = FinT-sur-dec n f' sur-f'
 
   Fin-sur-dec : {ℓB : Level} {B : Type ℓB} {{DB : Discrete' B}}
-                (n : Nat) -> (f : Fin n -> B) -> isSurjection f ->
+                (n : Nat) -> (f : Fin n -> B) -> isSurjective f ->
                 isFinSet B
   Fin-sur-dec {B = B} n =
-    subst (\F -> (f : F -> B) -> isSurjection f -> isFinSet B)
+    subst (\F -> (f : F -> B) -> isSurjective f -> isFinSet B)
           (FinT=Fin n) (FinT-sur-dec n)
 
 
 module _ {ℓA ℓB : Level} (FA : FinSet ℓA) {B : Type ℓB} {{DB : Discrete' B}} (f : ⟨ FA ⟩ -> B)
-         (sur-f : isSurjection f) where
+         (sur-f : isSurjective f) where
   private
     A = fst FA
     module _ (ΣeqA : Σ[ n ∈ Nat ] (A ≃ Fin n)) where
@@ -134,7 +134,7 @@ module _ {ℓA ℓB : Level} (FA : FinSet ℓA) {B : Type ℓB} {{DB : Discrete'
       g : Fin n -> B
       g = f ∘ eqInv eqA
 
-      sur-g : isSurjection g
+      sur-g : isSurjective g
       sur-g b = ∥-map convert (sur-f b)
         where
         convert : fiber f b -> fiber g b

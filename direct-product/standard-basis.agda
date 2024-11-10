@@ -131,7 +131,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
         isFinSet-S' = snd ⟨ S ⟩
         inc : S' -> I
         inc = fst (snd S)
-        inj-inc : Injective inc
+        inj-inc : isInjective inc
         inj-inc = snd (snd S)
 
         instance

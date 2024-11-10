@@ -138,7 +138,7 @@ module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {PO : isPar
 module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {PO : isPartialOrder D≤}
          {{ JS : JoinSemiLatticeStr PO }} where
   open JoinSemiLatticeStr JS public hiding
-    ( is-join
+    ( is-join-op
     )
 
   private

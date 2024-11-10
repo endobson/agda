@@ -232,7 +232,7 @@ map-at-index' f {n = suc n} (a :: as) p = map-at-index' f as p
 
 map-at-index-inj : (f : A -> B) {n : Nat} (as : List A) {x : A}
                    -> AtIndex n (map f as) (f x)
-                   -> Injective f
+                   -> isInjective f
                    -> AtIndex n as x
 map-at-index-inj f {n} as ai inj-f =
   transport (\i -> AtIndex n as (inj-f (snd (snd res)) i)) (fst (snd res))
@@ -308,8 +308,8 @@ no-duplicates-permutation (¬ca , ¬cb , nd) (permutation-swap a b l) = (¬cb' ,
 no-duplicates-permutation nd (permutation-compose p1 p2) =
   no-duplicates-permutation (no-duplicates-permutation nd p1) p2
 
-map-no-duplicates : {f : A -> B} {as : List A} -> Injective f
-                    -> NoDuplicates as -> NoDuplicates (map f as)
+map-no-duplicates : {f : A -> B} {as : List A} -> isInjective f ->
+                    NoDuplicates as -> NoDuplicates (map f as)
 map-no-duplicates {as = []} inj-f nd = lift tt
 map-no-duplicates {A = A} {f = f} {as = a :: as} inj-f (¬c , nd) = (¬c' , map-no-duplicates inj-f nd)
   where
@@ -614,7 +614,7 @@ cartesian-product-contains (a :: as) bs (suc n , p) cb =
                     (cartesian-product-contains as bs (n , p) cb)
 
 private
-  pair-injective-left : (a : A) -> Injective (\ (b : B) -> (a , b))
+  pair-injective-left : (a : A) -> isInjective (\ (b : B) -> (a , b))
   pair-injective-left a p = cong snd p
 
 cartesian-product-contains' : {x : A} {y : B} (as : List A) (bs : List B)
@@ -766,18 +766,18 @@ cartesian-product-no-duplicates {A = A} {B = B} {as = a :: as} {bs} (¬c-a , nd-
     c-a = transport (\i -> contains (xa==a i) as) c-xa
 
 cartesian-product'-no-duplicates :
-   {f : A -> B -> C} (as : List A) (bs : List B)
-   -> Injective2 f -> NoDuplicates as -> NoDuplicates bs
-   -> NoDuplicates (cartesian-product' f as bs)
+   {f : A -> B -> C} (as : List A) (bs : List B) ->
+   isInjective2 f -> NoDuplicates as -> NoDuplicates bs ->
+   NoDuplicates (cartesian-product' f as bs)
 cartesian-product'-no-duplicates {f = f} as bs inj-f nd-a nd-b =
   map-no-duplicates inj-f' (cartesian-product-no-duplicates nd-a nd-b)
   where
-  inj-f' : Injective (\ (a , b) -> f a b)
+  inj-f' : isInjective (\ (a , b) -> f a b)
   inj-f' {x1 , y1} {x2 , y2} p i = fst (inj-f p) i , snd (inj-f p) i
 
 cartesian-product-map : (f : (A -> C)) (g : (B -> D)) (as : List A) (bs : List B)
-                        -> map (×-map f g) (cartesian-product as bs)
-                           == cartesian-product (map f as) (map g bs)
+                        -> map (×-map f g) (cartesian-product as bs) ==
+                           cartesian-product (map f as) (map g bs)
 cartesian-product-map f g []        bs = refl
 cartesian-product-map f g (a :: as) bs =
   begin

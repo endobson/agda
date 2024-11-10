@@ -73,8 +73,8 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
   isContr-PrimeDivisor2^si : (i : ℕ) -> isContr (PrimeDivisor (2⁺ ^⁺ (suc i)))
   isContr-PrimeDivisor2^si i = isContr-PrimeDivisor-prime-power (2 , 2-is-prime) (suc i , tt)
 
-  Injective-ℕ->ℚ : Injective ℕ->ℚ
-  Injective-ℕ->ℚ = ∘-Injective Injective-ℤ->ℚ nonneg-injective
+  isInjective-ℕ->ℚ : isInjective ℕ->ℚ
+  isInjective-ℕ->ℚ = ∘-isInjective isInjective-ℤ->ℚ nonneg-injective
 
   isProp-Σ2^i : isProp (Σ[ i ∈ ℕ ] (2⁺ ^⁺ i == n⁺))
   isProp-Σ2^i (i1 , p1) (i2 , p2) =
@@ -132,7 +132,7 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
     *-left-one
 
   φ-path2 : (i : ℕ) -> φ (2⁺ *⁺ (2⁺ ^⁺ i)) == (2 ^ℕ i)
-  φ-path2 i = Injective-ℕ->ℚ (φℚ-path2 i)
+  φ-path2 i = isInjective-ℕ->ℚ (φℚ-path2 i)
 
   backward : (Σ[ i ∈ ℕ ] (2⁺ ^⁺ i == n⁺)) -> (φ (2⁺ *⁺ n⁺) == n)
   backward (i , path) = cong (\x -> φ (2⁺ *⁺ x)) (sym path) >=> φ-path2 i >=> cong fst path

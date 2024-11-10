@@ -36,8 +36,8 @@ open import sigma
 private
   module Ring-ℚ = Ring Ring-ℚ
 
-  Injective-ℕ->ℚ : Injective ℕ->ℚ
-  Injective-ℕ->ℚ = ∘-Injective Injective-ℤ->ℚ nonneg-injective
+  isInjective-ℕ->ℚ : isInjective ℕ->ℚ
+  isInjective-ℕ->ℚ = ∘-isInjective isInjective-ℤ->ℚ nonneg-injective
 
 
 problem1-b : (n : Nat⁺) -> (φ (2⁺ *⁺ n) == φ n) ≃ Odd ⟨ n ⟩
@@ -90,7 +90,7 @@ problem1-b n⁺@(n , _) =
          *-right (sym φℚ-finiteProduct)
 
     p4 : φ (2⁺ *⁺ n⁺) == 2 * φ n⁺
-    p4 = Injective-ℕ->ℚ (p3 >=> sym (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ _ _))
+    p4 = isInjective-ℕ->ℚ (p3 >=> sym (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ _ _))
 
     p5 : φ n⁺ < φ (2⁺ *⁺ n⁺)
     p5 = trans-=-< (sym *-left-one) (trans-<-= lt (sym p4))

@@ -19,4 +19,4 @@ isBFinSet->Discrete : isBFinSet A ℓ -> Discrete A
 isBFinSet->Discrete {A = A} {ℓ = ℓ} bfs = unsquash isProp-Discrete (∥-map handle bfs)
   where
   handle : isBFinSetΣ A ℓ -> Discrete A
-  handle ((B , fsB) , (f , inj)) = Injective->Discrete f inj (isFinSet->Discrete fsB)
+  handle ((B , fsB) , (f , inj)) = isInjective->Discrete f inj (isFinSet->Discrete fsB)

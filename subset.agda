@@ -65,7 +65,7 @@ Family->Subtype {I = I} f d = (∃[ i ∈ I ] (f i == d)) , squash
 
 -- A FinSubset is a finite amount of Ds
 FinSubset : {ℓD : Level} (D : Type ℓD) (ℓI : Level) -> Type (ℓ-max ℓD (ℓ-suc ℓI))
-FinSubset D ℓI = Σ[ I ∈ (FinSet ℓI) ] Σ[ f ∈ (⟨ I ⟩ -> D) ] (Injective f)
+FinSubset D ℓI = Σ[ I ∈ (FinSet ℓI) ] Σ[ f ∈ (⟨ I ⟩ -> D) ] (isInjective f)
 
 -- A Detachable subtype is a subtype for which membership is decidable
 Detachable : {ℓD ℓ : Level} {D : Type ℓD} -> Subtype D ℓ -> Type (ℓ-max ℓD ℓ)

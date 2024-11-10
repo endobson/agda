@@ -45,7 +45,7 @@ private
 
 
 abstract
-  encode-swap-injective : {n : Nat} -> (sw : Swap n) -> Injective (encode-swap sw)
+  encode-swap-injective : {n : Nat} -> (sw : Swap n) -> isInjective (encode-swap sw)
   encode-swap-injective swap           {zero          , lt} {zero          , lt2} p =
     fin-i-path refl
   encode-swap-injective swap           {zero          , lt} {(suc zero)    , lt2} p =
@@ -246,7 +246,7 @@ abstract
       >=> (cong (\x -> fin-rec zero-fin (suc-fin ∘ x)) (swap-tree-sperm-path st))
     swap-tree-sperm-path swap-swap-tree = encode-single-swap
 
-  fininj-sperm-path : {n : Nat} -> (f : Σ (Fin n -> Fin n) Injective)
+  fininj-sperm-path : {n : Nat} -> (f : Σ (Fin n -> Fin n) isInjective)
                      -> Σ[ s ∈ SwapPerm n ] (encode-sperm s == fst f)
   fininj-sperm-path f =
     (swap-tree->sperm (iperm->swap-tree (decode-iperm f))) ,

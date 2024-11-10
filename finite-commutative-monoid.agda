@@ -100,7 +100,7 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
       reindex : Fin n -> Fin n
       reindex = eqFun eq1 ∘ eqInv eq2
 
-      reindex-inj : Injective reindex
+      reindex-inj : isInjective reindex
       reindex-inj {x} {y} p = path2
         where
         path1 : (eqInv eq2 x) == (eqInv eq2 y)

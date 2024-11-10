@@ -20,7 +20,7 @@ record LinearOrderʰᵉ
   field
     preserves-< : ∀ {x y} -> x <₁ y -> f x <₂ f y
 
-  injective : Injective f
+  injective : isInjective f
   injective fx=fy =
     connected-< (\x<y -> irrefl-path-< fx=fy (preserves-< x<y))
                 (\y<x -> irrefl-path-< (sym fx=fy) (preserves-< y<x))

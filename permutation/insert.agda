@@ -18,7 +18,7 @@ data InsertPerm : Nat -> Type₀ where
 
 private
   FinInj : Nat -> Type₀
-  FinInj n = Σ (Fin n -> Fin n) Injective
+  FinInj n = Σ (Fin n -> Fin n) isInjective
 
 private
   module insert-iso where
@@ -27,7 +27,7 @@ private
     encode-iperm' (ins :: perm) =
       fin-rec ins (avoid-fin ins ∘ (encode-iperm' perm))
 
-    encode-iperm'-inj : {n : Nat} -> (i : InsertPerm n) -> Injective (encode-iperm' i)
+    encode-iperm'-inj : {n : Nat} -> (i : InsertPerm n) -> isInjective (encode-iperm' i)
     encode-iperm'-inj [] {j1} {j2} p = bot-elim (¬fin-zero j1)
     encode-iperm'-inj (ins :: perm) {zero   , lt1} {zero   , lt2} p = fin-i-path refl
     encode-iperm'-inj (ins :: perm) {zero   , lt1} {suc j2 , lt2} p =
@@ -44,13 +44,13 @@ private
     encode-iperm i = encode-iperm' i , encode-iperm'-inj i
 
     abstract
-      smaller-fun' : {n : Nat} -> (f : Fin (suc n) -> Fin (suc n))
-                    -> Injective f -> (Fin n -> Fin n)
+      smaller-fun' : {n : Nat} -> (f : Fin (suc n) -> Fin (suc n)) ->
+                     isInjective f -> (Fin n -> Fin n)
       smaller-fun' f f-inj x = remove-fin (f zero-fin) (f (suc-fin x))
                                (zero-fin!=suc-fin ∘ f-inj)
 
-      smaller-fun'-inj : {n : Nat} (f : Fin (suc n) -> Fin (suc n)) -> (f-inj : Injective f)
-                         -> Injective (smaller-fun' f f-inj)
+      smaller-fun'-inj : {n : Nat} (f : Fin (suc n) -> Fin (suc n)) -> (f-inj : isInjective f) ->
+                         isInjective (smaller-fun' f f-inj)
       smaller-fun'-inj f f-inj {j1} {j2} p =
         suc-fin-injective
           (f-inj (remove-fin-inj (f zero-fin) (f (suc-fin j1)) (f (suc-fin j2))
@@ -144,7 +144,7 @@ private
 
     encode-decode : {n : Nat} -> (fi : FinInj n)
                     -> encode-iperm (decode-iperm fi) == fi
-    encode-decode fi = ΣProp-path (isPropInjective isSetFin) (encode'-decode fi)
+    encode-decode fi = ΣProp-path (isProp-isInjective isSetFin) (encode'-decode fi)
 
 
     decode-encode : {n : Nat} -> (perm : InsertPerm n)
@@ -154,13 +154,13 @@ private
       where
       f : Fin (suc n) -> Fin (suc n)
       f = encode-iperm' (ins :: perm)
-      f-inj : Injective f
+      f-inj : isInjective f
       f-inj = encode-iperm'-inj (ins :: perm)
       Σsf : FinInj n
       Σsf = smaller-fun (f , f-inj)
 
       smaller-encode : Σsf == (encode-iperm perm)
-      smaller-encode = ΣProp-path (isPropInjective isSetFin) (smaller-encode' ins perm)
+      smaller-encode = ΣProp-path (isProp-isInjective isSetFin) (smaller-encode' ins perm)
 
       perm-path : (decode-iperm Σsf) == perm
       perm-path = cong decode-iperm smaller-encode >=> decode-encode perm

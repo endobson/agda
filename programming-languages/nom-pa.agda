@@ -47,7 +47,7 @@ abstract
       f (name' b) = Top
       f (name-skip' b _) = Bot
 
-    name-skip-inj : {w : World} {b : Binder} -> Injective (name-skip {w} b)
+    name-skip-inj : {w : World} {b : Binder} -> isInjective (name-skip {w} b)
     name-skip-inj {w} {b} p = inj-r-injective (cong f p)
       where
       f : Name (world-cons b w) -> Top ⊎ (Name w)

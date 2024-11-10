@@ -79,8 +79,8 @@ split-single-swap-atom v1 v2 v3 = handle (DiscreteAtom v1 v3) (DiscreteAtom v2 v
   handle (no ¬p1) (no ¬p2) = inj-r (¬p1 , ¬p2 , single-swap-atom-neither ¬p1 ¬p2)
 
 
-Injective-single-swap-atom : (p : Atom × Atom) -> Injective (single-swap-atom p)
-Injective-single-swap-atom (v1 , v2) {a1} {a2} path =
+isInjective-single-swap-atom : (p : Atom × Atom) -> isInjective (single-swap-atom p)
+isInjective-single-swap-atom (v1 , v2) {a1} {a2} path =
   handle (DiscreteAtom v1 v2) (split-single-swap-atom v1 v2 a1) (split-single-swap-atom v1 v2 a2)
   where
 
@@ -147,7 +147,7 @@ single-swap-renaming p (m , inj-m1 , fun-m1) = m2 , inj-m2 , fun-m2
     inj-m2 hkv1-m2 hkv2-m2 =
       let (k1 , v1 , hkv1 , kp1 , vp1) = case-hkv hkv1-m2
           (k2 , v2 , hkv2 , kp2 , vp2) = case-hkv hkv2-m2
-          vp = Injective-single-swap-atom p (vp1 >=> sym vp2)
+          vp = isInjective-single-swap-atom p (vp1 >=> sym vp2)
           hkv1' = subst (\v -> HasKV' k1 v m) vp hkv1
           kp = inj-m1 hkv1' hkv2
       in sym kp1 >=> cong (single-swap-atom p) kp >=> kp2
@@ -156,7 +156,7 @@ single-swap-renaming p (m , inj-m1 , fun-m1) = m2 , inj-m2 , fun-m2
     fun-m2 hkv1-m2 hkv2-m2 =
       let (k1 , v1 , hkv1 , kp1 , vp1) = case-hkv hkv1-m2
           (k2 , v2 , hkv2 , kp2 , vp2) = case-hkv hkv2-m2
-          kp = Injective-single-swap-atom p (kp1 >=> sym kp2)
+          kp = isInjective-single-swap-atom p (kp1 >=> sym kp2)
           hkv1' = subst (\k -> HasKV' k v1 m) kp hkv1
           vp = fun-m1 hkv1' hkv2
       in sym vp1 >=> cong (single-swap-atom p) vp >=> vp2
@@ -328,7 +328,7 @@ DisjointFinSet-single-swap-finset {fs1} {fs2} p dis {k} (_ , hk1) (_ , hk2) =
         HasKey-finmap'-entry-map-backward (\ k v -> (single-swap-atom p k) , v) hk2
       hkv3' : HasKV' k2 tt fs2
       hkv3' = subst (\k -> HasKV' k tt fs2)
-                    (Injective-single-swap-atom p (cong fst paths3 >=> sym (cong fst paths2)))
+                    (isInjective-single-swap-atom p (cong fst paths3 >=> sym (cong fst paths2)))
                     hkv3
   in dis (tt , hkv2) (tt , hkv3')
 

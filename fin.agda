@@ -253,8 +253,7 @@ avoid-fin {zero}  _ = suc-fin
 avoid-fin {suc _}   = fin-rec (suc-fin) (\i -> fin-rec zero-fin (suc-fin ∘ avoid-fin i))
 
 opaque
-  avoid-fin-no-path : {n : Nat} {j : Fin n} (i : Fin (suc n))
-                      -> avoid-fin i j != i
+  avoid-fin-no-path : {n : Nat} {j : Fin n} (i : Fin (suc n)) -> avoid-fin i j != i
   avoid-fin-no-path {zero}  {j} = bot-elim (¬fin-zero j)
   avoid-fin-no-path {suc n} (0     , lt2) p =
     zero-suc-absurd (cong Fin.i (sym p))
@@ -266,8 +265,7 @@ opaque
     no-path : avoid-fin (suc i , lt2) (suc j , lt1) != suc-fin (i , pred-≤ lt2)
     no-path = avoid-fin-no-path (i , pred-≤ lt2) ∘ suc-fin-injective
 
-  avoid-fin-inj : {n : Nat} (i : Fin (suc n))
-                  -> Injective (avoid-fin i)
+  avoid-fin-inj : {n : Nat} (i : Fin (suc n)) -> isInjective (avoid-fin i)
   avoid-fin-inj {zero} _ {x} {y} p = bot-elim (¬fin-zero x)
   avoid-fin-inj {suc n} (0     , lt) = suc-fin-injective
   avoid-fin-inj {suc n} (suc i , lt) {0      , lt1} {0      , lt2} p =
@@ -279,7 +277,7 @@ opaque
   avoid-fin-inj {suc n} (suc i , lt) {suc j1 , lt1} {suc j2 , lt2} p =
     fin-i-path (cong suc path)
     where
-    rec : Injective (avoid-fin (i , pred-≤ lt))
+    rec : isInjective (avoid-fin (i , pred-≤ lt))
     rec = avoid-fin-inj (i , pred-≤ lt)
 
     path : j1 == j2

@@ -36,7 +36,7 @@ isProp-isFinSetΣ : {ℓ : Level} {A : Type ℓ} -> isProp (isFinSetΣ A)
 isProp-isFinSetΣ {ℓ} {A = A} (n , n-equiv) (m , m-equiv) = ΣProp-path squash n==m
   where
   work : (A ≃ (Fin n)) -> (A ≃ (Fin m)) -> n == m
-  work eqn eqm = Fin-injective (isoToPath ((equivToIso eqm) ∘ⁱ iso⁻¹ (equivToIso eqn)))
+  work eqn eqm = isInjective-Fin (isoToPath ((equivToIso eqm) ∘ⁱ iso⁻¹ (equivToIso eqn)))
 
   n==m : n == m
   n==m = unsquash (isSetNat n m)

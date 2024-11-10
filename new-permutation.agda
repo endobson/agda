@@ -222,7 +222,7 @@ module _ {m n : Nat} where
 
 
 private
-  fin-injective->section : {n : Nat} (f : Fin n -> Fin n) -> Injective f -> Section f
+  fin-injective->section : {n : Nat} (f : Fin n -> Fin n) -> isInjective f -> Section f
   fin-injective->section {zero} f f-inj = (\i -> i) , (\i -> bot-elim (¬fin-zero i))
   fin-injective->section {suc n} f f-inj = handle (find-right-inverse f)
     where
@@ -233,12 +233,12 @@ private
       f' : Fin (suc n) -> Fin n
       f' i = remove-fin j (f i) (not-image i ∘ sym)
 
-      f'-inj : Injective f'
+      f'-inj : isInjective f'
       f'-inj {i1} {i2} p =
         f-inj (remove-fin-inj j (f i1) (f i2) (not-image i1 ∘ sym) (not-image i2 ∘ sym) p)
 
 
-module _ {n : Nat} (f : (Fin n) -> (Fin n)) (inj-f : (Injective f)) where
+module _ {n : Nat} (f : (Fin n) -> (Fin n)) (inj-f : isInjective f) where
   open Iso
   private
     abstract
@@ -258,17 +258,17 @@ module _ {n : Nat} (f : (Fin n) -> (Fin n)) (inj-f : (Injective f)) where
 module _ {n : Nat} where
   open Iso
   private
-    forward : (Σ ((Fin n) -> (Fin n)) Injective) -> Perm n
+    forward : (Σ ((Fin n) -> (Fin n)) isInjective) -> Perm n
     forward (f , inj-f) = fin-injective->permutation f inj-f
 
-    backward : Perm n -> (Σ ((Fin n) -> (Fin n)) Injective)
+    backward : Perm n -> (Σ ((Fin n) -> (Fin n)) isInjective)
     backward i = i .fun , f-inj
       where
-      f-inj : Injective (i .fun)
+      f-inj : isInjective (i .fun)
       f-inj {x} {y} p = sym (i .leftInv x) >=> cong (i .inv) p >=> (i .leftInv y)
 
-  fin-injective-permutation-iso : Iso (Σ ((Fin n) -> (Fin n)) Injective) (Perm n)
+  fin-injective-permutation-iso : Iso (Σ ((Fin n) -> (Fin n)) isInjective) (Perm n)
   fin-injective-permutation-iso .fun = forward
   fin-injective-permutation-iso .inv = backward
   fin-injective-permutation-iso .rightInv _ = isSet-iso-path isSetFin isSetFin refl
-  fin-injective-permutation-iso .leftInv  (f , inj-f) = ΣProp-path (isPropInjective isSetFin) refl
+  fin-injective-permutation-iso .leftInv  (f , inj-f) = ΣProp-path (isProp-isInjective isSetFin) refl
