@@ -19,6 +19,7 @@ open import finsum
 open import finsum.arithmetic
 open import functions
 open import funext
+open import hlevel.base
 open import isomorphism
 open import semiring
 open import sigma
@@ -27,11 +28,10 @@ open import type-algebra
 
 open EqReasoning
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} where
   private
-    module S = Semiring S
-    instance
-      IACM = ACM
+    isSet-D : isSet D
+    isSet-D = AdditiveCommMonoid.isSet-Domain ACM
 
   private
     module _ {ℓB : Level} {FB : Fin 0 -> FinSet ℓB}  where
@@ -130,7 +130,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
                   (f : (Σ ⟨ FA ⟩ (fst ∘ FB)) -> D) ->
                   finiteSumᵉ (FinSet-Σ FA FB) f ==
                   finiteSumᵉ FA (\a -> finiteSumᵉ (FB a) (f ∘ (a ,_)))
-    finiteSum-Σ {ℓA} {ℓB} FA@(A , finA) FB f = unsquash (S.isSet-Domain _ _) (∥-map handle finA)
+    finiteSum-Σ {ℓA} {ℓB} FA@(A , finA) FB f = unsquash (isSet-D _ _) (∥-map handle finA)
       where
       B : A -> Type ℓB
       B = fst ∘ FB
@@ -145,7 +145,8 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
 
   module _
     {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
-    {{FS-A : FinSetStr A}} {{FS-B : FinSetStr B}} where
+    {{FS-A : FinSetStr A}} {{FS-B : FinSetStr B}}
+    {{S : Semiring ACM}} where
 
     opaque
       finiteSum-× : {f : A -> D} {g : B -> D} ->
