@@ -66,3 +66,6 @@ opaque
     where
     isInjective-suc-fin : isInjective (suc-fin {n = n})
     isInjective-suc-fin path = fin-i-path (cong pred (cong Fin.i path))
+
+  isEmbedding-avoid-fin : {n : Nat} -> (i : Fin (suc n)) -> isEmbedding (avoid-fin i)
+  isEmbedding-avoid-fin {n} i = isSet-isInjective->isEmbedding isSetFin (avoid-fin-inj i)
