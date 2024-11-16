@@ -58,3 +58,12 @@ module _ {ℓA : Level} {A : Type ℓA} where
   FinSubsetContains as a = fst (FinSubsetContainsΣ a as)
   isProp-FinSubsetContains : (as : FinSubset A) -> (a : A) -> isProp (FinSubsetContains as a)
   isProp-FinSubsetContains as a = snd (FinSubsetContainsΣ a as)
+
+  opaque
+    FinSubsetContains-path : (as1 as2 : FinSubset A) ->
+      (∀ a -> FinSubsetContains as1 a ≃ FinSubsetContains as2 a) ->
+      as1 == as2
+    FinSubsetContains-path =
+      SetQuotientElim.elimProp2
+        (\as1 as2 -> isPropΠ (\_ -> squash/ as1 as2))
+        (\as1 as2 -> eq/ as1 as2)
