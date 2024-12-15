@@ -4,9 +4,20 @@ module group where
 
 open import base
 open import equality
+open import monoid
 open import commutative-monoid
 
 record GroupStr {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
+  field
+    monoid : Monoid Domain
+  open Monoid monoid public
+
+  field
+    inverse : Domain -> Domain
+    ∙-left-inverse : {x : Domain} -> (inverse x) ∙ x == ε
+    ∙-right-inverse : {x : Domain} -> x ∙ (inverse x) == ε
+
+record AbGroupStr {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   field
     comm-monoid : CommMonoid Domain
   open CommMonoid comm-monoid public
@@ -14,9 +25,7 @@ record GroupStr {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   field
     inverse : Domain -> Domain
     ∙-left-inverse : {x : Domain} -> (inverse x) ∙ x == ε
-
-  ∙-right-inverse : {x : Domain} -> x ∙ (inverse x) == ε
-  ∙-right-inverse = ∙-commute >=> ∙-left-inverse
+    ∙-right-inverse : {x : Domain} -> x ∙ (inverse x) == ε
 
   abstract
     inverse-CMʰ : CommMonoidʰᵉ comm-monoid comm-monoid inverse
@@ -39,10 +48,8 @@ record GroupStr {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
         ∙-left ∙-left-inverse >=>
         ∙-left-ε
 
-
 Group : (ℓ : Level) -> Type (ℓ-suc ℓ)
 Group ℓ = Σ[ D ∈ Type ℓ ] (GroupStr D)
-
 
 record Groupʰᵉ
     {ℓ₁ ℓ₂ : Level}

@@ -99,9 +99,17 @@ module _ {ℓ : Level} {D : Type ℓ} (ACM : AdditiveCommMonoid D) where
       +-inverse : {x : D} -> x + (- x) == 0#
 
     group-str : GroupStr D
-    group-str .GroupStr.comm-monoid = AdditiveCommMonoid.comm-monoid ACM
+    group-str .GroupStr.monoid = CommMonoid.monoid (AdditiveCommMonoid.comm-monoid ACM)
     group-str .GroupStr.inverse = -_
     group-str .GroupStr.∙-left-inverse = +-commute >=> +-inverse
+    group-str .GroupStr.∙-right-inverse = +-inverse
+
+    ab-group-str : AbGroupStr D
+    ab-group-str .AbGroupStr.comm-monoid = AdditiveCommMonoid.comm-monoid ACM
+    ab-group-str .AbGroupStr.inverse = -_
+    ab-group-str .AbGroupStr.∙-left-inverse = +-commute >=> +-inverse
+    ab-group-str .AbGroupStr.∙-right-inverse = +-inverse
+
 
 module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}} where
   open AdditiveGroup AG public using (-_)

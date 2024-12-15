@@ -405,6 +405,11 @@ module _ {n : Nat} where
     where
     module u = Unit' u
 
+  z1/-right-inverse : (x : ℤ/nℤ* n) -> x u* (z1/ x) == (1# , unit'-one)
+  z1/-right-inverse (x , u) =
+    ΣProp-path isProp-Unit' u.path
+    where
+    module u = Unit' u
 
 CommMonoidStr-ℤ/nℤ* : {n : Nat} -> CommMonoid (ℤ/nℤ* n)
 CommMonoidStr-ℤ/nℤ* {n} =
@@ -412,11 +417,12 @@ CommMonoidStr-ℤ/nℤ* {n} =
                                        (\{i} {j} -> u'*-closed {n} {i} {j})
 
 
-GroupStr-ℤ/nℤ* : {n : Nat} -> GroupStr (ℤ/nℤ* n)
-GroupStr-ℤ/nℤ* {n} = record
+AbGroupStr-ℤ/nℤ* : {n : Nat} -> AbGroupStr (ℤ/nℤ* n)
+AbGroupStr-ℤ/nℤ* {n} = record
   { comm-monoid = CommMonoidStr-ℤ/nℤ*
   ; inverse = z1/
   ; ∙-left-inverse = \ {x} -> z1/-left-inverse x
+  ; ∙-right-inverse = \ {x} -> z1/-right-inverse x
   }
 
 

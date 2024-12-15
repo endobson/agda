@@ -118,9 +118,9 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} (M : CommMonoid D) (I : Type ℓI) 
     }
 
 
-module _ {ℓD ℓI : Level} {D : Type ℓD} (G : GroupStr D) (I : Type ℓI) where
+module _ {ℓD ℓI : Level} {D : Type ℓD} (G : AbGroupStr D) (I : Type ℓI) where
   private
-    module G = GroupStr G
+    module G = AbGroupStr G
     CMDP = (CommMonoid-DirectProduct G.comm-monoid I)
     module CMDP = CommMonoid CMDP
 
@@ -128,12 +128,15 @@ module _ {ℓD ℓI : Level} {D : Type ℓD} (G : GroupStr D) (I : Type ℓI) wh
     inverse x = wrap-dp (\i -> G.inverse (unwrap-dp x i))
     dp∙-left-inverse : {x : DP D I} -> ((inverse x) CMDP.∙ x) == CMDP.ε
     dp∙-left-inverse = cong wrap-dp (funExt (\_ -> G.∙-left-inverse))
+    dp∙-right-inverse : {x : DP D I} -> (x CMDP.∙ (inverse x)) == CMDP.ε
+    dp∙-right-inverse = cong wrap-dp (funExt (\_ -> G.∙-right-inverse))
 
-  GroupStr-DirectProduct : GroupStr (DP D I)
-  GroupStr-DirectProduct = record
+  AbGroupStr-DirectProduct : AbGroupStr (DP D I)
+  AbGroupStr-DirectProduct = record
     { comm-monoid = CMDP
     ; inverse = inverse
     ; ∙-left-inverse = dp∙-left-inverse
+    ; ∙-right-inverse = dp∙-right-inverse
     }
 
 module _ {ℓD ℓI ℓ# : Level} {D : Type ℓD} {D# : Rel D ℓ#}
@@ -243,8 +246,8 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
       IS = S
       IR = R
 
-    GroupStr-DP = (GroupStr-DirectProduct R.+-Group I)
-    _dp+_ = GroupStr._∙_ GroupStr-DP
+    AbGroupStr-DP = (AbGroupStr-DirectProduct R.+-AbGroup I)
+    _dp+_ = AbGroupStr._∙_ AbGroupStr-DP
 
     _dp*_ : K -> (DP K I) -> (DP K I)
     _dp*_ d = dp-map1 (d *_)
@@ -260,7 +263,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
 
   ModuleStr-DirectProduct : ModuleStr R (DP K I)
   ModuleStr-DirectProduct = record
-    { GroupStr-V = GroupStr-DP
+    { AbGroupStr-V = AbGroupStr-DP
     ; _v#_ = _
     ; isTightApartness-v# = isTightApartness-DirectProduct TK I
     ; _v*_ = _dp*_

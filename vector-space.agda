@@ -35,19 +35,19 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {ACM : AdditiveCommMonoid K}
 
   record ModuleStr : Type (ℓ-max ℓK (ℓ-suc ℓV)) where
     field
-      GroupStr-V : GroupStr V
+      AbGroupStr-V : AbGroupStr V
       _v#_ : Rel V ℓV
       isTightApartness-v# : isTightApartness _v#_
 
 
     isProp-v# = isTightApartness.isProp-# isTightApartness-v#
 
-    _v+_ = GroupStr._∙_ GroupStr-V
-    0v = GroupStr.ε GroupStr-V
-    v-_ = GroupStr.inverse GroupStr-V
+    _v+_ = AbGroupStr._∙_ AbGroupStr-V
+    0v = AbGroupStr.ε AbGroupStr-V
+    v-_ = AbGroupStr.inverse AbGroupStr-V
 
-    isSet-V = GroupStr.isSet-Domain GroupStr-V
-    CommMonoid-V+ = GroupStr.comm-monoid GroupStr-V
+    isSet-V = AbGroupStr.isSet-Domain AbGroupStr-V
+    CommMonoid-V+ = AbGroupStr.comm-monoid AbGroupStr-V
 
 
     field
@@ -83,9 +83,7 @@ module _  {ℓK ℓV : Level} {K : Type ℓK}
       IR = R
 
 
-
-
-  open GroupStr (ModuleStr.GroupStr-V M)
+  open AbGroupStr (ModuleStr.AbGroupStr-V M)
 
   abstract
     v+-right-zero : {v : V} -> v v+ 0v == v
@@ -192,11 +190,11 @@ module _  {ℓK ℓV : Level} {K : Type ℓK}
   vdiff v1 v2 = v2 v+ (v- v1)
 
   private
-    G-V+ = (ModuleStr.GroupStr-V M)
-    CM-V+ = GroupStr.comm-monoid G-V+
+    G-V+ = (ModuleStr.AbGroupStr-V M)
+    CM-V+ = AbGroupStr.comm-monoid G-V+
 
   v-ʰ : CommMonoidʰᵉ CM-V+ CM-V+ v-_
-  v-ʰ = GroupStr.inverse-CMʰ G-V+
+  v-ʰ = AbGroupStr.inverse-CMʰ G-V+
 
 
 
@@ -274,7 +272,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
 
   private
     CommMonoid-V+ : CommMonoid V
-    CommMonoid-V+ = GroupStr.comm-monoid (ModuleStr.GroupStr-V (VectorSpaceStr.module-str VS))
+    CommMonoid-V+ = AbGroupStr.comm-monoid (ModuleStr.AbGroupStr-V (VectorSpaceStr.module-str VS))
 
   vector-sum : {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} -> (I -> V) -> V
   vector-sum = finiteMerge CommMonoid-V+
@@ -344,9 +342,9 @@ module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK} {K# : Rel K ℓK}
         where
         instance
           CM-V1+ : CommMonoid V1
-          CM-V1+ = GroupStr.comm-monoid (ModuleStr.GroupStr-V (VectorSpaceStr.module-str VS1))
+          CM-V1+ = AbGroupStr.comm-monoid (ModuleStr.AbGroupStr-V (VectorSpaceStr.module-str VS1))
           CM-V2+ : CommMonoid V2
-          CM-V2+ = GroupStr.comm-monoid (ModuleStr.GroupStr-V (VectorSpaceStr.module-str VS2))
+          CM-V2+ = AbGroupStr.comm-monoid (ModuleStr.AbGroupStr-V (VectorSpaceStr.module-str VS2))
         h : CommMonoidʰ f
         h = record
           { monoidʰ = record

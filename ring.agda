@@ -74,11 +74,9 @@ record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
 
 
   +-Group : GroupStr Domain
-  +-Group = record
-    { comm-monoid = Semiring.+-CommMonoid semiring
-    ; inverse = -_
-    ; ∙-left-inverse = +-commute >=> +-inverse
-    }
+  +-Group = AdditiveGroup.group-str AG
+  +-AbGroup : AbGroupStr Domain
+  +-AbGroup = AdditiveGroup.ab-group-str AG
 
 
   -- Units
@@ -190,9 +188,10 @@ record Ring {ℓ : Level} {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
 
   GroupStr-u* : GroupStr Unit
   GroupStr-u* = record
-    { comm-monoid = CommMonoid-u*
+    { monoid = Monoid-u*
     ; inverse = u1/_
     ; ∙-left-inverse = u1/-left-inverse
+    ; ∙-right-inverse = u1/-right-inverse
     }
 
 module _ {ℓ : Level} (Domain : Type ℓ) {ACM : AdditiveCommMonoid Domain}

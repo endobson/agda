@@ -5,12 +5,13 @@ module group.int where
 open import int
 open import equality
 open import group
-open import commutative-monoid.int
+open import monoid.int
 
 -- TODO remove
 GroupStr-ℤ+ : GroupStr ℤ
 GroupStr-ℤ+ = record
-  { comm-monoid = CommMonoid-ℤ+
+  { monoid = Monoid-ℤ+
   ; inverse = ℤ-_
   ; ∙-left-inverse = ℤ+-commute >=> add-minus-zero
+  ; ∙-right-inverse = add-minus-zero
   }
