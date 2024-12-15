@@ -65,3 +65,10 @@ for name in `find . -name '*.agda'`; do echo $name >> unused; agda-unused $name 
 
 Categories:
   * Reaming things away from Helpers (maybe to Reasoning)
+
+
+GroupTheory:
+  * Define: isOrderOfGroup : Group ℓ -> ℕ -> Type ℓ
+  * Define: isOrderOfElementᵉ : (G : Group ℓ) -> (g : ⟨ G ⟩) -> CoNat -> Type ℓ
+  * Define: isOrderOfElement : (g : G) -> CoNat -> Type ℓ
+  * Define: ∃!order-of-element : (g : G) -> ∃! CoNat (isOrderOfElement g)
