@@ -122,7 +122,7 @@ private
       ; u<u = u<u
       }
 
-    p1≤join-partition : p1 ≤ join-partition
+    p1≤join-partition : Partition≼ p1 join-partition
     p1≤join-partition .Partition≼.refines .Sorted≼.indexes i = ans
       where
       ans : Σ[ j ∈ Fin (suc n) ] p1.u i == u j
@@ -133,7 +133,7 @@ private
         handle : p1.u i l∈' join-points' -> Σ[ j ∈ Fin (suc n) ] p1.u i == u j
         handle (j , p) = j , sym p
 
-    p2≤join-partition : p2 ≤ join-partition
+    p2≤join-partition : Partition≼ p2 join-partition
     p2≤join-partition .Partition≼.refines .Sorted≼.indexes i = ans
       where
       ans : Σ[ j ∈ Fin (suc n) ] p2.u i == u j
@@ -145,7 +145,7 @@ private
         handle (j , p) = j , sym p
 
     join-partition-least-≤ :
-      (p3 : Partition a b) -> p1 ≤ p3 -> p2 ≤ p3 -> join-partition ≤ p3
+      (p3 : Partition a b) -> p1 ≤ p3 -> p2 ≤ p3 -> Partition≼ join-partition p3
     join-partition-least-≤ p3 p1≤p3 p2≤p3
       .Partition≼.refines .Sorted≼.indexes i =
         swap (unsquash (isProp-sl∈' (u i) p3.points) ans')

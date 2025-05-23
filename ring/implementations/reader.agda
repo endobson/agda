@@ -14,8 +14,7 @@ ReaderSemiring : {ℓ₁ ℓ₂ : Level} {Domain : Type ℓ₁} {ACM : AdditiveC
                  Semiring (AdditiveCommMonoid-Reader ACM A)
 ReaderSemiring {Domain = Domain} {ACM = ACM} A S = res
   where
-  private
-    module S = Semiring S
+  module S = Semiring S
 
   res : Semiring (AdditiveCommMonoid-Reader ACM A)
   res = record
