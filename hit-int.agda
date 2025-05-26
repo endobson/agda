@@ -3,9 +3,16 @@
 module hit-int where
 
 open import base
-open import isomorphism
 open import cubical
+open import discrete
+open import discrete.instances.top
+open import equality-path
 open import equivalence
+open import hlevel
+open import isomorphism
+open import nat
+open import sum
+open import univalence
 
 import int
 
@@ -13,6 +20,9 @@ data Int : Type₀ where
   nonneg : Nat -> Int
   nonpos : Nat -> Int
   same-zero : nonneg 0 == nonpos 0
+
+ℤ : Type₀
+ℤ = Int
 
 int : Nat -> Int
 int = nonneg
@@ -58,3 +68,42 @@ sub1-add1 (nonneg x) = refl
 sub1-add1 (nonpos zero) i = same-zero i
 sub1-add1 (nonpos (suc x)) = refl
 sub1-add1 (same-zero i) j = same-zero (i ∧ j)
+
+module _ where
+  private
+    Codes : Type₀
+    Codes = (Top ⊎ (Nat ⊎ Nat))
+
+    encode : Int -> Codes
+    encode (nonneg zero) = inj-l tt
+    encode (nonneg (suc n)) = inj-r (inj-l n)
+    encode (nonpos zero) = inj-l tt
+    encode (nonpos (suc n)) = inj-r (inj-r n)
+    encode (same-zero i) = inj-l tt
+
+    decode : Codes -> Int
+    decode (inj-l _) = nonneg zero
+    decode (inj-r (inj-l n)) = nonneg (suc n)
+    decode (inj-r (inj-r n)) = nonpos (suc n)
+
+    encode-decode : ∀ x -> encode (decode x) == x
+    encode-decode (inj-l tt) = refl
+    encode-decode (inj-r (inj-l n)) = refl
+    encode-decode (inj-r (inj-r n)) = refl
+
+    decode-encode : ∀ x -> decode (encode x) == x
+    decode-encode (nonneg zero) = refl
+    decode-encode (nonneg (suc n)) = refl
+    decode-encode (nonpos zero) = same-zero
+    decode-encode (nonpos (suc n)) = refl
+    decode-encode (same-zero i) = \j -> same-zero (i ∧ j)
+
+    encode-path : Int == Codes
+    encode-path = isoToPath (iso encode decode encode-decode decode-encode)
+
+  opaque
+    Discrete-Int : Discrete Int
+    Discrete-Int = subst Discrete (sym encode-path) (Discrete⊎ decide-= (Discrete⊎ decide-= decide-=))
+
+    isSet-Int : isSet Int
+    isSet-Int = Discrete->isSet Discrete-Int

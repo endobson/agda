@@ -2,7 +2,7 @@
 
 open import base
 open import cubical
-open import hit-int renaming (Int to ℤ)
+open import hit-int
 open import nat using (ℕ)
 open import equality-path
 open import functions
