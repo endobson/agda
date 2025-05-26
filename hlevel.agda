@@ -95,6 +95,9 @@ abstract
   isProp-≃ : (isProp A₁) -> (isProp A₂) -> (isProp (A₁ ≃ A₂))
   isProp-≃ = isOfHLevel-≃ 1
 
+  isSet-≃ : (isSet A₁) -> (isSet A₂) -> (isSet (A₁ ≃ A₂))
+  isSet-≃ = isOfHLevel-≃ 2
+
   isProp-≃-right : (isProp A₂) -> (isProp (A₁ ≃ A₂))
   isProp-≃-right pA2 (f1 , e1) (f2 , e2) = ΣProp-path (isProp-isEquiv) f-path
     where

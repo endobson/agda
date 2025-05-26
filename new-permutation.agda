@@ -23,7 +23,7 @@ open import sigma.base
 open Iso
 
 Perm : Nat -> Type₀
-Perm n = Auto (Fin n)
+Perm n = Iso (Fin n) (Fin n)
 
 -- Identity permutation
 idPerm : {n : Nat} -> Perm n

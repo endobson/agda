@@ -18,10 +18,6 @@ private
     ℓ : Level
     A B C : Type ℓ
 
--- An automorphism is an isomorphism between a type and itself.
-Auto : Type ℓ -> Type ℓ
-Auto A = Iso A A
-
 module _ where
   open Iso
 

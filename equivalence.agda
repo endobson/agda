@@ -24,6 +24,10 @@ private
     A1 A2 : Type ℓ
     A B C : Type ℓ
 
+-- An automorphism is an equivalence between a type and itself.
+Auto : Type ℓ -> Type ℓ
+Auto A = A ≃ A
+
 module _ {f : A1 -> A2} (eq-f : isEquiv f) where
   isEqComm : (a : A1) -> Square (isEqSec eq-f (f a)) refl (cong f (isEqRet eq-f a)) refl
   isEqComm a i = eq-f .equiv-proof (f a) .snd (a , refl) i .snd
