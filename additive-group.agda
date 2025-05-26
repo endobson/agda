@@ -111,6 +111,11 @@ module _ {ℓ : Level} {D : Type ℓ} (ACM : AdditiveCommMonoid D) where
     ab-group-str .AbGroupStr.∙-right-inverse = +-inverse
 
 
+module _ {ℓ : Level} (D : Type ℓ) {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}} where
+  GroupStr-+ : GroupStr D
+  GroupStr-+ = AdditiveGroup.group-str AG
+
+
 module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}} where
   open AdditiveGroup AG public using (-_)
   open EqReasoning
