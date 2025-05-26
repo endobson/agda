@@ -3,9 +3,11 @@
 module group where
 
 open import base
-open import equality
-open import monoid
 open import commutative-monoid
+open import equality
+open import functions
+open import hlevel.base
+open import monoid
 
 record GroupStr {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   field
@@ -79,3 +81,36 @@ module Groupʰ {ℓ₁ ℓ₂ : Level}
     {f : D₁ -> D₂}
     (cm : Groupʰᵉ G₁ G₂ f) where
   open Groupʰᵉ cm public
+
+opaque
+  isProp-Groupʰ :
+    {ℓ₁ ℓ₂ : Level}
+    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
+    {G₁ : GroupStr D₁} {G₂ : GroupStr D₂}
+    {f : D₁ -> D₂} -> isProp (Groupʰᵉ G₁ G₂ f)
+  isProp-Groupʰ {D₁ = D₁} {D₂} {G₁} {G₂} h₁ h₂ i = record
+    { preserves-ε = isSet-D₂ _ _ h₁.preserves-ε h₂.preserves-ε i
+    ; preserves-∙ = \x y -> isSet-D₂ _ _ (h₁.preserves-∙ x y) (h₂.preserves-∙ x y) i
+    ; preserves-inverse = \x -> isSet-D₂ _ _ (h₁.preserves-inverse x) (h₂.preserves-inverse x) i
+    }
+    where
+    module h₁ = Groupʰ h₁
+    module h₂ = Groupʰ h₂
+
+    isSet-D₂ : isSet D₂
+    isSet-D₂ = GroupStr.isSet-Domain G₂
+
+  Groupʰ-∘ :
+    {ℓ₁ ℓ₂ ℓ₃ : Level}
+    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} {D₃ : Type ℓ₃}
+    {G₁ : GroupStr D₁} {G₂ : GroupStr D₂} {G₃ : GroupStr D₃}
+    {f : D₂ -> D₃} {g : D₁ -> D₂} ->
+    (Groupʰᵉ G₂ G₃ f) -> (Groupʰᵉ G₁ G₂ g) -> (Groupʰᵉ G₁ G₃ (f ∘ g))
+  Groupʰ-∘ {f = f} {g = g} f' g' = record
+    { preserves-ε = (cong f g'.preserves-ε) >=> f'.preserves-ε
+    ; preserves-∙ = \x y -> (cong f (g'.preserves-∙ x y)) >=> f'.preserves-∙ (g x) (g y)
+    ; preserves-inverse = \x -> cong f (g'.preserves-inverse x) >=> f'.preserves-inverse (g x)
+    }
+    where
+    module f' = Groupʰ f'
+    module g' = Groupʰ g'
