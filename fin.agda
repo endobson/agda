@@ -89,6 +89,11 @@ discreteFin = decide-fin
 isSetFin : {n : Nat} -> isSet (Fin n)
 isSetFin = Discrete->isSet discreteFin
 
+module _ {n : Nat} where
+  instance
+    isSet'-Fin : isSet' (Fin n)
+    isSet'-Fin .isSet'.f = isSetFin
+
 isPropFin0 : isProp (Fin 0)
 isPropFin0 (x , lt) = bot-elim (zero-≮ lt)
 

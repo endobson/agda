@@ -34,19 +34,20 @@ private
       (\m p -> sub1-extract-left >=> cong sub1 p >=> sym sub1-extract-right)
       m
 
-  add-minus-zero : {n : Int} -> n ℤ+ (ℤ- n) == zero-int
-  add-minus-zero {n} =
-    IntElim-add1sub1-elim {P = \n -> (n ℤ+ (ℤ- n)) == zero-int }
-      (ℤ+-left-zero _)
-      (\n p -> add1-extract-left >=>
-               cong add1 (ℤ+-right (sym sub1-minus->minus-add1) >=>
-                          sub1-extract-right) >=>
-               add1-sub1-id >=> p)
-      (\n p -> sub1-extract-left >=>
-               cong sub1 (ℤ+-right (sym add1-minus->minus-sub1) >=>
-                          add1-extract-right) >=>
-               sub1-add1-id >=> p)
-      n
+
+add-minus-zero : {n : Int} -> n ℤ+ (ℤ- n) == zero-int
+add-minus-zero {n} =
+  IntElim-add1sub1-elim {P = \n -> (n ℤ+ (ℤ- n)) == zero-int }
+    (ℤ+-left-zero _)
+    (\n p -> add1-extract-left >=>
+             cong add1 (ℤ+-right (sym sub1-minus->minus-add1) >=>
+                        sub1-extract-right) >=>
+             add1-sub1-id >=> p)
+    (\n p -> sub1-extract-left >=>
+             cong sub1 (ℤ+-right (sym add1-minus->minus-sub1) >=>
+                        add1-extract-right) >=>
+             sub1-add1-id >=> p)
+    n
 
 instance
   AdditiveCommMonoid-Int : AdditiveCommMonoid Int

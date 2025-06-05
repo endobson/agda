@@ -128,6 +128,11 @@ infixl 20 _>eq>_
 _>eq>_ : A ≃ B -> B ≃ C -> A ≃ C
 _>eq>_ f g = ∘-equiv g f
 
+infixl 20 _>eqᵃ>_
+opaque
+  _>eqᵃ>_ : A ≃ B -> B ≃ C -> A ≃ C
+  _>eqᵃ>_ = _>eq>_
+
 
 rightInverse-isEquiv : (f : A -> B) (g : B -> A) -> f ∘ g == idfun B -> isEquiv f -> isEquiv g
 rightInverse-isEquiv f g id isEq = isoToIsEquiv (iso g f inv (\b i -> id i b))
