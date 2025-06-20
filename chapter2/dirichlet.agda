@@ -32,8 +32,9 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
     instance
       IACM = ACM
     module S = Semiring S
-    Divisors-flip-eq = flipDivisors-equiv
+    -- Divisors-flip-eq = flipDivisors-equiv
 
+{-
     PairedDivisor : Nat⁺ -> Type₀
     PairedDivisor n = Σ[ ij ∈ (Nat⁺ × Nat⁺) ] (proj₁ ij *⁺ proj₂ ij == n)
 
@@ -257,3 +258,4 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
       instance
         FinSetStr-PairedDivisor : {n : Nat⁺} -> FinSetStr (PairedDivisor n)
         FinSetStr-PairedDivisor {n} = record {isFin = snd (FinSet-PairedDivisor n)}
+-}

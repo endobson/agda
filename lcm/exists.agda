@@ -3,10 +3,10 @@
 module lcm.exists where
 
 open import base
-open import div
 open import equality
 open import lcm
 open import nat
+open import nat.division
 open import nat.order
 open import order
 open import order.minmax
@@ -15,7 +15,9 @@ open import order.instances.nat
 open import prime-power-factorization
 open import prime-div-count
 open import prime
+open import truncation
 open import semiring.exponentiation
+open import semiring.division
 open import semiring.instances.nat
 
 private
@@ -23,7 +25,7 @@ private
 
   lcm-exists-helper : {m : Nat} (p : Prime') (n : Nat⁺)
                       -> (c : Nat⁺)
-                      -> ¬ (⟨ p ⟩ div' ⟨ c ⟩)
+                      -> ¬ (⟨ p ⟩ div ⟨ c ⟩)
                       -> (b : Nat⁺)
                       -> LCM' ⟨ c ⟩ ⟨ b ⟩ m
                       -> Σ[ m ∈ Nat ] (LCM' ((prime-power p ⟨ n ⟩) *' ⟨ c ⟩) ⟨ b ⟩ m)
@@ -63,18 +65,18 @@ private
       r-path = PrimeDivCount.r-path dc-m
 
       r⁺ : Nat⁺
-      r⁺ = div⁺->multiple⁺ {prime-power⁺ p n-b} {mc⁺} (PrimeDivCount.%a dc-m)
+      r⁺ = div'⁺->multiple⁺ {prime-power⁺ p n-b} {mc⁺} (PrimeDivCount.%'a dc-m)
 
 
       c%r : c div' r
       c%r = y-r , *'-left-injective (prime-power⁺ p n-y) full-path
         where
         c%mc : c div' mc
-        c%mc = LCM'.a%m lc
+        c%mc = LCM'.a%'m lc (snd mc⁺)
         y = fst c%mc
         y-path : y *' c == mc
         y-path = snd c%mc
-        y⁺ = div⁺->multiple⁺ {c⁺} {mc⁺} c%mc
+        y⁺ = div'⁺->multiple⁺ {c⁺} {mc⁺} c%mc
 
         Σdc-y : Σ[ n ∈ Nat ] (PrimeDivCount p y n)
         Σdc-y = compute-prime-div-count p y⁺
@@ -100,52 +102,58 @@ private
           >=> *'-commute {r} {prime-power p n-b}
           >=> *'-left (\i -> prime-power p (n-b==n-y i))
 
-      a%m : ((prime-power p n') *' c) div' ((prime-power p n') *' r)
-      a%m = div'-mult-both (div'-refl {prime-power p n'}) c%r
+      a%m : ((prime-power p n') *' c) div ((prime-power p n') *' r)
+      a%m = div-* (div-reflᵉ (prime-power p n')) (∣ c%r ∣)
 
 
-      mc%m : mc div' ((prime-power p n') *' r)
-      mc%m = div'-trans mc%nb-r pp-r-div
+      mc%m : mc div ((prime-power p n') *' r)
+      mc%m = div-trans mc%nb-r pp-r-div
         where
-        mc%nb-r : mc div' ((prime-power p n-b) *' r)
-        mc%nb-r = 1 , *'-left-one >=> (sym r-path) >=> *'-commute {r} {prime-power p n-b}
+        mc%nb-r : mc div ((prime-power p n-b) *' r)
+        mc%nb-r = ∣ 1 , *'-left-one >=> (sym r-path) >=> *'-commute {r} {prime-power p n-b} ∣
         n-b≤n' : n-b ≤ n'
         n-b≤n' = transport (\i -> n-b ≤ n-path i) max-≤-right
 
 
-        pp-r-div : ((prime-power p n-b) *' r) div' ((prime-power p n') *' r)
-        pp-r-div = div'-mult-both (div'-^ℕ n-b≤n') div'-refl
+        pp-r-div : ((prime-power p n-b) *' r) div ((prime-power p n') *' r)
+        pp-r-div = div-* (div-^ℕ n-b≤n') div-refl
 
-      b%m : b' div' ((prime-power p n') *' r)
-      b%m = div'-trans (LCM'.b%m lc) mc%m
+      b%m : b' div ((prime-power p n') *' r)
+      b%m = div-trans (LCM'.b%m lc) mc%m
 
 
-      f : (x : Nat) -> (((prime-power p n') *' c) div' x) -> (b' div' x)
-                    -> ((prime-power p n') *' r) div' x
-      f zero _ _ = div'-zero
+      f : (x : Nat) -> (((prime-power p n') *' c) div x) -> (b' div x)
+                    -> ((prime-power p n') *' r) div x
+      f zero _ _ = div-zero
       f x@(suc _) p^nc%x b%x = p^nr%x
         where
 
-        m%x : mc div' x
-        m%x = LCM'.f lc x (div'-trans (div'-mult div'-refl (prime-power p n')) p^nc%x) b%x
+        m%x : mc div x
+        m%x = LCM'.f lc x (div-trans (div-*ˡ div-refl (prime-power p n')) p^nc%x) b%x
 
-        nb-r%x : ((prime-power p n-b) *' r) div' x
-        nb-r%x = transport (\ i -> ((sym r-path >=> *'-commute {r} {prime-power p n-b}) i) div' x) m%x
+        nb-r%x : ((prime-power p n-b) *' r) div x
+        nb-r%x = transport (\ i -> ((sym r-path >=> *'-commute {r} {prime-power p n-b}) i) div x) m%x
 
-        r%x : r div' x
-        r%x = div'-trans (div'-mult div'-refl (prime-power p n-b)) nb-r%x
+        r%x : r div x
+        r%x = div-trans (div-*ˡ div-refl (prime-power p n-b)) nb-r%x
 
-        z = fst r%x
+        r%'x : r div' x
+        r%'x = unsquash (isPropDiv'-ℕ₂ tt) r%x
+
+        z = fst r%'x
         z-path : (z *' r) == x
-        z-path = snd r%x
+        z-path = snd r%'x
         z⁺ : Nat⁺
-        z⁺ = div⁺->multiple⁺ {r⁺} r%x
+        z⁺ = div'⁺->multiple⁺ {r⁺} r%'x
 
-        w = fst p^nc%x
+        p^nc%'x : (prime-power p n' *' c) div' x
+        p^nc%'x = unsquash (isPropDiv'-ℕ₂ tt) p^nc%x
+
+        w = fst p^nc%'x
         w-path : (w *' ((prime-power p n') *' c)) == x
-        w-path = snd p^nc%x
+        w-path = snd p^nc%'x
         w⁺ : Nat⁺
-        w⁺ = div⁺->multiple⁺ {(prime-power⁺ p n') *⁺ c⁺} p^nc%x
+        w⁺ = div'⁺->multiple⁺ {(prime-power⁺ p n') *⁺ c⁺} p^nc%'x
 
         Σdc-z : Σ[ n ∈ Nat ] (PrimeDivCount p z n)
         Σdc-z = compute-prime-div-count p z⁺
@@ -179,8 +187,8 @@ private
         n-z-path = prime-div-count-unique dc-x2 dc-x1
 
 
-        p^nr%x : ((prime-power p n') *' r) div' x
-        p^nr%x = z-r *' (prime-power p n-w) , path
+        p^nr%x : ((prime-power p n') *' r) div x
+        p^nr%x = ∣ z-r *' (prime-power p n-w) , path ∣
           where
           z-r = PrimeDivCount.r dc-z
           path : (z-r *' (prime-power p n-w)) *' ((prime-power p n') *' r) == x
@@ -203,15 +211,15 @@ private
         }
       where
 
-      a%m : ((prime-power p n') *' c) div' mc
+      a%m : ((prime-power p n') *' c) div mc
       a%m = p^nc%mc
         where
         c%mc : c div' mc
-        c%mc = LCM'.a%m lc
+        c%mc = LCM'.a%'m lc (snd mc⁺)
         y = fst c%mc
         y-path : y *' c == mc
         y-path = snd c%mc
-        y⁺ = div⁺->multiple⁺ {c⁺} {mc⁺} c%mc
+        y⁺ = div'⁺->multiple⁺ {c⁺} {mc⁺} c%mc
 
         Σdc-y : Σ[ n ∈ Nat ] (PrimeDivCount p y n)
         Σdc-y = compute-prime-div-count p y⁺
@@ -226,39 +234,36 @@ private
         n-b==n-y : n-b == n-y
         n-b==n-y = prime-div-count-unique dc-m dc-m-y
 
-        p^n%y : (prime-power p n') div' y
+        p^n%y : (prime-power p n') div y
         p^n%y =
-          div'-trans (transport (\i -> (prime-power p n') div' (prime-power p (path i)))
-                                (div'-^ℕ max-≤-left))
-                     (PrimeDivCount.%a dc-y)
+          div-trans (transport (\i -> (prime-power p n') div (prime-power p (path i)))
+                               (div-^ℕ max-≤-left))
+                    (PrimeDivCount.%a dc-y)
           where
           path : (max n' n-b) == n-y
           path = n-path >=> n-b==n-y
 
-        p^nc%mc : ((prime-power p n') *' c) div' mc
-        p^nc%mc = x , path
-          where
-          x = fst p^n%y
-          path : x *' ((prime-power p n') *' c) == mc
-          path = sym (*'-assoc {x} {prime-power p n'}) >=> *'-left (snd p^n%y) >=> y-path
+        p^nc%mc : ((prime-power p n') *' c) div mc
+        p^nc%mc = subst (_ div_) y-path (div-* p^n%y div-refl)
 
 
-      b%m : b' div' mc
+      b%m : b' div mc
       b%m = LCM'.b%m lc
 
-      f : (x : Nat) -> (((prime-power p n') *' c) div' x) -> (b' div' x)
-                    -> (mc div' x)
-      f x p^nc%x b%x = LCM'.f lc x (div'-trans (div'-mult div'-refl (prime-power p n')) p^nc%x) b%x
+      f : (x : Nat) -> (((prime-power p n') *' c) div x) -> (b' div x)
+                    -> (mc div x)
+      f x p^nc%x b%x = LCM'.f lc x (div-trans (div-*ˡ div-refl (prime-power p n')) p^nc%x) b%x
 
 
   lcm-exists⁺ : {a : Nat} -> OPPF a -> (b : Nat⁺) -> Σ[ m ∈ Nat ] (LCM' a ⟨ b ⟩ m)
   lcm-exists⁺ {a} oppf-[] (b' , _) = b' , record
-    { a%m = div'-one
-    ; b%m = div'-refl
+    { a%m = div-one
+    ; b%m = div-refl
     ; f = \x _ x%b -> x%b
     }
   lcm-exists⁺ {a} (oppf-cons {c} p@(p' , _) n@(n' , _) ¬p%c oppf-c) b@(b' , b-pos) =
     lcm-exists-helper p n (c , oppf->pos oppf-c) ¬p%c b (snd (lcm-exists⁺ oppf-c b))
+
 
 lcm-exists : (a b : Nat) -> Σ[ m ∈ Nat ] (LCM' a b m)
 lcm-exists a           zero    = 0 , lcm-sym lcm-zero

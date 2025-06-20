@@ -31,6 +31,8 @@ open import semiring.instances.nat
 open import sigma.base
 open import subset
 
+{-
+
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
   private
     module ACM = AdditiveCommMonoid ACM
@@ -95,3 +97,4 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
 
       p2 : finiteMerge CM g₂ == 0#
       p2 = finiteMerge-ε CM p2'-paths
+-}

@@ -3,7 +3,6 @@
 module prime-power-factorization where
 
 open import base
-open import div
 open import equality
 open import functions
 open import nat
@@ -15,8 +14,10 @@ open import prime-factorization
 open import prime-gcd
 open import relation
 open import relatively-prime
+open import nat.division
 open import semiring.exponentiation
 open import semiring.instances.nat
+open import semiring.division
 open import sigma.base
 
 private
@@ -54,7 +55,7 @@ private
   ppf-prime-merge p@(p' , _) (ppf-combine {a} {b} t1 t2 rp) =
     handle (decide-div p' a) (decide-div p' b)
     where
-    handle : Dec (p' div' a) -> Dec (p' div' b) -> PPF (p' *' (a *' b))
+    handle : Dec (p' div a) -> Dec (p' div b) -> PPF (p' *' (a *' b))
     handle (no ¬p%a) _ = transport (cong PPF path) ppf
       where
       rp-p-a : RP p' a
@@ -125,7 +126,7 @@ data OrderedPrimePowerFactorization : Nat -> Type₀ where
   oppf-cons : {a : Nat}
     -> (p : Prime')
     -> (n : Nat⁺)
-    -> (¬ (⟨ p ⟩ div' a))
+    -> (¬ (⟨ p ⟩ div a))
     -> OrderedPrimePowerFactorization a
     -> OrderedPrimePowerFactorization ((prime-power p ⟨ n ⟩) *' a)
 
@@ -135,7 +136,7 @@ private
   merge-ppf-oppf : {a b : Nat} -> PPF a -> RP a b -> OPPF b -> OPPF (a *' b)
   merge-ppf-oppf {a} {b} (ppf-base p n@(suc n' , _)) rp oppf = oppf-cons p n ¬p%b oppf
     where
-    ¬p%b : ¬ (⟨ p ⟩ div'  b)
+    ¬p%b : ¬ (⟨ p ⟩ div  b)
     ¬p%b p%b = Prime'.!=1 p (rp ⟨ p ⟩ (prime-power-div p n) p%b)
   merge-ppf-oppf {a} {b} (ppf-combine {a1} {a2} ta1 ta2 rp-as) rp-ab oppf =
     transport (cong OPPF index-path) (merge-ppf-oppf ta1 rp-a1-a2b (merge-ppf-oppf ta2 rp-a2-b oppf))
@@ -146,15 +147,15 @@ private
     rp-a1-a2b : RP a1 (a2 *' b)
     rp-a1-a2b = no-shared-primes a1 (a2 *' b) f
       where
-      f : (p : Prime') -> ⟨ p ⟩ div' a1 -> ⟨ p ⟩ div' (a2 *' b) -> Bot
+      f : (p : Prime') -> ⟨ p ⟩ div a1 -> ⟨ p ⟩ div (a2 *' b) -> Bot
       f p@(p' , _) p%a1 p%a2b = handle (prime-divides-a-factor p p%a2b)
         where
-        handle : (p' div' a2 ⊎ p' div' b) -> Bot
+        handle : (p' div a2 ⊎ p' div b) -> Bot
         handle (inj-l p%a2) = Prime'.!=1 p (rp-as p' p%a1 p%a2)
-        handle (inj-r p%b) = Prime'.!=1 p (rp-ab p' (div'-mult' p%a1 a2) p%b)
+        handle (inj-r p%b) = Prime'.!=1 p (rp-ab p' (div-*ʳ p%a1 a2) p%b)
 
     rp-a2-b : RP a2 b
-    rp-a2-b d d%a2 d%b = rp-ab d (div'-mult d%a2 a1) d%b
+    rp-a2-b d d%a2 d%b = rp-ab d (div-*ˡ d%a2 a1) d%b
 
   ppf->oppf : {a : Nat} -> PPF a -> OPPF a
   ppf->oppf ppf = transport (cong OPPF *'-right-one) (merge-ppf-oppf ppf rp-one oppf-[])

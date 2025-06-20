@@ -4,12 +4,12 @@ module chapter2.square-free where
 
 open import base
 open import commutative-monoid
-open import div
 open import equality
 open import functions
 open import hlevel
 open import isomorphism
 open import nat
+open import nat.division
 open import nat.order
 open import order
 open import order.instances.nat
@@ -20,6 +20,8 @@ open import prime-factorization
 open import relation
 open import relatively-prime
 open import sigma.base
+open import semiring.division
+open import semiring.instances.nat
 open import unique-prime-factorization
 open import unordered-list
 
@@ -121,7 +123,7 @@ relatively-prime-square-free a⁺@(a , _) b⁺@(b , _) rp sf-a sf-b p@(p' , _) p
   path-pf : pf-ab == (*'-prime-factorization pf-a pf-b)
   path-pf = isPropPrimeFactorization _ _
 
-  handle : Dec (p' div' a) -> count p primes ≤ 1
+  handle : Dec (p' div a) -> count p primes ≤ 1
   handle (yes p%a) = 0 , count-path
     where
     count-a' : 1 ≤ count p primes-a
@@ -130,7 +132,7 @@ relatively-prime-square-free a⁺@(a , _) b⁺@(b , _) rp sf-a sf-b p@(p' , _) p
     count-a : count p primes-a == 1
     count-a = antisym-≤ (sf-a p pf-a) count-a'
 
-    ¬p%b : ¬ (p' div' b)
+    ¬p%b : ¬ (p' div b)
     ¬p%b p%b = <->!= (Prime'.>1 p) (sym (rp p' p%a p%b))
 
     count-b : count p primes-b == 0

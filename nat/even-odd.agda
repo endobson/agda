@@ -3,20 +3,21 @@
 -- TODO change name
 module nat.even-odd where
 
-open import nat
-open import equivalence
-open import isomorphism
-open import base
-open import sum
-open import hlevel
-open import type-algebra
-open import univalence
-open import equality
 open import additive-group
 open import additive-group.instances.nat
+open import base
+open import equality
+open import equivalence
+open import hlevel
+open import isomorphism
+open import nat
 open import semiring
+open import semiring.division
 open import semiring.instances.nat
-open import div
+open import sum
+open import truncation
+open import type-algebra
+open import univalence
 
 -- Even/Odd
 
@@ -61,24 +62,27 @@ Odd->¬Even n on en = Even->¬Odd n en on
 Odd≃¬Even : (n : Nat) -> Odd n ≃ ¬ (Even n)
 Odd≃¬Even n = isoToEquiv (isProp->iso (Odd->¬Even n) (¬Even->Odd n) (isProp-Odd n) (isProp¬ _))
 
-Even->div' : {n : Nat} -> Even n -> 2 div' n
-Even->div' {zero} _ = (0 , refl)
-Even->div' {suc zero} ()
-Even->div' {suc (suc n)} e = case (Even->div' {n} e) of
-  \ (i , p) -> suc i , cong (2 +_) p
+Even->div : {n : Nat} -> Even n -> 2 div n
+Even->div {zero} _ = ∣ (0 , refl) ∣
+Even->div {suc zero} ()
+Even->div {suc (suc n)} e =
+  ∥-map (\ (i , p) -> suc i , cong (2 +_) p) (Even->div {n} e)
 
-div'->Even : {n : Nat} -> 2 div' n -> Even n
-div'->Even (i , p) = subst Even p (handle i)
+div->Even : {n : Nat} -> 2 div n -> Even n
+div->Even {n} d =
+  unsquash (isProp-Even n) (∥-map (\ (i , p) -> subst Even p (handle i)) d)
   where
   handle : (i : Nat) -> Even (i * 2)
   handle zero    = tt
   handle (suc i) = handle i
 
-Even≃div' : {n : Nat} -> Even n ≃ (2 div' n)
-Even≃div' {n} = isoToEquiv (isProp->iso Even->div' div'->Even (isProp-Even n) (isPropDiv'₁ 2⁺))
 
-Odd≃¬div' : {n : Nat} -> Odd n ≃ ¬ (2 div' n)
-Odd≃¬div' {n} = subst (\x -> Odd n ≃ ¬ x) (ua Even≃div') (Odd≃¬Even n)
+Even≃div : {n : Nat} -> Even n ≃ (2 div n)
+Even≃div {n} = isoToEquiv (isProp->iso Even->div div->Even (isProp-Even n) isPropDiv)
+
+Odd≃¬div : {n : Nat} -> Odd n ≃ ¬ (2 div n)
+Odd≃¬div {n} = subst (\x -> Odd n ≃ ¬ x) (ua Even≃div) (Odd≃¬Even n)
+
 
 opaque
   twice->Even : (n : Nat) -> Even (n + n)

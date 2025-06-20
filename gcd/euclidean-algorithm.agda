@@ -7,9 +7,9 @@ open import additive-group.instances.int
 open import abs
 open import base
 open import equality
-open import div
 open import gcd.propositional
 open import int
+open import int.division
 open import linear-combo
 open import nat
 open import nat.order
@@ -17,7 +17,10 @@ open import nat.binary-strong-induction
 open import order
 open import order.instances.nat
 open import relation
+open import truncation
 open import semiring
+open import semiring.instances.nat
+open import semiring.division
 open import ring.implementations.int
 
 open EqReasoning
@@ -50,12 +53,12 @@ private
   euclidean-tree-root (euclidean-tree-step t) = (euclidean-tree-root t)
 
   root-div-both : {a b : Nat} -> (t : EuclideanTree a b)
-                  -> ((euclidean-tree-root t) div' a × (euclidean-tree-root t) div' b)
-  root-div-both (euclidean-tree-base a) = div'-refl , div'-zero
+                  -> ((euclidean-tree-root t) div a × (euclidean-tree-root t) div b)
+  root-div-both (euclidean-tree-base a) = div-refl , div-zero
   root-div-both (euclidean-tree-sym t) = (proj₂ rec) , (proj₁ rec)
     where
     rec = (root-div-both t)
-  root-div-both (euclidean-tree-step t) = proj₁ rec , div'-+' (proj₁ rec) (proj₂ rec)
+  root-div-both (euclidean-tree-step t) = proj₁ rec , div-+ (proj₁ rec) (proj₂ rec)
     where
     rec = (root-div-both t)
 
@@ -66,11 +69,12 @@ private
   root-linear-combo (euclidean-tree-step t) = linear-combo-+' (root-linear-combo t)
 
   euclidean-tree->gcd : {a b : Nat} -> (t : EuclideanTree a b) -> GCD' a b (euclidean-tree-root t)
-  euclidean-tree->gcd t = (gcd->gcd' (linear-combo->gcd lc (div'->div (proj₁ div-both))
-                                                           (div'->div (proj₂ div-both))))
+  euclidean-tree->gcd t = (gcd->gcd' (linear-combo->gcd lc (∥-map divℕ->divℤ (proj₁ div-both))
+                                                           (∥-map divℕ->divℤ (proj₂ div-both))))
     where
     div-both = root-div-both t
     lc = root-linear-combo t
+
 
 compute-euclidean-tree : (a b : Nat) -> EuclideanTree a b
 compute-euclidean-tree a b = sym-binary-strong-induction euclidean-tree-sym f a b
@@ -94,6 +98,8 @@ compute-euclidean-tree a b = sym-binary-strong-induction euclidean-tree-sym f a 
       path = +'-commute {x} {k} >=> sym +'-right-suc >=> snd x<y
       k<y : k < y
       k<y = x' , +'-right-suc >=> path
+
+
 
 abstract
   gcd'-exists : (a b : Nat) -> Σ[ d ∈ Nat ] (GCD' a b d)
@@ -161,10 +167,10 @@ euclids-lemma {a} {b} {c} a%bc ab-gcd = handle (gcd->linear-combo ab-gcd)
     a%c : a div c
     a%c = (subst (\ x -> a div x) (sym c==stuff) a%stuff)
 
-euclids-lemma' : {a b c : Nat} -> a div' (b *' c) -> GCD' a b 1 -> a div' c
+euclids-lemma' : {a b c : Nat} -> a div (b *' c) -> GCD' a b 1 -> a div c
 euclids-lemma' {a} {b} {c} a%bc g = result
   where
   int-a%bc : (int a) div (int b * int c)
-  int-a%bc = transport (\i -> (int a) div ((int-inject-*' {b} {c} i))) (div'->div a%bc)
-  result : a div' c
-  result = (div->div' (euclids-lemma int-a%bc (gcd'->gcd/nat g)))
+  int-a%bc = transport (\i -> (int a) div ((int-inject-*' {b} {c} i))) (∥-map divℕ->divℤ a%bc)
+  result : a div c
+  result = (∥-map divℤ->divℕ (euclids-lemma int-a%bc (gcd'->gcd/nat g)))

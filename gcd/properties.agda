@@ -4,13 +4,13 @@ module gcd.properties where
 
 open import base
 open import chapter2.multiplicative
-open import div
 open import equality
 open import gcd.propositional using (GCD' ; GCD⁺ ; gcd'-sym ; gcd'-zero ; gcd'-one)
 open import gcd.computational
 open import lcm
 open import lcm.exists
 open import nat
+open import nat.division
 open import order.minmax
 open import order.minmax.instances.nat
 open import ordered-additive-group.instances.nat
@@ -21,6 +21,8 @@ open import prime-div-count.computational
 open import prime-gcd
 open import relatively-prime
 open import sigma.base
+open import semiring.division
+open import semiring.instances.nat
 open import unique-prime-factorization
 
 open EqReasoning
@@ -35,7 +37,7 @@ private
     m⁺ : Nat⁺
     m⁺ = m , LCM'.m-pos l a-pos b-pos
     d⁺ : Nat⁺
-    d⁺ = d , div'-pos->pos (GCD'.%a g) a-pos
+    d⁺ = d , div-pos->pos (GCD'.%a g) a-pos
 
     left = a *⁺ b
     right = m⁺ *⁺ d⁺
@@ -163,7 +165,7 @@ Multiplicative-gcd⁺₁ a .snd x y rp = path3
 
   gcd-dxy : GCD⁺ d (x *⁺ y) d
   gcd-dxy = record
-    { %a = div'-refl
+    { %a = div-refl
     ; %b = (GCD'.%b (gcd⁺-proof a (x *⁺ y)))
     ; f = \z z%d _ -> z%d
     }
@@ -177,19 +179,19 @@ Multiplicative-gcd⁺₁ a .snd x y rp = path3
 
   gcd-ax : GCD⁺ a x dx
   gcd-ax = record
-    { %a = div'-trans (GCD'.%a gx) (GCD'.%a gd)
+    { %a = div-trans (GCD'.%a gx) (GCD'.%a gd)
     ; %b = (GCD'.%b gx)
-    ; f = \z z%a z%x -> (GCD'.f gx z (GCD'.f gd z z%a (div'-mult' z%x y')) z%x)
+    ; f = \z z%a z%x -> (GCD'.f gx z (GCD'.f gd z z%a (div-*ʳ z%x y')) z%x)
     }
   gcd-ay : GCD⁺ a y dy
   gcd-ay = record
-    { %a = div'-trans (GCD'.%a gy) (GCD'.%a gd)
+    { %a = div-trans (GCD'.%a gy) (GCD'.%a gd)
     ; %b = (GCD'.%b gy)
-    ; f = \z z%a z%y -> (GCD'.f gy z (GCD'.f gd z z%a (div'-mult z%y x')) z%y)
+    ; f = \z z%a z%y -> (GCD'.f gy z (GCD'.f gd z z%a (div-*ˡ z%y x')) z%y)
     }
 
   rp2 : RelativelyPrime⁺ dx dy
-  rp2 z z%dx z%dy = rp z (div'-trans z%dx (GCD'.%b gx)) (div'-trans z%dy (GCD'.%b gy))
+  rp2 z z%dx z%dy = rp z (div-trans z%dx (GCD'.%b gx)) (div-trans z%dy (GCD'.%b gy))
 
   path1 : (gcd' d' x' *' gcd' d' y') == d'
   path1 = prime-same-division-count (dx *⁺ dy) d f

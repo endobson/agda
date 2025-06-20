@@ -6,7 +6,6 @@ open import abs
 open import additive-group hiding (0#)
 open import additive-group.instances.int
 open import base
-open import div
 open import equality
 open import equivalence
 open import fin
@@ -22,8 +21,11 @@ open import relatively-prime
 open import ring
 open import ring.implementations.int
 open import semiring hiding (1#)
+open import ring.division
+open import semiring.division
 open import set-quotient
 open import sigma
+open import truncation
 
 open EqReasoning
 
@@ -129,26 +131,28 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
     where
     handle : (z1 z2 : ℤ) (r : CongruentMod n1 z1 z2) ->
              [ lc.y * (z1 * (int n2)) ] == [ lc.y * (z2 * (int n2)) ]
-    handle z1 z2 (congruent-mod (d , p)) = eq/ _ _ (congruent-mod n%)
+    handle z1 z2 (congruent-mod n1%) = eq/ _ _ (congruent-mod (∥-map n% n1%))
       where
-      n% : (int (n1 *' n2)) div (lc.y * (z1 * (int n2)) + - (lc.y * (z2 * (int n2))))
-      n% = lc.y * d ,
-           (*-right int-inject-*' >=> *-assoc >=> *-right (sym *-assoc >=> *-left p)) >=>
-           *-right (*-distrib-+-right >=> +-right minus-extract-left) >=>
-           (*-distrib-+-left >=> +-right minus-extract-right)
+      module _ ((d , p) : (int n1) div' (z1 + (- z2))) where
+        n% : (int (n1 *' n2)) div' (lc.y * (z1 * (int n2)) + - (lc.y * (z2 * (int n2))))
+        n% = lc.y * d ,
+             (*-right int-inject-*' >=> *-assoc >=> *-right (sym *-assoc >=> *-left p)) >=>
+             *-right (*-distrib-+-right >=> +-right minus-extract-left) >=>
+             (*-distrib-+-left >=> +-right minus-extract-right)
 
   lift*-z*₂ : ℤ/nℤ n2 -> ℤ/nℤ (n1 *' n2)
   lift*-z*₂ = SetQuotientElim.rec isSet-ℤ/nℤ (\x -> [ lc.x * (x * (int n1)) ]) handle
     where
     handle : (z1 z2 : ℤ) (r : CongruentMod n2 z1 z2) ->
              [ lc.x * (z1 * (int n1)) ] == [ lc.x * (z2 * (int n1)) ]
-    handle z1 z2 (congruent-mod (d , p)) = eq/ _ _ (congruent-mod n%)
+    handle z1 z2 (congruent-mod n2%) = eq/ _ _ (congruent-mod (∥-map n% n2%))
       where
-      n% : (int (n1 *' n2)) div (lc.x * (z1 * (int n1)) + - (lc.x * (z2 * (int n1))))
-      n% = lc.x * d ,
-           (*-right (int-inject-*' >=> *-commute) >=> *-assoc >=> *-right (sym *-assoc >=> *-left p)) >=>
-           *-right (*-distrib-+-right >=> +-right minus-extract-left) >=>
-           (*-distrib-+-left >=> +-right minus-extract-right)
+      module _ ((d , p) : (int n2) div' (z1 + (- z2))) where
+        n% : (int (n1 *' n2)) div' (lc.x * (z1 * (int n1)) + - (lc.x * (z2 * (int n1))))
+        n% = lc.x * d ,
+             (*-right (int-inject-*' >=> *-commute) >=> *-assoc >=> *-right (sym *-assoc >=> *-left p)) >=>
+             *-right (*-distrib-+-right >=> +-right minus-extract-left) >=>
+             (*-distrib-+-left >=> +-right minus-extract-right)
 
   private
     z*2 : ℤ/nℤ n1 -> ℤ/nℤ n2 -> ℤ/nℤ (n1 *' n2)
@@ -158,20 +162,22 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
     z*2-inv₁ = SetQuotientElim.rec isSet-ℤ/nℤ (\x -> [ x ]) handle
       where
       handle : (x y : ℤ) -> (CongruentMod (n1 *' n2) x y) -> [ x ] == [ y ]
-      handle x y c@(congruent-mod (d , p)) = eq/ _ _ (congruent-mod n1%)
+      handle x y c@(congruent-mod n12%) = eq/ _ _ (congruent-mod (∥-map n1% n12%))
         where
-        n1% : m1 div (x + - y)
-        n1% = (d * m2) ,
-              *-assoc >=> *-right (*-commute >=> sym int-inject-*') >=> p
+        module _ ((d , p) : (int (n1 *' n2)) div' (x + (- y))) where
+          n1% : m1 div' (x + - y)
+          n1% = (d * m2) ,
+                *-assoc >=> *-right (*-commute >=> sym int-inject-*') >=> p
 
     z*2-inv₂ : ℤ/nℤ (n1 *' n2) -> ℤ/nℤ n2
     z*2-inv₂ = SetQuotientElim.rec isSet-ℤ/nℤ (\x -> [ x ]) handle
       where
       handle : (x y : ℤ) -> (CongruentMod (n1 *' n2) x y) -> [ x ] == [ y ]
-      handle x y c@(congruent-mod (d , p)) = eq/ _ _ (congruent-mod n2%)
+      handle x y c@(congruent-mod n12%) = eq/ _ _ (congruent-mod (∥-map n2% n12%))
         where
-        n2% : m2 div (x + - y)
-        n2% = (d * m1) , (*-assoc >=> *-right (sym int-inject-*') >=> p)
+        module _ ((d , p) : (int (n1 *' n2)) div' (x + (- y))) where
+          n2% : m2 div' (x + - y)
+          n2% = (d * m1) , (*-assoc >=> *-right (sym int-inject-*') >=> p)
 
 
     z*2-inv-path1 : (x : ℤ/nℤ (n1 *' n2)) -> z*2 (z*2-inv₁ x) (z*2-inv₂ x) == x
@@ -205,7 +211,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
         path2 = +-left (path >=> +-commute) >=> +-assoc >=> +-right add-minus-zero >=> +-right-zero
 
         m2%diff : m2 div ((lc.x * (y * m1) + lc.y * (x * m2)) + - y)
-        m2%diff = ((- y * lc.y) + (lc.y * x)) , sym path2
+        m2%diff = ∣ ((- y * lc.y) + (lc.y * x)) , sym path2 ∣
 
     z*2-inv-path2-full : (x : ℤ/nℤ n1) (y : ℤ/nℤ n2) -> (z*2-inv₂ (z*2 x y)) == y
     z*2-inv-path2-full =
@@ -233,7 +239,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
         path2 = +-left (path >=> +-commute) >=> +-assoc >=> +-right add-minus-zero >=> +-right-zero
 
         m1%diff : m1 div ((lc.x * (y * m1) + lc.y * (x * m2)) + - x)
-        m1%diff = ((- x * lc.x) + (lc.x * y)) , sym path2
+        m1%diff = ∣ ((- x * lc.x) + (lc.x * y)) , sym path2 ∣
 
     z*2-inv-path3-full : (y : ℤ/nℤ n2) (x : ℤ/nℤ n1) -> (z*2-inv₁ (z*2 x y)) == x
     z*2-inv-path3-full =
@@ -285,7 +291,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
            sym *-assoc
 
       d1 : (int (n1 *' n2)) div (t1 + - t5)
-      d1 = ((lc.x * (y1 * y2)) * lc.y) , *-right int-inject-*' >=> sym p3
+      d1 = ∣ ((lc.x * (y1 * y2)) * lc.y) , *-right int-inject-*' >=> sym p3 ∣
 
 
       t8-2 = t2 * (lc.y * m2)
@@ -304,7 +310,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
            sym *-assoc >=> *-right *-commute
 
       d2 : (int (n1 *' n2)) div (t2 + - t8)
-      d2 = ((lc.y * (x1 * x2)) * lc.x) , *-right int-inject-*' >=> sym p5
+      d2 = ∣ ((lc.y * (x1 * x2)) * lc.x) , *-right int-inject-*' >=> sym p5 ∣
 
       p6 : t6 == ((lc.y * x1) * (lc.x * y2)) * (m1 * m2)
       p6 = *-left (sym *-assoc) >=> *-assoc >=>
@@ -316,12 +322,12 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
            *-right *-commute
 
       d3 : (int (n1 *' n2)) div t6
-      d3 = ((lc.y * x1) * (lc.x * y2)) , *-right int-inject-*' >=> sym p6
+      d3 = ∣ ((lc.y * x1) * (lc.x * y2)) , *-right int-inject-*' >=> sym p6 ∣
       d4 : (int (n1 *' n2)) div t7
-      d4 = ((lc.x * y1) * (lc.y * x2)) , *-right int-inject-*' >=> sym p7
+      d4 = ∣ ((lc.x * y1) * (lc.y * x2)) , *-right int-inject-*' >=> sym p7 ∣
 
       d5 : int (n1 *' n2) div ((t1 + - t5) + (t2 + - t8) + - t6 + - t7)
-      d5 = div-sum (div-sum (div-sum d1 d2) (div-negate d3)) (div-negate d4)
+      d5 = div-+ (div-+ (div-+ d1 d2) (div-negate d3)) (div-negate d4)
 
       p8 : ((t1 + - t5) + (t2 + - t8) + - t6 + - t7) == (t1 + t2 + - (t3 * t4))
       p8 =
@@ -345,7 +351,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
         end
 
       n% : int (n1 *' n2) div (t1 + t2 + - (t3 * t4))
-      n% = fst d5 , snd d5 >=> p8
+      n% = subst (int (n1 *' n2) div_) p8 d5
 
 
     z*2-distrib-* : (x1 x2 : ℤ/nℤ n1) (y1 y2 : ℤ/nℤ n2) ->

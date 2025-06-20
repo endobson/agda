@@ -6,7 +6,6 @@ open import base
 open import chapter2.prime-divisors
 open import chapter2.totient
 open import chapter2.totient-rational
-open import div
 open import equality
 open import equivalence
 open import finite-commutative-monoid
@@ -28,10 +27,12 @@ open import rational-prime
 open import rational.integer
 open import relatively-prime
 open import ring
+open import semiring.division
 open import ring.implementations.rational
 open import semiring
 open import semiring.instances.nat
 open import sigma
+open import truncation
 
 private
   module Ring-ℚ = Ring Ring-ℚ
@@ -46,8 +47,8 @@ problem1-b n⁺@(n , _) =
   where
   module _ (on : Odd n) where
     private
-      ¬2∣n : ¬ (2 div' n)
-      ¬2∣n = eqFun Odd≃¬div' on
+      ¬2∣n : ¬ (2 div n)
+      ¬2∣n = eqFun Odd≃¬div on
 
       co-prime : RelativelyPrime⁰ 2 n
       co-prime = prime->relatively-prime (2 , 2-is-prime) ¬2∣n
@@ -59,19 +60,22 @@ problem1-b n⁺@(n , _) =
       *-left-one
 
   module _ (en : Even n) where
-    same-pdivs : (p : Prime') -> (⟨ p ⟩ div' (2 * n)) ≃ (⟨ p ⟩ div' n)
+    same-pdivs : (p : Prime') -> (⟨ p ⟩ div (2 * n)) ≃ (⟨ p ⟩ div n)
     same-pdivs p@(p' , _) =
-      isoToEquiv (isProp->iso div-forward div-backward (isPropDiv' (2⁺ *⁺ n⁺)) (isPropDiv' n⁺))
+      isoToEquiv (isProp->iso div-forward div-backward isPropDiv isPropDiv)
       where
-      div-forward : (p' div' (2 * n)) -> (p' div' n)
+      div-forward : (p' div (2 * n)) -> (p' div n)
       div-forward p∣2n = handle (prime-divides-a-factor p p∣2n)
         where
-        handle : (p' div' 2) ⊎ (p' div' n) -> (p' div' n)
+        handle : (p' div 2) ⊎ (p' div n) -> (p' div n)
         handle (inj-r p∣n) = p∣n
-        handle (inj-l p∣2) = div'-trans p∣2 (eqFun Even≃div' en)
+        handle (inj-l p∣2) = div-trans p∣2 (eqFun Even≃div en)
 
-      div-backward : (p' div' n) -> (p' div' (2 * n))
-      div-backward (x , path) = (2 * x , *-assocᵉ 2 x p' >=> cong (2 *_) path)
+      div'-backward : (p' div' n) -> (p' div' (2 * n))
+      div'-backward (x , path) = (2 * x , *-assocᵉ 2 x p' >=> cong (2 *_) path)
+
+      div-backward : (p' div n) -> (p' div (2 * n))
+      div-backward = ∥-map div'-backward
 
     p1 : PrimeDivisor (2⁺ *⁺ n⁺) ≃ PrimeDivisor n⁺
     p1 = existential-eq same-pdivs

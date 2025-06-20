@@ -54,6 +54,7 @@ open import without-point
 private
   module Ring-ℚ = Ring Ring-ℚ
 
+{-
 problem1-a : (n : Nat⁺) -> (φ (2⁺ *⁺ n) == ⟨ n ⟩) ≃ (Σ[ i ∈ ℕ ] (2⁺ ^⁺ i == n))
 problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat _ _) isProp-Σ2^i)
   where
@@ -222,3 +223,5 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
                (trans-<-≤ (*₂-preserves-< 1<2 zero-<) (*₁-preserves-≤ (zero-≤ {2}) 1≤n))
     adjust-prime-power-path (suc i , 2*2^i=2n) =
       i , ΣProp-path isPropPos' (*'-left-injective 2⁺ 2*2^i=2n)
+
+-}

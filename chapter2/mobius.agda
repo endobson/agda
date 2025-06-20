@@ -10,7 +10,6 @@ open import chapter2.indicator
 open import chapter2.multiplicative
 open import chapter2.square-free
 open import commutative-monoid
-open import div
 open import equality
 open import equivalence
 open import fin-algebra
@@ -28,6 +27,7 @@ open import int
 open import list
 open import maybe
 open import nat
+open import nat.division
 open import nat.order
 open import order
 open import order.instances.nat
@@ -39,6 +39,7 @@ open import relatively-prime
 open import ring.implementations.int
 open import ring.lists
 open import semiring
+open import semiring.division
 open import semiring.exponentiation
 open import semiring.instances.nat
 open import sigma.base
@@ -208,9 +209,9 @@ divisor-sum-μ-rp {a} {b} rp =
            ->  μ⁰ (x *' y) == μ⁰ x * μ⁰ y
   f-path x y cx cy = relatively-prime-μ⁰ (divisors-relatively-prime rp x%a y%b)
     where
-    x%a : x div' ⟨ a ⟩
+    x%a : x div ⟨ a ⟩
     x%a = divisors-contains-only a cx
-    y%b : y div' ⟨ b ⟩
+    y%b : y div ⟨ b ⟩
     y%b = divisors-contains-only b cy
 
 divisor-sum-μ-prime : (p : Prime') -> divisor-sum-μ (Prime'.nat⁺ p) == (int 0)
@@ -306,10 +307,10 @@ divisor-sum-μ->1 {n} n>1 = handle {n} (compute-ppf n>1)
     b = b' , ppf->pos ppf-b
 
 divisor->nat⁺ : (n : Nat⁺) -> Divisor n -> Nat⁺
-divisor->nat⁺ (_ , n-pos) (d , d%n) = d , div'-pos->pos d%n n-pos
+divisor->nat⁺ (_ , n-pos) (d , d%n) = d , div-pos->pos d%n n-pos
 
-divisor->nat⁺' : (n : Nat⁺) -> Divisor n -> Nat⁺
-divisor->nat⁺' (_ , n-pos) (d , d%n@(x , _)) = x , div'-pos->pos' d%n n-pos
+-- divisor->nat⁺' : (n : Nat⁺) -> Divisor n -> Nat⁺
+-- divisor->nat⁺' (_ , n-pos) (d , d%n@(x , _)) = x , div'-pos->pos' d%n n-pos
 
 
 module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
@@ -353,7 +354,7 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semirin
       d2⁺ = (divisor->nat⁺ n2 d2)
 
       rp2 : RelativelyPrime⁺ d1⁺ d2⁺
-      rp2 z z%d1 z%d2 = rp z (div'-trans z%d1 (snd d1)) (div'-trans z%d2 (snd d2))
+      rp2 z z%d1 z%d2 = rp z (div-trans z%d1 (snd d1)) (div-trans z%d2 (snd d2))
 
 
 
@@ -419,6 +420,7 @@ private
     p' = ⟨ p ⟩
     p⁺ = (Prime'.nat⁺ p)
 
+{-
 
   divisorSum-μ-prime-power : (p : Prime') (n : Nat⁺)
                              -> divisorSum-μ (prime-power⁺ p ⟨ n ⟩) == (int 0)
@@ -502,3 +504,5 @@ divisorSum-μ-Ind = funExt paths
   paths : (n : Nat⁺) -> divisorSum-μ n == Ind n
   paths (suc zero , _) = divisorSum-μ-one
   paths (suc (suc _) , _) = divisorSum-μ->1 (suc-< zero-<)
+
+-}

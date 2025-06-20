@@ -3,7 +3,6 @@
 module prime-div-count.computational where
 
 open import base
-open import div
 open import equality
 open import gcd.computational
 open import lcm.exists
@@ -15,9 +14,12 @@ open import order.minmax
 open import order.minmax.instances.nat
 open import prime
 open import prime-div-count
+open import nat.division
+open import semiring.division
 open import semiring.exponentiation
 open import semiring.instances.nat
 open import sigma.base
+open import truncation
 
 prime-div-count : Prime' -> Nat⁺ -> Nat
 prime-div-count p a = fst (compute-prime-div-count p a)
@@ -37,18 +39,18 @@ div-prime-div-count {a} {b} a%b p =
   PrimeDivCount.upper-bound
     (prime-div-count-proof p b)
     (prime-div-count p a)
-    (div'-trans (PrimeDivCount.%a (prime-div-count-proof p a)) a%b)
+    (div-trans (PrimeDivCount.%a (prime-div-count-proof p a)) a%b)
 
-zero-prime-div-count : {a : Nat⁺} -> (p : Prime') -> ¬ (⟨ p ⟩ div' ⟨ a ⟩) -> prime-div-count p a == 0
+zero-prime-div-count : {a : Nat⁺} -> (p : Prime') -> ¬ (⟨ p ⟩ div ⟨ a ⟩) -> prime-div-count p a == 0
 zero-prime-div-count {a} p d =
   prime-div-count-unique (prime-div-count-proof p a) (¬div-prime-div-count d)
 
 suc-prime-div-count : {a : Nat⁺} -> (p : Prime') -> (d : ⟨ p ⟩ div' ⟨ a ⟩)
                       -> prime-div-count p a ==
-                         suc (prime-div-count p (div⁺->multiple⁺ {Prime'.nat⁺ p} {a} d))
+                         suc (prime-div-count p (div'⁺->multiple⁺ {Prime'.nat⁺ p} {a} d))
 suc-prime-div-count {a} p d = prime-div-count-unique (prime-div-count-proof p a) pa
   where
-  r = (div⁺->multiple⁺ {Prime'.nat⁺ p} {a} d)
+  r = (div'⁺->multiple⁺ {Prime'.nat⁺ p} {a} d)
   r' = ⟨ r ⟩
   pr : PrimeDivCount p r' (prime-div-count p r)
   pr = prime-div-count-proof p r
@@ -64,14 +66,14 @@ suc-prime-div-count {a} p d = prime-div-count-unique (prime-div-count-proof p a)
 
 
 prime-div-count->prime-power-div : (p : Prime') -> (a : Nat⁺)
-                                   -> (prime-power p (prime-div-count p a)) div' ⟨ a ⟩
+                                   -> (prime-power p (prime-div-count p a)) div ⟨ a ⟩
 prime-div-count->prime-power-div p a = PrimeDivCount.%a (prime-div-count-proof p a)
 
 prime-div-count->prime-div : (p : Prime') (a : Nat⁺)
                              -> prime-div-count p a > 0
-                             -> ⟨ p ⟩ div' ⟨ a ⟩
+                             -> ⟨ p ⟩ div ⟨ a ⟩
 prime-div-count->prime-div p a (x , path) =
-  div'-trans (prime-power-div p dc⁺) (prime-div-count->prime-power-div p a)
+  div-trans (prime-power-div p dc⁺) (prime-div-count->prime-power-div p a)
   where
   full-path : suc x == prime-div-count p a
   full-path = cong suc (sym +'-right-zero) >=> sym +'-right-suc >=> path
@@ -79,17 +81,29 @@ prime-div-count->prime-div p a (x , path) =
   dc⁺ = prime-div-count p a , transport (cong Pos' full-path) tt
 
 
+private
+  prime-div'->prime-div-count : (p : Prime') (a : Nat⁺)
+                                -> ⟨ p ⟩ div' ⟨ a ⟩
+                                -> prime-div-count p a > 0
+  prime-div'->prime-div-count p a d@(x , path) =
+    prime-div-count p (x , pos-x) ,
+    +'-right
+      (prime-div-count-unique
+        (subst (\x -> PrimeDivCount p x 1) ^ℕ-one (prime-power-div-count p 1))
+        (prime-div-count-proof p (Prime'.nat⁺ p))) >=>
+    sym (*'-prime-div-count⁺ p (x , pos-x) (Prime'.nat⁺ p))
+    >=> cong (prime-div-count p) (ΣProp-path isPropPos' path)
+
+    where
+    pos-x : Pos' x
+    pos-x = (snd (div'⁺->multiple⁺ {Prime'.nat⁺ p} {a} d))
+
+
 prime-div->prime-div-count : (p : Prime') (a : Nat⁺)
-                             -> ⟨ p ⟩ div' ⟨ a ⟩
+                             -> ⟨ p ⟩ div ⟨ a ⟩
                              -> prime-div-count p a > 0
-prime-div->prime-div-count p a d@(x , path) =
-  prime-div-count p (x , (div'-pos->pos' d (snd a))) ,
-  +'-right
-    (prime-div-count-unique
-      (subst (\x -> PrimeDivCount p x 1) ^ℕ-one (prime-power-div-count p 1))
-      (prime-div-count-proof p (Prime'.nat⁺ p))) >=>
-  sym (*'-prime-div-count⁺ p (x , (div'-pos->pos' d (snd a))) (Prime'.nat⁺ p))
-  >=> cong (prime-div-count p) (ΣProp-path isPropPos' path)
+prime-div->prime-div-count p a p%a =
+  unsquash isProp-< (∥-map (prime-div'->prime-div-count p a) p%a)
 
 
 

@@ -3,7 +3,6 @@
 module chapter2.divisors where
 
 open import base
-open import div hiding (remainder)
 open import equality
 open import equivalence
 open import fin
@@ -23,6 +22,7 @@ open import list.nat
 open import list.sorted
 open import maybe
 open import nat
+open import nat.division
 open import nat.bounded
 open import nat.order
 open import order
@@ -35,11 +35,14 @@ open import quotient
 open import relation
 open import relatively-prime
 open import ring.implementations.int
+open import semiring
+open import semiring.division
 open import semiring.exponentiation
 open import semiring.instances.nat
 open import sigma
 open import sigma.base
 open import sum
+open import truncation
 open import type-algebra
 open import unique-prime-factorization
 
@@ -54,36 +57,36 @@ private
 
 
 Divisor : Nat⁺ -> Type₀
-Divisor (n , _) = Σ[ d ∈ Nat ] (d div' n)
+Divisor (n , _) = Σ[ d ∈ Nat ] (d div n)
 
 -- private
 module _ where
-  isBoundedDiv' : (n : Nat⁺) -> isBounded (_div' ⟨ n ⟩)
-  isBoundedDiv' (n , pos-n) = (suc n) , (\p -> suc-≤ (div'->≤ p {pos-n}))
+  isBoundedDiv : (n : Nat⁺) -> isBounded (_div ⟨ n ⟩)
+  isBoundedDiv (n , pos-n) = (suc n) , (\p -> suc-≤ (div->≤ p pos-n))
 
 private
   abstract
-    isFinSet-Divisor : (n : Nat⁺) -> isFinSet (Σ Nat (_div' ⟨ n ⟩))
+    isFinSet-Divisor : (n : Nat⁺) -> isFinSet (Σ Nat (_div ⟨ n ⟩))
     isFinSet-Divisor n⁺@(n , _) =
-      boundedDecidableProp->isFinSet (isBoundedDiv' n⁺) (\d -> decide-div d n) (isPropDiv' n⁺)
+      boundedDecidableProp->isFinSet (isBoundedDiv n⁺) (\d -> decide-div d n) isPropDiv
 
 FinSet-Divisor : Nat⁺ -> FinSet ℓ-zero
 FinSet-Divisor n = Divisor n , isFinSet-Divisor n
 
 private
-  divisors-full : (n : Nat⁺) -> Σ (List Nat) (CanonicalList≥ (_div' ⟨ n ⟩))
-  divisors-full n = list-reify (isBoundedDiv' n) (\d -> decide-div d ⟨ n ⟩)
+  divisors-full : (n : Nat⁺) -> Σ (List Nat) (CanonicalList≥ (_div ⟨ n ⟩))
+  divisors-full n = list-reify (isBoundedDiv n) (\d -> decide-div d ⟨ n ⟩)
 
 divisors : (n : Nat⁺) -> List Nat
 divisors n = fst (divisors-full n)
 
-divisors-canonical : (n : Nat⁺) -> (CanonicalList≥ (_div' ⟨ n ⟩) (divisors n))
+divisors-canonical : (n : Nat⁺) -> (CanonicalList≥ (_div ⟨ n ⟩) (divisors n))
 divisors-canonical n = (snd (divisors-full n))
 
-divisors-contains-only : (n : Nat⁺) -> (ContainsOnly (_div' ⟨ n ⟩) (divisors n))
+divisors-contains-only : (n : Nat⁺) -> (ContainsOnly (_div ⟨ n ⟩) (divisors n))
 divisors-contains-only n = fst (fst (fst (snd (divisors-full n))))
 
-divisors-contains-all : (n : Nat⁺) -> (ContainsAll (_div' ⟨ n ⟩) (divisors n))
+divisors-contains-all : (n : Nat⁺) -> (ContainsAll (_div ⟨ n ⟩) (divisors n))
 divisors-contains-all n = snd (fst (fst (snd (divisors-full n))))
 
 divisors-no-duplicates : (n : Nat⁺) -> (NoDuplicates (divisors n))
@@ -100,25 +103,36 @@ num-divisors⁺ n = length (divisors n) , pos-n (divisors n) refl
   pos-n [] p = bot-elim ([]-¬contains {x = 1} (transport (\i -> contains 1 (p (~ i))) div1))
     where
     div1 : contains 1 (divisors n)
-    div1 = divisors-contains-all n div'-one
+    div1 = divisors-contains-all n div-one
 
 
 module _ where
   divisors-of-one : List Nat
   divisors-of-one = 1 :: []
 
-  divisors-of-one-canonical : CanonicalList≥ (_div' 1) divisors-of-one
+  private
+    isProp-∈div1 : ∀ x -> isProp (list∈ divisors-of-one x)
+    isProp-∈div1 x (suc _ , ())
+    isProp-∈div1 x (zero , _) (suc _ , ())
+    isProp-∈div1 x (zero , p1) (zero , p2) = \i -> zero , pp i
+      where
+      pp : Path (AtIndex zero divisors-of-one x) p1 p2
+      pp = isSetNat _ _ p1 p2
+
+
+  divisors-of-one-canonical : CanonicalList≥ (_div 1) divisors-of-one
   divisors-of-one-canonical = ((c-o , c-a) , nd) , sorted
     where
-    c-o : ContainsOnly (_div' 1) divisors-of-one
-    c-o (0 , path) = transport (cong (_div' 1) (sym path)) div'-one
-    c-a : ContainsAll (_div' 1) divisors-of-one
-    c-a {d} (x , path) = (0 , (*'-only-one-right {x} {d} path))
+    c-o : ContainsOnly (_div 1) divisors-of-one
+    c-o (0 , path) = transport (cong (_div 1) (sym path)) div-one
+    c-a : ContainsAll (_div 1) divisors-of-one
+    c-a {d} %1 =
+      unsquash (isProp-∈div1 _)
+        (∥-map (\ (x , path) -> (0 , (*'-only-one-right {x} {d} path))) %1)
     nd : NoDuplicates divisors-of-one
     nd = (\()) , lift tt
     sorted : Sorted _≥_ divisors-of-one
     sorted = (\()) , lift tt
-
 
   one-divisors-path : divisors 1⁺ == 1 :: []
   one-divisors-path = canonical-list-== (divisors-canonical 1⁺) divisors-of-one-canonical
@@ -129,9 +143,9 @@ module _ where
     open Iso
     i : Iso (Divisor 1⁺) Top
     i .fun _ = tt
-    i .inv tt = 1 , div'-one
+    i .inv tt = 1 , div-one
     i .rightInv _ = refl
-    i .leftInv (d , d%1) = ΣProp-path (isPropDiv' 1⁺) (sym (div'-one->one d%1))
+    i .leftInv (d , d%1) = ΣProp-path squash (sym (div-one->one d%1))
 
 
 module _ (p : Prime') where
@@ -143,13 +157,13 @@ module _ (p : Prime') where
     divisors-of-prime : List Nat
     divisors-of-prime = p' :: 1 :: []
 
-    divisors-of-prime-canonical : CanonicalList≥ (_div' p') divisors-of-prime
+    divisors-of-prime-canonical : CanonicalList≥ (_div p') divisors-of-prime
     divisors-of-prime-canonical = ((c-o , c-a) , nd) , sorted
       where
-      c-o : ContainsOnly (_div' ⟨ p ⟩) divisors-of-prime
-      c-o (0 , path) = transport (cong (_div' p') (sym path)) div'-refl
-      c-o (1 , path) = transport (cong (_div' p') (sym path)) div'-one
-      c-a : ContainsAll (_div' ⟨ p ⟩) divisors-of-prime
+      c-o : ContainsOnly (_div ⟨ p ⟩) divisors-of-prime
+      c-o (0 , path) = transport (cong (_div p') (sym path)) div-refl
+      c-o (1 , path) = transport (cong (_div p') (sym path)) div-one
+      c-a : ContainsAll (_div ⟨ p ⟩) divisors-of-prime
       c-a {d} dp = handle (prime-only-divisors p dp)
         where
         handle : (d == p' ⊎ d == 1) -> contains d divisors-of-prime
@@ -173,7 +187,7 @@ module _ (p : Prime') where
   Divisor-prime-eq : Divisor p⁺ ≃ Fin 2
   Divisor-prime-eq = isoToEquiv i
     where
-    forward' : {d : Nat} -> d div' p' -> (d == p') ⊎ (d == 1) -> Fin 2
+    forward' : {d : Nat} -> d div p' -> (d == p') ⊎ (d == 1) -> Fin 2
     forward' _ (inj-l _) = zero-fin
     forward' _ (inj-r _) = suc-fin zero-fin
 
@@ -189,23 +203,23 @@ module _ (p : Prime') where
     forward (d , d%p) = forward' d%p (prime-only-divisors p d%p)
 
     backward : Fin 2 -> (Divisor p⁺)
-    backward (0 , lt) = p' , div'-refl
-    backward (1 , lt) = 1 , div'-one
+    backward (0 , lt) = p' , div-refl
+    backward (1 , lt) = 1 , div-one
     backward ((suc (suc _)) , lt) = bot-elim (zero-≮ (pred-≤ (pred-≤ lt)))
 
     forward-backward : (i : Fin 2) -> (forward (backward i)) == i
     forward-backward (0 , lt) = path >=> fin-i-path refl
       where
       path : (forward (backward (0 , lt))) == zero-fin
-      path = (forward'-constant (p' , div'-refl) _ (inj-l refl))
+      path = (forward'-constant (p' , div-refl) _ (inj-l refl))
     forward-backward (1 , lt) = path >=> fin-i-path refl
       where
       path : (forward (backward (1 , lt))) == suc-fin zero-fin
-      path = (forward'-constant (1 , div'-one) _ (inj-r refl))
+      path = (forward'-constant (1 , div-one) _ (inj-r refl))
     forward-backward ((suc (suc _)) , lt) = bot-elim (zero-≮ (pred-≤ (pred-≤ lt)))
 
     backward-forward : (d : Divisor p⁺) -> (backward (forward d)) == d
-    backward-forward (d , d%p) = ΣProp-path (isPropDiv' p⁺) (handle (prime-only-divisors p d%p))
+    backward-forward (d , d%p) = ΣProp-path isPropDiv (handle (prime-only-divisors p d%p))
       where
       handle : (s : (d == p') ⊎ (d == 1)) -> fst (backward (forward' d%p s)) == d
       handle (inj-l pa) = sym pa
@@ -218,18 +232,8 @@ module _ (p : Prime') where
     i .rightInv = forward-backward
     i .leftInv = backward-forward
 
-
 -- Divisors of prime powers
 
-module _ (p : Prime') where
-
-  private
-    p' = fst p
-    is-prime = snd p
-    p-pos = Prime'.pos p
-    p⁺ = Prime'.nat⁺ p
-
-
 
 module _ (p : Prime') where
 
@@ -239,67 +243,93 @@ module _ (p : Prime') where
     p-pos = Prime'.pos p
     p⁺ = Prime'.nat⁺ p
 
-    ¬p-divides->1 : (n : Nat) {d : Nat} -> d div' (prime-power p n)
-                    -> ¬ (p' div' d) -> d == 1
-    ¬p-divides->1 zero    {d} d%pn  _    = div'-one->one d%pn
+    ¬p-divides->1 : (n : Nat) {d : Nat} -> d div (prime-power p n)
+                    -> ¬ (p' div d) -> d == 1
+    ¬p-divides->1 zero    {d} d%pn  _    = div-one->one d%pn
     ¬p-divides->1 (suc n) {d} d%psn ¬d%p = ¬p-divides->1 n d%pn ¬d%p
       where
-      d%pn : d div' (prime-power p n)
+      d%pn : d div (prime-power p n)
       d%pn = euclids-lemma/rp d%psn (rp-sym (prime->relatively-prime p ¬d%p))
 
     ¬p-divides->pn : (n x d : Nat) -> (x *' d == (prime-power p n))
-                     -> ¬(p' div' x) -> d == (prime-power p n)
+                     -> ¬(p' div x) -> d == (prime-power p n)
     ¬p-divides->pn n x d x-path ¬p%x =
       sym (*'-left-one {d}) >=> *'-left (sym x==1) >=> x-path
       where
       x==1 : x == 1
-      x==1 = (¬p-divides->1 n (d , *'-commute {d} {x} >=> x-path) ¬p%x)
+      x==1 = (¬p-divides->1 n (∣ d , *'-commute {d} {x} >=> x-path ∣) ¬p%x)
 
 
-    p-divides->%pn : (n x d : Nat) -> (x *' d == (prime-power p (suc n)))
-                     -> p' div' x -> d div' (prime-power p n)
-    p-divides->%pn n x d x-path (z , z-path) =
-      (z , *'-left-injective p⁺ path)
+    p-divides->%pn : (n x d : Nat) -> (x *' d == (prime-power p (suc n))) ->
+                     p' div x -> d div (prime-power p n)
+    p-divides->%pn n x d x-path = ∥-map helper
       where
-      path : p' *' (z *' d) == (prime-power p (suc n))
-      path = sym (*'-assoc {p'} {z} {d})
-             >=> *'-left (*'-commute {p'} {z} >=> z-path)
-             >=> x-path
+      helper : p' div' x -> d div' (prime-power p n)
+      helper (z , z-path) = (z , *'-left-injective p⁺ path)
+        where
+        path : p' *' (z *' d) == (prime-power p (suc n))
+        path = sym (*'-assoc {p'} {z} {d})
+               >=> *'-left (*'-commute {p'} {z} >=> z-path)
+               >=> x-path
+
 
   module _ (n : Nat) (d : Nat) where
+    private
+      split-prime-power-divisor' :
+        d div' (prime-power p (suc n))
+        -> (d == (prime-power p (suc n)) ⊎ (d div (prime-power p n)))
+      split-prime-power-divisor' (x , x-path) =
+        handle (decide-div p' x)
+        where
+        handle : (Dec (p' div x)) -> (d == (prime-power p (suc n)) ⊎ (d div (prime-power p n)))
+        handle (yes p%x) = inj-r (p-divides->%pn n x d x-path p%x)
+        handle (no ¬p%x) = inj-l (¬p-divides->pn (suc n) x d x-path ¬p%x)
+
     split-prime-power-divisor :
-      d div' (prime-power p (suc n))
-      -> (d == (prime-power p (suc n)) ⊎ (d div' (prime-power p n)))
-    split-prime-power-divisor (x , x-path) =
-      handle (decide-div p' x)
+      d div (prime-power p (suc n))
+      -> (d == (prime-power p (suc n)) ⊎ (d div (prime-power p n)))
+    split-prime-power-divisor d%pn =
+      unsquash (isProp⊎ (isSetNat _ _) isPropDiv
+                        (\path d% -> unsquash isPropBot (∥-map (exclusive path) d%)))
+               (∥-map split-prime-power-divisor' d%pn)
       where
-      handle : (Dec (p' div' x)) -> (d == (prime-power p (suc n)) ⊎ (d div' (prime-power p n)))
-      handle (yes p%x) = inj-r (p-divides->%pn n x d x-path p%x)
-      handle (no ¬p%x) = inj-l (¬p-divides->pn (suc n) x d x-path ¬p%x)
+      exclusive : d == (prime-power p (suc n)) -> (d div' (prime-power p n)) -> Bot
+      exclusive d=p^sn (x , x*d=p^n) = Prime'.¬%1 p p%1
+        where
+        path1 : (x *' p') *' (prime-power p n) == 1 *' (prime-power p n)
+        path1 = *-assocᵉ x p' (prime-power p n) >=>
+                cong (x *'_) (sym d=p^sn) >=> x*d=p^n >=>
+                sym *-left-one
+        x*p=1 : x *' p' == 1
+        x*p=1 = *'-right-injective (prime-power⁺ p n) path1
+
+        p%1 : p' div 1
+        p%1 = ∣ x , x*p=1 ∣
+
     unsplit-prime-power-divisor :
-      (d == (prime-power p (suc n)) ⊎ (d div' (prime-power p n)))
-      -> d div' (prime-power p (suc n))
+      (d == (prime-power p (suc n)) ⊎ (d div (prime-power p n)))
+      -> d div (prime-power p (suc n))
     unsplit-prime-power-divisor (inj-l pa) =
-      subst (\x -> x div' (prime-power p (suc n))) (sym pa) div'-refl
-    unsplit-prime-power-divisor (inj-r d%pn) = div'-mult d%pn p'
+      subst (\x -> x div (prime-power p (suc n))) (sym pa) div-refl
+    unsplit-prime-power-divisor (inj-r d%pn) = div-*ˡ d%pn p'
 
-    isProp-prime-power : isProp (d div' (prime-power p (suc n)))
-    isProp-prime-power = isPropDiv' (prime-power⁺ p (suc n))
+    isProp-prime-power : isProp (d div (prime-power p (suc n)))
+    isProp-prime-power = isPropDiv
 
-    isProp-split-prime-power : isProp (d == (prime-power p (suc n)) ⊎ (d div' (prime-power p n)))
-    isProp-split-prime-power = isProp⊎ (isSetNat _ _) (isPropDiv' (prime-power⁺ p n)) handle
+    isProp-split-prime-power : isProp (d == (prime-power p (suc n)) ⊎ (d div (prime-power p n)))
+    isProp-split-prime-power = isProp⊎ (isSetNat _ _) isPropDiv handle
       where
-      handle : (d == (prime-power p (suc n))) -> ¬ (d div' (prime-power p n))
+      handle : (d == (prime-power p (suc n))) -> ¬ (d div (prime-power p n))
       handle path d%pn = irrefl-< (trans-≤ gt lt)
         where
         lt : (prime-power p (suc n)) ≤ (prime-power p n)
-        lt = div'->≤ (subst (\x -> x div' (prime-power p n)) path d%pn)
-                     {snd (prime-power⁺ p n)}
+        lt = div->≤ (subst (\x -> x div (prime-power p n)) path d%pn)
+                    (snd (prime-power⁺ p n))
         gt : (prime-power p (suc n)) > (prime-power p n)
         gt = ^-suc-< (Prime'.>1 p) n
 
-    split-prime-power-eq : (d div' (prime-power p (suc n))) ≃
-                           (d == (prime-power p (suc n)) ⊎ (d div' (prime-power p n)))
+    split-prime-power-eq : (d div (prime-power p (suc n))) ≃
+                           (d == (prime-power p (suc n)) ⊎ (d div (prime-power p n)))
     split-prime-power-eq =
       isoToEquiv (isProp->iso split-prime-power-divisor
                               unsplit-prime-power-divisor
@@ -332,39 +362,146 @@ module _ (p : Prime') where
       >eq> (⊎-equiv (idEquiv _) (Divisor-prime-power-eq n))
       >eq> (equiv⁻¹ (Fin-suc-⊎-eq (suc n)))
 
+
+{-
   Divisor-prime-power-Maybe-eq :
     (n : Nat) -> Divisor (prime-power⁺ p (suc n)) ≃
                  (Maybe (Divisor (prime-power⁺ p n)))
-  Divisor-prime-power-Maybe-eq n = isoToEquiv i
+  Divisor-prime-power-Maybe-eq n = isoToEquiv (iso forward backward fb bf)
     where
+    switch : (y : Nat) -> (y%psn : y div (prime-power p (suc n))) ->
+             (Dec (p' div y)) -> Maybe (Divisor (prime-power⁺ p n))
+    switch y y%psn (no ¬p%y) = nothing
+    switch y y%psn (yes p%y) =
+      just (fst p%'y , ∣ fst y%'psn , path ∣)
+      where
+      p%'y : p' div' y
+      p%'y = div->div' p%y
+      y%'psn : y div' (prime-power p (suc n))
+      y%'psn = div->div' y%psn
+
+      path' : p' * (fst y%'psn * fst p%'y) == (prime-power p (suc n))
+      path' = sym (*-assocᵉ p' (fst y%'psn) (fst p%'y)) >=>
+              cong (_* fst p%'y) (*-commuteᵉ p' (fst y%'psn)) >=>
+              *-assocᵉ (fst y%'psn) p' (fst p%'y) >=>
+              cong (fst y%'psn *_) (*-commuteᵉ p' (fst p%'y) >=> snd p%'y) >=>
+              snd y%'psn
+
+
+      path : fst y%'psn * fst p%'y == (prime-power p n)
+      path = *'-left-injective (Prime'.nat⁺ p) path'
+
+    switch' : (y : Nat) -> (y%psn : y div (prime-power p (suc n))) ->
+              (Dec (p' div' y)) -> Maybe (Divisor (prime-power⁺ p n))
+    switch' y y%psn (no ¬p%y) = nothing
+    switch' y y%psn (yes (d  , d-path)) =
+      just (d , ∣ fst y%'psn , path ∣)
+      where
+      y%'psn : y div' (prime-power p (suc n))
+      y%'psn = div->div' y%psn
+
+      path' : p' * (fst y%'psn * d) == (prime-power p (suc n))
+      path' = sym (*-assocᵉ p' (fst y%'psn) d) >=>
+              cong (_* d) (*-commuteᵉ p' (fst y%'psn)) >=>
+              *-assocᵉ (fst y%'psn) p' d >=>
+              cong (fst y%'psn *_) (*-commuteᵉ p' d >=> d-path) >=>
+              snd y%'psn
+
+
+      path : fst y%'psn * d == (prime-power p n)
+      path = *'-left-injective (Prime'.nat⁺ p) path'
+
+
+    decide-div' : ∀ x y -> Dec (x div' y)
+    decide-div' x y = case (decide-div x y) of (\
+      { (no ¬p%y) -> no (¬p%y ∘ ∣_∣)
+      ; (yes p%y) -> yes (div->div' p%y)
+      })
+
+
+    forward : Divisor (prime-power⁺ p (suc n)) ->
+              Maybe (Divisor (prime-power⁺ p n))
+    forward (y , y%psn) = switch' y y%psn (decide-div' p' y)
+
+    backward : Maybe (Divisor (prime-power⁺ p n)) ->
+               Divisor (prime-power⁺ p (suc n))
+    backward nothing = (1 , div-one)
+    backward (just (d , d%pn)) = p' * d , (∥-map handle d%pn)
+      where
+      handle : d div' (prime-power p n) -> (p' * d) div' (prime-power p (suc n))
+      handle (x , x-path) = x , sym (*-assocᵉ x p' d) >=>
+                                cong (_* d) (*-commuteᵉ x p') >=>
+                                (*-assocᵉ p' x d) >=>
+                                cong (p' *_) x-path
+
+    fb : ∀ x -> forward (backward x) == x
+    fb nothing = cong (switch' 1 div-one) path
+      where
+      ¬p%1 : ¬ (p' div' 1)
+      ¬p%1 = Prime'.¬%1 p ∘ ∣_∣
+
+
+      path : (decide-div' p' 1) == (no ¬p%1)
+      path = isPropDec (isPropDiv'-ℕ₁ (Prime'.pos p)) _ _
+    fb (just (d , d%pn)) = path2 >=> cong just (ΣProp-path isPropDiv refl)
+      where
+      p%'pd : p' div' (p' * d)
+      p%'pd = d , *-commuteᵉ d p'
+
+
+      path : (decide-div' p' (p' * d)) == (yes p%'pd)
+      path = isPropDec (isPropDiv'-ℕ₁ (Prime'.pos p)) _ _
+
+      path2 : forward (backward (just (d , d%pn))) == just (d , _)
+      path2 = cong (switch' (p' * d) _) path
+
+
+    bf : ∀ x -> backward (forward x) == x
+    bf (y , y%psn) = ?
+
+
+-}
+
+
+{-
+  Divisor-prime-power-Maybe-eq :
+    (n : Nat) -> Divisor (prime-power⁺ p (suc n)) ≃
+                 (Maybe (Divisor (prime-power⁺ p n)))
+  Divisor-prime-power-Maybe-eq n = ? -- isoToEquiv i
+    where
+    psn : ℕ
     psn = prime-power p (suc n)
 
+    val : {d : ℕ} -> d div psn -> ℕ
+    val d%p = fst (div->div' d%p)
 
-    switch : (d : Nat) -> (d%p : d div' psn) -> (Dec (p' div' ⟨ d%p ⟩)) ->
-             (Maybe (Divisor (prime-power⁺ p n)))
-    switch d (x , x-path) (yes p%x) = just (d , (p-divides->%pn n x d x-path p%x))
+
+    switch : (d : Nat) -> (d%p : d div' psn) -> (Dec (p' div' (val ∣ d%p ∣))) ->
+              (Maybe (Divisor (prime-power⁺ p n)))
+    switch d (x , x-path) (yes p%x) = just (d , (p-divides->%pn n x d x-path ∣ p%x ∣))
     switch d (x , x-path) (no ¬p%x) = nothing
+
 
 
     switch-psn : (d%p : psn div' psn) ->
                  (dec : (Dec (p' div' ⟨ d%p ⟩))) ->
                  switch psn d%p dec == nothing
     switch-psn d%p (no ¬p%x) = refl
-    switch-psn (x , x-path) (yes p%x) = bot-elim (Prime'.¬%1 p (subst (p' div'_) path p%x))
+    switch-psn (x , x-path) (yes p%x) = bot-elim (Prime'.¬%1 p (subst (p' div_) path p%x))
       where
       path : x == 1
       path = *'-right-injective (prime-power⁺ p (suc n)) (x-path >=> sym (*'-left-one))
 
-    switch-pn : (d : Nat) (d%p : d div' (prime-power p n)) ->
-                (dec : (Dec (p' div' ⟨ div'-mult d%p p' ⟩))) ->
-                switch d (div'-mult d%p p') dec == just (d , d%p)
-    switch-pn d d%p (yes p%x) = cong f (isPropDiv' (prime-power⁺ p n) _ _)
+    switch-pn : (d : Nat) (d%p : d div (prime-power p n)) ->
+                (dec : (Dec (p' div ⟨ div-*ˡ d%p p' ⟩))) ->
+                switch d (div-*ˡ d%p p') dec == just (d , d%p)
+    switch-pn d d%p (yes p%x) = cong f (isPropDiv _ _)
       where
-      f : (d div' (prime-power p n)) -> (Maybe (Divisor (prime-power⁺ p n)))
+      f : (d div (prime-power p n)) -> (Maybe (Divisor (prime-power⁺ p n)))
       f x = just (d , x)
     switch-pn d (x , x-path) (no ¬p%px) = bot-elim (¬p%px p%px)
       where
-      p%px : (p' div' (p' *' x))
+      p%px : (p' div (p' *' x))
       p%px = x , *'-commute {x} {p'}
 
 
@@ -375,16 +512,16 @@ module _ (p : Prime') where
     unsplit-prime-power-divisor' :
       Maybe (Divisor (prime-power⁺ p n))
       -> (Divisor (prime-power⁺ p (suc n)))
-    unsplit-prime-power-divisor' nothing = (prime-power p (suc n)) , div'-refl
-    unsplit-prime-power-divisor' (just (d , d%pn)) = d , div'-mult d%pn p'
+    unsplit-prime-power-divisor' nothing = (prime-power p (suc n)) , div-refl
+    unsplit-prime-power-divisor' (just (d , d%pn)) = d , div-*ˡ d%pn p'
 
-    unsplit-switch : (d : Nat) -> (d%p : d div' psn) -> (dec : (Dec (p' div' ⟨ d%p ⟩))) ->
+    unsplit-switch : (d : Nat) -> (d%p : d div psn) -> (dec : (Dec (p' div ⟨ d%p ⟩))) ->
                      fst (unsplit-prime-power-divisor' (switch d d%p dec)) == d
     unsplit-switch d d%p (yes p%x) = refl
     unsplit-switch d (x , x-path) (no ¬p%x) = ans
       where
-      x%psn : x div' psn
-      x%psn = d , *'-commute {d} {x} >=> x-path
+      x%psn : x div psn
+      x%psn = ∣ d , *'-commute {d} {x} >=> x-path ∣
 
       path : x == 1
       path = ¬p-divides->1 (suc n) x%psn ¬p%x
@@ -398,11 +535,12 @@ module _ (p : Prime') where
     i : Iso (Divisor (prime-power⁺ p (suc n))) (Maybe (Divisor (prime-power⁺ p n)))
     i .fun = split-prime-power-divisor'
     i .inv = unsplit-prime-power-divisor'
-    i .rightInv nothing          = switch-psn div'-refl (decide-div p' 1)
-    i .rightInv (just (d , d%p)) = switch-pn d d%p (decide-div p' ⟨ div'-mult d%p p' ⟩)
-    i .leftInv (d , d%p) = ΣProp-path (isPropDiv' (prime-power⁺ p (suc n)))
+    i .rightInv nothing          = switch-psn div-refl (decide-div p' 1)
+    i .rightInv (just (d , d%p)) = switch-pn d d%p (decide-div p' ⟨ div-*ˡ d%p p' ⟩)
+    i .leftInv (d , d%p) = ΣProp-path isPropDiv
                                       (unsplit-switch d d%p (decide-div p' ⟨ d%p ⟩))
 
+-}
 
 
 
@@ -412,13 +550,13 @@ module _ (p : Prime') where
 
   private
     contains-only-divisors-of-prime-power : (n : Nat) ->
-      ContainsOnly (_div' (p' ^ℕ n)) (divisors-of-prime-power n)
+      ContainsOnly (_div (p' ^ℕ n)) (divisors-of-prime-power n)
     contains-only-divisors-of-prime-power zero    (0 , path) =
-      (1 , *'-left-one >=> path)
+      ∣ (1 , *'-left-one >=> path) ∣
     contains-only-divisors-of-prime-power (suc n) (0 , path) =
-      (1 , *'-left-one >=> path)
+      ∣ (1 , *'-left-one >=> path) ∣
     contains-only-divisors-of-prime-power (suc n) (suc i , path) =
-      div'-mult (contains-only-divisors-of-prime-power n (i , path)) p'
+      div-*ˡ (contains-only-divisors-of-prime-power n (i , path)) p'
 
     sorted>-divisors-of-prime-power : (n : Nat) -> Sorted _>_ (divisors-of-prime-power n)
     sorted>-divisors-of-prime-power zero = sorted-singleton _>_ 1
@@ -428,24 +566,24 @@ module _ (p : Prime') where
       >all : ContainsOnly (_< (p' *' (p' ^ℕ n))) (divisors-of-prime-power n)
       >all {x} c = trans-≤-< x-lt p-lt
         where
-        x-div : x div' (p' ^ℕ n)
+        x-div : x div (p' ^ℕ n)
         x-div = contains-only-divisors-of-prime-power n c
         x-lt : x ≤ (p' ^ℕ n)
-        x-lt = div'->≤ x-div {snd (prime-power⁺ p n)}
+        x-lt = div->≤ x-div (snd (prime-power⁺ p n))
         p-lt : (p' ^ℕ n) < (p' ^ℕ (suc n))
         p-lt = ^-suc-< (Prime'.>1 p) n
 
 
   divisors-of-prime-power-canonical :
-    (n : Nat) -> CanonicalList≥ (_div' (p' ^ℕ n)) (divisors-of-prime-power n)
+    (n : Nat) -> CanonicalList≥ (_div (p' ^ℕ n)) (divisors-of-prime-power n)
   divisors-of-prime-power-canonical zero = divisors-of-one-canonical
   divisors-of-prime-power-canonical (suc n) = ((c-o , c-a) , nd) , sorted
     where
     c-o = contains-only-divisors-of-prime-power (suc n)
-    c-a : ContainsAll (_div' (p' *' (p' ^ℕ n))) (divisors-of-prime-power (suc n))
+    c-a : ContainsAll (_div (p' *' (p' ^ℕ n))) (divisors-of-prime-power (suc n))
     c-a {d} dp = handle (split-prime-power-divisor n d dp)
       where
-      handle : (d == (⟨ p ⟩ *' (⟨ p ⟩ ^ℕ n)) ⊎ d div' (⟨ p ⟩ ^ℕ n))
+      handle : (d == (⟨ p ⟩ *' (⟨ p ⟩ ^ℕ n)) ⊎ d div (⟨ p ⟩ ^ℕ n))
                -> contains d (divisors-of-prime-power (suc n))
       handle (inj-l path) = (0 , path)
       handle (inj-r rec) =
@@ -464,9 +602,9 @@ module _ (p : Prime') where
 
 -- Divisors of product
 private
-  lcm-divides-product : {d1 d2 a b m : Nat} -> d1 div' a -> d2 div' b -> LCM' d1 d2 m -> m div' (a *' b)
+  lcm-divides-product : {d1 d2 a b m : Nat} -> d1 div a -> d2 div b -> LCM' d1 d2 m -> m div (a *' b)
   lcm-divides-product {d1} {d2} {a} {b} {m} d1%a d2%b l =
-    LCM'.f l (a *' b) (div'-mult' d1%a b) (div'-mult d2%b a)
+    LCM'.f l (a *' b) (div-*ʳ d1%a b) (div-*ˡ d2%b a)
 
   relatively-prime-lcm : {a b : Nat} -> RelativelyPrime⁰ a b -> LCM' a b (a *' b)
   relatively-prime-lcm {a} {b} rp = transport (\ i -> LCM' a b (path (~ i))) l
@@ -493,8 +631,8 @@ module _ (a b : Nat⁺) where
   *'-divisors : List Nat
   *'-divisors = cartesian-product' _*'_ (divisors a) (divisors b)
 
-  *'-divisors-co : ContainsOnly (_div' (a' *' b')) *'-divisors
-  *'-divisors-co {x} c = transport (\i -> (x-path i) div' (a' *' b')) xab%ab
+  *'-divisors-co : ContainsOnly (_div (a' *' b')) *'-divisors
+  *'-divisors-co {x} c = transport (\i -> (x-path i) div (a' *' b')) xab%ab
     where
     c-info : Σ[ p ∈ (Nat × Nat) ]
                ((contains p cp) × (proj₁ p *' proj₂ p == x))
@@ -510,20 +648,21 @@ module _ (a b : Nat⁺) where
     x-path : (xa *' xb == x)
     x-path = (snd (snd c-info))
 
-    xa%a : xa div' a'
+    xa%a : xa div a'
     xa%a = divisors-contains-only a (proj₁ c-xs)
-    xb%b : xb div' b'
+    xb%b : xb div b'
     xb%b = divisors-contains-only b (proj₂ c-xs)
 
-    xab%ab : (xa *' xb) div' (a' *' b')
-    xab%ab = div'-mult-both xa%a xb%b
+    xab%ab : (xa *' xb) div (a' *' b')
+    xab%ab = div-* xa%a xb%b
+
 
   module _ (rp : RelativelyPrime⁺ a b) where
-    *'-divisors-ca : ContainsAll (_div' (a' *' b')) *'-divisors
+    *'-divisors-ca : ContainsAll (_div (a' *' b')) *'-divisors
     *'-divisors-ca {x'} x%ab = transport (\i -> contains (path i) *'-divisors) c-dab
       where
       x : Nat⁺
-      x = x' , div'-pos->pos x%ab (snd (a *⁺ b))
+      x = x' , div-pos->pos x%ab (snd (a *⁺ b))
 
       da = gcd⁺ x a
       ga = gcd⁺-proof x a
@@ -534,13 +673,13 @@ module _ (a b : Nat⁺) where
 
       gcd-xab : GCD⁺ x (a *⁺ b) x
       gcd-xab = record
-        { %a = div'-refl
+        { %a = div-refl
         ; %b = x%ab
         ; f = \z z%x _ -> z%x
         }
 
       rp2 : RelativelyPrime⁺ da db
-      rp2 z z%da z%db = rp z (div'-trans z%da (GCD'.%b ga)) (div'-trans z%db (GCD'.%b gb))
+      rp2 z z%da z%db = rp z (div-trans z%da (GCD'.%b ga)) (div-trans z%db (GCD'.%b gb))
 
       c-dab : contains ⟨ da *⁺ db ⟩ *'-divisors
       c-dab = map-contains curry-*' cp
@@ -577,7 +716,7 @@ module _ (a b : Nat⁺) where
           ρ = prime-div-count p
 
     different-div<  : {a1 a2 b1 b2 : Nat}
-                      -> a1 div' a' -> a2 div' a' -> b1 div' b' -> b2 div' b'
+                      -> a1 div a' -> a2 div a' -> b1 div b' -> b2 div b'
                       -> a1 *' b1 == a2 *' b2
                       -> a1 < a2 -> Bot
     different-div< {a1} {a2} {b1} {b2} a1%a a2%a b1%b b2%b ab-path a1<a2 = <->!= dc-< dc-=
@@ -586,10 +725,10 @@ module _ (a b : Nat⁺) where
       a2⁺ : Nat⁺
       b1⁺ : Nat⁺
       b2⁺ : Nat⁺
-      a1⁺ = a1 , div'-pos->pos a1%a (snd a)
-      a2⁺ = a2 , div'-pos->pos a2%a (snd a)
-      b1⁺ = b1 , div'-pos->pos b1%b (snd b)
-      b2⁺ = b2 , div'-pos->pos b2%b (snd b)
+      a1⁺ = a1 , div-pos->pos a1%a (snd a)
+      a2⁺ = a2 , div-pos->pos a2%a (snd a)
+      b1⁺ = b1 , div-pos->pos b1%b (snd b)
+      b2⁺ = b2 , div-pos->pos b2%b (snd b)
 
       ab-path⁺ : (a1⁺ *⁺ b1⁺) == (a2⁺ *⁺ b2⁺)
       ab-path⁺ = ΣProp-path isPropPos' ab-path
@@ -601,13 +740,13 @@ module _ (a b : Nat⁺) where
       p' = ⟨ p ⟩
       dc-< = snd Σp
 
-      p%a2 : p' div' a2
+      p%a2 : p' div a2
       p%a2 = prime-div-count->prime-div p a2⁺ (trans-≤-< zero-≤ dc-<)
 
-      p%a : p' div' a'
-      p%a = div'-trans p%a2 a2%a
+      p%a : p' div a'
+      p%a = div-trans p%a2 a2%a
 
-      ¬p%b : ¬ (p' div' b')
+      ¬p%b : ¬ (p' div b')
       ¬p%b p%b = Prime'.!=1 p (rp p' p%a p%b)
 
       b-dc : prime-div-count p b == 0
@@ -644,7 +783,7 @@ module _ (a b : Nat⁺) where
 
 
     different-div  : {a1 a2 b1 b2 : Nat}
-                     -> a1 div' a' -> a2 div' a' -> b1 div' b' -> b2 div' b'
+                     -> a1 div a' -> a2 div a' -> b1 div b' -> b2 div b'
                      -> a1 *' b1 == a2 *' b2
                      -> a1 != a2 -> Bot
     different-div {a1} {a2} {b1} {b2} a1%a a2%a b1%b b2%b ab-path ¬ap = handle (split-< a1 a2)
@@ -692,13 +831,13 @@ module _ (a b : Nat⁺) where
       at-r2 : AtIndex r2 d-bs b2
       at-r2 = snd (cartesian-product-at-index' d-as d-bs (fst (snd at-i2')) (snd #d))
 
-      a1%a : a1 div' a'
+      a1%a : a1 div a'
       a1%a = divisors-contains-only a (q1 , at-q1)
-      a2%a : a2 div' a'
+      a2%a : a2 div a'
       a2%a = divisors-contains-only a (q2 , at-q2)
-      b1%b : b1 div' b'
+      b1%b : b1 div b'
       b1%b = divisors-contains-only b (r1 , at-r1)
-      b2%b : b2 div' b'
+      b2%b : b2 div b'
       b2%b = divisors-contains-only b (r2 , at-r2)
 
 
@@ -722,7 +861,7 @@ module _ (a b : Nat⁺) where
         ab-path' : a1 *' b1 == a1 *' b2
         ab-path' = ab-path >=> (cong (_*' b2) (sym ap))
         a1-pos : Pos' a1
-        a1-pos = div'-pos->pos a1%a (snd a)
+        a1-pos = div-pos->pos a1%a (snd a)
         bp : b1 == b2
         bp = *'-left-injective (a1 , a1-pos) ab-path'
 
@@ -738,7 +877,7 @@ module _ (a b : Nat⁺) where
         ab-path' : a1 *' b1 == a2 *' b1
         ab-path' = ab-path >=> (cong (a2 *'_) (sym bp))
         b1-pos : Pos' b1
-        b1-pos = div'-pos->pos b1%b (snd b)
+        b1-pos = div-pos->pos b1%b (snd b)
         ap : a1 == a2
         ap = *'-right-injective (b1 , b1-pos) ab-path'
 
@@ -787,33 +926,33 @@ module _ (a b : Nat⁺) where
                            (gcd' d b' , (GCD'.%b (gcd'-proof d b')))
 
       backward : (Divisor a × Divisor b) -> Divisor (a *⁺ b)
-      backward ((da , da%a) , (db , db%b)) = (da *' db , div'-mult-both da%a db%b)
+      backward ((da , da%a) , (db , db%b)) = (da *' db , div-* da%a db%b)
 
       forward-backward₁' : (ds : Divisor a × Divisor b) ->
                            fst (proj₁ (forward (backward ds))) == fst (proj₁ ds)
       forward-backward₁' ((da , da%a) , (db , db%b)) = check
         where
         da⁺ : Nat⁺
-        da⁺ = da , div'-pos->pos da%a (snd a)
+        da⁺ = da , div-pos->pos da%a (snd a)
         db⁺ : Nat⁺
-        db⁺ = db , div'-pos->pos db%b (snd b)
+        db⁺ = db , div-pos->pos db%b (snd b)
 
         proof-a : GCD' da a' da
         proof-a = record
-          { %a = div'-refl
+          { %a = div-refl
           ; %b = da%a
           ; f = \ _ z%da _ -> z%da
           }
 
         proof-b : GCD' db a' 1
         proof-b = record
-          { %a = div'-one
-          ; %b = div'-one
-          ; f = \ z z%db z%a -> subst (\x -> x div' 1) (sym (rp z z%a (div'-trans z%db db%b))) div'-refl
+          { %a = div-one
+          ; %b = div-one
+          ; f = \ z z%db z%a -> subst (\x -> x div 1) (sym (rp z z%a (div-trans z%db db%b))) div-refl
           }
 
         rp2 : RelativelyPrime⁺ da⁺ db⁺
-        rp2 z z%da z%db = rp z (div'-trans z%da da%a) (div'-trans z%db db%b)
+        rp2 z z%da z%db = rp z (div-trans z%da da%a) (div-trans z%db db%b)
 
         path3 : gcd' a' (da *' db) == (gcd' a' da) *' (gcd' a' db)
         path3 = cong fst (Multiplicative-gcd⁺₁ a .snd da⁺ db⁺ rp2)
@@ -834,26 +973,26 @@ module _ (a b : Nat⁺) where
       forward-backward₂' ((da , da%a) , (db , db%b)) = check
         where
         da⁺ : Nat⁺
-        da⁺ = da , div'-pos->pos da%a (snd a)
+        da⁺ = da , div-pos->pos da%a (snd a)
         db⁺ : Nat⁺
-        db⁺ = db , div'-pos->pos db%b (snd b)
+        db⁺ = db , div-pos->pos db%b (snd b)
 
         proof-b : GCD' db b' db
         proof-b = record
-          { %a = div'-refl
+          { %a = div-refl
           ; %b = db%b
           ; f = \ _ z%db _ -> z%db
           }
 
         proof-a : GCD' da b' 1
         proof-a = record
-          { %a = div'-one
-          ; %b = div'-one
-          ; f = \ z z%da z%b -> subst (\x -> x div' 1) (sym (rp z (div'-trans z%da da%a) z%b)) div'-refl
+          { %a = div-one
+          ; %b = div-one
+          ; f = \ z z%da z%b -> subst (\x -> x div 1) (sym (rp z (div-trans z%da da%a) z%b)) div-refl
           }
 
         rp2 : RelativelyPrime⁺ da⁺ db⁺
-        rp2 z z%da z%db = rp z (div'-trans z%da da%a) (div'-trans z%db db%b)
+        rp2 z z%da z%db = rp z (div-trans z%da da%a) (div-trans z%db db%b)
 
         path3 : gcd' b' (da *' db) == (gcd' b' da) *' (gcd' b' db)
         path3 = cong fst (Multiplicative-gcd⁺₁ b .snd da⁺ db⁺ rp2)
@@ -873,15 +1012,15 @@ module _ (a b : Nat⁺) where
       forward-backward : (ds : Divisor a × Divisor b) -> (forward (backward ds)) == ds
       forward-backward ds@(da , db) =
         cong2 _,_
-          (ΣProp-path (isPropDiv' a) (forward-backward₁' ds))
-          (ΣProp-path (isPropDiv' b) (forward-backward₂' ds))
+          (ΣProp-path isPropDiv (forward-backward₁' ds))
+          (ΣProp-path isPropDiv (forward-backward₂' ds))
 
       backward-forward' : (d : Divisor (a *⁺ b)) -> fst (backward (forward d)) == fst d
       backward-forward' (d' , d%ab) = path1 >=> path2
         where
         gcd-dab : GCD' d' (a' *' b') d'
         gcd-dab = record
-          { %a = div'-refl
+          { %a = div-refl
           ; %b = d%ab
           ; f = \z z%d _ -> z%d
           }
@@ -895,7 +1034,7 @@ module _ (a b : Nat⁺) where
 
 
       backward-forward : (d : Divisor (a *⁺ b)) -> (backward (forward d)) == d
-      backward-forward d = ΣProp-path (isPropDiv' (a *⁺ b)) (backward-forward' d)
+      backward-forward d = ΣProp-path isPropDiv (backward-forward' d)
 
     Divisor-*-eq : Divisor (a *⁺ b) ≃ (Divisor a × Divisor b)
     Divisor-*-eq = isoToEquiv (iso forward backward forward-backward backward-forward)

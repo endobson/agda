@@ -6,19 +6,24 @@ open import abs
 open import additive-group
 open import additive-group.instances.int
 open import base
-open import div
 open import equality
 open import gcd.euclidean-algorithm
 open import gcd.propositional
 open import int
+open import hlevel
+open import int.division
+open import nat.division
 open import linear-combo
 open import nat
 open import nat.order
 open import prime-gcd
 open import ring
+open import ring.division
 open import ring.implementations.int
 open import ring.initial-integers
 open import semiring
+open import semiring.instances.nat
+open import semiring.division
 open import solver
 open import truncation
 
@@ -110,14 +115,14 @@ ex1-4 {a} {b} rp = handle (gcd-exists (a + b) (a + - b))
   where
   handle : Σ[ d ∈ Int ] (GCD (a + b) (a + - b) d)
            -> (GCD (a + b) (a + - b) (int 1)) ⊎ (GCD (a + b) (a + - b) (int 2))
-  handle (d@(nonneg _) , g@(gcd _ _ _ _)) = handle2 (≤->≤i (div->≤ d-div))
+  handle (d@(nonneg _) , g@(gcd _ _ _ _)) = handle2 (≤->≤i (divℤ->≤ d-div))
     where
     d-div : d div (int 2)
     d-div = (ex1-4' rp g)
     handle2 : ((abs' d) ≤i 2) -> (GCD (a + b) (a + - b) (int 1)) ⊎ (GCD (a + b) (a + - b) (int 2))
     handle2 (suc-≤i zero-≤i) = inj-l g
     handle2 (suc-≤i (suc-≤i zero-≤i)) = inj-r g
-    handle2 zero-≤i = bot-elim (zero-suc-absurd (sym (nonneg-injective (div-zero->zero d-div))))
+    handle2 zero-≤i = bot-elim (zero-suc-absurd (sym (nonneg-injective (divℤ-zero->zero d-div))))
   handle (d@(neg _) , g@(gcd (inj-l ()) _ _ _))
   handle (d@(neg _) , g@(gcd (inj-r ()) _ _ _))
 
@@ -133,7 +138,7 @@ ex1-6 {a} {b} {d} (gcd _ _ _ f) d%a+b =
     p = (sym +-assoc) >=> (+-left +-commute) >=> (+-left (add-minus-zero {a}))
         >=> +-left-zero
     x%b : x div b
-    x%b = transport (\i -> x div (p i)) (div-sum (div-negate x%a) (div-trans x%d d%a+b))
+    x%b = transport (\i -> x div (p i)) (div-+ (div-negate x%a) (div-trans x%d d%a+b))
 
   f-b : (x : Int) -> x div b -> x div d -> x div (int 1)
   f-b x x%b x%d = (f x x%a x%b)
@@ -143,7 +148,7 @@ ex1-6 {a} {b} {d} (gcd _ _ _ f) d%a+b =
         (sym +-assoc) >=> (+-left +-commute) >=> (+-left (add-minus-zero {b}))
         >=> +-left-zero
     x%a : x div a
-    x%a = transport (\i -> x div (p i)) (div-sum (div-negate x%b) (div-trans x%d d%a+b))
+    x%a = transport (\i -> x div (p i)) (div-+ (div-negate x%b) (div-trans x%d d%a+b))
 
 ex1-5-arith-type : Set
 ex1-5-arith-type = ∀ (a b : ℤ) -> ((a + b) * (a + b) +  - (a * a + - (a * b) + b * b))
@@ -164,7 +169,7 @@ ex1-5-arith a b =
 private
   gcd-add-linear : ∀ {a b d : Int} -> GCD a b d -> (k : Int) -> GCD a (k * a + b) d
   gcd-add-linear {a} {b} {d} (gcd non-neg d-div-a d-div-b f) k =
-    (gcd non-neg d-div-a (div-sum (div-mult d-div-a k) d-div-b) g)
+    (gcd non-neg d-div-a (div-+ (div-*ˡ d-div-a k) d-div-b) g)
     where
     g : (x : Int) -> x div a -> x div (k * a + b) -> x div d
     g x xa xkab = f x xa xb
@@ -190,7 +195,7 @@ private
       xb : x div b
       xb = transport
              (\i -> x div (proof i))
-             (div-sum xkab (div-mult xa (- k)))
+             (div-+ xkab (div-*ˡ xa (- k)))
 
 ex1-5' : {a b : Int} -> ex1-5-arith-type' -> RPrime a b ->
    (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎
@@ -200,11 +205,15 @@ ex1-5' {a} {b} arith-proof rp with (gcd-exists (a + b) (a * a + - (a * b) + b * 
 ... | (d@(neg d-nat) , g@(gcd (inj-r ()) d%a+b d%term _))
 ... | (d@(nonneg d-nat) , g@(gcd _ d%a+b d%term _)) = res
   where
-  ¬2%3 : ¬ (2 div' 3)
-  ¬2%3 (zero          , pr) = zero-suc-absurd pr
-  ¬2%3 ((suc zero)    , pr) = zero-suc-absurd (suc-injective (suc-injective pr))
-  ¬2%3 ((suc (suc _)) , pr) =
+  ¬2%'3 : ¬ (2 div' 3)
+  ¬2%'3 (zero          , pr) = zero-suc-absurd pr
+  ¬2%'3 ((suc zero)    , pr) = zero-suc-absurd (suc-injective (suc-injective pr))
+  ¬2%'3 ((suc (suc _)) , pr) =
     (zero-suc-absurd (sym (suc-injective (suc-injective (suc-injective pr)))))
+
+  ¬2%3 : ¬ (2 div 3)
+  ¬2%3 p = unsquash isPropBot (∥-map ¬2%'3 p)
+
 
   reordered-gcd : (GCD (a + b) ((a * b) * (int 3)) d)
   reordered-gcd = transport (\i -> GCD (a + b) (arith-proof a b i) d)
@@ -230,15 +239,15 @@ ex1-5' {a} {b} arith-proof rp with (gcd-exists (a + b) (a * a + - (a * b) + b * 
              -> (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎
                 (GCD (a + b) (a * a + - (a * b) + b * b) (int 3))
     handle 0 x%3 _ =
-      bot-elim (zero-suc-absurd (sym (nonneg-injective (div-zero->zero x%3))))
+      bot-elim (zero-suc-absurd (sym (nonneg-injective (divℤ-zero->zero x%3))))
     handle 1 _ path_ =
       inj-l (transport (\i -> GCD (a + b) (a * a + - (a * b) + b * b) (path (~ i))) g)
     handle 2 _ path =
-      bot-elim (¬2%3 (div->div' (transport (\i -> (path (~ i)) div (int 3)) d-div)))
+      bot-elim (¬2%3 (∥-map divℤ->divℕ (transport (\i -> (path (~ i)) div (int 3)) d-div)))
     handle 3 _ path =
       inj-r (transport (\i -> GCD (a + b) (a * a + - (a * b) + b * b) (path (~ i))) g)
     handle (suc (suc (suc (suc x)))) x%3 _ =
-      bot-elim (zero-≮ (pred-≤ (pred-≤ (pred-≤ (div->≤ x%3)))))
+      bot-elim (zero-≮ (pred-≤ (pred-≤ (pred-≤ (divℤ->≤ x%3)))))
 
 --ex1-5 : {a b : Int} -> RPrime a b ->
 --   (GCD (a + b) (a * a + - (a * b) + b * b) (int 1)) ⊎

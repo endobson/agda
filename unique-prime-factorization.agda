@@ -3,13 +3,13 @@
 module unique-prime-factorization where
 
 open import base
-open import div
 open import equality
 open import gcd.computational
 open import gcd.propositional
 open import hlevel
 open import isomorphism
 open import nat
+open import nat.division
 open import nat.order
 open import order
 open import order.instances.nat
@@ -21,10 +21,12 @@ open import prime-gcd
 open import relation
 open import relatively-prime
 open import semiring
+open import semiring.division
 open import semiring.exponentiation
 open import semiring.instances.nat
 open import sigma.base
 open import univalence
+open import truncation
 open import unordered-list
 open import unordered-list.discrete
 
@@ -38,8 +40,8 @@ private
       d-pos : Pos' d
       n-pos : Pos' n
       k : Nat
-      d^k%n : (d ^ℕ k) div' n
-      ¬d^[suc-k]%n : ¬ ((d ^ℕ (suc k)) div' n)
+      d^k%n : (d ^ℕ k) div n
+      ¬d^[suc-k]%n : ¬ ((d ^ℕ (suc k)) div n)
 
     n⁺ : Nat⁺
     n⁺ = n , n-pos
@@ -47,28 +49,35 @@ private
     d⁺ : Nat⁺
     d⁺ = d , d-pos
 
-    upper-bound : (k2 : Nat) -> ((d ^ℕ k2) div' n) -> k2 ≤ k
+    upper-bound : (k2 : Nat) -> ((d ^ℕ k2) div n) -> k2 ≤ k
     upper-bound k2 d^k2%n = convert-≮ k≮k2
       where
       k≮k2 : k ≮ k2
-      k≮k2 sk≤k2 = ¬d^[suc-k]%n (div'-trans (div'-^ℕ sk≤k2) d^k2%n)
+      k≮k2 sk≤k2 = ¬d^[suc-k]%n (div-trans (div-^ℕ sk≤k2) d^k2%n)
+
+    d^k%'n : (d ^ℕ k) div' n
+    d^k%'n = unsquash (isPropDiv'-ℕ₂ n-pos) d^k%n
 
 
   division-count-suc : {d n : Nat} -> DivisionCount d n -> DivisionCount d (d *' n)
-  division-count-suc {d} {n} dc@(division-count d-pos n-pos k (x , pr) f) = record
+  division-count-suc {d} {n} dc@(division-count d-pos n-pos k d^k%n f) = record
     { d-pos        = d-pos
     ; n-pos        = *'-Pos'-Pos' {d} {n} d-pos n-pos
     ; k            = (suc k)
     ; d^k%n        = positive
-    ; ¬d^[suc-k]%n = negative
+    ; ¬d^[suc-k]%n = \p -> unsquash isPropBot (∥-map negative p)
     }
     where
+    x = fst (DivisionCount.d^k%'n dc)
+    pr = snd (DivisionCount.d^k%'n dc)
+
+
     d^k = d ^ℕ k
 
     d⁺ = DivisionCount.d⁺ dc
 
-    positive : (d ^ℕ (suc k)) div' (d *' n)
-    positive = (x , adjusted-proof)
+    positive : (d ^ℕ (suc k)) div (d *' n)
+    positive = ∣ (x , adjusted-proof) ∣
       where
       adjusted-proof : x *' (d *' d^k) == d *' n
       adjusted-proof = (sym (*'-assoc {x} {d})) >=> (*'-left (*'-commute {x} {d})) >=> (*'-assoc {d} {x})
@@ -90,54 +99,8 @@ private
            d *' n
          end)
 
-      d^sk%n : (d ^ℕ (suc k)) div' n
-      d^sk%n = x , adjusted-proof
-
-  compute-division-count' : (d : Nat) (n : Nat⁺) (bound : Nat) -> 1 < d -> ⟨ n ⟩ < bound
-                             -> DivisionCount d ⟨ n ⟩
-  compute-division-count' _ _           zero        _                  n<bound = bot-elim (zero-≮ n<bound)
-  compute-division-count' d (n , n-pos) (suc bound) 1<d@(d' , d'+2==d) sn≤sbound
-    with (decide-div d n)
-  ... | (no ¬d%n) = record
-    { d-pos        = transport (\i -> Pos' (ssd'==d i)) tt
-    ; n-pos        = n-pos
-    ; k            = 0
-    ; d^k%n        = div'-one
-    ; ¬d^[suc-k]%n = (transport (\i -> ¬ ((*'-right-one {d} (~ i)) div' n)) ¬d%n)
-    }
-    where
-
-    ssd'==d : (suc (suc d')) == d
-    ssd'==d = +'-commute {2} {d'} >=> d'+2==d
-  ... | (yes (zero       , pr)) = bot-elim (transport (\i -> Pos' (pr (~ i))) n-pos)
-  ... | (yes (x@(suc x') , pr)) =
-    (transport (\i -> DivisionCount d ((*'-commute {d} {x} >=> pr) i))
-               (division-count-suc rec-div-count))
-    where
-
-    ssd'==d : (suc (suc d')) == d
-    ssd'==d = +'-commute {2} {d'} >=> d'+2==d
-
-
-    sx+?==n : (suc x) +' (x' +' d' *' x) == n
-    sx+?==n = (sym (+'-right-suc {x}))
-              >=> (*'-commute {suc (suc d')} {x})
-              >=> (*'-right {x} ssd'==d)
-              >=> pr
-
-    x<n : suc x ≤ n
-    x<n = (x' +' d' *' x) , +'-commute {_} {suc x} >=> sx+?==n
-
-    x<bound : x < bound
-    x<bound = trans-<-≤ x<n (pred-≤ sn≤sbound)
-
-    rec-div-count : DivisionCount d x
-    rec-div-count = (compute-division-count' d (x , tt) bound 1<d x<bound)
-
-  compute-division-count : (d : Nat) -> (n : Nat⁺) -> 1 < d -> DivisionCount d ⟨ n ⟩
-  compute-division-count d n@(n' , _) 1<d =
-    compute-division-count' d n (suc n') 1<d refl-≤
-
+      d^sk%n : (d ^ℕ (suc k)) div n
+      d^sk%n = ∣ x , adjusted-proof ∣
 
   isPropDivisionCount : {d n : Nat} -> isProp (DivisionCount d n)
   isPropDivisionCount {d} {n}
@@ -147,24 +110,24 @@ private
         (isProp->PathPᵉ (\i -> isPropPos') d-pos1 d-pos2 i)
         (isProp->PathPᵉ (\i -> isPropPos') n-pos1 n-pos2 i)
         (p-k i)
-        (isProp->PathPᵉ (\i -> isPropDiv' {d ^ℕ (p-k i)} n1⁺) div-k1 div-k2 i)
-        (isProp->PathPᵉ (\i -> isProp¬ ((d ^ℕ (suc (p-k i))) div' n)) ¬div-sk1 ¬div-sk2 i))
+        (isProp->PathPᵉ (\i -> isPropDiv {a = d ^ℕ (p-k i)}) div-k1 div-k2 i)
+        (isProp->PathPᵉ (\i -> isProp¬ ((d ^ℕ (suc (p-k i))) div n)) ¬div-sk1 ¬div-sk2 i))
     where
       n1⁺ = DivisionCount.n⁺ dc1
 
-      lesser-power : ∀ {k1 k2 n} -> ¬ ((d ^ℕ suc k1) div' n) -> (d ^ℕ k2) div' n -> k2 ≤ k1
+      lesser-power : ∀ {k1 k2 n} -> ¬ ((d ^ℕ suc k1) div n) -> (d ^ℕ k2) div' n -> k2 ≤ k1
       lesser-power {k1}     {zero}   {n} _    _ = zero-≤
       lesser-power {suc k1} {suc k2} {n} ¬div (x , pr) =
-         suc-≤ (lesser-power ¬div-next div-next)
+         suc-≤ (lesser-power ¬div-next div'-next)
         where
         n' : Nat
         n' = x *' d ^ℕ k2
 
-        div-next : (d ^ℕ k2) div' n'
-        div-next = x , refl
+        div'-next : (d ^ℕ k2) div' n'
+        div'-next = x , refl
 
-        ¬div-next : ¬ ((d ^ℕ (suc k1)) div' n')
-        ¬div-next (y , pr2) = ¬div proof
+        ¬div'-next : ¬ ((d ^ℕ (suc k1)) div' n')
+        ¬div'-next (y , pr2) = ¬div proof
           where
           inner-pr : y *' (d ^ℕ (suc (suc k1))) == n
           inner-pr =
@@ -188,11 +151,14 @@ private
               n
             end
 
-          proof : ((d ^ℕ (suc (suc k1))) div' n)
-          proof = y , inner-pr
+          proof : ((d ^ℕ (suc (suc k1))) div n)
+          proof = ∣ y , inner-pr ∣
+
+        ¬div-next : ¬ ((d ^ℕ (suc k1)) div n')
+        ¬div-next p = unsquash isPropBot (∥-map ¬div'-next p)
 
 
-      lesser-power {zero}   {suc k2} {n} ¬div (x , pr) = bot-elim (¬d-div d-div)
+      lesser-power {zero}   {suc k2} {n} ¬div (x , pr) = bot-elim (¬d-div ∣ d-div ∣)
         where
         d-proof : (x *' (d ^ℕ k2)) *' d == n
         d-proof = (*'-assoc {x}) >=> (*'-right {x} (*'-commute {d ^ℕ k2})) >=> pr
@@ -200,15 +166,67 @@ private
         d-div : (d div' n)
         d-div = (x *' (d ^ℕ k2)) , d-proof
 
-        ¬d-div : ¬ (d div' n)
-        ¬d-div = (transport (\i -> ¬ ((*'-right-one {d} i) div' n)) ¬div)
+        ¬d-div : ¬ (d div n)
+        ¬d-div = (transport (\i -> ¬ ((*'-right-one {d} i) div n)) ¬div)
 
       proof-1 : k1 ≤ k2
-      proof-1 = lesser-power ¬div-sk2 div-k1
+      proof-1 = lesser-power ¬div-sk2 (unsquash (isPropDiv'-ℕ₂ n-pos1) div-k1)
       proof-2 : k2 ≤ k1
-      proof-2 = lesser-power ¬div-sk1 div-k2
+      proof-2 = lesser-power ¬div-sk1 (unsquash (isPropDiv'-ℕ₂ n-pos2) div-k2)
       p-k : k1 == k2
       p-k = (antisym-≤ proof-1 proof-2)
+
+
+  compute-division-count' : (d : Nat) (n : Nat⁺) (bound : Nat) -> 1 < d -> ⟨ n ⟩ < bound
+                             -> DivisionCount d ⟨ n ⟩
+  compute-division-count' _ _           zero        _                  n<bound = bot-elim (zero-≮ n<bound)
+  compute-division-count' d (n , n-pos) (suc bound) 1<d@(d' , d'+2==d) sn≤sbound
+    with (decide-div d n)
+  ... | (no ¬d%n) = record
+    { d-pos        = transport (\i -> Pos' (ssd'==d i)) tt
+    ; n-pos        = n-pos
+    ; k            = 0
+    ; d^k%n        = div-one
+    ; ¬d^[suc-k]%n = (transport (\i -> ¬ ((*'-right-one {d} (~ i)) div n)) ¬d%n)
+    }
+    where
+
+    ssd'==d : (suc (suc d')) == d
+    ssd'==d = +'-commute {2} {d'} >=> d'+2==d
+  ... | (yes d%n) = unsquash isPropDivisionCount (∥-map handle d%n)
+    where
+    handle : (d div' n) -> DivisionCount d n
+    handle (zero       , pr) = bot-elim (transport (\i -> Pos' (pr (~ i))) n-pos)
+    handle (x@(suc x') , pr) =
+      (transport (\i -> DivisionCount d ((*'-commute {d} {x} >=> pr) i))
+                 (division-count-suc rec-div-count))
+      where
+
+      ssd'==d : (suc (suc d')) == d
+      ssd'==d = +'-commute {2} {d'} >=> d'+2==d
+
+
+      sx+?==n : (suc x) +' (x' +' d' *' x) == n
+      sx+?==n = (sym (+'-right-suc {x}))
+                >=> (*'-commute {suc (suc d')} {x})
+                >=> (*'-right {x} ssd'==d)
+                >=> pr
+
+      x<n : suc x ≤ n
+      x<n = (x' +' d' *' x) , +'-commute {_} {suc x} >=> sx+?==n
+
+      x<bound : x < bound
+      x<bound = trans-<-≤ x<n (pred-≤ sn≤sbound)
+
+      rec-div-count : DivisionCount d x
+      rec-div-count = (compute-division-count' d (x , tt) bound 1<d x<bound)
+
+
+
+  compute-division-count : (d : Nat) -> (n : Nat⁺) -> 1 < d -> DivisionCount d ⟨ n ⟩
+  compute-division-count d n@(n' , _) 1<d =
+    compute-division-count' d n (suc n') 1<d refl-≤
+
 
   prime->Pos' : ∀ (p : Prime') -> Pos' ⟨ p ⟩
   prime->Pos' (zero  , (is-prime' p>1 _)) = bot-elim (zero-≮ p>1)
@@ -218,6 +236,7 @@ private
 compute-prime-division-count : (p : Prime')  (n : Nat⁺) -> DivisionCount ⟨ p ⟩ ⟨ n ⟩
 compute-prime-division-count p@(p' , _) n =
   compute-division-count p' n (Prime'.>1 p)
+
 
 private
 
@@ -249,12 +268,13 @@ private
       { d-pos        = prime->Pos' p
       ; n-pos        = tt
       ; k            = 0
-      ; d^k%n        = (1 , refl)
-      ; ¬d^[suc-k]%n = transport (\i -> ¬(^ℕ-one {x = pv} (~ i) div' 1)) no-divides
+      ; d^k%n        = ∣ (1 , refl) ∣
+      ; ¬d^[suc-k]%n = transport (\i -> ¬(^ℕ-one {x = pv} (~ i) div 1)) no-divides
       }
       where
-      no-divides : ¬ (pv div' 1)
-      no-divides pv%1 = irrefl-< (trans-≤-< (div'->≤ pv%1) p>1)
+      no-divides : ¬ (pv div 1)
+      no-divides pv%1 = irrefl-< (trans-≤-< (div->≤ pv%1 tt) p>1)
+
 
     product-division-count-empty : product-division-count p [] == 0
     product-division-count-empty =
@@ -281,7 +301,7 @@ private
       { d-pos        = d-pos
       ; n-pos        = *'-Pos'-Pos' (prime->Pos' p2) n-pos
       ; k            = k
-      ; d^k%n        = div'-mult d^k%n ⟨ p2 ⟩
+      ; d^k%n        = div-*ˡ d^k%n ⟨ p2 ⟩
       ; ¬d^[suc-k]%n = no-divides
       }
       where
@@ -294,7 +314,7 @@ private
       rp : RelativelyPrime⁰ (pv ^ℕ (suc k)) p2v
       rp = (rp-sym (relatively-prime-^ℕ (rp-sym rp') (suc k)))
 
-      no-divides : ¬ ((pv ^ℕ (suc k)) div' (p2v *' n))
+      no-divides : ¬ ((pv ^ℕ (suc k)) div (p2v *' n))
       no-divides p^sk%p2*n = ¬d^sk%n (euclids-lemma/rp p^sk%p2*n rp)
 
 
@@ -401,15 +421,15 @@ module _ (p : Prime') {a : Nat} (pf : PrimeFactorization a) where
   private
     p' = fst p
 
-    div->∈-primes : (⟨ p ⟩ div' a) -> (contains p (PrimeFactorization.primes pf))
-    div->∈-primes (x , div-path) =
+    div'->∈-primes : (⟨ p ⟩ div' a) -> (contains p (PrimeFactorization.primes pf))
+    div'->∈-primes (x , div-path) =
       primes-x , full-path
       where
       pos-a : Pos' a
       pos-a = (PrimeFactorization.pos pf)
 
       pos-x : Pos' x
-      pos-x = div'-pos->pos (p' , *'-commute {p'} {x} >=> div-path) pos-a
+      pos-x = div-pos->pos ∣ (p' , *'-commute {p'} {x} >=> div-path) ∣ pos-a
 
       pf-x : PrimeFactorization x
       pf-x = compute-prime-factorization (x , pos-x)
@@ -427,24 +447,28 @@ module _ (p : Prime') {a : Nat} (pf : PrimeFactorization a) where
       full-path : p :: primes-x == PrimeFactorization.primes pf
       full-path = cong PrimeFactorization.primes (isPropPrimeFactorization pf' pf)
 
+    div->∈-primes : (⟨ p ⟩ div a) -> (contains p (PrimeFactorization.primes pf))
+    div->∈-primes p%a =
+      unsquash isPropContainsDiscrete (∥-map div'->∈-primes p%a)
 
-    ∈-primes->div : (contains p (PrimeFactorization.primes pf)) -> (⟨ p ⟩ div' a)
+
+    ∈-primes->div : (contains p (PrimeFactorization.primes pf)) -> (⟨ p ⟩ div a)
     ∈-primes->div (ps' , ul-path) =
-      (prime-product ps' ,
-       *'-commute {prime-product ps'} {p'}
-       >=> cong prime-product ul-path
-       >=> PrimeFactorization.product pf)
+      ∣ (prime-product ps' ,
+         *'-commute {prime-product ps'} {p'}
+         >=> cong prime-product ul-path
+         >=> PrimeFactorization.product pf) ∣
 
 
-  prime-div-prime-factorization-∈-iso : Iso (p' div' a) (contains p (PrimeFactorization.primes pf))
+  prime-div-prime-factorization-∈-iso : Iso (p' div a) (contains p (PrimeFactorization.primes pf))
   prime-div-prime-factorization-∈-iso = record
     { fun = div->∈-primes
     ; inv = ∈-primes->div
     ; rightInv = \c -> isPropContainsDiscrete (div->∈-primes (∈-primes->div c)) c
-    ; leftInv = \d -> isPropDiv' (PrimeFactorization.nat⁺ pf) (∈-primes->div (div->∈-primes d)) d
+    ; leftInv = \d -> isPropDiv (∈-primes->div (div->∈-primes d)) d
     }
 
-  prime-div==prime-factorization-∈ : (⟨ p ⟩ div' a) == contains p (PrimeFactorization.primes pf)
+  prime-div==prime-factorization-∈ : (⟨ p ⟩ div a) == contains p (PrimeFactorization.primes pf)
   prime-div==prime-factorization-∈ = ua (isoToEquiv prime-div-prime-factorization-∈-iso)
 
 
@@ -514,6 +538,8 @@ prime-same-division-count a b f = same-division-count a b g
       -> (DivisionCount.k d1) == (DivisionCount.k d2)
   g p d1 d2 = f p (division-count->prime-div-count d1) (division-count->prime-div-count d2)
 
+
+
 prime-same-division-count⁺ : (a b : Nat⁺) ->
   ((p : Prime') -> prime-div-count p a == prime-div-count p b)
   -> a == b
@@ -528,6 +554,7 @@ prime-same-division-count⁺ a b f = ΣProp-path isPropPos' (prime-same-division
     >=> (f p)
     >=> prime-div-count-unique (prime-div-count-proof p b) dc2
 
+
 prime-different-division-count : (a b : Nat⁺) -> a <⁺ b
                                  -> Σ[ p ∈ Prime' ] (prime-div-count p a < prime-div-count p b)
 prime-different-division-count a@(a' , a-pos) b@(b' , b-pos) a<b =
@@ -538,24 +565,29 @@ prime-different-division-count a@(a' , a-pos) b@(b' , b-pos) a<b =
 
   g%a : g div⁺ a
   g%a = GCD'.%a (gcd⁺-proof a b)
+  g%'a : g' div' a'
+  g%'a = unsquash (isPropDiv'-ℕ₂ a-pos) g%a
 
   g%b : g div⁺ b
   g%b = GCD'.%b (gcd⁺-proof a b)
+  g%'b : g' div' b'
+  g%'b = unsquash (isPropDiv'-ℕ₂ b-pos) g%b
 
-  da = fst g%a
-  db = fst g%b
-  da⁺ = div⁺->multiple⁺ {g} {a} g%a
-  db⁺ = div⁺->multiple⁺ {g} {b} g%b
+  da = fst g%'a
+  db = fst g%'b
+  da⁺ = div'⁺->multiple⁺ {g} {a} g%'a
+  db⁺ = div'⁺->multiple⁺ {g} {b} g%'b
 
   da-path : da *' g' == a'
-  da-path = snd g%a
+  da-path = snd g%'a
   da⁺-path : da⁺ *⁺ g == a
   da⁺-path = ΣProp-path isPropPos' da-path
 
   db-path : db *' g' == b'
-  db-path = snd g%b
+  db-path = snd g%'b
   db⁺-path : db⁺ *⁺ g == b
   db⁺-path = ΣProp-path isPropPos' db-path
+
 
   db>1 : db > 1
   db>1 = handle db refl
@@ -569,37 +601,38 @@ prime-different-division-count a@(a' , a-pos) b@(b' , b-pos) a<b =
       g=b = sym *'-left-one >=> *'-left path >=> db-path
 
       b%a : b div⁺ a
-      b%a = transport (\i -> (g=b i) div' a') g%a
+      b%a = transport (\i -> (g=b i) div a') g%a
 
       b≤a : b ≤⁺ a
-      b≤a = div'->≤ b%a {a-pos}
+      b≤a = div->≤ b%a a-pos
 
-  Σp : Σ[ p ∈ Prime' ] (⟨ p ⟩ div' db)
+  Σp : Σ[ p ∈ Prime' ] (⟨ p ⟩ div db)
   Σp = exists-prime-divisor db>1
 
   p = fst Σp
   p%db = snd Σp
+  p%'db = unsquash (isPropDiv'-ℕ₁ (Prime'.pos p)) p%db
   p' = ⟨ p ⟩
 
   db2⁺ : Nat⁺
-  db2⁺ = div⁺->multiple⁺ {Prime'.nat⁺ p} {db⁺} p%db
+  db2⁺ = div'⁺->multiple⁺ {Prime'.nat⁺ p} {db⁺} p%'db
 
-  ¬p%da : ¬( p' div' da)
+  ¬p%da : ¬( p' div da)
   ¬p%da p%da = Prime'.!=1 p p'=1
     where
-    pg%a : (p' *' g') div' a'
-    pg%a = transport (\i -> (p' *' g') div' (da-path i)) (div'-mult-both p%da div'-refl)
-    pg%b : (p' *' g') div' b'
-    pg%b = transport (\i -> (p' *' g') div' (db-path i)) (div'-mult-both p%db div'-refl)
+    pg%a : (p' *' g') div a'
+    pg%a = transport (\i -> (p' *' g') div (da-path i)) (div-* p%da div-refl)
+    pg%b : (p' *' g') div b'
+    pg%b = transport (\i -> (p' *' g') div (db-path i)) (div-* p%db div-refl)
 
-    pg%g : (p' *' g') div' g'
+    pg%g : (p' *' g') div g'
     pg%g = GCD'.f (gcd⁺-proof a b) (p' *' g') pg%a pg%b
 
-    g%pg : g' div' (p' *' g')
-    g%pg = p' , refl
+    g%pg : g' div (p' *' g')
+    g%pg = ∣ p' , refl ∣
 
     g=pg : g' == p' *' g'
-    g=pg = div'-antisym g%pg pg%g
+    g=pg = div-antisym g%pg pg%g
 
     p'=1 : p' == 1
     p'=1 = sym (*'-right-injective g (*'-left-one >=> g=pg))
@@ -614,7 +647,7 @@ prime-different-division-count a@(a' , a-pos) b@(b' , b-pos) a<b =
   dc-b-path =
     cong (prime-div-count p) (sym db⁺-path)
     >=> *'-prime-div-count⁺ p db⁺ g
-    >=> +'-left (suc-prime-div-count p p%db)
+    >=> +'-left (suc-prime-div-count p p%'db)
 
   dc-full-path : (prime-div-count p db2⁺) +' (suc (prime-div-count p a)) == prime-div-count p b
   dc-full-path =

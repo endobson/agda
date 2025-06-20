@@ -29,6 +29,7 @@ open import ring.exponentiation
 open import ring.implementations.int
 open import ring.implementations.rational
 open import semiring
+open import truncation
 open import semiring.instances.nat
 
 private

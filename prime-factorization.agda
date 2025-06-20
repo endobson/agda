@@ -5,16 +5,18 @@ module prime-factorization where
 open import additive-group.instances.nat
 open import base
 open import commutative-monoid
-open import div
 open import equality
 open import functions
 open import nat
+open import nat.division
 open import nat.order
 open import order
 open import order.instances.nat
 open import prime
 open import relation
+open import truncation
 open import semiring.instances.nat
+open import semiring.division
 open import unordered-list
 
 open PrimeUpTo
@@ -60,6 +62,7 @@ private
     primality-prime : (p : Prime') -> Primality ⟨ p ⟩
     primality-composite : (a b : Nat) -> a > 1 -> b > 1 -> Primality (a *' b)
 
+
   -- ≤ recursion scheme that supports counting up
   data _≤u_ : Nat -> Nat -> Type₀ where
     refl-≤u : {m : Nat} -> m ≤u m
@@ -69,8 +72,8 @@ private
   ≤u->≤ (refl-≤u {m}) = refl-≤
   ≤u->≤ (step-≤u rec) = (pred-≤ (right-suc-≤ (≤u->≤ rec)))
 
-  div->composite : {d n : Nat} -> d != 0 -> d != 1 -> d != n -> n != 0 -> d div' n -> Primality n
-  div->composite {d} d0 d1 dn n0 (x , p) =
+  div'->composite : {d n : Nat} -> d != 0 -> d != 1 -> d != n -> n != 0 -> d div' n -> Primality n
+  div'->composite {d} d0 d1 dn n0 (x , p) =
     transport (\i -> Primality (p i))
               (primality-composite x d (≠->>1 x0 x1) (≠->>1 d0 d1))
     where
@@ -84,8 +87,6 @@ private
     x1 : x != 1
     x1 x==1 = dn (sym *'-left-one >=> (\i -> x==1 (~ i) *' d) >=> p)
 
-
-
   compute-primality : {p : Nat} -> p > 1 -> Primality p
   compute-primality p@{suc (suc p')} p>1  =
       rec (0≤i p' refl-≤u) (prime-up-to-two p p>1)
@@ -98,12 +99,12 @@ private
     rec refl-≤u pr = primality-prime (_ , (prime-up-to->is-prime' pr))
     rec {i} (step-≤u step) pr with decide-div (suc (suc i)) p
     ... | no not-div = rec step (prime-up-to-suc pr not-div)
-    ... | yes div = div->composite {suc (suc i)} {p}
-                    (\ p -> bot-elim (zero-suc-absurd (sym p)))
-                    (\ p -> bot-elim (zero-suc-absurd (sym (suc-injective p))))
-                    (<->!= (suc-≤ (suc-≤ (≤u->≤ step))))
-                    (\ p -> bot-elim (zero-suc-absurd (sym p)))
-                    div
+    ... | yes d = div'->composite {suc (suc i)} {p}
+                  (\ p -> bot-elim (zero-suc-absurd (sym p)))
+                  (\ p -> bot-elim (zero-suc-absurd (sym (suc-injective p))))
+                  (<->!= (suc-≤ (suc-≤ (≤u->≤ step))))
+                  (\ p -> bot-elim (zero-suc-absurd (sym p)))
+                  (div->div' d)
   compute-primality {suc zero} p>1 = bot-elim (irrefl-< p>1)
   compute-primality {zero}     p>1 = bot-elim (zero-≮ p>1)
 
@@ -179,13 +180,13 @@ private
   convert-prime-factorization (prime-factorization-tree-composite t1 t2) =
     prime-factorization-* (convert-prime-factorization t1) (convert-prime-factorization t2)
 
-exists-prime-divisor : {n : Nat} -> n > 1 -> Σ[ p ∈ Prime' ] (⟨ p ⟩ div' n)
-exists-prime-divisor {n} n>1 = rec (compute-prime-factorization-tree n>1) div'-refl
+exists-prime-divisor : {n : Nat} -> n > 1 -> Σ[ p ∈ Prime' ] (⟨ p ⟩ div n)
+exists-prime-divisor {n} n>1 = rec (compute-prime-factorization-tree n>1) div-refl
   where
-  rec : {a : Nat} -> (PrimeFactorizationTree a) -> a div' n -> Σ[ p ∈ Prime' ] (⟨ p ⟩ div' n)
+  rec : {a : Nat} -> (PrimeFactorizationTree a) -> a div n -> Σ[ p ∈ Prime' ] (⟨ p ⟩ div n)
   rec (prime-factorization-tree-prime (a , prime-a)) a%n = (a , prime-a) , a%n
   rec {a} (prime-factorization-tree-composite {d} {e} df ef) a%n =
-    rec ef (div'-trans (d , refl) a%n)
+    rec ef (div-trans (∣ d , refl ∣) a%n)
 
 -- Prime factorizations exist and are computable
 
@@ -233,7 +234,7 @@ Decidable-IsPrime' n@(suc (suc _)) = handle (compute-primality (suc-≤ (suc-≤
     b%ab : b div' (a *' b)
     b%ab = a , refl
     ¬p : ¬ (IsPrime' (a *' b))
-    ¬p isp = handle2 (prime-only-divisors p b%ab)
+    ¬p isp = handle2 (prime-only-divisors p ∣ b%ab ∣)
       where
       p : Prime'
       p = a *' b , isp
@@ -243,7 +244,5 @@ Decidable-IsPrime' n@(suc (suc _)) = handle (compute-primality (suc-≤ (suc-≤
         where
         b%ab2 : b div' (a *' b)
         b%ab2 = 1 , *'-left-one >=> b==a*'b
-        ab⁺ : Nat⁺
-        ab⁺ = a *' b , *'-Pos'-Pos' (<->Pos' a>1) (<->Pos' b>1)
         a==1 : a == 1
-        a==1 = cong fst (isPropDiv' ab⁺ b%ab b%ab2)
+        a==1 = cong fst (isPropDiv'-ℕ₁ (<->Pos' (trans-≤-< zero-≤ b>1)) b%ab b%ab2)

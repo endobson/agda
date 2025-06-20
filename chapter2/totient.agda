@@ -7,7 +7,6 @@ open import base
 open import chapter2.divisors
 open import chapter2.multiplicative
 open import cubical
-open import div hiding (remainder)
 open import equality
 open import equivalence
 open import fin
@@ -29,6 +28,7 @@ open import isomorphism
 open import modular-integers
 open import modular-integers.binary-product
 open import nat
+open import nat.division
 open import nat.bounded
 open import nat.order
 open import order
@@ -42,6 +42,7 @@ open import prime-gcd
 open import quotient-remainder
 open import relation
 open import relatively-prime
+open import semiring.division
 open import semiring.exponentiation
 open import semiring.initial
 open import semiring.instances.nat
@@ -63,7 +64,8 @@ record Totient (n : Nat) (k : Nat) : Type₀ where
   k<n n>1 = strengthen-≤ k≤n k!=n
     where
     k!=n : k != n
-    k!=n k==n = <->!= n>1 (sym (rp n (transport (\i -> (k==n i) div' k) div'-refl) div'-refl))
+    k!=n k==n = <->!= n>1 (sym (rp n (transport (\i -> (k==n i) div k) div-refl) div-refl))
+
 
 isTotativeOf : Nat -> Nat -> Type₀
 isTotativeOf = Totient
@@ -74,6 +76,7 @@ isProp-isTotativeOf t1 t2 i = record
   ; k≤n = isProp-≤ (t1 .Totient.k≤n) (t2 .Totient.k≤n) i
   ; rp = isPropΠ3 (\ _ _ _ -> isSetNat _ _) (t1 .Totient.rp) (t2 .Totient.rp) i
   }
+
 
 isBoundedTotient : {n : Nat} -> isBounded (Totient n)
 isBoundedTotient {n} = (suc n) , (\ t -> trans-≤-< (Totient.k≤n t) refl-≤)
@@ -108,6 +111,7 @@ FinSet-Totatives n = Totatives n , isFinSet-Totatives
 
 φ : Nat⁺ -> Nat
 φ (n , _) = cardinality (FinSet-Totatives n)
+
 
 private
   totient-one-one : (Totient 1 1)
@@ -152,8 +156,8 @@ module _ (p : Prime') where
       ; rp = rp
       }
       where
-      ¬p%k : ¬(p' div' k)
-      ¬p%k p%k = irrefl-< (trans-<-≤ k<p (div'->≤ p%k {pos-k}))
+      ¬p%k : ¬(p' div k)
+      ¬p%k p%k = irrefl-< (trans-<-≤ k<p (div->≤ p%k pos-k))
 
       rp : RelativelyPrime⁰ k p'
       rp = rp-sym (prime->relatively-prime p ¬p%k)
@@ -212,7 +216,7 @@ module _ (p : Prime') where
       pos-ipnk = +'-Pos-right (Totient.pos-k t)
 
       prime-power≥prime : (prime-power p n) ≥ p'
-      prime-power≥prime = div'->≤ (prime-power-div p n⁺) {snd (prime-power⁺ p n)}
+      prime-power≥prime = div->≤ (prime-power-div p n⁺) (snd (prime-power⁺ p n))
 
       i<p-check : i < p'
       i<p-check = i<p
@@ -263,17 +267,17 @@ module _ (p : Prime') where
       rp a a%ipnk a%psn = Totient.rp t a a%k a%pn
         where
         a<psn : a < (prime-power p (suc n))
-        a<psn = trans-≤-< (div'->≤ a%ipnk {pos-ipnk}) ipnk<psn
+        a<psn = trans-≤-< (div->≤ a%ipnk pos-ipnk) ipnk<psn
 
 
-        a%pn : a div' (prime-power p n)
+        a%pn : a div (prime-power p n)
         a%pn = case (split-prime-power-divisor p n a a%psn) of
          (\{ (inj-l path) -> bot-elim (<->!= a<psn path)
            ; (inj-r a%pn) -> a%pn
            })
 
-        a%k : a div' k
-        a%k = div'-+'-left (div'-mult a%pn i) a%ipnk
+        a%k : a div k
+        a%k = div-+-left (div-*ˡ a%pn i) a%ipnk
 
 
     is-totative-of-prime-power-pred :
@@ -296,12 +300,12 @@ module _ (p : Prime') where
       r!=0 : r' != 0
       r!=0 r==0 = Prime'.!=1 p (Totient.rp t p' p%k (prime-power-div p (suc n , tt)))
         where
-        pn%k : (prime-power p n) div' k
-        pn%k = q , sym (+'-right-zero)
-               >=> (cong ((q *' (prime-power p n)) +'_) (sym r==0))
-               >=> qr.path
-        p%k : p' div' k
-        p%k = div'-trans (prime-power-div p n⁺) pn%k
+        pn%k : (prime-power p n) div k
+        pn%k = ∣ q , sym (+'-right-zero) >=>
+                     (cong ((q *' (prime-power p n)) +'_) (sym r==0)) >=>
+                     qr.path ∣
+        p%k : p' div k
+        p%k = div-trans (prime-power-div p n⁺) pn%k
 
       !=0->Pos : (x : Nat) -> (x != 0) -> Pos' x
       !=0->Pos zero    f = f refl
@@ -329,12 +333,12 @@ module _ (p : Prime') where
       rp : RelativelyPrime⁰ r' (prime-power p n)
       rp a a%r a%pn = Totient.rp t a a%k a%psn
         where
-        a%qpnr : a div' (q *' (prime-power p n) +' r')
-        a%qpnr = div'-+' (div'-mult a%pn q) a%r
-        a%k : a div' k
-        a%k = fst a%qpnr , snd a%qpnr >=> qr.path
-        a%psn : a div' (prime-power p (suc n))
-        a%psn = (div'-mult a%pn p')
+        a%qpnr : a div (q *' (prime-power p n) +' r')
+        a%qpnr = div-+ (div-*ˡ a%pn q) a%r
+        a%k : a div k
+        a%k = subst (a div_) qr.path a%qpnr
+        a%psn : a div (prime-power p (suc n))
+        a%psn = (div-*ˡ a%pn p')
 
 
     totatives-prime-power-eq'-1 : (n : Nat⁺) ->
@@ -358,7 +362,7 @@ module _ (p : Prime') where
         cong2 _,_ (fin-i-path i'-path) (ΣProp-path isProp-isTotativeOf k-path)
         where
         prime-power≥prime : (prime-power p n) ≥ p'
-        prime-power≥prime = div'->≤ (prime-power-div p n⁺) {snd (prime-power⁺ p n)}
+        prime-power≥prime = div->≤ (prime-power-div p n⁺) (snd (prime-power⁺ p n))
         pn>1 : (prime-power p n) > 1
         pn>1 = trans-≤ (Prime'.>1 p) prime-power≥prime
         i'-path : quotient ((Fin.i i *' (prime-power p n)) +' k) (prime-power⁺ p n) == Fin.i i
@@ -426,6 +430,8 @@ module _ (p : Prime') where
               (FinSet-Σ (FinSet-Fin p') (\_ -> (FinSet-Totatives (prime-power p n))))
     fs-path = (ΣProp-path isProp-isFinSet (ua (totatives-prime-power-eq'-2 (n , tt))))
 
+
+
 -- (ℤ/nℤ* a) has φ(a) elements
 -- (ℤ/nℤ* b) has φ(b) elements
 -- if RP a b then
@@ -489,6 +495,7 @@ private
     uc : (x : ℤ/nℤ n) -> (Unit' x) ≃ (CoprimeN n⁺ x)
     uc = Unit-CoprimeN-eq n⁺
 
+
   private
     module _ {n : Nat} (n>1 : n > 1) where
       FinSucRP-FinRP->1-eq : (Σ (Fin n) (\(i , _) -> RelativelyPrime⁰ n (suc i))) ≃
@@ -499,7 +506,7 @@ private
         i : Iso (Σ (Fin n) (\(i , _) -> RelativelyPrime⁰ n (suc i)))
                 (Σ (Fin n) (\(i , _) -> RelativelyPrime⁰ n i))
         i .fun ((i , (zero  , path)) , rp) =
-          bot-elim (<->!= n>1 (sym ((subst (RelativelyPrime⁰ n) path rp) n div'-refl div'-refl)))
+          bot-elim (<->!= n>1 (sym ((subst (RelativelyPrime⁰ n) path rp) n div-refl div-refl)))
         i .fun ((i , (suc j , path)) , rp) = (suc i , (j , +'-right-suc >=> path)) , rp
         i .inv ((zero  , lt) , rp) = bot-elim (<->!= n>1 (sym (rp-zero (rp-sym rp))))
         i .inv ((suc i , lt) , rp) = (i , pred-≤ (right-suc-≤ lt)) , rp
@@ -507,7 +514,7 @@ private
         i .rightInv ((suc i , (j , path)) , rp) =
           ΣProp-path isProp-RelativelyPrime⁰ (fin-i-path refl)
         i .leftInv ((i , (zero  , path)) , rp) =
-          bot-elim (<->!= n>1 (sym ((subst (RelativelyPrime⁰ n) path rp) n div'-refl div'-refl)))
+          bot-elim (<->!= n>1 (sym ((subst (RelativelyPrime⁰ n) path rp) n div-refl div-refl)))
         i .leftInv ((i , (suc j , path)) , rp) =
           ΣProp-path isProp-RelativelyPrime⁰ (fin-i-path refl)
 
@@ -616,6 +623,7 @@ Multiplicative-φ .snd a b rp =
   b' = ⟨ b ⟩
   path1 : (FinSet-Totatives (a' *' b')) == (FinSet-× (FinSet-Totatives a') (FinSet-Totatives b'))
   path1 = ΣProp-path isProp-isFinSet (ua (Totatives-rp-eq a b rp))
+
 
 φ-0< : (n : Nat⁺) -> 0 < φ n
 φ-0< (n , n-pos) = eqFun (inhabited-0<cardinality (FinSet-Totatives n)) ∣ 1 , t ∣

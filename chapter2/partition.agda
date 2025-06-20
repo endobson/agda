@@ -9,7 +9,6 @@ open import additive-group.instances.nat
 open import base
 open import chapter2.totient
 open import cubical
-open import div
 open import equality
 open import equivalence
 open import fin
@@ -27,6 +26,7 @@ open import int
 open import isomorphism
 open import linear-combo
 open import nat
+open import nat.division
 open import nat.bounded
 open import nat.order
 open import order
@@ -37,6 +37,7 @@ open import prime-gcd
 open import relatively-prime
 open import ring.implementations.int
 open import semiring
+open import semiring.division
 open import semiring.instances.nat
 open import sigma
 open import sigma.base
@@ -132,13 +133,13 @@ module _ (n⁺ : Nat⁺) where
 
   isPropGCD' : (k : Nat⁺) (d : Nat) -> isProp (GCD' ⟨ k ⟩ n d)
   isPropGCD' k⁺ d g1 g2 = (\i -> record
-    { %a = isPropDiv' k⁺ (g1 .GCD'.%a) (g2 .GCD'.%a) i
-    ; %b = isPropDiv' n⁺ (g1 .GCD'.%b) (g2 .GCD'.%b) i
-    ; f = isPropΠ3 (\ _ _ _ -> isPropDiv' (d , dPos)) (g1 .GCD'.f) (g2 .GCD'.f) i
+    { %a = isPropDiv (g1 .GCD'.%a) (g2 .GCD'.%a) i
+    ; %b = isPropDiv (g1 .GCD'.%b) (g2 .GCD'.%b) i
+    ; f = isPropΠ3 (\ _ _ _ -> isPropDiv) (g1 .GCD'.f) (g2 .GCD'.f) i
     })
     where
     dPos : Pos' d
-    dPos = div'-pos->pos (g1 .GCD'.%b) (snd n⁺)
+    dPos = div-pos->pos (g1 .GCD'.%b) (snd n⁺)
 
   module _ where
     private
@@ -173,12 +174,16 @@ module _ (n⁺ : Nat⁺) where
     Divisors : Nat -> Type₀
     Divisors n = Σ[ d ∈ Nat ] (d div' n)
 
+    {-
     isoADiv : Iso (Σ Nat A) (Σ[ d ∈ (Divisors n) ] (A ⟨ d ⟩))
     isoADiv .Iso.fun (d , (k , g)) = ((d , g .GCD'.%b) , (k , g))
     isoADiv .Iso.inv ((d , _) , a) = (d , a)
-    isoADiv .Iso.rightInv ((d , d-div) , (k , g)) i = ((d , isPropDiv' n⁺ (g .GCD'.%b) d-div i) , (k , g))
+    isoADiv .Iso.rightInv ((d , d-div) , (k , g)) i =
+      ((d , isPropDiv (g .GCD'.%b) d-div i) , (k , g))
     isoADiv .Iso.leftInv _ = refl
+    -}
 
+    {-
     isoTotADiv : Iso (Σ[ d ∈ (Divisors n) ] (Totatives ⟨ (snd d) ⟩)) (Σ[ d ∈ (Divisors n) ] (A ⟨ d ⟩))
     isoTotADiv = existential-iso inner-iso
       where
@@ -198,9 +203,9 @@ module _ (n⁺ : Nat⁺) where
           q-path = snd d%k
 
           d⁺ : Nat⁺
-          d⁺ = d , (div'-pos->pos d%k pos-k)
+          d⁺ = d , (div-pos->pos d%k pos-k)
           pos-q : Pos' q
-          pos-q = (div'-pos->pos' d%k pos-k)
+          pos-q = (div-pos->pos' d%k pos-k)
 
           qd≤ndd : (q *' d) ≤ (nd *' d)
           qd≤ndd = transport (\i -> (q-path (~ i)) ≤ (nd-path (~ i))) lt
@@ -324,6 +329,8 @@ module _ (n⁺ : Nat⁺) where
       inner-iso (d , d%n) .Iso.rightInv a = diva->totative->diva d d%n a
       inner-iso (d , d%n) .Iso.leftInv tot = totative->diva->totative d d%n tot
 
+
+
   isoFin1 : Iso (Fin1 n) (Fin n)
   isoFin1 .Iso.fun (((suc x) , tt) , lt) = (x , lt)
   isoFin1 .Iso.inv (x , lt) = (((suc x) , tt) , lt)
@@ -383,3 +390,5 @@ module _ (n⁺ : Nat⁺) where
     sym (cardinality-Σ FinSet-Divisors (\(d , _) -> FinSet-Totatives d))
     >=> cong cardinality combined-path
     >=> cardinality-path (FinSet-Fin n) finΣ
+
+-}
