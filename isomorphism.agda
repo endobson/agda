@@ -197,8 +197,9 @@ module _ (iso : Iso A B) where
               (f (base-square i j))
 
       -- Finally construct the fiber path
-      fiber-path : Path (fiber f y) (a1 , p1) (a2 , p2)
-      fiber-path i = (pa i , top-square2 i)
+      opaque
+        fiber-path : Path (fiber f y) (a1 , p1) (a2 , p2)
+        fiber-path i = (pa i , top-square2 i)
 
     contractible-fibers : ∀ (y : B) -> isContr (fiber f y)
     contractible-fibers y .fst .fst = (g y)
