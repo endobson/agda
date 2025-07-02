@@ -503,7 +503,7 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
       isProp-q# a b = snd (_q#'_ a b)
 
       irrefl-q# : Irreflexive _q#_
-      irrefl-q# {a} = SetQuotientElim.elimProp {C = \a -> ¬ (a q# a)} (\_ -> isProp¬ _) irrefl-f# a
+      irrefl-q# {a} = SetQuotientElim.elimProp {C = \a -> ¬ (a q# a)} (\_ -> isProp¬) irrefl-f# a
 
       sym-q# : Symmetric _q#_
       sym-q# {a} {b} =

@@ -148,7 +148,7 @@ private
         (isProp->PathPᵉ (\i -> isPropPos') n-pos1 n-pos2 i)
         (p-k i)
         (isProp->PathPᵉ (\i -> isPropDiv' {d ^ℕ (p-k i)} n1⁺) div-k1 div-k2 i)
-        (isProp->PathPᵉ (\i -> isProp¬ ((d ^ℕ (suc (p-k i))) div' n)) ¬div-sk1 ¬div-sk2 i))
+        (isProp->PathPᵉ (\i -> isProp¬ᵉ ((d ^ℕ (suc (p-k i))) div' n)) ¬div-sk1 ¬div-sk2 i))
     where
       n1⁺ = DivisionCount.n⁺ dc1
 

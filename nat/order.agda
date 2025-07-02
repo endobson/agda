@@ -30,7 +30,7 @@ _≤⁺_ : Nat⁺ -> Nat⁺ -> Set
 m ≤⁺ n = ⟨ m ⟩ ≤ ⟨ n ⟩
 
 isProp≮ : {m n : Nat} -> isProp (m ≮ n)
-isProp≮ = isProp¬ _
+isProp≮ = isProp¬
 
 suc-< : {m n : Nat} -> m < n -> suc m < suc n
 suc-< = suc-≤

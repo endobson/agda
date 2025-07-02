@@ -662,7 +662,7 @@ opaque
 ℚInv a = (a != 0r)
 
 isProp-ℚInv : {a : ℚ} -> isProp (ℚInv a)
-isProp-ℚInv = isProp¬ _
+isProp-ℚInv = isProp¬
 
 
 opaque

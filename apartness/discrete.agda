@@ -40,5 +40,5 @@ module _ {ℓD : Level} {D : Type ℓD} (disc : Discrete D) where
     ; irrefl-# = irrefl-d#
     ; sym-# = sym-d#
     ; comparison-# = comparison-d#
-    ; isProp-# = isProp¬ _
+    ; isProp-# = isProp¬
     }

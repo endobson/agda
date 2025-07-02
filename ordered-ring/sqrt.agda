@@ -58,7 +58,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrd
 
   isProp-Σsqrt : {x : D} -> isProp (Σ D (isSqrt x))
   isProp-Σsqrt (y1 , y1≮0 , y1y1=x) (y2 , y2≮0 , y2y2=x) =
-    ΣProp-path (isProp× (isProp¬ _) (isSet-D _ _))
+    ΣProp-path (isProp× isProp¬ (isSet-D _ _))
                (connected-< (y1≮y2 y1≮0 (y1y1=x >=> sym y2y2=x))
                             (y1≮y2 y2≮0 (y2y2=x >=> sym y1y1=x)))
     where

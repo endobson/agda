@@ -59,7 +59,7 @@ Odd->¬Even n on en = Even->¬Odd n en on
 ¬Even->Odd (suc i) ¬oi = ¬Odd->Even i ¬oi
 
 Odd≃¬Even : (n : Nat) -> Odd n ≃ ¬ (Even n)
-Odd≃¬Even n = isoToEquiv (isProp->iso (Odd->¬Even n) (¬Even->Odd n) (isProp-Odd n) (isProp¬ _))
+Odd≃¬Even n = isoToEquiv (isProp->iso (Odd->¬Even n) (¬Even->Odd n) (isProp-Odd n) isProp¬)
 
 Even->div' : {n : Nat} -> Even n -> 2 div' n
 Even->div' {zero} _ = (0 , refl)

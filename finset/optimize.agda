@@ -83,7 +83,7 @@ private
       Ans-min = ¬ V ⊎ (∃[ v ∈ V ] ∀ (v2 : V) -> f v ≤ f v2)
 
       isProp-Ans-min : isProp Ans-min
-      isProp-Ans-min = isProp⊎ (isProp¬ _) squash not-both
+      isProp-Ans-min = isProp⊎ isProp¬ squash not-both
         where
         not-both : _ -> _ -> Bot
         not-both ¬v ∃v = unsquash isPropBot (∥-map (¬v ∘ fst) ∃v)

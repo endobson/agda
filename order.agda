@@ -47,7 +47,7 @@ record isLinearOrder {D : Type ℓD} (_<_ : Rel D ℓ<)  : Type (ℓ-max ℓ< �
 isProp-isLinearOrder : {D : Type ℓD} (_<_ : Rel D ℓ<) -> isProp (isLinearOrder _<_)
 isProp-isLinearOrder _ O1@(record {}) O2@(record {}) = \i -> record
   { isProp-< = isProp-isProp O1.isProp-< O2.isProp-< i
-  ; irrefl-< = isProp¬ _ O1.irrefl-< O2.irrefl-<  i
+  ; irrefl-< = isProp¬ O1.irrefl-< O2.irrefl-<  i
   ; trans-< = isPropΠ2 (\_ _ -> O1.isProp-<) O1.trans-< O2.trans-< i
   ; comparison-< = isPropΠ4 (\_ _ _ _ -> squash) O1.comparison-< O2.comparison-< i
   ; connected-< = isPropΠ2 (\_ _ -> O1.isSet-D _ _) O1.connected-< O2.connected-< i
@@ -242,7 +242,7 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<} (L : isLinearOrder D<) where
     { refl-≤ = irrefl-<
     ; trans-≤ = \a≤b b≤c -> trans-≮ b≤c a≤b
     ; antisym-≤ = \a≤b b≤a -> connected-< b≤a a≤b
-    ; isProp-≤ = isProp¬ _
+    ; isProp-≤ = isProp¬
     }
 
   CompatibleNegatedLinearOrder : CompatibleOrderStr L isLinearOrder->isPartialOrder-≯

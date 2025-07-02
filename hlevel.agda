@@ -49,7 +49,7 @@ abstract
   isProp-Dec hA (yes a1) (yes a2) = cong yes (hA a1 a2)
   isProp-Dec hA (yes a)  (no ¬a) = bot-elim (¬a a)
   isProp-Dec hA (no ¬a)  (yes a) = bot-elim (¬a a)
-  isProp-Dec hA (no ¬a1) (no ¬a2) = cong no (isProp¬ _ ¬a1 ¬a2)
+  isProp-Dec hA (no ¬a1) (no ¬a2) = cong no (isProp¬ ¬a1 ¬a2)
 
   -- h-level for function property types
 

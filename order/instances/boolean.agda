@@ -81,7 +81,7 @@ private
 
   Boolean≤-Boolean≮-eq : ∀ x y -> (Boolean≤ x y) ≃ (¬ (Boolean< y x))
   Boolean≤-Boolean≮-eq x y =
-    isoToEquiv (iso (Boolean≤->Boolean≮ y x) (Boolean≮->Boolean≤ x y) (\_ -> isProp¬ _ _ _) bf)
+    isoToEquiv (iso (Boolean≤->Boolean≮ y x) (Boolean≮->Boolean≤ x y) (\_ -> isProp¬ _ _) bf)
     where
     bf : ∀ {x} {y} z -> Boolean≮->Boolean≤ x y (Boolean≤->Boolean≮ y x z) == z
     bf false≤false = refl

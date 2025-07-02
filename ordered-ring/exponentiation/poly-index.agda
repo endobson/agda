@@ -47,7 +47,7 @@ PolyIndex-i≠0-iso n .Iso.inv ((suc i , j , p) , _) = (i , j , cong pred p)
 PolyIndex-i≠0-iso n .Iso.inv ((zero , j , _) , ¬p) = bot-elim (¬p refl)
 PolyIndex-i≠0-iso n .Iso.leftInv _ = refl
 PolyIndex-i≠0-iso n .Iso.rightInv ((suc i , j , p) , _) =
-  cong2 (\p1 p2 -> ((suc i , j , p1) , p2)) (isSetNat _ _ _ _) (isProp¬ _ _ _)
+  cong2 (\p1 p2 -> ((suc i , j , p1) , p2)) (isSetNat _ _ _ _) (isProp¬ _ _)
 PolyIndex-i≠0-iso n .Iso.rightInv ((zero , j , _) , ¬p) = bot-elim (¬p refl)
 
 

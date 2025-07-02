@@ -86,7 +86,7 @@ BinaryPartition D ℓS ℓP =
 
 -- Complement of subtypes
 Subtype-Comp : {ℓD ℓP : Level} -> {D : Type ℓD} -> Subtype D ℓP -> Subtype D ℓP
-Subtype-Comp S d = (¬ ⟨ S d ⟩) , isProp¬ _
+Subtype-Comp S d = (¬ ⟨ S d ⟩) , isProp¬
 
 Detachable-Comp : {ℓD ℓP : Level} -> {D : Type ℓD} -> (S : Subtype D ℓP) ->
                   (Detachable S) -> (Detachable (Subtype-Comp S))

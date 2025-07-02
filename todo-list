@@ -15,6 +15,9 @@ max-property should not be implicit
 reduce usages of sign to order functions
 move ℚ-archimedian to better location/change name
 
+remove isProp≮ from nat.order
+performance in real.sequence.rational-cauchy
+
 
 ---
 Change Group/Ring to have non commutative versions.

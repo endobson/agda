@@ -70,7 +70,7 @@ private
                                         strengthen-≤ (pred-≤ (Fin.i<n j)) (np i)) , p))
       where
       np : no-path2 == no-path
-      np = isProp¬ _ _ _
+      np = isProp¬ _ _
     ... | (yes path) = bot-elim (no-path path)
 
     open Iso

@@ -23,7 +23,7 @@ opaque
      f x p = st a0 x (\h -> h p)
      -- Pushing through the stabilizer is a constant function
      fIsConst : (x : A) -> (p q : a0 == x) -> f x p == f x q
-     fIsConst x p q i = st a0 x (isProp¬ _ (\h -> h p) (\h -> h q) i)
+     fIsConst x p q i = st a0 x (isProp¬ (\h -> h p) (\h -> h q) i)
      -- Shows that we can extend to any path starting from refl
      rem : (p : a0 == a1) -> PathP (\i -> a0 == p i) (f a0 refl) (f a1 p)
      rem p j = f (p j) (\ i -> p (i ∧ j))

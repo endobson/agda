@@ -493,8 +493,8 @@ Top-Fun A = ua (isoToEquiv i)
   i : Iso (¬ A) (¬ B)
   i .fun ¬a b = ¬a (eqInv eq b)
   i .inv ¬b a = ¬b (eqFun eq a)
-  i .rightInv _ = isProp¬ _ _ _
-  i .leftInv _ = isProp¬ _ _ _
+  i .rightInv _ = isProp¬ _ _
+  i .leftInv _ = isProp¬ _ _
 
 
 ¬-Bot : {A : Type ℓ} -> ¬ A -> A == Lift ℓ Bot

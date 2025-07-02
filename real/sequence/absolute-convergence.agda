@@ -127,7 +127,7 @@ private
             fg : ∀ k -> f (g k) == k
             fg k = fin-i-path refl
             gf : ∀ k -> g (f k) == k
-            gf k = ΣProp-path (isProp¬ _) (fin-i-path refl)
+            gf k = ΣProp-path isProp¬ (fin-i-path refl)
 
           path2 : (partial-sums s n) ==
                   (finiteSum (\ (((k , _) , _) : (∈-Subtype S)) -> s k)) +
@@ -381,7 +381,7 @@ abstract
                fg : ∀ k -> f (g k) == k
                fg k = ΣProp-path (\{k} -> (snd (S3 k))) (fin-i-path (Iso.rightInv p _))
                gf : ∀ k -> g (f k) == k
-               gf k = ΣProp-path (isProp¬ _) (fin-i-path (Iso.leftInv p _))
+               gf k = ΣProp-path isProp¬ (fin-i-path (Iso.leftInv p _))
 
 
              ∈S2≃∈S1 : ∈-Subtype S2 ≃ ∈-Subtype S1

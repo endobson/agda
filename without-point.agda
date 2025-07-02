@@ -24,7 +24,7 @@ WithoutPoint-path : {ℓ : Level} {A : Type ℓ} {a : A} {p1 p2 : WithoutPoint A
   (WithoutPoint.value p1 == WithoutPoint.value p2) -> p1 == p2
 WithoutPoint-path {p1 = p1} {p2 = p2} path i =
   (path i) ,
-  (isProp->PathPᵉ (\i -> isProp¬ (path i == _))
+  (isProp->PathPᵉ (\i -> isProp¬ᵉ (path i == _))
     (WithoutPoint.¬point p1)
     (WithoutPoint.¬point p2) i)
 

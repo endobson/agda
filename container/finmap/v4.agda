@@ -421,7 +421,7 @@ module _ {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} {{isSet'V : is
       bot-elim (¬p pk)
     isProp-RawFinMap-HasKV (raw-finmap-cons k1 v1 m) k2 v2
       (raw-finmap-haskv-cons ¬p1 hk1) (raw-finmap-haskv-cons ¬p2 hk2) =
-      cong2 raw-finmap-haskv-cons (isProp¬ _ ¬p1 ¬p2) (isProp-RawFinMap-HasKV _ _ _ hk1 hk2)
+      cong2 raw-finmap-haskv-cons (isProp¬ ¬p1 ¬p2) (isProp-RawFinMap-HasKV _ _ _ hk1 hk2)
 
 
     isProp-RawFinMap-HasKey : (m : RawFinMap K V) (k : K) -> isProp (RawFinMap-HasKey m k)

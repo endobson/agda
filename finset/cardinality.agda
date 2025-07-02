@@ -60,7 +60,7 @@ private
 uninhabited-cardinality0 : (A : FinSet ℓ) -> ¬ ⟨ A ⟩ ≃ (cardinality A == 0)
 uninhabited-cardinality0 A =
   isoToEquiv (isProp->iso (uninhabited-cardinality0⁺ A)  (uninhabited-cardinality0⁻ A)
-                          (isProp¬ _) (isSetNat _ _))
+                          isProp¬ (isSetNat _ _))
 
 inhabited-0<cardinality : (A : FinSet ℓ) -> ∥ ⟨ A ⟩ ∥ ≃ (0 < cardinality A)
 inhabited-0<cardinality A =

@@ -224,8 +224,11 @@ abstract
   isSetBot : isSet Bot
   isSetBot = isProp->isSet isPropBot
 
-  isProp¬ : (A : Type ℓ) -> isProp (¬ A)
-  isProp¬ _ ¬x ¬y i x = isPropBot (¬x x) (¬y x) i
+  isProp¬ᵉ : (A : Type ℓ) -> isProp (¬ A)
+  isProp¬ᵉ _ ¬x ¬y i x = isPropBot (¬x x) (¬y x) i
+
+  isProp¬ : {A : Type ℓ} -> isProp (¬ A)
+  isProp¬ = isProp¬ᵉ _
 
 -- Implicit hlevels
 record isSet' (A : Type ℓ) : Type ℓ where

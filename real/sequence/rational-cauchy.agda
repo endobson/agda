@@ -202,38 +202,46 @@ module _
         (n , ε⁺ , (\ m m≥n -> Real.isUpperSet-U (s m) (+₂-preserves-< q<r) (f m m≥n)))
 
 
-    isUpperOpen-L : isUpperOpen L
-    isUpperOpen-L q q-L = ∥-map handle q-L
-      where
-      handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.L (s m) (q + ⟨ ε ⟩)) ->
-               Σ[ r ∈ ℚ ] (q < r ×
-                           ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.L (s m) (r + ⟨ ε ⟩)))
-      handle (n , (ε , 0<ε) , f) = (q + 1/2ε , q<q+1/2ε , ∣ n , (1/2ε , 0<1/2ε) , g ∣)
+    opaque
+      isUpperOpen-L : isUpperOpen L
+      isUpperOpen-L q q-L = ∥-map handle q-L
         where
-        1/2ε = 1/2 * ε
-        0<1/2ε = *-preserves-0< 0<1/2 0<ε
-        q<q+1/2ε = trans-=-< (sym +-right-zero) (+₁-preserves-< 0<1/2ε)
-        g : (m : Nat) -> m ≥ n -> Real.L (s m) ((q + 1/2ε) + 1/2ε)
-        g m m≥n = subst (Real.L (s m)) (+-right (sym 1/2-path) >=> sym +-assoc) (f m m≥n)
-
-    isLowerOpen-U : isLowerOpen U
-    isLowerOpen-U q q-U = ∥-map handle q-U
-      where
-      handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.U (s m) (q + (- ⟨ ε ⟩))) ->
-               Σ[ r ∈ ℚ ] (r < q ×
-                           ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.U (s m) (r + (- ⟨ ε ⟩))))
-      handle (n , (ε , 0<ε) , f) = (q + - 1/2ε , q-1/2ε<q , ∣ n , (1/2ε , 0<1/2ε) , g ∣)
-        where
-        1/2ε = 1/2 * ε
-        0<1/2ε = *-preserves-0< 0<1/2 0<ε
-        q-1/2ε<q = trans-<-= (+₁-preserves-< (minus-flips-0< 0<1/2ε)) +-right-zero
-
-        g : (m : Nat) -> m ≥ n -> Real.U (s m) ((q + (- 1/2ε)) + (- 1/2ε))
-        g m m≥n = subst (Real.U (s m)) (sym path) (f m m≥n)
+        handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.L (s m) (q + ⟨ ε ⟩)) ->
+                 Σ[ r ∈ ℚ ] (q < r ×
+                             ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.L (s m) (r + ⟨ ε ⟩)))
+        handle (n , (ε , 0<ε) , f) = (q + 1/2ε , q<q+1/2ε , ∣ n , (1/2ε , 0<1/2ε) , g ∣)
           where
-          path = +-assoc >=>
-                 +-right (sym minus-distrib-plus >=>
-                          cong -_ 1/2-path)
+          1/2ε : ℚ
+          1/2ε = 1/2 * ε
+          0<1/2ε : 0# < 1/2ε
+          0<1/2ε = *-preserves-0< 0<1/2 0<ε
+          q<q+1/2ε : q < (q + 1/2ε)
+          q<q+1/2ε = trans-=-< (sym +-right-zero) (+₁-preserves-< 0<1/2ε)
+          g : (m : Nat) -> m ≥ n -> Real.L (s m) ((q + 1/2ε) + 1/2ε)
+          g m m≥n = subst (Real.L (s m)) (+-right (sym 1/2-path) >=> sym +-assoc) (f m m≥n)
+
+      isLowerOpen-U : isLowerOpen U
+      isLowerOpen-U q q-U = ∥-map handle q-U
+        where
+        handle : Σ[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.U (s m) (q + (- ⟨ ε ⟩))) ->
+                 Σ[ r ∈ ℚ ] (r < q ×
+                             ∃[ n ∈ ℕ ] Σ[ ε ∈ ℚ⁺ ] ((m : Nat) -> m ≥ n -> Real.U (s m) (r + (- ⟨ ε ⟩))))
+        handle (n , (ε , 0<ε) , f) = (q + - 1/2ε , q-1/2ε<q , ∣ n , (1/2ε , 0<1/2ε) , g ∣)
+          where
+          1/2ε : ℚ
+          1/2ε = 1/2 * ε
+          0<1/2ε : 0# < 1/2ε
+          0<1/2ε = *-preserves-0< 0<1/2 0<ε
+          q-1/2ε<q : (q + (- 1/2ε)) < q
+          q-1/2ε<q = trans-<-= (+₁-preserves-< (minus-flips-0< 0<1/2ε)) +-right-zero
+
+          g : (m : Nat) -> m ≥ n -> Real.U (s m) ((q + (- 1/2ε)) + (- 1/2ε))
+          g m m≥n = subst (Real.U (s m)) (sym path) (f m m≥n)
+            where
+            path : Path ℚ ((q + (- 1/2ε)) + (- 1/2ε)) (q + - ε)
+            path = +-assoc >=>
+                   +-right (sym minus-distrib-plus >=>
+                            cong -_ 1/2-path)
 
     disjoint : (q : ℚ) -> ¬ (L q × U q)
     disjoint q (L-q , U-q) = unsquash isPropBot (∥-map2 handle L-q U-q)
