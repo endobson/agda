@@ -29,9 +29,6 @@ m <⁺ n = ⟨ m ⟩ < ⟨ n ⟩
 _≤⁺_ : Nat⁺ -> Nat⁺ -> Set
 m ≤⁺ n = ⟨ m ⟩ ≤ ⟨ n ⟩
 
-isProp≮ : {m n : Nat} -> isProp (m ≮ n)
-isProp≮ = isProp¬
-
 suc-< : {m n : Nat} -> m < n -> suc m < suc n
 suc-< = suc-≤
 
@@ -123,7 +120,7 @@ private
   Iso.fun ≮-≥-iso = ≮->≥
   Iso.inv ≮-≥-iso n≤m m<n = irrefl-< (trans-≤-< n≤m m<n)
   Iso.rightInv ≮-≥-iso _ = isProp-ℕ≤ _ _
-  Iso.leftInv  ≮-≥-iso _ = isProp≮ _ _
+  Iso.leftInv  ≮-≥-iso _ = isProp¬ _ _
 
 
 
