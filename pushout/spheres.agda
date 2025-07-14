@@ -11,6 +11,8 @@ open import equivalence
 open import isomorphism
 open import nat
 open import pointed.spheres
+open import pointed.pushout
+open import pointed.base
 open import pointed.suspension
 open import pushout
 open import pushout.identites
@@ -56,6 +58,9 @@ private
                 (glue (north , a) >=> refl)
       raw i = (glue (north , a)) >=> (\j -> glue (south , a) (i ∨ ~ j))
 
+  Sphere₀-Join-eq∙ : {ℓ : Level} (A∙ : Type∙ ℓ) -> (Join∙ (Sⁿ∙ 0) A∙) ≃∙ (Susp∙ A∙)
+  Sphere₀-Join-eq∙ (A , ★A) = isoToEquiv (Sphere-Join-iso₀ A) , refl
+
 
 Sphere-Join-eq : ∀ m n -> (Join (Sⁿ m) (Sⁿ n)) ≃ (Sⁿ (suc (m + n)))
 Sphere-Join-eq zero n = isoToEquiv (Sphere-Join-iso₀ (Sⁿ n))
@@ -72,3 +77,50 @@ Sphere-Join-eq (suc m) n = pathToEquiv step3
     sym (cong (\x -> (Join (Sⁿ m) x)) (ua (Susp-Join-eq (Sⁿ n)))) >=>
     ua (Sphere-Join-eq m (suc n)) >=>
     cong Sⁿ (cong suc (+'-right-suc {m} {n}))
+
+Susp∙-eq∙ : {ℓA ℓB : Level} {A : Type∙ ℓA} {B : Type∙ ℓB} ->
+           (A ≃∙ B) -> Susp∙ A ≃∙ Susp∙ B
+Susp∙-eq∙ {A = A} {B = B} ((f , e) , p) = (fwd , isoToIsEquiv (iso fwd bkw fb bf)) , refl
+  where
+  Susp-map : {ℓX ℓY : Level} {X : Type ℓX} {Y : Type ℓY} -> (X -> Y) -> Susp X -> Susp Y
+  Susp-map _ north = north
+  Susp-map _ south = south
+  Susp-map f (meridian x i) = meridian (f x) i
+
+  fwd : ⟨ Susp∙ A ⟩ -> ⟨ Susp∙ B ⟩
+  fwd = Susp-map f
+  bkw : ⟨ Susp∙ B ⟩ -> ⟨ Susp∙ A ⟩
+  bkw = Susp-map (isEqInv e)
+
+  fb : ∀ x -> fwd (bkw x) == x
+  fb north = refl
+  fb south = refl
+  fb (meridian x i) j = meridian (isEqSec e x j) i
+  bf : ∀ x -> bkw (fwd x) == x
+  bf north = refl
+  bf south = refl
+  bf (meridian x i) j = meridian (isEqRet e x j) i
+
+
+
+Sphere-Join-eq∙ : ∀ m n -> (Join∙ (Sⁿ∙ m) (Sⁿ∙ n)) ≃∙ (Sⁿ∙ (suc (m + n)))
+Sphere-Join-eq∙ zero n = isoToEquiv (Sphere-Join-iso₀ (Sⁿ n)) , refl
+Sphere-Join-eq∙ (suc m) n = step₅
+  where
+  rec : (Join∙ (Sⁿ∙ m) (Sⁿ∙ n)) ≃∙ (Sⁿ∙ (suc (m + n)))
+  rec = Sphere-Join-eq∙ m n
+
+  step₁ : (Susp∙ (Join∙ (Sⁿ∙ m) (Sⁿ∙ n))) ≃∙ (Susp∙ (Sⁿ∙ (suc (m + n))))
+  step₁ = Susp∙-eq∙ rec
+
+  step₂ : (Join∙ (Sⁿ∙ 0) (Join∙ (Sⁿ∙ m) (Sⁿ∙ n))) ≃∙ (Susp∙ (Sⁿ∙ (suc (m + n))))
+  step₂ = Sphere₀-Join-eq∙ (Join∙ (Sⁿ∙ m) (Sⁿ∙ n)) >≃∙> step₁
+
+  step₃ : (Join∙ (Join∙ (Sⁿ∙ 0) (Sⁿ∙ m)) (Sⁿ∙ n)) ≃∙ (Susp∙ (Sⁿ∙ (suc (m + n))))
+  step₃ = (Join-assoc-eq _ _ _ , refl) >≃∙> step₂
+
+  step₄ : (Sⁿ∙ (suc m)) ≃∙ (Join∙ (Sⁿ∙ 0) (Sⁿ∙ m))
+  step₄ = equiv∙⁻¹ (Sphere₀-Join-eq∙ (Sⁿ∙ m))
+
+  step₅ : (Join∙ (Sⁿ∙ (suc m)) (Sⁿ∙ n)) ≃∙ (Susp∙ (Sⁿ∙ (suc (m + n))))
+  step₅ = Join∙-eq∙ step₄ (idEquiv (Sⁿ n) , reflᵉ north) >≃∙> step₃

@@ -150,3 +150,11 @@ opaque
     eqFun (squashed-path-eq n a a) (squashₙ n refl) == refl
   squashed-path-eq-refl zero = squashed-path-eq₀-refl
   squashed-path-eq-refl (suc n) = squashed-path-eq⁺-refl n
+
+
+  squashed-path-eq-path : {ℓ : Level} {A : Type ℓ} (n : Nat) {a₁ a₂ : A} (p : a₁ == a₂) ->
+    eqFun (squashed-path-eq n a₁ a₂) (squashₙ n p) == cong (squashₙ (suc n)) p
+  squashed-path-eq-path n p =
+    transport (\i -> eqFun (squashed-path-eq n (p i0) (p i)) (squashₙ n (\j -> p (j ∧ i))) ==
+                     cong (squashₙ (suc n)) (\j -> p (j ∧ i)))
+              (squashed-path-eq-refl n (p i0))

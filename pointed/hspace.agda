@@ -3,6 +3,7 @@
 module pointed.hspace where
 
 open import base
+open import cubical
 open import connected
 open import equality-path
 open import equivalence.base
@@ -10,6 +11,7 @@ open import funext
 open import hlevel.base
 open import isomorphism
 open import pointed.base
+open import pointed.pushout
 open import pointed.suspension
 open import pushout
 open import pushout.identites
@@ -17,6 +19,7 @@ open import suspension.flattening
 open import truncation.generic
 open import truncation.generic.path
 open import univalence
+open import equivalence
 
 module _ {ℓ : Level} (A∙@(A , ★A) : Type∙ ℓ) where
   record HSpaceStr : Type ℓ where
@@ -72,11 +75,38 @@ private
     isEquiv-μ₂ = isEquiv-μ₁ ((A∙ , commute-HSpaceStr hStr) , cH)
 
 module _ {ℓ : Level}
-  (H@(((A , ★A) , hStr) , cH) : ConnectedHSpace ℓ) where
+  (H@((A∙@(A , ★A) , hStr) , cH) : ConnectedHSpace ℓ) where
   open HSpaceStr hStr
 
   hopf-fibration : Susp A -> Type ℓ
   hopf-fibration = Susp-rec (\a -> ua (μ a , isEquiv-μ₂ H a))
+
+  -- hopf-fibration∙ : Susp A -> Type∙ ℓ
+  -- hopf-fibration∙ a' = hopf-fibration a' , elim a'
+  --   where
+  --   elim : (a' : Susp A) -> hopf-fibration a'
+  --   elim north = ★A
+  --   elim south = ★A
+  --   elim (meridian a i) = outS ans'
+  --     where
+  --     eq : A ≃ A
+  --     eq = (μ a , isEquiv-μ₂ H a)
+
+  --     ans : ua (μ a , isEquiv-μ₂ H a) i
+  --     ans = ua-glue₀ eq i ★A
+
+  --     ans'₁ : Sub (ua eq i) (i ∨ ~ i)
+  --                 (\{ (i = i0) -> ★A
+  --                   ; (i = i1) -> (μ a ★A)
+  --                   })
+  --     ans'₁ = inS ans
+
+
+  --     ans' : Sub (ua eq i) (i ∨ ~ i)
+  --                (\{ (i = i0) -> ★A
+  --                  ; (i = i1) -> ★A
+  --                  })
+  --     ans' = ?
 
   private
     μ' : A × A -> A
@@ -121,7 +151,30 @@ module _ {ℓ : Level}
     step4 : (Pushout μ' proj₂) == (Join A A)
     step4 i = Pushout (proj₁-path i) (proj₂-path i)
 
+  hopf-join-eq∙ : (Σ∙ (Susp∙ A∙) hopf-fibration ★A) ≃∙ Join∙ A∙ A∙
+  hopf-join-eq∙ = ef , fp
+    where
+    ef : Σ (Susp A) hopf-fibration ≃ Join A A
+    ef = f-step₁ >eq> f-step₂ >eq> f-step₃ >eq> f-step₄
+      where
+      f-step₁ : (Σ (Susp A) hopf-fibration) ≃ (Pushout proj₂ μ')
+      f-step₁ = isoToEquiv step1
+      f-step₂ : (Pushout proj₂ μ') ≃ (Pushout μ' proj₂)
+      f-step₂ = isoToEquiv step2
+      f-step₃ : (Pushout μ' proj₂) ≃ (Pushout (\ (x , y) -> (μ (μ⁻¹ x y) y)) proj₂)
+      f-step₃ = Pushout-center-eq μ' proj₂ step3
+      f-step₄ : (Pushout (\ (x , y) -> (μ (μ⁻¹ x y) y)) proj₂) ≃ Join A A
+      f-step₄ = isoToEquiv (Pushout-function-iso μ-inv (\_ -> refl))
+        where
+        μ-inv : ∀ ((x , y) : A × A) -> (μ (μ⁻¹ x y) y) == x
+        μ-inv (x , y) = isEqSec (isEquiv-μ₁ H y) x
+
+    f : Σ (Susp A) hopf-fibration -> Join A A
+    f = fst ef
+
+    fp : f (north , ★A) == inj-l ★A
+    fp = sym (pushout.glue (★A , ★A))
+
   hopf-construction :
     (Σ (Susp A) hopf-fibration) == Join A A
-  hopf-construction =
-    isoToPath (step1 >iso> step2) >=> step4
+  hopf-construction = cong fst (Type∙-path hopf-join-eq∙)

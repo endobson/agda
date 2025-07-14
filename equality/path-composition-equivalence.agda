@@ -5,6 +5,7 @@ module equality.path-composition-equivalence where
 open import base
 open import cubical
 open import equality-path
+open import equality.square
 open import equality.pathp-iso
 open import equivalence
 open import isomorphism
@@ -48,6 +49,42 @@ opaque
   isEquiv-compPath-left p₀ a2 = isoToIsEquiv (iso (for p₀) (for (sym p₀)) (fb p₀) (fb (sym p₀)))
     where
     open isEquiv-compPath-left
+
+private
+  module isEquiv-compPath-right
+    {ℓ : Level} {A : Type ℓ} {a1 : A} {a2 : A} (p₀ : Path A a1 a2) {a0 : A}
+    where
+    for : a0 == a1 -> a0 == a2
+    for = _>=> p₀
+
+    back : a0 == a2 -> a0 == a1
+    back = _>=> sym p₀
+
+    fb : ∀ x -> for (back x) == x
+    fb p = q₁ >=> q₂
+      where
+      p'₁ : a0 == a2
+      p'₁ = (p ∙∙ refl ∙∙ sym p₀) ∙∙ refl ∙∙ p₀
+
+      p'₂ : a0 == a2
+      p'₂ = (p ∙∙ refl ∙∙ refl) ∙∙ refl ∙∙ refl
+
+      q₁ : p'₁ == p'₂
+      q₁ j = (p ∙∙ refl ∙∙ (\i -> p₀ (~ i ∨ j))) ∙∙ refl ∙∙ (\i -> p₀ (i ∨ j))
+
+      q₂ : p'₂ == p
+      q₂ = compPath-refl-right _ >=> compPath-refl-right _
+
+
+opaque
+  isEquiv-compPath-right :
+    {ℓ : Level} {A : Type ℓ} {a1 : A} {a2 : A} ->
+    ∀ (p₀ : Path A a1 a2) (a0 : A) -> isEquiv (\ (p : a0 == a1) -> p >=> p₀)
+  isEquiv-compPath-right p₀ a2 = isoToIsEquiv (iso (for p₀) (for (sym p₀)) (fb p₀) (fb (sym p₀)))
+    where
+    open isEquiv-compPath-right
+
+
 
 
 private
@@ -101,3 +138,14 @@ opaque
     ∘-isEquiv isEquiv-symP
       (∘-isEquiv (isEquiv-transP-left (symP p₀) _)
                  isEquiv-symP)
+
+module _ {ℓ : Level} {A : I -> I -> Type ℓ}
+         {a₀₀ : A i0 i0} {a₀₁ : A i0 i1} {a₁₀ : A i1 i0} {a₁₁ : A i1 i1}
+         {a₀₋ : PathP (\i -> A i0 i) a₀₀ a₀₁}
+         {a₁₋ : PathP (\i -> A i1 i) a₁₀ a₁₁}
+         {a₋₀ : PathP (\i -> A i i0) a₀₀ a₁₀}
+         {a₋₁ : PathP (\i -> A i i1) a₀₁ a₁₁}
+  where
+
+  isEquiv-▪ᵀ : isEquiv (\ (s : SquareP A a₀₋ a₁₋ a₋₀ a₋₁) -> ▪ᵀ s)
+  isEquiv-▪ᵀ = isoToIsEquiv (iso ▪ᵀ ▪ᵀ (\_ -> refl) (\_ -> refl))

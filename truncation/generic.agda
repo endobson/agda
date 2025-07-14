@@ -5,9 +5,11 @@ module truncation.generic where
 open import base
 open import equality-path
 open import equality.square
+open import equivalence.base
 open import funext
 open import hlevel
 open import hlevel.base
+open import hlevel.pi
 open import pointed.base
 open import pointed.loop-space
 open import pointed.loop-space.hlevel
@@ -69,9 +71,10 @@ module _ {ℓ : Level} {A : Type ℓ} where
              sym (compPath-refl-right _))
 
 
-  isOfHLevel-Squashₙ : (n : Nat) -> isOfHLevel n (Squashₙ n A)
-  isOfHLevel-Squashₙ zero = isContr-Lift isContrTop
-  isOfHLevel-Squashₙ (suc n) = isContr-Ωⁿ->isOfHLevel n (contr-squash-loops n)
+  opaque
+    isOfHLevel-Squashₙ : (n : Nat) -> isOfHLevel n (Squashₙ n A)
+    isOfHLevel-Squashₙ zero = isContr-Lift isContrTop
+    isOfHLevel-Squashₙ (suc n) = isContr-Ωⁿ->isOfHLevel n (contr-squash-loops n)
 
 module _ {ℓ : Level} {A : Type ℓ} where
   contr-spheres : {n : Nat} -> isOfHLevel (suc n) A ->
@@ -136,6 +139,30 @@ module _
     ∥ₙ-elim-path a = refl
 
 
+
+module _
+  {ℓA ℓP : Level} {A : Type ℓA}
+  {P : Squashₙ zero A -> Type ℓP}
+  (h : ∀ a -> isOfHLevel zero (P a))
+  (f : ∀ (a : A) -> P (squashₙ zero a))
+  where
+
+  ∥₀-elim : ∀ (a : Squashₙ zero A) -> P a
+  ∥₀-elim a = fst (h a)
+
+
+module _
+  where
+  ∥ₙ-elim' :
+    {ℓA ℓP : Level} {A : Type ℓA} {n : Nat} {P : Squashₙ n A -> Type ℓP}
+    (h : ∀ a -> isOfHLevel n (P a)) (f : ∀ a -> P (squashₙ n a)) ->
+    ∀ a -> P a
+  ∥ₙ-elim' {n = zero} = ∥₀-elim
+  ∥ₙ-elim' {n = (suc n)} = ∥ₙ-elim
+
+
+
+
 module _
   {ℓA ℓB ℓP : Level} {A : Type ℓA} {B : Type ℓB}
   {n : Nat} {P : Squashₙ (suc n) A -> Squashₙ (suc n) B -> Type ℓP}
@@ -147,3 +174,10 @@ module _
     where
     f' : ∀ a b -> P ∣ a ∣ b
     f' a = ∥ₙ-elim (h ∣ a ∣) (f a)
+
+module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB} where
+  ∥ₙ-map : (A -> B) -> {n : Nat} -> (Squashₙ n A) -> (Squashₙ n B)
+  ∥ₙ-map f {zero} (lift x) = (lift x)
+  ∥ₙ-map f {suc n} =
+    ∥ₙ-elim (\_ -> isOfHLevel-Squashₙ (suc n))
+      (\a -> ∣ (f a) ∣)

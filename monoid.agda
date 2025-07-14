@@ -3,9 +3,11 @@
 module monoid where
 
 open import base
-open import equality
+open import equality-path
 open import functions
+open import algebra.binary-op-identity
 open import hlevel.base
+open import hlevel.pi
 
 record Monoid {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   infixl 6 _∙_
@@ -98,3 +100,44 @@ module _
 
 MonoidT : (ℓ : Level) -> Type (ℓ-suc ℓ)
 MonoidT ℓ = Σ[ D ∈ Type ℓ ] (Monoid D)
+
+
+
+
+module _ {ℓ : Level} {D₁ D₂ : Type ℓ}
+         {M₁ : Monoid D₁} {M₂ : Monoid D₂}
+  where
+  private
+    module M₁ = Monoid M₁
+    module M₂ = Monoid M₂
+
+  MonoidExt : (p : Path (Σ[ D ∈ Type ℓ ] (D -> D -> D))
+                   (D₁ , M₁._∙_)
+                   (D₂ , M₂._∙_)) ->
+              PathP (\i -> Monoid (fst (p i))) M₁ M₂
+  MonoidExt p = \i -> record
+    { _∙_ = ∙p i
+    ; ε = fst (id-p i)
+    ; ∙-left-ε = proj₁ (snd (id-p i)) _
+    ; ∙-right-ε = proj₂ (snd (id-p i)) _
+    ; ∙-assoc = ap i
+    ; isSet-Domain = hp i
+    }
+    where
+    dp : D₁ == D₂
+    dp = cong fst p
+
+    ∙p : PathP (\i -> dp i -> dp i -> dp i) M₁._∙_ M₂._∙_
+    ∙p = cong snd p
+
+    hp : PathP (\i -> isSet (dp i)) M₁.isSet-Domain M₂.isSet-Domain
+    hp = isProp->PathP (\_ -> isProp-isSet)
+
+    ap : PathP (\i -> ∀ {m n o : dp i} -> ∙p i (∙p i m n) o == ∙p i m (∙p i n o))
+               M₁.∙-assoc M₂.∙-assoc
+    ap = isProp->PathP (\i -> isPropΠⁱ3 (\m n o -> hp i _ _))
+
+    id-p : PathP (\i -> hasIdentityElem ((dp i , hp i) , ∙p i))
+             (M₁.ε , (\_ -> M₁.∙-left-ε) , (\_ -> M₁.∙-right-ε))
+             (M₂.ε , (\_ -> M₂.∙-left-ε) , (\_ -> M₂.∙-right-ε))
+    id-p = isProp->PathP (\i -> isProp-hasIdentityElem ((dp i , hp i) , ∙p i))

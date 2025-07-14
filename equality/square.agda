@@ -36,6 +36,40 @@ module _ {ℓ : Level} {A : Type ℓ}
   rotate-square-ABCR->CARB =
     rotate-square-ABCD->CDAB rotate-square-ABCR->RBCA
 
+  rotate-square-ABCR->ARCB : Square a₋ refl a₋₀ (sym a₁₋)
+  rotate-square-ABCR->ARCB i j =
+    hcomp (\k -> \{ (i = i0) -> a₋ j
+                  ; (i = i1) -> a₁₋ (j ∧ (~ k))
+                  ; (j = i0) -> a₋₀ i
+                  ; (j = i1) -> a₁₋ (~ i ∨ (~ k))
+                  })
+          (s i j)
+
+module _ {ℓ : Level} {A : Type ℓ}
+         {a₀ : A} {a₁ : A} (p : a₀ == a₁)
+         where
+  rotate-square-ABCR->RBCA/reflᵉ :
+    rotate-square-ABCR->RBCA (reflᵉ p) == (\i j -> p (i ∧ j))
+  rotate-square-ABCR->RBCA/reflᵉ = transP-sym (symP rotate-square-ABCR->RBCA/reflᵉ₁) rotate-square-ABCR->RBCA/reflᵉ₂
+    where
+    rotate-square-ABCR->RBCA/reflᵉ₁ :
+      PathP (\k -> Square (\j -> p (j ∧ (~ k))) p (reflᵉ a₀) (\i -> p (i ∨ (~ k))))
+                          (reflᵉ p) (rotate-square-ABCR->RBCA (reflᵉ p))
+    rotate-square-ABCR->RBCA/reflᵉ₁ k i j =
+      hfill (\k -> \{ (i = i0) -> p (j ∧ (~ k))
+                    ; (i = i1) -> p j
+                    ; (j = i0) -> a₀
+                    ; (j = i1) -> p (i ∨ (~ k))
+                    })
+            (inS (p j))
+            k
+
+    rotate-square-ABCR->RBCA/reflᵉ₂ :
+      PathP (\k -> Square (\j -> p (j ∧ (~ k))) p (reflᵉ a₀) (\i -> p (i ∨ (~ k))))
+            (\i j -> p j) (\i j -> p (i ∧ j))
+    rotate-square-ABCR->RBCA/reflᵉ₂ k i j = p ((i ∨ ~ k) ∧ j)
+
+
 
 module _ {ℓ : Level} {A :  Type ℓ}
          {a₀ a₁ a₂ : A}
@@ -53,6 +87,71 @@ module _ {ℓ : Level} {A :  Type ℓ}
                   })
           (s i j)
 
+module _ {ℓ : Level} {A :  Type ℓ}
+         {a₀ a₁ a₂ : A}
+         {a₀₋ : Path A a₀ a₁}
+         {a₁₋ : Path A a₀ a₂}
+         {a₋₁ : Path A a₁ a₂}
+         (s : Square a₀₋ a₁₋ refl  a₋₁) where
+
+  rotate-square-ABRC->ARBC : Square a₀₋ refl a₁₋ a₋₁
+  rotate-square-ABRC->ARBC i j =
+    hcomp (\k -> \{ (i = i0) -> a₀₋ j
+                  ; (i = i1) -> a₁₋ (j ∨ k)
+                  ; (j = i0) -> a₁₋ (i ∧ k)
+                  ; (j = i1) -> a₋₁ i
+                  })
+          (s i j)
+
+
+
+
+module _ {ℓ : Level} {A :  Type ℓ}
+         {a₀ a₁ a₂ : A}
+         {a₀₋ : Path A a₀ a₁}
+         {a₋₀ : Path A a₀ a₂}
+         {a₋₁ : Path A a₁ a₂}
+         (s : Square a₀₋ a₋₀ refl a₋₁) where
+
+  rotate-square-ABRC->RBAC : Square refl a₋₀ (sym a₀₋) a₋₁
+  rotate-square-ABRC->RBAC i j =
+    hcomp (\k -> \{ (i = i0) -> a₀₋ (j ∨ k)
+                  ; (i = i1) -> a₋₀ j
+                  ; (j = i0) -> a₀₋ (~ i ∧ k)
+                  ; (j = i1) -> a₋₁ i
+                  })
+          (s i j)
+
+
+module _ {ℓ : Level} {A :  Type ℓ}
+         {a₀ a₁ a₂ : A}
+         {a₁₋ : Path A a₀ a₁}
+         {a₋₀ : Path A a₂ a₀}
+         {a₋₁ : Path A a₂ a₁}
+         (s : Square refl a₁₋ a₋₀ a₋₁) where
+
+  rotate-square-RABC->CABR : Square a₋₁ a₁₋ a₋₀ refl
+  rotate-square-RABC->CABR i j =
+      hcomp (\k -> \{ (i = i0) -> a₋₁ (j ∧ k)
+                    ; (i = i1) -> a₁₋ j
+                    ; (j = i0) -> a₋₀ i
+                    ; (j = i1) -> a₋₁ (i ∨ k)
+                    })
+            (s i j)
+
+
+  rotate-square-RABC->BARC : Square (sym a₋₀) a₁₋ refl a₋₁
+  rotate-square-RABC->BARC i j =
+      hcomp (\k -> \{ (i = i0) -> a₋₀ ((~ j) ∧ k)
+                    ; (i = i1) -> a₁₋ j
+                    ; (j = i0) -> a₋₀ (i ∨ k)
+                    ; (j = i1) -> a₋₁ i
+                    })
+            (s i j)
+
+
+
+
 module _
   {a₀₀ a₀₁ a₁₀ a₁₁ a₂₀ a₂₁ : A}
   {p₀₋ : Path A a₀₀ a₀₁} {p₁₋ : Path A a₁₀ a₁₁}
@@ -67,6 +166,10 @@ module _
                   ; (i = i1) -> s2 k j
                   })
           (p₁₋ j)
+
+
+
+
 
 module _
   {a₀₀ a₀₁ a₁₀ c a₁₁ : A}
@@ -135,6 +238,7 @@ module _ {ℓ : Level} {A : I -> I -> Type ℓ}
   where
   ▪ᵀ : SquareP A a₀₋ a₁₋ a₋₀ a₋₁ -> SquareP (\i j -> A j i) a₋₀ a₋₁ a₀₋ a₁₋
   ▪ᵀ s i j = s j i
+
 
 module _ {ℓ : Level} {A : Type ℓ} {a₀ b₀ c₀ d₀ a₁ b₁ c₁ d₁ : A}
   {p₀ : a₀ == b₀} {q₀ : b₀ == c₀} {r₀ : c₀ == d₀}

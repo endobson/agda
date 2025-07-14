@@ -58,9 +58,16 @@ abstract
   isOfHLevelSuc 1 = isProp->isSet
   isOfHLevelSuc (suc (suc n)) h a b = isOfHLevelSuc (suc n) (h a b)
 
+
+
   isProp->isOfHLevelSuc : (n : Nat) -> isProp A -> isOfHLevel (suc n) A
   isProp->isOfHLevelSuc 0 p = p
   isProp->isOfHLevelSuc (suc n) p = isOfHLevelSuc (suc n) (isProp->isOfHLevelSuc n p)
+
+  isContr->isOfHLevel : (n : Nat) -> isContr A -> isOfHLevel n A
+  isContr->isOfHLevel 0 c = c
+  isContr->isOfHLevel (suc n) c = isProp->isOfHLevelSuc n (isContr->isProp c)
+
 
   -- h-level for Path Types
 

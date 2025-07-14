@@ -3,11 +3,53 @@
 module group where
 
 open import base
+open import cubical
 open import commutative-monoid
 open import equality
+open import equivalence
 open import functions
 open import hlevel.base
+open import hlevel.pi
 open import monoid
+open import isomorphism
+open import funext
+open import sigma.base
+open import univalence
+
+private
+  record hasInverse {ℓ : Level} {D : Type ℓ} (M : Monoid D) : Type ℓ where
+    open Monoid M
+
+    field
+      inverse : D -> D
+      ∙-left-inverse : {x : D} -> (inverse x) ∙ x == ε
+      ∙-right-inverse : {x : D} -> x ∙ (inverse x) == ε
+
+  isProp-hasInverse : {ℓ : Level} {D : Type ℓ} {M : Monoid D} ->
+    isProp (hasInverse M)
+  isProp-hasInverse {D = D} {M = M} I₁ I₂ = \i -> record
+    { inverse = \x -> inv-p x i
+    ; ∙-left-inverse = lp i
+    ; ∙-right-inverse = rp i
+    }
+    where
+    open Monoid M
+    module I₁ = hasInverse I₁
+    module I₂ = hasInverse I₂
+
+    inv-p : ∀ x -> I₁.inverse x == I₂.inverse x
+    inv-p x =
+      sym ∙-right-ε >=>
+      ∙-right (sym I₂.∙-right-inverse) >=>
+      sym ∙-assoc >=>
+      ∙-left I₁.∙-left-inverse >=>
+      ∙-left-ε
+
+    lp : PathP (\i -> ∀ {x : D} -> inv-p x i ∙ x == ε) I₁.∙-left-inverse I₂.∙-left-inverse
+    lp = isProp->PathP (\i -> isPropΠⁱ (\i -> isSet-Domain _ _))
+    rp : PathP (\i -> ∀ {x : D} -> x ∙ inv-p x i == ε) I₁.∙-right-inverse I₂.∙-right-inverse
+    rp = isProp->PathP (\i -> isPropΠⁱ (\i -> isSet-Domain _ _))
+
 
 record GroupStr {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   field
@@ -18,6 +60,15 @@ record GroupStr {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
     inverse : Domain -> Domain
     ∙-left-inverse : {x : Domain} -> (inverse x) ∙ x == ε
     ∙-right-inverse : {x : Domain} -> x ∙ (inverse x) == ε
+
+  hasInverse-monoid : hasInverse monoid
+  hasInverse-monoid = record
+    { inverse = inverse
+    ; ∙-left-inverse = ∙-left-inverse
+    ; ∙-right-inverse = ∙-right-inverse
+    }
+
+
 
 record AbGroupStr {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
   field
@@ -61,6 +112,9 @@ module Group {ℓ : Level} (G : Group ℓ) where
 
   D : Type ℓ
   D = Domain
+
+  Str : GroupStr D
+  Str = snd G
 
 module _ {ℓ₁ ℓ₂ : Level}
          (G₁@(D₁ , GS₁) : Group ℓ₁)
@@ -112,7 +166,117 @@ module _ {ℓ₁ ℓ₂ : Level} {G₁ : Group ℓ₁} {G₂ : Group ℓ₂} whe
       isSet-D₂ : isSet G₂.D
       isSet-D₂ = G₂.isSet-Domain
 
-module _ {ℓ₁ ℓ₂ ℓ₃ : Level} {G₁ : Group ℓ₁} {G₂ : Group ℓ₂} {G₃ : Group ℓ₂} where
+
+module _ {ℓ₁ ℓ₂ : Level} {G₁ : Group ℓ₁} {G₂ : Group ℓ₂}
+         (f : Groupʰ G₁ G₂) where
+
+  record isGroupIso : Type (ℓ-max ℓ₁ ℓ₂) where
+    field
+      inv : Groupʰ G₂ G₁
+      rightInv : ∀ x -> ⟨ f ⟩ (⟨ inv ⟩ x) == x
+      leftInv : ∀ x -> ⟨ inv ⟩ (⟨ f ⟩ x) == x
+
+
+module _ {ℓ₁ ℓ₂ : Level} {G₁ : Group ℓ₁} {G₂ : Group ℓ₂}
+         {h@(f , fʰ) : Groupʰ G₁ G₂} where
+
+  opaque
+    isProp-isGroupIso : isProp (isGroupIso h)
+    isProp-isGroupIso i₁ i₂ = \j -> record
+      { inv = inv-p j
+      ; rightInv = rightInv-p j
+      ; leftInv = leftInv-p j
+      }
+      where
+      module i₁ = isGroupIso i₁
+      module i₂ = isGroupIso i₂
+
+      inv-p : i₁.inv == i₂.inv
+      inv-p = ΣProp-path isProp-isGroupʰ (funExt ip)
+        where
+        ip : ∀ x -> ⟨ i₁.inv ⟩ x == ⟨ i₂.inv ⟩ x
+        ip x =
+          cong ⟨ i₁.inv ⟩ (sym (i₂.rightInv x)) >=>
+          i₁.leftInv (⟨ i₂.inv ⟩ x)
+
+      rightInv-p : PathP (\i -> ∀ x -> ⟨ h ⟩ (⟨ inv-p i ⟩ x) == x) i₁.rightInv i₂.rightInv
+      rightInv-p = isProp->PathP (\i -> isPropΠ (\x -> Group.isSet-Domain G₂ _ _))
+
+      leftInv-p : PathP (\i -> ∀ x -> ⟨ inv-p i ⟩ (⟨ h ⟩ x) == x) i₁.leftInv i₂.leftInv
+      leftInv-p = isProp->PathP (\i -> isPropΠ (\x -> Group.isSet-Domain G₁ _ _))
+
+
+
+GroupIso : {ℓ₁ ℓ₂ : Level} -> (Group ℓ₁) -> (Group ℓ₂) -> Type (ℓ-max ℓ₁ ℓ₂)
+GroupIso G₁ G₂ = Σ (Groupʰ G₁ G₂) isGroupIso
+
+module GroupIso {ℓ₁ ℓ₂ : Level} {G₁ : Group ℓ₁} {G₂ : Group ℓ₂}
+                (i : GroupIso G₁ G₂) where
+  open isGroupIso (snd i) public
+
+  fun : Groupʰ G₁ G₂
+  fun = fst i
+
+
+module _ {ℓ₁ ℓ₂ : Level} {G₁ : Group ℓ₁} {G₂ : Group ℓ₂} where
+
+  GroupIso⁻¹ : GroupIso G₁ G₂ -> GroupIso G₂ G₁
+  GroupIso⁻¹ I = I.inv , record
+    { inv = I.fun
+    ; rightInv = I.leftInv
+    ; leftInv = I.rightInv
+    }
+    where
+    module I = GroupIso I
+
+
+module _ {ℓ : Level} {G₁ G₂ : Group ℓ} (I : GroupIso G₁ G₂)
+  where
+  private
+    module G₁ = Group G₁
+    module G₂ = Group G₂
+    module I = GroupIso I
+
+  GroupExt : G₁ == G₂
+  GroupExt = Σ-path dp gs-p
+    where
+    d-eq : G₁.D ≃ G₂.D
+    d-eq = isoToEquiv (iso ⟨ I.fun ⟩ ⟨ I.inv ⟩ I.rightInv I.leftInv)
+
+    dp : G₁.D == G₂.D
+    dp = ua d-eq
+
+    ∙p : PathP (\i -> dp i -> dp i -> dp i) G₁._∙_ G₂._∙_
+    ∙p i x y = ua-glue d-eq i (\{ (i = i0) -> x G₁.∙ y }) (inS shift)
+      where
+      shift : G₂.D
+      shift = hcomp (\j -> \{ (i = i0) -> Groupʰ.preserves-∙ I.fun x y (~ j)
+                            ; (i = i1) -> x G₂.∙ y
+                            })
+                    ((ua-unglue d-eq i x) G₂.∙ (ua-unglue d-eq i y))
+
+    op-p : (G₁.D , G₁._∙_) == (G₂.D , G₂._∙_)
+    op-p i = dp i , ∙p i
+
+    monoid-p : PathP (\i -> Monoid (dp i)) G₁.monoid G₂.monoid
+    monoid-p = MonoidExt op-p
+
+    inv-p : PathP (\i -> hasInverse (monoid-p i))
+              G₁.hasInverse-monoid G₂.hasInverse-monoid
+    inv-p = isProp->PathP (\i -> isProp-hasInverse)
+
+
+    gs-p : PathP (\i -> GroupStr (dp i)) G₁.Str G₂.Str
+    gs-p i = record
+      { monoid = monoid-p i
+      ; inverse = hasInverse.inverse (inv-p i)
+      ; ∙-left-inverse = \{x} -> hasInverse.∙-left-inverse (inv-p i) {x}
+      ; ∙-right-inverse = \{x} -> hasInverse.∙-right-inverse (inv-p i) {x}
+      }
+
+
+
+module _ {ℓ₁ ℓ₂ ℓ₃ : Level} {G₁ : Group ℓ₁} {G₂ : Group ℓ₂} {G₃ : Group ℓ₃} where
   private
     module G₁ = Group G₁
     module G₂ = Group G₂
