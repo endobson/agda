@@ -11,7 +11,7 @@ open import equivalence
 open import univalence
 open import isomorphism
 
-module spheres where
+module spheres-old where
 
 data S1 : Type₀ where
   base : S1
