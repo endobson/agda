@@ -8,6 +8,7 @@ open import cubical
 open import equality-path
 open import heyting-field.instances.rational
 open import hlevel
+open import hlevel.htype
 open import isomorphism
 open import order
 open import order.instances.rational

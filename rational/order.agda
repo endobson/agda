@@ -12,6 +12,7 @@ open import fraction.sign
 open import fraction.order
 open import functions
 open import hlevel
+open import hlevel.htype
 open import isomorphism
 open import nat using (ℕ ; Nat⁺; 1⁺ ; 2⁺ ; _*⁺_)
 open import nat.exponentiation

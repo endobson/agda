@@ -9,6 +9,7 @@ open import fin
 open import functions
 open import nat
 open import hlevel
+open import hlevel.htype
 open import relation
 open import equality-path
 open import sigma.base

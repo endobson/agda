@@ -12,6 +12,7 @@ open import functions
 open import funext
 open import heyting-field
 open import hlevel
+open import hlevel.htype
 open import integral-domain
 open import isomorphism
 open import relation

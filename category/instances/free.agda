@@ -14,6 +14,7 @@ open import fin
 open import fin-algebra
 open import functions
 open import hlevel
+open import hlevel.htype
 open import isomorphism
 open import maybe
 open import nat

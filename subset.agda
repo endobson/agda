@@ -12,6 +12,7 @@ open import finset.instances.boolean
 open import functions
 open import funext
 open import hlevel
+open import hlevel.htype
 open import isomorphism
 open import relation
 open import sigma.base

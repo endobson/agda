@@ -8,6 +8,7 @@ open import category.instances.set
 open import discrete
 open import equality
 open import hlevel
+open import hlevel.htype
 open import relation
 
 module category.instances.quiver where

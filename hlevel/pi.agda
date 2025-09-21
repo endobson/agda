@@ -15,6 +15,7 @@ private
     A A1 A2 A3 : Type ℓ
     B : A -> Type ℓ
     C : (a : A) -> B a -> Type ℓ
+    D : (a : A) -> (b : B a) -> (C a b) -> Type ℓ
 
 -- isPropΠ is defined in hlevel.base since it doesn't need funExtPath and is needed
 -- earlier on for meta hlevel constructions.
@@ -50,6 +51,10 @@ abstract
 
   isPropΠⁱ2 : ((x : A) -> (y : B x) -> isProp (C x y)) -> isProp ({x : A} -> {y : B x} -> C x y)
   isPropΠⁱ2 h = isPropΠⁱ (\a -> isPropΠⁱ (h a))
+
+  isPropΠⁱ3 : ((x : A) -> (y : B x) -> (z : (C x y)) -> isProp (D x y z)) ->
+              isProp ({x : A} -> {y : B x} -> {z : C x y} -> D x y z)
+  isPropΠⁱ3 h = isPropΠⁱ (\a -> isPropΠⁱ2 (h a))
 
   isSetΠⁱ : ((x : A) -> isSet (B x)) -> isSet ({x : A} -> (B x))
   isSetΠⁱ = isOfHLevelΠⁱ 2

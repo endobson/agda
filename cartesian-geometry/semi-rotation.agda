@@ -10,6 +10,7 @@ open import functions
 open import monoid
 open import commutative-monoid
 open import hlevel
+open import hlevel.htype
 open import isomorphism
 open import cartesian-geometry.rotation
 open import set-quotient

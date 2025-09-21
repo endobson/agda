@@ -14,6 +14,7 @@ open import fin
 open import functions
 open import funext
 open import hlevel
+open import hlevel.htype
 open import int
 open import isomorphism
 open import nat

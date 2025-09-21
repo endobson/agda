@@ -14,6 +14,7 @@ open import fin
 open import gcd.euclidean-algorithm
 open import group
 open import hlevel
+open import hlevel.htype
 open import int
 open import isomorphism
 open import linear-combo

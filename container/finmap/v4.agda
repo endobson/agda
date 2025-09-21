@@ -11,6 +11,7 @@ open import finset
 open import functions
 open import funext
 open import hlevel
+open import hlevel.htype
 open import isomorphism
 open import maybe
 open import nat

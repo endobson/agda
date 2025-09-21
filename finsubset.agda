@@ -8,6 +8,7 @@ open import fin
 open import functions
 open import functions.embedding
 open import hlevel
+open import hlevel.htype
 open import nat
 open import relation
 open import set-quotient

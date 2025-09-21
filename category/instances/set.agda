@@ -16,6 +16,7 @@ open import equality-path
 open import equality.identity-system
 open import funext
 open import hlevel
+open import hlevel.htype
 open import isomorphism
 open import sigma.base
 open import truncation

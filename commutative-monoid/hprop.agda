@@ -5,6 +5,7 @@ module commutative-monoid.hprop where
 open import base
 open import equality
 open import hlevel
+open import hlevel.htype
 open import commutative-monoid
 open import monoid
 open import sigma.base

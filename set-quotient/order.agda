@@ -5,6 +5,7 @@ module set-quotient.order where
 open import base
 open import equivalence
 open import hlevel
+open import hlevel.htype
 open import isomorphism
 open import order
 open import relation

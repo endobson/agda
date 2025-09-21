@@ -6,6 +6,7 @@ open import base
 open import equality
 open import equality.identity-system
 open import hlevel
+open import hlevel.htype
 open import relation
 
 record PropIdentitySystem {ℓA : Level} (A : Type ℓA) (ℓ : Level) : Type (ℓ-max (ℓ-suc ℓ) ℓA) where
