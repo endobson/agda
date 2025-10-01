@@ -173,6 +173,11 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<}
     *₁-flip-reflects-0< {a} {b} a≯0 0<ab =
       *₁-flip-reflects-< a≯0 (subst (_< (a * b)) (sym *-right-zero) 0<ab)
 
+    -- Add other negative cases
+    *₁-reflects-<0 : {a b : D} -> (a ≮ 0#) -> (a * b) < 0# -> (b < 0#)
+    *₁-reflects-<0 {a} {b} a≮0 ab<0 =
+      *₁-reflects-< a≮0 (subst ((a * b) <_) (sym *-right-zero) ab<0)
+
     *₂-reflects-0< : {a b : D} -> 0# < (a * b) -> (b ≮ 0#) -> (0# < a)
     *₂-reflects-0< {a} {b} 0<ab b≮0 =
       *₂-reflects-< (subst (_< (a * b)) (sym *-left-zero) 0<ab) b≮0

@@ -175,6 +175,10 @@ opaque
   Discrete-ℚ : Discrete ℚ
   Discrete-ℚ = Discrete-SetQuotient isProp-r~ isEquivRel-r~ Decidable2-r~
 
+instance
+  Discrete'-ℚ : Discrete' ℚ
+  Discrete'-ℚ = record { f = Discrete-ℚ }
+
 
 _r+'ᵉ_ : ℚ' -> ℚ' -> ℚ'
 a r+'ᵉ b = record
@@ -801,17 +805,10 @@ private
   ℚ'->split-ℤ : (q' : ℚ') -> Σ[ n ∈ ℤ ] Σ[ d ∈ ℤ ] (NonZero d × (ℤ->ℚ' n r~ (q' r*' ℤ->ℚ' d)))
   ℚ'->split-ℤ (ℚ'-cons n d nz-d) = n , d , (nz-d , sym *-assoc)
 
-  private
-    Pos'-abs'-d : {d : ℤ} -> NonZero d -> Pos' (abs' d)
-    Pos'-abs'-d {zero-int} nz = bot-elim (NonZero->!=0 nz refl)
-    Pos'-abs'-d {pos n}    _  = tt
-    Pos'-abs'-d {neg n}    _  = tt
-
-
   ℚ'->split-ℤℕ⁺ : (q' : ℚ') -> Σ[ n ∈ ℤ ] Σ[ d ∈ Nat⁺ ] ((ℤ->ℚ' n r~ (q' r*' ℕ->ℚ' ⟨ d ⟩)))
   ℚ'->split-ℤℕ⁺ (ℚ'-cons n d nz@(inj-l pos-d)) =
-    n , (abs' d , Pos'-abs'-d nz) , *-right (*-left (nonneg-abs' (weaken-< pos-d))) >=> sym *-assoc
-  ℚ'->split-ℤℕ⁺ (ℚ'-cons n d nz@(inj-r neg-d)) = - n , (abs' d , Pos'-abs'-d nz) , p
+    n , (abs' d , Pos'-abs' nz) , *-right (*-left (nonneg-abs' (weaken-< pos-d))) >=> sym *-assoc
+  ℚ'->split-ℤℕ⁺ (ℚ'-cons n d nz@(inj-r neg-d)) = - n , (abs' d , Pos'-abs' nz) , p
     where
     p = minus-extract-left >=>
         sym minus-extract-right >=>

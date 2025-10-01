@@ -109,6 +109,11 @@ isoToPath-id-iso = cong ua isoToEquiv-id-iso >=> uaIdEquiv
 transport-ua : (e : A1 ≃ A2) -> transport (ua e) == ⟨ e ⟩
 transport-ua (f , _) j x = transportRefl (f x) j
 
+ua-filler : (e : A1 ≃ A2) (a : A1) -> PathP (\j -> ua e j) a (eqFun e a)
+ua-filler e a =
+  transP-left (transport-filler (ua e) a)
+              (\j -> transport-ua e j a)
+
 sym-ua : (eq : A1 ≃ A2) -> sym (ua eq) == ua (equiv⁻¹ eq)
 sym-ua {A1 = A1} = EquivJ (\_ eq -> sym (ua eq) == ua (equiv⁻¹ eq)) path
   where

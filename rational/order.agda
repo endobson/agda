@@ -921,6 +921,16 @@ opaque
     trans-<-= (trans-=-< (sym +-left-zero) (+₂-preserves-< (ℕ->ℚ-preserves-< zero-<)))
               (sym (ℤ->ℚ-preserves-+ _ _) >=> cong ℤ->ℚ p)
 
+  ℤ->ℚ-reflects-< : (a b : ℤ) -> (ℤ->ℚ a) < (ℤ->ℚ b) -> a < b
+  ℤ->ℚ-reflects-< a b a'<b' =
+    case (split-< a b) of
+      (\{ (inj-l a<b) -> a<b
+        ; (inj-r b≤a) -> bot-elim (convert-≤ (ℤ->ℚ-preserves-≤ b≤a) a'<b')
+        })
+
+
+
+
 opaque
   private
     zero-diff->path : (x y : ℚ) -> Zeroℚ (y r+ (r- x)) -> x == y

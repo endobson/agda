@@ -32,3 +32,6 @@ module _ {ℓI ℓD ℓI≤ ℓD≤ ℓD< : Level} {I : Type ℓI} {D : Type ℓ
 
   BigO : (f g : I -> D) -> Type _
   BigO f g = ∥ BigO' f g ∥
+
+  BigΘ : (f g : I -> D) -> Type _
+  BigΘ f g = BigO f g × BigO g f
