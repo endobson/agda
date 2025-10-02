@@ -2,27 +2,42 @@
 
 module ordered-semiring.instances.int where
 
+open import abs
 open import additive-group
 open import additive-group.instances.int
 open import base
-open import equality
+open import equality-path
+open import int
 open import nat.arithmetic
 open import order
 open import order.instances.int
 open import ordered-additive-group.instances.int
-open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.ring
 open import ring.implementations.int
 open import semiring
+open import semiring.instances.nat
 
-import int.order as io
+private
+  ℤ*₁-preserves-< : {a b c : ℤ} -> 0# < a -> (b < c) -> (a * b) < (a * c)
+  ℤ*₁-preserves-< {a} {b} {c} (d₁ , p₁) (d₂ , p₂) =
+    d₁ *⁺ d₂ ,
+    +-left (int-inject-*' >=> *-left (sym +-right-zero >=> p₁)) >=>
+    sym *-distrib-+-left >=>
+    *-right p₂
 
-abstract
-  instance
+  ℤ*₁-preserves-≤ : {a b c : ℤ} -> 0# ≤ a -> (b ≤ c) -> (a * b) ≤ (a * c)
+  ℤ*₁-preserves-≤ {a} {b} {c} (d₁ , p₁) (d₂ , p₂) =
+    d₁ * d₂ ,
+    +-left (int-inject-*' >=> *-left (sym +-right-zero >=> p₁)) >=>
+    sym *-distrib-+-left >=>
+    *-right p₂
+
+instance
+  opaque
     LinearlyOrderedSemiringStr-ℤ : LinearlyOrderedSemiringStr IntSemiring useⁱ
     LinearlyOrderedSemiringStr-ℤ = LinearlyOrderedSemiringStr-Ring
-      (\ 0<a b<c -> io.*₁-Pos-preserves-<⁺ b<c (io.>0->Pos 0<a))
+      ℤ*₁-preserves-<
 
     NonTrivalLinearlyOrderedSemiringStr-ℤ :
       NonTrivialLinearlyOrderedSemiringStr LinearlyOrderedSemiringStr-ℤ
@@ -30,5 +45,4 @@ abstract
 
     PartiallyOrderedSemiringStr-ℤ : PartiallyOrderedSemiringStr IntSemiring useⁱ
     PartiallyOrderedSemiringStr-ℤ = PartiallyOrderedSemiringStr-Ring
-      (weaken-< 0<1)
-      (\ 0≤a b≤c -> io.*₁-NonNeg-preserves-≤⁺ b≤c (io.≥0->NonNeg 0≤a))
+      (weaken-< 0<1) ℤ*₁-preserves-≤
