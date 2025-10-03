@@ -13,6 +13,7 @@ open import order
 open import order.instances.int
 open import ordered-additive-group.instances.int
 open import ordered-semiring
+open import ordered-semiring.decidable
 open import ordered-semiring.ring
 open import ring.implementations.int
 open import semiring
@@ -39,6 +40,9 @@ instance
     LinearlyOrderedSemiringStr-ℤ = LinearlyOrderedSemiringStr-Ring
       ℤ*₁-preserves-<
 
+    StronglyLinearlyOrderedSemiringStr-ℤ : StronglyLinearlyOrderedSemiringStr IntSemiring useⁱ
+    StronglyLinearlyOrderedSemiringStr-ℤ = StronglyLinearlyOrderedSemiringStr-Dec<
+
     NonTrivalLinearlyOrderedSemiringStr-ℤ :
       NonTrivialLinearlyOrderedSemiringStr LinearlyOrderedSemiringStr-ℤ
     NonTrivalLinearlyOrderedSemiringStr-ℤ = record { 0<1 = ( 1 , tt) , +-right-zero }
@@ -46,3 +50,7 @@ instance
     PartiallyOrderedSemiringStr-ℤ : PartiallyOrderedSemiringStr IntSemiring useⁱ
     PartiallyOrderedSemiringStr-ℤ = PartiallyOrderedSemiringStr-Ring
       (weaken-< 0<1) ℤ*₁-preserves-≤
+
+    StronglyPartiallyOrderedSemiringStr-ℤ :
+      StronglyPartiallyOrderedSemiringStr IntSemiring useⁱ useⁱ
+    StronglyPartiallyOrderedSemiringStr-ℤ = StronglyPartiallyOrderedSemiringStr-Dec<
