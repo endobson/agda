@@ -2,15 +2,16 @@
 
 module order.instances.rational where
 
+open import apartness
+open import apartness.instances.rational
+open import base
+open import equality
+open import equivalence
+open import isomorphism
 open import order
 open import rational
 open import rational.order
-open import base
-open import equivalence
-open import equality
 open import relation
-open import isomorphism
-open import apartness
 
 open import rational.order public using
  ( ℚ⁺

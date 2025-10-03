@@ -2,6 +2,7 @@
 
 module rational.integral-domain where
 
+open import apartness.instances.rational
 open import heyting-field.instances.rational
 open import integral-domain
 open import integral-domain.instances.heyting-field

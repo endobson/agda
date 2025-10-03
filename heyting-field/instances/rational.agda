@@ -4,6 +4,7 @@ module heyting-field.instances.rational where
 
 open import additive-group
 open import apartness
+open import apartness.instances.rational
 open import base
 open import equality
 open import funext

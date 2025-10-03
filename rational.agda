@@ -5,8 +5,6 @@ module rational where
 open import abs
 open import additive-group
 open import additive-group.instances.int
-open import apartness
-open import apartness.discrete
 open import base
 open import discrete
 open import equality
@@ -157,9 +155,6 @@ opaque
   Discrete-ℚ : Discrete ℚ
   Discrete-ℚ = Discrete-SetQuotient isProp-r~ isEquivRel-r~ Decidable2-r~
 
-instance
-  isTightApartness-ℚ# : isTightApartness (\ (x y : ℚ) -> x != y)
-  isTightApartness-ℚ# = isTightApartness-!= Discrete-ℚ
 
 _r+'ᵉ_ : ℚ' -> ℚ' -> ℚ'
 a r+'ᵉ b = record
