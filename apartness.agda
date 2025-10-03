@@ -16,6 +16,19 @@ record isTightApartness {ℓD ℓ# : Level} {D : Type ℓD} (_#_ : Rel D ℓ#) :
     comparison-# : Comparison _#_
     isProp-# : {d1 d2 : D} -> isProp (d1 # d2)
 
+module _ {ℓD ℓ# : Level} {D : Type ℓD} {_#_ : Rel D ℓ#} where
+  isProp-isTightApartnessOfSet : isSet D -> isProp (isTightApartness _#_)
+  isProp-isTightApartnessOfSet isSet-D TA₁ TA₂ i = record
+    { tight-# = \{a} {b} ¬a#b -> isSet-D a b (TA₁.tight-# ¬a#b) (TA₂.tight-# ¬a#b) i
+    ; irrefl-# = \ {¬a#a} -> isProp¬ (TA₁.irrefl-# {¬a#a}) (TA₂.irrefl-# {¬a#a}) i
+    ; sym-# = \ a#b -> TA₁.isProp-# (TA₁.sym-# a#b) (TA₂.sym-# a#b) i
+    ; comparison-# = \a b c a#c -> squash (TA₁.comparison-# a b c a#c) (TA₂.comparison-# a b c a#c) i
+    ; isProp-# = isProp-isProp TA₁.isProp-# TA₂.isProp-# i
+    }
+    where
+    module TA₁ = isTightApartness TA₁
+    module TA₂ = isTightApartness TA₂
+
 module _ {ℓD ℓ# : Level} {D : Type ℓD} {ap : Rel D ℓ#} {{TA : isTightApartness ap}} where
   open isTightApartness TA public
 
