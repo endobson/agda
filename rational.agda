@@ -5,6 +5,8 @@ module rational where
 open import abs
 open import additive-group
 open import additive-group.instances.int
+open import apartness
+open import apartness.discrete
 open import base
 open import discrete
 open import equality
@@ -14,6 +16,8 @@ open import funext
 open import hlevel
 open import hlevel.htype
 open import int
+open import integral-domain
+open import integral-domain.instances.int
 open import isomorphism
 open import nat
 open import nat.exponentiation
@@ -90,7 +94,7 @@ opaque
   r~->path a b r = eq/ a b r
 
 trans-r~ : (a b c : ℚ') -> a r~ b -> b r~ c -> a r~ c
-trans-r~ a b c p1 p2 = int.*-right-injective (rNonZero b) p3
+trans-r~ a b c p1 p2 = *₂-reflects-= (NonZero->!=0 (rNonZero b)) p3
   where
   na = numer a
   nb = numer b

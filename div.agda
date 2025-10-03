@@ -11,6 +11,8 @@ open import equality
 open import fin
 open import hlevel
 open import int
+open import integral-domain
+open import integral-domain.instances.int
 open import nat
 open import nat.order
 open import order
@@ -374,17 +376,17 @@ isPropDiv₁ : {d n : Int} -> (NonZero d) -> isProp (d div n)
 isPropDiv₁ {d} {n} nz-d div1@(x1 , p1) (x2 , p2) = ΣProp-path (isSetInt _ _) x-p
   where
   x-p : x1 == x2
-  x-p = (*-right-injective nz-d (p1 >=> (sym p2)))
+  x-p = (*₂-reflects-= (NonZero->!=0 nz-d) (p1 >=> (sym p2)))
 
 
 isPropDiv : {d n : Int} -> (NonZero n) -> isProp (d div n)
 isPropDiv {d} {n} n-nz div1@(x1 , p1) (x2 , p2) = ΣProp-path (isSetInt _ _) x-p
   where
-  d-pos : NonZero d
-  d-pos = div-non-zero->non-zero div1 n-nz
+  d-nz : NonZero d
+  d-nz = div-non-zero->non-zero div1 n-nz
 
   x-p : x1 == x2
-  x-p = (*-right-injective d-pos (p1 >=> (sym p2)))
+  x-p = (*₂-reflects-= (NonZero->!=0 d-nz) (p1 >=> (sym p2)))
 
 
 isPropDiv' : {d : Nat} -> (n : Nat⁺) -> isProp (d div' ⟨ n ⟩)

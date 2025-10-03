@@ -12,6 +12,8 @@ open import int hiding (
   Zero->NonNeg ; NonNeg->¬Neg ; Zero ; NonZero->¬Zero ; Pos
   )
 open import int.order
+open import integral-domain
+open import integral-domain.instances.int
 open import nat
 open import rational
 open import ring
@@ -128,7 +130,7 @@ Zero-r~ {q1} (is-signℚ' p) = *-right-one >=> p2 >=> sym (*-left-zero)
   d = denom q1
 
   p2 : n == 0#
-  p2 = *-right-injective (rNonZero q1) (i.Zero-path _ p >=> sym *-left-zero)
+  p2 = *₂-reflects-= (NonZero->!=0 (rNonZero q1)) (i.Zero-path _ p >=> sym *-left-zero)
 
 Zero-0r' : Zero 0r'
 Zero-0r' = is-signℚ' (subst (Zero {D = ℤ}) (sym *-left-zero) tt)

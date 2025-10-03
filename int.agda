@@ -1032,6 +1032,9 @@ abstract
   zero!=non-zero : {x y : Int} (z-x : Zero x) (nz-y : NonZero y) -> x == y -> Bot
   zero!=non-zero z-x nz-y p = NonZero->¬Zero nz-y (subst Zero p z-x)
 
+  NonZero->!=0 : {x : Int} (nz-x : NonZero x) -> x != (int 0)
+  NonZero->!=0 nz x=0 = zero!=non-zero tt nz (sym x=0)
+
 
   +-right-id : {m n : Int} -> m + n == m -> n == (int 0)
   +-right-id {zero-int} {_} pr = pr
@@ -1082,63 +1085,6 @@ abstract
 
   *-right-id : {m n : Int} -> (NonZero m) -> m * n == m -> n == (int 1)
   *-right-id {m} {n} nz pr = *-left-id nz (sym (*-commute {m} {n}) >=> pr)
-
-  private
-    *nz-right-injective : {m n : Nat} {p : Int} -> (NonZero p) -> (m *nz p) == (n *nz p) -> m == n
-    *nz-right-injective {m = zero}  {n = zero}          p-nz path = refl
-    *nz-right-injective {m = suc m} {n = zero}  {p = p} p-nz path =
-       bot-elim (subst (Comp Zero) path
-                       (NonZero->¬Zero (*-NonZero-NonZero {pos m} {p} (inj-l tt) p-nz)) tt)
-    *nz-right-injective {m = zero}  {n = suc m} {p = p} p-nz path =
-       bot-elim (subst (Comp Zero) (sym path)
-                       (NonZero->¬Zero (*-NonZero-NonZero {pos m} {p} (inj-l tt) p-nz)) tt)
-    *nz-right-injective {m = suc m} {n = suc n} {p = p} p-nz path =
-      cong suc (*nz-right-injective p-nz (+-left-injective p path))
-
-  *-right-injective : {m n p : Int} (nz : (NonZero n)) -> (m * n) == (p * n) -> m == p
-  *-right-injective {nonneg m} {n} {nonneg p} nz path = cong nonneg (*nz-right-injective nz path)
-  *-right-injective {neg m}    {n} {neg p}    nz path =
-   cong (\x -> (- (int x))) (*nz-right-injective nz (minus-injective path))
-  *-right-injective m@{nonneg _} n@{pos _} p@{neg _} nz path =
-    bot-elim (NonNeg->¬Neg pn-nonneg pn-neg)
-    where
-    pn-nonneg : NonNeg (p * n)
-    pn-nonneg = transport (cong NonNeg path) (*-NonNeg-Pos {m} {n} (NonNeg-nonneg _) _)
-
-    pn-neg : Neg (p * n)
-    pn-neg = *-Neg-Pos {p} {n} _ _
-  *-right-injective m@{nonneg _} n@{neg _} p@{neg _}    nz path =
-    bot-elim (NonPos->¬Pos pn-nonpos pn-pos)
-    where
-    pn-nonpos : NonPos (p * n)
-    pn-nonpos = transport (cong NonPos path) (*-NonNeg-Neg {m} {n} (NonNeg-nonneg _) _)
-
-    pn-pos : Pos (p * n)
-    pn-pos = *-Neg-Neg {p} {n} _ _
-  *-right-injective m@{neg _} n@{pos _} p@{nonneg _} nz path =
-    bot-elim (NonNeg->¬Neg pn-nonneg pn-neg)
-    where
-    pn-neg : Neg (p * n)
-    pn-neg = transport (cong Neg path) (*-Neg-Pos {m} {n} _ _)
-
-    pn-nonneg : NonNeg (p * n)
-    pn-nonneg = *-NonNeg-Pos {p} {n} (NonNeg-nonneg _) _
-  *-right-injective m@{neg _} n@{neg _} p@{nonneg _} nz path =
-    bot-elim (NonPos->¬Pos pn-nonpos pn-pos)
-    where
-    pn-pos : Pos (p * n)
-    pn-pos = transport (cong Pos path) (*-Neg-Neg {m} {n} _ _)
-
-    pn-nonpos : NonPos (p * n)
-    pn-nonpos = *-NonNeg-Neg {p} {n} (NonNeg-nonneg _) _
-  *-right-injective m@{neg _} n@{zero-int} p@{nonneg _} (inj-l ())
-  *-right-injective m@{neg _} n@{zero-int} p@{nonneg _} (inj-r ())
-  *-right-injective m@{nonneg _} n@{zero-int} p@{neg _} (inj-l ())
-  *-right-injective m@{nonneg _} n@{zero-int} p@{neg _} (inj-r ())
-
-  *-left-injective : {m n p : Int} (nz : (NonZero m)) -> (m * n) == (m * p) -> n == p
-  *-left-injective {m} {n} {p} nz path =
-    *-right-injective nz (*-commute {n} {m} >=> path >=> *-commute {m} {p})
 
   int->sign-preserves-* : {m n : Int} -> int->sign (m * n) == (int->sign m) s* (int->sign n)
   int->sign-preserves-* {m} {n} =
