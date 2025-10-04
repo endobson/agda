@@ -1035,17 +1035,6 @@ abstract
   NonZero->!=0 : {x : Int} (nz-x : NonZero x) -> x != (int 0)
   NonZero->!=0 nz x=0 = zero!=non-zero tt nz (sym x=0)
 
-
-  +-right-id : {m n : Int} -> m + n == m -> n == (int 0)
-  +-right-id {zero-int} {_} pr = pr
-  +-right-id {pos zero} {n} pr = +-right-id {zero-int} {n} (sym sub1-add1-id >=> (cong sub1 pr))
-  +-right-id {pos (suc m)} {n} pr = +-right-id {pos m} {n} (sym sub1-add1-id >=> (cong sub1 pr))
-  +-right-id {neg zero} {n} pr = +-right-id {zero-int} {n} (sym add1-sub1-id >=> (cong add1 pr))
-  +-right-id {neg (suc m)} {n} pr = +-right-id {neg m} {n} (sym add1-sub1-id >=> (cong add1 pr))
-
-  +-left-id : {m n : Int} -> m + n == n -> m == (int 0)
-  +-left-id {m} {n} pr = +-right-id (sym (+-commute {m} {n}) >=> pr)
-
   *-left-zero-eq : {m n : Int} -> (NonZero n) -> m * n == (int 0) -> m == (int 0)
   *-left-zero-eq {zero-int} {_} _ _ = refl
   *-left-zero-eq {pos m} {pos n} _ pr =
@@ -1063,28 +1052,6 @@ abstract
 
   *-right-zero-eq : {m n : Int} -> (NonZero m) -> m * n == (int 0) -> n == (int 0)
   *-right-zero-eq {m} {n} nz p = *-left-zero-eq {n} {m} nz (*-commute {n} {m} >=> p)
-
-  *-left-id : {m n : Int} -> (NonZero n) -> m * n == n -> m == (int 1)
-  *-left-id {zero-int} {pos _} nz p = bot-elim (zero!=non-zero tt nz p)
-  *-left-id {zero-int} {neg _} nz p = bot-elim (zero!=non-zero tt nz p)
-  *-left-id {zero-int} {zero-int} (inj-l ())
-  *-left-id {zero-int} {zero-int} (inj-r ())
-  *-left-id {pos zero} {_} _ _ = refl
-  *-left-id {pos (suc m)} {pos n} nz pr =
-    bot-elim (subst Pos (+-right-id pr) (*-Pos-Pos {pos m} {pos n} tt tt))
-  *-left-id {pos (suc m)} {neg n} _ pr =
-    bot-elim (subst Neg (+-right-id pr) (*-Pos-Neg {pos m} {neg n} tt tt))
-  *-left-id {pos (suc m)} {zero-int} (inj-l ())
-  *-left-id {pos (suc m)} {zero-int} (inj-r ())
-  *-left-id {neg m} {pos n} _ pr =
-    bot-elim (subst Neg pr (*-Neg-Pos {neg m} {pos n} tt tt))
-  *-left-id {neg m} {neg n} _ pr =
-    bot-elim (subst Pos pr (*-Neg-Neg {neg m} {neg n} tt tt))
-  *-left-id {neg m} {zero-int} (inj-l ())
-  *-left-id {neg m} {zero-int} (inj-r ())
-
-  *-right-id : {m n : Int} -> (NonZero m) -> m * n == m -> n == (int 1)
-  *-right-id {m} {n} nz pr = *-left-id nz (sym (*-commute {m} {n}) >=> pr)
 
   int->sign-preserves-* : {m n : Int} -> int->sign (m * n) == (int->sign m) s* (int->sign n)
   int->sign-preserves-* {m} {n} =
