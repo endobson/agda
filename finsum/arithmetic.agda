@@ -3,6 +3,7 @@
 module finsum.arithmetic where
 
 open import additive-group
+open import additive-group.apartness
 open import apartness
 open import base
 open import commutative-monoid
@@ -76,8 +77,8 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
             }
           }
 
-  module _ {ℓ# : Level} {D# : Rel D ℓ#} {AG : AdditiveGroup ACM} {A : isTightApartness D#}
-           {{AAG : ApartAdditiveGroup AG A}}  where
+  module _ {ℓ# : Level} {D# : Rel D ℓ#} {A : isTightApartness D#}
+           {{AACM : ApartAdditiveCommMonoid ACM A}}  where
     private
       instance
         IA = A

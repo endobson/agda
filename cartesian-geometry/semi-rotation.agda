@@ -3,6 +3,7 @@
 module cartesian-geometry.semi-rotation where
 
 open import additive-group
+open import additive-group.apartness
 open import apartness
 open import base
 open import equality
@@ -388,7 +389,26 @@ instance
     ; isProp-# = isProp-sr#
     }
 
-  ApartAdditiveGroup-SemiRotation : ApartAdditiveGroup {D = SemiRotation} useⁱ useⁱ
-  ApartAdditiveGroup-SemiRotation = record
-    { +-reflects-# = +-reflects-sr#
-    }
+  opaque
+    ApartAdditiveCommMonoid-SemiRotation : ApartAdditiveCommMonoid {D = SemiRotation} useⁱ useⁱ
+    ApartAdditiveCommMonoid-SemiRotation = record
+      { StronglyInjective-+₁ = StronglyInjective-sr+₁
+      ; StronglyExtensional-+₁ = StronglyExtensional-sr+₁
+      }
+      where
+      StronglyExtensional-sr+₁ : ∀ (a : SemiRotation) -> {b c : SemiRotation} -> (a + b) # (a + c) -> b # c
+      StronglyExtensional-sr+₁ a ab#ac =
+        unsquash isProp-# (∥-map (\s -> proj-¬l s ¬a#a) (+-reflects-sr# ab#ac))
+        where
+        ¬a#a : ¬ (a # a)
+        ¬a#a = irrefl-#
+
+      StronglyInjective-sr+₁ : ∀ (a : SemiRotation) -> {b c : SemiRotation} -> b # c -> (a + b) # (a + c)
+      StronglyInjective-sr+₁ a {b} {c} b#c = StronglyExtensional-sr+₁ (- a) aab#aac
+        where
+        x=aax : ∀ x -> x == ((- a) + (a + x))
+        x=aax x = (sym +-left-zero >=>
+                   cong (_+ x) (sym (+-inverseᵉ a) >=> +-commuteᵉ a (- a)) >=>
+                   (+-assocᵉ (- a) a x))
+        aab#aac : ((- a) + (a + b)) # ((- a) + (a + c))
+        aab#aac = subst2 _#_ (x=aax b) (x=aax c) b#c

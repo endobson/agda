@@ -47,6 +47,10 @@ module _ {ℓD1 ℓD2 ℓ#1 ℓ#2 : Level} {D1 : Type ℓD1} {D2 : Type ℓD2}
   StronglyInjective : Pred (D1 -> D2) (ℓ-max* 3 ℓD1 ℓ#1 ℓ#2)
   StronglyInjective f = {a b : D1} -> a # b -> f a # f b
 
+  StronglyExtensional : Pred (D1 -> D2) (ℓ-max* 3 ℓD1 ℓ#1 ℓ#2)
+  StronglyExtensional f = {a b : D1} -> f a # f b -> a # b
+
+
 module _ {ℓD1 ℓD2 ℓD3 ℓ#1 ℓ#2 ℓ#3 : Level} {D1 : Type ℓD1} {D2 : Type ℓD2} {D3 : Type ℓD3}
          {#1 : Rel D1 ℓ#1} {#2 : Rel D2 ℓ#2} {#3 : Rel D3 ℓ#3}
          {{TA1 : isTightApartness #1}} {{TA2 : isTightApartness #2}} {{TA3 : isTightApartness #3}}

@@ -3,6 +3,7 @@
 module cartesian-geometry.vector where
 
 open import additive-group
+open import additive-group.apartness
 open import additive-group.instances.real
 open import apartness
 open import base
@@ -145,8 +146,8 @@ instance
   VectorSpaceStr-Vector = VectorSpaceStr-DirectProduct ℝField Axis
   ModuleSpaceStr-Vector = VectorSpaceStr.module-str VectorSpaceStr-Vector
   isTightApartness-Vector# = ModuleStr.isTightApartness-v# ModuleSpaceStr-Vector
-  ApartAdditiveGroup-Vector : ApartAdditiveGroup AdditiveGroup-Vector isTightApartness-Vector#
-  ApartAdditiveGroup-Vector = ApartAdditiveGroup-DirectProduct ApartAdditiveGroup-ℝ Axis
+  ApartAdditiveCommMonoid-Vector : ApartAdditiveCommMonoid AdditiveCommMonoid-Vector isTightApartness-Vector#
+  ApartAdditiveCommMonoid-Vector = ApartAdditiveCommMonoid-DirectProduct ApartAdditiveCommMonoid-ℝ Axis
 
 abstract
   AdditiveCommMonoidʰ-vector-index :

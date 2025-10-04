@@ -3,6 +3,7 @@
 module direct-product where
 
 open import additive-group
+open import additive-group.apartness
 open import apartness
 open import base
 open import commutative-monoid
@@ -209,29 +210,26 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {ACM : AdditiveCommMonoid K}
 
 
 module _ {ℓK ℓI ℓ# : Level} {K : Type ℓK} {K# : Rel K ℓ#}
-         {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
-         {TA : isTightApartness K#} (AAG : ApartAdditiveGroup AG TA) (I : Type ℓI) where
+         {ACM : AdditiveCommMonoid K} {TA : isTightApartness K#}
+         (AACM : ApartAdditiveCommMonoid ACM TA) (I : Type ℓI) where
   private
     instance
       IACM = ACM
-      IAAG = AAG
+      IAACM = AACM
       ITA = TA
       ACM-DP = AdditiveCommMonoid-DirectProduct ACM I
-      AAG-DP = AdditiveGroup-DirectProduct AG I
       TA-DP = isTightApartness-DirectProduct TA I
 
+    dp+₁-preserves-# : {v1 v2 v3 : DP K I} -> v2 # v3 -> (v1 + v2) # (v1 + v3)
+    dp+₁-preserves-# = ∥-map \ (i , a) -> (i , +₁-preserves-# a)
 
-    dp+-reflects-# : {v1 v2 v3 v4 : DP K I} -> (v1 + v2) # (v3 + v4) -> ∥ (v1 # v3) ⊎ (v2 # v4) ∥
-    dp+-reflects-# {v1} {v2} {v3} {v4} = ∥-bind f
-      where
-      f : Σ[ i ∈ I ] ((unwrap-dp (v1 + v2) i) # (unwrap-dp (v3 + v4) i)) ->
-          ∥ (v1 # v3) ⊎ (v2 # v4) ∥
-      f (i , ap) = ∥-map (⊎-map (\ ap2 -> ∣ i , ap2 ∣) (\ ap2 -> ∣ i , ap2 ∣))
-                   (+-reflects-# ap)
+    dp+₁-reflects-# : {v1 v2 v3 : DP K I} -> (v1 + v2) # (v1 + v3) -> v2 # v3
+    dp+₁-reflects-# = ∥-map \ (i , a) -> (i , +₁-reflects-# a)
 
-  ApartAdditiveGroup-DirectProduct : ApartAdditiveGroup AAG-DP TA-DP
-  ApartAdditiveGroup-DirectProduct = record
-    { +-reflects-# = dp+-reflects-#
+  ApartAdditiveCommMonoid-DirectProduct : ApartAdditiveCommMonoid ACM-DP TA-DP
+  ApartAdditiveCommMonoid-DirectProduct = record
+    { StronglyInjective-+₁ = \_ -> dp+₁-preserves-#
+    ; StronglyExtensional-+₁ = \_ -> dp+₁-reflects-#
     }
 
 

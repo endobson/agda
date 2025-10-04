@@ -3,6 +3,7 @@
 module real.continuous.arithmetic.multiplication-inverse where
 
 open import additive-group
+open import additive-group.apartness
 open import additive-group.instances.real
 open import base
 open import equality

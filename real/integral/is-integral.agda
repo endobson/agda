@@ -3,6 +3,7 @@
 module real.integral.is-integral where
 
 open import additive-group
+open import additive-group.apartness
 open import additive-group.instances.nat
 open import additive-group.instances.real
 open import apartness

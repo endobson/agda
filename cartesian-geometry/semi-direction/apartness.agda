@@ -3,6 +3,7 @@
 module cartesian-geometry.semi-direction.apartness where
 
 open import additive-group
+open import additive-group.apartness
 open import apartness
 open import base
 open import cartesian-geometry.rotation

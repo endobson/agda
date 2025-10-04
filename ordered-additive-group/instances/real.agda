@@ -4,6 +4,7 @@ module ordered-additive-group.instances.real where
 
 open import apartness
 open import additive-group
+open import additive-group.apartness
 open import additive-group.instances.real
 open import base
 open import order
@@ -26,13 +27,17 @@ instance
   PartiallyOrderedAdditiveStr-ℝ : PartiallyOrderedAdditiveStr {D = ℝ} useⁱ useⁱ
   PartiallyOrderedAdditiveStr-ℝ = PartiallyOrderedAdditiveStr-Negated _ _
 
-
   opaque
-    ApartAdditiveGroup-ℝ : ApartAdditiveGroup AdditiveGroup-ℝ isTightApartness-ℝ#
-    ApartAdditiveGroup-ℝ = record
-      { +-reflects-# = +-reflects-ℝ#
+    ApartAdditiveCommMonoid-ℝ : ApartAdditiveCommMonoid AdditiveCommMonoid-ℝ isTightApartness-ℝ#
+    ApartAdditiveCommMonoid-ℝ = record
+      { StronglyInjective-+₁ = \_ -> +₁-preserves-ℝ#
+      ; StronglyExtensional-+₁ = \_ -> +₁-reflects-ℝ#
       }
       where
-      +-reflects-ℝ# : {a b c d : ℝ} -> (a + b) # (c + d) -> ∥ (a # c) ⊎ (b # d) ∥
-      +-reflects-ℝ# (inj-l ab<cd) = ∥-map (⊎-map inj-l inj-l) (+-reflects-< ab<cd)
-      +-reflects-ℝ# (inj-r ab>cd) = ∥-map (⊎-map inj-r inj-r) (+-reflects-< ab>cd)
+      +₁-preserves-ℝ# : {a b c : ℝ} -> b # c -> (a + b) # (a + c)
+      +₁-preserves-ℝ# (inj-l b<c) = inj-l (+₁-preserves-< b<c)
+      +₁-preserves-ℝ# (inj-r b>c) = inj-r (+₁-preserves-< b>c)
+
+      +₁-reflects-ℝ# : {a b c : ℝ} -> (a + b) # (a + c) -> b # c
+      +₁-reflects-ℝ# (inj-l ab<ac) = inj-l (+₁-reflects-< ab<ac)
+      +₁-reflects-ℝ# (inj-r ab>ac) = inj-r (+₁-reflects-< ab>ac)
