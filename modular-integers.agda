@@ -48,10 +48,10 @@ module _ {n : Nat} where
   refl-~ {x} = (congruent-mod ((int 0) , *-left-zero >=> sym int.add-minus-zero))
 
   sym-~ : Symmetric _~_
-  sym-~ {x} {y} (congruent-mod n%xy) = congruent-mod (subst (_ div_) p (div-negate n%xy))
+  sym-~ {x} {y} (congruent-mod n%xy) = congruent-mod (subst (_ div_) p (div-negate⁺ n%xy))
      where
      p : (- (x + (- y))) == (y + (- x))
-     p = int.minus-distrib-+ >=> +-right minus-double-inverse >=> +-commute
+     p = sym diff-anticommute
 
   trans-~ : Transitive _~_
   trans-~ {x} {y} {z} (congruent-mod (d1 , p1)) (congruent-mod (d2 , p2)) = congruent-mod n%xz
@@ -153,15 +153,8 @@ module _ {n : Nat} where
     i--~ : (x1 x2 : ℤ) -> (x1 ~ x2) -> (- x1) ~ (- x2)
     i--~ x1 x2 (congruent-mod n%ab) = (congruent-mod d)
       where
-      path : (- (x1 + (- x2))) == ((- x1) + (- (- x2)))
-      path = solver.IntSolver.solve 2
-             (\ x1 x2 ->
-                (⊖ (x1 ⊕ (⊖ x2))) ,
-                ((⊖ x1) ⊕ (⊖ (⊖ x2))))
-             refl x1 x2
-
       d : (int n) div ((- x1) + (- (- x2)))
-      d = subst ((int n) div_) path (div-negate n%ab)
+      d = subst ((int n) div_) minus-distrib-+ (div-negate⁺ n%ab)
 
 
     z-'-~ : (x1 x2 : ℤ) -> (x1 ~ x2) -> [ - x1 ] == [ - x2 ]

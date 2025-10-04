@@ -112,37 +112,31 @@ div'-^ℕ {k1} {k2} {d} (i , path) = (d ^ℕ i , path')
   path' = sym (^ℕ-distrib-+-left i k1) >=> (cong (d ^ℕ_) path)
 
 
-div-negate : {d a : Int} -> d div a -> d div (- a)
-div-negate (d-div-a , pr) =
-  (- d-div-a) , (minus-extract-left >=> (cong minus pr))
-div-negate-left : {d a : Int} -> d div a -> (- d) div a
-div-negate-left         (d-div-a , _ ) .fst = - d-div-a
-div-negate-left {d} {a} (d-div-a , pr) .snd =
-  begin
-    (- d-div-a) * (- d)
-  ==< minus-extract-left  >
-    - (d-div-a * (- d))
-  ==< cong minus *-commute >
-    - (- d * d-div-a )
-  ==< cong minus minus-extract-left >
-    - - (d * d-div-a)
-  ==< minus-double-inverse >
-    (d * d-div-a)
-  ==< *-commute >
-    d-div-a * d
-  ==< pr >
-    a
-  end
+div-negate⁺ : {d a : Int} -> d div a -> d div (- a)
+div-negate⁺ (c , p) =
+  - c , (minus-extract-left >=> cong minus p)
+
+div-negate⁻ : {d a : Int} -> d div (- a) -> d div a
+div-negate⁻ (c , p) =
+  - c , minus-extract-left >=> cong minus p >=> minus-double-inverse
+
+div-negate-left⁺ : {d a : Int} -> d div a -> (- d) div a
+div-negate-left⁺ (c , p) =
+  - c , minus-extract-both >=> p
+
+div-negate-left⁻ : {d a : Int} -> (- d) div a -> d div a
+div-negate-left⁻ (c , p) =
+  - c , minus-extract-left >=> sym minus-extract-right >=> p
 
 div-abs-right : {d a : Int} -> d div a -> d div (abs a)
 div-abs-right {d} {zero-int} div-a = div-a
 div-abs-right {d} {pos _}    div-a = div-a
-div-abs-right {d} {neg _}    div-a = div-negate div-a
+div-abs-right {d} {neg _}    div-a = div-negate⁺ div-a
 
 div-abs-left : {d a : Int} -> d div a -> (abs d) div a
 div-abs-left {zero-int} div-a = div-a
 div-abs-left {pos _}    div-a = div-a
-div-abs-left {neg _}    div-a = div-negate-left div-a
+div-abs-left {neg _}    div-a = div-negate-left⁺ div-a
 
 div'->≤ : {d a : Nat} -> d div' a -> {Pos' a} -> d ≤ a
 div'->≤ {d} {a}     ((suc x) , sx*d=a) = ≤'->≤ (x *' d , sx*d=a)
@@ -192,7 +186,7 @@ private
  (cong abs sub1-extract-*)
  >=> (cong (\x -> abs ((- n) + x)) *-left-zero)
  >=> (cong abs +-right-zero)
- >=> (abs-cancel-minus {n})
+ >=> (abs-cancel-minus n)
 
 abs-one-implies-unit : {m : Int} -> abs' m == 1 -> Unit m
 abs-one-implies-unit {zero-int} pr = zero-suc-absurd pr
@@ -228,41 +222,29 @@ div'-antisym {suc d1} {zero}   div1 div2 = zero-suc-absurd (sym (div'-zero->zero
 
 
 div-same-abs : {d1 d2 : Int} -> d1 div d2 -> d2 div d1 -> (abs d1) == (abs d2)
-div-same-abs {zero-int} {_} div1 _ = (sym (cong abs (div-zero->zero div1)))
-div-same-abs {pos _} {zero-int} _ div2 = (cong abs (div-zero->zero div2))
-div-same-abs {neg _} {zero-int} _ div2 = (cong abs (div-zero->zero div2))
-div-same-abs d1@{pos _} d2@{pos _} (x , pr1) (y , pr2) = proof
- where
- rewritten : x * (y * d2) == d2
- rewritten = (\i -> x * pr2 i) >=> pr1
- unit : Unit y
- unit = *-one-implies-unit {x} {y} (*-left-id (inj-l tt) (*-assoc >=> rewritten))
- proof : abs d1 == abs d2
- proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
-div-same-abs d1@{pos _} d2@{neg _} (x , pr1) (y , pr2) = proof
- where
- rewritten : x * (y * d2) == d2
- rewritten = (\i -> x * pr2 i) >=> pr1
- unit : Unit y
- unit = *-one-implies-unit {x} {y} (*-left-id (inj-r tt) (*-assoc >=> rewritten))
- proof : abs d1 == abs d2
- proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
-div-same-abs d1@{neg _} d2@{pos _} (x , pr1) (y , pr2) = proof
- where
- rewritten : x * (y * d2) == d2
- rewritten = (\i -> x * pr2 i) >=> pr1
- unit : Unit y
- unit = *-one-implies-unit {x} {y} (*-left-id (inj-l tt) (*-assoc >=> rewritten))
- proof : abs d1 == abs d2
- proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
-div-same-abs d1@{neg _} d2@{neg _} (x , pr1) (y , pr2) = proof
- where
- rewritten : x * (y * d2) == d2
- rewritten = (\i -> x * pr2 i) >=> pr1
- unit : Unit y
- unit = *-one-implies-unit {x} {y} (*-left-id (inj-r tt) (*-assoc >=> rewritten))
- proof : abs d1 == abs d2
- proof = sym ((sym (*-unit-abs {y} {d2} unit)) >=> (cong abs pr2))
+div-same-abs = step3 _ _
+  where
+  P : Int -> Int -> Type₀
+  P d1 d2 = d1 div d2 -> d2 div d1 -> (abs d1) == (abs d2)
+
+  step1 : ∀ (d1 : Nat) (d2 : Nat) -> P (int d1) (int d2)
+  step1 _ _ d1%d2 d2%d1 = cong int (div'-antisym (div->div' d1%d2) (div->div' d2%d1))
+
+  step2 : ∀ (d1 : Nat) (d2 : Int) -> P (int d1) d2
+  step2 d1 =
+    IntElim-ℕminus-elim
+      (step1 d1)
+      (\d2 p %₁ %₂ ->
+        p (div-negate⁻ %₁) (div-negate-left⁻ %₂) >=>
+        (sym (abs-cancel-minus d2)))
+
+  step3 : ∀ (d1 : Int) (d2 : Int) -> P d1 d2
+  step3 =
+    IntElim-ℕminus-elim
+      (\d1 -> step2 d1)
+      (\d1 p d2 %₁ %₂ ->
+        abs-cancel-minus d1 >=>
+        p d2 (div-negate-left⁻ %₁) (div-negate⁻ %₂))
 
 
 nonneg-unit->one : {n : Int} -> NonNeg n -> Unit n -> n == (int 1)
@@ -298,7 +280,7 @@ div-linear {d} {a} {b} (d-div-a , pa) (d-div-b , pb) {m} {n} .snd =
 
 div-+-left : {d a b : Int} -> d div a -> d div (a + b) -> d div b
 div-+-left {d} {a} {b} d%a d%ab =
-  transport (\i -> d div (path i)) (div-sum (div-negate d%a) d%ab)
+  transport (\i -> d div (path i)) (div-sum (div-negate⁺ d%a) d%ab)
   where
   path : (- a + (a + b)) == b
   path = sym +-assoc >=> (cong (_+ b) (+-commute >=> add-minus-zero {a}))

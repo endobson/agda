@@ -87,10 +87,10 @@ abs-inject-*/non-neg {_} {n} mp np = rec (non-neg-int-rec mp)
       abs (add1 m) * abs n
     end
 
-abs-cancel-minus : {m : Int} -> abs (- m) == abs m
-abs-cancel-minus {zero-int} = refl
-abs-cancel-minus {pos _} = refl
-abs-cancel-minus {neg _} = refl
+abs-cancel-minus : (m : Int) -> abs (- m) == abs m
+abs-cancel-minus (zero-int) = refl
+abs-cancel-minus (pos _) = refl
+abs-cancel-minus (neg _) = refl
 
 abs-inject-* : {m n : Int} -> abs (m * n) == abs m * abs n
 abs-inject-* {zero-int} {zero-int} = abs-inject-*/non-neg (inj-r tt) (inj-r tt)
@@ -103,7 +103,7 @@ abs-inject-* {pos m} {neg n} =
     abs (pos m * neg n)
   ==< cong abs minus-extract-right >
     abs (- (pos m * pos n))
-  ==< abs-cancel-minus {pos m * pos n}>
+  ==< abs-cancel-minus (pos m * pos n)>
     abs (pos m * pos n)
   ==< abs-inject-*/non-neg {pos m} {pos n} (inj-l tt) (inj-l tt) >
     abs (pos m) * abs (neg n)
@@ -113,7 +113,7 @@ abs-inject-* {neg m} {pos n} =
     abs (neg m * pos n)
   ==< cong abs minus-extract-left >
     abs (- (pos m * pos n))
-  ==< abs-cancel-minus {pos m * pos n}>
+  ==< abs-cancel-minus (pos m * pos n)>
     abs (pos m * pos n)
   ==< abs-inject-*/non-neg {pos m} {pos n} (inj-l tt) (inj-l tt) >
     abs (neg m) * abs (pos n)
@@ -125,7 +125,7 @@ abs-inject-* {neg m} {neg n} =
     abs (- (pos m * neg n))
   ==< cong abs (cong minus minus-extract-right) >
     abs (- (- (pos m * pos n)))
-  ==< abs-cancel-minus { - (pos m * pos n)}>=> abs-cancel-minus {pos m * pos n} >
+  ==< abs-cancel-minus (- (pos m * pos n))>=> abs-cancel-minus (pos m * pos n) >
     abs (pos m * pos n)
   ==< abs-inject-*/non-neg {pos m} {pos n} (inj-l tt) (inj-l tt) >
     abs (neg m) * abs (pos n)

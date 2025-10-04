@@ -321,7 +321,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
       d4 = ((lc.x * y1) * (lc.y * x2)) , *-right int-inject-*' >=> sym p7
 
       d5 : int (n1 *' n2) div ((t1 + - t5) + (t2 + - t8) + - t6 + - t7)
-      d5 = div-sum (div-sum (div-sum d1 d2) (div-negate d3)) (div-negate d4)
+      d5 = div-sum (div-sum (div-sum d1 d2) (div-negate⁺ d3)) (div-negate⁺ d4)
 
       p8 : ((t1 + - t5) + (t2 + - t8) + - t6 + - t7) == (t1 + t2 + - (t3 * t4))
       p8 =

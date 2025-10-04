@@ -46,10 +46,10 @@ gcd-sym (gcd non-neg div-a div-b f) =
 
 gcd-negate : ∀ {a b d : Int} -> GCD a b d -> GCD a (- b) d
 gcd-negate {a} {b} {d} (gcd non-neg d-div-a d-div-b f) =
-  (gcd non-neg d-div-a (div-negate d-div-b) g)
+  (gcd non-neg d-div-a (div-negate⁺ d-div-b) g)
   where
   g : (x : Int) -> x div a -> x div (- b) -> x div d
-  g x xa xb = f x xa (subst (\i -> x div i) minus-double-inverse (div-negate xb))
+  g x xa xb = f x xa (div-negate⁻ xb)
 
 gcd-remove-abs : {a b d : Int} -> GCD a (abs b) d -> GCD a b d
 gcd-remove-abs {b = (nonneg _)} g = g
@@ -110,7 +110,7 @@ gcd'->gcd/nat {d} {n} {a} g =
   f : (x : Int) -> x div (int d) -> x div (int n) -> x div (int a)
   f x@zero-int x%d x%n = div'->div (g.f zero (fix x%d) (fix x%n))
   f x@(pos x') x%d x%n = div'->div (g.f (suc x') (fix x%d) (fix x%n))
-  f x@(neg x') x%d x%n = div-negate-left (div'->div (g.f (suc x') (fix x%d) (fix x%n)))
+  f x@(neg x') x%d x%n = div-negate-left⁺ (div'->div (g.f (suc x') (fix x%d) (fix x%n)))
 
 gcd'->gcd : {d n a : Int} -> NonNeg a -> GCD' (abs' d) (abs' n) (abs' a) -> GCD d n a
 gcd'->gcd {_} {_} {neg _} (inj-l ())
@@ -146,6 +146,6 @@ gcd->gcd' {d} {n} {a} (gcd _ a%d a%n f) = record
     where
     fix : {y : Int} -> x div' (abs' y) -> (int x) div y
     fix {nonneg _} x%y = (div'->div x%y)
-    fix {neg _} x%y = (div-negate (div'->div x%y))
+    fix {neg _} x%y = (div-negate⁺ (div'->div x%y))
     res : x div' (abs' a)
     res = (div->div' (f (int x) (fix x%d) (fix x%n)))

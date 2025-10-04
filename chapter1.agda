@@ -129,21 +129,14 @@ ex1-6 {a} {b} {d} (gcd _ _ _ f) d%a+b =
   f-a : (x : Int) -> x div a -> x div d -> x div (int 1)
   f-a x x%a x%d = (f x x%a x%b)
     where
-    p : - a + ( a + b) == b
-    p = (sym +-assoc) >=> (+-left +-commute) >=> (+-left (add-minus-zero {a}))
-        >=> +-left-zero
     x%b : x div b
-    x%b = transport (\i -> x div (p i)) (div-sum (div-negate x%a) (div-trans x%d d%a+b))
+    x%b = div-+-left x%a (div-trans x%d d%a+b)
 
   f-b : (x : Int) -> x div b -> x div d -> x div (int 1)
   f-b x x%b x%d = (f x x%a x%b)
     where
-    p : - b + ( a + b) == a
-    p = (+-right +-commute) >=>
-        (sym +-assoc) >=> (+-left +-commute) >=> (+-left (add-minus-zero {b}))
-        >=> +-left-zero
     x%a : x div a
-    x%a = transport (\i -> x div (p i)) (div-sum (div-negate x%b) (div-trans x%d d%a+b))
+    x%a = div-+-right x%b (div-trans x%d d%a+b)
 
 ex1-5-arith-type : Set
 ex1-5-arith-type = ∀ (a b : ℤ) -> ((a + b) * (a + b) +  - (a * a + - (a * b) + b * b))
