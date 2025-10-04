@@ -18,8 +18,6 @@ open import funext
 open import group
 open import heyting-field.instances.real
 open import hlevel
-open import integral-domain
-open import integral-domain.instances.real
 open import isomorphism
 open import monoid
 open import order
@@ -37,6 +35,8 @@ open import real.order
 open import relation
 open import ring
 open import ring.implementations.real
+open import semidomain
+open import semidomain.instances.real
 open import semiring
 open import solver
 open import subset.subspace

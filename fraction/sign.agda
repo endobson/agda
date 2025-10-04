@@ -12,12 +12,12 @@ open import int hiding (
   Zero->NonNeg ; NonNeg->¬Neg ; Zero ; NonZero->¬Zero ; Pos
   )
 open import int.order
-open import integral-domain
-open import integral-domain.instances.int
 open import nat
 open import rational
 open import ring
 open import ring.implementations.int
+open import semidomain
+open import semidomain.instances.int
 open import semiring
 open import sign
 open import sign.instances.int

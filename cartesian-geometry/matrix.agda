@@ -17,13 +17,13 @@ open import funext
 open import heyting-field
 open import heyting-field.instances.real
 open import hlevel
-open import integral-domain
-open import integral-domain.instances.real
 open import order.instances.real
 open import ordered-additive-group.instances.real
 open import real
 open import ring
 open import ring.implementations.real
+open import semidomain
+open import semidomain.instances.real
 open import semiring
 open import subset
 open import truncation

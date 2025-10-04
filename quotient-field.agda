@@ -3,6 +3,7 @@
 module quotient-field where
 
 open import additive-group
+open import additive-group.apartness
 open import apartness
 open import base
 open import cubical
@@ -13,7 +14,7 @@ open import funext
 open import heyting-field
 open import hlevel
 open import hlevel.htype
-open import integral-domain
+open import semidomain
 open import isomorphism
 open import relation
 open import ring
@@ -26,17 +27,20 @@ open import univalence
 
 module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid D}
          {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         {R : Ring S AG} {A : isTightApartness D#} (ID : IntegralDomain R A) where
+         {R : Ring S AG} {A : isTightApartness D#}
+         (AACM : ApartAdditiveCommMonoid ACM A)
+         (SD : Semidomain S A) where
   private
     module R = Ring R
-    module ID = IntegralDomain ID
+    module SD = Semidomain SD
     instance
       IACM = ACM
       IAG = AG
       IS = S
       IR = R
       IA = A
-      IID = ID
+      IAACM = AACM
+      ISD = SD
 
     record Fraction : Type ℓ where
       no-eta-equality ; pattern
@@ -66,7 +70,7 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
     sym-~ _ _ (same-fraction p) = (same-fraction (sym p))
 
     D->F : D -> F
-    D->F x = frac x 1# ID.1#0
+    D->F x = frac x 1# SD.1#0
 
     0f : F
     0f = D->F 0#
@@ -84,12 +88,12 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
     _f+_ : F -> F -> F
     _f+_ (frac na da da#0) (frac nb db db#0) = frac (na * db + nb * da) (da * db) dadb#0
       where
-      dadb#0 = eqFun ID.*-#0-equiv (da#0 , db#0)
+      dadb#0 = *-preserves-#0 da#0 db#0
 
     _f*_ : F -> F -> F
     _f*_ (frac na da da#0) (frac nb db db#0) = frac (na * nb) (da * db) dadb#0
       where
-      dadb#0 = eqFun ID.*-#0-equiv (da#0 , db#0)
+      dadb#0 = *-preserves-#0  da#0 db#0
 
     f-_ : F -> F
     f-_ (frac n d d#0) = (frac (- n) d d#0)
@@ -252,7 +256,7 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
           where
           module _ where
             ans5 : (dc * diff (na * db) (nb * da)) # 0#
-            ans5 = eqFun ID.*-#0-equiv (F.d#0 c , eqFun ID.diff-#-equiv a#b)
+            ans5 = *-preserves-#0 (F.d#0 c) (#->diff#0 a#b)
 
             ans4 : diff (dc * (na * db)) (dc * (nb * da)) # 0#
             ans4 = subst (_# 0#) *-distrib-diff-left ans5
@@ -267,10 +271,10 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
             ans2 = subst (_# 0#) (sym *-distrib-diff-left) ans3
 
             ans1 : diff (na * dc) (nc * da) # 0#
-            ans1 = snd (eqInv ID.*-#0-equiv ans2)
+            ans1 = *₁-reflects-#0 ans2
 
             ans : (na * dc) # (nc * da)
-            ans = eqInv ID.diff-#-equiv ans1
+            ans = diff#0-># ans1
 
         #₂-~-forward : (a b c : F) -> a ~ b -> (a f# c) -> (b f# c)
         #₂-~-forward a b c a~b a#c = sym-f# c b (#₁-~-forward c a b a~b (sym-f# a c a#c))
@@ -304,7 +308,7 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
           ΣProp-path isProp-isProp (#₂-~ a b c a~b)
 
         1f#0 : 1f f# 0f
-        1f#0 = f#-cons (subst2 _#_ (sym *-right-one) (sym *-right-one) ID.1#0)
+        1f#0 = f#-cons (subst2 _#_ (sym *-right-one) (sym *-right-one) SD.1#0)
 
         #0->inverse : (a : F) -> a f# 0f -> Σ[ b ∈ F ] (SameFraction (a f* b) 1f)
         #0->inverse a@(frac na da da#0) (f#-cons a#0) = (frac da na na#0) , (same-fraction p)
@@ -325,7 +329,7 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
             na#0 = subst2 _#_ *-right-one *-left-zero a#0
 
             apart1 : ((na * da) * (nb * dc)) # ((na * da) * (nc * db))
-            apart1 = *₁-preserves-# (eqFun ID.*-#0-equiv (na#0 , da#0)) b#c
+            apart1 = *₁-preserves-# (*-preserves-#0 na#0 da#0) b#c
 
             ans : ((na * nb) * (da * dc)) # ((na * nc) * (da * db))
             ans = subst2 _#_ p1 p2 apart1
@@ -355,7 +359,7 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
             forward (f#-cons a#b) = (f#-cons ans)
               where
               d-apart : diff (na * db) (nb * da) # 0#
-              d-apart = eqFun ID.diff-#-equiv a#b
+              d-apart = #->diff#0 a#b
 
               ans : ((nb * da + ((- na) * db)) * 1#) # (0# * (db * da))
               ans = subst2 _#_ (+-right (sym minus-extract-left) >=> sym *-right-one) (sym *-left-zero) d-apart
@@ -369,7 +373,7 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
                                    *-left-zero d#0
 
               a#b : (na * db) # (nb * da)
-              a#b = eqInv ID.diff-#-equiv d-apart
+              a#b = diff#0-># d-apart
     open f-apart
 
 

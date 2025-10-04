@@ -1,18 +1,17 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module ordered-semiring.integral-domain where
+module ordered-semiring.semidomain where
 
 open import additive-group
 open import apartness
 open import base
 open import equality
 open import equivalence
-open import integral-domain
 open import order
 open import ordered-additive-group
 open import ordered-semiring
 open import relation
-open import ring
+open import semidomain
 open import semiring
 open import truncation
 
@@ -22,21 +21,18 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
          {O : isLinearOrder D<}
          {{LOA : LinearlyOrderedAdditiveStr ACM O}}
          {{LOS : LinearlyOrderedSemiringStr S O}}
-         {AG : AdditiveGroup ACM}
-         {R : Ring S AG}
          {A : isTightApartness D#}
          {{ALO : ApartLinearOrderStr A O}}
-         {{IntD : IntegralDomain R A}}  where
+         {{DD : Semidomain S A}}  where
   private
     instance
       IACM = ACM
-      IAG = AG
       IS = S
       IO = O
       IA = A
 
-  StronglyLinearlyOrderedSemiringStr-IntegralDomain : StronglyLinearlyOrderedSemiringStr S O
-  StronglyLinearlyOrderedSemiringStr-IntegralDomain = record
+  StronglyLinearlyOrderedSemiringStr-Semidomain : StronglyLinearlyOrderedSemiringStr S O
+  StronglyLinearlyOrderedSemiringStr-Semidomain = record
     { *₁-fully-reflects-< = *₁-fully-reflects-<'
     }
     where

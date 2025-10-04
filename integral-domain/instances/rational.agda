@@ -1,6 +1,6 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module rational.integral-domain where
+module integral-domain.instances.rational where
 
 open import apartness.instances.rational
 open import heyting-field.instances.rational

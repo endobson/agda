@@ -9,7 +9,7 @@ open import equality
 open import equivalence
 open import heyting-field
 open import hlevel
-open import integral-domain.instances.heyting-field
+open import semidomain.heyting-field
 open import nat
 open import nat.order
 open import order
@@ -18,7 +18,7 @@ open import ordered-ring
 open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.initial
-open import ordered-semiring.integral-domain
+open import ordered-semiring.semidomain
 open import relation
 open import ring
 open import semiring
@@ -52,8 +52,8 @@ module _ {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
       ILO = LO
       IR = R
       IA = A
-      IID = IntegralDomain-Field
-      ISOS = StronglyLinearlyOrderedSemiringStr-IntegralDomain
+      ISD = Semidomain-Field
+      ISOS = StronglyLinearlyOrderedSemiringStr-Semidomain
 
 
   mean : D -> D -> D

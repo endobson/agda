@@ -11,8 +11,6 @@ open import equality
 open import fin
 open import hlevel
 open import int
-open import integral-domain
-open import integral-domain.instances.int
 open import nat
 open import nat.order
 open import order
@@ -26,6 +24,8 @@ open import quotient-remainder using
 open import relation hiding (acc)
 open import ring
 open import ring.implementations.int
+open import semidomain
+open import semidomain.instances.int
 open import semiring
 open import semiring.exponentiation
 open import semiring.instances.nat

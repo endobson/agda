@@ -24,8 +24,6 @@ open import functions
 open import funext
 open import heyting-field.instances.real
 open import hlevel
-open import integral-domain
-open import integral-domain.instances.real
 open import isomorphism
 open import nat.order
 open import order
@@ -49,6 +47,8 @@ open import real.subspace
 open import relation
 open import ring
 open import ring.implementations.real
+open import semidomain
+open import semidomain.instances.real
 open import semiring
 open import sigma.base
 open import subset

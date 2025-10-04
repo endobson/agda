@@ -75,3 +75,10 @@ module _ {ℓ ℓ# : Level} {D : Type ℓ} {D# : Rel D ℓ#} {ACM : AdditiveComm
 
     minus-preserves-#0 : {a : D} -> a # 0# -> (- a) # 0#
     minus-preserves-#0 {a} a#0 = subst ((- a) #_) minus-zero (minus-preserves-# a#0)
+
+    #->diff#0 : {a b : D} -> a # b -> diff a b # 0#
+    #->diff#0 {a} {b} a#b =
+      subst (diff a b #_) +-inverse (+₂-preserves-# (sym-# a#b))
+
+    diff#0-># : {a b : D} -> diff a b # 0# -> a # b
+    diff#0-># {a} {b} d#0 = sym-# (subst2 _#_ diff-step +-right-zero (+₁-preserves-# d#0))

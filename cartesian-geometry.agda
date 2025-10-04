@@ -13,13 +13,13 @@ open import equality
 open import equivalence
 open import functions
 open import hlevel
-open import integral-domain
-open import integral-domain.instances.real
 open import order.instances.real
 open import ordered-additive-group.instances.real
 open import real
 open import real.arithmetic
 open import relation
+open import semidomain
+open import semidomain.instances.real
 open import sum
 open import truncation
 open import vector-space
