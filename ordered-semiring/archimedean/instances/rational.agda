@@ -14,7 +14,6 @@ open import functions
 open import funext
 open import hlevel
 open import int
-open import int.order using (≥0->NonNeg)
 open import nat
 open import nat.order
 open import order
@@ -39,32 +38,6 @@ open import monoid
 open import truncation
 
 private
-  int-reflects-< : {a b : ℕ} -> (int a) < (int b) -> a < b
-  int-reflects-< {a} {b} ((suc i , _) , p) =
-    (i , nonneg-injective (CommMonoidʰ.preserves-∙ int-+ʰ i (suc a) >=>
-                           add1-extract-right >=> sym add1-extract-left >=> p))
-
-  int-reflects-≤ : {a b : ℕ} -> (int a) ≤ (int b) -> a ≤ b
-  int-reflects-≤ {a} {b} (i , p) =
-    (i , nonneg-injective (CommMonoidʰ.preserves-∙ int-+ʰ i a >=> p))
-
-  ℤ->ℚ-preserves-0≤ : (a : ℤ) -> 0# ≤ a -> 0# ≤ (ℤ->ℚ a)
-  ℤ->ℚ-preserves-0≤ (nonneg a) 0≤a = ℕ->ℚ-preserves-≤ (int-reflects-≤ 0≤a)
-  ℤ->ℚ-preserves-0≤ (neg a) 0≤a =
-    bot-elim (int.NonNeg->¬Neg {neg a} (≥0->NonNeg 0≤a) Neg-a)
-    where
-    Neg-a : int.Neg (neg a)
-    Neg-a = tt
-
-  ℤ->ℚ-preserves-0< : (a : ℤ) -> 0# < a -> 0# < (ℤ->ℚ a)
-  ℤ->ℚ-preserves-0< (nonneg a) 0<a = ℕ->ℚ-preserves-< (int-reflects-< 0<a)
-  ℤ->ℚ-preserves-0< (neg a) 0<a =
-    bot-elim (int.NonNeg->¬Neg {neg a} (≥0->NonNeg (weaken-< 0<a)) Neg-a)
-    where
-    Neg-a : int.Neg (neg a)
-    Neg-a = tt
-
-
   ℤ->ℚ-preserves-≤ : (a b : ℤ) -> a ≤ b -> (ℤ->ℚ a) ≤ (ℤ->ℚ b)
   ℤ->ℚ-preserves-≤ a b (i , p) =
     trans-≤-= (trans-=-≤ (sym +-left-zero) (+₂-preserves-≤ (ℕ->ℚ-preserves-≤ zero-≤)))
@@ -74,6 +47,13 @@ private
   ℤ->ℚ-preserves-< a b ((suc i , _) , p) =
     trans-<-= (trans-=-< (sym +-left-zero) (+₂-preserves-< (ℕ->ℚ-preserves-< zero-<)))
               (sym (ℤ->ℚ-preserves-+ _ _) >=> cong ℤ->ℚ p)
+
+  ℤ->ℚ-preserves-0≤ : (a : ℤ) -> 0# ≤ a -> 0# ≤ (ℤ->ℚ a)
+  ℤ->ℚ-preserves-0≤ a = ℤ->ℚ-preserves-≤ 0# a
+
+  ℤ->ℚ-preserves-0< : (a : ℤ) -> 0# < a -> 0# < (ℤ->ℚ a)
+  ℤ->ℚ-preserves-0< a = ℤ->ℚ-preserves-< 0# a
+
 
   ℚFinite : (q : ℚ) -> ∃[ n ∈ ℕ ] (q < ℕ->ℚ n)
   ℚFinite q = ∥-bind handle (ℚ->split-ℤ/ℕ q)

@@ -11,7 +11,6 @@ open import int hiding (
   NonZero ; isSign ; isProp-isSign ; isSign-unique ; NonNeg ; Pos->NonNeg ;
   Zero->NonNeg ; NonNeg->¬Neg ; Zero ; NonZero->¬Zero ; Pos
   )
-open import int.order
 open import nat
 open import rational
 open import ring
