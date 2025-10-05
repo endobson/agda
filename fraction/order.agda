@@ -2,6 +2,8 @@
 
 open import abs
 open import additive-group
+open import apartness
+open import apartness.instances.int
 open import additive-group.instances.int
 open import additive-group.instances.nat
 open import base
@@ -16,6 +18,8 @@ open import relation
 open import ring
 open import ring.implementations.int
 open import semiring
+open import semidomain
+open import semidomain.instances.int
 open import sign
 open import sign.instances.int
 open import sign.instances.fraction
@@ -322,7 +326,9 @@ trichotomous~-ℚ'< q r = handle (decide-sign d')
     d'-path = int.Zero-path d' zd
     n = ℚ'.numerator d
     n-path : n == (int.int 0)
-    n-path = int.*-left-zero-eq (ℚ'.NonZero-denominator d) d'-path
+    n-path =
+      tight-# (\n#0 -> irrefl-path-# d'-path
+        (*-preserves-#0 n#0 (int.NonZero->!=0 (ℚ'.NonZero-denominator d))))
 
     r~q : r r~ q
     r~q =

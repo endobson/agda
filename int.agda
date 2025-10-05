@@ -1035,24 +1035,6 @@ abstract
   NonZero->!=0 : {x : Int} (nz-x : NonZero x) -> x != (int 0)
   NonZero->!=0 nz x=0 = zero!=non-zero tt nz (sym x=0)
 
-  *-left-zero-eq : {m n : Int} -> (NonZero n) -> m * n == (int 0) -> m == (int 0)
-  *-left-zero-eq {zero-int} {_} _ _ = refl
-  *-left-zero-eq {pos m} {pos n} _ pr =
-    bot-elim (subst Pos pr (*-Pos-Pos {pos m} {pos n} tt tt))
-  *-left-zero-eq {pos m} {neg n} _ pr =
-    bot-elim (subst Neg pr (*-Pos-Neg {pos m} {neg n} tt tt))
-  *-left-zero-eq {neg m} {pos n} _ pr =
-    bot-elim (subst Neg pr (*-Neg-Pos {neg m} {pos n} tt tt))
-  *-left-zero-eq {neg m} {neg n} _ pr =
-    bot-elim (subst Pos pr (*-Neg-Neg {neg m} {neg n} tt tt))
-  *-left-zero-eq {pos _} {zero-int} (inj-l ())
-  *-left-zero-eq {pos _} {zero-int} (inj-r ())
-  *-left-zero-eq {neg _} {zero-int} (inj-l ())
-  *-left-zero-eq {neg _} {zero-int} (inj-r ())
-
-  *-right-zero-eq : {m n : Int} -> (NonZero m) -> m * n == (int 0) -> n == (int 0)
-  *-right-zero-eq {m} {n} nz p = *-left-zero-eq {n} {m} nz (*-commute {n} {m} >=> p)
-
   int->sign-preserves-* : {m n : Int} -> int->sign (m * n) == (int->sign m) s* (int->sign n)
   int->sign-preserves-* {m} {n} =
     isSign-unique (isSign-self (m * n))
