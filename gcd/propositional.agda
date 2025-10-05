@@ -6,19 +6,27 @@ open import abs
 open import additive-group
 open import additive-group.instances.int
 open import base
-open import equality
 open import div
+open import equality
 open import int
 open import nat
+open import truncation
 
 
 record GCD (a : Int) (b : Int) (d : Int) : Type₀ where
   constructor gcd
   field
     non-neg : (NonNeg d)
-    %a : d div a
-    %b : d div b
-    f : (x : Int) -> x div a -> x div b -> x div d
+    ∣%a∣ : ∥ d div a ∥
+    ∣%b∣ : ∥ d div b ∥
+    ∣f∣ : (x : Int) -> x div a -> x div b -> ∥ x div d ∥
+
+  %a : d div a
+  %a = ∥div∥->div ∣%a∣
+  %b : d div b
+  %b = ∥div∥->div ∣%b∣
+  f : (x : Int) -> x div a -> x div b -> x div d
+  f x x%a x%b = ∥div∥->div (∣f∣ x x%a x%b)
 
 record GCD' (a : Nat) (b : Nat) (d : Nat) : Type₀ where
   field
@@ -33,23 +41,25 @@ GCD⁺ (a , _) (b , _) (d , _) = GCD' a b d
 -- Common constructions for integer GCD
 
 gcd-refl : {n : Int} -> GCD n n (abs n)
-gcd-refl {n} = gcd (NonNeg-abs n) (div-abs-left div-refl) (div-abs-left div-refl)
- (\ _ _ d -> (div-abs-right d))
+gcd-refl {n} =
+  gcd (NonNeg-abs n) (∣ div-abs-left div-refl ∣) (∣ div-abs-left div-refl ∣)
+      (\ _ _ d -> (∣ div-abs-right d ∣))
 
 gcd-zero : {a : Int} -> GCD a zero-int (abs a)
 gcd-zero {a} =
-  (gcd (NonNeg-abs a) (div-abs-left div-refl) div-zero (\ x xa xz -> (div-abs-right xa)))
+  gcd (NonNeg-abs a) (∣ div-abs-left div-refl ∣) (∣ div-zero ∣)
+      (\ x xa xz -> (∣ div-abs-right xa ∣))
 
 gcd-sym : {a b d : Int} -> GCD a b d -> GCD b a d
 gcd-sym (gcd non-neg div-a div-b f) =
   (gcd non-neg div-b div-a (\ x xb xa -> f x xa xb))
 
 gcd-negate : ∀ {a b d : Int} -> GCD a b d -> GCD a (- b) d
-gcd-negate {a} {b} {d} (gcd non-neg d-div-a d-div-b f) =
-  (gcd non-neg d-div-a (div-negate⁺ d-div-b) g)
+gcd-negate {a} {b} {d} G@(gcd non-neg d-div-a d-div-b f) =
+  (gcd non-neg d-div-a (∣ (div-negate⁺ G.%b) ∣)
+       (\x xa xb -> f x xa (div-negate⁻ xb)))
   where
-  g : (x : Int) -> x div a -> x div (- b) -> x div d
-  g x xa xb = f x xa (div-negate⁻ xb)
+  module G = GCD G
 
 gcd-remove-abs : {a b d : Int} -> GCD a (abs b) d -> GCD a b d
 gcd-remove-abs {b = (nonneg _)} g = g
@@ -57,14 +67,16 @@ gcd-remove-abs {b = (neg _)} g = gcd-negate g
 
 gcd-unique : {m n d1 d2 : Int} -> GCD m n d1 -> GCD m n d2 -> d1 == d2
 gcd-unique {d1 = d1} {d2 = d2}
-           (gcd d1-nn d1-div-m d1-div-n d1-f)
-           (gcd d2-nn d2-div-m d2-div-n d2-f) =
+           G1@(gcd d1-nn d1-div-m d1-div-n d1-f)
+           G2@(gcd d2-nn d2-div-m d2-div-n d2-f) =
   non-neg-same-abs d1-nn d2-nn (div-same-abs d1-div-d2 d2-div-d1)
   where
+  module G1 = GCD G1
+  module G2 = GCD G2
   d1-div-d2 : d1 div d2
-  d1-div-d2 = (d2-f d1 d1-div-m d1-div-n)
+  d1-div-d2 = G2.f d1 G1.%a G1.%b
   d2-div-d1 : d2 div d1
-  d2-div-d1 = (d1-f d2 d2-div-m d2-div-n)
+  d2-div-d1 = G1.f d2 G2.%a G2.%b
 
 -- Common constructions for natural GCD
 
@@ -102,15 +114,15 @@ gcd'-unique {m} {n} {d1} {d2} g1 g2 =
 
 gcd'->gcd/nat : {d n a : Nat} -> GCD' d n a -> GCD (int d) (int n) (int a)
 gcd'->gcd/nat {d} {n} {a} g =
-  (gcd (NonNeg-nonneg _) (div'->div g.%a) (div'->div g.%b) f)
+  (gcd (NonNeg-nonneg _) (∣ div'->div g.%a ∣) (∣ div'->div g.%b ∣) f)
   where
   module g = GCD' g
   fix : {x : Int} -> {y : Nat} -> x div (int y) -> (abs' x) div' y
   fix {x} {y} x%y = (subst (\ z -> (abs' x) div' z) refl (div->div' x%y))
-  f : (x : Int) -> x div (int d) -> x div (int n) -> x div (int a)
-  f x@zero-int x%d x%n = div'->div (g.f zero (fix x%d) (fix x%n))
-  f x@(pos x') x%d x%n = div'->div (g.f (suc x') (fix x%d) (fix x%n))
-  f x@(neg x') x%d x%n = div-negate-left⁺ (div'->div (g.f (suc x') (fix x%d) (fix x%n)))
+  f : (x : Int) -> x div (int d) -> x div (int n) -> ∥ x div (int a) ∥
+  f x@zero-int x%d x%n = ∣ div'->div (g.f zero (fix x%d) (fix x%n)) ∣
+  f x@(pos x') x%d x%n = ∣ div'->div (g.f (suc x') (fix x%d) (fix x%n)) ∣
+  f x@(neg x') x%d x%n = ∣ div-negate-left⁺ (div'->div (g.f (suc x') (fix x%d) (fix x%n))) ∣
 
 gcd'->gcd : {d n a : Int} -> NonNeg a -> GCD' (abs' d) (abs' n) (abs' a) -> GCD d n a
 gcd'->gcd {_} {_} {neg _} (inj-l ())
@@ -135,12 +147,13 @@ gcd'->gcd {neg _} {neg _} {zero-int} _ g = (gcd-negate ((gcd-sym (gcd-negate (gc
 gcd'->gcd {neg _} {neg _} {pos _} _ g = (gcd-negate ((gcd-sym (gcd-negate (gcd-sym (gcd'->gcd/nat g))))))
 
 gcd->gcd' : {d n a : Int} -> GCD d n a -> GCD' (abs' d) (abs' n) (abs' a)
-gcd->gcd' {d} {n} {a} (gcd _ a%d a%n f) = record
-  { %a = (div->div' a%d)
-  ; %b = (div->div' a%n)
+gcd->gcd' {d} {n} {a} G = record
+  { %a = (div->div' G.%a)
+  ; %b = (div->div' G.%b)
   ; f = f'
   }
   where
+  module G = GCD G
   f' : (x : Nat) -> x div' (abs' d) -> x div' (abs' n) -> x div' (abs' a)
   f' x x%d x%n = res
     where
@@ -148,4 +161,4 @@ gcd->gcd' {d} {n} {a} (gcd _ a%d a%n f) = record
     fix {nonneg _} x%y = (div'->div x%y)
     fix {neg _} x%y = (div-negate⁺ (div'->div x%y))
     res : x div' (abs' a)
-    res = (div->div' (f (int x) (fix x%d) (fix x%n)))
+    res = (div->div' (G.f (int x) (fix x%d) (fix x%n)))

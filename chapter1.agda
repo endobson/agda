@@ -26,7 +26,7 @@ open EqReasoning
 
 ex1-1 : {a b c d : Int} -> GCD a b (int 1) -> c div a -> d div b -> GCD c d (int 1)
 ex1-1 {a} {b} {c} {d} (gcd _ _ _ gcd-f) c-div-a d-div-b =
-  gcd (inj-l tt) div-one div-one
+  gcd (inj-l tt) (∣ div-one ∣) (∣ div-one ∣)
   (\x x-div-c x-div-d ->
     (gcd-f x (div-trans x-div-c c-div-a) (div-trans x-div-d d-div-b)))
 
@@ -75,7 +75,7 @@ ex1-3 rp n k {pos-n} {pos-k} = (rp-sym (rp-^ (rp-sym (rp-^ rp n {pos-n})) k {pos
 
 
 ex1-4' : {a b n : Int} -> RPrime a b -> (GCD (a + b) (a + - b)) n -> n div (int 2)
-ex1-4' {a} {b} {n} rp (gcd _ n%a+b n%a-b f) = handle (gcd->linear-combo rp)
+ex1-4' {a} {b} {n} rp g = handle (gcd->linear-combo rp)
   where
   handle : LinearCombination a b (int 1) -> n div (int 2)
   handle (linear-combo x y proof) = res
@@ -103,7 +103,7 @@ ex1-4' {a} {b} {n} rp (gcd _ n%a+b n%a-b f) = handle (gcd->linear-combo rp)
     res =
      transport
        (\ i -> n div (lin-proof i))
-       (div-linear n%a+b n%a-b {x + y} {x + - y})
+       (div-linear (GCD.%a g) (GCD.%b g) {x + y} {x + - y})
 
 ex1-4 : {a b : Int} -> RPrime a b -> (GCD (a + b) (a + - b) (int 1)) ⊎ (GCD (a + b) (a + - b) (int 2))
 ex1-4 {a} {b} rp = handle (gcd-exists (a + b) (a + - b))
@@ -124,15 +124,16 @@ ex1-4 {a} {b} rp = handle (gcd-exists (a + b) (a + - b))
 
 ex1-6 : {a b d : Int} -> RPrime a b -> d div (a + b) -> RPrime a d × RPrime b d
 ex1-6 {a} {b} {d} (gcd _ _ _ f) d%a+b =
-    (gcd (inj-l tt) div-one div-one f-a) , (gcd (inj-l tt) div-one div-one f-b)
+    (gcd (inj-l tt) (∣ div-one ∣) (∣ div-one ∣) f-a) ,
+    (gcd (inj-l tt) (∣ div-one ∣) (∣ div-one ∣) f-b)
   where
-  f-a : (x : Int) -> x div a -> x div d -> x div (int 1)
+  f-a : (x : Int) -> x div a -> x div d -> ∥ x div (int 1) ∥
   f-a x x%a x%d = (f x x%a x%b)
     where
     x%b : x div b
     x%b = div-+-left x%a (div-trans x%d d%a+b)
 
-  f-b : (x : Int) -> x div b -> x div d -> x div (int 1)
+  f-b : (x : Int) -> x div b -> x div d -> ∥ x div (int 1) ∥
   f-b x x%b x%d = (f x x%a x%b)
     where
     x%a : x div a
@@ -156,10 +157,11 @@ ex1-5-arith a b =
 
 private
   gcd-add-linear : ∀ {a b d : Int} -> GCD a b d -> (k : Int) -> GCD a (k * a + b) d
-  gcd-add-linear {a} {b} {d} (gcd non-neg d-div-a d-div-b f) k =
-    (gcd non-neg d-div-a (div-sum (div-mult d-div-a k) d-div-b) g)
+  gcd-add-linear {a} {b} {d} G@(gcd non-neg d-div-a _ f) k =
+    (gcd non-neg d-div-a (∣ div-sum (div-mult G.%a k) G.%b ∣) g)
     where
-    g : (x : Int) -> x div a -> x div (k * a + b) -> x div d
+    module G = GCD G
+    g : (x : Int) -> x div a -> x div (k * a + b) -> ∥ x div d ∥
     g x xa xkab = f x xa xb
       where
       proof : (k * a + b) + (- k * a) == b
@@ -191,8 +193,9 @@ ex1-5' : {a b : Int} -> ex1-5-arith-type' -> RPrime a b ->
 ex1-5' {a} {b} arith-proof rp with (gcd-exists (a + b) (a * a + - (a * b) + b * b))
 ... | (d@(neg d-nat) , g@(gcd (inj-l ()) d%a+b d%term _))
 ... | (d@(neg d-nat) , g@(gcd (inj-r ()) d%a+b d%term _))
-... | (d@(nonneg d-nat) , g@(gcd _ d%a+b d%term _)) = res
+... | (d@(nonneg d-nat) , g) = res
   where
+  module g = GCD g
   ¬2%3 : ¬ (2 div' 3)
   ¬2%3 (zero          , pr) = zero-suc-absurd pr
   ¬2%3 ((suc zero)    , pr) = zero-suc-absurd (suc-injective (suc-injective pr))
@@ -210,7 +213,7 @@ ex1-5' {a} {b} arith-proof rp with (gcd-exists (a + b) (a * a + - (a * b) + b * 
     d%ab3 = (GCD.%b reordered-gcd)
 
     rp-ad-bd : (RPrime a d) × (RPrime b d)
-    rp-ad-bd = (ex1-6 rp d%a+b)
+    rp-ad-bd = (ex1-6 rp g.%a)
 
     rp-d-ab : (RPrime d (a * b))
     rp-d-ab = (ex1-2 (gcd-sym (proj₁ rp-ad-bd)) (gcd-sym (proj₂ rp-ad-bd)))

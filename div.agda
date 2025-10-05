@@ -9,6 +9,7 @@ open import base
 open import commutative-monoid
 open import equality
 open import fin
+open import functions
 open import hlevel
 open import int
 open import nat
@@ -30,6 +31,7 @@ open import semiring
 open import semiring.exponentiation
 open import semiring.instances.nat
 open import sigma.base
+open import truncation
 
 open EqReasoning
 
@@ -354,21 +356,25 @@ decide-div d@(suc d') n = handle (quotient-remainder (d , tt) n)
       qr' = record { q = q' ; r = (zero , zero-<) ; path = +'-right-zero >=> p' }
 
 
-isPropDiv₁ : {d n : Int} -> (NonZero d) -> isProp (d div n)
-isPropDiv₁ {d} {n} nz-d div1@(x1 , p1) (x2 , p2) = ΣProp-path (isSetInt _ _) x-p
+isPropDiv₁-!=0 : {d n : Int} -> (d != 0#) -> isProp (d div n)
+isPropDiv₁-!=0 {d} {n} d!=0 div1@(x1 , p1) (x2 , p2) = ΣProp-path (isSetInt _ _) x-p
   where
   x-p : x1 == x2
-  x-p = (*₂-reflects-= (NonZero->!=0 nz-d) (p1 >=> (sym p2)))
+  x-p = (*₂-reflects-= d!=0 (p1 >=> (sym p2)))
 
+
+isPropDiv₂-!=0 : {d n : Int} -> (n != 0#) -> isProp (d div n)
+isPropDiv₂-!=0 {d} {n} n!=0 div1@(x1 , p1) = isPropDiv₁-!=0 d!=0 div1
+  where
+  d!=0 : d != 0#
+  d!=0 = *₁-reflects-#0 (\xd=0 -> n!=0 (sym p1 >=> xd=0))
+
+
+isPropDiv₁ : {d n : Int} -> (NonZero d) -> isProp (d div n)
+isPropDiv₁ nz-d = isPropDiv₁-!=0 (NonZero->!=0 nz-d)
 
 isPropDiv : {d n : Int} -> (NonZero n) -> isProp (d div n)
-isPropDiv {d} {n} n-nz div1@(x1 , p1) (x2 , p2) = ΣProp-path (isSetInt _ _) x-p
-  where
-  d-nz : NonZero d
-  d-nz = div-non-zero->non-zero div1 n-nz
-
-  x-p : x1 == x2
-  x-p = (*₂-reflects-= (NonZero->!=0 d-nz) (p1 >=> (sym p2)))
+isPropDiv nz-n = isPropDiv₂-!=0 (NonZero->!=0 nz-n)
 
 
 isPropDiv' : {d : Nat} -> (n : Nat⁺) -> isProp (d div' ⟨ n ⟩)
@@ -403,3 +409,29 @@ div⁺->multiple⁺ {d' , _} {_ , n-pos} (x , pr) =
 div->quotient : {d : Nat⁺} -> {n : Nat} -> (d%n : ⟨ d ⟩ div' n) -> ⟨ d%n ⟩ == quotient n d
 div->quotient {d@(d' , _)} (x , path) =
   (sym quotient-*') >=> (\i -> quotient (path i) d)
+
+
+-- Canonical div to deal with the issue that '0 div 0' isn't unique.
+module _ {a b : Int} where
+  private
+    div->canonical' : Dec (b == 0#) -> a div b -> a div b
+    div->canonical' (yes b=0) (c , ca=b) = (0# , *-left-zero >=> sym b=0)
+    div->canonical' (no b!=0) a%b = a%b
+
+    div->canonical : a div b -> a div b
+    div->canonical = div->canonical' (decide-int b 0#)
+
+    2-Constant-div->canonical' : ∀ (d : Dec (b == 0#)) -> 2-Constant (div->canonical' d)
+    2-Constant-div->canonical' (yes b=0) d₁ d₂ = ΣProp-path (isSetInt _ _) refl
+    2-Constant-div->canonical' (no b!=0) = isPropDiv₂-!=0 b!=0
+
+
+    2-Constant-div->canonical : 2-Constant div->canonical
+    2-Constant-div->canonical = 2-Constant-div->canonical' (decide-int b 0#)
+
+  opaque
+    ∥div∥->div : ∥ a div b ∥ -> a div b
+    ∥div∥->div = ∥->Set isSet-div div->canonical 2-Constant-div->canonical
+      where
+      isSet-div : isSet (a div b)
+      isSet-div = isSetΣ isSetInt (\x -> isProp->isSet (isSetInt _ _))

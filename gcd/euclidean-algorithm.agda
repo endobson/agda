@@ -2,30 +2,31 @@
 
 module gcd.euclidean-algorithm where
 
+open import abs
 open import additive-group
 open import additive-group.instances.int
-open import abs
 open import base
-open import equality
 open import div
+open import equality
 open import gcd.propositional
 open import int
 open import linear-combo
 open import nat
-open import nat.order
 open import nat.binary-strong-induction
+open import nat.order
 open import order
 open import order.instances.nat
 open import relation
-open import semiring
 open import ring.implementations.int
+open import semiring
+open import truncation
 
 open EqReasoning
 
 linear-combo->gcd : {a b d : Int} -> LinearCombination a b d -> d div a -> d div b -> GCD a b (abs d)
 linear-combo->gcd {d = d} (linear-combo x y p) da db =
-  (gcd (NonNeg-abs d) (div-abs-left da) (div-abs-left db)
-    (\ z za zb -> transport (\i -> z div abs (p i)) (div-abs-right (div-linear za zb {x} {y}))))
+  (gcd (NonNeg-abs d) (∣ div-abs-left da ∣) (∣ div-abs-left db ∣)
+    (\ z za zb -> ∣ transport (\i -> z div abs (p i)) (div-abs-right (div-linear za zb {x} {y})) ∣))
 
 private
   data EuclideanTree : Nat -> Nat -> Type₀ where

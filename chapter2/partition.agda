@@ -235,9 +235,9 @@ module _ (n⁺ : Nat⁺) where
 
           gcd-d : GCD ((int q) * (int d)) ((int nd) * (int d)) (int d)
           gcd-d .GCD.non-neg = int.NonNeg-nonneg d
-          gcd-d .GCD.%a = (int q) , refl
-          gcd-d .GCD.%b = (int nd) , refl
-          gcd-d .GCD.f s (sq' , sq-path) (snd' , snd-path) = s%d
+          gcd-d .GCD.∣%a∣ = ∣ (int q) , refl ∣
+          gcd-d .GCD.∣%b∣ = ∣ (int nd) , refl ∣
+          gcd-d .GCD.∣f∣ s (sq' , sq-path) (snd' , snd-path) = ∣ s%d ∣
             where
             p1 : s * sq' == (int d) * (int q)
             p1 = *-commute >=> sq-path >=> *-commute

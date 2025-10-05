@@ -21,6 +21,7 @@ open import ring.implementations.int
 open import semiring
 open import semiring.exponentiation
 open import semiring.instances.nat
+open import truncation
 
 private
   RP = RelativelyPrime⁰
@@ -37,10 +38,10 @@ relatively-prime->gcd {a} {b} rp = record
 
 relatively-prime->gcdⁱ : {a b : Int} -> RelativelyPrime a b -> GCD a b (int 1)
 relatively-prime->gcdⁱ {a} {b} rp = record
-  { %a = div-one
-  ; %b = div-one
+  { ∣%a∣ = ∣ div-one ∣
+  ; ∣%b∣ = ∣ div-one ∣
   ; non-neg = inj-l tt
-  ; f = f
+  ; ∣f∣ = \x x%a x%b -> ∣ f x x%a x%b ∣
   }
   where
   f : (x : Int) -> x div a -> x div b -> x div (int 1)
