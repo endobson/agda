@@ -2,7 +2,6 @@
 
 module ordered-semiring.instances.int where
 
-open import abs
 open import additive-group
 open import additive-group.instances.int
 open import base
@@ -23,14 +22,14 @@ private
   ℤ*₁-preserves-< : {a b c : ℤ} -> 0# < a -> (b < c) -> (a * b) < (a * c)
   ℤ*₁-preserves-< {a} {b} {c} (d₁ , p₁) (d₂ , p₂) =
     d₁ *⁺ d₂ ,
-    +-left (int-inject-*' >=> *-left (sym +-right-zero >=> p₁)) >=>
+    +-left (ℕ->ℤ-* >=> *-left (sym +-right-zero >=> p₁)) >=>
     sym *-distrib-+-left >=>
     *-right p₂
 
   ℤ*₁-preserves-≤ : {a b c : ℤ} -> 0# ≤ a -> (b ≤ c) -> (a * b) ≤ (a * c)
   ℤ*₁-preserves-≤ {a} {b} {c} (d₁ , p₁) (d₂ , p₂) =
     d₁ * d₂ ,
-    +-left (int-inject-*' >=> *-left (sym +-right-zero >=> p₁)) >=>
+    +-left (ℕ->ℤ-* >=> *-left (sym +-right-zero >=> p₁)) >=>
     sym *-distrib-+-left >=>
     *-right p₂
 

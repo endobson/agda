@@ -1087,7 +1087,7 @@ discreteInt = decide-int
 isSetInt : isSet Int
 isSetInt = Discrete->isSet discreteInt
 
--- Nat minus -> Integer minus
+-- Nat arithmetic -> Integer arithmetic
 
 ℕ->ℤ-minus : {m n : Nat} -> m < n -> ℕ->ℤ (n -' m) == (ℕ->ℤ n) + (- (ℕ->ℤ m))
 ℕ->ℤ-minus {zero}  lt = sym +-right-zero
@@ -1098,6 +1098,13 @@ isSetInt = Discrete->isSet discreteInt
   sym sub1-extract-right >=>
   +-right sub1-minus->minus-add1
 
+ℕ->ℤ-+ : {m n : Nat} -> int (m +' n) == int m + int n
+ℕ->ℤ-+ {zero} = sym +-left-zero
+ℕ->ℤ-+ {suc m} = cong add1 ℕ->ℤ-+ >=> sym add1-extract-left
+
+ℕ->ℤ-* : {m n : Nat} -> int (m *' n) == int m * int n
+ℕ->ℤ-* {zero} = sym *-left-zero
+ℕ->ℤ-* {suc m} = ℕ->ℤ-+ >=> +-right ℕ->ℤ-* >=> sym add1-extract-*
 
 -- Elimination procedures
 

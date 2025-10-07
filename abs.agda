@@ -253,38 +253,6 @@ abs'-inject-* {neg m} {zero-int} =
     abs' (neg m) *' abs' zero-int
   end
 
-int-inject-+' : {m n : Nat} -> int (m +' n) == int m + int n
-int-inject-+' {zero} {n} = sym +-left-zero
-int-inject-+' {suc m} {n} =
-  begin
-    int (suc m +' n)
-  ==<>
-    add1 (int (m +' n))
-  ==< cong add1 (int-inject-+' {m}) >
-    add1 (int m + int n)
-  ==< sym (add1-extract-left {int m}) >
-    add1 (int m) + int n
-  ==<>
-    int (suc m) + int n
-  end
-
-int-inject-*' : {m n : Nat} -> int (m *' n) == int m * int n
-int-inject-*' {zero} {n} = sym *-left-zero
-int-inject-*' {suc m} {n} =
-  begin
-    int (suc m *' n)
-  ==<>
-    int (n +' (m *' n))
-  ==< int-inject-+' {n} >
-    int n + int (m *' n)
-  ==< +-right (int-inject-*' {m} {n}) >
-    int n + int m * int n
-  ==< sym (add1-extract-* {int m} {int n}) >
-    add1 (int m) * int n
-  ==<>
-    int (suc m) * int n
-  end
-
 non-neg-same-abs : {m n : Int} -> NonNeg m -> NonNeg n -> abs m == abs n -> m == n
 non-neg-same-abs {nonneg m} {nonneg n} _ _ eq = eq
 non-neg-same-abs {nonneg m} {neg n} _ (inj-l ())

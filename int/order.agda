@@ -2,7 +2,6 @@
 
 module int.order where
 
-open import abs
 open import additive-group
 open import additive-group.instances.int
 open import base
@@ -30,20 +29,20 @@ opaque
   ℕ->ℤ-preserves-< {a} {b} (d , d+sa=b) = (suc d , tt) ,
     add1-extract-left >=>
     sym add1-extract-right >=>
-    sym int-inject-+' >=>
+    sym ℕ->ℤ-+ >=>
     cong int (d+sa=b)
 
   ℕ->ℤ-preserves-≤ : {a b : Nat} -> a ≤ b -> int a ≤ int b
   ℕ->ℤ-preserves-≤ {a} {b} (d , d+a=b) = d ,
-    sym int-inject-+' >=>
+    sym ℕ->ℤ-+ >=>
     cong int (d+a=b)
 
   ℕ->ℤ-reflects-< : {a b : Nat} -> (int a) < (int b) -> a < b
   ℕ->ℤ-reflects-< {a} {b} ((suc i , _) , p) =
     i , nonneg-injective (
-      int-inject-+' >=>
+      ℕ->ℤ-+ >=>
       add1-extract-right >=> sym add1-extract-left >=> p)
 
   ℕ->ℤ-reflects-≤ : {a b : Nat} -> (int a) ≤ (int b) -> a ≤ b
   ℕ->ℤ-reflects-≤ {a} {b} (i , p) =
-    i , nonneg-injective (int-inject-+' >=> p)
+    i , nonneg-injective (ℕ->ℤ-+ >=> p)

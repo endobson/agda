@@ -48,7 +48,7 @@ ex1-2 {a} {b} {c} g1 g2 = g7
   g4 : GCD (abs a) (int (abs' b *' abs' c)) (int 1)
   g4 = (gcd'->gcd/nat g3)
   g5 : GCD (abs a) (abs b * abs c) (int 1)
-  g5 = transport (\i -> GCD (abs a) (int-inject-*' {abs' b} {abs' c} i) (int 1)) g4
+  g5 = transport (\i -> GCD (abs a) (ℕ->ℤ-* {abs' b} {abs' c} i) (int 1)) g4
   g6 : GCD (abs a) (abs (b * c)) (int 1)
   g6 = transport (\i -> GCD (abs a) (abs-inject-* {b} {c} (~ i)) (int 1)) g5
   g7 : GCD a (b * c) (int 1)

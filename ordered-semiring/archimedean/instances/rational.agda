@@ -2,7 +2,6 @@
 
 module ordered-semiring.archimedean.instances.rational where
 
-open import abs
 open import additive-group
 open import additive-group.instances.int
 open import base

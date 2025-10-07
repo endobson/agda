@@ -2,7 +2,6 @@
 
 module quotient-remainder-int where
 
-open import abs
 open import additive-group
 open import additive-group.instances.int
 open import base
@@ -52,7 +51,7 @@ private
      (int n) + (- (int j))
     ==< +-left (cong int (sym p >=> +'-commute {j} {suc i})) >
      (int (suc i +' j)) + (- (int j))
-    ==< +-left int-inject-+' >
+    ==< +-left ℕ->ℤ-+ >
      (int (suc i) + (int j)) + (- (int j))
     ==< +-assoc >
      int (suc i) + ((int j) + (- (int j)))
@@ -69,7 +68,7 @@ private
       (int j) + ((int (suc i)) + (- (add1 (int i))))
     ==< sym +-assoc >
       ((int j) + (int (suc i))) + (- (add1 (int i)))
-    ==< +-left (sym int-inject-+') >
+    ==< +-left (sym ℕ->ℤ-+) >
       (int (j +' suc i)) + (- (add1 (int i)))
     ==< +-left (cong int p) >
       (int n) + (- (add1 (int i)))
@@ -105,7 +104,7 @@ private
     where
     path : (int ((qr.quotient n d) *' ⟨ d ⟩ +' Fin.i (qr.remainder n d))) ==
            (int (qr.quotient n d) * (int ⟨ d ⟩)) + (int (Fin.i (qr.remainder n d)))
-    path = int-inject-+' >=> +-left int-inject-*'
+    path = ℕ->ℤ-+ >=> +-left ℕ->ℤ-*
 
     ans : (quotient (nonneg n) d) * (int ⟨ d ⟩) + (int (Fin.i (remainder (nonneg n) d))) == (nonneg n)
     ans = sym path >=> cong nonneg (qr.QuotientRemainder.path (qr.quotient-remainder d n))
@@ -119,7 +118,7 @@ private
         (neg ((qr.quotient n d) *' ⟨ d ⟩ +' (Fin.i (qr.remainder n d))))
       ==<>
         (- (add1 (int (((qr.quotient n d) *' ⟨ d ⟩) +' Fin.i (qr.remainder n d)))))
-      ==< cong -_ (cong add1 int-inject-+') >
+      ==< cong -_ (cong add1 ℕ->ℤ-+) >
         (- (add1 ((int ((qr.quotient n d) *' ⟨ d ⟩)) + (int (Fin.i (qr.remainder n d))))))
       ==< cong -_ (sym add1-extract-right) >
         (- ((int ((qr.quotient n d) *' ⟨ d ⟩)) + (add1 (int (Fin.i (qr.remainder n d))))))
@@ -127,7 +126,7 @@ private
         (- (int ((qr.quotient n d) *' ⟨ d ⟩))) + (- (add1 (int (Fin.i (qr.remainder n d)))))
       ==<>
         (- (int ((qr.quotient n d) *' ⟨ d ⟩))) + (neg (Fin.i (qr.remainder n d)))
-      ==< +-left (cong -_ int-inject-*') >
+      ==< +-left (cong -_ ℕ->ℤ-*) >
         (- ((int (qr.quotient n d)) * (int ⟨ d ⟩))) + (neg (Fin.i (qr.remainder n d)))
       ==< +-left (sym (+-left add-minus-zero >=> +-left-zero)) >
         ((((int ⟨ d ⟩) + (- (int ⟨ d ⟩))) + (- ((int (qr.quotient n d)) * (int ⟨ d ⟩))))
@@ -190,7 +189,7 @@ private
       cong (nonneg ∘ qr.QuotientRemainder.q) (sym (qr.isContr-QuotientRemainder .snd qr3))
       where
       p2 : n == (q' *' d' +' Fin.i qr2.r)
-      p2 = nonneg-injective ((sym p) >=> +-left (sym int-inject-*') >=> sym int-inject-+')
+      p2 = nonneg-injective ((sym p) >=> +-left (sym ℕ->ℤ-*) >=> sym ℕ->ℤ-+)
       qr3 : qr.QuotientRemainder d n
       qr3 = record { q = q' ; r = qr2.r ; path = sym p2 }
     f {neg q'} p = bot-elim (subst Neg (sym p2) neg1)
@@ -236,7 +235,7 @@ private
           (- (((int d') + ((int q') * (int d'))) + (- qr2.ri)))
         ==< cong -_ (+-left +-commute >=> +-assoc) >
           (- (((int q') * (int d')) + ((int d') + (- qr2.ri))))
-        ==< cong -_ (+-left (sym int-inject-*')) >
+        ==< cong -_ (+-left (sym ℕ->ℤ-*)) >
           (- (int (q' *' d') + ((int d') + (- qr2.ri))))
         ==<>
           (- (int (q' *' d') + ((int d') + (- (sub1 (add1 qr2.ri))))))
@@ -248,7 +247,7 @@ private
           (- (int (q' *' d') + add1 (int (Fin.i (flip-fin qr2.r)))))
         ==< cong -_ add1-extract-right >
           (- (add1 (int (q' *' d') + int (Fin.i (flip-fin qr2.r)))))
-        ==< cong -_ (cong add1 (sym int-inject-+')) >
+        ==< cong -_ (cong add1 (sym ℕ->ℤ-+)) >
           (- (add1 (int (q' *' d' +' Fin.i (flip-fin qr2.r)))))
         ==<>
           neg (q' *' d' +' Fin.i (flip-fin qr2.r))
@@ -312,9 +311,9 @@ quotient-multiple-path m⁺@(m , m-pos) n d@(d' , _) =
 
   path : qr-n.q * int (m *' d') + int (Fin.i r') == int m * n
   path =
-    +-left (*-right (int-inject-*' {m} {d'}) >=>
+    +-left (*-right ℕ->ℤ-* >=>
             sym *-assoc >=> *-left *-commute >=> *-assoc) >=>
-    +-right (int-inject-*' {m} {Fin.i qr-n.r}) >=>
+    +-right ℕ->ℤ-* >=>
     sym *-distrib-+-left >=>
     *-right qr-n.path
 

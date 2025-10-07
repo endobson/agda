@@ -2,7 +2,6 @@
 
 module order.instances.int where
 
-open import abs
 open import additive-group
 open import additive-group.instances.int
 open import additive-group.instances.nat
@@ -32,7 +31,7 @@ private
 
   trans-ℤ≤ : Transitive _ℤ≤_
   trans-ℤ≤ (x1 , p1) (x2 , p2) =
-    (x2 + x1) , +-left (int-inject-+') >=> +-assoc >=> +-right p1 >=> p2
+    (x2 + x1) , +-left ℕ->ℤ-+ >=> +-assoc >=> +-right p1 >=> p2
 
   antisym-ℤ≤ : Antisymmetric _ℤ≤_
   antisym-ℤ≤ {i} {j} (x1 , p1) (x2 , p2) = sym p2 >=> +-left (cong int x2-path) >=> +-left-zero
@@ -41,7 +40,7 @@ private
     x2-path =
       m+'n==0->m==0
         (nonneg-injective
-          (int-inject-+' >=>
+          (ℕ->ℤ-+ >=>
             (+-right-injective i (+-assoc >=> +-right p1 >=> p2 >=> sym +-left-zero))))
 
 
@@ -72,7 +71,7 @@ private
   -- Utilities for combining the orders
   trans-ℤ≤-ℤ< : {i j k : Int} -> (i ℤ≤ j) -> (j ℤ< k) -> (i ℤ< k)
   trans-ℤ≤-ℤ< (x , x-path) ((y , y-pos) , y-path) =
-    ((y + x) , +'-Pos-left y-pos) , +-left int-inject-+' >=> +-assoc >=> +-right x-path >=> y-path
+    ((y + x) , +'-Pos-left y-pos) , +-left ℕ->ℤ-+ >=> +-assoc >=> +-right x-path >=> y-path
 
   weaken-ℤ< : {i j : Int} -> i ℤ< j -> i ℤ≤ j
   weaken-ℤ< ((x , _) , p) = (x , p)

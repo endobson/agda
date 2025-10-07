@@ -1,6 +1,5 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-open import abs
 open import additive-group
 open import apartness
 open import apartness.instances.int
@@ -454,7 +453,7 @@ antisym~-ℚ'≤ {a} {b} a≤b b≤a = handle (trichotomous~-ℚ'< a b)
 
   path2 : int (c + suc a) + (- (int a)) == i.pos c
   path2 = +-left (cong int nat.+'-right-suc) >=>
-          +-left (int-inject-+' {suc c} {a}) >=>
+          +-left i.ℕ->ℤ-+ >=>
           +-assoc >=>
           +-right i.add-minus-zero >=>
           +-right-zero

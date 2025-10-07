@@ -985,7 +985,7 @@ opaque
 
   1/2ℕ'-r~ : (n : Nat⁺) -> (1/ℕ' (2⁺ *⁺ n)) r~ (1/2r' r*' 1/ℕ' n)
   1/2ℕ'-r~ n =
-    *-left-one >=> sym int-inject-*' >=>
+    *-left-one >=> sym ℕ->ℤ-* >=>
     sym *-left-one >=> *-left (sym *-left-one)
 
   1/2ℕ-path : (n : Nat⁺) -> (1/ℕ (2⁺ *⁺ n)) == (1/2r r* 1/ℕ n)

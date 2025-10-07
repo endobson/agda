@@ -2,7 +2,6 @@
 
 module rational.integer where
 
-open import abs
 open import additive-group
 open import additive-group.instances.nat
 open import additive-group.instances.int
@@ -67,14 +66,14 @@ private
     quotientℤ n d == quotientℤ (⟨ m ⟩ * n) (ℤ*-* m d)
   quotientℤ-multiple-path m@(int.pos m' , _) n d@(int.pos d' , _) =
     quotient-multiple-path (suc m' , tt) n (suc d' , tt) >=>
-    cong (quotientℤ (int.pos m' * n)) (ΣProp-path {x = _ , (inj-l tt)} int.isPropNonZero int-inject-*')
+    cong (quotientℤ (int.pos m' * n)) (ΣProp-path {x = _ , (inj-l tt)} int.isPropNonZero ℕ->ℤ-*)
   quotientℤ-multiple-path m@(int.pos m' , _) n d@(int.neg d' , _) =
     quotient-multiple-path (suc m' , tt) (- n) (suc d' , tt) >=>
     cong (\x -> quotient x _) minus-extract-right >=>
     cong (quotientℤ (int.pos m' * n)) (ΣProp-path {x = _ , (inj-r tt)} int.isPropNonZero p1)
     where
     p1 : (int.neg (d' + (m' * suc d'))) == (int.pos m' * int.neg d')
-    p1 = cong -_ int-inject-*' >=> sym minus-extract-right
+    p1 = cong -_ ℕ->ℤ-* >=> sym minus-extract-right
   quotientℤ-multiple-path m@(int.neg m' , _) n d@(int.pos d' , _) =
     -- TODO
     cong (\x -> quotient x (suc d' , tt)) (sym (int.ℤminus-double-inverse {n})) >=>
@@ -83,7 +82,7 @@ private
     cong (quotientℤ (int.neg m' * n)) (ΣProp-path {x = _ , (inj-r tt)} int.isPropNonZero p1)
     where
     p1 : int.neg (d' + (m' * suc d')) == (int.neg m' * int.pos d')
-    p1 = cong -_ int-inject-*' >=> sym minus-extract-left
+    p1 = cong -_ ℕ->ℤ-* >=> sym minus-extract-left
     p2 : int.pos m' * (- (- n)) == - (int.neg m' * n)
     p2 = minus-extract-right >=> sym minus-extract-left >=> minus-extract-right
   quotientℤ-multiple-path m@(int.neg m' , _) n d@(int.neg d' , _) =
@@ -92,7 +91,7 @@ private
     cong (quotientℤ (int.neg m' * n)) (ΣProp-path {x = _ , (inj-l tt)} int.isPropNonZero p1)
     where
     p1 : int (suc m' * suc d') == (int.neg m' * int.neg d')
-    p1 = int-inject-*' >=> sym minus-double-inverse >=>
+    p1 = ℕ->ℤ-* >=> sym minus-double-inverse >=>
          cong -_ (sym minus-extract-right) >=>
          sym minus-extract-left
   quotientℤ-multiple-path (int.zero-int , inj-l ())

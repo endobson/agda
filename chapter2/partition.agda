@@ -2,7 +2,6 @@
 
 module chapter2.partition where
 
-open import abs
 open import additive-group
 open import additive-group.instances.int
 open import additive-group.instances.nat
@@ -274,8 +273,8 @@ module _ (n⁺ : Nat⁺) where
             s%d = (sq' * lc.x + snd' * lc.y) , *-commute >=> path
 
           gcd-d2 : GCD (int (q *' d)) (int (nd *' d)) (int d)
-          gcd-d2 = transport (\i -> GCD (int-inject-*' {q} {d} (~ i))
-                                        (int-inject-*' {nd} {d} (~ i)) (int d)) gcd-d
+          gcd-d2 = transport (\i -> GCD (ℕ->ℤ-* {q} {d} (~ i))
+                                        (ℕ->ℤ-* {nd} {d} (~ i)) (int d)) gcd-d
 
           gcd-d3 : GCD' (q *' d) (nd *' d) d
           gcd-d3 = gcd->gcd' gcd-d2

@@ -46,8 +46,7 @@ div->div' {d} (x , pr) =
   (abs' x) , (sym (abs'-inject-* {x} {d}) >=> (cong abs' pr))
 
 div'->div : {d n : Nat} -> d div' n -> (int d) div (int n)
-div'->div {d} (x , pr) =
-  (int x) , (sym (int-inject-*' {x} {d}) >=> (cong int pr))
+div'->div {d} (x , pr) = (int x) , (sym ℕ->ℤ-* >=> (cong int pr))
 
 
 div-refl : {n : Int} -> n div n

@@ -166,6 +166,6 @@ euclids-lemma' : {a b c : Nat} -> a div' (b *' c) -> GCD' a b 1 -> a div' c
 euclids-lemma' {a} {b} {c} a%bc g = result
   where
   int-a%bc : (int a) div (int b * int c)
-  int-a%bc = transport (\i -> (int a) div ((int-inject-*' {b} {c} i))) (div'->div a%bc)
+  int-a%bc = transport (\i -> (int a) div (ℕ->ℤ-* {b} {c} i)) (div'->div a%bc)
   result : a div' c
   result = (div->div' (euclids-lemma int-a%bc (gcd'->gcd/nat g)))
