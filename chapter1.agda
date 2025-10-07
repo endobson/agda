@@ -14,6 +14,11 @@ open import int
 open import linear-combo
 open import nat
 open import nat.order
+open import order.minmax.instances.int
+open import ordered-additive-group.absolute-value
+open import ordered-additive-group.instances.int
+open import ordered-ring.absolute-value
+open import ordered-semiring.instances.int
 open import prime-gcd
 open import ring
 open import ring.implementations.int
@@ -37,7 +42,7 @@ ex1-2' g1 g2 =
 
 ex1-2 : {a b c : Int} -> GCD a b (int 1) -> GCD a c (int 1)
                       -> GCD a (b * c) (int 1)
-ex1-2 {a} {b} {c} g1 g2 = g7
+ex1-2 {a} {b} {c} g1 g2 = g6
   where
   g1' : GCD' (abs' a) (abs' b) 1
   g1' = (gcd->gcd' g1)
@@ -45,14 +50,20 @@ ex1-2 {a} {b} {c} g1 g2 = g7
   g2' = (gcd->gcd' g2)
   g3 : GCD' (abs' a) (abs' b *' abs' c) 1
   g3 = (ex1-2' g1' g2')
-  g4 : GCD (abs a) (int (abs' b *' abs' c)) (int 1)
-  g4 = (gcd'->gcd/nat g3)
-  g5 : GCD (abs a) (abs b * abs c) (int 1)
-  g5 = transport (\i -> GCD (abs a) (ℕ->ℤ-* {abs' b} {abs' c} i) (int 1)) g4
-  g6 : GCD (abs a) (abs (b * c)) (int 1)
-  g6 = transport (\i -> GCD (abs a) (abs-inject-* {b} {c} (~ i)) (int 1)) g5
-  g7 : GCD a (b * c) (int 1)
-  g7 = (gcd-remove-abs (gcd-sym (gcd-remove-abs (gcd-sym g6))))
+  g4 : GCD (int (abs' a)) (int (abs' b *' abs' c)) (int 1)
+  g4 = gcd'->gcd/nat g3
+  g5 : GCD (abs a) (abs (b * c)) (int 1)
+  g5 = transport (\i -> GCD (p1 i) (p2 i) (int 1)) g4
+    where
+    p1 : int (abs' a) == abs a
+    p1 = abs'-abs-path
+    p2 : (int (abs' b *' abs' c)) == abs (b * c)
+    p2 = ℕ->ℤ-* >=>
+         *-cong abs'-abs-path abs'-abs-path >=>
+         sym abs-distrib-*
+
+  g6 : GCD a (b * c) (int 1)
+  g6 = (gcd-remove-abs (gcd-sym (gcd-remove-abs (gcd-sym g5))))
 
 RPrime : Int -> Int -> Set
 RPrime a b = GCD a b (int 1)

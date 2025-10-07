@@ -15,7 +15,12 @@ open import int
 open import nat
 open import nat.order
 open import order
+open import order.instances.int
 open import order.instances.nat
+open import order.minmax.instances.int
+open import ordered-additive-group.absolute-value
+open import ordered-additive-group.instances.int
+open import ordered-ring.absolute-value
 open import quotient hiding (remainder)
 open import quotient-remainder using
   ( QuotientRemainder
@@ -130,14 +135,18 @@ div-negate-left⁻ (c , p) =
   - c , minus-extract-left >=> sym minus-extract-right >=> p
 
 div-abs-right : {d a : Int} -> d div a -> d div (abs a)
-div-abs-right {d} {zero-int} div-a = div-a
-div-abs-right {d} {pos _}    div-a = div-a
-div-abs-right {d} {neg _}    div-a = div-negate⁺ div-a
+div-abs-right {d} {a} (x , p) =
+  case (split-< a 0#) of
+    (\{ (inj-l a<0) -> (- x , minus-extract-left >=> cong -_ p >=> sym (abs-≤0-path (weaken-< a<0)))
+      ; (inj-r 0≤a) -> (x , p >=> sym (abs-0≤-path 0≤a))
+      })
 
 div-abs-left : {d a : Int} -> d div a -> (abs d) div a
-div-abs-left {zero-int} div-a = div-a
-div-abs-left {pos _}    div-a = div-a
-div-abs-left {neg _}    div-a = div-negate-left⁺ div-a
+div-abs-left {d} {a} (x , p) =
+  case (split-< d 0#) of
+    (\{ (inj-l a<0) -> (- x , *-right (abs-≤0-path (weaken-< a<0)) >=> minus-extract-both >=> p)
+      ; (inj-r 0≤a) -> (x , *-right (abs-0≤-path 0≤a) >=> p)
+      })
 
 div'->≤ : {d a : Nat} -> d div' a -> {Pos' a} -> d ≤ a
 div'->≤ {d} {a}     ((suc x) , sx*d=a) = ≤'->≤ (x *' d , sx*d=a)
@@ -187,7 +196,7 @@ private
  (cong abs sub1-extract-*)
  >=> (cong (\x -> abs ((- n) + x)) *-left-zero)
  >=> (cong abs +-right-zero)
- >=> (abs-cancel-minus n)
+ >=> abs-minus
 
 abs-one-implies-unit : {m : Int} -> abs' m == 1 -> Unit m
 abs-one-implies-unit {zero-int} pr = zero-suc-absurd pr
@@ -229,7 +238,10 @@ div-same-abs = step3 _ _
   P d1 d2 = d1 div d2 -> d2 div d1 -> (abs d1) == (abs d2)
 
   step1 : ∀ (d1 : Nat) (d2 : Nat) -> P (int d1) (int d2)
-  step1 _ _ d1%d2 d2%d1 = cong int (div'-antisym (div->div' d1%d2) (div->div' d2%d1))
+  step1 _ _ d1%d2 d2%d1 =
+    sym abs'-abs-path >=>
+    cong int (div'-antisym (div->div' d1%d2) (div->div' d2%d1)) >=>
+    abs'-abs-path
 
   step2 : ∀ (d1 : Nat) (d2 : Int) -> P (int d1) d2
   step2 d1 =
@@ -237,14 +249,14 @@ div-same-abs = step3 _ _
       (step1 d1)
       (\d2 p %₁ %₂ ->
         p (div-negate⁻ %₁) (div-negate-left⁻ %₂) >=>
-        (sym (abs-cancel-minus d2)))
+        (sym abs-minus))
 
   step3 : ∀ (d1 : Int) (d2 : Int) -> P d1 d2
   step3 =
     IntElim-ℕminus-elim
       (\d1 -> step2 d1)
       (\d1 p d2 %₁ %₂ ->
-        abs-cancel-minus d1 >=>
+        abs-minus >=>
         p d2 (div-negate-left⁻ %₁) (div-negate⁻ %₂))
 
 

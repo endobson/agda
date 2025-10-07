@@ -10,12 +10,17 @@ open import div
 open import equality
 open import gcd.propositional
 open import int
+open import int.order
 open import linear-combo
 open import nat
 open import nat.binary-strong-induction
 open import nat.order
 open import order
 open import order.instances.nat
+open import order.instances.int
+open import order.minmax.instances.int
+open import ordered-additive-group.absolute-value
+open import ordered-additive-group.instances.int
 open import relation
 open import ring.implementations.int
 open import semiring
@@ -25,7 +30,7 @@ open EqReasoning
 
 linear-combo->gcd : {a b d : Int} -> LinearCombination a b d -> d div a -> d div b -> GCD a b (abs d)
 linear-combo->gcd {d = d} (linear-combo x y p) da db =
-  (gcd (NonNeg-abs d) (∣ div-abs-left da ∣) (∣ div-abs-left db ∣)
+  (gcd (0≤->NonNeg abs-0≤) (∣ div-abs-left da ∣) (∣ div-abs-left db ∣)
     (\ z za zb -> ∣ transport (\i -> z div abs (p i)) (div-abs-right (div-linear za zb {x} {y})) ∣))
 
 private
@@ -67,11 +72,19 @@ private
   root-linear-combo (euclidean-tree-step t) = linear-combo-+' (root-linear-combo t)
 
   euclidean-tree->gcd : {a b : Nat} -> (t : EuclideanTree a b) -> GCD' a b (euclidean-tree-root t)
-  euclidean-tree->gcd t = (gcd->gcd' (linear-combo->gcd lc (div'->div (proj₁ div-both))
-                                                           (div'->div (proj₂ div-both))))
+  euclidean-tree->gcd {a} {b} t = gcd->gcd' g'
     where
+    r : Nat
+    r = euclidean-tree-root t
+    div-both : (r div' a) × (r div' b)
     div-both = root-div-both t
+    lc : LinearCombination' a b r
     lc = root-linear-combo t
+    g : GCD (int a) (int b) (abs (int r))
+    g = linear-combo->gcd lc (div'->div (proj₁ div-both)) (div'->div (proj₂ div-both))
+    g' : GCD (int a) (int b) (int r)
+    g' = subst (GCD (int a) (int b)) (abs-0≤-path (0≤nonneg r)) g
+
 
 compute-euclidean-tree : (a b : Nat) -> EuclideanTree a b
 compute-euclidean-tree a b = sym-binary-strong-induction euclidean-tree-sym f a b
@@ -123,10 +136,17 @@ abstract
       gcd-d' = euclidean-tree->gcd t
 
 gcd->linear-combo : {a b d : Int} -> GCD a b d -> LinearCombination a b d
-gcd->linear-combo g = linear-combo-unabs _ _ _ (gcd'->linear-combo (gcd->gcd' g))
+gcd->linear-combo {a} {b} {d} g = linear-combo-unabs lc₂
+  where
+  lc₁ : LinearCombination (int (abs' a)) (int (abs' b)) (int (abs' d))
+  lc₁ = gcd'->linear-combo (gcd->gcd' g)
+  lc₂ : LinearCombination (abs a) (abs b) (abs d)
+  lc₂ = transport (\i -> LinearCombination (abs'-abs-path {a} i) (abs'-abs-path {b} i) (abs'-abs-path {d} i))
+                  lc₁
 
 linear-combo-one->gcd-one : {a b : Int} -> LinearCombination a b (int 1) -> GCD a b (int 1)
-linear-combo-one->gcd-one lc = linear-combo->gcd lc div-one div-one
+linear-combo-one->gcd-one lc =
+  subst (GCD _ _) (abs-0≤-path (0≤nonneg 1)) (linear-combo->gcd lc div-one div-one)
 
 
 

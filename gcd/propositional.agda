@@ -9,7 +9,13 @@ open import base
 open import div
 open import equality
 open import int
+open import int.order
 open import nat
+open import order
+open import order.instances.int
+open import order.minmax.instances.int
+open import ordered-additive-group.absolute-value
+open import ordered-additive-group.instances.int
 open import truncation
 
 
@@ -28,6 +34,9 @@ record GCD (a : Int) (b : Int) (d : Int) : Type₀ where
   f : (x : Int) -> x div a -> x div b -> x div d
   f x x%a x%b = ∥div∥->div (∣f∣ x x%a x%b)
 
+  0≤d : 0# ≤ d
+  0≤d = NonNeg->0≤ non-neg
+
 record GCD' (a : Nat) (b : Nat) (d : Nat) : Type₀ where
   field
     %a : d div' a
@@ -42,12 +51,12 @@ GCD⁺ (a , _) (b , _) (d , _) = GCD' a b d
 
 gcd-refl : {n : Int} -> GCD n n (abs n)
 gcd-refl {n} =
-  gcd (NonNeg-abs n) (∣ div-abs-left div-refl ∣) (∣ div-abs-left div-refl ∣)
+  gcd (0≤->NonNeg abs-0≤) (∣ div-abs-left div-refl ∣) (∣ div-abs-left div-refl ∣)
       (\ _ _ d -> (∣ div-abs-right d ∣))
 
 gcd-zero : {a : Int} -> GCD a zero-int (abs a)
 gcd-zero {a} =
-  gcd (NonNeg-abs a) (∣ div-abs-left div-refl ∣) (∣ div-zero ∣)
+  gcd (0≤->NonNeg abs-0≤) (∣ div-abs-left div-refl ∣) (∣ div-zero ∣)
       (\ x xa xz -> (∣ div-abs-right xa ∣))
 
 gcd-sym : {a b d : Int} -> GCD a b d -> GCD b a d
@@ -62,14 +71,20 @@ gcd-negate {a} {b} {d} G@(gcd non-neg d-div-a d-div-b f) =
   module G = GCD G
 
 gcd-remove-abs : {a b d : Int} -> GCD a (abs b) d -> GCD a b d
-gcd-remove-abs {b = (nonneg _)} g = g
-gcd-remove-abs {b = (neg _)} g = gcd-negate g
+gcd-remove-abs {a} {b = b} {d} g =
+  case (split-< 0# b) of
+    (\{ (inj-l 0<b) -> subst (\b -> GCD a b d) (abs-0≤-path (weaken-< 0<b)) g
+      ; (inj-r b≤0) -> subst (\b -> GCD a b d) (cong -_ (abs-≤0-path b≤0) >=> minus-double-inverse)
+                             (gcd-negate g)
+      })
 
 gcd-unique : {m n d1 d2 : Int} -> GCD m n d1 -> GCD m n d2 -> d1 == d2
 gcd-unique {d1 = d1} {d2 = d2}
            G1@(gcd d1-nn d1-div-m d1-div-n d1-f)
            G2@(gcd d2-nn d2-div-m d2-div-n d2-f) =
-  non-neg-same-abs d1-nn d2-nn (div-same-abs d1-div-d2 d2-div-d1)
+  sym (abs-0≤-path G1.0≤d) >=>
+  (div-same-abs d1-div-d2 d2-div-d1) >=>
+  (abs-0≤-path G2.0≤d)
   where
   module G1 = GCD G1
   module G2 = GCD G2
