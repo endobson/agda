@@ -8,6 +8,7 @@ open import additive-group.instances.int
 open import base
 open import div
 open import equality
+open import hlevel.base
 open import int
 open import int.order
 open import nat
@@ -36,6 +37,17 @@ record GCD (a : Int) (b : Int) (d : Int) : Type₀ where
 
   0≤d : 0# ≤ d
   0≤d = NonNeg->0≤ non-neg
+
+isProp-GCD : {a b d : Int} -> isProp (GCD a b d)
+isProp-GCD {a} {b} {d} g1 g2 = (\i -> record
+  { non-neg = isPropNonNeg g1.non-neg g2.non-neg i
+  ; ∣%a∣ = squash g1.∣%a∣ g2.∣%a∣ i
+  ; ∣%b∣ = squash g1.∣%b∣ g2.∣%b∣ i
+  ; ∣f∣ = isPropΠ3 (\_ _ _ -> squash) g1.∣f∣ g2.∣f∣ i
+  })
+  where
+  module g1 = GCD g1
+  module g2 = GCD g2
 
 record GCD' (a : Nat) (b : Nat) (d : Nat) : Type₀ where
   field

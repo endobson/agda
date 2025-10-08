@@ -64,6 +64,9 @@ Discrete-ℚ' q1@(ℚ'-cons n1 d1 nz1) q2@(ℚ'-cons n2 d2 nz2) =
     yes (\i -> (ℚ'-cons (n1=n2 i) (d1=d2 i)
                         (isProp->PathPᵉ (\i -> int.isPropNonZero {d1=d2 i}) nz1 nz2 i)))
 
+isSet-ℚ' : isSet ℚ'
+isSet-ℚ' = Discrete->isSet Discrete-ℚ'
+
 _r~_ : Rel ℚ' ℓ-zero
 _r~_ a b = (numer a) * (denom b) == (numer b) * (denom a)
 
