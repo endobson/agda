@@ -15,6 +15,7 @@ open import relation
 open import sign using (Sign ; s⁻¹_ ; _s*_ ; pos-sign ; zero-sign ; neg-sign )
 
 open import int.base public
+open import int.cover public
 open import int.sign public
 
 open EqReasoning
@@ -1052,40 +1053,6 @@ abstract
 
   ^-right-one : {a : Int} -> a ^ 1 == a
   ^-right-one = *-right-one
-
-
-nonneg-injective : {m n : Nat} -> nonneg m == nonneg n -> m == n
-nonneg-injective {zero}  {zero}  p = refl
-nonneg-injective {suc _} {zero}  p = bot-elim (zero!=non-zero tt (inj-l tt) (sym p))
-nonneg-injective {zero}  {suc _} p = bot-elim (zero!=non-zero tt (inj-l tt) p)
-nonneg-injective {suc _} {suc _} p = cong suc (nonneg-injective (cong sub1 p))
-
-neg-injective : {m n : Nat} -> neg m == neg n -> m == n
-neg-injective {zero}  {zero}  p = refl
-neg-injective {suc _} {zero}  p = bot-elim (zero!=non-zero tt (inj-r tt) (sym (cong add1 p)))
-neg-injective {zero}  {suc _} p = bot-elim (zero!=non-zero tt (inj-r tt) (cong add1 p))
-neg-injective {suc _} {suc _} p = cong suc (neg-injective (cong add1 p))
-
-nonneg-neg-absurd : {m n : Nat} -> nonneg m == neg n -> Bot
-nonneg-neg-absurd p = transport (\i -> Neg (p (~ i))) tt
-
-
-decide-int : (x : Int) -> (y : Int) -> Dec (x == y)
-decide-int (nonneg m) (nonneg n) with decide-nat m n
-... | (yes p) = yes (cong nonneg p)
-... | (no f) = no (\ pr -> f (nonneg-injective pr))
-decide-int (neg m) (neg n) with decide-nat m n
-... | (yes p) = yes (cong neg p)
-... | (no f) = no (\ pr -> f (neg-injective pr))
-decide-int m@(nonneg _) n@(neg _) = no nonneg-neg-absurd
-decide-int m@(neg _) n@(nonneg _) = no (\ p -> nonneg-neg-absurd (sym p))
-
-
-discreteInt : Discrete Int
-discreteInt = decide-int
-
-isSetInt : isSet Int
-isSetInt = Discrete->isSet discreteInt
 
 -- Nat arithmetic -> Integer arithmetic
 
