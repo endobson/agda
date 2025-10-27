@@ -76,7 +76,7 @@ private
     p1 = cong -_ ℕ->ℤ-* >=> sym minus-extract-right
   quotientℤ-multiple-path m@(int.neg m' , _) n d@(int.pos d' , _) =
     -- TODO
-    cong (\x -> quotient x (suc d' , tt)) (sym (int.ℤminus-double-inverse {n})) >=>
+    cong (\x -> quotient x (suc d' , tt)) p3 >=>
     quotient-multiple-path (suc m' , tt) (- (- n)) (suc d' , tt) >=>
     cong (\x -> quotient x ((suc m' , tt) *⁺ (suc d' , tt))) p2 >=>
     cong (quotientℤ (int.neg m' * n)) (ΣProp-path {x = _ , (inj-r tt)} int.isPropNonZero p1)
@@ -85,6 +85,8 @@ private
     p1 = cong -_ ℕ->ℤ-* >=> sym minus-extract-left
     p2 : int.pos m' * (- (- n)) == - (int.neg m' * n)
     p2 = minus-extract-right >=> sym minus-extract-left >=> minus-extract-right
+    p3 : n == (- (- n))
+    p3 = sym minus-double-inverse
   quotientℤ-multiple-path m@(int.neg m' , _) n d@(int.neg d' , _) =
     quotient-multiple-path (suc m' , tt) (- n) (suc d' , tt) >=>
     cong (\x -> quotient x _) (minus-extract-right >=> sym minus-extract-left) >=>

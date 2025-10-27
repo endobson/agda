@@ -2,6 +2,8 @@
 
 module int where
 
+open import additive-group.instances.int
+open import additive-group
 open import base
 open import discrete
 open import equality
@@ -22,113 +24,8 @@ open import int.sign public
 
 open EqReasoning
 
-private
-  infix 9 -_
-  -_ : Int -> Int
-  -_ = ℤ-_
-
-abstract
-  ℤminus-double-inverse : {x : Int} -> - - x == x
-  ℤminus-double-inverse {zero-int} = refl
-  ℤminus-double-inverse {pos x'} = refl
-  ℤminus-double-inverse {neg x'} = refl
-
-  minus-injective : {x y : Int} -> - x == - y -> x == y
-  minus-injective p = sym ℤminus-double-inverse >=> cong (-_) p >=> ℤminus-double-inverse
-
-private
-  infixl 6 _+_
-  _+_ : Int -> Int -> Int
-  _+_ = _ℤ+_
-
 opaque
   unfolding _ℤ+_
-
-  private
-    +-right : {m n p : Int} -> (n == p) -> m + n == m + p
-    +-right {m} = ℤ+-right {m}
-    +-left : {m n p : Int} -> (n == p) -> n + m == p + m
-    +-left = ℤ+-left
-
-  ℤ+-assoc : {m n o : Int} -> (m + n) + o == m + (n + o)
-  ℤ+-assoc {zero-int} = refl
-  ℤ+-assoc {pos zero} {n} {o} = add1-extract-left {n} {o}
-  ℤ+-assoc {neg zero} {n} {o} = sub1-extract-left {n} {o}
-  ℤ+-assoc {pos (suc m')} {n} {o} =
-    begin
-      (pos (suc m') + n) + o
-    ==<>
-      (add1 (pos m') + n) + o
-    ==< +-left (add1-extract-left {pos m'}) >
-      (add1 (pos m' + n)) + o
-    ==< add1-extract-left {pos m' + n} >
-      add1 ((pos m' + n) + o)
-    ==< cong add1 (ℤ+-assoc {pos m'}) >
-      add1 (pos m' + (n + o))
-    ==<>
-      pos (suc m') + (n + o)
-    end
-  ℤ+-assoc {neg (suc m')} {n} {o} =
-    begin
-      (neg (suc m') + n) + o
-    ==<>
-      (sub1 (neg m') + n) + o
-    ==< +-left (sub1-extract-left {neg m'}) >
-      (sub1 (neg m' + n)) + o
-    ==< sub1-extract-left {neg m' + n} >
-      sub1 ((neg m' + n) + o)
-    ==< cong sub1 (ℤ+-assoc {neg m'}) >
-      sub1 (neg m' + (n + o))
-    ==<>
-      neg (suc m') + (n + o)
-    end
-
-  private
-    +-assoc : {m n o : Int} -> (m + n) + o == m + (n + o)
-    +-assoc {m} {n} {o} = ℤ+-assoc {m} {n} {o}
-
-  ℤ+-commute : {m n : Int} -> (m + n) == (n + m)
-  ℤ+-commute {nonneg zero} {n} = sym (ℤ+-right-zero n)
-  ℤ+-commute {neg zero} {n} =
-   begin
-     neg zero + n
-   ==<>
-     sub1 n
-   ==< cong sub1 (sym (ℤ+-right-zero n)) >
-     sub1 (n + zero-int)
-   ==< sym (sub1-extract-right {n}) >
-     n + sub1 zero-int
-   ==<>
-     n + neg zero
-   end
-  ℤ+-commute {nonneg (suc m')} {n} =
-    begin
-      nonneg (suc m') + n
-    ==<>
-      add1 (nonneg m' + n)
-    ==< cong add1 (ℤ+-commute {nonneg m'}) >
-      add1 (n + nonneg m')
-    ==< sym (add1-extract-right {n})>
-      n + add1 (nonneg m')
-    ==<>
-      n + nonneg (suc m')
-    end
-  ℤ+-commute {neg (suc m')} {n} =
-    begin
-      neg (suc m') + n
-    ==<>
-      sub1 (neg m' + n)
-    ==< cong sub1 (ℤ+-commute {neg m'}) >
-      sub1 (n + neg m')
-    ==< sym (sub1-extract-right {n})>
-      n + sub1 (neg m')
-    ==<>
-      n + neg (suc m')
-    end
-
-  private
-    +-commute : {m n : Int} -> (m + n) == (n + m)
-    +-commute {m} {n} = ℤ+-commute {m} {n}
 
   add1-NonNeg : {n : Int} -> (NonNeg n) -> (Pos (add1 n))
   add1-NonNeg {nonneg _} _ = tt
@@ -153,7 +50,7 @@ opaque
   +-Pos-NonNeg {pos (suc m)} _ p = add1-Pos (+-Pos-NonNeg {pos m} tt p)
 
   +-NonNeg-Pos : {m n : Int} -> (NonNeg m) -> (Pos n) -> Pos (m + n)
-  +-NonNeg-Pos {m} {n} p1 p2 = subst Pos (+-commute {n} {m}) (+-Pos-NonNeg p2 p1)
+  +-NonNeg-Pos {m} {n} p1 p2 = subst Pos (+-commuteᵉ n m) (+-Pos-NonNeg p2 p1)
 
   +-Pos-Pos : {m n : Int} -> (Pos m) -> (Pos n) -> Pos (m + n)
   +-Pos-Pos p1 p2 = +-Pos-NonNeg p1 (Pos->NonNeg p2)
@@ -163,7 +60,7 @@ opaque
   +-Neg-NonPos {neg (suc m)} _ p = sub1-Neg (+-Neg-NonPos {neg m} tt p)
 
   +-NonPos-Neg : {m n : Int} -> (NonPos m) -> (Neg n) -> Neg (m + n)
-  +-NonPos-Neg {m} {n} p1 p2 = subst Neg (+-commute {n} {m}) (+-Neg-NonPos p2 p1)
+  +-NonPos-Neg {m} {n} p1 p2 = subst Neg (+-commuteᵉ n m) (+-Neg-NonPos p2 p1)
 
   +-Neg-Neg : {m n : Int} -> (Neg m) -> (Neg n) -> Neg (m + n)
   +-Neg-Neg p1 p2 = +-Neg-NonPos p1 (Neg->NonPos p2)
@@ -217,82 +114,6 @@ opaque
   minus-NonNeg {neg _} (inj-r ())
 
 
-  add-minus-zero : {n : Int} -> n + - n == zero-int
-  add-minus-zero {zero-int} = refl
-  add-minus-zero {pos zero} = refl
-  add-minus-zero {neg zero} = refl
-  add-minus-zero {pos (suc n')} =
-    begin
-      pos (suc n') + - pos (suc n')
-    ==<>
-      add1 (pos n') + - add1 (pos n')
-    ==< add1-extract-left {pos n'} >
-      add1 ((pos n') + - add1 (pos n'))
-    ==< sym (add1-extract-right {pos n'}) >
-      (pos n') + add1 (- add1 (pos n'))
-    ==< +-right {pos n'} (add1-minus->minus-sub1 {add1 (pos n')}) >
-      (pos n') + - (sub1 (add1 (pos n')))
-    ==< +-right {pos n'} (cong -_ (sub1-add1-id)) >
-      pos n' + - pos n'
-    ==< add-minus-zero {pos n'}  >
-      zero-int
-    end
-  add-minus-zero {neg (suc n')} =
-    begin
-      neg (suc n') + - neg (suc n')
-    ==<>
-      sub1 (neg n') + - sub1 (neg n')
-    ==< sub1-extract-left {neg n'} >
-      sub1 ((neg n') + - sub1 (neg n'))
-    ==< sym (sub1-extract-right {neg n'}) >
-      (neg n') + sub1 (- sub1 (neg n'))
-    ==< +-right {neg n'} (sub1-minus->minus-add1 {sub1 (neg n')}) >
-      (neg n') + - (add1 (sub1 (neg n')))
-    ==< +-right {neg n'} (cong -_ (add1-sub1-id {neg n'})) >
-      neg n' + - neg n'
-    ==< add-minus-zero {neg n'}  >
-      zero-int
-    end
-
-  private
-    minus-distrib-+ : {m n : Int} -> - (m + n) == - m + - n
-    minus-distrib-+ {zero-int} = refl
-    minus-distrib-+ {pos zero} {n} = sym (sub1-minus->minus-add1 {n})
-    minus-distrib-+ {neg zero} {n} = sym (add1-minus->minus-sub1 {n})
-    minus-distrib-+ {pos (suc m')} {n} =
-      begin
-        - (pos (suc m') + n)
-      ==<>
-        - (add1 (pos m' + n))
-      ==< sym (sub1-minus->minus-add1 {pos m' + n}) >
-        sub1 (- (pos m' + n))
-      ==< cong sub1 (minus-distrib-+ {pos m'}) >
-        sub1 (- pos m' + - n)
-      ==< sym (sub1-extract-left { - pos m'}) >
-        sub1 (- (pos m')) + - n
-      ==< +-left (sub1-minus->minus-add1 {pos m'}) >
-        - (add1 (pos m')) + - n
-      ==<>
-        - (pos (suc m')) + - n
-      end
-    minus-distrib-+ {neg (suc m')} {n} =
-      begin
-        - (neg (suc m') + n)
-      ==<>
-        - (sub1 (neg m' + n))
-      ==< sym (add1-minus->minus-sub1 {neg m' + n}) >
-        add1 (- (neg m' + n))
-      ==< cong add1 (minus-distrib-+ {neg m'}) >
-        add1 (- neg m' + - n)
-      ==< sym (add1-extract-left { - neg m'}) >
-        add1 (- (neg m')) + - n
-      ==< +-left (add1-minus->minus-sub1 {neg m'}) >
-        - (sub1 (neg m')) + - n
-      ==<>
-        - (neg (suc m')) + - n
-      end
-
-
 private
   _*nz_ : Nat -> Int -> Int
   zero *nz m = zero-int
@@ -314,7 +135,7 @@ private
   _*_ = _ℤ*_
 
 opaque
-  unfolding _ℤ+_ _ℤ*_
+  unfolding _ℤ*_
 
   ℤ*-eval : {m n : Int} -> m * n == m *ᵉ n
   ℤ*-eval = refl
@@ -334,29 +155,34 @@ opaque
   ℤminus-extract-left : {m n : Int} -> - m * n == - (m * n)
   ℤminus-extract-left {zero-int} = refl
   ℤminus-extract-left {pos m'} = refl
-  ℤminus-extract-left {neg m'} {n} = sym (ℤminus-double-inverse {pos m' * n})
+  ℤminus-extract-left {neg m'} {n} = sym (minus-double-inverse)
 
   ℤ*-left-zero : {m : Int} -> zero-int * m == zero-int
   ℤ*-left-zero = refl
 
-  ℤ*-right-zero : {m : Int} -> m * zero-int == zero-int
-  ℤ*-right-zero {zero-int} = refl
-  ℤ*-right-zero {pos zero} = refl
-  ℤ*-right-zero {neg zero} = refl
-  ℤ*-right-zero {pos (suc m')} = ℤ*-right-zero {pos m'}
-  ℤ*-right-zero {neg (suc m')} = ℤ*-right-zero {neg m'}
+  opaque
+    unfolding _ℤ+_
+
+    ℤ*-right-zero : {m : Int} -> m * zero-int == zero-int
+    ℤ*-right-zero {zero-int} = refl
+    ℤ*-right-zero {pos zero} = refl
+    ℤ*-right-zero {neg zero} = refl
+    ℤ*-right-zero {pos (suc m')} = ℤ*-right-zero {pos m'}
+    ℤ*-right-zero {neg (suc m')} = ℤ*-right-zero {neg m'}
 
   private
-    *-right-one' : (m : Nat) -> (nonneg m) * (int 1) == (nonneg m)
-    *-right-one' zero = refl
-    *-right-one' (suc m') = cong add1 (*-right-one' m')
+    opaque
+      unfolding _ℤ+_
+      *-right-one' : (m : Nat) -> (nonneg m) * (int 1) == (nonneg m)
+      *-right-one' zero = refl
+      *-right-one' (suc m') = cong add1 (*-right-one' m')
 
   ℤ*-right-one : {m : Int} -> m * (int 1) == m
   ℤ*-right-one {nonneg m} = *-right-one' m
   ℤ*-right-one {neg m} = cong -_ (*-right-one' (suc m))
 
   ℤ*-left-one : {m : Int} -> (int 1) * m == m
-  ℤ*-left-one = ℤ+-right-zero _
+  ℤ*-left-one = sym ℤ+-eval >=> +-right-zero
 
   private
     *-left-zero : {m : Int} -> zero-int * m == zero-int
@@ -367,29 +193,30 @@ opaque
     *-right-one = ℤ*-right-one
 
   private
-    *-right-negative-one' : (m : Nat) -> (nonneg (suc m)) * (neg zero) == (neg m)
-    *-right-negative-one' zero = refl
-    *-right-negative-one' (suc m') = cong sub1 (*-right-negative-one' m')
+    opaque
+      unfolding _ℤ+_
+      *-right-negative-one' : (m : Nat) -> (nonneg (suc m)) * (neg zero) == (neg m)
+      *-right-negative-one' zero = refl
+      *-right-negative-one' (suc m') = cong sub1 (*-right-negative-one' m')
 
   *-right-negative-one : {m : Int} -> m * (neg zero) == - m
   *-right-negative-one {zero-int} = refl
   *-right-negative-one {pos m'} = (*-right-negative-one' m')
   *-right-negative-one {neg m'} = cong -_ (*-right-negative-one' m')
 
-
   add1-extract-* : {m n : Int} -> add1 m * n == n + m * n
-  add1-extract-* {zero-int} = refl
-  add1-extract-* {pos m'} = refl
+  add1-extract-* {zero-int} = sym ℤ+-eval
+  add1-extract-* {pos m'} = sym ℤ+-eval
   add1-extract-* {neg zero} {n} =
     begin
       add1 (neg zero) * n
     ==<>
       zero-int
-    ==< sym (add-minus-zero {n}) >
+    ==< sym +-inverse >
       n + - n
-    ==< (+-right {n} (cong -_ (sym (ℤ+-right-zero n)))) >
+    ==< (+-right (cong -_ (sym (+-right-zero)))) >
       n + - (n + zero-int)
-    ==<>
+    ==< +-right (cong -_ ℤ+-eval) >
       n + (neg zero) * n
     end
   add1-extract-* {neg (suc m')} {n} =
@@ -399,39 +226,42 @@ opaque
       neg m' * n
     ==<>
       - (pos m' * n)
-    ==<>
+    ==< sym ℤ+-eval >
       (zero-int) + - ((pos m') * n)
-    ==< +-left (sym (add-minus-zero {n})) >
+    ==< +-left (sym +-inverse) >
       (n + - n) + - ((pos m') * n)
-    ==< +-assoc {n} >
+    ==< +-assoc >
       n + (- n + - ((pos m') * n))
-    ==< +-right {n} (sym (minus-distrib-+ {n})) >
+    ==< +-right (sym minus-distrib-plus) >
       n + (- (n + (pos m') * n))
-    ==<>
+    ==< +-right (cong -_ ℤ+-eval) >
       n + (neg (suc m')) * n
     end
 
   private
     add1-extract-*-right' : (m : Nat) (n : Int) -> (nonneg m) * add1 n == (nonneg m) + (nonneg m) * n
-    add1-extract-*-right' zero n = refl
+    add1-extract-*-right' zero n = sym ℤ+-eval
     add1-extract-*-right' (suc m') n =
       begin
         nonneg (suc m') * add1 n
-      ==<>
+      ==< sym ℤ+-eval >
         add1 n + nonneg m' * add1 n
-      ==< +-right {add1 n} (add1-extract-*-right' m' n) >
+      ==< +-right (add1-extract-*-right' m' n) >
         add1 n + (nonneg m' + nonneg m' * n)
-      ==< sym (+-assoc {add1 n}) >
+      ==< sym +-assoc >
         (add1 n + nonneg m') + nonneg m' * n
       ==< +-left (add1-extract-left {n}) >
         add1 (n + nonneg m') + nonneg m' * n
-      ==< +-left (cong add1 (+-commute {n})) >
+      ==< +-left (cong add1 (+-commute)) >
         add1 (nonneg m' + n) + nonneg m' * n
       ==< +-left (sym (add1-extract-left {nonneg m'} {n})) >
         (add1 (nonneg m') + n) + nonneg m' * n
-      ==< +-assoc {add1 (nonneg m')} >
+      ==< +-assoc >
+       _
+      ==< +-right ℤ+-eval >
         nonneg (suc m') + nonneg (suc m') * n
       end
+
 
 
   add1-extract-*-right : {m n : Int} -> m * add1 n == m + m * n
@@ -443,190 +273,157 @@ opaque
       - (pos m' * add1 n)
     ==< cong -_ (add1-extract-*-right' (suc m') n) >
       - (pos m' + pos m' * n)
-    ==< minus-distrib-+ {pos m'} >
+    ==< minus-distrib-plus >
       neg m' + neg m' * n
     end
 
 
-  sub1-extract-* : {m n : Int} -> sub1 m * n == - n + m * n
-  sub1-extract-* {zero-int} {n} =
-    begin
-      sub1 zero-int * n
-    ==<>
-      - (n + zero-int)
-    ==< cong -_ (ℤ+-right-zero _) >
-      - n
-    ==< sym (ℤ+-right-zero _) >
-      - n + zero-int * n
-    end
-  sub1-extract-* {pos zero} {n} =
-    begin
-      sub1 (pos zero) * n
-    ==<>
-      zero-int
-    ==< sym (add-minus-zero {n}) >
-      n + - n
-    ==< +-commute {n} >
-      - n + n
-    ==< +-right { - n} (sym (ℤ+-right-zero n)) >
-      - n + (n + zero-int)
-    ==<>
-      - n + (pos zero) * n
-    end
-  sub1-extract-* {pos (suc m')} {n} =
-    begin
-      sub1 (pos (suc m')) * n
-    ==<>
-      (pos m') * n
-    ==< +-left (sym (add-minus-zero {n})) >
-      (n + - n) + (pos m') * n
-    ==< +-left (+-commute {n}) >
-      (- n + n) + (pos m') * n
-    ==< +-assoc { - n} >
-      - n + (n + (pos m') * n)
-    ==<>
-      - n + (pos (suc m')) * n
-    end
-  sub1-extract-* {neg m'} {n} =
-    begin
-      sub1 (neg m') * n
-    ==<>
-      - (add1 (pos m') * n)
-    ==< cong -_ (add1-extract-* {pos m'} {n}) >
-      - (n + (pos m') * n)
-    ==< minus-distrib-+ {n} >
-      - n + (neg m') * n
-    end
+sub1-extract-* : {m n : Int} -> sub1 m * n == - n + m * n
+sub1-extract-* =
+  sym minus-double-inverse >=>
+  cong -_ (sym ℤminus-extract-left >=>
+           ℤ*-left (sym add1-minus->minus-sub1) >=>
+           add1-extract-*) >=>
+  minus-distrib-plus >=>
+  +-right (cong -_ ℤminus-extract-left >=> minus-double-inverse)
 
+
+opaque
+  unfolding _ℤ*_
 
   sub1-extract-*-right : {m n : Int} -> m * sub1 n == - m + m * n
-  sub1-extract-*-right {zero-int} = refl
+  sub1-extract-*-right {zero-int} = sym +-left-zero
   sub1-extract-*-right {pos zero} {n} =
     begin
       (pos zero) * (sub1 n)
-    ==< ℤ+-right-zero (sub1 n) >
+    ==< sym ℤ+-eval >=> +-right-zero >
       (sub1 n)
-    ==< cong sub1 (sym (ℤ+-right-zero n)) >
+    ==< cong sub1 (sym +-right-zero) >
       (sub1 (n + zero-int))
-    ==<>
+    ==< sym ℤ+-eval >=> +-right ℤ+-eval >
       - (pos zero) + (pos zero) * n
     end
   sub1-extract-*-right {neg zero} {n} =
     begin
       (neg zero) * (sub1 n)
-    ==< cong -_ (ℤ+-right-zero (sub1 n)) >
+    ==< cong -_ (sym ℤ+-eval >=> +-right-zero) >
       - (sub1 n)
     ==< sym (add1-minus->minus-sub1 {n}) >
       add1 (- n)
-    ==< cong add1 (cong -_ (sym (ℤ+-right-zero n))) >
+    ==< cong add1 (cong -_ (sym +-right-zero)) >
       add1 (- (n + zero-int))
+    ==< sym ℤ+-eval >
+      (pos zero) + (- (n + zero-int))
+    ==< +-right (cong -_ ℤ+-eval) >
+      (pos zero) + (neg zero) * n
     ==<>
       - (neg zero) + (neg zero) * n
     end
   sub1-extract-*-right {pos (suc m')} {n} =
     begin
       (pos (suc m')) * (sub1 n)
-    ==<>
+    ==< sym ℤ+-eval >
       sub1 n + pos m' * sub1 n
-    ==< +-right {sub1 n} (sub1-extract-*-right {pos m'} {n}) >
+    ==< +-right (sub1-extract-*-right {pos m'} {n}) >
       sub1 n + (- pos m' + pos m' * n)
-    ==< sym (+-assoc {sub1 n}) >
+    ==< sym +-assoc >
       (sub1 n + - pos m') + (pos m') * n
     ==< +-left (sub1-extract-left {n}) >
       sub1 (n + - pos m') + (pos m') * n
-    ==< +-left (cong sub1 (+-commute {n})) >
+    ==< +-left (cong sub1 +-commute) >
       sub1 (- pos m' + n) + (pos m') * n
     ==< +-left (sym (sub1-extract-left { - pos m'})) >
       (sub1 (- pos m') + n) + (pos m') * n
-    ==< +-assoc {sub1 (- pos m')} >
+    ==< +-assoc >
       sub1 (- pos m') + (n + (pos m') * n)
-    ==<>
+    ==< +-right ℤ+-eval >
       - (pos (suc m')) + (pos (suc m')) * n
     end
   sub1-extract-*-right {neg (suc m')} {n} =
     begin
       (neg (suc m')) * (sub1 n)
-    ==<>
+    ==< cong -_ (sym ℤ+-eval) >
       - (sub1 n + pos m' * sub1 n)
-    ==< minus-distrib-+ {sub1 n} >
+    ==< minus-distrib-plus >
       - sub1 n + neg m' * sub1 n
-    ==< +-right { - sub1 n} (sub1-extract-*-right {neg m'} {n}) >
+    ==< +-right (sub1-extract-*-right {neg m'} {n}) >
       - sub1 n + (- neg m' + neg m' * n)
-    ==< sym (+-assoc { - sub1 n}) >
+    ==< sym +-assoc >
       (- sub1 n + - neg m') + neg m' * n
-    ==< +-left (sym (minus-distrib-+ {sub1 n})) >
+    ==< +-left (sym minus-distrib-plus) >
       - (sub1 n + neg m') + neg m' * n
     ==< +-left (cong -_ (sub1-extract-left {n})) >
       - sub1 (n + neg m') + neg m' * n
-    ==< +-left (cong -_ (cong sub1 (+-commute {n}))) >
+    ==< +-left (cong -_ (cong sub1 +-commute)) >
       - sub1 (neg m' + n) + neg m' * n
     ==< +-left (cong -_ (sym (sub1-extract-left {neg m'}))) >
       - (sub1 (neg m') + n) + neg m' * n
-    ==< +-left (minus-distrib-+ {sub1 (neg m')}) >
+    ==< +-left minus-distrib-plus >
       (- sub1 (neg m') + - n) + neg m' * n
-    ==< +-assoc { - sub1 (neg m')} >
+    ==< +-assoc >
       - sub1 (neg m') + (- n + neg m' * n)
-    ==< +-right { - sub1 (neg m')} (sym (minus-distrib-+ {n})) >
+    ==< +-right (sym minus-distrib-plus >=> cong -_ ℤ+-eval) >
       - (neg (suc m')) + (neg (suc m')) * n
     end
 
 
   ℤ*-distrib-+-right : {m n p : Int} -> (m + n) * p == (m * p) + (n * p)
-  ℤ*-distrib-+-right {zero-int} = refl
+  ℤ*-distrib-+-right {zero-int} = *-left +-left-zero >=> sym +-left-zero
   ℤ*-distrib-+-right {pos zero} {n} {p} =
     begin
       (pos zero + n) * p
-    ==<>
+    ==< *-left ℤ+-eval >
       (add1 n) * p
     ==< add1-extract-* {n} >
       p + (n * p)
-    ==< +-left (sym (ℤ+-right-zero p))  >
+    ==< +-left (sym +-right-zero)  >
       (p + zero-int) + (n * p)
-    ==<>
+    ==< +-left ℤ+-eval >
       (pos zero * p) + (n * p)
     end
   ℤ*-distrib-+-right {neg zero} {n} {p} =
     begin
       (neg zero + n) * p
-    ==<>
+    ==< *-left ℤ+-eval >
       (sub1 n) * p
     ==< sub1-extract-* {n} >
       - p + (n * p)
-    ==< +-left (cong -_ (sym (ℤ+-right-zero p))) >
+    ==< +-left (cong -_ (sym +-right-zero)) >
       - (p + zero-int) + (n * p)
-    ==<>
+    ==< +-left (cong -_ ℤ+-eval) >
       (neg zero * p) + (n * p)
     end
   ℤ*-distrib-+-right {pos (suc m')} {n} {p} =
     begin
       (pos (suc m') + n) * p
-    ==<>
+    ==< *-left add1-extract-left >
       add1 (pos m' + n) * p
     ==< add1-extract-* {pos m' + n} >
       p + ((pos m') + n) * p
-    ==< +-right {p} (ℤ*-distrib-+-right {pos m'}) >
+    ==< +-right (ℤ*-distrib-+-right {pos m'}) >
       p + ((pos m') * p + n * p)
-    ==< sym (+-assoc {p}) >
+    ==< sym +-assoc >
       (p + (pos m') * p) + n * p
-    ==<>
+    ==< +-left ℤ+-eval >
       (pos (suc m') * p) + (n * p)
     end
   ℤ*-distrib-+-right {neg (suc m')} {n} {p} =
     begin
       (neg (suc m') + n) * p
-    ==<>
+    ==< *-left sub1-extract-left >
       sub1 (neg m' + n) * p
     ==< sub1-extract-* {neg m' + n} >
       - p + ((neg m') + n) * p
-    ==< +-right { - p} (ℤ*-distrib-+-right {neg m'}) >
+    ==< +-right (ℤ*-distrib-+-right {neg m'}) >
       - p + ((neg m') * p + n * p)
-    ==< sym (+-assoc { - p}) >
+    ==< sym +-assoc >
       (- p + (neg m') * p) + n * p
-    ==< +-left (sym (minus-distrib-+ {p})) >
+    ==< +-left (sym minus-distrib-plus) >
       - (p + (pos m') * p) + n * p
-    ==<>
+    ==< +-left (cong -_ ℤ+-eval) >
       (neg (suc m') * p) + (n * p)
     end
+
 
 
   private
@@ -635,15 +432,16 @@ opaque
     *-assoc' (suc m') n o =
       begin
         (nonneg (suc m') * n) * o
-      ==<>
+      ==< *-left (sym ℤ+-eval) >
         (n + nonneg m' * n) * o
       ==< ℤ*-distrib-+-right {n} >
         n * o + (nonneg m' * n) * o
-      ==< +-right {n * o} (*-assoc' m' n o) >
+      ==< +-right (*-assoc' m' n o) >
         n * o + nonneg m' * (n * o)
-      ==<>
+      ==< ℤ+-eval >
         nonneg (suc m') * (n * o)
       end
+
 
   ℤ*-assoc : {m n o : Int} -> (m * n) * o == m * (n * o)
   ℤ*-assoc {nonneg m} {n} {o} =  *-assoc' m n o
@@ -666,7 +464,7 @@ opaque
   ℤ*-commute {pos zero} {n} =
     begin
       pos zero * n
-    ==< ℤ+-right-zero n >
+    ==< sym ℤ+-eval >=> +-right-zero >
       n
     ==< sym *-right-one >
       n * pos zero
@@ -674,7 +472,7 @@ opaque
   ℤ*-commute {neg zero} {n} =
     begin
       neg zero * n
-    ==< cong -_ (ℤ+-right-zero n) >
+    ==<  cong -_ (sym ℤ+-eval >=> +-right-zero) >
       - n
     ==< sym (*-right-negative-one {n}) >
       n * neg zero
@@ -682,9 +480,9 @@ opaque
   ℤ*-commute {pos (suc m')} {n} =
     begin
       pos (suc m') * n
-    ==<>
+    ==< sym ℤ+-eval >
       n + pos m' * n
-    ==< +-right {n} (ℤ*-commute {pos m'} {n}) >
+    ==< +-right (ℤ*-commute {pos m'} {n}) >
       n + n * pos m'
     ==< sym (add1-extract-*-right {n}) >
       n * pos (suc m')
@@ -692,11 +490,11 @@ opaque
   ℤ*-commute {neg (suc m')} {n} =
     begin
       neg (suc m') * n
-    ==<>
+    ==< cong -_ (sym ℤ+-eval) >
       - (n + pos m' * n)
-    ==< minus-distrib-+ {n} >
+    ==< minus-distrib-plus >
       - n + neg m' * n
-    ==< +-right { - n} (ℤ*-commute {neg m'} {n}) >
+    ==< +-right (ℤ*-commute {neg m'} {n}) >
       - n + n * neg m'
     ==< sym (sub1-extract-*-right {n}) >
       n * neg (suc m')
@@ -720,8 +518,9 @@ opaque
 
   ℤminus-extract-both : {m n : Int} -> - m * - n == (m * n)
   ℤminus-extract-both {m} {n} =
-    (ℤminus-extract-right { - m} {n}) >=> (cong -_ (ℤminus-extract-left {m} {n}))
-    >=> (ℤminus-double-inverse {m * n})
+    (ℤminus-extract-right { - m} {n}) >=>
+    (cong -_ (ℤminus-extract-left {m} {n})) >=>
+    minus-double-inverse
 
   minus-isSign : {m : Int} {s : Sign} -> isSign s m -> isSign (s⁻¹ s) (- m)
   minus-isSign {zero-int} {zero-sign} _ = tt
@@ -736,89 +535,92 @@ opaque
   -- Recomputable-NonZero {pos x} _ = inj-l tt
   -- Recomputable-NonZero {neg x} _ = inj-r tt
 
-  *-Pos-Pos : {m n : Int} -> (Pos m) -> (Pos n) -> Pos (m * n)
-  *-Pos-Pos {pos zero} _ pr = +-Pos-NonNeg pr (inj-r tt)
-  *-Pos-Pos {pos (suc m)} _ pr = +-Pos-Pos pr (*-Pos-Pos {pos m} tt pr)
+  opaque
+    unfolding _ℤ+_
 
-  *-Pos-NonNeg : {m n : Int} -> (Pos m) -> (NonNeg n) -> NonNeg (m * n)
-  *-Pos-NonNeg {pos zero} _ pr = +-NonNeg-NonNeg pr (inj-r tt)
-  *-Pos-NonNeg {pos (suc m)} _ pr = +-NonNeg-NonNeg pr (*-Pos-NonNeg {pos m} tt pr)
+    *-Pos-Pos : {m n : Int} -> (Pos m) -> (Pos n) -> Pos (m * n)
+    *-Pos-Pos {pos zero} _ pr = +-Pos-NonNeg pr (inj-r tt)
+    *-Pos-Pos {pos (suc m)} _ pr = +-Pos-Pos pr (*-Pos-Pos {pos m} tt pr)
 
-  *-NonNeg-Pos : {m n : Int} -> (NonNeg m) -> (Pos n) -> NonNeg (m * n)
-  *-NonNeg-Pos {m} {n} nn p = transport (cong NonNeg (*-commute {n} {m})) (*-Pos-NonNeg p nn)
+    *-Pos-NonNeg : {m n : Int} -> (Pos m) -> (NonNeg n) -> NonNeg (m * n)
+    *-Pos-NonNeg {pos zero} _ pr = +-NonNeg-NonNeg pr (inj-r tt)
+    *-Pos-NonNeg {pos (suc m)} _ pr = +-NonNeg-NonNeg pr (*-Pos-NonNeg {pos m} tt pr)
 
-  *-Neg-NonNeg : {m n : Int} -> (Neg m) -> (NonNeg n) -> NonPos (m * n)
-  *-Neg-NonNeg {neg m} {n} _ pn = minus-NonNeg (*-Pos-NonNeg {pos m} _ pn)
+    *-NonNeg-Pos : {m n : Int} -> (NonNeg m) -> (Pos n) -> NonNeg (m * n)
+    *-NonNeg-Pos {m} {n} nn p = transport (cong NonNeg (*-commute {n} {m})) (*-Pos-NonNeg p nn)
 
-  *-NonNeg-Neg : {m n : Int} -> (NonNeg m) -> (Neg n) -> NonPos (m * n)
-  *-NonNeg-Neg {m} {n} nn neg-n = transport (cong NonPos (*-commute {n} {m})) (*-Neg-NonNeg neg-n nn)
+    *-Neg-NonNeg : {m n : Int} -> (Neg m) -> (NonNeg n) -> NonPos (m * n)
+    *-Neg-NonNeg {neg m} {n} _ pn = minus-NonNeg (*-Pos-NonNeg {pos m} _ pn)
 
-  *-Pos-NonPos : {m n : Int} -> (Pos m) -> (NonPos n) -> NonPos (m * n)
-  *-Pos-NonPos {pos zero} _ pr = +-NonPos-NonPos pr (inj-r tt)
-  *-Pos-NonPos {pos (suc m)} _ pr = +-NonPos-NonPos pr (*-Pos-NonPos {pos m} tt pr)
+    *-NonNeg-Neg : {m n : Int} -> (NonNeg m) -> (Neg n) -> NonPos (m * n)
+    *-NonNeg-Neg {m} {n} nn neg-n = transport (cong NonPos (*-commute {n} {m})) (*-Neg-NonNeg neg-n nn)
 
-  *-NonPos-Pos : {m n : Int} -> (NonPos m) -> (Pos n) -> NonPos (m * n)
-  *-NonPos-Pos {m} {n} np p = transport (cong NonPos (*-commute {n} {m})) (*-Pos-NonPos p np)
+    *-Pos-NonPos : {m n : Int} -> (Pos m) -> (NonPos n) -> NonPos (m * n)
+    *-Pos-NonPos {pos zero} _ pr = +-NonPos-NonPos pr (inj-r tt)
+    *-Pos-NonPos {pos (suc m)} _ pr = +-NonPos-NonPos pr (*-Pos-NonPos {pos m} tt pr)
 
-  *-Neg-NonPos : {m n : Int} -> (Neg m) -> (NonPos n) -> NonNeg (m * n)
-  *-Neg-NonPos {neg m} {n} neg-m np = minus-NonPos (*-Pos-NonPos {pos m} _ np)
+    *-NonPos-Pos : {m n : Int} -> (NonPos m) -> (Pos n) -> NonPos (m * n)
+    *-NonPos-Pos {m} {n} np p = transport (cong NonPos (*-commute {n} {m})) (*-Pos-NonPos p np)
 
-  *-NonPos-Neg : {m n : Int} -> (NonPos m) -> (Neg n) -> NonNeg (m * n)
-  *-NonPos-Neg {m} {n} np neg-n = transport (cong NonNeg (*-commute {n} {m})) (*-Neg-NonPos neg-n np)
+    *-Neg-NonPos : {m n : Int} -> (Neg m) -> (NonPos n) -> NonNeg (m * n)
+    *-Neg-NonPos {neg m} {n} neg-m np = minus-NonPos (*-Pos-NonPos {pos m} _ np)
 
-  *-NonNeg-NonPos : {m n : Int} -> (NonNeg m) -> (NonPos n) -> NonPos (m * n)
-  *-NonNeg-NonPos {zero-int} {n} _ np = subst NonPos (sym (*-left-zero {n})) (inj-r tt)
-  *-NonNeg-NonPos {pos m} {n} nn np = *-Pos-NonPos {pos m} _ np
-  *-NonNeg-NonPos {neg m} {n} (inj-l ())
-  *-NonNeg-NonPos {neg m} {n} (inj-r ())
+    *-NonPos-Neg : {m n : Int} -> (NonPos m) -> (Neg n) -> NonNeg (m * n)
+    *-NonPos-Neg {m} {n} np neg-n = transport (cong NonNeg (*-commute {n} {m})) (*-Neg-NonPos neg-n np)
 
-  *-NonPos-NonNeg : {m n : Int} -> (NonPos m) -> (NonNeg n) -> NonPos (m * n)
-  *-NonPos-NonNeg {m} {n} np nn = subst NonPos (*-commute {n} {m}) (*-NonNeg-NonPos {n} {m} nn np)
+    *-NonNeg-NonPos : {m n : Int} -> (NonNeg m) -> (NonPos n) -> NonPos (m * n)
+    *-NonNeg-NonPos {zero-int} {n} _ np = subst NonPos (sym (*-left-zero {n})) (inj-r tt)
+    *-NonNeg-NonPos {pos m} {n} nn np = *-Pos-NonPos {pos m} _ np
+    *-NonNeg-NonPos {neg m} {n} (inj-l ())
+    *-NonNeg-NonPos {neg m} {n} (inj-r ())
 
-  *-Pos-Neg : {m n : Int} -> (Pos m) -> (Neg n) -> Neg (m * n)
-  *-Pos-Neg {pos zero} _ pr = +-Neg-NonPos pr (inj-r tt)
-  *-Pos-Neg {pos (suc m)} _ pr = +-Neg-Neg pr (*-Pos-Neg {pos m} tt pr)
+    *-NonPos-NonNeg : {m n : Int} -> (NonPos m) -> (NonNeg n) -> NonPos (m * n)
+    *-NonPos-NonNeg {m} {n} np nn = subst NonPos (*-commute {n} {m}) (*-NonNeg-NonPos {n} {m} nn np)
 
-  *-Neg-Pos : {m n : Int} -> (Neg m) -> (Pos n) -> Neg (m * n)
-  *-Neg-Pos {m} {n} p1 p2 = subst Neg (*-commute {n} {m}) (*-Pos-Neg p2 p1)
+    *-Pos-Neg : {m n : Int} -> (Pos m) -> (Neg n) -> Neg (m * n)
+    *-Pos-Neg {pos zero} _ pr = +-Neg-NonPos pr (inj-r tt)
+    *-Pos-Neg {pos (suc m)} _ pr = +-Neg-Neg pr (*-Pos-Neg {pos m} tt pr)
 
-  *-NonNeg-NonNeg : {m n : Int} -> (NonNeg m) -> (NonNeg n) -> NonNeg (m * n)
-  *-NonNeg-NonNeg {zero-int} _ pr = (inj-r tt)
-  *-NonNeg-NonNeg {pos zero} _ pr = +-NonNeg-NonNeg pr (inj-r tt)
-  *-NonNeg-NonNeg {pos (suc m)} _ pr = +-NonNeg-NonNeg pr (*-Pos-NonNeg {pos m} tt pr)
-  *-NonNeg-NonNeg {neg m} (inj-l ())
-  *-NonNeg-NonNeg {neg m} (inj-r ())
+    *-Neg-Pos : {m n : Int} -> (Neg m) -> (Pos n) -> Neg (m * n)
+    *-Neg-Pos {m} {n} p1 p2 = subst Neg (*-commute {n} {m}) (*-Pos-Neg p2 p1)
 
-  *-Neg-Neg : {m n : Int} -> (Neg m) -> (Neg n) -> Pos (m * n)
-  *-Neg-Neg {neg m} {neg n} p1 p2 = subst Pos proof (*-Pos-Pos {pos m} {pos n} tt tt)
-    where
-    proof : (pos m) * (pos n) == (neg m) * (neg n)
-    proof = (ℤminus-extract-left {neg m} {pos n})
-            >=> (cong -_ (ℤminus-extract-right {neg m} {neg n}))
-            >=> (ℤminus-double-inverse {neg m * neg n})
+    *-NonNeg-NonNeg : {m n : Int} -> (NonNeg m) -> (NonNeg n) -> NonNeg (m * n)
+    *-NonNeg-NonNeg {zero-int} _ pr = (inj-r tt)
+    *-NonNeg-NonNeg {pos zero} _ pr = +-NonNeg-NonNeg pr (inj-r tt)
+    *-NonNeg-NonNeg {pos (suc m)} _ pr = +-NonNeg-NonNeg pr (*-Pos-NonNeg {pos m} tt pr)
+    *-NonNeg-NonNeg {neg m} (inj-l ())
+    *-NonNeg-NonNeg {neg m} (inj-r ())
 
-  *-NonZero-NonZero : {m n : Int} -> (NonZero m) -> (NonZero n) -> NonZero (m * n)
-  *-NonZero-NonZero {m} {n} (inj-l p1) (inj-l p2) = Pos->NonZero (*-Pos-Pos {m} {n} p1 p2)
-  *-NonZero-NonZero {m} {n} (inj-l p1) (inj-r p2) = Neg->NonZero (*-Pos-Neg {m} {n} p1 p2)
-  *-NonZero-NonZero {m} {n} (inj-r p1) (inj-l p2) = Neg->NonZero (*-Neg-Pos {m} {n} p1 p2)
-  *-NonZero-NonZero {m} {n} (inj-r p1) (inj-r p2) = Pos->NonZero (*-Neg-Neg {m} {n} p1 p2)
+    *-Neg-Neg : {m n : Int} -> (Neg m) -> (Neg n) -> Pos (m * n)
+    *-Neg-Neg {neg m} {neg n} p1 p2 = subst Pos proof (*-Pos-Pos {pos m} {pos n} tt tt)
+      where
+      proof : (pos m) * (pos n) == (neg m) * (neg n)
+      proof = (ℤminus-extract-left {neg m} {pos n}) >=>
+              (cong -_ (ℤminus-extract-right {neg m} {neg n})) >=>
+              minus-double-inverse
 
-  *-Zero₁ : {m n : Int} -> Zero m -> Zero (m * n)
-  *-Zero₁ {zero-int} {n} _ = subst Zero (sym (*-left-zero {n})) tt
-  *-Zero₂ : {m n : Int} -> Zero n -> Zero (m * n)
-  *-Zero₂ {m} {zero-int} _ = subst Zero (sym (*-right-zero {m})) tt
+    *-NonZero-NonZero : {m n : Int} -> (NonZero m) -> (NonZero n) -> NonZero (m * n)
+    *-NonZero-NonZero {m} {n} (inj-l p1) (inj-l p2) = Pos->NonZero (*-Pos-Pos {m} {n} p1 p2)
+    *-NonZero-NonZero {m} {n} (inj-l p1) (inj-r p2) = Neg->NonZero (*-Pos-Neg {m} {n} p1 p2)
+    *-NonZero-NonZero {m} {n} (inj-r p1) (inj-l p2) = Neg->NonZero (*-Neg-Pos {m} {n} p1 p2)
+    *-NonZero-NonZero {m} {n} (inj-r p1) (inj-r p2) = Pos->NonZero (*-Neg-Neg {m} {n} p1 p2)
 
-  *-NonZero₁ : {m n : Int} -> NonZero (m * n) -> NonZero m
-  *-NonZero₁ m@{pos _} n@{pos _}    _  = inj-l tt
-  *-NonZero₁ m@{pos _} n@{neg _}    _  = inj-l tt
-  *-NonZero₁ m@{pos _} n@{zero-int} (inj-l pn)  = bot-elim (subst Pos (*-right-zero {m}) pn)
-  *-NonZero₁ m@{pos _} n@{zero-int} (inj-r nn)  = bot-elim (subst Neg (*-right-zero {m}) nn)
-  *-NonZero₁ m@{neg _} n@{pos _}       _ = inj-r tt
-  *-NonZero₁ m@{neg _} n@{neg _}       _ = inj-r tt
-  *-NonZero₁ m@{neg _} n@{zero-int} (inj-l pn)  = bot-elim (subst Pos (*-right-zero {m}) pn)
-  *-NonZero₁ m@{neg _} n@{zero-int} (inj-r nn)  = bot-elim (subst Neg (*-right-zero {m}) nn)
-  *-NonZero₁ m@{zero-int} {n} (inj-l pn)  = bot-elim (subst Pos (*-left-zero {n}) pn)
-  *-NonZero₁ m@{zero-int} {n} (inj-r nn)  = bot-elim (subst Neg (*-left-zero {n}) nn)
+    *-Zero₁ : {m n : Int} -> Zero m -> Zero (m * n)
+    *-Zero₁ {zero-int} {n} _ = subst Zero (sym (*-left-zero {n})) tt
+    *-Zero₂ : {m n : Int} -> Zero n -> Zero (m * n)
+    *-Zero₂ {m} {zero-int} _ = subst Zero (sym (*-right-zero {m})) tt
+
+    *-NonZero₁ : {m n : Int} -> NonZero (m * n) -> NonZero m
+    *-NonZero₁ m@{pos _} n@{pos _}    _  = inj-l tt
+    *-NonZero₁ m@{pos _} n@{neg _}    _  = inj-l tt
+    *-NonZero₁ m@{pos _} n@{zero-int} (inj-l pn)  = bot-elim (subst Pos (*-right-zero {m}) pn)
+    *-NonZero₁ m@{pos _} n@{zero-int} (inj-r nn)  = bot-elim (subst Neg (*-right-zero {m}) nn)
+    *-NonZero₁ m@{neg _} n@{pos _}       _ = inj-r tt
+    *-NonZero₁ m@{neg _} n@{neg _}       _ = inj-r tt
+    *-NonZero₁ m@{neg _} n@{zero-int} (inj-l pn)  = bot-elim (subst Pos (*-right-zero {m}) pn)
+    *-NonZero₁ m@{neg _} n@{zero-int} (inj-r nn)  = bot-elim (subst Neg (*-right-zero {m}) nn)
+    *-NonZero₁ m@{zero-int} {n} (inj-l pn)  = bot-elim (subst Pos (*-left-zero {n}) pn)
+    *-NonZero₁ m@{zero-int} {n} (inj-r nn)  = bot-elim (subst Neg (*-left-zero {n}) nn)
 
   *-isSign : {s1 s2 : Sign} {m n : Int} -> isSign s1 m -> isSign s2 n -> isSign (s1 s* s2) (m * n)
   *-isSign {pos-sign}  {pos-sign}          i1 i2 = *-Pos-Pos i1 i2
