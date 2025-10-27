@@ -107,7 +107,7 @@ ex1-4' {a} {b} {n} rp g = handle (gcd->linear-combo rp)
         (lift-int (int 2)) * (int 1)
       ==< *-right-one >
         (lift-int (int 2))
-      ==< ℤ+-eval >=> cong ((int 1) +ᵉ_) ℤ+-eval >
+      ==< ℤ->ℤRing-id >
         (int 2)
       end
     res : n div (int 2)

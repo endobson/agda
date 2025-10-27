@@ -326,3 +326,19 @@ module _
     isSetD _ _ (Ringʰ.preserves-* h1 x y) (Ringʰ.preserves-* h2 x y) i
   isProp-Ringʰ h1 h2 i .Ringʰ.preserves-minus x =
     isSetD _ _ (Ringʰ.preserves-minus h1 x) (Ringʰ.preserves-minus h2 x) i
+
+module _
+    {ℓ : Level}
+    {D : Type ℓ}
+    {ACM : AdditiveCommMonoid D}
+    {S : Semiring ACM}
+    {AG : AdditiveGroup ACM}
+    {{R : Ring S AG}} where
+  Ringʰ-idFun : Ringʰᵉ R R (\x -> x)
+  Ringʰ-idFun = record
+    { preserves-0# = refl
+    ; preserves-1# = refl
+    ; preserves-+ = \_ _ -> refl
+    ; preserves-* = \_ _ -> refl
+    ; preserves-minus = \_ -> refl
+    }

@@ -203,3 +203,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
   ∃!ℤ->Ring : {{R : Ring S AG}} -> ∃! (ℤ -> D) Ringʰ
   ∃!ℤ->Ring = (lift-int , Ringʰ-lift-int) ,
               \(f , fʰ) -> ΣProp-path isProp-Ringʰ (unique-homo-path _ f Ringʰ-lift-int fʰ)
+
+
+ℤ->ℤRing-id : ∀ {x : ℤ} -> (∃!-val ∃!ℤ->Ring x) == x
+ℤ->ℤRing-id {x} i = ∃!-unique ∃!ℤ->Ring (\x -> x) Ringʰ-idFun i x
