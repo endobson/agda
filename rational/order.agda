@@ -13,6 +13,7 @@ open import fraction.order
 open import functions
 open import hlevel
 open import hlevel.htype
+open import int.addition
 open import isomorphism
 open import nat using (ℕ ; Nat⁺; 1⁺ ; 2⁺ ; _*⁺_)
 open import nat.exponentiation
@@ -1096,7 +1097,7 @@ private
     x2 = ((n⁺d⁺->ℚ' n d) r+' (r-' (1/ℕ' d)))
 
     NonNeg-numer : i.NonNeg (int n' + (- (int 1)))
-    NonNeg-numer = subst i.NonNeg (sym i.ℤ+-eval >=> +-commute) (i.NonNeg-nonneg n'')
+    NonNeg-numer = subst i.NonNeg (sym ℤ+-eval >=> +-commute) (i.NonNeg-nonneg n'')
 
     ans2 : NonNeg (same-denom-r+' (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d)))
     ans2 = NonNeg-nd->ℚ' (i.*-NonNeg-NonNeg NonNeg-numer (i.Pos->NonNeg (i.Pos'->Pos pos-d)))

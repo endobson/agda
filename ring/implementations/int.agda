@@ -13,6 +13,7 @@ open import equality
 open import hlevel
 open import int
 open import int.add1
+open import int.addition
 open import nat
 open import ring
 open import semiring

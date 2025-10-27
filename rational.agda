@@ -16,6 +16,7 @@ open import funext
 open import hlevel
 open import hlevel.htype
 open import int
+open import int.addition
 open import semidomain
 open import semidomain.instances.int
 open import isomorphism

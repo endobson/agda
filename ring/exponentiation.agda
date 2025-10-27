@@ -12,6 +12,7 @@ open import group
 open import group.int
 open import int
 open import int.add1
+open import int.addition
 open import int.elimination
 open import monoid
 open import nat

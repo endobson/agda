@@ -225,8 +225,8 @@ divisor-sum-μ-prime p =
     μ p⁺ + (μ⁰ 1 + μ⁰ 0)
   ==< (\i -> (μp==-1 p i) + ((μ1==1 i) + (int 0))) >
     (- (int 1)) + ((int 1) + (int 0))
-  ==< sym +-assoc >=> +-right-zero >=> ℤ+-eval >
-    (int 0)
+  ==< +-right +-right-zero >=> +-commute >=> +-inverse >
+    0#
   end
   where
   sum' = sum IntSemiring

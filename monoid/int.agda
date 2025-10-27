@@ -10,7 +10,7 @@ open import monoid
 --TODO remove
 Monoid-ℤ+ : Monoid ℤ
 Monoid-ℤ+ = record
-  { _∙_ = _ℤ+_
+  { _∙_ = _+_
   ; ε = (int 0)
   ; ∙-assoc = +-assoc
   ; ∙-left-ε = +-left-zero

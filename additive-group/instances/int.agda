@@ -4,6 +4,7 @@ module additive-group.instances.int where
 
 open import additive-group
 open import int
+open import int.addition
 
 
 instance
@@ -14,8 +15,8 @@ instance
         { ε = (int 0)
         ; _∙_ = _ℤ+_
         ; ∙-assoc = ℤ+-assoc
-        ; ∙-left-ε = ℤ+-left-zero
-        ; ∙-right-ε = ℤ+-right-zero
+        ; ∙-left-ε = ℤ+-left-zero _
+        ; ∙-right-ε = ℤ+-right-zero _
         ; isSet-Domain = isSetInt
         }
       ; ∙-commute = ℤ+-commute

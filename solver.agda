@@ -10,6 +10,7 @@ open import base
 open import equality
 open import fin
 open import int
+open import int.addition
 open import list
 open import nat
 open import nat.order
