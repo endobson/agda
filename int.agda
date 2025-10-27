@@ -288,19 +288,6 @@ abstract
     +-commute : {m n : Int} -> (m + n) == (n + m)
     +-commute {m} {n} = ℤ+-commute {m} {n}
 
-  +-left-injective : (m : Int) {n p : Int} -> (m + n) == (m + p) -> n == p
-  +-left-injective zero-int      path = path
-  +-left-injective (pos zero)    path = sym sub1-add1-id >=> cong sub1 path >=> sub1-add1-id
-  +-left-injective (pos (suc n)) path =
-    +-left-injective (pos n) (sym sub1-add1-id >=> cong sub1 path >=> sub1-add1-id)
-  +-left-injective (neg zero)    path = sym add1-sub1-id >=> cong add1 path >=> add1-sub1-id
-  +-left-injective (neg (suc n)) path =
-    +-left-injective (neg n) (sym add1-sub1-id >=> cong add1 path >=> add1-sub1-id)
-
-  +-right-injective : {m : Int} (n : Int) {p : Int} -> (m + n) == (p + n) -> m == p
-  +-right-injective {m} n {p} path =
-    +-left-injective n (+-commute {n} {m} >=> path >=> +-commute {p} {n})
-
   add1-NonNeg : {n : Int} -> (NonNeg n) -> (Pos (add1 n))
   add1-NonNeg {nonneg _} _ = tt
   add1-NonNeg {neg _} (inj-l ())

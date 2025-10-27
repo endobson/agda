@@ -13,6 +13,8 @@ open import nat.arithmetic
 open import nat.properties
 open import order
 open import relation
+open import ring.arithmetic
+open import ring.implementations.int
 open import sigma.base
 open import truncation
 
@@ -23,7 +25,7 @@ private
   isProp-ℤ≤ : {i j : Int} -> isProp (i ℤ≤ j)
   isProp-ℤ≤ {i} (x1 , p1) (x2 , p2) =
     ΣProp-path (isSetInt _ _)
-      (nonneg-injective (+-right-injective i (p1 >=> sym p2)))
+      (nonneg-injective (+-right-injective (p1 >=> sym p2)))
 
 
   refl-ℤ≤ : Reflexive _ℤ≤_
@@ -41,7 +43,7 @@ private
       m+'n==0->m==0
         (nonneg-injective
           (ℕ->ℤ-+ >=>
-            (+-right-injective i (+-assoc >=> +-right p1 >=> p2 >=> sym +-left-zero))))
+            (+-right-injective (+-assoc >=> +-right p1 >=> p2 >=> sym +-left-zero))))
 
 
   _ℤ<_ : Int -> Int -> Type₀
@@ -50,13 +52,13 @@ private
   isProp-ℤ< : {i j : Int} -> isProp (i ℤ< j)
   isProp-ℤ< {i} (x1 , p1) (x2 , p2) =
     ΣProp-path (isSetInt _ _)
-      (ΣProp-path isPropPos' (nonneg-injective (+-right-injective i (p1 >=> sym p2))))
+      (ΣProp-path isPropPos' (nonneg-injective (+-right-injective (p1 >=> sym p2))))
 
   irrefl-ℤ< : Irreflexive _ℤ<_
   irrefl-ℤ< {i} (x⁺@(x , pos-x) , p) = subst Pos' x-path pos-x
     where
     x-path : x == 0
-    x-path = nonneg-injective (+-right-injective i (p >=> sym +-left-zero))
+    x-path = nonneg-injective (+-right-injective (p >=> sym +-left-zero))
 
   trans-ℤ< : Transitive _ℤ<_
   trans-ℤ< {i} {j} {k} (x1⁺@(x1 , _) , p1) (x2⁺@(x2 , _) , p2) = ((x2⁺ +⁺ x1⁺) , path2)

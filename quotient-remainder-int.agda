@@ -15,6 +15,7 @@ open import nat.order
 open import ordered-semiring
 open import ordered-semiring.instances.nat
 open import ring
+open import ring.arithmetic
 open import ring.implementations.int
 open import semiring
 
@@ -261,7 +262,7 @@ private
   remainder-unique : (d : Nat⁺) (n : Int) -> (qr2 : QuotientRemainder d n) ->
                      (QuotientRemainder.r qr2) == (remainder n d)
   remainder-unique d n qr2 =
-    fin-i-path (nonneg-injective (+-left-injective (qr1.q * d') p2))
+    fin-i-path (nonneg-injective (+-left-injective p2))
     where
     module qr1 = QuotientRemainder (quotient-remainder d n)
     module qr2 = QuotientRemainder qr2
