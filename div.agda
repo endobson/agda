@@ -12,6 +12,7 @@ open import fin
 open import functions
 open import hlevel
 open import int
+open import int.elimination
 open import nat
 open import nat.order
 open import order

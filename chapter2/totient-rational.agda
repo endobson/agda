@@ -16,6 +16,7 @@ open import finite-product
 open import finset
 open import funext
 open import int
+open import int.add1
 open import nat
 open import nat.order
 open import order

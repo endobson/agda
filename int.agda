@@ -6,6 +6,7 @@ open import base
 open import discrete
 open import equality
 open import hlevel
+open import int.add1
 open import monoid
 open import nat
 open import nat.order
@@ -20,11 +21,6 @@ open import int.sign public
 
 open EqReasoning
 
-ℤ-_ : Int -> Int
-ℤ- zero-int = zero-int
-ℤ- (pos n) = neg n
-ℤ- (neg n) = pos n
-
 private
   infix 9 -_
   -_ : Int -> Int
@@ -38,16 +34,6 @@ abstract
 
   minus-injective : {x y : Int} -> - x == - y -> x == y
   minus-injective p = sym ℤminus-double-inverse >=> cong (-_) p >=> ℤminus-double-inverse
-
-add1 : Int -> Int
-add1 (nonneg x) = (nonneg (suc x))
-add1 (neg zero) = (nonneg zero)
-add1 (neg (suc x)) = (neg x)
-
-sub1 : Int -> Int
-sub1 (nonneg zero) = neg zero
-sub1 (nonneg (suc n)) = nonneg n
-sub1 (neg n) = (neg (suc n))
 
 infixl 6 _+ᵉ_
 _+ᵉ_ : Int -> Int -> Int
@@ -72,17 +58,6 @@ private
 abstract
   ℤ+-eval : {m n : Int} -> m + n == m +ᵉ n
   ℤ+-eval = refl
-
-  add1-sub1-id : {n : Int} -> add1 (sub1 n) == n
-  add1-sub1-id {zero-int} = refl
-  add1-sub1-id {pos n'} = refl
-  add1-sub1-id {neg zero} = refl
-  add1-sub1-id {neg (suc x)} = refl
-
-  sub1-add1-id : {n : Int} -> sub1 (add1 n) == n
-  sub1-add1-id {nonneg n} = refl
-  sub1-add1-id {neg zero} = refl
-  sub1-add1-id {neg (suc n')} = refl
 
   add1-extract-left : {m n : Int} -> add1 m + n == add1 (m + n)
   sub1-extract-left : {m n : Int} -> sub1 m + n == sub1 (m + n)
@@ -373,20 +348,6 @@ abstract
   minus-NonNeg {pos _}    _ = inj-l tt
   minus-NonNeg {neg _} (inj-l ())
   minus-NonNeg {neg _} (inj-r ())
-
-
-  add1-minus->minus-sub1 : {n : Int} -> add1 (- n) == - (sub1 n)
-  add1-minus->minus-sub1 {neg zero} = refl
-  add1-minus->minus-sub1 {neg (suc n)} = refl
-  add1-minus->minus-sub1 {nonneg zero} = refl
-  add1-minus->minus-sub1 {nonneg (suc zero)} = refl
-  add1-minus->minus-sub1 {nonneg (suc (suc _))} = refl
-
-  sub1-minus->minus-add1 : {n : Int} -> sub1 (- n) == - (add1 n)
-  sub1-minus->minus-add1 {nonneg zero} = refl
-  sub1-minus->minus-add1 {nonneg (suc n')} = refl
-  sub1-minus->minus-add1 {neg zero} = refl
-  sub1-minus->minus-add1 {neg (suc n')} = refl
 
 
   add-minus-zero : {n : Int} -> n + - n == zero-int
@@ -1057,57 +1018,3 @@ abstract
 ℕ->ℤ-* : {m n : Nat} -> int (m *' n) == int m * int n
 ℕ->ℤ-* {zero} = sym *-left-zero
 ℕ->ℤ-* {suc m} = ℕ->ℤ-+ >=> +-right ℕ->ℤ-* >=> sym add1-extract-*
-
--- Elimination procedures
-
-IntElim-add1sub1-elim : {ℓ : Level} {P : Int -> Type ℓ}
-                        (f-z : P zero-int)
-                        (f-add1 : (n : Int) -> P n -> P (add1 n))
-                        (f-sub1 : (n : Int) -> P n -> P (sub1 n))
-                        (n : Int) -> P n
-IntElim-add1sub1-elim f-z f-add1 f-sub1 (nonneg zero) = f-z
-IntElim-add1sub1-elim f-z f-add1 f-sub1 (nonneg (suc n)) =
-  f-add1 (nonneg n) (IntElim-add1sub1-elim f-z f-add1 f-sub1 (nonneg n))
-IntElim-add1sub1-elim f-z f-add1 f-sub1 (neg zero) = f-sub1 (int 0) f-z
-IntElim-add1sub1-elim f-z f-add1 f-sub1 (neg (suc n)) =
-  f-sub1 (neg n) (IntElim-add1sub1-elim f-z f-add1 f-sub1 (neg n))
-
-IntElim-add1minus-elim : {ℓ : Level} {P : Int -> Type ℓ}
-                         (f-z : P zero-int)
-                         (f-add1 : (n : Int) -> P n -> P (add1 n))
-                         (f-minus : (n : Int) -> P n -> P (- n))
-                         (n : Int) -> P n
-IntElim-add1minus-elim f-z f-add1 f-minus (nonneg zero) = f-z
-IntElim-add1minus-elim f-z f-add1 f-minus (nonneg (suc n)) =
-  f-add1 (nonneg n) (IntElim-add1minus-elim f-z f-add1 f-minus (nonneg n))
-IntElim-add1minus-elim f-z f-add1 f-minus (neg zero) =
-  f-minus _ (f-add1 (int 0) f-z)
-IntElim-add1minus-elim f-z f-add1 f-minus (neg (suc n)) =
-  f-minus _ (f-add1 _ (f-minus _ (IntElim-add1minus-elim f-z f-add1 f-minus (neg n))))
-
-IntElim-sucminus-elim : {ℓ : Level} {P : Int -> Type ℓ}
-                        (f-z : P zero-int)
-                        (f-suc : (n : Nat) -> P (int n) -> P (int (suc n)))
-                        (f-minus : (n : Int) -> P n -> P (- n))
-                        (n : Int) -> P n
-IntElim-sucminus-elim f-z f-suc f-minus (nonneg zero) = f-z
-IntElim-sucminus-elim f-z f-suc f-minus (nonneg (suc n)) =
-  f-suc n (IntElim-sucminus-elim f-z f-suc f-minus (nonneg n))
-IntElim-sucminus-elim f-z f-suc f-minus (neg zero) =
-  f-minus _ (f-suc 0 f-z)
-IntElim-sucminus-elim f-z f-suc f-minus (neg (suc n)) =
-  f-minus _ (f-suc _ (f-minus _ (IntElim-sucminus-elim f-z f-suc f-minus (neg n))))
-
-IntElim-ℕminus-elim : {ℓ : Level} {P : Int -> Type ℓ}
-                      (f-ℕ : (n : Nat) -> P (int n))
-                      (f-minus : (n : Int) -> P n -> P (- n))
-                      (n : Int) -> P n
-IntElim-ℕminus-elim f-ℕ f-minus (nonneg n) = f-ℕ n
-IntElim-ℕminus-elim f-ℕ f-minus (neg n) = (f-minus _ (f-ℕ (suc n)))
-
-IntElim-ℕminus'-elim : {ℓ : Level} {P : Int -> Type ℓ}
-                       (f-ℕ : (n : Nat) -> P (int n))
-                       (f-minus : (n : Nat) -> P (int n) -> P (- (int n)))
-                       (n : Int) -> P n
-IntElim-ℕminus'-elim f-ℕ f-minus (nonneg n) = f-ℕ n
-IntElim-ℕminus'-elim f-ℕ f-minus (neg n) = (f-minus _ (f-ℕ (suc n)))

@@ -11,6 +11,7 @@ open import equality
 open import functions
 open import funext
 open import int
+open import int.elimination
 open import monoid
 open import nat
 open import nat.monoid-homomorphism

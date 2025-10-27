@@ -20,3 +20,8 @@ int = nonneg
 
 ℕ->ℤ : Nat -> Int
 ℕ->ℤ = nonneg
+
+ℤ-_ : Int -> Int
+ℤ- zero-int = zero-int
+ℤ- (pos n) = neg n
+ℤ- (neg n) = pos n

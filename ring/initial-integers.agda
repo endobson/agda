@@ -7,6 +7,8 @@ open import base
 open import equality
 open import functions
 open import int
+open import int.add1
+open import int.elimination
 open import ring
 open import funext
 open import ring.implementations.int

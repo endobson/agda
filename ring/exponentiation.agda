@@ -11,6 +11,8 @@ open import equality
 open import group
 open import group.int
 open import int
+open import int.add1
+open import int.elimination
 open import monoid
 open import nat
 open import nat.even-odd
@@ -130,7 +132,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     u^ℤ-distrib-+-NonNeg {b} {int.neg x} (inj-r ())
 
     u^ℤ-distrib-+ : {b : Unit} {x y : ℤ} -> b u^ℤ (x + y) == (b u^ℤ x) u* (b u^ℤ y)
-    u^ℤ-distrib-+ {b} {x} {y} = int.IntElim-add1sub1-elim z add1-case sub1-case x
+    u^ℤ-distrib-+ {b} {x} {y} = IntElim-add1sub1-elim z add1-case sub1-case x
       where
       P : ℤ -> Type ℓD
       P x = b u^ℤ (x + y) == (b u^ℤ x) u* (b u^ℤ y)
