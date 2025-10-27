@@ -12,6 +12,8 @@ open import hlevel
 open import int
 open import int.add1
 open import int.addition
+open import int.multiplication
+open import int.nat
 open import nat
 open import nat.order
 open import ordered-semiring

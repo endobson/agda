@@ -11,6 +11,7 @@ open import fin
 open import functions
 open import hlevel
 open import int
+open import int.nat
 open import nat
 open import nat.order
 open import quotient-remainder-int

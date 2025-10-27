@@ -10,6 +10,7 @@ open import div
 open import equality
 open import gcd.propositional
 open import int
+open import int.nat
 open import int.order
 open import linear-combo
 open import nat

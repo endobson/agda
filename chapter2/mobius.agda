@@ -24,7 +24,8 @@ open import finsum.sigma
 open import functions
 open import funext
 open import isomorphism
-open import int
+open import int.base
+open import int.multiplication
 open import list
 open import maybe
 open import nat

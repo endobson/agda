@@ -9,6 +9,7 @@ open import equality
 open import int
 open import int.add1
 open import int.addition
+open import int.multiplication
 open import int.order
 open import nat
 open import order

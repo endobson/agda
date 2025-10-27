@@ -17,6 +17,8 @@ open import hlevel
 open import hlevel.htype
 open import int
 open import int.addition
+open import int.cover
+open import int.nat
 open import semidomain
 open import semidomain.instances.int
 open import isomorphism
@@ -63,7 +65,7 @@ Discrete-ℚ' q1@(ℚ'-cons n1 d1 nz1) q2@(ℚ'-cons n2 d2 nz2) =
     no (d1!=d2 ∘ (cong denom))
   handle (yes n1=n2) (yes d1=d2) =
     yes (\i -> (ℚ'-cons (n1=n2 i) (d1=d2 i)
-                        (isProp->PathPᵉ (\i -> int.isPropNonZero {d1=d2 i}) nz1 nz2 i)))
+                        (isProp->PathPᵉ (\i -> isPropNonZero {d1=d2 i}) nz1 nz2 i)))
 
 isSet-ℚ' : isSet ℚ'
 isSet-ℚ' = Discrete->isSet Discrete-ℚ'
@@ -149,7 +151,7 @@ nd-paths->path a b pn pd = (\i -> record
   })
   where
   pnz : PathP (\i -> NonZero (pd i)) (rNonZero a) (rNonZero b)
-  pnz = isProp->PathP (\_ -> int.isPropNonZero)
+  pnz = isProp->PathP (\_ -> isPropNonZero)
 
 isSet-ℚᵉ : isSet ℚᵉ
 isSet-ℚᵉ = squash/

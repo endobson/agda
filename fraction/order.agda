@@ -1,14 +1,16 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
 open import additive-group
-open import apartness
-open import apartness.instances.int
 open import additive-group.instances.int
 open import additive-group.instances.nat
+open import apartness
+open import apartness.instances.int
 open import base
 open import equality
 open import fraction.sign
 open import hlevel
+open import int.nat
+open import nat
 open import order
 open import order.instances.int
 open import order.instances.nat
@@ -16,16 +18,15 @@ open import rational
 open import relation
 open import ring
 open import ring.implementations.int
-open import semiring
 open import semidomain
 open import semidomain.instances.int
+open import semiring
 open import sign
-open import sign.instances.int
 open import sign.instances.fraction
+open import sign.instances.int
 open import truncation
 
 import int
-import nat
 
 module i = int
 open i using (int)
@@ -453,7 +454,7 @@ antisym~-ℚ'≤ {a} {b} a≤b b≤a = handle (trichotomous~-ℚ'< a b)
 
   path2 : int (c + suc a) + (- (int a)) == i.pos c
   path2 = +-left (cong int nat.+'-right-suc) >=>
-          +-left i.ℕ->ℤ-+ >=>
+          +-left ℕ->ℤ-+ >=>
           +-assoc >=>
           +-right +-inverse >=>
           +-right-zero

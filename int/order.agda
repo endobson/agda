@@ -8,6 +8,8 @@ open import base
 open import equality-path
 open import int
 open import int.addition
+open import int.base
+open import int.nat
 open import order
 open import order.instances.int
 open import order.instances.nat

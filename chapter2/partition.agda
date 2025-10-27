@@ -23,6 +23,7 @@ open import gcd.euclidean-algorithm
 open import gcd.propositional
 open import hlevel
 open import int
+open import int.nat
 open import isomorphism
 open import linear-combo
 open import nat

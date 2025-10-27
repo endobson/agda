@@ -11,7 +11,8 @@ open import equivalence
 open import fin
 open import gcd.euclidean-algorithm
 open import hlevel
-open import int
+open import int.base
+open import int.nat
 open import isomorphism
 open import linear-combo
 open import modular-integers

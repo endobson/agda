@@ -11,9 +11,11 @@ open import commutative-monoid
 open import monoid
 open import equality
 open import hlevel
-open import int
 open import int.add1
 open import int.addition
+open import int.base
+open import int.cover
+open import int.multiplication
 open import nat
 open import ring
 open import semiring

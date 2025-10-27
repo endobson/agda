@@ -6,7 +6,8 @@ open import additive-group
 open import additive-group.instances.int
 open import base
 open import equality-path
-open import int
+open import int.base
+open import int.nat
 open import nat.arithmetic
 open import order
 open import order.instances.int

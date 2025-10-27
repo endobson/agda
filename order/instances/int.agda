@@ -8,7 +8,9 @@ open import additive-group.instances.nat
 open import base
 open import equality-path
 open import hlevel.base
-open import int
+open import int.base
+open import int.cover
+open import int.nat
 open import nat.arithmetic
 open import nat.properties
 open import order

@@ -9,7 +9,8 @@ open import additive-group.instances.reader
 open import base
 open import equality
 open import fin
-open import int
+open import int.base
+open import int.multiplication
 open import int.addition
 open import list
 open import nat
@@ -35,7 +36,7 @@ data RingSyntax (n : Nat) : Type₀ where
   _⊕_ : RingSyntax n -> RingSyntax n -> RingSyntax n
   _⊗_ : RingSyntax n -> RingSyntax n -> RingSyntax n
   ⊖_ : RingSyntax n -> RingSyntax n
-  ©_ : int.Int -> RingSyntax n
+  ©_ : Int -> RingSyntax n
   var : Fin n -> RingSyntax n
 
 
@@ -202,7 +203,7 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
       record Term : Type₀ where
         constructor term
         field
-          multiplier : int.Int
+          multiplier : Int
           vars : Vars
 
       Terms : Type₀
@@ -213,7 +214,7 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
         field
           terms : Terms
 
-      lift-int : int.Int -> Meaning
+      lift-int : Int -> Meaning
       lift-int = ∃!-val ∃!ℤ->Ring
 
       compare-vars : (x y : Vars) -> Order x y
@@ -223,10 +224,10 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
 
       term-* : Term -> Term -> Term
       term-* (term m1 vs1) (term m2 vs2) =
-        (term (m1 int.*ᵉ m2) (insertion-sort fin< (vs1 ++ vs2)))
+        (term (m1 *ᵉ m2) (insertion-sort fin< (vs1 ++ vs2)))
 
       minus-one-term : Term
-      minus-one-term = (term (- (int.int 1)) [])
+      minus-one-term = (term (- (int 1)) [])
 
       term-- : Term -> Term
       term-- = term-* minus-one-term
@@ -270,11 +271,11 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
 
       filter-zero-terms : Terms -> Terms
       filter-zero-terms [] = []
-      filter-zero-terms ((term (int.zero-int) vars) :: terms) =
+      filter-zero-terms ((term (zero-int) vars) :: terms) =
         filter-zero-terms terms
-      filter-zero-terms (t@(term (int.pos _) vars) :: terms) =
+      filter-zero-terms (t@(term (pos _) vars) :: terms) =
         t :: filter-zero-terms terms
-      filter-zero-terms (t@(term (int.neg _) vars) :: terms) =
+      filter-zero-terms (t@(term (neg _) vars) :: terms) =
         t :: filter-zero-terms terms
 
 
@@ -291,7 +292,7 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
       expr-- (expr terms) = (expr (map term-- terms))
 
       normalize : RingSyntax n -> Expr
-      normalize (var i) = expr ((term (int.int 1) (i :: [])) :: [])
+      normalize (var i) = expr ((term (int 1) (i :: [])) :: [])
       normalize (© x) = expr ((term x []) :: [])
       normalize (l ⊕ r) = expr-+ (normalize l) (normalize r)
       normalize (l ⊗ r) = expr-* (normalize l) (normalize r)
@@ -457,15 +458,15 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
         begin
           ⟦ (term-* t1 t2) ⟧term
         ==<>
-          ⟦ (term (m1 int.*ᵉ m2) (insertion-sort fin< (vs1 ++ vs2))) ⟧term
+          ⟦ (term (m1 *ᵉ m2) (insertion-sort fin< (vs1 ++ vs2))) ⟧term
         ==<>
-          (lift-int (m1 int.*ᵉ m2)) * ⟦ (insertion-sort fin< (vs1 ++ vs2)) ⟧vars
-        ==< *-left (cong lift-int (sym int.ℤ*-eval)) >
-          (lift-int (m1 int.ℤ* m2)) * ⟦ (insertion-sort fin< (vs1 ++ vs2)) ⟧vars
+          (lift-int (m1 *ᵉ m2)) * ⟦ (insertion-sort fin< (vs1 ++ vs2)) ⟧vars
+        ==< *-left (cong lift-int (sym ℤ*-eval)) >
+          (lift-int (m1 * m2)) * ⟦ (insertion-sort fin< (vs1 ++ vs2)) ⟧vars
         ==< *-right (insertion-sort-vars≈ (vs1 ++ vs2)) >
-          (lift-int (m1 int.ℤ* m2)) * ⟦ (vs1 ++ vs2) ⟧vars
+          (lift-int (m1 * m2)) * ⟦ (vs1 ++ vs2) ⟧vars
         ==< *-right (++-vars≈ vs1 vs2) >
-          (lift-int (m1 int.ℤ* m2)) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars)
+          (lift-int (m1 * m2)) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars)
         ==< *-left (Ringʰ.preserves-* (∃!-prop ∃!ℤ->Ring) _ _) >
           ((lift-int m1) * (lift-int m2)) * (⟦ vs1 ⟧vars * ⟦ vs2 ⟧vars)
         ==< *-assoc >
@@ -536,7 +537,7 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
       filtered-terms≈ :
         ∀ ts -> ⟦ (filter-zero-terms ts) ⟧terms == ⟦ ts ⟧terms
       filtered-terms≈ [] = refl
-      filtered-terms≈ (t@(term (int.zero-int) _) :: ts) =
+      filtered-terms≈ (t@(term zero-int _) :: ts) =
         begin
           ⟦ (filter-zero-terms (t :: ts)) ⟧terms
         ==<>
@@ -553,9 +554,9 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
         where
         zero-term≈ : ⟦ t ⟧term == 0#
         zero-term≈ = *-left-zero
-      filtered-terms≈ (t@(term (int.neg _) vars) :: ts) =
+      filtered-terms≈ (t@(term (neg _) vars) :: ts) =
         +-right (filtered-terms≈ ts)
-      filtered-terms≈ (t@(term (int.pos _) vars) :: ts) =
+      filtered-terms≈ (t@(term (pos _) vars) :: ts) =
         +-right (filtered-terms≈ ts)
 
 
@@ -572,9 +573,9 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
         begin
           ⟦ minus-one-term ⟧term
         ==<>
-          ⟦ (term (- (int.int 1)) []) ⟧term
+          ⟦ (term (- (int 1)) []) ⟧term
         ==< *-right-one >
-          (lift-int (- (int.int 1)))
+          (lift-int (- (int 1)))
         ==< cong -_ +-right-zero >
           - 1#
         end
@@ -598,9 +599,9 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
         begin
           ⟦ (var i) ⇓⟧
         ==<>
-          ⟦ ((term (int.int 1) (i :: [])) :: []) ⟧terms
+          ⟦ ((term (int 1) (i :: [])) :: []) ⟧terms
         ==< +-right-zero >
-          ⟦ (term (int.int 1) (i :: [])) ⟧term
+          ⟦ (term (int 1) (i :: [])) ⟧term
         ==< *-left (+-right-zero) >=> *-left-one >
           ⟦ (i :: []) ⟧vars
         ==< *-right-one >

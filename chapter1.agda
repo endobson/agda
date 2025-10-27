@@ -11,6 +11,8 @@ open import equality
 open import gcd.euclidean-algorithm
 open import gcd.propositional
 open import int
+open import int.multiplication
+open import int.nat
 open import linear-combo
 open import nat
 open import nat.order
