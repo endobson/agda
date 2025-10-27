@@ -83,7 +83,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
   a u^ℤ (int.neg n) = u1/ (a u^ℕ (suc n))
 
   private
-    u^ℤ-add1 : (u : Unit) (x : ℤ) -> u u^ℤ (int.add1 x) == u u* (u u^ℤ x)
+    u^ℤ-add1 : (u : Unit) (x : ℤ) -> u u^ℤ (add1 x) == u u* (u u^ℤ x)
     u^ℤ-add1 u (int.nonneg n) = refl
     u^ℤ-add1 u@(u' , is-u)  (int.neg zero) = path
       where
@@ -101,7 +101,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
         >=> cong (_u* (u1/ (u u^ℕ (suc n)))) R.u1/-right-inverse
         >=> Monoid.∙-left-ε R.Monoid-u*
 
-  u^ℤ-sub1 : (u : Unit) (x : ℤ) -> u u^ℤ (int.sub1 x) == (u1/ u) u* (u u^ℤ x)
+  u^ℤ-sub1 : (u : Unit) (x : ℤ) -> u u^ℤ (sub1 x) == (u1/ u) u* (u u^ℤ x)
   u^ℤ-sub1 u (int.nonneg zero) = ΣProp-path R.isProp-isUnit refl
   u^ℤ-sub1 u (int.nonneg (suc n)) =
     sym (Monoid.∙-left-ε R.Monoid-u*) >=>
@@ -121,7 +121,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     u^ℤ-distrib-+-NonNeg {b} {int.zero-int} _ =
       cong (b u^ℤ_) +-left-zero >=> sym (Monoid.∙-left-ε R.Monoid-u*)
     u^ℤ-distrib-+-NonNeg {b} {int.nonneg (suc x)} {y} _ =
-      cong (b u^ℤ_) int.add1-extract-left
+      cong (b u^ℤ_) add1-extract-left
       >=> u^ℤ-add1 b ((int.int x) + y)
       >=> cong (b u*_) (u^ℤ-distrib-+-NonNeg {b} {int.nonneg x} {y} (int.NonNeg-nonneg x))
       >=> sym (Monoid.∙-assoc R.Monoid-u*)
@@ -137,16 +137,16 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
 
       z : P (int.int 0)
       z = cong (b u^ℤ_) +-left-zero >=> sym (Monoid.∙-left-ε R.Monoid-u*)
-      add1-case : (x : ℤ) -> (P x) -> (P (int.add1 x))
+      add1-case : (x : ℤ) -> (P x) -> (P (add1 x))
       add1-case x p =
-        cong (b u^ℤ_) (int.add1-extract-left) >=>
+        cong (b u^ℤ_) (add1-extract-left) >=>
         u^ℤ-add1 b (x + y) >=> cong (b u*_) p >=>
         sym (Monoid.∙-assoc R.Monoid-u*) >=>
         cong (_u* (b u^ℤ y)) (sym (u^ℤ-add1 b x))
 
-      sub1-case : (x : ℤ) -> (P x) -> (P (int.sub1 x))
+      sub1-case : (x : ℤ) -> (P x) -> (P (sub1 x))
       sub1-case x p =
-        cong (b u^ℤ_) (int.sub1-extract-left) >=>
+        cong (b u^ℤ_) sub1-extract-left >=>
         u^ℤ-sub1 b (x + y) >=> cong ((u1/ b) u*_) p >=>
         sym (Monoid.∙-assoc R.Monoid-u*) >=>
         cong (_u* (b u^ℤ y)) (sym (u^ℤ-sub1 b x))

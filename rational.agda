@@ -539,7 +539,7 @@ opaque
     nb = numer b
     db = denom b
     path : (- ((na * db) + (nb * da))) == (((- na) * db) + ((- nb) * da))
-    path = int.minus-distrib-+ >=> cong2 _+_ (sym minus-extract-left) (sym minus-extract-left)
+    path = minus-distrib-plus >=> cong2 _+_ (sym minus-extract-left) (sym minus-extract-left)
 
   r-'-double-inverse : (a : ℚ') -> r-' (r-' a) == a
   r-'-double-inverse _ = nd-paths->path _ _ minus-double-inverse refl
@@ -552,7 +552,7 @@ opaque
   r+'-inverse a =
     *-right-one
     >=> sym (*-distrib-+-right)
-    >=> cong (_* da) (int.add-minus-zero {na})
+    >=> cong (_* da) +-inverse
     >=> *-left-zero
     >=> sym *-left-zero
     where
@@ -950,7 +950,7 @@ opaque
   2r-path-base = cong [_] (nd-paths->path _ _ n-path d-path)
     where
     2z-path : (int 1) + (int 1) == (int 2)
-    2z-path = int.add1-extract-right >=> sym int.add1-extract-left >=> +-right-zero
+    2z-path = add1-extract-right >=> sym add1-extract-left >=> +-right-zero
 
     n-path : numer (1r' r+' 1r') == numer 2r'
     n-path = cong numer (r+'-eval {1r'} {1r'}) >=> (cong2 _+_ *-left-one *-left-one) >=> 2z-path

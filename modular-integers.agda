@@ -45,7 +45,7 @@ module _ {n : Nat} where
     _~_ = CongruentMod n
 
   refl-~ : Reflexive _~_
-  refl-~ {x} = (congruent-mod ((int 0) , *-left-zero >=> sym int.add-minus-zero))
+  refl-~ {x} = (congruent-mod ((int 0) , *-left-zero >=> sym +-inverse))
 
   sym-~ : Symmetric _~_
   sym-~ {x} {y} (congruent-mod n%xy) = congruent-mod (subst (_ div_) p (div-negate⁺ n%xy))
@@ -60,7 +60,7 @@ module _ {n : Nat} where
     n%xz = d1 + d2 ,
            *-distrib-+-right >=> cong2 _+_ p1 p2 >=> +-assoc >=>
            +-right (sym +-assoc >=>
-                    +-left (+-commute >=> int.add-minus-zero) >=>
+                    +-left (+-commute >=> +-inverse) >=>
                     +-left-zero)
 
   isEquivRel-~ : isEquivRel _~_
@@ -154,7 +154,7 @@ module _ {n : Nat} where
     i--~ x1 x2 (congruent-mod n%ab) = (congruent-mod d)
       where
       d : (int n) div ((- x1) + (- (- x2)))
-      d = subst ((int n) div_) minus-distrib-+ (div-negate⁺ n%ab)
+      d = subst ((int n) div_) minus-distrib-plus (div-negate⁺ n%ab)
 
 
     z-'-~ : (x1 x2 : ℤ) -> (x1 ~ x2) -> [ - x1 ] == [ - x2 ]
@@ -200,7 +200,7 @@ module _ (n⁺ : Nat⁺) where
         (d * ni) + ((qry.q * ni) + qry.ri)
       ==< cong2 _+_ p y-path >
         (x + (- y)) + y
-      ==< +-assoc >=> +-right (+-commute >=> int.add-minus-zero) >=> +-right-zero >
+      ==< +-assoc >=> +-right (+-commute >=> +-inverse) >=> +-right-zero >
         x
       end
 
@@ -232,7 +232,7 @@ module _ (n⁺ : Nat⁺) where
         module qr = QuotientRemainder (quotient-remainder n⁺ i)
         r : i ~ (int (Fin.i qr.r))
         r = congruent-mod (qr.q ,
-              sym +-right-zero >=> +-right (sym (int.add-minus-zero)) >=>
+              sym +-right-zero >=> +-right (sym +-inverse) >=>
               sym +-assoc >=> +-left qr.path)
 
   ℤ/nℤ-Fin-eq : ℤ/nℤ n ≃ Fin n
@@ -451,7 +451,7 @@ module _ (n⁺ : Nat⁺) where
       d%x : d div x
       d%x = subst (d div_)
             (+-assoc >=>
-             +-right (+-commute >=> int.add-minus-zero) >=>
+             +-right (+-commute >=> +-inverse) >=>
              +-right-zero)
             d%xyy
 
@@ -490,7 +490,7 @@ module _ (n⁺ : Nat⁺) where
         d%xy = div-mult' d%x y
 
         xy-path : ((int 1) + (- (x * y))) + (x * y) == (int 1)
-        xy-path = +-assoc >=> +-right (+-commute >=> int.add-minus-zero) >=>
+        xy-path = +-assoc >=> +-right (+-commute >=> +-inverse) >=>
                   +-right-zero
 
         d%1 : d div (int 1)
@@ -510,9 +510,9 @@ module _ (n⁺ : Nat⁺) where
 
       path : (- lc.x) * (int n) == x * lc.y + (- (int 1))
       path = minus-extract-left >=>
-             cong -_ (sym +-right-zero >=> +-right (sym (add-minus-zero {lc.y * x})) >=>
+             cong -_ (sym +-right-zero >=> +-right (sym +-inverse) >=>
                       sym +-assoc >=> +-left lc.path >=> +-commute) >=>
-             minus-distrib-+ >=> +-left minus-double-inverse >=>
+             minus-distrib-plus >=> +-left minus-double-inverse >=>
              +-left *-commute
         where
         open int
@@ -543,9 +543,9 @@ module _ (n⁺ : Nat⁺) where
 
       path : (- lc.x) * (int n) == x * lc.y + (- (int 1))
       path = minus-extract-left >=>
-             cong -_ (sym +-right-zero >=> +-right (sym (add-minus-zero {lc.y * x})) >=>
+             cong -_ (sym +-right-zero >=> +-right (sym +-inverse) >=>
                       sym +-assoc >=> +-left lc.path >=> +-commute) >=>
-             minus-distrib-+ >=> +-left minus-double-inverse >=>
+             minus-distrib-plus >=> +-left minus-double-inverse >=>
              +-left *-commute
         where
         open int

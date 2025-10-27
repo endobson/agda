@@ -80,14 +80,14 @@ private
 
   split-ℤ< : HeteroConnex' _ℤ<_ _ℤ≤_
   split-ℤ< i j =
-    handle (i + (- j)) (+-assoc >=> +-right (+-commute >=> add-minus-zero) >=> +-right-zero)
+    handle (i + (- j)) (+-assoc >=> +-right (+-commute >=> +-inverse) >=> +-right-zero)
     where
     handle : (k : Int) -> k + j == i -> (i ℤ< j) ⊎ (j ℤ≤ i)
     handle (nonneg k) p = inj-r (k , p)
     handle (neg k) p = inj-l ((suc k , tt) , sym path)
       where
       path : j == (pos k) + i
-      path = sym +-left-zero >=> +-left (sym add-minus-zero) >=> +-assoc >=> cong ((pos k) +_) p
+      path = sym +-left-zero >=> +-left (sym +-inverse) >=> +-assoc >=> cong ((pos k) +_) p
 
   comparison-ℤ< : {i j : Int} -> (i ℤ< j) -> (k : Int) ->  (i ℤ< k) ⊎ (k ℤ< j)
   comparison-ℤ< {i} {j} i<j k =

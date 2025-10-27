@@ -255,7 +255,7 @@ private
     zpath : n == (int.int 0)
     zpath = +-left (sym q~r) >=>
             +-right minus-extract-left >=>
-            int.add-minus-zero
+            +-inverse
     zn : Zero (ℚ'.numerator diff-v)
     zn = subst Zero (sym zpath >=> cong ℚ'.numerator (sym r+'-eval)) tt
     zd = is-signℚ' (int.*-Zero₁ zn)
@@ -280,7 +280,7 @@ private
         (nq * dr) + (((- nq) * dr) + nr * dq)
       ==< +-right (+-left minus-extract-left) >
         (nq * dr) + (- (nq * dr) + nr * dq)
-      ==< sym +-assoc >=> +-left int.add-minus-zero >=> +-left-zero >
+      ==< sym +-assoc >=> +-left +-inverse >=> +-left-zero >
         nr * dq
       end
 
@@ -332,7 +332,7 @@ trichotomous~-ℚ'< q r = handle (decide-sign d')
     r~q : r r~ q
     r~q =
       sym +-right-zero >=>
-      +-right (sym int.add-minus-zero >=>
+      +-right (sym +-inverse >=>
                +-commute >=>
                +-left (sym minus-extract-left)) >=>
       sym +-assoc >=>
@@ -455,7 +455,7 @@ antisym~-ℚ'≤ {a} {b} a≤b b≤a = handle (trichotomous~-ℚ'< a b)
   path2 = +-left (cong int nat.+'-right-suc) >=>
           +-left i.ℕ->ℤ-+ >=>
           +-assoc >=>
-          +-right i.add-minus-zero >=>
+          +-right +-inverse >=>
           +-right-zero
 
   Pos-b-a : i.Pos ((int b) + (- (int a)))

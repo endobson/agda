@@ -48,7 +48,7 @@ open EqReasoning
 --    r-path : qr1.r == qr2.r
 --    r-path = repr~ n2⁺ _ _ c2
 --    r-path2 : (qr1.ri + - qr2.ri) == (int 0)
---    r-path2 = +-left (cong (\x -> int ⟨ x ⟩) r-path) >=> add-minus-zero
+--    r-path2 = +-left (cong (\x -> int ⟨ x ⟩) r-path) >=> +-inverse
 --
 --    path1 : z1 + - z2 == (qr1.q + (- qr2.q)) * m2
 --    path1 =
@@ -56,7 +56,7 @@ open EqReasoning
 --        z1 + - z2
 --      ==< cong2 (\x y -> x + - y) (sym qr1.path) (sym qr2.path) >
 --        (qr1.q * m2 + qr1.ri) + - (qr2.q * m2 + qr2.ri)
---      ==< +-right minus-distrib-+ >
+--      ==< +-right minus-distrib-plus >
 --        (qr1.q * m2 + qr1.ri) + (- (qr2.q * m2) + - qr2.ri)
 --      ==< +-assoc >=> +-right (sym +-assoc >=> +-left +-commute >=> +-assoc) >=> sym +-assoc >
 --        (qr1.q * m2 + - (qr2.q * m2)) + (qr1.ri + - qr2.ri)
@@ -191,7 +191,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
       handle y = eq/ _ _ (congruent-mod m2%diff)
         where
         path1 : lc.x * (y * m1) == y + (- y * lc.y * m2)
-        path1 = sym +-right-zero >=> +-right (sym add-minus-zero) >=>
+        path1 = sym +-right-zero >=> +-right (sym +-inverse) >=>
                 +-left (sym *-assoc >=> *-left *-commute >=> *-assoc) >=>
                 sym +-assoc >=> +-left (sym *-distrib-+-left >=> *-right lc.path >=> *-right-one) >=>
                 +-right (sym minus-extract-left >=> sym *-assoc)
@@ -201,7 +201,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
                +-assoc >=> +-right (sym *-distrib-+-right)
 
         path2 : lc.x * (y * m1) + lc.y * (x * m2) + - y == ((- y * lc.y) + (lc.y * x)) * m2
-        path2 = +-left (path >=> +-commute) >=> +-assoc >=> +-right add-minus-zero >=> +-right-zero
+        path2 = +-left (path >=> +-commute) >=> +-assoc >=> +-right +-inverse >=> +-right-zero
 
         m2%diff : m2 div ((lc.x * (y * m1) + lc.y * (x * m2)) + - y)
         m2%diff = ((- y * lc.y) + (lc.y * x)) , sym path2
@@ -218,7 +218,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
         where
         path1 : lc.y * (x * m2) == x + (- x * lc.x) * m1
         path1 = sym *-assoc >=> *-left *-commute >=> *-assoc >=>
-                *-right (sym +-left-zero >=> +-left (sym add-minus-zero >=> +-commute) >=>
+                *-right (sym +-left-zero >=> +-left (sym +-inverse >=> +-commute) >=>
                          +-assoc >=> +-commute >=> +-left lc.path) >=>
                 *-distrib-+-left >=> +-left *-right-one >=>
                 +-right (minus-extract-right >=> sym minus-extract-left >=> sym *-assoc)
@@ -229,7 +229,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
                +-right (+-right (sym *-assoc) >=> sym *-distrib-+-right)
 
         path2 : (lc.x * (y * m1) + lc.y * (x * m2)) + - x == ((- x * lc.x) + (lc.x * y)) * m1
-        path2 = +-left (path >=> +-commute) >=> +-assoc >=> +-right add-minus-zero >=> +-right-zero
+        path2 = +-left (path >=> +-commute) >=> +-assoc >=> +-right +-inverse >=> +-right-zero
 
         m1%diff : m1 div ((lc.x * (y * m1) + lc.y * (x * m2)) + - x)
         m1%diff = ((- x * lc.x) + (lc.x * y)) , sym path2
@@ -274,7 +274,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
               *-left (*-assoc >=> *-right (*-assoc >=> *-right *-commute >=> sym *-assoc))
 
       p2 : (int 1 + - (lc.x * m1)) == (lc.y * m2)
-      p2 = +-left (sym lc.path >=> +-commute) >=> +-assoc >=> +-right add-minus-zero >=> +-right-zero
+      p2 = +-left (sym lc.path >=> +-commute) >=> +-assoc >=> +-right +-inverse >=> +-right-zero
 
       p3 : t1 + - t5 == ((lc.x * (y1 * y2)) * lc.y) * (m1 * m2)
       p3 = +-left (sym *-right-one) >=> +-right (cong -_ pt5-2 >=> sym minus-extract-right) >=>
@@ -293,7 +293,7 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
               *-left (*-assoc >=> *-right (*-assoc >=> *-right *-commute >=> sym *-assoc))
 
       p4 : (int 1 + - (lc.y * m2)) == (lc.x * m1)
-      p4 = +-left (sym lc.path) >=> +-assoc >=> +-right add-minus-zero >=> +-right-zero
+      p4 = +-left (sym lc.path) >=> +-assoc >=> +-right +-inverse >=> +-right-zero
 
       p5 : t2 + - t8 == ((lc.y * (x1 * x2)) * lc.x) * (m1 * m2)
       p5 = +-left (sym *-right-one) >=> +-right (cong -_ pt8-2 >=> sym minus-extract-right) >=>
@@ -332,8 +332,8 @@ module _ {n1 : Nat} {n2 : Nat} (rp : RelativelyPrime⁰ n1 n2) where
           ((t1 + t2) + (- t5 + - t8)) + - t6 + - t7
         ==< +-left +-assoc >=> +-assoc >
           (t1 + t2) + (((- t5 + - t8) + - t6) + - t7)
-        ==< +-right (+-left (+-left (sym minus-distrib-+) >=> sym minus-distrib-+) >=>
-                     sym minus-distrib-+) >
+        ==< +-right (+-left (+-left (sym minus-distrib-plus) >=> sym minus-distrib-plus) >=>
+                     sym minus-distrib-plus) >
           (t1 + t2) + - (((t5 + t8) + t6) + t7)
         ==< +-right (cong -_ (+-left (+-assoc >=> +-right +-commute >=> sym +-assoc))) >
           (t1 + t2) + - (((t5 + t6) + t8) + t7)

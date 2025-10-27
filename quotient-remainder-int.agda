@@ -55,7 +55,7 @@ private
      (int (suc i) + (int j)) + (- (int j))
     ==< +-assoc >
      int (suc i) + ((int j) + (- (int j)))
-    ==< +-right add-minus-zero >=> +-right-zero >
+    ==< +-right +-inverse >=> +-right-zero >
      (add1 (int i))
     end
 
@@ -64,7 +64,7 @@ private
   flip-fin-path' {n} (i , (j , p)) =
     begin
       (int j)
-    ==< sym +-right-zero >=> +-right (sym add-minus-zero) >
+    ==< sym +-right-zero >=> +-right (sym +-inverse) >
       (int j) + ((int (suc i)) + (- (add1 (int i))))
     ==< sym +-assoc >
       ((int j) + (int (suc i))) + (- (add1 (int i)))
@@ -122,19 +122,19 @@ private
         (- (add1 ((int ((qr.quotient n d) *' ⟨ d ⟩)) + (int (Fin.i (qr.remainder n d))))))
       ==< cong -_ (sym add1-extract-right) >
         (- ((int ((qr.quotient n d) *' ⟨ d ⟩)) + (add1 (int (Fin.i (qr.remainder n d))))))
-      ==< minus-distrib-+ >
+      ==< minus-distrib-plus >
         (- (int ((qr.quotient n d) *' ⟨ d ⟩))) + (- (add1 (int (Fin.i (qr.remainder n d)))))
       ==<>
         (- (int ((qr.quotient n d) *' ⟨ d ⟩))) + (neg (Fin.i (qr.remainder n d)))
       ==< +-left (cong -_ ℕ->ℤ-*) >
         (- ((int (qr.quotient n d)) * (int ⟨ d ⟩))) + (neg (Fin.i (qr.remainder n d)))
-      ==< +-left (sym (+-left add-minus-zero >=> +-left-zero)) >
+      ==< +-left (sym (+-left +-inverse >=> +-left-zero)) >
         ((((int ⟨ d ⟩) + (- (int ⟨ d ⟩))) + (- ((int (qr.quotient n d)) * (int ⟨ d ⟩))))
           + (neg (Fin.i (qr.remainder n d))))
       ==< +-left +-assoc >
         (((int ⟨ d ⟩) + ((- (int ⟨ d ⟩)) + (- ((int (qr.quotient n d)) * (int ⟨ d ⟩)))))
           + (neg (Fin.i (qr.remainder n d))))
-      ==< +-left (+-right (sym minus-distrib-+)) >
+      ==< +-left (+-right (sym minus-distrib-plus)) >
         (((int ⟨ d ⟩) + (- ((int ⟨ d ⟩) + ((int (qr.quotient n d)) * (int ⟨ d ⟩)))))
           + (neg (Fin.i (qr.remainder n d))))
       ==< +-left +-commute >
@@ -196,7 +196,7 @@ private
       where
       p2 : (nonneg n) == ((int (Fin.i qr2.r)) + (- (int d'))) + (- ((int q') * (int d')))
       p2 = (sym p) >=>
-           +-left (minus-extract-left >=> cong -_ add1-extract-* >=> minus-distrib-+) >=>
+           +-left (minus-extract-left >=> cong -_ add1-extract-* >=> minus-distrib-plus) >=>
            +-commute >=> sym +-assoc
 
       neg1 : Neg (((int (Fin.i qr2.r)) + (- (int d'))) + (- ((int q') * (int d'))))
@@ -231,7 +231,7 @@ private
           (- ((int d') + ((int q') * (int d'))) + qr2.ri)
         ==< +-right (sym minus-double-inverse) >
           (- ((int d') + ((int q') * (int d'))) + (- (- qr2.ri)))
-        ==< sym minus-distrib-+ >
+        ==< sym minus-distrib-plus >
           (- (((int d') + ((int q') * (int d'))) + (- qr2.ri)))
         ==< cong -_ (+-left +-commute >=> +-assoc) >
           (- (((int q') * (int d')) + ((int d') + (- qr2.ri))))

@@ -55,7 +55,7 @@ private
     QuotientRemainder.path (quotient-remainder (suc d , tt) a)
   quotientℤ-path a (int.neg d , _) =
     +-left minus-extract-right >=>
-    sym int.minus-distrib-+ >=>
+    sym minus-distrib-plus >=>
     cong -_ (QuotientRemainder.path (quotient-remainder (suc d , tt) (- a))) >=>
     minus-double-inverse
   quotientℤ-path a (int.zero-int , inj-l ())
@@ -181,14 +181,14 @@ private
       r-path-a : (remainderℤ na da*) == na + (- ((quotientℤ na da*) * da))
       r-path-a =
         sym +-right-zero >=>
-        +-right (sym (int.add-minus-zero {((quotientℤ na da*) * da)})) >=>
+        +-right (sym +-inverse) >=>
         sym +-assoc >=>
         +-left (+-commute >=> quotientℤ-path na da*)
 
       r-path-b : (remainderℤ nb db*) == nb + (- ((quotientℤ nb db*) * db))
       r-path-b =
         sym +-right-zero >=>
-        +-right (sym (int.add-minus-zero {((quotientℤ nb db*) * db)})) >=>
+        +-right (sym +-inverse) >=>
         sym +-assoc >=>
         +-left (+-commute >=> quotientℤ-path nb db*)
 

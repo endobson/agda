@@ -128,7 +128,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
         (lift-int (- y))
       ==< cong lift-int (cong -_ (sym +-right-zero)) >
         (lift-int (- (y + zero-int)))
-      ==< cong lift-int (cong -_ (ℤ+-right-zero {y}) >=> sym +-right-zero) >
+      ==< cong lift-int (cong -_ +-right-zero >=> sym +-right-zero) >
         (lift-int ((- y) + zero-int))
       ==< cong (\x -> (lift-int ((- y) + x))) (sym (*-left-zero)) >
         (lift-int ((- y) + (zero-int * y)))
@@ -186,7 +186,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
 
           where
           sn-path : (int (suc n)) == (1# + int n)
-          sn-path = sym +-eval
+          sn-path = sym ℤ+-eval
 
         minus-case : (x : ℤ) -> P x -> P (- x)
         minus-case x fx=gx =

@@ -134,7 +134,7 @@ abs'-inject-* {neg m} {neg n} =
     abs' (neg m * neg n)
   ==< cong abs' minus-extract-left >
     abs' (- (pos m * neg n))
-  ==< cong abs' (cong minus minus-extract-right) >
+  ==< cong abs' (cong -_ minus-extract-right) >
     abs' (- (- (pos m * pos n)))
   ==< abs'-cancel-minus { - (pos m * pos n)} >=> abs'-cancel-minus {pos m * pos n} >
     abs' (pos m * pos n)

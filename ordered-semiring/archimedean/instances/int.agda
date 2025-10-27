@@ -27,9 +27,9 @@ private
     n : ℕ
     n = suc a
     1≤b : 1# ≤ b
-    1≤b = i , +-commute >=> +-eval >=> sym +-right-zero >=> p
+    1≤b = i , +-commute >=> ℤ+-eval >=> sym +-right-zero >=> p
     a<n : int a < ℕ->ℤ n
-    a<n = (1 , tt) , +-eval
+    a<n = (1 , tt) , ℤ+-eval
 
     a<nb : int a < (ℕ->Semiring n * b)
     a<nb = trans-≤-< (trans-=-≤ (sym *-right-one) (*₁-preserves-≤ (0≤nonneg a) 1≤b))

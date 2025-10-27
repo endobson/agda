@@ -231,7 +231,7 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
       term-- = term-* minus-one-term
 
       merge-equal-terms : (t1 t2 : Term) -> (Term.vars t1 == Term.vars t2) -> Term
-      merge-equal-terms (term m1 vars1) (term m2 vars2) _ = (term (m1 int.+ᵉ m2) vars1)
+      merge-equal-terms (term m1 vars1) (term m2 vars2) _ = (term (m1 +ᵉ m2) vars1)
 
       merge-terms : Terms -> Terms -> Terms
       merge-terms1 : Term -> Terms -> Terms -> Terms
@@ -341,9 +341,9 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
         begin
           ⟦ (merge-equal-terms t1 t2 pr) ⟧term
         ==<>
-          (lift-int (m1 int.+ᵉ m2)) * ⟦ vars1 ⟧vars
-        ==< *-left (cong lift-int (sym int.+-eval)) >
-          (lift-int (m1 int.ℤ+ m2)) * ⟦ vars1 ⟧vars
+          (lift-int (m1 +ᵉ m2)) * ⟦ vars1 ⟧vars
+        ==< *-left (cong lift-int (sym ℤ+-eval)) >
+          (lift-int (m1 + m2)) * ⟦ vars1 ⟧vars
         ==< *-left (Ringʰ.preserves-+ (∃!-prop ∃!ℤ->Ring) _ _) >
           ((lift-int m1) + (lift-int m2)) * ⟦ vars1 ⟧vars
         ==< *-distrib-+-right >
@@ -459,7 +459,7 @@ module RingSolver {Domain : Type ℓ} {ACM : AdditiveCommMonoid Domain}
           ⟦ (term (m1 int.*ᵉ m2) (insertion-sort fin< (vs1 ++ vs2))) ⟧term
         ==<>
           (lift-int (m1 int.*ᵉ m2)) * ⟦ (insertion-sort fin< (vs1 ++ vs2)) ⟧vars
-        ==< *-left (cong lift-int (sym int.*-eval)) >
+        ==< *-left (cong lift-int (sym int.ℤ*-eval)) >
           (lift-int (m1 int.ℤ* m2)) * ⟦ (insertion-sort fin< (vs1 ++ vs2)) ⟧vars
         ==< *-right (insertion-sort-vars≈ (vs1 ++ vs2)) >
           (lift-int (m1 int.ℤ* m2)) * ⟦ (vs1 ++ vs2) ⟧vars

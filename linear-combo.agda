@@ -74,9 +74,9 @@ linear-combo-negate-result {a} {b} {d} (linear-combo x y p) =
         - (x * a) + - y * b
       ==< +-right minus-extract-left >
         - (x * a) + - (y * b)
-      ==< sym (minus-distrib-+ {x * a}) >
+      ==< sym minus-distrib-plus >
         - ((x * a) + (y * b))
-      ==< cong minus p >
+      ==< cong -_ p >
         - d
       end
 
@@ -153,7 +153,7 @@ linear-combo-+' {a} {b} {d} (linear-combo x y p) =
         (x * (int a)) + ((((- y) * (int a)) + (y * (int a))) + (y * (int b)))
       ==< +-right (+-left (sym (*-distrib-+-right))) >
         (x * (int a)) + ((((- y) + y) * (int a)) + (y * (int b)))
-      ==< +-right (+-left (*-left (+-commute >=> add-minus-zero) >=> *-left-zero)) >
+      ==< +-right (+-left (*-left (+-commute >=> +-inverse) >=> *-left-zero)) >
         x * (int a) + (int 0 + y * (int b))
       ==< +-right +-left-zero >
         x * (int a) + y * (int b)

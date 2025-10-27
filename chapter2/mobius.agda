@@ -225,7 +225,7 @@ divisor-sum-μ-prime p =
     μ p⁺ + (μ⁰ 1 + μ⁰ 0)
   ==< (\i -> (μp==-1 p i) + ((μ1==1 i) + (int 0))) >
     (- (int 1)) + ((int 1) + (int 0))
-  ==< sym +-assoc >=> +-right-zero >=> +-eval >
+  ==< sym +-assoc >=> +-right-zero >=> ℤ+-eval >
     (int 0)
   end
   where
@@ -412,7 +412,7 @@ private
       (- (int 1)) + (int 1)
     ==< +-commute >
       (int 1) + (- (int 1))
-    ==< add-minus-zero {int 1}>
+    ==< +-inverse >
       (int 0)
     end
     where

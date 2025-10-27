@@ -120,11 +120,11 @@ div'-^ℕ {k1} {k2} {d} (i , path) = (d ^ℕ i , path')
 
 div-negate⁺ : {d a : Int} -> d div a -> d div (- a)
 div-negate⁺ (c , p) =
-  - c , (minus-extract-left >=> cong minus p)
+  - c , (minus-extract-left >=> cong -_ p)
 
 div-negate⁻ : {d a : Int} -> d div (- a) -> d div a
 div-negate⁻ (c , p) =
-  - c , minus-extract-left >=> cong minus p >=> minus-double-inverse
+  - c , minus-extract-left >=> cong -_ p >=> minus-double-inverse
 
 div-negate-left⁺ : {d a : Int} -> d div a -> (- d) div a
 div-negate-left⁺ (c , p) =
@@ -296,7 +296,7 @@ div-+-left {d} {a} {b} d%a d%ab =
   transport (\i -> d div (path i)) (div-sum (div-negate⁺ d%a) d%ab)
   where
   path : (- a + (a + b)) == b
-  path = sym +-assoc >=> (cong (_+ b) (+-commute >=> add-minus-zero {a}))
+  path = sym +-assoc >=> (cong (_+ b) (+-commute >=> +-inverse))
          >=> +-left-zero
 
 div-+-right : {d a b : Int} -> d div b -> d div (a + b) -> d div a
