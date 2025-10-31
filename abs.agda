@@ -49,10 +49,10 @@ opaque
   nonpos-abs' {neg _}    _   = refl
 
   abs'-inject-add1 : {m : Int} -> (NonNeg m) -> abs' (add1 m) == suc (abs' m)
-  abs'-inject-add1 nn =
+  abs'-inject-add1 0≤m =
     nonneg-injective (
-      sym (nonneg-abs' (weaken-< (add1-NonNeg nn))) >=>
-      cong add1 (nonneg-abs' nn))
+      sym (nonneg-abs' (weaken-< (trans-≤-< 0≤m add1-<))) >=>
+      cong add1 (nonneg-abs' 0≤m))
 
   abs'-inject-+ : {m n : Int} -> (NonNeg m) -> (NonNeg n) -> abs' (m + n) == abs' m +' abs' n
   abs'-inject-+ {m} {n} 0≤m 0≤n =

@@ -12,10 +12,13 @@ open import fin
 open import functions
 open import hlevel
 open import int
-open import int.order
+open import int.base
+open import int.cover
 open import int.elimination
 open import int.multiplication
 open import int.nat
+open import int.order
+open import int.sign
 open import nat
 open import nat.order
 open import order

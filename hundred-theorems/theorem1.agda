@@ -10,7 +10,8 @@ open import apartness
 open import base
 open import equality
 open import hlevel
-open import int
+open import int.base
+open import int.cover
 open import nat
 open import nat.even-odd
 open import order

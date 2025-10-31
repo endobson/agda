@@ -13,6 +13,9 @@ open import fraction.order
 open import functions
 open import hlevel
 open import hlevel.htype
+open import int.base
+open import int.sign using (Pos'->Pos)
+open import int
 open import int.addition
 open import int.order
 open import isomorphism
@@ -44,7 +47,6 @@ open import sum
 open import truncation
 open import univalence
 
-import int as i
 open EqReasoning
 
 module _ where
@@ -1031,13 +1033,11 @@ abstract
 
 
 private
-  open i using (int)
-
   nd⁺->ℚ' : (n : Nat) (d : Nat⁺) -> ℚ'
   nd⁺->ℚ' n (d , pos-d) = record
-    { numerator = i.ℕ->ℤ n
-    ; denominator = i.ℕ->ℤ d
-    ; NonZero-denominator = i.Pos->NonZero (i.Pos'->Pos pos-d)
+    { numerator = ℕ->ℤ n
+    ; denominator = ℕ->ℤ d
+    ; NonZero-denominator = inj-l (Pos'->Pos pos-d)
     }
 
   n⁺d⁺->ℚ' : (n d : Nat⁺) -> ℚ'
@@ -1048,7 +1048,7 @@ private
 
   n⁺d⁺->ℚ⁺ : (n d : Nat⁺) -> ℚ⁺
   n⁺d⁺->ℚ⁺ n d = n⁺d⁺->ℚ n d ,
-           same-sign-ℚ' pos-sign _ (is-signℚ' (i.*-Pos-Pos (i.Pos'->Pos (snd n)) (i.Pos'->Pos (snd d))))
+           same-sign-ℚ' pos-sign _ (is-signℚ' (*-preserves-0< (Pos'->Pos (snd n)) (Pos'->Pos (snd d))))
 
 
   opaque
@@ -1062,17 +1062,17 @@ private
       SetQuotientElim.elimProp (\q -> isPropΠ (\pos-q -> isProp-P (q , pos-q))) handle q pos-q
       where
       find-rep : (q' : ℚ') -> (Pos q') -> Σ[ n ∈ Nat⁺ ] (Σ[ d ∈ Nat⁺ ] (n⁺d⁺->ℚ' n d r~ q'))
-      find-rep (record { denominator = i.zero-int ; NonZero-denominator = nz }) =
-        bot-elim (i.NonZero->!=0 nz refl)
-      find-rep (record { numerator = (i.pos n') ; denominator = (i.pos d') }) _ =
+      find-rep (record { denominator = zero-int ; NonZero-denominator = nz }) =
+        bot-elim (NonZero->!=0 nz refl)
+      find-rep (record { numerator = (pos n') ; denominator = (pos d') }) _ =
         ((suc n' , tt) , (suc d' , tt) , refl)
-      find-rep (record { numerator = (i.zero-int) ; denominator = (i.pos d') }) p =
-        bot-elim (i.NonPos->¬Pos (i.*-NonPos-NonNeg refl-≤ (weaken-< 0<pos)) (isSignℚ'.v p))
-      find-rep (record { numerator = (i.nonneg _) ; denominator = (i.neg d') }) p =
-        bot-elim (i.NonPos->¬Pos (i.*-NonNeg-NonPos 0≤nonneg (weaken-< neg<0)) (isSignℚ'.v p))
-      find-rep (record { numerator = (i.neg _) ; denominator = (i.pos d') }) p =
-        bot-elim (i.NonPos->¬Pos (i.*-NonPos-NonNeg (weaken-< neg<0) (weaken-< 0<pos)) (isSignℚ'.v p))
-      find-rep (record { numerator = (i.neg n') ; denominator = (i.neg d') }) _ =
+      find-rep (record { numerator = (zero-int) ; denominator = (pos d') }) p =
+        bot-elim (convert-≤ (*₂-preserves-≤0 refl-≤ (weaken-< 0<pos)) (isSignℚ'.v p))
+      find-rep (record { numerator = (nonneg _) ; denominator = (neg d') }) p =
+        bot-elim (convert-≤ (*₁-preserves-≤0 0≤nonneg (weaken-< neg<0)) (isSignℚ'.v p))
+      find-rep (record { numerator = (neg _) ; denominator = (pos d') }) p =
+        bot-elim (convert-≤ (*₂-preserves-≤0 (weaken-< neg<0) (weaken-< 0<pos)) (isSignℚ'.v p))
+      find-rep (record { numerator = (neg n') ; denominator = (neg d') }) _ =
         ((suc n' , tt) , (suc d' , tt) , minus-extract-right >=> sym minus-extract-left )
 
       handle : (q' : ℚ') -> (pos-q : (Pos (ℚ'->ℚ q'))) -> P (ℚ'->ℚ q' , pos-q)
@@ -1097,11 +1097,11 @@ private
     x1 = same-denom-r+' (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d))
     x2 = ((n⁺d⁺->ℚ' n d) r+' (r-' (1/ℕ' d)))
 
-    NonNeg-numer : i.NonNeg (int n' + (- (int 1)))
-    NonNeg-numer = trans-≤-= 0≤nonneg (sym ℤ+-eval >=> +-commute)
+    0≤numer : 0# ≤ (int n' + (- (int 1)))
+    0≤numer = trans-≤-= 0≤nonneg (sym ℤ+-eval >=> +-commute)
 
     ans2 : NonNeg (same-denom-r+' (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d)))
-    ans2 = NonNeg-nd->ℚ' (*-preserves-0≤ NonNeg-numer (weaken-< (i.Pos'->Pos pos-d)))
+    ans2 = NonNeg-nd->ℚ' (*-preserves-0≤ 0≤numer (weaken-< (Pos'->Pos pos-d)))
 
     ans~ : same-denom-r+' (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d)) r~ ((n⁺d⁺->ℚ' n d) r+' (r-' (1/ℕ' d)))
     ans~ = same-denom-r+'-r~ (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d)) refl

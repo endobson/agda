@@ -8,7 +8,8 @@ open import apartness.instances.int
 open import base
 open import equality-path
 open import funext
-open import int
+open import int.base
+open import int.cover
 open import integral-domain
 open import integral-domain.apart-linear-order
 open import order

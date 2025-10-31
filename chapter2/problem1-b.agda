@@ -12,7 +12,7 @@ open import equivalence
 open import finite-commutative-monoid
 open import finite-product
 open import functions
-open import int
+open import int.cover
 open import isomorphism
 open import nat
 open import nat.even-odd

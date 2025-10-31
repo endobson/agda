@@ -9,7 +9,7 @@ open import base
 open import commutative-monoid
 open import equality
 open import functions
-open import int
+open import int.base
 open import nat
 open import order
 open import order.instances.int

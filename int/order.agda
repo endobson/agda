@@ -6,10 +6,12 @@ open import additive-group
 open import additive-group.instances.int
 open import base
 open import equality-path
+open import int.add1
 open import int.addition
 open import int.base
 open import int.cover
 open import int.nat
+open import nat
 open import order
 open import order.instances.int
 open import order.instances.nat
@@ -25,6 +27,20 @@ opaque
   neg<0 : {n : Nat} -> neg n < 0#
   neg<0 {n} = (suc n , tt) , +-inverse
 
+
+-- Basic facts for add1/sub1
+opaque
+  add1-weaken-< : {a b : Int} -> a < b -> add1 a ≤ b
+  add1-weaken-< ((suc i , tt) , p) = i , add1-extract-right >=> sym add1-extract-left >=> p
+
+  sub1-weaken-< : {a b : Int} -> a < b -> a ≤ sub1 b
+  sub1-weaken-< ((suc i , tt) , p) = i , sub1-extract-left >=> cong sub1 p
+
+  add1-< : {n : Int} -> n < (add1 n)
+  add1-< = 1⁺ , ℤ+-eval
+
+  sub1-< : {n : Int} -> (sub1 n) < n
+  sub1-< = 1⁺ , sub1-extract-right >=> cong sub1 ℤ+-eval >=> sub1-add1-id
 
 -- ℕ->ℤ preserves order
 opaque

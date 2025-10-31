@@ -24,7 +24,7 @@ open import finsum.cardinality
 open import gcd.computational
 open import gcd.propositional hiding (gcd'-unique)
 open import hlevel
-open import int
+open import int.base
 open import isomorphism
 open import modular-integers
 open import modular-integers.binary-product

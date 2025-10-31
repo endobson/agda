@@ -9,7 +9,7 @@ open import base
 open import div
 open import equality
 open import gcd.propositional
-open import int
+open import int.base
 open import int.nat
 open import int.order
 open import linear-combo

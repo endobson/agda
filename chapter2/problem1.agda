@@ -20,7 +20,7 @@ open import finset.without-point
 open import functions
 open import heyting-field.instances.rational
 open import hlevel
-open import int
+open import int.cover
 open import isomorphism
 open import nat
 open import nat.exponentiation

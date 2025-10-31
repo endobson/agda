@@ -12,7 +12,7 @@ open import fraction.sign
 open import functions
 open import funext
 open import hlevel
-open import int
+open import int.base
 open import nat
 open import nat.order
 open import order

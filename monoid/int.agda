@@ -4,7 +4,8 @@ module monoid.int where
 
 open import additive-group
 open import additive-group.instances.int
-open import int
+open import int.base
+open import int.cover
 open import monoid
 
 --TODO remove

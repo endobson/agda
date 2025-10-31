@@ -10,7 +10,7 @@ open import commutative-monoid
 open import equality
 open import functions
 open import funext
-open import int
+open import int.base
 open import int.elimination
 open import monoid
 open import nat

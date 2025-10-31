@@ -6,8 +6,8 @@ open import additive-group
 open import additive-group.instances.int
 open import base
 open import equality-path
-open import int
 open import int.addition
+open import int.base
 open import int.order
 open import nat
 open import order
@@ -23,12 +23,12 @@ open import truncation
 
 private
   ℕ-prop : (a : ℕ) (b : ℤ) (0<b : 0# < b) -> ∃[ n ∈ ℕ ] (int a < (ℕ->Semiring n * b))
-  ℕ-prop a b 0<b@((suc i , _) , p) = ∣ n , a<nb ∣
+  ℕ-prop a b 0<b = ∣ n , a<nb ∣
     where
     n : ℕ
     n = suc a
     1≤b : 1# ≤ b
-    1≤b = i , +-commute >=> ℤ+-eval >=> sym +-right-zero >=> p
+    1≤b = add1-weaken-< 0<b
     a<n : int a < ℕ->ℤ n
     a<n = (1 , tt) , ℤ+-eval
 

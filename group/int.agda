@@ -2,11 +2,11 @@
 
 module group.int where
 
-open import additive-group.instances.int
 open import additive-group
-open import int
+open import additive-group.instances.int
 open import equality
 open import group
+open import int.base
 open import monoid.int
 
 -- TODO remove

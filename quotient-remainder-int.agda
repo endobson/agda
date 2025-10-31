@@ -9,12 +9,14 @@ open import equality
 open import fin
 open import functions
 open import hlevel
-open import int
 open import int.add1
 open import int.addition
+open import int.base
+open import int.cover
 open import int.multiplication
 open import int.nat
 open import int.order
+open import int.sign
 open import nat
 open import nat.order
 open import order
@@ -211,8 +213,12 @@ private
            +-commute >=> sym +-assoc
 
       neg1 : Neg (((int (Fin.i qr2.r)) + (- (int d'))) + (- ((int q') * (int d'))))
-      neg1 = +-Neg-NonPos (fin-small qr2.r)
-        (minus-flips-0≤ (*-preserves-0≤ 0≤nonneg 0≤nonneg))
+      neg1 =
+        trans-<-=
+          (trans-<-≤
+            (+₂-preserves-< (fin-small qr2.r))
+            (+₁-preserves-≤ (minus-flips-0≤ (*-preserves-0≤ 0≤nonneg 0≤nonneg))))
+          +-right-zero
 
   quotient-unique d (neg n) qr2 = f qr2.path
     where

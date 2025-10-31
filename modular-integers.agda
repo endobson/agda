@@ -15,7 +15,8 @@ open import gcd.euclidean-algorithm
 open import group
 open import hlevel
 open import hlevel.htype
-open import int
+open import int.base
+open import int.sign
 open import isomorphism
 open import linear-combo
 open import monoid
@@ -435,7 +436,7 @@ module _ (n⁺ : Nat⁺) where
 
   isPropValued-~ : isPropValued _~_
   isPropValued-~ a b (congruent-mod n%ab1) (congruent-mod n%ab2) =
-    cong congruent-mod (isPropDiv₁ (int.Pos->NonZero (int.Pos'->Pos pos-n)) n%ab1 n%ab2)
+    cong congruent-mod (isPropDiv₁ (Pos->NonZero (Pos'->Pos pos-n)) n%ab1 n%ab2)
 
 
   CoprimeN' : (x : ℤ/nℤ n) -> hProp ℓ-zero
@@ -514,8 +515,6 @@ module _ (n⁺ : Nat⁺) where
                       sym +-assoc >=> +-left lc.path >=> +-commute) >=>
              minus-distrib-plus >=> +-left minus-double-inverse >=>
              +-left *-commute
-        where
-        open int
 
       n%xy-1 : (int n) div (x * y + (- (int 1)))
       n%xy-1 = (- lc.x) , path
@@ -547,8 +546,6 @@ module _ (n⁺ : Nat⁺) where
                       sym +-assoc >=> +-left lc.path >=> +-commute) >=>
              minus-distrib-plus >=> +-left minus-double-inverse >=>
              +-left *-commute
-        where
-        open int
 
       n%xy-1 : (int n) div (x * y + (- (int 1)))
       n%xy-1 = (- lc.x) , path

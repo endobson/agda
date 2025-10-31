@@ -3,7 +3,7 @@
 module order.minmax.instances.int where
 
 open import base
-open import int
+open import int.base
 open import order.instances.int
 open import order.minmax
 open import order.minmax.decidable

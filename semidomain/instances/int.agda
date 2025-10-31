@@ -8,7 +8,8 @@ open import apartness.instances.int
 open import base
 open import equality-path
 open import funext
-open import int
+open import int.base
+open import int.cover
 open import order
 open import order.instances.int
 open import ordered-semiring

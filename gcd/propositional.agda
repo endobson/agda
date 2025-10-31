@@ -9,8 +9,9 @@ open import base
 open import div
 open import equality
 open import hlevel.base
-open import int
+open import int.base
 open import int.order
+open import int.sign
 open import nat
 open import order
 open import order.instances.int

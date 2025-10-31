@@ -9,7 +9,7 @@ open import div
 open import equality
 open import gcd.euclidean-algorithm
 open import gcd.propositional
-open import int
+open import int.base
 open import int.order
 open import lcm
 open import nat

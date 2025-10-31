@@ -17,9 +17,11 @@ open import hlevel
 open import hlevel.htype
 open import int
 open import int.addition
+open import int.base
 open import int.cover
 open import int.nat
 open import int.order
+open import int.sign
 open import isomorphism
 open import nat
 open import nat.exponentiation
@@ -643,7 +645,7 @@ instance
 ℚInv' a = NonZero (numer a)
 
 isProp-ℚInv' : {a : ℚ'} -> isProp (ℚInv' a)
-isProp-ℚInv' = int.isPropNonZero
+isProp-ℚInv' = isPropNonZero
 
 r1/' : (a : ℚ') -> ℚInv' a -> ℚ'
 r1/' a i = record
@@ -683,9 +685,9 @@ opaque
   ℚInv->ℚInv' a i = handle (numer a) refl
     where
     handle : (x : Int) -> (x == numer a) -> ℚInv' a
-    handle (int.pos _) p = subst NonZero p (inj-l 0<pos)
-    handle (int.neg _) p = subst NonZero p (inj-r neg<0)
-    handle (int.zero-int) p = bot-elim (i (eq/ a 0r' path))
+    handle (pos _) p = subst NonZero p (inj-l 0<pos)
+    handle (neg _) p = subst NonZero p (inj-r neg<0)
+    handle (zero-int) p = bot-elim (i (eq/ a 0r' path))
       where
       path : a r~ 0r'
       path = *-right-one >=> sym p >=> sym *-left-zero
@@ -847,7 +849,7 @@ opaque
       SetQuotientElim.elim (\_ -> isSet-hProp) val preserved
       where
       val : ℚ' -> hProp ℓ-zero
-      val r = NonZero (numer r) , int.isPropNonZero
+      val r = NonZero (numer r) , isPropNonZero
       preserved : (a b : ℚ') -> (a r~ b) -> val a == val b
       preserved a b path = ΣProp-path isProp-isProp (ua (isoToEquiv i))
         where
@@ -856,8 +858,8 @@ opaque
         i : Iso (⟨ val a ⟩) (⟨ val b ⟩)
         i .fun nz = *-NonZero₁ (subst NonZero path (*-NonZero-NonZero nz (rNonZero b)))
         i .inv nz = *-NonZero₁ (subst NonZero (sym path) (*-NonZero-NonZero nz (rNonZero a)))
-        i .rightInv _ = int.isPropNonZero _ _
-        i .leftInv _ = int.isPropNonZero _ _
+        i .rightInv _ = isPropNonZero _ _
+        i .leftInv _ = isPropNonZero _ _
 
   isNonZeroℚ : ℚ -> Type₀
   isNonZeroℚ r = fst (isNonZeroℚ' r)
@@ -868,7 +870,7 @@ opaque
   unfolding isNonZeroℚ
 
   ¬isNonZeroℚ-0r : ¬ (isNonZeroℚ 0r)
-  ¬isNonZeroℚ-0r b = int.NonZero->¬Zero b tt
+  ¬isNonZeroℚ-0r b = NonZero->¬Zero b tt
 
   isNonZeroℚ-1r : (isNonZeroℚ 1r)
   isNonZeroℚ-1r = inj-l 0<1
@@ -892,7 +894,7 @@ opaque
   r*-isNonZeroℚ-isNonZeroℚ =
     SetQuotientElim.elimProp2 {C2 = \a b -> isNonZeroℚ a -> isNonZeroℚ b -> isNonZeroℚ (a r* b)}
       (\a b -> isPropΠ2 (\_ _ -> isProp-isNonZeroℚ (a r* b)))
-      (\a b nza nzb -> int.*-NonZero-NonZero nza nzb)
+      (\a b nza nzb -> *-NonZero-NonZero nza nzb)
 
 opaque
   unfolding isNonZeroℚ r1/
@@ -928,7 +930,7 @@ a r^ℤ (neg n) = r1/ (fst rec) (isNonZeroℚ->ℚInv (snd rec)) , r1/-isNonZero
   ; NonZero-denominator = Posℕ->NonZeroℤ n pos-n
   }
   where
-  Posℕ->NonZeroℤ : (n : Nat) -> (Pos' n) -> (int.NonZero (ℕ->ℤ n))
+  Posℕ->NonZeroℤ : (n : Nat) -> (Pos' n) -> (NonZero (ℕ->ℤ n))
   Posℕ->NonZeroℤ (suc _) _ = inj-l 0<pos
 
 1/ℕ : Nat⁺ -> ℚ

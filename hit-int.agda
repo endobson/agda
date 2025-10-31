@@ -14,7 +14,8 @@ open import nat
 open import sum
 open import univalence
 
-import int
+module i where
+  open import int.base public
 
 data Int : Type₀ where
   nonneg : Nat -> Int
@@ -27,19 +28,19 @@ data Int : Type₀ where
 int : Nat -> Int
 int = nonneg
 
-Int-eq : Int ≃ int.Int
+Int-eq : Int ≃ i.Int
 Int-eq = isoToEquiv i
   where
   open Iso
-  i : Iso Int int.Int
-  i .fun (nonneg n)       = (int.nonneg n)
-  i .fun (nonpos zero)    = (int.nonneg zero)
-  i .fun (nonpos (suc n)) = (int.neg n)
-  i .fun (same-zero i)    = (int.nonneg zero)
-  i .inv (int.nonneg n)   = (nonneg n)
-  i .inv (int.neg n)      = (nonpos (suc n))
-  i .rightInv (int.nonneg n)  = refl
-  i .rightInv (int.neg n)     = refl
+  i : Iso Int i.Int
+  i .fun (nonneg n)       = (i.nonneg n)
+  i .fun (nonpos zero)    = (i.nonneg zero)
+  i .fun (nonpos (suc n)) = (i.neg n)
+  i .fun (same-zero i)    = (i.nonneg zero)
+  i .inv (i.nonneg n)   = (nonneg n)
+  i .inv (i.neg n)      = (nonpos (suc n))
+  i .rightInv (i.nonneg n)  = refl
+  i .rightInv (i.neg n)     = refl
   i .leftInv (nonneg n)       = refl
   i .leftInv (nonpos zero)    = same-zero
   i .leftInv (nonpos (suc n)) = refl

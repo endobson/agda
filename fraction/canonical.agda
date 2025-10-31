@@ -11,6 +11,7 @@ open import gcd.euclidean-algorithm
 open import gcd.propositional
 open import hlevel.base
 open import int
+open import int.base
 open import int.order
 open import int.sign
 open import order

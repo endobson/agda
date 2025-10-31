@@ -9,8 +9,11 @@ open import base
 open import equality
 open import fraction.sign
 open import hlevel
+open import int
+open import int.base
 open import int.nat
 open import int.order
+open import int.sign using (Zero-path)
 open import nat
 open import order
 open import order.instances.int
@@ -31,10 +34,6 @@ open import sign.instances.fraction
 open import sign.instances.int
 open import truncation
 
-import int
-
-module i = int
-open i using (int)
 
 open EqReasoning
 
@@ -234,9 +233,9 @@ decide-ℚ'< x y = handle (decide-sign z')
   handle : Σ[ s ∈ Sign ] (isSign s z') -> Dec (x ℚ'< y)
   handle (pos-sign  , pz) = yes (ℚ'<-cons (is-signℚ' pz))
   handle (zero-sign , zz) =
-    no (\ (ℚ'<-cons pz) -> NonPos->¬Pos {D = i.Int} (Zero->NonPos {D = i.Int} zz) (isSignℚ'.v pz))
+    no (\ (ℚ'<-cons pz) -> NonPos->¬Pos {D = Int} (Zero->NonPos {D = Int} zz) (isSignℚ'.v pz))
   handle (neg-sign  , nz) =
-    no (\ (ℚ'<-cons pz) -> NonPos->¬Pos {D = i.Int} (Neg->NonPos {D = i.Int} nz) (isSignℚ'.v pz))
+    no (\ (ℚ'<-cons pz) -> NonPos->¬Pos {D = Int} (Neg->NonPos {D = Int} nz) (isSignℚ'.v pz))
 
 asym-ℚ'< : Asymmetric _ℚ'<_
 asym-ℚ'< {q} {r} (ℚ'<-cons pos-d1) (ℚ'<-cons pos-d2) = NonPos->¬Pos {D = ℚ'} (inj-l neg-d2) pos-d2
@@ -258,13 +257,13 @@ private
     diff-v = (r r+' (r-' q))
     diffᵉ-v = (r r+'ᵉ (r-' q))
     n = ℚ'.numerator diffᵉ-v
-    zpath : n == (int.int 0)
+    zpath : n == (int 0)
     zpath = +-left (sym q~r) >=>
             +-right minus-extract-left >=>
             +-inverse
     zn : Zero (ℚ'.numerator diff-v)
     zn = subst Zero (sym zpath >=> cong ℚ'.numerator (sym r+'-eval)) tt
-    zd = is-signℚ' (int.*-Zero₁ zn)
+    zd = is-signℚ' (*-Zero₁ zn)
 
   zero-diff->r~ : {q r : ℚ'} -> Zero (r r+' (r-' q)) -> (q r~ r)
   zero-diff->r~ {q} {r} z = q~r
@@ -275,8 +274,8 @@ private
     nr = ℚ'.numerator r
     dr = ℚ'.denominator r
 
-    znᵉ : (ℚ'.numerator diffᵉ) == (int.int 0)
-    znᵉ = cong ℚ'.numerator (sym r+'-eval) >=> int.Zero-path _ (Zero->Zero-numer z)
+    znᵉ : (ℚ'.numerator diffᵉ) == (int 0)
+    znᵉ = cong ℚ'.numerator (sym r+'-eval) >=> Zero-path _ (Zero->Zero-numer z)
 
     q~r : nq * dr == nr * dq
     q~r =
@@ -321,19 +320,19 @@ trichotomous~-ℚ'< q r = handle (decide-sign d')
     where
     q<r = (ℚ'<-cons (is-signℚ' pd))
   handle (zero-sign , zd) =
-    tri= (\ (ℚ'<-cons pd) -> NonPos->¬Pos {D = i.Int} (Zero->NonPos {D = i.Int} zd) (isSignℚ'.v pd))
+    tri= (\ (ℚ'<-cons pd) -> NonPos->¬Pos {D = Int} (Zero->NonPos {D = Int} zd) (isSignℚ'.v pd))
          (sym r~q)
          (\ (ℚ'<-cons pd2) ->
            NonZero->¬Zero {D = ℚ'} (inj-l pd2)
              (subst Zero -d==d2 (r-'-flips-sign _ zero-sign (is-signℚ' zd))))
     where
-    d'-path : d' == (int.int 0)
-    d'-path = int.Zero-path d' zd
+    d'-path : d' == (int 0)
+    d'-path = Zero-path d' zd
     n = ℚ'.numerator d
-    n-path : n == (int.int 0)
+    n-path : n == (int 0)
     n-path =
       tight-# (\n#0 -> irrefl-path-# d'-path
-        (*-preserves-#0 n#0 (int.NonZero->!=0 (ℚ'.NonZero-denominator d))))
+        (*-preserves-#0 n#0 (NonZero->!=0 (ℚ'.NonZero-denominator d))))
 
     r~q : r r~ q
     r~q =
@@ -346,7 +345,7 @@ trichotomous~-ℚ'< q r = handle (decide-sign d')
       +-left-zero
 
   handle (neg-sign  , nd) =
-    tri> (\ (ℚ'<-cons pd) -> NonPos->¬Pos {D = i.Int} (Neg->NonPos {D = i.Int} nd) (isSignℚ'.v pd))
+    tri> (\ (ℚ'<-cons pd) -> NonPos->¬Pos {D = Int} (Neg->NonPos {D = Int} nd) (isSignℚ'.v pd))
          (\ q~r -> ℚ'<-¬r~ r<q (sym q~r))
          r<q
     where

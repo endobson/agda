@@ -10,7 +10,8 @@ open import div
 open import equality
 open import gcd.euclidean-algorithm
 open import gcd.propositional
-open import int
+open import int.base
+open import int.cover
 open import int.multiplication
 open import int.nat
 open import int.order

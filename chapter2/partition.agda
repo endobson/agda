@@ -22,7 +22,7 @@ open import functions
 open import gcd.euclidean-algorithm
 open import gcd.propositional
 open import hlevel
-open import int
+open import int.base
 open import int.nat
 open import int.order
 open import isomorphism

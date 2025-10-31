@@ -2,19 +2,19 @@
 
 module ring.solver-equations where
 
+open import additive-group
 open import base
 open import equality
-open import additive-group
-open import semiring
-open import solver
-open import ring
-open import nat
-open import truncation
-open import ring.initial-integers
-open import semiring.initial
 open import funext
-open import int
+open import int.base
+open import nat
+open import ring
 open import ring.implementations.int
+open import ring.initial-integers
+open import semiring
+open import semiring.initial
+open import solver
+open import truncation
 
 
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}

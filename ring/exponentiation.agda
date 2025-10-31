@@ -10,11 +10,12 @@ open import commutative-monoid
 open import equality
 open import group
 open import group.int
-open import int
 open import int.add1
 open import int.addition
+open import int.base
 open import int.elimination
 open import int.order
+open import int.sign
 open import monoid
 open import nat
 open import nat.even-odd
@@ -85,20 +86,20 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       +ʰ : ∀ x -> Groupʰᵉ GroupStr-ℤ+ R.GroupStr-u* (\n -> f x n)
 
   _u^ℤ_ : Unit -> ℤ -> Unit
-  a u^ℤ (int.nonneg n) = a u^ℕ n
-  a u^ℤ (int.neg n) = u1/ (a u^ℕ (suc n))
+  a u^ℤ (nonneg n) = a u^ℕ n
+  a u^ℤ (neg n) = u1/ (a u^ℕ (suc n))
 
   private
     u^ℤ-add1 : (u : Unit) (x : ℤ) -> u u^ℤ (add1 x) == u u* (u u^ℤ x)
-    u^ℤ-add1 u (int.nonneg n) = refl
-    u^ℤ-add1 u@(u' , is-u)  (int.neg zero) = path
+    u^ℤ-add1 u (nonneg n) = refl
+    u^ℤ-add1 u@(u' , is-u)  (neg zero) = path
       where
       module m = CommMonoid R.CommMonoid-u*
       module is-u = R.isUnit is-u
 
       path : 1u == u u* (u1/ (u u^ℕ (suc zero)))
       path = ΣProp-path R.isProp-isUnit (sym is-u.path) >=> (cong (\x -> (u u* (u1/ x))) (sym u^ℕ-one))
-    u^ℤ-add1 u (int.neg (suc n)) = sym path
+    u^ℤ-add1 u (neg (suc n)) = sym path
       where
       path : u u* (u1/ (u u* (u u^ℕ (suc n)))) == (u1/ (u u^ℕ (suc n)))
       path =
@@ -108,31 +109,31 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
         >=> Monoid.∙-left-ε R.Monoid-u*
 
   u^ℤ-sub1 : (u : Unit) (x : ℤ) -> u u^ℤ (sub1 x) == (u1/ u) u* (u u^ℤ x)
-  u^ℤ-sub1 u (int.nonneg zero) = ΣProp-path R.isProp-isUnit refl
-  u^ℤ-sub1 u (int.nonneg (suc n)) =
+  u^ℤ-sub1 u (nonneg zero) = ΣProp-path R.isProp-isUnit refl
+  u^ℤ-sub1 u (nonneg (suc n)) =
     sym (Monoid.∙-left-ε R.Monoid-u*) >=>
-    cong (_u* (u u^ℤ (int.int n))) (sym (R.u1/-left-inverse {u})) >=>
+    cong (_u* (u u^ℤ (int n))) (sym (R.u1/-left-inverse {u})) >=>
     (Monoid.∙-assoc R.Monoid-u*)
-  u^ℤ-sub1 u (int.neg n) =
-    cong u1/_ (u^ℤ-add1 u (int.int (suc n))) >=> R.u1/-distrib-u*
+  u^ℤ-sub1 u (neg n) =
+    cong u1/_ (u^ℤ-add1 u (int (suc n))) >=> R.u1/-distrib-u*
 
   private
     u^ℤ-preserves-inverse : {b : Unit} {x : ℤ} -> (b u^ℤ (- x)) == u1/ (b u^ℤ x)
-    u^ℤ-preserves-inverse {x = int.zero-int} = ΣProp-path R.isProp-isUnit refl
-    u^ℤ-preserves-inverse {x = int.pos x} = refl
-    u^ℤ-preserves-inverse {x = int.neg x} = ΣProp-path R.isProp-isUnit refl
+    u^ℤ-preserves-inverse {x = zero-int} = ΣProp-path R.isProp-isUnit refl
+    u^ℤ-preserves-inverse {x = pos x} = refl
+    u^ℤ-preserves-inverse {x = neg x} = ΣProp-path R.isProp-isUnit refl
 
-    u^ℤ-distrib-+-NonNeg : {b : Unit} {x y : ℤ} -> int.NonNeg x ->
+    u^ℤ-distrib-+-NonNeg : {b : Unit} {x y : ℤ} -> NonNeg x ->
                            b u^ℤ (x + y) == (b u^ℤ x) u* (b u^ℤ y)
-    u^ℤ-distrib-+-NonNeg {b} {int.zero-int} _ =
+    u^ℤ-distrib-+-NonNeg {b} {zero-int} _ =
       cong (b u^ℤ_) +-left-zero >=> sym (Monoid.∙-left-ε R.Monoid-u*)
-    u^ℤ-distrib-+-NonNeg {b} {int.nonneg (suc x)} {y} _ =
+    u^ℤ-distrib-+-NonNeg {b} {nonneg (suc x)} {y} _ =
       cong (b u^ℤ_) add1-extract-left
-      >=> u^ℤ-add1 b ((int.int x) + y)
-      >=> cong (b u*_) (u^ℤ-distrib-+-NonNeg {b} {int.nonneg x} {y} 0≤nonneg)
+      >=> u^ℤ-add1 b ((int x) + y)
+      >=> cong (b u*_) (u^ℤ-distrib-+-NonNeg {b} {nonneg x} {y} 0≤nonneg)
       >=> sym (Monoid.∙-assoc R.Monoid-u*)
-      >=> cong (_u* (b u^ℤ y)) (sym (u^ℤ-add1 b (int.int x)))
-    u^ℤ-distrib-+-NonNeg {b} {int.neg x} 0≤x = bot-elim (convert-≤ 0≤x neg<0)
+      >=> cong (_u* (b u^ℤ y)) (sym (u^ℤ-add1 b (int x)))
+    u^ℤ-distrib-+-NonNeg {b} {neg x} 0≤x = bot-elim (convert-≤ 0≤x neg<0)
 
     u^ℤ-distrib-+ : {b : Unit} {x y : ℤ} -> b u^ℤ (x + y) == (b u^ℤ x) u* (b u^ℤ y)
     u^ℤ-distrib-+ {b} {x} {y} = IntElim-add1sub1-elim z add1-case sub1-case x
@@ -140,7 +141,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       P : ℤ -> Type ℓD
       P x = b u^ℤ (x + y) == (b u^ℤ x) u* (b u^ℤ y)
 
-      z : P (int.int 0)
+      z : P (int 0)
       z = cong (b u^ℤ_) +-left-zero >=> sym (Monoid.∙-left-ε R.Monoid-u*)
       add1-case : (x : ℤ) -> (P x) -> (P (add1 x))
       add1-case x p =

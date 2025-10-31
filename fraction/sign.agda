@@ -7,14 +7,13 @@ open import additive-group.instances.int
 open import base
 open import equality
 open import hlevel.base
-open import int hiding (
-  NonZero ; isSign ; isProp-isSign ; isSign-unique ; NonNeg ; Pos->NonNeg ;
-  Zero->NonNeg ; NonNeg->¬Neg ; Zero ; NonZero->¬Zero ; Pos
-  )
+open import int.base
 open import int.order
 open import nat
 open import order
 open import order.instances.int
+open import ordered-additive-group
+open import ordered-additive-group.instances.int
 open import ordered-semiring
 open import ordered-semiring.instances.int
 open import rational
@@ -30,10 +29,15 @@ open EqReasoning
 
 private
   module i where
-    open int public using (
-       isSign-self ; NonZero->NonZeroSign ; isSign-unique ; Zero-path ;
-       *-NonZero-NonZero ; Pos->PosSign ; isSign ; minus-isSign
-       )
+    open import int.sign public using (
+      Zero ; NonNeg ;
+      isSign-self ; NonZero->NonZeroSign ; isSign-unique ; Zero-path ;
+      Pos->PosSign ; NonZero->¬Zero ; isSign
+      )
+    open import int public using (
+      int->sign-preserves-* ; NonZero->!=0 ;
+      *-NonZero-NonZero ; *-isSign ; minus-isSign
+      )
 
 private
   numer : ℚ' -> Int
@@ -80,11 +84,11 @@ instance
     { decide-sign = \q -> _ , isSign'-self q
     }
 
-NonNeg-nd->ℚ' : {q : ℚ'} -> int.NonNeg (numer q * denom q) -> NonNeg q
+NonNeg-nd->ℚ' : {q : ℚ'} -> i.NonNeg (numer q * denom q) -> NonNeg q
 NonNeg-nd->ℚ' {q} 0≤nd =
   case (split-< 0# (numer q * denom q)) of
     (\{ (inj-l 0<nd) -> inj-l (is-signℚ' 0<nd)
-      ; (inj-r nd≤0) -> inj-r (is-signℚ' (subst int.Zero (antisym-≤ 0≤nd nd≤0) tt))
+      ; (inj-r nd≤0) -> inj-r (is-signℚ' (subst i.Zero (antisym-≤ 0≤nd nd≤0) tt))
       })
 
 r~-preserves-sign : {q1 q2 : ℚ'} {s : Sign} -> isSign s q1 -> q1 r~ q2 -> isSign s q2
@@ -97,7 +101,7 @@ r~-preserves-sign {q1} {q2} {s} v p = is-signℚ' ans
   S = sign
 
   inner-path : S n1 s* S d2 == S n2 s* S d1
-  inner-path = sym int->sign-preserves-* >=> cong S p >=> int->sign-preserves-*
+  inner-path = sym i.int->sign-preserves-* >=> cong S p >=> i.int->sign-preserves-*
 
   path : (S n1) s* (S d1) == (S n2) s* (S d2)
   path =
@@ -117,7 +121,7 @@ r~-preserves-sign {q1} {q2} {s} v p = is-signℚ' ans
   expand-s = i.isSign-unique (isSignℚ'.v v) (i.isSign-self (n1 * d1))
 
   end-path : s == S (n2 * d2)
-  end-path = expand-s >=> int->sign-preserves-* >=> path >=> (sym int->sign-preserves-*)
+  end-path = expand-s >=> i.int->sign-preserves-* >=> path >=> (sym i.int->sign-preserves-*)
 
   ans : isSign s (n2 * d2)
   ans = subst (\s -> isSign s (n2 * d2)) (sym end-path) (i.isSign-self (n2 * d2))
@@ -137,7 +141,7 @@ Zero-r~ {q1} (is-signℚ' p) = *-right-one >=> p2 >=> sym (*-left-zero)
   d = denom q1
 
   p2 : n == 0#
-  p2 = *₂-reflects-= (NonZero->!=0 (rNonZero q1)) (i.Zero-path _ p >=> sym *-left-zero)
+  p2 = *₂-reflects-= (i.NonZero->!=0 (rNonZero q1)) (i.Zero-path _ p >=> sym *-left-zero)
 
 Zero-0r' : Zero 0r'
 Zero-0r' = is-signℚ' (subst (Zero {D = ℤ}) (sym *-left-zero) tt)
@@ -163,7 +167,7 @@ private
     s1 = sign (numer q)
     s2 = sign (denom q)
     path : s1 == s2
-    path = handle s1 s2 (subst isPosSign int->sign-preserves-* (i.Pos->PosSign (isSignℚ'.v p)))
+    path = handle s1 s2 (subst isPosSign i.int->sign-preserves-* (i.Pos->PosSign (isSignℚ'.v p)))
       where
       handle : (x y : Sign) -> isPosSign (x s* y) -> x == y
       handle pos-sign pos-sign _ = refl
@@ -174,17 +178,25 @@ private
 
   same-sign->Pos :
     (q : ℚ') -> (s : Sign) -> isSign s (numer q) -> isSign s (denom q) -> Pos q
-  same-sign->Pos q s@pos-sign sn sd = is-signℚ' (int.*-isSign {s} {s} {numer q} {denom q} sn sd)
-  same-sign->Pos q s@neg-sign sn sd = is-signℚ' (int.*-isSign {s} {s} {numer q} {denom q} sn sd)
-  same-sign->Pos q zero-sign sn sd = bot-elim (int.NonZero->¬Zero (rNonZero q) sd)
+  same-sign->Pos q s@pos-sign sn sd = is-signℚ' (i.*-isSign {s} {s} {numer q} {denom q} sn sd)
+  same-sign->Pos q s@neg-sign sn sd = is-signℚ' (i.*-isSign {s} {s} {numer q} {denom q} sn sd)
+  same-sign->Pos q zero-sign sn sd = bot-elim (i.NonZero->¬Zero (rNonZero q) sd)
 
 same-sign-ℤ->ℚ' : (i : ℤ) -> (s : Sign) -> isSign s i -> isSign s (ℤ->ℚ' i)
 same-sign-ℤ->ℚ' i s si =
   subst (\x -> isSign x (ℤ->ℚ' i)) s*-pos-right-identity
-        (is-signℚ' (int.*-isSign {s} {pos-sign} {i} {int 1} si 0<1))
+        (is-signℚ' (i.*-isSign {s} {pos-sign} {i} {int 1} si 0<1))
 
 Pos-ℕ⁺->ℚ' : (i : Nat⁺) -> Pos (ℕ->ℚ' ⟨ i ⟩)
 Pos-ℕ⁺->ℚ' (i@(suc _) , _) = same-sign-ℤ->ℚ' (int i) pos-sign 0<pos
+
+private
+  *-Pos-Pos = *-preserves-0<
+  *-Neg-Neg = *-flips-<0
+  *-Pos-Neg = *₁-preserves-<0
+  *-Neg-Pos = *₂-preserves-<0
+  +-Pos-Pos = +-preserves-0<
+  +-Neg-Neg = +-preserves-<0
 
 abstract
   r+'-preserves-Pos : {q1 q2 : ℚ'} -> Pos q1 -> Pos q2 -> Pos (q1 r+' q2)
@@ -196,19 +208,21 @@ abstract
       d1 = denom q1
       d2 = denom q2
 
-    helper : (s1 s2 : Sign) -> isSign s1 n1 -> isSign s1 d1 -> isSign s2 n2 -> isSign s2 d2 ->
-             Pos ((n1 * d2 + n2 * d1) * (d1 * d2))
-    helper zero-sign s2        sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero {D = ℤ} (rNonZero q1) sd1)
-    helper pos-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero {D = ℤ} (rNonZero q2) sd2)
-    helper neg-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero {D = ℤ} (rNonZero q2) sd2)
-    helper pos-sign  pos-sign  sn1 sd1 sn2 sd2 =
-      *-Pos-Pos (+-Pos-Pos (*-Pos-Pos sn1 sd2) (*-Pos-Pos sn2 sd1)) (*-Pos-Pos sd1 sd2)
-    helper pos-sign  neg-sign  sn1 sd1 sn2 sd2 =
-      *-Neg-Neg (+-Neg-Neg (*-Pos-Neg sn1 sd2) (*-Neg-Pos sn2 sd1)) (*-Pos-Neg sd1 sd2)
-    helper neg-sign  pos-sign  sn1 sd1 sn2 sd2 =
-      *-Neg-Neg (+-Neg-Neg (*-Neg-Pos sn1 sd2) (*-Pos-Neg sn2 sd1)) (*-Neg-Pos sd1 sd2)
-    helper neg-sign  neg-sign  sn1 sd1 sn2 sd2 =
-      *-Pos-Pos (+-Pos-Pos (*-Neg-Neg sn1 sd2) (*-Neg-Neg sn2 sd1)) (*-Neg-Neg sd1 sd2)
+    module _ where
+
+      helper : (s1 s2 : Sign) -> isSign s1 n1 -> isSign s1 d1 -> isSign s2 n2 -> isSign s2 d2 ->
+               Pos ((n1 * d2 + n2 * d1) * (d1 * d2))
+      helper zero-sign s2        sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero {D = ℤ} (rNonZero q1) sd1)
+      helper pos-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero {D = ℤ} (rNonZero q2) sd2)
+      helper neg-sign  zero-sign sn1 sd1 sn2 sd2 = bot-elim (NonZero->¬Zero {D = ℤ} (rNonZero q2) sd2)
+      helper pos-sign  pos-sign  sn1 sd1 sn2 sd2 =
+        *-Pos-Pos (+-Pos-Pos (*-Pos-Pos sn1 sd2) (*-Pos-Pos sn2 sd1)) (*-Pos-Pos sd1 sd2)
+      helper pos-sign  neg-sign  sn1 sd1 sn2 sd2 =
+        *-Neg-Neg (+-Neg-Neg (*-Pos-Neg sn1 sd2) (*-Neg-Pos sn2 sd1)) (*-Pos-Neg sd1 sd2)
+      helper neg-sign  pos-sign  sn1 sd1 sn2 sd2 =
+        *-Neg-Neg (+-Neg-Neg (*-Neg-Pos sn1 sd2) (*-Pos-Neg sn2 sd1)) (*-Neg-Pos sd1 sd2)
+      helper neg-sign  neg-sign  sn1 sd1 sn2 sd2 =
+        *-Pos-Pos (+-Pos-Pos (*-Neg-Neg sn1 sd2) (*-Neg-Neg sn2 sd1)) (*-Neg-Neg sd1 sd2)
 
     ans : Pos ((n1 * d2 + n2 * d1) * (d1 * d2))
     ans = helper s1 s2 sn1 sd1 sn2 sd2
