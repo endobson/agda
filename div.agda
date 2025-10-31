@@ -12,6 +12,7 @@ open import fin
 open import functions
 open import hlevel
 open import int
+open import int.order
 open import int.elimination
 open import int.multiplication
 open import int.nat
@@ -155,16 +156,17 @@ div'->≤ : {d a : Nat} -> d div' a -> {Pos' a} -> d ≤ a
 div'->≤ {d} {a}     ((suc x) , sx*d=a) = ≤'->≤ (x *' d , sx*d=a)
 div'->≤ {d} {suc _} (zero    , pr    ) = zero-suc-absurd pr
 
-div->≤ : {d a : Int} -> d div a -> {Pos a} -> abs' d ≤ abs' a
-div->≤ {a = pos _} da = div'->≤ (div->div' da)
-
+div->≤ : {d a : Int} -> d div a -> Pos a -> abs' d ≤ abs' a
+div->≤ {a = pos _} da _ = div'->≤ (div->div' da)
+div->≤ {a = neg _} da 0<a = bot-elim (asym-< neg<0 0<a)
+div->≤ {a = zero-int} da 0<0 = bot-elim (irrefl-< 0<0)
 
 div-zero->zero : {n : Int} -> (int 0) div n -> n == (int 0)
 div-zero->zero (d , pr) = (sym pr) >=> *-right-zero
 
 div-non-zero->non-zero : {d n : Int} -> d div n -> NonZero n -> NonZero d
-div-non-zero->non-zero {d = pos _} _ _ = (inj-l tt)
-div-non-zero->non-zero {d = neg _} _ _ = (inj-r tt)
+div-non-zero->non-zero {d = pos _} _ _ = (inj-l 0<pos)
+div-non-zero->non-zero {d = neg _} _ _ = (inj-r neg<0)
 div-non-zero->non-zero {d = zero-int} d%n n-nz =
   bot-elim (NonZero->¬Zero (subst NonZero (div-zero->zero d%n) n-nz) tt)
 
@@ -265,8 +267,7 @@ div-same-abs = step3 _ _
 
 nonneg-unit->one : {n : Int} -> NonNeg n -> Unit n -> n == (int 1)
 nonneg-unit->one {n = nonneg (suc zero)} _ _ = refl
-nonneg-unit->one {n = neg _} (inj-l ())
-nonneg-unit->one {n = neg _} (inj-r ())
+nonneg-unit->one {n = neg _} 0≤n = bot-elim (convert-≤ 0≤n neg<0)
 
 div-one->one : {d : Int} -> NonNeg d -> d div (int 1) -> d == (int 1)
 div-one->one nn (m , p) = nonneg-unit->one nn (*-one-implies-unit p)

@@ -33,7 +33,7 @@ private
     a<n = (1 , tt) , ℤ+-eval
 
     a<nb : int a < (ℕ->Semiring n * b)
-    a<nb = trans-≤-< (trans-=-≤ (sym *-right-one) (*₁-preserves-≤ (0≤nonneg a) 1≤b))
+    a<nb = trans-≤-< (trans-=-≤ (sym *-right-one) (*₁-preserves-≤ 0≤nonneg 1≤b))
                      (trans-<-= (*₂-preserves-< a<n 0<b) (*-left (sym (ℕ->Semiring-ℤ-path n))))
 
 

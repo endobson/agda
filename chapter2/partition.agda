@@ -24,6 +24,7 @@ open import gcd.propositional
 open import hlevel
 open import int
 open import int.nat
+open import int.order
 open import isomorphism
 open import linear-combo
 open import nat
@@ -234,7 +235,7 @@ module _ (n⁺ : Nat⁺) where
           gcd1 = relatively-prime->gcd (tot .Totient.rp)
 
           gcd-d : GCD ((int q) * (int d)) ((int nd) * (int d)) (int d)
-          gcd-d .GCD.non-neg = int.NonNeg-nonneg d
+          gcd-d .GCD.0≤d = 0≤nonneg
           gcd-d .GCD.∣%a∣ = ∣ (int q) , refl ∣
           gcd-d .GCD.∣%b∣ = ∣ (int nd) , refl ∣
           gcd-d .GCD.∣f∣ s (sq' , sq-path) (snd' , snd-path) = ∣ s%d ∣

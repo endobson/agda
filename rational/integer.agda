@@ -3,8 +3,8 @@
 module rational.integer where
 
 open import additive-group
-open import additive-group.instances.nat
 open import additive-group.instances.int
+open import additive-group.instances.nat
 open import base
 open import equality
 open import fin
@@ -12,8 +12,13 @@ open import functions
 open import hlevel
 open import int
 open import int.nat
+open import int.order
 open import nat
 open import nat.order
+open import order
+open import order.instances.int
+open import ordered-additive-group
+open import ordered-additive-group.instances.int
 open import quotient-remainder-int
 open import rational
 open import ring
@@ -38,14 +43,12 @@ private
   quotientℤ : (n : ℤ) (d : ℤ*) -> ℤ
   quotientℤ n (int.pos d , _) = quotient n (suc d , tt)
   quotientℤ n (int.neg d , _) = (quotient (- n) (suc d , tt))
-  quotientℤ n (int.zero-int , (inj-l ()))
-  quotientℤ n (int.zero-int , (inj-r ()))
+  quotientℤ n (int.zero-int , nz) = bot-elim (NonZero->!=0 nz refl)
 
   remainderℤ : (n : ℤ) (d : ℤ*) -> ℤ
   remainderℤ n (int.pos d , _) = int (Fin.i (remainder n (suc d , tt)))
   remainderℤ n (int.neg d , _) = - (int (Fin.i (remainder (- n) (suc d , tt))))
-  remainderℤ n (int.zero-int , (inj-l ()))
-  remainderℤ n (int.zero-int , (inj-r ()))
+  remainderℤ n (int.zero-int , nz) = bot-elim (NonZero->!=0 nz refl)
 
 
   ℤ*-* : ℤ* -> ℤ* -> ℤ*
@@ -59,19 +62,18 @@ private
     sym minus-distrib-plus >=>
     cong -_ (QuotientRemainder.path (quotient-remainder (suc d , tt) (- a))) >=>
     minus-double-inverse
-  quotientℤ-path a (int.zero-int , inj-l ())
-  quotientℤ-path a (int.zero-int , inj-r ())
+  quotientℤ-path a (int.zero-int , nz) = bot-elim (NonZero->!=0 nz refl)
 
   quotientℤ-multiple-path :
     (m : ℤ*) -> (n : ℤ) -> (d : ℤ*) ->
     quotientℤ n d == quotientℤ (⟨ m ⟩ * n) (ℤ*-* m d)
   quotientℤ-multiple-path m@(int.pos m' , _) n d@(int.pos d' , _) =
     quotient-multiple-path (suc m' , tt) n (suc d' , tt) >=>
-    cong (quotientℤ (int.pos m' * n)) (ΣProp-path {x = _ , (inj-l tt)} int.isPropNonZero ℕ->ℤ-*)
+    cong (quotientℤ (int.pos m' * n)) (ΣProp-path {x = _ , (inj-l 0<pos)} int.isPropNonZero ℕ->ℤ-*)
   quotientℤ-multiple-path m@(int.pos m' , _) n d@(int.neg d' , _) =
     quotient-multiple-path (suc m' , tt) (- n) (suc d' , tt) >=>
     cong (\x -> quotient x _) minus-extract-right >=>
-    cong (quotientℤ (int.pos m' * n)) (ΣProp-path {x = _ , (inj-r tt)} int.isPropNonZero p1)
+    cong (quotientℤ (int.pos m' * n)) (ΣProp-path {x = _ , (inj-r neg<0)} int.isPropNonZero p1)
     where
     p1 : (int.neg (d' + (m' * suc d'))) == (int.pos m' * int.neg d')
     p1 = cong -_ ℕ->ℤ-* >=> sym minus-extract-right
@@ -80,7 +82,7 @@ private
     cong (\x -> quotient x (suc d' , tt)) p3 >=>
     quotient-multiple-path (suc m' , tt) (- (- n)) (suc d' , tt) >=>
     cong (\x -> quotient x ((suc m' , tt) *⁺ (suc d' , tt))) p2 >=>
-    cong (quotientℤ (int.neg m' * n)) (ΣProp-path {x = _ , (inj-r tt)} int.isPropNonZero p1)
+    cong (quotientℤ (int.neg m' * n)) (ΣProp-path {x = _ , (inj-r neg<0)} int.isPropNonZero p1)
     where
     p1 : int.neg (d' + (m' * suc d')) == (int.neg m' * int.pos d')
     p1 = cong -_ ℕ->ℤ-* >=> sym minus-extract-left
@@ -91,27 +93,27 @@ private
   quotientℤ-multiple-path m@(int.neg m' , _) n d@(int.neg d' , _) =
     quotient-multiple-path (suc m' , tt) (- n) (suc d' , tt) >=>
     cong (\x -> quotient x _) (minus-extract-right >=> sym minus-extract-left) >=>
-    cong (quotientℤ (int.neg m' * n)) (ΣProp-path {x = _ , (inj-l tt)} int.isPropNonZero p1)
+    cong (quotientℤ (int.neg m' * n)) (ΣProp-path {x = _ , (inj-l 0<pos)} int.isPropNonZero p1)
     where
     p1 : int (suc m' * suc d') == (int.neg m' * int.neg d')
     p1 = ℕ->ℤ-* >=> sym minus-double-inverse >=>
          cong -_ (sym minus-extract-right) >=>
          sym minus-extract-left
-  quotientℤ-multiple-path (int.zero-int , inj-l ())
-  quotientℤ-multiple-path (int.zero-int , inj-r ())
-  quotientℤ-multiple-path (int.pos _ , _) _ (int.zero-int , inj-l ())
-  quotientℤ-multiple-path (int.pos _ , _) _ (int.zero-int , inj-r ())
-  quotientℤ-multiple-path (int.neg _ , _) _ (int.zero-int , inj-l ())
-  quotientℤ-multiple-path (int.neg _ , _) _ (int.zero-int , inj-r ())
+  quotientℤ-multiple-path (int.zero-int , nz) = bot-elim (NonZero->!=0 nz refl)
+  quotientℤ-multiple-path (int.pos _ , _) _ (int.zero-int , nz) = bot-elim (NonZero->!=0 nz refl)
+  quotientℤ-multiple-path (int.neg _ , _) _ (int.zero-int , nz) = bot-elim (NonZero->!=0 nz refl)
 
 
   remainderℤ-NonNeg : (n : ℤ) (d : ℤ*) -> int.Pos ⟨ d ⟩ -> int.NonNeg (remainderℤ n d)
-  remainderℤ-NonNeg n (int.pos _ , _) _ = int.NonNeg-nonneg _
+  remainderℤ-NonNeg n (int.pos _ , _) _ = 0≤nonneg
+  remainderℤ-NonNeg n (int.neg _ , _) 0<d = bot-elim (asym-< 0<d neg<0)
+  remainderℤ-NonNeg n (int.zero-int , _) 0<0 = bot-elim (irrefl-< 0<0)
 
   remainderℤ-NonPos : (n : ℤ) (d : ℤ*) -> int.Neg ⟨ d ⟩ -> int.NonPos (remainderℤ n d)
   remainderℤ-NonPos n (int.neg d' , _) _ =
-    int.minus-NonNeg {remainderℤ (- n) (int.pos d' , inj-l tt)}
-                     (remainderℤ-NonNeg (- n) (int.pos d' , inj-l tt) _)
+    minus-flips-0≤ (remainderℤ-NonNeg (- n) (int.pos d' , inj-l 0<pos) 0<pos)
+  remainderℤ-NonPos n (int.nonneg d' , _) d<0 =
+    bot-elim (convert-≤ 0≤nonneg d<0)
 
 private
   floor' : ℚ' -> ℤ

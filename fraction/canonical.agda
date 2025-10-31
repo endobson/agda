@@ -16,8 +16,11 @@ open import int.sign
 open import order
 open import order.instances.int
 open import order.minmax.instances.int
+open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.int
+open import ordered-semiring
+open import ordered-semiring.instances.int
 open import rational
 open import ring
 open import ring.implementations.int
@@ -32,16 +35,12 @@ private
 
 record isCanonicalℚ' (q : ℚ') : Type₀ where
   field
-    Pos-denominator : Pos (ℚ'.denominator q)
+    0<d : 0# < (ℚ'.denominator q)
     lowest-terms : LowestTerms q
-
-  0<d : 0# < ℚ'.denominator q
-  0<d = Pos->0< Pos-denominator
 
 isProp-isCanonicalℚ' : {q : ℚ'} -> isProp (isCanonicalℚ' q)
 isProp-isCanonicalℚ' c₁ c₂ i = record
-  { Pos-denominator = isPropPos (isCanonicalℚ'.Pos-denominator c₁)
-                                (isCanonicalℚ'.Pos-denominator c₂) i
+  { 0<d = isProp-< (isCanonicalℚ'.0<d c₁) (isCanonicalℚ'.0<d c₂) i
   ; lowest-terms = isProp-GCD (isCanonicalℚ'.lowest-terms c₁)
                               (isCanonicalℚ'.lowest-terms c₂) i
   }
@@ -73,7 +72,7 @@ private
       *-right (*-commute >=> snd G.%b)
 
     coprime : GCD n' d' 1#
-    coprime .GCD.non-neg = inj-l tt
+    coprime .GCD.0≤d = 0≤1
     coprime .GCD.∣%a∣ = ∣ div-one ∣
     coprime .GCD.∣%b∣ = ∣ div-one ∣
     coprime .GCD.∣f∣ x (v1 , p1) (v2 , p2) = ∣ (v3 , p3') ∣
@@ -100,7 +99,7 @@ private
 
   normalize-denominator-sign : ℚ' -> ℚ'
   normalize-denominator-sign (ℚ'-cons n d (inj-l pd)) = ℚ'-cons n d (inj-l pd)
-  normalize-denominator-sign (ℚ'-cons n d (inj-r nd)) = ℚ'-cons (- n) (- d) (inj-l (minus-Neg nd))
+  normalize-denominator-sign (ℚ'-cons n d (inj-r nd)) = ℚ'-cons (- n) (- d) (inj-l (minus-flips-<0 nd))
 
   normalize-denominator-sign-r~ : (q : ℚ') -> (normalize-denominator-sign q) r~ q
   normalize-denominator-sign-r~ (ℚ'-cons n d (inj-l pd)) = refl
@@ -113,9 +112,9 @@ private
   normalize-denominator-sign-preserves-LowestTerms (ℚ'-cons n d (inj-r nd)) lt =
     gcd-sym (gcd-negate (gcd-sym (gcd-negate lt)))
 
-  Pos-normalize-denominator-sign : (q : ℚ') -> Pos (ℚ'.denominator (normalize-denominator-sign q))
-  Pos-normalize-denominator-sign (ℚ'-cons n d (inj-l pd)) = pd
-  Pos-normalize-denominator-sign (ℚ'-cons n d (inj-r nd)) = minus-Neg nd
+  0<normalize-denominator-sign : (q : ℚ') -> 0# < (ℚ'.denominator (normalize-denominator-sign q))
+  0<normalize-denominator-sign (ℚ'-cons n d (inj-l pd)) = pd
+  0<normalize-denominator-sign (ℚ'-cons n d (inj-r nd)) = minus-flips-<0 nd
 
 opaque
   ℚ'->canonical : (q : ℚ') -> Σ[ r ∈ ℚ' ] (r r~ q × isCanonicalℚ' r)
@@ -124,7 +123,7 @@ opaque
     (trans-r~ r2 r1 q (normalize-denominator-sign-r~ r1) (proj₁ (snd Σr1))) ,
     record
       { lowest-terms = normalize-denominator-sign-preserves-LowestTerms r1 (proj₂ (snd Σr1))
-      ; Pos-denominator = Pos-normalize-denominator-sign r1
+      ; 0<d = 0<normalize-denominator-sign r1
       }
     where
     Σr1 : Σ[ r ∈ ℚ' ] (r r~ q × LowestTerms r)

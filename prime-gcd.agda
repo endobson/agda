@@ -10,6 +10,7 @@ open import equality
 open import gcd.euclidean-algorithm
 open import gcd.propositional
 open import int
+open import int.order
 open import lcm
 open import nat
 open import nat.order
@@ -40,15 +41,15 @@ relatively-prime->gcdⁱ : {a b : Int} -> RelativelyPrime a b -> GCD a b (int 1)
 relatively-prime->gcdⁱ {a} {b} rp = record
   { ∣%a∣ = ∣ div-one ∣
   ; ∣%b∣ = ∣ div-one ∣
-  ; non-neg = inj-l tt
+  ; 0≤d = 0≤nonneg
   ; ∣f∣ = \x x%a x%b -> ∣ f x x%a x%b ∣
   }
   where
   f : (x : Int) -> x div a -> x div b -> x div (int 1)
-  f (nonneg x) x%a x%b = (int 1) , *-left-one >=> rp (nonneg x) (NonNeg-nonneg x) x%a x%b
+  f (nonneg x) x%a x%b = (int 1) , *-left-one >=> rp (nonneg x) 0≤nonneg x%a x%b
   f (neg x)    x%a x%b =
     - (int 1) , minus-extract-left >=> cong -_ *-left-one >=>
-                rp (pos x) (inj-l tt) (div-negate-left⁺ x%a) (div-negate-left⁺ x%b)
+                rp (pos x) 0≤nonneg (div-negate-left⁺ x%a) (div-negate-left⁺ x%b)
 
 
 gcd->relatively-prime : {a b : Nat} -> GCD' a b 1 -> RP a b

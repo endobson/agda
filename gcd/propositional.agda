@@ -23,7 +23,7 @@ open import truncation
 record GCD (a : Int) (b : Int) (d : Int) : Type₀ where
   constructor gcd
   field
-    non-neg : (NonNeg d)
+    0≤d : 0# ≤ d
     ∣%a∣ : ∥ d div a ∥
     ∣%b∣ : ∥ d div b ∥
     ∣f∣ : (x : Int) -> x div a -> x div b -> ∥ x div d ∥
@@ -35,12 +35,10 @@ record GCD (a : Int) (b : Int) (d : Int) : Type₀ where
   f : (x : Int) -> x div a -> x div b -> x div d
   f x x%a x%b = ∥div∥->div (∣f∣ x x%a x%b)
 
-  0≤d : 0# ≤ d
-  0≤d = NonNeg->0≤ non-neg
 
 isProp-GCD : {a b d : Int} -> isProp (GCD a b d)
 isProp-GCD {a} {b} {d} g1 g2 = (\i -> record
-  { non-neg = isPropNonNeg g1.non-neg g2.non-neg i
+  { 0≤d = isProp-≤ g1.0≤d g2.0≤d i
   ; ∣%a∣ = squash g1.∣%a∣ g2.∣%a∣ i
   ; ∣%b∣ = squash g1.∣%b∣ g2.∣%b∣ i
   ; ∣f∣ = isPropΠ3 (\_ _ _ -> squash) g1.∣f∣ g2.∣f∣ i
@@ -63,12 +61,12 @@ GCD⁺ (a , _) (b , _) (d , _) = GCD' a b d
 
 gcd-refl : {n : Int} -> GCD n n (abs n)
 gcd-refl {n} =
-  gcd (0≤->NonNeg abs-0≤) (∣ div-abs-left div-refl ∣) (∣ div-abs-left div-refl ∣)
+  gcd abs-0≤ (∣ div-abs-left div-refl ∣) (∣ div-abs-left div-refl ∣)
       (\ _ _ d -> (∣ div-abs-right d ∣))
 
 gcd-zero : {a : Int} -> GCD a zero-int (abs a)
 gcd-zero {a} =
-  gcd (0≤->NonNeg abs-0≤) (∣ div-abs-left div-refl ∣) (∣ div-zero ∣)
+  gcd abs-0≤ (∣ div-abs-left div-refl ∣) (∣ div-zero ∣)
       (\ x xa xz -> (∣ div-abs-right xa ∣))
 
 gcd-sym : {a b d : Int} -> GCD a b d -> GCD b a d
@@ -141,7 +139,7 @@ gcd'-unique {m} {n} {d1} {d2} g1 g2 =
 
 gcd'->gcd/nat : {d n a : Nat} -> GCD' d n a -> GCD (int d) (int n) (int a)
 gcd'->gcd/nat {d} {n} {a} g =
-  (gcd (NonNeg-nonneg _) (∣ div'->div g.%a ∣) (∣ div'->div g.%b ∣) f)
+  (gcd 0≤nonneg (∣ div'->div g.%a ∣) (∣ div'->div g.%b ∣) f)
   where
   module g = GCD' g
   fix : {x : Int} -> {y : Nat} -> x div (int y) -> (abs' x) div' y
@@ -152,8 +150,7 @@ gcd'->gcd/nat {d} {n} {a} g =
   f x@(neg x') x%d x%n = ∣ div-negate-left⁺ (div'->div (g.f (suc x') (fix x%d) (fix x%n))) ∣
 
 gcd'->gcd : {d n a : Int} -> NonNeg a -> GCD' (abs' d) (abs' n) (abs' a) -> GCD d n a
-gcd'->gcd {_} {_} {neg _} (inj-l ())
-gcd'->gcd {_} {_} {neg _} (inj-r ())
+gcd'->gcd {_} {_} {neg _} 0≤a = bot-elim (convert-≤ 0≤a neg<0)
 gcd'->gcd {zero-int} {zero-int} {zero-int} _ g = gcd'->gcd/nat g
 gcd'->gcd {zero-int} {zero-int} {pos _} _ g = gcd'->gcd/nat g
 gcd'->gcd {zero-int} {pos _} {zero-int} _ g = gcd'->gcd/nat g

@@ -31,7 +31,7 @@ open EqReasoning
 
 linear-combo->gcd : {a b d : Int} -> LinearCombination a b d -> d div a -> d div b -> GCD a b (abs d)
 linear-combo->gcd {d = d} (linear-combo x y p) da db =
-  (gcd (0≤->NonNeg abs-0≤) (∣ div-abs-left da ∣) (∣ div-abs-left db ∣)
+  (gcd abs-0≤ (∣ div-abs-left da ∣) (∣ div-abs-left db ∣)
     (\ z za zb -> ∣ transport (\i -> z div abs (p i)) (div-abs-right (div-linear za zb {x} {y})) ∣))
 
 private
@@ -84,7 +84,7 @@ private
     g : GCD (int a) (int b) (abs (int r))
     g = linear-combo->gcd lc (div'->div (proj₁ div-both)) (div'->div (proj₂ div-both))
     g' : GCD (int a) (int b) (int r)
-    g' = subst (GCD (int a) (int b)) (abs-0≤-path (0≤nonneg r)) g
+    g' = subst (GCD (int a) (int b)) (abs-0≤-path 0≤nonneg) g
 
 
 compute-euclidean-tree : (a b : Nat) -> EuclideanTree a b
@@ -118,7 +118,7 @@ abstract
     t = compute-euclidean-tree a b
 
   gcd-exists : (a b : Int) -> Σ[ d ∈ Int ] (GCD a b d)
-  gcd-exists a b = (int (euclidean-tree-root t)) , (gcd'->gcd (NonNeg-nonneg _) (euclidean-tree->gcd t))
+  gcd-exists a b = (int (euclidean-tree-root t)) , (gcd'->gcd 0≤nonneg (euclidean-tree->gcd t))
     where
     t : EuclideanTree (abs' a) (abs' b)
     t = compute-euclidean-tree (abs' a) (abs' b)
@@ -147,7 +147,7 @@ gcd->linear-combo {a} {b} {d} g = linear-combo-unabs lc₂
 
 linear-combo-one->gcd-one : {a b : Int} -> LinearCombination a b (int 1) -> GCD a b (int 1)
 linear-combo-one->gcd-one lc =
-  subst (GCD _ _) (abs-0≤-path (0≤nonneg 1)) (linear-combo->gcd lc div-one div-one)
+  subst (GCD _ _) (abs-0≤-path 0≤nonneg) (linear-combo->gcd lc div-one div-one)
 
 
 

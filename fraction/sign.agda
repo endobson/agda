@@ -11,7 +11,12 @@ open import int hiding (
   NonZero ; isSign ; isProp-isSign ; isSign-unique ; NonNeg ; Pos->NonNeg ;
   Zero->NonNeg ; NonNeg->¬Neg ; Zero ; NonZero->¬Zero ; Pos
   )
+open import int.order
 open import nat
+open import order
+open import order.instances.int
+open import ordered-semiring
+open import ordered-semiring.instances.int
 open import rational
 open import ring
 open import ring.implementations.int
@@ -75,9 +80,12 @@ instance
     { decide-sign = \q -> _ , isSign'-self q
     }
 
-NonNeg-nd->ℚ' : {q : ℚ'} -> NonNeg (numer q * denom q) -> NonNeg q
-NonNeg-nd->ℚ' (inj-l p) = inj-l (is-signℚ' p)
-NonNeg-nd->ℚ' (inj-r p) = inj-r (is-signℚ' p)
+NonNeg-nd->ℚ' : {q : ℚ'} -> int.NonNeg (numer q * denom q) -> NonNeg q
+NonNeg-nd->ℚ' {q} 0≤nd =
+  case (split-< 0# (numer q * denom q)) of
+    (\{ (inj-l 0<nd) -> inj-l (is-signℚ' 0<nd)
+      ; (inj-r nd≤0) -> inj-r (is-signℚ' (subst int.Zero (antisym-≤ 0≤nd nd≤0) tt))
+      })
 
 r~-preserves-sign : {q1 q2 : ℚ'} {s : Sign} -> isSign s q1 -> q1 r~ q2 -> isSign s q2
 r~-preserves-sign {q1} {q2} {s} v p = is-signℚ' ans
@@ -173,10 +181,10 @@ private
 same-sign-ℤ->ℚ' : (i : ℤ) -> (s : Sign) -> isSign s i -> isSign s (ℤ->ℚ' i)
 same-sign-ℤ->ℚ' i s si =
   subst (\x -> isSign x (ℤ->ℚ' i)) s*-pos-right-identity
-        (is-signℚ' (int.*-isSign {s} {pos-sign} {i} {int 1} si tt))
+        (is-signℚ' (int.*-isSign {s} {pos-sign} {i} {int 1} si 0<1))
 
 Pos-ℕ⁺->ℚ' : (i : Nat⁺) -> Pos (ℕ->ℚ' ⟨ i ⟩)
-Pos-ℕ⁺->ℚ' (i@(suc _) , _) = same-sign-ℤ->ℚ' (int i) pos-sign tt
+Pos-ℕ⁺->ℚ' (i@(suc _) , _) = same-sign-ℤ->ℚ' (int i) pos-sign 0<pos
 
 abstract
   r+'-preserves-Pos : {q1 q2 : ℚ'} -> Pos q1 -> Pos q2 -> Pos (q1 r+' q2)

@@ -14,9 +14,12 @@ open import int
 open import int.add1
 open import int.addition
 open import int.elimination
+open import int.order
 open import monoid
 open import nat
 open import nat.even-odd
+open import order
+open import order.instances.int
 open import ring
 open import semiring
 open import semiring.exponentiation
@@ -126,11 +129,10 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     u^ℤ-distrib-+-NonNeg {b} {int.nonneg (suc x)} {y} _ =
       cong (b u^ℤ_) add1-extract-left
       >=> u^ℤ-add1 b ((int.int x) + y)
-      >=> cong (b u*_) (u^ℤ-distrib-+-NonNeg {b} {int.nonneg x} {y} (int.NonNeg-nonneg x))
+      >=> cong (b u*_) (u^ℤ-distrib-+-NonNeg {b} {int.nonneg x} {y} 0≤nonneg)
       >=> sym (Monoid.∙-assoc R.Monoid-u*)
       >=> cong (_u* (b u^ℤ y)) (sym (u^ℤ-add1 b (int.int x)))
-    u^ℤ-distrib-+-NonNeg {b} {int.neg x} (inj-l ())
-    u^ℤ-distrib-+-NonNeg {b} {int.neg x} (inj-r ())
+    u^ℤ-distrib-+-NonNeg {b} {int.neg x} 0≤x = bot-elim (convert-≤ 0≤x neg<0)
 
     u^ℤ-distrib-+ : {b : Unit} {x y : ℤ} -> b u^ℤ (x + y) == (b u^ℤ x) u* (b u^ℤ y)
     u^ℤ-distrib-+ {b} {x} {y} = IntElim-add1sub1-elim z add1-case sub1-case x

@@ -2,10 +2,15 @@
 
 module int.sign where
 
+open import additive-group
+open import additive-group.instances.int
 open import base
 open import hlevel
 open import int.base
+open import int.order
 open import nat.properties using (Pos')
+open import order.instances.int
+open import order
 open import relation
 open import sign using (Sign ; pos-sign ; zero-sign ; neg-sign ; isNonZeroSign ; isPosSign)
 
@@ -17,22 +22,20 @@ Zero (pos x) = Bot
 Zero (neg x) = Bot
 
 Pos : (n : Int) -> Set
-Pos zero-int = Bot
-Pos (pos x) = Top
-Pos (neg x) = Bot
+Pos n = 0# < n
 
 Neg : (n : Int) -> Set
-Neg (nonneg x) = Bot
-Neg (neg x) = Top
+Neg n = n < 0#
 
+-- Switch the order on this to be more natural -- DO NOT SUBMIT
 NonZero : (n : Int) -> Set
 NonZero n = Pos n ⊎ Neg n
 
 NonPos : (n : Int) -> Set
-NonPos n = Neg n ⊎ Zero n
+NonPos n = n ≤ 0#
 
 NonNeg : (n : Int) -> Set
-NonNeg n = Pos n ⊎ Zero n
+NonNeg n = 0# ≤ n
 
 -- The sign based predicates are propositions
 
@@ -42,81 +45,57 @@ isPropZero {pos _} ()
 isPropZero {neg _} ()
 
 isPropPos : {n : Int} -> isProp (Pos n)
-isPropPos {zero-int} ()
-isPropPos {pos _} _ _ = refl
-isPropPos {neg _} ()
+isPropPos = isProp-<
 
 isPropNeg : {n : Int} -> isProp (Neg n)
-isPropNeg {zero-int} ()
-isPropNeg {pos _} ()
-isPropNeg {neg _} _ _ = refl
+isPropNeg = isProp-<
 
 isPropNonZero : {n : Int} -> isProp (NonZero n)
-isPropNonZero {zero-int} (inj-l ())
-isPropNonZero {zero-int} (inj-r ())
-isPropNonZero {pos _} (inj-l _) (inj-l _) = refl
-isPropNonZero {neg _} (inj-r _) (inj-r _) = refl
+isPropNonZero = isProp⊎ isPropPos isPropNeg asym-<
 
 isPropNonPos : {n : Int} -> isProp (NonPos n)
-isPropNonPos {pos _} (inj-l ())
-isPropNonPos {pos _} (inj-r ())
-isPropNonPos {neg _} (inj-l _) (inj-l _) = refl
-isPropNonPos {zero-int} (inj-r _) (inj-r _) = refl
+isPropNonPos = isProp-≤
 
 isPropNonNeg : {n : Int} -> isProp (NonNeg n)
-isPropNonNeg {neg _} (inj-l ())
-isPropNonNeg {neg _} (inj-r ())
-isPropNonNeg {pos _} (inj-l _) (inj-l _) = refl
-isPropNonNeg {zero-int} (inj-r _) (inj-r _) = refl
+isPropNonNeg = isProp-≤
 
 -- Weakening of the predicates
 
-Pos->NonNeg : {n : Int} -> .(Pos n) -> NonNeg n
-Pos->NonNeg {pos n} _ = inj-l tt
+Pos->NonNeg : {n : Int} -> (Pos n) -> NonNeg n
+Pos->NonNeg = weaken-<
 
-Pos->NonZero : {n : Int} -> .(Pos n) -> NonZero n
-Pos->NonZero {pos x} _ = inj-l tt
+Pos->NonZero : {n : Int} -> (Pos n) -> NonZero n
+Pos->NonZero p = inj-l p
 
-Neg->NonPos : {n : Int} -> .(Neg n) -> NonPos n
-Neg->NonPos {neg n} _ = inj-l tt
+Neg->NonPos : {n : Int} -> (Neg n) -> NonPos n
+Neg->NonPos = weaken-<
 
-Neg->NonZero : {n : Int} -> .(Neg n) -> NonZero n
-Neg->NonZero {neg x} _ = inj-r tt
+Neg->NonZero : {n : Int} -> (Neg n) -> NonZero n
+Neg->NonZero n = inj-r n
 
-Zero->NonPos : {n : Int} -> .(Zero n) -> NonPos n
-Zero->NonPos {zero-int} _ = inj-r tt
+Zero->NonPos : {n : Int} -> (Zero n) -> NonPos n
+Zero->NonPos {zero-int} _ = refl-≤
 
-Zero->NonNeg : {n : Int} -> .(Zero n) -> NonNeg n
-Zero->NonNeg {zero-int} _ = inj-r tt
+Zero->NonNeg : {n : Int} -> (Zero n) -> NonNeg n
+Zero->NonNeg {zero-int} _ = refl-≤
+
 
 -- The predicates are negations of others
 
 NonNeg->¬Neg : {n : Int} -> (NonNeg n) -> ¬(Neg n)
-NonNeg->¬Neg {nonneg _} _ ()
-NonNeg->¬Neg {neg _} (inj-l ())
-NonNeg->¬Neg {neg _} (inj-r ())
+NonNeg->¬Neg = convert-≤
 
 NonPos->¬Pos : {n : Int} -> (NonPos n) -> ¬(Pos n)
-NonPos->¬Pos {zero-int} _ ()
-NonPos->¬Pos {neg _} _ ()
-NonPos->¬Pos {pos _} (inj-l ())
-NonPos->¬Pos {pos _} (inj-r ())
+NonPos->¬Pos = convert-≤
 
 NonZero->¬Zero : {n : Int} -> (NonZero n) -> ¬(Zero n)
-NonZero->¬Zero {zero-int} (inj-l ())
-NonZero->¬Zero {zero-int} (inj-r ())
-NonZero->¬Zero {neg _} _ ()
-NonZero->¬Zero {pos _} _ ()
+NonZero->¬Zero {zero-int} (inj-l 0<0) _ = irrefl-< 0<0
+NonZero->¬Zero {zero-int} (inj-r 0<0) _ = irrefl-< 0<0
 
 
 -- Positive Nats are positive
-Pos'->Pos : {n : Nat} -> .(Pos' n) -> Pos (int n)
-Pos'->Pos {suc _} _ = tt
-
--- All Nats are non-negative
-NonNeg-nonneg : (n : Nat) -> NonNeg (nonneg n)
-NonNeg-nonneg zero = inj-r tt
-NonNeg-nonneg (suc _) = inj-l tt
+Pos'->Pos : {n : Nat} -> (Pos' n) -> Pos (int n)
+Pos'->Pos {n} p = (n , p) , +-right-zero
 
 -- Zero ints are zero
 Zero-path : (n : Int) -> Zero n -> n == (int 0)
@@ -141,9 +120,9 @@ isProp-isSign zero-sign = isPropZero
 isProp-isSign neg-sign = isPropNeg
 
 isSign-self : (x : Int) -> isSign (int->sign x) x
-isSign-self (pos _)  = tt
+isSign-self (pos i)  = (suc i , tt) , +-right-zero
 isSign-self zero-int = tt
-isSign-self (neg _)  = tt
+isSign-self (neg i)  = (suc i , tt) , +-inverse
 
 isSign-unique : {x : Int} {s1 s2 : Sign} -> isSign s1 x -> isSign s2 x -> s1 == s2
 isSign-unique {_} {pos-sign}  {pos-sign}  p1 p2 = refl
@@ -156,11 +135,14 @@ isSign-unique {_} {neg-sign}  {pos-sign}  p1 p2 = bot-elim (NonNeg->¬Neg (Pos->
 isSign-unique {_} {neg-sign}  {zero-sign} p1 p2 = bot-elim (NonNeg->¬Neg (Zero->NonNeg p2) p1)
 isSign-unique {_} {neg-sign}  {neg-sign}  p1 p2 = refl
 
+
 NonZero->NonZeroSign : {m : Int} -> NonZero m -> isNonZeroSign (int->sign m)
 NonZero->NonZeroSign {m = pos _} _ = tt
-NonZero->NonZeroSign {m = zero-int} (inj-l ())
-NonZero->NonZeroSign {m = zero-int} (inj-r ())
+NonZero->NonZeroSign {m = zero-int} (inj-l 0<0) = bot-elim (irrefl-< 0<0)
+NonZero->NonZeroSign {m = zero-int} (inj-r 0<0) = bot-elim (irrefl-< 0<0)
 NonZero->NonZeroSign {m = neg _} _ = tt
 
 Pos->PosSign : {m : Int} -> Pos m -> isPosSign (int->sign m)
 Pos->PosSign {m = pos _} _ = tt
+Pos->PosSign {m = zero-int} 0<0 = bot-elim (irrefl-< 0<0)
+Pos->PosSign {m = neg i} 0<m = bot-elim (asym-< 0<m neg<0)

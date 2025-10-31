@@ -10,10 +10,15 @@ open import equality
 open import fraction.sign
 open import hlevel
 open import int.nat
+open import int.order
 open import nat
 open import order
 open import order.instances.int
 open import order.instances.nat
+open import ordered-additive-group
+open import ordered-additive-group.instances.int
+open import ordered-semiring
+open import ordered-semiring.instances.int
 open import rational
 open import relation
 open import ring
@@ -440,7 +445,7 @@ antisym~-ℚ'≤ {a} {b} a≤b b≤a = handle (trichotomous~-ℚ'< a b)
 -- Constants
 
 ℕ->ℚ'-preserves-< : {a b : Nat} -> a < b -> (ℕ->ℚ' a) ℚ'< (ℕ->ℚ' b)
-ℕ->ℚ'-preserves-< {a} {b} (c , path) = ℚ'<-cons ans
+ℕ->ℚ'-preserves-< {a} {b} a<b = ℚ'<-cons ans
   where
 
   sd : ℚ'
@@ -452,18 +457,11 @@ antisym~-ℚ'≤ {a} {b} a≤b b≤a = handle (trichotomous~-ℚ'< a b)
   sd~diff : sd r~ diff-v
   sd~diff = same-denom-r+'-r~ (ℕ->ℚ' b) (r-' (ℕ->ℚ' a)) refl
 
-  path2 : int (c + suc a) + (- (int a)) == i.pos c
-  path2 = +-left (cong int nat.+'-right-suc) >=>
-          +-left ℕ->ℤ-+ >=>
-          +-assoc >=>
-          +-right +-inverse >=>
-          +-right-zero
-
-  Pos-b-a : i.Pos ((int b) + (- (int a)))
-  Pos-b-a = subst i.Pos (sym path2 >=> cong (\x -> (int x + (- (int a)))) path) tt
+  0<ab : 0# < diff (int a) (int b)
+  0<ab = diff-0<⁺ (ℕ->ℤ-preserves-< a<b)
 
   Pos-sd : Pos sd
-  Pos-sd = is-signℚ' (int.*-Pos-Pos Pos-b-a tt)
+  Pos-sd = is-signℚ' (*-preserves-0< 0<ab 0<1)
 
   ans : Pos diff-v
   ans = r~-preserves-sign Pos-sd sd~diff

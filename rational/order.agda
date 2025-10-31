@@ -14,6 +14,7 @@ open import functions
 open import hlevel
 open import hlevel.htype
 open import int.addition
+open import int.order
 open import isomorphism
 open import nat using (ℕ ; Nat⁺; 1⁺ ; 2⁺ ; _*⁺_)
 open import nat.exponentiation
@@ -24,6 +25,7 @@ open import order.instances.nat
 open import ordered-additive-group
 open import ordered-additive-group.decidable
 open import ordered-semiring
+open import ordered-semiring.instances.int
 open import ordered-semiring.ring
 open import ordered-semiring.decidable
 open import ordered-ring
@@ -536,7 +538,7 @@ instance
   LinearlyOrderedSemiringStr-ℚ = LinearlyOrderedSemiringStr-Ring
     (r*₁-preserves-< _ _ _)
 
-  StronglyLinearlyOrderedSemiringStr-ℚ : StronglyLinearlyOrderedSemiringStr _ _
+  StronglyLinearlyOrderedSemiringStr-ℚ : StronglyLinearlyOrderedSemiringStr Semiring-ℚ _
   StronglyLinearlyOrderedSemiringStr-ℚ =
     StronglyLinearlyOrderedSemiringStr-Dec<
 
@@ -968,7 +970,8 @@ abstract
       ab*≤ = *₁-preserves-≤ (weaken-< pos-ab) (ℕ->ℚ-preserves-≤ lt)
 
   1/ℕ≤1 : (a : Nat⁺) -> 1/ℕ a ≤ 1#
-  1/ℕ≤1 a@(suc _ , _) = 1/ℕ-flips-≤ 1⁺ a nat.order.zero-<
+  1/ℕ≤1 a@(suc _ , _) =
+    trans-≤-= (1/ℕ-flips-≤ 1⁺ a nat.order.zero-<) 1/ℕ-1
 
   private
     zero-diff->path : (x y : ℚ) -> Zeroℚ (y r+ (r- x)) -> x == y
@@ -1059,20 +1062,18 @@ private
       SetQuotientElim.elimProp (\q -> isPropΠ (\pos-q -> isProp-P (q , pos-q))) handle q pos-q
       where
       find-rep : (q' : ℚ') -> (Pos q') -> Σ[ n ∈ Nat⁺ ] (Σ[ d ∈ Nat⁺ ] (n⁺d⁺->ℚ' n d r~ q'))
+      find-rep (record { denominator = i.zero-int ; NonZero-denominator = nz }) =
+        bot-elim (i.NonZero->!=0 nz refl)
       find-rep (record { numerator = (i.pos n') ; denominator = (i.pos d') }) _ =
         ((suc n' , tt) , (suc d' , tt) , refl)
       find-rep (record { numerator = (i.zero-int) ; denominator = (i.pos d') }) p =
-        bot-elim (i.NonPos->¬Pos (i.*-NonPos-NonNeg (inj-r tt) (inj-l tt)) (isSignℚ'.v p))
+        bot-elim (i.NonPos->¬Pos (i.*-NonPos-NonNeg refl-≤ (weaken-< 0<pos)) (isSignℚ'.v p))
+      find-rep (record { numerator = (i.nonneg _) ; denominator = (i.neg d') }) p =
+        bot-elim (i.NonPos->¬Pos (i.*-NonNeg-NonPos 0≤nonneg (weaken-< neg<0)) (isSignℚ'.v p))
       find-rep (record { numerator = (i.neg _) ; denominator = (i.pos d') }) p =
-        bot-elim (i.NonPos->¬Pos (i.*-NonPos-NonNeg (inj-l tt) (inj-l tt)) (isSignℚ'.v p))
-      find-rep (record { numerator = (i.pos _) ; denominator = (i.neg d') }) p =
-        bot-elim (i.NonPos->¬Pos (i.*-NonNeg-NonPos (inj-l tt) (inj-l tt)) (isSignℚ'.v p))
-      find-rep (record { numerator = (i.zero-int) ; denominator = (i.neg d') }) p =
-        bot-elim (i.NonPos->¬Pos (i.*-NonNeg-NonPos (inj-r tt) (inj-l tt)) (isSignℚ'.v p))
+        bot-elim (i.NonPos->¬Pos (i.*-NonPos-NonNeg (weaken-< neg<0) (weaken-< 0<pos)) (isSignℚ'.v p))
       find-rep (record { numerator = (i.neg n') ; denominator = (i.neg d') }) _ =
         ((suc n' , tt) , (suc d' , tt) , minus-extract-right >=> sym minus-extract-left )
-      find-rep (record { denominator = i.zero-int ; NonZero-denominator = inj-l ()})
-      find-rep (record { denominator = i.zero-int ; NonZero-denominator = inj-r ()})
 
       handle : (q' : ℚ') -> (pos-q : (Pos (ℚ'->ℚ q'))) -> P (ℚ'->ℚ q' , pos-q)
       handle q' pos-q' = subst P path (f n d)
@@ -1097,10 +1098,10 @@ private
     x2 = ((n⁺d⁺->ℚ' n d) r+' (r-' (1/ℕ' d)))
 
     NonNeg-numer : i.NonNeg (int n' + (- (int 1)))
-    NonNeg-numer = subst i.NonNeg (sym ℤ+-eval >=> +-commute) (i.NonNeg-nonneg n'')
+    NonNeg-numer = trans-≤-= 0≤nonneg (sym ℤ+-eval >=> +-commute)
 
     ans2 : NonNeg (same-denom-r+' (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d)))
-    ans2 = NonNeg-nd->ℚ' (i.*-NonNeg-NonNeg NonNeg-numer (i.Pos->NonNeg (i.Pos'->Pos pos-d)))
+    ans2 = NonNeg-nd->ℚ' (*-preserves-0≤ NonNeg-numer (weaken-< (i.Pos'->Pos pos-d)))
 
     ans~ : same-denom-r+' (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d)) r~ ((n⁺d⁺->ℚ' n d) r+' (r-' (1/ℕ' d)))
     ans~ = same-denom-r+'-r~ (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d)) refl

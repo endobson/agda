@@ -19,15 +19,20 @@ open import int
 open import int.addition
 open import int.cover
 open import int.nat
-open import semidomain
-open import semidomain.instances.int
+open import int.order
 open import isomorphism
 open import nat
 open import nat.exponentiation
 open import nat.order
+open import order
+open import order.instances.int
+open import ordered-semiring
+open import ordered-semiring.instances.int
 open import relation
 open import ring
 open import ring.implementations.int
+open import semidomain
+open import semidomain.instances.int
 open import semiring
 open import semiring.exponentiation
 open import set-quotient
@@ -282,7 +287,7 @@ opaque
 0r' = record
   { numerator = (int 0)
   ; denominator = (int 1)
-  ; NonZero-denominator = (inj-l tt)
+  ; NonZero-denominator = (inj-l 0<1)
   }
 
 opaque
@@ -408,7 +413,7 @@ opaque
 1r' = record
   { numerator = (int 1)
   ; denominator = (int 1)
-  ; NonZero-denominator = (inj-l tt)
+  ; NonZero-denominator = (inj-l 0<1)
   }
 
 1r : ℚ
@@ -678,9 +683,9 @@ opaque
   ℚInv->ℚInv' a i = handle (numer a) refl
     where
     handle : (x : Int) -> (x == numer a) -> ℚInv' a
-    handle (int.nonneg (suc _)) p = subst NonZero p (inj-l tt)
-    handle (int.neg _) p = subst NonZero p (inj-r tt)
-    handle (int.nonneg zero) p = bot-elim (i (eq/ a 0r' path))
+    handle (int.pos _) p = subst NonZero p (inj-l 0<pos)
+    handle (int.neg _) p = subst NonZero p (inj-r neg<0)
+    handle (int.zero-int) p = bot-elim (i (eq/ a 0r' path))
       where
       path : a r~ 0r'
       path = *-right-one >=> sym p >=> sym *-left-zero
@@ -742,7 +747,7 @@ r1/-distrib-* a b ai bi abi =
 ℤ->ℚ' x = record
   { numerator = x
   ; denominator = (int 1)
-  ; NonZero-denominator = (inj-l tt)
+  ; NonZero-denominator = (inj-l 0<1)
   }
 
 ℤ->ℚ : Int -> ℚ
@@ -793,21 +798,20 @@ private
 
   private
     Pos'-abs'-d : {d : ℤ} -> NonZero d -> Pos' (abs' d)
-    Pos'-abs'-d {nonneg zero}    (inj-l ())
-    Pos'-abs'-d {nonneg zero}    (inj-r ())
-    Pos'-abs'-d {nonneg (suc n)} _ = tt
-    Pos'-abs'-d {neg n}          _ = tt
+    Pos'-abs'-d {zero-int} nz = bot-elim (NonZero->!=0 nz refl)
+    Pos'-abs'-d {pos n}    _  = tt
+    Pos'-abs'-d {neg n}    _  = tt
 
 
   ℚ'->split-ℤℕ⁺ : (q' : ℚ') -> Σ[ n ∈ ℤ ] Σ[ d ∈ Nat⁺ ] ((ℤ->ℚ' n r~ (q' r*' ℕ->ℚ' ⟨ d ⟩)))
   ℚ'->split-ℤℕ⁺ (ℚ'-cons n d nz@(inj-l pos-d)) =
-    n , (abs' d , Pos'-abs'-d nz) , *-right (*-left (nonneg-abs' d (inj-l pos-d))) >=> sym *-assoc
+    n , (abs' d , Pos'-abs'-d nz) , *-right (*-left (nonneg-abs' (weaken-< pos-d))) >=> sym *-assoc
   ℚ'->split-ℤℕ⁺ (ℚ'-cons n d nz@(inj-r neg-d)) = - n , (abs' d , Pos'-abs'-d nz) , p
     where
     p = minus-extract-left >=>
         sym minus-extract-right >=>
         *-right (sym minus-extract-left >=>
-                 *-left (cong -_ (nonpos-abs' d (inj-l neg-d)) >=>
+                 *-left (cong -_ (nonpos-abs' (weaken-< neg-d)) >=>
                          minus-double-inverse)) >=>
         sym *-assoc
 
@@ -867,7 +871,7 @@ opaque
   ¬isNonZeroℚ-0r b = int.NonZero->¬Zero b tt
 
   isNonZeroℚ-1r : (isNonZeroℚ 1r)
-  isNonZeroℚ-1r = inj-l tt
+  isNonZeroℚ-1r = inj-l 0<1
 
 1r!=0r : 1r != 0r
 1r!=0r 1r=0r = ¬isNonZeroℚ-0r (subst isNonZeroℚ 1r=0r isNonZeroℚ-1r)
@@ -879,7 +883,7 @@ opaque
   unfolding isNonZeroℚ
 
   Pos'->NonZeroℚ : {n : Nat} -> Pos' n -> isNonZeroℚ (ℕ->ℚ n)
-  Pos'->NonZeroℚ {n = (suc _)} _ = inj-l tt
+  Pos'->NonZeroℚ {n = (suc _)} _ = inj-l 0<pos
 
 opaque
   unfolding isNonZeroℚ _r*_
@@ -925,10 +929,14 @@ a r^ℤ (neg n) = r1/ (fst rec) (isNonZeroℚ->ℚInv (snd rec)) , r1/-isNonZero
   }
   where
   Posℕ->NonZeroℤ : (n : Nat) -> (Pos' n) -> (int.NonZero (ℕ->ℤ n))
-  Posℕ->NonZeroℤ (suc _) _ = (inj-l tt)
+  Posℕ->NonZeroℤ (suc _) _ = inj-l 0<pos
 
 1/ℕ : Nat⁺ -> ℚ
 1/ℕ n = ℚ'->ℚ (1/ℕ' n)
+
+opaque
+  1/ℕ-1 : 1/ℕ 1⁺ == 1#
+  1/ℕ-1 = cong ℚ'->ℚ (nd-paths->path _ _ refl refl)
 
 1/2r : ℚ
 1/2r = 1/ℕ 2⁺
@@ -940,7 +948,7 @@ a r^ℤ (neg n) = r1/ (fst rec) (isNonZeroℚ->ℚInv (snd rec)) , r1/-isNonZero
 2r' = record
   { numerator = (ℕ->ℤ 2)
   ; denominator = (ℕ->ℤ 1)
-  ; NonZero-denominator = (inj-l tt)
+  ; NonZero-denominator = (inj-l 0<1)
   }
 
 2r : ℚ
@@ -1005,7 +1013,7 @@ opaque
   1/ℕ-ℕ-path n = eq/ _ _ (1/ℕ-ℕ-r~ n)
 
   1/2^ℕ-path : (n : Nat) -> 1/ℕ (2⁺ ^⁺ n) == 1/2r ^ℕ n
-  1/2^ℕ-path zero = refl
+  1/2^ℕ-path zero = cong ℚ'->ℚ (nd-paths->path _ _ refl refl)
   1/2^ℕ-path (suc n) = 1/2ℕ-path (2⁺ ^⁺ n) >=> cong (1/2r r*_) (1/2^ℕ-path n)
 
   1/ℕ-distrib-* : (m n : Nat⁺) -> 1/ℕ (m *⁺ n) == 1/ℕ m * 1/ℕ n

@@ -14,10 +14,16 @@ open import int.add1
 open import int.addition
 open import int.multiplication
 open import int.nat
+open import int.order
 open import nat
 open import nat.order
+open import order
+open import order.instances.int
+open import ordered-additive-group
+open import ordered-additive-group.instances.int
 open import ordered-semiring
 open import ordered-semiring.instances.nat
+open import ordered-semiring.instances.int
 open import ring
 open import ring.arithmetic
 open import ring.implementations.int
@@ -81,7 +87,7 @@ private
 
   fin-small : {n : Nat} -> (i : Fin n) -> Neg ((int (Fin.i i)) + (- (int n)))
   fin-small {zero} i = bot-elim (¬fin-zero i)
-  fin-small {suc n} (zero , lt) = subst Neg (sym +-left-zero) tt
+  fin-small {suc n} (zero , lt) = subst Neg (sym +-left-zero) neg<0
   fin-small {suc n} (suc i , lt) =
     subst Neg (sym p) rec
     where
@@ -197,7 +203,7 @@ private
       p2 = nonneg-injective ((sym p) >=> +-left (sym ℕ->ℤ-*) >=> sym ℕ->ℤ-+)
       qr3 : qr.QuotientRemainder d n
       qr3 = record { q = q' ; r = qr2.r ; path = sym p2 }
-    f {neg q'} p = bot-elim (subst Neg (sym p2) neg1)
+    f {neg q'} p = bot-elim (convert-≤ 0≤nonneg (trans-=-< p2 neg1))
       where
       p2 : (nonneg n) == ((int (Fin.i qr2.r)) + (- (int d'))) + (- ((int q') * (int d')))
       p2 = (sym p) >=>
@@ -205,19 +211,20 @@ private
            +-commute >=> sym +-assoc
 
       neg1 : Neg (((int (Fin.i qr2.r)) + (- (int d'))) + (- ((int q') * (int d'))))
-      neg1 = +-Neg-NonPos (fin-small qr2.r) (minus-NonNeg (*-NonNeg-NonNeg (NonNeg-nonneg q')
-                                                                           (NonNeg-nonneg d')))
+      neg1 = +-Neg-NonPos (fin-small qr2.r)
+        (minus-flips-0≤ (*-preserves-0≤ 0≤nonneg 0≤nonneg))
+
   quotient-unique d (neg n) qr2 = f qr2.path
     where
     module qr2 = QuotientRemainder qr2
     d' = ⟨ d ⟩
 
     f : {q : Int} -> q * (int d') + (int (Fin.i qr2.r)) == (neg n) -> q == (quotient (neg n) d)
-    f {nonneg q'} p = bot-elim (NonNeg->¬Neg {neg n} (subst NonNeg p nonneg1) tt)
+    f {nonneg q'} p = bot-elim (NonNeg->¬Neg {neg n} (subst NonNeg p nonneg1) neg<0)
       where
       nonneg1 : NonNeg ((int q') * (int d') + (int (Fin.i qr2.r)))
-      nonneg1 = +-NonNeg-NonNeg (*-NonNeg-NonNeg (NonNeg-nonneg q') (NonNeg-nonneg d'))
-                                (NonNeg-nonneg (Fin.i qr2.r))
+      nonneg1 = +-preserves-0≤ (*-preserves-0≤ 0≤nonneg 0≤nonneg)
+                               0≤nonneg
     f {neg q'} p =
       cong (neg ∘ qr.QuotientRemainder.q) (sym (qr.isContr-QuotientRemainder .snd qr3))
       where
