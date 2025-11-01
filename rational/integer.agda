@@ -35,6 +35,7 @@ open import semiring
 open import semiring.instances.nat
 open import set-quotient
 open import sigma.base
+open import sum
 
 import sign
 
@@ -259,13 +260,14 @@ opaque
   floor : ℚ -> ℤ
   floor = SetQuotientElim.rec isSetInt floor' floor'-r~
 
-  floorℚ : ℚ -> ℚ
-  floorℚ = ℤ->ℚ ∘ floor
-
   fractional-part : ℚ -> ℚ
   fractional-part = SetQuotientElim.rec isSetℚ
                       (\a -> [ fractional-part' a ])
                       (\a b r -> eq/ _ _ (fractional-part'-preserves-r~ a b r))
+
+floorℚ : ℚ -> ℚ
+floorℚ = ℤ->ℚ ∘ floor
+
 
 opaque
   unfolding _r+_ floor ℚ<-raw
@@ -299,3 +301,23 @@ opaque
 
   isInjective-ℤ->ℚ : isInjective ℤ->ℚ
   isInjective-ℤ->ℚ p = sym (ℤ->ℚ-floor _) >=> cong floor p >=> (ℤ->ℚ-floor _)
+
+
+opaque
+  floor-reflects-<0 : {q : ℚ} -> floor q < 0# -> q < 0#
+  floor-reflects-<0 {q} f<0@((suc i , _) , p) = q<0
+     where
+     f+1≤0 : (floor q + 1#) ≤ 0#
+     f+1≤0 = i , +-commute >=> +-assoc >=> +-commute >=> +-left (sym ℕ->ℤ-+) >=> p
+     q<0 : q < 0#
+     q<0 =
+       trans-=-< (sym (fractional-part-r+ q))
+         (trans-<-≤ (+₁-preserves-< (fractional-part<1 q))
+           (trans-=-≤ (sym (ℤ->ℚ-preserves-+ _ _))
+                      (ℤ->ℚ-preserves-≤ f+1≤0)))
+
+  floor-preserves-0≤ : {q : ℚ} -> 0# ≤ q -> 0# ≤ floor q
+  floor-preserves-0≤ {q} 0≤q = proj-¬l (split-< (floor q) 0#) f≮0
+    where
+    f≮0 : floor q ≮ 0#
+    f≮0 f<0 = convert-≤ 0≤q (floor-reflects-<0 f<0)
