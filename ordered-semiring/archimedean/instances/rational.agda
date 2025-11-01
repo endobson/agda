@@ -37,23 +37,6 @@ open import monoid
 open import truncation
 
 private
-  ℤ->ℚ-preserves-≤ : (a b : ℤ) -> a ≤ b -> (ℤ->ℚ a) ≤ (ℤ->ℚ b)
-  ℤ->ℚ-preserves-≤ a b (i , p) =
-    trans-≤-= (trans-=-≤ (sym +-left-zero) (+₂-preserves-≤ (ℕ->ℚ-preserves-≤ zero-≤)))
-              (sym (ℤ->ℚ-preserves-+ _ _) >=> cong ℤ->ℚ p)
-
-  ℤ->ℚ-preserves-< : (a b : ℤ) -> a < b -> (ℤ->ℚ a) < (ℤ->ℚ b)
-  ℤ->ℚ-preserves-< a b ((suc i , _) , p) =
-    trans-<-= (trans-=-< (sym +-left-zero) (+₂-preserves-< (ℕ->ℚ-preserves-< zero-<)))
-              (sym (ℤ->ℚ-preserves-+ _ _) >=> cong ℤ->ℚ p)
-
-  ℤ->ℚ-preserves-0≤ : (a : ℤ) -> 0# ≤ a -> 0# ≤ (ℤ->ℚ a)
-  ℤ->ℚ-preserves-0≤ a = ℤ->ℚ-preserves-≤ 0# a
-
-  ℤ->ℚ-preserves-0< : (a : ℤ) -> 0# < a -> 0# < (ℤ->ℚ a)
-  ℤ->ℚ-preserves-0< a = ℤ->ℚ-preserves-< 0# a
-
-
   ℚFinite : (q : ℚ) -> ∃[ n ∈ ℕ ] (q < ℕ->ℚ n)
   ℚFinite q = ∥-bind handle (ℚ->split-ℤ/ℕ q)
     where
@@ -63,7 +46,7 @@ private
       where
       handle2 : (0# < n) ⊎ (n ≤ 0#) -> ∃[ m ∈ ℕ ] (q < ℕ->ℚ m)
       handle2 (inj-r n≤0) =
-        ∣ 1# , trans-=-< p (trans-≤-< (trans-≤-= (*₂-preserves-≤ (ℤ->ℚ-preserves-≤ n 0# n≤0)
+        ∣ 1# , trans-=-< p (trans-≤-< (trans-≤-= (*₂-preserves-≤ (ℤ->ℚ-preserves-≤ n≤0)
                                                                  (weaken-< (Pos-1/ℕ d)))
                                                  *-left-zero)
                                       Pos-1r) ∣
@@ -73,10 +56,10 @@ private
                   Σ[ m ∈ ℕ ] (q < ℕ->ℚ m)
         handle3 (m , n<m*1) =
           m , trans-≤-<
-                (trans-=-≤ p (trans-≤-= (*₁-preserves-≤ (weaken-< (ℤ->ℚ-preserves-< _ _ 0<n))
+                (trans-=-≤ p (trans-≤-= (*₁-preserves-≤ (weaken-< (ℤ->ℚ-preserves-< 0<n))
                                                         (1/ℕ≤1 d))
                                         *-right-one))
-                (trans-<-= (ℤ->ℚ-preserves-< _ _ n<m*1)
+                (trans-<-= (ℤ->ℚ-preserves-< n<m*1)
                            (cong ℤ->ℚ (*-right-one >=> ℕ->Semiring-ℤ-path m)))
 
 

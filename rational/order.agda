@@ -21,7 +21,7 @@ open import int.order
 open import isomorphism
 open import nat using (ℕ ; Nat⁺; 1⁺ ; 2⁺ ; _*⁺_)
 open import nat.exponentiation
-open import nat.order using (2^n-large)
+open import nat.order using (2^n-large ; zero-< ; zero-≤)
 open import order
 open import order.instances.int
 open import order.instances.nat
@@ -1027,6 +1027,16 @@ abstract
       path : (r1/ a' (Pos->Inv pos-a')) == (r1/ b' (Pos->Inv pos-b'))
       path i = (r1/ (a==b i) (Pos->Inv (isProp->PathPᵉ (\ j -> isProp-Pos (a==b j)) pos-a' pos-b' i)))
 
+opaque
+  ℤ->ℚ-preserves-≤ : {a b : ℤ} -> a ≤ b -> (ℤ->ℚ a) ≤ (ℤ->ℚ b)
+  ℤ->ℚ-preserves-≤ (i , p) =
+    trans-≤-= (trans-=-≤ (sym +-left-zero) (+₂-preserves-≤ (ℕ->ℚ-preserves-≤ zero-≤)))
+              (sym (ℤ->ℚ-preserves-+ _ _) >=> cong ℤ->ℚ p)
+
+  ℤ->ℚ-preserves-< : {a b : ℤ} -> a < b -> (ℤ->ℚ a) < (ℤ->ℚ b)
+  ℤ->ℚ-preserves-< ((suc i , _) , p) =
+    trans-<-= (trans-=-< (sym +-left-zero) (+₂-preserves-< (ℕ->ℚ-preserves-< zero-<)))
+              (sym (ℤ->ℚ-preserves-+ _ _) >=> cong ℤ->ℚ p)
 
 
 -- Archimedean
