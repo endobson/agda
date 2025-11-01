@@ -475,3 +475,43 @@ antisym~-ℚ'≤ {a} {b} a≤b b≤a = handle (trichotomous~-ℚ'< a b)
   a<b = c , nat.+'-right-suc >=> path
   aℚ'<b : (ℕ->ℚ' a) ℚ'< (ℕ->ℚ' b)
   aℚ'<b = ℕ->ℚ'-preserves-< a<b
+
+
+-- Lemmas for showing that a fraction is small
+
+module _ (q : ℚ') where
+  private
+    n : Int
+    n = ℚ'.numerator q
+    d : Int
+    d = ℚ'.denominator q
+
+  opaque
+    unfolding _r+'_
+
+    private
+      delta : ℚ'
+      delta = diffℚ' q (ℕ->ℚ' 1)
+      delta-numer-path : ℚ'.numerator delta == diff n d
+      delta-numer-path = +-cong *-left-one *-right-one
+      delta-denom-path : ℚ'.denominator delta == d
+      delta-denom-path = *-left-one
+
+    ℚ'<1-Pos-denominator : Pos d -> n < d -> q ℚ'< (ℕ->ℚ' 1)
+    ℚ'<1-Pos-denominator 0<d n<d =
+      ℚ'<-cons (is-signℚ' (*-preserves-0< 0<delta-numer 0<delta-denom))
+      where
+      0<delta-numer : 0# < (ℚ'.numerator delta)
+      0<delta-numer = trans-<-= (diff-0<⁺ n<d) (sym delta-numer-path)
+      0<delta-denom : 0# < (ℚ'.denominator delta)
+      0<delta-denom = trans-<-= 0<d (sym delta-denom-path)
+
+    ℚ'<1-Neg-denominator : Neg d -> d < n -> q ℚ'< (ℕ->ℚ' 1)
+    ℚ'<1-Neg-denominator d<0 d<n =
+      ℚ'<-cons (is-signℚ' (*-flips-<0 delta-numer<0 delta-denom<0))
+      where
+      delta-numer<0 : (ℚ'.numerator delta) < 0#
+      delta-numer<0 = trans-=-< (delta-numer-path >=> diff-anticommute)
+                                (minus-flips-0< (diff-0<⁺ d<n))
+      delta-denom<0 : (ℚ'.denominator delta) < 0#
+      delta-denom<0 = trans-=-< delta-denom-path d<0

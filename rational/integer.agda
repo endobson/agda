@@ -8,6 +8,8 @@ open import additive-group.instances.nat
 open import base
 open import equality
 open import fin
+open import fraction.order
+open import fraction.sign
 open import functions
 open import hlevel
 open import int
@@ -22,14 +24,19 @@ open import order
 open import order.instances.int
 open import ordered-additive-group
 open import ordered-additive-group.instances.int
+open import ordered-semiring
+open import ordered-semiring.instances.int
 open import quotient-remainder-int
 open import rational
+open import rational.order
 open import ring
 open import ring.implementations.int
 open import semiring
 open import semiring.instances.nat
 open import set-quotient
 open import sigma.base
+
+import sign
 
 private
   numer : ℚ' -> ℤ
@@ -53,6 +60,17 @@ private
   remainderℤ n (neg d , _) = - (int (Fin.i (remainder (- n) (suc d , tt))))
   remainderℤ n (zero-int , nz) = bot-elim (NonZero->!=0 nz refl)
 
+  small-remainderℤ-Pos : (n : ℤ) (d : ℤ*) -> Pos ⟨ d ⟩ -> remainderℤ n d < ⟨ d ⟩
+  small-remainderℤ-Pos n (pos d , _) _ =
+    ℕ->ℤ-preserves-< (Fin.i<n (remainder n (suc d , tt)))
+  small-remainderℤ-Pos n (neg d , _) 0<d = bot-elim (asym-< neg<0 0<d)
+  small-remainderℤ-Pos n (zero-int , nz) = bot-elim (NonZero->!=0 nz refl)
+
+  small-remainderℤ-Neg : (n : ℤ) (d : ℤ*) -> Neg ⟨ d ⟩ -> ⟨ d ⟩ < remainderℤ n d
+  small-remainderℤ-Neg n d*@(neg d , _) _ =
+    minus-flips-< (ℕ->ℤ-preserves-< (Fin.i<n (remainder (- n) (suc d , tt))))
+  small-remainderℤ-Neg n (pos d , _) d<0 = bot-elim (asym-< 0<pos d<0)
+  small-remainderℤ-Neg n (zero-int , nz) = bot-elim (NonZero->!=0 nz refl)
 
   ℤ*-* : ℤ* -> ℤ* -> ℤ*
   ℤ*-* (m , nz-m) (d , nz-d) = (m * d , *-NonZero-NonZero nz-m nz-d)
@@ -215,6 +233,25 @@ private
       ans : (remainderℤ na da*) * db == (remainderℤ nb db*) * da
       ans = *-left r-path-a >=> mid-path >=> *-left (sym r-path-b)
 
+  opaque
+    NonNeg-fractional-part' : (q : ℚ') -> sign.NonNeg (fractional-part' q)
+    NonNeg-fractional-part' q = case (rNonZero q) of
+      \{ (inj-l pd) -> NonNeg-nd->ℚ' (*-preserves-0≤
+           (remainderℤ-NonNeg (numer q) (denom q , rNonZero q) pd)
+           (weaken-< pd))
+       ; (inj-r nd) -> NonNeg-nd->ℚ' (*-flips-≤0
+           (remainderℤ-NonPos (numer q) (denom q , rNonZero q) nd)
+           (weaken-< nd))
+       }
+
+    fractional-part'<1 : (q : ℚ') -> fractional-part' q ℚ'< (ℕ->ℚ' 1)
+    fractional-part'<1 q = case (rNonZero q) of
+      \{ (inj-l pd) -> ℚ'<1-Pos-denominator (fractional-part' q) pd
+                         (small-remainderℤ-Pos _ _ pd)
+       ; (inj-r nd) -> ℚ'<1-Neg-denominator (fractional-part' q) nd
+                         (small-remainderℤ-Neg _ _ nd)
+       }
+
 
 opaque
   unfolding ℚ
@@ -231,12 +268,24 @@ opaque
                       (\a b r -> eq/ _ _ (fractional-part'-preserves-r~ a b r))
 
 opaque
-  unfolding _r+_ floor
+  unfolding _r+_ floor ℚ<-raw
 
   fractional-part-r+ : (q : ℚ) -> floorℚ q r+ (fractional-part q) == q
   fractional-part-r+ = SetQuotientElim.elimProp (\_ -> (isSetℚ _ _))
                         (\q -> cong [_] (fractional-part'-r+' q))
 
+  0≤fractional-part : (q : ℚ) -> 0# ≤ fractional-part q
+  0≤fractional-part q = NonNeg-0≤ (fractional-part q) (NonNeg-fractional-part q)
+    where
+    NonNeg-fractional-part : (q : ℚ) -> sign.NonNeg (fractional-part q)
+    NonNeg-fractional-part =
+      SetQuotientElim.elimProp (\q -> sign.isProp-NonNeg (fractional-part q))
+      (\q -> NonNeg-ℚ'->ℚ (NonNeg-fractional-part' q))
+
+  fractional-part<1 : (q : ℚ) -> fractional-part q < 1#
+  fractional-part<1 =
+    SetQuotientElim.elimProp (\q -> isProp-<)
+      (\q -> ℚ<-cons (fractional-part'<1 q))
 
   ℤ->ℚ-floor : (x : ℤ) -> floor (ℤ->ℚ x) == x
   ℤ->ℚ-floor x = cong QuotientRemainder.q (snd isContr-QuotientRemainder qr)
