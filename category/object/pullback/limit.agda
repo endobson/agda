@@ -11,7 +11,8 @@ open import category.object.pullback
 open import category.object.pullback.limit-category
 open import category.object.terminal
 open import equality-path
-open import hlevel
+open import hlevel.base
+open import hlevel.isomorphism
 open import isomorphism
 open import relation
 open import sigma

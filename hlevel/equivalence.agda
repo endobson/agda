@@ -5,10 +5,10 @@ module hlevel.equivalence where
 open import base
 open import equivalence
 open import funext
-open import hlevel.base public
-open import hlevel.pi public
-open import hlevel.retract public
-open import hlevel.sigma public
+open import hlevel.base
+open import hlevel.pi
+open import hlevel.retract
+open import hlevel.sigma
 open import isomorphism
 open import sigma.base
 
@@ -59,3 +59,17 @@ opaque
 
   isProp-≃-left : (isProp A₁) -> (isProp (A₁ ≃ A₂))
   isProp-≃-left pA1 e1 e2 = isProp-≃-right (isProp-Retract (eqInv e1) (eqFun e1) (eqSec e1) pA1) e1 e2
+
+opaque
+  -- Equivalent types have the same hlevel
+  ≃-isOfHLevel : A₁ ≃ A₂ -> (n : Nat) -> isOfHLevel n A₁ -> isOfHLevel n A₂
+  ≃-isOfHLevel eq n = isOfHLevel-Retract n (eqInv eq) (eqFun eq) (eqSec eq)
+
+  ≃-isContr : A₁ ≃ A₂ -> isContr A₁ -> isContr A₂
+  ≃-isContr eq = ≃-isOfHLevel eq 0
+
+  ≃-isProp : A₁ ≃ A₂ -> isProp A₁ -> isProp A₂
+  ≃-isProp eq = ≃-isOfHLevel eq 1
+
+  ≃-isSet : A₁ ≃ A₂ -> isSet A₁ -> isSet A₂
+  ≃-isSet eq = ≃-isOfHLevel eq 2

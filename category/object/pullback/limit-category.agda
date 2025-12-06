@@ -6,7 +6,9 @@ open import base
 open import category.base
 open import equality.identity-system
 open import equality.prop-identity-system
-open import hlevel
+open import hlevel.base
+open import hlevel.isomorphism
+open import hlevel.sigma
 open import hlevel.htype
 open import isomorphism
 open import relation

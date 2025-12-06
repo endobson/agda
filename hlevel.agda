@@ -11,6 +11,7 @@ open import equality.square
 open import equivalence
 open import functions
 open import funext
+open import hlevel.isomorphism
 open import isomorphism
 open import relation
 open import sigma.base
@@ -60,41 +61,6 @@ abstract
   isProp-== : (isProp A₁) -> (isProp A₂) -> isProp (A₁ == A₂)
   isProp-== h1 h2 = isProp-Retract (eqFun univalence) (eqInv univalence) (eqRet univalence)
                                    (isProp-≃ h1 h2)
-
-abstract
-  -- Equivalent types have the same hlevel
-
-  iso-isContr : Iso A₁ A₂ -> isContr A₁ -> isContr A₂
-  iso-isContr i = isContr-Retract inv fun rightInv
-    where
-    open Iso i
-
-  iso-isProp : Iso A₁ A₂ -> isProp A₁ -> isProp A₂
-  iso-isProp i = isProp-Retract inv fun rightInv
-    where
-    open Iso i
-
-  iso-isSet : Iso A₁ A₂ -> isSet A₁ -> isSet A₂
-  iso-isSet i = isSet-Retract inv fun rightInv
-    where
-    open Iso i
-
-  iso-isOfHLevel : Iso A₁ A₂ -> (n : Nat) -> isOfHLevel n A₁ -> isOfHLevel n A₂
-  iso-isOfHLevel i n = isOfHLevel-Retract n inv fun rightInv
-    where
-    open Iso i
-
-  ≃-isContr : A₁ ≃ A₂ -> isContr A₁ -> isContr A₂
-  ≃-isContr eq = iso-isContr (equivToIso eq)
-
-  ≃-isProp : A₁ ≃ A₂ -> isProp A₁ -> isProp A₂
-  ≃-isProp eq = iso-isProp (equivToIso eq)
-
-  ≃-isSet : A₁ ≃ A₂ -> isSet A₁ -> isSet A₂
-  ≃-isSet eq = iso-isSet (equivToIso eq)
-
-  ≃-isOfHLevel : A₁ ≃ A₂ -> (n : Nat) -> isOfHLevel n A₁ -> isOfHLevel n A₂
-  ≃-isOfHLevel eq = iso-isOfHLevel (equivToIso eq)
 
 -- h-level for PathP
 

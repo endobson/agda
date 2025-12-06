@@ -13,7 +13,8 @@ open import category.object.product
 open import category.object.terminal
 open import category.univalent
 open import equality-path
-open import hlevel
+open import hlevel.base
+open import hlevel.isomorphism
 open import isomorphism
 
 module category.object.product.limit where
