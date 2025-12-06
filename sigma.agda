@@ -155,7 +155,7 @@ existential-iso {A = A} {B} {C} f = i
   i .leftInv (a , b) i = (a , (f a) .leftInv b i)
 
 
-Decidable-∩ : {P : Pred A ℓ₁} {Q : Pred A ℓ₁} -> Decidable P -> Decidable Q -> Decidable (P ∩ Q)
+Decidable-∩ : {P : Pred A ℓ₁} {Q : Pred A ℓ₂} -> Decidable P -> Decidable Q -> Decidable (P ∩ Q)
 Decidable-∩ {P = P} {Q} decP decQ a = handle (decP a) (decQ a)
   where
   handle : Dec (P a) -> Dec (Q a) -> Dec ((P ∩ Q) a)
