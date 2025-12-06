@@ -10,7 +10,8 @@ open import fin
 open import finset
 open import finset.choice
 open import functions
-open import hlevel
+open import hlevel.base
+open import hlevel.sum
 open import relation
 open import sum
 open import truncation

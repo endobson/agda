@@ -5,7 +5,8 @@ module int.sign where
 open import additive-group
 open import additive-group.instances.int
 open import base
-open import hlevel
+open import hlevel.base
+open import hlevel.sum
 open import int.base
 open import int.order
 open import nat.properties using (Pos')

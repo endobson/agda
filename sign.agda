@@ -5,7 +5,8 @@ module sign where
 open import base
 open import discrete
 open import equality
-open import hlevel
+open import hlevel.base
+open import hlevel.sum
 open import relation
 
 data Sign : Type₀ where

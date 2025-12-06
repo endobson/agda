@@ -7,8 +7,9 @@ open import equality
 open import equivalence
 open import fint.list
 open import fin-algebra
-open import hlevel
+open import hlevel.base
 open import hlevel.order
+open import hlevel.sum
 open import order
 open import order.homomorphism
 open import order.instances.fint

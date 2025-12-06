@@ -14,7 +14,6 @@ open import funext
 open import isomorphism
 open import relation
 open import sigma.base
-open import sum
 open import univalence
 
 open import hlevel.base public
@@ -33,17 +32,6 @@ private
     D : (a : A) -> (b : B a) -> C a b -> Type ℓ
 
 abstract
-  -- h-level for ⊎ types
-
-  isProp⊎ : isProp A₁ -> isProp A₂ -> (A₁ -> ¬ A₂) -> isProp (A₁ ⊎ A₂)
-  isProp⊎ ha hb neg (inj-l a1) (inj-l a2) = cong inj-l (ha a1 a2)
-  isProp⊎ ha hb neg (inj-l a1) (inj-r b2) = bot-elim (neg a1 b2)
-  isProp⊎ ha hb neg (inj-r b1) (inj-l a2) = bot-elim (neg a2 b1)
-  isProp⊎ ha hb neg (inj-r b1) (inj-r b2) = cong inj-r (hb b1 b2)
-
-  isSet⊎ : Discrete A₁ -> Discrete A₂ -> isSet (A₁ ⊎ A₂)
-  isSet⊎ da db = Discrete->isSet (Discrete⊎ da db)
-
   -- h-level for Dec
 
   isProp-Dec : isProp A -> isProp (Dec A)

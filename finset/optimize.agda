@@ -9,7 +9,8 @@ open import fin
 open import fin-algebra
 open import finset
 open import functions
-open import hlevel
+open import hlevel.base
+open import hlevel.sum
 open import order
 open import order.flipped
 open import relation

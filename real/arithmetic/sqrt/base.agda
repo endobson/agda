@@ -7,7 +7,9 @@ open import additive-group.instances.real
 open import base
 open import equality
 open import heyting-field.instances.rational
-open import hlevel
+open import hlevel.base
+open import hlevel.sigma
+open import hlevel.sum
 open import order
 open import order.instances.rational
 open import order.instances.real

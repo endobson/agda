@@ -26,7 +26,8 @@ open import finsum.sigma
 open import functions
 open import funext
 open import heyting-field.instances.real
-open import hlevel
+open import hlevel.base
+open import hlevel.sum
 open import isomorphism
 open import metric-space
 open import metric-space.instances.real

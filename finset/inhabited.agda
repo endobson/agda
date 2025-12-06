@@ -6,8 +6,9 @@ open import base
 open import equivalence
 open import fin
 open import finset
-open import hlevel
 open import hlevel.base
+open import hlevel.sigma
+open import hlevel.sum
 open import truncation
 
 private

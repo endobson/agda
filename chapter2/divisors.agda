@@ -14,7 +14,8 @@ open import functions
 open import gcd.computational
 open import gcd.properties
 open import gcd.propositional using (GCD'; GCD⁺)
-open import hlevel
+open import hlevel.base
+open import hlevel.sum
 open import isomorphism
 open import lcm
 open import lcm.exists
