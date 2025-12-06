@@ -2,16 +2,17 @@
 
 module programming-languages.july2023.lambda-calc where
 
-open import base
-open import relation
-open import equality
 open import additive-group
 open import additive-group.instances.nat
+open import base
+open import equality
 open import nat
 open import nat.order
 open import order
-open import truncation
 open import order.instances.nat
+open import relation
+open import relation.closure
+open import truncation
 
 BoundVar : Type₀
 BoundVar = Nat
@@ -739,10 +740,10 @@ module _ {ℓ : Level} {A : Type ℓ} {R : Rel A ℓ} where
   isDiamondLike->isDiamondLike' dl a1 a2 a3 r12 r13 = handle (dl a1 a2 a3 r12 r13)
     where
     handle : DiamondLikeRes R a2 a3 -> _
-    handle (dl-same a2=a3) = a3 , (subst (R? a2) a2=a3 rc-refl , rc-refl)
-    handle (dl-left r23) = a3 , (rc-rel r23 , rc-refl)
-    handle (dl-right r32) = a2 , (rc-refl , rc-rel r32)
-    handle (dl-both a4 r24 r34) = a4 , (rc-rel r24 , rc-rel r34)
+    handle (dl-same a2=a3) = a3 , (subst (R? a2) a2=a3 closure-refl , closure-refl)
+    handle (dl-left r23) = a3 , (closure-rel r23 , closure-refl)
+    handle (dl-right r32) = a2 , (closure-refl , closure-rel r32)
+    handle (dl-both a4 r24 r34) = a4 , (closure-rel r24 , closure-rel r34)
 
 
 hasDiamondProperty : {ℓ : Level} -> {A : Type ℓ} -> Pred (Rel A ℓ) ℓ
@@ -754,9 +755,9 @@ isChurchRosser = hasDiamondProperty
 
 trc-depth : {ℓ : Level} {A : Type ℓ} {R : Rel A ℓ} ->
             {x y : A} -> (TransitiveReflexiveClosure R x y) -> Nat
-trc-depth trc-refl    = 0
-trc-depth (trc-rel _) = 0
-trc-depth (trc-trans l r) = suc (trc-depth l + trc-depth r)
+trc-depth closure-refl    = 0
+trc-depth (closure-rel _) = 0
+trc-depth (closure-trans l r) = suc (trc-depth l + trc-depth r)
 
 module _ {ℓ : Level} {A : Type ℓ} {R : Rel A ℓ} (dl : isDiamondLike' R) where
   private
@@ -767,38 +768,38 @@ module _ {ℓ : Level} {A : Type ℓ} {R : Rel A ℓ} (dl : isDiamondLike' R) wh
     R* = TransitiveReflexiveClosure R
 
     R?->R* : {x y : A} -> R? x y -> R* x y
-    R?->R* (rc-refl)  = trc-refl
-    R?->R* (rc-rel r) = trc-rel r
+    R?->R* (closure-refl)  = closure-refl
+    R?->R* (closure-rel r) = closure-rel r
 
     isDiamondLike->isChurchRosser-single :
       (a1 a2 a3 : A) -> (R? a1 a2) -> (R* a1 a3) -> Σ[ a4 ∈ A ] (R* a2 a4 × R? a3 a4)
-    isDiamondLike->isChurchRosser-single a1 a2 a3 rc-refl r13 =
-      a3 , (r13 , rc-refl)
-    isDiamondLike->isChurchRosser-single a1 a2 a3 (rc-rel r12) trc-refl =
-      a2 , (trc-refl , rc-rel r12)
-    isDiamondLike->isChurchRosser-single a1 a2 a3 (rc-rel r12) (trc-rel r13) =
+    isDiamondLike->isChurchRosser-single a1 a2 a3 closure-refl r13 =
+      a3 , (r13 , closure-refl)
+    isDiamondLike->isChurchRosser-single a1 a2 a3 (closure-rel r12) closure-refl =
+      a2 , (closure-refl , closure-rel r12)
+    isDiamondLike->isChurchRosser-single a1 a2 a3 (closure-rel r12) (closure-rel r13) =
       handle (dl a1 a2 a3 r12 r13)
       where
       handle : Σ[ a4 ∈ A ] (R? a2 a4 × R? a3 a4) -> Σ[ a4 ∈ A ] (R* a2 a4 × R? a3 a4)
       handle (a4 , (r24 , r34)) = a4 , (R?->R* r24 , r34)
-    isDiamondLike->isChurchRosser-single a1 a2 a3 r?12@(rc-rel _) (trc-trans {b = a4} r*14 r*43) =
+    isDiamondLike->isChurchRosser-single a1 a2 a3 r?12@(closure-rel _) (closure-trans {b = a4} r*14 r*43) =
       -- first merge 1->2 and 1->4 at 5
       let (a5 , (r*25 , r?45)) = isDiamondLike->isChurchRosser-single a1 a2 a4 r?12 r*14 in
       let (a6 , (r*56 , r?36)) = isDiamondLike->isChurchRosser-single a4 a5 a3 r?45 r*43 in
-      (a6 , ((trc-trans r*25 r*56) , r?36))
+      (a6 , ((closure-trans r*25 r*56) , r?36))
 
   isDiamondLike->isChurchRosser :
     (a1 a2 a3 : A) -> (R* a1 a2) -> (R* a1 a3) -> Σ[ a4 ∈ A ] (R* a2 a4 × R* a3 a4)
-  isDiamondLike->isChurchRosser a1 a2 a3 (trc-rel r12) r*13 =
-    let (a4 , (r*24 , r?34)) = isDiamondLike->isChurchRosser-single _ _ _ (rc-rel r12) r*13 in
+  isDiamondLike->isChurchRosser a1 a2 a3 (closure-rel r12) r*13 =
+    let (a4 , (r*24 , r?34)) = isDiamondLike->isChurchRosser-single _ _ _ (closure-rel r12) r*13 in
     a4 , (r*24 , R?->R* r?34)
-  isDiamondLike->isChurchRosser a1 a2 a3 (trc-refl) r*13 =
-    let (a4 , (r*24 , r?34)) = isDiamondLike->isChurchRosser-single _ _ _ (rc-refl) r*13 in
+  isDiamondLike->isChurchRosser a1 a2 a3 (closure-refl) r*13 =
+    let (a4 , (r*24 , r?34)) = isDiamondLike->isChurchRosser-single _ _ _ (closure-refl) r*13 in
     a4 , (r*24 , R?->R* r?34)
-  isDiamondLike->isChurchRosser a1 a2 a3 (trc-trans r*14 r*42) r*13 =
+  isDiamondLike->isChurchRosser a1 a2 a3 (closure-trans r*14 r*42) r*13 =
     let (a5 , (r*45 , r*35)) = isDiamondLike->isChurchRosser _ _ _ r*14 r*13 in
     let (a6 , (r*26 , r*56)) = isDiamondLike->isChurchRosser _ _ _ r*42 r*45 in
-    a6 , (r*26 , trc-trans r*35 r*56)
+    a6 , (r*26 , closure-trans r*35 r*56)
 
 hasDiamondProperty-η→* : hasDiamondProperty η→*
 hasDiamondProperty-η→* =

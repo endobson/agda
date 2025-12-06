@@ -13,6 +13,7 @@ open import hlevel
 open import hlevel.htype
 open import isomorphism
 open import relation
+open import relation.closure
 open import sigma.base
 open import truncation
 open import univalence
@@ -180,7 +181,7 @@ module SetQuotientElimᵉ {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Typ
 
   pathRecSTRC : (a1 a2 : A) -> Path (A / R) [ a1 ] [ a2 ] ->
                 ∥ SymmetricTransitiveReflexiveClosure R a1 a2 ∥
-  pathRecSTRC a1 a2 p = transport a1a1=a1a2 ∣ strc-refl ∣
+  pathRecSTRC a1 a2 p = transport a1a1=a1a2 ∣ closure-refl ∣
     where
     STRC : A -> A -> Type (ℓ-max ℓR ℓA)
     STRC a1 a2 = ∥ SymmetricTransitiveReflexiveClosure R a1 a2 ∥
@@ -195,8 +196,8 @@ module SetQuotientElimᵉ {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Typ
         where
         open Iso
         i : Iso (STRC a1 a3) (STRC a1 a4)
-        i .fun = ∥-map (\t13 -> strc-trans t13 (strc-rel r34))
-        i .inv = ∥-map (\t14 -> strc-trans t14 (strc-sym (strc-rel r34)))
+        i .fun = ∥-map (\t13 -> closure-trans t13 (closure-rel r34))
+        i .inv = ∥-map (\t14 -> closure-trans t14 (closure-sym (closure-rel r34)))
         i .rightInv _ = squash _ _
         i .leftInv _ = squash _ _
 
@@ -211,10 +212,10 @@ module SetQuotientElimᵉ {ℓA ℓR : Level} (A : Type ℓA) (R : A -> A -> Typ
                                (squash/ _ _) squash)
     where
     strc->path : {a1 a2 : A} -> SymmetricTransitiveReflexiveClosure R a1 a2 -> Path (A / R) [ a1 ] [ a2 ]
-    strc->path (strc-rel r) = eq/ _ _ r
-    strc->path (strc-refl) = refl
-    strc->path (strc-sym c) = sym (strc->path c)
-    strc->path (strc-trans c1 c2) = strc->path c1 >=> strc->path c2
+    strc->path (closure-rel r) = eq/ _ _ r
+    strc->path (closure-refl) = refl
+    strc->path (closure-sym c) = sym (strc->path c)
+    strc->path (closure-trans c1 c2) = strc->path c1 >=> strc->path c2
 
 module SetQuotientElim {ℓA ℓR : Level} {A : Type ℓA} {R : A -> A -> Type ℓR} where
   open SetQuotientElimᵉ A R public

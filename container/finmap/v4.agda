@@ -19,7 +19,7 @@ open import nat
 open import nat.order
 open import order
 open import order.instances.nat
-open import relation
+open import relation.closure
 open import set-quotient
 open import sigma
 open import sigma.base
@@ -98,10 +98,10 @@ private
 
     SameFinMap-Steps-cons : (k : K) (v : V) {m1 m2 : RawFinMap K V} -> SameFinMap-Steps m1 m2 ->
                             (SameFinMap-Steps (raw-finmap-cons k v m1) (raw-finmap-cons k v m2))
-    SameFinMap-Steps-cons k v trc-refl = trc-refl
-    SameFinMap-Steps-cons k v (trc-rel s) = trc-rel (same-finmap-cons _ _ _ _ _ _ refl refl s)
-    SameFinMap-Steps-cons k v (trc-trans s1 s2) =
-      trc-trans (SameFinMap-Steps-cons k v s1) (SameFinMap-Steps-cons k v s2)
+    SameFinMap-Steps-cons k v closure-refl = closure-refl
+    SameFinMap-Steps-cons k v (closure-rel s) = closure-rel (same-finmap-cons _ _ _ _ _ _ refl refl s)
+    SameFinMap-Steps-cons k v (closure-trans s1 s2) =
+      closure-trans (SameFinMap-Steps-cons k v s1) (SameFinMap-Steps-cons k v s2)
 
 
     module _ (k : K) (v : V) where
@@ -109,9 +109,9 @@ private
       RawFinMap-HasKV-ReorderSteps : (m : RawFinMap K V) -> (RawFinMap-HasKV m k v) ->
                                      Σ[ m2 ∈ RawFinMap K V ] (SameFinMap-Steps m (raw-finmap-cons k v m2))
       RawFinMap-HasKV-ReorderSteps m@(raw-finmap-cons _ _ m') (raw-finmap-haskv-head kp vp) =
-        m' , subst (SameFinMap-Steps m) (cong2 (\k v -> raw-finmap-cons k v m') kp vp) trc-refl
+        m' , subst (SameFinMap-Steps m) (cong2 (\k v -> raw-finmap-cons k v m') kp vp) closure-refl
       RawFinMap-HasKV-ReorderSteps m@(raw-finmap-cons k2 v2 m') (raw-finmap-haskv-cons ¬kp hk) =
-        _ , trc-trans (SameFinMap-Steps-cons k2 v2 (snd rec)) (trc-rel step)
+        _ , closure-trans (SameFinMap-Steps-cons k2 v2 (snd rec)) (closure-rel step)
         where
         rec : Σ[ m2 ∈ RawFinMap K V ] (SameFinMap-Steps m' (raw-finmap-cons k v m2))
         rec = RawFinMap-HasKV-ReorderSteps m' hk
@@ -130,7 +130,7 @@ private
     --RawFinMap-HasKV->Steps : (m1 m2 : RawFinMap K V) ->
     --                         (same : ∀ k v -> (RawFinMap-HasKV m1 k v) <-> (RawFinMap-HasKV m2 k v)) ->
     --                         SameFinMap-Steps m1 m2
-    --RawFinMap-HasKV->Steps raw-finmap-empty raw-finmap-empty same = trc-refl
+    --RawFinMap-HasKV->Steps raw-finmap-empty raw-finmap-empty same = closure-refl
     --RawFinMap-HasKV->Steps (raw-finmap-cons k v m) raw-finmap-empty same =
     --  bot-elim (proj₁ (¬RawFinMap-HasKey-empty _) refl k
     --                  (v , proj₁ (same k v) (raw-finmap-haskv-head refl refl)))
@@ -163,7 +163,7 @@ module _ {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} {{isSet'V : is
 
     RawFinMap-HasKV-RemoveSteps : (m : RawFinMap K V) -> Ans m
     RawFinMap-HasKV-RemoveSteps (raw-finmap-empty) =
-      raw-finmap-empty , trc-refl , \()
+      raw-finmap-empty , closure-refl , \()
     RawFinMap-HasKV-RemoveSteps m@(raw-finmap-cons k2 v2 m') = handle (decide-= k k2)
       where
       rec : Ans m'
@@ -174,12 +174,12 @@ module _ {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} {{isSet'V : is
 
       handle : Dec (k == k2) -> Ans m
       handle (yes k=k2) =
-        m2 , trc-trans (trc-rel (same-finmap-same-key _ _ _ _ _ k=k2)) steps , ¬hk
+        m2 , closure-trans (closure-rel (same-finmap-same-key _ _ _ _ _ k=k2)) steps , ¬hk
       handle (no k!=k2) =
         (raw-finmap-cons k2 v2 m2) ,
-        trc-trans (trc-trans (trc-rel (same-finmap-different-key _ _ _ _ _ k!=k2))
+        closure-trans (closure-trans (closure-rel (same-finmap-different-key _ _ _ _ _ k!=k2))
                              (SameFinMap-Steps-cons k2 v2 steps))
-                  (trc-rel (same-finmap-different-key _ _ _ _ _ (k!=k2 ∘ sym))) ,
+                  (closure-rel (same-finmap-different-key _ _ _ _ _ (k!=k2 ∘ sym))) ,
         ¬hk'
         where
         ¬hk' : ¬(RawFinMap-HasKey (raw-finmap-cons k2 v2 m2) k)
@@ -195,7 +195,7 @@ module _ {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} {{isSet'V : is
 
     RawFinMap-HasKV-ReorderRemoveSteps : (m : RawFinMap K V) -> (RawFinMap-HasKV m k v) -> Ans m
     RawFinMap-HasKV-ReorderRemoveSteps m hk =
-      fst Σm3 , trc-trans (snd Σm2) (fst (snd Σm3)) , snd (snd Σm3)
+      fst Σm3 , closure-trans (snd Σm2) (fst (snd Σm3)) , snd (snd Σm3)
       where
       Σm2 = RawFinMap-HasKV-ReorderSteps k v m hk
       Σm3 = RawFinMap-HasKV-RemoveSteps k v (fst Σm2)
@@ -361,7 +361,7 @@ module _ {K : Type ℓK} {V : Type ℓV} {{disc'K : Discrete' K}} {{isSet'V : is
   --     WF-Smaller : WellFounded Smaller
   --     WF-Smaller = bot-elim magic
   --     loop : (m : RawFinMap K V) -> Acc Smaller m -> Ans m
-  --     loop (raw-finmap-empty) (acc f) = raw-finmap-empty , trc-refl , raw-finmap-unique-empty
+  --     loop (raw-finmap-empty) (acc f) = raw-finmap-empty , closure-refl , raw-finmap-unique-empty
   --     loop (raw-finmap-cons k v m') (acc f) =
   --       (raw-finmap-cons k v m2') ,
   --       SameFinMap-Steps-cons k v steps' ,
@@ -393,9 +393,9 @@ module _ {K : Type ℓK} {V : Type ℓV} where
 
   SameFinMap-Steps->path : {m1 m2 : RawFinMap K V} -> SameFinMap-Steps m1 m2 ->
                            Path (FinMap K V) [ m1 ] [ m2 ]
-  SameFinMap-Steps->path trc-refl = refl
-  SameFinMap-Steps->path (trc-rel r) = eq/ _ _ r
-  SameFinMap-Steps->path (trc-trans r1 r2) =
+  SameFinMap-Steps->path closure-refl = refl
+  SameFinMap-Steps->path (closure-rel r) = eq/ _ _ r
+  SameFinMap-Steps->path (closure-trans r1 r2) =
     SameFinMap-Steps->path r1 >=> SameFinMap-Steps->path r2
 
 
