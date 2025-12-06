@@ -15,6 +15,7 @@ open import cubical
 
 open cubical public using (isContr)
 
+
 Type : (ℓ : Level) → Set (ℓ-suc ℓ)
 Type ℓ = Set ℓ
 
@@ -30,11 +31,25 @@ Type₀ = Type ℓ-zero
 Type₁ : Type ℓ-two
 Type₁ = Type ℓ-one
 
-
 private
   variable
     ℓ ℓ₁ ℓ₂ : Level
     A B : Type ℓ
+
+-- Binary Relations
+
+REL : (Type ℓ₁) -> (Type ℓ₂) -> (ℓ : Level) -> Type _
+REL A B ℓ = A -> B -> Type ℓ
+
+Rel : (Type ℓ₁) -> (ℓ : Level) -> Type _
+Rel A ℓ = REL A A ℓ
+
+-- Predicates
+
+Pred :  Type ℓ₁ -> (ℓ₂ : Level) -> Type (ℓ-max ℓ₁ (ℓ-suc ℓ₂))
+Pred A ℓ = A -> Type ℓ
+
+
 
 record Lift {ℓA} ℓ (A : Type ℓA) : Type (ℓ-max ℓA ℓ) where
   constructor lift

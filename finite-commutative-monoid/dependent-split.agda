@@ -4,6 +4,7 @@ module finite-commutative-monoid.dependent-split where
 
 open import base
 open import commutative-monoid
+open import decision
 open import equality
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
@@ -14,7 +15,6 @@ open import functions
 open import funext
 open import hlevel
 open import isomorphism
-open import relation
 open import subset
 open import sum
 

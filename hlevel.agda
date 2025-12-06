@@ -4,6 +4,7 @@ module hlevel where
 
 open import base
 open import cubical
+open import decision
 open import discrete
 open import equality-path
 open import equality.pathp-iso

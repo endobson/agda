@@ -3,6 +3,7 @@
 module finsubset.discrete.contains where
 
 open import base
+open import decision
 open import discrete
 open import equality-path
 open import equivalence
@@ -13,7 +14,6 @@ open import finset.search
 open import finsubset
 open import functions.embedding
 open import hlevel
-open import relation
 open import set-quotient
 open import truncation
 

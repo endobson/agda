@@ -5,6 +5,7 @@ module container.finmap.entry-recursion where
 open import base
 open import cubical
 open import container.finmap
+open import decision
 open import discrete
 open import equality
 open import equivalence

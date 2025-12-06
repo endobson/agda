@@ -6,6 +6,7 @@ open import abs
 open import additive-group
 open import additive-group.instances.int
 open import base
+open import decision
 open import div
 open import equality
 open import gcd.propositional

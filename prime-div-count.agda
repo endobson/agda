@@ -5,6 +5,7 @@ module prime-div-count where
 open import additive-group
 open import additive-group.instances.nat
 open import base
+open import decision
 open import div
 open import equality
 open import gcd.propositional
@@ -19,7 +20,6 @@ open import ordered-semiring
 open import ordered-semiring.instances.nat
 open import prime
 open import prime-gcd
-open import relation
 open import relatively-prime
 open import ring.implementations.int
 open import semiring

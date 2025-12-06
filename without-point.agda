@@ -3,13 +3,13 @@
 module without-point where
 
 open import base
+open import decision
 open import discrete
 open import equality
 open import equivalence.base
 open import functions
 open import hlevel
 open import maybe
-open import relation
 open import sigma
 open import sigma.base
 open import truncation

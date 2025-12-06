@@ -4,6 +4,7 @@ module subset where
 
 open import apartness
 open import base
+open import decision
 open import equality
 open import equivalence
 open import fin
@@ -14,7 +15,6 @@ open import funext
 open import hlevel
 open import hlevel.htype
 open import isomorphism
-open import relation
 open import sigma.base
 open import truncation
 open import univalence

@@ -6,6 +6,7 @@ open import additive-group
 open import additive-group.instances.nat
 open import base
 open import commutative-monoid
+open import decision
 open import equality
 open import functions
 open import hlevel

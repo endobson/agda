@@ -4,6 +4,7 @@ module container.finmap.v3 where
 
 open import base
 open import cubical
+open import decision
 open import dominance
 open import equality-path
 open import equivalence
@@ -16,7 +17,6 @@ open import hlevel
 open import isomorphism
 open import nat
 open import partial-map
-open import relation
 open import sigma.base
 open import sigma
 open import truncation

@@ -3,6 +3,7 @@
 module fin.functions where
 
 open import base
+open import decision
 open import equality
 open import equivalence
 open import fin

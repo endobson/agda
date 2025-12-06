@@ -6,6 +6,7 @@ open import additive-group.instances.nat
 open import apartness
 open import apartness.instances.int
 open import base
+open import decision
 open import equality
 open import fraction.sign
 open import hlevel

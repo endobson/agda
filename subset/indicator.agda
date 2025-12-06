@@ -4,12 +4,12 @@ module subset.indicator where
 
 open import additive-group
 open import base
+open import decision
 open import equality
 open import funext
 open import hlevel
 open import order
 open import ordered-semiring
-open import relation
 open import semiring
 open import sigma.base
 open import subset

@@ -6,6 +6,7 @@ open import base
 open import container.finmap
 open import container.finmap.composition
 open import container.finmap.remove
+open import decision
 open import discrete
 open import equality
 open import functions
@@ -18,7 +19,6 @@ open import order
 open import order.instances.nat
 open import order.minmax
 open import order.minmax.instances.nat
-open import relation
 open import sigma.base
 open import sum
 

@@ -3,6 +3,7 @@
 module unique-prime-factorization where
 
 open import base
+open import decision
 open import div
 open import equality
 open import gcd.computational
@@ -18,7 +19,6 @@ open import prime-div-count
 open import prime-div-count.computational
 open import prime-factorization
 open import prime-gcd
-open import relation
 open import relatively-prime
 open import semiring
 open import semiring.exponentiation

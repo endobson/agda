@@ -4,6 +4,7 @@ module real.integral.partition-refinement-delta-fine where
 
 open import additive-group.instances.real
 open import base
+open import decision
 open import equality
 open import fin
 open import finset
@@ -22,7 +23,6 @@ open import real.integral.partition
 open import real.integral.partition-index
 open import real.integral.partition-refinement
 open import real.rational
-open import relation
 open import ring.implementations.real
 open import subset
 open import sum

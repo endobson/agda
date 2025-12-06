@@ -3,6 +3,7 @@
 module prime-power-factorization where
 
 open import base
+open import decision
 open import div
 open import equality
 open import functions
@@ -13,7 +14,6 @@ open import order.instances.nat
 open import prime
 open import prime-factorization
 open import prime-gcd
-open import relation
 open import relatively-prime
 open import semiring.exponentiation
 open import semiring.instances.nat

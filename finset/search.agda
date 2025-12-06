@@ -4,6 +4,7 @@ module finset.search where
 
 open import base
 open import cubical
+open import decision
 open import equality
 open import equivalence
 open import fin

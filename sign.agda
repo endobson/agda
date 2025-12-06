@@ -3,6 +3,7 @@
 module sign where
 
 open import base
+open import decision
 open import discrete
 open import equality
 open import hlevel.base

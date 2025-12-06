@@ -3,6 +3,7 @@
 module list.nat where
 
 open import base
+open import decision
 open import equality
 open import fin
 open import list

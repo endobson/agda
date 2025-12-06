@@ -4,6 +4,7 @@ module finset.finitely-indexed where
 
 open import base
 open import cubical
+open import decision
 open import discrete
 open import equality
 open import equivalence
@@ -16,7 +17,6 @@ open import finset.search
 open import functions
 open import hlevel
 open import isomorphism
-open import relation
 open import sigma.base
 open import sum
 open import truncation

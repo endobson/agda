@@ -3,6 +3,7 @@
 module prime where
 
 open import base
+open import decision
 open import discrete
 open import div
 open import equality
@@ -13,7 +14,6 @@ open import nat.exponentiation
 open import nat.order
 open import order
 open import order.instances.nat
-open import relation
 open import semiring.exponentiation
 open import semiring.instances.nat
 open import sigma.base

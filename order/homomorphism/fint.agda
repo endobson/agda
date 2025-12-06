@@ -3,6 +3,7 @@
 module order.homomorphism.fint where
 
 open import base
+open import decision
 open import equality
 open import equivalence
 open import fin-algebra

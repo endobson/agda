@@ -6,6 +6,7 @@ open import additive-group
 open import additive-group.instances.nat
 open import base
 open import cubical
+open import decision
 open import discrete
 open import equality-path
 open import equivalence
@@ -18,7 +19,6 @@ open import nat
 open import nat.order
 open import order
 open import order.instances.nat
-open import relation
 open import sigma.base
 open import sum
 open import truncation

@@ -7,6 +7,7 @@ open import additive-group
 open import additive-group.instances.int
 open import base
 open import commutative-monoid
+open import decision
 open import equality
 open import fin
 open import functions
@@ -34,7 +35,6 @@ open import quotient-remainder using
   ; quotient-remainder
   ; isContr-QuotientRemainder
   )
-open import relation hiding (acc)
 open import ring
 open import ring.implementations.int
 open import semidomain

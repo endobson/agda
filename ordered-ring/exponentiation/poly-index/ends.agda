@@ -5,6 +5,7 @@ module ordered-ring.exponentiation.poly-index.ends where
 open import additive-group
 open import additive-group.instances.nat
 open import base
+open import decision
 open import cubical
 open import equality-path
 open import hlevel
@@ -17,7 +18,6 @@ open import isomorphism
 open import nat
 open import ordered-ring.exponentiation.poly-index
 open import ordered-ring.exponentiation.poly-index.eval
-open import relation
 open import sigma.base
 open import subset
 open import semiring

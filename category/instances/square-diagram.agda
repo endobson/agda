@@ -3,6 +3,7 @@
 open import base
 open import category.base
 open import cubical
+open import decision
 open import discrete
 open import equality-path
 open import equivalence
@@ -10,7 +11,6 @@ open import fin
 open import fin-algebra
 open import hlevel
 open import isomorphism
-open import relation
 open import univalence
 
 module category.instances.square-diagram where

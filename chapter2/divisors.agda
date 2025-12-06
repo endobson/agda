@@ -3,6 +3,7 @@
 module chapter2.divisors where
 
 open import base
+open import decision
 open import div hiding (remainder)
 open import equality
 open import equivalence
@@ -33,7 +34,6 @@ open import prime-div-count
 open import prime-div-count.computational
 open import prime-gcd
 open import quotient
-open import relation
 open import relatively-prime
 open import ring.implementations.int
 open import semiring.exponentiation

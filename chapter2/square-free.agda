@@ -4,6 +4,7 @@ module chapter2.square-free where
 
 open import base
 open import commutative-monoid
+open import decision
 open import div
 open import equality
 open import functions
@@ -17,7 +18,6 @@ open import ordered-additive-group
 open import ordered-additive-group.instances.nat
 open import prime
 open import prime-factorization
-open import relation
 open import relatively-prime
 open import sigma.base
 open import unique-prime-factorization

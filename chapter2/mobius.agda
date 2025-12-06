@@ -10,6 +10,7 @@ open import chapter2.indicator
 open import chapter2.multiplicative
 open import chapter2.square-free
 open import commutative-monoid
+open import decision
 open import div
 open import equality
 open import equivalence
@@ -35,7 +36,6 @@ open import order.instances.nat
 open import prime
 open import prime-factorization
 open import prime-power-factorization
-open import relation
 open import relatively-prime
 open import ring.implementations.int
 open import ring.lists

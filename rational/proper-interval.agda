@@ -6,6 +6,7 @@ open import additive-group
 open import base
 open import equality
 open import equivalence
+open import decision
 open import functions
 open import heyting-field.instances.rational
 open import hlevel
@@ -23,7 +24,6 @@ open import ordered-semiring.minmax
 open import rational
 open import rational.order
 open import rational.proper-interval.classify
-open import relation
 open import ring
 open import ring.implementations.rational
 open import semiring

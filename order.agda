@@ -5,6 +5,7 @@ module order where
 open import apartness
 open import base
 open import cubical
+open import decision
 open import equality
 open import equivalence
 open import functions

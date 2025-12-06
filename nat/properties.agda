@@ -3,11 +3,11 @@
 module nat.properties where
 
 open import base
+open import decision
 open import discrete
 open import equality
 open import hlevel
 open import isomorphism
-open import relation
 open import sigma.base
 open import univalence
 

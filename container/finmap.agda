@@ -4,20 +4,21 @@ module container.finmap where
 
 open import base
 open import cubical
+open import decision
 open import discrete
+open import equality-path
 open import fin
 open import functions
-open import nat
 open import hlevel
 open import hlevel.htype
+open import isomorphism
+open import nat
 open import relation
-open import equality-path
+open import set-quotient
 open import sigma.base
 open import sum
-open import univalence
-open import isomorphism
 open import truncation
-open import set-quotient
+open import univalence
 
 private
   variable

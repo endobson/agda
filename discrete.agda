@@ -3,6 +3,7 @@
 module discrete where
 
 open import base
+open import decision
 open import equality
 open import functions
 open import funext

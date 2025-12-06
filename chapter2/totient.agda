@@ -7,6 +7,7 @@ open import base
 open import chapter2.divisors
 open import chapter2.multiplicative
 open import cubical
+open import decision
 open import div hiding (remainder)
 open import equality
 open import equivalence
@@ -40,7 +41,6 @@ open import ordered-semiring.instances.nat
 open import prime
 open import prime-gcd
 open import quotient-remainder
-open import relation
 open import relatively-prime
 open import semiring.exponentiation
 open import semiring.initial

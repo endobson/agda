@@ -3,11 +3,11 @@
 module dominance where
 
 open import base
+open import decision
 open import equality
 open import equivalence
 open import hlevel
 open import isomorphism
-open import relation
 
 record isDominance {ℓ : Level} (D : Type ℓ -> Type ℓ) : Type (ℓ-suc ℓ) where
   field

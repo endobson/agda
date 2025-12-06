@@ -6,6 +6,7 @@ open import apartness
 open import apartness.decidable
 open import apartness.instances.int
 open import base
+open import decision
 open import equality-path
 open import funext
 open import int.base

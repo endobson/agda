@@ -5,6 +5,7 @@ module ordered-ring.exponentiation.all-ones where
 open import additive-group
 open import additive-group.instances.nat
 open import base
+open import decision
 open import equality-path
 open import finite-commutative-monoid
 open import finite-commutative-monoid.small
@@ -26,7 +27,6 @@ open import ordered-semiring
 open import ordered-semiring.exponentiation
 open import ordered-semiring.negated
 open import ordered-semiring.squares
-open import relation
 open import ring.exponentiation
 open import semiring
 open import semiring.exponentiation

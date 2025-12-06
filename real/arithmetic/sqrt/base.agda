@@ -5,6 +5,7 @@ module real.arithmetic.sqrt.base where
 open import additive-group
 open import additive-group.instances.real
 open import base
+open import decision
 open import equality
 open import heyting-field.instances.rational
 open import hlevel.base

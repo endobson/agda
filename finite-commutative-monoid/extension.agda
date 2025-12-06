@@ -5,6 +5,7 @@ module finite-commutative-monoid.extension where
 open import base
 open import commutative-monoid
 open import cubical
+open import decision
 open import equality
 open import equivalence.base
 open import finite-commutative-monoid
@@ -18,7 +19,6 @@ open import functions.embedding
 open import funext
 open import hlevel
 open import isomorphism
-open import relation
 open import subset
 open import truncation
 

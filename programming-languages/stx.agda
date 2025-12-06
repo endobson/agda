@@ -4,8 +4,8 @@ module programming-languages.stx where
 
 open import Agda.Builtin.String
 open import base
+open import decision
 open import discrete
-open import relation
 open import set-quotient
 
 

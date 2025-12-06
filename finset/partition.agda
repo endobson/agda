@@ -4,10 +4,10 @@ module finset.partition where
 
 open import base
 open import equality
+open import decision
 open import fin
 open import finset
 open import finset.detachable
-open import relation
 open import subset
 
 

@@ -3,12 +3,12 @@
 module int.cover where
 
 open import base
+open import decision
 open import discrete
 open import equality-path
 open import hlevel.base
 open import int.base
 open import nat
-open import relation
 
 private
   IntEqCover : ℤ -> ℤ -> Type₀

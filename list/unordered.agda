@@ -4,6 +4,7 @@ module list.unordered where
 
 open import additive-group
 open import base
+open import decision
 open import discrete
 open import equality
 open import list
@@ -11,7 +12,6 @@ open import list.discrete
 open import nat
 open import order
 open import order.instances.nat
-open import relation
 open import semiring
 
 import ring.lists

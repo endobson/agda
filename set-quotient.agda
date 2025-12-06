@@ -3,6 +3,7 @@
 module set-quotient where
 
 open import base
+open import decision
 open import discrete
 open import equality-path
 open import equivalence

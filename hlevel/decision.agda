@@ -3,6 +3,7 @@
 module hlevel.decision where
 
 open import base
+open import decision
 open import equality
 open import hlevel.base
 open import relation

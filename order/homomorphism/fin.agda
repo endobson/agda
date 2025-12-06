@@ -5,6 +5,7 @@ module order.homomorphism.fin where
 open import additive-group
 open import additive-group.instances.nat
 open import base
+open import decision
 open import equality
 open import equivalence
 open import fin

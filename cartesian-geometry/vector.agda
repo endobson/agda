@@ -8,6 +8,7 @@ open import additive-group.instances.real
 open import apartness
 open import base
 open import commutative-monoid
+open import decision
 open import direct-product
 open import direct-product.standard-basis
 open import equality
@@ -44,7 +45,6 @@ open import real.arithmetic.sqrt
 open import real.arithmetic.sqrt.base
 open import real.order
 open import real.subspace
-open import relation
 open import ring
 open import ring.implementations.real
 open import semidomain

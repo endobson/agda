@@ -1,16 +1,17 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
 open import base
-open import relation
 
 module list.sorted {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} (_≤_ : Rel A ℓ₂)  where
 
+open import decision
 open import discrete
 open import equality
 open import functions
 open import hlevel
 open import list hiding (insert) renaming (Sorted to Sorted' ; SemiSorted to SemiSorted')
 open import list.unordered
+open import relation
 open import sum
 open import truncation
 

@@ -7,6 +7,7 @@ open import apartness
 open import base
 open import commutative-monoid
 open import commutative-monoid.pi
+open import decision
 open import direct-product
 open import equality hiding (J)
 open import fin

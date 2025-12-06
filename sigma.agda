@@ -4,6 +4,7 @@ module sigma where
 
 open import base
 open import cubical
+open import decision
 open import equality-path
 open import equivalence
 open import functions

@@ -3,11 +3,11 @@
 module apartness.decidable where
 
 open import apartness
+open import decision
 open import base
 open import equality-path
 open import equivalence
 open import isomorphism
-open import relation
 
 module _ {ℓD ℓ#₁ ℓ#₂ : Level} {D : Type ℓD} {_#₁_ : Rel D ℓ#₁} {_#₂_ : Rel D ℓ#₂}
   (TA₁ : isTightApartness _#₁_)

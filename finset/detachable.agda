@@ -4,15 +4,15 @@ module finset.detachable where
 
 open import base
 open import cubical
+open import decision
 open import equivalence
-open import isomorphism
-open import relation
 open import fin
+open import fin-algebra
 open import finset
 open import finset.instances.base
 open import finset.instances.sigma
-open import fin-algebra
 open import functions
+open import isomorphism
 open import sigma
 open import subset
 open import sum

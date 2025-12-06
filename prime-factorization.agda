@@ -5,6 +5,7 @@ module prime-factorization where
 open import additive-group.instances.nat
 open import base
 open import commutative-monoid
+open import decision
 open import div
 open import equality
 open import functions
@@ -13,7 +14,6 @@ open import nat.order
 open import order
 open import order.instances.nat
 open import prime
-open import relation
 open import semiring.instances.nat
 open import unordered-list
 

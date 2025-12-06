@@ -5,6 +5,7 @@ module programming-languages.renamings2 where
 open import base
 open import container.finmap.v3
 open import cubical
+open import decision
 open import discrete
 open import dominance
 open import equality-path
@@ -16,7 +17,6 @@ open import hlevel
 open import isomorphism
 open import nat
 open import partial-map
-open import relation
 open import truncation
 open import type-algebra
 open import univalence

@@ -5,6 +5,7 @@ module prime-gcd where
 open import additive-group
 open import additive-group.instances.int
 open import base
+open import decision
 open import div
 open import equality
 open import gcd.euclidean-algorithm
@@ -15,7 +16,6 @@ open import lcm
 open import nat
 open import nat.order
 open import prime
-open import relation
 open import relatively-prime
 open import ring
 open import ring.implementations.int

@@ -3,14 +3,15 @@
 module list.filter where
 
 open import base
-open import relation
+open import decision
 open import equality
-open import list
 open import infinity-monoid
+open import list
 open import nat
 open import nat.order
 open import order
 open import order.instances.nat
+open import relation
 
 private
   variable

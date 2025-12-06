@@ -3,8 +3,8 @@
 module programming-languages.nom-pa where
 
 open import base
+open import decision
 open import equality
-open import relation
 open import functions
 open import sum
 

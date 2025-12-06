@@ -3,11 +3,11 @@
 module boolean where
 
 open import base
+open import decision
 open import discrete
 open import equality
 open import functions
 open import hlevel
-open import relation
 
 
 Bool : Boolean -> Type₀

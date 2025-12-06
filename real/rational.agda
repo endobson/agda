@@ -5,6 +5,7 @@ module real.rational where
 open import additive-group
 open import apartness
 open import base
+open import decision
 open import equality
 open import functions
 open import hlevel
@@ -18,7 +19,6 @@ open import rational
 open import rational.order
 open import real
 open import real.order
-open import relation hiding (U)
 open import truncation
 
 

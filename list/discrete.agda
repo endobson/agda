@@ -5,6 +5,7 @@ open import discrete
 
 module list.discrete {ℓ : Level} {A : Type ℓ} {{disc'A : Discrete' A}} where
 
+open import decision
 open import equality
 open import functions
 open import hlevel
@@ -14,7 +15,6 @@ open import nat
 open import nat.order
 open import order
 open import order.instances.nat
-open import relation
 
 isSetA : isSet A
 isSetA = Discrete->isSet decide-=

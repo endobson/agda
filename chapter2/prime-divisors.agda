@@ -7,6 +7,7 @@ open import additive-group.instances.nat
 open import base
 open import chapter2.divisors
 open import chapter2.multiplicative
+open import decision
 open import discrete
 open import div hiding (remainder)
 open import equality
@@ -29,7 +30,6 @@ open import prime-div-count.computational
 open import prime-factorization
 open import prime-gcd
 open import prime-power-factorization
-open import relation
 open import relatively-prime
 open import semiring
 open import semiring.exponentiation

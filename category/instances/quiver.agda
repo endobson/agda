@@ -5,11 +5,11 @@ open import boolean
 open import category.base
 open import category.functor
 open import category.instances.set
+open import decision
 open import discrete
 open import equality
 open import hlevel
 open import hlevel.htype
-open import relation
 
 module category.instances.quiver where
 

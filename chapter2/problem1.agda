@@ -7,6 +7,7 @@ open import base
 open import chapter2.prime-divisors
 open import chapter2.totient
 open import chapter2.totient-rational
+open import decision
 open import div
 open import equality
 open import equivalence
@@ -40,7 +41,6 @@ open import rational
 open import rational-prime
 open import rational.integer
 open import rational.order
-open import relation
 open import ring
 open import ring.implementations.rational
 open import semiring

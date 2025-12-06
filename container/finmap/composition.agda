@@ -5,11 +5,11 @@ module container.finmap.composition where
 open import base
 open import container.finmap
 open import container.finmap.filter-map
+open import decision
 open import discrete
 open import equality
 open import hlevel
 open import maybe
-open import relation
 
 module _ {ℓV : Level} {V : Type ℓV}  where
   record FinMapComposition' (left right result : FinMap' V V) : Type ℓV where

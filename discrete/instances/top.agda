@@ -3,7 +3,7 @@
 module discrete.instances.top where
 
 open import base
-open import relation
+open import decision
 open import discrete
 
 instance

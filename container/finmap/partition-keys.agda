@@ -4,6 +4,7 @@ module container.finmap.partition-keys where
 
 open import base
 open import container.finmap
+open import decision
 open import equality
 open import functions
 open import hlevel
@@ -11,7 +12,6 @@ open import nat.order
 open import order
 open import order.instances.nat
 open import sigma.base
-open import relation
 
 module _ {ℓK : Level} {ℓV : Level} {K : Type ℓK} {V : Type ℓV}  where
 
