@@ -58,6 +58,9 @@ opaque
 zero-fin : {n : Nat} -> Fin (suc n)
 zero-fin = 0 , zero-<
 
+max-fin : {n : Nat} -> Fin (suc n)
+max-fin {n} = n , refl-≤
+
 suc-fin : {n : Nat} -> Fin n -> Fin (suc n)
 suc-fin (i , p) = suc i , suc-≤ p
 
