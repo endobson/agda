@@ -21,24 +21,28 @@ private
   variable
     ℓ : Level
 
-module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
-         {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
-         {S : Semiring ACM} {R : Ring S AG}
-         {A : isTightApartness K#} {F : Field R A} {V : Type ℓV}
-         (VS : VectorSpaceStr F V) where
+module _ {ℓK ℓV : Level}
+         {K : Type ℓK} {K# : Rel K ℓK}
+         {V : Type ℓV} {V# : Rel V ℓV}
+         {ACM-K : AdditiveCommMonoid K} {AG-K : AdditiveGroup ACM-K}
+         {S-K : Semiring ACM-K} {R-K : Ring S-K AG-K}
+         {ACM-V : AdditiveCommMonoid V} {AG-V : AdditiveGroup ACM-V}
+         {A-K : isTightApartness K#}
+         {A-V : isTightApartness V#}
+         {MS : ModuleStr R-K AG-V}
+         {{AMS : ApartModuleStr MS A-K A-V}}
+         {{F : Field R-K A-K}}
+         where
 
   private
-    module VS = VectorSpaceStr VS
-    module M = ModuleStr VS.module-str
-
     instance
-      IM = VS.module-str
-      IACM = ACM
-      IS = S
+      IACM-K = ACM-K
+      IS-K = S-K
       IF = F
-      IVA = ModuleStr.isTightApartness-v# IM
-      IFA = Field.isTightApartness-f# F
-      IVS = VS
+      IACM-V = ACM-V
+      IA-K = A-K
+      IA-V = A-V
+      IMS = MS
 
 
   private
@@ -62,7 +66,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
     scaled-vector-sum-inner a = (\i -> (a i) v* (family (include S i)))
 
     scaled-vector-sum : (a : Carrier S -> K) -> V
-    scaled-vector-sum a = vector-sum (scaled-vector-sum-inner a)
+    scaled-vector-sum a = finiteSum (scaled-vector-sum-inner a)
       where
       instance
         FinSetStr-S : FinSetStr (Carrier S)
@@ -73,20 +77,20 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
     LinearlyDependent : (ℓI₂ : Level) -> Type (ℓ-max* 4 ℓK ℓV ℓI₁ (ℓ-suc ℓI₂))
     LinearlyDependent ℓI₂ =
       ∃[ S ∈ FinSubset I₁ ℓI₂ ]
-      Σ[ a ∈ (Carrier S -> K) ] (scaled-vector-sum family S a == 0v ×
+      Σ[ a ∈ (Carrier S -> K) ] (scaled-vector-sum family S a == 0# ×
                                  Σ[ i ∈ Carrier S ] (a i # 0#))
 
     LinearlyIndependent : (ℓI₂ : Level) -> Type (ℓ-max* 4 ℓK ℓV ℓI₁ (ℓ-suc ℓI₂))
     LinearlyIndependent ℓI₂ =
       (S : FinSubset I₁ ℓI₂) -> (a : Carrier S -> K) ->
-      scaled-vector-sum family S a == 0v ->
+      scaled-vector-sum family S a == 0# ->
       (i : Carrier S) -> a i == 0#
 
     LinearlyFree : (ℓI₂ : Level) -> Type (ℓ-max* 4 ℓK ℓV ℓI₁ (ℓ-suc ℓI₂))
     LinearlyFree ℓI₂ =
       (S : FinSubset I₁ ℓI₂) -> (a : Carrier S -> K) ->
       ∃[ i ∈ Carrier S ] ((a i) # 0#) ->
-      scaled-vector-sum family S a # 0v
+      scaled-vector-sum family S a # 0#
 
 
     LinearlyFree->LinearlyIndependent : {ℓI₂ : Level} -> LinearlyFree ℓI₂ -> LinearlyIndependent ℓI₂
@@ -99,7 +103,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
       unsquash isPropBot (∥-map handle dep)
       where
       handle : Σ[ S ∈ FinSubset I₁ ℓI₂ ]
-               Σ[ a ∈ (Carrier S -> K) ] (scaled-vector-sum family S a == 0v ×
+               Σ[ a ∈ (Carrier S -> K) ] (scaled-vector-sum family S a == 0# ×
                                           Σ[ i ∈ Carrier S ] (a i # 0#)) -> Bot
       handle (S , a , sum0 , i , ai#0) = irrefl-path-# (indep S a sum0 i) ai#0
 

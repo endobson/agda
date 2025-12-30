@@ -144,29 +144,29 @@ mv*-assoc m1 m2 v = vector-ext f
            (*-right (sym (finiteMerge-Axis _ _))) >=>
     sym (finiteMerge-Axis _ _)
 
-mv*-right-zero : (m : Matrix) -> m mv* 0v == 0v
+mv*-right-zero : (m : Matrix) -> m mv* 0# == 0#
 mv*-right-zero m = vector-ext f
   where
-  f : (a : Axis) -> vector-index (m mv* 0v) a == 0#
+  f : (a : Axis) -> vector-index (m mv* 0#) a == 0#
   f a = finiteMerge-Axis _ _ >=> +-cong *-right-zero *-right-zero >=> +-right-zero
 
-mv*-reflects-#0 : (m : Matrix) (v : Vector) -> (m mv* v) # 0v -> v # 0v
+mv*-reflects-#0 : (m : Matrix) (v : Vector) -> (m mv* v) # 0# -> v # 0#
 mv*-reflects-#0 m v = ∥-bind handle
   where
-  handle : Σ[ a1 ∈ Axis ] (vector-index (m mv* v) a1 # 0#) -> v # 0v
+  handle : Σ[ a1 ∈ Axis ] (vector-index (m mv* v) a1 # 0#) -> v # 0#
   handle (a1 , mva#0) = ∥-bind handle2 (finiteSum-#0 mva#0)
     where
-    handle2 : Σ[ a2 ∈ Axis ] ((matrix-index m a1 a2 * vector-index v a2) # 0#) -> v # 0v
+    handle2 : Σ[ a2 ∈ Axis ] ((matrix-index m a1 a2 * vector-index v a2) # 0#) -> v # 0#
     handle2 (a2 , mv#0) = ∣ (a2 , *₁-reflects-#0 mv#0) ∣
 
 isLinearTransformation-mv* : (m : Matrix) -> isLinearTransformation (m mv*_)
 isLinearTransformation-mv* m = is-linear-transformation preserves-+ preserves-*
   where
-  preserves-+ : (v1 v2 : Vector) -> m mv* (v1 v+ v2) == (m mv* v1) v+ (m mv* v2)
+  preserves-+ : (v1 v2 : Vector) -> m mv* (v1 + v2) == (m mv* v1) + (m mv* v2)
   preserves-+ v1 v2 = vector-ext p
     where
-    p : (a : Axis) -> vector-index (m mv* (v1 v+ v2)) a ==
-                      vector-index ((m mv* v1) v+ (m mv* v2)) a
+    p : (a : Axis) -> vector-index (m mv* (v1 + v2)) a ==
+                      vector-index ((m mv* v1) + (m mv* v2)) a
     p a = cong finiteSum (funExt \a2 -> *-distrib-+-left) >=> finiteMerge-split _
 
   preserves-* : (k : ℝ) (v : Vector) -> m mv* (k v* v) == (k v* (m mv* v))
@@ -185,19 +185,18 @@ linear-transformation->matrix-path {f} lt = funExt (\v -> vector-ext (\a -> p v 
       (vector-index (linear-transformation->matrix lt mv* v) a) == (vector-index (f v) a)
   p v a = m-path >=> cong (\v -> vector-index v a) (sym fv-path)
     where
-    v-path : v == vector-sum (\a -> (vector-index v a) v* (axis-basis a))
+    v-path : v == finiteSum (\a -> (vector-index v a) v* (axis-basis a))
     v-path = axis-basis-decomposition
-    fv-path : f v == vector-sum (\a -> (vector-index v a) v* (f (axis-basis a)))
+    fv-path : f v == finiteSum (\a -> (vector-index v a) v* (f (axis-basis a)))
     fv-path =
       cong f v-path >=>
-      (lt-preserves-vector-sum lt) >=>
-      cong vector-sum (funExt (\a -> lt-preserves-* lt _ _))
+      (lt-preserves-finiteSum lt) >=>
+      cong finiteSum (funExt (\a -> lt-preserves-* lt _ _))
 
     m-path : (vector-index (linear-transformation->matrix lt mv* v) a) ==
-             (vector-index (vector-sum (\a2 -> (vector-index v a2) v* (f (axis-basis a2)))) a)
+             (vector-index (finiteSum (\a2 -> (vector-index v a2) v* (f (axis-basis a2)))) a)
     m-path = cong finiteSum (funExt (\a2 -> *-commute)) >=>
              (finiteMerge-homo-inject (AdditiveCommMonoidʰ-vector-index a))
-
 
 determinant : Matrix -> ℝ
 determinant m = diff (f x-axis y-axis * f y-axis x-axis) (f x-axis x-axis * f y-axis y-axis)
@@ -345,15 +344,15 @@ module _ (m : Matrix) (det#0 : determinant m # 0#) where
   det#0->isInvertible = is-invertible-matrix inv inv*m=id m*inv=id
 
 MatrixKernel : Matrix -> Subtype Vector ℓ-one
-MatrixKernel m v = (m mv* v == 0v) , isSet-Vector _ _
+MatrixKernel m v = (m mv* v == 0#) , isSet-Vector _ _
 
-0∈MatrixKernel : (m : Matrix) -> ⟨ MatrixKernel m 0v ⟩
+0∈MatrixKernel : (m : Matrix) -> ⟨ MatrixKernel m 0# ⟩
 0∈MatrixKernel m = mv*-right-zero m
 
 isInvertible->isSingleton-MatrixKernel : {m : Matrix} ->
   isInvertibleMatrix m -> isSingletonSubtype (MatrixKernel m)
 isInvertible->isSingleton-MatrixKernel {m} inv-m =
-  (0v , 0∈MatrixKernel m) , isProp-ker _
+  (0# , 0∈MatrixKernel m) , isProp-ker _
   where
   module inv-m = isInvertibleMatrix inv-m
   isProp-ker : isProp (∈-Subtype (MatrixKernel m))
@@ -370,10 +369,10 @@ isInvertible->isSingleton-MatrixKernel {m} inv-m =
       (mv*-left-identity v2)
 
 isInvertible->mv*-preserves-#0 : {m : Matrix} ->
-  isInvertibleMatrix m -> {v : Vector} -> v # 0v ->
-  (m mv* v) # 0v
+  isInvertibleMatrix m -> {v : Vector} -> v # 0# ->
+  (m mv* v) # 0#
 isInvertible->mv*-preserves-#0 {m} inv-m {v} v#0 =
-  mv*-reflects-#0 i (m mv* v) (subst (_# 0v) p v#0)
+  mv*-reflects-#0 i (m mv* v) (subst (_# 0#) p v#0)
   where
   i = isInvertibleMatrix.inv inv-m
   i-path = isInvertibleMatrix.left-inverse inv-m

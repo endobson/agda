@@ -82,16 +82,16 @@ private
 
   direction-signed-distance-distrib-v+ :
     (d : Direction) (v1 v2 : Vector) ->
-    (direction-signed-distance d (v1 v+ v2)) ==
+    (direction-signed-distance d (v1 + v2)) ==
     (direction-signed-distance d v1) + (direction-signed-distance d v2)
   direction-signed-distance-distrib-v+ d v1 v2 =
-    (direction-basis-decomposition d (v1 v+ v2) y-axis) >=>
+    (direction-basis-decomposition d (v1 + v2) y-axis) >=>
     cong (\v -> vector-index v y-axis) v-path >=>
     cong2 _+_ (sym (direction-basis-decomposition d v1 y-axis))
               (sym (direction-basis-decomposition d v2 y-axis))
     where
-    v-path : (rotate-vector (direction-diff d xaxis-dir) (v1 v+ v2)) ==
-             (rotate-vector (direction-diff d xaxis-dir) v1) v+
+    v-path : (rotate-vector (direction-diff d xaxis-dir) (v1 + v2)) ==
+             (rotate-vector (direction-diff d xaxis-dir) v1) +
              (rotate-vector (direction-diff d xaxis-dir) v2)
     v-path = rotate-vector-preserves-+ (direction-diff d xaxis-dir) v1 v2
 
@@ -102,7 +102,7 @@ private
   semi-direction-distance d v = abs (direction-signed-distance d v)
 
 
-  semi-direction-distance-v- : (d : Direction) -> {v1 v2 : Vector} -> v1 == (v- v2) ->
+  semi-direction-distance-v- : (d : Direction) -> {v1 v2 : Vector} -> v1 == (- v2) ->
     semi-direction-distance d v1 == semi-direction-distance d v2
   semi-direction-distance-v- d {v1} {v2} v1=-v2 =
     cong abs (dec1=-dec2 y-axis) >=> abs-minus
@@ -115,7 +115,7 @@ private
     dec2 = (basis-decomposition (isBasis-direction-basis d) v2)
 
     p : (rotate-vector (direction-diff d xaxis-dir) v1) ==
-        (v- (rotate-vector (direction-diff d xaxis-dir) v2))
+        (- (rotate-vector (direction-diff d xaxis-dir) v2))
     p = cong (rotate-vector (direction-diff d xaxis-dir)) v1=-v2 >=>
         rotate-v- (direction-diff d xaxis-dir) v2
 
@@ -180,8 +180,8 @@ private
   semi-direction-distance0->direction-span d@(dv , dp) v dis0 =
     basis-decomposition b v x-axis ,
     v*-right x-path >=>
-    sym v+-right-zero >=>
-    v+-right (sym v*-left-zero >=> v*-left (sym y0)) >=>
+    sym +-right-zero >=>
+    +-right (sym v*-left-zero >=> v*-left (sym y0)) >=>
     sym (finiteMerge-Axis _ _) >=>
     basis-decomposition-path b
     where
@@ -212,7 +212,7 @@ private
     c2 y-axis = 0#
 
     scaled-sum-path : scaled-vector-sum c2 b' == v
-    scaled-sum-path = finiteMerge-Axis _ _ >=> v+-right v*-left-zero >=> v+-right-zero >=> kx-path
+    scaled-sum-path = finiteMerge-Axis _ _ >=> +-right v*-left-zero >=> +-right-zero >=> kx-path
 
     ans2 : c y-axis == 0#
     ans2 = cong (\f -> f y-axis) (sym (basis-decomposition-unique b scaled-sum-path))
@@ -245,7 +245,7 @@ private
 
 
     semi-direction-distance#0->v#0 :
-      (d : Direction) (v : Vector) -> semi-direction-distance d v # 0# -> v # 0v
+      (d : Direction) (v : Vector) -> semi-direction-distance d v # 0# -> v # 0#
     semi-direction-distance#0->v#0 d v sd#0 =
       subst (_# 0#) (basis-decomposition-path (isBasis-direction-basis d)) ans
       where
@@ -317,7 +317,7 @@ private
 
 
 
-  semi-direction-distance'-v- : {v1 v2 : Vector} (sd : SemiDirection) -> v1 == (v- v2) ->
+  semi-direction-distance'-v- : {v1 v2 : Vector} (sd : SemiDirection) -> v1 == (- v2) ->
     semi-direction-distance' sd v1 == semi-direction-distance' sd v2
   semi-direction-distance'-v- {v1} {v2} =
     SetQuotientElim.elimProp
@@ -326,7 +326,7 @@ private
 
 
   semi-direction-distance'#0->v#0 :
-    (sd : SemiDirection) (v : Vector) -> semi-direction-distance' sd v # 0# -> v # 0v
+    (sd : SemiDirection) (v : Vector) -> semi-direction-distance' sd v # 0# -> v # 0#
   semi-direction-distance'#0->v#0 =
     SetQuotientElim.elimProp
       (\sd -> isPropΠ2 (\_ _ -> isProp-#))
@@ -371,20 +371,20 @@ private
 
   semi-direction-distance-cancel0 : (d : Direction) (v1 v2 : Vector) ->
     semi-direction-distance d v1 == 0# ->
-    semi-direction-distance d (v1 v+ v2) == semi-direction-distance d v2
+    semi-direction-distance d (v1 + v2) == semi-direction-distance d v2
   semi-direction-distance-cancel0 d v1 v2 p =
     cong abs (direction-signed-distance-distrib-v+ d v1 v2 >=>
               +-left (eqInv abs-zero-eq p) >=> +-left-zero)
 
   semi-direction-distance'-cancel0 : (sd : SemiDirection) (v1 v2 : Vector) ->
     semi-direction-distance' sd v1 == 0# ->
-    semi-direction-distance' sd (v1 v+ v2) == semi-direction-distance' sd v2
+    semi-direction-distance' sd (v1 + v2) == semi-direction-distance' sd v2
   semi-direction-distance'-cancel0 sd v1 v2 =
     SetQuotientElim.elimProp isProp-C (\d -> semi-direction-distance-cancel0 d v1 v2) sd
     where
     C : Pred SemiDirection _
     C sd = semi-direction-distance' sd v1 == 0# ->
-           semi-direction-distance' sd (v1 v+ v2) == semi-direction-distance' sd v2
+           semi-direction-distance' sd (v1 + v2) == semi-direction-distance' sd v2
     isProp-C : ∀ sd -> isProp (C sd)
     isProp-C _ = isPropΠ (\_ -> isSet-ℝ _ _)
 
@@ -400,7 +400,7 @@ private
     sdd-1 = semi-direction-distance' sd1 (P-diff p1 p)
     sdd-2 = semi-direction-distance' sd2 (P-diff p2 p)
     sdd-2' = semi-direction-distance' sd1 (P-diff p2 p)
-    sdd-diff = semi-direction-distance' sd1 ((P-diff p2 p1) v+ (P-diff p1 p))
+    sdd-diff = semi-direction-distance' sd1 ((P-diff p2 p1) + (P-diff p1 p))
 
     p2∈l1' : ⟨ semi-direction-span sd1 (P-diff p2 p1) ⟩
     p2∈l1' = subst (\sd -> ⟨ semi-direction-span sd (P-diff p2 p1) ⟩) (sym sd1=sd2) p1∈l2
@@ -600,7 +600,7 @@ module _
       where
       sd#0 : semi-direction-distance' sd (P-diff p2 p) # 0#
       sd#0 = inj-r off-lp
-      ans : (P-diff p2 p) # 0v
+      ans : (P-diff p2 p) # 0#
       ans = semi-direction-distance'#0->v#0 sd (P-diff p2 p) sd#0
 
   OffLine-OnLine-# : (l : Line) (p1 p2 : Point) -> ⟨ OffLine l p1 ⟩ -> ⟨ OnLine l p2 ⟩ -> p1 # p2

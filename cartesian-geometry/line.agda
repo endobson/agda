@@ -2,6 +2,7 @@
 
 module cartesian-geometry.line where
 
+open import additive-group
 open import additive-group.instances.real
 open import apartness
 open import base
@@ -49,13 +50,13 @@ OnLine'-self : (l : Line') -> ⟨ OnLine' l (line'-point l) ⟩
 OnLine'-self (p , s) =
   subst (\v -> ⟨ semi-direction-span s v ⟩) (sym dpp) semi-direction-span-0v
   where
-  semi-direction-span-0v : ⟨ semi-direction-span s 0v ⟩
+  semi-direction-span-0v : ⟨ semi-direction-span s 0# ⟩
   semi-direction-span-0v =
     isLinearSubtype.closed-under-0v (isLinearSubtype-semi-direction-span s)
 
-  dpp : P-diff p p == 0v
+  dpp : P-diff p p == 0#
   dpp = cong (P-diff p) (sym (P-shift-0v p)) >=>
-        P-shift-step p 0v
+        P-shift-step p 0#
 
 SameLine' : Rel Line' ℓ-one
 SameLine' l1@(p1 , s1) l2@(p2 , s2) = ⟨ OnLine' l1 p2 ⟩ × ⟨ OnLine' l2 p1 ⟩ × s1 == s2
@@ -108,7 +109,7 @@ OnLine'-SameLine' l1 l2 (p2∈l1 , p1∈l2 , s1=s2) =
     check2 : ⟨ semi-direction-span s2 (P-diff p1 d) ⟩
     check2 = subst (\s -> ⟨ semi-direction-span s (P-diff p1 d) ⟩) s1=s2 d∈l1
 
-    check3 : ⟨ semi-direction-span s2 (P-diff p2 p1 v+ P-diff p1 d) ⟩
+    check3 : ⟨ semi-direction-span s2 (P-diff p2 p1 + P-diff p1 d) ⟩
     check3 = isLinearSubtype.closed-under-v+ (isLinearSubtype-semi-direction-span s2) check1 check2
 
 OnLine : Line -> Subtype Point ℓ-one
@@ -203,10 +204,10 @@ line->line-segment = SetQuotientElim.elimProp isProp-Ans f
     g d@(v , _) = ∣ p1 , p2 , line-segment-cons p1#p2 , line-path ∣
       where
       p2 = P-shift p1 v
-      v#0 : v # 0v
+      v#0 : v # 0#
       v#0 = direction-#0 d
-      p1p2#0 : P-diff p1 p2 # 0v
-      p1p2#0 = subst (_# 0v) (sym (P-shift-step p1 v)) v#0
+      p1p2#0 : P-diff p1 p2 # 0#
+      p1p2#0 = subst (_# 0#) (sym (P-shift-step p1 v)) v#0
       p1#p2 : p1 # p2
       p1#p2 = P-diff#0->p# _ _ p1p2#0
 

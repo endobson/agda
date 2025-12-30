@@ -106,7 +106,7 @@ semi-direction-shift =
             where
             v1 = fst d1
             v2 = fst d2
-            p : rotate-vector r v1 == v- (rotate-vector r v2)
+            p : rotate-vector r v1 == - (rotate-vector r v2)
             p = cong (rotate-vector r) v1=-v2 >=> rotate-v- r v2
 
 
@@ -198,7 +198,7 @@ module _ {d1 d2 : Direction} where
     sd1 = [ d1 ]
     sd2 : SemiDirection
     sd2 = [ d2 ]
-  split-semi-direction-# : sd1 # sd2 -> (v1 # v2) × (v1 # (v- v2))
+  split-semi-direction-# : sd1 # sd2 -> (v1 # v2) × (v1 # (- v2))
   split-semi-direction-# (sd#-cons diff#0) =
     subst2 _#_ (rotate-vector-zero-rotation v1) (cong ⟨_⟩ (direction-diff-step d1 d2))
            (sym-# raw-vs#1) ,
@@ -206,7 +206,7 @@ module _ {d1 d2 : Direction} where
            (sym (rotate-add-half-rotation (add-half-rotation 0#) v1) >=>
             cong (\r -> rotate-vector r v1) (add-half-rotation-double-inverse 0#) >=>
             rotate-vector-zero-rotation v1)
-           (cong v-_ (cong ⟨_⟩ (direction-diff-step d1 d2)))
+           (cong -_ (cong ⟨_⟩ (direction-diff-step d1 d2)))
            (v--preserves-# (sym-# raw-vs#2))
     where
     r = direction-diff d1 d2

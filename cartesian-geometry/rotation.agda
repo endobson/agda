@@ -342,7 +342,7 @@ record NonTrivialRotation (r : Rotation) : Type₁ where
   no-eta-equality ; pattern
   constructor non-trivial-rotation
   field
-    apart : Rotation.v r v# xaxis-vector
+    apart : Rotation.v r # xaxis-vector
 
 isProp-NonTrivialRotation : {r : Rotation} -> isProp (NonTrivialRotation r)
 isProp-NonTrivialRotation (non-trivial-rotation a1) (non-trivial-rotation a2) =
@@ -553,7 +553,7 @@ rotate-vector-assoc r1@(rotation-cons dv1 _) r2@(rotation-cons dv2 _) v =
 
 abstract
   rotate-add-half-rotation : (r : Rotation) (v : Vector) ->
-    (rotate-vector (add-half-rotation r) v) == v- (rotate-vector r v)
+    (rotate-vector (add-half-rotation r) v) == - (rotate-vector r v)
   rotate-add-half-rotation r@(rotation-cons dv _) v = vector-ext f
     where
     module _ where
@@ -563,7 +563,7 @@ abstract
       vy = vector-index v y-axis
 
     f : (a : Axis) -> (vector-index (rotate-vector (add-half-rotation r) v) a) ==
-                      (vector-index (v- (rotate-vector r v)) a)
+                      (vector-index (- (rotate-vector r v)) a)
     f x-axis = ans
       where
       ans : (- dx) * vx + (- ((- dy) * vy)) == - (dx * vx + (- (dy * vy)))
@@ -574,7 +574,7 @@ abstract
       ans : (- dx) * vy + (- dy) * vx == - (dx * vy + dy * vx)
       ans = +-cong minus-extract-left minus-extract-left >=> sym minus-distrib-plus
 
-  rotate-v- : (r : Rotation) (v : Vector) -> (rotate-vector r (v- v)) == v- (rotate-vector r v)
+  rotate-v- : (r : Rotation) (v : Vector) -> (rotate-vector r (- v)) == - (rotate-vector r v)
   rotate-v- r@(rotation-cons dv _) v = vector-ext f
     where
     module _ where
@@ -583,8 +583,8 @@ abstract
       vx = vector-index v x-axis
       vy = vector-index v y-axis
 
-    f : (a : Axis) -> (vector-index (rotate-vector r (v- v)) a) ==
-                      (vector-index (v- (rotate-vector r v)) a)
+    f : (a : Axis) -> (vector-index (rotate-vector r (- v)) a) ==
+                      (vector-index (- (rotate-vector r v)) a)
     f x-axis = ans
       where
       ans : dx * (- vx) + (- (dy * (- vy))) == - (dx * vx + (- (dy * vy)))
@@ -627,7 +627,7 @@ isEquiv-rotate-vector r = snd (isoToEquiv i)
 
 rotate-vector-preserves-+ :
   (r : Rotation) (v1 v2 : Vector) ->
-  rotate-vector r (v1 v+ v2) == rotate-vector r v1 v+ rotate-vector r v2
+  rotate-vector r (v1 + v2) == rotate-vector r v1 + rotate-vector r v2
 rotate-vector-preserves-+ r@(rotation-cons dv _) v1 v2 = \i -> direct-product-cons (\a -> (f a i))
   where
   dx = dv x-axis
@@ -637,8 +637,8 @@ rotate-vector-preserves-+ r@(rotation-cons dv _) v1 v2 = \i -> direct-product-co
   v2x = direct-product-index v2 x-axis
   v2y = direct-product-index v2 y-axis
 
-  f : (a : Axis) -> (direct-product-index (rotate-vector r (v1 v+ v2)) a) ==
-                    (direct-product-index (rotate-vector r v1 v+ rotate-vector r v2) a)
+  f : (a : Axis) -> (direct-product-index (rotate-vector r (v1 + v2)) a) ==
+                    (direct-product-index (rotate-vector r v1 + rotate-vector r v2) a)
   f x-axis = RingSolver.solve ℝRing 6
              (\dx dy v1x v1y v2x v2y ->
                dx ⊗ (v1x ⊕ v2x) ⊕ (⊖ (dy ⊗ (v1y ⊕ v2y))) ,

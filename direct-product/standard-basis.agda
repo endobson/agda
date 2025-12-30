@@ -12,14 +12,15 @@ open import direct-product
 open import equality hiding (J)
 open import fin
 open import finite-commutative-monoid
-open import finite-commutative-monoid.small
 open import finite-commutative-monoid.instances
 open import finite-commutative-monoid.partition
+open import finite-commutative-monoid.small
 open import finset
 open import finset.detachable
 open import finset.search
-open import funext
+open import finsum
 open import functions
+open import funext
 open import heyting-field
 open import hlevel
 open import relation
@@ -92,28 +93,26 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
 
     isSet-K = Semiring.isSet-Domain S
 
-    VS = (VectorSpaceStr-DirectProduct F I)
-    MS = VectorSpaceStr.module-str VS
     V = (DP K I)
 
     instance
       IS = S
       IA = A
       IACM = ACM
-      IMS = MS
-      IVS = VS
+      IACM-DP = AdditiveCommMonoid-DirectProduct ACM I
+      IMS-DP = ModuleStr-DirectProduct R I
+      IA-DP = isTightApartness-DirectProduct A I
+      IAMS-DP = ApartModuleStr-DirectProduct F I
       IF = F
 
 
     -- Show that unwrap is a CommMonoidʰ
-    CM-V = ModuleStr.CommMonoid-V+ MS
-    CM-K+ = Semiring.+-CommMonoid S
+    CM-K+ : CommMonoid K
+    CM-K+ = (CommMonoid-+ K)
     CM-ΠK+ : CommMonoid (I -> K)
     CM-ΠK+ = CommMonoidStr-Π (\_ -> CM-K+)
-    module CM-V = CommMonoid CM-V
-    module CM-ΠK+ = CommMonoid CM-ΠK+
 
-    unwrap-dpʰ : CommMonoidʰᵉ CM-V CM-ΠK+ unwrap-dp
+    unwrap-dpʰ : CommMonoidʰᵉ (CommMonoid-+ V) CM-ΠK+ unwrap-dp
     unwrap-dpʰ = record
       { monoidʰ = record
         { preserves-ε = refl
@@ -209,10 +208,10 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
         extended-scale-up : (i : I) -> V
         extended-scale-up i = extend i v* (standard-basis i)
 
-        extended-scale-up-no-support : (i : ∉-Subtype SubS) -> (extended-scale-up (fst i)) == 0v
+        extended-scale-up-no-support : (i : ∉-Subtype SubS) -> (extended-scale-up (fst i)) == 0#
         extended-scale-up-no-support (i , ¬s) =  path i ¬s
           where
-          path : (i : I) -> ¬(ΣS' i) -> extended-scale-up i == 0v
+          path : (i : I) -> ¬(ΣS' i) -> extended-scale-up i == 0#
           path i ¬s = cong (_v* (standard-basis i)) (extend-no-support i ¬s) >=> v*-left-zero
 
         extended-scale-up-support :
@@ -242,29 +241,29 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
 
 
 
-        sum1 : scaled-vector-sum VS standard-basis S f ==
-               vector-sum scale-up
+        sum1 : scaled-vector-sum standard-basis S f ==
+               finiteSum scale-up
         sum1 = refl
 
-        sum2 : vector-sum extended-scale-up ==
-               vector-sum (extended-scale-up ∘ fst) v+
-               vector-sum (extended-scale-up ∘ fst)
+        sum2 : finiteSum extended-scale-up ==
+               finiteSum (extended-scale-up ∘ fst) +
+               finiteSum (extended-scale-up ∘ fst)
         sum2 = finiteMerge-detachable _ SubS detachable-S extended-scale-up
 
-        sum3 : vector-sum (extended-scale-up ∘ fst) == 0v
+        sum3 : finiteSum (extended-scale-up ∘ fst) == 0#
         sum3 = finiteMerge-ε _ extended-scale-up-no-support
 
-        sum4 : vector-sum (extended-scale-up ∘ fst) == vector-sum scale-up
-        sum4 = cong vector-sum extended-scale-up-support >=>
+        sum4 : finiteSum (extended-scale-up ∘ fst) == finiteSum scale-up
+        sum4 = cong finiteSum extended-scale-up-support >=>
                finiteMerge-convert _ Σ-swap-eq (\ (i , s , _) -> scale-up s) >=>
                finiteMerge-convert _ (Σ-isContr-eq isContr-ΣI) (scale-up ∘ fst)
 
-        sum5 : scaled-vector-sum VS standard-basis S f ==
-               vector-sum extended-scale-up
-        sum5 = sym (sum2 >=> cong2 _v+_ sum4 sum3 >=> v+-right-zero)
+        sum5 : scaled-vector-sum standard-basis S f ==
+               finiteSum extended-scale-up
+        sum5 = sym (sum2 >=> cong2 _+_ sum4 sum3 >=> +-right-zero)
 
       private
-        sum6 : unwrap-dp (vector-sum extended-scale-up) ==
+        sum6 : unwrap-dp (finiteSum extended-scale-up) ==
                finiteMerge CM-ΠK+ (unwrap-dp ∘ extended-scale-up)
         sum6 = sym (finiteMerge-homo-inject unwrap-dpʰ)
 
@@ -348,7 +347,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
                 extend
         sum12 = funExt (\i -> (sum7 i >=> sum11 i))
 
-      standard-basis-sum' : scaled-vector-sum VS standard-basis S f == wrap-dp extend
+      standard-basis-sum' : scaled-vector-sum standard-basis S f == wrap-dp extend
       standard-basis-sum' = sum5 >=> cong wrap-dp (sum6 >=> sum12)
 
   private
@@ -358,22 +357,22 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
     extend-J : (f : I -> K) -> extend J f == f
     extend-J f k i = extend-support J f i (i , refl) k
 
-    standard-basis-sum : (f : I -> K) -> scaled-vector-sum VS standard-basis J f == wrap-dp f
+    standard-basis-sum : (f : I -> K) -> scaled-vector-sum standard-basis J f == wrap-dp f
     standard-basis-sum f = standard-basis-sum' J f >=> cong wrap-dp (extend-J f)
 
     module inf where
       import vector-space.infinite as vsi
       -- The improper subset of I
 
-      isSpanning-standard-basis : vsi.isSpanning VS standard-basis ℓI
+      isSpanning-standard-basis : vsi.isSpanning standard-basis ℓI
       isSpanning-standard-basis v = ∣ J , unwrap-dp v , standard-basis-sum _ ∣
 
-      LinearlyIndependent-standard-basis : vsi.LinearlyIndependent VS standard-basis ℓI
+      LinearlyIndependent-standard-basis : vsi.LinearlyIndependent standard-basis ℓI
       LinearlyIndependent-standard-basis S a path s =
         sym (extend-support' S a s) >=>
         cong (\x -> unwrap-dp x (fst (snd S) s)) (sym (standard-basis-sum' S a) >=> path)
 
-      isBasis-standard-basis : vsi.isBasis VS standard-basis ℓI
+      isBasis-standard-basis : vsi.isBasis standard-basis ℓI
       isBasis-standard-basis = isSpanning-standard-basis , LinearlyIndependent-standard-basis
 
     import vector-space.finite as vsf
@@ -386,9 +385,9 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
       cong (\v -> unwrap-dp v i) (sym (standard-basis-sum a) >=> path)
 
   LinearlyFree-standard-basis : vsf.LinearlyFree standard-basis
-  LinearlyFree-standard-basis a = unsquash isProp-v# ∘ ∥-map handle
+  LinearlyFree-standard-basis a = unsquash isProp-# ∘ ∥-map handle
     where
-    handle : Σ[ i ∈ I ] (a i # 0#) -> vsf.scaled-vector-sum a standard-basis v# 0v
+    handle : Σ[ i ∈ I ] (a i # 0#) -> vsf.scaled-vector-sum a standard-basis # 0#
     handle (i , ai#0) = ∣ i , subst (_# 0#) (sym path) ai#0 ∣
       where
       path : unwrap-dp (vsf.scaled-vector-sum a standard-basis) i == (a i)
@@ -399,5 +398,5 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
   isBasis-standard-basis = isSpanning-standard-basis , LinearlyIndependent-standard-basis
 
   standard-basis-decomposition : {dp : DP K I} ->
-    dp == vector-sum (\i -> (unwrap-dp dp i) v* (standard-basis i))
+    dp == finiteSum (\i -> (unwrap-dp dp i) v* (standard-basis i))
   standard-basis-decomposition {dp} = sym (standard-basis-sum _)

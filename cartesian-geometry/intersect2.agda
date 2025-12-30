@@ -58,7 +58,7 @@ private
       v1#v2 : v1 # v2
       v1#v2 = proj₁ (split-semi-direction-# different-directions)
 
-      v1#-v2 : v1 # (v- v2)
+      v1#-v2 : v1 # (- v2)
       v1#-v2 = proj₂ (split-semi-direction-# different-directions)
 
       a = matrix-index dir-m x-axis x-axis
@@ -129,7 +129,7 @@ private
         right-#0 : right-ans
         right-#0 = unsquash isProp-# (∥-map handle v1#-v2)
           where
-          handle : Σ[ ax ∈ Axis ] (vector-index v1 ax # vector-index (v- v2) ax) -> right-ans
+          handle : Σ[ ax ∈ Axis ] (vector-index v1 ax # vector-index (- v2) ax) -> right-ans
           handle (x-axis , a#-b) = inj-r 0<right-val
             where
             0≤dc : 0# ≤ ((d + c) * (d + c))
@@ -300,7 +300,7 @@ private
       coeff = vector-index (inv-m mv* (P-diff p1 p2))
 
       v = P-diff p1 p2
-      diff-decomp : v == (coeff x-axis v* ⟨ d1 ⟩) v+ (coeff y-axis v* ⟨ d2 ⟩)
+      diff-decomp : v == (coeff x-axis v* ⟨ d1 ⟩) + (coeff y-axis v* ⟨ d2 ⟩)
       diff-decomp =
         sym (mv*-left-identity v) >=>
         cong (_mv* v) (sym (isInvertibleMatrix.right-inverse isInvertible-dir-m)) >=>
@@ -311,7 +311,7 @@ private
       i1 : Point
       i1 = P-shift p1 (coeff x-axis v* v1)
       i2 : Point
-      i2 = P-shift p2 (v- (coeff y-axis v* v2))
+      i2 = P-shift p2 (- (coeff y-axis v* v2))
 
       l1 : Line
       l1 = [ p1 , [ d1 ] ]
@@ -321,23 +321,23 @@ private
       i1=i2 : i1 == i2
       i1=i2 =
         cong (P-shift p1)
-          (sym v+-left-zero >=>
-           v+-left (sym v+-inverse >=> v+-right (cong v-_ diff-decomp)) >=>
-           v+-assoc >=>
-           v+-right (v+-left v--distrib-v+ >=>
-                     v+-commute >=>
-                     sym v+-assoc >=>
-                     v+-left v+-inverse >=>
-                     v+-left-zero)) >=>
-        sym (P-shift-twice p1 (P-diff p1 p2) (v- (coeff y-axis v* v2))) >=>
-        cong (\p -> P-shift p (v- (coeff y-axis v* v2))) (P-diff-step p1 p2)
+          (sym +-left-zero >=>
+           +-left (sym +-inverse >=> +-right (cong -_ diff-decomp)) >=>
+           +-assoc >=>
+           +-right (+-left minus-distrib-plus >=>
+                    +-commute >=>
+                    sym +-assoc >=>
+                    +-left +-inverse >=>
+                    +-left-zero)) >=>
+        sym (P-shift-twice p1 (P-diff p1 p2) (- (coeff y-axis v* v2))) >=>
+        cong (\p -> P-shift p (- (coeff y-axis v* v2))) (P-diff-step p1 p2)
 
       OnLine-l1i1 : ⟨ OnLine l1 i1 ⟩
       OnLine-l1i1 = coeff x-axis , sym (P-shift-step p1 (coeff x-axis v* v1))
 
       OnLine-l2i2 : ⟨ OnLine l2 i2 ⟩
       OnLine-l2i2 = (- (coeff y-axis)) ,
-                    v*-minus-extract-left >=> sym (P-shift-step p2 (v- (coeff y-axis v* v2)))
+                    v*-minus-extract-left >=> sym (P-shift-step p2 (- (coeff y-axis v* v2)))
       OnLine-l2i1 : ⟨ OnLine l2 i1 ⟩
       OnLine-l2i1 = subst (\i -> ⟨ OnLine l2 i ⟩) (sym i1=i2) OnLine-l2i2
 
@@ -352,12 +352,12 @@ private
       dp : Vector
       dp = P-diff pa pb
 
-      ¬dp#0 : ¬ (dp # 0v)
+      ¬dp#0 : ¬ (dp # 0#)
       ¬dp#0 dp#0 = irrefl-path-# sd-path different-directions
         where
-        v1#0 : v1 # 0v
+        v1#0 : v1 # 0#
         v1#0 = direction-#0 d1
-        v2#0 : v2 # 0v
+        v2#0 : v2 # 0#
         v2#0 = direction-#0 d2
 
         sd1 : SemiDirection
@@ -368,20 +368,20 @@ private
 
         path1-ab : (diff k1-a k1-b) v* v1 == dp
         path1-ab =
-          v*-distrib-+ >=>
-          v+-right (v*-minus-extract-left) >=>
-          cong2 _v+_ path1-b (cong v-_ path1-a) >=>
-          v+-commute >=>
-          v+-left (sym (P-diff-anticommute pa p1)) >=>
+          v*-distrib-+-right >=>
+          +-right (v*-minus-extract-left) >=>
+          cong2 _+_ path1-b (cong -_ path1-a) >=>
+          +-commute >=>
+          +-left (sym (P-diff-anticommute pa p1)) >=>
           P-diff-trans pa p1 pb
 
         path2-ab : (diff k2-a k2-b) v* v2 == dp
         path2-ab =
-          v*-distrib-+ >=>
-          v+-right (v*-minus-extract-left) >=>
-          cong2 _v+_ path2-b (cong v-_ path2-a) >=>
-          v+-commute >=>
-          v+-left (sym (P-diff-anticommute pa p2)) >=>
+          v*-distrib-+-right >=>
+          +-right (v*-minus-extract-left) >=>
+          cong2 _+_ path2-b (cong -_ path2-a) >=>
+          +-commute >=>
+          +-left (sym (P-diff-anticommute pa p2)) >=>
           P-diff-trans pa p2 pb
 
 
@@ -406,7 +406,7 @@ private
           cong [_] (direction-ext (normal-d-path d2))
 
 
-      dp=0 : dp == 0v
+      dp=0 : dp == 0#
       dp=0 = tight-# ¬dp#0
 
       pa=pb : pa == pb

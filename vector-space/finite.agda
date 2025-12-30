@@ -10,6 +10,7 @@ open import equivalence
 open import fin
 open import finset
 open import finsum
+open import finsum.arithmetic
 open import finite-commutative-monoid.instances
 open import functions
 open import funext
@@ -27,45 +28,51 @@ private
   variable
     ℓ : Level
 
-module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
-         {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
-         {S : Semiring ACM} {R : Ring S AG}
-         {A : isTightApartness K#} {F : Field R A} {V : Type ℓV}
-         {{VS : VectorSpaceStr F V}} where
-
+module _ {ℓK ℓV : Level}
+         {K : Type ℓK} {K# : Rel K ℓK}
+         {V : Type ℓV} {V# : Rel V ℓV}
+         {ACM-K : AdditiveCommMonoid K} {AG-K : AdditiveGroup ACM-K}
+         {S-K : Semiring ACM-K} {R-K : Ring S-K AG-K}
+         {ACM-V : AdditiveCommMonoid V} {AG-V : AdditiveGroup ACM-V}
+         {A-K : isTightApartness K#}
+         {A-V : isTightApartness V#}
+         {MS : ModuleStr R-K AG-V}
+         {{AMS : ApartModuleStr MS A-K A-V}}
+         {{F : Field R-K A-K}}
+         where
 
   private
-    module VS = VectorSpaceStr VS
-
     instance
-      IS = S
-      IA = A
-      IM = VS.module-str
-      IACM = ACM
-      IVA = ModuleStr.isTightApartness-v# IM
+      IMS = MS
+      IACM-K = ACM-K
+      IS = S-K
+      IACM-V = ACM-V
+      IA-K = A-K
+      IA-V = A-V
 
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
     scaled-vector-sum : (I -> K) -> (I -> V) -> V
-    scaled-vector-sum ks vs = vector-sum (\i -> (ks i) v* (vs i))
+    scaled-vector-sum ks vs = finiteSum (\i -> (ks i) v* (vs i))
+
 
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} (vs : I -> V) where
     LinearlyDependent :  Type (ℓ-max* 3 ℓK ℓV ℓI)
     LinearlyDependent =
-      ∃[ a ∈ (I -> K) ] ((scaled-vector-sum a vs == 0v) × (Σ[ i ∈ I ] (a i # 0#)))
+      ∃[ a ∈ (I -> K) ] ((scaled-vector-sum a vs == 0#) × (Σ[ i ∈ I ] (a i # 0#)))
 
     LinearlyIndependent : Type (ℓ-max* 3 ℓK ℓV ℓI)
     LinearlyIndependent =
       (a : I -> K) ->
-      scaled-vector-sum a vs == 0v ->
+      scaled-vector-sum a vs == 0# ->
       (i : I) -> a i == 0#
 
     LinearlyFree : Type (ℓ-max* 3 ℓK ℓV ℓI)
     LinearlyFree =
       (a : I -> K) ->
       ∃[ i ∈ I ] ((a i) # 0#) ->
-      scaled-vector-sum a vs # 0v
+      scaled-vector-sum a vs # 0#
 
 
     LinearlyFree->LinearlyIndependent : LinearlyFree -> LinearlyIndependent
@@ -76,7 +83,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
     LinearlyIndependent->¬LinearlyDependent indep dep =
       unsquash isPropBot (∥-map handle dep)
       where
-      handle : Σ[ a ∈ (I -> K) ] (scaled-vector-sum a vs == 0v ×
+      handle : Σ[ a ∈ (I -> K) ] (scaled-vector-sum a vs == 0# ×
                                   Σ[ i ∈ I ] (a i # 0#)) -> Bot
       handle (a , sum0 , i , ai#0) = irrefl-path-# (indep a sum0 i) ai#0
 
@@ -117,58 +124,68 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
     isBasis = isSpanning × LinearlyIndependent
 
 
-module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
-         {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
-         {S : Semiring ACM} {R : Ring S AG}
-         {A : isTightApartness K#} {F : Field R A} {V : Type ℓV}
-         {{VS : VectorSpaceStr F V}}
+
+module _ {ℓK ℓV : Level}
+         {K : Type ℓK} {K# : Rel K ℓK}
+         {V : Type ℓV} {V# : Rel V ℓV}
+         {ACM-K : AdditiveCommMonoid K} {AG-K : AdditiveGroup ACM-K}
+         {S-K : Semiring ACM-K} {R-K : Ring S-K AG-K}
+         {ACM-V : AdditiveCommMonoid V} {AG-V : AdditiveGroup ACM-V}
+         {A-K : isTightApartness K#}
+         {A-V : isTightApartness V#}
+         {MS : ModuleStr R-K AG-V}
+         {{AMS : ApartModuleStr MS A-K A-V}}
+         {{F : Field R-K A-K}}
          where
   private
     instance
-      M = VectorSpaceStr.module-str VS
-      IACM = ACM
-      IAG = AG
+      IACM-K = ACM-K
+      IAG-K = AG-K
+      IACM-V = ACM-V
+      IAG-V = AG-V
+      IMS = MS
 
-    isSet-V = ModuleStr.isSet-V M
+    isSet-V = AdditiveCommMonoid.isSet-Domain ACM-V
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
-    linearlyIndependent->isProp-isLinearCombination :
-      {vs : I -> V} -> LinearlyIndependent vs -> {v : V} -> isProp (isLinearCombination' vs v)
-    linearlyIndependent->isProp-isLinearCombination {vs} li {v} (a1 , p1) (a2 , p2) =
-      ΣProp-path (isSet-V _ _) a1=a2
-      where
-      da : I -> K
-      da i = diff (a1 i) (a2 i)
+    opaque
+      linearlyIndependent->isProp-isLinearCombination :
+        {vs : I -> V} -> LinearlyIndependent vs -> {v : V} -> isProp (isLinearCombination' vs v)
+      linearlyIndependent->isProp-isLinearCombination {vs} li {v} (a1 , p1) (a2 , p2) =
+        ΣProp-path (isSet-V _ _) a1=a2
+        where
+        da : I -> K
+        da i = diff (a1 i) (a2 i)
 
-      d1-path : scaled-vector-sum a1 vs == scaled-vector-sum a2 vs
-      d1-path = p1 >=> sym p2
+        d1-path : scaled-vector-sum a1 vs == scaled-vector-sum a2 vs
+        d1-path = p1 >=> sym p2
 
-      d2-path : scaled-vector-sum a2 vs v+ (v- scaled-vector-sum a1 vs) == 0v
-      d2-path = cong (_v+ (v- scaled-vector-sum a1 vs)) (sym d1-path) >=> v+-inverse
+        d2-path : scaled-vector-sum a2 vs + (- scaled-vector-sum a1 vs) == 0#
+        d2-path = cong (_+ (- scaled-vector-sum a1 vs)) (sym d1-path) >=> +-inverse
 
-      d3-path : scaled-vector-sum a2 vs v+ (v- scaled-vector-sum a1 vs) ==
-                scaled-vector-sum da vs
-      d3-path =
-        v+-right (sym (finiteMerge-homo-inject v-ʰ)) >=>
-        sym (finiteMerge-split _) >=>
-        cong vector-sum (funExt (\i -> v+-right (sym v*-minus-extract-left) >=>
-                                       sym v*-distrib-+))
+        d3-path : scaled-vector-sum a2 vs + (- scaled-vector-sum a1 vs) ==
+                  scaled-vector-sum da vs
+        d3-path =
+          +-right (sym finiteSum--) >=>
+          sym (finiteMerge-split _) >=>
+          cong finiteSum (funExt (\i -> +-right (sym v*-minus-extract-left) >=>
+                                        sym v*-distrib-+-right))
 
-      d-path : scaled-vector-sum da vs == 0v
-      d-path = sym d3-path >=> d2-path
+        d-path : scaled-vector-sum da vs == 0#
+        d-path = sym d3-path >=> d2-path
 
-      a1=a2 : a1 == a2
-      a1=a2 = funExt (\ i -> diff-zero (li da d-path i))
+        a1=a2 : a1 == a2
+        a1=a2 = funExt (\ i -> diff-zero (li da d-path i))
 
     basis-decomposition-full : {b : I -> V} -> isBasis b -> (v : V) ->
                                isContr (isLinearCombination' b v)
     basis-decomposition-full {b} (span , li) v =
       combo , (isProp-lc combo)
       where
-      abstract
         isProp-lc : isProp (isLinearCombination' b v)
         isProp-lc = (linearlyIndependent->isProp-isLinearCombination li)
-      combo = unsquash isProp-lc (span v)
+        combo : isLinearCombination' b v
+        combo = unsquash isProp-lc (span v)
 
     basis-decomposition : {b : I -> V} -> isBasis b -> V -> (I -> K)
     basis-decomposition b v = fst (fst (basis-decomposition-full b v))
@@ -186,44 +203,57 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
       cong fst (sym (snd (basis-decomposition-full b  v) (f , p)))
 
 
-
-module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK} {K# : Rel K ℓK}
-         {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
-         {S : Semiring ACM} {R : Ring S AG}
-         {A : isTightApartness K#} {F : Field R A} {V1 : Type ℓV1} {V2 : Type ℓV2}
-         {{VS1 : VectorSpaceStr F V1}} {{VS2 : VectorSpaceStr F V2}}
-         where
+module _ {ℓK ℓV₁ ℓV₂ : Level}
+         {K : Type ℓK} {V₁ : Type ℓV₁} {V₂ : Type ℓV₂}
+         {K# : Rel K ℓK}
+         {V₁# : Rel V₁ ℓV₁}
+         {V₂# : Rel V₂ ℓV₂}
+         {ACM-K : AdditiveCommMonoid K}
+         {AG-K : AdditiveGroup ACM-K}
+         {S-K : Semiring ACM-K}
+         {R-K : Ring S-K AG-K}
+         {ACM-V₁ : AdditiveCommMonoid V₁} {AG-V₁ : AdditiveGroup ACM-V₁}
+         {ACM-V₂ : AdditiveCommMonoid V₂} {AG-V₂ : AdditiveGroup ACM-V₂}
+         {MS₁ : ModuleStr R-K AG-V₁}
+         {MS₂ : ModuleStr R-K AG-V₂}
+         {A-K : isTightApartness K#}
+         {A-V₁ : isTightApartness V₁#}
+         {A-V₂ : isTightApartness V₂#}
+         {{F : Field R-K A-K}}
+         {{AMS₁ : ApartModuleStr MS₁ A-K A-V₁}}
+         {{AMS₂ : ApartModuleStr MS₂ A-K A-V₂}}
+  where
 
   private
     instance
-      IS = S
-      IM1 = VectorSpaceStr.module-str VS1
-      IM2 = VectorSpaceStr.module-str VS2
-      IACM = ACM
-      IVA1 = ModuleStr.isTightApartness-v# IM1
-      IVA2 = ModuleStr.isTightApartness-v# IM2
-
+      IACM-V₁ = ACM-V₁
+      IACM-V₂ = ACM-V₂
+      IMS₁ = MS₁
+      IMS₂ = MS₂
+      IA-V₁ = A-V₁
+      IA-V₂ = A-V₂
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
-    transform-isSpanning : {f : V1 -> V2} {vs : I -> V1} ->
+    transform-isSpanning : {f : V₁ -> V₂} {vs : I -> V₁} ->
                            isLinearTransformation f -> isEquiv f -> isSpanning vs -> isSpanning (f ∘ vs)
     transform-isSpanning {f} {vs} lt isEq-f vs-span = fvs-span
       where
       fvs-span : isSpanning (f ∘ vs)
       fvs-span v2 = ∥-map handle (vs-span v1)
         where
+        v1 : V₁
         v1 = isEqInv isEq-f v2
         handle : isLinearCombination' vs v1 -> isLinearCombination' (f ∘ vs) v2
         handle (a , p) = (a , path)
           where
           path : scaled-vector-sum a (f ∘ vs) == v2
-          path = cong vector-sum (funExt (\i -> sym (lt-preserves-* lt (a i) (vs i)))) >=>
-                 sym (lt-preserves-vector-sum lt) >=>
+          path = cong finiteSum (funExt (\i -> sym (lt-preserves-* lt (a i) (vs i)))) >=>
+                 sym (lt-preserves-finiteSum lt) >=>
                  cong f p >=>
                  isEqSec isEq-f v2
 
     transform-isSpanning-path :
-      {vs1 : I -> V1} {vs2 : I -> V1} -> vs1 == vs2 ->
+      {vs1 : I -> V₁} {vs2 : I -> V₁} -> vs1 == vs2 ->
       isSpanning vs1 -> isSpanning vs2
     transform-isSpanning-path {vs1} {vs2} p1 vs1-span v = ∥-map handle (vs1-span v)
       where
@@ -231,36 +261,36 @@ module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK} {K# : Rel K ℓK}
       handle (a , p2) = (a , cong (scaled-vector-sum a) (sym p1) >=> p2)
 
     transform-LinearlyIndependent :
-      {f : V1 -> V2} {vs : I -> V1} ->
+      {f : V₁ -> V₂} {vs : I -> V₁} ->
       isLinearTransformation f -> isEquiv f -> LinearlyIndependent vs -> LinearlyIndependent (f ∘ vs)
     transform-LinearlyIndependent {f} {vs} lt isEq-f vs-ind a p i = vs-ind a path i
       where
-      f-path : f (scaled-vector-sum a vs) == f 0v
-      f-path = lt-preserves-vector-sum lt >=>
-               cong vector-sum (funExt (\i -> (lt-preserves-* lt (a i) (vs i)))) >=>
+      f-path : f (scaled-vector-sum a vs) == f 0#
+      f-path = lt-preserves-finiteSum lt >=>
+               cong finiteSum (funExt (\i -> (lt-preserves-* lt (a i) (vs i)))) >=>
                p >=>
                sym (lt-preserves-0v lt)
 
-      path : scaled-vector-sum a vs == 0v
+      path : scaled-vector-sum a vs == 0#
       path = sym (isEqRet isEq-f (scaled-vector-sum a vs)) >=>
              (cong (isEqInv isEq-f) f-path) >=>
-             (isEqRet isEq-f 0v)
+             (isEqRet isEq-f 0#)
 
     transform-LinearlyFree :
-      {f : V1 -> V2} {vs : I -> V1} ->
+      {f : V₁ -> V₂} {vs : I -> V₁} ->
       isLinearTransformation f -> StronglyInjective f -> LinearlyFree vs -> LinearlyFree (f ∘ vs)
     transform-LinearlyFree {f} {vs} lt inj-f vs-free a a#0 =
-      subst2 _v#_ (sym path1) (sym path2) (inj-f (vs-free a a#0))
+      subst2 _#_ (sym path1) (sym path2) (inj-f (vs-free a a#0))
       where
       path1 : scaled-vector-sum a (f ∘ vs) == f (scaled-vector-sum a vs)
-      path1 = cong vector-sum (funExt (\i -> sym (lt-preserves-* lt (a i) (vs i)))) >=>
-              sym (lt-preserves-vector-sum lt)
+      path1 = cong finiteSum (funExt (\i -> sym (lt-preserves-* lt (a i) (vs i)))) >=>
+              sym (lt-preserves-finiteSum lt)
 
-      path2 : 0v == f 0v
+      path2 : 0# == f 0#
       path2 = sym (lt-preserves-0v lt)
 
 
-    transform-basis : {f : V1 -> V2} {vs : I -> V1} ->
+    transform-basis : {f : V₁ -> V₂} {vs : I -> V₁} ->
                       isLinearTransformation f -> isEquiv f ->
                       isBasis vs -> isBasis (f ∘ vs)
     transform-basis lt isEq-f =

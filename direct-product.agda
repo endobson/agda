@@ -233,10 +233,9 @@ module _ {ℓK ℓI ℓ# : Level} {K : Type ℓK} {K# : Rel K ℓ#}
     }
 
 
-
-module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
+module _ {ℓK ℓI : Level} {K : Type ℓK}
          {ACM : AdditiveCommMonoid K} {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         (R : Ring S AG) (TK : isTightApartness K#) (I : Type ℓI) where
+         (R : Ring S AG) (I : Type ℓI) where
   private
     module R = Ring R
     instance
@@ -259,17 +258,15 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
     dp*-left-one : {v : DP K I} -> 1# dp* v == v
     dp*-left-one = cong wrap-dp (funExt (\_ -> *-left-one))
 
-  ModuleStr-DirectProduct : ModuleStr R (DP K I)
+  ModuleStr-DirectProduct : ModuleStr R (AdditiveGroup-DirectProduct AG I)
   ModuleStr-DirectProduct = record
-    { AbGroupStr-V = AbGroupStr-DP
-    ; _v#_ = _
-    ; isTightApartness-v# = isTightApartness-DirectProduct TK I
-    ; _v*_ = _dp*_
-    ; v*-distrib-v+ = dp*-distrib-dp+
-    ; v*-distrib-+ = dp*-distrib-+
+    { _v*_ = _dp*_
+    ; v*-distrib-+-left = dp*-distrib-dp+
+    ; v*-distrib-+-right = dp*-distrib-+
     ; v*-assoc = dp*-assoc
     ; v*-left-one = dp*-left-one
     }
+
 
 module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
          {ACM : AdditiveCommMonoid K} {S : Semiring ACM} {AG : AdditiveGroup ACM}
@@ -278,37 +275,21 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
     instance
       IACM = ACM
       IS = S
-      IR = R
       IA = A
       IVA = isTightApartness-DirectProduct A I
-
-    MS = ModuleStr-DirectProduct R A I
-    module MS = ModuleStr MS
-    module R = Ring R
-    module F = Field F
-
-    dp*-apart-zero : {k : K} {v : (DP K I)} -> (k MS.v* v) # MS.0v -> (k # 0#) × (v MS.v# MS.0v)
-    dp*-apart-zero {k} {v} = (unsquash (isProp× isProp-# squash)) ∘ (∥-map handle)
-      where
-      handle : Σ[ i ∈ I ] (k * (unwrap-dp v i)) # 0# -> (k # 0#) × (v # MS.0v)
-      handle (i , kv#0) = fst prod , ∣ i , snd prod ∣
-        where
-        prod = F.*-apart-zero kv#0
+      IMS = ModuleStr-DirectProduct R I
 
     dp*-apart-args : {k1 k2 : K} {v1 v2 : (DP K I)} ->
-                     (k1 MS.v* v1) MS.v# (k2 MS.v* v2) ->
-                     ∥ (k1 # k2) ⊎ (v1 MS.v# v2) ∥
+                     (k1 v* v1) # (k2 v* v2) ->
+                     ∥ (k1 # k2) ⊎ (v1 # v2) ∥
     dp*-apart-args {k1} {k2} {v1} {v2} = ∥-bind handle
       where
       handle : (Σ[ i ∈ I ] ((k1 * (unwrap-dp v1 i)) # (k2 * (unwrap-dp v2 i)))) ->
-               ∥ (k1 # k2) ⊎ (v1 MS.v# v2) ∥
-      handle (i , k1v1#k2v2) = ∥-map (⊎-map (\x -> x) (\x -> ∣ i , x ∣)) prod
-        where
-        prod = F.*-apart-args k1v1#k2v2
+               ∥ (k1 # k2) ⊎ (v1 # v2) ∥
+      handle (i , k1v1#k2v2) =
+        ∥-map (⊎-map (\x -> x) (\x -> ∣ i , x ∣)) (Field.*-apart-args F k1v1#k2v2)
 
-  VectorSpaceStr-DirectProduct : VectorSpaceStr F (DP K I)
-  VectorSpaceStr-DirectProduct = record
-    { module-str = MS
-    ; v*-apart-zero = dp*-apart-zero
-    ; v*-apart-args = dp*-apart-args
+  ApartModuleStr-DirectProduct : ApartModuleStr IMS A IVA
+  ApartModuleStr-DirectProduct = record
+    {  v*-apart-args = dp*-apart-args
     }

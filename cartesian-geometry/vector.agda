@@ -21,6 +21,7 @@ open import finite-commutative-monoid.small
 open import finset
 open import finset.instances.base
 open import finset.instances.sum
+open import finsum
 open import functions
 open import funext
 open import heyting-field.instances.real
@@ -142,10 +143,12 @@ instance
   AdditiveCommMonoid-Vector = AdditiveCommMonoid-DirectProduct AdditiveCommMonoid-ℝ Axis
   AdditiveGroup-Vector : AdditiveGroup AdditiveCommMonoid-Vector
   AdditiveGroup-Vector = AdditiveGroup-DirectProduct AdditiveGroup-ℝ Axis
-  VectorSpaceStr-Vector : VectorSpaceStr ℝField Vector
-  VectorSpaceStr-Vector = VectorSpaceStr-DirectProduct ℝField Axis
-  ModuleSpaceStr-Vector = VectorSpaceStr.module-str VectorSpaceStr-Vector
-  isTightApartness-Vector# = ModuleStr.isTightApartness-v# ModuleSpaceStr-Vector
+  ModuleStr-Vector : ModuleStr ℝRing AdditiveGroup-Vector
+  ModuleStr-Vector = ModuleStr-DirectProduct ℝRing Axis
+  isTightApartness-Vector# : isTightApartness _
+  isTightApartness-Vector# = isTightApartness-DirectProduct isTightApartness-ℝ# Axis
+  ApartModuleStr-Vector : ApartModuleStr ModuleStr-Vector useⁱ useⁱ
+  ApartModuleStr-Vector = ApartModuleStr-DirectProduct ℝField Axis
   ApartAdditiveCommMonoid-Vector : ApartAdditiveCommMonoid AdditiveCommMonoid-Vector isTightApartness-Vector#
   ApartAdditiveCommMonoid-Vector = ApartAdditiveCommMonoid-DirectProduct ApartAdditiveCommMonoid-ℝ Axis
 
@@ -161,7 +164,7 @@ conjugate-coords c y-axis = - (c y-axis)
 conjugate-vector : Vector -> Vector
 conjugate-vector v = vector-cons (conjugate-coords (vector-index v))
 
-conjugate-vector-v- : (v : Vector) -> conjugate-vector (v- v) == v- (conjugate-vector v)
+conjugate-vector-v- : (v : Vector) -> conjugate-vector (- v) == - (conjugate-vector v)
 conjugate-vector-v- v = vector-ext (\{ x-axis -> refl ; y-axis -> refl })
 
 conjugate-vector-double-inverse : (v : Vector) -> conjugate-vector (conjugate-vector v) == v
@@ -230,7 +233,7 @@ isSet-Direction = isSetΣ isSet-Vector (\v -> isProp->isSet (isProp-isUnitVector
 0<-square x (inj-r 0<x) = subst (_< (x * x)) *-right-zero (*₁-preserves-< 0<x 0<x)
 
 opaque
-  vector-length-0< : (v : Vector) -> (v v# 0v) -> (vector-length v > 0#)
+  vector-length-0< : (v : Vector) -> (v # 0#) -> (vector-length v > 0#)
   vector-length-0< v v#0 = unsquash isProp-< (∥-map handle v#0)
     where
     x : ℝ
@@ -266,8 +269,8 @@ opaque
       yy≤xxyy : yy ≤ xxyy
       yy≤xxyy = subst (_≤ xxyy) +-left-zero (+₂-preserves-≤ 0≤xx)
 
-  vector-length>0-#0 : (v : Vector) -> (vector-length v > 0#) -> (v v# 0v)
-  vector-length>0-#0 v l>0 = unsquash isProp-v# (∥-map handle (+-reflects-#0 vl²#0))
+  vector-length>0-#0 : (v : Vector) -> (vector-length v > 0#) -> (v # 0#)
+  vector-length>0-#0 v l>0 = unsquash isProp-# (∥-map handle (+-reflects-#0 vl²#0))
     where
     vl : ℝ
     vl = vector-length v
@@ -283,11 +286,11 @@ opaque
     vl²#0 : vl² # 0#
     vl²#0 = subst (_# 0#) (vector-length-squared-path v) (*-preserves-#0 vl#0 vl#0)
 
-    handle : ((x * x) # 0#) ⊎ ((y * y) # 0#) -> v v# 0v
+    handle : ((x * x) # 0#) ⊎ ((y * y) # 0#) -> v # 0#
     handle (inj-l xx#0) = ∣ x-axis , *₁-reflects-#0 xx#0 ∣
     handle (inj-r yy#0) = ∣ y-axis , *₁-reflects-#0 yy#0 ∣
 
-  direction-#0 : (d : Direction) -> ⟨ d ⟩ v# 0v
+  direction-#0 : (d : Direction) -> ⟨ d ⟩ # 0#
   direction-#0 (dv , dp) = vector-length>0-#0 dv (subst (0# <_) (sym dp) 0<1)
 
 
@@ -334,39 +337,39 @@ vector-length-* k v = p6
   p6 : lkv == aklv
   p6 = p5 >=> sqrt-square aklv >=> abs-≮0-path 0≤aklv
 
-vector-length²-v- : (v : Vector) -> vector-length² (v- v) == vector-length² v
+vector-length²-v- : (v : Vector) -> vector-length² (- v) == vector-length² v
 vector-length²-v- v =
   cong vector-length² -v=-1v >=>
   vector-length²-* (- 1#) v >=>
   *-left (minus-extract-both >=> *-right-one) >=>
   *-left-one
   where
-  -v=-1v : (v- v) == (- 1#) v* v
+  -v=-1v : (- v) == (- 1#) v* v
   -v=-1v = sym v*-left-minus-one
 
-vector-length-v- : (v : Vector) -> vector-length (v- v) == vector-length v
+vector-length-v- : (v : Vector) -> vector-length (- v) == vector-length v
 vector-length-v- v = cong sqrtℝ (Subspace-path p)
   where
   p = vector-length²-v- v
 
 d-_ : Direction -> Direction
-d-_ (v , vl=1) = v- v , a.vl-=1
+d-_ (v , vl=1) = - v , a.vl-=1
   where
   module a where
     abstract
-      vl-=1 : vector-length (v- v) == 1#
+      vl-=1 : vector-length (- v) == 1#
       vl-=1 = vector-length-v- v >=> vl=1
 
-normalize-vector : (v : Vector) -> v v# 0v -> Vector
+normalize-vector : (v : Vector) -> v # 0# -> Vector
 normalize-vector v v#0 = (ℝ1/ (vector-length v , inj-r (vector-length-0< v v#0))) v* v
 
-normalize-vector-path : (v : Vector) -> (v#0 : v v# 0v) ->
+normalize-vector-path : (v : Vector) -> (v#0 : v # 0#) ->
                         v == (vector-length v) v* (normalize-vector v v#0)
 normalize-vector-path v v#0 =
   sym (sym v*-assoc >=> cong (_v* v) (*-commute >=> ℝ1/-inverse) >=> v*-left-one)
 
 normalize-vector-v*-Pos :
-  (v : Vector) -> (v#0 : v v# 0v) -> (k : ℝ) -> (0# < k) -> (kv#0 : (k v* v) v# 0v) ->
+  (v : Vector) -> (v#0 : v # 0#) -> (k : ℝ) -> (0# < k) -> (kv#0 : (k v* v) # 0#) ->
   normalize-vector (k v* v) kv#0 == normalize-vector v v#0
 normalize-vector-v*-Pos v v#0 k 0<k kv#0 =
   sym (sym v*-left-one >=>
@@ -400,8 +403,8 @@ normalize-vector-v*-Pos v v#0 k 0<k kv#0 =
 
 
 normalize-vector-v- :
-   (v : Vector) -> (v#0 : v v# 0v) -> (-v#0 : (v- v) v# 0v) ->
-   normalize-vector (v- v) -v#0 == v- (normalize-vector v v#0)
+   (v : Vector) -> (v#0 : v # 0#) -> (-v#0 : (- v) # 0#) ->
+   normalize-vector (- v) -v#0 == - (normalize-vector v v#0)
 normalize-vector-v- v v#0 -v#0 =
   sym (sym v*-left-minus-one >=>
        (cong (_v* nv) (sym *-right-one >=>
@@ -417,30 +420,30 @@ normalize-vector-v- v v#0 -v#0 =
        (cong (_v* n-v) ℝ1/-inverse) >=>
        v*-left-one)
   where
-  -v = v- v
+  -v = - v
   nv = (normalize-vector v v#0)
   n-v = (normalize-vector -v -v#0)
   vl∈ : ℝ# 0#
   vl∈ = vector-length v , inj-r (vector-length-0< v v#0)
 
 normalize-vector-v-' :
-   (v1 : Vector) -> (v1#0 : v1 v# 0v) ->
-   (v2 : Vector) -> (v2#0 : v2 v# 0v) ->
-   (v1 == (v- v2)) ->
-   v- (normalize-vector v1 v1#0) == (normalize-vector v2 v2#0)
+   (v1 : Vector) -> (v1#0 : v1 # 0#) ->
+   (v2 : Vector) -> (v2#0 : v2 # 0#) ->
+   (v1 == (- v2)) ->
+   - (normalize-vector v1 v1#0) == (normalize-vector v2 v2#0)
 normalize-vector-v-' v1 v1#0 v2 v2#0 v1=-v2 =
   sym (normalize-vector-v- v1 v1#0 -v1#0) >=>
   cong2-dep normalize-vector -v1=v2 (isProp->PathPᵉ (\i -> isProp-#) -v1#0 v2#0)
   where
-  -v1=v2 : (v- v1) == v2
-  -v1=v2 = cong v-_ v1=-v2 >=> v--double-inverse
+  -v1=v2 : (- v1) == v2
+  -v1=v2 = cong -_ v1=-v2 >=> minus-double-inverse
 
-  -v1#0 : (v- v1) # 0v
-  -v1#0 = subst (_v# 0v) (sym -v1=v2) v2#0
+  -v1#0 : (- v1) # 0#
+  -v1#0 = subst (_# 0#) (sym -v1=v2) v2#0
 
 
 
-vector->direction : (v : Vector) -> v v# 0v -> Direction
+vector->direction : (v : Vector) -> v # 0# -> Direction
 vector->direction v v#0 = normalize-vector v v#0 , a.path
   where
   0<vl = (vector-length-0< v v#0)
@@ -545,7 +548,7 @@ DirectionOfVector'-vector->direction {v} v#0 =
 
 
 
-isContr-DirectionOfVector : {v : Vector} -> v # 0v -> isContr (DirectionOfVector v)
+isContr-DirectionOfVector : {v : Vector} -> v # 0# -> isContr (DirectionOfVector v)
 isContr-DirectionOfVector {v} v#0 = ans , isProp-DirectionOfVector ans
   where
   ans : (DirectionOfVector v)
@@ -631,9 +634,9 @@ private
     g y-axis y-axis = indicator-path (yes refl)
 
 axis-basis-decomposition : {v : Vector} ->
-  v == vector-sum (\a -> (vector-index v a) v* (axis-basis a))
+  v == finiteSum (\a -> (vector-index v a) v* (axis-basis a))
 axis-basis-decomposition {v} =
-  subst (\b -> v == vector-sum (\a -> (vector-index v a) v* (b a)))
+  subst (\b -> v == finiteSum (\a -> (vector-index v a) v* (b a)))
         (sym axis-basis=standard-basis)
         (standard-basis-decomposition ℝField Axis)
 
@@ -658,16 +661,16 @@ LinearlyFree-axis-basis : LinearlyFree axis-basis
 LinearlyFree-axis-basis =
   subst LinearlyFree (sym axis-basis=standard-basis) (LinearlyFree-standard-basis ℝField Axis)
 
-v--preserves-# : {v1 v2 : Vector} -> v1 # v2 -> (v- v1) # (v- v2)
+v--preserves-# : {v1 v2 : Vector} -> v1 # v2 -> (- v1) # (- v2)
 v--preserves-# {v1} {v2} = ∥-map handle
   where
   handle : Σ[ a ∈ Axis ] (direct-product-index v1 a) # (direct-product-index v2 a) ->
-           Σ[ a ∈ Axis ] (direct-product-index (v- v1) a) # (direct-product-index (v- v2) a)
+           Σ[ a ∈ Axis ] (direct-product-index (- v1) a) # (direct-product-index (- v2) a)
   handle (a , cv1#cv2) = (a , minus-preserves-# cv1#cv2)
 
 
 d--double-inverse : (d : Direction) -> (d- (d- d)) == d
-d--double-inverse _ = ΣProp-path (\{v} -> isProp-isUnitVector v) v--double-inverse
+d--double-inverse _ = ΣProp-path (\{v} -> isProp-isUnitVector v) minus-double-inverse
 
 direction-span' : Direction -> Pred Vector ℓ-one
 direction-span' (v , _) v2 = Σ[ k ∈ ℝ ] (k v* v == v2)
@@ -683,7 +686,7 @@ direction-span d@(v , vl=1) v2 = direction-span' d v2 , isProp-direction-span
     kv-p : (k1 v* v) == (k2 v* v)
     kv-p = p1 >=> sym p2
 
-    v#0 : v v# 0v
+    v#0 : v # 0#
     v#0 = vector-length>0-#0 v (subst (0# <_) (sym vl=1) 0<1)
 
     handle : Σ[ a ∈ Axis ] (direct-product-index v a) # 0# -> k1 == k2
@@ -695,7 +698,7 @@ direction-span d@(v , vl=1) v2 = direction-span' d v2 , isProp-direction-span
 isLinearSubtype-direction-span : (d : Direction) -> isLinearSubtype (direction-span d)
 isLinearSubtype-direction-span d = record
   { closed-under-0v = 0# , v*-left-zero
-  ; closed-under-v+ = \ (k1 , p1) (k2 , p2) -> k1 + k2 , v*-distrib-+ >=> cong2 _v+_ p1 p2
+  ; closed-under-v+ = \ (k1 , p1) (k2 , p2) -> k1 + k2 , v*-distrib-+-right >=> cong2 _+_ p1 p2
   ; closed-under-v* = \ k (k2 , p) -> k * k2 , v*-assoc >=> cong (k v*_) p
   }
 

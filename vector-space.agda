@@ -7,133 +7,95 @@ open import apartness
 open import base
 open import commutative-monoid
 open import equality hiding (J)
-open import finset
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
+open import finset
+open import finsum
 open import functions
 open import group
 open import heyting-field
 open import hlevel
-open import ring
 open import relation
+open import ring
 open import semiring
 open import subset
+open import sum
 open import truncation
 
-private
-  variable
-    ℓ : Level
-
-module _ {ℓK ℓV : Level} {K : Type ℓK} {ACM : AdditiveCommMonoid K}
-         {S : Semiring ACM} {AG : AdditiveGroup ACM} (R : Ring S AG) (V : Type ℓV) where
+module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV}
+         {ACM-K : AdditiveCommMonoid K} {AG-K : AdditiveGroup ACM-K}
+         {S-K : Semiring ACM-K}
+         {ACM-V : AdditiveCommMonoid V}
+         (R-K : Ring S-K AG-K) (AG-V : AdditiveGroup ACM-V) where
   private
     instance
-      IACM = ACM
-      IAG = AG
-      IS = S
-      IR = R
+      IACM-K = ACM-K
+      IAG-K = AG-K
+      IS-K = S-K
+      IR-K = R-K
+      IACM-V = ACM-V
+      IAG-V = AG-V
 
   record ModuleStr : Type (ℓ-max ℓK (ℓ-suc ℓV)) where
     field
-      AbGroupStr-V : AbGroupStr V
-      _v#_ : Rel V ℓV
-      isTightApartness-v# : isTightApartness _v#_
-
-
-    isProp-v# = isTightApartness.isProp-# isTightApartness-v#
-
-    _v+_ = AbGroupStr._∙_ AbGroupStr-V
-    0v = AbGroupStr.ε AbGroupStr-V
-    v-_ = AbGroupStr.inverse AbGroupStr-V
-
-    isSet-V = AbGroupStr.isSet-Domain AbGroupStr-V
-    CommMonoid-V+ = AbGroupStr.comm-monoid AbGroupStr-V
-
-
-    field
       _v*_ : K -> V -> V
-      v*-distrib-v+ : {k : K} -> {v1 v2 : V} -> k v* (v1 v+ v2) == (k v* v1) v+ (k v* v2)
-      v*-distrib-+ : {k1 k2 : K} -> {v : V} -> (k1 + k2) v* v == (k1 v* v) v+ (k2 v* v)
+      v*-distrib-+-left : {k : K} -> {v1 v2 : V} -> k v* (v1 + v2) == (k v* v1) + (k v* v2)
+      v*-distrib-+-right : {k1 k2 : K} -> {v : V} -> (k1 + k2) v* v == (k1 v* v) + (k2 v* v)
       v*-assoc : {k1 k2 : K} -> {v : V} -> (k1 * k2) v* v == k1 v* (k2 v* v)
       v*-left-one : {v : V} -> 1# v* v == v
 
 
 module _  {ℓK ℓV : Level} {K : Type ℓK}
-          {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
-          {S : Semiring ACM} {R : Ring S AG} {V : Type ℓV}
-          {{M : ModuleStr R V}} where
+          {ACM-K : AdditiveCommMonoid K} {AG-K : AdditiveGroup ACM-K}
+          {S-K : Semiring ACM-K} {R-K : Ring S-K AG-K}
+          {V : Type ℓV} {ACM-V : AdditiveCommMonoid V} {AG-V : AdditiveGroup ACM-V}
+          {{M : ModuleStr R-K AG-V}} where
+
   open ModuleStr M public using
-    ( _v+_
-    ; 0v
-    ; v-_
-    ; _v*_
-    ; v*-distrib-v+
-    ; v*-distrib-+
+    ( _v*_
+    ; v*-distrib-+-left
+    ; v*-distrib-+-right
     ; v*-assoc
     ; v*-left-one
-    ; _v#_
-    ; isProp-v#
     )
 
   private
     instance
-      IACM = ACM
-      IAG = AG
-      IS = S
-      IR = R
+      IACM-K = ACM-K
+      IAG-K = AG-K
+      IS-K = S-K
+      IR-K = R-K
+      IACM-V = ACM-V
+      IAG-V = AG-V
 
 
-  open AbGroupStr (ModuleStr.AbGroupStr-V M)
+  opaque
 
-  abstract
-    v+-right-zero : {v : V} -> v v+ 0v == v
-    v+-right-zero = ∙-right-ε
-
-    v+-left-zero : {v : V} -> 0v v+ v == v
-    v+-left-zero = ∙-left-ε
-
-    v+-inverse : {v : V} -> v v+ (v- v) == 0v
-    v+-inverse = ∙-right-inverse
-
-    v+-left : {v1 v2 v3 : V} -> v1 == v2 -> v1 v+ v3 == v2 v+ v3
-    v+-left {v3 = v3} p = cong (_v+ v3) p
-
-    v+-right : {v1 v2 v3 : V} -> v2 == v3 -> v1 v+ v2 == v1 v+ v3
-    v+-right {v1} p = cong (v1 v+_) p
-
-    v+-commute : {v1 v2 : V} -> v1 v+ v2 == v2 v+ v1
-    v+-commute = ∙-commute
-
-    v+-assoc : {v1 v2 v3 : V} -> (v1 v+ v2) v+ v3 == v1 v+ (v2 v+ v3)
-    v+-assoc = ∙-assoc
-
-    v--distrib-v+ : {v1 v2 : V} -> (v- (v1 v+ v2)) == (v- v1) v+ (v- v2)
-    v--distrib-v+ = CommMonoidʰ.preserves-∙ inverse-CMʰ _ _
-
-    v*-left-zero : {v : V} -> 0# v* v == 0v
+    v*-left-zero : {v : V} -> 0# v* v == 0#
     v*-left-zero {v} =
-      sym ∙-right-ε >=>
-      ∙-right (sym ∙-right-inverse) >=>
-      sym ∙-assoc >=>
-      ∙-left (∙-right (sym v*-left-one) >=>
-              sym v*-distrib-+ >=>
+      sym +-right-zero >=>
+      +-right (sym +-inverse) >=>
+      sym +-assoc >=>
+      +-left (+-right (sym v*-left-one) >=>
+              sym v*-distrib-+-right >=>
               cong (_v* v) +-left-zero >=>
               v*-left-one) >=>
-      ∙-right-inverse
+      +-inverse
 
 
-    v*-right-zero : {k : K} -> k v* 0v == 0v
+    v*-right-zero : {k : K} -> k v* 0# == 0#
     v*-right-zero {k} =
-      sym ∙-right-ε >=>
-      ∙-right (sym v*-left-zero >=>
-               cong (_v* 0v) (sym +-inverse) >=>
-               v*-distrib-+) >=>
-      sym ∙-assoc >=>
-      ∙-left (sym v*-distrib-v+ >=>
-              cong (k v*_) (∙-right-ε)) >=>
-      sym v*-distrib-+ >=>
-      cong (_v* 0v) +-inverse >=>
+      sym +-right-zero >=>
+      +-right (sym v*-left-zero >=>
+               cong (_v* 0#) (sym +-inverse) >=>
+               v*-distrib-+-right) >=>
+      sym +-assoc >=>
+      +-left (sym v*-distrib-+-left >=>
+              cong (k v*_) (+-right-zero)) >=>
+      sym v*-distrib-+-right >=>
+      cong (_v* 0#) +-inverse >=>
       v*-left-zero
+
 
     v*-left : {k1 k2 : K} {v : V} -> k1 == k2 -> k1 v* v == k2 v* v
     v*-left {k1} {k2} {v} p = cong (_v* v) p
@@ -142,28 +104,29 @@ module _  {ℓK ℓV : Level} {K : Type ℓK}
     v*-right {k} p = cong (k v*_) p
 
 
-    v*-minus-inverse : {k : K} {v : V} -> (- k) v* v == k v* (v- v)
+    v*-minus-inverse : {k : K} {v : V} -> (- k) v* v == k v* (- v)
     v*-minus-inverse {k} {v} =
-      sym ∙-right-ε >=>
-      ∙-right (sym v*-left-zero >=>
-               cong (_v* (v- v)) (sym +-inverse >=> +-commute) >=>
-               v*-distrib-+ { - k} {k}) >=>
-      sym ∙-assoc >=>
-      ∙-left (sym v*-distrib-v+ >=>
-              cong ((- k) v*_) ∙-right-inverse >=>
+      sym +-right-zero >=>
+      +-right (sym v*-left-zero >=>
+               cong (_v* (- v)) (sym +-inverse >=> +-commute) >=>
+               v*-distrib-+-right) >=>
+      sym +-assoc >=>
+      +-left (sym v*-distrib-+-left >=>
+              cong ((- k) v*_) +-inverse >=>
               v*-right-zero) >=>
-      v+-left-zero
+      +-left-zero
 
-    v*-left-minus-one : {v : V} -> (- 1#) v* v == (v- v)
+
+    v*-left-minus-one : {v : V} -> (- 1#) v* v == (- v)
     v*-left-minus-one = v*-minus-inverse >=> v*-left-one
 
-    v*-minus-extract-left : {k : K} {v : V} -> (- k) v* v == v- (k v* v)
+    v*-minus-extract-left : {k : K} {v : V} -> (- k) v* v == - (k v* v)
     v*-minus-extract-left =
       v*-left (sym *-left-one >=> minus-extract-right >=> sym minus-extract-left) >=>
       v*-assoc >=>
       v*-left-minus-one
 
-    v*-minus-extract-right : {k : K} {v : V} -> k v* (v- v) == v- (k v* v)
+    v*-minus-extract-right : {k : K} {v : V} -> k v* (- v) == - (k v* v)
     v*-minus-extract-right =
       v*-right (sym v*-left-minus-one) >=>
       sym v*-assoc >=>
@@ -171,126 +134,155 @@ module _  {ℓK ℓV : Level} {K : Type ℓK}
       v*-assoc >=>
       v*-left-minus-one
 
-    v--double-inverse : {v : V} -> (v- (v- v)) == v
-    v--double-inverse =
-      sym v*-left-minus-one >=>
-      v*-minus-extract-right >=>
-      sym v*-minus-extract-left >=>
-      v*-left minus-double-inverse >=>
-      v*-left-one
-
-
-    v*-minus-extract-both : {k : K} {v : V} -> (- k) v* (v- v) == (k v* v)
+    v*-minus-extract-both : {k : K} {v : V} -> (- k) v* (- v) == (k v* v)
     v*-minus-extract-both =
       v*-minus-extract-left >=>
-      cong v-_ v*-minus-extract-right >=>
-      v--double-inverse
-
-  vdiff : V -> V -> V
-  vdiff v1 v2 = v2 v+ (v- v1)
-
-  private
-    G-V+ = (ModuleStr.AbGroupStr-V M)
-    CM-V+ = AbGroupStr.comm-monoid G-V+
-
-  v-ʰ : CommMonoidʰᵉ CM-V+ CM-V+ v-_
-  v-ʰ = AbGroupStr.inverse-CMʰ G-V+
+      cong -_ v*-minus-extract-right >=>
+      minus-double-inverse
 
 
-
-module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
-         {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
-         {S : Semiring ACM} {R : Ring S AG}
-         {A : isTightApartness K#}
-         (F : Field R A) (V : Type ℓV)  where
+module _ {ℓK ℓV : Level}
+         {K : Type ℓK} {K# : Rel K ℓK}
+         {V : Type ℓV} {V# : Rel V ℓV}
+         {ACM-K : AdditiveCommMonoid K}
+         {AG-K : AdditiveGroup ACM-K}
+         {S-K : Semiring ACM-K}
+         {R-K : Ring S-K AG-K}
+         {ACM-V : AdditiveCommMonoid V}
+         {AG-V : AdditiveGroup ACM-V}
+         (MS : ModuleStr R-K AG-V)
+         (A-K : isTightApartness K#)
+         (A-V : isTightApartness V#)
+         where
   private
     instance
-      IACM = ACM
-      IS = S
-      IF = F
-      IA = A
+      IMS = MS
+      IACM-K = ACM-K
+      IACM-V = ACM-V
+      IA-K = A-K
+      IA-V = A-V
 
-  record VectorSpaceStr : Type (ℓ-max ℓK (ℓ-suc ℓV)) where
-    constructor vector-space-str
+
+  record ApartModuleStr : Type (ℓ-max ℓK (ℓ-suc ℓV)) where
     field
-      module-str : ModuleStr R V
+      v*-apart-args : {k₁ k₂ : K} {v₁ v₂ : V} ->
+        (k₁ v* v₁) # (k₂ v* v₂) -> ∥ (k₁ # k₂) ⊎ (v₁ # v₂) ∥
 
-    private
-      module MS = ModuleStr module-str
 
-    field
-      v*-apart-zero : {k : K} {v : V} -> (k MS.v* v) MS.v# MS.0v -> (k # 0#) × (v MS.v# MS.0v)
-      v*-apart-args : {k1 k2 : K} {v1 v2 : V} ->
-                      (k1 MS.v* v1) MS.v# (k2 MS.v* v2) ->
-                      ∥ (k1 # k2) ⊎ (v1 MS.v# v2) ∥
+module _ {ℓK ℓV : Level}
+         {K : Type ℓK} {K# : Rel K ℓK}
+         {V : Type ℓV} {V# : Rel V ℓV}
+         {ACM-K : AdditiveCommMonoid K}
+         {AG-K : AdditiveGroup ACM-K}
+         {S-K : Semiring ACM-K}
+         {R-K : Ring S-K AG-K}
+         {ACM-V : AdditiveCommMonoid V}
+         {AG-V : AdditiveGroup ACM-V}
+         {MS : ModuleStr R-K AG-V}
+         {A-K : isTightApartness K#}
+         {A-V : isTightApartness V#}
+         {{AMS : ApartModuleStr MS A-K A-V}}
+         where
 
-module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
-         {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
-         {S : Semiring ACM} {R : Ring S AG}
-         {A : isTightApartness K#} {F : Field R A} {V : Type ℓV}
-         {{VS : VectorSpaceStr F V}} where
-  open VectorSpaceStr VS public using
-    ( v*-apart-zero
-    ; v*-apart-args
+  private
+    instance
+      IMS = MS
+      IACM-K = ACM-K
+      IACM-V = ACM-V
+      IA-K = A-K
+      IA-V = A-V
+
+  open ApartModuleStr AMS public using
+    ( v*-apart-args
     )
 
+  opaque
+    v*-apart-zero : {k : K} {v : V} ->
+      (k v* v) # 0# -> (k # 0#) × (v # 0#)
+    v*-apart-zero {k} {v} kv#0 = k#0 , v#0
+      where
+      k#0 : k # 0#
+      k#0 = unsquash isProp-# (∥-map (\s -> proj-¬r s irrefl-#) (v*-apart-args kv#0v))
+        where
+        kv#0v : (k v* v) # (0# v* v)
+        kv#0v = subst ((k v* v) #_) (sym v*-left-zero) kv#0
+
+      v#0 : v # 0#
+      v#0 = unsquash isProp-# (∥-map (\s -> proj-¬l s irrefl-#) (v*-apart-args kv#k0))
+        where
+        kv#k0 : (k v* v) # (k v* 0#)
+        kv#k0 = subst ((k v* v) #_) (sym v*-right-zero) kv#0
+
+module _ {ℓK ℓV : Level}
+         {K : Type ℓK} {K# : Rel K ℓK}
+         {V : Type ℓV} {V# : Rel V ℓV}
+         {ACM-K : AdditiveCommMonoid K} {AG-K : AdditiveGroup ACM-K}
+         {S-K : Semiring ACM-K} {R-K : Ring S-K AG-K}
+         {ACM-V : AdditiveCommMonoid V} {AG-V : AdditiveGroup ACM-V}
+         {MS : ModuleStr R-K AG-V}
+         {A-K : isTightApartness K#}
+         {A-V : isTightApartness V#}
+         {{AMS : ApartModuleStr MS A-K A-V}}
+         {{F : Field R-K A-K}}
+         where
   private
-    module VS = VectorSpaceStr VS
-    module R = Ring R
+    module R = Ring R-K
     module F = Field F
 
+  private
     instance
-      IM = VS.module-str
-      IACM = ACM
-      IS = S
-      IA = A
-      IF = F
+      IM = MS
+      IACM-K = ACM-K
+      IACM-V = ACM-V
+      IS = S-K
+      IA-K = A-K
+      IA-V = A-V
 
-  abstract
-    v*-#0 : {k : K} -> {v : V} -> k # 0# -> v v# 0v -> (k v* v) v# 0v
+  opaque
+    v*-#0 : {k : K} -> {v : V} -> k # 0# -> v # 0# -> (k v* v) # 0#
     v*-#0 {k} {v} k#0 v#0 = snd (v*-apart-zero k'kv#0)
       where
       module _ where
         k-unit : R.isUnit k
         k-unit = F.#0->isUnit k#0
         kk'=1 = R.isUnit.path k-unit
-        k'kv#0 = subst (_v# 0v) (sym v*-left-one >=> v*-left (sym kk'=1 >=> *-commute) >=> v*-assoc) v#0
+        k'kv#0 = subst (_# 0#) (sym v*-left-one >=> v*-left (sym kk'=1 >=> *-commute) >=> v*-assoc) v#0
 
-
-module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
-         {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
-         {S : Semiring ACM} {R : Ring S AG}
-         {A : isTightApartness K#} {F : Field R A} {V : Type ℓV}
-         {{VS : VectorSpaceStr F V}} where
+module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV}
+         {ACM-K : AdditiveCommMonoid K}
+         {AG-K : AdditiveGroup ACM-K}
+         {S-K : Semiring ACM-K}
+         {R-K : Ring S-K AG-K}
+         {ACM-V : AdditiveCommMonoid V}
+         {AG-V : AdditiveGroup ACM-V}
+         {{MS : ModuleStr R-K AG-V}}
+         where
 
   private
     instance
-      IM = VectorSpaceStr.module-str VS
-      IACM = ACM
-      IAG = AG
-      IS = S
+      IMS = MS
+      IACM-K = ACM-K
+      IAG-K = AG-K
+      IS-K = S-K
+      IACM-V = ACM-V
+      IAG-V = AG-V
 
-  private
-    CommMonoid-V+ : CommMonoid V
-    CommMonoid-V+ = AbGroupStr.comm-monoid (ModuleStr.AbGroupStr-V (VectorSpaceStr.module-str VS))
-
-  vector-sum : {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} -> (I -> V) -> V
-  vector-sum = finiteMerge CommMonoid-V+
 
   record isLinearSubtype  {ℓS : Level} (S : (Subtype V ℓS)) : Type (ℓ-max* 3 ℓS ℓV ℓK) where
     field
-      closed-under-0v : ⟨ S 0v ⟩
-      closed-under-v+ : {v1 v2 : V} -> ⟨ S v1 ⟩ -> ⟨ S v2 ⟩ -> ⟨ S (v1 v+ v2) ⟩
+      closed-under-0v : ⟨ S 0# ⟩
+      closed-under-v+ : {v₁ v₂ : V} -> ⟨ S v₁ ⟩ -> ⟨ S v₂ ⟩ -> ⟨ S (v₁ + v₂) ⟩
       closed-under-v* : {v : V} (k : K) -> ⟨ S v ⟩ -> ⟨ S (k v* v) ⟩
 
-    abstract
-      closed-under-v- : {v : V} -> ⟨ S v ⟩ -> ⟨ S (v- v) ⟩
+    opaque
+      closed-under-v- : {v : V} -> ⟨ S v ⟩ -> ⟨ S (- v) ⟩
       closed-under-v- {v} sv = subst (\mv -> ⟨ S mv ⟩) v*-left-minus-one (closed-under-v* (- 1#) sv)
+
 
   isProp-isLinearSubtype : {ℓS : Level} {S : (Subtype V ℓS)} -> isProp (isLinearSubtype S)
   isProp-isLinearSubtype {S = S} ls1 ls2 i = record
     { closed-under-0v =
-        snd (S 0v)
+        snd (S 0#)
           (isLinearSubtype.closed-under-0v ls1)
           (isLinearSubtype.closed-under-0v ls2) i
     ; closed-under-v+ =
@@ -305,47 +297,53 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {K# : Rel K ℓK}
 
 
 
-module _ {ℓK ℓV1 ℓV2 : Level} {K : Type ℓK} {K# : Rel K ℓK}
-         {ACM : AdditiveCommMonoid K} {AG : AdditiveGroup ACM}
-         {S : Semiring ACM} {R : Ring S AG}
-         {A : isTightApartness K#} {F : Field R A} {V1 : Type ℓV1} {V2 : Type ℓV2}
-         {{VS1 : VectorSpaceStr F V1}} {{VS2 : VectorSpaceStr F V2}} where
+module _ {ℓK ℓV₁ ℓV₂ : Level}
+         {K : Type ℓK} {V₁ : Type ℓV₁} {V₂ : Type ℓV₂}
+         {ACM-K : AdditiveCommMonoid K}
+         {AG-K : AdditiveGroup ACM-K}
+         {S-K : Semiring ACM-K}
+         {R-K : Ring S-K AG-K}
+         {ACM-V₁ : AdditiveCommMonoid V₁} {AG-V₁ : AdditiveGroup ACM-V₁}
+         {ACM-V₂ : AdditiveCommMonoid V₂} {AG-V₂ : AdditiveGroup ACM-V₂}
+         {{MS₁ : ModuleStr R-K AG-V₁}}
+         {{MS₂ : ModuleStr R-K AG-V₂}}
+  where
+
   private
     instance
-      IM1 = VectorSpaceStr.module-str VS1
-      IM2 = VectorSpaceStr.module-str VS2
-      IACM = ACM
-      IS = S
+      IMS₁ = MS₁
+      IMS₂ = MS₂
+      IACM-K = ACM-K
+      IACM-V₁ = ACM-V₁
+      IACM-V₂ = ACM-V₂
 
-  record isLinearTransformation (f : V1 -> V2) : Type (ℓ-max* 3 ℓK ℓV1 ℓV2) where
+
+  record isLinearTransformation (f : V₁ -> V₂) : Type (ℓ-max* 3 ℓK ℓV₁ ℓV₂) where
     constructor is-linear-transformation
     field
-      preserves-+ : (v1 v2 : V1) -> f (v1 v+ v2) == f v1 v+ f v2
-      preserves-* : (k : K) (v : V1) -> f (k v* v) == k v* f v
+      preserves-+ : (v₁ v₂ : V₁) -> f (v₁ + v₂) == f v₁ + f v₂
+      preserves-* : (k : K) (v : V₁) -> f (k v* v) == k v* f v
 
-  lt-preserves-+ : {f : V1 -> V2} -> isLinearTransformation f -> (v1 v2 : V1) ->
-                   f (v1 v+ v2) == f v1 v+ f v2
-  lt-preserves-+ = isLinearTransformation.preserves-+
 
-  lt-preserves-* : {f : V1 -> V2} -> isLinearTransformation f -> (k : K) -> (v : V1) ->
-                   f (k v* v) == k v* f v
-  lt-preserves-* = isLinearTransformation.preserves-*
+  opaque
+    lt-preserves-+ : {f : V₁ -> V₂} -> isLinearTransformation f -> (v₁ v₂ : V₁) ->
+                     f (v₁ + v₂) == f v₁ + f v₂
+    lt-preserves-+ = isLinearTransformation.preserves-+
 
-  lt-preserves-0v : {f : V1 -> V2} -> isLinearTransformation f -> f 0v == 0v
-  lt-preserves-0v {f} lt = cong f (sym v*-left-zero) >=> lt-preserves-* lt 0# 0v >=> v*-left-zero
+    lt-preserves-* : {f : V₁ -> V₂} -> isLinearTransformation f -> (k : K) -> (v : V₁) ->
+                     f (k v* v) == k v* f v
+    lt-preserves-* = isLinearTransformation.preserves-*
+
+    lt-preserves-0v : {f : V₁ -> V₂} -> isLinearTransformation f -> f 0# == 0#
+    lt-preserves-0v {f} lt = cong f (sym v*-left-zero) >=> lt-preserves-* lt 0# 0# >=> v*-left-zero
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
-    abstract
-      lt-preserves-vector-sum : {f : V1 -> V2} {vs : I -> V1} -> isLinearTransformation f ->
-                                f (vector-sum vs) == vector-sum (f ∘ vs)
-      lt-preserves-vector-sum {f} lt = sym (finiteMerge-homo-inject h)
+    opaque
+      lt-preserves-finiteSum : {f : V₁ -> V₂} {vs : I -> V₁} ->
+        isLinearTransformation f -> f (finiteSum vs) == finiteSum (f ∘ vs)
+      lt-preserves-finiteSum {f} lt = sym (finiteMerge-homo-inject h)
         where
-        instance
-          CM-V1+ : CommMonoid V1
-          CM-V1+ = AbGroupStr.comm-monoid (ModuleStr.AbGroupStr-V (VectorSpaceStr.module-str VS1))
-          CM-V2+ : CommMonoid V2
-          CM-V2+ = AbGroupStr.comm-monoid (ModuleStr.AbGroupStr-V (VectorSpaceStr.module-str VS2))
-        h : CommMonoidʰ f
+        h : CommMonoidʰᵉ (CommMonoid-+ V₁) (CommMonoid-+ V₂) f
         h = record
           { monoidʰ = record
             { preserves-∙ = lt-preserves-+ lt

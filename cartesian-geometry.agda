@@ -129,34 +129,34 @@ P-shift-step _ _ = vector-ext (\{x-axis -> path1 ; y-axis -> path1})
   path1 : {p v : ℝ} -> (diff p (p + v)) == v
   path1 = +-left +-commute >=> +-assoc >=> +-right +-inverse >=> +-right-zero
 
-P-shift-0v : (p : Point) -> P-shift p 0v == p
+P-shift-0v : (p : Point) -> P-shift p 0# == p
 P-shift-0v _ = P-ext (\{x-axis -> +-right-zero ; y-axis -> +-right-zero})
 
 
-P-shift-twice : (p : Point) (v1 v2 : Vector) -> (P-shift (P-shift p v1) v2) == P-shift p (v1 v+ v2)
+P-shift-twice : (p : Point) (v1 v2 : Vector) -> (P-shift (P-shift p v1) v2) == P-shift p (v1 + v2)
 P-shift-twice _ _ _ = P-ext (\{x-axis -> +-assoc ; y-axis -> +-assoc})
 
 
-P-diff-trans : (p1 p2 p3 : Point) -> P-diff p1 p2 v+ P-diff p2 p3 == P-diff p1 p3
+P-diff-trans : (p1 p2 p3 : Point) -> P-diff p1 p2 + P-diff p2 p3 == P-diff p1 p3
 P-diff-trans p1 p2 p3 = vector-ext (\{x-axis -> diff-trans ; y-axis -> diff-trans})
 
-P-diff-anticommute : (p1 p2 : Point) -> P-diff p1 p2 == v- (P-diff p2 p1)
+P-diff-anticommute : (p1 p2 : Point) -> P-diff p1 p2 == - (P-diff p2 p1)
 P-diff-anticommute p1 p2 = vector-ext (\{x-axis -> diff-anticommute ; y-axis -> diff-anticommute})
 
-P-diff-self : (p : Point) -> P-diff p p == 0v
+P-diff-self : (p : Point) -> P-diff p p == 0#
 P-diff-self p = vector-ext (\{x-axis -> +-inverse ; y-axis -> +-inverse})
 
 
-p#->P-diff#0 : (p1 p2 : Point) -> p1 p# p2 -> (P-diff p1 p2) # 0v
+p#->P-diff#0 : (p1 p2 : Point) -> p1 p# p2 -> (P-diff p1 p2) # 0#
 p#->P-diff#0 p1 p2 (p#-cons ap) = ∥-bind handle ap
   where
   module p1 = Point p1
   module p2 = Point p2
-  handle : (p1.x # p2.x) ⊎ (p1.y # p2.y) -> (P-diff p1 p2) # 0v
+  handle : (p1.x # p2.x) ⊎ (p1.y # p2.y) -> (P-diff p1 p2) # 0#
   handle (inj-l x#x) = ∣ x-axis , subst2 _#_ refl +-inverse (sym-# (+₂-preserves-# x#x)) ∣
   handle (inj-r y#y) = ∣ y-axis , subst2 _#_ refl +-inverse (sym-# (+₂-preserves-# y#y)) ∣
 
-P-diff#0->p# : (p1 p2 : Point) -> (P-diff p1 p2) # 0v -> p1 p# p2
+P-diff#0->p# : (p1 p2 : Point) -> (P-diff p1 p2) # 0# -> p1 p# p2
 P-diff#0->p# p1 p2 = p#-cons ∘ ∥-map handle
   where
   module p1 = Point p1
