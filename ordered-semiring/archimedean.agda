@@ -14,9 +14,9 @@ open import semiring.initial
 open import truncation
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {LO : isLinearOrder D<}
-          where
+         {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
+         {LO : isLinearOrder D<} {{_ : ℕ->Semiring-Op D}}
+         where
   private
     instance
       IACM = ACM
@@ -45,8 +45,9 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
 
 
 module _ {ℓD ℓ< : Level} (D : Type ℓD) {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D}
-         {S : Semiring ACM}
+         {{S : Semiring ACM}}
          {LO : isLinearOrder D<}
+         {{_ : ℕ->Semiring-Op D}}
          {{LOS : LinearlyOrderedSemiringStr S LO}} where
   ArchimedeanSemiringⁱ : Type (ℓ-max ℓD ℓ<)
   ArchimedeanSemiringⁱ = ArchimedeanSemiring LOS

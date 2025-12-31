@@ -29,6 +29,7 @@ open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
 open import real
 open import real.distance
+open import real.rational
 open import real.sequence.limit
 open import real.sequence.ratio-test
 open import real.series
@@ -47,18 +48,14 @@ exp-terms : ℝ -> Sequence ℝ
 exp-terms x n = (1/ℕ (factorial⁺ n)) * (x ^ℕ n)
 
 opaque
-  -- Since (exp-terms z 1) doesn't 'remember' z, this formulation works with out having
+  -- Since (exp-terms z 0) doesn't 'remember' z, this formulation works with out having
   -- to provide an explicit 'z'.
   exp-term0 : (1/ℕ (factorial⁺ 0)) * 1# == 1#
-  exp-term0 = *-left (sym *-left-one >=>
-                       *-left (sym ℕ->Semiring-preserves-1#) >=>
-                       ∃!-prop (∃!1/ℕ (1 , tt))) >=>
-               *-left-one
+  exp-term0 = *-left (sym *-left-one >=> ∃!-prop (∃!1/ℕ (1 , tt))) >=>
+              *-left-one
 
   exp-term1 : {z : ℝ} -> exp-terms z 1 == z
-  exp-term1 = *-left (sym *-left-one >=>
-                      *-left (sym ℕ->Semiring-preserves-1#) >=>
-                      ∃!-prop (∃!1/ℕ (1 , tt))) >=>
+  exp-term1 = *-left (sym *-left-one >=> ∃!-prop (∃!1/ℕ (1 , tt))) >=>
               *-left-one >=> *-right-one
 
 private
@@ -81,7 +78,7 @@ opaque
     f : (ε : ℝ⁺) -> ∀Largeℕ (\n -> εClose ε  0# (abs (exponential-ratios x n)))
     f ε⁺@(ε , 0<ε) = ∥-map handle (strong-archimedean-property 0<ε)
       where
-      handle : Σ[ n ∈ ℕ ] (abs x < (ℕ->Semiring n * ε)) ->
+      handle : Σ[ n ∈ ℕ ] (abs x < (ℕ->ℝ n * ε)) ->
                ∀Largeℕ' (\n -> εClose ε⁺ 0# (abs (exponential-ratios x n)))
       handle (n , ax<nε) = suc n , g
         where
@@ -91,9 +88,9 @@ opaque
         ax/sn<ε = trans-<-= ax/sn<snε/sn simplify-snε
           where
           nℝ : ℝ
-          nℝ = ℕ->Semiring n
+          nℝ = ℕ->ℝ n
           snℝ : ℝ
-          snℝ = ℕ->Semiring (suc n)
+          snℝ = ℕ->ℝ (suc n)
           nε<snε : (nℝ * ε) < (snℝ * ε)
           nε<snε = *₂-preserves-< (ℕ->Semiring-preserves-< refl-≤) 0<ε
           ax/sn<snε/sn : ((1/ℕ sn⁺) * abs x) < ((1/ℕ sn⁺) * (snℝ * ε))

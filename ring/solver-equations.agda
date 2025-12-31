@@ -19,6 +19,30 @@ open import truncation
 
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
          {{AG : AdditiveGroup ACM}} {{S : Semiring ACM}} where
+  private
+    instance
+      IACM = ACM
+
+    R : Ring S AG
+    R = record {}
+    module RSolver = RingSolver R
+
+    diff' : {n : Nat} -> RingSyntax n -> RingSyntax n -> RingSyntax n
+    diff' a b = (b ⊕ (⊖ a))
+
+  opaque
+    diff-*-expand : {a b c d : D} ->
+      diff (a * b) (c * d) ==
+      (diff (a * b) (c * b) + diff (a * b) (a * d)) + (diff a c) * (diff b d)
+    diff-*-expand = RSolver.solve 4 (\a b c d ->
+      diff' (a ⊗ b) (c ⊗ d) ,
+      (diff' (a ⊗ b) (c ⊗ b) ⊕ diff' (a ⊗ b) (a ⊗ d)) ⊕ (diff' a c) ⊗ (diff' b d))
+      refl _ _ _ _
+
+
+module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+         {{AG : AdditiveGroup ACM}} {{S : Semiring ACM}}
+         {{_ : ℕ->Semiring-Op D}} where
 
   private
     R : Ring S AG
@@ -27,9 +51,6 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     instance
       IACM = ACM
       IR = R
-
-    diff' : {n : Nat} -> RingSyntax n -> RingSyntax n -> RingSyntax n
-    diff' a b = (b ⊕ (⊖ a))
 
     ℕ->D' : ℕ -> D
     ℕ->D' n = (∃!-val ∃!ℤ->Ring (int n))
@@ -61,14 +82,6 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
 
 
   abstract
-    diff-*-expand : {a b c d : D} ->
-      diff (a * b) (c * d) ==
-      (diff (a * b) (c * b) + diff (a * b) (a * d)) + (diff a c) * (diff b d)
-    diff-*-expand = RSolver.solve 4 (\a b c d ->
-      diff' (a ⊗ b) (c ⊗ d) ,
-      (diff' (a ⊗ b) (c ⊗ b) ⊕ diff' (a ⊗ b) (a ⊗ d)) ⊕ (diff' a c) ⊗ (diff' b d))
-      refl _ _ _ _
-
     private
       [1-x]^3-expand' : {x : D} ->
         (ℕ->D' 1 + (- x)) ^ℕ 3 ==

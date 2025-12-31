@@ -41,6 +41,16 @@ instance
   IntRing : Ring IntSemiring AdditiveGroup-Int
   IntRing = record  {}
 
+  ℕ->Semiring-ℤ : ℕ->Semiring-Op ℤ
+  ℕ->Semiring-ℤ = ℕ->SemiringStr-cons' ℕ->ℤ refl refl ℕ->ℤ-+
+    where
+    ℕ->ℤ-+ : (m n : Nat) -> ℕ->ℤ (m + n) == ℕ->ℤ m + ℕ->ℤ n
+    ℕ->ℤ-+ zero n = sym +-left-zero
+    ℕ->ℤ-+ (suc m) n = cong add1 (ℕ->ℤ-+ m n) >=> sym add1-extract-left
+
+Semiringʰ-ℕ->ℤ : Semiringʰ ℕ->ℤ
+Semiringʰ-ℕ->ℤ = ℕ->Semiringʰ
+
 private
   module NatSemiring = Semiring NatSemiring
   module IntSemiring = Semiring IntSemiring
@@ -98,13 +108,3 @@ module _ where
       ==< sym (add1-extract-* {int a} {int b}) >
         (int (suc a)) * (int b)
       end
-
-  Semiringʰ-ℕ->ℤ : Semiringʰ ℕ->ℤ
-  Semiringʰ-ℕ->ℤ = record
-    { +ʰ = CommMonoidʰ.monoidʰ int-+ʰ
-    ; *ʰ = CommMonoidʰ.monoidʰ int-*ʰ
-    }
-
-abstract
-  ℕ->Semiring-ℤ-path : (n : ℕ) -> ℕ->Semiring n == ℕ->ℤ n
-  ℕ->Semiring-ℤ-path n = (\i -> ∃!-unique ∃!ℕ->Semiring ℕ->ℤ Semiringʰ-ℕ->ℤ i n)

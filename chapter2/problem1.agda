@@ -92,7 +92,7 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
 
 
   path-half : (fst (Ring-ℚ.u1/ (ℚUnit-prime (2 , 2-is-prime)))) == 1/2
-  path-half = sym (∃!-unique (∃!1/ℕ (2 , tt)) _ path)
+  path-half = sym (∃!-unique (∃!1/ℕ (2 , tt)) _ (cong fst u-path))
     where
     open Ring-ℚ
     u : Unit
@@ -100,9 +100,6 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
 
     u-path : u u* (u1/ u) == Ring-ℚ.1u
     u-path = u1/-right-inverse
-
-    path : (ℕ->Semiring 2) * (fst (Ring-ℚ.u1/ u)) == 1#
-    path = *-left (ℕ->Semiring-ℚ-path 2) >=> (cong fst u-path)
 
   path-half2 :
     (1r + (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime (2 , 2-is-prime)))))) == 1/2
@@ -126,8 +123,7 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
     *-right (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ _ _) >=>
     sym *-assoc >=>
     *-left (*-commute >=>
-            *-left (sym (ℕ->Semiring-ℚ-path 2) >=>
-                    ℕ->Semiring-preserves-2#) >=>
+            *-left ℕ->Semiring-preserves-2# >=>
             2*1/2-path) >=>
     *-left-one
 
@@ -150,8 +146,7 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
     *-cong (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ 2 n)
            (finiteMerge-WithoutPoint _ PrimeDivisor2n-2 _ >=> *-left path-half2) >=>
     *-swap >=>
-    *-left (*-left (sym (ℕ->Semiring-ℚ-path 2) >=>
-                    ℕ->Semiring-preserves-2#) >=>
+    *-left (*-left ℕ->Semiring-preserves-2# >=>
             2*1/2-path) >=>
     *-left-one
 

@@ -147,16 +147,12 @@ abstract
      +-left-zero
 
 private
-  ℕ->S : ℕ -> ℚ
-  ℕ->S = ℕ->Semiring
-
-private
   opaque
-    lemma1 : (n : ℕ) -> 3 ≤ n -> 0# < (((ℕ->S n * ℕ->S n) +
-                                        (- ((ℕ->S 3) * (ℕ->S n)))) + 1#)
+    lemma1 : (n : ℕ) -> 3 ≤ n -> 0# < (((ℕ->ℚ n * ℕ->ℚ n) +
+                                        (- ((ℕ->ℚ 3) * (ℕ->ℚ n)))) + 1#)
     lemma1 n 3≤n = trans-≤-< 0≤n²-3n (trans-=-< (sym +-right-zero) (+₁-preserves-< 0<1))
       where
-      0≤n²-3n : 0# ≤ ((ℕ->S n * ℕ->S n) + (- ((ℕ->S 3) * (ℕ->S n))))
+      0≤n²-3n : 0# ≤ ((ℕ->ℚ n * ℕ->ℚ n) + (- ((ℕ->ℚ 3) * (ℕ->ℚ n))))
       0≤n²-3n =
         trans-≤-=
           (*-preserves-0≤ (diff-0≤⁺ (ℕ->Semiring-preserves-≤ 3≤n))
@@ -164,46 +160,37 @@ private
           (*-distrib-+-right >=> +-right minus-extract-left)
 
   opaque
-    lemma2 : (n : Nat⁺) -> 3 ≤ ⟨ n ⟩ -> 0# < (1# + (- ((ℕ->S 3) * 1/ℕ n)) + (1/ℕ n * 1/ℕ n))
+    lemma2 : (n : Nat⁺) -> 3 ≤ ⟨ n ⟩ -> 0# < (1# + (- ((ℕ->ℚ 3) * 1/ℕ n)) + (1/ℕ n * 1/ℕ n))
     lemma2 n 3≤n =
       trans-<-= (*-preserves-0< (lemma1 n' 3≤n) (*-preserves-0< (0<1/ℕ n) (0<1/ℕ n))) p4
       where
       n' : ℕ
       n' = ⟨ n ⟩
-      n-inv : ℕ->S n' * 1/ℕ n == 1#
+      n-inv : ℕ->ℚ n' * 1/ℕ n == 1#
       n-inv = ∃!-prop (∃!1/ℕ n)
 
-      p1 : (ℕ->S n' * ℕ->S n') * (1/ℕ n * 1/ℕ n) == 1#
+      p1 : (ℕ->ℚ n' * ℕ->ℚ n') * (1/ℕ n * 1/ℕ n) == 1#
       p1 = *-swap >=>
            *-cong n-inv n-inv >=>
            *-right-one
 
-      p2 : (- ((ℕ->S 3) * ℕ->S n')) * (1/ℕ n * 1/ℕ n) == (- ((ℕ->S 3) * 1/ℕ n))
+      p2 : (- ((ℕ->ℚ 3) * ℕ->ℚ n')) * (1/ℕ n * 1/ℕ n) == (- ((ℕ->ℚ 3) * 1/ℕ n))
       p2 = minus-extract-left >=>
            cong -_ (*-swap >=> *-right n-inv >=> *-right-one)
 
       p3 : Path ℚ (1# * (1/ℕ n * 1/ℕ n)) (1/ℕ n * 1/ℕ n)
       p3 = *-left-one
 
-      p4 : (((ℕ->S n' * ℕ->S n') + (- ((ℕ->S 3) * (ℕ->S n')))) + 1#) * (1/ℕ n * 1/ℕ n) ==
-           (1# + (- ((ℕ->S 3) * 1/ℕ n)) + (1/ℕ n * 1/ℕ n))
+      p4 : (((ℕ->ℚ n' * ℕ->ℚ n') + (- ((ℕ->ℚ 3) * (ℕ->ℚ n')))) + 1#) * (1/ℕ n * 1/ℕ n) ==
+           (1# + (- ((ℕ->ℚ 3) * 1/ℕ n)) + (1/ℕ n * 1/ℕ n))
       p4 = *-distrib-+-right >=> +-cong (*-distrib-+-right >=> +-cong p1 p2) p3
 
   opaque
     lemma3 : (n : Nat⁺) ->
       (1# + (- (1/ℕ n))) ^ℕ 3 ==
-      (1# + (- ((ℕ->S 2) * 1/ℕ n))) +
-      (1# + (- ((ℕ->S 3) * 1/ℕ n)) + (1/ℕ n * 1/ℕ n)) * (- (1/ℕ n))
-    lemma3 n =
-      subst (\f -> (f 1# + (- (1/ℕ n))) ^ℕ 3 ==
-                   (f 1# + (- ((ℕ->S 2) * 1/ℕ n))) +
-                   (f 1# + (- ((ℕ->S 3) * 1/ℕ n)) + (1/ℕ n * 1/ℕ n)) * (- (1/ℕ n)))
-        (funExt ℕ->Semiring-ℚ-path) p1
-      where
-      p1 : (ℕ->S 1 + (- (1/ℕ n))) ^ℕ 3 ==
-           (ℕ->S 1# + (- ((ℕ->S 2) * 1/ℕ n))) +
-           (ℕ->S 1# + (- ((ℕ->S 3) * 1/ℕ n)) + (1/ℕ n * 1/ℕ n)) * (- (1/ℕ n))
-      p1 = [1-x]^3-expand (1/ℕ n)
+      (1# + (- ((ℕ->ℚ 2) * 1/ℕ n))) +
+      (1# + (- ((ℕ->ℚ 3) * 1/ℕ n)) + (1/ℕ n * 1/ℕ n)) * (- (1/ℕ n))
+    lemma3 n = [1-x]^3-expand (1/ℕ n)
 
   α : Nat⁺ -> ℚ
   α n = 1# + (- (1/ℕ n))

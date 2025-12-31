@@ -5,8 +5,8 @@ module rational.open-interval where
 open import additive-group
 open import base
 open import equality
-open import hlevel
 open import heyting-field.instances.rational
+open import hlevel
 open import order
 open import order.instances.rational
 open import order.minmax
@@ -20,11 +20,12 @@ open import ordered-semiring.minmax
 open import rational
 open import rational.order
 open import relation
-open import semiring
 open import ring
-open import sum
+open import ring.implementations.rational
+open import semiring
 open import sign
 open import sign.instances.rational
+open import sum
 open import truncation
 
 import rational.proper-interval as closed

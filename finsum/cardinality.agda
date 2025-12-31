@@ -26,7 +26,8 @@ open import semiring.instances.nat
 open import sigma
 open import truncation
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
+module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+  {{S : Semiring ACM}} {{_ : ℕ->Semiring-Op D}}
   where
   private
     instance
@@ -144,7 +145,7 @@ opaque
     cardinality-Σ S₁ (\_ -> S₂) >=>
     cong (\x -> (finiteSumᵉ S₁ (\s -> x))) (sym *-right-one) >=>
     finiteSum-* {k = cardinality S₂} >=>
-    cong (cardinality S₂ *_) (finiteSumᵉ-one S₁ >=> ℕ->Semiring-ℕ-path _) >=>
+    cong (cardinality S₂ *_) (finiteSumᵉ-one S₁) >=>
     *-commuteᵉ (cardinality S₂) (cardinality S₁)
     where
     instance

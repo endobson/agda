@@ -19,6 +19,7 @@ open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import rational
 open import relation hiding (U)
+open import ring.implementations.rational
 open import semiring
 open import sign
 open import truncation

@@ -52,7 +52,7 @@ private
                                       Pos-1r) ∣
       handle2 (inj-l 0<n) = ∥-map handle3 (archimedean-property 0<n 0<1)
         where
-        handle3 : Σ[ m ∈ ℕ ] (n < (ℕ->Semiring m * 1#)) ->
+        handle3 : Σ[ m ∈ ℕ ] (n < (ℕ->ℤ m * 1#)) ->
                   Σ[ m ∈ ℕ ] (q < ℕ->ℚ m)
         handle3 (m , n<m*1) =
           m , trans-≤-<
@@ -60,22 +60,17 @@ private
                                                         (1/ℕ≤1 d))
                                         *-right-one))
                 (trans-<-= (ℤ->ℚ-preserves-< n<m*1)
-                           (cong ℤ->ℚ (*-right-one >=> ℕ->Semiring-ℤ-path m)))
-
-
-  ℚFinite' : (q : ℚ) -> ∃[ n ∈ ℕ ] (q < ℕ->Semiring n)
-  ℚFinite' = subst (\f -> (q : ℚ) -> ∃[ n ∈ ℕ ] (q < f n)) (sym (funExt ℕ->Semiring-ℚ-path))
-                   ℚFinite
+                           (cong ℤ->ℚ *-right-one))
 
   prop : ArchimedeanPropertyⁱ ℚ
-  prop {a} {b} 0<a 0<b = ∥-map (\ (n , lt) -> handle n lt) (ℚFinite' a/b)
+  prop {a} {b} 0<a 0<b = ∥-map (\ (n , lt) -> handle n lt) (ℚFinite a/b)
     where
     inv-b : ℚInv b
     inv-b = Pos->Inv 0<b
     a/b : ℚ
     a/b = a * (r1/ b inv-b)
-    module _ (n : ℕ) (a/b<n : a/b < ℕ->Semiring n) where
-      handle : Σ[ n ∈ ℕ ] (a < (ℕ->Semiring n * b))
+    module _ (n : ℕ) (a/b<n : a/b < ℕ->ℚ n) where
+      handle : Σ[ n ∈ ℕ ] (a < (ℕ->ℚ n * b))
       handle = n , trans-=-< p (*₂-preserves-< a/b<n 0<b)
         where
         p = sym *-right-one >=>

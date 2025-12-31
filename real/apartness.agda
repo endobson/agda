@@ -30,6 +30,7 @@ open import real.interval
 open import real.rational
 open import relation
 open import ring
+open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
 open import subset.subspace

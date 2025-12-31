@@ -34,6 +34,7 @@ open import real.rational
 open import real.sequence
 open import real.subspace
 open import relation hiding (U)
+open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
 open import subset.subspace

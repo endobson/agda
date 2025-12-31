@@ -27,6 +27,8 @@ open import real.arithmetic.rational
 open import real.open-interval
 open import real.rational
 open import real.sequence.limit
+open import ring.implementations.rational
+open import ring.implementations.real
 open import sequence
 open import truncation
 

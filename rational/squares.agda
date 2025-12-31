@@ -12,12 +12,13 @@ open import order.instances.rational
 open import order.minmax
 open import order.minmax.instances.rational
 open import ordered-additive-group
+open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.instances.rational
-open import ordered-field
 open import rational
 open import rational.order
 open import relation
+open import ring.implementations.rational
 open import semiring
 open import sign
 open import truncation

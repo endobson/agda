@@ -23,6 +23,7 @@ open import ordered-semiring.instances.real
 open import real
 open import real.subspace
 open import relation
+open import ring.implementations.real
 open import subset.subspace
 open import truncation
 

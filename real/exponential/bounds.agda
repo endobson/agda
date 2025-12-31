@@ -33,6 +33,7 @@ open import real.exponential-series
 open import real.exponential.order.positive
 open import real.exponential.order.increasing.base
 open import real.exponential.plus
+open import real.rational
 open import real.sequence.limit
 open import real.sequence.limit.arithmetic
 open import real.sequence.limit.order
@@ -66,7 +67,7 @@ opaque
                                             (^ℕ-preserves-0≤ 0≤x (suc n)))
                             (^ℕ-preserves-0≤ (weaken-< 0<1/2) n))
 
-      p1 : (ℕ->Semiring (factorial (suc n)) * k) == (x ^ℕ (suc n)) * (1/2 ^ℕ n)
+      p1 : (ℕ->ℝ (factorial (suc n)) * k) == (x ^ℕ (suc n)) * (1/2 ^ℕ n)
       p1 = (*-right *-assoc >=> sym *-assoc >=>
             *-left (∃!-prop (∃!1/ℕ (factorial⁺ (suc n)))) >=>
             *-left-one)
@@ -81,10 +82,10 @@ opaque
         (^ℕ-preserves-0≤ (weaken-< 0<1/2) n)
 
 
-      p2 : ((ℕ->Semiring (2 ^ℕ n)) * k) == exp-terms x (suc n)
+      p2 : (ℕ->ℝ (2 ^ℕ n) * k) == exp-terms x (suc n)
       p2 = *-right *-commute >=>
            sym *-assoc >=>
-           *-left (*-left (Semiringʰ-preserves-^ℕ (∃!-prop ∃!ℕ->Semiring) n) >=>
+           *-left (*-left (Semiringʰ-preserves-^ℕ ℕ->Semiringʰ n) >=>
                    sym (^ℕ-distrib-*-right n) >=>
                    cong (_^ℕ n) (∃!-prop (∃!1/ℕ _)) >=>
                    ^ℕ-preserves-1# n)>=>

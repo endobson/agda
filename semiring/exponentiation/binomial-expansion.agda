@@ -21,7 +21,7 @@ open import semiring.initial
 open import truncation
 
 module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
-         {{S : Semiring ACM}} where
+         {{S : Semiring ACM}} {{_ : ℕ->Semiring-Op D}} where
   private
     instance
       IACM = ACM

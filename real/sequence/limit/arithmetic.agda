@@ -34,6 +34,7 @@ open import real.interval
 open import real.sequence.limit
 open import ring
 open import ring.solver-equations
+open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
 open import semiring.exponentiation

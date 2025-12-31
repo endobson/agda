@@ -22,6 +22,7 @@ open import ordered-semiring.instances.real
 open import real
 open import real.exponential-series
 open import real.exponential.zero
+open import real.rational
 open import real.sequence.limit
 open import real.series.cauchy-product
 open import ring.implementations.real
@@ -50,9 +51,9 @@ module _ (x y : ℝ) where
             *-right (sym (∃!-prop (∃!1/ℕ (factorial⁺ i *⁺ factorial⁺ j)))) >=>
             *-left *-commute >=>
             *-swap >=>
-            *-left (sym (Semiringʰ.preserves-* (∃!-prop ∃!ℕ->Semiring) _ _) >=>
-                    cong ℕ->Semiring (binomial-coeff'-factorial-path i j >=>
-                                      cong factorial i+j=n)) >=>
+            *-left (sym (Semiringʰ.preserves-* ℕ->Semiringʰ _ _) >=>
+                    cong ℕ->ℝ (binomial-coeff'-factorial-path i j >=>
+                               cong factorial i+j=n)) >=>
             sym *-assoc >=>
             *-left (∃!-prop (∃!1/ℕ (factorial⁺ n))) >=>
             *-left-one >=>
