@@ -27,6 +27,7 @@ open import real.order
 open import real.rational
 open import real.subspace
 open import relation hiding (U)
+open import ring.implementations.rational
 open import semiring
 open import sign
 open import subset.subspace

@@ -23,6 +23,7 @@ open import real.derivative
 open import real.epsilon-bounded
 open import real.rational
 open import real.sequence.limit-point
+open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
 open import truncation

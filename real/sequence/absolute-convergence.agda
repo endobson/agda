@@ -47,6 +47,7 @@ open import real.epsilon-bounded
 open import real.order
 open import real.sequence.limit
 open import real.series.base
+open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
 open import sequence

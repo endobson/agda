@@ -25,7 +25,8 @@ open import sigma.base
 open import truncation
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D}
-         {S : Semiring ACM} {LO : isLinearOrder D<}
+         {{S : Semiring ACM}} {LO : isLinearOrder D<}
+         {{_ : ℕ->Semiring-Op D}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {LOS : LinearlyOrderedSemiringStr S LO}
          {{NT : NonTrivialLinearlyOrderedSemiringStr LOS}} where

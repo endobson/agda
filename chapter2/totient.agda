@@ -508,7 +508,7 @@ module _ (p : Prime') where
       finiteSumᵉ (FinSet-Fin p') (\_ -> (pⁿ -' pⁿ⁻¹) * 1)
     ==< finiteSum-* {k = pⁿ -' pⁿ⁻¹} {f = \_ -> 1} >
       (pⁿ -' pⁿ⁻¹) * finiteSumᵉ (FinSet-Fin p') (\_ -> 1)
-    ==< cong ((pⁿ -' pⁿ⁻¹) *_) (finiteSum-one >=> ℕ->Semiring-ℕ-path p') >
+    ==< cong ((pⁿ -' pⁿ⁻¹) *_) finiteSum-one >
       (pⁿ -' pⁿ⁻¹) * p'
     ==< *'-distrib-minus {pⁿ} {pⁿ⁻¹} {p'} >
       (pⁿ * p') -' (pⁿ⁻¹ * p')

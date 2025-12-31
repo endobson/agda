@@ -22,7 +22,7 @@ open import truncation
 
 
 private
-  ℕ-prop : (a : ℕ) (b : ℤ) (0<b : 0# < b) -> ∃[ n ∈ ℕ ] (int a < (ℕ->Semiring n * b))
+  ℕ-prop : (a : ℕ) (b : ℤ) (0<b : 0# < b) -> ∃[ n ∈ ℕ ] (int a < (ℕ->ℤ n * b))
   ℕ-prop a b 0<b = ∣ n , a<nb ∣
     where
     n : ℕ
@@ -32,15 +32,15 @@ private
     a<n : int a < ℕ->ℤ n
     a<n = (1 , tt) , ℤ+-eval
 
-    a<nb : int a < (ℕ->Semiring n * b)
+    a<nb : int a < (ℕ->ℤ n * b)
     a<nb = trans-≤-< (trans-=-≤ (sym *-right-one) (*₁-preserves-≤ 0≤nonneg 1≤b))
-                     (trans-<-= (*₂-preserves-< a<n 0<b) (*-left (sym (ℕ->Semiring-ℤ-path n))))
+                     (*₂-preserves-< a<n 0<b)
 
 
   opaque
     prop : ArchimedeanPropertyⁱ ℤ
     prop {a} {b} ((a' , _) , p) 0<b =
-      transport (\i -> ∃[ n ∈ ℕ ] (p' i < (ℕ->Semiring n * b)))
+      transport (\i -> ∃[ n ∈ ℕ ] (p' i < (ℕ->ℤ n * b)))
         (ℕ-prop a' b 0<b)
       where
       p' : int a' == a

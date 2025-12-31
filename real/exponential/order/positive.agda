@@ -39,6 +39,7 @@ open import real.distance
 open import real.exponential-series
 open import real.exponential.order.increasing.base
 open import real.exponential.plus
+open import real.rational
 open import real.sequence.limit
 open import real.sequence.limit.arithmetic
 open import real.sequence.limit.order
@@ -113,12 +114,12 @@ private
     ℕ-2+1<4 : (2 + 1) < 4
     ℕ-2+1<4 = refl-≤
 
-    ℕ->ℝ-2+1<4 : (ℕ->Semiring 2# + ℕ->Semiring 1#) < ℕ->Semiring 4
+    ℕ->ℝ-2+1<4 : (ℕ->ℝ 2 + ℕ->ℝ 1) < ℕ->ℝ 4
     ℕ->ℝ-2+1<4 =
-      trans-=-< (sym (Semiringʰ.preserves-+ (∃!-prop ∃!ℕ->Semiring) 2 1))
+      trans-=-< (sym (Semiringʰ.preserves-+ ℕ->Semiringʰ 2 1))
                 (ℕ->Semiring-preserves-< ℕ-2+1<4)
 
-    2/4=1/2 : ℕ->Semiring 2# * 1/4 == 1/2
+    2/4=1/2 : ℕ->ℝ 2# * 1/4 == 1/2
     2/4=1/2 =
       *-right (1/ℕ-distrib-* (2 , tt) (2 , tt)) >=>
       sym *-assoc >=>
@@ -128,8 +129,7 @@ private
     1/2+1/4<1 : (1/2 + 1/4) < 1#
     1/2+1/4<1 =
       subst2 _<_
-        (*-distrib-+-right >=>
-         +-cong 2/4=1/2 (*-left ℕ->Semiring-preserves-1# >=> *-left-one))
+        (*-distrib-+-right >=> +-cong 2/4=1/2 *-left-one)
         (∃!-prop (∃!1/ℕ _))
         (*₂-preserves-< ℕ->ℝ-2+1<4 0<1/4)
 

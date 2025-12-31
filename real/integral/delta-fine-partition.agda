@@ -41,6 +41,7 @@ open import real.order
 open import real.rational
 open import real.subspace
 open import ring
+open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
 open import semiring.initial
@@ -57,12 +58,12 @@ private
           n = fst n⁺
 
         u : Fin (suc n) -> ℚ
-        u (i , _) = (ℕ->Semiring i * 1/ℕ n⁺) * (diff a' b') + a'
+        u (i , _) = (ℕ->ℚ i * 1/ℕ n⁺) * (diff a' b') + a'
 
 
         u0=a' : u zero-fin == a'
         u0=a' =
-          +-left (*-left (*-left ℕ->Semiring-preserves-0# >=> *-left-zero) >=>
+          +-left (*-left *-left-zero >=>
                   *-left-zero) >=>
           +-left-zero
 
@@ -83,8 +84,8 @@ private
                   *-left i-path >=>
                   *-left-one)
           where
-          i-path : diff (ℕ->Semiring (Fin.i (inc-fin i)))
-                        (ℕ->Semiring (Fin.i (suc-fin i))) == 1#
+          i-path : diff (ℕ->ℚ (Fin.i (inc-fin i)))
+                        (ℕ->ℚ (Fin.i (suc-fin i))) == 1#
           i-path =
             +-left (h.preserves-+ 1 (Fin.i i)) >=> +-assoc >=>
             +-right +-inverse >=>

@@ -27,28 +27,25 @@ open import semiring.initial
 open import truncation
 
 private
-  prop : ArchimedeanPropertyⁱ ℝ
-  prop {a} {b} 0<a 0<b = ∥-bind2 handle (Real.Inhabited-U a) (Real.isUpperOpen-L b 0# (ℝ<->L 0<b))
-    where
-    handle : Σ[ a' ∈ ℚ ] (Real.U a a') -> Σ[ b' ∈ ℚ ] (0# < b' × Real.L b b') ->
-             ∃[ n ∈ ℕ ] (a < (ℕ->Semiring n * b))
-    handle (a' , aU-a') (b' , (0<b' , bL-b')) = ∥-map handle2 (archimedean-property 0<a' 0<b')
+  opaque
+    prop : ArchimedeanPropertyⁱ ℝ
+    prop {a} {b} 0<a 0<b = ∥-bind2 handle (Real.Inhabited-U a) (Real.isUpperOpen-L b 0# (ℝ<->L 0<b))
       where
-      0<a' : 0# < a'
-      0<a' = U->ℚ< (trans-ℝ<-U 0<a aU-a')
-      handle2 : Σ[ n ∈ ℕ ] (a' < (ℕ->Semiring n * b')) -> Σ[ n ∈ ℕ ] (a < (ℕ->Semiring n * b))
-      handle2 (n , a'<nb') =
-        n ,
-        trans-<-=
+      handle : Σ[ a' ∈ ℚ ] (Real.U a a') -> Σ[ b' ∈ ℚ ] (0# < b' × Real.L b b') ->
+               ∃[ n ∈ ℕ ] (a < (ℕ->ℝ n * b))
+      handle (a' , aU-a') (b' , (0<b' , bL-b')) = ∥-map handle2 (archimedean-property 0<a' 0<b')
+        where
+        0<a' : 0# < a'
+        0<a' = U->ℚ< (trans-ℝ<-U 0<a aU-a')
+        handle2 : Σ[ n ∈ ℕ ] (a' < (ℕ->ℚ n * b')) -> Σ[ n ∈ ℕ ] (a < (ℕ->ℝ n * b))
+        handle2 (n , a'<nb') =
+          n ,
           (trans-<-≤
             (trans-< (U->ℝ< aU-a')
-                     (trans-<-= (ℚ->ℝ-preserves-< (trans-<-= a'<nb' (*-left (ℕ->Semiring-ℚ-path n))))
-                                ℚ->ℝ-preserves-*))
+                     (trans-<-= (ℚ->ℝ-preserves-< a'<nb') ℚ->ℝ-preserves-*))
             (*₁-preserves-≤ (ℚ->ℝ-preserves-≤ (ℕ->ℚ-preserves-≤ zero-≤))
                             (weaken-< (L->ℝ< bL-b'))))
-          (*-left (sym (ℕ->Semiring-ℝ-path n)))
 
-abstract
-  instance
-    ArchimedeanSemring-ℝ : ArchimedeanSemiringⁱ ℝ
-    ArchimedeanSemring-ℝ = record { prop = prop }
+instance
+  ArchimedeanSemring-ℝ : ArchimedeanSemiringⁱ ℝ
+  ArchimedeanSemring-ℝ = record { prop = prop }

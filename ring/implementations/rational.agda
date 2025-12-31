@@ -42,8 +42,7 @@ Ringʰ-ℤ->ℚ = record
 
 Semiringʰ-ℕ->ℚ : Semiringʰ ℕ->ℚ
 Semiringʰ-ℕ->ℚ = Semiringʰ-∘ Semiringʰ-ℤ->ℚ Semiringʰ-ℕ->ℤ
-module Semiringʰ-ℕ->ℚ = Semiringʰ Semiringʰ-ℕ->ℚ
 
-abstract
-  ℕ->Semiring-ℚ-path : ∀ n -> ℕ->Semiring n == ℕ->ℚ n
-  ℕ->Semiring-ℚ-path n = (\i -> ∃!-unique ∃!ℕ->Semiring ℕ->ℚ Semiringʰ-ℕ->ℚ i n)
+instance
+  ℕ->Semiring-ℚ : ℕ->Semiring-Op ℚ
+  ℕ->Semiring-ℚ = ℕ->SemiringStr-cons Semiringʰ-ℕ->ℚ

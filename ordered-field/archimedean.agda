@@ -27,7 +27,8 @@ open import truncation
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D# : Rel D ℓD}
          {A : isTightApartness D#}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+         {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
+         {{_ : ℕ->Semiring-Op D}}
          {LO : isLinearOrder D<}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {LOS : LinearlyOrderedSemiringStr S LO}
@@ -81,7 +82,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D# : Rel D ℓD}
           where
           inner-path : ℕ->Semiring (2 ^ℕ m) * (1/2 ^ℕ m) == 1#
           inner-path =
-            *-left (Semiringʰ-preserves-^ℕ (∃!-prop ∃!ℕ->Semiring) m) >=>
+            *-left (Semiringʰ-preserves-^ℕ ℕ->Semiringʰ m) >=>
             sym (^ℕ-distrib-*-right m) >=>
             cong (_^ℕ m) (*-left ℕ->Semiring-preserves-2# >=> 2*1/2-path) >=>
             ^ℕ-preserves-1# m

@@ -33,8 +33,9 @@ private
 
 module _ {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
          {ACM : AdditiveCommMonoid D} {AG : AdditiveGroup ACM}
-         {S : Semiring ACM} {LO : isLinearOrder D<}
+         {{S : Semiring ACM}} {LO : isLinearOrder D<}
          {R : Ring S AG} {A : isTightApartness D#}
+         {{_ : ℕ->Semiring-Op D}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {LOS : LinearlyOrderedSemiringStr S LO}
          {{NTO : NonTrivialLinearlyOrderedSemiringStr LOS}}

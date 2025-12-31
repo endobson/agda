@@ -44,5 +44,5 @@ module _ (p : Prime') where
   ℕ->ℚ-prime-power : (n : Nat) -> ℕ->ℚ (prime-power p n) == prime-powerℚ (int n)
   ℕ->ℚ-prime-power zero    = refl
   ℕ->ℚ-prime-power (suc n) =
-    Semiringʰ-ℕ->ℚ.preserves-* p' (prime-power p n) >=>
+    Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ p' (prime-power p n) >=>
     cong (pℚ *_) (ℕ->ℚ-prime-power n)

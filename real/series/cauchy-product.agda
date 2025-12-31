@@ -48,6 +48,7 @@ open import ordered-semiring.instances.real
 open import ordered-semiring.instances.real-strong
 open import real
 open import real.arithmetic.multiplication.inverse
+open import real.rational
 open import real.sequence.limit
 open import real.sequence.limit.arithmetic
 open import real.sequence.limit.zero
@@ -210,7 +211,7 @@ opaque
         0<A-Bound : 0# < A-Bound
         0<A-Bound = *-preserves-0< (*-preserves-0< 0<ε/2 (0<1/ℕ (suc N-B , tt))) (ℝ1/-preserves-0< 0<B')
 
-        A-Bound-path : ((A-Bound * B') * ℕ->Semiring (suc N-B)) == ε/2
+        A-Bound-path : ((A-Bound * B') * ℕ->ℝ (suc N-B)) == ε/2
         A-Bound-path =
           *-left (*-assoc >=> *-right ℝ1/-inverse >=> *-right-one) >=>
           *-assoc >=> *-right (*-commute >=> ∃!-prop (∃!1/ℕ (suc N-B , tt))) >=> *-right-one
@@ -338,7 +339,7 @@ opaque
                               (\((fin-pair+ i j i+j=n , j<N-B) : Case1) ->
                                 (lt2 i j i+j=n j<N-B)))
                     (finiteSum-* >=>
-                     *-right (finiteSum-one >=> cong ℕ->Semiring card-C1) >=>
+                     *-right (finiteSum-one >=> cong ℕ->ℝ card-C1) >=>
                      A-Bound-path)
 
 

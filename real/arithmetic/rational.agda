@@ -15,19 +15,19 @@ open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import rational
-open import rational.order
 open import rational.open-interval
 open import rational.open-interval.containment
+open import rational.order
 open import real
 open import real.arithmetic
 open import real.arithmetic.multiplication
 open import real.open-interval
 open import real.rational
-open import ring.implementations.real
 open import ring.implementations.rational
+open import ring.implementations.real.base
 open import semiring
-open import semiring.instances.nat
 open import semiring.initial
+open import semiring.instances.nat
 open import truncation
 
 
@@ -111,7 +111,3 @@ Semiringʰ-ℚ->ℝ = record
 
 Semiringʰ-ℕ->ℝ : Semiringʰ ℕ->ℝ
 Semiringʰ-ℕ->ℝ = Semiringʰ-∘ Semiringʰ-ℚ->ℝ Semiringʰ-ℕ->ℚ
-
-abstract
-  ℕ->Semiring-ℝ-path : ∀ n -> ℕ->Semiring n == ℕ->ℝ n
-  ℕ->Semiring-ℝ-path n = (\i -> ∃!-unique ∃!ℕ->Semiring ℕ->ℝ Semiringʰ-ℕ->ℝ i n)

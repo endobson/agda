@@ -20,6 +20,7 @@ open import ordered-semiring
 open import ordered-semiring.instances.real
 open import real.subspace
 open import relation
+open import ring.implementations.real
 open import sigma.base
 open import subset
 open import subset.subspace

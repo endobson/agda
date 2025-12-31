@@ -32,6 +32,7 @@ open import real.epsilon-bounded
 open import real.rational
 open import real.sequence.limit
 open import relation hiding (U)
+open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
 open import sequence

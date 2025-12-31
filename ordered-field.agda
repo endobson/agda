@@ -36,8 +36,9 @@ private
 
 module _ {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
          {ACM : AdditiveCommMonoid D} {AG : AdditiveGroup ACM}
-         {S : Semiring ACM} {LO : isLinearOrder D<}
+         {{S : Semiring ACM}} {LO : isLinearOrder D<}
          {R : Ring S AG} {A : isTightApartness D#}
+         {{_ : ℕ->Semiring-Op D}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {LOS : LinearlyOrderedSemiringStr S LO}
          {{NTO : NonTrivialLinearlyOrderedSemiringStr LOS}}
@@ -182,8 +183,9 @@ module _ {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
 module _ {ℓD₁ ℓD₂ ℓ<₁ ℓ<₂ : Level}
          {D₁ : Type ℓD₁} {D₁# : Rel D₁ ℓD₁} {D₁< : Rel D₁ ℓ<₁}
          {ACM₁ : AdditiveCommMonoid D₁} {AG₁ : AdditiveGroup ACM₁}
-         {S₁ : Semiring ACM₁} {LO₁ : isLinearOrder D₁<}
+         {{S₁ : Semiring ACM₁}} {LO₁ : isLinearOrder D₁<}
          {R₁ : Ring S₁ AG₁} {A₁ : isTightApartness D₁#}
+         {{_ : ℕ->Semiring-Op D₁}}
          {{LOA₁ : LinearlyOrderedAdditiveStr ACM₁ LO₁}}
          {LOS₁ : LinearlyOrderedSemiringStr S₁ LO₁}
          {{NTO₁ : NonTrivialLinearlyOrderedSemiringStr LOS₁}}
@@ -191,8 +193,9 @@ module _ {ℓD₁ ℓD₂ ℓ<₁ ℓ<₂ : Level}
          {{AL₁ : ApartLinearOrderStr A₁ LO₁}}
          {D₂ : Type ℓD₂} {D₂# : Rel D₂ ℓD₂} {D₂< : Rel D₂ ℓ<₂}
          {ACM₂ : AdditiveCommMonoid D₂} {AG₂ : AdditiveGroup ACM₂}
-         {S₂ : Semiring ACM₂} {LO₂ : isLinearOrder D₂<}
+         {{S₂ : Semiring ACM₂}} {LO₂ : isLinearOrder D₂<}
          {R₂ : Ring S₂ AG₂} {A₂ : isTightApartness D₂#}
+         {{_ : ℕ->Semiring-Op D₂}}
          {{LOA₂ : LinearlyOrderedAdditiveStr ACM₂ LO₂}}
          {LOS₂ : LinearlyOrderedSemiringStr S₂ LO₂}
          {{NTO₂ : NonTrivialLinearlyOrderedSemiringStr LOS₂}}

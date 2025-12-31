@@ -17,18 +17,17 @@ open import semiring.instances.nat
 open import truncation
 
 private
-  abstract
+  opaque
     prop : ArchimedeanPropertyⁱ ℕ
     prop {a} {b} 0<a 0<b = ∣ (suc a) , a<sab ∣
       where
       a<sa : a < suc a
       a<sa = refl-≤
 
-      a<sab : a < (ℕ->Semiring (suc a) * b)
+      a<sab : a < (suc a * b)
       a<sab =
-        trans-<-= (trans-≤-< (trans-=-≤ (sym *-right-one) (*₁-preserves-≤ (weaken-< 0<a) 0<b))
-                             (*₂-preserves-< a<sa 0<b))
-        (*-left (sym (ℕ->Semiring-ℕ-path (suc a))))
+        (trans-≤-< (trans-=-≤ (sym *-right-one) (*₁-preserves-≤ (weaken-< 0<a) 0<b))
+                   (*₂-preserves-< a<sa 0<b))
 
 instance
   ArchimedeanSemring-ℕ : ArchimedeanSemiringⁱ ℕ

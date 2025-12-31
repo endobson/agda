@@ -27,6 +27,7 @@ open import real.rational
 open import real.sequence.limit
 open import real.sequence.rational-cauchy
 open import real.subspace
+open import ring.implementations.rational
 open import sequence
 open import subset.subspace
 open import truncation
