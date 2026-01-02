@@ -25,10 +25,10 @@ open import ordered-semiring
 open import ordered-semiring.exponentiation
 open import ordered-semiring.initial
 open import ordered-semiring.instances.real
-open import ordered-semiring.instances.real-strong
 open import ordered-semiring.squares
 open import real
 open import real.arithmetic.multiplication.inverse
+open import real.arithmetic.multiplication.inverse.order
 open import real.exponential-series
 open import real.exponential.order.positive
 open import real.exponential.order.increasing.base

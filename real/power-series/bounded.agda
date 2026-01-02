@@ -41,7 +41,6 @@ open import ordered-semiring.big-o
 open import ordered-semiring.big-o.arithmetic
 open import ordered-semiring.big-o.common
 open import ordered-semiring.instances.real
-open import ordered-semiring.instances.real-strong
 open import real
 open import real.arithmetic.multiplication.inverse
 open import real.distance

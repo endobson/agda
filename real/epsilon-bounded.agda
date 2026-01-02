@@ -23,7 +23,6 @@ open import ordered-additive-group.instances.real
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.rational
-open import ordered-semiring.instances.real
 open import rational
 open import rational.order
 open import rational.open-interval

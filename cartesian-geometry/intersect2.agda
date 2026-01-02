@@ -26,7 +26,6 @@ open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.squares
 open import ordered-semiring.instances.real
-open import ordered-semiring.instances.real-strong
 open import real
 open import real.arithmetic.sqrt
 open import real.order

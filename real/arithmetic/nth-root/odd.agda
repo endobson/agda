@@ -22,7 +22,6 @@ open import ordered-semiring
 open import ordered-semiring.exponentiation
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
-open import ordered-semiring.instances.real-strong
 open import rational
 open import rational.open-interval
 open import rational.open-interval.containment
