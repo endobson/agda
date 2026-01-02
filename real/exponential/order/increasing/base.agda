@@ -24,7 +24,6 @@ open import ordered-ring.exponentiation
 open import ordered-semiring
 open import ordered-semiring.exponentiation
 open import ordered-semiring.instances.real
-open import ordered-semiring.instances.real-strong
 open import real
 open import real.exponential-series
 open import real.sequence.limit

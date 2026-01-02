@@ -26,7 +26,6 @@ open import ordered-semiring.archimedean
 open import ordered-semiring.archimedean.instances.real
 open import ordered-semiring.initial
 open import ordered-semiring.instances.real
-open import ordered-semiring.instances.real-strong
 open import real
 open import real.distance
 open import real.rational

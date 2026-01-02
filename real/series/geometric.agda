@@ -36,11 +36,11 @@ open import ordered-semiring.exponentiation
 open import ordered-semiring.initial
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
-open import ordered-semiring.instances.real-strong
 open import rational hiding (1/ℕ ; 1/ℕ-distrib-*)
 open import rational.order hiding (1/ℕ-flips-≤)
 open import real
 open import real.arithmetic.multiplication.inverse
+open import real.arithmetic.multiplication.inverse.order
 open import real.arithmetic.rational
 open import real.epsilon-bounded
 open import real.order

@@ -23,7 +23,6 @@ open import ordered-ring.absolute-value
 open import ordered-semiring
 open import ordered-semiring.exponentiation
 open import ordered-semiring.instances.real
-open import ordered-semiring.instances.real-strong
 open import rational
 open import rational.order
 open import real

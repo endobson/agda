@@ -22,6 +22,7 @@ open import ordered-semiring
 open import ordered-semiring.instances.real
 open import real
 open import real.arithmetic.multiplication.inverse
+open import real.arithmetic.multiplication.inverse.order
 open import real.continuous.arithmetic
 open import real.distance
 open import real.subspace

@@ -5,7 +5,6 @@ module semidomain.instances.real where
 open import order.instances.real
 open import ordered-semiring
 open import ordered-semiring.instances.real
-open import ordered-semiring.instances.real-strong
 open import ring.implementations.real
 open import semidomain
 open import semidomain.apart-linear-order

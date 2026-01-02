@@ -6,19 +6,17 @@ open import additive-group
 open import additive-group.instances.real
 open import apartness
 open import base
-open import equality
+open import equality-path
 open import heyting-field.instances.rational
-open import hlevel
+open import hlevel.base
 open import order
 open import order.instances.rational
 open import order.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.real
 open import ordered-field
-open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.rational
-open import ordered-semiring.instances.real
 open import rational
 open import rational.open-interval
 open import rational.order
@@ -35,13 +33,12 @@ open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
 open import sign
-open import sign.instances.rational
 open import subset.subspace
 open import sum
 open import truncation
 
 private
-  module _ (x : ℝ) (0L : Real.L x 0r)
+  module _ (x : ℝ) (0L : Real.L x 0#)
     where
     private
       module x = Real x
@@ -76,9 +73,9 @@ private
         pos-path = isProp-Pos q p1 p2
 
       Inhabited-U : Inhabited U
-      Inhabited-U = ∥-map handle (x.isUpperOpen-L 0r 0L)
+      Inhabited-U = ∥-map handle (x.isUpperOpen-L 0# 0L)
         where
-        handle : Σ[ q ∈ ℚ ] (0r < q × x.L q) -> Σ ℚ U
+        handle : Σ[ q ∈ ℚ ] (0# < q × x.L q) -> Σ ℚ U
         handle (q , 0<q , xl-q) =
           q' , U-pos pos-q'
                      (subst x.L (sym (r1/-double-inverse q inv-q inv-q')) xl-q)
@@ -90,7 +87,7 @@ private
           inv-q' = (Pos->Inv pos-q')
 
       Inhabited-L : Inhabited L
-      Inhabited-L = ∣ 0r , L-nonpos (inj-r Zero-0r) ∣
+      Inhabited-L = ∣ 0# , L-nonpos (inj-r Zero-0r) ∣
 
       isLowerSet-L : isLowerSet L
       isLowerSet-L {q} {r} q<r (L-nonpos np-r) = (L-nonpos (NonPos-≤ q r np-r (weaken-< q<r)))
@@ -235,19 +232,19 @@ private
       }
 
     0<ℝ1/-Pos : 0# < ℝ1/-Pos
-    0<ℝ1/-Pos = ∥-map handle (isUpperOpen-L 0r (L-nonpos (inj-r Zero-0r)))
+    0<ℝ1/-Pos = ∥-map handle (isUpperOpen-L 0# (L-nonpos (inj-r Zero-0r)))
       where
-      handle : Σ[ q ∈ ℚ ] (0r < q × L q) -> 0# ℝ<' ℝ1/-Pos
+      handle : Σ[ q ∈ ℚ ] (0# < q × L q) -> 0# ℝ<' ℝ1/-Pos
       handle (q , 0<q , lq) = ℝ<'-cons q (ℚ<->U 0<q) lq
 
-  module _ (x : ℝ) (0U : Real.U x 0r) where
+  module _ (x : ℝ) (0U : Real.U x 0#) where
     private
       -x = ℝ-ᵉ x
 
       module x = Real x
       module -x = Real -x
 
-      -0L : -x.L 0r
+      -0L : -x.L 0#
       -0L = subst x.U (sym minus-zero) 0U
 
     ℝ1/-Neg : ℝ
@@ -299,7 +296,7 @@ private
     U' : Pred ℚ ℓ-zero
     U' q = Σ[ xi ∈ Iℚ ] Σ[ yi ∈ Iℚ ] (ℝ∈Iℚ x xi × ℝ∈Iℚ y yi × i-Upper (xi i* yi) q)
 
-  module _ (x : ℝ) (0L : Real.L x 0r) where
+  module _ (x : ℝ) (0L : Real.L x 0#) where
     private
       1/x = ℝ1/-Pos x 0L
       prod = (1/x ℝ*ᵉ x)
@@ -309,9 +306,9 @@ private
       module prod = Real prod
 
       0<x : 0# < x
-      0<x = ∥-map handle (x.isUpperOpen-L 0r 0L)
+      0<x = ∥-map handle (x.isUpperOpen-L 0# 0L)
         where
-        handle : Σ[ q ∈ ℚ ] (0r < q × x.L q) -> 0# ℝ<' x
+        handle : Σ[ q ∈ ℚ ] (0# < q × x.L q) -> 0# ℝ<' x
         handle (q , 0<q , xl-q) = ℝ<'-cons q (ℚ<->U 0<q) xl-q
 
       0<1/x : 0# < 1/x
@@ -392,7 +389,7 @@ private
     1/ℝ-Pos-inverse : 1/x ℝ* x == 1ℝ
     1/ℝ-Pos-inverse = ℝ*-eval {1/x} {x} >=> 1/ℝ-Pos-inverse'
 
-  module _ (x : ℝ) (0U : Real.U x 0r) where
+  module _ (x : ℝ) (0U : Real.U x 0#) where
     private
       1/x = ℝ1/-Neg x 0U
       0L = (subst (Real.U x) (sym minus-zero) 0U)
@@ -425,17 +422,6 @@ opaque
     *-left-one
 
 
-opaque
-  ℝ1/-reflects-0< : {x∈@(x , _) : ℝ# 0#} -> 0# < (ℝ1/ x∈) -> 0# < x
-  ℝ1/-reflects-0< 0<1/x =
-    trans-<-= (ℝ1/-preserves-0< 0<1/x) ℝ1/-double-inverse
-
-  ℝ1/-reflects-<0 : {x∈@(x , _) : ℝ# 0#} -> (ℝ1/ x∈) < 0# -> (x < 0#)
-  ℝ1/-reflects-<0 1/x<0 =
-    trans-=-< (sym ℝ1/-double-inverse) (ℝ1/-preserves-<0 1/x<0)
-
-
-
 module _ (x : ℝ) {xinv : ℝInv x} { -xinv : ℝInv (- x)} where
   opaque
     ℝ--ℝ1/-commute : ℝ- (ℝ1/ (x , xinv)) == ℝ1/ (- x , -xinv)
@@ -445,62 +431,6 @@ module _ (x : ℝ) {xinv : ℝInv x} { -xinv : ℝInv (- x)} where
       sym *-assoc >=>
       *-left (minus-extract-both >=> ℝ1/-inverse) >=>
       *-left-one
-
-
-opaque
-  ℝ1/⁺-flips-< : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> 0# < x -> x < y -> ℝ1/ y∈ < ℝ1/ x∈
-  ℝ1/⁺-flips-< {x∈@(x , x#0)} {y∈@(y , y#0)} 0<x x<y =
-    subst2 _<_
-      (*-left *-commute >=> *-assoc >=> *-right ℝ1/-inverse >=> *-right-one)
-      (*-assoc >=> *-right ℝ1/-inverse >=> *-right-one)
-      (*₁-preserves-< (*-preserves-0< 0<1/x 0<1/y) x<y)
-    where
-    0<y : 0# < y
-    0<y = trans-< 0<x x<y
-
-    0<1/x : 0# < ℝ1/ x∈
-    0<1/x = ℝ1/-preserves-0< 0<x
-    0<1/y : 0# < ℝ1/ y∈
-    0<1/y = ℝ1/-preserves-0< 0<y
-
-  ℝ1/⁺-flip-reflects-< : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> 0# < ℝ1/ x∈ -> ℝ1/ x∈ < ℝ1/ y∈ -> y < x
-  ℝ1/⁺-flip-reflects-< 0<1/x 1/x<1/y =
-    subst2 _<_ ℝ1/-double-inverse ℝ1/-double-inverse (ℝ1/⁺-flips-< 0<1/x 1/x<1/y)
-
-  ℝ1/⁺-flips-≤ : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> 0# < x -> x ≤ y -> ℝ1/ y∈ ≤ ℝ1/ x∈
-  ℝ1/⁺-flips-≤ 0<x x≤y 1/x<1/y = x≤y (ℝ1/⁺-flip-reflects-< (ℝ1/-preserves-0< 0<x) 1/x<1/y)
-
-  ℝ1/⁺-flip-reflects-≤ : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> 0# < ℝ1/ x∈ -> ℝ1/ x∈ ≤ ℝ1/ y∈ -> y ≤ x
-  ℝ1/⁺-flip-reflects-≤ 0<1/x 1/x≤1/y x<y = 1/x≤1/y (ℝ1/⁺-flips-< (ℝ1/-reflects-0< 0<1/x) x<y)
-
-
-  ℝ1/⁻-flips-< : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> y < 0# -> x < y -> ℝ1/ y∈ < ℝ1/ x∈
-  ℝ1/⁻-flips-< {x∈@(x , x#0)} {y∈@(y , y#0)} y<0 x<y =
-    subst2 _<_
-      (*-left *-commute >=> *-assoc >=> *-right ℝ1/-inverse >=> *-right-one)
-      (*-assoc >=> *-right ℝ1/-inverse >=> *-right-one)
-      (*₁-preserves-< (*-flips-<0 1/x<0 1/y<0) x<y)
-
-    where
-    x<0 : x < 0#
-    x<0 = trans-< x<y y<0
-
-    1/x<0 : ℝ1/ x∈ < 0#
-    1/x<0 = ℝ1/-preserves-<0 x<0
-    1/y<0 : ℝ1/ y∈ < 0#
-    1/y<0 = ℝ1/-preserves-<0 y<0
-
-  ℝ1/⁻-flip-reflects-< : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> ℝ1/ y∈ < 0# -> ℝ1/ x∈ < ℝ1/ y∈ -> y < x
-  ℝ1/⁻-flip-reflects-< {x∈@(x , x#0)} {y∈@(y , y#0)} 1/y<0 1/x<1/y =
-    subst2 _<_ ℝ1/-double-inverse ℝ1/-double-inverse (ℝ1/⁻-flips-< 1/y<0 1/x<1/y)
-
-
-  ℝ1/⁻-flips-≤ : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> y < 0# -> x ≤ y -> ℝ1/ y∈ ≤ ℝ1/ x∈
-  ℝ1/⁻-flips-≤ y<0 x≤y 1/x<1/y = x≤y (ℝ1/⁻-flip-reflects-< (ℝ1/-preserves-<0 y<0) 1/x<1/y)
-
-  ℝ1/⁻-flip-reflects-≤ : {x∈@(x , _) y∈@(y , _) : ℝ# 0#} -> y < 0# -> ℝ1/ x∈ ≤ ℝ1/ y∈ -> y ≤ x
-  ℝ1/⁻-flip-reflects-≤ y<0 1/x≤1/y x<y = 1/x≤1/y (ℝ1/⁻-flips-< y<0 x<y)
-
 
 
 opaque

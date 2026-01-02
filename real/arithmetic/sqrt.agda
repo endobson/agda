@@ -17,7 +17,6 @@ open import ordered-additive-group.instances.real
 open import ordered-ring.sqrt
 open import ordered-semiring
 open import ordered-semiring.instances.real
-open import ordered-semiring.instances.real-strong
 open import ordered-semiring.squares
 open import rational
 open import rational.open-interval
