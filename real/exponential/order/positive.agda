@@ -18,6 +18,7 @@ open import funext
 open import heyting-field.instances.real
 open import metric-space
 open import metric-space.instances.real
+open import nat
 open import nat.order
 open import order
 open import order.instances.nat
@@ -27,12 +28,12 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-ring.exponentiation
 open import ordered-semiring
 open import ordered-semiring.exponentiation
 open import ordered-semiring.initial
 open import ordered-semiring.instances.real
+open import ordered-semiring.natural-reciprocal
 open import real
 open import real.distance
 open import real.exponential-series
@@ -50,6 +51,7 @@ open import semiring
 open import semiring.exponentiation
 open import semiring.initial
 open import semiring.instances.nat
+open import semiring.natural-reciprocal
 open import sequence
 open import sequence.partial-sums
 open import subset.subspace
@@ -120,16 +122,16 @@ private
 
     2/4=1/2 : ℕ->ℝ 2# * 1/4 == 1/2
     2/4=1/2 =
-      *-right (1/ℕ-distrib-* (2 , tt) (2 , tt)) >=>
+      *-right (1/ℕ-distrib-* 2⁺ 2⁺) >=>
       sym *-assoc >=>
-      *-left (*-left ℕ->Semiring-preserves-2# >=> 2*1/2-path) >=>
+      *-left (ℕ-1/ℕ-path 2⁺) >=>
       *-left-one
 
     1/2+1/4<1 : (1/2 + 1/4) < 1#
     1/2+1/4<1 =
       subst2 _<_
         (*-distrib-+-right >=> +-cong 2/4=1/2 *-left-one)
-        (∃!-prop (∃!1/ℕ _))
+        (ℕ-1/ℕ-path (4 , tt))
         (*₂-preserves-< ℕ->ℝ-2+1<4 0<1/4)
 
     1/2<1-1/4 : 1/2 < diff 1/4 1#
@@ -143,7 +145,7 @@ private
     1/4-lim<2 : 1/4-lim < 2#
     1/4-lim<2 =
       subst2 _<_
-        (sym *-assoc >=> (*-left (*-commute >=> 2*1/2-path)) >=> *-left-one)
+        (sym *-assoc >=> (*-left (*-commute >=> 2/2-path)) >=> *-left-one)
         (*-commute >=> *-assoc >=> *-right 1/4-lim-path >=> *-right-one)
         (*₂-preserves-< 1/2<1-1/4 0<2*1/4-lim)
 

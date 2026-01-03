@@ -19,11 +19,11 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-ring.exponentiation
 open import ordered-semiring
 open import ordered-semiring.exponentiation
 open import ordered-semiring.instances.real
+open import ordered-semiring.natural-reciprocal
 open import real
 open import real.exponential-series
 open import real.sequence.limit

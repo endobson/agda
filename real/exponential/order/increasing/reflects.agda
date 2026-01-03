@@ -13,10 +13,10 @@ open import order.minmax
 open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.real
-open import ordered-field
-open import ordered-field.mean
 open import ordered-semiring
 open import ordered-semiring.instances.real
+open import ordered-semiring.mean
+open import ordered-semiring.natural-reciprocal
 open import real
 open import real.exponential-series
 open import real.exponential.bounds
@@ -25,6 +25,8 @@ open import real.exponential.order.positive
 open import real.exponential.plus
 open import ring.implementations.real
 open import semiring
+open import semiring.mean
+open import semiring.natural-reciprocal
 open import truncation
 
 private
@@ -61,7 +63,7 @@ private
       eε2≤1+ε =
         trans-≤-= (trans-≤ (exp-0≤-≤1+2x (weaken-< 0<ε2) ε2<1)
                            (+₁-preserves-≤ (*₁-preserves-≤ (weaken-< 0<2) min-≤-right)))
-          (+-right (*-right *-commute >=> sym *-assoc >=> *-left 2*1/2-path >=> *-left-one))
+          (+-right (*-right *-commute >=> sym *-assoc >=> *-left 2/2-path >=> *-left-one))
 
       ex<eε2 : exp x < exp ε2
       ex<eε2 = exp-preserves-< x<ε2

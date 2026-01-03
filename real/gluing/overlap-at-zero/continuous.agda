@@ -19,9 +19,9 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.rational
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.instances.real
+open import ordered-semiring.natural-reciprocal
 open import rational
 open import real
 open import real.arithmetic.rational
@@ -34,6 +34,7 @@ open import real.subspace
 open import relation
 open import ring.implementations.real
 open import semiring
+open import semiring.natural-reciprocal
 open import subset
 open import subset.subspace
 open import truncation
@@ -124,9 +125,9 @@ module _ (f : (x : ℝ≤≥0) -> ℝ) (cont-f@(isContinuous-cons cf) : isContin
       Ans = ∃[ (δ , _) ∈ ℝ⁺ ] (∀ y -> distance x y < δ -> distance (ef x) (ef y) < ε)
 
       ε/2 : ℝ
-      ε/2 = 1/2 * ε
+      ε/2 = ε * 1/2
       0<ε/2 : 0# < ε/2
-      0<ε/2 = *-preserves-0< 0<1/2 0<ε
+      0<ε/2 = *-preserves-0< 0<ε 0<1/2
       f0<f0+ε/2 : f 0∈ < (f 0∈ + ε/2)
       f0<f0+ε/2 = trans-=-< (sym +-right-zero) (+₁-preserves-< 0<ε/2)
       f0-ε/2<f0 : (f 0∈ + (- ε/2)) < f 0∈
@@ -252,4 +253,4 @@ module _ (f : (x : ℝ≤≥0) -> ℝ) (cont-f@(isContinuous-cons cf) : isContin
                     trans-≤-< (distance-triangleᵉ (ef x) _ (ef y))
                       (trans-=-< (+-left (distance-commuteᵉ (ef x) (fℚ 0#)))
                         (trans-<-= (+-preserves-< d0x<ε/2 d0y<ε/2)
-                          1/2-path))
+                                   +-/2-path))

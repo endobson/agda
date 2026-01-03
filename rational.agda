@@ -38,6 +38,7 @@ open import semidomain
 open import semidomain.instances.int
 open import semiring
 open import semiring.exponentiation
+open import semiring.natural-reciprocal
 open import set-quotient
 open import sigma.base
 open import truncation
@@ -921,8 +922,7 @@ a r^ℤ (neg n) = r1/ (fst rec) (isNonZeroℚ->ℚInv (snd rec)) , r1/-isNonZero
   where
   rec = (a r^ℕ (suc n))
 
--- Standard rationals
-
+-- Fractions for 1/ℕ
 
 1/ℕ' : Nat⁺ -> ℚ'
 1/ℕ' (n , pos-n) = record
@@ -934,110 +934,6 @@ a r^ℤ (neg n) = r1/ (fst rec) (isNonZeroℚ->ℚInv (snd rec)) , r1/-isNonZero
   Posℕ->NonZeroℤ : (n : Nat) -> (Pos' n) -> (NonZero (ℕ->ℤ n))
   Posℕ->NonZeroℤ (suc _) _ = inj-l 0<pos
 
-1/ℕ : Nat⁺ -> ℚ
-1/ℕ n = ℚ'->ℚ (1/ℕ' n)
-
 opaque
-  1/ℕ-1 : 1/ℕ 1⁺ == 1#
-  1/ℕ-1 = cong ℚ'->ℚ (nd-paths->path _ _ refl refl)
-
-1/2r : ℚ
-1/2r = 1/ℕ 2⁺
-
-1/2r' : ℚ'
-1/2r' = 1/ℕ' 2⁺
-
-2r' : ℚ'
-2r' = record
-  { numerator = (ℕ->ℤ 2)
-  ; denominator = (ℕ->ℤ 1)
-  ; NonZero-denominator = (inj-l 0<1)
-  }
-
-2r : ℚ
-2r = ℚ'->ℚ 2r'
-
-opaque
-  unfolding _r+_
-
-  2r-path-base : 1r r+ 1r == 2r
-  2r-path-base = cong [_] (nd-paths->path _ _ n-path d-path)
-    where
-    2z-path : (int 1) + (int 1) == (int 2)
-    2z-path = add1-extract-right >=> sym add1-extract-left >=> +-right-zero
-
-    n-path : numer (1r' r+' 1r') == numer 2r'
-    n-path = cong numer (r+'-eval {1r'} {1r'}) >=> (cong2 _+_ *-left-one *-left-one) >=> 2z-path
-    d-path : denom (1r' r+' 1r') == denom 2r'
-    d-path = cong denom (r+'-eval {1r'} {1r'}) >=> *-left-one
-
-  2r-path : (q : ℚ) -> q r+ q == 2r r* q
-  2r-path q =
-    cong2 _r+_ (sym (r*-left-one q)) (sym (r*-left-one q)) >=>
-    sym (r*-distrib-r+-right 1r 1r q) >=>
-    cong (_r* q) 2r-path-base
-
-opaque
-  unfolding _r*_
-
-  2r-1/2r-path : 2r r* 1/2r == 1r
-  2r-1/2r-path = eq/ (2r' r*' 1/2r') 1r' path
-    where
-    path : (((int 2) * (int 1)) * (int 1)) == (int 1) * ((int 1) * (int 2))
-    path = *-commute >=> cong ((int 1) *_) *-commute
-
-opaque
-  unfolding _r*_ _r+_
-
-  1/2r-path : (q : ℚ) -> (q r* 1/2r) r+ (q r* 1/2r) == q
-  1/2r-path q = 2r-path (q r* 1/2r) >=> r*-commute 2r (q r* 1/2r) >=>
-                r*-assoc q 1/2r 2r >=> cong (q r*_) (r*-commute 1/2r 2r >=> 2r-1/2r-path) >=>
-                r*-right-one q
-
-  1/2r-path' : (q : ℚ) -> (1/2r r* q) r+ (1/2r r* q) == q
-  1/2r-path' q = cong2 _r+_ (r*-commute 1/2r q) (r*-commute 1/2r q) >=> 1/2r-path q
-
-  1/2r-1/2r-path : 1/2r + 1/2r == 1r
-  1/2r-1/2r-path = +-cong (sym (*-left-oneᵉ 1/2r)) (sym (*-left-oneᵉ 1/2r)) >=> 1/2r-path 1r
-
-  1/2ℕ'-r~ : (n : Nat⁺) -> (1/ℕ' (2⁺ *⁺ n)) r~ (1/2r' r*' 1/ℕ' n)
-  1/2ℕ'-r~ n =
-    *-left-one >=> sym ℕ->ℤ-* >=>
-    sym *-left-one >=> *-left (sym *-left-one)
-
-  1/2ℕ-path : (n : Nat⁺) -> (1/ℕ (2⁺ *⁺ n)) == (1/2r r* 1/ℕ n)
-  1/2ℕ-path n = eq/ _ _ (1/2ℕ'-r~ n)
-
-  1/ℕ-ℕ-r~ : (n : Nat⁺) -> ((1/ℕ' n) r*' (ℕ->ℚ' ⟨ n ⟩)) r~ 1r'
-  1/ℕ-ℕ-r~ n =
-    *-right-one >=> *-left-one >=> sym *-right-one >=> sym *-left-one
-
-  1/ℕ-ℕ-path : (n : Nat⁺) -> (1/ℕ n) r* (ℕ->ℚ ⟨ n ⟩) == 1r
-  1/ℕ-ℕ-path n = eq/ _ _ (1/ℕ-ℕ-r~ n)
-
-  1/2^ℕ-path : (n : Nat) -> 1/ℕ (2⁺ ^⁺ n) == 1/2r ^ℕ n
-  1/2^ℕ-path zero = cong ℚ'->ℚ (nd-paths->path _ _ refl refl)
-  1/2^ℕ-path (suc n) = 1/2ℕ-path (2⁺ ^⁺ n) >=> cong (1/2r r*_) (1/2^ℕ-path n)
-
-  1/ℕ-distrib-* : (m n : Nat⁺) -> 1/ℕ (m *⁺ n) == 1/ℕ m * 1/ℕ n
-  1/ℕ-distrib-* m n = eq/ _ _ 1/ℕ'-distrib-*-r~
-    where
-    1/ℕ'-distrib-*-r~ : (1/ℕ' (m *⁺ n)) r~ (1/ℕ' m r*' 1/ℕ' n)
-    1/ℕ'-distrib-*-r~ =
-      *-cong (sym *-left-one) (sym (Semiringʰ.preserves-* Semiringʰ-ℕ->ℤ ⟨ m ⟩ ⟨ n ⟩))
-
-opaque
-  ℚ->split-ℤ/ℕ : (q : ℚ) -> ∃[ n ∈ ℤ ] Σ[ d ∈ Nat⁺ ] (q == ℤ->ℚ n * 1/ℕ d)
-  ℚ->split-ℤ/ℕ q = ∥-map handle (ℚ->split-ℤℕ⁺ q)
-    where
-    handle :
-        Σ[ n ∈ ℤ ] Σ[ d ∈ Nat⁺ ] (ℤ->ℚ n == q * ℕ->ℚ ⟨ d ⟩) ->
-        Σ[ n ∈ ℤ ] Σ[ d ∈ Nat⁺ ] (q == ℤ->ℚ n * 1/ℕ d)
-    handle (n , d , p) = n , d , p'
-      where
-      module _ where
-        p' : (q == ℤ->ℚ n * 1/ℕ d)
-        p' = sym (cong (_* 1/ℕ d) p >=>
-                  *-assoc >=>
-                  *-right (*-commute >=> 1/ℕ-ℕ-path d) >=>
-                  *-right-one)
+  ℕ-1/ℕ-r~ : (n : Nat⁺) -> ((ℕ->ℚ' ⟨ n ⟩) r*' (1/ℕ' n)) r~ 1r'
+  ℕ-1/ℕ-r~ n = *-right-one >=> *-commute >=> sym *-left-one

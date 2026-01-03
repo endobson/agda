@@ -14,7 +14,6 @@ open import order.instances.real
 open import order.minmax.instances.real
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-ring.absolute-value
 open import ordered-semiring
 open import ordered-semiring.instances.real
@@ -24,6 +23,7 @@ open import real.series
 open import ring.implementations.real
 open import semiring
 open import semiring.exponentiation
+open import semiring.natural-reciprocal
 open import truncation
 
 alt-coeff : ℝ -> ℝ -> ℕ -> ℝ

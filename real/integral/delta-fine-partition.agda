@@ -20,15 +20,15 @@ open import order.minmax
 open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.real
-open import ordered-field
-open import ordered-field.archimedean
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.archimedean.instances.rational
+open import ordered-semiring.archimedean.small
 open import ordered-semiring.initial
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
-open import rational hiding (1/ℕ)
+open import ordered-semiring.natural-reciprocal
+open import rational
 open import rational.order
 open import rational.proper-interval
 open import real
@@ -45,6 +45,7 @@ open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
 open import semiring.initial
+open import semiring.natural-reciprocal
 open import subset.subspace
 open import truncation
 
@@ -229,7 +230,7 @@ private
                 trans-≤ (ℚ->ℝ-preserves-≤ albu≤)
                   (trans-=-≤ ℚ->ℝ-preserves-+ (trans-≤-= (+-preserves-≤ δ2'<ab/2 δ2'<ab/2)
                                                          (sym *-distrib-+-left >=>
-                                                          *-right 1/2-+-path >=> *-right-one)))
+                                                          *-right +-1/2-path >=> *-right-one)))
 
               diff-ab-path : diff a b == diff a (ℚ->ℝ al) + (ℚ->ℝ (diff al bu) + diff (ℚ->ℝ bu) b)
               diff-ab-path =

@@ -82,7 +82,7 @@ problem1-b n⁺@(n , _) =
            (\(p , _) -> (1r r+ (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime p)))))))
     p2 = finiteMergeᵉ-convert _ _ _ (equiv⁻¹ p1) _
 
-    p3 : φℚ (2⁺ *⁺ n⁺) == 2r * φℚ n⁺
+    p3 : φℚ (2⁺ *⁺ n⁺) == (ℕ->ℚ 2) * φℚ n⁺
     p3 = φℚ-finiteProduct >=>
          *-right p2 >=>
          *-left (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ _ _) >=>

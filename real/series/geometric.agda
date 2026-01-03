@@ -26,18 +26,18 @@ open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.nat
 open import ordered-additive-group.instances.real
-open import ordered-field
-open import ordered-field.archimedean
 open import ordered-ring.exponentiation
 open import ordered-semiring
 open import ordered-semiring.archimedean
+open import ordered-semiring.archimedean.small
 open import ordered-semiring.archimedean.instances.rational
 open import ordered-semiring.exponentiation
 open import ordered-semiring.initial
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
-open import rational hiding (1/ℕ ; 1/ℕ-distrib-*)
-open import rational.order hiding (1/ℕ-flips-≤)
+open import ordered-semiring.natural-reciprocal
+open import rational
+open import rational.order
 open import real
 open import real.arithmetic.multiplication.inverse
 open import real.arithmetic.multiplication.inverse.order
@@ -58,6 +58,7 @@ open import semiring
 open import semiring.exponentiation
 open import semiring.initial
 open import semiring.instances.nat
+open import semiring.natural-reciprocal
 open import sequence
 open import sequence.partial-sums
 open import subset.subspace
@@ -221,7 +222,7 @@ private
         p2 : (1/2 * (1/ℕ n⁺)) ≤ 1/ℕ (suc n , tt)
         p2 = trans-=-≤ (sym (1/ℕ-distrib-* 2⁺ n⁺)) (1/ℕ-flips-≤ _ _ p1)
         p3 : (1/ℕ n⁺) ≤ (2# * (1/ℕ (suc n , tt)))
-        p3 = trans-=-≤ (sym *-left-one >=> *-left (sym 2*1/2-path) >=> *-assoc)
+        p3 = trans-=-≤ (sym *-left-one >=> *-left (sym 2/2-path) >=> *-assoc)
                        (*₁-preserves-≤ (weaken-< 0<2) p2)
 
 
@@ -237,7 +238,7 @@ private
       lemma6' : (i : Nat) -> Σ[ m ∈ Nat⁺ ] (α (suc (suc i) , tt) ^ℕ ⟨ m ⟩) ≤ 1/2
       lemma6' zero =
         (1 , tt) , path-≤ (*-right-one >=>
-                           +-left (sym 1/2-+-path) >=>
+                           +-left (sym +-1/2-path) >=>
                            +-assoc >=>
                            +-right +-inverse >=>
                            +-right-zero)

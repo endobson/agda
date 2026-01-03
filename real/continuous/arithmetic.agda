@@ -16,14 +16,15 @@ open import order.minmax
 open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.instances.real
+open import ordered-semiring.natural-reciprocal
 open import real
 open import real.distance
 open import real.subspace
 open import ring.implementations.real
 open import semiring
+open import semiring.natural-reciprocal
 open import subset.subspace
 open import truncation
 
@@ -35,9 +36,9 @@ module _ {ℓD : Level} {D : Type ℓD} {{MS : MetricSpaceStr D}} where
       ∥-map2 handle (cf ε/2⁺) (cg ε/2⁺)
       where
       ε/2 : ℝ
-      ε/2 = 1/2 * ε
+      ε/2 = ε * 1/2
       0<ε/2 : 0# < ε/2
-      0<ε/2 = *-preserves-0< 0<1/2 0<ε
+      0<ε/2 = *-preserves-0< 0<ε 0<1/2
       ε/2⁺ : ℝ⁺
       ε/2⁺ = ε/2 , 0<ε/2
 
@@ -55,7 +56,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{MS : MetricSpaceStr D}} where
         fg-close : (y : D) -> distance x y < δ -> distance (f x + g x) (f y + g y) < ε
         fg-close y dxy<δ =
           trans-≤-< distance-+-swap
-            (trans-<-= (+-preserves-< dfxfy<ε/2 dgxgy<ε/2) 1/2-path)
+            (trans-<-= (+-preserves-< dfxfy<ε/2 dgxgy<ε/2) +-/2-path)
           where
           dxy<δf : distance x y < δf
           dxy<δf = trans-<-≤ dxy<δ min-≤-left

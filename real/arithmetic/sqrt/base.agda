@@ -15,9 +15,9 @@ open import order
 open import order.instances.rational
 open import order.instances.real
 open import ordered-additive-group
-open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.instances.rational
+open import ordered-semiring.natural-reciprocal
 open import ordered-semiring.squares
 open import rational
 open import rational.order
@@ -29,6 +29,7 @@ open import real.subspace
 open import relation hiding (U)
 open import ring.implementations.rational
 open import semiring
+open import semiring.natural-reciprocal
 open import sign
 open import subset.subspace
 open import truncation

@@ -17,7 +17,6 @@ open import heyting-field.instances.real
 open import nat
 open import order.instances.real
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-semiring.instances.real
 open import real
 open import real.exponential-series
@@ -29,6 +28,7 @@ open import ring.implementations.real
 open import semiring
 open import semiring.exponentiation.binomial-expansion
 open import semiring.initial
+open import semiring.natural-reciprocal
 open import sequence.partial-sums
 open import truncation
 

@@ -25,13 +25,13 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
-open import ordered-field
-open import ordered-field.mean
 open import ordered-ring.exponentiation
 open import ordered-semiring
 open import ordered-semiring.exponentiation
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
+open import ordered-semiring.mean
+open import ordered-semiring.natural-reciprocal
 open import rational
 open import rational.open-interval
 open import rational.open-interval.containment
@@ -51,8 +51,11 @@ open import ring
 open import ring.exponentiation
 open import ring.implementations.rational
 open import ring.implementations.real
+open import ring.mean
 open import semiring
 open import semiring.exponentiation
+open import semiring.mean
+open import semiring.natural-reciprocal
 open import sequence
 open import sign
 open import sign.instances.rational
@@ -101,7 +104,7 @@ module _ (n'@(n , odd-n) : Σ Nat Odd) (q : ℚ) where
     Elem : Type ℓ-zero
     Elem = Σ[ i ∈ Iℚ ] (ℚ∈Iℚ q (Iℚ^ℕ i n'))
 
-    next' : (e1 : Elem) -> Σ[ e2 ∈ Elem ] (i-width (fst e2) == 1/2 * i-width (fst e1) ×
+    next' : (e1 : Elem) -> Σ[ e2 ∈ Elem ] (i-width (fst e2) == i-width (fst e1) * 1/2 ×
                                            (fst e2 i⊆ fst e1))
     next' (i@(Iℚ-cons l u l<u) , (l^n<q , q<u^n)) =
       handle (trichotomous-< q (m2 ^ℕ n))
@@ -125,24 +128,24 @@ module _ (n'@(n , odd-n) : Σ Nat Odd) (q : ℚ) where
       m2^n<m3^n = ^ℕ-preserves-< m2<m3 n odd-n
       m1^n<m3^n = ^ℕ-preserves-< m1<m3 n odd-n
 
-      upper-width : diff m2 u == 1/2 * (diff l u)
+      upper-width : diff m2 u == (diff l u) * 1/2
       upper-width = diff-mean
 
-      lower-width : diff l m2 == 1/2 * (diff l u)
+      lower-width : diff l m2 == (diff l u) * 1/2
       lower-width = diff-mean'
 
 
-      mid-width : diff m1 m3 == 1/2 * (diff l u)
+      mid-width : diff m1 m3 == (diff l u) * 1/2
       mid-width =
         sym diff-trans >=>
         +-cong mid-width₁ mid-width₂ >=>
-        1/2-path
+        +-/2-path
         where
-        mid-width₁ : diff m1 m2 == 1/2 * (1/2 * (diff l u))
-        mid-width₁ = diff-mean >=> *-right lower-width
+        mid-width₁ : diff m1 m2 == (diff l u * 1/2) * 1/2
+        mid-width₁ = diff-mean >=> *-left lower-width
 
-        mid-width₂ : diff m2 m3 == 1/2 * (1/2 * (diff l u))
-        mid-width₂ = diff-mean' >=> *-right upper-width
+        mid-width₂ : diff m2 m3 == (diff l u * 1/2) * 1/2
+        mid-width₂ = diff-mean' >=> *-left upper-width
 
       module _ (m2^n<q : (m2 ^ℕ n) < q) where
         upper-ans : Elem
@@ -253,8 +256,9 @@ module _ (n'@(n , odd-n) : Σ Nat Odd) (q : ℚ) where
     width-path zero = sym *-right-one
     width-path (suc i) =
       (fst (snd (next' (base-seq i)))) >=>
-      *-right (width-path i) >=>
-      sym *-assoc >=> *-left *-commute >=> *-assoc
+      *-left (width-path i) >=>
+      *-assoc >=>
+      *-right *-commute
 
     widthℝ-path : ∀ i -> widthℝ i == ℚ->ℝ width₀ * (1/2 ^ℕ i)
     widthℝ-path i =

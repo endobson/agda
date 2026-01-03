@@ -16,11 +16,11 @@ open import order.instances.rational
 open import order.instances.real
 open import ordered-additive-group.instances.rational
 open import ordered-additive-group.instances.real
-open import ordered-field
-open import ordered-field.archimedean
 open import ordered-semiring.archimedean.instances.rational
+open import ordered-semiring.archimedean.small
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
+open import ordered-semiring.natural-reciprocal
 open import rational.open-interval
 open import real
 open import real.arithmetic.rational
@@ -29,6 +29,7 @@ open import real.rational
 open import real.sequence.limit
 open import ring.implementations.rational
 open import ring.implementations.real
+open import semiring.natural-reciprocal
 open import sequence
 open import truncation
 
@@ -40,7 +41,7 @@ harmonic-sequence : Seq
 harmonic-sequence n = (1/ℕ (suc n , tt))
 
 0<harmonic-sequence : (n : ℕ) -> 0# < harmonic-sequence n
-0<harmonic-sequence n = (0<1/ℕ (suc n , tt))
+0<harmonic-sequence n = 0<1/ℕ (suc n , tt)
 
 isLimit-harmonic-sequence : isLimit harmonic-sequence 0#
 isLimit-harmonic-sequence = close->isLimit f

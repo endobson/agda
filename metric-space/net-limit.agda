@@ -6,6 +6,7 @@ open import additive-group
 open import additive-group.instances.real
 open import apartness
 open import base
+open import equality-path
 open import heyting-field.instances.real
 open import hlevel
 open import metric-space
@@ -15,12 +16,14 @@ open import order
 open import order.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.instances.real
+open import ordered-semiring.natural-reciprocal
 open import real.subspace
 open import relation
 open import ring.implementations.real
+open import semiring
+open import semiring.natural-reciprocal
 open import sigma.base
 open import subset
 open import subset.subspace
@@ -64,7 +67,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{MS : MetricSpaceStr D}} where
       ¬d#0 (inj-r 0<d) = unsquash isPropBot (∥-map handle eclose)
         where
         ε : ℝ⁺
-        ε = _ , *-preserves-0< 0<1/2 0<d
+        ε = _ , *-preserves-0< 0<d 0<1/2
         eclose : isEventually n (\ x -> (εClose ε l1 x × εClose ε l2 x))
         eclose = isEventually-∩ (isLimit.close isLim1 ε) (isLimit.close isLim2 ε)
         handle : isEventuallyΣ n (\ x -> (εClose ε l1 x × εClose ε l2 x)) -> Bot
@@ -76,7 +79,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{MS : MetricSpaceStr D}} where
           handle2 (d1<ε , d2<ε) =
             irrefl-< (trans-≤-< (distance-triangleᵉ l1 x l2)
                        (trans-<-= (+-preserves-< d1<ε (trans-=-< (distance-commuteᵉ x l2) d2<ε))
-                         1/2-path))
+                                  +-/2-path))
 
 
   record isLimitPoint' {ℓS : Level} (S : Subtype D ℓS) (x : D) (ℓI ℓ≼ : Level) :

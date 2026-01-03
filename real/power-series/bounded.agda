@@ -33,7 +33,6 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
-open import ordered-field.mean
 open import ordered-ring.absolute-value
 open import ordered-ring.exponentiation
 open import ordered-semiring
@@ -41,6 +40,7 @@ open import ordered-semiring.big-o
 open import ordered-semiring.big-o.arithmetic
 open import ordered-semiring.big-o.common
 open import ordered-semiring.instances.real
+open import ordered-semiring.mean
 open import real
 open import real.arithmetic.multiplication.inverse
 open import real.distance
@@ -58,6 +58,7 @@ open import ring.exponentiation.diff
 open import ring.implementations.real
 open import semiring
 open import semiring.exponentiation
+open import semiring.mean
 open import sequence
 open import sequence.partial-sums
 open import subset.subspace

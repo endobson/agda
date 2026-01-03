@@ -19,13 +19,13 @@ open import order.instances.real
 open import order.minmax.instances.real
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-ring.absolute-value
 open import ordered-semiring
 open import ordered-semiring.archimedean
 open import ordered-semiring.archimedean.instances.real
 open import ordered-semiring.initial
 open import ordered-semiring.instances.real
+open import ordered-semiring.natural-reciprocal
 open import real
 open import real.distance
 open import real.rational
@@ -37,6 +37,7 @@ open import ring.implementations.real
 open import semiring
 open import semiring.exponentiation
 open import semiring.initial
+open import semiring.natural-reciprocal
 open import sequence
 open import sequence.partial-sums
 open import sigma.base

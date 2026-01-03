@@ -32,10 +32,11 @@ open import order.instances.rational
 open import order.minmax.instances.rational
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
-open import ordered-field hiding (1/ℕ)
+open import ordered-additive-group.instances.rational
 open import ordered-semiring
 open import ordered-semiring.instances.nat
 open import ordered-semiring.instances.rational
+open import ordered-semiring.natural-reciprocal
 open import prime
 open import rational
 open import rational-prime
@@ -47,6 +48,7 @@ open import semiring
 open import semiring.exponentiation
 open import semiring.initial
 open import semiring.instances.nat
+open import semiring.natural-reciprocal
 open import sigma.base
 open import truncation
 open import without-point
@@ -92,7 +94,7 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
 
 
   path-half : (fst (Ring-ℚ.u1/ (ℚUnit-prime (2 , 2-is-prime)))) == 1/2
-  path-half = sym (∃!-unique (∃!1/ℕ (2 , tt)) _ (cong fst u-path))
+  path-half = sym (∃!-unique (∃!1/ℕ 2⁺) _ (cong fst u-path))
     where
     open Ring-ℚ
     u : Unit
@@ -104,7 +106,7 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
   path-half2 :
     (1r + (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime (2 , 2-is-prime)))))) == 1/2
   path-half2 =
-    +-cong (sym 1/2-+-path) (cong -_ path-half) >=>
+    +-cong (sym +-1/2-path) (cong -_ path-half) >=>
     +-assoc >=> +-right +-inverse >=> +-right-zero
 
   instance
@@ -122,9 +124,7 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
     *-commute >=>
     *-right (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ _ _) >=>
     sym *-assoc >=>
-    *-left (*-commute >=>
-            *-left ℕ->Semiring-preserves-2# >=>
-            2*1/2-path) >=>
+    *-left (1/ℕ-ℕ-path 2⁺) >=>
     *-left-one
 
   φ-path2 : (i : ℕ) -> φ (2⁺ *⁺ (2⁺ ^⁺ i)) == (2 ^ℕ i)
@@ -146,8 +146,7 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
     *-cong (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ 2 n)
            (finiteMerge-WithoutPoint _ PrimeDivisor2n-2 _ >=> *-left path-half2) >=>
     *-swap >=>
-    *-left (*-left ℕ->Semiring-preserves-2# >=>
-            2*1/2-path) >=>
+    *-left (ℕ-1/ℕ-path 2⁺) >=>
     *-left-one
 
   forward : (φ (2⁺ *⁺ n⁺) == n) -> (Σ[ i ∈ ℕ ] (2⁺ ^⁺ i == n⁺))

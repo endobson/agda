@@ -18,12 +18,13 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
-open import ordered-field.mean
 open import ordered-semiring.instances.real
+open import ordered-semiring.mean
 open import real
 open import real.subspace
 open import relation
 open import ring.implementations.real
+open import semiring.mean
 open import subset.subspace
 open import truncation
 

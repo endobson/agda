@@ -11,10 +11,10 @@ open import isomorphism
 open import order
 open import order.instances.rational
 open import ordered-additive-group
-open import ordered-field
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.rational
+open import ordered-semiring.natural-reciprocal
 open import rational
 open import rational.open-interval
 open import rational.order
@@ -26,6 +26,7 @@ open import real.sequence
 open import relation hiding (U)
 open import ring.implementations.rational
 open import semiring
+open import semiring.natural-reciprocal
 open import sign
 open import sign.instances.rational
 open import sum
@@ -125,11 +126,11 @@ module _ (x y : ℝ) where
       where
       d = diff a b
       0<d = diff-0<⁺ a<b
-      ε = 1/2 * (1/2 * d)
-      0<ε = *-preserves-0< 0<1/2 (*-preserves-0< 0<1/2 0<d)
+      ε = (d * 1/2) * 1/2
+      0<ε = *-preserves-0< (*-preserves-0< 0<d 0<1/2) 0<1/2
       ε⁺ = ε , 0<ε
       εε<d : (ε + ε) < diff a b
-      εε<d = trans-=-< 1/2-path (trans-<-= (*₂-preserves-< 1/2<1 0<d) *-left-one)
+      εε<d = trans-=-< +-/2-path (trans-<-= (*₁-preserves-< 0<d 1/2<1) *-right-one)
       handle : OpenBall x ε -> OpenBall y ε -> L a ⊎ U b
       handle (xl , xu , xL , xU , xd-p) (yl , yu , yL , yU , yd-p) = handle2 (split-< a (xl + yl))
         where

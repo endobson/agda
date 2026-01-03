@@ -41,10 +41,10 @@ open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.nat
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-ring.absolute-value
 open import ordered-semiring
 open import ordered-semiring.instances.real
+open import ordered-semiring.natural-reciprocal
 open import real
 open import real.arithmetic.multiplication.inverse
 open import real.rational
@@ -57,6 +57,7 @@ open import ring
 open import ring.implementations.real
 open import semiring
 open import semiring.initial
+open import semiring.natural-reciprocal
 open import sequence
 open import sequence.partial-sums
 open import sigma.base
@@ -168,9 +169,9 @@ opaque
 
     module _ ((ε , 0<ε) : ℝ⁺) where
       ε/2 : ℝ
-      ε/2 = 1/2 * ε
+      ε/2 = ε * 1/2
       0<ε/2 : 0# < ε/2
-      0<ε/2 = *-preserves-0< 0<1/2 0<ε
+      0<ε/2 = *-preserves-0< 0<ε 0<1/2
 
       ε1 : ℝ
       ε1 = ε/2 * ℝ1/ (1+sum-absAs , inj-r 0<1+sum-absAs)
@@ -224,7 +225,8 @@ opaque
             small n N-A+N-B≤n =
               trans-≤-< finiteSum-abs≤
                 (trans-=-< path (trans-<-= (trans-≤-< (+₂-preserves-≤ case1)
-                                                      (+₁-preserves-< case2)) 1/2-path))
+                                                      (+₁-preserves-< case2))
+                                           +-/2-path))
               where
               Case1 : Type₀
               Case1 = Σ[ (fin-pair+ i j _) ∈ FinPair+ n ] (j < suc N-B)

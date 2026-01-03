@@ -13,9 +13,9 @@ open import order.instances.real
 open import order.minmax
 open import order.minmax.instances.rational
 open import ordered-additive-group.instances.rational
-open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.instances.rational
+open import ordered-semiring.natural-reciprocal
 open import rational
 open import real
 open import real.arithmetic.multiplication.inverse
@@ -26,6 +26,7 @@ open import real.sequence.limit-point
 open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
+open import semiring.natural-reciprocal
 open import truncation
 
 isDerivative-+ : {f f' g g' : ℝ -> ℝ} -> isDerivative f f' -> isDerivative g g' ->
@@ -33,9 +34,9 @@ isDerivative-+ : {f f' g g' : ℝ -> ℝ} -> isDerivative f f' -> isDerivative g
 isDerivative-+ {f} {f'} {g} {g'} isD-f isD-g = isDerivative-cons handle'
   where
   module _ (x : ℝ) ((δ , 0<δ) : ℚ⁺) where
-    δ/2 = 1/2 * δ
+    δ/2 = δ * 1/2
     δ/2⁺ : ℚ⁺
-    δ/2⁺ = δ/2 , *-preserves-0< 0<1/2 0<δ
+    δ/2⁺ = δ/2 , *-preserves-0< 0<δ 0<1/2
     fg = \x -> f x + g x
     handle :
       Σ[ ε ∈ ℚ⁺ ] ((z : ℝ) -> εBounded ⟨ ε ⟩ (diff z 0#) ->
@@ -51,7 +52,7 @@ isDerivative-+ {f} {f'} {g} {g'} isD-f isD-g = isDerivative-cons handle'
       bfg : (z : ℝ) -> εBounded εfg z ->
             (sz : z # 0#) -> εBounded δ (diff (rise-over-run fg x (z , sz)) (f' x + g' x))
       bfg z εfg-z z#0 =
-        subst2 εBounded 1/2-path ror-path (εBounded-+ _ _ δ/2-ror-f δ/2-ror-g)
+        subst2 εBounded +-/2-path ror-path (εBounded-+ _ _ δ/2-ror-f δ/2-ror-g)
         where
         dz = diff z 0#
         εfg-dz : εBounded εfg dz

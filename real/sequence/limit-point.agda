@@ -20,11 +20,11 @@ open import order.minmax.instances.rational
 open import ordered-additive-group
 open import ordered-additive-group.instances.rational
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
+open import ordered-semiring.natural-reciprocal
 open import rational
 open import rational.open-interval
 open import real
@@ -38,6 +38,7 @@ open import real.sequence.limit
 open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
+open import semiring.natural-reciprocal
 open import sequence
 open import sigma.base
 open import subset
@@ -94,11 +95,11 @@ abstract
           δ : ℚ
           δ = diff u1 l2
           δ/2 : ℚ
-          δ/2 = 1/2 * δ
+          δ/2 = δ * 1/2
           0<δ : 0# < δ
           0<δ = trans-=-< (sym +-inverse) (+₂-preserves-< u1<l2)
           0<δ/2 : 0# < δ/2
-          0<δ/2 = *-preserves-0< 0<1/2 0<δ
+          0<δ/2 = *-preserves-0< 0<δ 0<1/2
           δ/2⁺ : ℚ⁺
           δ/2⁺ = δ/2 , 0<δ/2
 
@@ -145,7 +146,7 @@ abstract
                 pb3 =
                   subst2
                     εBounded
-                    1/2-path
+                    +-/2-path
                     diff-trans
                     (εBounded-+ _ _
                       (subst (εBounded δ/2) (sym diff-anticommute) (εBounded-- _ pb1))
@@ -158,11 +159,11 @@ abstract
                                     (isLimitAt.limit-point lim1))
           where
           δ = diff u2 l1
-          δ/2 = 1/2 * δ
+          δ/2 = δ * 1/2
           0<δ : 0# < δ
           0<δ = trans-=-< (sym +-inverse) (+₂-preserves-< u2<l1)
           0<δ/2 : 0# < δ/2
-          0<δ/2 = *-preserves-0< 0<1/2 0<δ
+          0<δ/2 = *-preserves-0< 0<δ 0<1/2
           δ/2⁺ = δ/2 , 0<δ/2
 
           δ<d : (ℚ->ℝ δ) < diff y2 y1
@@ -205,7 +206,7 @@ abstract
                 pb3 =
                   subst2
                     εBounded
-                    1/2-path
+                    +-/2-path
                     diff-trans
                     (εBounded-+ _ _
                       (subst (εBounded δ/2) (sym diff-anticommute) (εBounded-- _ pb2))

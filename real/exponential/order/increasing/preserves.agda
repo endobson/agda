@@ -17,7 +17,6 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.instances.real
 open import real
