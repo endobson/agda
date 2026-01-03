@@ -12,18 +12,18 @@ open import hlevel
 open import nat
 open import nat.order
 open import order
-open import order.minmax
-open import order.minmax.instances.nat
 open import order.instances.nat
 open import order.instances.rational
 open import order.instances.real
+open import order.minmax
+open import order.minmax.instances.nat
 open import ordered-additive-group
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
+open import ordered-semiring.natural-reciprocal
 open import rational
 open import rational.order
 open import real
@@ -35,6 +35,7 @@ open import relation hiding (U)
 open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
+open import semiring.natural-reciprocal
 open import sequence
 open import truncation
 
@@ -92,9 +93,6 @@ module _
     U : Pred ℚ ℓ-zero
     U = OpenEventualUpperBound s
 
-    1/2=1/2 : ℚ->ℝ 1/2 == 1/2
-    1/2=1/2 = Semiringʰ-preserves-1/ℕ Semiringʰ-ℚ->ℝ (2 , tt)
-
     Inhabited-L : Inhabited L
     Inhabited-L = ∥-bind handle (cauchy (1/2 , 0<1/2))
       where
@@ -108,7 +106,7 @@ module _
         lb-1/2-path =
           +-assoc >=>
           +-right (+-commute >=>
-                   +-right (cong -_ (sym 1/2-+-path) >=> minus-distrib-plus) >=>
+                   +-right (cong -_ (sym +-1/2-path) >=> minus-distrib-plus) >=>
                    sym +-assoc >=>
                    +-left +-inverse >=>
                    +-left-zero)
@@ -127,7 +125,7 @@ module _
               diffU = (proj₂ (f m n m≥n refl-≤))
 
               d<1/2 : diff (s m) (s n) < 1/2
-              d<1/2 = trans-<-= (U->ℝ< diffU) 1/2=1/2
+              d<1/2 = U->ℝ< diffU
 
               sn<sm+1/2 : s n < (s m + 1/2)
               sn<sm+1/2 = trans-=-< (sym diff-step) (+₁-preserves-< d<1/2)
@@ -139,7 +137,7 @@ module _
               q+1/2<sm' : ℚ->ℝ (q + 1/2) < s m
               q+1/2<sm' =
                 trans-=-< ℚ->ℝ-preserves-+
-                  (trans-< (trans-<-= (+₂-preserves-< (L->ℝ< q<lb)) (+-right 1/2=1/2)) lb+1/2<sm)
+                  (trans-< (+₂-preserves-< (L->ℝ< q<lb)) lb+1/2<sm)
 
     Inhabited-U : Inhabited U
     Inhabited-U = ∥-bind handle (cauchy (1/2 , 0<1/2))
@@ -153,7 +151,7 @@ module _
         ub-1/2-path : ub + (- 1/2) == s n + 1/2
         ub-1/2-path =
           +-assoc >=>
-          +-right (+-left (sym 1/2-+-path) >=>
+          +-right (+-left (sym +-1/2-path) >=>
                    +-assoc >=>
                    +-right +-inverse >=>
                    +-right-zero)
@@ -170,10 +168,10 @@ module _
               diffU = proj₂ (f n m refl-≤ m≥n)
 
               d<1/2 : diff (s n) (s m) < 1/2
-              d<1/2 = trans-<-= (U->ℝ< diffU) 1/2=1/2
+              d<1/2 = U->ℝ< diffU
 
             sm<ub-1/2' : s m < (ub + (ℚ->ℝ (- 1/2)))
-            sm<ub-1/2' = trans-<-= sm<ub-1/2 (+-right (sym (ℚ->ℝ-preserves-- >=> cong -_ 1/2=1/2)))
+            sm<ub-1/2' = trans-<-= sm<ub-1/2 (+-right (sym ℚ->ℝ-preserves--))
 
             sm<q-1/2 : Real.U (s m) (q + (- 1/2))
             sm<q-1/2 = ℝ<->U sm<q-1/2'
@@ -213,13 +211,14 @@ module _
         handle (n , (ε , 0<ε) , f) = (q + 1/2ε , q<q+1/2ε , ∣ n , (1/2ε , 0<1/2ε) , g ∣)
           where
           1/2ε : ℚ
-          1/2ε = 1/2 * ε
+          1/2ε = ε * 1/2
           0<1/2ε : 0# < 1/2ε
-          0<1/2ε = *-preserves-0< 0<1/2 0<ε
+          0<1/2ε = *-preserves-0< 0<ε 0<1/2
           q<q+1/2ε : q < (q + 1/2ε)
           q<q+1/2ε = trans-=-< (sym +-right-zero) (+₁-preserves-< 0<1/2ε)
           g : (m : Nat) -> m ≥ n -> Real.L (s m) ((q + 1/2ε) + 1/2ε)
-          g m m≥n = subst (Real.L (s m)) (+-right (sym 1/2-path) >=> sym +-assoc) (f m m≥n)
+          g m m≥n = subst (Real.L (s m)) (+-right (sym +-/2-path) >=> sym +-assoc)
+                          (f m m≥n)
 
       isLowerOpen-U : isLowerOpen U
       isLowerOpen-U q q-U = ∥-map handle q-U
@@ -230,9 +229,9 @@ module _
         handle (n , (ε , 0<ε) , f) = (q + - 1/2ε , q-1/2ε<q , ∣ n , (1/2ε , 0<1/2ε) , g ∣)
           where
           1/2ε : ℚ
-          1/2ε = 1/2 * ε
+          1/2ε = ε * 1/2
           0<1/2ε : 0# < 1/2ε
-          0<1/2ε = *-preserves-0< 0<1/2 0<ε
+          0<1/2ε = *-preserves-0< 0<ε 0<1/2
           q-1/2ε<q : (q + (- 1/2ε)) < q
           q-1/2ε<q = trans-<-= (+₁-preserves-< (minus-flips-0< 0<1/2ε)) +-right-zero
 
@@ -240,9 +239,7 @@ module _
           g m m≥n = subst (Real.U (s m)) (sym path) (f m m≥n)
             where
             path : Path ℚ ((q + (- 1/2ε)) + (- 1/2ε)) (q + - ε)
-            path = +-assoc >=>
-                   +-right (sym minus-distrib-plus >=>
-                            cong -_ 1/2-path)
+            path = +-assoc >=> +-right (sym minus-distrib-plus >=> cong -_ +-/2-path)
 
     disjoint : (q : ℚ) -> ¬ (L q × U q)
     disjoint q (L-q , U-q) = unsquash isPropBot (∥-map2 handle L-q U-q)
@@ -289,9 +286,9 @@ module _
 
       1/2d+1/4d=d-1/4d : 1/2d + 1/4d == d + - 1/4d
       1/2d+1/4d=d-1/4d =
-        sym (+-left (sym 1/2-path) >=>
+        sym (+-left (sym (+-cong *-commute *-commute >=> +-/2-path)) >=>
              +-assoc >=>
-             +-right (+-left (sym 1/2-path) >=>
+             +-right (+-left (sym (+-cong *-commute *-commute >=> +-/2-path)) >=>
                       +-left (+-cong (sym *-assoc) (sym *-assoc)) >=>
                       +-assoc >=>
                       +-right +-inverse >=>
@@ -299,7 +296,7 @@ module _
 
       1/8d=1/4d-1/8d : 1/8d == 1/4d + - 1/8d
       1/8d=1/4d-1/8d =
-        sym (+-left (sym 1/2-path) >=>
+        sym (+-left (sym (+-cong *-commute *-commute >=> +-/2-path)) >=>
              +-left (+-cong (sym *-assoc) (sym *-assoc)) >=>
              +-assoc >=>
              +-right +-inverse >=>
@@ -406,9 +403,9 @@ abstract
   isConvergentSequence->isℚCauchy {s} (lim , L) ε⁺@(ε , 0<ε) = ∥-map handle (isLimit.εBounded-diff L ε/2⁺)
     where
     ε/2 : ℚ
-    ε/2 = 1/2 * ε
+    ε/2 = ε * 1/2
     0<ε/2 : 0# < ε/2
-    0<ε/2 = *-preserves-0< 0<1/2 0<ε
+    0<ε/2 = *-preserves-0< 0<ε 0<1/2
     ε/2⁺ : ℚ⁺
     ε/2⁺ = ε/2 , 0<ε/2
 
@@ -427,4 +424,4 @@ abstract
         r-path : (diff (diff lim (s m₁)) (diff lim (s m₂))) == diff (s m₁) (s m₂)
         r-path = +-right (sym diff-anticommute) >=> +-commute >=> diff-trans
         l-path : (ε/2 + ε/2) == ε
-        l-path = 1/2-path
+        l-path = +-/2-path

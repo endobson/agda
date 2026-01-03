@@ -9,19 +9,19 @@ open import heyting-field.instances.rational
 open import hlevel
 open import nat
 open import order
-open import order.minmax
 open import order.instances.nat
 open import order.instances.rational
+open import order.minmax
 open import order.minmax.instances.rational
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
-open import ordered-field
-open import ordered-field.archimedean
-open import ordered-field.mean
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.archimedean.instances.rational
+open import ordered-semiring.archimedean.small
 open import ordered-semiring.instances.rational
+open import ordered-semiring.mean
+open import ordered-semiring.natural-reciprocal
 open import rational
 open import rational.order
 open import real
@@ -30,8 +30,11 @@ open import real.rational
 open import relation hiding (U)
 open import ring
 open import ring.implementations.rational
+open import ring.mean
 open import semiring
 open import semiring.exponentiation
+open import semiring.mean
+open import semiring.natural-reciprocal
 open import sign
 open import sign.instances.rational
 open import sum
@@ -82,11 +85,11 @@ centered-ball->0<ε x ε (q , lq , uq) = 0<ε
 
 
 center-ball :
-  (z : ℝ) (q1 q2 : ℚ) -> (Real.L z q1) -> (Real.U z q2) -> CenteredBall z (1/2 * (diff q1 q2))
+  (z : ℝ) (q1 q2 : ℚ) -> (Real.L z q1) -> (Real.U z q2) -> CenteredBall z (diff q1 q2 * 1/2)
 center-ball z q1 q2 Lq Uq =
   (mean q1 q2) ,
-  subst (Real.L z) (sym mean-minus-1/2-diff) Lq ,
-  subst (Real.U z) (sym mean-+-1/2-diff) Uq
+  subst (Real.L z) (sym mean-minus-diff/2) Lq ,
+  subst (Real.U z) (sym mean-+-diff/2) Uq
 
 
 weaken-centered-ball : (x : ℝ) (ε₁ ε₂ : ℚ) -> (ε₁ < ε₂) -> CenteredBall x ε₁ -> CenteredBall x ε₂
@@ -99,7 +102,7 @@ weaken-centered-ball x e1 e2 e1<e2 (q , lq , uq) =
   q+e1<q+e2 : (q r+ e1) < (q r+ e2)
   q+e1<q+e2 = +₁-preserves-< e1<e2
 
-strengthen-centered-ball : (x : ℝ) (ε : ℚ) -> CenteredBall x ε -> ∥ CenteredBall x (1/2 * ε) ∥
+strengthen-centered-ball : (x : ℝ) (ε : ℚ) -> CenteredBall x ε -> ∥ CenteredBall x (ε * 1/2) ∥
 strengthen-centered-ball x e b@(q , l-p1 , u-p5) =
   ∥-map2 handle (x.located p2 p3 p2<p3) (x.located p3 p4 p3<p4)
   where
@@ -132,18 +135,18 @@ strengthen-centered-ball x e b@(q , l-p1 , u-p5) =
   diff-p2p4 : diff p2 p4 == e
   diff-p2p4 =
     sym diff-trans >=>
-    cong2 _+_ (diff-mean >=> cong (1/2 *_) diff-p1p3)
-              (diff-mean' >=> cong (1/2 *_) diff-p3p5) >=>
-    1/2-path
+    cong2 _+_ (diff-mean >=> cong (_* 1/2) diff-p1p3)
+              (diff-mean' >=> cong (_* 1/2) diff-p3p5) >=>
+    +-/2-path
 
 
-  handle : (x.L p2 ⊎ x.U p3) -> (x.L p3 ⊎ x.U p4) -> CenteredBall x (1/2 * e)
+  handle : (x.L p2 ⊎ x.U p3) -> (x.L p3 ⊎ x.U p4) -> CenteredBall x (e * 1/2)
   handle (inj-r u-p3) _ =
-    subst (CenteredBall x) (cong (1/2 *_) diff-p1p3) (center-ball x p1 p3 l-p1 u-p3)
+    subst (CenteredBall x) (cong (_* 1/2) diff-p1p3) (center-ball x p1 p3 l-p1 u-p3)
   handle (inj-l l-p2) (inj-l l-p3) =
-    subst (CenteredBall x) (cong (1/2 *_) diff-p3p5) (center-ball x p3 p5 l-p3 u-p5)
+    subst (CenteredBall x) (cong (_* 1/2) diff-p3p5) (center-ball x p3 p5 l-p3 u-p5)
   handle (inj-l l-p2) (inj-r u-p4) =
-    subst (CenteredBall x) (cong (1/2 *_) diff-p2p4) (center-ball x p2 p4 l-p2 u-p4)
+    subst (CenteredBall x) (cong (_* 1/2) diff-p2p4) (center-ball x p2 p4 l-p2 u-p4)
 
 
 private
@@ -155,7 +158,7 @@ private
     where
     handle : CenteredBall x ((1/2 ^ℕ n) * e) -> ∥ CenteredBall x ((1/2 ^ℕ (suc n)) * e) ∥
     handle b = subst (\z -> ∥ (CenteredBall x z) ∥)
-                 (sym (r*-assoc 1/2 (1/2 ^ℕ n) e))
+                 (*-commute >=> sym (r*-assoc 1/2 (1/2 ^ℕ n) e))
                  (strengthen-centered-ball x _ b)
 
   initial-centered-ball : (x : ℝ) -> ∃[ (ε , _) ∈ ℚ⁺ ] (CenteredBall x ε)
@@ -165,7 +168,7 @@ private
 
     handle : Σ ℚ x.L -> Σ ℚ x.U -> Σ[ (ε , _) ∈ ℚ⁺ ] (CenteredBall x ε)
     handle (q1 , lq1) (q2 , uq2) =
-      (_ , *-preserves-0< 0<1/2 (diff-0<⁺ q1<q2)) ,
+      (_ , *-preserves-0< (diff-0<⁺ q1<q2) 0<1/2) ,
       center-ball x q1 q2 lq1 uq2
       where
       q1<q2 : q1 < q2
@@ -196,9 +199,9 @@ find-centered-ball x (e1 , 0<e1) = ∥-bind handle (initial-centered-ball x)
 find-open-ball : (x : ℝ) -> (ε : ℚ⁺) -> ∥ OpenBall x ⟨ ε ⟩ ∥
 find-open-ball x e@(e' , 0<e') = ∥-map handle (find-centered-ball x e2)
   where
-  e2' = 1/2 * e'
+  e2' = e' * 1/2
   e2 : ℚ⁺
-  e2 = e2' , *-preserves-0< 0<1/2 0<e'
+  e2 = e2' , *-preserves-0< 0<e' 0<1/2
 
   handle : CenteredBall x e2' -> OpenBall x e'
   handle (q , l , u) = q r+ (r- e2') , q r+ e2' , l , u , path
@@ -208,4 +211,4 @@ find-open-ball x e@(e' , 0<e') = ∥-map handle (find-centered-ball x e2)
       cong2 _r+_ (r+-commute q e2') (sym diff-anticommute) >=>
       r+-assoc e2' q (diff q e2') >=>
       cong (e2' r+_) diff-step >=>
-      1/2-path
+      +-/2-path

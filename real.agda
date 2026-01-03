@@ -14,13 +14,14 @@ open import order
 open import order.instances.rational
 open import ordered-additive-group
 open import ordered-additive-group.instances.rational
-open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.instances.rational
+open import ordered-semiring.natural-reciprocal
 open import rational
 open import relation hiding (U)
 open import ring.implementations.rational
 open import semiring
+open import semiring.natural-reciprocal
 open import sign
 open import truncation
 open import univalence

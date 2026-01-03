@@ -20,10 +20,10 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-ring.absolute-value
 open import ordered-semiring
 open import ordered-semiring.instances.real
+open import ordered-semiring.natural-reciprocal
 open import real
 open import real.arithmetic.multiplication.inverse
 open import real.arithmetic.sqrt
@@ -35,6 +35,7 @@ open import ring
 open import ring.implementations.real
 open import ring.solver-equations
 open import semiring
+open import semiring.natural-reciprocal
 open import subset.subspace
 open import truncation
 
@@ -130,12 +131,12 @@ module _ {ℓD : Level} {D : Type ℓD} {{MS : MetricSpaceStr D}} where
                     (cf sqrt-ε/2⁺) (cg sqrt-ε/2⁺)
       where
       ε/2 ε/4 : ℝ
-      ε/2 = 1/2 * ε
-      ε/4 = 1/2 * ε/2
+      ε/2 = ε * 1/2
+      ε/4 = ε/2 * 1/2
       0<ε/2 : 0# < ε/2
-      0<ε/2 = *-preserves-0< 0<1/2 0<ε
+      0<ε/2 = *-preserves-0< 0<ε 0<1/2
       0<ε/4 : 0# < ε/4
-      0<ε/4 = *-preserves-0< 0<1/2 0<ε/2
+      0<ε/4 = *-preserves-0< 0<ε/2 0<1/2
       ε/2⁺ : ℝ⁺
       ε/2⁺ = ε/2 , 0<ε/2
       ε/4⁺ : ℝ⁺
@@ -165,7 +166,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{MS : MetricSpaceStr D}} where
           trans-≤-< lt1
             (trans-<-=
               (+-preserves-< (+-preserves-< (δ1-close y dxy<δ1) (δ2-close y dxy<δ2)) lt-d*)
-              ((cong2 _+_ 1/2-path (sqrt² _)) >=> 1/2-path))
+              ((cong2 _+_ +-/2-path (sqrt² _)) >=> +-/2-path))
           where
           dxy<δ1 : distance x y < δ1
           dxy<δ1 = trans-<-≤ dxy<δ (trans-≤ min-≤-left min-≤-left)

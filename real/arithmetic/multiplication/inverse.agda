@@ -14,9 +14,9 @@ open import order.instances.rational
 open import order.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.instances.rational
+open import ordered-semiring.natural-reciprocal
 open import rational
 open import rational.open-interval
 open import rational.order
@@ -32,6 +32,7 @@ open import ring
 open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
+open import semiring.natural-reciprocal
 open import sign
 open import subset.subspace
 open import sum

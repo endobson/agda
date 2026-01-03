@@ -12,14 +12,15 @@ open import order.instances.rational
 open import order.minmax
 open import order.minmax.instances.rational
 open import ordered-additive-group
-open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.instances.rational
+open import ordered-semiring.natural-reciprocal
 open import rational
 open import rational.order
 open import relation
 open import ring.implementations.rational
 open import semiring
+open import semiring.natural-reciprocal
 open import sign
 open import truncation
 
@@ -60,8 +61,8 @@ private
     Ans = ∃[ s ∈ ℚ ] (isSquareℚ s × 1# < s × s < q)
     0<d : 0# < (diff 1# q)
     0<d = diff-0<⁺ 1<q
-    d/2 = (1/2 * (diff 1# q))
-    0<d/2 = *-preserves-0< 0<1/2 0<d
+    d/2 = (diff 1# q) * 1/2
+    0<d/2 = *-preserves-0< 0<d 0<1/2
 
     handle : Σ[ ε² ∈ ℚ ] (isSquareℚ ε² × (0r < ε²) × (ε² < d/2)) -> Ans
     handle (ε² , (ε' , 0≤ε' , ε'ε'=ε²) , 0<ε² , ε²<d/2) = ans
@@ -77,7 +78,7 @@ private
       0<ε : 0r < ε
       0<ε = min-greatest-< 0<ε' (*-preserves-0< 0<d/2 0<1/2)
 
-      c1-ε≤ : ε ≤ ((1/2 * (diff 1# q)) * 1/2)
+      c1-ε≤ : ε ≤ (((diff 1# q) * 1/2) * 1/2)
       c1-ε≤ = min-≤-right
 
       ε≤ε' : ε ≤ ε'
@@ -86,16 +87,18 @@ private
       εε≤ε'ε' = trans-≤ (*₁-preserves-≤ (weaken-< 0<ε) ε≤ε')
                         (*₂-preserves-≤ ε≤ε' 0≤ε')
 
-      c2-ε< : (ε * ε) < (1/2 * (diff 1# q))
+      c2-ε< : (ε * ε) < ((diff 1# q) * 1/2)
       c2-ε< = trans-≤-< εε≤ε'ε' (subst2 _<_ (sym ε'ε'=ε²) refl ε²<d/2)
 
-      c1-2qε≤ : (2# * ε) ≤ (1/2 * (diff 1# q))
+      c1-2qε≤ : (2# * ε) ≤ ((diff 1# q) * 1/2)
       c1-2qε≤ = subst2 _≤_ *-commute p (*₂-preserves-≤ c1-ε≤ (weaken-< 0<2))
         where
-        p = *-assoc >=> *-right (*-commute >=> 2*1/2-path) >=> *-right-one
+        p = *-assoc >=> *-right (*-commute >=> 2/2-path) >=> *-right-one
 
       2qε-ε²≤ : ((2# * ε) + (ε * ε)) < (diff 1# q)
-      2qε-ε²≤ = subst2 _<_ refl 1/2-path (+-preserves-≤-< c1-2qε≤ c2-ε<)
+      2qε-ε²≤ =
+        subst2 _<_ refl +-/2-path
+          (+-preserves-≤-< c1-2qε≤ c2-ε<)
       1-2qε-ε²≤ : (1# + ((2# * ε) + (ε * ε))) < q
       1-2qε-ε²≤ = subst2 _<_ refl diff-step (+₁-preserves-< 2qε-ε²≤)
 

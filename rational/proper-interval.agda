@@ -4,9 +4,9 @@ module rational.proper-interval where
 
 open import additive-group
 open import base
+open import decision
 open import equality
 open import equivalence
-open import decision
 open import functions
 open import heyting-field.instances.rational
 open import hlevel
@@ -16,17 +16,18 @@ open import order.minmax
 open import order.minmax.instances.rational
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
-open import ordered-field
 open import ordered-ring
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import ordered-semiring.minmax
+open import ordered-semiring.natural-reciprocal
 open import rational
 open import rational.order
 open import rational.proper-interval.classify
 open import ring
 open import ring.implementations.rational
 open import semiring
+open import semiring.natural-reciprocal
 open import sign
 open import sign.instances.rational
 open import sum
@@ -516,9 +517,9 @@ i-maxabs-Zero a@(Iℚ-cons al au al≤au) zm = Iℚ-bounds-path zl zu
     (max-property {P = 0# ≤_} (abs l) (abs u) abs-0≤ abs-0≤)
     (i-maxabs'-path  a)
 
-i-width-bound : (a : Iℚ) -> i-width a ≤ (2r * (i-maxabs a))
+i-width-bound : (a : Iℚ) -> i-width a ≤ (2# * (i-maxabs a))
 i-width-bound a@(Iℚ-cons l u l≤u) =
-  subst2 _≤_ diff-trans (2r-path (i-maxabs a)) lt1
+  subst2 _≤_ diff-trans (sym 2*-path) lt1
   where
   dl≤maxabs : diff l 0# ≤ i-maxabs a
   dl≤maxabs = trans-=-≤ +-left-zero max-≤-left

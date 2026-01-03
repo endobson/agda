@@ -20,11 +20,11 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.exponentiation
 open import ordered-semiring.initial
 open import ordered-semiring.instances.real
+open import ordered-semiring.natural-reciprocal
 open import ordered-semiring.squares
 open import real
 open import real.arithmetic.multiplication.inverse
@@ -45,6 +45,7 @@ open import semiring
 open import semiring.exponentiation
 open import semiring.initial
 open import semiring.instances.nat
+open import semiring.natural-reciprocal
 open import sequence.partial-sums
 open import subset.subspace
 open import truncation
@@ -121,11 +122,11 @@ opaque
       lim-geo : isLimit (partial-sums (1/2 ^ℕ_)) v
       lim-geo = isLimit-geometric-series (1/2 , ∣1/2∣<1)
       d-path : diff 1/2 1# == 1/2
-      d-path = +-left (sym 1/2-+-path) >=> +-assoc >=> +-right +-inverse >=> +-right-zero
+      d-path = +-left (sym +-1/2-path) >=> +-assoc >=> +-right +-inverse >=> +-right-zero
       v=2 : v == 2#
       v=2 =
         sym *-right-one >=>
-        *-right (sym 2*1/2-path >=> *-commute) >=>
+        *-right (sym 2/2-path >=> *-commute) >=>
         sym *-assoc >=>
         *-left (*-right (sym d-path) >=> geometric-series-limit-path _) >=>
         *-left-one

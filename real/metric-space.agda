@@ -15,13 +15,14 @@ open import order.instances.real
 open import order.minmax.instances.real
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.instances.real
+open import ordered-semiring.natural-reciprocal
 open import real
 open import real.distance
 open import ring.implementations.real
 open import semiring
+open import semiring.natural-reciprocal
 open import subset
 open import subset.subspace
 open import truncation

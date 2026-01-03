@@ -21,11 +21,11 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.rational
 open import ordered-additive-group.instances.real
-open import ordered-field
-open import ordered-field.mean
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
+open import ordered-semiring.mean
+open import ordered-semiring.natural-reciprocal
 open import rational
 open import real
 open import real.arithmetic.rational
@@ -36,7 +36,10 @@ open import real.subspace
 open import relation hiding (U)
 open import ring.implementations.rational
 open import ring.implementations.real
+open import ring.mean
 open import semiring
+open import semiring.mean
+open import semiring.natural-reciprocal
 open import subset.subspace
 open import truncation
 
@@ -147,9 +150,9 @@ opaque
       0<d : 0# < d
       0<d = diff-0<⁺ q<r
       d/8 : ℚ
-      d/8 = 1/2 * (1/2 * (1/2 * d))
+      d/8 = ((d * 1/2) * 1/2) * 1/2
       0<d/8 : 0# < d/8
-      0<d/8 = *-preserves-0< 0<1/2 (*-preserves-0< 0<1/2 (*-preserves-0< 0<1/2 0<d))
+      0<d/8 = *-preserves-0< (*-preserves-0< (*-preserves-0< 0<d 0<1/2) 0<1/2) 0<1/2
       d/8⁺ : ℝ⁺
       d/8⁺ = (ℚ->ℝ d/8 , ℚ->ℝ-preserves-< 0<d/8)
       m q' r' l u : ℚ
@@ -177,19 +180,19 @@ opaque
       q'<r' = trans-< (mean-<₂ q<m) (mean-<₁ m<r)
 
       -- fix order of these
-      d/2=qm : diff q m == 1/2 * d
+      d/2=qm : diff q m == d * 1/2
       d/2=qm = diff-mean'
-      d/4=qq' : diff q q' == 1/2 * (1/2 * d)
-      d/4=qq' = diff-mean' >=> cong (1/2 *_) d/2=qm
+      d/4=qq' : diff q q' == (d * 1/2) * 1/2
+      d/4=qq' = diff-mean' >=> cong (_* 1/2) d/2=qm
       d/8=lq' : diff l q' == d/8
-      d/8=lq' = diff-mean >=> cong (1/2 *_) d/4=qq'
+      d/8=lq' = diff-mean >=> cong (_* 1/2) d/4=qq'
 
-      d/2=mr : diff m r == 1/2 * d
+      d/2=mr : diff m r == d * 1/2
       d/2=mr = diff-mean
-      d/4=r'r : diff r' r == 1/2 * (1/2 * d)
-      d/4=r'r = diff-mean >=> cong (1/2 *_) d/2=mr
+      d/4=r'r : diff r' r == (d * 1/2) * 1/2
+      d/4=r'r = diff-mean >=> cong (_* 1/2) d/2=mr
       d/8=r'u : diff r' u == d/8
-      d/8=r'u = diff-mean' >=> cong (1/2 *_) d/4=r'r
+      d/8=r'u = diff-mean' >=> cong (_* 1/2) d/4=r'r
 
 
       handle : Σ[ i ∈ I ] (∀ i2 i3 -> i ≼ i2 -> i ≼ i3 -> εClose d/8⁺ (f i2) (f i3)) -> ∥ L q ⊎ U r ∥
@@ -277,9 +280,9 @@ opaque
     isLimit-x .isLimit.close ε⁺@(ε , 0<ε) = ∥-bind handle 0<ε/4
       where
       ε/4 : ℝ
-      ε/4 = 1/2 * (1/2 * ε)
+      ε/4 = (ε * 1/2) * 1/2
       0<ε/4 : 0# < ε/4
-      0<ε/4 = *-preserves-0< 0<1/2 (*-preserves-0< 0<1/2 0<ε)
+      0<ε/4 = *-preserves-0< (*-preserves-0< 0<ε 0<1/2) 0<1/2
       handle : 0# ℝ<' ε/4 -> isEventually N (εClose ε⁺ x)
       handle (ℝ<'-cons ε' 0U-ε' ε/4L-ε') = ∥-bind handle2 (cauchy ε'⁺)
         where
@@ -289,7 +292,7 @@ opaque
         4ε'<ε =
           trans-=-< (ℚ->ℝ-preserves-+ >=> +-cong ℚ->ℝ-preserves-+ ℚ->ℝ-preserves-+)
             (trans-<-= (+-preserves-< (+-preserves-< ε'<ε/4 ε'<ε/4) (+-preserves-< ε'<ε/4 ε'<ε/4))
-              (+-cong 1/2-path 1/2-path >=> 1/2-path))
+              (+-cong +-/2-path +-/2-path >=> +-/2-path))
         0<ε' : 0# < ε'
         0<ε' = U->ℚ< 0U-ε'
         -ε'<0 : (- ε') < 0#

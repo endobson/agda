@@ -18,13 +18,14 @@ open import order.minmax
 open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.instances.real
+open import ordered-semiring.natural-reciprocal
 open import real
 open import real.subspace
 open import ring.implementations.real
 open import semiring
+open import semiring.natural-reciprocal
 open import sigma.base
 open import subset
 open import subset.subspace
@@ -98,7 +99,7 @@ module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
           unsquash isPropBot (∥-bind2 handle (isLimitAt.close isLim1 ε⁺) (isLimitAt.close isLim2 ε⁺))
           where
           ε⁺ : ℝ⁺
-          ε⁺ = _ , *-preserves-0< 0<1/2 0<d
+          ε⁺ = (distance l1 l2) * 1/2 , *-preserves-0< 0<d 0<1/2
           handle :
             Σ[ δ ∈ ℝ⁺ ] (∀ (y∈@(y , _) : Subspace S) -> εClose δ x y -> εClose ε⁺ l1 (f y∈)) ->
             Σ[ δ ∈ ℝ⁺ ] (∀ (y∈@(y , _) : Subspace S) -> εClose δ x y -> εClose ε⁺ l2 (f y∈)) ->
@@ -115,11 +116,11 @@ module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
             handle2 : Σ[ (y , _) ∈ Subspace S ] (εClose δ3⁺ x y) -> Bot
             handle2 (y∈ , dxy<δ3) =
               irrefl-< (trans-≤-< (distance-triangleᵉ _ (f y∈) _)
-                                  (trans-<-= (+-preserves-< lt1 lt2) 1/2-path))
+                                  (trans-<-= (+-preserves-< lt1 lt2) +-/2-path))
               where
-              lt1 : distance l1 (f y∈) < (1/2 * (distance l1 l2))
+              lt1 : distance l1 (f y∈) < ((distance l1 l2) * 1/2)
               lt1 = δ1-close y∈ (trans-<-≤ dxy<δ3 min-≤-left)
-              lt2 : distance (f y∈) l2 < (1/2 * (distance l1 l2))
+              lt2 : distance (f y∈) l2 < ((distance l1 l2) * 1/2)
               lt2 = trans-=-< (distance-commuteᵉ (f y∈) l2)
                               (δ2-close y∈ (trans-<-≤ dxy<δ3 min-≤-right))
 
@@ -146,7 +147,7 @@ module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
                                              (isPuncturedLimitAt.close isLim2 ε⁺))
           where
           ε⁺ : ℝ⁺
-          ε⁺ = _ , *-preserves-0< 0<1/2 0<d
+          ε⁺ = (distance l1 l2 * 1/2) , *-preserves-0< 0<d 0<1/2
           handle :
             Σ[ δ ∈ ℝ⁺ ] (∀ (y∈@(y , _) : Subspace S) -> 0# < distance x y ->
                            εClose δ x y -> εClose ε⁺ l1 (f y∈)) ->
@@ -166,11 +167,11 @@ module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
             handle2 : Σ[ (y , _) ∈ Subspace S ] (0# < distance x y × εClose δ3⁺ x y) -> Bot
             handle2 (y∈ , (0<dxy , dxy<δ3)) =
               irrefl-< (trans-≤-< (distance-triangleᵉ _ (f y∈) _)
-                                  (trans-<-= (+-preserves-< lt1 lt2) 1/2-path))
+                                  (trans-<-= (+-preserves-< lt1 lt2) +-/2-path))
               where
-              lt1 : distance l1 (f y∈) < (1/2 * (distance l1 l2))
+              lt1 : distance l1 (f y∈) < ((distance l1 l2) * 1/2)
               lt1 = δ1-close y∈ 0<dxy (trans-<-≤ dxy<δ3 min-≤-left)
-              lt2 : distance (f y∈) l2 < (1/2 * (distance l1 l2))
+              lt2 : distance (f y∈) l2 < ((distance l1 l2) * 1/2)
               lt2 = trans-=-< (distance-commuteᵉ (f y∈) l2)
                               (δ2-close y∈ 0<dxy (trans-<-≤ dxy<δ3 min-≤-right))
 
@@ -213,9 +214,9 @@ module _ {ℓA ℓB ℓS : Level} {A : Type ℓA} {B : Type ℓB}
     isLimitAt->isContinuousAt isLim ε⁺@(ε , 0<ε) = ∥-map handle (isLimitAt.close isLim ε'⁺)
       where
       ε' : ℝ
-      ε' = 1/2 * ε
+      ε' = ε * 1/2
       0<ε' : 0# < ε'
-      0<ε' = *-preserves-0< 0<1/2 0<ε
+      0<ε' = *-preserves-0< 0<ε 0<1/2
       ε'⁺ : ℝ⁺
       ε'⁺ = ε' , 0<ε'
       handle : Σ[ δ ∈ ℝ⁺ ] (∀ (y∈@(y , _) : Subspace S) -> εClose δ x y ->
@@ -227,7 +228,7 @@ module _ {ℓA ℓB ℓS : Level} {A : Type ℓA} {B : Type ℓB}
         δ-close' : ∀ (y∈@(y , _) : Subspace S) -> εClose δ⁺ x y -> εClose ε⁺ (f x∈) (f y∈)
         δ-close' y∈@(y , _) dxy<δ =
           (trans-≤-< (distance-triangleᵉ _ lim _)
-                     (trans-<-= (+-preserves-< lt1 lt2) 1/2-path))
+                     (trans-<-= (+-preserves-< lt1 lt2) +-/2-path))
           where
           lt1 : distance (f x∈) lim < ε'
           lt1 = trans-=-< (distance-commuteᵉ (f x∈) lim)

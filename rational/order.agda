@@ -2,22 +2,22 @@
 
 module rational.order where
 
-open import apartness
 open import additive-group
 open import additive-group.instances.int
+open import apartness
 open import base
 open import equality
 open import equivalence
-open import fraction.sign
 open import fraction.order
+open import fraction.sign
 open import functions
 open import hlevel
 open import hlevel.htype
-open import int.base
-open import int.sign using (Pos'->Pos)
 open import int
 open import int.addition
+open import int.base
 open import int.order
+open import int.sign using (Pos'->Pos)
 open import isomorphism
 open import nat using (ℕ ; Nat⁺; 1⁺ ; 2⁺ ; _*⁺_)
 open import nat.exponentiation
@@ -27,11 +27,11 @@ open import order.instances.int
 open import order.instances.nat
 open import ordered-additive-group
 open import ordered-additive-group.decidable
+open import ordered-ring
 open import ordered-semiring
+open import ordered-semiring.decidable
 open import ordered-semiring.instances.int
 open import ordered-semiring.ring
-open import ordered-semiring.decidable
-open import ordered-ring
 open import rational
 open import relation
 open import ring
@@ -39,6 +39,7 @@ open import ring.implementations.int
 open import ring.implementations.rational
 open import semiring
 open import semiring.exponentiation
+open import semiring.natural-reciprocal
 open import set-quotient
 open import sigma.base
 open import sign
@@ -852,14 +853,14 @@ abstract
     where
     module _ where
       d1 = y r+ (r- x)
-      d2 = d1 r* 1/2r
+      d2 = d1 r* 1/2
       z = x r+ d2
       z' = y r+ (r- d2)
       d3 = z r+ (r- x)
       d4 = y r+ (r- z)
 
       d2-path : d2 r+ d2 == d1
-      d2-path = 1/2r-path d1
+      d2-path = +-/2-path
 
       z-path : z == z'
       z-path =
@@ -886,7 +887,7 @@ abstract
       pos-d1 = Pos-diffℚ _ _ lt
 
       pos-d2 : Posℚ d2
-      pos-d2 = r*-Pos-Pos pos-d1 (Pos-1/ℕ (2 , tt))
+      pos-d2 = r*-Pos-Pos pos-d1 (Pos-1/ℕ 2⁺)
 
       d3-path : d2 == d3
       d3-path =
@@ -916,7 +917,7 @@ abstract
     subst (_> (a + b)) +-right-zero (+₁-preserves-< neg-b)
 
 
-abstract
+opaque
   ℕ->ℚ-preserves-< : {a b : Nat} -> a < b -> (ℕ->ℚ a) < (ℕ->ℚ b)
   ℕ->ℚ-preserves-< a<b =
     ℚ<-cons (transport (sym ℚ<-raw-eval) (ℕ->ℚ'-preserves-< a<b))
@@ -925,56 +926,17 @@ abstract
   ℕ->ℚ-preserves-≤ a≤b =
     ℚ≤-cons (transport (sym ℚ≤-raw-eval) (ℕ->ℚ'-preserves-≤ a≤b))
 
-  1/ℕ-flips-order : (a b : Nat⁺) -> ⟨ a ⟩ < ⟨ b ⟩ -> 1/ℕ b < 1/ℕ a
-  1/ℕ-flips-order a@(a' , _) b@(b' , _) lt = subst2 _<_ b-path a-path ab*<
-    where
-    module _ where
-      ab = 1/ℕ a r* 1/ℕ b
-      pos-ab : Pos ab
-      pos-ab = r*-preserves-Pos _ _ (Pos-1/ℕ a) (Pos-1/ℕ b)
+  ℤ->ℚ-preserves-≤ : {a b : ℤ} -> a ≤ b -> (ℤ->ℚ a) ≤ (ℤ->ℚ b)
+  ℤ->ℚ-preserves-≤ (i , p) =
+    trans-≤-= (trans-=-≤ (sym +-left-zero) (+₂-preserves-≤ (ℕ->ℚ-preserves-≤ zero-≤)))
+              (sym (ℤ->ℚ-preserves-+ _ _) >=> cong ℤ->ℚ p)
 
-      a-path : (ab r* (ℕ->ℚ b')) == 1/ℕ a
-      a-path =
-        r*-assoc (1/ℕ a) (1/ℕ b) (ℕ->ℚ b') >=>
-        cong (1/ℕ a r*_) (1/ℕ-ℕ-path b) >=>
-        r*-right-one (1/ℕ a)
-      b-path : (ab r* (ℕ->ℚ a')) == 1/ℕ b
-      b-path =
-        cong (_r* ℕ->ℚ a') (r*-commute (1/ℕ a) (1/ℕ b)) >=>
-        r*-assoc (1/ℕ b) (1/ℕ a) (ℕ->ℚ a') >=>
-        cong (1/ℕ b r*_) (1/ℕ-ℕ-path a) >=>
-        r*-right-one (1/ℕ b)
+  ℤ->ℚ-preserves-< : {a b : ℤ} -> a < b -> (ℤ->ℚ a) < (ℤ->ℚ b)
+  ℤ->ℚ-preserves-< ((suc i , _) , p) =
+    trans-<-= (trans-=-< (sym +-left-zero) (+₂-preserves-< (ℕ->ℚ-preserves-< zero-<)))
+              (sym (ℤ->ℚ-preserves-+ _ _) >=> cong ℤ->ℚ p)
 
-      ab*< : (ab r* (ℕ->ℚ a')) < (ab r* (ℕ->ℚ b'))
-      ab*< = *₁-preserves-< pos-ab (ℕ->ℚ-preserves-< lt)
-
-  1/ℕ-flips-≤ : (a b : Nat⁺) -> ⟨ a ⟩ ≤ ⟨ b ⟩ -> 1/ℕ b ≤ 1/ℕ a
-  1/ℕ-flips-≤ a@(a' , _) b@(b' , _) lt = subst2 _≤_ b-path a-path ab*≤
-    where
-    module _ where
-      ab = 1/ℕ a r* 1/ℕ b
-      pos-ab : Pos ab
-      pos-ab = r*-preserves-Pos _ _ (Pos-1/ℕ a) (Pos-1/ℕ b)
-
-      a-path : (ab r* (ℕ->ℚ b')) == 1/ℕ a
-      a-path =
-        r*-assoc (1/ℕ a) (1/ℕ b) (ℕ->ℚ b') >=>
-        cong (1/ℕ a r*_) (1/ℕ-ℕ-path b) >=>
-        r*-right-one (1/ℕ a)
-      b-path : (ab r* (ℕ->ℚ a')) == 1/ℕ b
-      b-path =
-        cong (_r* ℕ->ℚ a') (r*-commute (1/ℕ a) (1/ℕ b)) >=>
-        r*-assoc (1/ℕ b) (1/ℕ a) (ℕ->ℚ a') >=>
-        cong (1/ℕ b r*_) (1/ℕ-ℕ-path a) >=>
-        r*-right-one (1/ℕ b)
-
-      ab*≤ : (ab r* (ℕ->ℚ a')) ≤ (ab r* (ℕ->ℚ b'))
-      ab*≤ = *₁-preserves-≤ (weaken-< pos-ab) (ℕ->ℚ-preserves-≤ lt)
-
-  1/ℕ≤1 : (a : Nat⁺) -> 1/ℕ a ≤ 1#
-  1/ℕ≤1 a@(suc _ , _) =
-    trans-≤-= (1/ℕ-flips-≤ 1⁺ a nat.order.zero-<) 1/ℕ-1
-
+opaque
   private
     zero-diff->path : (x y : ℚ) -> Zeroℚ (y r+ (r- x)) -> x == y
     zero-diff->path x y zyx = sym p
@@ -1026,107 +988,3 @@ abstract
 
       path : (r1/ a' (Pos->Inv pos-a')) == (r1/ b' (Pos->Inv pos-b'))
       path i = (r1/ (a==b i) (Pos->Inv (isProp->PathPᵉ (\ j -> isProp-Pos (a==b j)) pos-a' pos-b' i)))
-
-opaque
-  ℤ->ℚ-preserves-≤ : {a b : ℤ} -> a ≤ b -> (ℤ->ℚ a) ≤ (ℤ->ℚ b)
-  ℤ->ℚ-preserves-≤ (i , p) =
-    trans-≤-= (trans-=-≤ (sym +-left-zero) (+₂-preserves-≤ (ℕ->ℚ-preserves-≤ zero-≤)))
-              (sym (ℤ->ℚ-preserves-+ _ _) >=> cong ℤ->ℚ p)
-
-  ℤ->ℚ-preserves-< : {a b : ℤ} -> a < b -> (ℤ->ℚ a) < (ℤ->ℚ b)
-  ℤ->ℚ-preserves-< ((suc i , _) , p) =
-    trans-<-= (trans-=-< (sym +-left-zero) (+₂-preserves-< (ℕ->ℚ-preserves-< zero-<)))
-              (sym (ℤ->ℚ-preserves-+ _ _) >=> cong ℤ->ℚ p)
-
-
--- Archimedean
-
-
-private
-  nd⁺->ℚ' : (n : Nat) (d : Nat⁺) -> ℚ'
-  nd⁺->ℚ' n (d , pos-d) = record
-    { numerator = ℕ->ℤ n
-    ; denominator = ℕ->ℤ d
-    ; NonZero-denominator = inj-l (Pos'->Pos pos-d)
-    }
-
-  n⁺d⁺->ℚ' : (n d : Nat⁺) -> ℚ'
-  n⁺d⁺->ℚ' (n' , _)  d = nd⁺->ℚ' n' d
-
-  n⁺d⁺->ℚ : (n d : Nat⁺) -> ℚ
-  n⁺d⁺->ℚ n d = ℚ'->ℚ (n⁺d⁺->ℚ' n d)
-
-  n⁺d⁺->ℚ⁺ : (n d : Nat⁺) -> ℚ⁺
-  n⁺d⁺->ℚ⁺ n d = n⁺d⁺->ℚ n d ,
-           same-sign-ℚ' pos-sign _ (is-signℚ' (*-preserves-0< (Pos'->Pos (snd n)) (Pos'->Pos (snd d))))
-
-
-  opaque
-    unfolding ℚ
-
-    ℚ⁺-elimProp :
-      {ℓ : Level} -> {P : Pred ℚ⁺ ℓ} -> ((q : ℚ⁺) -> isProp (P q)) ->
-      ((n d : Nat⁺) -> P (n⁺d⁺->ℚ⁺ n d)) ->
-      (q : ℚ⁺) -> P q
-    ℚ⁺-elimProp {P = P} isProp-P f (q , pos-q) =
-      SetQuotientElim.elimProp (\q -> isPropΠ (\pos-q -> isProp-P (q , pos-q))) handle q pos-q
-      where
-      find-rep : (q' : ℚ') -> (Pos q') -> Σ[ n ∈ Nat⁺ ] (Σ[ d ∈ Nat⁺ ] (n⁺d⁺->ℚ' n d r~ q'))
-      find-rep (record { denominator = zero-int ; NonZero-denominator = nz }) =
-        bot-elim (NonZero->!=0 nz refl)
-      find-rep (record { numerator = (pos n') ; denominator = (pos d') }) _ =
-        ((suc n' , tt) , (suc d' , tt) , refl)
-      find-rep (record { numerator = (zero-int) ; denominator = (pos d') }) p =
-        bot-elim (convert-≤ (*₂-preserves-≤0 refl-≤ (weaken-< 0<pos)) (isSignℚ'.v p))
-      find-rep (record { numerator = (nonneg _) ; denominator = (neg d') }) p =
-        bot-elim (convert-≤ (*₁-preserves-≤0 0≤nonneg (weaken-< neg<0)) (isSignℚ'.v p))
-      find-rep (record { numerator = (neg _) ; denominator = (pos d') }) p =
-        bot-elim (convert-≤ (*₂-preserves-≤0 (weaken-< neg<0) (weaken-< 0<pos)) (isSignℚ'.v p))
-      find-rep (record { numerator = (neg n') ; denominator = (neg d') }) _ =
-        ((suc n' , tt) , (suc d' , tt) , minus-extract-right >=> sym minus-extract-left )
-
-      handle : (q' : ℚ') -> (pos-q : (Pos (ℚ'->ℚ q'))) -> P (ℚ'->ℚ q' , pos-q)
-      handle q' pos-q' = subst P path (f n d)
-        where
-        rep : Σ[ n ∈ Nat⁺ ] (Σ[ d ∈ Nat⁺ ] (n⁺d⁺->ℚ' n d r~ q'))
-        rep = find-rep q' (same-sign-ℚ'⁻ _ _ pos-q')
-        n : Nat⁺
-        n = fst rep
-        d : Nat⁺
-        d = fst (snd rep)
-        nd~ : n⁺d⁺->ℚ' n d r~ q'
-        nd~ = snd (snd rep)
-
-        path : (n⁺d⁺->ℚ⁺ n d) == (ℚ'->ℚ q' , pos-q')
-        path = ΣProp-path (\{x} -> isProp-Pos x) (r~->path _ _ nd~)
-
-
-  1/ℕ-<-step1 : (n d : Nat⁺) -> (1/ℕ' d) ℚ'≤ (n⁺d⁺->ℚ' n d)
-  1/ℕ-<-step1 n@(n'@(suc n'') , _)  d@(d' , pos-d) = ℚ'≤-cons ans
-    where
-    x1 = same-denom-r+' (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d))
-    x2 = ((n⁺d⁺->ℚ' n d) r+' (r-' (1/ℕ' d)))
-
-    0≤numer : 0# ≤ (int n' + (- (int 1)))
-    0≤numer = trans-≤-= 0≤nonneg (sym ℤ+-eval >=> +-commute)
-
-    ans2 : NonNeg (same-denom-r+' (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d)))
-    ans2 = NonNeg-nd->ℚ' (*-preserves-0≤ 0≤numer (weaken-< (Pos'->Pos pos-d)))
-
-    ans~ : same-denom-r+' (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d)) r~ ((n⁺d⁺->ℚ' n d) r+' (r-' (1/ℕ' d)))
-    ans~ = same-denom-r+'-r~ (n⁺d⁺->ℚ' n d) (r-' (1/ℕ' d)) refl
-
-    ans : NonNeg ((n⁺d⁺->ℚ' n d) r+' (r-' (1/ℕ' d)))
-    ans = r~-preserves-NonNeg {x1} {x2} ans2 ans~
-
-
-  1/ℕ-<-step2 : (n d : Nat⁺) -> ∃[ m ∈ Nat⁺ ] ( 1/ℕ' m ℚ'≤ (n⁺d⁺->ℚ' n d))
-  1/ℕ-<-step2 n d = ∣ d , 1/ℕ-<-step1 n d ∣
-
-  abstract
-    1/ℕ-<-step3 : (q : ℚ⁺) -> ∃[ m ∈ Nat⁺ ] (1/ℕ m ℚ≤ ⟨ q ⟩)
-    1/ℕ-<-step3 = ℚ⁺-elimProp (\q -> squash) (\n d -> (∥-map (handle n d) (1/ℕ-<-step2 n d)))
-      where
-      handle : (n d : Nat⁺) -> Σ[ m ∈ Nat⁺ ] (1/ℕ' m ℚ'≤ (n⁺d⁺->ℚ' n d)) ->
-               Σ[ m ∈ Nat⁺ ] (1/ℕ m ℚ≤ (n⁺d⁺->ℚ n d))
-      handle n d (m , p) = m , (ℚ≤-cons (transport (sym ℚ≤-raw-eval) p))

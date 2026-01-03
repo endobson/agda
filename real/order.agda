@@ -28,6 +28,9 @@ record _ℝ<'_ (x y : ℝ) : Type₁ where
 _ℝ<_ : ℝ -> ℝ -> Type₁
 x ℝ< y = ∥ x ℝ<' y ∥
 
+_ℝ≤_ : ℝ -> ℝ -> Type₁
+x ℝ≤ y = ¬ (y ℝ< x)
+
 
 abstract
   isProp-ℝ< : (x y : ℝ) -> isProp (x ℝ< y)

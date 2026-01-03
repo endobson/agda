@@ -1,43 +1,37 @@
 {-# OPTIONS --cubical --safe --exact-split #-}
 
-module ordered-field.archimedean where
+module ordered-semiring.archimedean.small where
 
 open import additive-group
-open import apartness
 open import base
-open import equality
-open import heyting-field
+open import equality-path
 open import nat
 open import nat.exponentiation
 open import nat.order
 open import order
 open import order.instances.nat
 open import ordered-additive-group
-open import ordered-field
 open import ordered-semiring
 open import ordered-semiring.archimedean
 open import ordered-semiring.initial
-open import relation
-open import ring
+open import ordered-semiring.natural-reciprocal
 open import semiring
 open import semiring.exponentiation
 open import semiring.initial
 open import semiring.instances.nat
+open import semiring.natural-reciprocal
 open import truncation
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D# : Rel D ℓD}
-         {A : isTightApartness D#}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
          {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
          {{_ : ℕ->Semiring-Op D}}
+         {{_ : 1/ℕ-Op D}}
          {LO : isLinearOrder D<}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {LOS : LinearlyOrderedSemiringStr S LO}
          {{NT : NonTrivialLinearlyOrderedSemiringStr LOS}}
+         {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}}
          {{AS : ArchimedeanSemiring LOS}}
-         {AG : AdditiveGroup ACM}
-         {R : Ring S AG}
-         {{F : Field R A}}
-         {{AL : ApartLinearOrderStr A LO}}
          where
   private
     instance
@@ -84,5 +78,5 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D# : Rel D ℓD}
           inner-path =
             *-left (Semiringʰ-preserves-^ℕ ℕ->Semiringʰ m) >=>
             sym (^ℕ-distrib-*-right m) >=>
-            cong (_^ℕ m) (*-left ℕ->Semiring-preserves-2# >=> 2*1/2-path) >=>
+            cong (_^ℕ m) (ℕ-1/ℕ-path 2⁺) >=>
             ^ℕ-preserves-1# m

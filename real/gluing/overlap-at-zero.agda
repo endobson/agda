@@ -21,10 +21,10 @@ open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.rational
 open import ordered-additive-group.instances.real
-open import ordered-field.mean
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
+open import ordered-semiring.mean
 open import rational
 open import rational.open-interval
 open import real
@@ -39,6 +39,7 @@ open import relation hiding (U)
 open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
+open import semiring.mean
 open import subset.subspace
 open import truncation
 

@@ -19,7 +19,6 @@ open import finsum.indicator
 open import finsum.order
 open import functions
 open import funext
-open import heyting-field.instances.rational
 open import hlevel
 open import isomorphism
 open import nat
@@ -35,11 +34,11 @@ open import ordered-additive-group
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.rational
 open import ordered-additive-group.instances.real
-open import ordered-field
 open import ordered-ring.absolute-value
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
+open import ordered-semiring.natural-reciprocal
 open import rational
 open import real
 open import real.epsilon-bounded
@@ -49,6 +48,7 @@ open import real.series.base
 open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
+open import semiring.natural-reciprocal
 open import sequence
 open import sequence.partial-sums
 open import sequence.permutation
@@ -70,136 +70,140 @@ private
   DetLateTerm : (N M : ℕ) -> Detachable (LateTerm N M)
   DetLateTerm _ _ _ = decide-≤ _ _
 
-  ConvergentSeries->εBounded-LateTerms :
-    {s : Seq} -> isConvergentSeries s ->
-    (ε : ℚ⁺) ->
-    ∃[ N ∈ ℕ ] (∀ n -> N ≤ n ->
-                εBounded ⟨ ε ⟩ (finiteSum (\ (k : Fin n) ->
-                                 indicator (LateTerm N n) (DetLateTerm N n) k * s (Fin.i k))))
-  ConvergentSeries->εBounded-LateTerms {s} (L , isLim) ε⁺@(ε , 0<ε) = εB-dropped-sums
-    where
-    ε' : ℚ
-    ε' = 1/2 * ε
-    0<ε' : 0# < ε'
-    0<ε' = *-preserves-0< 0<1/2 0<ε
-    ε'⁺ : ℚ⁺
-    ε'⁺ = ε' , 0<ε'
-    εB-sums : ∀Largeℕ (\i -> εBounded ε' (diff L (partial-sums s i)))
-    εB-sums = isLimit.εBounded-diff isLim ε'⁺
-
-    Ans = Σ[ N ∈ ℕ ] (∀ n -> N ≤ n ->
-                      εBounded ε (finiteSum (\ (k : Fin n) ->
+  opaque
+    ConvergentSeries->εBounded-LateTerms :
+      {s : Seq} -> isConvergentSeries s ->
+      (ε : ℚ⁺) ->
+      ∃[ N ∈ ℕ ] (∀ n -> N ≤ n ->
+                  εBounded ⟨ ε ⟩ (finiteSum (\ (k : Fin n) ->
                                    indicator (LateTerm N n) (DetLateTerm N n) k * s (Fin.i k))))
-
-    εB-dropped-sums : ∥ Ans ∥
-    εB-dropped-sums = ∥-map handle εB-sums
+    ConvergentSeries->εBounded-LateTerms {s} (L , isLim) ε⁺@(ε , 0<ε) = εB-dropped-sums
       where
-      handle : ∀Largeℕ' (\i -> εBounded ε' (diff L (partial-sums s i))) -> Ans
-      handle (N , εB-sums') = N , (\n N≤n -> subst (εBounded ε) (path5 n N≤n) (εB1 n N≤n))
+      ε' : ℚ
+      ε' = ε * 1/2
+      0<ε' : 0# < ε'
+      0<ε' = *-preserves-0< 0<ε 0<1/2
+      ε'⁺ : ℚ⁺
+      ε'⁺ = ε' , 0<ε'
+      εB-sums : ∀Largeℕ (\i -> εBounded ε' (diff L (partial-sums s i)))
+      εB-sums = isLimit.εBounded-diff isLim ε'⁺
+
+      Ans : Type₀
+      Ans = Σ[ N ∈ ℕ ] (∀ n -> N ≤ n ->
+                        εBounded ε (finiteSum (\ (k : Fin n) ->
+                                     indicator (LateTerm N n) (DetLateTerm N n) k * s (Fin.i k))))
+
+      εB-dropped-sums : ∥ Ans ∥
+      εB-dropped-sums = ∥-map handle εB-sums
         where
+        handle : ∀Largeℕ' (\i -> εBounded ε' (diff L (partial-sums s i))) -> Ans
+        handle (N , εB-sums') = N , (\n N≤n -> subst (εBounded ε) (path5 n N≤n) (εB1 n N≤n))
+          where
 
-        module _ (n : ℕ) (N≤n : N ≤ n) where
-          sums1 : εBounded ε' (diff L (partial-sums s n))
-          sums1 = (εB-sums' n N≤n)
-          sums2 : εBounded ε' (diff L (partial-sums s N))
-          sums2 = (εB-sums' N refl-≤)
-          path1 : diff (diff L (partial-sums s N)) (diff L (partial-sums s n)) ==
-                  diff (partial-sums s N) (partial-sums s n)
-          path1 = +-right (sym diff-anticommute) >=> +-commute >=> diff-trans
+          module _ (n : ℕ) (N≤n : N ≤ n) where
+            sums1 : εBounded ε' (diff L (partial-sums s n))
+            sums1 = (εB-sums' n N≤n)
+            sums2 : εBounded ε' (diff L (partial-sums s N))
+            sums2 = (εB-sums' N refl-≤)
+            path1 : diff (diff L (partial-sums s N)) (diff L (partial-sums s n)) ==
+                    diff (partial-sums s N) (partial-sums s n)
+            path1 = +-right (sym diff-anticommute) >=> +-commute >=> diff-trans
 
-          εB1 : εBounded ε (diff (partial-sums s N) (partial-sums s n))
-          εB1 = subst2 εBounded 1/2-path path1 (εBounded-diff sums2 sums1)
+            εB1 : εBounded ε (diff (partial-sums s N) (partial-sums s n))
+            εB1 = subst2 εBounded +-/2-path path1 (εBounded-diff sums2 sums1)
 
-          S : Subtype (Fin n) ℓ-zero
-          S = LateTerm N n
-          DetS : Detachable S
-          DetS = DetLateTerm N n
+            S : Subtype (Fin n) ℓ-zero
+            S = LateTerm N n
+            DetS : Detachable S
+            DetS = DetLateTerm N n
 
-          open FinSetStr-DetachableInstances S DetS
+            open FinSetStr-DetachableInstances S DetS
 
-          ∉S≃FinN : (∉-Subtype S) ≃ Fin N
-          ∉S≃FinN = isoToEquiv (iso f g fg gf)
-            where
-            f : (∉-Subtype S) -> Fin N
-            f ((k , k<n) , ¬N≤k) = k , stable-< (¬N≤k ∘ convert-≮)
-            g : Fin N -> (∉-Subtype S)
-            g (k , k<N) = (k , trans-<-≤ k<N N≤n) , (\N≤k -> convert-≤ N≤k k<N)
-            fg : ∀ k -> f (g k) == k
-            fg k = fin-i-path refl
-            gf : ∀ k -> g (f k) == k
-            gf k = ΣProp-path isProp¬ (fin-i-path refl)
+            ∉S≃FinN : (∉-Subtype S) ≃ Fin N
+            ∉S≃FinN = isoToEquiv (iso f g fg gf)
+              where
+              f : (∉-Subtype S) -> Fin N
+              f ((k , k<n) , ¬N≤k) = k , stable-< (¬N≤k ∘ convert-≮)
+              g : Fin N -> (∉-Subtype S)
+              g (k , k<N) = (k , trans-<-≤ k<N N≤n) , (\N≤k -> convert-≤ N≤k k<N)
+              fg : ∀ k -> f (g k) == k
+              fg k = fin-i-path refl
+              gf : ∀ k -> g (f k) == k
+              gf k = ΣProp-path isProp¬ (fin-i-path refl)
 
-          path2 : (partial-sums s n) ==
-                  (finiteSum (\ (((k , _) , _) : (∈-Subtype S)) -> s k)) +
-                  (finiteSum (\ (((k , _) , _) : (∉-Subtype S)) -> s k))
-          path2 = finiteMerge-detachable _ S DetS _
+            path2 : (partial-sums s n) ==
+                    (finiteSum (\ (((k , _) , _) : (∈-Subtype S)) -> s k)) +
+                    (finiteSum (\ (((k , _) , _) : (∉-Subtype S)) -> s k))
+            path2 = finiteMerge-detachable _ S DetS _
 
-          path3 : (finiteSum (\ (((k , _) , _) : (∈-Subtype S)) -> s k)) ==
-                  (finiteSum (\ (k : Fin n) -> indicator S DetS k * s (Fin.i k)))
-          path3 = finiteSum-indicator S DetS
+            path3 : (finiteSum (\ (((k , _) , _) : (∈-Subtype S)) -> s k)) ==
+                    (finiteSum (\ (k : Fin n) -> indicator S DetS k * s (Fin.i k)))
+            path3 = finiteSum-indicator S DetS
 
-          path4 : (finiteSum (\ (((k , _) , _) : (∉-Subtype S)) -> s k)) ==
-                  partial-sums s N
-          path4 = finiteMerge-convert _ (equiv⁻¹ ∉S≃FinN) _
+            path4 : (finiteSum (\ (((k , _) , _) : (∉-Subtype S)) -> s k)) ==
+                    partial-sums s N
+            path4 = finiteMerge-convert _ (equiv⁻¹ ∉S≃FinN) _
 
-          path5 : (diff (partial-sums s N) (partial-sums s n)) ==
-                  (finiteSum (\ (k : Fin n) -> indicator S DetS k * s (Fin.i k)))
-          path5 = cong (diff (partial-sums s N)) (path2 >=> +-cong path3 path4) >=>
-                  +-assoc >=> +-right +-inverse >=> +-right-zero
+            path5 : (diff (partial-sums s N) (partial-sums s n)) ==
+                    (finiteSum (\ (k : Fin n) -> indicator S DetS k * s (Fin.i k)))
+            path5 = cong (diff (partial-sums s N)) (path2 >=> +-cong path3 path4) >=>
+                    +-assoc >=> +-right +-inverse >=> +-right-zero
 
-  permuted-partial-sums-abs-bounded-below :
-    {s : Seq} -> (p : Iso ℕ ℕ)  ->
-    (∀ i -> Σ[ j ∈ ℕ ] (partial-sums (abs ∘ s) i ≤ partial-sums (abs ∘ permute-seq p s) j))
-  permuted-partial-sums-abs-bounded-below {s} p i =
-    j , trans-=-≤ (path2 >=> path3) lt1
-    where
-    Σlwm : Σ ℕ (isLowWaterMark p i)
-    Σlwm = find-LowWaterMark p i
-    j = fst Σlwm
-
-    S : Subtype (Fin i) ℓ-zero
-    S (k , _) = (Iso.inv p k) < j , isProp-<
-    S' : Subtype (Fin j) ℓ-zero
-    S' (k , _) = (Iso.fun p k) < i , isProp-<
-
-    DetS : Detachable S
-    DetS (k , _) = decide-< _ _
-    DetS' : Detachable S'
-    DetS' (k , _) = decide-< _ _
-
-    open FinSetStr-DetachableInstances S DetS
-    open FinSetStr-DetachableInstances S' DetS'
-
-    isTotal-S : (k : Fin i) -> ⟨ S k ⟩
-    isTotal-S (k , k<i) = proj₂ (snd Σlwm) (Iso.inv p k) (trans-=-< (Iso.rightInv p k) k<i)
-
-    Fin-i≃∈S : Fin i ≃ ∈-Subtype S
-    Fin-i≃∈S = Σ-isContr-eq (\k -> isTotal-S k , snd (S k) _)
-
-    ∈S≃∈S' : ∈-Subtype S ≃ ∈-Subtype S'
-    ∈S≃∈S' = isoToEquiv (iso f g fg gf)
+  opaque
+    permuted-partial-sums-abs-bounded-below :
+      {s : Seq} -> (p : Iso ℕ ℕ)  ->
+      (∀ i -> Σ[ j ∈ ℕ ] (partial-sums (abs ∘ s) i ≤ partial-sums (abs ∘ permute-seq p s) j))
+    permuted-partial-sums-abs-bounded-below {s} p i =
+      j , trans-=-≤ (path2 >=> path3) lt1
       where
-      f : ∈-Subtype S -> ∈-Subtype S'
-      f ((k , k<i) , k'<j) = (Iso.inv p k , k'<j) , (trans-=-< (Iso.rightInv p k) k<i)
-      g : ∈-Subtype S' -> ∈-Subtype S
-      g ((k , k<j) , k'<i) = (Iso.fun p k , k'<i) , (trans-=-< (Iso.leftInv p k) k<j)
-      fg : ∀ k -> f (g k) == k
-      fg k = ΣProp-path (\{k} -> (snd (S' k))) (fin-i-path (Iso.leftInv p _))
-      gf : ∀ k -> g (f k) == k
-      gf k = ΣProp-path (\{k} -> (snd (S k))) (fin-i-path (Iso.rightInv p _))
+      Σlwm : Σ ℕ (isLowWaterMark p i)
+      Σlwm = find-LowWaterMark p i
+      j : ℕ
+      j = fst Σlwm
 
-    path2 : finiteSum (\ ((k , _) : Fin i) -> abs (s k)) ==
-            finiteSum (\ (((k , _) , _) : (∈-Subtype S')) -> abs (permute-seq p s k))
-    path2 = finiteMerge-convert _ (equiv⁻¹ (Fin-i≃∈S >eq> ∈S≃∈S')) _
+      S : Subtype (Fin i) ℓ-zero
+      S (k , _) = (Iso.inv p k) < j , isProp-<
+      S' : Subtype (Fin j) ℓ-zero
+      S' (k , _) = (Iso.fun p k) < i , isProp-<
 
-    path3 : finiteSum (\ (((k , _) , _) : (∈-Subtype S')) -> abs (permute-seq p s k)) ==
-            finiteSum (\ (k : Fin j) -> (indicator S' DetS' k * abs (permute-seq p s (Fin.i k))))
-    path3 = finiteSum-indicator S' DetS'
+      DetS : Detachable S
+      DetS (k , _) = decide-< _ _
+      DetS' : Detachable S'
+      DetS' (k , _) = decide-< _ _
 
-    lt1 : finiteSum (\ (k : Fin j) -> (indicator S' DetS' k * abs (permute-seq p s (Fin.i k)))) ≤
-          finiteSum (\ (k : Fin j) -> (abs (permute-seq p s (Fin.i k))))
-    lt1 = finiteSum-preserves-≤ (\k -> trans-≤-= (*₂-preserves-≤ indicator-≤1 abs-0≤)
-                                                  *-left-one)
+      open FinSetStr-DetachableInstances S DetS
+      open FinSetStr-DetachableInstances S' DetS'
+
+      isTotal-S : (k : Fin i) -> ⟨ S k ⟩
+      isTotal-S (k , k<i) = proj₂ (snd Σlwm) (Iso.inv p k) (trans-=-< (Iso.rightInv p k) k<i)
+
+      Fin-i≃∈S : Fin i ≃ ∈-Subtype S
+      Fin-i≃∈S = Σ-isContr-eq (\k -> isTotal-S k , snd (S k) _)
+
+      ∈S≃∈S' : ∈-Subtype S ≃ ∈-Subtype S'
+      ∈S≃∈S' = isoToEquiv (iso f g fg gf)
+        where
+        f : ∈-Subtype S -> ∈-Subtype S'
+        f ((k , k<i) , k'<j) = (Iso.inv p k , k'<j) , (trans-=-< (Iso.rightInv p k) k<i)
+        g : ∈-Subtype S' -> ∈-Subtype S
+        g ((k , k<j) , k'<i) = (Iso.fun p k , k'<i) , (trans-=-< (Iso.leftInv p k) k<j)
+        fg : ∀ k -> f (g k) == k
+        fg k = ΣProp-path (\{k} -> (snd (S' k))) (fin-i-path (Iso.leftInv p _))
+        gf : ∀ k -> g (f k) == k
+        gf k = ΣProp-path (\{k} -> (snd (S k))) (fin-i-path (Iso.rightInv p _))
+
+      path2 : finiteSum (\ ((k , _) : Fin i) -> abs (s k)) ==
+              finiteSum (\ (((k , _) , _) : (∈-Subtype S')) -> abs (permute-seq p s k))
+      path2 = finiteMerge-convert _ (equiv⁻¹ (Fin-i≃∈S >eq> ∈S≃∈S')) _
+
+      path3 : finiteSum (\ (((k , _) , _) : (∈-Subtype S')) -> abs (permute-seq p s k)) ==
+              finiteSum (\ (k : Fin j) -> (indicator S' DetS' k * abs (permute-seq p s (Fin.i k))))
+      path3 = finiteSum-indicator S' DetS'
+
+      lt1 : finiteSum (\ (k : Fin j) -> (indicator S' DetS' k * abs (permute-seq p s (Fin.i k)))) ≤
+            finiteSum (\ (k : Fin j) -> (abs (permute-seq p s (Fin.i k))))
+      lt1 = finiteSum-preserves-≤ (\k -> trans-≤-= (*₂-preserves-≤ indicator-≤1 abs-0≤)
+                                                    *-left-one)
 
   permuted-partial-sums-abs-bounded-above :
     {s : Seq} -> (p : Iso ℕ ℕ)  ->
@@ -280,7 +284,7 @@ private
           Σj : Σ[ j ∈ ℕ ] (partial-sums (abs ∘ permute-seq p s) i ≤ partial-sums (abs ∘ s) j)
           Σj = permuted-partial-sums-abs-bounded-above p i
 
-abstract
+opaque
   permute-preserves-limit-partial-sums :
     {s : Seq} -> {l1 : ℝ} -> (p : Iso ℕ ℕ) ->
     isAbsConvergentSeries s ->
@@ -294,163 +298,176 @@ abstract
       ε = fst ε⁺
       0<ε = snd ε⁺
       ε' : ℚ
-      ε' = 1/2 * ε
+      ε' = ε * 1/2
       0<ε' : 0# < ε'
-      0<ε' = *-preserves-0< 0<1/2 0<ε
+      0<ε' = *-preserves-0< 0<ε 0<1/2
       ε'⁺ : ℚ⁺
       ε'⁺ = ε' , 0<ε'
 
-      trivial-diff : ∀Largeℕ (\n -> (εBounded ε (diff l1 (partial-sums (permute-seq p s) n))))
-      trivial-diff = ∥-map2 handle (ConvergentSeries->εBounded-LateTerms absConv ε'⁺)
-                                   (isLimit.εBounded-diff isLim1 ε'⁺)
-         where
-         handle : Σ[ N ∈ ℕ ] (∀ n -> N ≤ n ->
-                      εBounded ε' (finiteSum (\ (k : Fin n) ->
-                                    indicator (LateTerm N n) (DetLateTerm N n) k * abs (s (Fin.i k))))) ->
-                  ∀Largeℕ' (\n -> εBounded ε' (diff l1 (partial-sums s n))) ->
-                  ∀Largeℕ' (\n -> (εBounded ε (diff l1 (partial-sums (permute-seq p s) n))))
-         handle (N1 , εB-terms) (N2 , εBounded-sums) = M1 , εB3
-           where
-           N = max N1 N2
-           Σlwm : Σ ℕ (isLowWaterMark p N)
-           Σlwm = find-LowWaterMark p N
-           M1 = fst Σlwm
+      opaque
+        trivial-diff : ∀Largeℕ (\n -> (εBounded ε (diff l1 (partial-sums (permute-seq p s) n))))
+        trivial-diff = ∥-map2 handle (ConvergentSeries->εBounded-LateTerms absConv ε'⁺)
+                                     (isLimit.εBounded-diff isLim1 ε'⁺)
+          where
+          handle : Σ[ N ∈ ℕ ] (∀ n -> N ≤ n ->
+                       εBounded ε' (finiteSum (\ (k : Fin n) ->
+                                     indicator (LateTerm N n) (DetLateTerm N n) k * abs (s (Fin.i k))))) ->
+                   ∀Largeℕ' (\n -> εBounded ε' (diff l1 (partial-sums s n))) ->
+                   ∀Largeℕ' (\n -> (εBounded ε (diff l1 (partial-sums (permute-seq p s) n))))
+          handle (N1 , εB-terms) (N2 , εBounded-sums) = M1 , εB3
+            where
+            N : ℕ
+            N = max N1 N2
+            Σlwm : Σ ℕ (isLowWaterMark p N)
+            Σlwm = find-LowWaterMark p N
+            M1 : ℕ
+            M1 = fst Σlwm
 
-           module _ (M1' : Nat) (M1≤M1' : M1 ≤ M1') where
+            module _ (M1' : Nat) (M1≤M1' : M1 ≤ M1') where
 
-             Σlwm' : Σ ℕ (isLowWaterMark (iso⁻¹ p) M1')
-             Σlwm' = find-LowWaterMark (iso⁻¹ p) M1'
-             M2 = fst Σlwm'
+              Σlwm' : Σ ℕ (isLowWaterMark (iso⁻¹ p) M1')
+              Σlwm' = find-LowWaterMark (iso⁻¹ p) M1'
+              M2 = fst Σlwm'
 
-             -- k -> M1 ≤ k -> N ≤ p.fun k
-             -- k -> M2 ≤ k -> M1' ≤ p.inv k
+              -- k -> M1 ≤ k -> N ≤ p.fun k
+              -- k -> M2 ≤ k -> M1' ≤ p.inv k
 
-             --Remove copy paste
+              --Remove copy paste
 
-             N≤M2 : N ≤ M2
-             N≤M2 = trans-≤-= (proj₁ (snd Σlwm) (Iso.inv p M2)
-                                     (trans-≤ M1≤M1' (proj₁ (snd Σlwm') M2 refl-≤)))
-                              (Iso.rightInv p M2)
+              N≤M2 : N ≤ M2
+              N≤M2 = trans-≤-= (proj₁ (snd Σlwm) (Iso.inv p M2)
+                                      (trans-≤ M1≤M1' (proj₁ (snd Σlwm') M2 refl-≤)))
+                               (Iso.rightInv p M2)
 
-             S1 : Subtype (Fin M1') ℓ-zero
-             S1 (k , _) = (Iso.fun p k) < N , isProp-<
-             DetS1 : Detachable S1
-             DetS1 (k , _) = decide-< _ _
+              S1 : Subtype (Fin M1') ℓ-zero
+              S1 (k , _) = (Iso.fun p k) < N , isProp-<
+              DetS1 : Detachable S1
+              DetS1 (k , _) = decide-< _ _
 
-             S2 : Subtype (Fin N) ℓ-zero
-             S2 (k , _) = (Iso.inv p k) < M1' , isProp-<
-             DetS2 : Detachable S2
-             DetS2 (k , _) = decide-< _ _
+              S2 : Subtype (Fin N) ℓ-zero
+              S2 (k , _) = (Iso.inv p k) < M1' , isProp-<
+              DetS2 : Detachable S2
+              DetS2 (k , _) = decide-< _ _
 
-             S3 : Subtype (Fin M2) ℓ-zero
-             S3 (k , _) = ((N ≤ k) × (Iso.inv p k < M1')) , isProp× isProp-≤ isProp-≤
-             DetS3 : Detachable S3
-             DetS3 = Decidable-∩ (\_ -> decide-≤ _ _) (\_ -> decide-≤ _ _)
+              S3 : Subtype (Fin M2) ℓ-zero
+              S3 (k , _) = ((N ≤ k) × (Iso.inv p k < M1')) , isProp× isProp-≤ isProp-≤
+              DetS3 : Detachable S3
+              DetS3 = Decidable-∩ (\_ -> decide-≤ _ _) (\_ -> decide-≤ _ _)
 
-             open FinSetStr-DetachableInstances S1 DetS1
-             open FinSetStr-DetachableInstances S2 DetS2
-             open FinSetStr-DetachableInstances S3 DetS3
+              open FinSetStr-DetachableInstances S1 DetS1
+              open FinSetStr-DetachableInstances S2 DetS2
+              open FinSetStr-DetachableInstances S3 DetS3
 
-             eq1 : Fin M1' ≃ (∈-Subtype S1 ⊎ ∉-Subtype S1)
-             eq1 = Detachable-eq S1 DetS1
+              eq1 : Fin M1' ≃ (∈-Subtype S1 ⊎ ∉-Subtype S1)
+              eq1 = Detachable-eq S1 DetS1
 
-             eq2 : Fin N ≃ ∈-Subtype S2
-             eq2 = Σ-isContr-eq (\k -> isTotal-S2 k , snd (S2 k) _)
-               where
-               isTotal-S2 : (k : Fin N) -> ⟨ S2 k ⟩
-               isTotal-S2 (k , k<N) =
-                 trans-<-≤ (proj₂ (snd Σlwm) (Iso.inv p k) (trans-=-< (Iso.rightInv p k) k<N))
-                           M1≤M1'
+              eq2 : Fin N ≃ ∈-Subtype S2
+              eq2 = Σ-isContr-eq (\k -> isTotal-S2 k , snd (S2 k) _)
+                where
+                isTotal-S2 : (k : Fin N) -> ⟨ S2 k ⟩
+                isTotal-S2 (k , k<N) =
+                  trans-<-≤ (proj₂ (snd Σlwm) (Iso.inv p k) (trans-=-< (Iso.rightInv p k) k<N))
+                            M1≤M1'
 
-             ∉S1≃∈S3 : ∉-Subtype S1 ≃ ∈-Subtype S3
-             ∉S1≃∈S3 = isoToEquiv (iso f g fg gf)
-               where
-               f : ∉-Subtype S1 -> ∈-Subtype S3
-               f ((k , k<M1') , k'≮N) =
-                 (k' , (proj₂ (snd Σlwm') _ k''<M1')) ,
-                 (convert-≮ k'≮N , k''<M1')
-                 where
-                 k' = Iso.fun p k
-                 k''<M1' : Iso.inv p k' < M1'
-                 k''<M1' = trans-=-< (Iso.leftInv p k) k<M1'
-               g : ∈-Subtype S3 -> ∉-Subtype S1
-               g ((k , k<m2) , (N≤k , k'<M1')) =
-                 (k' , k'<M1') , convert-≤ (trans-≤-= N≤k (sym (Iso.rightInv p k)))
-                 where
-                 k' = Iso.inv p k
-               fg : ∀ k -> f (g k) == k
-               fg k = ΣProp-path (\{k} -> (snd (S3 k))) (fin-i-path (Iso.rightInv p _))
-               gf : ∀ k -> g (f k) == k
-               gf k = ΣProp-path isProp¬ (fin-i-path (Iso.leftInv p _))
-
-
-             ∈S2≃∈S1 : ∈-Subtype S2 ≃ ∈-Subtype S1
-             ∈S2≃∈S1 = isoToEquiv (iso f g fg gf)
-               where
-               f : ∈-Subtype S2 -> ∈-Subtype S1
-               f ((k , k<i) , k'<j) = (Iso.inv p k , k'<j) , (trans-=-< (Iso.rightInv p k) k<i)
-               g : ∈-Subtype S1 -> ∈-Subtype S2
-               g ((k , k<j) , k'<i) = (Iso.fun p k , k'<i) , (trans-=-< (Iso.leftInv p k) k<j)
-               fg : ∀ k -> f (g k) == k
-               fg k = ΣProp-path (\{k} -> (snd (S1 k))) (fin-i-path (Iso.leftInv p _))
-               gf : ∀ k -> g (f k) == k
-               gf k = ΣProp-path (\{k} -> (snd (S2 k))) (fin-i-path (Iso.rightInv p _))
-
-             path1 : finiteSum (\ ((k , _) : Fin M1') -> (permute-seq p s k)) ==
-                     finiteSum (\ (((k , _) , _) : (∈-Subtype S1)) -> (permute-seq p s k)) +
-                     finiteSum (\ (((k , _) , _) : (∉-Subtype S1)) -> (permute-seq p s k))
-             path1 = finiteMerge-detachable _ S1 DetS1 (permute-seq p s ∘ Fin.i)
+              ∉S1≃∈S3 : ∉-Subtype S1 ≃ ∈-Subtype S3
+              ∉S1≃∈S3 = isoToEquiv (iso f g fg gf)
+                where
+                f : ∉-Subtype S1 -> ∈-Subtype S3
+                f ((k , k<M1') , k'≮N) =
+                  (k' , (proj₂ (snd Σlwm') _ k''<M1')) ,
+                  (convert-≮ k'≮N , k''<M1')
+                  where
+                  k' = Iso.fun p k
+                  k''<M1' : Iso.inv p k' < M1'
+                  k''<M1' = trans-=-< (Iso.leftInv p k) k<M1'
+                g : ∈-Subtype S3 -> ∉-Subtype S1
+                g ((k , k<m2) , (N≤k , k'<M1')) =
+                  (k' , k'<M1') , convert-≤ (trans-≤-= N≤k (sym (Iso.rightInv p k)))
+                  where
+                  k' = Iso.inv p k
+                fg : ∀ k -> f (g k) == k
+                fg k = ΣProp-path (\{k} -> (snd (S3 k))) (fin-i-path (Iso.rightInv p _))
+                gf : ∀ k -> g (f k) == k
+                gf k = ΣProp-path isProp¬ (fin-i-path (Iso.leftInv p _))
 
 
-             path2 : finiteSum (\ (((k , _) , _) : (∈-Subtype S1)) -> (permute-seq p s k)) ==
-                     finiteSum (\ ((k , _) : Fin N) -> (s k))
-             path2 = sym (finiteMerge-convert _ (equiv⁻¹ (eq2 >eq> ∈S2≃∈S1)) _)
+              ∈S2≃∈S1 : ∈-Subtype S2 ≃ ∈-Subtype S1
+              ∈S2≃∈S1 = isoToEquiv (iso f g fg gf)
+                where
+                f : ∈-Subtype S2 -> ∈-Subtype S1
+                f ((k , k<i) , k'<j) = (Iso.inv p k , k'<j) , (trans-=-< (Iso.rightInv p k) k<i)
+                g : ∈-Subtype S1 -> ∈-Subtype S2
+                g ((k , k<j) , k'<i) = (Iso.fun p k , k'<i) , (trans-=-< (Iso.leftInv p k) k<j)
+                fg : ∀ k -> f (g k) == k
+                fg k = ΣProp-path (\{k} -> (snd (S1 k))) (fin-i-path (Iso.leftInv p _))
+                gf : ∀ k -> g (f k) == k
+                gf k = ΣProp-path (\{k} -> (snd (S2 k))) (fin-i-path (Iso.rightInv p _))
 
-             path3 : finiteSum (\ (((k , _) , _) : (∉-Subtype S1)) -> (permute-seq p s k)) ==
-                     finiteSum (\ (((k , _) , _) : (∈-Subtype S3)) -> (s k))
-             path3 = sym (finiteMerge-convert _ ∉S1≃∈S3 _)
+              v1 v2 v3 v4 v5 v6 v7 : ℝ
+              v1 = finiteSum (\ ((k , _) : Fin M1') -> (permute-seq p s k))
+              v2 = finiteSum (\ (((k , _) , _) : (∈-Subtype S1)) -> (permute-seq p s k))
+              v3 = finiteSum (\ (((k , _) , _) : (∉-Subtype S1)) -> (permute-seq p s k))
+              v4 = finiteSum (\ ((k , _) : Fin N) -> (s k))
+              v5 = finiteSum (\ (((k , _) , _) : (∈-Subtype S3)) -> (s k))
+              v6 = finiteSum (\ (k : Fin M2) -> indicator S3 DetS3 k * s (Fin.i k))
+              v7 = finiteSum (\ (k : Fin M2) ->
+                     indicator (LateTerm N1 M2) (DetLateTerm N1 M2) k * abs (s (Fin.i k)))
 
-             path4 : finiteSum (\ (((k , _) , _) : (∈-Subtype S3)) -> (s k)) ==
-                     finiteSum (\ (k : Fin M2) -> indicator S3 DetS3 k * s (Fin.i k))
-             path4 = finiteSum-indicator S3 DetS3
+              opaque
+                path1 : v1 == v2 + v3
+                path1 = finiteMerge-detachable _ S1 DetS1 (permute-seq p s ∘ Fin.i)
 
-             εB1 : εBounded ε' (finiteSum (\ (k : Fin M2) ->
-                                 indicator (LateTerm N1 M2) (DetLateTerm N1 M2) k * abs (s (Fin.i k))))
-             εB1 = εB-terms M2 (trans-≤ max-≤-left N≤M2)
+              opaque
+                path2 : v2 == v4
+                path2 = sym (finiteMerge-convert _ (equiv⁻¹ (eq2 >eq> ∈S2≃∈S1)) _)
 
-             lt1 : abs (finiteSum (\ (k : Fin M2) -> indicator S3 DetS3 k * (s (Fin.i k)))) ≤
-                       (finiteSum (\ (k : Fin M2) ->
-                         indicator (LateTerm N1 M2) (DetLateTerm N1 M2) k * abs (s (Fin.i k))))
-             lt1 = trans-≤ finiteSum-abs≤ (finiteSum-preserves-≤ inner-≤)
-               where
-               S3->LateTerm : (k : Fin M2) -> ⟨ S3 k ⟩ -> ⟨ LateTerm N1 M2 k ⟩
-               S3->LateTerm k (N≤k , k'<M1') = trans-≤ max-≤-left N≤k
+              opaque
+                path3 : v3 == v5
+                path3 = sym (finiteMerge-convert _ ∉S1≃∈S3 _)
 
-               ind≤ : (k : Fin M2) -> (abs (indicator S3 DetS3 k)) ≤
-                                      (indicator (LateTerm N1 M2) (DetLateTerm N1 M2) k)
-               ind≤ k = trans-=-≤ (abs-0≤-path indicator-0≤) (indicator-≤ S3->LateTerm)
+              opaque
+                path4 : v5 == v6
+                path4 = finiteSum-indicator S3 DetS3
 
-               inner-≤ : (k : Fin M2) ->
-                 abs (indicator S3 DetS3 k * (s (Fin.i k))) ≤
-                 (indicator (LateTerm N1 M2) (DetLateTerm N1 M2) k * abs (s (Fin.i k)))
-               inner-≤ k = trans-=-≤ abs-distrib-* (*₂-preserves-≤ (ind≤ k) abs-0≤)
+              opaque
+                unfolding N
 
-             εB2 : εBounded ε' (finiteSum (\ (k : Fin M2) -> indicator S3 DetS3 k * s (Fin.i k)))
-             εB2 = εBounded-abs≤ lt1 εB1
+                εB1 : εBounded ε' v7
+                εB1 = εB-terms M2 (trans-≤ max-≤-left N≤M2)
 
-             path5 : (diff l1 (finiteSum (\ ((k , _) : Fin M1') -> (permute-seq p s k)))) ==
-                     (diff l1 (finiteSum (\ ((k , _) : Fin N) -> (s k)))) +
-                     (finiteSum (\ (k : Fin M2) -> indicator S3 DetS3 k * s (Fin.i k)))
-             path5 = cong (diff l1) (path1 >=> +-cong path2 path3 >=> +-commute) >=>
-                     +-assoc >=> +-commute >=>
-                     +-right path4
+              opaque
+                lt1 : abs v6 ≤ v7
+                lt1 = trans-≤ finiteSum-abs≤ (finiteSum-preserves-≤ inner-≤)
+                  where
+                  S3->LateTerm : (k : Fin M2) -> ⟨ S3 k ⟩ -> ⟨ LateTerm N1 M2 k ⟩
+                  S3->LateTerm k (N≤k , k'<M1') = trans-≤ max-≤-left N≤k
 
-             εB3 : εBounded ε (diff l1 (finiteSum (\ ((k , _) : Fin M1') -> (permute-seq p s k))))
-             εB3 =
-               subst2 εBounded 1/2-path (sym path5)
-                 (εBounded-+ (diff l1 (finiteSum (\ ((k , _) : Fin N) -> (s k))))
-                             (finiteSum (\ (k : Fin M2) -> indicator S3 DetS3 k * s (Fin.i k)))
-                             (εBounded-sums N max-≤-right) εB2)
+                  ind≤ : (k : Fin M2) -> (abs (indicator S3 DetS3 k)) ℝ≤
+                                         (indicator (LateTerm N1 M2) (DetLateTerm N1 M2) k)
+                  ind≤ k = trans-=-≤ (abs-0≤-path indicator-0≤) (indicator-≤ S3->LateTerm)
+
+                  inner-≤ : (k : Fin M2) ->
+                    abs (indicator S3 DetS3 k * (s (Fin.i k))) ≤
+                    (indicator (LateTerm N1 M2) (DetLateTerm N1 M2) k * abs (s (Fin.i k)))
+                  inner-≤ k = trans-=-≤ abs-distrib-* (*₂-preserves-≤ (ind≤ k) abs-0≤)
+
+              opaque
+                εB2 : εBounded ε' v6
+                εB2 = εBounded-abs≤ lt1 εB1
+
+              opaque
+                path5 : (diff l1 v1) == (diff l1 v4) + v6
+                path5 = cong (diff l1) (path1 >=> +-cong path2 path3 >=> +-commute) >=>
+                        +-assoc >=> +-commute >=>
+                        +-right path4
+
+              opaque
+                unfolding N
+
+                εB3 : εBounded ε (diff l1 v1)
+                εB3 =
+                  subst2 εBounded +-/2-path (sym path5)
+                    (εBounded-+ (diff l1 v4) v6 (εBounded-sums N max-≤-right) εB2)
 
 private
   isAbsConvergentSeries-abs :
@@ -460,7 +477,7 @@ private
   isAbsConvergentSeries-abs =
     subst isConvergentSeries (funExt (\i -> sym (abs-0≤-path abs-0≤)))
 
-abstract
+opaque
   permute-preserves-isAbsConvergentSeries :
     {s : Sequence ℝ} ->
     (p : Iso ℕ ℕ) ->

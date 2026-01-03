@@ -29,9 +29,9 @@ open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.real
 open import ordered-semiring
-open import ordered-field
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
+open import ordered-semiring.natural-reciprocal
 open import rational
 open import rational.order
 open import rational.proper-interval
@@ -48,6 +48,7 @@ open import relation
 open import ring.implementations.rational
 open import ring.implementations.real
 open import semiring
+open import semiring.natural-reciprocal
 open import sigma.base
 open import subset.subspace
 open import truncation
@@ -85,8 +86,8 @@ private
         (∥-bind2 handle (isOrderedIntegral'.δε i1 (ε/2 , 0<ε/2))
                         (isOrderedIntegral'.δε i2 (ε/2 , 0<ε/2)))
       where
-      ε/2 = 1/2 * ε
-      0<ε/2 = *-preserves-0< 0<1/2 0<ε
+      ε/2 = ε * 1/2
+      0<ε/2 = *-preserves-0< 0<ε 0<1/2
 
       handle : Σ[ (δ , _) ∈ ℝ⁺ ] (
                  (p : TaggedPartition a b) -> isδFine δ ⟨ p ⟩ ->
@@ -109,70 +110,75 @@ private
           εB2 = tp2-f (p , t) (weaken-isδFine min-≤-right p δ-p)
           εB1' = subst (εBounded ε/2) (sym diff-anticommute)
                    (εBounded-- (diff (riemann-sum f (p , t)) v1) εB1)
-          εB = subst2 εBounded 1/2-path diff-trans
+          εB = subst2 εBounded +-/2-path diff-trans
                  (εBounded-+ (diff v1 (riemann-sum f (p , t)))
                              (diff (riemann-sum f (p , t)) v2) εB1' εB2)
 
 
-isProp-isIntegral : {a b : ℝ} {f : ℝ -> ℝ} {v : ℝ} -> isProp (isIntegral a b f v)
-isProp-isIntegral i1 i2 j = record
-  { <-case = isPropΠ (\_ -> isProp-isOrderedIntegral') i1.<-case i2.<-case j
-  ; >-case = isPropΠ (\_ -> isProp-isOrderedIntegral') i1.>-case i2.>-case j
-  ; ε-case = squash i1.ε-case i2.ε-case j
-  }
-  where
-  module i1 = isIntegral i1
-  module i2 = isIntegral i2
-
-
-isProp-ΣisIntegral : {a b : ℝ} {f : ℝ -> ℝ} -> isProp (Σ ℝ (isIntegral a b f))
-isProp-ΣisIntegral {a} {b} {f} (v1 , i1) (v2 , i2) =
-  ΣProp-path isProp-isIntegral (tight-# ¬v1#v2)
-  where
-  module i1 = isIntegral i1
-  module i2 = isIntegral i2
-  ¬v1#v2 : ¬ (v1 # v2)
-  ¬v1#v2 v1#v2 = unsquash isPropBot (∥-bind3 handle i1.ε-case i2.ε-case (¬εBounded-# v1#v2))
+opaque
+  isProp-isIntegral : {a b : ℝ} {f : ℝ -> ℝ} {v : ℝ} -> isProp (isIntegral a b f v)
+  isProp-isIntegral i1 i2 j = record
+    { <-case = isPropΠ (\_ -> isProp-isOrderedIntegral') i1.<-case i2.<-case j
+    ; >-case = isPropΠ (\_ -> isProp-isOrderedIntegral') i1.>-case i2.>-case j
+    ; ε-case = squash i1.ε-case i2.ε-case j
+    }
     where
-    handle : Σ[ k1 ∈ ℚ⁺ ] (∀ (ε : ℚ⁺) -> εBounded ⟨ ε ⟩ (diff a b) -> εBounded (⟨ k1 ⟩ * ⟨ ε ⟩) v1) ->
-             Σ[ k2 ∈ ℚ⁺ ] (∀ (ε : ℚ⁺) -> εBounded ⟨ ε ⟩ (diff a b) -> εBounded (⟨ k2 ⟩ * ⟨ ε ⟩) v2) ->
-             Σ[ ε ∈ ℚ⁺ ] ¬ (εBounded ⟨ ε ⟩ (diff v1 v2)) ->
-             ∥ Bot ∥
-    handle ((k1 , 0<k1) , εB1) ((k2 , 0<k2) , εB2) ((ε' , 0<ε') , ¬ε'v1v2) =
-      (∥-map handle2 (trichotomous-εBounded-diff (ε , 0<ε) a b))
+    module i1 = isIntegral i1
+    module i2 = isIntegral i2
+
+
+  isProp-ΣisIntegral : {a b : ℝ} {f : ℝ -> ℝ} -> isProp (Σ ℝ (isIntegral a b f))
+  isProp-ΣisIntegral {a} {b} {f} (v1 , i1) (v2 , i2) =
+    ΣProp-path isProp-isIntegral (tight-# ¬v1#v2)
+    where
+    module i1 = isIntegral i1
+    module i2 = isIntegral i2
+    ¬v1#v2 : ¬ (v1 # v2)
+    ¬v1#v2 v1#v2 = unsquash isPropBot (∥-bind3 handle i1.ε-case i2.ε-case (¬εBounded-# v1#v2))
       where
-      0<k12 = +-preserves-0< 0<k1 0<k2
-      k12-inv = (\ k12=0 -> irrefl-path-< (sym k12=0) 0<k12)
-      ε = (r1/ (k1 + k2) k12-inv) * ε'
-      0<ε = *-preserves-0< (r1/-preserves-Pos _ k12-inv 0<k12) 0<ε'
-      ε⁺ : ℚ⁺
-      ε⁺ = ε , 0<ε
-      ε-path : (k1 * ε + k2 * ε) == ε'
-      ε-path =
-        sym *-distrib-+-right >=>
-        sym *-assoc >=>
-        *-left (*-commute >=> r1/-inverse _ k12-inv) >=>
-        *-left-one
+      handle : Σ[ k1 ∈ ℚ⁺ ] (∀ (ε : ℚ⁺) -> εBounded ⟨ ε ⟩ (diff a b) -> εBounded (⟨ k1 ⟩ * ⟨ ε ⟩) v1) ->
+               Σ[ k2 ∈ ℚ⁺ ] (∀ (ε : ℚ⁺) -> εBounded ⟨ ε ⟩ (diff a b) -> εBounded (⟨ k2 ⟩ * ⟨ ε ⟩) v2) ->
+               Σ[ ε ∈ ℚ⁺ ] ¬ (εBounded ⟨ ε ⟩ (diff v1 v2)) ->
+               ∥ Bot ∥
+      handle ((k1 , 0<k1) , εB1) ((k2 , 0<k2) , εB2) ((ε' , 0<ε') , ¬ε'v1v2) =
+        (∥-map handle2 (trichotomous-εBounded-diff (ε , 0<ε) a b))
+        where
+        0<k12 : 0# < (k1 + k2)
+        0<k12 = +-preserves-0< 0<k1 0<k2
+        k12-inv : ℚInv (k1 + k2)
+        k12-inv = (\ k12=0 -> irrefl-path-< (sym k12=0) 0<k12)
+        ε : ℚ
+        ε = (r1/ (k1 + k2) k12-inv) * ε'
+        0<ε : 0# < ε
+        0<ε = *-preserves-0< (r1/-preserves-Pos _ k12-inv 0<k12) 0<ε'
+        ε⁺ : ℚ⁺
+        ε⁺ = ε , 0<ε
+        ε-path : (k1 * ε + k2 * ε) == ε'
+        ε-path =
+          sym *-distrib-+-right >=>
+          sym *-assoc >=>
+          *-left (*-commute >=> r1/-inverse _ k12-inv) >=>
+          *-left-one
 
 
-      handle2 : Tri⊎ (a < b) (εBounded ε (diff a b)) (b < a) -> Bot
-      handle2 (tri⊎-< a<b) = irrefl-path-# v1=v2 v1#v2
-        where
-        v1=v2 : v1 == v2
-        v1=v2 = cong fst (isProp-ΣisOrderedIntegral' (v1 , i1.<-case a<b) (v2 , i2.<-case a<b))
-      handle2 (tri⊎-> b<a) = irrefl-path-# v1=v2 (minus-preserves-# v1#v2)
-        where
-        v1=v2 : (- v1) == (- v2)
-        v1=v2 = cong fst (isProp-ΣisOrderedIntegral' (- v1 , i1.>-case b<a) (- v2 , i2.>-case b<a))
-      handle2 (tri⊎-= εab) =
-        ¬ε'v1v2 (subst (\ε -> εBounded ε (diff v1 v2)) ε-path εv1v2)
-        where
-        εv1 : εBounded (k1 * ε) v1
-        εv1 = εB1 ε⁺ εab
-        εv2 : εBounded (k2 * ε) v2
-        εv2 = εB2 ε⁺ εab
-        εv1v2 : εBounded (k1 * ε + k2 * ε) (diff v1 v2)
-        εv1v2 = εBounded-diff εv1 εv2
+        handle2 : Tri⊎ (a < b) (εBounded ε (diff a b)) (b < a) -> Bot
+        handle2 (tri⊎-< a<b) = irrefl-path-# v1=v2 v1#v2
+          where
+          v1=v2 : v1 == v2
+          v1=v2 = cong fst (isProp-ΣisOrderedIntegral' (v1 , i1.<-case a<b) (v2 , i2.<-case a<b))
+        handle2 (tri⊎-> b<a) = irrefl-path-# v1=v2 (minus-preserves-# v1#v2)
+          where
+          v1=v2 : (- v1) == (- v2)
+          v1=v2 = cong fst (isProp-ΣisOrderedIntegral' (- v1 , i1.>-case b<a) (- v2 , i2.>-case b<a))
+        handle2 (tri⊎-= εab) =
+          ¬ε'v1v2 (subst (\ε -> εBounded ε (diff v1 v2)) ε-path εv1v2)
+          where
+          εv1 : εBounded (k1 * ε) v1
+          εv1 = εB1 ε⁺ εab
+          εv2 : εBounded (k2 * ε) v2
+          εv2 = εB2 ε⁺ εab
+          εv1v2 : εBounded (k1 * ε + k2 * ε) (diff v1 v2)
+          εv1v2 = εBounded-diff εv1 εv2
 
 IntegralOf : REL (ℝ -> ℝ) (ℝ -> ℝ -> ℝ) ℓ-one
 IntegralOf f g = ∀ a b -> (isIntegral a b f (g a b))

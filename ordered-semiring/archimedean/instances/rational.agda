@@ -13,18 +13,21 @@ open import functions
 open import funext
 open import hlevel
 open import int.base
+open import monoid
 open import nat
 open import nat.order
 open import order
-open import order.instances.rational
 open import order.instances.int
 open import order.instances.nat
+open import order.instances.rational
 open import ordered-additive-group
+open import ordered-additive-group.instances.rational
 open import ordered-semiring
 open import ordered-semiring.archimedean
 open import ordered-semiring.archimedean.instances.int
 open import ordered-semiring.instances.int
 open import ordered-semiring.instances.rational
+open import ordered-semiring.natural-reciprocal
 open import rational
 open import rational.order
 open import ring.implementations.int
@@ -32,8 +35,8 @@ open import ring.implementations.rational
 open import semiring
 open import semiring.initial
 open import semiring.instances.nat
+open import semiring.natural-reciprocal
 open import sign
-open import monoid
 open import truncation
 
 private
