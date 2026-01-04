@@ -53,6 +53,7 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
     fm⊂3' : Type ℓKV
     fm⊂3' = ∃[ f ∈ F ] isSurjective (l f)
 
+{-
     fm⊂3'->HasKV : fm⊂3' -> {k : K} {v : V} -> HasKV' k v m1 -> ∥ HasKV' k v m2 ∥
     fm⊂3'->HasKV m1<m2 {k} {v} hkv = ∥-bind handle m1<m2
       where
@@ -66,14 +67,10 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV} where
           subst2 (\k v -> ∥ HasKV' k v m2 ∥) kp vp hkv2
           where
           kp : k2 == k
-          kp with (f k2 v2 hkv2)
-          ... | (just hkv') = cong fst (just-injective p)
-          ... | (nothing) = bot-elim (just!=nothing (sym p))
-
+          kp = ?
           vp : v2 == v
-          vp with (f k2 v2 hkv2)
-          ... | (just hkv') = \ i -> fst (snd (just-injective p i))
-          ... | (nothing) = bot-elim (just!=nothing (sym p))
+          vp = ?
+-}
 
 --    fm⊂3'->UniqueEntries< :
 --      fm⊂3' ->

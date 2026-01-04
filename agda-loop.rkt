@@ -35,7 +35,7 @@
     ["ClearHighlighting" (void)]
     ["InteractionPoints" (void)]
     ["RunningInfo"
-     (printf "RUN: ~a" (hash-ref resp 'message))]
+     (printf "RUN: ~a~n" (hash-ref resp 'message))]
     ["DisplayInfo"
      (define info (hash-ref resp 'info))
      (match (hash-ref info 'kind)

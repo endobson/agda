@@ -69,16 +69,20 @@ private
     zero-case : (count x bs == 0) -> StrongRec bs
     zero-case count-zero = f bs≼as
       where
+
       bs≼as : bs ≼ as
-      bs≼as y with (decide-= x y)
-      ...        | (yes x==y) = transport (\i -> (count-zero-y (~ i) ≤ (count y as))) zero-≤
+      bs≼as y = handle (decide-= x y)
         where
-        count-zero-y : (count y bs == 0)
-        count-zero-y = transport (\ i -> (count (x==y i) bs) == 0) count-zero
-      ...        | (no x!=y) = transport (\i -> count y bs ≤ (count-eq i)) (p y)
-        where
-        count-eq : (count y (x :: as)) == count y as
-        count-eq = (count-!= as (\p -> x!=y (sym p)))
+
+        handle : Dec (x == y) -> count y bs ≤ count y as
+        handle (yes x=y) = trans-=-≤ count-zero-y zero-≤
+          where
+          count-zero-y : (count y bs == 0)
+          count-zero-y = (\i -> count (x=y (~ i)) bs) >=> count-zero
+        handle (no x!=y) = trans-≤-= (p y) count-eq
+          where
+          count-eq : (count y (x :: as)) == count y as
+          count-eq = count-!= as (\p -> x!=y (sym p))
 
 
     non-zero-case : (n : Nat) -> (count x bs == (suc n)) -> StrongRec bs
@@ -91,27 +95,29 @@ private
       bs'-path = remove1-count-suc count-n
 
       bs'≼as : bs' ≼ as
-      bs'≼as y with (decide-= x y)
-      ...         | (yes x==y) = proof-y
+      bs'≼as y  = handle (decide-= x y)
         where
-        count-as-path : count x (x :: as) == suc (count x as)
-        count-as-path = count-== as refl
-        count-bs-path : count x bs == suc (count x bs')
-        count-bs-path = (\i -> count x (bs'-path (~ i))) >=> count-== bs' refl
-        proof : count x bs' ≤ count x as
-        proof = pred-≤ (transport (\i -> (count-bs-path i) ≤ (count-as-path i)) (p x))
-        proof-y : count y bs' ≤ count y as
-        proof-y = transport (\i -> (count (x==y i) bs') ≤ count (x==y i) as) proof
-      ...         | (no x!=y) = proof
-        where
-        count-as-path : (count y (x :: as)) == count y as
-        count-as-path = (count-!= as (\p -> x!=y (sym p)))
-        count-bs-path : (count y bs) == count y bs'
-        count-bs-path =
-          (\i -> count y (bs'-path (~ i))) >=>
-          (count-!= bs' (\p -> x!=y (sym p)))
-        proof : count y bs' ≤ count y as
-        proof = transport (\i -> (count-bs-path i) ≤ (count-as-path i)) (p y)
+        handle : Dec (x == y) -> (count y bs' ≤ count y as)
+        handle (yes x=y) = proof-y
+          where
+          count-as-path : count x (x :: as) == suc (count x as)
+          count-as-path = count-== as refl
+          count-bs-path : count x bs == suc (count x bs')
+          count-bs-path = (\i -> count x (bs'-path (~ i))) >=> count-== bs' refl
+          proof : count x bs' ≤ count x as
+          proof = pred-≤ (transport (\i -> (count-bs-path i) ≤ (count-as-path i)) (p x))
+          proof-y : count y bs' ≤ count y as
+          proof-y = transport (\i -> (count (x=y i) bs') ≤ count (x=y i) as) proof
+        handle (no x!=y) = proof
+          where
+          count-as-path : (count y (x :: as)) == count y as
+          count-as-path = (count-!= as (\p -> x!=y (sym p)))
+          count-bs-path : (count y bs) == count y bs'
+          count-bs-path =
+            (\i -> count y (bs'-path (~ i))) >=>
+            (count-!= bs' (\p -> x!=y (sym p)))
+          proof : count y bs' ≤ count y as
+          proof = transport (\i -> (count-bs-path i) ≤ (count-as-path i)) (p y)
 
 
       f' : ∀ {cs} -> cs ≼ bs' -> StrongRec cs
