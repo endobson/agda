@@ -14,6 +14,7 @@ open import equality
 open import hlevel
 open import real
 open import relation
+open import ring.implementations.real
 open import set-quotient
 open import subset
 open import truncation

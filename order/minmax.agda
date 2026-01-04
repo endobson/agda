@@ -24,12 +24,8 @@ record MinOperationStr {ℓD ℓ< : Level} {D : Type ℓD} {_<_ : Rel D ℓ<}
 
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {LO : isLinearOrder D<} {{MO : MinOperationStr LO}} where
+         {{LO : isLinearOrder D<}} {{MO : MinOperationStr LO}} where
   open MinOperationStr MO public
-
-  private
-    instance
-      ILO = LO
 
   min-commute : {x y : D} -> min x y == min y x
   min-commute = connected-< not< not<
@@ -112,12 +108,8 @@ record MaxOperationStr {ℓD ℓ< : Level} {D : Type ℓD} {_<_ : Rel D ℓ<}
 
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {LO : isLinearOrder D<} {{MO : MaxOperationStr LO}} where
+         {{LO : isLinearOrder D<}} {{MO : MaxOperationStr LO}} where
   open MaxOperationStr MO public
-
-  private
-    instance
-      ILO = LO
 
   max-commute : {x y : D} -> max x y == max y x
   max-commute = connected-< not< not<
@@ -187,12 +179,8 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
 
 
 module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{LO : isLinearOrder D<}} {{PO : isPartialOrder D≤}}
          {{CO : CompatibleOrderStr LO PO}} {{MO : MaxOperationStr LO}} where
-  private
-    instance
-      ILO = LO
-      IPO = PO
 
   max-≤-left : {x y : D} -> x ≤ max x y
   max-≤-left = convert-≮ max-≮-left
@@ -220,12 +208,8 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Re
 
 
 module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{LO : isLinearOrder D<}} {{PO : isPartialOrder D≤}}
          {{CO : CompatibleOrderStr LO PO}} {{MO : MinOperationStr LO}} where
-  private
-    instance
-      ILO = LO
-      IPO = PO
 
   min-≤-left : {x y : D} -> min x y ≤ x
   min-≤-left = convert-≮ min-≮-left
@@ -253,10 +237,9 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Re
 
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {LO : isLinearOrder D<} {{MO : MinOperationStr LO }} where
+         {{LO : isLinearOrder D<}} {{MO : MinOperationStr LO }} where
   private
     instance
-      ILO = LO
       IPO = isLinearOrder->isPartialOrder-≯ LO
       CPO = CompatibleNegatedLinearOrder LO
 
@@ -286,10 +269,9 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
 
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {LO : isLinearOrder D<} {{MO : MaxOperationStr LO }} where
+         {{LO : isLinearOrder D<}} {{MO : MaxOperationStr LO }} where
   private
     instance
-      ILO = LO
       IPO = isLinearOrder->isPartialOrder-≯ LO
       CPO = CompatibleNegatedLinearOrder LO
 
@@ -318,11 +300,10 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
       trans-<-≤ (max-least-< w<x y<x) max-≤-left
 
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}
          {{MinO : MinOperationStr LO }} {{MaxO : MaxOperationStr LO }} where
   private
     instance
-      ILO = LO
       PO = isLinearOrder->isPartialOrder-≯ LO
       CO = CompatibleNegatedLinearOrder LO
 
@@ -382,11 +363,8 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrd
 
 
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}
          {{DLO : DecidableLinearOrderStr LO}}  {{MO : MaxOperationStr LO}} where
-  private
-    instance
-      ILO = LO
 
   split-max : {x y : D} -> (max x y == x) ⊎ (max x y == y)
   split-max {x} {y} = handle (trichotomous-< x y)
@@ -403,11 +381,8 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrd
     handle (inj-l m=q) = subst P (sym m=q) pq
     handle (inj-r m=r) = subst P (sym m=r) pr
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}
          {{DLO : DecidableLinearOrderStr LO}}  {{MO : MinOperationStr LO}} where
-  private
-    instance
-      ILO = LO
 
   split-min : {x y : D} -> (min x y == x) ⊎ (min x y == y)
   split-min {x} {y} = handle (trichotomous-< x y)

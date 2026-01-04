@@ -116,15 +116,12 @@ module _ {ℓ : Level} (D : Type ℓ) {ACM : AdditiveCommMonoid D} {{AG : Additi
   GroupStr-+ = AdditiveGroup.group-str AG
 
 
-module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}} where
+module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{AG : AdditiveGroup ACM}} where
   open AdditiveGroup AG public using (-_)
   open EqReasoning
 
   private
     module AG = AdditiveGroup AG
-
-    instance
-      IACM = ACM
 
   abstract
     +-inverse : {x : D} -> x + (- x) == 0#

@@ -3,6 +3,7 @@
 module ordered-semiring.archimedean.small where
 
 open import additive-group
+open import additive-group.instances.nat
 open import base
 open import equality-path
 open import nat
@@ -23,24 +24,17 @@ open import semiring.natural-reciprocal
 open import truncation
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
          {{_ : ℕ->Semiring-Op D}}
          {{_ : 1/ℕ-Op D}}
-         {LO : isLinearOrder D<}
+         {{LO : isLinearOrder D<}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
-         {LOS : LinearlyOrderedSemiringStr S LO}
+         {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{NT : NonTrivialLinearlyOrderedSemiringStr LOS}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}}
          {{AS : ArchimedeanSemiring LOS}}
          where
   private
-    instance
-      IS = S
-      ILO = LO
-      IACM = ACM
-      ILOA = LOA
-      ILOS = LOS
-
     D⁺ : Type (ℓ-max ℓD ℓ<)
     D⁺ = Σ D (0# <_)
 

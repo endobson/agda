@@ -30,14 +30,12 @@ opaque
 module _ {ℓ : Level} {A : Type ℓ} {{M : Monoid A}} where
   private
     module M = Monoid M
-    instance
-      Mℕ = Monoid-+ ℕ
 
   iter-leftAction : (a : A) -> ℕ -> A
   iter-leftAction a n = iter n (a M.∙_) M.ε
 
   opaque
-    iter-leftActionʰ : (a : A) -> Monoidʰ (iter-leftAction a)
+    iter-leftActionʰ : (a : A) -> Monoidʰᵉ (Monoid-+ ℕ) M (iter-leftAction a)
     iter-leftActionʰ a = record
       { preserves-ε = refl
       ; preserves-∙ = preserves-∙

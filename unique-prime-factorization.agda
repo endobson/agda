@@ -2,6 +2,7 @@
 
 module unique-prime-factorization where
 
+open import additive-group.instances.nat
 open import base
 open import decision
 open import div

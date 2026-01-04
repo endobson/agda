@@ -14,14 +14,9 @@ open import semiring.initial
 open import truncation
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
-         {LO : isLinearOrder D<} {{_ : ℕ->Semiring-Op D}}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
+         {{LO : isLinearOrder D<}} {{_ : ℕ->Semiring-Op D}}
          where
-  private
-    instance
-      IACM = ACM
-      IS = S
-      ILO = LO
 
   module _ (LOS : LinearlyOrderedSemiringStr S LO) where
     ArchimedeanProperty : Type (ℓ-max ℓD ℓ<)
@@ -31,7 +26,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
     field
       prop : ArchimedeanProperty LOS
 
-  module _ {LOS : LinearlyOrderedSemiringStr S LO} {{Arch : ArchimedeanSemiring LOS}} where
+  module _ {{LOS : LinearlyOrderedSemiringStr S LO}} {{Arch : ArchimedeanSemiring LOS}} where
     archimedean-property : ArchimedeanProperty LOS
     archimedean-property = ArchimedeanSemiring.prop useⁱ
 
@@ -44,9 +39,9 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
         handle (inj-r a<b) = ∣ 1 , trans-<-= a<b (sym (*-left ℕ->Semiring-preserves-1# >=> *-left-one)) ∣
 
 
-module _ {ℓD ℓ< : Level} (D : Type ℓD) {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D}
+module _ {ℓD ℓ< : Level} (D : Type ℓD) {D< : Rel D ℓ<} {{ACM : AdditiveCommMonoid D}}
          {{S : Semiring ACM}}
-         {LO : isLinearOrder D<}
+         {{LO : isLinearOrder D<}}
          {{_ : ℕ->Semiring-Op D}}
          {{LOS : LinearlyOrderedSemiringStr S LO}} where
   ArchimedeanSemiringⁱ : Type (ℓ-max ℓD ℓ<)

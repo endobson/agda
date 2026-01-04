@@ -4,6 +4,7 @@ module quotient-remainder-int where
 
 open import additive-group
 open import additive-group.instances.int
+open import additive-group.instances.nat
 open import base
 open import equality
 open import fin
@@ -21,6 +22,7 @@ open import nat
 open import nat.order
 open import order
 open import order.instances.int
+open import order.instances.nat
 open import ordered-additive-group
 open import ordered-additive-group.instances.int
 open import ordered-semiring
@@ -30,6 +32,7 @@ open import ring
 open import ring.arithmetic
 open import ring.implementations.int
 open import semiring
+open import semiring.instances.nat
 
 import quotient-remainder as qr
 import hit-int as h

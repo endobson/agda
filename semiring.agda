@@ -23,7 +23,8 @@ record Semiring {ℓ : Level} {Domain : Type ℓ} (ACM : AdditiveCommMonoid Doma
   infixl 7 _*_
 
   private
-    instance IACM = ACM
+    instance
+      IACM = ACM
 
   field
     1# : Domain
@@ -41,53 +42,50 @@ record Semiring {ℓ : Level} {Domain : Type ℓ} (ACM : AdditiveCommMonoid Doma
     *-right-one : {m : Domain} -> (m * 1#) == m
     *-right-one {m} = (*-commute {m} {1#}) >=> (*-left-one {m})
 
-  instance
-    +-CommMonoid : CommMonoid Domain
-    +-CommMonoid = AdditiveCommMonoid.comm-monoid ACM
+  +-CommMonoid : CommMonoid Domain
+  +-CommMonoid = AdditiveCommMonoid.comm-monoid ACM
 
-    +-Monoid : Monoid Domain
-    +-Monoid = CommMonoid.monoid +-CommMonoid
+  +-Monoid : Monoid Domain
+  +-Monoid = CommMonoid.monoid +-CommMonoid
 
-    +-InfinityMonoid : InfinityMonoid Domain
-    +-InfinityMonoid = record
-      { ε = 0#
-      ; _∙_ = _+_
-      ; ∙-assoc = +-assoc
-      ; ∙-left-ε = +-left-zero
-      ; ∙-right-ε = +-right-zero
-      }
+  +-InfinityMonoid : InfinityMonoid Domain
+  +-InfinityMonoid = record
+    { ε = 0#
+    ; _∙_ = _+_
+    ; ∙-assoc = +-assoc
+    ; ∙-left-ε = +-left-zero
+    ; ∙-right-ε = +-right-zero
+    }
 
-    *-CommMonoid : CommMonoid Domain
-    *-CommMonoid = record
-      { monoid = record
-        { ε = 1#
-        ; _∙_ = _*_
-        ; ∙-assoc = *-assoc
-        ; ∙-left-ε = *-left-one
-        ; ∙-right-ε = *-right-one
-        ; isSet-Domain = isSet-Domain
-        }
-      ; ∙-commute = *-commute
-      }
-
-    *-Monoid : Monoid Domain
-    *-Monoid = CommMonoid.monoid *-CommMonoid
-
-    *-InfinityMonoid : InfinityMonoid Domain
-    *-InfinityMonoid = record
+  *-CommMonoid : CommMonoid Domain
+  *-CommMonoid = record
+    { monoid = record
       { ε = 1#
       ; _∙_ = _*_
       ; ∙-assoc = *-assoc
       ; ∙-left-ε = *-left-one
       ; ∙-right-ε = *-right-one
+      ; isSet-Domain = isSet-Domain
       }
+    ; ∙-commute = *-commute
+    }
+
+  *-Monoid : Monoid Domain
+  *-Monoid = CommMonoid.monoid *-CommMonoid
+
+  *-InfinityMonoid : InfinityMonoid Domain
+  *-InfinityMonoid = record
+    { ε = 1#
+    ; _∙_ = _*_
+    ; ∙-assoc = *-assoc
+    ; ∙-left-ε = *-left-one
+    ; ∙-right-ε = *-right-one
+    }
 
 
 
-module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
+module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} where
   private
-    instance
-      IACM = ACM
     module S = Semiring S
 
   open Semiring S public using (1# ; _*_)

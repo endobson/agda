@@ -5,6 +5,7 @@ module modular-integers.binary-product where
 open import additive-group
 open import additive-group.instances.int
 open import additive-group.instances.modular-integers
+open import additive-group.instances.nat
 open import base
 open import div
 open import equality-path

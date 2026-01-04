@@ -2,6 +2,7 @@
 
 module chapter2.problem1-b where
 
+open import additive-group.instances.nat
 open import base
 open import chapter2.prime-divisors
 open import chapter2.totient

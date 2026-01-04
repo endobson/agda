@@ -8,19 +8,15 @@ open import equality
 open import ring
 open import semiring
 
-
 private
   variable
     ℓD : Level
 
-module _ {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} {{AG : AdditiveGroup ACM}}
-         where
-  private
-    instance
-      IACM = ACM
-      IAG = AG
-      IS = S
-
+module _ {D : Type ℓD}
+         {{ACM : AdditiveCommMonoid D}}
+         {{S : Semiring ACM}}
+         {{AG : AdditiveGroup ACM}}
+  where
   +-right-injective : {a b c : D} -> (a + c) == (b + c) -> a == b
   +-right-injective {a} {b} {c} p =
     sym (+-assoc >=> cong (a +_) +-inverse >=> +-right-zero) >=>

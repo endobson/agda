@@ -51,10 +51,7 @@ private
 
 
 module _ {ℓI ℓK : Level} {I : Type ℓI} {K : Type ℓK}
-         {ACM : AdditiveCommMonoid K} {{S : Semiring ACM}} where
-  private
-    instance
-      IACM = ACM
+         {{ACM : AdditiveCommMonoid K}} {{S : Semiring ACM}} where
 
   indicator' : {i1 i2 : I} -> Dec (i1 == i2) -> K
   indicator' (yes _) = 1#
@@ -99,7 +96,10 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
       IS = S
       IA = A
       IACM = ACM
+      IG = AG
+      IR = R
       IACM-DP = AdditiveCommMonoid-DirectProduct ACM I
+      IAG-DP = AdditiveGroup-DirectProduct AG I
       IMS-DP = ModuleStr-DirectProduct R I
       IA-DP = isTightApartness-DirectProduct A I
       IAMS-DP = ApartModuleStr-DirectProduct F I

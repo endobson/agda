@@ -16,15 +16,12 @@ open import relation
 open import truncation
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D}
+         {{ACM : AdditiveCommMonoid D}}
          {{AG : AdditiveGroup ACM}}
-         {LO : isLinearOrder D<}
+         {{LO : isLinearOrder D<}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          where
   private
-    instance
-      IACM = ACM
-      ILO = LO
     D⁺ : Type _
     D⁺ = Σ D (0# <_)
 
@@ -102,19 +99,15 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
   isContinuous' f = ∀ x -> isContinuous'At x f
 
 module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{LO : isLinearOrder D<}} {{PO : isPartialOrder D≤}}
          {{CO : CompatibleOrderStr LO PO}}
          {{MO : MinOperationStr LO}}
-         {ACM : AdditiveCommMonoid D}
+         {{ACM : AdditiveCommMonoid D}}
          {{AG : AdditiveGroup ACM}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {{POA : PartiallyOrderedAdditiveStr ACM PO}}
   where
   private
-    instance
-      IACM = ACM
-      ILO = LO
-      IPO = PO
     D⁺ : Type _
     D⁺ = Σ D (0# <_)
 

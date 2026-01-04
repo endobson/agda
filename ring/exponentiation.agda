@@ -28,12 +28,9 @@ open import semiring.unit
 open import sigma.base
 
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
          {{S : Semiring ACM}} {{AG : AdditiveGroup ACM}}
-         where
-  private
-    instance
-      IACM = ACM
+  where
 
   minus-^ℕ-odd : (x : D) (n : Nat) -> (Odd n) -> (- x) ^ℕ n == - (x ^ℕ n)
   minus-^ℕ-odd x (suc zero) _ = *-right-one >=> cong -_ (sym *-right-one)

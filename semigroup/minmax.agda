@@ -8,7 +8,7 @@ open import order.minmax
 open import relation
 open import semigroup
 
-module _ {ℓD ℓ< : Level} (D : Type ℓD) {_<_ : Rel D ℓ<} {LO : isLinearOrder _<_} where
+module _ {ℓD ℓ< : Level} (D : Type ℓD) {_<_ : Rel D ℓ<} {{LO : isLinearOrder _<_}} where
   module _ {{MS : MinOperationStr LO}} where
     CommutativeSemigroupStr-Min : CommutativeSemigroupStr D
     CommutativeSemigroupStr-Min = record

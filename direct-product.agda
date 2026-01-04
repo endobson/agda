@@ -194,6 +194,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {ACM : AdditiveCommMonoid K}
   private
     instance
       ACM-DP = AdditiveCommMonoid-DirectProduct ACM I
+      IACM = ACM
       IAG = AG
 
     dp-_ : DP K I -> DP K I
@@ -274,9 +275,13 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
   private
     instance
       IACM = ACM
+      IAG = AG
       IS = S
+      IR = R
       IA = A
       IVA = isTightApartness-DirectProduct A I
+      IACM-DP = AdditiveCommMonoid-DirectProduct ACM I
+      IAG-DP = AdditiveGroup-DirectProduct AG I
       IMS = ModuleStr-DirectProduct R I
 
     dp*-apart-args : {k1 k2 : K} {v1 v2 : (DP K I)} ->

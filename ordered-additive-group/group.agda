@@ -10,12 +10,9 @@ open import ordered-additive-group
 open import relation
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D}
+         {{ACM : AdditiveCommMonoid D}}
          {{AG : AdditiveGroup ACM}}
          {{O : isLinearOrder D<}} where
-  private
-    instance
-      IACM = ACM
 
   LinearlyOrderedAdditiveStr-Group :
     (+₁-preserves-< : {a b c : D} -> b < c -> (a + b) < (a + c)) ->

@@ -27,10 +27,8 @@ open import funext
 
 open EqReasoning
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} where
   private
-    instance
-      IACM = ACM
     module S = Semiring S
     Divisors-flip-eq = flipDivisors-equiv
 

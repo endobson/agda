@@ -22,18 +22,13 @@ open import truncation
 module _ {ℓI ℓD ℓI≤ ℓD≤ ℓD< : Level} {I : Type ℓI} {D : Type ℓD}
          {I≤ : Rel I ℓI≤} {D≤ : Rel D ℓD≤} {D< : Rel D ℓD<}
          {{IPO : isPartialOrder I≤}}
-         {{DPO : isPartialOrder D≤}} {DLO : isLinearOrder D<}
-         {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
+         {{DPO : isPartialOrder D≤}} {{DLO : isLinearOrder D<}}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
          {{AG : AdditiveGroup ACM}}
          {{D-Max : MaxOperationStr DLO}} where
-  private
-    instance
-      I-DLO = DLO
-      I-S = S
-      I-ACM = ACM
 
   module _ {{In-I : InhabitedStr I}}
-           {LOS : LinearlyOrderedSemiringStr S DLO}
+           {{LOS : LinearlyOrderedSemiringStr S DLO}}
            {{NTLOS : NonTrivialLinearlyOrderedSemiringStr LOS}} where
     opaque
       BigO-abs : {f : I -> D} -> BigO f (abs ∘ f)
@@ -60,7 +55,8 @@ module _ {ℓI ℓD ℓI≤ ℓD≤ ℓD< : Level} {I : Type ℓI} {D : Type ℓ
           0<d+1 : 0# < (d + 1#)
           0<d+1 = trans-≤-< (trans-≤ abs-0≤ (ub-d i)) d<d+1
 
-  module _ {ℓI< : Level} {I< : Rel I ℓI<} {ILO : isLinearOrder I<}
+  module _ {ℓI< : Level} {I< : Rel I ℓI<}
+           {{ILO : isLinearOrder I<}}
            {{ICO : CompatibleOrderStr ILO IPO}}
            {{I-Max : MaxOperationStr ILO}}
            {{LOA : LinearlyOrderedAdditiveStr ACM DLO}}

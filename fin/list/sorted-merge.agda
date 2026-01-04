@@ -26,12 +26,9 @@ import fint.list.sorted-merge
 import ordered-set.glist as glist
 
 
-module _ {ℓA ℓ< : Level} {A : Type ℓA} {A< : Rel A ℓ<} {LO : isLinearOrder A<}
+module _ {ℓA ℓ< : Level} {A : Type ℓA} {A< : Rel A ℓ<} {{LO : isLinearOrder A<}}
          {{DLO : DecidableLinearOrderStr LO}} where
   private
-    instance
-      ILO = LO
-
     indices-path : Path (glist.Indices ℓ-zero ℓ-zero ℓ-zero)
                     (Nat , (\n -> (FinT n , record { isLinearOrder-< = useⁱ }) , useⁱ))
                     (Nat , (\n -> (Fin n , record { isLinearOrder-< = useⁱ }) , useⁱ))

@@ -2,6 +2,7 @@
 
 module semidomain.instances.real where
 
+open import additive-group.instances.real
 open import order.instances.real
 open import ordered-semiring
 open import ordered-semiring.instances.real

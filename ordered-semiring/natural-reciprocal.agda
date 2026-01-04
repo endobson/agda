@@ -24,23 +24,17 @@ private
     ℓD ℓ< ℓ≤ : Level
 
 module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D}
+         {{ACM : AdditiveCommMonoid D}}
          {{S : Semiring ACM}}
          {{_ : ℕ->Semiring-Op D}}
          {{_ : 1/ℕ-Op D}}
-         {LO : isLinearOrder D<}
-         {PO : isPartialOrder D≤}
+         {{LO : isLinearOrder D<}}
+         {{PO : isPartialOrder D≤}}
          {{CO : CompatibleOrderStr LO PO}}
          {{POA : PartiallyOrderedAdditiveStr ACM PO}}
          {{POS : PartiallyOrderedSemiringStr S PO}}
          {{SPOA : StronglyPartiallyOrderedAdditiveStr ACM PO}}
          where
-  private
-    instance
-      IACM = ACM
-      ILO = LO
-      IPO = PO
-
   private
     iℕ : Nat -> D
     iℕ = ℕ->Semiring
@@ -116,21 +110,15 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
 
 
 module _ {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D}
-         {{S : Semiring ACM}} {LO : isLinearOrder D<}
+         {{ACM : AdditiveCommMonoid D}}
+         {{S : Semiring ACM}} {{LO : isLinearOrder D<}}
          {{_ : ℕ->Semiring-Op D}}
          {{_ : 1/ℕ-Op D}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
-         {LOS : LinearlyOrderedSemiringStr S LO}
+         {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{NTO : NonTrivialLinearlyOrderedSemiringStr LOS}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}}
          where
-  private
-    instance
-      ILOS = LOS
-      IACM = ACM
-      ILO = LO
-
   private
     iℕ : Nat -> D
     iℕ = ℕ->Semiring
@@ -167,14 +155,10 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<}
 
 
 
-  module _ {ℓ≤ : Level} {D≤ : Rel D ℓ≤} {PO : isPartialOrder D≤}
+  module _ {ℓ≤ : Level} {D≤ : Rel D ℓ≤} {{PO : isPartialOrder D≤}}
            {{POA : PartiallyOrderedAdditiveStr ACM PO}}
            {{POS : PartiallyOrderedSemiringStr S PO}}
            {{CO : CompatibleOrderStr LO PO}} where
-    private
-      instance
-        IPO = PO
-
     opaque
       1/ℕ-flips-≤ : (a b : Nat⁺) -> ⟨ a ⟩ ≤ ⟨ b ⟩ -> 1/ℕ b ≤ 1/ℕ a
       1/ℕ-flips-≤ a⁺@(a' , _) b⁺@(b' , _) a'≤b' =

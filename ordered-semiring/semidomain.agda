@@ -17,20 +17,13 @@ open import truncation
 
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D}  {S : Semiring ACM}
-         {O : isLinearOrder D<}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
+         {{O : isLinearOrder D<}}
          {{LOA : LinearlyOrderedAdditiveStr ACM O}}
          {{LOS : LinearlyOrderedSemiringStr S O}}
-         {A : isTightApartness D#}
+         {{A : isTightApartness D#}}
          {{ALO : ApartLinearOrderStr A O}}
          {{DD : Semidomain S A}}  where
-  private
-    instance
-      IACM = ACM
-      IS = S
-      IO = O
-      IA = A
-
   StronglyLinearlyOrderedSemiringStr-Semidomain : StronglyLinearlyOrderedSemiringStr S O
   StronglyLinearlyOrderedSemiringStr-Semidomain = record
     { *₁-fully-reflects-< = *₁-fully-reflects-<'

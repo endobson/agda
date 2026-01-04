@@ -12,16 +12,13 @@ open import relation
 open import semiring
 
 module _ {ℓ ℓ< : Level} {D : Type ℓ} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {LO : isLinearOrder D<}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
+         {{LO : isLinearOrder D<}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}}
          where
   private
     instance
-      IACM = ACM
-      IS = S
-      ILO = LO
       TA = isLinearOrder->isTightApartness-<> LO
 
   -- We only have semidomains for non trivial rings

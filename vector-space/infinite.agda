@@ -24,27 +24,15 @@ private
 module _ {ℓK ℓV : Level}
          {K : Type ℓK} {K# : Rel K ℓK}
          {V : Type ℓV} {V# : Rel V ℓV}
-         {ACM-K : AdditiveCommMonoid K} {AG-K : AdditiveGroup ACM-K}
-         {S-K : Semiring ACM-K} {R-K : Ring S-K AG-K}
-         {ACM-V : AdditiveCommMonoid V} {AG-V : AdditiveGroup ACM-V}
-         {A-K : isTightApartness K#}
-         {A-V : isTightApartness V#}
-         {MS : ModuleStr R-K AG-V}
+         {{ACM-K : AdditiveCommMonoid K}} {{AG-K : AdditiveGroup ACM-K}}
+         {{S-K : Semiring ACM-K}} {{R-K : Ring S-K AG-K}}
+         {{ACM-V : AdditiveCommMonoid V}} {{AG-V : AdditiveGroup ACM-V}}
+         {{A-K : isTightApartness K#}}
+         {{A-V : isTightApartness V#}}
+         {{MS : ModuleStr R-K AG-V}}
          {{AMS : ApartModuleStr MS A-K A-V}}
          {{F : Field R-K A-K}}
-         where
-
-  private
-    instance
-      IACM-K = ACM-K
-      IS-K = S-K
-      IF = F
-      IACM-V = ACM-V
-      IA-K = A-K
-      IA-V = A-V
-      IMS = MS
-
-
+  where
   private
     variable
       I : Type ℓ

@@ -19,13 +19,11 @@ open import sum
 open import truncation
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {LO : isLinearOrder D<} {{Max : MaxOperationStr LO}}
-         {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}}
+         {{LO : isLinearOrder D<}} {{Max : MaxOperationStr LO}}
+         {{ACM : AdditiveCommMonoid D}} {{AG : AdditiveGroup ACM}}
          where
   private
     instance
-      ILO = LO
-      IACM = ACM
       PO = isLinearOrder->isPartialOrder-≯ LO
       POA = PartiallyOrderedAdditiveStr-Negated ACM LO
       CPO = CompatibleNegatedLinearOrder LO
@@ -107,23 +105,16 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
       x<>0 = eqInv abs-#0-eq 0<ax
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {LO : isLinearOrder D<} {{Max : MaxOperationStr LO}}
-         {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}}
+         {{LO : isLinearOrder D<}} {{Max : MaxOperationStr LO}}
+         {{ACM : AdditiveCommMonoid D}} {{AG : AdditiveGroup ACM}}
          where
-  private
-    instance
-      ILO = LO
-      IACM = ACM
 
   module _ {ℓ≤ : Level} {D≤ : Rel D ℓ≤}
     {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
-    {PO : isPartialOrder D≤}
+    {{PO : isPartialOrder D≤}}
     {{POA : PartiallyOrderedAdditiveStr ACM PO}}
     {{CO : CompatibleOrderStr LO PO}}
     where
-    private
-      instance
-        IPO = PO
 
     opaque
       abs-≤0-path : {x : D} -> x ≤ 0# -> abs x == - x

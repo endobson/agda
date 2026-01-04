@@ -2,6 +2,7 @@
 
 module lcm.exists where
 
+open import additive-group.instances.nat
 open import base
 open import div
 open import equality

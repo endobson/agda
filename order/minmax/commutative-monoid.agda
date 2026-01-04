@@ -8,7 +8,7 @@ open import order
 open import order.minmax
 open import relation
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}
          {{Max : MaxOperationStr LO}}
          {{Min : GlobalMinOperationStr LO}} where
 

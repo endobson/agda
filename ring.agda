@@ -85,11 +85,9 @@ module _ {ℓ : Level} (D : Type ℓ) {{ACM : AdditiveCommMonoid D}}
   Ringⁱ = R
 
 
-module _ {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} {{AG : AdditiveGroup ACM}}
+module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} {{AG : AdditiveGroup ACM}}
          where
   private
-    instance
-      IACM = ACM
     R : Ring S AG
     R = record {}
     module R = Ring R
@@ -185,20 +183,13 @@ module Ringʰ
 module _
     {ℓ₁ ℓ₂ : Level}
     {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {ACM₁ : AdditiveCommMonoid D₁} {ACM₂ : AdditiveCommMonoid D₂}
-    {S₁ : Semiring ACM₁} {S₂ : Semiring ACM₂}
-    {AG₁ : AdditiveGroup ACM₁} {AG₂ : AdditiveGroup ACM₂}
+    {{ACM₁ : AdditiveCommMonoid D₁}} {{ACM₂ : AdditiveCommMonoid D₂}}
+    {{S₁ : Semiring ACM₁}} {{S₂ : Semiring ACM₂}}
+    {{AG₁ : AdditiveGroup ACM₁}} {{AG₂ : AdditiveGroup ACM₂}}
     {{R₁ : Ring S₁ AG₁}} {{R₂ : Ring S₂ AG₂}}
     {f : D₁ -> D₂}
-
-    where
+  where
   private
-    instance
-      IACM₁ = ACM₁
-      IACM₂ = ACM₂
-      IS₁ = S₁
-      IS₂ = S₂
-
     isSetD = AdditiveCommMonoid.isSet-Domain ACM₂
 
   isProp-Ringʰ : isProp (Ringʰ f)

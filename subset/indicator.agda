@@ -68,13 +68,10 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} where
          }
 
 module _ {ℓD : Level} {D : Type ℓD}
-         {ACM : AdditiveCommMonoid D}
+         {{ACM : AdditiveCommMonoid D}}
          {{S : Semiring ACM}}
          where
   private
-    instance
-      IACM = ACM
-
     isSet-D : isSet D
     isSet-D = Semiring.isSet-Domain S
 
@@ -108,12 +105,9 @@ module _ {ℓD : Level} {D : Type ℓD}
         (DetS i)
 
   module _ {ℓ≤ : Level} {D≤ : Rel D ℓ≤}
-           {PO : isPartialOrder D≤}
+           {{PO : isPartialOrder D≤}}
            {{POS : PartiallyOrderedSemiringStr S PO}}
            where
-    private
-      instance
-        IPO = PO
 
     module _ {ℓI ℓS : Level} {I : Type ℓI} {S : Subtype I ℓS} {DetS : Detachable S}
       where

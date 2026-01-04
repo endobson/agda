@@ -600,7 +600,7 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
       ba#b0 = subst2 _#_ (sym p >=> q*-commute a b) 0=b0 1q#0
         where
         0=b0 : 0# == b * 0#
-        0=b0 = sym (*-right-zero {_} {_} {_} {b})
+        0=b0 = sym (*-right-zeroᵉ b)
 
     isUnit->q# : (a b : Q) -> isUnit (diff a b) -> a # b
     isUnit->q# a b = eqInv (diff-q#-equiv a b) ∘ isUnit->q#0

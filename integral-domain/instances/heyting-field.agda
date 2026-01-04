@@ -16,19 +16,13 @@ open import ring
 open import semiring
 
 module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ}
-         {ACM : AdditiveCommMonoid D} {AG : AdditiveGroup ACM}
-         {S : Semiring ACM} {R : Ring S AG} {A : isTightApartness D#}
+         {{ACM : AdditiveCommMonoid D}} {{AG : AdditiveGroup ACM}}
+         {{S : Semiring ACM}} {{R : Ring S AG}} {{A : isTightApartness D#}}
          {{F : Field R A}}
   where
   private
     module R = Ring R
     module F = Field F
-    instance
-      IACM = ACM
-      IAG = AG
-      IS = S
-      IR = R
-      IA = A
 
     open F using (_f#_)
 

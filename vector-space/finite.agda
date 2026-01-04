@@ -31,31 +31,19 @@ private
 module _ {ℓK ℓV : Level}
          {K : Type ℓK} {K# : Rel K ℓK}
          {V : Type ℓV} {V# : Rel V ℓV}
-         {ACM-K : AdditiveCommMonoid K} {AG-K : AdditiveGroup ACM-K}
-         {S-K : Semiring ACM-K} {R-K : Ring S-K AG-K}
-         {ACM-V : AdditiveCommMonoid V} {AG-V : AdditiveGroup ACM-V}
-         {A-K : isTightApartness K#}
-         {A-V : isTightApartness V#}
-         {MS : ModuleStr R-K AG-V}
+         {{ACM-K : AdditiveCommMonoid K}} {{AG-K : AdditiveGroup ACM-K}}
+         {{S-K : Semiring ACM-K}} {{R-K : Ring S-K AG-K}}
+         {{ACM-V : AdditiveCommMonoid V}} {{AG-V : AdditiveGroup ACM-V}}
+         {{A-K : isTightApartness K#}}
+         {{A-V : isTightApartness V#}}
+         {{MS : ModuleStr R-K AG-V}}
          {{AMS : ApartModuleStr MS A-K A-V}}
          {{F : Field R-K A-K}}
-         where
-
-  private
-    instance
-      IMS = MS
-      IACM-K = ACM-K
-      IS = S-K
-      IACM-V = ACM-V
-      IA-K = A-K
-      IA-V = A-V
-
+  where
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
     scaled-vector-sum : (I -> K) -> (I -> V) -> V
     scaled-vector-sum ks vs = finiteSum (\i -> (ks i) v* (vs i))
-
-
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} (vs : I -> V) where
     LinearlyDependent :  Type (ℓ-max* 3 ℓK ℓV ℓI)
@@ -128,23 +116,16 @@ module _ {ℓK ℓV : Level}
 module _ {ℓK ℓV : Level}
          {K : Type ℓK} {K# : Rel K ℓK}
          {V : Type ℓV} {V# : Rel V ℓV}
-         {ACM-K : AdditiveCommMonoid K} {AG-K : AdditiveGroup ACM-K}
-         {S-K : Semiring ACM-K} {R-K : Ring S-K AG-K}
-         {ACM-V : AdditiveCommMonoid V} {AG-V : AdditiveGroup ACM-V}
-         {A-K : isTightApartness K#}
-         {A-V : isTightApartness V#}
-         {MS : ModuleStr R-K AG-V}
+         {{ACM-K : AdditiveCommMonoid K}} {{AG-K : AdditiveGroup ACM-K}}
+         {{S-K : Semiring ACM-K}} {{R-K : Ring S-K AG-K}}
+         {{ACM-V : AdditiveCommMonoid V}} {{AG-V : AdditiveGroup ACM-V}}
+         {{A-K : isTightApartness K#}}
+         {{A-V : isTightApartness V#}}
+         {{MS : ModuleStr R-K AG-V}}
          {{AMS : ApartModuleStr MS A-K A-V}}
          {{F : Field R-K A-K}}
          where
   private
-    instance
-      IACM-K = ACM-K
-      IAG-K = AG-K
-      IACM-V = ACM-V
-      IAG-V = AG-V
-      IMS = MS
-
     isSet-V = AdditiveCommMonoid.isSet-Domain ACM-V
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
@@ -208,30 +189,21 @@ module _ {ℓK ℓV₁ ℓV₂ : Level}
          {K# : Rel K ℓK}
          {V₁# : Rel V₁ ℓV₁}
          {V₂# : Rel V₂ ℓV₂}
-         {ACM-K : AdditiveCommMonoid K}
-         {AG-K : AdditiveGroup ACM-K}
-         {S-K : Semiring ACM-K}
-         {R-K : Ring S-K AG-K}
-         {ACM-V₁ : AdditiveCommMonoid V₁} {AG-V₁ : AdditiveGroup ACM-V₁}
-         {ACM-V₂ : AdditiveCommMonoid V₂} {AG-V₂ : AdditiveGroup ACM-V₂}
-         {MS₁ : ModuleStr R-K AG-V₁}
-         {MS₂ : ModuleStr R-K AG-V₂}
-         {A-K : isTightApartness K#}
-         {A-V₁ : isTightApartness V₁#}
-         {A-V₂ : isTightApartness V₂#}
+         {{ACM-K : AdditiveCommMonoid K}}
+         {{AG-K : AdditiveGroup ACM-K}}
+         {{S-K : Semiring ACM-K}}
+         {{R-K : Ring S-K AG-K}}
+         {{ACM-V₁ : AdditiveCommMonoid V₁}} {{AG-V₁ : AdditiveGroup ACM-V₁}}
+         {{ACM-V₂ : AdditiveCommMonoid V₂}} {{AG-V₂ : AdditiveGroup ACM-V₂}}
+         {{MS₁ : ModuleStr R-K AG-V₁}}
+         {{MS₂ : ModuleStr R-K AG-V₂}}
+         {{A-K : isTightApartness K#}}
+         {{A-V₁ : isTightApartness V₁#}}
+         {{A-V₂ : isTightApartness V₂#}}
          {{F : Field R-K A-K}}
          {{AMS₁ : ApartModuleStr MS₁ A-K A-V₁}}
          {{AMS₂ : ApartModuleStr MS₂ A-K A-V₂}}
   where
-
-  private
-    instance
-      IACM-V₁ = ACM-V₁
-      IACM-V₂ = ACM-V₂
-      IMS₁ = MS₁
-      IMS₂ = MS₂
-      IA-V₁ = A-V₁
-      IA-V₂ = A-V₂
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
     transform-isSpanning : {f : V₁ -> V₂} {vs : I -> V₁} ->

@@ -16,16 +16,11 @@ open import truncation
 module _ {ℓI ℓD ℓI≤ ℓD≤ ℓD< : Level} {I : Type ℓI} {D : Type ℓD}
          {I≤ : Rel I ℓI≤} {D≤ : Rel D ℓD≤} {D< : Rel D ℓD<}
          {{IPO : isPartialOrder I≤}}
-         {{DPO : isPartialOrder D≤}} {DLO : isLinearOrder D<}
-         {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
+         {{DPO : isPartialOrder D≤}} {{DLO : isLinearOrder D<}}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
          {{AG : AdditiveGroup ACM}}
          {{Max : MaxOperationStr DLO}} where
   private
-    instance
-      I-DLO = DLO
-      I-S = S
-      I-ACM = ACM
-
     D⁺S : Subtype D ℓD<
     D⁺S d = 0# < d , isProp-<
 

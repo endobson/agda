@@ -87,15 +87,11 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}  where
 
 
 
-module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {ACM : AdditiveCommMonoid D}
-         {PO : isPartialOrder D≤}
+module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {{ACM : AdditiveCommMonoid D}}
+         {{PO : isPartialOrder D≤}}
          {{POA : PartiallyOrderedAdditiveStr ACM PO}}
           where
   private
-    instance
-      IACM = ACM
-      IPO = PO
-
     Seq : Type ℓD
     Seq = Sequence D
 
@@ -116,12 +112,9 @@ module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {ACM : Addi
       subst2 _≤_ (sym (partial-sums-split s1 n)) (sym (partial-sums-split s2 n))
         (+-preserves-≤ (s1≤s2 n) (partial-sums-≤ s1≤s2 n))
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
          {{AG : AdditiveGroup ACM}} where
   private
-    instance
-      IACM = ACM
-
     Seq : Type ℓD
     Seq = Sequence D
 

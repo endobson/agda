@@ -16,13 +16,11 @@ open import ordered-additive-group
 open import relation
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}}
-         {LO : isLinearOrder D<} {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
+         {{ACM : AdditiveCommMonoid D}} {{AG : AdditiveGroup ACM}}
+         {{LO : isLinearOrder D<}} {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
   where
   private
     instance
-      IACM = ACM
-      ILO = LO
       IPO = isLinearOrder->isPartialOrder-≯ LO
       ICO = CompatibleNegatedLinearOrder LO
 

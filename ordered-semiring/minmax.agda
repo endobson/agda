@@ -15,21 +15,15 @@ open import semiring
 open import truncation
 
 module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D}
-         {S : Semiring ACM}
-         {LO : isLinearOrder D<}
-         {PO : isPartialOrder D≤}
+         {{ACM : AdditiveCommMonoid D}}
+         {{S : Semiring ACM}}
+         {{LO : isLinearOrder D<}}
+         {{PO : isPartialOrder D≤}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}}
          {{POS : PartiallyOrderedSemiringStr S PO}}
          {{CO : CompatibleOrderStr LO PO}}
   where
-  private
-    instance
-      ILO = LO
-      IPO = PO
-      IACM = ACM
-      IS = S
 
   module _ {{Max : MaxOperationStr LO}} where
     abstract

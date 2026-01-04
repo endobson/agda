@@ -39,12 +39,8 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
 
 
 module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{LO : isLinearOrder D<}} {{PO : isPartialOrder D≤}}
          {{CO : CompatibleOrderStr LO PO}} where
-  private
-    instance
-      ILO = LO
-      IPO = PO
 
   record _⊆OI_ (ia : OI D) (ib : OI D) : Type ℓ≤ where
     constructor _,_

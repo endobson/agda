@@ -4,6 +4,7 @@ module abs where
 
 open import additive-group
 open import additive-group.instances.int
+open import additive-group.instances.nat
 open import base
 open import equality-path
 open import int

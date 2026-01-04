@@ -4,6 +4,7 @@ module fraction.canonical where
 
 open import additive-group
 open import additive-group.instances.int
+open import apartness.instances.int
 open import base
 open import div
 open import equality-path

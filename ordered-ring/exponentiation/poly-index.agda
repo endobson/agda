@@ -52,7 +52,7 @@ PolyIndex-i≠0-iso n .Iso.rightInv ((zero , j , _) , ¬p) = bot-elim (¬p refl)
 
 
 module _ {ℓD : Level} {D : Type ℓD}
-         {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
   where
   all-ones-pif : (n : Nat) -> (PolyIndex n -> D)
   all-ones-pif _ _ = 1#

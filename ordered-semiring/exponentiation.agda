@@ -20,17 +20,11 @@ open import truncation
 
 
 module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
+         {{LO : isLinearOrder D<}} {{PO : isPartialOrder D≤}}
          {{COS : CompatibleOrderStr LO PO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{POS : PartiallyOrderedSemiringStr S PO}} where
-  private
-    instance
-      IACM = ACM
-      ILO = LO
-      IPO = PO
-      IS = S
 
   opaque
     ^ℕ-preserves-0≤ : {x : D} -> 0# ≤ x -> (n : Nat) -> 0# ≤ (x ^ℕ n)
@@ -60,18 +54,12 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Re
 
 
 module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
+         {{LO : isLinearOrder D<}} {{PO : isPartialOrder D≤}}
          {{COS : CompatibleOrderStr LO PO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{POS : PartiallyOrderedSemiringStr S PO}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}} where
-  private
-    instance
-      IACM = ACM
-      ILO = LO
-      IPO = PO
-      IS = S
 
   opaque
     ^ℕ-even-0≤ : (x : D) (n : Nat) -> Even n -> 0# ≤ (x ^ℕ n)
@@ -94,15 +82,11 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Re
 
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {LO : isLinearOrder D<}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
+         {{LO : isLinearOrder D<}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
-         {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}} where
-  private
-    instance
-      IACM = ACM
-      ILO = LO
-      IS = S
+         {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}}
+  where
 
   opaque
     ^ℕ-preserves-0< : {x : D} -> 0# < x -> (n : Nat) -> 0# < (x ^ℕ n)
@@ -135,19 +119,13 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
     ^ℕ-<0-odd-<0 x<0 (suc n) on = *₂-preserves-<0 x<0 (^ℕ-<0-even-0< x<0 n on)
 
 module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
+         {{LO : isLinearOrder D<}} {{PO : isPartialOrder D≤}}
          {{COS : CompatibleOrderStr LO PO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{POS : PartiallyOrderedSemiringStr S PO}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}}
-         where
-  private
-    instance
-      IACM = ACM
-      ILO = LO
-      IPO = PO
-      IS = S
+  where
 
   opaque
     ^ℕ-0≤-reflects-< : {x y : D} -> 0# ≤ x -> 0# ≤ y -> (n : Nat) -> (x ^ℕ n) < (y ^ℕ n) -> x < y

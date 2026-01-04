@@ -9,7 +9,9 @@ open import equality-path
 open import equivalence
 open import order
 open import order.instances.real
+open import order.instances.rational
 open import ordered-additive-group.instances.real
+open import ordered-additive-group.instances.rational
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import ordered-semiring.negated
@@ -18,8 +20,10 @@ open import real
 open import real.apartness
 open import real.arithmetic.order
 open import real.rational
+open import rational
 open import ring
 open import ring.implementations.real
+open import ring.implementations.rational
 open import semiring
 open import semiring.unit
 open import sum

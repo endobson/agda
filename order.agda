@@ -253,13 +253,8 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<} (L : isLinearOrder D<) where
 
 
 module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {<-Str : isLinearOrder D<} {≤-Str : isPartialOrder D≤}
+         {{<-Str : isLinearOrder D<}} {{≤-Str : isPartialOrder D≤}}
          {{S : CompatibleOrderStr <-Str ≤-Str}} where
-  private
-    instance
-      <-Str-I = <-Str
-      ≤-Str-i = ≤-Str
-
   open CompatibleOrderStr S public
 
   weaken-< : {d1 d2 : D} -> d1 < d2 -> d1 ≤ d2
@@ -296,17 +291,12 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
 
 
 module _ {D : Type ℓD} {D# : Rel D ℓ#} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {L : isLinearOrder D<}
-         {P : isPartialOrder D≤}
-         {A : isTightApartness D#}
+         {{L : isLinearOrder D<}}
+         {{P : isPartialOrder D≤}}
+         {{A : isTightApartness D#}}
          {{LA : ApartLinearOrderStr A L}}
-         {{CO : CompatibleOrderStr L P}} where
-  private
-    instance
-      IL = L
-      IP = P
-      IA = A
-      ICO = CO
+         {{CO : CompatibleOrderStr L P}}
+  where
 
   strengthen-≤-# : {d1 d2 : D} -> d1 ≤ d2 -> d1 # d2 -> d1 < d2
   strengthen-≤-# {d1} {d2} d1≤d2 d1#d2 = handle (eqInv <>-equiv-# d1#d2)
@@ -349,13 +339,9 @@ abstract
         }
 
 
-module _ {D : Type ℓD} {D< : Rel D ℓ<} {<-Str : isLinearOrder D<}
+module _ {D : Type ℓD} {D< : Rel D ℓ<} {{<-Str : isLinearOrder D<}}
          {{S : DecidableLinearOrderStr <-Str}} where
   open DecidableLinearOrderStr S public
-
-  private
-    instance
-      <-Str-I = <-Str
 
   abstract
     stable-< : {d1 d2 : D} -> Stable (d1 < d2)
@@ -368,14 +354,9 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<} {<-Str : isLinearOrder D<}
 
 
 module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {<-Str : isLinearOrder D<} {≤-Str : isPartialOrder D≤}
-         {{S : CompatibleOrderStr <-Str ≤-Str}} {{DS : DecidableLinearOrderStr <-Str}} where
-  private
-    instance
-      <-Str-I = <-Str
-      ≤-Str-i = ≤-Str
-      IS = S
-      IDS = DS
+         {{<-Str : isLinearOrder D<}} {{≤-Str : isPartialOrder D≤}}
+         {{S : CompatibleOrderStr <-Str ≤-Str}} {{DS : DecidableLinearOrderStr <-Str}}
+  where
 
   abstract
     split-< : (d1 d2 : D) -> (d1 < d2) ⊎ (d2 ≤ d1)

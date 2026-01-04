@@ -20,11 +20,8 @@ open import semigroup.minmax
 open import truncation
 
 module _
-  {ℓD ℓ< : Level} {D : Type ℓD} {_<_ : Rel D ℓ<} {LO : isLinearOrder _<_}
+  {ℓD ℓ< : Level} {D : Type ℓD} {_<_ : Rel D ℓ<} {{LO : isLinearOrder _<_}}
   {{MS : MinOperationStr LO}} where
-  private
-    instance
-      ILO = LO
 
   private
     CS : CommutativeSemigroupStr D
@@ -37,12 +34,9 @@ module _
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : Fin⁺SetStr I}} where
 
-    module _ {ℓ≤ : Level} {_≤_ : Rel D ℓ≤} {PO : isPartialOrder _≤_}
+    module _ {ℓ≤ : Level} {_≤_ : Rel D ℓ≤} {{PO : isPartialOrder _≤_}}
              {{CO : CompatibleOrderStr LO PO}} where
       private
-        instance
-          IPO = PO
-
         finite⁺Min'-≤ : (n : Nat) (f : (Fin (suc n)) -> D) -> (i : Fin (suc n)) -> finite⁺Min f ≤ f i
         finite⁺Min'-≤ zero f i =
           path-≤ (finite⁺Merge-Fin1 CS f >=> cong f (snd isContrFin1 i))
@@ -104,11 +98,8 @@ module _
 
 
 module _
-  {ℓD ℓ< : Level} {D : Type ℓD} {_<_ : Rel D ℓ<} {LO : isLinearOrder _<_}
+  {ℓD ℓ< : Level} {D : Type ℓD} {_<_ : Rel D ℓ<} {{LO : isLinearOrder _<_}}
   {{MS : MaxOperationStr LO}} where
-  private
-    instance
-      ILO = LO
 
   private
     CS : CommutativeSemigroupStr D
@@ -120,12 +111,9 @@ module _
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : Fin⁺SetStr I}} where
 
-    module _ {ℓ≤ : Level} {_≤_ : Rel D ℓ≤} {PO : isPartialOrder _≤_}
+    module _ {ℓ≤ : Level} {_≤_ : Rel D ℓ≤} {{PO : isPartialOrder _≤_}}
              {{CO : CompatibleOrderStr LO PO}} where
       private
-        instance
-          IPO = PO
-
         finite⁺Max'-≤ : (n : Nat) (f : (Fin (suc n)) -> D) -> (i : Fin (suc n)) -> f i ≤ finite⁺Max f
         finite⁺Max'-≤ zero f i =
           path-≤ (sym (cong f (snd isContrFin1 i)) >=>

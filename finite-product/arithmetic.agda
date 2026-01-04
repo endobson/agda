@@ -27,20 +27,16 @@ open import semiring
 open import without-point
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D}
+         {{ACM : AdditiveCommMonoid D}}
          {{AG : AdditiveGroup ACM}}
-         {S : Semiring ACM}
-         {LO : isLinearOrder D<}
+         {{S : Semiring ACM}}
+         {{LO : isLinearOrder D<}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}}
          {{Max : MaxOperationStr LO }} where
   private
     instance
-      IS = S
-      IACM = ACM
-      IAG = AG
-      ILO = LO
       PO = isLinearOrder->isPartialOrder-≯ LO
       CO = CompatibleNegatedLinearOrder LO
       POA = PartiallyOrderedAdditiveStr-Negated ACM LO

@@ -26,26 +26,19 @@ open import truncation
 
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}
-         {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
-  private
-    instance
-      IACM = ACM
-
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} where
   isSqrt : (x y : D) -> Type _
   isSqrt x y = (y ≮ 0# × y * y == x)
 
 
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{SOS : StronglyLinearlyOrderedSemiringStr S LO}} where
   private
     instance
-      ILO = LO
-      IS = S
-      IACM = ACM
       PO = isLinearOrder->isPartialOrder-≯ LO
       CPO = CompatibleNegatedLinearOrder LO
       TALO = TrivialApartLinearOrderStr LO

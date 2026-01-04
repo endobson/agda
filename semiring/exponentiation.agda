@@ -22,12 +22,10 @@ open import truncation
 -- exp x (a + b) = exp x a * exp x b
 -- exp (x * y) n = exp x n * exp y n
 
-module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
+module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}}
          {{S : Semiring ACM}} where
 
   private
-    instance
-      IACM = ACM
     Monoid-ℕ+ : Monoid ℕ
     Monoid-ℕ+ = CommMonoid.monoid (AdditiveCommMonoid.comm-monoid useⁱ)
 
@@ -122,8 +120,8 @@ module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D}
         sym (^ℕ-distrib-+-left 1 n)
 
 module _ {ℓ₁ ℓ₂ : Level} {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-         {ACM₁ : AdditiveCommMonoid D₁}
-         {ACM₂ : AdditiveCommMonoid D₂}
+         {{ACM₁ : AdditiveCommMonoid D₁}}
+         {{ACM₂ : AdditiveCommMonoid D₂}}
          {{S₁ : Semiring ACM₁}}
          {{S₂ : Semiring ACM₂}}
          where

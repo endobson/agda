@@ -9,11 +9,7 @@ open import ring
 open import semiring
 
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
-  private
-    instance
-      IACM = ACM
-
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} where
   Ind : Nat⁺ -> D
   Ind (suc zero , _) = 1#
   Ind (suc (suc _) , _) = 0#

@@ -3,6 +3,7 @@
 module real.exponential.bounds where
 
 open import additive-group
+open import additive-group.instances.nat
 open import additive-group.instances.real
 open import base
 open import combinatorics.factorial

@@ -6,6 +6,7 @@ open import additive-group.instances.real
 open import base
 open import functions
 open import hlevel
+open import order.instances.real
 open import order.minmax.instances.real
 open import ordered-additive-group.absolute-value
 open import ordered-additive-group.instances.real

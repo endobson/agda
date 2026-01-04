@@ -22,11 +22,8 @@ open import nat
 open import power-series
 open import semiring
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} where
   private
-    instance
-      IACM = ACM
-
     1-PS : PowerSeries D
     1-PS .PowerSeries.seq zero = 1#
     1-PS .PowerSeries.seq (suc n) = 0#

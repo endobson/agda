@@ -25,13 +25,10 @@ open import sigma.base
 open import truncation
 
 module _
-  {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+  {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
   {{S : Semiring ACM}} {{_ : ℕ->Semiring-Op D}}
   where
   private
-    instance
-      IACM = ACM
-
     ℕ->D : ℕ -> D
     ℕ->D = ℕ->Semiring
 
@@ -39,13 +36,11 @@ module _
     semiʰ = ∃!-prop ∃!ℕ->Semiring
     module semiʰ = Semiringʰ semiʰ
 
-  module _ {ℓ≤ : Level} {D≤ : Rel D ℓ≤} {PO : isPartialOrder D≤}
+  module _ {ℓ≤ : Level} {D≤ : Rel D ℓ≤} {{PO : isPartialOrder D≤}}
            {{POA : PartiallyOrderedAdditiveStr ACM PO}}
            {{POS : PartiallyOrderedSemiringStr S PO}}
     where
     private
-      instance
-        IPO = PO
       ℕ->D-0≤ : (n : ℕ) -> 0# ≤ ℕ->D n
       ℕ->D-0≤ = ℕ->Semiring-elim refl-≤ 0≤1 p+
         where
@@ -63,15 +58,11 @@ module _
 
 
   module _ {ℓ< : Level} {D< : Rel D ℓ<}
-           {LO : isLinearOrder D<}
+           {{LO : isLinearOrder D<}}
            {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
-           {LOS : LinearlyOrderedSemiringStr S LO}
+           {{LOS : LinearlyOrderedSemiringStr S LO}}
            {{NT : NonTrivialLinearlyOrderedSemiringStr LOS}} where
     private
-      instance
-        ILO = LO
-        ILOS = LOS
-
       ℕ->D-suc< : (n : ℕ) -> ℕ->D n < ℕ->D (suc n)
       ℕ->D-suc< zero = subst2 _<_ (sym semiʰ.preserves-0#) (sym semiʰ.preserves-1#) 0<1
       ℕ->D-suc< (suc n) =
@@ -90,6 +81,7 @@ module _
     module _ where
       private
         instance
+          PO = isLinearOrder->isPartialOrder-≯ LO
           IPOA = PartiallyOrderedAdditiveStr-Negated ACM LO
           IPOS = PartiallyOrderedSemiringStr-Negated S LO
           ICO = CompatibleNegatedLinearOrder LO

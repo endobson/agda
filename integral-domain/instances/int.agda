@@ -2,6 +2,7 @@
 
 module integral-domain.instances.int where
 
+open import additive-group.instances.int
 open import apartness
 open import apartness.decidable
 open import apartness.instances.int

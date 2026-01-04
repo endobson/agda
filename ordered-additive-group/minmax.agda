@@ -13,16 +13,14 @@ open import ordered-additive-group.negated
 open import relation
 open import truncation
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D}
-         {LO : isLinearOrder D<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{ACM : AdditiveCommMonoid D}}
+         {{LO : isLinearOrder D<}}
          {{Min : MinOperationStr LO}}
          {{Max : MaxOperationStr LO}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
   where
   private
     instance
-      IACM = ACM
-      ILO = LO
       IPO = isLinearOrder->isPartialOrder-≯ LO
       CPO = CompatibleNegatedLinearOrder LO
       POA = PartiallyOrderedAdditiveStr-Negated ACM LO
@@ -115,17 +113,12 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCo
         -b≤min : (- b) ≤ (- min a b)
         -b≤min = minus-flips-≤ min-≤-right
 
-module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤} {ACM : AdditiveCommMonoid D}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤} {{ACM : AdditiveCommMonoid D}}
+         {{LO : isLinearOrder D<}} {{PO : isPartialOrder D≤}}
          {{Min : MinOperationStr LO}}
          {{COS : CompatibleOrderStr LO PO}}
          {{POA : PartiallyOrderedAdditiveStr ACM PO}}
   where
-  private
-    instance
-      IACM = ACM
-      ILO = LO
-      IPO = PO
 
   min-+-swap : {a b c d : D} -> (min a b + min c d) ≤ min (a + c) (b + d)
   min-+-swap = min-greatest-≤ abcd≤ac abcd≤bd
@@ -133,17 +126,12 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Re
     abcd≤ac = +-preserves-≤ min-≤-left min-≤-left
     abcd≤bd = +-preserves-≤ min-≤-right min-≤-right
 
-module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤} {ACM : AdditiveCommMonoid D}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤} {{ACM : AdditiveCommMonoid D}}
+         {{LO : isLinearOrder D<}} {{PO : isPartialOrder D≤}}
          {{Max : MaxOperationStr LO}}
          {{COS : CompatibleOrderStr LO PO}}
          {{POA : PartiallyOrderedAdditiveStr ACM PO}}
   where
-  private
-    instance
-      IACM = ACM
-      ILO = LO
-      IPO = PO
 
   max-+-swap : {a b c d : D} -> max (a + c) (b + d) ≤ (max a b + max c d)
   max-+-swap = max-least-≤ abcd≤ac abcd≤bd
@@ -152,14 +140,13 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Re
     abcd≤bd = +-preserves-≤ max-≤-right max-≤-right
 
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D}
-         {LO : isLinearOrder D<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {{ACM : AdditiveCommMonoid D}}
+         {{LO : isLinearOrder D<}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
   where
   private
     instance
-      IACM = ACM
-      ILO = LO
       IPO = isLinearOrder->isPartialOrder-≯ LO
       CPO = CompatibleNegatedLinearOrder LO
       POA = PartiallyOrderedAdditiveStr-Negated ACM LO

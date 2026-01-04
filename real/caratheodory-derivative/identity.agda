@@ -2,6 +2,7 @@
 
 module real.caratheodory-derivative.identity where
 
+open import additive-group.instances.real
 open import base
 open import metric-space.continuous
 open import metric-space.instances.real
