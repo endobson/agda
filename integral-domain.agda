@@ -35,17 +35,9 @@ module _ {ℓ ℓ# : Level} {D : Type ℓ} {D# : Rel D ℓ#}
 
 
 module _ {ℓ ℓ# : Level} {D : Type ℓ} {D# : Rel D ℓ#}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {AG : AdditiveGroup ACM}
-         {R : Ring S AG} {A : isTightApartness D#} {{IntD : IntegralDomain R A}} where
-  private
-    instance
-      IACM = ACM
-      IAG = AG
-      IS = S
-      IR = R
-      IA = A
-
-    open IntegralDomain IntD hiding (diff-#-equiv)
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} {{AG : AdditiveGroup ACM}}
+         {{R : Ring S AG}} {{A : isTightApartness D#}} {{IntD : IntegralDomain R A}} where
+  open IntegralDomain IntD hiding (diff-#-equiv)
 
   abstract
     diff-#-equiv : {a b : D} -> (a # b) ≃ (diff a b # 0#)

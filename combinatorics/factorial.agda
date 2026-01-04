@@ -2,6 +2,7 @@
 
 module combinatorics.factorial where
 
+open import additive-group.instances.nat
 open import base
 open import equality
 open import nat

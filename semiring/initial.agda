@@ -21,7 +21,7 @@ open import truncation
 open import semiring.initial.base public
 
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
          {{S : Semiring ACM}} {{C : ℕ->Semiring-Op D}} where
   ℕ->Semiring : ℕ -> D
   ℕ->Semiring = ℕ->SemiringStr.f C
@@ -41,10 +41,6 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
         fun-path : f == g
         fun-path =
           Monoidʰ-ℕ-path fʰ.+ʰ gʰ.+ʰ (fʰ.preserves-1# >=> sym gʰ.preserves-1#)
-
-  private
-    instance
-      IACM = ACM
 
   opaque
     ℕ->Semiring-preserves-0# : Path D (ℕ->Semiring 0) 0#
@@ -105,11 +101,8 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
 
 
 private
-  module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+  module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
            {{S : Semiring ACM}} where
-    private
-      instance
-        IACM = ACM
 
     lift-nat : ℕ -> D
     lift-nat n = iter n (1# +_) 0#

@@ -3,6 +3,7 @@
 module ordered-semiring.archimedean.instances.real where
 
 open import additive-group
+open import additive-group.instances.real
 open import base
 open import equality
 open import nat

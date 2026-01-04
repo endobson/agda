@@ -18,18 +18,12 @@ open import ordered-additive-group.absolute-value
 open import relation
 
 module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{ACM : AdditiveCommMonoid D}} {{AG : AdditiveGroup ACM}}
+         {{LO : isLinearOrder D<}} {{PO : isPartialOrder D≤}}
          {{Max : MaxOperationStr LO}} {{CO : CompatibleOrderStr LO PO}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {{POA : PartiallyOrderedAdditiveStr ACM PO}}
          where
-  private
-    instance
-      IACM = ACM
-      ILO = LO
-      IPO = PO
-
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
     private
       finiteSum-abs-bounded : {f : I -> D} ->

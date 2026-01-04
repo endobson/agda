@@ -20,8 +20,8 @@ open import truncation
 module _ {ℓI ℓD ℓI≤ ℓI< ℓD≤ ℓD< : Level} {I : Type ℓI} {D : Type ℓD}
          {I≤ : Rel I ℓI≤} {I< : Rel I ℓI<} {D≤ : Rel D ℓD≤} {D< : Rel D ℓD<}
          {{IPO : isPartialOrder I≤}} {{ILO : isLinearOrder I<}}
-         {{DPO : isPartialOrder D≤}} {DLO : isLinearOrder D<}
-         {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
+         {{DPO : isPartialOrder D≤}} {{DLO : isLinearOrder D<}}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
          {{AG : AdditiveGroup ACM}}
          {{D-Max : MaxOperationStr DLO}}
          {{I-Max : MaxOperationStr ILO}}
@@ -30,11 +30,6 @@ module _ {ℓI ℓD ℓI≤ ℓI< ℓD≤ ℓD< : Level} {I : Type ℓI} {D : Ty
          {{ICO : CompatibleOrderStr ILO IPO}}
          {{DCO : CompatibleOrderStr DLO DPO}}
          {{LOS : LinearlyOrderedSemiringStr S DLO}} where
-  private
-    instance
-      I-DLO = DLO
-      I-S = S
-      I-ACM = ACM
 
   opaque
     BigO-+ : {f1 f2 g : I -> D} -> BigO f1 g -> BigO f2 g -> BigO (\i -> f1 i + f2 i) g

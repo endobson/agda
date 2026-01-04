@@ -23,21 +23,13 @@ open import semiring
 open import semiring.exponentiation
 
 module _
-  {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
-  {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+  {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}
+  {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
   {{AG : AdditiveGroup ACM}}
   {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
   {{LOS : LinearlyOrderedSemiringStr S LO}}
   {{SOS : StronglyLinearlyOrderedSemiringStr S LO}}
   where
-  private
-    instance ILO = LO
-    instance IAG = AG
-    instance IACM = ACM
-    instance IS = S
-    CM = AdditiveCommMonoid.comm-monoid ACM
-    instance
-      ITA = isLinearOrder->isTightApartness-<> LO
 
   private
     diff-ends-pif : (n : Nat) -> (PolyIndex (suc n) -> D)

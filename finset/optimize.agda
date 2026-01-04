@@ -114,13 +114,11 @@ private
 
 module _
   {ℓS ℓT ℓ< : Level} {T : Type ℓT} {T< : Rel T ℓ<}
-  {PO : isPartialOrder T<} {{TOS : TotalOrderStr PO}}
+  {{PO : isPartialOrder T<}} {{TOS : TotalOrderStr PO}}
   (S : FinSet ℓS) (f : ⟨ S ⟩ -> T) where
 
   private
     V = ⟨ S ⟩
-    instance
-      IPO = PO
 
     Ans-min : Type _
     Ans-min = ¬ V ⊎ (∃[ v ∈ V ] ∀ (v2 : V) -> f v ≤ f v2)

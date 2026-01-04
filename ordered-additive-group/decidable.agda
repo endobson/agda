@@ -12,10 +12,7 @@ open import relation
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
          {{ACM : AdditiveCommMonoid D}}
-         {O : isLinearOrder D<} {{DLO : DecidableLinearOrderStr O}} where
-  private
-    instance
-      IO = O
+         {{O : isLinearOrder D<}} {{DLO : DecidableLinearOrderStr O}} where
 
   LinearlyOrderedAdditiveStr-Dec< :
     ({a b c : D} -> b < c -> (a + b) < (a + c)) ->
@@ -35,17 +32,12 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
       b=c = connected-< b≮c c≮b
 
 module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{ACM : AdditiveCommMonoid D}}
+         {{LO : isLinearOrder D<}} {{PO : isPartialOrder D≤}}
          {{CO : CompatibleOrderStr LO PO}}
          {{LOS : LinearlyOrderedAdditiveStr ACM LO}}
          {{DLO : DecidableLinearOrderStr LO}}
          where
-  private
-    instance
-      IACM = ACM
-      ILO = LO
-      IPO = PO
 
   StronglyPartiallyOrderedAdditiveStr-Dec< : StronglyPartiallyOrderedAdditiveStr ACM PO
   StronglyPartiallyOrderedAdditiveStr-Dec< = record

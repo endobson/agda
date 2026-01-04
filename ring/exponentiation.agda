@@ -27,12 +27,9 @@ open import semiring.exponentiation
 open import sigma.base
 
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
          {{S : Semiring ACM}} {{AG : AdditiveGroup ACM}}
-         where
-  private
-    instance
-      IACM = ACM
+  where
 
   minus-^ℕ-odd : (x : D) (n : Nat) -> (Odd n) -> (- x) ^ℕ n == - (x ^ℕ n)
   minus-^ℕ-odd x (suc zero) _ = *-right-one >=> cong -_ (sym *-right-one)
@@ -49,13 +46,10 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
     *-right (minus-^ℕ-even x i ei) >=>
     *-assoc
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
          {{S : Semiring ACM}} {{AG : AdditiveGroup ACM}}
          where
   private
-    instance
-      IACM = ACM
-
     R : Ring S AG
     R = record {}
     module R = Ring R

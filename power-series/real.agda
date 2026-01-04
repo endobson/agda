@@ -2,6 +2,7 @@
 
 module power-series.real where
 
+open import additive-group.instances.real
 open import power-series
 open import real
 open import real.series.geometric

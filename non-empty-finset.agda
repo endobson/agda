@@ -2,6 +2,7 @@
 
 module non-empty-finset where
 
+open import additive-group.instances.nat
 open import base
 open import sum
 open import cubical

@@ -12,14 +12,10 @@ open import sum
 open import relation
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D}  {S : Semiring ACM}
-         {O : isLinearOrder D<} {{LOS : LinearlyOrderedSemiringStr S O}}
-         {{DLO : DecidableLinearOrderStr O}} where
-  private
-    instance
-      IACM = ACM
-      IS = S
-      IO = O
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
+         {{O : isLinearOrder D<}} {{LOS : LinearlyOrderedSemiringStr S O}}
+         {{DLO : DecidableLinearOrderStr O}}
+  where
 
   StronglyLinearlyOrderedSemiringStr-Dec< : StronglyLinearlyOrderedSemiringStr S O
   StronglyLinearlyOrderedSemiringStr-Dec< = record
@@ -48,19 +44,13 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
 
 
 module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
+         {{LO : isLinearOrder D<}} {{PO : isPartialOrder D≤}}
          {{CO : CompatibleOrderStr LO PO}}
          {{POS : PartiallyOrderedSemiringStr S PO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{DLO : DecidableLinearOrderStr LO}}
-         where
-  private
-    instance
-      IACM = ACM
-      IS = S
-      ILO = LO
-      IPO = PO
+  where
 
   StronglyPartiallyOrderedSemiringStr-Dec< : StronglyPartiallyOrderedSemiringStr S LO PO
   StronglyPartiallyOrderedSemiringStr-Dec< = record

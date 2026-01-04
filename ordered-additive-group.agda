@@ -30,14 +30,11 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<} (ACM : AdditiveCommMonoid D) (O : isL
       +₁-preserves-< : {a b c : D} -> b < c -> (a + b) < (a + c)
       +₁-reflects-< : {a b c : D} -> (a + b) < (a + c) -> b < c
 
-module _ {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D} {O : isLinearOrder D<}
+module _ {D : Type ℓD} {D< : Rel D ℓ<} {{ACM : AdditiveCommMonoid D}} {{O : isLinearOrder D<}}
          {{LOA : LinearlyOrderedAdditiveStr ACM O}} where
 
   private
     module LOA = LinearlyOrderedAdditiveStr LOA
-    instance
-      IACM = ACM
-      IO = O
 
   abstract
     +₁-preserves-< : {a b c : D} -> b < c -> (a + b) < (a + c)
@@ -88,14 +85,11 @@ module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} (ACM : AdditiveCommMonoid D) (O :
       +₁-preserves-≤ : {a b c : D} -> b ≤ c -> (a + b) ≤ (a + c)
 
 
-module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {ACM : AdditiveCommMonoid D} {O : isPartialOrder D≤}
-         {{POA : PartiallyOrderedAdditiveStr ACM O}} where
-
+module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {{ACM : AdditiveCommMonoid D}} {{O : isPartialOrder D≤}}
+         {{POA : PartiallyOrderedAdditiveStr ACM O}}
+  where
   private
     module POA = PartiallyOrderedAdditiveStr POA
-    instance
-      IACM = ACM
-      IO = O
 
   abstract
     +₁-preserves-≤ : {a b c : D} -> b ≤ c -> (a + b) ≤ (a + c)
@@ -127,14 +121,10 @@ module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} (ACM : AdditiveCommMonoid D) (PO 
     field
       +₁-reflects-≤ : {a b c : D} -> (a + b) ≤ (a + c) -> b ≤ c
 
-module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {ACM : AdditiveCommMonoid D} {PO : isPartialOrder D≤}
+module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {{ACM : AdditiveCommMonoid D}} {{PO : isPartialOrder D≤}}
          {{SPOA : StronglyPartiallyOrderedAdditiveStr ACM PO}} where
-
   private
     module SPOA = StronglyPartiallyOrderedAdditiveStr SPOA
-    instance
-      IACM = ACM
-      IPO = PO
 
   abstract
     +₁-reflects-≤ : {a b c : D} -> (a + b) ≤ (a + c) -> b ≤ c
@@ -144,16 +134,12 @@ module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {ACM : AdditiveCommMonoid D} {PO 
     +₂-reflects-≤ ac≤bc = +₁-reflects-≤ (subst2 _≤_ +-commute +-commute ac≤bc)
 
 
-module _ {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D}
+module _ {D : Type ℓD} {D< : Rel D ℓ<}
+         {{ACM : AdditiveCommMonoid D}}
          {{AG : AdditiveGroup ACM}}
-         {O : isLinearOrder D<}
+         {{O : isLinearOrder D<}}
          {{LOA : LinearlyOrderedAdditiveStr ACM O}}
-         where
-  private
-    instance
-      IACM = ACM
-      IO = O
-
+  where
   abstract
     minus-flips-< : {a b : D} -> (a < b) -> (- b) < (- a)
     minus-flips-< a<b =
@@ -209,16 +195,12 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<} {ACM : AdditiveCommMonoid D}
       backward = ⊎-swap ∘ ⊎-map diff-<0⁻ diff-0<⁻
 
 
-module _ {D : Type ℓD} {D≤ : Rel D ℓ≤} {ACM : AdditiveCommMonoid D}
+module _ {D : Type ℓD} {D≤ : Rel D ℓ≤}
+         {{ACM : AdditiveCommMonoid D}}
          {{AG : AdditiveGroup ACM}}
-         {O : isPartialOrder D≤}
+         {{O : isPartialOrder D≤}}
          {{POA : PartiallyOrderedAdditiveStr ACM O}}
-         where
-  private
-    instance
-      IACM = ACM
-      IO = O
-
+  where
   abstract
     minus-flips-≤ : {a b : D} -> (a ≤ b) -> (- b) ≤ (- a)
     minus-flips-≤ {a} {b} a≤b =

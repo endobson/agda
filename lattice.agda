@@ -63,16 +63,15 @@ record MeetSemiLatticeStr {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D �
   open module is-meet-op = isMeetOp is-meet-op public
 
 module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {PO : isPartialOrder D≤} where
-  private
-    instance
-      IPO = PO
-
   isProp-MeetSemiLatticeStr : isProp (MeetSemiLatticeStr PO)
   isProp-MeetSemiLatticeStr m1 m2 i = record
     { meet = path i
     ; is-meet-op = isProp->PathPᵉ (\i -> isProp-isMeetOp PO (path i)) m1.is-meet-op m2.is-meet-op i
     }
     where
+    instance
+      IPO = PO
+
     module m1 = MeetSemiLatticeStr m1
     module m2 = MeetSemiLatticeStr m2
 
@@ -84,7 +83,7 @@ module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {PO : isPar
     path = funExt (\x -> (funExt (\y -> path' x y)))
 
 
-module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {PO : isPartialOrder D≤}
+module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {{PO : isPartialOrder D≤}}
          {{ MS : MeetSemiLatticeStr PO }} where
   open MeetSemiLatticeStr MS public hiding
     ( is-meet-op
@@ -113,16 +112,15 @@ record JoinSemiLatticeStr {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D �
   open module is-join-op = isJoinOp is-join-op public
 
 module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {PO : isPartialOrder D≤} where
-  private
-    instance
-      IPO = PO
-
   isProp-JoinSemiLatticeStr : isProp (JoinSemiLatticeStr PO)
   isProp-JoinSemiLatticeStr j1 j2 i = record
     { join = path i
     ; is-join-op = isProp->PathPᵉ (\i -> isProp-isJoinOp PO (path i)) j1.is-join-op j2.is-join-op i
     }
     where
+    instance
+      IPO = PO
+
     module j1 = JoinSemiLatticeStr j1
     module j2 = JoinSemiLatticeStr j2
 
@@ -135,15 +133,11 @@ module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {PO : isPar
     path = funExt (\x -> (funExt (\y -> path' x y)))
 
 
-module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {PO : isPartialOrder D≤}
+module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {{PO : isPartialOrder D≤}}
          {{ JS : JoinSemiLatticeStr PO }} where
   open JoinSemiLatticeStr JS public hiding
     ( is-join-op
     )
-
-  private
-    instance
-      IPO = PO
 
   join-≤-path : {x y : D} -> x ≤ y -> join x y == y
   join-≤-path x≤y = antisym-≤ (join-least-≤ x≤y refl-≤) join-≤-right

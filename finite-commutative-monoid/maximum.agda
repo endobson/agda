@@ -13,13 +13,11 @@ open import order.minmax
 open import order.minmax.commutative-monoid
 open import relation
 
-module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}
          {{Max : MaxOperationStr LO}}
          {{Min : GlobalMinOperationStr LO}}
-         {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
-  private
-    instance
-      ILO = LO
+         {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}}
+  where
 
   finiteMax : (f : I -> D) -> D
   finiteMax f = finiteMerge MaxCommMonoid f

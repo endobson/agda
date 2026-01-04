@@ -26,13 +26,10 @@ open import semiring.instances.nat
 open import sigma
 open import truncation
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
   {{S : Semiring ACM}} {{_ : ℕ->Semiring-Op D}}
   where
   private
-    instance
-      IACM = ACM
-
     finSumDep-one : {n : Nat} -> finSumDep n (\i -> 1) == n
     finSumDep-one {zero}  = refl
     finSumDep-one {suc n} = cong suc finSumDep-one

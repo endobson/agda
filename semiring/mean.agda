@@ -10,14 +10,11 @@ open import semiring.natural-reciprocal
 
 
 module _ {ℓD : Level} {D : Type ℓD}
-         {ACM : AdditiveCommMonoid D}
+         {{ACM : AdditiveCommMonoid D}}
          {{S : Semiring ACM}}
          {{_ : ℕ->Semiring-Op D}}
          {{_ : 1/ℕ-Op D}}
-         where
-  private
-    instance
-      IACM = ACM
+  where
 
   mean : D -> D -> D
   mean x y = (x + y) * 1/2

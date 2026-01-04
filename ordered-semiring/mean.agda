@@ -20,21 +20,16 @@ private
     ℓD ℓ< ℓ≤ : Level
 
 module _ {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D}
+         {{ACM : AdditiveCommMonoid D}}
          {{S : Semiring ACM}}
          {{_ : ℕ->Semiring-Op D}}
          {{_ : 1/ℕ-Op D}}
-         {LO : isLinearOrder D<}
+         {{LO : isLinearOrder D<}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{NTO : NonTrivialLinearlyOrderedSemiringStr LOS}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}}
-         where
-  private
-    instance
-      IACM = ACM
-      ILO = LO
-
+  where
   module _ {x y : D} (x<y : x < y) where
     opaque
       mean-<₁ : x < mean x y
@@ -47,22 +42,17 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<}
 
 
 module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D}
+         {{ACM : AdditiveCommMonoid D}}
          {{S : Semiring ACM}}
          {{_ : ℕ->Semiring-Op D}}
          {{_ : 1/ℕ-Op D}}
-         {LO : isLinearOrder D<}
-         {PO : isPartialOrder D≤}
+         {{LO : isLinearOrder D<}}
+         {{PO : isPartialOrder D≤}}
          {{CO : CompatibleOrderStr LO PO}}
          {{POA : PartiallyOrderedAdditiveStr ACM PO}}
          {{SPOA : StronglyPartiallyOrderedAdditiveStr ACM PO}}
          {{POS : PartiallyOrderedSemiringStr S PO}}
-         where
-  private
-    instance
-      IACM = ACM
-      IPO = PO
-
+  where
   module _ {x y : D} (x≤y : x ≤ y) where
     mean-≤₁ : x ≤ mean x y
     mean-≤₁ = trans-=-≤ (sym (*-distrib-+-right >=> +-/2-path))

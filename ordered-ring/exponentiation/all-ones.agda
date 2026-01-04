@@ -29,24 +29,21 @@ open import ordered-semiring.negated
 open import ordered-semiring.squares
 open import ring.exponentiation
 open import semiring
+open import semiring.instances.nat
 open import semiring.exponentiation
 open import subset
 open import subset.indicator
 open import truncation
 
 module _
-  {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
-  {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+  {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}
+  {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
   {{AG : AdditiveGroup ACM}}
   {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
   {{LOS : LinearlyOrderedSemiringStr S LO}}
   {{SOS : StronglyLinearlyOrderedSemiringStr S LO}}
   where
   private
-    instance ILO = LO
-    instance IAG = AG
-    instance IACM = ACM
-    instance IS = S
     CM = AdditiveCommMonoid.comm-monoid ACM
     instance
       PO = isLinearOrder->isPartialOrder-≯ LO
@@ -66,6 +63,7 @@ module _
     DetEven (suc (suc n)) = DetEven n
 
     private
+      iEven : Nat -> D
       iEven = indicator EvenSubtype DetEven
       iEven-=1 : (n : Nat) -> Even n -> iEven n == 1#
       iEven-=1 n e =
@@ -83,7 +81,6 @@ module _
 
     alt-ones-pif : (n : Nat) -> (PolyIndex n -> D)
     alt-ones-pif n (i , j , p) = iEven i * iEven j
-
 
     shift-xy : {n : Nat} -> (PolyIndex n -> D) -> (PolyIndex (suc n) -> D)
     shift-xy f pi = shift₁ f pi + shift₂ f pi

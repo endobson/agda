@@ -23,12 +23,10 @@ open import sigma.base
 
 module _
   {ℓD : Level} {D : Type ℓD}
-  {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
+  {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
   where
   private
     CM = AdditiveCommMonoid.comm-monoid ACM
-    instance
-      IACM = ACM
 
   eval-PI : (x y : D) {n : Nat} -> (f : PolyIndex n -> D) -> PolyIndex n -> D
   eval-PI x y f pi@(i , j , _) = f pi * (x ^ℕ i * y ^ℕ j)

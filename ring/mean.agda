@@ -12,16 +12,12 @@ open import semiring.mean
 open import semiring.natural-reciprocal
 
 module _ {ℓD : Level} {D : Type ℓD}
-         {ACM : AdditiveCommMonoid D}
+         {{ACM : AdditiveCommMonoid D}}
          {{S : Semiring ACM}}
          {{AG : AdditiveGroup ACM}}
          {{_ : ℕ->Semiring-Op D}}
          {{_ : 1/ℕ-Op D}}
-         where
-  private
-    instance
-      IACM = ACM
-
+  where
   opaque
     mean-+-diff/2 : {x y : D} -> mean x y + (diff x y * 1/2) == y
     mean-+-diff/2 {x} {y} =

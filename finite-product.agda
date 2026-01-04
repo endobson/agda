@@ -33,7 +33,7 @@ private
     finiteProductᵉ : {ℓ : Level} -> (s : FinSet ℓ) -> (⟨ s ⟩ -> D) -> D
     finiteProductᵉ = finiteMergeᵉ (Semiring.*-CommMonoid S)
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} where
   private
     CM = (Semiring.*-CommMonoid S)
 
@@ -116,7 +116,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
 
 
 module _ {ℓB ℓC : Level} {B : Type ℓB} {C : Type ℓC}
-         {ACM-B : AdditiveCommMonoid B} {ACM-C : AdditiveCommMonoid C}
+         {{ACM-B : AdditiveCommMonoid B}} {{ACM-C : AdditiveCommMonoid C}}
          {{SB : Semiring ACM-B}} {{SC : Semiring ACM-C}} where
   private
     module SB = Semiring SB

@@ -188,7 +188,6 @@ private
       handle (tri> _ _ gt) = tri>' (pb<-mid-mid j i gt)
 
 instance
-
   DecidableLinearOrderStr-PartitionBoundary : {n : Nat} -> DecidableLinearOrderStr useⁱ
   DecidableLinearOrderStr-PartitionBoundary {n} = record
     { trichotomous-< = trichotomous-PartitionBoundary< {n}

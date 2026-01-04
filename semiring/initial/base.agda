@@ -17,6 +17,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       IS = S
 
   record ℕ->SemiringStr : Type ℓD where
+
     field
       f : ℕ -> D
       fʰ : Semiringʰ f
@@ -26,12 +27,8 @@ module _ {ℓD : Level} (D : Type ℓD) {ACM : AdditiveCommMonoid D}
   ℕ->Semiring-Op : Type ℓD
   ℕ->Semiring-Op = ℕ->SemiringStr S
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
          {{S : Semiring ACM}} where
-  private
-    instance
-      IACM = ACM
-
   ℕ->SemiringStr-cons : {f : ℕ -> D} -> Semiringʰ f -> ℕ->Semiring-Op D
   ℕ->SemiringStr-cons {f} fʰ = record { f = f ; fʰ = fʰ }
 

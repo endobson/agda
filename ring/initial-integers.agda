@@ -22,13 +22,9 @@ open EqReasoning
 
 module ring.initial-integers where
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
          {{S : Semiring ACM}} {{AG : AdditiveGroup ACM}}
-         where
-  private
-    instance
-      IACM = ACM
-
+  where
   private
     lift-nat : Nat -> D
     lift-nat zero = 0#

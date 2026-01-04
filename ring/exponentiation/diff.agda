@@ -23,12 +23,9 @@ open import semiring.exponentiation
 open import without-point
 
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
          {{S : Semiring ACM}} {{AG : AdditiveGroup ACM}} where
   private
-    instance
-      IACM = ACM
-
     CM : CommMonoid D
     CM = CommMonoid-+ D
 

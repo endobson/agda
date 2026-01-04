@@ -63,12 +63,10 @@ private
 
 module _
   {ℓD : Level} {D : Type ℓD}
-  {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
+  {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
   where
   private
     CM = AdditiveCommMonoid.comm-monoid ACM
-    instance
-      IACM = ACM
 
   module _ (n : Nat) (a b : D) (x y : D) where
     open FinSetStr-DetachableInstances (isEndIndex n) Det-isEndIndex

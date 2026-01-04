@@ -3,6 +3,7 @@
 module chapter2.multiplicative where
 
 open import additive-group using (AdditiveCommMonoid)
+open import additive-group.instances.int
 open import base
 open import int.base
 open import nat

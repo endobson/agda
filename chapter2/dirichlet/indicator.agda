@@ -3,6 +3,7 @@
 module chapter2.dirichlet.indicator where
 
 open import additive-group
+open import additive-group.instances.nat
 open import base
 open import chapter2.dirichlet
 open import chapter2.divisors
@@ -31,13 +32,11 @@ open import semiring.instances.nat
 open import sigma.base
 open import subset
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} where
   private
     module ACM = AdditiveCommMonoid ACM
     CM = ACM.comm-monoid
     module CM = CommMonoid CM
-    instance
-      IACM = ACM
 
 
   ⊗-left-id : {f : Nat⁺ -> D} -> Ind ⊗ f == f

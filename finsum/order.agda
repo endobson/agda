@@ -22,13 +22,10 @@ open import relation
 open import truncation
 
 module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D} {O : isPartialOrder D≤}
+         {{ACM : AdditiveCommMonoid D}} {{O : isPartialOrder D≤}}
          {{POA : PartiallyOrderedAdditiveStr ACM O}} where
   private
     CM = AdditiveCommMonoid.comm-monoid ACM
-    instance
-      IACM = ACM
-      IO = O
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
     finiteSum-preserves-0≤ : {f : I -> D} ->
@@ -73,13 +70,10 @@ module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤}
       path = (finiteMerge-homo-inject CommMonoidʰ-fst)
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D} {LO : isLinearOrder D<}
+         {{ACM : AdditiveCommMonoid D}} {{LO : isLinearOrder D<}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}} where
   private
     CM = AdditiveCommMonoid.comm-monoid ACM
-    instance
-      IACM = ACM
-      ILO = LO
 
   private
     finsum-reflects-< : (n : ℕ) (f g : Fin n -> D) -> finMergeDep CM n f < finMergeDep CM n g ->

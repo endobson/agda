@@ -26,13 +26,10 @@ module _ {ℓ ℓ# : Level} {D : Type ℓ} {D# : Rel D ℓ#} (ACM : AdditiveComm
       StronglyExtensional-+₁ : ∀ (a : D) -> StronglyExtensional (a +_)
 
 
-module _ {ℓ ℓ# : Level} {D : Type ℓ} {D# : Rel D ℓ#} {ACM : AdditiveCommMonoid D}
-         {A : isTightApartness D#} {{AACM : ApartAdditiveCommMonoid ACM A}}
+module _ {ℓ ℓ# : Level} {D : Type ℓ} {D# : Rel D ℓ#} {{ACM : AdditiveCommMonoid D}}
+         {{A : isTightApartness D#}} {{AACM : ApartAdditiveCommMonoid ACM A}}
   where
   private
-    instance
-      IACM = ACM
-      IA = A
     module AACM = ApartAdditiveCommMonoid AACM
 
 
@@ -57,14 +54,9 @@ module _ {ℓ ℓ# : Level} {D : Type ℓ} {D# : Rel D ℓ#} {ACM : AdditiveComm
     +-reflects-#0 {a} {b} ab#0 = +-reflects-# (subst ((a + b) #_) (sym +-right-zero) ab#0)
 
 
-module _ {ℓ ℓ# : Level} {D : Type ℓ} {D# : Rel D ℓ#} {ACM : AdditiveCommMonoid D}
-         {A : isTightApartness D#} {{AACM : ApartAdditiveCommMonoid ACM A}}
+module _ {ℓ ℓ# : Level} {D : Type ℓ} {D# : Rel D ℓ#} {{ACM : AdditiveCommMonoid D}}
+         {{A : isTightApartness D#}} {{AACM : ApartAdditiveCommMonoid ACM A}}
          {{AG : AdditiveGroup ACM}} where
-
-  private
-    instance
-      IACM = ACM
-      IA = A
 
   opaque
     minus-preserves-# : {a b : D} -> a # b -> (- a) # (- b)

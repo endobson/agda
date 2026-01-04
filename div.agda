@@ -3,8 +3,10 @@
 module div where
 
 open import abs
+open import apartness.instances.int
 open import additive-group
 open import additive-group.instances.int
+open import additive-group.instances.nat
 open import base
 open import commutative-monoid
 open import decision

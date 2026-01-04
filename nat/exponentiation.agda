@@ -2,6 +2,7 @@
 
 module nat.exponentiation where
 
+open import additive-group.instances.nat
 open import base
 open import nat.arithmetic
 open import nat.properties

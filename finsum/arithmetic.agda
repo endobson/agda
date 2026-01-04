@@ -32,19 +32,15 @@ module _ {ℓI ℓD : Level} {I : Type ℓI} {D : Type ℓD}
     finiteSum-+ = finiteMerge-split _
 
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}}
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{AG : AdditiveGroup ACM}}
   where
-  private
-    instance
-      IACM = ACM
-    module ACM = AdditiveCommMonoid ACM
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
     abstract
       finiteSum-- : {f : I -> D} -> finiteSum (\i -> - (f i)) == - (finiteSum f)
       finiteSum-- = finiteMerge-homo-inject -ʰ
         where
-        -ʰ : CommMonoidʰᵉ ACM.comm-monoid ACM.comm-monoid -_
+        -ʰ : CommMonoidʰᵉ (CommMonoid-+ D) (CommMonoid-+ D) -_
         -ʰ = record
           { monoidʰ = record
             { preserves-ε = minus-zero
@@ -57,19 +53,15 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{AG : Addi
       finiteSum-diff = finiteSum-+ >=> +-right finiteSum--
 
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
   where
-  private
-    module S = Semiring S
-    instance
-      IACM = ACM
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
     abstract
       finiteSum-* : {k : D} {f : I -> D} -> finiteSum (\i -> k * (f i)) == k * finiteSum f
       finiteSum-* = finiteMerge-homo-inject k*ʰ
         where
-        k*ʰ : {k : D} -> CommMonoidʰᵉ S.+-CommMonoid S.+-CommMonoid (k *_)
+        k*ʰ : {k : D} -> CommMonoidʰᵉ (CommMonoid-+ D) (CommMonoid-+ D) (k *_)
         k*ʰ {k} = record
           { monoidʰ = record
             { preserves-ε = *-right-zero
@@ -77,12 +69,9 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semir
             }
           }
 
-  module _ {ℓ# : Level} {D# : Rel D ℓ#} {A : isTightApartness D#}
+  module _ {ℓ# : Level} {D# : Rel D ℓ#} {{A : isTightApartness D#}}
            {{AACM : ApartAdditiveCommMonoid ACM A}}  where
     private
-      instance
-        IA = A
-
       finiteSum'-#0 : (n : Nat) (f : Fin n -> D) -> finiteSum f # 0# -> ∃[ i ∈ Fin n ] (f i # 0#)
       finiteSum'-#0 zero f sum#0 = bot-elim (irrefl-path-# (finiteMerge-Fin0 _ f) sum#0)
       finiteSum'-#0 (suc n) f sum#0 =

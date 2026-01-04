@@ -2,6 +2,7 @@
 
 module real.arithmetic.nth-root.base where
 
+open import additive-group.instances.real
 open import base
 open import real
 open import ring.implementations.real

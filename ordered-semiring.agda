@@ -37,15 +37,11 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<}
       *₁-flips-< : {a b c : D} -> a < 0# -> b < c -> (a * c) < (a * b)
 
 module _ {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : isLinearOrder D<}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} {{O : isLinearOrder D<}}
          {{LOS : LinearlyOrderedSemiringStr S O}} where
 
   private
     module LOS = LinearlyOrderedSemiringStr LOS
-    instance
-      IACM = ACM
-      IS = S
-      IO = O
 
   abstract
     *₁-preserves-< : {a b c : D} -> 0# < a -> b < c -> (a * b) < (a * c)
@@ -143,14 +139,10 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<}
         (b < c × 0# < a) ⊎ (c < b × a < 0#)
 
 module _ {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : isLinearOrder D<}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} {{O : isLinearOrder D<}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S O}} where
   private
     module SLOS = StronglyLinearlyOrderedSemiringStr SLOS
-    instance
-      IACM = ACM
-      IS = S
-      IO = O
 
   abstract
     *₁-fully-reflects-< : {a b c : D} -> (a * b) < (a * c) ->
@@ -204,14 +196,10 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<}
       handle (inj-r (b<0 , a<0)) = inj-l a<0 , inj-l b<0
 
 module _ {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D}  {S : Semiring ACM} {O : isLinearOrder D<}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} {{O : isLinearOrder D<}}
          {{LOS : LinearlyOrderedSemiringStr S O}}
-         {{SLOS : StronglyLinearlyOrderedSemiringStr S O}} where
-  private
-    instance
-      IACM = ACM
-      IS = S
-      IO = O
+         {{SLOS : StronglyLinearlyOrderedSemiringStr S O}}
+  where
 
   *-<>0-equiv : {a b : D} -> ((a <> 0#) × (b <> 0#)) ≃ (a * b) <> 0#
   *-<>0-equiv {a} {b} =
@@ -249,15 +237,11 @@ module _ {D : Type ℓD} {D≤ : Rel D ℓ≤}
 
 
 module _ {D : Type ℓD} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM} {O : isPartialOrder D≤}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} {{O : isPartialOrder D≤}}
          {{POS : PartiallyOrderedSemiringStr S O}} where
 
   private
     module POS = PartiallyOrderedSemiringStr POS
-    instance
-      IACM = ACM
-      IS = S
-      IO = O
 
   abstract
     0≤1 : 0# ≤ 1#
@@ -308,17 +292,12 @@ module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤} {ACM : Additive
       *₁-flip-reflects-≤ : {a b c : D} -> a < 0# -> (a * b) ≤ (a * c) -> c ≤ b
 
 module _ {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
+         {{LO : isLinearOrder D<}} {{PO : isPartialOrder D≤}}
          {{SPOS : StronglyPartiallyOrderedSemiringStr S LO PO}} where
 
   private
     module SPOS = StronglyPartiallyOrderedSemiringStr SPOS
-    instance
-      IACM = ACM
-      IS = S
-      IPO = PO
-      ILO = LO
 
   abstract
     *₁-reflects-≤ : {a b c : D} -> (0# < a) -> (a * b) ≤ (a * c) -> (b ≤ c)
@@ -397,6 +376,7 @@ module _
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
          {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
          {LO : isLinearOrder D<}
+         (LOS : LinearlyOrderedSemiringStr S LO)
   where
   private
     instance
@@ -404,14 +384,17 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
       ILO = LO
       IS = S
 
-  record NonTrivialLinearlyOrderedSemiringStr (LOS : LinearlyOrderedSemiringStr S LO) :
-      Type (ℓ-max ℓD ℓ<)
+  record NonTrivialLinearlyOrderedSemiringStr : Type (ℓ-max ℓD ℓ<)
     where
     no-eta-equality
     field
       0<1 : 0# < 1#
 
-  module _ {LOS : LinearlyOrderedSemiringStr S LO} {{NTS : NonTrivialLinearlyOrderedSemiringStr LOS}}
+module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
+         {{LO : isLinearOrder D<}}
+         {{LOS : LinearlyOrderedSemiringStr S LO}}
+         {{NTS : NonTrivialLinearlyOrderedSemiringStr LOS}}
     where
     open NonTrivialLinearlyOrderedSemiringStr NTS public
 

@@ -21,13 +21,11 @@ open import sum
 open import truncation
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {LO : isLinearOrder D<} {{Max : MaxOperationStr LO}}
-         {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}} {{S : Semiring ACM}}
+         {{LO : isLinearOrder D<}} {{Max : MaxOperationStr LO}}
+         {{ACM : AdditiveCommMonoid D}} {{AG : AdditiveGroup ACM}} {{S : Semiring ACM}}
          where
   private
     instance
-      ILO = LO
-      IACM = ACM
       PO = isLinearOrder->isPartialOrder-≯ LO
       CPO = CompatibleNegatedLinearOrder LO
 

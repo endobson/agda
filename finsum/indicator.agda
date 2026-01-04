@@ -53,10 +53,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} where
         z'=if = funExt (\ (i , ¬s) -> sym (indicator'-=0 ¬s))
 
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
-  private
-    instance
-      IACM = ACM
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} where
 
   module _ {ℓI ℓS : Level} {I : Type ℓI} (S : Subtype I ℓS) (DetS : Detachable S)
            {{FI : FinSetStr I}} {f : I -> D} where

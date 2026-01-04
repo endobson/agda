@@ -4,6 +4,7 @@ module chapter2.mobius where
 
 open import additive-group
 open import additive-group.instances.int
+open import additive-group.instances.nat
 open import base
 open import chapter2.divisors
 open import chapter2.indicator
@@ -313,13 +314,11 @@ divisor->nat⁺' : (n : Nat⁺) -> Divisor n -> Nat⁺
 divisor->nat⁺' (_ , n-pos) (d , d%n@(x , _)) = x , div'-pos->pos' d%n n-pos
 
 
-module _ {ℓ : Level} {D : Type ℓ} {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}} where
+module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} where
   private
-
     instance
       M : Multiplication D
       M = SemiringMultiplication S
-      IACM = ACM
 
     module S = Semiring S
 

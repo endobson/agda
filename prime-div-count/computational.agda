@@ -2,6 +2,7 @@
 
 module prime-div-count.computational where
 
+open import additive-group.instances.nat
 open import base
 open import div
 open import equality

@@ -2,6 +2,7 @@
 
 module nat.order where
 
+open import additive-group.instances.nat
 open import base
 open import decision
 open import equality

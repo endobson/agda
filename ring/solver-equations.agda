@@ -3,6 +3,7 @@
 module ring.solver-equations where
 
 open import additive-group
+open import additive-group.instances.int
 open import base
 open import equality
 open import funext
@@ -17,12 +18,9 @@ open import solver
 open import truncation
 
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
          {{AG : AdditiveGroup ACM}} {{S : Semiring ACM}} where
   private
-    instance
-      IACM = ACM
-
     R : Ring S AG
     R = record {}
     module RSolver = RingSolver R
@@ -40,17 +38,15 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
       refl _ _ _ _
 
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
          {{AG : AdditiveGroup ACM}} {{S : Semiring ACM}}
          {{_ : ℕ->Semiring-Op D}} where
 
   private
-    R : Ring S AG
-    R = record {}
-    module RSolver = RingSolver R
     instance
-      IACM = ACM
-      IR = R
+      R : Ring S AG
+      R = record {}
+    module RSolver = RingSolver R
 
     ℕ->D' : ℕ -> D
     ℕ->D' n = (∃!-val ∃!ℤ->Ring (int n))

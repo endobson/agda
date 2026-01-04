@@ -21,11 +21,8 @@ open import sum
 open import truncation
 open import type-algebra
 
-module _ {ℓA ℓ< : Level} {A : Type ℓA} {A< : Rel A ℓ<} {LO : isLinearOrder A<}
+module _ {ℓA ℓ< : Level} {A : Type ℓA} {A< : Rel A ℓ<} {{LO : isLinearOrder A<}}
          {{DLO : DecidableLinearOrderStr LO}} where
-  private
-    instance
-      ILO = LO
   private
     module _ where
       private

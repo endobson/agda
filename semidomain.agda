@@ -29,16 +29,10 @@ module _
 
 module _
   {ℓ ℓ# : Level} {D : Type ℓ} {D# : Rel D ℓ#}
-  {ACM : AdditiveCommMonoid D}
-  {S : Semiring ACM}
-  {A : isTightApartness D#}
+  {{ACM : AdditiveCommMonoid D}}
+  {{S : Semiring ACM}}
+  {{A : isTightApartness D#}}
   {{SD : Semidomain S A}} where
-  private
-    instance
-     IACM = ACM
-     IS = S
-     IA = A
-
   opaque
     *₁-preserves-# : {a b c : D} -> a # 0# -> b # c -> (a * b) # (a * c)
     *₁-preserves-# a#0 b#c =

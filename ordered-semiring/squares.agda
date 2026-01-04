@@ -18,15 +18,12 @@ open import semiring
 open import truncation
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {LO : isLinearOrder D<}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
+         {{LO : isLinearOrder D<}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}} where
   private
     instance
-      IACM = ACM
-      ILO = LO
-      IS = S
       PO = isLinearOrder->isPartialOrder-≯ LO
       CPO = CompatibleNegatedLinearOrder LO
       POS = PartiallyOrderedSemiringStr-Negated S LO
@@ -67,35 +64,25 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
       handle (inj-r (0<x , x<0)) = asym-< x<0 0<x
 
 module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
+         {{LO : isLinearOrder D<}} {{PO : isPartialOrder D≤}}
          {{COS : CompatibleOrderStr LO PO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}} where
-  private
-    instance
-      IACM = ACM
-      ILO = LO
-      IPO = PO
-      IS = S
-
   opaque
     squares-ordered-≤ : {q r : D} -> (0# ≤ r) -> (q * q) ≤ (r * r) -> q ≤ r
     squares-ordered-≤ {q} {r} 0≤r qq≤rr =
       convert-≮ (\r<q -> irrefl-< (trans-<-≤ (squares-ordered⁺ (convert-≤ 0≤r) r<q) qq≤rr))
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
-         {LO : isLinearOrder D<}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
+         {{LO : isLinearOrder D<}}
          {{LOS : LinearlyOrderedAdditiveStr ACM LO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}} where
 
   private
     instance
-      IACM = ACM
-      ILO = LO
-      IS = S
       PO = isLinearOrder->isPartialOrder-≯ LO
       CPO = CompatibleNegatedLinearOrder LO
       POA = PartiallyOrderedAdditiveStr-Negated ACM LO

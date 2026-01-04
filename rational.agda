@@ -7,6 +7,7 @@ open import additive-group
 open import additive-group.instances.int
 open import apartness
 open import apartness.discrete
+open import apartness.instances.int
 open import base
 open import decision
 open import discrete

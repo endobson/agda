@@ -2,6 +2,7 @@
 
 module semiring.instances.nat where
 
+open import additive-group.instances.nat
 open import base
 open import nat
 open import semiring.initial.base

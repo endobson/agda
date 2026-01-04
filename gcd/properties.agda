@@ -2,6 +2,7 @@
 
 module gcd.properties where
 
+open import additive-group.instances.nat
 open import base
 open import chapter2.multiplicative
 open import div
@@ -11,6 +12,7 @@ open import gcd.computational
 open import lcm
 open import lcm.exists
 open import nat
+open import order.instances.nat
 open import order.minmax
 open import order.minmax.instances.nat
 open import ordered-additive-group.instances.nat

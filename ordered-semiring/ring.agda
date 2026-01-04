@@ -13,15 +13,11 @@ open import relation
 open import ring
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
          {{AG : AdditiveGroup ACM}}
-         {O : isLinearOrder D<}
+         {{O : isLinearOrder D<}}
          {{LOA : LinearlyOrderedAdditiveStr ACM O}}
          where
-  private
-    instance
-      IACM = ACM
-      IO = O
 
   LinearlyOrderedSemiringStr-Ring :
     (*₁-preserves-< : {a b c : D} -> 0# < a -> b < c -> (a * b) < (a * c)) ->
@@ -42,16 +38,11 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
         0<-a = trans-=-< (sym minus-zero) (minus-flips-< a<0)
 
 module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D} {{S : Semiring ACM}}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
          {{AG : AdditiveGroup ACM}}
-         {O : isPartialOrder D≤}
+         {{O : isPartialOrder D≤}}
          {{POA : PartiallyOrderedAdditiveStr ACM O}}
          where
-  private
-    instance
-      IACM = ACM
-      IS = S
-      IO = O
 
   PartiallyOrderedSemiringStr-Ring :
     (0≤1 : 0# ≤ 1#) ->

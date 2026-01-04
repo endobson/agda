@@ -2,6 +2,7 @@
 
 module chapter2.divisors where
 
+open import additive-group.instances.nat
 open import base
 open import decision
 open import div hiding (remainder)

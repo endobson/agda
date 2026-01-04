@@ -46,9 +46,9 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV}
 
 
 module _  {ℓK ℓV : Level} {K : Type ℓK}
-          {ACM-K : AdditiveCommMonoid K} {AG-K : AdditiveGroup ACM-K}
-          {S-K : Semiring ACM-K} {R-K : Ring S-K AG-K}
-          {V : Type ℓV} {ACM-V : AdditiveCommMonoid V} {AG-V : AdditiveGroup ACM-V}
+          {{ACM-K : AdditiveCommMonoid K}} {{AG-K : AdditiveGroup ACM-K}}
+          {{S-K : Semiring ACM-K}} {{R-K : Ring S-K AG-K}}
+          {V : Type ℓV} {{ACM-V : AdditiveCommMonoid V}} {{AG-V : AdditiveGroup ACM-V}}
           {{M : ModuleStr R-K AG-V}} where
 
   open ModuleStr M public using
@@ -59,18 +59,7 @@ module _  {ℓK ℓV : Level} {K : Type ℓK}
     ; v*-left-one
     )
 
-  private
-    instance
-      IACM-K = ACM-K
-      IAG-K = AG-K
-      IS-K = S-K
-      IR-K = R-K
-      IACM-V = ACM-V
-      IAG-V = AG-V
-
-
   opaque
-
     v*-left-zero : {v : V} -> 0# v* v == 0#
     v*-left-zero {v} =
       sym +-right-zero >=>
@@ -158,7 +147,11 @@ module _ {ℓK ℓV : Level}
     instance
       IMS = MS
       IACM-K = ACM-K
+      IAG-K = AG-K
+      IS-K = S-K
+      IR-K = R-K
       IACM-V = ACM-V
+      IAG-V = AG-V
       IA-K = A-K
       IA-V = A-V
 
@@ -172,26 +165,17 @@ module _ {ℓK ℓV : Level}
 module _ {ℓK ℓV : Level}
          {K : Type ℓK} {K# : Rel K ℓK}
          {V : Type ℓV} {V# : Rel V ℓV}
-         {ACM-K : AdditiveCommMonoid K}
-         {AG-K : AdditiveGroup ACM-K}
-         {S-K : Semiring ACM-K}
-         {R-K : Ring S-K AG-K}
-         {ACM-V : AdditiveCommMonoid V}
-         {AG-V : AdditiveGroup ACM-V}
-         {MS : ModuleStr R-K AG-V}
-         {A-K : isTightApartness K#}
-         {A-V : isTightApartness V#}
+         {{ACM-K : AdditiveCommMonoid K}}
+         {{AG-K : AdditiveGroup ACM-K}}
+         {{S-K : Semiring ACM-K}}
+         {{R-K : Ring S-K AG-K}}
+         {{ACM-V : AdditiveCommMonoid V}}
+         {{AG-V : AdditiveGroup ACM-V}}
+         {{MS : ModuleStr R-K AG-V}}
+         {{A-K : isTightApartness K#}}
+         {{A-V : isTightApartness V#}}
          {{AMS : ApartModuleStr MS A-K A-V}}
-         where
-
-  private
-    instance
-      IMS = MS
-      IACM-K = ACM-K
-      IACM-V = ACM-V
-      IA-K = A-K
-      IA-V = A-V
-
+  where
   open ApartModuleStr AMS public using
     ( v*-apart-args
     )
@@ -216,27 +200,18 @@ module _ {ℓK ℓV : Level}
 module _ {ℓK ℓV : Level}
          {K : Type ℓK} {K# : Rel K ℓK}
          {V : Type ℓV} {V# : Rel V ℓV}
-         {ACM-K : AdditiveCommMonoid K} {AG-K : AdditiveGroup ACM-K}
-         {S-K : Semiring ACM-K} {R-K : Ring S-K AG-K}
-         {ACM-V : AdditiveCommMonoid V} {AG-V : AdditiveGroup ACM-V}
-         {MS : ModuleStr R-K AG-V}
-         {A-K : isTightApartness K#}
-         {A-V : isTightApartness V#}
+         {{ACM-K : AdditiveCommMonoid K}} {{AG-K : AdditiveGroup ACM-K}}
+         {{S-K : Semiring ACM-K}} {{R-K : Ring S-K AG-K}}
+         {{ACM-V : AdditiveCommMonoid V}} {{AG-V : AdditiveGroup ACM-V}}
+         {{MS : ModuleStr R-K AG-V}}
+         {{A-K : isTightApartness K#}}
+         {{A-V : isTightApartness V#}}
          {{AMS : ApartModuleStr MS A-K A-V}}
          {{F : Field R-K A-K}}
          where
   private
     module R = Ring R-K
     module F = Field F
-
-  private
-    instance
-      IM = MS
-      IACM-K = ACM-K
-      IACM-V = ACM-V
-      IS = S-K
-      IA-K = A-K
-      IA-V = A-V
 
   opaque
     v*-#0 : {k : K} -> {v : V} -> k # 0# -> v # 0# -> (k v* v) # 0#
@@ -249,24 +224,14 @@ module _ {ℓK ℓV : Level}
         k'kv#0 = subst (_# 0#) (sym v*-left-one >=> v*-left (sym kk'=1 >=> *-commute) >=> v*-assoc) v#0
 
 module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV}
-         {ACM-K : AdditiveCommMonoid K}
-         {AG-K : AdditiveGroup ACM-K}
-         {S-K : Semiring ACM-K}
-         {R-K : Ring S-K AG-K}
-         {ACM-V : AdditiveCommMonoid V}
-         {AG-V : AdditiveGroup ACM-V}
+         {{ACM-K : AdditiveCommMonoid K}}
+         {{AG-K : AdditiveGroup ACM-K}}
+         {{S-K : Semiring ACM-K}}
+         {{R-K : Ring S-K AG-K}}
+         {{ACM-V : AdditiveCommMonoid V}}
+         {{AG-V : AdditiveGroup ACM-V}}
          {{MS : ModuleStr R-K AG-V}}
          where
-
-  private
-    instance
-      IMS = MS
-      IACM-K = ACM-K
-      IAG-K = AG-K
-      IS-K = S-K
-      IACM-V = ACM-V
-      IAG-V = AG-V
-
 
   record isLinearSubtype  {ℓS : Level} (S : (Subtype V ℓS)) : Type (ℓ-max* 3 ℓS ℓV ℓK) where
     field
@@ -299,24 +264,15 @@ module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV}
 
 module _ {ℓK ℓV₁ ℓV₂ : Level}
          {K : Type ℓK} {V₁ : Type ℓV₁} {V₂ : Type ℓV₂}
-         {ACM-K : AdditiveCommMonoid K}
-         {AG-K : AdditiveGroup ACM-K}
-         {S-K : Semiring ACM-K}
-         {R-K : Ring S-K AG-K}
-         {ACM-V₁ : AdditiveCommMonoid V₁} {AG-V₁ : AdditiveGroup ACM-V₁}
-         {ACM-V₂ : AdditiveCommMonoid V₂} {AG-V₂ : AdditiveGroup ACM-V₂}
+         {{ACM-K : AdditiveCommMonoid K}}
+         {{AG-K : AdditiveGroup ACM-K}}
+         {{S-K : Semiring ACM-K}}
+         {{R-K : Ring S-K AG-K}}
+         {{ACM-V₁ : AdditiveCommMonoid V₁}} {{AG-V₁ : AdditiveGroup ACM-V₁}}
+         {{ACM-V₂ : AdditiveCommMonoid V₂}} {{AG-V₂ : AdditiveGroup ACM-V₂}}
          {{MS₁ : ModuleStr R-K AG-V₁}}
          {{MS₂ : ModuleStr R-K AG-V₂}}
   where
-
-  private
-    instance
-      IMS₁ = MS₁
-      IMS₂ = MS₂
-      IACM-K = ACM-K
-      IACM-V₁ = ACM-V₁
-      IACM-V₂ = ACM-V₂
-
 
   record isLinearTransformation (f : V₁ -> V₂) : Type (ℓ-max* 3 ℓK ℓV₁ ℓV₂) where
     constructor is-linear-transformation

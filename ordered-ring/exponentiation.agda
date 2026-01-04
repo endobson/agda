@@ -34,8 +34,8 @@ open import semiring.instances.nat
 open import truncation
 
 module _
-  {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {LO : isLinearOrder D<}
-  {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+  {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOrder D<}}
+  {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
   {{AG : AdditiveGroup ACM}}
   {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
   {{LOS : LinearlyOrderedSemiringStr S LO}}
@@ -43,9 +43,6 @@ module _
   where
   private
     instance
-      ILO = LO
-      IACM = ACM
-      IS = S
       PO = isLinearOrder->isPartialOrder-≯ LO
       CPO = CompatibleNegatedLinearOrder LO
       POA = PartiallyOrderedAdditiveStr-Negated ACM LO
@@ -122,20 +119,14 @@ module _
 
 
 module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Rel D ℓ≤}
-         {ACM : AdditiveCommMonoid D} {S : Semiring ACM}
+         {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}}
          {{AG : AdditiveGroup ACM}}
-         {LO : isLinearOrder D<} {PO : isPartialOrder D≤}
+         {{LO : isLinearOrder D<}} {{PO : isPartialOrder D≤}}
          {{COS : CompatibleOrderStr LO PO}}
          {{POA : PartiallyOrderedAdditiveStr ACM PO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{POS : PartiallyOrderedSemiringStr S PO}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}} where
-  private
-    instance
-      ILO = LO
-      IPO = PO
-      IACM = ACM
-      IS = S
 
   ^ℕ-odd-≤-1 : {x : D} -> x ≤ (- 1#) -> (n : Nat) -> Odd n -> (x ^ℕ n) ≤ x
   ^ℕ-odd-≤-1 {x} x≤-1 (suc n) en =
@@ -149,18 +140,15 @@ module _ {ℓD ℓ< ℓ≤ : Level} {D : Type ℓD} {D< : Rel D ℓ<} {D≤ : Re
     x≤0 = trans-≤ x≤-1 (minus-flips-0≤ (convert-≮ 1≮0))
 
 module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
-         {LO : isLinearOrder D<}
-         {ACM : AdditiveCommMonoid D} {{AG : AdditiveGroup ACM}}
+         {{LO : isLinearOrder D<}}
+         {{ACM : AdditiveCommMonoid D}} {{AG : AdditiveGroup ACM}}
          {{Max : MaxOperationStr LO}}
-         {S : Semiring ACM}
+         {{S : Semiring ACM}}
          {{LOA : LinearlyOrderedAdditiveStr ACM LO}}
          {{LOS : LinearlyOrderedSemiringStr S LO}}
          {{SLOS : StronglyLinearlyOrderedSemiringStr S LO}}
 
   where
-  private
-    instance
-      IS = S
 
   opaque
     abs-^ℕ-path : {x : D} -> (n : Nat) -> abs (x ^ℕ n) == (abs x ^ℕ n)

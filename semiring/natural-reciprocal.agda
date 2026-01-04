@@ -18,6 +18,7 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
          {S : Semiring ACM} (Inc : ℕ->SemiringStr S) where
   private
     instance
+      IACM = ACM
       IS = S
       I-Inc = Inc
 
@@ -33,14 +34,11 @@ module _ {ℓD : Level} (D : Type ℓD) {ACM : AdditiveCommMonoid D}
 
 
 
-module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
          {{_ : Semiring ACM}}
          {{_ : ℕ->Semiring-Op D}}
          {{O : 1/ℕ-Op D}}
          where
-  private
-    instance
-      IACM = ACM
 
   1/ℕ : Nat⁺ -> D
   1/ℕ = 1/ℕ-Str.f O
@@ -98,10 +96,10 @@ module _ {ℓD : Level} {D : Type ℓD} {ACM : AdditiveCommMonoid D}
              *-right-one
 
 module _ {ℓD₁ ℓD₂ : Level} {D₁ : Type ℓD₁} {D₂ : Type ℓD₂}
-         {ACM₁ : AdditiveCommMonoid D₁} {{S₁ : Semiring ACM₁}}
+         {{ACM₁ : AdditiveCommMonoid D₁}} {{S₁ : Semiring ACM₁}}
          {{_ : ℕ->Semiring-Op D₁}}
          {{_ : 1/ℕ-Op D₁}}
-         {ACM₂ : AdditiveCommMonoid D₂} {{S₂ : Semiring ACM₂}}
+         {{ACM₂ : AdditiveCommMonoid D₂}} {{S₂ : Semiring ACM₂}}
          {{_ : ℕ->Semiring-Op D₂}}
          {{_ : 1/ℕ-Op D₂}}
          where

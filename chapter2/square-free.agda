@@ -2,6 +2,7 @@
 
 module chapter2.square-free where
 
+open import additive-group.instances.nat
 open import base
 open import commutative-monoid
 open import decision
