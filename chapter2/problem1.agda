@@ -177,8 +177,8 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
 
     f<1 : (p : PrimeDivisor (2⁺ *⁺ n⁺)) -> f p < 1#
     f<1 (p , _) =
-      trans-<-= (+₁-preserves-< (minus-flips-0< (subst (0# <_) (sym (unit-path p))
-                                                  (Pos-1/ℕ (Prime'.nat⁺ p)))))
+      trans-<-= (+₁-preserves-< (minus-flips-0< (trans-<-= (0<1/ℕ (Prime'.nat⁺ p))
+                                                           (sym (unit-path p)))))
                 +-right-zero
     0≤f : (p : PrimeDivisor (2⁺ *⁺ n⁺)) -> 0# ≤ f p
     0≤f (p , _) =

@@ -828,8 +828,9 @@ abstract
         n1 : Neg 1r
         n1 = subst Neg (*-commute >=> r1/-inverse q i) (r*₁-flips-sign (q , nq) qi {pos-sign} pqi)
 
-  Pos-1/ℕ : (n : Nat⁺) -> Pos (1/ℕ n)
-  Pos-1/ℕ n = subst Pos (sym (1/ℕ-inv-path n)) (r1/-preserves-Pos (ℕ->ℚ ⟨ n ⟩) _ (Pos-ℕ⁺->ℚ n))
+  private
+    Pos-1/ℕ : (n : Nat⁺) -> Pos (1/ℕ n)
+    Pos-1/ℕ n = subst Pos (sym (1/ℕ-inv-path n)) (r1/-preserves-Pos (ℕ->ℚ ⟨ n ⟩) _ (Pos-ℕ⁺->ℚ n))
 
   NonNeg-diffℚ : (a b : ℚ) -> a ≤ b -> NonNeg (diff a b)
   NonNeg-diffℚ a b a≤b =
@@ -839,17 +840,9 @@ abstract
   NonNeg-diffℚ⁻ a b nn =
     subst2 _ℚ≤_ +-right-zero diff-step (+₁-preserves-≤ (NonNeg-0≤ _ nn))
 
-  Pos-diffℚ : (a b : ℚ) -> a < b -> Pos (diff a b)
-  Pos-diffℚ a b a<b =
-    subst (_< (diff a b)) +-inverse (+₂-preserves-< a<b)
-
-  Pos-diffℚ⁻ : (a b : ℚ) -> Pos (diff a b) -> a < b
-  Pos-diffℚ⁻ a b p =
-    subst2 _<_ +-right-zero diff-step (+₁-preserves-< p)
-
 
   dense-< : Dense _ℚ<_
-  dense-< {x} {y} lt = ∣ z , (Pos-diffℚ⁻ _ _ pos-d3 , Pos-diffℚ⁻ _ _ pos-d4) ∣
+  dense-< {x} {y} lt = ∣ z , (diff-0<⁻ pos-d3 , diff-0<⁻ pos-d4) ∣
     where
     module _ where
       d1 = y r+ (r- x)
@@ -883,8 +876,8 @@ abstract
           y r+ (r- d2)
         end
 
-      pos-d1 : Posℚ d1
-      pos-d1 = Pos-diffℚ _ _ lt
+      pos-d1 : 0# < d1
+      pos-d1 = diff-0<⁺ lt
 
       pos-d2 : Posℚ d2
       pos-d2 = r*-Pos-Pos pos-d1 (Pos-1/ℕ 2⁺)
@@ -907,14 +900,6 @@ abstract
              r+-left-zero d2)
       pos-d4 : Posℚ d4
       pos-d4 = subst Posℚ d4-path pos-d2
-
-  r+-Pos->order : (a : ℚ) (b : Σ ℚ Posℚ) -> a < (a r+ ⟨ b ⟩)
-  r+-Pos->order a (b , pos-b) =
-    subst (_< (a + b)) +-right-zero (+₁-preserves-< pos-b)
-
-  r+-Neg->order : (a : ℚ) (b : Σ ℚ Negℚ) -> a > (a r+ ⟨ b ⟩)
-  r+-Neg->order a (b , neg-b) =
-    subst (_> (a + b)) +-right-zero (+₁-preserves-< neg-b)
 
 
 opaque
@@ -951,7 +936,7 @@ opaque
   r1/-Pos-flips-order : (a b : ℚ⁺) -> ⟨ a ⟩ < ⟨ b ⟩ ->
                         (r1/ ⟨ b ⟩ (Pos->Inv (snd b))) < (r1/ ⟨ a ⟩ (Pos->Inv (snd a)))
   r1/-Pos-flips-order (a , pos-a) (b , pos-b) a<b =
-    Pos-diffℚ⁻ b' a' (subst Pos path pos-prod)
+    diff-0<⁻ (subst Pos path pos-prod)
     where
     module _ where
       inv-a = (Pos->Inv pos-a)
@@ -965,7 +950,7 @@ opaque
       pos-a'b' = r*₁-preserves-sign (_ , pos-a') b' {pos-sign} pos-b'
 
       pos-prod : Pos ((a' r* b') r* (b r+ (r- a)))
-      pos-prod = r*₁-preserves-sign ((a' r* b') , pos-a'b') (b r+ (r- a)) {pos-sign} (Pos-diffℚ a b a<b)
+      pos-prod = r*₁-preserves-sign ((a' r* b') , pos-a'b') (b r+ (r- a)) {pos-sign} (diff-0<⁺ a<b)
 
       path : (a' r* b') r* (b r+ (r- a)) == a' r+ (r- b')
       path =
@@ -980,7 +965,7 @@ opaque
   r1/-Pos-flips-≤ a@(a' , pos-a') b@(b' , pos-b') a≤b = handle (NonNeg-diffℚ a' b' a≤b)
     where
     handle : NonNeg (diff a' b') -> (r1/ b' (Pos->Inv pos-b')) ℚ≤ (r1/ a' (Pos->Inv pos-a'))
-    handle (inj-l pd) = weaken-< (r1/-Pos-flips-order a b (Pos-diffℚ⁻ a' b' pd))
+    handle (inj-l pd) = weaken-< (r1/-Pos-flips-order a b (diff-0<⁻ pd))
     handle (inj-r zd) = path-≤ (sym path)
       where
       a==b : a' == b'

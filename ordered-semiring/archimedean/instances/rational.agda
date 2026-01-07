@@ -51,7 +51,7 @@ private
       handle2 : (0# < n) ⊎ (n ≤ 0#) -> ∃[ m ∈ ℕ ] (q < ℕ->ℚ m)
       handle2 (inj-r n≤0) =
         ∣ 1# , trans-=-< p (trans-≤-< (trans-≤-= (*₂-preserves-≤ (ℤ->ℚ-preserves-≤ n≤0)
-                                                                 (weaken-< (Pos-1/ℕ d)))
+                                                                 (0≤1/ℕ d))
                                                  *-left-zero)
                                       Pos-1r) ∣
       handle2 (inj-l 0<n) = ∥-map handle3 (archimedean-property 0<n 0<1)
