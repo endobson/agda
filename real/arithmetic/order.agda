@@ -15,6 +15,7 @@ open import real.arithmetic
 open import real.arithmetic.multiplication
 open import real.open-interval
 open import real.order
+open import ordered-additive-group
 open import real.rational
 open import real.sequence
 open import ring.implementations.rational
@@ -42,7 +43,7 @@ private
         where
         d = diff r q
         d⁺ : ℚ⁺
-        d⁺ = d , Pos-diffℚ r q r<q
+        d⁺ = d , diff-0<⁺ r<q
 
         handle3 : OpenBall a d -> Ans
         handle3 (s1 , s2 , al-s1 , au-s2 , sd-path) =
