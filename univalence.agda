@@ -27,6 +27,9 @@ ua-value-pathp : ∀ {A B : Type ℓ} (eq : A ≃ B) (a : A) (b : B) -> eqFun eq
                  PathP (\i -> ua eq i) a b
 ua-value-pathp eq a b p i = glue (λ { (i = i0) → a ; (i = i1) → b }) (p i)
 
+ua-unglue : {ℓ : Level} {A B : Type ℓ} (eq : A ≃ B)
+            (i : I) -> ua eq i -> B
+ua-unglue _ i v = unglue (i ∨ ~ i) v
 
 private
   uaIdEquiv : ∀ {A : Type ℓ} -> ua (idEquiv A) == refl
