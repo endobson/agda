@@ -18,6 +18,10 @@ ua : ∀ {A B : Type ℓ} -> A ≃ B -> A == B
 ua {A = A} {B = B} e i = Glue B (\ { (i = i0) -> (A , e)
                                    ; (i = i1) -> (B , idEquiv B) })
 
+ua-unglue : {ℓ : Level} {A B : Type ℓ} (eq : A ≃ B)
+            (i : I) -> ua eq i -> B
+ua-unglue _ i v = unglue (i ∨ ~ i) v
+
 private
   uaIdEquiv : ∀ {A : Type ℓ} -> ua (idEquiv A) == refl
   uaIdEquiv {A = A} i j = Glue A {φ = i ∨ j ∨ ~ j} (\_ -> A , idEquiv A)

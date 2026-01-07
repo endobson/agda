@@ -137,13 +137,13 @@ transP-mid p q r i =
                 })
         (q i)
 
-transP-left : {A : I -> Type ℓ} {a0 : A i0} {a1 : A i1} {b1 : A i1}
-              (p : PathP A a0 a1) (q : Path (A i1) a1 b1)
+transP-left : {A : I -> Type ℓ} {a0 : A i0} {a1 : A i1}
+              (p : PathP A a0 a1) {b1 : A i1} (q : Path (A i1) a1 b1)
               -> PathP A a0 b1
 transP-left p q = transP-mid refl p q
 
-transP-right : {A : I -> Type ℓ} {a0 : A i0} {b0 : A i0} {b1 : A i1}
-               (p : Path (A i0) a0 b0) (q : PathP A b0 b1)
+transP-right : {A : I -> Type ℓ} {a0 : A i0} {b0 : A i0}
+               (p : Path (A i0) a0 b0) {b1 : A i1} (q : PathP A b0 b1)
                -> PathP A a0 b1
 transP-right p q = transP-mid p q refl
 
