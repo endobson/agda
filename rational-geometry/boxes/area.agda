@@ -25,24 +25,24 @@ private
   canonical-subdivisionΣ' : {ℓ : Level} ->
     (B₀ : Boxes ℓ) ->
     Σ[ u ∈ ℚ⁺ ] Σ[ B ∈ Boxes ℓ ] (
-      isGridAlignedBoxes u B ×
+      isGridAligned u B ×
       isUnitalBoxes u B ×
       hasNoOverlap B ×
       Boxes.region B == Boxes.region B₀ ×
       (hasNoOverlap B₀ -> boxes-raw-area B == boxes-raw-area B₀))
   canonical-subdivisionΣ' {ℓ} B₀ =
-    (u , B₂ , isGridAligned₂ , isUnital₂ , hasNoOverlap₂ ,
+    (u , B₂ , isGrid₂ , isUnital₂ , hasNoOverlap₂ ,
      region-path₂ >=> region-path₁ ,
      same-raw-area-hasNoOverlap)
     where
-    Σscale : Σ[ u ∈ ℚ⁺ ] (isGridAlignedBoxes u B₀)
+    Σscale : Σ[ u ∈ ℚ⁺ ] (isGridAligned u B₀)
     Σscale = Boxes->Σscale B₀
 
     u : ℚ⁺
     u = fst Σscale
 
     Σsplit-boxes : Σ[ B ∈ Boxes ℓ ]
-      (isGridAlignedBoxes u B ×
+      (isGridAligned u B ×
        isUnitalBoxes u B ×
        Boxes.region B == Boxes.region B₀ ×
        boxes-raw-area B == boxes-raw-area B₀ ×
@@ -52,8 +52,8 @@ private
     B₁ : Boxes ℓ
     B₁ = fst Σsplit-boxes
 
-    isGridAligned₁ : isGridAlignedBoxes u B₁
-    isGridAligned₁ = fst (snd Σsplit-boxes)
+    isGrid₁ : isGridAligned u B₁
+    isGrid₁ = fst (snd Σsplit-boxes)
 
     isUnital₁ : isUnitalBoxes u B₁
     isUnital₁ = fst (snd (snd Σsplit-boxes))
@@ -88,10 +88,10 @@ private
     region-path₂ : Boxes.region B₂ == Boxes.region B₁
     region-path₂ = fst (snd (snd (snd Σunique-boxes)))
 
-    isGridAligned₂ : isGridAlignedBoxes u B₂
-    isGridAligned₂ i =
-      unsquash (isProp-isGridAlignedBox u (Boxes.box B₂ i))
-        (∥-map (\ (i₁ , p) -> subst (isGridAlignedBox u) p (isGridAligned₁ i₁))
+    isGrid₂ : isGridAligned u B₂
+    isGrid₂ i =
+      unsquash (isProp-isGridAligned u (Boxes.box B₂ i))
+        (∥-map (\ (i₁ , p) -> subst (isGridAligned u) p (isGrid₁ i₁))
           (fibers₂ i))
 
     isUnital₂ : isUnitalBoxes u B₂
@@ -108,7 +108,7 @@ private
   canonical-subdivisionΣ : {ℓ : Level} ->
     (B₀ : Boxes ℓ) ->
     Σ[ u ∈ ℚ⁺ ] Σ[ B ∈ Boxes ℓ ] (
-      isGridAlignedBoxes u B ×
+      isGridAligned u B ×
       isUnitalBoxes u B ×
       hasNoOverlap B ×
       Boxes.region B == Boxes.region B₀)
@@ -120,7 +120,7 @@ private
   subdivisionΣ->area : {ℓ : Level} ->
     (R : Region ℓ) ->
     Σ[ u ∈ ℚ⁺ ] Σ[ B ∈ Boxes ℓ ] (
-      isGridAlignedBoxes u B ×
+      isGridAligned u B ×
       isUnitalBoxes u B ×
       hasNoOverlap B ×
       Boxes.region B == R) ->
@@ -130,7 +130,7 @@ private
   subdivision∃->area : {ℓ : Level} ->
     (R : Region ℓ) ->
     ∃[ u ∈ ℚ⁺ ] Σ[ B ∈ Boxes ℓ ] (
-      isGridAlignedBoxes u B ×
+      isGridAligned u B ×
       isUnitalBoxes u B ×
       hasNoOverlap B ×
       Boxes.region B == R) ->
@@ -163,7 +163,7 @@ opaque
     sub-path :
       PathP (\i ->
         ∃[ u ∈ ℚ⁺ ] Σ[ B ∈ Boxes ℓ ] (
-          isGridAlignedBoxes u B ×
+          isGridAligned u B ×
           isUnitalBoxes u B ×
           hasNoOverlap B ×
           Boxes.region B == (rp i)))

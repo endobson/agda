@@ -55,7 +55,7 @@ module _ (u⁺@(u , 0<u) : ℚ⁺) where
     unitalGridBox-path :
       (b₁ b₂ : Box) ->
       (isUnitalBox u⁺ b₁) -> (isUnitalBox u⁺ b₂) ->
-      (g₁ : isGridAlignedBox u⁺ b₁) -> (g₂ : isGridAlignedBox u⁺ b₂) ->
+      (g₁ : isGridAligned u⁺ b₁) -> (g₂ : isGridAligned u⁺ b₂) ->
       fst (proj₁ g₁) == fst (proj₁ g₂) ->
       fst (proj₁ (proj₂ (proj₂ g₁))) == fst (proj₁ (proj₂ (proj₂ g₂))) ->
       b₁ == b₂
@@ -70,7 +70,7 @@ module _ (u⁺@(u , 0<u) : ℚ⁺) where
 
     coord-contradiction : (x : ℚ) (y₁ y₂ y₃ : ℚ)
       (dy₁y₂=u= : diff y₁ y₂ == u) (x<y₂ : x < y₂) (y₃≤x : y₃ ≤ x) ->
-      (g₁ : isGridAlignedℚ u⁺ y₁) -> (g₂ : isGridAlignedℚ u⁺ y₃) ->
+      (g₁ : isGridAligned u⁺ y₁) -> (g₂ : isGridAligned u⁺ y₃) ->
       fst g₁ < fst g₂ ->
       Bot
     coord-contradiction x y₁ y₂ y₃ dy₁y₂=u x<y₂ y₃≤x (n₁ , p₁) (n₂ , p₂) n₁<n₂ =
@@ -98,7 +98,7 @@ module _ (u⁺@(u , 0<u) : ℚ⁺) where
     unitalGridBox-contains-path :
       (b₁ b₂ : Box) ->
       (isUnitalBox u⁺ b₁) -> (isUnitalBox u⁺ b₂) ->
-      (g₁ : isGridAlignedBox u⁺ b₁) -> (g₂ : isGridAlignedBox u⁺ b₂) ->
+      (g₁ : isGridAligned u⁺ b₁) -> (g₂ : isGridAligned u⁺ b₂) ->
       (p : Point) -> Box.contains b₁ p -> Box.contains b₂ p ->
       b₁ == b₂
     unitalGridBox-contains-path b₁ b₂ U₁@(u₁ , u₃) U₂@(u₂ , u₄)
@@ -125,15 +125,15 @@ module _ (u⁺@(u , 0<u) : ℚ⁺) where
 
 
   private
-    isGridAligned-+u : {x : ℚ} -> isGridAlignedℚ u⁺ x -> isGridAlignedℚ u⁺ (x + u)
+    isGridAligned-+u : {x : ℚ} -> isGridAligned u⁺ x -> isGridAligned u⁺ (x + u)
     isGridAligned-+u (z , p) = (z + 1#) ,
       *-left (ℤ->ℚ-preserves-+ z 1#) >=>
       *-distrib-+-right >=>
       +-left p >=>
       +-right *-left-one
 
-    grid-point->grid-unital-box : Σ[ p ∈ Point ] (isGridAlignedPoint u⁺ p) ->
-      Σ[ b ∈ Box ] (isGridAlignedBox u⁺ b × isUnitalBox u⁺ b)
+    grid-point->grid-unital-box : Σ[ p ∈ Point ] (isGridAligned u⁺ p) ->
+      Σ[ b ∈ Box ] (isGridAligned u⁺ b × isUnitalBox u⁺ b)
     grid-point->grid-unital-box ((x , y) , (ax , ay)) = b , isGrid-b , isUnital-b
       where
       b : Box
@@ -146,14 +146,14 @@ module _ (u⁺@(u , 0<u) : ℚ⁺) where
         ; bottom<top = trans-=-< (sym +-right-zero) (+₁-preserves-< 0<u)
         }
 
-      isGrid-b : isGridAlignedBox u⁺ b
+      isGrid-b : isGridAligned u⁺ b
       isGrid-b = (ax , isGridAligned-+u ax , ay , isGridAligned-+u ay)
 
       isUnital-b : isUnitalBox u⁺ b
       isUnital-b = (+-assoc >=> diff-step , +-assoc >=> diff-step)
 
 
-    point->grid-point : Point -> Σ[ p ∈ Point ] (isGridAlignedPoint u⁺ p)
+    point->grid-point : Point -> Σ[ p ∈ Point ] (isGridAligned u⁺ p)
     point->grid-point (x , y) = ans , isGridPoint-ans
       where
       qx : ℤ
@@ -168,7 +168,7 @@ module _ (u⁺@(u , 0<u) : ℚ⁺) where
       ans : Point
       ans = ℤ->ℚ qx * u , ℤ->ℚ qy * u
 
-      isGridPoint-ans : isGridAlignedPoint u⁺ ans
+      isGridPoint-ans : isGridAligned u⁺ ans
       isGridPoint-ans = (qx , refl) , (qy , refl)
 
     point->box : Point -> Box
@@ -205,23 +205,23 @@ module _ (u⁺@(u , 0<u) : ℚ⁺) where
 
 
     isProp-grid-unital : (p : Point) (b : Box) ->
-      isProp (isGridAlignedBox u⁺ b ×
+      isProp (isGridAligned u⁺ b ×
               isUnitalBox u⁺ b ×
               Region.contains (Box.region b) p)
     isProp-grid-unital p b =
-      isProp× (isProp-isGridAlignedBox u⁺ b)
+      isProp× (isProp-isGridAligned u⁺ b)
         (isProp× (isProp-isUnitalBox u⁺ b)
                  (snd (Region.predicate (Box.region b) p)))
 
   point->∃!grid-unital-box : (p : Point) -> ∃![ b ∈ Box ] (
-    isGridAlignedBox u⁺ b ×
+    isGridAligned u⁺ b ×
     isUnitalBox u⁺ b ×
     Region.contains (Box.region b) p)
   point->∃!grid-unital-box p = center , isProp-T _
     where
     gu = snd (grid-point->grid-unital-box (point->grid-point p))
     T : Type _
-    T = Σ[ b ∈ Box ] (isGridAlignedBox u⁺ b ×
+    T = Σ[ b ∈ Box ] (isGridAligned u⁺ b ×
                       isUnitalBox u⁺ b ×
                       Region.contains (Box.region b) p)
 

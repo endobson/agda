@@ -18,7 +18,7 @@ open import rational.order
 
 module _ {ℓ : Level}
   (u : ℚ⁺) (B : Boxes ℓ)
-  (isGrid-B : isGridAlignedBoxes u B)
+  (isGrid-B : isGridAligned u B)
   (isUnital-B : isUnitalBoxes u B)
   where
 

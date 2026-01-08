@@ -47,9 +47,9 @@ open import truncation
 
 opaque
   subdivide-boxΣ :
-    (u : ℚ⁺) (b : Box) -> isGridAlignedBox u b ->
+    (u : ℚ⁺) (b : Box) -> isGridAligned u b ->
     Σ[ B ∈ Boxes ℓ-zero ] (
-      isGridAlignedBoxes u B ×
+      isGridAligned u B ×
       isUnitalBoxes u B ×
       Boxes.region B == Box.region b ×
       boxes-raw-area B == Box.area b ×
@@ -121,7 +121,7 @@ opaque
       bᵢ : Box
       bᵢ = Boxes.box B i
 
-    isGridAligned-B : isGridAlignedBoxes u⁺ B
+    isGridAligned-B : isGridAligned u⁺ B
     isGridAligned-B i@(ix , iy) =
       x-aligned (ℕ->ℤ (Fin.i ix)) ,
       x-aligned (ℕ->ℤ (suc (Fin.i ix))) ,
@@ -130,9 +130,9 @@ opaque
       where
       module bᵢ = Box (Boxes.box B i)
 
-      x-aligned : ∀ (i : ℤ) -> isGridAlignedℚ u⁺ (Box.left b + ℤ->ℚ i * (diff (Box.left b) (Box.right b) * 1/ℕ xn))
+      x-aligned : ∀ (i : ℤ) -> isGridAligned u⁺ (Box.left b + ℤ->ℚ i * (diff (Box.left b) (Box.right b) * 1/ℕ xn))
       x-aligned i =
         isGridAlignedℚ-+ u⁺ (gln , glp) (isGridAlignedℚ-ℤ* u⁺ i (1# , *-left-one >=> sym xn-path))
-      y-aligned : ∀ (i : ℤ) -> isGridAlignedℚ u⁺ (Box.bottom b + ℤ->ℚ i * (diff (Box.bottom b) (Box.top b) * 1/ℕ yn))
+      y-aligned : ∀ (i : ℤ) -> isGridAligned u⁺ (Box.bottom b + ℤ->ℚ i * (diff (Box.bottom b) (Box.top b) * 1/ℕ yn))
       y-aligned i =
         isGridAlignedℚ-+ u⁺ (gbn , gbp) (isGridAlignedℚ-ℤ* u⁺ i (1# , *-left-one >=> sym yn-path))

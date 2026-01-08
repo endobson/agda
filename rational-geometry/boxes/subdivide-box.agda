@@ -393,27 +393,27 @@ opaque
 
 
 opaque
-  isGridAlignedℚ-self : (u : ℚ⁺)-> isGridAlignedℚ u ⟨ u ⟩
+  isGridAlignedℚ-self : (u : ℚ⁺)-> isGridAligned u ⟨ u ⟩
   isGridAlignedℚ-self (u , 0<u) = 1# , *-left-one
 
 
   isGridAlignedℚ-+ : (u : ℚ⁺) {a b : ℚ} ->
-    isGridAlignedℚ u a -> isGridAlignedℚ u b -> isGridAlignedℚ u (a + b)
+    isGridAligned u a -> isGridAligned u b -> isGridAligned u (a + b)
   isGridAlignedℚ-+ _ (na , pa) (nb , pb) =
     na + nb , *-left (ℤ->ℚ-preserves-+ _ _) >=> *-distrib-+-right >=> +-cong pa pb
 
   isGridAlignedℚ-minus : (u : ℚ⁺) {a : ℚ} ->
-    isGridAlignedℚ u a -> isGridAlignedℚ u (- a)
+    isGridAligned u a -> isGridAligned u (- a)
   isGridAlignedℚ-minus _ (na , pa) =
     - na , *-left (ℤ->ℚ-preserves-minus _) >=> minus-extract-left >=> cong -_ pa
 
   isGridAlignedℚ-/ℕ : (u : ℚ⁺) (n : Nat⁺) {a : ℚ} ->
-    isGridAlignedℚ u a -> isGridAlignedℚ (u /ℕ n) (a * 1/ℕ n)
+    isGridAligned u a -> isGridAligned (u /ℕ n) (a * 1/ℕ n)
   isGridAlignedℚ-/ℕ _ n (na , pa) =
     na , sym *-assoc >=> cong (_* 1/ℕ n) pa
 
   isGridAlignedℚ-/ℕ' : (u : ℚ⁺) (n : Nat⁺) {a : ℚ} ->
-    isGridAlignedℚ u a -> isGridAlignedℚ (u /ℕ n) a
+    isGridAligned u a -> isGridAligned (u /ℕ n) a
   isGridAlignedℚ-/ℕ' _ n⁺@(n , _) (na , pa) =
     na * (ℕ->ℤ n) ,
     *-left (ℤ->ℚ-preserves-* _ _) >=> *-assoc >=>
@@ -421,17 +421,17 @@ opaque
     pa
 
   isGridAlignedℚ-ℤ* : (u : ℚ⁺) (n : ℤ) {a : ℚ} ->
-    isGridAlignedℚ u a -> isGridAlignedℚ u (ℤ->ℚ n * a)
+    isGridAligned u a -> isGridAligned u (ℤ->ℚ n * a)
   isGridAlignedℚ-ℤ* _ n (na , pa) =
     n * na , *-left (ℤ->ℚ-preserves-* _ _) >=> *-assoc >=> *-right pa
 
   isGridAlignedℚ-diff : (u : ℚ⁺) {a b : ℚ} ->
-    isGridAlignedℚ u a -> isGridAlignedℚ u b -> isGridAlignedℚ u (diff a b)
+    isGridAligned u a -> isGridAligned u b -> isGridAligned u (diff a b)
   isGridAlignedℚ-diff u ga gb =
     isGridAlignedℚ-+ u gb (isGridAlignedℚ-minus u ga)
 
   subdivide-Box-isGridAligned₂ : (b : Box) (nx ny : Nat⁺) (ux uy : ℚ⁺) ->
-    isGridAligned₂Box ux uy b -> isGridAligned₂Boxes (ux /ℕ nx) (uy /ℕ ny) (subdivide-Box b nx ny)
+    isGridAligned₂ ux uy b -> isGridAligned₂ (ux /ℕ nx) (uy /ℕ ny) (subdivide-Box b nx ny)
   subdivide-Box-isGridAligned₂ b nx ny ux uy (gl , gr , gb , gt) _ =
     isGridAlignedℚ-+ (ux /ℕ nx) (isGridAlignedℚ-/ℕ' ux nx gl)
       (isGridAlignedℚ-ℤ* (ux /ℕ nx) _ (isGridAlignedℚ-/ℕ ux nx (isGridAlignedℚ-diff ux gl gr))) ,
@@ -444,7 +444,7 @@ opaque
 
 
   subdivide-Box-isGridAligned : (b : Box) (n : Nat⁺) (u : ℚ⁺) ->
-    isGridAlignedBox u b -> isGridAlignedBoxes (u /ℕ n) (subdivide-Box b n n)
+    isGridAligned u b -> isGridAligned (u /ℕ n) (subdivide-Box b n n)
   subdivide-Box-isGridAligned b n u g =
     subdivide-Box-isGridAligned₂ b n n u u g
 

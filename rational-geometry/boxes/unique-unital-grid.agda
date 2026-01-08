@@ -50,9 +50,9 @@ private
 
 module _
   {ℓ : Level} (B₁ B₂ : Boxes ℓ) (u : ℚ⁺)
-  (isUnital-B₁ : isUnitalBoxes u B₁) (isGridAligned-B₁ : isGridAlignedBoxes u B₁)
+  (isUnital-B₁ : isUnitalBoxes u B₁) (isGridAligned-B₁ : isGridAligned u B₁)
   (hasNoOverlap-B₁ : hasNoOverlap B₁)
-  (isUnital-B₂ : isUnitalBoxes u B₂) (isGridAligned-B₂ : isGridAlignedBoxes u B₂)
+  (isUnital-B₂ : isUnitalBoxes u B₂) (isGridAligned-B₂ : isGridAligned u B₂)
   (hasNoOverlap-B₂ : hasNoOverlap B₂)
   (region-path : Boxes.region B₁ == Boxes.region B₂)
   where

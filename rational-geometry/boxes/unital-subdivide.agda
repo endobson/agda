@@ -23,9 +23,9 @@ open import truncation
 
 opaque
   subdivide-boxesΣ :
-    {ℓ : Level} (u : ℚ⁺) (B₀ : Boxes ℓ) -> isGridAlignedBoxes u B₀ ->
+    {ℓ : Level} (u : ℚ⁺) (B₀ : Boxes ℓ) -> isGridAligned u B₀ ->
     Σ[ B ∈ Boxes ℓ ] (
-      isGridAlignedBoxes u B ×
+      isGridAligned u B ×
       isUnitalBoxes u B ×
       Boxes.region B == Boxes.region B₀ ×
       boxes-raw-area B == boxes-raw-area B₀ ×
@@ -37,7 +37,7 @@ opaque
 
     BsΣ : (i : B₀.I) ->
       Σ[ B ∈ Boxes ℓ-zero ] (
-        isGridAlignedBoxes u B ×
+        isGridAligned u B ×
         isUnitalBoxes u B ×
         Boxes.region B == Box.region (B₀.box i) ×
         boxes-raw-area B == Box.area (B₀.box i) ×
@@ -52,7 +52,7 @@ opaque
     module B = Boxes B
 
     -- TODO move these to be about union
-    isGridAligned-B : isGridAlignedBoxes u B
+    isGridAligned-B : isGridAligned u B
     isGridAligned-B (i₀ , i₁)  = (fst (snd (BsΣ i₀))) i₁
     isUnital-B : isUnitalBoxes u B
     isUnital-B (i₀ , i₁)  = (fst (snd (snd (BsΣ i₀)))) i₁

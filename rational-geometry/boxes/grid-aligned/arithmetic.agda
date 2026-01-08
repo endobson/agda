@@ -14,7 +14,7 @@ open import ring.implementations.int
 open import semiring
 
 opaque
-  isGridAligned-minus⁻ : (u : ℚ⁺) (q : ℚ) -> isGridAlignedℚ u (- q) -> isGridAlignedℚ u q
+  isGridAligned-minus⁻ : (u : ℚ⁺) (q : ℚ) -> isGridAligned u (- q) -> isGridAligned u q
   isGridAligned-minus⁻ (u , 0<u) q (s , p) =
     (- s , *-left (ℤ->ℚ-preserves-minus _) >=>
            minus-extract-left >=>
@@ -23,7 +23,7 @@ opaque
 
 
   refine-isGridAligned : (q : ℚ) (u₁ u₂ : ℚ⁺) ->
-    isGridAlignedℚ u₁ q -> isGridAlignedℚ u₂ ⟨ u₁ ⟩ ->
-    isGridAlignedℚ u₂ q
+    isGridAligned u₁ q -> isGridAligned u₂ ⟨ u₁ ⟩ ->
+    isGridAligned u₂ q
   refine-isGridAligned q (u₁ , _) (u₂ , _) (n₁ , p₁) (n₂ , p₂) =
     (n₁ * n₂ , *-left (ℤ->ℚ-preserves-* _ _) >=> *-assoc >=> *-right p₂ >=> p₁)

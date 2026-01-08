@@ -44,7 +44,7 @@ open import sigma.base
 open import truncation
 
 private
-  ℚ->Σscale : (q : ℚ) -> Σ[ u ∈ ℚ⁺ ] (isGridAlignedℚ u q)
+  ℚ->Σscale : (q : ℚ) -> Σ[ u ∈ ℚ⁺ ] (isGridAligned u q)
   ℚ->Σscale q = case (trichotomous-< 0# q) of
     (\{ (tri< 0<q _ _) -> (q , 0<q) , (1# , *-left-one)
       ; (tri= _ 0=q _) -> (1# , 0<1) , (0# , *-right-one >=> 0=q)
@@ -98,7 +98,7 @@ private
 
 private
   opaque
-    ℚ⁺²->Σscale : (q₁ q₂ : ℚ⁺) -> Σ[ u ∈ ℚ⁺ ] (isGridAlignedℚ u ⟨ q₁ ⟩ × isGridAlignedℚ u ⟨ q₂ ⟩)
+    ℚ⁺²->Σscale : (q₁ q₂ : ℚ⁺) -> Σ[ u ∈ ℚ⁺ ] (isGridAligned u ⟨ q₁ ⟩ × isGridAligned u ⟨ q₂ ⟩)
     ℚ⁺²->Σscale (q₁ , 0<q₁) (q₂ , 0<q₂) = (u , 0<u) , (s₁ , p₁) , (s₂ , p₂)
       where
       f₁ f₂ : ℚ'
@@ -188,7 +188,7 @@ private
 
 
   opaque
-    ℚ<>0²->Σscale : (q₁ q₂ : Σ[ q ∈ ℚ ] (q <> 0#)) -> Σ[ u ∈ ℚ⁺ ] (isGridAlignedℚ u ⟨ q₁ ⟩ × isGridAlignedℚ u ⟨ q₂ ⟩)
+    ℚ<>0²->Σscale : (q₁ q₂ : Σ[ q ∈ ℚ ] (q <> 0#)) -> Σ[ u ∈ ℚ⁺ ] (isGridAligned u ⟨ q₁ ⟩ × isGridAligned u ⟨ q₂ ⟩)
     ℚ<>0²->Σscale (q₁ , inj-l q₁<0) (q₂ , inj-l q₂<0) =
       case (ℚ⁺²->Σscale (- q₁ , minus-flips-<0 q₁<0) (- q₂ , minus-flips-<0 q₂<0)) of
         (\{ (u , a₁ , a₂) -> u , isGridAligned-minus⁻ u _ a₁ , isGridAligned-minus⁻ u _ a₂ })
@@ -203,7 +203,7 @@ private
         (\{ (u , a₁ , a₂) -> u , a₁ , a₂ })
 
 opaque
-  ℚ²->Σscale : (q₁ q₂ : ℚ) -> Σ[ u ∈ ℚ⁺ ] (isGridAlignedℚ u q₁ × isGridAlignedℚ u q₂)
+  ℚ²->Σscale : (q₁ q₂ : ℚ) -> Σ[ u ∈ ℚ⁺ ] (isGridAligned u q₁ × isGridAligned u q₂)
   ℚ²->Σscale q₁ q₂ = case (trichotomous-< 0# q₁ , trichotomous-< 0# q₂) of
     (\{ (tri< 0<q₁ _ _ , tri< 0<q₂ _ _) -> ℚ<>0²->Σscale (q₁ , inj-r 0<q₁) (q₂ , inj-r 0<q₂)
       ; (tri< 0<q₁ _ _ , tri> _ _ q₂<0) -> ℚ<>0²->Σscale (q₁ , inj-r 0<q₁) (q₂ , inj-l q₂<0)
@@ -219,7 +219,7 @@ opaque
 
 private
   opaque
-    Box->Σscale : (b : Box) -> Σ[ u ∈ ℚ⁺ ] (isGridAlignedBox u b)
+    Box->Σscale : (b : Box) -> Σ[ u ∈ ℚ⁺ ] (isGridAligned u b)
     Box->Σscale b = u ,
       refine-isGridAligned _ u₁ u (proj₁ (snd Σu₁)) (proj₁ (snd Σu)) ,
       refine-isGridAligned _ u₁ u (proj₂ (snd Σu₁)) (proj₁ (snd Σu)) ,
@@ -227,24 +227,24 @@ private
       refine-isGridAligned _ u₂ u (proj₂ (snd Σu₂)) (proj₂ (snd Σu))
       where
       module b = Box b
-      Σu₁ : Σ[ u ∈ ℚ⁺ ] (isGridAlignedℚ u b.left × isGridAlignedℚ u b.right)
+      Σu₁ : Σ[ u ∈ ℚ⁺ ] (isGridAligned u b.left × isGridAligned u b.right)
       Σu₁ = ℚ²->Σscale b.left b.right
-      Σu₂ : Σ[ u ∈ ℚ⁺ ] (isGridAlignedℚ u b.bottom × isGridAlignedℚ u b.top)
+      Σu₂ : Σ[ u ∈ ℚ⁺ ] (isGridAligned u b.bottom × isGridAligned u b.top)
       Σu₂ = ℚ²->Σscale b.bottom b.top
       u₁ : ℚ⁺
       u₁ = ⟨ Σu₁ ⟩
       u₂ : ℚ⁺
       u₂ = ⟨ Σu₂ ⟩
 
-      Σu : Σ[ u ∈ ℚ⁺ ] (isGridAlignedℚ u ⟨ u₁ ⟩ × isGridAlignedℚ u ⟨ u₂ ⟩)
+      Σu : Σ[ u ∈ ℚ⁺ ] (isGridAligned u ⟨ u₁ ⟩ × isGridAligned u ⟨ u₂ ⟩)
       Σu = ℚ²->Σscale ⟨ u₁ ⟩ ⟨ u₂ ⟩
       u : ℚ⁺
       u = ⟨ Σu ⟩
 
   opaque
-    Boxes⁰->Σscale : {ℓ : Level} (b : Boxes ℓ) -> ¬ (Boxes.I b) -> Σ[ u ∈ ℚ⁺ ] (isGridAlignedBoxes u b)
+    Boxes⁰->Σscale : {ℓ : Level} (b : Boxes ℓ) -> ¬ (Boxes.I b) -> Σ[ u ∈ ℚ⁺ ] (isGridAligned u b)
     Boxes⁰->Σscale b ¬i = (1# , 0<1) , \i -> bot-elim (¬i i)
-    Boxes⁺->Σscale : {ℓ : Level} (b : Boxes ℓ) -> ∥ Boxes.I b ∥ -> Σ[ u ∈ ℚ⁺ ] (isGridAlignedBoxes u b)
+    Boxes⁺->Σscale : {ℓ : Level} (b : Boxes ℓ) -> ∥ Boxes.I b ∥ -> Σ[ u ∈ ℚ⁺ ] (isGridAligned u b)
     Boxes⁺->Σscale {ℓ} b i = u , a
       where
       I⁺ : Fin⁺Set ℓ
@@ -259,31 +259,31 @@ private
       u : ℚ⁺
       u = finite⁺Mergeᵉ CSS-ℚ⁺²->scale I⁺ f
 
-      a : isGridAlignedBoxes u b
+      a : isGridAligned u b
       a i =
-        finite⁺Merge-somewhere CSS-ℚ⁺²->scale (\v -> isProp-isGridAlignedBox v (Boxes.box b i)) f
+        finite⁺Merge-somewhere CSS-ℚ⁺²->scale (\v -> isProp-isGridAligned v (Boxes.box b i)) f
           ∣ i , snd (Box->Σscale (Boxes.box b i)) ∣
           r
         where
         r : (s₁ s₂ : ℚ⁺) ->
-            isGridAlignedBox s₁ (Boxes.box b i) ->
-            isGridAlignedBox (ℚ⁺²->scale s₁ s₂) (Boxes.box b i)
+            isGridAligned s₁ (Boxes.box b i) ->
+            isGridAligned (ℚ⁺²->scale s₁ s₂) (Boxes.box b i)
         r s₁ s₂ (al , ar , ab , at) =
           refine-isGridAligned _ s₁ s al as ,
           refine-isGridAligned _ s₁ s ar as ,
           refine-isGridAligned _ s₁ s ab as ,
           refine-isGridAligned _ s₁ s at as
           where
-          Σs : Σ[ u ∈ ℚ⁺ ] (isGridAlignedℚ u ⟨ s₁ ⟩ × isGridAlignedℚ u ⟨ s₂ ⟩)
+          Σs : Σ[ u ∈ ℚ⁺ ] (isGridAligned u ⟨ s₁ ⟩ × isGridAligned u ⟨ s₂ ⟩)
           Σs = ℚ⁺²->Σscale s₁ s₂
           s : ℚ⁺
           s = fst Σs
-          as : isGridAlignedℚ s ⟨ s₁ ⟩
+          as : isGridAligned s ⟨ s₁ ⟩
           as = proj₁ (snd Σs)
 
 
 opaque
-  Boxes->Σscale : {ℓ : Level} (b : Boxes ℓ) -> Σ[ u ∈ ℚ⁺ ] (isGridAlignedBoxes u b)
+  Boxes->Σscale : {ℓ : Level} (b : Boxes ℓ) -> Σ[ u ∈ ℚ⁺ ] (isGridAligned u b)
   Boxes->Σscale b = case (decide-isFin⁺Set (snd (Boxes.Index b))) of
     (\{ (inj-l (_ , i)) -> Boxes⁺->Σscale b i
       ; (inj-r ¬i) -> Boxes⁰->Σscale b ¬i

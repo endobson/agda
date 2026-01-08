@@ -39,6 +39,7 @@ open import semiring
 open import sigma.base
 open import truncation
 
+{-
 opaque
   subdivide-boxΣ :
     (u : ℚ⁺) (b : Box) -> isGridAlignedBox u b ->
@@ -306,3 +307,4 @@ opaque
 
     region-path : Boxes.region B == Box.region b
     region-path = region-ext (\p -> (contained p , covers p))
+-}

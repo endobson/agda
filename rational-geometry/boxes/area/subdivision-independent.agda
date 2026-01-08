@@ -190,14 +190,14 @@ subdivide-Boxes-preserves-hasNoOverlap B nx ny no-overlap p (i₁ , j₁) (i₂ 
 
 module _ {ℓ : Level}
   (u₁ u₂ : ℚ⁺)
-  ((B₁ , g₁ , unital₁ , o₁) : Σ[ B ∈ Boxes ℓ ] (isGridAlignedBoxes u₁ B × isUnitalBoxes u₁ B × hasNoOverlap B))
-  ((B₂ , g₂ , unital₂ , o₂) : Σ[ B ∈ Boxes ℓ ] (isGridAlignedBoxes u₂ B × isUnitalBoxes u₂ B × hasNoOverlap B))
+  ((B₁ , g₁ , unital₁ , o₁) : Σ[ B ∈ Boxes ℓ ] (isGridAligned u₁ B × isUnitalBoxes u₁ B × hasNoOverlap B))
+  ((B₂ , g₂ , unital₂ , o₂) : Σ[ B ∈ Boxes ℓ ] (isGridAligned u₂ B × isUnitalBoxes u₂ B × hasNoOverlap B))
   (region-path : Boxes.region B₁ == Boxes.region B₂)
   where
 
 
   private
-    Σu₃ : Σ[ u ∈ ℚ⁺ ] (isGridAlignedℚ u ⟨ u₁ ⟩ × isGridAlignedℚ u ⟨ u₂ ⟩)
+    Σu₃ : Σ[ u ∈ ℚ⁺ ] (isGridAligned u ⟨ u₁ ⟩ × isGridAligned u ⟨ u₂ ⟩)
     Σu₃ = ℚ²->Σscale ⟨ u₁ ⟩ ⟨ u₂ ⟩
 
     u₃ : ℚ⁺
@@ -238,9 +238,9 @@ module _ {ℓ : Level}
     B₁' : Boxes ℓ
     B₁' = subdivide-Boxes B₁ n₁ n₁
 
-    g₁' : isGridAlignedBoxes u₃ B₁'
+    g₁' : isGridAligned u₃ B₁'
     g₁' =
-      subst (\u -> isGridAlignedBoxes u B₁') n₁-path
+      subst (\u -> isGridAligned u B₁') n₁-path
         (\ (i₁ , i₂) -> subdivide-Box-isGridAligned (Boxes.box B₁ i₁) n₁ u₁ (g₁ i₁) i₂)
 
     unital₁' : isUnitalBoxes u₃ B₁'
@@ -254,9 +254,9 @@ module _ {ℓ : Level}
     B₂' : Boxes ℓ
     B₂' = subdivide-Boxes B₂ n₂ n₂
 
-    g₂' : isGridAlignedBoxes u₃ B₂'
+    g₂' : isGridAligned u₃ B₂'
     g₂' =
-      subst (\u -> isGridAlignedBoxes u B₂') n₂-path
+      subst (\u -> isGridAligned u B₂') n₂-path
         (\ (i₁ , i₂) -> subdivide-Box-isGridAligned (Boxes.box B₂ i₁) n₂ u₂ (g₂ i₁) i₂)
 
     unital₂' : isUnitalBoxes u₃ B₂'

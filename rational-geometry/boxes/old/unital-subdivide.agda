@@ -15,6 +15,7 @@ open import rational-geometry.boxes.unital
 open import rational.order
 open import truncation
 
+{-
 opaque
   subdivide-boxesΣ :
     {ℓ : Level} (u : ℚ⁺) (b : Boxes ℓ) -> isGridAlignedBoxes u b ->
@@ -79,3 +80,4 @@ opaque
 
           p∈Bs₀ : Boxes.contains (Bs i₀) p
           p∈Bs₀ = subst (\r -> Region.contains r p) (sym rp) p∈b₀
+-}
