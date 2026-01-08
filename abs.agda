@@ -49,6 +49,11 @@ opaque
   nonpos-abs' {zero-int} _   = refl
   nonpos-abs' {neg _}    _   = refl
 
+  Pos'-abs' : {m : Int} -> NonZero m -> Pos' (abs' m)
+  Pos'-abs' {zero-int} nz = bot-elim (NonZero->!=0 nz refl)
+  Pos'-abs' {pos n}    _  = tt
+  Pos'-abs' {neg n}    _  = tt
+
   abs'-inject-add1 : {m : Int} -> (NonNeg m) -> abs' (add1 m) == suc (abs' m)
   abs'-inject-add1 0≤m =
     nonneg-injective (
