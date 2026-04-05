@@ -64,3 +64,31 @@ instance
   DecidableLinearOrderStr-Fin = record
     { trichotomous-< = trichotomous-Fin<
     }
+
+data Fin≤ {n : Nat} (i j : Fin n) : Type ℓ-zero where
+  fin≤ : (Fin.i i) ≤ (Fin.i j) -> Fin≤ i j
+
+fin≤⁻ : {n : Nat} {i j : Fin n} -> Fin≤ i j -> Fin.i i ≤ Fin.i j
+fin≤⁻ (fin≤ le) = le
+
+private
+  isProp-Fin≤ : {n : Nat} {i j : Fin n} -> isProp (Fin≤ i j)
+  isProp-Fin≤ (fin≤ le1) (fin≤ le2) i = fin≤ (isProp-≤ le1 le2 i)
+
+  refl-Fin≤ : {n : Nat} -> Reflexive (Fin≤ {n})
+  refl-Fin≤ = fin≤ refl-≤
+
+  trans-Fin≤ : {n : Nat} -> Transitive (Fin≤ {n})
+  trans-Fin≤ (fin≤ le1) (fin≤ le2) = fin≤ (trans-≤ le1 le2)
+
+  antisym-Fin≤ : {n : Nat} -> Antisymmetric (Fin≤ {n})
+  antisym-Fin≤ (fin≤ le1) (fin≤ le2) = fin-i-path (antisym-≤ le1 le2)
+
+instance
+  isPartialOrder-Fin≤ : {n : Nat} -> isPartialOrder (Fin≤ {n})
+  isPartialOrder-Fin≤ = record
+    { isProp-≤ = isProp-Fin≤
+    ; refl-≤ = refl-Fin≤
+    ; trans-≤ = trans-Fin≤
+    ; antisym-≤ = antisym-Fin≤
+    }

@@ -133,11 +133,12 @@ isProp-WellFounded R = isPropΠ (\a -> isProp-Acc R a)
 
 -- Lift
 
-isContr-Lift : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} -> isContr A -> isContr (Lift ℓ₂ A)
-isContr-Lift = ≃-isContr (equiv⁻¹ (liftEquiv _ _))
+opaque
+  isContr-Lift : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} -> isContr A -> isContr (Lift ℓ₂ A)
+  isContr-Lift = ≃-isContr (equiv⁻¹ (liftEquiv _ _))
 
-isProp-Lift : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} -> isProp A -> isProp (Lift ℓ₂ A)
-isProp-Lift = ≃-isProp (equiv⁻¹ (liftEquiv _ _))
+  isProp-Lift : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} -> isProp A -> isProp (Lift ℓ₂ A)
+  isProp-Lift = ≃-isProp (equiv⁻¹ (liftEquiv _ _))
 
-isSet-Lift : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} -> isSet A -> isSet (Lift ℓ₂ A)
-isSet-Lift = ≃-isSet (equiv⁻¹ (liftEquiv _ _))
+  isSet-Lift : {ℓ₁ ℓ₂ : Level} {A : Type ℓ₁} -> isSet A -> isSet (Lift ℓ₂ A)
+  isSet-Lift = ≃-isSet (equiv⁻¹ (liftEquiv _ _))

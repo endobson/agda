@@ -22,7 +22,6 @@
   (list agda-out agda-in agda-pid agda-stderr agda-control)
   (process* "/usr/bin/env" "agda" "--interaction-json"))
 
-
 (define (handle-response resp)
   (unless (hash-eq? resp)
     (error 'handle-response "Expected hash, Got: ~s" resp))
@@ -76,6 +75,8 @@
 
 (define command
   (format "IOTCM \"~a\" None Direct (Cmd_load \"~a\" [])\n" full-path full-path))
+(define metas-command
+  (format "IOTCM \"~a\" None Direct (Cmd_metas Normalised)\n" full-path))
 
 (define (recurring-filesystem-change-evt path)
    (wrap-evt
@@ -96,6 +97,7 @@
   (define (run-state [fs-evt (recurring-filesystem-change-evt full-path)]
                      [file-contents (file->bytes full-path)])
     (write-string command agda-in)
+    (write-string metas-command agda-in)
     (flush-output agda-in)
     (wait-state fs-evt file-contents))
   (run-state))
