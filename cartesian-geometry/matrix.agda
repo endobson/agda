@@ -25,12 +25,10 @@ open import ring.implementations.real
 open import semidomain
 open import semidomain.instances.real
 open import semiring
+open import semiring.unit
 open import subset
 open import truncation
 open import vector-space
-
-private
-  module ℝRing = Ring (Ringⁱ ℝ)
 
 -- Matrix : Row × Column
 record Matrix : Type₁ where
@@ -237,7 +235,7 @@ inverse-matrix m det#0 = matrix f
   yx = matrix-index m y-axis x-axis
   yy = matrix-index m y-axis y-axis
   det = determinant m
-  1/det = ℝRing.isUnit.inv (Field.#0->isUnit ℝField det#0)
+  1/det = isUnit.inv (Field.#0->isUnit ℝField det#0)
 
   f : Axis -> Axis -> ℝ
   f x-axis x-axis = 1/det * yy
@@ -249,8 +247,8 @@ module _ (m : Matrix) (det#0 : determinant m # 0#) where
   private
     inv = inverse-matrix m det#0
     det = determinant m
-    1/det = ℝRing.isUnit.inv (Field.#0->isUnit ℝField det#0)
-    1/det-path = ℝRing.isUnit.path (Field.#0->isUnit ℝField det#0)
+    1/det = isUnit.inv (Field.#0->isUnit ℝField det#0)
+    1/det-path = isUnit.path (Field.#0->isUnit ℝField det#0)
 
     mxx = matrix-index m x-axis x-axis
     mxy = matrix-index m x-axis y-axis

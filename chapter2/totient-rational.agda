@@ -32,9 +32,7 @@ open import ring.implementations.int
 open import ring.implementations.rational
 open import semiring
 open import semiring.instances.nat
-
-private
-  module Ring-ℚ = Ring Ring-ℚ
+open import semiring.unit
 
 φℚ : Nat⁺ -> ℚ
 φℚ n = ℕ->ℚ (φ n)
@@ -70,7 +68,7 @@ module _ (p : Prime') where
         handle (suc n , _) = refl
 
     φℚ-prime-power : φℚ (prime-power⁺ p n') ==
-                     (prime-powerℚ p (int n')) r* (1r r+ (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime p)))))
+                     (prime-powerℚ p (int n')) r* (1r r+ (r- (fst (u1/ (ℚUnit-prime p)))))
     φℚ-prime-power =
       cong ℕ->ℚ (φ-prime-power p n) >=>
       cong ℤ->ℚ (ℕ->ℤ-minus p^pn<p^n) >=>
@@ -84,11 +82,11 @@ module _ (p : Prime') where
                        cong (prime-powerℚ p) pred->sub1 >=>
                        cong fst (u^ℤ-sub1 (ℚUnit-prime p) (int n'))) >=>
              sym (r*-minus-extract-left
-                   (fst (Ring-ℚ.u1/ (ℚUnit-prime p)))
+                   (fst (u1/ (ℚUnit-prime p)))
                    (prime-powerℚ p (int n'))))) >=>
-      sym (r*-distrib-r+-right 1r (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime p))))
+      sym (r*-distrib-r+-right 1r (r- (fst (u1/ (ℚUnit-prime p))))
                                (prime-powerℚ p (int n'))) >=>
-      r*-commute (1r r+ (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime p))))) (prime-powerℚ p (int n'))
+      r*-commute (1r r+ (r- (fst (u1/ (ℚUnit-prime p))))) (prime-powerℚ p (int n'))
 
 
 
@@ -128,7 +126,7 @@ module _ where
 
   φℚ-finiteProduct : {n : Nat⁺} ->
     φℚ n == (ℕ->ℚ ⟨ n ⟩) r* (finiteProduct (FinSet-PrimeDivisor n)
-                              (\(p , _) -> (1r r+ (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime p)))))))
+                              (\(p , _) -> (1r r+ (r- (fst (u1/ (ℚUnit-prime p)))))))
   φℚ-finiteProduct {n} =
     Multiplicative-PrimeDivisor {f = φℚ} Multiplicative-φℚ {n} >=>
     cong (\f -> finiteProduct (FinSet-PrimeDivisor n) f)
@@ -136,5 +134,5 @@ module _ where
                                                 <->Pos' (prime-div->prime-div-count p n d)))) >=>
     finiteProduct-split (FinSet-PrimeDivisor n) >=>
     cong (_r* (finiteProduct (FinSet-PrimeDivisor n)
-                (\(p , _) -> (1r r+ (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime p))))))))
+                (\(p , _) -> (1r r+ (r- (fst (u1/ (ℚUnit-prime p))))))))
          (φℚ-finiteProduct-step2 {n})

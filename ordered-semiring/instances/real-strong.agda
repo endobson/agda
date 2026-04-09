@@ -16,6 +16,7 @@ open import real.apartness
 open import ring
 open import ring.implementations.real
 open import semiring
+open import semiring.unit
 open import sum
 
 instance
@@ -24,19 +25,17 @@ instance
     { *₁-fully-reflects-< = *₁-fully-reflects-ℝ<
     }
     where
-    module ℝ = Ring ℝRing
-
     *₁-fully-reflects-ℝ< : {a b c : ℝ} -> (a * b) < (a * c) ->
                            (b < c × 0# < a) ⊎ (c < b × a < 0#)
     *₁-fully-reflects-ℝ< {a} {b} {c} ab<ac = handle a<>0 b<>c
       where
-      uabac : ℝ.isUnit (diff (a * b) (a * c))
+      uabac : isUnit (diff (a * b) (a * c))
       uabac = eqFun (ℝ#≃diff# _ _) (inj-l ab<ac)
-      ua-ubc : ℝ.isUnit a × ℝ.isUnit (diff b c)
-      ua-ubc = ℝ.*-isUnit-split (subst ℝ.isUnit (sym *-distrib-diff-left) uabac)
+      ua-ubc : isUnit a × isUnit (diff b c)
+      ua-ubc = *-isUnit-split (subst isUnit (sym *-distrib-diff-left) uabac)
 
       a<>0 : a <> 0#
-      a<>0 = ⊎-swap (eqInv (ℝ#≃diff# 0# a) (subst ℝ.isUnit (sym diff-step >=> +-left-zero) (proj₁ ua-ubc)))
+      a<>0 = ⊎-swap (eqInv (ℝ#≃diff# 0# a) (subst isUnit (sym diff-step >=> +-left-zero) (proj₁ ua-ubc)))
 
       b<>c : b <> c
       b<>c = eqInv (ℝ#≃diff# b c) (proj₂ ua-ubc)

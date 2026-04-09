@@ -19,6 +19,7 @@ open import isomorphism
 open import relation
 open import ring
 open import semiring
+open import semiring.unit
 open import set-quotient
 open import sigma.base
 open import sum
@@ -492,11 +493,6 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
 
     Ring-Q : Ring Semiring-Q AdditiveGroup-Q
     Ring-Q = record {}
-    module Ring-Q = Ring Ring-Q
-    private
-      instance
-        IRing-Q = Ring-Q
-
     _q#'_ : Q -> Q -> hProp ℓ
     _q#'_ = SetQuotientElim.rec2 isSet-hProp _f#'_ #'₂-~ #'₁-~
 
@@ -565,11 +561,11 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
         (\a b -> isProp-≃ (isProp-q# a b) (isProp-q# (diff a b) 0#))
         diff-f#-equiv
 
-    q#0->isUnit : {a : Q} -> a q# 0q -> Ring-Q.isUnit a
+    q#0->isUnit : {a : Q} -> a q# 0q -> isUnit a
     q#0->isUnit {a} a#0 = f inverse
       where
-      f : Σ[ b ∈ Q ] (a * b == 1#) -> Ring-Q.isUnit a
-      f (b , p) = Ring-Q.is-unit b p
+      f : Σ[ b ∈ Q ] (a * b == 1#) -> isUnit a
+      f (b , p) = is-unit b p
 
       inverse : Σ[ b ∈ Q ] (a * b == 1#)
       inverse =
@@ -593,11 +589,11 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
           b1=b2 : b1 == b2
           b1=b2 = tight-# ¬b1#b2
 
-    q#->isUnit : (a b : Q) -> a q# b -> Ring-Q.isUnit (diff a b)
+    q#->isUnit : (a b : Q) -> a q# b -> isUnit (diff a b)
     q#->isUnit a b a#b = q#0->isUnit (eqFun (diff-q#-equiv a b) a#b)
 
-    isUnit->q#0 : {a : Q} -> Ring-Q.isUnit a -> a # 0#
-    isUnit->q#0 {a} (Ring-Q.is-unit b p) = q*₁-reflects-# b a 0# ba#b0
+    isUnit->q#0 : {a : Q} -> isUnit a -> a # 0#
+    isUnit->q#0 {a} (is-unit b p) = q*₁-reflects-# b a 0# ba#b0
       where
 
       ba#b0 : (b * a) # (b * 0#)
@@ -606,15 +602,15 @@ module _ {ℓ : Level} {D : Type ℓ} {D# : Rel D ℓ} {ACM : AdditiveCommMonoid
         0=b0 : 0# == b * 0#
         0=b0 = sym (*-right-zero {_} {_} {_} {b})
 
-    isUnit->q# : (a b : Q) -> Ring-Q.isUnit (diff a b) -> a # b
+    isUnit->q# : (a b : Q) -> isUnit (diff a b) -> a # b
     isUnit->q# a b = eqInv (diff-q#-equiv a b) ∘ isUnit->q#0
 
-    isUnit-q#-equiv : (a b : Q) -> Ring-Q.isUnit (diff a b) ≃ (a # b)
+    isUnit-q#-equiv : (a b : Q) -> isUnit (diff a b) ≃ (a # b)
     isUnit-q#-equiv a b =
       isoToEquiv (isProp->iso (isUnit->q# a b) (q#->isUnit a b)
-                              Ring-Q.isProp-isUnit (isProp-q# a b))
+                              isProp-isUnit (isProp-q# a b))
 
-    field#-q#-path : (\x y -> Ring-Q.isUnit (diff x y)) == _q#_
+    field#-q#-path : (\x y -> isUnit (diff x y)) == _q#_
     field#-q#-path = funExt (\x -> (funExt (\y -> (ua (isUnit-q#-equiv x y)))))
 
     Field-Q : Field Ring-Q isTightApartness-q#

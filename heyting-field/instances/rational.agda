@@ -17,10 +17,10 @@ open import rational.order
 open import relation
 open import ring
 open import semiring
+open import semiring.unit
 open import univalence
 
 private
-  open Ring Ring-ℚ using (isUnit ; is-unit ; isProp-isUnit)
 
   f#-path-ℚ : {x y : ℚ} -> (isUnit (diff x y)) == (x # y)
   f#-path-ℚ {x} {y} = isoToPath (isProp->iso forward backward isProp-isUnit isProp-#)

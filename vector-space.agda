@@ -18,6 +18,7 @@ open import hlevel
 open import relation
 open import ring
 open import semiring
+open import semiring.unit
 open import subset
 open import sum
 open import truncation
@@ -243,9 +244,9 @@ module _ {ℓK ℓV : Level}
     v*-#0 {k} {v} k#0 v#0 = snd (v*-apart-zero k'kv#0)
       where
       module _ where
-        k-unit : R.isUnit k
+        k-unit : isUnit k
         k-unit = F.#0->isUnit k#0
-        kk'=1 = R.isUnit.path k-unit
+        kk'=1 = isUnit.path k-unit
         k'kv#0 = subst (_# 0#) (sym v*-left-one >=> v*-left (sym kk'=1 >=> *-commute) >=> v*-assoc) v#0
 
 module _ {ℓK ℓV : Level} {K : Type ℓK} {V : Type ℓV}

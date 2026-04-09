@@ -31,11 +31,10 @@ open import ring
 open import ring.implementations.rational
 open import semiring
 open import semiring.instances.nat
+open import semiring.unit
 open import sigma
 
 private
-  module Ring-ℚ = Ring Ring-ℚ
-
   isInjective-ℕ->ℚ : isInjective ℕ->ℚ
   isInjective-ℕ->ℚ = ∘-isInjective isInjective-ℤ->ℚ nonneg-injective
 
@@ -77,9 +76,9 @@ problem1-b n⁺@(n , _) =
     p1 = existential-eq same-pdivs
 
     p2 : (finiteProduct (FinSet-PrimeDivisor (2⁺ *⁺ n⁺))
-           (\(p , _) -> (1r r+ (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime p))))))) ==
+           (\(p , _) -> (1r r+ (r- (fst (u1/ (ℚUnit-prime p))))))) ==
          (finiteProduct (FinSet-PrimeDivisor n⁺)
-           (\(p , _) -> (1r r+ (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime p)))))))
+           (\(p , _) -> (1r r+ (r- (fst (u1/ (ℚUnit-prime p)))))))
     p2 = finiteMergeᵉ-convert _ _ _ (equiv⁻¹ p1) _
 
     p3 : φℚ (2⁺ *⁺ n⁺) == 2r * φℚ n⁺

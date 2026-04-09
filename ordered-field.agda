@@ -10,7 +10,6 @@ open import equivalence
 open import functions
 open import heyting-field
 open import hlevel
-open import semidomain.heyting-field
 open import nat
 open import nat.order
 open import order
@@ -22,8 +21,11 @@ open import ordered-semiring.initial
 open import ordered-semiring.semidomain
 open import relation
 open import ring
+open import ring.unit
+open import semidomain.heyting-field
 open import semiring
 open import semiring.initial
+open import semiring.unit
 open import sigma.base
 open import sum
 open import truncation
@@ -44,7 +46,6 @@ module _ {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
          where
   private
     module F = Field F
-    module R = Ring R
     instance
       ILOS = LOS
       IACM = ACM
@@ -72,9 +73,9 @@ module _ {D : Type ℓD} {D# : Rel D ℓD} {D< : Rel D ℓ<}
 
   opaque
     ∃!1/ℕ : (n : Nat⁺) -> ∃![ d ∈ D ] (iℕ ⟨ n ⟩ * d == 1#)
-    ∃!1/ℕ n = (R.isUnit.inv u , R.isUnit.path u) , p _
+    ∃!1/ℕ n = (isUnit.inv u , isUnit.path u) , p _
       where
-      u : R.isUnit (iℕ ⟨ n ⟩)
+      u : isUnit (iℕ ⟨ n ⟩)
       u = (F.#0->isUnit (eqFun <>-equiv-# (inj-r (0<iℕ n))))
       p : isProp (Σ[ d ∈ D ] (iℕ ⟨ n ⟩ * d == 1#))
       p (d1 , p1) (d2 , p2) = ΣProp-path (isSet-D _ _) p3

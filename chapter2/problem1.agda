@@ -47,12 +47,10 @@ open import semiring
 open import semiring.exponentiation
 open import semiring.initial
 open import semiring.instances.nat
+open import semiring.unit
 open import sigma.base
 open import truncation
 open import without-point
-
-private
-  module Ring-ℚ = Ring Ring-ℚ
 
 problem1-a : (n : Nat⁺) -> (φ (2⁺ *⁺ n) == ⟨ n ⟩) ≃ (Σ[ i ∈ ℕ ] (2⁺ ^⁺ i == n))
 problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat _ _) isProp-Σ2^i)
@@ -91,21 +89,18 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
     handle (suc i) (suc j) p = cong suc (handle i j (*'-left-injective 2⁺ p))
 
 
-  path-half : (fst (Ring-ℚ.u1/ (ℚUnit-prime (2 , 2-is-prime)))) == 1/2
+  path-half : (fst (u1/ (ℚUnit-prime (2 , 2-is-prime)))) == 1/2
   path-half = sym (∃!-unique (∃!1/ℕ (2 , tt)) _ path)
     where
-    open Ring-ℚ
-    u : Unit
+    u : Unit ℚ
     u = (ℚUnit-prime (2 , 2-is-prime))
 
-    u-path : u u* (u1/ u) == Ring-ℚ.1u
-    u-path = u1/-right-inverse
+    path : (ℕ->Semiring 2) * (fst (u1/ u)) == 1#
+    path = *-left (ℕ->Semiring-ℚ-path 2) >=> (cong fst (u*-right-inverseᵉ u))
 
-    path : (ℕ->Semiring 2) * (fst (Ring-ℚ.u1/ u)) == 1#
-    path = *-left (ℕ->Semiring-ℚ-path 2) >=> (cong fst u-path)
 
   path-half2 :
-    (1r + (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime (2 , 2-is-prime)))))) == 1/2
+    (1r + (r- (fst (u1/ (ℚUnit-prime (2 , 2-is-prime)))))) == 1/2
   path-half2 =
     +-cong (sym 1/2-+-path) (cong -_ path-half) >=>
     +-assoc >=> +-right +-inverse >=> +-right-zero
@@ -144,7 +139,7 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
   φℚ-path3 : φℚ (2⁺ *⁺ n⁺) ==
              (ℕ->ℚ n) *
              (finiteProduct (FinSet-WithoutPoint (FinSet-PrimeDivisor (2⁺ *⁺ n⁺)) PrimeDivisor2n-2)
-               (\((p , _) , _) -> (1r r+ (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime p)))))))
+               (\((p , _) , _) -> (1r r+ (r- (fst (u1/ (ℚUnit-prime p)))))))
   φℚ-path3 =
     φℚ-finiteProduct >=>
     *-cong (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ 2 n)
@@ -158,16 +153,16 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
   forward : (φ (2⁺ *⁺ n⁺) == n) -> (Σ[ i ∈ ℕ ] (2⁺ ^⁺ i == n⁺))
   forward path1 = adjust-prime-power-path prime-power-path
     where
-    unit-path : (p : Prime') -> (fst (Ring-ℚ.u1/ (ℚUnit-prime p))) == 1/ℕ (Prime'.nat⁺ p)
-    unit-path p =
-      cong (fst ∘ Ring-ℚ.u1/_) (\i -> ℕ->ℚ ⟨ p ⟩ , isUnit-path i)
+    p-unit-path : (p : Prime') -> (fst (u1/ (ℚUnit-prime p))) == 1/ℕ (Prime'.nat⁺ p)
+    p-unit-path p =
+      cong (fst ∘ u1/) (\i -> ℕ->ℚ ⟨ p ⟩ , isUnit-path i)
       where
       isUnit-path : snd (ℚUnit-prime p) ==
-                    Ring-ℚ.is-unit (1/ℕ (Prime'.nat⁺ p)) (*-commute >=> 1/ℕ-ℕ-path (Prime'.nat⁺ p))
-      isUnit-path = Ring-ℚ.isProp-isUnit _ _
+                    is-unit (1/ℕ (Prime'.nat⁺ p)) (*-commute >=> 1/ℕ-ℕ-path (Prime'.nat⁺ p))
+      isUnit-path = isProp-isUnit _ _
 
     f : PrimeDivisor (2⁺ *⁺ n⁺) -> ℚ
-    f (p , _) = 1r r+ (r- (fst (Ring-ℚ.u1/ (ℚUnit-prime p))))
+    f (p , _) = 1r r+ (r- (fst (u1/ (ℚUnit-prime p))))
 
     f' : WithoutPoint (PrimeDivisor (2⁺ *⁺ n⁺)) PrimeDivisor2n-2  -> ℚ
     f' (pd , _) = f pd
@@ -182,13 +177,13 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
 
     f<1 : (p : PrimeDivisor (2⁺ *⁺ n⁺)) -> f p < 1#
     f<1 (p , _) =
-      trans-<-= (+₁-preserves-< (minus-flips-0< (subst (0# <_) (sym (unit-path p))
+      trans-<-= (+₁-preserves-< (minus-flips-0< (subst (0# <_) (sym (p-unit-path p))
                                                   (Pos-1/ℕ (Prime'.nat⁺ p)))))
                 +-right-zero
     0≤f : (p : PrimeDivisor (2⁺ *⁺ n⁺)) -> 0# ≤ f p
     0≤f (p , _) =
       trans-≤-= (diff-0≤⁺ (1/ℕ≤1 (Prime'.nat⁺ p)))
-                (cong (\x -> 1r r+ (r- x)) (sym (unit-path p)))
+                (cong (\x -> 1r r+ (r- x)) (sym (p-unit-path p)))
 
     af<1 : (p : PrimeDivisor (2⁺ *⁺ n⁺)) -> abs (f p) < 1#
     af<1 p = trans-=-< (abs-0≤-path (0≤f p)) (f<1 p)

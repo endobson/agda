@@ -14,6 +14,7 @@ open import nat
 open import nat.monoid-homomorphism
 open import semiring
 open import semiring.instances.nat
+open import semiring.unit
 open import sigma.base
 open import truncation
 
@@ -133,3 +134,21 @@ module _ {ℓ₁ ℓ₂ : Level} {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
     Semiringʰ-preserves-^ℕ     zero = h.preserves-1#
     Semiringʰ-preserves-^ℕ {x} (suc n) =
       h.preserves-* x (x ^ℕ n) >=> *-right (Semiringʰ-preserves-^ℕ n)
+
+
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
+         {{S : Semiring ACM}}
+         where
+  _u^ℕ_ : Unit D -> ℕ -> Unit D
+  a u^ℕ zero = 1u
+  a u^ℕ (suc n) = a u* (a u^ℕ n)
+
+  opaque
+    u^ℕ-one : {x : Unit D} -> (x u^ℕ 1) == x
+    u^ℕ-one = ΣProp-path isProp-isUnit *-right-one
+
+    u^ℕ-distrib-+ : {b : Unit D} {x y : ℕ} -> b u^ℕ (x + y) == (b u^ℕ x) u* (b u^ℕ y)
+    u^ℕ-distrib-+ {b} {zero} {y} =
+      cong (b u^ℕ_) +-left-zero >=> sym u*-left-one
+    u^ℕ-distrib-+ {b} {suc x} {y} =
+      cong (b u*_) (u^ℕ-distrib-+ {b} {x} {y}) >=> sym u*-assoc

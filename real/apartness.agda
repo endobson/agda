@@ -32,14 +32,12 @@ open import relation
 open import ring
 open import ring.implementations.real
 open import semiring
+open import semiring.unit
 open import subset.subspace
 open import truncation
 
 
 private
-  module ℝRing = Ring (Ringⁱ ℝ)
-  open ℝRing using (is-unit)
-
 
   split-small-inv : (x : ℝ) -> (ε : ℚ⁺) -> ∥ (εBounded ⟨ ε ⟩ x) ⊎ ℝInv x ∥
   split-small-inv x ε⁺@(ε , _) = ∥-map handle (trichotomous-εBounded ε⁺ x)
@@ -51,7 +49,7 @@ private
 
 
   diff# : ℝ -> ℝ -> Type _
-  diff# x y = ℝRing.isUnit (diff x y)
+  diff# x y = isUnit (diff x y)
 
   diff#->ℝ# : {x y : ℝ} -> diff# x y -> x # y
   diff#->ℝ# {x} {y} (is-unit i path) =
@@ -119,4 +117,4 @@ private
 
 abstract
   ℝ#≃diff# : (x y : ℝ) -> (x # y) ≃ (diff# x y)
-  ℝ#≃diff# x y = isoToEquiv (isProp->iso ℝ#->diff# diff#->ℝ# isProp-# ℝRing.isProp-isUnit)
+  ℝ#≃diff# x y = isoToEquiv (isProp->iso ℝ#->diff# diff#->ℝ# isProp-# isProp-isUnit)
