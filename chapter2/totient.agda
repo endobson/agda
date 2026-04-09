@@ -2,11 +2,13 @@
 
 module chapter2.totient where
 
+open import additive-group
+open import additive-group.instances.int
+open import additive-group.instances.modular-integers
 open import additive-group.instances.nat
 open import base
 open import chapter2.divisors
 open import chapter2.multiplicative
-open import cubical
 open import decision
 open import div hiding (remainder)
 open import equality
@@ -23,12 +25,17 @@ open import finsum
 open import finsum.arithmetic
 open import finsum.cardinality
 open import gcd.computational
+open import gcd.euclidean-algorithm
 open import gcd.propositional hiding (gcd'-unique)
-open import hlevel
+open import hlevel.base
+open import hlevel.htype
+open import hlevel.sigma
 open import int.base
 open import isomorphism
+open import linear-combo
 open import modular-integers
 open import modular-integers.binary-product
+open import modular-integers.representative
 open import nat
 open import nat.bounded
 open import nat.order
@@ -41,10 +48,16 @@ open import ordered-semiring.instances.nat
 open import prime
 open import prime-gcd
 open import quotient-remainder
+open import relation
 open import relatively-prime
+open import ring.implementations.int
+open import semiring
 open import semiring.exponentiation
 open import semiring.initial
+open import semiring.instances.modular-integers
 open import semiring.instances.nat
+open import semiring.unit
+open import set-quotient
 open import sigma
 open import sigma.base
 open import truncation
@@ -52,6 +65,90 @@ open import type-algebra
 open import univalence
 
 open EqReasoning
+
+private
+  module _ (n⁺@(n , pos-n) : Nat⁺) where
+    CoprimeN' : (x : ℤ/nℤ n) -> hProp ℓ-zero
+    CoprimeN' = SetQuotientElim.rec isSet-hProp
+                  (\ x -> RelativelyPrime (int n) x , isProp-RelativelyPrime)
+                  (\ x y r -> ΣProp-path isProp-isProp (rp-eq x y r))
+      where
+      opaque
+        rp-f : (x y : ℤ) -> (ℤ/nℤ~ n x y) -> RelativelyPrime (int n) x -> RelativelyPrime (int n) y
+        rp-f x y n%xy rp-x d nn-d d%n d%y = rp-x d nn-d d%n d%x
+          where
+          d%xyy : d div (y + (- (diff x y)))
+          d%xyy = div-sum d%y (div-negate⁺ (div-trans d%n n%xy))
+          d%x : d div x
+          d%x = subst (d div_) (+-right (sym diff-anticommute) >=> diff-step) d%xyy
+
+
+        rp-eq : (x y : ℤ) -> (ℤ/nℤ~ n x y) -> RelativelyPrime (int n) x == RelativelyPrime (int n) y
+        rp-eq x y r = ua (isoToEquiv i)
+          where
+          open Iso
+          i : Iso (RelativelyPrime (int n) x) (RelativelyPrime (int n) y)
+          i .fun = rp-f x y r
+          i .inv = rp-f y x (isEquivRel.symmetric isEquivRel-ℤ/nℤ~ r)
+          i .rightInv _ = isProp-RelativelyPrime _ _
+          i .leftInv _ = isProp-RelativelyPrime _ _
+
+    CoprimeN : (x : ℤ/nℤ n) -> Type₀
+    CoprimeN x = fst (CoprimeN' x)
+    isProp-CoprimeN : {x : ℤ/nℤ n} -> isProp (CoprimeN x)
+    isProp-CoprimeN {x} = snd (CoprimeN' x)
+
+    opaque
+      unit->coprime' : (x y : ℤ/nℤ n) -> (x * y == 1#) -> (CoprimeN x)
+      unit->coprime' = SetQuotientElim.elimProp2 (\x y -> (isPropΠ (\_ -> isProp-CoprimeN {x}))) handle
+        where
+        module _ where
+          handle : (x y : ℤ) -> ([ x * y ] == 1#) -> (CoprimeN [ x ])
+          handle x y p d nn-d d%n d%x = div-one->one nn-d d%1
+            where
+            c : ℤ/nℤ~ n (x * y) (int 1)
+            c = SetQuotientElim.pathRec (isProp-ℤ/nℤ~ n⁺) isEquivRel-ℤ/nℤ~ _ _ p
+
+            d%1-xy : d div (diff (x * y) (int 1))
+            d%1-xy = div-trans d%n c
+
+            d%xy : d div (x * y)
+            d%xy = div-mult' d%x y
+
+            d%1 : d div (int 1)
+            d%1 = subst (d div_) diff-step (div-sum d%xy d%1-xy)
+
+      is-unit->coprime : (x : ℤ/nℤ n) -> (isUnit x) -> (CoprimeN x)
+      is-unit->coprime x (is-unit y p) = unit->coprime' x y p
+
+      coprime->is-unit : (x : ℤ/nℤ n) -> (CoprimeN x) -> (isUnit x)
+      coprime->is-unit = SetQuotientElim.elimProp (\x -> (isPropΠ (\_ -> isProp-isUnit))) handle
+        where
+        module _ where
+          lc->is-unit : {x : ℤ} -> LinearCombination (int n) x (int 1) -> isUnit [ x ]
+          lc->is-unit {x} lc = is-unit [ y ] (eq/ (x * y) (int 1) (lc.x , path))
+            where
+            module lc = LinearCombination lc
+            y : Int
+            y = lc.y
+
+            path : lc.x * (int n) == diff (x * lc.y) (int 1)
+            path = sym +-right-zero >=> +-right (sym +-inverse) >=>
+                   sym +-assoc >=> +-left lc.path >=> +-right (cong -_ *-commute)
+
+          handle : (x : ℤ) -> (RelativelyPrime (int n) x) -> (isUnit [ x ])
+          handle x rp = lc->is-unit (gcd->linear-combo (relatively-prime->gcdⁱ rp))
+
+    Unit-CoprimeN-eq : (x : ℤ/nℤ n) -> (isUnit x) ≃ (CoprimeN x)
+    Unit-CoprimeN-eq x = isoToEquiv i
+      where
+      open Iso
+      i : Iso (isUnit x) (CoprimeN x)
+      i .fun = is-unit->coprime x
+      i .inv = coprime->is-unit x
+      i .rightInv c = isProp-CoprimeN {x} _ c
+      i .leftInv u = isProp-isUnit _ u
+
 
 record Totient (n : Nat) (k : Nat) : Type₀ where
   field
@@ -403,28 +500,32 @@ module _ (p : Prime') where
     begin
       φ (prime-power⁺ p (suc n))
     ==< cong cardinality fs-path >
-      cardinality (FinSet-Σ (FinSet-Fin p') (\_ -> (FinSet-Totatives (prime-power p n))))
-    ==< cardinality-Σ (FinSet-Fin p') (\_ -> (FinSet-Totatives (prime-power p n))) >
-      finiteSumᵉ (FinSet-Fin p') (\_ -> cardinality (FinSet-Totatives (prime-power p n)))
+      cardinality (FinSet-Σ (FinSet-Fin p') (\_ -> (FinSet-Totatives pⁿ)))
+    ==< cardinality-Σ (FinSet-Fin p') (\_ -> (FinSet-Totatives pⁿ)) >
+      finiteSumᵉ (FinSet-Fin p') (\_ -> cardinality (FinSet-Totatives pⁿ))
     ==< cong (\x -> finiteSumᵉ (FinSet-Fin p') (\_ -> x))
-             (φ-prime-power (n , tt) >=> sym *'-right-one) >
-      finiteSumᵉ (FinSet-Fin p') (\_ -> ((prime-power p n) -' (prime-power p (pred n))) *' 1)
-    ==< finiteSum-* {k = (prime-power p n) -' (prime-power p (pred n))} {f = \_ -> 1} >
-      ((prime-power p n) -' (prime-power p (pred n))) *' finiteSumᵉ (FinSet-Fin p') (\_ -> 1)
-    ==< cong (((prime-power p n) -' (prime-power p (pred n))) *'_)
-             (finiteSum-one >=> ℕ->Semiring-ℕ-path p') >
-      ((prime-power p n) -' (prime-power p (pred n))) *' p'
-    ==< *'-distrib-minus {prime-power p n} {prime-power p (pred n)} {p'} >
-      ((prime-power p n) *' p') -' (prime-power p (pred n) *' p')
-    ==< cong2 _-'_ (*'-commute {prime-power p n} {p'}) (*'-commute {prime-power p (pred n)} {p'}) >
-      (prime-power p (suc n)) -' (prime-power p (suc (pred n)))
-    ==<>
+             (φ-prime-power (n , tt) >=> sym *-right-one) >
+      finiteSumᵉ (FinSet-Fin p') (\_ -> (pⁿ -' pⁿ⁻¹) * 1)
+    ==< finiteSum-* {k = pⁿ -' pⁿ⁻¹} {f = \_ -> 1} >
+      (pⁿ -' pⁿ⁻¹) * finiteSumᵉ (FinSet-Fin p') (\_ -> 1)
+    ==< cong ((pⁿ -' pⁿ⁻¹) *_) (finiteSum-one >=> ℕ->Semiring-ℕ-path p') >
+      (pⁿ -' pⁿ⁻¹) * p'
+    ==< *'-distrib-minus {pⁿ} {pⁿ⁻¹} {p'} >
+      (pⁿ * p') -' (pⁿ⁻¹ * p')
+    ==< cong2 _-'_ (*-commuteᵉ pⁿ p') (*-commuteᵉ pⁿ⁻¹ p') >
       (prime-power p (suc n) -' (prime-power p n))
     end
     where
-    fs-path : (FinSet-Totatives (prime-power p (suc n))) ==
-              (FinSet-Σ (FinSet-Fin p') (\_ -> (FinSet-Totatives (prime-power p n))))
-    fs-path = (ΣProp-path isProp-isFinSet (ua (totatives-prime-power-eq'-2 (n , tt))))
+    pⁿ⁺¹ : ℕ
+    pⁿ⁺¹ = prime-power p (suc n)
+    pⁿ⁻¹ : ℕ
+    pⁿ⁻¹ = prime-power p (pred n)
+    pⁿ : ℕ
+    pⁿ = prime-power p n
+    opaque
+      fs-path : (FinSet-Totatives (prime-power p (suc n))) ==
+                (FinSet-Σ (FinSet-Fin p') (\_ -> (FinSet-Totatives (prime-power p n))))
+      fs-path = (ΣProp-path isProp-isFinSet (ua (totatives-prime-power-eq'-2 (n , tt))))
 
 -- (ℤ/nℤ* a) has φ(a) elements
 -- (ℤ/nℤ* b) has φ(b) elements
@@ -483,10 +584,7 @@ private
     private
       n = ⟨ n⁺ ⟩
 
-    -- ℤ/nℤCoprime-ℤ/nℤ*-eq : (Σ (ℤ/nℤ n) (CoprimeN n⁺)) ≃ (ℤ/nℤ* n)
-    -- ℤ/nℤCoprime-ℤ/nℤ*-eq = existential-eq (\x -> equiv⁻¹ (Unit-CoprimeN-eq n⁺ x))
-
-    uc : (x : ℤ/nℤ n) -> (Unit' x) ≃ (CoprimeN n⁺ x)
+    uc : (x : ℤ/nℤ n) -> (isUnit x) ≃ (CoprimeN n⁺ x)
     uc = Unit-CoprimeN-eq n⁺
 
   private
@@ -539,37 +637,36 @@ private
     FinSucRP-FinRP-eq {suc (suc n)} = FinSucRP-FinRP->1-eq (suc-≤ (suc-≤ zero-≤))
 
 
-
-
   module _ where
-    Totatives-FinRP-eq :
-      {n : Nat} -> Totatives n ≃
-                   Σ (Fin1 n) (\((i , _) , _) -> RelativelyPrime⁰ n i)
-    Totatives-FinRP-eq {n} = isoToEquiv i
-      where
-      open Iso
-      i : Iso (Totatives n)
-              (Σ (Fin1 n) (\((i , _) , _) -> RelativelyPrime⁰ n i))
-      i .fun (i , t) = ((i , t.pos-k) , t.k≤n) , (rp-sym t.rp)
+    opaque
+      Totatives-FinRP-eq :
+        {n : Nat} -> Totatives n ≃
+                     Σ (Fin1 n) (\((i , _) , _) -> RelativelyPrime⁰ n i)
+      Totatives-FinRP-eq {n} = isoToEquiv i
         where
-        module t = Totient t
-      i .inv (((i , p) , lt) , rp) = i , record { pos-k = p ; k≤n = lt ; rp = (rp-sym rp) }
-      i .rightInv _ = refl
-      i .leftInv _ = refl
+        open Iso
+        i : Iso (Totatives n)
+                (Σ (Fin1 n) (\((i , _) , _) -> RelativelyPrime⁰ n i))
+        i .fun (i , t) = ((i , t.pos-k) , t.k≤n) , (rp-sym t.rp)
+          where
+          module t = Totient t
+        i .inv (((i , p) , lt) , rp) = i , record { pos-k = p ; k≤n = lt ; rp = (rp-sym rp) }
+        i .rightInv _ = refl
+        i .leftInv _ = refl
 
-    Fin1RP-FinRP-eq : {n : Nat} -> (Σ (Fin1 n) (\((i , _) , _) -> RelativelyPrime⁰ n i)) ≃
-                                   (Σ (Fin n) (\(i , _) -> RelativelyPrime⁰ n (suc i)))
-    Fin1RP-FinRP-eq = reindexΣ (equiv⁻¹ (isoToEquiv isoFin1)) _
+      Fin1RP-FinRP-eq : {n : Nat} -> (Σ (Fin1 n) (\((i , _) , _) -> RelativelyPrime⁰ n i)) ≃
+                                     (Σ (Fin n) (\(i , _) -> RelativelyPrime⁰ n (suc i)))
+      Fin1RP-FinRP-eq = reindexΣ (equiv⁻¹ (isoToEquiv isoFin1)) _
 
 
-    FinRP-FinRPⁱ-eq : {n : Nat} -> (Σ (Fin n) (\(i , _) -> RelativelyPrime⁰ n i)) ≃
-                                   (Σ (Fin n) (\(i , _) -> RelativelyPrime (int n) (int i)))
-    FinRP-FinRPⁱ-eq = existential-eq (\_ -> RelativelyPrime-RelativelyPrime-eq)
+      FinRP-FinRPⁱ-eq : {n : Nat} -> (Σ (Fin n) (\(i , _) -> RelativelyPrime⁰ n i)) ≃
+                                     (Σ (Fin n) (\(i , _) -> RelativelyPrime (int n) (int i)))
+      FinRP-FinRPⁱ-eq = existential-eq (\_ -> RelativelyPrime-RelativelyPrime-eq)
 
-    FinRP-ℤ/nℤCoprime-eq : (n⁺ : Nat⁺) ->
-      (Σ (Fin ⟨ n⁺ ⟩) (\(i , _) -> RelativelyPrime (int ⟨ n⁺ ⟩) (int i))) ≃
-      (Σ (ℤ/nℤ ⟨ n⁺ ⟩) (CoprimeN n⁺))
-    FinRP-ℤ/nℤCoprime-eq n⁺ = equiv⁻¹ (reindexΣ (equiv⁻¹ (ℤ/nℤ-Fin-eq n⁺)) (CoprimeN n⁺))
+      FinRP-ℤ/nℤCoprime-eq : (n⁺ : Nat⁺) ->
+        (Σ (Fin ⟨ n⁺ ⟩) (\(i , _) -> RelativelyPrime (int ⟨ n⁺ ⟩) (int i))) ≃
+        (Σ (ℤ/nℤ ⟨ n⁺ ⟩) (CoprimeN n⁺))
+      FinRP-ℤ/nℤCoprime-eq n⁺ = equiv⁻¹ (reindexΣ (equiv⁻¹ (ℤ/nℤ-Fin-eq n⁺)) (CoprimeN n⁺))
 
 
 
@@ -577,24 +674,30 @@ private
       private
         n = ⟨ n⁺ ⟩
 
-      ℤ/nℤCoprime-ℤ/nℤ*-eq : (Σ (ℤ/nℤ n) (CoprimeN n⁺)) ≃ (Σ (ℤ/nℤ n) Unit')
+      ℤ/nℤCoprime-ℤ/nℤ*-eq : (Σ (ℤ/nℤ n) (CoprimeN n⁺)) ≃ ℤ/nℤˣ n
       ℤ/nℤCoprime-ℤ/nℤ*-eq = existential-eq (\x -> (equiv⁻¹ (Unit-CoprimeN-eq n⁺ x)))
 
-      Totatives-ℤ/nℤ*-eq : Totatives n ≃ (ℤ/nℤ* n)
-      Totatives-ℤ/nℤ*-eq =
-        Totatives-FinRP-eq >eq> Fin1RP-FinRP-eq >eq> FinSucRP-FinRP-eq >eq>
-        FinRP-FinRPⁱ-eq >eq> FinRP-ℤ/nℤCoprime-eq n⁺ >eq> ℤ/nℤCoprime-ℤ/nℤ*-eq
+      opaque
+        Totatives-ℤ/nℤ*-eq : Totatives n ≃ (ℤ/nℤˣ n)
+        Totatives-ℤ/nℤ*-eq =
+          Totatives-FinRP-eq >eq>
+          Fin1RP-FinRP-eq >eq>
+          FinSucRP-FinRP-eq >eq>
+          FinRP-FinRPⁱ-eq >eq>
+          FinRP-ℤ/nℤCoprime-eq n⁺ >eq>
+          ℤ/nℤCoprime-ℤ/nℤ*-eq
 
     module _ (a⁺ b⁺ : Nat⁺) (rp : RelativelyPrime⁺ a⁺ b⁺) where
       private
         a = ⟨ a⁺ ⟩
         b = ⟨ b⁺ ⟩
 
-      Totatives-rp-eq : Totatives (a *' b) ≃ (Totatives a × Totatives b)
-      Totatives-rp-eq =
-        Totatives-ℤ/nℤ*-eq (a⁺ *⁺ b⁺) >eq>
-        equiv⁻¹ (ℤ/nℤ*-×-eq rp) >eq>
-        ×-equiv (equiv⁻¹ (Totatives-ℤ/nℤ*-eq a⁺)) (equiv⁻¹ (Totatives-ℤ/nℤ*-eq b⁺))
+      opaque
+        Totatives-rp-eq : Totatives (a * b) ≃ (Totatives a × Totatives b)
+        Totatives-rp-eq =
+          Totatives-ℤ/nℤ*-eq (a⁺ *⁺ b⁺) >eq>
+          equiv⁻¹ (ℤ/nℤˣ-×-eq rp) >eq>
+          ×-equiv (equiv⁻¹ (Totatives-ℤ/nℤ*-eq a⁺)) (equiv⁻¹ (Totatives-ℤ/nℤ*-eq b⁺))
 
 
 Multiplicative-φ : Multiplicative φ
@@ -614,7 +717,7 @@ Multiplicative-φ .snd a b rp =
   where
   a' = ⟨ a ⟩
   b' = ⟨ b ⟩
-  path1 : (FinSet-Totatives (a' *' b')) == (FinSet-× (FinSet-Totatives a') (FinSet-Totatives b'))
+  path1 : (FinSet-Totatives (a' * b')) == (FinSet-× (FinSet-Totatives a') (FinSet-Totatives b'))
   path1 = ΣProp-path isProp-isFinSet (ua (Totatives-rp-eq a b rp))
 
 φ-0< : (n : Nat⁺) -> 0 < φ n
