@@ -18,6 +18,16 @@ ua : ∀ {A B : Type ℓ} -> A ≃ B -> A == B
 ua {A = A} {B = B} e i = Glue B (\ { (i = i0) -> (A , e)
                                    ; (i = i1) -> (B , idEquiv B) })
 
+ua-glue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : Partial (~ i) A)
+            (y : Sub B _ (\ { (i = i0) -> e .fst (x 1=1) })) ->
+            ua e i
+ua-glue e i x y = glue (λ { (i = i0) → x 1=1 ; (i = i1) → outS y }) (outS y)
+
+ua-value-pathp : ∀ {A B : Type ℓ} (eq : A ≃ B) (a : A) (b : B) -> eqFun eq a == b ->
+                 PathP (\i -> ua eq i) a b
+ua-value-pathp eq a b p i = glue (λ { (i = i0) → a ; (i = i1) → b }) (p i)
+
+
 private
   uaIdEquiv : ∀ {A : Type ℓ} -> ua (idEquiv A) == refl
   uaIdEquiv {A = A} i j = Glue A {φ = i ∨ j ∨ ~ j} (\_ -> A , idEquiv A)
