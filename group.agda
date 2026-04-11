@@ -114,3 +114,11 @@ opaque
     where
     module f' = Groupʰ f'
     module g' = Groupʰ g'
+
+module _ {ℓ : Level} ((D , G) : Group ℓ) where
+  private
+    module G = GroupStr G
+
+  record isAbelian  : Type ℓ where
+    field
+      ∙-commute : ∀ (a b : D) -> a G.∙ b == b G.∙ a
