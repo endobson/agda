@@ -91,14 +91,17 @@ private
 ×-flip : {A : Type ℓ₁} {B : Type ℓ₂} -> (A × B) == (B × A)
 ×-flip {A = A} {B} = ua ×-flip-eq
 
-×-assoc : (A B C : Type ℓ) -> ((A × B) × C) == (A × (B × C))
-×-assoc A B C = ua (isoToEquiv i)
+×-assoc-iso : {ℓA ℓB ℓC : Level} (A : Type ℓA) (B : Type ℓB) (C : Type ℓC) -> Iso ((A × B) × C) (A × (B × C))
+×-assoc-iso A B C = i
   where
   i : Iso ((A × B) × C) (A × (B × C))
   i .fun ((a , b) , c) = (a , (b , c))
   i .inv (a , (b , c)) = ((a , b) , c)
   i .rightInv _ = refl
   i .leftInv _ = refl
+
+×-assoc : (A B C : Type ℓ) -> ((A × B) × C) == (A × (B × C))
+×-assoc A B C = ua (isoToEquiv (×-assoc-iso A B C))
 
 instance
   ×-InfinityMonoid : InfinityMonoid (Type ℓ-zero)
