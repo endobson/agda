@@ -264,3 +264,43 @@ module _ (hA : isSet A) (hB : isSet B) {iso₁ iso₂ : Iso A B}
 
 isProp->iso : (A -> B) -> (B -> A) -> isProp A -> isProp B -> Iso A B
 isProp->iso f g ha hb = iso f g (\_ -> hb _ _) (\_ -> ha _ _)
+
+
+module _ {ℓA ℓQ : Level} {A : Type ℓA} {a₁ : A}
+         (Q : (a₂ : A) -> a₁ == a₂ -> Type ℓQ) where
+  singletonInduction₂-iso : Iso (Σ[ a₂ ∈ A ] Σ[ p ∈ (a₁ == a₂) ] (Q a₂ p)) (Q a₁ refl)
+  singletonInduction₂-iso = iso f b fb bf
+    where
+    b : (Q a₁ refl) -> (Σ[ a₂ ∈ A ] Σ[ p ∈ (a₁ == a₂) ] (Q a₂ p))
+    b q = (a₁ , refl , q)
+    f' : (l : I) -> ((a , p , q) : Σ[ a₂ ∈ A ] Σ[ p ∈ (a₁ == a₂) ] (Q a₂ p)) ->
+                    Q (p l) (\i -> p (i ∧ l))
+    f' l (a , p , q) = transp (\j -> Q (p (~ j ∨ l)) (\i -> p ((~ j ∨ l) ∧ i))) l q
+
+    f : Σ[ a₂ ∈ A ] Σ[ p ∈ (a₁ == a₂) ] (Q a₂ p) -> Q a₁ refl
+    f = f' i0
+
+    bf : ∀ x -> b (f x) == x
+    bf (a , p , q) l = p l , (\j -> p (l ∧ j)) , f' l (a , p , q)
+
+    fb : ∀ x -> f (b x) == x
+    fb q j = transp (\i -> Q a₁ refl) j q
+
+module _ {ℓA ℓQ : Level} {A : Type ℓA} {a₂ : A}
+         (Q : (a₁ : A) -> a₁ == a₂ -> Type ℓQ) where
+  singletonInduction₁-iso : Iso (Σ[ a₁ ∈ A ] Σ[ p ∈ (a₁ == a₂) ] (Q a₁ p)) (Q a₂ refl)
+  singletonInduction₁-iso = iso f b fb bf
+    where
+    b : (Q a₂ refl) -> (Σ[ a₁ ∈ A ] Σ[ p ∈ (a₁ == a₂) ] (Q a₁ p))
+    b q = (a₂ , refl , q)
+    f' : (l : I) -> ((_ , p , _) : Σ[ a₁ ∈ A ] Σ[ p ∈ (a₁ == a₂) ] (Q a₁ p)) ->
+                    Q (p l) (\i -> p (i ∨ l))
+    f' l (_ , p , q) = transp (\j -> Q (p (j ∧ l)) (\i -> p ((j ∧ l) ∨ i))) (~ l) q
+
+    f : Σ[ a₁ ∈ A ] Σ[ p ∈ (a₁ == a₂) ] (Q a₁ p) -> Q a₂ refl
+    f = f' i1
+
+    bf : ∀ x -> b (f x) == x
+    bf (a , p , q) l = p (~ l) , (\j -> p (~ l ∨ j)) , f' (~ l) (a , p , q)
+    fb : ∀ x -> f (b x) == x
+    fb q j = transp (\i -> Q a₂ refl) j q

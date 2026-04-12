@@ -32,6 +32,9 @@ _>∙>_ : {ℓA ℓB ℓC : Level} {A∙ : Type∙ ℓA} {B∙ : Type∙ ℓB} {
 (->∙-cons f₁ p₁) >∙> (->∙-cons f₂ p₂) =
   (->∙-cons (f₂ ∘ f₁) (cong f₂ p₁ >=> p₂))
 
+const->∙ : {ℓA ℓB : Level} {A∙@(A , ★A) : Type∙ ℓA} {B∙@(B , ★B) : Type∙ ℓB} -> (A∙ ->∙ B∙)
+const->∙ = ->∙-cons _ refl
+
 
 module _ {ℓA ℓB : Level} (A∙@(A , ★A) : Type∙ ℓA) (B∙@(B , ★B) : Type∙ ℓB) where
   _≃∙_ : Type (ℓ-max ℓA ℓB)
