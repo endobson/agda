@@ -460,3 +460,27 @@ module _ {ℓA ℓB ℓC : Level} (A : Type ℓA) (B : Type ℓB) (C : Type ℓC
 
       c-path : Pushout cf cg == Join A (Join B C)
       c-path i = Pushout (funExt cf-path i) (funExt cg-path i)
+
+module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB} where
+  Join-swap-iso : Iso (Join A B) (Join B A)
+  Join-swap-iso = iso fwd bkw fb bf
+    where
+    fwd : (Join A B) -> (Join B A)
+    fwd (inj-l a) = inj-r a
+    fwd (inj-r b) = inj-l b
+    fwd (glue (a , b) i) = glue (b , a) (~ i)
+
+    bkw : (Join B A) -> (Join A B)
+    bkw (inj-l b) = inj-r b
+    bkw (inj-r a) = inj-l a
+    bkw (glue (b , a) i) = glue (a , b) (~ i)
+
+    fb : ∀ x -> fwd (bkw x) == x
+    fb (inj-l c) = refl
+    fb (inj-r b) = refl
+    fb (glue a i) = refl
+
+    bf : ∀ x -> bkw (fwd x) == x
+    bf (inj-l b) = refl
+    bf (inj-r c) = refl
+    bf (glue a i) = refl
