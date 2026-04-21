@@ -23,6 +23,9 @@ ua-glue : ∀ {A B : Type ℓ} (e : A ≃ B) (i : I) (x : Partial (~ i) A)
             ua e i
 ua-glue e i x y = glue (λ { (i = i0) → x 1=1 ; (i = i1) → outS y }) (outS y)
 
+ua-glue₀ : {ℓ : Level} {A B : Type ℓ} (eq : A ≃ B) (i : I) (a : A) -> ua eq i
+ua-glue₀ eq i a = ua-glue eq i (\_ -> a) (inS (eqFun eq a))
+
 ua-value-pathp : ∀ {A B : Type ℓ} (eq : A ≃ B) (a : A) (b : B) -> eqFun eq a == b ->
                  PathP (\i -> ua eq i) a b
 ua-value-pathp eq a b p i = glue (λ { (i = i0) → a ; (i = i1) → b }) (p i)
@@ -117,6 +120,9 @@ isoToPath-id-iso = cong ua isoToEquiv-id-iso >=> uaIdEquiv
 
 transport-ua : (e : A1 ≃ A2) -> transport (ua e) == ⟨ e ⟩
 transport-ua (f , _) j x = transportRefl (f x) j
+
+ua-filler : (e : A1 ≃ A2) (a : A1) -> PathP (\j -> ua e j) a (eqFun e a)
+ua-filler e a i = ua-glue₀ e i a
 
 sym-ua : (eq : A1 ≃ A2) -> sym (ua eq) == ua (equiv⁻¹ eq)
 sym-ua {A1 = A1} = EquivJ (\_ eq -> sym (ua eq) == ua (equiv⁻¹ eq)) path
