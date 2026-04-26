@@ -33,27 +33,3 @@ module _ {ℓA ℓB ℓC ℓR : Level} {A : Type ℓA} {B : Type ℓB} {C : Type
  Pushout-elim (inj-l b) = F b
  Pushout-elim (inj-r c) = G c
  Pushout-elim (glue a i) = paths a i
-
-module _ {ℓA ℓB ℓC : Level} {A : Type ℓA} {B : Type ℓB} {C : Type ℓC}
-         (f : A -> B) (g : A -> C) where
-  flip-Pushout-iso : Iso (Pushout f g) (Pushout g f)
-  flip-Pushout-iso = iso fwd bkw fb bf
-    where
-    fwd : (Pushout f g) -> (Pushout g f)
-    fwd (inj-l b) = inj-r b
-    fwd (inj-r c) = inj-l c
-    fwd (glue a i) = glue a (~ i)
-
-    bkw : (Pushout g f) -> (Pushout f g)
-    bkw (inj-l c) = inj-r c
-    bkw (inj-r b) = inj-l b
-    bkw (glue a i) = glue a (~ i)
-
-    fb : ∀ x -> fwd (bkw x) == x
-    fb (inj-l _) = refl
-    fb (inj-r _) = refl
-    fb (glue _ _) = refl
-    bf : ∀ x -> bkw (fwd x) == x
-    bf (inj-l _) = refl
-    bf (inj-r _) = refl
-    bf (glue _ _) = refl
