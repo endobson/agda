@@ -147,6 +147,119 @@ compPath-sym p = contract >=> ∙∙-refl
   contract j = (\i -> p (i ∧ (~ j))) >=> (\i -> p (~ i ∧ (~ j)))
 
 
+module _ {ℓ : Level} {A : Type ℓ} where
+  private
+    compPath-filler² : {x y z : A} (p : x == y) (q : y == z) (k i j : I) -> A
+    compPath-filler² p q k i j =
+      hfill
+        (\k -> \{ (i = i0) -> p (j ∨ ~ k)
+                ; (i = i1) -> doubleCompPath-filler p refl q k j
+                ; (j = i0) -> p (~ k)
+                ; (j = i1) -> q (i ∧ k)
+                })
+        (inS (p i1)) k
+
+  opaque
+    compPath/doubleCompPath-filler-refl :
+      (x : A) -> compPath-filler (reflᵉ x) (reflᵉ x) ==
+                 doubleCompPath-filler (reflᵉ x) (reflᵉ x) (reflᵉ x)
+    compPath/doubleCompPath-filler-refl x =
+      compPath-filler²-square₂
+      where
+      junk : Path (x == x) refl refl
+      junk j k =
+        hcomp (\l -> (\{ (j = i0) -> x
+                       ; (j = i1) -> x
+                       ; (k = i0) -> x
+                       ; (k = i1) -> x
+                       }))
+          x
+
+      junk=refl : junk == refl
+      junk=refl l j k =
+        hfill (\l -> (\{ (j = i0) -> x
+                       ; (j = i1) -> x
+                       ; (k = i0) -> x
+                       ; (k = i1) -> x
+                       }))
+          (inS x) (~ l)
+
+      compPath-filler²-square₁ :
+       PathP (\k -> Square (\j -> junk j k) ((reflᵉ x) >=> (reflᵉ x)) (reflᵉ x) (reflᵉ x))
+             (compPath-filler (reflᵉ x) (reflᵉ x))
+             (doubleCompPath-filler (reflᵉ x) (reflᵉ x) (reflᵉ x))
+      compPath-filler²-square₁ l i j =
+        compPath-filler² (reflᵉ x) (reflᵉ x)
+          (~ l ∨ i) (i ∨ l) j
+
+      compPath-filler²-square₂ :
+        Path (Square refl ((reflᵉ x) >=> (reflᵉ x)) (reflᵉ x) (reflᵉ x))
+             (compPath-filler (reflᵉ x) (reflᵉ x))
+             (doubleCompPath-filler (reflᵉ x) (reflᵉ x) (reflᵉ x))
+      compPath-filler²-square₂ =
+        transport
+          (\l ->
+            PathP (\k -> Square (\j -> (junk=refl l) j k) ((reflᵉ x) >=> (reflᵉ x)) (reflᵉ x) (reflᵉ x))
+                  (compPath-filler (reflᵉ x) (reflᵉ x))
+                  (doubleCompPath-filler (reflᵉ x) (reflᵉ x) (reflᵉ x)))
+          compPath-filler²-square₁
+
+module _ {ℓ : Level} {A : Type ℓ} where
+  private
+    compPath-filler'² : {x y z : A} (p : x == y) (q : y == z) (k i j : I) -> A
+    compPath-filler'² p q k i j =
+      hfill
+        (\ k -> \{ (j = i0) -> p (i ∨ ~ k)
+                 ; (j = i1) -> q k
+                 ; (i = i0) -> doubleCompPath-filler p refl q k j
+                 ; (i = i1) -> q (j ∧ k)
+                 })
+        (inS (q i0)) k
+
+  compPath/doubleCompPath-filler'-refl :
+    (x : A) -> compPath-filler' (reflᵉ x) (reflᵉ x) ==
+               sym (doubleCompPath-filler (reflᵉ x) (reflᵉ x) (reflᵉ x))
+  compPath/doubleCompPath-filler'-refl x =
+    compPath-filler'²-square₂
+    where
+    junk : Path (x == x) refl refl
+    junk j l =
+      hcomp (\m -> \{ (l = i0) -> x
+                    ; (l = i1) -> x
+                    ; (j = i0) -> x
+                    ; (j = i1) -> x
+                    })
+        x
+
+    junk=refl : junk == refl
+    junk=refl l j k =
+      hfill (\l -> (\{ (j = i0) -> x
+                     ; (j = i1) -> x
+                     ; (k = i0) -> x
+                     ; (k = i1) -> x
+                     }))
+        (inS x) (~ l)
+
+    compPath-filler'²-square₁ :
+      PathP (\l -> Square (reflᵉ x >=> reflᵉ x) (\j -> junk j l) (reflᵉ x) (reflᵉ x))
+        (compPath-filler' (reflᵉ x) (reflᵉ x))
+        (sym (doubleCompPath-filler (reflᵉ x) (reflᵉ x) (reflᵉ x)))
+    compPath-filler'²-square₁ l j k = compPath-filler'² (reflᵉ x) (reflᵉ x) (~ j ∨ ~ l) (j ∧ ~ l) k
+
+    compPath-filler'²-square₂ :
+      Path (Square (reflᵉ x >=> reflᵉ x) (reflᵉ x) (reflᵉ x) (reflᵉ x))
+        (compPath-filler' (reflᵉ x) (reflᵉ x))
+        (sym (doubleCompPath-filler (reflᵉ x) (reflᵉ x) (reflᵉ x)))
+    compPath-filler'²-square₂ =
+      transport
+        (\l ->
+          PathP (\k -> Square ((reflᵉ x) >=> (reflᵉ x)) (\j -> (junk=refl l) j k) (reflᵉ x) (reflᵉ x))
+                (compPath-filler' (reflᵉ x) (reflᵉ x))
+                (sym (doubleCompPath-filler (reflᵉ x) (reflᵉ x) (reflᵉ x))))
+        compPath-filler'²-square₁
+
+
+
 -- Path composition with transport
 transport-twice : ∀ {A B C : Type ℓ} (p : B == C) (q : A == B) (x : A)
                   -> transport p (transport q x) == (transport (q >=> p) x)
@@ -304,6 +417,112 @@ module _ {ℓA1 ℓA2 : Level} {A1 : Type ℓA1} {A2 : Type ℓA2} (f : A1 -> A2
             center
     step₂-refl k i j = (doubleCompPath-filler refl (reflᵉ (f x)) refl (i ∧ ~ k) j)
 
+
+private
+  module _ {ℓA1 ℓA2 : Level} {A1 : Type ℓA1} {A2 : Type ℓA2} (f : A1 -> A2) where
+    cong-compPath-filler : {x y z : A1} (p : x == y) (q : y == z) ->
+      PathP
+        (\k -> PathP (\i -> f x == f (q i)) (cong f p) (cong-trans f p q k))
+        (\i j -> f (compPath-filler p q i j))
+        (compPath-filler (cong f p) (cong f q))
+    cong-compPath-filler {x} {y} {z} = \p q -> J (P2 x y p) (P2-refl x y p) q
+      where
+      module _ (x : A1) where
+        P1 : (y : A1) -> x == y -> Type _
+        P1 y p =
+          PathP (\k -> PathP (\i -> f x == f (q i)) (cong f p) (cong-trans f p q k))
+            (\i j -> f (compPath-filler p q i j))
+            (compPath-filler (cong f p) (cong f q))
+          where
+          q = reflᵉ y
+
+        P1-refl : P1 x refl
+        P1-refl = ans
+          where
+
+          ans' : PathP (\i -> reflᵉ (f x) == (cong-trans f (reflᵉ x) (reflᵉ x) i))
+                       (cong (cong f) (sym (∙∙-refl {x = x})))
+                       (sym (∙∙-refl {x = f x}))
+          ans' j i = cong-trans-refl-both f x (~ i) j
+
+          ans :
+            PathP (\k -> PathP (\i -> f x == f x) refl (cong-trans f refl refl k))
+              (\i j -> f (compPath-filler (reflᵉ x) (reflᵉ x) i j))
+              (compPath-filler refl refl)
+          ans = transP-mid
+            (cong (cong (cong f)) (compPath/doubleCompPath-filler-refl x))
+            ans'
+            (sym (compPath/doubleCompPath-filler-refl (f x)))
+
+
+      module _ (x y : A1) (p : x == y) where
+        P2 : (z : A1) -> y == z -> Type _
+        P2 z q =
+          PathP (\k -> PathP (\i -> f x == f (q i)) (cong f p) (cong-trans f p q k))
+            (\i j -> f (compPath-filler p q i j))
+            (compPath-filler (cong f p) (cong f q))
+
+        P2-refl : P2 y refl
+        P2-refl = J (P1 x) (P1-refl x) p
+
+    cong-compPath-filler' : {x y z : A1} (p : x == y) (q : y == z) ->
+      PathP
+        (\k -> PathP (\i -> f (p i) == f z) (cong-trans f p q k) (cong f q))
+        (\i j -> f (compPath-filler' p q i j))
+        (compPath-filler' (cong f p) (cong f q))
+    cong-compPath-filler' {x} {y} {z} = \p q -> J (P2 x y p) (P2-refl x y p) q
+      where
+      module _ (x : A1) where
+        P1 : (y : A1) -> x == y -> Type _
+        P1 y p =
+          PathP
+            (\k -> PathP (\i -> f (p i) == f y) (cong-trans f p q k) (cong f q))
+            (\i j -> f (compPath-filler' p q i j))
+            (compPath-filler' (cong f p) (cong f q))
+          where
+          q = reflᵉ y
+
+        P1-refl : P1 x refl
+        P1-refl = ans
+          where
+
+          ans' : PathP (\i -> (cong-trans f (reflᵉ x) (reflᵉ x) i) == reflᵉ (f x))
+                       (cong (cong f) (∙∙-refl {x = x}))
+                       (∙∙-refl {x = f x})
+          ans' j i = cong-trans-refl-both f x i j
+
+          ans :
+            PathP (\k -> PathP (\i -> f x == f x) (cong-trans f refl refl k) (cong f refl))
+              (\i j -> f (compPath-filler' (reflᵉ x) (reflᵉ x) i j))
+              (compPath-filler' (cong f refl) (cong f refl))
+          ans =
+            transP-mid
+            (cong (cong (\p -> cong f (sym p))) (compPath/doubleCompPath-filler'-refl x))
+            ans'
+            (cong (cong sym) (sym (compPath/doubleCompPath-filler'-refl (f x))))
+
+
+      module _ (x y : A1) (p : x == y) where
+        P2 : (z : A1) -> y == z -> Type _
+        P2 z q =
+         PathP (\k -> PathP (\i -> f (p i) == f z) (cong-trans f p q k) (cong f q))
+           (\i j -> f (compPath-filler' p q i j))
+           (compPath-filler' (cong f p) (cong f q))
+
+        P2-refl : P2 y refl
+        P2-refl = J (P1 x) (P1-refl x) p
+
+
+
+  module _ {ℓ1 ℓ2 : Level} {A1 : Type ℓ1} {A2 : Type ℓ2}
+           (f : A1 -> A2) {x y : A1} (p : x == y) where
+    cong-trans-refl-left :
+      PathP (\j -> Path (f x == f y)
+                    (cong f (compPath-refl-left p j))
+                    (compPath-refl-left (cong f p) j))
+        (cong-trans f refl p)
+        (reflᵉ (cong f p))
+    cong-trans-refl-left i j = cong-compPath-filler' f refl p j i
 
 
 -- Substitution
