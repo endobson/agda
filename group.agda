@@ -53,72 +53,94 @@ record AbGroupStr {ℓ : Level} (Domain : Type ℓ) : Type ℓ where
 Group : (ℓ : Level) -> Type (ℓ-suc ℓ)
 Group ℓ = Σ[ D ∈ Type ℓ ] (GroupStr D)
 
-record Groupʰᵉ
-    {ℓ₁ ℓ₂ : Level}
-    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    (G₁ : GroupStr D₁) (G₂ : GroupStr D₂)
-    (f : D₁ -> D₂) : Type (ℓ-max ℓ₁ ℓ₂)
-    where
-  module G₁ = GroupStr G₁
-  module G₂ = GroupStr G₂
+module Group {ℓ : Level} (G : Group ℓ) where
+  open GroupStr (snd G) public
 
-  field
-    preserves-ε : f G₁.ε == G₂.ε
-    preserves-∙ : ∀ x y -> f (x G₁.∙ y) == (f x) G₂.∙ (f y)
-    preserves-inverse : ∀ x -> f (G₁.inverse x) == (G₂.inverse (f x))
+  Domain : Type ℓ
+  Domain = ⟨ G ⟩
 
-Groupʰ :
-    {ℓ₁ ℓ₂ : Level}
-    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {{G₁ : GroupStr D₁}} {{G₂ : GroupStr D₂}}
-    (f : D₁ -> D₂)
-    -> Type (ℓ-max ℓ₁ ℓ₂)
-Groupʰ {{G₁ = G₁}} {{G₂ = G₂}} f = Groupʰᵉ G₁ G₂ f
+  D : Type ℓ
+  D = Domain
 
-module Groupʰ {ℓ₁ ℓ₂ : Level}
-    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {G₁ : GroupStr D₁} {G₂ : GroupStr D₂}
-    {f : D₁ -> D₂}
-    (cm : Groupʰᵉ G₁ G₂ f) where
-  open Groupʰᵉ cm public
-
-opaque
-  isProp-Groupʰ :
-    {ℓ₁ ℓ₂ : Level}
-    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂}
-    {G₁ : GroupStr D₁} {G₂ : GroupStr D₂}
-    {f : D₁ -> D₂} -> isProp (Groupʰᵉ G₁ G₂ f)
-  isProp-Groupʰ {D₁ = D₁} {D₂} {G₁} {G₂} h₁ h₂ i = record
-    { preserves-ε = isSet-D₂ _ _ h₁.preserves-ε h₂.preserves-ε i
-    ; preserves-∙ = \x y -> isSet-D₂ _ _ (h₁.preserves-∙ x y) (h₂.preserves-∙ x y) i
-    ; preserves-inverse = \x -> isSet-D₂ _ _ (h₁.preserves-inverse x) (h₂.preserves-inverse x) i
-    }
-    where
-    module h₁ = Groupʰ h₁
-    module h₂ = Groupʰ h₂
-
-    isSet-D₂ : isSet D₂
-    isSet-D₂ = GroupStr.isSet-Domain G₂
-
-  Groupʰ-∘ :
-    {ℓ₁ ℓ₂ ℓ₃ : Level}
-    {D₁ : Type ℓ₁} {D₂ : Type ℓ₂} {D₃ : Type ℓ₃}
-    {G₁ : GroupStr D₁} {G₂ : GroupStr D₂} {G₃ : GroupStr D₃}
-    {f : D₂ -> D₃} {g : D₁ -> D₂} ->
-    (Groupʰᵉ G₂ G₃ f) -> (Groupʰᵉ G₁ G₂ g) -> (Groupʰᵉ G₁ G₃ (f ∘ g))
-  Groupʰ-∘ {f = f} {g = g} f' g' = record
-    { preserves-ε = (cong f g'.preserves-ε) >=> f'.preserves-ε
-    ; preserves-∙ = \x y -> (cong f (g'.preserves-∙ x y)) >=> f'.preserves-∙ (g x) (g y)
-    ; preserves-inverse = \x -> cong f (g'.preserves-inverse x) >=> f'.preserves-inverse (g x)
-    }
-    where
-    module f' = Groupʰ f'
-    module g' = Groupʰ g'
-
-module _ {ℓ : Level} ((D , G) : Group ℓ) where
+module _ {ℓ₁ ℓ₂ : Level}
+         (G₁@(D₁ , GS₁) : Group ℓ₁)
+         (G₂@(D₂ , GS₂) : Group ℓ₂)
+  where
   private
-    module G = GroupStr G
+    module G₁ = Group G₁
+    module G₂ = Group G₂
+
+  record isGroupʰ (f : G₁.D -> G₂.D) : Type (ℓ-max ℓ₁ ℓ₂) where
+    field
+      preserves-ε : f G₁.ε == G₂.ε
+      preserves-∙ : ∀ x y -> f (x G₁.∙ y) == (f x) G₂.∙ (f y)
+      preserves-inverse : ∀ x -> f (G₁.inverse x) == (G₂.inverse (f x))
+
+
+  Groupʰ : Type (ℓ-max ℓ₁ ℓ₂)
+  Groupʰ = Σ (G₁.D -> G₂.D) isGroupʰ
+
+
+module Groupʰ {ℓ₁ ℓ₂ : Level} {G₁ : Group ℓ₁} {G₂ : Group ℓ₂}
+              (h : Groupʰ G₁ G₂) where
+  private
+    module G₁ = Group G₁
+    module G₂ = Group G₂
+
+  open isGroupʰ (snd h) public
+
+  f : G₁.D -> G₂.D
+  f = fst h
+
+
+module _ {ℓ₁ ℓ₂ : Level} {G₁ : Group ℓ₁} {G₂ : Group ℓ₂} where
+  private
+    module G₁ = Group G₁
+    module G₂ = Group G₂
+
+  opaque
+    isProp-isGroupʰ : {f : G₁.D -> G₂.D} -> isProp (isGroupʰ G₁ G₂ f)
+    isProp-isGroupʰ h₁ h₂ i = record
+      { preserves-ε = isSet-D₂ _ _ h₁.preserves-ε h₂.preserves-ε i
+      ; preserves-∙ = \x y -> isSet-D₂ _ _ (h₁.preserves-∙ x y) (h₂.preserves-∙ x y) i
+      ; preserves-inverse = \x -> isSet-D₂ _ _ (h₁.preserves-inverse x) (h₂.preserves-inverse x) i
+      }
+      where
+      module h₁ = isGroupʰ h₁
+      module h₂ = isGroupʰ h₂
+
+      isSet-D₂ : isSet G₂.D
+      isSet-D₂ = G₂.isSet-Domain
+
+module _ {ℓ₁ ℓ₂ ℓ₃ : Level} {G₁ : Group ℓ₁} {G₂ : Group ℓ₂} {G₃ : Group ℓ₂} where
+  private
+    module G₁ = Group G₁
+    module G₂ = Group G₂
+    module G₃ = Group G₃
+
+  ∘-isGroupʰ :
+    {f : G₂.D -> G₃.D} {g : G₁.D -> G₂.D} ->
+    (isGroupʰ G₂ G₃ f) -> (isGroupʰ G₁ G₂ g) -> (isGroupʰ G₁ G₃ (f ∘ g))
+  ∘-isGroupʰ {f = f} {g = g} fʰ gʰ = record
+    { preserves-ε = (cong f gʰ.preserves-ε) >=> fʰ.preserves-ε
+    ; preserves-∙ = \x y -> (cong f (gʰ.preserves-∙ x y)) >=> fʰ.preserves-∙ (g x) (g y)
+    ; preserves-inverse = \x -> cong f (gʰ.preserves-inverse x) >=> fʰ.preserves-inverse (g x)
+    }
+    where
+    module fʰ = isGroupʰ fʰ
+    module gʰ = isGroupʰ gʰ
+
+  ∘-Groupʰ : (Groupʰ G₂ G₃) -> (Groupʰ G₁ G₂) -> (Groupʰ G₁ G₃)
+  ∘-Groupʰ (f , fʰ) (g , gʰ) = f ∘ g , ∘-isGroupʰ fʰ gʰ
+
+  _>Groupʰ>_ : (Groupʰ G₁ G₂) -> (Groupʰ G₂ G₃) -> (Groupʰ G₁ G₃)
+  f >Groupʰ> g = ∘-Groupʰ g f
+
+
+module _ {ℓ : Level} (G : Group ℓ) where
+  private
+    module G = Group G
 
   record isAbelian  : Type ℓ where
     field
-      ∙-commute : ∀ (a b : D) -> a G.∙ b == b G.∙ a
+      ∙-commute : ∀ (a b : G.D) -> a G.∙ b == b G.∙ a

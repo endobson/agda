@@ -155,3 +155,7 @@ module _ {ℓ : Level} (D : Type ℓ) {{ACM : AdditiveCommMonoid D}}
     ; ∙-left-inverse = u*-left-inverse
     ; ∙-right-inverse = u*-right-inverse
     }
+
+
+  UnitGroup : Group ℓ
+  UnitGroup = Unit D , GroupStr-u*

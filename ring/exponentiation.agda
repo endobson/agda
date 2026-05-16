@@ -124,8 +124,8 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
           sym u*-assoc >=>
           cong (_u* (b u^ℤ y)) (sym (u^ℤ-sub1 b x))
 
-      Groupʰ-u^ℤ : (base : Unit D) -> Groupʰᵉ GroupStr-ℤ+ (GroupStr-u* D) (base u^ℤ_)
-      Groupʰ-u^ℤ base = record
+      isGroupʰ-u^ℤ : (base : Unit D) -> isGroupʰ ℤ-Group (UnitGroup D) (base u^ℤ_)
+      isGroupʰ-u^ℤ base = record
         { preserves-ε = refl
         ; preserves-∙ = preserves-∙
         ; preserves-inverse = preserves-inverse
@@ -135,3 +135,6 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
         preserves-∙ x y = u^ℤ-distrib-+ {base} {x} {y}
         preserves-inverse : (x : ℤ) -> (base u^ℤ (- x)) == (u1/ (base u^ℤ x))
         preserves-inverse x = u^ℤ-preserves-inverse {base} {x}
+
+      u^ℤʰ : (base : Unit D) -> Groupʰ ℤ-Group (UnitGroup D)
+      u^ℤʰ base = base u^ℤ_ , isGroupʰ-u^ℤ base
