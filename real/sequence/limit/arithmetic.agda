@@ -8,8 +8,11 @@ open import additive-group.instances.real
 open import base
 open import equality
 open import heyting-field.instances.rational
+open import metric-space.uniformly-continuous
 open import nat
 open import order
+open import metric-space
+open import metric-space.instances.real
 open import order.instances.nat
 open import order.instances.rational
 open import order.instances.real
@@ -19,6 +22,7 @@ open import order.minmax.instances.rational
 open import order.minmax.instances.real
 open import ordered-additive-group
 open import ordered-additive-group.instances.rational
+open import ordered-additive-group.instances.real
 open import ordered-semiring
 open import ordered-semiring.instances.rational
 open import ordered-semiring.instances.real
@@ -27,11 +31,14 @@ open import rational
 open import rational.order
 open import rational.proper-interval
 open import real
+open import real.rational
 open import real.arithmetic
+open import real.arithmetic.rational
 open import real.epsilon-bounded
 open import real.epsilon-bounded.base
 open import real.interval
 open import real.sequence.limit
+open import real.sequence.uniform-limit
 open import ring
 open import ring.implementations.rational
 open import ring.implementations.real
@@ -115,49 +122,84 @@ diff-preserves-limit lim1 lim2 = +-preserves-limit lim2 (minus-preserves-limit l
     (*₁-preserves-limit isLim)
 
 private
-  merge-isLimit : {v1 : ℕ -> ℕ -> ℝ} {v2 : ℕ -> ℝ} {v3 : ℝ} ->
-                  isUniformLimit v1 v2 -> isLimit v2 v3 -> isLimit (\i -> v1 i i) v3
-  merge-isLimit {v1} {v2} {v3} isLim1 isLim2 = record
+  merge-isLimit : {s₁ : ℕ -> ℕ -> ℝ} {s₂ : ℕ -> ℝ} {l : ℝ} ->
+                  isUniformLimit s₁ s₂ -> isLimit s₂ l -> isLimit (\i -> s₁ i i) l
+  merge-isLimit {s₁} {s₂} {l} isULim-s₁ isLim-s₂ = record
     { lower = lower
     ; upper = upper
     }
     where
-    lower : (q : ℚ) -> (Real.L v3 q) -> ∀Largeℕ (\m -> Real.L (v1 m m) q)
-    lower q v3L-q = ∥-map2 lower' (isLimit.lower isLim2 q v3L-q) (isUniformLimit.lower isLim1 q)
+    lower : (q : ℚ) -> (Real.L l q) -> ∀Largeℕ (\m -> Real.L (s₁ m m) q)
+    lower q lL-q = ∥-bind handle (Real.isUpperOpen-L l q lL-q)
       where
-      lower' : ∀Largeℕ' (\i -> Real.L (v2 i) q) ->
-               ∀Largeℕ' (\m -> ∀ n -> Real.L (v2 n) q -> Real.L (v1 m n) q) ->
-               ∀Largeℕ' (\i -> Real.L (v1 i i) q)
-      lower' (N1 , f1) (N2 , f2) =
-        max N1 N2 , (\ n N1N2≤n -> f2 n (trans-≤ max-≤-right N1N2≤n)
-                                      n (f1 n (trans-≤ max-≤-left N1N2≤n)))
+      handle : Σ[ r ∈ ℚ ] (q < r × Real.L l r) ->
+               ∀Largeℕ (\m -> Real.L (s₁ m m) q)
+      handle (r , q<r , lL-r) =
+        ∥-map2 handle2 (isLimit.lower isLim-s₂ r lL-r)
+                       (isUniformLimit.distance<εℚ isULim-s₁ (ε , 0<ε))
+        where
+        ε : ℚ
+        ε = diff q r
+        0<ε : 0# < ε
+        0<ε = diff-0<⁺ q<r
 
-    upper : (q : ℚ) -> (Real.U v3 q) -> ∀Largeℕ (\m -> Real.U (v1 m m) q)
-    upper q v3U-q = ∥-map2 upper' (isLimit.upper isLim2 q v3U-q) (isUniformLimit.upper isLim1 q)
-      where
-      upper' : ∀Largeℕ' (\i -> Real.U (v2 i) q) ->
-               ∀Largeℕ' (\m -> ∀ n -> Real.U (v2 n) q -> Real.U (v1 m n) q) ->
-               ∀Largeℕ' (\i -> Real.U (v1 i i) q)
-      upper' (N1 , f1) (N2 , f2) =
-        max N1 N2 , (\ n N1N2≤n -> f2 n (trans-≤ max-≤-right N1N2≤n)
-                                      n (f1 n (trans-≤ max-≤-left N1N2≤n)))
+        handle2 : ∀Largeℕ' (\i -> Real.L (s₂ i) r) ->
+                  ∀Largeℕ' (\m -> ∀ n -> Real.U (distance (s₂ n) (s₁ m n)) ε) ->
+                  ∀Largeℕ' (\i -> Real.L (s₁ i i) q)
+        handle2 (N₁ , f₁) (N₂ , f₂) = max N₁ N₂ , close
+          where
+          close : ∀ i -> (max N₁ N₂) ≤ i -> Real.L (s₁ i i) q
+          close i N₁N₂≤i = ℝ<->L lt
+            where
+            r<s₂i : (ℚ->ℝ r) < (s₂ i)
+            r<s₂i = L->ℝ< (f₁ i (trans-≤ max-≤-left N₁N₂≤i))
+            d<ε : (distance (s₂ i) (s₁ i i)) < (ℚ->ℝ (diff q r))
+            d<ε = U->ℝ< (f₂ i (trans-≤ max-≤-right N₁N₂≤i) i)
+            -d₂<ε : (- (diff (s₂ i) (s₁ i i))) < (ℚ->ℝ (diff q r))
+            -d₂<ε = trans-≤-< max-≤-right d<ε
+            -ε<d₂ : (- (ℚ->ℝ (diff q r))) < (diff (s₂ i) (s₁ i i))
+            -ε<d₂ = trans-<-= (minus-flips-< -d₂<ε) minus-double-inverse
+            lt : (ℚ->ℝ q) < (s₁ i i)
+            lt =
+              trans-=-<
+                (cong ℚ->ℝ (sym diff-step >=> +-right diff-anticommute) >=> ℚ->ℝ-preserves-diff)
+                (trans-<-= (+-preserves-< r<s₂i -ε<d₂) diff-step)
 
-  merge-isLimit' : {v1 : ℕ -> ℕ -> ℝ} {v2 : ℕ -> ℝ} {v3 : ℝ} ->
-                   isUniformLimit' v1 v2 -> isLimit v2 v3 -> isLimit (\i -> v1 i i) v3
-  merge-isLimit' {v1} {v2} {v3} isLim1 isLim2 = εBounded-diff->isLimit εB
-    where
-    εB : (ε : ℚ⁺) -> ∀Largeℕ (\i -> εBounded ⟨ ε ⟩ (diff v3 (v1 i i)))
-    εB (ε , 0<ε) =
-      ∀Largeℕ-map (\{i} (fεB , εB) -> subst2 εBounded +-/2-path diff-trans
-                                       (εBounded-+ _ _ εB (fεB i)))
-                  (∀Largeℕ-∩ large1 large2)
+    upper : (q : ℚ) -> (Real.U l q) -> ∀Largeℕ (\m -> Real.U (s₁ m m) q)
+    upper q lU-q = ∥-bind handle (Real.isLowerOpen-U l q lU-q)
       where
-      ε' = ε * 1/2
-      0<ε' = *-preserves-0< 0<ε 0<1/2
-      large1 : ∀Largeℕ (\i -> ∀ a -> εBounded ε' (diff (v2 a) (v1 i a)))
-      large1 = isUniformLimit'.εBounded-diff isLim1 (ε' , 0<ε')
-      large2 : ∀Largeℕ (\i -> εBounded ε' (diff v3 (v2 i)))
-      large2 = isLimit.εBounded-diff isLim2 (ε' , 0<ε')
+      handle : Σ[ r ∈ ℚ ] (r < q × Real.U l r) ->
+               ∀Largeℕ (\m -> Real.U (s₁ m m) q)
+      handle (r , r<q , lU-r) =
+        ∥-map2 handle2 (isLimit.upper isLim-s₂ r lU-r)
+                       (isUniformLimit.distance<εℚ isULim-s₁ (ε , 0<ε))
+        where
+        ε : ℚ
+        ε = diff r q
+        0<ε : 0# < ε
+        0<ε = diff-0<⁺ r<q
+
+        handle2 : ∀Largeℕ' (\i -> Real.U (s₂ i) r) ->
+                  ∀Largeℕ' (\m -> ∀ n -> Real.U (distance (s₂ n) (s₁ m n)) ε) ->
+                  ∀Largeℕ' (\i -> Real.U (s₁ i i) q)
+        handle2 (N₁ , f₁) (N₂ , f₂) = max N₁ N₂ , close
+          where
+          close : ∀ i -> (max N₁ N₂) ≤ i -> Real.U (s₁ i i) q
+          close i N₁N₂≤i = ℝ<->U lt
+            where
+            s₂i<r : (s₂ i) < (ℚ->ℝ r)
+            s₂i<r = U->ℝ< (f₁ i (trans-≤ max-≤-left N₁N₂≤i))
+            d<ε : (distance (s₂ i) (s₁ i i)) < (ℚ->ℝ (diff r q))
+            d<ε = U->ℝ< (f₂ i (trans-≤ max-≤-right N₁N₂≤i) i)
+            d₂<ε : (diff (s₂ i) (s₁ i i)) < (ℚ->ℝ (diff r q))
+            d₂<ε = trans-≤-< max-≤-left d<ε
+            lt : (s₁ i i) < (ℚ->ℝ q)
+            lt =
+              trans-=-<
+                (sym diff-step)
+                (trans-<-= (+-preserves-< s₂i<r d₂<ε)
+                           (sym ℚ->ℝ-preserves-+ >=> cong ℚ->ℝ diff-step))
+
 
 *-preserves-limit : {s1 s2 : Seq} -> {v1 v2 : ℝ} ->
                     isLimit s1 v1 -> isLimit s2 v2 -> isLimit (\i -> s1 i * s2 i) (v1 * v2)

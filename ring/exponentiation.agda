@@ -3,6 +3,7 @@
 module ring.exponentiation where
 
 open import additive-group
+open import additive-group.functions
 open import additive-group.instances.int
 open import additive-group.instances.nat
 open import base
@@ -46,6 +47,15 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
     sym *-assoc >=> *-left minus-extract-both >=>
     *-right (minus-^ℕ-even x i ei) >=>
     *-assoc
+
+  opaque
+    isOddFunction-^ℕ : (n : Nat) -> (Odd n) -> isOddFunction (\ (x : D) -> x ^ℕ n)
+    isOddFunction-^ℕ n o x = minus-^ℕ-odd x n o
+
+    isEvenFunction-^ℕ : (n : Nat) -> (Even n) -> isEvenFunction (\ (x : D) -> x ^ℕ n)
+    isEvenFunction-^ℕ n e x = minus-^ℕ-even x n e
+
+
 
 module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
          {{S : Semiring ACM}} {{AG : AdditiveGroup ACM}}

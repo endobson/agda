@@ -61,3 +61,8 @@ module _ {ℓD ℓS : Level} {D : Type ℓD} {S : Subtype D ℓS} where
 
         s-path : s1 == s2
         s-path = Subspace-path q3
+
+
+restrict : {ℓD ℓA ℓS : Level} {D : Type ℓD} {A : Type ℓA}
+           (f : D -> A) (S : Subtype D ℓS) -> Subspace S -> A
+restrict f S (x , _) = f x

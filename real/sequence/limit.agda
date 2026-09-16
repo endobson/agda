@@ -266,6 +266,7 @@ abstract
                      (∥-map2 (handle2 u2<l1) (isLimit.lower lim1 l1 l1<v1)
                                              (isLimit.upper lim2 u2 v2<u2)))
 
+{-
 record isUniformLimit' {ℓ : Level} {A : Type ℓ} (seq : Sequence (A -> ℝ)) (lim : A -> ℝ) :
                       Type (ℓ-max ℓ ℓ-one) where
   field
@@ -279,3 +280,4 @@ record isUniformLimit {ℓ : Level} {A : Type ℓ} (seq : Sequence (A -> ℝ)) (
     upper : (q : ℚ) -> ∀Largeℕ (\m -> ∀ a -> Real.U (lim a) q -> Real.U (seq m a) q)
 
     -- εBounded-diff : (ε : ℚ⁺) -> ∀Largeℕ (\i -> ∀ a -> εBounded ⟨ ε ⟩ (diff (lim a) (seq i a)))
+-}
