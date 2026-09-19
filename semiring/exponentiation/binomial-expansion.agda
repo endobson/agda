@@ -28,7 +28,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
       (a + b) ^ℕ n == finiteSum (\ ((fin-pair+ i j _) : FinPair+ n) ->
                                    (ℕ->Semiring (binomial-coeff' i j)) * (a ^ℕ i * b ^ℕ j))
     binomial-expansion-path a b zero =
-      sym (finiteMerge-isContr _ isContr-FinPair+-0 _ >=>
+      sym (finiteMerge-isContr _ isContr-FinPair+-0 >=>
            *-right *-right-one >=> *-right-one >=>
            ℕ->Semiring-preserves-1#)
     binomial-expansion-path a b (suc n) =

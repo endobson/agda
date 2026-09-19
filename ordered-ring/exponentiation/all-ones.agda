@@ -166,7 +166,7 @@ module _
       eval-all-ones-zero : finiteSum (eval-PI x y (all-ones-pif 0)) == 1#
       eval-all-ones-zero =
         finiteMerge-convert-iso CM (iso⁻¹ PolyIndex<->Fin) _ >=>
-        finiteMerge-Fin1 CM _ >=>
+        finiteMerge-Fin1 CM >=>
         *-left-one >=> *-left-one
 
 

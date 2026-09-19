@@ -69,14 +69,14 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
                                 -> finiteProduct A f == finiteProduct B (f ∘ (Iso.fun i))
     finiteProduct-convert-iso = finiteMergeᵉ-convert-iso CM
 
-    finiteProduct-Bot : (f : Bot -> D) -> finiteProduct FinSet-Bot f == 1#
+    finiteProduct-Bot : {f : Bot -> D} -> finiteProduct FinSet-Bot f == 1#
     finiteProduct-Bot = finiteMerge-Bot CM
 
-    finiteProduct-Top : (f : Top -> D) -> finiteProduct FinSet-Top f == f tt
+    finiteProduct-Top : {f : Top -> D} -> finiteProduct FinSet-Top f == f tt
     finiteProduct-Top = finiteMerge-Top CM
 
     finiteProduct-Maybe :
-      (FB : FinSet ℓ) (f : Maybe ⟨ FB ⟩ -> D) ->
+      (FB : FinSet ℓ) {f : Maybe ⟨ FB ⟩ -> D} ->
       finiteProduct (FinSet-Maybe FB) f ==
       (f nothing) * (finiteProduct FB (f ∘ just))
     finiteProduct-Maybe FB = finiteMerge-Maybe CM

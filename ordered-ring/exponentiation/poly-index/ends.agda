@@ -77,7 +77,7 @@ module _
       finiteMerge-detachable CM (isEndIndex n) Det-isEndIndex _ >=>
       +-right (finiteMerge-ε CM inner-zero) >=>
       +-right-zero >=>
-      finiteMerge-2elem CM EndIndex<->Boolean _ >=>
+      finiteMerge-2elem CM EndIndex<->Boolean >=>
       +-cong left-side right-side
       where
       inner-zero : ((pi , _) : (∉-Subtype (isEndIndex n))) ->

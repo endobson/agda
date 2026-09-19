@@ -50,8 +50,8 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
         finiteMergeᵉ' (FinSet-Σ (FinSet-Fin 0) FB) f ==
         finiteMergeᵉ' (FinSet-Fin 0) (\i -> finiteMergeᵉ' (FB i) (\b -> f (i , b)))
       finiteMerge-Σ'-zero f =
-        finiteMerge-Uninhabited CM (¬fin-zero ∘ fst) _ >=>
-        sym (finiteMerge-Uninhabited CM ¬fin-zero _)
+        finiteMerge-Uninhabited CM (¬fin-zero ∘ fst) >=>
+        sym (finiteMerge-Uninhabited CM ¬fin-zero)
 
   private
     finiteMerge-Σ' : {ℓB : Level} {n : Nat} {FB : Fin n -> FinSet ℓB}
@@ -101,8 +101,8 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
               ((f' zero-fin) ∙ finiteMergeᵉ' (FinSet-Fin n) (f' ∘ suc-fin))
       path2 =
         finiteMerge'-convert (FinSet-Fin (suc n)) (FinSet-Maybe (FinSet-Fin n))
-                             (equiv⁻¹ (Fin-Maybe-eq n)) f'
-        >=> finiteMerge'-Maybe _
+                             (equiv⁻¹ (Fin-Maybe-eq n)) f' >=>
+        finiteMerge'-Maybe
 
   module _ {ℓA ℓB : Level} (FA : FinSet ℓA) (FB : ⟨ FA ⟩ -> FinSet ℓB) where
     private

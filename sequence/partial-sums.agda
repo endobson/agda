@@ -31,12 +31,12 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} where
 
   opaque
     partial-sums-zero : {s : Seq} -> partial-sums s 0 == 0#
-    partial-sums-zero = finiteMerge-Fin0 _ _
+    partial-sums-zero = finiteMerge-Fin0 _
     partial-sums-one : {s : Seq} -> partial-sums s 1 == s 0
-    partial-sums-one = finiteMerge-Fin1 _ _
+    partial-sums-one = finiteMerge-Fin1 _
     partial-sums-suc : {s : Seq} {n : Nat} ->
       partial-sums s (suc n) == s 0 + partial-sums (drop1 s) n
-    partial-sums-suc = finiteMerge-FinSuc _ _
+    partial-sums-suc = finiteMerge-FinSuc _
 
     partial-sums-split : (s : Seq) (n : ℕ) -> (partial-sums s (suc n)) == s n + partial-sums s n
     partial-sums-split s zero =

@@ -304,8 +304,7 @@ private
         sym (mv*-left-identity v) >=>
         cong (_mv* v) (sym (isInvertibleMatrix.right-inverse isInvertible-dir-m)) >=>
         mv*-assoc dir-m inv-m v >=>
-        vector-ext (\a -> finiteMerge-Axis _ _ >=>
-                          +-cong *-commute *-commute)
+        vector-ext (\a -> finiteMerge-Axis _ >=> +-cong *-commute *-commute)
 
       i1 : Point
       i1 = P-shift p1 (coeff x-axis v* v1)

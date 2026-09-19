@@ -105,7 +105,7 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
         (finiteMergeᵉ' (FP' true) f₁) ∙ (finiteMergeᵉ' (FP' false) f₂)
       finiteMerge-binary-partition =
         finiteMerge-partition partition f >=>
-        finiteMerge-2elem CM (equivToIso (snd bin-partition)) _
+        finiteMerge-2elem CM (equivToIso (snd bin-partition))
 
   module _ {ℓI ℓS : Level} {I : Type ℓI} {{FinSetStr-I : FinSetStr I}}
            (S : Subtype I ℓS) (DetS : Detachable S)

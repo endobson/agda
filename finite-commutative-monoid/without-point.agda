@@ -28,4 +28,4 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
          finiteMerge CM f == f i ∙ finiteMerge CM (\ ((i2 , _) : WithoutPoint I i) -> f i2)
       finiteMerge-WithoutPoint i f =
          finiteMerge-convert CM (MaybeWithoutPoint-eq I i) f >=>
-         finiteMerge-Maybe CM _
+         finiteMerge-Maybe CM

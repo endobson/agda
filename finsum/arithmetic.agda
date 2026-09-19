@@ -73,9 +73,9 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
            {{AACM : ApartAdditiveCommMonoid ACM A}}  where
     private
       finiteSum'-#0 : (n : Nat) (f : Fin n -> D) -> finiteSum f # 0# -> ∃[ i ∈ Fin n ] (f i # 0#)
-      finiteSum'-#0 zero f sum#0 = bot-elim (irrefl-path-# (finiteMerge-Fin0 _ f) sum#0)
+      finiteSum'-#0 zero f sum#0 = bot-elim (irrefl-path-# (finiteMerge-Fin0 _) sum#0)
       finiteSum'-#0 (suc n) f sum#0 =
-        ∥-bind handle (+-reflects-#0 (subst (_# 0#) (finiteMerge-FinSuc _ f) sum#0))
+        ∥-bind handle (+-reflects-#0 (subst (_# 0#) (finiteMerge-FinSuc _ {f = f}) sum#0))
         where
         handle : (f zero-fin # 0#) ⊎ (finiteSum (f ∘ suc-fin) # 0#) -> ∃[ i ∈ Fin (suc n) ] (f i # 0#)
         handle (inj-l f0#0) = ∣ zero-fin , f0#0 ∣

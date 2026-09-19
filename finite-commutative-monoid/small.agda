@@ -29,37 +29,37 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
     eval = finiteMerge-eval CM
 
   opaque
-    finiteMerge-Bot : (f : Bot -> D) -> finiteMerge' f == ε
-    finiteMerge-Bot = eval (equiv⁻¹ Fin-Bot-eq)
+    finiteMerge-Bot : {f : Bot -> D} -> finiteMerge' f == ε
+    finiteMerge-Bot = eval (equiv⁻¹ Fin-Bot-eq) _
 
-    finiteMerge-Top : (f : Top -> D) -> finiteMerge' f == f tt
-    finiteMerge-Top f = eval (equiv⁻¹ Fin-Top-eq) f >=> ∙-right-ε
+    finiteMerge-Top : {f : Top -> D} -> finiteMerge' f == f tt
+    finiteMerge-Top = eval (equiv⁻¹ Fin-Top-eq) _ >=> ∙-right-ε
 
-    finiteMerge-Fin0 : (f : (Fin 0) -> D) -> finiteMerge' f == ε
-    finiteMerge-Fin0 = eval (idEquiv _)
+    finiteMerge-Fin0 : {f : (Fin 0) -> D} -> finiteMerge' f == ε
+    finiteMerge-Fin0 = eval (idEquiv _) _
 
-    finiteMerge-Fin1 : (f : (Fin 1) -> D) -> finiteMerge' f == f zero-fin
-    finiteMerge-Fin1 f = eval (idEquiv _) f >=> ∙-right-ε
+    finiteMerge-Fin1 : {f : (Fin 1) -> D} -> finiteMerge' f == f zero-fin
+    finiteMerge-Fin1 = eval (idEquiv _) _ >=> ∙-right-ε
 
     private
-      finiteMerge-Fin2 : (f : (Fin 2) -> D) -> finiteMerge' f ==
+      finiteMerge-Fin2 : {f : (Fin 2) -> D} -> finiteMerge' f ==
                                                (f zero-fin) ∙ (f (suc-fin zero-fin))
-      finiteMerge-Fin2 f = eval (idEquiv _) f >=> sym ∙-assoc >=> ∙-right-ε
+      finiteMerge-Fin2 = eval (idEquiv _) _ >=> sym ∙-assoc >=> ∙-right-ε
 
-      finiteMerge-Boolean : (f : Boolean -> D) -> finiteMerge' f == (f true) ∙ (f false)
-      finiteMerge-Boolean f = eval (equiv⁻¹ Fin2≃Boolean) f >=> sym ∙-assoc >=> ∙-right-ε
+      finiteMerge-Boolean : {f : Boolean -> D} -> finiteMerge' f == (f true) ∙ (f false)
+      finiteMerge-Boolean = eval (equiv⁻¹ Fin2≃Boolean) _ >=> sym ∙-assoc >=> ∙-right-ε
 
   module _ {ℓA : Level} {A : Type ℓA} {{fsA : FinSetStr A}} where
     -- Zero elements
-    finiteMerge-Uninhabited : (¬ A) -> (f : A -> D) -> finiteMerge' f == ε
-    finiteMerge-Uninhabited ¬a f =
-      finiteMerge-convert' (equiv⁻¹ (¬-Bot-eq ¬a)) f >=>
-      finiteMerge-Bot _
+    finiteMerge-Uninhabited : (¬ A) -> {f : A -> D} -> finiteMerge' f == ε
+    finiteMerge-Uninhabited ¬a =
+      finiteMerge-convert' (equiv⁻¹ (¬-Bot-eq ¬a)) _ >=>
+      finiteMerge-Bot
 
     -- One element
     finiteMerge-isContr :
-      (isContr-A : isContr A) -> (f : A -> D) -> finiteMerge' f == f ⟨ isContr-A ⟩
-    finiteMerge-isContr isContr-A f = path
+      (isContr-A : isContr A) -> {f : A -> D} -> finiteMerge' f == f ⟨ isContr-A ⟩
+    finiteMerge-isContr isContr-A {f} = path
       where
       a : A
       a = fst (isContr-A)
@@ -70,11 +70,11 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
       path : finiteMerge' f == f a
       path =
         finiteMerge-convert' (equiv⁻¹ A≃Top) f >=>
-        finiteMerge-Top (\_ -> f a)
+        finiteMerge-Top
 
     -- Two elements
-    finiteMerge-2elem : (i : Iso A Boolean) -> (f : A -> D) ->
+    finiteMerge-2elem : (i : Iso A Boolean) -> {f : A -> D} ->
                         finiteMerge CM f == f (Iso.inv i true) ∙ f (Iso.inv i false)
-    finiteMerge-2elem i f =
-      finiteMerge-convert-iso CM (iso⁻¹ i) f >=>
-      finiteMerge-Boolean _
+    finiteMerge-2elem i =
+      finiteMerge-convert-iso CM (iso⁻¹ i) _ >=>
+      finiteMerge-Boolean

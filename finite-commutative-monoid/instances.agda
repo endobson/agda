@@ -41,23 +41,15 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
     enumerationMerge' = enumerationMerge CM
     eval = finiteMerge-eval CM
 
-  abstract
-    finiteMerge-FinSuc :
-      {n : Nat} (f : (Fin (suc n)) -> D) ->
-      finiteMerge' f == (f zero-fin) ∙ (finiteMerge' (f ∘ suc-fin))
-    finiteMerge-FinSuc f =
-      eval (idEquiv _) f >=> cong (f zero-fin ∙_) (sym (eval (idEquiv _) (f ∘ suc-fin)))
-
-
   module _ {ℓB : Level} {B : Type ℓB} {{FB : FinSetStr B}} where
     private
       finB = FinSetStr.isFin FB
 
-    abstract
+    opaque
       finiteMerge-Maybe :
-        (f : (Maybe B) -> D) ->
+        {f : (Maybe B) -> D} ->
         (finiteMerge' f) == (f nothing) ∙ finiteMerge' (f ∘ just)
-      finiteMerge-Maybe f = unsquash (isSet-Domain _ _) (∥-map handle finB)
+      finiteMerge-Maybe {f} = unsquash (isSet-Domain _ _) (∥-map handle finB)
         where
         handle : Σ[ n ∈ Nat ] (B ≃ Fin n) ->
                  (finiteMerge' f)
@@ -88,6 +80,22 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
           path2 : (eqInv eq' ∘ suc-fin) == (eqInv (Maybe-eq eq) ∘ just)
           path2 = cong (eqInv (Maybe-eq eq) ∘_) path3
 
+  opaque
+    finiteMerge-FinSuc :
+      {n : Nat} {f : Fin (suc n) -> D} ->
+      finiteMerge' f == (f zero-fin) ∙ (finiteMerge' (f ∘ suc-fin))
+    finiteMerge-FinSuc {n} =
+      finiteMerge-convert' (equiv⁻¹ (Fin-Maybe-eq n)) _ >=>
+      finiteMerge-Maybe
+
+    finiteMerge-FinSuc' :
+      {n : Nat} {f : Fin (suc n) -> D} ->
+      finiteMerge' f == (f max-fin) ∙ (finiteMerge' (f ∘ inc-fin))
+    finiteMerge-FinSuc' {n} =
+      finiteMerge-convert' (equiv⁻¹ (Fin-Maybe-eq' n)) _ >=>
+      finiteMerge-Maybe
+
+
   module _ {ℓB : Level} {B : Type ℓB} {{FB : FinSetStr B}} where
     private
       finB = FinSetStr.isFin FB
@@ -96,9 +104,9 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
                          finiteMerge' (\i -> (f i) ∙ (g i))
                          == finiteMerge' f ∙ finiteMerge' g
       finiteMerge-split-Fin0 =
-        finiteMerge-Fin0 CM _
-        >=> (sym ∙-right-ε)
-        >=> cong2 _∙_ (sym (finiteMerge-Fin0 CM _)) (sym (finiteMerge-Fin0 CM _))
+        finiteMerge-Fin0 CM >=>
+        (sym ∙-right-ε) >=>
+        cong2 _∙_ (sym (finiteMerge-Fin0 CM)) (sym (finiteMerge-Fin0 CM))
 
 
       finiteMerge-split' : {n : Nat} {f g : Fin n -> D} ->
@@ -107,7 +115,7 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
       finiteMerge-split' {n = zero} = finiteMerge-split-Fin0
       finiteMerge-split' {n = suc n} {f} {g} =
         finiteMerge-convert' (equiv⁻¹ (Fin-Maybe-eq n)) _
-        >=> finiteMerge-Maybe _
+        >=> finiteMerge-Maybe
         >=> cong ((f zero-fin ∙ g zero-fin) ∙_) finiteMerge-split'
         -- (f + g) + (F + G)
         >=> ∙-assoc
@@ -122,21 +130,21 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
         >=> sym ∙-assoc
         -- (f + F) + (g + G)
         >=> cong2 _∙_ (sym ((finiteMerge-convert' (equiv⁻¹ (Fin-Maybe-eq n)) _)
-                            >=> finiteMerge-Maybe _))
+                            >=> finiteMerge-Maybe))
                       (sym ((finiteMerge-convert' (equiv⁻¹ (Fin-Maybe-eq n)) _)
-                            >=> finiteMerge-Maybe _))
+                            >=> finiteMerge-Maybe))
 
       finiteMerge-ε' : {n : Nat} ->
                        finiteMerge' (\ (_ : Fin n) -> ε)
                        == ε
-      finiteMerge-ε' {zero} = finiteMerge-Fin0 CM (\_ -> ε)
+      finiteMerge-ε' {zero} = finiteMerge-Fin0 CM
       finiteMerge-ε' {suc n} =
-        finiteMerge-convert' (equiv⁻¹ (Fin-Maybe-eq n)) _
-        >=> finiteMerge-Maybe _
-        >=> ∙-left-ε
-        >=> finiteMerge-ε'
+        finiteMerge-convert' (equiv⁻¹ (Fin-Maybe-eq n)) _ >=>
+        finiteMerge-Maybe >=>
+        ∙-left-ε >=>
+        finiteMerge-ε'
 
-    abstract
+    opaque
       finiteMerge-ε : {f : B -> D} -> (∀ (b : B) -> f b == ε) ->
                       finiteMerge' f == ε
       finiteMerge-ε {f} paths = unsquash (isSet-Domain _ _) (∥-map handle finB)
@@ -190,7 +198,7 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
         finiteMerge-⊎'-zero' f
         >=> (sym ∙-left-ε)
         >=> (cong (_∙ (finiteMerge' (f ∘ inj-r)))
-                  (sym (finiteMerge-Fin0 CM (f ∘ inj-l))))
+                  (sym (finiteMerge-Fin0 CM)))
 
       finiteMerge-⊎'-suc' : {n : Nat}
         (f : (Fin (suc n) ⊎ B) -> D) ->
@@ -202,7 +210,7 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
           (finiteMerge' f)
         ==< finiteMerge-convert' eq f >
           (finiteMerge' (f ∘ (eqFun eq)))
-        ==< finiteMerge-Maybe (f ∘ (eqFun eq)) >
+        ==< finiteMerge-Maybe >
           (f (eqFun eq nothing)) ∙
           (finiteMerge' (f ∘ (eqFun eq) ∘ just))
         ==< path >
@@ -260,14 +268,14 @@ module _ {D : Type ℓ} (CM : CommMonoid D) where
                 == f (inj-l zero-fin) ∙ (finiteMerge' (f ∘ inj-l ∘ suc-fin))
         step2 =
           finiteMerge-convert' (equiv⁻¹ (Fin-Maybe-eq n)) (f ∘ inj-l)
-          >=> finiteMerge-Maybe _
+          >=> finiteMerge-Maybe
 
   module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
            {{FA : FinSetStr A}} {{FB : FinSetStr B}} where
     private
       finA = FinSetStr.isFin FA
 
-    abstract
+    opaque
       finiteMerge-⊎ :
         (f : (A ⊎ B) -> D) ->
         (finiteMerge' f)
@@ -319,18 +327,18 @@ module _ {ℓA ℓB ℓD : Level} {A : Type ℓA} {B : Type ℓB} {D : Type ℓD
           finiteMerge CM-D (\i -> (f (g i))) ==
           f (finiteMerge CM-B g)
         finiteMerge-homo-inject' {zero} {g} =
-          finiteMerge-Fin0 CM-D (f ∘ g) >=>
+          finiteMerge-Fin0 CM-D >=>
           sym fʰ.preserves-ε >=>
-          cong f (sym (finiteMerge-Fin0 CM-B g))
+          cong f (sym (finiteMerge-Fin0 CM-B))
         finiteMerge-homo-inject' {suc n} {g} =
           finiteMerge-convert CM-D (equiv⁻¹ (Fin-Maybe-eq n)) (f ∘ g)
-          >=> finiteMerge-Maybe CM-D _
+          >=> finiteMerge-Maybe CM-D
           >=> cong (f (g zero-fin) CM-D.∙_) finiteMerge-homo-inject'
           >=> sym (fʰ.preserves-∙ _ _)
-          >=> cong f ((sym (finiteMerge-Maybe CM-B _)) >=>
+          >=> cong f ((sym (finiteMerge-Maybe CM-B)) >=>
                       (sym (finiteMerge-convert CM-B (equiv⁻¹ (Fin-Maybe-eq n)) g)))
 
-      abstract
+      opaque
         finiteMerge-homo-inject : {g : A -> B} ->
           finiteMerge CM-D (f ∘ g) ==
           f (finiteMerge CM-B g)

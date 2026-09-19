@@ -132,7 +132,7 @@ private
 
     p : cardinality A0 + finiteSumᵉ (FinSet-Fin n) (\i -> cardinality (A' i)) ==
         finiteSumᵉ (FinSet-Fin (suc n)) (\i -> cardinality (A i))
-    p = sym (finiteMerge-FinSuc _ _)
+    p = sym (finiteMerge-FinSuc _)
 
 
   FinSet≤-Fin-Collection' : (n : Nat) (A : Fin n -> FinSet ℓ-zero) ->

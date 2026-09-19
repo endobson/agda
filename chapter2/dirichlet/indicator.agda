@@ -83,7 +83,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
         (\d2 -> ΣProp-path (isSetNat _ _) (ΣProp-path (isPropDiv' n) (sym (snd d2))))
 
       p1 : finiteMerge CM g₁ == f n
-      p1 = finiteMerge-isContr CM isContr-D1' g₁ >=>
+      p1 = finiteMerge-isContr CM isContr-D1' >=>
            *-right (cong f (ΣProp-path isPropPos' refl)) >=>
            *-left-one
 

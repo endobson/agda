@@ -67,10 +67,10 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} where
           path1 = finiteSumᵉ-convert-iso (FinSet-Σ (FinSet-Fin 0) FB) FinSet-Bot (iso⁻¹ iso1) f
 
           path2 : finiteSumᵉ FinSet-Bot (f ∘ iso1.inv) == 0#
-          path2 = finiteMerge-Bot _ _
+          path2 = finiteMerge-Bot _
 
           path3 : 0# == finiteSumᵉ FinSet-Bot (g ∘ iso2.inv)
-          path3 = sym (finiteMerge-Bot _ _)
+          path3 = sym (finiteMerge-Bot _)
 
           path4 : finiteSumᵉ FinSet-Bot (g ∘ iso2.inv)
                   == finiteSumᵉ (FinSet-Fin 0) g
@@ -122,8 +122,8 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} where
                  finiteSumᵉ (FinSet-Fin n) (f' ∘ suc-fin))
         path2 =
           finiteSumᵉ-convert (FinSet-Fin (suc n)) (FinSet-Maybe (FinSet-Fin n))
-                            (equiv⁻¹ (Fin-Maybe-eq n)) f'
-          >=> finiteMerge-Maybe _ _
+                            (equiv⁻¹ (Fin-Maybe-eq n)) f' >=>
+          finiteMerge-Maybe _
 
   opaque
     finiteSum-Σ : {ℓA ℓB : Level} -> (FA : FinSet ℓA) -> (FB : ⟨ FA ⟩ -> FinSet ℓB)

@@ -339,7 +339,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
                   cong2 _+_ (cong (finiteMerge CM-K+) (funExt path10))
                             (finiteMerge-ε CM-K+ path9)
                   >=> +-right-zero
-                  >=> finiteMerge-isContr CM-K+ isContr-ΣIP (\_ -> extend i)
+                  >=> finiteMerge-isContr CM-K+ isContr-ΣIP
 
 
 

@@ -49,7 +49,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
 
         inner : (n : Nat) -> finiteSum (\ ((fin-pair+ i j _) : FinPair+ n) -> f₁ i * f j) == f n
         inner zero =
-          finiteMerge-isContr _ isContr-FinPair+-0 _ >=>
+          finiteMerge-isContr _ isContr-FinPair+-0 >=>
           *-left-one
         inner (suc n) =
           finiteMerge-FinPair+-split₁ _ _ >=>

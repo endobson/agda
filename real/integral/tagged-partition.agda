@@ -136,10 +136,10 @@ module _ {a b : ℝ} (p : Partition a b) where
           f
 
       ¬low-sum : finiteSum f¬l == f pb-high
-      ¬low-sum = finiteMerge-isContr _ isContr-Σ¬LowPartitionBoundary f¬l
+      ¬low-sum = finiteMerge-isContr _ isContr-Σ¬LowPartitionBoundary
 
       ¬high-sum : finiteSum f¬h == f pb-low
-      ¬high-sum = finiteMerge-isContr _ isContr-Σ¬HighPartitionBoundary f¬h
+      ¬high-sum = finiteMerge-isContr _ isContr-Σ¬HighPartitionBoundary
 
       split-sum-low' : finiteSum fl-i == diff (f pb-high) (finiteSum f)
       split-sum-low' =

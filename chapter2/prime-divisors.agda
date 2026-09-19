@@ -416,7 +416,7 @@ module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} wher
       factorization-case {n} (ppf-base p e) =
         finiteProduct-convert (FinSet-PrimePowerFactor ⟨ n ⟩) FinSet-Top
                               (equiv⁻¹ (PrimePowerFactor-prime-power-eq p e)) _
-        >=> finiteProduct-Top _
+        >=> finiteProduct-Top
         >=> cong f (ΣProp-path isPropPos' refl)
       factorization-case (ppf-combine {a} {b} fa fb rp) =
         finiteProduct-convert (FinSet-PrimePowerFactor (a *' b))
@@ -437,7 +437,7 @@ module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} wher
       {n : Nat⁺} -> f n == finiteProduct (FinSet-PrimePowerFactor ⟨ n ⟩) f'
     Multiplicative-PrimePowerFactor {n = (suc zero) , _} =
       m .fst
-      >=> sym (finiteProduct-Bot _)
+      >=> sym (finiteProduct-Bot)
       >=> sym (finiteProduct-convert (FinSet-PrimePowerFactor 1) (FinSet-Bot)
                                      (equiv⁻¹ (PrimePowerFactor-1-eq)) f')
     Multiplicative-PrimePowerFactor {n = (suc (suc _)) , _} =

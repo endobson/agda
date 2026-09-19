@@ -72,9 +72,9 @@ matrix-mv*-ext {m1} {m2} vp = matrix-ext f
   m-path : (m : Matrix) (a1 a2 : Axis) ->
     matrix-index m a1 a2 == vector-index (m mv* (axis-basis a2)) a1
   m-path m _ x-axis =
-    sym (finiteMerge-Axis _ _ >=> +-cong *-right-one *-right-zero >=> +-right-zero)
+    sym (finiteMerge-Axis _ >=> +-cong *-right-one *-right-zero >=> +-right-zero)
   m-path m _ y-axis =
-    sym (finiteMerge-Axis _ _ >=> +-cong *-right-zero *-right-one >=> +-left-zero)
+    sym (finiteMerge-Axis _ >=> +-cong *-right-zero *-right-one >=> +-left-zero)
 
 
   f : (a1 a2 : Axis) -> (matrix-index m1 a1 a2 == matrix-index m2 a1 a2)
@@ -114,8 +114,8 @@ mv*-left-identity : (v : Vector) -> identity-matrix mv* v == v
 mv*-left-identity v = vector-ext f
   where
   f : (a : Axis) -> vector-index (identity-matrix mv* v) a == vector-index v a
-  f x-axis = finiteMerge-Axis _ _ >=> +-cong *-left-one *-left-zero >=> +-right-zero
-  f y-axis = finiteMerge-Axis _ _ >=> +-cong *-left-zero *-left-one >=> +-left-zero
+  f x-axis = finiteMerge-Axis _ >=> +-cong *-left-one *-left-zero >=> +-right-zero
+  f y-axis = finiteMerge-Axis _ >=> +-cong *-left-zero *-left-one >=> +-left-zero
 
 
 m*-assoc : (m1 m2 m3 : Matrix) -> (m1 m* m2) m* m3 == m1 m* (m2 m* m3)
@@ -133,20 +133,20 @@ mv*-assoc m1 m2 v = vector-ext f
   where
   f : (a : Axis) -> vector-index ((m1 m* m2) mv* v) a == vector-index (m1 mv* (m2 mv* v)) a
   f a =
-    finiteMerge-Axis _ _ >=>
+    finiteMerge-Axis _ >=>
     +-cong *-distrib-+-right *-distrib-+-right >=>
     +-swap >=>
     +-cong (+-cong *-assoc *-assoc >=> (sym *-distrib-+-left))
            (+-cong *-assoc *-assoc >=> (sym *-distrib-+-left)) >=>
-    +-cong (*-right (sym (finiteMerge-Axis _ _)))
-           (*-right (sym (finiteMerge-Axis _ _))) >=>
-    sym (finiteMerge-Axis _ _)
+    +-cong (*-right (sym (finiteMerge-Axis _)))
+           (*-right (sym (finiteMerge-Axis _))) >=>
+    sym (finiteMerge-Axis _)
 
 mv*-right-zero : (m : Matrix) -> m mv* 0# == 0#
 mv*-right-zero m = vector-ext f
   where
   f : (a : Axis) -> vector-index (m mv* 0#) a == 0#
-  f a = finiteMerge-Axis _ _ >=> +-cong *-right-zero *-right-zero >=> +-right-zero
+  f a = finiteMerge-Axis _ >=> +-cong *-right-zero *-right-zero >=> +-right-zero
 
 mv*-reflects-#0 : (m : Matrix) (v : Vector) -> (m mv* v) # 0# -> v # 0#
 mv*-reflects-#0 m v = ∥-bind handle

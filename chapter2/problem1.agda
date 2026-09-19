@@ -118,7 +118,7 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
     φℚ-finiteProduct >=>
     *-right (finiteMerge-isContr (Semiring.*-CommMonoid useⁱ)
                {{ record { isFin = isFinSet-PrimeDivisor (2⁺ ^⁺ (suc i)) } }}
-               (isContr-PrimeDivisor2^si i) _) >=>
+               (isContr-PrimeDivisor2^si i)) >=>
     *-right path-half2 >=>
     *-commute >=>
     *-right (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ _ _) >=>

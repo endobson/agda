@@ -435,8 +435,7 @@ private
     ==< finiteSumᵉ-convert _ _ (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n)) _ >
       finiteSumᵉ (FinSet-Maybe (FinSet-Divisor pn))
          ((μ ∘ divisor->nat⁺ psn) ∘ (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))))
-    ==< finiteMerge-Maybe _ {{_}}
-         ((μ ∘ divisor->nat⁺ psn) ∘ (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n)))) >
+    ==< finiteMerge-Maybe _ {{_}} >
       μ (prime-power p (suc n) , _) +
       finiteSumᵉ (FinSet-Divisor pn) ((μ ∘ divisor->nat⁺ psn) ∘
                                       (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))) ∘
