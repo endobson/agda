@@ -31,3 +31,11 @@ sym-binomial-coeff' (suc n) zero = refl
 sym-binomial-coeff' (suc n) (suc k) =
   +-commuteᵉ (binomial-coeff' n (suc k)) (binomial-coeff' (suc n) k) >=>
   +-cong (sym-binomial-coeff' (suc n) k) (sym-binomial-coeff' n (suc k))
+
+opaque
+  binomial-coeff'-one₁ : ∀ (j : ℕ) -> binomial-coeff' 1 j == suc j
+  binomial-coeff'-one₁ zero = refl
+  binomial-coeff'-one₁ (suc j) = cong suc (binomial-coeff'-one₁ j)
+
+  binomial-coeff'-one₂ : ∀ (i : ℕ) -> binomial-coeff' i 1 == suc i
+  binomial-coeff'-one₂ i = sym-binomial-coeff' i 1 >=> binomial-coeff'-one₁ i
