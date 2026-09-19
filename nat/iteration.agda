@@ -26,6 +26,10 @@ opaque
                    iter n f ∘ iter m g == iter m g ∘ iter n f
   iter-commute₂ n m p =  iter-commute₁ n (sym (iter-commute₁ m (sym p)))
 
+  iter-distrib-+ : ∀ (n₁ n₂ : ℕ) {f : A -> A} ->
+    iter (n₁ + n₂) f == iter n₁ f ∘ iter n₂ f
+  iter-distrib-+ zero n₂ = refl
+  iter-distrib-+ (suc n₁) n₂ {f} = cong (f ∘_) (iter-distrib-+ n₁ n₂)
 
 module _ {ℓ : Level} {A : Type ℓ} {{M : Monoid A}} where
   private

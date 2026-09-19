@@ -3,11 +3,11 @@
 module nat.order.base where
 
 open import base
-open import nat
-open import equality
-open import hlevel
-open import relation
+open import equality-path
 open import functions
+open import hlevel
+open import nat
+open import relation
 open import sigma.base
 open import sum
 open import truncation
