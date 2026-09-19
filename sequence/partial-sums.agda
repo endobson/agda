@@ -90,6 +90,19 @@ module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {{ACM : Add
       subst2 _≤_ (sym (partial-sums-split s1 n)) (sym (partial-sums-split s2 n))
         (+-preserves-≤ (s1≤s2 n) (partial-sums-≤ s1≤s2 n))
 
+    partial-sums-nondecreasing :
+      {s : Seq} -> (∀ i -> 0# ≤ s i) -> {n₁ n₂ : Nat} -> n₁ ≤ n₂ -> partial-sums s n₁ ≤ partial-sums s n₂
+    partial-sums-nondecreasing {s} 0≤si {n₁} {n₂} (d , p) =
+      trans-≤-= (rec d) (cong (partial-sums s) p)
+      where
+      rec : ∀ (d : ℕ) -> partial-sums s n₁ ≤ partial-sums s (d + n₁)
+      rec zero = refl-≤
+      rec (suc d) =
+        trans-≤ (rec d)
+          (trans-=-≤ (sym +-left-zero)
+            (trans-≤-= (+₂-preserves-≤ (0≤si (d + n₁)) )
+                       (sym (partial-sums-split s (d + n₁)))))
+
 module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
          {{AG : AdditiveGroup ACM}} where
   private
