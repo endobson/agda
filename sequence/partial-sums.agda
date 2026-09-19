@@ -7,8 +7,8 @@ open import additive-group.instances.nat
 open import base
 open import equality
 open import fin
-open import finite-commutative-monoid.small
 open import finite-commutative-monoid.instances
+open import finite-commutative-monoid.small
 open import finset.instances
 open import finsum
 open import functions
@@ -21,7 +21,7 @@ open import relation
 open import sequence
 open import sequence.drop
 
-module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}  where
+module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} where
   private
     Seq : Type ℓD
     Seq = Sequence D
@@ -29,24 +29,15 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}  where
   partial-sums : Seq -> Seq
   partial-sums s n = finiteSum (\ ((i , _) : Fin n) -> s i)
 
-module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}  where
-  private
-    Seq : Type ℓD
-    Seq = Sequence D
-  partial-sums-zero : {s : Seq} -> partial-sums s 0 == 0#
-  partial-sums-zero = finiteMerge-Fin0 _ _
-  partial-sums-one : {s : Seq} -> partial-sums s 1 == s 0
-  partial-sums-one = finiteMerge-Fin1 _ _
-  partial-sums-suc : {s : Seq} {n : Nat} ->
-    partial-sums s (suc n) == s 0 + partial-sums (drop1 s) n
-  partial-sums-suc = finiteMerge-FinSuc _ _
+  opaque
+    partial-sums-zero : {s : Seq} -> partial-sums s 0 == 0#
+    partial-sums-zero = finiteMerge-Fin0 _ _
+    partial-sums-one : {s : Seq} -> partial-sums s 1 == s 0
+    partial-sums-one = finiteMerge-Fin1 _ _
+    partial-sums-suc : {s : Seq} {n : Nat} ->
+      partial-sums s (suc n) == s 0 + partial-sums (drop1 s) n
+    partial-sums-suc = finiteMerge-FinSuc _ _
 
-module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}  where
-  private
-    Seq : Type ℓD
-    Seq = Sequence D
-
-  abstract
     partial-sums-split : (s : Seq) (n : ℕ) -> (partial-sums s (suc n)) == s n + partial-sums s n
     partial-sums-split s zero =
       partial-sums-one >=>
@@ -74,19 +65,6 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}  where
       sym (partial-sums-split s (n + i)) >=>
       cong (partial-sums s) (sym +'-right-suc)
 
-    module _ {{AG : AdditiveGroup ACM}} where
-      diff-partial-sums : (s : Seq) (n m : ℕ) -> (lt : n ≤ m) ->
-        diff (partial-sums s n) (partial-sums s m) == partial-sums (dropN n s) ⟨ lt ⟩
-      diff-partial-sums s n m (j , p) =
-        +-left (cong (partial-sums s) (sym p >=> +-commuteᵉ j n) >=>
-                sym (partial-sums-dropN s n j) >=>
-                +-commute) >=>
-        +-assoc >=>
-        +-right +-inverse >=>
-        +-right-zero
-
-
-
 module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {{ACM : AdditiveCommMonoid D}}
          {{PO : isPartialOrder D≤}}
          {{POA : PartiallyOrderedAdditiveStr ACM PO}}
@@ -95,7 +73,7 @@ module _ {ℓD ℓ≤ : Level} {D : Type ℓD} {D≤ : Rel D ℓ≤} {{ACM : Add
     Seq : Type ℓD
     Seq = Sequence D
 
-  abstract
+  opaque
     partial-sums-0≤ :
       (s : Seq) -> ((n : ℕ) -> 0# ≤ s n) -> (n : ℕ) -> 0# ≤ partial-sums s n
     partial-sums-0≤ s 0≤s zero =
@@ -118,31 +96,43 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
     Seq : Type ℓD
     Seq = Sequence D
 
-  partial-sums-drop1 : (s : Seq) (n : ℕ) ->
-    partial-sums (drop1 s) n == diff (s zero) (partial-sums s (suc n))
-  partial-sums-drop1 s n =
-    sym +-right-zero >=>
-    +-right (sym +-inverse) >=>
-    sym +-assoc >=>
-    +-left (+-commute >=> sym partial-sums-suc)
+  opaque
+    diff-partial-sums : (s : Seq) (n m : ℕ) -> (lt : n ≤ m) ->
+      diff (partial-sums s n) (partial-sums s m) == partial-sums (dropN n s) ⟨ lt ⟩
+    diff-partial-sums s n m (j , p) =
+      +-left (cong (partial-sums s) (sym p >=> +-commuteᵉ j n) >=>
+              sym (partial-sums-dropN s n j) >=>
+              +-commute) >=>
+      +-assoc >=>
+      +-right +-inverse >=>
+      +-right-zero
 
-  partial-sums-drop : (s : Seq) (n m : ℕ) ->
-    partial-sums (drop n s) m == diff (partial-sums s n) (partial-sums s (n + m))
-  partial-sums-drop s n zero =
-    partial-sums-zero >=>
-    sym (+-left (cong (partial-sums s) +-right-zero) >=> +-inverse)
-  partial-sums-drop s n (suc m) =
-    partial-sums-suc >=>
-    +-cong (drop-+ n zero s) (partial-sums-drop s (suc n) m) >=>
-    +-right +-commute >=>
-    sym +-assoc >=>
-    +-commute >=>
-    +-cong
-      (cong (partial-sums s) (sym +'-right-suc))
-      (+-left (sym minus-double-inverse) >=>
-       sym minus-distrib-plus >=>
-       cong -_ (+-commute >=>
-                +-left (partial-sums-split s n >=> +-commute) >=>
-                +-assoc >=>
-                +-right (+-right (cong -_ (cong s +-right-zero)) >=> +-inverse) >=>
-                +-right-zero))
+
+    partial-sums-drop1 : (s : Seq) (n : ℕ) ->
+      partial-sums (drop1 s) n == diff (s zero) (partial-sums s (suc n))
+    partial-sums-drop1 s n =
+      sym +-right-zero >=>
+      +-right (sym +-inverse) >=>
+      sym +-assoc >=>
+      +-left (+-commute >=> sym partial-sums-suc)
+
+    partial-sums-drop : (s : Seq) (n m : ℕ) ->
+      partial-sums (drop n s) m == diff (partial-sums s n) (partial-sums s (n + m))
+    partial-sums-drop s n zero =
+      partial-sums-zero >=>
+      sym (+-left (cong (partial-sums s) +-right-zero) >=> +-inverse)
+    partial-sums-drop s n (suc m) =
+      partial-sums-suc >=>
+      +-cong (drop-+ n zero s) (partial-sums-drop s (suc n) m) >=>
+      +-right +-commute >=>
+      sym +-assoc >=>
+      +-commute >=>
+      +-cong
+        (cong (partial-sums s) (sym +'-right-suc))
+        (+-left (sym minus-double-inverse) >=>
+         sym minus-distrib-plus >=>
+         cong -_ (+-commute >=>
+                  +-left (partial-sums-split s n >=> +-commute) >=>
+                  +-assoc >=>
+                  +-right (+-right (cong -_ (cong s +-right-zero)) >=> +-inverse) >=>
+                  +-right-zero))
