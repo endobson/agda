@@ -207,6 +207,13 @@ opaque
                     (fin-elim-reduce-suc {P = P} (f zero-fin) (f ∘ suc-fin))
 
 
+-- Single step recursion/induction for Fin (suc n), but in the other direction.
+
+fin-rec' : {ℓ : Level} {A : Type ℓ} {n : Nat} -> A -> (Fin n -> A) -> Fin (suc n) -> A
+fin-rec' e f (i , (0 , p))     = e
+fin-rec' e f (i , (suc j , p)) = f (i , (j , cong pred p))
+
+
 
 -- Naturals in a range
 

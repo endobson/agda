@@ -3,11 +3,12 @@
 module fin-algebra where
 
 open import base
-open import equality
+open import equality-path
 open import equivalence
 open import fin
 open import functions
 open import funext
+open import hlevel.base
 open import isomorphism
 open import maybe
 open import nat
@@ -79,14 +80,29 @@ Fin-Maybe-eq : (n : Nat) -> Fin (suc n) ≃ Maybe (Fin n)
 Fin-Maybe-eq n = isoToEquiv i
   where
   i : Iso (Fin (suc n)) (Maybe (Fin n))
-  i .fun (zero  , p) = nothing
-  i .fun (suc i , p) = just (i , pred-≤ p)
-  i .inv nothing     = zero-fin
-  i .inv (just j)    = suc-fin j
+  i .fun = fin-rec nothing just
+  i .inv = maybe zero-fin suc-fin
   i .rightInv nothing    = refl
   i .rightInv (just j)   = cong just (fin-i-path refl)
   i .leftInv (zero  , p) = (fin-i-path refl)
   i .leftInv (suc i , p) = (fin-i-path refl)
+
+Fin-Maybe-eq' : (n : Nat) -> Fin (suc n) ≃ Maybe (Fin n)
+Fin-Maybe-eq' n = isoToEquiv i
+  where
+  i : Iso (Fin (suc n)) (Maybe (Fin n))
+  i .fun = fin-rec' nothing just
+  i .inv = maybe max-fin inc-fin
+  i .rightInv nothing    = refl
+  i .rightInv (just (i , (j , p))) = refl
+  i .leftInv (i , (zero , p)) = \k -> ip k , zero , pp k
+    where
+    ip : n == i
+    ip = cong pred (sym p)
+    pp : PathP (\k -> suc (ip k) == suc n) refl p
+    pp = isProp->PathP (\_ -> isSetNat _ _)
+  i .leftInv (i , (suc j , p)) k =
+    i , suc j , isSetNat _ _ (cong suc (cong pred p)) p k
 
 
 isInjective-Fin : isInjective Fin
