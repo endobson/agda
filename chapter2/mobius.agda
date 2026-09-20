@@ -16,7 +16,10 @@ open import div
 open import equality
 open import equivalence
 open import fin-algebra
+open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
+open import finite-commutative-monoid.sigma
+open import finite-commutative-monoid.small
 open import finset
 open import finset.instances
 open import finset.instances.sigma
@@ -327,11 +330,8 @@ module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{S : Semir
 
   divisorSum-one : (f : Nat⁺ -> D) -> divisorSum 1⁺ f == f 1⁺
   divisorSum-one f =
-    finiteSumᵉ-convert (FinSet-Divisor 1⁺) (FinSet-Fin 1)
-                      (Fin-Top-eq >eq> (equiv⁻¹ Divisor-one-eq))
-                      (f ∘ divisor->nat⁺ 1⁺)
-    >=> finiteSumᵉ-eval (FinSet-Fin 1) (idEquiv _) _
-    >=> +-right-zero
+    finiteMerge-convert (Fin-Top-eq >eq> (equiv⁻¹ Divisor-one-eq)) >=>
+    finiteMerge-Fin1
 
   Multiplicative-divisorSum : {f : Nat⁺ -> D} -> Multiplicative f ->
                               Multiplicative (\n -> divisorSum n f)
@@ -364,16 +364,13 @@ module _ {ℓ : Level} {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{S : Semir
         divisorSum (n1 *⁺ n2) f
       ==<>
         finiteSumᵉ (FinSet-Divisor (n1 *⁺ n2)) (f ∘ divisor->nat⁺ (n1 *⁺ n2))
-      ==< finiteSumᵉ-convert (FinSet-Divisor (n1 *⁺ n2))
-                             (FinSet-Σ (FinSet-Divisor n1) (\_ -> (FinSet-Divisor n2)))
-                             (Divisor-*-eq⁻¹ n1 n2 rp)
-                             (f ∘ divisor->nat⁺ (n1 *⁺ n2)) >
+      ==< finiteMerge-convert (Divisor-*-eq⁻¹ n1 n2 rp) >
         finiteSumᵉ (FinSet-Σ (FinSet-Divisor n1) (\_ -> (FinSet-Divisor n2))) _
       ==< cong (finiteSumᵉ (FinSet-Σ (FinSet-Divisor n1) (\_ -> (FinSet-Divisor n2))))
                (path3 >=> path4) >
         finiteSumᵉ (FinSet-Σ (FinSet-Divisor n1) (\_ -> (FinSet-Divisor n2)))
                    (\(d1 , d2) -> f (divisor->nat⁺ n1 d1) S.* f (divisor->nat⁺ n2 d2))
-      ==< finiteSum-Σ _ _ _ >
+      ==< finiteMergeᵉ-Σ _ _ >
         finiteSumᵉ (FinSet-Divisor n1)
           (\d1 -> finiteSumᵉ (FinSet-Divisor n2)
             (\d2 -> f (divisor->nat⁺ n1 d1) S.* f (divisor->nat⁺ n2 d2)))
@@ -402,7 +399,7 @@ private
   divisorSum-μ-prime p =
     begin
       divisorSum-μ p⁺
-    ==< finiteSumᵉ-eval _ (Divisor-prime-eq p) _ >
+    ==< finiteMerge-eval (Divisor-prime-eq p) >
       μ (p' , _) + (μ 1⁺ + (int 0))
     ==< cong (\x -> μ (p' , x) + (μ 1⁺ + (int 0))) (isPropPos' _ _) >
       μ p⁺ + (μ 1⁺ + (int 0))
@@ -432,10 +429,10 @@ private
       divisorSum-μ psn
     ==<>
       finiteSumᵉ (FinSet-Divisor psn) (μ ∘ divisor->nat⁺ psn)
-    ==< finiteSumᵉ-convert _ _ (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n)) _ >
+    ==< finiteMerge-convert (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n)) >
       finiteSumᵉ (FinSet-Maybe (FinSet-Divisor pn))
          ((μ ∘ divisor->nat⁺ psn) ∘ (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))))
-    ==< finiteMerge-Maybe _ {{_}} >
+    ==< finiteMerge-Maybe {{_}} >
       μ (prime-power p (suc n) , _) +
       finiteSumᵉ (FinSet-Divisor pn) ((μ ∘ divisor->nat⁺ psn) ∘
                                       (eqFun (equiv⁻¹ (Divisor-prime-power-Maybe-eq p n))) ∘

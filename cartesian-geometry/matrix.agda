@@ -165,7 +165,7 @@ isLinearTransformation-mv* m = is-linear-transformation preserves-+ preserves-*
     where
     p : (a : Axis) -> vector-index (m mv* (v1 + v2)) a ==
                       vector-index ((m mv* v1) + (m mv* v2)) a
-    p a = cong finiteSum (funExt \a2 -> *-distrib-+-left) >=> finiteMerge-split _
+    p a = cong finiteSum (funExt \a2 -> *-distrib-+-left) >=> finiteMerge-split
 
   preserves-* : (k : ℝ) (v : Vector) -> m mv* (k v* v) == (k v* (m mv* v))
   preserves-* k v =

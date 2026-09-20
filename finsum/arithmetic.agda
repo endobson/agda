@@ -29,7 +29,7 @@ module _ {ℓI ℓD : Level} {I : Type ℓI} {D : Type ℓD}
          {{ACM : AdditiveCommMonoid D}} where
   opaque
     finiteSum-+ : {f g : I -> D} -> finiteSum (\i -> (f i) + (g i)) == finiteSum f + finiteSum g
-    finiteSum-+ = finiteMerge-split _
+    finiteSum-+ = finiteMerge-split
 
 
 module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{AG : AdditiveGroup ACM}}
@@ -73,9 +73,9 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
            {{AACM : ApartAdditiveCommMonoid ACM A}}  where
     private
       finiteSum'-#0 : (n : Nat) (f : Fin n -> D) -> finiteSum f # 0# -> ∃[ i ∈ Fin n ] (f i # 0#)
-      finiteSum'-#0 zero f sum#0 = bot-elim (irrefl-path-# (finiteMerge-Fin0 _) sum#0)
+      finiteSum'-#0 zero f sum#0 = bot-elim (irrefl-path-# finiteMerge-Fin0 sum#0)
       finiteSum'-#0 (suc n) f sum#0 =
-        ∥-bind handle (+-reflects-#0 (subst (_# 0#) (finiteMerge-FinSuc _ {f = f}) sum#0))
+        ∥-bind handle (+-reflects-#0 (subst (_# 0#) (finiteMerge-FinSuc {f = f}) sum#0))
         where
         handle : (f zero-fin # 0#) ⊎ (finiteSum (f ∘ suc-fin) # 0#) -> ∃[ i ∈ Fin (suc n) ] (f i # 0#)
         handle (inj-l f0#0) = ∣ zero-fin , f0#0 ∣
@@ -91,4 +91,4 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
                                 (finiteSum'-#0 n _ (subst (_# 0#) p sum#0))
           where
           p : finiteSum f == finiteSum (f ∘ (eqInv eq))
-          p = finiteMerge-convert _ (equiv⁻¹ eq) f
+          p = finiteMerge-convert (equiv⁻¹ eq)

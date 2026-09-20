@@ -101,7 +101,7 @@ private
       p1 : ∀ n -> (partial-sums 2seq (suc n)) == 2# + (partial-sums (2seq ∘ suc) n)
       p1 n = partial-sums-suc
       p2 : ∀ n -> (partial-sums (2seq ∘ suc) n) == 0#
-      p2 n = finiteMerge-ε _ (\_ -> refl)
+      p2 n = finiteMerge-ε (\_ -> refl)
 
   adj-seq : Sequence ℝ
   adj-seq n = diff (1/4s n) (2seq n)

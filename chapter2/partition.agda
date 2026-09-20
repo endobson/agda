@@ -12,6 +12,7 @@ open import div
 open import equality
 open import equivalence
 open import fin
+open import finite-commutative-monoid
 open import finset
 open import finset.instances
 open import finset.instances.sigma
@@ -105,7 +106,7 @@ module _ {ℓ₁ : Level} {D : Type ℓ₁} {{ACM : AdditiveCommMonoid D}} where
 
 
     sum-×-Top : sum AF f == sum (ATopF (snd AF)) (f ∘ fst)
-    sum-×-Top = finiteSumᵉ-convert AF (ATopF (snd AF)) (×-Top' A) f
+    sum-×-Top = finiteMerge-convert (×-Top' A)
 
 
 

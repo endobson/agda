@@ -34,12 +34,12 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} where
       finiteSum-indicator' =
         begin
           finiteSum f'
-        ==< sym +-right-zero >=> sym (+-right (finiteMerge-ε _ (\_ -> refl))) >
+        ==< sym +-right-zero >=> sym (+-right (finiteMerge-ε (\_ -> refl))) >
           finiteSum f' + finiteSum z'
         ==< (\i -> finiteSum (f'=if i) + finiteSum (z'=if i)) >
           finiteSum (\(i , s) -> indicator' S DetS (f i) i) +
           finiteSum (\(i , ¬s) -> indicator' S DetS (f i) i)
-        ==< sym (finiteMerge-detachable _ S DetS _) >
+        ==< sym (finiteMerge-detachable S DetS) >
           finiteSum (\i -> indicator' S DetS (f i) i)
         end
         where

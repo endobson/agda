@@ -165,8 +165,8 @@ module _
     module _ (x y : D) where
       eval-all-ones-zero : finiteSum (eval-PI x y (all-ones-pif 0)) == 1#
       eval-all-ones-zero =
-        finiteMerge-convert-iso CM (iso⁻¹ PolyIndex<->Fin) _ >=>
-        finiteMerge-Fin1 CM >=>
+        finiteMerge-convert-iso (iso⁻¹ PolyIndex<->Fin) >=>
+        finiteMerge-Fin1 >=>
         *-left-one >=> *-left-one
 
 
@@ -197,7 +197,7 @@ module _
                              (x + y) * finiteSum (eval-PI x y f)
         shift-xy-eval-path {n} f =
           cong finiteSum (eval-+-path x y (suc n) (shift₁ f) (shift₂ f)) >=>
-          finiteMerge-split CM >=>
+          finiteMerge-split >=>
           +-cong (shift₁-eval-path x y f) (shift₂-eval-path x y f) >=>
           sym *-distrib-+-right
 
@@ -207,7 +207,7 @@ module _
             finiteSum (eval-PI x y (one-ends-pif n))
         sum₂-pif-eval-path =
           cong finiteSum (eval-+-path x y _ _ _) >=>
-          finiteMerge-split CM >=>
+          finiteMerge-split >=>
           +-left (shift-xy-eval-path (sum₁-pif n) >=>
                   *-right (shift-xy-eval-path (alt-ones-pif n)) >=>
                   sym *-assoc)
@@ -220,7 +220,7 @@ module _
           cong finiteSum (
             cong (eval-PI x y) (funExt (\pi -> sum₂-pif-path n en pi)) >=>
             (eval-+-path x y _ _ _)) >=>
-          finiteMerge-split CM
+          finiteMerge-split
 
 
         eval-sum₂-pif-0< : 0# < finiteSum (eval-PI x y (sum₂-pif n))

@@ -9,6 +9,7 @@ open import commutative-monoid
 open import equality
 open import equivalence
 open import fin
+open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
 open import finset
 open import finset.cardinality
@@ -30,7 +31,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
   {{S : Semiring ACM}} {{_ : ℕ->Semiring-Op D}}
   where
   private
-    finSumDep-one : {n : Nat} -> finSumDep n (\i -> 1) == n
+    finSumDep-one : {n : Nat} -> finMergeDep (CommMonoid-+ ℕ) n (\i -> 1) == n
     finSumDep-one {zero}  = refl
     finSumDep-one {suc n} = cong suc finSumDep-one
 
@@ -39,7 +40,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
       where
       handle : Σ[ n ∈ Nat ] (S' ≃ Fin n) -> finiteSumᵉ S (\s -> 1) == cardinality S
       handle (n , eq) =
-        finiteSumᵉ-eval S eq (\_ -> 1) >=>
+        finiteMerge-eval eq >=>
         finSumDep-one >=>
         sym (cardinality-path S (n , ∣ eq ∣))
 
@@ -84,17 +85,17 @@ opaque
 private
   cardinalityΣ-Σ' : {ℓ : Level} {n : Nat} (B : Fin n -> FinSet ℓ) ->
                     cardinalityΣ ((Σ[ i ∈ Fin n ] ⟨ B i ⟩) , isFinSetΣ-Σ' B) ==
-                    finSumDep n (\i -> cardinality (B i))
+                    finMergeDep (CommMonoid-+ ℕ) n (\i -> cardinality (B i))
   cardinalityΣ-Σ' {n = zero} FB = refl
   cardinalityΣ-Σ' {n = suc n} FB = cong (cardinality (FB zero-fin) +'_) rec
     where
     rec : cardinalityΣ ((Σ[ i ∈ Fin n ] ⟨ FB (suc-fin i) ⟩) , isFinSetΣ-Σ' (FB ∘ suc-fin)) ==
-          finSumDep n (\i -> cardinality (FB (suc-fin i)))
+          finMergeDep (CommMonoid-+ ℕ) n (\i -> cardinality (FB (suc-fin i)))
     rec = cardinalityΣ-Σ' (FB ∘ suc-fin)
 
   cardinality-Σ' : {ℓ : Level} {n : Nat} (B : Fin n -> FinSet ℓ) ->
                    cardinality ((Σ[ i ∈ Fin n ] ⟨ B i ⟩) , isFinSet-Σ' B) ==
-                   finSumDep n (\i -> cardinality (B i))
+                   finMergeDep (CommMonoid-+ ℕ) n (\i -> cardinality (B i))
   cardinality-Σ' {n = n} B =
     cardinality-path ((Σ[ i ∈ Fin n ] ⟨ B i ⟩) , isFinSet-Σ' B) (isFinSetΣ-Σ' B)
     >=> cardinalityΣ-Σ' B
@@ -103,7 +104,7 @@ private
                    cardinality ((Σ[ i ∈ Fin n ] ⟨ B i ⟩) , isFinSet-Σ' B) ==
                    (finiteSum (\i -> cardinality (B i)))
   cardinality-Σ2 B =
-    cardinality-Σ' B >=> sym (finiteSumᵉ-eval (FinSet-Fin _) (idEquiv _) (\i -> cardinality (B i)))
+    cardinality-Σ' B >=> sym (finiteMerge-eval (idEquiv _))
 
 opaque
   cardinality-Σ : {ℓS ℓB : Level} (S : FinSet ℓS) (B : ⟨ S ⟩ -> FinSet ℓB) ->
@@ -127,7 +128,7 @@ opaque
 
       path2 : (finiteSum (\i -> cardinality (B' i))) ==
               (finiteSumᵉ S (\s -> cardinality (B s)))
-      path2 = sym (finiteSumᵉ-convert S (FinSet-Fin n) eq' (\s -> cardinality (B s)))
+      path2 = sym (finiteMerge-convert eq')
 
       path3 : cardinality ((Σ[ i ∈ Fin n ] ⟨ B' i ⟩) , isFinSet-Σ' B') ==
               cardinality (FinSet-Σ S B)

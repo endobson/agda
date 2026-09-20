@@ -148,7 +148,7 @@ module _ {ℓK ℓV : Level}
                   scaled-vector-sum da vs
         d3-path =
           +-right (sym finiteSum--) >=>
-          sym (finiteMerge-split _) >=>
+          sym finiteMerge-split >=>
           cong finiteSum (funExt (\i -> +-right (sym v*-minus-extract-left) >=>
                                         sym v*-distrib-+-right))
 

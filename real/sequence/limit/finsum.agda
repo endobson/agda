@@ -27,7 +27,7 @@ private
     finiteSum-zero-preserves-limit :
       isLimit (\j -> finiteSum (\i -> s i j)) (finiteSum l)
     finiteSum-zero-preserves-limit =
-      subst2 isLimit (funExt (\_ -> (sym (finiteMerge-Fin0 _)))) (sym (finiteMerge-Fin0 _))
+      subst2 isLimit (funExt (\_ -> (sym finiteMerge-Fin0))) (sym finiteMerge-Fin0)
         (isLimit-constant-seq 0#)
 
   module _ {n : Nat} {s : Fin (suc n) -> ℕ -> ℝ} {l : Fin (suc n) -> ℝ} where
@@ -36,7 +36,7 @@ private
       isLimit (\j -> finiteSum (\i -> s (suc-fin i) j)) (finiteSum (l ∘ suc-fin)) ->
       isLimit (\j -> finiteSum (\i -> s i j)) (finiteSum l)
     finiteSum-suc-preserves-limit lim-zero rec =
-      subst2 isLimit (funExt (\j -> (sym (finiteMerge-FinSuc _)))) (sym (finiteMerge-FinSuc _))
+      subst2 isLimit (funExt (\j -> (sym finiteMerge-FinSuc))) (sym finiteMerge-FinSuc)
         (+-preserves-limit lim-zero rec)
 
   finiteSum-Fin-preserves-limit : (n : Nat) {s : Fin n -> ℕ -> ℝ} {l : Fin n -> ℝ} ->
@@ -60,8 +60,8 @@ module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}}
       handle : Σ[ n ∈ Nat ] (I ≃ Fin n) ->
                 isLimit (\j -> finiteSum (\i -> s i j)) (finiteSum l)
       handle (n , eq) =
-        subst2 isLimit (funExt (\j -> (sym (finiteMerge-convert _ (equiv⁻¹ eq) _))))
-                       (sym (finiteMerge-convert _ (equiv⁻¹ eq) _))
+        subst2 isLimit (funExt (\j -> (sym (finiteMerge-convert (equiv⁻¹ eq)))))
+                       (sym (finiteMerge-convert (equiv⁻¹ eq)))
           (finiteSum-Fin-preserves-limit n lims')
         where
         lims' : ∀ i -> isLimit (s (eqInv eq i)) (l (eqInv eq i))

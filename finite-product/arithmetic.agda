@@ -57,7 +57,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
 
     finiteProductᵉ-abs≯1 : {f : I -> D} ->
       (∀ i -> abs (f i) ≯ 1#) ->
-      abs (finiteProduct FI f) ≯ 1#
+      abs (finiteProduct f) ≯ 1#
     finiteProductᵉ-abs≯1 {f} f≯ =
       trans-=-≤ (cong abs (finiteMerge-homo-inject CommMonoidʰ-fst))
                 (snd (finiteMergeᵉ CM-D' FI f'))
@@ -88,7 +88,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
 
     finiteProductᵉ-empty-abs<1 : {f : I -> D} ->
       (∀ i -> abs (f i) < 1#) ->
-      finiteProduct FI f == 1# ->
+      finiteProduct f == 1# ->
       (¬ I)
     finiteProductᵉ-empty-abs<1 {f} f< f*=1 i = p3 (f< i)
       where
@@ -97,10 +97,10 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
       f'≯ : (i2 : WithoutPoint I i) -> abs (f' i2) ≯ 1#
       f'≯ (i , _) = asym-< (f< i)
 
-      p1 : finiteProduct FI f == f i * finiteProduct (FinSet-WithoutPoint FI i) f'
-      p1 = finiteMerge-WithoutPoint _ i f
+      p1 : finiteProduct f == f i * finiteProductᵉ (FinSet-WithoutPoint FI i) f'
+      p1 = finiteMerge-WithoutPoint i
 
-      p2 : 1# == abs (f i) * abs (finiteProduct (FinSet-WithoutPoint FI i) f')
+      p2 : 1# == abs (f i) * abs (finiteProductᵉ (FinSet-WithoutPoint FI i) f')
       p2 = sym (abs-0≤-path 0≤1) >=> cong abs (sym f*=1 >=> p1) >=> abs-distrib-*
 
       p3 : 1# ≤ abs (f i)

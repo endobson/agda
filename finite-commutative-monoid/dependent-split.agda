@@ -18,7 +18,7 @@ open import isomorphism
 open import subset
 open import sum
 
-module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
+module _ {ℓD : Level} {D : Type ℓD} {CM : CommMonoid D} where
   open CommMonoid CM
 
   module _ {ℓI ℓP ℓQ : Level} {I : Type ℓI} {P : I -> Type ℓP} {Q : I -> Type ℓQ}
@@ -82,14 +82,17 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
         bf (inj-r (i , q)) =
           cong (⊎-map (\p -> i , p) (\q -> i , q)) (snd (isContr-PQ i) (inj-r q))
 
+
     opaque
-      finiteMerge-dependent-split : (f : I -> D) ->
+      finiteMerge-dependent-split : {f : I -> D} ->
         finiteMerge CM f ==
         finiteMergeᵉ CM FS-P (f ∘ fst) ∙ finiteMergeᵉ CM FS-Q (f ∘ fst)
-      finiteMerge-dependent-split f =
-        finiteMergeᵉ-convert-iso CM _ (FinSet-⊎ FS-P FS-Q) split-iso f >=>
-        cong (finiteMergeᵉ CM _)
-          (funExt (\{ (inj-l _) -> refl
-                    ; (inj-r _) -> refl
-                    })) >=>
-        finiteMergeᵉ-⊎ CM _ _ (either (f ∘ fst) (f ∘ fst))
+      finiteMerge-dependent-split {f} =
+        finiteMerge-convert-iso split-iso >=>
+        cong (finiteMergeᵉ CM _) f-path >=>
+        finiteMergeᵉ-⊎ FS-P FS-Q
+        where
+        f-path : (f ∘ Iso.fun split-iso) == either (f ∘ fst) (f ∘ fst)
+        f-path = funExt (\{ (inj-l _) -> refl
+                          ; (inj-r _) -> refl
+                          })

@@ -97,7 +97,7 @@ abstract
     m : ℕ
     m = finiteMax p'
     f : {k : ℕ} -> (k < i) -> Iso.inv p k ≤ m
-    f {k} k<i = finiteMax-≤ p' (k , k<i)
+    f {k} k<i = finiteMax-≤ (k , k<i)
 
     g : {j : ℕ} -> m < j -> (Iso.fun p j < i ⊎ i ≤ Iso.fun p j) -> i ≤ Iso.fun p j
     g m<j (inj-r i≤pj) = i≤pj

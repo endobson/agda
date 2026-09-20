@@ -115,10 +115,8 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
   φℚ-path2 : (i : ℕ) -> ℕ->ℚ (φ (2⁺ *⁺ (2⁺ ^⁺ i))) ==
                         ℕ->ℚ (2 ^ℕ i)
   φℚ-path2 i =
-    φℚ-finiteProduct >=>
-    *-right (finiteMerge-isContr (Semiring.*-CommMonoid useⁱ)
-               {{ record { isFin = isFinSet-PrimeDivisor (2⁺ ^⁺ (suc i)) } }}
-               (isContr-PrimeDivisor2^si i)) >=>
+    φℚ-finiteProduct (2⁺ ^⁺ (suc i)) >=>
+    *-right (finiteMerge-isContr (isContr-PrimeDivisor2^si i)) >=>
     *-right path-half2 >=>
     *-commute >=>
     *-right (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ _ _) >=>
@@ -138,12 +136,12 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
 
   φℚ-path3 : φℚ (2⁺ *⁺ n⁺) ==
              (ℕ->ℚ n) *
-             (finiteProduct (FinSet-WithoutPoint (FinSet-PrimeDivisor (2⁺ *⁺ n⁺)) PrimeDivisor2n-2)
+             (finiteProductᵉ (FinSet-WithoutPoint (FinSet-PrimeDivisor (2⁺ *⁺ n⁺)) PrimeDivisor2n-2)
                (\((p , _) , _) -> (1r r+ (r- (fst (u1/ (ℚUnit-prime p)))))))
   φℚ-path3 =
-    φℚ-finiteProduct >=>
+    φℚ-finiteProduct (2⁺ *⁺ n⁺) >=>
     *-cong (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ 2 n)
-           (finiteMerge-WithoutPoint _ PrimeDivisor2n-2 _ >=> *-left path-half2) >=>
+           (finiteMerge-WithoutPoint PrimeDivisor2n-2 >=> *-left path-half2) >=>
     *-swap >=>
     *-left (ℕ-1/ℕ-path 2⁺) >=>
     *-left-one
@@ -165,7 +163,7 @@ problem1-a n⁺@(n , pos-n) = isoToEquiv (isProp->iso forward backward (isSetNat
     f' : WithoutPoint (PrimeDivisor (2⁺ *⁺ n⁺)) PrimeDivisor2n-2  -> ℚ
     f' (pd , _) = f pd
 
-    p2 : (finiteProduct (FinSet-WithoutPoint (FinSet-PrimeDivisor (2⁺ *⁺ n⁺)) PrimeDivisor2n-2) f') == 1#
+    p2 : (finiteProductᵉ (FinSet-WithoutPoint (FinSet-PrimeDivisor (2⁺ *⁺ n⁺)) PrimeDivisor2n-2) f') == 1#
     p2 =
       sym *-left-one >=>
       *-left (sym (1/ℕ-ℕ-path n⁺)) >=>

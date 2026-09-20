@@ -12,6 +12,7 @@ open import chapter2.prime-divisors
 open import chapter2.totient
 open import commutative-monoid
 open import equality
+open import finite-commutative-monoid.instances
 open import finite-product
 open import finset
 open import funext
@@ -102,9 +103,13 @@ Multiplicative-φℚ .snd a b rp =
 module _ where
   private
     assum1' : {ℓ : Level} (FA : FinSet ℓ) -> {f : ⟨ FA ⟩ -> ℕ} ->
-              finiteProduct FA (\a -> (ℕ->ℚ (f a))) == ℕ->ℚ (finiteProduct FA f)
-    assum1' FA = finiteProduct-homo-inject FA CM
+              finiteProductᵉ FA (\a -> (ℕ->ℚ (f a))) == ℕ->ℚ (finiteProductᵉ FA f)
+    assum1' FA@(A , _) = finiteMerge-homo-inject CM
       where
+      instance
+        FS-A : FinSetStr A
+        FS-A = record { isFin = snd FA }
+
       CM : CommMonoidʰᵉ _ _ ℕ->ℚ
       CM = record
         { monoidʰ = record
@@ -114,25 +119,29 @@ module _ where
         }
 
     φℚ-finiteProduct-step2 : {n : Nat⁺} ->
-      (finiteProduct (FinSet-PrimeDivisor n) (\(p , _) -> (prime-powerℚ p (int (prime-div-count p n)))))
+      (finiteProductᵉ (FinSet-PrimeDivisor n) (\(p , _) -> (prime-powerℚ p (int (prime-div-count p n)))))
       == (ℕ->ℚ ⟨ n ⟩)
     φℚ-finiteProduct-step2 {n} =
-      cong (\f -> finiteProduct (FinSet-PrimeDivisor n) f)
+      cong (\f -> finiteProductᵉ (FinSet-PrimeDivisor n) f)
            (funExt (\(p , d) -> (sym (ℕ->ℚ-prime-power p (prime-div-count p n)))))
       >=> assum1' (FinSet-PrimeDivisor n)
       >=> cong ℕ->ℚ (sym (finiteProduct-PrimeDivisor-N⁰ n))
 
+    instance
+      FS-PD : {n : Nat⁺} -> FinSetStr (PrimeDivisor n)
+      FS-PD {n} = record { isFin = isFinSet-PrimeDivisor n }
 
 
-  φℚ-finiteProduct : {n : Nat⁺} ->
-    φℚ n == (ℕ->ℚ ⟨ n ⟩) r* (finiteProduct (FinSet-PrimeDivisor n)
+
+  φℚ-finiteProduct : (n : Nat⁺) ->
+    φℚ n == (ℕ->ℚ ⟨ n ⟩) r* (finiteProductᵉ (FinSet-PrimeDivisor n)
                               (\(p , _) -> (1r r+ (r- (fst (u1/ (ℚUnit-prime p)))))))
-  φℚ-finiteProduct {n} =
+  φℚ-finiteProduct n =
     Multiplicative-PrimeDivisor {f = φℚ} Multiplicative-φℚ {n} >=>
-    cong (\f -> finiteProduct (FinSet-PrimeDivisor n) f)
+    cong (\f -> finiteProductᵉ (FinSet-PrimeDivisor n) f)
          (funExt (\(p , d) -> φℚ-prime-power p (prime-div-count p n ,
                                                 <->Pos' (prime-div->prime-div-count p n d)))) >=>
-    finiteProduct-split (FinSet-PrimeDivisor n) >=>
-    cong (_r* (finiteProduct (FinSet-PrimeDivisor n)
+    finiteMerge-split >=>
+    cong (_r* (finiteProductᵉ (FinSet-PrimeDivisor n)
                 (\(p , _) -> (1r r+ (r- (fst (u1/ (ℚUnit-prime p))))))))
          (φℚ-finiteProduct-step2 {n})

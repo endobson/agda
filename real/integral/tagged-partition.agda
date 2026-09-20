@@ -116,30 +116,28 @@ module _ {a b : ℝ} (p : Partition a b) where
         fh-i = fh ∘ index->high-boundary
 
       low-sum : finiteSum fl-i == finiteSum fl
-      low-sum = sym (finiteMerge-convert _ (index->low-boundary-eq) fl)
+      low-sum = sym (finiteMerge-convert (index->low-boundary-eq))
 
       high-sum : finiteSum fh-i == finiteSum fh
-      high-sum = sym (finiteMerge-convert _ (index->high-boundary-eq) fh)
+      high-sum = sym (finiteMerge-convert (index->high-boundary-eq))
 
       split-sum-low : finiteSum f == finiteSum fl + finiteSum f¬l
       split-sum-low =
-        finiteMerge-detachable _
+        finiteMerge-detachable
           (\pb -> LowPartitionBoundary pb , isProp-LowPartitionBoundary pb)
           Decidable-LowPartitionBoundary
-          f
 
       split-sum-high : finiteSum f == finiteSum fh + finiteSum f¬h
       split-sum-high =
-        finiteMerge-detachable _
+        finiteMerge-detachable
           (\pb -> HighPartitionBoundary pb , isProp-HighPartitionBoundary pb)
           Decidable-HighPartitionBoundary
-          f
 
       ¬low-sum : finiteSum f¬l == f pb-high
-      ¬low-sum = finiteMerge-isContr _ isContr-Σ¬LowPartitionBoundary
+      ¬low-sum = finiteMerge-isContr isContr-Σ¬LowPartitionBoundary
 
       ¬high-sum : finiteSum f¬h == f pb-low
-      ¬high-sum = finiteMerge-isContr _ isContr-Σ¬HighPartitionBoundary
+      ¬high-sum = finiteMerge-isContr isContr-Σ¬HighPartitionBoundary
 
       split-sum-low' : finiteSum fl-i == diff (f pb-high) (finiteSum f)
       split-sum-low' =
@@ -161,7 +159,7 @@ module _ {a b : ℝ} (p : Partition a b) where
   sum-width =
     begin
       finiteSum p.width
-    ==< finiteMerge-split _ >
+    ==< finiteMerge-split >
       finiteSum p.interval-high + finiteSum (\x -> - (p.interval-low x))
     ==< +-right finiteSum-- >
       finiteSum p.interval-high + - finiteSum p.interval-low

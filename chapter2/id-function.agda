@@ -42,5 +42,5 @@ Multiplicative-Nℚ .snd (a , _) (b , _) rp = Semiringʰ.preserves-* Semiringʰ-
 
 finiteProduct-PrimeDivisor-N⁰ :
   (n : Nat⁺) ->
-  ⟨ n ⟩ == finiteProduct (FinSet-PrimeDivisor n) (\(p , _) -> (prime-power p (prime-div-count p n)))
+  ⟨ n ⟩ == finiteProductᵉ (FinSet-PrimeDivisor n) (\(p , _) -> (prime-power p (prime-div-count p n)))
 finiteProduct-PrimeDivisor-N⁰ n = Multiplicative-PrimeDivisor Multiplicative-N⁰

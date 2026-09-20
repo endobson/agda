@@ -43,7 +43,7 @@ open import real.series.base public
 opaque
   isConvergentSeries-zero-seq : isConvergentSeries (\_ -> 0#)
   isConvergentSeries-zero-seq =
-    subst isConvergentSequence (funExt (\n -> sym (finiteMerge-ε _ (\_ -> refl))))
+    subst isConvergentSequence (funExt (\n -> sym (finiteMerge-ε (\_ -> refl))))
       (0# , isLimit-constant-seq 0#)
 
   isConvergentSeries-minus : {s : Sequence ℝ} -> isConvergentSeries s ->

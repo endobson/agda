@@ -33,11 +33,14 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
       agree : ∀ a -> f a == g (inc a)
       ε-others : ∀ b -> ¬ (fiber inc b) -> g b == ε
 
+module _ {ℓD : Level} {D : Type ℓD} {CM : CommMonoid D} where
+  open CommMonoid CM
+
   module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
            {{FSA : FinSetStr A}} {{FSB : FinSetStr B}}
            {f : A -> D} {g : B -> D} where
 
-    module _ (isExt : isεExtension f g) where
+    module _ (isExt : isεExtension CM f g) where
       private
         module isExt = isεExtension isExt
         h = isExt.inc
@@ -84,8 +87,8 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
           where
           step1 : finiteMerge CM f == finiteMerge CM g₁
           step1 = cong (finiteMerge CM) (funExt isExt.agree) >=>
-                  sym (finiteMerge-convert-iso CM ext-iso g₁)
+                  sym (finiteMerge-convert-iso ext-iso)
           step2 : finiteMerge CM g₂ == ε
-          step2 = finiteMerge-ε CM (\ (b , ¬fib) -> isExt.ε-others b ¬fib)
+          step2 = finiteMerge-ε (\ (b , ¬fib) -> isExt.ε-others b ¬fib)
           step3 : finiteMerge CM g == finiteMerge CM g₁ ∙ finiteMerge CM g₂
-          step3 = finiteMerge-detachable CM S DetS g
+          step3 = finiteMerge-detachable S DetS

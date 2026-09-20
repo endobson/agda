@@ -28,8 +28,8 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOr
         NLO = isLinearOrder->isPartialOrder-≯ LO
 
     opaque
-      finiteMax-≮ : (f : I -> D) -> (i : I) -> finiteMax f ≮ f i
-      finiteMax-≮ f i = trans-≤-= max-≮-left (sym (finiteMerge-WithoutPoint _ i f))
+      finiteMax-≮ : {f : I -> D} -> (i : I) -> finiteMax f ≮ f i
+      finiteMax-≮ i = trans-≤-= max-≮-left (sym (finiteMerge-WithoutPoint i))
 
   module _ {ℓ≤ : Level} {D≤ : Rel D ℓ≤} {PO : isPartialOrder D≤}
            {{CO : CompatibleOrderStr LO PO}} where
@@ -38,5 +38,5 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<} {{LO : isLinearOr
         IPO = PO
 
     opaque
-      finiteMax-≤ : (f : I -> D) -> (i : I) -> f i ≤ finiteMax f
-      finiteMax-≤ f i = convert-≮ (finiteMax-≮ f i)
+      finiteMax-≤ : {f : I -> D} -> (i : I) -> f i ≤ finiteMax f
+      finiteMax-≤ i = convert-≮ (finiteMax-≮ i)

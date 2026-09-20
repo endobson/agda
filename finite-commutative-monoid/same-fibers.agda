@@ -8,9 +8,9 @@ open import equality
 open import equivalence
 open import finite-commutative-monoid
 open import finset
+open import funext
 open import isomorphism
 open import sigma
-open import funext
 open import type-algebra
 
 private
@@ -21,8 +21,6 @@ private
       ℓSD = (ℓ-max ℓS ℓD)
       S : Type ℓS
       S = ⟨ fS ⟩
-
-
 
     module _ (f : (S -> D)) where
       private
@@ -49,7 +47,7 @@ private
 
       finiteMergeᵉ-fiber-path : finiteMergeᵉ CM fS f == finiteMergeᵉ-fiber
       finiteMergeᵉ-fiber-path =
-        finiteMergeᵉ-convert CM fS FinSet-ΣPreImage ΣPreImage-eq f >=>
+        finiteMerge-convert ΣPreImage-eq >=>
         cong (finiteMergeᵉ CM FinSet-ΣPreImage) (funExt path)
         where
         path : (p : ΣPreImage) -> f (fst (snd p)) == fst p
@@ -68,8 +66,7 @@ private
     module _ (f : (S₁ -> D)) (g : (S₂ -> D)) where
       module _ (same-fibers : (d : D) -> fiber f d ≃ fiber g d) where
         same-value : finiteMergeᵉ-fiber CM fS₁ f == finiteMergeᵉ-fiber CM fS₂ g
-        same-value =
-          finiteMergeᵉ-convert CM (FinSet-ΣPreImage CM fS₁ f) (FinSet-ΣPreImage CM fS₂ g) same-Σ fst
+        same-value = finiteMerge-convert same-Σ
           where
           same-Σ : Σ D (fiber g) ≃ Σ D (fiber f)
           same-Σ = equiv⁻¹ (existential-eq same-fibers)
@@ -77,13 +74,13 @@ private
 
 module _
   {ℓD ℓS₁ ℓS₂ : Level} {D : Type ℓD}
-  (CM : CommMonoid D)
-  (fS₁ : FinSet ℓS₁) (fS₂ : FinSet ℓS₂)
-  (f : (⟨ fS₁ ⟩ -> D)) (g : (⟨ fS₂ ⟩ -> D)) where
-  finiteMergeᵉ-sameFibers :
+  {CM : CommMonoid D}
+  {fS₁ : FinSet ℓS₁} {fS₂ : FinSet ℓS₂}
+  {f : (⟨ fS₁ ⟩ -> D)} {g : (⟨ fS₂ ⟩ -> D)} where
+  finiteMerge-sameFibers :
     ((d : D) -> fiber f d ≃ fiber g d) ->
     finiteMergeᵉ CM fS₁ f == finiteMergeᵉ CM fS₂ g
-  finiteMergeᵉ-sameFibers same =
+  finiteMerge-sameFibers same =
     finiteMergeᵉ-fiber-path CM fS₁ f >=>
     same-value CM fS₁ fS₂ f g same >=>
     sym (finiteMergeᵉ-fiber-path CM fS₂ g)

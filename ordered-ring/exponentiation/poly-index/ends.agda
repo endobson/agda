@@ -74,10 +74,10 @@ module _
     ends-eval-path : finiteSum (eval-PI x y (ends-pif n a b)) ==
                      a * (y ^ℕ (suc n)) + b * (x ^ℕ (suc n))
     ends-eval-path =
-      finiteMerge-detachable CM (isEndIndex n) Det-isEndIndex _ >=>
-      +-right (finiteMerge-ε CM inner-zero) >=>
+      finiteMerge-detachable (isEndIndex n) Det-isEndIndex >=>
+      +-right (finiteMerge-ε inner-zero) >=>
       +-right-zero >=>
-      finiteMerge-2elem CM EndIndex<->Boolean >=>
+      finiteMerge-2elem EndIndex<->Boolean >=>
       +-cong left-side right-side
       where
       inner-zero : ((pi , _) : (∉-Subtype (isEndIndex n))) ->

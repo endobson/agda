@@ -14,7 +14,7 @@ open import finset.without-point
 open import relation
 open import without-point
 
-module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
+module _ {ℓD : Level} {D : Type ℓD} {CM : CommMonoid D} where
   open CommMonoid CM
 
   module _ {ℓI : Level} {I : Type ℓI} {{FI : FinSetStr I}} where
@@ -24,8 +24,8 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
         DI .Discrete'.f = isFinSet->Discrete (FinSetStr.isFin FI)
 
     opaque
-      finiteMerge-WithoutPoint : (i : I) (f : I -> D) ->
+      finiteMerge-WithoutPoint : (i : I) {f : I -> D} ->
          finiteMerge CM f == f i ∙ finiteMerge CM (\ ((i2 , _) : WithoutPoint I i) -> f i2)
-      finiteMerge-WithoutPoint i f =
-         finiteMerge-convert CM (MaybeWithoutPoint-eq I i) f >=>
-         finiteMerge-Maybe CM
+      finiteMerge-WithoutPoint i =
+         finiteMerge-convert (MaybeWithoutPoint-eq I i) >=>
+         finiteMerge-Maybe

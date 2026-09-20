@@ -28,14 +28,14 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
       (a + b) ^ℕ n == finiteSum (\ ((fin-pair+ i j _) : FinPair+ n) ->
                                    (ℕ->Semiring (binomial-coeff' i j)) * (a ^ℕ i * b ^ℕ j))
     binomial-expansion-path a b zero =
-      sym (finiteMerge-isContr _ isContr-FinPair+-0 >=>
+      sym (finiteMerge-isContr isContr-FinPair+-0 >=>
            *-right *-right-one >=> *-right-one >=>
            ℕ->Semiring-preserves-1#)
     binomial-expansion-path a b (suc n) =
       *-right (binomial-expansion-path a b n) >=>
       *-distrib-+-right >=>
       +-cong (sym finiteSum-* >=> sym p1) (sym finiteSum-* >=> sym p2) >=>
-      sym (finiteMerge-split (CommMonoid-+ _)) >=>
+      sym (finiteMerge-split) >=>
       cong finiteSum (funExt p3)
       where
       af : FinPair+ n -> D
@@ -48,12 +48,12 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
       bf' = fin-pair+-rec₂ 0# bf
 
       p1 : finiteSum af' == finiteSum af
-      p1 = finiteMerge-FinPair+-split₁ _ af' >=>
+      p1 = finiteMerge-FinPair+-split₁ >=>
            +-left-zero >=>
            cong finiteSum (funExt (\x -> fin-pair+-rec₁-suc 0# af x))
 
       p2 : finiteSum bf' == finiteSum bf
-      p2 = finiteMerge-FinPair+-split₂ _ bf' >=>
+      p2 = finiteMerge-FinPair+-split₂ >=>
            +-left-zero >=>
            cong finiteSum (funExt (\x -> fin-pair+-rec₁-suc 0# bf x))
 

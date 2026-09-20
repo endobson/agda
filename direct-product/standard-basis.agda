@@ -10,6 +10,7 @@ open import commutative-monoid.pi
 open import decision
 open import direct-product
 open import equality hiding (J)
+open import equivalence
 open import fin
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
@@ -248,15 +249,14 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
         sum2 : finiteSum extended-scale-up ==
                finiteSum (extended-scale-up ∘ fst) +
                finiteSum (extended-scale-up ∘ fst)
-        sum2 = finiteMerge-detachable _ SubS detachable-S extended-scale-up
+        sum2 = finiteMerge-detachable SubS detachable-S
 
         sum3 : finiteSum (extended-scale-up ∘ fst) == 0#
-        sum3 = finiteMerge-ε _ extended-scale-up-no-support
+        sum3 = finiteMerge-ε extended-scale-up-no-support
 
         sum4 : finiteSum (extended-scale-up ∘ fst) == finiteSum scale-up
         sum4 = cong finiteSum extended-scale-up-support >=>
-               finiteMerge-convert _ Σ-swap-eq (\ (i , s , _) -> scale-up s) >=>
-               finiteMerge-convert _ (Σ-isContr-eq isContr-ΣI) (scale-up ∘ fst)
+               finiteMerge-convert (Σ-isContr-eq isContr-ΣI >eq> Σ-swap-eq)
 
         sum5 : scaled-vector-sum standard-basis S f ==
                finiteSum extended-scale-up
@@ -304,8 +304,7 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
                               (app-to i ∘ unwrap-dp ∘ extended-scale-up ∘ fst) +
                  finiteMergeᵉ CM-K+ (_ , fs-ΣIP')
                               (app-to i ∘ unwrap-dp ∘ extended-scale-up ∘ fst)
-          sum8 = finiteMerge-detachable CM-K+ P detachable-P
-                   (app-to i ∘ unwrap-dp ∘ extended-scale-up)
+          sum8 = finiteMerge-detachable P detachable-P
 
 
           path9 : (ip : (∉-Subtype P)) ->
@@ -337,9 +336,9 @@ module _ {ℓK ℓI : Level} {K : Type ℓK} {K# : Rel K ℓK}
                   extend i
           sum11 = sum8 >=>
                   cong2 _+_ (cong (finiteMerge CM-K+) (funExt path10))
-                            (finiteMerge-ε CM-K+ path9)
+                            (finiteMerge-ε path9)
                   >=> +-right-zero
-                  >=> finiteMerge-isContr CM-K+ isContr-ΣIP
+                  >=> finiteMerge-isContr isContr-ΣIP
 
 
 

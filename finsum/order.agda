@@ -103,4 +103,4 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
                 (finsum-reflects-< n (f ∘ eqInv eq) (g ∘ eqInv eq) lt)
           where
           lt : equivMerge CM eq f < equivMerge CM eq g
-          lt = subst2 _<_ (finiteMerge-eval CM eq f) (finiteMerge-eval CM eq g) fs<gs
+          lt = subst2 _<_ (finiteMerge-eval eq) (finiteMerge-eval eq) fs<gs

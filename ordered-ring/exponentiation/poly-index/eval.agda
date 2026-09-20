@@ -78,7 +78,7 @@ module _
     shift₁-eval-path : {n : Nat} -> (f : PolyIndex n -> D) ->
                        finiteSum (eval-PI x y (shift₁ f)) == x * finiteSum (eval-PI x y f)
     shift₁-eval-path f =
-      sym (finiteMerge-extension CM (isExt-eval-shift₁ f)) >=>
+      sym (finiteMerge-extension (isExt-eval-shift₁ f)) >=>
       finiteSum-*
 
     private
@@ -134,7 +134,7 @@ module _
     shift₂-eval-path : {n : Nat} -> (f : PolyIndex n -> D) ->
                        finiteSum (eval-PI x y (shift₂ f)) == y * finiteSum (eval-PI x y f)
     shift₂-eval-path {n} f =
-      sym (finiteMerge-extension CM (isExt-eval-shift₂ f)) >=>
+      sym (finiteMerge-extension (isExt-eval-shift₂ f)) >=>
       finiteSum-*
 
   module _ {{AG : AdditiveGroup ACM}} (x y : D) where

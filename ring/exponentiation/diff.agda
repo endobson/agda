@@ -36,7 +36,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
     diff*all-ones-path {a} {b} {n} =
       *-distrib-+-right >=>
       +-cong (sym finiteSum-* >=> sym p2) (sym finiteSum-* >=> sym p1) >=>
-      sym (finiteMerge-split _) >=>
+      sym finiteMerge-split >=>
       p3
       where
       af : FinPair+ n -> D
@@ -49,12 +49,12 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
       bf' = fin-pair+-rec₂ 0# bf
 
       p1 : finiteSum af' == finiteSum af
-      p1 = finiteMerge-FinPair+-split₁ _ af' >=>
+      p1 = finiteMerge-FinPair+-split₁ >=>
            +-left-zero >=>
            cong finiteSum (funExt (\x -> fin-pair+-rec₁-suc 0# af x))
 
       p2 : finiteSum bf' == finiteSum bf
-      p2 = finiteMerge-FinPair+-split₂ _ bf' >=>
+      p2 = finiteMerge-FinPair+-split₂ >=>
            +-left-zero >=>
            cong finiteSum (funExt (\x -> fin-pair+-rec₁-suc 0# bf x))
 
@@ -75,14 +75,17 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}}
       zero₂!=zero₁ : ¬ (Path (FinPair+ (suc n)) fin-pair+-zero₂ fin-pair+-zero₁)
       zero₂!=zero₁ p = zero-suc-absurd (cong FinPair+.j p)
 
+      p3' : finiteSum (\ ((ij , _) : WithoutPoint (FinPair+ (suc n)) fin-pair+-zero₁) -> bf' ij + af' ij) ==
+            - (a ^ℕ (suc n))
+      p3' =
+        finiteMerge-WithoutPoint (fin-pair+-zero₂ , zero₂!=zero₁) >=>
+        +-left p-zero₂ >=>
+        +-right (finiteMerge-ε (\ ((ij , ¬p₁) , ¬p₂) ->
+                                   p-suc ij ¬p₁ (¬p₂ ∘ WithoutPoint-path))) >=>
+        +-right-zero
+
       p3 : finiteSum (\ij -> bf' ij + af' ij) ==
            (diff (a ^ℕ (suc n)) (b ^ℕ (suc n)))
       p3 =
-        finiteMerge-WithoutPoint CM fin-pair+-zero₁ (\ij -> bf' ij + af' ij) >=>
-        +-left p-zero₁ >=>
-        +-right (finiteMerge-WithoutPoint CM (fin-pair+-zero₂ , zero₂!=zero₁)
-                  (\(ij , _) -> bf' ij + af' ij) >=>
-                 +-left p-zero₂ >=>
-                 +-right (finiteMerge-ε CM (\ ((ij , ¬p₁) , ¬p₂) ->
-                                              p-suc ij ¬p₁ (¬p₂ ∘ WithoutPoint-path))) >=>
-                 +-right-zero)
+        finiteMerge-WithoutPoint fin-pair+-zero₁ >=>
+        +-cong p-zero₁ p3'

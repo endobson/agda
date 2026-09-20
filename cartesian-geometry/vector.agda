@@ -120,7 +120,7 @@ axis-dot-product f1 f2 = (f1 x-axis * f2 x-axis) + (f1 y-axis * f2 y-axis)
 
 finiteMerge-Axis : {ℓ : Level} {D : Type ℓ} (CM : CommMonoid D) {f : Axis -> D} ->
                    finiteMerge CM f == (CommMonoid._∙_ CM) (f x-axis) (f y-axis)
-finiteMerge-Axis CM = finiteMerge-2elem CM Axis<->Boolean
+finiteMerge-Axis CM = finiteMerge-2elem Axis<->Boolean
 
 Vector : Type₁
 Vector = DirectProduct ℝ Axis

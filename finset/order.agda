@@ -118,7 +118,7 @@ private
 
   FinSet≤-Fin-Collection : {ℓ : Level} (n : Nat) (A : Fin n -> FinSet ℓ) ->
                            (∀ i -> ∥ ⟨ A i ⟩  ∥) ->
-                            n ≤ finiteSumᵉ (FinSet-Fin n) (\i -> cardinality (A i))
+                            n ≤ finiteSum (\i -> cardinality (A i))
   FinSet≤-Fin-Collection zero    A inhabit = zero-≤
   FinSet≤-Fin-Collection (suc n) A inhabit =
     trans-≤-= (+-preserves-≤ lt1 (FinSet≤-Fin-Collection n A' inhabit')) p
@@ -130,9 +130,9 @@ private
     lt1 : 1 ≤ cardinality A0
     lt1 = eqFun (inhabited-0<cardinality A0) (inhabit zero-fin)
 
-    p : cardinality A0 + finiteSumᵉ (FinSet-Fin n) (\i -> cardinality (A' i)) ==
-        finiteSumᵉ (FinSet-Fin (suc n)) (\i -> cardinality (A i))
-    p = sym (finiteMerge-FinSuc _)
+    p : cardinality A0 + finiteSum (\i -> cardinality (A' i)) ==
+        finiteSum (\i -> cardinality (A i))
+    p = sym finiteMerge-FinSuc
 
 
   FinSet≤-Fin-Collection' : (n : Nat) (A : Fin n -> FinSet ℓ-zero) ->

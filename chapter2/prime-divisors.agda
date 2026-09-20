@@ -12,6 +12,9 @@ open import discrete
 open import div hiding (remainder)
 open import equality
 open import equivalence
+open import finite-commutative-monoid
+open import finite-commutative-monoid.instances
+open import finite-commutative-monoid.small
 open import finite-product
 open import finset
 open import finset.instances.base
@@ -412,17 +415,14 @@ module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} wher
 
 
       factorization-case : {n : Nat⁺} -> PrimePowerFactorization ⟨ n ⟩ ->
-                           finiteProduct (FinSet-PrimePowerFactor ⟨ n ⟩) f' == f n
+                           finiteProductᵉ (FinSet-PrimePowerFactor ⟨ n ⟩) f' == f n
       factorization-case {n} (ppf-base p e) =
-        finiteProduct-convert (FinSet-PrimePowerFactor ⟨ n ⟩) FinSet-Top
-                              (equiv⁻¹ (PrimePowerFactor-prime-power-eq p e)) _
-        >=> finiteProduct-Top
+        finiteMerge-convert (equiv⁻¹ (PrimePowerFactor-prime-power-eq p e))
+        >=> finiteMerge-Top
         >=> cong f (ΣProp-path isPropPos' refl)
       factorization-case (ppf-combine {a} {b} fa fb rp) =
-        finiteProduct-convert (FinSet-PrimePowerFactor (a *' b))
-                              (FinSet-⊎ (FinSet-PrimePowerFactor a) (FinSet-PrimePowerFactor b))
-                              (equiv⁻¹ (PrimePowerFactor-*-eq a b rp)) _
-        >=> finiteProduct-⊎ (FinSet-PrimePowerFactor a) (FinSet-PrimePowerFactor b) _
+        finiteMerge-convert (equiv⁻¹ (PrimePowerFactor-*-eq a b rp))
+        >=> finiteMergeᵉ-⊎ (FinSet-PrimePowerFactor a) (FinSet-PrimePowerFactor b)
         >=> cong2 _*_ (factorization-case {a⁺} fa) (factorization-case {b⁺} fb)
         >=> sym (m .snd _ _ rp)
         >=> cong f (ΣProp-path isPropPos' refl)
@@ -434,19 +434,17 @@ module _ {D : Type ℓ} {{ACM : AdditiveCommMonoid D}} {{S : Semiring ACM}} wher
 
 
     Multiplicative-PrimePowerFactor :
-      {n : Nat⁺} -> f n == finiteProduct (FinSet-PrimePowerFactor ⟨ n ⟩) f'
+      {n : Nat⁺} -> f n == finiteProductᵉ (FinSet-PrimePowerFactor ⟨ n ⟩) f'
     Multiplicative-PrimePowerFactor {n = (suc zero) , _} =
       m .fst
-      >=> sym (finiteProduct-Bot)
-      >=> sym (finiteProduct-convert (FinSet-PrimePowerFactor 1) (FinSet-Bot)
-                                     (equiv⁻¹ (PrimePowerFactor-1-eq)) f')
+      >=> sym finiteMerge-Bot
+      >=> sym (finiteMerge-convert (equiv⁻¹ (PrimePowerFactor-1-eq)))
     Multiplicative-PrimePowerFactor {n = (suc (suc _)) , _} =
       sym (factorization-case (compute-ppf (suc-≤ (suc-≤ zero-≤))))
 
     Multiplicative-PrimeDivisor :
-      {n : Nat⁺} -> f n == finiteProduct (FinSet-PrimeDivisor n)
+      {n : Nat⁺} -> f n == finiteProductᵉ (FinSet-PrimeDivisor n)
                             (\(p , _) -> (f (prime-power⁺ p (prime-div-count p n))))
     Multiplicative-PrimeDivisor =
       Multiplicative-PrimePowerFactor >=>
-      finiteProduct-convert (FinSet-PrimePowerFactor _) (FinSet-PrimeDivisor _)
-                            (PrimeDivisor-PrimePowerFactor-eq _) _
+      finiteMerge-convert (PrimeDivisor-PrimePowerFactor-eq _)

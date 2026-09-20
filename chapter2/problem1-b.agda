@@ -76,18 +76,18 @@ problem1-b n⁺@(n , _) =
     p1 : PrimeDivisor (2⁺ *⁺ n⁺) ≃ PrimeDivisor n⁺
     p1 = existential-eq same-pdivs
 
-    p2 : (finiteProduct (FinSet-PrimeDivisor (2⁺ *⁺ n⁺))
+    p2 : (finiteProductᵉ (FinSet-PrimeDivisor (2⁺ *⁺ n⁺))
            (\(p , _) -> (1r r+ (r- (fst (u1/ (ℚUnit-prime p))))))) ==
-         (finiteProduct (FinSet-PrimeDivisor n⁺)
+         (finiteProductᵉ (FinSet-PrimeDivisor n⁺)
            (\(p , _) -> (1r r+ (r- (fst (u1/ (ℚUnit-prime p)))))))
-    p2 = finiteMergeᵉ-convert _ _ _ (equiv⁻¹ p1) _
+    p2 = finiteMerge-convert (equiv⁻¹ p1)
 
     p3 : φℚ (2⁺ *⁺ n⁺) == (ℕ->ℚ 2) * φℚ n⁺
-    p3 = φℚ-finiteProduct >=>
+    p3 = φℚ-finiteProduct (2⁺ *⁺ n⁺) >=>
          *-right p2 >=>
          *-left (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ _ _) >=>
          *-assoc >=>
-         *-right (sym φℚ-finiteProduct)
+         *-right (sym (φℚ-finiteProduct n⁺))
 
     p4 : φ (2⁺ *⁺ n⁺) == 2 * φ n⁺
     p4 = isInjective-ℕ->ℚ (p3 >=> sym (Semiringʰ.preserves-* Semiringʰ-ℕ->ℚ _ _))

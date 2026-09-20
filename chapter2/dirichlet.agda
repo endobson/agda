@@ -4,26 +4,28 @@ module chapter2.dirichlet where
 
 open import additive-group using (AdditiveCommMonoid)
 open import base
+open import chapter2.divisors
+open import chapter2.mobius
+open import chapter2.partition
+open import div
 open import equality
 open import equivalence
-open import semiring
 open import fin
-open import hlevel.base
+open import finite-commutative-monoid
+open import finite-commutative-monoid.sigma
 open import finset
+open import finset.instances.sigma
+open import finsum
+open import finsum.arithmetic
+open import finsum.sigma
+open import funext
+open import hlevel.base
+open import isomorphism
 open import nat
 open import order
 open import order.instances.nat
-open import finset.instances.sigma
-open import finsum
-open import finsum.sigma
-open import finsum.arithmetic
-open import isomorphism
-open import chapter2.mobius
-open import chapter2.divisors
-open import chapter2.partition
+open import semiring
 open import sigma.base
-open import div
-open import funext
 
 open EqReasoning
 
@@ -166,7 +168,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
     ⊗-commute {f} {g} {n} =
       begin
         finiteSumᵉ (FinSet-Divisor n) (\d -> f (divisor->nat⁺ n d) S.* g (divisor->nat⁺' n d))
-      ==< finiteSumᵉ-convert _ _ (Divisors-flip-eq n) _ >
+      ==< finiteMerge-convert (Divisors-flip-eq n) >
         finiteSumᵉ (FinSet-Divisor n)
           (\d -> f (fst (divisor->nat⁺' n d) , _) S.*
                  g (fst (divisor->nat⁺ n d)  , _))
@@ -201,7 +203,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
     ⊗-eval' {f} {g} {n} =
       begin
         finiteSumᵉ (FinSet-Divisor n) (\d -> f (divisor->nat⁺ n d) S.* g (divisor->nat⁺' n d))
-      ==< finiteSumᵉ-convert _ _ (equiv⁻¹ (Divisor-PairedDivisor-eq n)) _ >
+      ==< finiteMerge-convert (equiv⁻¹ (Divisor-PairedDivisor-eq n)) >
         finiteSumᵉ (FinSet-PairedDivisor n) _
       ==< cong (finiteSumᵉ (FinSet-PairedDivisor n))
                (funExt (\((i , j) , _) ->
@@ -227,21 +229,21 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
                  (cong (h j S.*_) (⊗-eval' {f} {g}) >=> sym finiteSum-*))) >
         finiteSumᵉ (FinSet-PairedDivisor n) (\((i , j) , _) ->
           finiteSumᵉ (FinSet-PairedDivisor i) (\((i2 , j2) , _) -> h j S.* (f j2 S.* g i2)))
-      ==< sym (finiteSum-Σ (FinSet-PairedDivisor n) (\((i , j) , _) -> (FinSet-PairedDivisor i)) _) >
+      ==< sym (finiteMergeᵉ-Σ (FinSet-PairedDivisor n) (\((i , j) , _) -> (FinSet-PairedDivisor i))) >
         finiteSumᵉ (FinSet-Σ (FinSet-PairedDivisor n) (\((i , j) , _) -> (FinSet-PairedDivisor i)))
           (\(((i , j) , _) , ((i2 , j2) , _)) -> h j S.* (f j2 S.* g i2))
-      ==< finiteSumᵉ-convert _ _ (equiv⁻¹ (PairedPairedDivisor-TripledDivisor-eq n)) _ >
+      ==< finiteMerge-convert (equiv⁻¹ (PairedPairedDivisor-TripledDivisor-eq n)) >
         finiteSumᵉ (FinSet-TripledDivisor n) (\(((i2 , j2) , j) , _) -> h j S.* (f j2 S.* g i2))
-      ==< finiteSumᵉ-convert _ _ (equiv⁻¹ (TripledDivisor-auto n)) _ >
+      ==< finiteMerge-convert (equiv⁻¹ (TripledDivisor-auto n)) >
         finiteSumᵉ (FinSet-TripledDivisor n) (\(((i2 , j2) , j) , _) -> h i2 S.* (f j S.* g j2))
       ==< cong (finiteSumᵉ (FinSet-TripledDivisor n))
                (funExt (\(((i2 , j2) , j) , _) ->
                  (S.*-commute >=> S.*-assoc))) >
         finiteSumᵉ (FinSet-TripledDivisor n) (\(((i2 , j2) , j) , _) -> f j S.* (g j2 S.* h i2))
-      ==< sym (finiteSumᵉ-convert _ _ (equiv⁻¹ (PairedPairedDivisor-TripledDivisor-eq n)) _) >
+      ==< sym (finiteMerge-convert (equiv⁻¹ (PairedPairedDivisor-TripledDivisor-eq n))) >
         finiteSumᵉ (FinSet-Σ (FinSet-PairedDivisor n) (\((i , j) , _) -> (FinSet-PairedDivisor i)))
           (\(((i , j) , _) , ((i2 , j2) , _)) -> f j S.* (g j2 S.* h i2))
-      ==< finiteSum-Σ (FinSet-PairedDivisor n) (\((i , j) , _) -> (FinSet-PairedDivisor i)) _ >
+      ==< finiteMergeᵉ-Σ (FinSet-PairedDivisor n) (\((i , j) , _) -> (FinSet-PairedDivisor i)) >
         finiteSumᵉ (FinSet-PairedDivisor n) (\((i , j) , _) ->
           finiteSumᵉ (FinSet-PairedDivisor i) (\((i2 , j2) , _) -> f j S.* (g j2 S.* h i2)))
       ==< sym (cong (finiteSumᵉ (FinSet-PairedDivisor n))

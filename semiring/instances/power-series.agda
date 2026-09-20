@@ -11,6 +11,7 @@ open import fin.sum-triple
 open import finite-commutative-monoid
 open import finite-commutative-monoid.instances
 open import finite-commutative-monoid.small
+open import finite-commutative-monoid.sigma
 open import finite-commutative-monoid.sum-pair
 open import finset.instances.sum-pair
 open import finset.instances.sum-triple
@@ -39,7 +40,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
       *-PS-left-zero {power-series f} = PowerSeries-path inner
         where
         inner : (n : Nat) -> finiteSum (\ ((fin-pair+ i j _) : FinPair+ n) -> 0# * f j) == 0#
-        inner n = finiteMerge-ε _ (\ _ -> *-left-zero)
+        inner n = finiteMerge-ε (\ _ -> *-left-zero)
 
       *-PS-left-one : {p : PowerSeries D} -> *-PS 1-PS p == p
       *-PS-left-one {power-series f} = PowerSeries-path inner
@@ -49,18 +50,18 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
 
         inner : (n : Nat) -> finiteSum (\ ((fin-pair+ i j _) : FinPair+ n) -> f₁ i * f j) == f n
         inner zero =
-          finiteMerge-isContr _ isContr-FinPair+-0 >=>
+          finiteMerge-isContr isContr-FinPair+-0 >=>
           *-left-one
         inner (suc n) =
-          finiteMerge-FinPair+-split₁ _ _ >=>
+          finiteMerge-FinPair+-split₁ >=>
           +-left *-left-one >=>
-          +-right (finiteMerge-ε _ (\_ -> *-left-zero)) >=>
+          +-right (finiteMerge-ε (\_ -> *-left-zero)) >=>
           +-right-zero
 
       *-PS-commute : {p1 p2 : PowerSeries D} -> *-PS p1 p2 == *-PS p2 p1
       *-PS-commute =
         PowerSeries-path (\n ->
-          finiteMerge-convert-iso _ FinPair+-swap _ >=>
+          finiteMerge-convert-iso FinPair+-swap >=>
           cong finiteSum (funExt (\_ -> *-commute)))
 
       *-PS-distrib-+-right : {p1 p2 p3 : PowerSeries D} ->
@@ -68,7 +69,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
       *-PS-distrib-+-right =
         PowerSeries-path (\n ->
           cong finiteSum (funExt (\_ -> *-distrib-+-right)) >=>
-          finiteMerge-split _)
+          finiteMerge-split)
 
       *-PS-assoc : {p1 p2 p3 : PowerSeries D} -> *-PS (*-PS p1 p2) p3 == *-PS p1 (*-PS p2 p3)
       *-PS-assoc {power-series f1} {power-series f2} {power-series f3} =
@@ -85,8 +86,8 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
           triple1 n
         dir1 n =
           cong finiteSum (funExt (\_ -> sym finiteSum-*)) >=>
-          sym (finiteSum-Σ _ _ _) >=>
-          finiteMergeᵉ-convert-iso _ _ _ FinTriple+-split₁ _
+          sym (finiteMergeᵉ-Σ _ _) >=>
+          finiteMerge-convert-iso FinTriple+-split₁
 
         dir2 : (n : ℕ) ->
           finiteSum (\ ((fin-pair+ ij k _) : FinPair+ n) ->
@@ -95,8 +96,8 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
         dir2 n =
           cong finiteSum (funExt (\_ -> *-commute >=> sym finiteSum-* >=>
                                         cong finiteSum (funExt (\_ -> *-commute)))) >=>
-          sym (finiteSum-Σ _ _ _) >=>
-          finiteMergeᵉ-convert-iso _ _ _ FinTriple+-split₂ _
+          sym (finiteMergeᵉ-Σ _ _) >=>
+          finiteMerge-convert-iso FinTriple+-split₂
 
         triple-path : (n : ℕ) -> triple2 n == triple1 n
         triple-path n = cong finiteSum (funExt (\_ -> *-assoc))

@@ -23,7 +23,7 @@ open import type-algebra
 
 
 
-module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
+module _ {ℓD : Level} {D : Type ℓD} {CM : CommMonoid D} where
   open CommMonoid CM
 
   private
@@ -68,17 +68,17 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
 
     abstract
       finiteMerge-partition :
-        (f : B -> D) ->
+        {f : B -> D} ->
         finiteMerge' f ==
         finiteMerge' (\i -> (finiteMergeᵉ' (FP i) (f ∘ fst)))
-      finiteMerge-partition f =
-        finiteMergeᵉ-convert CM FB (FinSet-Σ fS FP) (equiv⁻¹ (B≃ΣP-rev >eq> ΣP-rev≃ΣP)) f >=>
-        finiteMerge-Σ CM fS FP (\x -> f (fst (snd x)))
+      finiteMerge-partition {f} =
+        finiteMerge-convert (equiv⁻¹ (B≃ΣP-rev >eq> ΣP-rev≃ΣP)) >=>
+        finiteMergeᵉ-Σ fS FP
 
   module _ {ℓB ℓS ℓP : Level}
            {B : Type ℓB} {{FinSetStr-B : FinSetStr B}}
            (bin-partition : BinaryPartition B ℓS ℓP)
-           (f : B -> D)
+           {f : B -> D}
            where
     private
       FB : FinSet ℓB
@@ -104,14 +104,14 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
         finiteMerge' f ==
         (finiteMergeᵉ' (FP' true) f₁) ∙ (finiteMergeᵉ' (FP' false) f₂)
       finiteMerge-binary-partition =
-        finiteMerge-partition partition f >=>
-        finiteMerge-2elem CM (equivToIso (snd bin-partition))
+        finiteMerge-partition partition >=>
+        finiteMerge-2elem (equivToIso (snd bin-partition))
 
   module _ {ℓI ℓS : Level} {I : Type ℓI} {{FinSetStr-I : FinSetStr I}}
            (S : Subtype I ℓS) (DetS : Detachable S)
            {{FinSetStr-∈ : FinSetStr (∈-Subtype S)}}
            {{FinSetStr-∉ : FinSetStr (∉-Subtype S)}}
-           (f : I -> D) where
+           {f : I -> D} where
     private
       FI : FinSet ℓI
       FI = I , isFinSetⁱ
@@ -124,6 +124,6 @@ module _ {ℓD : Level} {D : Type ℓD} (CM : CommMonoid D) where
     abstract
       finiteMerge-detachable : finiteMerge' f == finiteMerge' f₁ ∙ finiteMerge' f₂
       finiteMerge-detachable =
-        finiteMerge-binary-partition (Detachable->BinaryPartition S DetS) f >=>
+        finiteMerge-binary-partition (Detachable->BinaryPartition S DetS) >=>
         cong2 (\fs1 fs2 -> finiteMergeᵉ' (_ , fs1) f₁ ∙ finiteMergeᵉ' (_ , fs2) f₂)
               (isProp-isFinSet _ _) (isProp-isFinSet _ _)

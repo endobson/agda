@@ -13,6 +13,7 @@ open import fin.sum-pair.triangle
 open import finite-commutative-monoid
 open import finite-commutative-monoid.dependent-split
 open import finite-commutative-monoid.instances
+open import finite-commutative-monoid.sigma
 open import finite-commutative-semigroup.minmax
 open import finset
 open import finset.instances
@@ -100,9 +101,9 @@ opaque
                 finiteSum (\((k , _) : Fin j) -> a i * b k)) ==
               finiteSum (\((k , _) : Fin n) ->
                 finiteSum (\((fin-pair+ i j _) : FinPair+ k) -> a i * b j))
-      path2 = sym (finiteSum-Σ _ _ _) >=>
-              finiteMergeᵉ-convert-iso _ _ _ Fin-FinPair+-triangle-Iso _ >=>
-              finiteSum-Σ _ _ _
+      path2 = sym (finiteMergeᵉ-Σ _ _) >=>
+              finiteMerge-convert-iso Fin-FinPair+-triangle-Iso >=>
+              finiteMergeᵉ-Σ _ _
 
     E : Sequence ℝ
     E n = finiteSum (\ ((fin-pair+ i j _) : FinPair+ n) -> a i * (diff limB (B j))) +
@@ -117,8 +118,8 @@ opaque
                        *-commute >=>
                        sym finiteSum-* >=>
                        cong finiteSum (funExt (\_ -> *-commute)) >=>
-                       finiteMerge-convert-iso _ FinPair+-Fin-Iso _) >=>
-              sym (finiteMerge-split _) >=>
+                       finiteMerge-convert-iso FinPair+-Fin-Iso) >=>
+              sym finiteMerge-split >=>
               cong finiteSum (funExt (\(fin-pair+ i j _) -> sym *-distrib-+-left)))
 
     sum-absAs : ℝ
@@ -296,7 +297,7 @@ opaque
               path : finiteSum (\((fin-pair+ i j _) : FinPair+ n) -> abs (a i * (diff limB (B j)))) ==
                      finiteSumᵉ FS-C1 (\((fin-pair+ i j _ , _) : Case1) -> abs (a i * (diff limB (B j)))) +
                      finiteSumᵉ FS-C2 (\((fin-pair+ i j _ , _) : Case2) -> abs (a i * (diff limB (B j))))
-              path = finiteMerge-dependent-split _ isContr-lt _
+              path = finiteMerge-dependent-split isContr-lt
 
               instance
                 IFS-C1 : FinSetStr Case1
@@ -367,7 +368,7 @@ opaque
                     finiteSum-*
 
                 lt3 : finiteSumᵉ _ (\((fin-pair+ i j _ , _) : Case2) -> abs (a i)) ≤ sum-absAs
-                lt3 = trans-=-≤ (finiteMerge-convert-iso _ (iso⁻¹ C2-iso) _)
+                lt3 = trans-=-≤ (finiteMerge-convert-iso (iso⁻¹ C2-iso))
                                 (partial≤full-absAs _)
 
 

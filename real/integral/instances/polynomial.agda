@@ -52,15 +52,8 @@ IntegralOf-zero a b = record
   f : ℝ -> ℝ
   f _ = 0#
 
-  -- TODO change finiteMerge-ε
   zero-sum : {a b : ℝ} -> (tp : TaggedPartition a b) -> riemann-sum f tp == 0#
-  zero-sum (p , t) = finiteMerge-ε _ elem-path
-    where
-    module p = Partition p
-    module t = Tagging t
-    elem-path : ∀ i -> f (t.t i) * p.width i == 0#
-    elem-path _ = *-left-zero
-
+  zero-sum (p , t) = finiteMerge-ε (\_ -> *-left-zero)
 
   <-case : a < b -> isOrderedIntegral' a b f 0#
   <-case a<b = record

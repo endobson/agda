@@ -28,7 +28,7 @@ opaque
     p1 n = *-right *-left-zero >=> *-right-zero
 
     p2 : ∀ n -> partial-sums (exp-terms 0# ∘ suc) n == 0#
-    p2 n = finiteMerge-ε _ (\(i , _) -> p1 i)
+    p2 n = finiteMerge-ε (\(i , _) -> p1 i)
     p3 : ∀ n -> partial-sums (exp-terms 0#) (suc n) == 1#
     p3 n = partial-sums-suc >=>
            +-right (p2 n) >=>

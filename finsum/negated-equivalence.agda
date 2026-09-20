@@ -32,7 +32,7 @@ module _ {ℓD ℓ< : Level} {D : Type ℓD} {D< : Rel D ℓ<}
       finiteSum-negated-equivalence eq {f} p = antisym-≤ lt2 lt1
         where
         path1 : finiteSum f == - finiteSum f
-        path1 = finiteMerge-convert _ eq f >=>
+        path1 = finiteMerge-convert eq >=>
                 cong finiteSum (funExt p) >=>
                 finiteSum--
 

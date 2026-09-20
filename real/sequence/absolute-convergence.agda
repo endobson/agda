@@ -134,7 +134,7 @@ private
             path2 : (partial-sums s n) ==
                     (finiteSum (\ (((k , _) , _) : (∈-Subtype S)) -> s k)) +
                     (finiteSum (\ (((k , _) , _) : (∉-Subtype S)) -> s k))
-            path2 = finiteMerge-detachable _ S DetS _
+            path2 = finiteMerge-detachable S DetS
 
             path3 : (finiteSum (\ (((k , _) , _) : (∈-Subtype S)) -> s k)) ==
                     (finiteSum (\ (k : Fin n) -> indicator S DetS k * s (Fin.i k)))
@@ -142,7 +142,7 @@ private
 
             path4 : (finiteSum (\ (((k , _) , _) : (∉-Subtype S)) -> s k)) ==
                     partial-sums s N
-            path4 = finiteMerge-convert _ (equiv⁻¹ ∉S≃FinN) _
+            path4 = finiteMerge-convert (equiv⁻¹ ∉S≃FinN)
 
             path5 : (diff (partial-sums s N) (partial-sums s n)) ==
                     (finiteSum (\ (k : Fin n) -> indicator S DetS k * s (Fin.i k)))
@@ -194,7 +194,7 @@ private
 
       path2 : finiteSum (\ ((k , _) : Fin i) -> abs (s k)) ==
               finiteSum (\ (((k , _) , _) : (∈-Subtype S')) -> abs (permute-seq p s k))
-      path2 = finiteMerge-convert _ (equiv⁻¹ (Fin-i≃∈S >eq> ∈S≃∈S')) _
+      path2 = finiteMerge-convert (equiv⁻¹ (Fin-i≃∈S >eq> ∈S≃∈S'))
 
       path3 : finiteSum (\ (((k , _) , _) : (∈-Subtype S')) -> abs (permute-seq p s k)) ==
               finiteSum (\ (k : Fin j) -> (indicator S' DetS' k * abs (permute-seq p s (Fin.i k))))
@@ -415,15 +415,15 @@ opaque
 
               opaque
                 path1 : v1 == v2 + v3
-                path1 = finiteMerge-detachable _ S1 DetS1 (permute-seq p s ∘ Fin.i)
+                path1 = finiteMerge-detachable S1 DetS1
 
               opaque
                 path2 : v2 == v4
-                path2 = sym (finiteMerge-convert _ (equiv⁻¹ (eq2 >eq> ∈S2≃∈S1)) _)
+                path2 = sym (finiteMerge-convert (equiv⁻¹ (eq2 >eq> ∈S2≃∈S1)))
 
               opaque
                 path3 : v3 == v5
-                path3 = sym (finiteMerge-convert _ ∉S1≃∈S3 _)
+                path3 = sym (finiteMerge-convert ∉S1≃∈S3)
 
               opaque
                 path4 : v5 == v6

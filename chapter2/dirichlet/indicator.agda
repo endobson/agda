@@ -45,7 +45,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
     paths : (n : Nat⁺) -> (Ind ⊗ f) n == f n
     paths n =
       ⊗-eval >=>
-      finiteMerge-detachable CM D1 Det-D1 g >=>
+      finiteMerge-detachable D1 Det-D1 >=>
       cong2 _+_ p1 p2 >=>
       +-right-zero
       where
@@ -83,7 +83,7 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
         (\d2 -> ΣProp-path (isSetNat _ _) (ΣProp-path (isPropDiv' n) (sym (snd d2))))
 
       p1 : finiteMerge CM g₁ == f n
-      p1 = finiteMerge-isContr CM isContr-D1' >=>
+      p1 = finiteMerge-isContr isContr-D1' >=>
            *-right (cong f (ΣProp-path isPropPos' refl)) >=>
            *-left-one
 
@@ -93,4 +93,4 @@ module _ {ℓD : Level} {D : Type ℓD} {{ACM : AdditiveCommMonoid D}} {{S : Sem
       p2'-paths ((suc (suc _) , _) , _) = *-left-zero
 
       p2 : finiteMerge CM g₂ == 0#
-      p2 = finiteMerge-ε CM p2'-paths
+      p2 = finiteMerge-ε p2'-paths
