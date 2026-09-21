@@ -165,3 +165,8 @@ opaque
   isEmbedding-Image-eq {A = A} {B = B} {f = f} embed-f =
     equiv⁻¹ (Σfibers-eq f) >eq>
     existential-eq (\b -> equiv⁻¹ (∥-Prop-eq (eqFun isEmbedding-eq-hasPropFibers embed-f b)))
+
+
+module _ {f : A -> B} where
+  isEmbedding->isInjective : isEmbedding f -> isInjective f
+  isEmbedding->isInjective emb {a₁} {a₂} = isEqInv (emb a₁ a₂)
