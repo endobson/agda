@@ -31,6 +31,7 @@ open import hlevel.base
 open import hlevel.sum
 open import isomorphism
 open import metric-space
+open import metric-space.cauchy
 open import metric-space.instances.real
 open import nat
 open import nat.order
@@ -52,6 +53,7 @@ open import real.rational
 open import real.sequence.limit
 open import real.sequence.limit.arithmetic
 open import real.sequence.limit.zero
+open import real.sequence.cauchy
 open import real.series
 open import real.subspace
 open import ring
@@ -405,3 +407,40 @@ opaque
     isLimit-C =
       subst2 isLimit (sym (funExt C=D >=> funExt D=E)) (+-left-zero)
         (+-preserves-limit isLimit-E1 (*₂-preserves-limit isLimit-A'))
+
+
+
+opaque
+  isAbsConvergentSeries-cauchy-product : {s1 s2 : Sequence ℝ} ->
+    isAbsConvergentSeries s1 ->
+    isAbsConvergentSeries s2 ->
+    isAbsConvergentSeries (cauchy-product s1 s2)
+  isAbsConvergentSeries-cauchy-product {s₁} {s₂} ac₁ ac₂ =
+    conv₃
+    where
+    s₃ : Sequence ℝ
+    s₃ = abs ∘ (cauchy-product s₁ s₂)
+
+    s₄ : Sequence ℝ
+    s₄ = cauchy-product (abs ∘ s₁) (abs ∘ s₂)
+
+    conv₄ : isConvergentSeries s₄
+    conv₄ = _ , isLimit-cauchy-product (snd ac₁) (snd ac₂) ac₁'
+      where
+      ac₁' : isAbsConvergentSeries (abs ∘ s₁)
+      ac₁' = subst isConvergentSeries s₁-path ac₁
+        where
+        s₁-path : abs ∘ s₁ == abs ∘ abs ∘ s₁
+        s₁-path = funExt (\i -> sym (abs-0≤-path abs-0≤))
+
+    s₃≤s₄ : ∀Largeℕ (\i -> abs (s₃ i) ≤ s₄ i)
+    s₃≤s₄ = ∣ 0 , lt ∣
+      where
+      lt : ∀ i -> 0 ≤ i -> abs (s₃ i) ≤ s₄ i
+      lt i _ =
+        trans-=-≤ (abs-0≤-path abs-0≤)
+          (trans-≤-= finiteSum-abs≤
+            (cong finiteSum (funExt (\_ -> abs-distrib-*))))
+
+    conv₃ : isConvergentSeries s₃
+    conv₃ = squeeze-abs-isConvergentSeries s₃≤s₄ conv₄
