@@ -83,12 +83,46 @@ module _
   -- (lim-sup : isLimitSuperior (\i -> nthRoot (suc i) (abs⁰⁺ (c (suc i)))) 0#)
   where
   private
+    l' : ℝ
+    l' = ℝ1/ (lim , inj-r 0<lim)
     S : Subtype ℝ ℓ-one
-    S x = abs x < ℝ1/ (lim , inj-r 0<lim) , isProp-<
+    S x = abs x < l' , isProp-<
+    S∈ : Type ℓ-one
+    S∈ = Subspace S
+
+    term : (x : ℝ) (i : ℕ) -> ℝ
+    term x i = c i * (x ^ℕ i)
+
+
+    term-abs-bounded :
+      ∀ ((y , _) : S∈) -> ∃[ b ∈ ℝ ] ((0# ≤ b × b < 1#) ×
+                                      ∀Largeℕ (\i -> abs (term y i) ≤ (b ^ℕ i)))
+    term-abs-bounded = magic
+
+    module _ (x : ℝ) (b : ℝ) (0≤b : 0# ≤ b) (b<1 : b < 1#) where
+      bound->convergent : ∀Largeℕ (\i -> abs (term x i) ≤ (b ^ℕ i)) ->
+                          isConvergentSeries (term x)
+      bound->convergent bound = squeeze-abs-isConvergentSeries bound isConvergent-b
+        where
+        isConvergent-b : isConvergentSeries (\i -> (b ^ℕ i))
+        isConvergent-b = isConvergentSeries-geometric-sequence (b , trans-=-< (abs-0≤-path 0≤b) b<1)
+
+
+
+
+
+
+    term-convergent : ∀ ((y , _) : S∈) -> isConvergentSeries (term y)
+    term-convergent y =
+      unsquash isProp-isConvergentSequence
+        (∥-map (\ (b , (0≤b , b<1) , bound) -> bound->convergent _ b 0≤b b<1 bound)
+               (term-abs-bounded y))
 
   restricted-eval-power-series/cauchy-hadamard :
-    Σ (Subspace S -> ℝ) (isRestrictedPowerSeriesEval p S)
-  restricted-eval-power-series/cauchy-hadamard = magic
+    Σ (S∈ -> ℝ) (isRestrictedPowerSeriesEval p S)
+  restricted-eval-power-series/cauchy-hadamard =
+    (\y -> fst (term-convergent y)) ,
+    record { limit = \y -> snd (term-convergent y) }
 
   -- isLimit-eval-cauchy-hadamard-power-series :
   --   ∀ (x : ℝ) -> isLimit (partial-sums (\i -> c i × x ^ℕ i))

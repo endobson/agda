@@ -122,6 +122,12 @@ module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
     ∀ a₀ -> ∃[ δ₀ ∈ ℝ⁺ ] (isUniformlyContinuous (restrict f (εBallAtS δ₀ a₀)))
 
 
+  isProp-isLocallyUniformlyContinuous : {f : A -> B} -> isProp (isLocallyUniformlyContinuous f)
+  isProp-isLocallyUniformlyContinuous =
+    isPropΠ (\_ -> squash)
+
+
+
 module _ {ℓA ℓB : Level} {A : Type ℓA} {B : Type ℓB}
          {{MS-A : MetricSpaceStr A}} {{MS-B : MetricSpaceStr B}} where
   opaque
